@@ -1,1706 +1,1318 @@
-Return-Path: <SRS0=5xsV=SD=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=mGMX=SE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B82C10F05
-	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 21:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAE13C4360F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Apr 2019 19:02:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0D06F208E4
-	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 21:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1554152597;
-	bh=I4bSQjsjiSVh2F13zDFAKNSLgqoj+YUS9coblc1D4J8=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=KGY3j5+KuYRA2j+UWheILP7GE0toUoHnezmMsUZWbVOO7U/aU4x6ftODlm62Jlnkl
-	 Zdsy1lVxIFbVHt8OnQuubWJC9PGif13CGtwoHsucAKSMiXhFBT+aZ7uaWfR7r/dxLM
-	 rgUbkXcR0hVRR1QjuN0ExrIM+yW2ZTHe0nvm9wIA=
+	by mail.kernel.org (Postfix) with ESMTP id 5A8A22084B
+	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Apr 2019 19:02:01 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JEJLt3ET"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728027AbfDAVDJ (ORCPT
+        id S1729139AbfDBTCA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 1 Apr 2019 17:03:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725878AbfDAVDJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 1 Apr 2019 17:03:09 -0400
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9E202171F;
-        Mon,  1 Apr 2019 21:03:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1554152584;
-        bh=I4bSQjsjiSVh2F13zDFAKNSLgqoj+YUS9coblc1D4J8=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=EO4q9htKsefyiakyIw6zlKG1we8BYKvuJeB7p4xF7N61zesjPr3QqwFGLRwsuNAeR
-         gs6xlKPo5V3fiz85OsoL02pkQ0gR4MG+dxCRV9xhRry/p18kaV18SFD806o46iHZVh
-         gE3dFEN+kVziq60VXlOCBkJCdnfqiPh0/ikFQ2iY=
-Received: by mail-wr1-f46.google.com with SMTP id y13so13860911wrd.3;
-        Mon, 01 Apr 2019 14:03:03 -0700 (PDT)
-X-Gm-Message-State: APjAAAXjf3p/vFHjVbff4AEDTHfXvICZnBBIVYtYxeMjti5OA8uTZzgb
-        F8jLPYJ4YZYYec0iki8sADYRSxA5wiExwDle2YY=
-X-Google-Smtp-Source: APXvYqzJgRICfCMJzSYqAOyf2FzvpnWmGQzavLuymg0joqdqdoDOW1Dhfl0+HsnDuS1qyLZtYv+r6jTv5l0VlZLOLuo=
-X-Received: by 2002:adf:f5c7:: with SMTP id k7mr41127064wrp.197.1554152582122;
- Mon, 01 Apr 2019 14:03:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-17-fparent@baylibre.com>
-In-Reply-To: <20190323211612.860-17-fparent@baylibre.com>
-From:   Sean Wang <sean.wang@kernel.org>
-Date:   Mon, 1 Apr 2019 14:02:49 -0700
-X-Gmail-Original-Message-ID: <CAGp9Lzqj6NE2JH51S93=oY8BNv-R5F-Yh4L2yvfe_EryJRnfEQ@mail.gmail.com>
-Message-ID: <CAGp9Lzqj6NE2JH51S93=oY8BNv-R5F-Yh4L2yvfe_EryJRnfEQ@mail.gmail.com>
-Subject: Re: [PATCH 16/24] pinctrl: mediatek: Add MT8516 Pinctrl driver
-To:     Fabien Parent <fparent@baylibre.com>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        =?UTF-8?B?UnlkZXIgTGVlICjmnY7luproq7op?= <ryder.lee@mediatek.com>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        wenzhen.yu@mediatek.com, chaotian.jing@mediatek.com,
-        yong.mao@mediatek.com, jjian.zhou@mediatek.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+        Tue, 2 Apr 2019 15:02:00 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34155 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728945AbfDBTCA (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 2 Apr 2019 15:02:00 -0400
+Received: by mail-pg1-f194.google.com with SMTP id v12so7033878pgq.1;
+        Tue, 02 Apr 2019 12:01:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=iqq8ncZ5ErnSYdXfiX5I/XJ0LgfGRBFZZ7vcHkNk8TU=;
+        b=JEJLt3ETRjznPRoC70wiBzMIFKUEutHHTbAAWTisj00w2J4dzaJ4aDiGoCQOUVxcDg
+         6iACcM6Itv7wBfd6CVjk5LK6fnyGmYOtMxSDAoQDtGuHobZBr4X0l5vY0lcJeWHb2nYB
+         WbTpZvxoXP3ZP6fsIZLwCDfKaF/yL/GUGESL/durel9yp5BHeCUoSQdYRA7SW6FyZmTR
+         QOy+kBRVNAllZ0lXjlM8s609BatDyJIWc2ZnWlCsulB5tTWA1o+jzMgniOOEw3JeHXpO
+         3owdQiCfQMTcsYAh5gmLZMIONrSIL3FUND3pFchVrOfwhIuIFHNH+6eN9SvsiVdpiKhL
+         4/sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=iqq8ncZ5ErnSYdXfiX5I/XJ0LgfGRBFZZ7vcHkNk8TU=;
+        b=pnEjfdl38T+9TfN4Zg/Nv2DMeunrqil4mNaKSA2VAsPYYupHZZJde2f29wbNMIvFiS
+         oYkGJodhhz98cC50oeuaMFWHpTkBkRlTKiD83nZMV8w4ssjGyJa6YkRgVWkWLvPm+qlS
+         QiM8h03Rjvd0iSnbr6blalRCglZpDgER/svDkQM/GI14DYXGZ+IxNic8K3tL5dVGNBZC
+         uwjKTPWzHu95cUs7uPjsX280A7XE5rN2wRU6YyMe2v/QCDahPXNlT2b8UODLWx/NHxE/
+         xmHWrPZ92kNrN+mmsRHJWmyWgjh1+GHewKg0VTvQDXTBgGqa6hcIJpY83GtwfdSgn+kC
+         Hz8Q==
+X-Gm-Message-State: APjAAAX4TaVs+CFO8WMzKNewqv+9Z5vjXZSJAbvAsfGJ7AXO3TNrDS9J
+        he1JXGcy4HMrND4M3gdH5S2entxw
+X-Google-Smtp-Source: APXvYqxAsBJjzvCDy/25ZxrzL+1wV+FLyJaG8jEUaEvxEzgm4VUWr3cmSepzY98aO/7Q0EHh3TMNaA==
+X-Received: by 2002:a62:b61a:: with SMTP id j26mr13218857pff.203.1554231718970;
+        Tue, 02 Apr 2019 12:01:58 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p3sm23948176pfn.167.2019.04.02.12.01.57
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Apr 2019 12:01:57 -0700 (PDT)
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Joel Stanley <joel@jms.id.au>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Wan ZongShun <mcuos.com@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Kukjin Kim <kgene@kernel.org>, Barry Song <baohua@kernel.org>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
+Date:   Tue,  2 Apr 2019 12:01:53 -0700
+Message-Id: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi, Fabien
+Use devm_platform_ioremap_resource to reduce source code size,
+improve readability, and reduce the likelyhood of bugs.
 
-On Sat, Mar 23, 2019 at 2:17 PM Fabien Parent <fparent@baylibre.com> wrote:
->
-> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> ---
->  drivers/pinctrl/mediatek/Kconfig              |    7 +
->  drivers/pinctrl/mediatek/Makefile             |    1 +
->  drivers/pinctrl/mediatek/pinctrl-mt8516.c     |  384 ++++++
->  drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h | 1182 +++++++++++++++++
->  4 files changed, 1574 insertions(+)
->  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mt8516.c
->  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h
->
-> diff --git a/drivers/pinctrl/mediatek/Kconfig b/drivers/pinctrl/mediatek/Kconfig
-> index a005cbccb4f7..26ed5dca1460 100644
-> --- a/drivers/pinctrl/mediatek/Kconfig
-> +++ b/drivers/pinctrl/mediatek/Kconfig
-> @@ -113,6 +113,13 @@ config PINCTRL_MT8183
->         default ARM64 && ARCH_MEDIATEK
->         select PINCTRL_MTK_PARIS
->
-> +config PINCTRL_MT8516
-> +       bool "Mediatek MT8516 pin control"
-> +       depends on OF
-> +       depends on ARM64 || COMPILE_TEST
-> +       default ARM64 && ARCH_MEDIATEK
-> +       select PINCTRL_MTK
-> +
->  # For PMIC
->  config PINCTRL_MT6397
->         bool "Mediatek MT6397 pin control"
-> diff --git a/drivers/pinctrl/mediatek/Makefile b/drivers/pinctrl/mediatek/Makefile
-> index 4b4e2eaf6f2d..a74325abd877 100644
-> --- a/drivers/pinctrl/mediatek/Makefile
-> +++ b/drivers/pinctrl/mediatek/Makefile
-> @@ -17,4 +17,5 @@ obj-$(CONFIG_PINCTRL_MT7623)  += pinctrl-mt7623.o
->  obj-$(CONFIG_PINCTRL_MT7629)   += pinctrl-mt7629.o
->  obj-$(CONFIG_PINCTRL_MT8173)   += pinctrl-mt8173.o
->  obj-$(CONFIG_PINCTRL_MT8183)   += pinctrl-mt8183.o
-> +obj-$(CONFIG_PINCTRL_MT8516)   += pinctrl-mt8516.o
->  obj-$(CONFIG_PINCTRL_MT6397)   += pinctrl-mt6397.o
-> diff --git a/drivers/pinctrl/mediatek/pinctrl-mt8516.c b/drivers/pinctrl/mediatek/pinctrl-mt8516.c
-> new file mode 100644
-> index 000000000000..1e965f119eca
-> --- /dev/null
-> +++ b/drivers/pinctrl/mediatek/pinctrl-mt8516.c
-> @@ -0,0 +1,384 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright (c) 2019 MediaTek Inc.
-> + * Author: Min.Guo <min.guo@mediatek.com>
-> + */
-> +
-> +#include <dt-bindings/pinctrl/mt65xx.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/module.h>
-> +#include <linux/pinctrl/pinctrl.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +
-> +#include "pinctrl-mtk-common.h"
-> +#include "pinctrl-mtk-mt8516.h"
-> +
-> +static const struct mtk_drv_group_desc mt8516_drv_grp[] = {
-> +       /* 0E4E8SR 4/8/12/16 */
-> +       MTK_DRV_GRP(4, 16, 1, 2, 4),
-> +       /* 0E2E4SR  2/4/6/8 */
-> +       MTK_DRV_GRP(2, 8, 1, 2, 2),
-> +       /* E8E4E2  2/4/6/8/10/12/14/16 */
-> +       MTK_DRV_GRP(2, 16, 0, 2, 2)
-> +};
-> +
-> +static const struct mtk_pin_drv_grp mt8516_pin_drv[] = {
-> +       MTK_PIN_DRV_GRP(0, 0xd00, 0, 0),
-> +       MTK_PIN_DRV_GRP(1, 0xd00, 0, 0),
-> +       MTK_PIN_DRV_GRP(2, 0xd00, 0, 0),
-> +       MTK_PIN_DRV_GRP(3, 0xd00, 0, 0),
-> +       MTK_PIN_DRV_GRP(4, 0xd00, 0, 0),
-> +
-> +       MTK_PIN_DRV_GRP(5, 0xd00, 4, 0),
-> +       MTK_PIN_DRV_GRP(6, 0xd00, 4, 0),
-> +       MTK_PIN_DRV_GRP(7, 0xd00, 4, 0),
-> +       MTK_PIN_DRV_GRP(8, 0xd00, 4, 0),
-> +       MTK_PIN_DRV_GRP(9, 0xd00, 4, 0),
-> +       MTK_PIN_DRV_GRP(10, 0xd00, 4, 0),
-> +
-> +       MTK_PIN_DRV_GRP(11, 0xd00, 8, 0),
-> +       MTK_PIN_DRV_GRP(12, 0xd00, 8, 0),
-> +       MTK_PIN_DRV_GRP(13, 0xd00, 8, 0),
-> +
-> +       MTK_PIN_DRV_GRP(14, 0xd00, 12, 2),
-> +       MTK_PIN_DRV_GRP(15, 0xd00, 12, 2),
-> +       MTK_PIN_DRV_GRP(16, 0xd00, 12, 2),
-> +       MTK_PIN_DRV_GRP(17, 0xd00, 12, 2),
-> +
-> +       MTK_PIN_DRV_GRP(18, 0xd10, 0, 0),
-> +       MTK_PIN_DRV_GRP(19, 0xd10, 0, 0),
-> +       MTK_PIN_DRV_GRP(20, 0xd10, 0, 0),
-> +
-> +       MTK_PIN_DRV_GRP(21, 0xd00, 12, 2),
-> +       MTK_PIN_DRV_GRP(22, 0xd00, 12, 2),
-> +       MTK_PIN_DRV_GRP(23, 0xd00, 12, 2),
-> +
-> +       MTK_PIN_DRV_GRP(24, 0xd00, 8, 0),
-> +       MTK_PIN_DRV_GRP(25, 0xd00, 8, 0),
-> +
-> +       MTK_PIN_DRV_GRP(26, 0xd10, 4, 1),
-> +       MTK_PIN_DRV_GRP(27, 0xd10, 4, 1),
-> +       MTK_PIN_DRV_GRP(28, 0xd10, 4, 1),
-> +       MTK_PIN_DRV_GRP(29, 0xd10, 4, 1),
-> +       MTK_PIN_DRV_GRP(30, 0xd10, 4, 1),
-> +
-> +       MTK_PIN_DRV_GRP(31, 0xd10, 8, 1),
-> +       MTK_PIN_DRV_GRP(32, 0xd10, 8, 1),
-> +       MTK_PIN_DRV_GRP(33, 0xd10, 8, 1),
-> +
-> +       MTK_PIN_DRV_GRP(34, 0xd10, 12, 0),
-> +       MTK_PIN_DRV_GRP(35, 0xd10, 12, 0),
-> +
-> +       MTK_PIN_DRV_GRP(36, 0xd20, 0, 0),
-> +       MTK_PIN_DRV_GRP(37, 0xd20, 0, 0),
-> +       MTK_PIN_DRV_GRP(38, 0xd20, 0, 0),
-> +       MTK_PIN_DRV_GRP(39, 0xd20, 0, 0),
-> +
-> +       MTK_PIN_DRV_GRP(40, 0xd20, 4, 1),
-> +
-> +       MTK_PIN_DRV_GRP(41, 0xd20, 8, 1),
-> +       MTK_PIN_DRV_GRP(42, 0xd20, 8, 1),
-> +       MTK_PIN_DRV_GRP(43, 0xd20, 8, 1),
-> +
-> +       MTK_PIN_DRV_GRP(44, 0xd20, 12, 1),
-> +       MTK_PIN_DRV_GRP(45, 0xd20, 12, 1),
-> +       MTK_PIN_DRV_GRP(46, 0xd20, 12, 1),
-> +       MTK_PIN_DRV_GRP(47, 0xd20, 12, 1),
-> +
-> +       MTK_PIN_DRV_GRP(48, 0xd30, 0, 1),
-> +       MTK_PIN_DRV_GRP(49, 0xd30, 0, 1),
-> +       MTK_PIN_DRV_GRP(50, 0xd30, 0, 1),
-> +       MTK_PIN_DRV_GRP(51, 0xd30, 0, 1),
-> +
-> +       MTK_PIN_DRV_GRP(54, 0xd30, 8, 1),
-> +
-> +       MTK_PIN_DRV_GRP(55, 0xd30, 12, 1),
-> +       MTK_PIN_DRV_GRP(56, 0xd30, 12, 1),
-> +       MTK_PIN_DRV_GRP(57, 0xd30, 12, 1),
-> +
-> +       MTK_PIN_DRV_GRP(62, 0xd40, 8, 1),
-> +       MTK_PIN_DRV_GRP(63, 0xd40, 8, 1),
-> +       MTK_PIN_DRV_GRP(64, 0xd40, 8, 1),
-> +       MTK_PIN_DRV_GRP(65, 0xd40, 8, 1),
-> +       MTK_PIN_DRV_GRP(66, 0xd40, 8, 1),
-> +       MTK_PIN_DRV_GRP(67, 0xd40, 8, 1),
-> +
-> +       MTK_PIN_DRV_GRP(68, 0xd40, 12, 2),
-> +
-> +       MTK_PIN_DRV_GRP(69, 0xd50, 0, 2),
-> +
-> +       MTK_PIN_DRV_GRP(70, 0xd50, 4, 2),
-> +       MTK_PIN_DRV_GRP(71, 0xd50, 4, 2),
-> +       MTK_PIN_DRV_GRP(72, 0xd50, 4, 2),
-> +       MTK_PIN_DRV_GRP(73, 0xd50, 4, 2),
-> +
-> +       MTK_PIN_DRV_GRP(100, 0xd50, 8, 1),
-> +       MTK_PIN_DRV_GRP(101, 0xd50, 8, 1),
-> +       MTK_PIN_DRV_GRP(102, 0xd50, 8, 1),
-> +       MTK_PIN_DRV_GRP(103, 0xd50, 8, 1),
-> +
-> +       MTK_PIN_DRV_GRP(104, 0xd50, 12, 2),
-> +
-> +       MTK_PIN_DRV_GRP(105, 0xd60, 0, 2),
-> +
-> +       MTK_PIN_DRV_GRP(106, 0xd60, 4, 2),
-> +       MTK_PIN_DRV_GRP(107, 0xd60, 4, 2),
-> +       MTK_PIN_DRV_GRP(108, 0xd60, 4, 2),
-> +       MTK_PIN_DRV_GRP(109, 0xd60, 4, 2),
-> +
-> +       MTK_PIN_DRV_GRP(110, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(111, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(112, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(113, 0xd70, 0, 2),
-> +
-> +       MTK_PIN_DRV_GRP(114, 0xd70, 4, 2),
-> +
-> +       MTK_PIN_DRV_GRP(115, 0xd60, 12, 2),
-> +
-> +       MTK_PIN_DRV_GRP(116, 0xd60, 8, 2),
-> +
-> +       MTK_PIN_DRV_GRP(117, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(118, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(119, 0xd70, 0, 2),
-> +       MTK_PIN_DRV_GRP(120, 0xd70, 0, 2),
-> +};
-> +
-> +static const struct mtk_pin_spec_pupd_set_samereg mt8516_spec_pupd[] = {
-> +       MTK_PIN_PUPD_SPEC_SR(14, 0xe50, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(15, 0xe60, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(16, 0xe60, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(17, 0xe60, 10, 9, 8),
-> +
-> +       MTK_PIN_PUPD_SPEC_SR(21, 0xe60, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(22, 0xe70, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(23, 0xe70, 6, 5, 4),
-> +
-> +       MTK_PIN_PUPD_SPEC_SR(40, 0xe80, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(41, 0xe80, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(42, 0xe90, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(43, 0xe90, 6, 5, 4),
-> +
-> +       MTK_PIN_PUPD_SPEC_SR(68, 0xe50, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(69, 0xe50, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(70, 0xe40, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(71, 0xe40, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(72, 0xe40, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(73, 0xe50, 2, 1, 0),
-> +
-> +       MTK_PIN_PUPD_SPEC_SR(104, 0xe40, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(105, 0xe30, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(106, 0xe20, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(107, 0xe30, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(108, 0xe30, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(109, 0xe30, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(110, 0xe10, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(111, 0xe10, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(112, 0xe10, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(113, 0xe10, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(114, 0xe20, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(115, 0xe20, 2, 1, 0),
-> +       MTK_PIN_PUPD_SPEC_SR(116, 0xe20, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(117, 0xe00, 14, 13, 12),
-> +       MTK_PIN_PUPD_SPEC_SR(118, 0xe00, 10, 9, 8),
-> +       MTK_PIN_PUPD_SPEC_SR(119, 0xe00, 6, 5, 4),
-> +       MTK_PIN_PUPD_SPEC_SR(120, 0xe00, 2, 1, 0),
-> +};
-> +
-> +static int mt8516_spec_pull_set(struct regmap *regmap, unsigned int pin,
-> +                       unsigned char align, bool isup, unsigned int r1r0)
-> +{
-> +       return mtk_pctrl_spec_pull_set_samereg(regmap, mt8516_spec_pupd,
-> +               ARRAY_SIZE(mt8516_spec_pupd), pin, align, isup, r1r0);
-> +}
-> +
-> +static const struct mtk_pin_ies_smt_set mt8516_ies_set[] = {
-> +       MTK_PIN_IES_SMT_SPEC(0, 6, 0x900, 2),
-> +       MTK_PIN_IES_SMT_SPEC(7, 10, 0x900, 3),
-> +       MTK_PIN_IES_SMT_SPEC(11, 13, 0x900, 12),
-> +       MTK_PIN_IES_SMT_SPEC(14, 17, 0x900, 13),
-> +       MTK_PIN_IES_SMT_SPEC(18, 20, 0x910, 10),
-> +       MTK_PIN_IES_SMT_SPEC(21, 23, 0x900, 13),
-> +       MTK_PIN_IES_SMT_SPEC(24, 25, 0x900, 12),
-> +       MTK_PIN_IES_SMT_SPEC(26, 30, 0x900, 0),
-> +       MTK_PIN_IES_SMT_SPEC(31, 33, 0x900, 1),
-> +       MTK_PIN_IES_SMT_SPEC(34, 39, 0x900, 2),
-> +       MTK_PIN_IES_SMT_SPEC(40, 40, 0x910, 11),
-> +       MTK_PIN_IES_SMT_SPEC(41, 43, 0x900, 10),
-> +       MTK_PIN_IES_SMT_SPEC(44, 47, 0x900, 11),
-> +       MTK_PIN_IES_SMT_SPEC(48, 51, 0x900, 14),
-> +       MTK_PIN_IES_SMT_SPEC(52, 53, 0x910, 0),
-> +       MTK_PIN_IES_SMT_SPEC(54, 54, 0x910, 2),
-> +       MTK_PIN_IES_SMT_SPEC(55, 57, 0x910, 4),
-> +       MTK_PIN_IES_SMT_SPEC(58, 59, 0x900, 15),
-> +       MTK_PIN_IES_SMT_SPEC(60, 61, 0x910, 1),
-> +       MTK_PIN_IES_SMT_SPEC(62, 65, 0x910, 5),
-> +       MTK_PIN_IES_SMT_SPEC(66, 67, 0x910, 6),
-> +       MTK_PIN_IES_SMT_SPEC(68, 68, 0x930, 2),
-> +       MTK_PIN_IES_SMT_SPEC(69, 69, 0x930, 1),
-> +       MTK_PIN_IES_SMT_SPEC(70, 70, 0x930, 6),
-> +       MTK_PIN_IES_SMT_SPEC(71, 71, 0x930, 5),
-> +       MTK_PIN_IES_SMT_SPEC(72, 72, 0x930, 4),
-> +       MTK_PIN_IES_SMT_SPEC(73, 73, 0x930, 3),
-> +       MTK_PIN_IES_SMT_SPEC(100, 103, 0x910, 7),
-> +       MTK_PIN_IES_SMT_SPEC(104, 104, 0x920, 12),
-> +       MTK_PIN_IES_SMT_SPEC(105, 105, 0x920, 11),
-> +       MTK_PIN_IES_SMT_SPEC(106, 106, 0x930, 0),
-> +       MTK_PIN_IES_SMT_SPEC(107, 107, 0x920, 15),
-> +       MTK_PIN_IES_SMT_SPEC(108, 108, 0x920, 14),
-> +       MTK_PIN_IES_SMT_SPEC(109, 109, 0x920, 13),
-> +       MTK_PIN_IES_SMT_SPEC(110, 110, 0x920, 9),
-> +       MTK_PIN_IES_SMT_SPEC(111, 111, 0x920, 8),
-> +       MTK_PIN_IES_SMT_SPEC(112, 112, 0x920, 7),
-> +       MTK_PIN_IES_SMT_SPEC(113, 113, 0x920, 6),
-> +       MTK_PIN_IES_SMT_SPEC(114, 114, 0x920, 10),
-> +       MTK_PIN_IES_SMT_SPEC(115, 115, 0x920, 1),
-> +       MTK_PIN_IES_SMT_SPEC(116, 116, 0x920, 0),
-> +       MTK_PIN_IES_SMT_SPEC(117, 117, 0x920, 5),
-> +       MTK_PIN_IES_SMT_SPEC(118, 118, 0x920, 4),
-> +       MTK_PIN_IES_SMT_SPEC(119, 119, 0x920, 3),
-> +       MTK_PIN_IES_SMT_SPEC(120, 120, 0x920, 2),
-> +       MTK_PIN_IES_SMT_SPEC(121, 124, 0x910, 9),
-> +};
-> +
-> +static const struct mtk_pin_ies_smt_set mt8516_smt_set[] = {
-> +       MTK_PIN_IES_SMT_SPEC(0, 6, 0xA00, 2),
-> +       MTK_PIN_IES_SMT_SPEC(7, 10, 0xA00, 3),
-> +       MTK_PIN_IES_SMT_SPEC(11, 13, 0xA00, 12),
-> +       MTK_PIN_IES_SMT_SPEC(14, 17, 0xA00, 13),
-> +       MTK_PIN_IES_SMT_SPEC(18, 20, 0xA10, 10),
-> +       MTK_PIN_IES_SMT_SPEC(21, 23, 0xA00, 13),
-> +       MTK_PIN_IES_SMT_SPEC(24, 25, 0xA00, 12),
-> +       MTK_PIN_IES_SMT_SPEC(26, 30, 0xA00, 0),
-> +       MTK_PIN_IES_SMT_SPEC(31, 33, 0xA00, 1),
-> +       MTK_PIN_IES_SMT_SPEC(34, 39, 0xA900, 2),
-> +       MTK_PIN_IES_SMT_SPEC(40, 40, 0xA10, 11),
-> +       MTK_PIN_IES_SMT_SPEC(41, 43, 0xA00, 10),
-> +       MTK_PIN_IES_SMT_SPEC(44, 47, 0xA00, 11),
-> +       MTK_PIN_IES_SMT_SPEC(48, 51, 0xA00, 14),
-> +       MTK_PIN_IES_SMT_SPEC(52, 53, 0xA10, 0),
-> +       MTK_PIN_IES_SMT_SPEC(54, 54, 0xA10, 2),
-> +       MTK_PIN_IES_SMT_SPEC(55, 57, 0xA10, 4),
-> +       MTK_PIN_IES_SMT_SPEC(58, 59, 0xA00, 15),
-> +       MTK_PIN_IES_SMT_SPEC(60, 61, 0xA10, 1),
-> +       MTK_PIN_IES_SMT_SPEC(62, 65, 0xA10, 5),
-> +       MTK_PIN_IES_SMT_SPEC(66, 67, 0xA10, 6),
-> +       MTK_PIN_IES_SMT_SPEC(68, 68, 0xA30, 2),
-> +       MTK_PIN_IES_SMT_SPEC(69, 69, 0xA30, 1),
-> +       MTK_PIN_IES_SMT_SPEC(70, 70, 0xA30, 3),
-> +       MTK_PIN_IES_SMT_SPEC(71, 71, 0xA30, 4),
-> +       MTK_PIN_IES_SMT_SPEC(72, 72, 0xA30, 5),
-> +       MTK_PIN_IES_SMT_SPEC(73, 73, 0xA30, 6),
-> +
-> +       MTK_PIN_IES_SMT_SPEC(100, 103, 0xA10, 7),
-> +       MTK_PIN_IES_SMT_SPEC(104, 104, 0xA20, 12),
-> +       MTK_PIN_IES_SMT_SPEC(105, 105, 0xA20, 11),
-> +       MTK_PIN_IES_SMT_SPEC(106, 106, 0xA30, 13),
-> +       MTK_PIN_IES_SMT_SPEC(107, 107, 0xA20, 14),
-> +       MTK_PIN_IES_SMT_SPEC(108, 108, 0xA20, 15),
-> +       MTK_PIN_IES_SMT_SPEC(109, 109, 0xA30, 0),
-> +       MTK_PIN_IES_SMT_SPEC(110, 110, 0xA20, 9),
-> +       MTK_PIN_IES_SMT_SPEC(111, 111, 0xA20, 8),
-> +       MTK_PIN_IES_SMT_SPEC(112, 112, 0xA20, 7),
-> +       MTK_PIN_IES_SMT_SPEC(113, 113, 0xA20, 6),
-> +       MTK_PIN_IES_SMT_SPEC(114, 114, 0xA20, 10),
-> +       MTK_PIN_IES_SMT_SPEC(115, 115, 0xA20, 1),
-> +       MTK_PIN_IES_SMT_SPEC(116, 116, 0xA20, 0),
-> +       MTK_PIN_IES_SMT_SPEC(117, 117, 0xA20, 5),
-> +       MTK_PIN_IES_SMT_SPEC(118, 118, 0xA20, 4),
-> +       MTK_PIN_IES_SMT_SPEC(119, 119, 0xA20, 3),
-> +       MTK_PIN_IES_SMT_SPEC(120, 120, 0xA20, 2),
-> +       MTK_PIN_IES_SMT_SPEC(121, 124, 0xA10, 9),
-> +};
-> +
-> +static int mt8516_ies_smt_set(struct regmap *regmap, unsigned int pin,
-> +               unsigned char align, int value, enum pin_config_param arg)
-> +{
-> +       if (arg == PIN_CONFIG_INPUT_ENABLE)
-> +               return mtk_pconf_spec_set_ies_smt_range(regmap, mt8516_ies_set,
-> +                       ARRAY_SIZE(mt8516_ies_set), pin, align, value);
-> +       else if (arg == PIN_CONFIG_INPUT_SCHMITT_ENABLE)
-> +               return mtk_pconf_spec_set_ies_smt_range(regmap, mt8516_smt_set,
-> +                       ARRAY_SIZE(mt8516_smt_set), pin, align, value);
-> +       return -EINVAL;
-> +}
-> +
-> +static struct mtk_eint_regs mt8516_eint_regs = {
-> +       .stat = 0x000,
-> +       .ack = 0x040,
-> +       .mask = 0x080,
-> +       .mask_set = 0x0c0,
-> +       .mask_clr = 0x100,
-> +       .sens = 0x140,
-> +       .sens_set = 0x180,
-> +       .sens_clr = 0x1c0,
-> +       .soft = 0x200,
-> +       .soft_set = 0x240,
-> +       .soft_clr = 0x280,
-> +       .pol = 0x300,
-> +       .pol_set = 0x340,
-> +       .pol_clr = 0x380,
-> +       .dom_en = 0x400,
-> +       .dbnc_ctrl = 0x500,
-> +       .dbnc_set = 0x600,
-> +       .dbnc_clr = 0x700,
-> +};
-> +
-> +static const struct mtk_pinctrl_devdata mt8516_pinctrl_data = {
-> +       .pins = mtk_pins_mt8516,
-> +       .npins = ARRAY_SIZE(mtk_pins_mt8516),
-> +       .grp_desc = mt8516_drv_grp,
-> +       .n_grp_cls = ARRAY_SIZE(mt8516_drv_grp),
-> +       .pin_drv_grp = mt8516_pin_drv,
-> +       .n_pin_drv_grps = ARRAY_SIZE(mt8516_pin_drv),
-> +       .spec_pull_set = mt8516_spec_pull_set,
-> +       .spec_ies_smt_set = mt8516_ies_smt_set,
-> +       .dir_offset = 0x0000,
-> +       .pullen_offset = 0x0500,
-> +       .pullsel_offset = 0x0600,
-> +       .dout_offset = 0x0100,
-> +       .din_offset = 0x0200,
-> +       .pinmux_offset = 0x0300,
-> +       .type1_start = 125,
-> +       .type1_end = 125,
-> +       .port_shf = 4,
-> +       .port_mask = 0xf,
-> +       .port_align = 4,
-> +       .eint_regs = &mt8516_eint_regs,
+The conversion was done automatically with coccinelle using the
+following semantic patch.
 
-The eint register layout seems definitely the same to the generic one.
-So mt8516_eint_regs struct defintions and the field assignment can be
-dropped.  And then the driver will fall back to use a generic one
-"mtk_generic_eint_regs" which are currently common to all MediaTek
-pinctrls devices. Others look good to me.
+@r@
+identifier res, pdev;
+expression a;
+expression index;
+expression e;
+@@
 
-> +       .eint_hw = {
-> +               .port_mask = 7,
-> +               .ports     = 6,
-> +               .ap_num    = 169,
-> +               .db_cnt    = 64,
-> +       },
-> +};
-> +
-> +static int mt8516_pinctrl_probe(struct platform_device *pdev)
-> +{
-> +       return mtk_pctrl_init(pdev, &mt8516_pinctrl_data, NULL);
-> +}
-> +
-> +static const struct of_device_id mt8516_pctrl_match[] = {
-> +       {
-> +               .compatible = "mediatek,mt8516-pinctrl",
-> +       },
-> +       {}
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, mt8516_pctrl_match);
-> +
-> +static struct platform_driver mtk_pinctrl_driver = {
-> +       .probe = mt8516_pinctrl_probe,
-> +       .driver = {
-> +               .name = "mediatek-mt8516-pinctrl",
-> +               .of_match_table = mt8516_pctrl_match,
-> +               .pm = &mtk_eint_pm_ops,
-> +       },
-> +};
-> +
-> +static int __init mtk_pinctrl_init(void)
-> +{
-> +       return platform_driver_register(&mtk_pinctrl_driver);
-> +}
-> +arch_initcall(mtk_pinctrl_init);
-> diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h b/drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h
-> new file mode 100644
-> index 000000000000..f7a4c6e4a026
-> --- /dev/null
-> +++ b/drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h
-> @@ -0,0 +1,1182 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Copyright (C) 2019 MediaTek Inc.
-> + */
-> +#ifndef __PINCTRL_MTK_MT8516_H
-> +#define __PINCTRL_MTK_MT8516_H
-> +
-> +#include <linux/pinctrl/pinctrl.h>
-> +#include "pinctrl-mtk-common.h"
-> +
-> +static const struct mtk_desc_pin mtk_pins_mt8516[] = {
-> +       MTK_PIN(
-> +               PINCTRL_PIN(0, "EINT0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 0),
-> +               MTK_FUNCTION(0, "GPIO0"),
-> +               MTK_FUNCTION(1, "PWM_B"),
-> +               MTK_FUNCTION(3, "I2S2_BCK"),
-> +               MTK_FUNCTION(4, "EXT_TXD0"),
-> +               MTK_FUNCTION(6, "SQICS"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[6]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(1, "EINT1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 1),
-> +               MTK_FUNCTION(0, "GPIO1"),
-> +               MTK_FUNCTION(1, "PWM_C"),
-> +               MTK_FUNCTION(3, "I2S2_DI"),
-> +               MTK_FUNCTION(4, "EXT_TXD1"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TDO"),
-> +               MTK_FUNCTION(6, "SQISO"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[7]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(2, "EINT2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 2),
-> +               MTK_FUNCTION(0, "GPIO2"),
-> +               MTK_FUNCTION(1, "CLKM0"),
-> +               MTK_FUNCTION(3, "I2S2_LRCK"),
-> +               MTK_FUNCTION(4, "EXT_TXD2"),
-> +               MTK_FUNCTION(5, "CONN_MCU_DBGACK_N"),
-> +               MTK_FUNCTION(6, "SQISI"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[8]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(3, "EINT3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 3),
-> +               MTK_FUNCTION(0, "GPIO3"),
-> +               MTK_FUNCTION(1, "CLKM1"),
-> +               MTK_FUNCTION(3, "SPI_MI"),
-> +               MTK_FUNCTION(4, "EXT_TXD3"),
-> +               MTK_FUNCTION(5, "CONN_MCU_DBGI_N"),
-> +               MTK_FUNCTION(6, "SQIWP"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[9]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(4, "EINT4"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 4),
-> +               MTK_FUNCTION(0, "GPIO4"),
-> +               MTK_FUNCTION(1, "CLKM2"),
-> +               MTK_FUNCTION(3, "SPI_MO"),
-> +               MTK_FUNCTION(4, "EXT_TXC"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TCK"),
-> +               MTK_FUNCTION(6, "CONN_MCU_AICE_JCKC"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[10]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(5, "EINT5"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 5),
-> +               MTK_FUNCTION(0, "GPIO5"),
-> +               MTK_FUNCTION(1, "UCTS2"),
-> +               MTK_FUNCTION(3, "SPI_CSB"),
-> +               MTK_FUNCTION(4, "EXT_RXER"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TDI"),
-> +               MTK_FUNCTION(6, "CONN_TEST_CK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[11]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(6, "EINT6"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 6),
-> +               MTK_FUNCTION(0, "GPIO6"),
-> +               MTK_FUNCTION(1, "URTS2"),
-> +               MTK_FUNCTION(3, "SPI_CLK"),
-> +               MTK_FUNCTION(4, "EXT_RXC"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TRST_B"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[12]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(7, "EINT7"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 7),
-> +               MTK_FUNCTION(0, "GPIO7"),
-> +               MTK_FUNCTION(1, "SQIRST"),
-> +               MTK_FUNCTION(3, "SDA1_0"),
-> +               MTK_FUNCTION(4, "EXT_RXDV"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TMS"),
-> +               MTK_FUNCTION(6, "CONN_MCU_AICE_JMSC"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[13]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(8, "EINT8"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 8),
-> +               MTK_FUNCTION(0, "GPIO8"),
-> +               MTK_FUNCTION(1, "SQICK"),
-> +               MTK_FUNCTION(2, "CLKM3"),
-> +               MTK_FUNCTION(3, "SCL1_0"),
-> +               MTK_FUNCTION(4, "EXT_RXD0"),
-> +               MTK_FUNCTION(5, "ANT_SEL0"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[14]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(9, "EINT9"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 9),
-> +               MTK_FUNCTION(0, "GPIO9"),
-> +               MTK_FUNCTION(1, "CLKM4"),
-> +               MTK_FUNCTION(2, "SDA2_0"),
-> +               MTK_FUNCTION(3, "EXT_FRAME_SYNC"),
-> +               MTK_FUNCTION(4, "EXT_RXD1"),
-> +               MTK_FUNCTION(5, "ANT_SEL1"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[15]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(10, "EINT10"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 10),
-> +               MTK_FUNCTION(0, "GPIO10"),
-> +               MTK_FUNCTION(1, "CLKM5"),
-> +               MTK_FUNCTION(2, "SCL2_0"),
-> +               MTK_FUNCTION(3, "EXT_FRAME_SYNC"),
-> +               MTK_FUNCTION(4, "EXT_RXD2"),
-> +               MTK_FUNCTION(5, "ANT_SEL2"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[16]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(11, "EINT11"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 11),
-> +               MTK_FUNCTION(0, "GPIO11"),
-> +               MTK_FUNCTION(1, "CLKM4"),
-> +               MTK_FUNCTION(2, "PWM_C"),
-> +               MTK_FUNCTION(3, "CONN_TEST_CK"),
-> +               MTK_FUNCTION(4, "ANT_SEL3"),
-> +               MTK_FUNCTION(6, "EXT_RXD3"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[17]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(12, "EINT12"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 12),
-> +               MTK_FUNCTION(0, "GPIO12"),
-> +               MTK_FUNCTION(1, "CLKM5"),
-> +               MTK_FUNCTION(2, "PWM_A"),
-> +               MTK_FUNCTION(3, "SPDIF_OUT"),
-> +               MTK_FUNCTION(4, "ANT_SEL4"),
-> +               MTK_FUNCTION(6, "EXT_TXEN"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[18]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(13, "EINT13"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 13),
-> +               MTK_FUNCTION(0, "GPIO13"),
-> +               MTK_FUNCTION(3, "TSF_IN"),
-> +               MTK_FUNCTION(4, "ANT_SEL5"),
-> +               MTK_FUNCTION(6, "SPDIF_IN"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[19]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(14, "EINT14"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 14),
-> +               MTK_FUNCTION(0, "GPIO14"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO1"),
-> +               MTK_FUNCTION(3, "TDM_RX_MCK"),
-> +               MTK_FUNCTION(4, "ANT_SEL1"),
-> +               MTK_FUNCTION(5, "CONN_MCU_DBGACK_N"),
-> +               MTK_FUNCTION(6, "NCLE"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[8]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(15, "EINT15"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 15),
-> +               MTK_FUNCTION(0, "GPIO15"),
-> +               MTK_FUNCTION(2, "I2S_8CH_LRCK"),
-> +               MTK_FUNCTION(3, "TDM_RX_BCK"),
-> +               MTK_FUNCTION(4, "ANT_SEL2"),
-> +               MTK_FUNCTION(5, "CONN_MCU_DBGI_N"),
-> +               MTK_FUNCTION(6, "NCEB1"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[9]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(16, "EINT16"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 16),
-> +               MTK_FUNCTION(0, "GPIO16"),
-> +               MTK_FUNCTION(2, "I2S_8CH_BCK"),
-> +               MTK_FUNCTION(3, "TDM_RX_LRCK"),
-> +               MTK_FUNCTION(4, "ANT_SEL3"),
-> +               MTK_FUNCTION(5, "CONN_MCU_TRST_B"),
-> +               MTK_FUNCTION(6, "NCEB0"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[10]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(17, "EINT17"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 17),
-> +               MTK_FUNCTION(0, "GPIO17"),
-> +               MTK_FUNCTION(2, "I2S_8CH_MCK"),
-> +               MTK_FUNCTION(3, "TDM_RX_DI"),
-> +               MTK_FUNCTION(4, "IDDIG"),
-> +               MTK_FUNCTION(5, "ANT_SEL4"),
-> +               MTK_FUNCTION(6, "NREB"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[11]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(18, "EINT18"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 18),
-> +               MTK_FUNCTION(0, "GPIO18"),
-> +               MTK_FUNCTION(2, "USB_DRVVBUS"),
-> +               MTK_FUNCTION(3, "I2S3_LRCK"),
-> +               MTK_FUNCTION(4, "CLKM1"),
-> +               MTK_FUNCTION(5, "ANT_SEL3"),
-> +               MTK_FUNCTION(6, "I2S2_BCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[20]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(19, "EINT19"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 19),
-> +               MTK_FUNCTION(0, "GPIO19"),
-> +               MTK_FUNCTION(1, "UCTS1"),
-> +               MTK_FUNCTION(2, "IDDIG"),
-> +               MTK_FUNCTION(3, "I2S3_BCK"),
-> +               MTK_FUNCTION(4, "CLKM2"),
-> +               MTK_FUNCTION(5, "ANT_SEL4"),
-> +               MTK_FUNCTION(6, "I2S2_DI"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[21]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(20, "EINT20"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 20),
-> +               MTK_FUNCTION(0, "GPIO20"),
-> +               MTK_FUNCTION(1, "URTS1"),
-> +               MTK_FUNCTION(3, "I2S3_DO"),
-> +               MTK_FUNCTION(4, "CLKM3"),
-> +               MTK_FUNCTION(5, "ANT_SEL5"),
-> +               MTK_FUNCTION(6, "I2S2_LRCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[22]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(21, "EINT21"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 21),
-> +               MTK_FUNCTION(0, "GPIO21"),
-> +               MTK_FUNCTION(1, "NRNB"),
-> +               MTK_FUNCTION(2, "ANT_SEL0"),
-> +               MTK_FUNCTION(3, "I2S_8CH_DO4"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[31]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(22, "EINT22"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 22),
-> +               MTK_FUNCTION(0, "GPIO22"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO2"),
-> +               MTK_FUNCTION(3, "TSF_IN"),
-> +               MTK_FUNCTION(4, "USB_DRVVBUS"),
-> +               MTK_FUNCTION(5, "SPDIF_OUT"),
-> +               MTK_FUNCTION(6, "NRE_C"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[12]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(23, "EINT23"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 23),
-> +               MTK_FUNCTION(0, "GPIO23"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO3"),
-> +               MTK_FUNCTION(3, "CLKM0"),
-> +               MTK_FUNCTION(4, "IR"),
-> +               MTK_FUNCTION(5, "SPDIF_IN"),
-> +               MTK_FUNCTION(6, "NDQS_C"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[13]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(24, "EINT24"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 24),
-> +               MTK_FUNCTION(0, "GPIO24"),
-> +               MTK_FUNCTION(3, "ANT_SEL1"),
-> +               MTK_FUNCTION(4, "UCTS2"),
-> +               MTK_FUNCTION(5, "PWM_A"),
-> +               MTK_FUNCTION(6, "I2S0_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[0]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(25, "EINT25"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 25),
-> +               MTK_FUNCTION(0, "GPIO25"),
-> +               MTK_FUNCTION(3, "ANT_SEL0"),
-> +               MTK_FUNCTION(4, "URTS2"),
-> +               MTK_FUNCTION(5, "PWM_B"),
-> +               MTK_FUNCTION(6, "I2S_8CH_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[1]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(26, "PWRAP_SPI0_MI"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 26),
-> +               MTK_FUNCTION(0, "GPIO26"),
-> +               MTK_FUNCTION(1, "PWRAP_SPI0_MO"),
-> +               MTK_FUNCTION(2, "PWRAP_SPI0_MI")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(27, "PWRAP_SPI0_MO"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 27),
-> +               MTK_FUNCTION(0, "GPIO27"),
-> +               MTK_FUNCTION(1, "PWRAP_SPI0_MI"),
-> +               MTK_FUNCTION(2, "PWRAP_SPI0_MO")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(28, "PWRAP_INT"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 28),
-> +               MTK_FUNCTION(0, "GPIO28"),
-> +               MTK_FUNCTION(1, "I2S0_MCK"),
-> +               MTK_FUNCTION(4, "I2S_8CH_MCK"),
-> +               MTK_FUNCTION(5, "I2S2_MCK"),
-> +               MTK_FUNCTION(6, "I2S3_MCK")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(29, "PWRAP_SPI0_CK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 29),
-> +               MTK_FUNCTION(0, "GPIO29"),
-> +               MTK_FUNCTION(1, "PWRAP_SPI0_CK")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(30, "PWRAP_SPI0_CSN"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 30),
-> +               MTK_FUNCTION(0, "GPIO30"),
-> +               MTK_FUNCTION(1, "PWRAP_SPI0_CSN")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(31, "RTC32K_CK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 31),
-> +               MTK_FUNCTION(0, "GPIO31"),
-> +               MTK_FUNCTION(1, "RTC32K_CK")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(32, "WATCHDOG"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 32),
-> +               MTK_FUNCTION(0, "GPIO32"),
-> +               MTK_FUNCTION(1, "WATCHDOG")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(33, "SRCLKENA"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 33),
-> +               MTK_FUNCTION(0, "GPIO33"),
-> +               MTK_FUNCTION(1, "SRCLKENA0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(34, "URXD2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 34),
-> +               MTK_FUNCTION(0, "GPIO34"),
-> +               MTK_FUNCTION(1, "URXD2"),
-> +               MTK_FUNCTION(3, "UTXD2"),
-> +               MTK_FUNCTION(4, "DBG_SCL"),
-> +               MTK_FUNCTION(6, "I2S2_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[0]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(35, "UTXD2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 35),
-> +               MTK_FUNCTION(0, "GPIO35"),
-> +               MTK_FUNCTION(1, "UTXD2"),
-> +               MTK_FUNCTION(3, "URXD2"),
-> +               MTK_FUNCTION(4, "DBG_SDA"),
-> +               MTK_FUNCTION(6, "I2S3_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[1]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(36, "MRG_CLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 36),
-> +               MTK_FUNCTION(0, "GPIO36"),
-> +               MTK_FUNCTION(1, "MRG_CLK"),
-> +               MTK_FUNCTION(3, "I2S0_BCK"),
-> +               MTK_FUNCTION(4, "I2S3_BCK"),
-> +               MTK_FUNCTION(5, "PCM0_CLK"),
-> +               MTK_FUNCTION(6, "IR"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[2]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(37, "MRG_SYNC"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 37),
-> +               MTK_FUNCTION(0, "GPIO37"),
-> +               MTK_FUNCTION(1, "MRG_SYNC"),
-> +               MTK_FUNCTION(3, "I2S0_LRCK"),
-> +               MTK_FUNCTION(4, "I2S3_LRCK"),
-> +               MTK_FUNCTION(5, "PCM0_SYNC"),
-> +               MTK_FUNCTION(6, "EXT_COL"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[3]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(38, "MRG_DI"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 38),
-> +               MTK_FUNCTION(0, "GPIO38"),
-> +               MTK_FUNCTION(1, "MRG_DI"),
-> +               MTK_FUNCTION(3, "I2S0_DI"),
-> +               MTK_FUNCTION(4, "I2S3_DO"),
-> +               MTK_FUNCTION(5, "PCM0_DI"),
-> +               MTK_FUNCTION(6, "EXT_MDIO"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[4]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(39, "MRG_DO"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 39),
-> +               MTK_FUNCTION(0, "GPIO39"),
-> +               MTK_FUNCTION(1, "MRG_DO"),
-> +               MTK_FUNCTION(3, "I2S0_MCK"),
-> +               MTK_FUNCTION(4, "I2S3_MCK"),
-> +               MTK_FUNCTION(5, "PCM0_DO"),
-> +               MTK_FUNCTION(6, "EXT_MDC"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[5]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(40, "KPROW0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 40),
-> +               MTK_FUNCTION(0, "GPIO40"),
-> +               MTK_FUNCTION(1, "KPROW0"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[4]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(41, "KPROW1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 41),
-> +               MTK_FUNCTION(0, "GPIO41"),
-> +               MTK_FUNCTION(1, "KPROW1"),
-> +               MTK_FUNCTION(2, "IDDIG"),
-> +               MTK_FUNCTION(3, "EXT_FRAME_SYNC"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[5]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(42, "KPCOL0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 42),
-> +               MTK_FUNCTION(0, "GPIO42"),
-> +               MTK_FUNCTION(1, "KPCOL0"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[6]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(43, "KPCOL1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 43),
-> +               MTK_FUNCTION(0, "GPIO43"),
-> +               MTK_FUNCTION(1, "KPCOL1"),
-> +               MTK_FUNCTION(2, "USB_DRVVBUS"),
-> +               MTK_FUNCTION(3, "EXT_FRAME_SYNC"),
-> +               MTK_FUNCTION(4, "TSF_IN"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[7]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(44, "JTMS"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 44),
-> +               MTK_FUNCTION(0, "GPIO44"),
-> +               MTK_FUNCTION(1, "JTMS"),
-> +               MTK_FUNCTION(2, "CONN_MCU_TMS"),
-> +               MTK_FUNCTION(3, "CONN_MCU_AICE_JMSC")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(45, "JTCK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 45),
-> +               MTK_FUNCTION(0, "GPIO45"),
-> +               MTK_FUNCTION(1, "JTCK"),
-> +               MTK_FUNCTION(2, "CONN_MCU_TCK"),
-> +               MTK_FUNCTION(3, "CONN_MCU_AICE_JCKC")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(46, "JTDI"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 46),
-> +               MTK_FUNCTION(0, "GPIO46"),
-> +               MTK_FUNCTION(1, "JTDI"),
-> +               MTK_FUNCTION(2, "CONN_MCU_TDI")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(47, "JTDO"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 47),
-> +               MTK_FUNCTION(0, "GPIO47"),
-> +               MTK_FUNCTION(1, "JTDO"),
-> +               MTK_FUNCTION(2, "CONN_MCU_TDO")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(48, "SPI_CS"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 48),
-> +               MTK_FUNCTION(0, "GPIO48"),
-> +               MTK_FUNCTION(1, "SPI_CSB"),
-> +               MTK_FUNCTION(3, "I2S0_DI"),
-> +               MTK_FUNCTION(4, "I2S2_BCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[23]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(49, "SPI_CK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 49),
-> +               MTK_FUNCTION(0, "GPIO49"),
-> +               MTK_FUNCTION(1, "SPI_CLK"),
-> +               MTK_FUNCTION(3, "I2S0_LRCK"),
-> +               MTK_FUNCTION(4, "I2S2_DI"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[24]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(50, "SPI_MI"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 50),
-> +               MTK_FUNCTION(0, "GPIO50"),
-> +               MTK_FUNCTION(1, "SPI_MI"),
-> +               MTK_FUNCTION(2, "SPI_MO"),
-> +               MTK_FUNCTION(3, "I2S0_BCK"),
-> +               MTK_FUNCTION(4, "I2S2_LRCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[25]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(51, "SPI_MO"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 51),
-> +               MTK_FUNCTION(0, "GPIO51"),
-> +               MTK_FUNCTION(1, "SPI_MO"),
-> +               MTK_FUNCTION(2, "SPI_MI"),
-> +               MTK_FUNCTION(3, "I2S0_MCK"),
-> +               MTK_FUNCTION(4, "I2S2_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[26]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(52, "SDA1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 52),
-> +               MTK_FUNCTION(0, "GPIO52"),
-> +               MTK_FUNCTION(1, "SDA1_0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(53, "SCL1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 53),
-> +               MTK_FUNCTION(0, "GPIO53"),
-> +               MTK_FUNCTION(1, "SCL1_0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(54, "GPIO54"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 54),
-> +               MTK_FUNCTION(0, "GPIO54"),
-> +               MTK_FUNCTION(2, "PWM_B"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[2]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(55, "I2S_DATA_IN"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 55),
-> +               MTK_FUNCTION(0, "GPIO55"),
-> +               MTK_FUNCTION(1, "I2S0_DI"),
-> +               MTK_FUNCTION(2, "UCTS0"),
-> +               MTK_FUNCTION(3, "I2S3_DO"),
-> +               MTK_FUNCTION(4, "I2S_8CH_DO1"),
-> +               MTK_FUNCTION(5, "PWM_A"),
-> +               MTK_FUNCTION(6, "I2S2_BCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[28]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(56, "I2S_LRCK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 56),
-> +               MTK_FUNCTION(0, "GPIO56"),
-> +               MTK_FUNCTION(1, "I2S0_LRCK"),
-> +               MTK_FUNCTION(3, "I2S3_LRCK"),
-> +               MTK_FUNCTION(4, "I2S_8CH_LRCK"),
-> +               MTK_FUNCTION(5, "PWM_B"),
-> +               MTK_FUNCTION(6, "I2S2_DI"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[29]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(57, "I2S_BCK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 57),
-> +               MTK_FUNCTION(0, "GPIO57"),
-> +               MTK_FUNCTION(1, "I2S0_BCK"),
-> +               MTK_FUNCTION(2, "URTS0"),
-> +               MTK_FUNCTION(3, "I2S3_BCK"),
-> +               MTK_FUNCTION(4, "I2S_8CH_BCK"),
-> +               MTK_FUNCTION(5, "PWM_C"),
-> +               MTK_FUNCTION(6, "I2S2_LRCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[30]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(58, "SDA0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 58),
-> +               MTK_FUNCTION(0, "GPIO58"),
-> +               MTK_FUNCTION(1, "SDA0_0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(59, "SCL0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 59),
-> +               MTK_FUNCTION(0, "GPIO59"),
-> +               MTK_FUNCTION(1, "SCL0_0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(60, "SDA2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 60),
-> +               MTK_FUNCTION(0, "GPIO60"),
-> +               MTK_FUNCTION(1, "SDA2_0"),
-> +               MTK_FUNCTION(2, "PWM_B")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(61, "SCL2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 61),
-> +               MTK_FUNCTION(0, "GPIO61"),
-> +               MTK_FUNCTION(1, "SCL2_0"),
-> +               MTK_FUNCTION(2, "PWM_C")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(62, "URXD0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 62),
-> +               MTK_FUNCTION(0, "GPIO62"),
-> +               MTK_FUNCTION(1, "URXD0"),
-> +               MTK_FUNCTION(2, "UTXD0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(63, "UTXD0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 63),
-> +               MTK_FUNCTION(0, "GPIO63"),
-> +               MTK_FUNCTION(1, "UTXD0"),
-> +               MTK_FUNCTION(2, "URXD0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(64, "URXD1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 64),
-> +               MTK_FUNCTION(0, "GPIO64"),
-> +               MTK_FUNCTION(1, "URXD1"),
-> +               MTK_FUNCTION(2, "UTXD1"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[27]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(65, "UTXD1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 65),
-> +               MTK_FUNCTION(0, "GPIO65"),
-> +               MTK_FUNCTION(1, "UTXD1"),
-> +               MTK_FUNCTION(2, "URXD1"),
-> +               MTK_FUNCTION(7, "DBG_MON_A[31]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(66, "LCM_RST"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 66),
-> +               MTK_FUNCTION(0, "GPIO66"),
-> +               MTK_FUNCTION(1, "LCM_RST"),
-> +               MTK_FUNCTION(3, "I2S0_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[3]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(67, "GPIO67"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 67),
-> +               MTK_FUNCTION(0, "GPIO67"),
-> +               MTK_FUNCTION(3, "I2S_8CH_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[14]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(68, "MSDC2_CMD"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 68),
-> +               MTK_FUNCTION(0, "GPIO68"),
-> +               MTK_FUNCTION(1, "MSDC2_CMD"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO4"),
-> +               MTK_FUNCTION(3, "SDA1_0"),
-> +               MTK_FUNCTION(5, "USB_SDA"),
-> +               MTK_FUNCTION(6, "I2S3_BCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[15]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(69, "MSDC2_CLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 69),
-> +               MTK_FUNCTION(0, "GPIO69"),
-> +               MTK_FUNCTION(1, "MSDC2_CLK"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO3"),
-> +               MTK_FUNCTION(3, "SCL1_0"),
-> +               MTK_FUNCTION(5, "USB_SCL"),
-> +               MTK_FUNCTION(6, "I2S3_LRCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[16]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(70, "MSDC2_DAT0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 70),
-> +               MTK_FUNCTION(0, "GPIO70"),
-> +               MTK_FUNCTION(1, "MSDC2_DAT0"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO2"),
-> +               MTK_FUNCTION(5, "UTXD0"),
-> +               MTK_FUNCTION(6, "I2S3_DO"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[17]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(71, "MSDC2_DAT1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 71),
-> +               MTK_FUNCTION(0, "GPIO71"),
-> +               MTK_FUNCTION(1, "MSDC2_DAT1"),
-> +               MTK_FUNCTION(2, "I2S_8CH_DO1"),
-> +               MTK_FUNCTION(3, "PWM_A"),
-> +               MTK_FUNCTION(4, "I2S3_MCK"),
-> +               MTK_FUNCTION(5, "URXD0"),
-> +               MTK_FUNCTION(6, "PWM_B"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[18]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(72, "MSDC2_DAT2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 72),
-> +               MTK_FUNCTION(0, "GPIO72"),
-> +               MTK_FUNCTION(1, "MSDC2_DAT2"),
-> +               MTK_FUNCTION(2, "I2S_8CH_LRCK"),
-> +               MTK_FUNCTION(3, "SDA2_0"),
-> +               MTK_FUNCTION(5, "UTXD1"),
-> +               MTK_FUNCTION(6, "PWM_C"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[19]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(73, "MSDC2_DAT3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 73),
-> +               MTK_FUNCTION(0, "GPIO73"),
-> +               MTK_FUNCTION(1, "MSDC2_DAT3"),
-> +               MTK_FUNCTION(2, "I2S_8CH_BCK"),
-> +               MTK_FUNCTION(3, "SCL2_0"),
-> +               MTK_FUNCTION(4, "EXT_FRAME_SYNC"),
-> +               MTK_FUNCTION(5, "URXD1"),
-> +               MTK_FUNCTION(6, "PWM_A"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[20]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(74, "TDN3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 74),
-> +               MTK_FUNCTION(0, "GPIO74"),
-> +               MTK_FUNCTION(1, "TDN3")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(75, "TDP3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 75),
-> +               MTK_FUNCTION(0, "GPIO75"),
-> +               MTK_FUNCTION(1, "TDP3")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(76, "TDN2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 76),
-> +               MTK_FUNCTION(0, "GPIO76"),
-> +               MTK_FUNCTION(1, "TDN2")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(77, "TDP2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 77),
-> +               MTK_FUNCTION(0, "GPIO77"),
-> +               MTK_FUNCTION(1, "TDP2")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(78, "TCN"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 78),
-> +               MTK_FUNCTION(0, "GPIO78"),
-> +               MTK_FUNCTION(1, "TCN")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(79, "TCP"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 79),
-> +               MTK_FUNCTION(0, "GPIO79"),
-> +               MTK_FUNCTION(1, "TCP")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(80, "TDN1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 80),
-> +               MTK_FUNCTION(0, "GPIO80"),
-> +               MTK_FUNCTION(1, "TDN1")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(81, "TDP1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 81),
-> +               MTK_FUNCTION(0, "GPIO81"),
-> +               MTK_FUNCTION(1, "TDP1")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(82, "TDN0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 82),
-> +               MTK_FUNCTION(0, "GPIO82"),
-> +               MTK_FUNCTION(1, "TDN0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(83, "TDP0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 83),
-> +               MTK_FUNCTION(0, "GPIO83"),
-> +               MTK_FUNCTION(1, "TDP0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(84, "RDN0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 84),
-> +               MTK_FUNCTION(0, "GPIO84"),
-> +               MTK_FUNCTION(1, "RDN0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(85, "RDP0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 85),
-> +               MTK_FUNCTION(0, "GPIO85"),
-> +               MTK_FUNCTION(1, "RDP0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(86, "RDN1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 86),
-> +               MTK_FUNCTION(0, "GPIO86"),
-> +               MTK_FUNCTION(1, "RDN1")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(87, "RDP1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 87),
-> +               MTK_FUNCTION(0, "GPIO87"),
-> +               MTK_FUNCTION(1, "RDP1")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(88, "RCN"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 88),
-> +               MTK_FUNCTION(0, "GPIO88"),
-> +               MTK_FUNCTION(1, "RCN")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(89, "RCP"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 89),
-> +               MTK_FUNCTION(0, "GPIO89"),
-> +               MTK_FUNCTION(1, "RCP")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(90, "RDN2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 90),
-> +               MTK_FUNCTION(0, "GPIO90"),
-> +               MTK_FUNCTION(1, "RDN2"),
-> +               MTK_FUNCTION(2, "CMDAT8")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(91, "RDP2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 91),
-> +               MTK_FUNCTION(0, "GPIO91"),
-> +               MTK_FUNCTION(1, "RDP2"),
-> +               MTK_FUNCTION(2, "CMDAT9")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(92, "RDN3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 92),
-> +               MTK_FUNCTION(0, "GPIO92"),
-> +               MTK_FUNCTION(1, "RDN3"),
-> +               MTK_FUNCTION(2, "CMDAT4")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(93, "RDP3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 93),
-> +               MTK_FUNCTION(0, "GPIO93"),
-> +               MTK_FUNCTION(1, "RDP3"),
-> +               MTK_FUNCTION(2, "CMDAT5")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(94, "RCN_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 94),
-> +               MTK_FUNCTION(0, "GPIO94"),
-> +               MTK_FUNCTION(1, "RCN_A"),
-> +               MTK_FUNCTION(2, "CMDAT6")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(95, "RCP_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 95),
-> +               MTK_FUNCTION(0, "GPIO95"),
-> +               MTK_FUNCTION(1, "RCP_A"),
-> +               MTK_FUNCTION(2, "CMDAT7")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(96, "RDN1_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 96),
-> +               MTK_FUNCTION(0, "GPIO96"),
-> +               MTK_FUNCTION(1, "RDN1_A"),
-> +               MTK_FUNCTION(2, "CMDAT2"),
-> +               MTK_FUNCTION(3, "CMCSD2")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(97, "RDP1_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 97),
-> +               MTK_FUNCTION(0, "GPIO97"),
-> +               MTK_FUNCTION(1, "RDP1_A"),
-> +               MTK_FUNCTION(2, "CMDAT3"),
-> +               MTK_FUNCTION(3, "CMCSD3")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(98, "RDN0_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 98),
-> +               MTK_FUNCTION(0, "GPIO98"),
-> +               MTK_FUNCTION(1, "RDN0_A"),
-> +               MTK_FUNCTION(2, "CMHSYNC")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(99, "RDP0_A"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 99),
-> +               MTK_FUNCTION(0, "GPIO99"),
-> +               MTK_FUNCTION(1, "RDP0_A"),
-> +               MTK_FUNCTION(2, "CMVSYNC")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(100, "CMDAT0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 100),
-> +               MTK_FUNCTION(0, "GPIO100"),
-> +               MTK_FUNCTION(1, "CMDAT0"),
-> +               MTK_FUNCTION(2, "CMCSD0"),
-> +               MTK_FUNCTION(3, "ANT_SEL2"),
-> +               MTK_FUNCTION(5, "TDM_RX_MCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[21]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(101, "CMDAT1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 101),
-> +               MTK_FUNCTION(0, "GPIO101"),
-> +               MTK_FUNCTION(1, "CMDAT1"),
-> +               MTK_FUNCTION(2, "CMCSD1"),
-> +               MTK_FUNCTION(3, "ANT_SEL3"),
-> +               MTK_FUNCTION(4, "CMFLASH"),
-> +               MTK_FUNCTION(5, "TDM_RX_BCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[22]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(102, "CMMCLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 102),
-> +               MTK_FUNCTION(0, "GPIO102"),
-> +               MTK_FUNCTION(1, "CMMCLK"),
-> +               MTK_FUNCTION(3, "ANT_SEL4"),
-> +               MTK_FUNCTION(5, "TDM_RX_LRCK"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[23]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(103, "CMPCLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 103),
-> +               MTK_FUNCTION(0, "GPIO103"),
-> +               MTK_FUNCTION(1, "CMPCLK"),
-> +               MTK_FUNCTION(2, "CMCSK"),
-> +               MTK_FUNCTION(3, "ANT_SEL5"),
-> +               MTK_FUNCTION(5, " TDM_RX_DI"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[24]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(104, "MSDC1_CMD"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 104),
-> +               MTK_FUNCTION(0, "GPIO104"),
-> +               MTK_FUNCTION(1, "MSDC1_CMD"),
-> +               MTK_FUNCTION(4, "SQICS"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[25]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(105, "MSDC1_CLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 105),
-> +               MTK_FUNCTION(0, "GPIO105"),
-> +               MTK_FUNCTION(1, "MSDC1_CLK"),
-> +               MTK_FUNCTION(4, "SQISO"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[26]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(106, "MSDC1_DAT0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 106),
-> +               MTK_FUNCTION(0, "GPIO106"),
-> +               MTK_FUNCTION(1, "MSDC1_DAT0"),
-> +               MTK_FUNCTION(4, "SQISI"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[27]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(107, "MSDC1_DAT1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 107),
-> +               MTK_FUNCTION(0, "GPIO107"),
-> +               MTK_FUNCTION(1, "MSDC1_DAT1"),
-> +               MTK_FUNCTION(4, "SQIWP"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[28]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(108, "MSDC1_DAT2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 108),
-> +               MTK_FUNCTION(0, "GPIO108"),
-> +               MTK_FUNCTION(1, "MSDC1_DAT2"),
-> +               MTK_FUNCTION(4, "SQIRST"),
-> +               MTK_FUNCTION(7, "DBG_MON_B[29]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(109, "MSDC1_DAT3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 109),
-> +               MTK_FUNCTION(0, "GPIO109"),
-> +               MTK_FUNCTION(1, "MSDC1_DAT3"),
-> +               MTK_FUNCTION(4, "SQICK"), /* WIP */
-> +               MTK_FUNCTION(7, "DBG_MON_B[30]")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(110, "MSDC0_DAT7"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 110),
-> +               MTK_FUNCTION(0, "GPIO110"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT7"),
-> +               MTK_FUNCTION(4, "NLD7")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(111, "MSDC0_DAT6"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 111),
-> +               MTK_FUNCTION(0, "GPIO111"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT6"),
-> +               MTK_FUNCTION(4, "NLD6")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(112, "MSDC0_DAT5"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 112),
-> +               MTK_FUNCTION(0, "GPIO112"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT5"),
-> +               MTK_FUNCTION(4, "NLD4")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(113, "MSDC0_DAT4"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 113),
-> +               MTK_FUNCTION(0, "GPIO113"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT4"),
-> +               MTK_FUNCTION(4, "NLD3")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(114, "MSDC0_RSTB"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 114),
-> +               MTK_FUNCTION(0, "GPIO114"),
-> +               MTK_FUNCTION(1, "MSDC0_RSTB"),
-> +               MTK_FUNCTION(4, "NLD0")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(115, "MSDC0_CMD"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 115),
-> +               MTK_FUNCTION(0, "GPIO115"),
-> +               MTK_FUNCTION(1, "MSDC0_CMD"),
-> +               MTK_FUNCTION(4, "NALE")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(116, "MSDC0_CLK"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 116),
-> +               MTK_FUNCTION(0, "GPIO116"),
-> +               MTK_FUNCTION(1, "MSDC0_CLK"),
-> +               MTK_FUNCTION(4, "NWEB")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(117, "MSDC0_DAT3"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 117),
-> +               MTK_FUNCTION(0, "GPIO117"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT3"),
-> +               MTK_FUNCTION(4, "NLD1")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(118, "MSDC0_DAT2"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 118),
-> +               MTK_FUNCTION(0, "GPIO118"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT2"),
-> +               MTK_FUNCTION(4, "NLD5")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(119, "MSDC0_DAT1"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 119),
-> +               MTK_FUNCTION(0, "GPIO119"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT1"),
-> +               MTK_FUNCTION(4, "NLD8")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(120, "MSDC0_DAT0"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 120),
-> +               MTK_FUNCTION(0, "GPIO120"),
-> +               MTK_FUNCTION(1, "MSDC0_DAT0"),
-> +               MTK_FUNCTION(4, "WATCHDOG"),
-> +               MTK_FUNCTION(5, "NLD2")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(121, "GPIO121"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 121),
-> +               MTK_FUNCTION(0, "GPIO121")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(122, "GPIO122"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 122),
-> +               MTK_FUNCTION(0, "GPIO122")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(123, "GPIO123"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 123),
-> +               MTK_FUNCTION(0, "GPIO123")
-> +       ),
-> +       MTK_PIN(
-> +               PINCTRL_PIN(124, "GPIO124"),
-> +               NULL, "mt8516",
-> +               MTK_EINT_FUNCTION(0, 124),
-> +               MTK_FUNCTION(0, "GPIO124")
-> +       ),
-> +};
-> +
-> +#endif /* __PINCTRL_MTK_MT8516_H */
-> --
-> 2.20.1
->
+<+...
+- res = platform_get_resource(pdev, IORESOURCE_MEM, index);
+- a = devm_ioremap_resource(e, res);
++ a = devm_platform_ioremap_resource(pdev, index);
+...+>
+
+@depends on r@
+identifier r.res;
+@@
+- struct resource *res;
+  ... when != res
+
+@@
+identifier res, pdev;
+expression index;
+expression a;
+@@
+- struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, index);
+- a = devm_ioremap_resource(&pdev->dev, res);
++ a = devm_platform_ioremap_resource(pdev, index);
+
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Keguang Zhang <keguang.zhang@gmail.com>
+Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Kevin Hilman <khilman@baylibre.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Avi Fishman <avifishman70@gmail.com>
+Cc: Nancy Yuen <yuenn@google.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>
+Cc: Wan ZongShun <mcuos.com@gmail.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Cc: Kukjin Kim <kgene@kernel.org>
+Cc: Barry Song <baohua@kernel.org>
+Cc: Orson Zhai <orsonzhai@gmail.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Cc: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/asm9260_wdt.c    | 4 +---
+ drivers/watchdog/aspeed_wdt.c     | 4 +---
+ drivers/watchdog/at91sam9_wdt.c   | 4 +---
+ drivers/watchdog/ath79_wdt.c      | 4 +---
+ drivers/watchdog/atlas7_wdt.c     | 4 +---
+ drivers/watchdog/bcm7038_wdt.c    | 4 +---
+ drivers/watchdog/bcm_kona_wdt.c   | 4 +---
+ drivers/watchdog/cadence_wdt.c    | 4 +---
+ drivers/watchdog/coh901327_wdt.c  | 4 +---
+ drivers/watchdog/davinci_wdt.c    | 4 +---
+ drivers/watchdog/digicolor_wdt.c  | 4 +---
+ drivers/watchdog/dw_wdt.c         | 4 +---
+ drivers/watchdog/ep93xx_wdt.c     | 4 +---
+ drivers/watchdog/ftwdt010_wdt.c   | 4 +---
+ drivers/watchdog/imgpdc_wdt.c     | 4 +---
+ drivers/watchdog/jz4740_wdt.c     | 4 +---
+ drivers/watchdog/lantiq_wdt.c     | 4 +---
+ drivers/watchdog/loongson1_wdt.c  | 4 +---
+ drivers/watchdog/lpc18xx_wdt.c    | 4 +---
+ drivers/watchdog/max63xx_wdt.c    | 4 +---
+ drivers/watchdog/meson_gxbb_wdt.c | 4 +---
+ drivers/watchdog/meson_wdt.c      | 4 +---
+ drivers/watchdog/moxart_wdt.c     | 4 +---
+ drivers/watchdog/mpc8xxx_wdt.c    | 3 +--
+ drivers/watchdog/mt7621_wdt.c     | 5 +----
+ drivers/watchdog/mtk_wdt.c        | 4 +---
+ drivers/watchdog/npcm_wdt.c       | 4 +---
+ drivers/watchdog/nuc900_wdt.c     | 4 +---
+ drivers/watchdog/of_xilinx_wdt.c  | 4 +---
+ drivers/watchdog/omap_wdt.c       | 4 +---
+ drivers/watchdog/orion_wdt.c      | 6 ++----
+ drivers/watchdog/pic32-dmt.c      | 4 +---
+ drivers/watchdog/pic32-wdt.c      | 4 +---
+ drivers/watchdog/pnx4008_wdt.c    | 4 +---
+ drivers/watchdog/renesas_wdt.c    | 4 +---
+ drivers/watchdog/rt2880_wdt.c     | 4 +---
+ drivers/watchdog/rtd119x_wdt.c    | 4 +---
+ drivers/watchdog/rza_wdt.c        | 4 +---
+ drivers/watchdog/s3c2410_wdt.c    | 4 +---
+ drivers/watchdog/sama5d4_wdt.c    | 4 +---
+ drivers/watchdog/sbsa_gwdt.c      | 7 ++-----
+ drivers/watchdog/shwdt.c          | 4 +---
+ drivers/watchdog/sirfsoc_wdt.c    | 4 +---
+ drivers/watchdog/sprd_wdt.c       | 4 +---
+ drivers/watchdog/st_lpc_wdt.c     | 4 +---
+ drivers/watchdog/stm32_iwdg.c     | 4 +---
+ drivers/watchdog/sunxi_wdt.c      | 4 +---
+ drivers/watchdog/tangox_wdt.c     | 4 +---
+ drivers/watchdog/tegra_wdt.c      | 4 +---
+ drivers/watchdog/ts72xx_wdt.c     | 7 ++-----
+ drivers/watchdog/txx9wdt.c        | 4 +---
+ drivers/watchdog/zx2967_wdt.c     | 4 +---
+ 52 files changed, 55 insertions(+), 161 deletions(-)
+
+diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+index 9768e44ffeb8..1de272bb2070 100644
+--- a/drivers/watchdog/asm9260_wdt.c
++++ b/drivers/watchdog/asm9260_wdt.c
+@@ -276,7 +276,6 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct asm9260_wdt_priv *priv;
+ 	struct watchdog_device *wdd;
+-	struct resource *res;
+ 	int ret;
+ 	static const char * const mode_name[] = { "hw", "sw", "debug", };
+ 
+@@ -287,8 +286,7 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+ 
+ 	priv->dev = &pdev->dev;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->iobase = devm_ioremap_resource(&pdev->dev, res);
++	priv->iobase = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->iobase))
+ 		return PTR_ERR(priv->iobase);
+ 
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index 1abe4d021fd2..f09333fd54b4 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -190,7 +190,6 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	const struct aspeed_wdt_config *config;
+ 	const struct of_device_id *ofdid;
+ 	struct aspeed_wdt *wdt;
+-	struct resource *res;
+ 	struct device_node *np;
+ 	const char *reset_type;
+ 	u32 duration;
+@@ -201,8 +200,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(&pdev->dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index f4050a229eb5..292b5a1ca831 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -327,7 +327,6 @@ static inline int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
+ 
+ static int __init at91wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource	*r;
+ 	int err;
+ 	struct at91wdt *wdt;
+ 
+@@ -346,8 +345,7 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.min_timeout = 1;
+ 	wdt->wdd.max_timeout = 0xFFFF;
+ 
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(&pdev->dev, r);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index e2209bf5fa8a..5d66c8ec9a7d 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -250,15 +250,13 @@ static struct miscdevice ath79_wdt_miscdev = {
+ 
+ static int ath79_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	u32 ctrl;
+ 	int err;
+ 
+ 	if (wdt_base)
+ 		return -EBUSY;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt_base))
+ 		return PTR_ERR(wdt_base);
+ 
+diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
+index 4abdcabd8219..e170933aa0a8 100644
+--- a/drivers/watchdog/atlas7_wdt.c
++++ b/drivers/watchdog/atlas7_wdt.c
+@@ -129,15 +129,13 @@ static int atlas7_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct atlas7_wdog *wdt;
+-	struct resource *res;
+ 	struct clk *clk;
+ 	int ret;
+ 
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(&pdev->dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index ce3f646e8077..71fca45eab5d 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -111,7 +111,6 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct bcm7038_watchdog *wdt;
+-	struct resource *res;
+ 	int err;
+ 
+ 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+@@ -120,8 +119,7 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+index 4249b47902bd..d52334ab0805 100644
+--- a/drivers/watchdog/bcm_kona_wdt.c
++++ b/drivers/watchdog/bcm_kona_wdt.c
+@@ -280,7 +280,6 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct bcm_kona_wdt *wdt;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+@@ -289,8 +288,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ 
+ 	spin_lock_init(&wdt->lock);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return -ENODEV;
+ 
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index c3924356d173..5986f18f97e2 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -285,7 +285,6 @@ static const struct watchdog_ops cdns_wdt_ops = {
+  */
+ static int cdns_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	int ret, irq;
+ 	unsigned long clock_f;
+ 	struct cdns_wdt *wdt;
+@@ -302,8 +301,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
+ 	cdns_wdt_device->min_timeout = CDNS_WDT_MIN_TIMEOUT;
+ 	cdns_wdt_device->max_timeout = CDNS_WDT_MAX_TIMEOUT;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->regs = devm_ioremap_resource(&pdev->dev, res);
++	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->regs))
+ 		return PTR_ERR(wdt->regs);
+ 
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index f29d1edc5bad..3c4eaa0d1178 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -258,12 +258,10 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	int ret;
+ 	u16 val;
+-	struct resource *res;
+ 
+ 	parent = dev;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	virtbase = devm_ioremap_resource(dev, res);
++	virtbase = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(virtbase))
+ 		return PTR_ERR(virtbase);
+ 
+diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+index ebb85d60b6d5..7daa15df74a5 100644
+--- a/drivers/watchdog/davinci_wdt.c
++++ b/drivers/watchdog/davinci_wdt.c
+@@ -195,7 +195,6 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret = 0;
+ 	struct device *dev = &pdev->dev;
+-	struct resource  *wdt_mem;
+ 	struct watchdog_device *wdd;
+ 	struct davinci_wdt_device *davinci_wdt;
+ 
+@@ -235,8 +234,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdd, 1);
+ 	watchdog_set_restart_priority(wdd, 128);
+ 
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	davinci_wdt->base = devm_ioremap_resource(dev, wdt_mem);
++	davinci_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(davinci_wdt->base)) {
+ 		ret = PTR_ERR(davinci_wdt->base);
+ 		goto err_clk_disable;
+diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+index a9e11df155b8..8af6e9a67d0d 100644
+--- a/drivers/watchdog/digicolor_wdt.c
++++ b/drivers/watchdog/digicolor_wdt.c
+@@ -116,7 +116,6 @@ static struct watchdog_device dc_wdt_wdd = {
+ 
+ static int dc_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	struct device *dev = &pdev->dev;
+ 	struct dc_wdt *wdt;
+ 	int ret;
+@@ -125,8 +124,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index aa95f57cc1c3..39e43750ab08 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -238,15 +238,13 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	struct dw_wdt *dw_wdt;
+-	struct resource *mem;
+ 	int ret;
+ 
+ 	dw_wdt = devm_kzalloc(dev, sizeof(*dw_wdt), GFP_KERNEL);
+ 	if (!dw_wdt)
+ 		return -ENOMEM;
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dw_wdt->regs = devm_ioremap_resource(dev, mem);
++	dw_wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(dw_wdt->regs))
+ 		return PTR_ERR(dw_wdt->regs);
+ 
+diff --git a/drivers/watchdog/ep93xx_wdt.c b/drivers/watchdog/ep93xx_wdt.c
+index f9b14e6efd9a..1e721c2f9eac 100644
+--- a/drivers/watchdog/ep93xx_wdt.c
++++ b/drivers/watchdog/ep93xx_wdt.c
+@@ -91,7 +91,6 @@ static int ep93xx_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct ep93xx_wdt_priv *priv;
+ 	struct watchdog_device *wdd;
+-	struct resource *res;
+ 	unsigned long val;
+ 	int ret;
+ 
+@@ -99,8 +98,7 @@ static int ep93xx_wdt_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->mmio = devm_ioremap_resource(&pdev->dev, res);
++	priv->mmio = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->mmio))
+ 		return PTR_ERR(priv->mmio);
+ 
+diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
+index a9c2912ee280..ecb32c42e839 100644
+--- a/drivers/watchdog/ftwdt010_wdt.c
++++ b/drivers/watchdog/ftwdt010_wdt.c
+@@ -124,7 +124,6 @@ static const struct watchdog_info ftwdt010_wdt_info = {
+ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+-	struct resource *res;
+ 	struct ftwdt010_wdt *gwdt;
+ 	unsigned int reg;
+ 	int irq;
+@@ -134,8 +133,7 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ 	if (!gwdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	gwdt->base = devm_ioremap_resource(dev, res);
++	gwdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(gwdt->base))
+ 		return PTR_ERR(gwdt->base);
+ 
+diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+index a3134ffa59f8..84c9fb905072 100644
+--- a/drivers/watchdog/imgpdc_wdt.c
++++ b/drivers/watchdog/imgpdc_wdt.c
+@@ -183,15 +183,13 @@ static int pdc_wdt_probe(struct platform_device *pdev)
+ 	u64 div;
+ 	int ret, val;
+ 	unsigned long clk_rate;
+-	struct resource *res;
+ 	struct pdc_wdt_dev *pdc_wdt;
+ 
+ 	pdc_wdt = devm_kzalloc(&pdev->dev, sizeof(*pdc_wdt), GFP_KERNEL);
+ 	if (!pdc_wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	pdc_wdt->base = devm_ioremap_resource(&pdev->dev, res);
++	pdc_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(pdc_wdt->base))
+ 		return PTR_ERR(pdc_wdt->base);
+ 
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index ec4d99a830ba..aa9d3523addd 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -165,7 +165,6 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct jz4740_wdt_drvdata *drvdata;
+ 	struct watchdog_device *jz4740_wdt;
+-	struct resource	*res;
+ 	int ret;
+ 
+ 	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
+@@ -186,8 +185,7 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(jz4740_wdt, nowayout);
+ 	watchdog_set_drvdata(jz4740_wdt, drvdata);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
++	drvdata->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(drvdata->base))
+ 		return PTR_ERR(drvdata->base);
+ 
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 83da84d6074b..4caf02ba5d49 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -203,7 +203,6 @@ static int ltq_wdt_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct ltq_wdt_priv *priv;
+ 	struct watchdog_device *wdt;
+-	struct resource *res;
+ 	struct clk *clk;
+ 	const struct ltq_wdt_hw *ltq_wdt_hw;
+ 	int ret;
+@@ -213,8 +212,7 @@ static int ltq_wdt_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->membase = devm_ioremap_resource(dev, res);
++	priv->membase = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->membase))
+ 		return PTR_ERR(priv->membase);
+ 
+diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
+index 3aee50c64a36..1119634b5c87 100644
+--- a/drivers/watchdog/loongson1_wdt.c
++++ b/drivers/watchdog/loongson1_wdt.c
+@@ -88,15 +88,13 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
+ 	struct ls1x_wdt_drvdata *drvdata;
+ 	struct watchdog_device *ls1x_wdt;
+ 	unsigned long clk_rate;
+-	struct resource *res;
+ 	int err;
+ 
+ 	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
+ 	if (!drvdata)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
++	drvdata->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(drvdata->base))
+ 		return PTR_ERR(drvdata->base);
+ 
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index 331cadb459ac..f6f66634cedf 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -204,15 +204,13 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt;
+ 	struct device *dev = &pdev->dev;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	lpc18xx_wdt = devm_kzalloc(dev, sizeof(*lpc18xx_wdt), GFP_KERNEL);
+ 	if (!lpc18xx_wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	lpc18xx_wdt->base = devm_ioremap_resource(dev, res);
++	lpc18xx_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(lpc18xx_wdt->base))
+ 		return PTR_ERR(lpc18xx_wdt->base);
+ 
+diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
+index bf6a068245ba..5aaf13e5115a 100644
+--- a/drivers/watchdog/max63xx_wdt.c
++++ b/drivers/watchdog/max63xx_wdt.c
+@@ -187,9 +187,7 @@ static void max63xx_mmap_set(struct max63xx_wdt *wdt, u8 set)
+ 
+ static int max63xx_mmap_init(struct platform_device *p, struct max63xx_wdt *wdt)
+ {
+-	struct resource *mem = platform_get_resource(p, IORESOURCE_MEM, 0);
+-
+-	wdt->base = devm_ioremap_resource(&p->dev, mem);
++	wdt->base = devm_platform_ioremap_resource(p, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/meson_gxbb_wdt.c b/drivers/watchdog/meson_gxbb_wdt.c
+index 69adeab3fde7..a8ed75cc9a6e 100644
+--- a/drivers/watchdog/meson_gxbb_wdt.c
++++ b/drivers/watchdog/meson_gxbb_wdt.c
+@@ -139,15 +139,13 @@ MODULE_DEVICE_TABLE(of, meson_gxbb_wdt_dt_ids);
+ static int meson_gxbb_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct meson_gxbb_wdt *data;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	data->reg_base = devm_ioremap_resource(&pdev->dev, res);
++	data->reg_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(data->reg_base))
+ 		return PTR_ERR(data->reg_base);
+ 
+diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+index cd0275a6cdac..7fc6acb33c7f 100644
+--- a/drivers/watchdog/meson_wdt.c
++++ b/drivers/watchdog/meson_wdt.c
+@@ -164,7 +164,6 @@ MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+ 
+ static int meson_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	struct meson_wdt_dev *meson_wdt;
+ 	const struct of_device_id *of_id;
+ 	int err;
+@@ -173,8 +172,7 @@ static int meson_wdt_probe(struct platform_device *pdev)
+ 	if (!meson_wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	meson_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	meson_wdt->wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(meson_wdt->wdt_base))
+ 		return PTR_ERR(meson_wdt->wdt_base);
+ 
+diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+index 430c3ab84c07..740215a247fc 100644
+--- a/drivers/watchdog/moxart_wdt.c
++++ b/drivers/watchdog/moxart_wdt.c
+@@ -92,7 +92,6 @@ static int moxart_wdt_probe(struct platform_device *pdev)
+ 	struct moxart_wdt_dev *moxart_wdt;
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *node = dev->of_node;
+-	struct resource *res;
+ 	struct clk *clk;
+ 	int err;
+ 	unsigned int max_timeout;
+@@ -104,8 +103,7 @@ static int moxart_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, moxart_wdt);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	moxart_wdt->base = devm_ioremap_resource(dev, res);
++	moxart_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(moxart_wdt->base))
+ 		return PTR_ERR(moxart_wdt->base);
+ 
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index 069072e6747d..3b5b446b690c 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -149,8 +149,7 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	if (!ddata)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
+-	ddata->base = devm_ioremap_resource(dev, res);
++	ddata->base = devm_platform_ioremap_resource(ofdev, 0);
+ 	if (IS_ERR(ddata->base))
+ 		return PTR_ERR(ddata->base);
+ 
+diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
+index 81208cd3f4ec..9c943f1d57ec 100644
+--- a/drivers/watchdog/mt7621_wdt.c
++++ b/drivers/watchdog/mt7621_wdt.c
+@@ -133,10 +133,7 @@ static struct watchdog_device mt7621_wdt_dev = {
+ 
+ static int mt7621_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	mt7621_wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	mt7621_wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(mt7621_wdt_base))
+ 		return PTR_ERR(mt7621_wdt_base);
+ 
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 4baf64f21aa1..113a48d54058 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -154,7 +154,6 @@ static const struct watchdog_ops mtk_wdt_ops = {
+ static int mtk_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct mtk_wdt_dev *mtk_wdt;
+-	struct resource *res;
+ 	int err;
+ 
+ 	mtk_wdt = devm_kzalloc(&pdev->dev, sizeof(*mtk_wdt), GFP_KERNEL);
+@@ -163,8 +162,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, mtk_wdt);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	mtk_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	mtk_wdt->wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(mtk_wdt->wdt_base))
+ 		return PTR_ERR(mtk_wdt->wdt_base);
+ 
+diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+index 0d4213652ecc..4fce10c145c2 100644
+--- a/drivers/watchdog/npcm_wdt.c
++++ b/drivers/watchdog/npcm_wdt.c
+@@ -181,7 +181,6 @@ static int npcm_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct npcm_wdt *wdt;
+-	struct resource *res;
+ 	int irq;
+ 	int ret;
+ 
+@@ -189,8 +188,7 @@ static int npcm_wdt_probe(struct platform_device *pdev)
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->reg = devm_ioremap_resource(dev, res);
++	wdt->reg = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->reg))
+ 		return PTR_ERR(wdt->reg);
+ 
+diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
+index 830bd04ff911..74e99eac90b9 100644
+--- a/drivers/watchdog/nuc900_wdt.c
++++ b/drivers/watchdog/nuc900_wdt.c
+@@ -242,7 +242,6 @@ static struct miscdevice nuc900wdt_miscdev = {
+ 
+ static int nuc900wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	int ret = 0;
+ 
+ 	nuc900_wdt = devm_kzalloc(&pdev->dev, sizeof(*nuc900_wdt),
+@@ -254,8 +253,7 @@ static int nuc900wdt_probe(struct platform_device *pdev)
+ 
+ 	spin_lock_init(&nuc900_wdt->wdt_lock);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	nuc900_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	nuc900_wdt->wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(nuc900_wdt->wdt_base))
+ 		return PTR_ERR(nuc900_wdt->wdt_base);
+ 
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index d3f7eb046678..5c977164b3e5 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -155,7 +155,6 @@ static int xwdt_probe(struct platform_device *pdev)
+ {
+ 	int rc;
+ 	u32 pfreq = 0, enable_once = 0;
+-	struct resource *res;
+ 	struct xwdt_device *xdev;
+ 	struct watchdog_device *xilinx_wdt_wdd;
+ 
+@@ -168,8 +167,7 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	xilinx_wdt_wdd->ops = &xilinx_wdt_ops;
+ 	xilinx_wdt_wdd->parent = &pdev->dev;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	xdev->base = devm_ioremap_resource(&pdev->dev, res);
++	xdev->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(xdev->base))
+ 		return PTR_ERR(xdev->base);
+ 
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index cbd752f9ac56..d49688d93f6a 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -231,7 +231,6 @@ static const struct watchdog_ops omap_wdt_ops = {
+ static int omap_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct omap_wd_timer_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct resource *res;
+ 	struct omap_wdt_dev *wdev;
+ 	int ret;
+ 
+@@ -245,8 +244,7 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 	mutex_init(&wdev->lock);
+ 
+ 	/* reserve static register mappings */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdev->base = devm_ioremap_resource(&pdev->dev, res);
++	wdev->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdev->base))
+ 		return PTR_ERR(wdev->base);
+ 
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+index 8b259c712c52..cdb0d174c5e2 100644
+--- a/drivers/watchdog/orion_wdt.c
++++ b/drivers/watchdog/orion_wdt.c
+@@ -494,8 +494,7 @@ static int orion_wdt_get_regs(struct platform_device *pdev,
+ 		   of_device_is_compatible(node, "marvell,armada-xp-wdt")) {
+ 
+ 		/* Dedicated RSTOUT register, can be requested. */
+-		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-		dev->rstout = devm_ioremap_resource(&pdev->dev, res);
++		dev->rstout = devm_platform_ioremap_resource(pdev, 1);
+ 		if (IS_ERR(dev->rstout))
+ 			return PTR_ERR(dev->rstout);
+ 
+@@ -503,8 +502,7 @@ static int orion_wdt_get_regs(struct platform_device *pdev,
+ 		   of_device_is_compatible(node, "marvell,armada-380-wdt")) {
+ 
+ 		/* Dedicated RSTOUT register, can be requested. */
+-		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-		dev->rstout = devm_ioremap_resource(&pdev->dev, res);
++		dev->rstout = devm_platform_ioremap_resource(pdev, 1);
+ 		if (IS_ERR(dev->rstout))
+ 			return PTR_ERR(dev->rstout);
+ 
+diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
+index c797305f8338..052751c224fd 100644
+--- a/drivers/watchdog/pic32-dmt.c
++++ b/drivers/watchdog/pic32-dmt.c
+@@ -172,15 +172,13 @@ static int pic32_dmt_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+ 	struct pic32_dmt *dmt;
+-	struct resource *mem;
+ 	struct watchdog_device *wdd = &pic32_dmt_wdd;
+ 
+ 	dmt = devm_kzalloc(&pdev->dev, sizeof(*dmt), GFP_KERNEL);
+ 	if (!dmt)
+ 		return -ENOMEM;
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dmt->regs = devm_ioremap_resource(&pdev->dev, mem);
++	dmt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(dmt->regs))
+ 		return PTR_ERR(dmt->regs);
+ 
+diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
+index e2761068dc6f..455ec38363a6 100644
+--- a/drivers/watchdog/pic32-wdt.c
++++ b/drivers/watchdog/pic32-wdt.c
+@@ -171,14 +171,12 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
+ 	int ret;
+ 	struct watchdog_device *wdd = &pic32_wdd;
+ 	struct pic32_wdt *wdt;
+-	struct resource *mem;
+ 
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
++	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->regs))
+ 		return PTR_ERR(wdt->regs);
+ 
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 8e261799c84e..24c266a9e1dc 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -185,13 +185,11 @@ static struct watchdog_device pnx4008_wdd = {
+ 
+ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *r;
+ 	int ret = 0;
+ 
+ 	watchdog_init_timeout(&pnx4008_wdd, heartbeat, &pdev->dev);
+ 
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt_base = devm_ioremap_resource(&pdev->dev, r);
++	wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt_base))
+ 		return PTR_ERR(wdt_base);
+ 
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index 622ede529912..5b3186492087 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -177,7 +177,6 @@ static inline bool rwdt_blacklisted(struct device *dev) { return false; }
+ static int rwdt_probe(struct platform_device *pdev)
+ {
+ 	struct rwdt_priv *priv;
+-	struct resource *res;
+ 	struct clk *clk;
+ 	unsigned long clks_per_sec;
+ 	int ret, i;
+@@ -189,8 +188,7 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->base = devm_ioremap_resource(&pdev->dev, res);
++	priv->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->base))
+ 		return PTR_ERR(priv->base);
+ 
+diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
+index db7c57d82cfd..4adf5f39fdd9 100644
+--- a/drivers/watchdog/rt2880_wdt.c
++++ b/drivers/watchdog/rt2880_wdt.c
+@@ -141,11 +141,9 @@ static struct watchdog_device rt288x_wdt_dev = {
+ 
+ static int rt288x_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	int ret;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	rt288x_wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	rt288x_wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(rt288x_wdt_base))
+ 		return PTR_ERR(rt288x_wdt_base);
+ 
+diff --git a/drivers/watchdog/rtd119x_wdt.c b/drivers/watchdog/rtd119x_wdt.c
+index d001c17ddfde..d823c9def36f 100644
+--- a/drivers/watchdog/rtd119x_wdt.c
++++ b/drivers/watchdog/rtd119x_wdt.c
+@@ -98,15 +98,13 @@ static const struct of_device_id rtd119x_wdt_dt_ids[] = {
+ static int rtd119x_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct rtd119x_watchdog_device *data;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	data->base = devm_ioremap_resource(&pdev->dev, res);
++	data->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(data->base))
+ 		return PTR_ERR(data->base);
+ 
+diff --git a/drivers/watchdog/rza_wdt.c b/drivers/watchdog/rza_wdt.c
+index 781bb572e6af..b854f0aeb3ef 100644
+--- a/drivers/watchdog/rza_wdt.c
++++ b/drivers/watchdog/rza_wdt.c
+@@ -167,7 +167,6 @@ static const struct watchdog_ops rza_wdt_ops = {
+ static int rza_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct rza_wdt *priv;
+-	struct resource *res;
+ 	unsigned long rate;
+ 	int ret;
+ 
+@@ -175,8 +174,7 @@ static int rza_wdt_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->base = devm_ioremap_resource(&pdev->dev, res);
++	priv->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->base))
+ 		return PTR_ERR(priv->base);
+ 
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index adaa43543f0a..4267b9e8734b 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -522,7 +522,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct s3c2410_wdt *wdt;
+-	struct resource *wdt_mem;
+ 	struct resource *wdt_irq;
+ 	unsigned int wtcon;
+ 	int started = 0;
+@@ -554,8 +553,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* get the memory region for the watchdog timer */
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->reg_base = devm_ioremap_resource(dev, wdt_mem);
++	wdt->reg_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->reg_base)) {
+ 		ret = PTR_ERR(wdt->reg_base);
+ 		goto err;
+diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+index 1e93c1b0e3cf..ea72fa0aa3ec 100644
+--- a/drivers/watchdog/sama5d4_wdt.c
++++ b/drivers/watchdog/sama5d4_wdt.c
+@@ -201,7 +201,6 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct watchdog_device *wdd;
+ 	struct sama5d4_wdt *wdt;
+-	struct resource *res;
+ 	void __iomem *regs;
+ 	u32 irq = 0;
+ 	u32 timeout;
+@@ -221,8 +220,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_drvdata(wdd, wdt);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	regs = devm_ioremap_resource(&pdev->dev, res);
++	regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(regs))
+ 		return PTR_ERR(regs);
+ 
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+index e8bd9887c566..68aff828bf7e 100644
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -231,7 +231,6 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	struct sbsa_gwdt *gwdt;
+-	struct resource *res;
+ 	int ret, irq;
+ 	u32 status;
+ 
+@@ -240,13 +239,11 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	platform_set_drvdata(pdev, gwdt);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	cf_base = devm_ioremap_resource(dev, res);
++	cf_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(cf_base))
+ 		return PTR_ERR(cf_base);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	rf_base = devm_ioremap_resource(dev, res);
++	rf_base = devm_platform_ioremap_resource(pdev, 1);
+ 	if (IS_ERR(rf_base))
+ 		return PTR_ERR(rf_base);
+ 
+diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+index a7d6425db807..e7617b7df70b 100644
+--- a/drivers/watchdog/shwdt.c
++++ b/drivers/watchdog/shwdt.c
+@@ -220,7 +220,6 @@ static struct watchdog_device sh_wdt_dev = {
+ static int sh_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct sh_wdt *wdt;
+-	struct resource *res;
+ 	int rc;
+ 
+ 	/*
+@@ -245,8 +244,7 @@ static int sh_wdt_probe(struct platform_device *pdev)
+ 		wdt->clk = NULL;
+ 	}
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(wdt->dev, res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
+index ac0c9d2c4aee..2559062d35da 100644
+--- a/drivers/watchdog/sirfsoc_wdt.c
++++ b/drivers/watchdog/sirfsoc_wdt.c
+@@ -146,12 +146,10 @@ static struct watchdog_device sirfsoc_wdd = {
+ 
+ static int sirfsoc_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *res;
+ 	int ret;
+ 	void __iomem *base;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	base = devm_ioremap_resource(&pdev->dev, res);
++	base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+index ff9397d9638a..a63163a93777 100644
+--- a/drivers/watchdog/sprd_wdt.c
++++ b/drivers/watchdog/sprd_wdt.c
+@@ -269,7 +269,6 @@ static const struct watchdog_info sprd_wdt_info = {
+ 
+ static int sprd_wdt_probe(struct platform_device *pdev)
+ {
+-	struct resource *wdt_res;
+ 	struct sprd_wdt *wdt;
+ 	int ret;
+ 
+@@ -277,8 +276,7 @@ static int sprd_wdt_probe(struct platform_device *pdev)
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(&pdev->dev, wdt_res);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index 177829b379da..196fb4b72c5d 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -148,7 +148,6 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct st_wdog *st_wdog;
+ 	struct regmap *regmap;
+-	struct resource *res;
+ 	struct clk *clk;
+ 	void __iomem *base;
+ 	uint32_t mode;
+@@ -175,8 +174,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 	}
+ 	st_wdog->syscfg	= (struct st_wdog_syscfg *)match->data;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	base = devm_ioremap_resource(&pdev->dev, res);
++	base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index e00e3b3526c6..309563e002b8 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -202,7 +202,6 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	struct watchdog_device *wdd;
+ 	const struct of_device_id *match;
+ 	struct stm32_iwdg *wdt;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	match = of_match_device(stm32_iwdg_of_match, &pdev->dev);
+@@ -216,8 +215,7 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	wdt->has_pclk = match->data;
+ 
+ 	/* This is the timer base. */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->regs = devm_ioremap_resource(&pdev->dev, res);
++	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->regs)) {
+ 		dev_err(&pdev->dev, "Could not get resource\n");
+ 		return PTR_ERR(wdt->regs);
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index c6c73656997e..f0e7ef40b1e4 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -234,7 +234,6 @@ MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
+ static int sunxi_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt;
+-	struct resource *res;
+ 	int err;
+ 
+ 	sunxi_wdt = devm_kzalloc(&pdev->dev, sizeof(*sunxi_wdt), GFP_KERNEL);
+@@ -245,8 +244,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (!sunxi_wdt->wdt_regs)
+ 		return -ENODEV;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	sunxi_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
++	sunxi_wdt->wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(sunxi_wdt->wdt_base))
+ 		return PTR_ERR(sunxi_wdt->wdt_base);
+ 
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
+index d0b53f3c0d17..16611fe0d9d1 100644
+--- a/drivers/watchdog/tangox_wdt.c
++++ b/drivers/watchdog/tangox_wdt.c
+@@ -111,7 +111,6 @@ static const struct watchdog_ops tangox_wdt_ops = {
+ static int tangox_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct tangox_wdt_device *dev;
+-	struct resource *res;
+ 	u32 config;
+ 	int err;
+ 
+@@ -119,8 +118,7 @@ static int tangox_wdt_probe(struct platform_device *pdev)
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dev->base = devm_ioremap_resource(&pdev->dev, res);
++	dev->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+ 
+diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
+index 877dd39bd41f..fc3cf5edf6c7 100644
+--- a/drivers/watchdog/tegra_wdt.c
++++ b/drivers/watchdog/tegra_wdt.c
+@@ -183,13 +183,11 @@ static int tegra_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct watchdog_device *wdd;
+ 	struct tegra_wdt *wdt;
+-	struct resource *res;
+ 	void __iomem *regs;
+ 	int ret;
+ 
+ 	/* This is the timer base. */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	regs = devm_ioremap_resource(&pdev->dev, res);
++	regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(regs))
+ 		return PTR_ERR(regs);
+ 
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index 811e43c39ec4..3aa11c84dea9 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -124,20 +124,17 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct ts72xx_wdt_priv *priv;
+ 	struct watchdog_device *wdd;
+-	struct resource *res;
+ 	int ret;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->control_reg = devm_ioremap_resource(&pdev->dev, res);
++	priv->control_reg = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->control_reg))
+ 		return PTR_ERR(priv->control_reg);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	priv->feed_reg = devm_ioremap_resource(&pdev->dev, res);
++	priv->feed_reg = devm_platform_ioremap_resource(pdev, 1);
+ 	if (IS_ERR(priv->feed_reg))
+ 		return PTR_ERR(priv->feed_reg);
+ 
+diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
+index 6f7a9deb27d0..fcb4da5b1f4c 100644
+--- a/drivers/watchdog/txx9wdt.c
++++ b/drivers/watchdog/txx9wdt.c
+@@ -103,7 +103,6 @@ static struct watchdog_device txx9wdt = {
+ 
+ static int __init txx9wdt_probe(struct platform_device *dev)
+ {
+-	struct resource *res;
+ 	int ret;
+ 
+ 	txx9_imclk = clk_get(NULL, "imbus_clk");
+@@ -119,8 +118,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 		goto exit;
+ 	}
+ 
+-	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	txx9wdt_reg = devm_ioremap_resource(&dev->dev, res);
++	txx9wdt_reg = devm_platform_ioremap_resource(dev, 0);
+ 	if (IS_ERR(txx9wdt_reg)) {
+ 		ret = PTR_ERR(txx9wdt_reg);
+ 		goto exit;
+diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
+index 9261f7c77f6d..9ccc83f526f3 100644
+--- a/drivers/watchdog/zx2967_wdt.c
++++ b/drivers/watchdog/zx2967_wdt.c
+@@ -192,7 +192,6 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct zx2967_wdt *wdt;
+-	struct resource *base;
+ 	int ret;
+ 	struct reset_control *rstc;
+ 
+@@ -209,8 +208,7 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
+ 	wdt->wdt_device.parent = &pdev->dev;
+ 
+-	base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->reg_base = devm_ioremap_resource(dev, base);
++	wdt->reg_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->reg_base))
+ 		return PTR_ERR(wdt->reg_base);
+ 
+-- 
+2.7.4
+
