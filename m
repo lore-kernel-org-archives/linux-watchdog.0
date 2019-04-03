@@ -2,231 +2,132 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 266FAC4360F
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 07:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D18CCC4360F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D988F21473
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 07:34:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A24762147C
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="yH0eacdy"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i41MgARA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728625AbfDCHeh (ORCPT
+        id S1729110AbfDCIrS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 03:34:37 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:41221 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728523AbfDCHeh (ORCPT
+        Wed, 3 Apr 2019 04:47:18 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:34632 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729099AbfDCIrR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 03:34:37 -0400
-Received: by mail-pg1-f196.google.com with SMTP id f6so7864233pgs.8
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Apr 2019 00:34:36 -0700 (PDT)
+        Wed, 3 Apr 2019 04:47:17 -0400
+Received: by mail-wr1-f49.google.com with SMTP id p10so20211999wrq.1;
+        Wed, 03 Apr 2019 01:47:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=E5hSr5XPWVDtOTprJ4M+OB6en/qp/jTyjg6TZvE9zg4=;
-        b=yH0eacdy6kCpUX2likU+32mgIFIrhnxidQVxfNF8Rbt4wu6b+PwGEs5fd/sijch1A9
-         TBDLq+O/cNn+j1/g8NsQvriPGyRry9fI+XMsuahVOX7bhUFYOiSJCJb6oRmjxxSLDYYv
-         UTW4MuVaXbdPHQWazHzYch8aCjw2R1n9SSxTQkGvBotJ+EHM3jI40wdTTHTO+j7GLbWL
-         Jfrhp2i0AhD8twIqBwYgeULWS6z2UHGfv4MQGmg949ZDAa2YsoGMEsCpCLIZo9C4GO6x
-         vJGDhuTUHDgv5X5g+z4emvKWIHnv6dNZfwbvxUFdqzEC6pcmp7TAJeOZC9JBn94kDVx0
-         i3QQ==
+         :content-disposition:in-reply-to:user-agent;
+        bh=tFRNnaPfxgsd7kdjbcp3Ak2bhf4Ex75awlMXNJiGe/c=;
+        b=i41MgARAGLQthq8ZW76BAjsuhYJPxmH1fkQRBPGDZEBxLdKJoP8gM97vmaO5MRS6jH
+         u4lwnSYvR03ONRRWtPjVpc4SULpd0j7Bfn93dEj+uwyZfLKvT/IL1bnYWB0Lb+K2gWiF
+         tY0gVV92BGIiYj8E6YXnUMRPBGfgCL5arxZ53Khezx0l/fzH034tVNSDaQ61347T7kq+
+         6jAKn3x8o5znaOipbxVZG1ui7j7ENFKDdu7iDUiF5nuF+pm+kNfvLMXzhkqM2V6H0jsD
+         I+5Ul+CnUdMahLUIc4SHjGPJRCDEiKP2NJk9TiETAkvaKez4HTxBz3d4xvVCUIxgzSYm
+         kVyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=E5hSr5XPWVDtOTprJ4M+OB6en/qp/jTyjg6TZvE9zg4=;
-        b=ugU+VtbWkPXbx+oj66YOXf8wxT+TaUoCRqJODT9b1NhtS/s1aym7VvUlSRHnQ9m3pl
-         kqZOWneBK8lZ/o/RqyjL3mOExTYXmkMKT/hRrVcFD/ewvZIO9STwlu2Mk4odEI6TME9+
-         J1hhRpmpMOz2nCagQkwQrsWJfsAVmtZvfnX3VdH7inrZEuKxnsOkGiC0HByOghPAEdAH
-         2eo8+faV2ALLRpanChZv8KesfmtaMloz5kYlZQ8wiK1/R7p6/mIhtDdL8lo9zop9xtLH
-         EtbfJWJQYUAAdvEsguQJXqvq4XG2WBCIgfbiO7olxT5DUt9m8yrXGsKRVV6130EMVuWJ
-         BBvw==
-X-Gm-Message-State: APjAAAXK5Wy9vlEE4FXJJ7W0Odh4H44PYhbxLdqZT96MNGtk2hKsMfJs
-        0pbEm7Z/p3M0ZXvoNceeVTTbjw==
-X-Google-Smtp-Source: APXvYqzgZ7k7CHBY8R+R+XUF+ikzugGh7vzulZfRf3CW0lJZHzUDD/csCIb+ev+UHlS92td8fXEs5w==
-X-Received: by 2002:a62:183:: with SMTP id 125mr74801840pfb.146.1554276876149;
-        Wed, 03 Apr 2019 00:34:36 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id a129sm45307462pfa.152.2019.04.03.00.34.28
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tFRNnaPfxgsd7kdjbcp3Ak2bhf4Ex75awlMXNJiGe/c=;
+        b=qwUhkwnNgQ0KNaTv0eTcGyIriGCH3oZi0wuCqJAMoJhKjS7ldOIcQkwO+amU4kCBsj
+         4B/LaXhMB6Br5oV7rDriJJ1cmXwMPDrhgPLz0xZinRD5Wj+uDCRuZriKnw1TUcmyKoDr
+         zEwCobsflW34+tYiE7vpxK0fe/RNS13iIdAOlzXkiu0WpbfHX4U6leFWqv3+Xqvfaknj
+         z0+6mVYYVXgwJ7owwl4pi3I/tIP709Y4iT4qy26DGaVPh+gKHTZ/uy6bJ7t8nzEXXeW8
+         nPNR7H9rm6YW4Swa6N+GtZ72HVH4PEtZy0NAakRrIxN1M2W6KRnNq1DGyX+9t407lcTt
+         jnUA==
+X-Gm-Message-State: APjAAAUeiIITo1WXX3zmwWsI5MXBCwA82rlUEmr1281Tg5c/hmUh13et
+        61Ipi8qbHjVG2yqQSYx34XY=
+X-Google-Smtp-Source: APXvYqwS6h31kQVYl4p2j5ppv6uLHcB+v8UtPbZrYDj3R/YAbXgM5o0XUjvjqKppQVN8cYPJDJwHWQ==
+X-Received: by 2002:adf:dc88:: with SMTP id r8mr42348832wrj.28.1554281235105;
+        Wed, 03 Apr 2019 01:47:15 -0700 (PDT)
+Received: from localhost (pD9E51B25.dip0.t-ipconnect.de. [217.229.27.37])
+        by smtp.gmail.com with ESMTPSA id f1sm505707wml.28.2019.04.03.01.47.14
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 00:34:35 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 08:34:26 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        Wed, 03 Apr 2019 01:47:14 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 10:47:13 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Joel Stanley <joel@jms.id.au>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
-Subject: Re: [PATCH v11 4/8] dt-bindings: mfd: Document first ROHM BD70528
- bindings
-Message-ID: <20190403073426.GN4187@dell>
-References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Wan ZongShun <mcuos.com@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Kukjin Kim <kgene@kernel.org>, Barry Song <baohua@kernel.org>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
+Message-ID: <20190403084713.GD5238@ulmo>
+References: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="/3yNEOqWowh/8j+e"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, 25 Mar 2019, Matti Vaittinen wrote:
 
-> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> drivers) and 4 GPIO pins which can be configured for I/O or
-> as interrupt sources withe configurable trigger levels.
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 ++++++++++++++++++
->  1 file changed, 102 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> new file mode 100644
-> index 000000000000..120462c17904
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> @@ -0,0 +1,102 @@
-> +* ROHM BD70528 Power Management Integrated Circuit bindings
-> +
-> +BD70528MWV is an ultra-low quiescet current general purpose single-chip
+--/3yNEOqWowh/8j+e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-What does 'quiescet' mean?
+On Tue, Apr 02, 2019 at 12:01:53PM -0700, Guenter Roeck wrote:
+[...]
+>  drivers/watchdog/tegra_wdt.c      | 4 +---
 
-"general purpose, single-chip,"
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-> +power management IC for battery-powered portable devices. The IC
-> +integrates 3 ultra-low current consumption buck converters, 3 LDOs and 2
-> +LED Drivers. Also included are 4 GPIOs, a real-time clock (RTC), a 32kHz
-> +clock gate, high-accuracy VREF for use with an external ADC, flexible
-> +dual-input power path, 10 bit SAR ADC for battery temperature monitor and
-> +1S battery charger with scalable charge currents.
-> +
-> +Required properties:
-> + - compatible		: Should be "rohm,bd70528"
-> + - reg			: I2C slave address.
-> + - interrupts		: The interrupt line the device is connected to.
-> + - interrupt-controller	: To indicate BD70528 acts as an interrupt controller.
-> + - #interrupt-cells	: Should be 2. Usage is compliant to the 2 cells
-> +			  variant of ../interrupt-controller/interrupts.txt
-> + - gpio-controller	: To indicate BD70528 acts as a GPIO controller.
-> + - #gpio-cells		: Should be 2. The first cell is the pin number and
-> +			  the second cell is used to specify flags. See
-> +			  ../gpio/gpio.txt for more information.
-> + - #clock-cells		: Should be 0.
-> + - regulators:		: List of child nodes that specify the regulators.
-> +			  Please see ../regulator/rohm,bd70528-regulator.txt
-> +
-> +Optional properties:
-> + - clock-output-names	: Should contain name for output clock.
-> +
-> +Example:
-> +/* external oscillator */
+--/3yNEOqWowh/8j+e
+Content-Type: application/pgp-signature; name="signature.asc"
 
-"External"
+-----BEGIN PGP SIGNATURE-----
 
-> +osc: oscillator {
-> +	compatible = "fixed-clock";
-> +	#clock-cells = <1>;
-> +	clock-frequency  = <32768>;
-> +	clock-output-names = "osc";
-> +};
-> +
-> +pmic: pmic@4b {
-> +	compatible = "rohm,bd70528";
-> +	reg = <0x4b>;
-> +	interrupt-parent = <&gpio1>;
-> +	interrupts = <29 GPIO_ACTIVE_LOW>;
-> +	clocks = <&osc 0>;
-> +	#clock-cells = <0>;
-> +	clock-output-names = "bd70528-32k-out";
-> +	#gpio-cells = <2>;
-> +	gpio-controller;
-> +	interrupt-controller;
-> +	#interrupt-cells = <2>;
-> +
-> +	regulators {
-> +		buck1: BUCK1 {
-> +			regulator-name = "buck1";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3400000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck2: BUCK2 {
-> +			regulator-name = "buck2";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck3: BUCK3 {
-> +			regulator-name = "buck3";
-> +			regulator-min-microvolt = <800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <250>;
-> +		};
-> +		ldo1: LDO1 {
-> +			regulator-name = "ldo1";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
-> +		ldo2: LDO2 {
-> +			regulator-name = "ldo2";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
-> +
-> +		ldo3: LDO3 {
-> +			regulator-name = "ldo3";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +		};
-> +		led_ldo1: LED_LDO1 {
-> +			regulator-name = "led_ldo1";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +		led_ldo2: LED_LDO2 {
-> +			regulator-name = "led_ldo2";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +	};
-> +};
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlykcxEACgkQ3SOs138+
+s6E2RRAAoT043id64ord0O28U5hcmx0fHiMg9zmloWTkycYSG1MQK4kQ0JAEdPet
+x1JnF2eTEQocqgHGHtk2k/saFXvtO63qBaNxorWhGBgfPNWyR5UAy1WijFE90eOs
+Bu3fldZY+ZZ64Xo2TxtPXc9yXzZ7A7l0dg0l+oV2Wo1MrvBBJtdF0pFPBClz1dXc
+c5fx5ow1vRq5zUd5FB7bUmlM1pmYzh6EhKugrreqQd3TRSMm/+j3BfLI+bDDan7y
+9FOxbZ3GSObFld3bcLNsSk4efJT4SVfIx7MOhHtKtdG4Vn/diFwU8YfOrdS8Wb6u
+IXllxOVVx006HibFXKwnbgS+RWaX22Eg6Av/hd8ZJ0Ud+UbT0Im7W8Zog/k0H3BQ
+ecjhGtfGtIMV2PLMEUY2nyh3xJnTj6UvzdVHQz6X+RXfUJDDrTs/oPZAXm2BzWKZ
+eETYQxga8pRU/eayMnRE8C84YYFx2+y0lOyTkFw8XKch51MfMIGSZJHfpGNSYAvx
+LOS3PwsR9TSozumi5zntfti7wuMvKSUcYk9hLUg4xmGEDPn0zYkCVrXDWroIq4xr
+mwrzg/gZ/jCcfH3MTYo+aps9VRVuzqkjfX6eUJU3caHEXla2zrhngQ29xP0anC+Y
+ldNlM/VhDj1JQfsbbwXMsGlM1kaHxJBArY/8ZvCLSOZdCJav118=
+=vq6o
+-----END PGP SIGNATURE-----
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+--/3yNEOqWowh/8j+e--
