@@ -2,191 +2,289 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AC14C10F06
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 12:01:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2771AC4360F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 12:37:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 047912147A
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 12:01:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E072A2084C
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 12:37:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726372AbfDCMBB (ORCPT
+        id S1726329AbfDCMhv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 08:01:01 -0400
-Received: from mailgate1.rohmeurope.com ([178.15.145.194]:60596 "EHLO
-        mailgate1.rohmeurope.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726167AbfDCMBA (ORCPT
+        Wed, 3 Apr 2019 08:37:51 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:45970 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726097AbfDCMhv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 08:01:00 -0400
-X-Greylist: delayed 901 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Apr 2019 08:00:59 EDT
-X-AuditID: c0a8fbf4-501ff700000014c1-dc-5ca49cf4e312
-Received: from smtp.reu.rohmeu.com (will-cas001.reu.rohmeu.com [192.168.251.177])
-        by mailgate1.rohmeurope.com (Symantec Messaging Gateway) with SMTP id 0F.8A.05313.4FC94AC5; Wed,  3 Apr 2019 13:45:56 +0200 (CEST)
-Received: from WILL-MAIL001.REu.RohmEu.com ([fe80::2915:304f:d22c:c6ba]) by
- WILL-CAS001.REu.RohmEu.com ([fe80::d57e:33d0:7a5d:f0a6%16]) with mapi id
- 14.03.0439.000; Wed, 3 Apr 2019 13:45:51 +0200
-From:   "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-To:     "lee.jones@linaro.org" <lee.jones@linaro.org>
-CC:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "sre@kernel.org" <sre@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Thread-Topic: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Thread-Index: AQHU4wL8Fp/G2VuRn0+8cMWLA5gmIqYp9w8AgABCplmAACBVUv//5ACA
-Date:   Wed, 3 Apr 2019 11:45:50 +0000
-Message-ID: <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
-References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
-         <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
-         <20190403073152.GM4187@dell> <20190403084732.GA3493@localhost.localdomain>
-         <20190403093015.GJ11301@dell> <20190403101003.GC3493@localhost.localdomain>
-         <20190403112559.GP11301@dell>
-In-Reply-To: <20190403112559.GP11301@dell>
-Accept-Language: en-US, de-DE
-Content-Language: de-DE
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [213.255.186.46]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <92B1E7367AA9934D865F65F13A34DA84@de.rohmeurope.com>
-Content-Transfer-Encoding: base64
+        Wed, 3 Apr 2019 08:37:51 -0400
+Received: by mail-lj1-f194.google.com with SMTP id y6so14671976ljd.12;
+        Wed, 03 Apr 2019 05:37:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=ORyNxg9GRH3w44oAofzkIU3DiTW/AUO69cPsh1ANcKU=;
+        b=jENNpYERN8DDWAs4ddVmWnhX2XdTbkTd3IaWDIYfbR2Iq2flP+2QCCJc3FB//qbJRh
+         /fVQpmI2pP0/xYawCN6X6ZEBGwFwQhEXPNMGBiJPfAakGldmO6krWc6RXnDG41vNvQNy
+         447c6Qw4ubi6w7lmQK9z4XZLpoOlbEYMdxI3SjbtqIe3+LqUp8vS2iMUW1sN8fGTFz3Z
+         10zHO6ebZgYO/9Tr+qj50ridXxN4D+wi8al5Z7hwhTtI/gSJuYs2WlNoxXKBu0mDkPlx
+         I6aQ+IpYtPl3Kbt3BGOh+eeuDAKEkYD6zA8zW/6TzuoyQSLq3D96zOKYZa6bJE2fP5v+
+         EdMw==
+X-Gm-Message-State: APjAAAWz17BKSYPRAy6yxDRMhoKW8bdaoRJumZJeNf7WKlSp/kXlvcUO
+        nmwUmm8OrJNix6HJxUslkxY=
+X-Google-Smtp-Source: APXvYqym6JWAPnL4s2+cJDN6b5KTxVKZEgovljvIri9UwDbB1eAfp8512sL2Z6ABNphLzXeUYDKYmA==
+X-Received: by 2002:a2e:85d2:: with SMTP id h18mr5533858ljj.128.1554295067336;
+        Wed, 03 Apr 2019 05:37:47 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id 7sm3582213lju.27.2019.04.03.05.37.45
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 03 Apr 2019 05:37:46 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 15:37:20 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        mazziesaccount@gmail.com
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
+Subject: [PATCH v12 0/8] support ROHM BD70528 PMIC
+Message-ID: <cover.1554294791.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-X-Brightmail-Tracker: H4sIAAAAAAAAA02TfUgTcRjH+d3d7s7lxbVW+7VewFFERpn0wo+oCKK4XpDoDQlpXXo6yW1y
-        23QW6OjNl4oKVuHyrZi92DBcEb1o5bCcJoVkpmHJULOslqX2KtadV+lf9+X5Pt/n8/zgORrX
-        fCH1dKrFLogWPs1AqokHl39VLRgs8iYsOlK1CHmbn1MoN3yRQoPFjQQ6HeomUWndExXqHHoI
-        0NeWPAy5hy9h6POx1yp0vXQYoGd3ikg0cLwOoEdXW0jUVnmPQt3nmzBU/qIZQ0XlQQI1N65F
-        h2vqKDTSWkWgx3ftqOvdCL56Kucr8QHuU9thiivx7edue15RnL8in+Q6WqtJ7orPp+Juf3NR
-        3NmSHxg34J+1Wb1zwoo9vD1ja2qKJWbV7gmm68e+UOmXlzuHOvpJF3iLCkAEDdkl0NVbRRYA
-        Na1hWwEsqshTyYaGrQewxe0sADRNsitgQTsll7VsLPQGewhZ42x7BOy6ECfryexG+OJmLaH0
-        bILhg22YotfBoYOto1mCnQ2Hwp9GxzNsHPx5Ig9XuCEMNh3qGW2KYKPho19PcFkDdibMd4Ux
-        BaaD/jffVMrSLPRWP8UVPQW+6xr5WzfAmh8hQt4ZZ+fBa3dilOhqOJCbjys6CrqPhihlh0mw
-        obCbOAmmesYRPGNpz7i0Z1zaMy5dBlQVAJr51LQU3i7ELhQFx0LRajJLn0Sr2Q+Uqxm8BX4H
-        1gcASwNDJHPmjDdBo+IzbFnmAJhGY4YpzLJsqTRxjzUpy8TbTEbRkSbYAgDSuEHLNJ0oS9Aw
-        SXzWPkG0/rOm04RBx2RecidoWJm8VxDSBfGfO4OmDZAB56Shk0QhRXAmp6bZx2yMjpCHq/Va
-        m2BJEkTeYTcZ5WMx2qRrka1IifveI8UZWzpvlqpKtBHMpx9cCBXj9Mfa3mJcQ1isFkGvY4wy
-        iZVbTQ7Lf1Af0EnvncwIshsp/Uj/5/RJCExCIEepjLDzY5beBa6tyZzlPurP2XFy65y5fTHb
-        tRvDLcNC1IdKQpvREJ+3Ltp3bxsdv+VUSaI/Z2mF82lccnJ8stUR3LAfN3bUBNfULi7fdT/7
-        RlIgp7Ow/3Fd/cUDuV1zyuYXJs4LdeoehuEp50ymf+33KE25OjO7uje4Uv/y/TOL0ZlV2dNk
-        b5+93UDYTHxsNC7a+D+78skLBQQAAA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-T24gV2VkLCAyMDE5LTA0LTAzIGF0IDEyOjI1ICswMTAwLCBMZWUgSm9uZXMgd3JvdGU6DQo+IE9u
-IFdlZCwgMDMgQXByIDIwMTksIE1hdHRpIFZhaXR0aW5lbiB3cm90ZToNCj4gDQo+ID4gT24gV2Vk
-LCBBcHIgMDMsIDIwMTkgYXQgMTA6MzA6MTVBTSArMDEwMCwgTGVlIEpvbmVzIHdyb3RlOg0KPiA+
-ID4gT24gV2VkLCAwMyBBcHIgMjAxOSwgTWF0dGkgVmFpdHRpbmVuIHdyb3RlOg0KPiA+ID4gDQo+
-ID4gPiA+IEhlbGxvIExlZSwNCj4gPiA+ID4gDQo+ID4gPiA+IFRoYW5rcyBmb3IgdGFraW5nIGEg
-bG9vayBvbiB0aGlzIGFnYWluID0pIEkgYWdyZWUgd2l0aCBtb3N0IG9mDQo+ID4gPiA+IHRoZQ0K
-PiA+ID4gPiBjb21tZW50cyBhbmQgY29ycmVjdCB0aGVtIGF0IG5leHQgdmVyc2lvbi4NCj4gPiA+
-ID4gDQo+ID4gPiA+IE9uIFdlZCwgQXByIDAzLCAyMDE5IGF0IDA4OjMxOjUyQU0gKzAxMDAsIExl
-ZSBKb25lcyB3cm90ZToNCj4gPiA+ID4gPiBPbiBNb24sIDI1IE1hciAyMDE5LCBNYXR0aSBWYWl0
-dGluZW4gd3JvdGU6DQo+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiBST0hNIEJENzA1MjhNV1YgaXMg
-YW4gdWx0cmEtbG93IHF1aWVzY2VudCBjdXJyZW50IGdlbmVyYWwNCj4gPiA+ID4gPiA+IHB1cnBv
-c2Ugc2luZ2xlLWNoaXAgcG93ZXIgbWFuYWdlbWVudCBJQyBmb3IgYmF0dGVyeS1wb3dlcmVkDQo+
-ID4gPiA+ID4gPiBwb3J0YWJsZSBkZXZpY2VzLg0KPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiBB
-ZGQgTUZEIGNvcmUgd2hpY2ggZW5hYmxlcyBjaGlwIGFjY2VzcyBmb3IgZm9sbG93aW5nDQo+ID4g
-PiA+ID4gPiBzdWJkZXZpY2VzOg0KPiA+ID4gPiA+ID4gCS0gcmVndWxhdG9ycy9MRUQgZHJpdmVy
-cw0KPiA+ID4gPiA+ID4gCS0gYmF0dGVyeS1jaGFyZ2VyDQo+ID4gPiA+ID4gPiAJLSBncGlvcw0K
-PiA+ID4gPiA+ID4gCS0gMzIuNzY4a0h6IGNsaw0KPiA+ID4gPiA+ID4gCS0gUlRDDQo+ID4gPiA+
-ID4gPiAJLSB3YXRjaGRvZw0KPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5
-OiBNYXR0aSBWYWl0dGluZW4gPA0KPiA+ID4gPiA+ID4gbWF0dGkudmFpdHRpbmVuQGZpLnJvaG1l
-dXJvcGUuY29tPg0KPiA+ID4gPiA+ID4gKyAqIE1hcHBpbmcgb2YgbWFpbiBJUlEgcmVnaXN0ZXIg
-Yml0cyB0byBzdWIgaXJxIHJlZ2lzdGVyDQo+ID4gPiA+ID4gPiBvZmZzZXRzIHNvDQo+ID4gPiA+
-ID4gDQo+ID4gPiA+ID4gInN1Yi1JUlEiDQo+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiArICogdGhh
-dCB3ZSBjYW4gYWNjZXNzIGNvcmVjdCBzdWIgSVJRIHJlZ2lzdGVycyBiYXNlZCBvbg0KPiA+ID4g
-PiA+ID4gYml0cyB0aGF0DQo+ID4gPiA+ID4gDQo+ID4gPiA+ID4gInN1YiBJUlEiIGlzIGFsc28g
-ZmluZSwgYnV0IHBsZWFzZSBzdGFuZGFyZGlzZS4NCj4gPiA+ID4gPiANCj4gPiA+ID4gPiBJIGRv
-IHByZWZlciAic3ViLUlSUSIgdGhvdWdoLg0KPiA+ID4gPiANCj4gPiA+ID4gSSdsbCBnbyB3aXRo
-ICJzdWItSVJRIiB0aGVuDQo+ID4gPiA+IA0KPiA+ID4gPiA+ID4gKw0KPiA+ID4gPiA+ID4gKyNk
-ZWZpbmUgV0RfQ1RSTF9NQUdJQzEgMHg1NQ0KPiA+ID4gPiA+ID4gKyNkZWZpbmUgV0RfQ1RSTF9N
-QUdJQzIgMHhBQQ0KPiA+ID4gPiA+ID4gKy8qKg0KPiA+ID4gPiA+ID4gKyAqIGJkNzA1Mjhfd2R0
-X3NldCAtIGFybSBvciBkaXNhcm0gd2F0Y2hkb2cgdGltZXINCj4gPiA+ID4gPiA+ICsgKg0KPiA+
-ID4gPiA+ID4gKyAqIEBkYXRhOglkZXZpY2UgZGF0YSBmb3IgdGhlIFBNSUMgaW5zdGFuY2Ugd2Ug
-d2FudCB0bw0KPiA+ID4gPiA+ID4gb3BlcmF0ZSBvbg0KPiA+ID4gPiA+ID4gKyAqIEBlbmFibGU6
-CW5ldyBzdGF0ZSBvZiBXRFQuIHplcm8gdG8gZGlzYWJsZSwgbm9uDQo+ID4gPiA+ID4gPiB6ZXJv
-IHRvIGVuYWJsZQ0KPiA+ID4gPiA+ID4gKyAqIEBvbGRfc3RhdGU6CXByZXZpb3VzIHN0YXRlIG9m
-IFdEVCB3aWxsIGJlIGZpbGxlZA0KPiA+ID4gPiA+ID4gaGVyZQ0KPiA+ID4gPiA+ID4gKyAqDQo+
-ID4gPiA+ID4gPiArICogQXJtIG9yIGRpc2FybSBXRFQgb24gQkQ3MDUyOCBQTUlDLiBFeHBlY3Rl
-ZCB0byBiZQ0KPiA+ID4gPiA+ID4gY2FsbGVkIG9ubHkgYnkNCj4gPiA+ID4gPiA+ICsgKiBCRDcw
-NTI4IFJUQyBhbmQgQkQ3MDUyOCBXRFQgZHJpdmVycy4gVGhlIHJ0Y190aW1lcl9sb2NrDQo+ID4g
-PiA+ID4gPiBtdXN0IGJlIHRha2VuDQo+ID4gPiA+ID4gPiArICogYnkgY2FsbGluZyBiZDcwNTI4
-X3dkdF9sb2NrIGJlZm9yZSBjYWxsaW5nDQo+ID4gPiA+ID4gPiBiZDcwNTI4X3dkdF9zZXQuDQo+
-ID4gPiA+ID4gPiArICovDQo+ID4gPiA+ID4gPiAraW50IGJkNzA1Mjhfd2R0X3NldChzdHJ1Y3Qg
-cm9obV9yZWdtYXBfZGV2ICpkYXRhLCBpbnQNCj4gPiA+ID4gPiA+IGVuYWJsZSwgaW50ICpvbGRf
-c3RhdGUpDQo+ID4gPiA+ID4gDQo+ID4gPiA+ID4gV2h5IGRvZXNuJ3QgdGhpcyByZXNpZGUgaW4g
-dGhlIHdhdGNoZG9nIGRyaXZlcj8NCj4gPiA+ID4gDQo+ID4gPiA+IElmIG15IG1lbW9yeSBzZXJ2
-ZXMgbWUgcmlnaHQgd2Ugc2hvcnRseSBkaXNjdXNzZWQgdGhpcyBhbHJlYWR5DQo+ID4gPiA+IGR1
-cmluZyB2OA0KPiA+ID4gPiByZXZpZXcgOykgQ2FudCBibGFtZSB5b3UgdGhvdWdoIGFzIEkgaGF2
-ZSBzZWVuIHNvbWUgb2YgdGhlIG1haWwNCj4gPiA+ID4gdHJhZmZpYw0KPiA+ID4gPiBnb2luZyB0
-aHJvdWdoIHlvdXIgaW5ib3ggOkQNCj4gPiA+ID4gDQo+ID4gPiA+IFRoZSBtb3RpdmF0aW9uIHRv
-IGhhdmUgdGhlIGZ1bmN0aW9ucyBleHBvcnRlZCBmcm9tIE1GRCBpcyB0bw0KPiA+ID4gPiBub3Qg
-Y3JlYXRlDQo+ID4gPiA+IHNpcmVjdCBkZXBlbmRlbmN5IGJldHdlZW4gUlRDIGFuZCBXRFQuIFRo
-ZXJlIG1heSBiZSBjYXNlcyB3aGVyZQ0KPiA+ID4gPiB3ZSB3YW50DQo+ID4gPiA+IHRvIGxlYXZl
-IGVpdGhlciBSVEMgb3IgV0RUIG91dCBvZiBjb21waWxhdGlvbi4gTUZEIGlzIGFsd2F5cw0KPiA+
-ID4gPiBuZWVkZWQgc28NCj4gPiA+ID4gdGhlIGRlcGVuZGVuY3kgZnJvbSBNRkQgdG8gUlRDL1dE
-VCBkb2VzIG5vdCBoYXJtLg0KPiA+ID4gPiANCj4gPiA+ID4gKEhlcmUncyBzb21lIGRpc2N1c3Np
-b24gbmVjcm9tYW5jeSBpZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gcmUtDQo+ID4gPiA+IHJlYWRp
-bmcNCj4gPiA+ID4gaG93IHdlIGRpZCBlbmQgdXAgd2l0aCB0aGlzIGltcGxlbWVudGF0aW9uOg0K
-PiA+ID4gPiBodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21sLzIwMTkwMjEyMDkxNzIzLkdaMjA2
-MzhAZGVsbC8pDQo+ID4gPiA+IA0KPiA+ID4gPiBJIGhvcGUgeW91IGFyZSBzdGlsbCBPayB3aXRo
-IGhhdmluZyB0aGUgV0RUIGNvbnRyb2wgZnVuY3Rpb25zDQo+ID4gPiA+IGluIE1GRC4NCj4gPiA+
-IA0KPiA+ID4gT09JLCB3aHkgZG9lcyB0aGUgUlRDIG5lZWQgdG8gY29udHJvbCB0aGUgV0RUPw0K
-PiA+IA0KPiA+IEkgdGhvdWdodCBJIGhhZCBhIGNvbW1lbnQgYWJvdXQgdGhpcyBzb21ld2hlcmUg
-aW4gY29kZS4uLiBPX28gTXVzdA0KPiA+IGhhdmUNCj4gPiBiZWVuIGluIHNvbWUgZGV2ZWxvcG1l
-bnQgYnJhbmNoIEkgaGFkIDovDQo+ID4gDQo+ID4gQW55d2F5cywgc2V0dGluZyB0aGUgUlRDIGNv
-dW50ZXIgbWF5IGNhdXNlIHdhdGNoZG9nIHRvIHRyaWdnZXIuIEl0DQo+ID4gaXMgbm90DQo+ID4g
-ZnVydGhlciBleHBsYWluZWQgd2h5IGJ1dCBJIHdvdWxkIGd1ZXNzIHdhdGNoZG9nIHVzZXMgUlRD
-IGNvdW50ZXINCj4gPiB0byBjaGVjaw0KPiA+IGlmIGl0IHNob3VsZCd2ZSBiZWVuIHBpbmdlZCBh
-bHJlYWR5LiBTbyBSVEMgbmVlZHMgdG8gZGlzYWJsZSB3YXRjaA0KPiA+IGRvZyBmb3INCj4gPiB0
-aGUgZHVyYXRpb24gb2YgaHdjbG9jayBzZXR0aW5nIGFuZCBlbmFibGUgaXQgYWdhaW4gYWZ0ZXIg
-dGhlIG5ldw0KPiA+IHRpbWUgaXMNCj4gPiBzZXQuIEkgY2FuIGFkZCBhIGNvbW1lbnQgYWJvdXQg
-dGhpcyB0byBNRkQgZHJpdmVyIGlmIGl0IGhlbHBzIDopDQo+IA0KPiBIb3cgZG9lcyB0aGUgdXNl
-ciBzZWxlY3QgYmV0d2VlbiB1c2luZyB0aGUgUlRDIGFuZCB0aGUgV0RUPw0KPiANCj4gT3IgYXJl
-IHRoZSBnZW5lcmFsbHkgYm90aCBlbmFibGVkIGF0IHRoZSBzYW1lIHRpbWU/DQo+IA0KDQpCb3Ro
-IFJUQyBhbmQgV0RUIGNhbiBiZSBlbmFibGVkIGF0IHRoZSBzYW1lIHRpbWUuIEJ1dCB0aGV5IGFy
-ZSBub3QNCnJlcXVpcmVkIHRvIGJlIHVzZWQuIFdoZW4gV0RUIGlzIGVuYWJsZWQsIGl0IHVzZXMg
-Y3VycmVudCBSVEMgdGltZSBhcw0KJ2Jhc2UnIChhbmQgUlRDIHRpbWUgaXMgcnVubmluZyBubyBt
-YXR0ZXIgaWYgd2UgaGF2ZSB0aGUgUlRDIGRyaXZlcg0KaGVyZSBvciBub3QpIC0gYW5kIHRpbWUt
-b3V0IGdldHMgc2NoZWR1bGVkIHRvIHNwZWNpZmllZCBhbW91bnQgb2YgdGltZQ0KaW50byBmdXR1
-cmUuIChTYW1lIHNldHRpbmcgdGltZW91dCBpbnRvIHRoZSBmdXR1cmUgaGFwcGVucyB3aGVuIFdE
-VCBpcw0KcGluZ2VkKS4NCg0KV2hlbiB3ZSBzZXQgUlRDLCB3ZSBkaXNhYmxlIFdEVCAoaWYgaXQg
-d2FzIGVuYWJsZWQpLCBzZXQgY2xvY2sgYW5kIHJlLQ0KZW5hYmxlIFdEVC4gVGhpcyBjYXVzZXMg
-dGhlIHByZXZpb3VzbHkgdXNlZCB0aW1lLW91dCB2YWx1ZSB0byBiZSBzZXQgdG8NCldEVCBhZ2Fp
-bi4gVGhpcyB3b3JrcyBPayBiZWNhdXNlIEJENzA1MjggZG9lcyBub3Qgc3VwcG9ydCAnc2hvcnQg
-cGluZw0KZGV0ZWN0aW9uJy4gT25seSBzaWRlLWVmZmVjdCB3aWxsIGJlIG9uZSAncHJvbG9uZ2Vk
-JyBXRFQgZmVlZGluZyBwZXJpb2QNCndoZW4gUlRDIGlzIHNldC4gKGFic29sdXRlIHRpbWUgd2hl
-biBSVEMgd2FzIHNldCBtaW51cyBhYnNvbHV0ZSB0aW1lDQp3aGVuIHByZXZpb3VzIFdEIHBpbmcg
-b3IgZW5hYmxlIHdhcyBkb25lKSBsb25nZXIgdGhhbiByZXF1bGFyIHBlcmlvZC4NCg0KU28gdXNl
-ciBzaG91bGQgbm90IG5lZWQgdG8gY2FyZSBhYm91dCB0aGlzICdkZXBlbmRlbmN5Jy4gQmFzaWNh
-bGx5IHRoZQ0Kb25seSBwb3NzaWJsZSBwcm9ibGVtIEkgc2VlIGlzIHRoYXQgc29tZW9uZSBjb3Vs
-ZCBhY2NpZGVudGFsbHkgaGFuZyB0aGUNCnN5c3RlbSB3aXRoIHNvbWV0aGluZyB0aGF0IGtlZXBz
-IHNldHRpbmcgdGhlIFJUQyB0aW1lIC0gdGhpcyB3b3VsZCB0aGVuDQpwcmV2ZW50IHdhdGNoIGRv
-ZyBmcm9tIGRvaW5nIHRoZSByZXNldC4gVGhpcywgSSBiZWxpZXZlLCBpcyBhIGNvcm5lcg0KY2Fz
-ZSB3aGljaCBJIGRvbid0IGNvbnNpZGVyIG5vdyAtIGFuZCBpZiB0aGlzIGlzIGNvbnNpZGVyZWQg
-dG8gYmUgYW4NCmlzc3VlIHRoZW4gc3VjaCBhIHN5c3RlbSBtYXkgZGlzYWJsZSB0aGUgUlRDIGRy
-aXZlciBhbmQgZG8gUlRDIHNldHRpbmcNCmluIGEgd2hhdC1ldmVyLW1hbm5lciBzZWVzIHByYWN0
-aWNhbC4NCg0KSSdtIG5vdCBzdXJlIGlmIEkgYW5zd2VyZWQgdG8gcXVlc3Rpb24geW91IGFza2Vk
-IHRob3VnaCA9KQ0KDQpCciwNCglNYXR0aSBWYWl0dGluZW4NCg==
+Patch series introducing support for ROHM BD70528 PMIC
+
+ROHM BD70528 is a programmable Power Management IC for battery
+powered 'ultra low power' systems like the pre-announced NXP
+i.MX7 ULP. This patch series introduces support for the PMIC. Please
+note that this driver only supports HW setup where PMIC is connected
+to I2C on A7 core. The other scenario is to use M4 as a power manager
+and connect pmic to M4. On such setups the A7 can only access pmic
+via M4 core using RPMSG virtio. Such setup depends on RPMSG
+implementation on M4 core and is currently not supported by this
+patch series.
+
+RTC block of the bd70528 can support 'wake' irq which wakes PMIC
+from standby state. Wake irq's can be armed to wake up system up
+to 24 hours from arming. bd70528 can also generate alarm interrupts
+which can be armed to occur years after triggering. The RTC driver
+does always arm both the waker and alarm irqs and does not utilize
+longer period of alarm interrupts. All the RTC timers are limited
+to occur within the next 24 hours. Any suggestions on more elegant
+timer support are welcome =)
+
+GPIO portion of bd70528 driver adds I/O support for driving GPIO
+pins or reading the state. The interrupt functionality is provided
+by regmap-irq. Current GPIO driver is not aware of whether the pin(s)
+are used for I/O or interrupts and it is up-to driver user to
+ensure there is no misconfiguration or "double use".
+
+The power-supply patch included in series is only poorly tested as I
+lack of hardware with real battery connected. Reset and ADC are not
+supported by this series.
+
+Changelog v12:
+- No functional changes
+- Fixed styling issues pointed by Lee Jones
+- Fixed styling issues pointed by Alexandre Belloni
+- Fixed various styling issues
+
+Changelog v11:
+- No functional changes
+- Rebased on linux 5.1-rc2
+- Dropped patch 9 which was already applied by Mark
+- renamed dt-bindings patch as suggested by Rob
+  
+Changelog v10:
+- Exported locking functions for RTC lock and as a result dropped hid
+  the struct bd70528 from sub-devices who no longer needed it.
+- removed linux/gpio.h header from GPIO driver.
+
+Changelog v9: Changes suggested by Lee Jones
+- MFD, DT-binding, RTC and WDT changed
+- DT-bindings: Spelling fixes
+- RTC and WDT: Use exported function instead of function pointer for WDT
+  arming/disarming
+- MFD: Export WDT arming/disarming function instead of providing a
+  pointer to it.
+- Various styling fixes.
+
+Changelog v8:
+- regulators(*), wdt, gpio, rtc, mfd(*) and dt-bindings unchanged.
+  (*)Patches 1-3 squashed to not break bisecting.
+
+- removed unnecessary newline from clk
+- fixed possible use of uninitialized 'reg' from power-supply.
+  Found by 0-day tests and reported by Dan Carpenter.
+
+Changelog v7:
+Only patch 2 changed.
+- Avoid out-of-array-bounds access at regulator probe if unsupported
+  chip type is passed to bd718x7 regulator driver.
+
+Changelog v6:
+Only patch 10 changed.
+- styling fixes pointed by Gunter Roeck
+- dropped RFC tag
+
+Changelog v5 (RFC):
+Only patch 7 changed.
+- Explained why lock is not needed at GPIO value getting
+- removed ampersands from function pointer assignments.
+
+Changelog v4 (RFC):
+patches 1,2,3,4,5,10 are unchanged from v3
+DT-binding fixes suggested by Rob Herring:
+- drop interrupt-parent
+- drop clock-frequency
+- change pmic node name to a generic one
+RTC:
+- enable RTC block's irqs before registering rtc
+GPIO fixes after initial testing:
+- fix getting GPIO value when direction is output
+POWER:
+- Add ASCII art intended to clarify the charger HW state machine
+
+Changelog v3 (RFC):
+patches 1,2,3,4,5,6,7,8 and 10 are unchanged from v2
+RTC fixups suggested by Guenter Roeck:
+- create bd70528_set_time_locked function in order to simplify
+  error handling and to make mutex lock/unlock path more obvious
+- don't ignore errors on bd70528_set_time_locked
+- simplify bd70528_read_alarm enabled condition setting
+- add __packed to structs where members are mapped to HW registers
+- remove unnecessary brackets from enable condition in set_wake
+RTC: fixups suggested by Alessandro Belloni
+- don't use deprecated devm_rtc_device_register
+- add alarm_irq_enable callback
+- add range_min and range_max
+WDT:
+- add regmap and mutex pointers to WDT data so that they can be accessed
+  without dereferencing the parent data
+- remove parent data pointer from WDT data
+- embed struct watchdog_device into WDT data in order to avoid double
+  allocation.
+GPIO:
+- remove unused header as pointed by Linus Walleij
+POWER:
+- do not copy the whole MFD data (especially the mutex to avoid
+  all possibilities of accidentally using the copy of a mutex)
+
+Changelog v2 (RFC): Mainly feedback from Guenter Roeck:
+- patches 1, 2, 3, 4, 5, 9 are unchanged.
+- mfd: own mutex for each bd70528 instance - embed in struct bd70528
+- watchdog: do not copy parent device data
+- watchdog: fix deadlock caused by double locked mutex
+- watchdog: set initial timeouts and WDT parent information
+- watchdog: remove unnecessary ping function from ops
+- watchdog: and the comment regarding it
+- watchdog: allocate watchdog struct in order to allow multiple WDG
+  instances
+- rtc: bd70528 fix the order of mutex unlock and re-enabling RTC based
+  timers
+- rtc: fix the irq mask register address
+- power: fix the irq mask register address
+- regulator/regmap-irq: Drop the patches 1, 8 and 9 from original series
+  as those were already applied by Mark 
+
+Patch 1:
+	split the bd718x7.h to generic and chip specific portions.
+	(breaks compilation without patch 2 and 3)
+	- adapt bd718x7.h changes to bd718x7 regulator driver
+	- adapt bd718x7.h changes to bd718x7 clk driver
+Patch 2:
+	add MFD core support for bd70528
+Patch 3:
+	support bd70528 clk using bd718x7 clk driver
+Patch 4:
+	document DT bindings for BD70528
+Patch 5:
+	support BD70528 GPIO block
+Patch 6:
+	support BD70528 RTC
+Patch 7:
+	support BD70528 battery charger
+Patch 8:
+	support BD70528 watchdog
+
+This patch series is based on Linus' v5.1-rc2 tag.
+
+---
+
+Matti Vaittinen (8):
+  mfd: regulator: clk: split rohm-bd718x7.h
+  mfd: bd70528: Support ROHM bd70528 PMIC - core
+  clk: bd718x7: Support ROHM BD70528 clk block
+  dt-bindings: mfd: Document first ROHM BD70528 bindings
+  gpio: Initial support for ROHM bd70528 GPIO block
+  rtc: bd70528: Initial support for ROHM bd70528 RTC
+  power: supply: Initial support for ROHM BD70528 PMIC charger block
+  watchdog: bd70528: Initial support for ROHM BD70528 watchdog block
+
+ .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 +++
+ drivers/clk/Kconfig                           |   6 +-
+ drivers/clk/clk-bd718x7.c                     |  24 +-
+ drivers/gpio/Kconfig                          |  11 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-bd70528.c                   | 232 ++++++
+ drivers/mfd/Kconfig                           |  17 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/rohm-bd70528.c                    | 429 ++++++++++
+ drivers/mfd/rohm-bd718x7.c                    |  23 +-
+ drivers/power/supply/Kconfig                  |   9 +
+ drivers/power/supply/Makefile                 |   1 +
+ drivers/power/supply/bd70528-charger.c        | 742 ++++++++++++++++++
+ drivers/regulator/bd718x7-regulator.c         |  25 +-
+ drivers/rtc/Kconfig                           |   8 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-bd70528.c                     | 500 ++++++++++++
+ drivers/watchdog/Kconfig                      |  12 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/bd70528_wdt.c                | 188 +++++
+ include/linux/mfd/rohm-bd70528.h              | 383 +++++++++
+ include/linux/mfd/rohm-bd718x7.h              |  22 +-
+ include/linux/mfd/rohm-generic.h              |  20 +
+ 23 files changed, 2712 insertions(+), 46 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+ create mode 100644 drivers/gpio/gpio-bd70528.c
+ create mode 100644 drivers/mfd/rohm-bd70528.c
+ create mode 100644 drivers/power/supply/bd70528-charger.c
+ create mode 100644 drivers/rtc/rtc-bd70528.c
+ create mode 100644 drivers/watchdog/bd70528_wdt.c
+ create mode 100644 include/linux/mfd/rohm-bd70528.h
+ create mode 100644 include/linux/mfd/rohm-generic.h
+
+-- 
+2.17.2
+
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
