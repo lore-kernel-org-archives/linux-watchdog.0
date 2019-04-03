@@ -2,92 +2,130 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71893C4360F
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:53:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17970C4360F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 09:04:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4164C2147A
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:53:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1554281639;
-	bh=mLG0lFWWjuKHDuct7jHz9VAnVZUUC3f8aoUl7zoG47M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=aScXUtQyZo0xfG0NXrL5VWQFV3NtFEdM5fLrm7FR9FoWhG0SCkkMxfSztApgGSJXL
-	 9bzSxZwoaWel7LIEWAS6lh1rdLbCd7/IH91gNxMNKJFZn8OxE5i1Ab98XGgyQZDUgV
-	 W9QZyRfaCEV7BN+KoEiqbe25CpS78A9E25mZmSHI=
+	by mail.kernel.org (Postfix) with ESMTP id DE79920882
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 09:04:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbfDCIxy (ORCPT
+        id S1726496AbfDCJEN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 04:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52906 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726199AbfDCIxy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 04:53:54 -0400
-Received: from X250 (unknown [147.50.13.10])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C65562148E;
-        Wed,  3 Apr 2019 08:53:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1554281633;
-        bh=mLG0lFWWjuKHDuct7jHz9VAnVZUUC3f8aoUl7zoG47M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=alRQgUO8F0xOQ9JTu62Yy0H5gUxwcfM8eHM2KcNRMSCxtfo7j2oMyJ3PKEhS5BO/A
-         M/JaebO8Y5dTSErLq0YTnR9cRnw7CYKTa1/zYM5D/5H8Byf058a1XjU9txQm1iLLYM
-         Xk5eSIhZoKgE4qZSPEi/6OVqAlPGJp8gH7XG7LaI=
-Date:   Wed, 3 Apr 2019 15:53:40 +0700
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "ezequiel@collabora.com" <ezequiel@collabora.com>,
-        "stefan.wahren@i2se.com" <stefan.wahren@i2se.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "olof@lixom.net" <olof@lixom.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V9 1/4] dt-bindings: watchdog: add i.MX system controller
- watchdog
-Message-ID: <20190403085339.GA7932@X250>
-References: <1553134884-1720-1-git-send-email-Anson.Huang@nxp.com>
- <1553134884-1720-2-git-send-email-Anson.Huang@nxp.com>
- <20190325203727.GA27661@bogus>
- <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+        Wed, 3 Apr 2019 05:04:13 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:39462 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725857AbfDCJEM (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 3 Apr 2019 05:04:12 -0400
+Received: by mail-lf1-f65.google.com with SMTP id m13so11108515lfb.6;
+        Wed, 03 Apr 2019 02:04:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=yvh8D9pqYZ7qDKwQ/mIum3pVVgIu4bmSWSk7/XWJxNc=;
+        b=WRvcgda/DfhYFi40Sq9q7RiViIapFaYOXp9Wdq3XuZDULD6BdvMeQYXljTKE5/8d9w
+         apHNH0KRmU5ExbTJxnYB7efLph6XOMzJvHAOqnN+w6Ouo+Ayli4hoA7NsQjzDBiqjaRk
+         NP8Zh/VhWs2ldG4WoyHZ2fBe8eyBkT6EP6+1IL0gW5ACvB8hMvKk7onBIjkIIszHqFlH
+         tE2dH+g3Vx3hdPbDCOMGUHp8Hx2Du5GOE08yFtekJ7BAlNvwhGCLlG64+hFWrK4rXOUU
+         sxomtrebidwYDzwaIPPFtNB73hvD7757I2Cj1U+t5P9J+dPvRHOw8jzF6czILNKIJz/d
+         2tyA==
+X-Gm-Message-State: APjAAAULkqybtfROocorWzcDbZSZHEYzFx1+eqEh6dTu72B7AGHTxCOm
+        qlKvKtWb7mxqJgjJQHRG8fQ=
+X-Google-Smtp-Source: APXvYqzU0fUqMBL8w2QcSyeInGNqfOMwSdoWEeL8Jio4DxpxmYEcSrrT/evMdYpEte58h35Awx0RVQ==
+X-Received: by 2002:ac2:5479:: with SMTP id e25mr2584442lfn.121.1554282249501;
+        Wed, 03 Apr 2019 02:04:09 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id i24sm2844879lfl.73.2019.04.03.02.04.07
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 03 Apr 2019 02:04:08 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 12:04:06 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
+Subject: Re: [PATCH v11 4/8] dt-bindings: mfd: Document first ROHM BD70528
+ bindings
+Message-ID: <20190403090406.GB3493@localhost.localdomain>
+References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190403073426.GN4187@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190403073426.GN4187@dell>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 29, 2019 at 07:44:21AM +0000, Anson Huang wrote:
-> Hi, Guenter/Shawn
-> 	Since DT has been acked, would you pick up this patch series if no additional comments?
-> 
+And thanks again for fixing the language. Appreciated!
 
-Applied patch #3 and #4, thanks.
+On Wed, Apr 03, 2019 at 08:34:26AM +0100, Lee Jones wrote:
+> On Mon, 25 Mar 2019, Matti Vaittinen wrote:
+> 
+> > Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> > drivers) and 4 GPIO pins which can be configured for I/O or
+> > as interrupt sources withe configurable trigger levels.
+> > 
+> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> > Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+> >  .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 ++++++++++++++++++
+> >  1 file changed, 102 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > new file mode 100644
+> > index 000000000000..120462c17904
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > @@ -0,0 +1,102 @@
+> > +* ROHM BD70528 Power Management Integrated Circuit bindings
+> > +
+> > +BD70528MWV is an ultra-low quiescet current general purpose single-chip
+> 
+> What does 'quiescet' mean?
+
+I guess you knew what I meant =) Quiescent - I'll fix the typo.
+
+> "general purpose, single-chip,"
+
+Rules for using commas are far beyond my skills. I was bad in it at
+Finnish classes. Not to even mention English. Actually, the teacher
+suggested us to rather leave out the commas than trying to place them
+correctly in English sentences. Guess the rules are not that simple =)
+
+So I'll just add them as you suggested =)
+
+Br,
+	Matti Vaittinen
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
