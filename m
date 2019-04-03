@@ -2,132 +2,155 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D18CCC4360F
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33253C10F0C
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A24762147C
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:42 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i41MgARA"
+	by mail.kernel.org (Postfix) with ESMTP id 0BE242147C
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729110AbfDCIrS (ORCPT
+        id S1729268AbfDCIrt (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 04:47:18 -0400
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:34632 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729099AbfDCIrR (ORCPT
+        Wed, 3 Apr 2019 04:47:49 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41491 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726097AbfDCIro (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 04:47:17 -0400
-Received: by mail-wr1-f49.google.com with SMTP id p10so20211999wrq.1;
-        Wed, 03 Apr 2019 01:47:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=tFRNnaPfxgsd7kdjbcp3Ak2bhf4Ex75awlMXNJiGe/c=;
-        b=i41MgARAGLQthq8ZW76BAjsuhYJPxmH1fkQRBPGDZEBxLdKJoP8gM97vmaO5MRS6jH
-         u4lwnSYvR03ONRRWtPjVpc4SULpd0j7Bfn93dEj+uwyZfLKvT/IL1bnYWB0Lb+K2gWiF
-         tY0gVV92BGIiYj8E6YXnUMRPBGfgCL5arxZ53Khezx0l/fzH034tVNSDaQ61347T7kq+
-         6jAKn3x8o5znaOipbxVZG1ui7j7ENFKDdu7iDUiF5nuF+pm+kNfvLMXzhkqM2V6H0jsD
-         I+5Ul+CnUdMahLUIc4SHjGPJRCDEiKP2NJk9TiETAkvaKez4HTxBz3d4xvVCUIxgzSYm
-         kVyA==
+        Wed, 3 Apr 2019 04:47:44 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k8so5701662lja.8;
+        Wed, 03 Apr 2019 01:47:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=tFRNnaPfxgsd7kdjbcp3Ak2bhf4Ex75awlMXNJiGe/c=;
-        b=qwUhkwnNgQ0KNaTv0eTcGyIriGCH3oZi0wuCqJAMoJhKjS7ldOIcQkwO+amU4kCBsj
-         4B/LaXhMB6Br5oV7rDriJJ1cmXwMPDrhgPLz0xZinRD5Wj+uDCRuZriKnw1TUcmyKoDr
-         zEwCobsflW34+tYiE7vpxK0fe/RNS13iIdAOlzXkiu0WpbfHX4U6leFWqv3+Xqvfaknj
-         z0+6mVYYVXgwJ7owwl4pi3I/tIP709Y4iT4qy26DGaVPh+gKHTZ/uy6bJ7t8nzEXXeW8
-         nPNR7H9rm6YW4Swa6N+GtZ72HVH4PEtZy0NAakRrIxN1M2W6KRnNq1DGyX+9t407lcTt
-         jnUA==
-X-Gm-Message-State: APjAAAUeiIITo1WXX3zmwWsI5MXBCwA82rlUEmr1281Tg5c/hmUh13et
-        61Ipi8qbHjVG2yqQSYx34XY=
-X-Google-Smtp-Source: APXvYqwS6h31kQVYl4p2j5ppv6uLHcB+v8UtPbZrYDj3R/YAbXgM5o0XUjvjqKppQVN8cYPJDJwHWQ==
-X-Received: by 2002:adf:dc88:: with SMTP id r8mr42348832wrj.28.1554281235105;
-        Wed, 03 Apr 2019 01:47:15 -0700 (PDT)
-Received: from localhost (pD9E51B25.dip0.t-ipconnect.de. [217.229.27.37])
-        by smtp.gmail.com with ESMTPSA id f1sm505707wml.28.2019.04.03.01.47.14
+        bh=vV91FJckZyEnX1fNk46Z/ZVvwXEZdniEhNT6utM+pl0=;
+        b=kRMqzFHUUnLQjLoRZRdDZhwky9eZIzgPjEkF8oyxJRmivKz8g0VTI9sQNmGzJdlJqu
+         mclNwAKYO7QwSPI2f7aLn1WlnhsqjXo6BjVe8JyZcJfAIOvJ5UcTYQJfFWeU1TdcQs3w
+         6GhE4K57O/3ic4CCFdFxCYY+a8oSxOnaMhRTrujsDhTgkn9Yc57r+nfl/PhMvasnL5f1
+         YQA39a03iw0x00cJpbQ2Mo7eVjQExM+jhgYMHRUJNnKjKdYYriOv5VT7X4RZjFeF37l9
+         QzRrtkSostK/E2/Y/7/BUFjLqjkf0swVORevPKP8fmYW8IWdfiF3cJFV15iYXNrzXf9w
+         Ig5g==
+X-Gm-Message-State: APjAAAU0rf61GsOBz7OIUc5MFSbq8LyZMcJi0dmX+ZRDb2jT4eP5ADBw
+        CZpJfS89EmYjgwKLTcpCb+0P5Gne
+X-Google-Smtp-Source: APXvYqzNn4N2OOgSmDPgWNdJ7vxsAzE+uFA6SFl4HHatfJnRGC0mozlanur+QnPloC1sFw17e9ioMA==
+X-Received: by 2002:a2e:8347:: with SMTP id l7mr28852729ljh.17.1554281261464;
+        Wed, 03 Apr 2019 01:47:41 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id f25sm2344070lfk.69.2019.04.03.01.47.39
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 01:47:14 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 10:47:13 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Joel Stanley <joel@jms.id.au>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        Wed, 03 Apr 2019 01:47:40 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 11:47:32 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Nancy Yuen <yuenn@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Wan ZongShun <mcuos.com@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Kukjin Kim <kgene@kernel.org>, Barry Song <baohua@kernel.org>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Marc Gonzalez <marc.w.gonzalez@free.fr>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
-Message-ID: <20190403084713.GD5238@ulmo>
-References: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
+Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190403084732.GA3493@localhost.localdomain>
+References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190403073152.GM4187@dell>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="/3yNEOqWowh/8j+e"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190403073152.GM4187@dell>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hello Lee,
 
---/3yNEOqWowh/8j+e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks for taking a look on this again =) I agree with most of the
+comments and correct them at next version.
 
-On Tue, Apr 02, 2019 at 12:01:53PM -0700, Guenter Roeck wrote:
-[...]
->  drivers/watchdog/tegra_wdt.c      | 4 +---
+On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
+> On Mon, 25 Mar 2019, Matti Vaittinen wrote:
+> 
+> > ROHM BD70528MWV is an ultra-low quiescent current general
+> > purpose single-chip power management IC for battery-powered
+> > portable devices.
+> > 
+> > Add MFD core which enables chip access for following subdevices:
+> > 	- regulators/LED drivers
+> > 	- battery-charger
+> > 	- gpios
+> > 	- 32.768kHz clk
+> > 	- RTC
+> > 	- watchdog
+> > 
+> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > + * Mapping of main IRQ register bits to sub irq register offsets so
+> 
+> "sub-IRQ"
+> 
+> > + * that we can access corect sub IRQ registers based on bits that
+> 
+> "sub IRQ" is also fine, but please standardise.
+> 
+> I do prefer "sub-IRQ" though.
 
-Acked-by: Thierry Reding <treding@nvidia.com>
+I'll go with "sub-IRQ" then
 
---/3yNEOqWowh/8j+e
-Content-Type: application/pgp-signature; name="signature.asc"
+> > +
+> > +#define WD_CTRL_MAGIC1 0x55
+> > +#define WD_CTRL_MAGIC2 0xAA
+> > +/**
+> > + * bd70528_wdt_set - arm or disarm watchdog timer
+> > + *
+> > + * @data:	device data for the PMIC instance we want to operate on
+> > + * @enable:	new state of WDT. zero to disable, non zero to enable
+> > + * @old_state:	previous state of WDT will be filled here
+> > + *
+> > + * Arm or disarm WDT on BD70528 PMIC. Expected to be called only by
+> > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock must be taken
+> > + * by calling bd70528_wdt_lock before calling bd70528_wdt_set.
+> > + */
+> > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int enable, int *old_state)
+> 
+> Why doesn't this reside in the watchdog driver?
 
------BEGIN PGP SIGNATURE-----
+If my memory serves me right we shortly discussed this already during v8
+review ;) Cant blame you though as I have seen some of the mail traffic
+going through your inbox :D
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlykcxEACgkQ3SOs138+
-s6E2RRAAoT043id64ord0O28U5hcmx0fHiMg9zmloWTkycYSG1MQK4kQ0JAEdPet
-x1JnF2eTEQocqgHGHtk2k/saFXvtO63qBaNxorWhGBgfPNWyR5UAy1WijFE90eOs
-Bu3fldZY+ZZ64Xo2TxtPXc9yXzZ7A7l0dg0l+oV2Wo1MrvBBJtdF0pFPBClz1dXc
-c5fx5ow1vRq5zUd5FB7bUmlM1pmYzh6EhKugrreqQd3TRSMm/+j3BfLI+bDDan7y
-9FOxbZ3GSObFld3bcLNsSk4efJT4SVfIx7MOhHtKtdG4Vn/diFwU8YfOrdS8Wb6u
-IXllxOVVx006HibFXKwnbgS+RWaX22Eg6Av/hd8ZJ0Ud+UbT0Im7W8Zog/k0H3BQ
-ecjhGtfGtIMV2PLMEUY2nyh3xJnTj6UvzdVHQz6X+RXfUJDDrTs/oPZAXm2BzWKZ
-eETYQxga8pRU/eayMnRE8C84YYFx2+y0lOyTkFw8XKch51MfMIGSZJHfpGNSYAvx
-LOS3PwsR9TSozumi5zntfti7wuMvKSUcYk9hLUg4xmGEDPn0zYkCVrXDWroIq4xr
-mwrzg/gZ/jCcfH3MTYo+aps9VRVuzqkjfX6eUJU3caHEXla2zrhngQ29xP0anC+Y
-ldNlM/VhDj1JQfsbbwXMsGlM1kaHxJBArY/8ZvCLSOZdCJav118=
-=vq6o
------END PGP SIGNATURE-----
+The motivation to have the functions exported from MFD is to not create
+sirect dependency between RTC and WDT. There may be cases where we want
+to leave either RTC or WDT out of compilation. MFD is always needed so
+the dependency from MFD to RTC/WDT does not harm.
 
---/3yNEOqWowh/8j+e--
+(Here's some discussion necromancy if you are interested in re-reading
+how we did end up with this implementation:
+https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
+
+I hope you are still Ok with having the WDT control functions in MFD.
+
+Best Regards
+    Matti Vaittinen
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
