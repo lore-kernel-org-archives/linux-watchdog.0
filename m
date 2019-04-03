@@ -2,155 +2,92 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33253C10F0C
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71893C4360F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:53:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0BE242147C
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4164C2147A
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 08:53:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1554281639;
+	bh=mLG0lFWWjuKHDuct7jHz9VAnVZUUC3f8aoUl7zoG47M=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=aScXUtQyZo0xfG0NXrL5VWQFV3NtFEdM5fLrm7FR9FoWhG0SCkkMxfSztApgGSJXL
+	 9bzSxZwoaWel7LIEWAS6lh1rdLbCd7/IH91gNxMNKJFZn8OxE5i1Ab98XGgyQZDUgV
+	 W9QZyRfaCEV7BN+KoEiqbe25CpS78A9E25mZmSHI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729268AbfDCIrt (ORCPT
+        id S1726360AbfDCIxy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 04:47:49 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41491 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbfDCIro (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 04:47:44 -0400
-Received: by mail-lj1-f194.google.com with SMTP id k8so5701662lja.8;
-        Wed, 03 Apr 2019 01:47:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=vV91FJckZyEnX1fNk46Z/ZVvwXEZdniEhNT6utM+pl0=;
-        b=kRMqzFHUUnLQjLoRZRdDZhwky9eZIzgPjEkF8oyxJRmivKz8g0VTI9sQNmGzJdlJqu
-         mclNwAKYO7QwSPI2f7aLn1WlnhsqjXo6BjVe8JyZcJfAIOvJ5UcTYQJfFWeU1TdcQs3w
-         6GhE4K57O/3ic4CCFdFxCYY+a8oSxOnaMhRTrujsDhTgkn9Yc57r+nfl/PhMvasnL5f1
-         YQA39a03iw0x00cJpbQ2Mo7eVjQExM+jhgYMHRUJNnKjKdYYriOv5VT7X4RZjFeF37l9
-         QzRrtkSostK/E2/Y/7/BUFjLqjkf0swVORevPKP8fmYW8IWdfiF3cJFV15iYXNrzXf9w
-         Ig5g==
-X-Gm-Message-State: APjAAAU0rf61GsOBz7OIUc5MFSbq8LyZMcJi0dmX+ZRDb2jT4eP5ADBw
-        CZpJfS89EmYjgwKLTcpCb+0P5Gne
-X-Google-Smtp-Source: APXvYqzNn4N2OOgSmDPgWNdJ7vxsAzE+uFA6SFl4HHatfJnRGC0mozlanur+QnPloC1sFw17e9ioMA==
-X-Received: by 2002:a2e:8347:: with SMTP id l7mr28852729ljh.17.1554281261464;
-        Wed, 03 Apr 2019 01:47:41 -0700 (PDT)
-Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id f25sm2344070lfk.69.2019.04.03.01.47.39
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 01:47:40 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 11:47:32 +0300
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
-Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190403084732.GA3493@localhost.localdomain>
-References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <20190403073152.GM4187@dell>
+        Wed, 3 Apr 2019 04:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726199AbfDCIxy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 3 Apr 2019 04:53:54 -0400
+Received: from X250 (unknown [147.50.13.10])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C65562148E;
+        Wed,  3 Apr 2019 08:53:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1554281633;
+        bh=mLG0lFWWjuKHDuct7jHz9VAnVZUUC3f8aoUl7zoG47M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=alRQgUO8F0xOQ9JTu62Yy0H5gUxwcfM8eHM2KcNRMSCxtfo7j2oMyJ3PKEhS5BO/A
+         M/JaebO8Y5dTSErLq0YTnR9cRnw7CYKTa1/zYM5D/5H8Byf058a1XjU9txQm1iLLYM
+         Xk5eSIhZoKgE4qZSPEi/6OVqAlPGJp8gH7XG7LaI=
+Date:   Wed, 3 Apr 2019 15:53:40 +0700
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "ezequiel@collabora.com" <ezequiel@collabora.com>,
+        "stefan.wahren@i2se.com" <stefan.wahren@i2se.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "olof@lixom.net" <olof@lixom.net>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH V9 1/4] dt-bindings: watchdog: add i.MX system controller
+ watchdog
+Message-ID: <20190403085339.GA7932@X250>
+References: <1553134884-1720-1-git-send-email-Anson.Huang@nxp.com>
+ <1553134884-1720-2-git-send-email-Anson.Huang@nxp.com>
+ <20190325203727.GA27661@bogus>
+ <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190403073152.GM4187@dell>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello Lee,
-
-Thanks for taking a look on this again =) I agree with most of the
-comments and correct them at next version.
-
-On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
-> On Mon, 25 Mar 2019, Matti Vaittinen wrote:
+On Fri, Mar 29, 2019 at 07:44:21AM +0000, Anson Huang wrote:
+> Hi, Guenter/Shawn
+> 	Since DT has been acked, would you pick up this patch series if no additional comments?
 > 
-> > ROHM BD70528MWV is an ultra-low quiescent current general
-> > purpose single-chip power management IC for battery-powered
-> > portable devices.
-> > 
-> > Add MFD core which enables chip access for following subdevices:
-> > 	- regulators/LED drivers
-> > 	- battery-charger
-> > 	- gpios
-> > 	- 32.768kHz clk
-> > 	- RTC
-> > 	- watchdog
-> > 
-> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > + * Mapping of main IRQ register bits to sub irq register offsets so
-> 
-> "sub-IRQ"
-> 
-> > + * that we can access corect sub IRQ registers based on bits that
-> 
-> "sub IRQ" is also fine, but please standardise.
-> 
-> I do prefer "sub-IRQ" though.
 
-I'll go with "sub-IRQ" then
-
-> > +
-> > +#define WD_CTRL_MAGIC1 0x55
-> > +#define WD_CTRL_MAGIC2 0xAA
-> > +/**
-> > + * bd70528_wdt_set - arm or disarm watchdog timer
-> > + *
-> > + * @data:	device data for the PMIC instance we want to operate on
-> > + * @enable:	new state of WDT. zero to disable, non zero to enable
-> > + * @old_state:	previous state of WDT will be filled here
-> > + *
-> > + * Arm or disarm WDT on BD70528 PMIC. Expected to be called only by
-> > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock must be taken
-> > + * by calling bd70528_wdt_lock before calling bd70528_wdt_set.
-> > + */
-> > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int enable, int *old_state)
-> 
-> Why doesn't this reside in the watchdog driver?
-
-If my memory serves me right we shortly discussed this already during v8
-review ;) Cant blame you though as I have seen some of the mail traffic
-going through your inbox :D
-
-The motivation to have the functions exported from MFD is to not create
-sirect dependency between RTC and WDT. There may be cases where we want
-to leave either RTC or WDT out of compilation. MFD is always needed so
-the dependency from MFD to RTC/WDT does not harm.
-
-(Here's some discussion necromancy if you are interested in re-reading
-how we did end up with this implementation:
-https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
-
-I hope you are still Ok with having the WDT control functions in MFD.
-
-Best Regards
-    Matti Vaittinen
-
--- 
-Matti Vaittinen, Linux device drivers
-ROHM Semiconductors, Finland SWDC
-Kiviharjunlenkki 1E
-90220 OULU
-FINLAND
-
-~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
+Applied patch #3 and #4, thanks.
