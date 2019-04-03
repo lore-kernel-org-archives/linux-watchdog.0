@@ -2,65 +2,49 @@ Return-Path: <SRS0=/b+M=SF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BC2CC4360F
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 09:30:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09211C10F0B
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 10:10:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 201CF2147A
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 09:30:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HwASyjou"
+	by mail.kernel.org (Postfix) with ESMTP id D648B2147C
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Apr 2019 10:10:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726168AbfDCJa1 (ORCPT
+        id S1726544AbfDCKKL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Apr 2019 05:30:27 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38073 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726188AbfDCJa1 (ORCPT
+        Wed, 3 Apr 2019 06:10:11 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:41362 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725935AbfDCKKK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Apr 2019 05:30:27 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 10so7863964pfo.5
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Apr 2019 02:30:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=3vxzr4YfdSL7AqcSy++jBefiyTCDVXxP9wZEc/HTMuA=;
-        b=HwASyjou6/pDYEPvknboGzq4ZzH7Q7M6hOXJTjhBz5K4z0DoN016La99LxAMg57R7w
-         HuA2ex0ZJnl30krj9S67GKgUGGeQAKqBIw1DMHQG1rxtLfwiVGLFIp3G9o8uzo8Xrl/c
-         LZmnGKaYR8G71htzsOnZ1pQfST6ROxOESCkVi44/gnBtawR+pVJU0wz9nwS7wX4sILBo
-         5pd6sYvkmX9D2mq5hAUWRiKAZp2S0se2njuGcHvNSvt9mPSw/W3JcD33w75VLveYPwY6
-         jVWrUxWogP7On1U7WYDYLGljIaAA6xzNCMEEo8SJQkaoMh+aWOUhL8MuybrRz7D+8Fpb
-         frUA==
+        Wed, 3 Apr 2019 06:10:10 -0400
+Received: by mail-lj1-f195.google.com with SMTP id k8so5913285lja.8;
+        Wed, 03 Apr 2019 03:10:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=3vxzr4YfdSL7AqcSy++jBefiyTCDVXxP9wZEc/HTMuA=;
-        b=CjifaxNOJv8WW/oUeh8eFOiDGShLLDqwx2W3VOIaL9L6leCjLveKgR2QcpMwC9i8MZ
-         hs0dXTwvVhCes/wbXJsxYKx3S8lFSGrj/385VNlplL4De0baqF5mnfUfxBWcpXqsanvC
-         EJXjd0fTgRSt2VJg8dyBC1dOf+6B+rCpG91LmCAUwyJnEL0ce1fbQtef3E367dmj9Ous
-         Burct2HDrgw24SBWTCWYtveusgfri9u1zUdGDwwPfb99B9KMzMKNTk9yhOTx10fDNzPW
-         MsFlhbRBAtVAyjHSpXATne2uZXH0nVKW+4HEtkmwOQmxz4eg4TrLcUVDWuUwTATMbrtZ
-         8pag==
-X-Gm-Message-State: APjAAAWGA8InUToT2PLudHDKFxuoBJYHcMq3n1myFUn/xn3zJrjBVVZM
-        ZxPQ8eGdEhY5hXvEHvwcRifQOg==
-X-Google-Smtp-Source: APXvYqyuQRAGZADbiPD5QCi5D7GYfyZQXTBs9s6gFT9Ed48AXWS980uJiyfLCvKQr+//tVGeNERZ6g==
-X-Received: by 2002:a62:1385:: with SMTP id 5mr73688099pft.221.1554283826227;
-        Wed, 03 Apr 2019 02:30:26 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id i15sm18573221pfd.162.2019.04.03.02.30.17
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=vrJy4uS4rsQbOKx4CXwOuMg+c4TQQHqn3vkGKoL5K70=;
+        b=GKcjzTxNgw0oSC4cVXhxTSMzE/WBkcflIlVSWDKjKuhOBF2JH5nLU9oVTQolL4EpvO
+         rNLAZrtmcnObv0sfnth4Zv6S17npILZzkVcMZLD8iaRxLbRDC2TVImKII3KFwWNfShOA
+         RWcjjtscAGYG9Co4IfY3oAHjfBbvXf3NfofUWynSgKmW+Mpj2ojMU430+M8B8raIsxdZ
+         KNU3ZaYCSNYn+0WGz/QWvgE9bkCnxAAtx8B0tKQPHEkoYIVrJ/Yu7ubsRCrGVfPAF7nI
+         dfHha/pITo4a+NRbaKf2uSikp1kvDYi+wdr2hFBazSiaWhqrNM5C/d6PspM8KoHEUsA8
+         2C8g==
+X-Gm-Message-State: APjAAAWCNDgY+yOeIUKqoQWoPpSWDUXUEnbJnxEDnN+iewq8q36dYRZ8
+        kJ3jZi+wC/bwJtKfb0OzV9A=
+X-Google-Smtp-Source: APXvYqyb2MfClw3ejovmKMsLqNcM2g2l2BjjD/gWRtVOBbBpJAT/PjErbLXaXF69PoIHroRE8c9K6g==
+X-Received: by 2002:a2e:5056:: with SMTP id v22mr42095140ljd.153.1554286207171;
+        Wed, 03 Apr 2019 03:10:07 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id t14sm3185471lji.33.2019.04.03.03.10.05
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 02:30:25 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 10:30:15 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+        Wed, 03 Apr 2019 03:10:06 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 13:10:03 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
 Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Michael Turquette <mturquette@baylibre.com>,
@@ -79,94 +63,110 @@ Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
 Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190403093015.GJ11301@dell>
+Message-ID: <20190403101003.GC3493@localhost.localdomain>
 References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
  <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
  <20190403073152.GM4187@dell>
  <20190403084732.GA3493@localhost.localdomain>
+ <20190403093015.GJ11301@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190403084732.GA3493@localhost.localdomain>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20190403093015.GJ11301@dell>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, 03 Apr 2019, Matti Vaittinen wrote:
-
-> Hello Lee,
+On Wed, Apr 03, 2019 at 10:30:15AM +0100, Lee Jones wrote:
+> On Wed, 03 Apr 2019, Matti Vaittinen wrote:
 > 
-> Thanks for taking a look on this again =) I agree with most of the
-> comments and correct them at next version.
-> 
-> On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
-> > On Mon, 25 Mar 2019, Matti Vaittinen wrote:
+> > Hello Lee,
 > > 
-> > > ROHM BD70528MWV is an ultra-low quiescent current general
-> > > purpose single-chip power management IC for battery-powered
-> > > portable devices.
+> > Thanks for taking a look on this again =) I agree with most of the
+> > comments and correct them at next version.
+> > 
+> > On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
+> > > On Mon, 25 Mar 2019, Matti Vaittinen wrote:
 > > > 
-> > > Add MFD core which enables chip access for following subdevices:
-> > > 	- regulators/LED drivers
-> > > 	- battery-charger
-> > > 	- gpios
-> > > 	- 32.768kHz clk
-> > > 	- RTC
-> > > 	- watchdog
+> > > > ROHM BD70528MWV is an ultra-low quiescent current general
+> > > > purpose single-chip power management IC for battery-powered
+> > > > portable devices.
+> > > > 
+> > > > Add MFD core which enables chip access for following subdevices:
+> > > > 	- regulators/LED drivers
+> > > > 	- battery-charger
+> > > > 	- gpios
+> > > > 	- 32.768kHz clk
+> > > > 	- RTC
+> > > > 	- watchdog
+> > > > 
+> > > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > > > + * Mapping of main IRQ register bits to sub irq register offsets so
 > > > 
-> > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > > + * Mapping of main IRQ register bits to sub irq register offsets so
+> > > "sub-IRQ"
+> > > 
+> > > > + * that we can access corect sub IRQ registers based on bits that
+> > > 
+> > > "sub IRQ" is also fine, but please standardise.
+> > > 
+> > > I do prefer "sub-IRQ" though.
 > > 
-> > "sub-IRQ"
+> > I'll go with "sub-IRQ" then
 > > 
-> > > + * that we can access corect sub IRQ registers based on bits that
+> > > > +
+> > > > +#define WD_CTRL_MAGIC1 0x55
+> > > > +#define WD_CTRL_MAGIC2 0xAA
+> > > > +/**
+> > > > + * bd70528_wdt_set - arm or disarm watchdog timer
+> > > > + *
+> > > > + * @data:	device data for the PMIC instance we want to operate on
+> > > > + * @enable:	new state of WDT. zero to disable, non zero to enable
+> > > > + * @old_state:	previous state of WDT will be filled here
+> > > > + *
+> > > > + * Arm or disarm WDT on BD70528 PMIC. Expected to be called only by
+> > > > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock must be taken
+> > > > + * by calling bd70528_wdt_lock before calling bd70528_wdt_set.
+> > > > + */
+> > > > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int enable, int *old_state)
+> > > 
+> > > Why doesn't this reside in the watchdog driver?
 > > 
-> > "sub IRQ" is also fine, but please standardise.
+> > If my memory serves me right we shortly discussed this already during v8
+> > review ;) Cant blame you though as I have seen some of the mail traffic
+> > going through your inbox :D
 > > 
-> > I do prefer "sub-IRQ" though.
-> 
-> I'll go with "sub-IRQ" then
-> 
-> > > +
-> > > +#define WD_CTRL_MAGIC1 0x55
-> > > +#define WD_CTRL_MAGIC2 0xAA
-> > > +/**
-> > > + * bd70528_wdt_set - arm or disarm watchdog timer
-> > > + *
-> > > + * @data:	device data for the PMIC instance we want to operate on
-> > > + * @enable:	new state of WDT. zero to disable, non zero to enable
-> > > + * @old_state:	previous state of WDT will be filled here
-> > > + *
-> > > + * Arm or disarm WDT on BD70528 PMIC. Expected to be called only by
-> > > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock must be taken
-> > > + * by calling bd70528_wdt_lock before calling bd70528_wdt_set.
-> > > + */
-> > > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int enable, int *old_state)
+> > The motivation to have the functions exported from MFD is to not create
+> > sirect dependency between RTC and WDT. There may be cases where we want
+> > to leave either RTC or WDT out of compilation. MFD is always needed so
+> > the dependency from MFD to RTC/WDT does not harm.
 > > 
-> > Why doesn't this reside in the watchdog driver?
+> > (Here's some discussion necromancy if you are interested in re-reading
+> > how we did end up with this implementation:
+> > https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
+> > 
+> > I hope you are still Ok with having the WDT control functions in MFD.
 > 
-> If my memory serves me right we shortly discussed this already during v8
-> review ;) Cant blame you though as I have seen some of the mail traffic
-> going through your inbox :D
-> 
-> The motivation to have the functions exported from MFD is to not create
-> sirect dependency between RTC and WDT. There may be cases where we want
-> to leave either RTC or WDT out of compilation. MFD is always needed so
-> the dependency from MFD to RTC/WDT does not harm.
-> 
-> (Here's some discussion necromancy if you are interested in re-reading
-> how we did end up with this implementation:
-> https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
-> 
-> I hope you are still Ok with having the WDT control functions in MFD.
+> OOI, why does the RTC need to control the WDT?
 
-OOI, why does the RTC need to control the WDT?
+I thought I had a comment about this somewhere in code... O_o Must have
+been in some development branch I had :/
+
+Anyways, setting the RTC counter may cause watchdog to trigger. It is not
+further explained why but I would guess watchdog uses RTC counter to check
+if it should've been pinged already. So RTC needs to disable watch dog for
+the duration of hwclock setting and enable it again after the new time is
+set. I can add a comment about this to MFD driver if it helps :)
+
+Br,
+	Matti Vaittinen
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
