@@ -2,178 +2,136 @@ Return-Path: <SRS0=tn89=SG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D208C4360F
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 08:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 246BCC10F05
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 09:24:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E37620882
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 08:22:11 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="TzHQPlIT"
+	by mail.kernel.org (Postfix) with ESMTP id E5CB3206B6
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 09:24:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727080AbfDDIWG (ORCPT
+        id S2387715AbfDDJYm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Apr 2019 04:22:06 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:34798 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726790AbfDDIWF (ORCPT
+        Thu, 4 Apr 2019 05:24:42 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:28818 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728556AbfDDJYk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 Apr 2019 04:22:05 -0400
-Received: by mail-pl1-f193.google.com with SMTP id y6so798193plt.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 04 Apr 2019 01:22:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=12hS8ZME4eY09I7P2b5Cz7kHzlqMseQJaYDWtbbZJ1M=;
-        b=TzHQPlITAz/+I7HevKBz7wYkeIyyMCWsajTGK1IbPPDylknveFxv6/eW1g9qcaPeB5
-         ruYawHxIrf4oMsJcsrM4cL8U/EGfwAnxDzJyEKd66005H5UANB4JLJPsecVXBaqadKY6
-         VSjdJghh84+w6Wxulj/fnY8LQgvCJ1E0ixcs/uxOBQzl1APk8xuy6N7laPSb1XEIa8YV
-         vm27R7HICPSpso1Kwnl+X97DeTVogyt8sBM93DMILswb88AOfL/0FSpsup4i3rBBLqEp
-         Wri3BWbR0psqKn7l3WRGoD2WryJ7LC1kzcXGbVcLn/TmiaO9i3M9Jpog1j3BRolZpB/0
-         klXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=12hS8ZME4eY09I7P2b5Cz7kHzlqMseQJaYDWtbbZJ1M=;
-        b=J8MUI0TjH9MxcEm8m6qhM1nkpAmIn7OkU7fPOKavzL5TpxMjRTN6v/dJfWcmzLnQU7
-         eH4BN4Aj+pdAsokl7VYYd3pJ17+LxIJEaFwDpgpaWXnGc9NUC3vhMvUdcDoaaNmCIYtV
-         W04pF8GFxL6zwF6R8xP7bZRADcifFNQECFKFxL4v9T4y61VDtPiml7rlzlCA4F6c9X8M
-         ENucYcVusBn4Et14FKgMoULhTFhembnsxB+P8V7DVxDdQ4FWHmtkqGJsQvdASp4771dW
-         AjrkwxHDxG5JLI2tcSWAznuMCrdMAH7grL7OOt1n+2sp5wSNKVk6N20Tt8G0PcxFfYvZ
-         OAFA==
-X-Gm-Message-State: APjAAAVTDqWsolwaulZwuuP94p7kvqS4Kw+PhD3e2fsvACCQKKb6GJKV
-        XR/IdkLFdsLhEVmmI2FcusJJbw==
-X-Google-Smtp-Source: APXvYqxwGVk1RYdrXXKNJVzzm8nPDfdTw2mo2TcvjwoSSciWIrQbWqMIWcTHUDYtBAKQjDhAljKv1Q==
-X-Received: by 2002:a17:902:526:: with SMTP id 35mr4976749plf.276.1554366124328;
-        Thu, 04 Apr 2019 01:22:04 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id h65sm48972719pfd.108.2019.04.04.01.21.56
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 04 Apr 2019 01:22:03 -0700 (PDT)
-Date:   Thu, 4 Apr 2019 09:21:53 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        Thu, 4 Apr 2019 05:24:40 -0400
+Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x349Laqm032263;
+        Thu, 4 Apr 2019 11:23:54 +0200
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 2rmgev9gjh-1
+        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Thu, 04 Apr 2019 11:23:54 +0200
+Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 11EF331;
+        Thu,  4 Apr 2019 09:23:50 +0000 (GMT)
+Received: from Webmail-eu.st.com (sfhdag6node2.st.com [10.75.127.17])
+        by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id A9C4516B5;
+        Thu,  4 Apr 2019 09:23:49 +0000 (GMT)
+Received: from SFHDAG6NODE3.st.com (10.75.127.18) by SFHDAG6NODE2.st.com
+ (10.75.127.17) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu, 4 Apr
+ 2019 11:23:49 +0200
+Received: from SFHDAG6NODE3.st.com ([fe80::d04:5337:ab17:b6f6]) by
+ SFHDAG6NODE3.st.com ([fe80::d04:5337:ab17:b6f6%20]) with mapi id
+ 15.00.1347.000; Thu, 4 Apr 2019 11:23:49 +0200
+From:   Patrice CHOTARD <patrice.chotard@st.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "sre@kernel.org" <sre@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>
-Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190404082153.GP6830@dell>
-References: <20190403093015.GJ11301@dell>
- <20190403101003.GC3493@localhost.localdomain>
- <20190403112559.GP11301@dell>
- <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
- <20190404025234.GB6830@dell>
- <6775a75d1ee3ab96123d84b077881beedc358d12.camel@fi.rohmeurope.com>
- <20190404065452.GD6830@dell>
- <20190404072449.GE3493@localhost.localdomain>
- <20190404075640.GV22216@piout.net>
- <70a8a87a403eb2ab8f0aad2a26456de8a162f363.camel@fi.rohmeurope.com>
+        Joel Stanley <joel@jms.id.au>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Baruch Siach" <baruch@tkos.co.il>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        "Vladimir Zapolskiy" <vz@mleia.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        "Matthias Brugger" <matthias.bgg@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        "Nancy Yuen" <yuenn@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        "Wan ZongShun" <mcuos.com@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Kukjin Kim <kgene@kernel.org>, Barry Song <baohua@kernel.org>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        "Maxime Coquelin" <mcoquelin.stm32@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        "Shawn Guo" <shawnguo@kernel.org>
+Subject: Re: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
+Thread-Topic: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
+Thread-Index: AQHU6YaQ1KOIBZerNE+dqbJe8VePSKYrm5qA
+Date:   Thu, 4 Apr 2019 09:23:49 +0000
+Message-ID: <8283ed6e-baf6-280f-d2dd-9ab96493dfb7@st.com>
+References: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+Accept-Language: fr-FR, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.75.127.49]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C4A643161002444D8DC09072EE7B2966@st.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <70a8a87a403eb2ab8f0aad2a26456de8a162f363.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-04-04_05:,,
+ signatures=0
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
-
-> Hello Alexandre,
-> 
-> On Thu, 2019-04-04 at 09:56 +0200, Alexandre Belloni wrote:
-> > On 04/04/2019 10:24:49+0300, Matti Vaittinen wrote:
-> > > On Thu, Apr 04, 2019 at 07:54:52AM +0100, Lee Jones wrote:
-> > > > On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
-> > > > 
-> > > > > Actually, now that I thik of it the right way to do this would
-> > > > > have
-> > > > > been the function pointer in parent data as was done in
-> > > > > original patch
-> > > > > set. HW-colleagues tend to re-use HW blocks, and we like to re-
-> > > > > use our
-> > > > > drivers. If the next PMIC from ROHM uses same RTC block but
-> > > > > does not
-> > > > > provide watchdog - then it is cleanest solution to fall back to
-> > > > > function pointer and leave it to NULL when there is no WDT or
-> > > > > when WDT
-> > > > > is unused. Another option is to export dummy function - which
-> > > > > is not so
-> > > > > nice.
-> > > > 
-> > > > I think the converse is true.
-> > > > 
-> > > > Pointers to functions outside of a subsystem API context are
-> > > > generally
-> > > > horrible.  It's much nicer to call a function which can be easily
-> > > > stubbed out in a header file based on a Kconfig option.  It's how
-> > > > most
-> > > > kernel APIs work.
-> > > 
-> > > I hate to admit but I see your point. This nicely solves any issues
-> > > in
-> > > syncronizing the startup for driver providing function pointer and
-> > > for
-> > > driver using it.
-> > > 
-> > 
-> > Wouldn't it be easier to register the watchdog driver as part of the
-> > RTC
-> > driver?
-> > 
-> > As I see it, the wdt is just a glorified RTC alarm.
-> 
-> Do you suggest me to put all the stuff now placed in
-> drivers/watchdog/bd70528_wdt.c into rtc driver? It would be doable -
-> but I'd rather kept the WDT independent module so that it can be left
-> out of config if WDT needs not to be used. And same with RTC. Also, re-
-> use of RTC driver in HW which does not include WDT is easier when WDT
-> is a separate module. To me it looks much cleaner to have the WDT as
-> own module than polluting the RTC driver with config ifdefs.
-
-I haven't looked at the code, but I agree with this in principle.
-
-I'm a firm believer of having functionality in the most appropriate
-subsystem.  IMHO, if a device can be neatly split 9/10 it should be.
-
-> But from HW perspective you are correct. The WDT in BD70528 seems to be
-> kind of RTC alarm which shuts of the PMIC if triggered.
-> 
-> Br,
-> 	Matti Vaittinen
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+SGkNCg0KT24gNC8yLzE5IDk6MDEgUE0sIEd1ZW50ZXIgUm9lY2sgd3JvdGU6DQo+IFVzZSBkZXZt
+X3BsYXRmb3JtX2lvcmVtYXBfcmVzb3VyY2UgdG8gcmVkdWNlIHNvdXJjZSBjb2RlIHNpemUsDQo+
+IGltcHJvdmUgcmVhZGFiaWxpdHksIGFuZCByZWR1Y2UgdGhlIGxpa2VseWhvb2Qgb2YgYnVncy4N
+Cj4gDQo+IFRoZSBjb252ZXJzaW9uIHdhcyBkb25lIGF1dG9tYXRpY2FsbHkgd2l0aCBjb2NjaW5l
+bGxlIHVzaW5nIHRoZQ0KPiBmb2xsb3dpbmcgc2VtYW50aWMgcGF0Y2guDQo+IA0KPiBAckANCj4g
+aWRlbnRpZmllciByZXMsIHBkZXY7DQo+IGV4cHJlc3Npb24gYTsNCj4gZXhwcmVzc2lvbiBpbmRl
+eDsNCj4gZXhwcmVzc2lvbiBlOw0KPiBAQA0KPiANCj4gPCsuLi4NCj4gLSByZXMgPSBwbGF0Zm9y
+bV9nZXRfcmVzb3VyY2UocGRldiwgSU9SRVNPVVJDRV9NRU0sIGluZGV4KTsNCj4gLSBhID0gZGV2
+bV9pb3JlbWFwX3Jlc291cmNlKGUsIHJlcyk7DQo+ICsgYSA9IGRldm1fcGxhdGZvcm1faW9yZW1h
+cF9yZXNvdXJjZShwZGV2LCBpbmRleCk7DQo+IC4uLis+DQo+IA0KPiBAZGVwZW5kcyBvbiByQA0K
+PiBpZGVudGlmaWVyIHIucmVzOw0KPiBAQA0KPiAtIHN0cnVjdCByZXNvdXJjZSAqcmVzOw0KPiAg
+IC4uLiB3aGVuICE9IHJlcw0KPiANCj4gQEANCj4gaWRlbnRpZmllciByZXMsIHBkZXY7DQo+IGV4
+cHJlc3Npb24gaW5kZXg7DQo+IGV4cHJlc3Npb24gYTsNCj4gQEANCj4gLSBzdHJ1Y3QgcmVzb3Vy
+Y2UgKnJlcyA9IHBsYXRmb3JtX2dldF9yZXNvdXJjZShwZGV2LCBJT1JFU09VUkNFX01FTSwgaW5k
+ZXgpOw0KPiAtIGEgPSBkZXZtX2lvcmVtYXBfcmVzb3VyY2UoJnBkZXYtPmRldiwgcmVzKTsNCj4g
+KyBhID0gZGV2bV9wbGF0Zm9ybV9pb3JlbWFwX3Jlc291cmNlKHBkZXYsIGluZGV4KTsNCj4gDQo+
+IENjOiBKb2VsIFN0YW5sZXkgPGpvZWxAam1zLmlkLmF1Pg0KPiBDYzogTmljb2xhcyBGZXJyZSA8
+bmljb2xhcy5mZXJyZUBtaWNyb2NoaXAuY29tPg0KPiBDYzogQWxleGFuZHJlIEJlbGxvbmkgPGFs
+ZXhhbmRyZS5iZWxsb25pQGJvb3RsaW4uY29tPg0KPiBDYzogRmxvcmlhbiBGYWluZWxsaSA8Zi5m
+YWluZWxsaUBnbWFpbC5jb20+DQo+IENjOiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxp
+bmFyby5vcmc+DQo+IENjOiBCYXJ1Y2ggU2lhY2ggPGJhcnVjaEB0a29zLmNvLmlsPg0KPiBDYzog
+S2VndWFuZyBaaGFuZyA8a2VndWFuZy56aGFuZ0BnbWFpbC5jb20+DQo+IENjOiBWbGFkaW1pciBa
+YXBvbHNraXkgPHZ6QG1sZWlhLmNvbT4NCj4gQ2M6IEtldmluIEhpbG1hbiA8a2hpbG1hbkBiYXls
+aWJyZS5jb20+DQo+IENjOiBNYXR0aGlhcyBCcnVnZ2VyIDxtYXR0aGlhcy5iZ2dAZ21haWwuY29t
+Pg0KPiBDYzogQXZpIEZpc2htYW4gPGF2aWZpc2htYW43MEBnbWFpbC5jb20+DQo+IENjOiBOYW5j
+eSBZdWVuIDx5dWVubkBnb29nbGUuY29tPg0KPiBDYzogQnJlbmRhbiBIaWdnaW5zIDxicmVuZGFu
+aGlnZ2luc0Bnb29nbGUuY29tPg0KPiBDYzogV2FuIFpvbmdTaHVuIDxtY3Vvcy5jb21AZ21haWwu
+Y29tPg0KPiBDYzogTWljaGFsIFNpbWVrIDxtaWNoYWwuc2ltZWtAeGlsaW54LmNvbT4NCj4gQ2M6
+IFN5bHZhaW4gTGVtaWV1eCA8c2xlbWlldXgudHljb0BnbWFpbC5jb20+DQo+IENjOiBLdWtqaW4g
+S2ltIDxrZ2VuZUBrZXJuZWwub3JnPg0KPiBDYzogQmFycnkgU29uZyA8YmFvaHVhQGtlcm5lbC5v
+cmc+DQo+IENjOiBPcnNvbiBaaGFpIDxvcnNvbnpoYWlAZ21haWwuY29tPg0KPiBDYzogUGF0cmlj
+ZSBDaG90YXJkIDxwYXRyaWNlLmNob3RhcmRAc3QuY29tPg0KPiBDYzogTWF4aW1lIENvcXVlbGlu
+IDxtY29xdWVsaW4uc3RtMzJAZ21haWwuY29tPg0KPiBDYzogTWF4aW1lIFJpcGFyZCA8bWF4aW1l
+LnJpcGFyZEBib290bGluLmNvbT4NCj4gQ2M6IENoZW4tWXUgVHNhaSA8d2Vuc0Bjc2llLm9yZz4N
+Cj4gQ2M6IE1hcmMgR29uemFsZXogPG1hcmMudy5nb256YWxlekBmcmVlLmZyPg0KPiBDYzogVGhp
+ZXJyeSBSZWRpbmcgPHRoaWVycnkucmVkaW5nQGdtYWlsLmNvbT4NCj4gQ2M6IFNoYXduIEd1byA8
+c2hhd25ndW9Aa2VybmVsLm9yZz4NCj4gU2lnbmVkLW9mZi1ieTogR3VlbnRlciBSb2VjayA8bGlu
+dXhAcm9lY2stdXMubmV0Pg0KPiAtLS0NCg0KPiAgZHJpdmVycy93YXRjaGRvZy9zdF9scGNfd2R0
+LmMgICAgIHwgNCArLS0tDQoNCkZvciBzdF9scGNfd2R0DQoNCkFja2VkLWJ5OiBQYXRyaWNlIENo
+b3RhcmQgPHBhdHJpY2UuY2hvdGFyZEBzdC5jb20+DQoNClRoYW5rcw==
