@@ -2,65 +2,49 @@ Return-Path: <SRS0=tn89=SG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1760C4360F
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 06:55:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7524C4360F
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 07:25:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 75BC2206DF
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 06:55:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="zFpOz+9I"
+	by mail.kernel.org (Postfix) with ESMTP id 769B520855
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 07:25:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727289AbfDDGzF (ORCPT
+        id S1727258AbfDDHY4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Apr 2019 02:55:05 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:33673 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727284AbfDDGzE (ORCPT
+        Thu, 4 Apr 2019 03:24:56 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:38274 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725904AbfDDHYz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 Apr 2019 02:55:04 -0400
-Received: by mail-pl1-f194.google.com with SMTP id t16so691925plo.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Apr 2019 23:55:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=Vx0O0iEpOiOKhCclt6sNW+D4t+d7kp/aGeMgIwxZxc0=;
-        b=zFpOz+9Irr7tiVhuBeeTHeKjjtdiCtjF4t1yamLGMj5KmcENd8yOgYwdEBUnZpSIFH
-         M28PJwbVxk+ft/CUq2QMgRJomMhPMOZ4aH1JfE5EANTYJlPu6TeRL/LqngFN+OVfMGL1
-         +Cka+/E7MUiZcurRUbIl9qWy72/ihMnzYJ+z7uFRfSSEiZ3g17+FEwQHcy/LKxT9dOnT
-         MrHzyiVx3Lf2m5kqX8knYIk3Y8b+Z8Ybs+7/CsotrRhb7dfAu1565DXKot8LaqbEGJbM
-         hgzQ2ezYaRRAvdjLEgZaS2tFWl+y3phONYKLZgTmWgUwJ5pOPL9OLm2/WQAH4qPpjoui
-         x3hw==
+        Thu, 4 Apr 2019 03:24:55 -0400
+Received: by mail-lf1-f67.google.com with SMTP id a6so998221lfl.5;
+        Thu, 04 Apr 2019 00:24:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=Vx0O0iEpOiOKhCclt6sNW+D4t+d7kp/aGeMgIwxZxc0=;
-        b=WObw+ncb2pT8LCnG8RiwzwKLoj4KBBnjSJPt4HuuZzTR8JfSwijEFS/LzGnMtKbwwo
-         +MuOYrlszULd3MqjXbvrHgvKatLbftz7p+SgFcRSamX1/egUEeduD1kdSBjUK+FTqV+z
-         p66/L9QkCM6i2hrEtcR6nI51pd5p1ozXvAWKr3q61h0/G7apRISsYE2JmqRCDKPEuSXT
-         47fleTQ6kCksVz3wZ4QwddQhBU3YPs2yM1Bc64oUHReIZu9xBKs7ShNWBgrLvLlnYoAY
-         eujCVpZPjzjcjw1DKGxdP9f/qas5lQJfYhZwgM5PFBS4c4XZedRI9fZ5krZvN0dZcEeJ
-         ye5w==
-X-Gm-Message-State: APjAAAUKZkVvfPiQYfeIZESpGa1usspnV7lL3ta+3X6TW2wJJfmbnmRq
-        y76tNr4hDzwvtp5XTE9YiO5xNw==
-X-Google-Smtp-Source: APXvYqxCSPY1sgR0Kq1ehi9dm4MAV09W+rU4HhE+3s2ywK7ymmAC1ZD+rK24CRHVdri8s0e9oNH+ig==
-X-Received: by 2002:a17:902:7481:: with SMTP id h1mr4666272pll.206.1554360903157;
-        Wed, 03 Apr 2019 23:55:03 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id r11sm39031809pga.87.2019.04.03.23.54.55
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=lNOA7R5yLFsuZRe3mPqByyFkVafCuBm5cFyQF7wmFmU=;
+        b=JTAMtZq81lU2ewoBJ+iBvpkmIRdptvVZNg1AQHzRveRqEoxmiv858IQnKv1xpKCZpS
+         2H43gqNk7LQWIUgesnwRhNxK/QPAGl0kz5ZEZdV7/MUzgcptVMGPmTXorwm83khYFytW
+         2cNkw8RyJxBEJwHj30kie1oEUM4G6MLj70X7R7CeBOjCI0SJJ+Tnx2eJqSzsNSNjdwfc
+         sTU+jlBQAY7CNuwkmbBNpSRHcCZ0cgrP+aM0fJFjp+C0Lpt1Kw6puXO0+aDPAGRUZhDM
+         PRCrm0xAW6gnsUKSHoGh4X+MaGGIVoFtmzDaO7LUXqFtIIHg41CA8+YtM9e20JyHphOB
+         XJdg==
+X-Gm-Message-State: APjAAAVhsfFlopCgqJY6BozeGdUYS35qF/y9Ujrhm7Jg70V8YIEWWtk5
+        Tpya3b5FQowX/tE3X/yVFuo=
+X-Google-Smtp-Source: APXvYqzKjVgLaOKWF0u/e/MUBLH8qTtq1abb44fRhd7Wn3BL7u8baMpK/5ctoRkGU57WCRUzh5HWDA==
+X-Received: by 2002:ac2:5082:: with SMTP id f2mr2384497lfm.71.1554362692700;
+        Thu, 04 Apr 2019 00:24:52 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id f25sm2922156lfk.69.2019.04.04.00.24.51
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 23:55:01 -0700 (PDT)
-Date:   Thu, 4 Apr 2019 07:54:52 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
+        Thu, 04 Apr 2019 00:24:52 -0700 (PDT)
+Date:   Thu, 4 Apr 2019 10:24:49 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
 Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
@@ -85,9 +69,8 @@ Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
         "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190404065452.GD6830@dell>
-References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+Message-ID: <20190404072449.GE3493@localhost.localdomain>
+References: <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
  <20190403073152.GM4187@dell>
  <20190403084732.GA3493@localhost.localdomain>
  <20190403093015.GJ11301@dell>
@@ -96,272 +79,94 @@ References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
  <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
  <20190404025234.GB6830@dell>
  <6775a75d1ee3ab96123d84b077881beedc358d12.camel@fi.rohmeurope.com>
+ <20190404065452.GD6830@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6775a75d1ee3ab96123d84b077881beedc358d12.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20190404065452.GD6830@dell>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
-
-> On Thu, 2019-04-04 at 03:52 +0100, Lee Jones wrote:
-> > On Wed, 03 Apr 2019, Vaittinen, Matti wrote:
-> > 
-> > > On Wed, 2019-04-03 at 12:25 +0100, Lee Jones wrote:
-> > > > On Wed, 03 Apr 2019, Matti Vaittinen wrote:
-> > > > 
-> > > > > On Wed, Apr 03, 2019 at 10:30:15AM +0100, Lee Jones wrote:
-> > > > > > On Wed, 03 Apr 2019, Matti Vaittinen wrote:
-> > > > > > 
-> > > > > > > Hello Lee,
-> > > > > > > 
-> > > > > > > Thanks for taking a look on this again =) I agree with most
-> > > > > > > of
-> > > > > > > the
-> > > > > > > comments and correct them at next version.
-> > > > > > > 
-> > > > > > > On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
-> > > > > > > > On Mon, 25 Mar 2019, Matti Vaittinen wrote:
-> > > > > > > > 
-> > > > > > > > > ROHM BD70528MWV is an ultra-low quiescent current
-> > > > > > > > > general
-> > > > > > > > > purpose single-chip power management IC for battery-
-> > > > > > > > > powered
-> > > > > > > > > portable devices.
-> > > > > > > > > 
-> > > > > > > > > Add MFD core which enables chip access for following
-> > > > > > > > > subdevices:
-> > > > > > > > > 	- regulators/LED drivers
-> > > > > > > > > 	- battery-charger
-> > > > > > > > > 	- gpios
-> > > > > > > > > 	- 32.768kHz clk
-> > > > > > > > > 	- RTC
-> > > > > > > > > 	- watchdog
-> > > > > > > > > 
-> > > > > > > > > Signed-off-by: Matti Vaittinen <
-> > > > > > > > > matti.vaittinen@fi.rohmeurope.com>
-> > > > > > > > > + * Mapping of main IRQ register bits to sub irq
-> > > > > > > > > register
-> > > > > > > > > offsets so
-> > > > > > > > 
-> > > > > > > > "sub-IRQ"
-> > > > > > > > 
-> > > > > > > > > + * that we can access corect sub IRQ registers based
-> > > > > > > > > on
-> > > > > > > > > bits that
-> > > > > > > > 
-> > > > > > > > "sub IRQ" is also fine, but please standardise.
-> > > > > > > > 
-> > > > > > > > I do prefer "sub-IRQ" though.
-> > > > > > > 
-> > > > > > > I'll go with "sub-IRQ" then
-> > > > > > > 
-> > > > > > > > > +
-> > > > > > > > > +#define WD_CTRL_MAGIC1 0x55
-> > > > > > > > > +#define WD_CTRL_MAGIC2 0xAA
-> > > > > > > > > +/**
-> > > > > > > > > + * bd70528_wdt_set - arm or disarm watchdog timer
-> > > > > > > > > + *
-> > > > > > > > > + * @data:	device data for the PMIC instance we
-> > > > > > > > > want to
-> > > > > > > > > operate on
-> > > > > > > > > + * @enable:	new state of WDT. zero to disable, non
-> > > > > > > > > zero to enable
-> > > > > > > > > + * @old_state:	previous state of WDT will be filled
-> > > > > > > > > here
-> > > > > > > > > + *
-> > > > > > > > > + * Arm or disarm WDT on BD70528 PMIC. Expected to be
-> > > > > > > > > called only by
-> > > > > > > > > + * BD70528 RTC and BD70528 WDT drivers. The
-> > > > > > > > > rtc_timer_lock
-> > > > > > > > > must be taken
-> > > > > > > > > + * by calling bd70528_wdt_lock before calling
-> > > > > > > > > bd70528_wdt_set.
-> > > > > > > > > + */
-> > > > > > > > > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int
-> > > > > > > > > enable, int *old_state)
-> > > > > > > > 
-> > > > > > > > Why doesn't this reside in the watchdog driver?
-> > > > > > > 
-> > > > > > > If my memory serves me right we shortly discussed this
-> > > > > > > already
-> > > > > > > during v8
-> > > > > > > review ;) Cant blame you though as I have seen some of the
-> > > > > > > mail
-> > > > > > > traffic
-> > > > > > > going through your inbox :D
-> > > > > > > 
-> > > > > > > The motivation to have the functions exported from MFD is
-> > > > > > > to
-> > > > > > > not create
-> > > > > > > sirect dependency between RTC and WDT. There may be cases
-> > > > > > > where
-> > > > > > > we want
-> > > > > > > to leave either RTC or WDT out of compilation. MFD is
-> > > > > > > always
-> > > > > > > needed so
-> > > > > > > the dependency from MFD to RTC/WDT does not harm.
-> > > > > > > 
-> > > > > > > (Here's some discussion necromancy if you are interested in
-> > > > > > > re-
-> > > > > > > reading
-> > > > > > > how we did end up with this implementation:
-> > > > > > > https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
-> > > > > > > 
-> > > > > > > I hope you are still Ok with having the WDT control
-> > > > > > > functions
-> > > > > > > in MFD.
-> > > > > > 
-> > > > > > OOI, why does the RTC need to control the WDT?
-> > > > > 
-> > > > > I thought I had a comment about this somewhere in code... O_o
-> > > > > Must
-> > > > > have
-> > > > > been in some development branch I had :/
-> > > > > 
-> > > > > Anyways, setting the RTC counter may cause watchdog to trigger.
-> > > > > It
-> > > > > is not
-> > > > > further explained why but I would guess watchdog uses RTC
-> > > > > counter
-> > > > > to check
-> > > > > if it should've been pinged already. So RTC needs to disable
-> > > > > watch
-> > > > > dog for
-> > > > > the duration of hwclock setting and enable it again after the
-> > > > > new
-> > > > > time is
-> > > > > set. I can add a comment about this to MFD driver if it helps
-> > > > > :)
-> > > > 
-> > > > How does the user select between using the RTC and the WDT?
-> > > > 
-> > > > Or are the generally both enabled at the same time?
-> > > > 
-> > > 
-> > > Both RTC and WDT can be enabled at the same time. But they are not
-> > > required to be used. When WDT is enabled, it uses current RTC time
-> > > as
-> > > 'base' (and RTC time is running no matter if we have the RTC driver
-> > > here or not) - and time-out gets scheduled to specified amount of
-> > > time
-> > > into future. (Same setting timeout into the future happens when WDT
-> > > is
-> > > pinged).
-> > > 
-> > > When we set RTC, we disable WDT (if it was enabled), set clock and
-> > > re-
-> > > enable WDT. This causes the previously used time-out value to be
-> > > set to
-> > > WDT again. This works Ok because BD70528 does not support 'short
-> > > ping
-> > > detection'. Only side-effect will be one 'prolonged' WDT feeding
-> > > period
-> > > when RTC is set. (absolute time when RTC was set minus absolute
-> > > time
-> > > when previous WD ping or enable was done) longer than reqular
-> > > period.
-> > > 
-> > > So user should not need to care about this 'dependency'. Basically
-> > > the
-> > > only possible problem I see is that someone could accidentally hang
-> > > the
-> > > system with something that keeps setting the RTC time - this would
-> > > then
-> > > prevent watch dog from doing the reset. This, I believe, is a
-> > > corner
-> > > case which I don't consider now - and if this is considered to be
-> > > an
-> > > issue then such a system may disable the RTC driver and do RTC
-> > > setting
-> > > in a what-ever-manner sees practical.
-> > > 
-> > > I'm not sure if I answered to question you asked though =)
-> > 
-> > I think you answered it just fine.
-> > 
-> > So my suggestion is to have the RTC depend on the WRT via Kconfig,
-> > and
-> > place this WRT code in the WRT driver where it belongs.  These
-> > functions can be exported from the WRT driver and the RTC can call
-> > into them in the same way it calls into the MFD driver currently.
+On Thu, Apr 04, 2019 at 07:54:52AM +0100, Lee Jones wrote:
+> On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
 > 
-> Yes, we could. But then we need to always compile the watch dog driver
-> when we want to use RTC. It is not a huge driver though so it probably
-> won't matter. So, I don't like this but I can do it so if you insist :]
+> > Actually, now that I thik of it the right way to do this would have
+> > been the function pointer in parent data as was done in original patch
+> > set. HW-colleagues tend to re-use HW blocks, and we like to re-use our
+> > drivers. If the next PMIC from ROHM uses same RTC block but does not
+> > provide watchdog - then it is cleanest solution to fall back to
+> > function pointer and leave it to NULL when there is no WDT or when WDT
+> > is unused. Another option is to export dummy function - which is not so
+> > nice.
 > 
-> > Avoiding a dependency on the WRT would seem strange, because there is
-> > one.
+> I think the converse is true.
 > 
-> The dependency is artificial. It's caused by the current driver design.
-> If watchdog is not used, then RTC has no reason to touch the watchdog
-> block. RTC works just fine without watchdog. So from HW point there is
-> no dependency.
+> Pointers to functions outside of a subsystem API context are generally
+> horrible.  It's much nicer to call a function which can be easily
+> stubbed out in a header file based on a Kconfig option.  It's how most
+> kernel APIs work.
 
-Great.
+I hate to admit but I see your point. This nicely solves any issues in
+syncronizing the startup for driver providing function pointer and for
+driver using it.
 
-> Actually, now that I thik of it the right way to do this would have
-> been the function pointer in parent data as was done in original patch
-> set. HW-colleagues tend to re-use HW blocks, and we like to re-use our
-> drivers. If the next PMIC from ROHM uses same RTC block but does not
-> provide watchdog - then it is cleanest solution to fall back to
-> function pointer and leave it to NULL when there is no WDT or when WDT
-> is unused. Another option is to export dummy function - which is not so
-> nice.
+> > Additional benefit from function pointer would have been that the
+> > function pointer can be only used by drivers which have acces to it.
+> > This exported function is globally visible. The WDT disable/enable is
+> > very specific procedure and it actually would be nicer design to not
+> > have it visible globally. It is not intended to be used by anything
+> > else besides the WDT and RTC here.
+> 
+> Why would anything else try to use it?
+> 
+> There are 1000's of exported functions in the kernel.  If it's
+> properly namespaced a consumer would have to purposely call it, which
+> if they really wanted to, they could do anyway.  I don't really see
+> your point.
 
-I think the converse is true.
+I could still argue on this. It _is_ less obvous that an exported function
+is not meant to be publicly used than it is for function pointers. But
+as you say, this is not a strong enough point to see the trouble in
+synchronizing the WDT/RTC startup.
 
-Pointers to functions outside of a subsystem API context are generally
-horrible.  It's much nicer to call a function which can be easily
-stubbed out in a header file based on a Kconfig option.  It's how most
-kernel APIs work.
+> > But I can't say there will be PMIC with same RTC and no WDT coming from
+> > ROHM. Also, I am not terribly excited about the option of changing this
+> > back to function-pointer as I already removed the pointer from parent
+> > data and this changed parent data is already adapted to all sub drivers
+> > - so this is all just babbling. Maybe it is just my huge ego shouting
+> > there - 'I was right, I must have the final say'.
+> 
+> No, a call-back function would be a back-step.
 
-Have a look for yourself how many there are:
+You are probably right.
 
- git grep -A5 inline -- include/linux/
+> Ego or no ego, you're wrong. =:-D
 
-> Additional benefit from function pointer would have been that the
-> function pointer can be only used by drivers which have acces to it.
-> This exported function is globally visible. The WDT disable/enable is
-> very specific procedure and it actually would be nicer design to not
-> have it visible globally. It is not intended to be used by anything
-> else besides the WDT and RTC here.
+I'd rephrase that as "It's not that I am wrong, but you are right." =)
 
-Why would anything else try to use it?
+> > As a side note, I already did submit v12 with other styling fixes but
+> > which left the WDT function in MFD. If you still see the WDT functions
+> > should be exported from WDT - then please ignore the v12. I'll do v13
+> > at the afternoon (my time, which is only a bit after noon your time I
+> > guess) which will export these functions from WDT. (Well, I had to try
+> > once more :D)
+> 
+> Please keep the WDT code in the WDT driver.  Create a little stub for
+> the cases where the WDT driver is not enabled - job done.
 
-There are 1000's of exported functions in the kernel.  If it's
-properly namespaced a consumer would have to purposely call it, which
-if they really wanted to, they could do anyway.  I don't really see
-your point.
+Yes Sir.
 
-> But I can't say there will be PMIC with same RTC and no WDT coming from
-> ROHM. Also, I am not terribly excited about the option of changing this
-> back to function-pointer as I already removed the pointer from parent
-> data and this changed parent data is already adapted to all sub drivers
-> - so this is all just babbling. Maybe it is just my huge ego shouting
-> there - 'I was right, I must have the final say'.
-
-No, a call-back function would be a back-step.
-
-Ego or no ego, you're wrong. =:-D
-
-> As a side note, I already did submit v12 with other styling fixes but
-> which left the WDT function in MFD. If you still see the WDT functions
-> should be exported from WDT - then please ignore the v12. I'll do v13
-> at the afternoon (my time, which is only a bit after noon your time I
-> guess) which will export these functions from WDT. (Well, I had to try
-> once more :D)
-
-Please keep the WDT code in the WDT driver.  Create a little stub for
-the cases where the WDT driver is not enabled - job done.
+Br,
+	Matti Vaittinen
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
