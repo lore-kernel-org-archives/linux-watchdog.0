@@ -2,33 +2,65 @@ Return-Path: <SRS0=tn89=SG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1589CC4360F
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 07:56:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32BDDC10F0C
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 08:06:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E589620674
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 07:56:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02B1C2147C
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Apr 2019 08:06:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CAT/eN5G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727214AbfDDH4r (ORCPT
+        id S1726894AbfDDIGj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Apr 2019 03:56:47 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:51529 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726204AbfDDH4r (ORCPT
+        Thu, 4 Apr 2019 04:06:39 -0400
+Received: from mail-it1-f196.google.com ([209.85.166.196]:36178 "EHLO
+        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726122AbfDDIGi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 Apr 2019 03:56:47 -0400
-X-Originating-IP: 109.213.83.19
-Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id CCE2F6000F;
-        Thu,  4 Apr 2019 07:56:40 +0000 (UTC)
-Date:   Thu, 4 Apr 2019 09:56:40 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+        Thu, 4 Apr 2019 04:06:38 -0400
+Received: by mail-it1-f196.google.com with SMTP id y10so2278785itc.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 04 Apr 2019 01:06:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=shJdvdGb88860d31wYHMujcMhegndt2m1bOdjIXO+xc=;
+        b=CAT/eN5GQvaUHT/B2oGu2uy902nw2xGiQS04eueuNNfsLLiZ2sZrq1djYQUxHf2ud/
+         n4+1n183QmzwuTPCPClOc+3NaDZIGu3NXptqhAeWzIfBCO4KxPmkBN7QdpGxr02T7WrS
+         5q5MxVvuAl8Hm1ON1Npt1S9VcGhvzKXMtlWpIe24EHTKYIYYcuGISN43xxMMhRiM9tmk
+         TIk2vubJ5B2kxfOOK+yASqUse32MZmoGeqyeS25U8XCv1D+SQIZI85Q6aWOrDxm0MjB4
+         xDf4yd/TjtKrulVw5KQ9WvR7RsC3GO5GQH/tEXLTJb3SlTvGxCp9FKYPkw6wHaP1wIcj
+         DsrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=shJdvdGb88860d31wYHMujcMhegndt2m1bOdjIXO+xc=;
+        b=mxXjli7/jBnMSPKS8OqUljO+MZbd0U9BLjZbstQQ5yo2OsLGARRzMigFnb0YIbKceM
+         u1UXv5JeT1eH938JC0Gv2eOm1HXDJUI49N0HaNn86hnbDYZp3X4N64Xzowl5FnbX8n77
+         vb4zTWSToupdgKHfYNCyzn0U2gpfZjuqLegnVBGKCtM1OIlNtoPwJ2aFAu5WpC/el1eA
+         BRqmpaWYQOUe2Vl++TufvCoN97eTlqX1jNPrxgU+rDjWwp1lbXpUNWx+zla0SUPso/a8
+         zHHLTL4XRNus62sMGg82gzMS3T+HJr7ci+R2yOFKPdMIUHAVyeGDauE8JzYr9INof/ab
+         goJA==
+X-Gm-Message-State: APjAAAVFn7Q0YY3FwnOpkYOunMp6qf8HHNC7OV/F3ulwfxIqvMSDqZq0
+        W3fqjN8Kdyd7/qzXtG1qUGfFeA==
+X-Google-Smtp-Source: APXvYqxnNjN8K03nxu262Y9rYxDVOZyo44d73RJ8HFDjE227lUwvptExYSziV+j6FXd2h9oXxm68Mw==
+X-Received: by 2002:a02:1cc1:: with SMTP id c184mr3629232jac.97.1554365197844;
+        Thu, 04 Apr 2019 01:06:37 -0700 (PDT)
+Received: from dell ([147.50.13.10])
+        by smtp.gmail.com with ESMTPSA id u19sm8172086iol.16.2019.04.04.01.06.26
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 04 Apr 2019 01:06:36 -0700 (PDT)
+Date:   Thu, 4 Apr 2019 09:06:23 +0100
+From:   Lee Jones <lee.jones@linaro.org>
 To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Lee Jones <lee.jones@linaro.org>,
+Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
         "mturquette@baylibre.com" <mturquette@baylibre.com>,
@@ -52,7 +84,7 @@ Cc:     Lee Jones <lee.jones@linaro.org>,
         "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190404075640.GV22216@piout.net>
+Message-ID: <20190404080623.GJ6830@dell>
 References: <20190403073152.GM4187@dell>
  <20190403084732.GA3493@localhost.localdomain>
  <20190403093015.GJ11301@dell>
@@ -64,46 +96,48 @@ References: <20190403073152.GM4187@dell>
  <20190404065452.GD6830@dell>
  <20190404072449.GE3493@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20190404072449.GE3493@localhost.localdomain>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 04/04/2019 10:24:49+0300, Matti Vaittinen wrote:
-> On Thu, Apr 04, 2019 at 07:54:52AM +0100, Lee Jones wrote:
-> > On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
+> > > ROHM. Also, I am not terribly excited about the option of changing this
+> > > back to function-pointer as I already removed the pointer from parent
+> > > data and this changed parent data is already adapted to all sub drivers
+> > > - so this is all just babbling. Maybe it is just my huge ego shouting
+> > > there - 'I was right, I must have the final say'.
 > > 
-> > > Actually, now that I thik of it the right way to do this would have
-> > > been the function pointer in parent data as was done in original patch
-> > > set. HW-colleagues tend to re-use HW blocks, and we like to re-use our
-> > > drivers. If the next PMIC from ROHM uses same RTC block but does not
-> > > provide watchdog - then it is cleanest solution to fall back to
-> > > function pointer and leave it to NULL when there is no WDT or when WDT
-> > > is unused. Another option is to export dummy function - which is not so
-> > > nice.
-> > 
-> > I think the converse is true.
-> > 
-> > Pointers to functions outside of a subsystem API context are generally
-> > horrible.  It's much nicer to call a function which can be easily
-> > stubbed out in a header file based on a Kconfig option.  It's how most
-> > kernel APIs work.
+> > No, a call-back function would be a back-step.
 > 
-> I hate to admit but I see your point. This nicely solves any issues in
-> syncronizing the startup for driver providing function pointer and for
-> driver using it.
+> You are probably right.
 > 
+> > Ego or no ego, you're wrong. =:-D
+> 
+> I'd rephrase that as "It's not that I am wrong, but you are right." =)
 
-Wouldn't it be easier to register the watchdog driver as part of the RTC
-driver?
+Works for me.
 
-As I see it, the wdt is just a glorified RTC alarm.
+> > > As a side note, I already did submit v12 with other styling fixes but
+> > > which left the WDT function in MFD. If you still see the WDT functions
+> > > should be exported from WDT - then please ignore the v12. I'll do v13
+> > > at the afternoon (my time, which is only a bit after noon your time I
+> > > guess) which will export these functions from WDT. (Well, I had to try
+> > > once more :D)
+> > 
+> > Please keep the WDT code in the WDT driver.  Create a little stub for
+> > the cases where the WDT driver is not enabled - job done.
+> 
+> Yes Sir.
+
+=;-)
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
