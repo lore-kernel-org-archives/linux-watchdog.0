@@ -3,239 +3,184 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA885C282CE
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Apr 2019 17:59:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA76C282DA
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Apr 2019 18:29:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 989CE2171F
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Apr 2019 17:59:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCEC620863
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Apr 2019 18:29:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731185AbfDER74 (ORCPT
+        id S1731676AbfDES3L (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 5 Apr 2019 13:59:56 -0400
-Received: from mleia.com ([178.79.152.223]:44228 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbfDER74 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 5 Apr 2019 13:59:56 -0400
-Received: from mail.mleia.com (localhost [127.0.0.1])
-        by mail.mleia.com (Postfix) with ESMTP id 2A04F45F08A;
-        Fri,  5 Apr 2019 18:59:53 +0100 (BST)
-Subject: Re: [PATCH] watchdog: Convert to use devm_platform_ioremap_resource
+        Fri, 5 Apr 2019 14:29:11 -0400
+Received: from gateway36.websitewelcome.com ([50.116.127.2]:39516 "EHLO
+        gateway36.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731362AbfDES3I (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 5 Apr 2019 14:29:08 -0400
+X-Greylist: delayed 1477 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Apr 2019 14:29:07 EDT
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway36.websitewelcome.com (Postfix) with ESMTP id F1DF9400D9D6F
+        for <linux-watchdog@vger.kernel.org>; Fri,  5 Apr 2019 12:21:44 -0500 (CDT)
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with SMTP
+        id CTCXhCdDfYTGMCTCYhMIbO; Fri, 05 Apr 2019 13:04:30 -0500
+X-Authority-Reason: nr=8
+Received: from [189.250.139.70] (port=36608 helo=[192.168.1.76])
+        by gator4166.hostgator.com with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.91)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1hCTCX-000rHG-KS; Fri, 05 Apr 2019 13:04:29 -0500
+Subject: Re: [PATCH] watchdog: alim7101: Mark expected switch fall-through
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Joel Stanley <joel@jms.id.au>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Nancy Yuen <yuenn@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Wan ZongShun <mcuos.com@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Kukjin Kim <kgene@kernel.org>, Barry Song <baohua@kernel.org>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Marc Gonzalez <marc.w.gonzalez@free.fr>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-References: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
-From:   Vladimir Zapolskiy <vz@mleia.com>
-Message-ID: <112ed5c1-1761-2d04-fd9c-49fc9ef3d8f7@mleia.com>
-Date:   Fri, 5 Apr 2019 20:59:49 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
- Thunderbird/52.6.0
+        Kees Cook <keescook@chromium.org>
+References: <20190320181658.GA6749@embeddedor>
+ <e041fd69-0cbc-edb8-cc30-037b333e29cc@roeck-us.net>
+ <9a839da8-d2ba-a856-16a7-2ed180ca7864@embeddedor.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=gustavo@embeddedor.com; keydata=
+ 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
+ VtSixD1uOgytAP7RWS474w==
+Message-ID: <779afa51-5700-ccb1-6761-b51e4227ef81@embeddedor.com>
+Date:   Fri, 5 Apr 2019 13:04:27 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1554231713-14137-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <9a839da8-d2ba-a856-16a7-2ed180ca7864@embeddedor.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-49551924 
-X-CRM114-CacheID: sfid-20190405_185953_209427_E116B2E0 
-X-CRM114-Status: GOOD (  23.59  )
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 189.250.139.70
+X-Source-L: No
+X-Exim-ID: 1hCTCX-000rHG-KS
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: ([192.168.1.76]) [189.250.139.70]:36608
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 3
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 04/02/2019 10:01 PM, Guenter Roeck wrote:
-> Use devm_platform_ioremap_resource to reduce source code size,
-> improve readability, and reduce the likelyhood of bugs.
-> 
-> The conversion was done automatically with coccinelle using the
-> following semantic patch.
-> 
-> @r@
-> identifier res, pdev;
-> expression a;
-> expression index;
-> expression e;
-> @@
-> 
-> <+...
-> - res = platform_get_resource(pdev, IORESOURCE_MEM, index);
-> - a = devm_ioremap_resource(e, res);
-> + a = devm_platform_ioremap_resource(pdev, index);
-> ...+>
-> 
-> @depends on r@
-> identifier r.res;
-> @@
-> - struct resource *res;
->   ... when != res
-> 
-> @@
-> identifier res, pdev;
-> expression index;
-> expression a;
-> @@
-> - struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, index);
-> - a = devm_ioremap_resource(&pdev->dev, res);
-> + a = devm_platform_ioremap_resource(pdev, index);
-> 
-> Cc: Joel Stanley <joel@jms.id.au>
-> Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Baruch Siach <baruch@tkos.co.il>
-> Cc: Keguang Zhang <keguang.zhang@gmail.com>
-> Cc: Vladimir Zapolskiy <vz@mleia.com>
-> Cc: Kevin Hilman <khilman@baylibre.com>
-> Cc: Matthias Brugger <matthias.bgg@gmail.com>
-> Cc: Avi Fishman <avifishman70@gmail.com>
-> Cc: Nancy Yuen <yuenn@google.com>
-> Cc: Brendan Higgins <brendanhiggins@google.com>
-> Cc: Wan ZongShun <mcuos.com@gmail.com>
-> Cc: Michal Simek <michal.simek@xilinx.com>
-> Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
-> Cc: Kukjin Kim <kgene@kernel.org>
-> Cc: Barry Song <baohua@kernel.org>
-> Cc: Orson Zhai <orsonzhai@gmail.com>
-> Cc: Patrice Chotard <patrice.chotard@st.com>
-> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-> Cc: Chen-Yu Tsai <wens@csie.org>
-> Cc: Marc Gonzalez <marc.w.gonzalez@free.fr>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/watchdog/asm9260_wdt.c    | 4 +---
->  drivers/watchdog/aspeed_wdt.c     | 4 +---
->  drivers/watchdog/at91sam9_wdt.c   | 4 +---
->  drivers/watchdog/ath79_wdt.c      | 4 +---
->  drivers/watchdog/atlas7_wdt.c     | 4 +---
->  drivers/watchdog/bcm7038_wdt.c    | 4 +---
->  drivers/watchdog/bcm_kona_wdt.c   | 4 +---
->  drivers/watchdog/cadence_wdt.c    | 4 +---
->  drivers/watchdog/coh901327_wdt.c  | 4 +---
->  drivers/watchdog/davinci_wdt.c    | 4 +---
->  drivers/watchdog/digicolor_wdt.c  | 4 +---
->  drivers/watchdog/dw_wdt.c         | 4 +---
->  drivers/watchdog/ep93xx_wdt.c     | 4 +---
->  drivers/watchdog/ftwdt010_wdt.c   | 4 +---
->  drivers/watchdog/imgpdc_wdt.c     | 4 +---
->  drivers/watchdog/jz4740_wdt.c     | 4 +---
->  drivers/watchdog/lantiq_wdt.c     | 4 +---
->  drivers/watchdog/loongson1_wdt.c  | 4 +---
->  drivers/watchdog/lpc18xx_wdt.c    | 4 +---
->  drivers/watchdog/max63xx_wdt.c    | 4 +---
->  drivers/watchdog/meson_gxbb_wdt.c | 4 +---
->  drivers/watchdog/meson_wdt.c      | 4 +---
->  drivers/watchdog/moxart_wdt.c     | 4 +---
->  drivers/watchdog/mpc8xxx_wdt.c    | 3 +--
->  drivers/watchdog/mt7621_wdt.c     | 5 +----
->  drivers/watchdog/mtk_wdt.c        | 4 +---
->  drivers/watchdog/npcm_wdt.c       | 4 +---
->  drivers/watchdog/nuc900_wdt.c     | 4 +---
->  drivers/watchdog/of_xilinx_wdt.c  | 4 +---
->  drivers/watchdog/omap_wdt.c       | 4 +---
->  drivers/watchdog/orion_wdt.c      | 6 ++----
->  drivers/watchdog/pic32-dmt.c      | 4 +---
->  drivers/watchdog/pic32-wdt.c      | 4 +---
->  drivers/watchdog/pnx4008_wdt.c    | 4 +---
->  drivers/watchdog/renesas_wdt.c    | 4 +---
->  drivers/watchdog/rt2880_wdt.c     | 4 +---
->  drivers/watchdog/rtd119x_wdt.c    | 4 +---
->  drivers/watchdog/rza_wdt.c        | 4 +---
->  drivers/watchdog/s3c2410_wdt.c    | 4 +---
->  drivers/watchdog/sama5d4_wdt.c    | 4 +---
->  drivers/watchdog/sbsa_gwdt.c      | 7 ++-----
->  drivers/watchdog/shwdt.c          | 4 +---
->  drivers/watchdog/sirfsoc_wdt.c    | 4 +---
->  drivers/watchdog/sprd_wdt.c       | 4 +---
->  drivers/watchdog/st_lpc_wdt.c     | 4 +---
->  drivers/watchdog/stm32_iwdg.c     | 4 +---
->  drivers/watchdog/sunxi_wdt.c      | 4 +---
->  drivers/watchdog/tangox_wdt.c     | 4 +---
->  drivers/watchdog/tegra_wdt.c      | 4 +---
->  drivers/watchdog/ts72xx_wdt.c     | 7 ++-----
->  drivers/watchdog/txx9wdt.c        | 4 +---
->  drivers/watchdog/zx2967_wdt.c     | 4 +---
->  52 files changed, 55 insertions(+), 161 deletions(-)
+Hi all,
 
-[snip]
+Friendly ping:
 
-> diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-> index 331cadb459ac..f6f66634cedf 100644
-> --- a/drivers/watchdog/lpc18xx_wdt.c
-> +++ b/drivers/watchdog/lpc18xx_wdt.c
-> @@ -204,15 +204,13 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
->  {
->  	struct lpc18xx_wdt_dev *lpc18xx_wdt;
->  	struct device *dev = &pdev->dev;
-> -	struct resource *res;
->  	int ret;
->  
->  	lpc18xx_wdt = devm_kzalloc(dev, sizeof(*lpc18xx_wdt), GFP_KERNEL);
->  	if (!lpc18xx_wdt)
->  		return -ENOMEM;
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	lpc18xx_wdt->base = devm_ioremap_resource(dev, res);
-> +	lpc18xx_wdt->base = devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(lpc18xx_wdt->base))
->  		return PTR_ERR(lpc18xx_wdt->base);
->  
+Who can take this?
 
-[snip]
-
-> diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-> index 8e261799c84e..24c266a9e1dc 100644
-> --- a/drivers/watchdog/pnx4008_wdt.c
-> +++ b/drivers/watchdog/pnx4008_wdt.c
-> @@ -185,13 +185,11 @@ static struct watchdog_device pnx4008_wdd = {
->  
->  static int pnx4008_wdt_probe(struct platform_device *pdev)
->  {
-> -	struct resource *r;
->  	int ret = 0;
->  
->  	watchdog_init_timeout(&pnx4008_wdd, heartbeat, &pdev->dev);
->  
-> -	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	wdt_base = devm_ioremap_resource(&pdev->dev, r);
-> +	wdt_base = devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(wdt_base))
->  		return PTR_ERR(wdt_base);
->  
-
-For lpc18xx_wdt.c and pnx4008_wdt.c:
-
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-
+Thanks
 --
-Best wishes,
-Vladimir
+Gustavo
+
+On 3/20/19 7:15 PM, Gustavo A. R. Silva wrote:
+> 
+> 
+> On 3/20/19 7:12 PM, Guenter Roeck wrote:
+>> On 3/20/19 11:16 AM, Gustavo A. R. Silva wrote:
+>>> In preparation to enabling -Wimplicit-fallthrough, mark switch
+>>> cases where we are expecting to fall through.
+>>>
+>>> This patch fixes the following warning:
+>>>
+>>> drivers/watchdog/alim7101_wdt.c: In function ‘fop_ioctl’:
+>>> drivers/watchdog/alim7101_wdt.c:279:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>>>     wdt_keepalive();
+>>>     ^~~~~~~~~~~~~~~
+>>> drivers/watchdog/alim7101_wdt.c:282:2: note: here
+>>>    case WDIOC_GETTIMEOUT:
+>>>    ^~~~
+>>>
+>>> Notice that, in this particular case, the /* Fall through */
+>>> comment is placed at the very bottom of the case statement,
+>>> which is what GCC is expecting to find.
+>>>
+>>> Warning level 3 was used: -Wimplicit-fallthrough=3
+>>>
+>>> This patch is part of the ongoing efforts to enabling
+>>> -Wimplicit-fallthrough.
+>>>
+>>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+> 
+> Thanks, Guenter. :)
+> 
+> --
+> Gustavo
+> 
+>>> ---
+>>>   drivers/watchdog/alim7101_wdt.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/watchdog/alim7101_wdt.c b/drivers/watchdog/alim7101_wdt.c
+>>> index 12f7ea62dddd..f5ada07e9202 100644
+>>> --- a/drivers/watchdog/alim7101_wdt.c
+>>> +++ b/drivers/watchdog/alim7101_wdt.c
+>>> @@ -277,8 +277,8 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>>>               return -EINVAL;
+>>>           timeout = new_timeout;
+>>>           wdt_keepalive();
+>>> -        /* Fall through */
+>>>       }
+>>> +        /* Fall through */
+>>>       case WDIOC_GETTIMEOUT:
+>>>           return put_user(timeout, p);
+>>>       default:
+>>>
+>>
