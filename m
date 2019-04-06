@@ -2,166 +2,102 @@ Return-Path: <SRS0=HvdG=SI=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61E80C10F06
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 16:26:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61546C10F06
+	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 18:48:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 30BE5218D4
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 16:26:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24C40213F2
+	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 18:48:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=hofmannsweb.com header.i=@hofmannsweb.com header.b="CeFN9RJt"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="FVadyNEv";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="JkcO8t3n"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726493AbfDFQ0M (ORCPT
+        id S1726435AbfDFSsF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 6 Apr 2019 12:26:12 -0400
-Received: from 178.27.4.93.rev.sfr.net ([93.4.27.178]:44688 "EHLO
-        hofmannsweb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726404AbfDFQ0M (ORCPT
+        Sat, 6 Apr 2019 14:48:05 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:54398 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726427AbfDFSsF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 6 Apr 2019 12:26:12 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by hofmannsweb.com (Postfix) with ESMTP id A307D310D2E;
-        Sat,  6 Apr 2019 18:26:10 +0200 (CEST)
-Received: from hofmannsweb.com ([127.0.0.1])
-        by localhost (hofmannsweb.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id SVsOoF4rjuSo; Sat,  6 Apr 2019 18:26:09 +0200 (CEST)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by hofmannsweb.com (Postfix) with ESMTP id DFAF6310D2A;
-        Sat,  6 Apr 2019 18:26:08 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 hofmannsweb.com DFAF6310D2A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hofmannsweb.com;
-        s=5A2CD3FC-E3ED-11E4-B8B6-D3B199B2F681; t=1554567968;
-        bh=nVXWXRlb4x6ODwFAEc2GhBz9CKEUoRQYrPHqGCabDJA=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=CeFN9RJt1g1pm4+QTQavALU9ckYBmBQbHUCR3Nselk+LEnewFB5TIJVAoYcvVzjte
-         hO7niyXK9u6wdqCBv5osqfCifKN4qakEu1CJYMUkPSAng0TN95MV7pkdfIYcMHIdFy
-         LmLzfO2mJMBctAl1N6bU15tpUy1GYybk3fEtmLuA=
-X-Virus-Scanned: amavisd-new at hofmannsweb.com
-Received: from hofmannsweb.com ([127.0.0.1])
-        by localhost (hofmannsweb.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 0jTkga3bS3OP; Sat,  6 Apr 2019 18:26:08 +0200 (CEST)
-Received: from hofmannsweb.com (hofmannsweb.com [192.168.1.10])
-        by hofmannsweb.com (Postfix) with ESMTP id C4B97310D27;
-        Sat,  6 Apr 2019 18:26:08 +0200 (CEST)
-Date:   Sat, 6 Apr 2019 18:26:08 +0200 (CEST)
-From:   Georg Hofmann <georg@hofmannsweb.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
-Message-ID: <1120044734.2028.1554567968491.JavaMail.zimbra@hofmannsweb.com>
-In-Reply-To: <6e80717e-bbd9-1089-59ce-cbe24cf10218@roeck-us.net>
-References: <1274287303.1911.1554545863744.JavaMail.zimbra@hofmannsweb.com> <2a7af85e-486d-26dc-17bf-9f6e2c3ddf8a@roeck-us.net> <2141975119.2003.1554560224141.JavaMail.zimbra@hofmannsweb.com> <6e80717e-bbd9-1089-59ce-cbe24cf10218@roeck-us.net>
-Subject: Re: [PATCH] Fix set_timeout for big timeout values
+        Sat, 6 Apr 2019 14:48:05 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id F0C7F60A42; Sat,  6 Apr 2019 18:48:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1554576484;
+        bh=bsfESOPAMIt6kwXs1L5nh9XkRg1/EBCHLoLNOWy+Tvw=;
+        h=Subject:To:References:From:Date:In-Reply-To:From;
+        b=FVadyNEvL61FKcMpqBw/2H/Qi0GkcYZSU8Ox/ZbBJC1kb3WlfZZ5Tab/d8mfUeBIM
+         sWkKM6xkL51QOsG6F08VlIYMk7ga5dBUxGrKgx51sFS7141B3T1Q8R7Y5osjIAwAkf
+         vr7npl2ImxRmBxF5ZoxNvIhgH4MuWgNxxos0uZX8=
+Received: from [10.79.171.6] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: mojha@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 339536044E;
+        Sat,  6 Apr 2019 18:47:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1554576483;
+        bh=bsfESOPAMIt6kwXs1L5nh9XkRg1/EBCHLoLNOWy+Tvw=;
+        h=Subject:To:References:From:Date:In-Reply-To:From;
+        b=JkcO8t3nJEo+vI4PaMB/NTMws8XKpEMQpjFIC8Gml4TRjb73R3WJ0s0QFBnzAo+/z
+         BKeyY0K7bWTIJvetgHxKJdM/0qftQGYCNNW5uRHaPeFW8MEIY0Ajm1tziFN+YMB0pr
+         w0HJswCWuUU/B1mAdwsN5HFEGMEr1OtndOLh3EH0=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 339536044E
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
+Subject: Re: [PATCH] watchdog: machzwd : fix warning Using plain integer as
+ NULL pointer
+To:     Hariprasad Kelam <hariprasad.kelam@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20190406131415.GA3844@hari-Inspiron-1545>
+From:   Mukesh Ojha <mojha@codeaurora.org>
+Message-ID: <38e42bc9-f0b1-5839-c5f3-b88d0fd2dd41@codeaurora.org>
+Date:   Sun, 7 Apr 2019 00:17:50 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20190406131415.GA3844@hari-Inspiron-1545>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [192.168.1.11]
-X-Mailer: Zimbra 8.8.11_GA_3780 (ZimbraWebClient - FF66 (Mac)/8.8.11_GA_3787)
-Thread-Topic: Fix set_timeout for big timeout values
-Thread-Index: a/+QYkqFhzbQ9QLE8ZyI4f9kaHqeBQ==
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
------ Original Message -----
-> From: "Guenter Roeck" <linux@roeck-us.net>
-> To: "Georg Hofmann" <georg@hofmannsweb.com>
-> Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
-> Sent: Saturday, April 6, 2019 5:46:08 PM
-> Subject: Re: [PATCH] Fix set_timeout for big timeout values
 
-> On 4/6/19 7:17 AM, Georg Hofmann wrote:
->> ----- Original Message -----
->>> From: "Guenter Roeck" <linux@roeck-us.net>
->>> To: "Georg Hofmann" <georg@hofmannsweb.com>, wim@linux-watchdog.org
->>> Cc: linux-watchdog@vger.kernel.org
->>> Sent: Saturday, April 6, 2019 3:25:44 PM
->>> Subject: Re: [PATCH] Fix set_timeout for big timeout values
->> 
->>> On 4/6/19 3:17 AM, Georg Hofmann wrote:
->>>> This patch implements the documented behavior: if max_hw_heartbeat_ms is
->>>> implemented, the minimum of the set_timeout argument and
->>>> max_hw_heartbeat_ms should be used.
->>>> Previously only the first 7 bits were used and the input argument was
->>>> returned.
->>>>
->>>> Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
->>>> ---
->>>>    drivers/watchdog/imx2_wdt.c | 6 ++++--
->>>>    1 file changed, 4 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
->>>> index 2b52514..3c13adc 100644
->>>> --- a/drivers/watchdog/imx2_wdt.c
->>>> +++ b/drivers/watchdog/imx2_wdt.c
->>>> @@ -178,9 +178,11 @@ static void __imx2_wdt_set_timeout(struct watchdog_device
->>>> *wdog,
->>>>    static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
->>>>    				unsigned int new_timeout)
->>>>    {
->>>> -	__imx2_wdt_set_timeout(wdog, new_timeout);
->>>> +	unsigned int actual;
->>>>    
->>>> -	wdog->timeout = new_timeout;
->>>> +	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
->>>> +	__imx2_wdt_set_timeout(wdog, actual);
->>>> +	wdog->timeout = actual;
->>>
->>> That defeats the purpose of having an internal maximum. wdog->timeout
->>> should still be set to the requested value.
->>>
->>> Guenter
->> 
->> Hi,
->> 
->> I don't understand, the internal maximum is max_hw_heartbeat_ms.
->> I have used the same code as other watchdog drivers
->> (e.g. aspeed_wdt.c, loongson1_wdt.c, ...).
->> 
->> I have submitted this patch because I was writing a userspace
->>   program and I expected a different behavior on the ioctl.
->> The watchdog documentation says (Documentation/watchdog/watchdog-api.txt):
->> Setting and getting the timeout:
->> 
->> For some drivers it is possible to modify the watchdog timeout on the
->> fly with the SETTIMEOUT ioctl, those drivers have the WDIOF_SETTIMEOUT
->> flag set in their option field.  The argument is an integer
->> representing the timeout in seconds.  The driver returns the real
->> timeout used in the same variable, and this timeout might differ from
->> the requested one due to limitation of the hardware.
->> 
->>      int timeout = 45;
->>      ioctl(fd, WDIOC_SETTIMEOUT, &timeout);
->>      printf("The timeout was set to %d seconds\n", timeout);
->> 
->> This example might actually print "The timeout was set to 60 seconds"
->> if the device has a granularity of minutes for its timeout.
->> 
->> As the watchdog core driver reads the timeout just after write, I have
->> to set the applied value to timeout.
->> 
->> Initially I thought I should get a error message if the timeout can't
->> be applied, but the documentation describes another behavior.
->> 
-> 
-> The whole point of max_hw_heartbeat_ms is to be able to specify a larger
-> timeout than the maximum supported by the hardware. In extreme cases,
-> max_hw_heartbeat_ms could be as low as 1 second (or less). Limiting
-> wdog->timeout to that value is identical to not having max_hw_heartbeat_ms
-> in the first place, and thus quite pointless.
-> 
-> aspeed_wdt.c does _not_ set wdd->timeout to the 'actual' value.
-> loongson1_wdt.c doesn't do it either. If any other driver does it,
-> it is wrong.
-> 
-> Your patch is almost correct, except it should keep
-> "wdog->timeout = new_timeout;".
-> 
-> Guenter
-ah, ok, I missed that. I will change test it and than resend the patch.
-Thanks for your time.
-Georg
+On 4/6/2019 6:44 PM, Hariprasad Kelam wrote:
+> Changes passing function argument 0 to NULL to avoid below sparse
+> warning
+>
+>   CHECK   drivers/watchdog//machzwd.c
+> drivers/watchdog//machzwd.c:321:25: warning: Using plain integer as NULL
+> pointer
+> Signed-off-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+
+Cheers,
+-Mukesh
+
+> ---
+>   drivers/watchdog/machzwd.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
+> index 88d823d..c3926d0 100644
+> --- a/drivers/watchdog/machzwd.c
+> +++ b/drivers/watchdog/machzwd.c
+> @@ -318,7 +318,7 @@ static long zf_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>   	case WDIOC_GETBOOTSTATUS:
+>   		return put_user(0, p);
+>   	case WDIOC_KEEPALIVE:
+> -		zf_ping(0);
+> +		zf_ping(NULL);
+>   		break;
+>   	default:
+>   		return -ENOTTY;
