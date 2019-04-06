@@ -6,88 +6,112 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61546C10F06
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 18:48:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CC3FC10F06
+	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 19:32:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24C40213F2
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 18:48:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F00792171F
+	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 19:32:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="FVadyNEv";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="JkcO8t3n"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YKlsue1O"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726435AbfDFSsF (ORCPT
+        id S1726435AbfDFTc5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 6 Apr 2019 14:48:05 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:54398 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726427AbfDFSsF (ORCPT
+        Sat, 6 Apr 2019 15:32:57 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:37035 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726427AbfDFTc5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 6 Apr 2019 14:48:05 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id F0C7F60A42; Sat,  6 Apr 2019 18:48:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554576484;
-        bh=bsfESOPAMIt6kwXs1L5nh9XkRg1/EBCHLoLNOWy+Tvw=;
-        h=Subject:To:References:From:Date:In-Reply-To:From;
-        b=FVadyNEvL61FKcMpqBw/2H/Qi0GkcYZSU8Ox/ZbBJC1kb3WlfZZ5Tab/d8mfUeBIM
-         sWkKM6xkL51QOsG6F08VlIYMk7ga5dBUxGrKgx51sFS7141B3T1Q8R7Y5osjIAwAkf
-         vr7npl2ImxRmBxF5ZoxNvIhgH4MuWgNxxos0uZX8=
-Received: from [10.79.171.6] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: mojha@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 339536044E;
-        Sat,  6 Apr 2019 18:47:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554576483;
-        bh=bsfESOPAMIt6kwXs1L5nh9XkRg1/EBCHLoLNOWy+Tvw=;
-        h=Subject:To:References:From:Date:In-Reply-To:From;
-        b=JkcO8t3nJEo+vI4PaMB/NTMws8XKpEMQpjFIC8Gml4TRjb73R3WJ0s0QFBnzAo+/z
-         BKeyY0K7bWTIJvetgHxKJdM/0qftQGYCNNW5uRHaPeFW8MEIY0Ajm1tziFN+YMB0pr
-         w0HJswCWuUU/B1mAdwsN5HFEGMEr1OtndOLh3EH0=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 339536044E
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
+        Sat, 6 Apr 2019 15:32:57 -0400
+Received: by mail-pf1-f195.google.com with SMTP id 8so5178141pfr.4;
+        Sat, 06 Apr 2019 12:32:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2yaoJk61R7nWrPh3m3NjtylxYG5Sac+8txmfA7y56eM=;
+        b=YKlsue1OlLw7uka+HoxtLktjQ0vuBewmbrTxbqlBK+yHwVKxtJ2Webs6kEmOqEbvLq
+         eG8JNdjz77PzKvDU7udDYQH9BwrI9jrrTXYmUX9LEcD9Oc31l2/Ih4W9OAs23HSYrv5p
+         UzzOjyWKKzOOalwIviSbTZm8dYtf0Kbs1bmEbea2SLClat456UHMd19rerHMDHtYvE51
+         8DnTutiEmV4eCNs9BsGoS5R7QbLOsQT/Wl/CsN7E3mkdwiVlYu4XI/AFlN/txcC9e/su
+         KfHrRusQ+T/jZBCnnuauHedfhhn6RrM6U3kChhjod5eGnlCVneLVqqqU1oExOCeGfAAE
+         OIrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2yaoJk61R7nWrPh3m3NjtylxYG5Sac+8txmfA7y56eM=;
+        b=Oi3pWu8ElOQDomh5TA63K+hrwMMNZ1fHx/QypHAVsS0TqT9+9w5C+t8sPtzzjNbsx+
+         9wrsZFy1IdXfUqi0uzT9MPDEZk8l7eB1aQR3mrmi936oTgzaUBAwmI9+lgr1Q7jmIcHd
+         MQVqbLCto9FezDrYoyHX4hmT1/3kzxoegOxWRB9Uac1dNMJhMHCOeyq6codKCrGKji4K
+         2OjXuAxohQOGw1ewFKBFqHelfbUU9yMjhIb28gCDWgExeC1OLnU85o/eYzZ+JatwG+Fz
+         jlu0iaAy4u8ragyIiiY1WzI8gkrk47STbqz3A1t0wB+abg1YcToLhrdleU+q9ESGKUto
+         ok0A==
+X-Gm-Message-State: APjAAAVoSb6YtRU1AeNq138RLQcUChxuafCrBHCnkmyl7wi4RajfaV51
+        wpaQ3pYX91oWHNlVjuTSnIpkq8e8
+X-Google-Smtp-Source: APXvYqy1pdq20b3jBKj/Fu0VLZObYVCGr3d+2LjrIUXS0QLY0rkSH+G5aIxB+4qaJDfvPItZV7vY2w==
+X-Received: by 2002:a63:29c8:: with SMTP id p191mr19468394pgp.197.1554579176130;
+        Sat, 06 Apr 2019 12:32:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s19sm36399808pfe.74.2019.04.06.12.32.54
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 06 Apr 2019 12:32:55 -0700 (PDT)
 Subject: Re: [PATCH] watchdog: machzwd : fix warning Using plain integer as
  NULL pointer
 To:     Hariprasad Kelam <hariprasad.kelam@gmail.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20190406131415.GA3844@hari-Inspiron-1545>
-From:   Mukesh Ojha <mojha@codeaurora.org>
-Message-ID: <38e42bc9-f0b1-5839-c5f3-b88d0fd2dd41@codeaurora.org>
-Date:   Sun, 7 Apr 2019 00:17:50 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <3d381fb9-4721-d2a9-9829-56697afd727c@roeck-us.net>
+Date:   Sat, 6 Apr 2019 12:32:53 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
 In-Reply-To: <20190406131415.GA3844@hari-Inspiron-1545>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-On 4/6/2019 6:44 PM, Hariprasad Kelam wrote:
+On 4/6/19 6:14 AM, Hariprasad Kelam wrote:
 > Changes passing function argument 0 to NULL to avoid below sparse
 > warning
->
+> 
 >   CHECK   drivers/watchdog//machzwd.c
 > drivers/watchdog//machzwd.c:321:25: warning: Using plain integer as NULL
 > pointer
+> 
 > Signed-off-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
 
-Cheers,
--Mukesh
+[reluctantly]
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+If anyone is still using the HW supported by this driver, it would
+be a prime target for conversion to use the watchdog subsystem.
+This would reduce code size and improve driver stability.
+_That_ would be useful.
+
+The only reason for replacing 0 with NULL is to make a static checker
+happy. This kind of change adds zero value to the code. Instead, it
+takes time from those who have to review the patches and apply them.
+
+If we ignore such patches, we'll get them again and again, taking
+away even more time. If we don't ignore them, we encourage submitters
+and get even more useless patches. If we try to discourage them, we
+risk being accused of being unfriendly. This is a perfect lose-lose
+situation for maintainers.
+
+Guenter
 
 > ---
 >   drivers/watchdog/machzwd.c | 2 +-
 >   1 file changed, 1 insertion(+), 1 deletion(-)
->
+> 
 > diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
 > index 88d823d..c3926d0 100644
 > --- a/drivers/watchdog/machzwd.c
@@ -101,3 +125,5 @@ Cheers,
 >   		break;
 >   	default:
 >   		return -ENOTTY;
+> 
+
