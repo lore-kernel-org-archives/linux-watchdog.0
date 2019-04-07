@@ -1,129 +1,104 @@
-Return-Path: <SRS0=HvdG=SI=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=NS2h=SJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CC3FC10F06
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 19:32:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4606CC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Sun,  7 Apr 2019 15:29:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F00792171F
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Apr 2019 19:32:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11A2C214AE
+	for <linux-watchdog@archiver.kernel.org>; Sun,  7 Apr 2019 15:29:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YKlsue1O"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sJPMM1tT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726435AbfDFTc5 (ORCPT
+        id S1726396AbfDGP3k (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 6 Apr 2019 15:32:57 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:37035 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726427AbfDFTc5 (ORCPT
+        Sun, 7 Apr 2019 11:29:40 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44535 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726246AbfDGP3k (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 6 Apr 2019 15:32:57 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 8so5178141pfr.4;
-        Sat, 06 Apr 2019 12:32:56 -0700 (PDT)
+        Sun, 7 Apr 2019 11:29:40 -0400
+Received: by mail-pg1-f194.google.com with SMTP id i2so5806457pgj.11;
+        Sun, 07 Apr 2019 08:29:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2yaoJk61R7nWrPh3m3NjtylxYG5Sac+8txmfA7y56eM=;
-        b=YKlsue1OlLw7uka+HoxtLktjQ0vuBewmbrTxbqlBK+yHwVKxtJ2Webs6kEmOqEbvLq
-         eG8JNdjz77PzKvDU7udDYQH9BwrI9jrrTXYmUX9LEcD9Oc31l2/Ih4W9OAs23HSYrv5p
-         UzzOjyWKKzOOalwIviSbTZm8dYtf0Kbs1bmEbea2SLClat456UHMd19rerHMDHtYvE51
-         8DnTutiEmV4eCNs9BsGoS5R7QbLOsQT/Wl/CsN7E3mkdwiVlYu4XI/AFlN/txcC9e/su
-         KfHrRusQ+T/jZBCnnuauHedfhhn6RrM6U3kChhjod5eGnlCVneLVqqqU1oExOCeGfAAE
-         OIrQ==
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Qc8RW6CpcoQ2/qAkI36Ns4xpMv2BoUq35CbWC2iZnKM=;
+        b=sJPMM1tT4ANpP794QCR8yQZRtlQa4dMaes4RMAW5DlomLscomoHsQeTrCbarRJHuTU
+         eVuUQ0BXMRKVtIDgerWBp2MRKefeIoTaZBPedC+HLItl3SgxUS2Fw/ZQNFA4IxPj37Er
+         /7iDrdwCaM3ULSBGeKG36E7oMgKb7WOBdzdz0QS17veZFKMlLt7bpPxqoTvZxi9Q5cow
+         wd2JWe1ZS7cyU+lBVR3rGGfllfluvOZCjRiklHiP/GcTsa7JUN4O2Q8k0okxwt4Qpd3X
+         TFeqdYbrvaI1UZmzabK4mWXyUBX/5i7T+fXuxUdi0Jaa9l/0x3n51hrwJ6eKr0maaUFA
+         /7HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2yaoJk61R7nWrPh3m3NjtylxYG5Sac+8txmfA7y56eM=;
-        b=Oi3pWu8ElOQDomh5TA63K+hrwMMNZ1fHx/QypHAVsS0TqT9+9w5C+t8sPtzzjNbsx+
-         9wrsZFy1IdXfUqi0uzT9MPDEZk8l7eB1aQR3mrmi936oTgzaUBAwmI9+lgr1Q7jmIcHd
-         MQVqbLCto9FezDrYoyHX4hmT1/3kzxoegOxWRB9Uac1dNMJhMHCOeyq6codKCrGKji4K
-         2OjXuAxohQOGw1ewFKBFqHelfbUU9yMjhIb28gCDWgExeC1OLnU85o/eYzZ+JatwG+Fz
-         jlu0iaAy4u8ragyIiiY1WzI8gkrk47STbqz3A1t0wB+abg1YcToLhrdleU+q9ESGKUto
-         ok0A==
-X-Gm-Message-State: APjAAAVoSb6YtRU1AeNq138RLQcUChxuafCrBHCnkmyl7wi4RajfaV51
-        wpaQ3pYX91oWHNlVjuTSnIpkq8e8
-X-Google-Smtp-Source: APXvYqy1pdq20b3jBKj/Fu0VLZObYVCGr3d+2LjrIUXS0QLY0rkSH+G5aIxB+4qaJDfvPItZV7vY2w==
-X-Received: by 2002:a63:29c8:: with SMTP id p191mr19468394pgp.197.1554579176130;
-        Sat, 06 Apr 2019 12:32:56 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s19sm36399808pfe.74.2019.04.06.12.32.54
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=Qc8RW6CpcoQ2/qAkI36Ns4xpMv2BoUq35CbWC2iZnKM=;
+        b=GPdB6aU6Gi9rwSN5oQr0GD0B+uXegJcswXf/Ox7wq90HufzC5dhKUAPcDaJ8w399yN
+         FHoahPi3fyynOGrnkH25MpbR1cXgj1fkbcJT6xSKAKEc5xfBV/J1IcY9yBT062pRS6Ru
+         O7RkgbK44b4J5OR8eXPnPqTpxjbhut62/hnOYlUw2lMF8Hp4eqKJh8cWLq22Qlob7y7e
+         aRNxTJnU6TPd8iNWskfIy+FkwqEgpgFpFzW/MVYuxyEp1JibBEIVh1bS9MFiPnUdOsxs
+         JjWw5dJClc1v8Y6KRbHS2mO7gxals9cpI+qjuCJXw9ALB2c14eL3EAik8XFAmDtrv9gC
+         qOkw==
+X-Gm-Message-State: APjAAAUaSmdFu8Yyai9gJnVaojrzMu1lrmGVfRUS6QOdJZoiWlTLmuHU
+        FcBQOVaSDBGaXnUIIXqRviWU8jew
+X-Google-Smtp-Source: APXvYqxecWQKalgCTLOtlgVUx7eOq970sjG6EjugtT9l81e+ktlOINAE23F3medFUH/1zlLmQcNsew==
+X-Received: by 2002:a65:62c9:: with SMTP id m9mr21788208pgv.309.1554650979592;
+        Sun, 07 Apr 2019 08:29:39 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q74sm23509569pfc.111.2019.04.07.08.29.37
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 06 Apr 2019 12:32:55 -0700 (PDT)
-Subject: Re: [PATCH] watchdog: machzwd : fix warning Using plain integer as
- NULL pointer
-To:     Hariprasad Kelam <hariprasad.kelam@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20190406131415.GA3844@hari-Inspiron-1545>
+        Sun, 07 Apr 2019 08:29:38 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <3d381fb9-4721-d2a9-9829-56697afd727c@roeck-us.net>
-Date:   Sat, 6 Apr 2019 12:32:53 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Subject: [PATCH] watchdog: rtd119x_wdt: Fix remove function
+Date:   Sun,  7 Apr 2019 08:29:35 -0700
+Message-Id: <1554650975-15326-1-git-send-email-linux@roeck-us.net>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-In-Reply-To: <20190406131415.GA3844@hari-Inspiron-1545>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/6/19 6:14 AM, Hariprasad Kelam wrote:
-> Changes passing function argument 0 to NULL to avoid below sparse
-> warning
-> 
->   CHECK   drivers/watchdog//machzwd.c
-> drivers/watchdog//machzwd.c:321:25: warning: Using plain integer as NULL
-> pointer
-> 
-> Signed-off-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
+The driver registers the watchdog with devm_watchdog_register_device() but
+still calls watchdog_unregister_device() on remove. Since clocks have to
+be stopped when removing the driver, after the watchdog device has been
+unregistered, we can not drop the call to watchdog_unregister_device().
+Use watchdog_register_device() to register the watchdog.
 
-[reluctantly]
+Fixes: 2bdf6acbfead7 ("watchdog: Add Realtek RTD1295")
+Cc: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/rtd119x_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-If anyone is still using the HW supported by this driver, it would
-be a prime target for conversion to use the watchdog subsystem.
-This would reduce code size and improve driver stability.
-_That_ would be useful.
-
-The only reason for replacing 0 with NULL is to make a static checker
-happy. This kind of change adds zero value to the code. Instead, it
-takes time from those who have to review the patches and apply them.
-
-If we ignore such patches, we'll get them again and again, taking
-away even more time. If we don't ignore them, we encourage submitters
-and get even more useless patches. If we try to discourage them, we
-risk being accused of being unfriendly. This is a perfect lose-lose
-situation for maintainers.
-
-Guenter
-
-> ---
->   drivers/watchdog/machzwd.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
-> index 88d823d..c3926d0 100644
-> --- a/drivers/watchdog/machzwd.c
-> +++ b/drivers/watchdog/machzwd.c
-> @@ -318,7 +318,7 @@ static long zf_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->   	case WDIOC_GETBOOTSTATUS:
->   		return put_user(0, p);
->   	case WDIOC_KEEPALIVE:
-> -		zf_ping(0);
-> +		zf_ping(NULL);
->   		break;
->   	default:
->   		return -ENOTTY;
-> 
+diff --git a/drivers/watchdog/rtd119x_wdt.c b/drivers/watchdog/rtd119x_wdt.c
+index d823c9def36f..cb17c49f3534 100644
+--- a/drivers/watchdog/rtd119x_wdt.c
++++ b/drivers/watchdog/rtd119x_wdt.c
+@@ -133,7 +133,7 @@ static int rtd119x_wdt_probe(struct platform_device *pdev)
+ 	rtd119x_wdt_set_timeout(&data->wdt_dev, data->wdt_dev.timeout);
+ 	rtd119x_wdt_stop(&data->wdt_dev);
+ 
+-	ret = devm_watchdog_register_device(&pdev->dev, &data->wdt_dev);
++	ret = watchdog_register_device(&data->wdt_dev);
+ 	if (ret) {
+ 		clk_disable_unprepare(data->clk);
+ 		clk_put(data->clk);
+-- 
+2.7.4
 
