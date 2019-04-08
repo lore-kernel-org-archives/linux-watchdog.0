@@ -4,64 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78279C10F14
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2350FC10F13
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4013B21841
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE8EF21841
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N4LymmXz"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="u9mfTKe2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727285AbfDHTlX (ORCPT
+        id S1728019AbfDHTjm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Apr 2019 15:41:23 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45907 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728548AbfDHTjo (ORCPT
+        Mon, 8 Apr 2019 15:39:42 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:46368 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727878AbfDHTjm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Apr 2019 15:39:44 -0400
-Received: by mail-pl1-f196.google.com with SMTP id bf11so7891432plb.12;
-        Mon, 08 Apr 2019 12:39:43 -0700 (PDT)
+        Mon, 8 Apr 2019 15:39:42 -0400
+Received: by mail-pf1-f193.google.com with SMTP id 9so8194339pfj.13;
+        Mon, 08 Apr 2019 12:39:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Jneh01n1+bIhANgepGSuhAjCJdMw/IuW338uETIBMa8=;
-        b=N4LymmXzj+cfs0sFJ+tcmMXo15eMUNCQAdAfR9ZvQAhNz4WWzE710lnjAVplzdAI4s
-         p5jDuXvGl1WWIir/esDEUMoPPMuNsMYtiFb28JPdnafAjnzUvUKIDDJRDyqk0w8cGKdH
-         kQCy4HMEehk2AUZ2e855/wyxXcoCuVn/JBDOsYWJFeIxHAOAktKtTnXWrMNHzFnIE1hU
-         83fdAV7ppxUkO9NL1uOtw2I/q0WIoyMIX+T3UZlmA2DVrkHMFQTQ1lrp6YwK8xV0Txu7
-         EszVtobE1bTijON+tgeCvvbrXy7E2+C2Sf+cR9JsRDJg3MkUYcJdx8xCVVVDgcprv7IK
-         hiCQ==
+        bh=kepgUGpZfR5uAkMzvzU4BdaVdRicSAbSlfhmAD09THE=;
+        b=u9mfTKe2I2QPmesjPlwcFJ284y6eMgvW1Ic8EFkZzputOYSc6tI0BALxPeFBNbYc/e
+         Ga6g01BLlU2zfRgLDtbJoLiKisdeXJlS84z9VYnfUrsG2SeoeLZrLAfM337YErwV6con
+         pxfQ7yeiGKlILWmBhEcZriU9l2HZYKz0e+7JAAmXyzdOuhms31hqSp0p/3nG2gbMlfAL
+         AszmoJRA42SqoOEgCj8JW3wyFLNF8cNnUfq6rTbg8Xa5sdubc6qibPT1U8jEMp3PGoCK
+         8eX10nQokZguMA7Usx9sZH1AsMV8BLtkcataYL6qbyfIbG4r2KVR850LSv7NqRqntimp
+         jZyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=Jneh01n1+bIhANgepGSuhAjCJdMw/IuW338uETIBMa8=;
-        b=Gadin6sJxlMRblGuf5JfJWc/THNE2uWJUwUrHZUu6sfphmcvAVXi+soWU6ZUART7jW
-         yFcG6VHGhhqanjG/x+sHoblvpqQzKugxO3C20wZTYtl/I5L1WGDSFDvj+tboPpRsT7Wo
-         gsH5Efk3uO3pZaBavmiTq8MNMjjqSBmxflNYbNeY4+8HbugF4ewdGmEEDYArRlV843VQ
-         fRrORCIpizNKCO73p1icZO/4huH/KnlhaX2RQF2hLrkwEiZ8Pf1M+LQIzlJ/YZKQncE3
-         EgdCwTAqTsuiuMB02iyg4KrXF8sgg8RSvc0jOlUHbkZ3HB0QQKFEIdMU3MDmSbkQ33/B
-         dVpg==
-X-Gm-Message-State: APjAAAVgeYe+d3u9RrVKNDOAqw2Xk1cmrIJO/hYf1enoaKNSubaP/qnM
-        a0Yb6yZ5HWgKbhrYnpe+QYU=
-X-Google-Smtp-Source: APXvYqy41qvPRPhPSOP1qoziMgnoeg/x0mdw6RZnOZQCJ29M+Oekz5gsa6+YkF2v1pxhpJIkjPvINw==
-X-Received: by 2002:a17:902:4101:: with SMTP id e1mr31119676pld.25.1554752382864;
-        Mon, 08 Apr 2019 12:39:42 -0700 (PDT)
+        bh=kepgUGpZfR5uAkMzvzU4BdaVdRicSAbSlfhmAD09THE=;
+        b=PnEjk0Gj9nkax3DDCAM+ZBMCpu++64gUoT1V9iRHoCv3ugaZLk8scaDepp2Jy8fw6m
+         zlCVI/EQMHyJnlGQfWiSmo5WOoLLx0vlnGPIVcfCNUXep1IQsmtX3FRs1OGDmDV5DnRm
+         YctvKSjWPvoveGYDfX2Fu0OobVusIDuUlRkjIvRyLB1fpbseUV2TQ1FYjK0E06E6nO9g
+         PtiYBgEDzhX4ll85iqKVLiIEZJstRgOUoCGdsqFPUsWFhEWJubVQgSLUu82hwXy6RPzy
+         N071CdnLmY52VncWb4EwC4PyGGXQb/gFWxFyyGAEih3BjXGm75ssNpsbkN5T24Da34yQ
+         IQnw==
+X-Gm-Message-State: APjAAAUlydOivJUfLCFZ34ZFiP6LD8ehmG3RlaJJq9iKeGpWoeOeTzwl
+        lEZ9gm+1ebxLgD32GvBMHUdbU9Vk
+X-Google-Smtp-Source: APXvYqwiGzJbVJFaGS/pS5vsSDZWgfVEo+PIdWkL41UK9fWJ8HBjeGzhJ3DZdKhsblibK5DsZRprqQ==
+X-Received: by 2002:a63:1d4f:: with SMTP id d15mr3134625pgm.347.1554752381464;
+        Mon, 08 Apr 2019 12:39:41 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id b2sm36481508pfo.150.2019.04.08.12.39.42
+        by smtp.gmail.com with ESMTPSA id g67sm47921553pfg.94.2019.04.08.12.39.40
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 12:39:42 -0700 (PDT)
+        Mon, 08 Apr 2019 12:39:41 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 04/22] watchdog: atlas7_wdt: Convert to use device managed functions and other improvements
-Date:   Mon,  8 Apr 2019 12:38:28 -0700
-Message-Id: <1554752326-13319-5-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
+Subject: [PATCH 03/22] watchdog: aspeed_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Mon,  8 Apr 2019 12:38:27 -0700
+Message-Id: <1554752326-13319-4-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
 References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
@@ -70,140 +71,85 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
+Introduce local variable 'struct device *dev' and use it instead of
+dereferencing it repeatedly.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop assignments to otherwise unused variables
-- Drop unnecessary braces around conditional return statements
-- Drop empty remove function
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'
-- Introduce local variable 'struct device *dev' and use it instead of
-  dereferencing it repeatedly
-- Use devm_watchdog_register_driver() to register watchdog device
-- Replace shutdown function with call to watchdog_stop_on_reboot()
-
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Andrew Jeffery <andrew@aj.id.au>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/atlas7_wdt.c | 61 ++++++++++++++-----------------------------
- 1 file changed, 19 insertions(+), 42 deletions(-)
+ drivers/watchdog/aspeed_wdt.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
-index e170933aa0a8..79337d2a8a8e 100644
---- a/drivers/watchdog/atlas7_wdt.c
-+++ b/drivers/watchdog/atlas7_wdt.c
-@@ -125,78 +125,57 @@ static const struct of_device_id atlas7_wdt_ids[] = {
- 	{}
- };
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index f09333fd54b4..34117745c65f 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -187,6 +187,7 @@ static const struct watchdog_info aspeed_wdt_info = {
  
-+static void atlas7_clk_disable_unprepare(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
- static int atlas7_wdt_probe(struct platform_device *pdev)
+ static int aspeed_wdt_probe(struct platform_device *pdev)
  {
--	struct device_node *np = pdev->dev.of_node;
 +	struct device *dev = &pdev->dev;
- 	struct atlas7_wdog *wdt;
- 	struct clk *clk;
+ 	const struct aspeed_wdt_config *config;
+ 	const struct of_device_id *ofdid;
+ 	struct aspeed_wdt *wdt;
+@@ -196,7 +197,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	u32 status;
  	int ret;
  
 -	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
 +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
  	if (!wdt)
  		return -ENOMEM;
- 	wdt->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
  
--	clk = of_clk_get(np, 0);
-+	clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(clk))
- 		return PTR_ERR(clk);
- 	ret = clk_prepare_enable(clk);
+@@ -212,12 +213,12 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.info = &aspeed_wdt_info;
+ 	wdt->wdd.ops = &aspeed_wdt_ops;
+ 	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
+-	wdt->wdd.parent = &pdev->dev;
++	wdt->wdd.parent = dev;
+ 
+ 	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
+-	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
++	watchdog_init_timeout(&wdt->wdd, 0, dev);
+ 
+-	np = pdev->dev.of_node;
++	np = dev->of_node;
+ 
+ 	ofdid = of_match_node(aspeed_wdt_of_table, np);
+ 	if (!ofdid)
+@@ -286,11 +287,11 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 		u32 max_duration = config->ext_pulse_width_mask + 1;
+ 
+ 		if (duration == 0 || duration > max_duration) {
+-			dev_err(&pdev->dev, "Invalid pulse duration: %uus\n",
+-					duration);
++			dev_err(dev, "Invalid pulse duration: %uus\n",
++				duration);
+ 			duration = max(1U, min(max_duration, duration));
+-			dev_info(&pdev->dev, "Pulse duration set to %uus\n",
+-					duration);
++			dev_info(dev, "Pulse duration set to %uus\n",
++				 duration);
+ 		}
+ 
+ 		/*
+@@ -312,9 +313,9 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (status & WDT_TIMEOUT_STATUS_BOOT_SECONDARY)
+ 		wdt->wdd.bootstatus = WDIOF_CARDRESET;
+ 
+-	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
++	ret = devm_watchdog_register_device(dev, &wdt->wdd);
  	if (ret) {
--		dev_err(&pdev->dev, "clk enable failed\n");
--		goto err;
-+		dev_err(dev, "clk enable failed\n");
-+		return ret;
+-		dev_err(&pdev->dev, "failed to register\n");
++		dev_err(dev, "failed to register\n");
+ 		return ret;
  	}
-+	ret = devm_add_action_or_reset(dev, atlas7_clk_disable_unprepare, clk);
-+	if (ret)
-+		return ret;
- 
- 	/* disable watchdog hardware */
- 	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL);
- 
- 	wdt->tick_rate = clk_get_rate(clk);
--	if (!wdt->tick_rate) {
--		ret = -EINVAL;
--		goto err1;
--	}
-+	if (!wdt->tick_rate)
-+		return -EINVAL;
- 
- 	wdt->clk = clk;
- 	atlas7_wdd.min_timeout = 1;
- 	atlas7_wdd.max_timeout = UINT_MAX / wdt->tick_rate;
- 
--	watchdog_init_timeout(&atlas7_wdd, 0, &pdev->dev);
-+	watchdog_init_timeout(&atlas7_wdd, 0, dev);
- 	watchdog_set_nowayout(&atlas7_wdd, nowayout);
- 
- 	watchdog_set_drvdata(&atlas7_wdd, wdt);
- 	platform_set_drvdata(pdev, &atlas7_wdd);
- 
--	ret = watchdog_register_device(&atlas7_wdd);
--	if (ret)
--		goto err1;
--
--	return 0;
--
--err1:
--	clk_disable_unprepare(clk);
--err:
--	clk_put(clk);
--	return ret;
--}
--
--static void atlas7_wdt_shutdown(struct platform_device *pdev)
--{
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
--
--	atlas7_wdt_disable(wdd);
--	clk_disable_unprepare(wdt->clk);
--}
--
--static int atlas7_wdt_remove(struct platform_device *pdev)
--{
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
--
--	atlas7_wdt_shutdown(pdev);
--	clk_put(wdt->clk);
--	return 0;
-+	watchdog_stop_on_reboot(&atlas7_wdd);
-+	watchdog_stop_on_unregister(&atlas7_wdd);
-+	return devm_watchdog_register_device(dev, &atlas7_wdd);
- }
- 
- static int __maybe_unused atlas7_wdt_suspend(struct device *dev)
-@@ -234,8 +213,6 @@ static struct platform_driver atlas7_wdt_driver = {
- 		.of_match_table	= atlas7_wdt_ids,
- 	},
- 	.probe = atlas7_wdt_probe,
--	.remove = atlas7_wdt_remove,
--	.shutdown = atlas7_wdt_shutdown,
- };
- module_platform_driver(atlas7_wdt_driver);
  
 -- 
 2.7.4
