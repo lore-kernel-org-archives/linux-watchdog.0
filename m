@@ -4,64 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FFABC10F13
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 18:09:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0614CC10F13
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 18:15:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1289F2084C
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 18:09:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D11022084C
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 18:15:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gmTJT0pr"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZpeBjUl/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726633AbfDHSJk (ORCPT
+        id S1726486AbfDHSPM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Apr 2019 14:09:40 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:41508 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726415AbfDHSJk (ORCPT
+        Mon, 8 Apr 2019 14:15:12 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:33094 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726220AbfDHSPM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Apr 2019 14:09:40 -0400
-Received: by mail-pg1-f193.google.com with SMTP id f6so7758099pgs.8
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Apr 2019 11:09:40 -0700 (PDT)
+        Mon, 8 Apr 2019 14:15:12 -0400
+Received: by mail-pf1-f193.google.com with SMTP id h5so3478366pfo.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Apr 2019 11:15:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=4gRytoBlwSeHu/OP+bPRj4Jvw+PuuF+CS2jnOYFoNQA=;
-        b=gmTJT0prCaez4w1Ra9PcHTMhEeMCXTFnrNhWT5rULyCiORexQJugNfr5ici/mLV3uk
-         nz3OYi3t0StVlBHdqWSWtVP2VTTN3f6xtfv3a6RlxcxvXufsRFnOjWR7iH2VnYqTnG3q
-         vXkAhYg6DMTPTutbgZucrpncAolkNZgsxSaMRK+3xCluwv7rVacqIz9qUNRLAinQezqO
-         6mWYq7o5z2JSW1Qh3iwVGUvpLSuVL0fPR7E7xqbPB4J3QxbSo2Jbh2MXO6SpBRC5ITMH
-         +CdlVAWcz1iY/iXOy2Fb37LdLAXhcrg9HHQjNghr16ahZ2ZSNewCZRwt6mPdx8Y+rltC
-         cwxA==
+        bh=HxNR1qZVhq5GhaZ4TfPc/gm3szHYqKoMnr7aZIdKM58=;
+        b=ZpeBjUl/B7eFdwPNSm6NJe3ljBOuQab3FaynJ0Wkst9Ll4uSfUPpbWUzx6LcfJSPLy
+         MfGVbwxilU4QaZ9eTz1OmvzHWA8SKY2RGSDUxPmm7Bv7k8BSfO9a97OXaIvx4J6C2yPp
+         sQhJOI8yT+6VC/aFd+nP37etv5zhRrmNpZxVeG5HdaiO0KWtYo4ZW0KuyFjnVXcwksqA
+         zKLPrKhKcAvH8VBG3oTPzRUaZlaryc1Jlf/2HFGS1gxqagw+yyEvsjiqYSxBQpEbBHfX
+         oPCPhZQAwDuItCGZfLW7uBmpzGbz1OfJ7KEVAxY1hcCphWDzeXkOScN6StoAGnshhwei
+         01Jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4gRytoBlwSeHu/OP+bPRj4Jvw+PuuF+CS2jnOYFoNQA=;
-        b=OJqsYsfn10h6BfmD8FRtD+ySVu4Kc39KkPxYUPAJ6ab4XlCdaDFXXEuYflN6E7uPmk
-         iGdQhBpCVeYBPHgaosLheNwFU6htLYBofc221BKYgiDG/4x5pIbSvnb35rK04fT9Du6L
-         A/WC5Q3oB7OqDavBzUkW9b2XO57zeWfXFUl6behWm9zA5W19hCIl9LXCLFMiWdCDZN0Z
-         hmQnoxuvEiubzM1Zo4g7+rYAf3mMzBpnuKNvPatQJt8dDTNaFO36leztj2PDx2+XOW1t
-         qAqJlUGmrXhOk+x3odyxNPxqvilNRO3rpEaleSWzKDTHyMv14TZu1ctr1P9aEcyiLSIf
-         T6Wg==
-X-Gm-Message-State: APjAAAVwCvmzRZ3J4TbQSATvXMh9cRrFUTEAUVwcyCpy6mzGuR5qE2xB
-        eWHGTsj+qMmb/1uz3y9/lORw7ROe
-X-Google-Smtp-Source: APXvYqxDlf30v8gRgb4NAE2Nh3qYntKpbDyzLWvEUrkawVB35kL2OGy1VnA/SlkR0o3ThihNjAAd5A==
-X-Received: by 2002:a63:4a5a:: with SMTP id j26mr29768119pgl.361.1554746979727;
-        Mon, 08 Apr 2019 11:09:39 -0700 (PDT)
+        bh=HxNR1qZVhq5GhaZ4TfPc/gm3szHYqKoMnr7aZIdKM58=;
+        b=Oe7g0sABNbzYKndIuEjPKxtWkVVpGrvyCLSwaKOmVotUzmTwEvExys19Bbkp0HFmxu
+         PDjzj6IBcALtroHWkDBT3PEsRECdYRw94O4MYTCb39wdM0kwqppa53VMbhy7Zw2AUBEz
+         hdbyCr8N6mn/3ubDAxAbha967Y6aH09JsJEKXHaZjcCHWmBLD3xkyv60G1/4K11BiA60
+         JbQyHXChyqUwmFRM23EtT6yrBNE51sGbB98XSChrA6NyF+dusH9gmst83xX77s5xQB89
+         YbUXoynJac3z7/r22FVW/rwUUDxwFT5DQHUNJZsGnHfss/nJLW9bt8jZZ8Fghiw3A06W
+         nVCQ==
+X-Gm-Message-State: APjAAAWvyLP19rYfaLmMfhebW9yjDaWHAz0LOKf+3U7HW8vbaSHsybNF
+        Og50IOpueovjuzNeRIGiu0RhAR50
+X-Google-Smtp-Source: APXvYqxAhS4ExC9hoRWr4DtxdeLvKY3N3PQOJo7rdtcMjs09X7YkOt8wmixJW1SVUiB2T9NQd72Z+w==
+X-Received: by 2002:a62:ab13:: with SMTP id p19mr31907222pff.131.1554747311633;
+        Mon, 08 Apr 2019 11:15:11 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t5sm18079987pfl.106.2019.04.08.11.09.38
+        by smtp.gmail.com with ESMTPSA id z8sm38139010pgz.3.2019.04.08.11.15.10
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 11:09:39 -0700 (PDT)
-Date:   Mon, 8 Apr 2019 11:09:38 -0700
+        Mon, 08 Apr 2019 11:15:11 -0700 (PDT)
+Date:   Mon, 8 Apr 2019 11:15:10 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Georg Hofmann <georg@hofmannsweb.com>
 Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH] Fix set_timeout for big timeout values
-Message-ID: <20190408180938.GA17574@roeck-us.net>
+Message-ID: <20190408181510.GA7049@roeck-us.net>
 References: <869353809.2803.1554710736950.JavaMail.zimbra@hofmannsweb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -82,7 +81,11 @@ On Mon, Apr 08, 2019 at 10:05:36AM +0200, Georg Hofmann wrote:
 > 
 > Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
 
-Reviewed-by: Guenetr Roeck <linux@roeck-us.net>
+The patch below is corrupted (tabs replaced with spaces). Please resend.
+Also, when doing so, please add "watchdog: imx2_wdt:" to the subject line.
+
+Thanks,
+Guenter
 
 > ---
 >  drivers/watchdog/imx2_wdt.c | 6 ++++--
