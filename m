@@ -7,67 +7,61 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA47C10F13
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 416D4C10F14
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E240420880
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A3F020880
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YIK46fsT"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gAFvQ5zr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbfDHTjq (ORCPT
+        id S1726436AbfDHTlR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Apr 2019 15:39:46 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:41457 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727878AbfDHTjo (ORCPT
+        Mon, 8 Apr 2019 15:41:17 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:45950 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728667AbfDHTjq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Apr 2019 15:39:44 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 188so8206851pfd.8;
-        Mon, 08 Apr 2019 12:39:44 -0700 (PDT)
+        Mon, 8 Apr 2019 15:39:46 -0400
+Received: by mail-pf1-f196.google.com with SMTP id e24so8192570pfi.12;
+        Mon, 08 Apr 2019 12:39:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=sLZWoglaHpenSl2BSHPcSajCjhQskwq7KOznv+AB9hQ=;
-        b=YIK46fsThrj89x1NgCCmjcgIQWAkmKUaXF+QMCneAMPTflM95ST0ulTKCzPLh8mKZc
-         pnUbX2O8MyZJdPUJ0YvY+SbBY58ClOuizmIWcFXVlv+MtFUwO5zw6UJNIqF5ji1yCS9D
-         ApGAtwsk8/UwdCDbhyjVmZQ1+RuknbAwpUkOLtEPktoO8PZ8IzdfXjc2KyeUrKY9bUO/
-         7sucP2i7VWdR3qzJmIbRVO0AVv6Irc/5GbakUVb5ycgFXf3qOXnJZEEiRgYBpmxCfLVt
-         +ooUJcOneFtBBVqfeDnp3h0+dpfxgPoAgEXeG+d5N09+ljgcbCFXMCyML6o9A/VpyH4a
-         V8/w==
+        bh=meLAD+DIRCeVzo4Af4ZKbYchnE6bZYikYlq7WnlFmvk=;
+        b=gAFvQ5zr4J9jE74VwbVs3gUDQ97/w7t4usH9xYXgZ0n6MqAa5ujFsq2/J7WYCdO838
+         UeXcNCT8dLohEirg/pafbacDryKiAe6WfuXfuY9s6xWXrEORXeVoH4Ek8112yQwUdLbG
+         g4L+jFYJwCb2+mvg9XKBpch/gKbQl1bxe1PUQvA9L+Bbl8v0+xxpENzdSHg9zh0iMnBh
+         u3oxhKtT4hhUg7DzxjXmNYZ/2Qvd1gShzssF4aL1LKWLpdTSlnLfrGyjx6+7VZjkS1sY
+         DhKHr9XMyZENfxdOWQxUsSiokCcX1vcCZfpGYisNmxY/xo+cQ2O0TVcrh+azFlcRKhbT
+         DXZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=sLZWoglaHpenSl2BSHPcSajCjhQskwq7KOznv+AB9hQ=;
-        b=Ebe1ixZzLfg3E4zHU8vut6uZfTSTd0s71PkPJTj+Tco0CkzvlTI2p6/XkgZF7k72Gs
-         RMf1AmqczQLUe+AXEyYjkUNm8XwHI6W2+AYijgBGQoWKSqGHJkHttkgrbBgffbWg9Nil
-         UzWsPu/xHZaHLSHbPAdHIQBpQ8ERazJco2XNlCUtkLG1zpp1wPeKonDE06vPDtOblgaE
-         z1BX1IUTVVhHyngow1kw0oCKnOMvFXoRRuwrcd8MS4DiKAB7+0FDUO/o98pQjlG0Y8dl
-         u/5/3a6v1UfbQ0q0ueS9D/7F1/xbXt7hOoXPszIVKuXnbyIdcbXF0zZHrN0xEvp9vEAp
-         VfRA==
-X-Gm-Message-State: APjAAAUwszT/QeMamFYvIW96ko5so0CqUy/lxTmW4hQ1wKKJKEq7yiJ4
-        CQjJssZcJpLlBav85q1xe8M=
-X-Google-Smtp-Source: APXvYqzwNBx8JMyKR0M/FLo+aFaFrbzYZe2Nhz9Nr02BXWQTgAGekWQa94t69mZgu+ghrPJmQzzctA==
-X-Received: by 2002:a63:6a45:: with SMTP id f66mr28876087pgc.7.1554752384264;
-        Mon, 08 Apr 2019 12:39:44 -0700 (PDT)
+        bh=meLAD+DIRCeVzo4Af4ZKbYchnE6bZYikYlq7WnlFmvk=;
+        b=r20Q+3UEQQYMWOZiXvAMKLyPTl4cVFr1qOANazqOBbrYnbMO0JKIwTiB6IQxxfpoob
+         pnxaSv7MKz9DeHCdhOkyHW83vT9bsZKgTYJbYZ37+2rwJDMYj1k1WoHrWRDhqAfurzw6
+         UR1dviz6Bv6T0x3fyaLtMQa2TMUugRyaPyQlfUGdjSwtZYJtwe4Amnl5j0nXY0wQQWa9
+         uQGF1WPm1ee9HKaPrmSB6BKGnXBr593DaR7u/+Gwh8tz0R8Iri6xbVMGtXvTWfb6SUPV
+         Nxlhx7pvuvSFi/HRrPmn0cyO92RYnOb+vabt+IQ2ExxoLxh9ajHZaQ2dCQtKhUsQ+Hno
+         qs7A==
+X-Gm-Message-State: APjAAAUi8e07gyTHH4/U/cTnchkJAdI2MyInCODoapgcrNRcC/bWX3ZK
+        jPqpV/2NH1DENBpta12p3d2OwKxn
+X-Google-Smtp-Source: APXvYqxGFayllojPsdajA+bDfCNiiZHVEKIiy1BhKYJ4IPmDsY7uYcs6rtAhvoJtNwpdY5TPkPS7eA==
+X-Received: by 2002:a65:5106:: with SMTP id f6mr29649210pgq.253.1554752385664;
+        Mon, 08 Apr 2019 12:39:45 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 17sm70509493pfw.65.2019.04.08.12.39.43
+        by smtp.gmail.com with ESMTPSA id v19sm41393928pfn.62.2019.04.08.12.39.44
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 12:39:43 -0700 (PDT)
+        Mon, 08 Apr 2019 12:39:45 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH 05/22] watchdog: bcm2835_wdt: drop platform_set_drvdata
-Date:   Mon,  8 Apr 2019 12:38:29 -0700
-Message-Id: <1554752326-13319-6-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 06/22] watchdog: bcm7038_wdt: Convert to use device managed functions and other improvements
+Date:   Mon,  8 Apr 2019 12:38:30 -0700
+Message-Id: <1554752326-13319-7-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
 References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
@@ -76,37 +70,113 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-There is no call to platform_get_drvdata() in the driver,
-so platform_set_drvdata() is unnecessary and can be dropped.
+Use device managed functions to simplify error handling, reduce
+source code size, improve readability, and reduce the likelyhood of bugs.
+Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ray Jui <rjui@broadcom.com>
-Cc: Scott Branden <sbranden@broadcom.com>
-Cc: bcm-kernel-feedback-list@broadcom.com
-Cc: Eric Anholt <eric@anholt.net>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>
+- Drop assignments to otherwise unused variables
+- Drop empty remove function
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Use local variable 'struct device *dev' consistently
+- Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
+
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/bcm2835_wdt.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/watchdog/bcm7038_wdt.c | 38 +++++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 1834524ae373..560c1c54c177 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -177,7 +177,6 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 	wdt = devm_kzalloc(dev, sizeof(struct bcm2835_wdt), GFP_KERNEL);
- 	if (!wdt)
- 		return -ENOMEM;
--	platform_set_drvdata(pdev, wdt);
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index 71fca45eab5d..d3d88f6703d7 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -107,6 +107,11 @@ static const struct watchdog_ops bcm7038_wdt_ops = {
+ 	.get_timeleft	= bcm7038_wdt_get_timeleft,
+ };
  
- 	spin_lock_init(&wdt->lock);
++static void bcm7038_clk_disable_unprepare(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -129,6 +134,11 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 		err = clk_prepare_enable(wdt->clk);
+ 		if (err)
+ 			return err;
++		err = devm_add_action_or_reset(dev,
++					       bcm7038_clk_disable_unprepare,
++					       wdt->clk);
++		if (err)
++			return err;
+ 		wdt->rate = clk_get_rate(wdt->clk);
+ 		/* Prevent divide-by-zero exception */
+ 		if (!wdt->rate)
+@@ -146,10 +156,11 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.parent		= dev;
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
  
+-	err = watchdog_register_device(&wdt->wdd);
++	watchdog_stop_on_reboot(&wdt->wdd);
++	watchdog_stop_on_unregister(&wdt->wdd);
++	err = devm_watchdog_register_device(dev, &wdt->wdd);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register watchdog device\n");
+-		clk_disable_unprepare(wdt->clk);
+ 		return err;
+ 	}
+ 
+@@ -158,19 +169,6 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int bcm7038_wdt_remove(struct platform_device *pdev)
+-{
+-	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
+-
+-	if (!nowayout)
+-		bcm7038_wdt_stop(&wdt->wdd);
+-
+-	watchdog_unregister_device(&wdt->wdd);
+-	clk_disable_unprepare(wdt->clk);
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_PM_SLEEP
+ static int bcm7038_wdt_suspend(struct device *dev)
+ {
+@@ -196,14 +194,6 @@ static int bcm7038_wdt_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
+ 			 bcm7038_wdt_resume);
+ 
+-static void bcm7038_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
+-
+-	if (watchdog_active(&wdt->wdd))
+-		bcm7038_wdt_stop(&wdt->wdd);
+-}
+-
+ static const struct of_device_id bcm7038_wdt_match[] = {
+ 	{ .compatible = "brcm,bcm7038-wdt" },
+ 	{},
+@@ -212,8 +202,6 @@ MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
+ 
+ static struct platform_driver bcm7038_wdt_driver = {
+ 	.probe		= bcm7038_wdt_probe,
+-	.remove		= bcm7038_wdt_remove,
+-	.shutdown	= bcm7038_wdt_shutdown,
+ 	.driver		= {
+ 		.name		= "bcm7038-wdt",
+ 		.of_match_table	= bcm7038_wdt_match,
 -- 
 2.7.4
 
