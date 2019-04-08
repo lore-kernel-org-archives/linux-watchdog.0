@@ -4,65 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2023C10F13
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC331C10F14
 	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:39:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9452C20863
+	by mail.kernel.org (Postfix) with ESMTP id C0AAB21841
 	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:39:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AMQO4d+l"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vFSCD2+W"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728760AbfDHTjw (ORCPT
+        id S1728772AbfDHTjx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Apr 2019 15:39:52 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:36867 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727878AbfDHTjw (ORCPT
+        Mon, 8 Apr 2019 15:39:53 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:33611 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728731AbfDHTju (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Apr 2019 15:39:52 -0400
-Received: by mail-pl1-f194.google.com with SMTP id w23so7918289ply.4;
-        Mon, 08 Apr 2019 12:39:51 -0700 (PDT)
+        Mon, 8 Apr 2019 15:39:50 -0400
+Received: by mail-pg1-f196.google.com with SMTP id k19so7896408pgh.0;
+        Mon, 08 Apr 2019 12:39:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=IAzbxkJlpTQ2aw4GmH8bUwHqrx58SWUqD0TKIw07vIM=;
-        b=AMQO4d+l1S3uvkKrlHtSrlCMAbtDbeySQL1pX7CC5U0gWnuUDX6TQBbYVVn9I2gI82
-         9/+EulQerD50YUabYbmTcza7T3vebvxJly62KOBi5mP+E5CHSA/kDHZ5n8l3k5/VFEgp
-         WhyZu5vCkNN/4BLv6mqaj1/yXcr9SHgkRunOJ/kY21u3ncbCdrzjHXIFBGKRPMGCyvJ3
-         aufT35+4kQppms44VGOR3St8ah5ItogttPi//4GDYfuCKw48NDEFeKwteZAsfqEV4xJF
-         Z69Y0jYdDUtpbxo8KQCpRFt8nQzi3lxjYvvXMVF7DPc0YlSPUxJ+i+VRpLZeuuorBGS8
-         MTiA==
+        bh=MmPUEUcV2qWha6hVjFgTxBEPjINUfNIEc6V+OTChC98=;
+        b=vFSCD2+WKiyO5vjfy8BRP9sBopWQONpzQhaCRjI5pj82bJ4VxHKwjdnzqiF7i+7N+b
+         gFL7TPWx4nKhHGtLvUu7aqtxTltpM7NK1KRGWy2D2d9X+bPZeObmc0tp0/WC3ZdRsX/3
+         8Yvd3FJsKwuCRtDNWUzYXyfvTzIIXB6+8/ppophDUdm04BNdIJ0Fgytqz9Y7/gO2CbW4
+         TnOd9KzJvfZ9oY2nDdpzTsNbiSoovsCWIZcYKPNPoC23bVFSO914zogSMOLKyaBsLkzF
+         3+ydKfdsP9RemeLyPDIDyrL1pclU5/KylGSr6e1LtGHJXbvenK0Uh1Ac9SZcBSJODhSs
+         7SoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=IAzbxkJlpTQ2aw4GmH8bUwHqrx58SWUqD0TKIw07vIM=;
-        b=Fzgo6v4zb7SgYtWG2zkBmLu7UGUWDlYFf+u29w5g+xH7qhA08cfO2Ym8hCoRcCwJCV
-         EW8jIDA6POLtBxJ37xA/fTWA9wf5WCaUT/1fA8348bv9ZRV1r7G4EaIaIZCTvrrJL228
-         FsXSR42IzpKY9eb2by+D6Omeec1xnqoC5Kmk618W4MctnnEpWG/nohBG8UzvzyfU7INP
-         K3nmQOt4v8zWgSaM1SrUf8vidpYYVdIeoB16Y0Puk2vIxGhkNLzXeusmppqn7ioxuwTr
-         QoWO7U4UDwAUdoT+Zxil87CISW0ecVxw5thRdOnTqXrkXh2cm01gUZLCTMTWhCBtcyD3
-         XeGQ==
-X-Gm-Message-State: APjAAAURIZihdg9E3RIFqmp/xm2338ajmYriVUZrL73soQvXIDT0Zl8i
-        NHUPRltxWw3b28X65ESnk+g=
-X-Google-Smtp-Source: APXvYqy7XEMnu428nXuTVmDPQPk8Y7+bsYzitSMxqPpNU3hvN5iT+Pz+BSWTwTd/Av/Q8Wgo0e2xIQ==
-X-Received: by 2002:a17:902:1124:: with SMTP id d33mr7821386pla.268.1554752391318;
-        Mon, 08 Apr 2019 12:39:51 -0700 (PDT)
+        bh=MmPUEUcV2qWha6hVjFgTxBEPjINUfNIEc6V+OTChC98=;
+        b=hvNUrPnhEsc0VUfdI7bVFQ3nnG/zroQEYZjmNBSXfmLq8DfnSAaZpkzDW+tq6rOFMs
+         Ds7UjGxz6t5ZiNaQjy5vZ6RXqZcCvtAOnW7WXUazCimxkW6Ly5Vy6t/nOW3EaYYOeKDd
+         iGSrP+r7/sT4+ZOFTL/hEVXBhy3JQ6jPaN9CHlzhHulBvY88nD2pXoRxys9PEKTivlcw
+         pmcrvgEdctUwK+4oh67GXIlTFbQD5jda/RgIz8xAwMBXKeqCF1wmBR4HdXl1rbQKWbWn
+         avHuNYuL/7DUHscFAAe+RGdSNkRvpiR7mXhLSVtub31CjU2e/VUPPIl5JaJQ5whTIse2
+         aB2Q==
+X-Gm-Message-State: APjAAAWXSjoCQjzhK2iWuA56zwKDsXGjPFZJYrEyVpKEO9AXZX/b34/D
+        1+Bv5PGfXP5vFyF7Gw/OSVs=
+X-Google-Smtp-Source: APXvYqxrtWwrSowQTRBbPiIgX3V5NRNYn9JOKkRoUnwTpDkuOVT+vc3rPiHPcMnrRSs9CVLX2BuAUg==
+X-Received: by 2002:a63:5c43:: with SMTP id n3mr28009486pgm.163.1554752389921;
+        Mon, 08 Apr 2019 12:39:49 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z20sm42163181pgf.70.2019.04.08.12.39.50
+        by smtp.gmail.com with ESMTPSA id b6sm37325708pgl.49.2019.04.08.12.39.49
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 12:39:50 -0700 (PDT)
+        Mon, 08 Apr 2019 12:39:49 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
         Support Opensource <support.opensource@diasemi.com>
-Subject: [PATCH 10/22] watchdog: da9055_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Mon,  8 Apr 2019 12:38:34 -0700
-Message-Id: <1554752326-13319-11-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 09/22] watchdog: da9052_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Mon,  8 Apr 2019 12:38:33 -0700
+Message-Id: <1554752326-13319-10-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
 References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
@@ -82,22 +82,22 @@ https://github.com/groeck/coccinelle-patches
 Cc: Support Opensource <support.opensource@diasemi.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/da9055_wdt.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/watchdog/da9052_wdt.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
-index 26a5b2984094..389a4bdd208c 100644
---- a/drivers/watchdog/da9055_wdt.c
-+++ b/drivers/watchdog/da9055_wdt.c
-@@ -119,13 +119,13 @@ static const struct watchdog_ops da9055_wdt_ops = {
+diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+index e263bad99574..a2feef1ff307 100644
+--- a/drivers/watchdog/da9052_wdt.c
++++ b/drivers/watchdog/da9052_wdt.c
+@@ -150,13 +150,13 @@ static const struct watchdog_ops da9052_wdt_ops = {
  
- static int da9055_wdt_probe(struct platform_device *pdev)
+ static int da9052_wdt_probe(struct platform_device *pdev)
  {
--	struct da9055 *da9055 = dev_get_drvdata(pdev->dev.parent);
+-	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
 +	struct device *dev = &pdev->dev;
-+	struct da9055 *da9055 = dev_get_drvdata(dev->parent);
- 	struct da9055_wdt_data *driver_data;
- 	struct watchdog_device *da9055_wdt;
++	struct da9052 *da9052 = dev_get_drvdata(dev->parent);
+ 	struct da9052_wdt_data *driver_data;
+ 	struct watchdog_device *da9052_wdt;
  	int ret;
  
 -	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
@@ -105,27 +105,28 @@ index 26a5b2984094..389a4bdd208c 100644
 +	driver_data = devm_kzalloc(dev, sizeof(*driver_data), GFP_KERNEL);
  	if (!driver_data)
  		return -ENOMEM;
+ 	driver_data->da9052 = da9052;
+@@ -166,18 +166,17 @@ static int da9052_wdt_probe(struct platform_device *pdev)
+ 	da9052_wdt->timeout = DA9052_DEF_TIMEOUT;
+ 	da9052_wdt->info = &da9052_wdt_info;
+ 	da9052_wdt->ops = &da9052_wdt_ops;
+-	da9052_wdt->parent = &pdev->dev;
++	da9052_wdt->parent = dev;
+ 	watchdog_set_drvdata(da9052_wdt, driver_data);
  
-@@ -136,17 +136,17 @@ static int da9055_wdt_probe(struct platform_device *pdev)
- 	da9055_wdt->timeout = DA9055_DEF_TIMEOUT;
- 	da9055_wdt->info = &da9055_wdt_info;
- 	da9055_wdt->ops = &da9055_wdt_ops;
--	da9055_wdt->parent = &pdev->dev;
-+	da9055_wdt->parent = dev;
- 	watchdog_set_nowayout(da9055_wdt, nowayout);
- 	watchdog_set_drvdata(da9055_wdt, driver_data);
- 
- 	ret = da9055_wdt_stop(da9055_wdt);
+ 	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+ 				DA9052_CONTROLD_TWDSCALE, 0);
  	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to stop watchdog, %d\n", ret);
-+		dev_err(dev, "Failed to stop watchdog, %d\n", ret);
+-		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
+-			ret);
++		dev_err(dev, "Failed to disable watchdog bits, %d\n", ret);
  		return ret;
  	}
  
 -	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
 +	ret = devm_watchdog_register_device(dev, &driver_data->wdt);
- 	if (ret != 0)
- 		dev_err(da9055->dev, "watchdog_register_device() failed: %d\n",
+ 	if (ret != 0) {
+ 		dev_err(da9052->dev, "watchdog_register_device() failed: %d\n",
  			ret);
 -- 
 2.7.4
