@@ -2,178 +2,109 @@ Return-Path: <SRS0=d+ns=SK=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D12F2C10F13
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C5AEC10F13
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:42:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A1BE320880
-	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:41:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F19A20863
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Apr 2019 19:42:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GNfv6zDb"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8/ezIO3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727722AbfDHTjk (ORCPT
+        id S1726507AbfDHTmI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Apr 2019 15:39:40 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:44879 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726068AbfDHTjj (ORCPT
+        Mon, 8 Apr 2019 15:42:08 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:41626 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726119AbfDHTmH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Apr 2019 15:39:39 -0400
-Received: by mail-pl1-f196.google.com with SMTP id g12so7892029pll.11;
-        Mon, 08 Apr 2019 12:39:39 -0700 (PDT)
+        Mon, 8 Apr 2019 15:42:07 -0400
+Received: by mail-pf1-f193.google.com with SMTP id 188so8210582pfd.8
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Apr 2019 12:42:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=9QzejewaFdMKjPQNyj8Ku/+3qlbUdJ83+naJQ570xrE=;
-        b=GNfv6zDb32qh0zEdHefmpQoYu8Ae0k0ZB2yN9h/QU604LhJHiGC4pl1W1buJKJi9FA
-         cEwLxHJiqXiPBYDvW8NJPZ+//sbOb4jqss+tO5PydCFcqQs4xKrK9YE0wA9rOCv8dP2G
-         h3cU5LOac7EQ8gAH9DwrJ2SI7BVa+o3skRdKt+Egrzu89OLL7/V2oc0Mz2Eu2n6ML7+e
-         VsuEJVqJGI4gaS0zXkcJSfkE0DgjsZYlauwnwm1pN+j/xi221V1LqODX+sGGyVZplzrn
-         iMJmJWG1eTxVaUu09GETwIMWQzjHLy/XyQUyFL9SUwA5pHTjpS7jJApNpXNLKGU8AIOP
-         XZjA==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=8YAxdK92GZBQ0ZxjM5dhBfP64vYKxGrey7G85fhS+eE=;
+        b=c8/ezIO3NlXG1AMqFEe0cNYlJ9SqeYkiJbCnfP3yx3DuCmnakWFndjmKp+1DtQk3rU
+         JJaxz8lIgTpwIjoCDn/dlxBzbEfe2hSVp1KlB/jb7VI+Yl31Whjb/ncZQ9BNkaXcZQpy
+         R+8pc/H36EFObpsyQHpkj00adew5/9jFZx3X9bqoBdPFuyRS4QbdI1GRGK6WvKq+U7xI
+         SYTs7SSL6JINB4Drq6nZzgKY2hXQoWVhOXsg/Y2VzGSstAvsaLJp+7op6UMJXFjY38eU
+         icmrOhuj9CCKx8S/BuQJcg5lxewHIEiLM7KqlcpB59XQAxUsKLDik4cjSOooslHap3oz
+         Jq+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=9QzejewaFdMKjPQNyj8Ku/+3qlbUdJ83+naJQ570xrE=;
-        b=D+ECQul8S0qDFhzmqCIylVT4FL1YBb6W8Cd7O7olzbA6CymGiod78Am9IvFBdi5lpy
-         ueM2TyVRqv2oCiQumyiHRJF0GzayuVVb1uoDf2Nm+m7nS6YFNQ++JUDS570h0R6oWRjG
-         HqRrNcr4TFoEIE2uY7eHMQyWFaJEqdM46DKWi8V6PMmcW1k3M/ek4A5F90wmjMvzCTEh
-         hGIwSD050uCMj4DUTYxI1z1gb9wxTHgWqg3LPqoh1uh5DaNnP8etQNzSezPwAVe77sNc
-         czByJn9J76uQLngl+kvgd4hoBjU4LUVw890TAqiuYtCQ6kQuPQoNkIPCEd/GY+cjum/A
-         0pmQ==
-X-Gm-Message-State: APjAAAVOOPrXc77HZyu09/vEsrm/2woPchep4ZGTRReDnmznoB6Xmv0C
-        Pa17aDWt/2lFslofNA+w9q00g5y2
-X-Google-Smtp-Source: APXvYqx9fezUY/IN0+pySCDULfKzbUUQcMoeOk1G1rU9Kk96vk8IYC1XFFWQGF5QS34GjNHPP1hsuw==
-X-Received: by 2002:a17:902:f81:: with SMTP id 1mr32624572plz.216.1554752378716;
-        Mon, 08 Apr 2019 12:39:38 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=8YAxdK92GZBQ0ZxjM5dhBfP64vYKxGrey7G85fhS+eE=;
+        b=jBxsvxu9EuG36jy/64rK7PSH/Z+8/pMsy71d2XHhcSkxZEtJgTgOWGEtBP9aKA+36p
+         frdzk1TTA+Xz54uIAiE8dKhbPvzq577dr7trNzEdvFj1efDCN8d9NlRe0/7fPnKcO7ni
+         yeD8uyqahaIZmDXuiTSFHyooTZ3ZWihEyR/ZshsErlquY3bmjU+Mn+r3faj2sTUiL1rU
+         SS2SVT6wx3OzBs/wTEt/0D6qy32qn+YYw7lU2cvqqKaAEKCGExeMzJDUhKN/MTs6RNuO
+         y8hPnrjqmFmw4GO9tkQPhuddyLKEGrYIda4rD6xE6IXXcXM4f0a1dK0TWaksr42j4sUx
+         Y/iA==
+X-Gm-Message-State: APjAAAVTStyw3YSaeuPy+29dxY+cMsDAjuryNPLlwk0+G1FwqjbslTfo
+        rJ7mx9yhTZkGXniZJsLvLIk=
+X-Google-Smtp-Source: APXvYqzAvMgtAcUH2SryTBhVVipHnOOtvbPGzWZn0qrsf9AspmMmUxg+uFwNzajU57eFG+ULPmqy9A==
+X-Received: by 2002:a63:ad4b:: with SMTP id y11mr28957704pgo.405.1554752527100;
+        Mon, 08 Apr 2019 12:42:07 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n1sm35371700pgv.19.2019.04.08.12.39.38
+        by smtp.gmail.com with ESMTPSA id v7sm42271351pgh.53.2019.04.08.12.42.06
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 12:39:38 -0700 (PDT)
+        Mon, 08 Apr 2019 12:42:06 -0700 (PDT)
+Date:   Mon, 8 Apr 2019 12:42:05 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 01/22] watchdog: armada_37xx_wdt: Convert to use device managed functions and other improvements
-Date:   Mon,  8 Apr 2019 12:38:25 -0700
-Message-Id: <1554752326-13319-2-git-send-email-linux@roeck-us.net>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
-References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
+To:     Georg Hofmann <georg@hofmannsweb.com>
+Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: imx2_wdt: Fix set_timeout for big timeout
+ values
+Message-ID: <20190408194205.GA27076@roeck-us.net>
+References: <66814249.3190.1554751554223.JavaMail.zimbra@hofmannsweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66814249.3190.1554751554223.JavaMail.zimbra@hofmannsweb.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
+On Mon, Apr 08, 2019 at 09:25:54PM +0200, Georg Hofmann wrote:
+> The documentated behavior is: if max_hw_heartbeat_ms is implemented, the
+> minimum of the set_timeout argument and max_hw_heartbeat_ms should be used.
+> This patch implements this behavior.
+> Previously only the first 7bits were used and the input argument was
+> returned.
+> 
+> Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
 
-The conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts
-used to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches
+This time it applied, thanks.
 
-- Drop assignments to otherwise unused variables
-- Drop unnecessary braces around conditional return statements
-- Drop empty remove function
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Use devm_watchdog_register_driver() to register watchdog device
-- Replace shutdown function with call to watchdog_stop_on_reboot()
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/armada_37xx_wdt.c | 43 +++++++++++++-------------------------
- 1 file changed, 14 insertions(+), 29 deletions(-)
+Guenter
 
-diff --git a/drivers/watchdog/armada_37xx_wdt.c b/drivers/watchdog/armada_37xx_wdt.c
-index 4b4054f54df9..e5dcb26d85f0 100644
---- a/drivers/watchdog/armada_37xx_wdt.c
-+++ b/drivers/watchdog/armada_37xx_wdt.c
-@@ -244,6 +244,11 @@ static const struct watchdog_ops armada_37xx_wdt_ops = {
- 	.get_timeleft = armada_37xx_wdt_get_timeleft,
- };
- 
-+static void armada_clk_disable_unprepare(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
- static int armada_37xx_wdt_probe(struct platform_device *pdev)
- {
- 	struct armada_37xx_watchdog *dev;
-@@ -278,12 +283,14 @@ static int armada_37xx_wdt_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(dev->clk);
- 	if (ret)
- 		return ret;
-+	ret = devm_add_action_or_reset(&pdev->dev,
-+				       armada_clk_disable_unprepare, dev->clk);
-+	if (ret)
-+		return ret;
- 
- 	dev->clk_rate = clk_get_rate(dev->clk);
--	if (!dev->clk_rate) {
--		ret = -EINVAL;
--		goto disable_clk;
--	}
-+	if (!dev->clk_rate)
-+		return -EINVAL;
- 
- 	/*
- 	 * Since the timeout in seconds is given as 32 bit unsigned int, and
-@@ -307,35 +314,15 @@ static int armada_37xx_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
- 
- 	watchdog_set_nowayout(&dev->wdt, nowayout);
--	ret = watchdog_register_device(&dev->wdt);
-+	watchdog_stop_on_reboot(&dev->wdt);
-+	ret = devm_watchdog_register_device(&pdev->dev, &dev->wdt);
- 	if (ret)
--		goto disable_clk;
-+		return ret;
- 
- 	dev_info(&pdev->dev, "Initial timeout %d sec%s\n",
- 		 dev->wdt.timeout, nowayout ? ", nowayout" : "");
- 
- 	return 0;
--
--disable_clk:
--	clk_disable_unprepare(dev->clk);
--	return ret;
--}
--
--static int armada_37xx_wdt_remove(struct platform_device *pdev)
--{
--	struct watchdog_device *wdt = platform_get_drvdata(pdev);
--	struct armada_37xx_watchdog *dev = watchdog_get_drvdata(wdt);
--
--	watchdog_unregister_device(wdt);
--	clk_disable_unprepare(dev->clk);
--	return 0;
--}
--
--static void armada_37xx_wdt_shutdown(struct platform_device *pdev)
--{
--	struct watchdog_device *wdt = platform_get_drvdata(pdev);
--
--	armada_37xx_wdt_stop(wdt);
- }
- 
- static int __maybe_unused armada_37xx_wdt_suspend(struct device *dev)
-@@ -370,8 +357,6 @@ MODULE_DEVICE_TABLE(of, armada_37xx_wdt_match);
- 
- static struct platform_driver armada_37xx_wdt_driver = {
- 	.probe		= armada_37xx_wdt_probe,
--	.remove		= armada_37xx_wdt_remove,
--	.shutdown	= armada_37xx_wdt_shutdown,
- 	.driver		= {
- 		.name	= "armada_37xx_wdt",
- 		.of_match_table = of_match_ptr(armada_37xx_wdt_match),
--- 
-2.7.4
-
+> ---
+>  drivers/watchdog/imx2_wdt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 2b52514..7e7bdcb 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -178,8 +178,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
+>  static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
+>  				unsigned int new_timeout)
+>  {
+> -	__imx2_wdt_set_timeout(wdog, new_timeout);
+> +	unsigned int actual;
+>  
+> +	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
+> +	__imx2_wdt_set_timeout(wdog, actual);
+>  	wdog->timeout = new_timeout;
+>  	return 0;
+>  }
