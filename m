@@ -2,87 +2,164 @@ Return-Path: <SRS0=Ndly=SL=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-12.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F4EBC282CE
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 06:54:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 279FEC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 16:36:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 63F5C20880
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 06:54:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E75792084F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 16:36:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="VPV23PNF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbfDIGys (ORCPT
+        id S1726535AbfDIQgQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 02:54:48 -0400
-Received: from mout.kundenserver.de ([212.227.126.187]:54411 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbfDIGyr (ORCPT
+        Tue, 9 Apr 2019 12:36:16 -0400
+Received: from mail-yw1-f67.google.com ([209.85.161.67]:46964 "EHLO
+        mail-yw1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726415AbfDIQgQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 02:54:47 -0400
-Received: from [192.168.178.52] ([109.104.45.158]) by mrelayeu.kundenserver.de
- (mreue010 [212.227.15.167]) with ESMTPSA (Nemesis) id
- 1N9dg5-1gr3EW1Eur-015Vwy; Tue, 09 Apr 2019 08:54:21 +0200
-Subject: Re: [PATCH 05/22] watchdog: bcm2835_wdt: drop platform_set_drvdata
+        Tue, 9 Apr 2019 12:36:16 -0400
+Received: by mail-yw1-f67.google.com with SMTP id v127so6452832ywe.13
+        for <linux-watchdog@vger.kernel.org>; Tue, 09 Apr 2019 09:36:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=xpIFPTZQr0g3xRCPusrGDi9fMWXkv23vj9IPJLmKgbE=;
+        b=VPV23PNF3ThSzi2Uk1p4UvmW9Y9fWckNBvPpyfORjw4qTXM0/dTa091enhNNZm/rIs
+         x5K0vkV7M/pVdQ2eI0SWlYiQHy0h/cgyDS7RDBqekpfi8RRbDIb8PvmF/4wISLGs1Z1p
+         8IJT/nHLaERb/XqE+umEmsSqteJhwTroaCr1k=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xpIFPTZQr0g3xRCPusrGDi9fMWXkv23vj9IPJLmKgbE=;
+        b=mwpLBZO2ZG5Mu5MeQw4aCyJbFmxjHlHY9BMVxGGze/+duk839B/BR2PU2luLrAqBAX
+         S9NtyIPF6xgsufOeDCTSf1uXEXk1CN5SkFCQiCFyT7jvC2GV+/powB65opYDF3ZmMuLs
+         eRO4YXblE5zHypOHN/9lYu1c8cMT+PaEKLXCudTOStCBQSuqwunu4AkXjKFvdIDBXCOB
+         0+rAw50QOI42YptrofO1EizFUN2g+E4og4mTOTirykiTzg1mm0Hhn4T5RKIjr4YLBcJr
+         U2cAdWQvS9vm7tFJmaYK5GruMUClSnj86Gcd+TCw2fU64/yCTeConAhn8yLkN8i+/Ma+
+         DSRA==
+X-Gm-Message-State: APjAAAXaSpCCU9tfFjD0VMmWZd7ZUkgQEHL7Xjdl6BxWgQ6hbX9+nNKm
+        v4hRAB1vLUv8Ijovwp5GLsrmRA==
+X-Google-Smtp-Source: APXvYqyaAfXovzDycNls/rhUePW03AQsspPZUOsUaN3Xl99mi3nkjczVadwSkzA++KdF34Q/u6YSHg==
+X-Received: by 2002:a0d:dd50:: with SMTP id g77mr28042515ywe.309.1554827775078;
+        Tue, 09 Apr 2019 09:36:15 -0700 (PDT)
+Received: from [10.136.8.252] ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id f133sm12824468ywb.107.2019.04.09.09.36.12
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Apr 2019 09:36:14 -0700 (PDT)
+Subject: Re: [PATCH 07/22] watchdog: bcm_kona_wdt: Convert to use device
+ managed functions and other improvements
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Florian Fainelli <f.fainelli@gmail.com>,
         Ray Jui <rjui@broadcom.com>,
         Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Eric Anholt <eric@anholt.net>
+        bcm-kernel-feedback-list@broadcom.com
 References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
- <1554752326-13319-6-git-send-email-linux@roeck-us.net>
-From:   Stefan Wahren <stefan.wahren@i2se.com>
-Message-ID: <13e71a39-a725-e0d9-1e42-a6212b548b30@i2se.com>
-Date:   Tue, 9 Apr 2019 08:54:19 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ <1554752326-13319-8-git-send-email-linux@roeck-us.net>
+From:   Ray Jui <ray.jui@broadcom.com>
+Message-ID: <b4b1e6c1-cbc4-1369-4518-26a2ba20b597@broadcom.com>
+Date:   Tue, 9 Apr 2019 09:36:11 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1554752326-13319-6-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1554752326-13319-8-git-send-email-linux@roeck-us.net>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-X-Provags-ID: V03:K1:0x5GjTLE4ZWmMPMhrn4tJ3UP/21bfMVyarsd/WVfRuZ6PJMfLbV
- tEDoA1buDf+Up0n1jWWCAeT4kz9pXcg2OYzsj3/e/Z/p3Ly6CHozTTDcIHnn55hT65CUsbn
- xgXbwqlAaOPUOqbqXB4OUJJIDgg/MoNW052Q2uDuuNfaYQZ3I+jd+Q/+i4MTZ4OOEyvB3mE
- i2HOLNACIXFHoe/o0vbTg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:+BO6YoWqVWY=:k5OFYMD+PVqKb+Iu4w/Ki3
- aMDF97xiOMzM+Xztg55fAwiwkCWSvz0/IgHB78v6sQk9uTeNWWuQ3i8WWqn+c1kyygOM7lK5N
- gdpjbkYptZkQaDz3sDuLmj1WxSMLixXRwgJk/kI5lzT81AGxgsqbEp+FShz8p5kycWkgzAz1+
- kVUrDnq9QgWZO5sa0eNKvx5+qLLPy5u7GDAPOPee3yklPzQgHsbBoKMCLglQszpYVJfbxZNGg
- nBW4gPjaaGxwsXEN+92O67066uFowF+tCHq0bXy3VjEtx8lIu8Q7oHQ3+W89pasXerl9TDlAA
- xwI9MapbFhqAYRsv/hGO+TQopMI8dyMI4aJPVuo14OEkDcTtOTNZytcmeV/rBsl1iVeX9+pev
- Rn8npeqRcnbMDTrT3YtDlq4Z4wwVcqOy6fiT14WGzZTFQWm9mQETNGJmtwm+QIeSWPmOKBfNH
- 9wGhPdrRl1VPBY+YTT36zfb1hSi2cuH0N+Vdz7SaRv0Fr+gwk8jjsTMaGBmxyepaN6uGnavUj
- cwTNOLF16d4qKwV/sobguq7b17O/h0rfv78Q0r8+72S1RKjDpgVFhXwNBNVc1O8zZbhda6VNg
- rvnzgA1xbFyhv/4EArIOiT95K8dJPo6EbWkWeP6xsW6+O9rbLOjPvI3xnFu0+PRZP2cuqxZbM
- JCIzcrpCVM1IL1eHz4CmRRRU7cVGhZvFXg4Qij/c5tBwQDvbpqfOXEGkTR9JHXnoMC46vTQNG
- HD6y/pAFfWv6Jq4W845aEQZYWXXaMImLokB7hdUeVwvFGO5ks4rHxxSyQQk=
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Am 08.04.19 um 21:38 schrieb Guenter Roeck:
-> There is no call to platform_get_drvdata() in the driver,
-> so platform_set_drvdata() is unnecessary and can be dropped.
->
+
+
+On 4/8/2019 12:38 PM, Guenter Roeck wrote:
+> Use device managed functions to simplify error handling, reduce
+> source code size, improve readability, and reduce the likelyhood of bugs.
+> Other improvements as listed below.
+> 
 > The conversion was done automatically with coccinelle using the
 > following semantic patches. The semantic patches and the scripts
 > used to generate this commit log are available at
 > https://github.com/groeck/coccinelle-patches
->
+> 
+> - Use local variable 'struct device *dev' consistently
+> - Use devm_watchdog_register_driver() to register watchdog device
+> - Replace shutdown function with call to watchdog_stop_on_reboot()
+> 
 > Cc: Florian Fainelli <f.fainelli@gmail.com>
 > Cc: Ray Jui <rjui@broadcom.com>
 > Cc: Scott Branden <sbranden@broadcom.com>
 > Cc: bcm-kernel-feedback-list@broadcom.com
-> Cc: Eric Anholt <eric@anholt.net>
-> Cc: Stefan Wahren <stefan.wahren@i2se.com>
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/watchdog/bcm_kona_wdt.c | 14 ++++----------
+>  1 file changed, 4 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+> index d52334ab0805..e2ad44816359 100644
+> --- a/drivers/watchdog/bcm_kona_wdt.c
+> +++ b/drivers/watchdog/bcm_kona_wdt.c
+> @@ -271,11 +271,6 @@ static struct watchdog_device bcm_kona_wdt_wdd = {
+>  	.timeout =	SECWDOG_MAX_COUNT >> SECWDOG_DEFAULT_RESOLUTION,
+>  };
+>  
+> -static void bcm_kona_wdt_shutdown(struct platform_device *pdev)
+> -{
+> -	bcm_kona_wdt_stop(&bcm_kona_wdt_wdd);
+> -}
+> -
+>  static int bcm_kona_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+> @@ -301,7 +296,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, wdt);
+>  	watchdog_set_drvdata(&bcm_kona_wdt_wdd, wdt);
+> -	bcm_kona_wdt_wdd.parent = &pdev->dev;
+> +	bcm_kona_wdt_wdd.parent = dev;
+>  
+>  	ret = bcm_kona_wdt_set_timeout_reg(&bcm_kona_wdt_wdd, 0);
+>  	if (ret) {
+> @@ -309,7 +304,9 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> -	ret = watchdog_register_device(&bcm_kona_wdt_wdd);
+> +	watchdog_stop_on_reboot(&bcm_kona_wdt_wdd);
+> +	watchdog_stop_on_unregister(&bcm_kona_wdt_wdd);
+> +	ret = devm_watchdog_register_device(dev, &bcm_kona_wdt_wdd);
+>  	if (ret) {
+>  		dev_err(dev, "Failed to register watchdog device");
+>  		return ret;
+> @@ -324,8 +321,6 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+>  static int bcm_kona_wdt_remove(struct platform_device *pdev)
+>  {
+>  	bcm_kona_wdt_debug_exit(pdev);
+> -	bcm_kona_wdt_shutdown(pdev);
+> -	watchdog_unregister_device(&bcm_kona_wdt_wdd);
+>  	dev_dbg(&pdev->dev, "Watchdog driver disabled");
+>  
+>  	return 0;
+> @@ -344,7 +339,6 @@ static struct platform_driver bcm_kona_wdt_driver = {
+>  		  },
+>  	.probe = bcm_kona_wdt_probe,
+>  	.remove = bcm_kona_wdt_remove,
+> -	.shutdown = bcm_kona_wdt_shutdown,
+>  };
+>  
+>  module_platform_driver(bcm_kona_wdt_driver);
+> 
 
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Change looks good to me. Thanks!
 
-Thanks
-
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
