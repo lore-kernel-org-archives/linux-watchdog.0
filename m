@@ -4,66 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 353A7C10F0E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58FC8C282CE
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04E0F20883
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26B9820883
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eTu6A/z3"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dXIHLeaK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbfDIRYn (ORCPT
+        id S1726513AbfDIRZC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:24:43 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:41327 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726938AbfDIRYn (ORCPT
+        Tue, 9 Apr 2019 13:25:02 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:42001 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726917AbfDIRYl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:43 -0400
-Received: by mail-pf1-f193.google.com with SMTP id 188so10102180pfd.8;
-        Tue, 09 Apr 2019 10:24:42 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:41 -0400
+Received: by mail-pg1-f193.google.com with SMTP id p6so9680840pgh.9;
+        Tue, 09 Apr 2019 10:24:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=lKK60SRn4Yg+ug3ZuVwplfkDLIPIcVbLLqOT7dazmwU=;
-        b=eTu6A/z3loUpBg9jMjGriS2YEdRi2lhXjNsk299FLuyTIlMs9mn5pXh9IK8usUqBCM
-         bGVzRS62USkpvoAT993gZcysI7EFxALhiVeKM8Q2Qm3h4DnG6d+0FLOsB/VyBFahg201
-         XDxgsivig3v/J47SsN8JR5wnP3YK8vuTzzWag1v9rj17Tm8yk7d1TIO20uk6b9BTlCzi
-         rjC3f3qzq5HHsYpRMyp5f4rx0UYx7TzBEf4iHHeA2it7S7bUxwxRgjirNJVuU8xbXZyP
-         /UpHp+OX721fxmLsjGO7XZ6OoiHjRlE6ZtGKn6CAbylUhJmgu/swa1dbRhWaylzD5DA0
-         iQMA==
+        bh=LjXyeY61Q8IuuG1hh9T51lQPEaZHlcAN/+KWHwI+dVE=;
+        b=dXIHLeaKyxHPjUY4JJgxryi/6ufUxkP/CHFSdqR+fmn0stHaLNbGM5agKZyAKvgMTD
+         EOF5aSlOlf59xUDvJy6CfvpYsn0M9fUhOgyO3LoyWnoiUCQPDQ3r1bDRgtGa1jpXJWs9
+         yD0ZZ1ZFC331fibCFf7eWP0QEEWFG4811ypbEUw1eDbieVcneiqnWyWFWRj8qJLKT0LQ
+         L210dAJJ1HbGzBTlIwjh5zBW8MlF4VeMKX9MuZaIILM9VkwKFc6ZM52IJwdKQWz9sDju
+         CwFns9vk6yZFC5AVJfqiZq2lDMQ+Ml1hZApt07Nsyfp+zr0XF3I+uAkWKAE1ruBJwZE1
+         ZnZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=lKK60SRn4Yg+ug3ZuVwplfkDLIPIcVbLLqOT7dazmwU=;
-        b=s2WXv5XCq4ygBgm9QNIF3aet53qq1lyhy9lPNVqqfbWV/YkwEo2umrl1VfRkgtrmKZ
-         X+fMWvgM4J7UMoMGjviFrX5QcvJJnyMUaexlJWlFLen1i0iJRZTK/qrdg/3OKDdlsM5T
-         RJR7q7BRdyWtOVO39ZanTUT0IafVIG8b2LCeBfGlw+oq8qEp+nxQLfV78375yWp7+NDS
-         6EUdY5WaXmJM4ZOkchfvQxq5UKAiBxNj/KxTks6YKroWol3QrW+lLDX8f/3gAPyJgL8m
-         cKBb6374n3PUHMzuqRJH8Hlus04rEFs7gst9mqcGAWC0inB1i3Wz5usEmKRZgJq0w6H4
-         m5BQ==
-X-Gm-Message-State: APjAAAXivQLcmJX6QcABwRuLcrj21oIwnBXiAQYhRdwD74/cA5QJk3V9
-        sDOrzeUGsTI+Apk8Hks4eqU=
-X-Google-Smtp-Source: APXvYqwfI7ksbaYhkYikx2wZpQ4iyZ4y4kMAlflNq1y6hNW6n6dSs/KzPW88VTxWq22/2MJ2KTOkvw==
-X-Received: by 2002:a65:414a:: with SMTP id x10mr36248725pgp.237.1554830682425;
-        Tue, 09 Apr 2019 10:24:42 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x128sm34556912pfx.103.2019.04.09.10.24.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        bh=LjXyeY61Q8IuuG1hh9T51lQPEaZHlcAN/+KWHwI+dVE=;
+        b=Wvp5xhUBZJ6bqmrMueURxIITvC9i/QhNq24RSLTzk5lHrBPQBz3WivSdAjy6G6NYBH
+         +s7wj1hP1qA0JKqCidGz4ns4UFNa8ez+GQSPne6VqUnPKlhBSVpwFzsLhoZu17fVAXIL
+         6XKygLZRIGJ1qDy6Hrvjfu5giJBuCw29BG4DVYsix37R3KFrWDos4GCOo2NJQ6bMzHrq
+         /8IKShL3ymHZPhEQhJncV3nQ1kaexde+gWfTR3nnU9h4hFd8bXDZnbESjG9ftVxNc0rp
+         NL92rXeNzLPsy4f6G6FmV5eOVY4m7VdbpJaKmwVBLdYUp/InIig1Iz/MAiEAtCOA/iAG
+         pmog==
+X-Gm-Message-State: APjAAAWCO9Fsddtm8cDOPbtahKDNtBpTD/RhX2Qyy8gSgH7lMAgRDG0p
+        0ea957eUAEXUO0Yo4hsGMvKqWbkO
+X-Google-Smtp-Source: APXvYqwwX4X15/vOJSIOcGoNs31H6HZ1IkyLKtNz6ucoR3CGTvSkSnFaYZjXFCbBiPa0GCd/lU9leA==
+X-Received: by 2002:a63:c104:: with SMTP id w4mr36190874pgf.409.1554830681136;
         Tue, 09 Apr 2019 10:24:41 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s9sm17492543pfe.183.2019.04.09.10.24.40
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Apr 2019 10:24:40 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 22/23] watchdog: sunxi_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Tue,  9 Apr 2019 10:24:00 -0700
-Message-Id: <1554830641-9247-23-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 21/23] watchdog: stpmic1_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Tue,  9 Apr 2019 10:23:59 -0700
+Message-Id: <1554830641-9247-22-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -80,63 +78,57 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/sunxi_wdt.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/watchdog/stpmic1_wdt.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index f0e7ef40b1e4..9c22f7753c6b 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -233,14 +233,15 @@ MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
+diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
+index ad431d8ad95f..45d0c543466f 100644
+--- a/drivers/watchdog/stpmic1_wdt.c
++++ b/drivers/watchdog/stpmic1_wdt.c
+@@ -81,18 +81,19 @@ static const struct watchdog_ops pmic_watchdog_ops = {
  
- static int sunxi_wdt_probe(struct platform_device *pdev)
+ static int pmic_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	struct sunxi_wdt_dev *sunxi_wdt;
- 	int err;
+ 	int ret;
+ 	struct stpmic1 *pmic;
+ 	struct stpmic1_wdt *wdt;
  
--	sunxi_wdt = devm_kzalloc(&pdev->dev, sizeof(*sunxi_wdt), GFP_KERNEL);
-+	sunxi_wdt = devm_kzalloc(dev, sizeof(*sunxi_wdt), GFP_KERNEL);
- 	if (!sunxi_wdt)
+-	if (!pdev->dev.parent)
++	if (!dev->parent)
  		return -EINVAL;
  
--	sunxi_wdt->wdt_regs = of_device_get_match_data(&pdev->dev);
-+	sunxi_wdt->wdt_regs = of_device_get_match_data(dev);
- 	if (!sunxi_wdt->wdt_regs)
- 		return -ENODEV;
+-	pmic = dev_get_drvdata(pdev->dev.parent);
++	pmic = dev_get_drvdata(dev->parent);
+ 	if (!pmic)
+ 		return -EINVAL;
  
-@@ -253,9 +254,9 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
- 	sunxi_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
- 	sunxi_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
--	sunxi_wdt->wdt_dev.parent = &pdev->dev;
-+	sunxi_wdt->wdt_dev.parent = dev;
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
  
--	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
-+	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, dev);
- 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
- 	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
+@@ -102,15 +103,15 @@ static int pmic_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdtdev.ops = &pmic_watchdog_ops;
+ 	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
+ 	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
+-	wdt->wdtdev.parent = &pdev->dev;
++	wdt->wdtdev.parent = dev;
  
-@@ -264,12 +265,12 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	sunxi_wdt_stop(&sunxi_wdt->wdt_dev);
+ 	wdt->wdtdev.timeout = PMIC_WDT_DEFAULT_TIMEOUT;
+-	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
++	watchdog_init_timeout(&wdt->wdtdev, 0, dev);
  
- 	watchdog_stop_on_reboot(&sunxi_wdt->wdt_dev);
--	err = devm_watchdog_register_device(&pdev->dev, &sunxi_wdt->wdt_dev);
-+	err = devm_watchdog_register_device(dev, &sunxi_wdt->wdt_dev);
- 	if (unlikely(err))
- 		return err;
+ 	watchdog_set_nowayout(&wdt->wdtdev, nowayout);
+ 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
  
--	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
--			sunxi_wdt->wdt_dev.timeout, nowayout);
-+	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
-+		 sunxi_wdt->wdt_dev.timeout, nowayout);
+-	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
++	ret = devm_watchdog_register_device(dev, &wdt->wdtdev);
+ 	if (ret)
+ 		return ret;
  
- 	return 0;
- }
 -- 
 2.7.4
 
