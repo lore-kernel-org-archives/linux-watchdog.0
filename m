@@ -7,62 +7,64 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDC8FC10F0E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39954C10F0E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8FB962084F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0AECA2133D
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eV2EbIcX"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HLLKyga6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbfDIRYg (ORCPT
+        id S1726628AbfDIRZc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:24:36 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:41317 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726828AbfDIRYg (ORCPT
+        Tue, 9 Apr 2019 13:25:32 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:37781 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726709AbfDIRYf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:36 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 188so10101963pfd.8;
-        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:35 -0400
+Received: by mail-pl1-f196.google.com with SMTP id w23so9810934ply.4;
+        Tue, 09 Apr 2019 10:24:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=wD2DSazscH8pXYOvV/UE8CSsvEV5LX5/5sBBOGKP7p8=;
-        b=eV2EbIcXbFp6kSeKeMNvf5UqnqRATv1xl1WZ+nYPml+zy6bcX/dFqOoeXypThBKXpI
-         Lf1dEWoGHeHrQanv3ZMbUbvQiaDOx9yRszWjxb/3qyadSGi+0kysQFgNSIBl5ZIHPoJk
-         m85t125W/rODREVLJW8JeKQNjJ2P2EmyibFTOWEpiUmZp6FgQvqlQ/ltXJybYKalw5kb
-         iFnfw2dEQezAwcjwCYyxKtTmHSx2hPRWixPTu3xGLEVWPuf4cEcnK24sLp1rUaX+0R+j
-         HDE7DEYoO9MjGADWk0M7EIV8tpPj3UECDpJlJL/24LJGCo0nGHrs8pEgBdHSZRuOZ/Jt
-         IpAw==
+        bh=HlrSdebMSpMB59zkY9xN76aLFZr/Ctm0yTCe9ZBi980=;
+        b=HLLKyga69ly1A+xOgUCvVvP97m8rZDtjUrGpSm5S7PhTcxgLf/j6rKSxEl3pnBqG+u
+         49YcO+2vDBZBcrEzUZJdpJJ/zZHVJbv069rz3h+XbO/dMFGQW0O8jjkU3JSik18dIVKH
+         qlaXuutwWDB22uoe03gfe3vkixisvDR6uo26U3C5vrd6iWjPOpSpC0DOFlqvwocmhQQ4
+         SRrBZlpwjRtDj14riwj5QmyhAT4I19hJHiSk+CTehFSeBkJMR6D5GRjX6ee6MTNRe58o
+         CLk59fzW41eu9BbZLLI2ER8tTnJiP7C5axwXcRy9ZNoDJGxXWF0Gg2ESy+nlepu/p10P
+         Qi0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=wD2DSazscH8pXYOvV/UE8CSsvEV5LX5/5sBBOGKP7p8=;
-        b=FyrNeUyEbxeh+EN/GzMgOdhPNp33PKfL4vBv980gsObHKWdx6yxm0dKakFv4dX3k4G
-         QSogSJzsd+GAnjE2RTbIUdq/rCAbn14JHwXRBp02iZQ4Uh36KvEjYLjj9RtbZKVNxmV8
-         aLJD/PtVtnUfLTXArLYHzil95U+6Pwxtd+Erp4hSMl9qp5glSyexEQ6zXbu4k6zGhGSK
-         sL86BjBVfTnSNJ+UFFIGh8cyraMoK6cyXbn3haw4+wXakfRQe2xakS32XIqcxYfJsdQW
-         Bkq8n7KtHYDMwqb2wLTJ2VQgGkW3udk13SPEgBS87qBLSObGdTptIs9nQych1wcufsYR
-         mwvw==
-X-Gm-Message-State: APjAAAXxYoqQ+zlgpNsQQRV9PMFJ3akzk1fPXC4ulO86X8uIKh4DbUx/
-        nYta2VkjcDcwo4iLFacUuy+e/S0K
-X-Google-Smtp-Source: APXvYqxX7yq7oeJCIHOJZAA6eu5MS+m+Z8J0sAWhG5A7iGuMBYVg8Q46PO4tCBnuFW2fSL6aOmJKGQ==
-X-Received: by 2002:a65:5286:: with SMTP id y6mr35447051pgp.79.1554830675591;
-        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
+        bh=HlrSdebMSpMB59zkY9xN76aLFZr/Ctm0yTCe9ZBi980=;
+        b=eC2R6TVeVBiG01xumCZHcnC7UQAFtqFG5Q+/hN2fswFaBF8xfOv9xXBfzb85YlVEbX
+         qx1a8FcAEb2A+mAlTQ/1vtWd6R96bKO2gPOlVoGzmFdTIB+F9aGdvIJ92faMZv8iUOPf
+         XG7Hm3c26WKEl4oDdYtb31vX3NdVj9GLVO75bK1QmbeTxg9w8+6onscgKqDh7Pp7GHzN
+         sD2MrWs/gPwNFx6y+fF9yGm3y+3d6lyr9DQIEhVav5DwbFxPoxBNmSY3sSh+dGjNw47s
+         xXXnbaiQ8wghdM6tjIcEL4KY1688IUGurr1kMvpuslHHachMuBfngL4jtV7U4tU6jJOY
+         eIrg==
+X-Gm-Message-State: APjAAAUFohICE5UTbbfjilw7xz4IdUKtj1EteZ84yQeJB9vr2iYOiOEx
+        YObxP2nq4cgncOtePQQagtA=
+X-Google-Smtp-Source: APXvYqxVvzSxIHnrbUQ/MfrN6XcZFUz8agbNWg0zJwbhRlF4CoN6VFKCQsSaIWtjqhYtA3rqZv49cw==
+X-Received: by 2002:a17:902:168:: with SMTP id 95mr37424847plb.212.1554830674203;
+        Tue, 09 Apr 2019 10:24:34 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v43sm25926590pgn.57.2019.04.09.10.24.34
+        by smtp.gmail.com with ESMTPSA id j9sm30813023pfc.43.2019.04.09.10.24.33
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:33 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        Barry Song <baohua@kernel.org>
-Subject: [PATCH 17/23] watchdog: sirfsoc_wdt: Convert to use device managed functions and other improvements
-Date:   Tue,  9 Apr 2019 10:23:55 -0700
-Message-Id: <1554830641-9247-18-git-send-email-linux@roeck-us.net>
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: [PATCH 16/23] watchdog: sama5d4_wdt: Convert to use device managed functions and other improvements
+Date:   Tue,  9 Apr 2019 10:23:54 -0700
+Message-Id: <1554830641-9247-17-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -80,77 +82,119 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
+- Drop assignments to otherwise unused variables
 - Drop empty remove function
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
-- Replace shutdown function with call to watchdog_stop_on_reboot()
 - Replace stop on remove with call to watchdog_stop_on_unregister()
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Barry Song <baohua@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/sirfsoc_wdt.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ drivers/watchdog/sama5d4_wdt.c | 35 ++++++++++++-----------------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
-index 2559062d35da..e79a4097d50b 100644
---- a/drivers/watchdog/sirfsoc_wdt.c
-+++ b/drivers/watchdog/sirfsoc_wdt.c
-@@ -146,6 +146,7 @@ static struct watchdog_device sirfsoc_wdd = {
+diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+index ea72fa0aa3ec..111695223aae 100644
+--- a/drivers/watchdog/sama5d4_wdt.c
++++ b/drivers/watchdog/sama5d4_wdt.c
+@@ -199,6 +199,7 @@ static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
  
- static int sirfsoc_wdt_probe(struct platform_device *pdev)
+ static int sama5d4_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	struct sama5d4_wdt *wdt;
+ 	void __iomem *regs;
+@@ -206,7 +207,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 	u32 timeout;
  	int ret;
- 	void __iomem *base;
  
-@@ -155,11 +156,13 @@ static int sirfsoc_wdt_probe(struct platform_device *pdev)
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
  
- 	watchdog_set_drvdata(&sirfsoc_wdd, (__force void *)base);
+@@ -226,26 +227,25 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
  
--	watchdog_init_timeout(&sirfsoc_wdd, timeout, &pdev->dev);
-+	watchdog_init_timeout(&sirfsoc_wdd, timeout, dev);
- 	watchdog_set_nowayout(&sirfsoc_wdd, nowayout);
--	sirfsoc_wdd.parent = &pdev->dev;
-+	sirfsoc_wdd.parent = dev;
+ 	wdt->reg_base = regs;
  
--	ret = watchdog_register_device(&sirfsoc_wdd);
-+	watchdog_stop_on_reboot(&sirfsoc_wdd);
-+	watchdog_stop_on_unregister(&sirfsoc_wdd);
-+	ret = devm_watchdog_register_device(dev, &sirfsoc_wdd);
+-	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
++	irq = irq_of_parse_and_map(dev->of_node, 0);
+ 	if (!irq)
+-		dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
++		dev_warn(dev, "failed to get IRQ from DT\n");
+ 
+-	ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
++	ret = of_sama5d4_wdt_init(dev->of_node, wdt);
  	if (ret)
  		return ret;
  
-@@ -168,19 +171,6 @@ static int sirfsoc_wdt_probe(struct platform_device *pdev)
+ 	if ((wdt->mr & AT91_WDT_WDFIEN) && irq) {
+-		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
++		ret = devm_request_irq(dev, irq, sama5d4_wdt_irq_handler,
+ 				       IRQF_SHARED | IRQF_IRQPOLL |
+ 				       IRQF_NO_SUSPEND, pdev->name, pdev);
+ 		if (ret) {
+-			dev_err(&pdev->dev,
+-				"cannot register interrupt handler\n");
++			dev_err(dev, "cannot register interrupt handler\n");
+ 			return ret;
+ 		}
+ 	}
+ 
+-	watchdog_init_timeout(wdd, wdt_timeout, &pdev->dev);
++	watchdog_init_timeout(wdd, wdt_timeout, dev);
+ 
+ 	timeout = WDT_SEC2TICKS(wdd->timeout);
+ 
+@@ -258,31 +258,21 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_nowayout(wdd, nowayout);
+ 
+-	ret = watchdog_register_device(wdd);
++	watchdog_stop_on_unregister(wdd);
++	ret = devm_watchdog_register_device(dev, wdd);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to register watchdog device\n");
++		dev_err(dev, "failed to register watchdog device\n");
+ 		return ret;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-	dev_info(&pdev->dev, "initialized (timeout = %d sec, nowayout = %d)\n",
++	dev_info(dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+ 		 wdd->timeout, nowayout);
+ 
  	return 0;
  }
  
--static void sirfsoc_wdt_shutdown(struct platform_device *pdev)
+-static int sama5d4_wdt_remove(struct platform_device *pdev)
 -{
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+-	struct sama5d4_wdt *wdt = platform_get_drvdata(pdev);
 -
--	sirfsoc_wdt_disable(wdd);
--}
+-	sama5d4_wdt_stop(&wdt->wdd);
 -
--static int sirfsoc_wdt_remove(struct platform_device *pdev)
--{
--	sirfsoc_wdt_shutdown(pdev);
+-	watchdog_unregister_device(&wdt->wdd);
+-
 -	return 0;
 -}
 -
- #ifdef	CONFIG_PM_SLEEP
- static int sirfsoc_wdt_suspend(struct device *dev)
- {
-@@ -218,8 +208,6 @@ static struct platform_driver sirfsoc_wdt_driver = {
- 		.of_match_table	= sirfsoc_wdt_of_match,
- 	},
- 	.probe = sirfsoc_wdt_probe,
--	.remove = sirfsoc_wdt_remove,
--	.shutdown = sirfsoc_wdt_shutdown,
- };
- module_platform_driver(sirfsoc_wdt_driver);
+ static const struct of_device_id sama5d4_wdt_of_match[] = {
+ 	{ .compatible = "atmel,sama5d4-wdt", },
+ 	{ }
+@@ -310,7 +300,6 @@ static SIMPLE_DEV_PM_OPS(sama5d4_wdt_pm_ops, NULL,
  
+ static struct platform_driver sama5d4_wdt_driver = {
+ 	.probe		= sama5d4_wdt_probe,
+-	.remove		= sama5d4_wdt_remove,
+ 	.driver		= {
+ 		.name	= "sama5d4_wdt",
+ 		.pm	= &sama5d4_wdt_pm_ops,
 -- 
 2.7.4
 
