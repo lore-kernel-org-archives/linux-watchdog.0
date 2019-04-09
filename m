@@ -7,61 +7,62 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B78A0C10F0E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDC8FC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 853912084F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FB962084F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tf7voPLO"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eV2EbIcX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726894AbfDIRZV (ORCPT
+        id S1726733AbfDIRYg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:25:21 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:44377 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726744AbfDIRYi (ORCPT
+        Tue, 9 Apr 2019 13:24:36 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:41317 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726828AbfDIRYg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:38 -0400
-Received: by mail-pf1-f196.google.com with SMTP id y13so10095408pfm.11;
-        Tue, 09 Apr 2019 10:24:37 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:36 -0400
+Received: by mail-pf1-f195.google.com with SMTP id 188so10101963pfd.8;
+        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=2MUlrOc0HiJHRTPNOKs/f+k1Z+oIQtcna7qAe/Y1Um4=;
-        b=Tf7voPLO3YZyyvjoPhKA55fjMXGPckPHhuKqPs/zJuKMFQqdDboJMxxw+wNjDH+NN4
-         su6u8KalO1AWWle/fwU7PDanEvUdmyvai92GnZWucZEBr/TDcPq3LuWw8U0BEuWMKZpr
-         wd2Lu3lTp2LIVj0tMqP4EY1fRarbkGaxyiXtjeMT3bkmTDM9K9eRuWIcBrVs0TlaMmeP
-         pPprvCYeOH6wFH7dBiitLU8whe3UhamgOVFItdLqooviFVebaRsgUDH+sVVIMyO05br3
-         zKG4xLNAGzXTya6+dGYjhPNbrNEpk99IaIq065gpxGd0QNbjaHo98mQn2n1eVv6mtUZW
-         b/yQ==
+        bh=wD2DSazscH8pXYOvV/UE8CSsvEV5LX5/5sBBOGKP7p8=;
+        b=eV2EbIcXbFp6kSeKeMNvf5UqnqRATv1xl1WZ+nYPml+zy6bcX/dFqOoeXypThBKXpI
+         Lf1dEWoGHeHrQanv3ZMbUbvQiaDOx9yRszWjxb/3qyadSGi+0kysQFgNSIBl5ZIHPoJk
+         m85t125W/rODREVLJW8JeKQNjJ2P2EmyibFTOWEpiUmZp6FgQvqlQ/ltXJybYKalw5kb
+         iFnfw2dEQezAwcjwCYyxKtTmHSx2hPRWixPTu3xGLEVWPuf4cEcnK24sLp1rUaX+0R+j
+         HDE7DEYoO9MjGADWk0M7EIV8tpPj3UECDpJlJL/24LJGCo0nGHrs8pEgBdHSZRuOZ/Jt
+         IpAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=2MUlrOc0HiJHRTPNOKs/f+k1Z+oIQtcna7qAe/Y1Um4=;
-        b=cdbRXRGt4c2h8sYkvQKwlAkySWDO1+UsJdzQROVVULs0NvMaStM7PZycafsxsR5NiH
-         juu0gwdWmFCtwqKf7jlgexwBmbc8u+RHyIXXu4/j62m+DsRTLuzZITVL21uYicjRavrG
-         f2QoGqFDHKBy47p8C//H3osqOYvsHhorm7xmM2eEdNxL37/nMcLshUfXbRmA7nbw3gnH
-         k9cM4vXwwjHSHi+DK+IhZesZ9M+ZCY8hvNvTvEifXv6c8KfFapHiWNilHqmsB9mgiVrK
-         vbpws+SXdzRZXuC8Zq9jjktOvZ5xB+xjVf+orMPa5WvGLI7W1G2yBsVW16+sH0ghizkv
-         hw/A==
-X-Gm-Message-State: APjAAAVSxhKqI8Ja/MUPdEP1h9K6Mq2z0MKjhcDnr0Vt4C4Po4xNLdfk
-        56DhTcCZ64xL7j72dFpLamo=
-X-Google-Smtp-Source: APXvYqxvHgvqSPGuGh+v9BXgG5WEaAHjCxJ+PK2aTuh/igv2sfuPFjVnFVMPMCX4gzOeDwEd6t+G0A==
-X-Received: by 2002:a63:1d45:: with SMTP id d5mr14543285pgm.184.1554830676980;
-        Tue, 09 Apr 2019 10:24:36 -0700 (PDT)
+        bh=wD2DSazscH8pXYOvV/UE8CSsvEV5LX5/5sBBOGKP7p8=;
+        b=FyrNeUyEbxeh+EN/GzMgOdhPNp33PKfL4vBv980gsObHKWdx6yxm0dKakFv4dX3k4G
+         QSogSJzsd+GAnjE2RTbIUdq/rCAbn14JHwXRBp02iZQ4Uh36KvEjYLjj9RtbZKVNxmV8
+         aLJD/PtVtnUfLTXArLYHzil95U+6Pwxtd+Erp4hSMl9qp5glSyexEQ6zXbu4k6zGhGSK
+         sL86BjBVfTnSNJ+UFFIGh8cyraMoK6cyXbn3haw4+wXakfRQe2xakS32XIqcxYfJsdQW
+         Bkq8n7KtHYDMwqb2wLTJ2VQgGkW3udk13SPEgBS87qBLSObGdTptIs9nQych1wcufsYR
+         mwvw==
+X-Gm-Message-State: APjAAAXxYoqQ+zlgpNsQQRV9PMFJ3akzk1fPXC4ulO86X8uIKh4DbUx/
+        nYta2VkjcDcwo4iLFacUuy+e/S0K
+X-Google-Smtp-Source: APXvYqxX7yq7oeJCIHOJZAA6eu5MS+m+Z8J0sAWhG5A7iGuMBYVg8Q46PO4tCBnuFW2fSL6aOmJKGQ==
+X-Received: by 2002:a65:5286:: with SMTP id y6mr35447051pgp.79.1554830675591;
+        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v189sm83838525pgd.77.2019.04.09.10.24.36
+        by smtp.gmail.com with ESMTPSA id v43sm25926590pgn.57.2019.04.09.10.24.34
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:36 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:35 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 18/23] watchdog: 1: Convert to use device managed functions and other improvements
-Date:   Tue,  9 Apr 2019 10:23:56 -0700
-Message-Id: <1554830641-9247-19-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Barry Song <baohua@kernel.org>
+Subject: [PATCH 17/23] watchdog: sirfsoc_wdt: Convert to use device managed functions and other improvements
+Date:   Tue,  9 Apr 2019 10:23:55 -0700
+Message-Id: <1554830641-9247-18-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -79,119 +80,77 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Replace devm_add_action() followed by failure action with
-  devm_add_action_or_reset()
-- Replace 'val = e; return val;' with 'return e;'
+- Drop empty remove function
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
+- Replace shutdown function with call to watchdog_stop_on_reboot()
+- Replace stop on remove with call to watchdog_stop_on_unregister()
 - Use devm_watchdog_register_driver() to register watchdog device
 
+Cc: Barry Song <baohua@kernel.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/sprd_wdt.c | 38 ++++++++++++++++++--------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ drivers/watchdog/sirfsoc_wdt.c | 24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-index a63163a93777..14874e9b207b 100644
---- a/drivers/watchdog/sprd_wdt.c
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -245,9 +245,7 @@ static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
- 	u32 val;
+diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
+index 2559062d35da..e79a4097d50b 100644
+--- a/drivers/watchdog/sirfsoc_wdt.c
++++ b/drivers/watchdog/sirfsoc_wdt.c
+@@ -146,6 +146,7 @@ static struct watchdog_device sirfsoc_wdd = {
  
- 	val = sprd_wdt_get_cnt_value(wdt);
--	val = val / SPRD_WDT_CNT_STEP;
--
--	return val;
-+	return val / SPRD_WDT_CNT_STEP;
- }
- 
- static const struct watchdog_ops sprd_wdt_ops = {
-@@ -269,10 +267,11 @@ static const struct watchdog_info sprd_wdt_info = {
- 
- static int sprd_wdt_probe(struct platform_device *pdev)
+ static int sirfsoc_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	struct sprd_wdt *wdt;
  	int ret;
+ 	void __iomem *base;
  
--	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
- 	if (!wdt)
- 		return -ENOMEM;
+@@ -155,11 +156,13 @@ static int sirfsoc_wdt_probe(struct platform_device *pdev)
  
-@@ -280,57 +279,56 @@ static int sprd_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
+ 	watchdog_set_drvdata(&sirfsoc_wdd, (__force void *)base);
  
--	wdt->enable = devm_clk_get(&pdev->dev, "enable");
-+	wdt->enable = devm_clk_get(dev, "enable");
- 	if (IS_ERR(wdt->enable)) {
--		dev_err(&pdev->dev, "can't get the enable clock\n");
-+		dev_err(dev, "can't get the enable clock\n");
- 		return PTR_ERR(wdt->enable);
- 	}
+-	watchdog_init_timeout(&sirfsoc_wdd, timeout, &pdev->dev);
++	watchdog_init_timeout(&sirfsoc_wdd, timeout, dev);
+ 	watchdog_set_nowayout(&sirfsoc_wdd, nowayout);
+-	sirfsoc_wdd.parent = &pdev->dev;
++	sirfsoc_wdd.parent = dev;
  
--	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
-+	wdt->rtc_enable = devm_clk_get(dev, "rtc_enable");
- 	if (IS_ERR(wdt->rtc_enable)) {
--		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
-+		dev_err(dev, "can't get the rtc enable clock\n");
- 		return PTR_ERR(wdt->rtc_enable);
- 	}
- 
- 	wdt->irq = platform_get_irq(pdev, 0);
- 	if (wdt->irq < 0) {
--		dev_err(&pdev->dev, "failed to get IRQ resource\n");
-+		dev_err(dev, "failed to get IRQ resource\n");
- 		return wdt->irq;
- 	}
- 
--	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
--			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
-+	ret = devm_request_irq(dev, wdt->irq, sprd_wdt_isr, IRQF_NO_SUSPEND,
-+			       "sprd-wdt", (void *)wdt);
- 	if (ret) {
--		dev_err(&pdev->dev, "failed to register irq\n");
-+		dev_err(dev, "failed to register irq\n");
+-	ret = watchdog_register_device(&sirfsoc_wdd);
++	watchdog_stop_on_reboot(&sirfsoc_wdd);
++	watchdog_stop_on_unregister(&sirfsoc_wdd);
++	ret = devm_watchdog_register_device(dev, &sirfsoc_wdd);
+ 	if (ret)
  		return ret;
- 	}
  
- 	wdt->wdd.info = &sprd_wdt_info;
- 	wdt->wdd.ops = &sprd_wdt_ops;
--	wdt->wdd.parent = &pdev->dev;
-+	wdt->wdd.parent = dev;
- 	wdt->wdd.min_timeout = SPRD_WDT_MIN_TIMEOUT;
- 	wdt->wdd.max_timeout = SPRD_WDT_MAX_TIMEOUT;
- 	wdt->wdd.timeout = SPRD_WDT_MAX_TIMEOUT;
+@@ -168,19 +171,6 @@ static int sirfsoc_wdt_probe(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 	ret = sprd_wdt_enable(wdt);
- 	if (ret) {
--		dev_err(&pdev->dev, "failed to enable wdt\n");
-+		dev_err(dev, "failed to enable wdt\n");
- 		return ret;
- 	}
--	ret = devm_add_action(&pdev->dev, sprd_wdt_disable, wdt);
-+	ret = devm_add_action_or_reset(dev, sprd_wdt_disable, wdt);
- 	if (ret) {
--		sprd_wdt_disable(wdt);
--		dev_err(&pdev->dev, "Failed to add wdt disable action\n");
-+		dev_err(dev, "Failed to add wdt disable action\n");
- 		return ret;
- 	}
+-static void sirfsoc_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+-
+-	sirfsoc_wdt_disable(wdd);
+-}
+-
+-static int sirfsoc_wdt_remove(struct platform_device *pdev)
+-{
+-	sirfsoc_wdt_shutdown(pdev);
+-	return 0;
+-}
+-
+ #ifdef	CONFIG_PM_SLEEP
+ static int sirfsoc_wdt_suspend(struct device *dev)
+ {
+@@ -218,8 +208,6 @@ static struct platform_driver sirfsoc_wdt_driver = {
+ 		.of_match_table	= sirfsoc_wdt_of_match,
+ 	},
+ 	.probe = sirfsoc_wdt_probe,
+-	.remove = sirfsoc_wdt_remove,
+-	.shutdown = sirfsoc_wdt_shutdown,
+ };
+ module_platform_driver(sirfsoc_wdt_driver);
  
- 	watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
--	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
-+	watchdog_init_timeout(&wdt->wdd, 0, dev);
- 
--	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
-+	ret = devm_watchdog_register_device(dev, &wdt->wdd);
- 	if (ret) {
- 		sprd_wdt_disable(wdt);
--		dev_err(&pdev->dev, "failed to register watchdog\n");
-+		dev_err(dev, "failed to register watchdog\n");
- 		return ret;
- 	}
- 	platform_set_drvdata(pdev, wdt);
 -- 
 2.7.4
 
