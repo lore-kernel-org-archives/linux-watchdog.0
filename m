@@ -7,62 +7,61 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3CAEC282CE
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DDCAC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C4456217F4
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C7DF2084F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SuyKz2LI"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sQq586Ek"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726702AbfDIRYW (ORCPT
+        id S1726755AbfDIRY2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:24:22 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:44345 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726691AbfDIRYT (ORCPT
+        Tue, 9 Apr 2019 13:24:28 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:43006 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726744AbfDIRY1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:19 -0400
-Received: by mail-pf1-f193.google.com with SMTP id y13so10094842pfm.11;
-        Tue, 09 Apr 2019 10:24:19 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:27 -0400
+Received: by mail-pg1-f195.google.com with SMTP id p6so9680466pgh.9;
+        Tue, 09 Apr 2019 10:24:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=YlBMQHRRMhSGuQhnSlFbWv+llB56GpesX1o6ChIhKxU=;
-        b=SuyKz2LIVhEGOGyvfhvaUadmHhrM7ZmrNkdyPGDHc3n0iNnXeXR98eWmg51PgWiTM/
-         /pTTMUCYsFulAXgGdRNFaAERml9yTaH5ud8UywW4DWXGLVifidthNk8DBwnxfT6wzXBB
-         YD742r7C/N8skol38qrBrRhPTdfTFbHf6S0/L/+yTtqx2LFPcwfa++YbTZTcbNghCtOY
-         4emS23u1wOtU1i8uh/+gfI0GNrvMLJQj0KFtfmkaCP3ITpETkakbWVNLNTo5C56NhEQG
-         mUVmWb78rnJgW74rtgYgGevftCW6hicPmMdbjjOuUbp53yIUWifGOOnvW/KQOY4utksS
-         Y2Sw==
+        bh=pcq2ZYRBSeSNy0rJ3Utjw0J/rJxnyDG4Pd+n7XplGZg=;
+        b=sQq586EkCdJ/9p7WXbf1+H4bh2TINrQgyFOaGEWzq73ea78a8TTtygrWBYsBm5D66l
+         kGKJjl0zk4jxAbg57WROS2uL2sCDVjnbgVP4h/LFoHEEgH9fnVsuHf4sdrEi4CU40myD
+         VCUPPjiiB/JPdVRLY+T/9w7vMX/tYSOjBlWBiWoKBe2dnOC/0p5e5goZKivDONbUiJJq
+         yVx5mae2UZZpR8y+MBdIHJtgesJMYbLjOS22JpcSjE83/1sDPu8Q2EsXf9fTQmf4UWu6
+         VCDEZX/mVtpocR4JnXjfq3gVx2D0qEf1uomR/QJXb/iv/IvUVxkneuk4BVGepltVlrpC
+         ZeMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=YlBMQHRRMhSGuQhnSlFbWv+llB56GpesX1o6ChIhKxU=;
-        b=F0XlbSazSntQL4tgLfnD290p7EULseR4KcrQO5cjM05IPaM4C6PRKC7onJaOjiGDwM
-         R95Zed9U1/89X9+7I1FilWg5OGe9LuN0KIYv2z0cSl2NyWToS0VHIXndwLlXqvkvXtJT
-         5gJHzAbMeH/vLNkxZvf8Ozwrqlg0hFch3pG3l3NmOv97wdt5Zdi9anFwcTPNZA+5pW08
-         Cyb0pW8Q6U/YK6eTyZZ4GQ+tUuooc9gPBCWEMSCzlqWy67g8PW2ss2pHGyAeh0Uz18Bi
-         IVUYa4Rc1t8vwdVE4YNQiMFfXfnTB4d7M4PBGpPwJpujJlrSXvnDNTptNvVnn2bzhy5p
-         WgGQ==
-X-Gm-Message-State: APjAAAV5bzRy1QXB5GhqJdAzoKvDPP/446Z8A1vKhBMZpeun6SeOcC72
-        Rbm88KO19lJ978FStIta9j0=
-X-Google-Smtp-Source: APXvYqx9Jsyrx5f90R2F39FekzKGJeQYtN2TqtqbIC9lm5866gmWcyDOFs5lfj4i0Zqp4D1QCreKbA==
-X-Received: by 2002:a63:2747:: with SMTP id n68mr36008288pgn.317.1554830658622;
-        Tue, 09 Apr 2019 10:24:18 -0700 (PDT)
+        bh=pcq2ZYRBSeSNy0rJ3Utjw0J/rJxnyDG4Pd+n7XplGZg=;
+        b=f/D32akfRAU6XX144uPllIk4sm0HlJCRDP2mmpqlnaPYshDn2+tAY0jR4xRobMrK8p
+         5wARjEQo+V99la8wnSWZfkRA1dTbhVRpFOIZ+JY+gKvVd3UoULeLufLZNYEeFUbHLNKd
+         p8XpnODJafZTLqFePS0ChHSNuCmiif0XS4IwdqXIn+pof5Od9j8b0iLmekZNfwrdsLBE
+         PslIQj6xx4r0JaeC9OCmYMfaOQc+Qs+cpudBWn9A345/zgzsCuhYoviK6pji3aPoIdAX
+         J6oTJiCqpydAWPDDRXeqxcFciubk3X7MdXFAMB0waxKnfrWJ8IesTm2XSPBsAURLworJ
+         NWlA==
+X-Gm-Message-State: APjAAAVRRccL9xcUN/XOUVeLYe7A4wFvY/ENapmgvPsgPB5TbmeFyZFG
+        OBWnf58GfCz4tLcxvPuWAWE=
+X-Google-Smtp-Source: APXvYqz3ypuWQ/GC2tJ1glxa89gkZLD8vcBTfWvm5rHPTVsRsVMbcml5Afau1P2z4QXVsUP0hY+64Q==
+X-Received: by 2002:a63:cf0f:: with SMTP id j15mr35672330pgg.329.1554830667025;
+        Tue, 09 Apr 2019 10:24:27 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g10sm15915554pgq.54.2019.04.09.10.24.17
+        by smtp.gmail.com with ESMTPSA id l88sm56756038pfb.104.2019.04.09.10.24.26
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:18 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:26 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kevin Hilman <khilman@baylibre.com>
-Subject: [PATCH 05/23] watchdog: meson_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Tue,  9 Apr 2019 10:23:43 -0700
-Message-Id: <1554830641-9247-6-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 11/23] watchdog: pm8916_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Tue,  9 Apr 2019 10:23:49 -0700
+Message-Id: <1554830641-9247-12-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -79,70 +78,87 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-Cc: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/meson_wdt.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/watchdog/pm8916_wdt.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-index 7fc6acb33c7f..01889cef81e1 100644
---- a/drivers/watchdog/meson_wdt.c
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -164,11 +164,12 @@ MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+index 7f10041fcf5b..2d3652004e39 100644
+--- a/drivers/watchdog/pm8916_wdt.c
++++ b/drivers/watchdog/pm8916_wdt.c
+@@ -132,15 +132,16 @@ static const struct watchdog_ops pm8916_wdt_ops = {
  
- static int meson_wdt_probe(struct platform_device *pdev)
+ static int pm8916_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	struct meson_wdt_dev *meson_wdt;
- 	const struct of_device_id *of_id;
- 	int err;
+ 	struct pm8916_wdt *wdt;
+ 	struct device *parent;
+ 	int err, irq;
  
--	meson_wdt = devm_kzalloc(&pdev->dev, sizeof(*meson_wdt), GFP_KERNEL);
-+	meson_wdt = devm_kzalloc(dev, sizeof(*meson_wdt), GFP_KERNEL);
- 	if (!meson_wdt)
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
  		return -ENOMEM;
  
-@@ -176,14 +177,14 @@ static int meson_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(meson_wdt->wdt_base))
- 		return PTR_ERR(meson_wdt->wdt_base);
+-	parent = pdev->dev.parent;
++	parent = dev->parent;
  
--	of_id = of_match_device(meson_wdt_dt_ids, &pdev->dev);
-+	of_id = of_match_device(meson_wdt_dt_ids, dev);
- 	if (!of_id) {
--		dev_err(&pdev->dev, "Unable to initialize WDT data\n");
-+		dev_err(dev, "Unable to initialize WDT data\n");
+ 	/*
+ 	 * The pm8916-pon-wdt is a child of the pon device, which is a child
+@@ -150,20 +151,20 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 	 */
+ 	wdt->regmap = dev_get_regmap(parent->parent, NULL);
+ 	if (!wdt->regmap) {
+-		dev_err(&pdev->dev, "failed to locate regmap\n");
++		dev_err(dev, "failed to locate regmap\n");
  		return -ENODEV;
  	}
- 	meson_wdt->data = of_id->data;
  
--	meson_wdt->wdt_dev.parent = &pdev->dev;
-+	meson_wdt->wdt_dev.parent = dev;
- 	meson_wdt->wdt_dev.info = &meson_wdt_info;
- 	meson_wdt->wdt_dev.ops = &meson_wdt_ops;
- 	meson_wdt->wdt_dev.max_timeout =
-@@ -195,18 +196,18 @@ static int meson_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_drvdata(&meson_wdt->wdt_dev, meson_wdt);
- 
--	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, &pdev->dev);
-+	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, dev);
- 	watchdog_set_nowayout(&meson_wdt->wdt_dev, nowayout);
- 	watchdog_set_restart_priority(&meson_wdt->wdt_dev, 128);
- 
- 	meson_wdt_stop(&meson_wdt->wdt_dev);
- 
- 	watchdog_stop_on_reboot(&meson_wdt->wdt_dev);
--	err = devm_watchdog_register_device(&pdev->dev, &meson_wdt->wdt_dev);
-+	err = devm_watchdog_register_device(dev, &meson_wdt->wdt_dev);
- 	if (err)
+ 	err = device_property_read_u32(parent, "reg", &wdt->baseaddr);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to get pm8916-pon address\n");
++		dev_err(dev, "failed to get pm8916-pon address\n");
  		return err;
+ 	}
  
--	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
-+	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 		 meson_wdt->wdt_dev.timeout, nowayout);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq > 0) {
+-		if (devm_request_irq(&pdev->dev, irq, pm8916_wdt_isr, 0,
+-				     "pm8916_wdt", wdt))
++		if (devm_request_irq(dev, irq, pm8916_wdt_isr, 0, "pm8916_wdt",
++				     wdt))
+ 			irq = 0;
+ 	}
  
- 	return 0;
+@@ -172,23 +173,23 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 			   wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL,
+ 			   RESET_TYPE_HARD);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed configure watchdog\n");
++		dev_err(dev, "failed configure watchdog\n");
+ 		return err;
+ 	}
+ 
+ 	wdt->wdev.info = (irq > 0) ? &pm8916_wdt_pt_ident : &pm8916_wdt_ident,
+ 	wdt->wdev.ops = &pm8916_wdt_ops,
+-	wdt->wdev.parent = &pdev->dev;
++	wdt->wdev.parent = dev;
+ 	wdt->wdev.min_timeout = PM8916_WDT_MIN_TIMEOUT;
+ 	wdt->wdev.max_timeout = PM8916_WDT_MAX_TIMEOUT;
+ 	wdt->wdev.timeout = PM8916_WDT_DEFAULT_TIMEOUT;
+ 	wdt->wdev.pretimeout = 0;
+ 	watchdog_set_drvdata(&wdt->wdev, wdt);
+ 
+-	watchdog_init_timeout(&wdt->wdev, 0, &pdev->dev);
++	watchdog_init_timeout(&wdt->wdev, 0, dev);
+ 	pm8916_wdt_configure_timers(&wdt->wdev);
+ 
+-	return devm_watchdog_register_device(&pdev->dev, &wdt->wdev);
++	return devm_watchdog_register_device(dev, &wdt->wdev);
+ }
+ 
+ static const struct of_device_id pm8916_wdt_id_table[] = {
 -- 
 2.7.4
 
