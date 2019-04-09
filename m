@@ -7,62 +7,62 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF2BCC10F0E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 117C9C282CE
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:26:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 98993214AF
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D31AB214AF
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:26:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GIuUgu3c"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mpwxrvub"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726742AbfDIRY1 (ORCPT
+        id S1726720AbfDIRYZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:24:27 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:37767 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726733AbfDIRY0 (ORCPT
+        Tue, 9 Apr 2019 13:24:25 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:37295 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726709AbfDIRYX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:26 -0400
-Received: by mail-pl1-f194.google.com with SMTP id w23so9810672ply.4;
-        Tue, 09 Apr 2019 10:24:26 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:23 -0400
+Received: by mail-pg1-f196.google.com with SMTP id e6so9686844pgc.4;
+        Tue, 09 Apr 2019 10:24:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=H6MIpn01nQGgr4gWV6XiOub4WhlBGRZ9EDKqwwULRjo=;
-        b=GIuUgu3cjFcOhhqpXuc7V9A1832EcFD0n0OCIFv+TP1czEW8TsW5Q2hgWsJH4QN+Xp
-         jiVUwFs822SoFfEIL/pLConMdFxPfBlVs36jDGZEx/V3GYjNJ8zVxjqzYSNSox+gz1bY
-         CGzOQkgR2UZS43ktNnV/iYmOIz4tlwLUZ0mCMmU+4yRgs/fYJpAyvzQ2+2URQsrW1TJT
-         UySI/LFD4D+Nia79Rh/QnpELU+U5v/a5u4Wn8VQqzeMuCVBVmCfigm3QfTd9sc5Onpeh
-         G0D2DbnseWJtKVRXh9EQdJBaHfwLqehqJgtj5+++KHTQX5uGZgrDWPIWgOdTy028kxaV
-         NFog==
+        bh=wCXHrOsWqXSwK8IC/YC+rDt+Fx5DNdMSraig28kMeIs=;
+        b=mpwxrvubsnHrRUQtwmvZrNHCNi7Q/q1+vHEdRG/TriC9+JvoBUwhaM6IEHDoKRrEuV
+         S+71QQoSHQwUH+TJRh3Cq5BJf3fUfMlmnzWzFjxMdhvSemuA3g81R5FOq6ceNTozTJol
+         hV0JsMj0MxAhV+NyY7di3Y9cSTXeqHnpCEWInRs23MJ6Zjq1CtrQi+98x79Zt9T27934
+         maj70O6yRjKfjnkDhCAosJpYIDmSdllc7gpsbWbbiBpgcOzxs1gkOiG280EdmyxHSqgm
+         kaO+n9+RZL0QpfiDlk3PewK8unON20eM5V8MbvShTGJ2UfbtQya6/Z6GlXh+H744Qq3g
+         8KcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=H6MIpn01nQGgr4gWV6XiOub4WhlBGRZ9EDKqwwULRjo=;
-        b=N49mgYiXcenRhTOLbSXbRGdURxzWnIkrVwVJCG68Hg1gSGowoMpLBisLGafMSTn8CT
-         D0kIeZyYRyeIwuF1sehsn8nXN2OHPsI8HG2GuaD3ul2lHxCXzQv0W2ZAeAQbc7uce9MT
-         SZNtIh0qVFfmeXE1PDs6lk8FX2Ev4xqwvljwHbvcXFtIeJnkYal85qeg87qLKj+//Ygf
-         mycdREiazKSIyiQf3cimvx3qcKXZJPgA8cCG+Knzt6Aixg/ZT+URh+W2fOzYquGFSxMT
-         fk6C59EMl/Hcq96cHQ2oRDbCPiPPw6UVMicafEnJM+cLNj5JQvz23ikASibknLxg/DOj
-         D88g==
-X-Gm-Message-State: APjAAAXXNJDND1zZzdLHoweqFPv+xrw1E99nKs6KkP6AEDN3r8AIQLlr
-        /6CiG6XyAJoJz3xIfW9pYDk=
-X-Google-Smtp-Source: APXvYqyNhRqiUe2Su255D2H++loLO0HocAMUANlsuwl1T0LaE7KWsE6DnNLODwF0hRzc+kTmQ6ZRyA==
-X-Received: by 2002:a17:902:e90b:: with SMTP id cs11mr31531975plb.243.1554830665725;
-        Tue, 09 Apr 2019 10:24:25 -0700 (PDT)
+        bh=wCXHrOsWqXSwK8IC/YC+rDt+Fx5DNdMSraig28kMeIs=;
+        b=aZC3Gv+kFCoyU/uhKuV6XV5dl0U3s7xiLowbzKROUkh8PkA4soKPTFVztfghjfMMP/
+         Cb/GdpS9tjspNOZZWWdKq5fefFsdbzF5wTt76ipImu0P5udih/JKU/qvkLFpZiRlJjQF
+         GM0TiDl4QmkQkdy7P0wuOxoO0MDUfjN9M62+bZOq2ad2p6CiOUGSljvddhPLD4k0MUmn
+         wy6JX0ZQkcQ1P8FkaC0i02UGDo1vSBTWuQPb1pJembPAoSQG7H8kmxxv9K6GL40aXe1G
+         NMIBnEaRCQD297zrpFdjvawgxAeVQ26eCJsGdcKC6ezcwYhhN9r70FT7zMgV/hFzPhOP
+         qMvA==
+X-Gm-Message-State: APjAAAU/0PgThSZZDCGqCFMqyciuMT/8EEdkkwTcLRHYGAAvflQI35Ki
+        BChJPoa/HLbArOsamif92M4=
+X-Google-Smtp-Source: APXvYqx7DrLyrMimYHWjerCF4nTRqpMoTuqxLhS2qiGsz+sSBX7rHt5y0STqMuiVIIFME2lx9p31VQ==
+X-Received: by 2002:a65:6259:: with SMTP id q25mr35969443pgv.103.1554830662973;
+        Tue, 09 Apr 2019 10:24:22 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o81sm29860950pfa.156.2019.04.09.10.24.24
+        by smtp.gmail.com with ESMTPSA id q75sm7345068pfi.102.2019.04.09.10.24.22
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:25 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:22 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 10/23] watchdog: of_xilinx_wdt: Convert to use device managed functions and other improvements
-Date:   Tue,  9 Apr 2019 10:23:48 -0700
-Message-Id: <1554830641-9247-11-git-send-email-linux@roeck-us.net>
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 08/23] watchdog: mtk_wdt: Convert to use device managed functions and other improvements
+Date:   Tue,  9 Apr 2019 10:23:46 -0700
+Message-Id: <1554830641-9247-9-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -82,153 +82,89 @@ https://github.com/groeck/coccinelle-patches
 
 - Drop assignments to otherwise unused variables
 - Drop empty remove function
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
 - Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
-Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/of_xilinx_wdt.c | 58 ++++++++++++++++++----------------------
- 1 file changed, 26 insertions(+), 32 deletions(-)
+ drivers/watchdog/mtk_wdt.c | 33 ++++++++-------------------------
+ 1 file changed, 8 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index 5c977164b3e5..03786992b701 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -151,41 +151,46 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
- 		return XWT_TIMER_FAILED;
- }
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 113a48d54058..9c3d0033260d 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -153,10 +153,11 @@ static const struct watchdog_ops mtk_wdt_ops = {
  
-+static void xwdt_clk_disable_unprepare(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
- static int xwdt_probe(struct platform_device *pdev)
+ static int mtk_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	int rc;
- 	u32 pfreq = 0, enable_once = 0;
- 	struct xwdt_device *xdev;
- 	struct watchdog_device *xilinx_wdt_wdd;
+ 	struct mtk_wdt_dev *mtk_wdt;
+ 	int err;
  
--	xdev = devm_kzalloc(&pdev->dev, sizeof(*xdev), GFP_KERNEL);
-+	xdev = devm_kzalloc(dev, sizeof(*xdev), GFP_KERNEL);
- 	if (!xdev)
+-	mtk_wdt = devm_kzalloc(&pdev->dev, sizeof(*mtk_wdt), GFP_KERNEL);
++	mtk_wdt = devm_kzalloc(dev, sizeof(*mtk_wdt), GFP_KERNEL);
+ 	if (!mtk_wdt)
  		return -ENOMEM;
  
- 	xilinx_wdt_wdd = &xdev->xilinx_wdt_wdd;
- 	xilinx_wdt_wdd->info = &xilinx_wdt_ident;
- 	xilinx_wdt_wdd->ops = &xilinx_wdt_ops;
--	xilinx_wdt_wdd->parent = &pdev->dev;
-+	xilinx_wdt_wdd->parent = dev;
+@@ -171,9 +172,9 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 	mtk_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+ 	mtk_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
+ 	mtk_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
+-	mtk_wdt->wdt_dev.parent = &pdev->dev;
++	mtk_wdt->wdt_dev.parent = dev;
  
- 	xdev->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(xdev->base))
- 		return PTR_ERR(xdev->base);
+-	watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
++	watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, dev);
+ 	watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
+ 	watchdog_set_restart_priority(&mtk_wdt->wdt_dev, 128);
  
--	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
-+	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-interval",
- 				  &xdev->wdt_interval);
- 	if (rc)
--		dev_warn(&pdev->dev,
--			 "Parameter \"xlnx,wdt-interval\" not found\n");
-+		dev_warn(dev, "Parameter \"xlnx,wdt-interval\" not found\n");
+@@ -181,29 +182,13 @@ static int mtk_wdt_probe(struct platform_device *pdev)
  
--	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
-+	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-enable-once",
- 				  &enable_once);
- 	if (rc)
--		dev_warn(&pdev->dev,
-+		dev_warn(dev,
- 			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
+ 	mtk_wdt_stop(&mtk_wdt->wdt_dev);
  
- 	watchdog_set_nowayout(xilinx_wdt_wdd, enable_once);
+-	err = watchdog_register_device(&mtk_wdt->wdt_dev);
++	watchdog_stop_on_reboot(&mtk_wdt->wdt_dev);
++	err = devm_watchdog_register_device(dev, &mtk_wdt->wdt_dev);
+ 	if (unlikely(err))
+ 		return err;
  
--	xdev->clk = devm_clk_get(&pdev->dev, NULL);
-+	xdev->clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(xdev->clk)) {
- 		if (PTR_ERR(xdev->clk) != -ENOENT)
- 			return PTR_ERR(xdev->clk);
-@@ -196,10 +201,10 @@ static int xwdt_probe(struct platform_device *pdev)
- 		 */
- 		xdev->clk = NULL;
- 
--		rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-+		rc = of_property_read_u32(dev->of_node, "clock-frequency",
- 					  &pfreq);
- 		if (rc)
--			dev_warn(&pdev->dev,
-+			dev_warn(dev,
- 				 "The watchdog clock freq cannot be obtained\n");
- 	} else {
- 		pfreq = clk_get_rate(xdev->clk);
-@@ -218,44 +223,34 @@ static int xwdt_probe(struct platform_device *pdev)
- 
- 	rc = clk_prepare_enable(xdev->clk);
- 	if (rc) {
--		dev_err(&pdev->dev, "unable to enable clock\n");
-+		dev_err(dev, "unable to enable clock\n");
- 		return rc;
- 	}
-+	rc = devm_add_action_or_reset(dev, xwdt_clk_disable_unprepare,
-+				      xdev->clk);
-+	if (rc)
-+		return rc;
- 
- 	rc = xwdt_selftest(xdev);
- 	if (rc == XWT_TIMER_FAILED) {
--		dev_err(&pdev->dev, "SelfTest routine error\n");
--		goto err_clk_disable;
-+		dev_err(dev, "SelfTest routine error\n");
-+		return rc;
- 	}
- 
--	rc = watchdog_register_device(xilinx_wdt_wdd);
-+	rc = devm_watchdog_register_device(dev, xilinx_wdt_wdd);
- 	if (rc) {
--		dev_err(&pdev->dev, "Cannot register watchdog (err=%d)\n", rc);
--		goto err_clk_disable;
-+		dev_err(dev, "Cannot register watchdog (err=%d)\n", rc);
-+		return rc;
- 	}
- 
- 	clk_disable(xdev->clk);
- 
--	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
-+	dev_info(dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
- 		 xdev->base, xilinx_wdt_wdd->timeout);
- 
- 	platform_set_drvdata(pdev, xdev);
- 
- 	return 0;
--err_clk_disable:
--	clk_disable_unprepare(xdev->clk);
--
--	return rc;
--}
--
--static int xwdt_remove(struct platform_device *pdev)
--{
--	struct xwdt_device *xdev = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&xdev->xilinx_wdt_wdd);
--	clk_disable_unprepare(xdev->clk);
+-	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+-			mtk_wdt->wdt_dev.timeout, nowayout);
 -
 -	return 0;
+-}
+-
+-static void mtk_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+-
+-	if (watchdog_active(&mtk_wdt->wdt_dev))
+-		mtk_wdt_stop(&mtk_wdt->wdt_dev);
+-}
+-
+-static int mtk_wdt_remove(struct platform_device *pdev)
+-{
+-	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(&mtk_wdt->wdt_dev);
++	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
++		 mtk_wdt->wdt_dev.timeout, nowayout);
+ 
+ 	return 0;
  }
+@@ -245,8 +230,6 @@ static const struct dev_pm_ops mtk_wdt_pm_ops = {
  
- /**
-@@ -303,7 +298,6 @@ MODULE_DEVICE_TABLE(of, xwdt_of_match);
- 
- static struct platform_driver xwdt_driver = {
- 	.probe       = xwdt_probe,
--	.remove      = xwdt_remove,
- 	.driver = {
- 		.name  = WATCHDOG_NAME,
- 		.of_match_table = xwdt_of_match,
+ static struct platform_driver mtk_wdt_driver = {
+ 	.probe		= mtk_wdt_probe,
+-	.remove		= mtk_wdt_remove,
+-	.shutdown	= mtk_wdt_shutdown,
+ 	.driver		= {
+ 		.name		= DRV_NAME,
+ 		.pm		= &mtk_wdt_pm_ops,
 -- 
 2.7.4
 
