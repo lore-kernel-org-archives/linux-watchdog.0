@@ -4,66 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D102BC10F0E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6E7FC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A20AD20883
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEE5120883
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:25:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="u/uDCxMf"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tWHcVwdh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727020AbfDIRZI (ORCPT
+        id S1726902AbfDIRYk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:25:08 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:46531 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726894AbfDIRYk (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 9 Apr 2019 13:24:40 -0400
-Received: by mail-pl1-f195.google.com with SMTP id y6so9786214pll.13;
-        Tue, 09 Apr 2019 10:24:40 -0700 (PDT)
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:42667 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726872AbfDIRYj (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 9 Apr 2019 13:24:39 -0400
+Received: by mail-pl1-f194.google.com with SMTP id cv12so9793447plb.9;
+        Tue, 09 Apr 2019 10:24:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=RQNFeFQAIS9IcQnzgiGsF4bv+r8/UL2D7gAeGH/2zP8=;
-        b=u/uDCxMfyJYUC9wKKiiREszTvY2wHTAHAVAQagHKdh/JWWn7ZEZu3fHo0vAbbRIkF9
-         GrrJa3PGVbIynVHH8fqTAFF9/INzvtFcpSlYq/qaSLzVknty0zTPdMUsEFL5nLV0EOxJ
-         XuV/yHBg8kWIq4ThmK8yKu3iP1efUgcfnaAjg84gA/bigRNOQ1xpAH6Q/sMxfzkEug20
-         w6Q8v1HlYuMcriOokxWzLYcgDL+Aaj5aiP58dImiCQVtRkiSnGqmK3c1sHg3wjSMdMQP
-         9Y1QFGWhpSeSXB/WO6W/gv8m+ml6mHHSmJxoHtfqAd94lfz+lkkTrfP4jATVyiBY3k/7
-         /ufA==
+        bh=9wckhJHxSrM0tEjClZFzEqYk0LhohFKE4bYwFU5BfO8=;
+        b=tWHcVwdh7iZ1KJO7SKn8rvrgz6u0RJtfuQplQLjcfaIn6q38WY9+yEiHJHK2+/1P0N
+         LrNedCP0MrD93//XBBi+hxztvtQoftF/O1ys2ZfnhUpDlrG/7zEr210WmYlAc0BYfSit
+         +pWOhIv4QwonUDkBPQcEqgeksbhfS+oLC9XoUhDEYI1AOvfGtXPARqN/HU9YFyS6SY+i
+         Io1e8EfPZSorXyyAGR5jZGvVCb67rUIvrT2BtxM2pFImg+wZim20TDD9rLTZDr/3BYQD
+         L/bPnTQAjMe4abtaFfakNdUEOr+V69CICGutJcPQUkWEyZpVKf5IHmDwcOd53mibYPdk
+         U9kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=RQNFeFQAIS9IcQnzgiGsF4bv+r8/UL2D7gAeGH/2zP8=;
-        b=e/q9U6/0YZ/VtKCeErVk75OUBqnT1zEHDWp8Z15vNn4o/PRCmfpRn7VLFPXdLmVaxX
-         k0Xim15PEYwgwE5nKHtzxNZOrfmq+aonv5XhI/kI+EBA6DzqvjTK6cQT73cm4e8SaV4R
-         Kq7t3L6mMC5xr7uBgCQdKsXzZ1a+Yi+9+ho0Dlx+dkqj9A38jI+uD51YkXGiaFMbxSx8
-         86ZSRPDpZE3YLdOp8SibqgMpXPEkoy07OtNTO1MhmoLFeV/oDG06el6SbeLuDBYByvW+
-         QAA4uPkEmC9Wrucb7UXPpC+AX4wEuKF7yOIM0g5C0RY6IkRpQ2R0WOZiYgF3E8zHvLOt
-         a9oA==
-X-Gm-Message-State: APjAAAW4QqudpfWRxiMh+shCeQXg14n8IeKWZhKDOIVDTQdYVTni5wGW
-        M0gszp25cS2SamKI4nGDiwVZaXGG
-X-Google-Smtp-Source: APXvYqyN2Ln9xTqWl936KqgLjDq7Ij1yK1ABMygWKepDDZC5gmO7TT045JQewXBNA/kedsv1MB5UiA==
-X-Received: by 2002:a17:902:8a4:: with SMTP id 33mr38847467pll.7.1554830679831;
-        Tue, 09 Apr 2019 10:24:39 -0700 (PDT)
+        bh=9wckhJHxSrM0tEjClZFzEqYk0LhohFKE4bYwFU5BfO8=;
+        b=bqIig1AYJD5dRM/pLQgB1jS4XsN7NKKEHXydpUpWDmVH/LPIUO/cRwFG8pJrR7bosn
+         RSy+a6dTIpT22ojD5fOPo6oDCTIfIUy/zO3f/2c+297zrXsOsK9JQycVm8a6HGEpCqR4
+         iQvEzznnoZN6XzZlRbIxaCyhvDiAGyuh7nrVqxRTR9pzxdgsE1ykyY5PU1EizDuDhCuf
+         Oxq/8Oh9dAhYLGK1uUXCjTL+LCwMxi/Q9k8L2YZEqsO1fUjxFoCZm9PSpE4tHjODOeRa
+         IpaOz3RpyJMDQALDxnFIXlxja/Mxr25CGAKk9eAGTNHeQrcJEnvDC4mxx0L4TYYLUsoh
+         VuNw==
+X-Gm-Message-State: APjAAAUVLuS30PhvcpXHIjcDVIBaITm+9CJWmrotdIPDypaUpPINOZiW
+        UkTA4iv9PU8w4A8dWTdrHdU=
+X-Google-Smtp-Source: APXvYqxyYJu5C86rFwHmRR0EQfBRSnBr8/PtrIui34ZVy03cV+Hq7lcCW3gHMHQ85Ji82FsfNJiQvg==
+X-Received: by 2002:a17:902:2ec1:: with SMTP id r59mr38731835plb.171.1554830678364;
+        Tue, 09 Apr 2019 10:24:38 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q11sm47414470pgs.94.2019.04.09.10.24.39
+        by smtp.gmail.com with ESMTPSA id p26sm75177403pfa.49.2019.04.09.10.24.37
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:39 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:37 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-Subject: [PATCH 20/23] watchdog: stmp3xxx_rtc_wdt: Convert to use device managed functions
-Date:   Tue,  9 Apr 2019 10:23:58 -0700
-Message-Id: <1554830641-9247-21-git-send-email-linux@roeck-us.net>
+        Patrice Chotard <patrice.chotard@st.com>
+Subject: [PATCH 19/23] watchdog: st_lpc_wdt: Convert to use device managed functions
+Date:   Tue,  9 Apr 2019 10:23:57 -0700
+Message-Id: <1554830641-9247-20-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
@@ -80,61 +79,147 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/stmp3xxx_rtc_wdt.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/watchdog/st_lpc_wdt.c | 47 ++++++++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index 994c54cc68e9..671f4ba7b4ed 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -89,31 +89,31 @@ static struct notifier_block wdt_notifier = {
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index 196fb4b72c5d..9a5ed95c3403 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -142,10 +142,16 @@ static struct watchdog_device st_wdog_dev = {
+ 	.ops		= &st_wdog_ops,
+ };
  
- static int stmp3xxx_wdt_probe(struct platform_device *pdev)
++static void st_clk_disable_unprepare(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static int st_wdog_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	int ret;
+ 	const struct of_device_id *match;
+-	struct device_node *np = pdev->dev.of_node;
++	struct device_node *np = dev->of_node;
+ 	struct st_wdog *st_wdog;
+ 	struct regmap *regmap;
+ 	struct clk *clk;
+@@ -155,7 +161,7 @@ static int st_wdog_probe(struct platform_device *pdev)
  
--	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
-+	watchdog_set_drvdata(&stmp3xxx_wdd, dev);
+ 	ret = of_property_read_u32(np, "st,lpc-mode", &mode);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "An LPC mode must be provided\n");
++		dev_err(dev, "An LPC mode must be provided\n");
+ 		return -EINVAL;
+ 	}
  
- 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
--	stmp3xxx_wdd.parent = &pdev->dev;
-+	stmp3xxx_wdd.parent = dev;
+@@ -163,13 +169,13 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 	if (mode != ST_LPC_MODE_WDT)
+ 		return -ENODEV;
  
--	ret = watchdog_register_device(&stmp3xxx_wdd);
-+	ret = devm_watchdog_register_device(dev, &stmp3xxx_wdd);
- 	if (ret < 0) {
--		dev_err(&pdev->dev, "cannot register watchdog device\n");
-+		dev_err(dev, "cannot register watchdog device\n");
+-	st_wdog = devm_kzalloc(&pdev->dev, sizeof(*st_wdog), GFP_KERNEL);
++	st_wdog = devm_kzalloc(dev, sizeof(*st_wdog), GFP_KERNEL);
+ 	if (!st_wdog)
+ 		return -ENOMEM;
+ 
+-	match = of_match_device(st_wdog_match, &pdev->dev);
++	match = of_match_device(st_wdog_match, dev);
+ 	if (!match) {
+-		dev_err(&pdev->dev, "Couldn't match device\n");
++		dev_err(dev, "Couldn't match device\n");
+ 		return -ENODEV;
+ 	}
+ 	st_wdog->syscfg	= (struct st_wdog_syscfg *)match->data;
+@@ -180,17 +186,17 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 
+ 	regmap = syscon_regmap_lookup_by_phandle(np, "st,syscfg");
+ 	if (IS_ERR(regmap)) {
+-		dev_err(&pdev->dev, "No syscfg phandle specified\n");
++		dev_err(dev, "No syscfg phandle specified\n");
+ 		return PTR_ERR(regmap);
+ 	}
+ 
+-	clk = devm_clk_get(&pdev->dev, NULL);
++	clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(clk)) {
+-		dev_err(&pdev->dev, "Unable to request clock\n");
++		dev_err(dev, "Unable to request clock\n");
+ 		return PTR_ERR(clk);
+ 	}
+ 
+-	st_wdog->dev		= &pdev->dev;
++	st_wdog->dev		= dev;
+ 	st_wdog->base		= base;
+ 	st_wdog->clk		= clk;
+ 	st_wdog->regmap		= regmap;
+@@ -198,39 +204,40 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 	st_wdog->clkrate	= clk_get_rate(st_wdog->clk);
+ 
+ 	if (!st_wdog->clkrate) {
+-		dev_err(&pdev->dev, "Unable to fetch clock rate\n");
++		dev_err(dev, "Unable to fetch clock rate\n");
+ 		return -EINVAL;
+ 	}
+ 	st_wdog_dev.max_timeout = 0xFFFFFFFF / st_wdog->clkrate;
+-	st_wdog_dev.parent = &pdev->dev;
++	st_wdog_dev.parent = dev;
+ 
+ 	ret = clk_prepare_enable(clk);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Unable to enable clock\n");
++		dev_err(dev, "Unable to enable clock\n");
+ 		return ret;
+ 	}
++	ret = devm_add_action_or_reset(dev, st_clk_disable_unprepare, clk);
++	if (ret)
++		return ret;
+ 
+ 	watchdog_set_drvdata(&st_wdog_dev, st_wdog);
+ 	watchdog_set_nowayout(&st_wdog_dev, WATCHDOG_NOWAYOUT);
+ 
+ 	/* Init Watchdog timeout with value in DT */
+-	ret = watchdog_init_timeout(&st_wdog_dev, 0, &pdev->dev);
++	ret = watchdog_init_timeout(&st_wdog_dev, 0, dev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Unable to initialise watchdog timeout\n");
+-		clk_disable_unprepare(clk);
++		dev_err(dev, "Unable to initialise watchdog timeout\n");
  		return ret;
  	}
  
- 	if (register_reboot_notifier(&wdt_notifier))
--		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-+		dev_warn(dev, "cannot register reboot notifier\n");
+-	ret = watchdog_register_device(&st_wdog_dev);
++	ret = devm_watchdog_register_device(dev, &st_wdog_dev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Unable to register watchdog\n");
+-		clk_disable_unprepare(clk);
++		dev_err(dev, "Unable to register watchdog\n");
+ 		return ret;
+ 	}
  
--	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
--			stmp3xxx_wdd.timeout);
-+	dev_info(dev, "initialized watchdog with heartbeat %ds\n",
-+		 stmp3xxx_wdd.timeout);
+ 	st_wdog_setup(st_wdog, true);
+ 
+-	dev_info(&pdev->dev, "LPC Watchdog driver registered, reset type is %s",
++	dev_info(dev, "LPC Watchdog driver registered, reset type is %s",
+ 		 st_wdog->warm_reset ? "warm" : "cold");
+ 
+ 	return ret;
+@@ -241,8 +248,6 @@ static int st_wdog_remove(struct platform_device *pdev)
+ 	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
+ 
+ 	st_wdog_setup(st_wdog, false);
+-	watchdog_unregister_device(&st_wdog_dev);
+-	clk_disable_unprepare(st_wdog->clk);
+ 
  	return 0;
  }
- 
- static int stmp3xxx_wdt_remove(struct platform_device *pdev)
- {
- 	unregister_reboot_notifier(&wdt_notifier);
--	watchdog_unregister_device(&stmp3xxx_wdd);
- 	return 0;
- }
- 
 -- 
 2.7.4
 
