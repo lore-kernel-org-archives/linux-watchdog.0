@@ -2,95 +2,132 @@ Return-Path: <SRS0=Ndly=SL=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4EF7C282DA
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C69C2C282DA
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8EC382133D
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9769D2084F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Apr 2019 17:24:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i4Dup9uj"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NgO5WhP0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbfDIRYM (ORCPT
+        id S1726636AbfDIRYV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Apr 2019 13:24:12 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:39352 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726431AbfDIRYM (ORCPT
+        Tue, 9 Apr 2019 13:24:21 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:35594 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726556AbfDIRYU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Apr 2019 13:24:12 -0400
-Received: by mail-pg1-f195.google.com with SMTP id k3so9688086pga.6;
-        Tue, 09 Apr 2019 10:24:12 -0700 (PDT)
+        Tue, 9 Apr 2019 13:24:20 -0400
+Received: by mail-pf1-f196.google.com with SMTP id t21so7796636pfh.2;
+        Tue, 09 Apr 2019 10:24:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=KzE6pQkr38YFZeyJkyYMlCVCFIA7T3NhcogtQq7roUw=;
-        b=i4Dup9ujLGmWudqLS6JnGWF7SuxlKMqjS6pLFL1T4MnuNe4eCpoMrhOFOByuwyXJo/
-         P4ZAh45JqgstUAjn0kov6on4+8QIiq/JYPyxqeq0Y/YPA5HWrg/7oiBH5EAFgr5grGIP
-         zg4mxTdUB7BopHuZuojBPtUnhvjzEPmOihPjVfJRNF9maKhmdgQUITlOu7Wc9SJJhyy1
-         +eIrDN6Z1QxZMRMEq7g6imODUSuIN47dZjPwYjp0/FhZk9doKr+OTpOL4b8YnxIz+hC8
-         ysL174u0rNJs86bG2dh5oROXrjTmGZb75FX1gsfvv4XQq74fDQPz6j3yTATNR/v4yCCu
-         r3OA==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=BTbLDR4gnZ7lFPmSCCa0QIInTL3LtlTlBWa9cvu84sM=;
+        b=NgO5WhP0ViQOQ67MmOnc7P+BOFX3ODs7bfwlSYsjIjsI5fLs7fClX2BQb9B74V9V2r
+         B2+0DNQz7+Sd2ACrzYmYPZh9jkuOZrdQ4ViO4Vxbk8c6z6MsXk3hKxD2dT0b5DBFKKdt
+         h1j43GRpUvri0iiGPK0zp3Q66FvPqEpIPrxTHWg4p9JLdMwBe2p66s1w2QYi+0iYTpFY
+         vMw9ltLbGBH03rQ4f/Y8N+vl3m2LHycYqUzyn6qDVbQCDAj3LyizmZD2sXc5YG5pbCcL
+         HsORUjjWHifwHn1sFQxQc/ZS+gZi3fSzJlsOVefy+sl94Is0Pui2LxnthGmws+9HDekX
+         IQtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=KzE6pQkr38YFZeyJkyYMlCVCFIA7T3NhcogtQq7roUw=;
-        b=ZU+FLfxYQPDnzff7gITlc0M5GrYg8I329PihW2264rIuV9L71AnhuLFo6IFJVhIYyz
-         vdozFnjoC9aUDt4MciiYzPIo5INOZNUtMW8L8+Djp7h/lGd+0oAJR4l9+h2X7DIdZsPp
-         9y84633hJdddxw9ftDthydv+ZYWkt/b9nrmVa7eZ/404sXMJa12Tt+Chn0nMg7RzGTMA
-         i/Q4G9yI8zoWSo1Bh4g7TamYc6e+tRGV18tKlW5BUbTp6J3NGkVIbtXwaQxsuT3kHM/t
-         Y3Udf15/fesiy8SliZxFDITVi+4b+e7OboJGcnpVz73HueWFdAStUHFrnHAcJWGAqNm9
-         h0hA==
-X-Gm-Message-State: APjAAAXBkxL4TX/QgDv+fy2x/tuVBwzOVftXWMOgoOx7iwOO+AnEJqVm
-        OfTRTOGwwCoC9PaA8W75kxyWnTEP
-X-Google-Smtp-Source: APXvYqzgFpm4dDRv2ZFmwC7RJ9EoI9zv471Y+NYdeLIAVkj1QAGuL0siw4OwgEO4bB3mouMkbe46qA==
-X-Received: by 2002:aa7:9392:: with SMTP id t18mr38203831pfe.45.1554830651854;
-        Tue, 09 Apr 2019 10:24:11 -0700 (PDT)
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=BTbLDR4gnZ7lFPmSCCa0QIInTL3LtlTlBWa9cvu84sM=;
+        b=f8n97yX9F5l1UkKvzJ06Dcf7ImjaqJuv12yQuxnWluGgZxzg9ENY81wuntcA6tuK3S
+         a8T1EjHAJeNx64g9PNEGriIpqa5nFJxILU4lIffA2yusYXuzcBYz3S6kA5gVKB0Q1L1L
+         bj6lo5mW3+6lwy4WEf2Dbmkt9mu18/c9sTFSGZg46+Hwe0y/Y96uC1obQBw3h4HUDBDd
+         5xuK2IjkwNVMmQ5y6GiVS4G4rZWnJw4dhfCPgETCHS3C+up7dbO3dZHZeTEzi3huLRn5
+         IqEGrIGtjwz37TjHrNn1gzMJX/8sCaHh7g09qaxJ+je5s5apzguKx/u9CAU2O8c2Nzw5
+         ptLg==
+X-Gm-Message-State: APjAAAU3WnpFqGncExh5cCPulc5wMqzzo3zDUQRlZVZCr75REeousi6B
+        OSGHpyh6+8Bxt+k3oC3TF+M=
+X-Google-Smtp-Source: APXvYqyZbGEfHz99IbERUPIpeCYQUuPgVmJryMgmJIIz/W2Vu7ABU/1nqFf6vzsqsu0Q0MAQGbGecA==
+X-Received: by 2002:a63:2f44:: with SMTP id v65mr35494829pgv.141.1554830660198;
+        Tue, 09 Apr 2019 10:24:20 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 4sm54172681pgx.68.2019.04.09.10.24.09
+        by smtp.gmail.com with ESMTPSA id 4sm45069219pfn.159.2019.04.09.10.24.19
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Apr 2019 10:24:09 -0700 (PDT)
+        Tue, 09 Apr 2019 10:24:19 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 00/23] watchdog: Expand use of device managed functions (series 2 of 3)
-Date:   Tue,  9 Apr 2019 10:23:38 -0700
-Message-Id: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 06/23] watchdog: mlx_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Tue,  9 Apr 2019 10:23:44 -0700
+Message-Id: <1554830641-9247-7-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
+References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use device managed functions and other changes to simplify error handling,
-reduce source code size, improve readability, and reduce the likelyhood
-of bugs.
+Introduce local variable 'struct device *dev' and use it instead of
+dereferencing it repeatedly.
 
-The changes made in this series can be summarized to
+The conversion was done automatically with coccinelle using the
+following semantic patches. The semantic patches and the scripts
+used to generate this commit log are available at
+https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Use devm_watchdog_register_driver() to register watchdog device
-- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'
-- Drop assignments to otherwise unused variables
-- Drop unnecessary braces around conditional return statements
-- Drop empty remove function
-- Replace shutdown function with call to watchdog_stop_on_reboot()
-- Replace stop on remove with call to watchdog_stop_on_unregister()
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'ret = e; return ret;' with 'return e;'.
-- Use local variable 'struct device *dev' consistently
-- Introduce local variable 'struct device *dev' and use it instead of
-  dereferencing it repeatedly
-- Drop unnecessary calls to platform_set_drvdata()
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/mlx_wdt.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Conversions were performed automatically with coccinelle using a number
-of semantic patches. The semantic patches and the scripts used to generate
-commit logs are available at https://github.com/groeck/coccinelle-patches.
-All patches were compile tested and manually reviewed.
+diff --git a/drivers/watchdog/mlx_wdt.c b/drivers/watchdog/mlx_wdt.c
+index 70c2cbf9c993..03b9ac4b99af 100644
+--- a/drivers/watchdog/mlx_wdt.c
++++ b/drivers/watchdog/mlx_wdt.c
+@@ -233,20 +233,21 @@ static int mlxreg_wdt_init_timeout(struct mlxreg_wdt *wdt,
+ 
+ static int mlxreg_wdt_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct mlxreg_core_platform_data *pdata;
+ 	struct mlxreg_wdt *wdt;
+ 	int rc;
+ 
+-	pdata = dev_get_platdata(&pdev->dev);
++	pdata = dev_get_platdata(dev);
+ 	if (!pdata) {
+-		dev_err(&pdev->dev, "Failed to get platform data.\n");
++		dev_err(dev, "Failed to get platform data.\n");
+ 		return -EINVAL;
+ 	}
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	wdt->wdd.parent = &pdev->dev;
++	wdt->wdd.parent = dev;
+ 	wdt->regmap = pdata->regmap;
+ 	mlxreg_wdt_config(wdt, pdata);
+ 
+@@ -266,12 +267,11 @@ static int mlxreg_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	}
+ 	mlxreg_wdt_check_card_reset(wdt);
+-	rc = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
++	rc = devm_watchdog_register_device(dev, &wdt->wdd);
+ 
+ register_error:
+ 	if (rc)
+-		dev_err(&pdev->dev,
+-			"Cannot register watchdog device (err=%d)\n", rc);
++		dev_err(dev, "Cannot register watchdog device (err=%d)\n", rc);
+ 	return rc;
+ }
+ 
+-- 
+2.7.4
 
-This is the second of (at least) three series of similar patches for watchdog
-drivers.
