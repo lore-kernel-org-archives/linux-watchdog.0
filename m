@@ -4,64 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72BB1C282CE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D01FEC10F14
 	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F50B206DF
+	by mail.kernel.org (Postfix) with ESMTP id 9DB11206DF
 	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jif+mwfA"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="u3I1vWgI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387856AbfDJQ2V (ORCPT
+        id S1732582AbfDJQ3q (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:21 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:38610 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387850AbfDJQ2S (ORCPT
+        Wed, 10 Apr 2019 12:29:46 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37280 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387855AbfDJQ2V (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:18 -0400
-Received: by mail-pg1-f195.google.com with SMTP id j26so1864837pgl.5;
-        Wed, 10 Apr 2019 09:28:17 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:21 -0400
+Received: by mail-pl1-f195.google.com with SMTP id w23so1736640ply.4;
+        Wed, 10 Apr 2019 09:28:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=QwAPcVTaRjeqfsFr8XXwNRJEpE416YFfDiIeqJBF43g=;
-        b=jif+mwfAxK/aeRxRT38GaXeBRHVweFZMnOQEl05ep50rY+Zuc0QFpqVrAxAdvcP4iV
-         QpM8w2sKG7Zyr5ZRAM16LKowPTImWCxz7PJJeyjWT4skraSYlMHQ9O+qYwMmMLkFyao8
-         HcFx+uSvaeyLnFnJyVjqgDquDkgWrcAtxeASdn/RBo1DtLDuKXejoQxGWdVIUOKEulH3
-         ZcXyAJj3on663R40l+1TtuG66KlEatd/rG6qOhRCbCD6NG2E+gN8ZJ4zG+RatZ7ac1+J
-         ihtloAKtbOsERn80OhnIIWVCsfZgalTRgFnRDlZZrTq47lt9rrG0wCBS4DFt/RZugDoa
-         aBgg==
+        bh=+OYZTkxC1btQoTo+CXY+tiiGNBQ6X0e0abBF8L5gRR4=;
+        b=u3I1vWgIYAG1nPvzX26Da5tisPuNKB9cxwqh1pMkGSbCPoBJBp6tZQTS3go9ZrYbyt
+         y2jNQKjFXDsVC9OIiEnrK932Nh2sfkXubCpxzcf/joQrXfSfIzqeYW3z3m2GTFtCwSAI
+         zLFW3D5cNam26XALxRMRsEEbR1BQkSQGHHlj7lA7qCu09iKlMB9Z4HxTLVb3SfHR11ME
+         FMarREPQH8X0YKuuSgnbi3Ecwh0qj0lOc5giip+kBpRZfsij8xCkhXDpNUAbncDApulQ
+         C3c8bRCMN5mxrDBXp2lbIQptjrnGMRx8uAAQq/qmIM8VsNnSJKcfCa62z8VX0nOwDTSS
+         jfkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=QwAPcVTaRjeqfsFr8XXwNRJEpE416YFfDiIeqJBF43g=;
-        b=h0Z0WQEyIUBKdOMkPL4YoD+fttSH9DsenIRSEOh1g6Ih/V418Q8SJ9KgUdzl7wToKG
-         yEqPOE0L6XBBP4HP/yTjEnqFeYnD1Jcw9SCqCc2k0AA4tIQ5BK7TWPp5oE0hO3PUnwUR
-         WBks96GA1R8XcPU6mXGBXyINpw09/IAaBWdzlq0Goyw1UnA+EkResKkp074Y98aDf8Pr
-         2DUCDRu8ZFjQS68ByXiJ7Z6FC9QN26dbapDNydA0iFkYpTVbsqr0FI8C/b+dtd8hc7II
-         uH/NEqh+mwOENqJYKMPg7TlbnGUOf78PpFQUbM+2y+rIt33EXxz99BkJlENgfyId6OAG
-         1tDA==
-X-Gm-Message-State: APjAAAVG45VM4nxhmSzxO38qxeb62yFy8pATSa32n+bXpeD1B+nQegjv
-        9+mptDQ+QqtqNBH19YyqEBc=
-X-Google-Smtp-Source: APXvYqwqhw4nFCU7IjLHo/biDMFNZzKeeocxwx64eAHs4qDA5c/oPvV+aDBqBj0OODLQg2/hx3v+LQ==
-X-Received: by 2002:a63:195f:: with SMTP id 31mr42145008pgz.116.1554913697545;
-        Wed, 10 Apr 2019 09:28:17 -0700 (PDT)
+        bh=+OYZTkxC1btQoTo+CXY+tiiGNBQ6X0e0abBF8L5gRR4=;
+        b=ITTeloJN7g/G5ihv86KB+S255h6+8+mn8rG4Ysr4Nvg7h+suWfc+kynKYp0GN/5XEl
+         /r/vMIuSL5wBD3+io2S1eK1j+f7XZ6lkRDmD9YgXzUzX4HjXSPm0spZMwnEgORHlc3iE
+         c4HOCSug9tx5n0aBpNJXljVtFFhcxNYVBKfQd1i8noGXDubjN+ETSPnWmJiFsZkjLd2B
+         6dK8fYpwP8YN5pkqcoDebaAL36nvefWD/bMtMU3oszcXvEnx6YIfWr9WG0vMBtspPjC7
+         7h3LVtvL+jXo/aJ5lhVaU1TsBYgeKpjztnQhnMRpZxACGpHDX3vedtntVj+zxwzm50PP
+         0Rgw==
+X-Gm-Message-State: APjAAAWemLFcyD//LuHkfXegcuD4Q0Y9y8wQcbomVVk940krJd668hnS
+        MASSANlteUuJehAH/y4p+D7NHsGt
+X-Google-Smtp-Source: APXvYqw/YrilPAqum7c4xuLJSrII8eI42TVZgzHkeyWwyBnBEQOlx/p3EQ+pLq1TxrBO5xxWc6WyVQ==
+X-Received: by 2002:a17:902:362:: with SMTP id 89mr45258536pld.172.1554913700597;
+        Wed, 10 Apr 2019 09:28:20 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r145sm82062726pgr.84.2019.04.10.09.28.16
+        by smtp.gmail.com with ESMTPSA id m2sm59541605pgr.74.2019.04.10.09.28.19
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:17 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:19 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 07/22] watchdog: wdat_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Wed, 10 Apr 2019 09:27:48 -0700
-Message-Id: <1554913683-25454-8-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 09/22] watchdog: xen_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Wed, 10 Apr 2019 09:27:50 -0700
+Message-Id: <1554913683-25454-10-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -80,106 +80,58 @@ https://github.com/groeck/coccinelle-patches
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/wdat_wdt.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/watchdog/xen_wdt.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 387892fe63b4..430ee4e9b185 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -308,6 +308,7 @@ static const struct watchdog_ops wdat_wdt_ops = {
+diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+index f1c016d015b3..6c1ca1f31cbc 100644
+--- a/drivers/watchdog/xen_wdt.c
++++ b/drivers/watchdog/xen_wdt.c
+@@ -122,35 +122,35 @@ static struct watchdog_device xen_wdt_dev = {
  
- static int wdat_wdt_probe(struct platform_device *pdev)
+ static int xen_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	const struct acpi_wdat_entry *entries;
- 	const struct acpi_table_wdat *tbl;
- 	struct wdat_wdt *wdat;
-@@ -321,11 +322,11 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 	if (ACPI_FAILURE(status))
+ 	struct sched_watchdog wd = { .id = ~0 };
+ 	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
+ 
+ 	if (ret == -ENOSYS) {
+-		dev_err(&pdev->dev, "watchdog not supported by hypervisor\n");
++		dev_err(dev, "watchdog not supported by hypervisor\n");
  		return -ENODEV;
+ 	}
  
--	wdat = devm_kzalloc(&pdev->dev, sizeof(*wdat), GFP_KERNEL);
-+	wdat = devm_kzalloc(dev, sizeof(*wdat), GFP_KERNEL);
- 	if (!wdat)
- 		return -ENOMEM;
+ 	if (ret != -EINVAL) {
+-		dev_err(&pdev->dev, "unexpected hypervisor error (%d)\n", ret);
++		dev_err(dev, "unexpected hypervisor error (%d)\n", ret);
+ 		return -ENODEV;
+ 	}
  
--	regs = devm_kcalloc(&pdev->dev, pdev->num_resources, sizeof(*regs),
-+	regs = devm_kcalloc(dev, pdev->num_resources, sizeof(*regs),
- 			    GFP_KERNEL);
- 	if (!regs)
- 		return -ENOMEM;
-@@ -350,15 +351,15 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
+-		dev_info(&pdev->dev, "timeout value invalid, using %d\n",
+-			xen_wdt_dev.timeout);
++		dev_info(dev, "timeout value invalid, using %d\n",
++			 xen_wdt_dev.timeout);
+ 	watchdog_set_nowayout(&xen_wdt_dev, nowayout);
+ 	watchdog_stop_on_reboot(&xen_wdt_dev);
+ 	watchdog_stop_on_unregister(&xen_wdt_dev);
  
- 		res = &pdev->resource[i];
- 		if (resource_type(res) == IORESOURCE_MEM) {
--			reg = devm_ioremap_resource(&pdev->dev, res);
-+			reg = devm_ioremap_resource(dev, res);
- 			if (IS_ERR(reg))
- 				return PTR_ERR(reg);
- 		} else if (resource_type(res) == IORESOURCE_IO) {
--			reg = devm_ioport_map(&pdev->dev, res->start, 1);
-+			reg = devm_ioport_map(dev, res->start, 1);
- 			if (!reg)
- 				return -ENOMEM;
- 		} else {
--			dev_err(&pdev->dev, "Unsupported resource\n");
-+			dev_err(dev, "Unsupported resource\n");
- 			return -EINVAL;
- 		}
+-	ret = devm_watchdog_register_device(&pdev->dev, &xen_wdt_dev);
++	ret = devm_watchdog_register_device(dev, &xen_wdt_dev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "cannot register watchdog device (%d)\n",
+-			ret);
++		dev_err(dev, "cannot register watchdog device (%d)\n", ret);
+ 		return ret;
+ 	}
  
-@@ -376,12 +377,11 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+-	dev_info(&pdev->dev, "initialized (timeout=%ds, nowayout=%d)\n",
+-		xen_wdt_dev.timeout, nowayout);
++	dev_info(dev, "initialized (timeout=%ds, nowayout=%d)\n",
++		 xen_wdt_dev.timeout, nowayout);
  
- 		action = entries[i].action;
- 		if (action >= MAX_WDAT_ACTIONS) {
--			dev_dbg(&pdev->dev, "Skipping unknown action: %u\n",
--				action);
-+			dev_dbg(dev, "Skipping unknown action: %u\n", action);
- 			continue;
- 		}
- 
--		instr = devm_kzalloc(&pdev->dev, sizeof(*instr), GFP_KERNEL);
-+		instr = devm_kzalloc(dev, sizeof(*instr), GFP_KERNEL);
- 		if (!instr)
- 			return -ENOMEM;
- 
-@@ -398,7 +398,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 		} else if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_IO) {
- 			r.flags = IORESOURCE_IO;
- 		} else {
--			dev_dbg(&pdev->dev, "Unsupported address space: %d\n",
-+			dev_dbg(dev, "Unsupported address space: %d\n",
- 				gas->space_id);
- 			continue;
- 		}
-@@ -413,14 +413,15 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 		}
- 
- 		if (!instr->reg) {
--			dev_err(&pdev->dev, "I/O resource not found\n");
-+			dev_err(dev, "I/O resource not found\n");
- 			return -EINVAL;
- 		}
- 
- 		instructions = wdat->instructions[action];
- 		if (!instructions) {
--			instructions = devm_kzalloc(&pdev->dev,
--					sizeof(*instructions), GFP_KERNEL);
-+			instructions = devm_kzalloc(dev,
-+						    sizeof(*instructions),
-+						    GFP_KERNEL);
- 			if (!instructions)
- 				return -ENOMEM;
- 
-@@ -441,7 +442,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, wdat);
- 
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
--	return devm_watchdog_register_device(&pdev->dev, &wdat->wdd);
-+	return devm_watchdog_register_device(dev, &wdat->wdd);
+ 	return 0;
  }
- 
- #ifdef CONFIG_PM_SLEEP
 -- 
 2.7.4
 
