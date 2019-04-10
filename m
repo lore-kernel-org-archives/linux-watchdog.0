@@ -4,69 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00B61C282CE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E632C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C191F218D2
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ECFC120854
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PAV+KB4V"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JMQnMd0j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387865AbfDJQ2Y (ORCPT
+        id S1731763AbfDJQ3k (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:24 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44681 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387860AbfDJQ2W (ORCPT
+        Wed, 10 Apr 2019 12:29:40 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:42694 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387862AbfDJQ2Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:22 -0400
-Received: by mail-pg1-f194.google.com with SMTP id i2so1845033pgj.11;
-        Wed, 10 Apr 2019 09:28:22 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:24 -0400
+Received: by mail-pl1-f194.google.com with SMTP id cv12so1733478plb.9;
+        Wed, 10 Apr 2019 09:28:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=jsfm7LCM8d51wy7QbSzyHhCcp61nfHGejXB4g2c1IIg=;
-        b=PAV+KB4V+Qdx5iBwU9mDMigyahZjt2ONZB466UKGbiP1Tps2IgtM6SyRuUfi/LRqAL
-         Kkwtw9mOBIOKkG+n644tALN6WTyGbseCF+L7FYOgVCvKEtCL9LyKAEEKPGw7tGJCoKhu
-         ak5xdwvYMggVsEq4JzD0OoOKm0QNVZ8MIKjwPuO48quSZZht2S/YLa4ZUL91rIn8Sj+W
-         YXoEssAQWpOn1EEDGnGDfeA3NGeTh3GOjfl+nUpMoo7jxEesdmY+AKfXFkF27i9XHcC3
-         whiUl2dvexLxyVaECrvRBIOB89Ymwrmfb/PfkItHEObZI7uXBCUJpysRElf0IYi8YKhz
-         aCVA==
+        bh=A8S7XSTI64ZGz7QExfklYyYSF03nx6KnqMOGBDym5s0=;
+        b=JMQnMd0jgU/sfz3TH4kN8lc9efu1s4ojoJzK+hZapgzO2uNoLa5R5REyfo4/pbWIqo
+         3Bg98SiLvffA66jqYCDMEU5aLqPfWWYqgEQ2uiIzXVk0LDYLG08dm0L9arn3fGFtrnlb
+         jIxov/WJdunwemW/Vh17ayT8aXISK7Ama6IzcmKK0Jz8J7Y4009uFj7/5xm/5C+EBAr3
+         5xf2o9fhpMbVlEbIwZxP0WM+fh0kIlC7m0EClSDHEqSOk6RJSqOmWZ0/syjq2gNPrmsD
+         uay8TT93oUnfBH6xccDFckp/yDHZAS8qT1DMEfvwRBu6YSvlRC9HZ7gxxI+BVKmyb6IS
+         GUYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=jsfm7LCM8d51wy7QbSzyHhCcp61nfHGejXB4g2c1IIg=;
-        b=gK9o+VEAToxWNHKhx8JswjyItx5MJcLc6RDXBN2j6+WNwrUQJlTXK4uBDSRPXAw6W2
-         Wq/+lXUCa+WUbPagdivPC89xBLoYIaAWZQjAtSYn56hg+8Gv38i22Rd+HedwK5wo64Ry
-         W74wjyDFnwRNcoOj8lGZlBazAqkS+RBtMT7e77vjRZiRvhC5NtuX8kwrQXqzFh2y5T0o
-         j+jGBQj+qiFxagrq7CBg6NYnHP5acOpnoYd6banfyEcS1eUIWH/i/iEpt3vr3uY9hNUB
-         OouUcNittmsdFX4f7o2mnP2f2trzGOr33QddYcOB81/FVIDxU/nRaIGAgh9pkj7cXJHk
-         +dcA==
-X-Gm-Message-State: APjAAAUE0w/An/nRYj5J5OCn5RcNHHMSUMzFcO1GBdDimHH0xcaIW6F4
-        xs76M829/tY/xd3ciSAobHM=
-X-Google-Smtp-Source: APXvYqwUhKNJ3dcspIyvPvRpxMPpqAqydynO+j7OTMauoosZ3rLfU6wCV8kAATbFLPAd7bcVJCaBlA==
-X-Received: by 2002:a65:5304:: with SMTP id m4mr41319400pgq.281.1554913702000;
-        Wed, 10 Apr 2019 09:28:22 -0700 (PDT)
+        bh=A8S7XSTI64ZGz7QExfklYyYSF03nx6KnqMOGBDym5s0=;
+        b=CJzMOYwRK6pnr7+5UDvUbMEbROY+1rq/5oBNvVaw71ewamMcoX6okaqtwmkjiolQ2N
+         x/QG17FZOPC156PS6gPnIbQEU5XbqoIKOul5czgFXOMAtIrGmTVNuZ7k/Iq3Jmdx7qXp
+         lgCwHT7Xm31CiKSyGjbLKQK6T7yamH3Uj/dBcRlUsylz1NYzwjw4x/vi2jeUyfO2f0Zx
+         feyIEpEsBWZPch+qfxPDqrQZSW7mEP9bOEnWrnbq7yldb8lXi8OKWu6LYz1SlReKzxWI
+         K2DKTTc/g6qdhPuqWMg2tj+00FClnqzA7RD4DBWvTRlsVt3Wlvvh6YhfQrQshE3On1x3
+         Ef9g==
+X-Gm-Message-State: APjAAAWUKRAabe9crOMZDETJo9p6FPyybNRDz96gfIE+ztRG8T2Fgvha
+        sDTWrBHQXYi29ePGvTZAsoY=
+X-Google-Smtp-Source: APXvYqxepkhR3FUPAhTEmfCpxVe8OwgJcM7oSnH0Oe6TpcQFP43WDl7lBVa05nAGT0iGXFtvYsEB3g==
+X-Received: by 2002:a17:902:da4:: with SMTP id 33mr13142734plv.20.1554913703373;
+        Wed, 10 Apr 2019 09:28:23 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d38sm42024691pgd.40.2019.04.10.09.28.21
+        by smtp.gmail.com with ESMTPSA id f71sm51876276pfc.109.2019.04.10.09.28.22
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:21 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:22 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>
-Subject: [PATCH 10/22] watchdog: imx_sc_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Wed, 10 Apr 2019 09:27:51 -0700
-Message-Id: <1554913683-25454-11-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 11/22] watchdog: sbsa_gwdt: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:27:52 -0700
+Message-Id: <1554913683-25454-12-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -75,65 +70,71 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Introduce local variable 'struct device *dev' and use it instead of
-dereferencing it repeatedly.
+Use device managed functions to simplify error handling, reduce
+source code size, improve readability, and reduce the likelyhood of bugs.
+Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
+- Drop assignments to otherwise unused variables
+- Drop empty remove function
+- Use local variable 'struct device *dev' consistently
+- Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
+
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/imx_sc_wdt.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/watchdog/sbsa_gwdt.c | 21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-index 86c2722f2a09..d154f66e659a 100644
---- a/drivers/watchdog/imx_sc_wdt.c
-+++ b/drivers/watchdog/imx_sc_wdt.c
-@@ -101,10 +101,11 @@ static const struct watchdog_info imx_sc_wdt_info = {
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+index 68aff828bf7e..e17af8939c93 100644
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -310,7 +310,8 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 	 */
+ 	sbsa_gwdt_set_timeout(wdd, wdd->timeout);
  
- static int imx_sc_wdt_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct watchdog_device *imx_sc_wdd;
- 	int ret;
- 
--	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
-+	imx_sc_wdd = devm_kzalloc(dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
- 	if (!imx_sc_wdd)
- 		return -ENOMEM;
- 
-@@ -114,19 +115,19 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
- 	imx_sc_wdd->ops = &imx_sc_wdt_ops;
- 	imx_sc_wdd->min_timeout = 1;
- 	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
--	imx_sc_wdd->parent = &pdev->dev;
-+	imx_sc_wdd->parent = dev;
- 	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
- 
--	ret = watchdog_init_timeout(imx_sc_wdd, 0, &pdev->dev);
-+	ret = watchdog_init_timeout(imx_sc_wdd, 0, dev);
+-	ret = watchdog_register_device(wdd);
++	watchdog_stop_on_reboot(wdd);
++	ret = devm_watchdog_register_device(dev, wdd);
  	if (ret)
--		dev_warn(&pdev->dev, "Failed to set timeout value, using default\n");
-+		dev_warn(dev, "Failed to set timeout value, using default\n");
- 
- 	watchdog_stop_on_reboot(imx_sc_wdd);
- 	watchdog_stop_on_unregister(imx_sc_wdd);
- 
--	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
-+	ret = devm_watchdog_register_device(dev, imx_sc_wdd);
- 	if (ret) {
--		dev_err(&pdev->dev, "Failed to register watchdog device\n");
-+		dev_err(dev, "Failed to register watchdog device\n");
  		return ret;
- 	}
+ 
+@@ -321,22 +322,6 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static void sbsa_gwdt_shutdown(struct platform_device *pdev)
+-{
+-	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
+-
+-	sbsa_gwdt_stop(&gwdt->wdd);
+-}
+-
+-static int sbsa_gwdt_remove(struct platform_device *pdev)
+-{
+-	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(&gwdt->wdd);
+-
+-	return 0;
+-}
+-
+ /* Disable watchdog if it is active during suspend */
+ static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
+ {
+@@ -382,8 +367,6 @@ static struct platform_driver sbsa_gwdt_driver = {
+ 		.of_match_table = sbsa_gwdt_of_match,
+ 	},
+ 	.probe = sbsa_gwdt_probe,
+-	.remove = sbsa_gwdt_remove,
+-	.shutdown = sbsa_gwdt_shutdown,
+ 	.id_table = sbsa_gwdt_pdev_match,
+ };
  
 -- 
 2.7.4
