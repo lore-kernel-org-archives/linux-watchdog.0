@@ -2,142 +2,83 @@ Return-Path: <SRS0=y0dX=SM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD43EC10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:30:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B69C9C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:52:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB18820854
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:30:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tkPqN11s"
+	by mail.kernel.org (Postfix) with ESMTP id 8EFBF20818
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:52:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387818AbfDJQ2O (ORCPT
+        id S1727841AbfDJQwO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:14 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:45710 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387812AbfDJQ2L (ORCPT
+        Wed, 10 Apr 2019 12:52:14 -0400
+Received: from smtprelay0085.hostedemail.com ([216.40.44.85]:43372 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727020AbfDJQwO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:11 -0400
-Received: by mail-pl1-f194.google.com with SMTP id bf11so1716845plb.12;
-        Wed, 10 Apr 2019 09:28:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=t3iZkPj/7QCSXgrBm7/GlIk+twTdtIQx1Nhm2nRrQHg=;
-        b=tkPqN11s969TlYPx3VFZ2A3McPaHTkOy4MsIFU1DOC+BsBvlSipzYD7wELfzaw7s9I
-         j1slMpZIvPm5+VQN7qc2eZWKjb+duuGvPnUa/Pf8S1haN4xfXnuiNHrtpJVq53S2iXTz
-         V5sCdIFZOkYN/Lm31o0Koms+2Y0yFpDgOV2OdHpDSqVfimblpGHDXRlIkEItua4PLCF/
-         o6l98JmnG13/VmX+8yHbZLPjvMdztrnidV1uZb0BUu4WmoJOnAORT8gq1Sii87jkq1NM
-         ieTedG9TT0XM4ZxCodZ9b8Wk6M7tqDpH8MDKsatEdkc+A31ayneXjzQ1jJVzkdX/C2ne
-         8VeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=t3iZkPj/7QCSXgrBm7/GlIk+twTdtIQx1Nhm2nRrQHg=;
-        b=LVxljmFy7xM+Jr8e5wd6hFrSQTPoSRu73hdCFgVs53LHTekJfFL5aEN8MjsHctjHMc
-         JL9T6sjVbwCCjicJhCjnKYENbg/G569YbyK55/aq0X7OTpt62U01w8KzmisrX6Go8xW1
-         vKXAPxrDUUe4uxGJVG/LWwAqlzD218QFqLZkG03HKzHF4sLnfmLoQfodUg+HW8VO2PDB
-         a2cm+NCbzYmKWzowLwIXDhSiYd82zR+BEDT+jzlMsqm8tZX0wk3N12dxk33+Lcx7KiAj
-         4ZH+qbWFqOJ3gvkwbLCajiSMCtSFMHk1OmRARGkvsOErB5iLCALwucWc74UhgScMN6IV
-         pseg==
-X-Gm-Message-State: APjAAAVuEHdoBO2tWaFLL3K3RbkxSyNN3v0/tbeUqQx7sk2D/Bm/uWAz
-        3/znB1BHs/5nHV2M6a1Soac=
-X-Google-Smtp-Source: APXvYqxeklMPCnCSirHPjI0gup8IyZvEBoC+EMNKwfezsgxQfVBeWhDJfQQ2v+f/wRAJoCNE6sQu0Q==
-X-Received: by 2002:a17:902:b089:: with SMTP id p9mr19938275plr.185.1554913690705;
-        Wed, 10 Apr 2019 09:28:10 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m25sm49166154pfa.175.2019.04.10.09.28.10
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:10 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 02/22] watchdog: tqmx86_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Wed, 10 Apr 2019 09:27:43 -0700
-Message-Id: <1554913683-25454-3-git-send-email-linux@roeck-us.net>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
+        Wed, 10 Apr 2019 12:52:14 -0400
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay04.hostedemail.com (Postfix) with ESMTP id 3B6D6180A8140;
+        Wed, 10 Apr 2019 16:52:12 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-HE-Tag: form68_1316c4b4e991e
+X-Filterd-Recvd-Size: 2021
+Received: from XPS-9350 (cpe-23-242-196-136.socal.res.rr.com [23.242.196.136])
+        (Authenticated sender: joe@perches.com)
+        by omf17.hostedemail.com (Postfix) with ESMTPA;
+        Wed, 10 Apr 2019 16:52:11 +0000 (UTC)
+Message-ID: <8d44aaf119c286ac18ead30a2174aecef2dbc7e2.camel@perches.com>
+Subject: Re: [PATCH 20/22] watchdog: jz4740_wdt: Use 'dev' instead of
+ dereferencing it repeatedly
+From:   Joe Perches <joe@perches.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Wed, 10 Apr 2019 09:52:09 -0700
+In-Reply-To: <1554913683-25454-21-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
+         <1554913683-25454-21-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.30.1-1build1 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Introduce local variable 'struct device *dev' and use it instead of
-dereferencing it repeatedly.
+On Wed, 2019-04-10 at 09:28 -0700, Guenter Roeck wrote:
+> Introduce local variable 'struct device *dev' and use it instead of
+> dereferencing it repeatedly. Also, there is no call to dev_get_drvdata()
+> or platform_get_drvdata() in the driver, so drop the unnecessary
+> call to platform_set_drvdata().
 
-The conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts
-used to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches
+Dropping platform_set_drvdata seems to me like it should
+be a separate patch.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/tqmx86_wdt.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+And are you sure no other function uses a get_drvdata call?
+Maybe something in watchdog_dev.c?  Possibly:
 
-diff --git a/drivers/watchdog/tqmx86_wdt.c b/drivers/watchdog/tqmx86_wdt.c
-index 52941207a12a..72d0b0adde38 100644
---- a/drivers/watchdog/tqmx86_wdt.c
-+++ b/drivers/watchdog/tqmx86_wdt.c
-@@ -70,11 +70,12 @@ static struct watchdog_ops tqmx86_wdt_ops = {
- 
- static int tqmx86_wdt_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct tqmx86_wdt *priv;
- 	struct resource *res;
- 	int err;
- 
--	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
-@@ -82,14 +83,13 @@ static int tqmx86_wdt_probe(struct platform_device *pdev)
- 	if (!res)
- 		return -ENODEV;
- 
--	priv->io_base = devm_ioport_map(&pdev->dev, res->start,
--					resource_size(res));
-+	priv->io_base = devm_ioport_map(dev, res->start, resource_size(res));
- 	if (!priv->io_base)
- 		return -ENOMEM;
- 
- 	watchdog_set_drvdata(&priv->wdd, priv);
- 
--	priv->wdd.parent = &pdev->dev;
-+	priv->wdd.parent = dev;
- 	priv->wdd.info = &tqmx86_wdt_info;
- 	priv->wdd.ops = &tqmx86_wdt_ops;
- 	priv->wdd.min_timeout = 1;
-@@ -97,16 +97,16 @@ static int tqmx86_wdt_probe(struct platform_device *pdev)
- 	priv->wdd.max_hw_heartbeat_ms = 4096*1000;
- 	priv->wdd.timeout = WDT_TIMEOUT;
- 
--	watchdog_init_timeout(&priv->wdd, timeout, &pdev->dev);
-+	watchdog_init_timeout(&priv->wdd, timeout, dev);
- 	watchdog_set_nowayout(&priv->wdd, WATCHDOG_NOWAYOUT);
- 
- 	tqmx86_wdt_set_timeout(&priv->wdd, priv->wdd.timeout);
- 
--	err = devm_watchdog_register_device(&pdev->dev, &priv->wdd);
-+	err = devm_watchdog_register_device(dev, &priv->wdd);
- 	if (err)
- 		return err;
- 
--	dev_info(&pdev->dev, "TQMx86 watchdog\n");
-+	dev_info(dev, "TQMx86 watchdog\n");
- 
- 	return 0;
- }
--- 
-2.7.4
+   #ifdef CONFIG_WATCHDOG_SYSFS
+   static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
+   				char *buf)
+   {
+   	struct watchdog_device *wdd = dev_get_drvdata(dev);
+
+   	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
+   }
+   static DEVICE_ATTR_RO(nowayout);
+
+> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+[]
+> @@ -189,18 +190,16 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+[]
+> -	platform_set_drvdata(pdev, drvdata);
+> -
+>  	return 0;
+>  }
+>  
 
