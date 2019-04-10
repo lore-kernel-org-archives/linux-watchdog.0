@@ -4,65 +4,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97878C10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00B61C282CE
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 59B3A206DF
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C191F218D2
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g9f3lkU5"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PAV+KB4V"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731936AbfDJQ3b (ORCPT
+        id S2387865AbfDJQ2Y (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:29:31 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:36479 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387877AbfDJQ2Z (ORCPT
+        Wed, 10 Apr 2019 12:28:24 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44681 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387860AbfDJQ2W (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:25 -0400
-Received: by mail-pg1-f193.google.com with SMTP id 85so1871047pgc.3;
-        Wed, 10 Apr 2019 09:28:25 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:22 -0400
+Received: by mail-pg1-f194.google.com with SMTP id i2so1845033pgj.11;
+        Wed, 10 Apr 2019 09:28:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=c2FEfcVttbNCfJqC2hCYAaLdDZL89jf2XIDcZsihWPM=;
-        b=g9f3lkU59N+uE6DpaaWLGIA9SIwrj/sxem3hLSydb3IiDmVVSRGek+LpNi6HaTHHfa
-         YNXJ3wf6mSvZ3dHxOq+0l+3bwcfIq22573tm/HCmJdaMut3qd8+36xPFxfsmh5HM+Rbq
-         Zes9fQiADEN7VWibEgfNUOhgOndNtJrHVlEcY8HD+dO/QUWt4FdlRy2Jj1EBwwZJUMtE
-         IONQ6aYXp1BHl+w1sAfkTnbMcNwEH9EoiLgTvqBN3xWJAOgKZc1OFupvskd6/WmFfjLu
-         MYiiS/YFwdddgGU6o/s0pCaDRT6Y3h/bFtx9TDw6JcJ5ljZiSTmoRdAjaDixNnvzDUBA
-         zu+Q==
+        bh=jsfm7LCM8d51wy7QbSzyHhCcp61nfHGejXB4g2c1IIg=;
+        b=PAV+KB4V+Qdx5iBwU9mDMigyahZjt2ONZB466UKGbiP1Tps2IgtM6SyRuUfi/LRqAL
+         Kkwtw9mOBIOKkG+n644tALN6WTyGbseCF+L7FYOgVCvKEtCL9LyKAEEKPGw7tGJCoKhu
+         ak5xdwvYMggVsEq4JzD0OoOKm0QNVZ8MIKjwPuO48quSZZht2S/YLa4ZUL91rIn8Sj+W
+         YXoEssAQWpOn1EEDGnGDfeA3NGeTh3GOjfl+nUpMoo7jxEesdmY+AKfXFkF27i9XHcC3
+         whiUl2dvexLxyVaECrvRBIOB89Ymwrmfb/PfkItHEObZI7uXBCUJpysRElf0IYi8YKhz
+         aCVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=c2FEfcVttbNCfJqC2hCYAaLdDZL89jf2XIDcZsihWPM=;
-        b=CMt10TDLNlPy4WgXJSfha4hpaSNdtlbG5y1o0B/MySQdtgP689g2QL3w31jdDQye2H
-         Hf4MQLiRJ40959ozCVXg0kqpNbqA3LN9wqsplEG7iwVPVbEvqNF9gv25Rf40LLiBmBzH
-         s7ZFOyJg/bCH9MFoR3Qz3sEilz6FFm9ty3yUFWNWULut7Gcd+atSNDWLlk2aECjKsYbt
-         64Idha75rTaIOtW/U+18LGoZjbS+TVjMd2C2Dk2kOjgTcKOoxhFdGtXt03brSBlD//y3
-         3FxYk6gE5ueWa2C1YcvIj/TzdOCZ+dFxiIH2RyNZti2KM24T6UmpkQDeLPnhfHX6bf6g
-         KE7w==
-X-Gm-Message-State: APjAAAXiPMQwsFGpmunEfi7OFbicf1O1diofVoGwyVBx/s6dixWEuROT
-        mCIobN7ZauxyScxHM5asNxI=
-X-Google-Smtp-Source: APXvYqwH07qiZMrOhchAQWnu9rp9fNTxesBTNLq5dtBo21Ev7zC+mNkO08CKanU5OvYbisK5ESC8Rw==
-X-Received: by 2002:a62:1d0d:: with SMTP id d13mr44593907pfd.96.1554913704771;
-        Wed, 10 Apr 2019 09:28:24 -0700 (PDT)
+        bh=jsfm7LCM8d51wy7QbSzyHhCcp61nfHGejXB4g2c1IIg=;
+        b=gK9o+VEAToxWNHKhx8JswjyItx5MJcLc6RDXBN2j6+WNwrUQJlTXK4uBDSRPXAw6W2
+         Wq/+lXUCa+WUbPagdivPC89xBLoYIaAWZQjAtSYn56hg+8Gv38i22Rd+HedwK5wo64Ry
+         W74wjyDFnwRNcoOj8lGZlBazAqkS+RBtMT7e77vjRZiRvhC5NtuX8kwrQXqzFh2y5T0o
+         j+jGBQj+qiFxagrq7CBg6NYnHP5acOpnoYd6banfyEcS1eUIWH/i/iEpt3vr3uY9hNUB
+         OouUcNittmsdFX4f7o2mnP2f2trzGOr33QddYcOB81/FVIDxU/nRaIGAgh9pkj7cXJHk
+         +dcA==
+X-Gm-Message-State: APjAAAUE0w/An/nRYj5J5OCn5RcNHHMSUMzFcO1GBdDimHH0xcaIW6F4
+        xs76M829/tY/xd3ciSAobHM=
+X-Google-Smtp-Source: APXvYqwUhKNJ3dcspIyvPvRpxMPpqAqydynO+j7OTMauoosZ3rLfU6wCV8kAATbFLPAd7bcVJCaBlA==
+X-Received: by 2002:a65:5304:: with SMTP id m4mr41319400pgq.281.1554913702000;
+        Wed, 10 Apr 2019 09:28:22 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i1sm68511373pgc.63.2019.04.10.09.28.24
+        by smtp.gmail.com with ESMTPSA id d38sm42024691pgd.40.2019.04.10.09.28.21
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:24 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:21 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        Jun Nie <jun.nie@linaro.org>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 12/22] watchdog: zx2967_wdt: Convert to use device managed functions and other improvements
-Date:   Wed, 10 Apr 2019 09:27:53 -0700
-Message-Id: <1554913683-25454-13-git-send-email-linux@roeck-us.net>
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>
+Subject: [PATCH 10/22] watchdog: imx_sc_wdt: Use 'dev' instead of dereferencing it repeatedly
+Date:   Wed, 10 Apr 2019 09:27:51 -0700
+Message-Id: <1554913683-25454-11-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -71,111 +75,66 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
+Introduce local variable 'struct device *dev' and use it instead of
+dereferencing it repeatedly.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop assignments to otherwise unused variables
-- Drop empty remove function
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Use local variable 'struct device *dev' consistently
-- Use devm_watchdog_register_driver() to register watchdog device
-
-Cc: Jun Nie <jun.nie@linaro.org>
 Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/zx2967_wdt.c | 33 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 20 deletions(-)
+ drivers/watchdog/imx_sc_wdt.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
-index 9ccc83f526f3..c8549bf07cc9 100644
---- a/drivers/watchdog/zx2967_wdt.c
-+++ b/drivers/watchdog/zx2967_wdt.c
-@@ -188,6 +188,11 @@ static void zx2967_wdt_reset_sysctrl(struct device *dev)
- 	of_node_put(out_args.np);
- }
+diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
+index 86c2722f2a09..d154f66e659a 100644
+--- a/drivers/watchdog/imx_sc_wdt.c
++++ b/drivers/watchdog/imx_sc_wdt.c
+@@ -101,10 +101,11 @@ static const struct watchdog_info imx_sc_wdt_info = {
  
-+static void zx2967_clk_disable_unprepare(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
- static int zx2967_wdt_probe(struct platform_device *pdev)
+ static int imx_sc_wdt_probe(struct platform_device *pdev)
  {
- 	struct device *dev = &pdev->dev;
-@@ -206,7 +211,7 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
- 	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
- 	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
- 	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
--	wdt->wdt_device.parent = &pdev->dev;
-+	wdt->wdt_device.parent = dev;
++	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *imx_sc_wdd;
+ 	int ret;
  
- 	wdt->reg_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(wdt->reg_base))
-@@ -225,13 +230,16 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
- 		dev_err(dev, "failed to enable clock\n");
+-	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
++	imx_sc_wdd = devm_kzalloc(dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
+ 	if (!imx_sc_wdd)
+ 		return -ENOMEM;
+ 
+@@ -114,19 +115,19 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+ 	imx_sc_wdd->ops = &imx_sc_wdt_ops;
+ 	imx_sc_wdd->min_timeout = 1;
+ 	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
+-	imx_sc_wdd->parent = &pdev->dev;
++	imx_sc_wdd->parent = dev;
+ 	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
+ 
+-	ret = watchdog_init_timeout(imx_sc_wdd, 0, &pdev->dev);
++	ret = watchdog_init_timeout(imx_sc_wdd, 0, dev);
+ 	if (ret)
+-		dev_warn(&pdev->dev, "Failed to set timeout value, using default\n");
++		dev_warn(dev, "Failed to set timeout value, using default\n");
+ 
+ 	watchdog_stop_on_reboot(imx_sc_wdd);
+ 	watchdog_stop_on_unregister(imx_sc_wdd);
+ 
+-	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
++	ret = devm_watchdog_register_device(dev, imx_sc_wdd);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Failed to register watchdog device\n");
++		dev_err(dev, "Failed to register watchdog device\n");
  		return ret;
  	}
-+	ret = devm_add_action_or_reset(dev, zx2967_clk_disable_unprepare,
-+				       wdt->clock);
-+	if (ret)
-+		return ret;
- 	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
  
- 	rstc = devm_reset_control_get_exclusive(dev, NULL);
- 	if (IS_ERR(rstc)) {
- 		dev_err(dev, "failed to get rstc");
--		ret = PTR_ERR(rstc);
--		goto err;
-+		return PTR_ERR(rstc);
- 	}
- 
- 	reset_control_assert(rstc);
-@@ -242,28 +250,14 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
- 			ZX2967_WDT_DEFAULT_TIMEOUT, dev);
- 	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
- 
--	ret = watchdog_register_device(&wdt->wdt_device);
-+	ret = devm_watchdog_register_device(dev, &wdt->wdt_device);
- 	if (ret)
--		goto err;
-+		return ret;
- 
- 	dev_info(dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
- 		 wdt->wdt_device.timeout, WATCHDOG_NOWAYOUT);
- 
- 	return 0;
--
--err:
--	clk_disable_unprepare(wdt->clock);
--	return ret;
--}
--
--static int zx2967_wdt_remove(struct platform_device *pdev)
--{
--	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&wdt->wdt_device);
--	clk_disable_unprepare(wdt->clock);
--
--	return 0;
- }
- 
- static const struct of_device_id zx2967_wdt_match[] = {
-@@ -274,7 +268,6 @@ MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
- 
- static struct platform_driver zx2967_wdt_driver = {
- 	.probe		= zx2967_wdt_probe,
--	.remove		= zx2967_wdt_remove,
- 	.driver		= {
- 		.name	= "zx2967-wdt",
- 		.of_match_table	= of_match_ptr(zx2967_wdt_match),
 -- 
 2.7.4
 
