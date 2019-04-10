@@ -4,64 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11EA8C282CE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BB76C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF4C220830
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A1A420830
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SYGZRtP8"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UuzrEs3D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731867AbfDJQ2i (ORCPT
+        id S1731864AbfDJQ2z (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:38 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:37306 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387953AbfDJQ2h (ORCPT
+        Wed, 10 Apr 2019 12:28:55 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:33100 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387933AbfDJQ2f (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:37 -0400
-Received: by mail-pl1-f195.google.com with SMTP id w23so1737093ply.4;
-        Wed, 10 Apr 2019 09:28:37 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:35 -0400
+Received: by mail-pf1-f195.google.com with SMTP id h5so1806858pfo.0;
+        Wed, 10 Apr 2019 09:28:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Y3q0kgdoTOk/eYTK2ErICl6tYKEu68Zi7htktucMeOA=;
-        b=SYGZRtP85ydvrBfzCxF3iJZJkmnJCQuMpxv6Ziq4bMU2tmZ+dORYAzFK2kBV24ssFk
-         AXAWhIZh79xPKCfoWdAZlWzvjMUbl6Z836KZdh7xBAyzccE+2YX34BMjzcpONPFdqRxc
-         OEoiMFdrn6RhEBs6LXCOXQ1oDc/+/qhtZx+4qj5Hlz9fkOSfhHdj2/1J7InBg44FJu8o
-         FpsYvJBDBbG/Muu8A5gYk3d7IkYnxNx36v4Qrhe+Y0Y6TlzCRUCzzthUHRiEseQsectq
-         wuab7nhI+msT6rYCJrXhIitVikO0XcCWblLjt4c5NTHKH5rvO8pElMuJhV4W80ab+Ar+
-         tsLA==
+        bh=ZIFkfAZMLG3ZtjNbK1/QwyzTqgHbls9I5r5J/yPn+AM=;
+        b=UuzrEs3D/iI4GnkUQsBc1f5DUUAWNrrCSXsMdOWmJOxXYH2MGmZffr+4yqKSZ3d1rS
+         IXm+w43bLGo+1RzvRlYWQeF4k2eOFjV99y9SDZrcar7g9Jp26rLFn5pjC2ImL0qU6/PB
+         S/N+eGn7dTQUOQY3zs6Zuqbn/cZnxfHowWx+fVOOTZS3nMLZvxvGQ/zBdN6YSUnwosee
+         F5BeRvOmCrvsZH6hBKApEYTKeZqHTxZb+95Qa4iUrfnyxuzhJtdCd+YFZCDsFbugbmob
+         m2oe6KXzTSLK+q27IXF8fHbAMNbRHh1EDYtWB2OABoWpN98RfIEWsDDdAoHAkcKkSE6Z
+         RtmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=Y3q0kgdoTOk/eYTK2ErICl6tYKEu68Zi7htktucMeOA=;
-        b=crva7mcpSaisBMVd1tlKiwReT4qGLV2gp6UbR2yfsVSYgMXfkKA6QI0iwLiNUtMVAs
-         sPqVGaBIVwwv+KR8vVjanJrGTGJHB9Er0WfV4dHm4MjozybA41CP5SK0LCNH4uzpwtUo
-         /Ev44BweppSQXhbuD2OVRJ0Lmpu1IMVQbopd4VIeyiQs7SurQtgBo4UUBCHtNm7vXDZ0
-         1hU+zdGsOQ7zCULJ+RuAuWirtSPpiwBS3vBEkfWfttPACU7iohOSXlEcPTZzH7pVhX1V
-         zX8/XlF1OTOCPEPVXppK2514EL7gKwn6zkvMMqRIB2+t12v0uTnZWS7F9HawTwPc5T43
-         Xr5w==
-X-Gm-Message-State: APjAAAVRT84RPG2KrIQ7ZRcpVV3WXPoAkaFkPPHxZBaHQhq2/4Ggenx7
-        giCNTF7Ivo51tgEjHkPSVschNbNm
-X-Google-Smtp-Source: APXvYqwresMKhaadD1wyYs5Vx35MBq8gOEU1GAguLyQ7xLsPtnH2nYJUdtAIeLbre3JnscHerOMYNg==
-X-Received: by 2002:a17:902:b597:: with SMTP id a23mr43264926pls.284.1554913717080;
-        Wed, 10 Apr 2019 09:28:37 -0700 (PDT)
+        bh=ZIFkfAZMLG3ZtjNbK1/QwyzTqgHbls9I5r5J/yPn+AM=;
+        b=EPDOdsBEYPb7QJCKLOTQ2Q+jiH5fXcwzU3U77BtRf1erWf/FCLp+m9T853V/KE+jBw
+         w/dbdEwzpGAbQyTDaR5tXS06sJk/YYlHkCUJANKeoGqWXszA6whwF8rNZbsVuk7ni+Mb
+         /yTC/hAUJuNzfDNccYUdSP/s3G3fjzTW15c7J4mkUKMNuuB2K+2FrRaNmmWyYfU+bpqS
+         fz49zJX8CcKyB1WrZq9kPBf30+AruBccRmIuSUYiT8dMQQzfFOkEebhl4zU6+papcwwb
+         Ap/2dy8FP07dGVHP3v8CkzOhgApVz1kkmuK5FOypzuVg6Bkdgw+PFAyOi42w4svj3jDu
+         slhg==
+X-Gm-Message-State: APjAAAXdaO8ByukW9vL1lE+JwYNEUlUj3e7zga8mK483GHPUaCbp7ChX
+        HnpZZSrI7WKNS/lpP9TZay8=
+X-Google-Smtp-Source: APXvYqzyEHlqxTJGrUfXPg7Z3KBRGvKQpyVsi+uIBSjC+6/o7VKpiX0xSAjPnN2QPUB2y14UM1+Sew==
+X-Received: by 2002:a63:36ce:: with SMTP id d197mr42761951pga.180.1554913714112;
+        Wed, 10 Apr 2019 09:28:34 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t82sm97448554pfa.153.2019.04.10.09.28.36
+        by smtp.gmail.com with ESMTPSA id n5sm42295817pgp.80.2019.04.10.09.28.33
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:36 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:33 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 21/22] watchdog: mpc8xxx_wdt: Convert to use device managed functions and other improvements
-Date:   Wed, 10 Apr 2019 09:28:02 -0700
-Message-Id: <1554913683-25454-22-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 19/22] watchdog: rt2880_wdt: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:28:00 -0700
+Message-Id: <1554913683-25454-20-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -79,62 +79,88 @@ following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop assignments to otherwise unused variables
 - Drop empty remove function
-  This also drops the inaccurate message on remove; the driver won't be
-  removed if the hardware watchdog is running, no matter if the watchdog
-  device is open or not.
-- Use local variable 'struct device *dev' consistently
+- Introduce local variable 'struct device *dev' and use it instead of
+  dereferencing it repeatedly
 - Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/mpc8xxx_wdt.c | 17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ drivers/watchdog/rt2880_wdt.c | 28 ++++++++--------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-index 3b5b446b690c..9b6d6a5a27ad 100644
---- a/drivers/watchdog/mpc8xxx_wdt.c
-+++ b/drivers/watchdog/mpc8xxx_wdt.c
-@@ -204,9 +204,10 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
- 	if (ddata->wdd.timeout < ddata->wdd.min_timeout)
- 		ddata->wdd.timeout = ddata->wdd.min_timeout;
+diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
+index 4adf5f39fdd9..905e60f45eec 100644
+--- a/drivers/watchdog/rt2880_wdt.c
++++ b/drivers/watchdog/rt2880_wdt.c
+@@ -141,17 +141,18 @@ static struct watchdog_device rt288x_wdt_dev = {
  
--	ret = watchdog_register_device(&ddata->wdd);
-+	ret = devm_watchdog_register_device(dev, &ddata->wdd);
- 	if (ret) {
--		dev_err(dev, "cannot register watchdog device (err=%d)\n", ret);
-+		dev_err(dev, "cannot register watchdog device (err=%d)\n",
-+			ret);
- 		return ret;
- 	}
+ static int rt288x_wdt_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	int ret;
  
-@@ -218,17 +219,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	rt288x_wdt_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(rt288x_wdt_base))
+ 		return PTR_ERR(rt288x_wdt_base);
+ 
+-	rt288x_wdt_clk = devm_clk_get(&pdev->dev, NULL);
++	rt288x_wdt_clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(rt288x_wdt_clk))
+ 		return PTR_ERR(rt288x_wdt_clk);
+ 
+-	rt288x_wdt_reset = devm_reset_control_get_exclusive(&pdev->dev, NULL);
++	rt288x_wdt_reset = devm_reset_control_get_exclusive(dev, NULL);
+ 	if (!IS_ERR(rt288x_wdt_reset))
+ 		reset_control_deassert(rt288x_wdt_reset);
+ 
+@@ -159,31 +160,20 @@ static int rt288x_wdt_probe(struct platform_device *pdev)
+ 
+ 	rt288x_wdt_dev.bootstatus = rt288x_wdt_bootcause();
+ 	rt288x_wdt_dev.max_timeout = (0xfffful / rt288x_wdt_freq);
+-	rt288x_wdt_dev.parent = &pdev->dev;
++	rt288x_wdt_dev.parent = dev;
+ 
+ 	watchdog_init_timeout(&rt288x_wdt_dev, rt288x_wdt_dev.max_timeout,
+-			      &pdev->dev);
++			      dev);
+ 	watchdog_set_nowayout(&rt288x_wdt_dev, nowayout);
+ 
+-	ret = watchdog_register_device(&rt288x_wdt_dev);
++	watchdog_stop_on_reboot(&rt288x_wdt_dev);
++	ret = devm_watchdog_register_device(dev, &rt288x_wdt_dev);
+ 	if (!ret)
+-		dev_info(&pdev->dev, "Initialized\n");
++		dev_info(dev, "Initialized\n");
+ 
  	return 0;
  }
  
--static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
+-static int rt288x_wdt_remove(struct platform_device *pdev)
 -{
--	struct mpc8xxx_wdt_ddata *ddata = platform_get_drvdata(ofdev);
--
--	dev_crit(&ofdev->dev, "Watchdog removed, expect the %s soon!\n",
--		 reset ? "reset" : "machine check exception");
--	watchdog_unregister_device(&ddata->wdd);
+-	watchdog_unregister_device(&rt288x_wdt_dev);
 -
 -	return 0;
 -}
 -
- static const struct of_device_id mpc8xxx_wdt_match[] = {
- 	{
- 		.compatible = "mpc83xx_wdt",
-@@ -259,7 +249,6 @@ MODULE_DEVICE_TABLE(of, mpc8xxx_wdt_match);
+-static void rt288x_wdt_shutdown(struct platform_device *pdev)
+-{
+-	rt288x_wdt_stop(&rt288x_wdt_dev);
+-}
+-
+ static const struct of_device_id rt288x_wdt_match[] = {
+ 	{ .compatible = "ralink,rt2880-wdt" },
+ 	{},
+@@ -192,8 +182,6 @@ MODULE_DEVICE_TABLE(of, rt288x_wdt_match);
  
- static struct platform_driver mpc8xxx_wdt_driver = {
- 	.probe		= mpc8xxx_wdt_probe,
--	.remove		= mpc8xxx_wdt_remove,
- 	.driver = {
- 		.name = "mpc8xxx_wdt",
- 		.of_match_table = mpc8xxx_wdt_match,
+ static struct platform_driver rt288x_wdt_driver = {
+ 	.probe		= rt288x_wdt_probe,
+-	.remove		= rt288x_wdt_remove,
+-	.shutdown	= rt288x_wdt_shutdown,
+ 	.driver		= {
+ 		.name		= KBUILD_MODNAME,
+ 		.of_match_table	= rt288x_wdt_match,
 -- 
 2.7.4
 
