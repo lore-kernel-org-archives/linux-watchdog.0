@@ -7,62 +7,62 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4531C10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 104D3C10F14
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A001B20830
+	by mail.kernel.org (Postfix) with ESMTP id CE4A7217D9
 	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l8tHrCHy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cyKbWJwE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731786AbfDJQ3C (ORCPT
+        id S2387924AbfDJQ2c (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:29:02 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:41627 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387925AbfDJQ2d (ORCPT
+        Wed, 10 Apr 2019 12:28:32 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41342 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387884AbfDJQ2c (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:33 -0400
-Received: by mail-pl1-f193.google.com with SMTP id d1so1736153plj.8;
-        Wed, 10 Apr 2019 09:28:33 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:32 -0400
+Received: by mail-pg1-f195.google.com with SMTP id f6so1856016pgs.8;
+        Wed, 10 Apr 2019 09:28:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=tR/tgWi0NWu/p8jUty40o4OgX03BGJEy7JzWJugTrTg=;
-        b=l8tHrCHyh+IqMwRszJzBwTaDmzvJKoNJ+URalOMbDC3tvrW/bV25yFooCf1BzdDd8b
-         /F/zQuupt3JljsBgfTuXXGPFwtqrmO4cUAsLBrMyBc4RQF//9JJr0d95N2lmnD4bJOgg
-         6lAbjwGwohr7gH3DDbpqFu7T4gqN5NEVMHipmSKPy0P366huTIk0+GjLXakVqMh0reu3
-         ZOW23PU9JfzgsX9/KFwgh+Y+Obil7r7HFYQOHA3p2B/n0z9WU0tZjWi/JvD39FZ1YYh5
-         xuf/8/XBRQywJ4bFr7cLAcG2UYNjK27jVQvwIEYoX+k0+72SmyDd8isrNLbOuXaMcCPJ
-         yb3w==
+        bh=JFv/8qpijJBi/9fN4f4BgoRTl0I89T7cUIqnwNgfi5A=;
+        b=cyKbWJwEIouqNYxadt+0H1pjEPe1zG8jT/lZkrFPingsqh2a8NK8jER/bUy6OGpqMy
+         qFsV4+GNoq3P1g/C9HmzUEqL7GEdTPt1aJS2fP0ucYkoWzXzI6YfCKZlw8jF3KxkfOZJ
+         gN5PCdHV2HcK4hvNIxNBmZpNI3e04PdeWB4ogeC4LWcIZG5IZRsvJffhRtciuE9nHV/w
+         aty3VBCDQdPYRJ4pYON+p/Q3w5kwRKnbdpqmV0MVeMkeobzomEAEzx7opteuDiudH8b6
+         ee61GwOw9alfAs90DRGdIPNETqCcA6akyohfKbLErQXi600YEHERbkbawgcPorRFFq74
+         niWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=tR/tgWi0NWu/p8jUty40o4OgX03BGJEy7JzWJugTrTg=;
-        b=hPH01HhAZSS9DQuK+GWuRNX9jNM3VB47PjAbv2rKjGeKaJ1MAuijIX076BuM0nH5s2
-         EL1I2GQPYNP97kumq8bUYSjUOW+mgU5L/dMsg1W79oZZqs/6F3InA/C/DW2CTltJr5si
-         g8L1lPJP8woeQQ9oJH4881dVcKhzsJnmCAsuI6QRh2Fb6xZeUCrfbmyvU1cvC5nhq2I9
-         PzqymSnV38aNYH7hx/2cHUnSfndoCsfmPxE0a9ImKGQLJywOuB+twvFqtpx0TJwHU+EQ
-         mq5Cz7NUOSED1ZFDZKBEA1V2Ybb2DTm+pYGhLtW0wWK/UrNfMkG7Xx7e0ELrm+hgorX+
-         3sCA==
-X-Gm-Message-State: APjAAAVi9XrQBRS0BwmDq0AmBM2EeMwZJODf2VV1MjCiqHxmloWpYz4+
-        OlUBfCql0xBhbtOww5urtMc=
-X-Google-Smtp-Source: APXvYqwJlYL+IfVOaai2ytLp+SH6HMDh9ZjHEEpEf7GoE87eBMjFLOfgam1WiYIfk0AXWgxR4hrqKQ==
-X-Received: by 2002:a17:902:7d81:: with SMTP id a1mr44620383plm.202.1554913712767;
-        Wed, 10 Apr 2019 09:28:32 -0700 (PDT)
+        bh=JFv/8qpijJBi/9fN4f4BgoRTl0I89T7cUIqnwNgfi5A=;
+        b=VbH5nvc07wYlVKCoCAYa9tqQJ9XRMMyAF8/+u4OqaZHRd7+WGrKJ+GRvfA0NMpUFS0
+         eyjD8pjxtGv2QQTEEql3AxFO+Otr2Awif6ur6yxHxeIutKYunESwtsyyCALK0tmIyEP/
+         0LJOMoREmaT332elcYvpUsNDsM0ovp2d2EYgxYAUEIPwopIE9LUBTJ3CUp/YWbqwQCGH
+         YxsCITDP73MyPcKzqC1qip2xLhLqt4u9z4hgpEITe6NJ/vLMuA6cxDISHgiCnNfE+4pq
+         oUEYYFIZDhXIn3jIrDxhK4rDLsBFoKN+TQNDiccGcDMCbZ5WF7lF8ddvCvJv2+bNUmwD
+         lOmQ==
+X-Gm-Message-State: APjAAAVeDhWOKPIQMQ2kk9WJiV8T6oVF4Xz4I8Lsgvncrz9uFaIL6adB
+        VhiWqLmE00cIfoGV+zLzAHE=
+X-Google-Smtp-Source: APXvYqxKvKwV403NJxB3coP59geUiwZbzyTbPDCSujVLzZlaV3Uw17VFIBe3YwlfiH3cTIoKyqOJ4w==
+X-Received: by 2002:a65:608a:: with SMTP id t10mr30773110pgu.125.1554913711421;
+        Wed, 10 Apr 2019 09:28:31 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z8sm44583797pgz.3.2019.04.10.09.28.32
+        by smtp.gmail.com with ESMTPSA id n3sm63468609pfa.99.2019.04.10.09.28.30
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:32 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:30 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: [PATCH 18/22] watchdog: mt7621_wdt: Use 'dev' instead of dereferencing it repeatedly
-Date:   Wed, 10 Apr 2019 09:27:59 -0700
-Message-Id: <1554913683-25454-19-git-send-email-linux@roeck-us.net>
+        Keguang Zhang <keguang.zhang@gmail.com>
+Subject: [PATCH 17/22] watchdog: loongson1_wdt: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:27:58 -0700
+Message-Id: <1554913683-25454-18-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -71,55 +71,133 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Introduce local variable 'struct device *dev' and use it instead of
-dereferencing it repeatedly.
+Use device managed functions to simplify error handling, reduce
+source code size, improve readability, and reduce the likelyhood of bugs.
+Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
+- Drop assignments to otherwise unused variables
+- Drop unnecessary braces around conditional return statements
+- Drop empty remove function
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Introduce local variable 'struct device *dev' and use it instead of
+  dereferencing it repeatedly
+- Use devm_watchdog_register_driver() to register watchdog device
+
+Cc: Keguang Zhang <keguang.zhang@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/mt7621_wdt.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/watchdog/loongson1_wdt.c | 48 ++++++++++++++++++----------------------
+ 1 file changed, 21 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-index 9c943f1d57ec..cbb3c0dde136 100644
---- a/drivers/watchdog/mt7621_wdt.c
-+++ b/drivers/watchdog/mt7621_wdt.c
-@@ -133,18 +133,19 @@ static struct watchdog_device mt7621_wdt_dev = {
+diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
+index 1119634b5c87..d8075e2affa7 100644
+--- a/drivers/watchdog/loongson1_wdt.c
++++ b/drivers/watchdog/loongson1_wdt.c
+@@ -83,14 +83,20 @@ static const struct watchdog_ops ls1x_wdt_ops = {
+ 	.set_timeout = ls1x_wdt_set_timeout,
+ };
  
- static int mt7621_wdt_probe(struct platform_device *pdev)
++static void ls1x_clk_disable_unprepare(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static int ls1x_wdt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	mt7621_wdt_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(mt7621_wdt_base))
- 		return PTR_ERR(mt7621_wdt_base);
+ 	struct ls1x_wdt_drvdata *drvdata;
+ 	struct watchdog_device *ls1x_wdt;
+ 	unsigned long clk_rate;
+ 	int err;
  
--	mt7621_wdt_reset = devm_reset_control_get_exclusive(&pdev->dev, NULL);
-+	mt7621_wdt_reset = devm_reset_control_get_exclusive(dev, NULL);
- 	if (!IS_ERR(mt7621_wdt_reset))
- 		reset_control_deassert(mt7621_wdt_reset);
+-	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
+ 	if (!drvdata)
+ 		return -ENOMEM;
  
- 	mt7621_wdt_dev.bootstatus = mt7621_wdt_bootcause();
+@@ -98,21 +104,23 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(drvdata->base))
+ 		return PTR_ERR(drvdata->base);
  
- 	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout,
--			      &pdev->dev);
-+			      dev);
- 	watchdog_set_nowayout(&mt7621_wdt_dev, nowayout);
- 	if (mt7621_wdt_is_running(&mt7621_wdt_dev)) {
- 		/*
-@@ -161,7 +162,7 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &mt7621_wdt_dev.status);
+-	drvdata->clk = devm_clk_get(&pdev->dev, pdev->name);
++	drvdata->clk = devm_clk_get(dev, pdev->name);
+ 	if (IS_ERR(drvdata->clk))
+ 		return PTR_ERR(drvdata->clk);
+ 
+ 	err = clk_prepare_enable(drvdata->clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "clk enable failed\n");
++		dev_err(dev, "clk enable failed\n");
+ 		return err;
+ 	}
++	err = devm_add_action_or_reset(dev, ls1x_clk_disable_unprepare,
++				       drvdata->clk);
++	if (err)
++		return err;
+ 
+ 	clk_rate = clk_get_rate(drvdata->clk);
+-	if (!clk_rate) {
+-		err = -EINVAL;
+-		goto err0;
+-	}
++	if (!clk_rate)
++		return -EINVAL;
+ 	drvdata->clk_rate = clk_rate;
+ 
+ 	ls1x_wdt = &drvdata->wdt;
+@@ -121,41 +129,27 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
+ 	ls1x_wdt->timeout = DEFAULT_HEARTBEAT;
+ 	ls1x_wdt->min_timeout = 1;
+ 	ls1x_wdt->max_hw_heartbeat_ms = U32_MAX / clk_rate * 1000;
+-	ls1x_wdt->parent = &pdev->dev;
++	ls1x_wdt->parent = dev;
+ 
+-	watchdog_init_timeout(ls1x_wdt, heartbeat, &pdev->dev);
++	watchdog_init_timeout(ls1x_wdt, heartbeat, dev);
+ 	watchdog_set_nowayout(ls1x_wdt, nowayout);
+ 	watchdog_set_drvdata(ls1x_wdt, drvdata);
+ 
+-	err = watchdog_register_device(&drvdata->wdt);
++	err = devm_watchdog_register_device(dev, &drvdata->wdt);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to register watchdog device\n");
+-		goto err0;
++		dev_err(dev, "failed to register watchdog device\n");
++		return err;
  	}
  
--	return devm_watchdog_register_device(&pdev->dev, &mt7621_wdt_dev);
-+	return devm_watchdog_register_device(dev, &mt7621_wdt_dev);
+ 	platform_set_drvdata(pdev, drvdata);
+ 
+-	dev_info(&pdev->dev, "Loongson1 Watchdog driver registered\n");
+-
+-	return 0;
+-err0:
+-	clk_disable_unprepare(drvdata->clk);
+-	return err;
+-}
+-
+-static int ls1x_wdt_remove(struct platform_device *pdev)
+-{
+-	struct ls1x_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(&drvdata->wdt);
+-	clk_disable_unprepare(drvdata->clk);
++	dev_info(dev, "Loongson1 Watchdog driver registered\n");
+ 
+ 	return 0;
  }
  
- static void mt7621_wdt_shutdown(struct platform_device *pdev)
+ static struct platform_driver ls1x_wdt_driver = {
+ 	.probe = ls1x_wdt_probe,
+-	.remove = ls1x_wdt_remove,
+ 	.driver = {
+ 		.name = "ls1x-wdt",
+ 	},
 -- 
 2.7.4
 
