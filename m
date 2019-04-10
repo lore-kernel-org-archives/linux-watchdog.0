@@ -2,107 +2,95 @@ Return-Path: <SRS0=y0dX=SM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D4A3C10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 13:38:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 603F9C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0D51220820
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 13:38:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AD9E206DF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bhHe0wFa"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uc4pt87P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730649AbfDJNiy (ORCPT
+        id S1728881AbfDJQ2I (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 09:38:54 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:34170 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731712AbfDJNiy (ORCPT
+        Wed, 10 Apr 2019 12:28:08 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:42516 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728875AbfDJQ2I (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 09:38:54 -0400
-Received: by mail-pl1-f194.google.com with SMTP id y6so1474923plt.1;
-        Wed, 10 Apr 2019 06:38:53 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:08 -0400
+Received: by mail-pg1-f194.google.com with SMTP id p6so1853676pgh.9;
+        Wed, 10 Apr 2019 09:28:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3+JdCobsNiuvhStXURSUWsE466w9N2kR66KtnO8B6oA=;
-        b=bhHe0wFafijtfCcpgMrL1xmkfkfiYVQACKM+kOccifatfZAeklSTvzL4ZiSTpdvdDc
-         kxmYtwfgvFTQUo3XJdIw6CxpV5pLPpR5nFz5g5XeTTMnOGrDJ1xhTw6uPRwXY+D/9HLi
-         xYV4t8nvbwp2y3O5uiO6OYEp/2cpkKtVUdtg3V2+ISUz6ZOJOYdI9UuZkzktqNj2uUF5
-         spHIn1/iTTKhdATMm+uKfiBYSPlK30IQ1TFOcgr0EQ46ZaHwUBMKlUzeyEOf8RwYRsZA
-         3RVewaal6m9qoDP4aDTpvV1YC6txjz1o7++MThQmetqhNzr/H+qWLnXk5ozZ0N+mas1f
-         OQGQ==
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=SCRoPbtosM1WAc1OWsOBc3b3uYjt4rYcPlO+7y22AmU=;
+        b=uc4pt87PXEuMmA/OkxmrFbXIuhyh4MFCTqT09mqjL67iN6ASZi/OIT7O0BoPNhDD60
+         9IBBcbrC5iQoeaAqwv/HqiYbrLp6IyX+E73CGZTqHAlRJewxMpes1fkm1uvqDmm0oUcG
+         S9y96LrtJvQ55HgFsu1uI1U/7xEQjEe4sxcgz9PQ5daqwPy81M0TewIseeDhJI7XfmXG
+         leW9ZpPzM7mEo3eMRrqjDSd/C3tKU4zx+12yNF72SB0mrSyIp2NxYiA/N5ww8hTc+G6k
+         ANQasiHnGOtx3tJKomezitXJXog8uGGNSAh2t22Aamka98P+a3vSKRjKeSRlJ+kTyV3N
+         4XEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3+JdCobsNiuvhStXURSUWsE466w9N2kR66KtnO8B6oA=;
-        b=RmFML5ToqxPVCChS/9Yp245zFm2iYrpjAp0Kiv56W7X2uVUKHWAgW1NecbF8QF/xXD
-         saVWLb3cA8yC3ekPUmI0NU1hg40NuVb5t3C5ct1qsu/4DscHw2/kc7zQIrZf9CgCAhsI
-         IfyjPt+xc+k/ESzZmJXxB5hjWpRg7nbAcz2wwEz8qFP1fdy1hghoQYK9W0N+6xntbSrA
-         Ro9OJ3HRFMi8BWPyb//ai9pgE7kHfWitE4vtbNho/UvQMJZVDmyEQxn7WKlFvhf9K7Hn
-         zWceshZe2PPx5sv0izbGMdxxNJkaI8MKe1dBvdxbFTGxgu9sX27Jtzg2hARwxcBfbfjR
-         3mTQ==
-X-Gm-Message-State: APjAAAVu3QPJ3+BAykZk0Pa9m6s593uDNVoKDX8j2BgnU2jz2npOgxiX
-        ieWx76nWzFC/J2yKZHkEL9u5Smas
-X-Google-Smtp-Source: APXvYqy0y3Z1xXD0E+bwKdrB1G5G2VqDGL8Rmp0xdcFwMwmJDvcoXOBDlKzOdeHAU73maTmR2ap5ng==
-X-Received: by 2002:a17:902:7883:: with SMTP id q3mr43996539pll.60.1554903532981;
-        Wed, 10 Apr 2019 06:38:52 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d187sm41355514pgc.43.2019.04.10.06.38.52
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=SCRoPbtosM1WAc1OWsOBc3b3uYjt4rYcPlO+7y22AmU=;
+        b=Eu+lciDY2l6vEWsgAFSKIJ+JYlnIm4Undli7cRlWicV6CM4KtP9kS05MGW5S1fOtZ9
+         elbJqtJBZ4QvfmZtK8RVdCaHOGW79fbz2umUUeikRPlW36++H//Ti0l9bEQNzLbV6uyE
+         dHwCoTpgvqQsr8VX1r1zMw8G+Q85imSml0KbH7O+gNgu2aWcl/5Dwnh160QqsUaPVfRe
+         V4Y+bN7Q3T2NLxGtKrPcRUCU1PmeSjiUQ4Qa2D571wA1hhBOpC12WVTlXlk1JXY3Hkmh
+         keLtfW5nf7EzAPxIq3U2uVTmgeYoCLwXhT+NBfFJkaWjjKV/vnP1wo/lhZ8vDFuNkVPj
+         YyXQ==
+X-Gm-Message-State: APjAAAXUs9EBRMCsrYPvFjkpcNQ43VVl6t73l646Rltubivt+841RbKh
+        QW9MzHr/Td8KzyFuPkhAfck6t19j
+X-Google-Smtp-Source: APXvYqzN2LkKH54Ftdcn0Y/tUHlxCfHjINh3cyvFxykWYLoppRuMWOs1NbpZ7z+rNZ2i5//ogmzmUA==
+X-Received: by 2002:a63:1d4f:: with SMTP id d15mr14944477pgm.347.1554913687994;
+        Wed, 10 Apr 2019 09:28:07 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q11sm50968208pgs.94.2019.04.10.09.28.06
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 06:38:52 -0700 (PDT)
-Subject: Re: [PATCH] watchdog: wdat_wdt: fix get_timeleft call for wdat_wdt
-To:     Bryan Tan <bryantan@vmware.com>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20190410124813.86892-1-bryantan@vmware.com>
+        Wed, 10 Apr 2019 09:28:07 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <eae7116e-ead0-dafe-d552-411da83211a7@roeck-us.net>
-Date:   Wed, 10 Apr 2019 06:38:51 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <20190410124813.86892-1-bryantan@vmware.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 00/22] watchdog: Expand use of device managed functions (series 3 of 3)
+Date:   Wed, 10 Apr 2019 09:27:41 -0700
+Message-Id: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/10/19 5:49 AM, Bryan Tan wrote:
-> The get_timeleft call for wdat_wdt was using ACPI_WDAT_GET_COUNTDOWN
-> when running an action on the device, which would return the configured
-> countdown, instead of ACPI_WDAT_GET_CURRENT_COUNTDOWN, which returns the
-> time left before the watchdog will fire. This change corrects that.
-> 
-> Signed-off-by: Bryan Tan <bryantan@vmware.com>
+Use device managed functions and other changes to simplify error handling,
+reduce source code size, improve readability, and reduce the likelyhood
+of bugs.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The changes made in this series can be summarized to
 
-> ---
->   drivers/watchdog/wdat_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-> index 56ad196..387892f 100644
-> --- a/drivers/watchdog/wdat_wdt.c
-> +++ b/drivers/watchdog/wdat_wdt.c
-> @@ -287,7 +287,7 @@ static unsigned int wdat_wdt_get_timeleft(struct watchdog_device *wdd)
->   	struct wdat_wdt *wdat = to_wdat_wdt(wdd);
->   	u32 periods = 0;
->   
-> -	wdat_wdt_run_action(wdat, ACPI_WDAT_GET_COUNTDOWN, 0, &periods);
-> +	wdat_wdt_run_action(wdat, ACPI_WDAT_GET_CURRENT_COUNTDOWN, 0, &periods);
->   	return periods * wdat->period / 1000;
->   }
->   
-> 
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Use devm_watchdog_register_driver() to register watchdog device
+- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'
+- Drop assignments to otherwise unused variables
+- Drop unnecessary braces around conditional return statements
+- Drop empty remove functions
+- Replace shutdown function with call to watchdog_stop_on_reboot()
+- Replace stop on remove with call to watchdog_stop_on_unregister()
+- Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'ret = e; return ret;' with 'return e;'.
+- Use local variable 'struct device *dev' consistently
+- Introduce local variable 'struct device *dev' and use it instead of
+  dereferencing it repeatedly
+- Drop unnecessary calls to platform_set_drvdata()
 
+Conversions were performed automatically with coccinelle using a number
+of semantic patches. The semantic patches and the scripts used to generate
+commit logs are available at https://github.com/groeck/coccinelle-patches.
+All patches were compile tested and manually reviewed.
+
+This is the third of three series of similar patches for watchdog drivers.
+More patches may follow over time.
