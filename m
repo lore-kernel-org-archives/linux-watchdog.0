@@ -2,255 +2,135 @@ Return-Path: <SRS0=y0dX=SM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A79C10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:09:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1B20C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:12:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3D8C420818
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:09:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92F7C2054F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:12:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RzuJF1Lh"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="Brqc38Yo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731714AbfDJMJW (ORCPT
+        id S1727905AbfDJMMh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 08:09:22 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:43886 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730005AbfDJMJW (ORCPT
+        Wed, 10 Apr 2019 08:12:37 -0400
+Received: from mail1.bemta25.messagelabs.com ([195.245.230.67]:59454 "EHLO
+        mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731739AbfDJMMh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 08:09:22 -0400
-Received: by mail-pl1-f194.google.com with SMTP id n8so1307208plp.10;
-        Wed, 10 Apr 2019 05:09:22 -0700 (PDT)
+        Wed, 10 Apr 2019 08:12:37 -0400
+Received: from [46.226.52.200] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-3.bemta.az-b.eu-west-1.aws.symcld.net id 7E/20-24446-0BDDDAC5; Wed, 10 Apr 2019 12:12:32 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA1VSe0hTcRT2t3vvdlve+jUVT0MLRi/Lu7xmsfy
+  noAcSFBEVFUbd6c2ttqvtTnxEMaPIlMogjNbDrYfRfCQGZRpm9jSyMolKszT9R8t8FFZE2e7u
+  MvvvO+f7zvnOORya0N1S62kh2yk4RN5mUGtJy3wmka3qqEiO8xRHmVprz6hNryvrNaYe7xOVq
+  bv3N7GUTLpSXk4l3fzm0iR9qZ62lthCWUVzevZ2yvLj6XUq4wqV3Vl4XO1CT8gCpKVJfJWAgq
+  4htRzo8DEVHL5WTCjBewSdXd3+YAKtxhyc+zSAZByO18GHulGNLCJwHYKHTQcomQjDZvhRW69
+  RRClwMn+/SsHx4CupDmASzwRfxUigEYO3QnNjcaBWh/fAaG8+KeMJeDm0eEYCxghHw9e8sgAm
+  cCS09ZQE+gDGcPHWM0LBEdDb/ZtS9Nvg0O1+jZKPheZXPUjBBih97aYUHA0vSgqD+dVwtzo/c
+  AvALQhKPW1B0VwY6X8WNNPDo5b7wbwN6m+OBo2j4PtwrVopHqCgebCJULZJgcGzzcEppoHvSF
+  fQ4TkBne8ek8o6seCpG1YXoRj3uO3c4ygFz4NS70fCHbjYFGg61UN6EOlDJrPDmmZx2nmrjeX
+  i4liOi2e5xYtYbmGCkc9lzUYhk80SJCfLGfksySjl2FNsqUZRcFYj/yelZtxz16CfBWmNaCqt
+  MkQw4tuKZN0kc3pqjoWXLNscmTZBakRRNG0AZrbMTXEIaUL2DqvN/45/aaBDDeHMHJlmpAzeL
+  lnTFOoxYumG811nCR0ppouCPpK50+4XYVlkyRTHWvx96hcoWh/GoJCQEF1ohuCwW53/830okk
+  aGMMYgW4VaReeYU59/CJV/iBOxZfIQTv4fpXehyYk1XrHgXPsSrmio0nt0V9Ug+hVX1tqw3dW
+  x+XL4xBvvUUxdxwzdG3Puo5jVo607bafzhpO8CTOWtaw6vCryUlj8omE7a6Lip7oW+LSbymrN
+  uREbdWbtvrxZzr0bDqVLydq+9UPsA+HMwe7NNevfRPWtmP7SPv0zvrBm5e7C8o4PBlKy8Nxcw
+  iHxfwCRENwWzwMAAA==
+X-Env-Sender: stwiss.opensource@diasemi.com
+X-Msg-Ref: server-14.tower-288.messagelabs.com!1554898351!6682592!1
+X-Originating-IP: [104.47.13.58]
+X-SYMC-ESS-Client-Auth: mailfrom-relay-check=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.31.5; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 13234 invoked from network); 10 Apr 2019 12:12:32 -0000
+Received: from mail-he1eur04lp2058.outbound.protection.outlook.com (HELO EUR04-HE1-obe.outbound.protection.outlook.com) (104.47.13.58)
+  by server-14.tower-288.messagelabs.com with AES256-SHA256 encrypted SMTP; 10 Apr 2019 12:12:32 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=P9/qECQB27HLydIa4oROR36cY5V7hC0m0n0SnzgnDQw=;
-        b=RzuJF1LhGc3wLsvmooNyFOUhJSMB9AsPrPGXRlnTWtOnaRuNN5P9mNcDDwdmSBy9Fh
-         fUY9EmX+mxdXwwBISD28RzwdH2PPp9W0R65Am5oxmXq5ORx/e3qArR7tkmWNk7Qjlidw
-         cvXWWPWdvjKKmAeS9YGuOcvkm35ooNegx2uliamLx2sSGx+aUO+Mwy6DZbJ2ZUqav6Iq
-         w7qWlelWOBHzfyh/T+I+e3yYI7lMVkn2Xeg+yEVDt8Zb9Fiso//zb+mKhoEwYRDQydfc
-         1z6+hef5G3T/T0/O+ait1VPrDpWZN79SQ+6QWFaX+emeAAdrLriDPrhQWFTcMgBuSFkL
-         d+hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=P9/qECQB27HLydIa4oROR36cY5V7hC0m0n0SnzgnDQw=;
-        b=qumgxAeUJaNF8tixBxXXrmNfxXowvb77ccNhqRqf7nl5H5q2wPBFMwvtPKeSJOqQpF
-         qPCiBhA5NUGNdH6rXbhkuO0WYKXP9zsyPJR6tmF4DPyRWDyWJbBqTU7omQdp/e+82jGp
-         9YsrN6YyN15W6Z8NZsIQJbSfb7F70hga/TvHTjc9FJvbnD+lCATU19txWASMUOMfsOzD
-         r3jgLywh3p+AVmUMCs2tybZ6NR30AQZ58TYgzS6BYVDl1E5nq0If8BGfCYlPR4u3zYdY
-         cHesOcVYE0kEF2ixjJRDsfXlkGS5O1LIu/IySss9kDZdC1xLQ1c7kJaLWKCWAs4FBWSh
-         Osaw==
-X-Gm-Message-State: APjAAAX9QK5S4Tno8eoiDH6M/h+IcTPxbexeF1shXvbWlO3M/KvksJYz
-        BzCUuwEdj6FUrP7lcU3YuZ4YenFy
-X-Google-Smtp-Source: APXvYqxV/GyoOyxWLBTx4eQnUTAfcFz2hdwQZzmxlAYwoMBQvG6TQ9majjE9Str3AWf9Mjyi6omZAQ==
-X-Received: by 2002:a17:902:599d:: with SMTP id p29mr17503573pli.156.1554898160816;
-        Wed, 10 Apr 2019 05:09:20 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t21sm15015320pfe.22.2019.04.10.05.09.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 05:09:19 -0700 (PDT)
-Subject: Re: [PATCH 10/23] watchdog: of_xilinx_wdt: Convert to use device
- managed functions and other improvements
-To:     Michal Simek <michal.simek@xilinx.com>,
+ d=dialogsemiconductor.onmicrosoft.com; s=selector1-diasemi-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nuyuZYDIWRdxz0QKqDMCWDCgILpHzQkceD3thgOTOZo=;
+ b=Brqc38YoV47Yq1amlOthKFiFcp/TgCXxMXVEkhzWf7prZ6Sq2IgwWdCxH8VKKX3gDfOZqjlpv7Rc4r8gB254WaY8WsJykDumO1IE5c3jPCdSh3Moy5w7z0UUTzsfcFyRH3Fw2L0NDdbLsgd6KUblBZszzGvMhm/UohNzTOExTXE=
+Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM (20.177.62.92) by
+ VI1PR10MB1965.EURPRD10.PROD.OUTLOOK.COM (52.134.27.157) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1771.16; Wed, 10 Apr 2019 12:12:30 +0000
+Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::acc9:6d8f:da36:9f25]) by VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::acc9:6d8f:da36:9f25%2]) with mapi id 15.20.1792.009; Wed, 10 Apr 2019
+ 12:12:30 +0000
+From:   Steve Twiss <stwiss.opensource@diasemi.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
- <1554830641-9247-11-git-send-email-linux@roeck-us.net>
- <85e92d6f-5521-af0a-f6e0-b3411b7cd8e9@xilinx.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0946e8ae-e829-807f-2e56-a27c67da7073@roeck-us.net>
-Date:   Wed, 10 Apr 2019 05:09:17 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <85e92d6f-5521-af0a-f6e0-b3411b7cd8e9@xilinx.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>
+Subject: RE: [PATCH 09/22] watchdog: da9052_wdt: Use 'dev' instead of
+ dereferencing it repeatedly
+Thread-Topic: [PATCH 09/22] watchdog: da9052_wdt: Use 'dev' instead of
+ dereferencing it repeatedly
+Thread-Index: AQHU7kLYGYnCzeI8mkWLQp1B3YRAQ6Y1EZ6Q
+Date:   Wed, 10 Apr 2019 12:12:30 +0000
+Message-ID: <VI1PR10MB2352139A80694DDC11F8FEA1FE2E0@VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM>
+References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
+ <1554752326-13319-10-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1554752326-13319-10-git-send-email-linux@roeck-us.net>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [193.240.73.196]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: f66248cd-b799-4ddd-d0ca-08d6bdadce00
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(2017052603328)(7193020);SRVR:VI1PR10MB1965;
+x-ms-traffictypediagnostic: VI1PR10MB1965:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <VI1PR10MB1965CF7315ABEA1AE81A953DF52E0@VI1PR10MB1965.EURPRD10.PROD.OUTLOOK.COM>
+x-forefront-prvs: 00032065B2
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(376002)(39860400002)(346002)(366004)(396003)(199004)(189003)(7696005)(53546011)(25786009)(33656002)(966005)(54906003)(478600001)(4744005)(486006)(110136005)(316002)(99286004)(11346002)(446003)(4326008)(6436002)(74316002)(52536014)(476003)(229853002)(53936002)(2906002)(305945005)(256004)(7736002)(107886003)(71200400001)(71190400001)(8676002)(8936002)(76176011)(105586002)(9686003)(106356001)(186003)(81156014)(81166006)(6306002)(26005)(3846002)(55016002)(5660300002)(86362001)(6116002)(66066001)(68736007)(14454004)(97736004)(102836004)(6506007)(6246003);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR10MB1965;H:VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:0;MX:1;
+received-spf: None (protection.outlook.com: diasemi.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: ydKVbXwqVWsGjRlk3NMH8R2/K4pLcaS/Kh8oi2BKuYcJxTHJcIMg2ueD4gJXicsII1Nz4OVsqF/gGUR1E5+uudw4U0ElKzW06iTs9M81q0Rh74PA9D/1fxd+4wWZKhedGolsEMp8m5YUCz8pWn2ULVRk5NdEewG/A47v/eSliPa2eQEuk+hB8Ll0mknGdf/kPMsYajymfnvpuZX2ArVY6TNZ8SqTqybHoKLd0sJV/sZP5keo7+xzKKopQ2X//Wr6EyzBJBDtqh+PTk51mskcOcaifEhh5bOvICkOGWOy1KJpnWx+TltkX/K+znaBGAet1TSLNA8MOfsYe6VA/ktrdQ4vRbNc7qRUs4ZpuZgRCZak7wICcerXPKNAx0CFPIstt/xRDERiWLnmMuGKGLh8UUaR4bBKvrjH+/gREte+skA=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f66248cd-b799-4ddd-d0ca-08d6bdadce00
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2019 12:12:30.1915
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB1965
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/9/19 11:38 PM, Michal Simek wrote:
-> On 09. 04. 19 19:23, Guenter Roeck wrote:
->> Use device managed functions to simplify error handling, reduce
->> source code size, improve readability, and reduce the likelyhood of bugs.
->> Other improvements as listed below.
->>
->> The conversion was done automatically with coccinelle using the
->> following semantic patches. The semantic patches and the scripts
->> used to generate this commit log are available at
->> https://github.com/groeck/coccinelle-patches
->>
->> - Drop assignments to otherwise unused variables
->> - Drop empty remove function
->> - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
->> - Introduce local variable 'struct device *dev' and use it instead of
->>    dereferencing it repeatedly
->> - Use devm_watchdog_register_driver() to register watchdog device
->>
->> Cc: Michal Simek <michal.simek@xilinx.com>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>   drivers/watchdog/of_xilinx_wdt.c | 58 ++++++++++++++++++----------------------
->>   1 file changed, 26 insertions(+), 32 deletions(-)
->>
->> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
->> index 5c977164b3e5..03786992b701 100644
->> --- a/drivers/watchdog/of_xilinx_wdt.c
->> +++ b/drivers/watchdog/of_xilinx_wdt.c
->> @@ -151,41 +151,46 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
->>   		return XWT_TIMER_FAILED;
->>   }
->>   
->> +static void xwdt_clk_disable_unprepare(void *data)
->> +{
->> +	clk_disable_unprepare(data);
->> +}
->> +
->>   static int xwdt_probe(struct platform_device *pdev)
->>   {
->> +	struct device *dev = &pdev->dev;
->>   	int rc;
->>   	u32 pfreq = 0, enable_once = 0;
->>   	struct xwdt_device *xdev;
->>   	struct watchdog_device *xilinx_wdt_wdd;
->>   
->> -	xdev = devm_kzalloc(&pdev->dev, sizeof(*xdev), GFP_KERNEL);
->> +	xdev = devm_kzalloc(dev, sizeof(*xdev), GFP_KERNEL);
->>   	if (!xdev)
->>   		return -ENOMEM;
->>   
->>   	xilinx_wdt_wdd = &xdev->xilinx_wdt_wdd;
->>   	xilinx_wdt_wdd->info = &xilinx_wdt_ident;
->>   	xilinx_wdt_wdd->ops = &xilinx_wdt_ops;
->> -	xilinx_wdt_wdd->parent = &pdev->dev;
->> +	xilinx_wdt_wdd->parent = dev;
->>   
->>   	xdev->base = devm_platform_ioremap_resource(pdev, 0);
->>   	if (IS_ERR(xdev->base))
->>   		return PTR_ERR(xdev->base);
->>   
->> -	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
->> +	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-interval",
->>   				  &xdev->wdt_interval);
->>   	if (rc)
->> -		dev_warn(&pdev->dev,
->> -			 "Parameter \"xlnx,wdt-interval\" not found\n");
->> +		dev_warn(dev, "Parameter \"xlnx,wdt-interval\" not found\n");
->>   
->> -	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
->> +	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-enable-once",
->>   				  &enable_once);
->>   	if (rc)
->> -		dev_warn(&pdev->dev,
->> +		dev_warn(dev,
->>   			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
->>   
->>   	watchdog_set_nowayout(xilinx_wdt_wdd, enable_once);
->>   
->> -	xdev->clk = devm_clk_get(&pdev->dev, NULL);
->> +	xdev->clk = devm_clk_get(dev, NULL);
->>   	if (IS_ERR(xdev->clk)) {
->>   		if (PTR_ERR(xdev->clk) != -ENOENT)
->>   			return PTR_ERR(xdev->clk);
->> @@ -196,10 +201,10 @@ static int xwdt_probe(struct platform_device *pdev)
->>   		 */
->>   		xdev->clk = NULL;
->>   
->> -		rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
->> +		rc = of_property_read_u32(dev->of_node, "clock-frequency",
->>   					  &pfreq);
->>   		if (rc)
->> -			dev_warn(&pdev->dev,
->> +			dev_warn(dev,
->>   				 "The watchdog clock freq cannot be obtained\n");
->>   	} else {
->>   		pfreq = clk_get_rate(xdev->clk);
->> @@ -218,44 +223,34 @@ static int xwdt_probe(struct platform_device *pdev)
->>   
->>   	rc = clk_prepare_enable(xdev->clk);
->>   	if (rc) {
->> -		dev_err(&pdev->dev, "unable to enable clock\n");
->> +		dev_err(dev, "unable to enable clock\n");
->>   		return rc;
->>   	}
->> +	rc = devm_add_action_or_reset(dev, xwdt_clk_disable_unprepare,
->> +				      xdev->clk);
->> +	if (rc)
->> +		return rc;
->>   
->>   	rc = xwdt_selftest(xdev);
->>   	if (rc == XWT_TIMER_FAILED) {
->> -		dev_err(&pdev->dev, "SelfTest routine error\n");
->> -		goto err_clk_disable;
->> +		dev_err(dev, "SelfTest routine error\n");
->> +		return rc;
->>   	}
->>   
->> -	rc = watchdog_register_device(xilinx_wdt_wdd);
->> +	rc = devm_watchdog_register_device(dev, xilinx_wdt_wdd);
->>   	if (rc) {
->> -		dev_err(&pdev->dev, "Cannot register watchdog (err=%d)\n", rc);
->> -		goto err_clk_disable;
->> +		dev_err(dev, "Cannot register watchdog (err=%d)\n", rc);
->> +		return rc;
->>   	}
->>   
->>   	clk_disable(xdev->clk);
->>   
->> -	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
->> +	dev_info(dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
->>   		 xdev->base, xilinx_wdt_wdd->timeout);
->>   
->>   	platform_set_drvdata(pdev, xdev);
->>   
->>   	return 0;
->> -err_clk_disable:
->> -	clk_disable_unprepare(xdev->clk);
->> -
->> -	return rc;
->> -}
->> -
->> -static int xwdt_remove(struct platform_device *pdev)
->> -{
->> -	struct xwdt_device *xdev = platform_get_drvdata(pdev);
->> -
->> -	watchdog_unregister_device(&xdev->xilinx_wdt_wdd);
->> -	clk_disable_unprepare(xdev->clk);
->> -
->> -	return 0;
->>   }
->>   
->>   /**
->> @@ -303,7 +298,6 @@ MODULE_DEVICE_TABLE(of, xwdt_of_match);
->>   
->>   static struct platform_driver xwdt_driver = {
->>   	.probe       = xwdt_probe,
->> -	.remove      = xwdt_remove,
->>   	.driver = {
->>   		.name  = WATCHDOG_NAME,
->>   		.of_match_table = xwdt_of_match,
->>
-> 
-> Looks good to me. I would prefer to do it via 3 patches but I will let
-> Wim to comment.
-> 
+On 08 April 2019 20:39, Guenter Roeck wrote:
 
-I could do that, but the total series is already more than 60 patches.
-Splitting them up would mean hundreds of patches.
+> Subject: [PATCH 09/22] watchdog: da9052_wdt: Use 'dev' instead of
+> dereferencing it repeatedly
+>=20
+> Introduce local variable 'struct device *dev' and use it instead of
+> dereferencing it repeatedly.
+>=20
+> The conversion was done automatically with coccinelle using the
+> following semantic patches. The semantic patches and the scripts
+> used to generate this commit log are available at
+> https://github.com/groeck/coccinelle-patches
+>=20
+> Cc: Support Opensource <support.opensource@diasemi.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-> Acked-by: Michal Simek <michal.simek@xilinx.com>
-> 
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Thanks,
-Guenter
+Thanks!
+Regards,
+Steve
