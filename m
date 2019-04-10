@@ -7,62 +7,61 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 104D3C10F14
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23387C282CE
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE4A7217D9
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D74C120830
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cyKbWJwE"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ak4Doerc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387924AbfDJQ2c (ORCPT
+        id S2387918AbfDJQ2b (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:32 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41342 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387884AbfDJQ2c (ORCPT
+        Wed, 10 Apr 2019 12:28:31 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:44917 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387916AbfDJQ2a (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:32 -0400
-Received: by mail-pg1-f195.google.com with SMTP id f6so1856016pgs.8;
-        Wed, 10 Apr 2019 09:28:31 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:30 -0400
+Received: by mail-pl1-f193.google.com with SMTP id g12so1719955pll.11;
+        Wed, 10 Apr 2019 09:28:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=JFv/8qpijJBi/9fN4f4BgoRTl0I89T7cUIqnwNgfi5A=;
-        b=cyKbWJwEIouqNYxadt+0H1pjEPe1zG8jT/lZkrFPingsqh2a8NK8jER/bUy6OGpqMy
-         qFsV4+GNoq3P1g/C9HmzUEqL7GEdTPt1aJS2fP0ucYkoWzXzI6YfCKZlw8jF3KxkfOZJ
-         gN5PCdHV2HcK4hvNIxNBmZpNI3e04PdeWB4ogeC4LWcIZG5IZRsvJffhRtciuE9nHV/w
-         aty3VBCDQdPYRJ4pYON+p/Q3w5kwRKnbdpqmV0MVeMkeobzomEAEzx7opteuDiudH8b6
-         ee61GwOw9alfAs90DRGdIPNETqCcA6akyohfKbLErQXi600YEHERbkbawgcPorRFFq74
-         niWQ==
+        bh=25JklC8A4qyogv/IaoK9AgYKIsQkHJeUki9cBit+3VU=;
+        b=ak4DoercFbxPpvsydlQjYOWYxP6CgPEp7VabpBizbOoeTsDVhWGEakU61rc48z81TR
+         nMZctSX+j1dy9JzIZkpdXQ9KJQuq1hhkLdiGsdSlyCxzW7B+J7YzWi2EUvwO6GKv5CUf
+         s24PQqvBI0ObnWoALxtD7bfBUSfUNLACagvnK0HFIpowVB3kIjSgYWb8nfMVUwjIrtpB
+         IuWETP/c0yvLLvl5hrfsb/KHuO4RDqmh9ipTMRdfm5WdjlEYRaIdGEoGEbqaA5qt9sXU
+         ADj3DBCDDG8EqkphoAfZpNE/9TW5/Ix+GFxw9s9TjAOSaA9lOJNO7R0mqDWNbRcf3jyd
+         s5Tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=JFv/8qpijJBi/9fN4f4BgoRTl0I89T7cUIqnwNgfi5A=;
-        b=VbH5nvc07wYlVKCoCAYa9tqQJ9XRMMyAF8/+u4OqaZHRd7+WGrKJ+GRvfA0NMpUFS0
-         eyjD8pjxtGv2QQTEEql3AxFO+Otr2Awif6ur6yxHxeIutKYunESwtsyyCALK0tmIyEP/
-         0LJOMoREmaT332elcYvpUsNDsM0ovp2d2EYgxYAUEIPwopIE9LUBTJ3CUp/YWbqwQCGH
-         YxsCITDP73MyPcKzqC1qip2xLhLqt4u9z4hgpEITe6NJ/vLMuA6cxDISHgiCnNfE+4pq
-         oUEYYFIZDhXIn3jIrDxhK4rDLsBFoKN+TQNDiccGcDMCbZ5WF7lF8ddvCvJv2+bNUmwD
-         lOmQ==
-X-Gm-Message-State: APjAAAVeDhWOKPIQMQ2kk9WJiV8T6oVF4Xz4I8Lsgvncrz9uFaIL6adB
-        VhiWqLmE00cIfoGV+zLzAHE=
-X-Google-Smtp-Source: APXvYqxKvKwV403NJxB3coP59geUiwZbzyTbPDCSujVLzZlaV3Uw17VFIBe3YwlfiH3cTIoKyqOJ4w==
-X-Received: by 2002:a65:608a:: with SMTP id t10mr30773110pgu.125.1554913711421;
-        Wed, 10 Apr 2019 09:28:31 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n3sm63468609pfa.99.2019.04.10.09.28.30
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        bh=25JklC8A4qyogv/IaoK9AgYKIsQkHJeUki9cBit+3VU=;
+        b=FIDZbsAEBQwpwuKrI/SjUN/cWU0N+qCPti43aj6orGqIHrIc5MgiPpDqZquSmcb+ZU
+         VDE9qhs4BXuZ48vd7dPDs8H6zW0LQPuZVOOBqHHk9lVjMvtJYG2DGMgLnPknH3LpN6EL
+         oEBpg4bqTiB02u4aOJ3L9LbhHjXqvjzJYPb+Kkyr19rpggk+x6QX8S+go73HiGl/Le+t
+         A425asEII9BxAAZvRTpJA1ExoSffK1ouzuCLjfooUYl+EtCcpMEvcCFpjLfVL899m7lD
+         nNmbNOmlLWFFftZxRf/xI/N0LgD1E32re+T8Ob5A/kcS+GbNnfEFhZeYTRYvGmpfyKvZ
+         H4BA==
+X-Gm-Message-State: APjAAAU/cconsd4+kosIHb03Ilsy1nruVW6ukKMgMUZi6XBBYgBxDCYq
+        ZRznDHvfjG2Iwpxh6F5uZitLFQQo
+X-Google-Smtp-Source: APXvYqxMz2E8UD9M1MOcqbN79WjCl0SKlTe8lYKGzBnvquwMX6vXODB+lbv8eA8NvroqkfS7bACy9w==
+X-Received: by 2002:a17:902:9a4a:: with SMTP id x10mr45274440plv.113.1554913710028;
         Wed, 10 Apr 2019 09:28:30 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p17sm48206877pfn.157.2019.04.10.09.28.29
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 10 Apr 2019 09:28:29 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Keguang Zhang <keguang.zhang@gmail.com>
-Subject: [PATCH 17/22] watchdog: loongson1_wdt: Convert to use device managed functions and other improvements
-Date:   Wed, 10 Apr 2019 09:27:58 -0700
-Message-Id: <1554913683-25454-18-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 16/22] watchdog: pic32-wdt: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:27:57 -0700
+Message-Id: <1554913683-25454-17-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -81,123 +80,133 @@ used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
 - Drop assignments to otherwise unused variables
-- Drop unnecessary braces around conditional return statements
 - Drop empty remove function
 - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Keguang Zhang <keguang.zhang@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/loongson1_wdt.c | 48 ++++++++++++++++++----------------------
- 1 file changed, 21 insertions(+), 27 deletions(-)
+ drivers/watchdog/pic32-wdt.c | 58 ++++++++++++++++++--------------------------
+ 1 file changed, 24 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
-index 1119634b5c87..d8075e2affa7 100644
---- a/drivers/watchdog/loongson1_wdt.c
-+++ b/drivers/watchdog/loongson1_wdt.c
-@@ -83,14 +83,20 @@ static const struct watchdog_ops ls1x_wdt_ops = {
- 	.set_timeout = ls1x_wdt_set_timeout,
+diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
+index 455ec38363a6..540500940cc0 100644
+--- a/drivers/watchdog/pic32-wdt.c
++++ b/drivers/watchdog/pic32-wdt.c
+@@ -166,13 +166,19 @@ static const struct of_device_id pic32_wdt_dt_ids[] = {
  };
+ MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
  
-+static void ls1x_clk_disable_unprepare(void *data)
++static void pic32_clk_disable_unprepare(void *data)
 +{
 +	clk_disable_unprepare(data);
 +}
 +
- static int ls1x_wdt_probe(struct platform_device *pdev)
+ static int pic32_wdt_drv_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
- 	struct ls1x_wdt_drvdata *drvdata;
- 	struct watchdog_device *ls1x_wdt;
- 	unsigned long clk_rate;
- 	int err;
+ 	int ret;
+ 	struct watchdog_device *wdd = &pic32_wdd;
+ 	struct pic32_wdt *wdt;
  
--	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
-+	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
- 	if (!drvdata)
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
  		return -ENOMEM;
  
-@@ -98,21 +104,23 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(drvdata->base))
- 		return PTR_ERR(drvdata->base);
+@@ -180,73 +186,57 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
+ 	if (IS_ERR(wdt->regs))
+ 		return PTR_ERR(wdt->regs);
  
--	drvdata->clk = devm_clk_get(&pdev->dev, pdev->name);
-+	drvdata->clk = devm_clk_get(dev, pdev->name);
- 	if (IS_ERR(drvdata->clk))
- 		return PTR_ERR(drvdata->clk);
+-	wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
++	wdt->rst_base = devm_ioremap(dev, PIC32_BASE_RESET, 0x10);
+ 	if (!wdt->rst_base)
+ 		return -ENOMEM;
  
- 	err = clk_prepare_enable(drvdata->clk);
- 	if (err) {
+-	wdt->clk = devm_clk_get(&pdev->dev, NULL);
++	wdt->clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(wdt->clk)) {
+-		dev_err(&pdev->dev, "clk not found\n");
++		dev_err(dev, "clk not found\n");
+ 		return PTR_ERR(wdt->clk);
+ 	}
+ 
+ 	ret = clk_prepare_enable(wdt->clk);
+ 	if (ret) {
 -		dev_err(&pdev->dev, "clk enable failed\n");
 +		dev_err(dev, "clk enable failed\n");
- 		return err;
+ 		return ret;
  	}
-+	err = devm_add_action_or_reset(dev, ls1x_clk_disable_unprepare,
-+				       drvdata->clk);
-+	if (err)
-+		return err;
++	ret = devm_add_action_or_reset(dev, pic32_clk_disable_unprepare,
++				       wdt->clk);
++	if (ret)
++		return ret;
  
- 	clk_rate = clk_get_rate(drvdata->clk);
--	if (!clk_rate) {
--		err = -EINVAL;
--		goto err0;
--	}
-+	if (!clk_rate)
+ 	if (pic32_wdt_is_win_enabled(wdt)) {
+-		dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
+-		ret = -ENODEV;
+-		goto out_disable_clk;
++		dev_err(dev, "windowed-clear mode is not supported.\n");
++		return -ENODEV;
+ 	}
+ 
+-	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, &pdev->dev);
++	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, dev);
+ 	if (!wdd->timeout) {
+-		dev_err(&pdev->dev,
+-			"failed to read watchdog register timeout\n");
+-		ret = -EINVAL;
+-		goto out_disable_clk;
++		dev_err(dev, "failed to read watchdog register timeout\n");
 +		return -EINVAL;
- 	drvdata->clk_rate = clk_rate;
- 
- 	ls1x_wdt = &drvdata->wdt;
-@@ -121,41 +129,27 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
- 	ls1x_wdt->timeout = DEFAULT_HEARTBEAT;
- 	ls1x_wdt->min_timeout = 1;
- 	ls1x_wdt->max_hw_heartbeat_ms = U32_MAX / clk_rate * 1000;
--	ls1x_wdt->parent = &pdev->dev;
-+	ls1x_wdt->parent = dev;
- 
--	watchdog_init_timeout(ls1x_wdt, heartbeat, &pdev->dev);
-+	watchdog_init_timeout(ls1x_wdt, heartbeat, dev);
- 	watchdog_set_nowayout(ls1x_wdt, nowayout);
- 	watchdog_set_drvdata(ls1x_wdt, drvdata);
- 
--	err = watchdog_register_device(&drvdata->wdt);
-+	err = devm_watchdog_register_device(dev, &drvdata->wdt);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to register watchdog device\n");
--		goto err0;
-+		dev_err(dev, "failed to register watchdog device\n");
-+		return err;
  	}
  
- 	platform_set_drvdata(pdev, drvdata);
+-	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
++	dev_info(dev, "timeout %d\n", wdd->timeout);
  
--	dev_info(&pdev->dev, "Loongson1 Watchdog driver registered\n");
--
--	return 0;
--err0:
--	clk_disable_unprepare(drvdata->clk);
--	return err;
--}
--
--static int ls1x_wdt_remove(struct platform_device *pdev)
--{
--	struct ls1x_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&drvdata->wdt);
--	clk_disable_unprepare(drvdata->clk);
-+	dev_info(dev, "Loongson1 Watchdog driver registered\n");
+ 	wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
+ 
+ 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+ 	watchdog_set_drvdata(wdd, wdt);
+ 
+-	ret = watchdog_register_device(wdd);
++	ret = devm_watchdog_register_device(dev, wdd);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
+-		goto out_disable_clk;
++		dev_err(dev, "watchdog register failed, err %d\n", ret);
++		return ret;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, wdd);
  
  	return 0;
+-
+-out_disable_clk:
+-	clk_disable_unprepare(wdt->clk);
+-
+-	return ret;
+-}
+-
+-static int pic32_wdt_drv_remove(struct platform_device *pdev)
+-{
+-	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+-	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+-
+-	watchdog_unregister_device(wdd);
+-	clk_disable_unprepare(wdt->clk);
+-
+-	return 0;
  }
  
- static struct platform_driver ls1x_wdt_driver = {
- 	.probe = ls1x_wdt_probe,
--	.remove = ls1x_wdt_remove,
- 	.driver = {
- 		.name = "ls1x-wdt",
- 	},
+ static struct platform_driver pic32_wdt_driver = {
+ 	.probe		= pic32_wdt_drv_probe,
+-	.remove		= pic32_wdt_drv_remove,
+ 	.driver		= {
+ 		.name		= "pic32-wdt",
+ 		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
 -- 
 2.7.4
 
