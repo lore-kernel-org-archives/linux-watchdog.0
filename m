@@ -4,64 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48B8FC10F14
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E03EC10F14
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0B9C6206DF
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01C40206DF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:28:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="raT8M/tM"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hXw7C9KC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387815AbfDJQ2O (ORCPT
+        id S2387886AbfDJQ21 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:14 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:35756 "EHLO
+        Wed, 10 Apr 2019 12:28:27 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:44770 "EHLO
         mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731977AbfDJQ2N (ORCPT
+        with ESMTP id S2387884AbfDJQ20 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:13 -0400
-Received: by mail-pf1-f194.google.com with SMTP id t21so1800253pfh.2;
-        Wed, 10 Apr 2019 09:28:12 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:26 -0400
+Received: by mail-pf1-f194.google.com with SMTP id y13so1775129pfm.11;
+        Wed, 10 Apr 2019 09:28:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=3IlgT7nY07HPFlMA+WrAZzzctpP7991Q2yQyFRscuWw=;
-        b=raT8M/tM7l611F0M2XPq9Iu8xGx43KTlbeKmxJwEsLZJ7eNg4nHXwgQmly1OWHAhrw
-         APMC6l1gjBZsb9ECHGaVEl3MAu+HVrBROQxRb8T/uGM9Y+c+clEG6tR5t7+LUBAfMCD3
-         bZgXTHoB72BpvD/8DkHHV2aecbwgpibDMSeb1gd6ILEqaC5SIjqB+NJ4yfKy2wZPClxs
-         Cvlogxhtx4ONLXJyNEXo1Pcq+JrGTkqcZr3DASNaI9w0I5zWKWZGkxiIdFH2HQr9nm7b
-         PnHCoZ4gBohCJwEXWtiKAwl6A5ZJ+9wyNTDBQlmSDpJoI0zfLj+35RKtAo5GtmxYVVv2
-         yKiQ==
+        bh=orMF7rYuBW2QAgocXGhNUAGTXbgVNrgKUN3myFTKYbI=;
+        b=hXw7C9KCi6C5kI5hpR/VW7d1TTVAbP32+DfiunuKtqgqY+QY3fb1K7cuKaUjfkXZ+G
+         ZjkBqBJyEy3tXdU112kk2wChv3bk2jnctjbYuu+elfI4tEnKrOcZGK/5cen+GZqkUDLO
+         OsiaUt2LpS2DTKDUe0V+kdugcpfFO3E5xRtC9R37LSkgygtJWHEAUgUNL6wx8ivAvwHJ
+         PF3z7vh7B6zuqV3e+439tbKsTYuBss6mb2m8JlEeVMpO9sZfF955HKjHIrJ37/YD6GZO
+         mBsDjqIHxom9Xa8DPlmISiVtwpzIG2wcafrcOEew7oKkLmwHZhmEo2fOh17+GsFwcUdp
+         ASEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=3IlgT7nY07HPFlMA+WrAZzzctpP7991Q2yQyFRscuWw=;
-        b=I8CZFDZ/cGNZFbAoSnJ72yOrT/JbTqMWrDxBwsafPl+zBh2fU0PVV8dbIlUDc+bPo1
-         0ojdROue5p1IFintTbq+ejfl1oHZRJWZq660vJa/os2Ynf7c13bccplWIv715NXs2rYE
-         D/4UTR2zamxy7cVusY15dKqaG/EcC41esv2AAJItRED8Z/in8XnB77q1sYw5xj4N4zDl
-         Lco6EoXqWX0EEdQ0zQtWr+R3HnAXuOB3/YJqG6+gvU1xo3qJopbSFK5K0hx24b5Ai9Kx
-         cxvMScRFC4zFoFotdzdpo+Zyj5iVxdk03DnBJCf6UPMTBM25gc+K7HkYvuCh33OELIL4
-         +UjQ==
-X-Gm-Message-State: APjAAAW6hcInixcJ1lJoqd2ZXSie/8EQ9Q14UXkxVrrCz9u/Djr7HVn4
-        YYcKfHEHJIns4OugoMoUcOI=
-X-Google-Smtp-Source: APXvYqxyv6BTQFrrkV9Xb+gRkQUmsuO/4/tAqUxjHyfyxbCZ5lfLPt3lWzaVlZlQcQuKNkc1attHLQ==
-X-Received: by 2002:a63:1f52:: with SMTP id q18mr42969142pgm.134.1554913692074;
-        Wed, 10 Apr 2019 09:28:12 -0700 (PDT)
+        bh=orMF7rYuBW2QAgocXGhNUAGTXbgVNrgKUN3myFTKYbI=;
+        b=XJs3spII8w7F6ZW/tnEHA6OWi8SrjkxexfBJc5NtQLa91zkw5x7nSoejgRv0S2OSwG
+         VO1B/nV7GwjuQPK/SUbTqjrEgFRlfMICYW9eKf5bVenNoDAkZU8P17FUd9aKCOPiFhU6
+         vd0JGJZ3W5zsWz91RKHNS0PYCgxBgIJXkMsYOCnFbMdLJ96YFdw1EEi332GddcMIel9B
+         wyZO1BRYfeleJVPEGGdKs+ABUfVFUm199fy9l/I5neDNSlcNq3KJymZWRKAu1pOX/zm0
+         6pl6s+rYQoEfAvw4yDOFnKc1FB8yikWeCXjm6j2uVH4wvKPAIuGdmJhsX3LTDFBh373r
+         fGqA==
+X-Gm-Message-State: APjAAAVX8NeXeYmstHkPjy2ruycbnpKzc7AKlI3DXQMNw9RTCo1rPexO
+        19kOoZKehlSOAkQgZ7vji38=
+X-Google-Smtp-Source: APXvYqzNmSxAlAVUAJ99Y9aLmZPx74E6fY+UOzkOVIRVwUEjP4DK9aoIKg8WV+kO6T7XHqXkQq6Pow==
+X-Received: by 2002:aa7:91c8:: with SMTP id z8mr44553612pfa.110.1554913706126;
+        Wed, 10 Apr 2019 09:28:26 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p2sm113221936pfi.73.2019.04.10.09.28.11
+        by smtp.gmail.com with ESMTPSA id q87sm55726631pfa.133.2019.04.10.09.28.25
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:11 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:25 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 03/22] watchdog: ts4800_wdt: Convert to use device managed functions and other improvements
-Date:   Wed, 10 Apr 2019 09:27:44 -0700
-Message-Id: <1554913683-25454-4-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+Subject: [PATCH 13/22] watchdog: stm32_iwdg: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:27:54 -0700
+Message-Id: <1554913683-25454-14-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -81,119 +83,164 @@ https://github.com/groeck/coccinelle-patches
 
 - Drop assignments to otherwise unused variables
 - Drop empty remove function
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Introduce local variable 'struct device *dev' and use it instead of
   dereferencing it repeatedly
 - Use devm_watchdog_register_driver() to register watchdog device
 
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/ts4800_wdt.c | 33 +++++++++++----------------------
- 1 file changed, 11 insertions(+), 22 deletions(-)
+ drivers/watchdog/stm32_iwdg.c | 65 +++++++++++++++++++++----------------------
+ 1 file changed, 31 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
-index 89843b16b04a..9dc6d7f45806 100644
---- a/drivers/watchdog/ts4800_wdt.c
-+++ b/drivers/watchdog/ts4800_wdt.c
-@@ -108,7 +108,8 @@ static const struct watchdog_info ts4800_wdt_info = {
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index 309563e002b8..68756a40eb36 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -138,38 +138,52 @@ static int stm32_iwdg_set_timeout(struct watchdog_device *wdd,
+ 	return 0;
+ }
  
- static int ts4800_wdt_probe(struct platform_device *pdev)
++static void stm32_clk_disable_unprepare(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static int stm32_iwdg_clk_init(struct platform_device *pdev,
+ 			       struct stm32_iwdg *wdt)
  {
--	struct device_node *np = pdev->dev.of_node;
 +	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
- 	struct device_node *syscon_np;
- 	struct watchdog_device *wdd;
- 	struct ts4800_wdt *wdt;
-@@ -117,18 +118,18 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
+ 	u32 ret;
  
- 	syscon_np = of_parse_phandle(np, "syscon", 0);
- 	if (!syscon_np) {
--		dev_err(&pdev->dev, "no syscon property\n");
-+		dev_err(dev, "no syscon property\n");
- 		return -ENODEV;
+-	wdt->clk_lsi = devm_clk_get(&pdev->dev, "lsi");
++	wdt->clk_lsi = devm_clk_get(dev, "lsi");
+ 	if (IS_ERR(wdt->clk_lsi)) {
+-		dev_err(&pdev->dev, "Unable to get lsi clock\n");
++		dev_err(dev, "Unable to get lsi clock\n");
+ 		return PTR_ERR(wdt->clk_lsi);
  	}
  
- 	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
- 	if (ret < 0) {
--		dev_err(&pdev->dev, "no offset in syscon\n");
-+		dev_err(dev, "no offset in syscon\n");
+ 	/* optional peripheral clock */
+ 	if (wdt->has_pclk) {
+-		wdt->clk_pclk = devm_clk_get(&pdev->dev, "pclk");
++		wdt->clk_pclk = devm_clk_get(dev, "pclk");
+ 		if (IS_ERR(wdt->clk_pclk)) {
+-			dev_err(&pdev->dev, "Unable to get pclk clock\n");
++			dev_err(dev, "Unable to get pclk clock\n");
+ 			return PTR_ERR(wdt->clk_pclk);
+ 		}
+ 
+ 		ret = clk_prepare_enable(wdt->clk_pclk);
+ 		if (ret) {
+-			dev_err(&pdev->dev, "Unable to prepare pclk clock\n");
++			dev_err(dev, "Unable to prepare pclk clock\n");
+ 			return ret;
+ 		}
++		ret = devm_add_action_or_reset(dev,
++					       stm32_clk_disable_unprepare,
++					       wdt->clk_pclk);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	ret = clk_prepare_enable(wdt->clk_lsi);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Unable to prepare lsi clock\n");
+-		clk_disable_unprepare(wdt->clk_pclk);
++		dev_err(dev, "Unable to prepare lsi clock\n");
  		return ret;
  	}
++	ret = devm_add_action_or_reset(dev, stm32_clk_disable_unprepare,
++				       wdt->clk_lsi);
++	if (ret)
++		return ret;
  
- 	/* allocate memory for watchdog struct */
+ 	wdt->rate = clk_get_rate(wdt->clk_lsi);
+ 
+@@ -199,16 +213,17 @@ MODULE_DEVICE_TABLE(of, stm32_iwdg_of_match);
+ 
+ static int stm32_iwdg_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	const struct of_device_id *match;
+ 	struct stm32_iwdg *wdt;
+ 	int ret;
+ 
+-	match = of_match_device(stm32_iwdg_of_match, &pdev->dev);
++	match = of_match_device(stm32_iwdg_of_match, dev);
+ 	if (!match)
+ 		return -ENODEV;
+ 
 -	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
 +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
  	if (!wdt)
  		return -ENOMEM;
  
-@@ -137,13 +138,13 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
- 	wdt->regmap = syscon_node_to_regmap(syscon_np);
- 	of_node_put(syscon_np);
- 	if (IS_ERR(wdt->regmap)) {
--		dev_err(&pdev->dev, "cannot get parent's regmap\n");
-+		dev_err(dev, "cannot get parent's regmap\n");
- 		return PTR_ERR(wdt->regmap);
+@@ -217,7 +232,7 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	/* This is the timer base. */
+ 	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->regs)) {
+-		dev_err(&pdev->dev, "Could not get resource\n");
++		dev_err(dev, "Could not get resource\n");
+ 		return PTR_ERR(wdt->regs);
  	}
  
- 	/* Initialize struct watchdog_device */
- 	wdd = &wdt->wdd;
+@@ -231,46 +246,28 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	wdd->ops = &stm32_iwdg_ops;
+ 	wdd->min_timeout = ((RLR_MIN + 1) * 256) / wdt->rate;
+ 	wdd->max_hw_heartbeat_ms = ((RLR_MAX + 1) * 256 * 1000) / wdt->rate;
 -	wdd->parent = &pdev->dev;
 +	wdd->parent = dev;
- 	wdd->info = &ts4800_wdt_info;
- 	wdd->ops = &ts4800_wdt_ops;
- 	wdd->min_timeout = ts4800_wdt_map[0].timeout;
-@@ -151,7 +152,7 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
  
  	watchdog_set_drvdata(wdd, wdt);
- 	watchdog_set_nowayout(wdd, nowayout);
--	watchdog_init_timeout(wdd, 0, &pdev->dev);
-+	watchdog_init_timeout(wdd, 0, dev);
+ 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
  
- 	/*
- 	 * As this watchdog supports only a few values, ts4800_wdt_set_timeout
-@@ -169,31 +170,20 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
- 	 */
- 	ts4800_wdt_stop(wdd);
+-	ret = watchdog_init_timeout(wdd, 0, &pdev->dev);
++	ret = watchdog_init_timeout(wdd, 0, dev);
+ 	if (ret)
+-		dev_warn(&pdev->dev,
+-			 "unable to set timeout value, using default\n");
++		dev_warn(dev, "unable to set timeout value, using default\n");
  
 -	ret = watchdog_register_device(wdd);
 +	ret = devm_watchdog_register_device(dev, wdd);
  	if (ret) {
--		dev_err(&pdev->dev,
--			"failed to register watchdog device\n");
+-		dev_err(&pdev->dev, "failed to register watchdog device\n");
+-		goto err;
 +		dev_err(dev, "failed to register watchdog device\n");
- 		return ret;
++		return ret;
  	}
  
  	platform_set_drvdata(pdev, wdt);
  
--	dev_info(&pdev->dev,
--		 "initialized (timeout = %d sec, nowayout = %d)\n",
-+	dev_info(dev, "initialized (timeout = %d sec, nowayout = %d)\n",
- 		 wdd->timeout, nowayout);
- 
  	return 0;
- }
- 
--static int ts4800_wdt_remove(struct platform_device *pdev)
--{
--	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
+-err:
+-	clk_disable_unprepare(wdt->clk_lsi);
+-	clk_disable_unprepare(wdt->clk_pclk);
 -
--	watchdog_unregister_device(&wdt->wdd);
--
--	return 0;
+-	return ret;
 -}
 -
- static const struct of_device_id ts4800_wdt_of_match[] = {
- 	{ .compatible = "technologic,ts4800-wdt", },
- 	{ },
-@@ -202,7 +192,6 @@ MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
+-static int stm32_iwdg_remove(struct platform_device *pdev)
+-{
+-	struct stm32_iwdg *wdt = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(&wdt->wdd);
+-	clk_disable_unprepare(wdt->clk_lsi);
+-	clk_disable_unprepare(wdt->clk_pclk);
+-
+-	return 0;
+ }
  
- static struct platform_driver ts4800_wdt_driver = {
- 	.probe		= ts4800_wdt_probe,
--	.remove		= ts4800_wdt_remove,
- 	.driver		= {
- 		.name	= "ts4800_wdt",
- 		.of_match_table = ts4800_wdt_of_match,
+ static struct platform_driver stm32_iwdg_driver = {
+ 	.probe		= stm32_iwdg_probe,
+-	.remove		= stm32_iwdg_remove,
+ 	.driver = {
+ 		.name	= "iwdg",
+ 		.of_match_table = of_match_ptr(stm32_iwdg_of_match),
 -- 
 2.7.4
 
