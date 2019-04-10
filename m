@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23387C282CE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CA82C10F14
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D74C120830
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F276921741
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 16:29:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ak4Doerc"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q82NDTlG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387918AbfDJQ2b (ORCPT
+        id S1731790AbfDJQ3M (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 12:28:31 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44917 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387916AbfDJQ2a (ORCPT
+        Wed, 10 Apr 2019 12:29:12 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40159 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387860AbfDJQ23 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 12:28:30 -0400
-Received: by mail-pl1-f193.google.com with SMTP id g12so1719955pll.11;
-        Wed, 10 Apr 2019 09:28:30 -0700 (PDT)
+        Wed, 10 Apr 2019 12:28:29 -0400
+Received: by mail-pg1-f193.google.com with SMTP id d31so1859178pgl.7;
+        Wed, 10 Apr 2019 09:28:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=25JklC8A4qyogv/IaoK9AgYKIsQkHJeUki9cBit+3VU=;
-        b=ak4DoercFbxPpvsydlQjYOWYxP6CgPEp7VabpBizbOoeTsDVhWGEakU61rc48z81TR
-         nMZctSX+j1dy9JzIZkpdXQ9KJQuq1hhkLdiGsdSlyCxzW7B+J7YzWi2EUvwO6GKv5CUf
-         s24PQqvBI0ObnWoALxtD7bfBUSfUNLACagvnK0HFIpowVB3kIjSgYWb8nfMVUwjIrtpB
-         IuWETP/c0yvLLvl5hrfsb/KHuO4RDqmh9ipTMRdfm5WdjlEYRaIdGEoGEbqaA5qt9sXU
-         ADj3DBCDDG8EqkphoAfZpNE/9TW5/Ix+GFxw9s9TjAOSaA9lOJNO7R0mqDWNbRcf3jyd
-         s5Tw==
+        bh=Y0Tfyx52U1gnhb4CI3YOiBgsMKA1CP/i626KdchFSTE=;
+        b=Q82NDTlG9wa7YzLyMSjoMyx+H3vIH5Gr6IOtw6nucPu9SuUIvoChdsKT1VyBKkznAH
+         5VLx6o+SbV6gPQf5Mg8OWJdJQA1SgfLjydJMgXamTK7bXhhwB6dJ0O4SlyS6hb/GBmTv
+         lYuzmriuwamizvLnENTg781vYK0RaZShttYctKL7E29puRk+28eSCxx+dZ0XGrYmftVQ
+         0LPKSitONLSAIN5Zc8c4xUpgk4UYM5SjwsXby68g5YluvXtizQEfVp+dvMj4WiDfxEfS
+         HOCm01Ou2LmldGwx0Ur9SlrY8k+JqMQE9L38WL6eHAnoz+PDnweGhCzfGpNwrbtbhq62
+         gGoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=25JklC8A4qyogv/IaoK9AgYKIsQkHJeUki9cBit+3VU=;
-        b=FIDZbsAEBQwpwuKrI/SjUN/cWU0N+qCPti43aj6orGqIHrIc5MgiPpDqZquSmcb+ZU
-         VDE9qhs4BXuZ48vd7dPDs8H6zW0LQPuZVOOBqHHk9lVjMvtJYG2DGMgLnPknH3LpN6EL
-         oEBpg4bqTiB02u4aOJ3L9LbhHjXqvjzJYPb+Kkyr19rpggk+x6QX8S+go73HiGl/Le+t
-         A425asEII9BxAAZvRTpJA1ExoSffK1ouzuCLjfooUYl+EtCcpMEvcCFpjLfVL899m7lD
-         nNmbNOmlLWFFftZxRf/xI/N0LgD1E32re+T8Ob5A/kcS+GbNnfEFhZeYTRYvGmpfyKvZ
-         H4BA==
-X-Gm-Message-State: APjAAAU/cconsd4+kosIHb03Ilsy1nruVW6ukKMgMUZi6XBBYgBxDCYq
-        ZRznDHvfjG2Iwpxh6F5uZitLFQQo
-X-Google-Smtp-Source: APXvYqxMz2E8UD9M1MOcqbN79WjCl0SKlTe8lYKGzBnvquwMX6vXODB+lbv8eA8NvroqkfS7bACy9w==
-X-Received: by 2002:a17:902:9a4a:: with SMTP id x10mr45274440plv.113.1554913710028;
-        Wed, 10 Apr 2019 09:28:30 -0700 (PDT)
+        bh=Y0Tfyx52U1gnhb4CI3YOiBgsMKA1CP/i626KdchFSTE=;
+        b=hLqCKkM2WO1hPPXSoE68C6gUHAfq/oXkKIuJ7V3rtCgtngvwg/5VKhRLsmVmNAmtnG
+         x9ia6kTKDt94f2GnjAlD0TBg2unVm3Inxd4RRqgxmZ5rcshEUKEpC385wXTMRpqfR9TZ
+         vGsOB77/x8S/Hkc176+re7NrHCmh7J2GL8ekzwycsTRlyaWRB79WHv9dQv9GhUh0JzYf
+         sTOuM71VsHYl4pFBC40su7gbjJ36XvYXmud26YKXuD1LEkAoGdMsSrIrEvuQXB0WW04k
+         fWPPO0h5KEbQg5ycl4kDXw+c0bCRYGQ7zQy1IIihQ0JCieFcFAGAb9x6ybfuJmVlpwbX
+         /8Yw==
+X-Gm-Message-State: APjAAAVOrGwKbd3tRNWh++BkKlNlBw+8EbbqG2OYszJgo5dEcOst4EuP
+        B5j9S7U9vFtwQQXAXSBVVm0=
+X-Google-Smtp-Source: APXvYqy3+NLX6FD5hO4V3KoLt+72aXQmJJf2KB1W3ugIJDjX1FQt6aXKCVGUrXanhV+bq5NcWrJy6Q==
+X-Received: by 2002:a63:7141:: with SMTP id b1mr41779549pgn.331.1554913708702;
+        Wed, 10 Apr 2019 09:28:28 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p17sm48206877pfn.157.2019.04.10.09.28.29
+        by smtp.gmail.com with ESMTPSA id z13sm51605956pgc.25.2019.04.10.09.28.28
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 09:28:29 -0700 (PDT)
+        Wed, 10 Apr 2019 09:28:28 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 16/22] watchdog: pic32-wdt: Convert to use device managed functions and other improvements
-Date:   Wed, 10 Apr 2019 09:27:57 -0700
-Message-Id: <1554913683-25454-17-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 15/22] watchdog: pic32-dmt: Convert to use device managed functions and other improvements
+Date:   Wed, 10 Apr 2019 09:27:56 -0700
+Message-Id: <1554913683-25454-16-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
 References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
@@ -88,72 +88,55 @@ https://github.com/groeck/coccinelle-patches
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/pic32-wdt.c | 58 ++++++++++++++++++--------------------------
- 1 file changed, 24 insertions(+), 34 deletions(-)
+ drivers/watchdog/pic32-dmt.c | 46 ++++++++++++++++++--------------------------
+ 1 file changed, 19 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
-index 455ec38363a6..540500940cc0 100644
---- a/drivers/watchdog/pic32-wdt.c
-+++ b/drivers/watchdog/pic32-wdt.c
-@@ -166,13 +166,19 @@ static const struct of_device_id pic32_wdt_dt_ids[] = {
+diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
+index 052751c224fd..9a3c53e03c60 100644
+--- a/drivers/watchdog/pic32-dmt.c
++++ b/drivers/watchdog/pic32-dmt.c
+@@ -168,13 +168,19 @@ static struct watchdog_device pic32_dmt_wdd = {
+ 	.ops		= &pic32_dmt_fops,
  };
- MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
  
 +static void pic32_clk_disable_unprepare(void *data)
 +{
 +	clk_disable_unprepare(data);
 +}
 +
- static int pic32_wdt_drv_probe(struct platform_device *pdev)
+ static int pic32_dmt_probe(struct platform_device *pdev)
  {
 +	struct device *dev = &pdev->dev;
  	int ret;
- 	struct watchdog_device *wdd = &pic32_wdd;
- 	struct pic32_wdt *wdt;
+ 	struct pic32_dmt *dmt;
+ 	struct watchdog_device *wdd = &pic32_dmt_wdd;
  
--	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
- 	if (!wdt)
+-	dmt = devm_kzalloc(&pdev->dev, sizeof(*dmt), GFP_KERNEL);
++	dmt = devm_kzalloc(dev, sizeof(*dmt), GFP_KERNEL);
+ 	if (!dmt)
  		return -ENOMEM;
  
-@@ -180,73 +186,57 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->regs))
- 		return PTR_ERR(wdt->regs);
+@@ -182,54 +188,41 @@ static int pic32_dmt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dmt->regs))
+ 		return PTR_ERR(dmt->regs);
  
--	wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
-+	wdt->rst_base = devm_ioremap(dev, PIC32_BASE_RESET, 0x10);
- 	if (!wdt->rst_base)
- 		return -ENOMEM;
- 
--	wdt->clk = devm_clk_get(&pdev->dev, NULL);
-+	wdt->clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(wdt->clk)) {
+-	dmt->clk = devm_clk_get(&pdev->dev, NULL);
++	dmt->clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(dmt->clk)) {
 -		dev_err(&pdev->dev, "clk not found\n");
 +		dev_err(dev, "clk not found\n");
- 		return PTR_ERR(wdt->clk);
+ 		return PTR_ERR(dmt->clk);
  	}
  
- 	ret = clk_prepare_enable(wdt->clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "clk enable failed\n");
-+		dev_err(dev, "clk enable failed\n");
+ 	ret = clk_prepare_enable(dmt->clk);
+ 	if (ret)
  		return ret;
- 	}
 +	ret = devm_add_action_or_reset(dev, pic32_clk_disable_unprepare,
-+				       wdt->clk);
++				       dmt->clk);
 +	if (ret)
 +		return ret;
  
- 	if (pic32_wdt_is_win_enabled(wdt)) {
--		dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
--		ret = -ENODEV;
--		goto out_disable_clk;
-+		dev_err(dev, "windowed-clear mode is not supported.\n");
-+		return -ENODEV;
- 	}
- 
--	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, &pdev->dev);
-+	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, dev);
+ 	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
  	if (!wdd->timeout) {
 -		dev_err(&pdev->dev,
 -			"failed to read watchdog register timeout\n");
@@ -166,10 +149,10 @@ index 455ec38363a6..540500940cc0 100644
 -	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
 +	dev_info(dev, "timeout %d\n", wdd->timeout);
  
- 	wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
+ 	wdd->bootstatus = pic32_dmt_bootstatus(dmt) ? WDIOF_CARDRESET : 0;
  
  	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
- 	watchdog_set_drvdata(wdd, wdt);
+ 	watchdog_set_drvdata(wdd, dmt);
  
 -	ret = watchdog_register_device(wdd);
 +	ret = devm_watchdog_register_device(dev, wdd);
@@ -181,32 +164,33 @@ index 455ec38363a6..540500940cc0 100644
  	}
  
  	platform_set_drvdata(pdev, wdd);
- 
  	return 0;
 -
 -out_disable_clk:
--	clk_disable_unprepare(wdt->clk);
--
+-	clk_disable_unprepare(dmt->clk);
 -	return ret;
 -}
 -
--static int pic32_wdt_drv_remove(struct platform_device *pdev)
+-static int pic32_dmt_remove(struct platform_device *pdev)
 -{
 -	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+-	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
 -
 -	watchdog_unregister_device(wdd);
--	clk_disable_unprepare(wdt->clk);
+-	clk_disable_unprepare(dmt->clk);
 -
 -	return 0;
  }
  
- static struct platform_driver pic32_wdt_driver = {
- 	.probe		= pic32_wdt_drv_probe,
--	.remove		= pic32_wdt_drv_remove,
+ static const struct of_device_id pic32_dmt_of_ids[] = {
+@@ -240,7 +233,6 @@ MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
+ 
+ static struct platform_driver pic32_dmt_driver = {
+ 	.probe		= pic32_dmt_probe,
+-	.remove		= pic32_dmt_remove,
  	.driver		= {
- 		.name		= "pic32-wdt",
- 		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
+ 		.name		= "pic32-dmt",
+ 		.of_match_table = of_match_ptr(pic32_dmt_of_ids),
 -- 
 2.7.4
 
