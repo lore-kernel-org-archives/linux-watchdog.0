@@ -2,138 +2,105 @@ Return-Path: <SRS0=y0dX=SM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B54EBC10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B078C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:49:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 792742083E
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:20:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D14021841
+	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 12:49:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="KU6pPfO4"
+	dkim=pass (1024-bit key) header.d=vmware.com header.i=@vmware.com header.b="oyF1LPwv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730597AbfDJMUr (ORCPT
+        id S1732084AbfDJMti (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 08:20:47 -0400
-Received: from mail1.bemta25.messagelabs.com ([195.245.230.67]:59135 "EHLO
-        mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727497AbfDJMUq (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 08:20:46 -0400
-Received: from [46.226.52.200] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-3.bemta.az-b.eu-west-1.aws.symcld.net id AB/80-24446-B9FDDAC5; Wed, 10 Apr 2019 12:20:43 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA1WSbUgTcRzH/e/u5imeXdPw50iJUVTmLW+Rrhf
-  RA70YRCC96knsppebbFN2EzUJtecssSx0rZkpYea0B1+IubKRlq0SSyFNypWZoWkPJtiLqHa7
-  afXu8/99v//fEz8SU7TLlSRfYOOtFs6kkofjhrVIwzh8LfuSKrrV2oEOp1w7dKMzVDtW90ymf
-  T/xC9uM6643NxO6O3MlobrvrfGp2B7CaNHnFOwnDB6PC+UekRcMjkaUoCqiDIWROH0Tg5qTK8
-  tQOKmgK2RwdXxAJj18CHyNjUh0yWkWLk99CXA0vRNG3b9DRRNGuxH0eI8GUkXRemj1vSUkUwa
-  MV3UHP2hgsvo8VoZIf7kV4HSmiGGKToO2tldykRV0EXj7zgW+htHb4KfdIRMZ0XEwW+rCRMbo
-  GBgeqw3Egabh6t0+TOIlMPH+FyH50+HE/elQKZ4IvYNjSGIVNAw5CInjoL/2dDC+A+rOfwj6X
-  yCotMdKnACuNnvQr4THLx4G2QSzt2pwiZfCj5kOubgHoL8QcO/OGVwaJgO+1vQGk8ZDU/k7XD
-  I9x+Dwm4+ENE0iXHHPyM+i1Y5/hnP8I0m8BhrqPmGOwMIWg/fiGH4F4U1Iq7casww2M2c0MWx
-  SEsOyGobdkMxo2GQ1d5DRq/k8Jp8XbAyr5vIFtVBozjBlqi28rRX5rygzt3uoHc1ey3qAYkmZ
-  aglled2yTxGpz8ksNHCCId2aZ+KFB2gpSaqA6hvxa4utfBZfcMBo8p/ivAxkhCqacosyJeRyZ
-  sGYJUlPEEN66t/VYArckmPhlTHULtFEiyZDnmUhxfxB96M4ZRSFQkJCFBG5vNVstP2vT6IYEq
-  miqF4xS4TRYluoNOlvQuZv4kKiS2zCxv2VlCXowLH8R/quzpFT7tKj7Z7KVwnMD++6oewt9VG
-  aWu2ct6kzpdeZ2rPr897jF1qaG5eTrnVriqdLj2UObz+EKhqmNrHFPqS4lDbiTDaYr9GjGwd0
-  zvKW8afZYYzmbo4jOtnzMTWVXB/7zd6l/134svbx1mWRu6m3KauKOqoX3R7OjlPhgoFjEzCrw
-  P0B19xjUMsDAAA=
-X-Env-Sender: stwiss.opensource@diasemi.com
-X-Msg-Ref: server-2.tower-288.messagelabs.com!1554898842!6689738!1
-X-Originating-IP: [104.47.1.50]
-X-SYMC-ESS-Client-Auth: mailfrom-relay-check=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.31.5; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 31496 invoked from network); 10 Apr 2019 12:20:42 -0000
-Received: from mail-ve1eur01lp2050.outbound.protection.outlook.com (HELO EUR01-VE1-obe.outbound.protection.outlook.com) (104.47.1.50)
-  by server-2.tower-288.messagelabs.com with AES256-SHA256 encrypted SMTP; 10 Apr 2019 12:20:42 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=dialogsemiconductor.onmicrosoft.com; s=selector1-diasemi-com;
+        Wed, 10 Apr 2019 08:49:38 -0400
+Received: from mail-eopbgr680040.outbound.protection.outlook.com ([40.107.68.40]:55681
+        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730758AbfDJMth (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 10 Apr 2019 08:49:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FjB0QuhR18rgYiSXjsFHr/E27Emg0RuYfmb1MsQ8hq4=;
- b=KU6pPfO4LAks5cT2wNGhNT4SRnicdBVGIo86sMVO0BF18xhO9vKnz2TzPGm61IVuIG4n09AG/Mt+Svgl/ZaR3OZ5iKK0kQuPU3ssV95iuKUGH1nCFqjfp/IsDtT8jet0gXo5TdZnr6bMDDm2XFjiqHdm7aDA+NcylLeY0H4V0yk=
-Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM (20.177.62.92) by
- VI1PR10MB2429.EURPRD10.PROD.OUTLOOK.COM (20.177.62.149) with Microsoft SMTP
+ bh=yc8upti9x5DMkmU0IPIRwe3PfphRMo9M60ROkOBSjJ4=;
+ b=oyF1LPwvPT7JncES76alXXvDUkrBnUYmI3M7GOWnS9uCF7iLqIiR1+xJdeY1DxKvNjn020e6tvZslELGhPHWD1yx0ajHYxbAhN2+Z6dOVh18NT7Xbus9wRIDzeuGds13WcSHGpgUeGnLg/zCTCTpzLiDX5fye/vPlLtOSR97tt4=
+Received: from DM5PR05MB3292.namprd05.prod.outlook.com (10.174.191.31) by
+ DM5PR05MB2828.namprd05.prod.outlook.com (10.168.177.13) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1771.21; Wed, 10 Apr 2019 12:20:39 +0000
-Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::acc9:6d8f:da36:9f25]) by VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::acc9:6d8f:da36:9f25%2]) with mapi id 15.20.1792.009; Wed, 10 Apr 2019
- 12:20:39 +0000
-From:   Steve Twiss <stwiss.opensource@diasemi.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+ 15.20.1792.15; Wed, 10 Apr 2019 12:49:34 +0000
+Received: from DM5PR05MB3292.namprd05.prod.outlook.com
+ ([fe80::1872:e9e:7779:4b4c]) by DM5PR05MB3292.namprd05.prod.outlook.com
+ ([fe80::1872:e9e:7779:4b4c%2]) with mapi id 15.20.1792.009; Wed, 10 Apr 2019
+ 12:49:34 +0000
+From:   Bryan Tan <bryantan@vmware.com>
+CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Support Opensource <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH 11/22] watchdog: da9062_wdt: Use 'dev' instead of
- dereferencing it repeatedly
-Thread-Topic: [PATCH 11/22] watchdog: da9062_wdt: Use 'dev' instead of
- dereferencing it repeatedly
-Thread-Index: AQHU7kLa43YqYuciqEqk4d0bkd+M+aY1UU2Q
-Date:   Wed, 10 Apr 2019 12:20:39 +0000
-Message-ID: <VI1PR10MB2352D1A1496EB4AC848DFE6CFE2E0@VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM>
-References: <1554752326-13319-1-git-send-email-linux@roeck-us.net>
- <1554752326-13319-12-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1554752326-13319-12-git-send-email-linux@roeck-us.net>
-Accept-Language: en-GB, en-US
+        Bryan Tan <bryantan@vmware.com>
+Subject: [PATCH] watchdog: wdat_wdt: fix get_timeleft call for wdat_wdt
+Thread-Topic: [PATCH] watchdog: wdat_wdt: fix get_timeleft call for wdat_wdt
+Thread-Index: AQHU75vYKEDScG67k0a+4y5dahf8cA==
+Date:   Wed, 10 Apr 2019 12:49:33 +0000
+Message-ID: <20190410124813.86892-1-bryantan@vmware.com>
+Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
+x-clientproxiedby: LO2P265CA0050.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:60::14) To DM5PR05MB3292.namprd05.prod.outlook.com
+ (2603:10b6:4:3e::31)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=bryantan@vmware.com; 
 x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [193.240.73.196]
+x-mailer: git-send-email 2.20.1 (Apple Git-117)
+x-originating-ip: [212.36.145.45]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2957eae1-81f9-4fb2-4479-08d6bdaef1e0
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(2017052603328)(7193020);SRVR:VI1PR10MB2429;
-x-ms-traffictypediagnostic: VI1PR10MB2429:
-x-ms-exchange-purlcount: 1
-x-microsoft-antispam-prvs: <VI1PR10MB2429FEFA6265B81B0B1C3251F52E0@VI1PR10MB2429.EURPRD10.PROD.OUTLOOK.COM>
+x-ms-office365-filtering-correlation-id: bd353b36-c1c3-423a-f7a7-08d6bdb2f79e
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(7168020)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(2017052603328)(7193020);SRVR:DM5PR05MB2828;
+x-ms-traffictypediagnostic: DM5PR05MB2828:
+x-microsoft-antispam-prvs: <DM5PR05MB2828E549F1D6064AC072368CB22E0@DM5PR05MB2828.namprd05.prod.outlook.com>
 x-forefront-prvs: 00032065B2
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(39860400002)(346002)(136003)(366004)(396003)(199004)(189003)(97736004)(3846002)(6116002)(7736002)(2906002)(76176011)(74316002)(4744005)(99286004)(68736007)(66066001)(71200400001)(8936002)(305945005)(5660300002)(81156014)(81166006)(106356001)(6436002)(105586002)(8676002)(966005)(71190400001)(446003)(478600001)(11346002)(14454004)(110136005)(33656002)(7696005)(107886003)(6246003)(53936002)(186003)(54906003)(25786009)(316002)(476003)(256004)(229853002)(4326008)(26005)(102836004)(6306002)(486006)(55016002)(9686003)(6506007)(86362001)(53546011)(52536014);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR10MB2429;H:VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:0;MX:1;
-received-spf: None (protection.outlook.com: diasemi.com does not designate
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(346002)(39860400002)(396003)(366004)(376002)(199004)(189003)(50226002)(55236004)(6436002)(102836004)(36756003)(59246006)(6506007)(386003)(186003)(6116002)(3846002)(105586002)(26005)(54906003)(2906002)(99286004)(6486002)(52116002)(486006)(106356001)(476003)(2616005)(316002)(71190400001)(71200400001)(109986005)(86362001)(7736002)(6512007)(1671002)(107886003)(25786009)(305945005)(4326008)(14454004)(53936002)(68736007)(8936002)(1076003)(14444005)(66066001)(8676002)(256004)(4744005)(81156014)(81166006)(478600001)(97736004)(5660300002);DIR:OUT;SFP:1101;SCL:1;SRVR:DM5PR05MB2828;H:DM5PR05MB3292.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: A0hkEC/YD/28/qxPMZrqOBr0vuBXME6HpEEq03leVjxzqbl5zlXHKnbuGvqzieu1+Cv2x252E2SSY4BD+6fSnlRmtKtgX1APt/r0kJXUP2uvRdRdKeAIFhsaPJysmkJ5cQg6+00Zq2lu7o79PWSPD1kVUgcpdUWi0S8ipf9T0iyz3T1t0btZX/fV2axeIxCDQqiqnjMYO+0R6GWyADDJhvTAsW/Y6CZZWJpc97of+EuqS+ItrrqqIrgK5pEkWdZ38rSiraCz/1trfZRZpeR18mxQI90wIMfRssy27bwFaSQ3q3+asiwtPsgboKtpjAc3+drY5lGCWWfU02tcQL5rIUEVld/sEnTiudP3k/ZRBrlCc/IHLJ9y7kGUJtNPXYN46g+OwznUb1HkHHU3ei/G+XQv42SEn14Exe5gIpHRkuE=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+x-microsoft-antispam-message-info: RPbOQIFJEyrpH+j017Q8tI2VA33mXkglHud72Uf3pYyy3+XN3Oy08IzmFwT76a1s9VQ8fAMV6TMQSkp5dGJj0g2V7Z9HZdSP8FHWa3XH7J1SDs+SihtEGw858d7POZhjsPdvxsZ2E56SXKhx9MTdxjkkGSQhcZr+05hMrqNqTP6nsJ0FKVu6tH8O5fobU/h/XtP2gjM7HB5/xDHnZSm2WaW0c9xcD4P1CvwPwKSz6rRXtdF+WFVE5Q5KdBxafmG1DgWqN+zpfAGQP+R7pkUqwpoaBNoAUdi3yNg8/Zrjjpr9CYRibQ5tZshkybKmA9W937CaIb3Vjmaj37Dwd1VSHj2OnwoB0Aq88TIs5QxYFWLjQU1aBy36j6K7s9wh9PaMuEDLYaoUkvdJJP4m+he70ODa3ZhPDnDmyox97RBxiDA=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-OriginatorOrg: diasemi.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2957eae1-81f9-4fb2-4479-08d6bdaef1e0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2019 12:20:39.8148
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bd353b36-c1c3-423a-f7a7-08d6bdb2f79e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2019 12:49:33.9476
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB2429
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR05MB2828
+To:     unlisted-recipients:; (no To-header on input)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
-
-On 08 April 2019 20:39, Guenter Roeck wrote:
-
-> Subject: [PATCH 11/22] watchdog: da9062_wdt: Use 'dev' instead of
-> dereferencing it repeatedly
->=20
-> Introduce local variable 'struct device *dev' and use it instead of
-> dereferencing it repeatedly. Also replace 'ret =3D func(); return ret;'
-> with 'return func();'.
->=20
-> The conversion was done automatically with coccinelle using the
-> following semantic patches. The semantic patches and the scripts
-> used to generate this commit log are available at
-> https://github.com/groeck/coccinelle-patches
->=20
-> Cc: Support Opensource <support.opensource@diasemi.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
-Thanks for that,
-Regards,
-Steve
+VGhlIGdldF90aW1lbGVmdCBjYWxsIGZvciB3ZGF0X3dkdCB3YXMgdXNpbmcgQUNQSV9XREFUX0dF
+VF9DT1VOVERPV04NCndoZW4gcnVubmluZyBhbiBhY3Rpb24gb24gdGhlIGRldmljZSwgd2hpY2gg
+d291bGQgcmV0dXJuIHRoZSBjb25maWd1cmVkDQpjb3VudGRvd24sIGluc3RlYWQgb2YgQUNQSV9X
+REFUX0dFVF9DVVJSRU5UX0NPVU5URE9XTiwgd2hpY2ggcmV0dXJucyB0aGUNCnRpbWUgbGVmdCBi
+ZWZvcmUgdGhlIHdhdGNoZG9nIHdpbGwgZmlyZS4gVGhpcyBjaGFuZ2UgY29ycmVjdHMgdGhhdC4N
+Cg0KU2lnbmVkLW9mZi1ieTogQnJ5YW4gVGFuIDxicnlhbnRhbkB2bXdhcmUuY29tPg0KLS0tDQog
+ZHJpdmVycy93YXRjaGRvZy93ZGF0X3dkdC5jIHwgMiArLQ0KIDEgZmlsZSBjaGFuZ2VkLCAxIGlu
+c2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRv
+Zy93ZGF0X3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy93ZGF0X3dkdC5jDQppbmRleCA1NmFkMTk2
+Li4zODc4OTJmIDEwMDY0NA0KLS0tIGEvZHJpdmVycy93YXRjaGRvZy93ZGF0X3dkdC5jDQorKysg
+Yi9kcml2ZXJzL3dhdGNoZG9nL3dkYXRfd2R0LmMNCkBAIC0yODcsNyArMjg3LDcgQEAgc3RhdGlj
+IHVuc2lnbmVkIGludCB3ZGF0X3dkdF9nZXRfdGltZWxlZnQoc3RydWN0IHdhdGNoZG9nX2Rldmlj
+ZSAqd2RkKQ0KIAlzdHJ1Y3Qgd2RhdF93ZHQgKndkYXQgPSB0b193ZGF0X3dkdCh3ZGQpOw0KIAl1
+MzIgcGVyaW9kcyA9IDA7DQogDQotCXdkYXRfd2R0X3J1bl9hY3Rpb24od2RhdCwgQUNQSV9XREFU
+X0dFVF9DT1VOVERPV04sIDAsICZwZXJpb2RzKTsNCisJd2RhdF93ZHRfcnVuX2FjdGlvbih3ZGF0
+LCBBQ1BJX1dEQVRfR0VUX0NVUlJFTlRfQ09VTlRET1dOLCAwLCAmcGVyaW9kcyk7DQogCXJldHVy
+biBwZXJpb2RzICogd2RhdC0+cGVyaW9kIC8gMTAwMDsNCiB9DQogDQotLSANCjIuNi4yDQoNCg==
