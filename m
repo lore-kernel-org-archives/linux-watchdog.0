@@ -1,97 +1,146 @@
-Return-Path: <SRS0=y0dX=SM=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=VrN4=SN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB9B5C10F11
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 22:15:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21515C10F13
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 07:18:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 84A0A20850
-	for <linux-watchdog@archiver.kernel.org>; Wed, 10 Apr 2019 22:15:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D6Mwh0aB"
+	by mail.kernel.org (Postfix) with ESMTP id E43882133D
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 07:18:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1554967089;
+	bh=N3JJ6GHeWofRNi0ytMPW66vRQ7p6/GRlZ1WUaRoFIRA=;
+	h=Subject:To:Cc:References:From:Date:In-Reply-To:List-ID:From;
+	b=bME4BmKxsTlgXPVPiQaTLzByUGll8QlJ+AF2ZNt9jQxqP8VD7CGSI/e4ajPyuS+lM
+	 C9/F6C2gsSDy0hMJHavUzHfwVRlBas6yztz1K2ed7nj173BrvhmhyDjCABJo4V0sQx
+	 q1HrFSGzMjlwnEdjNtdWl3MEcyQTzEKqTY8WgmJU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726106AbfDJWPR (ORCPT
+        id S1726635AbfDKHSI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 Apr 2019 18:15:17 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:41724 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725982AbfDJWPR (ORCPT
+        Thu, 11 Apr 2019 03:18:08 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:45137 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726104AbfDKHSI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Apr 2019 18:15:17 -0400
-Received: by mail-pl1-f194.google.com with SMTP id d1so2236937plj.8;
-        Wed, 10 Apr 2019 15:15:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=/ME8UCRPhLKhI9XNsKa0H08evJ48xzJoLZLWFynyGu0=;
-        b=D6Mwh0aBjutAgUD2QUITwrHNkJkqtxoQ1HEleQv0XZQMhon+Mf9eCY7kuBrCiVkIW9
-         d7WK5cS1VPY2VkualAes2LtqGALrVEMtZq9K4SpLc6VzLRA4cSev3D+UfVYFNk4JoecU
-         RselPOb8n+nlbd2xvtvUcDkt1cBEf/msq5e59nunnu+y45VeXVKeUqeNXBhzAYBH9yXw
-         L07nCZpBmqcozHap682ruHaPhVuYG9P7VUNeMJlD0Uv4s3uxPsWNWn0z7zPf6huT+wAy
-         PtbmkozCoME3EA3SEPoCfyEiJzO0NbD2FUCp0CFhJt4m/AayqJ1scoo3NZQeUFhCsR3c
-         Q5Dg==
+        Thu, 11 Apr 2019 03:18:08 -0400
+Received: by mail-ed1-f67.google.com with SMTP id o26so4227923edv.12;
+        Thu, 11 Apr 2019 00:18:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=/ME8UCRPhLKhI9XNsKa0H08evJ48xzJoLZLWFynyGu0=;
-        b=fAOykvH+GsfYMCF3EyLk+xXtgcysNwmw4FtVfMNL/esF2aMVJQ2nghSzccUvpVJy0p
-         cPtjVFZAJIPsSrZ56rMEaWMYiU8/F0Qd/3YQyAr/ETQ/liNtBykRMGHyUWehwLUwQ/xR
-         wrT3jAeoyWZfvsMPc1aUjPP+GB3qwfVOnvjsYIm4jHhgw85LSDqvjpFM76fgCt3Wy6lC
-         w5eWJXGuQk+i+WR5nOsVKyOmiywBMljVXMEIzKoSS77sw7W00kIN5VS3S6wJ1O4HQ0aW
-         P4pQZOoN0UA1WjH5dL7FzLaCQ0NqUYi8pRvblV72yhnur2Yqzqe2WD93zGrTjVb7cxTN
-         EPfA==
-X-Gm-Message-State: APjAAAWfWG54PxN3zxdsDhZSAow09nHaLyIaelq45LFkMw3zly3XHZXZ
-        a3rd2ZXAqPD+oa1IqVOtxcA=
-X-Google-Smtp-Source: APXvYqzYBf7usmuy3j2uN6zwXsXbAXl42EVsECaWOC0ol2VHrVndnIQuGWYNvV0sm12TkGAAKyTQhw==
-X-Received: by 2002:a17:902:b602:: with SMTP id b2mr47138995pls.293.1554934516181;
-        Wed, 10 Apr 2019 15:15:16 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p2sm113952543pfi.73.2019.04.10.15.15.14
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Apr 2019 15:15:15 -0700 (PDT)
-Date:   Wed, 10 Apr 2019 15:15:13 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Joe Perches <joe@perches.com>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH 18/22] watchdog: mt7621_wdt: Use 'dev' instead of
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=sxLUb3lPp2thkzMjyNxBIAlI8R1FCrrSQGthadoEupg=;
+        b=K5yScFqNR0ORSVt8G8ao5SnTXPitNnELIvHcSxEZzuiQiNpo9tLY8jg8eRoFPjACD1
+         mozmHcVIRZlRXFA6SBz+hY2+qAfOyGwdRNLiuk4PDQ3AYJDr+99wE/HFyavNpXWqTqik
+         cyv1HLNDEcaBBmf92+HVYtjDQdbH5gFq7H816TIma3KkpTZ7yB2kWHQZhnr/frrFvJ5S
+         ULanpOQJF3zgNS2VQf3Tu5YcIz/Lk1hUyDfKsujHSeJSOPAjAfNAevkYsQHfdlW5xqkN
+         jp6+/NjCyaP9TSGkM9Z9Dx9UqjMx20g8qOqGlgaCTHHfSX8xw2vKrwaKThP/8f5ZSn/E
+         waVw==
+X-Gm-Message-State: APjAAAVOZnvLm6lWXmF4XGgHgByA07cucsWPdSGtRTfIx2Sl/Qc+D1KD
+        POUIYSe0wj8RlYn2HLLke6vcmFfm
+X-Google-Smtp-Source: APXvYqzAh073JfR0LjTdwJyBJeI1cXz/A0S8TY1JnfXJiRLmjJSPG+D4wV70qE8k6otNuOt/7rBuMw==
+X-Received: by 2002:a05:6402:688:: with SMTP id f8mr30724450edy.189.1554967085553;
+        Thu, 11 Apr 2019 00:18:05 -0700 (PDT)
+Received: from linux-x5ow.site (nat.nue.novell.com. [2620:113:80c0:5::2222])
+        by smtp.gmail.com with ESMTPSA id n16sm5888030ejb.28.2019.04.11.00.18.04
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Apr 2019 00:18:04 -0700 (PDT)
+Subject: Re: [PATCH 02/23] watchdog: mena21_wdt: Use 'dev' instead of
  dereferencing it repeatedly
-Message-ID: <20190410221513.GA28441@roeck-us.net>
-References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
- <1554913683-25454-19-git-send-email-linux@roeck-us.net>
- <e76117d45b1b1caff6bce8d28506e683694d6a79.camel@perches.com>
- <20190410195409.GA29802@roeck-us.net>
- <e735fb3399d9fadf75216ef5cb4a7f55d1f336f3.camel@perches.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1554830641-9247-1-git-send-email-linux@roeck-us.net>
+ <1554830641-9247-3-git-send-email-linux@roeck-us.net>
+From:   Johannes Thumshirn <jth@kernel.org>
+Openpgp: preference=signencrypt
+Autocrypt: addr=jth@kernel.org; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <34d100ba-07ab-6b1f-a635-603f6f282e54@kernel.org>
+Date:   Thu, 11 Apr 2019 09:18:03 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e735fb3399d9fadf75216ef5cb4a7f55d1f336f3.camel@perches.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <1554830641-9247-3-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Joe,
-
-On Wed, Apr 10, 2019 at 03:10:09PM -0700, Joe Perches wrote:
-> On Wed, 2019-04-10 at 12:54 -0700, Guenter Roeck wrote:
-> > A checkpatch rule suggesting that multiple extension lines can be merged
-> > might be useful to help finding such situations. Just a thought.
+On 09/04/2019 19:23, Guenter Roeck wrote:
+> Introduce local variable 'struct device *dev' and use it instead of
+> dereferencing it repeatedly.
 > 
-> You are welcome to try to write that one.
-> It's likely not a trivial task to make it sensible.
+> The conversion was done automatically with coccinelle using the
+> following semantic patches. The semantic patches and the scripts
+> used to generate this commit log are available at
+> https://github.com/groeck/coccinelle-patches
 > 
+> Cc: Johannes Thumshirn <morbidrsa@gmail.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
 
-No chance - if _you_ think it is difficult, it would be absolutely hopeless
-for me, and I am not going to touch it.
-
-Cheers,
-Guenter
+FWIW,
+Reviewed-by: Johannes Thumshirn <jth@kernel.org>
