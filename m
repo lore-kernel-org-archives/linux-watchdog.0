@@ -2,82 +2,76 @@ Return-Path: <SRS0=VrN4=SN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23628C10F13
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 08:53:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 212B8C10F13
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 15:36:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E1D0521850
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 08:53:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1554972813;
-	bh=TjmBak9eIUg4Gs4XABfTfdyrm/SsN3+af+vk1upbfAo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=0jncQrxhtInP6ghFDnQiBtcLrypeakfuPgPVrhAtE0MFThZAPrWyXvx5KyitkSYrT
-	 cCNtZBQIVhQcjYQSgdSialE9+8gcf9KiHW20SLeth6TUsOVOIMNf/0viV0Iy/8gEuR
-	 0Ql8x24ShqO525ZwZ7f9Ufs6XktXeq10R5FJmB18=
+	by mail.kernel.org (Postfix) with ESMTP id EF3E720850
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Apr 2019 15:36:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbfDKIxc (ORCPT
+        id S1726640AbfDKPgw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 Apr 2019 04:53:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725793AbfDKIxc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 Apr 2019 04:53:32 -0400
-Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45D032184B;
-        Thu, 11 Apr 2019 08:53:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1554972811;
-        bh=TjmBak9eIUg4Gs4XABfTfdyrm/SsN3+af+vk1upbfAo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dvZz7i7WCm2Q8jFAHqcgXfH4IvBiglc+Wl+OnMq4BtnP/PV2yh11vDgYhOFHl8QBF
-         PvyhtJP1pe+uwAo+v9fOAiaM1bc5xOtho9L3yMx62vnhplUoJlKQXOFoFQn+Kb97tL
-         T+1gQpoc+/SaLw/ZxZTPEAyoZ+lnth/bpJ4HRkDo=
-Date:   Thu, 11 Apr 2019 16:53:17 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
+        Thu, 11 Apr 2019 11:36:52 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:33821 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726391AbfDKPgw (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 11 Apr 2019 11:36:52 -0400
+X-Originating-IP: 109.213.33.177
+Received: from localhost (alyon-652-1-42-177.w109-213.abo.wanadoo.fr [109.213.33.177])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 635EA2000B;
+        Thu, 11 Apr 2019 15:36:48 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jun Nie <jun.nie@linaro.org>
-Subject: Re: [PATCH 12/22] watchdog: zx2967_wdt: Convert to use device
- managed functions and other improvements
-Message-ID: <20190411085316.GG3050@dragon>
-References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
- <1554913683-25454-13-git-send-email-linux@roeck-us.net>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] watchdog: pnx4008: readout watchddog state
+Date:   Thu, 11 Apr 2019 17:36:46 +0200
+Message-Id: <20190411153646.32228-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1554913683-25454-13-git-send-email-linux@roeck-us.net>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 10, 2019 at 09:27:53AM -0700, Guenter Roeck wrote:
-> Use device managed functions to simplify error handling, reduce
-> source code size, improve readability, and reduce the likelyhood of bugs.
-> Other improvements as listed below.
-> 
-> The conversion was done automatically with coccinelle using the
-> following semantic patches. The semantic patches and the scripts
-> used to generate this commit log are available at
-> https://github.com/groeck/coccinelle-patches
-> 
-> - Drop assignments to otherwise unused variables
-> - Drop empty remove function
-> - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-> - Use local variable 'struct device *dev' consistently
-> - Use devm_watchdog_register_driver() to register watchdog device
-> 
-> Cc: Jun Nie <jun.nie@linaro.org>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Readout the enabled state so it is possible to get the pre-userspace
+handler working. Also, avoid disabling the watchdog when nowayout is set to
+ensure the watchdog continues working and triggers if there is an issue
+later in the boot or if userspace fails to start.
 
-Acked-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/watchdog/pnx4008_wdt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 8e261799c84e..9e3714e3814c 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -209,7 +209,11 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
+ 	watchdog_set_restart_priority(&pnx4008_wdd, 128);
+ 
+-	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
++	if (readl(WDTIM_CTRL(wdt_base)) & COUNT_ENAB)
++		set_bit(WDOG_HW_RUNNING, &pnx4008_wdd.status);
++
++	if (!nowayout)
++		pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
+ 
+ 	ret = watchdog_register_device(&pnx4008_wdd);
+ 	if (ret < 0) {
+-- 
+2.20.1
+
