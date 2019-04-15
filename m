@@ -2,82 +2,98 @@ Return-Path: <SRS0=8G6l=SR=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A96DC10F0E
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 07:58:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8CFEC10F0E
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 08:21:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14FA3206BA
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 07:58:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B414B20674
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 08:21:19 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=cogentembedded-com.20150623.gappssmtp.com header.i=@cogentembedded-com.20150623.gappssmtp.com header.b="QrFlyw70"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725796AbfDOH63 (ORCPT
+        id S1725851AbfDOIVT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 15 Apr 2019 03:58:29 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:35681 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725794AbfDOH63 (ORCPT
+        Mon, 15 Apr 2019 04:21:19 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:38468 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725779AbfDOIVT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 15 Apr 2019 03:58:29 -0400
-Received: from webmail.gandi.net (webmail14.sd4.0x35.net [10.200.201.14])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPA id 8BA5440003;
-        Mon, 15 Apr 2019 07:58:26 +0000 (UTC)
+        Mon, 15 Apr 2019 04:21:19 -0400
+Received: by mail-lf1-f67.google.com with SMTP id v1so3042677lfg.5
+        for <linux-watchdog@vger.kernel.org>; Mon, 15 Apr 2019 01:21:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=AjL0XQZG+HyQuEEfM7wCFA0sYmyyrpsrVEapUZBj0IA=;
+        b=QrFlyw70ZCUAQO+P1V035NcAlJ4UqdoVCU5BeRXuOcBdo37kXFVeX0I2QXKCgIX5KH
+         Z9P+IMGrgbIynDcP/KZ069NcIfunox/HeL+156iKvXhI7aaoZUpuQzvjEjLGxmZaZxKG
+         N1YNbqOobTmEuObyP5pgrqIImcrxc2zuHJhxwPYmOc7t7z2sA/Y41b2RgMH97NGRhEnW
+         BzGOaEmAoICrui4Nrqb1SEsIN1LiQmtvQioCnyfhO5ydjtlp6jfa0PoUb0aWsg/UoQuv
+         vXEm5C92KMvjNKZTtH9qSWvvvAXVZqQMR3OtqXQ/xVslgNkfPslfEdPSHeGG/yWf0566
+         YqpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=AjL0XQZG+HyQuEEfM7wCFA0sYmyyrpsrVEapUZBj0IA=;
+        b=ulmVEK/+jwpzRgmvey5a9Kb5iDdUt21vhmbm/BvJQ/ihb/td8i/YhrcuEmtv7Up5wZ
+         fz4LYaO+jbV7NgdqhXiLTS+hLIY2BmXa3w6P5E7HtlItuOV6VjXatA2/k8nnnfSTpxP6
+         UFOPCRLXcJBOnw7TDWZlCFIetKj562EiqzGiFYOYkHWnRoQuOFfC/FmFexBb/p0NLjmK
+         bgD9TQA8Z5e23s2Z660cZz7Io9JpKpuMUWycFWXgM1KM8IDqzHczi1X3/v7CmGB3JtF8
+         yAOObKAVjT14+Ooen+8X3JdARWMJkIpoJYE84HeRR8v0i85XznT0BK6CTD7IKyVTMgY3
+         Y7mA==
+X-Gm-Message-State: APjAAAX0u6ZBtcxCv6mMta7YwvIwAPk+ikLHBEXXMwDHWuenBg6kd5eD
+        UtmVTSr0Q2z3hJUghSnmYhklkw==
+X-Google-Smtp-Source: APXvYqxNK7vvrZC5xsx390Bmid1rvxsEWxUvKTTDlbBjI1TCsDhQkUnqt1xqZa46bE1RP8nfZqQIcA==
+X-Received: by 2002:a19:f801:: with SMTP id a1mr18651473lff.150.1555316476990;
+        Mon, 15 Apr 2019 01:21:16 -0700 (PDT)
+Received: from [192.168.0.199] ([31.173.85.43])
+        by smtp.gmail.com with ESMTPSA id r2sm9852302ljd.16.2019.04.15.01.21.15
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Apr 2019 01:21:16 -0700 (PDT)
+Subject: Re: [PATCH 01/16] watchdog: refactor watchdog_init_timeout
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org
+References: <20190414102627.5564-1-wsa+renesas@sang-engineering.com>
+ <20190414102627.5564-2-wsa+renesas@sang-engineering.com>
+From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <35407697-cbbb-e72b-7aed-ed84a3beb669@cogentembedded.com>
+Date:   Mon, 15 Apr 2019 11:21:13 +0300
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+In-Reply-To: <20190414102627.5564-2-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Date:   Mon, 15 Apr 2019 09:58:26 +0200
-From:   gregory.clement@bootlin.com
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: pnx4008: readout watchdog state
-In-Reply-To: <20190411191437.12173-1-alexandre.belloni@bootlin.com>
-References: <20190411191437.12173-1-alexandre.belloni@bootlin.com>
-Message-ID: <ed5f9278c1ca08662c8dae83f2ed60d1@bootlin.com>
-X-Sender: gregory.clement@bootlin.com
-User-Agent: Roundcube Webmail/1.3.8
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2019-04-11 21:14, Alexandre Belloni wrote:
-> Readout the enabled state so it is possible to get the pre-userspace
-> handler working. Also, avoid disabling the watchdog to ensure it 
-> continues
-> working and triggers if there is an issue later in the boot or if 
-> userspace
-> fails to start.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Hello!
 
-Tested-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+On 14.04.2019 13:26, Wolfram Sang wrote:
 
+> The function is not easy to read and has two problems: a) -EINVAL is
+> returned when the module parameter is invalid but the DT parameter is
+> OK, and b) for the module parameter, zero is a valid value but for DT it
+> is invalid.
+> 
+> Refactor the code to have a the same pattern of checks for the module
+                             ^^^^^
+    One article would be enough. :-)
 
-> ---
->  drivers/watchdog/pnx4008_wdt.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> parameter and DT. Further ones can be easily added in the future if the
+> need arises. The above mentioned problems are fixed, too.
 > 
-> diff --git a/drivers/watchdog/pnx4008_wdt.c 
-> b/drivers/watchdog/pnx4008_wdt.c
-> index 8e261799c84e..4ce0389d1442 100644
-> --- a/drivers/watchdog/pnx4008_wdt.c
-> +++ b/drivers/watchdog/pnx4008_wdt.c
-> @@ -209,7 +209,8 @@ static int pnx4008_wdt_probe(struct platform_device 
-> *pdev)
->  	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
->  	watchdog_set_restart_priority(&pnx4008_wdd, 128);
-> 
-> -	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
-> +	if (readl(WDTIM_CTRL(wdt_base)) & COUNT_ENAB)
-> +		set_bit(WDOG_HW_RUNNING, &pnx4008_wdd.status);
-> 
->  	ret = watchdog_register_device(&pnx4008_wdd);
->  	if (ret < 0) {
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+[...]
+
+MBR, Sergei
