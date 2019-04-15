@@ -2,98 +2,96 @@ Return-Path: <SRS0=8G6l=SR=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8CFEC10F0E
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 08:21:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09BE8C282DA
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 10:52:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B414B20674
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 08:21:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=cogentembedded-com.20150623.gappssmtp.com header.i=@cogentembedded-com.20150623.gappssmtp.com header.b="QrFlyw70"
+	by mail.kernel.org (Postfix) with ESMTP id CFDB42087C
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Apr 2019 10:52:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725851AbfDOIVT (ORCPT
+        id S1725939AbfDOKwK (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 15 Apr 2019 04:21:19 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:38468 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725779AbfDOIVT (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 15 Apr 2019 04:21:19 -0400
-Received: by mail-lf1-f67.google.com with SMTP id v1so3042677lfg.5
-        for <linux-watchdog@vger.kernel.org>; Mon, 15 Apr 2019 01:21:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=AjL0XQZG+HyQuEEfM7wCFA0sYmyyrpsrVEapUZBj0IA=;
-        b=QrFlyw70ZCUAQO+P1V035NcAlJ4UqdoVCU5BeRXuOcBdo37kXFVeX0I2QXKCgIX5KH
-         Z9P+IMGrgbIynDcP/KZ069NcIfunox/HeL+156iKvXhI7aaoZUpuQzvjEjLGxmZaZxKG
-         N1YNbqOobTmEuObyP5pgrqIImcrxc2zuHJhxwPYmOc7t7z2sA/Y41b2RgMH97NGRhEnW
-         BzGOaEmAoICrui4Nrqb1SEsIN1LiQmtvQioCnyfhO5ydjtlp6jfa0PoUb0aWsg/UoQuv
-         vXEm5C92KMvjNKZTtH9qSWvvvAXVZqQMR3OtqXQ/xVslgNkfPslfEdPSHeGG/yWf0566
-         YqpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=AjL0XQZG+HyQuEEfM7wCFA0sYmyyrpsrVEapUZBj0IA=;
-        b=ulmVEK/+jwpzRgmvey5a9Kb5iDdUt21vhmbm/BvJQ/ihb/td8i/YhrcuEmtv7Up5wZ
-         fz4LYaO+jbV7NgdqhXiLTS+hLIY2BmXa3w6P5E7HtlItuOV6VjXatA2/k8nnnfSTpxP6
-         UFOPCRLXcJBOnw7TDWZlCFIetKj562EiqzGiFYOYkHWnRoQuOFfC/FmFexBb/p0NLjmK
-         bgD9TQA8Z5e23s2Z660cZz7Io9JpKpuMUWycFWXgM1KM8IDqzHczi1X3/v7CmGB3JtF8
-         yAOObKAVjT14+Ooen+8X3JdARWMJkIpoJYE84HeRR8v0i85XznT0BK6CTD7IKyVTMgY3
-         Y7mA==
-X-Gm-Message-State: APjAAAX0u6ZBtcxCv6mMta7YwvIwAPk+ikLHBEXXMwDHWuenBg6kd5eD
-        UtmVTSr0Q2z3hJUghSnmYhklkw==
-X-Google-Smtp-Source: APXvYqxNK7vvrZC5xsx390Bmid1rvxsEWxUvKTTDlbBjI1TCsDhQkUnqt1xqZa46bE1RP8nfZqQIcA==
-X-Received: by 2002:a19:f801:: with SMTP id a1mr18651473lff.150.1555316476990;
-        Mon, 15 Apr 2019 01:21:16 -0700 (PDT)
-Received: from [192.168.0.199] ([31.173.85.43])
-        by smtp.gmail.com with ESMTPSA id r2sm9852302ljd.16.2019.04.15.01.21.15
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 15 Apr 2019 01:21:16 -0700 (PDT)
-Subject: Re: [PATCH 01/16] watchdog: refactor watchdog_init_timeout
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org
-References: <20190414102627.5564-1-wsa+renesas@sang-engineering.com>
- <20190414102627.5564-2-wsa+renesas@sang-engineering.com>
-From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <35407697-cbbb-e72b-7aed-ed84a3beb669@cogentembedded.com>
-Date:   Mon, 15 Apr 2019 11:21:13 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <20190414102627.5564-2-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Mon, 15 Apr 2019 06:52:10 -0400
+Received: from sauhun.de ([88.99.104.3]:40532 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726298AbfDOKwK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 15 Apr 2019 06:52:10 -0400
+Received: from localhost (p54B331F8.dip0.t-ipconnect.de [84.179.49.248])
+        by pokefinder.org (Postfix) with ESMTPSA id B5E4D2C0114;
+        Mon, 15 Apr 2019 12:52:06 +0200 (CEST)
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-watchdog@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH] watchdog: renesas_wdt: support handover from bootloader
+Date:   Mon, 15 Apr 2019 12:52:01 +0200
+Message-Id: <20190415105201.2078-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.11.0
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello!
+Support an already running watchdog by checking its enable bit and set
+up the status accordingly before registering the device.
 
-On 14.04.2019 13:26, Wolfram Sang wrote:
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-> The function is not easy to read and has two problems: a) -EINVAL is
-> returned when the module parameter is invalid but the DT parameter is
-> OK, and b) for the module parameter, zero is a valid value but for DT it
-> is invalid.
-> 
-> Refactor the code to have a the same pattern of checks for the module
-                             ^^^^^
-    One article would be enough. :-)
+This patch was tested using a Renesas Salvator XS board (R-Car M3N). It works.
+However, there is a small window where the watchdog clock is disabled, namely
+after the MSSR clock driver initializes it until RuntimePM of the watchdog
+driver takes over. If the system hangs in this window, bad luck. So, I'd think
+it makes sense to have this clock either always-on or to keep the state which
+came from the firmware. Geert, what do you think?
 
-> parameter and DT. Further ones can be easily added in the future if the
-> need arises. The above mentioned problems are fixed, too.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-[...]
+ drivers/watchdog/renesas_wdt.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-MBR, Sergei
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index 565dbc1ec638..37d757288b22 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -179,6 +179,7 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	struct clk *clk;
+ 	unsigned long clks_per_sec;
+ 	int ret, i;
++	u8 csra;
+ 
+ 	if (rwdt_blacklisted(&pdev->dev))
+ 		return -ENODEV;
+@@ -198,8 +199,8 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_get_sync(&pdev->dev);
+ 	priv->clk_rate = clk_get_rate(clk);
+-	priv->wdev.bootstatus = (readb_relaxed(priv->base + RWTCSRA) &
+-				RWTCSRA_WOVF) ? WDIOF_CARDRESET : 0;
++	csra = readb_relaxed(priv->base + RWTCSRA);
++	priv->wdev.bootstatus = csra & RWTCSRA_WOVF ? WDIOF_CARDRESET : 0;
+ 	pm_runtime_put(&pdev->dev);
+ 
+ 	if (!priv->clk_rate) {
+@@ -237,6 +238,16 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	/* This overrides the default timeout only if DT configuration was found */
+ 	watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
+ 
++	if (csra & RWTCSRA_TME) {
++		/* Ensure properly initialized dividers */
++		rwdt_start(&priv->wdev);
++		set_bit(WDOG_HW_RUNNING, &priv->wdev.status);
++		//FIXME: We are missing pm_runtime_put in some code paths to
++		// to balance PM calls. We first need to decide if we maybe
++		// should have the RWDT clock always-on or if using RPM for
++		// clock management is OK.
++	}
++
+ 	ret = watchdog_register_device(&priv->wdev);
+ 	if (ret < 0)
+ 		goto out_pm_disable;
+-- 
+2.11.0
+
