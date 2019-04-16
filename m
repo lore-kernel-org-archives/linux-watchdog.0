@@ -2,67 +2,31 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B36CC10F13
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3424DC10F14
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:14:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 60679206BA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:09:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Nb9r/ObQ"
+	by mail.kernel.org (Postfix) with ESMTP id 0BA4F20821
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:14:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbfDPIJw (ORCPT
+        id S1728694AbfDPIOi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 04:09:52 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:36483 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728360AbfDPIJw (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 04:09:52 -0400
-Received: by mail-wm1-f68.google.com with SMTP id h18so24003978wml.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 16 Apr 2019 01:09:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QULGWttfcYVMWXLo/sdQLVGyglVz6xrWAgoO0aZe4xE=;
-        b=Nb9r/ObQV8eZAS1Eje/jUKTuUK5BUX4ZBpRuqs3NdqXic/y0zlpuxUcuUqjFjb3//y
-         T6+g8nU6ICz9ppi68TPOw72G7aCS4vxMsKudKOd2tJZkDYQOtc//7JQa0o0qsqW4b45b
-         6JRW/WDVERtNpQVUfZQ95pBtSBIZPVFwjmgXAzTX5vxzIkGGzAJ4RuLTCV/ASCzYzy0R
-         FBrxpJyKSuDAJXLpJpUEDPvS2F/7ZszESwR8iYMzDWthp9rzIvOAd7wl+iKUvGwSHIB6
-         WH65EtdDy4R9WI3Rf7d727pQvherGBPRl6SvxzPWq6N22re8bRIZ/F57g6a9WyH+Oc2v
-         MM2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QULGWttfcYVMWXLo/sdQLVGyglVz6xrWAgoO0aZe4xE=;
-        b=VQAVBm3esXlEgJte1s582wnP9Nz26GF+RwbJUprJYxq2tPEiBJbnLrBezE1njjhtOc
-         xtBWTtAHN6VIepzVQs9isFtEPnIh3OyP25wIYc1LIuHovTRr1yRWzcoijSe8tnEPCOqG
-         bfg3VtNkhaPO1r70sJeC0fdD+WFDx8vZCNJzqENow2+r/I4Mgwa2gQwfX3/gp3oJ+nJG
-         cXqX8MTd6pFmLZtaD4KMwphYSEM0Czm2nBhonttHVmZmckraETi+lstbETVYVhmOYGIB
-         nzmAP9Wi9GAlFxgUuZvRrjrIB+3F74OmhNmCsj+8D1uiwehMXAgl0Qi0RNHvlj2BfufV
-         G+Yg==
-X-Gm-Message-State: APjAAAV8pQXq0jGRDRE6/cV29t+8B8wdqmDwWu8rfPqW3plq7+WTn16S
-        elufehQWk+gR+h386OpH6yEGhQ==
-X-Google-Smtp-Source: APXvYqyd/mMCIxOgtxk+5cUT8P7w6HRcUSsmFkOOk3Qt88R0HHow9yP9Ebnz2E9kBRw4V8VQepmPBA==
-X-Received: by 2002:a1c:b189:: with SMTP id a131mr24749123wmf.107.1555402190784;
-        Tue, 16 Apr 2019 01:09:50 -0700 (PDT)
-Received: from [192.168.0.41] (50.251.95.92.rev.sfr.net. [92.95.251.50])
-        by smtp.googlemail.com with ESMTPSA id s18sm20983941wmc.41.2019.04.16.01.09.48
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 01:09:50 -0700 (PDT)
-Subject: Re: [PATCH 18/24] dt-bindings: timer: mtk-timer: add support for
- MT8516
-To:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Fabien Parent <fparent@baylibre.com>, robh+dt@kernel.org,
-        mark.rutland@arm.com
-Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
+        Tue, 16 Apr 2019 04:14:38 -0400
+Received: from sauhun.de ([88.99.104.3]:47428 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726346AbfDPIOh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 16 Apr 2019 04:14:37 -0400
+Received: from localhost (p54B332D3.dip0.t-ipconnect.de [84.179.50.211])
+        by pokefinder.org (Postfix) with ESMTPSA id 2492A2C3637;
+        Tue, 16 Apr 2019 10:14:34 +0200 (CEST)
+Date:   Tue, 16 Apr 2019 10:14:33 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Fabien Parent <fparent@baylibre.com>, robh+dt@kernel.org,
+        mark.rutland@arm.com, sean.wang@kernel.org, ryder.lee@mediatek.com,
         hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
         chaotian.jing@mediatek.com, yong.mao@mediatek.com,
         jjian.zhou@mediatek.com, devicetree@vger.kernel.org,
@@ -72,62 +36,68 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
+Subject: Re: [PATCH 22/24] dt-bindings: i2c: i2c-mtk: add support for MT8516
+Message-ID: <20190416081433.GA1012@kunai>
 References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-19-fparent@baylibre.com>
- <182f1ae5-9f4f-8ef4-695f-353bbd1966c6@gmail.com>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <e4895191-c267-7b0b-6203-8e4ff44927e0@linaro.org>
-Date:   Tue, 16 Apr 2019 10:09:47 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+ <20190323211612.860-23-fparent@baylibre.com>
+ <2a384e4b-a23d-450b-ee37-57af8c097bae@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <182f1ae5-9f4f-8ef4-695f-353bbd1966c6@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+In-Reply-To: <2a384e4b-a23d-450b-ee37-57af8c097bae@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 16/04/2019 09:54, Matthias Brugger wrote:
-> 
-> 
+
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 16, 2019 at 09:58:09AM +0200, Matthias Brugger wrote:
+>=20
+>=20
 > On 23/03/2019 22:16, Fabien Parent wrote:
->> Add binding documentation of mtk-timer for MT8516 SoC.
->>
->> Signed-off-by: Fabien Parent <fparent@baylibre.com>
->> ---
->>  Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt | 1 +
->>  1 file changed, 1 insertion(+)
-> 
+> > Add binding documentation of i2c-mtk for MT8516 SoC.
+> >=20
+> > Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 1 +
+> >  1 file changed, 1 insertion(+)
+> >=20
+>=20
+>=20
 > applied to v5.1-next/dts64
-> 
-> Daniel let me know if you want to take it through your tree and I drop the patch.
+>=20
+> Wolfram let me know if you want to take it through your tree and I drop t=
+he patch.
 
-It is ok.
-
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-
->> diff --git a/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt b/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
->> index ff7c567a7972..74c3eadad844 100644
->> --- a/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
->> +++ b/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
->> @@ -17,6 +17,7 @@ Required properties:
->>  	* "mediatek,mt8127-timer" for MT8127 compatible timers (GPT)
->>  	* "mediatek,mt8135-timer" for MT8135 compatible timers (GPT)
->>  	* "mediatek,mt8173-timer" for MT8173 compatible timers (GPT)
->> +	* "mediatek,mt8516-timer" for MT8516 compatible timers (GPT)
->>  	* "mediatek,mt6577-timer" for MT6577 and all above compatible timers (GPT)
->>  
->>  	For those SoCs that use SYST
->>
+I'd like to take it via my tree to reduce conflicts. It already needs
+rebasing on top of i2c/for-next because of Qii's MT8183 patches.
 
 
--- 
- <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly1juUACgkQFA3kzBSg
+KbYvkBAAo8J4Hb7o2xSpDcB8bhSQ1zO7nKdqSNmT34i8lqsMct1Ou45q3AYaC3cg
+pVFmgD0UWBqAw0WPxsWl2TMUuVn1BajUEr5iOYd7PrxGWXHEeFfZIRn4EGiQrtPl
+4EH0eSgh5Oyh3DbwCuLAv94BaKkLom+RHcmdirrmePEkvlQGrnymlWkyK3MTNi09
+bjcuB4TkVfjoYxq4f/KRQVcIseBwVNls5eGiESPZc4cDz3hUhTbWjRgo7lG21Bf6
+3uEWyzN9zOwwrPssdem4GTLg4kgma+NMeZTlc0DVfzSf05jfCJLyJQraBoTGVrJ8
+wIQYipa3kdpjKx9pqRW3BBAkGNms8o++1Ht3Cd2O7YeXwPmRiNW0mkAfcz8G68sP
+bZIVt8Z/fYqPEvwVWj8XgNih1RLHxNLwTMrVkvvVGM+x9G39LiV6aZQU738FjsGm
+/HuBzRyd+bUBLrJxFGQCpxp+ocdI825KEkCOW7XKPUUeSF+Gm01NeWM9h+CmmMbj
+eX/o095Wj4cNXVhcMqNy8szkHuQbE1Ql5XnoML3eT6kg6POIZSDQzcf97SPHoqxN
+sdUdqQslPz2cufPhdLQKXq5Hu1jL99pwoD0ff3uB7davdsnUxTmTD31GhX2eEDaj
+Lo4dAVDImji28LAAtVhIPXhvZLqzWCUBXVM8hGd9ZSltSVq6DAk=
+=72J6
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--
