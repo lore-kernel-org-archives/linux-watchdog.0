@@ -2,77 +2,89 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 331B6C10F13
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A20D5C10F13
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:04:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DE6402073F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:58:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CE9320870
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 08:04:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I2+y9TkC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZCLk+pPZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbfDPH6R (ORCPT
+        id S1728667AbfDPIEL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 03:58:17 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:34010 "EHLO
+        Tue, 16 Apr 2019 04:04:11 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:43320 "EHLO
         mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726890AbfDPH6Q (ORCPT
+        with ESMTP id S1726890AbfDPIEK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 03:58:16 -0400
-Received: by mail-ed1-f65.google.com with SMTP id a6so5798648edv.1;
-        Tue, 16 Apr 2019 00:58:13 -0700 (PDT)
+        Tue, 16 Apr 2019 04:04:10 -0400
+Received: by mail-ed1-f65.google.com with SMTP id j20so6847022edq.10;
+        Tue, 16 Apr 2019 01:04:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=aDtAU7WMPbrqEjE9DnOAOJNUjSLUjIQwiYAw7Xh/PjI=;
-        b=I2+y9TkC6TzYd8jPqI5of5ieWceb3qJmLNl4k8MhKd6vnDgSDyYLzCPZNaRmA2zu7b
-         GYqmtHfwy0zqe6M8/EQhjmMdKrL4HVTx75qJCMNJAEnxIGsOXIEMam8sDn/Fu6BbzcTq
-         blBb146d/fTlXq23ARE15Nvgafkl5kuQ1EHAjwmsZ52Dg85enfWSKxILk5vsPvK1rh9E
-         gqnJ4suFqqII+VpILBaQgTuwGwrKhkJ+C7vj0VlSmAL0dKIonTIRixZimUUxQyqrN/Ly
-         kvpu2hru+rtDGv68NGoDdTEnoxVVULqT+4D7Sa5is17C9I2ZzEMtivrd+L93tyyknneb
-         75tQ==
+        bh=SaZ+6n6R59s/7ScX4d7jFK6XIIrG4olglEYSQ0CuG5Q=;
+        b=ZCLk+pPZn9jnX8qwPa6qb5Qy5gz0QoHjMggorn57A6QUT7Cfmnu01u29OBkBeoxzY+
+         F7uhjqN7bOu2Zr1HpFzSZ6NMaLvBZ0GckCOgqc89o/AaYhfDV/sorwMs6OVYUFqx9JOt
+         oq6ewm/9vQeb7h3CvIe+7dms+tJK0D+YkbxFBnceSlWEDimTEjxeFUVlWLoqci+OPrb7
+         aHxbgZuBpZG2Gz/lm/1gkuUx2Zz8dk2GVDasCmpLHNDJ5j+nXXytQUKJ7RYRwIYACaI7
+         ScKWnsyQc83SDZ3r3rkZVx2quCyOKlWooqYZ4qsBJ21t9n4BxQ2AMF3243k+yUhOZlCS
+         kPMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=aDtAU7WMPbrqEjE9DnOAOJNUjSLUjIQwiYAw7Xh/PjI=;
-        b=q6G+wy7KXlNpNSyN6iPgbSeKWQ3cWU7yqaftQAkAD8imnI5WQQBEMT2nxgKuJ5XO9S
-         rRcjAfZZx9D9iVr1B0h0piezzoBJX96dlvxsQozf4nRmWQ9Mwq4MdaL5wA4yLLE4MGuv
-         SMS5Zwfib39s94ITdKfg1EGuGfdhSDrJfycDXHghgj9p92tWa2d8vE3BZiC/3jU2Toyi
-         /6tiEjvmn1Ay0BaPK2NOQW1ag+sOWGx0/CuKQNNI9JBS9iF9+1WEhTqNl4enMN9xDjiP
-         vgYDKGnOaoyKqR0w0Lt7YJJLEhvEbaDPNzdgqokYexmRs3BKBOuesUxbiZenJlV6yWNG
-         gk7A==
-X-Gm-Message-State: APjAAAWeGluyKMm1G/rX+q0ipzYlnDi3FgGgGH7veQwrdzmrNiluR3eu
-        Q1OyV95wY/WOwGtGwxTJeO/6OATmem8=
-X-Google-Smtp-Source: APXvYqznWclXfjmWGumBqx1hxx+/AR/74bx8bT0TvyE9r3Y3x4llDYvP1zL5EO9nuBWFGu1bH3zQ9A==
-X-Received: by 2002:aa7:dada:: with SMTP id x26mr15089936eds.77.1555401492609;
-        Tue, 16 Apr 2019 00:58:12 -0700 (PDT)
+        bh=SaZ+6n6R59s/7ScX4d7jFK6XIIrG4olglEYSQ0CuG5Q=;
+        b=rEkwCcXYjy9lm4tVLCaAhPmM0xceE0o7GyMgMhl+kBQHELv/BT//Ap7i0R++3bDbqG
+         KnCX1N53DcgcCzhkWfdhabLrBC4Wa68om6ipc+CMiWWuehzJMvDMBO1L0xfKwTN5UBoE
+         v9knb7v0FkdnDFHJ+8oSfwzW+En7CErpFICzr1v0VAJVAx6Ln/nIoo2aUIf4nLqXzuQS
+         Xm0eFpRsJBV2eXcPWbv3EF6u4Ob/5a5zryIzYuobmnNbB5eWwxy52g05XGm+maRGSgu6
+         DwHAfF8Vlwd2pPlQALZTngSAYzB5ItR7XjtCgIVfnw6jHBrs/pTCgiaq9oXPH0nC6wsr
+         ftrw==
+X-Gm-Message-State: APjAAAV4+K7YHv8SVK7hsgpL+k3TAKA5ER9053FKnP209Bw7WnBDO0k2
+        IkyC5RQyV9gu+QEi91sUUkg=
+X-Google-Smtp-Source: APXvYqy2SSkFK0fsh0mwO7dtl2HPXFlpT1ekyMgpSQuiDo/zbB4x7bPFT9pX6grQBTGaQLG7CACpVQ==
+X-Received: by 2002:a17:906:d0c5:: with SMTP id bq5mr44158347ejb.43.1555401846712;
+        Tue, 16 Apr 2019 01:04:06 -0700 (PDT)
 Received: from ziggy.stardust ([37.223.141.112])
-        by smtp.gmail.com with ESMTPSA id d33sm6282859edc.45.2019.04.16.00.58.10
+        by smtp.gmail.com with ESMTPSA id b34sm15596019edd.24.2019.04.16.01.04.04
         (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 00:58:11 -0700 (PDT)
-Subject: Re: [PATCH 22/24] dt-bindings: i2c: i2c-mtk: add support for MT8516
-To:     Fabien Parent <fparent@baylibre.com>, robh+dt@kernel.org,
-        mark.rutland@arm.com, Wolfram Sang <wsa@the-dreams.de>
-Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
-        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
-        chaotian.jing@mediatek.com, yong.mao@mediatek.com,
-        jjian.zhou@mediatek.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
+        Tue, 16 Apr 2019 01:04:05 -0700 (PDT)
+Subject: Re: [PATCH 23/24] arm64: dts: mediatek: add dtsi for MT8516
+To:     Rob Herring <robh+dt@kernel.org>,
+        Fabien Parent <fparent@baylibre.com>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Sean Wang <sean.wang@kernel.org>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Wenzhen Yu <wenzhen.yu@mediatek.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com,
+        devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        stephane.leprovost@mediatek.com
 References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-23-fparent@baylibre.com>
+ <20190323211612.860-24-fparent@baylibre.com>
+ <CAL_Jsq+Q06O84-MTpgTWGG312VXm_vGOkjMCjtWuS0eZ-j_0yw@mail.gmail.com>
 From:   Matthias Brugger <matthias.bgg@gmail.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
@@ -168,12 +180,12 @@ Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
  pac005PuhxCWkKTJz3gCmznnoat4GCnL5gy/m0Qk45l4PFqwWXVLo9AQg2Kp3mlIFZ6fsEKI
  AN5hxlbNvNb9V2Zo5bFZjPWPFTxOteM0omUAS+QopwU0yPLLGJVf2iCmItHcUXI+r2JwH1CJ
  jrHWeQEI2ucSKsNa8FllDmG/fQ==
-Message-ID: <2a384e4b-a23d-450b-ee37-57af8c097bae@gmail.com>
-Date:   Tue, 16 Apr 2019 09:58:09 +0200
+Message-ID: <24517390-0015-d804-8c57-4e1030edba02@gmail.com>
+Date:   Tue, 16 Apr 2019 10:04:02 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <20190323211612.860-23-fparent@baylibre.com>
+In-Reply-To: <CAL_Jsq+Q06O84-MTpgTWGG312VXm_vGOkjMCjtWuS0eZ-j_0yw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -184,30 +196,31 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
 
-On 23/03/2019 22:16, Fabien Parent wrote:
-> Add binding documentation of i2c-mtk for MT8516 SoC.
+On 28/03/2019 20:22, Rob Herring wrote:
+> On Sat, Mar 23, 2019 at 4:17 PM Fabien Parent <fparent@baylibre.com> wrote:
+>>
+>> The MT8516 SoC provides the following peripherals: GPIO, UART, USB2,
+>> SPI, eMMC, SDIO, NAND, Flash, ADC, I2C, PWM, Timers, IR, Ethernet, and
+>> Audio (I2S, SPDIF, TDM).
+>>
+>> This commit is adding the basic dtsi file with the support of the
+>> following IOs: GPIO, UART, SPI, eMMC, I2C, Timers.
+>>
+>> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+>> ---
+>>  arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h | 663 ++++++++++++++++++
+>>  arch/arm64/boot/dts/mediatek/mt8516.dtsi      | 409 +++++++++++
+>>  2 files changed, 1072 insertions(+)
+>>  create mode 100644 arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h
+>>  create mode 100644 arch/arm64/boot/dts/mediatek/mt8516.dtsi
 > 
-> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 1 +
->  1 file changed, 1 insertion(+)
+> Reviewed-by: Rob Herring <robh@kernel.org>
 > 
 
+Fabien, before taking this through my tree, I'd like to see the drivers merged.
+Can you please resubmit taking into account the outcome of get_maintainers.pl
+script. From my experience it is easier to send one series per driver, as it
+makes the amount of emails every maintainer gets more manageable.
 
-applied to v5.1-next/dts64
-
-Wolfram let me know if you want to take it through your tree and I drop the patch.
-
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> index ee4c32454198..aac7b56f251f 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> @@ -12,6 +12,7 @@ Required properties:
->        "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
->        "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek MT7629
->        "mediatek,mt8173-i2c": for MediaTek MT8173
-> +      "mediatek,mt8516-i2c", "mediatek,mt2712-i2c": for MediaTek MT8516
->    - reg: physical base address of the controller and dma base, length of memory
->      mapped region.
->    - interrupts: interrupt number to the cpu.
-> 
+Regards,
+Matthias
