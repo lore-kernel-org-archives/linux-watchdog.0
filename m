@@ -2,194 +2,157 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2ABFC10F14
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 13:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A267DC10F14
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 13:23:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8C5C62077C
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 13:22:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CD602077C
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 13:23:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vd9fvU4P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726230AbfDPNWo (ORCPT
+        id S1727063AbfDPNXL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 09:22:44 -0400
-Received: from mout.kundenserver.de ([212.227.126.187]:44217 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725796AbfDPNWo (ORCPT
+        Tue, 16 Apr 2019 09:23:11 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:37378 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726986AbfDPNXL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 09:22:44 -0400
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue009 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1MMXYN-1hX5JC1fF9-00Ja2i; Tue, 16 Apr 2019 15:22:13 +0200
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     arm@kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Greg Ungerer <gerg@uclinux.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Tue, 16 Apr 2019 09:23:11 -0400
+Received: by mail-pg1-f196.google.com with SMTP id e6so10351500pgc.4;
+        Tue, 16 Apr 2019 06:23:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=YTcai3ILqiFQ0jFaP1rQRFUTWlngnMBopiXkVQbHRlg=;
+        b=Vd9fvU4PnFlrh7s4E9wblubIalsFj6J4baNeHXwlb3AczNr8RgDAu/YRUss1UCR64g
+         pGwioKEcPOLA04UDvylIKl82yGaZKpe+zrg+1uO5RUjIanfDWwOAqlIake46qjztHvcT
+         snBnRngHxgGU4rDBziicd3ce68ENZybhlHAFsytWQxiZmk4IR+A1aSBBEbBHtN80/lJl
+         DP0LjDsxuuvi3Pbm9lTuPMnEaZOJUSmh6b5rbYN1ad8Eq/aXhRHx3jiSIKyzdf3TwoYi
+         egDt7q9k12VD6UDgfyUIYIwPjdMwqV8SU7MyIEKrXTeVa0zFlNIBmGzm3p3PSUgwtaqn
+         FlhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=YTcai3ILqiFQ0jFaP1rQRFUTWlngnMBopiXkVQbHRlg=;
+        b=Ye8uTQ7mVBJV1XezRF7kQNWO2Vy8T18iU3rZ4x6vRXGMIx+io5w9uqpv2icZURZ8So
+         Fe/mP2KDD8weKGoXkWaKdaDZzG3PZaOoxTPCNW8fAZzuvuZD+ap1c94XFFgs+vhMgb3t
+         PI+TjmPMiQRiVvrIE1BTZOs8ek8FZqG4XQYM7XLs4Icf3eEIpc7Qk8cQpiwkQXOGZs5w
+         hg+FivC2ZBH8d4c1JqwKlbO5kWS0IHAlj0xDyaJaTkCdbUVF7KJrkZcqIIEv5GShGCop
+         XOesiIy8xup1hUnSe6h7IG8v1tWcXaHqJZ4DlCTq2qpHk3ITIhZ8vA2NrSSoBhoLRWWk
+         prXw==
+X-Gm-Message-State: APjAAAUlWysS7jTxmBcXNUgRVZZkChLMkas2+ULQ+XIYLuSSGNjM69Pk
+        JqVBgMZCxvqXugX6m6uE81V3oDKT
+X-Google-Smtp-Source: APXvYqw/s3TXNvlgP5EucJboiFEgnGRxmVa5YbwHQmHCMJ+PyxRciRx5Z27Yv0WpDVaXKq83xM7ylA==
+X-Received: by 2002:a63:6844:: with SMTP id d65mr77767431pgc.393.1555420990346;
+        Tue, 16 Apr 2019 06:23:10 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l1sm66358724pgo.13.2019.04.16.06.23.08
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Apr 2019 06:23:09 -0700 (PDT)
+Subject: Re: [PATCH v2 01/16] watchdog: refactor watchdog_init_timeout
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH 1/6 v2] ARM: ks8695: watchdog: stop using mach/*.h
-Date:   Tue, 16 Apr 2019 15:21:41 +0200
-Message-Id: <20190416132207.1304277-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
-In-Reply-To: <20190415202501.941196-1-arnd@arndb.de>
-References: <20190415202501.941196-1-arnd@arndb.de>
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-kernel@vger.kernel.org
+References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
+ <20190416102515.12269-2-wsa+renesas@sang-engineering.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <b65ae931-bfb3-acb4-8097-da4b81be1ea5@roeck-us.net>
+Date:   Tue, 16 Apr 2019 06:23:08 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:uqfgWOfOCLOa4nYg5G/1yN5YmkVEzPGjOL6IbNCxYpSeD28aL8L
- DYqyxCrtfdMCsLI7XiHS/rY0b6QJ6fcEhrF1XMS8e1Gu/6chVpUfT1k/V5G6iQAzLjcJYKn
- DIVPMNu0r0K/b5le/HrM4L4qB7QpD+1jf8fKufGe6k4FrdUATrBWts4949DzIiFIViKG1PR
- Mpdt2qwUjQNk8LOQxK3xw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:tw6p5CP/Xp8=:gSEDkRYFWUz05sDaS4HxlS
- bUB/iq/Wn7XUFIWst0ZunMDqnS7nczFxHMb1wJLQp2Js76TLVn6jbPmKW4mPkU9sB85qu6Klg
- UklO6CvX5ot0/anHOM79vw8j5pYTz/WMdhJ0xkVFu5681uj2jUWWOnSQT2K5XSNvcDvkclIUy
- vj43s0/ySU8V9md7QIA6SWrcJbpUEmt/nMmScfpX5yzzPcCV2QGm/HrfKOovLCHja4dniRgO0
- OCws+0trVHa4nhDhcjLoTm5nR/Z+DONka75h+5xWpWv0bXkvB6/aPQzmpl3eSDhVKTyMQRG3a
- yfcq7gLc2VFDFjwDoAHFo2b5lSiFrZZQ8/7gCkqXrnLrcHkR1oiUDgZp10j/hTBB7YvtcmS1w
- WEclfnJ9VO9aR0fD0XrHdWZ1ENAaP94CPF5zpQOav5VlKx7YTP4TtG6d9uhm9nsBjx/QwgXOy
- R13CxxgahMFV6yVYgCCqUvnEteplkgpgFg8935Us2riUBb66ZBNRN0tNCeeP11BUnQPfQTrQs
- EWwn9mZWh6BidKbO5WS+pjFtVoxIQaIqO0/2j+cJ+ERqQT8ZallQOaroi1L3f2sJijIyHnLKr
- 4HxJZW8rxCSSD6TQfNoiLDhVuCFkX8LIt0rzSoJ5qWvmJpqus4xXx8UiyNp+lKOz4QDuHI57u
- gYWTTI1pHiWWc6vsSP9MmltRFZ2B1Qe4Q5IeUqwqcj7IXCzh0zrZEEMwQLZ/4c2pxZzCIm+kf
- Q9Hk1XX+JVquIOcq3wy6wv5F1dNPkij0uAyegA==
+In-Reply-To: <20190416102515.12269-2-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-drivers should not rely on machine specific headers but
-get their information from the platform device.
+On 4/16/19 3:25 AM, Wolfram Sang wrote:
+> The function is not easy to read and has a problem: -EINVAL is returned
+> when the module parameter is invalid but the DT parameter is OK.
+> 
+> Refactor the code to have the same pattern of checks for the module
+> parameter and DT. Further ones can be easily added in the future if the
+> need arises. The above mentioned problem is fixed, too.
+> 
+> Some documentation is added to describe the different handlings of '0'
+> for the module parameter and the DT property.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/arm/mach-ks8695/devices.c | 13 ++++++++++++-
- drivers/watchdog/Kconfig       |  2 +-
- drivers/watchdog/ks8695_wdt.c  | 29 ++++++++++++++++-------------
- 3 files changed, 29 insertions(+), 15 deletions(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/arch/arm/mach-ks8695/devices.c b/arch/arm/mach-ks8695/devices.c
-index 15afeb964280..ba9d0f0f47ac 100644
---- a/arch/arm/mach-ks8695/devices.c
-+++ b/arch/arm/mach-ks8695/devices.c
-@@ -169,11 +169,22 @@ void __init ks8696_add_device_hpna(void)
- /* --------------------------------------------------------------------
-  *  Watchdog
-  * -------------------------------------------------------------------- */
-+#define KS8695_TMR_OFFSET      (0xF0000 + 0xE400)
-+#define KS8695_TMR_PA          (KS8695_IO_PA + KS8695_TMR_OFFSET)
-+static struct resource ks8695_wdt_resources[] = {
-+	[0] = {
-+		.name	= "tmr",
-+		.start	= KS8695_TMR_PA,
-+		.end	= KS8695_TMR_PA + 0xf,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
- 
- static struct platform_device ks8695_wdt_device = {
- 	.name		= "ks8695_wdt",
- 	.id		= -1,
--	.num_resources	= 0,
-+	.resource	= ks8695_wdt_resources,
-+	.num_resources	= ARRAY_SIZE(ks8695_wdt_resources),
- };
- 
- static void __init ks8695_add_device_watchdog(void)
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 242eea859637..046e01daef57 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -397,7 +397,7 @@ config IXP4XX_WATCHDOG
- 
- config KS8695_WATCHDOG
- 	tristate "KS8695 watchdog"
--	depends on ARCH_KS8695
-+	depends on ARCH_KS8695 || COMPILE_TEST
- 	help
- 	  Watchdog timer embedded into KS8695 processor. This will reboot your
- 	  system when the timeout is reached.
-diff --git a/drivers/watchdog/ks8695_wdt.c b/drivers/watchdog/ks8695_wdt.c
-index 1e41818a44bc..2a11cdfe2ab1 100644
---- a/drivers/watchdog/ks8695_wdt.c
-+++ b/drivers/watchdog/ks8695_wdt.c
-@@ -23,10 +23,8 @@
- #include <linux/watchdog.h>
- #include <linux/io.h>
- #include <linux/uaccess.h>
--#include <mach/hardware.h>
- 
--#define KS8695_TMR_OFFSET	(0xF0000 + 0xE400)
--#define KS8695_TMR_VA		(KS8695_IO_VA + KS8695_TMR_OFFSET)
-+#define KS8695_CLOCK_RATE  25000000
- 
- /*
-  * Timer registers
-@@ -57,6 +55,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 
- static unsigned long ks8695wdt_busy;
- static DEFINE_SPINLOCK(ks8695_lock);
-+static void __iomem *tmr_reg;
- 
- /* ......................................................................... */
- 
-@@ -69,8 +68,8 @@ static inline void ks8695_wdt_stop(void)
- 
- 	spin_lock(&ks8695_lock);
- 	/* disable timer0 */
--	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
--	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-+	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-+	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
- 	spin_unlock(&ks8695_lock);
- }
- 
-@@ -84,15 +83,15 @@ static inline void ks8695_wdt_start(void)
- 
- 	spin_lock(&ks8695_lock);
- 	/* disable timer0 */
--	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
--	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-+	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-+	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
- 
- 	/* program timer0 */
--	__raw_writel(tval | T0TC_WATCHDOG, KS8695_TMR_VA + KS8695_T0TC);
-+	__raw_writel(tval | T0TC_WATCHDOG, tmr_reg + KS8695_T0TC);
- 
- 	/* re-enable timer0 */
--	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
--	__raw_writel(tmcon | TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-+	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-+	__raw_writel(tmcon | TMCON_T0EN, tmr_reg + KS8695_TMCON);
- 	spin_unlock(&ks8695_lock);
- }
- 
-@@ -105,9 +104,9 @@ static inline void ks8695_wdt_reload(void)
- 
- 	spin_lock(&ks8695_lock);
- 	/* disable, then re-enable timer0 */
--	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
--	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
--	__raw_writel(tmcon | TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-+	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-+	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
-+	__raw_writel(tmcon | TMCON_T0EN, tmr_reg + KS8695_TMCON);
- 	spin_unlock(&ks8695_lock);
- }
- 
-@@ -239,6 +238,10 @@ static int ks8695wdt_probe(struct platform_device *pdev)
- {
- 	int res;
- 
-+	tmr_reg = devm_platform_ioremap_resource(pdev, 0);
-+	if (!tmr_reg)
-+		return -ENXIO;
-+
- 	if (ks8695wdt_miscdev.parent)
- 		return -EBUSY;
- 	ks8695wdt_miscdev.parent = &pdev->dev;
--- 
-2.20.0
+> ---
+>   drivers/watchdog/watchdog_core.c | 33 +++++++++++++++++++--------------
+>   1 file changed, 19 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index eb8fa25f8eb2..21e53cc49977 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -105,9 +105,12 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+>    * timeout module parameter (if it is valid value) or the timeout-sec property
+>    * (only if it is a valid value and the timeout_parm is out of bounds).
+>    * If none of them are valid then we keep the old value (which should normally
+> - * be the default timeout value).
+> + * be the default timeout value). Note that for the module parameter, '0' means
+> + * 'use default' while it is an invalid value for the timeout-sec property.
+> + * It should simply be dropped if you want to use the default value then.
+>    *
+> - * A zero is returned on success and -EINVAL for failure.
+> + * A zero is returned on success or -EINVAL if all provided values are out of
+> + * bounds.
+>    */
+>   int watchdog_init_timeout(struct watchdog_device *wdd,
+>   				unsigned int timeout_parm, struct device *dev)
+> @@ -117,22 +120,24 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+>   
+>   	watchdog_check_min_max_timeout(wdd);
+>   
+> -	/* try to get the timeout module parameter first */
+> -	if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
+> -		wdd->timeout = timeout_parm;
+> -		return ret;
+> -	}
+> -	if (timeout_parm)
+> +	/* check the driver supplied value (likely a module parameter) first */
+> +	if (timeout_parm) {
+> +		if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
+> +			wdd->timeout = timeout_parm;
+> +			return 0;
+> +		}
+>   		ret = -EINVAL;
+> +	}
+>   
+>   	/* try to get the timeout_sec property */
+> -	if (dev == NULL || dev->of_node == NULL)
+> -		return ret;
+> -	of_property_read_u32(dev->of_node, "timeout-sec", &t);
+> -	if (!watchdog_timeout_invalid(wdd, t) && t)
+> -		wdd->timeout = t;
+> -	else
+> +	if (dev && dev->of_node &&
+> +	    of_property_read_u32(dev->of_node, "timeout-sec", &t) == 0) {
+> +		if (t && !watchdog_timeout_invalid(wdd, t)) {
+> +			wdd->timeout = t;
+> +			return 0;
+> +		}
+>   		ret = -EINVAL;
+> +	}
+>   
+>   	return ret;
+>   }
+> 
 
