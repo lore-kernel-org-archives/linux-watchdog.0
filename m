@@ -2,109 +2,87 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EEF9C282DA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:27:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8847AC10F13
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 11:05:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 70B1B206BA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:27:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bfjobO7B"
+	by mail.kernel.org (Postfix) with ESMTP id 60A3F20821
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 11:05:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728147AbfDPK1q (ORCPT
+        id S1728230AbfDPLFi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 06:27:46 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33643 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727783AbfDPK1q (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 06:27:46 -0400
-Received: by mail-pl1-f193.google.com with SMTP id t16so10132521plo.0;
-        Tue, 16 Apr 2019 03:27:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=71Ay+/zwy6XGeLFqR6I9o/UAfQvlsfkRImmq55N6HYE=;
-        b=bfjobO7BODZtTTJtH8FQa62BBjBHo44LqIeIbe5f8evThlje9rN/z++qtiz6o9KIr7
-         Xs02giTpx7c2A/EWUDKTDwn3AabXjI/ewknVqNtPp74oseHuwYDAHT5seOwxpLuD0Lgj
-         vbhNPh+Ew0QQ4Tj+8rDdsxHSiUHgGcx9E7tZL8rviiYxOtyTKX/U0bpYJpTizLl4qx8T
-         M8AfU6cMKDD1GXLSsn+j2ksaow4BrTjw3bDtGqxwOIUqgjY4T1gvyILQf2RpiYyZE4iY
-         87JkSWInMHwYhm29X1sJR/iyeublZw9p+tAcsc1bfHxQGMgZowsSgKy0klbN/possTMz
-         ByIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=71Ay+/zwy6XGeLFqR6I9o/UAfQvlsfkRImmq55N6HYE=;
-        b=kPJChGOf9mKlfbbefoxjui9PkP+I0b7oVJ7E8jkGfjNTApg7RzyxjjCaFlX5jZys89
-         Dmnk3TWQcNkuEBVbCYTdxUmAdsqFD7vW8m+F5lcb7/Ofi3itMVI9gTXGnL6WDgGrGy8R
-         d9tC5w17D6KAmQp3qegu1s8M0yzpbB4ZQRYcX4YJFKsS3l3BMa+YSg8DTB4OHcgF57BO
-         iWkPu4nJorq4Kiy1XGgAce+quUiF13Ktp7FVSS/cV+HVBYhrE6IRyVbqzGQYp6mdgvTY
-         HoJYq8FwT4XUOMevUZX1GUTUaqKvb0uzuMHx0ek3mEs8aKuOLpSEkutHE+00koGLfVzx
-         f6ew==
-X-Gm-Message-State: APjAAAUczXMyujVNYX/0X+xNK4YeqOWqN3qJn0K0Pz1+hyQgwYwX7XOk
-        lVNl3Cok6itnPv1Nb1nlbsnPC9vY
-X-Google-Smtp-Source: APXvYqzJG64MRiqfSOWxuaFtDytFRUFz5WhqBXJiT1XKDNs0hlrdOs0NmZ2iiYro0oQNl4dZj58Mxw==
-X-Received: by 2002:a17:902:6b03:: with SMTP id o3mr81520527plk.226.1555410465610;
-        Tue, 16 Apr 2019 03:27:45 -0700 (PDT)
-Received: from icarus ([2001:268:c1c2:6e92:c70:4af9:86e2:2])
-        by smtp.gmail.com with ESMTPSA id q11sm69363540pgs.94.2019.04.16.03.27.40
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 16 Apr 2019 03:27:45 -0700 (PDT)
-Date:   Tue, 16 Apr 2019 19:28:39 +0900
-From:   William Breathitt Gray <vilhelm.gray@gmail.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 05/16] watchdog: ebc-c384_wdt: drop warning after
- calling watchdog_init_timeout
-Message-ID: <20190416102839.GA6046@icarus>
-References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
- <20190416102515.12269-6-wsa+renesas@sang-engineering.com>
+        Tue, 16 Apr 2019 07:05:38 -0400
+Received: from sauhun.de ([88.99.104.3]:49090 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726917AbfDPLFi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 16 Apr 2019 07:05:38 -0400
+Received: from localhost (p54B332D3.dip0.t-ipconnect.de [84.179.50.211])
+        by pokefinder.org (Postfix) with ESMTPSA id D02B62C3637;
+        Tue, 16 Apr 2019 13:05:34 +0200 (CEST)
+Date:   Tue, 16 Apr 2019 13:05:34 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Fabien Parent <fparent@baylibre.com>
+Cc:     matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com,
+        sean.wang@kernel.org, ryder.lee@mediatek.com,
+        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
+        chaotian.jing@mediatek.com, yong.mao@mediatek.com,
+        jjian.zhou@mediatek.com, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
+Subject: Re: [PATCH 22/24] dt-bindings: i2c: i2c-mtk: add support for MT8516
+Message-ID: <20190416110534.ndcnjjy3dzdb6xbv@ninjato>
+References: <20190323211612.860-1-fparent@baylibre.com>
+ <20190323211612.860-23-fparent@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vcxgegcyuczhk53y"
 Content-Disposition: inline
-In-Reply-To: <20190416102515.12269-6-wsa+renesas@sang-engineering.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190323211612.860-23-fparent@baylibre.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 16, 2019 at 12:25:04PM +0200, Wolfram Sang wrote:
-> The core will print out details now.
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/watchdog/ebc-c384_wdt.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
-> index 4c4c8ce78021..c176f59fea28 100644
-> --- a/drivers/watchdog/ebc-c384_wdt.c
-> +++ b/drivers/watchdog/ebc-c384_wdt.c
-> @@ -117,10 +117,7 @@ static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
->  	wdd->max_timeout = WATCHDOG_MAX_TIMEOUT;
->  
->  	watchdog_set_nowayout(wdd, nowayout);
-> -
-> -	if (watchdog_init_timeout(wdd, timeout, dev))
-> -		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
-> -			timeout, WATCHDOG_TIMEOUT);
-> +	watchdog_init_timeout(wdd, timeout, dev);
->  
->  	return devm_watchdog_register_device(dev, wdd);
->  }
-> -- 
-> 2.11.0
 
-Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+--vcxgegcyuczhk53y
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Mar 23, 2019 at 10:16:10PM +0100, Fabien Parent wrote:
+> Add binding documentation of i2c-mtk for MT8516 SoC.
+>=20
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+
+Applied to for-next, thanks!
+
+
+--vcxgegcyuczhk53y
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly1tv4ACgkQFA3kzBSg
+Kba07w/+KTVnldbBtdAYM6iGz11cWe28Ofxfurg1FNf4t6S9ar2RYhtGMYaJpNwQ
+YYKURH2tM7i8cAB2sVG+h6TbSPr+WeXmeqXFtgdste+rlcHcU7W8xJG0DUgvjVUa
+uC5cJlB9nFzpwX4AVsyhlZHmlT6lwccvtbVE0ZhO9HF3QAAGyzCLTrcwz9upiw06
+uXASUNd8vbNt+Wxh1I5d+bhlmFHtn88+cOm5G2u7wibcOhStgJnqo/VXs11ha48E
+TQdT+WiMSE1JBMq5szsrjaCA094yEh2muSKBTyKi7uOdxAdN3qv8HJHReM9q5HH8
+coLVq8RYb6I7BgbDnuYMTCO2K/GqVstsIp8F/3Mq6ea6uh/5mFME/p5EGHeKBKDM
+sGYj2wehgWE/qsVs3NUJiy/Z7lDpuzkgRo0ULpSx64evmwQWmtHeOuGuTny51G44
+S/0B1boZJerOLpoJTKctG8Eq6lRkUWvRQzX9fZZmhtiyeEGbXE7sRTLeiLTaDvuc
+ma8cDNp7VKfDob4SJeRszjMmgyjOIRtGOutjeS8MipNlKrO8b4AkiiKXoZDWmTt1
+q3tDg1hBsfV5T/Pawr4QJHOEXoZ/sh5AT7fh4HdE0aqYTqNZ5jt11dVVktO56U4X
+VG54fSn9KZ1GIiAFAyhSG9hac8ldBwxR9tdn2DSHmx0Qh6HYg28=
+=TvId
+-----END PGP SIGNATURE-----
+
+--vcxgegcyuczhk53y--
