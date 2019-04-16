@@ -2,212 +2,139 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F8D2C10F14
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 09:12:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A8C9C10F13
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:21:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4B4C420675
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 09:12:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCA2220857
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:21:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b9bk20fc"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="Czt9R0Wa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728417AbfDPJMM (ORCPT
+        id S1728625AbfDPKVS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 05:12:12 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:43882 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726160AbfDPJML (ORCPT
+        Tue, 16 Apr 2019 06:21:18 -0400
+Received: from mail1.bemta26.messagelabs.com ([85.158.142.117]:33084 "EHLO
+        mail1.bemta26.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726682AbfDPKVS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 05:12:11 -0400
-Received: by mail-ed1-f68.google.com with SMTP id j20so7016034edq.10;
-        Tue, 16 Apr 2019 02:12:08 -0700 (PDT)
+        Tue, 16 Apr 2019 06:21:18 -0400
+Received: from [85.158.142.201] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-6.bemta.az-b.eu-central-1.aws.symcld.net id B2/47-19007-A9CA5BC5; Tue, 16 Apr 2019 10:21:14 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA1WSe0hTYRjG/XbOjkfxyOem+SoadLLo4pazCwu
+  igrDsD0WEIkKrs3naGcxp2yyNCiPpYqVRSTYtNcpqmpU1k7yFWKE1KzOMLljLstTuQRB2Ocez
+  zP77fe/zPN/7vvDShOoqFUnzuQ7eZuUsLBVICnP8Fmqcte60uN6n0/UPr5dTeve7Dwr947pWf
+  31R94qlZOKbqotk4tf6ySmKtUqz1ZCVu0EpdD6vp7JvUrnXS3+gfNSqLESBNIkvElB2p56SHi
+  pcpIADu/YR8qMfgffKoGgLoCmsg5MjH5HEoXgL7B2tGYsT+CyC2pI+QhLUOBkuDN7ymVLgYH8
+  bIXM8vM2/O1Yn8TToLhsWwzTN4HS49NsolVU4Aa4Wuv0lDsDLYXR351gU4Wj4trNmjAkcDk8G
+  KhQSA8ZwuvkeIXMYvHv1Syn718Oetvf+cj0WPH0DSGYWqh87lTJHQ0/FfiSNADgJXI1qaRXAD
+  xCUHCvwZWeB6+hPH1vgc/GQr1cUXBtpoOTAMyV4nhQQ8gJG+HTC4wtMBtfBl6Rsuk9AbcteSt
+  4gFiqbvvh4NlRXDROH0AznhOWcE2zOCTaJGRwCnccHyEpEupDeYDObBEcmZ7ZodHFxGp1urma
+  eJj5ey23VGLR8jsbIWx02ThS13Ba71p6XabRkaK28ox6JF5SxiZzUiO6fMbWjCFrBhjHHzrvT
+  VMGGrIw8gbML6205Ft7ejqJomgVmXY2ohdh4E5+70WwRz/CvDHQQG8okSTJjz+Yy7WaTLHUhD
+  X3j1MsThIq0Zln5yHCm2SWasGQScqzjX/w95h4UHalmkJ+fnyoom7dlmh3/60MonEasmtkstQ
+  oyWx3jnYbEIRTiEEdja6QhHNw/KTIfGV8nLLasTP4V3kEeYWPmTHWwwbNTSjtmcp2B3gWrvPP
+  KIxIrDOWn9pc+2pY6uCgv+Yyp38NV997yCA3p7inndoTpV0e1Hy7uWuaN3k4mB6cumbKse2tW
+  1IuEist3W5vU31aktixOXNclVH9PGbg9GlNQFzLfNSOvZPdmqopKG17jZUm7wOlmETY79wfIg
+  0tkxwMAAA==
+X-Env-Sender: stwiss.opensource@diasemi.com
+X-Msg-Ref: server-13.tower-246.messagelabs.com!1555410073!211227!1
+X-Originating-IP: [104.47.0.57]
+X-SYMC-ESS-Client-Auth: mailfrom-relay-check=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.31.5; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 26331 invoked from network); 16 Apr 2019 10:21:14 -0000
+Received: from mail-he1eur01lp2057.outbound.protection.outlook.com (HELO EUR01-HE1-obe.outbound.protection.outlook.com) (104.47.0.57)
+  by server-13.tower-246.messagelabs.com with AES256-GCM-SHA384 encrypted SMTP; 16 Apr 2019 10:21:14 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SmGInkSleKiLdN26ihF3D9GuiAmdnIuIek7DU62ZQt4=;
-        b=b9bk20fc3yQxbzsfS6MEDxBFVsogv4WI2LK9lmezlvL2DOnnp6JvjrDi91MwbMWcKe
-         T0xEo3Yjq3NS7q1rDJK34OSN5W5gX9F5YvnH91+5GvQEwkEjPci4uD6lKXG50aLrMW6H
-         5Nde5F8/D480MU9yeEgnNBIt1jPm6n15W+RRiqM0eK9dT6garzWxIyAPn5FHOE8v89PI
-         Q1JIMODaq3dFxV1AL4GCdp0t3+DP0NX0VowPkue6THMbM7s1xusCPpO8bqD1H/HYFnob
-         /dr7743DrbufU1sMGu2C9dcINYY88+mM+AFea3+mrn89SH/OD+/Doa3Ssiv8puEN3Tni
-         r5Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=SmGInkSleKiLdN26ihF3D9GuiAmdnIuIek7DU62ZQt4=;
-        b=DZpvl6bDfQRZrTLdnPWf2UZNDdsq5/HRrx4KTJe2hF0M/ezWbAMopUReTP1jF6Y8IW
-         wO6l4my+O1ZzwgRbH1NiNC7cqpWwglxlhzQOqK/qJ5meBZGFfjkptBbLW/CaKPCC2hbB
-         C3rZ7ScOUVOCl5aN6a8J569lkVgTHLFbWiZ0LqvUNE7bYsIW5Lquk4eTKv+StpeUs3yl
-         Kpi5Yiqrc99FU1n2CyZMt5XTDl6Iy6J4IglypUKQtAu6N003se6bxUn8Qv7KdRmjqn3h
-         IMog1tLsTrUDXvKPK0m2NdGrrNg7bHXyd1Wgxz/SMjl8DDOXKgD4ADyzI3TquPiVVu9T
-         hBug==
-X-Gm-Message-State: APjAAAVfTS8AMWKCQJHpdb7OpmMV/nHXWEvFBgQ9VW4cvHVgKEqHC9VN
-        veAyPD+XUIAQ0KHsxwTqIWo=
-X-Google-Smtp-Source: APXvYqxZADUqahmP4Kgx46Qs0N4iMd77UlY9qkZBD9USuxDGS62Q6HnNZ/abTnRdRYmITvEv6lHFiA==
-X-Received: by 2002:a17:906:d72:: with SMTP id s18mr32372885ejh.111.1555405927555;
-        Tue, 16 Apr 2019 02:12:07 -0700 (PDT)
-Received: from ziggy.stardust ([37.223.141.112])
-        by smtp.gmail.com with ESMTPSA id t14sm3926812ejq.76.2019.04.16.02.12.05
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 02:12:06 -0700 (PDT)
-Subject: Re: [PATCH 15/24] dt-bindings: pinctrl: pinctrl-mt65xx: add support
- for MT8516
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Fabien Parent <fparent@baylibre.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@kernel.org>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-i2c@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-serial@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        stephane.leprovost@mediatek.com
-References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-16-fparent@baylibre.com>
- <CACRpkdZZ6-+MVdK4bOP4SHxQ8uQ8zENcir7DSteHy4g+B5uySQ@mail.gmail.com>
-From:   Matthias Brugger <matthias.bgg@gmail.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
- 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
- jrHWeQEI2ucSKsNa8FllDmG/fQ==
-Message-ID: <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
-Date:   Tue, 16 Apr 2019 11:12:04 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <CACRpkdZZ6-+MVdK4bOP4SHxQ8uQ8zENcir7DSteHy4g+B5uySQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+ d=dialogsemiconductor.onmicrosoft.com; s=selector1-diasemi-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=po0B8nww2k/8D9Mv956Vct/2FTBKJGRwQX0tRMMuZaE=;
+ b=Czt9R0WaMVZk6rk/enhYcFCfSId7zzkZoqyFoIzS9Cy9L3+w5Dq/cY2gpilz9OunI3Y9E57RcGiAV2hM88Nx65nYPhWVVVWLLl3HRtgzZZVqNYW34JyTk+QOMwQA0dAc5qGo/zutYKjj5QByrmDahFakOJWHD8W9kdFrGGG4oi4=
+Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM (20.177.62.92) by
+ VI1PR10MB2174.EURPRD10.PROD.OUTLOOK.COM (20.177.60.28) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1792.16; Tue, 16 Apr 2019 10:21:09 +0000
+Received: from VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::acc9:6d8f:da36:9f25]) by VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::acc9:6d8f:da36:9f25%2]) with mapi id 15.20.1813.011; Tue, 16 Apr 2019
+ 10:21:09 +0000
+From:   Steve Twiss <stwiss.opensource@diasemi.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC:     "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH RFT] watchdog: da9063_wdt: parse DT for timeout value, too
+Thread-Topic: [PATCH RFT] watchdog: da9063_wdt: parse DT for timeout value,
+ too
+Thread-Index: AQHU8rKQiJBjLGoJgEygrdEbYLd/faY+hb0w
+Date:   Tue, 16 Apr 2019 10:21:09 +0000
+Message-ID: <VI1PR10MB2352FEE39015BEA512B1FE61FE240@VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM>
+References: <20190414110933.30529-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190414110933.30529-1-wsa+renesas@sang-engineering.com>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [193.240.73.196]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a9adb2a3-ed44-4580-7055-08d6c2553e68
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600140)(711020)(4605104)(2017052603328)(7193020);SRVR:VI1PR10MB2174;
+x-ms-traffictypediagnostic: VI1PR10MB2174:
+x-microsoft-antispam-prvs: <VI1PR10MB21744A21F95D9486CF5606C0F5240@VI1PR10MB2174.EURPRD10.PROD.OUTLOOK.COM>
+x-forefront-prvs: 000947967F
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(346002)(366004)(396003)(376002)(136003)(189003)(199004)(53546011)(5660300002)(6246003)(229853002)(33656002)(105586002)(14454004)(54906003)(52536014)(4326008)(110136005)(478600001)(106356001)(25786009)(2906002)(6506007)(316002)(2501003)(66066001)(97736004)(6116002)(3846002)(305945005)(53936002)(74316002)(9686003)(55016002)(7736002)(81156014)(26005)(102836004)(186003)(8936002)(11346002)(446003)(8676002)(81166006)(476003)(486006)(4744005)(99286004)(68736007)(71200400001)(86362001)(256004)(6436002)(7696005)(71190400001)(76176011);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR10MB2174;H:VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:0;
+received-spf: None (protection.outlook.com: diasemi.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: ixG0ja4vr6bTm2fvGEj0p6F5liW0ZFYfbR7DdY+pUZqXAIzNHRRoVyhQO92d7320xXlj1J7OT+Er/DraImYfu94igFzfHGsDS88oXyyyWeevyIQdgLB1O1TYSVY9pz9Mq84GMHJtZ25EGdkpi7EMlyzqnO7R0mqknWrdzOfYIM20N4/kZd6ZEuX1YPoHxFBQQKpMWf5isWaK6PtgrdEREgJVbHxxM/r2xYpX4D+aoaVTSUhGWoI46afRVmU6z/ClctpP0FSeiGf6NPzJJSzYU4/bHITfwhvLJGNzT+pe/EHfYaAQI1LRZKWfO3V//c3N8U6QDcxJG2xoPTSFtqKXbYDKLVERPJM12UvfTPNALTDCgCXlshAfMSD3/Haedt9m8JTi6XhWuAs6tInYr72GDHhb5MRL2kVuVD313VWfSgk=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a9adb2a3-ed44-4580-7055-08d6c2553e68
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Apr 2019 10:21:09.3023
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB2174
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+On 14 April 2019 12:10, Wolfram Sang wrote:
 
-On 08/04/2019 22:44, Linus Walleij wrote:
-> On Sat, Mar 23, 2019 at 10:17 PM Fabien Parent <fparent@baylibre.com> wrote:
-> 
->> Add binding documentation of pinctrl-mt65xx for MT8516 SoC.
->>
->> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> 
-> Patch applied with Rob's ACK.
-> 
+> Subject: [PATCH RFT] watchdog: da9063_wdt: parse DT for timeout value, to=
+o
+>=20
+> And make sure the final obtained value gets properly scaled. Remove two
+> empty lines to group the initialization blocks while we are here.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>=20
+> Tested with a Renesas Lager board (R-Car H2, DA9063AD), checking the init=
+ial
+> timeout value via sysfs. I didn't test handover from bootloader because m=
+y
+> bootloader neither supports WDT or I2C out of the box.
 
-I don't see this in your for-next branch. Did the patch got lost?
+Tested on git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-stagin=
+g.git
+* watchdog-next                 6829e6ef3f22 [origin/watchdog-next] watchdo=
+g: pnx4008: readout watchdog state
+
+Tested-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 Regards,
-Matthias
+Steve
