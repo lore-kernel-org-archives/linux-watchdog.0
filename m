@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 754C1C10F14
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:55:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDAB1C10F13
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:56:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2BC8C2073F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:55:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B7E520868
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 07:56:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9NZQRDM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SZ6V0+C8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728635AbfDPHzs (ORCPT
+        id S1728341AbfDPH4r (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 03:55:48 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:32979 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726837AbfDPHzr (ORCPT
+        Tue, 16 Apr 2019 03:56:47 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:43642 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726346AbfDPH4q (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 03:55:47 -0400
-Received: by mail-ed1-f66.google.com with SMTP id d55so16248221ede.0;
-        Tue, 16 Apr 2019 00:55:45 -0700 (PDT)
+        Tue, 16 Apr 2019 03:56:46 -0400
+Received: by mail-ed1-f67.google.com with SMTP id j20so6828840edq.10;
+        Tue, 16 Apr 2019 00:56:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=cMdfPRIpgJfdM28I3AuT2HDMySHAz8M6JNRV9qhsHkg=;
-        b=D9NZQRDM7ao/KuKdcfqv1HV3zv/EXGLZQnFUyLUrWCZ1A1Be9cg35OVk9M5XEqQdWV
-         4pkDRzhQXGULgPcMWEPi9jxmxxzcptyNAYbXNOF5kF3rp6cuF0aD7l2B232zldX2oBKN
-         qi+8AfCRUGU19/LyDEq2Zq/28JWc1AFxLCdHG9aov7a+/kqiRBl4WLGZDtOw+Nw7rvhK
-         TIyFfL+ijfppKHIy3dHyPYM0FpXuxAZ4mUtnC1NH5L8SEn4EatOO/QA/Ynq33izhAhpR
-         aYryQ40UPmByxRG4MUPHWd1MjB2Jbkl03bqntLC1rvTF1fLi1fX4mYNPaIT75psKAndV
-         w5Pg==
+        bh=vNbYMUGRUR9BFJH7CqMlZYB2a7rHE0FLp/2sW9MYHy8=;
+        b=SZ6V0+C82lELOX5LAPYX83EEX9y6QtyxT5XIfPBrOkgTKwPeQFWvH3KX7sCLlnFHyy
+         pqCU5bd1ed6oAuby+kv2nWRJL8DUGTj7eNkFh6ezp+AxYzNBZyjjQu2FC/M8at9CxCEH
+         3CO++QFfGQtcghKQMxwqdMt89hfjI/FfSxKua1T9Xm/MPsEIX2ato8m/XM8sw/vxiQEW
+         9fqUja0rsSEfBe7aDKQYEh+VDzvi4P2XNNiu00Tvu2vzzw3XxgpmeHs4ZgLeEAPRW88H
+         Hs1ovcCu4+xM3hzI0ynodtuFgBFhBy6X6qp2cUwf0N8CiTG1yNUcUcFhNTbEZnKZ8Ty0
+         l3mQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=cMdfPRIpgJfdM28I3AuT2HDMySHAz8M6JNRV9qhsHkg=;
-        b=fwNs4OcjFFgCcoUvN0OT+arstFxjFA2tPtiGm5dp4mWa0Lw0SB2tsAC+f0O4oDwRlr
-         dV5oykHxavRthiDC4sVYSQq+0Uxe3xyIITYeFHQtZa7eFauvCgbH2KR0wzbWAE33PUpm
-         wC7l8qUS4DfqfBLGVcK931DZsmzWK+TgPJ6z859ItXVkwVdgeRe8YL1MAhwevsJpZ5dv
-         3kXxKyAixoSt7ZKFNpRgxMc0LnG7n4jOUP6KbvDl1Ic7B2sWZvmXyGUym98M1TncS7bE
-         zHSyUJNbd4dmYzBtCvdP95yfAWnVqkbendUpQ/f3HRBSxwNFmde2d8c8+rnPN/J+zqel
-         w4UQ==
-X-Gm-Message-State: APjAAAWhMkbjj+lvxXNgg1ocacJ34GDEpZbrFesSTodCyto1XFGxIgq3
-        2gRZMLO5wUXadDGoVbVcKBk=
-X-Google-Smtp-Source: APXvYqwxCXy6hqG29q9BnX+VMSsvl9Kn7UjN1h4hMkcn+yBGYelmWZdDWRMzYBwWibTPsh0YcZjBVg==
-X-Received: by 2002:a17:906:1b03:: with SMTP id o3mr34489861ejg.201.1555401344626;
-        Tue, 16 Apr 2019 00:55:44 -0700 (PDT)
+        bh=vNbYMUGRUR9BFJH7CqMlZYB2a7rHE0FLp/2sW9MYHy8=;
+        b=kL8he7iTExV5XikL/dwdIhSs3JM1Qoh0IPq3kYLsK+dLB6VZgiScmijUP1PQZZr7DA
+         Kxbup9eb2oLPGyQO10UK/DTjpbse8otlkdouQ030V0J9kdFQIJPbyQYGDJKjYmi6fnRa
+         aF7meTS0OZVZXNY/0XDr9FjuT3IQU61C0npNzCsvF8mmhEXONVzsdDEEs2xPS5WF+Q4h
+         vQE6vtVv/VYyRcfiQFeyQDAHh0QN0ZKM41t60fLEchOpRmBfK0rFWopoJcRfEiQTwIkc
+         FifeNt1dC+53wY4CFNzR2d+4AAGSuRtDwlA8fsTeMYrKxEQYhlybFdWaGv2gl8y5klWD
+         Q6tg==
+X-Gm-Message-State: APjAAAXCt5RnCB1C+NHhrfaXxnNnAj74HHVKOUvLqen6D6lWkPc7CG0X
+        U3DomeXH0AgG/Ih7CseK0SE=
+X-Google-Smtp-Source: APXvYqzvLdXJ7R9QfOEiItDqmapCJkUJ836qXzWECSyH8pC+EVe4BELOnJPXM5W7jelrqmSQmZ6ssw==
+X-Received: by 2002:a50:f5c3:: with SMTP id x3mr21227395edm.28.1555401402677;
+        Tue, 16 Apr 2019 00:56:42 -0700 (PDT)
 Received: from ziggy.stardust ([37.223.141.112])
-        by smtp.gmail.com with ESMTPSA id t51sm1360759edb.30.2019.04.16.00.55.42
+        by smtp.gmail.com with ESMTPSA id w58sm11346271edb.83.2019.04.16.00.56.41
         (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 00:55:44 -0700 (PDT)
-Subject: Re: [PATCH 19/24] dt-bindings: spi: spi-mt65xx: add support for
+        Tue, 16 Apr 2019 00:56:42 -0700 (PDT)
+Subject: Re: [PATCH 20/24] dt-bindings: serial: mtk-uart: add support for
  MT8516
 To:     Fabien Parent <fparent@baylibre.com>, robh+dt@kernel.org,
-        mark.rutland@arm.com, Mark Brown <broonie@kernel.org>
+        mark.rutland@arm.com
 Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
         chaotian.jing@mediatek.com, yong.mao@mediatek.com,
@@ -73,7 +73,7 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
 References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-20-fparent@baylibre.com>
+ <20190323211612.860-21-fparent@baylibre.com>
 From:   Matthias Brugger <matthias.bgg@gmail.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
@@ -169,12 +169,12 @@ Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
  pac005PuhxCWkKTJz3gCmznnoat4GCnL5gy/m0Qk45l4PFqwWXVLo9AQg2Kp3mlIFZ6fsEKI
  AN5hxlbNvNb9V2Zo5bFZjPWPFTxOteM0omUAS+QopwU0yPLLGJVf2iCmItHcUXI+r2JwH1CJ
  jrHWeQEI2ucSKsNa8FllDmG/fQ==
-Message-ID: <5bc3fbfa-6d7e-08d3-116c-a8f78bc680cd@gmail.com>
-Date:   Tue, 16 Apr 2019 09:55:41 +0200
+Message-ID: <7c5789bc-a0b5-0ecf-9e1a-3d819c7e8285@gmail.com>
+Date:   Tue, 16 Apr 2019 09:56:39 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <20190323211612.860-20-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-21-fparent@baylibre.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -186,29 +186,29 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
 On 23/03/2019 22:16, Fabien Parent wrote:
-> Add binding documentation of spi-mt65xx for MT8516 SoC.
+> Add binding documentation of mtk-uart for MT8516 SoC.
 > 
 > Signed-off-by: Fabien Parent <fparent@baylibre.com>
 > ---
->  Documentation/devicetree/bindings/spi/spi-mt65xx.txt | 1 +
+>  Documentation/devicetree/bindings/serial/mtk-uart.txt | 1 +
 >  1 file changed, 1 insertion(+)
 > 
 
 
 applied to v5.1-next/dts64
 
-Mark let me know if you want to take it through your tree and I drop the patch.
+Thanks.
 
-> diff --git a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
-> index 69c356767cf8..69ac5976b952 100644
-> --- a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
-> +++ b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
-> @@ -10,6 +10,7 @@ Required properties:
->      - mediatek,mt8135-spi: for mt8135 platforms
->      - mediatek,mt8173-spi: for mt8173 platforms
->      - mediatek,mt8183-spi: for mt8183 platforms
-> +    - "mediatek,mt8516-spi", "mediatek,mt2701-spi": for mt8516 platforms
+> diff --git a/Documentation/devicetree/bindings/serial/mtk-uart.txt b/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> index 742cb470595b..1af981f7a33b 100644
+> --- a/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> +++ b/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> @@ -16,6 +16,7 @@ Required properties:
+>    * "mediatek,mt8127-uart" for MT8127 compatible UARTS
+>    * "mediatek,mt8135-uart" for MT8135 compatible UARTS
+>    * "mediatek,mt8173-uart" for MT8173 compatible UARTS
+> +  * "mediatek,mt8516-uart" for MT8516 compatible UARTS
+>    * "mediatek,mt6577-uart" for MT6577 and all of the above
 >  
->  - #address-cells: should be 1.
->  
+>  - reg: The base address of the UART register bank.
 > 
