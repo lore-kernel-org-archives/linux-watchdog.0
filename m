@@ -2,218 +2,139 @@ Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D133AC10F13
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 18:09:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE8B0C10F13
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 20:35:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 98E612063F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 18:09:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z4grn9oJ"
+	by mail.kernel.org (Postfix) with ESMTP id 9A44820880
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 20:35:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbfDPSJl (ORCPT
+        id S1729117AbfDPUfC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 14:09:41 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43531 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727067AbfDPSJl (ORCPT
+        Tue, 16 Apr 2019 16:35:02 -0400
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:58196 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728734AbfDPUfC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 14:09:41 -0400
-Received: by mail-pg1-f196.google.com with SMTP id z9so10710839pgu.10;
-        Tue, 16 Apr 2019 11:09:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=135ix82lxlDs2uPUYrS8Hp8Ls3cvHLI1ebW+9ZmfVfI=;
-        b=Z4grn9oJx+JjBwzNOncIXkaPd/sEdmn3ySghPsdT+4QYWGWQA3UHPXrAsmDgfKhg/7
-         EPYlLR8eMOLYrRgI8U+hIumlVVGDJrgkt9Q3YBVy2yti+WMD8AvLYMeHdGXlvD+il3t8
-         Yx/j0vt9Gkg+gOHMzF0KQv4rXbrYdFYMcpnM33EkasMwpf9zx8UN6WuuhiJ9NlRX5iB5
-         Ud6be2HxrnuR5nUSpZ2QxIs3qrgRi7vyy5vFGbB7Q5FiMEQv4wLb/bTHBjtDNDIIn9T0
-         jY6dxfGtLwgwHofkc2+HmeTEQCCqwlNIll+bzcf99x3SnSC8ZKPjGgRATpzm+8Vg4zCl
-         qI+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=135ix82lxlDs2uPUYrS8Hp8Ls3cvHLI1ebW+9ZmfVfI=;
-        b=YbXwocsq3sCHEXHTQlvUSkdQQOGNMQqtvzkURKArBXhs+bH6l+CQF2aXlQmN0NoUz2
-         n30DE5Z4Dzr+VotG5zADOvQibPRqXHFYOuNmnObIVgwtzGVMe2GhbBm2sDo1D7yxkN0E
-         m5y0DH2vz0EvfNIVGYM298tnpKP7t1g1O5k5wTJxJgU8PPhAZZMHH74alhlXjXofagFC
-         ownMVlh5ZQQ9Hg6Qd2M698NqfUHM6RD54sI1D9Q1vd/FGcKN+63civ9b8+XzicF43Hnk
-         lhPmetmwMlzI5Gij5jqDpAwWCcAxRwpQ79M0/dVIV4xFsumSU4CBIzT1Qr9327UJYGXB
-         ZC5g==
-X-Gm-Message-State: APjAAAVDrIo/o3EsD0qLzWf+Pu7RkkeHKjhHwCVsbPRGXroEM2EKjCgG
-        9oB52yAsyA3OHH8YJaSkzrmF7Ugz
-X-Google-Smtp-Source: APXvYqwweC4iXkGZ2JpP5oDICz7glbYuIos9EwL94m6fWNluKhAtGiHBePbCx0UnDnWutdyl9GPFIw==
-X-Received: by 2002:a63:6842:: with SMTP id d63mr75502772pgc.49.1555438180049;
-        Tue, 16 Apr 2019 11:09:40 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e21sm71016292pfd.177.2019.04.16.11.09.38
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 11:09:39 -0700 (PDT)
-Date:   Tue, 16 Apr 2019 11:09:38 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     arm@kernel.org, Greg Ungerer <gerg@uclinux.org>,
+        Tue, 16 Apr 2019 16:35:02 -0400
+Received: from pps.filterd (m0150241.ppops.net [127.0.0.1])
+        by mx0a-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x3GKW67j031087;
+        Tue, 16 Apr 2019 20:34:33 GMT
+Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
+        by mx0a-002e3701.pphosted.com with ESMTP id 2rwj9629nj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Apr 2019 20:34:33 +0000
+Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
+        by g9t5009.houston.hpe.com (Postfix) with ESMTP id BD21855;
+        Tue, 16 Apr 2019 20:34:32 +0000 (UTC)
+Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
+        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 1D9E64A;
+        Tue, 16 Apr 2019 20:34:31 +0000 (UTC)
+Date:   Tue, 16 Apr 2019 14:34:31 -0600
+From:   Jerry Hoemann <jerry.hoemann@hpe.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/6 v2] ARM: ks8695: watchdog: stop using mach/*.h
-Message-ID: <20190416180938.GA23210@roeck-us.net>
-References: <20190415202501.941196-1-arnd@arndb.de>
- <20190416132207.1304277-1-arnd@arndb.de>
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 06/16] watchdog: hpwdt: drop warning after calling
+ watchdog_init_timeout
+Message-ID: <20190416203431.GA20072@anatevka>
+Reply-To: Jerry.Hoemann@hpe.com
+References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
+ <20190416102515.12269-7-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190416132207.1304277-1-arnd@arndb.de>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190416102515.12269-7-wsa+renesas@sang-engineering.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-04-16_08:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1904160126
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 16, 2019 at 03:21:41PM +0200, Arnd Bergmann wrote:
-> drivers should not rely on machine specific headers but
-> get their information from the platform device.
+On Tue, Apr 16, 2019 at 12:25:05PM +0200, Wolfram Sang wrote:
+> The core will print out details now.
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/watchdog/hpwdt.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+> index ef30c7e9728d..db1bf6f546ae 100644
+> --- a/drivers/watchdog/hpwdt.c
+> +++ b/drivers/watchdog/hpwdt.c
+> @@ -311,8 +311,7 @@ static int hpwdt_init_one(struct pci_dev *dev,
+>  		goto error_init_nmi_decoding;
+>  
+>  	watchdog_set_nowayout(&hpwdt_dev, nowayout);
+> -	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL))
+> -		dev_warn(&dev->dev, "Invalid soft_margin: %d.\n", soft_margin);
+> +	watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL);
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+I applied patches 1,2 & 6 in testing.
 
-I assume this will be applied through an arm tree since it touches arm code.
+Note, that hpwdt is passing NULL as the third parameter to watchdog_init_timeout().
+
+The second patch in this series is using "dev" as input to dev_err and dev_warn.
+
+This results in the following in dmesg when trying to load hpwdt w/ an invalid soft_margin:
+
+
+[   80.848160] (NULL device *): driver supplied timeout (4294967295) out of range
+[   80.855429] (NULL device *): falling back to default timeout (30)
+
+
+if the call in hpwdt driver is changed to:
+
+	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, &dev->dev))
+
+
+We see the message like we'd desire:
+
+[ 2061.167100] hpwdt 0000:01:00.0: driver supplied timeout (4294967295) out of range
+[ 2061.174633] hpwdt 0000:01:00.0: falling back to default timeout (30)
+
+
+
+watchdog_init_timeout() uses dev to "try to get the timeout_sec property"
+
+I am not familiar with this part of the core and what effect having the hpwdt
+driver pass in dev to watchdog_init_timeout would have.  (I.e. is the
+change safe?)
+
+Guenter, can you help on this question?
+
+Note, hpwdt isn't the only watch dog device that is passing NULL to
+watchdog_init_timeout.
 
 Thanks,
-Guenter
 
-> ---
->  arch/arm/mach-ks8695/devices.c | 13 ++++++++++++-
->  drivers/watchdog/Kconfig       |  2 +-
->  drivers/watchdog/ks8695_wdt.c  | 29 ++++++++++++++++-------------
->  3 files changed, 29 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/arm/mach-ks8695/devices.c b/arch/arm/mach-ks8695/devices.c
-> index 15afeb964280..ba9d0f0f47ac 100644
-> --- a/arch/arm/mach-ks8695/devices.c
-> +++ b/arch/arm/mach-ks8695/devices.c
-> @@ -169,11 +169,22 @@ void __init ks8696_add_device_hpna(void)
->  /* --------------------------------------------------------------------
->   *  Watchdog
->   * -------------------------------------------------------------------- */
-> +#define KS8695_TMR_OFFSET      (0xF0000 + 0xE400)
-> +#define KS8695_TMR_PA          (KS8695_IO_PA + KS8695_TMR_OFFSET)
-> +static struct resource ks8695_wdt_resources[] = {
-> +	[0] = {
-> +		.name	= "tmr",
-> +		.start	= KS8695_TMR_PA,
-> +		.end	= KS8695_TMR_PA + 0xf,
-> +		.flags	= IORESOURCE_MEM,
-> +	},
-> +};
+
+Jerry
+
+
 >  
->  static struct platform_device ks8695_wdt_device = {
->  	.name		= "ks8695_wdt",
->  	.id		= -1,
-> -	.num_resources	= 0,
-> +	.resource	= ks8695_wdt_resources,
-> +	.num_resources	= ARRAY_SIZE(ks8695_wdt_resources),
->  };
->  
->  static void __init ks8695_add_device_watchdog(void)
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 242eea859637..046e01daef57 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -397,7 +397,7 @@ config IXP4XX_WATCHDOG
->  
->  config KS8695_WATCHDOG
->  	tristate "KS8695 watchdog"
-> -	depends on ARCH_KS8695
-> +	depends on ARCH_KS8695 || COMPILE_TEST
->  	help
->  	  Watchdog timer embedded into KS8695 processor. This will reboot your
->  	  system when the timeout is reached.
-> diff --git a/drivers/watchdog/ks8695_wdt.c b/drivers/watchdog/ks8695_wdt.c
-> index 1e41818a44bc..2a11cdfe2ab1 100644
-> --- a/drivers/watchdog/ks8695_wdt.c
-> +++ b/drivers/watchdog/ks8695_wdt.c
-> @@ -23,10 +23,8 @@
->  #include <linux/watchdog.h>
->  #include <linux/io.h>
->  #include <linux/uaccess.h>
-> -#include <mach/hardware.h>
->  
-> -#define KS8695_TMR_OFFSET	(0xF0000 + 0xE400)
-> -#define KS8695_TMR_VA		(KS8695_IO_VA + KS8695_TMR_OFFSET)
-> +#define KS8695_CLOCK_RATE  25000000
->  
->  /*
->   * Timer registers
-> @@ -57,6 +55,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->  
->  static unsigned long ks8695wdt_busy;
->  static DEFINE_SPINLOCK(ks8695_lock);
-> +static void __iomem *tmr_reg;
->  
->  /* ......................................................................... */
->  
-> @@ -69,8 +68,8 @@ static inline void ks8695_wdt_stop(void)
->  
->  	spin_lock(&ks8695_lock);
->  	/* disable timer0 */
-> -	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
-> -	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-> +	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-> +	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
->  	spin_unlock(&ks8695_lock);
->  }
->  
-> @@ -84,15 +83,15 @@ static inline void ks8695_wdt_start(void)
->  
->  	spin_lock(&ks8695_lock);
->  	/* disable timer0 */
-> -	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
-> -	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-> +	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-> +	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
->  
->  	/* program timer0 */
-> -	__raw_writel(tval | T0TC_WATCHDOG, KS8695_TMR_VA + KS8695_T0TC);
-> +	__raw_writel(tval | T0TC_WATCHDOG, tmr_reg + KS8695_T0TC);
->  
->  	/* re-enable timer0 */
-> -	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
-> -	__raw_writel(tmcon | TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-> +	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-> +	__raw_writel(tmcon | TMCON_T0EN, tmr_reg + KS8695_TMCON);
->  	spin_unlock(&ks8695_lock);
->  }
->  
-> @@ -105,9 +104,9 @@ static inline void ks8695_wdt_reload(void)
->  
->  	spin_lock(&ks8695_lock);
->  	/* disable, then re-enable timer0 */
-> -	tmcon = __raw_readl(KS8695_TMR_VA + KS8695_TMCON);
-> -	__raw_writel(tmcon & ~TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-> -	__raw_writel(tmcon | TMCON_T0EN, KS8695_TMR_VA + KS8695_TMCON);
-> +	tmcon = __raw_readl(tmr_reg + KS8695_TMCON);
-> +	__raw_writel(tmcon & ~TMCON_T0EN, tmr_reg + KS8695_TMCON);
-> +	__raw_writel(tmcon | TMCON_T0EN, tmr_reg + KS8695_TMCON);
->  	spin_unlock(&ks8695_lock);
->  }
->  
-> @@ -239,6 +238,10 @@ static int ks8695wdt_probe(struct platform_device *pdev)
->  {
->  	int res;
->  
-> +	tmr_reg = devm_platform_ioremap_resource(pdev, 0);
-> +	if (!tmr_reg)
-> +		return -ENXIO;
-> +
->  	if (ks8695wdt_miscdev.parent)
->  		return -EBUSY;
->  	ks8695wdt_miscdev.parent = &pdev->dev;
+>  	if (pretimeout && hpwdt_dev.timeout <= PRETIMEOUT_SEC) {
+>  		dev_warn(&dev->dev, "timeout <= pretimeout. Setting pretimeout to zero\n");
+> -- 
+> 2.11.0
+
+-- 
+
+-----------------------------------------------------------------------------
+Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
+-----------------------------------------------------------------------------
