@@ -4,23 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1342C282DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48EB5C282DA
 	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:26:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AC3FC206BA
+	by mail.kernel.org (Postfix) with ESMTP id 21F8E20870
 	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:26:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729153AbfDPK0S (ORCPT
+        id S1728625AbfDPKZa (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 06:26:18 -0400
-Received: from sauhun.de ([88.99.104.3]:48720 "EHLO pokefinder.org"
+        Tue, 16 Apr 2019 06:25:30 -0400
+Received: from sauhun.de ([88.99.104.3]:48684 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728996AbfDPKZ3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 06:25:29 -0400
+        id S1729010AbfDPKZa (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 16 Apr 2019 06:25:30 -0400
 Received: from localhost (p54B332D3.dip0.t-ipconnect.de [84.179.50.211])
-        by pokefinder.org (Postfix) with ESMTPSA id 1A6B02E35BF;
+        by pokefinder.org (Postfix) with ESMTPSA id 9F6AC2E35C0;
         Tue, 16 Apr 2019 12:25:28 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
@@ -29,9 +29,9 @@ Cc:     linux-renesas-soc@vger.kernel.org,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 09/16] watchdog: ni903x_wdt: drop warning after calling watchdog_init_timeout
-Date:   Tue, 16 Apr 2019 12:25:08 +0200
-Message-Id: <20190416102515.12269-10-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 10/16] watchdog: nic7018_wdt: drop warning after calling watchdog_init_timeout
+Date:   Tue, 16 Apr 2019 12:25:09 +0200
+Message-Id: <20190416102515.12269-11-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
 References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
@@ -45,24 +45,25 @@ The core will print out details now.
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/ni903x_wdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/watchdog/nic7018_wdt.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/ni903x_wdt.c b/drivers/watchdog/ni903x_wdt.c
-index dc67742e9018..fbc1df86c6cc 100644
---- a/drivers/watchdog/ni903x_wdt.c
-+++ b/drivers/watchdog/ni903x_wdt.c
-@@ -217,9 +217,7 @@ static int ni903x_acpi_add(struct acpi_device *device)
- 	wdd->parent = dev;
+diff --git a/drivers/watchdog/nic7018_wdt.c b/drivers/watchdog/nic7018_wdt.c
+index dcd265685837..82843abe38f8 100644
+--- a/drivers/watchdog/nic7018_wdt.c
++++ b/drivers/watchdog/nic7018_wdt.c
+@@ -211,10 +211,7 @@ static int nic7018_probe(struct platform_device *pdev)
+ 
  	watchdog_set_drvdata(wdd, wdt);
  	watchdog_set_nowayout(wdd, nowayout);
+-
 -	ret = watchdog_init_timeout(wdd, timeout, dev);
 -	if (ret)
--		dev_err(dev, "unable to set timeout value, using default\n");
+-		dev_warn(dev, "unable to set timeout value, using default\n");
 +	watchdog_init_timeout(wdd, timeout, dev);
  
- 	ret = watchdog_register_device(wdd);
- 	if (ret) {
+ 	/* Unlock WDT register */
+ 	outb(UNLOCK, wdt->io_base + WDT_REG_LOCK);
 -- 
 2.11.0
 
