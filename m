@@ -4,58 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04892C10F13
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 21:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19671C10F14
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 21:20:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C58A12073F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 21:14:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DFB6120821
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 21:20:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b3KajffQ"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k1OoNL9h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728362AbfDPVOQ (ORCPT
+        id S1729817AbfDPVUt (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 17:14:16 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:33727 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727136AbfDPVOQ (ORCPT
+        Tue, 16 Apr 2019 17:20:49 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:38791 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728277AbfDPVUs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 17:14:16 -0400
-Received: by mail-pg1-f194.google.com with SMTP id k19so10951208pgh.0;
-        Tue, 16 Apr 2019 14:14:15 -0700 (PDT)
+        Tue, 16 Apr 2019 17:20:48 -0400
+Received: by mail-pl1-f193.google.com with SMTP id f36so10956960plb.5;
+        Tue, 16 Apr 2019 14:20:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=OU2nSMmt5htbg6+q1msxmMt8aeMJWwleorLRoerjeR4=;
-        b=b3KajffQ9aP+3ncagGjPE22931SX/MgceA+6oJec+mTIF0ISBnJV2s7XoJLRrss81q
-         cclSmEgeaMR2wcrXJ2iNWrALryx8xf2jXe+dnBBXkhSRoVoV+0HyjpBSTBtak/5jmE4i
-         vz8JllSwgkifnPsJ1latKIeNY0VpgYHNxKsu+qVdlPK/KSzmKFlDwKd/VmWXI9aHfJru
-         4OktXKqBB9MIEM3I11DeYrSlSR5E2tSoxLDuw/dIpMbKSySpU9C+EVkpFtckFXEbnKMh
-         5mrHRa/tDRRtFjKEG1jrrVdQd4Uwo0EfvvSEN/TiyCyNXw/Sbx7PNPhckwLRzL6iiksw
-         RXkQ==
+        bh=x0SVpgkEJogEYU/LrEiNpS8peT+ejZT0nMW6St9JdL4=;
+        b=k1OoNL9h3uJDQxMuRJaemy77Dw8/Kd4qzot3xkAeluDhbkXnH1PwssNpmW7pz07ibA
+         sRqPySGW7/uSaqCjIIb+E2ulfQbih//EUb0GbsH3rBLbNwtEnlaK6oErG3++lo4tXQi0
+         7G0xeA7Wh571bpT0q49Qde+KlY7R7SXAcAFgP07KMCp5RHMk0Pi9otX+CKbTR+3XXzhs
+         izsl6RozZq8UVzXDkuX8a0tPi4MIFJJY651J9qRAxr2ycqqUEDsPFvX04gAGfZsegjgA
+         /rApuk8yJ1YdZFyG5QLzE4rzE5CUENyVB4kJCjVcqKXY/h/1u/Qyc5zfNp8YTka2FV9m
+         BUhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=OU2nSMmt5htbg6+q1msxmMt8aeMJWwleorLRoerjeR4=;
-        b=tZGb1Kdxs+ckXYEKB29CMbBcw2bgD6lHSxwNbu3Svxo7ybwEsixTS+JmKQSguMFn3r
-         G4JSGrlMJfdIe3pdRz9EZuhomV2+IJgl17e4grmq5peww02lrv0IgWlrlOvrqwUezTfW
-         x14EQBTjp+ola9zQTuMxBJ1aZkvUHP7vwFIZkRdaQMRqyIeXFZdLkupX158opl+zsjQU
-         PhymsZgTdH26cv5z8VGefv4yx3jhg/+wAscZWXGm4sJQihRtrkz/mcZHv2R2tduXxAng
-         avCHB4kDr1YgWe+qVIFwyhawIs4y8q6I2X7RrwfYxntF3wJRtxLWNXK6mquROgPU+kh7
-         UxRA==
-X-Gm-Message-State: APjAAAVBKoYgmKJYOck+cRzqiKao0TwGnSgnkNfAzintYAMAVF1JtkKZ
-        YJSRoCSZLvSmhox51Ei1f08=
-X-Google-Smtp-Source: APXvYqzcE1dCn3q7phznH1vyMXkl7qSNRon1S425yX+yB3XidPafUbKkJXgJLBKXzp71+pN5DgHlRw==
-X-Received: by 2002:aa7:9a89:: with SMTP id w9mr77416934pfi.213.1555449255384;
-        Tue, 16 Apr 2019 14:14:15 -0700 (PDT)
+        bh=x0SVpgkEJogEYU/LrEiNpS8peT+ejZT0nMW6St9JdL4=;
+        b=Hsapgg2hQDKDuIkG3qHrOac6sWn1t/ZA4DUI73J/7cRgqSjef8fq2o43fkjTeSUtyO
+         pjba/70T1VSOff0T6Y+RuozpygcVdvkzd5WQGG88jwWnLYxkfiB/zB21HmbRlf5Zn9XT
+         JR6d6fA1yK3a5s7yXmJINXryqsBMg3PMNvsUK68l6Xajgbnvx2lzX/RQH7nN2Ej5rZOV
+         SJA4W/NSgJwoueChWKbZ6uKnu168l5u4HXePTkVEaZPtiLlHOr6QipXsOGnPAPzRwSpJ
+         uQhJNhmjIVwLFP7SBHMU+loQYzmE3qpeG5qQcE1ev0nKYPLiTpIZWykwAZel03CaHOFO
+         wjDg==
+X-Gm-Message-State: APjAAAUW4I4M9TjM4LbuJmtEBJcRfA103Pjs1diez9PHgwN2Wrj3KNoq
+        X14zjjfNua9tfJMM2SA57W2/yrv2
+X-Google-Smtp-Source: APXvYqyRKamzDgGb0QXZPGKhGdwP+nnanSKZeMdXTfjWdf/A6NcdXpAjFrN+zz0n9omzngEROVqbqQ==
+X-Received: by 2002:a17:902:2e01:: with SMTP id q1mr23484319plb.221.1555449648204;
+        Tue, 16 Apr 2019 14:20:48 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m7sm70388306pgg.62.2019.04.16.14.14.13
+        by smtp.gmail.com with ESMTPSA id d20sm79122774pfo.77.2019.04.16.14.20.47
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 14:14:14 -0700 (PDT)
-Date:   Tue, 16 Apr 2019 14:14:13 -0700
+        Tue, 16 Apr 2019 14:20:47 -0700 (PDT)
+Date:   Tue, 16 Apr 2019 14:20:46 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wolfram Sang <wsa@the-dreams.de>
 Cc:     Jerry Hoemann <jerry.hoemann@hpe.com>,
@@ -65,61 +65,45 @@ Cc:     Jerry Hoemann <jerry.hoemann@hpe.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v2 06/16] watchdog: hpwdt: drop warning after calling
  watchdog_init_timeout
-Message-ID: <20190416211413.GB26442@roeck-us.net>
+Message-ID: <20190416212046.GC26442@roeck-us.net>
 References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
  <20190416102515.12269-7-wsa+renesas@sang-engineering.com>
  <20190416203431.GA20072@anatevka>
- <20190416205003.GA8268@kunai>
+ <20190416204814.GA26442@roeck-us.net>
+ <20190416205533.GB8268@kunai>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190416205003.GA8268@kunai>
+In-Reply-To: <20190416205533.GB8268@kunai>
 User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 16, 2019 at 10:50:03PM +0200, Wolfram Sang wrote:
-> Hi Jerry,
+On Tue, Apr 16, 2019 at 10:55:33PM +0200, Wolfram Sang wrote:
 > 
-> > I applied patches 1,2 & 6 in testing.
-> > 
-> > Note, that hpwdt is passing NULL as the third parameter to watchdog_init_timeout().
-> > 
-> > The second patch in this series is using "dev" as input to dev_err and dev_warn.
-> > 
-> > This results in the following in dmesg when trying to load hpwdt w/ an invalid soft_margin:
-> > 
-> > 
-> > [   80.848160] (NULL device *): driver supplied timeout (4294967295) out of range
-> > [   80.855429] (NULL device *): falling back to default timeout (30)
+> > That is indeed a problem: the pointer will be NULL if there is no parent
+> > device (such as in softdog.c). Otherwise it should never be NULL.
 > 
-> Thank you for this report. Yes, using 'dev' blindly is a bug.
+> Okay, this spoils my err_dev solution. So, we probably go this route
+> then:
 > 
-> > if the call in hpwdt driver is changed to:
-> > 
-> > 	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, &dev->dev))
-> > 
-> > 
-> > We see the message like we'd desire:
-> > 
-> > [ 2061.167100] hpwdt 0000:01:00.0: driver supplied timeout (4294967295) out of range
-> > [ 2061.174633] hpwdt 0000:01:00.0: falling back to default timeout (30)
-> 
-> The above observation makes sense, but I think we should fix the core
-> code and not the hpwdt driver. My suggestion would be to add something
-> like this to watchdog_init_timeout():
-> 
-> 	struct device *err_dev = dev ?: wdd->parent;
-> 
-> And then use err_dev for all the printing. Guenter?
+> 	pr_<errlvl>("watchdog%d: <err_msg>\n", wdd->id);
 > 
 
-That is a good idea, and we should do that. Unfortunately, wdd->parent can also
-be NULL, either because there is no parent device (e.g. softdog.c), or because
-the driver author forgot to set ->parent. So we still need a fallback.
-Does it make sense to print watchdog_info->identity if both dev and wdd->parent
-are NULL ?
+I don't like it because it doesn't show the driver name, and watchdog%d
+can change with each reboot. How about something like this ?
+
+static void pr_wdt_err(struct watchdog_device *wdd, char *text, int err)
+{
+	if (wdd->parent)
+		dev_err(wdd->parent, "%s: %d\n", text, err);
+	else
+		pr_err("%s: %s: %d\n", wdd->info->identity, text, err);
+}
+
+We could then use the same mechanism to generate error messages for
+watchdog_register_device().
 
 Guenter
