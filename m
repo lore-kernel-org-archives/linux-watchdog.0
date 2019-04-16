@@ -4,24 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E6F4C10F14
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:25:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63062C282DA
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:25:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F0035206BA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:25:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3ACE02086A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 10:25:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbfDPKZZ (ORCPT
+        id S1729101AbfDPKZe (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 06:25:25 -0400
-Received: from sauhun.de ([88.99.104.3]:48624 "EHLO pokefinder.org"
+        Tue, 16 Apr 2019 06:25:34 -0400
+Received: from sauhun.de ([88.99.104.3]:48700 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726686AbfDPKZZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 06:25:25 -0400
+        id S1729071AbfDPKZd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 16 Apr 2019 06:25:33 -0400
 Received: from localhost (p54B332D3.dip0.t-ipconnect.de [84.179.50.211])
-        by pokefinder.org (Postfix) with ESMTPSA id 963382E404E;
-        Tue, 16 Apr 2019 12:25:23 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id EF2AA2E35C7;
+        Tue, 16 Apr 2019 12:25:31 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     linux-renesas-soc@vger.kernel.org,
@@ -29,9 +29,9 @@ Cc:     linux-renesas-soc@vger.kernel.org,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 01/16] watchdog: refactor watchdog_init_timeout
-Date:   Tue, 16 Apr 2019 12:25:00 +0200
-Message-Id: <20190416102515.12269-2-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 16/16] watchdog: ziirave_wdt: drop warning after calling watchdog_init_timeout
+Date:   Tue, 16 Apr 2019 12:25:15 +0200
+Message-Id: <20190416102515.12269-17-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
 References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
@@ -40,77 +40,31 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The function is not easy to read and has a problem: -EINVAL is returned
-when the module parameter is invalid but the DT parameter is OK.
+The core will print out details now.
 
-Refactor the code to have the same pattern of checks for the module
-parameter and DT. Further ones can be easily added in the future if the
-need arises. The above mentioned problem is fixed, too.
-
-Some documentation is added to describe the different handlings of '0'
-for the module parameter and the DT property.
-
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/watchdog_core.c | 33 +++++++++++++++++++--------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ drivers/watchdog/ziirave_wdt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index eb8fa25f8eb2..21e53cc49977 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -105,9 +105,12 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
-  * timeout module parameter (if it is valid value) or the timeout-sec property
-  * (only if it is a valid value and the timeout_parm is out of bounds).
-  * If none of them are valid then we keep the old value (which should normally
-- * be the default timeout value).
-+ * be the default timeout value). Note that for the module parameter, '0' means
-+ * 'use default' while it is an invalid value for the timeout-sec property.
-+ * It should simply be dropped if you want to use the default value then.
-  *
-- * A zero is returned on success and -EINVAL for failure.
-+ * A zero is returned on success or -EINVAL if all provided values are out of
-+ * bounds.
-  */
- int watchdog_init_timeout(struct watchdog_device *wdd,
- 				unsigned int timeout_parm, struct device *dev)
-@@ -117,22 +120,24 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+index d3594aa3a374..43e6b575c32c 100644
+--- a/drivers/watchdog/ziirave_wdt.c
++++ b/drivers/watchdog/ziirave_wdt.c
+@@ -658,11 +658,7 @@ static int ziirave_wdt_probe(struct i2c_client *client,
+ 	w_priv->wdd.parent = &client->dev;
+ 	w_priv->wdd.groups = ziirave_wdt_groups;
  
- 	watchdog_check_min_max_timeout(wdd);
- 
--	/* try to get the timeout module parameter first */
--	if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
--		wdd->timeout = timeout_parm;
--		return ret;
+-	ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
+-	if (ret) {
+-		dev_info(&client->dev,
+-			 "Unable to select timeout value, using default\n");
 -	}
--	if (timeout_parm)
-+	/* check the driver supplied value (likely a module parameter) first */
-+	if (timeout_parm) {
-+		if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
-+			wdd->timeout = timeout_parm;
-+			return 0;
-+		}
- 		ret = -EINVAL;
-+	}
++	watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
  
- 	/* try to get the timeout_sec property */
--	if (dev == NULL || dev->of_node == NULL)
--		return ret;
--	of_property_read_u32(dev->of_node, "timeout-sec", &t);
--	if (!watchdog_timeout_invalid(wdd, t) && t)
--		wdd->timeout = t;
--	else
-+	if (dev && dev->of_node &&
-+	    of_property_read_u32(dev->of_node, "timeout-sec", &t) == 0) {
-+		if (t && !watchdog_timeout_invalid(wdd, t)) {
-+			wdd->timeout = t;
-+			return 0;
-+		}
- 		ret = -EINVAL;
-+	}
- 
- 	return ret;
- }
+ 	/*
+ 	 * The default value set in the watchdog should be perfectly valid, so
 -- 
 2.11.0
 
