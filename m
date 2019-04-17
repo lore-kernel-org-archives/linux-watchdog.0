@@ -1,126 +1,100 @@
-Return-Path: <SRS0=LtgX=SS=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=uGyo=ST=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFA38C282DA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 22:38:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64D80C10F12
+	for <linux-watchdog@archiver.kernel.org>; Wed, 17 Apr 2019 06:31:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7D94121773
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Apr 2019 22:38:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3284320835
+	for <linux-watchdog@archiver.kernel.org>; Wed, 17 Apr 2019 06:31:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G7quaF9O"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="M2APMcox";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="BN2PP0Z9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728478AbfDPWiQ (ORCPT
+        id S1727013AbfDQGb0 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Apr 2019 18:38:16 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:39666 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727057AbfDPWiQ (ORCPT
+        Wed, 17 Apr 2019 02:31:26 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:52926 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725814AbfDQGbZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Apr 2019 18:38:16 -0400
-Received: by mail-pg1-f195.google.com with SMTP id k3so11024651pga.6;
-        Tue, 16 Apr 2019 15:38:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QxSN67SXScLmDP0J1JVz4/1JGDwIPnYWLQpjdrMc9cI=;
-        b=G7quaF9Oc+vHKanhtI8tIEugHYcerXY6K8UHdqOcZKSmsP8J2t7YWm6wv1pXbYnsIM
-         l1PgY6cEsIm+c2AthhHL1bn7xCskC7YOooNLyV34BvgpoLVXwnSUnYnTflg2Jt+DkJ7o
-         9JrWHmNG8KJZWzj34gby67uZ+hgqC0LhQr26bQpwjj5RFs1XGAOuV7pKqPasjrchrFpA
-         1pOoyycLTdVgCwG/dSuX4dzW53FbZHypz8lQVXffmWFHcW1xBfagvAhCkil+f/ooDhps
-         OEyBl0ZzOEXIKLjFo1EeZp+ywCChIokCgRYZ54LDwwC8mLyKXsgWF5KHCgswkaZzPOYe
-         AtjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QxSN67SXScLmDP0J1JVz4/1JGDwIPnYWLQpjdrMc9cI=;
-        b=LIkN2i1NEa71ZMTtXnWwdnUOJ9t2zzKOxjodXDfrYPO/qma8OV3mH0BBa7xtFlR5eJ
-         LFO+yQMUBf581TG3P23yyxe/GSmohnntM0x1jL0cK9nozlLzBOgG4DgoFFgZsy230s9O
-         ZoWH9te5Ut8NpwbJU+Fp8LocoFzQRu25wyfnWJnjBKchS/0hhj95cRllPgm9Fi6XBNBK
-         KKPZyhadLkr+gSM0c4KqwKMSX6BCSVQ8WdIhEssSYapb1i+T7nttHC6GQ5I4bt8PlnFV
-         5QkGqXmHjaQoBGTIqABGLn25/4hr0EZ3Qd9bYbVNTG/nFefPQxL67aJzSOpBqORr7LkE
-         DSng==
-X-Gm-Message-State: APjAAAXgX/dgcAtS+wa3U7WVJC3aSg3WH5I6YRxCM67+JayYSqcFkxTD
-        8h/FEgUdmj8ATPQRPl9GSk4=
-X-Google-Smtp-Source: APXvYqxzorWp2DWloPs4BE7hxkrGAmdXU/UaBFzT650uIc4YLOR9hzCdZ+JnQDf8KUxvdugW8GCPKA==
-X-Received: by 2002:a63:28f:: with SMTP id 137mr78243290pgc.377.1555454295869;
-        Tue, 16 Apr 2019 15:38:15 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k1sm73509534pfc.83.2019.04.16.15.38.14
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Apr 2019 15:38:14 -0700 (PDT)
-Date:   Tue, 16 Apr 2019 15:38:13 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Wed, 17 Apr 2019 02:31:25 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 290BF60907; Wed, 17 Apr 2019 06:31:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1555482685;
+        bh=HQXq3NgF3tyRYydYhPRkw5TJvBmleRQ9ra25bsKrqIs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=M2APMcoxsT6ejRZJQ8YMfdEj7tNX+pjSDdy6dGV8Aj26j5jDxwUVIxEkLmc9XuQd6
+         FlVkbRFPIBWOeL80MyQfqUh63LFGIXT0G4QEyI+O2jlN8K/+GG5Wa+gAS2IRdx6dH4
+         H0MxvWxJc73G3J67QV6nFHVNxEWs1LMosO/fOxFA=
+Received: from [10.204.79.15] (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: mojha@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id A172860770;
+        Wed, 17 Apr 2019 06:31:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1555482684;
+        bh=HQXq3NgF3tyRYydYhPRkw5TJvBmleRQ9ra25bsKrqIs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=BN2PP0Z91g9bG2uAeS8yBsAKGke6JJbUv3xiOxIH8e0lbFf3vZpkdC2jQl9fIL6N8
+         SZpiuXghd8xKJ/FBDmqP8yxbnHkiC0ihtS52gEvjVfU0sQQcd5aG+Q3nbTUcUdR4VT
+         ZnD/tqkhShP7SFlT2X5dlyH3Q+WNWidCY1gLQHOs=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A172860770
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
+Subject: Re: [PATCH] watchdog: intel_scu_watchdog: fix spelling mistake:
+ "set_hearbeat" -> "set_heartbeat"
+To:     Colin King <colin.king@canonical.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 06/16] watchdog: hpwdt: drop warning after calling
- watchdog_init_timeout
-Message-ID: <20190416223813.GA744@roeck-us.net>
-References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
- <20190416102515.12269-7-wsa+renesas@sang-engineering.com>
- <20190416203431.GA20072@anatevka>
- <20190416204814.GA26442@roeck-us.net>
- <20190416205533.GB8268@kunai>
- <20190416212046.GC26442@roeck-us.net>
- <20190416221702.GC8268@kunai>
+        linux-watchdog@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20190416133318.21045-1-colin.king@canonical.com>
+From:   Mukesh Ojha <mojha@codeaurora.org>
+Message-ID: <8149cea7-d7dd-2907-3f85-caba792b7cf0@codeaurora.org>
+Date:   Wed, 17 Apr 2019 12:01:20 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190416221702.GC8268@kunai>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190416133318.21045-1-colin.king@canonical.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 17, 2019 at 12:17:02AM +0200, Wolfram Sang wrote:
-> On Tue, Apr 16, 2019 at 02:20:46PM -0700, Guenter Roeck wrote:
-> > On Tue, Apr 16, 2019 at 10:55:33PM +0200, Wolfram Sang wrote:
-> > > 
-> > > > That is indeed a problem: the pointer will be NULL if there is no parent
-> > > > device (such as in softdog.c). Otherwise it should never be NULL.
-> > > 
-> > > Okay, this spoils my err_dev solution. So, we probably go this route
-> > > then:
-> > > 
-> > > 	pr_<errlvl>("watchdog%d: <err_msg>\n", wdd->id);
-> > > 
-> > 
-> > I don't like it because it doesn't show the driver name, and watchdog%d
-> > can change with each reboot. How about something like this ?
-> > 
-> > static void pr_wdt_err(struct watchdog_device *wdd, char *text, int err)
-> > {
-> > 	if (wdd->parent)
-> > 		dev_err(wdd->parent, "%s: %d\n", text, err);
-> > 	else
-> > 		pr_err("%s: %s: %d\n", wdd->info->identity, text, err);
-> > }
-> > 
-> > We could then use the same mechanism to generate error messages for
-> > watchdog_register_device().
-> 
-> 'text' is a constant string then. Supporting a format string will make
-> this much more complicated. Yet, printing out the wrong timeout is
-> useful, I think.
-> 
-> What about:
-> 
-> 	dev_str = wdd->parent ? dev_name(wdd->parent) : wdd->info->identity;
-> 	pr_<errlvl>("%s: <errstr>\n", dev_str, ...);
-> 
-Yes, that works as well. Note that it will actually print something like
-"watchdog: <device>: ..." due to the pr_fmt() at the top of watchdog_core.c.
-I guess that should be ok.
 
-Guenter
+On 4/16/2019 7:03 PM, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>
+> There is a spelling mistake in a pr_debug message. Fix it.
+>
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+
+Cheers,
+-Mukesh
+> ---
+>   drivers/watchdog/intel_scu_watchdog.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/intel_scu_watchdog.c b/drivers/watchdog/intel_scu_watchdog.c
+> index 0caab6241eb7..718f7db35bec 100644
+> --- a/drivers/watchdog/intel_scu_watchdog.c
+> +++ b/drivers/watchdog/intel_scu_watchdog.c
+> @@ -224,7 +224,7 @@ static int intel_scu_set_heartbeat(u32 t)
+>   		 watchdog_device.timer_tbl_ptr->freq_hz);
+>   	pr_debug("set_heartbeat: timer_set is %x (hex)\n",
+>   		 watchdog_device.timer_set);
+> -	pr_debug("set_hearbeat: timer_margin is %x (hex)\n", timer_margin);
+> +	pr_debug("set_heartbeat: timer_margin is %x (hex)\n", timer_margin);
+>   	pr_debug("set_heartbeat: threshold is %x (hex)\n",
+>   		 watchdog_device.threshold);
+>   	pr_debug("set_heartbeat: soft_threshold is %x (hex)\n",
