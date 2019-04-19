@@ -3,25 +3,25 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 189C4C282E1
-	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 674D6C282E1
+	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:16:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E0F1A222EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:16:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40BE0222EB
+	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:16:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726030AbfDSSQO (ORCPT
+        id S1726525AbfDSSQc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 19 Apr 2019 14:16:14 -0400
-Received: from sauhun.de ([88.99.104.3]:50518 "EHLO pokefinder.org"
+        Fri, 19 Apr 2019 14:16:32 -0400
+Received: from sauhun.de ([88.99.104.3]:50568 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725992AbfDSSQM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 19 Apr 2019 14:16:12 -0400
+        id S1726485AbfDSSQT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 19 Apr 2019 14:16:19 -0400
 Received: from localhost (p5486CC46.dip0.t-ipconnect.de [84.134.204.70])
-        by pokefinder.org (Postfix) with ESMTPSA id E39C92E3578;
-        Fri, 19 Apr 2019 20:16:09 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id CC5D32E35C9;
+        Fri, 19 Apr 2019 20:16:17 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     linux-renesas-soc@vger.kernel.org,
@@ -29,9 +29,9 @@ Cc:     linux-renesas-soc@vger.kernel.org,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 02/16] watchdog: add error messages when initializing timeout fails
-Date:   Fri, 19 Apr 2019 20:15:47 +0200
-Message-Id: <20190419181601.7412-3-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v3 16/16] watchdog: ziirave_wdt: drop warning after calling watchdog_init_timeout
+Date:   Fri, 19 Apr 2019 20:16:01 +0200
+Message-Id: <20190419181601.7412-17-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190419181601.7412-1-wsa+renesas@sang-engineering.com>
 References: <20190419181601.7412-1-wsa+renesas@sang-engineering.com>
@@ -40,53 +40,31 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This not only removes boilerplate code from watchdog drivers, it can
-also be more specific which of the supplied value actually fails. Also,
-the loglevel becomes now consistent across drivers.
+The core will print out details now.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/watchdog_core.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/watchdog/ziirave_wdt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 21e53cc49977..62be9e52a4de 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -115,6 +115,8 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
- int watchdog_init_timeout(struct watchdog_device *wdd,
- 				unsigned int timeout_parm, struct device *dev)
- {
-+	const char *dev_str = wdd->parent ? dev_name(wdd->parent) :
-+			      (const char *)wdd->info->identity;
- 	unsigned int t = 0;
- 	int ret = 0;
+diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+index d3594aa3a374..43e6b575c32c 100644
+--- a/drivers/watchdog/ziirave_wdt.c
++++ b/drivers/watchdog/ziirave_wdt.c
+@@ -658,11 +658,7 @@ static int ziirave_wdt_probe(struct i2c_client *client,
+ 	w_priv->wdd.parent = &client->dev;
+ 	w_priv->wdd.groups = ziirave_wdt_groups;
  
-@@ -126,6 +128,8 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 			wdd->timeout = timeout_parm;
- 			return 0;
- 		}
-+		pr_err("%s: driver supplied timeout (%u) out of range\n",
-+			dev_str, timeout_parm);
- 		ret = -EINVAL;
- 	}
+-	ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
+-	if (ret) {
+-		dev_info(&client->dev,
+-			 "Unable to select timeout value, using default\n");
+-	}
++	watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
  
-@@ -136,9 +140,14 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 			wdd->timeout = t;
- 			return 0;
- 		}
-+		pr_err("%s: DT supplied timeout (%u) out of range\n", dev_str, t);
- 		ret = -EINVAL;
- 	}
- 
-+	if (ret < 0 && wdd->timeout)
-+		pr_warn("%s: falling back to default timeout (%u)\n", dev_str,
-+			wdd->timeout);
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ 	/*
+ 	 * The default value set in the watchdog should be perfectly valid, so
 -- 
 2.11.0
 
