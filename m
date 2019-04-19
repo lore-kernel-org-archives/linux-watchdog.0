@@ -6,33 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2892AC282DA
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8560C282E0
 	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:17:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 05A76222EC
-	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:17:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8173B222E9
+	for <linux-watchdog@archiver.kernel.org>; Fri, 19 Apr 2019 18:17:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727225AbfDSSRN (ORCPT
+        id S1726417AbfDSSQR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 19 Apr 2019 14:17:13 -0400
-Received: from sauhun.de ([88.99.104.3]:50590 "EHLO pokefinder.org"
+        Fri, 19 Apr 2019 14:16:17 -0400
+Received: from sauhun.de ([88.99.104.3]:50578 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726336AbfDSSQR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1726307AbfDSSQR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 19 Apr 2019 14:16:17 -0400
 Received: from localhost (p5486CC46.dip0.t-ipconnect.de [84.134.204.70])
-        by pokefinder.org (Postfix) with ESMTPSA id 23DE82E35C6;
-        Fri, 19 Apr 2019 20:16:16 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id 9116B2E35C5;
+        Fri, 19 Apr 2019 20:16:15 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     linux-renesas-soc@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 13/16] watchdog: st_lpc_wdt: drop warning after calling watchdog_init_timeout
-Date:   Fri, 19 Apr 2019 20:15:58 +0200
-Message-Id: <20190419181601.7412-14-wsa+renesas@sang-engineering.com>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 12/16] watchdog: sp5100_tco: drop warning after calling watchdog_init_timeout
+Date:   Fri, 19 Apr 2019 20:15:57 +0200
+Message-Id: <20190419181601.7412-13-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190419181601.7412-1-wsa+renesas@sang-engineering.com>
 References: <20190419181601.7412-1-wsa+renesas@sang-engineering.com>
@@ -46,25 +45,24 @@ The core will print out details now.
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/st_lpc_wdt.c | 4 +---
+ drivers/watchdog/sp5100_tco.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-index 9a5ed95c3403..7a90184eb950 100644
---- a/drivers/watchdog/st_lpc_wdt.c
-+++ b/drivers/watchdog/st_lpc_wdt.c
-@@ -224,10 +224,8 @@ static int st_wdog_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+index 41aaae2d5287..553735b256e2 100644
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -395,9 +395,7 @@ static int sp5100_tco_probe(struct platform_device *pdev)
+ 	wdd->min_timeout = 1;
+ 	wdd->max_timeout = 0xffff;
  
- 	/* Init Watchdog timeout with value in DT */
- 	ret = watchdog_init_timeout(&st_wdog_dev, 0, dev);
--	if (ret) {
--		dev_err(dev, "Unable to initialise watchdog timeout\n");
-+	if (ret)
- 		return ret;
--	}
- 
- 	ret = devm_watchdog_register_device(dev, &st_wdog_dev);
- 	if (ret) {
+-	if (watchdog_init_timeout(wdd, heartbeat, NULL))
+-		dev_info(dev, "timeout value invalid, using %d\n",
+-			 wdd->timeout);
++	watchdog_init_timeout(wdd, heartbeat, NULL);
+ 	watchdog_set_nowayout(wdd, nowayout);
+ 	watchdog_stop_on_reboot(wdd);
+ 	watchdog_stop_on_unregister(wdd);
 -- 
 2.11.0
 
