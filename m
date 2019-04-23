@@ -2,93 +2,70 @@ Return-Path: <SRS0=xPok=SZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 038A7C10F14
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 14:24:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C554C282DD
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 14:38:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0F5F214AE
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 14:24:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C92B921738
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 14:37:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KMXFWuzz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l5ACw5Vh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728137AbfDWOYv (ORCPT
+        id S1727180AbfDWOhy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Apr 2019 10:24:51 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:43696 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727305AbfDWOYu (ORCPT
+        Tue, 23 Apr 2019 10:37:54 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:34819 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbfDWOhx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Apr 2019 10:24:50 -0400
-Received: by mail-ed1-f68.google.com with SMTP id j20so12781526edq.10;
-        Tue, 23 Apr 2019 07:24:47 -0700 (PDT)
+        Tue, 23 Apr 2019 10:37:53 -0400
+Received: by mail-ed1-f67.google.com with SMTP id y67so12859591ede.2;
+        Tue, 23 Apr 2019 07:37:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=ZiS108X4GvElOC5iTgt1z3RZlSMYed2GU2hUMf31Ocw=;
-        b=KMXFWuzzjDBUk3iFLIwPlvhtxzDFPwfdqJ6fLB6PZqyaZIkGCSsJ7wYhLw4FhMcSDw
-         qcT+JfcS3i62GHJcCfwZwQeqf2NLn1XkZ2ntforFLx+ZXeDuNWGqkYdcCCOAIinrlkAc
-         36Te+atYl2eRF2S+dtr/BUcDotLwsNEdWxnRNey1+voQh1t4cUccCTF8ljD6wBJI+rqt
-         uNg9DFb/9hfAqcBVsIxO4WV+RRsUiCJxY4aBAna8aE5v+AhI5G0JQ6KMspjtOdWueZSP
-         IHXKqCZYFQfWgnbbYsVxGpFyKNbAUxTdx+23l7VnYjWYDivQ0sxl+4/+oHcfK2Ass0SE
-         s+ow==
+        bh=QRP+/do+3JU4WcDzSmjH2GzK/KU9zKxcWztQ+kwWunk=;
+        b=l5ACw5VhKHC/cmEEQX949x+aolGHgZ+V0Y5lgCBiziVgIL0zIfeaYHTb/BuHD/yhpw
+         ONprGtLj0rJiLhMmKyMSgSTIEFA2tPUugIP776KilZuHKxJucUE7+YJ+t020DC8RMOBA
+         v3ivSb+aY9aJ3S3Oz38/MCK9ORK2exag6WNX5rIEx7EsczSjqCMqIF5zRj+OUuidgjtg
+         1qGsUrsET4sH1N7XCb0ezzUxFAPLjXPR6Zs/6KSZ6upEwJsKPiP+qEMI0NsusyrYo3Jr
+         FW2WbNdn0ICUQoueNFl4q2LeVmzfSpioiHxm5YpY6Ofhylv+AN2VlFPxyflhLQtd+s8Z
+         M1pA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=ZiS108X4GvElOC5iTgt1z3RZlSMYed2GU2hUMf31Ocw=;
-        b=Zm1psrWzAd3GXzCQhYdEUWU8YQcEf2lB6hj7l7bsJy8pHzMHJf7ob2xstlXZPaFx48
-         UYmEzdtzUWrJlzuYr6NlUpDgwN5NZdZIfqQeTpe4coQv1LwVygL6tpMq/N+Tq15Yr/nR
-         +KNZhtvOAEZZrkTNejEb5liq50feaQNUU75qtBHVnrJ8LEUntUVb36VXfSw7Ovj+cZm/
-         2X3BGj1+4wyWnd1aEoSyXghOQSm88Q6c1y2lQGOKjPUaCsdsU/yKhEFJxiRfysQkbr7U
-         2xSNISWUuHvRvh19ssWO9KALxyW9/JJRNQivOextsa9awJjXu5+edzMxpQISq80WjOfo
-         4Mzw==
-X-Gm-Message-State: APjAAAUlbzZY95paZdHndDV7veiFygneRnqhGadzKMl0OT2zu7W76gcl
-        GDGhals427hvl6owQXAL6G0=
-X-Google-Smtp-Source: APXvYqyVrzoDQVvx73p746yEhNdNPInuap78vCqC+WvqidpVN5pxKd7BU7iPCNdFz6TWAf9I3KWtDw==
-X-Received: by 2002:a17:906:970e:: with SMTP id k14mr12862183ejx.283.1556029487143;
-        Tue, 23 Apr 2019 07:24:47 -0700 (PDT)
+        bh=QRP+/do+3JU4WcDzSmjH2GzK/KU9zKxcWztQ+kwWunk=;
+        b=C48gF7brPaZTJLYsCjjGCXI4yF9ogcE/VyQIei5sxXV6P10aUPSMO8Pf08xVdvZy+v
+         qSpwApoGIxqYD31WBHTB+WwSqZJA3GHRuVmzqHIlPaL+7Po/XCsgFv2L20qyOxJd7aL7
+         IIbUM3pnFq0S2cjqtQIFfmNThyoXlUBGcLfeXxG6WyamAHzkrzpwy5Q2AW1CW8vk4duc
+         6DDgKgFT3Uh9bhgV3zRgZhIDQEfTumhdKc+smYOr5vwVzj9llK7v0H2tb3kVd5jXvRpJ
+         rjopOXt8Yel64zYmoOhYsJoAWoG1U8eGg3Rvc0KR45r6eNbHlYfVLIT9EQVedNSRyLMw
+         F/oA==
+X-Gm-Message-State: APjAAAX3zBpsf0dXw8yO29Hp9UQfIOLUCDrjS301GVOksxDvZ4ezq3u1
+        WmN/GWnv61vY3S4/vsXq+rahWuge47w=
+X-Google-Smtp-Source: APXvYqxS692MP/hSLKcMi45Z+7HO4h954b5qk7oAy6jnU1brQjhH/DtslzI6HApgwz6FgONYZ5wHdg==
+X-Received: by 2002:a17:906:4f8e:: with SMTP id o14mr12572187eju.137.1556030270862;
+        Tue, 23 Apr 2019 07:37:50 -0700 (PDT)
 Received: from ziggy.stardust ([37.223.141.112])
-        by smtp.gmail.com with ESMTPSA id f17sm4673621eda.20.2019.04.23.07.24.45
+        by smtp.gmail.com with ESMTPSA id n57sm4805048edd.70.2019.04.23.07.37.49
         (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 Apr 2019 07:24:46 -0700 (PDT)
-Subject: Re: [PATCH 15/24] dt-bindings: pinctrl: pinctrl-mt65xx: add support
- for MT8516
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Fabien Parent <fparent@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@kernel.org>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-i2c@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-serial@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        stephane.leprovost@mediatek.com
-References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-16-fparent@baylibre.com>
- <CACRpkdZZ6-+MVdK4bOP4SHxQ8uQ8zENcir7DSteHy4g+B5uySQ@mail.gmail.com>
- <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
- <CACRpkdZ8gq+hGRT6EAyP2w9K0jz5RAzWeZ6_UrW+v-BOjd-wbg@mail.gmail.com>
+        Tue, 23 Apr 2019 07:37:50 -0700 (PDT)
+Subject: Re: [PATCH 1/2] dt-bindings: mt8183: Add watchdog dt-binding
+To:     Yong Liang <yong.liang@mediatek.com>, wim@linux-watchdog.org,
+        linux@roeck-us.net, robh+dt@kernel.org, mark.rutland@arm.com
+Cc:     linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1555913284-5591-1-git-send-email-yong.liang@mediatek.com>
 From:   Matthias Brugger <matthias.bgg@gmail.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
@@ -184,12 +161,12 @@ Autocrypt: addr=matthias.bgg@gmail.com; prefer-encrypt=mutual; keydata=
  pac005PuhxCWkKTJz3gCmznnoat4GCnL5gy/m0Qk45l4PFqwWXVLo9AQg2Kp3mlIFZ6fsEKI
  AN5hxlbNvNb9V2Zo5bFZjPWPFTxOteM0omUAS+QopwU0yPLLGJVf2iCmItHcUXI+r2JwH1CJ
  jrHWeQEI2ucSKsNa8FllDmG/fQ==
-Message-ID: <470d475e-b694-ab6a-5ff7-b5635af629bb@gmail.com>
-Date:   Tue, 23 Apr 2019 16:24:44 +0200
+Message-ID: <4a0ad424-f3bf-f6fd-4780-0ba8336e7d82@gmail.com>
+Date:   Tue, 23 Apr 2019 16:37:49 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <CACRpkdZ8gq+hGRT6EAyP2w9K0jz5RAzWeZ6_UrW+v-BOjd-wbg@mail.gmail.com>
+In-Reply-To: <1555913284-5591-1-git-send-email-yong.liang@mediatek.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -200,31 +177,30 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
 
-On 23/04/2019 13:01, Linus Walleij wrote:
-> On Tue, Apr 16, 2019 at 11:12 AM Matthias Brugger
-> <matthias.bgg@gmail.com> wrote:
+On 22/04/2019 08:08, Yong Liang wrote:
+> From: "yong.liang" <yong.liang@mediatek.com>
 > 
->> Hi Linus,
->>
->> On 08/04/2019 22:44, Linus Walleij wrote:
->>> On Sat, Mar 23, 2019 at 10:17 PM Fabien Parent <fparent@baylibre.com> wrote:
->>>
->>>> Add binding documentation of pinctrl-mt65xx for MT8516 SoC.
->>>>
->>>> Signed-off-by: Fabien Parent <fparent@baylibre.com>
->>>
->>> Patch applied with Rob's ACK.
->>>
->>
->> I don't see this in your for-next branch. Did the patch got lost?
+> This patch add watchdog binding documentation for
+> watchdog on MTK Socs.
 > 
-> I usually push the devel branch to be tested by the build robots
-> and then mix down the for-next branch.
-> 
-> Recent week(s) the build robot was not responding so it got delayed.
-> 
+> Signed-off-by: yong.liang <yong.liang@mediatek.com>
 
-I don't see it in the devel branch [1]. Can you please double check?
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
 
-[1]
-https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinctrl.git/log/?h=devel
+> ---
+>  .../devicetree/bindings/watchdog/mtk-wdt.txt       |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> index 8682d6a..f0824aa 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> @@ -9,6 +9,7 @@ Required properties:
+>  	"mediatek,mt7622-wdt", "mediatek,mt6589-wdt": for MT7622
+>  	"mediatek,mt7623-wdt", "mediatek,mt6589-wdt": for MT7623
+>  	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
+> +	"mediatek,mt8183-wdt", "mediatek,mt6589-wdt": for MT8183
+>  
+>  - reg : Specifies base physical address and size of the registers.
+>  
+> 
