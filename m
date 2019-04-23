@@ -2,113 +2,111 @@ Return-Path: <SRS0=xPok=SZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DDB3C282DD
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 15:52:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9001CC10F03
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 21:29:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 093F72175B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 15:52:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57A4F218DA
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 21:29:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="xRBXfJdy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727467AbfDWPwA (ORCPT
+        id S1726342AbfDWV33 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Apr 2019 11:52:00 -0400
-Received: from mail5.windriver.com ([192.103.53.11]:40470 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728233AbfDWPwA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Apr 2019 11:52:00 -0400
-Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com [147.11.189.40])
-        by mail5.wrs.com (8.15.2/8.15.2) with ESMTPS id x3NFmwNQ005137
-        (version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL);
-        Tue, 23 Apr 2019 08:49:08 -0700
-Received: from yow-cube1.wrs.com (128.224.56.98) by ALA-HCA.corp.ad.wrs.com
- (147.11.189.40) with Microsoft SMTP Server id 14.3.439.0; Tue, 23 Apr 2019
- 08:48:48 -0700
-From:   Paul Gortmaker <paul.gortmaker@windriver.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-CC:     <linux-watchdog@vger.kernel.org>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Benjamin Fair <benjaminfair@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Nancy Yuen <yuenn@google.com>, <openbmc@lists.ozlabs.org>,
-        Patrick Venture <venture@google.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH 0/5] wdt: clean up unused modular infrastructure
-Date:   Tue, 23 Apr 2019 11:48:30 -0400
-Message-ID: <1556034515-28792-1-git-send-email-paul.gortmaker@windriver.com>
-X-Mailer: git-send-email 2.7.4
+        Tue, 23 Apr 2019 17:29:29 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41427 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726075AbfDWV32 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 23 Apr 2019 17:29:28 -0400
+Received: by mail-lj1-f196.google.com with SMTP id k8so2313073lja.8
+        for <linux-watchdog@vger.kernel.org>; Tue, 23 Apr 2019 14:29:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yjNWOsrikAOM/wqkHxpWheOZnguCN9PHZCzFhN8cUoo=;
+        b=xRBXfJdyg1R7nAx9RGWoiFoMOHzy5S7Nq21XHYTusFlAjrWeUhUmn4Xl9/3DYsFWKk
+         RMcvmS9QgeoYusqaId8AaHQr/RYSybV5hwpcvNBYrhTS7oTRWc1e0mgd/hiKeQA+OR13
+         79mDeXcsySw+db0gZcYmAh+VdhDd9MANUI3IQSWIgD4Xj1WhjcVXdIiT8D1yVGfljt4L
+         BQvRNy0diMu+6f/bEv/2T3crR6gUjfVp6fvEiuZAcVS9bGNt3jiKrgRx7Z2YEtH+775N
+         Jbexga2z3IDJsvH5pvVOfRnR0QSdOfSuNgeKHceYnUCeVrbzdsykRX2+w13Hwsnqsc/V
+         SXKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yjNWOsrikAOM/wqkHxpWheOZnguCN9PHZCzFhN8cUoo=;
+        b=oNdoRumeOsb37ojZfnnEWXaB7td40E6pon00IrIO8DydHgxkGbFWB1aXoaUMinZn/j
+         sEIdKFXSac2PSo65sJl+C2ing57e3srRcL/dXNYlJsXpDV3XPtSiioIg4t+jm+hDevjg
+         K24iEFBukZj04yLZKIbr7WOlL27tbdPDiOBixh8VjEBXhx0yfzo1CuWLmnAFXvf6/5hN
+         0CsCD5D7TnLzApA1uIILAeXSbmZydcRVn9pTS8ENTX6uBA6DH2DBzm7KVXAnSNyq/MW9
+         6zb2N8zUSYLJZNumpgWH0C90npKhB6AJhNLST+UyScmnriwebBMBgY3bKOLbCtaFqhRA
+         MsEw==
+X-Gm-Message-State: APjAAAW/HiAcGVYnoOo/44eiMExsEFYqgvtMnDEFvwQHYc0bhaaCBIqh
+        dQ30pu3nAQ6QGeq2jFD6Ec3DievgKQI46+NrsmNyrw==
+X-Google-Smtp-Source: APXvYqxtedqB/Tg6y1D+091GgWVPbxpPN7WPXefIYVREnly3B/dZWltLlnz2PuTyQhAl7IsH5G7zUGIk5QxJ/t15CuI=
+X-Received: by 2002:a2e:834d:: with SMTP id l13mr15501214ljh.97.1556054966691;
+ Tue, 23 Apr 2019 14:29:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <1556034515-28792-1-git-send-email-paul.gortmaker@windriver.com> <1556034515-28792-6-git-send-email-paul.gortmaker@windriver.com>
+In-Reply-To: <1556034515-28792-6-git-send-email-paul.gortmaker@windriver.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 23 Apr 2019 23:29:15 +0200
+Message-ID: <CACRpkdYSB6Mb7UHJbNZ_9SmSeYBshMjFdai6+CN5Deiu=zT3RQ@mail.gmail.com>
+Subject: Re: [PATCH 5/5] watchdog: coh901327: make it explicitly non-modular
+To:     Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-People can embed modular includes and modular exit functions into code
-that never use any of it, and they won't get any errors or warnings.
+On Tue, Apr 23, 2019 at 5:50 PM Paul Gortmaker
+<paul.gortmaker@windriver.com> wrote:
 
-Using modular infrastructure in non-modules might seem harmless, but some
-of the downfalls this leads to are:
+> The Kconfig currently controlling compilation of this code is:
+>
+> config COH901327_WATCHDOG
+>        bool "ST-Ericsson COH 901 327 watchdog"
+>
+> ...meaning that it currently is not being built as a module by anyone.
+>
+> Lets remove the modular code that is essentially orphaned, so that
+> when reading the driver there is no doubt it is builtin-only.
+>
+> We explicitly disallow a driver unbind, since that doesn't have a
+> sensible use case anyway, and it allows us to drop the ".remove"
+> code for non-modular drivers.
+>
+> Since module_platform_driver() uses the same init level priority as
+> builtin_platform_driver() the init ordering remains unchanged with
+> this commit.
+>
+> Also note that MODULE_ALIAS is a no-op for non-modular code.
+>
+> We also delete the MODULE_LICENSE tag etc. since all that information
+> is already contained at the top of the file in the comments.
+>
+> We replace module.h with moduleparam.h since the file does actually
+> declare some module parameters (i.e. boot args for non-modules).
+>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-watchdog@vger.kernel.org
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
- (1) it is easy to accidentally write unused module_exit/remove code
- (2) it can be misleading when reading the source, thinking a driver can
-     be modular when the Makefile and/or Kconfig prohibit it
- (3) an unused include of the module.h header file will in turn
-     include nearly everything else; adding a lot to CPP overhead.
- (4) it gets copied/replicated into other drivers and can spread.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-As a data point for #3 above, an empty C file that just includes the
-module.h header generates over 750kB of CPP output.  Repeating the same
-experiment with init.h and the result is less than 12kB; with export.h
-it is only about 1/2kB; with both it still is less than 12kB.
+Thanks for doing this Paul.
 
-Here, In this series, we do what has been done for other subsystems,
-like, net, x86, mfd, iommu....  and audit for uses of modular
-infrastructure inside code that currently can't be built as a module.
-
-As always, the option exists for driver authors to convert their code
-to tristate, if there is a valid use case for it to be so.  But since
-I don't have the context for each driver to know if such a use case
-exists, I limit myself to simply removing the unused code in order to
-make the driver consistent with the Makefile/Kconfig settings that
-control it.
-
-Paul.
-
----
-
-Cc: Benjamin Fair <benjaminfair@google.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-watchdog@vger.kernel.org
-Cc: Nancy Yuen <yuenn@google.com>
-Cc: openbmc@lists.ozlabs.org
-Cc: Patrick Venture <venture@google.com>
-Cc: Tali Perry <tali.perry1@gmail.com>
-Cc: Tomer Maimon <tmaimon77@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-
-
-Paul Gortmaker (5):
-  watchdog: rtd119x: drop unused module.h include
-  watchdog: watchdog_core: make it explicitly non-modular
-  watchdog: npcm: make it explicitly non-modular
-  watchdog: intel_scu: make it explicitly non-modular
-  watchdog: coh901327: make it explicitly non-modular
-
- drivers/watchdog/coh901327_wdt.c      | 24 ++++--------------------
- drivers/watchdog/intel_scu_watchdog.c | 18 ------------------
- drivers/watchdog/npcm_wdt.c           | 13 ++++++-------
- drivers/watchdog/rtd119x_wdt.c        |  1 -
- drivers/watchdog/watchdog_core.c      | 15 +--------------
- 5 files changed, 11 insertions(+), 60 deletions(-)
-
--- 
-2.7.4
-
+Yours,
+Linus Walleij
