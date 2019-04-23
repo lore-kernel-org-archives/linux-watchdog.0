@@ -2,114 +2,147 @@ Return-Path: <SRS0=xPok=SZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17474C282E1
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 11:01:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78E68C282E1
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 13:28:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CFAD92175B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 11:01:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4860D20685
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 13:28:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="mXjEB6+l"
+	dkim=pass (1024-bit key) header.d=c-s.fr header.i=@c-s.fr header.b="PqnS01Ri"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727501AbfDWLBP (ORCPT
+        id S1727458AbfDWN2K (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Apr 2019 07:01:15 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:43102 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727307AbfDWLBO (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Apr 2019 07:01:14 -0400
-Received: by mail-lf1-f65.google.com with SMTP id i68so11385193lfi.10
-        for <linux-watchdog@vger.kernel.org>; Tue, 23 Apr 2019 04:01:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gS3jY0cmkbFsh3cNxOmZnt/KE4EI6n91gBXnGpPbZ1Q=;
-        b=mXjEB6+lo1HOESakhWrQ9pwSHM0TTBKJ/dIVZh1wzO5Ez4T/92hBLLV44VC07ZRMvt
-         snpwDMT78FHiYuZu7KvsC9+pNpkH5OqoliZMNMq9ISIPxXaOUG+mjhEon054XrBbxz51
-         TRdLlKbQKoJZ43uJlOvNzLJq7c0WL6mBF5aTukyd2SB/TlV20Tnih0cE0JpN6a7mNuZJ
-         LY4BLdbyta/q4t/eIsjKhIxaZhqBrcuf+uXCJRdpF3jKIKNLPyKIWraaJxo5AXBsSJwR
-         tH8XtTZqdNUhCNwNMi1D6m201cnljOuVrvh05X9quZt8m4qVGrHtAxfqvOFw5m7O4L7A
-         uNpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gS3jY0cmkbFsh3cNxOmZnt/KE4EI6n91gBXnGpPbZ1Q=;
-        b=Lxg0lAUEPn45hgRwELfIX0T2+YJQsqGs86rkipJIepQYo/B0tDMzdX5WKk+1dVqngz
-         dUHuz458jd89HtO77xLJb2J4hcpFRuPz0k16QhyRTgQafLg4gynE3B4LBeoRSMbpwzzW
-         WcxwmHbLbtzGgHr6MIaCMLQXFR8IjOo1bLxVKDGXyyA4Tao+9tjBD+cd74BF+r6RuY8A
-         A0+Sl699Qy5uUTRgDpv+Bpi9yN6rcHQ+7yns8BBZKOJRZY2FtH3Hvf5ZUUJq8KJdwlae
-         vdN8GcjJPSmrGTobvUg3dY+grWolUAOkjxSoMlR1lZjPOVt7xiyxr+r18uuluN9YHwV6
-         6OIg==
-X-Gm-Message-State: APjAAAX3E+Ohuz/7i7MHZti8T4s97gj9hbZ9qrraF4UO/S0KwrSid71Z
-        9cXTL+HgDFEMMz4csQ2t13HFJAMcAQkinQhSbPol6A==
-X-Google-Smtp-Source: APXvYqxHCBLuMMwfVuMemjoZPJ1cT1LWnsQq1xx6AGcVpGsdx6BL5lCuQ04MVK7flKgJBhn7Yi1G2d9ABJZDm7cT+PU=
-X-Received: by 2002:a19:f001:: with SMTP id p1mr14389561lfc.27.1556017272455;
- Tue, 23 Apr 2019 04:01:12 -0700 (PDT)
+        Tue, 23 Apr 2019 09:28:10 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:61972 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727754AbfDWN2J (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 23 Apr 2019 09:28:09 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 44pPQZ3fBBz9v083;
+        Tue, 23 Apr 2019 15:28:06 +0200 (CEST)
+Authentication-Results: localhost; dkim=pass
+        reason="1024-bit key; insecure key"
+        header.d=c-s.fr header.i=@c-s.fr header.b=PqnS01Ri; dkim-adsp=pass;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id W8mHEisNH4V8; Tue, 23 Apr 2019 15:28:06 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 44pPQZ2Scnz9v07b;
+        Tue, 23 Apr 2019 15:28:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1556026086; bh=Ez5mm6PUM5Ypfk0XAkoOaZApQ4Vwg8mS5qSiVgOCC1c=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=PqnS01RiGIWVynuSYd8Xp6pjQtSMPC46ftQ3a3WkAAOsNNKSdE8VbRoMqIekLZOhx
+         IEfIMi7knhwrdAjupdYpE1Kfm182fNgHzRsDnQBoYWt3hf57U7atXaDWWZMdzxboVn
+         oKB+GLwCREiqDQx3GekM1Jb/Hs9fY4GXQLY0Fcyo=
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id B58048B8DD;
+        Tue, 23 Apr 2019 15:28:07 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id VjckJo6gfVqE; Tue, 23 Apr 2019 15:28:07 +0200 (CEST)
+Received: from PO15451 (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 328778B8C4;
+        Tue, 23 Apr 2019 15:28:07 +0200 (CEST)
+Subject: Re: [PATCH 21/22] watchdog: mpc8xxx_wdt: Convert to use device
+ managed functions and other improvements
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1554913683-25454-1-git-send-email-linux@roeck-us.net>
+ <1554913683-25454-22-git-send-email-linux@roeck-us.net>
+From:   Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <3631a90f-7c77-d2c2-ef68-01f9daf40ae6@c-s.fr>
+Date:   Tue, 23 Apr 2019 15:28:06 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-16-fparent@baylibre.com>
- <CACRpkdZZ6-+MVdK4bOP4SHxQ8uQ8zENcir7DSteHy4g+B5uySQ@mail.gmail.com> <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
-In-Reply-To: <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 23 Apr 2019 13:01:00 +0200
-Message-ID: <CACRpkdZ8gq+hGRT6EAyP2w9K0jz5RAzWeZ6_UrW+v-BOjd-wbg@mail.gmail.com>
-Subject: Re: [PATCH 15/24] dt-bindings: pinctrl: pinctrl-mt65xx: add support
- for MT8516
-To:     Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     Fabien Parent <fparent@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@kernel.org>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-i2c@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-serial@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        stephane.leprovost@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1554913683-25454-22-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 16, 2019 at 11:12 AM Matthias Brugger
-<matthias.bgg@gmail.com> wrote:
 
-> Hi Linus,
->
-> On 08/04/2019 22:44, Linus Walleij wrote:
-> > On Sat, Mar 23, 2019 at 10:17 PM Fabien Parent <fparent@baylibre.com> wrote:
-> >
-> >> Add binding documentation of pinctrl-mt65xx for MT8516 SoC.
-> >>
-> >> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> >
-> > Patch applied with Rob's ACK.
-> >
->
-> I don't see this in your for-next branch. Did the patch got lost?
 
-I usually push the devel branch to be tested by the build robots
-and then mix down the for-next branch.
+Le 10/04/2019 à 18:28, Guenter Roeck a écrit :
+> Use device managed functions to simplify error handling, reduce
+> source code size, improve readability, and reduce the likelyhood of bugs.
+> Other improvements as listed below.
+> 
+> The conversion was done automatically with coccinelle using the
+> following semantic patches. The semantic patches and the scripts
+> used to generate this commit log are available at
+> https://github.com/groeck/coccinelle-patches
+> 
+> - Drop assignments to otherwise unused variables
+> - Drop empty remove function
+>    This also drops the inaccurate message on remove; the driver won't be
+>    removed if the hardware watchdog is running, no matter if the watchdog
+>    device is open or not.
+> - Use local variable 'struct device *dev' consistently
+> - Use devm_watchdog_register_driver() to register watchdog device
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Recent week(s) the build robot was not responding so it got delayed.
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
 
-Yours,
-Linus Walleij
+> ---
+>   drivers/watchdog/mpc8xxx_wdt.c | 17 +++--------------
+>   1 file changed, 3 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+> index 3b5b446b690c..9b6d6a5a27ad 100644
+> --- a/drivers/watchdog/mpc8xxx_wdt.c
+> +++ b/drivers/watchdog/mpc8xxx_wdt.c
+> @@ -204,9 +204,10 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+>   	if (ddata->wdd.timeout < ddata->wdd.min_timeout)
+>   		ddata->wdd.timeout = ddata->wdd.min_timeout;
+>   
+> -	ret = watchdog_register_device(&ddata->wdd);
+> +	ret = devm_watchdog_register_device(dev, &ddata->wdd);
+>   	if (ret) {
+> -		dev_err(dev, "cannot register watchdog device (err=%d)\n", ret);
+> +		dev_err(dev, "cannot register watchdog device (err=%d)\n",
+> +			ret);
+>   		return ret;
+>   	}
+>   
+> @@ -218,17 +219,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+>   	return 0;
+>   }
+>   
+> -static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
+> -{
+> -	struct mpc8xxx_wdt_ddata *ddata = platform_get_drvdata(ofdev);
+> -
+> -	dev_crit(&ofdev->dev, "Watchdog removed, expect the %s soon!\n",
+> -		 reset ? "reset" : "machine check exception");
+> -	watchdog_unregister_device(&ddata->wdd);
+> -
+> -	return 0;
+> -}
+> -
+>   static const struct of_device_id mpc8xxx_wdt_match[] = {
+>   	{
+>   		.compatible = "mpc83xx_wdt",
+> @@ -259,7 +249,6 @@ MODULE_DEVICE_TABLE(of, mpc8xxx_wdt_match);
+>   
+>   static struct platform_driver mpc8xxx_wdt_driver = {
+>   	.probe		= mpc8xxx_wdt_probe,
+> -	.remove		= mpc8xxx_wdt_remove,
+>   	.driver = {
+>   		.name = "mpc8xxx_wdt",
+>   		.of_match_table = mpc8xxx_wdt_match,
+> 
