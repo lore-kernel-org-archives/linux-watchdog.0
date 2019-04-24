@@ -2,154 +2,104 @@ Return-Path: <SRS0=EMH8=S2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29822C10F03
-	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 01:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16465C10F11
+	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 08:38:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E8BF5217D9
-	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 01:22:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YNCeWuiH"
+	by mail.kernel.org (Postfix) with ESMTP id E4A532148D
+	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 08:38:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728977AbfDXBWE (ORCPT
+        id S1726971AbfDXIiU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Apr 2019 21:22:04 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40709 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726918AbfDXBWE (ORCPT
+        Wed, 24 Apr 2019 04:38:20 -0400
+Received: from mail-ua1-f68.google.com ([209.85.222.68]:45176 "EHLO
+        mail-ua1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726878AbfDXIiU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Apr 2019 21:22:04 -0400
-Received: by mail-pl1-f196.google.com with SMTP id b3so8392342plr.7
-        for <linux-watchdog@vger.kernel.org>; Tue, 23 Apr 2019 18:22:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=gIUVJSzlXIpTw1HAqbwBhapwoFEHFIxJ9+eWO7OznG0=;
-        b=YNCeWuiHlMZkUhG6nJ1M3R/uDhvtgNKJpbgswoAX1IvQXsJzA//PfqNWt4irgEOsjD
-         cXWMNvhFP5Oa/BQsv7Eo17voVwDhxNocV3ySQcUqpOlvm5w68LwGINXB0dY3+9b6J6zU
-         iloo7GVoSRuonK5XI09FnkqAyoRR8StIvaejfoiF+rJWcXtDkMLJ6XALlJflhKf/zHVM
-         3iVcALgEJT7YglL1sJPhIQg4zuIAMJqSWHQbiOpv1Hm7D4zdc7omhppqg0UmoP+HKV2E
-         zToss1G5wkc+uT8kG6Ag/W+gyHjOEcsJk7gaU6LTAvaPUp7AJZ8NONW/+3FRzI/sTbbS
-         KQ1g==
+        Wed, 24 Apr 2019 04:38:20 -0400
+Received: by mail-ua1-f68.google.com with SMTP id o33so541450uae.12;
+        Wed, 24 Apr 2019 01:38:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gIUVJSzlXIpTw1HAqbwBhapwoFEHFIxJ9+eWO7OznG0=;
-        b=Dp5u/Z/H8xkBuXgzQs7wGYgeNN2IUkNrGj19b9cPkXqaDKPWk8+yF+vJBOQ+9PEqYr
-         mk75MBDo2TsPA8yDEOQxMJ3r9CCjZcxmfTJq0XeOHMih2o2kACcrLJCmhpg3opPhSI3n
-         hYnvrKxf8c8D77WftkQgagB9i32oXDch/O8VBxdNiEte5ONKpmMSvOTUf9x62+EFd65c
-         /M17/Lk6rRbrCgKwUbOLlweUXF7k7Ow3Fl8paCcVmUvRsQHXKI7WrIHyJytyLqHGDW2Z
-         IBuie0TIb7DJ75e468MKymM8B0Um2avvGdod/9Sl2LKwRR+nSQ4yAF/g2mO8tBdytbR6
-         0Deg==
-X-Gm-Message-State: APjAAAV0OX+hp3Xt5GGezDNhXZgntMSEV7CcXS642RnteeslaqVjPmn3
-        p662n0XQlXXNfG7rq1keCkU=
-X-Google-Smtp-Source: APXvYqzttcAlz+dfAvZj/o18fJJCUJaIAkbh1zH4Wgl/iuVuOLs1Jwh3NjRED0vq82AIFQGqc0UvaA==
-X-Received: by 2002:a17:902:28e4:: with SMTP id f91mr29067638plb.321.1556068923355;
-        Tue, 23 Apr 2019 18:22:03 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f7sm8229706pgp.77.2019.04.23.18.22.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 Apr 2019 18:22:01 -0700 (PDT)
-Subject: Re: [PATCH 2/5] watchdog: watchdog_core: make it explicitly
- non-modular
-To:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1556034515-28792-1-git-send-email-paul.gortmaker@windriver.com>
- <1556034515-28792-3-git-send-email-paul.gortmaker@windriver.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <439d89d7-bae6-c5c8-e9bf-5477304bc065@roeck-us.net>
-Date:   Tue, 23 Apr 2019 18:22:00 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eti/tTB27Ml+YHh2VBfgUmyRk/nhT5Vw5BKmsSU8uxE=;
+        b=W0jmzlD/NTfwVcuThjURHIcb3U1aBM6b/29ixS+GjCgSFNM4Q91Rt2BNqL7P+pchlg
+         5uq9a9kc8XxZ/wFo+bH6q4dqzmhhuEdo4lFcnv6T90HyRHDVnwRrPgAc+zSYyj6xHiQd
+         zxGyrMkP4P3n8vWpDtg+lPxE9RBBFGZ9GJg31XZHk06p4WKGjmlE4Jfmiwj9mfKPtRka
+         j5aIzeWKcABCubxEjk4HANSo21ah7tWObFjuOH4BJcg3BpdvmEquklMt6cnr8W4N5ygR
+         bt6mtO4wBBoZBNRUgtZ1/20ZvHPAYZcTqaHMhiumOnDu17IckomrXal/pbkgPBTTH8/T
+         E2SA==
+X-Gm-Message-State: APjAAAVlYH23dFfQ2cJhYwS3WfQ7LO0w300m4TTjE2vCCak0U3/J0M1F
+        OhT3T20TmblyXy1hZ4s9y78tkwms/JptvwW99DY=
+X-Google-Smtp-Source: APXvYqwyn3fomGe6IEvIz9EH52DaziJReAbKpW7CjoihP4HDHMjgS7Xm12qusaci4tELxB6oFz9iLg6MY+nhkzVNofM=
+X-Received: by 2002:ab0:6419:: with SMTP id x25mr15670661uao.86.1556095099247;
+ Wed, 24 Apr 2019 01:38:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1556034515-28792-3-git-send-email-paul.gortmaker@windriver.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190416102515.12269-1-wsa+renesas@sang-engineering.com>
+ <20190416102515.12269-7-wsa+renesas@sang-engineering.com> <20190416203431.GA20072@anatevka>
+ <20190416204814.GA26442@roeck-us.net> <20190416205533.GB8268@kunai>
+ <20190416212046.GC26442@roeck-us.net> <20190416221702.GC8268@kunai>
+ <20190416223813.GA744@roeck-us.net> <20190417194528.xwivkyubhxyfrx4m@ninjato>
+In-Reply-To: <20190417194528.xwivkyubhxyfrx4m@ninjato>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 24 Apr 2019 10:38:07 +0200
+Message-ID: <CAMuHMdVuZH86bOBsymuPj+68o+exAtao9509XUjoXkozyi1Hvg@mail.gmail.com>
+Subject: Re: [PATCH v2 06/16] watchdog: hpwdt: drop warning after calling watchdog_init_timeout
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/23/19 8:48 AM, Paul Gortmaker wrote:
-> The Kconfig currently controlling compilation of this code is:
-> 
-> config WATCHDOG_CORE
->         bool "WatchDog Timer Driver Core"
-> 
-> ...meaning that it currently is not being built as a module by anyone.
-> 
-> Lets remove the modular code that is essentially orphaned, so that
-> when reading the driver there is no doubt it is builtin-only.
-> 
-> We replace module.h with export.h since the file does export some
-> symbols.  We don't add init.h since the file already has that.
-> 
-> We also delete the MODULE_LICENSE tag etc. since all that information
-> is already contained at the top of the file in the comments.
-> 
+Hi Wolfram,
 
-I must admit that I am not at all happy about this change. While not
-configurable by default, I used tristate a lot (after enabling it
-manually) to test watchdog core code while changing it. It saves a
-lot of time to be able to reload the watchdog core without having
-to reboot the entire system after each change. Removing the ability
-to do that just because it is not enabled in the field and just
-to save a few lines of code (and because having modules seems to
-have come out of favor lately) does not make sense to me.
-
-I won't NACK the series outright, but I'll leave it up to Wim as
-the senior maintainer to decide what he wants to do with it.
-
-Guenter
-
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> ---
->   drivers/watchdog/watchdog_core.c | 15 +--------------
->   1 file changed, 1 insertion(+), 14 deletions(-)
-> 
+On Wed, Apr 17, 2019 at 9:46 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+> > Yes, that works as well. Note that it will actually print something like
+> > "watchdog: <device>: ..." due to the pr_fmt() at the top of watchdog_core.c.
+> > I guess that should be ok.
+>
+> I have the following diff applied on top of patch 2. Works with and
+> without a parent device. I am not super happy casting 'identity' but
+> since its u8-type is exported to userspace, I think we can't avoid it.
+> Guenter, is this cast safe? Here is the diff:
+>
 > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index eb8fa25f8eb2..f9f88f59d181 100644
+> index cd3ca6b366ef..62be9e52a4de 100644
 > --- a/drivers/watchdog/watchdog_core.c
 > +++ b/drivers/watchdog/watchdog_core.c
-> @@ -28,7 +28,7 @@
->   
->   #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->   
-> -#include <linux/module.h>	/* For EXPORT_SYMBOL/module stuff/... */
-> +#include <linux/export.h>	/* For EXPORT_SYMBOL stuff */
->   #include <linux/types.h>	/* For standard types */
->   #include <linux/errno.h>	/* For the -ENODEV/... values */
->   #include <linux/kernel.h>	/* For printk/panic/... */
-> @@ -359,17 +359,4 @@ static int __init watchdog_init(void)
->   	watchdog_deferred_registration();
->   	return 0;
->   }
-> -
-> -static void __exit watchdog_exit(void)
-> -{
-> -	watchdog_dev_exit();
-> -	ida_destroy(&watchdog_ida);
-> -}
-> -
->   subsys_initcall_sync(watchdog_init);
-> -module_exit(watchdog_exit);
-> -
-> -MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
-> -MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>");
-> -MODULE_DESCRIPTION("WatchDog Timer Driver Core");
-> -MODULE_LICENSE("GPL");
-> 
+> @@ -115,6 +115,8 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+>  int watchdog_init_timeout(struct watchdog_device *wdd,
+>                                 unsigned int timeout_parm, struct device *dev)
+>  {
+> +       const char *dev_str = wdd->parent ? dev_name(wdd->parent) :
+> +                             (const char *)wdd->info->identity;
 
+    struct watchdog_info {
+            ...
+            __u8  identity[32];     /* Identity of the board */
+    };
+
+Is identity[] guaranteed to be NUL-terminated?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
