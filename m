@@ -1,112 +1,155 @@
-Return-Path: <SRS0=xPok=SZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=EMH8=S2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9001CC10F03
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 21:29:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29822C10F03
+	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 01:22:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 57A4F218DA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Apr 2019 21:29:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8BF5217D9
+	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Apr 2019 01:22:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="xRBXfJdy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YNCeWuiH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726342AbfDWV33 (ORCPT
+        id S1728977AbfDXBWE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Apr 2019 17:29:29 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:41427 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726075AbfDWV32 (ORCPT
+        Tue, 23 Apr 2019 21:22:04 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:40709 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726918AbfDXBWE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Apr 2019 17:29:28 -0400
-Received: by mail-lj1-f196.google.com with SMTP id k8so2313073lja.8
-        for <linux-watchdog@vger.kernel.org>; Tue, 23 Apr 2019 14:29:27 -0700 (PDT)
+        Tue, 23 Apr 2019 21:22:04 -0400
+Received: by mail-pl1-f196.google.com with SMTP id b3so8392342plr.7
+        for <linux-watchdog@vger.kernel.org>; Tue, 23 Apr 2019 18:22:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yjNWOsrikAOM/wqkHxpWheOZnguCN9PHZCzFhN8cUoo=;
-        b=xRBXfJdyg1R7nAx9RGWoiFoMOHzy5S7Nq21XHYTusFlAjrWeUhUmn4Xl9/3DYsFWKk
-         RMcvmS9QgeoYusqaId8AaHQr/RYSybV5hwpcvNBYrhTS7oTRWc1e0mgd/hiKeQA+OR13
-         79mDeXcsySw+db0gZcYmAh+VdhDd9MANUI3IQSWIgD4Xj1WhjcVXdIiT8D1yVGfljt4L
-         BQvRNy0diMu+6f/bEv/2T3crR6gUjfVp6fvEiuZAcVS9bGNt3jiKrgRx7Z2YEtH+775N
-         Jbexga2z3IDJsvH5pvVOfRnR0QSdOfSuNgeKHceYnUCeVrbzdsykRX2+w13Hwsnqsc/V
-         SXKg==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=gIUVJSzlXIpTw1HAqbwBhapwoFEHFIxJ9+eWO7OznG0=;
+        b=YNCeWuiHlMZkUhG6nJ1M3R/uDhvtgNKJpbgswoAX1IvQXsJzA//PfqNWt4irgEOsjD
+         cXWMNvhFP5Oa/BQsv7Eo17voVwDhxNocV3ySQcUqpOlvm5w68LwGINXB0dY3+9b6J6zU
+         iloo7GVoSRuonK5XI09FnkqAyoRR8StIvaejfoiF+rJWcXtDkMLJ6XALlJflhKf/zHVM
+         3iVcALgEJT7YglL1sJPhIQg4zuIAMJqSWHQbiOpv1Hm7D4zdc7omhppqg0UmoP+HKV2E
+         zToss1G5wkc+uT8kG6Ag/W+gyHjOEcsJk7gaU6LTAvaPUp7AJZ8NONW/+3FRzI/sTbbS
+         KQ1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yjNWOsrikAOM/wqkHxpWheOZnguCN9PHZCzFhN8cUoo=;
-        b=oNdoRumeOsb37ojZfnnEWXaB7td40E6pon00IrIO8DydHgxkGbFWB1aXoaUMinZn/j
-         sEIdKFXSac2PSo65sJl+C2ing57e3srRcL/dXNYlJsXpDV3XPtSiioIg4t+jm+hDevjg
-         K24iEFBukZj04yLZKIbr7WOlL27tbdPDiOBixh8VjEBXhx0yfzo1CuWLmnAFXvf6/5hN
-         0CsCD5D7TnLzApA1uIILAeXSbmZydcRVn9pTS8ENTX6uBA6DH2DBzm7KVXAnSNyq/MW9
-         6zb2N8zUSYLJZNumpgWH0C90npKhB6AJhNLST+UyScmnriwebBMBgY3bKOLbCtaFqhRA
-         MsEw==
-X-Gm-Message-State: APjAAAW/HiAcGVYnoOo/44eiMExsEFYqgvtMnDEFvwQHYc0bhaaCBIqh
-        dQ30pu3nAQ6QGeq2jFD6Ec3DievgKQI46+NrsmNyrw==
-X-Google-Smtp-Source: APXvYqxtedqB/Tg6y1D+091GgWVPbxpPN7WPXefIYVREnly3B/dZWltLlnz2PuTyQhAl7IsH5G7zUGIk5QxJ/t15CuI=
-X-Received: by 2002:a2e:834d:: with SMTP id l13mr15501214ljh.97.1556054966691;
- Tue, 23 Apr 2019 14:29:26 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=gIUVJSzlXIpTw1HAqbwBhapwoFEHFIxJ9+eWO7OznG0=;
+        b=Dp5u/Z/H8xkBuXgzQs7wGYgeNN2IUkNrGj19b9cPkXqaDKPWk8+yF+vJBOQ+9PEqYr
+         mk75MBDo2TsPA8yDEOQxMJ3r9CCjZcxmfTJq0XeOHMih2o2kACcrLJCmhpg3opPhSI3n
+         hYnvrKxf8c8D77WftkQgagB9i32oXDch/O8VBxdNiEte5ONKpmMSvOTUf9x62+EFd65c
+         /M17/Lk6rRbrCgKwUbOLlweUXF7k7Ow3Fl8paCcVmUvRsQHXKI7WrIHyJytyLqHGDW2Z
+         IBuie0TIb7DJ75e468MKymM8B0Um2avvGdod/9Sl2LKwRR+nSQ4yAF/g2mO8tBdytbR6
+         0Deg==
+X-Gm-Message-State: APjAAAV0OX+hp3Xt5GGezDNhXZgntMSEV7CcXS642RnteeslaqVjPmn3
+        p662n0XQlXXNfG7rq1keCkU=
+X-Google-Smtp-Source: APXvYqzttcAlz+dfAvZj/o18fJJCUJaIAkbh1zH4Wgl/iuVuOLs1Jwh3NjRED0vq82AIFQGqc0UvaA==
+X-Received: by 2002:a17:902:28e4:: with SMTP id f91mr29067638plb.321.1556068923355;
+        Tue, 23 Apr 2019 18:22:03 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id f7sm8229706pgp.77.2019.04.23.18.22.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 23 Apr 2019 18:22:01 -0700 (PDT)
+Subject: Re: [PATCH 2/5] watchdog: watchdog_core: make it explicitly
+ non-modular
+To:     Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1556034515-28792-1-git-send-email-paul.gortmaker@windriver.com>
+ <1556034515-28792-3-git-send-email-paul.gortmaker@windriver.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <439d89d7-bae6-c5c8-e9bf-5477304bc065@roeck-us.net>
+Date:   Tue, 23 Apr 2019 18:22:00 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-References: <1556034515-28792-1-git-send-email-paul.gortmaker@windriver.com> <1556034515-28792-6-git-send-email-paul.gortmaker@windriver.com>
-In-Reply-To: <1556034515-28792-6-git-send-email-paul.gortmaker@windriver.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 23 Apr 2019 23:29:15 +0200
-Message-ID: <CACRpkdYSB6Mb7UHJbNZ_9SmSeYBshMjFdai6+CN5Deiu=zT3RQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] watchdog: coh901327: make it explicitly non-modular
-To:     Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1556034515-28792-3-git-send-email-paul.gortmaker@windriver.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 23, 2019 at 5:50 PM Paul Gortmaker
-<paul.gortmaker@windriver.com> wrote:
-
+On 4/23/19 8:48 AM, Paul Gortmaker wrote:
 > The Kconfig currently controlling compilation of this code is:
->
-> config COH901327_WATCHDOG
->        bool "ST-Ericsson COH 901 327 watchdog"
->
+> 
+> config WATCHDOG_CORE
+>         bool "WatchDog Timer Driver Core"
+> 
 > ...meaning that it currently is not being built as a module by anyone.
->
+> 
 > Lets remove the modular code that is essentially orphaned, so that
 > when reading the driver there is no doubt it is builtin-only.
->
-> We explicitly disallow a driver unbind, since that doesn't have a
-> sensible use case anyway, and it allows us to drop the ".remove"
-> code for non-modular drivers.
->
-> Since module_platform_driver() uses the same init level priority as
-> builtin_platform_driver() the init ordering remains unchanged with
-> this commit.
->
-> Also note that MODULE_ALIAS is a no-op for non-modular code.
->
+> 
+> We replace module.h with export.h since the file does export some
+> symbols.  We don't add init.h since the file already has that.
+> 
 > We also delete the MODULE_LICENSE tag etc. since all that information
 > is already contained at the top of the file in the comments.
->
-> We replace module.h with moduleparam.h since the file does actually
-> declare some module parameters (i.e. boot args for non-modules).
->
-> Cc: Linus Walleij <linus.walleij@linaro.org>
+> 
+
+I must admit that I am not at all happy about this change. While not
+configurable by default, I used tristate a lot (after enabling it
+manually) to test watchdog core code while changing it. It saves a
+lot of time to be able to reload the watchdog core without having
+to reboot the entire system after each change. Removing the ability
+to do that just because it is not enabled in the field and just
+to save a few lines of code (and because having modules seems to
+have come out of favor lately) does not make sense to me.
+
+I won't NACK the series outright, but I'll leave it up to Wim as
+the senior maintainer to decide what he wants to do with it.
+
+Guenter
+
 > Cc: Wim Van Sebroeck <wim@iguana.be>
 > Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 > Cc: linux-watchdog@vger.kernel.org
 > Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> ---
+>   drivers/watchdog/watchdog_core.c | 15 +--------------
+>   1 file changed, 1 insertion(+), 14 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index eb8fa25f8eb2..f9f88f59d181 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -28,7 +28,7 @@
+>   
+>   #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+>   
+> -#include <linux/module.h>	/* For EXPORT_SYMBOL/module stuff/... */
+> +#include <linux/export.h>	/* For EXPORT_SYMBOL stuff */
+>   #include <linux/types.h>	/* For standard types */
+>   #include <linux/errno.h>	/* For the -ENODEV/... values */
+>   #include <linux/kernel.h>	/* For printk/panic/... */
+> @@ -359,17 +359,4 @@ static int __init watchdog_init(void)
+>   	watchdog_deferred_registration();
+>   	return 0;
+>   }
+> -
+> -static void __exit watchdog_exit(void)
+> -{
+> -	watchdog_dev_exit();
+> -	ida_destroy(&watchdog_ida);
+> -}
+> -
+>   subsys_initcall_sync(watchdog_init);
+> -module_exit(watchdog_exit);
+> -
+> -MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
+> -MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>");
+> -MODULE_DESCRIPTION("WatchDog Timer Driver Core");
+> -MODULE_LICENSE("GPL");
+> 
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-
-Thanks for doing this Paul.
-
-Yours,
-Linus Walleij
