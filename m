@@ -2,62 +2,41 @@ Return-Path: <SRS0=p/xN=S3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A17BAC10F03
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 04:04:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC2B8C10F03
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 05:44:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 54746217D7
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 04:04:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8417F218AD
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 05:44:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XbcT6pPJ"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="rN/36ej1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725951AbfDYEEL (ORCPT
+        id S1729223AbfDYFo4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 25 Apr 2019 00:04:11 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:38740 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725902AbfDYEEL (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Apr 2019 00:04:11 -0400
-Received: by mail-pg1-f194.google.com with SMTP id j26so10471498pgl.5;
-        Wed, 24 Apr 2019 21:04:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Nu5sH0YqAXQ3e3qXiNtCAr5asf/yCKCdGPPw7KB81/s=;
-        b=XbcT6pPJF4JfXAuInqMgkppr+J2tCbpQF5NdeGzGjzVnvN03Uzd+7ihxknsHeLrDVb
-         qtKLRi8fEIg4jCUjjaQQ6pKsxGHm+2CLNLuoAV3lb97QDYyJtsQIeA9iSnPaYbAhyvz1
-         cznPa1L55xEVyefhLEw0qFuUs/gDNYrh9BoxMT169Q61Fp5aylsSPMLYWz+tpdzW/3vu
-         /JNPFoQi97FQfdsh0nq8uVt0LCU6rPp1+iq/6Ts7NSMOhJcnaCxbEOvq4kfdvwJNloBP
-         +z1TiqHhPP0J+GMl+Nm9bCSzM+YqfZ5bz8LH3ewGf/gw9gLcQyzePYVUFL8AM3maZxzv
-         neOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Nu5sH0YqAXQ3e3qXiNtCAr5asf/yCKCdGPPw7KB81/s=;
-        b=cdtU2LeqAhAQjDlI1VxxZWbqJKLAUBxYNsUs0YFkb7nhKvrdQlKMHkf3hPbhbiWVWN
-         LzW3QBIa/KSYruW7G087VSiYbv75Kfl0g4eCFFNe+Wag0Tjx4ZA4R2uPIxFpm/XyTjJd
-         dls3hImKijafbXDxUnFNRgj+Cgt82yYLAfV6RypsCZc6ZCSRlgV7DA4LlEIG2cBGfq1W
-         7ADh37/T1amECTvy+8wcIqp2RV0Y/9GnEcc0egBn5H6Bk8/dUr6M0HjQH/wcg1Xx5IBJ
-         t1kji6AnT9BzyCK0mLiAs3wxDs1UMgUT8WmBYIzY1Ur4ApidNnL4GPMPVzWf699moZld
-         GKOQ==
-X-Gm-Message-State: APjAAAWVMsfv2SpxbyhsEEz+8qfPIl/GK6Mrrqgi0LdCvU8/0nZ5xI0Q
-        v2nJvgBR16TYO8tiC1oFzVE=
-X-Google-Smtp-Source: APXvYqy+kyvqqKRln0gIvgJeQ2kGcQllxmKSL5aZAUU/ECrwjqfUbbHSJXlq1ZbYfdQAQyqpM2wp8g==
-X-Received: by 2002:a62:2c89:: with SMTP id s131mr14480999pfs.211.1556165050416;
-        Wed, 24 Apr 2019 21:04:10 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j28sm26747081pgb.46.2019.04.24.21.04.08
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Apr 2019 21:04:09 -0700 (PDT)
-Subject: Re: [PATCH 2/2] watchdog: imx_sc: Add pretimeout support
-To:     Anson Huang <anson.huang@nxp.com>,
+        Thu, 25 Apr 2019 01:44:56 -0400
+Received: from mail-eopbgr150053.outbound.protection.outlook.com ([40.107.15.53]:16196
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729142AbfDYFoz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 25 Apr 2019 01:44:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rMoQ1MqkLgr5U2cbgihHAG6cbehMu45/Wi88+lCT5ek=;
+ b=rN/36ej1wv9lc+qkGCqJuT+NuQmTw4r08AMZOjdDdtKhS6VmhT4SUsrRRAFo4QQ1wR1WaSQZ/AY23Vx+aM75IQ79c6X01aJIKH3cuH7o8SkFbFqKO/07lgZimGBb1oHkS4xNOvZsM0+B8lHCTD2v8vRO4MRrCsJLcQoibfBz+no=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3849.eurprd04.prod.outlook.com (52.134.71.16) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1835.13; Thu, 25 Apr 2019 05:44:45 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170%3]) with mapi id 15.20.1835.010; Thu, 25 Apr 2019
+ 05:44:45 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
         "shawnguo@kernel.org" <shawnguo@kernel.org>,
         "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
         "kernel@pengutronix.de" <kernel@pengutronix.de>,
@@ -68,241 +47,210 @@ To:     Anson Huang <anson.huang@nxp.com>,
         <linux-arm-kernel@lists.infradead.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Cc:     dl-linux-imx <linux-imx@nxp.com>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: RE: [PATCH 2/2] watchdog: imx_sc: Add pretimeout support
+Thread-Topic: [PATCH 2/2] watchdog: imx_sc: Add pretimeout support
+Thread-Index: AQHU+wQ67HfMfWtsaUW0yczuADoMLaZMQdKAgAAVBWA=
+Date:   Thu, 25 Apr 2019 05:44:45 +0000
+Message-ID: <DB3PR0402MB3916867C62AEB8999EC9EBD4F53D0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 References: <1556154581-31890-1-git-send-email-Anson.Huang@nxp.com>
  <1556154581-31890-2-git-send-email-Anson.Huang@nxp.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <21bd7656-541e-5f77-af8e-a5ea40b904a6@roeck-us.net>
-Date:   Wed, 24 Apr 2019 21:04:07 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <1556154581-31890-2-git-send-email-Anson.Huang@nxp.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <21bd7656-541e-5f77-af8e-a5ea40b904a6@roeck-us.net>
+In-Reply-To: <21bd7656-541e-5f77-af8e-a5ea40b904a6@roeck-us.net>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 5d0cfd07-c83e-4330-37e8-08d6c9411f88
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:DB3PR0402MB3849;
+x-ms-traffictypediagnostic: DB3PR0402MB3849:
+x-microsoft-antispam-prvs: <DB3PR0402MB3849902C08D7DC9E545FD7B5F53D0@DB3PR0402MB3849.eurprd04.prod.outlook.com>
+x-forefront-prvs: 0018A2705B
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(136003)(396003)(346002)(366004)(39860400002)(189003)(199004)(13464003)(53546011)(66476007)(8676002)(6506007)(102836004)(71200400001)(81156014)(4326008)(97736004)(11346002)(81166006)(71190400001)(8936002)(52536014)(2501003)(2906002)(446003)(76176011)(68736007)(7696005)(3846002)(6116002)(44832011)(74316002)(305945005)(7736002)(33656002)(26005)(476003)(5660300002)(66066001)(25786009)(6436002)(486006)(186003)(14454004)(9686003)(2201001)(6246003)(478600001)(99286004)(86362001)(55016002)(66946007)(73956011)(76116006)(14444005)(256004)(53936002)(64756008)(66556008)(229853002)(316002)(66446008)(110136005)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3849;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: jeC4SrCeV4/Nyqz+1OU3LHOHrJB2d0P5M3bES4on45sdpazf0ATPQkjQvpFlAR04rG/+kvgqjS0RC1RIdLVXTIEBdM9lg9Sb1DmJrFstA87ULOArlZg3ngoYIG5FdY5O8gTNr2d0WKeRx62aE+ZooFs2CDKV7n7VCzPWtZFOKfZblqM9fH7LRdeTUxFxqnjgFVCE7MR3S/rSEOcUPx3FGnObPEY47nwU6/WJDyqLvcdKBCM9X2xQNiaX9p/7tBQMMOKUNmH0ynu1K4t9y6vbXaNGEOMKUi03O8JaeqluV+nmJfCLXn6iMGMdpxzNHj738Qh6OxpRZrJtQELlRGwwRGKg50+82BxUh7+vlSyHZlhiv5HomO7MNQ0Q5oJ4o/l8DFIAer+9luL8YBC2z2tJisOrB7uFYqz0prje9YS1Lrk=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5d0cfd07-c83e-4330-37e8-08d6c9411f88
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Apr 2019 05:44:45.7541
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3849
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/24/19 6:14 PM, Anson Huang wrote:
-> i.MX system controller watchdog can support pretimeout IRQ
-> via general SCU MU IRQ, it depends on IMX_SCU and driver MUST
-> be probed after SCU IPC ready, then enable corresponding SCU
-> IRQ group and register SCU IRQ notifier, when watchdog pretimeout
-> IRQ fires, SCU MU IRQ will be handled and watchdog pretimeout
-> notifier will be called to handle the event.
-> 
-
-Ah, here is the missing patch.
-
-As mentioned in my other reply, the watchdog driver does now depend
-on the SCU IPC handle and should be instantiated accordingly.
-Using -EPROBE_DEFER to work around bad dependencies is not a solution.
-
-Additional comment below.
-
-Guenter
-
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
->   drivers/watchdog/Kconfig      |  1 +
->   drivers/watchdog/imx_sc_wdt.c | 65 +++++++++++++++++++++++++++++++++++++++----
->   2 files changed, 61 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 44a3158..f2c2c1a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -644,6 +644,7 @@ config IMX2_WDT
->   config IMX_SC_WDT
->   	tristate "IMX SC Watchdog"
->   	depends on HAVE_ARM_SMCCC
-> +	depends on IMX_SCU
->   	select WATCHDOG_CORE
->   	help
->   	  This is the driver for the system controller watchdog
-> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-> index 49848b6..f45ed10 100644
-> --- a/drivers/watchdog/imx_sc_wdt.c
-> +++ b/drivers/watchdog/imx_sc_wdt.c
-> @@ -4,6 +4,7 @@
->    */
->   
->   #include <linux/arm-smccc.h>
-> +#include <linux/firmware/imx/sci.h>
->   #include <linux/io.h>
->   #include <linux/init.h>
->   #include <linux/kernel.h>
-> @@ -33,11 +34,16 @@
->   
->   #define SC_TIMER_WDOG_ACTION_PARTITION	0
->   
-> +#define SC_IRQ_WDOG			1
-> +#define SC_IRQ_GROUP_WDOG		1
-> +
->   static bool nowayout = WATCHDOG_NOWAYOUT;
->   module_param(nowayout, bool, 0000);
->   MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->   		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->   
-> +struct watchdog_device *imx_sc_wdd;
-> +
->   static int imx_sc_wdt_ping(struct watchdog_device *wdog)
->   {
->   	struct arm_smccc_res res;
-> @@ -85,12 +91,42 @@ static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
->   	return res.a0 ? -EACCES : 0;
->   }
->   
-> +static int imx_sc_wdt_set_pretimeout(struct watchdog_device *wdog,
-> +				     unsigned int pretimeout)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	wdog->pretimeout = pretimeout;
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_PRETIME_WDOG,
-> +		      pretimeout * 1000, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0 ? -EACCES : 0;
-
-If this function returns an error, why does it set wdog->pretimeout
-unconditionally ? That seems wrong.
-
-> +}
-> +
-> +static int imx_sc_wdt_notify(struct notifier_block *nb,
-> +			     unsigned long event, void *group)
-> +{
-> +	/* ignore other irqs */
-> +	if (!(event & SC_IRQ_WDOG &&
-> +		(*(u8 *)group == SC_IRQ_GROUP_WDOG)))
-
-	if (!(event & SC_IRQ_WDO) || *(u8 *)group != SC_IRQ_GROUP_WDOG)
-
-would be easier to understand. Either case, the second part of the expression
-has an unnecessary (), and multi-line alignment seems to be off.
-
-> +		return 0;
-> +
-> +	watchdog_notify_pretimeout(imx_sc_wdd);
-
-The notifier block should be embedded in a local data structure,
-which would include strict watchdog_device and struct notifier_block.
-This would avoid the need for a static variable.
-
-> +
-> +	return 0;
-
-If the function always returns 0, why not the following ?
-Above code seems unnecessary complex for no good reason.
-
-	if (event & SC_IRQ_WDOG &&
-	    *(u8 *)group == SC_IRQ_GROUP_WDOG)
-		watchdog_notify_pretimeout(imx_sc_wdd);
-
-	return 0;
-
-> +}
-> +
-> +static struct notifier_block imx_sc_wdt_notifier = {
-> +	.notifier_call = imx_sc_wdt_notify,
-> +};
-> +
->   static const struct watchdog_ops imx_sc_wdt_ops = {
->   	.owner = THIS_MODULE,
->   	.start = imx_sc_wdt_start,
->   	.stop  = imx_sc_wdt_stop,
->   	.ping  = imx_sc_wdt_ping,
->   	.set_timeout = imx_sc_wdt_set_timeout,
-> +	.set_pretimeout = imx_sc_wdt_set_pretimeout,
->   };
->   
->   static const struct watchdog_info imx_sc_wdt_info = {
-> @@ -102,9 +138,15 @@ static const struct watchdog_info imx_sc_wdt_info = {
->   static int imx_sc_wdt_probe(struct platform_device *pdev)
->   {
->   	struct device *dev = &pdev->dev;
-> -	struct watchdog_device *imx_sc_wdd;
->   	int ret;
->   
-> +	/* wait until i.MX SCU IPC ready */
-> +	ret = imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
-> +				       SC_IRQ_WDOG,
-> +				       true);
-> +	if (ret == -EPROBE_DEFER)
-> +		return ret;
-> +
-
-And if the error is anything else it is ignored ?
-Also, what happens if the interrupt triggers before imx_sc_wdd is set ?
-
->   	imx_sc_wdd = devm_kzalloc(dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
->   	if (!imx_sc_wdd)
->   		return -ENOMEM;
-> @@ -117,6 +159,7 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
->   	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
->   	imx_sc_wdd->parent = dev;
->   	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
-> +	imx_sc_wdd->pretimeout = 0;
-
-Unnecessary.
-
->   
->   	watchdog_init_timeout(imx_sc_wdd, 0, dev);
->   	watchdog_stop_on_reboot(imx_sc_wdd);
-> @@ -128,13 +171,26 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
->   		return ret;
->   	}
->   
-> +	ret = imx_scu_irq_register_notifier(&imx_sc_wdt_notifier);
-> +	if (ret)
-> +		dev_warn(&pdev->dev,
-> +			 "Failed to register watchdog irq notifier\n");
-
-pretimeout support doesn't work in this case, and any claim to support it
-seems inappropriate.
-
-> +
->   	return 0;
->   }
->   
-> -static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
-> +static int imx_sc_wdt_remove(struct platform_device *pdev)
->   {
-> -	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +	imx_scu_irq_unregister_notifier(&imx_sc_wdt_notifier);
-> +	imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
-> +				 SC_IRQ_WDOG,
-> +				 false);
->   
-I would prefer to see devm_add_action() calls.
-
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
-> +{
->   	if (watchdog_active(imx_sc_wdd))
->   		imx_sc_wdt_stop(imx_sc_wdd);
->   
-> @@ -143,8 +199,6 @@ static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
->   
->   static int __maybe_unused imx_sc_wdt_resume(struct device *dev)
->   {
-> -	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> -
->   	if (watchdog_active(imx_sc_wdd))
->   		imx_sc_wdt_start(imx_sc_wdd);
->   
-> @@ -162,6 +216,7 @@ MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
->   
->   static struct platform_driver imx_sc_wdt_driver = {
->   	.probe		= imx_sc_wdt_probe,
-> +	.remove		= imx_sc_wdt_remove,
->   	.driver		= {
->   		.name	= "imx-sc-wdt",
->   		.of_match_table = imx_sc_wdt_dt_ids,
-> 
-
+SGksIEd1ZW50ZXINCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBHdWVu
+dGVyIFJvZWNrIFttYWlsdG86Z3JvZWNrN0BnbWFpbC5jb21dIE9uIEJlaGFsZiBPZiBHdWVudGVy
+DQo+IFJvZWNrDQo+IFNlbnQ6IFRodXJzZGF5LCBBcHJpbCAyNSwgMjAxOSAxMjowNCBQTQ0KPiBU
+bzogQW5zb24gSHVhbmcgPGFuc29uLmh1YW5nQG54cC5jb20+OyBzaGF3bmd1b0BrZXJuZWwub3Jn
+Ow0KPiBzLmhhdWVyQHBlbmd1dHJvbml4LmRlOyBrZXJuZWxAcGVuZ3V0cm9uaXguZGU7IGZlc3Rl
+dmFtQGdtYWlsLmNvbTsNCj4gd2ltQGxpbnV4LXdhdGNoZG9nLm9yZzsgQWlzaGVuZyBEb25nIDxh
+aXNoZW5nLmRvbmdAbnhwLmNvbT47IGxpbnV4LQ0KPiBhcm0ta2VybmVsQGxpc3RzLmluZnJhZGVh
+ZC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQ0KPiB3YXRjaGRvZ0B2
+Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IGRsLWxpbnV4LWlteCA8bGludXgtaW14QG54cC5jb20+DQo+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMi8yXSB3YXRjaGRvZzogaW14X3NjOiBBZGQgcHJldGltZW91
+dCBzdXBwb3J0DQo+IA0KPiBPbiA0LzI0LzE5IDY6MTQgUE0sIEFuc29uIEh1YW5nIHdyb3RlOg0K
+PiA+IGkuTVggc3lzdGVtIGNvbnRyb2xsZXIgd2F0Y2hkb2cgY2FuIHN1cHBvcnQgcHJldGltZW91
+dCBJUlEgdmlhIGdlbmVyYWwNCj4gPiBTQ1UgTVUgSVJRLCBpdCBkZXBlbmRzIG9uIElNWF9TQ1Ug
+YW5kIGRyaXZlciBNVVNUIGJlIHByb2JlZCBhZnRlciBTQ1UNCj4gPiBJUEMgcmVhZHksIHRoZW4g
+ZW5hYmxlIGNvcnJlc3BvbmRpbmcgU0NVIElSUSBncm91cCBhbmQgcmVnaXN0ZXIgU0NVDQo+ID4g
+SVJRIG5vdGlmaWVyLCB3aGVuIHdhdGNoZG9nIHByZXRpbWVvdXQgSVJRIGZpcmVzLCBTQ1UgTVUg
+SVJRIHdpbGwgYmUNCj4gPiBoYW5kbGVkIGFuZCB3YXRjaGRvZyBwcmV0aW1lb3V0IG5vdGlmaWVy
+IHdpbGwgYmUgY2FsbGVkIHRvIGhhbmRsZSB0aGUNCj4gPiBldmVudC4NCj4gPg0KPiANCj4gQWgs
+IGhlcmUgaXMgdGhlIG1pc3NpbmcgcGF0Y2guDQo+IA0KPiBBcyBtZW50aW9uZWQgaW4gbXkgb3Ro
+ZXIgcmVwbHksIHRoZSB3YXRjaGRvZyBkcml2ZXIgZG9lcyBub3cgZGVwZW5kIG9uDQo+IHRoZSBT
+Q1UgSVBDIGhhbmRsZSBhbmQgc2hvdWxkIGJlIGluc3RhbnRpYXRlZCBhY2NvcmRpbmdseS4NCj4g
+VXNpbmcgLUVQUk9CRV9ERUZFUiB0byB3b3JrIGFyb3VuZCBiYWQgZGVwZW5kZW5jaWVzIGlzIG5v
+dCBhIHNvbHV0aW9uLg0KDQpTbywgSSBoYXZlIHRvIG1vdmUgdGhlIGkuTVggc3lzdGVtIGNvbnRy
+b2xsZXIgd2F0Y2hkb2cgbm9kZSBpbnRvIHRoZSBpLk1YIFNDVQ0Kbm9kZSBpbiBEVCBmaWxlIG5v
+dz8gQXMgaXQgZGVwZW5kcyBvbiBpLk1YIFNDVSBmaXJtd2FyZS4gSWYgc28sIHNob3VsZCBJIHJl
+bW92ZSB0aGUNCnByZXZpb3VzIGkuTVggc3lzdGVtIGNvbnRyb2xsZXIgYmluZGluZyBkb2MgKGZz
+bC1pbXgtc2Mtd2R0LnR4dCkgYW5kIGFkZCBiaW5kaW5nIGRvYw0KdG8gKERvY3VtZW50YXRpb24v
+ZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0KSA/ICANCg0KPiAN
+Cj4gQWRkaXRpb25hbCBjb21tZW50IGJlbG93Lg0KPiANCj4gR3VlbnRlcg0KPiANCj4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBBbnNvbiBIdWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCj4gPiAtLS0NCj4g
+PiAgIGRyaXZlcnMvd2F0Y2hkb2cvS2NvbmZpZyAgICAgIHwgIDEgKw0KPiA+ICAgZHJpdmVycy93
+YXRjaGRvZy9pbXhfc2Nfd2R0LmMgfCA2NQ0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKystLS0tDQo+ID4gICAyIGZpbGVzIGNoYW5nZWQsIDYxIGluc2VydGlvbnMoKyks
+IDUgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9L
+Y29uZmlnIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnIGluZGV4DQo+ID4gNDRhMzE1OC4uZjJj
+MmMxYSAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcNCj4gPiArKysg
+Yi9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcNCj4gPiBAQCAtNjQ0LDYgKzY0NCw3IEBAIGNvbmZp
+ZyBJTVgyX1dEVA0KPiA+ICAgY29uZmlnIElNWF9TQ19XRFQNCj4gPiAgIAl0cmlzdGF0ZSAiSU1Y
+IFNDIFdhdGNoZG9nIg0KPiA+ICAgCWRlcGVuZHMgb24gSEFWRV9BUk1fU01DQ0MNCj4gPiArCWRl
+cGVuZHMgb24gSU1YX1NDVQ0KPiA+ICAgCXNlbGVjdCBXQVRDSERPR19DT1JFDQo+ID4gICAJaGVs
+cA0KPiA+ICAgCSAgVGhpcyBpcyB0aGUgZHJpdmVyIGZvciB0aGUgc3lzdGVtIGNvbnRyb2xsZXIg
+d2F0Y2hkb2cgZGlmZiAtLWdpdA0KPiA+IGEvZHJpdmVycy93YXRjaGRvZy9pbXhfc2Nfd2R0LmMg
+Yi9kcml2ZXJzL3dhdGNoZG9nL2lteF9zY193ZHQuYyBpbmRleA0KPiA+IDQ5ODQ4YjYuLmY0NWVk
+MTAgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9pbXhfc2Nfd2R0LmMNCj4gPiAr
+KysgYi9kcml2ZXJzL3dhdGNoZG9nL2lteF9zY193ZHQuYw0KPiA+IEBAIC00LDYgKzQsNyBAQA0K
+PiA+ICAgICovDQo+ID4NCj4gPiAgICNpbmNsdWRlIDxsaW51eC9hcm0tc21jY2MuaD4NCj4gPiAr
+I2luY2x1ZGUgPGxpbnV4L2Zpcm13YXJlL2lteC9zY2kuaD4NCj4gPiAgICNpbmNsdWRlIDxsaW51
+eC9pby5oPg0KPiA+ICAgI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4NCj4gPiAgICNpbmNsdWRlIDxs
+aW51eC9rZXJuZWwuaD4NCj4gPiBAQCAtMzMsMTEgKzM0LDE2IEBADQo+ID4NCj4gPiAgICNkZWZp
+bmUgU0NfVElNRVJfV0RPR19BQ1RJT05fUEFSVElUSU9OCTANCj4gPg0KPiA+ICsjZGVmaW5lIFND
+X0lSUV9XRE9HCQkJMQ0KPiA+ICsjZGVmaW5lIFNDX0lSUV9HUk9VUF9XRE9HCQkxDQo+ID4gKw0K
+PiA+ICAgc3RhdGljIGJvb2wgbm93YXlvdXQgPSBXQVRDSERPR19OT1dBWU9VVDsNCj4gPiAgIG1v
+ZHVsZV9wYXJhbShub3dheW91dCwgYm9vbCwgMDAwMCk7DQo+ID4gICBNT0RVTEVfUEFSTV9ERVND
+KG5vd2F5b3V0LCAiV2F0Y2hkb2cgY2Fubm90IGJlIHN0b3BwZWQgb25jZQ0KPiBzdGFydGVkIChk
+ZWZhdWx0PSINCj4gPiAgIAkJIF9fTU9EVUxFX1NUUklORyhXQVRDSERPR19OT1dBWU9VVCkgIiki
+KTsNCj4gPg0KPiA+ICtzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICppbXhfc2Nfd2RkOw0KPiA+ICsN
+Cj4gPiAgIHN0YXRpYyBpbnQgaW14X3NjX3dkdF9waW5nKHN0cnVjdCB3YXRjaGRvZ19kZXZpY2Ug
+Kndkb2cpDQo+ID4gICB7DQo+ID4gICAJc3RydWN0IGFybV9zbWNjY19yZXMgcmVzOw0KPiA+IEBA
+IC04NSwxMiArOTEsNDIgQEAgc3RhdGljIGludCBpbXhfc2Nfd2R0X3NldF90aW1lb3V0KHN0cnVj
+dA0KPiB3YXRjaGRvZ19kZXZpY2UgKndkb2csDQo+ID4gICAJcmV0dXJuIHJlcy5hMCA/IC1FQUND
+RVMgOiAwOw0KPiA+ICAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgaW14X3NjX3dkdF9zZXRfcHJl
+dGltZW91dChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZG9nLA0KPiA+ICsJCQkJICAgICB1bnNp
+Z25lZCBpbnQgcHJldGltZW91dCkNCj4gPiArew0KPiA+ICsJc3RydWN0IGFybV9zbWNjY19yZXMg
+cmVzOw0KPiA+ICsNCj4gPiArCXdkb2ctPnByZXRpbWVvdXQgPSBwcmV0aW1lb3V0Ow0KPiA+ICsJ
+YXJtX3NtY2NjX3NtYyhJTVhfU0lQX1RJTUVSLA0KPiBJTVhfU0lQX1RJTUVSX1NFVF9QUkVUSU1F
+X1dET0csDQo+ID4gKwkJICAgICAgcHJldGltZW91dCAqIDEwMDAsIDAsIDAsIDAsIDAsIDAsICZy
+ZXMpOw0KPiA+ICsNCj4gPiArCXJldHVybiByZXMuYTAgPyAtRUFDQ0VTIDogMDsNCj4gDQo+IElm
+IHRoaXMgZnVuY3Rpb24gcmV0dXJucyBhbiBlcnJvciwgd2h5IGRvZXMgaXQgc2V0IHdkb2ctPnBy
+ZXRpbWVvdXQNCj4gdW5jb25kaXRpb25hbGx5ID8gVGhhdCBzZWVtcyB3cm9uZy4NCg0KWW91IGFy
+ZSByaWdodCwgSSB3aWxsIGZpeCBpdCBpbiBWMiwgYnV0IGxvb2tzIGxpa2Ugc29tZSBvdGhlciB3
+YXRjaGRvZyBkcml2ZXJzIGFsc28gaGFzIHN1Y2ggaXNzdWUsIHN1Y2gNCmFzIGJlbG93Og0KDQpk
+cml2ZXJzL3dhdGNoZG9nL3BtODkxNl93ZHQuYw0KZHJpdmVycy93YXRjaGRvZy9zcHJkX3dkdC5j
+DQoNCj4gDQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgaW14X3NjX3dkdF9ub3RpZnko
+c3RydWN0IG5vdGlmaWVyX2Jsb2NrICpuYiwNCj4gPiArCQkJICAgICB1bnNpZ25lZCBsb25nIGV2
+ZW50LCB2b2lkICpncm91cCkgew0KPiA+ICsJLyogaWdub3JlIG90aGVyIGlycXMgKi8NCj4gPiAr
+CWlmICghKGV2ZW50ICYgU0NfSVJRX1dET0cgJiYNCj4gPiArCQkoKih1OCAqKWdyb3VwID09IFND
+X0lSUV9HUk9VUF9XRE9HKSkpDQo+IA0KPiAJaWYgKCEoZXZlbnQgJiBTQ19JUlFfV0RPKSB8fCAq
+KHU4ICopZ3JvdXAgIT0NCj4gU0NfSVJRX0dST1VQX1dET0cpDQo+IA0KPiB3b3VsZCBiZSBlYXNp
+ZXIgdG8gdW5kZXJzdGFuZC4gRWl0aGVyIGNhc2UsIHRoZSBzZWNvbmQgcGFydCBvZiB0aGUNCj4g
+ZXhwcmVzc2lvbiBoYXMgYW4gdW5uZWNlc3NhcnkgKCksIGFuZCBtdWx0aS1saW5lIGFsaWdubWVu
+dCBzZWVtcyB0byBiZSBvZmYuDQoNCldpbGwgaW1wcm92ZSBpdCBhbmQgZml4IHRoZSBsaW5lIGFs
+aWdubWVudCBpbiBWMi4NCg0KPiANCj4gPiArCQlyZXR1cm4gMDsNCj4gPiArDQo+ID4gKwl3YXRj
+aGRvZ19ub3RpZnlfcHJldGltZW91dChpbXhfc2Nfd2RkKTsNCj4gDQo+IFRoZSBub3RpZmllciBi
+bG9jayBzaG91bGQgYmUgZW1iZWRkZWQgaW4gYSBsb2NhbCBkYXRhIHN0cnVjdHVyZSwgd2hpY2gg
+d291bGQNCj4gaW5jbHVkZSBzdHJpY3Qgd2F0Y2hkb2dfZGV2aWNlIGFuZCBzdHJ1Y3Qgbm90aWZp
+ZXJfYmxvY2suDQo+IFRoaXMgd291bGQgYXZvaWQgdGhlIG5lZWQgZm9yIGEgc3RhdGljIHZhcmlh
+YmxlLg0KDQpPSywgSSB3aWxsIGFkZCBhIGxvY2FsIGRhdGEgc3RydWN0dXJlIHRvIGRvIGl0IGlu
+IFYyLg0KDQo+IA0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiANCj4gSWYgdGhlIGZ1bmN0aW9u
+IGFsd2F5cyByZXR1cm5zIDAsIHdoeSBub3QgdGhlIGZvbGxvd2luZyA/DQo+IEFib3ZlIGNvZGUg
+c2VlbXMgdW5uZWNlc3NhcnkgY29tcGxleCBmb3Igbm8gZ29vZCByZWFzb24uDQo+IA0KPiAJaWYg
+KGV2ZW50ICYgU0NfSVJRX1dET0cgJiYNCj4gCSAgICAqKHU4ICopZ3JvdXAgPT0gU0NfSVJRX0dS
+T1VQX1dET0cpDQo+IAkJd2F0Y2hkb2dfbm90aWZ5X3ByZXRpbWVvdXQoaW14X3NjX3dkZCk7DQo+
+IA0KPiAJcmV0dXJuIDA7DQoNCk9LLg0KDQo+IA0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMg
+c3RydWN0IG5vdGlmaWVyX2Jsb2NrIGlteF9zY193ZHRfbm90aWZpZXIgPSB7DQo+ID4gKwkubm90
+aWZpZXJfY2FsbCA9IGlteF9zY193ZHRfbm90aWZ5LA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiAgIHN0
+YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzIGlteF9zY193ZHRfb3BzID0gew0KPiA+ICAg
+CS5vd25lciA9IFRISVNfTU9EVUxFLA0KPiA+ICAgCS5zdGFydCA9IGlteF9zY193ZHRfc3RhcnQs
+DQo+ID4gICAJLnN0b3AgID0gaW14X3NjX3dkdF9zdG9wLA0KPiA+ICAgCS5waW5nICA9IGlteF9z
+Y193ZHRfcGluZywNCj4gPiAgIAkuc2V0X3RpbWVvdXQgPSBpbXhfc2Nfd2R0X3NldF90aW1lb3V0
+LA0KPiA+ICsJLnNldF9wcmV0aW1lb3V0ID0gaW14X3NjX3dkdF9zZXRfcHJldGltZW91dCwNCj4g
+PiAgIH07DQo+ID4NCj4gPiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpbXhf
+c2Nfd2R0X2luZm8gPSB7IEBAIC0xMDIsOQ0KPiA+ICsxMzgsMTUgQEAgc3RhdGljIGNvbnN0IHN0
+cnVjdCB3YXRjaGRvZ19pbmZvIGlteF9zY193ZHRfaW5mbyA9IHsNCj4gPiAgIHN0YXRpYyBpbnQg
+aW14X3NjX3dkdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPiA+ICAgew0K
+PiA+ICAgCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5kZXY7DQo+ID4gLQlzdHJ1Y3Qgd2F0
+Y2hkb2dfZGV2aWNlICppbXhfc2Nfd2RkOw0KPiA+ICAgCWludCByZXQ7DQo+ID4NCj4gPiArCS8q
+IHdhaXQgdW50aWwgaS5NWCBTQ1UgSVBDIHJlYWR5ICovDQo+ID4gKwlyZXQgPSBpbXhfc2N1X2ly
+cV9ncm91cF9lbmFibGUoU0NfSVJRX0dST1VQX1dET0csDQo+ID4gKwkJCQkgICAgICAgU0NfSVJR
+X1dET0csDQo+ID4gKwkJCQkgICAgICAgdHJ1ZSk7DQo+ID4gKwlpZiAocmV0ID09IC1FUFJPQkVf
+REVGRVIpDQo+ID4gKwkJcmV0dXJuIHJldDsNCj4gPiArDQo+IA0KPiBBbmQgaWYgdGhlIGVycm9y
+IGlzIGFueXRoaW5nIGVsc2UgaXQgaXMgaWdub3JlZCA/DQo+IEFsc28sIHdoYXQgaGFwcGVucyBp
+ZiB0aGUgaW50ZXJydXB0IHRyaWdnZXJzIGJlZm9yZSBpbXhfc2Nfd2RkIGlzIHNldCA/DQoNCk90
+aGVyIGVycm9yIE9OTFkgbWVhbnMgdGhlIElQQyBmYWlsZWQsIHRoZSBJUlEgV0RPRyBncm91cCB3
+aWxsIE5PVCBiZSBlbmFibGVkLA0KaXQgZG9lcyBOT1QgaW1wYWN0IG90aGVyIHdkb2cgZnVuY3Rp
+b25zLCBzbyBJIGRpZCBOT1QgaGFuZGxlIGl0LCBtYXliZSBJIGNhbiBhZGQNCnNvbWUgd2Fybmlu
+ZyBtZXNzYWdlIHRvIHRlbGwgdXNlciB0aGF0IHByZXRpbWVvdXQgZnVuY3Rpb24gaXMgZmFpbGVk
+IGlmIG90aGVyIGVycm9yDQpvY2N1cnMgYW5kIGFsc28gZGlzYWJsZSB0aGUgcHJldGltZW91dCBm
+dW5jdGlvbiBpbiB3ZG9nIGluZm8/DQoNCklmIGludGVycnVwdCB0cmlnZ2VycyBiZWZvcmUgaW14
+X3NjX3dkZCBpcyBzZXQsIHNpbmNlIHRoZSBub3RpZmllciBpcyBOT1QgcmVnaXN0ZXJlZCB5ZXQs
+DQpzbyB0aGUgd2RvZyBpbnRlcnJ1cHQgd2lsbCBiZSBpZ25vcmVkLiAgDQoNCj4gDQo+ID4gICAJ
+aW14X3NjX3dkZCA9IGRldm1fa3phbGxvYyhkZXYsIHNpemVvZigqaW14X3NjX3dkZCksIEdGUF9L
+RVJORUwpOw0KPiA+ICAgCWlmICghaW14X3NjX3dkZCkNCj4gPiAgIAkJcmV0dXJuIC1FTk9NRU07
+DQo+ID4gQEAgLTExNyw2ICsxNTksNyBAQCBzdGF0aWMgaW50IGlteF9zY193ZHRfcHJvYmUoc3Ry
+dWN0IHBsYXRmb3JtX2RldmljZQ0KPiAqcGRldikNCj4gPiAgIAlpbXhfc2Nfd2RkLT5tYXhfdGlt
+ZW91dCA9IE1BWF9USU1FT1VUOw0KPiA+ICAgCWlteF9zY193ZGQtPnBhcmVudCA9IGRldjsNCj4g
+PiAgIAlpbXhfc2Nfd2RkLT50aW1lb3V0ID0gREVGQVVMVF9USU1FT1VUOw0KPiA+ICsJaW14X3Nj
+X3dkZC0+cHJldGltZW91dCA9IDA7DQo+IA0KPiBVbm5lY2Vzc2FyeS4NCg0KT0suDQoNCj4gDQo+
+ID4NCj4gPiAgIAl3YXRjaGRvZ19pbml0X3RpbWVvdXQoaW14X3NjX3dkZCwgMCwgZGV2KTsNCj4g
+PiAgIAl3YXRjaGRvZ19zdG9wX29uX3JlYm9vdChpbXhfc2Nfd2RkKTsNCj4gPiBAQCAtMTI4LDEz
+ICsxNzEsMjYgQEAgc3RhdGljIGludCBpbXhfc2Nfd2R0X3Byb2JlKHN0cnVjdA0KPiBwbGF0Zm9y
+bV9kZXZpY2UgKnBkZXYpDQo+ID4gICAJCXJldHVybiByZXQ7DQo+ID4gICAJfQ0KPiA+DQo+ID4g
+KwlyZXQgPSBpbXhfc2N1X2lycV9yZWdpc3Rlcl9ub3RpZmllcigmaW14X3NjX3dkdF9ub3RpZmll
+cik7DQo+ID4gKwlpZiAocmV0KQ0KPiA+ICsJCWRldl93YXJuKCZwZGV2LT5kZXYsDQo+ID4gKwkJ
+CSAiRmFpbGVkIHRvIHJlZ2lzdGVyIHdhdGNoZG9nIGlycSBub3RpZmllclxuIik7DQo+IA0KPiBw
+cmV0aW1lb3V0IHN1cHBvcnQgZG9lc24ndCB3b3JrIGluIHRoaXMgY2FzZSwgYW5kIGFueSBjbGFp
+bSB0byBzdXBwb3J0IGl0DQo+IHNlZW1zIGluYXBwcm9wcmlhdGUuDQoNClNvIGhvdyB0byBkaXNh
+YmxlIHByZXRpbWVvdXQgZnVuY3Rpb24gaW4gdGhpcyBjYXNlLCBqdXN0IG92ZXJ3cml0ZSB0aGUg
+d2F0Y2hkb2dfaW5mbw0KdG8gcmVtb3ZlIHRoZSBXRElPRl9QUkVUSU1FT1VUPw0KDQo+IA0KPiA+
+ICsNCj4gPiAgIAlyZXR1cm4gMDsNCj4gPiAgIH0NCj4gPg0KPiA+IC1zdGF0aWMgaW50IF9fbWF5
+YmVfdW51c2VkIGlteF9zY193ZHRfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ID4gK3N0
+YXRpYyBpbnQgaW14X3NjX3dkdF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikN
+Cj4gPiAgIHsNCj4gPiAtCXN0cnVjdCB3YXRjaGRvZ19kZXZpY2UgKmlteF9zY193ZGQgPSBkZXZf
+Z2V0X2RydmRhdGEoZGV2KTsNCj4gPiArCWlteF9zY3VfaXJxX3VucmVnaXN0ZXJfbm90aWZpZXIo
+JmlteF9zY193ZHRfbm90aWZpZXIpOw0KPiA+ICsJaW14X3NjdV9pcnFfZ3JvdXBfZW5hYmxlKFND
+X0lSUV9HUk9VUF9XRE9HLA0KPiA+ICsJCQkJIFNDX0lSUV9XRE9HLA0KPiA+ICsJCQkJIGZhbHNl
+KTsNCj4gPg0KPiBJIHdvdWxkIHByZWZlciB0byBzZWUgZGV2bV9hZGRfYWN0aW9uKCkgY2FsbHMu
+DQoNCkFoLCBhZ3JlZWQsIHdpbGwgZG8gaXQgaW4gVjIuDQoNClRoYW5rcywNCkFuc29uLg0KDQo+
+IA0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgX19tYXli
+ZV91bnVzZWQgaW14X3NjX3dkdF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikgew0KPiA+ICAg
+CWlmICh3YXRjaGRvZ19hY3RpdmUoaW14X3NjX3dkZCkpDQo+ID4gICAJCWlteF9zY193ZHRfc3Rv
+cChpbXhfc2Nfd2RkKTsNCj4gPg0KPiA+IEBAIC0xNDMsOCArMTk5LDYgQEAgc3RhdGljIGludCBf
+X21heWJlX3VudXNlZA0KPiA+IGlteF9zY193ZHRfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYp
+DQo+ID4NCj4gPiAgIHN0YXRpYyBpbnQgX19tYXliZV91bnVzZWQgaW14X3NjX3dkdF9yZXN1bWUo
+c3RydWN0IGRldmljZSAqZGV2KQ0KPiA+ICAgew0KPiA+IC0Jc3RydWN0IHdhdGNoZG9nX2Rldmlj
+ZSAqaW14X3NjX3dkZCA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0KPiA+IC0NCj4gPiAgIAlpZiAo
+d2F0Y2hkb2dfYWN0aXZlKGlteF9zY193ZGQpKQ0KPiA+ICAgCQlpbXhfc2Nfd2R0X3N0YXJ0KGlt
+eF9zY193ZGQpOw0KPiA+DQo+ID4gQEAgLTE2Miw2ICsyMTYsNyBAQCBNT0RVTEVfREVWSUNFX1RB
+QkxFKG9mLCBpbXhfc2Nfd2R0X2R0X2lkcyk7DQo+ID4NCj4gPiAgIHN0YXRpYyBzdHJ1Y3QgcGxh
+dGZvcm1fZHJpdmVyIGlteF9zY193ZHRfZHJpdmVyID0gew0KPiA+ICAgCS5wcm9iZQkJPSBpbXhf
+c2Nfd2R0X3Byb2JlLA0KPiA+ICsJLnJlbW92ZQkJPSBpbXhfc2Nfd2R0X3JlbW92ZSwNCj4gPiAg
+IAkuZHJpdmVyCQk9IHsNCj4gPiAgIAkJLm5hbWUJPSAiaW14LXNjLXdkdCIsDQo+ID4gICAJCS5v
+Zl9tYXRjaF90YWJsZSA9IGlteF9zY193ZHRfZHRfaWRzLA0KPiA+DQoNCg==
