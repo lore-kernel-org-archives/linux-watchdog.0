@@ -6,58 +6,57 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E607FC10F11
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 02:15:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A17BAC10F03
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 04:04:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A83DB20652
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 02:15:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54746217D7
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 04:04:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NEvUOyTA"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XbcT6pPJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbfDYCPQ (ORCPT
+        id S1725951AbfDYEEL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 24 Apr 2019 22:15:16 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:39450 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727660AbfDYCPQ (ORCPT
+        Thu, 25 Apr 2019 00:04:11 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:38740 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725902AbfDYEEL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 Apr 2019 22:15:16 -0400
-Received: by mail-pf1-f193.google.com with SMTP id i17so10298943pfo.6;
-        Wed, 24 Apr 2019 19:15:15 -0700 (PDT)
+        Thu, 25 Apr 2019 00:04:11 -0400
+Received: by mail-pg1-f194.google.com with SMTP id j26so10471498pgl.5;
+        Wed, 24 Apr 2019 21:04:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=upelHXPXvBnmaQF4I2XLLyJfMgebnENhE++m0KAJUwk=;
-        b=NEvUOyTAqQiq5Co0uXudut22rlMP1o1svI6X6Qzn10TVCvF5rgiMPKCeOQYVNUJpKW
-         gkInixFk44bGYAB9zA7D4zKn+SebVKOij4Pp/cxMxmscRL/juBXZoN2/QZfQ6ltXBYpN
-         NMPwxMWc1SmCQRhuM2ZarfueXGjfYNcoaepNvWicvXlaWH0XPseo7uDkr8hiHjReSJc8
-         QqDhd90bVJCDobs6HG1AiOwZpashQLwZlmzgGs0esX8WD74SBqZA+7JqUoJnzqWUbFcg
-         9HFQDI2QDGKx8nre/bEPmuHm0qVTrjbEk7nljz/AIBUbII+l8M+sxfJINeZt1Xy67NT8
-         F7Vg==
+        bh=Nu5sH0YqAXQ3e3qXiNtCAr5asf/yCKCdGPPw7KB81/s=;
+        b=XbcT6pPJF4JfXAuInqMgkppr+J2tCbpQF5NdeGzGjzVnvN03Uzd+7ihxknsHeLrDVb
+         qtKLRi8fEIg4jCUjjaQQ6pKsxGHm+2CLNLuoAV3lb97QDYyJtsQIeA9iSnPaYbAhyvz1
+         cznPa1L55xEVyefhLEw0qFuUs/gDNYrh9BoxMT169Q61Fp5aylsSPMLYWz+tpdzW/3vu
+         /JNPFoQi97FQfdsh0nq8uVt0LCU6rPp1+iq/6Ts7NSMOhJcnaCxbEOvq4kfdvwJNloBP
+         +z1TiqHhPP0J+GMl+Nm9bCSzM+YqfZ5bz8LH3ewGf/gw9gLcQyzePYVUFL8AM3maZxzv
+         neOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=upelHXPXvBnmaQF4I2XLLyJfMgebnENhE++m0KAJUwk=;
-        b=Gwkq6JwJO07x8rBnSyIPJ0amNDMkxweElgsZ6soeVKDw2g2qZTySk319ygVWgY6rfL
-         4y1vtwp4ZMRkZ1eyektaFQbTNEsRTvylcCoc+d1u1Y6zR8yroSMdewI32IfCFYSkb/cD
-         ls4iED9yN1FebZhvpvMooxThWD3lqnSNlaBHEZn1MX1RbBmOdSwsVbdcpV8zFWhjuQW0
-         EsnoPj7Bci/fLNEauQMR0z9t3JEA0mnspRX+x5QwMpieRwOflXH9k+at+txBQ8WFdJif
-         5Ne5enNrZukvMN5pglWOmdKDebTzT8yd5IODPdyGbfFpU/FX8SAABp7jjOAOlOerbMyi
-         KqQg==
-X-Gm-Message-State: APjAAAUtFlTGmvKVA6pAQUgDyem7J1Y3IM3TOr/siVPzpxRD/V08OLOm
-        z55d/ViA0BRjq9+sIOV/gGw=
-X-Google-Smtp-Source: APXvYqxKGr0bTUcnykotSEx501Z9ZOL8blyv7nEKj6Xy0FtdL4dLgzomz6Z8rHRbqM6oMMoJJpYETQ==
-X-Received: by 2002:a62:ed05:: with SMTP id u5mr36357214pfh.63.1556158514707;
-        Wed, 24 Apr 2019 19:15:14 -0700 (PDT)
+        bh=Nu5sH0YqAXQ3e3qXiNtCAr5asf/yCKCdGPPw7KB81/s=;
+        b=cdtU2LeqAhAQjDlI1VxxZWbqJKLAUBxYNsUs0YFkb7nhKvrdQlKMHkf3hPbhbiWVWN
+         LzW3QBIa/KSYruW7G087VSiYbv75Kfl0g4eCFFNe+Wag0Tjx4ZA4R2uPIxFpm/XyTjJd
+         dls3hImKijafbXDxUnFNRgj+Cgt82yYLAfV6RypsCZc6ZCSRlgV7DA4LlEIG2cBGfq1W
+         7ADh37/T1amECTvy+8wcIqp2RV0Y/9GnEcc0egBn5H6Bk8/dUr6M0HjQH/wcg1Xx5IBJ
+         t1kji6AnT9BzyCK0mLiAs3wxDs1UMgUT8WmBYIzY1Ur4ApidNnL4GPMPVzWf699moZld
+         GKOQ==
+X-Gm-Message-State: APjAAAWVMsfv2SpxbyhsEEz+8qfPIl/GK6Mrrqgi0LdCvU8/0nZ5xI0Q
+        v2nJvgBR16TYO8tiC1oFzVE=
+X-Google-Smtp-Source: APXvYqy+kyvqqKRln0gIvgJeQ2kGcQllxmKSL5aZAUU/ECrwjqfUbbHSJXlq1ZbYfdQAQyqpM2wp8g==
+X-Received: by 2002:a62:2c89:: with SMTP id s131mr14480999pfs.211.1556165050416;
+        Wed, 24 Apr 2019 21:04:10 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q87sm31004530pfa.133.2019.04.24.19.15.12
+        by smtp.gmail.com with ESMTPSA id j28sm26747081pgb.46.2019.04.24.21.04.08
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Apr 2019 19:15:13 -0700 (PDT)
-Subject: Re: [PATCH 1/2] firmware: imx: SCU irq should ONLY be enabled after
- SCU IPC is ready
+        Wed, 24 Apr 2019 21:04:09 -0700 (PDT)
+Subject: Re: [PATCH 2/2] watchdog: imx_sc: Add pretimeout support
 To:     Anson Huang <anson.huang@nxp.com>,
         "shawnguo@kernel.org" <shawnguo@kernel.org>,
         "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
@@ -71,13 +70,14 @@ To:     Anson Huang <anson.huang@nxp.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 Cc:     dl-linux-imx <linux-imx@nxp.com>
 References: <1556154581-31890-1-git-send-email-Anson.Huang@nxp.com>
+ <1556154581-31890-2-git-send-email-Anson.Huang@nxp.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <4a89a37c-fc7b-3248-4cc3-ae232ab310b7@roeck-us.net>
-Date:   Wed, 24 Apr 2019 19:15:11 -0700
+Message-ID: <21bd7656-541e-5f77-af8e-a5ea40b904a6@roeck-us.net>
+Date:   Wed, 24 Apr 2019 21:04:07 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1556154581-31890-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <1556154581-31890-2-git-send-email-Anson.Huang@nxp.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -87,100 +87,222 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On 4/24/19 6:14 PM, Anson Huang wrote:
-> The imx_scu_irq_group_enable() is normally called during module driver
-> probe phase to enable SCU group irq, e.g., i.MX system controller
-> watchdog driver will call it during its driver probe phase, as i.MX
-> system controller watchdog driver does NOT need SCU IPC handle for
-> operations, so it could be probed before i.MX SCU IPC is ready, and
-> below dump will show out:
+> i.MX system controller watchdog can support pretimeout IRQ
+> via general SCU MU IRQ, it depends on IMX_SCU and driver MUST
+> be probed after SCU IPC ready, then enable corresponding SCU
+> IRQ group and register SCU IRQ notifier, when watchdog pretimeout
+> IRQ fires, SCU MU IRQ will be handled and watchdog pretimeout
+> notifier will be called to handle the event.
 > 
-> [    0.933001] Hardware name: Freescale i.MX8QXP MEK (DT)
-> [    0.938129] pstate: 60000005 (nZCv daif -PAN -UAO)
-> [    0.942907] pc : imx_scu_call_rpc+0x114/0x158
-> [    0.947251] lr : imx_scu_irq_group_enable+0x74/0xc4
-> [    0.952113] sp : ffff00001005bae0
-> [    0.955415] x29: ffff00001005bae0 x28: ffff0000111bb0a0
-> [    0.960712] x27: ffff00001140b000 x26: ffff00001111068c
-> [    0.966011] x25: ffff0000111bb100 x24: 0000000000000000
-> [    0.971311] x23: ffff0000113d9cd8 x22: 0000000000000001
-> [    0.976610] x21: 0000000000000001 x20: ffff80083b51a410
-> [    0.981909] x19: ffff000011259000 x18: 0000000000000480
-> [    0.987209] x17: 000000000023ffb8 x16: 0000000000000010
-> [    0.992508] x15: 000000000000023f x14: ffffffffffffffff
-> [    0.997807] x13: 0000000000000018 x12: 0000000000000030
-> [    1.003107] x11: 0000000000000003 x10: 0101010101010101
-> [    1.008406] x9 : ffffffffffffffff x8 : 7f7f7f7f7f7f7f7f
-> [    1.013706] x7 : fefefeff646c606d x6 : 0000000000000000
-> [    1.019005] x5 : ffff0000112596c8 x4 : 0000000000000008
-> [    1.024304] x3 : 0000000000000003 x2 : 0000000000000001
-> [    1.029604] x1 : ffff00001005bb58 x0 : 0000000000000000
-> [    1.034905] Call trace:
-> [    1.037341]  imx_scu_call_rpc+0x114/0x158
-> [    1.041334]  imx_scu_irq_group_enable+0x74/0xc4
-> [    1.045856]  imx_sc_wdt_probe+0x24/0x150
-> [    1.049766]  platform_drv_probe+0x4c/0xb0
-> [    1.053762]  really_probe+0x1f8/0x2c8
-> [    1.057407]  driver_probe_device+0x58/0xfc
-> [    1.061490]  device_driver_attach+0x68/0x70
-> [    1.065660]  __driver_attach+0x94/0xdc
-> [    1.069397]  bus_for_each_dev+0x64/0xc0
-> [    1.073220]  driver_attach+0x20/0x28
-> [    1.076782]  bus_add_driver+0x148/0x1fc
-> [    1.080601]  driver_register+0x68/0x120
-> [    1.084424]  __platform_driver_register+0x4c/0x54
-> [    1.089120]  imx_sc_wdt_driver_init+0x18/0x20
-> [    1.093463]  do_one_initcall+0x58/0x1b8
-> [    1.097287]  kernel_init_freeable+0x1cc/0x288
-> [    1.101630]  kernel_init+0x10/0x100
-> [    1.105101]  ret_from_fork+0x10/0x18
-> [    1.108669] ---[ end trace 9e03302114457de9 ]---
-> [    1.113296] enable irq failed, group 1, mask 1, ret -22
-> 
-> To avoid such scenario, return -EPROBE_DEFER in imx_scu_irq_group_enable()
-> API if SCU IPC is NOT ready, then module driver which calls this API
-> in probe phase will defer probe after SCU IPC ready.
-> 
-Difficult to comment - I seem to have missed the patch introducing
-the call to imx_scu_irq_group_enable() from the watchdog driver, and
-I don't see it in -next either.
 
-However, as far as I can see, imx_sc_irq_ipc_handle is initialized from
-imx_scu_probe(). If the watchdog driver depends on it, it should be a
-sub-node of fsl,imx-scu, and be instantiated from the call to
-devm_of_platform_populate() in imx_scu_probe(). This should make the
-EPROBE_DEFER unnecessary.
+Ah, here is the missing patch.
 
-In other words, the above statement "i.MX system controller watchdog
-driver does NOT need SCU IPC handle for operations" is no longer accurate.
-If it needs the interrupt, and the interrupt needs the IPC handle, the
-watchdog driver does require the IPC handle. It would otherwise not need
-to defer its probe function until the IPC handle is available.
+As mentioned in my other reply, the watchdog driver does now depend
+on the SCU IPC handle and should be instantiated accordingly.
+Using -EPROBE_DEFER to work around bad dependencies is not a solution.
 
-I would like to add that it is highly unusual for a watchdog driver to depend
-on a firmware driver. However, again, that is difficult to argue since I seem
-to have missed the patch series introducing that dependency.
+Additional comment below.
 
 Guenter
 
-> Fixes: 851826c7566e ("firmware: imx: enable imx scu general irq function")
 > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 > ---
->   drivers/firmware/imx/imx-scu-irq.c | 3 +++
->   1 file changed, 3 insertions(+)
+>   drivers/watchdog/Kconfig      |  1 +
+>   drivers/watchdog/imx_sc_wdt.c | 65 +++++++++++++++++++++++++++++++++++++++----
+>   2 files changed, 61 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/firmware/imx/imx-scu-irq.c b/drivers/firmware/imx/imx-scu-irq.c
-> index 043833a..687121f 100644
-> --- a/drivers/firmware/imx/imx-scu-irq.c
-> +++ b/drivers/firmware/imx/imx-scu-irq.c
-> @@ -100,6 +100,9 @@ int imx_scu_irq_group_enable(u8 group, u32 mask, u8 enable)
->   	struct imx_sc_rpc_msg *hdr = &msg.hdr;
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 44a3158..f2c2c1a 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -644,6 +644,7 @@ config IMX2_WDT
+>   config IMX_SC_WDT
+>   	tristate "IMX SC Watchdog"
+>   	depends on HAVE_ARM_SMCCC
+> +	depends on IMX_SCU
+>   	select WATCHDOG_CORE
+>   	help
+>   	  This is the driver for the system controller watchdog
+> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
+> index 49848b6..f45ed10 100644
+> --- a/drivers/watchdog/imx_sc_wdt.c
+> +++ b/drivers/watchdog/imx_sc_wdt.c
+> @@ -4,6 +4,7 @@
+>    */
+>   
+>   #include <linux/arm-smccc.h>
+> +#include <linux/firmware/imx/sci.h>
+>   #include <linux/io.h>
+>   #include <linux/init.h>
+>   #include <linux/kernel.h>
+> @@ -33,11 +34,16 @@
+>   
+>   #define SC_TIMER_WDOG_ACTION_PARTITION	0
+>   
+> +#define SC_IRQ_WDOG			1
+> +#define SC_IRQ_GROUP_WDOG		1
+> +
+>   static bool nowayout = WATCHDOG_NOWAYOUT;
+>   module_param(nowayout, bool, 0000);
+>   MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>   		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>   
+> +struct watchdog_device *imx_sc_wdd;
+> +
+>   static int imx_sc_wdt_ping(struct watchdog_device *wdog)
+>   {
+>   	struct arm_smccc_res res;
+> @@ -85,12 +91,42 @@ static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
+>   	return res.a0 ? -EACCES : 0;
+>   }
+>   
+> +static int imx_sc_wdt_set_pretimeout(struct watchdog_device *wdog,
+> +				     unsigned int pretimeout)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	wdog->pretimeout = pretimeout;
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_PRETIME_WDOG,
+> +		      pretimeout * 1000, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0 ? -EACCES : 0;
+
+If this function returns an error, why does it set wdog->pretimeout
+unconditionally ? That seems wrong.
+
+> +}
+> +
+> +static int imx_sc_wdt_notify(struct notifier_block *nb,
+> +			     unsigned long event, void *group)
+> +{
+> +	/* ignore other irqs */
+> +	if (!(event & SC_IRQ_WDOG &&
+> +		(*(u8 *)group == SC_IRQ_GROUP_WDOG)))
+
+	if (!(event & SC_IRQ_WDO) || *(u8 *)group != SC_IRQ_GROUP_WDOG)
+
+would be easier to understand. Either case, the second part of the expression
+has an unnecessary (), and multi-line alignment seems to be off.
+
+> +		return 0;
+> +
+> +	watchdog_notify_pretimeout(imx_sc_wdd);
+
+The notifier block should be embedded in a local data structure,
+which would include strict watchdog_device and struct notifier_block.
+This would avoid the need for a static variable.
+
+> +
+> +	return 0;
+
+If the function always returns 0, why not the following ?
+Above code seems unnecessary complex for no good reason.
+
+	if (event & SC_IRQ_WDOG &&
+	    *(u8 *)group == SC_IRQ_GROUP_WDOG)
+		watchdog_notify_pretimeout(imx_sc_wdd);
+
+	return 0;
+
+> +}
+> +
+> +static struct notifier_block imx_sc_wdt_notifier = {
+> +	.notifier_call = imx_sc_wdt_notify,
+> +};
+> +
+>   static const struct watchdog_ops imx_sc_wdt_ops = {
+>   	.owner = THIS_MODULE,
+>   	.start = imx_sc_wdt_start,
+>   	.stop  = imx_sc_wdt_stop,
+>   	.ping  = imx_sc_wdt_ping,
+>   	.set_timeout = imx_sc_wdt_set_timeout,
+> +	.set_pretimeout = imx_sc_wdt_set_pretimeout,
+>   };
+>   
+>   static const struct watchdog_info imx_sc_wdt_info = {
+> @@ -102,9 +138,15 @@ static const struct watchdog_info imx_sc_wdt_info = {
+>   static int imx_sc_wdt_probe(struct platform_device *pdev)
+>   {
+>   	struct device *dev = &pdev->dev;
+> -	struct watchdog_device *imx_sc_wdd;
 >   	int ret;
 >   
-> +	if (!imx_sc_irq_ipc_handle)
-> +		return -EPROBE_DEFER;
+> +	/* wait until i.MX SCU IPC ready */
+> +	ret = imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
+> +				       SC_IRQ_WDOG,
+> +				       true);
+> +	if (ret == -EPROBE_DEFER)
+> +		return ret;
 > +
->   	hdr->ver = IMX_SC_RPC_VERSION;
->   	hdr->svc = IMX_SC_RPC_SVC_IRQ;
->   	hdr->func = IMX_SC_IRQ_FUNC_ENABLE;
+
+And if the error is anything else it is ignored ?
+Also, what happens if the interrupt triggers before imx_sc_wdd is set ?
+
+>   	imx_sc_wdd = devm_kzalloc(dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
+>   	if (!imx_sc_wdd)
+>   		return -ENOMEM;
+> @@ -117,6 +159,7 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+>   	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
+>   	imx_sc_wdd->parent = dev;
+>   	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
+> +	imx_sc_wdd->pretimeout = 0;
+
+Unnecessary.
+
+>   
+>   	watchdog_init_timeout(imx_sc_wdd, 0, dev);
+>   	watchdog_stop_on_reboot(imx_sc_wdd);
+> @@ -128,13 +171,26 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+>   		return ret;
+>   	}
+>   
+> +	ret = imx_scu_irq_register_notifier(&imx_sc_wdt_notifier);
+> +	if (ret)
+> +		dev_warn(&pdev->dev,
+> +			 "Failed to register watchdog irq notifier\n");
+
+pretimeout support doesn't work in this case, and any claim to support it
+seems inappropriate.
+
+> +
+>   	return 0;
+>   }
+>   
+> -static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
+> +static int imx_sc_wdt_remove(struct platform_device *pdev)
+>   {
+> -	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+> +	imx_scu_irq_unregister_notifier(&imx_sc_wdt_notifier);
+> +	imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
+> +				 SC_IRQ_WDOG,
+> +				 false);
+>   
+I would prefer to see devm_add_action() calls.
+
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
+> +{
+>   	if (watchdog_active(imx_sc_wdd))
+>   		imx_sc_wdt_stop(imx_sc_wdd);
+>   
+> @@ -143,8 +199,6 @@ static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
+>   
+>   static int __maybe_unused imx_sc_wdt_resume(struct device *dev)
+>   {
+> -	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+> -
+>   	if (watchdog_active(imx_sc_wdd))
+>   		imx_sc_wdt_start(imx_sc_wdd);
+>   
+> @@ -162,6 +216,7 @@ MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
+>   
+>   static struct platform_driver imx_sc_wdt_driver = {
+>   	.probe		= imx_sc_wdt_probe,
+> +	.remove		= imx_sc_wdt_remove,
+>   	.driver		= {
+>   		.name	= "imx-sc-wdt",
+>   		.of_match_table = imx_sc_wdt_dt_ids,
 > 
 
