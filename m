@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AF24C43218
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:34:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 364AAC43218
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:35:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9A81520717
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:34:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43DC0206BA
+	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556228084;
-	bh=TeFMU285vQsKoeyW6YnIsqqiPOWUxTotNNhyVhxNaTI=;
+	s=default; t=1556228143;
+	bh=YguPMd5wr2ROFmh6YQ848UffpOhhCNpwyareBnFMOAY=;
 	h=In-Reply-To:References:Cc:From:Subject:To:Date:List-ID:From;
-	b=iEe+1AkXU0N37L0jIdN+ZmWVNQrKEvTdFQO57VW1+XrTuk/ZfLn4j3RV0Iz6QI5Mz
-	 0Zo1YsVh+efmMNW0F1aATSTGqzEhIAxVREZIyXGmMi+3DYb3z6sCVDwThR220Pkf0D
-	 Z8Lcv9/LLknZGLkkaMB3jjvk2hxkfbmBq5pRBdAU=
+	b=AqV7e1bLU3io2G5CJNtzVL1Dm0xuz4k4YSxGXl0fSXyPqzHWHUxzktVYldnVWKjOl
+	 bl+K/7z4InFAEK3UhYES/SE0kW+GBy0s419vVuEv/fTkuM7DhBGbm/YbT/SRjjQfFZ
+	 cXgCZSf0pbLa7yrxzp7FNGyfD4ZjW07jxpC/jkJk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731183AbfDYVel (ORCPT
+        id S1731230AbfDYVfj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 25 Apr 2019 17:34:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        Thu, 25 Apr 2019 17:35:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726150AbfDYVek (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Apr 2019 17:34:40 -0400
+        id S1726358AbfDYVfi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 25 Apr 2019 17:35:38 -0400
 Received: from localhost (unknown [104.132.0.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F033B20675;
-        Thu, 25 Apr 2019 21:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B359220675;
+        Thu, 25 Apr 2019 21:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556228080;
-        bh=TeFMU285vQsKoeyW6YnIsqqiPOWUxTotNNhyVhxNaTI=;
+        s=default; t=1556228137;
+        bh=YguPMd5wr2ROFmh6YQ848UffpOhhCNpwyareBnFMOAY=;
         h=In-Reply-To:References:Cc:From:Subject:To:Date:From;
-        b=YzsBsz+OkKnK1iC+GMLS838W9zhtyF4cac6F+kRUAUbVtIhzE5mmgV7ZsW+NcC6br
-         3ntbDPRO62kqsMJg0Dy3c5T9Muq/H5ISNCRgMhiDVFrS3sRqu92B6Z3niGPSsJOCCm
-         +FLFHGMUxnVwKi3eR43tODxOpnoxKWWPdEL7v770=
+        b=Ka3TBetgGIoGfg2CC2G3MmhI7tYM6Gic0tMMSbWvsXA0JQLSI0hOefBL44fDhmaU3
+         LF1SBsoU2MS96zzIT8ombyYqUkM4N5nHygB4L8B3rAxdENHQoh9Z8Njq+L0zXBHWvH
+         P7mUoVsITmYuy+TU3fTt+iJDt1vyO7/UPTJMxKPM=
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20190323211612.860-13-fparent@baylibre.com>
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-13-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-14-fparent@baylibre.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-14-fparent@baylibre.com>
 Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
         chaotian.jing@mediatek.com, yong.mao@mediatek.com,
@@ -55,19 +55,19 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
         Fabien Parent <fparent@baylibre.com>
 From:   Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH 12/24] dt-bindings: mediatek: infracfg: add support for MT8516
+Subject: Re: [PATCH 13/24] dt-bindings: mediatek: apmixedsys: add support for MT8516
 To:     Fabien Parent <fparent@baylibre.com>, mark.rutland@arm.com,
         matthias.bgg@gmail.com, robh+dt@kernel.org
-Message-ID: <155622807901.15276.4074098056713390821@swboyd.mtv.corp.google.com>
+Message-ID: <155622813672.15276.2529493939985880382@swboyd.mtv.corp.google.com>
 User-Agent: alot/0.8
-Date:   Thu, 25 Apr 2019 14:34:39 -0700
+Date:   Thu, 25 Apr 2019 14:35:36 -0700
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Fabien Parent (2019-03-23 14:16:00)
-> Add binding documentation of infracfg for MT8516 SoC.
+Quoting Fabien Parent (2019-03-23 14:16:01)
+> Add binding documentation of apmixedsys for MT8516 SoC.
 >=20
 > Signed-off-by: Fabien Parent <fparent@baylibre.com>
 > ---
