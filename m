@@ -1,76 +1,241 @@
-Return-Path: <SRS0=p/xN=S3=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=w020=S4=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC9EC43218
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54FFCC4321A
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Apr 2019 13:42:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3D88A2088F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 25 Apr 2019 21:39:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556228379;
-	bh=QV+KhoMm+qvubf4BBbcuj+P6ndycnsFc4a3jxIeQzsI=;
-	h=In-Reply-To:References:Cc:From:Subject:To:Date:List-ID:From;
-	b=wxQ/ZxDNV+hWr3NQLU2NxXkqMQWfVf3MaQJdNR9mM5Y1GC9QY+XelLk203PDDRuGa
-	 eV63zfWrhy41kiv4bdxzakor4Ad2C20zZvB+P67lnB3gdZniKwGykUYySQEeLOlnub
-	 IgUQmo6fVAOBoKmw5JQw5yusWaYsusq84ruwqYEY=
+	by mail.kernel.org (Postfix) with ESMTP id 0F14B206E0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Apr 2019 13:42:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="LzYR2O6M"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731319AbfDYVj1 (ORCPT
+        id S1726124AbfDZNl4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 25 Apr 2019 17:39:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48340 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727179AbfDYVj0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Apr 2019 17:39:26 -0400
-Received: from localhost (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7537206BF;
-        Thu, 25 Apr 2019 21:39:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556228365;
-        bh=QV+KhoMm+qvubf4BBbcuj+P6ndycnsFc4a3jxIeQzsI=;
-        h=In-Reply-To:References:Cc:From:Subject:To:Date:From;
-        b=v1fhsiGq/KOFeGeRZUyGATJ50iAs47cuQJdH8c6Na+xVcmoZNLLgAFQ9ya1kZlGDG
-         NS1vjhycH/ByHs9COR7DTGUZlfkQiKb/8tlKIo8nRRXLI0eIYJ7JzXM14Tjapltbol
-         6xmm2mxA+xfCVDewxUsWmuTk5juHN9qrxKhZh26E=
-Content-Type: text/plain; charset="utf-8"
+        Fri, 26 Apr 2019 09:41:56 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:60941 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726120AbfDZNl4 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Apr 2019 09:41:56 -0400
+Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x3QDf0Oh001515;
+        Fri, 26 Apr 2019 15:41:23 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=STMicroelectronics;
+ bh=LNbbAj2wRrQ7/8bo8RFV9A/U3Iz4kTcJqarCD3VIoEw=;
+ b=LzYR2O6MF3dYAhqy0r9yRURhzgMEjJbtqPiHX9IGoLRDmco+bRlfxgDxrBJ9Kh+25/AZ
+ N2LclwcnABoV5wdOdFUy7FUT7JzGLq9xbpsaCLtpjAVTW81IDPyMPj5HFptNUY4QtOtf
+ KcdjzKzwoGhq7ASJCXhFfEK+T0sZB1pIwTe46X1rw6x57Vu4j5oOjz5tLngtrpDfhdzx
+ puD33X7vhs9ps+3m5bXP4Sxu5hIHrMbJvvXPCjUhE/19IZsfCR5DXtTRAiUHWRQJK9rJ
+ P1F2S0O3GsTh5q/M6s1Fs30WzyM/eUAXMSDSy/5rwdiMBOvKqAo00gE9VGuPcs19gw2S fA== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 2s3bbvfyqt-1
+        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Fri, 26 Apr 2019 15:41:23 +0200
+Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id F0D2F3D;
+        Fri, 26 Apr 2019 13:41:22 +0000 (GMT)
+Received: from Webmail-eu.st.com (Safex1hubcas21.st.com [10.75.90.44])
+        by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id C43942642;
+        Fri, 26 Apr 2019 13:41:22 +0000 (GMT)
+Received: from SAFEX1HUBCAS24.st.com (10.75.90.95) by SAFEX1HUBCAS21.st.com
+ (10.75.90.44) with Microsoft SMTP Server (TLS) id 14.3.361.1; Fri, 26 Apr
+ 2019 15:41:22 +0200
+Received: from lmecxl0923.lme.st.com (10.48.0.237) by webmail-ga.st.com
+ (10.75.90.48) with Microsoft SMTP Server (TLS) id 14.3.439.0; Fri, 26 Apr
+ 2019 15:41:22 +0200
+From:   Ludovic Barre <ludovic.Barre@st.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        Ludovic Barre <ludovic.barre@st.com>
+Subject: [PATCH] watchdog: stm32: add dynamic prescaler support
+Date:   Fri, 26 Apr 2019 15:41:15 +0200
+Message-ID: <1556286075-29496-1-git-send-email-ludovic.Barre@st.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20190323211612.860-15-fparent@baylibre.com>
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-15-fparent@baylibre.com>
-Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
-        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
-        chaotian.jing@mediatek.com, yong.mao@mediatek.com,
-        jjian.zhou@mediatek.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
-        Fabien Parent <fparent@baylibre.com>
-From:   Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH 14/24] clk: mediatek: add clock driver for MT8516
-To:     Fabien Parent <fparent@baylibre.com>, mark.rutland@arm.com,
-        matthias.bgg@gmail.com, robh+dt@kernel.org
-Message-ID: <155622836474.15276.3720750789980463871@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.8
-Date:   Thu, 25 Apr 2019 14:39:24 -0700
+Content-Type: text/plain
+X-Originating-IP: [10.48.0.237]
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-04-26_08:,,
+ signatures=0
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Fabien Parent (2019-03-23 14:16:02)
-> Add the clock driver for the MT8516 SoC.
->=20
-> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> ---
+From: Ludovic Barre <ludovic.barre@st.com>
 
-Applied to clk-next
+This patch allows to define the max prescaler by compatible.
+To set a large range of timeout, the prescaler should be set
+dynamically (from the timeout request) to improve the resolution
+in order to have a timeout close to the expected value.
+
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+---
+ drivers/watchdog/stm32_iwdg.c | 70 +++++++++++++++++++++++++------------------
+ 1 file changed, 41 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index e00e3b3..91d0a89 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -34,18 +34,10 @@
+ #define KR_KEY_EWA	0x5555 /* write access enable */
+ #define KR_KEY_DWA	0x0000 /* write access disable */
+ 
+-/* IWDG_PR register bit values */
+-#define PR_4		0x00 /* prescaler set to 4 */
+-#define PR_8		0x01 /* prescaler set to 8 */
+-#define PR_16		0x02 /* prescaler set to 16 */
+-#define PR_32		0x03 /* prescaler set to 32 */
+-#define PR_64		0x04 /* prescaler set to 64 */
+-#define PR_128		0x05 /* prescaler set to 128 */
+-#define PR_256		0x06 /* prescaler set to 256 */
++#define PR_SHIFT	2
+ 
+ /* IWDG_RLR register values */
+-#define RLR_MIN		0x07C /* min value supported by reload register */
+-#define RLR_MAX		0xFFF /* max value supported by reload register */
++#define RLR_MAX		GENMASK(11, 0) /* max value of reload register */
+ 
+ /* IWDG_SR register bit mask */
+ #define FLAG_PVU	BIT(0) /* Watchdog prescaler value update */
+@@ -55,15 +47,28 @@
+ #define TIMEOUT_US	100000
+ #define SLEEP_US	1000
+ 
+-#define HAS_PCLK	true
++struct stm32_iwdg_data {
++	bool has_pclk;
++	u32 max_prescaler;
++};
++
++static const struct stm32_iwdg_data stm32_iwdg_data = {
++	.has_pclk = false,
++	.max_prescaler = 256,
++};
++
++static const struct stm32_iwdg_data stm32mp1_iwdg_data = {
++	.has_pclk = true,
++	.max_prescaler = 1024,
++};
+ 
+ struct stm32_iwdg {
+ 	struct watchdog_device	wdd;
++	const struct stm32_iwdg_data *data;
+ 	void __iomem		*regs;
+ 	struct clk		*clk_lsi;
+ 	struct clk		*clk_pclk;
+ 	unsigned int		rate;
+-	bool			has_pclk;
+ };
+ 
+ static inline u32 reg_read(void __iomem *base, u32 reg)
+@@ -80,21 +85,30 @@ static int stm32_iwdg_start(struct watchdog_device *wdd)
+ {
+ 	struct stm32_iwdg *wdt = watchdog_get_drvdata(wdd);
+ 	u32 val = FLAG_PVU | FLAG_RVU;
+-	u32 reload;
++	u32 timeout, presc, iwdg_rlr, iwdg_pr;
+ 	int ret;
+ 
+ 	dev_dbg(wdd->parent, "%s\n", __func__);
+ 
+-	/* prescaler fixed to 256 */
+-	reload = clamp_t(unsigned int, ((wdd->timeout * wdt->rate) / 256) - 1,
+-			 RLR_MIN, RLR_MAX);
++	timeout = clamp_t(unsigned int, wdd->timeout,
++			  wdd->min_timeout, wdd->max_hw_heartbeat_ms / 1000);
++
++	if (timeout != wdd->timeout)
++		dev_warn(wdd->parent, "timeout skrinked to %d\n", timeout);
++
++	presc = DIV_ROUND_UP(timeout * wdt->rate, RLR_MAX + 1);
++
++	/* The prescaler is align on power of 2 and start at 2 ^ PR_SHIFT. */
++	presc = roundup_pow_of_two(presc);
++	iwdg_pr = presc <= 1 << PR_SHIFT ? 0 : ilog2(presc) - PR_SHIFT;
++	iwdg_rlr = ((timeout * wdt->rate) / presc) - 1;
+ 
+ 	/* enable write access */
+ 	reg_write(wdt->regs, IWDG_KR, KR_KEY_EWA);
+ 
+ 	/* set prescaler & reload registers */
+-	reg_write(wdt->regs, IWDG_PR, PR_256); /* prescaler fix to 256 */
+-	reg_write(wdt->regs, IWDG_RLR, reload);
++	reg_write(wdt->regs, IWDG_PR, iwdg_pr);
++	reg_write(wdt->regs, IWDG_RLR, iwdg_rlr);
+ 	reg_write(wdt->regs, IWDG_KR, KR_KEY_ENABLE);
+ 
+ 	/* wait for the registers to be updated (max 100ms) */
+@@ -150,7 +164,7 @@ static int stm32_iwdg_clk_init(struct platform_device *pdev,
+ 	}
+ 
+ 	/* optional peripheral clock */
+-	if (wdt->has_pclk) {
++	if (wdt->data->has_pclk) {
+ 		wdt->clk_pclk = devm_clk_get(&pdev->dev, "pclk");
+ 		if (IS_ERR(wdt->clk_pclk)) {
+ 			dev_err(&pdev->dev, "Unable to get pclk clock\n");
+@@ -191,8 +205,8 @@ static const struct watchdog_ops stm32_iwdg_ops = {
+ };
+ 
+ static const struct of_device_id stm32_iwdg_of_match[] = {
+-	{ .compatible = "st,stm32-iwdg", .data = (void *)!HAS_PCLK },
+-	{ .compatible = "st,stm32mp1-iwdg", .data = (void *)HAS_PCLK },
++	{ .compatible = "st,stm32-iwdg", .data = &stm32_iwdg_data },
++	{ .compatible = "st,stm32mp1-iwdg", .data = &stm32mp1_iwdg_data },
+ 	{ /* end node */ }
+ };
+ MODULE_DEVICE_TABLE(of, stm32_iwdg_of_match);
+@@ -200,20 +214,17 @@ MODULE_DEVICE_TABLE(of, stm32_iwdg_of_match);
+ static int stm32_iwdg_probe(struct platform_device *pdev)
+ {
+ 	struct watchdog_device *wdd;
+-	const struct of_device_id *match;
+ 	struct stm32_iwdg *wdt;
+ 	struct resource *res;
+ 	int ret;
+ 
+-	match = of_match_device(stm32_iwdg_of_match, &pdev->dev);
+-	if (!match)
+-		return -ENODEV;
+-
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	wdt->has_pclk = match->data;
++	wdt->data = of_device_get_match_data(&pdev->dev);
++	if (!wdt->data)
++		return -ENODEV;
+ 
+ 	/* This is the timer base. */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -231,8 +242,9 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	wdd = &wdt->wdd;
+ 	wdd->info = &stm32_iwdg_info;
+ 	wdd->ops = &stm32_iwdg_ops;
+-	wdd->min_timeout = ((RLR_MIN + 1) * 256) / wdt->rate;
+-	wdd->max_hw_heartbeat_ms = ((RLR_MAX + 1) * 256 * 1000) / wdt->rate;
++	wdd->min_timeout = 1;
++	wdd->max_hw_heartbeat_ms = ((RLR_MAX + 1) * wdt->data->max_prescaler *
++				    1000) / wdt->rate;
+ 	wdd->parent = &pdev->dev;
+ 
+ 	watchdog_set_drvdata(wdd, wdt);
+-- 
+2.7.4
 
