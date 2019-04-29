@@ -4,151 +4,132 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0508C43219
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Apr 2019 19:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA7D5C43219
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Apr 2019 19:28:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AA2002067D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Apr 2019 19:28:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86A7A21655
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Apr 2019 19:28:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TwcT4Qvq"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nPu/PKPF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729191AbfD2T2g (ORCPT
+        id S1729280AbfD2T2m (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 29 Apr 2019 15:28:36 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:42115 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728928AbfD2T2g (ORCPT
+        Mon, 29 Apr 2019 15:28:42 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:45666 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729188AbfD2T2m (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Apr 2019 15:28:36 -0400
-Received: by mail-pf1-f193.google.com with SMTP id w25so5807490pfi.9;
-        Mon, 29 Apr 2019 12:28:35 -0700 (PDT)
+        Mon, 29 Apr 2019 15:28:42 -0400
+Received: by mail-pf1-f196.google.com with SMTP id e24so5807151pfi.12;
+        Mon, 29 Apr 2019 12:28:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=H3PC/K/0ZqnTv3eSdr7uwHLRMhRxA2po4zeZwBa0UC4=;
-        b=TwcT4QvqRGp1uG/FKCJtxf3DZL4NQG3jTbez+WjIbEICTnsZJmQYLihck1du341mg2
-         vQTcbUkK7dV/ZEEwctyNaD1+TtAiJcKTBXcwZ9rLEV5QphcRn2mzCkiZe6AKH4dcraDb
-         slMQVVcbd3U6arhgfA+D1uNRmFp6HHXEAvMxUneBjs4OPgcaHZ1P+lb3bV1sryGH/aHT
-         OabBR26UgAPBD7R1EOtYuATG1kr0q0OgEVNBAc5/q6nYwhEuh5j8aYMIK7wXZMctKS4b
-         bNThq0SCCQcqLNvjiu6eUXEwPWRXwkhqt38vsp4eW3/5jvZS9+E4yM+EQ58GbA4Thw5O
-         cgSA==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=o/V5fcdJjHEEGhSr+L86I9P3xGJAwwcDCT1sez3UiKw=;
+        b=nPu/PKPFoX/38S1YWGpLVmvQoEwJC1O4gPJeWphYcE7+DFCKUfTYc/NBkutehamSYl
+         mRwpDB4MoyGKDNREQURyD+bx/dibN/Yex6UmJlp6Gtbyki2fWshJq6kM6nyB47K8FJ7X
+         fcda8RDnbnLVMI7EPUCMGljbyU4jXfLSGObTDIS9QpRlEQwL2FXckAGnnbseXnsEBCJD
+         oCxGeU12npDMpfgMJP6nWzusABFo9Mlmm5ec284I/94dgkq34/VoXU7nSP/1iTId3RM+
+         KFoIgsa3W0QMBLdLveyrRADeuOe/YdrYPP7s0QH5O+GqhjsvFWwUVHlVwndTG7Sa5g1U
+         bpig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=H3PC/K/0ZqnTv3eSdr7uwHLRMhRxA2po4zeZwBa0UC4=;
-        b=KH99hO2rPPHzOqgXpFlos7XAwrwyuqEKzEx3m8UJL5Bg40hgMgp+89AuF7WwDGWKJn
-         ONl8bHAZRV/Pj5Lp+Az+52YYzwtiOT00w7DTKYhKKydzKlDR8vX3jkxN7QQ++ktnnGrk
-         mMx8S5eglXYQ+ut/R5IZ1k6OMe6XhE5BKD7utdke6t4OCdao+id7tGHgHH95VgnFnWfQ
-         h+ALuWB+IT2bq5zIrM6TovPDQwT4EJKzgJ/wOVIO+ERI6Ykq46vZYzLG9XhHj9Wg2dI4
-         kdp9D05yjQrIRtQC3wRsTViA0CPkoTVh7iIebIjk1SlCQs0XnHivIj4gnuxMVzlqnDPa
-         bQqQ==
-X-Gm-Message-State: APjAAAXieRjDZjCgcn9XXYW/J/lAwsrWIFbuKdBrhGpz+Cf4ssYzyJPO
-        zFUVlxa5TGYMjz59qz9L52s=
-X-Google-Smtp-Source: APXvYqwFy0ULEpsCLz4AaUm4VSDQbG86sGUaLA0oHgtneY4zjk8RmxpDxMHYCUCsO5tK1sVozPbuMg==
-X-Received: by 2002:aa7:918b:: with SMTP id x11mr31520922pfa.181.1556566115361;
-        Mon, 29 Apr 2019 12:28:35 -0700 (PDT)
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=o/V5fcdJjHEEGhSr+L86I9P3xGJAwwcDCT1sez3UiKw=;
+        b=UVkB40GNaxOusMQvUBx+gN7nJjZeMrXd3v1ao+i1Xer6BldZ8402tb676BfzpTizkE
+         yJAXAQ42ge5cTxJMz9DUXCearI2QLDBOI+Kj08Cxz+bkI8NyW1dsJT7rI1egdnx00Oea
+         rV3u92+aOAeEX4AFoE/Z2RwBy7JmZyNvLC8bv7vFkRI5j3q+ut9UoFuhy8yHs1sedPIU
+         L1yxkF4ikhgaxNpLGRPm81WnGu1I29R+nv6KwLG3OF/3FnLvvESJJDsBC7VeMWtQ0QLd
+         UVcY1HEhPJVy23fUpD1OV2Q4YPZXoS3VkPWzmZjLICKCuCgZn0ZoEFZw3RdExH3g6eSk
+         jIEQ==
+X-Gm-Message-State: APjAAAWcbZlszINMbpidn+prsG4dDu9w9Yoq67FBroPh+05gm3BiZcsI
+        7+0UXCKiELhykpoc+I9dxmM=
+X-Google-Smtp-Source: APXvYqyDtDtNh2iUnupV7AxXjhggYBZjnzLIl3wltJ3lU9zLmxLNJ2BNEW2EYpwoyIgQzhPW3oIBrA==
+X-Received: by 2002:a65:5687:: with SMTP id v7mr19072678pgs.299.1556566121015;
+        Mon, 29 Apr 2019 12:28:41 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y3sm10598535pfe.9.2019.04.29.12.28.33
+        by smtp.gmail.com with ESMTPSA id j20sm48495489pfn.84.2019.04.29.12.28.40
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Apr 2019 12:28:34 -0700 (PDT)
+        Mon, 29 Apr 2019 12:28:40 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 1/5] watchdog: Use depends instead of select for pretimeout governors
-Date:   Mon, 29 Apr 2019 12:28:27 -0700
-Message-Id: <1556566111-31970-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 5/5] watchdog: Improve Kconfig entry ordering and dependencies
+Date:   Mon, 29 Apr 2019 12:28:31 -0700
+Message-Id: <1556566111-31970-5-git-send-email-linux@roeck-us.net>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1556566111-31970-1-git-send-email-linux@roeck-us.net>
+References: <1556566111-31970-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Watchdog pretimeout governors were enabled from the default governor
-selection using "select". As a result, the default governor was always
-built into the kernel, even if no watchdog driver was loaded. By using
-"depends on" instead of "select", we are in better control, and the
-governors can all be built as modules. At the same time, set the default
-configuration option for pretimeout governors to match WATCHDOG_CORE
-(meaning all pretimeout governors are by default enabled if pretimeout
-support is enabled).
+HPWDT_NMI_DECODING depends on HP_WATCHDOG and should be next to it.
+This helps menuconfig identify HPWDT_NMI_DECODING as depending on
+HP_WATCHDOG.
 
-The practical impact of this change is minimal. Previously, selecting
-a default governor automatically enabled that governor. Now, a default
-governor can only be selected if that governor has been enabled.
-Consequently, the order of governor selection is now reversed: The
-governor selection is now first, followed by default governor selection.
+BCM_KONA_WDT_DEBUG depends on BCM_KONA_WDT which depends on COMPILE_TEST.
+Enabling BCM_KONA_WDT_DEBUG without BCM_KONA_WDT does not make sense,
+so drop the COMPILE_TEST dependency from it. This also improves
+menuconfig, which now properly associates BCM_KONA_WDT_DEBUG with
+BCM_KONA_WDT.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/Kconfig | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ drivers/watchdog/Kconfig | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 16c30e6aa1ee..accbf75032ef 100644
+index e5b30c4947d7..f457992487ea 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -2062,6 +2062,20 @@ config WATCHDOG_PRETIMEOUT_GOV
+@@ -1261,6 +1261,15 @@ config HP_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called hpwdt.
  
- if WATCHDOG_PRETIMEOUT_GOV
- 
-+config WATCHDOG_PRETIMEOUT_GOV_NOOP
-+	tristate "Noop watchdog pretimeout governor"
-+	default WATCHDOG_CORE
++config HPWDT_NMI_DECODING
++	bool "NMI support for the HP ProLiant iLO2+ Hardware Watchdog Timer"
++	depends on HP_WATCHDOG
++	default y
 +	help
-+	  Noop watchdog pretimeout governor, only an informational
-+	  message is added to kernel log buffer.
++	  Enables the NMI handler for the watchdog pretimeout NMI and the iLO
++	  "Generate NMI to System" virtual button.  When an NMI is claimed
++	  by the driver, panic is called.
 +
-+config WATCHDOG_PRETIMEOUT_GOV_PANIC
-+	tristate "Panic watchdog pretimeout governor"
-+	default WATCHDOG_CORE
-+	help
-+	  Panic watchdog pretimeout governor, on watchdog pretimeout
-+	  event put the kernel into panic.
-+
- choice
- 	prompt "Default Watchdog Pretimeout Governor"
- 	default WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
-@@ -2072,7 +2086,7 @@ choice
+ config KEMPLD_WDT
+ 	tristate "Kontron COM Watchdog Timer"
+ 	depends on MFD_KEMPLD
+@@ -1272,15 +1281,6 @@ config KEMPLD_WDT
+ 	  This driver can also be built as a module. If so, the module will be
+ 	  called kempld_wdt.
  
- config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
- 	bool "noop"
--	select WATCHDOG_PRETIMEOUT_GOV_NOOP
-+	depends on WATCHDOG_PRETIMEOUT_GOV_NOOP
- 	help
- 	  Use noop watchdog pretimeout governor by default. If noop
- 	  governor is selected by a user, write a short message to
-@@ -2080,7 +2094,7 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
- 
- config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
- 	bool "panic"
--	select WATCHDOG_PRETIMEOUT_GOV_PANIC
-+	depends on WATCHDOG_PRETIMEOUT_GOV_PANIC
- 	help
- 	  Use panic watchdog pretimeout governor by default, if
- 	  a watchdog pretimeout event happens, consider that
-@@ -2088,18 +2102,6 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
- 
- endchoice
- 
--config WATCHDOG_PRETIMEOUT_GOV_NOOP
--	tristate "Noop watchdog pretimeout governor"
+-config HPWDT_NMI_DECODING
+-	bool "NMI support for the HP ProLiant iLO2+ Hardware Watchdog Timer"
+-	depends on HP_WATCHDOG
+-	default y
 -	help
--	  Noop watchdog pretimeout governor, only an informational
--	  message is added to kernel log buffer.
+-	  Enables the NMI handler for the watchdog pretimeout NMI and the iLO
+-	  "Generate NMI to System" virtual button.  When an NMI is claimed
+-	  by the driver, panic is called.
 -
--config WATCHDOG_PRETIMEOUT_GOV_PANIC
--	tristate "Panic watchdog pretimeout governor"
--	help
--	  Panic watchdog pretimeout governor, on watchdog pretimeout
--	  event put the kernel into panic.
--
- endif # WATCHDOG_PRETIMEOUT_GOV
+ config SC1200_WDT
+ 	tristate "National Semiconductor PC87307/PC97307 (ala SC1200) Watchdog"
+ 	depends on X86
+@@ -1729,7 +1729,7 @@ config BCM_KONA_WDT
  
- endif # WATCHDOG
+ config BCM_KONA_WDT_DEBUG
+ 	bool "DEBUGFS support for BCM Kona Watchdog"
+-	depends on BCM_KONA_WDT || COMPILE_TEST
++	depends on BCM_KONA_WDT
+ 	help
+ 	  If enabled, adds /sys/kernel/debug/bcm_kona_wdt/info which provides
+ 	  access to the driver's internal data structures as well as watchdog
 -- 
 2.7.4
 
