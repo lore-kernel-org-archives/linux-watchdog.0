@@ -2,116 +2,128 @@ Return-Path: <SRS0=V0u6=TI=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5408C004C9
-	for <linux-watchdog@archiver.kernel.org>; Wed,  8 May 2019 00:43:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A6FAC04A6B
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 May 2019 11:24:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A191921479
-	for <linux-watchdog@archiver.kernel.org>; Wed,  8 May 2019 00:43:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 356A921019
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 May 2019 11:24:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ouY5V6d1"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="dLf0GeJ5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726513AbfEHAnJ (ORCPT
+        id S1727520AbfEHLYY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 May 2019 20:43:09 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:35975 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbfEHAnJ (ORCPT
+        Wed, 8 May 2019 07:24:24 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:37875 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727498AbfEHLYY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 May 2019 20:43:09 -0400
-Received: by mail-pf1-f196.google.com with SMTP id v80so9531939pfa.3;
-        Tue, 07 May 2019 17:43:08 -0700 (PDT)
+        Wed, 8 May 2019 07:24:24 -0400
+Received: by mail-wr1-f67.google.com with SMTP id a12so16599883wrn.4
+        for <linux-watchdog@vger.kernel.org>; Wed, 08 May 2019 04:24:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ojYi+dPraKZx0o3Y02X9nQD+qD5NgpGE9+yj+drgmpM=;
-        b=ouY5V6d13EeaCznWYKiFrV+PuT6jOR4Dh3kzNHNMm1PBOQ7BVYPaMNzG1Eiq1yFZ1X
-         rauW70V9LWCc88qz3Sav6PMZB6Sjnzz4xiYnPIJ6sAXKsug/N+og6asxEj+ksSM9GqTX
-         hjyapc12YgWVu2ol2R5x9RkzpXRwcU5r6T2V9LvFkQ68isuoFELKg6n/ccTxHjVAyFQe
-         K2Fqc1Zcq9sImA+ooGhpYsJRUHuC2GKF2wCh4zOlG9ThBpFvKhSLdghjevPJD+DUKcOL
-         fWtmPS3ZsdNHKvYTlajwX3pPCci/XLfUWduK7qG17XMEKf4EfVSB2/aqGFPR8aBhGzOa
-         3HDQ==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=1ZGlp40IsYtFAaBk0HZMbzf6li3dlBM1JeMgqqz53qI=;
+        b=dLf0GeJ5oO2/qzJ2OPJsKrWb1jddayoko2NnzJa2Ao0wHEnYkkD8bC0lix+E4KUog5
+         HOSpNmLXFhms8Zmf2MqLUVR/SIre28mjmpqCw0GpbXExy/GCCt6KMXZV0hBW2LdlWKwT
+         7ZFCxPZpm7P84TjCBKoZGANS9gelWb+IKZbJatQAyAoRb8MH+1nr64aMFbyvnGBfXJwr
+         GqslgS+cGoVeRyvj4mPtx+uWfDCQQW+nOpgXrXe/dZQ/R3ho6OE4oZ55uJS8+bpTiD4+
+         1Ae5IR323BjGtWXzuIoKQfjrO7/XwnCxaL67+t4ZWnZk5Rhm+IhvBeQFLh3eU4b4/E0I
+         a/3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=ojYi+dPraKZx0o3Y02X9nQD+qD5NgpGE9+yj+drgmpM=;
-        b=XusL5mN5G3BQ8HLBdhHk6oJ2TQKl35FRi//ew1XDZ7OkNCamEG/YpUKZ7XRdGTyiI/
-         l1z6YAtf0q1B5ev26INDXWM+zL4C02Ia/uXNMgJtM4JDM+I1tlviehVQbHw1d9vQigpB
-         usGBRX36k+53E6MFd/pDzS8HPos7bHB+45k4at8jQ8JBj6ejli2/qKP0NBNzGY2VTaxr
-         ZgSlAbo+ARG/UISAYv7VbL4q7iwOc2ACXABYnRFy/Nd9cXB4/UbXzGlFCcli/FLVT8QO
-         HOX8ezlY539FhOTGidI49DGzDdZPLwpdF0AB4PN/4uYceK3uR2ru+SvInLh6BGlR42za
-         oFMw==
-X-Gm-Message-State: APjAAAW2s/5uJ15bRE5Ym/WA/2trdUEYDkvbuBzPIfuFtJVwEuSEHSCQ
-        e6siVHV2qtAyoNLWcjIAPbE=
-X-Google-Smtp-Source: APXvYqybRlhJcf/lCjFKazuw6n2T6ikfBGHhOuruQSWAsvUy8UMxUBLMLVIqr9tPCpfWCD85IdJFZA==
-X-Received: by 2002:a62:ae05:: with SMTP id q5mr20467618pff.13.1557276188425;
-        Tue, 07 May 2019 17:43:08 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l83sm15304176pfi.150.2019.05.07.17.43.05
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 17:43:06 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] watchdog: Enforce that at least one pretimeout governor is enabled
-Date:   Tue,  7 May 2019 17:43:03 -0700
-Message-Id: <1557276183-8309-1-git-send-email-linux@roeck-us.net>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=1ZGlp40IsYtFAaBk0HZMbzf6li3dlBM1JeMgqqz53qI=;
+        b=twN8gePzdBSMaLxO8569XLh1wm7OMLPgwVqd/LYRA5GbTmSMrEmSEs1qjalSSPHBIz
+         AtxFW2yHGF1SXUmsKoWz+sNR+I0fHEJi9/KUGHX8iYWEO6g55EKVmmGM618iiVDxIqAT
+         yVVrzHqpfEaVW7Jy4LheUL/nj84mPf161TIdBrFFRmKWUT+a+juqMYQ5Yd6XxH20nY+3
+         vE/82sjUTRbtJlakuIb9YLE18wOnB0UX4mpUKFSFCJwPdEsXZPFJ/KTpdx00Hw5kl6LK
+         au8aSf2Etcmo97zagG6br9tZdwq5ggpeX2Z0BlYtFDIaRyca47SIk5nn0ugVQQb+cJx6
+         tRYQ==
+X-Gm-Message-State: APjAAAVZKyqkASLckzt00sF0P7xEad66qiJG1ANZjnNbZdvK514JLBmb
+        SFq+4sU4o9FVQ5OtZHQmXLs9zg==
+X-Google-Smtp-Source: APXvYqwRRnCpg9Buqa4k1dpgkoWwP+tLwA3WGNYrjxvZ7tkjnD7LulMPynsnUSKYyb73BEvs2F6yFg==
+X-Received: by 2002:adf:ebd0:: with SMTP id v16mr20468589wrn.175.1557314662357;
+        Wed, 08 May 2019 04:24:22 -0700 (PDT)
+Received: from dell ([2.27.167.43])
+        by smtp.gmail.com with ESMTPSA id i17sm3726274wmb.0.2019.05.08.04.24.20
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 08 May 2019 04:24:21 -0700 (PDT)
+Date:   Wed, 8 May 2019 12:24:19 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
+Subject: Re: [PATCH v14 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190508112419.GU3995@dell>
+References: <cover.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
+ <a666794d68b846a5527fc37e80cce5010615f54a.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <a666794d68b846a5527fc37e80cce5010615f54a.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Since commit "watchdog: Use depends instead of select for pretimeout
-governors", it was possible to enable pretimeout governors but keep all
-of them disabled. Doing this results in the following build failure.
+On Thu, 02 May 2019, Matti Vaittinen wrote:
 
-../drivers/watchdog/watchdog_pretimeout.c:
-	In function ‘watchdog_register_governor’:
-../drivers/watchdog/watchdog_pretimeout.c:139:26: error:
-	‘WATCHDOG_PRETIMEOUT_DEFAULT_GOV’ undeclared
-   if (!strncmp(gov->name, WATCHDOG_PRETIMEOUT_DEFAULT_GOV,
+> ROHM BD70528MWV is an ultra-low quiescent current general
+> purpose single-chip power management IC for battery-powered
+> portable devices.
+> 
+> Add MFD core which enables chip access for following subdevices:
+> 	- regulators/LED drivers
+> 	- battery-charger
+> 	- gpios
+> 	- 32.768kHz clk
+> 	- RTC
+> 	- watchdog
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
+> Changelog v14: No changes
+> 
+>  drivers/mfd/Kconfig              |  17 ++
+>  drivers/mfd/Makefile             |   1 +
+>  drivers/mfd/rohm-bd70528.c       | 316 ++++++++++++++++++++++++
+>  include/linux/mfd/rohm-bd70528.h | 408 +++++++++++++++++++++++++++++++
+>  4 files changed, 742 insertions(+)
+>  create mode 100644 drivers/mfd/rohm-bd70528.c
+>  create mode 100644 include/linux/mfd/rohm-bd70528.h
 
-Since it does not make sense to enable pretimeout support but disable
-all pretimeout governors, enforce that at least one of them is always
-enabled.
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
-Fixes: f627ac0e12cd ("watchdog: Use depends instead of select for pretimeout governors")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-Fixes: sha is from next-20190507.
-
- drivers/watchdog/Kconfig | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e19960ace0c0..4a3461afa96f 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -71,6 +71,12 @@ config WATCHDOG_PRETIMEOUT_GOV
- 	help
- 	  The option allows to select watchdog pretimeout governors.
- 
-+config WATCHDOG_PRETIMEOUT_GOV_SEL
-+	tristate
-+	depends on WATCHDOG_PRETIMEOUT_GOV
-+	default m
-+	select WATCHDOG_PRETIMEOUT_GOV_PANIC if WATCHDOG_PRETIMEOUT_GOV_NOOP=n
-+
- if WATCHDOG_PRETIMEOUT_GOV
- 
- config WATCHDOG_PRETIMEOUT_GOV_NOOP
 -- 
-2.7.4
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
