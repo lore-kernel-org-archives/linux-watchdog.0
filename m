@@ -8,55 +8,55 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB112C072A4
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 15:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF73FC04E87
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 15:24:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C1D3F20872
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 15:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A637720882
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 15:24:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BtXqZsPg"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XgY/eJXL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729852AbfERPYI (ORCPT
+        id S1729818AbfERPYF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 18 May 2019 11:24:08 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:45164 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729849AbfERPYH (ORCPT
+        Sat, 18 May 2019 11:24:05 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:37602 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728516AbfERPYE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 18 May 2019 11:24:07 -0400
-Received: by mail-wr1-f68.google.com with SMTP id b18so9961813wrq.12;
-        Sat, 18 May 2019 08:24:06 -0700 (PDT)
+        Sat, 18 May 2019 11:24:04 -0400
+Received: by mail-wr1-f67.google.com with SMTP id e15so10019651wrs.4;
+        Sat, 18 May 2019 08:24:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=hGVC97kr/8/BngU9FjmbWaxR7LHVSKdzb8qIb3rfhLw=;
-        b=BtXqZsPgI4WM70yIJTRcoOW/v1fHPTQ93blqEPfY62Z0eCoo1omvj12jxcouniHVav
-         RWUwM8ayTu/1lelHgxgyVv/r3oNEOc80PvKVxuCHjdnBpDeDYklt51R5ttVrCYjW9wfy
-         VBta0i3i+wa4GqaxtZGskmdJHQPoTLX4k4oAaghWp8yCaddmmJm5Ea5MqcX0iZIbYqxe
-         cJ1lGMTQltgYA4KHE+Djl8LQl/X8Tz+IJs5WfJ6LrgPQRTJ7ztQHBaaEhYmOr5JH3q1P
-         VWEjaCVhqAW5Fi1bRATi2/ScbR5HrO86rLKXlvxN68pNKXvBM/rnR/7GnmOFYghOr8Hd
-         vUaw==
+        bh=n6gOCeLFlJw1dbCMa6k0n84FnR1OVT/6zTLU7bYn2yk=;
+        b=XgY/eJXLj1U2132csrx6KglVrYCvff28aN1+g1Occ2ZhW9TUkuhbqChLdOuLeTjuoj
+         RIFEQqS6ZVcmH3JS8r/3Ny5AcHQZPbh96O+Bgf+RXGUSm6a7kjI16evOGU5KR3mMvD+y
+         Dsx4yep6WTnlLQJ5Ev5132op9hB6gq0tbue5ExXkEee0Mp0XuDJqc1x9p1sgSMvpUEg+
+         oCV3Lv8NAWQKJgg9iumgiZjzhHFZDw95EVywq3d5fdwQm2y3fMmZsCcBVN7ZejXToCvB
+         kCA/kLk7Znf3HVosmIjEcm7Nuta58LoQ2dovkqHTILUq2cIHDFW/akI5geBgcBqd9CE9
+         wB9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=hGVC97kr/8/BngU9FjmbWaxR7LHVSKdzb8qIb3rfhLw=;
-        b=Asz0xwt3naytOmQnfvWOW/imngOiEAHTykI9m5e2sSZY656bhS+KlZSJ15WvyQ2f5e
-         X7aK7uFsjRn8b0tO11KbT8ViQZa+QFBrJU1E60K4uYxNFxTWKREp3sJ4cLj0N+x4ders
-         BoHecfdjwUtIwXx4jIqN+ouVUc4/pjLjV4FyFQKxjReLHfBRwRbE89bxLafGt0TprqSJ
-         dMe3McHwRV6hAQv5a5AXbCHnOazqHaROd2BDMz1jnI6uIB1TRdOadFsTxgNgZWZduELg
-         32oyBGZqujHW2gNs8g5SjcyWv1KiiYCXsx2vOlEmfyS4SkW3sTWJm3t57YxjGfhk75+f
-         Sm6g==
-X-Gm-Message-State: APjAAAVMoQ8oRJ1nSZhWqerDeWBIKpj+5DMHeo3idWxD9ppw2i8JslhV
-        oUtyWzMoxPIw+0BXwuieSFE=
-X-Google-Smtp-Source: APXvYqxWCD6w353QbYqhVWkd+Dn2oVl6fxAxPkAkutmksHJUDijWPOUywy0u0pjrcZn1TcL3nbhdyg==
-X-Received: by 2002:adf:cf0e:: with SMTP id o14mr3328031wrj.230.1558193046204;
-        Sat, 18 May 2019 08:24:06 -0700 (PDT)
+        bh=n6gOCeLFlJw1dbCMa6k0n84FnR1OVT/6zTLU7bYn2yk=;
+        b=gVE3bPFyNOSwKJXGQ53DTmRGYmS+a17P8hoA7nv+26TVtVcA3vJA/8gtuk2S3Dc5DV
+         F77uE1b6KK/yDVtjoSUsORT0zmTxsIAgVagTlVcJYTCA7Krja6HjZo8jPOo5iM4Oir1Y
+         wjAXRrbQ1SZZ1LMHsM01TZgaQ7d45HXfW6Z7aw4cI4pAMkt+98DsgRz+B/bq80YM38w6
+         UxcvVJOBmUKe43bcxK0fELiebRS0PoS/RMieJBzM1elljOV0frYD4blrd+geh6B8JdJN
+         GIuI8In1NyfY+ZukzEb7O7x0Z1oLaWokvCJ/KbI4DZ0uiIxOCbqYtwpGZD+y8to0xPHv
+         /HQg==
+X-Gm-Message-State: APjAAAVzBsXbtGANQd9GIkrDBMTp//ah46AOdgjxxOtiUJHfIOLp0bfV
+        Th/R1dykGhsDhw6n+/aHAXU=
+X-Google-Smtp-Source: APXvYqz/ULh40TKoUjUVBvhF134MGZ7TX6TjgxM56mLpsK9FeRGKkgdLnG3CsM0JpzQjKGjv1Myncg==
+X-Received: by 2002:adf:dc09:: with SMTP id t9mr11437844wri.69.1558193042815;
+        Sat, 18 May 2019 08:24:02 -0700 (PDT)
 Received: from localhost.localdomain ([2a01:e0a:1f1:d0f0::4e2b:d7ca])
-        by smtp.gmail.com with ESMTPSA id j190sm12934836wmb.19.2019.05.18.08.24.05
+        by smtp.gmail.com with ESMTPSA id j190sm12934836wmb.19.2019.05.18.08.24.01
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 18 May 2019 08:24:05 -0700 (PDT)
+        Sat, 18 May 2019 08:24:02 -0700 (PDT)
 From:   =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -67,9 +67,9 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
-Subject: [PATCH v3 4/4] arm64: defconfig: enable sunxi watchdog
-Date:   Sat, 18 May 2019 17:23:55 +0200
-Message-Id: <20190518152355.11134-5-peron.clem@gmail.com>
+Subject: [PATCH v3 1/4] dt-bindings: watchdog: add Allwinner H6 watchdog
+Date:   Sat, 18 May 2019 17:23:52 +0200
+Message-Id: <20190518152355.11134-2-peron.clem@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190518152355.11134-1-peron.clem@gmail.com>
 References: <20190518152355.11134-1-peron.clem@gmail.com>
@@ -81,28 +81,37 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The SUNXI_WATCHDOG option is required to make the
-watchdog available on Allwinner H6.
+Allwinner H6 has a similar watchdog as the A64 which is already
+a compatible of the A31.
 
-Enable this option as a module.
+This commit sort the lines and add the H6 compatible.
 
 Signed-off-by: Clément Péron <peron.clem@gmail.com>
 ---
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/watchdog/sunxi-wdt.txt         | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 4d583514258c..fc51dd4decb1 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -420,6 +420,7 @@ CONFIG_UNIPHIER_THERMAL=y
- CONFIG_WATCHDOG=y
- CONFIG_ARM_SP805_WATCHDOG=y
- CONFIG_S3C2410_WATCHDOG=y
-+CONFIG_SUNXI_WATCHDOG=m
- CONFIG_IMX2_WDT=y
- CONFIG_MESON_GXBB_WATCHDOG=m
- CONFIG_MESON_WATCHDOG=m
+diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+index 46055254e8dd..f4810f8ad1c5 100644
+--- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+@@ -3,10 +3,12 @@ Allwinner SoCs Watchdog timer
+ Required properties:
+ 
+ - compatible : should be one of
+-	"allwinner,sun4i-a10-wdt"
+-	"allwinner,sun6i-a31-wdt"
+-	"allwinner,sun50i-a64-wdt","allwinner,sun6i-a31-wdt"
+-	"allwinner,suniv-f1c100s-wdt", "allwinner,sun4i-a10-wdt"
++	- "allwinner,sun4i-a10-wdt"
++	- "allwinner,sun50i-a64-wdt","allwinner,sun6i-a31-wdt"
++	- "allwinner,sun50i-h6-wdt","allwinner,sun50i-a64-wdt",
++	  "allwinner,sun6i-a31-wdt"
++	- "allwinner,sun6i-a31-wdt"
++	- "allwinner,suniv-f1c100s-wdt", "allwinner,sun4i-a10-wdt"
+ - reg : Specifies base physical address and size of the registers.
+ 
+ Optional properties:
 -- 
 2.17.1
 
