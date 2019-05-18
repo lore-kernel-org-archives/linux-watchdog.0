@@ -6,33 +6,30 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4446C46470
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 21:28:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C8A5C072AF
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 21:28:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A20CC20675
+	by mail.kernel.org (Postfix) with ESMTP id EDDDA20675
 	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 21:28:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729708AbfERV23 (ORCPT
+        id S1729675AbfERV23 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sat, 18 May 2019 17:28:29 -0400
-Received: from sauhun.de ([88.99.104.3]:35850 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:35826 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729671AbfERV22 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 18 May 2019 17:28:28 -0400
+        id S1729693AbfERV23 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 18 May 2019 17:28:29 -0400
 Received: from localhost (p5486CE4C.dip0.t-ipconnect.de [84.134.206.76])
-        by pokefinder.org (Postfix) with ESMTPSA id 2642B2C0590;
-        Sat, 18 May 2019 23:28:27 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id 3A8BF2C36A9;
+        Sat, 18 May 2019 23:28:28 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 36/46] watchdog: sama5d4_wdt: drop warning after registering device
-Date:   Sat, 18 May 2019 23:27:51 +0200
-Message-Id: <20190518212801.31010-37-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 38/46] watchdog: sp805_wdt: drop warning after registering device
+Date:   Sat, 18 May 2019 23:27:53 +0200
+Message-Id: <20190518212801.31010-39-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
 References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
@@ -47,25 +44,26 @@ The core will print out details now.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/sama5d4_wdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/watchdog/sp805_wdt.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 111695223aae..5adcb047cb94 100644
---- a/drivers/watchdog/sama5d4_wdt.c
-+++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -260,10 +260,8 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 072986d461b7..53e04926a7b2 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -288,11 +288,8 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	}
  
- 	watchdog_stop_on_unregister(wdd);
- 	ret = devm_watchdog_register_device(dev, wdd);
+ 	ret = watchdog_register_device(&wdt->wdd);
 -	if (ret) {
--		dev_err(dev, "failed to register watchdog device\n");
+-		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
+-				ret);
 +	if (ret)
- 		return ret;
+ 		goto err;
 -	}
+ 	amba_set_drvdata(adev, wdt);
  
- 	platform_set_drvdata(pdev, wdt);
- 
+ 	dev_info(&adev->dev, "registration successful\n");
 -- 
 2.19.1
 
