@@ -2,34 +2,38 @@ Return-Path: <SRS0=RYhm=TS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1142C46460
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6BBEC04E87
 	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 21:28:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C4FC2208CB
+	by mail.kernel.org (Postfix) with ESMTP id A3DB320882
 	for <linux-watchdog@archiver.kernel.org>; Sat, 18 May 2019 21:28:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729549AbfERV2L (ORCPT
+        id S1728435AbfERV2L (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sat, 18 May 2019 17:28:11 -0400
-Received: from sauhun.de ([88.99.104.3]:35758 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:35782 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728283AbfERV2L (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1729196AbfERV2L (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 18 May 2019 17:28:11 -0400
 Received: from localhost (p5486CE4C.dip0.t-ipconnect.de [84.134.206.76])
-        by pokefinder.org (Postfix) with ESMTPSA id E8DD52C051A;
-        Sat, 18 May 2019 23:28:07 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id 9442C2C05C1;
+        Sat, 18 May 2019 23:28:09 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 00/46] watchdog: move 'registration failed' messages into core
-Date:   Sat, 18 May 2019 23:27:15 +0200
-Message-Id: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
+Subject: [PATCH 03/46] watchdog: aspeed_wdt: drop warning after registering device
+Date:   Sat, 18 May 2019 23:27:18 +0200
+Message-Id: <20190518212801.31010-4-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
+References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -37,122 +41,32 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Similar to my recently merged series doing the same for
-watchdog_init_timeout(), here is a series moving all error messages
-after a failed {devm_}watchdog_register_device() into the core. Guenter
-was right, this was even more worth it. For some cases, this also
-resulted in neat code simplifications.
+The core will print out details now.
 
-The core changes were tested with a Renesas Lager (R-Car H2) board. The
-driver changes were created using a coccinelle script and build-tested
-by buildbot.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/watchdog/aspeed_wdt.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-This series is based on Linus' tree as of today which should be close
-enough to -rc1, I guess. A branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/wdt/register_device
-
-Looking forward to comments.
-
-Happy hacking,
-
-   Wolfram
-
-Wolfram Sang (46):
-  watchdog: make watchdog_deferred_registration_add() void
-  watchdog: let core print error message when registering device fails
-  watchdog: aspeed_wdt: drop warning after registering device
-  watchdog: bcm2835_wdt: drop warning after registering device
-  watchdog: bcm7038_wdt: drop warning after registering device
-  watchdog: bcm_kona_wdt: drop warning after registering device
-  watchdog: cadence_wdt: drop warning after registering device
-  watchdog: da9052_wdt: drop warning after registering device
-  watchdog: da9062_wdt: drop warning after registering device
-  watchdog: davinci_wdt: drop warning after registering device
-  watchdog: digicolor_wdt: drop warning after registering device
-  watchdog: ftwdt010_wdt: drop warning after registering device
-  watchdog: hpwdt: drop warning after registering device
-  watchdog: i6300esb: drop warning after registering device
-  watchdog: ie6xx_wdt: drop warning after registering device
-  watchdog: imx2_wdt: drop warning after registering device
-  watchdog: imx_sc_wdt: drop warning after registering device
-  watchdog: intel-mid_wdt: drop warning after registering device
-  watchdog: jz4740_wdt: drop warning after registering device
-  watchdog: loongson1_wdt: drop warning after registering device
-  watchdog: max77620_wdt: drop warning after registering device
-  watchdog: mei_wdt: drop warning after registering device
-  watchdog: mena21_wdt: drop warning after registering device
-  watchdog: menf21bmc_wdt: drop warning after registering device
-  watchdog: mpc8xxx_wdt: drop warning after registering device
-  watchdog: ni903x_wdt: drop warning after registering device
-  watchdog: nic7018_wdt: drop warning after registering device
-  watchdog: npcm_wdt: drop warning after registering device
-  watchdog: of_xilinx_wdt: drop warning after registering device
-  watchdog: pic32-dmt: drop warning after registering device
-  watchdog: pic32-wdt: drop warning after registering device
-  watchdog: pnx4008_wdt: drop warning after registering device
-  watchdog: qcom-wdt: drop warning after registering device
-  watchdog: rave-sp-wdt: drop warning after registering device
-  watchdog: s3c2410_wdt: drop warning after registering device
-  watchdog: sama5d4_wdt: drop warning after registering device
-  watchdog: sp5100_tco: drop warning after registering device
-  watchdog: sp805_wdt: drop warning after registering device
-  watchdog: sprd_wdt: drop warning after registering device
-  watchdog: st_lpc_wdt: drop warning after registering device
-  watchdog: stm32_iwdg: drop warning after registering device
-  watchdog: stmp3xxx_rtc_wdt: drop warning after registering device
-  watchdog: tegra_wdt: drop warning after registering device
-  watchdog: ts4800_wdt: drop warning after registering device
-  watchdog: wm831x_wdt: drop warning after registering device
-  watchdog: xen_wdt: drop warning after registering device
-
- drivers/watchdog/aspeed_wdt.c       |  8 +-------
- drivers/watchdog/bcm2835_wdt.c      |  4 +---
- drivers/watchdog/bcm7038_wdt.c      |  4 +---
- drivers/watchdog/bcm_kona_wdt.c     |  4 +---
- drivers/watchdog/cadence_wdt.c      |  4 +---
- drivers/watchdog/da9052_wdt.c       |  9 +--------
- drivers/watchdog/da9062_wdt.c       |  5 +----
- drivers/watchdog/davinci_wdt.c      |  8 +-------
- drivers/watchdog/digicolor_wdt.c    |  8 +-------
- drivers/watchdog/ftwdt010_wdt.c     |  4 +---
- drivers/watchdog/hpwdt.c            |  4 +---
- drivers/watchdog/i6300esb.c         |  5 +----
- drivers/watchdog/ie6xx_wdt.c        |  6 +-----
- drivers/watchdog/imx2_wdt.c         |  4 +---
- drivers/watchdog/imx_sc_wdt.c       |  8 +-------
- drivers/watchdog/intel-mid_wdt.c    |  4 +---
- drivers/watchdog/jz4740_wdt.c       |  6 +-----
- drivers/watchdog/loongson1_wdt.c    |  4 +---
- drivers/watchdog/max77620_wdt.c     |  8 +-------
- drivers/watchdog/mei_wdt.c          |  4 +---
- drivers/watchdog/mena21_wdt.c       |  4 +---
- drivers/watchdog/menf21bmc_wdt.c    |  4 +---
- drivers/watchdog/mpc8xxx_wdt.c      |  5 +----
- drivers/watchdog/ni903x_wdt.c       |  4 +---
- drivers/watchdog/nic7018_wdt.c      |  1 -
- drivers/watchdog/npcm_wdt.c         |  4 +---
- drivers/watchdog/of_xilinx_wdt.c    |  4 +---
- drivers/watchdog/pic32-dmt.c        |  4 +---
- drivers/watchdog/pic32-wdt.c        |  4 +---
- drivers/watchdog/pnx4008_wdt.c      |  4 +---
- drivers/watchdog/qcom-wdt.c         |  4 +---
- drivers/watchdog/rave-sp-wdt.c      |  1 -
- drivers/watchdog/s3c2410_wdt.c      |  4 +---
- drivers/watchdog/sama5d4_wdt.c      |  4 +---
- drivers/watchdog/sp5100_tco.c       |  4 +---
- drivers/watchdog/sp805_wdt.c        |  5 +----
- drivers/watchdog/sprd_wdt.c         |  1 -
- drivers/watchdog/st_lpc_wdt.c       |  4 +---
- drivers/watchdog/stm32_iwdg.c       |  4 +---
- drivers/watchdog/stmp3xxx_rtc_wdt.c |  4 +---
- drivers/watchdog/tegra_wdt.c        |  4 +---
- drivers/watchdog/ts4800_wdt.c       |  4 +---
- drivers/watchdog/watchdog_core.c    | 16 ++++++++++++----
- drivers/watchdog/wm831x_wdt.c       |  9 +--------
- drivers/watchdog/xen_wdt.c          |  4 +---
- 45 files changed, 53 insertions(+), 168 deletions(-)
-
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index 34117745c65f..3ad2558a6de0 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -313,13 +313,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (status & WDT_TIMEOUT_STATUS_BOOT_SECONDARY)
+ 		wdt->wdd.bootstatus = WDIOF_CARDRESET;
+ 
+-	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+-	if (ret) {
+-		dev_err(dev, "failed to register\n");
+-		return ret;
+-	}
+-
+-	return 0;
++	return devm_watchdog_register_device(dev, &wdt->wdd);
+ }
+ 
+ static struct platform_driver aspeed_watchdog_driver = {
 -- 
 2.19.1
 
