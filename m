@@ -2,95 +2,99 @@ Return-Path: <SRS0=/a8y=TT=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B3F9C04AB4
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:27:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6926C04AB4
+	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:43:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 57D32204EC
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:27:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B59AC20657
+	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:43:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725784AbfESR1R (ORCPT
+        id S1726741AbfESRn4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 19 May 2019 13:27:17 -0400
-Received: from sauhun.de ([88.99.104.3]:44810 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725769AbfESR1R (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 19 May 2019 13:27:17 -0400
-Received: from localhost (p5486CF3F.dip0.t-ipconnect.de [84.134.207.63])
-        by pokefinder.org (Postfix) with ESMTPSA id 0F9082C360B;
-        Sun, 19 May 2019 10:32:02 +0200 (CEST)
-Date:   Sun, 19 May 2019 10:32:01 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Baruch Siach <baruch@tkos.co.il>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org,
+        Sun, 19 May 2019 13:43:56 -0400
+Received: from guitar.tcltek.co.il ([192.115.133.116]:59238 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726739AbfESRn4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 19 May 2019 13:43:56 -0400
+Received: from tarshish (unknown [10.0.8.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx.tkos.co.il (Postfix) with ESMTPS id 2F69844034A;
+        Sun, 19 May 2019 08:55:14 +0300 (IDT)
+References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com> <20190518212801.31010-12-wsa+renesas@sang-engineering.com>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Baruch Siach <baruch@tkos.co.il>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-watchdog@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 11/46] watchdog: digicolor_wdt: drop warning after
- registering device
-Message-ID: <20190519083201.GA1003@kunai>
-References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
- <20190518212801.31010-12-wsa+renesas@sang-engineering.com>
- <87y3332dku.fsf@tarshish>
+Subject: Re: [PATCH 11/46] watchdog: digicolor_wdt: drop warning after registering device
+In-reply-to: <20190518212801.31010-12-wsa+renesas@sang-engineering.com>
+Date:   Sun, 19 May 2019 08:55:13 +0300
+Message-ID: <87y3332dku.fsf@tarshish>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-In-Reply-To: <87y3332dku.fsf@tarshish>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hi Wolfram,
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, May 19 2019, Wolfram Sang wrote:
+> The core will print out details now.
+
+devm_watchdog_register_device() might return -ENOMEM when devres_alloc()
+fails without printing anything. You might consider that a non-issue
+since small memory allocation never fail in practice[1].
+
+But then __watchdog_unregister_device() does some sanity checks,
+potentially returning -EINVAL without any print:
+
+        if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+                return -EINVAL;
+
+        /* Mandatory operations need to be supported */
+        if (!wdd->ops->start || (!wdd->ops->stop && !wdd->max_hw_heartbeat_ms))
+                return -EINVAL;
+
+Do you consider that not important/likely enough to be worth an error
+message in the driver?
+
+baruch
+
+[1] https://lwn.net/Articles/627419/
+
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/watchdog/digicolor_wdt.c | 8 +-------
+>  1 file changed, 1 insertion(+), 7 deletions(-)
+>
+> diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+> index 8af6e9a67d0d..33cda95bd238 100644
+> --- a/drivers/watchdog/digicolor_wdt.c
+> +++ b/drivers/watchdog/digicolor_wdt.c
+> @@ -141,13 +141,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
+>  	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
+>  	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
+>  	watchdog_stop_on_reboot(&dc_wdt_wdd);
+> -	ret = devm_watchdog_register_device(dev, &dc_wdt_wdd);
+> -	if (ret) {
+> -		dev_err(dev, "Failed to register watchdog device");
+> -		return ret;
+> -	}
+> -
+> -	return 0;
+> +	return devm_watchdog_register_device(dev, &dc_wdt_wdd);
+>  }
+>  
+>  static const struct of_device_id dc_wdt_of_match[] = {
 
 
-> Do you consider that not important/likely enough to be worth an error
-> message in the driver?
-
-This can be discussed as a second step IMO.
-
-I was looking at adding more error strings to the core but then wondered
-if we really need error messages for e.g. IDA failures. And if so,
-shouldn't those be in the IDA core. Do all IDA users want that?
-
-(Sidenote: to the best of my knowledge, if memory allocation fails, it
-will WARN you, so no need to print something in the driver.)
-
-So, I took a step back and saw that watchdog drivers mostly print
-"registration failed", not more. Some printed the error code.
-
-This series simplifies the current behaviour. It does not extend it. We
-can do that on top of it.
-
-Thanks for the comment!
-
-
---qDbXVdCdHGoSgWSk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzhFH0ACgkQFA3kzBSg
-KbZw0w/9Gv3dmwFrl7MVtrx/ztPaL9efE8e/vPx6jQm4RpWNYcjN/b5N2xZO0vFQ
-4hPQyRNTMFbYIjHcjL9xNVHJm4hxnqa/HV8zUqnVoMoXKusBgb3+CtvaMFfSm6Qf
-/EQjO0eQc+O/6eO7nfCiCc8HYJwEI+UYjMrBFjOMkRPkJY1Vn/iLpGusO1QbFw8B
-tb4UICpBeNa7gFbvmg6CzcTvXfKedsKMSfg2u5TmyKbqBsxdNNwaeirQUyQhpnvd
-HIxk0OzwTeqx6UYL3OAbTTXm1k4cA10DnaFt72ZYzJTo1EXXpThVW6JzMn/nX/4/
-q1G2LgTr4f1Bzi9FxdXmniSDUw2yrJTp3wwhnO8eE5A/NmRP4Tu6tWwDwCQQh4hL
-wMk3HMcQFeuOUUxIn7FEQW+DDxY2bS4OW1NWLUzK7cPjvOl8NgfEO678UK98y/Qs
-RPb7povymclkokxztNmlZvxR7b9DwsbZGP8Qa4+MgOeIz4eElJTifpMYvm6hCUQx
-Uutu04gTOw3OxWbBH7WNF+98H3HehsCW9pZ0BP25ymXV4sXYgdsUGla7fBUPw56U
-j1O4t5YURu/n5nBRuFDM7MhNVD/Fc7JzCUuJ0FWn1oX7qdoizTKUw1Sh7m+JlDZE
-P7UrLiB9jG67SkoL0wpTV4KmxQQ1jVGpeinet3xYqjs/bV0T2MY=
-=Yp+5
------END PGP SIGNATURE-----
-
---qDbXVdCdHGoSgWSk--
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
