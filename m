@@ -2,128 +2,144 @@ Return-Path: <SRS0=gXqt=TU=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.2 required=3.0 tests=DATE_IN_PAST_12_24,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57254C04AAF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 08:21:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77563C04AAF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 08:57:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 299F020656
-	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 08:21:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 381E5204FD
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 08:57:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R5Z+Rjbq"
+	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="2mHq/UNp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725983AbfETIVx (ORCPT
+        id S1731707AbfETI52 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 20 May 2019 04:21:53 -0400
-Received: from mail-yw1-f68.google.com ([209.85.161.68]:43363 "EHLO
-        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbfETIVx (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 May 2019 04:21:53 -0400
-Received: by mail-yw1-f68.google.com with SMTP id t5so5513022ywf.10;
-        Mon, 20 May 2019 01:21:53 -0700 (PDT)
+        Mon, 20 May 2019 04:57:28 -0400
+Received: from mail-eopbgr790071.outbound.protection.outlook.com ([40.107.79.71]:49499
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725372AbfETI52 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 20 May 2019 04:57:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=6qhO6B8/Z9D9GEePABEHToMQA2Zs+IWYeC8mEzi25YY=;
-        b=R5Z+RjbqwZV78P9ToAX8cdQxWCGGQYpG1b6umNEBYkosWgExwZSU1q71Zp4WbGmGoc
-         op/1g+RlSnWhVDVr7/H45rTEmKBCB4wb688alowDLxBL6pV0XbRjLU5Gi0BBFccrvmuC
-         Ec1i+bsCKfe4Jteg4849yH84Lki5NlCEColC4Uzgr5WhH+nycTgaEI+nX2cHyWddzsQD
-         Ah42AhDZoAVxhulQEcfV5SywwNSXTT2ZWi0y+ciBePITT9EpBXPKtYwiolfHgVgnAOtY
-         ElcQ2Lke+RZepMdrTWaQJ1sKMR0IW4Kp9HSZYG0YbaY/IR1g+Qw6Ji1ngvrX8u6KIBlW
-         Obhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6qhO6B8/Z9D9GEePABEHToMQA2Zs+IWYeC8mEzi25YY=;
-        b=MF0TauXYXnZ7rru9kywuNuX7ShJye0MQ5zq+U1mwNAvVgurnU9ZcG/M/0lsBU28EKp
-         NFn5AN2J1O6zlMLpJMbrOQCx0hZcnvEUg4qukJWqx2ZjeFvgq83avTLrKjG9eu7EKjUW
-         6OCyFfqlyrnEKRUVkVwDX+7p7pIPAtm7xLHkB3kY+txbkOQwRu/k4fhoPA9GlXKAEaih
-         RQ055wYFNwUUDF7VcTJyq73pRZwGU7xmVdy1RzlC+knuBIzxMcTbYKd4cn5GVZ/XdeHS
-         vb3xbtnv18RiQNIybf2vbJU2/YVwKOCkFFYYO51cUMWA7mjkyJuS6nJTxmIb0M1QHjg1
-         883A==
-X-Gm-Message-State: APjAAAWz/rmjwNdi2TwL0wUXDyAI2RLzl7Fqjh505nddKQHgXep+Kj9G
-        waKggtBYWgtXWQxYJFUH+amoKY6jHU5TTXJ5DBTNeVoF
-X-Google-Smtp-Source: APXvYqxTV7Y4TX39GVp8m3uUIqRHuAd4Xg7evnIjykjVPrMlj+RftBbiQ1AZDp3Zzok2g/gdO2GsZt9sT8nrTtl+3xE=
-X-Received: by 2002:a81:59c2:: with SMTP id n185mr33786741ywb.21.1558340511959;
- Mon, 20 May 2019 01:21:51 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190518152355.11134-1-peron.clem@gmail.com> <20190518152355.11134-3-peron.clem@gmail.com>
- <20190520073652.itk452vrpnicta5v@flea>
-In-Reply-To: <20190520073652.itk452vrpnicta5v@flea>
-From:   =?UTF-8?B?Q2zDqW1lbnQgUMOpcm9u?= <peron.clem@gmail.com>
-Date:   Mon, 20 May 2019 10:21:40 +0200
-Message-ID: <CAJiuCceEL9xH45P6Gj99YTir_1tkyraf5HefDNfm9p+UtdLs8w@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] arm64: dts: allwinner: h6: add watchdog node
-To:     Maxime Ripard <maxime.ripard@bootlin.com>
+ d=xilinx.onmicrosoft.com; s=selector1-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6/I2IOcfCdoLtEtu5whIie2xuMpHhmpQaGf4cPYlTNI=;
+ b=2mHq/UNpOUVjGzQyXj8rkBaJCZ6/GFlFp7yKd8hoHWQp6HtzzaN5IdkxwRapI7GTZhdV4pMxScJFsH3zgepi71Qhlec8Bv2NvLSduHKlNMmyO2X+wShCypULnftm69SFuAMyhDGkqMuPJrcdM5T7pJoUcroAjTT0s0kFoQhD+jk=
+Received: from DM6PR02CA0022.namprd02.prod.outlook.com (2603:10b6:5:1c::35) by
+ MWHPR02MB2686.namprd02.prod.outlook.com (2603:10b6:300:106::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.1900.16; Mon, 20 May
+ 2019 08:57:25 +0000
+Received: from CY1NAM02FT052.eop-nam02.prod.protection.outlook.com
+ (2a01:111:f400:7e45::200) by DM6PR02CA0022.outlook.office365.com
+ (2603:10b6:5:1c::35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.20.1900.16 via Frontend
+ Transport; Mon, 20 May 2019 08:57:24 +0000
+Authentication-Results: spf=pass (sender IP is 149.199.60.100)
+ smtp.mailfrom=xilinx.com; sang-engineering.com; dkim=none (message not
+ signed) header.d=none;sang-engineering.com; dmarc=bestguesspass action=none
+ header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.60.100 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.60.100; helo=xsj-pvapsmtpgw02;
+Received: from xsj-pvapsmtpgw02 (149.199.60.100) by
+ CY1NAM02FT052.mail.protection.outlook.com (10.152.74.123) with Microsoft SMTP
+ Server (version=TLS1_0, cipher=TLS_RSA_WITH_AES_256_CBC_SHA) id 15.20.1900.16
+ via Frontend Transport; Mon, 20 May 2019 08:57:23 +0000
+Received: from unknown-38-66.xilinx.com ([149.199.38.66]:43633 helo=xsj-pvapsmtp01)
+        by xsj-pvapsmtpgw02 with esmtp (Exim 4.63)
+        (envelope-from <michal.simek@xilinx.com>)
+        id 1hSe6l-0003yW-FM; Mon, 20 May 2019 01:57:23 -0700
+Received: from [127.0.0.1] (helo=localhost)
+        by xsj-pvapsmtp01 with smtp (Exim 4.63)
+        (envelope-from <michal.simek@xilinx.com>)
+        id 1hSe6g-0005CQ-Bn; Mon, 20 May 2019 01:57:18 -0700
+Received: from xsj-pvapsmtp01 (xsj-mail.xilinx.com [149.199.38.66])
+        by xsj-smtp-dlp2.xlnx.xilinx.com (8.13.8/8.13.1) with ESMTP id x4K8vFBT009853;
+        Mon, 20 May 2019 01:57:16 -0700
+Received: from [172.30.17.111]
+        by xsj-pvapsmtp01 with esmtp (Exim 4.63)
+        (envelope-from <michals@xilinx.com>)
+        id 1hSe6d-0005Bt-Lv; Mon, 20 May 2019 01:57:15 -0700
+Subject: Re: [PATCH 29/46] watchdog: of_xilinx_wdt: drop warning after
+ registering device
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Michal Simek <michal.simek@xilinx.com>
+References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
+ <20190518212801.31010-30-wsa+renesas@sang-engineering.com>
+From:   Michal Simek <michal.simek@xilinx.com>
+Message-ID: <c68b0700-10e5-f2a3-f4e9-338ac7cf7e47@xilinx.com>
+Date:   Sun, 19 May 2019 10:57:08 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+In-Reply-To: <20190518212801.31010-30-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-RCIS-Action: ALLOW
+X-TM-AS-Product-Ver: IMSS-7.1.0.1224-8.2.0.1013-23620.005
+X-TM-AS-User-Approved-Sender: Yes;Yes
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-Forefront-Antispam-Report: CIP:149.199.60.100;IPV:NLI;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(39850400004)(346002)(376002)(396003)(136003)(2980300002)(189003)(199004)(54906003)(64126003)(305945005)(31696002)(63266004)(186003)(26005)(77096007)(47776003)(65956001)(65806001)(9786002)(5660300002)(50466002)(6666004)(356004)(478600001)(316002)(230700001)(44832011)(58126008)(36756003)(4744005)(106002)(81156014)(81166006)(8676002)(446003)(2906002)(2616005)(8936002)(476003)(11346002)(426003)(126002)(2486003)(52146003)(76176011)(23676004)(486006)(36386004)(31686004)(229853002)(6246003)(107886003)(65826007)(4326008)(70206006)(336012)(70586007)(5001870100001);DIR:OUT;SFP:1101;SCL:1;SRVR:MWHPR02MB2686;H:xsj-pvapsmtpgw02;FPR:;SPF:Pass;LANG:en;PTR:unknown-60-100.xilinx.com,xapps1.xilinx.com;MX:1;A:1;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b8afde37-808e-4646-a1d0-08d6dd012d30
+X-Microsoft-Antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(4709054)(2017052603328);SRVR:MWHPR02MB2686;
+X-MS-TrafficTypeDiagnostic: MWHPR02MB2686:
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-Microsoft-Antispam-PRVS: <MWHPR02MB2686EF80050628F81455ADD3C6060@MWHPR02MB2686.namprd02.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:576;
+X-Forefront-PRVS: 004395A01C
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam-Message-Info: b6Qw9Ka/NYEaGpqHvFs3ZWcUuiwZhDclBJASFDsdXroENWQ5u+xW1UOAsFtsqzOFs4y9e7d4LCxjTfZd4ahgNZJvMQxySN8YryF8hLSIddk4Vce6qNtPpQg5wrXEhf+w7j111RG9j/GA0ABl5QxVdq2po9vb8umQhNTMMdMHJHZ2N5EKDX/hAhP2GOSpAOxiiO6EgTOzdMjiamhjEonm249zVJIovhYshRirAIktR4XPRY9IEMoV7rFrrNaq+P4smd4ir5l9Osd6ez7gV3Y8Qf/uFBDVPjBCJyLgm4kwLNeWSPVZNY+VlexcqrKIpAVbD1+95cFhZkSjXck6iAqNKlA8wbdUfQHmXcYPOGBzKj7WKDddijVtO7OGPxAqQ0bXkC3rA7nkheSum0NlQnbsV7rkRuucm0wBrcuL4h47Oxs=
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2019 08:57:23.9103
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b8afde37-808e-4646-a1d0-08d6dd012d30
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.60.100];Helo=[xsj-pvapsmtpgw02]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR02MB2686
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+On 18. 05. 19 14:27, Wolfram Sang wrote:
+> The core will print out details now.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/watchdog/of_xilinx_wdt.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+> index 03786992b701..7fe4f7c3f7ce 100644
+> --- a/drivers/watchdog/of_xilinx_wdt.c
+> +++ b/drivers/watchdog/of_xilinx_wdt.c
+> @@ -238,10 +238,8 @@ static int xwdt_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	rc = devm_watchdog_register_device(dev, xilinx_wdt_wdd);
+> -	if (rc) {
+> -		dev_err(dev, "Cannot register watchdog (err=%d)\n", rc);
+> +	if (rc)
+>  		return rc;
+> -	}
+>  
+>  	clk_disable(xdev->clk);
+>  
+> 
 
-On Mon, 20 May 2019 at 09:36, Maxime Ripard <maxime.ripard@bootlin.com> wro=
-te:
->
-> On Sat, May 18, 2019 at 05:23:53PM +0200, Cl=C3=A9ment P=C3=A9ron wrote:
-> > Allwinner H6 has a watchog node which seems broken
-> > on some boards.
-> >
-> > Test has been performed on several boards.
-> >
-> > Chen-Yu Tsai boards:
-> > Pine H64 - H6448BA 7782 =3D> OK
-> > OrangePi Lite 2 - H8068BA 61C2 =3D> KO
-> >
-> > Martin Ayotte boards:
-> > Pine H64 - H8069BA 6892 =3D> OK
-> > OrangePi 3 - HA047BA 69W2 =3D> KO
-> > OrangePi One Plus - H7310BA 6842 =3D> KO
-> > OrangePi Lite2 - H6448BA 6662 =3D> KO
-> >
-> > Cl=C3=A9ment P=C3=A9ron board:
-> > Beelink GS1 - H7309BA 6842 =3D> KO
-> >
-> > As it seems not fixable for now, declare the node
-> > but leave it disable with a comment.
-> >
-> > Signed-off-by: Cl=C3=A9ment P=C3=A9ron <peron.clem@gmail.com>
->
-> If it doesn't work most boards, then why do we need to merge that
-> patch in the first place?
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 
-My personnal opinion, is that having the IP declared and disabled with
-a comment saying "it's broken on some boards" in the device-tree is
-better than not having at all.
+Thanks,
+Michal
 
-This will explicit say "the IP exist but don't use it!".
-Maybe some people with a functionnal board would like to explicitly
-use it on their dts.
-
-Again just my personnal opinion,
-Thanks for the review,
-Cl=C3=A9ment
-
->
-> Maxime
->
-> --
-> Maxime Ripard, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
