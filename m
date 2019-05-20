@@ -1,100 +1,123 @@
-Return-Path: <SRS0=/a8y=TT=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=gXqt=TU=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6926C04AB4
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:43:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A095AC04AB4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 00:53:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B59AC20657
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 May 2019 17:43:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 534462081C
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 May 2019 00:53:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=aj.id.au header.i=@aj.id.au header.b="GzOBLbJI";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="vVf+4ggO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726741AbfESRn4 (ORCPT
+        id S1726923AbfETAxq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 19 May 2019 13:43:56 -0400
-Received: from guitar.tcltek.co.il ([192.115.133.116]:59238 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726739AbfESRn4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 19 May 2019 13:43:56 -0400
-Received: from tarshish (unknown [10.0.8.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx.tkos.co.il (Postfix) with ESMTPS id 2F69844034A;
-        Sun, 19 May 2019 08:55:14 +0300 (IDT)
-References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com> <20190518212801.31010-12-wsa+renesas@sang-engineering.com>
-User-agent: mu4e 1.0; emacs 26.1
-From:   Baruch Siach <baruch@tkos.co.il>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 11/46] watchdog: digicolor_wdt: drop warning after registering device
-In-reply-to: <20190518212801.31010-12-wsa+renesas@sang-engineering.com>
-Date:   Sun, 19 May 2019 08:55:13 +0300
-Message-ID: <87y3332dku.fsf@tarshish>
-MIME-Version: 1.0
+        Sun, 19 May 2019 20:53:46 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:56743 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726741AbfETAxq (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 19 May 2019 20:53:46 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 2D6D021B62;
+        Sun, 19 May 2019 20:53:45 -0400 (EDT)
+Received: from imap2 ([10.202.2.52])
+  by compute4.internal (MEProxy); Sun, 19 May 2019 20:53:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aj.id.au; h=
+        mime-version:message-id:in-reply-to:references:date:from:to:cc
+        :subject:content-type; s=fm2; bh=IKQ/37nMD5A+Hd+4pWByr+SK2ki+Us4
+        m55lw4WtdEyw=; b=GzOBLbJIVtZp6r8QM7+uaRLVJDzXoW8KRolE7vQZN1DrnLu
+        pBvLeTSgJkF2G2yzhSskCFemY6iQig+YHsMJeZTbDQT1dvN5pHeVjfMQU+lNFkxW
+        4BhJgb875DGzinEwd2HWPCSK3LcX6S9jb0z5imDRsalXcSrZiw75/QTMJZuEmtr5
+        Muk/0YMrlqsLFFER8Rz9qMgNQho/+1p/sUh22U5fEPKERy1n1Qem6q8DtP6keIRQ
+        j+sCxkpZwrlVvEV+RSJX9R9bdYgPcpjOopuT3EvIVz5s4T1d+K18XPF2Pe+5rstC
+        9ny5WazLHAWml7mWGBR+4AlD/4ymUrjojg/YeWw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IKQ/37
+        nMD5A+Hd+4pWByr+SK2ki+Us4m55lw4WtdEyw=; b=vVf+4ggOnSk7b/kG0B+oht
+        u7z9y/e6dyAoJTtLV49yBQjFdR+40q3PAHj/uBO7cCeTr297HoEwoYjzk6WdJX1E
+        Vu1w/2QwHG4bmRozBgqzRbRHK7y4Yrv60PlTA+lFriIQcDfFQHIV3TwlvZzWgbc3
+        zz+FGT4hwd4Xj6ko97wiOABoVFOodfkJE/81IArywtTj1nlCNIm9QgigdPyVGOfU
+        Q6ZBD7o2bWWrpFMdycAVALGwQbHKaz3mKIp58uNwx9dHajp3N+JpQbua5nx6NEHn
+        Y8KyWzbUM84zopVdVSyYvLSZO5t/YTQ6gWSQcolZfmYEsQCTtrIEphSsBaOu5B6Q
+        ==
+X-ME-Sender: <xms:l_rhXKebJXC20318JFacfWn-xJ5Kxx25KapUGK8-yYbRljv_-VmEVw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtjedggeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvffutgesthdtredtreerjeenucfhrhhomhepfdetnhgu
+    rhgvficulfgvfhhfvghrhidfuceorghnughrvgifsegrjhdrihgurdgruheqnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpegrnhgurhgvfiesrghjrdhiugdrrghunecuvehluhhsthgv
+    rhfuihiivgeptd
+X-ME-Proxy: <xmx:l_rhXFdlcfVC2R4gvRRLcWlk6EAvQd1alOaCfmHth1q7koPcn4EeRg>
+    <xmx:l_rhXKNRbN5PzvGaLd5Ru55FE2MBc1aGsUpQCXc7SoP9LvqYA2k94g>
+    <xmx:l_rhXKBVHpPwUorFqQvwgrEUADQZGuX9nicQvBpOL0uyBXmu5Cp5CQ>
+    <xmx:mfrhXFN8FLaiDRsGCJxocRH2z7n2s993B6ha0cC0rlgntpTrfUbJLg>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 507E47C3E9; Sun, 19 May 2019 20:53:43 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.1.6-549-ge400f56-fmstable-20190516v3
+Mime-Version: 1.0
+Message-Id: <d767a4f0-5965-4578-9d15-9c7f3dafa35b@www.fastmail.com>
+In-Reply-To: <20190518212801.31010-4-wsa+renesas@sang-engineering.com>
+References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
+ <20190518212801.31010-4-wsa+renesas@sang-engineering.com>
+Date:   Mon, 20 May 2019 10:23:42 +0930
+From:   "Andrew Jeffery" <andrew@aj.id.au>
+To:     "Wolfram Sang" <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
+Cc:     "Wim Van Sebroeck" <wim@linux-watchdog.org>,
+        "Guenter Roeck" <linux@roeck-us.net>,
+        "Joel Stanley" <joel@jms.id.au>
+Subject: =?UTF-8?Q?Re:_[PATCH_03/46]_watchdog:_aspeed=5Fwdt:_drop_warning_after_r?=
+ =?UTF-8?Q?egistering_device?=
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
 
-On Sun, May 19 2019, Wolfram Sang wrote:
+
+On Sun, 19 May 2019, at 06:58, Wolfram Sang wrote:
 > The core will print out details now.
-
-devm_watchdog_register_device() might return -ENOMEM when devres_alloc()
-fails without printing anything. You might consider that a non-issue
-since small memory allocation never fail in practice[1].
-
-But then __watchdog_unregister_device() does some sanity checks,
-potentially returning -EINVAL without any print:
-
-        if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
-                return -EINVAL;
-
-        /* Mandatory operations need to be supported */
-        if (!wdd->ops->start || (!wdd->ops->stop && !wdd->max_hw_heartbeat_ms))
-                return -EINVAL;
-
-Do you consider that not important/likely enough to be worth an error
-message in the driver?
-
-baruch
-
-[1] https://lwn.net/Articles/627419/
-
+> 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+
 > ---
->  drivers/watchdog/digicolor_wdt.c | 8 +-------
+>  drivers/watchdog/aspeed_wdt.c | 8 +-------
 >  1 file changed, 1 insertion(+), 7 deletions(-)
->
-> diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
-> index 8af6e9a67d0d..33cda95bd238 100644
-> --- a/drivers/watchdog/digicolor_wdt.c
-> +++ b/drivers/watchdog/digicolor_wdt.c
-> @@ -141,13 +141,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
->  	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
->  	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
->  	watchdog_stop_on_reboot(&dc_wdt_wdd);
-> -	ret = devm_watchdog_register_device(dev, &dc_wdt_wdd);
+> 
+> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+> index 34117745c65f..3ad2558a6de0 100644
+> --- a/drivers/watchdog/aspeed_wdt.c
+> +++ b/drivers/watchdog/aspeed_wdt.c
+> @@ -313,13 +313,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+>  	if (status & WDT_TIMEOUT_STATUS_BOOT_SECONDARY)
+>  		wdt->wdd.bootstatus = WDIOF_CARDRESET;
+>  
+> -	ret = devm_watchdog_register_device(dev, &wdt->wdd);
 > -	if (ret) {
-> -		dev_err(dev, "Failed to register watchdog device");
+> -		dev_err(dev, "failed to register\n");
 > -		return ret;
 > -	}
 > -
 > -	return 0;
-> +	return devm_watchdog_register_device(dev, &dc_wdt_wdd);
+> +	return devm_watchdog_register_device(dev, &wdt->wdd);
 >  }
 >  
->  static const struct of_device_id dc_wdt_of_match[] = {
-
-
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+>  static struct platform_driver aspeed_watchdog_driver = {
+> -- 
+> 2.19.1
+> 
+>
