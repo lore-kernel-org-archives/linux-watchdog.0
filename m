@@ -2,109 +2,103 @@ Return-Path: <SRS0=z5cO=TV=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 413F3C46460
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 12:24:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0BA6C46470
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 15:53:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2185D2173C
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 12:24:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF61321743
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 15:53:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbfEUMYa (ORCPT
+        id S1728830AbfEUPxd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 21 May 2019 08:24:30 -0400
-Received: from mailgate1.rohmeurope.com ([178.15.145.194]:54890 "EHLO
-        mailgate1.rohmeurope.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726740AbfEUMY3 (ORCPT
+        Tue, 21 May 2019 11:53:33 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:42816 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728792AbfEUPxd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 May 2019 08:24:29 -0400
-X-AuditID: c0a8fbf4-501ff700000014c1-05-5ce3edfb5f31
-Received: from smtp.reu.rohmeu.com (will-cas001.reu.rohmeu.com [192.168.251.177])
-        by mailgate1.rohmeurope.com (Symantec Messaging Gateway) with SMTP id 81.5F.05313.BFDE3EC5; Tue, 21 May 2019 14:24:27 +0200 (CEST)
-Received: from WILL-MAIL001.REu.RohmEu.com ([fe80::2915:304f:d22c:c6ba]) by
- WILL-CAS001.REu.RohmEu.com ([fe80::d57e:33d0:7a5d:f0a6%16]) with mapi id
- 14.03.0439.000; Tue, 21 May 2019 14:24:21 +0200
-From:   "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-To:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "sre@kernel.org" <sre@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
-        "Okada, Koki" <Koki.Okada@fi.rohmeurope.com>
-Subject: Re: [PATCH v14 0/8] support ROHM BD70528 PMIC
-Thread-Topic: [PATCH v14 0/8] support ROHM BD70528 PMIC
-Thread-Index: AQHVAMcZ2S9oIqrnW0ecnOWL7FvEJaZ1ZiIAgAALIoCAAAvhAA==
-Date:   Tue, 21 May 2019 12:24:20 +0000
-Message-ID: <ee483dcc519f89ee5413832833bc61e9a32c315f.camel@fi.rohmeurope.com>
-References: <cover.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
-         <3a78cc77499d5027f527be51a7c40f6c5d70338c.camel@fi.rohmeurope.com>
-         <20190521114149.GG3274@piout.net>
-In-Reply-To: <20190521114149.GG3274@piout.net>
-Accept-Language: en-US, de-DE
-Content-Language: de-DE
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [213.255.186.46]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <AAC4464FFDE1E446A5B4B52FFE129B7F@de.rohmeurope.com>
-Content-Transfer-Encoding: base64
+        Tue, 21 May 2019 11:53:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1558454011; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nEz/jx6tk/NW0NouC1NN13IDxP7BkPHZBE4FY1Wn2h4=;
+        b=ou58S9meD58qIv1AaH2y73i38ZbwX3yCPPDx3EDX3eR+JiDRI7eCzaShe2y0FiO8nvGL6n
+        0TxYErlheKs14x9AXNQ6fyDV2BcmtWMLsQze4P+Fr5w9BOfG5BHq1O6jpXssVjemvG10FI
+        RIjRXH1uPAfYgbKtz49ATIK2VrFWP/k=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     od@zcrc.me, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH 2/4] watchdog: jz4740: Avoid starting watchdog in set_timeout
+Date:   Tue, 21 May 2019 17:53:11 +0200
+Message-Id: <20190521155313.19326-2-paul@crapouillou.net>
+In-Reply-To: <20190521155313.19326-1-paul@crapouillou.net>
+References: <20190521155313.19326-1-paul@crapouillou.net>
 MIME-Version: 1.0
-X-Brightmail-Tracker: H4sIAAAAAAAAA02TfUwTdxjH97v3IjePAvIbviRc4h/TCIOQ8YshyjQkt5gsJEQTt2Z4yEmb
-        0ZdcWwPjD6tRFHwJEoyzKTAMbAh1tZ1LhIECQ9LBMmUog4zN1FYJTkADarQNesep8Nd97/k+
-        n+f7XPIcg+sXqFTGZHFIskUs46k4orct6t8SnQkbPplsI1DLyF0aHZ/9gUYLDUMEOheKUKhp
-        4E8S3Xt2E6Dnd05gqD72I4aenvqPRD83xQAa7fJQaP70AECDHXcoNP7TdRpFmv/AUOvfIxjy
-        tAYJNDKUj471DNBoccxPoOFfHSg8vYjnrRG8jV4gzI0fo4VGb6XQ6f6XFgLt1ZQwOdZNCZe8
-        XlLofOGihfONLzFhPrChIO7LVbnFouNgoanUkrFt3yrjzOhrYLumK2++MUe7wHe6GqBjIJcN
-        Ixef4DUgjtFzYwD+X/uc1F6CAIZaYlgNYBiKy4U1E7QKJHE7YeOtKkLtwblnOjhWO0WoRiL3
-        KbzZdYPQmnLgL8FJXNM74F9NEUzVBLcR+l8NLvWw3Bfw1YPA22QfgHdvt5KqoePS4ZPZ2SUN
-        uPWw2jW7BONcCgw8fEFqa3OwpfsWrulkOB1efFvnYc/LEKEujXMfQ19XhobmwbPn6ihNp8H6
-        kyFa2yEB/n4hQtSCNe4VCe5l2r2Cdq+g3Svo7wHZDqBZNJWVig4pM12WnOmy1WhWHvut5gDQ
-        7mbhGnjd/3k/4BjAx7PRybBBT4oH7RXmfvARg/HJ7OkMpfRhsbWkwijajUWys0yy9wPI4HwS
-        Ozx036BnS8SKbyXZ+s5ayxB8Chvt6jPoOTX5G0mySfI7dx3D8JAllFvVJ8hSqVR+wFTmWLYx
-        RqcOj0tNskuWEkkWnQ5jkXouRXblXlQrXsm98ljBWbtNNCtVDR0Cm5nei6EGnJnpm2rA9YTF
-        apFSU1haTeLUVqPT8j7oEUhRvjeRnVMHxSu/0vs5j5QITIlYTy9FOMRlK9UFCp2b9qzOD7io
-        rZf27D7i+cC/yxfLT9+4LphtGgk11111tE3oY5m5qLX8a5+r5bNKT96++q/Sooln/MlXmoK3
-        6+Ztv90LLxbXHs6SKvNz+L3hgkP7Ozyk7XFWe1rH5aebKzsKd1Z1JhgWCrb46q/mZE/tHc0+
-        XzV99P7E9up/6s6c4Am7UczchMt28Q1YkxBbBwQAAA==
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-SGVsbG8gQWxleGFuZHJlLA0KDQpPbiBUdWUsIDIwMTktMDUtMjEgYXQgMTM6NDEgKzAyMDAsIEFs
-ZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0KPiBPbiAyMS8wNS8yMDE5IDExOjAxOjUzKzAwMDAsIFZh
-aXR0aW5lbiwgTWF0dGkgd3JvdGU6DQo+ID4gSGVsbG8gQWxsLA0KPiA+IA0KPiA+IE9uIFRodSwg
-MjAxOS0wNS0wMiBhdCAxMjoxMSArMDMwMCwgTWF0dGkgVmFpdHRpbmVuIHdyb3RlOg0KPiA+ID4g
-UGF0Y2ggc2VyaWVzIGludHJvZHVjaW5nIHN1cHBvcnQgZm9yIFJPSE0gQkQ3MDUyOCBQTUlDDQo+
-ID4gPiANCj4gPiANCj4gPiBKdXN0IHRob3VnaHQgSSdkIGFzayBpZiB0aGVyZSdzIGFueSBjaGFu
-Y2VzIHRvIGdldCB0aGlzIHNlcmllcyBpbg0KPiA+IDUuMj8NCj4gPiBJdCBzZWVtcyB0byBtZSB0
-aGUgV0RUIHBhcnQgKHBhdGNoIDgpIHdhcyBhbHJlYWR5IG1lcmdlZCBpbiBidXQNCj4gPiByZXN0
-IG9mDQo+ID4gdGhlIHBhdGNoZXMgc2VlbSB0byBiZSBpbiBsaW1ibyBzb21ld2hlcmUgOikNCj4g
-PiANCj4gPiBJIGd1ZXNzIG1vc3Qgb2YgdGhlIHBhdGNoZXMgaGF2ZSByZWxldmFudCBhY2tzIC0g
-c28gd29uZGVyIGlmIHRoZQ0KPiA+IHJlc3QNCj4gPiBjYW4gZ28gdGhyb3VnaCBMZWUncyB0cmVl
-PyBJIGFkbWl0IEkgYW0gZ2V0dGluZyBzbGlnaHRseSBpbXBhdGllbnQNCj4gPiAtDQo+ID4gc29y
-cnkgZm9yIHRoYXQgOl0NCj4gPiANCj4gDQo+IE5vcGUsIHRoZSA1LjIgbWVyZ2Ugd2luZG93cyBp
-cyBjbG9zZWQuIFRoaXMgd2lsbCBoYXZlIHRvIHdhaXQgZm9yDQo+IDUuMy4NCg0KT2gsIHRoYXQn
-cyB1bmZvcnR1bmF0ZSA6KCBUaGFua3MgZm9yIHRoZSByZXBseSB0aG91Z2guDQoNCkJlc3QgUmVn
-YXJkcw0KCU1hdHRpIFZhaXR0aW5lbg0KDQo=
+Previously the jz4740_wdt_set_timeout() function was starting the timer
+unconditionally, even if it was stopped when that function was entered.
+
+Now, the timer will be restarted only if it was already running before
+this function is called.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ drivers/watchdog/jz4740_wdt.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 51be321c775a..f970a7a53084 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -77,6 +77,7 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 	unsigned int rtc_clk_rate;
+ 	unsigned int timeout_value;
+ 	unsigned short clock_div = JZ_WDT_CLOCK_DIV_1;
++	u8 tcer;
+ 
+ 	rtc_clk_rate = clk_get_rate(drvdata->rtc_clk);
+ 
+@@ -92,6 +93,7 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 		clock_div += (1 << TCU_TCSR_PRESCALE_LSB);
+ 	}
+ 
++	tcer = readb(drvdata->base + TCU_REG_WDT_TCER);
+ 	writeb(0x0, drvdata->base + TCU_REG_WDT_TCER);
+ 	writew(clock_div, drvdata->base + TCU_REG_WDT_TCSR);
+ 
+@@ -99,7 +101,7 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 	writew(0x0, drvdata->base + TCU_REG_WDT_TCNT);
+ 	writew(clock_div | JZ_WDT_CLOCK_RTC, drvdata->base + TCU_REG_WDT_TCSR);
+ 
+-	writeb(0x1, drvdata->base + TCU_REG_WDT_TCER);
++	writeb(tcer & TCU_WDT_TCER_TCEN, drvdata->base + TCU_REG_WDT_TCER);
+ 
+ 	wdt_dev->timeout = new_timeout;
+ 	return 0;
+@@ -107,8 +109,11 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 
+ static int jz4740_wdt_start(struct watchdog_device *wdt_dev)
+ {
++	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
+ 	jz4740_timer_enable_watchdog();
+ 	jz4740_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
++	writeb(TCU_WDT_TCER_TCEN, drvdata->base + TCU_REG_WDT_TCER);
+ 
+ 	return 0;
+ }
+-- 
+2.21.0.593.g511ec345e18
+
