@@ -2,143 +2,107 @@ Return-Path: <SRS0=z5cO=TV=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B8C8C04AB4
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 15:53:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48C57C04AAF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6232621019
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 15:53:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D536217D7
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="CKuOJ1qT"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T+vYrdTm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728935AbfEUPxn (ORCPT
+        id S1728662AbfEUQDl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 21 May 2019 11:53:43 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:42800 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727969AbfEUPxd (ORCPT
+        Tue, 21 May 2019 12:03:41 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:39818 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727990AbfEUQDl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 May 2019 11:53:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1558454010; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:references; bh=r1Dp4uuhmo7lgnj7+O9kBAJP9eIUmY611ADs6zhWI5w=;
-        b=CKuOJ1qTrDaIipRX830HNqH96QeAJ6lzn9Gi88QEmd2JAG81quHT8tzSJL60hlEjR2T/vf
-        Aob/tbuDy/Si5c7cWzZgxaIRd7e1u91BTaD0CJtcJvbbqm+iC5/SS5Sle85V/klWB9NEud
-        mOy03C+fg2jgZgUEnOlYb2v4zWBHSWE=
-From:   Paul Cercueil <paul@crapouillou.net>
+        Tue, 21 May 2019 12:03:41 -0400
+Received: by mail-wm1-f66.google.com with SMTP id n25so1625003wmk.4;
+        Tue, 21 May 2019 09:03:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=SyE9kuP93puOVa5bnxKzAz6P/q7rG15j4OqWFA5YadY=;
+        b=T+vYrdTmZN/Md8Sf9dvxQNA0o0nZohyfU6cEOhtm/9KKtsEci4xzTwF5wwha/RbDcm
+         hxWNAf+NMA09hM4YjOJI6kvZvazFJlDKG8ray2p2qXbvjxFyenWsP6msDiRkdpIIeTsc
+         7lyZXOUNLnq/6d3I9HejXYYGL8HP+rpU3lsXxGPVEr5rQS8NJUxSKsFnMXer/ab76net
+         atdfJRW7SM9srR81IAT/KY7wstpxt3hKyaRVFk9qzTyDpIGuYYgInFzk9/58pfWWERSr
+         QtJRL7WPoVW/8/MKODfl5ocUuejtytfVzNMK2KaALG/t82pQfmBIVhNH4O7OJHx2A/s9
+         05aQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SyE9kuP93puOVa5bnxKzAz6P/q7rG15j4OqWFA5YadY=;
+        b=HSZu6Vg45O1N/HP3Lyf8QEmAqCe0hcq95LmLaeRJT3C1ZcroBvSYlrXeQ7Dy2SAm+C
+         rCmfjAu1vLmuAJW00gm3IIASkeE/++mbYHQ1JhIjbFLBLy6ofbngCrrNKZvjdx4aYQPf
+         G/9LN6X1NBtThzT+g4tCSC8HFjLTCcWZGHW+b9UqoCeNqDk21we0/I5r76TQh9Jx3ycu
+         S9vukTF1WCIq8vm/PEb98UoDlHLGoCJoQlLTskH7qFBIXj3q5CBYo61JSmTksaJ/uSXA
+         Sct4E7YXHtDIe3nIU9JbsboIsEQ5WqPf3tyZOwMTWAllVX0jbJxHCcfgD4jaCtGjFKhu
+         8V1Q==
+X-Gm-Message-State: APjAAAULsYG42M9jYgCr62knyUf2VolBVUTfJgb4Rir9agw/5Z35bSoR
+        1DlibGER0fknrTwJDyQrcsMM0vQLSTA7Sg==
+X-Google-Smtp-Source: APXvYqwUHxJAUHN1YLpD84q4B8bKA40ChffErOtsXq3i2Uq3kGPqvW+6jtuDA211uTmP3GAi8TqfxA==
+X-Received: by 2002:a1c:4087:: with SMTP id n129mr4099381wma.14.1558454618926;
+        Tue, 21 May 2019 09:03:38 -0700 (PDT)
+Received: from localhost.localdomain (18.189-60-37.rdns.acropolistelecom.net. [37.60.189.18])
+        by smtp.gmail.com with ESMTPSA id g11sm6853811wrq.89.2019.05.21.09.03.37
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 May 2019 09:03:38 -0700 (PDT)
+From:   =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     od@zcrc.me, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 1/4] watchdog: jz4740: Use register names from <linux/mfd/ingenic-tcu.h>
-Date:   Tue, 21 May 2019 17:53:10 +0200
-Message-Id: <20190521155313.19326-1-paul@crapouillou.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>
+Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
+Subject: [PATCH v4 1/5] dt-bindings: watchdog: add Allwinner H6 watchdog
+Date:   Tue, 21 May 2019 18:03:26 +0200
+Message-Id: <20190521160330.28402-2-peron.clem@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190521160330.28402-1-peron.clem@gmail.com>
+References: <20190521160330.28402-1-peron.clem@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use the macros from <linux/mfd/ingenic-tcu.h> instead of declaring our
-own.
+Allwinner H6 has a similar watchdog as the A64 which is already
+a compatible of the A31.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+This commit add the H6 compatible.
+
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
 ---
- drivers/watchdog/jz4740_wdt.c | 39 ++++++++++++++---------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index d1bc7cbd4f2b..51be321c775a 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -13,6 +13,7 @@
-  *
-  */
+diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+index 46055254e8dd..e65198d82a2b 100644
+--- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+@@ -6,6 +6,7 @@ Required properties:
+ 	"allwinner,sun4i-a10-wdt"
+ 	"allwinner,sun6i-a31-wdt"
+ 	"allwinner,sun50i-a64-wdt","allwinner,sun6i-a31-wdt"
++	"allwinner,sun50i-h6-wdt","allwinner,sun6i-a31-wdt"
+ 	"allwinner,suniv-f1c100s-wdt", "allwinner,sun4i-a10-wdt"
+ - reg : Specifies base physical address and size of the registers.
  
-+#include <linux/mfd/ingenic-tcu.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/types.h>
-@@ -28,23 +29,16 @@
- 
- #include <asm/mach-jz4740/timer.h>
- 
--#define JZ_REG_WDT_TIMER_DATA     0x0
--#define JZ_REG_WDT_COUNTER_ENABLE 0x4
--#define JZ_REG_WDT_TIMER_COUNTER  0x8
--#define JZ_REG_WDT_TIMER_CONTROL  0xC
--
- #define JZ_WDT_CLOCK_PCLK 0x1
- #define JZ_WDT_CLOCK_RTC  0x2
- #define JZ_WDT_CLOCK_EXT  0x4
- 
--#define JZ_WDT_CLOCK_DIV_SHIFT   3
--
--#define JZ_WDT_CLOCK_DIV_1    (0 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_4    (1 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_16   (2 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_64   (3 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_256  (4 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_1024 (5 << JZ_WDT_CLOCK_DIV_SHIFT)
-+#define JZ_WDT_CLOCK_DIV_1    (0 << TCU_TCSR_PRESCALE_LSB)
-+#define JZ_WDT_CLOCK_DIV_4    (1 << TCU_TCSR_PRESCALE_LSB)
-+#define JZ_WDT_CLOCK_DIV_16   (2 << TCU_TCSR_PRESCALE_LSB)
-+#define JZ_WDT_CLOCK_DIV_64   (3 << TCU_TCSR_PRESCALE_LSB)
-+#define JZ_WDT_CLOCK_DIV_256  (4 << TCU_TCSR_PRESCALE_LSB)
-+#define JZ_WDT_CLOCK_DIV_1024 (5 << TCU_TCSR_PRESCALE_LSB)
- 
- #define DEFAULT_HEARTBEAT 5
- #define MAX_HEARTBEAT     2048
-@@ -72,7 +66,7 @@ static int jz4740_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
- 
--	writew(0x0, drvdata->base + JZ_REG_WDT_TIMER_COUNTER);
-+	writew(0x0, drvdata->base + TCU_REG_WDT_TCNT);
- 	return 0;
- }
- 
-@@ -95,18 +89,17 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 			break;
- 		}
- 		timeout_value >>= 2;
--		clock_div += (1 << JZ_WDT_CLOCK_DIV_SHIFT);
-+		clock_div += (1 << TCU_TCSR_PRESCALE_LSB);
- 	}
- 
--	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
--	writew(clock_div, drvdata->base + JZ_REG_WDT_TIMER_CONTROL);
-+	writeb(0x0, drvdata->base + TCU_REG_WDT_TCER);
-+	writew(clock_div, drvdata->base + TCU_REG_WDT_TCSR);
- 
--	writew((u16)timeout_value, drvdata->base + JZ_REG_WDT_TIMER_DATA);
--	writew(0x0, drvdata->base + JZ_REG_WDT_TIMER_COUNTER);
--	writew(clock_div | JZ_WDT_CLOCK_RTC,
--		drvdata->base + JZ_REG_WDT_TIMER_CONTROL);
-+	writew((u16)timeout_value, drvdata->base + TCU_REG_WDT_TDR);
-+	writew(0x0, drvdata->base + TCU_REG_WDT_TCNT);
-+	writew(clock_div | JZ_WDT_CLOCK_RTC, drvdata->base + TCU_REG_WDT_TCSR);
- 
--	writeb(0x1, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
-+	writeb(0x1, drvdata->base + TCU_REG_WDT_TCER);
- 
- 	wdt_dev->timeout = new_timeout;
- 	return 0;
-@@ -124,7 +117,7 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
- 
--	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
-+	writeb(0x0, drvdata->base + TCU_REG_WDT_TCER);
- 	jz4740_timer_disable_watchdog();
- 
- 	return 0;
 -- 
-2.21.0.593.g511ec345e18
+2.17.1
 
