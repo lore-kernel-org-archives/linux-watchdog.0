@@ -8,55 +8,55 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48C57C04AAF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85685C46470
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D536217D7
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B243217F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 May 2019 16:03:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T+vYrdTm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F2MQg2yI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728662AbfEUQDl (ORCPT
+        id S1728940AbfEUQDp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 21 May 2019 12:03:41 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:39818 "EHLO
+        Tue, 21 May 2019 12:03:45 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:54247 "EHLO
         mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727990AbfEUQDl (ORCPT
+        with ESMTP id S1728615AbfEUQDo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 May 2019 12:03:41 -0400
-Received: by mail-wm1-f66.google.com with SMTP id n25so1625003wmk.4;
-        Tue, 21 May 2019 09:03:39 -0700 (PDT)
+        Tue, 21 May 2019 12:03:44 -0400
+Received: by mail-wm1-f66.google.com with SMTP id 198so3551527wme.3;
+        Tue, 21 May 2019 09:03:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=SyE9kuP93puOVa5bnxKzAz6P/q7rG15j4OqWFA5YadY=;
-        b=T+vYrdTmZN/Md8Sf9dvxQNA0o0nZohyfU6cEOhtm/9KKtsEci4xzTwF5wwha/RbDcm
-         hxWNAf+NMA09hM4YjOJI6kvZvazFJlDKG8ray2p2qXbvjxFyenWsP6msDiRkdpIIeTsc
-         7lyZXOUNLnq/6d3I9HejXYYGL8HP+rpU3lsXxGPVEr5rQS8NJUxSKsFnMXer/ab76net
-         atdfJRW7SM9srR81IAT/KY7wstpxt3hKyaRVFk9qzTyDpIGuYYgInFzk9/58pfWWERSr
-         QtJRL7WPoVW/8/MKODfl5ocUuejtytfVzNMK2KaALG/t82pQfmBIVhNH4O7OJHx2A/s9
-         05aQ==
+        bh=cXUpOzTXRkpXF5rHOHPBRJ/bn1tvIHFvWTlLeYQuAWI=;
+        b=F2MQg2yI+JdMgmQAbMUQyS6rfaoDCM9OvmTaAz4A21RNul+JS/Pq5eV0KCHkNz22x0
+         s1GHlAgY4qLHU/ErzOsGOSApC7CJdVebXqJoc0L5YxqZYOCAU0oLAli05bhnlot/NP33
+         7gf8oKiQ5HxAarStxDMp46aMeibzxwgXqQ3QXEzvNNzOQFCv0Ly41gNO27Sn8nw3ZiR7
+         qOCNg40+wgiSRb8lQTsEUBI6ieMIEj0r8ibTH+I4xnJ0GZLtoGr1zaetdFK8fuI+Ulso
+         nN2pEf7TbguOEJeMEF1/HXbP7nLRpNVMKCcTOhDt+ECFvslyv/dE8MpX+s9Nj9s5HBBk
+         aQEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=SyE9kuP93puOVa5bnxKzAz6P/q7rG15j4OqWFA5YadY=;
-        b=HSZu6Vg45O1N/HP3Lyf8QEmAqCe0hcq95LmLaeRJT3C1ZcroBvSYlrXeQ7Dy2SAm+C
-         rCmfjAu1vLmuAJW00gm3IIASkeE/++mbYHQ1JhIjbFLBLy6ofbngCrrNKZvjdx4aYQPf
-         G/9LN6X1NBtThzT+g4tCSC8HFjLTCcWZGHW+b9UqoCeNqDk21we0/I5r76TQh9Jx3ycu
-         S9vukTF1WCIq8vm/PEb98UoDlHLGoCJoQlLTskH7qFBIXj3q5CBYo61JSmTksaJ/uSXA
-         Sct4E7YXHtDIe3nIU9JbsboIsEQ5WqPf3tyZOwMTWAllVX0jbJxHCcfgD4jaCtGjFKhu
-         8V1Q==
-X-Gm-Message-State: APjAAAULsYG42M9jYgCr62knyUf2VolBVUTfJgb4Rir9agw/5Z35bSoR
-        1DlibGER0fknrTwJDyQrcsMM0vQLSTA7Sg==
-X-Google-Smtp-Source: APXvYqwUHxJAUHN1YLpD84q4B8bKA40ChffErOtsXq3i2Uq3kGPqvW+6jtuDA211uTmP3GAi8TqfxA==
-X-Received: by 2002:a1c:4087:: with SMTP id n129mr4099381wma.14.1558454618926;
-        Tue, 21 May 2019 09:03:38 -0700 (PDT)
+        bh=cXUpOzTXRkpXF5rHOHPBRJ/bn1tvIHFvWTlLeYQuAWI=;
+        b=KuyrevcDsRnKzwkUZgTBRdX6feUnTsGd2BiM3g/2pjgiW0QBxAVWiBwz7M+6f8p0At
+         bB/zmPMiq4+EckwskVMRYzE0wNUcvwqT6osy/QTwA8AR8I9/nLHXuSr+4eFn8KpwZA8R
+         NbyxZYDPye7Wo3w5Ai8X0QTUqVyRakjaeftr6S3Cyf+5Ceb2GG15IFw+JwJksnl34rv7
+         DM5pPdPMRIMZ1QIgwtZdo8lI4CTlRMfMxgTrlDzotfeFHpjP/t0d4p+6X7WitJnAQana
+         A0KDdxqlxGhAYgsJXtGj/gOqoJ2ppP0zcyAO0GezCk75mIayyRNf8N4VmgZxHClTzkH9
+         teug==
+X-Gm-Message-State: APjAAAUkJAgWHxSIhL9jI6OEvS6T6UjOViKqA5GRry4ETFei1hff7syZ
+        DypSrvHxr5uLJXYhbjz/bNk=
+X-Google-Smtp-Source: APXvYqy4CuLUUMUkQHqzH/rtwoT1Ng0BDlq8tNehJfpoMqikNeIiPCAC4aW/BnOT95vGQKRxH+LKDA==
+X-Received: by 2002:a1c:9616:: with SMTP id y22mr3963336wmd.73.1558454622519;
+        Tue, 21 May 2019 09:03:42 -0700 (PDT)
 Received: from localhost.localdomain (18.189-60-37.rdns.acropolistelecom.net. [37.60.189.18])
-        by smtp.gmail.com with ESMTPSA id g11sm6853811wrq.89.2019.05.21.09.03.37
+        by smtp.gmail.com with ESMTPSA id g11sm6853811wrq.89.2019.05.21.09.03.41
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 May 2019 09:03:38 -0700 (PDT)
+        Tue, 21 May 2019 09:03:41 -0700 (PDT)
 From:   =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -67,9 +67,9 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
-Subject: [PATCH v4 1/5] dt-bindings: watchdog: add Allwinner H6 watchdog
-Date:   Tue, 21 May 2019 18:03:26 +0200
-Message-Id: <20190521160330.28402-2-peron.clem@gmail.com>
+Subject: [PATCH v4 4/5] arm64: dts: allwinner: h6: add r_watchog node
+Date:   Tue, 21 May 2019 18:03:29 +0200
+Message-Id: <20190521160330.28402-5-peron.clem@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190521160330.28402-1-peron.clem@gmail.com>
 References: <20190521160330.28402-1-peron.clem@gmail.com>
@@ -81,28 +81,33 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Allwinner H6 has a similar watchdog as the A64 which is already
-a compatible of the A31.
+Allwinner H6 has a r_watchdog similar to A64.
 
-This commit add the H6 compatible.
+Declare it in the device-tree.
 
 Signed-off-by: Clément Péron <peron.clem@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-index 46055254e8dd..e65198d82a2b 100644
---- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-@@ -6,6 +6,7 @@ Required properties:
- 	"allwinner,sun4i-a10-wdt"
- 	"allwinner,sun6i-a31-wdt"
- 	"allwinner,sun50i-a64-wdt","allwinner,sun6i-a31-wdt"
-+	"allwinner,sun50i-h6-wdt","allwinner,sun6i-a31-wdt"
- 	"allwinner,suniv-f1c100s-wdt", "allwinner,sun4i-a10-wdt"
- - reg : Specifies base physical address and size of the registers.
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
+index 13e70aebddbe..66897880c722 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
+@@ -631,6 +631,13 @@
+ 			#reset-cells = <1>;
+ 		};
  
++		r_watchdog: watchdog@7020400 {
++			compatible = "allwinner,sun50i-h6-r-wdt",
++				     "allwinner,sun6i-a31-wdt";
++			reg = <0x07020400 0x20>;
++			interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
+ 		r_intc: interrupt-controller@7021000 {
+ 			compatible = "allwinner,sun50i-h6-r-intc",
+ 				     "allwinner,sun6i-a31-r-intc";
 -- 
 2.17.1
 
