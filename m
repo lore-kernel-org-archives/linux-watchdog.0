@@ -2,72 +2,116 @@ Return-Path: <SRS0=iV5X=T4=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ECD4C04AB6
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 May 2019 09:10:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A82FC04AB6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 May 2019 13:26:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6B06E208C3
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 May 2019 09:10:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCA7920883
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 May 2019 13:26:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W8qGYt+e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726715AbfE1JKI (ORCPT
+        id S1727010AbfE1N03 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 May 2019 05:10:08 -0400
-Received: from unicorn.mansr.com ([81.2.72.234]:58306 "EHLO unicorn.mansr.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726645AbfE1JKI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 May 2019 05:10:08 -0400
-Received: by unicorn.mansr.com (Postfix, from userid 51770)
-        id 1BCE715621; Tue, 28 May 2019 10:10:06 +0100 (BST)
-From:   Mans Rullgard <mans@mansr.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Tue, 28 May 2019 09:26:29 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:39205 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726925AbfE1N03 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 May 2019 09:26:29 -0400
+Received: by mail-pl1-f193.google.com with SMTP id g9so8335068plm.6;
+        Tue, 28 May 2019 06:26:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=PYJ1AErb0rdEepPQsXSA8Rz6gJJMlH5HikRlXEjgLzc=;
+        b=W8qGYt+eEmeosNhfv/mPuWgf2B2FcFApZBtXRcRvRk6Tst8g2O5eN+DjnSOr3IjUbv
+         8O43IFzEvzRg7lQrEPeebooJ7WH3vtOn0cGp5bdAkwbZkZB81y9H1j+JbBaUDF3PFoFu
+         tlkL6V+Q5NHHHsffTh24boWKHih3PtwJ3AcUPRkNn2+4qiDEEmI3HYhjPxZ8aiMqm/xF
+         ZMKhQUSkb1dCxPinW5Yk5L8eYFoBoMn9iAT2T+Ifs1JKIqTBlbu5wpc+4yFWfP1XvR56
+         +3wb8A7cQi00wVCoIrIQ4RbKrECu/DWSBSJzIDWILsBloq3KeAyLb04Yrhf/kruNLIq0
+         /Mqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PYJ1AErb0rdEepPQsXSA8Rz6gJJMlH5HikRlXEjgLzc=;
+        b=bVbrSVymAvR7E3Xk5WSXt+c4MLh5KUBRMj7ZsFPhhsM9Pb3t3oPlQdNx3D8SgzpTeu
+         tQFXUYIBNYOjplSrJsf/+siVbXfDrEft0PLkj2/O/W5an57b0YP1svQpZeml/0V0k9S4
+         wnYvdSGj0SQaSTxsof77hLhhBw+DXua6MM1Wn2Ps0NEfL8gPUApHOe3p10I5f/1RDeUu
+         iasoZJx2FhC84PNBEwjMa1N1FOht96N9UH4DBGvMSr+Hri5/2oMTLLMLmVhNwjdPXmRO
+         sDcNxD2r0PH0jRNHn26UQkGSGyyFu5ZbDOyN9peDgGMcHqQEFlyna2p7KEFVQqNUoT8j
+         Gnyw==
+X-Gm-Message-State: APjAAAWcZNhSDk3CY3aCDKltC64XtCRfzvD8rD4gUlWyHRJ5r/ILWBd4
+        wyWCqbc3NuEXui+z6snC7ej92R/M
+X-Google-Smtp-Source: APXvYqz7tIETEwEJfkQicMV+LO1cIjwoWkBFko/B0upXKLXaY5ph+qLCNicJk0ueFQr0p0CaQSigtg==
+X-Received: by 2002:a17:902:30a3:: with SMTP id v32mr25974104plb.6.1559049988134;
+        Tue, 28 May 2019 06:26:28 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d24sm2430944pjv.24.2019.05.28.06.26.27
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 May 2019 06:26:27 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: gpio: add support for nowayout option
+To:     Mans Rullgard <mans@mansr.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: gpio: add support for nowayout option
-Date:   Tue, 28 May 2019 10:09:47 +0100
-Message-Id: <20190528090947.2610-1-mans@mansr.com>
-X-Mailer: git-send-email 2.21.0
+References: <20190528090947.2610-1-mans@mansr.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <553a3b7c-808f-12ac-3301-6a111d760c26@roeck-us.net>
+Date:   Tue, 28 May 2019 06:26:26 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190528090947.2610-1-mans@mansr.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for the nowayout option in the gpio watchdog driver.
+On 5/28/19 2:09 AM, Mans Rullgard wrote:
+> Add support for the nowayout option in the gpio watchdog driver.
+> 
+> Signed-off-by: Mans Rullgard <mans@mansr.com>
 
-Signed-off-by: Mans Rullgard <mans@mansr.com>
----
- drivers/watchdog/gpio_wdt.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index ea77cae03c9d..63792bb70213 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -17,6 +17,12 @@
- #include <linux/platform_device.h>
- #include <linux/watchdog.h>
- 
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		"Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
- #define SOFT_TIMEOUT_MIN	1
- #define SOFT_TIMEOUT_DEF	60
- 
-@@ -155,6 +161,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	priv->wdd.timeout	= SOFT_TIMEOUT_DEF;
- 
- 	watchdog_init_timeout(&priv->wdd, 0, &pdev->dev);
-+	watchdog_set_nowayout(&priv->wdd, nowayout);
- 
- 	watchdog_stop_on_reboot(&priv->wdd);
- 
--- 
-2.21.0
+> ---
+>   drivers/watchdog/gpio_wdt.c | 7 +++++++
+>   1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> index ea77cae03c9d..63792bb70213 100644
+> --- a/drivers/watchdog/gpio_wdt.c
+> +++ b/drivers/watchdog/gpio_wdt.c
+> @@ -17,6 +17,12 @@
+>   #include <linux/platform_device.h>
+>   #include <linux/watchdog.h>
+>   
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout,
+> +		"Watchdog cannot be stopped once started (default="
+> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+>   #define SOFT_TIMEOUT_MIN	1
+>   #define SOFT_TIMEOUT_DEF	60
+>   
+> @@ -155,6 +161,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>   	priv->wdd.timeout	= SOFT_TIMEOUT_DEF;
+>   
+>   	watchdog_init_timeout(&priv->wdd, 0, &pdev->dev);
+> +	watchdog_set_nowayout(&priv->wdd, nowayout);
+>   
+>   	watchdog_stop_on_reboot(&priv->wdd);
+>   
+> 
 
