@@ -4,53 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,T_DKIMWL_WL_HIGH,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,T_DKIMWL_WL_HIGH,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C02EDC28CC1
-	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:19:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CB4EC28CC1
+	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:31:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8C34C272C5
-	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:19:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B6402747A
+	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1559395172;
-	bh=6bKgTT5gnfcJKsWHUTECbQrducSnrKEOJSsgdtKBWCw=;
+	s=default; t=1559395864;
+	bh=MODFjkth/tTireZcEvnjTAIW7rZOerRG4BYU/xQisb0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=2hA++ZuoRCUsY8Bb4SVlFpTtuHK8+n3aeRtcdw6SAhr7Cb1M0S826pzvKSj9ksaA5
-	 e5egmINj5oRfu+nHG6TeHaeR5Ru53JMqSGWYcAnPsmDsG2+uYIrUXoKCp+wsiL20Qa
-	 9nc4QU6RRAEw8EHou4Nw1YCfCRMYoN8oiddmoeoY=
+	b=E79sIyrwdUUubEOlVpCuSYnoTwJ/uzRTbtCnWSgiRVuNKRDcDq7SYu/cwD8VRwmSz
+	 yFGJh8svOsQvqlNaPp73I14uz++HwoGUpnHMA6erm2o9bpN12TZjIR1UPMjc7xEKoM
+	 xfpCG3b+e4MlLZrKhEM3Hn6uN90hhBd3mfwrhM7U=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727522AbfFANTc (ORCPT
+        id S1729081AbfFAN0A (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 1 Jun 2019 09:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
+        Sat, 1 Jun 2019 09:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbfFANTX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:23 -0400
+        id S1727763AbfFANZ7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:25:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D3F6272AC;
-        Sat,  1 Jun 2019 13:19:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F5C3273A0;
+        Sat,  1 Jun 2019 13:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395163;
-        bh=6bKgTT5gnfcJKsWHUTECbQrducSnrKEOJSsgdtKBWCw=;
+        s=default; t=1559395559;
+        bh=MODFjkth/tTireZcEvnjTAIW7rZOerRG4BYU/xQisb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEK97Hk4roJhvSPyrBIjEV5QLR5hVXQx3fDDFd6IJHJH9/5A4NcDhxSlvEJgeibOl
-         kBZSPtIsDYxH5PFxBXmwyZvTpB0jAvfAknd18uL7RvnI3hkkF2GU21F63HKoURLUKh
-         RQGGGYaiTPcnrZR55PSkfGucUNam+QNIZZxrpMAo=
+        b=qlj+TrAVvUzBzV2HAwIUxp3xdWommq5KzyvA1RNjlFjao4eehOpXG44IQxv6563E3
+         CnjcemxydNM5XGy06r8kmBHvd4UaIFXpvi8380liV3nm0DximdDOQDc6Z7g9VPP3r6
+         gI6FY3UUfBLl1rg7aDFhClRvRA/p5XviwT4ZWfNs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Georg Hofmann <georg@hofmannsweb.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 074/186] watchdog: imx2_wdt: Fix set_timeout for big timeout values
-Date:   Sat,  1 Jun 2019 09:14:50 -0400
-Message-Id: <20190601131653.24205-74-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 30/74] watchdog: imx2_wdt: Fix set_timeout for big timeout values
+Date:   Sat,  1 Jun 2019 09:24:17 -0400
+Message-Id: <20190601132501.27021-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
-References: <20190601131653.24205-1-sashal@kernel.org>
+In-Reply-To: <20190601132501.27021-1-sashal@kernel.org>
+References: <20190601132501.27021-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 2b52514eaa86a..7e7bdcbbc741b 100644
+index 518dfa1047cbd..5098982e1a585 100644
 --- a/drivers/watchdog/imx2_wdt.c
 +++ b/drivers/watchdog/imx2_wdt.c
-@@ -178,8 +178,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
+@@ -181,8 +181,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
  static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
  				unsigned int new_timeout)
  {
