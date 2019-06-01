@@ -7,47 +7,46 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,T_DKIMWL_WL_HIGH,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F812C28CC1
-	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:32:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 925F6C28CC3
+	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:32:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6BE69274C1
-	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:32:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BEEA274C1
+	for <linux-watchdog@archiver.kernel.org>; Sat,  1 Jun 2019 13:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1559395938;
-	bh=MODFjkth/tTireZcEvnjTAIW7rZOerRG4BYU/xQisb0=;
+	s=default; t=1559395939;
+	bh=Tjbmh5RAjRw6Iq1byVXbidCCp++GiwGM6X2JtsbRJ8g=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=fizWJLR37RyqpotE/Y4aO3WTcmitfpR3xYW6Hbv7Lo/yfQhJjZhpO8f0H+xnJdc/k
-	 TuOdSbA2cvvQHKxV2Ez3APWzgXcIqmUH5Ge2EWQfKAJD1HAHf7KhlbgbypSXfJDm9X
-	 KGjoTJVEE6J/5WdtTvqUcf6bjQaK8o9ATQtY2ATc=
+	b=ql4TNmr4PK770mX2LsKsaRiFCaUjIwV67Wlofy5mMM8RKJrdJNOmzfDJdetzfr1F/
+	 M5CKugXQBRe6r8FZ9xFxpOzZG6nZOvM2HNJKRI+q3LzPgc+UYCqHJBpu0XlIFGUDMj
+	 AcI/CDNHZ0Q1Z8WCM+zs9/kheE+Nxjg0BEfNlHVU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbfFANZB (ORCPT
+        id S1729378AbfFANZB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sat, 1 Jun 2019 09:25:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729371AbfFANZA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1728103AbfFANZA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 1 Jun 2019 09:25:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5370F27378;
-        Sat,  1 Jun 2019 13:24:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BE3B2738C;
+        Sat,  1 Jun 2019 13:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395500;
-        bh=MODFjkth/tTireZcEvnjTAIW7rZOerRG4BYU/xQisb0=;
+        s=default; t=1559395499;
+        bh=Tjbmh5RAjRw6Iq1byVXbidCCp++GiwGM6X2JtsbRJ8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfxhA0kIaRlBfTwQh7ZPsrSGLx/cf0NaY959Niy2f5zG/luORrFG9c3akYFnUdMKD
-         Uv0MoYcynBbGjtbTK+ssK2B19ioE6FdR+sJdDM11hZY8b+gTOClaHqJ/fPjaRDhd8N
-         bsDv6lUQYeipipbI6jbUQadzA9V5POuuDKx7qkYg=
+        b=DKw3/xXM1taG8LIOANPVADcOiw2Kctwa9+O+CSedTeF/m/tP57tJqWBm/N+KNK+Nn
+         4T3lZREWFgS6z08+AN5tCHTzDFalmthog4zKqD/ibwczAXytixWyZDgmjxShd+yvaz
+         NgaesZZ1Sj9XDZXWUWk9XJUkIaMMBvuKRi2j390M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Georg Hofmann <georg@hofmannsweb.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+Cc:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 38/99] watchdog: imx2_wdt: Fix set_timeout for big timeout values
-Date:   Sat,  1 Jun 2019 09:22:45 -0400
-Message-Id: <20190601132346.26558-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 37/99] watchdog: Use depends instead of select for pretimeout governors
+Date:   Sat,  1 Jun 2019 09:22:44 -0400
+Message-Id: <20190601132346.26558-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132346.26558-1-sashal@kernel.org>
 References: <20190601132346.26558-1-sashal@kernel.org>
@@ -60,41 +59,94 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Georg Hofmann <georg@hofmannsweb.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit b07e228eee69601addba98b47b1a3850569e5013 ]
+[ Upstream commit f627ac0e12cd2736e60b9f5782ecec1d97251f77 ]
 
-The documentated behavior is: if max_hw_heartbeat_ms is implemented, the
-minimum of the set_timeout argument and max_hw_heartbeat_ms should be used.
-This patch implements this behavior.
-Previously only the first 7bits were used and the input argument was
-returned.
+Watchdog pretimeout governors were enabled from the default governor
+selection using "select". As a result, the default governor was always
+built into the kernel, even if no watchdog driver was loaded. By using
+"depends on" instead of "select", we are in better control, and the
+governors can all be built as modules. At the same time, set the default
+configuration option for pretimeout governors to match WATCHDOG_CORE
+(meaning all pretimeout governors are by default enabled if pretimeout
+support is enabled).
 
-Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The practical impact of this change is minimal. Previously, selecting
+a default governor automatically enabled that governor. Now, a default
+governor can only be selected if that governor has been enabled.
+Consequently, the order of governor selection is now reversed: The
+governor selection is now first, followed by default governor selection.
+
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/imx2_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/Kconfig | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 518dfa1047cbd..5098982e1a585 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -181,8 +181,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
- {
--	__imx2_wdt_set_timeout(wdog, new_timeout);
-+	unsigned int actual;
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 3ece1335ba840..ddd4a06b2ab8c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1946,6 +1946,20 @@ config WATCHDOG_PRETIMEOUT_GOV
  
-+	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
-+	__imx2_wdt_set_timeout(wdog, actual);
- 	wdog->timeout = new_timeout;
- 	return 0;
- }
+ if WATCHDOG_PRETIMEOUT_GOV
+ 
++config WATCHDOG_PRETIMEOUT_GOV_NOOP
++	tristate "Noop watchdog pretimeout governor"
++	default WATCHDOG_CORE
++	help
++	  Noop watchdog pretimeout governor, only an informational
++	  message is added to kernel log buffer.
++
++config WATCHDOG_PRETIMEOUT_GOV_PANIC
++	tristate "Panic watchdog pretimeout governor"
++	default WATCHDOG_CORE
++	help
++	  Panic watchdog pretimeout governor, on watchdog pretimeout
++	  event put the kernel into panic.
++
+ choice
+ 	prompt "Default Watchdog Pretimeout Governor"
+ 	default WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+@@ -1956,7 +1970,7 @@ choice
+ 
+ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
+ 	bool "noop"
+-	select WATCHDOG_PRETIMEOUT_GOV_NOOP
++	depends on WATCHDOG_PRETIMEOUT_GOV_NOOP
+ 	help
+ 	  Use noop watchdog pretimeout governor by default. If noop
+ 	  governor is selected by a user, write a short message to
+@@ -1964,7 +1978,7 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
+ 
+ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+ 	bool "panic"
+-	select WATCHDOG_PRETIMEOUT_GOV_PANIC
++	depends on WATCHDOG_PRETIMEOUT_GOV_PANIC
+ 	help
+ 	  Use panic watchdog pretimeout governor by default, if
+ 	  a watchdog pretimeout event happens, consider that
+@@ -1972,18 +1986,6 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+ 
+ endchoice
+ 
+-config WATCHDOG_PRETIMEOUT_GOV_NOOP
+-	tristate "Noop watchdog pretimeout governor"
+-	help
+-	  Noop watchdog pretimeout governor, only an informational
+-	  message is added to kernel log buffer.
+-
+-config WATCHDOG_PRETIMEOUT_GOV_PANIC
+-	tristate "Panic watchdog pretimeout governor"
+-	help
+-	  Panic watchdog pretimeout governor, on watchdog pretimeout
+-	  event put the kernel into panic.
+-
+ endif # WATCHDOG_PRETIMEOUT_GOV
+ 
+ endif # WATCHDOG
 -- 
 2.20.1
 
