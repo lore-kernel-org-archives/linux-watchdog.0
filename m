@@ -2,196 +2,96 @@ Return-Path: <SRS0=BVI6=UE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C203C28CC5
-	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Jun 2019 14:07:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6F7DC28CC5
+	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Jun 2019 22:31:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3BCBF20693
-	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Jun 2019 14:07:11 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=prevas.se header.i=@prevas.se header.b="TYG30B5+"
+	by mail.kernel.org (Postfix) with ESMTP id C8D5620717
+	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Jun 2019 22:31:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728247AbfFEOG6 (ORCPT
+        id S1726554AbfFEWbZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 5 Jun 2019 10:06:58 -0400
-Received: from mail-eopbgr30099.outbound.protection.outlook.com ([40.107.3.99]:52096
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727936AbfFEOG6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Jun 2019 10:06:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.se;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OTWPGD1LFbcAOC7AbRTtdf/BfQ4/vbel62sROWapj1o=;
- b=TYG30B5+VUqeS1UnxMvoxsIIE5f0b1cmzUhGM9alpGlwRdyivYD5IbP4JAdKL3WyhXmE8cMU2iA6LXkWq3L2hwGZbh/KI97n+ijb5fN0kA21mhJQ7ia4TI4tvDrwyYvMpkq6hNa4P8iKk4h5AmscpBegPkl15z9PjW1Gf6JFEo8=
-Received: from VI1PR10MB2639.EURPRD10.PROD.OUTLOOK.COM (20.178.126.80) by
- VI1PR10MB2382.EURPRD10.PROD.OUTLOOK.COM (20.177.62.138) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1965.12; Wed, 5 Jun 2019 14:06:51 +0000
-Received: from VI1PR10MB2639.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::8844:426d:816b:f5d5]) by VI1PR10MB2639.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::8844:426d:816b:f5d5%6]) with mapi id 15.20.1965.011; Wed, 5 Jun 2019
- 14:06:51 +0000
-From:   Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Jonathan Corbet <corbet@lwn.net>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Esben Haabendal <esben@haabendal.dk>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
-Subject: [PATCH v10 1/3] watchdog: introduce watchdog.open_timeout commandline
- parameter
-Thread-Topic: [PATCH v10 1/3] watchdog: introduce watchdog.open_timeout
- commandline parameter
-Thread-Index: AQHVG6fmrk5axvbLdE2WvNl02CTuBA==
-Date:   Wed, 5 Jun 2019 14:06:41 +0000
-Message-ID: <20190605140628.618-2-rasmus.villemoes@prevas.dk>
-References: <20190605140628.618-1-rasmus.villemoes@prevas.dk>
-In-Reply-To: <20190605140628.618-1-rasmus.villemoes@prevas.dk>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: HE1PR0202CA0034.eurprd02.prod.outlook.com
- (2603:10a6:3:e4::20) To VI1PR10MB2639.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:803:e1::16)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Rasmus.Villemoes@prevas.se; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.20.1
-x-originating-ip: [81.216.59.226]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: bd659fc9-0639-4757-dc31-08d6e9bf08df
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:VI1PR10MB2382;
-x-ms-traffictypediagnostic: VI1PR10MB2382:
-x-microsoft-antispam-prvs: <VI1PR10MB2382CF41047A054E3A4771098A160@VI1PR10MB2382.EURPRD10.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 00594E8DBA
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(376002)(366004)(39850400004)(346002)(396003)(136003)(189003)(199004)(43544003)(6436002)(66066001)(76176011)(5660300002)(52116002)(478600001)(107886003)(71200400001)(71190400001)(6486002)(74482002)(3846002)(6116002)(44832011)(72206003)(2501003)(6512007)(54906003)(6666004)(486006)(2906002)(102836004)(73956011)(110136005)(8976002)(6506007)(99286004)(7736002)(386003)(53936002)(64756008)(446003)(316002)(476003)(66946007)(66556008)(81156014)(8676002)(81166006)(66446008)(11346002)(66476007)(4326008)(14454004)(50226002)(25786009)(2616005)(305945005)(26005)(36756003)(68736007)(42882007)(186003)(256004)(8936002)(14444005)(1076003);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR10MB2382;H:VI1PR10MB2639.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: prevas.se does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: F2+mwUTWk6i5MnfHm5+SIffhHgEjxRvvPwzaBPDG/ifjv0gLUtCpAfsyN8hFbyy/2bw3qkpAKLaOzw3bQHX4iug8Qeo8H0rBsAvFCKpj8mKl5eYDSbPlt5FYXw2htOeKwjrqj4uucbrQM6xrgBnGzjxU818EkZGaFTsS5bCsIV9cTsoFlnZoe99u7qi1Rf/CcR+vvE83GXYp1wQEZ7Ps06/Nc4PeYFiIsDDXGbMq2/kaTLDLHLFLyYzcvUhWQKhZk6lVrp37R7cIqrQsjbQXFsDg6TZemAFl1zoWsqo8G8vOTVwG6+j9M86mpoGRTNzQ6fN074vf1KHnC10yz+0Qt+3JDqZMTJxZXFRyyq0q3lIDqFqJ0jP7WkyvRK1w2yKeAfOaaTwqlcTAeBCWoqOUYEBw2PB+NLH1qXJgg/qq+GA=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Wed, 5 Jun 2019 18:31:25 -0400
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:37830 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726502AbfFEWbZ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 5 Jun 2019 18:31:25 -0400
+Received: from pps.filterd (m0148663.ppops.net [127.0.0.1])
+        by mx0a-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x55MPvsO026302;
+        Wed, 5 Jun 2019 22:31:05 GMT
+Received: from g4t3425.houston.hpe.com (g4t3425.houston.hpe.com [15.241.140.78])
+        by mx0a-002e3701.pphosted.com with ESMTP id 2sxkhks4xy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jun 2019 22:31:04 +0000
+Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
+        by g4t3425.houston.hpe.com (Postfix) with ESMTP id 21264BA;
+        Wed,  5 Jun 2019 22:31:03 +0000 (UTC)
+Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
+        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 41A0F4F;
+        Wed,  5 Jun 2019 22:31:03 +0000 (UTC)
+Date:   Wed, 5 Jun 2019 16:31:03 -0600
+From:   Jerry Hoemann <jerry.hoemann@hpe.com>
+To:     linux@roeck-us.net, wim@linux-watchdog.org,
+        linux-watchdog@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] watchdog/hpwdt: cleanups and kdump accommodations
+Message-ID: <20190605223102.GA23382@anatevka>
+Reply-To: Jerry.Hoemann@hpe.com
+References: <1558126783-4877-1-git-send-email-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
-X-OriginatorOrg: prevas.dk
-X-MS-Exchange-CrossTenant-Network-Message-Id: bd659fc9-0639-4757-dc31-08d6e9bf08df
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Jun 2019 14:06:41.9376
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: d350cf71-778d-4780-88f5-071a4cb1ed61
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Rasmus.Villemoes@prevas.dk
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB2382
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1558126783-4877-1-git-send-email-jerry.hoemann@hpe.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-05_14:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=984 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906050143
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-VGhlIHdhdGNoZG9nIGZyYW1ld29yayB0YWtlcyBjYXJlIG9mIGZlZWRpbmcgYSBoYXJkd2FyZSB3
-YXRjaGRvZyB1bnRpbA0KdXNlcnNwYWNlIG9wZW5zIC9kZXYvd2F0Y2hkb2dOLiBJZiB0aGF0IG5l
-dmVyIGhhcHBlbnMgZm9yIHNvbWUgcmVhc29uDQooYnVnZ3kgaW5pdCBzY3JpcHQsIGNvcnJ1cHQg
-cm9vdCBmaWxlc3lzdGVtIG9yIHdoYXRub3QpIGJ1dCB0aGUga2VybmVsDQppdHNlbGYgaXMgZmlu
-ZSwgdGhlIG1hY2hpbmUgc3RheXMgdXAgaW5kZWZpbml0ZWx5LiBUaGlzIHBhdGNoIGFsbG93cw0K
-c2V0dGluZyBhbiB1cHBlciBsaW1pdCBmb3IgaG93IGxvbmcgdGhlIGtlcm5lbCB3aWxsIHRha2Ug
-Y2FyZSBvZiB0aGUNCndhdGNoZG9nLCB0aHVzIGVuc3VyaW5nIHRoYXQgdGhlIHdhdGNoZG9nIHdp
-bGwgZXZlbnR1YWxseSByZXNldCB0aGUNCm1hY2hpbmUuDQoNCkEgdmFsdWUgb2YgMCAodGhlIGRl
-ZmF1bHQpIG1lYW5zIGluZmluaXRlIHRpbWVvdXQsIHByZXNlcnZpbmcgdGhlDQpjdXJyZW50IGJl
-aGF2aW91ci4NCg0KVGhpcyBpcyBwYXJ0aWN1bGFybHkgdXNlZnVsIGZvciBlbWJlZGRlZCBkZXZp
-Y2VzIHdoZXJlIHNvbWUgZmFsbGJhY2sNCmxvZ2ljIGlzIGltcGxlbWVudGVkIGluIHRoZSBib290
-bG9hZGVyIChlLmcuLCB1c2UgYSBkaWZmZXJlbnQgcm9vdA0KcGFydGl0aW9uLCBib290IGZyb20g
-bmV0d29yaywgLi4uKS4NCg0KVGhlcmUgaXMgYWxyZWFkeSBoYW5kbGVfYm9vdF9lbmFibGVkIHNl
-cnZpbmcgYSBzaW1pbGFyIHB1cnBvc2UuIEhvd2V2ZXIsDQpzdWNoIGEgYmluYXJ5IGNob2ljZSBp
-cyB1bnN1aXRhYmxlIGlmIHRoZSBoYXJkd2FyZSB3YXRjaGRvZyBjYW5ub3QgYmUNCnByb2dyYW1t
-ZWQgYnkgdGhlIGJvb3Rsb2FkZXIgdG8gcHJvdmlkZSBhIHRpbWVvdXQgbG9uZyBlbm91Z2ggZm9y
-DQp1c2Vyc3BhY2UgdG8gZ2V0IHVwIGFuZCBydW5uaW5nLiBNYW55IG9mIHRoZSBlbWJlZGRlZCBk
-ZXZpY2VzIHdlIHNlZSB1c2UNCmV4dGVybmFsIChncGlvLXRyaWdnZXJlZCkgd2F0Y2hkb2dzIHdp
-dGggYSBmaXhlZCB0aW1lb3V0IG9mIHRoZSBvcmRlciBvZg0KMS0yIHNlY29uZHMuDQoNClRoZSBv
-cGVuIHRpbWVvdXQgb25seSBhcHBsaWVzIGZvciB0aGUgZmlyc3Qgb3BlbiBmcm9tDQp1c2Vyc3Bh
-Y2UuIFNob3VsZCB1c2Vyc3BhY2UgbmVlZCB0byBjbG9zZSB0aGUgd2F0Y2hkb2cgZGV2aWNlLCB3
-aXRoDQp0aGUgaW50ZW50aW9uIG9mIHJlLW9wZW5pbmcgaXQgc2hvcnRseSwgdGhlIGFwcGxpY2F0
-aW9uIGNhbiBlbXVsYXRlDQp0aGUgb3BlbiB0aW1lb3V0IGZlYXR1cmUgYnkgY29tYmluaW5nIHRo
-ZSBub3dheW91dCBmZWF0dXJlIHdpdGggYW4NCmFwcHJvcHJpYXRlIFdESU9DX1NFVFRJTUVPVVQg
-aW1tZWRpYXRlbHkgcHJpb3IgdG8gY2xvc2luZyB0aGUgZGV2aWNlLg0KDQpTaWduZWQtb2ZmLWJ5
-OiBSYXNtdXMgVmlsbGVtb2VzIDxyYXNtdXMudmlsbGVtb2VzQHByZXZhcy5kaz4NCi0tLQ0KIC4u
-Li93YXRjaGRvZy93YXRjaGRvZy1wYXJhbWV0ZXJzLnR4dCAgICAgICAgICB8ICA4ICsrKysrDQog
-ZHJpdmVycy93YXRjaGRvZy93YXRjaGRvZ19kZXYuYyAgICAgICAgICAgICAgIHwgMzYgKysrKysr
-KysrKysrKysrKysrLQ0KIDIgZmlsZXMgY2hhbmdlZCwgNDMgaW5zZXJ0aW9ucygrKSwgMSBkZWxl
-dGlvbigtKQ0KDQpkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi93YXRjaGRvZy93YXRjaGRvZy1w
-YXJhbWV0ZXJzLnR4dCBiL0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ctcGFyYW1ldGVy
-cy50eHQNCmluZGV4IDBiODhlMzMzZjllMS4uMzJkMzYwNmNhYTY1IDEwMDY0NA0KLS0tIGEvRG9j
-dW1lbnRhdGlvbi93YXRjaGRvZy93YXRjaGRvZy1wYXJhbWV0ZXJzLnR4dA0KKysrIGIvRG9jdW1l
-bnRhdGlvbi93YXRjaGRvZy93YXRjaGRvZy1wYXJhbWV0ZXJzLnR4dA0KQEAgLTgsNiArOCwxNCBA
-QCBTZWUgRG9jdW1lbnRhdGlvbi9hZG1pbi1ndWlkZS9rZXJuZWwtcGFyYW1ldGVycy5yc3QgZm9y
-IGluZm9ybWF0aW9uIG9uDQogcHJvdmlkaW5nIGtlcm5lbCBwYXJhbWV0ZXJzIGZvciBidWlsdGlu
-IGRyaXZlcnMgdmVyc3VzIGxvYWRhYmxlDQogbW9kdWxlcy4NCiANCitUaGUgd2F0Y2hkb2cgY29y
-ZSBwYXJhbWV0ZXIgd2F0Y2hkb2cub3Blbl90aW1lb3V0IGlzIHRoZSBtYXhpbXVtIHRpbWUsDQor
-aW4gc2Vjb25kcywgZm9yIHdoaWNoIHRoZSB3YXRjaGRvZyBmcmFtZXdvcmsgd2lsbCB0YWtlIGNh
-cmUgb2YgcGluZ2luZw0KK2EgcnVubmluZyBoYXJkd2FyZSB3YXRjaGRvZyB1bnRpbCB1c2Vyc3Bh
-Y2Ugb3BlbnMgdGhlIGNvcnJlc3BvbmRpbmcNCisvZGV2L3dhdGNoZG9nTiBkZXZpY2UuIEEgdmFs
-dWUgb2YgMCAodGhlIGRlZmF1bHQpIG1lYW5zIGFuIGluZmluaXRlDQordGltZW91dC4gU2V0dGlu
-ZyB0aGlzIHRvIGEgbm9uLXplcm8gdmFsdWUgY2FuIGJlIHVzZWZ1bCB0byBlbnN1cmUgdGhhdA0K
-K2VpdGhlciB1c2Vyc3BhY2UgY29tZXMgdXAgcHJvcGVybHksIG9yIHRoZSBib2FyZCBnZXRzIHJl
-c2V0IGFuZCBhbGxvd3MNCitmYWxsYmFjayBsb2dpYyBpbiB0aGUgYm9vdGxvYWRlciB0byB0cnkg
-c29tZXRoaW5nIGVsc2UuDQorDQogDQogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLQ0KIGFjcXVpcmV3ZHQ6DQpkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRj
-aGRvZy93YXRjaGRvZ19kZXYuYyBiL2RyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2dfZGV2LmMNCmlu
-ZGV4IDI1MmE3YzdiNjU5Mi4uZTRiNTFkYjQ4ZjBlIDEwMDY0NA0KLS0tIGEvZHJpdmVycy93YXRj
-aGRvZy93YXRjaGRvZ19kZXYuYw0KKysrIGIvZHJpdmVycy93YXRjaGRvZy93YXRjaGRvZ19kZXYu
-Yw0KQEAgLTY5LDYgKzY5LDcgQEAgc3RydWN0IHdhdGNoZG9nX2NvcmVfZGF0YSB7DQogCXN0cnVj
-dCBtdXRleCBsb2NrOw0KIAlrdGltZV90IGxhc3Rfa2VlcGFsaXZlOw0KIAlrdGltZV90IGxhc3Rf
-aHdfa2VlcGFsaXZlOw0KKwlrdGltZV90IG9wZW5fZGVhZGxpbmU7DQogCXN0cnVjdCBocnRpbWVy
-IHRpbWVyOw0KIAlzdHJ1Y3Qga3RocmVhZF93b3JrIHdvcms7DQogCXVuc2lnbmVkIGxvbmcgc3Rh
-dHVzOwkJLyogSW50ZXJuYWwgc3RhdHVzIGJpdHMgKi8NCkBAIC04Nyw2ICs4OCwxOSBAQCBzdGF0
-aWMgc3RydWN0IGt0aHJlYWRfd29ya2VyICp3YXRjaGRvZ19rd29ya2VyOw0KIHN0YXRpYyBib29s
-IGhhbmRsZV9ib290X2VuYWJsZWQgPQ0KIAlJU19FTkFCTEVEKENPTkZJR19XQVRDSERPR19IQU5E
-TEVfQk9PVF9FTkFCTEVEKTsNCiANCitzdGF0aWMgdW5zaWduZWQgb3Blbl90aW1lb3V0Ow0KKw0K
-K3N0YXRpYyBib29sIHdhdGNoZG9nX3Bhc3Rfb3Blbl9kZWFkbGluZShzdHJ1Y3Qgd2F0Y2hkb2df
-Y29yZV9kYXRhICpkYXRhKQ0KK3sNCisJcmV0dXJuIGt0aW1lX2FmdGVyKGt0aW1lX2dldCgpLCBk
-YXRhLT5vcGVuX2RlYWRsaW5lKTsNCit9DQorDQorc3RhdGljIHZvaWQgd2F0Y2hkb2dfc2V0X29w
-ZW5fZGVhZGxpbmUoc3RydWN0IHdhdGNoZG9nX2NvcmVfZGF0YSAqZGF0YSkNCit7DQorCWRhdGEt
-Pm9wZW5fZGVhZGxpbmUgPSBvcGVuX3RpbWVvdXQgPw0KKwkJa3RpbWVfZ2V0KCkgKyBrdGltZV9z
-ZXQob3Blbl90aW1lb3V0LCAwKSA6IEtUSU1FX01BWDsNCit9DQorDQogc3RhdGljIGlubGluZSBi
-b29sIHdhdGNoZG9nX25lZWRfd29ya2VyKHN0cnVjdCB3YXRjaGRvZ19kZXZpY2UgKndkZCkNCiB7
-DQogCS8qIEFsbCB2YXJpYWJsZXMgaW4gbWlsbGktc2Vjb25kcyAqLw0KQEAgLTIxMSw3ICsyMjUs
-MTMgQEAgc3RhdGljIGJvb2wgd2F0Y2hkb2dfd29ya2VyX3Nob3VsZF9waW5nKHN0cnVjdCB3YXRj
-aGRvZ19jb3JlX2RhdGEgKndkX2RhdGEpDQogew0KIAlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3
-ZGQgPSB3ZF9kYXRhLT53ZGQ7DQogDQotCXJldHVybiB3ZGQgJiYgKHdhdGNoZG9nX2FjdGl2ZSh3
-ZGQpIHx8IHdhdGNoZG9nX2h3X3J1bm5pbmcod2RkKSk7DQorCWlmICghd2RkKQ0KKwkJcmV0dXJu
-IGZhbHNlOw0KKw0KKwlpZiAod2F0Y2hkb2dfYWN0aXZlKHdkZCkpDQorCQlyZXR1cm4gdHJ1ZTsN
-CisNCisJcmV0dXJuIHdhdGNoZG9nX2h3X3J1bm5pbmcod2RkKSAmJiAhd2F0Y2hkb2dfcGFzdF9v
-cGVuX2RlYWRsaW5lKHdkX2RhdGEpOw0KIH0NCiANCiBzdGF0aWMgdm9pZCB3YXRjaGRvZ19waW5n
-X3dvcmsoc3RydWN0IGt0aHJlYWRfd29yayAqd29yaykNCkBAIC04MjQsNiArODQ0LDE1IEBAIHN0
-YXRpYyBpbnQgd2F0Y2hkb2dfb3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAq
-ZmlsZSkNCiAJaWYgKCFod19ydW5uaW5nKQ0KIAkJa3JlZl9nZXQoJndkX2RhdGEtPmtyZWYpOw0K
-IA0KKwkvKg0KKwkgKiBvcGVuX3RpbWVvdXQgb25seSBhcHBsaWVzIGZvciB0aGUgZmlyc3Qgb3Bl
-biBmcm9tDQorCSAqIHVzZXJzcGFjZS4gU2V0IG9wZW5fZGVhZGxpbmUgdG8gaW5maW5pdHkgc28g
-dGhhdCB0aGUga2VybmVsDQorCSAqIHdpbGwgdGFrZSBjYXJlIG9mIGFuIGFsd2F5cy1ydW5uaW5n
-IGhhcmR3YXJlIHdhdGNoZG9nIGluDQorCSAqIGNhc2UgdGhlIGRldmljZSBnZXRzIG1hZ2ljLWNs
-b3NlZCBvciBXRElPU19ESVNBQkxFQ0FSRCBpcw0KKwkgKiBhcHBsaWVkLg0KKwkgKi8NCisJd2Rf
-ZGF0YS0+b3Blbl9kZWFkbGluZSA9IEtUSU1FX01BWDsNCisNCiAJLyogZGV2L3dhdGNoZG9nIGlz
-IGEgdmlydHVhbCAoYW5kIHRodXMgbm9uLXNlZWthYmxlKSBmaWxlc3lzdGVtICovDQogCXJldHVy
-biBzdHJlYW1fb3Blbihpbm9kZSwgZmlsZSk7DQogDQpAQCAtOTgzLDYgKzEwMTIsNyBAQCBzdGF0
-aWMgaW50IHdhdGNoZG9nX2NkZXZfcmVnaXN0ZXIoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2Rk
-LCBkZXZfdCBkZXZubykNCiANCiAJLyogUmVjb3JkIHRpbWUgb2YgbW9zdCByZWNlbnQgaGVhcnRi
-ZWF0IGFzICdqdXN0IGJlZm9yZSBub3cnLiAqLw0KIAl3ZF9kYXRhLT5sYXN0X2h3X2tlZXBhbGl2
-ZSA9IGt0aW1lX3N1YihrdGltZV9nZXQoKSwgMSk7DQorCXdhdGNoZG9nX3NldF9vcGVuX2RlYWRs
-aW5lKHdkX2RhdGEpOw0KIA0KIAkvKg0KIAkgKiBJZiB0aGUgd2F0Y2hkb2cgaXMgcnVubmluZywg
-cHJldmVudCBpdHMgZHJpdmVyIGZyb20gYmVpbmcgdW5sb2FkZWQsDQpAQCAtMTE4MSwzICsxMjEx
-LDcgQEAgbW9kdWxlX3BhcmFtKGhhbmRsZV9ib290X2VuYWJsZWQsIGJvb2wsIDA0NDQpOw0KIE1P
-RFVMRV9QQVJNX0RFU0MoaGFuZGxlX2Jvb3RfZW5hYmxlZCwNCiAJIldhdGNoZG9nIGNvcmUgYXV0
-by11cGRhdGVzIGJvb3QgZW5hYmxlZCB3YXRjaGRvZ3MgYmVmb3JlIHVzZXJzcGFjZSB0YWtlcyBv
-dmVyIChkZWZhdWx0PSINCiAJX19NT0RVTEVfU1RSSU5HKElTX0VOQUJMRUQoQ09ORklHX1dBVENI
-RE9HX0hBTkRMRV9CT09UX0VOQUJMRUQpKSAiKSIpOw0KKw0KK21vZHVsZV9wYXJhbShvcGVuX3Rp
-bWVvdXQsIHVpbnQsIDA2NDQpOw0KK01PRFVMRV9QQVJNX0RFU0Mob3Blbl90aW1lb3V0LA0KKwki
-TWF4aW11bSB0aW1lIChpbiBzZWNvbmRzLCAwIG1lYW5zIGluZmluaXR5KSBmb3IgdXNlcnNwYWNl
-IHRvIHRha2Ugb3ZlciBhIHJ1bm5pbmcgd2F0Y2hkb2cgKGRlZmF1bHQ9MCkiKTsNCi0tIA0KMi4y
-MC4xDQoNCg==
+On Fri, May 17, 2019 at 02:59:37PM -0600, Jerry Hoemann wrote:
+> First two changes makes hpwdt more generic.
+> Next two changes make hpwdt work better with kdump.
+> 
+
+Hi Guenter,
+
+Did you have feedback on this patch set?
+
+Thanks
+
+Jerry
+
+
+> 
+> Jerry Hoemann (6):
+>   watchdog/hpwdt: Stop hpwdt on unregister.
+>   watchdog/hpwdt: Advertize max_hw_heartbeat_ms
+>   watchdog/hpwdt: Have core ping watchdog.
+>   watchdog/hpwdt: Add module parameter kdumptimeout.
+>   watchdog/hpwdt: Update documentation
+>   watchdog/hpwdt: Reflect changes
+> 
+>  Documentation/watchdog/hpwdt.txt |  4 +++
+>  drivers/watchdog/hpwdt.c         | 55 ++++++++++++++++++++++++++++++----------
+>  2 files changed, 45 insertions(+), 14 deletions(-)
+> 
+> -- 
+> 1.8.3.1
+
+-- 
+
+-----------------------------------------------------------------------------
+Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
+-----------------------------------------------------------------------------
