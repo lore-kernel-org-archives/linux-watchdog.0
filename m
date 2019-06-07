@@ -1,106 +1,203 @@
-Return-Path: <SRS0=zSU+=UF=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=q5bV=UG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9007C04AB5
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Jun 2019 21:22:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29F65C2BCA1
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Jun 2019 12:40:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 75F2E208E3
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Jun 2019 21:22:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5A6C2089E
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Jun 2019 12:40:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r8XX0OP5"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c6WpfqQD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbfFFVWV (ORCPT
+        id S1727450AbfFGMkr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 6 Jun 2019 17:22:21 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:39984 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726531AbfFFVWU (ORCPT
+        Fri, 7 Jun 2019 08:40:47 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38404 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727102AbfFGMkr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Jun 2019 17:22:20 -0400
-Received: by mail-pl1-f195.google.com with SMTP id a93so1418924pla.7;
-        Thu, 06 Jun 2019 14:22:20 -0700 (PDT)
+        Fri, 7 Jun 2019 08:40:47 -0400
+Received: by mail-pf1-f193.google.com with SMTP id a186so1139370pfa.5;
+        Fri, 07 Jun 2019 05:40:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=RBQnY16OoiSU9x2fTbRylbra8bvQfhJHveZ7KsLfXLE=;
-        b=r8XX0OP59OQafz2qMA3prFHhtITzIOlZ9tRNin1PaPA5CRz3/Rmq6Gp1R0CCilbiQ5
-         9ah41993Yr8w0VBOaqbMcaz5gZrghaXz7dd9TfCi2k0ctANR7Vl7VwL/QtH8BoZL0Ojf
-         gAcrDEb4VAuNbzVkL0jjpJzoTmWhj5x4WywG7yijizhplmGQFUkxWAIWZib+N1nvF4C+
-         Oks7Dnca+eP8AhqzRHkpXPdFTIEOvRncvW1kFuJrqwUlC86oBSFN1oSRlYashgjYO3AD
-         DsFuIRvZzlRrlXmDCjqkNCYlTAAMpmoYRWH5rkTSO+dji/GWII3FLXGZ8+9FtDs3XmbF
-         AuOg==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=9agjdYCFnOWdtpDyphPqUUWHjCoYb24AFnU1NhNh4UU=;
+        b=c6WpfqQDrvjtE8UnxdDIKkxBnZe2fQjsDpl9jhuV8jV3r0Ak0F7b32GrRLDtf2qRrc
+         FIsPdeo87ZeR9JvHqITNgac6Ck1LGTzVtW/2kBgnxZohGa9tTlVA/HUccEOQ2l/KUK4C
+         WOZooh1ewy/OnLAvIHt1T4crt/+GNmywZqQI8fs8mqXt1TZOUadiYDyJTNT3/mmI3BMY
+         k3eIiTpZcELA0ZrBf2OjN7bFlKGw2v+LJcSxdTiHdteIl6n+trrl782HdmnZvAd6hmnB
+         rcuRIDzMFsXx+8pDRPz2zI3xDAX5EY71LCMJxiNUdIUsBOJXTmO3GQ+Lywrx501pI2oL
+         5bgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=RBQnY16OoiSU9x2fTbRylbra8bvQfhJHveZ7KsLfXLE=;
-        b=NiubWLt12uUebtJ81r7DBcqT+v97M2VdlGTHjQfRgSXwH8QE26x2yFcRLILefGQsK4
-         Xek48nIkv109K7EfWk6Bx6Bx7AEtBIHZat8/0uohMda0whaBhJpgiChxdIZuLmQKGbUW
-         rMzfEUL619TdnX7b3MMChrsBM/OrDjTL84TFnvvESMCfsfPslMOHXTngXFkY1yDX/lF5
-         HDOHEc7P6Ls50iFEkVL9dvoU03FTWo1IRPg2YH2XQfyPp2cus9W78p01XwZT+ue7eyAo
-         xhPDreN9mLe2boKlPUhnijKWDXif9j4FcKWV4jBykDSMU9AJ/kjkf4i7tLcGmj/lVgtj
-         67uA==
-X-Gm-Message-State: APjAAAXtvW4MsU4WjwPv4+BvDCKCQw7iXpcmrrkxV2p0gCVWzKmnt/M0
-        U1bRxcjuBXUZrd48x+/UBGQ=
-X-Google-Smtp-Source: APXvYqxBi6parEcN6dotMYwWVEm/YadS+PaoRNAtjRDPTr29165cicwhTFOnicMr2GAtIb9XE0WQNA==
-X-Received: by 2002:a17:902:2a69:: with SMTP id i96mr43521459plb.108.1559856140254;
-        Thu, 06 Jun 2019 14:22:20 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k3sm88985pgo.81.2019.06.06.14.22.19
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=9agjdYCFnOWdtpDyphPqUUWHjCoYb24AFnU1NhNh4UU=;
+        b=P+uderktYps6dxusEoPWzD472rIHC0WGjykKmhSXLwiwJg7O3FrkHxKWcvNYrJ2BMP
+         7svH+623TEx6zYhKMa/pVC6eOWGNNFmu02YLPhkX5TuVxGYGPK8TrGwBAp4hE2CSDdoC
+         gizJyeCrOHGbOiyE8Zsxk3Ock1PGxLAj5JlZXcBsYIlv/qeeE4mLcNqZWe5WvSzT4TrV
+         QCBTjwfXDsbick1F/Srswxv+YHEOR6u0lZ3lqret94+PB35WbdaLTuvlstPUkq2xrq05
+         B4E+9w3P2AwCJL/zYWk6LggfMgfFLGKXooQHHr8qNdZHvQQerggOdad+FBbXVe6ll5IU
+         uEEA==
+X-Gm-Message-State: APjAAAX/xxcuXIZXNqanEN4pG8vs6xZSPl0V0ZyJFion2ldJCKYkmSzj
+        u8qSXNfeJNbj+h48k5+iwQurPN3N
+X-Google-Smtp-Source: APXvYqyVZ43jmC/ZJL4AC3z+IYzXlwv2abx6WLtRd0DQsxJooba+4W19apwpKAE9joGHjVpolwwaqg==
+X-Received: by 2002:a17:90a:2e89:: with SMTP id r9mr5125356pjd.117.1559911246082;
+        Fri, 07 Jun 2019 05:40:46 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p23sm1772648pjo.4.2019.06.07.05.40.44
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 06 Jun 2019 14:22:19 -0700 (PDT)
-Date:   Thu, 6 Jun 2019 14:22:18 -0700
+        Fri, 07 Jun 2019 05:40:44 -0700 (PDT)
+Subject: Re: [PATCH 00/46] watchdog: move 'registration failed' messages into
+ core
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org
+References: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Neil Armstrong <narmstrong@baylibre.com>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: meson_wdt: update with SPDX Licence identifier
-Message-ID: <20190606212218.GA1578@roeck-us.net>
-References: <20190520142847.442-1-narmstrong@baylibre.com>
+Message-ID: <3d68d837-ea4e-fd70-27a7-2fb72696e378@roeck-us.net>
+Date:   Fri, 7 Jun 2019 05:40:43 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190520142847.442-1-narmstrong@baylibre.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190518212801.31010-1-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, May 20, 2019 at 04:28:47PM +0200, Neil Armstrong wrote:
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-
-This change has been applied system-wide.
-
-Guenter
-
-> ---
->  drivers/watchdog/meson_wdt.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
+On 5/18/19 2:27 PM, Wolfram Sang wrote:
+> Similar to my recently merged series doing the same for
+> watchdog_init_timeout(), here is a series moving all error messages
+> after a failed {devm_}watchdog_register_device() into the core. Guenter
+> was right, this was even more worth it. For some cases, this also
+> resulted in neat code simplifications.
 > 
-> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-> index 01889cef81e1..3389f4c02603 100644
-> --- a/drivers/watchdog/meson_wdt.c
-> +++ b/drivers/watchdog/meson_wdt.c
-> @@ -1,12 +1,8 @@
-> +// SPDX-License-Identifier: GPL-2.0+
->  /*
->   *      Meson Watchdog Driver
->   *
->   *      Copyright (c) 2014 Carlo Caione
-> - *
-> - *      This program is free software; you can redistribute it and/or
-> - *      modify it under the terms of the GNU General Public License
-> - *      as published by the Free Software Foundation; either version
-> - *      2 of the License, or (at your option) any later version.
->   */
->  
->  #include <linux/clk.h>
+> The core changes were tested with a Renesas Lager (R-Car H2) board. The
+> driver changes were created using a coccinelle script and build-tested
+> by buildbot.
+> 
+> This series is based on Linus' tree as of today which should be close
+> enough to -rc1, I guess. A branch can be found here:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/wdt/register_device
+> 
+> Looking forward to comments.
+> 
+
+For the series:
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> Happy hacking,
+> 
+>     Wolfram
+> 
+> Wolfram Sang (46):
+>    watchdog: make watchdog_deferred_registration_add() void
+>    watchdog: let core print error message when registering device fails
+>    watchdog: aspeed_wdt: drop warning after registering device
+>    watchdog: bcm2835_wdt: drop warning after registering device
+>    watchdog: bcm7038_wdt: drop warning after registering device
+>    watchdog: bcm_kona_wdt: drop warning after registering device
+>    watchdog: cadence_wdt: drop warning after registering device
+>    watchdog: da9052_wdt: drop warning after registering device
+>    watchdog: da9062_wdt: drop warning after registering device
+>    watchdog: davinci_wdt: drop warning after registering device
+>    watchdog: digicolor_wdt: drop warning after registering device
+>    watchdog: ftwdt010_wdt: drop warning after registering device
+>    watchdog: hpwdt: drop warning after registering device
+>    watchdog: i6300esb: drop warning after registering device
+>    watchdog: ie6xx_wdt: drop warning after registering device
+>    watchdog: imx2_wdt: drop warning after registering device
+>    watchdog: imx_sc_wdt: drop warning after registering device
+>    watchdog: intel-mid_wdt: drop warning after registering device
+>    watchdog: jz4740_wdt: drop warning after registering device
+>    watchdog: loongson1_wdt: drop warning after registering device
+>    watchdog: max77620_wdt: drop warning after registering device
+>    watchdog: mei_wdt: drop warning after registering device
+>    watchdog: mena21_wdt: drop warning after registering device
+>    watchdog: menf21bmc_wdt: drop warning after registering device
+>    watchdog: mpc8xxx_wdt: drop warning after registering device
+>    watchdog: ni903x_wdt: drop warning after registering device
+>    watchdog: nic7018_wdt: drop warning after registering device
+>    watchdog: npcm_wdt: drop warning after registering device
+>    watchdog: of_xilinx_wdt: drop warning after registering device
+>    watchdog: pic32-dmt: drop warning after registering device
+>    watchdog: pic32-wdt: drop warning after registering device
+>    watchdog: pnx4008_wdt: drop warning after registering device
+>    watchdog: qcom-wdt: drop warning after registering device
+>    watchdog: rave-sp-wdt: drop warning after registering device
+>    watchdog: s3c2410_wdt: drop warning after registering device
+>    watchdog: sama5d4_wdt: drop warning after registering device
+>    watchdog: sp5100_tco: drop warning after registering device
+>    watchdog: sp805_wdt: drop warning after registering device
+>    watchdog: sprd_wdt: drop warning after registering device
+>    watchdog: st_lpc_wdt: drop warning after registering device
+>    watchdog: stm32_iwdg: drop warning after registering device
+>    watchdog: stmp3xxx_rtc_wdt: drop warning after registering device
+>    watchdog: tegra_wdt: drop warning after registering device
+>    watchdog: ts4800_wdt: drop warning after registering device
+>    watchdog: wm831x_wdt: drop warning after registering device
+>    watchdog: xen_wdt: drop warning after registering device
+> 
+>   drivers/watchdog/aspeed_wdt.c       |  8 +-------
+>   drivers/watchdog/bcm2835_wdt.c      |  4 +---
+>   drivers/watchdog/bcm7038_wdt.c      |  4 +---
+>   drivers/watchdog/bcm_kona_wdt.c     |  4 +---
+>   drivers/watchdog/cadence_wdt.c      |  4 +---
+>   drivers/watchdog/da9052_wdt.c       |  9 +--------
+>   drivers/watchdog/da9062_wdt.c       |  5 +----
+>   drivers/watchdog/davinci_wdt.c      |  8 +-------
+>   drivers/watchdog/digicolor_wdt.c    |  8 +-------
+>   drivers/watchdog/ftwdt010_wdt.c     |  4 +---
+>   drivers/watchdog/hpwdt.c            |  4 +---
+>   drivers/watchdog/i6300esb.c         |  5 +----
+>   drivers/watchdog/ie6xx_wdt.c        |  6 +-----
+>   drivers/watchdog/imx2_wdt.c         |  4 +---
+>   drivers/watchdog/imx_sc_wdt.c       |  8 +-------
+>   drivers/watchdog/intel-mid_wdt.c    |  4 +---
+>   drivers/watchdog/jz4740_wdt.c       |  6 +-----
+>   drivers/watchdog/loongson1_wdt.c    |  4 +---
+>   drivers/watchdog/max77620_wdt.c     |  8 +-------
+>   drivers/watchdog/mei_wdt.c          |  4 +---
+>   drivers/watchdog/mena21_wdt.c       |  4 +---
+>   drivers/watchdog/menf21bmc_wdt.c    |  4 +---
+>   drivers/watchdog/mpc8xxx_wdt.c      |  5 +----
+>   drivers/watchdog/ni903x_wdt.c       |  4 +---
+>   drivers/watchdog/nic7018_wdt.c      |  1 -
+>   drivers/watchdog/npcm_wdt.c         |  4 +---
+>   drivers/watchdog/of_xilinx_wdt.c    |  4 +---
+>   drivers/watchdog/pic32-dmt.c        |  4 +---
+>   drivers/watchdog/pic32-wdt.c        |  4 +---
+>   drivers/watchdog/pnx4008_wdt.c      |  4 +---
+>   drivers/watchdog/qcom-wdt.c         |  4 +---
+>   drivers/watchdog/rave-sp-wdt.c      |  1 -
+>   drivers/watchdog/s3c2410_wdt.c      |  4 +---
+>   drivers/watchdog/sama5d4_wdt.c      |  4 +---
+>   drivers/watchdog/sp5100_tco.c       |  4 +---
+>   drivers/watchdog/sp805_wdt.c        |  5 +----
+>   drivers/watchdog/sprd_wdt.c         |  1 -
+>   drivers/watchdog/st_lpc_wdt.c       |  4 +---
+>   drivers/watchdog/stm32_iwdg.c       |  4 +---
+>   drivers/watchdog/stmp3xxx_rtc_wdt.c |  4 +---
+>   drivers/watchdog/tegra_wdt.c        |  4 +---
+>   drivers/watchdog/ts4800_wdt.c       |  4 +---
+>   drivers/watchdog/watchdog_core.c    | 16 ++++++++++++----
+>   drivers/watchdog/wm831x_wdt.c       |  9 +--------
+>   drivers/watchdog/xen_wdt.c          |  4 +---
+>   45 files changed, 53 insertions(+), 168 deletions(-)
+> 
+
