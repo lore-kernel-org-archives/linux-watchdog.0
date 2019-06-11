@@ -1,217 +1,165 @@
-Return-Path: <SRS0=s1Qs=UJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=dC9n=UK=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80337C43218
-	for <linux-watchdog@archiver.kernel.org>; Mon, 10 Jun 2019 20:52:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7D9DC43218
+	for <linux-watchdog@archiver.kernel.org>; Tue, 11 Jun 2019 05:16:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4235020820
-	for <linux-watchdog@archiver.kernel.org>; Mon, 10 Jun 2019 20:52:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98D312063F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 11 Jun 2019 05:16:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=aampusa.onmicrosoft.com header.i=@aampusa.onmicrosoft.com header.b="uQ856U5P"
+	dkim=pass (1024-bit key) header.d=c-s.fr header.i=@c-s.fr header.b="ZM2bA50B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389703AbfFJUwj (ORCPT
+        id S2390539AbfFKFQk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 10 Jun 2019 16:52:39 -0400
-Received: from mail-eopbgr800097.outbound.protection.outlook.com ([40.107.80.97]:62177
-        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389362AbfFJUwj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Jun 2019 16:52:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=aampusa.onmicrosoft.com; s=selector2-aampusa-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jHHjKf6kuve4zZKO2RaUkh6/E14EwdUI1UTEoLj5Rs8=;
- b=uQ856U5Plqo8Ml5tA784FOMTvh5Kx/bcsa4vh4L6pXg0tHePIbLxVTVOzykaQb/PBgPHQ7TWYmuPFeg7S1w1gAg33djS1CQALxVgzNK/R3hC2ElyYH3mi6NHxLHCz0Nyk8ciBUhbmlzZ3F5xvhbRI9z9e0caROKyENksnK2YALU=
-Received: from BL0PR07MB4115.namprd07.prod.outlook.com (52.132.10.149) by
- BL0PR07MB4082.namprd07.prod.outlook.com (52.132.10.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1965.12; Mon, 10 Jun 2019 20:52:33 +0000
-Received: from BL0PR07MB4115.namprd07.prod.outlook.com
- ([fe80::f064:5129:63c6:d3e]) by BL0PR07MB4115.namprd07.prod.outlook.com
- ([fe80::f064:5129:63c6:d3e%6]) with mapi id 15.20.1965.017; Mon, 10 Jun 2019
- 20:52:33 +0000
-From:   Ken Sloat <KSloat@aampglobal.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC:     "Nicolas.Ferre@microchip.com" <Nicolas.Ferre@microchip.com>,
-        "wim@iguana.be" <wim@iguana.be>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Ken Sloat <KSloat@aampglobal.com>
-Subject: RE: [RFE]: watchdog: atmel: atmel-sama5d4-wdt
-Thread-Topic: [RFE]: watchdog: atmel: atmel-sama5d4-wdt
-Thread-Index: AdUfoOr5PB/8HxffRU28PtnqCbe4YAACJOOAAAfaK4AAAJMTAAAAjEEQ
-Date:   Mon, 10 Jun 2019 20:52:33 +0000
-Message-ID: <BL0PR07MB41151D49B58CDF5E4A34D5A8AD130@BL0PR07MB4115.namprd07.prod.outlook.com>
-References: <BL0PR07MB41152EDB169FE9ED1AD3B4C9AD130@BL0PR07MB4115.namprd07.prod.outlook.com>
- <20190610162811.GA11270@roeck-us.net> <20190610201301.GH25472@piout.net>
- <20190610202928.GB13191@roeck-us.net>
-In-Reply-To: <20190610202928.GB13191@roeck-us.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=KSloat@aampglobal.com; 
-x-originating-ip: [100.3.71.115]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 15b3f4a5-7171-4754-3b69-08d6ede58ff1
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:BL0PR07MB4082;
-x-ms-traffictypediagnostic: BL0PR07MB4082:
-x-microsoft-antispam-prvs: <BL0PR07MB40828AEBC6764A830720DCB4AD130@BL0PR07MB4082.namprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0064B3273C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(39850400004)(376002)(136003)(366004)(346002)(189003)(13464003)(199004)(6436002)(7696005)(99286004)(9686003)(68736007)(55016002)(66066001)(229853002)(5660300002)(14454004)(8676002)(72206003)(7736002)(305945005)(2906002)(71200400001)(81156014)(316002)(81166006)(8936002)(71190400001)(6116002)(3846002)(66946007)(478600001)(54906003)(25786009)(446003)(476003)(110136005)(186003)(11346002)(80792005)(486006)(73956011)(86362001)(64756008)(66446008)(107886003)(53936002)(66556008)(66476007)(6246003)(14444005)(76116006)(256004)(33656002)(74316002)(4326008)(6506007)(76176011)(53546011)(26005)(52536014)(102836004);DIR:OUT;SFP:1102;SCL:1;SRVR:BL0PR07MB4082;H:BL0PR07MB4115.namprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: aampglobal.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: l7F8jaeIMOqhl1eszf4gtmU3fVCUGOLZsdNffOjw9oksNGYBRZCyGDrtu9oDwgjQAoaF2NL4q79wnOvRARNPH38wchCInVXCC6pyLgzZlU+8Bb4fSTgL+FcoFvHteWmGhgSrqBA5Mr9veOfcdlNAyvscpM+F8TU86BLRmCIW504u1zgEfk6jcvJDQ2V84UijwL864VvqVGGmVzjDqzjXm81U0fe+Jqpt0i3Ij3IaDDFz0RuS4xLDWcdEfWA0T7g6BWrhVB4GSEqUnllfyrPpXDJGmDqpH7Z3BH2QQ8w3GYIYhhdFOxJ8P6df9XcA8TlXs5oO3UESDaiJlvdSvn9cwRsvH8iigKtW9lFFRTtJaeMf60WHE2bxkvlYy/bonc2f/gko0qchFWkA5GsQRBDLT2f3xx7IPNzqgcSidIKqMp8=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        Tue, 11 Jun 2019 01:16:40 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:39604 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390492AbfFKFQk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 11 Jun 2019 01:16:40 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 45NJBs4TZ8z9v0Hf;
+        Tue, 11 Jun 2019 07:16:37 +0200 (CEST)
+Authentication-Results: localhost; dkim=pass
+        reason="1024-bit key; insecure key"
+        header.d=c-s.fr header.i=@c-s.fr header.b=ZM2bA50B; dkim-adsp=pass;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id osCSQOoruwUC; Tue, 11 Jun 2019 07:16:37 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 45NJBs3Lcbz9v0Hd;
+        Tue, 11 Jun 2019 07:16:37 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1560230197; bh=LXKYTOIkv8faRWVUtFJZ/3f8x92MBrl1qHecyt/UD2U=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZM2bA50BkKx6bIflEui4+aC9O8kuJIO8JMUK3cPFuhrpIB6LxbWDK9nCwbEctVvZp
+         Z/DJ5g+sN8YsMGKxessWbmFq/MyPd4kczDwkIeFnEgHWap847ZGLjyOTFLkTtrOMKj
+         RmW2QT7wJju8VlrTMoxEtDcg55OmoAchJQ9cw7e4=
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 4305B8B7D3;
+        Tue, 11 Jun 2019 07:16:38 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id hylyZhuksSWQ; Tue, 11 Jun 2019 07:16:38 +0200 (CEST)
+Received: from PO15451 (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id B9AB18B75B;
+        Tue, 11 Jun 2019 07:16:37 +0200 (CEST)
+Subject: Re: [PATCH v2 4/4] watchdog: jz4740: Make probe function
+ __init_or_module
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>, od@zcrc.me,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20190607162429.17915-1-paul@crapouillou.net>
+ <20190607162429.17915-5-paul@crapouillou.net>
+ <0dc0fd0a-54fc-5d70-af78-1874b5ece418@c-s.fr>
+ <1559987821.1815.0@crapouillou.net>
+From:   Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <78ef0273-5ec6-f522-428a-8429f40684ca@c-s.fr>
+Date:   Tue, 11 Jun 2019 07:16:37 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-X-OriginatorOrg: aampglobal.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 15b3f4a5-7171-4754-3b69-08d6ede58ff1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jun 2019 20:52:33.6589
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: e20e3a66-8b9e-46e9-b859-cb654c1ec6ea
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ken.sloat@aampglobal.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR07MB4082
-X-MS-Exchange-CrossPremises-AuthAs: Internal
-X-MS-Exchange-CrossPremises-AuthMechanism: 04
-X-MS-Exchange-CrossPremises-AuthSource: BL0PR07MB4115.namprd07.prod.outlook.com
-X-MS-Exchange-CrossPremises-TransportTrafficType: Email
-X-MS-Exchange-CrossPremises-TransportTrafficSubType: 
-X-MS-Exchange-CrossPremises-SCL: 1
-X-MS-Exchange-CrossPremises-messagesource: StoreDriver
-X-MS-Exchange-CrossPremises-BCC: 
-X-MS-Exchange-CrossPremises-originalclientipaddress: 100.3.71.115
-X-MS-Exchange-CrossPremises-transporttraffictype: Email
-X-MS-Exchange-CrossPremises-transporttrafficsubtype: 
-X-MS-Exchange-CrossPremises-antispam-scancontext: DIR:Originating;SFV:NSPM;SKIP:0;
-X-MS-Exchange-CrossPremises-processed-by-journaling: Journal Agent
-X-OrganizationHeadersPreserved: BL0PR07MB4082.namprd07.prod.outlook.com
+In-Reply-To: <1559987821.1815.0@crapouillou.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-> -----Original Message-----
-> From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
-> Sent: Monday, June 10, 2019 4:29 PM
-> To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: Ken Sloat <KSloat@aampglobal.com>; Nicolas.Ferre@microchip.com;
-> wim@iguana.be; linux-arm-kernel@lists.infradead.org; linux-
-> watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [RFE]: watchdog: atmel: atmel-sama5d4-wdt
->=20
-> [This is an EXTERNAL EMAIL]
-> ________________________________
->=20
-> On Mon, Jun 10, 2019 at 10:13:01PM +0200, Alexandre Belloni wrote:
-> > Hello,
-> >
-> > On 10/06/2019 09:28:11-0700, Guenter Roeck wrote:
-> > > On Mon, Jun 10, 2019 at 03:51:52PM +0000, Ken Sloat wrote:
-> > > > Hello Nicolas,
-> > > >
-> > > > I wanted to open a discussion proposing new functionality to allow
-> > > > disabling of the watchdog timer upon entering suspend in the
-> SAMA5D2/4.
-> > > >
-> > > > Typical use case of a hardware watchdog timer in the kernel is a
-> > > > userspace application opens the watchdog timer and periodically
-> > > > "kicks" it. If the application hits a deadlock somewhere and is no
-> > > > longer able to kick it, then the watchdog intervenes and often
-> > > > resets the processor. Such is the case for the Atmel driver (which
-> > > > also allows a watchdog interrupt to be asserted in lieu of a system
-> reset). In most use cases, upon entering a low power/suspend state, the
-> application will no longer be able to "kick" the watchdog. If the watchdo=
-g is
-> not disabled or kicked via another method, then it will reset the system.=
- This
-> is the current behavior of the Atmel driver as of today.
-> > > >
-> > > > The watchdog peripheral itself does have a "WDIDLEHLT" bit
-> > > > however, and this is enabled via the "atmel,idle-halt" dt
-> > > > property. However, this is not very useful, as it literally only
-> > > > makes the watchdog count when the CPU is active. This results in
-> > > > non-deterministic triggering of the WDT and means that if a
-> > > > critical application were to crash, it may be quite a long time
-> > > > before the WDT would ever trigger. Below is a similar statement
-> > > > made in the device-tree doc for this
-> > > > peripheral:
-> > > >
-> > > > - atmel,idle-halt: present if you want to stop the watchdog when th=
-e
-> CPU is
-> > > >              in idle state.
-> > > >   CAUTION: This property should be used with care, it actually make=
-s
-> the
-> > > >   watchdog not counting when the CPU is in idle state, therefore th=
-e
-> > > >   watchdog reset time depends on mean CPU usage and will not reset =
-at
-> all
-> > > >   if the CPU stop working while it is in idle state, which is proba=
-bly
-> > > >   not what you want.
-> > > >
-> > > > It seems to me, that it would be logical and useful to introduce a
-> > > > new property that would cause the Atmel WDT to disable on suspend
-> > > > and re-enable on resume. It also appears that the WDT is re-initial=
-ized
-> anyways upon resume, so the only piece missing here would really be a dt
-> flag and a call to disable.
-> > > >
-> > > Wondering - why would this need a dt property ? That would be quite
-> > > unusual. Is there a condition where one would _not_ want the watchdog
-> to stop on suspend ?
-> > >
-> >
-> > There are customers that protects suspend/resume using the watchdog.
-> > They wake up their platform every 15s to ping the watchdog.
-> >
->=20
-> Interesting use case.
->=20
-> > Also, I don't see why the application deciding to go to suspend
-> > wouldn't be able to disable the watchdog before do so if this is the wa=
-nted
-> policy.
-> >
->=20
-> Many watchdog drivers already implement suspend/resume support. Such a
-> platform specific functionality seems to be quite undesirable to me.
->=20
-> Besides (and pretty much all watchdog drivers implementing
-> suspend/resume do that wrong), you'd likely want to disable the watchog
-> late during suspend and early during resume to reduce the risk of a hang.=
- I
-> don't think you can do that from userspace.
->=20
+Hi Paul,
 
-Agreed, there's also the risk if using something like wake_count where the=
-=20
-suspend process can be interrupted by the kernel. This just makes for more
-cases that the application has to try and handle, and what happens if the=20
-application hangs/crashes some time between disabling the wdt and suspend?
+Le 08/06/2019 à 11:57, Paul Cercueil a écrit :
+> Hi Christophe,
+> 
+> Le sam. 8 juin 2019 à 9:51, Christophe Leroy <christophe.leroy@c-s.fr> a 
+> écrit :
+>> Hi Paul,
+>>
+>> Le 07/06/2019 à 18:24, Paul Cercueil a écrit :
+>>> This allows the probe function to be dropped after the kernel finished
+>>> its initialization, in the case where the driver was not compiled as a
+>>> module.
+>>
+>> I'm not sure that's what  __init_or_module flag does.
+>>
+>> As far as I understand, this flag makes the function being dropped 
+>> only when the kernel is built without modules support, ie without 
+>> CONFIG_MODULES. See 
+>> https://elixir.bootlin.com/linux/latest/source/include/linux/module.h#L145 
+>>
+> 
+> So it doesn't depend on the driver being built-in or compiled as a module?
 
-Right now, what probably is a very common case of devices that enter low po=
-wer=20
-mode for longer than 16 seconds are precluded from using this WDT.
+No it doesn't. This flag is for built-in functions that are needed by 
+init and modules init. If the kernel doesn't support modules, it can 
+drop the function after init. If the kernel supports modules, it has to 
+keep the function. That's what this flag is made for.
 
-> Thanks,
-> Guenter
+If your need is to mark a function so that it gets discarded after init 
+or module init, just mark it __init. If it is built in, it will be 
+dropped after init. If it is in a module, it will be dropped after the 
+module is initialised.
 
-Thanks,
-Ken
+> 
+>> In addition, I'm not sure you can simply define a probe function as 
+>> __init. What if someone tries to unbind and rebind the device through 
+>> sysfs for instance ?
+> 
+> Ouch. I feel stupid now.
+> 
+>> It seems there is a special function called __platform_driver_probe() 
+>> for registering devices when the probe function is to be in __init, 
+>> see 
+>> https://elixir.bootlin.com/linux/latest/source/drivers/base/platform.c#L684 
+>>
+> 
+> Yes, but only usable by drivers that won't defer probe, and it removes 
+> the bind/unbind attributes from sysfs,
+> so it shouldn't be used for non-critical drivers, I think.
+
+I guess it would make sense for watchdog drivers, we don't expect this 
+kind of driver to be unbinded, do we ?
+
+Christophe
+
+> 
+>> Christophe
+>>
+>>>
+>>> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>> ---
+>>>
+>>> Notes:
+>>>      v2: New patch
+>>>
+>>>   drivers/watchdog/jz4740_wdt.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/watchdog/jz4740_wdt.c 
+>>> b/drivers/watchdog/jz4740_wdt.c
+>>> index 7519d80c5d05..2061788c1939 100644
+>>> --- a/drivers/watchdog/jz4740_wdt.c
+>>> +++ b/drivers/watchdog/jz4740_wdt.c
+>>> @@ -157,7 +157,7 @@ static const struct of_device_id 
+>>> jz4740_wdt_of_matches[] = {
+>>>   MODULE_DEVICE_TABLE(of, jz4740_wdt_of_matches);
+>>>   #endif
+>>>   -static int jz4740_wdt_probe(struct platform_device *pdev)
+>>> +static int __init_or_module jz4740_wdt_probe(struct platform_device 
+>>> *pdev)
+>>>   {
+>>>       struct device *dev = &pdev->dev;
+>>>       struct jz4740_wdt_drvdata *drvdata;
+>>>
+> 
