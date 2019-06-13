@@ -2,55 +2,57 @@ Return-Path: <SRS0=BrKj=UM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53967C31E45
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jun 2019 15:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29C4AC31E45
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jun 2019 15:40:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 20A67206BB
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jun 2019 15:39:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ECAD3206BB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jun 2019 15:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1560440341;
-	bh=X8l9b1+mtsP9NQv7VWDOxVrBKP4hI/3hilidRbcNgbs=;
+	s=default; t=1560440401;
+	bh=3ceyPHgqycnCTWdzbHjsrsnc1YNyzied3A0TUm/Et98=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
-	b=ulTuAwEyDQrVmf6qSQO0zg723WgM//LzJaqWOGoqYU0j2iJ6BW+Bch/72PdiqmYUA
-	 fovhPMuTxuzx5i27GfXhOuvY5xEre25PYyEPsL34Ku2WJUjU/MSJwOPUsaVjOOrC0C
-	 cr0JezzLjkY2a5fmFWPDNIZtNwEYL9jny41c/pSk=
+	b=E0X+pmdydT/qcKIzElJ930+3ZF/xA8ha5JEikB4hYaQ9TO27CC4P+3e++9lCjkiBP
+	 9mWrapnOaC+kQwYmd+UNPqQXFkRDcI8QcT0n/wsvHOWyb0LetvvDR02M1w2110ePdP
+	 SXsg4EdIpf/gN+chwi2QbH8WVEY0T7kHqvwthD6I=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732502AbfFMPjA (ORCPT
+        id S1727143AbfFMPkA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 13 Jun 2019 11:39:00 -0400
-Received: from casper.infradead.org ([85.118.1.10]:33356 "EHLO
+        Thu, 13 Jun 2019 11:40:00 -0400
+Received: from casper.infradead.org ([85.118.1.10]:33140 "EHLO
         casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731937AbfFMJ5P (ORCPT
+        with ESMTP id S1731908AbfFMJyH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Jun 2019 05:57:15 -0400
+        Thu, 13 Jun 2019 05:54:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
         MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender
         :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
         Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
         List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Zd7Y7/fVtcy9h7LRt+pgmFLEzRR3UYPAM2/1CQ/alFQ=; b=tYM5mJx45M6Wd3ewpvbLR86+W8
-        SpwhFYvZ77/1fEg0vrN5CzDDdt/+vsfic0cGQ/f7J09o3yyYkGqCdjhrFm+iw9asBDO2NQD3mykRn
-        RLnFMTe/yn9f4PfWcYypmgjkeYUmtErMwbvH5xgFK5+XI4zUyTvqNm0XZxK8Rrd2W4oo5iZYaR0t8
-        j7jmbSh1GCelXwnZIBgQNJt+VxCQ/scIVaxnx5oEAPDKDIkDLscobgmZdbHfz8IqXzeim4KLK3Hsb
-        UySdk+tcmbbpd2CAxqXL9uLfhZUZ/M8hGAES907CieN7qPt7GVKh06p2EQ+6flP4hkzojBIA/HMP8
-        n7eMhpOw==;
+        bh=0DKB9zhJLJWz7Ucy0xQYpQuP0DMygUsU5rmkGh0Xz9E=; b=ehpVYDyXjcKXf+A96uUPmbjpJw
+        nAODNWeyWF4cwmRynkTd63OL7t7JI5IAb9pmMl5PPxjq2usrYufnmCuay8ibdyx2CTK9xoqZcpwGX
+        ptBhbzPyIMmjdKwyrYqrZlFqfl4VEZabWhbkq8WcLeTegGHV/+J/KAHOq9A1V4KN6Rj15FVXiS9eZ
+        4rzhFvA0E3mC/Mh9lfKGAVH0PDhDNvw22bYK5NXSJVPH/b5qQtkbrj6gSHg71IYR4v0ivmcY6Udc1
+        pfb2pUAga32uwLVccsS61CjTTTf6z8GEtPr5L1wIt0fnzLwKk17+Xg8mQJHGZEgP2zVL3d3AvTUaL
+        elPt7f0w==;
 Received: from 201.86.169.251.dynamic.adsl.gvt.net.br ([201.86.169.251] helo=coco.lan)
         by casper.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hbMTh-0000dd-MK; Thu, 13 Jun 2019 09:57:08 +0000
-Date:   Thu, 13 Jun 2019 06:57:02 -0300
+        id 1hbMQg-0000Y8-Ew; Thu, 13 Jun 2019 09:53:59 +0000
+Date:   Thu, 13 Jun 2019 06:53:55 -0300
 From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 To:     Jerry Hoemann <jerry.hoemann@hpe.com>
 Cc:     linux@roeck-us.net, wim@linux-watchdog.org,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/1] docs: watchdog: make htmldocs failed.
-Message-ID: <20190613065554.1dd69b86@coco.lan>
-In-Reply-To: <20190613000237.377-1-jerry.hoemann@hpe.com>
+Subject: Re: [PATCH 1/1] docs: watchdog: Fix build error.
+Message-ID: <20190613065355.117df659@coco.lan>
+In-Reply-To: <20190613000237.377-2-jerry.hoemann@hpe.com>
 References: <20190613000237.377-1-jerry.hoemann@hpe.com>
+        <20190613000237.377-2-jerry.hoemann@hpe.com>
 X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -60,40 +62,38 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Em Wed, 12 Jun 2019 18:02:36 -0600
+Em Wed, 12 Jun 2019 18:02:37 -0600
 Jerry Hoemann <jerry.hoemann@hpe.com> escreveu:
 
-> Guenter,
+> make htmldocs fails due to missing blank line following header.
 > 
-> While making htmldocs from linux-staging.git watchdog-next, the
-> build failed due what I think is a missing blank line after a header
-> separator in:
-> 
-> 	Documentation/watchdog/watchdog-parameters.rst
-> 
-> I'm a newbie w.r.t. to the .rst file formats, but adding the blank
-> lines got the "make htmldocs" to complete.
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-Yeah, Sphinx doesn't like to see things like:
-
-------------
-foo
-
-as it will miss-interpret the <hr> tag. That usually cause a
-severe error the parser, breaking the entire build.
-
-> 
-> 
-> 
-> 
-> 
-> 
-> Jerry Hoemann (1):
->   docs: watchdog: Fix build error.
-> 
+> ---
 >  Documentation/watchdog/watchdog-parameters.rst | 2 ++
 >  1 file changed, 2 insertions(+)
 > 
+> diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
+> index 01023382ea73..a3985cc5aeda 100644
+> --- a/Documentation/watchdog/watchdog-parameters.rst
+> +++ b/Documentation/watchdog/watchdog-parameters.rst
+> @@ -12,6 +12,7 @@ providing kernel parameters for builtin drivers versus loadable
+>  modules.
+>  
+>  -------------------------------------------------
+> +
+>  watchdog core:
+>      open_timeout:
+>  	Maximum time, in seconds, for which the watchdog framework will take
+> @@ -22,6 +23,7 @@ watchdog core:
+>  	fallback logic in the bootloader to try something else.
+>  
+>  -------------------------------------------------
+> +
+>  acquirewdt:
+>      wdt_stop:
+>  	Acquire WDT 'stop' io port (default 0x43)
 
 
 
