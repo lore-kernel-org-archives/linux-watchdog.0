@@ -1,149 +1,76 @@
-Return-Path: <SRS0=94fw=U7=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=LWFf=VB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E9ADC06511
-	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Jul 2019 13:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C0E6C0651F
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Jul 2019 15:38:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 34028208C4
-	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Jul 2019 13:40:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="smcXrkSU"
+	by mail.kernel.org (Postfix) with ESMTP id 6C950218B8
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Jul 2019 15:38:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbfGBNkk (ORCPT
+        id S1727882AbfGDPiN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 2 Jul 2019 09:40:40 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:34431 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727035AbfGBNkk (ORCPT
+        Thu, 4 Jul 2019 11:38:13 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:59357 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727879AbfGDPiN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 2 Jul 2019 09:40:40 -0400
-Received: by mail-pg1-f193.google.com with SMTP id p10so7723544pgn.1;
-        Tue, 02 Jul 2019 06:40:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=TG01TGISb1yaWBogYU6mOa7ow9eBYHJfFmPCCNfkb5M=;
-        b=smcXrkSUJ7rZrYSKdhGuS234aAc2L4NUovI+9Jh5zaHdqd8Lc2ZLImzROrsYAaRluZ
-         hjRjyDZ3IuV7aW2oLPDRhlT38+mFZAoimJPMrL9oa9sI79lrXWiJhK33ucc9HEBRdT/3
-         wdMiB+8W7xVE0UCW2Ajunyn0LUBpXKOI8yf2edhyqZLuAhq70tUNf9tzJkuTa9LSuZii
-         NO9TRqdLZs30F408XkvP507HQaEXLvPDl/OgiA/W15XNKKlgshlaov5KrWLW2T74Wn/y
-         QD7stJDgihpq5zUOuhv0mOX2d14sa3fhvO4BiXEJElF9tk3/FNx3FQU1YOe/RJQPWKuQ
-         /W0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=TG01TGISb1yaWBogYU6mOa7ow9eBYHJfFmPCCNfkb5M=;
-        b=g3W9XBt4B/xAwqnXHFNkMxePezPNRYvzDURcvBNkVWgD10JAQEJmY/eNSpB7zZCqBy
-         K+Xzos7QBBDFQ58PHlTEShaT6Z8LT7OKk59tIZPx2Hms8IlMpIsKa3P9q4+XJuuzOnYM
-         cZX/4HbPU0yCiiuFvcwIlIa2iFYm8vAEbuCPcFRD95/dxqclcZIDW5mN5OXx5GUAgM7L
-         cEmyu/r1mSx3wB3FAG/mUtrcEBRa9U5px1rQIvJQNcwQEpYFVcyKrTcDyg/4rpXxF/ix
-         uN2D+QT/lA3lzY5ObdaWHFZ3XkVRBDdJc0d38TVJ8Kn9rhc8sb/1yr/tohz2giilivEA
-         LvZA==
-X-Gm-Message-State: APjAAAUIa+kRQO/eJ7gThfVHu6WhJOxhZHqLIE1UAznxq2djQPIgOufG
-        Mj5hRtJIbGhqRcv+19o9f9c=
-X-Google-Smtp-Source: APXvYqywgKjj5HcP6LGVDjHKN+eHEzwJaObV/i9U5epabyKIF9WYhMzD1XH0fJ4ei3TIuE7aNAwsyg==
-X-Received: by 2002:a63:4105:: with SMTP id o5mr31798673pga.308.1562074838556;
-        Tue, 02 Jul 2019 06:40:38 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a3sm17913917pfi.63.2019.07.02.06.40.37
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jul 2019 06:40:38 -0700 (PDT)
-Date:   Tue, 2 Jul 2019 06:40:37 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Ken Sloat <KSloat@aampglobal.com>
-Cc:     "nicolas.ferre@microchip.com" <nicolas.ferre@microchip.com>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "ludovic.desroches@microchip.com" <ludovic.desroches@microchip.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/1] watchdog: atmel: atmel-sama5d4-wdt: Disable
- watchdog on system suspend
-Message-ID: <20190702134037.GA23223@roeck-us.net>
-References: <20190614125310.29458-1-ksloat@aampglobal.com>
+        Thu, 4 Jul 2019 11:38:13 -0400
+Received: from localhost ([127.0.0.1] helo=flow.W.breakpoint.cc)
+        by Galois.linutronix.de with esmtp (Exim 4.80)
+        (envelope-from <bigeasy@linutronix.de>)
+        id 1hj3oG-0004wg-Mu; Thu, 04 Jul 2019 17:38:08 +0200
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     tglx@linutronix.de, Peter Zijlstra <peterz@infradead.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 5/7] watchdog: ie6xx_wdt: Use spinlock_t instead of struct spinlock
+Date:   Thu,  4 Jul 2019 17:38:01 +0200
+Message-Id: <20190704153803.12739-6-bigeasy@linutronix.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190704153803.12739-1-bigeasy@linutronix.de>
+References: <20190704153803.12739-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190614125310.29458-1-ksloat@aampglobal.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 12:53:22PM +0000, Ken Sloat wrote:
-> From: Ken Sloat <ksloat@aampglobal.com>
-> 
-> Currently, the atmel-sama5d4-wdt continues to run after system suspend.
-> Unless the system resumes within the watchdog timeout period so the
-> userspace can kick it, the system will be reset. This change disables
-> the watchdog on suspend if it is active and re-enables on resume. These
-> actions occur during the late and early phases of suspend and resume
-> respectively to minimize chances where a lock could occur while the
-> watchdog is disabled.
-> 
-> Signed-off-by: Ken Sloat <ksloat@aampglobal.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+For spinlocks the type spinlock_t should be used instead of "struct
+spinlock".
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Use spinlock_t for spinlock's definition.
 
-> ---
->  Changes in v2:
->  -Consolidate resume and resume early statements.
-> 
->  drivers/watchdog/sama5d4_wdt.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index 111695223aae..0d123f8cbcc6 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -280,7 +280,17 @@ static const struct of_device_id sama5d4_wdt_of_match[] = {
->  MODULE_DEVICE_TABLE(of, sama5d4_wdt_of_match);
->  
->  #ifdef CONFIG_PM_SLEEP
-> -static int sama5d4_wdt_resume(struct device *dev)
-> +static int sama5d4_wdt_suspend_late(struct device *dev)
-> +{
-> +	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(&wdt->wdd))
-> +		sama5d4_wdt_stop(&wdt->wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static int sama5d4_wdt_resume_early(struct device *dev)
->  {
->  	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
->  
-> @@ -291,12 +301,17 @@ static int sama5d4_wdt_resume(struct device *dev)
->  	 */
->  	sama5d4_wdt_init(wdt);
->  
-> +	if (watchdog_active(&wdt->wdd))
-> +		sama5d4_wdt_start(&wdt->wdd);
-> +
->  	return 0;
->  }
->  #endif
->  
-> -static SIMPLE_DEV_PM_OPS(sama5d4_wdt_pm_ops, NULL,
-> -			 sama5d4_wdt_resume);
-> +static const struct dev_pm_ops sama5d4_wdt_pm_ops = {
-> +	SET_LATE_SYSTEM_SLEEP_PM_OPS(sama5d4_wdt_suspend_late,
-> +			sama5d4_wdt_resume_early)
-> +};
->  
->  static struct platform_driver sama5d4_wdt_driver = {
->  	.probe		= sama5d4_wdt_probe,
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/watchdog/ie6xx_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+index 508fbefce9f6a..82a8cf61efc2a 100644
+--- a/drivers/watchdog/ie6xx_wdt.c
++++ b/drivers/watchdog/ie6xx_wdt.c
+@@ -66,7 +66,7 @@ MODULE_PARM_DESC(resetmode,
+ 
+ static struct {
+ 	unsigned short sch_wdtba;
+-	struct spinlock unlock_sequence;
++	spinlock_t unlock_sequence;
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *debugfs;
+ #endif
+-- 
+2.20.1
+
