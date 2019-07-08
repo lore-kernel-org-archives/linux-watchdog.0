@@ -1,152 +1,110 @@
-Return-Path: <SRS0=Ls7g=VD=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=gZqX=VF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B41D0C0650E
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Jul 2019 11:46:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B99AEC606BD
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Jul 2019 17:55:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7EE99214AF
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Jul 2019 11:46:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1562413616;
-	bh=SsBzDlruO3CL8J3QDhb5B1k7nqQRRO06XDDHFP/NN1M=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
-	b=tAXQ5NszaapbtlLBqb24ZCYqP+HmngwA9pEDi8Ss4rW4TwVAkRHkjJx79pGbL5aQC
-	 aTO6iKBLAzlSw5Y3Gtkh8E3fAfks2g2B6iWrXLb51ltFbVQWKlWWqWDKl5gPeh6jzC
-	 yRgPytsHQrNOtspSov4PtiQ933ZxX9TbRbc1MdZ0=
+	by mail.kernel.org (Postfix) with ESMTP id 92EB62166E
+	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Jul 2019 17:55:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eJFGtNXG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726199AbfGFLq4 (ORCPT
+        id S1731208AbfGHRzg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 6 Jul 2019 07:46:56 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:43480 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726023AbfGFLqz (ORCPT
+        Mon, 8 Jul 2019 13:55:36 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37840 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727576AbfGHRzg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 6 Jul 2019 07:46:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:
-        From:Date:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=j6y676QYR/iHJJ649Hu4pguKBc+26wcukAE46ESMMlo=; b=dOTYigO14yG8pQxnEPFBC19DX
-        /Ww8mAJLwcfe1SJqp/NylfCiIiI9REBU4NBiWe4dYMw9xdQP6lV0y+pUltL/gztWxW7BxkiF1kRXE
-        w6XA7g9pa5LjIsiEu0S8st2kB2gzhI15q6uEUzs4XQgoqkyabISla1WvfKEt7LUVcsysRFNZryzy2
-        Vt4rLjvEjd+OfhIGQpJR1++ZVceLUOM/+IRXvzm2znfchAZwwCauZYISTmjywQAOsgIR2YmU3+vzt
-        0KvSoXLLqm4bOXutzWmOhE1jpX4jFMrPYVTRcXNwmtfs/ro27ahj9vrDH17GltUK57PchaGmotAd6
-        Zh3YctvFg==;
-Received: from 177.205.70.5.dynamic.adsl.gvt.net.br ([177.205.70.5] helo=coco.lan)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hjj9S-0002M7-Qh; Sat, 06 Jul 2019 11:46:47 +0000
-Date:   Sat, 6 Jul 2019 08:46:38 -0300
-From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-To:     Dave Young <dyoung@redhat.com>
-Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@infradead.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Harry Wei <harryxiyou@gmail.com>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Mon, 8 Jul 2019 13:55:36 -0400
+Received: by mail-pl1-f195.google.com with SMTP id b3so5344859plr.4;
+        Mon, 08 Jul 2019 10:55:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=JQzFF/RckCkhuwNFuRy0cMNgK/vj6j07C5gg5EjYC5w=;
+        b=eJFGtNXGJc32gGB/6l525EN+V8aaRxwPXh1Wvq/j9Za/SBLdzuupq+d6VjJA6eF1nZ
+         1fDEZSMvZeZr1QH2SjYRqOmRF6shJGpc49ujWUL+2e4cOhAa1Kb80FRs3GH8IQzicgBx
+         Bnm6zVKNMzgAT0V6hGs6Y7StIGeL550oEUgXZgxTCo4f92kobdUqw7/jechwBdkn7kw4
+         bj1K9Ohf0Q8VQbm3M2ZFVru9VgkL/H/vlqy62GRnZQYQ6yhePxTe5rG4XitPYfZ/NN07
+         wIfF7/42qBlnj2jsZyUQ2OalZuurg2ejLyw/1aH494x9NZpKajvCGqp9pKlyB6fMziAs
+         /esg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=JQzFF/RckCkhuwNFuRy0cMNgK/vj6j07C5gg5EjYC5w=;
+        b=bZlzx+CgF3D9xE8eQE87XIc4uAPgFkPBCbbTz3XdD5XIkkdytwn6C6RhJVVEbCFufM
+         kG/a/ou2HBa3bHQrGOPJy66PMOh+7o/wzke9NLMXmxZX8Jem2QtgUFYW7afBlNDQN2PQ
+         +BCVphOqB2SfN5jDbMXgsZmFX8vVBXe+pBbNmY/tp7GC/RnPFYSctvdNBi96G4waiJ3e
+         hOdPXgONzWay+fwtXdcI2+9Nv/WPZ7W4Ov+aVvg84xOA83AK/tRVNP3TvY++0pWv6Of8
+         CEm2EOiRod8OUu4HFrCpdkJrlyJLFkLfWWN2XQyvQw+iSEtH+NevBUyiLN9Y2edVsjQU
+         ebRQ==
+X-Gm-Message-State: APjAAAU7jfeUfn44RsRhL8aXTw61cyVNWJCpQcReVDOq8fPsNaeMVJDG
+        XCUD5xIksr2KaZ1iM8Ai+Uk=
+X-Google-Smtp-Source: APXvYqy/4PiXebRAVSHaa1fp8T9XCHHDOFkASSk4BR6LQjeyzB2HF7cNk4nyctjRgy+ekKKHDcRjTg==
+X-Received: by 2002:a17:902:9f93:: with SMTP id g19mr26336254plq.223.1562608535496;
+        Mon, 08 Jul 2019 10:55:35 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k70sm174264pje.14.2019.07.08.10.55.34
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Jul 2019 10:55:34 -0700 (PDT)
+Date:   Mon, 8 Jul 2019 10:55:33 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org, tglx@linutronix.de,
+        Peter Zijlstra <peterz@infradead.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-        kexec@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
-Subject: Re: [PATCH 18/39] docs: admin-guide: add kdump documentation into
- it
-Message-ID: <20190706084638.7dc875f2@coco.lan>
-In-Reply-To: <20190705055904.GB2790@localhost.localdomain>
-References: <cover.1561724493.git.mchehab+samsung@kernel.org>
-        <654e7591c044632c06257e0f069a52c0bb993554.1561724493.git.mchehab+samsung@kernel.org>
-        <6911b74c-848f-0060-3db5-b5d7e8061cb5@linux.alibaba.com>
-        <20190705055904.GB2790@localhost.localdomain>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 5/7] watchdog: ie6xx_wdt: Use spinlock_t instead of
+ struct spinlock
+Message-ID: <20190708175533.GA14138@roeck-us.net>
+References: <20190704153803.12739-1-bigeasy@linutronix.de>
+ <20190704153803.12739-6-bigeasy@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190704153803.12739-6-bigeasy@linutronix.de>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Em Fri, 5 Jul 2019 13:59:04 +0800
-Dave Young <dyoung@redhat.com> escreveu:
+On Thu, Jul 04, 2019 at 05:38:01PM +0200, Sebastian Andrzej Siewior wrote:
+> For spinlocks the type spinlock_t should be used instead of "struct
+> spinlock".
+> 
+> Use spinlock_t for spinlock's definition.
+> 
+> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-watchdog@vger.kernel.org
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-> On 07/05/19 at 11:43am, Alex Shi wrote:
-> >=20
-> >=20
-> > =E5=9C=A8 2019/6/28 =E4=B8=8B=E5=8D=888:30, Mauro Carvalho Chehab =E5=
-=86=99=E9=81=93: =20
-> > > The Kdump documentation describes procedures with admins use
-> > > in order to solve issues on their systems.
-> > >=20
-> > > Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> > > ---
-> > >  Documentation/admin-guide/bug-hunting.rst            | 4 ++--
-> > >  Documentation/admin-guide/index.rst                  | 1 +
-> > >  Documentation/{ =3D> admin-guide}/kdump/gdbmacros.txt  | 0
-> > >  Documentation/{ =3D> admin-guide}/kdump/index.rst      | 1 -
-> > >  Documentation/{ =3D> admin-guide}/kdump/kdump.rst      | 0
-> > >  Documentation/{ =3D> admin-guide}/kdump/vmcoreinfo.rst | 0 =20
-> >=20
-> > I am not sure if it's convenience for people to have more levels in doc=
-s.
-> >=20
-> > But I guess, move archs into a Documentation/arch/ dir should be fine. =
-like Documentation/arch/{x86,arm,arm64,ia64,m68k,s390,powerpc,...} =20
->=20
-> Alex, moving kdump to admin-guide sounds reasonable to me.  I also agree
-> with you for those arch dependent files can be moved to
-> Documentation/arch/, maybe you are talking about some other patches in
-> the series for the arch/?=20
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Alex,
-
-It makes sense for me to have a Documentation/arch directory, and place
-the arch-specific docs over there.
-
-There's actually a technical advantage on doing that: Sphinx is dumb
-with regards to PDF/LaTeX output: it requires all top documents to be
-listed at Documentation/conf.py, under this var:
-
-	latex_documents =3D [
-		...
-	]
-
-As it creates one runtime Makefile at Documentation/output per listed
-document there. So, the more we group such documents, the less merge
-conflicts we'll have at Documentation/conf.py.
-
-Btw, there's a [TECH TOPIC] proposal for KS/2019 meant to discuss=20
-Documentation.
-
-I suspect we could discuss the pros/cons of doing such change there.
-
-My personal view is that we should keep the Documentation/ root dir as
-clean as possible as a long term goal.
-
-On the other hand, it makes the path bigger and harder to rename.
-
-On a side note, last time we discussed documentation at KS I remember
-I proposed to shortcut "Documentation/" to just "docs/". The consensus
-on that time were to keep the big name. I still think that a shorter
-one could help people to remind where documentation will be located.
-
-Thanks,
-Mauro
+> ---
+>  drivers/watchdog/ie6xx_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+> index 508fbefce9f6a..82a8cf61efc2a 100644
+> --- a/drivers/watchdog/ie6xx_wdt.c
+> +++ b/drivers/watchdog/ie6xx_wdt.c
+> @@ -66,7 +66,7 @@ MODULE_PARM_DESC(resetmode,
+>  
+>  static struct {
+>  	unsigned short sch_wdtba;
+> -	struct spinlock unlock_sequence;
+> +	spinlock_t unlock_sequence;
+>  #ifdef CONFIG_DEBUG_FS
+>  	struct dentry *debugfs;
+>  #endif
