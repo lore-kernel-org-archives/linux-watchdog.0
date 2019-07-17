@@ -1,269 +1,340 @@
-Return-Path: <SRS0=lCTn=VN=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=nfIN=VO=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.2 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-12.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A26EC7618F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Jul 2019 16:18:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 249EAC7618F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 17 Jul 2019 20:36:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DEBFE205ED
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Jul 2019 16:18:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF5B021852
+	for <linux-watchdog@archiver.kernel.org>; Wed, 17 Jul 2019 20:36:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="hu+EC6WZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbfGPQSM (ORCPT
+        id S1727140AbfGQUgh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Jul 2019 12:18:12 -0400
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:22900 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727796AbfGPQSM (ORCPT
+        Wed, 17 Jul 2019 16:36:37 -0400
+Received: from www.linux-watchdog.org ([185.87.125.42]:38490 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726598AbfGQUgh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Jul 2019 12:18:12 -0400
-Received: from pps.filterd (m0134425.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6GGG1oB009413;
-        Tue, 16 Jul 2019 16:18:10 GMT
-Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2tsehj9tap-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Jul 2019 16:18:10 +0000
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id 8BC625C;
-        Tue, 16 Jul 2019 16:18:09 +0000 (UTC)
-Received: from anatevka.americas.hpqcorp.net (anatevka.americas.hpqcorp.net [10.34.81.61])
-        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id 03B7847;
-        Tue, 16 Jul 2019 16:18:08 +0000 (UTC)
-Date:   Tue, 16 Jul 2019 10:18:08 -0600
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 03/14] docs: fix broken doc references due to renames
-Message-ID: <20190716161808.GA13404@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <cover.1563277838.git.mchehab+samsung@kernel.org>
- <aa415583bf6b812b0249093a601aa31412f3a1cf.1563277838.git.mchehab+samsung@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <aa415583bf6b812b0249093a601aa31412f3a1cf.1563277838.git.mchehab+samsung@kernel.org>
-User-Agent: Mutt/1.11.3 (2019-02-01)
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 2 URL's were un-rewritten
+        Wed, 17 Jul 2019 16:36:37 -0400
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id 244FB4095E; Wed, 17 Jul 2019 21:58:29 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 244FB4095E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1563393509;
+        bh=iKxcO+1p2J0b9cU8Eqh3XVt9fxA1J24Ufjda3Mh2hQA=;
+        h=Date:From:To:Cc:Subject:From;
+        b=hu+EC6WZPrGEX4heX+jkjdK1h7P3/ZmQmMHlWo5/pTVBfC2aS6Vx9R/19HXJtOvJe
+         itMWrQahrtkP5tn+WIATIISriit2yt+S41DyXnaDD9r5cJ1UbKIEkIr49JTHBgiTa+
+         vRYBfl3QiTkLMVzZSHOj/gXOrr+PFpgDqJRH871g=
+Date:   Wed, 17 Jul 2019 21:58:28 +0200
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        =?iso-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Hoan Nguyen An <na-hoan@jinso.co.jp>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Ken Sloat <ksloat@aampglobal.com>,
+        Mans Rullgard <mans@mansr.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [GIT PULL REQUEST] watchdog - v5.3 Merge window
+Message-ID: <20190717195828.GA25283@www.linux-watchdog.org>
 MIME-Version: 1.0
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-07-16_04:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1907160200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 09:10:42AM -0300, Mauro Carvalho Chehab wrote:
-> Some files got renamed but probably due to some merge conflicts,
-> a few references still point to the old locations.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> ---
->  Documentation/RCU/rculist_nulls.txt                   | 2 +-
->  Documentation/devicetree/bindings/arm/idle-states.txt | 2 +-
->  Documentation/locking/spinlocks.rst                   | 4 ++--
->  Documentation/memory-barriers.txt                     | 2 +-
->  Documentation/translations/ko_KR/memory-barriers.txt  | 2 +-
->  Documentation/watchdog/hpwdt.rst                      | 2 +-
+Hi Linus,
 
-For: Documentation/watchdog/hpwdt.rst
+Please pull the watchdog changes for the v5.3 release cycle.
 
-Reviewed-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+This series contains:
+* add Allwinner H6 watchdog
+* drop warning after registering device patches
+* hpwdt improvements
+* gpio: add support for nowayout option
+* introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+* convert remaining drivers to use SPDX license identifier
+* Fixes and improvements on several watchdog device drivers
+
+Stephen resolved the following 2 conflicts in linux-next:
+1) Documentation/watchdog/hpwdt.rst
+Documentation/watchdog/watchdog-parameters.rst
+
+between commit: cc2a2d19f896 ("docs: watchdog: convert docs to ReST and rename to *.rst") from the jc_docs tree 
+and commit: 74665686f0e2 ("docs: watchdog: convert docs to ReST and rename to *.rst") from the watchdog tree.
+These are the same patch with only a coouple of differences.
+
+2) Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+
+between commit: 8c21ead3ea5d ("dt-bindings: watchdog: move i.MX system controller watchdog binding to SCU") from the watchdog tree 
+and commit: c2a6ea23a401 ("dt-bindings: fsl: scu: add ocotp binding") from the char-misc tree.
 
 
->  MAINTAINERS                                           | 8 ++++----
->  drivers/gpu/drm/drm_modes.c                           | 2 +-
->  drivers/i2c/busses/i2c-nvidia-gpu.c                   | 2 +-
->  drivers/scsi/hpsa.c                                   | 4 ++--
->  10 files changed, 15 insertions(+), 15 deletions(-)
-> 
-> diff --git a/Documentation/RCU/rculist_nulls.txt b/Documentation/RCU/rculist_nulls.txt
-> index 8151f0195f76..23f115dc87cf 100644
-> --- a/Documentation/RCU/rculist_nulls.txt
-> +++ b/Documentation/RCU/rculist_nulls.txt
-> @@ -1,7 +1,7 @@
->  Using hlist_nulls to protect read-mostly linked lists and
->  objects using SLAB_TYPESAFE_BY_RCU allocations.
->  
-> -Please read the basics in Documentation/RCU/listRCU.txt
-> +Please read the basics in Documentation/RCU/listRCU.rst
->  
->  Using special makers (called 'nulls') is a convenient way
->  to solve following problem :
-> diff --git a/Documentation/devicetree/bindings/arm/idle-states.txt b/Documentation/devicetree/bindings/arm/idle-states.txt
-> index 326f29b270ad..2d325bed37e5 100644
-> --- a/Documentation/devicetree/bindings/arm/idle-states.txt
-> +++ b/Documentation/devicetree/bindings/arm/idle-states.txt
-> @@ -703,4 +703,4 @@ cpus {
->      https://www.devicetree.org/specifications/ 
->  
->  [6] ARM Linux Kernel documentation - Booting AArch64 Linux
-> -    Documentation/arm64/booting.txt
-> +    Documentation/arm64/booting.rst
-> diff --git a/Documentation/locking/spinlocks.rst b/Documentation/locking/spinlocks.rst
-> index 098107fb7d86..e93ec6645238 100644
-> --- a/Documentation/locking/spinlocks.rst
-> +++ b/Documentation/locking/spinlocks.rst
-> @@ -82,7 +82,7 @@ itself.  The read lock allows many concurrent readers.  Anything that
->  **changes** the list will have to get the write lock.
->  
->     NOTE! RCU is better for list traversal, but requires careful
-> -   attention to design detail (see Documentation/RCU/listRCU.txt).
-> +   attention to design detail (see Documentation/RCU/listRCU.rst).
->  
->  Also, you cannot "upgrade" a read-lock to a write-lock, so if you at _any_
->  time need to do any changes (even if you don't do it every time), you have
-> @@ -90,7 +90,7 @@ to get the write-lock at the very beginning.
->  
->     NOTE! We are working hard to remove reader-writer spinlocks in most
->     cases, so please don't add a new one without consensus.  (Instead, see
-> -   Documentation/RCU/rcu.txt for complete information.)
-> +   Documentation/RCU/rcu.rst for complete information.)
->  
->  ----
->  
-> diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-> index 045bb8148fe9..1adbb8a371c7 100644
-> --- a/Documentation/memory-barriers.txt
-> +++ b/Documentation/memory-barriers.txt
-> @@ -548,7 +548,7 @@ There are certain things that the Linux kernel memory barriers do not guarantee:
->  
->  	[*] For information on bus mastering DMA and coherency please read:
->  
-> -	    Documentation/PCI/pci.rst
-> +	    Documentation/driver-api/pci/pci.rst
->  	    Documentation/DMA-API-HOWTO.txt
->  	    Documentation/DMA-API.txt
->  
-> diff --git a/Documentation/translations/ko_KR/memory-barriers.txt b/Documentation/translations/ko_KR/memory-barriers.txt
-> index a33c2a536542..2774624ee843 100644
-> --- a/Documentation/translations/ko_KR/memory-barriers.txt
-> +++ b/Documentation/translations/ko_KR/memory-barriers.txt
-> @@ -569,7 +569,7 @@ ACQUIRE 는 해당 오퍼레이션의 로드 부분에만 적용되고 RELEASE 
->  
->  	[*] 버스 마스터링 DMA 와 일관성에 대해서는 다음을 참고하시기 바랍니다:
->  
-> -	    Documentation/PCI/pci.rst
-> +	    Documentation/driver-api/pci/pci.rst
->  	    Documentation/DMA-API-HOWTO.txt
->  	    Documentation/DMA-API.txt
->  
-> diff --git a/Documentation/watchdog/hpwdt.rst b/Documentation/watchdog/hpwdt.rst
-> index 94a96371113e..49c647dba8aa 100644
-> --- a/Documentation/watchdog/hpwdt.rst
-> +++ b/Documentation/watchdog/hpwdt.rst
-> @@ -59,7 +59,7 @@ Last reviewed: 08/20/2018
->   and loop forever.  This is generally not what a watchdog user wants.
->  
->   For those wishing to learn more please see:
-> -	Documentation/kdump/kdump.rst
-> +	Documentation/admin-guide/kdump/kdump.rst
->  	Documentation/admin-guide/kernel-parameters.txt (panic=)
->  	Your Linux Distribution specific documentation.
->  
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index b3a5c72f3298..b0acc138e9e9 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -899,7 +899,7 @@ L:	linux-iio@vger.kernel.org
->  W:	http://ez.analog.com/community/linux-device-drivers 
->  S:	Supported
->  F:	drivers/iio/adc/ad7124.c
-> -F:	Documentation/devicetree/bindings/iio/adc/adi,ad7124.txt
-> +F:	Documentation/devicetree/bindings/iio/adc/adi,ad7124.yaml
->  
->  ANALOG DEVICES INC AD7606 DRIVER
->  M:	Stefan Popa <stefan.popa@analog.com>
-> @@ -4189,7 +4189,7 @@ M:	Jens Axboe <axboe@kernel.dk>
->  L:	cgroups@vger.kernel.org
->  L:	linux-block@vger.kernel.org
->  T:	git git://git.kernel.dk/linux-block
-> -F:	Documentation/cgroup-v1/blkio-controller.rst
-> +F:	Documentation/admin-guide/cgroup-v1/blkio-controller.rst
->  F:	block/blk-cgroup.c
->  F:	include/linux/blk-cgroup.h
->  F:	block/blk-throttle.c
-> @@ -6848,7 +6848,7 @@ R:	Sagi Shahar <sagis@google.com>
->  R:	Jon Olson <jonolson@google.com>
->  L:	netdev@vger.kernel.org
->  S:	Supported
-> -F:	Documentation/networking/device_drivers/google/gve.txt
-> +F:	Documentation/networking/device_drivers/google/gve.rst
->  F:	drivers/net/ethernet/google
->  
->  GPD POCKET FAN DRIVER
-> @@ -12096,7 +12096,7 @@ M:	Juergen Gross <jgross@suse.com>
->  M:	Alok Kataria <akataria@vmware.com>
->  L:	virtualization@lists.linux-foundation.org
->  S:	Supported
-> -F:	Documentation/virtual/paravirt_ops.txt
-> +F:	Documentation/virtual/paravirt_ops.rst
->  F:	arch/*/kernel/paravirt*
->  F:	arch/*/include/asm/paravirt*.h
->  F:	include/linux/hypervisor.h
-> diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-> index 57e6408288c8..4645af681ef8 100644
-> --- a/drivers/gpu/drm/drm_modes.c
-> +++ b/drivers/gpu/drm/drm_modes.c
-> @@ -1680,7 +1680,7 @@ static int drm_mode_parse_cmdline_options(char *str, size_t len,
->   *
->   * Additionals options can be provided following the mode, using a comma to
->   * separate each option. Valid options can be found in
-> - * Documentation/fb/modedb.txt.
-> + * Documentation/fb/modedb.rst.
->   *
->   * The intermediate drm_cmdline_mode structure is required to store additional
->   * options from the command line modline like the force-enable/disable flag.
-> diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
-> index cfc76b5de726..5a1235fd86bb 100644
-> --- a/drivers/i2c/busses/i2c-nvidia-gpu.c
-> +++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
-> @@ -364,7 +364,7 @@ static void gpu_i2c_remove(struct pci_dev *pdev)
->  /*
->   * We need gpu_i2c_suspend() even if it is stub, for runtime pm to work
->   * correctly. Without it, lspci shows runtime pm status as "D0" for the card.
-> - * Documentation/power/pci.txt also insists for driver to provide this.
-> + * Documentation/power/pci.rst also insists for driver to provide this.
->   */
->  static __maybe_unused int gpu_i2c_suspend(struct device *dev)
->  {
-> diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-> index 43a6b5350775..eaf6177ac9ee 100644
-> --- a/drivers/scsi/hpsa.c
-> +++ b/drivers/scsi/hpsa.c
-> @@ -7798,7 +7798,7 @@ static void hpsa_free_pci_init(struct ctlr_info *h)
->  	hpsa_disable_interrupt_mode(h);		/* pci_init 2 */
->  	/*
->  	 * call pci_disable_device before pci_release_regions per
-> -	 * Documentation/PCI/pci.rst
-> +	 * Documentation/driver-api/pci/pci.rst
->  	 */
->  	pci_disable_device(h->pdev);		/* pci_init 1 */
->  	pci_release_regions(h->pdev);		/* pci_init 2 */
-> @@ -7881,7 +7881,7 @@ static int hpsa_pci_init(struct ctlr_info *h)
->  clean1:
->  	/*
->  	 * call pci_disable_device before pci_release_regions per
-> -	 * Documentation/PCI/pci.rst
-> +	 * Documentation/driver-api/pci/pci.rst
->  	 */
->  	pci_disable_device(h->pdev);
->  	pci_release_regions(h->pdev);
-> -- 
-> 2.21.0
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit 46713c3d2f8da5e3d8ddd2249bcb1d9974fb5d28:
 
--- 
+  Merge tag 'for-linus-20190706' of git://git.kernel.dk/linux-block (2019-07-06 11:48:39 -0700)
 
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+are available in the git repository at:
+
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.3-rc1
+
+for you to fetch changes up to 7fb832ae72949c883da52d6316ff08f03c75d300:
+
+  watchdog: digicolor_wdt: Remove unused variable in dc_wdt_probe (2019-07-15 08:49:11 +0200)
+
+----------------------------------------------------------------
+linux-watchdog 5.3-rc1 tag
+
+----------------------------------------------------------------
+Anson Huang (2):
+      watchdog: imx_sc: Add pretimeout support
+      dt-bindings: watchdog: move i.MX system controller watchdog binding to SCU
+
+Cl�ment P�ron (1):
+      dt-bindings: watchdog: add Allwinner H6 watchdog
+
+Eugen Hristev (1):
+      watchdog: sama5d4: fix WDD value to be always set to max
+
+Greg Kroah-Hartman (2):
+      watchdog: bcm_kona_wdt: no need to check return value of debugfs_create functions
+      watchdog: mei_wdt: no need to check return value of debugfs_create functions
+
+Guenter Roeck (1):
+      watchdog: convert remaining drivers to use SPDX license identifier
+
+Hoan Nguyen An (1):
+      watchdog: renesas_wdt: Use 'dev' instead of dereferencing it repeatedly
+
+Jerry Hoemann (7):
+      watchdog/hpwdt: Stop hpwdt on unregister.
+      watchdog/hpwdt: Advertize max_hw_heartbeat_ms
+      watchdog/hpwdt: Have core ping watchdog.
+      watchdog/hpwdt: Add module parameter kdumptimeout.
+      watchdog/hpwdt: Update documentation
+      watchdog/hpwdt: Reflect changes
+      docs: watchdog: Fix build error.
+
+Ken Sloat (1):
+      watchdog: atmel: atmel-sama5d4-wdt: Disable watchdog on system suspend
+
+Mans Rullgard (1):
+      watchdog: gpio: add support for nowayout option
+
+Mauro Carvalho Chehab (1):
+      docs: watchdog: convert docs to ReST and rename to *.rst
+
+Nathan Chancellor (1):
+      watchdog: digicolor_wdt: Remove unused variable in dc_wdt_probe
+
+Paul Cercueil (2):
+      watchdog: jz4740: Use register names from <linux/mfd/ingenic-tcu.h>
+      watchdog: jz4740: Avoid starting watchdog in set_timeout
+
+Rasmus Villemoes (3):
+      watchdog: introduce watchdog.open_timeout commandline parameter
+      watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+      watchdog: make the device time out at open_deadline when open_timeout is used
+
+Sebastian Andrzej Siewior (1):
+      watchdog: ie6xx_wdt: Use spinlock_t instead of struct spinlock
+
+Simon Horman (1):
+      dt-bindings: watchdog: Rename bindings documentation file
+
+Stefan Wahren (1):
+      watchdog: bcm2835_wdt: Fix module autoload
+
+Wolfram Sang (46):
+      watchdog: make watchdog_deferred_registration_add() void
+      watchdog: let core print error message when registering device fails
+      watchdog: aspeed_wdt: drop warning after registering device
+      watchdog: bcm2835_wdt: drop warning after registering device
+      watchdog: bcm7038_wdt: drop warning after registering device
+      watchdog: bcm_kona_wdt: drop warning after registering device
+      watchdog: cadence_wdt: drop warning after registering device
+      watchdog: da9052_wdt: drop warning after registering device
+      watchdog: da9062_wdt: drop warning after registering device
+      watchdog: davinci_wdt: drop warning after registering device
+      watchdog: digicolor_wdt: drop warning after registering device
+      watchdog: ftwdt010_wdt: drop warning after registering device
+      watchdog: hpwdt: drop warning after registering device
+      watchdog: i6300esb: drop warning after registering device
+      watchdog: ie6xx_wdt: drop warning after registering device
+      watchdog: imx2_wdt: drop warning after registering device
+      watchdog: imx_sc_wdt: drop warning after registering device
+      watchdog: intel-mid_wdt: drop warning after registering device
+      watchdog: jz4740_wdt: drop warning after registering device
+      watchdog: loongson1_wdt: drop warning after registering device
+      watchdog: max77620_wdt: drop warning after registering device
+      watchdog: mei_wdt: drop warning after registering device
+      watchdog: mena21_wdt: drop warning after registering device
+      watchdog: menf21bmc_wdt: drop warning after registering device
+      watchdog: mpc8xxx_wdt: drop warning after registering device
+      watchdog: ni903x_wdt: drop warning after registering device
+      watchdog: nic7018_wdt: drop warning after registering device
+      watchdog: npcm_wdt: drop warning after registering device
+      watchdog: of_xilinx_wdt: drop warning after registering device
+      watchdog: pic32-dmt: drop warning after registering device
+      watchdog: pic32-wdt: drop warning after registering device
+      watchdog: pnx4008_wdt: drop warning after registering device
+      watchdog: qcom-wdt: drop warning after registering device
+      watchdog: rave-sp-wdt: drop warning after registering device
+      watchdog: s3c2410_wdt: drop warning after registering device
+      watchdog: sama5d4_wdt: drop warning after registering device
+      watchdog: sp5100_tco: drop warning after registering device
+      watchdog: sp805_wdt: drop warning after registering device
+      watchdog: sprd_wdt: drop warning after registering device
+      watchdog: st_lpc_wdt: drop warning after registering device
+      watchdog: stm32_iwdg: drop warning after registering device
+      watchdog: stmp3xxx_rtc_wdt: drop warning after registering device
+      watchdog: tegra_wdt: drop warning after registering device
+      watchdog: ts4800_wdt: drop warning after registering device
+      watchdog: wm831x_wdt: drop warning after registering device
+      watchdog: xen_wdt: drop warning after registering device
+
+Yoshihiro Shimoda (1):
+      watchdog: renesas_wdt: Add a few cycles delay
+
+ Documentation/admin-guide/kernel-parameters.txt    |   2 +-
+ .../devicetree/bindings/arm/freescale/fsl,scu.txt  |  15 +
+ .../bindings/watchdog/fsl-imx-sc-wdt.txt           |  24 -
+ .../watchdog/{renesas-wdt.txt => renesas,wdt.txt}  |   0
+ .../devicetree/bindings/watchdog/sunxi-wdt.txt     |   1 +
+ Documentation/kernel-per-CPU-kthreads.txt          |   2 +-
+ ...l_api.txt => convert_drivers_to_kernel_api.rst} | 109 +--
+ Documentation/watchdog/{hpwdt.txt => hpwdt.rst}    |  29 +-
+ Documentation/watchdog/index.rst                   |  25 +
+ .../watchdog/{mlx-wdt.txt => mlx-wdt.rst}          |  24 +-
+ .../{pcwd-watchdog.txt => pcwd-watchdog.rst}       |  13 +-
+ .../{watchdog-api.txt => watchdog-api.rst}         |  76 ++-
+ ...hdog-kernel-api.txt => watchdog-kernel-api.rst} |  91 ++-
+ Documentation/watchdog/watchdog-parameters.rst     | 747 +++++++++++++++++++++
+ Documentation/watchdog/watchdog-parameters.txt     | 410 -----------
+ .../watchdog/{watchdog-pm.txt => watchdog-pm.rst}  |   3 +
+ Documentation/watchdog/{wdt.txt => wdt.rst}        |  31 +-
+ MAINTAINERS                                        |   2 +-
+ drivers/watchdog/Kconfig                           |  16 +-
+ drivers/watchdog/acquirewdt.c                      |   6 +-
+ drivers/watchdog/advantechwdt.c                    |   6 +-
+ drivers/watchdog/aspeed_wdt.c                      |   8 +-
+ drivers/watchdog/bcm2835_wdt.c                     |   5 +-
+ drivers/watchdog/bcm7038_wdt.c                     |   4 +-
+ drivers/watchdog/bcm_kona_wdt.c                    |  18 +-
+ drivers/watchdog/cadence_wdt.c                     |   4 +-
+ drivers/watchdog/da9052_wdt.c                      |   9 +-
+ drivers/watchdog/da9062_wdt.c                      |   5 +-
+ drivers/watchdog/davinci_wdt.c                     |  14 +-
+ drivers/watchdog/digicolor_wdt.c                   |   9 +-
+ drivers/watchdog/ebc-c384_wdt.c                    |   9 -
+ drivers/watchdog/eurotechwdt.c                     |   6 +-
+ drivers/watchdog/ftwdt010_wdt.c                    |   4 +-
+ drivers/watchdog/gpio_wdt.c                        |   7 +
+ drivers/watchdog/hpwdt.c                           |  59 +-
+ drivers/watchdog/i6300esb.c                        |   5 +-
+ drivers/watchdog/iTCO_vendor_support.c             |   7 +-
+ drivers/watchdog/iTCO_wdt.c                        |   6 +-
+ drivers/watchdog/ib700wdt.c                        |   6 +-
+ drivers/watchdog/ie6xx_wdt.c                       |   8 +-
+ drivers/watchdog/imx2_wdt.c                        |   4 +-
+ drivers/watchdog/imx_sc_wdt.c                      | 123 +++-
+ drivers/watchdog/intel-mid_wdt.c                   |   4 +-
+ drivers/watchdog/jz4740_wdt.c                      |  57 +-
+ drivers/watchdog/loongson1_wdt.c                   |   4 +-
+ drivers/watchdog/max77620_wdt.c                    |   8 +-
+ drivers/watchdog/mei_wdt.c                         |  34 +-
+ drivers/watchdog/mena21_wdt.c                      |   4 +-
+ drivers/watchdog/menf21bmc_wdt.c                   |   4 +-
+ drivers/watchdog/mpc8xxx_wdt.c                     |   5 +-
+ drivers/watchdog/mv64x60_wdt.c                     |   6 +-
+ drivers/watchdog/ni903x_wdt.c                      |   4 +-
+ drivers/watchdog/nic7018_wdt.c                     |   1 -
+ drivers/watchdog/npcm_wdt.c                        |   4 +-
+ drivers/watchdog/nv_tco.h                          |   6 +-
+ drivers/watchdog/octeon-wdt-main.c                 |  11 +-
+ drivers/watchdog/of_xilinx_wdt.c                   |   4 +-
+ drivers/watchdog/omap_wdt.c                        |   6 +-
+ drivers/watchdog/omap_wdt.h                        |  21 +-
+ drivers/watchdog/pc87413_wdt.c                     |   6 +-
+ drivers/watchdog/pcwd_pci.c                        |   6 +-
+ drivers/watchdog/pcwd_usb.c                        |   6 +-
+ drivers/watchdog/pic32-dmt.c                       |   4 +-
+ drivers/watchdog/pic32-wdt.c                       |   4 +-
+ drivers/watchdog/pnx4008_wdt.c                     |   9 +-
+ drivers/watchdog/qcom-wdt.c                        |   4 +-
+ drivers/watchdog/rave-sp-wdt.c                     |   1 -
+ drivers/watchdog/renesas_wdt.c                     |  35 +-
+ drivers/watchdog/retu_wdt.c                        |  10 +-
+ drivers/watchdog/s3c2410_wdt.c                     |   4 +-
+ drivers/watchdog/sa1100_wdt.c                      |   6 +-
+ drivers/watchdog/sama5d4_wdt.c                     |  29 +-
+ drivers/watchdog/sbc7240_wdt.c                     |  11 +-
+ drivers/watchdog/sbc8360.c                         |   6 +-
+ drivers/watchdog/sch311x_wdt.c                     |   6 +-
+ drivers/watchdog/smsc37b787_wdt.c                  |   2 +-
+ drivers/watchdog/softdog.c                         |   6 +-
+ drivers/watchdog/sp5100_tco.c                      |   4 +-
+ drivers/watchdog/sp805_wdt.c                       |   5 +-
+ drivers/watchdog/sprd_wdt.c                        |   1 -
+ drivers/watchdog/st_lpc_wdt.c                      |   4 +-
+ drivers/watchdog/stm32_iwdg.c                      |   4 +-
+ drivers/watchdog/stmp3xxx_rtc_wdt.c                |   4 +-
+ drivers/watchdog/tegra_wdt.c                       |   4 +-
+ drivers/watchdog/ts4800_wdt.c                      |   4 +-
+ drivers/watchdog/w83627hf_wdt.c                    |   6 +-
+ drivers/watchdog/wafer5823wdt.c                    |   6 +-
+ drivers/watchdog/watchdog_core.c                   |  22 +-
+ drivers/watchdog/watchdog_core.h                   |   6 +-
+ drivers/watchdog/watchdog_dev.c                    |  54 +-
+ drivers/watchdog/wd501p.h                          |   6 +-
+ drivers/watchdog/wdt.c                             |   6 +-
+ drivers/watchdog/wdt_pci.c                         |   6 +-
+ drivers/watchdog/wm831x_wdt.c                      |   9 +-
+ drivers/watchdog/xen_wdt.c                         |   4 +-
+ 95 files changed, 1406 insertions(+), 1039 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/fsl-imx-sc-wdt.txt
+ rename Documentation/devicetree/bindings/watchdog/{renesas-wdt.txt => renesas,wdt.txt} (100%)
+ rename Documentation/watchdog/{convert_drivers_to_kernel_api.txt => convert_drivers_to_kernel_api.rst} (75%)
+ rename Documentation/watchdog/{hpwdt.txt => hpwdt.rst} (73%)
+ create mode 100644 Documentation/watchdog/index.rst
+ rename Documentation/watchdog/{mlx-wdt.txt => mlx-wdt.rst} (78%)
+ rename Documentation/watchdog/{pcwd-watchdog.txt => pcwd-watchdog.rst} (89%)
+ rename Documentation/watchdog/{watchdog-api.txt => watchdog-api.rst} (80%)
+ rename Documentation/watchdog/{watchdog-kernel-api.txt => watchdog-kernel-api.rst} (90%)
+ create mode 100644 Documentation/watchdog/watchdog-parameters.rst
+ delete mode 100644 Documentation/watchdog/watchdog-parameters.txt
+ rename Documentation/watchdog/{watchdog-pm.txt => watchdog-pm.rst} (92%)
+ rename Documentation/watchdog/{wdt.txt => wdt.rst} (68%)
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
+
