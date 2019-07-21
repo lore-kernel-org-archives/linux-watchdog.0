@@ -1,89 +1,77 @@
-Return-Path: <SRS0=nZzR=VP=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=5d9e=VS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C588C76195
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jul 2019 18:30:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A87DC76188
+	for <linux-watchdog@archiver.kernel.org>; Sun, 21 Jul 2019 12:56:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E98652173B
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jul 2019 18:30:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1563474611;
-	bh=8L3YAQ+MHhbI9yfjQXTU3IP9TGV0wBqCEFFkC+HLkRw=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=n++aNuqrrLSy02bZsCNQZp4udDbSUSmut+dDRZzT6UWDertmk297laDT9PozoJaD5
-	 f1D2s7hJhNksfYtp70pU4FLZYps6jRqgzwzvx9xJ1BdB7OG3mq1J/fC3yRM5C8XXiU
-	 hhS0f+8rHGIPDjcRzwszC1mZlQwb6pdelMnPlEWw=
+	by mail.kernel.org (Postfix) with ESMTP id 11CDA2084C
+	for <linux-watchdog@archiver.kernel.org>; Sun, 21 Jul 2019 12:56:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391101AbfGRSaG (ORCPT
+        id S1726296AbfGUM4L (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 18 Jul 2019 14:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726040AbfGRSaF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 18 Jul 2019 14:30:05 -0400
-Subject: Re: [GIT PULL REQUEST] watchdog - v5.3 Merge window
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563474604;
-        bh=8L3YAQ+MHhbI9yfjQXTU3IP9TGV0wBqCEFFkC+HLkRw=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=MCwgmXHlgBGaUOBcL0ZJPsS2Rw/9q0yD6KG/taycjjALlbb0EYas5tUeaebQ3Adbp
-         p4B+WKyziNaRgft0oBE/p27eYxni091uu8puhcA/qruSRmaW4m8OAphGsBwwDhTump
-         h7yIPIw4f48U81RYg+CAckgZBnc/G9PPsfHo6nqE=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20190717195828.GA25283@www.linux-watchdog.org>
-References: <20190717195828.GA25283@www.linux-watchdog.org>
-X-PR-Tracked-List-Id: <linux-watchdog.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20190717195828.GA25283@www.linux-watchdog.org>
-X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
- tags/linux-watchdog-5.3-rc1
-X-PR-Tracked-Commit-Id: 7fb832ae72949c883da52d6316ff08f03c75d300
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: d77e9e4e18ce9da3b4981a5c537979c42b06638c
-Message-Id: <156347460488.12683.10471871917152605765.pr-tracker-bot@kernel.org>
-Date:   Thu, 18 Jul 2019 18:30:04 +0000
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        =?iso-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hoan Nguyen An <na-hoan@jinso.co.jp>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Ken Sloat <ksloat@aampglobal.com>,
-        Mans Rullgard <mans@mansr.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+        Sun, 21 Jul 2019 08:56:11 -0400
+Received: from smtp11.smtpout.orange.fr ([80.12.242.133]:53237 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726290AbfGUM4L (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 21 Jul 2019 08:56:11 -0400
+Received: from localhost.localdomain ([92.140.204.221])
+        by mwinf5d34 with ME
+        id fQw8200044n7eLC03Qw8SE; Sun, 21 Jul 2019 14:56:09 +0200
+X-ME-Helo: localhost.localdomain
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Sun, 21 Jul 2019 14:56:09 +0200
+X-ME-IP: 92.140.204.221
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     wim@linux-watchdog.org, linux@roeck-us.net
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] watchdog: ath79_wdt: fix a typo in the name of a function
+Date:   Sun, 21 Jul 2019 14:55:47 +0200
+Message-Id: <20190721125547.13473-1-christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The pull request you sent on Wed, 17 Jul 2019 21:58:28 +0200:
+It is likely that 'ath97_wdt_shutdown()' should be 'ath79_wdt_shutdown()'
 
-> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.3-rc1
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ drivers/watchdog/ath79_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d77e9e4e18ce9da3b4981a5c537979c42b06638c
-
-Thank you!
-
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index 02234c254b10..436cdb4f0392 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -306,7 +306,7 @@ static int ath79_wdt_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static void ath97_wdt_shutdown(struct platform_device *pdev)
++static void ath79_wdt_shutdown(struct platform_device *pdev)
+ {
+ 	ath79_wdt_disable();
+ }
+@@ -322,7 +322,7 @@ MODULE_DEVICE_TABLE(of, ath79_wdt_match);
+ static struct platform_driver ath79_wdt_driver = {
+ 	.probe		= ath79_wdt_probe,
+ 	.remove		= ath79_wdt_remove,
+-	.shutdown	= ath97_wdt_shutdown,
++	.shutdown	= ath79_wdt_shutdown,
+ 	.driver		= {
+ 		.name	= DRIVER_NAME,
+ 		.of_match_table = of_match_ptr(ath79_wdt_match),
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.20.1
+
