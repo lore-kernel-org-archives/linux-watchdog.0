@@ -2,86 +2,112 @@ Return-Path: <SRS0=sicv=VT=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_ADSP_ALL,DKIM_INVALID,
-	DKIM_SIGNED,FROM_EXCESS_BASE64,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C69BDC76188
-	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jul 2019 04:56:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD83C76190
+	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jul 2019 11:38:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3AF3521BD9
-	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jul 2019 04:56:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=valentin-vidic.from.hr header.i=@valentin-vidic.from.hr header.b="DKUaQXlF"
+	by mail.kernel.org (Postfix) with ESMTP id 7260421951
+	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jul 2019 11:38:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727810AbfGVE4F (ORCPT
+        id S1729930AbfGVLix (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 22 Jul 2019 00:56:05 -0400
-Received: from valentin-vidic.from.hr ([94.229.67.141]:54299 "EHLO
-        valentin-vidic.from.hr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727718AbfGVE4F (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 22 Jul 2019 00:56:05 -0400
-X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
-Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
-        id B9B6C3A33C; Mon, 22 Jul 2019 06:55:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-        d=valentin-vidic.from.hr; s=2017; t=1563771357;
-        bh=10pILHKkY5Hkq7shAjFiO+/O0d1QAjLmN2U0FPyfpe8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DKUaQXlFUd0y9WKsrazcg3KkQpNiHeqIHye87AEG+32NV5+X2kEMU0OTpIV0vQPwQ
-         EOpoDJFOZlKkGgXbT9HmBGlV1clmkRsPThqe45QRItjxZ23jaY82Wsd3TEzfht9XA6
-         jfCZAIXzJq8HQtgZnnIE3j6LdKPy2ZKYWCV6Q2YkZYB51GkQ3JF8IsFqElanvFhpum
-         VPkv7Bc8w5pPqtWW9HMOFiMI3UZk4Oi9e+Xbzh1q21zYX3hPcTXld7JhE9jdBDkhTu
-         2gA3NQMg6JsODxJ+pqrEKxVkvxIjLWGYceWFxjQgQXh1r3MB6dNLg0KsiA+AT/CGgi
-         kOsK7aIHkUh6g==
-Date:   Mon, 22 Jul 2019 06:55:57 +0200
-From:   Valentin =?utf-8?B?VmlkacSH?= <vvidic@valentin-vidic.from.hr>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org
-Subject: Re: iTCO_wdt on Intel NUC
-Message-ID: <20190722045557.tndjp4hnpngvlaql@valentin-vidic.from.hr>
-References: <20190721203047.3jd6slko6guz52fl@valentin-vidic.from.hr>
- <d2f78a10-df19-9922-565d-b0ed6fcacb67@roeck-us.net>
+        Mon, 22 Jul 2019 07:38:53 -0400
+Received: from sauhun.de ([88.99.104.3]:39256 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726895AbfGVLiw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 22 Jul 2019 07:38:52 -0400
+Received: from localhost (p54B33E22.dip0.t-ipconnect.de [84.179.62.34])
+        by pokefinder.org (Postfix) with ESMTPSA id 2529E2C28E9;
+        Mon, 22 Jul 2019 13:38:49 +0200 (CEST)
+Date:   Mon, 22 Jul 2019 13:38:46 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Jade Alglave <j.alglave@ucl.ac.uk>,
+        Luc Maranget <luc.maranget@inria.fr>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        Daniel Lustig <dlustig@nvidia.com>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, Ajay Gupta <ajayg@nvidia.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        rcu@vger.kernel.org, linux-doc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-i2c@vger.kernel.org, esc.storagedev@microsemi.com,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 03/14] docs: fix broken doc references due to renames
+Message-ID: <20190722113845.GA1115@ninjato>
+References: <cover.1563277838.git.mchehab+samsung@kernel.org>
+ <aa415583bf6b812b0249093a601aa31412f3a1cf.1563277838.git.mchehab+samsung@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
 Content-Disposition: inline
-In-Reply-To: <d2f78a10-df19-9922-565d-b0ed6fcacb67@roeck-us.net>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <aa415583bf6b812b0249093a601aa31412f3a1cf.1563277838.git.mchehab+samsung@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Jul 21, 2019 at 05:05:17PM -0700, Guenter Roeck wrote:
-> Most likely the memory region is reserved/used by something else. /proc/iomem
-> might show you.
 
-The output is a bit strange since it mentions iTCO_wdt for that address range:
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[    9.377397] iTCO_wdt iTCO_wdt: can't request region for resource [mem 0x00c5fffc-0x00c5ffff]
+On Tue, Jul 16, 2019 at 09:10:42AM -0300, Mauro Carvalho Chehab wrote:
+> Some files got renamed but probably due to some merge conflicts,
+> a few references still point to the old locations.
+>=20
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-00000000-00000fff : Reserved
-00001000-0009efff : System RAM
-0009f000-000fffff : Reserved
-  000a0000-000bffff : PCI Bus 0000:00
-  000e0000-000e3fff : PCI Bus 0000:00
-  000e4000-000e7fff : PCI Bus 0000:00
-  000e8000-000ebfff : PCI Bus 0000:00
-  000ec000-000effff : PCI Bus 0000:00
-  000f0000-000fffff : System ROM
-00100000-6f8d8017 : System RAM
-  00c5fffc-00c5ffff : iTCO_wdt
-6f8d8018-6f8e8e57 : System RAM
-6f8e8e58-79d52fff : System RAM
-79d53000-7a1bdfff : Reserved
-7a1be000-7a23afff : ACPI Tables
-7a23b000-7a2ebfff : ACPI Non-volatile Storage
-7a2ec000-7ac0dfff : Reserved
-7ac0e000-7ac0efff : System RAM
-7ac0f000-7fffffff : Reserved
-  7c000000-7fffffff : Graphics Stolen Memory
+Acked-by: Wolfram Sang <wsa@the-dreams.de> # I2C part
 
--- 
-Valentin
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl01oEEACgkQFA3kzBSg
+KbYvLhAAiBCzjlLaOX8TozT9yXWwqRye46Tkkjqei2Gh2ruk6HulzAm4JLL1ghij
+bD5UKIqsqMqs8SThEWtBr7lpGKPY5dTOO7Lvp3Gg6Ykw4DSJHjwRbY9Gz3eKpjm6
+XCeKu+qe7IWU4PyqjfTmT2tYQBjZTg8+e5ycnPtgLxvLZGpqoOwplZvwady9klS0
+6KfODAi0M8Bv05man76ECm1z4PeUjQMjuSgO4lxWDm9QPN6pL1tZ1DN4TWoQpmY8
+gnS6iqRtIVwRqjxnx3BNP6q0iF0oMBIJbufn+udz5FVAvXkWtx6gaJ+HZO02CPnd
+DfLhbW0h0SzzRnLA8rtuTQl/wJwHcfRtlYBNitXwbXIewlBTqlhzhvuW7JZnXJTe
+QXk4bXJuRofQsmWiK/i6bP0ifWyWmH/mLQkZhXEAZXsiiSHYuLC0RGLYTk2OSbRS
+d4kM+3WQfr0F8KTgmhKZv0g6yKqxziFVCBFMkKvpYqOfk3MuRf9JREpFnAmtHaox
+310crjxth9IwT/SMq813fSz5+SueTeiTp7DZyOANc23QCyJTpTTnIsdpzYzna4+i
+t8H5nyy2JKWKP7rvIfn2O4BKHOt14Klmbno/pUak4lxLadz7Av7mC65akEwLWSiI
+0qO7h0/ZSuPlu8OPAyR3I7cvx8/RriyeQJUceA6/KjTSKtWhw/E=
+=7t6S
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--
