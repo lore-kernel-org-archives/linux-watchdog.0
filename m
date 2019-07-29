@@ -7,151 +7,111 @@ X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9295FC433FF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Jul 2019 17:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAF5DC76186
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Jul 2019 20:20:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 64AEE20C01
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Jul 2019 17:42:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE8C22064C
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Jul 2019 20:20:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J/tqT3H5"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VjRurpAs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbfG2RmD (ORCPT
+        id S1728663AbfG2UUj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 29 Jul 2019 13:42:03 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:43279 "EHLO
+        Mon, 29 Jul 2019 16:20:39 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41685 "EHLO
         mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727455AbfG2RmC (ORCPT
+        with ESMTP id S1728915AbfG2UUj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Jul 2019 13:42:02 -0400
-Received: by mail-pg1-f195.google.com with SMTP id r22so1014062pgk.10;
-        Mon, 29 Jul 2019 10:42:02 -0700 (PDT)
+        Mon, 29 Jul 2019 16:20:39 -0400
+Received: by mail-pg1-f195.google.com with SMTP id x15so18460208pgg.8;
+        Mon, 29 Jul 2019 13:20:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=jmWNPGpEcvuFfjA7r1BLpL3AftzHhOFH91ce922Egwo=;
-        b=J/tqT3H5cx9WqZXshDXgmxLfI/J9u8mXHN+RbBi3G/USyhRIrKoP6kA7LqP3TSBmNX
-         gT1DNyziLGUyJS6chh9Cr//ADNoLdQYuyRqHnkHz823ph4iHUVCMr7ujqfO3XtPvQdt7
-         J5DRkiT3wUMeNDa2UDgt+kqTfA88CPlLLB/p3xMxJOLPgq/Fw12EN/lfZs7Od4L8TId1
-         cPq8ZaJI7e3wsQKShJoeZwFxFyUR7HvMyMkIb0u9fNB1furRWoUx5fvtiBVJEuIgZw+a
-         nUYgGkLK9UEck8Vx9SnsEYhq2RmT0ABTVMb3auh59wXby9wnB1ShH2rO1dLStW/mphH+
-         OYJw==
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=PWm3A+XATen1N/7FPolvwWJxlL26QMTEguhryVQhPuI=;
+        b=VjRurpAsHCDE5NXUiuJSYOxZdiKBv4PWD9C6S2bajkziBpFDkaZRMkLftU/Z86M03e
+         r8Z9HP0OErQtyov6PDhO4AzNHOi7tod6ZGXiA5gW8/Mm7YM8mFRsXWFFx2iMvEVAqP5C
+         yjL18bJQUP/QRtbNSrUZu/asr/tD+tBGzuSrqb84CxR24KwYQUQfbTM/tdlggwLrkxBs
+         IhjwbueTmzw/lcZyoVsRu3GSwyTjkPpAYDJWS4VsZdzZewAGygjTz3OY3I38ffYMrT+q
+         O5yt7R8Vv5SecoNrXdolOA//7LU6UlnaArmQCHE6d+KQ8qDdMV/kz2u/Wr2IKIdZtWTA
+         AB8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=jmWNPGpEcvuFfjA7r1BLpL3AftzHhOFH91ce922Egwo=;
-        b=tjYkQgDFSVcFUNfRvCikIRqGKwQOKLwi5ea18GDYynnKEVGG1Vckf0Yx1+kx7k7KRk
-         ONPlmid7fUhn5gyDLRWn7lzzVGCGr/q05qzGIX/vpsniDPi5Q+V08+fpChc2RWGWJl66
-         eQsIwfO4+9tDrJb75NEFguLU1tByPVIj/BIeq+jLC4UAGYvNqJ0+VqpzjQwz1cslyZIk
-         81ftOMiB9kBPjxg7XhrwMVjxEyMpdQGadYXft0E0Km92VAnsIEzxGBTJEC7cauQJSYWc
-         GxZ2dB3egIAB95G0654Bvedna7uJyXKENnYONBX1ieThwZ0DgmYXQqbWr0znDOFGNXEj
-         phXQ==
-X-Gm-Message-State: APjAAAUngeTgjUOqokXrhfj2Q2EZvkSIWnzq1YGNmouFwdrrjbWFQ5CD
-        lhu24cVvx46WJlYzEtM+Z/s=
-X-Google-Smtp-Source: APXvYqx7h55NrKFBAwOGgl/iS1bKTiyfGmCSpIw+Llin8keB0UvG/7XqCrgCuvhQeLr217HUIqljNQ==
-X-Received: by 2002:a17:90a:5207:: with SMTP id v7mr108694829pjh.127.1564422122230;
-        Mon, 29 Jul 2019 10:42:02 -0700 (PDT)
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=PWm3A+XATen1N/7FPolvwWJxlL26QMTEguhryVQhPuI=;
+        b=Nz+SxOpJ4S2lW/lj4zhfNHkQ3gWrZU6wsKWyio4n7IeSvJc+rnzYptPEVCt6D3/DMU
+         kbgzRY/89Z1KPY4C6u/AgYRNODOs8TrWRO84erEPzJ/+KCIJs5pzqhi4XZf46Uj+qVLw
+         CdPev3KB33jE1txXsL0BXvDMS9ISqk5iAhc9pcyyahRR0TO0SpDVXqcCxlnvkK0z/yUg
+         swaBKE0nDxSX9At9v7nEtJs1X0Z5EbFswRvul1UXCcIMW5y0Ig0WYOkt0LTWbHTmYluU
+         vyUUhNKgLvhPf2Dd01Yzk3tW9UL3zAB45cwn7fMVqBywr+umWUe1u2rYWIQ2jXF4VfB9
+         z7bg==
+X-Gm-Message-State: APjAAAXMDTS8j7R4yF5Q8Me4qchChxRYOFNuzMLcXVGfc61SojkELXBI
+        osSs9hQZBzaPE9hDn9Vl20d+5QMO
+X-Google-Smtp-Source: APXvYqxTyxzwpklfOv/L6SZWr47ce7Ix96k5jNaaPPpvUYY7ExbD6737RmCU5PhxUlrIFNj2NMtRmQ==
+X-Received: by 2002:a63:2ec9:: with SMTP id u192mr103509615pgu.16.1564431638563;
+        Mon, 29 Jul 2019 13:20:38 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v63sm64782707pfv.174.2019.07.29.10.42.01
+        by smtp.gmail.com with ESMTPSA id r2sm80705716pfl.67.2019.07.29.13.20.37
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 10:42:01 -0700 (PDT)
-Date:   Mon, 29 Jul 2019 10:42:00 -0700
+        Mon, 29 Jul 2019 13:20:37 -0700 (PDT)
+Date:   Mon, 29 Jul 2019 13:20:36 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+Cc:     Jim Cromie <jim.cromie@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
         Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] watchdog: Mark expected switch fall-throughs
-Message-ID: <20190729174200.GB32556@roeck-us.net>
-References: <20190729151033.GA10143@embeddedor>
+Subject: Re: [PATCH] watchdog: scx200_wdt: Mark expected switch fall-through
+Message-ID: <20190729202036.GA31986@roeck-us.net>
+References: <20190729200602.GA6854@embeddedor>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190729151033.GA10143@embeddedor>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190729200602.GA6854@embeddedor>
 User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 10:10:33AM -0500, Gustavo A. R. Silva wrote:
+On Mon, Jul 29, 2019 at 03:06:02PM -0500, Gustavo A. R. Silva wrote:
 > Mark switch cases where we are expecting to fall through.
 > 
-> This patch fixes the following warnings:
+> This patch fixes the following warning (Building: i386):
 > 
-> drivers/watchdog/ar7_wdt.c: warning: this statement may fall
-> through [-Wimplicit-fallthrough=]:  => 237:3
-> drivers/watchdog/pcwd.c: warning: this statement may fall
-> through [-Wimplicit-fallthrough=]:  => 653:3
-> drivers/watchdog/sb_wdog.c: warning: this statement may fall
-> through [-Wimplicit-fallthrough=]:  => 204:3
-> drivers/watchdog/wdt.c: warning: this statement may fall
-> through [-Wimplicit-fallthrough=]:  => 391:3
+> drivers/watchdog/scx200_wdt.c: In function ‘scx200_wdt_ioctl’:
+> drivers/watchdog/scx200_wdt.c:188:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    scx200_wdt_ping();
+>    ^~~~~~~~~~~~~~~~~
+> drivers/watchdog/scx200_wdt.c:189:2: note: here
+>   case WDIOC_GETTIMEOUT:
+>   ^~~~
 > 
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
 > Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/ar7_wdt.c | 1 +
->  drivers/watchdog/pcwd.c    | 2 +-
->  drivers/watchdog/sb_wdog.c | 1 +
->  drivers/watchdog/wdt.c     | 2 +-
->  4 files changed, 4 insertions(+), 2 deletions(-)
+>  drivers/watchdog/scx200_wdt.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
-> index b9b2d06b3879..668a1c704f28 100644
-> --- a/drivers/watchdog/ar7_wdt.c
-> +++ b/drivers/watchdog/ar7_wdt.c
-> @@ -235,6 +235,7 @@ static long ar7_wdt_ioctl(struct file *file,
->  		ar7_wdt_update_margin(new_margin);
->  		ar7_wdt_kick(1);
->  		spin_unlock(&wdt_lock);
-> +		/* Fall through */
->  
->  	case WDIOC_GETTIMEOUT:
->  		if (put_user(margin, (int *)arg))
-> diff --git a/drivers/watchdog/pcwd.c b/drivers/watchdog/pcwd.c
-> index 1b2cf5b95a89..c3c93e00b320 100644
-> --- a/drivers/watchdog/pcwd.c
-> +++ b/drivers/watchdog/pcwd.c
-> @@ -651,7 +651,7 @@ static long pcwd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  			return -EINVAL;
->  
->  		pcwd_keepalive();
-> -		/* Fall */
-> +		/* Fall through */
->  
->  	case WDIOC_GETTIMEOUT:
->  		return put_user(heartbeat, argp);
-> diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
-> index 5a6ced7a7e8f..202fc8d8ca5f 100644
-> --- a/drivers/watchdog/sb_wdog.c
-> +++ b/drivers/watchdog/sb_wdog.c
-> @@ -202,6 +202,7 @@ static long sbwdog_ioctl(struct file *file, unsigned int cmd,
->  		timeout = time;
->  		sbwdog_set(user_dog, timeout);
->  		sbwdog_pet(user_dog);
-> +		/* Fall through */
->  
->  	case WDIOC_GETTIMEOUT:
->  		/*
-> diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
-> index 0650100fad00..7d278b37e083 100644
-> --- a/drivers/watchdog/wdt.c
-> +++ b/drivers/watchdog/wdt.c
-> @@ -389,7 +389,7 @@ static long wdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  		if (wdt_set_heartbeat(new_heartbeat))
->  			return -EINVAL;
->  		wdt_ping();
-> -		/* Fall */
+> diff --git a/drivers/watchdog/scx200_wdt.c b/drivers/watchdog/scx200_wdt.c
+> index efd7996694de..46268309ee9b 100644
+> --- a/drivers/watchdog/scx200_wdt.c
+> +++ b/drivers/watchdog/scx200_wdt.c
+> @@ -186,6 +186,7 @@ static long scx200_wdt_ioctl(struct file *file, unsigned int cmd,
+>  		margin = new_margin;
+>  		scx200_wdt_update_margin();
+>  		scx200_wdt_ping();
 > +		/* Fall through */
 >  	case WDIOC_GETTIMEOUT:
->  		return put_user(heartbeat, p);
->  	default:
+>  		if (put_user(margin, p))
+>  			return -EFAULT;
 > -- 
 > 2.22.0
 > 
