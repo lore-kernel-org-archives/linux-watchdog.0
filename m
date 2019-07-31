@@ -2,60 +2,61 @@ Return-Path: <SRS0=CB6X=V4=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A33C0C32751
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 17:43:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 051CDC32753
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 17:43:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7483D208E4
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 17:43:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D0FB32067D
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 17:43:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jf1DCaJW"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eVcB1DAr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727850AbfGaRnA (ORCPT
+        id S1728836AbfGaRnJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 31 Jul 2019 13:43:00 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:46589 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727571AbfGaRm7 (ORCPT
+        Wed, 31 Jul 2019 13:43:09 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:38879 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729495AbfGaRnJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jul 2019 13:42:59 -0400
-Received: by mail-pg1-f195.google.com with SMTP id k189so13356664pgk.13;
-        Wed, 31 Jul 2019 10:42:59 -0700 (PDT)
+        Wed, 31 Jul 2019 13:43:09 -0400
+Received: by mail-pf1-f196.google.com with SMTP id y15so32285014pfn.5;
+        Wed, 31 Jul 2019 10:43:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Cbyckh733zLn1k1KQNdqh7wE649sTzAEf7Zo27dCO9o=;
-        b=Jf1DCaJW8x+CqvK5dK/oe6T/tEBnNjjoHaS6Avg/5nrZ7lnqPw+SLoTaf+oV3NKePM
-         n/0ITNvE2NeMBsgUDLZ+V3WCNertUHwXh+F/wmGzsoBtnV4UOwyht+yCaNW3xTT7vPNL
-         nprz7JaRptMhEvs56d4Y0ktKlLBfB0Ikb56p/ucPFRYWddbWyYZqL7HkDfOWkU99ZTEu
-         TcwP8RNXr6VWDi11URP9yOBYxUIHxzaGvznHzUin9xkrUFnZtEM3NSjgLcFlKZk+EsE7
-         eX6d+NmjkJbZwDVvsNMPO8YdWCahYFIUXlhlggzX/1zZqj6hmFMu6+nhX2BU5iMQmhoC
-         Q3sw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=qdP7zcW+fsPauZxZz+eQFRnAEj1f5IU9NKoZzh/om+g=;
+        b=eVcB1DArHZXjOZuYdvsD76Fy22cr4pxD2N0Ar6T4p/tAZMZDaUr431SUCDf16cN2g0
+         YAxqE4/ytqjfsqmgQSPTBz2RZ6yrntUJSLYahSBDS4ze4+iuRO5A+Ze+d1ZYilOcBNCA
+         6JOezh5ndagN9dKbXS4hTEmusmoNt+9tGt5UBG6bwUbqlmMckZ/ToPEy2J1SNXPRac9N
+         H8/s+2bBEbPTv9sQ/G+kW9vKrzSqtrBDc/6Rq7+ogQvVsRI7kI7DTG33X9/Q3VGkwmvP
+         ASZGqscxPJe83BKuBJgZFjYzEIKUuk6WbehoDGWTufXvEENw5qcvvyPyCRBkruA4nP0r
+         YcWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Cbyckh733zLn1k1KQNdqh7wE649sTzAEf7Zo27dCO9o=;
-        b=fWIJgzjqED9zc4cJZ4nYCjhdyEmp/ifczzNjbudbrLXFYBO29wh/9D57tfC+8+8ui7
-         c0WT0QSEULnBiDlOLqCmJjhMpacnzqqSkX2HCuopJ20OtJE7qhyDSEEqKSveK4zDAm1h
-         b1kDiNqAlWVVqd0hc3b3JO5nEjjkRKCP+flhyCcaFxb2K7w6zIyiWNZ+tJWHBg1YdqOf
-         9KZIX3L7CCpsCTD8plMZAcLZSrRUh31F/DQPdlfnHIGTGxiVEKuJwsHIP5l6zNRX5IOO
-         fHNGcWXpFbHUrbADJ8nAc3UeEjzWi4L06lB5lVO7pLOuKaWu+n65WNiYGG6tt6hj4qWN
-         6ung==
-X-Gm-Message-State: APjAAAUOh9t92mnsQZRj5njK1Zf5ek8dj2ihjKrT/+eV4GO/b2diPRc/
-        79qFuo1KfuhSWg8voPhOEndK2BK8
-X-Google-Smtp-Source: APXvYqxdqHqvtynEU7yEnDIrijIctPi9FrUx6AMyMOZ85UVTMWrO/hZXpwZJYxX/Rd1+zUiH6EvUGg==
-X-Received: by 2002:aa7:91cc:: with SMTP id z12mr48569536pfa.76.1564594978845;
-        Wed, 31 Jul 2019 10:42:58 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=qdP7zcW+fsPauZxZz+eQFRnAEj1f5IU9NKoZzh/om+g=;
+        b=rSnme//CmrkzNC9DuvqPH10GFd4fhsXr90cUlTRwxqPDswAxCVrrga/1GqPP3RVyyU
+         EOgWxhR5z+565yICzOGnpUMYbsSavfABLkDS4fePFl+I38162G3M2CxYn0nZKO7mLBSv
+         VfOzu+eHbYg/PaEZtdcyX7qw5EM6FwuJboTW8VtgO3nmI7weOTMxwhQEaTrtwA/ntaPu
+         IncMjYhCHbW4FvkzEAACKKQEff/xo4IyPXh30qHjHmg95Cb7AKIkuG8qN1RMApFM0BNl
+         BIMOXE8LveVB/gBJ5GqXlf2Kf6iKVDN+eoPUCmQ3ml6VtPfqJkyDVaxj0pNeB+RqUKfO
+         Yf0w==
+X-Gm-Message-State: APjAAAVrClJUWXd3LzQa3XfdA20onu/TuHudk5uJ6GSRqE1ckG1btGJc
+        EVKf3MEp17eRDGvce0zHBrtCTsqZ
+X-Google-Smtp-Source: APXvYqxC1zj4+nftzjZqEJJIxCEGbwiSzWdB5H+pOucxoZmOZPbLbAPK0BTvJ/p2il1olsoJE/yHhA==
+X-Received: by 2002:a17:90a:8d09:: with SMTP id c9mr4117269pjo.131.1564594988181;
+        Wed, 31 Jul 2019 10:43:08 -0700 (PDT)
 Received: from localhost.localdomain ([2607:fb90:4ad:5a0b:2aff:6e0f:8973:5a26])
-        by smtp.gmail.com with ESMTPSA id k8sm65941259pgm.14.2019.07.31.10.42.57
+        by smtp.gmail.com with ESMTPSA id k8sm65941259pgm.14.2019.07.31.10.43.06
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Wed, 31 Jul 2019 10:42:58 -0700 (PDT)
+        Wed, 31 Jul 2019 10:43:07 -0700 (PDT)
 From:   Andrey Smirnov <andrew.smirnov@gmail.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
@@ -63,10 +64,12 @@ Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Rick Ramstetter <rick@anteaterllc.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] Ziirave_wdt driver fixes
-Date:   Wed, 31 Jul 2019 10:42:47 -0700
-Message-Id: <20190731174252.18041-1-andrew.smirnov@gmail.com>
+Subject: [PATCH 5/5] watchdog: ziirave_wdt: Log bootloader/firmware info during probe
+Date:   Wed, 31 Jul 2019 10:42:52 -0700
+Message-Id: <20190731174252.18041-6-andrew.smirnov@gmail.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190731174252.18041-1-andrew.smirnov@gmail.com>
+References: <20190731174252.18041-1-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -74,26 +77,84 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Everyone,
+Log bootloader/firmware info during probe. This information is
+available via sysfs already, but it's really helpful to have this in
+kernel log during startup as well.
 
-This series contains various fixes/improvements for ziirave_wdt
-driver. Hopefully each commit is self-explanatory.
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Rick Ramstetter <rick@anteaterllc.com>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/watchdog/ziirave_wdt.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-Feedback is welcome!
-
-Thanks,
-Andrey Smirnov
-
-Andrey Smirnov (5):
-  watchdog: ziirave_wdt: Add missing newline
-  watchdog: ziirave_wdt: Be verbose about errors in probe()
-  watchdog: ziirave_wdt: Be more verbose during firmware update
-  watchdog: ziirave_wdt: Don't bail out on unexpected timeout value
-  watchdog: ziirave_wdt: Log bootloader/firmware info during probe
-
- drivers/watchdog/ziirave_wdt.c | 74 +++++++++++++++++++++++-----------
- 1 file changed, 51 insertions(+), 23 deletions(-)
-
+diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+index 33c8d2eadada..84ba8820ac86 100644
+--- a/drivers/watchdog/ziirave_wdt.c
++++ b/drivers/watchdog/ziirave_wdt.c
+@@ -68,6 +68,9 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
+ #define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER		0x0c
+ #define ZIIRAVE_CMD_DOWNLOAD_PACKET		0x0e
+ 
++#define ZIIRAVE_FW_VERSION_FMT	"02.%02u.%02u"
++#define ZIIRAVE_BL_VERSION_FMT	"01.%02u.%02u"
++
+ struct ziirave_wdt_rev {
+ 	unsigned char major;
+ 	unsigned char minor;
+@@ -482,7 +485,7 @@ static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = sprintf(buf, "02.%02u.%02u", w_priv->firmware_rev.major,
++	ret = sprintf(buf, ZIIRAVE_FW_VERSION_FMT, w_priv->firmware_rev.major,
+ 		      w_priv->firmware_rev.minor);
+ 
+ 	mutex_unlock(&w_priv->sysfs_mutex);
+@@ -505,7 +508,7 @@ static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = sprintf(buf, "01.%02u.%02u", w_priv->bootloader_rev.major,
++	ret = sprintf(buf, ZIIRAVE_BL_VERSION_FMT, w_priv->bootloader_rev.major,
+ 		      w_priv->bootloader_rev.minor);
+ 
+ 	mutex_unlock(&w_priv->sysfs_mutex);
+@@ -572,7 +575,8 @@ static ssize_t ziirave_wdt_sysfs_store_firm(struct device *dev,
+ 		goto unlock_mutex;
+ 	}
+ 
+-	dev_info(&client->dev, "Firmware updated to version 02.%02u.%02u\n",
++	dev_info(&client->dev,
++		 "Firmware updated to version " ZIIRAVE_FW_VERSION_FMT "\n",
+ 		 w_priv->firmware_rev.major, w_priv->firmware_rev.minor);
+ 
+ 	/* Restore the watchdog timeout */
+@@ -706,6 +710,10 @@ static int ziirave_wdt_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
+ 
++	dev_info(&client->dev,
++		 "Firmware version: " ZIIRAVE_FW_VERSION_FMT "\n",
++		 w_priv->firmware_rev.major, w_priv->firmware_rev.minor);
++
+ 	ret = ziirave_wdt_revision(client, &w_priv->bootloader_rev,
+ 				   ZIIRAVE_WDT_BOOT_VER_MAJOR);
+ 	if (ret) {
+@@ -713,6 +721,10 @@ static int ziirave_wdt_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
+ 
++	dev_info(&client->dev,
++		 "Bootloader version: " ZIIRAVE_BL_VERSION_FMT "\n",
++		 w_priv->bootloader_rev.major, w_priv->bootloader_rev.minor);
++
+ 	w_priv->reset_reason = i2c_smbus_read_byte_data(client,
+ 						ZIIRAVE_WDT_RESET_REASON);
+ 	if (w_priv->reset_reason < 0) {
 -- 
 2.21.0
 
