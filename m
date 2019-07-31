@@ -2,97 +2,94 @@ Return-Path: <SRS0=CB6X=V4=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MALFORMED_FREEMAIL,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3C8FC32751
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 18:11:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77B47C32753
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 18:23:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7B48620665
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 18:11:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 529A7208E4
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 Jul 2019 18:23:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QhF+vM81"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FfIAcnKR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfGaSL3 (ORCPT
+        id S1726800AbfGaSXY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 31 Jul 2019 14:11:29 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:44524 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727489AbfGaSL3 (ORCPT
+        Wed, 31 Jul 2019 14:23:24 -0400
+Received: from mail-pf1-f173.google.com ([209.85.210.173]:34314 "EHLO
+        mail-pf1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726469AbfGaSXY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jul 2019 14:11:29 -0400
-Received: by mail-pg1-f193.google.com with SMTP id i18so32442446pgl.11;
-        Wed, 31 Jul 2019 11:11:28 -0700 (PDT)
+        Wed, 31 Jul 2019 14:23:24 -0400
+Received: by mail-pf1-f173.google.com with SMTP id b13so32335453pfo.1;
+        Wed, 31 Jul 2019 11:23:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=JvYvhDiPaCIW5VmxmJ3o1cy2k11J2KtTRWriR4fKGI8=;
-        b=QhF+vM812ch9+tbD5gapQJwXqkf0ciegoiZk9ZhO70PebTP/9Fq+cdew/+wZcNc+2B
-         LUVI+sWy/xW1M+phBuu6jVxT7qT06D4Fi8S0kkjHsRiJE9xoVFXFwWTht1v7dm7Zyyr5
-         hyMQ5UudpGr16NjyJF8jMc+jA+5wJb70kXeM4X5YBGVvWPc1TCI2fDyTFTjzACDqnPyX
-         0GMhrXlmLnvfCyYbY4CuSVd3XfVhQdGnCTOTJjDPprD863KKfVNcay5iQHVrktDnRziD
-         eUv849aEAPuWJTvneW1WjSujOmcfFsr1M+G0VLmnG34fMYmDbATQ2z+I8LDc3bCP2Gho
-         Pt2w==
+        h=from:date:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=BWZwOQmIlvQQZPTLSVK9bZ5Ei0Nf8UiNBXPd+xlQOoY=;
+        b=FfIAcnKRdIi6rtG53El20ZCUws7qaP9vZPrPBGlRLXjeITOt003OaZ3s18rBPL8qSt
+         MdNYS4F2uSdmABmVNlUgMNrVeE+5YH2d/2AXTifL10DXJUYGo2gxs0oGJMHOHXPpMYSD
+         VKQzmbzeSm0TH6NRukgGnajCTlVkt2rIZbnHZzMdBTuBgVv/4873YxayOP4xh94iqi9t
+         SOmJEJV7z4LmDiwJt1I/dmjUgr3ZJpA+nZxsncwMHkSgs7qb2SmYQc6wrDXbgtCtf9Aw
+         /s949qQJfQLGIJ3x46aT5ErBQakEZCyTLQ/G9Yngw3bml2C0kfXmeZXecaHh8pcRTr18
+         uaBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=JvYvhDiPaCIW5VmxmJ3o1cy2k11J2KtTRWriR4fKGI8=;
-        b=n7zaL8nJ9khHf9mSLhm2IJKBvQn4P7C6mjfRlxkg8KQphCrRTviCSO1FGfAGua1f2/
-         SIRY4P1gS8ZF/pI8d7AtqL0wNA5DocWrhfAkpqA1UkYcTesmV10nRWIwsEvnqik2chOq
-         T+SqvIn6BDPIjqqpUEL6MnpBhyPs81L8p+yyj/XAqNqyJbgpTGjv/fgBKUIqzxxuvbD8
-         wq+AWICREAohtqgIMCw4HwhoEMeUWnveTtpv+Xp03Z33iGPLlrrUoDbJlUp0bmUPLqVl
-         ifcLka92IzHEwh16rQEhq3Jp2rOtmaI/lDh1HQ5fgHmVhX4sC2+HmEzjyvmDIRNud7Fk
-         6PHg==
-X-Gm-Message-State: APjAAAWbXCwhYI1pPKvHvw+lkHb8GdDKznvnxNzAgFhGTZcIhXuJ6mnF
-        C+/RF08PvREo+RpVAeUFrnA3TP1q
-X-Google-Smtp-Source: APXvYqyCecO8bniHHVk3kYWQ1FzZYTdzMF4sNFMT/AOcbO3A8PBKQIZrt7VyqOT9MQy/Y/24rvezTQ==
-X-Received: by 2002:a17:90a:2768:: with SMTP id o95mr4188079pje.37.1564596688426;
-        Wed, 31 Jul 2019 11:11:28 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i126sm80877307pfb.32.2019.07.31.11.11.27
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 11:11:28 -0700 (PDT)
-Date:   Wed, 31 Jul 2019 11:11:27 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, Chris Healy <cphealy@gmail.com>,
-        Rick Ramstetter <rick@anteaterllc.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Ziirave_wdt driver fixes
-Message-ID: <20190731181127.GB3885@roeck-us.net>
-References: <20190731174252.18041-1-andrew.smirnov@gmail.com>
+        h=x-gm-message-state:from:date:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=BWZwOQmIlvQQZPTLSVK9bZ5Ei0Nf8UiNBXPd+xlQOoY=;
+        b=uRL6BkYDZmmIf7E1AwbT6bGl1w8x/zhM6WggUX7Gt0RzjZ5HwGFV9DCQmm5t/iQW9J
+         6+RywIRRwCW6B8DwgUUvfc9oGOpXyo+OHwEEfjSbJuOi4UtU+aldSJIRIFoDzAu8nsqM
+         f/ew4lpjwFlQVarrSBItE/pnwLFyElvC/YCVnHubyms2oUEydt1Fjo78Hfos5QQOI5w+
+         GLMOmkpqb7P32FzXm1g1CROEikMZBuenGy9/TEXHUPdh8rtVFuZhZrUGBt8dxBqBTXKB
+         kYdVwNNU+aV/gYf5viFHP4EhLokJnhctI18Xg/PUgS+7QTs1H/j7nOS6u7iT52YyPWTW
+         mAUQ==
+X-Gm-Message-State: APjAAAVN0xeJKTa7wSDaq/+UnzYf9n2wc+eDSAjIl4w2ov4YB9DCrVRu
+        YeGJs/40bMFsEbUb72pRtzs=
+X-Google-Smtp-Source: APXvYqxEcSgRuzNYju1Q8vsuYy3bCwSHmCfSrAbkUTfuKfYKaKdnBs2AGvvaR5Cy7pw6AIEs/lVNAw==
+X-Received: by 2002:a62:16:: with SMTP id 22mr50519637pfa.151.1564597403910;
+        Wed, 31 Jul 2019 11:23:23 -0700 (PDT)
+Received: from mbalantz-desktop (d206-116-172-62.bchsia.telus.net. [206.116.172.62])
+        by smtp.gmail.com with ESMTPSA id 65sm68854515pff.148.2019.07.31.11.23.22
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 31 Jul 2019 11:23:23 -0700 (PDT)
+From:   Mark Balantzyan <mbalant3@gmail.com>
+X-Google-Original-From: Mark Balantzyan <mbalantz@mbalantz-desktop>
+Date:   Wed, 31 Jul 2019 11:23:19 -0700 (PDT)
+To:     Guenter Roeck <linux@roeck-us.net>
+cc:     Mark Balantzyan <mbalant3@gmail.com>, wim@linux-watchdog.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Pavel Andrianov <andrianov@ispras.ru>
+Subject: Re: [PATCH] watchdog:alim1535_wdt: Fix data race in ali_settimer()
+ concerning ali_timeout_bits variable.
+In-Reply-To: <20190731164337.GA13646@roeck-us.net>
+Message-ID: <alpine.DEB.2.21.1907311118190.81695@mbalantz-desktop>
+References: <20190718155238.3066-1-mbalant3@gmail.com> <20190718163458.GA18125@roeck-us.net> <alpine.DEB.2.21.1907310911120.29703@mbalantz-desktop> <20190731164337.GA13646@roeck-us.net>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731174252.18041-1-andrew.smirnov@gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; format=flowed; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 10:42:47AM -0700, Andrey Smirnov wrote:
-> Everyone,
-> 
-> This series contains various fixes/improvements for ziirave_wdt
-> driver. Hopefully each commit is self-explanatory.
-> 
-> Feedback is welcome!
-> 
-> Thanks,
-> Andrey Smirnov
-> 
-> Andrey Smirnov (5):
->   watchdog: ziirave_wdt: Add missing newline
->   watchdog: ziirave_wdt: Be verbose about errors in probe()
->   watchdog: ziirave_wdt: Be more verbose during firmware update
->   watchdog: ziirave_wdt: Don't bail out on unexpected timeout value
->   watchdog: ziirave_wdt: Log bootloader/firmware info during probe
+Hi Guenter, all,
 
-Since you are touching the driver, I would suggest another change:
-Use devm_watchdog_register_device() and drop the remove function.
+It's alright if you still don't wish to review my patch on alim1535_wdt, 
+but my employer and I, using our race condition analysis tool, detected it 
+to contain a race condition warning. I believe any possible issues could 
+be resolved if it were rewritten to use the watchdog subsystem as you've 
+previously stated.
 
-Guenter
+Now, I don't wish to bother you too much, but it seems I forgot to work 
+mainly with my assigned mentor prior to submitting patches..sorry. So, 
+after I have worked on rewriting the alim1535 driver into common watchdog 
+subsystem with my mentor, may I submit it to you then?
+
+Thank you,
+Mark
+
