@@ -1,144 +1,139 @@
-Return-Path: <SRS0=beUb=V6=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=jS2b=WB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1466C433FF
-	for <linux-watchdog@archiver.kernel.org>; Fri,  2 Aug 2019 20:49:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D13BC32751
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 08:28:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE7CD20880
-	for <linux-watchdog@archiver.kernel.org>; Fri,  2 Aug 2019 20:49:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 767712067D
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 08:28:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNUGS0o/"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="gn0LHf8E"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731010AbfHBUtz (ORCPT
+        id S1727856AbfHEI2A (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 2 Aug 2019 16:49:55 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:44058 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726999AbfHBUtz (ORCPT
+        Mon, 5 Aug 2019 04:28:00 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:35309 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726659AbfHEI2A (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 2 Aug 2019 16:49:55 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t14so34048105plr.11;
-        Fri, 02 Aug 2019 13:49:54 -0700 (PDT)
+        Mon, 5 Aug 2019 04:28:00 -0400
+Received: by mail-ot1-f66.google.com with SMTP id j19so7775654otq.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 05 Aug 2019 01:27:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ENSyot+GNdqEsPMj6QXt84UJj5q21aiWLv73xl8tKs0=;
-        b=CNUGS0o/7n6moxYJjoULWtyJ+iM+UwBiq475Ssij85TCMqybZiB1CyjE/um4r/+HvN
-         crlqP1utunGT7etIKLdpxGytiHEVw+DufD9RvGjvAImVSPAQdq8sIPzwmfbSatkmk40y
-         SJrOsKohoLVYqXJJF+fe5pQ/M2HmWmbyC3tcYGJA7HMERERf1PWB6smd0qakgNLUp4mA
-         Z4dNwEbEVV93+GfZJC9Oo26hUQHHTo9iOegGYJ16wdFCzRyMTgrY7jU7vovwT92imhXt
-         wH3+B212dAb1lZbe0vRfLa/7iwyrqs2lKYHmeZUJ5o5rsCfWfbqFYjN7aOU3OUf1wpbg
-         +WWA==
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=qvG85uu+23wc3aOz56jKz9zl98RKrlFXnI9v0RdgYHY=;
+        b=gn0LHf8ENoBGwjVAUPWk1trAn5THo247jg8e6zjlOG+W0AiNseHCflLSx/XH7Kcfy9
+         2wSOMmbwOPfMbBjkX6M2RQupJ/NbQ7i1OeZV4x0b7UaMTogOPcjGAh2WD4/Wzn3oFz+S
+         s68do0KW/i5W4PVQKdwoTVYuoajMggDI1ujveZBBQeM1XkbfxbcpVORGDNzhN6D90l0s
+         nchBa36BsovaPAw4h8M0gY9GSFJmJ6RPIM5M8O2TBp8svyqdG+/Z77FGfO1gxNobnwjE
+         Hl6bo1835l7C2TEp1ARt072yPf+OHySWwJSl6kUR7uAp3M2jEwLs21KSIEzQgcwZEeFx
+         EIwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ENSyot+GNdqEsPMj6QXt84UJj5q21aiWLv73xl8tKs0=;
-        b=lrSr0ivIUOdxtPwg95+dDJKtlxewQLO4FuJzmWtDAmc6lLVimW8ltwOW+VOgOK3Aer
-         Q8K1eRL3B0kQKb0mZ89LdHAu5rDJCY5IUmWRH3NQNEDqnGdM/ELJ11Ij0OX96ILv4lG6
-         wNYkWxMaWSl7c2LQJuPAIJnx0Xr1seWvKkYjQYRQ8dcB24gB54RkUDLLuKR/DTvk8EPu
-         3S763Biae/D7InSxa664p+yPdbK0eCO8R6x0oFRJvXeh40Pab5gqeqqae8ZU9WTACz4n
-         pk7KZbsa0tGFCHXDNa9aRGIIIU6eqp9IGdhgsCoOlSPTFUnZFQi5AEXZCV65gzsj0qVa
-         KEmg==
-X-Gm-Message-State: APjAAAXVotFNqeQqZ52rokN2Y5xOb2xw4gOjTGA9y54ErnjkpIWggp6y
-        gAOkbokJEOCQVxRO1SKIeN0=
-X-Google-Smtp-Source: APXvYqyZdXKq7maDW6xH3Vf3d4ciK+RxU3q3LMnSZKsp8dTn+hEWqB17yBBex/+y7896AM0TfCMylA==
-X-Received: by 2002:a17:902:9a49:: with SMTP id x9mr134370035plv.282.1564778994625;
-        Fri, 02 Aug 2019 13:49:54 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n128sm31732153pfn.46.2019.08.02.13.49.52
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Aug 2019 13:49:53 -0700 (PDT)
-Date:   Fri, 2 Aug 2019 13:49:52 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, Chris Healy <cphealy@gmail.com>,
-        Rick Ramstetter <rick@anteaterllc.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/5] watchdog: ziirave_wdt: Don't bail out on unexpected
- timeout value
-Message-ID: <20190802204952.GA6292@roeck-us.net>
-References: <20190731174252.18041-1-andrew.smirnov@gmail.com>
- <20190731174252.18041-5-andrew.smirnov@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=qvG85uu+23wc3aOz56jKz9zl98RKrlFXnI9v0RdgYHY=;
+        b=a9ofa6SUMIzGDalkjlg0OlsIysE9PXCimOmhysTTLerDVu7zjwi5MGUXFcN9eQOgRi
+         cxt/i/YsncfvV1AvW2o46ZnLG5PI1ZltNSvudJpcvtr0YkSDjTpnj1GXb44G0/QmqdbV
+         /9uiUfdcRR0GtY6ZtvyjIN4gq9QwhLFx/TbpB1f9QKDvsK+TPBTuIIu7+yNgQeNGI93x
+         wr11nF8Ib1P7GT48J95gIFB4J82l7pP/sGwmkmNnj4wzh6N+hayrHzFirk3HwYUJHYdV
+         856y40BhGfQC+2FkQmPseCoT0OHgvciJE780+x34A7F518b7d2glEQ6JmBSj5LogslmO
+         cSIA==
+X-Gm-Message-State: APjAAAU+hScRrzarIeJUf/SSovJFMDzQ1plPvFPz9FbUyfnA+w+gBkbS
+        u1ppmUIArLu9Omo2WTOWAr/rCXh8rHFUUXHAvjpcOQ==
+X-Google-Smtp-Source: APXvYqyHiFzcWgwMSYIdyYbnaCWSjRwGweIT3RKPv1xwORdpLKUPWaLHXzDYxYbuZLEk4t8xeoYAy31E8HbSzjuIfD4=
+X-Received: by 2002:a9d:2969:: with SMTP id d96mr115002880otb.85.1564993679131;
+ Mon, 05 Aug 2019 01:27:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731174252.18041-5-andrew.smirnov@gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20190731195713.3150463-1-arnd@arndb.de> <20190731195713.3150463-6-arnd@arndb.de>
+ <CAMpxmJWFfT_vrDas2fzW5tnxskk9kmgHQpGnGQ-_C20UaS_jhA@mail.gmail.com> <CAK8P3a3KpKvRKXY72toE_5eAp4ER_Mre0GX3guwGeQgsY2HX+g@mail.gmail.com>
+In-Reply-To: <CAK8P3a3KpKvRKXY72toE_5eAp4ER_Mre0GX3guwGeQgsY2HX+g@mail.gmail.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Mon, 5 Aug 2019 10:27:48 +0200
+Message-ID: <CAMpxmJUdSnp0QNwWB0rJ1opFrYs9R2KSVS64Tz8X5GDYAJYLpg@mail.gmail.com>
+Subject: Re: [PATCH 05/14] gpio: lpc32xx: allow building on non-lpc32xx targets
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     soc@kernel.org, arm-soc <linux-arm-kernel@lists.infradead.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-gpio <linux-gpio@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>, linux-serial@vger.kernel.org,
+        USB list <linux-usb@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 10:42:51AM -0700, Andrey Smirnov wrote:
-> Reprogramming bootloader on watchdog MCU will result in reported
-> default timeout value of "0". That in turn will be unnecesarily
-> rejected by the driver as invalid device (-ENODEV). Simplify probe to
-> just read stored timeout value, clamp it to an acceptable range and
-> program the value unconditionally to fix the above.
-> 
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> Cc: Chris Healy <cphealy@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Rick Ramstetter <rick@anteaterllc.com>
-> Cc: linux-watchdog@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
+pt., 2 sie 2019 o 13:20 Arnd Bergmann <arnd@arndb.de> napisa=C5=82(a):
+>
+> On Fri, Aug 2, 2019 at 9:10 AM Bartosz Golaszewski
+> <bgolaszewski@baylibre.com> wrote:
+> > > -#include <mach/hardware.h>
+> > > -#include <mach/platform.h>
+> > > +#define _GPREG(x)                              (x)
+> >
+> > What purpose does this macro serve?
+> >
+> > >
+> > >  #define LPC32XX_GPIO_P3_INP_STATE              _GPREG(0x000)
+> > >  #define LPC32XX_GPIO_P3_OUTP_SET               _GPREG(0x004)
+>
+> In the existing code base, this macro converts a register offset to
+> an __iomem pointer for a gpio register. I changed the definition of the
+> macro here to keep the number of changes down, but I it's just
+> as easy to remove it if you prefer.
 
-I have not heard back on the question I had about selecting the minimum
-timeout and not a more reasonable default. Since the code itself
-is technically correct, marking the patch as
+Could you just add a comment so that it's clear at first glance?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
+> > > @@ -167,14 +166,26 @@ struct lpc32xx_gpio_chip {
+> > >         struct gpio_regs        *gpio_grp;
+> > >  };
+> > >
+> > > +void __iomem *gpio_reg_base;
+> >
+> > Any reason why this can't be made part of struct lpc32xx_gpio_chip?
+>
+> It could be, but it's the same for each instance, and not known until
+> probe() time, so the same pointer would need to be copied into each
+> instance that is otherwise read-only.
+>
+> Let me know if you'd prefer me to rework these two things or leave
+> them as they are.
 
-Guenter
+I would prefer not to have global state in the driver, let's just
+store the pointer in the data passed to gpiochip_add_data().
 
-> ---
->  drivers/watchdog/ziirave_wdt.c | 22 +++++++++-------------
->  1 file changed, 9 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-> index 89ce6982ba53..33c8d2eadada 100644
-> --- a/drivers/watchdog/ziirave_wdt.c
-> +++ b/drivers/watchdog/ziirave_wdt.c
-> @@ -667,22 +667,18 @@ static int ziirave_wdt_probe(struct i2c_client *client,
->  			return val;
->  		}
->  
-> -		if (val < ZIIRAVE_TIMEOUT_MIN)
-> -			return -ENODEV;
-> -
-> -		w_priv->wdd.timeout = val;
-> -	} else {
-> -		ret = ziirave_wdt_set_timeout(&w_priv->wdd,
-> -					      w_priv->wdd.timeout);
-> -		if (ret) {
-> -			dev_err(&client->dev, "Failed to set timeout\n");
-> -			return ret;
-> -		}
-> +		w_priv->wdd.timeout = clamp(val, ZIIRAVE_TIMEOUT_MIN,
-> +					    ZIIRAVE_TIMEOUT_MAX);
-> +	}
->  
-> -		dev_info(&client->dev, "Timeout set to %ds\n",
-> -			 w_priv->wdd.timeout);
-> +	ret = ziirave_wdt_set_timeout(&w_priv->wdd, w_priv->wdd.timeout);
-> +	if (ret) {
-> +		dev_err(&client->dev, "Failed to set timeout\n");
-> +		return ret;
->  	}
->  
-> +	dev_info(&client->dev, "Timeout set to %ds\n", w_priv->wdd.timeout);
-> +
->  	watchdog_set_nowayout(&w_priv->wdd, nowayout);
->  
->  	i2c_set_clientdata(client, w_priv);
-> -- 
-> 2.21.0
-> 
+Bart
+
+>
+> > > +static inline u32 gpreg_read(unsigned long offset)
+> >
+> > Here and elsewhere: could you please keep the lpc32xx_gpio prefix for
+> > all symbols?
+>
+> Sure.
+>
+>       Arnd
