@@ -2,104 +2,107 @@ Return-Path: <SRS0=jS2b=WB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A13F0C0650F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:47:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B567C0650F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 21:51:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 74B9D21734
-	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:47:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j/bAgWAi"
+	by mail.kernel.org (Postfix) with ESMTP id 4B748214C6
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 21:51:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1565041911;
+	bh=MgPcfIWpdlyaz/4ct/wZ0UcAXhmKA32yt1LEiLncyHQ=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=STI7UXKeAeRCXmQQSvgAobpltumRYUEeFrilZSLZ05DWILAKv5OfhaPSwqVGzXAnp
+	 2TeeNLzozJnj37VU9B74IBCIV7eI8xY60bJqv09LI+TppnurnrlqCoohHe1hV3zb3w
+	 foORm1ert+3dgpjRmxShhCx7RgY/91D6uTj3Armc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728144AbfHEMrR (ORCPT
+        id S1728717AbfHEVvu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 5 Aug 2019 08:47:17 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:35051 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726779AbfHEMrR (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Aug 2019 08:47:17 -0400
-Received: by mail-io1-f67.google.com with SMTP id m24so167021337ioo.2;
-        Mon, 05 Aug 2019 05:47:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aNRu8d6P0l9UPeO2XHPUBXtwBghX09sN9CzqbrlIoh0=;
-        b=j/bAgWAil3mRiYky6AnRqLeM8V1zdbGU/zoXCwNDELkUqbe57Wb3Rqul+Yp7KZYmnp
-         /pXsxz4Ec1Ja6QFaBuqCCTyu4IjNEWuXjoThkG+AEQ3Th8XgyCwagIqsWbWYPl+qLynY
-         W81J2gSa/MLIwFXNv3zKXUKIu5+D6qnfW8TKgghA/61gAyF195B5MtLkiuE6PG8N0NnQ
-         /jqsrHJ7xyMicdJQmRxfBJG7YG5IsqcncR8/nnzSg6vU/sfnl9j+NaGJwjiVoItP7UVP
-         EROiUjX4A8VVYEfbXRhf/BX2VbQyKxkP3acsT18XJ41Jp698vRCg2ZZbbeGLgnFHmK/y
-         HpwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aNRu8d6P0l9UPeO2XHPUBXtwBghX09sN9CzqbrlIoh0=;
-        b=mJz9CU045Tvh6I/fIkeLnimMLsV/ZiIYruMmtModtZwQHS9xztZhMzMJjxiZ3o+toF
-         YmjsEhTrSPxZaa/UjlfaP+f1pkh7HrlTw0fKZwjuo2PpuOJ2plehJ1YhGIuum1n9W8DE
-         1kjc9RTlNAqYxT2dcpi7wWrx7E4NuRbxm6dJgKwt7y1mKOGSh8gAGbdtmvo8wBLcyNCx
-         ccjyBPjzAM7FrHRf8r5JFWJBXR7uRoXxItscZBaGw76K/UPLSRa/W5LZDnL0WFH+3Fhc
-         b3jtyylqqOD59RDnjWtvQI63It3GXi7o1u68UI9YAFI3bkIzAto1UIu9zfXBmW0ot2dR
-         pJMQ==
-X-Gm-Message-State: APjAAAXMEPukTE20sldkFSovfHUr+8vXoqM9C8WvSVogKZ9pK/yCRuUb
-        VjM+c7IZQk2OkrUArP9TvRdDpa6OH9hB8IJg2jw=
-X-Google-Smtp-Source: APXvYqzXL2hkLoxBzy0mGaLH2PFh9enoPkAIlPHpx/CXR2e8aI0nWFKy0Tu9frhpX5sT1w1c87ndw7D6azKbKOfDYYg=
-X-Received: by 2002:a02:cb4b:: with SMTP id k11mr152797148jap.109.1565009236799;
- Mon, 05 Aug 2019 05:47:16 -0700 (PDT)
+        Mon, 5 Aug 2019 17:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728483AbfHEVvt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 5 Aug 2019 17:51:49 -0400
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D270F2173C;
+        Mon,  5 Aug 2019 21:51:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565041909;
+        bh=MgPcfIWpdlyaz/4ct/wZ0UcAXhmKA32yt1LEiLncyHQ=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=R0xHCpb0g7SHZbZSfnCgdwnbwgS4Xbgluirjaa3QaWH2G8g6B6sd7z9ojk6VdPM5u
+         sx386MjPhHOvVxN/Ck5kcqoSwqN9ySJco3QIyEVapQpi+x8U3ZqAV5MDC/oRHyG0To
+         gGGmgUyaF2zeJxhxDhuWoXYUJ1qK3tjP3Mi2LDHg=
+Received: by mail-qt1-f173.google.com with SMTP id d17so3616700qtj.8;
+        Mon, 05 Aug 2019 14:51:48 -0700 (PDT)
+X-Gm-Message-State: APjAAAVWQ9TIQq7HlTwEpLEo73hUek5j1oIbfu/g865Esm6fG1i5Sh6S
+        FzBUzHHaNBLx7z/w1DppMQ0zXIDNNbPp7WJW9g==
+X-Google-Smtp-Source: APXvYqxZCbKR4+PbJDpQLUsmi/4xl7NR/p4fqmhm9SFCdgM1DYmSwogal7/7LXK8ld8NUdCwOW78bsSs41kuNcTohmI=
+X-Received: by 2002:a0c:acef:: with SMTP id n44mr147329qvc.39.1565041907997;
+ Mon, 05 Aug 2019 14:51:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190731195713.3150463-1-arnd@arndb.de> <20190731195713.3150463-3-arnd@arndb.de>
- <20190801055821.GB24607@kroah.com>
-In-Reply-To: <20190801055821.GB24607@kroah.com>
-From:   Sylvain Lemieux <slemieux.tyco@gmail.com>
-Date:   Mon, 5 Aug 2019 08:47:05 -0400
-Message-ID: <CA+rxa6rJE2R7R_r8nx7HyHu4xc8ujQB1rRG+0Yx2XzwtoiD5CQ@mail.gmail.com>
-Subject: Re: [PATCH 02/14] usb: udc: lpc32xx: allow compile-testing
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, soc@kernel.org,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        linux-serial@vger.kernel.org, USB list <linux-usb@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20190805120320.32282-1-narmstrong@baylibre.com>
+In-Reply-To: <20190805120320.32282-1-narmstrong@baylibre.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Mon, 5 Aug 2019 15:51:36 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJzwtSXX0nrS7RBP8u-e=16SiWOBjLrvy8Amc08PfpXag@mail.gmail.com>
+Message-ID: <CAL_JsqJzwtSXX0nrS7RBP8u-e=16SiWOBjLrvy8Amc08PfpXag@mail.gmail.com>
+Subject: Re: [RFCv2 0/9] dt-bindings: first tentative of conversion to yaml format
+To:     Neil Armstrong <narmstrong@baylibre.com>
+Cc:     linux-amlogic@lists.infradead.org,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>, devicetree@vger.kernel.org,
+        Jassi Brar <jassisinghbrar@gmail.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
+On Mon, Aug 5, 2019 at 6:03 AM Neil Armstrong <narmstrong@baylibre.com> wrote:
+>
+> This is a first tentative to convert some of the simplest Amlogic
+> dt-bindings to the yaml format.
+>
+> All have been tested using :
+> $ make ARCH=arm64 dtbs_check
+>
+> Issues with the amlogic arm64 DTs has already been identified thanks
+> to the validation scripts. The DT fixes will be pushed once these yaml
+> bindings are acked.
+>
+> Changes since rfc v1:
+> - Fixed bindings according to Rob's comments
+> - Added commit log
+> - renamed yaml files using amlogic prefix
+>
+> Neil Armstrong (9):
+>   dt-bindings: mailbox: meson-mhu: convert to yaml
+>   dt-bindings: rng: amlogic,meson-rng: convert to yaml
+>   dt-bindings: spi: meson: convert to yaml
+>   dt-bindings: reset: amlogic,meson-reset: convert to yaml
+>   dt-bindings: arm: amlogic: amlogic,meson-gx-ao-secure: convert to yaml
+>   dt-bindings: phy: meson-g12a-usb2-phy: convert to yaml
+>   dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml
+>   dt-bindings: serial: meson-uart: convert to yaml
+>   dt-bindings: watchdog: meson-gxbb-wdt: convert to yaml
 
-On Thu, Aug 1, 2019 at 1:58 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Jul 31, 2019 at 09:56:44PM +0200, Arnd Bergmann wrote:
-> > The only thing that prevents building this driver on other
-> > platforms is the mach/hardware.h include, which is not actually
-> > used here at all, so remove the line and allow CONFIG_COMPILE_TEST.
-> >
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  drivers/usb/gadget/udc/Kconfig       | 3 ++-
-> >  drivers/usb/gadget/udc/lpc32xx_udc.c | 2 --
-> >  2 files changed, 2 insertions(+), 3 deletions(-)
->
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For the series,
+
+Reviewed-by: Rob Herring <robh@kernel.org>
+
+What's your merge plan? Do you want me to take the whole series?
+
+Rob
