@@ -7,78 +7,78 @@ X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AEEBC433FF
-	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:44:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A13F0C0650F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:47:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2E01E20B1F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:44:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 74B9D21734
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Aug 2019 12:47:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jm9lN989"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j/bAgWAi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728716AbfHEMnL (ORCPT
+        id S1728144AbfHEMrR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 5 Aug 2019 08:43:11 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:39948 "EHLO
+        Mon, 5 Aug 2019 08:47:17 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:35051 "EHLO
         mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726315AbfHEMnL (ORCPT
+        with ESMTP id S1726779AbfHEMrR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Aug 2019 08:43:11 -0400
-Received: by mail-io1-f67.google.com with SMTP id h6so41749880iom.7;
-        Mon, 05 Aug 2019 05:43:10 -0700 (PDT)
+        Mon, 5 Aug 2019 08:47:17 -0400
+Received: by mail-io1-f67.google.com with SMTP id m24so167021337ioo.2;
+        Mon, 05 Aug 2019 05:47:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=KQm9NPghtf2wFJQFdwyuoe6G2q10wFofTqLGNt8zEfc=;
-        b=Jm9lN989x1LL1wAGmtgQW1PbFf7i6ALddtYVvYUT3D0ZuifbqBe7vXuKRfHJ1DVFyf
-         5E6ia0qFc+YxzkWLdGYvRSD2zIYvdSQi7desBh6dPVYOxX5FGHe8MZTcpO7SoBv2T+fx
-         rM6HGgCOlS1+Mq1T7ZsjoN47gJmVIc8qASDJbmnblb51sxAIIH83d2PNguaUH54zd0Pd
-         g8BJGwj/2VWcZL1lekXwBWPoMwwDfwE/1wbv8+ARLVMYNN37zc7ARSt2a3DyNCxJMg8n
-         X9boR31zKzMZP2i4KZCBZU3pIFAZQ4KVkLrRQcNoPYIaJXKm1UqQkctLH6lsqK5JS0DO
-         uLqQ==
+        bh=aNRu8d6P0l9UPeO2XHPUBXtwBghX09sN9CzqbrlIoh0=;
+        b=j/bAgWAil3mRiYky6AnRqLeM8V1zdbGU/zoXCwNDELkUqbe57Wb3Rqul+Yp7KZYmnp
+         /pXsxz4Ec1Ja6QFaBuqCCTyu4IjNEWuXjoThkG+AEQ3Th8XgyCwagIqsWbWYPl+qLynY
+         W81J2gSa/MLIwFXNv3zKXUKIu5+D6qnfW8TKgghA/61gAyF195B5MtLkiuE6PG8N0NnQ
+         /jqsrHJ7xyMicdJQmRxfBJG7YG5IsqcncR8/nnzSg6vU/sfnl9j+NaGJwjiVoItP7UVP
+         EROiUjX4A8VVYEfbXRhf/BX2VbQyKxkP3acsT18XJ41Jp698vRCg2ZZbbeGLgnFHmK/y
+         HpwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KQm9NPghtf2wFJQFdwyuoe6G2q10wFofTqLGNt8zEfc=;
-        b=l/PpOsVrGHqNxry9E6KpiL1m18rE+Y9jD6rlCTMP/NgLQsrD9kQHFa/0wMdqE1Ygmw
-         lPbqS6m7+u8nt/2SRFwMg/EQahAbtWPf8IPunWkV1lWfsUa1Cj+Sepn3kCWdFFiN3kRM
-         kXG+jYA5LlaLtHWDO9V/pHOICNxng7+Iuc+C253IZ3xYg/4bycVJmw3St31Hy6ATTKH0
-         YP4O2e0gksUmz0UaQ4O3XQbFWg+6NWIn0o40jXR4sChHiD6gYSTMEmYJ63JmtFcq2zMh
-         8dllAS8Ralb83GWveEoAQrIsezbwfoVf374l+jeFbWqwK8YptzZsaYUdTu/b3fztqjY+
-         O4tA==
-X-Gm-Message-State: APjAAAUTKR0LSE9ppQhhTeR6rZV8DMhLVJD1VggiP8DVJugrw+TU3TXI
-        y5G6lBvTu7rJkBnM81z706+P56gNLPKeNdZgLA8=
-X-Google-Smtp-Source: APXvYqz396zlNXAqcaOCvcqObVMswatfB+f2uh+zsXE7YIFo6iaQRklzHrm0RcU5f66HRRMmb5shLa66REY85aMxJmc=
-X-Received: by 2002:a6b:f114:: with SMTP id e20mr11104225iog.169.1565008990378;
- Mon, 05 Aug 2019 05:43:10 -0700 (PDT)
+        bh=aNRu8d6P0l9UPeO2XHPUBXtwBghX09sN9CzqbrlIoh0=;
+        b=mJz9CU045Tvh6I/fIkeLnimMLsV/ZiIYruMmtModtZwQHS9xztZhMzMJjxiZ3o+toF
+         YmjsEhTrSPxZaa/UjlfaP+f1pkh7HrlTw0fKZwjuo2PpuOJ2plehJ1YhGIuum1n9W8DE
+         1kjc9RTlNAqYxT2dcpi7wWrx7E4NuRbxm6dJgKwt7y1mKOGSh8gAGbdtmvo8wBLcyNCx
+         ccjyBPjzAM7FrHRf8r5JFWJBXR7uRoXxItscZBaGw76K/UPLSRa/W5LZDnL0WFH+3Fhc
+         b3jtyylqqOD59RDnjWtvQI63It3GXi7o1u68UI9YAFI3bkIzAto1UIu9zfXBmW0ot2dR
+         pJMQ==
+X-Gm-Message-State: APjAAAXMEPukTE20sldkFSovfHUr+8vXoqM9C8WvSVogKZ9pK/yCRuUb
+        VjM+c7IZQk2OkrUArP9TvRdDpa6OH9hB8IJg2jw=
+X-Google-Smtp-Source: APXvYqzXL2hkLoxBzy0mGaLH2PFh9enoPkAIlPHpx/CXR2e8aI0nWFKy0Tu9frhpX5sT1w1c87ndw7D6azKbKOfDYYg=
+X-Received: by 2002:a02:cb4b:: with SMTP id k11mr152797148jap.109.1565009236799;
+ Mon, 05 Aug 2019 05:47:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190731195713.3150463-1-arnd@arndb.de> <20190731195713.3150463-4-arnd@arndb.de>
- <20190731202343.GA14817@roeck-us.net> <CAK8P3a2=gqeCMtdzdqg4d1n6v1-cdaHObeUoVXeB+=Okwd1rqA@mail.gmail.com>
- <20190731203646.GB14817@roeck-us.net>
-In-Reply-To: <20190731203646.GB14817@roeck-us.net>
+References: <20190731195713.3150463-1-arnd@arndb.de> <20190731195713.3150463-3-arnd@arndb.de>
+ <20190801055821.GB24607@kroah.com>
+In-Reply-To: <20190801055821.GB24607@kroah.com>
 From:   Sylvain Lemieux <slemieux.tyco@gmail.com>
-Date:   Mon, 5 Aug 2019 08:42:58 -0400
-Message-ID: <CA+rxa6oOxHH20Oiw1BKqa+9QF+J+M2cnQgMRKkLuxjcm9Ux2uQ@mail.gmail.com>
-Subject: Re: [PATCH 03/14] watchdog: pnx4008_wdt: allow compile-testing
-To:     Guenter Roeck <linux@roeck-us.net>
+Date:   Mon, 5 Aug 2019 08:47:05 -0400
+Message-ID: <CA+rxa6rJE2R7R_r8nx7HyHu4xc8ujQB1rRG+0Yx2XzwtoiD5CQ@mail.gmail.com>
+Subject: Re: [PATCH 02/14] usb: udc: lpc32xx: allow compile-testing
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Arnd Bergmann <arnd@arndb.de>, soc@kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
         Vladimir Zapolskiy <vz@mleia.com>,
         Russell King <linux@armlinux.org.uk>,
         Gregory Clement <gregory.clement@bootlin.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Felipe Balbi <balbi@kernel.org>,
         Jason Cooper <jason@lakedaemon.net>,
         Andrew Lunn <andrew@lunn.ch>,
         Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alan Stern <stern@rowland.harvard.edu>,
+        Guenter Roeck <linux@roeck-us.net>,
         "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
         Networking <netdev@vger.kernel.org>,
         linux-serial@vger.kernel.org, USB list <linux-usb@vger.kernel.org>,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -88,26 +88,18 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
 
-On Wed, Jul 31, 2019 at 4:36 PM Guenter Roeck <linux@roeck-us.net> wrote:
+On Thu, Aug 1, 2019 at 1:58 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Wed, Jul 31, 2019 at 10:26:35PM +0200, Arnd Bergmann wrote:
-> > On Wed, Jul 31, 2019 at 10:23 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> > >
-> > > On Wed, Jul 31, 2019 at 09:56:45PM +0200, Arnd Bergmann wrote:
-> > > > The only thing that prevents building this driver on other
-> > > > platforms is the mach/hardware.h include, which is not actually
-> > > > used here at all, so remove the line and allow CONFIG_COMPILE_TEST.
-> > > >
-> > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > >
-> > > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > >
-> > > What is the plan for this patch ? Push through watchdog
-> > > or through your branch ?
+> On Wed, Jul 31, 2019 at 09:56:44PM +0200, Arnd Bergmann wrote:
+> > The only thing that prevents building this driver on other
+> > platforms is the mach/hardware.h include, which is not actually
+> > used here at all, so remove the line and allow CONFIG_COMPILE_TEST.
 > >
-> > I would prefer my branch so I can apply the final patch without waiting
-> > for another release. Not in a hurry though, so if some other maintainer
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  drivers/usb/gadget/udc/Kconfig       | 3 ++-
+> >  drivers/usb/gadget/udc/lpc32xx_udc.c | 2 --
+> >  2 files changed, 2 insertions(+), 3 deletions(-)
 >
-> Ok with me.
->
-> Guenter
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
