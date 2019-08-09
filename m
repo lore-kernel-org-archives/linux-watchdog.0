@@ -2,89 +2,64 @@ Return-Path: <SRS0=mvBR=WF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40276C31E40
-	for <linux-watchdog@archiver.kernel.org>; Fri,  9 Aug 2019 07:37:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8E17C433FF
+	for <linux-watchdog@archiver.kernel.org>; Fri,  9 Aug 2019 11:59:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1870721743
-	for <linux-watchdog@archiver.kernel.org>; Fri,  9 Aug 2019 07:37:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52E7D208C4
+	for <linux-watchdog@archiver.kernel.org>; Fri,  9 Aug 2019 11:59:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="RXxr/UT4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405711AbfHIHhJ (ORCPT
+        id S1726157AbfHIL7u (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 9 Aug 2019 03:37:09 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:59678 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405697AbfHIHhJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Aug 2019 03:37:09 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id BAAB01A036E;
-        Fri,  9 Aug 2019 09:37:07 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7143D1A015F;
-        Fri,  9 Aug 2019 09:36:59 +0200 (CEST)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 849E54030D;
-        Fri,  9 Aug 2019 15:36:49 +0800 (SGT)
-From:   Anson Huang <Anson.Huang@nxp.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
-        kernel@pengutronix.de, festevam@gmail.com, linux@armlinux.org.uk,
-        otavio@ossystems.com.br, leonard.crestez@nxp.com,
-        schnitzeltony@gmail.com, u.kleine-koenig@pengutronix.de,
-        jan.tuerk@emtrion.com, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Fri, 9 Aug 2019 07:59:50 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:57286 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726152AbfHIL7t (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 9 Aug 2019 07:59:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1565351987; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=SmqGZ1fhKy+Ozn7/u/eOZiicRz2AS55x2H0mZNVURdw=;
+        b=RXxr/UT4Wi8+QHzJJmycPI80Z1j/L6lAZnOWF3gnqM0YmLBXz6kxjpAnRoVJkUluNFeY6n
+        GgpedU7IzsOJbz8ZSoPwrAOiNjKimqdxQ3x4anQcJdsFnfXls5YqP8D5V/Q4+W0EcOMhqS
+        jirGeF5jyzDcmKH/oyzcexo7dMx0MKw=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     od@zcrc.me, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Cc:     Linux-imx@nxp.com
-Subject: [PATCH 1/4] dt-bindings: watchdog: Add i.MX7ULP bindings
-Date:   Fri,  9 Aug 2019 15:13:59 +0800
-Message-Id: <1565334842-28161-1-git-send-email-Anson.Huang@nxp.com>
-X-Mailer: git-send-email 2.7.4
-X-Virus-Scanned: ClamAV using ClamSMTP
+Subject: [PATCH 0/3] watchdog: jz4740: Driver update
+Date:   Fri,  9 Aug 2019 13:59:27 +0200
+Message-Id: <20190809115930.6050-1-paul@crapouillou.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add the watchdog bindings for Freescale i.MX7ULP.
+Hi,
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
- .../bindings/watchdog/fsl-imx7ulp-wdt.txt          | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.txt
+This patchset comes from a bigger patchset that was cut in smaller
+pieces for easier integration to mainline.
+(The patchset was https://lkml.org/lkml/2019/3/27/1837)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.txt
-new file mode 100644
-index 0000000..d83fc5c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.txt
-@@ -0,0 +1,22 @@
-+* Freescale i.MX7ULP Watchdog Timer (WDT) Controller
-+
-+Required properties:
-+- compatible : Should be "fsl,imx7ulp-wdt"
-+- reg : Should contain WDT registers location and length
-+- interrupts : Should contain WDT interrupt
-+- clocks: Should contain a phandle pointing to the gated peripheral clock.
-+
-+Optional properties:
-+- timeout-sec : Contains the watchdog timeout in seconds
-+
-+Examples:
-+
-+wdog1: wdog@403d0000 {
-+	compatible = "fsl,imx7ulp-wdt";
-+	reg = <0x403d0000 0x10000>;
-+	interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&pcc2 IMX7ULP_CLK_WDG1>;
-+	assigned-clocks = <&pcc2 IMX7ULP_CLK_WDG1>;
-+	assigned-clocks-parents = <&scg1 IMX7ULP_CLK_FIRC_BUS_CLK>;
-+	timeout-sec = <40>;
-+};
--- 
-2.7.4
+The reviews were kept since the code mostly didn't change. The exception
+is the use of device_node_to_regmap() in patch 2/3. This function was
+added in a prior patch, now merged in the MIPS tree.
+
+For that reason this patchset is based on the ingenic-tcu-v5.4 branch of
+the MIPS tree
+(git://git.kernel.org/pub/scm/linux/kernel/git/mips/linux.git).
+
+Thanks,
+-Paul
+
 
