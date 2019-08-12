@@ -8,55 +8,55 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3689DC433FF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A9CC41514
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0974D216F4
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66AC3214C6
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NOensDYZ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X+pEynRi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbfHLUJl (ORCPT
+        id S1727771AbfHLUJj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 12 Aug 2019 16:09:41 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:38636 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727781AbfHLUJk (ORCPT
+        Mon, 12 Aug 2019 16:09:39 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:36900 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727758AbfHLUJj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Aug 2019 16:09:40 -0400
-Received: by mail-pg1-f194.google.com with SMTP id z14so12804930pga.5;
-        Mon, 12 Aug 2019 13:09:40 -0700 (PDT)
+        Mon, 12 Aug 2019 16:09:39 -0400
+Received: by mail-pf1-f196.google.com with SMTP id 129so3332740pfa.4;
+        Mon, 12 Aug 2019 13:09:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=FmDMJc136Mrdy2NDd2zjpdm6i0On592v+7kBSJ6sTeQ=;
-        b=NOensDYZhrWrJ1yAc8t/OFcxBoT+FNapnNx5u1G5mWmS119XygbjXUjAFlaDAFXhZV
-         5rxRNLfsW9Si3RzD4IyjAHJDEz1ab4gVjQ2OK+umb0ItmoA2l2u+UJ3PFb6SQQTMYohG
-         /0XiRVDfmt6YO0XRqyjzt9dd46R/Tv+svLQ8duDJQ1lTLER6WXNPbJTsyeGnMkvfIzig
-         mtLU9sm7iRg23g9vHQB2hafatdKUgrlJgryzQedIri55FYDX86qai6XaMyz25vPfcj/f
-         fDR3IRyUNGO/OGVlwiy+XrwU0pshtCDq400lQAkPZZAPmWa7wQfO+CYgBIQ0VX6nI+kd
-         6UYw==
+        bh=fEQpbh35kmetbOwWrx+8yJXAYsmEnojnvAEv4480YIA=;
+        b=X+pEynRi2mvcOZjNBWuJ/XWBTcZPw8Wnkx+NVbZtAK0OmaiCpAIqGzB0YIY+y6IkQf
+         jNvFwvw7rdsXL/LEmf+t+HVeT4TfCAWukobpEV6BagJNiFZJ9v9W/pMAGuzXhd8zv6m/
+         UwW8NXVUEt3aWPkyU1lWpbqi+/4oq3dE+Ig74tTmgegA+ZM5IVHOcDRWJZR0xd/REMv7
+         OQiD33BmL1qYhoC8qiBSxCA6wnETr21KysxoLxfgb7YnTauNtOXtdvqQ8lhqVGsRCRzW
+         dKdbiikmKcI6xLldRANuGsxhW66t5PNro+gI5S2ZVFbLCzUIkZjslOY/CXrx/LuYDjpc
+         3R3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FmDMJc136Mrdy2NDd2zjpdm6i0On592v+7kBSJ6sTeQ=;
-        b=ZhEBirlNG1KPYLIDchdw5ftiop0tXyZC/dlyqYThgvMsvwjmzbffmBuKtFugv2/Na5
-         Ev5lmspeTVrOLfYCUGX+v+woJ6QBoxh/djiafWaD/RLe7nENya5Hts58dYSkSMBhyl5p
-         UsEsKaH5mT8R0SDJVMIFXV/XMhKW1mxa0tjE4bSkR1kQW+sUGZK3u0A5b0BNb6QdMYaT
-         oWalj2tv7UPEWiQyfVct9ruuw8A5lCK06RZRfZYXmdgcQuj6FzCcItB+k1dbxggFSY/t
-         eFac4XrsWNoeJ387wlm3t2AYB9NpAvqgl0ONExI+s/QOEHrnuVufi9I1FVvQ9tB/yc7x
-         DQ1Q==
-X-Gm-Message-State: APjAAAUnrgR1NvGV/jp+S6UuVXNgHI4LxWZR24DNIZnFH7tCdQf8No9i
-        aEXeZJ3IB9r8Ge2rAOXpDPFZ5K1P
-X-Google-Smtp-Source: APXvYqyYb64Ze15SAlKOdvZrc9MSzkB2laleMnJkUoX8zdWnG96d7BBoVf3jsJWlP6jdqqWifivBag==
-X-Received: by 2002:a63:b64:: with SMTP id a36mr32262590pgl.215.1565640579472;
-        Mon, 12 Aug 2019 13:09:39 -0700 (PDT)
+        bh=fEQpbh35kmetbOwWrx+8yJXAYsmEnojnvAEv4480YIA=;
+        b=owuaY8FljkmCYgx89D7oWNaLe4tB2rPu7AqupTKU3P5JQ6s+8MllNn03OryVO7S3GR
+         PYQiWndL/5gXE4pBUC4Vbc8nfUXxGeBNQRCwQtlB+ELqQApwsgv213br+RVHh+Y3BhUW
+         UQbHsHNfdmWY9urNHkXgmWxlGupyN87qNMS9bGnSsS9g8mZVf5El0xPdfitZFrupBMgF
+         zbGj3BsD+QgJVLlyjT5j+XRdLvVDmeP6eyU2enLZiiGlPKSr52Jkg9OIygssCLYCY8NW
+         kDaC+FYbglAR53GQTNo9igD0TuZaqrPrCh79qyNAp/KbmY4dXwSvBCvfABPHFkQKPeQE
+         CJSg==
+X-Gm-Message-State: APjAAAVRJfRRyRCzCtvCIsJLqI414oW+s3IjCq2H1Nm/c9Fk2m0OZ0VQ
+        oX/MR2cdockXDPkEABOHsZiL9xa6
+X-Google-Smtp-Source: APXvYqxA1gL+MXZ4IG2JLjwA/6cNQ/lJsRKvitucNa0eGKGYQIz0jr8UIIEH2fzdQQ8BZKq2qLtrBQ==
+X-Received: by 2002:a65:6114:: with SMTP id z20mr32068911pgu.141.1565640577821;
+        Mon, 12 Aug 2019 13:09:37 -0700 (PDT)
 Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.38
+        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.36
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 13:09:38 -0700 (PDT)
+        Mon, 12 Aug 2019 13:09:37 -0700 (PDT)
 From:   Andrey Smirnov <andrew.smirnov@gmail.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
@@ -64,9 +64,9 @@ Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Rick Ramstetter <rick@anteaterllc.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 16/22] watchdog: ziirave_wdt: Fix JUMP_TO_BOOTLOADER payload
-Date:   Mon, 12 Aug 2019 13:09:00 -0700
-Message-Id: <20190812200906.31344-17-andrew.smirnov@gmail.com>
+Subject: [PATCH v2 15/22] watchdog: ziirave_wdt: Fix misleading error message
+Date:   Mon, 12 Aug 2019 13:08:59 -0700
+Message-Id: <20190812200906.31344-16-andrew.smirnov@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190812200906.31344-1-andrew.smirnov@gmail.com>
 References: <20190812200906.31344-1-andrew.smirnov@gmail.com>
@@ -77,19 +77,12 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Bootloader firmware expects the following traffic for
-JUMP_TO_BOOTLOADER:
-
-S Addr Wr [A] 0x0c [A] 0x01 [A] P
-
-using ziirave_firm_write_byte() will result in
-
-S Addr Wr [A] 0x0c [A] 0x01 [A] 0x01 [A] P
-
-which happens to work because firmware will ignore any extra bytes and
-expected magic value matches byte count sent by
-i2c_smbus_write_block_data(). Fix this by converting the code to use
-i2c_smbus_write_byte_data() instead.
+Fix misleading error message in ziirave_wdt_init_duration(). Saying
+"unable to set ..." implies that an attempt at communication with
+watchdog device has taken palce and was not successful. In this case,
+however, all it indicates is that no reset pulse duration was
+specified either via kernel parameter or Device Tree. Re-phase the log
+message to be more clear about benign nature of this event.
 
 Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 Cc: Chris Healy <cphealy@gmail.com>
@@ -98,34 +91,22 @@ Cc: Rick Ramstetter <rick@anteaterllc.com>
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/ziirave_wdt.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/watchdog/ziirave_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-index 0c150f3cf408..0185b9175cc0 100644
+index a3cc936858ad..0c150f3cf408 100644
 --- a/drivers/watchdog/ziirave_wdt.c
 +++ b/drivers/watchdog/ziirave_wdt.c
-@@ -72,6 +72,8 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
- #define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER		0x0c
- #define ZIIRAVE_CMD_DOWNLOAD_PACKET		0x0e
- 
-+#define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER_MAGIC	1
-+
- #define ZIIRAVE_FW_VERSION_FMT	"02.%02u.%02u"
- #define ZIIRAVE_BL_VERSION_FMT	"01.%02u.%02u"
- 
-@@ -376,8 +378,9 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
- 	const struct ihex_binrec *rec;
- 	int ret;
- 
--	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_JUMP_TO_BOOTLOADER, 1,
--				      false);
-+	ret = i2c_smbus_write_byte_data(client,
-+					ZIIRAVE_CMD_JUMP_TO_BOOTLOADER,
-+					ZIIRAVE_CMD_JUMP_TO_BOOTLOADER_MAGIC);
- 	if (ret) {
- 		dev_err(&client->dev, "Failed to jump to bootloader\n");
- 		return ret;
+@@ -603,7 +603,7 @@ static int ziirave_wdt_init_duration(struct i2c_client *client)
+ 						   &reset_duration);
+ 		if (ret) {
+ 			dev_info(&client->dev,
+-				 "Unable to set reset pulse duration, using default\n");
++			 "No reset pulse duration specified, using default\n");
+ 			return 0;
+ 		}
+ 	}
 -- 
 2.21.0
 
