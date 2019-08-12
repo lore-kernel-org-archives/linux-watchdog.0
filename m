@@ -5,58 +5,58 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD9FFC41514
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F739C31E40
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8FF01214C6
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 714D9214C6
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjXND/xQ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tl5W5sCm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727535AbfHLUKO (ORCPT
+        id S1727569AbfHLUK2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 12 Aug 2019 16:10:14 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:44669 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727731AbfHLUJi (ORCPT
+        Mon, 12 Aug 2019 16:10:28 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34136 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727330AbfHLUJc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Aug 2019 16:09:38 -0400
-Received: by mail-pf1-f196.google.com with SMTP id c81so1237350pfc.11;
-        Mon, 12 Aug 2019 13:09:37 -0700 (PDT)
+        Mon, 12 Aug 2019 16:09:32 -0400
+Received: by mail-pg1-f194.google.com with SMTP id n9so43814328pgc.1;
+        Mon, 12 Aug 2019 13:09:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=4xRnCXPOXDMuZQhnpqA+htuwTVhEEUcMOIJr19kWmsc=;
-        b=FjXND/xQUqmA91G+FF/Jq1RGy1RXOfVBnb6Iydfjon9OnCBTWGXG+mpx7I9Wvken/P
-         znGJeNu6doUGuE0HpbLpOroahAZJFCqB5XeplmWtHwZn0IZoGGaHMMnwgDz/KbLgW25b
-         PgW0+Jp2kmlKRgiuiE7OON07VRLspfuL4z/ICSBdvWXgWCefaUgjMMB70Em4OvKNPDsU
-         9PznDL7TakghuMOhZYCF7gEbDYCWZ6NEK7Y1VmlF8twXe6v1YWrde98/iDnarbGVhjBk
-         gP48B8GjbyxAZskzidoSJSc6QB7cDlhZV695BQhvOaF3cAN1tpkT99WHAWUXOWGDWgMw
-         SJ8w==
+        bh=s6xPb3Pi9HQl3OaPyWVe4AATOniA65kRVZILYWuETVg=;
+        b=Tl5W5sCmCDdiZk0cvEElfwNZ8muz77OEpGZooh6sxP2+mjyOpyYqbUq9lXFAbvuJLc
+         jqYjTc89PwWzm9Lk+wtDKOrB8lN6ek2lBL6PoK+oIs2dd6d7Os9VVSruHjG4hWSdCMU4
+         ZBN2e5ASSuJWF1YdWFl4GuvHqE9revKIbp3uGxGEWkpwiAGyZ+8FyxnfnERnGHP8Jz6q
+         iMBGjb8RRcbMZnc7DbFA8yfdUfDzFuzkYS5s4UFs/azwJObr/DfZSBI/Z3VIPBSLGFKi
+         P2oHDUHmvZE7OjAwQ9YAoQvUquTbSXf1u7nhy/qQjvFSFw7gcHwBCGU9BMFcG8eeal6h
+         FRfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4xRnCXPOXDMuZQhnpqA+htuwTVhEEUcMOIJr19kWmsc=;
-        b=PCKamoEtqRW42OHJlYL4EcJD4BbX3dN802mG7mKKGvwbXJazt1MV5ZYt7CueblgiUR
-         o0xomb0tqzg1j/FAUYUJujf5/npawzOmVyEo1hiy9z71EFeD22SLEquXzN1GEFDLBEfE
-         a7vZ2d0uzUJrdnxfADS6OfXzhN8pbuGkMOqwlChizgVYCVBP7+4bDLAGcW9O6EBl6MFf
-         t2sCUcgvo4byPCCfd4OA9XqGBk9RHQtU/Q04B0B+gLcQHtwWSG16YfeMT+fpSBAc5Rzk
-         NlPCEQ+YP5zwBhqQUnp2NfMfk/a1H8hJJd+hN2XzYUdJcgO8CnBQet4TtqqLHqDOCocW
-         mAIQ==
-X-Gm-Message-State: APjAAAU17qGS0SklKSyFu40Ho97JCEi/fnIBLSyE5ZYUPmrINB9tE2on
-        QnCOYlGuHqHg8GbKKjQ5CloeNezl
-X-Google-Smtp-Source: APXvYqwt+H0sjUTZ6SSyeGRMxuVp1+16KAb2czF9wZ90mc42aXiUVIh6QYHQAKRgrf+pud+/cQiVUQ==
-X-Received: by 2002:a63:553:: with SMTP id 80mr32443475pgf.280.1565640576764;
-        Mon, 12 Aug 2019 13:09:36 -0700 (PDT)
+        bh=s6xPb3Pi9HQl3OaPyWVe4AATOniA65kRVZILYWuETVg=;
+        b=nfphnRBXhOrUdLnhX3SEk74BV7Cd+nxK4Q2PhJ+Cv4tpTUTePCTaMZY4xdm7v+4g+Q
+         uZeR6UOOl84afkayzr2DymV1I7DEGlQm2cGZgkhIDH61E7XOY/Ox12mZEy3LGD9OnZ6w
+         Qy3RwXiBZ26g3XbEMOkGALW92tf+t9pB1eLpgyVRPXcn6t4rHFf/AESXgDUOemzzR0ic
+         e+ilO1/Yd+azZKzpwUZUsNRtr04lnR7oM8Mi6yzRePLcwGnYZniWHgcKpX6WWImqcXXE
+         LgJYi4IdzzMyaSeMNUOu+9/nHp8l9gw234o9uNSQ2Wgx/eK0KSJFCi4uwjJqW95RqiXR
+         bKuA==
+X-Gm-Message-State: APjAAAUbsuV5c8XawHGwHB545/Ofkv/YJYo/tz5EYJRPq17m+a0hl9t5
+        VWarOwFzCL3YImNxHjs0GCpQ0wJs
+X-Google-Smtp-Source: APXvYqwGM/Yr0wf0FOouYw8R3GOXH4oT1nkm4wRNA+S5UsJlHqGQ+/tUp+XuUh8+IwQVFMuMFNPJAA==
+X-Received: by 2002:aa7:9254:: with SMTP id 20mr38477100pfp.212.1565640571617;
+        Mon, 12 Aug 2019 13:09:31 -0700 (PDT)
 Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.35
+        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.30
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 13:09:36 -0700 (PDT)
+        Mon, 12 Aug 2019 13:09:30 -0700 (PDT)
 From:   Andrey Smirnov <andrew.smirnov@gmail.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
@@ -64,9 +64,9 @@ Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Rick Ramstetter <rick@anteaterllc.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 14/22] watchdog: ziirave_wdt: Don't try to program readonly flash
-Date:   Mon, 12 Aug 2019 13:08:58 -0700
-Message-Id: <20190812200906.31344-15-andrew.smirnov@gmail.com>
+Subject: [PATCH v2 10/22] watchdog: ziirave_wdt: Zero out only what's necessary
+Date:   Mon, 12 Aug 2019 13:08:54 -0700
+Message-Id: <20190812200906.31344-11-andrew.smirnov@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190812200906.31344-1-andrew.smirnov@gmail.com>
 References: <20190812200906.31344-1-andrew.smirnov@gmail.com>
@@ -77,17 +77,9 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Bootloader code will ignore any attempts to write data to any flash
-area outside of [ZIIRAVE_FIRM_FLASH_MEMORY_START;
-ZIIRAVE_FIRM_FLASH_MEMORY_END]. Firmware update code already have an
-appropriate check to skip those areas when validating updated
-firmware. Firmware programming code, OTOH, does not and will
-needlessly send no-op I2C traffic. Add an appropriate check to
-__ziirave_firm_write_pkt() so as to save all of that wasted effort.
-
-While at it, normalize all of the address handling code to use full
-32-bit address in units of bytes and convert it to an appropriate
-value only in places where that is necessary.
+Instead of zeroing out all of the packet and then overwriting a
+significant portion of those zeros via memcpy(), zero out only a
+portion of the packet that is known to not contain any data.
 
 Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 Cc: Chris Healy <cphealy@gmail.com>
@@ -96,96 +88,30 @@ Cc: Rick Ramstetter <rick@anteaterllc.com>
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/ziirave_wdt.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/watchdog/ziirave_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-index f05095b08016..a3cc936858ad 100644
+index e0f55cbdc603..69694f2836d7 100644
 --- a/drivers/watchdog/ziirave_wdt.c
 +++ b/drivers/watchdog/ziirave_wdt.c
-@@ -51,8 +51,8 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
- 
- #define ZIIRAVE_FIRM_PKT_TOTAL_SIZE	20
- #define ZIIRAVE_FIRM_PKT_DATA_SIZE	16
--#define ZIIRAVE_FIRM_FLASH_MEMORY_START	0x1600
--#define ZIIRAVE_FIRM_FLASH_MEMORY_END	0x2bbf
-+#define ZIIRAVE_FIRM_FLASH_MEMORY_START	(2 * 0x1600)
-+#define ZIIRAVE_FIRM_FLASH_MEMORY_END	(2 * 0x2bbf)
- #define ZIIRAVE_FIRM_PAGE_SIZE		128
- 
- /* Received and ready for next Download packet. */
-@@ -195,12 +195,13 @@ static int ziirave_firm_wait_for_ack(struct watchdog_device *wdd)
- 	return ret == ZIIRAVE_FIRM_DOWNLOAD_ACK ? 0 : -EIO;
- }
- 
--static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u16 addr)
-+static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u32 addr)
- {
- 	struct i2c_client *client = to_i2c_client(wdd->parent);
-+	const u16 addr16 = (u16)addr / 2;
- 	u8 address[2];
- 
--	put_unaligned_le16(addr, address);
-+	put_unaligned_le16(addr16, address);
- 
- 	return i2c_smbus_write_block_data(client,
- 					  ZIIRAVE_CMD_DOWNLOAD_SET_READ_ADDR,
-@@ -234,6 +235,12 @@ static int ziirave_firm_write_byte(struct watchdog_device *wdd, u8 command,
- 					     wait_for_ack);
- }
- 
-+static bool ziirave_firm_addr_readonly(u32 addr)
-+{
-+	return addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
-+	       addr > ZIIRAVE_FIRM_FLASH_MEMORY_END;
-+}
-+
- /*
-  * ziirave_firm_write_pkt() - Build and write a firmware packet
-  *
-@@ -261,6 +268,16 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
+@@ -260,8 +260,6 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
  		return -EMSGSIZE;
  	}
  
-+	/*
-+	 * Ignore packets that are targeting program memory outisde of
-+	 * app partition, since they will be ignored by the
-+	 * bootloader. At the same time, we need to make sure we'll
-+	 * allow zero length packet that will be sent as the last step
-+	 * of firmware update
-+	 */
-+	if (len && ziirave_firm_addr_readonly(addr))
-+		return 0;
-+
+-	memset(packet, 0, sizeof(packet));
+-
  	/* Packet length */
  	packet[0] = len;
  	/* Packet address */
-@@ -279,7 +296,7 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
- 	if (ret)
- 		dev_err(&client->dev,
- 		      "Failed to write firmware packet at address 0x%04x: %d\n",
--		      addr16, ret);
-+		      addr, ret);
+@@ -269,6 +267,7 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
+ 	packet[2] = (addr16 & 0xff00) >> 8;
  
- 	return ret;
- }
-@@ -315,14 +332,12 @@ static int ziirave_firm_verify(struct watchdog_device *wdd,
- 	const struct ihex_binrec *rec;
- 	int i, ret;
- 	u8 data[ZIIRAVE_FIRM_PKT_DATA_SIZE];
--	u16 addr;
+ 	memcpy(packet + 3, data, len);
++	memset(packet + 3 + len, 0, ZIIRAVE_FIRM_PKT_DATA_SIZE - len);
  
- 	for (rec = (void *)fw->data; rec; rec = ihex_next_binrec(rec)) {
- 		const u16 len = be16_to_cpu(rec->len);
-+		const u32 addr = be32_to_cpu(rec->addr);
- 
--		addr = (be32_to_cpu(rec->addr) & 0xffff) >> 1;
--		if (addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
--		    addr > ZIIRAVE_FIRM_FLASH_MEMORY_END)
-+		if (ziirave_firm_addr_readonly(addr))
- 			continue;
- 
- 		ret = ziirave_firm_set_read_addr(wdd, addr);
+ 	/* Packet checksum */
+ 	for (i = 0; i < len + 3; i++)
 -- 
 2.21.0
 
