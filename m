@@ -8,55 +8,55 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE30FC31E40
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:09:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43314C433FF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:09:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A137A214C6
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:09:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11BCC208C2
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:09:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X7ynJwHX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VyJrl7Yd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727332AbfHLUJc (ORCPT
+        id S1727843AbfHLUJr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 12 Aug 2019 16:09:32 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43238 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727720AbfHLUJb (ORCPT
+        Mon, 12 Aug 2019 16:09:47 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:34706 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727832AbfHLUJq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Aug 2019 16:09:31 -0400
-Received: by mail-pg1-f194.google.com with SMTP id r26so14085547pgl.10;
-        Mon, 12 Aug 2019 13:09:30 -0700 (PDT)
+        Mon, 12 Aug 2019 16:09:46 -0400
+Received: by mail-pl1-f196.google.com with SMTP id i2so48333008plt.1;
+        Mon, 12 Aug 2019 13:09:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=qfkrKfTu6aSEYz9nb94lbej06C22MD5/E3UVVvaQRvw=;
-        b=X7ynJwHXLWXnsclNvpp6MSr3yn7hpr5XJvNYL3PdsVgBrHRLT90xekoaOw7u+ZC9KP
-         cU3gP5+3HxV+brOntvuMx4s5TMBrhc6Mzq9szXdql7exFHJUjAszfQuXSMBsccbleBr0
-         lTkIfH/E361NiT9KtzSuFdYFdV3kKNNsRrWxzAolPLVD3yaFR0QoEMBYyKez/BxAgx29
-         mZt0aKr4XVb1K/+odxUhOATHDU7SYcLp5oRsxR4xzZ50oxIFIjUZPux750OUUTcjQ3fo
-         X+qElcdV7b0KCYdZtdSXGtmJqsZRwLAntt90PDwWBekLYk+ZsUYQOxgbLySAMGovUvzg
-         xPmA==
+        bh=G3aE0HR7FH8dxZEfkREqg9dVCNPdu5b7189bsJL1s1I=;
+        b=VyJrl7Ydz3J26svxaTUS+WXyPZFZyX6onCknUDHWfh3YZrXjzwb6N7C8QDOQeZgv0l
+         Jcv+4p5v5/UBKLMfJZ7/S7jXpfbrqRwhNbgGeJY/3jZ25jFOlJLkVqFH1B4/vJ1yB4ac
+         KjVum2kt3pONCmil63qjxxe//95Y+3NKPNYaFU2hfZ/ye+kMXaV6eKhNn1wY+ts7hNvV
+         ++oop01X74XIhItmvH6ZmKEoK+0uQ33iNDvLtATHyeaCuN7sr5gguixciutmyHHpy1di
+         8QtHR5AByJ+auXIggRAfO2sGXlEPkhVKCyzxOAHMU+qgekXGsw2lDNaSKqdjSnVnoPRG
+         IjEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=qfkrKfTu6aSEYz9nb94lbej06C22MD5/E3UVVvaQRvw=;
-        b=hmFY9GYU8F3lzC/SJIuDVMp5Vv0ykhs93QFwpB5gx8r9fM9y8ovw7XuknIFyTMo6gj
-         F02FbrakETQqFTJTc0WRJG0jAgKpsrwOZEQU0tsSirtnxczhSwQsHp3+MGFJmCOg8G47
-         Z2Va/dGCAV1f4FMlNpphaV9kZY7QfAQehHuMy9XMYNZgOCsihmVzwM011IOP3H48rrUC
-         J4ty8wSIg32FMDP4MRPN1QBWjHXvje8DAeq2d0x1eCQ4LTllO9EA7J2NiONPe5QqfgZ6
-         XSzPuujDoCrEG9cJElzey/6FHRgDxEG3rZiGe9hQWv9q3lgQ0ssl90f/yhc2ud8kIOAE
-         l/xQ==
-X-Gm-Message-State: APjAAAVHgzmI4SMNmd+jhs4DpnckQsNXkOS6bTDm+rNMnGPVimtDNChg
-        tPhMyLisIw1M2hT5dniGYsSSger1
-X-Google-Smtp-Source: APXvYqzS8KZrfyTODXNtdQmW4FVzEWk/QoBBIpScB769gk4FK+UcYCi9i7Gnk9op527ftr07QnSpiw==
-X-Received: by 2002:a65:458d:: with SMTP id o13mr31127428pgq.34.1565640570136;
-        Mon, 12 Aug 2019 13:09:30 -0700 (PDT)
+        bh=G3aE0HR7FH8dxZEfkREqg9dVCNPdu5b7189bsJL1s1I=;
+        b=XN5oZZvb9F46UIMwIMRBQ/Ed4i8ZC1YsHKMyNNfB6kPGdU99D/pB4FH9XNKqQeieWi
+         CREFjxkbe4m8SH/qbH31wfePmQQefA/leS9fIi745nwF1V88AO/nRzVJN0siQSmn099w
+         WU/i0IitZNVc7s+MleEsOaQfkdEFZIpFz93smMu7Ua2NsIQT7RJF8lA8WQpDAp4ciqc1
+         p0scmFfNU+/3WgBnuJmfH74kn44dWQZx87BUTU+Ka+0o/8dBpUZnU2KOIMmBviHNqrxH
+         YaCWpJUBpQTk4A6TD74jBrfkhBEkZjpr19J2rSng1+G1b4Ru1a7VQy7ummEClUvrkahH
+         TbRA==
+X-Gm-Message-State: APjAAAU/Xy2dyadJNNRY3bvmkb/+jqF3dVYkq/3KtLDCdwq4cakVNE1i
+        Crm8wQujKqni691tbTbhoGs/drnj
+X-Google-Smtp-Source: APXvYqzC5WkgKM6qxhcGrKVd7zOiPyHZItfP6NE4i8jBUw8R8pdqODfSOlB82hwMuHUFAHFO/GGcMw==
+X-Received: by 2002:a17:902:be01:: with SMTP id r1mr14556016pls.229.1565640585591;
+        Mon, 12 Aug 2019 13:09:45 -0700 (PDT)
 Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.28
+        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.44
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 13:09:29 -0700 (PDT)
+        Mon, 12 Aug 2019 13:09:44 -0700 (PDT)
 From:   Andrey Smirnov <andrew.smirnov@gmail.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
@@ -64,9 +64,9 @@ Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Rick Ramstetter <rick@anteaterllc.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 09/22] watchdog: ziirave_wdt: Fix incorrect use of ARRAY_SIZE
-Date:   Mon, 12 Aug 2019 13:08:53 -0700
-Message-Id: <20190812200906.31344-10-andrew.smirnov@gmail.com>
+Subject: [PATCH v2 21/22] watchdog: ziirave_wdt: Drop ziirave_firm_write_block_data()
+Date:   Mon, 12 Aug 2019 13:09:05 -0700
+Message-Id: <20190812200906.31344-22-andrew.smirnov@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190812200906.31344-1-andrew.smirnov@gmail.com>
 References: <20190812200906.31344-1-andrew.smirnov@gmail.com>
@@ -77,10 +77,8 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Both memset() and ziirave_firm_write_block_data() expect length in
-bytes as an argument, not a number of elements in array. It just
-happens that in this particular case both values are equal. Modify the
-code to use sizeof() instead.
+There's only one user of ziirave_firm_write_block_data(), so we may as
+well inline it.
 
 Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 Cc: Chris Healy <cphealy@gmail.com>
@@ -89,37 +87,55 @@ Cc: Rick Ramstetter <rick@anteaterllc.com>
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/ziirave_wdt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/watchdog/ziirave_wdt.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-index 19da0910c2d1..e0f55cbdc603 100644
+index ed69fa82e09c..48278034cda6 100644
 --- a/drivers/watchdog/ziirave_wdt.c
 +++ b/drivers/watchdog/ziirave_wdt.c
-@@ -203,7 +203,7 @@ static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u16 addr)
- 
- 	return i2c_smbus_write_block_data(client,
- 					  ZIIRAVE_CMD_DOWNLOAD_SET_READ_ADDR,
--					  ARRAY_SIZE(address), address);
-+					  sizeof(address), address);
+@@ -197,26 +197,6 @@ static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u32 addr)
+ 					  sizeof(address), address);
  }
  
- static int ziirave_firm_write_block_data(struct watchdog_device *wdd,
-@@ -260,7 +260,7 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
- 		return -EMSGSIZE;
- 	}
- 
--	memset(packet, 0, ARRAY_SIZE(packet));
-+	memset(packet, 0, sizeof(packet));
- 
- 	/* Packet length */
- 	packet[0] = len;
-@@ -276,7 +276,7 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
+-static int ziirave_firm_write_block_data(struct watchdog_device *wdd,
+-					 u8 command, u8 length, const u8 *data,
+-					 bool wait_for_ack)
+-{
+-	struct i2c_client *client = to_i2c_client(wdd->parent);
+-	int ret;
+-
+-	ret = i2c_smbus_write_block_data(client, command, length, data);
+-	if (ret) {
+-		dev_err(&client->dev,
+-			"Failed to send command 0x%02x: %d\n", command, ret);
+-		return ret;
+-	}
+-
+-	if (wait_for_ack)
+-		ret = ziirave_firm_read_ack(wdd);
+-
+-	return ret;
+-}
+-
+ static bool ziirave_firm_addr_readonly(u32 addr)
+ {
+ 	return addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
+@@ -273,8 +253,15 @@ static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
+ 		checksum += packet[i];
  	packet[ZIIRAVE_FIRM_PKT_TOTAL_SIZE - 1] = checksum;
  
- 	ret = ziirave_firm_write_block_data(wdd, ZIIRAVE_CMD_DOWNLOAD_PACKET,
--					    ARRAY_SIZE(packet), packet, true);
-+					    sizeof(packet), packet, true);
+-	ret = ziirave_firm_write_block_data(wdd, ZIIRAVE_CMD_DOWNLOAD_PACKET,
+-					    sizeof(packet), packet, true);
++	ret = i2c_smbus_write_block_data(client, ZIIRAVE_CMD_DOWNLOAD_PACKET,
++					 sizeof(packet), packet);
++	if (ret) {
++		dev_err(&client->dev,
++			"Failed to send DOWNLOAD_PACKET: %d\n", ret);
++		return ret;
++	}
++
++	ret = ziirave_firm_read_ack(wdd);
  	if (ret)
  		dev_err(&client->dev,
  		      "Failed to write firmware packet at address 0x%04x: %d\n",
