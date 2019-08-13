@@ -1,75 +1,72 @@
-Return-Path: <SRS0=2AuO=WI=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=VvW0=WJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB11EC31E40
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98254C433FF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 13 Aug 2019 15:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9D252214C6
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Aug 2019 20:10:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6AA422084D
+	for <linux-watchdog@archiver.kernel.org>; Tue, 13 Aug 2019 15:36:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X8o0fPWh"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jCOEiAkc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727297AbfHLUJV (ORCPT
+        id S1726785AbfHMPgS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 12 Aug 2019 16:09:21 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38511 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727163AbfHLUJV (ORCPT
+        Tue, 13 Aug 2019 11:36:18 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:43378 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726637AbfHMPgR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Aug 2019 16:09:21 -0400
-Received: by mail-pf1-f195.google.com with SMTP id o70so4902913pfg.5;
-        Mon, 12 Aug 2019 13:09:20 -0700 (PDT)
+        Tue, 13 Aug 2019 11:36:17 -0400
+Received: by mail-wr1-f66.google.com with SMTP id y8so2229677wrn.10;
+        Tue, 13 Aug 2019 08:36:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=TN+vbXoGtZXDyZZbwyRpwdE8T0Jxms0oeW+6+Yw5/RA=;
-        b=X8o0fPWh9Bs/+AcOwAcBVoLh9JW4mMYIzkFTXSNwjaOoBCnq04hiL9ZO+9C7w6gH87
-         2bw00CDZGtx0+flu13GCj+Z5bpQ12MP4+YaTXGFVvR5IOSYcMlBDkOalCJTVCrtNa6hs
-         XQ7Fjain/orZ/SxqhMS3cM8EySD/gmRT1jZ4DDZ09EGT7Q+en3PHbEne5C0L3+jUGiMg
-         Sr9FgdrRLKKYZINxudYneHfvlgerJIcRFYX8/rQb0Gtoo4WUoO6F/hVXvHvua7q2Oaik
-         gY/Rik4eCH5TPWm5FEg9+tVM3oCWF+WWTaWJxD8g4tofmSnziryJsISP87n9e5XVmFoo
-         UHMQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3UC+PD9kS/WGfZDXc4tichks2oQOuR9t5uPbZ3jfIak=;
+        b=jCOEiAkcGH7yXnW/f/cx/ETAQRKf6Q/oI11zhi7T6r23lwK2Y6zj1SORMcnN72LhU2
+         hp428fqezeEyRMNPYGKdHdsXsI9UZh0+dlhGnYY7Ez4IC993qIUF6ochX7ti86JX28oA
+         9PHCGuxRhtaEklJeLMa/0y8i1B6akEtIjDE88MpsveLvnFD1NwW5/Kpw6J7iYGdyML1k
+         6ZcQAb4pzZwRwtC1aeNX2ErYUn9fLil4C1UaAZqZTbuKVURvXfJSqjSa+vgk0IFqgT3+
+         UluFqa9Xjh6pwRAoOAFA6HtEIPunSC2cuByaMN/XoINKBWuilAkpXX8GySzYv1mMpoPM
+         uRIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=TN+vbXoGtZXDyZZbwyRpwdE8T0Jxms0oeW+6+Yw5/RA=;
-        b=rqGSP8YoA1GF5hiY+raALOzbF3FcyUniyedTkEbegbYrz90WWV4nfamlx8auaoLxUB
-         pRl1uV/NSJcEFj5hz+apXWwsJsYgQmjrTQ+TvuC6raeqAK99fQBk5RIYqVLGoa/mmOaB
-         vT4WoKmM3huLZIS61A8VoeCnJeWl5u8u3fikY6MPHeCx/HkBgY+RK9XlTBwypCtzNHxE
-         /Dh743vcQOAFrtcwdmzRBUJcL4hCiznX1jXaBc2dYZdgC9EYqfFXkEY/d3b6tzifwCC0
-         QTH/K4s6g0QyTzvoF3bkYQ4JpgeqfaUXOGSOPvOk77E1fIJDSvl7NXZuwqZ0MAqGwIVV
-         8C0g==
-X-Gm-Message-State: APjAAAUf8QC7phusOKmL4LFyV/2NOQjX5ETlmPsLcdtILe0yyQwhk7ok
-        h8cQ8m2dQVulqJ5+7BadS24R2Bvg
-X-Google-Smtp-Source: APXvYqzie7nch6IxxKkPdk2BZVQy+kChRyM+MLUh80vvOR4C7FaL03jEAWGlDEZmeFjSnU4ZFCdKyw==
-X-Received: by 2002:a62:63c7:: with SMTP id x190mr35856663pfb.181.1565640560251;
-        Mon, 12 Aug 2019 13:09:20 -0700 (PDT)
-Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id n26sm110286451pfa.83.2019.08.12.13.09.18
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 13:09:19 -0700 (PDT)
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-To:     linux-watchdog@vger.kernel.org
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Chris Healy <cphealy@gmail.com>,
-        Rick Ramstetter <rick@anteaterllc.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 01/22] watchdog: ziirave_wdt: Add missing newline
-Date:   Mon, 12 Aug 2019 13:08:45 -0700
-Message-Id: <20190812200906.31344-2-andrew.smirnov@gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3UC+PD9kS/WGfZDXc4tichks2oQOuR9t5uPbZ3jfIak=;
+        b=IW4q/ikISrjbRNElzY+WuOpIgkeYS7hFO8tsu/JiwfhnPGN5siUW1DAiLPub1ReBnh
+         pjA7i9L9f1XhtwlSdzq9nsy+hE3SNKm/2pShuPvewabxTLojsFsYjEGiEYZNsed7qR6X
+         u3hSNtzEYih/6d0vPl8LXRKgPusHxu3Cfa0v1Wov/kW0LZWiVobhugd8MP0gGml03VnG
+         8CBWH6feam3g8GhLRnUISHi5FQUvdduuoObrMZYaXWhJqDpHfsz53rSZZcYNKjH3MTI6
+         65eb/krZJwIFsLRZmNm+ohqYxZyLSk9Axfai5oy7Uly/nQV93Hnle6NdD1/uYBAVHAX1
+         s7jg==
+X-Gm-Message-State: APjAAAW74xdwfpCiEO6Zpb6r/TEDJYhr71KT7bPSI4HgDLyrURgHRm/R
+        jwwwof9NKUTm0x7TXsBdGNBo8Fo1zQttoA==
+X-Google-Smtp-Source: APXvYqycOfkIw9uh+myOAYBLFRuRcU/GKKQEhlFpr9aqIiTMosEHmh6x3DDmIpWbgZwFKGFgyGKvLA==
+X-Received: by 2002:adf:ed85:: with SMTP id c5mr17071499wro.268.1565710575205;
+        Tue, 13 Aug 2019 08:36:15 -0700 (PDT)
+Received: from localhost.localdomain (3e6b1cc1.rev.stofanet.dk. [62.107.28.193])
+        by smtp.googlemail.com with ESMTPSA id j16sm64744819wrp.62.2019.08.13.08.36.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Aug 2019 08:36:14 -0700 (PDT)
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+To:     linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        u.kleine-koenig@pengutronix.de, sean.nyekjaer@prevas.dk,
+        bth@kamstrup.com, bruno.thomsen@gmail.com
+Subject: [PATCH v2 0/5] rtc: pcf2127: tamper timestamp and watchdog feature support
+Date:   Tue, 13 Aug 2019 17:35:55 +0200
+Message-Id: <20190813153600.12406-1-bruno.thomsen@gmail.com>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190812200906.31344-1-andrew.smirnov@gmail.com>
-References: <20190812200906.31344-1-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -77,32 +74,89 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add missing newline.
+Hi all
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Rick Ramstetter <rick@anteaterllc.com>
-Cc: linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/watchdog/ziirave_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch series still adds support for 2 chip features; tamper timestamp
+and watchdog. Including code cleanup which improves code readability of the
+device driver and better aligned with kernel coding style. There is also a
+bugfix of pcf2127_rtc_read_time() which causes accidental watchdog disabling,
+which was not included in v1.
 
-diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-index dec660c509b3..6ec028fb2635 100644
---- a/drivers/watchdog/ziirave_wdt.c
-+++ b/drivers/watchdog/ziirave_wdt.c
-@@ -671,7 +671,7 @@ static int ziirave_wdt_probe(struct i2c_client *client,
- 		if (ret)
- 			return ret;
- 
--		dev_info(&client->dev, "Timeout set to %ds.",
-+		dev_info(&client->dev, "Timeout set to %ds\n",
- 			 w_priv->wdd.timeout);
- 	}
- 
+All review comments from v1 have been handled.
+The series now adds watchdog feature before tamper as the later needs to call
+pcf2127_wdt_active_ping() as workaround for CTRL2 watchdog issue.
+
+I have also tested if reading the other watchdog control register called WD_CTL
+results in disabling of the watchdog feature, but that is luckily not the case.
+
+Test script[1] for tamper function can be used to test the feature and verify
+that the pcb circuit is working without issues during EMC immunity tests.
+
+ Starting tamper detection (dev: rtc0, irq: rtc-tamper-irq)!
+ event: FALLING EDGE offset: 12 timestamp: [1565695589.907980206]
+ Tamper! Tue Aug 13 11:26:31 UTC 2019 (1565695591)
+ event: FALLING EDGE offset: 12 timestamp: [1565695595.759132013]
+ Tamper! Tue Aug 13 11:26:36 UTC 2019 (1565695596)
+
+
+Watchdog driver has been tested with systemd version 242 and the following
+/etc/systemd/system.conf parameters:
+
+ RuntimeWatchdogSec=30
+ ShutdownWatchdogSec=4min
+
+
+Bug in pcf2127_rtc_read_time() can be reproduced with the following code:
+
+	unsigned char test[10];
+
+	ret = regmap_read(pcf2127->regmap, PCF2127_REG_WD_VAL,
+			  (unsigned int *)(test));
+	dev_info(dev, "%s: before, wd_val=%02x\n",
+		 __func__, test[0]);
+
+ /* "regmap_read/regmap_bulk_read()" */
+
+	ret = regmap_read(pcf2127->regmap, PCF2127_REG_WD_VAL,
+			  (unsigned int *)(test));
+	dev_info(dev, "%s: after, wd_val=%02x\n",
+		 __func__, test[0]);
+
+Which output something like this when using hwclock -r -f /dev/rtc0 in dmesg:
+
+ [ 1407.334031] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: before, wd_val=12
+ [ 1407.342521] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: after, wd_val=00
+ [ 2104.383726] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: before, wd_val=17
+ [ 2104.392212] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: after, wd_val=00
+ [ 2800.393418] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: before, wd_val=14
+ [ 2800.401950] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: after, wd_val=00
+
+After bugfix patch:
+
+ [  125.095718] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: before, wd_val=16
+ [  125.104010] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: after, wd_val=16
+ [  128.415844] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: before, wd_val=13
+ [  128.424134] rtc-pcf2127-spi spi1.0: pcf2127_rtc_read_time: after, wd_val=13
+
+
+I also have a battery switch-over mode patch, but I will send it later as
+it might need configuration based on hardware design.
+
+/Bruno
+
+[1] https://github.com/baxeno/linux-emc-test/blob/master/tamper/tamper.sh
+
+Bruno Thomsen (5):
+  rtc: pcf2127: convert to devm_rtc_allocate_device
+  rtc: pcf2127: cleanup register and bit defines
+  rtc: pcf2127: bugfix: read rtc disables watchdog
+  rtc: pcf2127: add watchdog feature support
+  rtc: pcf2127: add tamper detection support
+
+ drivers/rtc/Kconfig       |   7 +-
+ drivers/rtc/rtc-pcf2127.c | 387 +++++++++++++++++++++++++++++++++-----
+ 2 files changed, 343 insertions(+), 51 deletions(-)
+
 -- 
 2.21.0
 
