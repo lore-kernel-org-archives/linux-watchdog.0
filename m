@@ -1,109 +1,112 @@
-Return-Path: <SRS0=VvW0=WJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=vBW5=WK=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C86C433FF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 13 Aug 2019 21:19:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3ECDC32753
+	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Aug 2019 13:26:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 859B220842
-	for <linux-watchdog@archiver.kernel.org>; Tue, 13 Aug 2019 21:19:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1565731157;
-	bh=JBsXkG9yjV9pbDty8DqzOGotTUIFrOYtaCE16hbum0E=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=u2YYoXzfRvBQQyyY6GpSyxDolWo9D+S4uu/18UyKZ5g7qvVMPuspR+c2Zeg7OIJwj
-	 w5zk5kQdrlZw/TRpviBHL7s1jnFzaImNV4hAUtNH/U5x9sypQdUk2mDM/HY5p65sQ/
-	 r1ob+pM9FisWxCbSo3AgyYmvjBVlegg4YFEyKkss=
+	by mail.kernel.org (Postfix) with ESMTP id BAF75206C2
+	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Aug 2019 13:26:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jqmiCljh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbfHMVTR (ORCPT
+        id S1727879AbfHNN0N (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 13 Aug 2019 17:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53830 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726579AbfHMVTQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Aug 2019 17:19:16 -0400
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BC1020842;
-        Tue, 13 Aug 2019 21:19:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565731155;
-        bh=JBsXkG9yjV9pbDty8DqzOGotTUIFrOYtaCE16hbum0E=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=crdeyHeUCm2qAB/OFjwFqysrHfSLR+UetxBzbXV/OkhxIzZfVtCcy8QUXWO3fAxFd
-         2KmAbggtL+55hUlR84ISmfdKkirvhsBnEQBoP/uxSi32b2CwTR1v2IV+trggF1jN+B
-         8eECl3mkn8psCrRYD3Xw2D9PO80/YYBYHiSRZJFw=
-Received: by mail-qt1-f169.google.com with SMTP id d17so28957848qtj.8;
-        Tue, 13 Aug 2019 14:19:15 -0700 (PDT)
-X-Gm-Message-State: APjAAAUyIjDiiCsezqewY84HQlrASvCaByVgvYt7uZjb1u8k/D+Ie+xj
-        hJ+lkwKE8FxBYaDkugqG6ro5Ayp7FESZLYwMuA==
-X-Google-Smtp-Source: APXvYqyYbgP4TBRZegMhEKfIghK9abGk/VBtufyF+J98q6CTeTofBSY0orANz1i3T/gclh3hbfmdnJ7cT6pao2tVfEA=
-X-Received: by 2002:a0c:acef:: with SMTP id n44mr228291qvc.39.1565731154671;
- Tue, 13 Aug 2019 14:19:14 -0700 (PDT)
+        Wed, 14 Aug 2019 09:26:13 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:41707 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727721AbfHNN0N (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 14 Aug 2019 09:26:13 -0400
+Received: by mail-ed1-f67.google.com with SMTP id w5so7071244edl.8;
+        Wed, 14 Aug 2019 06:26:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=h4COCc6WWbcVY5jQ0JrT6vbxRGslEgbBhKARy0jzFVM=;
+        b=jqmiCljhXXYgkEuydoLAem/SCNO4388/BM+goYph1dBJgladlbe5THcmI3QYcHyY0b
+         6UvC6081HNOVMUBAJxCCrymDuSM4ey10kdVOjZ1pTkdvCRYZPnARkl7vufi9qpR51G01
+         yoxxEab2MST26WRc+r2/IravgcYKaAn2WZX47E65JgKQU9fZhcsuWNZm/f0wDYFm5DYM
+         GjVZuI7IyfclEnt8lm97RYR86Z5uNAAO1B7Dt8pFovjZbRgctEA2ef3rur0YFvDABeL1
+         279UiasHB9VFKow6t908KwzxLgKZqCV9untx8erPFgfxJ+GVXsPmgZ0BTpubAFBm/ObC
+         MkzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h4COCc6WWbcVY5jQ0JrT6vbxRGslEgbBhKARy0jzFVM=;
+        b=gZ7wuBFFAQd+tesIXDk99CNa0Jw5bK5U59rWUHXOU5UKxf3uvby2B1Uj9zmiBOLZrv
+         eE7qX8vfaHTdtDGcOfDyq0fykr7cpGMj6s5uQTPL2bcpfDO3Jm4brrH03vOVPcr/3BH9
+         4spQW7ryR12dl3we2hheBH7jqbBvp4TztHPbR05shRpr+CTXHKQifP/ezZuCQ1m6oDh0
+         4gWyIMmOzdSTcMKsRdJfqlISZnv9pJaG5Z6r/IPcGubKPj/CiMENoiLApzheAtYraRWj
+         yrDhm83e5yJVCLaI3/2xvl7w/mC4K3dV9/Y0MaQeTeob8lgj3hf8Ozj/Tj7QVVL7MZhP
+         b+iw==
+X-Gm-Message-State: APjAAAU4KRd3OS6y2ZV8h9KbtLeberrGZ8ocxzWnv+nS6K+dmrUF2eH2
+        vDQ65oiUzS2tcpHBJNtDG9tJBoGETN4CGwJ5UWk=
+X-Google-Smtp-Source: APXvYqyIQSEiuaU5HVPWMyKdosVkLuHrubBkjA8wys2o6pRZxOutxlRM+12q0r7CC5E+T5w3+8sI8KJuYbIaFOBRgos=
+X-Received: by 2002:a17:906:4d05:: with SMTP id r5mr2229424eju.182.1565789171526;
+ Wed, 14 Aug 2019 06:26:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190808085139.21438-1-narmstrong@baylibre.com>
-In-Reply-To: <20190808085139.21438-1-narmstrong@baylibre.com>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Tue, 13 Aug 2019 15:19:03 -0600
-X-Gmail-Original-Message-ID: <CAL_Jsq+rBUWCBo0CnhnJX91o+8QF4gO5cJYqFgKEJeekAeuVxg@mail.gmail.com>
-Message-ID: <CAL_Jsq+rBUWCBo0CnhnJX91o+8QF4gO5cJYqFgKEJeekAeuVxg@mail.gmail.com>
-Subject: Re: [PATCH 0/9] dt-bindings: first tentative of conversion to yaml format
-To:     Neil Armstrong <narmstrong@baylibre.com>
-Cc:     linux-amlogic@lists.infradead.org,
-        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
-        <linux-crypto@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>, devicetree@vger.kernel.org,
-        Jassi Brar <jassisinghbrar@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>
+References: <20190813153600.12406-1-bruno.thomsen@gmail.com>
+ <20190813153600.12406-5-bruno.thomsen@gmail.com> <20190813161908.GA7857@roeck-us.net>
+In-Reply-To: <20190813161908.GA7857@roeck-us.net>
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+Date:   Wed, 14 Aug 2019 15:25:55 +0200
+Message-ID: <CAH+2xPDA4Ja_6Sgo0-Ak8KC5RKgE2E8CKyWargYaJMu52o_aoA@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] rtc: pcf2127: add watchdog feature support
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        a.zummo@towertech.it, wim@linux-watchdog.org,
+        u.kleine-koenig@pengutronix.de, bth@kamstrup.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Aug 8, 2019 at 2:51 AM Neil Armstrong <narmstrong@baylibre.com> wrote:
->
-> This is a first tentative to convert some of the simplest Amlogic
-> dt-bindings to the yaml format.
->
-> All have been tested using :
-> $ make ARCH=arm64 dtbs_check
->
-> Issues with the amlogic arm64 DTs has already been identified thanks
-> to the validation scripts. The DT fixes will be pushed once these yaml
-> bindings are acked.
->
-> Changes since rfc v2:
-> - Collected Rob's, Martin's, Philipp's and Guenter's tags
-> - Removed mhu maxItems: 3 to leave only minItems
-> - Fixed flash@0 in spifc example
->
-> Changes since rfc v1:
-> - Fixed bindings according to Rob's comments
-> - Added commit log
-> - renamed yaml files using amlogic prefix
->
-> Neil Armstrong (9):
->   dt-bindings: mailbox: meson-mhu: convert to yaml
->   dt-bindings: rng: amlogic,meson-rng: convert to yaml
->   dt-bindings: spi: meson: convert to yaml
->   dt-bindings: reset: amlogic,meson-reset: convert to yaml
->   dt-bindings: arm: amlogic: amlogic,meson-gx-ao-secure: convert to yaml
->   dt-bindings: phy: meson-g12a-usb2-phy: convert to yaml
->   dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml
->   dt-bindings: serial: meson-uart: convert to yaml
->   dt-bindings: watchdog: meson-gxbb-wdt: convert to yaml
+Hi Guenter
 
-Series applied.
+Thanks for the quick review.
 
-Rob
+Den tir. 13. aug. 2019 kl. 18.19 skrev Guenter Roeck <linux@roeck-us.net>:
+>
+> On Tue, Aug 13, 2019 at 05:35:59PM +0200, Bruno Thomsen wrote:
+> > +static int pcf2127_wdt_start(struct watchdog_device *wdd)
+> > +{
+> > +     dev_info(wdd->parent, "watchdog enabled\n");
+> > +
+> > +     return pcf2127_wdt_ping(wdd);
+> > +}
+> > +
+> > +static int pcf2127_wdt_stop(struct watchdog_device *wdd)
+> > +{
+> > +     struct pcf2127 *pcf2127 = watchdog_get_drvdata(wdd);
+> > +
+> > +     dev_info(wdd->parent, "watchdog disabled\n");
+> > +
+>
+> There is a lot of noise in this driver. Please reconsider.
+
+Would it be better if I remove the following lines:
+
+dev_info(wdd->parent, "watchdog enabled\n");
+dev_info(wdd->parent, "watchdog disabled\n");
+dev_err(dev, "%s: watchdog registering failed\n", __func__);
+
+and change this line to a dev_dbg():
+
+dev_info(wdd->parent, "new watchdog timeout: %is (old: %is)\n",
+         new_timeout, wdd->timeout);
+
+?
+
+Just checking so I don't waste your time on v3 review.
+
+/Bruno
