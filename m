@@ -1,86 +1,92 @@
-Return-Path: <SRS0=TgyZ=WL=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=7cld=WM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67111C3A59D
-	for <linux-watchdog@archiver.kernel.org>; Thu, 15 Aug 2019 19:39:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE1D8C3A59C
+	for <linux-watchdog@archiver.kernel.org>; Fri, 16 Aug 2019 16:03:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3BA8B21721
-	for <linux-watchdog@archiver.kernel.org>; Thu, 15 Aug 2019 19:39:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8B7F21726
+	for <linux-watchdog@archiver.kernel.org>; Fri, 16 Aug 2019 16:03:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="laK7fSDD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732647AbfHOTjE (ORCPT
+        id S1727444AbfHPQD6 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 15 Aug 2019 15:39:04 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:44148 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731211AbfHOTjD (ORCPT
+        Fri, 16 Aug 2019 12:03:58 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:40721 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727381AbfHPQD6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Aug 2019 15:39:03 -0400
-Received: by mail-qt1-f196.google.com with SMTP id 44so3547879qtg.11;
-        Thu, 15 Aug 2019 12:39:03 -0700 (PDT)
+        Fri, 16 Aug 2019 12:03:58 -0400
+Received: by mail-pl1-f193.google.com with SMTP id a93so2628547pla.7;
+        Fri, 16 Aug 2019 09:03:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GwGe81D2anB9mnM0YX892gY8U5CQnq5hIJv2VCFOwV4=;
+        b=laK7fSDD4qkzN+zl86yItrHAB8NU8mXzryoe9aRGvoMMZlT0TxpGj1/Ha4P4gflWHA
+         T99Qh9Pi4zx7Z0VZurGNIEsu74Zsjp9V9p/Fi9rz/9LDM9DoCNQtoWhDgUBnmAsYErIk
+         e8pJeBfK8RmXHBAaDVFOxyPaOCVNfr1gPHaFwrnBScbTG3owz0zDyzXls3ghLKtqfiEE
+         c5S9WehnKAuWOJ6MM90VVf63G7hpd3qP8MfGbYmHoNcO+ImWDT7IiNFF/W+PUctGEbir
+         oXmAHYOyWkbDr8k2Uf7CfsCn7D6p/21Yq4QVbDbrBd+ZC4Okr5CbBa0aMCHd0xR8VEze
+         WoJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=E1uPy8KdAoiEgff6O2fYBXQ3Fn6UlM0L6zfIpxvfPBI=;
-        b=WxI5DxIJVTUdx4BwaWNEVdTI3ReLWi0O3QnQ/xWqnWlLB/yW8fPQmxO+IL7K2gqgNU
-         UsTKIKzDby0KalTlUJfv60UTvLgScfIYGeroKTEmxNG9dmhuvqmftOMAsUoDhMyu4atk
-         g8pS44ImAJNN1WyNJHdq9D2BbSZg0yoNiUD6UWtzHN0+G7G5ML2JJwIs/4Xz7EmfU9ru
-         35uprNN/J1Om8fdV+ooe1b4BGyFYAEDyXjfm0hq6zSfTTw4Csl29aGfnJir2Xn+s1CXx
-         98aKJ2Dqmi/zYcXE1EcsT9G++Zp+lVrjmIc5UNrglrfkk2qXreQBPZF6jlfXMuVcOnLe
-         +VBQ==
-X-Gm-Message-State: APjAAAUQY62CuNCwFdZbK8/mQzJxFI8NY2DsjxpgUylCloqHZdU4xsNf
-        d0h1L7L57XEphjGsDIMA80mDdRhkgnM527DYA+A=
-X-Google-Smtp-Source: APXvYqxqTY8ftYo1EUWFqO+wE8ZQTXXaXX7aeplKk/nDWAyNr8WQSB0twRkA82A5Gyv2tMBQ6tV5GMhK78egWxkdSCU=
-X-Received: by 2002:ac8:f99:: with SMTP id b25mr5374344qtk.142.1565897942632;
- Thu, 15 Aug 2019 12:39:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190731195713.3150463-1-arnd@arndb.de> <20190731225303.GC1330@shell.armlinux.org.uk>
- <CAK8P3a1Lgbz9RwVaOgNq=--gwvEG70tUi67XwsswjgnXAX6EhA@mail.gmail.com>
- <CAK8P3a0=GrjM_HOBgqy5V3pOsA6w1EDOtEQO9dZG2Cw+-2niaw@mail.gmail.com> <b43c3d60-b675-442c-c549-25530cfbffe3@gmail.com>
-In-Reply-To: <b43c3d60-b675-442c-c549-25530cfbffe3@gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 15 Aug 2019 21:38:46 +0200
-Message-ID: <CAK8P3a3ry0S-yhE75hZx1SawYuVzY=NgnNBei101F6+HxBfE3g@mail.gmail.com>
-Subject: Re: [PATCH 00/14] ARM: move lpc32xx and dove to multiplatform
-To:     Sylvain Lemieux <slemieux.tyco@gmail.com>
-Cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        SoC Team <soc@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=GwGe81D2anB9mnM0YX892gY8U5CQnq5hIJv2VCFOwV4=;
+        b=GfTC6HYNerXihVlbZE3hF0wCas8DqeGj7hxuNXAAKTEZ2QPYc5u8NjYckzRt0UiYRT
+         bi82EEfmcQdIyeR86zVu4xJC5RY4ulY5edUyGbzW4EawiQY1z5OFbaiJ7wTntQR2jkgB
+         q59X6HQbQhGchEvZI92T04EDgSeHQW0GHAVLZX73uhE62FjNW5hLgek3U+ONNxM2zOOL
+         OqR2nx0oLiuXLiymSEpkj2PnAfYBZqmi4vi6aNV0HUn7GSM4Cav1CMwNX2Zk4bmTAQQ8
+         DTjzLuKrkHuwVkZLrN4TmTpXA2Kvgt01gvk4I63MEnSJaAtyANVAmvxYrEj0+j5OHg0I
+         rhHQ==
+X-Gm-Message-State: APjAAAXH4pRUlbf7bARnCR7SbyH71Z3XunBiI6FVn/mE1Y7u/pyKWOq7
+        XoXF+C6SvLqVVB01UQn6lpAiTT1R
+X-Google-Smtp-Source: APXvYqzpm5dy7HXa9JCQorRwUEZmNlywT5j/avC3GHFnPAF1jfRW7adr1QAbkIJ+PGD5tvnPcTjpRQ==
+X-Received: by 2002:a17:902:2f43:: with SMTP id s61mr10288124plb.238.1565971437722;
+        Fri, 16 Aug 2019 09:03:57 -0700 (PDT)
+Received: from localhost.localdomain ([45.124.203.19])
+        by smtp.gmail.com with ESMTPSA id m20sm7578607pff.79.2019.08.16.09.03.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Aug 2019 09:03:57 -0700 (PDT)
+From:   Joel Stanley <joel@jms.id.au>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        linux-serial@vger.kernel.org, USB list <linux-usb@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Andrew Jeffery <andrew@aj.id.au>, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, Ryan Chen <ryan_chen@aspeedtech.com>
+Subject: [PATCH 0/2] watchdog: aspeed: Add support for ast2600
+Date:   Sat, 17 Aug 2019 01:33:45 +0930
+Message-Id: <20190816160347.23393-1-joel@jms.id.au>
+X-Mailer: git-send-email 2.23.0.rc1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Aug 15, 2019 at 8:32 PM Sylvain Lemieux <slemieux.tyco@gmail.com> wrote:
-> On 8/15/19 9:11 AM, Arnd Bergmann wrote:
-> > On Thu, Aug 1, 2019 at 9:33 AM Arnd Bergmann <arnd@arndb.de> wrote:
-> > I applied patches 12 and 13 into the soc tree now. There are some
-> > other pending multiplatform conversions (iop32x, ep93xx, lpc32xx,
-> > omap1), but it looks like none of those will be complete for 5.4.
->
-> I think the patchset (v2) for the LPC32xx is ready for 5.4
-> ([PATCH v2 00/13] v2: ARM: move lpc32xx to multiplatform)
+Hello,
 
-Good point. I've merged these into the arm/soc branch now.
+Here's a small patch series to enable the ast2600 watchdog.
 
-     Arnd
+Joel Stanley (1):
+  dt-bindings: watchdog: Add ast2600 compatible
+
+Ryan Chen (1):
+  watchdog: aspeed: Add support for AST2600
+
+ Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 1 +
+ drivers/watchdog/aspeed_wdt.c                             | 8 +++++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+-- 
+2.23.0.rc1
+
