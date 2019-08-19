@@ -7,67 +7,67 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D849C3A5A0
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3F3CC3A5A1
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 72C1A2087E
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 791A622CEC
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V9qsVg12"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L8JavJtT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbfHSUhS (ORCPT
+        id S1727971AbfHSUhR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 19 Aug 2019 16:37:18 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:45969 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727769AbfHSUhR (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 19 Aug 2019 16:37:17 -0400
-Received: by mail-oi1-f194.google.com with SMTP id v12so2355572oic.12
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:17 -0700 (PDT)
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:45965 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727769AbfHSUhQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Aug 2019 16:37:16 -0400
+Received: by mail-oi1-f193.google.com with SMTP id v12so2355506oic.12
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :reply-to;
-        bh=rr7PFA4y4COyKOxB5OU5lFbFTlcHHXX96fkNQiJtv3g=;
-        b=V9qsVg12Fy6vR58Tu6ILDoXkUHgD8jWS6NwTygJncRiEEz1/vbuAOC1TJkl+R5gymU
-         xApCfFiA9HzkAtsN0Cs85IB8rAS01Rcv/9jIiiyAU5GQFp7RlRxmLvzKhpW87KMt1V8j
-         Q3xyMsDzzomRExkhwOokWUbb8jbeqS3PZT35ChmTUJOnCwkrXFk2Ffir/r2q1JLL2ZsG
-         2jou54GJG5mYYyb08wQk8TF/Na2gx1tszKj3Q+5VnlHTGzJYgS3ntbMMXIogsokbWWbS
-         PMGqYB5Qpt+veT/l1FU34SPDYSzVidP9aQ/HulPCIFD+7ymWiuEKUYTEy3u80gnAds1U
-         YPmQ==
+        bh=QhoBQQ6l9oUi8mNhEv5RMMIQeW5JDhE0xlxpkZyDFS4=;
+        b=L8JavJtTgse9YOJRhbFCvvX6TxHvPuJRzUBPp3OPVUeEgXvgcntj7jl7PaFeRhzZ6/
+         6QnWk3W/yjzVutHi0HSyL7huQhitbO96Cyve2nIA+t0IOu8fS1nXE4d93zJFQnLZAipY
+         /iT6fvl5w4PwRI5Ok7A8VKbUbes3QSx1brlpn0+EGJ3U38+FY3ilNxx2JrIn1q3t5YCS
+         ym9M0/J9Ay+osWIbzlX7RpJJxWMgzkYhcD/t7fqKbPzpzj2OiNjCCfnmRrdtvYiBUpAj
+         ohIxo1+jCIWKsLwzywQtua6WwW34jpQaYZhJvlbEPMidmq+ODZa2/U76E0SCV81VQ8Oh
+         q5Cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:reply-to;
-        bh=rr7PFA4y4COyKOxB5OU5lFbFTlcHHXX96fkNQiJtv3g=;
-        b=BPGuBY+mMPAf/EDwQB7b9ODzHoe9KPNb0r6rmYnwM4JvpfmO3PtSl464JEalH9H9/K
-         06kqg2FI/ggxVWIc1plLR+fFEfuhtkawQN8G37z91dWUsd7njQELyxriiObuSVktIihx
-         tf/gYSuAjbmcb2KlqjNWI0QNMKMY6JsEOx3AVPDCbSSI/Lu80D63QTY+DZmatPnHw6jP
-         1vqyMiqilXRyF6lAzWtX/RZW5FFL17pZ9KjIutIoQjB4pWI6RFVDcstNUwLaqGGcnf8c
-         gxbVeTB3S/11Yy89G3QyNkPNU+jz7FZ7Tzalt5HgL+6TnrkKjEqxsLy4+iKUMWZuw1ZZ
-         459g==
-X-Gm-Message-State: APjAAAXEM8uSW+migveWx0sHOhWEKHuLq7ZmU610GL0ovVjygiRTDrbK
-        03mXGNbRsiNb7esBDEhiHg==
-X-Google-Smtp-Source: APXvYqze4qUnL/mPSHYAlsR3u8GhAPMeHu5jDk4VcTk3hGqiN+n5FeqrfMQ3xu9sNUlsEBKiGC7trQ==
-X-Received: by 2002:aca:58c3:: with SMTP id m186mr14804229oib.21.1566247036825;
-        Mon, 19 Aug 2019 13:37:16 -0700 (PDT)
+        bh=QhoBQQ6l9oUi8mNhEv5RMMIQeW5JDhE0xlxpkZyDFS4=;
+        b=ERabBBZyQ6GLgQff193E9npr9bGAbGOx6oYIcaz9GRpFGvIVUiGhLjetyw825PSS6t
+         Hy8lIoNI8ybM+Uq6eAuvlpwht0Qx17wxCEuMr0tdgl5697iBLp77opv7Ki6xlU2Yq1+B
+         zCFHNgFrC7NnWqjuno+LBNvK0v3MDSpVhifRcRT8e5yT7NLahE8autnfV+BQ8972PMl3
+         sHNVu0qOTDVy33y4dIF7Tcyziq9mIIj7YA5/RYf0Qdjk07H8CqhJNdhGMn3lXBV1Ella
+         GJMHtCMQumU3a50G5smmT38pNGMJLAS9LpjjygBWwmh0BTLbHHxX0n2+y7UfUxw5ZfzV
+         eQbw==
+X-Gm-Message-State: APjAAAUwHQZW3+jEOatLDZbmtkF6VVXRopNohhL8yk+rTRx48W1iKlLP
+        FciF40LKIfp1KZMn9x7bhA==
+X-Google-Smtp-Source: APXvYqySq8xAc/CbPL0q1q/EHBG+E0EwI1s2eJFmWnC6zwwo+Zujiqiq+h2pm/62uFVowCQRx89AjQ==
+X-Received: by 2002:aca:5e06:: with SMTP id s6mr15037232oib.171.1566247034896;
+        Mon, 19 Aug 2019 13:37:14 -0700 (PDT)
 Received: from serve.minyard.net ([47.184.134.43])
-        by smtp.gmail.com with ESMTPSA id g3sm6293416oti.41.2019.08.19.13.37.15
+        by smtp.gmail.com with ESMTPSA id 13sm5886029otv.14.2019.08.19.13.37.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Aug 2019 13:37:16 -0700 (PDT)
+        Mon, 19 Aug 2019 13:37:14 -0700 (PDT)
 Received: from t430.minyard.net (t430m.minyard.net [192.168.27.3])
-        by serve.minyard.net (Postfix) with ESMTPA id 61D111805AC;
+        by serve.minyard.net (Postfix) with ESMTPA id 145B41800D5;
         Mon, 19 Aug 2019 20:37:14 +0000 (UTC)
 Received: by t430.minyard.net (Postfix, from userid 1000)
-        id 4D645302506; Mon, 19 Aug 2019 15:37:14 -0500 (CDT)
+        id E4F5D30232A; Mon, 19 Aug 2019 15:37:13 -0500 (CDT)
 From:   minyard@acm.org
 To:     linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 07/12] watchdog:ipmi: Add the ability to fetch the current time left
-Date:   Mon, 19 Aug 2019 15:37:06 -0500
-Message-Id: <20190819203711.32599-8-minyard@acm.org>
+Subject: [PATCH 02/12] watchdog: Add the ability to provide data to read
+Date:   Mon, 19 Aug 2019 15:37:01 -0500
+Message-Id: <20190819203711.32599-3-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190819203711.32599-1-minyard@acm.org>
 References: <20190819203711.32599-1-minyard@acm.org>
@@ -82,89 +82,189 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-The new API has the capability, and so do the IPMI interface, so do
-it.
+This is for the read data pretimeout governor.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/ipmi_watchdog.c | 57 ++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ drivers/watchdog/watchdog_core.c |   3 +
+ drivers/watchdog/watchdog_dev.c  | 113 +++++++++++++++++++++++++++++++
+ include/linux/watchdog.h         |   5 ++
+ 3 files changed, 121 insertions(+)
 
-diff --git a/drivers/watchdog/ipmi_watchdog.c b/drivers/watchdog/ipmi_watchdog.c
-index c8c11a61ebb9..218c01707c0b 100644
---- a/drivers/watchdog/ipmi_watchdog.c
-+++ b/drivers/watchdog/ipmi_watchdog.c
-@@ -757,6 +757,62 @@ static int _ipmi_heartbeat(struct ipmi_wdt *iwd)
- 	return rv;
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 21e8085b848b..80149ac229fc 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -216,6 +216,9 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		return id;
+ 	wdd->id = id;
+ 
++	spin_lock_init(&wdd->readlock);
++	init_waitqueue_head(&wdd->read_q);
++
+ 	ret = watchdog_dev_register(wdd);
+ 	if (ret) {
+ 		ida_simple_remove(&watchdog_ida, id);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index dbd2ad4c9294..8e8304607a8c 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -44,6 +44,8 @@
+ #include <linux/types.h>	/* For standard types (like size_t) */
+ #include <linux/watchdog.h>	/* For watchdog specific items */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
++#include <linux/poll.h>		/* For poll_table/... */
++#include <linux/sched/signal.h>	/* For signal_pending */
+ 
+ #include <uapi/linux/sched/types.h>	/* For struct sched_param */
+ 
+@@ -929,12 +931,120 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	return 0;
  }
  
-+static unsigned int ipmi_wdt_get_timeleft(struct watchdog_device *wdd)
++static ssize_t watchdog_read(struct file *file,
++			     char        __user *buf,
++			     size_t      count,
++			     loff_t      *ppos)
 +{
-+	struct ipmi_wdt *iwd = wdd_to_ipmi_wdt(wdd);
-+	struct kernel_ipmi_msg msg;
-+	int rv = 0;
-+	struct ipmi_system_interface_addr addr;
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd;
++	int err = 0;
++	wait_queue_entry_t wait;
++	char dummy = 1;
 +
-+	mutex_lock(&iwd->lock);
-+	if (iwd->state == WDOG_TIMEOUT_NONE)
-+		goto out_unlock;
++	if (count <= 0)
++		return 0;
 +
-+	addr.addr_type = IPMI_SYSTEM_INTERFACE_ADDR_TYPE;
-+	addr.channel = IPMI_BMC_CHANNEL;
-+	addr.lun = 0;
++	mutex_lock(&wd_data->lock);
 +
-+	atomic_set(&iwd->msg_tofree, 2);
++	wdd = wd_data->wdd;
++	if (!wdd)
++		goto done;
 +
-+	msg.netfn = 0x06;
-+	msg.cmd = IPMI_WDOG_GET_TIMER;
-+	msg.data = NULL;
-+	msg.data_len = 0;
-+	rv = ipmi_request_supply_msgs(iwd->user,
-+				      (struct ipmi_addr *) &addr,
-+				      0,
-+				      &msg,
-+				      NULL,
-+				      &iwd->smi_msg,
-+				      &iwd->recv_msg,
-+				      1);
-+	if (rv) {
-+		pr_warn("get timeout error: %d\n", rv);
-+		goto out_unlock;
++	/*
++	 * Reading returns if the pretimeout has gone off, and it only does
++	 * it once per pretimeout.
++	 */
++	spin_lock_irq(&wdd->readlock);
++	while (!wdd->data_to_read) {
++		if (file->f_flags & O_NONBLOCK) {
++			err = -EAGAIN;
++			goto out;
++		}
++
++		init_waitqueue_entry(&wait, current);
++		add_wait_queue(&wdd->read_q, &wait);
++		set_current_state(TASK_INTERRUPTIBLE);
++		spin_unlock_irq(&wdd->readlock);
++		schedule();
++		spin_lock_irq(&wdd->readlock);
++		remove_wait_queue(&wdd->read_q, &wait);
++
++		if (signal_pending(current)) {
++			err = -ERESTARTSYS;
++			goto out;
++		}
++	}
++	dummy = wdd->data_to_read;
++	wdd->data_to_read = 0;
++
++ out:
++	spin_unlock_irq(&wdd->readlock);
++
++	if (err == 0) {
++		if (copy_to_user(buf, &dummy, 1))
++			err = -EFAULT;
++		else
++			err = 1;
 +	}
 +
-+	wait_msg_done(iwd, false);
++ done:
++	mutex_unlock(&wd_data->lock);
 +
-+	if (iwd->recv_msg.msg.data[0] != 0)  {
-+		pr_warn("get timeout IPMI error: %d\n",
-+			iwd->recv_msg.msg.data[0]);
-+		goto out_unlock;
-+	}
-+
-+	if (iwd->recv_msg.msg.data_len < 9) {
-+		pr_warn("get timeout IPMI response too short: %d\n",
-+			iwd->recv_msg.msg.data_len);
-+		goto out_unlock;
-+	}
-+
-+	rv = iwd->recv_msg.msg.data[8] << 8 | iwd->recv_msg.msg.data[7];
-+	rv /= 10; /* IPMI time is in 100s of milliseconds. */
-+
-+out_unlock:
-+	mutex_unlock(&iwd->lock);
-+	return rv;
++	return err;
 +}
 +
- static void ipmi_wdog_msg_handler(struct ipmi_recv_msg *msg,
- 				  void                 *handler_data)
- {
-@@ -880,6 +936,7 @@ static const struct watchdog_ops ipmi_wdt_ops = {
- 	.ping		= ipmi_wdt_ping,
- 	.set_timeout	= ipmi_wdt_set_timeout,
- 	.set_pretimeout = ipmi_wdt_set_pretimeout,
-+	.get_timeleft   = ipmi_wdt_get_timeleft,
++static __poll_t watchdog_poll(struct file *file, poll_table *wait)
++{
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd;
++	__poll_t mask = 0;
++
++	mutex_lock(&wd_data->lock);
++
++	wdd = wd_data->wdd;
++	if (!wdd)
++		goto done;
++
++	poll_wait(file, &wdd->read_q, wait);
++
++	spin_lock_irq(&wdd->readlock);
++	if (wdd->data_to_read)
++		mask |= (EPOLLIN | EPOLLRDNORM);
++	spin_unlock_irq(&wdd->readlock);
++
++done:
++	mutex_unlock(&wd_data->lock);
++	return mask;
++}
++
++static int watchdog_fasync(int fd, struct file *file, int on)
++{
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd;
++	int err = -ENODEV;
++
++	mutex_lock(&wd_data->lock);
++
++	wdd = wd_data->wdd;
++	if (!wdd)
++		goto done;
++
++	err = fasync_helper(fd, file, on, &wdd->fasync_q);
++done:
++	mutex_unlock(&wd_data->lock);
++	return err;
++}
++
+ static const struct file_operations watchdog_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.write		= watchdog_write,
+ 	.unlocked_ioctl	= watchdog_ioctl,
+ 	.open		= watchdog_open,
+ 	.release	= watchdog_release,
++	.read		= watchdog_read,
++	.poll		= watchdog_poll,
++	.fasync		= watchdog_fasync,
  };
  
- static const struct ipmi_user_hndl ipmi_hndlrs = {
+ static struct miscdevice watchdog_miscdev = {
+@@ -970,6 +1080,9 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 	if (IS_ERR_OR_NULL(watchdog_kworker))
+ 		return -ENODEV;
+ 
++	spin_lock_init(&wdd->readlock);
++	init_waitqueue_head(&wdd->read_q);
++
+ 	kthread_init_work(&wd_data->work, watchdog_ping_work);
+ 	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	wd_data->timer.function = watchdog_timer_expired;
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 417d9f37077a..e34501a822f0 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -117,6 +117,11 @@ struct watchdog_device {
+ #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
+ #define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
+ 	struct list_head deferred;
++
++	spinlock_t readlock;
++	bool data_to_read;
++	struct wait_queue_head read_q;
++	struct fasync_struct *fasync_q;
+ };
+ 
+ #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
 -- 
 2.17.1
 
