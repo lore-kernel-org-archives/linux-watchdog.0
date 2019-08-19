@@ -7,67 +7,67 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 239B3C3A5A0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F341EC3A5A4
 	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EA8F122CEB
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8A2122CEC
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KMc7Ap1M"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iuTWR0oz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728123AbfHSUhQ (ORCPT
+        id S1728193AbfHSUhR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 19 Aug 2019 16:37:16 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:39288 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727925AbfHSUhQ (ORCPT
+        Mon, 19 Aug 2019 16:37:17 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:40408 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728177AbfHSUhR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Aug 2019 16:37:16 -0400
-Received: by mail-ot1-f67.google.com with SMTP id b1so2941860otp.6
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:15 -0700 (PDT)
+        Mon, 19 Aug 2019 16:37:17 -0400
+Received: by mail-oi1-f195.google.com with SMTP id h21so2364719oie.7
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :reply-to;
-        bh=iLqG1t8+/PTpNEIjQR2/+lndK9RpJjp57v9VioZj6nE=;
-        b=KMc7Ap1MDd9HgzzVS3/sw8iobOtU/GyVO0xF26eMQ1zGDc08ufYllS1CRhujLvvUVr
-         IJzUc6YEAgV2KN5DBsca/fvjB8TbABlP2g2Wh/9GdyauYN2nFc6pNdP3+8h1LeZ0e0so
-         xuTzZkx7+8vb6ApnXbuJ8Ft/lfpL5Hk0nnvBqReCvylxL92jE1qNUsvnvKvRYKNE+Wpk
-         cjU0jL8jD2CworanpR7uu+DPC7GIpj9FS2Zc8qNygdME5PovSu0ibXJwelM+iL+3mqPD
-         oPmBUQVuq9GAcZOpdzNUOAoDfmYGJCLNDLPGXy5yJlhh9ebKHRdsmpsLibXNfEo9MVCG
-         gYhA==
+        bh=ahYWgNn4ghDOFq3tmvRr1AkEjevCgPd/PVakoGoQrig=;
+        b=iuTWR0ozAmPLu+zaANXoa0Kfu/rP0lzX+D/LQspkM9w6485DPEZsfqEHOqf36CXHRl
+         28zJ/m5kf7s6J6smK+jNzWg6jgX19Nz1D1kKc+Z/kNRk9obn28o8OXzl5fkBqTXQIkXv
+         LTo4hztcLFIIiR1XCRBuupRK+omBjwzxT8iV/DAp3yiEKO0R/njHCJWmvDUopGRyae9b
+         8y2R7w9sTmEzLFaBzMWzpwiN35ODlvftxhN74oCuVeYLsmu+nfWecvv/AMrmoCsCIXxh
+         Ez+yLagxW4x0j++/3yEa0AHcaVibwZmWBy68KRlAROBV3FtmRDRWhxoh9IQwlRuVR+Q1
+         lEzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:reply-to;
-        bh=iLqG1t8+/PTpNEIjQR2/+lndK9RpJjp57v9VioZj6nE=;
-        b=hqrKJpPq2GIJmVsFc9DFBepOvvsNaJ+40yeQrB4qSLYvJ4dexaWyPnuukLK8de/7S7
-         EmbakXiHMXSicMSaD6FdNSTs9IHOL2QhrLp5RpD6qXzjUOgarf9ylX8jMKOOpgMRf4Br
-         tKts8eT+eF45DcX9eqMMLWamDw6u8VTfMaeIJ5yCreMnKJWDMuea+NHp0JrkbpWTBMG/
-         4Zg5OYg4T1D3AcnXHDzphxJxz5dd94WKRtaVa84kHDIrpLuCBOHOh4fs+d52jVVDWYGh
-         srLwfJ+/WODczfuJRgSWiUBBKQ/L8BW/D52T0HZLs+PlTv7IElx4yGfmLJa+7pFEe8EJ
-         a0xA==
-X-Gm-Message-State: APjAAAUqY1qCj1s01y9x2tTaHCR3VkLpngx+mZAK8tWEF3+3S18tj3mE
-        lREO79edsdMcUo1GLs8A+Q==
-X-Google-Smtp-Source: APXvYqy/+cnQpCKiUlrwnvRuoN/Zjt1X8xscJZhyp82eQfxTBHp5Bo8ixf2Rt8tKnLx33ZEljbCdyw==
-X-Received: by 2002:a9d:5f10:: with SMTP id f16mr20636986oti.320.1566247035138;
-        Mon, 19 Aug 2019 13:37:15 -0700 (PDT)
+        bh=ahYWgNn4ghDOFq3tmvRr1AkEjevCgPd/PVakoGoQrig=;
+        b=MRYRUI2XXAQtYjYFAtDt1QbKQSqL098vBN6SkCi1+zH1K8EsS/AiwOwRxjvJoJHe1Z
+         sbVQoCMgolQu9KcKIKnVBdkWpsw7mrLs5L6tIPkjrky+T3vKWh6gyGT2KeaDbwRQHwfs
+         m7F5d9HVkUeJn1SHpCtnHE5JQQwNynt/WHR6ii7AaEb8Ant7NVKQIAqpR9ode3lGQXSx
+         U6NlpMYfJ6/wa58+teZXDyjsYVOroK6gCv0YX0eYmkH7SEz4GCuBXuTzw8lKQrZJAFrM
+         hLKqEXZeCVIasb8znLW2j2XhHvBQbAKVSZVqAEOyCPxQk6XQInazQz6aewWVYMIDelbA
+         SQFQ==
+X-Gm-Message-State: APjAAAVGTkZz0Ne8vanDZvAO0sUVnuWs3RwJrmTX1Uj74PtKnuUrZ0hp
+        gpn3rVhhzIMJXIVwP7gE2A==
+X-Google-Smtp-Source: APXvYqwaqWVrtX6M0k9UKLOcEjflh2bf83FT0E0Sju2UR4QDm2RCoCYkt7wmS4nIQfDayV56sdgYZg==
+X-Received: by 2002:aca:2109:: with SMTP id 9mr15087198oiz.59.1566247036216;
+        Mon, 19 Aug 2019 13:37:16 -0700 (PDT)
 Received: from serve.minyard.net ([47.184.134.43])
-        by smtp.gmail.com with ESMTPSA id o26sm5444482otl.34.2019.08.19.13.37.14
+        by smtp.gmail.com with ESMTPSA id s24sm5971025otd.81.2019.08.19.13.37.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Aug 2019 13:37:14 -0700 (PDT)
+        Mon, 19 Aug 2019 13:37:15 -0700 (PDT)
 Received: from t430.minyard.net (t430m.minyard.net [192.168.27.3])
-        by serve.minyard.net (Postfix) with ESMTPA id F29221800D4;
-        Mon, 19 Aug 2019 20:37:13 +0000 (UTC)
+        by serve.minyard.net (Postfix) with ESMTPA id 25A2A1805A8;
+        Mon, 19 Aug 2019 20:37:14 +0000 (UTC)
 Received: by t430.minyard.net (Postfix, from userid 1000)
-        id D8887301176; Mon, 19 Aug 2019 15:37:13 -0500 (CDT)
+        id 0B6C2302506; Mon, 19 Aug 2019 15:37:14 -0500 (CDT)
 From:   minyard@acm.org
 To:     linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 01/12] watchdog: NULL the default governor if it is unregistered
-Date:   Mon, 19 Aug 2019 15:37:00 -0500
-Message-Id: <20190819203711.32599-2-minyard@acm.org>
+Subject: [PATCH 03/12] watchdog: Add a pretimeout governor to provide read data
+Date:   Mon, 19 Aug 2019 15:37:02 -0500
+Message-Id: <20190819203711.32599-4-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190819203711.32599-1-minyard@acm.org>
 References: <20190819203711.32599-1-minyard@acm.org>
@@ -82,26 +82,130 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-Otherwise it could be used after being freed.
+When a pretimeout occurs, provide a byte of data on the watchdog
+device.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/watchdog_pretimeout.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/Kconfig                | 16 +++++++++
+ drivers/watchdog/Makefile               |  1 +
+ drivers/watchdog/pretimeout_read_data.c | 47 +++++++++++++++++++++++++
+ drivers/watchdog/watchdog_pretimeout.h  |  2 ++
+ 4 files changed, 66 insertions(+)
+ create mode 100644 drivers/watchdog/pretimeout_read_data.c
 
-diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/watchdog/watchdog_pretimeout.c
-index 01ca84be240f..b45041b0ef39 100644
---- a/drivers/watchdog/watchdog_pretimeout.c
-+++ b/drivers/watchdog/watchdog_pretimeout.c
-@@ -162,6 +162,8 @@ void watchdog_unregister_governor(struct watchdog_governor *gov)
- 			break;
- 		}
- 	}
-+	if (gov == default_gov)
-+		default_gov = NULL;
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8188963a405b..3578b7bc863c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -105,6 +105,14 @@ config WATCHDOG_PRETIMEOUT_GOV_PANIC
+ 	  Panic watchdog pretimeout governor, on watchdog pretimeout
+ 	  event put the kernel into panic.
  
- 	spin_lock_irq(&pretimeout_lock);
- 	list_for_each_entry(p, &pretimeout_list, entry)
++config WATCHDOG_PRETIMEOUT_GOV_READ_DATA
++	tristate "Read data watchdog pretimeout governor"
++	depends on WATCHDOG_CORE
++	default WATCHDOG_CORE
++	help
++	  Read data watchdog pretimeout governor, on watchdog pretimeout
++	  event provide a byte of data on the watchdog device.
++
+ choice
+ 	prompt "Default Watchdog Pretimeout Governor"
+ 	default WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+@@ -129,6 +137,14 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+ 	  a watchdog pretimeout event happens, consider that
+ 	  a watchdog feeder is dead and reboot is unavoidable.
+ 
++config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_READ_DATA
++	bool "read_data"
++	depends on WATCHDOG_PRETIMEOUT_GOV_READ_DATA
++	help
++	  Use read data watchdog pretimeout governor by default, if
++	  a watchdog pretimeout event happens, provide a byte of read
++	  data on the watchdog device.
++
+ endchoice
+ 
+ endif # WATCHDOG_PRETIMEOUT_GOV
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 7caa920e7e60..9cfe4ad32dc4 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -12,6 +12,7 @@ watchdog-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV)	+= watchdog_pretimeout.o
+ 
+ obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_NOOP)	+= pretimeout_noop.o
+ obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_PANIC)	+= pretimeout_panic.o
++obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_READ_DATA)	+= pretimeout_read_data.o
+ 
+ # Only one watchdog can succeed. We probe the ISA/PCI/USB based
+ # watchdog-cards first, then the architecture specific watchdog
+diff --git a/drivers/watchdog/pretimeout_read_data.c b/drivers/watchdog/pretimeout_read_data.c
+new file mode 100644
+index 000000000000..197e9d692044
+--- /dev/null
++++ b/drivers/watchdog/pretimeout_read_data.c
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright (C) 2019 MontaVista Software, LLC
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/watchdog.h>
++
++#include "watchdog_pretimeout.h"
++
++/**
++ * pretimeout_read_data - Cause a read to return on the watchdog device.
++ * @wdd - watchdog_device
++ */
++static void pretimeout_read_data(struct watchdog_device *wdd)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdd->readlock, flags);
++	wdd->data_to_read = 1;
++	wake_up_interruptible(&wdd->read_q);
++	kill_fasync(&wdd->fasync_q, SIGIO, POLL_IN);
++	spin_unlock_irqrestore(&wdd->readlock, flags);
++}
++
++static struct watchdog_governor watchdog_gov_read_data = {
++	.name		= "read_data",
++	.pretimeout	= pretimeout_read_data,
++};
++
++static int __init watchdog_gov_read_data_register(void)
++{
++	return watchdog_register_governor(&watchdog_gov_read_data);
++}
++
++static void __exit watchdog_gov_read_data_unregister(void)
++{
++	watchdog_unregister_governor(&watchdog_gov_read_data);
++}
++module_init(watchdog_gov_read_data_register);
++module_exit(watchdog_gov_read_data_unregister);
++
++MODULE_AUTHOR("Corey Minyard <cminyard@mvista.com>");
++MODULE_DESCRIPTION("Read data watchdog pretimeout governor");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
+index a3f1abc68839..819517ed0138 100644
+--- a/drivers/watchdog/watchdog_pretimeout.h
++++ b/drivers/watchdog/watchdog_pretimeout.h
+@@ -28,6 +28,8 @@ int watchdog_pretimeout_governor_set(struct watchdog_device *wdd,
+ #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV		"noop"
+ #elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC)
+ #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV		"panic"
++#elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_READ_DATA)
++#define WATCHDOG_PRETIMEOUT_DEFAULT_GOV		"read_data"
+ #endif
+ 
+ #else
 -- 
 2.17.1
 
