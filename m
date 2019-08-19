@@ -7,67 +7,67 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3F3CC3A5A1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1012C3A5A4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 791A622CEC
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 868F62087E
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Aug 2019 20:37:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L8JavJtT"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="POpI2NEz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbfHSUhR (ORCPT
+        id S1728292AbfHSUhT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 19 Aug 2019 16:37:17 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:45965 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727769AbfHSUhQ (ORCPT
+        Mon, 19 Aug 2019 16:37:19 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:34235 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727769AbfHSUhT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Aug 2019 16:37:16 -0400
-Received: by mail-oi1-f193.google.com with SMTP id v12so2355506oic.12
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:15 -0700 (PDT)
+        Mon, 19 Aug 2019 16:37:19 -0400
+Received: by mail-ot1-f66.google.com with SMTP id c7so2951136otp.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Aug 2019 13:37:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :reply-to;
-        bh=QhoBQQ6l9oUi8mNhEv5RMMIQeW5JDhE0xlxpkZyDFS4=;
-        b=L8JavJtTgse9YOJRhbFCvvX6TxHvPuJRzUBPp3OPVUeEgXvgcntj7jl7PaFeRhzZ6/
-         6QnWk3W/yjzVutHi0HSyL7huQhitbO96Cyve2nIA+t0IOu8fS1nXE4d93zJFQnLZAipY
-         /iT6fvl5w4PwRI5Ok7A8VKbUbes3QSx1brlpn0+EGJ3U38+FY3ilNxx2JrIn1q3t5YCS
-         ym9M0/J9Ay+osWIbzlX7RpJJxWMgzkYhcD/t7fqKbPzpzj2OiNjCCfnmRrdtvYiBUpAj
-         ohIxo1+jCIWKsLwzywQtua6WwW34jpQaYZhJvlbEPMidmq+ODZa2/U76E0SCV81VQ8Oh
-         q5Cg==
+        bh=PQ0zaDzdDJ6UtQk6w4zWTK2JD2j0cuDEtJE7gO5QF1Y=;
+        b=POpI2NEzf1RtprsdvzsDV277pRkBkgLc/LRw6WaVUAxhvieEjPKAGKjjFahGJtEh1N
+         EOxqHV23EHvZ+fP5yPh6dTr8nUyvn9XszVEoetL8AEz3bdO5J3Qxm1g3fMbav9WhRTjl
+         sx6qg8F6tx5pQC6fqEgsnBp/tg0x0100d4IUvbrF0MQEGicXyBoEjtzcAM19wviVmlaP
+         m/KjkpUdO4TbaBwH1vlxiz01y/2HtY1/PE4DeRzigfgi1oGXYmERvaR0LCnyP3JCiFsW
+         9Suv5kPaaUSXA+EAoxlPIGzl1cnughcl0Dt9SQ0o1OHDFmWEQ/tfoYywSkyDg8N+3J75
+         /fhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:reply-to;
-        bh=QhoBQQ6l9oUi8mNhEv5RMMIQeW5JDhE0xlxpkZyDFS4=;
-        b=ERabBBZyQ6GLgQff193E9npr9bGAbGOx6oYIcaz9GRpFGvIVUiGhLjetyw825PSS6t
-         Hy8lIoNI8ybM+Uq6eAuvlpwht0Qx17wxCEuMr0tdgl5697iBLp77opv7Ki6xlU2Yq1+B
-         zCFHNgFrC7NnWqjuno+LBNvK0v3MDSpVhifRcRT8e5yT7NLahE8autnfV+BQ8972PMl3
-         sHNVu0qOTDVy33y4dIF7Tcyziq9mIIj7YA5/RYf0Qdjk07H8CqhJNdhGMn3lXBV1Ella
-         GJMHtCMQumU3a50G5smmT38pNGMJLAS9LpjjygBWwmh0BTLbHHxX0n2+y7UfUxw5ZfzV
-         eQbw==
-X-Gm-Message-State: APjAAAUwHQZW3+jEOatLDZbmtkF6VVXRopNohhL8yk+rTRx48W1iKlLP
-        FciF40LKIfp1KZMn9x7bhA==
-X-Google-Smtp-Source: APXvYqySq8xAc/CbPL0q1q/EHBG+E0EwI1s2eJFmWnC6zwwo+Zujiqiq+h2pm/62uFVowCQRx89AjQ==
-X-Received: by 2002:aca:5e06:: with SMTP id s6mr15037232oib.171.1566247034896;
-        Mon, 19 Aug 2019 13:37:14 -0700 (PDT)
-Received: from serve.minyard.net ([47.184.134.43])
-        by smtp.gmail.com with ESMTPSA id 13sm5886029otv.14.2019.08.19.13.37.14
+        bh=PQ0zaDzdDJ6UtQk6w4zWTK2JD2j0cuDEtJE7gO5QF1Y=;
+        b=BjYSEqS2sTDRhPOq9pQESaNksixaxgszd47Fa8ZSwiCYMCy7qq21y/tFzUo4FEbJQR
+         7oEfIxvOWW/SI1DFgQhA6dkWa0hdCh3pM/N1O0IVqrH7md654C/gHvp9Q2ASxcxyvqnu
+         81vw2ieCrPdqqPFUw/RxanVYYJU6GckLYR2EbLTNayjKWzqzQWSaC0hL4vdDVkQFMUdo
+         lko+KeWa/KhbnHvyOGfpsNrGOmYa8yrsyNBdVR7EQf4BxSb56FEKrMA1Ja+brp9qy+gf
+         /7HuPp/GczfyYHRwrtPDlawhKvkgbz+WaCxNfFO9XxnGgvDU2FIO3MqJYoNzoej7fv22
+         5vfg==
+X-Gm-Message-State: APjAAAVXZtAl1KfVitarK14DZEYvwg1LJdELx7TBC1uGZ44JF3enjuN7
+        A4FpB1trGLouUnNG4O2seQ==
+X-Google-Smtp-Source: APXvYqwfTfS8nS/MByI7yIDw/ahDVTgpMIt7G9RLA+Xm1R53K31xs47gvC19CoZEe075AHPNb0Njwg==
+X-Received: by 2002:a9d:5911:: with SMTP id t17mr18700345oth.159.1566247037838;
+        Mon, 19 Aug 2019 13:37:17 -0700 (PDT)
+Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
+        by smtp.gmail.com with ESMTPSA id d62sm4620771oia.28.2019.08.19.13.37.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Aug 2019 13:37:14 -0700 (PDT)
+        Mon, 19 Aug 2019 13:37:16 -0700 (PDT)
 Received: from t430.minyard.net (t430m.minyard.net [192.168.27.3])
-        by serve.minyard.net (Postfix) with ESMTPA id 145B41800D5;
+        by serve.minyard.net (Postfix) with ESMTPA id 446321805AA;
         Mon, 19 Aug 2019 20:37:14 +0000 (UTC)
 Received: by t430.minyard.net (Postfix, from userid 1000)
-        id E4F5D30232A; Mon, 19 Aug 2019 15:37:13 -0500 (CDT)
+        id 2C729301176; Mon, 19 Aug 2019 15:37:14 -0500 (CDT)
 From:   minyard@acm.org
 To:     linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 02/12] watchdog: Add the ability to provide data to read
-Date:   Mon, 19 Aug 2019 15:37:01 -0500
-Message-Id: <20190819203711.32599-3-minyard@acm.org>
+Subject: [PATCH 05/12] watchdog:ipmi: Move the IPMI watchdog to drivers/watchdog
+Date:   Mon, 19 Aug 2019 15:37:04 -0500
+Message-Id: <20190819203711.32599-6-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190819203711.32599-1-minyard@acm.org>
 References: <20190819203711.32599-1-minyard@acm.org>
@@ -82,189 +82,91 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-This is for the read data pretimeout governor.
+It probably belongs there, and it will need access to the
+watchdog_pretimeout.h file when converted over to the standard
+watchdog interface.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/watchdog_core.c |   3 +
- drivers/watchdog/watchdog_dev.c  | 113 +++++++++++++++++++++++++++++++
- include/linux/watchdog.h         |   5 ++
- 3 files changed, 121 insertions(+)
+ MAINTAINERS                                     | 1 +
+ drivers/char/ipmi/Kconfig                       | 5 -----
+ drivers/char/ipmi/Makefile                      | 1 -
+ drivers/watchdog/Kconfig                        | 6 ++++++
+ drivers/watchdog/Makefile                       | 1 +
+ drivers/{char/ipmi => watchdog}/ipmi_watchdog.c | 0
+ 6 files changed, 8 insertions(+), 6 deletions(-)
+ rename drivers/{char/ipmi => watchdog}/ipmi_watchdog.c (100%)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 21e8085b848b..80149ac229fc 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -216,6 +216,9 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		return id;
- 	wdd->id = id;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6426db5198f0..760bcf92fde1 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8456,6 +8456,7 @@ F:	Documentation/IPMI.txt
+ F:	drivers/char/ipmi/
+ F:	include/linux/ipmi*
+ F:	include/uapi/linux/ipmi*
++F:	drivers/watchdog/ipmi_watchdog.c
  
-+	spin_lock_init(&wdd->readlock);
-+	init_waitqueue_head(&wdd->read_q);
-+
- 	ret = watchdog_dev_register(wdd);
- 	if (ret) {
- 		ida_simple_remove(&watchdog_ida, id);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index dbd2ad4c9294..8e8304607a8c 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -44,6 +44,8 @@
- #include <linux/types.h>	/* For standard types (like size_t) */
- #include <linux/watchdog.h>	/* For watchdog specific items */
- #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
-+#include <linux/poll.h>		/* For poll_table/... */
-+#include <linux/sched/signal.h>	/* For signal_pending */
+ IPS SCSI RAID DRIVER
+ M:	Adaptec OEM Raid Solutions <aacraid@microsemi.com>
+diff --git a/drivers/char/ipmi/Kconfig b/drivers/char/ipmi/Kconfig
+index 4bad0614109b..5f310ff0bd89 100644
+--- a/drivers/char/ipmi/Kconfig
++++ b/drivers/char/ipmi/Kconfig
+@@ -81,11 +81,6 @@ config IPMI_POWERNV
+        help
+          Provides a driver for OPAL firmware-based IPMI interfaces.
  
- #include <uapi/linux/sched/types.h>	/* For struct sched_param */
+-config IPMI_WATCHDOG
+-       tristate 'IPMI Watchdog Timer'
+-       help
+-         This enables the IPMI watchdog timer.
+-
+ config IPMI_POWEROFF
+        tristate 'IPMI Poweroff'
+        help
+diff --git a/drivers/char/ipmi/Makefile b/drivers/char/ipmi/Makefile
+index 0822adc2ec41..a9edcd473615 100644
+--- a/drivers/char/ipmi/Makefile
++++ b/drivers/char/ipmi/Makefile
+@@ -20,7 +20,6 @@ obj-$(CONFIG_IPMI_DMI_DECODE) += ipmi_dmi.o
+ obj-$(CONFIG_IPMI_PLAT_DATA) += ipmi_plat_data.o
+ obj-$(CONFIG_IPMI_SSIF) += ipmi_ssif.o
+ obj-$(CONFIG_IPMI_POWERNV) += ipmi_powernv.o
+-obj-$(CONFIG_IPMI_WATCHDOG) += ipmi_watchdog.o
+ obj-$(CONFIG_IPMI_POWEROFF) += ipmi_poweroff.o
+ obj-$(CONFIG_IPMI_KCS_BMC) += kcs_bmc.o
+ obj-$(CONFIG_ASPEED_BT_IPMI_BMC) += bt-bmc.o
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 3578b7bc863c..de462f995329 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -960,6 +960,12 @@ config STPMIC1_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called spmic1_wdt.
  
-@@ -929,12 +931,120 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	return 0;
- }
- 
-+static ssize_t watchdog_read(struct file *file,
-+			     char        __user *buf,
-+			     size_t      count,
-+			     loff_t      *ppos)
-+{
-+	struct watchdog_core_data *wd_data = file->private_data;
-+	struct watchdog_device *wdd;
-+	int err = 0;
-+	wait_queue_entry_t wait;
-+	char dummy = 1;
++config IPMI_WATCHDOG
++       tristate 'IPMI Watchdog Timer'
++       depends on IPMI_HANDLER
++       help
++         This enables the IPMI watchdog timer.
 +
-+	if (count <= 0)
-+		return 0;
-+
-+	mutex_lock(&wd_data->lock);
-+
-+	wdd = wd_data->wdd;
-+	if (!wdd)
-+		goto done;
-+
-+	/*
-+	 * Reading returns if the pretimeout has gone off, and it only does
-+	 * it once per pretimeout.
-+	 */
-+	spin_lock_irq(&wdd->readlock);
-+	while (!wdd->data_to_read) {
-+		if (file->f_flags & O_NONBLOCK) {
-+			err = -EAGAIN;
-+			goto out;
-+		}
-+
-+		init_waitqueue_entry(&wait, current);
-+		add_wait_queue(&wdd->read_q, &wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		spin_unlock_irq(&wdd->readlock);
-+		schedule();
-+		spin_lock_irq(&wdd->readlock);
-+		remove_wait_queue(&wdd->read_q, &wait);
-+
-+		if (signal_pending(current)) {
-+			err = -ERESTARTSYS;
-+			goto out;
-+		}
-+	}
-+	dummy = wdd->data_to_read;
-+	wdd->data_to_read = 0;
-+
-+ out:
-+	spin_unlock_irq(&wdd->readlock);
-+
-+	if (err == 0) {
-+		if (copy_to_user(buf, &dummy, 1))
-+			err = -EFAULT;
-+		else
-+			err = 1;
-+	}
-+
-+ done:
-+	mutex_unlock(&wd_data->lock);
-+
-+	return err;
-+}
-+
-+static __poll_t watchdog_poll(struct file *file, poll_table *wait)
-+{
-+	struct watchdog_core_data *wd_data = file->private_data;
-+	struct watchdog_device *wdd;
-+	__poll_t mask = 0;
-+
-+	mutex_lock(&wd_data->lock);
-+
-+	wdd = wd_data->wdd;
-+	if (!wdd)
-+		goto done;
-+
-+	poll_wait(file, &wdd->read_q, wait);
-+
-+	spin_lock_irq(&wdd->readlock);
-+	if (wdd->data_to_read)
-+		mask |= (EPOLLIN | EPOLLRDNORM);
-+	spin_unlock_irq(&wdd->readlock);
-+
-+done:
-+	mutex_unlock(&wd_data->lock);
-+	return mask;
-+}
-+
-+static int watchdog_fasync(int fd, struct file *file, int on)
-+{
-+	struct watchdog_core_data *wd_data = file->private_data;
-+	struct watchdog_device *wdd;
-+	int err = -ENODEV;
-+
-+	mutex_lock(&wd_data->lock);
-+
-+	wdd = wd_data->wdd;
-+	if (!wdd)
-+		goto done;
-+
-+	err = fasync_helper(fd, file, on, &wdd->fasync_q);
-+done:
-+	mutex_unlock(&wd_data->lock);
-+	return err;
-+}
-+
- static const struct file_operations watchdog_fops = {
- 	.owner		= THIS_MODULE,
- 	.write		= watchdog_write,
- 	.unlocked_ioctl	= watchdog_ioctl,
- 	.open		= watchdog_open,
- 	.release	= watchdog_release,
-+	.read		= watchdog_read,
-+	.poll		= watchdog_poll,
-+	.fasync		= watchdog_fasync,
- };
- 
- static struct miscdevice watchdog_miscdev = {
-@@ -970,6 +1080,9 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 	if (IS_ERR_OR_NULL(watchdog_kworker))
- 		return -ENODEV;
- 
-+	spin_lock_init(&wdd->readlock);
-+	init_waitqueue_head(&wdd->read_q);
-+
- 	kthread_init_work(&wd_data->work, watchdog_ping_work);
- 	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	wd_data->timer.function = watchdog_timer_expired;
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 417d9f37077a..e34501a822f0 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -117,6 +117,11 @@ struct watchdog_device {
- #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
- #define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
- 	struct list_head deferred;
-+
-+	spinlock_t readlock;
-+	bool data_to_read;
-+	struct wait_queue_head read_q;
-+	struct fasync_struct *fasync_q;
- };
- 
- #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
+ config UNIPHIER_WATCHDOG
+ 	tristate "UniPhier watchdog support"
+ 	depends on ARCH_UNIPHIER || COMPILE_TEST
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 9cfe4ad32dc4..5840773bf2b4 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -225,3 +225,4 @@ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+ obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+ obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
++obj-$(CONFIG_IPMI_WATCHDOG) += ipmi_watchdog.o
+diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/watchdog/ipmi_watchdog.c
+similarity index 100%
+rename from drivers/char/ipmi/ipmi_watchdog.c
+rename to drivers/watchdog/ipmi_watchdog.c
 -- 
 2.17.1
 
