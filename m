@@ -2,112 +2,106 @@ Return-Path: <SRS0=zmBK=WR=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E605C3A5A1
-	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EEF2C3A5A0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 15:52:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC3ED206BA
-	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1566398347;
-	bh=bpvKrS4xjqV8MEvCfqz1VDqPz4Adz4s3wbNsncnxpkY=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=HnE7zDZydSQeKKPo3sIqkompB6Nqkan1kPJk6wTpEQkWAeXlZCtN3FkDKaWwfg8DR
-	 gyPpSgCReweJRWAmRuZ/Q7B+jdub8gs8bbXsCsnFzHGC0QvGlGMDBxbIfKH/tKkRPt
-	 ubxf4EnPZ15ajiM3jsr9qkOLqSgaiIA7+G/Grwo8=
+	by mail.kernel.org (Postfix) with ESMTP id 305EE22DD3
+	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 15:52:26 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=yadro.com header.i=@yadro.com header.b="XuASEHZZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728995AbfHUOii (ORCPT
+        id S1727188AbfHUPwZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 21 Aug 2019 10:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbfHUOii (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Aug 2019 10:38:38 -0400
-Received: from localhost (lfbn-1-17395-211.w86-250.abo.wanadoo.fr [86.250.200.211])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        Wed, 21 Aug 2019 11:52:25 -0400
+Received: from mta-02.yadro.com ([89.207.88.252]:58182 "EHLO mta-01.yadro.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726762AbfHUPwZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Aug 2019 11:52:25 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mta-01.yadro.com (Postfix) with ESMTP id 2E05142ED0;
+        Wed, 21 Aug 2019 15:52:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
+        content-transfer-encoding:mime-version:user-agent:content-type
+        :content-type:organization:date:date:from:from:subject:subject
+        :message-id:received:received:received; s=mta-01; t=1566402743;
+         x=1568217144; bh=pOc3KLiQCgqwQcr8n6hsHD5m1EFrOU7bcNFQtatabT8=; b=
+        XuASEHZZRwvvUATkU2u1FcGIrD4HSAQKr07D8arfRKO8d3PH4qoMl113V/7VG+qt
+        DFvR4RSpUEGrdWp5nnKj6cizV5AaCtOdq83kVRJ3xEm7rxLJc6xVc862i9q+47mr
+        NfHev9oMvRc3WK1Nkm5/pAJnatYzgwjPBFT1CoMBivo=
+X-Virus-Scanned: amavisd-new at yadro.com
+Received: from mta-01.yadro.com ([127.0.0.1])
+        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 4SUR6-yrjwhX; Wed, 21 Aug 2019 18:52:23 +0300 (MSK)
+Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E833206BA;
-        Wed, 21 Aug 2019 14:38:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566398317;
-        bh=bpvKrS4xjqV8MEvCfqz1VDqPz4Adz4s3wbNsncnxpkY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wj3piKtzc7YjEGap2/eQeyeo2oaQNmjEcEc+Rvvy5t+402fgWQLymblGmGp/Hc8Wf
-         Le9aKUL5EYLmOOYojmaWn4mUa9XdHH0VQHiOXyo8FgcOu0vSRn/RpplR3x7sSy8Oka
-         /hK9V/wqVzoIB7eXn4cb+dB7XNiwxZpM13yiIcXY=
-From:   Maxime Ripard <mripard@kernel.org>
-To:     linux@roeck-us.net, wim@linux-watchdog.org
-Cc:     linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH RESEND v2 1/6] dt-bindings: watchdog: Add YAML schemas for the generic watchdog bindings
-Date:   Wed, 21 Aug 2019 16:38:30 +0200
-Message-Id: <20190821143835.7294-1-mripard@kernel.org>
-X-Mailer: git-send-email 2.21.0
+        by mta-01.yadro.com (Postfix) with ESMTPS id E51774120B;
+        Wed, 21 Aug 2019 18:52:22 +0300 (MSK)
+Received: from localhost.localdomain (172.17.15.69) by
+ T-EXCH-02.corp.yadro.com (172.17.10.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.669.32; Wed, 21 Aug 2019 18:52:22 +0300
+Message-ID: <f27c52df7ddd460695d6ed1d7823a65a72012361.camel@yadro.com>
+Subject: [PATCH 0/3] add dual-boot support
+From:   Ivan Mikhaylov <i.mikhaylov@yadro.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+CC:     Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
+        "Alexander Amelkin" <a.amelkin@yadro.com>
+Date:   Wed, 21 Aug 2019 18:52:22 +0300
+Organization: YADRO
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.17.15.69]
+X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
+ T-EXCH-02.corp.yadro.com (172.17.10.102)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Maxime Ripard <maxime.ripard@bootlin.com>
+ASPEED SoCs support dual-boot feature for SPI Flash.
+When strapped appropriately, the SoC starts wdt2 (/dev/watchdog1)
+and if within a minute it is not disabled, it goes off and reboots
+the SoC from an alternate SPI Flash chip by changing CS0 controls
+to actually drive CS1 line.
 
-The watchdogs have a bunch of generic properties that are needed in a
-device tree. Add a YAML schemas for those.
+When booted from alternate chip, in order to access the main chip
+at CS0, the user must reset the appropriate bit in the watchdog
+hardware. There is no interface that would allow to do that from
+an embedded firmware startup script.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+This commit implements support for that feature:
 
----
+* Enable 'alt-boot' option for wdt2
 
-Changes from v1:
-  - New patch
----
- .../bindings/watchdog/watchdog.yaml           | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/watchdog.yaml
+* Enable secondary SPI flash chip
 
-diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.yaml b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
-new file mode 100644
-index 000000000000..187bf6cb62bf
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
-@@ -0,0 +1,26 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/watchdog.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Watchdog Generic Bindings
-+
-+maintainers:
-+  - Guenter Roeck <linux@roeck-us.net>
-+  - Wim Van Sebroeck <wim@linux-watchdog.org>
-+
-+description: |
-+  This document describes generic bindings which can be used to
-+  describe watchdog devices in a device tree.
-+
-+properties:
-+  $nodename:
-+    pattern: "^watchdog(@.*|-[0-9a-f])?$"
-+
-+  timeout-sec:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description:
-+      Contains the watchdog timeout in seconds.
-+
-+...
+* Make it possible to get access to the primary SPI flash chip at CS0
+  after booting from the alternate chip at CS1. A sysfs interface is added
+  to provide an easy way for embedded firmware startup scripts to clear
+  the chip select bit to gain access to the primary flash chip in order
+  to allow for recovery of its contents.
+
+Ivan Mikhaylov (3):
+  vesnin: add wdt2 section with alt-boot option
+  vesnin: add secondary SPI flash chip
+  watchdog/aspeed: add support for dual boot
+
+ arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts | 12 +++++++++
+ drivers/watchdog/aspeed_wdt.c               | 30 +++++++++++++++++++++
+ 2 files changed, 42 insertions(+)
+
 -- 
-2.21.0
+2.20.1
+
 
