@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68699C3A5A0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5B10C3A59E
+	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 34B1E206BA
-	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CA3222DA7
+	for <linux-watchdog@archiver.kernel.org>; Wed, 21 Aug 2019 14:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1566398345;
-	bh=oJGr4uBf27t1EnvM3eWCwbVoz4PVt3i7Qe7GuzWbUyg=;
+	s=default; t=1566398346;
+	bh=eJ9mdPF8bwcHy4e3Y3EhyW1YNP3Drr6jk1OFNQOt26M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ww5fMCsNEmUVZDiCnvWXND3C+2gcG82trGYnn2xlbSQ4FC8z1LbVhGapV7KcYnqow
-	 duEy/5b02hKmzE1/5hv1HrFGWqj2nw2JKI7HCjj+7BGinaOG1EVjmtMTiwaL1PvQca
-	 m4vd5lodmJtY6k9WjtwGrqTvljK5ElxJ8065P2Cw=
+	b=wofc5b+fdE2iLkBn1YPuTcRySzt/9Bom4qcan48VEyh6Evp5H+W1VZ1V2RL/LgLje
+	 3yk+U4VIaI+eOlMVo24hS9vLEgsaCOOQUH/B5YR5vkJdTa0Zdx1cUrVfgjQFY1Gs0Q
+	 sqCGOpPhXfHCkDFhXailiELD09se+HwaksIhDymw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbfHUOio (ORCPT
+        id S1729437AbfHUOim (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 21 Aug 2019 10:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
+        Wed, 21 Aug 2019 10:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbfHUOio (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Aug 2019 10:38:44 -0400
+        id S1728724AbfHUOil (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Aug 2019 10:38:41 -0400
 Received: from localhost (lfbn-1-17395-211.w86-250.abo.wanadoo.fr [86.250.200.211])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3F3C22DA7;
-        Wed, 21 Aug 2019 14:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 516802339F;
+        Wed, 21 Aug 2019 14:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566398323;
-        bh=oJGr4uBf27t1EnvM3eWCwbVoz4PVt3i7Qe7GuzWbUyg=;
+        s=default; t=1566398320;
+        bh=eJ9mdPF8bwcHy4e3Y3EhyW1YNP3Drr6jk1OFNQOt26M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCvaTN1k+hCPKmYi5wTT7n1rFaoExQIjF9NVU/6IMfbpbFQlyqxkRo8mW/VovoSea
-         UDqby8tqZNWVAzobAdGBf3xgQXExRChW+cF3SeA2lS2UwYuaQfgTf8pRXuA6akTydk
-         8WcQsa59mah6+eDl9zVVvEtDCmKcV0ml3aERhpiA=
+        b=E3D/uYAZ34F2zDSbWxjIo+CVyv99LkqXGoPzJTIODaDjBJeClgDniqOfhC2hpKVsR
+         ROPzYj1mg5WkDCYj94K0Knitx4SksK7nlMoP51Jq1TxSej3vOFGPSacA2zxTjzHdeg
+         IW0mOlUiALBGrM3INz8L/UHV004hCKBvhBSZWOnY=
 From:   Maxime Ripard <mripard@kernel.org>
 To:     linux@roeck-us.net, wim@linux-watchdog.org
 Cc:     linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
@@ -48,9 +48,9 @@ Cc:     linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
         Frank Rowand <frowand.list@gmail.com>,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH RESEND v2 3/6] dt-bindings: watchdog: sun4i: Add the watchdog interrupts
-Date:   Wed, 21 Aug 2019 16:38:32 +0200
-Message-Id: <20190821143835.7294-3-mripard@kernel.org>
+Subject: [PATCH RESEND v2 2/6] dt-bindings: watchdog: Convert Allwinner watchdog to a schema
+Date:   Wed, 21 Aug 2019 16:38:31 +0200
+Message-Id: <20190821143835.7294-2-mripard@kernel.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190821143835.7294-1-mripard@kernel.org>
 References: <20190821143835.7294-1-mripard@kernel.org>
@@ -63,45 +63,109 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Maxime Ripard <maxime.ripard@bootlin.com>
 
-The Allwinner watchdog has an interrupt, either shared or dedicated
-depending on the SoC, that has been described in some DT, but not all of
-them.
+The Allwinner SoCs have a watchdog supported in Linux, with a matching
+Device Tree binding.
 
-The binding is also completely missing that description. Let's add that
-property to be consistent.
+Now that we have the DT validation in place, let's convert the device tree
+bindings for that controller over to a YAML schemas.
 
 Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+
 ---
- .../bindings/watchdog/allwinner,sun4i-a10-wdt.yaml           | 5 +++++
- 1 file changed, 5 insertions(+)
+
+Changes from v1:
+  - Use generic watchdog schema
+  - Use unevaluatedProperties instead of additionalProperties
+---
+ .../watchdog/allwinner,sun4i-a10-wdt.yaml     | 48 +++++++++++++++++++
+ .../bindings/watchdog/sunxi-wdt.txt           | 22 ---------
+ 2 files changed, 48 insertions(+), 22 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
 
 diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
-index dc7553f57708..31c95c404619 100644
---- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+new file mode 100644
+index 000000000000..dc7553f57708
+--- /dev/null
 +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
-@@ -31,9 +31,13 @@ properties:
-   reg:
-     maxItems: 1
- 
-+  interrupts:
+@@ -0,0 +1,48 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/allwinner,sun4i-a10-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Allwinner A10 Watchdog Device Tree Bindings
++
++allOf:
++  - $ref: "watchdog.yaml#"
++
++maintainers:
++  - Chen-Yu Tsai <wens@csie.org>
++  - Maxime Ripard <maxime.ripard@bootlin.com>
++
++properties:
++  compatible:
++    oneOf:
++      - const: allwinner,sun4i-a10-wdt
++      - const: allwinner,sun6i-a31-wdt
++      - items:
++          - const: allwinner,sun50i-a64-wdt
++          - const: allwinner,sun6i-a31-wdt
++      - items:
++          - const: allwinner,sun50i-h6-wdt
++          - const: allwinner,sun6i-a31-wdt
++      - items:
++          - const: allwinner,suniv-f1c100s-wdt
++          - const: allwinner,sun4i-a10-wdt
++
++  reg:
 +    maxItems: 1
 +
- required:
-   - compatible
-   - reg
-+  - interrupts
- 
- unevaluatedProperties: false
- 
-@@ -42,6 +46,7 @@ examples:
-     wdt: watchdog@1c20c90 {
-         compatible = "allwinner,sun4i-a10-wdt";
-         reg = <0x01c20c90 0x10>;
-+        interrupts = <24>;
-         timeout-sec = <10>;
-     };
- 
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    wdt: watchdog@1c20c90 {
++        compatible = "allwinner,sun4i-a10-wdt";
++        reg = <0x01c20c90 0x10>;
++        timeout-sec = <10>;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+deleted file mode 100644
+index e65198d82a2b..000000000000
+--- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
++++ /dev/null
+@@ -1,22 +0,0 @@
+-Allwinner SoCs Watchdog timer
+-
+-Required properties:
+-
+-- compatible : should be one of
+-	"allwinner,sun4i-a10-wdt"
+-	"allwinner,sun6i-a31-wdt"
+-	"allwinner,sun50i-a64-wdt","allwinner,sun6i-a31-wdt"
+-	"allwinner,sun50i-h6-wdt","allwinner,sun6i-a31-wdt"
+-	"allwinner,suniv-f1c100s-wdt", "allwinner,sun4i-a10-wdt"
+-- reg : Specifies base physical address and size of the registers.
+-
+-Optional properties:
+-- timeout-sec : Contains the watchdog timeout in seconds
+-
+-Example:
+-
+-wdt: watchdog@1c20c90 {
+-	compatible = "allwinner,sun4i-a10-wdt";
+-	reg = <0x01c20c90 0x10>;
+-	timeout-sec = <10>;
+-};
 -- 
 2.21.0
 
