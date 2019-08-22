@@ -2,361 +2,125 @@ Return-Path: <SRS0=1Kk9=WS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAAAAC3A59E
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 02:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E619BC3A59D
+	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 09:15:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8577C2339E
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 02:56:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4B4721848
+	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 09:15:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=yadro.com header.i=@yadro.com header.b="Q+bcAN9B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730512AbfHVC4i (ORCPT
+        id S1727807AbfHVJPZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 21 Aug 2019 22:56:38 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:45674 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730343AbfHVC4h (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Aug 2019 22:56:37 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 5211F200116;
-        Thu, 22 Aug 2019 04:56:35 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 1C76620005C;
-        Thu, 22 Aug 2019 04:56:26 +0200 (CEST)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 184CE402E1;
-        Thu, 22 Aug 2019 10:56:15 +0800 (SGT)
-From:   Anson Huang <Anson.Huang@nxp.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
-        kernel@pengutronix.de, festevam@gmail.com, linux@armlinux.org.uk,
-        otavio@ossystems.com.br, leonard.crestez@nxp.com,
-        schnitzeltony@gmail.com, u.kleine-koenig@pengutronix.de,
-        jan.tuerk@emtrion.com, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Cc:     Linux-imx@nxp.com
-Subject: [PATCH V4 2/4] watchdog: Add i.MX7ULP watchdog support
-Date:   Wed, 21 Aug 2019 22:37:41 -0400
-Message-Id: <1566441463-11911-2-git-send-email-Anson.Huang@nxp.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1566441463-11911-1-git-send-email-Anson.Huang@nxp.com>
-References: <1566441463-11911-1-git-send-email-Anson.Huang@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
+        Thu, 22 Aug 2019 05:15:25 -0400
+Received: from mta-02.yadro.com ([89.207.88.252]:48588 "EHLO mta-01.yadro.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725793AbfHVJPZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 22 Aug 2019 05:15:25 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mta-01.yadro.com (Postfix) with ESMTP id 1EAAA411F9;
+        Thu, 22 Aug 2019 09:15:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
+        content-transfer-encoding:mime-version:user-agent:content-type
+        :content-type:organization:references:in-reply-to:date:date:from
+        :from:subject:subject:message-id:received:received:received; s=
+        mta-01; t=1566465322; x=1568279723; bh=xp4rY3o0M1wxzRezMXTNY4/zZ
+        Y+MCsy/eXZ7EF9Njsg=; b=Q+bcAN9BSsRThV9GpNDHrHQDoMM1IB3j9QOV2i2sX
+        rBBn3ufrgMs7oc2FFll6f/+BoXeUG5KN7w8LxDgEvXgQ1nVAytmlaimve+VXjWpN
+        KmozJuWXEWlOsrHz6y0DxBk5hAOmqQYrVHtQCUtAsJ5Cw3excV/RTCIUQKSp9j1d
+        FA=
+X-Virus-Scanned: amavisd-new at yadro.com
+Received: from mta-01.yadro.com ([127.0.0.1])
+        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id r3TcHeHOiQDd; Thu, 22 Aug 2019 12:15:22 +0300 (MSK)
+Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mta-01.yadro.com (Postfix) with ESMTPS id 4877541240;
+        Thu, 22 Aug 2019 12:15:20 +0300 (MSK)
+Received: from localhost.localdomain (172.17.15.69) by
+ T-EXCH-02.corp.yadro.com (172.17.10.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.669.32; Thu, 22 Aug 2019 12:15:20 +0300
+Message-ID: <a022c0590f0fbf22cc8476b5ef3f1c22746429ac.camel@yadro.com>
+Subject: Re: [PATCH 3/3] watchdog/aspeed: add support for dual boot
+From:   Ivan Mikhaylov <i.mikhaylov@yadro.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
+        "Alexander Amelkin" <a.amelkin@yadro.com>
+Date:   Thu, 22 Aug 2019 12:15:20 +0300
+In-Reply-To: <20190821163220.GA11547@roeck-us.net>
+References: <1f2cd155057e5ab0cdb20a9a11614bbb09bb49ad.camel@yadro.com>
+         <20190821163220.GA11547@roeck-us.net>
+Organization: YADRO
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.17.15.69]
+X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
+ T-EXCH-02.corp.yadro.com (172.17.10.102)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The i.MX7ULP Watchdog Timer (WDOG) module is an independent timer
-that is available for system use.
-It provides a safety feature to ensure that software is executing
-as planned and that the CPU is not stuck in an infinite loop or
-executing unintended code. If the WDOG module is not serviced
-(refreshed) within a certain period, it resets the MCU.
+On Wed, 2019-08-21 at 09:32 -0700, Guenter Roeck wrote:
+> 
+> > +	writel(WDT_CLEAR_TIMEOUT_AND_BOOT_CODE_SELECTION,
+> > +			wdt->base + WDT_CLEAR_TIMEOUT_STATUS);
+> > +	wdt->wdd.bootstatus |= WDIOF_EXTERN1;
+> 
+> The variable reflects the _boot status_. It should not change after booting.
 
-Add driver support for i.MX7ULP watchdog.
+Okay, then perhaps may we set 'status' handler for watchdog device and check 
+'status' file? Right now 'bootstatus' and 'status' are same because there is no
+handler for 'status'.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-Changes since V3:
-	- pass clk directly for reset action to avoid dereference from structure;
-	- use constant instead of variable for wdog clock rate, as it is fixed as 1KHz.
----
- drivers/watchdog/Kconfig       |  13 +++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/imx7ulp_wdt.c | 243 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 257 insertions(+)
- create mode 100644 drivers/watchdog/imx7ulp_wdt.c
+> > +
+> > +	return size;
+> > +}
+> > +static DEVICE_ATTR_WO(access_cs0);
+> > +
+> > +static struct attribute *bswitch_attrs[] = {
+> > +	&dev_attr_access_cs0.attr,
+> > +	NULL
+> > +};
+> > +ATTRIBUTE_GROUPS(bswitch);
+> > +
+> >  static const struct watchdog_ops aspeed_wdt_ops = {
+> >  	.start		= aspeed_wdt_start,
+> >  	.stop		= aspeed_wdt_stop,
+> > @@ -223,6 +248,9 @@ static int aspeed_wdt_probe(struct platform_device
+> > *pdev)
+> >  
+> >  	wdt->ctrl = WDT_CTRL_1MHZ_CLK;
+> >  
+> > +	if (of_property_read_bool(np, "aspeed,alt-boot"))
+> > +		wdt->wdd.groups = bswitch_groups;
+> > +
+> Why does this have to be separate to the existing evaluation of
+> aspeed,alt-boot, and why does the existing code not work ?
+> 
+> Also, is it guaranteed that this does not interfer with existing
+> support for alt-boot ?
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index a8f5c81..d68e5b5 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -724,6 +724,19 @@ config IMX_SC_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called imx_sc_wdt.
- 
-+config IMX7ULP_WDT
-+	tristate "IMX7ULP Watchdog"
-+	depends on ARCH_MXC || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  This is the driver for the hardware watchdog on the Freescale
-+	  IMX7ULP and later processors. If you have one of these
-+	  processors and wish to have watchdog support enabled,
-+	  say Y, otherwise say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called imx7ulp_wdt.
-+
- config UX500_WATCHDOG
- 	tristate "ST-Ericsson Ux500 watchdog"
- 	depends on MFD_DB8500_PRCMU
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index b5a0aed..2ee352b 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -67,6 +67,7 @@ obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
- obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
- obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
- obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
-+obj-$(CONFIG_IMX7ULP_WDT) += imx7ulp_wdt.o
- obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
- obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
- obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-diff --git a/drivers/watchdog/imx7ulp_wdt.c b/drivers/watchdog/imx7ulp_wdt.c
-new file mode 100644
-index 0000000..5ce5102
---- /dev/null
-+++ b/drivers/watchdog/imx7ulp_wdt.c
-@@ -0,0 +1,243 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright 2019 NXP.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/reboot.h>
-+#include <linux/watchdog.h>
-+
-+#define WDOG_CS			0x0
-+#define WDOG_CS_CMD32EN		BIT(13)
-+#define WDOG_CS_ULK		BIT(11)
-+#define WDOG_CS_RCS		BIT(10)
-+#define WDOG_CS_EN		BIT(7)
-+#define WDOG_CS_UPDATE		BIT(5)
-+
-+#define WDOG_CNT	0x4
-+#define WDOG_TOVAL	0x8
-+
-+#define REFRESH_SEQ0	0xA602
-+#define REFRESH_SEQ1	0xB480
-+#define REFRESH		((REFRESH_SEQ1 << 16) | REFRESH_SEQ0)
-+
-+#define UNLOCK_SEQ0	0xC520
-+#define UNLOCK_SEQ1	0xD928
-+#define UNLOCK		((UNLOCK_SEQ1 << 16) | UNLOCK_SEQ0)
-+
-+#define DEFAULT_TIMEOUT	60
-+#define MAX_TIMEOUT	128
-+#define WDOG_CLOCK_RATE	1000
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0000);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+struct imx7ulp_wdt_device {
-+	struct notifier_block restart_handler;
-+	struct watchdog_device wdd;
-+	void __iomem *base;
-+	struct clk *clk;
-+};
-+
-+static inline void imx7ulp_wdt_enable(void __iomem *base, bool enable)
-+{
-+	u32 val = readl(base + WDOG_CS);
-+
-+	writel(UNLOCK, base + WDOG_CNT);
-+	if (enable)
-+		writel(val | WDOG_CS_EN, base + WDOG_CS);
-+	else
-+		writel(val & ~WDOG_CS_EN, base + WDOG_CS);
-+}
-+
-+static inline bool imx7ulp_wdt_is_enabled(void __iomem *base)
-+{
-+	u32 val = readl(base + WDOG_CS);
-+
-+	return val & WDOG_CS_EN;
-+}
-+
-+static int imx7ulp_wdt_ping(struct watchdog_device *wdog)
-+{
-+	struct imx7ulp_wdt_device *wdt = watchdog_get_drvdata(wdog);
-+
-+	writel(REFRESH, wdt->base + WDOG_CNT);
-+
-+	return 0;
-+}
-+
-+static int imx7ulp_wdt_start(struct watchdog_device *wdog)
-+{
-+	struct imx7ulp_wdt_device *wdt = watchdog_get_drvdata(wdog);
-+
-+	imx7ulp_wdt_enable(wdt->base, true);
-+
-+	return 0;
-+}
-+
-+static int imx7ulp_wdt_stop(struct watchdog_device *wdog)
-+{
-+	struct imx7ulp_wdt_device *wdt = watchdog_get_drvdata(wdog);
-+
-+	imx7ulp_wdt_enable(wdt->base, false);
-+
-+	return 0;
-+}
-+
-+static int imx7ulp_wdt_set_timeout(struct watchdog_device *wdog,
-+				   unsigned int timeout)
-+{
-+	struct imx7ulp_wdt_device *wdt = watchdog_get_drvdata(wdog);
-+	u32 val = WDOG_CLOCK_RATE * timeout;
-+
-+	writel(UNLOCK, wdt->base + WDOG_CNT);
-+	writel(val, wdt->base + WDOG_TOVAL);
-+
-+	wdog->timeout = timeout;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_ops imx7ulp_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = imx7ulp_wdt_start,
-+	.stop  = imx7ulp_wdt_stop,
-+	.ping  = imx7ulp_wdt_ping,
-+	.set_timeout = imx7ulp_wdt_set_timeout,
-+};
-+
-+static const struct watchdog_info imx7ulp_wdt_info = {
-+	.identity = "i.MX7ULP watchdog timer",
-+	.options  = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+		    WDIOF_MAGICCLOSE,
-+};
-+
-+static inline void imx7ulp_wdt_init(void __iomem *base, unsigned int timeout)
-+{
-+	u32 val;
-+
-+	/* unlock the wdog for reconfiguration */
-+	writel_relaxed(UNLOCK_SEQ0, base + WDOG_CNT);
-+	writel_relaxed(UNLOCK_SEQ1, base + WDOG_CNT);
-+
-+	/* set an initial timeout value in TOVAL */
-+	writel(timeout, base + WDOG_TOVAL);
-+	/* enable 32bit command sequence and reconfigure */
-+	val = BIT(13) | BIT(8) | BIT(5);
-+	writel(val, base + WDOG_CS);
-+}
-+
-+static void imx7ulp_wdt_action(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
-+static int imx7ulp_wdt_probe(struct platform_device *pdev)
-+{
-+	struct imx7ulp_wdt_device *imx7ulp_wdt;
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdog;
-+	int ret;
-+
-+	imx7ulp_wdt = devm_kzalloc(dev, sizeof(*imx7ulp_wdt), GFP_KERNEL);
-+	if (!imx7ulp_wdt)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, imx7ulp_wdt);
-+
-+	imx7ulp_wdt->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(imx7ulp_wdt->base))
-+		return PTR_ERR(imx7ulp_wdt->base);
-+
-+	imx7ulp_wdt->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(imx7ulp_wdt->clk)) {
-+		dev_err(dev, "Failed to get watchdog clock\n");
-+		return PTR_ERR(imx7ulp_wdt->clk);
-+	}
-+
-+	ret = clk_prepare_enable(imx7ulp_wdt->clk);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_add_action_or_reset(dev, imx7ulp_wdt_action, imx7ulp_wdt->clk);
-+	if (ret)
-+		return ret;
-+
-+	wdog = &imx7ulp_wdt->wdd;
-+	wdog->info = &imx7ulp_wdt_info;
-+	wdog->ops = &imx7ulp_wdt_ops;
-+	wdog->min_timeout = 1;
-+	wdog->max_timeout = MAX_TIMEOUT;
-+	wdog->parent = dev;
-+	wdog->timeout = DEFAULT_TIMEOUT;
-+
-+	watchdog_init_timeout(wdog, 0, dev);
-+	watchdog_stop_on_reboot(wdog);
-+	watchdog_stop_on_unregister(wdog);
-+	watchdog_set_drvdata(wdog, imx7ulp_wdt);
-+	imx7ulp_wdt_init(imx7ulp_wdt->base, wdog->timeout * WDOG_CLOCK_RATE);
-+
-+	return devm_watchdog_register_device(dev, wdog);
-+}
-+
-+static int __maybe_unused imx7ulp_wdt_suspend(struct device *dev)
-+{
-+	struct imx7ulp_wdt_device *imx7ulp_wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&imx7ulp_wdt->wdd))
-+		imx7ulp_wdt_stop(&imx7ulp_wdt->wdd);
-+
-+	clk_disable_unprepare(imx7ulp_wdt->clk);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused imx7ulp_wdt_resume(struct device *dev)
-+{
-+	struct imx7ulp_wdt_device *imx7ulp_wdt = dev_get_drvdata(dev);
-+	u32 timeout = imx7ulp_wdt->wdd.timeout * WDOG_CLOCK_RATE;
-+	int ret;
-+
-+	ret = clk_prepare_enable(imx7ulp_wdt->clk);
-+	if (ret)
-+		return ret;
-+
-+	if (imx7ulp_wdt_is_enabled(imx7ulp_wdt->base))
-+		imx7ulp_wdt_init(imx7ulp_wdt->base, timeout);
-+
-+	if (watchdog_active(&imx7ulp_wdt->wdd))
-+		imx7ulp_wdt_start(&imx7ulp_wdt->wdd);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(imx7ulp_wdt_pm_ops, imx7ulp_wdt_suspend,
-+			 imx7ulp_wdt_resume);
-+
-+static const struct of_device_id imx7ulp_wdt_dt_ids[] = {
-+	{ .compatible = "fsl,imx7ulp-wdt", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, imx7ulp_wdt_dt_ids);
-+
-+static struct platform_driver imx7ulp_wdt_driver = {
-+	.probe		= imx7ulp_wdt_probe,
-+	.driver		= {
-+		.name	= "imx7ulp-wdt",
-+		.pm	= &imx7ulp_wdt_pm_ops,
-+		.of_match_table = imx7ulp_wdt_dt_ids,
-+	},
-+};
-+module_platform_driver(imx7ulp_wdt_driver);
-+
-+MODULE_AUTHOR("Anson Huang <Anson.Huang@nxp.com>");
-+MODULE_DESCRIPTION("Freescale i.MX7ULP watchdog driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.7.4
+It doesn't, it just provides for ast2400 switch to cs0 at side 1(cs1). Problem
+is that only one flash chip(side 1/cs1) is accessible on alternate boot, there
+is citation from the documentation in commit body. So if by some reason side 0
+is corrupted, need to switch into alternate boot to cs1, do the load from it,
+drop that bit to make side 0 accessible and do the flash of first side. On
+ast2500/2600 this problem is solved already, in alternate boot there both flash
+chips are present. It's additional requirement for alternate boot on ast2400, to
+make the possibility to access at all side 0 flash chip after we boot to the
+alternate side.
 
