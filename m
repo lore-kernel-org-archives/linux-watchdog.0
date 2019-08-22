@@ -2,125 +2,116 @@ Return-Path: <SRS0=1Kk9=WS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E619BC3A59D
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 09:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3406FC3A5A1
+	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 13:19:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B4B4721848
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 09:15:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 026332173E
+	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Aug 2019 13:19:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yadro.com header.i=@yadro.com header.b="Q+bcAN9B"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KW7054+X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727807AbfHVJPZ (ORCPT
+        id S1732323AbfHVNTv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 22 Aug 2019 05:15:25 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:48588 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725793AbfHVJPZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Aug 2019 05:15:25 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id 1EAAA411F9;
-        Thu, 22 Aug 2019 09:15:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-transfer-encoding:mime-version:user-agent:content-type
-        :content-type:organization:references:in-reply-to:date:date:from
-        :from:subject:subject:message-id:received:received:received; s=
-        mta-01; t=1566465322; x=1568279723; bh=xp4rY3o0M1wxzRezMXTNY4/zZ
-        Y+MCsy/eXZ7EF9Njsg=; b=Q+bcAN9BSsRThV9GpNDHrHQDoMM1IB3j9QOV2i2sX
-        rBBn3ufrgMs7oc2FFll6f/+BoXeUG5KN7w8LxDgEvXgQ1nVAytmlaimve+VXjWpN
-        KmozJuWXEWlOsrHz6y0DxBk5hAOmqQYrVHtQCUtAsJ5Cw3excV/RTCIUQKSp9j1d
-        FA=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id r3TcHeHOiQDd; Thu, 22 Aug 2019 12:15:22 +0300 (MSK)
-Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id 4877541240;
-        Thu, 22 Aug 2019 12:15:20 +0300 (MSK)
-Received: from localhost.localdomain (172.17.15.69) by
- T-EXCH-02.corp.yadro.com (172.17.10.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
- 15.1.669.32; Thu, 22 Aug 2019 12:15:20 +0300
-Message-ID: <a022c0590f0fbf22cc8476b5ef3f1c22746429ac.camel@yadro.com>
-Subject: Re: [PATCH 3/3] watchdog/aspeed: add support for dual boot
-From:   Ivan Mikhaylov <i.mikhaylov@yadro.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
-        "Alexander Amelkin" <a.amelkin@yadro.com>
-Date:   Thu, 22 Aug 2019 12:15:20 +0300
-In-Reply-To: <20190821163220.GA11547@roeck-us.net>
-References: <1f2cd155057e5ab0cdb20a9a11614bbb09bb49ad.camel@yadro.com>
-         <20190821163220.GA11547@roeck-us.net>
-Organization: YADRO
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
+        Thu, 22 Aug 2019 09:19:51 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:51764 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730621AbfHVNTv (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 22 Aug 2019 09:19:51 -0400
+Received: by mail-wm1-f68.google.com with SMTP id k1so5626645wmi.1;
+        Thu, 22 Aug 2019 06:19:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ddD9APKRjXleO36Xs3naLTEd/IAvAOuyDBxcB3/l6RE=;
+        b=KW7054+XQ7ewqXyjahG/huCwZ5HAssdkIt/hab63CWZoC89MOHcnpHYU0X6yODmlp2
+         N380G9NR9JjrEVP1ZgimWq4Q0rRsGqorTbhC8dvY4qDfIN51DzOaSOhYII3sL7E2de0T
+         obwNVydsqICf5LBE5EFU4kwA9GrUK+BRYBJJuKJmzteXtGYwKSma1n2JCTNicJNIg8pk
+         8pDY5R6VtLcx1kp4RCjZ8x00qflilBvrs4OEXBzpN2xr7yG60Y0GLo4hgbtIO/API7PU
+         iDJXMaKAt6LfI7rNtS/RAp61B00gemAcyDPfelr/4q15SCpiTUSAq/0bmfOBKXrg/ji7
+         V1pw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ddD9APKRjXleO36Xs3naLTEd/IAvAOuyDBxcB3/l6RE=;
+        b=Gc033YMTfIrukOQ2kqkdblva1igAA9lBhk5vmnSfLUKpc/oZtIKj5ykhuxD7rvzWQ/
+         1+UCFo+zzOUXMJtnMQAggoWeTOmgYgAktiRa2xrvXRbhhUKYG/rv0pMyEv7OIQlkYI70
+         TlcVUQiOOESgmtuiv2UYW4ifXDs6/OXcw8nGt/wsndAdG5UqNLN3j1g+dGLZNm4ygcvk
+         7sPWIbLpqq7Ex/qxj12s3zL6ZjnT30VyCvK0P0t1ip6769tajm4UEZ0sb5y66sdg6CWj
+         5a0qa1ofAn23No4RH6KvZVnp1mnnegQUjn1n8LyIII1S9qRBoXC2suCBlY2xIQshQYzy
+         rAEw==
+X-Gm-Message-State: APjAAAWynQ5nnca31zCNLIQpdMP5VA0ZYZQPt0AF9RgBOANEvJG0CU8G
+        Ftznmnc6G2fBx9YvgP6VcIP+n5JghrV76w==
+X-Google-Smtp-Source: APXvYqxZL7YUSunqPC7/AS91BwMbMyqOjmZhe4tKxkizMwfLl2FJD+RCl/trAs1BIYNzqeHrD8BP8A==
+X-Received: by 2002:a1c:9a95:: with SMTP id c143mr6364700wme.2.1566479989188;
+        Thu, 22 Aug 2019 06:19:49 -0700 (PDT)
+Received: from localhost.localdomain (3e6b1cc1.rev.stofanet.dk. [62.107.28.193])
+        by smtp.googlemail.com with ESMTPSA id d19sm34644045wrb.7.2019.08.22.06.19.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Aug 2019 06:19:48 -0700 (PDT)
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+To:     linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        u.kleine-koenig@pengutronix.de, bth@kamstrup.com,
+        bruno.thomsen@gmail.com
+Subject: [PATCH v3 1/5] rtc: pcf2127: convert to devm_rtc_allocate_device
+Date:   Thu, 22 Aug 2019 15:19:32 +0200
+Message-Id: <20190822131936.18772-1-bruno.thomsen@gmail.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.17.15.69]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-02.corp.yadro.com (172.17.10.102)
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, 2019-08-21 at 09:32 -0700, Guenter Roeck wrote:
-> 
-> > +	writel(WDT_CLEAR_TIMEOUT_AND_BOOT_CODE_SELECTION,
-> > +			wdt->base + WDT_CLEAR_TIMEOUT_STATUS);
-> > +	wdt->wdd.bootstatus |= WDIOF_EXTERN1;
-> 
-> The variable reflects the _boot status_. It should not change after booting.
+This allows further improvement of the driver.
 
-Okay, then perhaps may we set 'status' handler for watchdog device and check 
-'status' file? Right now 'bootstatus' and 'status' are same because there is no
-handler for 'status'.
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+---
+v3: no change.
+v2: no change.
 
-> > +
-> > +	return size;
-> > +}
-> > +static DEVICE_ATTR_WO(access_cs0);
-> > +
-> > +static struct attribute *bswitch_attrs[] = {
-> > +	&dev_attr_access_cs0.attr,
-> > +	NULL
-> > +};
-> > +ATTRIBUTE_GROUPS(bswitch);
-> > +
-> >  static const struct watchdog_ops aspeed_wdt_ops = {
-> >  	.start		= aspeed_wdt_start,
-> >  	.stop		= aspeed_wdt_stop,
-> > @@ -223,6 +248,9 @@ static int aspeed_wdt_probe(struct platform_device
-> > *pdev)
-> >  
-> >  	wdt->ctrl = WDT_CTRL_1MHZ_CLK;
-> >  
-> > +	if (of_property_read_bool(np, "aspeed,alt-boot"))
-> > +		wdt->wdd.groups = bswitch_groups;
-> > +
-> Why does this have to be separate to the existing evaluation of
-> aspeed,alt-boot, and why does the existing code not work ?
-> 
-> Also, is it guaranteed that this does not interfer with existing
-> support for alt-boot ?
+ drivers/rtc/rtc-pcf2127.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-It doesn't, it just provides for ast2400 switch to cs0 at side 1(cs1). Problem
-is that only one flash chip(side 1/cs1) is accessible on alternate boot, there
-is citation from the documentation in commit body. So if by some reason side 0
-is corrupted, need to switch into alternate boot to cs1, do the load from it,
-drop that bit to make side 0 accessible and do the flash of first side. On
-ast2500/2600 this problem is solved already, in alternate boot there both flash
-chips are present. It's additional requirement for alternate boot on ast2400, to
-make the possibility to access at all side 0 flash chip after we boot to the
-alternate side.
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 8632f58fed43..58eb96506e4b 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -237,11 +237,12 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 
+ 	dev_set_drvdata(dev, pcf2127);
+ 
+-	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
+-						THIS_MODULE);
++	pcf2127->rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(pcf2127->rtc))
+ 		return PTR_ERR(pcf2127->rtc);
+ 
++	pcf2127->rtc->ops = &pcf2127_rtc_ops;
++
+ 	if (has_nvmem) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.priv = pcf2127,
+@@ -253,7 +254,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
+ 	}
+ 
+-	return ret;
++	return rtc_register_device(pcf2127->rtc);
+ }
+ 
+ #ifdef CONFIG_OF
+-- 
+2.21.0
 
