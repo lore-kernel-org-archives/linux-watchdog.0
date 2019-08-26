@@ -2,105 +2,103 @@ Return-Path: <SRS0=IMG8=WW=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF870C3A59F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Aug 2019 10:47:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C7DC3A59F
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Aug 2019 12:05:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 877702187F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Aug 2019 10:47:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A45C62184D
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Aug 2019 12:05:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yadro.com header.i=@yadro.com header.b="EKztMJeU"
+	dkim=pass (1024-bit key) header.d=rasmusvillemoes.dk header.i=@rasmusvillemoes.dk header.b="Lf7HVzPz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730749AbfHZKrW (ORCPT
+        id S1727042AbfHZMFQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 26 Aug 2019 06:47:22 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:52268 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728178AbfHZKrJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Aug 2019 06:47:09 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id 46453412D3;
-        Mon, 26 Aug 2019 10:47:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-type:content-type:content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:date:subject
-        :subject:from:from:received:received:received; s=mta-01; t=
-        1566816427; x=1568630828; bh=GCxrgga2ACU49JHMFa9Qm+9SSWX1i4ngDP9
-        HAa9kUNA=; b=EKztMJeUFKRNF8HdpiccZefVoEvr6LQkhu6f1t5mFEl7Po/e8lK
-        N/uIJiU2xCDRdg0V0ZLvKfIF0FA4QHK+2kos09rwohF4G+wzXZ870kd1DCNzyNmb
-        C3Ydu5+Y7UuXJgOsHX923bXTvnXmPYCEOrdYHJqkxymw1mVmlPMbCW8A=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id d2sFx0aam8hD; Mon, 26 Aug 2019 13:47:07 +0300 (MSK)
-Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id 4951641206;
-        Mon, 26 Aug 2019 13:47:07 +0300 (MSK)
-Received: from localhost.dev.yadro.com (172.17.15.69) by
- T-EXCH-02.corp.yadro.com (172.17.10.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
- 15.1.669.32; Mon, 26 Aug 2019 13:47:06 +0300
-From:   Ivan Mikhaylov <i.mikhaylov@yadro.com>
+        Mon, 26 Aug 2019 08:05:16 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42934 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726497AbfHZMFQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 26 Aug 2019 08:05:16 -0400
+Received: by mail-lj1-f194.google.com with SMTP id l14so14804150ljj.9
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Aug 2019 05:05:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rasmusvillemoes.dk; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=674zUEpW1qMBR3Wi1BQtNz764/jC32fVo4Wnlz37HVc=;
+        b=Lf7HVzPz79lDRnTThZqVbYKB0aAd2zA1zy/h7fW06v68QWEw1WNy5mQZbXpt842yYq
+         qxTTWJJRBCD2WDttnzkUs5l5niy76+oPT4xj67RbO7fqvEDVN+M2nq24zp3fBjfuRj75
+         EyO5njAJHM6F6xW/gCMI2K0/cA9l5x8hvy6xU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=674zUEpW1qMBR3Wi1BQtNz764/jC32fVo4Wnlz37HVc=;
+        b=YoSRkl+DhChTHZSWRFZrznihrNLr+6l39eT/DO0Nb3kL7h9FtNnqYw617y9dnLJDow
+         tI0x03uqf/1Q3O3PsS/z+4xNouQ+PobbGQDlo1Pg9FbjH3H0KFTXReK89igeMy0F3J/n
+         GrYVcxf5D4ED3b2CGnOS2j0YSqKZffE0ZGb/JAq1phG+1hOHSvRNjJrwVot8cEs9Qlkb
+         eTKRII5+40H/I5lI1TjvJJiGXa1fp8jlDQNw27tJr+8ywjFFpKAPwhN+fXVJDWoD0+mx
+         tz5ygkzuND5wYrFGm1V7CBxKfT7/CQDPY8chk4WLGLMZQl5jIkdxcfB5WFwVj2xSX7wx
+         eg7Q==
+X-Gm-Message-State: APjAAAVJ2khpnce3ZQZhlkI5nlaZ6XBXKw5B6QtSn5aGzdz1Xj898+Hd
+        XKlTs/h+MVDDZS1JWD1ayof5mQ==
+X-Google-Smtp-Source: APXvYqx634hTfDpHZkU+yXAO9eBjOGIvulK43Z3s5tUBVD+a3YmY69JSLgMzlfPXQ8Gyo7lOpk7wyw==
+X-Received: by 2002:a05:651c:1111:: with SMTP id d17mr10009917ljo.87.1566821114243;
+        Mon, 26 Aug 2019 05:05:14 -0700 (PDT)
+Received: from [172.16.11.28] ([81.216.59.226])
+        by smtp.gmail.com with ESMTPSA id h16sm1969294ljj.73.2019.08.26.05.05.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Aug 2019 05:05:13 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: imx2_wdt: fix min() calculation in
+ imx2_wdt_set_timeout
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-CC:     Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
-        Alexander Amelkin <a.amelkin@yadro.com>,
-        <openbmc@lists.ozlabs.org>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        <devicetree@vger.kernel.org>,
-        Ivan Mikhaylov <i.mikhaylov@yadro.com>
-Subject: [PATCH v2 2/4] vesnin: add secondary SPI flash chip
-Date:   Mon, 26 Aug 2019 13:46:34 +0300
-Message-ID: <20190826104636.19324-3-i.mikhaylov@yadro.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190826104636.19324-1-i.mikhaylov@yadro.com>
-References: <20190826104636.19324-1-i.mikhaylov@yadro.com>
+Cc:     Georg Hofmann <georg@hofmannsweb.com>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20190812131356.23039-1-linux@rasmusvillemoes.dk>
+ <77faf1bd-14cc-831f-e65e-4f2aa74e1843@roeck-us.net>
+From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Message-ID: <8a7a29d4-92ed-1256-6c91-c2e528e58e3b@rasmusvillemoes.dk>
+Date:   Mon, 26 Aug 2019 14:05:12 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.17.15.69]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-02.corp.yadro.com (172.17.10.102)
+In-Reply-To: <77faf1bd-14cc-831f-e65e-4f2aa74e1843@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Adds secondary SPI flash chip into dts for vesnin.
+On 12/08/2019 15.28, Guenter Roeck wrote:
+> On 8/12/19 6:13 AM, Rasmus Villemoes wrote:
+>> Converting from ms to s requires dividing by 1000, not multiplying. So
+>> this is currently taking the smaller of new_timeout and 1.28e8,
+>> i.e. effectively new_timeout.
+>>
+>> The driver knows what it set max_hw_heartbeat_ms to, so use that
+>> value instead of doing a division at run-time.
+>>
+>> FWIW, this can easily be tested by booting into a busybox shell and
+>> doing "watchdog -t 5 -T 130 /dev/watchdog" - without this patch, the
+>> watchdog fires after 130&127 == 2 seconds.
+>>
+>> Fixes: b07e228eee69 "watchdog: imx2_wdt: Fix set_timeout for big
+>> timeout values"
+>> Cc: stable@vger.kernel.org # 5.2 plus anything the above got
+>> backported to
+>> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Ivan Mikhaylov <i.mikhaylov@yadro.com>
----
- arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+I'm not seeing this in v5.3-rc6, did it get picked up?
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts b/arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts
-index 2ee26c86a32e..db4cc3df61ce 100644
---- a/arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-opp-vesnin.dts
-@@ -81,6 +81,14 @@
-         label = "bmc";
- #include "openbmc-flash-layout.dtsi"
- 	};
-+
-+	flash@1 {
-+		status = "okay";
-+		reg = < 1 >;
-+		compatible = "jedec,spi-nor";
-+		m25p,fast-read;
-+		label = "alt";
-+	};
- };
- 
- &spi {
--- 
-2.20.1
-
+Rasmus
