@@ -2,130 +2,108 @@ Return-Path: <SRS0=x5Cf=W3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2996C3A5A7
-	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Aug 2019 14:24:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDD17C3A5A6
+	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Aug 2019 14:52:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 814CA217D7
-	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Aug 2019 14:24:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D96D23405
+	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Aug 2019 14:52:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kC6LfR9k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbfHaOYG (ORCPT
+        id S1727905AbfHaOw4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 31 Aug 2019 10:24:06 -0400
-Received: from mga09.intel.com ([134.134.136.24]:51310 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727915AbfHaOYG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 31 Aug 2019 10:24:06 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 31 Aug 2019 07:24:05 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,451,1559545200"; 
-   d="scan'208";a="182913947"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 31 Aug 2019 07:24:03 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1001)
-        id 6F0DA47; Sat, 31 Aug 2019 17:24:02 +0300 (EEST)
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 1/2] watchdog: iTCO: Add support for Cannon Lake PCH iTCO
-Date:   Sat, 31 Aug 2019 17:24:01 +0300
-Message-Id: <20190831142402.49736-2-mika.westerberg@linux.intel.com>
-X-Mailer: git-send-email 2.23.0.rc1
-In-Reply-To: <20190831142402.49736-1-mika.westerberg@linux.intel.com>
-References: <20190831142402.49736-1-mika.westerberg@linux.intel.com>
+        Sat, 31 Aug 2019 10:52:56 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:46511 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726740AbfHaOw4 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 31 Aug 2019 10:52:56 -0400
+Received: by mail-pf1-f195.google.com with SMTP id q139so6403901pfc.13;
+        Sat, 31 Aug 2019 07:52:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=9BDuDRjmF116OgtDaHNeOzO00s8uzxNdezpyBuRSAeQ=;
+        b=kC6LfR9kBk1TZjb1CVjCLOPJJm+I4pY1IDqTkD2ktfZ9E6LJl3xMN5KYJdrLrjVZDH
+         Zx6eEptthNTXQtoISm9+zgEkF/uDSn/GP8LXPZAfLjVtSvRiRPpEeIAaEtUqiy64UQ7J
+         T7ortflVdD9g1ZRmTwvR1TDWIUokzUPmvrQ/8RbRGwG+vM82HogHrtycaXCYMMGusGjD
+         M3Iy3Z79Q4ugJbkD1tmXDBFj2+D4woKp7DjCAR7ReyePDNQJGpzTzQ21vVB99wT76sau
+         ebX5VH80r39qQGEXKM3i8SSudG+p42fpvLyvyZC5xO38X+ZfjDAiK2pSn6zQFydkWthv
+         r1/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=9BDuDRjmF116OgtDaHNeOzO00s8uzxNdezpyBuRSAeQ=;
+        b=b6GBUof8hvLSx0SScaqAm+VieHHJckz4Wpo1o/mKkHpTzz69k62Zwnmx0IAHuDrf9p
+         OU0Tm4F6qJze4q2o9IcrgzKsh6tcPD3qEDlHxyKHlTaqPdTcf/hQYpqia6zdra/4Ov0/
+         zUIxT14oOYEY0G7LGgyxvcr186+urehWeIBQPLCx8jzGrnBq4jDE3dogX0P/HCUysdSk
+         iZen+gKiT0E3LCCWb1zxtXltk39XMcX7aKK0OmV4Mf/Q/DipMwpwKNxugrlVHn1KbsZG
+         bAINtdxHwEduyAgzjV8zv9fPeII6iRFlBAfLw8aY1LBgfGSrgmJxh45v+jL/kCVSWtcl
+         j46w==
+X-Gm-Message-State: APjAAAURGz5QjdcmGThZQ0EK8LNCtneklYrU4ov/Y0JhMNKXlAMMmD/1
+        iWJp8tjUJ+BLqmWwHQTzIgjN6R2S
+X-Google-Smtp-Source: APXvYqz8+XI6fkaN065GcPbaUGwdNg8Rs/XLz0t7x/vxuFhL+XJ63s6WVe7ccozksx2DwOh7IAdxKQ==
+X-Received: by 2002:a65:4c4d:: with SMTP id l13mr17260595pgr.156.1567263175393;
+        Sat, 31 Aug 2019 07:52:55 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e21sm10121157pfi.13.2019.08.31.07.52.53
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 31 Aug 2019 07:52:54 -0700 (PDT)
+Date:   Sat, 31 Aug 2019 07:52:53 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Joel Stanley <joel@jms.id.au>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, Ryan Chen <ryan_chen@aspeedtech.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: Add ast2600 compatible
+Message-ID: <20190831145252.GA6062@roeck-us.net>
+References: <20190819051738.17370-1-joel@jms.id.au>
+ <20190819051738.17370-2-joel@jms.id.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190819051738.17370-2-joel@jms.id.au>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-In Intel Cannon Lake PCH the NO_REBOOT bit was moved from the private
-register space to be part of the TCO1_CNT register. For this reason
-introduce another version (6) that uses this register to set and clear
-NO_REBOOT bit.
+On Mon, Aug 19, 2019 at 02:47:37PM +0930, Joel Stanley wrote:
+> This adds a compatible for the ast2600, a new ASPEED SoC.
+> 
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
----
- drivers/watchdog/iTCO_wdt.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index c559f706ae7e..156360e37714 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -48,6 +48,7 @@
- 
- /* Includes */
- #include <linux/acpi.h>			/* For ACPI support */
-+#include <linux/bits.h>			/* For BIT() */
- #include <linux/module.h>		/* For module specific items */
- #include <linux/moduleparam.h>		/* For new moduleparam's */
- #include <linux/types.h>		/* For standard types (like size_t) */
-@@ -215,6 +216,23 @@ static int update_no_reboot_bit_mem(void *priv, bool set)
- 	return 0;
- }
- 
-+static int update_no_reboot_bit_cnt(void *priv, bool set)
-+{
-+	struct iTCO_wdt_private *p = priv;
-+	u16 val, newval;
-+
-+	val = inw(TCO1_CNT(p));
-+	if (set)
-+		val |= BIT(0);
-+	else
-+		val &= ~BIT(0);
-+	outw(val, TCO1_CNT(p));
-+	newval = inw(TCO1_CNT(p));
-+
-+	/* make sure the update is successful */
-+	return val != newval ? -EIO : 0;
-+}
-+
- static void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p,
- 		struct itco_wdt_platform_data *pdata)
- {
-@@ -224,7 +242,9 @@ static void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p,
- 		return;
- 	}
- 
--	if (p->iTCO_version >= 2)
-+	if (p->iTCO_version >= 6)
-+		p->update_no_reboot_bit = update_no_reboot_bit_cnt;
-+	else if (p->iTCO_version >= 2)
- 		p->update_no_reboot_bit = update_no_reboot_bit_mem;
- 	else if (p->iTCO_version == 1)
- 		p->update_no_reboot_bit = update_no_reboot_bit_pci;
-@@ -452,7 +472,8 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 	 * Get the Memory-Mapped GCS or PMC register, we need it for the
- 	 * NO_REBOOT flag (TCO v2 and v3).
- 	 */
--	if (p->iTCO_version >= 2 && !pdata->update_no_reboot_bit) {
-+	if (p->iTCO_version >= 2 && p->iTCO_version < 6 &&
-+	    !pdata->update_no_reboot_bit) {
- 		p->gcs_pmc_res = platform_get_resource(pdev,
- 						       IORESOURCE_MEM,
- 						       ICH_RES_MEM_GCS_PMC);
-@@ -502,6 +523,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 
- 	/* Clear out the (probably old) status */
- 	switch (p->iTCO_version) {
-+	case 6:
- 	case 5:
- 	case 4:
- 		outw(0x0008, TCO1_STS(p)); /* Clear the Time Out Status bit */
--- 
-2.23.0.rc1
-
+> ---
+> v2:
+>  - Add Andrew's r-b
+> ---
+>  Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> index c5077a1f5cb3..d78d4a8fb868 100644
+> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> @@ -4,6 +4,7 @@ Required properties:
+>   - compatible: must be one of:
+>  	- "aspeed,ast2400-wdt"
+>  	- "aspeed,ast2500-wdt"
+> +	- "aspeed,ast2600-wdt"
+>  
+>   - reg: physical base address of the controller and length of memory mapped
+>     region
