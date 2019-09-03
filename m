@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2623C3A5A2
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Sep 2019 15:07:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCAAAC3A5A2
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Sep 2019 15:07:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 71E972377D
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Sep 2019 15:07:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9905D2377F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Sep 2019 15:07:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BfHZbHR9"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ldoyE70k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729727AbfICPHb (ORCPT
+        id S1729855AbfICPHp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 3 Sep 2019 11:07:31 -0400
-Received: from mail-vs1-f74.google.com ([209.85.217.74]:40171 "EHLO
-        mail-vs1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729722AbfICPHa (ORCPT
+        Tue, 3 Sep 2019 11:07:45 -0400
+Received: from mail-qk1-f202.google.com ([209.85.222.202]:46887 "EHLO
+        mail-qk1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729870AbfICPHp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 Sep 2019 11:07:30 -0400
-Received: by mail-vs1-f74.google.com with SMTP id m24so771270vsp.7
-        for <linux-watchdog@vger.kernel.org>; Tue, 03 Sep 2019 08:07:30 -0700 (PDT)
+        Tue, 3 Sep 2019 11:07:45 -0400
+Received: by mail-qk1-f202.google.com with SMTP id n135so18815429qka.13
+        for <linux-watchdog@vger.kernel.org>; Tue, 03 Sep 2019 08:07:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=WpyyM8zjm4wtK5J690VZrM2s4HSiRGUxtkfpxo7zqKI=;
-        b=BfHZbHR97xdAxRIdMmVlOwnyxzrq6JmTVQXv4Fg5l+zyV5iGtr+ffZtaPXCj9UClr2
-         HBUSLv4AD6uEOTct4s9MJL4qHRMnroaVu+TZIx303DWUAe4bpNCNRpUHhZ9N4Tsfw/Y/
-         Z6Vl7K0uLitFGrCDhFrtgVbzEuLb86F4SbiR/ZyZL1VWiGNb2INzfCvhjRkamz5g8g9V
-         ZxSOL4PIYiq9rEmw7LakJ4nI5VTYE9x0PyJ1U1mF3bZvU06pcbLkUqx4S7Ipp2030F5D
-         fDto7fdbBtKazVvfo9UtqoXJuWsdHzGzIKJXbV3i6+U+1a/n53z3B7gUU4jhyJb8Msqc
-         F3VQ==
+        bh=RSyx3V/T3+Fb/fBnjK85DcZdNsViLHAQqUGk4FWkZsU=;
+        b=ldoyE70kJF8tGNXA/RdsmM9WccjJ/l/oyRh7hHi08RWg0nZ0Rb9g+gDqK01q50s4LE
+         kEVDyCivDnMhp2TLCfzMZYj7EbsAcC1SKLhl1eECH6O6bIxSkf2tkH8PeVaISi8BMrjQ
+         bFXkoedgoNYakwEgLdUh8j5FZZjsKdK6CtIOvdnLDO3LaQhp7wzRMV3TRywQgOkYCBOv
+         2akNhCRlY8j1azQOET4yeA7EmwQcMc0+z3BB0hSY3z7eYrDCORt+rTpAmU8VUCpl7APr
+         R6ehlcXY7D66jWN4vC0T8gA6QaXzDZCb1IaCgj/asymbAZciAkWxF0iDkOohDTp8DXxs
+         BeSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=WpyyM8zjm4wtK5J690VZrM2s4HSiRGUxtkfpxo7zqKI=;
-        b=K70aDhYKTSmwJQ7/S70TLOwzPAo5/6sD2cvK6g0ohmGo8qROITv66h28MR3evKqU+Z
-         HXhh8As/hQU14Ip4YvA+3J0iQxn+4W67jRLhtKeiR8rO4KHqIJNry1qx9RErwWvSa4Gb
-         J0FmMwHmvAJU35VnG8qEDdMl8ik2dMzHkO/GtcJffupLP8jhHQV91bYv2eOmr7/k5yK6
-         ENLNfLoOtH4daKaB/ewF+sptQQzyNfpCtY6x7pKU5kjbMRaok3GG1AusbyPBR06KrY3z
-         jJUaEOykw1il4gzod7f9bKLUkokJ7x0h6fUbeoJ2z5y6TE/9g12ZNOqeWohrhs1JSKny
-         VzqA==
-X-Gm-Message-State: APjAAAUfFutgBRzDMCw0f9HdC7bqn3F7eGFABMVHYXJKL7DsEBpCLYU7
-        za9ByTE/IOxF2xBLflAhjH95vuTWamYq2Q==
-X-Google-Smtp-Source: APXvYqyRkq3kWS+md+h91R4aNGpmWOv69BYMd6kwCtRNSe5sfbB/Zp3Ra0kJkrdzunasXK4SgK6CH0kEQqjxxg==
-X-Received: by 2002:a1f:5c0d:: with SMTP id q13mr3631221vkb.38.1567523249382;
- Tue, 03 Sep 2019 08:07:29 -0700 (PDT)
-Date:   Tue,  3 Sep 2019 16:06:28 +0100
+        bh=RSyx3V/T3+Fb/fBnjK85DcZdNsViLHAQqUGk4FWkZsU=;
+        b=tFYPlFi98dE4EekVy9T7NiP8JB3MYXsLniMRptzgxSvUDdiH8Zo1T5POZ8o20zAEN7
+         AvnA/uWTRzdC8c3E7dX5CY7AT/ctcUaSDcoQLJCqdoLobXyeap9Fy+5eY4qtxNi2DNhw
+         IZx9YM03NCkpZ4QDZbG6z9kGJGNCv3sRSbHTb/mxvPMWd2Al1G3pgG0Xt0zh+UxsDYQO
+         IcHyzIvS/PDqoGSvCdVfyUn1qnamkhYqJ+dcnsFLYZ5Y5kUwh3QjATWbmOtBBzx4kYbN
+         weSMsFqtCyxOzNU+zEEsRSCet4VzeIk+SDDtKlH3CC66U9WUxccbbw3jEWcb0Leoe7al
+         nrDw==
+X-Gm-Message-State: APjAAAV3ntEq+5g7zEcrV0nFr9DA/MCERPHfhB/KBUiyfXX7cd3VAfh5
+        jLmj1+c7JzHVJhJKjU5+CMi1ctm176XcYQ==
+X-Google-Smtp-Source: APXvYqzWnbTLWyx6Y6Af5dccbNi55xGD4hNXquBtED1N8JNA/6qhN3gWGV+qHmrza6FyvvdYJCf4Aj27tPX94g==
+X-Received: by 2002:aed:3c52:: with SMTP id u18mr15781866qte.194.1567523264136;
+ Tue, 03 Sep 2019 08:07:44 -0700 (PDT)
+Date:   Tue,  3 Sep 2019 16:06:33 +0100
 In-Reply-To: <20190903150638.242049-1-maennich@google.com>
-Message-Id: <20190903150638.242049-3-maennich@google.com>
+Message-Id: <20190903150638.242049-8-maennich@google.com>
 Mime-Version: 1.0
 References: <20180716122125.175792-1-maco@android.com> <20190903150638.242049-1-maennich@google.com>
 X-Mailer: git-send-email 2.23.0.187.g17f5b7556c-goog
-Subject: [PATCH v4 02/12] export: explicitly align struct kernel_symbol
+Subject: [PATCH v4 07/12] modpost: add support for generating namespace dependencies
 From:   Matthias Maennich <maennich@google.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     kernel-team@android.com, maennich@google.com, arnd@arndb.de,
@@ -76,95 +76,177 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This change allows growing struct kernel_symbol without wasting bytes to
-alignment. It also concretized the alignment of ksymtab entries if
-relative references are used for ksymtab entries.
+This patch adds an option to modpost to generate a <module>.ns_deps file
+per module, containing the namespace dependencies for that module.
 
-struct kernel_symbol was already implicitly being aligned to the word
-size, except on x86_64 and m68k, where it is aligned to 16 and 2 bytes,
-respectively.
+E.g. if the linked module my-module.ko would depend on the symbol
+myfunc.MY_NS in the namespace MY_NS, the my-module.ns_deps file created
+by modpost would contain the entry MY_NS to express the namespace
+dependency of my-module imposed by using the symbol myfunc.
 
-As far as I can tell there is no requirement for aligning struct
-kernel_symbol to 16 bytes on x86_64, but gcc aligns structs to their
-size, and the linker aligns the custom __ksymtab sections to the largest
-data type contained within, so setting KSYM_ALIGN to 16 was necessary to
-stay consistent with the code generated for non-ASM EXPORT_SYMBOL(). Now
-that non-ASM EXPORT_SYMBOL() explicitly aligns to word size (8),
-KSYM_ALIGN is no longer necessary.
-
-In case of relative references, the alignment has been changed
-accordingly to not waste space when adding new struct members.
-
-As for m68k, struct kernel_symbol is aligned to 2 bytes even though the
-structure itself is 8 bytes; using a 4-byte alignment shouldn't hurt.
-
-I manually verified the output of the __ksymtab sections didn't change
-on x86, x86_64, arm, arm64 and m68k. As expected, the section contents
-didn't change, and the ELF section alignment only changed on x86_64 and
-m68k. Feedback from other archs more than welcome.
+These files can subsequently be used by static analysis tools (like
+coccinelle scripts) to address issues with missing namespace imports. A
+later patch of this series will introduce such a script 'nsdeps' and a
+corresponding make target to automatically add missing
+MODULE_IMPORT_NS() definitions to the module's sources. For that it uses
+the information provided in the generated .ns_deps files.
 
 Co-developed-by: Martijn Coenen <maco@android.com>
 Signed-off-by: Martijn Coenen <maco@android.com>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Matthias Maennich <maennich@google.com>
 ---
- arch/m68k/include/asm/export.h | 1 -
- include/asm-generic/export.h   | 8 +++-----
- include/linux/export.h         | 3 ++-
- 3 files changed, 5 insertions(+), 7 deletions(-)
+ .gitignore            |  1 +
+ Makefile              |  2 +-
+ scripts/mod/modpost.c | 54 +++++++++++++++++++++++++++++++++++++++----
+ scripts/mod/modpost.h |  2 ++
+ 4 files changed, 53 insertions(+), 6 deletions(-)
 
-diff --git a/arch/m68k/include/asm/export.h b/arch/m68k/include/asm/export.h
-index 0af20f48bd07..b53008b67ce1 100644
---- a/arch/m68k/include/asm/export.h
-+++ b/arch/m68k/include/asm/export.h
-@@ -1,3 +1,2 @@
--#define KSYM_ALIGN 2
- #define KCRC_ALIGN 2
- #include <asm-generic/export.h>
-diff --git a/include/asm-generic/export.h b/include/asm-generic/export.h
-index 294d6ae785d4..63f54907317b 100644
---- a/include/asm-generic/export.h
-+++ b/include/asm-generic/export.h
-@@ -4,15 +4,13 @@
- #ifndef KSYM_FUNC
- #define KSYM_FUNC(x) x
- #endif
--#ifdef CONFIG_64BIT
--#ifndef KSYM_ALIGN
-+#ifdef CONFIG_HAVE_ARCH_PREL32_RELOCATIONS
-+#define KSYM_ALIGN 4
-+#elif defined(CONFIG_64BIT)
- #define KSYM_ALIGN 8
--#endif
- #else
--#ifndef KSYM_ALIGN
- #define KSYM_ALIGN 4
- #endif
--#endif
- #ifndef KCRC_ALIGN
- #define KCRC_ALIGN 4
- #endif
-diff --git a/include/linux/export.h b/include/linux/export.h
-index fd8711ed9ac4..28a4d2150689 100644
---- a/include/linux/export.h
-+++ b/include/linux/export.h
-@@ -52,7 +52,7 @@ extern struct module __this_module;
- #define __KSYMTAB_ENTRY(sym, sec)					\
- 	__ADDRESSABLE(sym)						\
- 	asm("	.section \"___ksymtab" sec "+" #sym "\", \"a\"	\n"	\
--	    "	.balign	8					\n"	\
-+	    "	.balign 4					\n"	\
- 	    "__ksymtab_" #sym ":				\n"	\
- 	    "	.long	" #sym "- .				\n"	\
- 	    "	.long	__kstrtab_" #sym "- .			\n"	\
-@@ -66,6 +66,7 @@ struct kernel_symbol {
- #define __KSYMTAB_ENTRY(sym, sec)					\
- 	static const struct kernel_symbol __ksymtab_##sym		\
- 	__attribute__((section("___ksymtab" sec "+" #sym), used))	\
-+	__aligned(sizeof(void *))					\
- 	= { (unsigned long)&sym, __kstrtab_##sym }
+diff --git a/.gitignore b/.gitignore
+index 2030c7a4d2f8..9ee63aa2a3fb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -32,6 +32,7 @@
+ *.lzo
+ *.mod
+ *.mod.c
++*.ns_deps
+ *.o
+ *.o.*
+ *.order
+diff --git a/Makefile b/Makefile
+index 0cbe8717bdb3..0cdb957ae2c3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1669,7 +1669,7 @@ clean: $(clean-dirs)
+ 		-o -name '*.ko.*' \
+ 		-o -name '*.dtb' -o -name '*.dtb.S' -o -name '*.dt.yaml' \
+ 		-o -name '*.dwo' -o -name '*.lst' \
+-		-o -name '*.su' -o -name '*.mod' \
++		-o -name '*.su' -o -name '*.mod' -o -name '*.ns_deps' \
+ 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
+ 		-o -name '*.lex.c' -o -name '*.tab.[ch]' \
+ 		-o -name '*.asn1.[ch]' \
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index c2d49afaea1c..be72da25fe7c 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -38,6 +38,8 @@ static int sec_mismatch_count = 0;
+ static int sec_mismatch_fatal = 0;
+ /* ignore missing files */
+ static int ignore_missing_files;
++/* write namespace dependencies */
++static int write_namespace_deps;
  
- struct kernel_symbol {
+ enum export {
+ 	export_plain,      export_unused,     export_gpl,
+@@ -2176,10 +2178,15 @@ static int check_exports(struct module *mod)
+ 		else
+ 			basename = mod->name;
+ 
+-		if (exp->namespace &&
+-		    !module_imports_namespace(mod, exp->namespace)) {
+-			warn("module %s uses symbol %s from namespace %s, but does not import it.\n",
+-			     basename, exp->name, exp->namespace);
++		if (exp->namespace) {
++			add_namespace(&mod->required_namespaces,
++				      exp->namespace);
++
++			if (!write_namespace_deps &&
++			    !module_imports_namespace(mod, exp->namespace)) {
++				warn("module %s uses symbol %s from namespace %s, but does not import it.\n",
++				     basename, exp->name, exp->namespace);
++			}
+ 		}
+ 
+ 		if (!mod->gpl_compatible)
+@@ -2484,6 +2491,31 @@ static void write_dump(const char *fname)
+ 	free(buf.p);
+ }
+ 
++static void write_namespace_deps_files(void)
++{
++	struct module *mod;
++	struct namespace_list *ns;
++	struct buffer ns_deps_buf = {};
++
++	for (mod = modules; mod; mod = mod->next) {
++		char fname[PATH_MAX];
++
++		if (mod->skip)
++			continue;
++
++		ns_deps_buf.pos = 0;
++
++		for (ns = mod->required_namespaces; ns; ns = ns->next)
++			buf_printf(&ns_deps_buf, "%s\n", ns->namespace);
++
++		if (ns_deps_buf.pos == 0)
++			continue;
++
++		sprintf(fname, "%s.ns_deps", mod->name);
++		write_if_changed(&ns_deps_buf, fname);
++	}
++}
++
+ struct ext_sym_list {
+ 	struct ext_sym_list *next;
+ 	const char *file;
+@@ -2500,7 +2532,7 @@ int main(int argc, char **argv)
+ 	struct ext_sym_list *extsym_iter;
+ 	struct ext_sym_list *extsym_start = NULL;
+ 
+-	while ((opt = getopt(argc, argv, "i:I:e:mnsT:o:awE")) != -1) {
++	while ((opt = getopt(argc, argv, "i:I:e:mnsT:o:awEd")) != -1) {
+ 		switch (opt) {
+ 		case 'i':
+ 			kernel_read = optarg;
+@@ -2541,6 +2573,9 @@ int main(int argc, char **argv)
+ 		case 'E':
+ 			sec_mismatch_fatal = 1;
+ 			break;
++		case 'd':
++			write_namespace_deps = 1;
++			break;
+ 		default:
+ 			exit(1);
+ 		}
+@@ -2575,6 +2610,9 @@ int main(int argc, char **argv)
+ 
+ 		err |= check_modname_len(mod);
+ 		err |= check_exports(mod);
++		if (write_namespace_deps)
++			continue;
++
+ 		add_header(&buf, mod);
+ 		add_intree_flag(&buf, !external_module);
+ 		add_retpoline(&buf);
+@@ -2587,6 +2625,12 @@ int main(int argc, char **argv)
+ 		sprintf(fname, "%s.mod.c", mod->name);
+ 		write_if_changed(&buf, fname);
+ 	}
++
++	if (write_namespace_deps) {
++		write_namespace_deps_files();
++		return 0;
++	}
++
+ 	if (dump_write)
+ 		write_dump(dump_write);
+ 	if (sec_mismatch_count && sec_mismatch_fatal)
+diff --git a/scripts/mod/modpost.h b/scripts/mod/modpost.h
+index 9626bf3e7424..92a926d375d2 100644
+--- a/scripts/mod/modpost.h
++++ b/scripts/mod/modpost.h
+@@ -126,6 +126,8 @@ struct module {
+ 	struct buffer dev_table_buf;
+ 	char	     srcversion[25];
+ 	int is_dot_o;
++	// Required namespace dependencies
++	struct namespace_list *required_namespaces;
+ 	// Actual imported namespaces
+ 	struct namespace_list *imported_namespaces;
+ };
 -- 
 2.23.0.187.g17f5b7556c-goog
 
