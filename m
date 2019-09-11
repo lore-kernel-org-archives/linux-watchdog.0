@@ -1,76 +1,52 @@
 Return-Path: <SRS0=iEUl=XG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.0 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,PRICE_CATALOG,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2146ECDE27
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Sep 2019 06:25:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8BD8C5ACAE
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Sep 2019 12:31:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C57E3222BD
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Sep 2019 06:25:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1568183113;
-	bh=hCbZS1o48KxJrpYExCJxiNPbnrNzs3OfxozWwvpDhuw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=giFV4kqE7q/20hSwcRxmC7PHPdFS/EAnKMGRN/QNc7QeswtEcb49cp8qvJdL+yZ0C
-	 z0wio5NLagwngJSdPhRai+c21g77ztOTRXgwqfnf9hNtBGMpwmo5mV2Qhiqq8mb8z7
-	 SmSkBYBVBP5RgOgoCQWaZ8d06yuZiWm4ku/LO2Vk=
+	by mail.kernel.org (Postfix) with ESMTP id A49562082C
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Sep 2019 12:31:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726791AbfIKGZN (ORCPT
+        id S1727742AbfIKMbg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 11 Sep 2019 02:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33878 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726761AbfIKGZN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Sep 2019 02:25:13 -0400
-Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA90521A4C;
-        Wed, 11 Sep 2019 06:25:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568183112;
-        bh=hCbZS1o48KxJrpYExCJxiNPbnrNzs3OfxozWwvpDhuw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LIlFru8Ct1z4S2opSkZw5q19V0V4pMjDvw2WD5JoiOQbDqwv0cZ8SYdwx2Rsz/2gx
-         iYQsEDXdb6c3J4FqhgIGnHx9YLyqOY/wASeNFtYgBkKBNq9vCQdKxc/UraiQZW0Aql
-         1n29syKXzK52UpeWQxigocN35uOdKMeUC+AwjUJQ=
-Date:   Wed, 11 Sep 2019 14:24:55 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Anson Huang <Anson.Huang@nxp.com>
-Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        mark.rutland@arm.com, s.hauer@pengutronix.de,
-        kernel@pengutronix.de, festevam@gmail.com, linux@armlinux.org.uk,
-        otavio@ossystems.com.br, leonard.crestez@nxp.com,
-        schnitzeltony@gmail.com, u.kleine-koenig@pengutronix.de,
-        jan.tuerk@emtrion.com, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Linux-imx@nxp.com
-Subject: Re: [PATCH V4 3/4] ARM: imx_v6_v7_defconfig: Enable
- CONFIG_IMX7ULP_WDT by default
-Message-ID: <20190911062454.GA17142@dragon>
-References: <1566441463-11911-1-git-send-email-Anson.Huang@nxp.com>
- <1566441463-11911-3-git-send-email-Anson.Huang@nxp.com>
+        Wed, 11 Sep 2019 08:31:36 -0400
+Received: from host200-115-40-89.static.arubacloud.fr ([89.40.115.200]:34674
+        "EHLO mail.qeaudio.ga" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1727576AbfIKMbg (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 11 Sep 2019 08:31:36 -0400
+Received: by mail.qeaudio.ga (Postfix, from userid 48)
+        id B0F82E6522; Wed, 11 Sep 2019 08:11:42 -0400 (EDT)
+To:     linux-watchdog@vger.kernel.org
+Subject: Inquiry 11/Sept/2019
+X-PHP-Originating-Script: 0:bmaiiler.php
+From:   Julian Smith <juliansmith2015@mail.ru>
+Reply-To: julian.smith@list.ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1566441463-11911-3-git-send-email-Anson.Huang@nxp.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type:   text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20190911121142.B0F82E6522@mail.qeaudio.ga>
+Date:   Wed, 11 Sep 2019 08:11:42 -0400 (EDT)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 21, 2019 at 10:37:42PM -0400, Anson Huang wrote:
-> Select CONFIG_IMX7ULP_WDT by default to support i.MX7ULP watchdog.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Hi,friend,
 
-Patch #4 and #5 look good to me, and I will pick them up once the first
-3 get applied by Guenter.
+This is Julian Smith and i am purchasing manager from E-cloth Co.,LTD in the UK.
+We are glad to know about your company from the web and we are interested in your products.
+Could you kindly send us your Latest catalog and price list for our trial order.
 
-Shawn
+Thanks and Best Regards,
+
+Ms Julian Smith
+Purchasing Manager
+E-cloth Co.,LTD
+
+
