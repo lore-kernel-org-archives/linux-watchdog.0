@@ -2,131 +2,82 @@ Return-Path: <SRS0=+lkg=XI=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AAFCC49ED7
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Sep 2019 12:52:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFE35C49ED7
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Sep 2019 14:36:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6B0C42089F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Sep 2019 12:52:35 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kFdb5zkO"
+	by mail.kernel.org (Postfix) with ESMTP id 9EA2B2089F
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Sep 2019 14:36:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1568385419;
+	bh=OK1h8276gwgOMNa9qLqoTGuzbHLOVU7VvKHWMc5+rNM=;
+	h=Date:From:Subject:References:In-Reply-To:Cc:Cc:To:List-ID:From;
+	b=ETJtt24hrpi9FF2BOWPLMoy6RRhFnQfRS4BrsTSUvfut4GNb34mL6qcV1ecvvTJzb
+	 gZSweBifdCAf+VpW9h0kggzHJwA/RBYZKhmD6KLawtiGeRAKkBJHjjU30AAl2iWHkz
+	 uQ2hxwat2uWyPOHUmWoiudSrcQ7/1nPv/aiHJFOI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729686AbfIMMwe (ORCPT
+        id S1729275AbfIMOg7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Sep 2019 08:52:34 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:33474 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729558AbfIMMwe (ORCPT
+        Fri, 13 Sep 2019 10:36:59 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:37259 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730708AbfIMOgS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Sep 2019 08:52:34 -0400
-Received: by mail-pl1-f196.google.com with SMTP id t11so13206987plo.0;
-        Fri, 13 Sep 2019 05:52:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=BlZu7IMkJJ2x30qqdls5PsoF2ZWD58HPtmFSp7MDs2k=;
-        b=kFdb5zkOXd5y0cnDElxLxkNkj3H/77rTt5mQnZ3elYPwnT8P8Hrd1EjosCLZtj4tP4
-         2xNHXUfkpFJ3ZcDloXG2fql3zkhJSdqI0QymoBDm7N2p1o6VM4L/NHT0CtpKSOHbe573
-         pB7oc5a3csyZjGfckA5BXuo6BN1eAVtpQCWzMiiZIYncpPAUJ1wvtJlNTcJQh5gNt1n7
-         QuqR5wgtG8iqQv+kmkyvn9NrDb8FbGlHopTaBS5OYaUzKLd5RT/G2RWPkQqhFr14Q/el
-         hDwqsH2o4FltSZyafQcpRDOn/fksXbmOQERM6uUWDg6tfyHMpvFsEWLCgceYS/eENozt
-         SNqQ==
+        Fri, 13 Sep 2019 10:36:18 -0400
+Received: by mail-ot1-f68.google.com with SMTP id s28so29685090otd.4;
+        Fri, 13 Sep 2019 07:36:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=BlZu7IMkJJ2x30qqdls5PsoF2ZWD58HPtmFSp7MDs2k=;
-        b=fTca09TUuq9+AYfu1bG9yOKuxDxje1PLlvEcgTkwxVNd8EdOU3kVvO6NeWYO5K5PtG
-         euhakeY5fX8FYmEhyHujYeC4bSPAoZX0NNgo3yTfOH10lIJd33vJeUmwPlWjwxxgJWri
-         yO6y9d3rGSOEMScogz9q+qX2XpyuScEJHySnnY3w1rLJqLlex3Pd0kWWDpGBhfStPRnb
-         qinazLwoPOW3pEhO/3ao+BIIIRx8VIaqEVl2nhT6Ek6gckpMRB5aWnuOB0n1u7rExMxx
-         Ab1mKG6nwjkmi3imHRcQezK6zgBdOqfCEHi3szS/c4QR3cecGQM3y9hvBwLDMy9mgm5W
-         39HQ==
-X-Gm-Message-State: APjAAAXw0dvlRQ5ah0OJiUJ+1s2DEgMkop7fQuDH+GxVe8h5BZXh1hqK
-        i6r4A3eypoTng5Hb6CGsFzppKtCw
-X-Google-Smtp-Source: APXvYqwjmvmY8Afq7+jugXxpufBl19WoXMLG/Ft2zLNI/Q6l3LDqBmerh51C6Xa3uhKbuQixlLkMSg==
-X-Received: by 2002:a17:902:aa48:: with SMTP id c8mr49143964plr.330.1568379152495;
-        Fri, 13 Sep 2019 05:52:32 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g12sm6707212pfb.97.2019.09.13.05.52.31
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Sep 2019 05:52:31 -0700 (PDT)
-Date:   Fri, 13 Sep 2019 05:52:30 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bjorn.andersson@linaro.org
-Subject: Re: [PATCH 1/2] watchdog: pm8916_wdt: fix pretimeout registration
- flow
-Message-ID: <20190913125230.GA18629@roeck-us.net>
-References: <20190906203054.26725-1-jorge.ramirez-ortiz@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190906203054.26725-1-jorge.ramirez-ortiz@linaro.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+        h=x-gm-message-state:message-id:date:from:subject:references
+         :in-reply-to:cc:cc:to;
+        bh=XB3b5/CCYXXkmaN1QiIRHjRix0H3JE/gVYbnuNK8lOE=;
+        b=YlI8Te4/zvKurHMtoHnIU/+QFGaqxyHYzBxDs5U/Ei7lG2VAuJhyCm5WWi9a/kB8gt
+         eNuH0oDlqTs5+tsBHKM9OnGWDLQIY4xBTJnj2PfOS85alXeVI12V0uL6udEkBv2BEK6C
+         Mszag5jiHaVjWtZt8P16OTlRvHtLVA/zcLTMX4X/Xq7CIN4IP+Vug6yK2+V9dqg2u7/V
+         7BX5sh92uHZjGN3uwGKzOsZwUJPeLcr7B0sZ015Wth+6PwJgP1xHirC6O86S1dGaVJMn
+         ji4EbPSmXgkOQSSp118hBvB3YqbiVehxGiTg5AywyRqTY+4O2opQhyxCyFsZQBotyqB7
+         mEkQ==
+X-Gm-Message-State: APjAAAV5ZkRjtijCSaajKGP53JIEC4/v4Oo6vli87O87HgRiF7kkkLVs
+        UrAdFCAVaT86sEyQh3i8HQ==
+X-Google-Smtp-Source: APXvYqyqPy7uITdq8aJVLYBLO1471Gvd+4ls8DvEb5HG9rjVWlRGnlaVBO1+OyBMjlBUbBpRiDoeaA==
+X-Received: by 2002:a05:6830:1641:: with SMTP id h1mr18873912otr.346.1568385377538;
+        Fri, 13 Sep 2019 07:36:17 -0700 (PDT)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id w201sm1035813oie.44.2019.09.13.07.36.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Sep 2019 07:36:17 -0700 (PDT)
+Message-ID: <5d7ba961.1c69fb81.d2fcd.6ff4@mx.google.com>
+Date:   Fri, 13 Sep 2019 15:36:16 +0100
+From:   Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/2] dt-bindings: watchdog: Add missing clocks requirement in Samsung SoC watchdog
+References: <20190907144541.16949-1-krzk@kernel.org> <20190907144541.16949-2-krzk@kernel.org>
+In-Reply-To: <20190907144541.16949-2-krzk@kernel.org>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 06, 2019 at 10:30:53PM +0200, Jorge Ramirez-Ortiz wrote:
-> When an IRQ is present in the dts, the probe function shall fail if
-> the interrupt can not be registered.
+On Sat,  7 Sep 2019 16:45:41 +0200, Krzysztof Kozlowski wrote:
+> The Samsung SoC watchdog driver always required providing a clock
+> (either through platform data or from DT).  However when bindings were
+> added in commit 9487a9cc7140 ("watchdog: s3c2410: Add support for device
+> tree based probe"), they missed the requirement of clock.
 > 
-> The probe function shall also be retried if getting the irq is being
-> deferred.
-> 
-> Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-> Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-with nitpick below.
-
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 > ---
->  drivers/watchdog/pm8916_wdt.c | 16 ++++++++++++----
->  1 file changed, 12 insertions(+), 4 deletions(-)
+>  .../devicetree/bindings/watchdog/samsung-wdt.yaml          | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
-> index 2d3652004e39..cb5304c26ac3 100644
-> --- a/drivers/watchdog/pm8916_wdt.c
-> +++ b/drivers/watchdog/pm8916_wdt.c
-> @@ -163,9 +163,18 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
->  
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq > 0) {
-> -		if (devm_request_irq(dev, irq, pm8916_wdt_isr, 0, "pm8916_wdt",
-> -				     wdt))
-> -			irq = 0;
-> +		err = devm_request_irq(dev, irq, pm8916_wdt_isr, 0,
-> +				       "pm8916_wdt", wdt);
-> +		if (err)
-> +			return err;
-> +
-> +		wdt->wdev.info = &pm8916_wdt_pt_ident;
-> +
 
-Unnecessary empty line.
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-> +	} else {
-> +		if (irq == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +
-> +		wdt->wdev.info = &pm8916_wdt_ident;
->  	}
->  
->  	/* Configure watchdog to hard-reset mode */
-> @@ -177,7 +186,6 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> -	wdt->wdev.info = (irq > 0) ? &pm8916_wdt_pt_ident : &pm8916_wdt_ident,
->  	wdt->wdev.ops = &pm8916_wdt_ops,
->  	wdt->wdev.parent = dev;
->  	wdt->wdev.min_timeout = PM8916_WDT_MIN_TIMEOUT;
