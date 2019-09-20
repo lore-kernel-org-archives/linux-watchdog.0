@@ -2,44 +2,58 @@ Return-Path: <SRS0=a3xA=XP=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC6AC49ED7
-	for <linux-watchdog@archiver.kernel.org>; Fri, 20 Sep 2019 16:22:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A064C4CEC9
+	for <linux-watchdog@archiver.kernel.org>; Fri, 20 Sep 2019 16:23:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F08A217F5
-	for <linux-watchdog@archiver.kernel.org>; Fri, 20 Sep 2019 16:22:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F8F8208C3
+	for <linux-watchdog@archiver.kernel.org>; Fri, 20 Sep 2019 16:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1568996522;
-	bh=G4ZWXDDOctrbtK9IV3kMcbrs/YmvosJWapnn4V56nvQ=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=d0Y1m6A7x9lA2p2596aVPy74jFactRM0g67UEVMuxwtK2z2UyIsTFM1csI5q0nfT9
-	 Vc/nanUoyKQtibRHJBo/prz72hilb/CdTvoKwpk1ocvlhkDY83tX9n8AADzPtJuiGO
-	 yTwz2JaWxnJSXUHaz6PvLi7K3/nv6KNHpY+Zeg0Q=
+	s=default; t=1568996603;
+	bh=/gY3eyN/99Vwc+rE/mubQe3N1CXXiv7Fbgs2nWfoFDc=;
+	h=References:In-Reply-To:From:Date:Subject:To:List-ID:From;
+	b=ncM02c0LwQnAIaiWIPiBpKDtnO7KfseWk+p//mxwZophyUBHl/bMHQ/Hxvu41D4IM
+	 NJXDvWORS7PImZr0rjZ0sSNDfADGFzPMdTjpphnaQfBaiYJZylhnni8si3pHJhcmQh
+	 gCnCmkKdAoeCRNiFtMs2cK3BDaG+4cR66M0Btnw4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405345AbfITQVh (ORCPT
+        id S2391390AbfITQXR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 20 Sep 2019 12:21:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39978 "EHLO mail.kernel.org"
+        Fri, 20 Sep 2019 12:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405006AbfITQVh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 20 Sep 2019 12:21:37 -0400
-Received: from localhost.localdomain (unknown [194.230.155.145])
+        id S2390632AbfITQXO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 20 Sep 2019 12:23:14 -0400
+Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DB6520C01;
-        Fri, 20 Sep 2019 16:21:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AB1E208C3;
+        Fri, 20 Sep 2019 16:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568996496;
-        bh=G4ZWXDDOctrbtK9IV3kMcbrs/YmvosJWapnn4V56nvQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=2dMv4gKGZ2vVFWgyWkGWdSMy2Di/pvOoU6hPZv63Uy16TKnhnB6kYGji2GP8gVwC9
-         6sxGbRg41pP6pwfavuLFXjJFxNmnkJ88MbUuKZVlNjgmR8fUDyrlfZN5r0KZ1hm23F
-         IhnUK0hl/KOLKz0NhWnM6pOSrFuAC9P/OsyH3FyM=
+        s=default; t=1568996594;
+        bh=/gY3eyN/99Vwc+rE/mubQe3N1CXXiv7Fbgs2nWfoFDc=;
+        h=References:In-Reply-To:From:Date:Subject:To:From;
+        b=I5p+hmb6P8nedLs1fqxO6ODqniyBYw/gRUMEovWLLh1yw3O5O1q0GGiWUqwik8sOA
+         J4KQSaEWgWFGD4nuUdpolKf4JfqyV5QNVcdSxNLyi13n+KU9g7P53wBElx8Z0Shnn5
+         5JMp4vX8nT/yLz1zQIn2jblCh2b9N7frBmft6TGU=
+Received: by mail-ot1-f47.google.com with SMTP id e11so6676220otl.5;
+        Fri, 20 Sep 2019 09:23:14 -0700 (PDT)
+X-Gm-Message-State: APjAAAXqb6XFz9lc+qU4/zc2Umds29HKsDmsGoERllDVbq16GwjpCtOd
+        rKemTjBEATEy+RWSLX+Yk+d3DeEZH6up/rXH63k=
+X-Google-Smtp-Source: APXvYqyo+eHqYY+wd1hJeskVQu73EQIp1tU7G1a9ZEYeGtJO8llZMStv0HcB/C9UjvxekPWe0ZjxxZedr3kEHQe+9Lc=
+X-Received: by 2002:a05:6830:10cc:: with SMTP id z12mr6558999oto.20.1568996593576;
+ Fri, 20 Sep 2019 09:23:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190920162124.7036-1-krzk@kernel.org>
+In-Reply-To: <20190920162124.7036-1-krzk@kernel.org>
 From:   Krzysztof Kozlowski <krzk@kernel.org>
+Date:   Fri, 20 Sep 2019 18:23:00 +0200
+X-Gmail-Original-Message-ID: <CAJKOXPcsSjVoHmCJN_AF8a2gkVN3+kQh4D+J01GnxGmMOZh4Hg@mail.gmail.com>
+Message-ID: <CAJKOXPcsSjVoHmCJN_AF8a2gkVN3+kQh4D+J01GnxGmMOZh4Hg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] dt-bindings: watchdog: Convert Samsung SoC
+ watchdog bindings to json-schema
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
@@ -47,146 +61,28 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Kevin Hilman <khilman@baylibre.com>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2 1/3] dt-bindings: watchdog: Convert Samsung SoC watchdog bindings to json-schema
-Date:   Fri, 20 Sep 2019 18:21:22 +0200
-Message-Id: <20190920162124.7036-1-krzk@kernel.org>
-X-Mailer: git-send-email 2.17.1
+        linux-amlogic@lists.infradead.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert Samsung S3C/S5P/Exynos watchdog bindings to DT schema format
-using json-schema.
+On Fri, 20 Sep 2019 at 18:21, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>
+> Convert Samsung S3C/S5P/Exynos watchdog bindings to DT schema format
+> using json-schema.
+>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+>
+> ---
+>
+> Changes since v1:
+> 1. Indent example with four spaces (more readable),
+> 2. Remove unneeded timeout-sec description and include generic bindings.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+My bad, this is actually v3.
 
----
-
-Changes since v1:
-1. Indent example with four spaces (more readable),
-2. Remove unneeded timeout-sec description and include generic bindings.
----
- .../bindings/watchdog/samsung-wdt.txt         | 35 ----------
- .../bindings/watchdog/samsung-wdt.yaml        | 65 +++++++++++++++++++
- 2 files changed, 65 insertions(+), 35 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-deleted file mode 100644
-index 46dcb48e75b4..000000000000
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-+++ /dev/null
-@@ -1,35 +0,0 @@
--* Samsung's Watchdog Timer Controller
--
--The Samsung's Watchdog controller is used for resuming system operation
--after a preset amount of time during which the WDT reset event has not
--occurred.
--
--Required properties:
--- compatible : should be one among the following
--	- "samsung,s3c2410-wdt" for S3C2410
--	- "samsung,s3c6410-wdt" for S3C6410, S5PV210 and Exynos4
--	- "samsung,exynos5250-wdt" for Exynos5250
--	- "samsung,exynos5420-wdt" for Exynos5420
--	- "samsung,exynos7-wdt" for Exynos7
--
--- reg : base physical address of the controller and length of memory mapped
--	region.
--- interrupts : interrupt number to the cpu.
--- samsung,syscon-phandle : reference to syscon node (This property required only
--	in case of compatible being "samsung,exynos5250-wdt" or "samsung,exynos5420-wdt".
--	In case of Exynos5250 and 5420 this property points to syscon node holding the PMU
--	base address)
--
--Optional properties:
--- timeout-sec : contains the watchdog timeout in seconds.
--
--Example:
--
--watchdog@101d0000 {
--	compatible = "samsung,exynos5250-wdt";
--	reg = <0x101D0000 0x100>;
--	interrupts = <0 42 0>;
--	clocks = <&clock 336>;
--	clock-names = "watchdog";
--	samsung,syscon-phandle = <&pmu_syscon>;
--};
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-new file mode 100644
-index 000000000000..5a3a3cec8e20
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-@@ -0,0 +1,65 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/samsung-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Samsung SoC Watchdog Timer Controller
-+
-+maintainers:
-+  - Krzysztof Kozlowski <krzk@kernel.org>
-+
-+description: |+
-+  The Samsung's Watchdog controller is used for resuming system operation
-+  after a preset amount of time during which the WDT reset event has not
-+  occurred.
-+
-+properties:
-+  compatible:
-+    enum:
-+      - samsung,s3c2410-wdt                   # for S3C2410
-+      - samsung,s3c6410-wdt                   # for S3C6410, S5PV210 and Exynos4
-+      - samsung,exynos5250-wdt                # for Exynos5250
-+      - samsung,exynos5420-wdt                # for Exynos5420
-+      - samsung,exynos7-wdt                   # for Exynos7
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  samsung,syscon-phandle:
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+    description:
-+      Phandle to the PMU system controller node (in case of Exynos5250
-+      and Exynos5420).
-+
-+required:
-+  - compatible
-+  - interrupts
-+  - reg
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - samsung,exynos5250-wdt
-+              - samsung,exynos5420-wdt
-+    then:
-+      required:
-+        - samsung,syscon-phandle
-+
-+examples:
-+  - |
-+    watchdog@101d0000 {
-+        compatible = "samsung,exynos5250-wdt";
-+        reg = <0x101D0000 0x100>;
-+        interrupts = <0 42 0>;
-+        clocks = <&clock 336>;
-+        clock-names = "watchdog";
-+        samsung,syscon-phandle = <&pmu_syscon>;
-+    };
--- 
-2.17.1
-
+Best regards,
+Krzysztof
