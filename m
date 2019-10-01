@@ -2,247 +2,104 @@ Return-Path: <SRS0=QJxf=X2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1935CECE587
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 15:24:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71AE1C352AA
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:50:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DACAD2133F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 15:24:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3AFA720659
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569943477;
-	bh=SRzR/19y35vKtCmezlBxxhi4fuH91TZ/EZTP/Qb2ZBw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=rwwOS8gvTvK0y8HFv+CxvRyd/QsR19k2HVztGlGrP4Bu0NxNon7/8+A0QbiNXg3WF
-	 eE4l5n7f1NKHeGatU13xBqYDyKWAUSTo2BrepAOVkqzOdSgvuJpoe03LrC6N7MeeAJ
-	 DwROvM6oV3plpwa0OgILxnUfSoZrXDOv4qF5jFVE=
+	s=default; t=1569948622;
+	bh=gT/n4oqc6OGEqUUO2qysr1qAGttbCYzxG2DAiUEliRU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=GN/PIqF6t5sBnOHB6ftqEd8mV6ss2fxf82OL9ennF3vUSZiFnHKWtKy4JNb4eVcQq
+	 QhmThhzcsUnHu0NdS802oq+DaclQExnKxqIYyBAAd/FGCP8/pabL5/z4g/0fMXN3Ea
+	 nXtiW51VGXsipKaokJbDRvhruQutz3CHC2pegIEQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389584AbfJAPYe (ORCPT
+        id S2387427AbfJAQod (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Oct 2019 11:24:34 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:52180 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389331AbfJAPYd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Oct 2019 11:24:33 -0400
-Received: by mail-wm1-f67.google.com with SMTP id 7so3876143wme.1;
-        Tue, 01 Oct 2019 08:24:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=qIz20MyIeJ4YRS3q69VVUyLU1/qqd5R6Zf74yV/b9ww=;
-        b=tMJR1DKYuJ/HYqsTxR6if2fyU/wWMRmpHG62KZ1lIyk8JSPisThK+ZTZA0bRN3kEnu
-         iJxykDLKTqLRSjAlHGp4hAzoB6bnBZmdBteJ+qDSgQhAORi7GTtM709ySi2rfGB4vEN3
-         219q4uDcK6YA5/EWxdJU9yAkaUSaKoNT3LKOLeaA6ewjk3RUsN+1TMaiAzLk/V1MUoXW
-         4PTxHFlRMJa4jw/2xO4qPBt6sAvA7L+Bze5tfvRB9I7d4YfzL8lgjmsBDZnTvqVLXWz/
-         XGFDEAGo9bugFgonAmPeD1kBcRCxZnxB4W9aG5bA/UkMWXVtsdEcBCDmbDsbneYAfHYu
-         mP9w==
-X-Gm-Message-State: APjAAAUQXk3ONav8skZU1A/Cql1LXyee9IBgA4syfHBaHommjAKmA5ya
-        mQGyO+Vw1bmJHnRTu+tZJ84=
-X-Google-Smtp-Source: APXvYqzgA01GZd24cae9Ug02bMZVgbmEoHDdIAy+uHttgtTk16j30giNWmxHikB8fPnYof+FbNzouQ==
-X-Received: by 2002:a1c:60c1:: with SMTP id u184mr4104201wmb.32.1569943469278;
-        Tue, 01 Oct 2019 08:24:29 -0700 (PDT)
-Received: from pi3 ([194.230.155.145])
-        by smtp.googlemail.com with ESMTPSA id i1sm4699293wmb.19.2019.10.01.08.24.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Oct 2019 08:24:28 -0700 (PDT)
-Date:   Tue, 1 Oct 2019 17:24:22 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Matt Mackall <mpm@selenic.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Tue, 1 Oct 2019 12:44:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389860AbfJAQod (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:44:33 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D9F221855;
+        Tue,  1 Oct 2019 16:44:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569948272;
+        bh=gT/n4oqc6OGEqUUO2qysr1qAGttbCYzxG2DAiUEliRU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wfUud0q3IzpEK800OsiY63wNhA2+5IE1qeBqbZ78AVkozXaLkW1581sVHv2KurdQU
+         9V0vvoVO7GezVAL+/n7PEoP7n0YQxaxy7MIkmnWZxEPoB9MNKiGftYzoCDexH1fdYJ
+         wEou2rTa4zix7GGLOIZ1UkG59kOiwnhAiIfltD7s=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ryan Chen <ryan_chen@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-tegra@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
-        linux-riscv@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-crypto@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 2/8] dt-bindings: sram: Convert SRAM bindings to
- json-schema
-Message-ID: <20191001152422.GA31358@pi3>
-References: <20190918173141.4314-1-krzk@kernel.org>
- <20190918173141.4314-2-krzk@kernel.org>
- <20191001140003.GA31344@bogus>
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/29] watchdog: aspeed: Add support for AST2600
+Date:   Tue,  1 Oct 2019 12:44:02 -0400
+Message-Id: <20191001164423.16406-8-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191001164423.16406-1-sashal@kernel.org>
+References: <20191001164423.16406-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20191001140003.GA31344@bogus>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 01, 2019 at 09:00:03AM -0500, Rob Herring wrote:
-> On Wed, Sep 18, 2019 at 07:31:35PM +0200, Krzysztof Kozlowski wrote:
-> > Convert generic mmio-sram bindings to DT schema format using
-> > json-schema.
-> 
-> I've been slow getting to this because I started on the same thing...
-> 
-> > 
-> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > 
-> > ---
-> > 
-> > Changes since v1:
-> > 1. Indent example with four spaces (more readable).
-> > ---
-> >  .../devicetree/bindings/sram/sram.txt         |  80 ----------
-> >  .../devicetree/bindings/sram/sram.yaml        | 138 ++++++++++++++++++
-> >  2 files changed, 138 insertions(+), 80 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/sram/sram.txt
-> >  create mode 100644 Documentation/devicetree/bindings/sram/sram.yaml
-> 
-> > diff --git a/Documentation/devicetree/bindings/sram/sram.yaml b/Documentation/devicetree/bindings/sram/sram.yaml
-> > new file mode 100644
-> > index 000000000000..8d9d6ce494b2
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/sram/sram.yaml
-> > @@ -0,0 +1,138 @@
-> > +# SPDX-License-Identifier: GPL-2.0
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/sram/sram.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Generic on-chip SRAM
-> > +
-> > +maintainers:
-> > +  - FIXME <who@should.it.be>
-> 
-> You can put me.
+From: Ryan Chen <ryan_chen@aspeedtech.com>
 
-Sure.
+[ Upstream commit b3528b4874480818e38e4da019d655413c233e6a ]
 
-> 
-> > +
-> > +description: |+
-> > +  Simple IO memory regions to be managed by the genalloc API.
-> > +
-> > +  Each child of the sram node specifies a region of reserved memory. Each
-> > +  child node should use a 'reg' property to specify a specific range of
-> > +  reserved memory.
-> > +
-> > +  Following the generic-names recommended practice, node names should
-> > +  reflect the purpose of the node. Unit address (@<address>) should be
-> > +  appended to the name.
-> > +
-> > +properties:
-> > +  $nodename:
-> > +    pattern: "^sram(@.*)?"
-> > +
-> > +  compatible:
-> > +    items:
-> > +      - enum:
-> > +          - mmio-sram
-> > +          - atmel,sama5d2-securam
-> 
-> I was trying to go down the path of putting all the compatibles for 
-> various SRAM bindings here, but I ran into some issues. I need to 
-> revisit as I've forgotten the exact issue.
-> 
-> This would need to be a 'contains' if this is going to work for others.
+The ast2600 can be supported by the same code as the ast2500.
 
-OK.
+Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20190819051738.17370-3-joel@jms.id.au
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/watchdog/aspeed_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> 
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  "#address-cells":
-> > +    description: Should use the same values as the root node.
-> > +
-> > +  "#size-cells":
-> > +    description: Should use the same values as the root node.
-> 
-> I defined both of these to be 1 as 4GB of SRAM should be enough for a 
-> while. We can debate 1 or 2 cells vs. 1, but there's no reason it has to 
-> be the same as the root (unless we're failing to do address 
-> translation).
-
-That was copied from txt version. I can adjust them to 1 although this
-is will more than simple conversion.
-
-> 
-> > +
-> > +  ranges:
-> > +    description:
-> > +      Should translate from local addresses within the sram to bus addresses.
-> > +
-> > +  no-memory-wc:
-> > +    description:
-> > +      The flag indicating, that SRAM memory region has not to be remapped
-> > +      as write combining. WC is used by default.
-> > +    type: boolean
-> > +
-> > +  # TODO: additionalProperties: false
-> > +
-> > +patternProperties:
-> > +  "^([a-z]*-)?sram@[a-f0-9]$":
-> > +    type: object
-> > +    description:
-> > +      Each child of the sram node specifies a region of reserved memory.
-> > +    properties:
-> > +      reg:
-> > +        description:
-> > +          IO mem address range, relative to the SRAM range.
-> 
-> maxItems: 1
-
-OK
-
-> 
-> > +
-> > +      compatible:
-> > +        $ref: /schemas/types.yaml#/definitions/string
-> > +        description:
-> > +          Should contain a vendor specific string in the form
-> > +          <vendor>,[<device>-]<usage>
-> > +
-> > +      pool:
-> > +        description:
-> > +          Indicates that the particular reserved SRAM area is addressable
-> > +          and in use by another device or devices.
-> > +        type: boolean
-> > +
-> > +      export:
-> > +        description:
-> > +          Indicates that the reserved SRAM area may be accessed outside
-> > +          of the kernel, e.g. by bootloader or userspace.
-> > +        type: boolean
-> > +
-> > +      protect-exec:
-> > +        description: |
-> > +          Same as 'pool' above but with the additional constraint that code
-> > +          will be run from the region and that the memory is maintained as
-> > +          read-only, executable during code execution. NOTE: This region must
-> > +          be page aligned on start and end in order to properly allow
-> > +          manipulation of the page attributes.
-> > +        type: boolean
-> > +
-> > +      label:
-> > +        $ref: /schemas/types.yaml#/definitions/string
-> 
-> Already has a type definition.
-
-OK
-
-Best regards,
-Krzysztof
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index fd91007b4e41b..cee7334b2a000 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -38,6 +38,7 @@ static const struct aspeed_wdt_config ast2500_config = {
+ static const struct of_device_id aspeed_wdt_of_table[] = {
+ 	{ .compatible = "aspeed,ast2400-wdt", .data = &ast2400_config },
+ 	{ .compatible = "aspeed,ast2500-wdt", .data = &ast2500_config },
++	{ .compatible = "aspeed,ast2600-wdt", .data = &ast2500_config },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
+@@ -257,7 +258,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	}
+ 
+-	if (of_device_is_compatible(np, "aspeed,ast2500-wdt")) {
++	if ((of_device_is_compatible(np, "aspeed,ast2500-wdt")) ||
++		(of_device_is_compatible(np, "aspeed,ast2600-wdt"))) {
+ 		u32 reg = readl(wdt->base + WDT_RESET_WIDTH);
+ 
+ 		reg &= config->ext_pulse_width_mask;
+-- 
+2.20.1
 
