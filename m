@@ -2,55 +2,55 @@ Return-Path: <SRS0=QJxf=X2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE9AEC352AA
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 22:21:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56EDDC352AA
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 22:21:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A162021A4C
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 22:21:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FE5A2086A
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 22:21:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569968478;
-	bh=Ui5J0O0e/WR5ARq6Qk2PvLNWZqzb+TlcTXLCwgWHhko=;
+	s=default; t=1569968490;
+	bh=O+zK0vNPSQ5cyh46vLUTYeNE66ZoevKwFz9FQaoMYuk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=QjcQcyygVjxBNAX5pC9E2K356h8V8Mbs/lZnEorQ3ok2bHMh/IVz33daaHvDhIgIq
-	 wsLALXrLxzVEwwXtp/2m6Gvp7VDdg0uXoDAnFXchv4w5n4yeLq8wQaBzT6UYqrP4Yu
-	 bHKPmSJkN/L6DL5x5v950G4yiBNQRgDzm75SJm7g=
+	b=LObGr5yAmT22965KFyJIys1BruxBe2+v5mJjJzxpxFf/8Et7zshf37dwcm5ETMvd0
+	 2ZdJ0EDEcTm+eaUXqmxCZd7Uw+IxoZegcVzGQW5vyn7YvRjaPFrd0Q3Si9INGI0oXE
+	 DN98FNFzFWA0iLCcagmTEqn5xO8VfODAYI8q3ewA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbfJAWVO (ORCPT
+        id S1728866AbfJAWV0 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Oct 2019 18:21:14 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:41081 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726538AbfJAWVO (ORCPT
+        Tue, 1 Oct 2019 18:21:26 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:41127 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726538AbfJAWV0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Oct 2019 18:21:14 -0400
-Received: by mail-io1-f65.google.com with SMTP id n26so23714596ioj.8;
-        Tue, 01 Oct 2019 15:21:13 -0700 (PDT)
+        Tue, 1 Oct 2019 18:21:26 -0400
+Received: by mail-io1-f68.google.com with SMTP id n26so23715742ioj.8;
+        Tue, 01 Oct 2019 15:21:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=tqpZqSWBzevFiWNRX1d50Nxn4Q6kEMJVfz95i9zh0jU=;
-        b=eiRtJXcj5tIrhtDKARyXPiAegQ4tyjJqmXaIRktRTplQVatwzRUdsalJBOxAN1gPjQ
-         qO/Ih6EjTa/BzI4m/YfpIOo2WRXqXD5d2ZoyrRSLEGnnWkeTUY+BitIzU8/Y5mesAtRR
-         LHnYfMQySljydKju3W+YY4CUGnc3tkUJ9wgYy7FWoz/rqLguAdC4OoCZSQker9/HMIEz
-         f5tvYlUJcvs/Zj/8KUGaAWXKddPeIgDfAJGz3AV7sgk+yN72vxu2GImBgv0jaLjaPpFa
-         N3xGMUkrjBi2r1W6bpb47Ew8S29AoYruSYTIDiAK20W1U7+0Z6HU+rtD6I9K4grLaqO5
-         WV6A==
-X-Gm-Message-State: APjAAAXaqw/1kDHCEhJt/clL/aVSitWMfrJkbeifO4bSepPIwC9DpHrT
-        atkp2Avhi/ocsw2TfYG92/uMSCQ=
-X-Google-Smtp-Source: APXvYqxO5LTPz9sKvdwvDzGXEOAzX1TntNU8CChdjjgJOYUb3Q3B/TxouQGgOk9y7bFjc+A4UCmazA==
-X-Received: by 2002:a5e:c814:: with SMTP id y20mr501581iol.88.1569968473151;
-        Tue, 01 Oct 2019 15:21:13 -0700 (PDT)
+        bh=nnP/9qrpFXzWJWcSk1bbOi362G55DzTZbktKWRu2qvk=;
+        b=U+Oel9nuDwEIIgaT2jLX8hsLunZSvgn54E2uZC9si7O7iivDmPHy3dFBhqlAVY+Ty/
+         5vB3KVLQq4cHvmtCI3kEvhlxevRAXui46PCu4IS7AwQLo1n+9al2fVVKVmokndkn4ZbJ
+         GXBZdEQLVcdGDv2QVmfTZyWBIw0Lg12bYDomrROeokNTnSwNGiwPuviTc+1NEdO99z0d
+         pYvK6KcfUiFrrNkQh9wo8aHRn/EjKqtsjjoQN63hFt6BuNLnfKcY112dWdWHk2CBSsM1
+         PUHQTUTvQwGvexWnu3F9YY8x8/1fFaLWjc0zVZ67CDncjsYT6Uh5AA+7jIphvKxpjwBw
+         bijw==
+X-Gm-Message-State: APjAAAX6VW1mY9JUXl6dEunKhc5iErIUypWxoQF7TFIt92xoaolQqqRT
+        RNomXl0+SYHFIgW4gc8CLw==
+X-Google-Smtp-Source: APXvYqy/3gdgtXKKz0e+W7yj7BbuOZ3+SM3h3iZeJAMJr5dN41VJ8KQsfTODG8toKbXnQ6bcrS5PKA==
+X-Received: by 2002:a02:c983:: with SMTP id b3mr710328jap.120.1569968484914;
+        Tue, 01 Oct 2019 15:21:24 -0700 (PDT)
 Received: from localhost ([2607:fb90:1780:6fbf:9c38:e932:436b:4079])
-        by smtp.gmail.com with ESMTPSA id p20sm7826300iod.43.2019.10.01.15.21.12
+        by smtp.gmail.com with ESMTPSA id d14sm6455491ilm.15.2019.10.01.15.21.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Oct 2019 15:21:12 -0700 (PDT)
-Date:   Tue, 1 Oct 2019 17:21:09 -0500
+        Tue, 01 Oct 2019 15:21:24 -0700 (PDT)
+Date:   Tue, 1 Oct 2019 17:21:21 -0500
 From:   Rob Herring <robh@kernel.org>
 To:     Krzysztof Kozlowski <krzk@kernel.org>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -59,37 +59,31 @@ Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Kevin Hilman <khilman@baylibre.com>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] dt-bindings: watchdog: Convert Samsung SoC
- watchdog bindings to json-schema
-Message-ID: <20191001222109.GA26050@bogus>
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v2 3/3] dt-bindings: watchdog: meson-gxbb-wdt: Include
+ generic watchdog bindings
+Message-ID: <20191001222121.GA29661@bogus>
 References: <20190920162124.7036-1-krzk@kernel.org>
+ <20190920162124.7036-3-krzk@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190920162124.7036-1-krzk@kernel.org>
+In-Reply-To: <20190920162124.7036-3-krzk@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 20, 2019 at 06:21:22PM +0200, Krzysztof Kozlowski wrote:
-> Convert Samsung S3C/S5P/Exynos watchdog bindings to DT schema format
-> using json-schema.
+On Fri, 20 Sep 2019 18:21:24 +0200, Krzysztof Kozlowski wrote:
+> Include generic watchdog DT schema bindings in Amlogic GXBB Watchdog
+> bindings.
 > 
 > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> 
 > ---
+>  .../devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml   | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> Changes since v1:
-> 1. Indent example with four spaces (more readable),
-> 2. Remove unneeded timeout-sec description and include generic bindings.
-> ---
->  .../bindings/watchdog/samsung-wdt.txt         | 35 ----------
->  .../bindings/watchdog/samsung-wdt.yaml        | 65 +++++++++++++++++++
->  2 files changed, 65 insertions(+), 35 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->  create mode 100644 Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
