@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A7FECE587
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:53:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96D3EC352AA
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:58:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 65F842168B
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:53:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E7372168B
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Oct 2019 16:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569948803;
-	bh=gSx/kE23fzHUe4o9lTlqP2NnAB1nJWy1UhDsuCg7TD8=;
+	s=default; t=1569949083;
+	bh=OLACyd3bdMh9lkeSGbPlVm1QG0QsbhnG2nzLNyj/aNY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=FM6WnoWycx8vJ+9GaKDHntf/8+nt7FHIbOMb0PzJqLApotkubGbFSiqFaaOxqLvuB
-	 Vpwvdw82KzTcfPmWlKgnkH1O9DfG6riTZse5zUuilCPLsqvXBROovKgVCjFlf8YpWa
-	 S2u3rTelvnhiPsPZsp1Y1p7DgQ9SKB2RgE3uZoGE=
+	b=RpPPgq+FvTK2U4jQQkGdFQcJr/1faRuqS+BYEDqdYwj2X2RB1q8ADeKZcZR1t9JjV
+	 rz7ID8l/Wo1Lox5Yl9dx4hvA010nPg2C0do1Puom/Ppqle8ozkWe30bORjsrgMzcAP
+	 6ymlFqUkBNZ9HVLSX14p4R/B5IUkYUcTKzVj+PCA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732735AbfJAQn2 (ORCPT
+        id S1726764AbfJAQ55 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Oct 2019 12:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55494 "EHLO mail.kernel.org"
+        Tue, 1 Oct 2019 12:57:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732678AbfJAQnZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:43:25 -0400
+        id S1731313AbfJAQlq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:41:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4734222CC;
-        Tue,  1 Oct 2019 16:43:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD5192190F;
+        Tue,  1 Oct 2019 16:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948204;
-        bh=gSx/kE23fzHUe4o9lTlqP2NnAB1nJWy1UhDsuCg7TD8=;
+        s=default; t=1569948105;
+        bh=OLACyd3bdMh9lkeSGbPlVm1QG0QsbhnG2nzLNyj/aNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYCsRSSCYwGaMQx1tXI95eY9fCHdSl8zQA66vcMJnv9A8zg7IFojIL2T99r58mB/y
-         1+wJXnfko6FM03D2aE8ewrF8CJSopXi8xM28vCIuxFxSP42Rg5wRxhsfRl56X3TnHY
-         yHI+95qpdo7nZR9cUEKTyEGnKLaVLT/SoDes+fIk=
+        b=g1aK25bjSMTjkKvDETe+krx8tGz9lVaZreDTi8mZmf4rPPtKi9CaCpr7lfhJdOKAJ
+         QT0mImNHU423f7njKIs2iFp9Lc4H0B3hvGOkghGfjO7SRjRBCE6JDhZNV83P4zLGMm
+         zBqlBqz2AQtyKR0ozDp3aRpP6+y5FI8OqzB12SZs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ryan Chen <ryan_chen@aspeedtech.com>,
@@ -46,12 +46,12 @@ Cc:     Ryan Chen <ryan_chen@aspeedtech.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/43] watchdog: aspeed: Add support for AST2600
-Date:   Tue,  1 Oct 2019 12:42:39 -0400
-Message-Id: <20191001164311.15993-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 16/63] watchdog: aspeed: Add support for AST2600
+Date:   Tue,  1 Oct 2019 12:40:38 -0400
+Message-Id: <20191001164125.15398-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001164311.15993-1-sashal@kernel.org>
-References: <20191001164311.15993-1-sashal@kernel.org>
+In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
+References: <20191001164125.15398-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index 1abe4d021fd27..ffde179a9bb2c 100644
+index f0148637e5dd1..a6c78e123ef54 100644
 --- a/drivers/watchdog/aspeed_wdt.c
 +++ b/drivers/watchdog/aspeed_wdt.c
-@@ -38,6 +38,7 @@ static const struct aspeed_wdt_config ast2500_config = {
+@@ -34,6 +34,7 @@ static const struct aspeed_wdt_config ast2500_config = {
  static const struct of_device_id aspeed_wdt_of_table[] = {
  	{ .compatible = "aspeed,ast2400-wdt", .data = &ast2400_config },
  	{ .compatible = "aspeed,ast2500-wdt", .data = &ast2500_config },
@@ -90,7 +90,7 @@ index 1abe4d021fd27..ffde179a9bb2c 100644
  	{ },
  };
  MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
-@@ -264,7 +265,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+@@ -259,7 +260,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
  		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
  	}
  
