@@ -4,23 +4,22 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0582FC4360C
-	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Oct 2019 10:05:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A780C4360C
+	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Oct 2019 10:05:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C926A21D71
-	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Oct 2019 10:05:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14FB121D71
+	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Oct 2019 10:05:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728977AbfJLKF1 (ORCPT
+        id S1728886AbfJLKFc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 12 Oct 2019 06:05:27 -0400
+        Sat, 12 Oct 2019 06:05:32 -0400
 Received: from mail-sz.amlogic.com ([211.162.65.117]:39661 "EHLO
         mail-sz.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728886AbfJLKF1 (ORCPT
+        with ESMTP id S1729182AbfJLKFc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 12 Oct 2019 06:05:27 -0400
+        Sat, 12 Oct 2019 06:05:32 -0400
 Received: from droid12-sz.software.amlogic (10.28.8.22) by mail-sz.amlogic.com
  (10.28.11.5) with Microsoft SMTP Server id 15.1.1591.10; Sat, 12 Oct 2019
  18:05:30 +0800
@@ -38,10 +37,10 @@ CC:     Xingyu Chen <xingyu.chen@amlogic.com>,
         <linux-watchdog@vger.kernel.org>,
         <linux-amlogic@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/4] firmware: meson_sm: add new SMC ID support for accessing secure watchdog
-Date:   Sat, 12 Oct 2019 18:05:18 +0800
-Message-ID: <1570874721-36077-2-git-send-email-xingyu.chen@amlogic.com>
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
+Subject: [PATCH 4/4] arm64: dts: a1: add secure watchdog controller
+Date:   Sat, 12 Oct 2019 18:05:21 +0800
+Message-ID: <1570874721-36077-5-git-send-email-xingyu.chen@amlogic.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1570874721-36077-1-git-send-email-xingyu.chen@amlogic.com>
 References: <1570874721-36077-1-git-send-email-xingyu.chen@amlogic.com>
@@ -53,39 +52,30 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The new SMC ID is used to access secure registers by meson secure
-watchdog driver.
+Enable secure watchdog controller for Meson-A1 SoC
 
 Signed-off-by: Xingyu Chen <xingyu.chen@amlogic.com>
 ---
- drivers/firmware/meson/meson_sm.c       | 1 +
- include/linux/firmware/meson/meson_sm.h | 1 +
- 2 files changed, 2 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-a1.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/firmware/meson/meson_sm.c b/drivers/firmware/meson/meson_sm.c
-index 1d5b4d7..46a44de 100644
---- a/drivers/firmware/meson/meson_sm.c
-+++ b/drivers/firmware/meson/meson_sm.c
-@@ -44,6 +44,7 @@ static const struct meson_sm_chip gxbb_chip = {
- 		CMD(SM_EFUSE_WRITE,	0x82000031),
- 		CMD(SM_EFUSE_USER_MAX,	0x82000033),
- 		CMD(SM_GET_CHIP_ID,	0x82000044),
-+		CMD(SM_WATCHDOG_OPS,	0x82000086),
- 		{ /* sentinel */ },
- 	},
- };
-diff --git a/include/linux/firmware/meson/meson_sm.h b/include/linux/firmware/meson/meson_sm.h
-index 6669e2a..0934718 100644
---- a/include/linux/firmware/meson/meson_sm.h
-+++ b/include/linux/firmware/meson/meson_sm.h
-@@ -12,6 +12,7 @@ enum {
- 	SM_EFUSE_WRITE,
- 	SM_EFUSE_USER_MAX,
- 	SM_GET_CHIP_ID,
-+	SM_WATCHDOG_OPS,
- };
+diff --git a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+index 7210ad0..047c323 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+@@ -93,6 +93,12 @@
+ 				clock-names = "xtal", "pclk", "baud";
+ 				status = "disabled";
+ 			};
++
++			watchdog {
++				compatible = "amlogic,meson-sec-wdt";
++				secure-monitor = <&sm>;
++				status = "okay";
++			};
+ 		};
  
- struct meson_sm_firmware;
+ 		gic: interrupt-controller@ff901000 {
 -- 
 2.7.4
 
