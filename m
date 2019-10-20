@@ -2,43 +2,40 @@ Return-Path: <SRS0=50bF=YN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BDB0CA9EA0
-	for <linux-watchdog@archiver.kernel.org>; Sun, 20 Oct 2019 04:08:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C97B3CA9EAE
+	for <linux-watchdog@archiver.kernel.org>; Sun, 20 Oct 2019 15:36:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7BE662173E
-	for <linux-watchdog@archiver.kernel.org>; Sun, 20 Oct 2019 04:08:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7C2B222D3
+	for <linux-watchdog@archiver.kernel.org>; Sun, 20 Oct 2019 15:36:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725916AbfJTEI2 (ORCPT
+        id S1726559AbfJTPgZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 20 Oct 2019 00:08:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37106 "EHLO mx1.suse.de"
+        Sun, 20 Oct 2019 11:36:25 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42576 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725843AbfJTEI2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 20 Oct 2019 00:08:28 -0400
+        id S1726492AbfJTPgY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 20 Oct 2019 11:36:24 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 10F15AC8F;
-        Sun, 20 Oct 2019 04:08:26 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id D727BB02C;
+        Sun, 20 Oct 2019 15:36:22 +0000 (UTC)
 From:   =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 To:     linux-realtek-soc@lists.infradead.org
 Cc:     linux-arm-kernel@lists.infradead.org,
         =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/8] dt-bindings: watchdog: realtek: Convert RTD119x to schema
-Date:   Sun, 20 Oct 2019 06:08:10 +0200
-Message-Id: <20191020040817.16882-2-afaerber@suse.de>
+        linux-watchdog@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
+        linux-clk@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH v3 0/2] arm64: Realtek RTD1295 watchdog
+Date:   Sun, 20 Oct 2019 17:36:10 +0200
+Message-Id: <20191020153612.29889-1-afaerber@suse.de>
 X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20191020040817.16882-1-afaerber@suse.de>
-References: <20191020040817.16882-1-afaerber@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,85 +44,41 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert the Realtek watchdog binding to a YAML schema.
+Hello,
 
-Signed-off-by: Andreas Färber <afaerber@suse.de>
----
- v2: New
- 
- .../bindings/watchdog/realtek,rtd119x.txt          | 17 ----------
- .../bindings/watchdog/realtek,rtd119x.yaml         | 38 ++++++++++++++++++++++
- 2 files changed, 38 insertions(+), 17 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.yaml
+This series adds the watchdog for the Realtek RTD1295 SoC.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
-deleted file mode 100644
-index 05653054bd5b..000000000000
---- a/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
-+++ /dev/null
-@@ -1,17 +0,0 @@
--Realtek RTD1295 Watchdog
--========================
--
--Required properties:
--
--- compatible :  Should be "realtek,rtd1295-watchdog"
--- reg        :  Specifies the physical base address and size of registers
--- clocks     :  Specifies one clock input
--
--
--Example:
--
--	watchdog@98007680 {
--		compatible = "realtek,rtd1295-watchdog";
--		reg = <0x98007680 0x100>;
--		clocks = <&osc27M>;
--	};
-diff --git a/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.yaml b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.yaml
-new file mode 100644
-index 000000000000..5d92cfdfd046
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.yaml
-@@ -0,0 +1,38 @@
-+# SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/watchdog/realtek,rtd119x.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: Realtek RTD1295 Watchdog
-+
-+maintainers:
-+  - Andreas Färber <afaerber@suse.de>
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - const: realtek,rtd1295-watchdog
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+
-+examples:
-+  - |
-+	watchdog@98007680 {
-+		compatible = "realtek,rtd1295-watchdog";
-+		reg = <0x98007680 0x100>;
-+		clocks = <&osc27M>;
-+	};
-+...
+v3 adds the missing DT node, previously dependent on an unreviewed clk series.
+
+Have a lot of fun!
+
+Cheers,
+Andreas
+
+v2 -> v3:
+* Driver was merged
+* Split off needed osc27M clock from clk patch series
+
+v1 -> v2:
+* Prepared remove (Guenther)
+* Set timeout field (Guenther)
+* Cleanups (Guenther, Andreas)
+
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Cc: Roc He <hepeng@zidoo.tv>
+Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
+Cc: linux-clk@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+
+Andreas Färber (2):
+  arm64: dts: realtek: Add oscillator for RTD129x
+  arm64: dts: realtek: Add watchdog node for RTD129x
+
+ arch/arm64/boot/dts/realtek/rtd129x.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
 -- 
 2.16.4
 
