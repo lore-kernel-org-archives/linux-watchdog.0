@@ -2,120 +2,133 @@ Return-Path: <SRS0=v9r5=ZA=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C1CFA372C
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Nov 2019 10:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C00AFA372C
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Nov 2019 14:24:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 856B3218AE
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Nov 2019 10:58:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D580222C4
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Nov 2019 14:24:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lrokpjAz"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AtUZYW3J"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbfKHK6S (ORCPT
+        id S1726485AbfKHOYp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 8 Nov 2019 05:58:18 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45527 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726149AbfKHK6S (ORCPT
+        Fri, 8 Nov 2019 09:24:45 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:34669 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbfKHOYp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 8 Nov 2019 05:58:18 -0500
-Received: by mail-pg1-f194.google.com with SMTP id w11so3690900pga.12
-        for <linux-watchdog@vger.kernel.org>; Fri, 08 Nov 2019 02:58:17 -0800 (PST)
+        Fri, 8 Nov 2019 09:24:45 -0500
+Received: by mail-pl1-f196.google.com with SMTP id k7so4162582pll.1;
+        Fri, 08 Nov 2019 06:24:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=wISJS0OWPo2/E4IjX1pDBrYSwoR446f1IRAE3ZXUfNg=;
-        b=lrokpjAz8qWZkc7OmPIgihn1TOvIx7tamO/UFjIQ7Hi9QRgTzND01Ew+Njm0A2ElvG
-         A4/NwlYQ3eG1TrsgaVhIPxljDuBueDMoTmzyH9Q6sXTK3Ft1p3/sSDHZU8GeAo2O2wEZ
-         2db2DoY07TwQ5JoatF1Cm2LQYXW+VniirkzYU1pqlFP4LlH+LyqLvLADu7B6hykhjOWt
-         Zf7HjWjAPCac5zDv3skmiVawov0sh77DYhsRY96rh5ExzaHUb4tCiW3Dfti7YfYM1/YR
-         e/EmGauYZQwDZvcDBvBw/1CrbShTJyCcBiYjzb30pQxYGrhNdfvpG48yNSbIBDBGPnV2
-         /0ow==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=JSdryO8eXVojEIgiGi6/MOU8GHzrDfHfveNE8M0VA90=;
+        b=AtUZYW3J0oNtdFnuggazotKKoiYQGbkNOGQNhTI8Ly7D7GuZ+mwqFssMKhSS2pY2oy
+         KRcxfbsGCuX780NlynrPwAY3ssLO98dF1QR+l6Tlv5x5F3YkUg6TuDmjDZY3ln890zbe
+         qYXaAD7vETGYXBFSgLVmRiTD/f//Ma5ytkiPocr4yK4ySZQrDupogLO5XB/LtvEtbXPi
+         eaG4WWlsxrl/n6pm5lCCo1DWbzLpUK72QfiIVVP/TqBxUjKZ8IWccydNIWr01IxljNmT
+         jETtSto8V+BUNQnlXLK5nGgOEjqFB10xi3ODQPxMqGosbhfzTnfa9LHXP5orMhg8Ti/N
+         h8cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=wISJS0OWPo2/E4IjX1pDBrYSwoR446f1IRAE3ZXUfNg=;
-        b=su3aemC4HO/uWcxRAXpkEjlIsRiU38T2u3P8bgr2BvKgaUF8JAodH/7KyY31gLpzQR
-         Txa0r5m5rW2d6to3F+z/4b1/KyWUM2X4hf5tSYYdiwp44wDVAS6S21ikitzpjBzs4YoX
-         VQbfKBjT9r2GiBe8hzycz2a2bX67ZoQs56NNvVVXJPCESl5oEi0Pyhg/Yweq4mn+frKZ
-         3HlA/8YFAA5ML3CIV9uhSsCNSpzdaRBZasOIrbmQ0+XfLAwikG4G6DzzbsM6v/u4xcfq
-         RU0gBY9ji/NZs18la3dGl9TboMCNzBE1jNJ2PfefE+dvc7Q+rF+FjrCtYIF7zNz3yP06
-         uMGQ==
-X-Gm-Message-State: APjAAAV/bU6zdzrgN5MmDqZuE7KxjpQNmVn/S38ASrG92cXXx8QaEYq0
-        cXtYT8rEKyJZV8Kj/Fd09+7qvg==
-X-Google-Smtp-Source: APXvYqw6zZqtJoMSVOyHzvFRbaQhcvNKVMam7pzqcTmDeakyOOULh6MNYGf+Nuovm/I4m812tZrLgg==
-X-Received: by 2002:a17:90a:b78d:: with SMTP id m13mr12970166pjr.70.1573210697207;
-        Fri, 08 Nov 2019 02:58:17 -0800 (PST)
-Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.82])
-        by smtp.gmail.com with ESMTPSA id x12sm5111180pfm.130.2019.11.08.02.58.14
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 08 Nov 2019 02:58:16 -0800 (PST)
-From:   Baolin Wang <baolin.wang@linaro.org>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     orsonzhai@gmail.com, zhang.lyra@gmail.com, baolin.wang@linaro.org,
-        baolin.wang7@gmail.com, dongwei.wang@unisoc.com,
-        shuiqing.li@unisoc.com, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: sprd: Fix the incorrect pointer getting from driver data
-Date:   Fri,  8 Nov 2019 18:57:12 +0800
-Message-Id: <76d4687189ec940baa90cb8d679a8d4c8f02ee80.1573210405.git.baolin.wang@linaro.org>
-X-Mailer: git-send-email 1.7.9.5
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JSdryO8eXVojEIgiGi6/MOU8GHzrDfHfveNE8M0VA90=;
+        b=QgZtyrr744fR38N10f4IxKhoygev/m8lzEKQjaoeb1yEP+V2Yog42jdKg4J0kQJtNZ
+         B+wFop5NrYZjn5nU6UbpDdYx2lKVQAbZloAbT5IQwdVOaPDxjAAXFNCtuBZKEyvDpJES
+         GxC3XZncLpRf5usfiqyoS4z/Q4reqOOjXg5axC1f7hTzEyEI4KbPWtnwNTl//ey43iMJ
+         flbz66WRLeLAmKRIXOPd25txMEE4xFVbrIJfGK/YW2Bh+7fPfLG8Ad9ZF6Vcmusnr8iF
+         6YhWTbEuV2ypKxsCsI2f1RxETT93FMCZNoBnyWr76dTfoCQXD8z5B+DfHqarKnsLuXQv
+         ZbYQ==
+X-Gm-Message-State: APjAAAVw1UnVQvi9AszcEKSG7RwVGN7Bnwm0nYSZe7dkFRZAhEaFNX3M
+        xF2C55FFhgotC2wVQMrYtiuzBPox
+X-Google-Smtp-Source: APXvYqwaeB5xoNb/VifPiYhNFyeGVE4opk7Jr0DWPaz3iNceFwFsDfBcFGrgaDvCmjJC8EsYrVAbDg==
+X-Received: by 2002:a17:902:b203:: with SMTP id t3mr10340394plr.51.1573223084656;
+        Fri, 08 Nov 2019 06:24:44 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e59sm9000783pjk.28.2019.11.08.06.24.42
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Nov 2019 06:24:43 -0800 (PST)
+Subject: Re: [PATCH] watchdog: sprd: Fix the incorrect pointer getting from
+ driver data
+To:     Baolin Wang <baolin.wang@linaro.org>, wim@linux-watchdog.org
+Cc:     orsonzhai@gmail.com, zhang.lyra@gmail.com, baolin.wang7@gmail.com,
+        dongwei.wang@unisoc.com, shuiqing.li@unisoc.com,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <76d4687189ec940baa90cb8d679a8d4c8f02ee80.1573210405.git.baolin.wang@linaro.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <3cd61e17-0fd1-6900-47bf-04fcfdef9108@roeck-us.net>
+Date:   Fri, 8 Nov 2019 06:24:41 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <76d4687189ec940baa90cb8d679a8d4c8f02ee80.1573210405.git.baolin.wang@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Shuiqing Li <shuiqing.li@unisoc.com>
+On 11/8/19 2:57 AM, Baolin Wang wrote:
+> From: Shuiqing Li <shuiqing.li@unisoc.com>
+> 
+> The device driver data saved the 'struct sprd_wdt' object, it is
+> incorrect to get 'struct watchdog_device' object from the driver
+> data, thus fix it.
+> 
+> Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
+> Reported-by: Dongwei Wang <dongwei.wang@unisoc.com>
+> Signed-off-by: Shuiqing Li <shuiqing.li@unisoc.com>
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 
-The device driver data saved the 'struct sprd_wdt' object, it is
-incorrect to get 'struct watchdog_device' object from the driver
-data, thus fix it.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
-Reported-by: Dongwei Wang <dongwei.wang@unisoc.com>
-Signed-off-by: Shuiqing Li <shuiqing.li@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- drivers/watchdog/sprd_wdt.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-index 0bb17b0..65cb55f 100644
---- a/drivers/watchdog/sprd_wdt.c
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -327,10 +327,9 @@ static int sprd_wdt_probe(struct platform_device *pdev)
- 
- static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
- {
--	struct watchdog_device *wdd = dev_get_drvdata(dev);
- 	struct sprd_wdt *wdt = dev_get_drvdata(dev);
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(&wdt->wdd))
- 		sprd_wdt_stop(&wdt->wdd);
- 	sprd_wdt_disable(wdt);
- 
-@@ -339,7 +338,6 @@ static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
- 
- static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
- {
--	struct watchdog_device *wdd = dev_get_drvdata(dev);
- 	struct sprd_wdt *wdt = dev_get_drvdata(dev);
- 	int ret;
- 
-@@ -347,7 +345,7 @@ static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	if (watchdog_active(wdd)) {
-+	if (watchdog_active(&wdt->wdd)) {
- 		ret = sprd_wdt_start(&wdt->wdd);
- 		if (ret) {
- 			sprd_wdt_disable(wdt);
--- 
-1.7.9.5
+> ---
+>   drivers/watchdog/sprd_wdt.c |    6 ++----
+>   1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+> index 0bb17b0..65cb55f 100644
+> --- a/drivers/watchdog/sprd_wdt.c
+> +++ b/drivers/watchdog/sprd_wdt.c
+> @@ -327,10 +327,9 @@ static int sprd_wdt_probe(struct platform_device *pdev)
+>   
+>   static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
+>   {
+> -	struct watchdog_device *wdd = dev_get_drvdata(dev);
+>   	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+>   
+> -	if (watchdog_active(wdd))
+> +	if (watchdog_active(&wdt->wdd))
+>   		sprd_wdt_stop(&wdt->wdd);
+>   	sprd_wdt_disable(wdt);
+>   
+> @@ -339,7 +338,6 @@ static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
+>   
+>   static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+>   {
+> -	struct watchdog_device *wdd = dev_get_drvdata(dev);
+>   	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+>   	int ret;
+>   
+> @@ -347,7 +345,7 @@ static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+>   	if (ret)
+>   		return ret;
+>   
+> -	if (watchdog_active(wdd)) {
+> +	if (watchdog_active(&wdt->wdd)) {
+>   		ret = sprd_wdt_start(&wdt->wdd);
+>   		if (ret) {
+>   			sprd_wdt_disable(wdt);
+> 
 
