@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09318C17441
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Nov 2019 01:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEE8FC43331
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Nov 2019 02:15:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D28EE22476
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Nov 2019 01:51:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9760F22459
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Nov 2019 02:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1573609880;
+	s=default; t=1573611329;
 	bh=yW1ZY926CRyEvYL8nf0PNItB9Msvnl5KBJPysHlwXVc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=njMh5B9ZtscoSpwd1N7Vs98bR+xw3hwYGyDAgdUgiICoIEgLA983tFa9H+F4uiFC/
-	 3h61i2fyFHzyl2DWv6uCKvRg0D85YnpJqrGTb6ZByEhaVTYqm2vugNe/gVXgf+jity
-	 6PJGyI46kn/lKoh/X5UaS7O8z+LDGU1cKqVwqszU=
+	b=j6IbxpfaTMLq/ZlQqMRUZHq8ad2cIWH1wQBoiYMjSrAFVM0ydBTlSOLoeoPQ8DVNF
+	 6UzBNxV8btZpnk2ZG5E6igg/l/5ulV8u6IsgQURJkGUHpnfRrXC4PMhAH2GKnQNBDF
+	 7p+oruiJRBOg0P2e03NCDyVn2UUNn+KkWXXIsgbM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727678AbfKMBvU (ORCPT
+        id S1728908AbfKMCPZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 12 Nov 2019 20:51:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        Tue, 12 Nov 2019 21:15:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727779AbfKMBvT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:19 -0500
+        id S1729610AbfKMB4w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D63E222D4;
-        Wed, 13 Nov 2019 01:51:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 231102246A;
+        Wed, 13 Nov 2019 01:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609879;
+        s=default; t=1573610211;
         bh=yW1ZY926CRyEvYL8nf0PNItB9Msvnl5KBJPysHlwXVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyQxyfauK8YFL9FdQajucZiMkbY4WwMDYbsbUD0T5JynZvQ1PXXnoKTp1lPjGvFJG
-         XgWVGUEBkffIfpO30OkegnGbd2d3qrNUX738KmOVs8k/CEOjGyd8JPejXELvJbicy7
-         9+Zi6vxHHj7Fqkpg4i4M0/hSsOTmczaZ18hm6hwc=
+        b=DGhGPPoKyZiA+J4nJpk5AT520bvSZXAnFBWGuw7YtdNzzJu4ZZtgll/9eVAWlEhf1
+         6Voms9YNTz5EN/OWOaNu5lR+6lUISbYs9cFbWBLEnc27TBinZYGG5qYPg7qAmMRFfo
+         9bFUQdA3FZiZJVH74RftB2CGh/cXrXNhpD6uid24=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 041/209] watchdog: w83627hf_wdt: Support NCT6796D, NCT6797D, NCT6798D
-Date:   Tue, 12 Nov 2019 20:47:37 -0500
-Message-Id: <20191113015025.9685-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 021/115] watchdog: w83627hf_wdt: Support NCT6796D, NCT6797D, NCT6798D
+Date:   Tue, 12 Nov 2019 20:54:48 -0500
+Message-Id: <20191113015622.11592-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
-References: <20191113015025.9685-1-sashal@kernel.org>
+In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
+References: <20191113015622.11592-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
