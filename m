@@ -2,109 +2,110 @@ Return-Path: <SRS0=E9hf=ZM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73E01C432C0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A311BC432C0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:31:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4C49E2243E
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7986B2243E
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:31:07 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="ViJfASR7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726907AbfKTKXH convert rfc822-to-8bit (ORCPT
+        id S1728689AbfKTKbF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Nov 2019 05:23:07 -0500
-Received: from cnshjsmin03.app.nokia-sbell.com ([116.246.26.71]:16257 "EHLO
-        cnshjsmin03.nokia-sbell.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726757AbfKTKXG (ORCPT
+        Wed, 20 Nov 2019 05:31:05 -0500
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:38284 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbfKTKbE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Nov 2019 05:23:06 -0500
-X-Greylist: delayed 901 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Nov 2019 05:23:05 EST
-X-AuditID: ac189297-c7bff7000000115a-f7-5dd5107e795c
-Received: from CNSHPPEXCH1607.nsn-intra.net (Unknown_Domain [135.251.51.107])
-        (using TLS with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by cnshjsmin03.nokia-sbell.com (Symantec Messaging Gateway) with SMTP id 78.F8.04442.E7015DD5; Wed, 20 Nov 2019 18:07:58 +0800 (HKT)
-Received: from CNSHPPEXCH1601.nsn-intra.net (135.251.51.101) by
- CNSHPPEXCH1607.nsn-intra.net (135.251.51.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 20 Nov 2019 18:07:57 +0800
-Received: from CNSHPPEXCH1601.nsn-intra.net ([135.251.51.101]) by
- CNSHPPEXCH1601.nsn-intra.net ([135.251.51.101]) with mapi id 15.01.1713.007;
- Wed, 20 Nov 2019 18:07:57 +0800
-From:   "Wang, Peng 1. (NSB - CN/Hangzhou)" <peng.1.wang@nokia-sbell.com>
-To:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] watchdog: make DesignWare watchdog allow users to set bigger
- timeout value
-Thread-Topic: [PATCH] watchdog: make DesignWare watchdog allow users to set
- bigger timeout value
-Thread-Index: AdWfimD0awmuxWORQi2dTd1MQDV31A==
-Date:   Wed, 20 Nov 2019 10:07:57 +0000
-Message-ID: <13477f08400047c1b32030b2680a4241@nokia-sbell.com>
-Accept-Language: zh-CN, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [135.251.51.115]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        Wed, 20 Nov 2019 05:31:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=LsRowSxwyb15GuNAkr+jjh5/r3yRoAAJmRPZPsLbvoY=; b=ViJfASR7OcAf6ixia3VgOPxIk
+        hvySo1WkwlUuT27qm6nFMI6fzxSelUrGXMLjHSrID/GUTluLB3Tv0XPV/3fzgrJKN8rIuCe1GcAH6
+        Cg2SZj8e19kNJjYJ27/ZPyHG9KRZe5jzZZ8s3QRVSU+q73qIGKPzfPHraNdrnlbpp1KcgrLr9yhsV
+        3VFChq6lpJzdf3VMmqwpdZs0ec4ASXEBb8HHopHXid5lm/WxFbfSpCED6rYzQgmiF0KoNxUNcX9S8
+        S20+sPKHhNGl83HXAA47LEMcyFFA+UzqRFi108rKRpUmblZBY38P5sPdi2JvIuBypmDCwMNL9rvRO
+        0epohK0uQ==;
+Received: from shell.armlinux.org.uk ([2001:4d48:ad52:3201:5054:ff:fe00:4ec]:58714)
+        by pandora.armlinux.org.uk with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.90_1)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1iXNGB-0007ii-AN; Wed, 20 Nov 2019 10:30:55 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1iXNGA-0001eI-3c; Wed, 20 Nov 2019 10:30:54 +0000
+Date:   Wed, 20 Nov 2019 10:30:54 +0000
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Laura Abbott <labbott@redhat.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lennert Buytenhek <kernel@wantstofly.org>
+Subject: Re: [PATCH] watchdog: Remove iop_wdt
+Message-ID: <20191120103054.GM25745@shell.armlinux.org.uk>
+References: <20191118220432.1611-1-labbott@redhat.com>
+ <29e94219-22ca-c873-7209-64d1c357fe5c@roeck-us.net>
+ <CAK8P3a0=3J3WHTKU7sPvd37VEwg3wOuZ5S2-xXtNYEcSQhWyHw@mail.gmail.com>
+ <4f283ab6-0f3c-60e9-cfd1-29d10d978986@roeck-us.net>
+ <20191120100341.GK25745@shell.armlinux.org.uk>
+ <CAK8P3a2N+aDgFz75dFJy3Me9FPdyDSyPaa29FngLjfXX3MzfvA@mail.gmail.com>
 MIME-Version: 1.0
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrOLMWRmVeSWpSXmKPExsXS/ts4W7dO4GqswfOnTBaXd81hs7ixbh+7
-        xZOFZ5gsHr/8x+zA4rFyzRpWj53fG9g9Pm+SC2CO4rJJSc3JLEst0rdL4Mp4vtu24BFXxaUW
-        jQbGhxxdjJwcEgImEmeenGUBsYUEDjFJPD5X28XIBWT/ZZQ4dPMeM4SziVFi65ZHrCBVbALu
-        Ek2b1rGBJEQEXjBKNM7fzA6SEBaIlfi69wsziC0ikCRx4+F/FghbT2LO9h9gzSwCqhIXVm0B
-        s3kF7CR+P2oA62UUkJWY9ug+E4jNLCAucevJfCaI8wQkluw5zwxhi0q8fPwPqJcDyFaS6NsA
-        Va4jsWD3JzYIW1ti2cLXzBDjBSVOznzCMoFReBaSqbOQtMxC0jILScsCRpZVjNLJecUZWcW5
-        mXkGxnp5+dmZibrFSak5OXrJ+bmbGIHRsUZi0vQdjMcOeB9iFOBgVOLhtbh0OVaINbGsuDL3
-        EKMEB7OSCO+e61dihXhTEiurUovy44tKc1KLDzFKc7AoifO2TF4YKySQnliSmp2aWpBaBJNl
-        4uCUamDMCOdprnDhLngz5Yg3b8b5TXHrjJwkE+Qd1fTfh5qumjOH2czzyfbradwP0uoKNxjc
-        j9JlecJzwPXjYum0459Llv+dttGmx8v1pU/hIXOFT5ZGXe2svxTevUhePH/9oeP9hh2qR0U0
-        TV30lZevL0ll6Ana0GBzJERD0cSuNFWwIkXHtFp2nhJLcUaioRZzUXEiAOg1oIuKAgAA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a2N+aDgFz75dFJy3Me9FPdyDSyPaa29FngLjfXX3MzfvA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From 1d051b7c081083751dc0bab97d3ab9efbba0f4a7 Mon Sep 17 00:00:00 2001
-From: Peng Wang <peng.1.wang@nokia-sbell.com>
-Date: Wed, 20 Nov 2019 15:12:59 +0800
-Subject: [PATCH] watchdog: make DesignWare watchdog allow users to set bigger
- timeout value
+On Wed, Nov 20, 2019 at 11:15:01AM +0100, Arnd Bergmann wrote:
+> On Wed, Nov 20, 2019 at 11:03 AM Russell King - ARM Linux admin
+> <linux@armlinux.org.uk> wrote:
+> > On Tue, Nov 19, 2019 at 06:29:09AM -0800, Guenter Roeck wrote:
+> > > On 11/19/19 1:40 AM, Arnd Bergmann wrote:
+> > > > On Tue, Nov 19, 2019 at 3:08 AM Guenter Roeck <linux@roeck-us.net> wrote:
+> > > > > On 11/18/19 2:04 PM, Laura Abbott wrote:
+> > >
+> > > Good point, especially since apparently no one cared for five years.
+> >
+> > Doesn't mean that there aren't interested parties.  I still have
+> > IOP32x hardware running here in the form of a N2100 (my firewall)
+> > and it seems that I never noticed this option disappearing until
+> > now...
+> 
+> It's not that it was ever there for IOP32x: the driver was introduced in 2007
+> and was available for IOP32x but failed to compile for it until 2014 when
+> I sent the patch to disable the driver in all configurations that
+> failed to build.
 
-watchdog_dev.c provides means to allow users to set bigger timeout value
-than HW can support, make DesignWare watchdog align with this.
+Well:
 
-Signed-off-by: Peng Wang <peng.1.wang@nokia-sbell.com>
----
- drivers/watchdog/dw_wdt.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+systems/n2100/boot/config-3.11.5+:CONFIG_IOP_WATCHDOG=m
+systems/n2100/boot/config-3.12.6+:CONFIG_IOP_WATCHDOG=m
+systems/n2100/boot/config-3.9.5+:CONFIG_IOP_WATCHDOG=m
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index fef7c61..8911e5e 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -113,8 +113,15 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
- 	 */
- 	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
- 	       dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
--
--	wdd->timeout = dw_wdt_top_in_seconds(dw_wdt, top_val);
-+    
-+    /*
-+     * In case users set bigger timeout value than HW can support,
-+     * kernel(watchdog_dev.c) helps to feed watchdog before 
-+     * wdd->timeout
-+     */
-+    if ( wdd->timeout * 1000 <= wdd->max_hw_heartbeat_ms ) {
-+	    wdd->timeout = dw_wdt_top_in_seconds(dw_wdt, top_val);
-+    }
- 
- 	return 0;
- }
+-rw-rw-r-- 1 rmk rmk 5284 Dec 30  2013 systems/n2100/lib/modules/3.12.6+/kernel/drivers/watchdog/iop_wdt.ko
+-rw-rw-r-- 1 rmk rmk 5276 Dec 20  2013 systems/n2100/lib/modules/3.9.5+/kernel/drivers/watchdog/iop_wdt.ko
+
+It seems I've been carrying a patch to comment out the troublesome code:
+
+-       write_wdtsr(IOP13XX_WDTCR_IB_RESET);
++//     write_wdtsr(IOP13XX_WDTCR_IB_RESET);
+
+in my stable tree since 2015.
+
 -- 
-1.8.3.1
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
+According to speedtest.net: 11.9Mbps down 500kbps up
