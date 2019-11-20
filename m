@@ -2,133 +2,92 @@ Return-Path: <SRS0=E9hf=ZM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 995C4C432C0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:03:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42B73C432C0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:15:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 69C6622429
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:03:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="s22lhr/y"
+	by mail.kernel.org (Postfix) with ESMTP id 1FA8B22311
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Nov 2019 10:15:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727960AbfKTKDz (ORCPT
+        id S1728480AbfKTKPU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Nov 2019 05:03:55 -0500
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:37936 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726229AbfKTKDy (ORCPT
+        Wed, 20 Nov 2019 05:15:20 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:55453 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728464AbfKTKPU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Nov 2019 05:03:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=N4okNq91vSD3Nw9+ESonOug3n4UNsPalZDY4dcBnWUc=; b=s22lhr/yHhIPSIbjDa7RUyeX3
-        tPMbHwQjt4RdsTCO03fuBIqHS+VnwZGgxZDKF8UuFb0dKK022FF+PnBOCBBMghofWzqv9TWy1CWL6
-        h728N1mx/RRZPTBgGmCafNgUAd0ZyyKMAuvqTmvd2HExTZsjHjI7G7srEh1hWeG2DKjF0YZUql3mb
-        XBG6zN4QUqQRjcYZjCswMAZR/yz4u98ou9z6wiNB+JwBBa6cstu5S9VezUyAd5tONq7ieNEGI7Gnq
-        jrqN+kiBi8ixeu7Mjzi+4EjV2JDUnvm0oB/22TFge0Z+KIGCJ1WqrNLjYMCCEqURf6g+8lEU51LS3
-        Qne7+vS8g==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:42124)
-        by pandora.armlinux.org.uk with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1iXMpr-0007ax-L2; Wed, 20 Nov 2019 10:03:43 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1iXMpp-0001d0-KT; Wed, 20 Nov 2019 10:03:41 +0000
-Date:   Wed, 20 Nov 2019 10:03:41 +0000
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Laura Abbott <labbott@redhat.com>,
+        Wed, 20 Nov 2019 05:15:20 -0500
+Received: from mail-qt1-f182.google.com ([209.85.160.182]) by
+ mrelayeu.kundenserver.de (mreue011 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 1MacjC-1i14Ci1YKo-00cDdJ; Wed, 20 Nov 2019 11:15:18 +0100
+Received: by mail-qt1-f182.google.com with SMTP id o11so28288916qtr.11;
+        Wed, 20 Nov 2019 02:15:18 -0800 (PST)
+X-Gm-Message-State: APjAAAVxT1c/O7bKpchVwoNWfSfFn+OMY5MDaE8ghsZKMnXzxK3mrGtb
+        PGVMYb1SGsx0xaj54kXvRozQP99wp7A0Vyw1+Yk=
+X-Google-Smtp-Source: APXvYqw6C3tBzPE2Z4jsnt8or7u+FAAhXdUtkTFEH8dLlbdNTJXhM8rIPrjIVo0FG7CqLhoPNVfpKipak3Fc02kORhI=
+X-Received: by 2002:ac8:2e57:: with SMTP id s23mr1752509qta.204.1574244917255;
+ Wed, 20 Nov 2019 02:15:17 -0800 (PST)
+MIME-Version: 1.0
+References: <20191118220432.1611-1-labbott@redhat.com> <29e94219-22ca-c873-7209-64d1c357fe5c@roeck-us.net>
+ <CAK8P3a0=3J3WHTKU7sPvd37VEwg3wOuZ5S2-xXtNYEcSQhWyHw@mail.gmail.com>
+ <4f283ab6-0f3c-60e9-cfd1-29d10d978986@roeck-us.net> <20191120100341.GK25745@shell.armlinux.org.uk>
+In-Reply-To: <20191120100341.GK25745@shell.armlinux.org.uk>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 20 Nov 2019 11:15:01 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2N+aDgFz75dFJy3Me9FPdyDSyPaa29FngLjfXX3MzfvA@mail.gmail.com>
+Message-ID: <CAK8P3a2N+aDgFz75dFJy3Me9FPdyDSyPaa29FngLjfXX3MzfvA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: Remove iop_wdt
+To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Laura Abbott <labbott@redhat.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         Lennert Buytenhek <kernel@wantstofly.org>
-Subject: Re: [PATCH] watchdog: Remove iop_wdt
-Message-ID: <20191120100341.GK25745@shell.armlinux.org.uk>
-References: <20191118220432.1611-1-labbott@redhat.com>
- <29e94219-22ca-c873-7209-64d1c357fe5c@roeck-us.net>
- <CAK8P3a0=3J3WHTKU7sPvd37VEwg3wOuZ5S2-xXtNYEcSQhWyHw@mail.gmail.com>
- <4f283ab6-0f3c-60e9-cfd1-29d10d978986@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4f283ab6-0f3c-60e9-cfd1-29d10d978986@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:+HYBNu9AXubRAgtHomlzpL/0RxnWuvcsqy7HCCjN6V/hH0PTM+n
+ cnpsuE2Xux1EzNdIaq4azcpSEqM/sNbFFkw0q9n+dyvF36tIQhoegEZwCOwgvNFL0gKvt0k
+ RXHzFhBRCDUljvRlReHGiCWSqLI64YydquFNhef+8Ord8KDkPb1fEB4ZsOGWypAPkHIPUDT
+ Krfhbq2eYdMoPeKYSgMcg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:AfI0Dkc+1Zs=:3K51mm1Z5xAfQuIKUqI5G+
+ mIAbXuwslzs3BYCjXVwzvt/vsFbY3F66Y2wEvnWtPErkIs4rsqpG7g398ozafv/8uzJyu6d6I
+ wmAKbK+esvH/oSg+18OqsDt5YI8a7R6Un/0OKcShNF+z5K8S63tk4NrxcS1rziCGyUAdX3OdG
+ a9oT4fjpoDLjR/BwQfE0euB6KHj7Pu/gqvMGznNPDTwMVIj5QlKN78aQ+Z5sXz48hc2FJ1qH9
+ yR1YG7F3wRIbohH4lvkIoqS/SI8oDmWyjszZGkCjWNNgCynqKA7CJCMA3VDnCVXdUr9FHbDEN
+ aF4/3nU6p+Ci42JUIBa0MwSZZgNt8PhlHg6rcbYy2pAUZ8D+/rJvz/Yxv0EiRNCheuXnZozmL
+ YzIAofLOMMtzyMbktXF3OxfbkGyYgcVF3AN/N0R8JuSSto9uooyENorAmam60H62lKGVxyF6d
+ VesXuTuYiRQsoMT5YIwiNY7qCAirQUT8ss7XMByaWfV8087KP5sqcWow/jY+xmyQdj22wXKCr
+ QRJbTU/SIfWN5sQ1+0zZ+uozEUG5mn1aMBvPm9gpvteq3fE3sxxzJbbOsXZLOtDD4wJJIw3g8
+ egV0DdiDfaVEDrfnFGzu+S+OHrkKTwPa94UvL7YHZbhQeH6hxxfPHCJL+32nfl7XQMeEGMM7e
+ SU1nBQNEO+RRlrlr1/tJZsMTl+IuSGKjMiVa1ui3y1cU1bcPYkfa5ufe/fJ3NniAXfW9YH+de
+ 1+jiBrkCgXBR8adUAo4/V7NqyM1LYQLDr+lDQtIYnAKjnSqJfJz+S46GqW0cBLdXSgRG2qZKa
+ N1u0AxQD0V1SSlpE0AATTs5GwkNToamoz/hD4MBbz5F/xC5z4EwpSO8evzgSeJNRoj/mEsqcS
+ cqQulfjB+rHfFYK6IrGw==
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 06:29:09AM -0800, Guenter Roeck wrote:
-> On 11/19/19 1:40 AM, Arnd Bergmann wrote:
-> > On Tue, Nov 19, 2019 at 3:08 AM Guenter Roeck <linux@roeck-us.net> wrote:
-> > > 
-> > > On 11/18/19 2:04 PM, Laura Abbott wrote:
-> > > > 
-> > > > Commit 59d3ae9a5bf6 ("ARM: remove Intel iop33x and iop13xx support")
-> > > > removed support for some old platforms. Given this driver depends on
-> > > > a now removed platform, just remove the driver.
-> > > > 
-> > > > Signed-off-by: Laura Abbott <labbott@redhat.com>
-> > > > ---
-> > > > Found this while reviewing config options. Not sure if this was kept
-> > > > around for other reasons or just missed.
-> > > > ---
-> > > >    drivers/watchdog/Kconfig   |  16 ---
-> > > >    drivers/watchdog/Makefile  |   1 -
-> > > >    drivers/watchdog/iop_wdt.c | 249 -------------------------------------
-> > > >    3 files changed, 266 deletions(-)
-> > > >    delete mode 100644 drivers/watchdog/iop_wdt.c
-> > > > 
-> > > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > > > index 58e7c100b6ad..fef9078a44b6 100644
-> > > > --- a/drivers/watchdog/Kconfig
-> > > > +++ b/drivers/watchdog/Kconfig
-> > > > @@ -554,22 +554,6 @@ config PNX4008_WATCHDOG
-> > > > 
-> > > >          Say N if you are unsure.
-> > > > 
-> > > > -config IOP_WATCHDOG
-> > > > -     tristate "IOP Watchdog"
-> > > > -     depends on ARCH_IOP13XX
-> > > > -     select WATCHDOG_NOWAYOUT if (ARCH_IOP32X || ARCH_IOP33X)
-> > > 
-> > > This is a bit confusing, but it suggests that the watchdog may also work
-> > > with ARCH_IOP32X, which is still supported. I don't know anything about
-> > > those architectures, but I hesitate to have the driver removed unless
-> > > we have confirmation that it won't work with ARCH_IOP32X.
-> > > Maybe the dependency needs to be updated instead ?
-> > 
-> > See commit ec2e32ca661e ("watchdog: iop_wdt only builds for
-> > mach-iop13xx") from 2014: the watdog hardware exists on iop32x
-> > but the driver only successfully built on iop13xx, which is now gone.
-> > 
-> > Adding Russell (who said he still uses iop32x hardware) and Lennert
-> > (who is still listed in the MAINTAINERS file, but previously said he
-> > does not use it any more) to Cc. If neither of them see a reason to
-> > keep the driver, I'd say we can remove it.
-> > 
-> > It seems unlikely that anyone wants to revive the driver if they have
-> > not done it yet, and if they want to do it later, it is barely harder to revert
-> > the removal than to fix the compile-time problem.
-> > 
-> 
-> Good point, especially since apparently no one cared for five years.
+On Wed, Nov 20, 2019 at 11:03 AM Russell King - ARM Linux admin
+<linux@armlinux.org.uk> wrote:
+> On Tue, Nov 19, 2019 at 06:29:09AM -0800, Guenter Roeck wrote:
+> > On 11/19/19 1:40 AM, Arnd Bergmann wrote:
+> > > On Tue, Nov 19, 2019 at 3:08 AM Guenter Roeck <linux@roeck-us.net> wrote:
+> > > > On 11/18/19 2:04 PM, Laura Abbott wrote:
+> >
+> > Good point, especially since apparently no one cared for five years.
+>
+> Doesn't mean that there aren't interested parties.  I still have
+> IOP32x hardware running here in the form of a N2100 (my firewall)
+> and it seems that I never noticed this option disappearing until
+> now...
 
-Doesn't mean that there aren't interested parties.  I still have
-IOP32x hardware running here in the form of a N2100 (my firewall)
-and it seems that I never noticed this option disappearing until
-now...
+It's not that it was ever there for IOP32x: the driver was introduced in 2007
+and was available for IOP32x but failed to compile for it until 2014 when
+I sent the patch to disable the driver in all configurations that
+failed to build.
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+       Arnd
