@@ -2,85 +2,123 @@ Return-Path: <SRS0=Dgff=ZS=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36242C432C3
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Nov 2019 05:35:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4FDEC432C3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Nov 2019 12:18:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0E207207DD
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Nov 2019 05:35:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A00A2080F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Nov 2019 12:18:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="jtWj3dO2"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kXH19YTY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727388AbfKZFfB (ORCPT
+        id S1727725AbfKZMSq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Nov 2019 00:35:01 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:36382 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725372AbfKZFfB (ORCPT
+        Tue, 26 Nov 2019 07:18:46 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:36489 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727615AbfKZMSp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Nov 2019 00:35:01 -0500
-X-UUID: 6408d35a8ce442359e705cb85c5e23d5-20191126
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=+ylx+liID2k/ZQg5HjGKdpWZLavo0cVeqpmKRzq/c94=;
-        b=jtWj3dO27grh1T0HwxocZGqyNoMbvz5HPzjRlHDkFYbL0pKm7qWtd54KwoauhHActfkMFSKnUi7lszYOdpRqP9HyvcXOUcpl4osHmH9kIlG7+YIJpdIPSRs5YdMR3W4rUDbYLrT3YIZnrCXh8G0i3zZ4A8J0I8EWvY3QgvkKRZI=;
-X-UUID: 6408d35a8ce442359e705cb85c5e23d5-20191126
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
-        (envelope-from <freddy.hsin@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1110702092; Tue, 26 Nov 2019 13:34:55 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Tue, 26 Nov 2019 13:34:50 +0800
-Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Tue, 26 Nov 2019 13:34:35 +0800
-From:   <freddy.hsin@mediatek.com>
-To:     <sre@kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <wim@linux-watchdog.org>,
-        <linux@roeck-us.net>, <matthias.bgg@gmail.com>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <robh+dt@kernel.org>,
-        <mark.rutland@arm.com>, <devicetree@vger.kernel.org>
-CC:     <Chang-An.Chen@mediatek.com>, <wsd_upstream@mediatek.com>,
-        Freddy Hsin <freddy.hsin@mediatek.com>
-Subject: [PATCH v1 2/4] watchdog: populate reboot mode node in toprgu node of MTK RGU (Reset Generation Unit)
-Date:   Tue, 26 Nov 2019 13:34:48 +0800
-Message-ID: <1574746490-625-3-git-send-email-freddy.hsin@mediatek.com>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <1574746490-625-1-git-send-email-freddy.hsin@mediatek.com>
+        Tue, 26 Nov 2019 07:18:45 -0500
+Received: by mail-ot1-f65.google.com with SMTP id f10so15700345oto.3;
+        Tue, 26 Nov 2019 04:18:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=GPjIoPKAdBU2rhij0XkCzvo+ahx+quTsSMqV7wK7Go4=;
+        b=kXH19YTYWBb/zAuzTG2D+tFgg9MZ74NGM3I9FEiCDfBIv4BipMdk0YtT7FQh0nx5du
+         5PsAvauJPiHo77O5deZ5/3NbsAg0+Gdmezpq8R3AStdJGmuATFgOVZok7YMKr9sqs8bm
+         HXUzJ+zkd2cmITUiWpjDt4aoRMoDG4XqMfmhVeppEEFlKLejOy8ykHb+qo0LUaA7+U1s
+         M+CvJ/EWC9H+Teu1OtUwbORx5axg9qB3wN8xa2iq7JvgnMsGc/itO705yS1BuWj/YNDJ
+         OhokstKZZ0/DL6vn1/DLgvxJ0tVhmUCiFP8sb881PmusrfoU0XCHQQcFCCDncHkUSvLB
+         UDxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=GPjIoPKAdBU2rhij0XkCzvo+ahx+quTsSMqV7wK7Go4=;
+        b=OuiOdAB3QuTdKju8C9ULQ6Piio2kcFmVMxD6n7Yvns2JJzt7in5FBI2Y8plKeYIIXZ
+         D0lZbe7JERm35e83Zga8YWm9bDLUyaKVt+Dd5ZYcfA8zIjdhLSnDSDhEWrq5ktxZLSFT
+         WjAP/akxXkeAW/rP8wLy5Askc4rAyynt9QCRH04hT1CNCg+MYlnU5e2x5kx46a5v5fqj
+         sYJ4qanj9Stt1lxG2y8bmZ5Ptb1wl34zlkSQOa8Ko5UeEd4yGp5SXanpyY8rniW5XaMy
+         sv0WDlh+Ph9qmPwf360ahrzFyDoZguRJ1RfvDw1tpOukZux3+dyNTAD5rYQkY5cHGLSP
+         Uo8w==
+X-Gm-Message-State: APjAAAWYGWGsaGqoUdZ1dkbbiCvgjitPsMCe/NGo2asnyhY9aFaPExID
+        PNSchz1T/WbkiwUk2GSa9sc=
+X-Google-Smtp-Source: APXvYqz/ELJmUcs3pP92+oVmdlJk7E+Dzm6ctuvIFTGCxQmgLgtcI9qH8dxQ7s2bJR6TaZ355x0psQ==
+X-Received: by 2002:a9d:470f:: with SMTP id a15mr24541053otf.290.1574770724780;
+        Tue, 26 Nov 2019 04:18:44 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id j8sm3567921otj.42.2019.11.26.04.18.42
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 26 Nov 2019 04:18:43 -0800 (PST)
+Subject: Re: [PATCH v1 2/4] watchdog: populate reboot mode node in toprgu node
+ of MTK RGU (Reset Generation Unit)
+To:     freddy.hsin@mediatek.com, sre@kernel.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
+        matthias.bgg@gmail.com, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, devicetree@vger.kernel.org
+Cc:     Chang-An.Chen@mediatek.com, wsd_upstream@mediatek.com
 References: <1574746490-625-1-git-send-email-freddy.hsin@mediatek.com>
+ <1574746490-625-3-git-send-email-freddy.hsin@mediatek.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <ca66e52e-df80-388e-3018-7bf35aef5f43@roeck-us.net>
+Date:   Tue, 26 Nov 2019 04:18:41 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+In-Reply-To: <1574746490-625-3-git-send-email-freddy.hsin@mediatek.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-RnJvbTogRnJlZGR5IEhzaW4gPGZyZWRkeS5oc2luQG1lZGlhdGVrLmNvbT4NCg0Kb2ZfcGxhdGZv
-cm1fcG9wdWxhdGlvbiBzaG91bGQgYmUgYWRkZWQgaW4gdGhlIHByb2JlIGZ1bmN0aW9uIG9mDQp0
-b3ByZ3UgZHJpdmVyLCBvciB0aGUgcmVib290IG1vZGUgZHJpdmVyIHdpbGwgbm90IGJlIHByb2Jl
-ZA0KDQpTaWduZWQtb2ZmLWJ5OiBGcmVkZHkgSHNpbiA8ZnJlZGR5LmhzaW5AbWVkaWF0ZWsuY29t
-Pg0KLS0tDQogZHJpdmVycy93YXRjaGRvZy9tdGtfd2R0LmMgfCAgICAzICsrKw0KIDEgZmlsZSBj
-aGFuZ2VkLCAzIGluc2VydGlvbnMoKykNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cv
-bXRrX3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9tdGtfd2R0LmMNCmluZGV4IDljM2QwMDMuLjJm
-YjI2MTQgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL3dhdGNoZG9nL210a193ZHQuYw0KKysrIGIvZHJp
-dmVycy93YXRjaGRvZy9tdGtfd2R0LmMNCkBAIC0yMCw2ICsyMCw3IEBADQogI2luY2x1ZGUgPGxp
-bnV4L3R5cGVzLmg+DQogI2luY2x1ZGUgPGxpbnV4L3dhdGNoZG9nLmg+DQogI2luY2x1ZGUgPGxp
-bnV4L2RlbGF5Lmg+DQorI2luY2x1ZGUgPGxpbnV4L29mX3BsYXRmb3JtLmg+DQogDQogI2RlZmlu
-ZSBXRFRfTUFYX1RJTUVPVVQJCTMxDQogI2RlZmluZSBXRFRfTUlOX1RJTUVPVVQJCTENCkBAIC0x
-NjcsNiArMTY4LDggQEAgc3RhdGljIGludCBtdGtfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
-ZXZpY2UgKnBkZXYpDQogCWlmIChJU19FUlIobXRrX3dkdC0+d2R0X2Jhc2UpKQ0KIAkJcmV0dXJu
-IFBUUl9FUlIobXRrX3dkdC0+d2R0X2Jhc2UpOw0KIA0KKwlvZl9wbGF0Zm9ybV9wb3B1bGF0ZShw
-ZGV2LT5kZXYub2Zfbm9kZSwgTlVMTCwgTlVMTCwgJnBkZXYtPmRldik7DQorDQogCW10a193ZHQt
-PndkdF9kZXYuaW5mbyA9ICZtdGtfd2R0X2luZm87DQogCW10a193ZHQtPndkdF9kZXYub3BzID0g
-Jm10a193ZHRfb3BzOw0KIAltdGtfd2R0LT53ZHRfZGV2LnRpbWVvdXQgPSBXRFRfTUFYX1RJTUVP
-VVQ7DQotLSANCjEuNy45LjUNCg==
+On 11/25/19 9:34 PM, freddy.hsin@mediatek.com wrote:
+> From: Freddy Hsin <freddy.hsin@mediatek.com>
+> 
+> of_platform_population should be added in the probe function of
+> toprgu driver, or the reboot mode driver will not be probed
+> 
+> Signed-off-by: Freddy Hsin <freddy.hsin@mediatek.com>
+> ---
+>   drivers/watchdog/mtk_wdt.c |    3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 9c3d003..2fb2614 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -20,6 +20,7 @@
+>   #include <linux/types.h>
+>   #include <linux/watchdog.h>
+>   #include <linux/delay.h>
+> +#include <linux/of_platform.h>
+>   
+>   #define WDT_MAX_TIMEOUT		31
+>   #define WDT_MIN_TIMEOUT		1
+> @@ -167,6 +168,8 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+>   	if (IS_ERR(mtk_wdt->wdt_base))
+>   		return PTR_ERR(mtk_wdt->wdt_base);
+>   
+> +	of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
+> +
+
+This seems just wrong. Such a driver should not be a child of the watchdog driver.
+
+Guenter
+
+>   	mtk_wdt->wdt_dev.info = &mtk_wdt_info;
+>   	mtk_wdt->wdt_dev.ops = &mtk_wdt_ops;
+>   	mtk_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+> 
 
