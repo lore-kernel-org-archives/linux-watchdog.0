@@ -1,42 +1,55 @@
-Return-Path: <SRS0=mqQh=ZV=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=vHdR=ZY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E32DC432C0
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Nov 2019 16:46:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0433C432C0
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Dec 2019 02:50:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 91646208E4
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Nov 2019 16:46:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="T3nzqIBx"
+	by mail.kernel.org (Postfix) with ESMTP id 68BA7218AC
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Dec 2019 02:50:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1575255004;
+	bh=xbxP+MB1vaSgge7p8ievzKVRbsYcN5ZFMx/5YLHkiE4=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=guFVsh1IlygeQq7tK1R1p1dlyEUIJ7uLw+3zmuq0vXFWkZyXU0HaK9oVkbati7GZ/
+	 225EqA0E4aq+fZ7wNQZlSZ6bpAopLBBn5lCMBOnxEhCE5lSIoU18nMHVTrLqBqSmth
+	 XYlXNPecdLJNFcQ2/m3ufiU1UvxgCZ/dq6j1zTjo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbfK2QqV (ORCPT
+        id S1727477AbfLBCuE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 29 Nov 2019 11:46:21 -0500
-Received: from www.linux-watchdog.org ([185.87.125.42]:45454 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726909AbfK2QqV (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 29 Nov 2019 11:46:21 -0500
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id D55BD40982; Fri, 29 Nov 2019 17:00:45 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org D55BD40982
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1575043245;
-        bh=UUAnjyGizUx/JWccsMa20s8W2efB6yHvwHkFZXoG49Q=;
-        h=Date:From:To:Cc:Subject:From;
-        b=T3nzqIBxiGeuvNMCtOAx3DR4Q7m3DtAbCTwA841PjaLPXzlkHT86rDBFOmiv6EySS
-         TW2X2WRNudkmV7mbDa76eG3DEc4iablTr5eFKcwo4sTJTU95+x7pJ0AvdR+66QdA3E
-         PhVFJrpiBYPVVhM8QKkhcdhTZyibCm07JooPo2XQ=
-Date:   Fri, 29 Nov 2019 17:00:45 +0100
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Sun, 1 Dec 2019 21:50:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33830 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727471AbfLBCuD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 1 Dec 2019 21:50:03 -0500
+Subject: Re: [GIT PULL REQUEST] watchdog - v5.5 Merge window
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575255003;
+        bh=xbxP+MB1vaSgge7p8ievzKVRbsYcN5ZFMx/5YLHkiE4=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=Fu3dKgk6GuZBXO69WTjmQwebBSMk4/vDAgQ9Qgg9jLJXK2ZcyAjYOQroitmMUZys3
+         dM0sYZJtjl6yilQ+tM+InEXmeC9VIqXVRnR4ZWdfsN8JhiOiaHgmUnv2EpFEOmZsZs
+         t+fH5nRm5TF7etBi0LXtgT/lDNPM3/CY5Rno1YYM=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20191129160045.GA1996@www.linux-watchdog.org>
+References: <20191129160045.GA1996@www.linux-watchdog.org>
+X-PR-Tracked-List-Id: <linux-watchdog.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20191129160045.GA1996@www.linux-watchdog.org>
+X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
+ tags/linux-watchdog-5.5-rc1
+X-PR-Tracked-Commit-Id: 33c26ab4d6beec44bd5f525ffba1c23bf962d4a7
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 4a08fe5792583d81bf237a75ebc803f756204e46
+Message-Id: <157525500351.1709.3428496160790013790.pr-tracker-bot@kernel.org>
+Date:   Mon, 02 Dec 2019 02:50:03 +0000
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -54,116 +67,20 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Shuiqing Li <shuiqing.li@unisoc.com>,
         Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>
-Subject: [GIT PULL REQUEST] watchdog - v5.5 Merge window
-Message-ID: <20191129160045.GA1996@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+The pull request you sent on Fri, 29 Nov 2019 17:00:45 +0100:
 
-Please pull the watchdog changes for the v5.5 release cycle.
+> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.5-rc1
 
-This series contains:
-* Support for NCT6116D
-* Several small fixes and improvements
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/4a08fe5792583d81bf237a75ebc803f756204e46
 
-The output from git request-pull:
-----------------------------------------------------------------
-The following changes since commit 31f4f5b495a62c9a8b15b1c3581acd5efeb9af8c:
+Thank you!
 
-  Linux 5.4-rc7 (2019-11-10 16:17:15 -0800)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.5-rc1
-
-for you to fetch changes up to 33c26ab4d6beec44bd5f525ffba1c23bf962d4a7:
-
-  watchdog: jz4740: Drop dependency on MACH_JZ47xx (2019-11-18 20:14:47 +0100)
-
-----------------------------------------------------------------
-linux-watchdog 5.5-rc1 tag
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      watchdog: intel-mid_wdt: Add WATCHDOG_NOWAYOUT support
-
-Anson Huang (3):
-      watchdog: imx2_wdt: Remove unnecessary blank line
-      watchdog: imx2_wdt: Use __maybe_unused instead of #if CONFIG_PM_SLEEP
-      watchdog: imx2_wdt: Use 'dev' instead of dereferencing it repeatedly
-
-Borislav Petkov (1):
-      watchdog: sbc7240_wdt: Fix yet another -Wimplicit-fallthrough warning
-
-Eugen Hristev (2):
-      watchdog: sama5d4_wdt: cleanup the bit definitions
-      dt-bindings: watchdog: sama5d4_wdt: add microchip,sam9x60-wdt compatible
-
-Fabio Estevam (5):
-      watchdog: imx7ulp: Pass the wdog instance inimx7ulp_wdt_enable()
-      watchdog: imx7ulp: Remove unused structure member
-      watchdog: imx7ulp: Remove inline annotations
-      watchdog: imx7ulp: Use definitions instead of magic values
-      watchdog: imx7ulp: Fix reboot hang
-
-Geert Uytterhoeven (1):
-      watchdog: wdat_wdt: Spelling s/configrable/configurable/
-
-Joel Stanley (1):
-      watchdog: aspeed: Fix clock behaviour for ast2600
-
-Julia Cartwright (1):
-      watchdog: prevent deferral of watchdogd wakeup on RT
-
-Kevin Hao (1):
-      watchdog: Fix the race between the release of watchdog_core_data and cdev
-
-Matti Vaittinen (1):
-      watchdog: bd70528: Trivial function documentation fix
-
-Michal Simek (1):
-      watchdog: cadence: Do not show error in case of deferred probe
-
-Paul Cercueil (3):
-      watchdog: jz4740: Use WDT clock provided by TCU driver
-      watchdog: jz4740: Use regmap provided by TCU driver
-      watchdog: jz4740: Drop dependency on MACH_JZ47xx
-
-Rasmus Villemoes (1):
-      watchdog: make nowayout sysfs file writable
-
-Shuiqing Li (1):
-      watchdog: sprd: Fix the incorrect pointer getting from driver data
-
-Srikanth Krishnakar (1):
-      watchdog: w83627hf_wdt: Support NCT6116D
-
- Documentation/ABI/testing/sysfs-class-watchdog     |   9 +-
- .../bindings/watchdog/atmel-sama5d4-wdt.txt        |   2 +-
- drivers/watchdog/Kconfig                           |   5 +-
- drivers/watchdog/aspeed_wdt.c                      |  16 +--
- drivers/watchdog/at91sam9_wdt.h                    |  34 ++++---
- drivers/watchdog/bd70528_wdt.c                     |   4 +-
- drivers/watchdog/cadence_wdt.c                     |   6 +-
- drivers/watchdog/imx2_wdt.c                        |  30 +++---
- drivers/watchdog/imx7ulp_wdt.c                     |  45 ++++++---
- drivers/watchdog/intel-mid_wdt.c                   |   1 +
- drivers/watchdog/jz4740_wdt.c                      | 108 ++++++++++-----------
- drivers/watchdog/sbc7240_wdt.c                     |   3 +-
- drivers/watchdog/sprd_wdt.c                        |   6 +-
- drivers/watchdog/w83627hf_wdt.c                    |  11 ++-
- drivers/watchdog/watchdog_dev.c                    | 101 +++++++++++--------
- drivers/watchdog/wdat_wdt.c                        |   2 +-
- 16 files changed, 214 insertions(+), 169 deletions(-)
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
