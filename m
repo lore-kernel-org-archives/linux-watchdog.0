@@ -1,4 +1,4 @@
-Return-Path: <SRS0=P9I5=Z4=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=hjEr=Z6=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -7,106 +7,245 @@ X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 116D1C43603
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Dec 2019 14:05:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83037C43603
+	for <linux-watchdog@archiver.kernel.org>; Sun,  8 Dec 2019 18:51:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D6D0F20706
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Dec 2019 14:05:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41F7320692
+	for <linux-watchdog@archiver.kernel.org>; Sun,  8 Dec 2019 18:51:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FEjicv0c"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aXwMI4aj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726201AbfLFOFQ (ORCPT
+        id S1726511AbfLHSvG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 6 Dec 2019 09:05:16 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:35608 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726195AbfLFOFQ (ORCPT
+        Sun, 8 Dec 2019 13:51:06 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:33886 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726505AbfLHSvG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Dec 2019 09:05:16 -0500
-Received: by mail-pj1-f66.google.com with SMTP id w23so2805697pjd.2;
-        Fri, 06 Dec 2019 06:05:15 -0800 (PST)
+        Sun, 8 Dec 2019 13:51:06 -0500
+Received: by mail-pg1-f195.google.com with SMTP id r11so5928285pgf.1
+        for <linux-watchdog@vger.kernel.org>; Sun, 08 Dec 2019 10:51:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=u0BBBBffFWSAiTSIMpvOYtG57WXglTAMWySrfaeUACk=;
-        b=FEjicv0cd/jsGOOu1p8NCgngbt4hyeD9hRJboCPlIAwfo0I5vYydvj5RumPqZTYanD
-         jsDSSoyEmt0CAvNMVpbpjuPchrj84YPCE8OZ4WDGwZs96MEl0TqMe0pXHpdPsOczpcIV
-         4iG9d89XMTPYrcnqeb/effFrCPSQhFmSsSF1bdcUIQ9uDwPAXCAYxOhoPoqEvs1oOkCN
-         bxOqpQnRM9CZKN8yJ5WrnRn7UzxEvghU7r6Bgl4bK78BCEagaqmFcxXNZ2qioFt7vjir
-         FwXkHMJ8GMTYhhP9/VmlWRXZE54ejPF1b3ecB9Ibhu5nynCmxt+Gq9H2JUpitTNKfJKR
-         4n0w==
+        bh=+LKbq2KAfx1sWiuF+4XUfS8KziqsY3VYk+vPKpcTSEc=;
+        b=aXwMI4ajlhYGnsuHOH+Q6NqJZleH3+iSmkY/Ys9cJosMgBUgNwEeTffNyg9FMR56Yh
+         KFV4E6SJvZX3wx3z4gWmNqKIbsWRIZd96BkrOrGm0FHf7GhEXdzsDKfG4+b0jlXD6BG6
+         lBXcJj/RN+GZ4XyKNJZRk6e7163BHgukBP+yQNTQFcpeEr2lvG09YenrawC9D4/tn9xM
+         7Z/KpBm8UP/Z2OBcW02VQ9LJwm9EHimmXQrq9V/JGtUOfZKyF/exPSBfaGL0jls5/ZED
+         22esdmYXNfaiHSF8FgsT6P33RqETry9ADdRW+f019vlAFAGrBfeIE+txs99lSau8xBnW
+         t2nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=u0BBBBffFWSAiTSIMpvOYtG57WXglTAMWySrfaeUACk=;
-        b=MiZ2BPjPXkQ11GW26gHGJdRHTOJHPzKAaa4ykNcBqAAOR05zb1ZiPZfileRsnylUkX
-         cwGkA9/WA/wAYIopPMUkOcHFuulDEBbJPYfhqEWAblpI27njz3kwYW5Xpe6hZD9TxzQU
-         80IWwbfHBYY0LbxHOlFW5EeY4IJICk2s50sCO4zf4SVoievyYaf0pDf1Y9blNfT4SFc0
-         +9fQ+RJAL4OyVhVw+MJPixyW/zPmHVA89dNHgjZdo0nUAc13m41zP+VGP+ol3pmU6gXa
-         gDhFsYmKQDhusojvc5/TZj8FP8q/7YNX2YYWvjBqfl4VHoH2aA/UMb6+2NeouOUDJrr8
-         OBVQ==
-X-Gm-Message-State: APjAAAXm+8XhLDq7kWAA4STW0N2OqxyfPSuJhekVIrFRcdvQfB8FE185
-        AzpVg9CsFS3zGWUYqtInylKh8XVM
-X-Google-Smtp-Source: APXvYqyXKgDbEvQ3tt9b6x1n3t8KK1rtJ4bRNhAsxfSedj629OarimobGgH7gQaxcBm12hRiHJxoKQ==
-X-Received: by 2002:a17:90a:2351:: with SMTP id f75mr14355096pje.133.1575641115248;
-        Fri, 06 Dec 2019 06:05:15 -0800 (PST)
+        bh=+LKbq2KAfx1sWiuF+4XUfS8KziqsY3VYk+vPKpcTSEc=;
+        b=cC+npPlv6g68OEakWW6S9ok5SnBW0bc+mtDmYi0nLKqK70zzhH9o9XZj1vrY+f41t4
+         NpZ9WJKmUbD/MYwQKRnT+w8b+HOOkeYtPg+0S8/6sLjbzldWdh1wRhoZ8H8Tl+/+Bzwd
+         wctB72eg3acO78N1WsvNtl2ugBgAlOl8bEGlLfLq76rAt93G3FGwwI9HzYSV5bZU9QW6
+         Ob4D6ibyBrzdH4XjkMJRKaJ9npgx1gk+Urmu8mTwiu8ChOMDDuzgKj+FkrLvzYEQN+g9
+         32twr710HSum4lo9ZXenPvanh35hiJpIkFOlTjDID5Ak5RZECkiGtyuhoOe5BV/0mF4u
+         eLbg==
+X-Gm-Message-State: APjAAAXrvVglw042L5LCNbNQs4O44oMHJvusghw3gX01+y6/EFSA9LZY
+        hY8FwbdNlNQXs3NOw2Tak6wsZJeT
+X-Google-Smtp-Source: APXvYqxnULTsSvXLMBRoESkZUOtBcOLc9ryQAmn+qxMg1i+nv8pftOppiDgUIQKh4eH0zu80leqPow==
+X-Received: by 2002:a63:27c4:: with SMTP id n187mr7111226pgn.305.1575831065408;
+        Sun, 08 Dec 2019 10:51:05 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 23sm3490709pjx.29.2019.12.06.06.05.14
+        by smtp.gmail.com with ESMTPSA id b7sm9740328pjo.3.2019.12.08.10.51.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Dec 2019 06:05:14 -0800 (PST)
-Subject: Re: [PATCH -next] watchdog: tqmx86_wdt: Fix build error
-To:     YueHaibing <yuehaibing@huawei.com>, wim@linux-watchdog.org,
-        andrew@lunn.ch
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20191206124259.25880-1-yuehaibing@huawei.com>
+        Sun, 08 Dec 2019 10:51:04 -0800 (PST)
+Subject: Re: [PATCH] watchdog: Read device status through sysfs attributes for
+ GPIO-controlled Watchdog.
+To:     harshal chaudhari <harshalchau04@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org
+References: <CAFEvwum0uu1p9wK66rFbqFi4YQjfEfZcGd54Yeswk9=0EryP1Q@mail.gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1c31d0e5-37f9-4608-3af3-ba94f3b764e9@roeck-us.net>
-Date:   Fri, 6 Dec 2019 06:05:13 -0800
+Message-ID: <00897846-a86d-8de4-8ecb-f7c79d30e06d@roeck-us.net>
+Date:   Sun, 8 Dec 2019 10:51:03 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <20191206124259.25880-1-yuehaibing@huawei.com>
+In-Reply-To: <CAFEvwum0uu1p9wK66rFbqFi4YQjfEfZcGd54Yeswk9=0EryP1Q@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 12/6/19 4:42 AM, YueHaibing wrote:
-> If TQMX86_WDT is y and WATCHDOG_CORE is m, building fails:
+On 12/8/19 10:45 AM, harshal chaudhari wrote:
+> Hi Wim and Guenter,
 > 
-> drivers/watchdog/tqmx86_wdt.o: In function `tqmx86_wdt_probe':
-> tqmx86_wdt.c:(.text+0x46e): undefined reference to `watchdog_init_timeout'
-> tqmx86_wdt.c:(.text+0x4e0): undefined reference to `devm_watchdog_register_device'
+> This patch adds following attributes to GPIO-controlled watchdog device's sysfs interface to read its different status.
 > 
-> Select WATCHDOG_CORE to fix this.
 > 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Fixes: e3c21e088f89 ("watchdog: tqmx86: Add watchdog driver for the IO controller")
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+You lost me. What does this patch do that CONFIG_WATCHDOG_SYSFS doesn't do as well ?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Guenter
 
-> ---
->   drivers/watchdog/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
+> * state - reads whether device is active or not
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 1679e0d..20bd967 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1444,6 +1444,7 @@ config SMSC37B787_WDT
->   config TQMX86_WDT
->   	tristate "TQ-Systems TQMX86 Watchdog Timer"
->   	depends on X86
-> +	select WATCHDOG_CORE
->   	help
->   	This is the driver for the hardware watchdog timer in the TQMX86 IO
->   	controller found on some of their ComExpress Modules.
+> * identity - reads Watchdog device's identity string.
+> 
+> * timeout - reads current timeout.
+> 
+> * bootstatus - reads status of the watchdog device at boot.
+> 
+> * nowayout - reads whether nowayout feature was set or not.
+> 
+> 
+> Testing with GPIO Watchdog:
+> 
+> 
+> $ cat bootstatus
+> 
+> 0
+> 
+> $ cat identity
+> 
+> GPIO Watchdog
+> 
+> $ cat nowayout
+> 
+> 0
+> 
+> $ cat state
+> 
+> inactive
+> 
+> $ cat timeout
+> 
+> 60
+> 
+> 
+> Signed-off-by: harshal chaudhari <harshalchau04@gmail.com <mailto:harshalchau04@gmail.com>>
+> 
+> 
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> index 198794963786..762149375280 100644
+> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> @@ -26,3 +26,31 @@ Example:
+>                  hw_algo = "toggle";
+>                  hw_margin_ms = <1600>;
+>          };
+> +
+> +
+> +* Read device status through sysfs attributes
+> +
+> +  state - reads whether device is active or not
+> +
+> +       It is a read only file. It gives active/inactive status of
+> +       watchdog device.
+> +
+> +  identity - reads Watchdog device's identity string.
+> +
+> +       It is a read only file. It contains identity string of
+> +       watchdog device.
+> +
+> +  timeout - reads current timeout.
+> +       It is a read only file. It is read to know about current
+> +       value of timeout programmed.
+> +
+> +  bootstatus - reads status of the watchdog device at boot
+> +       It is a read only file. It contains status of the watchdog
+> +       device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
+> +       ioctl interface.
+> +
+> +  nowayout - reads whether nowayout feature was set or not
+> +       It is a read only file. While reading, it gives '1' if that
+> +       device supports nowayout feature else, it gives '0'.
+> +
+> +For more details refer the documents as in Documentation/ABI/testing/sysfs-class-watchdog
+> 
+> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> index 0923201ce874..d49eb77ec8f1 100644
+> --- a/drivers/watchdog/gpio_wdt.c
+> +++ b/drivers/watchdog/gpio_wdt.c
+> @@ -90,6 +90,68 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
+>          return 0;
+>   }
+> 
+> +static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
+> +                               char *buf)
+> +{
+> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +       return sprintf(buf, "%u\n", wdd->timeout);
+> +}
+> +static DEVICE_ATTR_RO(timeout);
+> +
+> +static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
+> +                               char *buf)
+> +{
+> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +       return sprintf(buf, "%s\n", wdd->info->identity);
+> +}
+> +static DEVICE_ATTR_RO(identity);
+> +
+> +static ssize_t state_show(struct device *dev, struct device_attribute *attr,
+> +                               char *buf)
+> +{
+> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +       if (watchdog_active(wdd))
+> +               return sprintf(buf, "active\n");
+> +
+> +       return sprintf(buf, "inactive\n");
+> +}
+> +static DEVICE_ATTR_RO(state);
+> +
+> +static ssize_t bootstatus_show(struct device *dev,
+> +                               struct device_attribute *attr, char *buf)
+> +{
+> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +       return sprintf(buf, "%u\n", wdd->bootstatus);
+> +}
+> +static DEVICE_ATTR_RO(bootstatus);
+> +
+> +static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
+> +                               char *buf)
+> +{
+> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +       return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
+> +}
+> +static DEVICE_ATTR_RO(nowayout);
+> +
+> +static struct attribute *wdt_attrs[] = {
+> +       &dev_attr_state.attr,
+> +       &dev_attr_identity.attr,
+> +       &dev_attr_timeout.attr,
+> +       &dev_attr_bootstatus.attr,
+> +       &dev_attr_nowayout.attr,
+> +       NULL,
+> +};
+> +
+> +static const struct attribute_group wdt_group = {
+> +       .attrs = wdt_attrs,
+> +};
+> +__ATTRIBUTE_GROUPS(wdt);
+> +
+>   static const struct watchdog_info gpio_wdt_ident = {
+>          .options        = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
+>                            WDIOF_SETTIMEOUT,
+> @@ -155,6 +217,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>          priv->wdd.max_hw_heartbeat_ms = hw_margin;
+>          priv->wdd.parent        = dev;
+>          priv->wdd.timeout       = SOFT_TIMEOUT_DEF;
+> +       priv->wdd.groups        = wdt_groups;
+> 
+>          watchdog_init_timeout(&priv->wdd, 0, dev);
+>          watchdog_set_nowayout(&priv->wdd, nowayout);
+> 
+> 
 > 
 
