@@ -2,151 +2,161 @@ Return-Path: <SRS0=fSR7=2B=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9307C2D0C7
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBD6BC00454
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Dec 2019 16:23:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A13E02077B
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1576080121;
-	bh=Ur/viyuBEyZ5mqbdrZIIH5xEqPh/48fUizwmkULdx4o=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=hFMSwzMy55NDKvGmv/MwMY0YUVI4Kubuj+pxRSheVEPmbSgDEkFj2mhq+kg0VxSED
-	 0cG0o8QQfDHRh6i0sGvebpp/FoGjHiMmknp2hKR4KHcEyK9fwo+dSC0C3Te0Z7A4mx
-	 oyvQxnpxMaH37VCTDva8XDR7XGTa0rU4IWu4z6Fo=
+	by mail.kernel.org (Postfix) with ESMTP id 930442077B
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Dec 2019 16:23:06 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="efP68Y8Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731447AbfLKQBl (ORCPT
+        id S1730505AbfLKQW5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 11 Dec 2019 11:01:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731411AbfLKPNY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:24 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1574E24656;
-        Wed, 11 Dec 2019 15:13:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077204;
-        bh=Ur/viyuBEyZ5mqbdrZIIH5xEqPh/48fUizwmkULdx4o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xaFJuEPcATQr3gajjFdK81T2jXtUe/ZD+k2Z0IwMHQDaLbRTYTcOIpv3XfDTykEj9
-         q3tfUDXjFbnIByX5sz9X2/QF743gd5dQOYV26PUqffvcC4DbAJUOGhoept9HbpIyaU
-         i0IinKA4rMKJ6ba8TsLurhL1+H60LdBzwR2d1QhA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julia Cartwright <julia@ni.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-        Tim Sander <tim@krieglstein.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 086/134] watchdog: prevent deferral of watchdogd wakeup on RT
-Date:   Wed, 11 Dec 2019 10:11:02 -0500
-Message-Id: <20191211151150.19073-86-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
-References: <20191211151150.19073-1-sashal@kernel.org>
+        Wed, 11 Dec 2019 11:22:57 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:2565 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729118AbfLKQW4 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 11 Dec 2019 11:22:56 -0500
+X-UUID: b8cee362e4d44ea598e1b5b0f8e49d2e-20191212
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=BhFStqHINugZXLbNdVW+BFM4oGLuOot6pcNXv0LqlEM=;
+        b=efP68Y8YJbnvPVFkYyQSUBATOnmWXEvoTZoafSrK9Emc4eiwQLqpFNtgpzXsZSXwnYIhqf/MeICwGX0pzkceUnOr71bi6W20iC+eLc0S9CbM1njAIEgzSDQ62D1lEKPEeqMa+VOgcGD8m+okcfRM7FOyzO48PoKWoNcAzKDf3Zo=;
+X-UUID: b8cee362e4d44ea598e1b5b0f8e49d2e-20191212
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        (envelope-from <jiaxin.yu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 880074018; Thu, 12 Dec 2019 00:22:51 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Thu, 12 Dec 2019 00:22:25 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Thu, 12 Dec 2019 00:22:14 +0800
+From:   Jiaxin Yu <jiaxin.yu@mediatek.com>
+To:     <yong.liang@mediatek.com>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <p.zabel@pengutronix.de>,
+        <matthias.bgg@gmail.com>, <linux-watchdog@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <devicetree@vger.kernel.org>
+CC:     <yingjoe.chen@mediatek.com>, <sboyd@kernel.org>
+Subject: [PATCH v6 2/2] watchdog: mtk_wdt: mt8183: Add reset controller
+Date:   Thu, 12 Dec 2019 00:22:36 +0800
+Message-ID: <1576081356-18298-3-git-send-email-jiaxin.yu@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
+In-Reply-To: <1576081356-18298-1-git-send-email-jiaxin.yu@mediatek.com>
+References: <1576081356-18298-1-git-send-email-jiaxin.yu@mediatek.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Julia Cartwright <julia@ni.com>
-
-[ Upstream commit a19f89335f4bda3d77d991c96583e3e51856acbb ]
-
-When PREEMPT_RT is enabled, all hrtimer expiry functions are
-deferred for execution into the context of ksoftirqd unless otherwise
-annotated.
-
-Deferring the expiry of the hrtimer used by the watchdog core, however,
-is a waste, as the callback does nothing but queue a kthread work item
-and wakeup watchdogd.
-
-It's worst then that, too: the deferral through ksoftirqd also means
-that for correct behavior a user must adjust the scheduling parameters
-of both watchdogd _and_ ksoftirqd, which is unnecessary and has other
-side effects (like causing unrelated expiry functions to execute at
-potentially elevated priority).
-
-Instead, mark the hrtimer used by the watchdog core as being _HARD to
-allow it's execution directly from hardirq context.  The work done in
-this expiry function is well-bounded and minimal.
-
-A user still must adjust the scheduling parameters of the watchdogd
-to be correct w.r.t. their application needs.
-
-Link: https://lkml.kernel.org/r/0e02d8327aeca344096c246713033887bc490dd7.1538089180.git.julia@ni.com
-Cc: Guenter Roeck <linux@roeck-us.net>
-Reported-and-tested-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Reported-by: Tim Sander <tim@krieglstein.org>
-Signed-off-by: Julia Cartwright <julia@ni.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-[bigeasy: use only HRTIMER_MODE_REL_HARD]
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191105144506.clyadjbvnn7b7b2m@linutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/watchdog/watchdog_dev.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index dbd2ad4c92948..d3acc0a7256ca 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -158,7 +158,8 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd)
- 		ktime_t t = watchdog_next_keepalive(wdd);
- 
- 		if (t > 0)
--			hrtimer_start(&wd_data->timer, t, HRTIMER_MODE_REL);
-+			hrtimer_start(&wd_data->timer, t,
-+				      HRTIMER_MODE_REL_HARD);
- 	} else {
- 		hrtimer_cancel(&wd_data->timer);
- 	}
-@@ -177,7 +178,7 @@ static int __watchdog_ping(struct watchdog_device *wdd)
- 	if (ktime_after(earliest_keepalive, now)) {
- 		hrtimer_start(&wd_data->timer,
- 			      ktime_sub(earliest_keepalive, now),
--			      HRTIMER_MODE_REL);
-+			      HRTIMER_MODE_REL_HARD);
- 		return 0;
- 	}
- 
-@@ -971,7 +972,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 		return -ENODEV;
- 
- 	kthread_init_work(&wd_data->work, watchdog_ping_work);
--	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
- 	wd_data->timer.function = watchdog_timer_expired;
- 
- 	if (wdd->id == 0) {
-@@ -1019,7 +1020,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 		__module_get(wdd->ops->owner);
- 		kref_get(&wd_data->kref);
- 		if (handle_boot_enabled)
--			hrtimer_start(&wd_data->timer, 0, HRTIMER_MODE_REL);
-+			hrtimer_start(&wd_data->timer, 0,
-+				      HRTIMER_MODE_REL_HARD);
- 		else
- 			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
- 				wdd->id);
--- 
-2.20.1
+RnJvbTogInlvbmcubGlhbmciIDx5b25nLmxpYW5nQG1lZGlhdGVrLmNvbT4NCg0KQWRkIHJlc2V0
+IGNvbnRyb2xsZXIgQVBJIGluIHdhdGNoZG9nIGRyaXZlci4NCkJlc2lkZXMgd2F0Y2hkb2csIE1U
+SyB0b3ByZ3UgbW9kdWxlIGFsc2EgcHJvdmlkZSBzdWItc3lzdGVtIChlZywgYXVkaW8sDQpjYW1l
+cmEsIGNvZGVjIGFuZCBjb25uZWN0aXZpdHkpIHNvZnR3YXJlIHJlc2V0IGZ1bmN0aW9uYWxpdHku
+DQoNClNpZ25lZC1vZmYtYnk6IHlvbmcubGlhbmcgPHlvbmcubGlhbmdAbWVkaWF0ZWsuY29tPg0K
+LS0tDQogZHJpdmVycy93YXRjaGRvZy9LY29uZmlnICAgfCAgIDEgKw0KIGRyaXZlcnMvd2F0Y2hk
+b2cvbXRrX3dkdC5jIHwgMTA5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0N
+CiAyIGZpbGVzIGNoYW5nZWQsIDEwOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQoNCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcgYi9kcml2ZXJzL3dhdGNoZG9nL0tj
+b25maWcNCmluZGV4IDJlMDdjYWFiOWRiMi4uNjI5MjQ5ZmU1MzA1IDEwMDY0NA0KLS0tIGEvZHJp
+dmVycy93YXRjaGRvZy9LY29uZmlnDQorKysgYi9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcNCkBA
+IC03MTcsNiArNzE3LDcgQEAgY29uZmlnIE1FRElBVEVLX1dBVENIRE9HDQogCXRyaXN0YXRlICJN
+ZWRpYXRlayBTb0NzIHdhdGNoZG9nIHN1cHBvcnQiDQogCWRlcGVuZHMgb24gQVJDSF9NRURJQVRF
+SyB8fCBDT01QSUxFX1RFU1QNCiAJc2VsZWN0IFdBVENIRE9HX0NPUkUNCisJc2VsZWN0IFJFU0VU
+X0NPTlRST0xMRVINCiAJaGVscA0KIAkgIFNheSBZIGhlcmUgdG8gaW5jbHVkZSBzdXBwb3J0IGZv
+ciB0aGUgd2F0Y2hkb2cgdGltZXINCiAJICBpbiBNZWRpYXRlayBTb0NzLg0KZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvd2F0Y2hkb2cvbXRrX3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9tdGtfd2R0LmMN
+CmluZGV4IDljM2QwMDMzMjYwZC4uNjY3MzgwMDMxZGZkIDEwMDY0NA0KLS0tIGEvZHJpdmVycy93
+YXRjaGRvZy9tdGtfd2R0LmMNCisrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvbXRrX3dkdC5jDQpAQCAt
+OSw2ICs5LDkgQEANCiAgKiBCYXNlZCBvbiBzdW54aV93ZHQuYw0KICAqLw0KIA0KKyNpbmNsdWRl
+IDxkdC1iaW5kaW5ncy9yZXNldC1jb250cm9sbGVyL210MjcxMi1yZXNldHMuaD4NCisjaW5jbHVk
+ZSA8ZHQtYmluZGluZ3MvcmVzZXQtY29udHJvbGxlci9tdDgxODMtcmVzZXRzLmg+DQorI2luY2x1
+ZGUgPGxpbnV4L2RlbGF5Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2Vyci5oPg0KICNpbmNsdWRlIDxs
+aW51eC9pbml0Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2lvLmg+DQpAQCAtMTYsMTAgKzE5LDEyIEBA
+DQogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPg0KICNpbmNsdWRlIDxsaW51eC9tb2R1bGVwYXJh
+bS5oPg0KICNpbmNsdWRlIDxsaW51eC9vZi5oPg0KKyNpbmNsdWRlIDxsaW51eC9vZl9kZXZpY2Uu
+aD4NCiAjaW5jbHVkZSA8bGludXgvcGxhdGZvcm1fZGV2aWNlLmg+DQorI2luY2x1ZGUgPGxpbnV4
+L3Jlc2V0LWNvbnRyb2xsZXIuaD4NCisjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KICNpbmNsdWRl
+IDxsaW51eC90eXBlcy5oPg0KICNpbmNsdWRlIDxsaW51eC93YXRjaGRvZy5oPg0KLSNpbmNsdWRl
+IDxsaW51eC9kZWxheS5oPg0KIA0KICNkZWZpbmUgV0RUX01BWF9USU1FT1VUCQkzMQ0KICNkZWZp
+bmUgV0RUX01JTl9USU1FT1VUCQkxDQpAQCAtNDQsNiArNDksOSBAQA0KICNkZWZpbmUgV0RUX1NX
+UlNUCQkweDE0DQogI2RlZmluZSBXRFRfU1dSU1RfS0VZCQkweDEyMDkNCiANCisjZGVmaW5lIFdE
+VF9TV1NZU1JTVAkJMHgxOFUNCisjZGVmaW5lIFdEVF9TV1NZU19SU1RfS0VZCTB4ODgwMDAwMDAN
+CisNCiAjZGVmaW5lIERSVl9OQU1FCQkibXRrLXdkdCINCiAjZGVmaW5lIERSVl9WRVJTSU9OCQki
+MS4wIg0KIA0KQEAgLTUzLDggKzYxLDk3IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdGltZW91dDsN
+CiBzdHJ1Y3QgbXRrX3dkdF9kZXYgew0KIAlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlIHdkdF9kZXY7
+DQogCXZvaWQgX19pb21lbSAqd2R0X2Jhc2U7DQorCXNwaW5sb2NrX3QgbG9jazsgLyogcHJvdGVj
+dHMgV0RUX1NXU1lTUlNUIHJlZyAqLw0KKwlzdHJ1Y3QgcmVzZXRfY29udHJvbGxlcl9kZXYgcmNk
+ZXY7DQorfTsNCisNCitzdHJ1Y3QgbXRrX3dkdF9kYXRhIHsNCisJaW50IGluZnJhY2ZnX3N3X3Jz
+dF9udW07DQorCWludCB0b3ByZ3Vfc3dfcnN0X251bTsNCit9Ow0KKw0KK3N0YXRpYyBjb25zdCBz
+dHJ1Y3QgbXRrX3dkdF9kYXRhIG10MjcxMl9kYXRhID0gew0KKwkudG9wcmd1X3N3X3JzdF9udW0g
+PSBNVDI3MTJfVE9QUkdVX1NXX1JTVF9OVU0sDQorfTsNCisNCitzdGF0aWMgY29uc3Qgc3RydWN0
+IG10a193ZHRfZGF0YSBtdDgxODNfZGF0YSA9IHsNCisJLmluZnJhY2ZnX3N3X3JzdF9udW0gPSBN
+VDgxODNfSU5GUkFDRkdfU1dfUlNUX05VTSwNCisJLnRvcHJndV9zd19yc3RfbnVtID0gTVQ4MTgz
+X1RPUFJHVV9TV19SU1RfTlVNLA0KK307DQorDQorc3RhdGljIGludCB0b3ByZ3VfcmVzZXRfdXBk
+YXRlKHN0cnVjdCByZXNldF9jb250cm9sbGVyX2RldiAqcmNkZXYsDQorCQkJICAgICAgIHVuc2ln
+bmVkIGxvbmcgaWQsIGJvb2wgYXNzZXJ0KQ0KK3sNCisJdW5zaWduZWQgaW50IHRtcDsNCisJdW5z
+aWduZWQgbG9uZyBmbGFnczsNCisNCisJc3RydWN0IG10a193ZHRfZGV2ICpkYXRhID0NCisJCSBj
+b250YWluZXJfb2YocmNkZXYsIHN0cnVjdCBtdGtfd2R0X2RldiwgcmNkZXYpOw0KKw0KKwlzcGlu
+X2xvY2tfaXJxc2F2ZSgmZGF0YS0+bG9jaywgZmxhZ3MpOw0KKw0KKwl0bXAgPSByZWFkbChkYXRh
+LT53ZHRfYmFzZSArIFdEVF9TV1NZU1JTVCk7DQorCWlmIChhc3NlcnQpDQorCQl0bXAgfD0gQklU
+KGlkKTsNCisJZWxzZQ0KKwkJdG1wICY9IH5CSVQoaWQpOw0KKwl0bXAgfD0gV0RUX1NXU1lTX1JT
+VF9LRVk7DQorCXdyaXRlbCh0bXAsIGRhdGEtPndkdF9iYXNlICsgV0RUX1NXU1lTUlNUKTsNCisN
+CisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmZGF0YS0+bG9jaywgZmxhZ3MpOw0KKw0KKwlyZXR1
+cm4gMDsNCit9DQorDQorc3RhdGljIGludCB0b3ByZ3VfcmVzZXRfYXNzZXJ0KHN0cnVjdCByZXNl
+dF9jb250cm9sbGVyX2RldiAqcmNkZXYsDQorCQkJICAgICAgIHVuc2lnbmVkIGxvbmcgaWQpDQor
+ew0KKwlyZXR1cm4gdG9wcmd1X3Jlc2V0X3VwZGF0ZShyY2RldiwgaWQsIHRydWUpOw0KK30NCisN
+CitzdGF0aWMgaW50IHRvcHJndV9yZXNldF9kZWFzc2VydChzdHJ1Y3QgcmVzZXRfY29udHJvbGxl
+cl9kZXYgKnJjZGV2LA0KKwkJCQkgdW5zaWduZWQgbG9uZyBpZCkNCit7DQorCXJldHVybiB0b3By
+Z3VfcmVzZXRfdXBkYXRlKHJjZGV2LCBpZCwgZmFsc2UpOw0KK30NCisNCitzdGF0aWMgaW50IHRv
+cHJndV9yZXNldChzdHJ1Y3QgcmVzZXRfY29udHJvbGxlcl9kZXYgKnJjZGV2LA0KKwkJCXVuc2ln
+bmVkIGxvbmcgaWQpDQorew0KKwlpbnQgcmV0Ow0KKw0KKwlyZXQgPSB0b3ByZ3VfcmVzZXRfYXNz
+ZXJ0KHJjZGV2LCBpZCk7DQorCWlmIChyZXQpDQorCQlyZXR1cm4gcmV0Ow0KKw0KKwlyZXR1cm4g
+dG9wcmd1X3Jlc2V0X2RlYXNzZXJ0KHJjZGV2LCBpZCk7DQorfQ0KKw0KK3N0YXRpYyBjb25zdCBz
+dHJ1Y3QgcmVzZXRfY29udHJvbF9vcHMgdG9wcmd1X3Jlc2V0X29wcyA9IHsNCisJLmFzc2VydCA9
+IHRvcHJndV9yZXNldF9hc3NlcnQsDQorCS5kZWFzc2VydCA9IHRvcHJndV9yZXNldF9kZWFzc2Vy
+dCwNCisJLnJlc2V0ID0gdG9wcmd1X3Jlc2V0LA0KIH07DQogDQorc3RhdGljIGludCB0b3ByZ3Vf
+cmVnaXN0ZXJfcmVzZXRfY29udHJvbGxlcihzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2LA0K
+KwkJCQkJICAgIGludCByc3RfbnVtKQ0KK3sNCisJaW50IHJldDsNCisJc3RydWN0IG10a193ZHRf
+ZGV2ICptdGtfd2R0ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQorDQorCXNwaW5fbG9j
+a19pbml0KCZtdGtfd2R0LT5sb2NrKTsNCisNCisJbXRrX3dkdC0+cmNkZXYub3duZXIgPSBUSElT
+X01PRFVMRTsNCisJbXRrX3dkdC0+cmNkZXYubnJfcmVzZXRzID0gcnN0X251bTsNCisJbXRrX3dk
+dC0+cmNkZXYub3BzID0gJnRvcHJndV9yZXNldF9vcHM7DQorCW10a193ZHQtPnJjZGV2Lm9mX25v
+ZGUgPSBwZGV2LT5kZXYub2Zfbm9kZTsNCisJcmV0ID0gZGV2bV9yZXNldF9jb250cm9sbGVyX3Jl
+Z2lzdGVyKCZwZGV2LT5kZXYsICZtdGtfd2R0LT5yY2Rldik7DQorCWlmIChyZXQgIT0gMCkNCisJ
+CWRldl9lcnIoJnBkZXYtPmRldiwNCisJCQkiY291bGRuJ3QgcmVnaXN0ZXIgd2R0IHJlc2V0IGNv
+bnRyb2xsZXI6ICVkXG4iLCByZXQpOw0KKwlyZXR1cm4gcmV0Ow0KK30NCisNCiBzdGF0aWMgaW50
+IG10a193ZHRfcmVzdGFydChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZHRfZGV2LA0KIAkJCSAg
+IHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2b2lkICpkYXRhKQ0KIHsNCkBAIC0xNTUsNiArMjUyLDcg
+QEAgc3RhdGljIGludCBtdGtfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYp
+DQogew0KIAlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcGRldi0+ZGV2Ow0KIAlzdHJ1Y3QgbXRrX3dk
+dF9kZXYgKm10a193ZHQ7DQorCXN0cnVjdCBtdGtfd2R0X2RhdGEgKndkdF9kYXRhOw0KIAlpbnQg
+ZXJyOw0KIA0KIAltdGtfd2R0ID0gZGV2bV9remFsbG9jKGRldiwgc2l6ZW9mKCptdGtfd2R0KSwg
+R0ZQX0tFUk5FTCk7DQpAQCAtMTkwLDYgKzI4OCwxMyBAQCBzdGF0aWMgaW50IG10a193ZHRfcHJv
+YmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiAJZGV2X2luZm8oZGV2LCAiV2F0Y2hk
+b2cgZW5hYmxlZCAodGltZW91dD0lZCBzZWMsIG5vd2F5b3V0PSVkKVxuIiwNCiAJCSBtdGtfd2R0
+LT53ZHRfZGV2LnRpbWVvdXQsIG5vd2F5b3V0KTsNCiANCisJd2R0X2RhdGEgPSAoc3RydWN0IG10
+a193ZHRfZGF0YSAqKW9mX2RldmljZV9nZXRfbWF0Y2hfZGF0YShkZXYpOw0KKwlpZiAod2R0X2Rh
+dGEpIHsNCisJCWVyciA9IHRvcHJndV9yZWdpc3Rlcl9yZXNldF9jb250cm9sbGVyKHBkZXYsDQor
+CQkJCQkJICAgICAgIHdkdF9kYXRhLT50b3ByZ3Vfc3dfcnN0X251bSk7DQorCQlpZiAoZXJyKQ0K
+KwkJCXJldHVybiBlcnI7DQorCX0NCiAJcmV0dXJuIDA7DQogfQ0KIA0KQEAgLTIxOCw3ICszMjMs
+OSBAQCBzdGF0aWMgaW50IG10a193ZHRfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCiAjZW5k
+aWYNCiANCiBzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCBtdGtfd2R0X2R0X2lkc1td
+ID0gew0KKwl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10MjcxMi13ZHQiLCAuZGF0YSA9ICZt
+dDI3MTJfZGF0YSB9LA0KIAl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10NjU4OS13ZHQiIH0s
+DQorCXsgLmNvbXBhdGlibGUgPSAibWVkaWF0ZWssbXQ4MTgzLXdkdCIsIC5kYXRhID0gJm10ODE4
+M19kYXRhIH0sDQogCXsgLyogc2VudGluZWwgKi8gfQ0KIH07DQogTU9EVUxFX0RFVklDRV9UQUJM
+RShvZiwgbXRrX3dkdF9kdF9pZHMpOw0KLS0gDQoyLjE4LjANCg==
 
