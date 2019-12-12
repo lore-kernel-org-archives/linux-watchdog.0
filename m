@@ -2,27 +2,27 @@ Return-Path: <SRS0=3Zqe=2C=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 766ABC00454
-	for <linux-watchdog@archiver.kernel.org>; Thu, 12 Dec 2019 12:20:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9DB3C43603
+	for <linux-watchdog@archiver.kernel.org>; Thu, 12 Dec 2019 12:20:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BEB721655
-	for <linux-watchdog@archiver.kernel.org>; Thu, 12 Dec 2019 12:20:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA3892464B
+	for <linux-watchdog@archiver.kernel.org>; Thu, 12 Dec 2019 12:20:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbfLLMUM (ORCPT
+        id S1729156AbfLLMUG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 12 Dec 2019 07:20:12 -0500
+        Thu, 12 Dec 2019 07:20:06 -0500
 Received: from mail-sz.amlogic.com ([211.162.65.117]:53857 "EHLO
         mail-sz.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729118AbfLLMUL (ORCPT
+        with ESMTP id S1729159AbfLLMUG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 Dec 2019 07:20:11 -0500
+        Thu, 12 Dec 2019 07:20:06 -0500
 Received: from droid12-sz.software.amlogic (10.28.8.22) by mail-sz.amlogic.com
  (10.28.11.5) with Microsoft SMTP Server id 15.1.1591.10; Thu, 12 Dec 2019
- 20:20:37 +0800
+ 20:20:36 +0800
 From:   Xingyu Chen <xingyu.chen@amlogic.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -38,12 +38,10 @@ CC:     Xingyu Chen <xingyu.chen@amlogic.com>,
         <linux-amlogic@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
-Subject: [PATCH v5 2/4] dt-bindings: watchdog: add new binding for meson secure watchdog
-Date:   Thu, 12 Dec 2019 20:19:45 +0800
-Message-ID: <1576153187-28378-3-git-send-email-xingyu.chen@amlogic.com>
+Subject: [PATCH v5 0/4] add meson secure watchdog driver
+Date:   Thu, 12 Dec 2019 20:19:43 +0800
+Message-ID: <1576153187-28378-1-git-send-email-xingyu.chen@amlogic.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1576153187-28378-1-git-send-email-xingyu.chen@amlogic.com>
-References: <1576153187-28378-1-git-send-email-xingyu.chen@amlogic.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.28.8.22]
@@ -52,56 +50,57 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The binding targets the Meson-A/C series compatible SoCs, in which the
-watchdog registers are in secure world.
+The watchdog controller on the Meson-A/C series SoCs is moved to secure world,
+We have to call SMC instruction to trap the ATF for watchdog operation. These
+operations are different from previous SoCs, so we introduce a new watchdog
+driver to support this kind of SoCs.
 
-Signed-off-by: Xingyu Chen <xingyu.chen@amlogic.com>
----
- .../bindings/watchdog/amlogic,meson-sec-wdt.yaml   | 35 ++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+Changes since v4 at [3]:
+- add watchdog node in dts, and introduce a new optional property "timeout-sec"
+- add dt-binding for meson secure watchdog
+- instantiate wdt device through dts node instead of platform_device_register_simple()
+
+Changes since v3 at [2]:
+- add SM_A1_ prefix for WATCHDOG_OPS
+- remove phandle to secure-monitor node
+- remove watchdog node from dts, and register wdt device by platform_device_register_simple()
+- remove dt-binding for meson secure watchdog
+- use the msec as unit of timeout parameter which is passed to fw side
+
+Changes since v2 at [1]:
+- remove useless dependency in Kconfig
+- return zero when getting left time value fails
+
+Changes since v1 at [0]:
+- add a new dependency in Kconfig
+- simplify/add the return operation
+- remove useless ping operation when setting the timeout
+- fix some return values
+- fix the license statement
+
+[0]:https://lore.kernel.org/linux-amlogic/1570874721-36077-1-git-send-email-xingyu.chen@amlogic.com
+[1]:https://lore.kernel.org/linux-amlogic/1571387622-35132-1-git-send-email-xingyu.chen@amlogic.com
+[2]:https://lore.kernel.org/linux-amlogic/1571983984-11771-1-git-send-email-xingyu.chen@amlogic.com
+[3]:https://lore.kernel.org/linux-amlogic/1574685218-31164-1-git-send-email-xingyu.chen@amlogic.com
+
+Xingyu Chen (4):
+  firmware: meson_sm: add new SMC ID support for accessing secure
+    watchdog
+  dt-bindings: watchdog: add new binding for meson secure watchdog
+  watchdog: add meson secure watchdog driver
+  arm64: dts: a1: add secure watchdog controller
+
+ .../bindings/watchdog/amlogic,meson-sec-wdt.yaml   |  35 ++++
+ arch/arm64/boot/dts/amlogic/meson-a1.dtsi          |   6 +
+ drivers/firmware/meson/meson_sm.c                  |   1 +
+ drivers/watchdog/Kconfig                           |  16 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/meson_sec_wdt.c                   | 188 +++++++++++++++++++++
+ include/linux/firmware/meson/meson_sm.h            |   1 +
+ 7 files changed, 248 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
+ create mode 100644 drivers/watchdog/meson_sec_wdt.c
 
-diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
-new file mode 100644
-index 00000000..c0ff2ec
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
-@@ -0,0 +1,35 @@
-+# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-+# Copyright (c) 2019 Amlogic, Inc
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/power/amlogic,meson-sec-wdt.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: Amlogic Meson Secure Watchdog Timer
-+
-+maintainers:
-+  - Xingyu Chen <xingyu.chen@amlogic.com>
-+
-+description: |+
-+  Secure Watchdog Timer used in Meson-A/C series Compatible SoCs
-+
-+properties:
-+  compatible:
-+    enum:
-+      - amlogic,meson-sec-wdt
-+
-+  timeout-sec:
-+    minimum: 1
-+    maximum: 65
-+    description:
-+      Watchdog timeout values (in seconds)
-+
-+required:
-+  - compatible
-+
-+examples:
-+  - |
-+    watchdog {
-+          compatible = "amlogic,meson-sec-wdt";
-+          timeout-sec = <60>;
-+    };
 -- 
 2.7.4
 
