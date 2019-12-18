@@ -2,149 +2,89 @@ Return-Path: <SRS0=Gqei=2I=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58524C2D0C3
-	for <linux-watchdog@archiver.kernel.org>; Wed, 18 Dec 2019 07:37:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E9D6C43603
+	for <linux-watchdog@archiver.kernel.org>; Wed, 18 Dec 2019 18:15:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 392F324676
-	for <linux-watchdog@archiver.kernel.org>; Wed, 18 Dec 2019 07:37:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D926721D7D
+	for <linux-watchdog@archiver.kernel.org>; Wed, 18 Dec 2019 18:15:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1576692904;
+	bh=2vYlIkVsIcKX9Zr8k9KbSq97jYsgj8PKkbMfNtKo3n4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=V4okeW8tGGsFmjfHkt73dHe+GI5q9RzItjbLJuz8kiNJdfwSV0dtdUDbkKTmmEtLu
+	 V8nOQ+auuYymYaBMMtDjCi8Jt7pDetBrzV9o2ovOHF4tXn9zorhQkXenA4MkC/5OSC
+	 mUfoiNE7Ai5ZUwDqT/od70VJTU+jyicf4HenXoyw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726682AbfLRHhp (ORCPT
+        id S1726939AbfLRSPB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 18 Dec 2019 02:37:45 -0500
-Received: from mail-sz.amlogic.com ([211.162.65.117]:15512 "EHLO
-        mail-sz.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726710AbfLRHho (ORCPT
+        Wed, 18 Dec 2019 13:15:01 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:42774 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727341AbfLRSPB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 18 Dec 2019 02:37:44 -0500
-Received: from [10.28.19.135] (10.28.19.135) by mail-sz.amlogic.com
- (10.28.11.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1591.10; Wed, 18 Dec
- 2019 15:37:49 +0800
-Subject: Re: [PATCH v5 2/4] dt-bindings: watchdog: add new binding for meson
- secure watchdog
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Rob Herring <robh+dt@kernel.org>
-CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Qianggui Song <qianggui.song@amlogic.com>,
-        <devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        Jianxin Pan <jianxin.pan@amlogic.com>,
-        <linux-kernel@vger.kernel.org>, Jian Hu <jian.hu@amlogic.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-amlogic@lists.infradead.org>,
-        Jerome Brunet <jbrunet@baylibre.com>
-References: <1576153187-28378-1-git-send-email-xingyu.chen@amlogic.com>
- <1576153187-28378-3-git-send-email-xingyu.chen@amlogic.com>
- <CAFBinCBHLqgPExPsVaSWdSOr0Oj-jeYa4Z82U-pJ=fS+D1wGnA@mail.gmail.com>
- <f7b0afe7-e317-2422-de7e-878837f9f238@amlogic.com>
- <a8f5ab1d-264c-5b2c-e72b-3774b9f44c22@roeck-us.net>
-From:   Xingyu Chen <xingyu.chen@amlogic.com>
-Message-ID: <1da513d7-20e1-726a-dcc4-952cbfbbe63a@amlogic.com>
-Date:   Wed, 18 Dec 2019 15:37:49 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        Wed, 18 Dec 2019 13:15:01 -0500
+Received: by mail-ot1-f65.google.com with SMTP id 66so3531021otd.9;
+        Wed, 18 Dec 2019 10:15:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Joaw7/XAOOveu1GS58tOvSo24yLU2Vq2eez0hj0oxxI=;
+        b=InUP9nsTzmlFIiCN6b86zG4A/PqSGnWE91tsI4HBG8weXa20RWogHEHuFT9aJyg+ZE
+         XYiv20AA3iNiiPXWqzkzBg9wx0DmnNiNToZBmuCD3VbUzomLl5h+1hjVHtWkJyB5frxK
+         iu3wMZTOo59yobdKUuWVgz8msIM7Ls1x0dFjCp4qzCZz5qwTGeSIDEtMJPbnbvb/GMae
+         4RVSaJwf3dU+bi/JzPVNqNTXi4HXM9JweK63VfC+1GF8TfLiClPgV54Hhk5gmC/IRwVY
+         GEjVKLPqsP2xv2BLuYYHFb9l4BL6wpCrJTJOReqWt2xWHdaGag9PqYgi5p8S+NQeaQtz
+         QwGg==
+X-Gm-Message-State: APjAAAWFIJb6O/YL2g3/zlqb1qn4yN/m14/7DbcQkevbqND/vhWcLqfM
+        RiYqBo8+FIsqixrJl13IfQ==
+X-Google-Smtp-Source: APXvYqyoQd/upD6YD3POKyWidARuJplw8nUXBR63avEydvr3JAGmT9UWeuqxABxXovlfVreAUCvwWA==
+X-Received: by 2002:a9d:5e9a:: with SMTP id f26mr3967611otl.307.1576692895673;
+        Wed, 18 Dec 2019 10:14:55 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id t196sm802325oie.11.2019.12.18.10.14.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Dec 2019 10:14:55 -0800 (PST)
+Date:   Wed, 18 Dec 2019 12:14:54 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Jiaxin Yu <jiaxin.yu@mediatek.com>
+Cc:     yong.liang@mediatek.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, p.zabel@pengutronix.de, matthias.bgg@gmail.com,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
+        sboyd@kernel.org, yingjoe.chen@mediatek.com
+Subject: Re: [PATCH v6 1/2] dt-bindings: mediatek: mt8183: Add #reset-cells
+Message-ID: <20191218181454.GA15293@bogus>
+References: <1576081356-18298-1-git-send-email-jiaxin.yu@mediatek.com>
+ <1576081356-18298-2-git-send-email-jiaxin.yu@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <a8f5ab1d-264c-5b2c-e72b-3774b9f44c22@roeck-us.net>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-GB
-X-Originating-IP: [10.28.19.135]
-X-ClientProxiedBy: mail-sz.amlogic.com (10.28.11.5) To mail-sz.amlogic.com
- (10.28.11.5)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1576081356-18298-2-git-send-email-jiaxin.yu@mediatek.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi, Guenter Martin
+On Thu, 12 Dec 2019 00:22:35 +0800, Jiaxin Yu wrote:
+> From: "yong.liang" <yong.liang@mediatek.com>
+> 
+> Add #reset-cells property and update example
+> 
+> Signed-off-by: yong.liang <yong.liang@mediatek.com>
+> ---
+>  .../devicetree/bindings/watchdog/mtk-wdt.txt  | 10 ++++++---
+>  .../reset-controller/mt2712-resets.h          | 22 +++++++++++++++++++
+>  .../reset-controller/mt8183-resets.h          | 17 ++++++++++++++
+>  3 files changed, 46 insertions(+), 3 deletions(-)
+>  create mode 100644 include/dt-bindings/reset-controller/mt2712-resets.h
+> 
 
-On 2019/12/16 21:30, Guenter Roeck wrote:
-> On 12/15/19 10:03 PM, Xingyu Chen wrote:
->> Hi, Martin
->>
->> Sorry for the late reply.
->>
->> On 2019/12/13 4:05, Martin Blumenstingl wrote:
->>> Hi Xingyu and Rob,
->>>
->>> On Thu, Dec 12, 2019 at 1:20 PM Xingyu Chen 
->>> <xingyu.chen@amlogic.com> wrote:
->>> [...]
->>>> +examples:
->>>> +  - |
->>>> +    watchdog {
->>>> +          compatible = "amlogic,meson-sec-wdt";
->>>> +          timeout-sec = <60>;
->>>> +    };
->>> in v3 of this patch Rob commented that there shouldn't be an OF node
->>> if there are no additional properties
->>> with timeout-sec there's now an additional property so my
->>> understanding is that it's fine to have an OF node
->> Your understanding is correct.
->>>
->>> what I don't understand yet is where this node should be placed.
->>> is it supposed to be a child node of the secure monitor node (for
->>> which we already have a binding here:
->>> Documentation/devicetree/bindings/firmware/meson/meson_sm.txt) or
->>> where else would we place it inside the .dts?
->> IMO,  Although the watchdog node need to reference the meson_sm node, 
->> there is no
->> bus-like dependencies between the devices which the two nodes 
->> corresponding to.
->> so i think that the watchdog node as child node of meson_sm maybe not 
->> appropriate.
->
-> The watchdog driver needs the meson SM's dt node, and it depends on 
-> the existence
-> of that node. That seems enough of a relationship to warrant having it 
-> as child note.
-Thanks for your reply, if i take the wdt node as child of secure monitor 
-(sm), how should
-i register or find the wdt device ?
-
-I only think of the following three methods :
-1). update the sm driver，and scan&register wdt device when the sm driver 
-probes(It is like i2c), but there
-are too many changes involved.
-
-2). add "simple-bus" key string to compatible of sm node, and it will 
-make the child node is registered as
-platform device, but it seems that the key string is not match current 
-scene.
-
-secure-monitor {
-     compatible = "amlogic,meson-gxbb-sm",  "simple-bus";
-
-     watchdog {
-         compatible = "amlogic,meson-sec-wdt";
-         timeout-sec = <60>;
-     }
-}
-
-3).  don't register device, and find directly the watchdog node by using 
-the of_* API in watchdog
-driver (Eg: linux-4.x/drivers/tee/optee/core.c)
-
-secure-monitor {
-     compatible = "amlogic,meson-gxbb-sm";
-
-     watchdog {
-         compatible = "amlogic,meson-sec-wdt";
-         timeout-sec = <60>;
-     }
-}
-
-The method 3 looks better for me, do you have a better suggestion ? Thanks
-
-BR
->
-> Guenter
->
-> .
->
+Reviewed-by: Rob Herring <robh@kernel.org>
