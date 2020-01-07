@@ -1,78 +1,66 @@
-Return-Path: <SRS0=Xk/m=23=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=d0Em=24=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93661C33C8C
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jan 2020 22:15:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B550C33C8C
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jan 2020 15:51:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6271224672
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jan 2020 22:15:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1578348904;
-	bh=TnEaDztOveaVafNetBAdDi2KyjKQIqroNQxDV4UbRoo=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=P1ImqGkr98IfOvtxkFEcY4ccWLTROUh2YSWlIAA23KJnZ2ZMWiXZEEKCt1kNkZMek
-	 P/h0F4RvurbB2QjY5BOydEWZ2nnJ9tgMMWt9kDMCbfIR10B/Yyw/Cx7uEIft39z/mv
-	 529IFrwLh+vFYYJDqC75unp0VSpsqsE5m1nVD9Xc=
+	by mail.kernel.org (Postfix) with ESMTP id 563042081E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jan 2020 15:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726721AbgAFWPE (ORCPT
+        id S1728292AbgAGPvF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jan 2020 17:15:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45038 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbgAFWPD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jan 2020 17:15:03 -0500
-Subject: Re: [GIT PULL REQUEST] watchdog - v5.5 Fixes
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578348903;
-        bh=TnEaDztOveaVafNetBAdDi2KyjKQIqroNQxDV4UbRoo=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=jmctnd85I6wo4oIeuHr2illemr9+drW+Aczpn5gFOqoZrys2uFgGBrITACl4699Vg
-         ziNXOha5U5hU7r2NvZfsS5Jjdt1KRiMnbMZabPHgBHPC2RO7hRgo6BVKLEvLBrazpz
-         1OfRGYpAVZs9bOkWQPXaZg93+aNCJkmQVdPIm7WY=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200106191234.GA1443@www.linux-watchdog.org>
-References: <20200106191234.GA1443@www.linux-watchdog.org>
-X-PR-Tracked-List-Id: <linux-watchdog.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200106191234.GA1443@www.linux-watchdog.org>
-X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
- tags/linux-watchdog-5.5-fixes
-X-PR-Tracked-Commit-Id: dcbce5fbcc69bf2553f650004aad44bf390eca73
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: baf4dc829574ed9dd8ba33cda0536a50f28937de
-Message-Id: <157834890321.24185.18184775319609247372.pr-tracker-bot@kernel.org>
-Date:   Mon, 06 Jan 2020 22:15:03 +0000
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Tue, 7 Jan 2020 10:51:05 -0500
+Received: from unsecure-smtp.soverin.net ([94.130.159.241]:34241 "EHLO
+        g02sm02.soverin.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727994AbgAGPvE (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 7 Jan 2020 10:51:04 -0500
+X-Greylist: delayed 386 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Jan 2020 10:51:03 EST
+Received: from soverin.net by soverin.net
+From:   Jack Mitchell <ml@embed.me.uk>
+Cc:     ml@embed.me.uk, Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        David Engraf <david.engraf@sysgo.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Srikanth Krishnakar <skrishnakar@gmail.com>,
-        YueHaibing <yuehaibing@huawei.com>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: dw_wdt: ping watchdog to reset countdown before start
+Date:   Tue,  7 Jan 2020 15:50:53 +0000
+Message-Id: <20200107155054.278444-1-ml@embed.me.uk>
+MIME-Version: 1.0
+X-Virus-Scanned: clamav-milter 0.99.2 at g02sm02
+X-Virus-Status: Clean
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The pull request you sent on Mon, 6 Jan 2020 20:12:34 +0100:
+Currently on an rk3288 SoC when trying to use the watchdog the SoC will
+instantly reset. This is due to the watchdog countdown counter being set
+to its initial value of 0x0. Reset the watchdog counter before start in
+order to correctly start the countdown timer from the right position.
 
-> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.5-fixes
+Signed-off-by: Jack Mitchell <ml@embed.me.uk>
+---
+ drivers/watchdog/dw_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/baf4dc829574ed9dd8ba33cda0536a50f28937de
-
-Thank you!
-
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index fef7c61f5555..4a902d015bc2 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -135,6 +135,7 @@ static int dw_wdt_start(struct watchdog_device *wdd)
+ 	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 
+ 	dw_wdt_set_timeout(wdd, wdd->timeout);
++	dw_wdt_ping(&dw_wdt->wdd);
+ 	dw_wdt_arm_system_reset(dw_wdt);
+ 
+ 	return 0;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.24.1
+
