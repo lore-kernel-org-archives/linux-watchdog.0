@@ -1,110 +1,92 @@
-Return-Path: <SRS0=d0Em=24=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=glTO=25=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E50F6C282DD
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jan 2020 18:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DA95C00523
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jan 2020 08:56:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF19B206F0
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jan 2020 18:29:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4906C2070E
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jan 2020 08:56:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CYAMnJvk"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="dt29E8cP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728457AbgAGS3q (ORCPT
+        id S1727112AbgAHI4h (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 Jan 2020 13:29:46 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33701 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727925AbgAGS3q (ORCPT
+        Wed, 8 Jan 2020 03:56:37 -0500
+Received: from mail-qt1-f194.google.com ([209.85.160.194]:40202 "EHLO
+        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726921AbgAHI4g (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Jan 2020 13:29:46 -0500
-Received: by mail-pl1-f193.google.com with SMTP id ay11so32016plb.0;
-        Tue, 07 Jan 2020 10:29:46 -0800 (PST)
+        Wed, 8 Jan 2020 03:56:36 -0500
+Received: by mail-qt1-f194.google.com with SMTP id v25so351902qto.7
+        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jan 2020 00:56:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=R00xNPsCF8UW/szKUy4WCcj0M7xSEsY8VrV3QDe1Oo0=;
-        b=CYAMnJvk6SbEGhlwkKO0AU34UPtn7TFji5Ps19RbS8eRYq8wo3OUwKlS4XmNeopGmw
-         QiFXRSNjOagwTIFztbuUUjbF6qBGjG5EqWUDnsTeDPvXGaymxUKOIkhLgXUhBk+u31iH
-         KIugAhILIf72swrEM10d9I+R/hnEGyBQRfbBvyp9X5+3vTsquRDSlYzvCKLyAO71jQqU
-         BRua/j4i2V6W3EhyxNLWaidgQSdHiAZQIMFRrHPCkrJLvjxQ+6Fva0moX1B3Za4LNly3
-         grRreqi+zjsyRIBFuQd8pvJSluNizRXJPQij7kV+xmds96HDCKPquqbMibZf42oeDtAx
-         5Oeg==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=23UaZlNsApqhumDDLUOyVqHmZXSwjOyNRAB7ikWfhfk=;
+        b=dt29E8cPCpwAonKSxaiv3VaP8BgaW6t7bbMQkQnM0D3acz6OORwBCcouS6gD45iHNu
+         GoPZetsVGj8l0OnJGPxqVSmqzq56aVUI+0uLD7j+Gg9OKKkLy6E736TS9AFewSX5PE6+
+         AOSxXDvApaNRuUXWC+iSUIvKTYYK+4hSDeiCc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=R00xNPsCF8UW/szKUy4WCcj0M7xSEsY8VrV3QDe1Oo0=;
-        b=TAsn/IXBoKo80Cg8XsRpatHZTyyJQXou8jUTWtbMQ31/TTWOO7keJ6B/CvxHCGrMKp
-         7TfMn0U+ffb44CtvlHVl1h8jkZqafj1oyntE7JQr0NDI+o96IOKO9GdBwzCvZlSvET25
-         syauNwwFRBgkcQ1DKvgbgowbUgmxppSM8yP+QZA5rExZz0aJgLW1TQhafOs0J/aSNuvS
-         dDITmT4fvaRDOE5X6Ww6fjADCz/6Lk+FaYFSW5lY3uewKSAtmMvyWNhezTm9vgzS3fyc
-         8MFZIH5KCsFtYMpkyJA1aiOEWDOYgqSRF5FUDYRsoOSZU5T6n7QFEIIjsYoBlu2SHvb9
-         8/OQ==
-X-Gm-Message-State: APjAAAWREfGp6qFcPACdEBz7KAB2yXj43Tlyg3fj+/HfToi6L2DQvrxB
-        0yhGwLpxVphEpHqPhdSmLRY=
-X-Google-Smtp-Source: APXvYqwFTbjgTXASmix+3u3414wvuMf8vHp4E+Qp8r0vx/3MvZxQpaU4ZHNyie4f5G1akERvond2Jw==
-X-Received: by 2002:a17:90a:26e1:: with SMTP id m88mr1162523pje.101.1578421786005;
-        Tue, 07 Jan 2020 10:29:46 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u3sm436809pga.72.2020.01.07.10.29.45
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 07 Jan 2020 10:29:45 -0800 (PST)
-Date:   Tue, 7 Jan 2020 10:29:44 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Jiaxin Yu <jiaxin.yu@mediatek.com>, yong.liang@mediatek.com,
-        wim@linux-watchdog.org, p.zabel@pengutronix.de,
-        matthias.bgg@gmail.com, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
-        chang-an.chen@mediatek.com, freddy.hsin@mediatek.com,
-        yingjoe.chen@mediatek.com, sboyd@kernel.org
-Subject: Re: [PATCH v10 1/2] dt-bindings: mediatek: mt8183: Add #reset-cells
-Message-ID: <20200107182944.GB22909@roeck-us.net>
-References: <1578280296-18946-1-git-send-email-jiaxin.yu@mediatek.com>
- <1578280296-18946-2-git-send-email-jiaxin.yu@mediatek.com>
- <20200106215721.GB31059@bogus>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=23UaZlNsApqhumDDLUOyVqHmZXSwjOyNRAB7ikWfhfk=;
+        b=Ve1PEGsAc6RfNX9iKFPW6ql5SFMPfDVpGiVyORR0BzSlgSuY+JTjLN8SnXhjYxusfO
+         JQcahtH9iYXvUOdVnGOhi63RzT1dnmxtUH9dg5C6qJSpW+MmJYn48OyBQI5pvM/OuSCs
+         ca+hzLoYvmBoW6Ecb3Zga+laeBTHq0tP4MQ9VFmZBmBll9mRxmddm+/y1GdoRoIMbtlt
+         IqOhNgVHgtReSnmFtK2RZ9wdLxXEraKO9hPaMB21ZQIuQUPnD/BlYBRDUvrvZ17pWSkU
+         S6tdEQtK+Qt+7aRWsTPetBhwSWBHTKMCgvxfEGVhinz+v/VQClNv1wXKXzPIXpN5tO+T
+         rVMA==
+X-Gm-Message-State: APjAAAVdeWPvaKYnkHNfR48dVDdkKeiWu6UXHWx0TPLfgW2Wm8oJhWiN
+        FHlNXry+53oOCodV8ybz4qeUB+GFcRCuU8CrFpDrqQ==
+X-Google-Smtp-Source: APXvYqwLdC1bnpk+yFSSUDDZwVNj0SEXt8iwYqeuRY98reHyPr1olVJxIKDeEhuHBiSIek43xvF7qoUS3R03lEt//CI=
+X-Received: by 2002:ac8:3946:: with SMTP id t6mr2632345qtb.278.1578473795857;
+ Wed, 08 Jan 2020 00:56:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200106215721.GB31059@bogus>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20191227141405.3396-1-yong.liang@mediatek.com> <20191227141405.3396-2-yong.liang@mediatek.com>
+In-Reply-To: <20191227141405.3396-2-yong.liang@mediatek.com>
+From:   Nicolas Boichat <drinkcat@chromium.org>
+Date:   Wed, 8 Jan 2020 16:56:25 +0800
+Message-ID: <CANMq1KD=jAPn4Y7zQZrsg9FB7Cq6tNX0R8OF4qX21Sjy2=0Naw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] amr64: dts: modify mt8183.dtsi
+To:     Yong Liang <yong.liang@mediatek.com>
+Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Devicetree List <devicetree@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>, wim@linux-watchdog.org,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 06, 2020 at 03:57:21PM -0600, Rob Herring wrote:
-> On Mon, 6 Jan 2020 11:11:35 +0800, Jiaxin Yu wrote:
-> > Add #reset-cells property and update example
-> > 
-> > Signed-off-by: yong.liang <yong.liang@mediatek.com>
-> > Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
-> > Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-> > Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-> > ---
-> >  .../devicetree/bindings/watchdog/mtk-wdt.txt  | 10 ++++++---
-> >  .../reset-controller/mt2712-resets.h          | 22 +++++++++++++++++++
-> >  .../reset-controller/mt8183-resets.h          | 17 ++++++++++++++
-> >  3 files changed, 46 insertions(+), 3 deletions(-)
-> >  create mode 100644 include/dt-bindings/reset-controller/mt2712-resets.h
-> > 
-> 
-> Please add Acked-by/Reviewed-by tags when posting new versions. However,
-> there's no need to repost patches *only* to add the tags. The upstream
-> maintainer will do that for acks received on the version they apply.
-> 
-> If a tag was not added on purpose, please state why and what changed.
+minor nit, s/amr64/arm64/ in the commit title.
 
-v9 and a couple of versions before that did not include the update to
-the bindings file. I got lost in the many versions and don't recall if
-that was ever tagged as Reviewed-by: in an earlier version.
+On Fri, Dec 27, 2019 at 10:15 PM Yong Liang <yong.liang@mediatek.com> wrote:
+>
+> From: "yong.liang" <yong.liang@mediatek.com>
+>
+> 1. Include mt8183-reset.h and add reset-cells in infracfg
+> in dtsi file
+> 2. Add watchdog device node
+>
+> Signed-off-by: yong.liang <yong.liang@mediatek.com>
 
-Guenter
+Tested-by: Nicolas Boichat <drinkcat@chromium.org>
+
+> ---
+>  arch/arm64/boot/dts/mediatek/mt8183.dtsi | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> [snip]
