@@ -1,107 +1,129 @@
-Return-Path: <SRS0=Qdev=3A=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=5Xk7=3C=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61E75C282DD
-	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Jan 2020 16:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C1DC33CAE
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Jan 2020 04:44:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 29A7B2087F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Jan 2020 16:47:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97CB82082E
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Jan 2020 04:44:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="McZsbVfV"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="YtzQLMTY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgAKQrN (ORCPT
+        id S2387527AbgAMEoX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 11 Jan 2020 11:47:13 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33797 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730347AbgAKQrN (ORCPT
+        Sun, 12 Jan 2020 23:44:23 -0500
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:34383 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387517AbgAMEoX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Jan 2020 11:47:13 -0500
-Received: by mail-pl1-f193.google.com with SMTP id x17so2089815pln.1;
-        Sat, 11 Jan 2020 08:47:12 -0800 (PST)
+        Sun, 12 Jan 2020 23:44:23 -0500
+Received: by mail-qt1-f193.google.com with SMTP id 5so8088343qtz.1
+        for <linux-watchdog@vger.kernel.org>; Sun, 12 Jan 2020 20:44:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=PrT/z7/QcgRp7HzvVg/dSsByVx/WL6L0i0y6qJMBrjA=;
-        b=McZsbVfV527vavF6N4/WnAbDpTy4/VdpfdTOs9jzeRy2N4hARTx0hLH3u/5j0AloGu
-         cQNOm4Rq5OqT1/9eo85FhOnRm2fTGqDHKimua3OVpFkZzUCys9wsM4jcBV9Xkw1uJlwV
-         PkU0e6LCRs7dew5z/ltxrIa+bbfWtubOHEqQCC4Ox5CHBdlDIEBZJ4xjpn1wx5lgX8Zo
-         jJSDP9oDMqb3sma3aYO9Rh6QFrfUbhgqHKVnAX6j9dUV0fHDfKjGWErmvZkPwri/KCE8
-         jhmpq4pvaqUaVG96xUAGvCKeDJNsIZInMZGiDomfbZByJSCuxR0uhqTyETg8YnktzlSz
-         Vddw==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=RyRzsNkAooAl3CXmjsa9W0SlFMm2BfQr/u0cFTqztIs=;
+        b=YtzQLMTYi/kldBF6YYcIPuroqqYIvxXUvFONigR4Dfl8w2speTLhMOoGxcDZYw9OM1
+         FgtbFKU2OvsDiZvseynxkHwklMLh5YKPOusMg0dToNRHh+bLHTwU9e0XaYmOYIn/vI94
+         dEcwcU+iGg0HkoyHc5LThywaVg+FZ5hhITBYE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PrT/z7/QcgRp7HzvVg/dSsByVx/WL6L0i0y6qJMBrjA=;
-        b=NwB+E7Pe/K8FGJBGxHTin1zn/K19Zv22FPxvyVbJbB/g6dfuY/allRMEnDUZafEDgq
-         WGD6/3lq0NHNtkYkC1RFnq5YsS/38y5E2UG0b+07V3gIhiJc9JMChlvFM21xUTQZXOcu
-         ar5tGEKUX5P23mr+b6tGxblVLrzOFP02NCpUzllFXeK8getZhUeQf5HCvvrgeWJkUKRR
-         JfA9jEZ3yZEhwDN7lkcTxf9XwewM8L/L6oNhlvh6z2duGWRL/9ifAt0bOx/Rh8gDdDao
-         m0pfJ2st/IM9EOEo2VhCLdZijGoaTJwGvnM6YlDjkBLmg/RCt9QLp6IHl4N7PSobKO2u
-         RjQw==
-X-Gm-Message-State: APjAAAVDGIyAf0X9vqvsMpyZ3uUIeQTvPWp2XpRpiB0tsnTKnLYxt6cW
-        Mf/lAwv8j8vwbymiO1XFZSYJfxdc
-X-Google-Smtp-Source: APXvYqxSxC5wl0fKHukdALLUXbMHLjnDvfWNJX8Qv28W1kXKGHxzhdlltxTBd+/vbq3K2BdJS9ZUqA==
-X-Received: by 2002:a17:902:59c9:: with SMTP id d9mr5551382plj.184.1578761232147;
-        Sat, 11 Jan 2020 08:47:12 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 68sm7069241pge.14.2020.01.11.08.47.11
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 11 Jan 2020 08:47:11 -0800 (PST)
-Date:   Sat, 11 Jan 2020 08:47:10 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Marco Felsch <m.felsch@pengutronix.de>
-Cc:     support.opensource@diasemi.com, robh+dt@kernel.org,
-        lee.jones@linaro.org, stwiss.opensource@diasemi.com,
-        Adam.Thomson.Opensource@diasemi.com,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH 1/3] mfd: da9062: fix watchdog compatible string
-Message-ID: <20200111164710.GA7295@roeck-us.net>
-References: <20200108095704.23233-1-m.felsch@pengutronix.de>
- <20200108095704.23233-2-m.felsch@pengutronix.de>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=RyRzsNkAooAl3CXmjsa9W0SlFMm2BfQr/u0cFTqztIs=;
+        b=DMRuu5UcGmDVwMoMG0Z5MB31QMY5/IomP6YmUlspJsRo1p+xNwd9fSR2LXPzTVAd5+
+         RoY/2UgTWtC5t5PXYmPBj1TgLrSLcJrrUSdlVGgRmmsCppViiXUu0SWPxVvAj7uGnFk1
+         D6O51IAkzx7+xnfb4LCJj3M1/W9YkerU4rtWPgC0qqYEwc7s8nJI4rBzbAnFveh1mTx0
+         wcKttX2yeInhBSYJRKkKHOBbMebZKn/TIkzGvbDySowOrQN9SHT2BqFn3GrlazLnwdlC
+         TDwDi/pdU0J/AZna3VRqz19PZr/PXo3WlBZ8z7rIytde3SrIG8dNjjSUzPI05G4XU++R
+         dz5w==
+X-Gm-Message-State: APjAAAVCnRwgePNljjXA1DqqhQQHQy/b1+0XqPqxFJxfJ7cRlepkebco
+        EZQjlYFXOMVKiwENpYcsY6TdWW/1aPtddGJ5JxAiKA==
+X-Google-Smtp-Source: APXvYqy3LB6U150QIptmA2JsO9/a4I+iPJJewaoaUQbDRBc1Zx9V28Z/ANjOmYw2SHIkmhQ0FjMPTtUiqVGwYQaYARk=
+X-Received: by 2002:ac8:750b:: with SMTP id u11mr12533148qtq.174.1578890662186;
+ Sun, 12 Jan 2020 20:44:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200108095704.23233-2-m.felsch@pengutronix.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20191227141405.3396-1-yong.liang@mediatek.com>
+ <20191227141405.3396-2-yong.liang@mediatek.com> <CANMq1KD=jAPn4Y7zQZrsg9FB7Cq6tNX0R8OF4qX21Sjy2=0Naw@mail.gmail.com>
+ <CANMq1KB4PzAUdp03go0Ur_khi2bM3+oNUhHtMK=--V6DmGXiDA@mail.gmail.com> <2bbd8f47-fe68-574c-cbe9-bcc680dd4c84@gmail.com>
+In-Reply-To: <2bbd8f47-fe68-574c-cbe9-bcc680dd4c84@gmail.com>
+From:   Nicolas Boichat <drinkcat@chromium.org>
+Date:   Mon, 13 Jan 2020 12:44:11 +0800
+Message-ID: <CANMq1KCXMUP=5ijqLsZ67MvO2ROFkG0vSX64KqmWtYKm7w8f2g@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] amr64: dts: modify mt8183.dtsi
+To:     Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Yong Liang <yong.liang@mediatek.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Devicetree List <devicetree@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>, wim@linux-watchdog.org,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 08, 2020 at 10:57:02AM +0100, Marco Felsch wrote:
-> The watchdog driver compatible is "dlg,da9062-watchdog" and not
-> "dlg,da9062-wdt". Therefore the mfd-core can't populate the of_node and
-> fwnode. As result the watchdog driver can't parse the devicetree.
-> 
-> Fixes: 9b40b030c4ad ("mfd: da9062: Supply core driver")
-> Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+On Fri, Jan 10, 2020 at 6:09 PM Matthias Brugger <matthias.bgg@gmail.com> wrote:
+>
+>
+>
+> On 08/01/2020 10:14, Nicolas Boichat wrote:
+> > On Wed, Jan 8, 2020 at 4:56 PM Nicolas Boichat <drinkcat@chromium.org> wrote:
+> >>
+> >> minor nit, s/amr64/arm64/ in the commit title.
+> >>
+> >> On Fri, Dec 27, 2019 at 10:15 PM Yong Liang <yong.liang@mediatek.com> wrote:
+> >>>
+> >>> From: "yong.liang" <yong.liang@mediatek.com>
+> >>>
+> >>> 1. Include mt8183-reset.h and add reset-cells in infracfg
+> >>> in dtsi file
+> >
+> > Err, wait, doesn't this depend on
+> > http://lists.infradead.org/pipermail/linux-mediatek/2020-January/026170.html
+> > ?
+> >
+>
+> That's all a bit confusing, I thought we are fine to add the reset cells to
+> infracfg as we have the resets defined in
+> 64ebb57a3df6 ("clk: reset: Modify reset-controller driver")
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+You're right, we're fine. But at least in theory, we should still have
+the binding documentation that I linked above.
 
-> ---
->  drivers/mfd/da9062-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-> index e69626867c26..9143de7b77b8 100644
-> --- a/drivers/mfd/da9062-core.c
-> +++ b/drivers/mfd/da9062-core.c
-> @@ -248,7 +248,7 @@ static const struct mfd_cell da9062_devs[] = {
->  		.name		= "da9062-watchdog",
->  		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
->  		.resources	= da9062_wdt_resources,
-> -		.of_compatible  = "dlg,da9062-wdt",
-> +		.of_compatible  = "dlg,da9062-watchdog",
->  	},
->  	{
->  		.name		= "da9062-thermal",
+I will try to pick up all the required patches, split them across
+8183/2712 and resend as one series.
+
+> That's why I took this part from:
+> https://lore.kernel.org/linux-mediatek/20191226093930.22413-1-yong.liang@mediatek.com/
+>
+> Please let me know if I'm wrong and I'll drop it.
+>
+> Regards,
+> Matthias
+>
+> >>> 2. Add watchdog device node
+> >
+> > Can we have a patch with just this change instead, since you're
+> > sending the binding with it.
+> >
+> >>>
+> >>> Signed-off-by: yong.liang <yong.liang@mediatek.com>
+> >>
+> >> Tested-by: Nicolas Boichat <drinkcat@chromium.org>
+> >>
+> >>> ---
+> >>>  arch/arm64/boot/dts/mediatek/mt8183.dtsi | 8 ++++++++
+> >>>  1 file changed, 8 insertions(+)
+> >>> [snip]
