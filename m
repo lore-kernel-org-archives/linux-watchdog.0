@@ -4,22 +4,22 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A9D3C33CA9
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 03:45:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42F8DC33CAE
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 03:45:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DC760214AF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 03:45:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23200222C2
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 03:45:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbgANDpo (ORCPT
+        id S1729727AbgANDps (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 13 Jan 2020 22:45:44 -0500
+        Mon, 13 Jan 2020 22:45:48 -0500
 Received: from mail-sz.amlogic.com ([211.162.65.117]:56845 "EHLO
         mail-sz.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729727AbgANDpl (ORCPT
+        with ESMTP id S1729774AbgANDpq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 13 Jan 2020 22:45:41 -0500
+        Mon, 13 Jan 2020 22:45:46 -0500
 Received: from droid12-sz.software.amlogic (10.28.8.22) by mail-sz.amlogic.com
  (10.28.11.5) with Microsoft SMTP Server id 15.1.1591.10; Tue, 14 Jan 2020
  11:45:58 +0800
@@ -38,10 +38,10 @@ CC:     Xingyu Chen <xingyu.chen@amlogic.com>,
         <linux-watchdog@vger.kernel.org>,
         <linux-amlogic@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v6 2/5] firmware: meson_sm: populate platform device based on the child node
-Date:   Tue, 14 Jan 2020 11:45:24 +0800
-Message-ID: <1578973527-4759-3-git-send-email-xingyu.chen@amlogic.com>
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
+Subject: [PATCH v6 3/5] dt-bindings: watchdog: add new binding for meson secure watchdog
+Date:   Tue, 14 Jan 2020 11:45:25 +0800
+Message-ID: <1578973527-4759-4-git-send-email-xingyu.chen@amlogic.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1578973527-4759-1-git-send-email-xingyu.chen@amlogic.com>
 References: <1578973527-4759-1-git-send-email-xingyu.chen@amlogic.com>
@@ -53,28 +53,61 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The child node of secure-monitor cann't be populated as platform device
-automatically during the kernel initialization phase, so we invoke
-of_platform_default_populate() to do it.
+The binding targets the Meson-A/C series compatible SoCs, in which the
+watchdog registers are in secure world.
 
 Signed-off-by: Xingyu Chen <xingyu.chen@amlogic.com>
 ---
- drivers/firmware/meson/meson_sm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../bindings/watchdog/amlogic,meson-sec-wdt.yaml   | 40 ++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
 
-diff --git a/drivers/firmware/meson/meson_sm.c b/drivers/firmware/meson/meson_sm.c
-index 8cdd405..d2b1e76 100644
---- a/drivers/firmware/meson/meson_sm.c
-+++ b/drivers/firmware/meson/meson_sm.c
-@@ -310,6 +310,8 @@ static int __init meson_sm_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, fw);
- 
-+	of_platform_default_populate(dev->of_node, NULL, dev);
+diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
+new file mode 100644
+index 00000000..8e9d62a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson-sec-wdt.yaml
+@@ -0,0 +1,40 @@
++# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++# Copyright (c) 2019 Amlogic, Inc
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/power/amlogic,meson-sec-wdt.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
 +
- 	pr_info("secure-monitor enabled\n");
- 
- 	if (sysfs_create_group(&pdev->dev.kobj, &meson_sm_sysfs_attr_group))
++title: Amlogic Meson Secure Watchdog Timer
++
++maintainers:
++  - Xingyu Chen <xingyu.chen@amlogic.com>
++
++description: |+
++  Secure Watchdog Timer used in Meson-A/C series Compatible SoCs,
++  and its device node must be the child node of secure-monitor.
++
++properties:
++  compatible:
++    enum:
++      - amlogic,meson-sec-wdt
++
++  timeout-sec:
++    minimum: 1
++    maximum: 65
++    description:
++      Watchdog timeout values (in seconds)
++
++required:
++  - compatible
++
++examples:
++  - |
++    secure-monitor {
++        compatible = "amlogic,meson-gxbb-sm";
++
++        watchdog {
++            compatible = "amlogic,meson-sec-wdt";
++            timeout-sec = <60>;
++        };
++    };
 -- 
 2.7.4
 
