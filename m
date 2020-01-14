@@ -2,132 +2,65 @@ Return-Path: <SRS0=qnIA=3D=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6AA4C33C9E
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 17:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59B31C33C9E
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 20:20:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B62A72075B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 17:30:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 387A724670
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Jan 2020 20:20:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbgANRal (ORCPT
+        id S1727102AbgANUUJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 14 Jan 2020 12:30:41 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:36995 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726523AbgANRal (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Jan 2020 12:30:41 -0500
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1irQ1V-0003a8-1C; Tue, 14 Jan 2020 18:30:37 +0100
-Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1irQ1U-00077d-9M; Tue, 14 Jan 2020 18:30:36 +0100
-Date:   Tue, 14 Jan 2020 18:30:36 +0100
-From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     support.opensource@diasemi.com, contact@stefanchrist.eu,
+        Tue, 14 Jan 2020 15:20:09 -0500
+Received: from stcim.de ([78.46.90.227]:46760 "EHLO stcim.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726839AbgANUUJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 14 Jan 2020 15:20:09 -0500
+X-Greylist: delayed 1172 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Jan 2020 15:20:08 EST
+Received: from [2001:4dd7:c2a1:0:a288:b4ff:fee5:f5cc] (helo=porty)
+        by stcim with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <contact@stefanchrist.eu>)
+        id 1irSMc-0001mT-EC; Tue, 14 Jan 2020 21:00:34 +0100
+Date:   Tue, 14 Jan 2020 21:00:34 +0100
+From:   Stefan Lengfeld <contact@stefanchrist.eu>
+To:     Marco Felsch <m.felsch@pengutronix.de>
+Cc:     support.opensource@diasemi.com, linux@roeck-us.net,
         Adam.Thomson.Opensource@diasemi.com,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         kernel@pengutronix.de
 Subject: Re: [PATCH] watchdog: da9062: make restart handler atomic safe
-Message-ID: <20200114173036.ueepbqf54yzh26lm@pengutronix.de>
+Message-ID: <20200114200034.nbk6vf77ucngfs6o@porty>
 References: <20200113091521.5754-1-m.felsch@pengutronix.de>
- <20200113202809.GA21484@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200113202809.GA21484@roeck-us.net>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 18:16:48 up 60 days,  8:35, 57 users,  load average: 0.02, 0.02,
- 0.01
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: mfe@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+In-Reply-To: <20200113091521.5754-1-m.felsch@pengutronix.de>
+X-PGP-Key: https://stefanchrist.eu/personal/Stefan_Lengfeld_0xE44A23B289092311.asc
+User-Agent: NeoMutt/20180716
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+Hi Marco,
 
-On 20-01-13 12:28, Guenter Roeck wrote:
-> On Mon, Jan 13, 2020 at 10:15:21AM +0100, Marco Felsch wrote:
-> > The restart handler is executed during the shutdown phase which is
-> > atomic/irq-less. The i2c framework supports atomic transfers since
-> > commit 63b96983a5dd ("i2c: core: introduce callbacks for atomic
-> > transfers") but unfortunately the regmap framework doesn't support it
-> > yet. Hard coding the i2c stuff can be done without worries since the
-> > DA9062 is an i2c-only device.
-> > 
-> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> > ---
-> > Hi,
-> > 
-> > This patch is based on Stefan Lengfeld's RFC Patch [1].
-> > 
-> > [1] https://patchwork.ozlabs.org/patch/1085942/
-> > ---
-> >  drivers/watchdog/da9062_wdt.c | 15 +++++++++++----
-> >  1 file changed, 11 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-> > index c9b9d6394525..84c5a0a455b2 100644
-> > --- a/drivers/watchdog/da9062_wdt.c
-> > +++ b/drivers/watchdog/da9062_wdt.c
-> > @@ -11,6 +11,7 @@
-> >  #include <linux/platform_device.h>
-> >  #include <linux/uaccess.h>
-> >  #include <linux/slab.h>
-> > +#include <linux/i2c.h>
-> >  #include <linux/delay.h>
-> >  #include <linux/jiffies.h>
-> >  #include <linux/mfd/da9062/registers.h>
-> > @@ -149,12 +150,18 @@ static int da9062_wdt_restart(struct watchdog_device *wdd, unsigned long action,
-> >  			      void *data)
-> >  {
-> >  	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
-> > +	struct i2c_client *client = to_i2c_client(wdt->hw->dev);
-> > +	u8 buf[] = {DA9062AA_CONTROL_F, DA9062AA_SHUTDOWN_MASK};
-> > +	struct i2c_msg msg = {
-> > +		.addr = client->addr,
-> > +		.flags = 0,
-> > +		.len = sizeof(buf),
-> > +		.buf = buf,
-> > +	};
-> >  	int ret;
-> >  
-> > -	ret = regmap_write(wdt->hw->regmap,
-> > -			   DA9062AA_CONTROL_F,
-> > -			   DA9062AA_SHUTDOWN_MASK);
-> > -	if (ret)
-> > +	ret = i2c_transfer(client->adapter, &msg, 1);
+On Mon, Jan 13, 2020 at 10:15:21AM +0100, Marco Felsch wrote:
+> The restart handler is executed during the shutdown phase which is
+> atomic/irq-less. The i2c framework supports atomic transfers since
+> commit 63b96983a5dd ("i2c: core: introduce callbacks for atomic
+> transfers") but unfortunately the regmap framework doesn't support it
+> yet. Hard coding the i2c stuff can be done without worries since the
+> DA9062 is an i2c-only device.
 > 
-> Why not i2c_smbus_write_byte_data() ? I don't immediately see the difference.
+> Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 
-Because I didn't noticed it, sorry. I changed it and notice no
-differences. Thanks for the review =)
+Reviewed-by: Stefan Lengfeld <contact@stefanchrist.eu>
 
-Regards,
-  Marco
+Thanks for picking up the patch and submitting it.
 
-> Guenter
-> 
-> > +	if (ret < 0)
-> >  		dev_alert(wdt->hw->dev, "Failed to shutdown (err = %d)\n",
-> >  			  ret);
-> >  
-> > -- 
-> > 2.20.1
-> > 
+Kind regards,
+    Stefan
