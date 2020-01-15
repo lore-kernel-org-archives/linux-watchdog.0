@@ -2,88 +2,105 @@ Return-Path: <SRS0=y1T8=3E=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0C73C33CB1
-	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 07:20:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4EF2C33CB1
+	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 08:58:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BEA942467A
-	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 07:20:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BACB02187F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 08:58:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="PcYxKLFp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbgAOHUJ (ORCPT
+        id S1729221AbgAOI6o (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 15 Jan 2020 02:20:09 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:56957 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725962AbgAOHUJ (ORCPT
+        Wed, 15 Jan 2020 03:58:44 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:17729 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729143AbgAOI6n (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 15 Jan 2020 02:20:09 -0500
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1ircy8-0004ku-Qm; Wed, 15 Jan 2020 08:20:00 +0100
-Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1ircy5-0007fK-Hu; Wed, 15 Jan 2020 08:19:57 +0100
-Date:   Wed, 15 Jan 2020 08:19:57 +0100
-From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     Stefan Lengfeld <contact@stefanchrist.eu>
-Cc:     support.opensource@diasemi.com, linux@roeck-us.net,
-        Adam.Thomson.Opensource@diasemi.com,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH] watchdog: da9062: make restart handler atomic safe
-Message-ID: <20200115071957.j7sptgbmuilgs2lj@pengutronix.de>
-References: <20200113091521.5754-1-m.felsch@pengutronix.de>
- <20200114200034.nbk6vf77ucngfs6o@porty>
+        Wed, 15 Jan 2020 03:58:43 -0500
+X-UUID: 862fdf080fa54b0b87180e3b16218436-20200115
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=NY1THKQZPmMzBG2Y7OvUGXadUajPTI3HDuB+P5+oLaI=;
+        b=PcYxKLFpIiQoZQ7FOYJCHr8pWLmnTMwZS+rZbDioITCbiHARot6+uPeZOQQsfebnLBzUP/ySZqvgiPA5fO98DoUOhFypnVIJByWzKVaKtlDnD1opYpD6vP983ufuabRfCxcVsM55RUmCtsZnzpJganLNqztmnfexasYuaaRWXsk=;
+X-UUID: 862fdf080fa54b0b87180e3b16218436-20200115
+Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw02.mediatek.com
+        (envelope-from <yong.liang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 217106368; Wed, 15 Jan 2020 16:58:39 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Wed, 15 Jan 2020 16:58:10 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Wed, 15 Jan 2020 16:58:44 +0800
+From:   Yong Liang <yong.liang@mediatek.com>
+To:     <yong.liang@mediatek.com>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <p.zabel@pengutronix.de>,
+        <matthias.bgg@gmail.com>, <linux-watchdog@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <devicetree@vger.kernel.org>,
+        <chang-an.chen@mediatek.com>, <freddy.hsin@mediatek.com>,
+        <jiaxin.yu@mediatek.com>
+CC:     <yingjoe.chen@mediatek.com>, <sboyd@kernel.org>
+Subject: [PATCH v12 2/4] dt-bindings: mediatek: mt2712: Add #reset-cells
+Date:   Wed, 15 Jan 2020 16:58:26 +0800
+Message-ID: <20200115085828.27791-3-yong.liang@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20200115085828.27791-1-yong.liang@mediatek.com>
+References: <20200115085828.27791-1-yong.liang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200114200034.nbk6vf77ucngfs6o@porty>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 08:18:18 up 60 days, 22:36, 54 users,  load average: 0.31, 0.13,
- 0.06
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: mfe@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Stefan,
+RnJvbTogInlvbmcubGlhbmciIDx5b25nLmxpYW5nQG1lZGlhdGVrLmNvbT4NCg0KQWRkICNyZXNl
+dC1jZWxscyBhbmQgdXBkYXRlIG10ay13ZHQudHh0DQoNClNpZ25lZC1vZmYtYnk6IHlvbmcubGlh
+bmcgPHlvbmcubGlhbmdAbWVkaWF0ZWsuY29tPg0KU2lnbmVkLW9mZi1ieTogSmlheGluIFl1IDxq
+aWF4aW4ueXVAbWVkaWF0ZWsuY29tPg0KUmV2aWV3ZWQtYnk6IFlpbmdqb2UgQ2hlbiA8eWluZ2pv
+ZS5jaGVuQG1lZGlhdGVrLmNvbT4NClJldmlld2VkLWJ5OiBQaGlsaXBwIFphYmVsIDxwLnphYmVs
+QHBlbmd1dHJvbml4LmRlPg0KUmV2aWV3ZWQtYnk6IFJvYiBIZXJyaW5nIDxyb2JoQGtlcm5lbC5v
+cmc+DQpSZXZpZXdlZC1ieTogR3VlbnRlciBSb2VjayA8Z3JvZWNrN0BnbWFpbC5jb20+DQotLS0N
+CiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRjaGRvZy9tdGstd2R0LnR4dCAgfCAgMSArDQog
+Li4uL3Jlc2V0LWNvbnRyb2xsZXIvbXQyNzEyLXJlc2V0cy5oICAgICAgICAgIHwgMjIgKysrKysr
+KysrKysrKysrKysrKw0KIDIgZmlsZXMgY2hhbmdlZCwgMjMgaW5zZXJ0aW9ucygrKQ0KIGNyZWF0
+ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2R0LWJpbmRpbmdzL3Jlc2V0LWNvbnRyb2xsZXIvbXQyNzEy
+LXJlc2V0cy5oDQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
+Z3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
+Z3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQNCmluZGV4IGVjYjlmZjc4NDgzMi4uNGRkMzZiZDNmMWFk
+IDEwMDY0NA0KLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9n
+L210ay13ZHQudHh0DQorKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0
+Y2hkb2cvbXRrLXdkdC50eHQNCkBAIC00LDYgKzQsNyBAQCBSZXF1aXJlZCBwcm9wZXJ0aWVzOg0K
+IA0KIC0gY29tcGF0aWJsZSBzaG91bGQgY29udGFpbjoNCiAJIm1lZGlhdGVrLG10MjcwMS13ZHQi
+LCAibWVkaWF0ZWssbXQ2NTg5LXdkdCI6IGZvciBNVDI3MDENCisJIm1lZGlhdGVrLG10MjcxMi13
+ZHQiLCAibWVkaWF0ZWssbXQ2NTg5LXdkdCI6IGZvciBNVDI3MTINCiAJIm1lZGlhdGVrLG10NjU4
+OS13ZHQiOiBmb3IgTVQ2NTg5DQogCSJtZWRpYXRlayxtdDY3OTctd2R0IiwgIm1lZGlhdGVrLG10
+NjU4OS13ZHQiOiBmb3IgTVQ2Nzk3DQogCSJtZWRpYXRlayxtdDc2MjItd2R0IiwgIm1lZGlhdGVr
+LG10NjU4OS13ZHQiOiBmb3IgTVQ3NjIyDQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kdC1iaW5kaW5n
+cy9yZXNldC1jb250cm9sbGVyL210MjcxMi1yZXNldHMuaCBiL2luY2x1ZGUvZHQtYmluZGluZ3Mv
+cmVzZXQtY29udHJvbGxlci9tdDI3MTItcmVzZXRzLmgNCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQpp
+bmRleCAwMDAwMDAwMDAwMDAuLjllN2VlNzYyZjA3Ng0KLS0tIC9kZXYvbnVsbA0KKysrIGIvaW5j
+bHVkZS9kdC1iaW5kaW5ncy9yZXNldC1jb250cm9sbGVyL210MjcxMi1yZXNldHMuaA0KQEAgLTAs
+MCArMSwyMiBAQA0KKy8qIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wICovDQorLyoN
+CisgKiBDb3B5cmlnaHQgKGMpIDIwMTkgTWVkaWFUZWsgSW5jLg0KKyAqIEF1dGhvcjogWW9uZyBM
+aWFuZyA8eW9uZy5saWFuZ0BtZWRpYXRlay5jb20+DQorICovDQorDQorI2lmbmRlZiBfRFRfQklO
+RElOR1NfUkVTRVRfQ09OVFJPTExFUl9NVDI3MTINCisjZGVmaW5lIF9EVF9CSU5ESU5HU19SRVNF
+VF9DT05UUk9MTEVSX01UMjcxMg0KKw0KKyNkZWZpbmUgTVQyNzEyX1RPUFJHVV9JTkZSQV9TV19S
+U1QJCQkJMA0KKyNkZWZpbmUgTVQyNzEyX1RPUFJHVV9NTV9TV19SU1QJCQkJCTENCisjZGVmaW5l
+IE1UMjcxMl9UT1BSR1VfTUZHX1NXX1JTVAkJCQkyDQorI2RlZmluZSBNVDI3MTJfVE9QUkdVX1ZF
+TkNfU1dfUlNUCQkJCTMNCisjZGVmaW5lIE1UMjcxMl9UT1BSR1VfVkRFQ19TV19SU1QJCQkJNA0K
+KyNkZWZpbmUgTVQyNzEyX1RPUFJHVV9JTUdfU1dfUlNUCQkJCTUNCisjZGVmaW5lIE1UMjcxMl9U
+T1BSR1VfSU5GUkFfQU9fU1dfUlNUCQkJCTgNCisjZGVmaW5lIE1UMjcxMl9UT1BSR1VfVVNCX1NX
+X1JTVAkJCQk5DQorI2RlZmluZSBNVDI3MTJfVE9QUkdVX0FQTUlYRURfU1dfUlNUCQkJCTEwDQor
+DQorI2RlZmluZSBNVDI3MTJfVE9QUkdVX1NXX1JTVF9OVU0JCQkJMTENCisNCisjZW5kaWYgIC8q
+IF9EVF9CSU5ESU5HU19SRVNFVF9DT05UUk9MTEVSX01UMjcxMiAqLw0KLS0gDQoyLjE4LjANCg==
 
-On 20-01-14 21:00, Stefan Lengfeld wrote:
-> Hi Marco,
-> 
-> On Mon, Jan 13, 2020 at 10:15:21AM +0100, Marco Felsch wrote:
-> > The restart handler is executed during the shutdown phase which is
-> > atomic/irq-less. The i2c framework supports atomic transfers since
-> > commit 63b96983a5dd ("i2c: core: introduce callbacks for atomic
-> > transfers") but unfortunately the regmap framework doesn't support it
-> > yet. Hard coding the i2c stuff can be done without worries since the
-> > DA9062 is an i2c-only device.
-> > 
-> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> 
-> Reviewed-by: Stefan Lengfeld <contact@stefanchrist.eu>
-> 
-> Thanks for picking up the patch and submitting it.
-
-I will send a v2 to cover Guenter's suggestion. Can I keep your reviewed
-by tag?
-
-Regards,
-  Marco
-
-> Kind regards,
->     Stefan
