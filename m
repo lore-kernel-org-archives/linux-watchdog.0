@@ -2,91 +2,88 @@ Return-Path: <SRS0=y1T8=3E=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E690EC33C9E
-	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 01:43:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0C73C33CB1
+	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 07:20:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B05BB2467C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 01:43:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579052629;
-	bh=K1vdv555i7iJrBG3u0JkNMCNgm1k+yE+CLAdV/EOybM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=GkMWdF/W0hz1LULu3Lsr/u0ncZ/Z2yIvqGHfOy6PsVozNw4y1AbuOmBvMDLotaVya
-	 2CC4yhQoGJodFYcSxdaCucUqoYV5NQT5zgcu8bbba0pmvFyARvQeVgx6htfZANOlah
-	 htqLBLRq1DcRCLDe2maFnvPWyq3wup/8Gt8iXgmw=
+	by mail.kernel.org (Postfix) with ESMTP id BEA942467A
+	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Jan 2020 07:20:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728992AbgAOBnt (ORCPT
+        id S1726085AbgAOHUJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 14 Jan 2020 20:43:49 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:34949 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728909AbgAOBnt (ORCPT
+        Wed, 15 Jan 2020 02:20:09 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:56957 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725962AbgAOHUJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Jan 2020 20:43:49 -0500
-Received: by mail-oi1-f195.google.com with SMTP id k4so13924987oik.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Jan 2020 17:43:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=iLGTssc9FHCMcOGMTyr/UYKoEZZS9tYZ4rHOO35XpvA=;
-        b=o3ZsZW8f6wWvVAr8UHq7jq/aDbuL38ASs8GRNRGqhutv0Z27MSG3/+MA1dAnpBM8o0
-         89/cWnstQtZyk9YmRQN48wXCTAxfdwBdv3xWY4tQRsSxXRBOMCP35a3WPLwMbPqFcv3e
-         vGXvGSm2AhXsRLgqLjKLDZcM5O0plBw0xjkWqF0UnZs04QO71msOrPH6XjuD0mLn8oKQ
-         EBf+70l1KM5S6lNKdjnGwWMPfU3LC4YtdPzg9Vswsgjq1kuPVwjR7SkU9SrkSwOEkyuB
-         HLtkUWF1h+qMrZUiobw5MuFKP4m6zHrhSYaHy+yedXmBMz9MSAfrtRDL3OI9UHFtwHY+
-         szWw==
-X-Gm-Message-State: APjAAAWYGu9M99PhNUUex50bczwOS5qA1GRkSwkPKQxeJdQK90ouOBRu
-        rOSERdDZAz+7fTf5wr1Qt5kqbbg=
-X-Google-Smtp-Source: APXvYqyHse9ygopztaytMPsNRHzbIK+4JLh2XMvrpHuAspkBG/W+ejLHHVxRe6mzCUDBqgZ8dq91VQ==
-X-Received: by 2002:aca:ab0e:: with SMTP id u14mr19845085oie.1.1579052628411;
-        Tue, 14 Jan 2020 17:43:48 -0800 (PST)
-Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id l17sm6148325ota.27.2020.01.14.17.43.47
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jan 2020 17:43:47 -0800 (PST)
-Received: from rob (uid 1000)
-        (envelope-from rob@rob-hp-laptop)
-        id 220a2e
-        by rob-hp-laptop (DragonFly Mail Agent v0.11);
-        Tue, 14 Jan 2020 19:43:46 -0600
-Date:   Tue, 14 Jan 2020 19:43:46 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Marco Felsch <m.felsch@pengutronix.de>
+        Wed, 15 Jan 2020 02:20:09 -0500
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1ircy8-0004ku-Qm; Wed, 15 Jan 2020 08:20:00 +0100
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1ircy5-0007fK-Hu; Wed, 15 Jan 2020 08:19:57 +0100
+Date:   Wed, 15 Jan 2020 08:19:57 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Stefan Lengfeld <contact@stefanchrist.eu>
 Cc:     support.opensource@diasemi.com, linux@roeck-us.net,
-        robh+dt@kernel.org, lee.jones@linaro.org,
-        stwiss.opensource@diasemi.com, Adam.Thomson.Opensource@diasemi.com,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH 2/3] dt-bindings: watchdog: da9062: add suspend disable
- option
-Message-ID: <20200115014346.GA20553@bogus>
-References: <20200108095704.23233-1-m.felsch@pengutronix.de>
- <20200108095704.23233-3-m.felsch@pengutronix.de>
+        Adam.Thomson.Opensource@diasemi.com,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: Re: [PATCH] watchdog: da9062: make restart handler atomic safe
+Message-ID: <20200115071957.j7sptgbmuilgs2lj@pengutronix.de>
+References: <20200113091521.5754-1-m.felsch@pengutronix.de>
+ <20200114200034.nbk6vf77ucngfs6o@porty>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200108095704.23233-3-m.felsch@pengutronix.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200114200034.nbk6vf77ucngfs6o@porty>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 08:18:18 up 60 days, 22:36, 54 users,  load average: 0.31, 0.13,
+ 0.06
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed,  8 Jan 2020 10:57:03 +0100, Marco Felsch wrote:
-> Document the watchdog disable option which can be used if the hardware
-> automatic suspend option is broken.
-> 
-> Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> ---
->  Documentation/devicetree/bindings/watchdog/da9062-wdt.txt | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
+Hi Stefan,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+On 20-01-14 21:00, Stefan Lengfeld wrote:
+> Hi Marco,
+> 
+> On Mon, Jan 13, 2020 at 10:15:21AM +0100, Marco Felsch wrote:
+> > The restart handler is executed during the shutdown phase which is
+> > atomic/irq-less. The i2c framework supports atomic transfers since
+> > commit 63b96983a5dd ("i2c: core: introduce callbacks for atomic
+> > transfers") but unfortunately the regmap framework doesn't support it
+> > yet. Hard coding the i2c stuff can be done without worries since the
+> > DA9062 is an i2c-only device.
+> > 
+> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> 
+> Reviewed-by: Stefan Lengfeld <contact@stefanchrist.eu>
+> 
+> Thanks for picking up the patch and submitting it.
+
+I will send a v2 to cover Guenter's suggestion. Can I keep your reviewed
+by tag?
+
+Regards,
+  Marco
+
+> Kind regards,
+>     Stefan
