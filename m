@@ -2,33 +2,34 @@ Return-Path: <SRS0=3B2h=3F=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C77CC33CB1
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jan 2020 13:27:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED798C33CB1
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jan 2020 13:27:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 364322077C
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jan 2020 13:27:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B77982077C
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jan 2020 13:27:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="XvBsvju5"
+	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="FWdb8OyD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726366AbgAPN1Q (ORCPT
+        id S1726362AbgAPN1W (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Jan 2020 08:27:16 -0500
-Received: from mail-mw2nam10on2070.outbound.protection.outlook.com ([40.107.94.70]:9152
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        Thu, 16 Jan 2020 08:27:22 -0500
+Received: from mail-dm6nam10on2067.outbound.protection.outlook.com ([40.107.93.67]:13366
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726329AbgAPN1P (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Jan 2020 08:27:15 -0500
+        id S1726329AbgAPN1W (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 16 Jan 2020 08:27:22 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZFvWmazx0Ev1sZPg5kK5JvHhiTBndnAghTSQHZvcmK/jyhKZYrLxl9Ap+5wjamkcl7Jp9g0H0D/lFPkX1uFhQYSc3hXHjwJdaqmWmLkx8ig5EspeXDGS0vp4ok0Mk3TRVK2rPayCocyppcE46aR1hsrY1zg8KuaCZBRp9AgulkWULZnLBGLntYVQu+pBxO+ujOdCTW/s3dxgp/CLEUytxtVI8evd2IuOHDHYBJmRQvtR0sKAWFq2vR3DSdlBR5NnfuMk6y6FcjOL844R/9ifohK398Wy97DgJwjHKG6FIs/4JQsRnVbPMjfGAlKFc8pziNRgMSyBSxij6MwckjAfdQ==
+ b=liFzYMe39aQ428JHsfeR79hE50VP4CmHY31EMPNbaWUlPH1+b1oCZkfyXrV/Wq3ovuz1djndpIwnFeZXjDx36b/CjtjwRQjxHcfx71qQAaywJq1/3/B85LwSxx6IilytmGur7bF5tSH1+DDMy05LEIbPylLxt7xRmK5m/qCu7jq42aGIHGz3moiIIQK6V1fWRPvq4DWOFURAJD1gyyscCEOtvPvs1ygJnQWW0PSxpUt8pEnlkwEdkus78EhPANYXQiz6aeHnme0VOuS6E9F+KZj4xj4yvf1Of7zamIvd2QkIdr+jJ6pSKB0xzo/RpicRxKrDjW+1LEfsNHyjx1g7rg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xOFiJenkkPvdJjT556c1Lnq7mLt8qLf6IJQ5lnLH9Sc=;
- b=fyZwz3CFPL8WyDi0eqsVbPmeW0MbeKHN0Nk8qFFDeN9BkYhjRJ6ZUBZ0ltmHUh38k2jdr/RPw9ewCg1nbAXdpCUcqbfrPJhmw7FlJHFalWb80MDN7jHxlYagEvYvZvl4YSQi3VpUrsTxTj7MYAqMbzLXKfObkNwCjfAuxZ7xrYLRE3K8zviG1ZXe3bYQp1cvRHwYXDR+VmI/+p6SqH+cfZgX4ZvFMdPKH89JF621h0Yvy4C8CgExCe64PIym/nUR8VnsKdDyVWkX5qH2OAsZqNffg6Gkt4ZFNeojuVOaRAMi5eN8Xkc9nbeARSDjvvh1pHXAq8MwMPgTQscnhvL6qA==
+ bh=aNPqEFkMSI7zbLxHQRO2idHizwtQ/8djBsSNlbSvwOw=;
+ b=ELeMtTgyIJ9nvAEJ9FronIUlOAFL5WRFu8ktf66LNSdqUNd5iSFDs+S6zr7iU3Ez5m2Yn+d21wdtMIHcDI50OCRz8I9fnqH1yXwxmLVxqAX9pYm42fST4HaV2VrwOWVbQeORqUb5IR+YMGJK1KyBOvPFzZyAvqQEPd/McXQJ1qrQQ51qxbdaiL+LA1MZCOlUf4i8D5CiACcm6i6y6PyA4xm7pYyprpwKeSuzMHmxV4aqK14LK+e58gjHKlK8W0maVw+jj8/smIPJADrgLf8SAhizIvYYZ9bzq1iE0QUJWxMAxkCmjvvYrf/tzTbIWCTHAjsY3cWqNUjDnxOuvzOq5Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  149.199.60.83) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=xilinx.com;
  dmarc=bestguesspass action=none header.from=xilinx.com; dkim=none (message
@@ -36,18 +37,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xOFiJenkkPvdJjT556c1Lnq7mLt8qLf6IJQ5lnLH9Sc=;
- b=XvBsvju59YWwAK5fwezthmCHuHGzgMJEIYjNRgTH9DX0KHIIH04lCjtr+FaJGRMzEzrVBJUaQHIldSLfmOpWH0qpbT7TF89wKIGnopB9AQcHrONgqCZbpv4cFnhWSOMiyBm4vYfcdxO9q+/jaIWl+OwNTV2GVFI2m5DeZWvk4qo=
-Received: from MWHPR02CA0008.namprd02.prod.outlook.com (2603:10b6:300:4b::18)
- by BL0PR02MB5585.namprd02.prod.outlook.com (2603:10b6:208:8f::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2644.19; Thu, 16 Jan
- 2020 13:27:13 +0000
-Received: from SN1NAM02FT037.eop-nam02.prod.protection.outlook.com
- (2a01:111:f400:7e44::205) by MWHPR02CA0008.outlook.office365.com
- (2603:10b6:300:4b::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2644.19 via Frontend
- Transport; Thu, 16 Jan 2020 13:27:12 +0000
+ bh=aNPqEFkMSI7zbLxHQRO2idHizwtQ/8djBsSNlbSvwOw=;
+ b=FWdb8OyDfvIwUGnU7ODYIlJtZ+t8gyEx7K+FIfb5RWymmIGXpVqbzoYd7WS7ziMwWoS3cNtDrptQFeQizpAq0wulvtMiOm8OW7Ke5IdEArCyyWoVaBWJKWE7DvLywUAp1KVO3E3h8SVt1U0otyptcFS3cNce7VL479N2zqs8xII=
+Received: from SN4PR0201CA0066.namprd02.prod.outlook.com
+ (2603:10b6:803:20::28) by BY5PR02MB6019.namprd02.prod.outlook.com
+ (2603:10b6:a03:1b0::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2644.18; Thu, 16 Jan
+ 2020 13:27:19 +0000
+Received: from CY1NAM02FT062.eop-nam02.prod.protection.outlook.com
+ (2a01:111:f400:7e45::201) by SN4PR0201CA0066.outlook.office365.com
+ (2603:10b6:803:20::28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2644.21 via Frontend
+ Transport; Thu, 16 Jan 2020 13:27:19 +0000
 Authentication-Results: spf=pass (sender IP is 149.199.60.83)
  smtp.mailfrom=xilinx.com; vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=bestguesspass action=none
@@ -56,94 +57,98 @@ Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
  149.199.60.83 as permitted sender) receiver=protection.outlook.com;
  client-ip=149.199.60.83; helo=xsj-pvapsmtpgw01;
 Received: from xsj-pvapsmtpgw01 (149.199.60.83) by
- SN1NAM02FT037.mail.protection.outlook.com (10.152.72.89) with Microsoft SMTP
+ CY1NAM02FT062.mail.protection.outlook.com (10.152.75.60) with Microsoft SMTP
  Server (version=TLS1_0, cipher=TLS_RSA_WITH_AES_256_CBC_SHA) id 15.20.2644.19
- via Frontend Transport; Thu, 16 Jan 2020 13:27:12 +0000
+ via Frontend Transport; Thu, 16 Jan 2020 13:27:18 +0000
 Received: from unknown-38-66.xilinx.com ([149.199.38.66] helo=xsj-pvapsmtp01)
         by xsj-pvapsmtpgw01 with esmtp (Exim 4.63)
         (envelope-from <srinivas.neeli@xilinx.com>)
-        id 1is5B2-0005v0-64; Thu, 16 Jan 2020 05:27:12 -0800
+        id 1is5B8-0005vB-3E; Thu, 16 Jan 2020 05:27:18 -0800
 Received: from [127.0.0.1] (helo=localhost)
         by xsj-pvapsmtp01 with smtp (Exim 4.63)
         (envelope-from <srinivas.neeli@xilinx.com>)
-        id 1is5As-000190-Fs; Thu, 16 Jan 2020 05:27:02 -0800
-Received: from xsj-pvapsmtp01 (xsj-pvapsmtp01.xilinx.com [149.199.38.66])
-        by xsj-smtp-dlp1.xlnx.xilinx.com (8.13.8/8.13.1) with ESMTP id 00GDR0xw015625;
-        Thu, 16 Jan 2020 05:27:01 -0800
+        id 1is5B2-0001BU-Va; Thu, 16 Jan 2020 05:27:13 -0800
+Received: from xsj-pvapsmtp01 (mail.xilinx.com [149.199.38.66] (may be forged))
+        by xsj-smtp-dlp1.xlnx.xilinx.com (8.13.8/8.13.1) with ESMTP id 00GDR629015657;
+        Thu, 16 Jan 2020 05:27:06 -0800
 Received: from [10.140.6.6] (helo=xhdappanad40.xilinx.com)
         by xsj-pvapsmtp01 with esmtp (Exim 4.63)
         (envelope-from <srinivas.neeli@xilinx.com>)
-        id 1is5Aq-00018J-At; Thu, 16 Jan 2020 05:27:00 -0800
+        id 1is5Aw-00018J-8V; Thu, 16 Jan 2020 05:27:06 -0800
 From:   Srinivas Neeli <srinivas.neeli@xilinx.com>
 To:     linux@roeck-us.net, michal.simek@xilinx.com,
         shubhrajyoti.datta@xilinx.com, sgoud@xilinx.com
 Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         git@xilinx.com
-Subject: [PATCH 0/9] watchdog: of_xilinx_wdt: Update on watchdog driver
-Date:   Thu, 16 Jan 2020 18:56:48 +0530
-Message-Id: <1579181217-31127-1-git-send-email-srinivas.neeli@xilinx.com>
+Subject: [PATCH 2/9] watchdog: of_xilinx_wdt: Used BIT macro
+Date:   Thu, 16 Jan 2020 18:56:50 +0530
+Message-Id: <1579181217-31127-3-git-send-email-srinivas.neeli@xilinx.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1579181217-31127-1-git-send-email-srinivas.neeli@xilinx.com>
+References: <1579181217-31127-1-git-send-email-srinivas.neeli@xilinx.com>
 X-RCIS-Action: ALLOW
 X-TM-AS-Product-Ver: IMSS-7.1.0.1224-8.2.0.1013-23620.005
 X-TM-AS-User-Approved-Sender: Yes;Yes
 X-EOPAttributedMessage: 0
 X-MS-Office365-Filtering-HT: Tenant
-X-Forefront-Antispam-Report: CIP:149.199.60.83;IPV:;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(4636009)(346002)(136003)(376002)(396003)(39860400002)(189003)(199004)(478600001)(356004)(8936002)(6666004)(9786002)(70206006)(336012)(5660300002)(44832011)(70586007)(426003)(6636002)(81166006)(36756003)(2616005)(81156014)(107886003)(2906002)(4326008)(26005)(186003)(316002)(8676002)(7696005);DIR:OUT;SFP:1101;SCL:1;SRVR:BL0PR02MB5585;H:xsj-pvapsmtpgw01;FPR:;SPF:Pass;LANG:en;PTR:unknown-60-83.xilinx.com;MX:1;A:1;
+X-Forefront-Antispam-Report: CIP:149.199.60.83;IPV:;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(4636009)(376002)(346002)(136003)(39860400002)(396003)(199004)(189003)(316002)(8676002)(8936002)(478600001)(81166006)(44832011)(26005)(6666004)(186003)(7696005)(36756003)(81156014)(356004)(70586007)(336012)(5660300002)(6636002)(70206006)(107886003)(9786002)(2906002)(4326008)(2616005)(426003)(42866002);DIR:OUT;SFP:1101;SCL:1;SRVR:BY5PR02MB6019;H:xsj-pvapsmtpgw01;FPR:;SPF:Pass;LANG:en;PTR:unknown-60-83.xilinx.com;A:1;MX:1;
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 30e2a37b-8ddb-474b-8320-08d79a87cbce
-X-MS-TrafficTypeDiagnostic: BL0PR02MB5585:
-X-Microsoft-Antispam-PRVS: <BL0PR02MB558511F7419BE150C0E85E0BAF360@BL0PR02MB5585.namprd02.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 6200dfeb-fe37-4b0d-5b90-08d79a87cf5f
+X-MS-TrafficTypeDiagnostic: BY5PR02MB6019:
+X-Microsoft-Antispam-PRVS: <BY5PR02MB6019A994F313BE99F0DAC329AF360@BY5PR02MB6019.namprd02.prod.outlook.com>
 X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
+X-MS-Oob-TLC-OOBClassifiers: OLM:324;
 X-Forefront-PRVS: 02843AA9E0
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tHHbrjbfwGBzZqJD+jopiXMwQIME7m701mv+7zHi8DCX4gSd3z/XNMKLvYRMYGfRG/EF/E94xaeL4fRxh1FTY7yAdSKNJcIEw+aTcO75FF9NAz6PJcKljnUhGO6edZonOcLV1KfY/SLy+FAfItguPmLM7edJ/xoPCXUWxftKBMvokbSV7eZn2xrJXJoNWLy9HwC2PiC3Rp6QtHZoLjwPKUJcIFPKZsbuOKto7CovRm+RJRWWdVqP7aoUhXkgJj50MYrUdAI0HoY9gmeokrdJerfzL8drqZ0murKEpcB+/wsJZag9TCeoXle/ryS4kXr0zzutc3eqmOW5UNUOwh5HOAqp+Bw4a4Cg1NvR07CtwH1iuY+srxyMpixZP12x27/65wpJ1uB/xj9R+KZo9U/IRGzM5hHEfBH+kgVVkaMYA93yqo+pMM7wNc2Sx+3VWmvd
+X-Microsoft-Antispam-Message-Info: mPbaHs4EqTAR9Hu3516MTYOeMgyY/jPNlzDddD11Xh82N1qnVQrwvP8TLPR3qm/R3YVWYVjLW8kD4SzBHzVkct/0hjF8XRujb31v13o4CjoxndJDIOBh5HZb1adegnDc5e8Z55YGSY9qiIXzYpUKgZQnVaoUN+/J8i3ozgI+08MqhjnHPqmrkW8Npj7ylSFX1jRNAdMqPlc878gkNr9VfBTag5mpuMQCZmfqwZNOtkUbzu64O79L3h5/Si/R6jSWfEtLJY0hsB3xq72cN4Hz3sFR9HalgUpXkbYH3OwhGwqbjQ0vFef7zUqa7GNHIs7CMF44P6jLBRiYbt9J/BOwxTiaKn1qEpeqnUjpWzKNyN6xFqKfQznnsGO1pgzpAngwYREgp0j2aGMccKI2PukMPSKU1044bOJAyphJx0w1cGEaWxUepKybcMmQTMPbkAmuq6fMT1QGNoa2Y4h72hqmMYhVruJRcqWz41i+DzU2rJA=
 X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jan 2020 13:27:12.5664
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jan 2020 13:27:18.5329
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 30e2a37b-8ddb-474b-8320-08d79a87cbce
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6200dfeb-fe37-4b0d-5b90-08d79a87cf5f
 X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.60.83];Helo=[xsj-pvapsmtpgw01]
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR02MB5585
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR02MB6019
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This patch series does the following:
-- Add comment to spinlock
-- Use BIT macro
-- Use dev_dbg()
-- Initialize watchdog via data structure
-- Introduce wdttype enum for identification
-- Add binding for versal watchdog
-- Add versal support
-- wire setting up timeout via module parameter/DT
-- Skip printing pointer value
+From: Srinivas Goud <srinivas.goud@xilinx.com>
 
-Srinivas Goud (6):
-  watchdog: of_xilinx_wdt: Add comment to spinlock
-  watchdog: of_xilinx_wdt: Used BIT macro
-  watchdog: of_xilinx_wdt: Used dev_dbg()
-  dt-bindings: watchdog: xilinx: Add binding for Versal watchdog
-  watchdog: of_xilinx_wdt: Add Versal support
-  watchdog: of_xilinx_wdt: Wire setting up timeout via module
-    parameter/DT
+Used BIT macro instead of mask value.
 
-Srinivas Neeli (3):
-  watchdog: of_xilinx_wdt: Initialize watchdog via data structure
-  watchdog: of_xilinx_wdt: Introduce wdttype enum for identification
-  watchdog: of_xilinx_wdt: Skip printing pointer value
+Signed-off-by: Srinivas Goud <srinivas.goud@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+ drivers/watchdog/of_xilinx_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
- .../devicetree/bindings/watchdog/of-xilinx-wdt.txt |  21 +-
- drivers/watchdog/of_xilinx_wdt.c                   | 301 ++++++++++++++++++---
- 2 files changed, 275 insertions(+), 47 deletions(-)
-
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index 00549164b3d7..0d7df2370db7 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -24,12 +24,12 @@
+ #define XWT_TBR_OFFSET      0x8 /* Timebase Register Offset */
+ 
+ /* Control/Status Register Masks  */
+-#define XWT_CSR0_WRS_MASK   0x00000008 /* Reset status */
+-#define XWT_CSR0_WDS_MASK   0x00000004 /* Timer state  */
+-#define XWT_CSR0_EWDT1_MASK 0x00000002 /* Enable bit 1 */
++#define XWT_CSR0_WRS_MASK	BIT(3) /* Reset status */
++#define XWT_CSR0_WDS_MASK	BIT(2) /* Timer state  */
++#define XWT_CSR0_EWDT1_MASK	BIT(1) /* Enable bit 1 */
+ 
+ /* Control/Status Register 0/1 bits  */
+-#define XWT_CSRX_EWDT2_MASK 0x00000001 /* Enable bit 2 */
++#define XWT_CSRX_EWDT2_MASK	BIT(0) /* Enable bit 2 */
+ 
+ /* SelfTest constants */
+ #define XWT_MAX_SELFTEST_LOOP_COUNT 0x00010000
 -- 
 2.7.4
 
