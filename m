@@ -1,81 +1,86 @@
-Return-Path: <SRS0=pKoi=3I=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=ukff=3J=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35C29C33CB1
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 Jan 2020 11:34:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 145D5C33CA1
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Jan 2020 09:17:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F62020679
-	for <linux-watchdog@archiver.kernel.org>; Sun, 19 Jan 2020 11:34:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9DF920684
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Jan 2020 09:17:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726816AbgASLex (ORCPT
+        id S1726619AbgATJRh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 19 Jan 2020 06:34:53 -0500
-Received: from stcim.de ([78.46.90.227]:48544 "EHLO stcim.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726744AbgASLex (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 19 Jan 2020 06:34:53 -0500
-Received: from 2001-4dd4-d47c-0-a288-b4ff-fee5-f5cc.ipv6dyn.netcologne.de ([2001:4dd4:d47c:0:a288:b4ff:fee5:f5cc] helo=porty)
-        by stcim with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <contact@stefanchrist.eu>)
-        id 1it8qu-0001Qw-7U; Sun, 19 Jan 2020 12:34:48 +0100
-Date:   Sun, 19 Jan 2020 12:34:47 +0100
-From:   Stefan Lengfeld <contact@stefanchrist.eu>
-To:     Marco Felsch <m.felsch@pengutronix.de>
-Cc:     support.opensource@diasemi.com, linux@roeck-us.net,
-        Adam.Thomson.Opensource@diasemi.com,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
-        linux-kernel@vger.kernel.org,
-        Stefan Riedmueller <s.riedmueller@phytec.de>
-Subject: Re: [PATCH v2] watchdog: da9062: make restart handler atomic safe
-Message-ID: <20200119113447.qizbk4waxk7c3enr@porty>
-References: <20200115162307.7336-1-m.felsch@pengutronix.de>
- <20200116072320.f7ia3e76hx7yknqb@porty>
+        Mon, 20 Jan 2020 04:17:37 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:41285 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725872AbgATJRh (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 20 Jan 2020 04:17:37 -0500
+Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.lab.pengutronix.de)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1itTBc-0005op-C8; Mon, 20 Jan 2020 10:17:32 +0100
+Received: from mfe by dude02.lab.pengutronix.de with local (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1itTBb-0000TQ-SF; Mon, 20 Jan 2020 10:17:31 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     support.opensource@diasemi.com, linux@roeck-us.net,
+        stwiss.opensource@diasemi.com, Adam.Thomson.Opensource@diasemi.com
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: [PATCH] watchdog: da9062: do not ping the hw during stop()
+Date:   Mon, 20 Jan 2020 10:17:29 +0100
+Message-Id: <20200120091729.16256-1-m.felsch@pengutronix.de>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200116072320.f7ia3e76hx7yknqb@porty>
-X-PGP-Key: https://stefanchrist.eu/personal/Stefan_Lengfeld_0xE44A23B289092311.asc
-User-Agent: NeoMutt/20180716
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Marco,
+The da9062 hw has a minimum ping cool down phase of at least 200ms. The
+driver takes that into account by setting the min_hw_heartbeat_ms to
+300ms and the core guarantees that the hw limit is observed for the
+ping() calls. But the core can't guarantees the required minimum ping
+cool down phase if a stop() command is send immediately after the ping()
+command. So it is not allowed to ping the watchdog within the stop()
+command as the driver do. Remove the ping can be done without doubts
+because the watchdog gets disabled anyway and a (re)start reset the
+watchdog counter too.
 
-On Thu, Jan 16, 2020 at 08:23:20AM +0100, Stefan Lengfeld wrote:
-> On Wed, Jan 15, 2020 at 05:23:07PM +0100, Marco Felsch wrote:
-> > The restart handler is executed during the shutdown phase which is
-> > atomic/irq-less. The i2c framework supports atomic transfers since
-> > commit 63b96983a5dd ("i2c: core: introduce callbacks for atomic
-> > transfers") to address this use case. Using regmap within an atomic
-> > context is allowed only if the regmap type is MMIO and the cache type
-> > 'flat' or no cache is used. Using the i2c_smbus_write_byte_data()
-> > function can be done without additional tests because:
-> >  1) the DA9062 is an i2c-only device and
-> >  2) the i2c framework emulates the smbus protocol if the host adapter
-> >     does not support smbus_xfer by using the master_xfer.
-> > 
-> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> 
-> Reviewed-by: Stefan Lengfeld <contact@stefanchrist.eu>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+---
+ drivers/watchdog/da9062_wdt.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-Now also 
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index 77b6b5336067..0ad15d55071c 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -97,13 +97,6 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
+ 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = da9062_reset_watchdog_timer(wdt);
+-	if (ret) {
+-		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
+-			ret);
+-		return ret;
+-	}
+-
+ 	ret = regmap_update_bits(wdt->hw->regmap,
+ 				 DA9062AA_CONTROL_D,
+ 				 DA9062AA_TWDSCALE_MASK,
+-- 
+2.20.1
 
-Tested-by: Stefan Lengfeld <contact@stefanchrist.eu>
-
-on a phyCORE-i.MX6 Quad with baseboard phyBOARD-Mira.
-
-I'm also cc'ing Stefan from phytec, since he is also interested in the
-thread/patch [1].
-
-Kind regards,
-    Stefan
-
-[1]: https://www.spinics.net/lists/linux-watchdog/msg17203.html
