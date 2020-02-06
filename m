@@ -2,66 +2,149 @@ Return-Path: <SRS0=ubhB=32=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AC3DC35247
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 19:14:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4F5FC35247
+	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 20:37:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2AC7221741
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 19:14:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D54221775
+	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 20:37:01 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="UkIqrxpj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727479AbgBFTOi (ORCPT
+        id S1727830AbgBFUhB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 6 Feb 2020 14:14:38 -0500
-Received: from mga09.intel.com ([134.134.136.24]:61764 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726990AbgBFTOh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Feb 2020 14:14:37 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Feb 2020 11:14:37 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,410,1574150400"; 
-   d="scan'208";a="345087488"
-Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
-  by fmsmga001.fm.intel.com with SMTP; 06 Feb 2020 11:14:33 -0800
-Received: by lahna (sSMTP sendmail emulation); Thu, 06 Feb 2020 21:14:33 +0200
-Date:   Thu, 6 Feb 2020 21:14:33 +0200
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Jean Delvare <jdelvare@suse.de>,
+        Thu, 6 Feb 2020 15:37:01 -0500
+Received: from www.linux-watchdog.org ([185.87.125.42]:50056 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727773AbgBFUhA (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 6 Feb 2020 15:37:00 -0500
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id 47C7D4065D; Thu,  6 Feb 2020 20:47:37 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 47C7D4065D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1581018457;
+        bh=UDRkZMKHbV1Ws+6JHIMGt7Ei1nb/ogRNQru6w0+tZXI=;
+        h=Date:From:To:Cc:Subject:From;
+        b=UkIqrxpjYMqxSpmlNdNmfr3iWoBr+ou8d7kmtu7k8f0Fzm9rNyTXop3ZNJFtA0XIl
+         3gkGyOHYXadfmyfUZSeX/gQDXIu3Dw1Nme/XeJNSP1jug8wWeQje1QO2+EIiPqzFXO
+         OFTngwMkIlSg7JqUuli/qP6lScQ5XXd0mhRVeIos=
+Date:   Thu, 6 Feb 2020 20:47:37 +0100
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, Tom Abraham <tabraham@suse.com>
-Subject: Re: Forcing non-ACPI watchdog driver
-Message-ID: <20200206191433.GU2667@lahna.fi.intel.com>
-References: <1580915129.23547.3.camel@suse.de>
- <20200205152435.GE2667@lahna.fi.intel.com>
- <20200205163048.GD25403@roeck-us.net>
- <20200205163831.GG2667@lahna.fi.intel.com>
- <20200206154532.359086d6@endymion>
- <20200206145602.GQ2667@lahna.fi.intel.com>
- <CAJZ5v0i5+DaFM22jW=dS66JHK5=ydvMf4dBuJTMvGoNSZLOL3Q@mail.gmail.com>
- <CAJZ5v0hOyVNt0up7kErOnFSeCu0yu=MhJp-Yqo4+M49W0bgZbw@mail.gmail.com>
+        Christophe Roullier <christophe.roullier@st.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Jack Mitchell <ml@embed.me.uk>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Vincent Prince <Vincent.PRINCE.fr@gmail.com>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Wang@www.linux-watchdog.org,
+        "Peng 1." <peng.1.wang@nokia-sbell.com>,
+        "yong.liang" <yong.liang@mediatek.com>
+Subject: [GIT PULL REQUEST] watchdog - v5.6 Merge window
+Message-ID: <20200206194737.GA12072@www.linux-watchdog.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAJZ5v0hOyVNt0up7kErOnFSeCu0yu=MhJp-Yqo4+M49W0bgZbw@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 05:00:43PM +0100, Rafael J. Wysocki wrote:
-> So queued up now (with very minor changes in the subject and
-> changelog), but I will rebase it on top of -rc1 when it is out.
+Hi Linus,
 
-Thanks!
+Please pull the watchdog changes for the v5.6 release cycle.
+
+This series contains:
+* add IT8786 chipset
+* addition of sam9x60 compatible watchdog
+* da9062 improvements
+* fix UAF in reboot notifier handling in watchdog core code
+* other fixes and small improvements
+
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit d5226fa6dbae0569ee43ecfc08bdcd6770fc4755:
+
+  Linux 5.5 (2020-01-26 16:23:03 -0800)
+
+are available in the git repository at:
+
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.6-rc1
+
+for you to fetch changes up to 057b52b4b3d58f4ee5944171da50f77b00a1bb0d:
+
+  watchdog: da9062: make restart handler atomic safe (2020-01-27 15:55:49 +0100)
+
+----------------------------------------------------------------
+linux-watchdog 5.6-rc1 tag
+
+----------------------------------------------------------------
+Christophe Roullier (1):
+      drivers: watchdog: stm32_iwdg: set WDOG_HW_RUNNING at probe
+
+Eugen Hristev (1):
+      watchdog: sama5d4_wdt: addition of sam9x60 compatible watchdog
+
+Jack Mitchell (1):
+      watchdog: dw_wdt: ping watchdog to reset countdown before start
+
+Marco Felsch (3):
+      watchdog: da9062: add power management ops
+      dt-bindings: watchdog: da9062: add suspend disable option
+      watchdog: da9062: make restart handler atomic safe
+
+Sai Prakash Ranjan (1):
+      watchdog: qcom: Use platform_get_irq_optional() for bark irq
+
+Srinivas Neeli (1):
+      watchdog: cadence: Skip printing pointer value
+
+Vincent Prince (1):
+      watchdog: it87_wdt: add IT8786 ID
+
+Vladis Dronov (1):
+      watchdog: fix UAF in reboot notifier handling in watchdog core code
+
+Wang, Peng 1. (NSB - CN/Hangzhou) (1):
+      watchdog: make DesignWare watchdog allow users to set bigger timeout value
+
+yong.liang (4):
+      dt-bindings: mediatek: mt8183: Add #reset-cells
+      dt-bindings: mediatek: mt2712: Add #reset-cells
+      watchdog: mtk_wdt: mt8183: Add reset controller
+      watchdog: mtk_wdt: mt2712: Add reset controller
+
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    |   5 +
+ .../devicetree/bindings/watchdog/mtk-wdt.txt       |  11 ++-
+ drivers/watchdog/at91sam9_wdt.h                    |  21 ++++
+ drivers/watchdog/cadence_wdt.c                     |   5 +-
+ drivers/watchdog/da9062_wdt.c                      |  35 ++++++-
+ drivers/watchdog/dw_wdt.c                          |  11 ++-
+ drivers/watchdog/it87_wdt.c                        |   2 +
+ drivers/watchdog/mtk_wdt.c                         | 105 +++++++++++++++++++-
+ drivers/watchdog/qcom-wdt.c                        |   2 +-
+ drivers/watchdog/sama5d4_wdt.c                     | 109 ++++++++++++++++-----
+ drivers/watchdog/stm32_iwdg.c                      |  18 ++++
+ drivers/watchdog/watchdog_core.c                   |  35 +++++++
+ drivers/watchdog/watchdog_dev.c                    |  36 +------
+ .../dt-bindings/reset-controller/mt2712-resets.h   |  22 +++++
+ .../dt-bindings/reset-controller/mt8183-resets.h   |  17 ++++
+ 15 files changed, 361 insertions(+), 73 deletions(-)
+ create mode 100644 include/dt-bindings/reset-controller/mt2712-resets.h
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
+
