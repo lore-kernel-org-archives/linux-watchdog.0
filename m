@@ -2,54 +2,58 @@ Return-Path: <SRS0=SVFd=33=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 942CAC352A3
-	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D81C2D0B1
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:51:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 736412082E
-	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:48:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F31C2082E
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:51:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726465AbgBGGsJ (ORCPT
+        id S1726417AbgBGGvJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 7 Feb 2020 01:48:09 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:40071 "EHLO
+        Fri, 7 Feb 2020 01:51:09 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:34311 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726417AbgBGGsJ (ORCPT
+        with ESMTP id S1726136AbgBGGvJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Feb 2020 01:48:09 -0500
+        Fri, 7 Feb 2020 01:51:09 -0500
 Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
         by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mfe@pengutronix.de>)
-        id 1izxQm-00038y-DR; Fri, 07 Feb 2020 07:48:00 +0100
+        id 1izxTj-0003LT-Qk; Fri, 07 Feb 2020 07:51:03 +0100
 Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
         (envelope-from <mfe@pengutronix.de>)
-        id 1izxQl-0002Kw-69; Fri, 07 Feb 2020 07:47:59 +0100
-Date:   Fri, 7 Feb 2020 07:47:59 +0100
+        id 1izxTj-0002T1-Ct; Fri, 07 Feb 2020 07:51:03 +0100
+Date:   Fri, 7 Feb 2020 07:51:03 +0100
 From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     support.opensource@diasemi.com, linux@roeck-us.net,
-        robh+dt@kernel.org, lee.jones@linaro.org,
-        stwiss.opensource@diasemi.com, Adam.Thomson.Opensource@diasemi.com
-Cc:     devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        kernel@pengutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Explicit disable da9062 watchdog during suspend
-Message-ID: <20200207064759.2de2fhhcuuavsqel@pengutronix.de>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     support.opensource@diasemi.com, robh+dt@kernel.org,
+        lee.jones@linaro.org, stwiss.opensource@diasemi.com,
+        Adam.Thomson.Opensource@diasemi.com,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel@pengutronix.de
+Subject: Re: [PATCH 3/3] watchdog: da9062: add power management ops
+Message-ID: <20200207065103.o5liyfdrl5fudxvh@pengutronix.de>
 References: <20200108095704.23233-1-m.felsch@pengutronix.de>
- <20200108100904.m26jskuhv7ldqaa2@pengutronix.de>
+ <20200108095704.23233-4-m.felsch@pengutronix.de>
+ <20200123205132.GA13377@roeck-us.net>
+ <20200206090010.ya6p2kvab452kedr@pengutronix.de>
+ <a5d61822-c4fa-d5d3-c3ef-174b57a651bc@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200108100904.m26jskuhv7ldqaa2@pengutronix.de>
+In-Reply-To: <a5d61822-c4fa-d5d3-c3ef-174b57a651bc@roeck-us.net>
 X-Sent-From: Pengutronix Hildesheim
 X-URL:  http://www.pengutronix.de/
 X-IRC:  #ptxdist @freenode
 X-Accept-Language: de,en
 X-Accept-Content-Type: text/plain
-X-Uptime: 07:47:32 up 83 days, 22:06, 86 users,  load average: 0.16, 0.14,
- 0.09
+X-Uptime: 07:48:05 up 83 days, 22:06, 86 users,  load average: 0.09, 0.12,
+ 0.08
 User-Agent: NeoMutt/20170113 (1.7.2)
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
 X-SA-Exim-Mail-From: mfe@pengutronix.de
@@ -60,55 +64,39 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
-
-On 20-01-08 11:09, Marco Felsch wrote:
-> Hi,
-> 
-> On 20-01-08 10:57, Marco Felsch wrote:
-> > Hi,
+On 20-02-06 06:45, Guenter Roeck wrote:
+> On 2/6/20 1:00 AM, Marco Felsch wrote:
+> > Hi Guenter,
 > > 
-> > this v2 contains all review comments made on [1]. Furthermore the series
-> > includes a fix patch which is need to parse the devicetree.
+> > On 20-01-23 12:51, Guenter Roeck wrote:
+> > > On Wed, Jan 08, 2020 at 10:57:04AM +0100, Marco Felsch wrote:
+> > > > Disable the watchdog during suspend if it is enabled and re-enable it on
+> > > > resume. So we can sleep without the interruptions.
+> > > > 
+> > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > > > Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+> > > 
+> > > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > 
+> > I got an kbuild email so I checked the linux-next master tree. On
+> > linux-next this patch isn't used instead the old v1 was used...
+> > 
 > 
-> I forgot to add the -v2 to my git command anyway this is realy a v2.
-> Sorry for the noise.
+> Yes, it appears that I picked the wrong version as well, and Wim picked it
+> up from there. But, really, what do you expect if you don't tag your
+> submissions with version numbers ?
 
-I said sorry here..
+Pls check the cover-letter I said sorry their. As I said it was a
+mistake.
+
+> I would suggest to send a follow-up patch to fix what is in -next.
+
+A 'real' patch or should I send a 'fixup!' patch?
 
 Regards,
   Marco
 
-> Regards,
->   Marco
-> 
-> > [1] https://www.spinics.net/lists/linux-watchdog/msg17044.html
-> > 
-> > Regards,
-> >   Marco
-> > 
-> > Marco Felsch (3):
-> >   mfd: da9062: fix watchdog compatible string
-> >   dt-bindings: watchdog: da9062: add suspend disable option
-> >   watchdog: da9062: add power management ops
-> > 
-> >  .../bindings/watchdog/da9062-wdt.txt          |  5 +++
-> >  drivers/mfd/da9062-core.c                     |  2 +-
-> >  drivers/watchdog/da9062_wdt.c                 | 37 +++++++++++++++++++
-> >  3 files changed, 43 insertions(+), 1 deletion(-)
-> > 
-> > -- 
-> > 2.20.1
-> > 
-> > 
-> > 
-> 
-> -- 
-> Pengutronix e.K.                           |                             |
-> Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-> 31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
-> 
+> Guenter
 > 
 
 -- 
