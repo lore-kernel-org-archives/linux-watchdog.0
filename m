@@ -1,100 +1,118 @@
-Return-Path: <SRS0=ubhB=32=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=SVFd=33=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED4FC35247
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 20:46:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 942CAC352A3
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:48:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2ABA2218AC
-	for <linux-watchdog@archiver.kernel.org>; Thu,  6 Feb 2020 20:46:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581022006;
-	bh=Fd2YhmJXyHWICE9xLRUhbR43QWIjp3P2ufjVNviVWns=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=L6cHk5P1oOyPp4SiPhe3Esx80Ama3xYDbxkGRCMi+uLbEi88c1SIF/p73k97obQS4
-	 YsLr06eDWLLKB1y8i4zmyst0rocgYFax52HBKrfWzCf7QZlKuhzqWjEPYQN11MyjYA
-	 WkOBEkc0XgLVDmCOAwCUPPUL7Z3KzHpDvmpTNfUk=
+	by mail.kernel.org (Postfix) with ESMTP id 736412082E
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Feb 2020 06:48:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728232AbgBFUq0 (ORCPT
+        id S1726465AbgBGGsJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 6 Feb 2020 15:46:26 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:35955 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728212AbgBFUqV (ORCPT
+        Fri, 7 Feb 2020 01:48:09 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:40071 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726417AbgBGGsJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Feb 2020 15:46:21 -0500
-Received: by mail-pf1-f195.google.com with SMTP id 185so59054pfv.3;
-        Thu, 06 Feb 2020 12:46:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ug/wlo0Kk7ZmWuOhLjsGf8WpCyfYM5yOAezTl3oLxGE=;
-        b=PKgrnsV5MKiUZIMMv8THQCJTRF/OfN/A2C2Uz0slq+rnPdh1JeeJtHSPDRphIcio+0
-         MeryKD3yM6dqE/SC+j55EOXV7JQw2OXW675E3qs8H7PFZBr6cmQ9I5k1ePyMMMhOZT/3
-         nDaScFYIicxyK8eJel8Rur3dtlwKwb/FgIKWZICxE42HbkuK34vj3c6hh350lY02D5N+
-         HcK0hHtqk7lz+99hEYwPJA/eO/DqYbDIXbHROjZDPZrDBpJdM37llOW+vUWlL3tyCq3m
-         QWQRUdmdW78uFj4dZOvy5QrN7S5RT+fYv2+ZN86VMFyQ4hDwVUMGrDIT2mv/UsZ1JqnX
-         Bwxw==
-X-Gm-Message-State: APjAAAVfOduh9fRLaV0hRJzxa0/+wc3yxYkGsQZnY3HZLEeFl4cDvUS0
-        6e3B8v203iB7SxQ5jm9QCA==
-X-Google-Smtp-Source: APXvYqzR75X0SOO8/Ci8hfXh+3pGKYvyPgI2KQi3sQN7ajgY/oC7QShvBli/8QrnOI53l84UKQeUKg==
-X-Received: by 2002:a65:4d0d:: with SMTP id i13mr3719314pgt.346.1581021981006;
-        Thu, 06 Feb 2020 12:46:21 -0800 (PST)
-Received: from rob-hp-laptop (63-158-47-182.dia.static.qwest.net. [63.158.47.182])
-        by smtp.gmail.com with ESMTPSA id a21sm287558pgd.12.2020.02.06.12.46.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Feb 2020 12:46:19 -0800 (PST)
-Received: (nullmailer pid 28310 invoked by uid 1000);
-        Thu, 06 Feb 2020 19:15:32 -0000
-Date:   Thu, 6 Feb 2020 19:15:32 +0000
-From:   Rob Herring <robh@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Documentation: watchdog: qcom-wdt: Remove deprecated
- compatible
-Message-ID: <20200206191532.GA24542@bogus>
-References: <20200204152104.13278-1-ansuelsmth@gmail.com>
- <20200204152104.13278-2-ansuelsmth@gmail.com>
- <20200204160958.GB17320@roeck-us.net>
+        Fri, 7 Feb 2020 01:48:09 -0500
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1izxQm-00038y-DR; Fri, 07 Feb 2020 07:48:00 +0100
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1izxQl-0002Kw-69; Fri, 07 Feb 2020 07:47:59 +0100
+Date:   Fri, 7 Feb 2020 07:47:59 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     support.opensource@diasemi.com, linux@roeck-us.net,
+        robh+dt@kernel.org, lee.jones@linaro.org,
+        stwiss.opensource@diasemi.com, Adam.Thomson.Opensource@diasemi.com
+Cc:     devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Explicit disable da9062 watchdog during suspend
+Message-ID: <20200207064759.2de2fhhcuuavsqel@pengutronix.de>
+References: <20200108095704.23233-1-m.felsch@pengutronix.de>
+ <20200108100904.m26jskuhv7ldqaa2@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200204160958.GB17320@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200108100904.m26jskuhv7ldqaa2@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 07:47:32 up 83 days, 22:06, 86 users,  load average: 0.16, 0.14,
+ 0.09
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 04, 2020 at 08:09:58AM -0800, Guenter Roeck wrote:
-> On Tue, Feb 04, 2020 at 04:21:02PM +0100, Ansuel Smith wrote:
-> > "qcom,kpss-wdt-msm8960"
-> > "qcom,kpss-wdt-apq8064"
-> > "qcom,kpss-wdt-ipq8064"
-> > "qcom,kpss-wdt-ipq4019"
+Hi Guenter,
+
+On 20-01-08 11:09, Marco Felsch wrote:
+> Hi,
+> 
+> On 20-01-08 10:57, Marco Felsch wrote:
+> > Hi,
 > > 
-> > and deprectaed and not used in the driver code at all. Drop them and
-> > fix the example.
+> > this v2 contains all review comments made on [1]. Furthermore the series
+> > includes a fix patch which is need to parse the devicetree.
+> 
+> I forgot to add the -v2 to my git command anyway this is realy a v2.
+> Sorry for the noise.
+
+I said sorry here..
+
+Regards,
+  Marco
+
+> Regards,
+>   Marco
+> 
+> > [1] https://www.spinics.net/lists/linux-watchdog/msg17044.html
 > > 
-> Rob may correct me, but I don't think you can just remove
-> deprecated properties. It doesn't matter if the driver supports
-> it or not; after all, DT property descriptions are supposed
-> to be OS independent.
+> > Regards,
+> >   Marco
+> > 
+> > Marco Felsch (3):
+> >   mfd: da9062: fix watchdog compatible string
+> >   dt-bindings: watchdog: da9062: add suspend disable option
+> >   watchdog: da9062: add power management ops
+> > 
+> >  .../bindings/watchdog/da9062-wdt.txt          |  5 +++
+> >  drivers/mfd/da9062-core.c                     |  2 +-
+> >  drivers/watchdog/da9062_wdt.c                 | 37 +++++++++++++++++++
+> >  3 files changed, 43 insertions(+), 1 deletion(-)
+> > 
+> > -- 
+> > 2.20.1
+> > 
+> > 
+> > 
+> 
+> -- 
+> Pengutronix e.K.                           |                             |
+> Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+> 31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+> 
+> 
 
-Right.
-
-Also, there's a conversion of this to schema under review, so it will 
-need to be refactored if not dropped.
-
-Rob
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
