@@ -1,112 +1,160 @@
-Return-Path: <SRS0=NjjV=4A=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=0p5v=4B=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFB77C352A4
-	for <linux-watchdog@archiver.kernel.org>; Wed, 12 Feb 2020 21:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D022C2BA83
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 18:00:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 889D92173E
-	for <linux-watchdog@archiver.kernel.org>; Wed, 12 Feb 2020 21:02:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6911C218AC
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 18:00:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="D2KwX3UV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728674AbgBLVCE convert rfc822-to-8bit (ORCPT
+        id S1728039AbgBMSAM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 12 Feb 2020 16:02:04 -0500
-Received: from mga11.intel.com ([192.55.52.93]:40824 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727138AbgBLVCE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 12 Feb 2020 16:02:04 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Feb 2020 13:02:03 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,434,1574150400"; 
-   d="scan'208";a="281337938"
-Received: from orsmsx106.amr.corp.intel.com ([10.22.225.133])
-  by FMSMGA003.fm.intel.com with ESMTP; 12 Feb 2020 13:02:03 -0800
-Received: from orsmsx110.amr.corp.intel.com ([169.254.10.107]) by
- ORSMSX106.amr.corp.intel.com ([169.254.1.123]) with mapi id 14.03.0439.000;
- Wed, 12 Feb 2020 13:02:03 -0800
-From:   "Moore, Robert" <robert.moore@intel.com>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-CC:     Len Brown <lenb@kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Thu, 13 Feb 2020 13:00:12 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:34963 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727608AbgBMSAM (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 13 Feb 2020 13:00:12 -0500
+Received: by mail-wr1-f67.google.com with SMTP id w12so7831116wrt.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 13 Feb 2020 10:00:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=arista.com; s=googlenew;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=XXo3L4k48aibe+yP/A4EY8XTS9o1G2cK7ZyRw33XEt8=;
+        b=D2KwX3UVhNBaSMtlGygi7ujusj8mKB5CcFanw7hjeEE722YbtHnWTNV13eGfVuFNic
+         abEz7lOczVoEbxhOBIjwjHChdsNNJ83vitHq0RgebeASzJqg5/iVqBkCGex1dvQODZ6F
+         SBZNsy/HbodwmxtTnB0YGepG07xMUnGSS+u5BDsJAXOya+C134E/cC1GTaIbMsGIp9w6
+         v8olvCtghXvcl102ZRlwUmPAav21tepYq5Ogeq6AZQTkK1uoV7/ddYtGfqVcL4c5uza3
+         J9SyiO8c6oKS64EbROwk8eV2Pl+ttxALeDPsbZ+xvL6E4tiXuiZdEesuLxpdaQEc5iiN
+         h86A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=XXo3L4k48aibe+yP/A4EY8XTS9o1G2cK7ZyRw33XEt8=;
+        b=RfOkL+FDSDgN3iJevbqx5MCZnqY/6dfTXpxlDYBDJRh42eYJz/b2osrIzgE85Ip5Iv
+         jmPJ6zVpv9yW22QkiyFIt5Xgm68atNRF/ax58PCP1v6n/xgLyW03gv2BbmXMxgFeQ30d
+         TQ0kkZouOf3u6wo17FcmhJUmCUDO/FSfqFhkiFmUqPkjuvyj1WT9+xrdW1U/xPlzJ2t7
+         iug7HuaeB9b5fq+trtPJJ/bsTf/YurFOdfloWkyK/rE+LUCVXLxhm6QIhctcS56EXyyK
+         Y+0i6zDUe0DRwzwH/etc2CT2alNwpPdwuP9JLvGXgF2gPJntSw/Cpgkjs1ErKmRqHsgF
+         eZbg==
+X-Gm-Message-State: APjAAAUuapaYinmAi84S2vS518ZQiCv2Jq5jul6YEUarCoR9i3hZceh0
+        ypLJHQrlsiv6MKX6tKVMbvFrqg==
+X-Google-Smtp-Source: APXvYqyUsqTefNHa+WG1XIxQNt/pUPg/0tXe6oyOXxhPFPWFFV3tAT2SQrkX7z4Jz6q1Z1ekN+sbRg==
+X-Received: by 2002:a05:6000:10c:: with SMTP id o12mr23253172wrx.106.1581616810553;
+        Thu, 13 Feb 2020 10:00:10 -0800 (PST)
+Received: from Mindolluin.ire.aristanetworks.com ([217.173.96.166])
+        by smtp.gmail.com with ESMTPSA id z11sm3630089wrv.96.2020.02.13.10.00.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Feb 2020 10:00:10 -0800 (PST)
+From:   Dmitry Safonov <dima@arista.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
+        Dmitry Safonov <dima@arista.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "Kaneda, Erik" <erik.kaneda@intel.com>,
-        "Tom Abraham" <tabraham@suse.com>
-Subject: RE: [PATCH v2 1/3] ACPICA: Introduce ACPI_ACCESS_BYTE_WIDTH() macro
-Thread-Topic: [PATCH v2 1/3] ACPICA: Introduce ACPI_ACCESS_BYTE_WIDTH() macro
-Thread-Index: AQHV4bUX6obbox02EUG+swOmUWlaeagYC72w
-Date:   Wed, 12 Feb 2020 21:02:02 +0000
-Message-ID: <94F2FBAB4432B54E8AACC7DFDE6C92E3B96E7D91@ORSMSX110.amr.corp.intel.com>
-References: <20200212145941.32914-1-mika.westerberg@linux.intel.com>
- <20200212145941.32914-2-mika.westerberg@linux.intel.com>
-In-Reply-To: <20200212145941.32914-2-mika.westerberg@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMjhjMmE5OTktNjg4OC00MDRkLTg5OTgtY2ZlMzMzZDg3OGZkIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiK2lpWUJ1b2JzTHJsbzFiWm43cDVud1g2Ulh2WDFpXC9OUndHVW8yMXVxbmtGV1lhZGRMUVREQlhtZVB3elZDMjcifQ==
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.138]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 2/2] watchdog/uapi: Add WDIOS_{RUN,STOP}_ON_REBOOT
+Date:   Thu, 13 Feb 2020 17:59:58 +0000
+Message-Id: <20200213175958.105914-3-dima@arista.com>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200213175958.105914-1-dima@arista.com>
+References: <20200213175958.105914-1-dima@arista.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Many watchdog drivers use watchdog_stop_on_reboot() helper in order
+to stop the watchdog on system reboot. Unfortunately, this logic is
+coded in driver's probe function and doesn't allows user to decide what
+to do during shutdown/reboot.
 
+On the other side, Xen and Qemu watchdog drivers (xen_wdt and i6300esb)
+may be configured to either send NMI or turn off/reboot VM as
+the watchdog action. As the kernel may stuck at any state, sending NMIs
+can't reliably reboot the VM.
 
------Original Message-----
-From: Mika Westerberg <mika.westerberg@linux.intel.com> 
-Sent: Wednesday, February 12, 2020 7:00 AM
-To: Jean Delvare <jdelvare@suse.de>; Rafael J. Wysocki <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>; linux-acpi@vger.kernel.org; Wim Van Sebroeck <wim@linux-watchdog.org>; Guenter Roeck <linux@roeck-us.net>; linux-watchdog@vger.kernel.org; Moore, Robert <robert.moore@intel.com>; Kaneda, Erik <erik.kaneda@intel.com>; Tom Abraham <tabraham@suse.com>; Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2 1/3] ACPICA: Introduce ACPI_ACCESS_BYTE_WIDTH() macro
+At Arista, we benefited from the following set-up: the emulated watchdogs
+trigger VM reset and softdog is set to catch less severe conditions to
+generate vmcore. Just before reboot watchdog's timeout is increased
+to some good-enough value (3 mins). That keeps watchdog always running
+and guarantees that VM doesn't stuck.
 
-Sometimes it is useful to find the access_width field value in bytes and not in bits so add a helper that can be used for this purpose.
+Provide new WDIOS_RUN_ON_REBOOT and WDIOS_STOP_ON_REBOOT ioctl options
+to set up strategy on reboot.
 
-Suggested-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Dmitry Safonov <dima@arista.com>
 ---
- include/acpi/actypes.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/watchdog_dev.c | 12 ++++++++++++
+ include/linux/watchdog.h        |  6 ++++++
+ include/uapi/linux/watchdog.h   |  3 ++-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h index a2583c2bc054..4defed58ea33 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -532,11 +532,12 @@ typedef u64 acpi_integer;
- 	 strnlen (a, ACPI_NAMESEG_SIZE) == ACPI_NAMESEG_SIZE)
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8b5c742f24e8..c854cd0245db 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -753,6 +753,18 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 		}
+ 		if (val & WDIOS_ENABLECARD)
+ 			err = watchdog_start(wdd);
++
++		if (val & WDIOS_RUN_ON_REBOOT) {
++			if (val & WDIOS_STOP_ON_REBOOT) {
++				err = -EINVAL;
++				break;
++			}
++			watchdog_run_on_reboot(wdd);
++			err = 0;
++		} else if (val & WDIOS_STOP_ON_REBOOT) {
++			watchdog_stop_on_reboot(wdd);
++			err = 0;
++		}
+ 		break;
+ 	case WDIOC_KEEPALIVE:
+ 		if (!(wdd->info->options & WDIOF_KEEPALIVEPING)) {
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 417d9f37077a..9e2ca7754631 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -150,6 +150,12 @@ static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd)
+ 	set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
+ }
  
- /*
-- * Algorithm to obtain access bit width.
-+ * Algorithm to obtain access bit or byte width.
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
-  */
- #define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
++/* Use the following function to keep the watchdog running on reboot */
++static inline void watchdog_run_on_reboot(struct watchdog_device *wdd)
++{
++	clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
++}
++
+ /* Use the following function to stop the watchdog when unregistering it */
+ static inline void watchdog_stop_on_unregister(struct watchdog_device *wdd)
+ {
+diff --git a/include/uapi/linux/watchdog.h b/include/uapi/linux/watchdog.h
+index b15cde5c9054..bf19a5d3c987 100644
+--- a/include/uapi/linux/watchdog.h
++++ b/include/uapi/linux/watchdog.h
+@@ -53,6 +53,7 @@ struct watchdog_info {
+ #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
+ #define	WDIOS_ENABLECARD	0x0002	/* Turn on the watchdog timer */
+ #define	WDIOS_TEMPPANIC		0x0004	/* Kernel panic on temperature trip */
+-
++#define	WDIOS_RUN_ON_REBOOT	0x0008	/* Keep watchdog enabled on reboot */
++#define	WDIOS_STOP_ON_REBOOT	0x0010	/* Turn off the watchdog on reboot */
  
-OK, we've taken this one into ACPICA.
-Thanks,
-Bob
-
- /*******************************************************************************
-  *
---
+ #endif /* _UAPI_LINUX_WATCHDOG_H */
+-- 
 2.25.0
 
