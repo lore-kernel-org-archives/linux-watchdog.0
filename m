@@ -2,103 +2,94 @@ Return-Path: <SRS0=0p5v=4B=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5A73C352A3
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 20:23:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B36DC352A3
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 22:53:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8845424682
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 20:23:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="Hz/xL3g4"
+	by mail.kernel.org (Postfix) with ESMTP id 440AD20873
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Feb 2020 22:53:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1581634404;
+	bh=wTy5oEUobwMPZZByZgWSyfKgKX3JE4QGAS8hrIHQIw8=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=tbSZR3JiS7bvnq+lhvKmypXI2zP/r/YenZKYrm9gWrl3ITeGXxL9w5OvUKCvCEjoP
+	 eqqYMyyIobv6gc6OE2fLl+htkTaXgPodeFhEA90+FJq1R04SxDzAyrmHtUiAiGg1oj
+	 3rljuT1NegPmC2LXD4WnQG/xQ5GsMH5nwNufLbY4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726968AbgBMUX5 (ORCPT
+        id S1727347AbgBMWxY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 13 Feb 2020 15:23:57 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:50334 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728260AbgBMUX5 (ORCPT
+        Thu, 13 Feb 2020 17:53:24 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:34558 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726780AbgBMWxX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Feb 2020 15:23:57 -0500
-Received: by mail-wm1-f68.google.com with SMTP id a5so7675859wmb.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 13 Feb 2020 12:23:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=z0gjJEmRAwNymPwA00fmzFhjNC7Qe4kL5vReX8cevnI=;
-        b=Hz/xL3g4x51bG7UTsON1g0txoL+UQIUGlDIxuBxUvr2H3k12pXc/T/otefb4iCRVft
-         4ov86aKFTIW1nMR+qgtLawZAt6+nyiYLHH4OCVRSmd1Fh3PaOR9aMQ/e5M/sPXu7owO4
-         jOS7Po0sT9ic7cUHflzW8HE8OycaB9fYChOyRnCocqK6mu1rT/gnzpro/8OZSG+Ay0kk
-         C+ANlMSCQ/oPcITNh6DtEDm5Mr/DpbgwrsDe8A3Vo0JQot/cuxDnVwJ6MIYADFOig9Aq
-         xt6hnnucC1kJVZpl7n7GqLBnFfhymOeWIUp+ApzWYNs0sqVarGSIZ/fw/Nb3LhVBOYeF
-         y/MQ==
+        Thu, 13 Feb 2020 17:53:23 -0500
+Received: by mail-oi1-f194.google.com with SMTP id l136so7579335oig.1;
+        Thu, 13 Feb 2020 14:53:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=z0gjJEmRAwNymPwA00fmzFhjNC7Qe4kL5vReX8cevnI=;
-        b=OCzjDebLLxJ9pkcP0R0JA4spn4rxFOJFJarWfEIuklSb/mBVgF+vjqNJCrxXQF1E/V
-         wckgtXM1F1Vw2FzI9agC0cTjgKRxTkEmqLHtUhwFxuj7hts0LB97yuSrgOvBcRwaM3Xt
-         l/7ssoAOmVQzl8eH4IimUvVL7TrvOI6albGjNBraTGXTXCO0JbNuSSkj6XTKeKsBMpiK
-         /RhcgjBTrZe6/WUbJFoniALC49JhlzL1tTHt6dWMgcp002tuz4RyOk1Qo0dmIEM1AdKT
-         fpX56BwNjZvnzWl7VRAQweih1HlKR2tI+L8yrO/aaf3wHqm3vWCNFWo1UCqYfMZ9tz8p
-         83CA==
-X-Gm-Message-State: APjAAAV1qtKY/YuoemWpdf9Y4DoH1p4l1i9wEOeWV/h99VGljFEq2S+J
-        QCDGfA8HOT8fOm18lMq1PmszwWYnlus=
-X-Google-Smtp-Source: APXvYqzqyPeBFBhVewwKaBK9XjxIwvnsPNpsAByNUUEuukhTDypWS6UDuisfdJZDF6q4I4Mj1hC2NA==
-X-Received: by 2002:a1c:a5c7:: with SMTP id o190mr7779715wme.183.1581625434916;
-        Thu, 13 Feb 2020 12:23:54 -0800 (PST)
-Received: from [10.83.36.153] ([217.173.96.166])
-        by smtp.gmail.com with ESMTPSA id o15sm4276160wra.83.2020.02.13.12.23.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Feb 2020 12:23:54 -0800 (PST)
-Subject: Re: [PATCH 1/2] watchdog: Check WDOG_STOP_ON_REBOOT in reboot
- notifier
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org
-References: <20200213175958.105914-1-dima@arista.com>
- <20200213175958.105914-2-dima@arista.com>
- <20200213191230.GA17448@roeck-us.net>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <3de88f30-e601-77b3-d477-ca9ce461c920@arista.com>
-Date:   Thu, 13 Feb 2020 20:23:53 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h0MsZNA+zikNEsKgKngpsTvd+TUGMDouBdzTw78J+Ps=;
+        b=LDJH2B/2l/pvKRNaijjnjeaGjiszzm1qrMdoHZgqrVzpJiszDdz5PpCWkP4rFMWz65
+         GoPc7n8csaF7zddo42V+V2XYe/dUNCsWfiOxCqQDEKFtfHZy593eBMFy4mXUtvvSi0JF
+         uE/soTs0+qBbYXVpwE9z6CluE2acojIiqr/gn6YzkbdFhrx9a54E0NFD+7KtyzygjoKG
+         XRVXqPQ7WrPEmHHHA0z2LiydoAeMePFoJGYh8dcl2AnVVHU19fJ99qjD3539rh3Mj3/F
+         M3Seuer7qltZ4znXt56mGfsOGvVcXOEPBs7SkKu3w+2oRPxCKsSH0eGPDFZQnx2E0NVt
+         wn3A==
+X-Gm-Message-State: APjAAAWsNJEq/W3xuDgh5cg6asO2P0snD/+ziVrWHiICHPQSIQ/JkOFD
+        RiFV1JniDparKfbrm60JlWBThDucLjM3kePkwRE=
+X-Google-Smtp-Source: APXvYqxYRSRulfdfNW1Rxg1ou2/PjO+bhQGRe2/rkk5+xF+UmxvY8pM5qcKxGil9CTur1Gj2cZQURU3q1Ty7LiP0SfY=
+X-Received: by 2002:a54:4e96:: with SMTP id c22mr4736182oiy.110.1581634402980;
+ Thu, 13 Feb 2020 14:53:22 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200213191230.GA17448@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200212145941.32914-1-mika.westerberg@linux.intel.com>
+In-Reply-To: <20200212145941.32914-1-mika.westerberg@linux.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 13 Feb 2020 23:53:12 +0100
+Message-ID: <CAJZ5v0hXQBoo4R-jsf+kY9s+fYj3q==ff2hbiWxx9ECYmXW6MQ@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] ACPI / watchdog: Fix two reported issues
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     Jean Delvare <jdelvare@suse.de>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        Robert Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Tom Abraham <tabraham@suse.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On Wed, Feb 12, 2020 at 3:59 PM Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+>
+> Hi,
+>
+> This is an updated version of the patch series posted here:
+>
+>   https://lore.kernel.org/linux-watchdog/20200212110540.83559-1-mika.westerberg@linux.intel.com/
+>
+> This should fix the two issues reported by Jean Delvare. I also addressed
+> all the review comments and fixed the bugs in the previous version.
+>
+> This time I actually tested these on Intel Joule board and the watchdog
+> still works as expected.
+>
+> I'm now including ACPICA maintainers as well to get some feedback regarding
+> the first patch of the series.
+>
+> Mika Westerberg (3):
+>   ACPICA: Introduce ACPI_ACCESS_BYTE_WIDTH() macro
+>   ACPI / watchdog: Fix gas->access_width usage
+>   ACPI / watchdog: Set default timeout in probe
 
-On 2/13/20 7:12 PM, Guenter Roeck wrote:
-> Does that really have to be decided at runtime, by the user ?
-> How about doing it with a module parameter ?
-> 
-> Also, I am not sure if an ioctl is the best means to do this, if it indeed
-> makes sense to decide it at runtime. ioctl implies an open watchdog device,
-> which interferes with the watchdog daemon. This means that the watchdog
-> daemon would have to be modified to support this, making this a quite expensive
-> change. It also implies that the action would have to be known when the
-> watchdog daemon is started, suggesting that a module parameter should be
-> sufficient.
-
-Yes, fair points. I went with ioctl() because the timeout can be changed
-in runtime. But you're right, I'll look into making it a module
-parameter instead.
-
-Thanks for the review and time,
-          Dmitry
+Applied as fixes for 5.6, thanks!
