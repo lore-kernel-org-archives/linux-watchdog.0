@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B1CAC3B1B7
-	for <linux-watchdog@archiver.kernel.org>; Fri, 14 Feb 2020 18:16:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 873C1C3B1B5
+	for <linux-watchdog@archiver.kernel.org>; Fri, 14 Feb 2020 18:17:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4009E24654
-	for <linux-watchdog@archiver.kernel.org>; Fri, 14 Feb 2020 18:16:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A9B1222C2
+	for <linux-watchdog@archiver.kernel.org>; Fri, 14 Feb 2020 18:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581704216;
-	bh=UqdYGeT1iRgYAILlaBy3iyBXTZws2wXAzGt+0B3DafM=;
+	s=default; t=1581704221;
+	bh=HnWhr6/KKXYznfesNXl5gOHM6wIdNTDv3KbNna8Ndxc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=B+YQw4ZAzPrLzBQqccS/CfN7vWYY5wSpxfreAGQQdziPCIp4LgUR7dfCtFWRl9Qyg
-	 LKa3fcU5MlDey01xxwb2uEckJAnyOlF9MFvzbsjF1abzZ4ITlv0F0BU1qqyw6u35rw
-	 QHLELpRbVfntcstW94hdgdxVwefjnhrd3ZZO1nO8=
+	b=KZMSgKq+VhyK4y8ic/HRWDWFbi72ecSnbVAAHfcT3nUVX62K9mNQGg4cLE1AzFgAK
+	 tUSPsZwj7FV3mZukX21ohWqr4nKYrJb/Ji1Kxl+fhd19Ts7Klec3FVUz6kDL8ctwIU
+	 nndMy4ogBRomrCwlCnzVEnnx8KiOLkwbQzEcSyh0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404539AbgBNSQv (ORCPT
+        id S2388053AbgBNSQ5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 14 Feb 2020 13:16:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        Fri, 14 Feb 2020 13:16:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbgBNPvX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:23 -0500
+        id S1730746AbgBNPvW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A06D24673;
-        Fri, 14 Feb 2020 15:51:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6FDA2465D;
+        Fri, 14 Feb 2020 15:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695483;
-        bh=UqdYGeT1iRgYAILlaBy3iyBXTZws2wXAzGt+0B3DafM=;
+        s=default; t=1581695481;
+        bh=HnWhr6/KKXYznfesNXl5gOHM6wIdNTDv3KbNna8Ndxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK2v0iVjRKgKYUH0TNOQw2vmc9MoNcNc5xiAx/Bv8Et0Mum5RCmViYpwjtAHr4N4j
-         C7wmsjwaVX/rP8Z65vz4gh/SKzxWSi1rYAOtYhDpR/I++pWJp2KUs0ZTu4gaU5fb8d
-         7gnL2Ed/RFz2XJJN2wJxPNnXnshl2BKWV/INaARk=
+        b=osyLz0MlWwJLVhCxGdxUX8/BI+wT+TSk5+VkHYdIgzzwYbaPNCQYYXPHO3PK+TeEa
+         Txp171XWkslZ9ZK3ocpiSQBdftjWDCA0Dyn2gDXhe9vabf+ZJHFsdruboT0QkwAezQ
+         KvgLkQTyDKtJ6yplQuVa4PotWSws6/fLXkOfXrwk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Christophe Roullier <christophe.roullier@st.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Stephen Boyd <swboyd@chromium.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 114/542] watchdog: qcom: Use platform_get_irq_optional() for bark irq
-Date:   Fri, 14 Feb 2020 10:41:46 -0500
-Message-Id: <20200214154854.6746-114-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 113/542] drivers: watchdog: stm32_iwdg: set WDOG_HW_RUNNING at probe
+Date:   Fri, 14 Feb 2020 10:41:45 -0500
+Message-Id: <20200214154854.6746-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -63,45 +63,57 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Christophe Roullier <christophe.roullier@st.com>
 
-[ Upstream commit e0b4f4e0cf7fa9d62628d4249c765ec18dffd143 ]
+[ Upstream commit 85fdc63fe256b595f923a69848cd99972ff446d8 ]
 
-platform_get_irq() prints an error message when the interrupt
-is not available. So on platforms where bark interrupt is
-not specified, following error message is observed on SDM845.
+If the watchdog hardware is already enabled during the boot process,
+when the Linux watchdog driver loads, it should start/reset the watchdog
+and tell the watchdog framework. As a result, ping can be generated from
+the watchdog framework (if CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set),
+until the userspace watchdog daemon takes over control
 
-[    2.975888] qcom_wdt 17980000.watchdog: IRQ index 0 not found
+Fixes:4332d113c66a ("watchdog: Add STM32 IWDG driver")
 
-This is also seen on SC7180, SM8150 SoCs as well.
-Fix this by using platform_get_irq_optional() instead.
-
-Fixes: 36375491a4395654 ("watchdog: qcom: support pre-timeout when the bark irq is available")
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Christophe Roullier <christophe.roullier@st.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20191213064934.4112-1-saiprakash.ranjan@codeaurora.org
+Link: https://lore.kernel.org/r/20191122132246.8473-1-christophe.roullier@st.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/qcom-wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/stm32_iwdg.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index a494543d3ae1b..eb47fe5ed2805 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -246,7 +246,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index a3a329011a06b..25188d6bbe152 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -262,6 +262,24 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+ 	watchdog_init_timeout(wdd, 0, dev);
  
- 	/* check if there is pretimeout support */
--	irq = platform_get_irq(pdev, 0);
-+	irq = platform_get_irq_optional(pdev, 0);
- 	if (irq > 0) {
- 		ret = devm_request_irq(dev, irq, qcom_wdt_isr,
- 				       IRQF_TRIGGER_RISING,
++	/*
++	 * In case of CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set
++	 * (Means U-Boot/bootloaders leaves the watchdog running)
++	 * When we get here we should make a decision to prevent
++	 * any side effects before user space daemon will take care of it.
++	 * The best option, taking into consideration that there is no
++	 * way to read values back from hardware, is to enforce watchdog
++	 * being run with deterministic values.
++	 */
++	if (IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) {
++		ret = stm32_iwdg_start(wdd);
++		if (ret)
++			return ret;
++
++		/* Make sure the watchdog is serviced */
++		set_bit(WDOG_HW_RUNNING, &wdd->status);
++	}
++
+ 	ret = devm_watchdog_register_device(dev, wdd);
+ 	if (ret)
+ 		return ret;
 -- 
 2.20.1
 
