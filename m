@@ -2,85 +2,70 @@ Return-Path: <SRS0=9QG9=4I=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF298C5ACC4
-	for <linux-watchdog@archiver.kernel.org>; Thu, 20 Feb 2020 01:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54BF2C11D81
+	for <linux-watchdog@archiver.kernel.org>; Thu, 20 Feb 2020 05:31:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97DD324670
-	for <linux-watchdog@archiver.kernel.org>; Thu, 20 Feb 2020 01:28:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FA8A2465D
+	for <linux-watchdog@archiver.kernel.org>; Thu, 20 Feb 2020 05:31:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z3yTuDo9"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="VQcdePU2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbgBTB2d (ORCPT
+        id S1726165AbgBTFb2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 19 Feb 2020 20:28:33 -0500
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:52137 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727224AbgBTB2d (ORCPT
+        Thu, 20 Feb 2020 00:31:28 -0500
+Received: from mail27.static.mailgun.info ([104.130.122.27]:63136 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726032AbgBTFb2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Feb 2020 20:28:33 -0500
-Received: by mail-pj1-f65.google.com with SMTP id fa20so169928pjb.1;
-        Wed, 19 Feb 2020 17:28:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KQJr9FsdBlQhWcMpCvEb58Famu41gPCGLlDefm3Amvg=;
-        b=Z3yTuDo98QkJ5PT27E90wftyVJkraCPzOzHZ+IpTAIsv9MLZ7wBb5r31AvvfLMCBD6
-         ODLquRyu62e6Bk2NACxnxSfqrfLHiWqrmp+vQih0ovt1gfMRcbPcTXux3UU3xx/1g9W2
-         pVGVUvgU7vMEAJZeZpt/jWi0ZjcGzcgmdf4f60FvyWLxeD/VOBog8sSc2psASg3FYEWi
-         1ALF04+WEJwYxIpO3SAw//vIOjw5dtThEts7SmRF8Ja8K8p8tINOvSxOwTho4no0ZAze
-         /gU8avnv7EkIqGWRXlRRaE4DUzHaNnlh3F4/waNb4O3Y49xWQK+lwbY3oTeJtiU+KiqO
-         1BXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KQJr9FsdBlQhWcMpCvEb58Famu41gPCGLlDefm3Amvg=;
-        b=dMMfqBh5u32CBKyzpnuQgal26NzUldlVikqiBY6+u/F9wEolzYCB8NS0bUZ/Ci0Mu6
-         5C0d8twenRqEBFOmbApXrcyRjNQTubeTExf8VHeDV+u7+JczStiCDi1d+ND+x2ARgt/o
-         gXOKURojROr8rkCIKVEfeIGWsvKKIIMrnWwhGd+/uCacUhIrmyoSYKMQQy92Toikqc59
-         5kjL5kxI7OGgMqosgHq6h2KtY8Q9g5euNBsVw+CfwKM8u9Ttcuyen1KoFVX+Rxpy1YbG
-         LXYWUlBlhfLqjJV6neD8fNtP6xTI/oFanyzASMAltPsaf/Gs5EfU+6EkuEkF4KsxM+D4
-         HidQ==
-X-Gm-Message-State: APjAAAXckdD5ifK2ZQf8eUFT70ETTMnUeKP1acuco3cjseRg3MUQt/60
-        3d3wwTn/7IBYkzrEQD8o5n4=
-X-Google-Smtp-Source: APXvYqzzuo+e09JvR8rGinhnuQoinMX49bI1tdyUvp9y9WFfHp1ffXwDGph3vRBMhj6f7Ale6vngmg==
-X-Received: by 2002:a17:902:a608:: with SMTP id u8mr27583841plq.76.1582162112840;
-        Wed, 19 Feb 2020 17:28:32 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c3sm847251pfj.159.2020.02.19.17.28.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Feb 2020 17:28:32 -0800 (PST)
-Subject: Re: [PATCH] watchdog: qcom: Use irq flags from firmware
-To:     Stephen Boyd <swboyd@chromium.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-References: <20200220002047.115000-1-swboyd@chromium.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a0756043-04b4-800d-52cc-0b53381f66e6@roeck-us.net>
-Date:   Wed, 19 Feb 2020 17:28:30 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        Thu, 20 Feb 2020 00:31:28 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1582176687; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=1IQ7rTO8MrCC26jln2QV3jowt/CvD+kTkMdX2ajR2JI=;
+ b=VQcdePU2mRMEz/HdIJpWEeDSXflUTdhb8rT1U1e+qA+dNootHMbb+CbZJaV3R+FF93PF3N9g
+ NDByLPbsGYucFTIw8iiE8MWGsi5Ij3yYgxAfeF3R1eVolZ9Afytjd5YvdlA8gV083V7O6v7K
+ oJnNShOL6xZc4NKR1ePps2a/Mbg=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyJmNTk5OSIsICJsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmciLCAiYmU5ZTRhIl0=
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e4e19a8.7fde26b66570-smtp-out-n02;
+ Thu, 20 Feb 2020 05:31:20 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 642A8C447A0; Thu, 20 Feb 2020 05:31:19 +0000 (UTC)
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: saiprakash.ranjan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id D25D3C43383;
+        Thu, 20 Feb 2020 05:31:18 +0000 (UTC)
 MIME-Version: 1.0
-In-Reply-To: <20200220002047.115000-1-swboyd@chromium.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+Date:   Thu, 20 Feb 2020 11:01:18 +0530
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH] watchdog: qcom: Use irq flags from firmware
+In-Reply-To: <20200220002047.115000-1-swboyd@chromium.org>
+References: <20200220002047.115000-1-swboyd@chromium.org>
+Message-ID: <c454ec5812217f41d56984ce68b643da@codeaurora.org>
+X-Sender: saiprakash.ranjan@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/19/20 4:20 PM, Stephen Boyd wrote:
+On 2020-02-20 05:50, Stephen Boyd wrote:
 > The DT or ACPI tables should tell the driver what the irq flags are.
 > Given that this driver probes only on DT based platforms and those DT
 > platforms specify the irq flags we can safely drop the forced irq flag
@@ -91,25 +76,11 @@ On 2/19/20 4:20 PM, Stephen Boyd wrote:
 > Cc: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 > Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Thanks,
 
-> ---
->   drivers/watchdog/qcom-wdt.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index eb47fe5ed280..c70e89013101 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -248,8 +248,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
->   	/* check if there is pretimeout support */
->   	irq = platform_get_irq_optional(pdev, 0);
->   	if (irq > 0) {
-> -		ret = devm_request_irq(dev, irq, qcom_wdt_isr,
-> -				       IRQF_TRIGGER_RISING,
-> +		ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
->   				       "wdt_bark", &wdt->wdd);
->   		if (ret)
->   			return ret;
-> 
+Reviewed-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
+member
+of Code Aurora Forum, hosted by The Linux Foundation
