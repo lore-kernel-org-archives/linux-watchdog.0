@@ -2,110 +2,115 @@ Return-Path: <SRS0=X+EI=4Q=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C77F8C3F2CD
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Feb 2020 14:24:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E9C9C3F2CD
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Feb 2020 17:03:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9D27D2469F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Feb 2020 14:24:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="zPcTgXaR"
+	by mail.kernel.org (Postfix) with ESMTP id 5009224697
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Feb 2020 17:03:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727116AbgB1OYR (ORCPT
+        id S1726621AbgB1RDp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 Feb 2020 09:24:17 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:47642 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726875AbgB1OYQ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Feb 2020 09:24:16 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 01SENwnb053696;
-        Fri, 28 Feb 2020 08:23:58 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1582899838;
-        bh=gFf3iMUyi6ZJJ+RWZCMBD5YGM1y98+HWlMtKDjZYE1Q=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=zPcTgXaRJ4JSp2y+F2uLiZGqv66FBx3oqcAII53m4HNVo+ldnrWpdRD7ilZSxNzPE
-         XMhIk/xBP0wf1mqMtHfRsl0PJ+O+n2uBoR4SDYtcdfMXowWO3QNWuEmRIF1AsmWsSl
-         2X4RBKbvlN8ShzaDTjpefWZ021tSta/6y5XdPR7c=
-Received: from DLEE105.ent.ti.com (dlee105.ent.ti.com [157.170.170.35])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01SENv7G086299;
-        Fri, 28 Feb 2020 08:23:57 -0600
-Received: from DLEE114.ent.ti.com (157.170.170.25) by DLEE105.ent.ti.com
- (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Fri, 28
- Feb 2020 08:23:46 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE114.ent.ti.com
- (157.170.170.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Fri, 28 Feb 2020 08:23:46 -0600
-Received: from sokoban.bb.dnainternet.fi (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01SENf40049600;
-        Fri, 28 Feb 2020 08:23:45 -0600
-From:   Tero Kristo <t-kristo@ti.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>
-CC:     <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/4] watchdog: add support for resetting keepalive timers at start
-Date:   Fri, 28 Feb 2020 16:23:29 +0200
-Message-ID: <20200228142331.13716-3-t-kristo@ti.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200228142331.13716-1-t-kristo@ti.com>
-References: <20200228142331.13716-1-t-kristo@ti.com>
+        Fri, 28 Feb 2020 12:03:45 -0500
+Received: from sauhun.de ([88.99.104.3]:59882 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725876AbgB1RDp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 28 Feb 2020 12:03:45 -0500
+Received: from localhost (p54B3301B.dip0.t-ipconnect.de [84.179.48.27])
+        by pokefinder.org (Postfix) with ESMTPSA id D2A142C1E8B;
+        Fri, 28 Feb 2020 18:03:42 +0100 (CET)
+Date:   Fri, 28 Feb 2020 18:03:42 +0100
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Jean Delvare <jdelvare@suse.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Martin Volf <martin.volf.42@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] i2c: i801: Fix iTCO_wdt resource creation if PMC
+ is not present
+Message-ID: <20200228170342.GC1130@ninjato>
+References: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Content-Disposition: inline
+In-Reply-To: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Current watchdog core pets the timer always after the initial keepalive
-time has expired from boot-up. This is incorrect for certain timers that
-don't like to be petted immediately when they are started, if they have
-not been running over the boot.
 
-To allow drivers to reset their keepalive timers during startup, add
-a new watchdog flag to the api, WDOG_RESET_KEEPALIVE.
+--da4uJneut+ArUgXk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
----
- drivers/watchdog/watchdog_dev.c | 2 ++
- include/linux/watchdog.h        | 1 +
- 2 files changed, 3 insertions(+)
+On Wed, Feb 26, 2020 at 04:21:19PM +0300, Mika Westerberg wrote:
+> Hi all,
+>=20
+> This series aims to fix the issue reported by Martin Volf [1] that preven=
+ts
+> the nct6775 driver from loading.
+>=20
+> I added Fixes tag to the last patch but not stable tag because the other
+> two patches it depends are not really stable material IMO. Please let me
+> know if there is a better way to organize these :)
+>=20
+> I tested this on Intel Whiskey Lake based system (CNL derived) and on Com=
+et
+> Lake-V based system (SPT derived and the iTCO_wdt still works and I can s=
+ee
+> the expected resources in /proc/ioports and /proc/iomem.
+>=20
+> The previous version of the patch series can be found here:
+>=20
+>   https://lore.kernel.org/linux-hwmon/20200225123802.88984-1-mika.westerb=
+erg@linux.intel.com/
+>=20
+> Changes from the previous version:
+>=20
+>   * Call request_region() also for iTCO_vendorsupport
+>   * Drop the core populating ICH_RES_IO_SMI completely from i2c-i801.c
+>=20
+> [1] https://lore.kernel.org/linux-hwmon/CAM1AHpQ4196tyD=3DHhBu-2donSsuoga=
+bkfP03v1YF26Q7_BgvgA@mail.gmail.com/
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 8b5c742f24e8..131e40c21703 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -283,6 +283,8 @@ static int watchdog_start(struct watchdog_device *wdd)
- 		set_bit(WDOG_ACTIVE, &wdd->status);
- 		wd_data->last_keepalive = started_at;
- 		watchdog_update_worker(wdd);
-+		if (test_bit(WDOG_RESET_KEEPALIVE, &wdd->status))
-+			wd_data->last_hw_keepalive = started_at;
- 	}
- 
- 	return err;
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 417d9f37077a..b56e3f1b1ec3 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -116,6 +116,7 @@ struct watchdog_device {
- #define WDOG_STOP_ON_REBOOT	2	/* Should be stopped on reboot */
- #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
- #define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
-+#define WDOG_RESET_KEEPALIVE	5	/* Reset keepalive timers at start */
- 	struct list_head deferred;
- };
- 
--- 
-2.17.1
+I can take this series via I2C. Just wanted to let you know that I am
+aiming for rc5, because I'd like to have this in linux-next for a week
+to make sure we don't regress again (despite all precautions) somewhere
+else.
 
---
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki. Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+Thanks to everyone to get this regression handled in such a concentrated
+manner!
+
+
+--da4uJneut+ArUgXk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5ZR+4ACgkQFA3kzBSg
+Kbb29A//YUY3JKyYa6plCWxNQj6H12cc6EdXrS4lOnESwx89pq9ITm98Juu/VPqe
+41Y0idzm2RNeq9ez7J6lxzGfYul5TkAxex+FGirUlp5GwrtrpRq2WFptcCR66Vx3
+Tx4hw4bnValX5pWvQegGpvCX0kvFvMu4/Lv47C8nCWEljm0L0j144MTgXfgzCRKb
+1iElopnX9Y7c0p5SaJUmM13WjHi9Y4TloOjmeIcGjOpEcQ0YzdsPeFfuGpn17FhX
+Ninbdux+DM94gWEuK6e3Xc3HAyz3zQDN9b1MR0A/0UqjoeEUspa2yvSOEOcNcDDH
+KyD7No8DbVNc6n8dLmncQqf+jZ4yN2hPMy/6YaJGhjk40hJI8M1cYC3jVqj8bnYA
+ItjrjV7QANSUwP+Kne2qCf5rQ10P18SJXaDd8s8cWXBmOh1Y6U9XsaDRrbfuXBO1
+t0Lr6ssJZ3/RCu+X8wVMAIqgBQkhV57T0HItN8xeNhS8HpSopXank5tKVhQaUx7N
+vy4E8AoTO/T/mkNdjiUFfhDCxRqUElM5V5gtYJEl+B5Bx//2f1doGMBa0A+UIOk4
+oMsevqtEXyPacx7U7gaXbverDoLwppf2zNclJ9aSopCDoyHUBTjbvIw2aHQA3oyz
+uvhVF1Re0owL3aqfAuXbPQtUdLMdJRELXEIa0dcwOi89leiCdmc=
+=71Zy
+-----END PGP SIGNATURE-----
+
+--da4uJneut+ArUgXk--
