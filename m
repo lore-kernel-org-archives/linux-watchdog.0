@@ -2,64 +2,63 @@ Return-Path: <SRS0=wJ0A=4S=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A65B6C3F2CD
-	for <linux-watchdog@archiver.kernel.org>; Sun,  1 Mar 2020 15:46:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB91C3F2CD
+	for <linux-watchdog@archiver.kernel.org>; Sun,  1 Mar 2020 16:10:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 649A621D56
-	for <linux-watchdog@archiver.kernel.org>; Sun,  1 Mar 2020 15:46:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBDCC2468D
+	for <linux-watchdog@archiver.kernel.org>; Sun,  1 Mar 2020 16:10:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lqkVpCAy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s/LjHIap"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726094AbgCAPqt (ORCPT
+        id S1726579AbgCAQKt (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 1 Mar 2020 10:46:49 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:34820 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725945AbgCAPqs (ORCPT
+        Sun, 1 Mar 2020 11:10:49 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:43630 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726561AbgCAQKs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 1 Mar 2020 10:46:48 -0500
-Received: by mail-pj1-f66.google.com with SMTP id s8so1534839pjq.0;
-        Sun, 01 Mar 2020 07:46:47 -0800 (PST)
+        Sun, 1 Mar 2020 11:10:48 -0500
+Received: by mail-pl1-f194.google.com with SMTP id p11so3181416plq.10;
+        Sun, 01 Mar 2020 08:10:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=rnDdU1t+i3pbiA7G2lqfJJVJbNAuzNGmpXr7ztBKXlQ=;
-        b=lqkVpCAyg/jzYuiab/XMJeOi14yP/WQW36so+Rpz4P+A2QT9dG+Gsovj2cLgPUuB5i
-         by7TXuO4DKZX1Awk+/cggTU47fBFKfiOzwleppi257Rs5lys3p8lFNo8fMkg8CcMijec
-         c6HfCzQ/XvOJGrWbUve4M2H+1fmt7oejJBdvxMFa6chVj2uQuLKVX2FvSx0ZqDIiqqrz
-         n3/2XA5vo6xHaIa9X3tVjXM6J4EAhsE74HdpGutaLvX8HxyezcfQSNICWl0rQlkgoU7D
-         kpMH6qLyK38OwN87jwurNAR2PQERoL8mfZtR9cvVE+Obw9raidvCeEJ7JlzTbJ3Wf8+Y
-         mu/A==
+        bh=bMLGGlLxbtGLfHweAPeUm/il22po9rJeFTwsg4VAzRg=;
+        b=s/LjHIapw57aPnFnAe+O8GoGOw3PvJqyTnCUAWDr6n4eiB8u5/tO1zMOHiGVyXjRZi
+         SpKaftcG8IjIFLs7Q3wOuQhPWHKsfbZRkmBkGhcd/U9C/QLABXJrUpUMstctOwqUqdvH
+         DB4UN1FLU2iTpKnKlqDvaHZ48r1Kyo/P3jvHz/gPkCaK/a1U288h6X0qdKw/XrBgDOk4
+         KUDtuBdpSr24ZuDdSWcN3ur1OxCs7PD6X2MLcpe21MCLCNv606osi6O698uqOmTX8p2b
+         ZG18TypSvljNczSofsmyDaVy1EYI4Lv7HetoUvzVEwzb9K6vK5CNZBUf+g0SiXgWsqBx
+         Y+jQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=rnDdU1t+i3pbiA7G2lqfJJVJbNAuzNGmpXr7ztBKXlQ=;
-        b=KmholEemImq/byhidaC5xD4299CIGbm4weJQwiKzmkVMZBkdxO2jqVIFlfrooFcjZf
-         IIFk+nS2HsQ/aMugUOv92kXGQ7FZnKEU7wFBjLn+u+FZVJkWyjrmV1DS5WJO1yX7lhED
-         IN3WB+UmjAPK7EzAjaKXMH3JEGMPqXm/Z6hviHSzZgUuKogM7KEqqRkghMwG3223APBU
-         /0trV6xCN7QfzwmqmPu9sWYXbEQfLBuNguht+OCmJYZGrUd9ka12bvSu7um8NjVibLzx
-         JCuSrk6dH2QrGNuafc/5Dli2ZFpFEwGLbI0QntXmSPbJKE6PB//9t39jGWJxbdNvyBzk
-         4aLQ==
-X-Gm-Message-State: ANhLgQ2yv/S2yppmHViDvY/rosJZFqQLxk0iY+IDrOhbuiP/Aj0DXXPg
-        XBCVMySBpvFf8ms3UpjUBkI=
-X-Google-Smtp-Source: ADFU+vsUUhq/wcS9dgZmaWvfisSda1ebn8/l6WK2I11wpblr8HoeUCOxeXQpV6Wj7gE0P8lg42PLDQ==
-X-Received: by 2002:a17:902:b904:: with SMTP id bf4mr4278476plb.151.1583077607229;
-        Sun, 01 Mar 2020 07:46:47 -0800 (PST)
+        bh=bMLGGlLxbtGLfHweAPeUm/il22po9rJeFTwsg4VAzRg=;
+        b=Wj8TQTV6kLmzzf4i+BzWZPha4WMYSuVOdZr2jA70cHLoigffrPnhMJWTinXc10fDNL
+         0XRzIV1C20M3stld4cR7TmZtF2WF5LBL+8Tx7QKgO7eJzfTsd8uCOAvroMkqb3PvgIJM
+         Qvl7RHacXyA7ElIn0k4KKjqfE5q/XvClBC0NyABEdbbKaYelb7+ueik9BRerQR38Eepk
+         5IwjDWuuAKldZsnS/uLzlzuSttXvE1j98UtHNbn4xIlThIXKKkMRM/HD3RpRLnaFsWBt
+         2zuxMyM9GkwBiwxp9gDEKzCcinWjUS0LbTGn/xlv7/P+mHiG85lyIpFb2CaJpM++FYkF
+         kCdg==
+X-Gm-Message-State: APjAAAWd8wBB2Dv0qq9XNBdFNa1UMVfaDbigL9k3/aa9adC3r/RykUug
+        q8kuxMHJDkqzZUVs9Q7F2gxyExft
+X-Google-Smtp-Source: APXvYqwAxMFAZB8IXTlP8S5DN+I7djzpBt11DytFo2LxcqFCce6k2vQrPeE8OJ3zN8RsB0osoeqmIQ==
+X-Received: by 2002:a17:90a:cb11:: with SMTP id z17mr16234153pjt.122.1583079047338;
+        Sun, 01 Mar 2020 08:10:47 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c184sm17790346pfa.39.2020.03.01.07.46.45
+        by smtp.gmail.com with ESMTPSA id h132sm13752512pfe.118.2020.03.01.08.10.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Mar 2020 07:46:46 -0800 (PST)
-Subject: Re: [PATCH v1 1/4] dt-binding: watchdog: add restart priority
- documentation
+        Sun, 01 Mar 2020 08:10:46 -0800 (PST)
+Subject: Re: [PATCH v1 4/4] watchdog: npcm: sets card ext1 and ext2 bootstatus
+ during probe
 To:     Tomer Maimon <tmaimon77@gmail.com>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -74,9 +73,9 @@ Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         OpenBMC Maillist <openbmc@lists.ozlabs.org>
 References: <20200301094040.123189-1-tmaimon77@gmail.com>
- <20200301094040.123189-2-tmaimon77@gmail.com>
- <6ecf9a6b-8fca-1e7a-10d0-ee518e6ecf64@roeck-us.net>
- <CAP6Zq1gYvoGwNwr2zCopQ5CcyVUjgdYK6yX1wVMmWh5gapp+zQ@mail.gmail.com>
+ <20200301094040.123189-5-tmaimon77@gmail.com>
+ <026fa94c-8fde-acda-e218-ffff9b5891c9@roeck-us.net>
+ <CAP6Zq1hPsnJ1UxAQ-wK_pkaJqzWRQ-_g5-k0Kag2YoP+c2fPjQ@mail.gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -121,12 +120,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <e009d5e5-03a1-301c-0a65-c7f59c1be9fa@roeck-us.net>
-Date:   Sun, 1 Mar 2020 07:46:44 -0800
+Message-ID: <998cedf4-82cb-be1b-699f-608ea7a21064@roeck-us.net>
+Date:   Sun, 1 Mar 2020 08:10:44 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <CAP6Zq1gYvoGwNwr2zCopQ5CcyVUjgdYK6yX1wVMmWh5gapp+zQ@mail.gmail.com>
+In-Reply-To: <CAP6Zq1hPsnJ1UxAQ-wK_pkaJqzWRQ-_g5-k0Kag2YoP+c2fPjQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -135,45 +134,58 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 3/1/20 7:36 AM, Tomer Maimon wrote:
+On 3/1/20 8:08 AM, Tomer Maimon wrote:
+> Sorry Guenter probebly I didnt explain it well.
 > 
 > 
-> On Sun, 1 Mar 2020 at 12:06, Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>> wrote:
+> On Sun, 1 Mar 2020 at 12:48, Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>> wrote:
 > 
 >     On 3/1/20 1:40 AM, Tomer Maimon wrote:
->     > Add device tree restart priority documentation.
+>     > During probe NPCM watchdog sets the following bootstatus flags:
+>     >       - WDIOF_CARDRESET represent power and core reset.
+>     >       - WDIOF_EXTERN1 represent watchdog 0-2 reset.
+>     >       - WDIOF_EXTERN2 represent software 1-4 reset.
+>     >
+>     > Each flag is representing a group of bootstatus.
+>     > The user can configure through the device treethe exact reset
+>     > to each flag group.
 >     >
 > 
->     I think this warrants an explanation _why_ this is needed.
->     What is the use case ? Not just theory, please.
+>     Sorry, this doesn't make sense to me. I could understand reporting
+>     the above, but it looks to me like devicetree is used to associate
+>     a reset bit from the controller with one of the above.
+>     Devicetree only seems to be used to associate reset status bits
+>     from the controller with WDIOF_CARDRESET, WDIOF_EXTERN1, or
+>     WDIOF_EXTERN2. That adds a lot of complexity for little if any
+>     gain. 
+> 
+>      
+> 
+>     It would make sense to set the bootstatus bits as suggested above,
+>     but that doesn't require devicetree properties.
+> 
+>     More comments inline.
+> 
+>     Guenter 
+> 
+>  
+> 
+> In the NPCM750 we have the following reset types:
+> 
+>  1. board reset (Power on reset, Core reset)
+>  2. WD reset (0-2 WD reset).
+>  3. SW reset (1-4 SW reset).
 > 
 > 
-> In the NPCM750 there is two initiated restarts:
+> Each board can use different reset types, because in the WD status bit there is not enough bits to represent the entire NPCM750 resets.
 > 
->   * Software reset
->   * WD reset
+> The NPCM750 reset groups are represent as follow:
 > 
-> the Software restart found at NPCM reset driver
-> https://github.com/torvalds/linux/blob/master/drivers/reset/reset-npcm.c
+>  - WDIOF_CARDRESET represent power and core reset.
+>  - WDIOF_EXTERN1 represent watchdog 0-2 reset.
+>  - WDIOF_EXTERN2 represent software 1-4 reset.
 > 
-> In NPCM WD driver the restart is configure as well, I will like to add the priority so the user will have maximum flexibility if he using both restarts
-> 
-
-This is not the intended use case for restart priority. It is not
-intended to be user configurable. The idea is that the more thorough
-restart gets higher priority. This is implied by the restart method,
-not by user preferences.
-
-Also, the idea behind supporting multiple means to reset the system
-is to be able to support multiple means to restart, some of which
-may not always be available. In that situation, the priority means,
-and is supposed to mean, "pick the best restart method available".
-Again, that is determined by system design, and not supposed to
-be configurable by the user.
-
-On top of that, a watchdog driver based reset is almost always
-a reset of last resort, to be chosen only if nothing else is available
-in a given system. The existence of the reset driver confirms that
-this is not different for this driver/chip.
+Exactly, and I don't see a need to be more specific than that.
+This can be implemented without all the DT complexity.
 
 Guenter
