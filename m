@@ -7,54 +7,54 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B73C3F2D1
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Mar 2020 20:05:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D050C3F2D7
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Mar 2020 20:05:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5504A21556
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Mar 2020 20:05:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46C8321D56
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Mar 2020 20:05:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="ZLX1keKi"
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="GjtcVwkV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726969AbgCBUE6 (ORCPT
+        id S1726958AbgCBUE6 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Mon, 2 Mar 2020 15:04:58 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:58052 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726951AbgCBUE5 (ORCPT
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:39396 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725781AbgCBUE5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 2 Mar 2020 15:04:57 -0500
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 022K4ckN059606;
-        Mon, 2 Mar 2020 14:04:38 -0600
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 022K4ZKV047997;
+        Mon, 2 Mar 2020 14:04:35 -0600
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1583179478;
-        bh=MnQUCS2p5FfCgMGaa35GROR+KFXSAuN1485gewbObmg=;
+        s=ti-com-17Q1; t=1583179475;
+        bh=WgwGOwOgqI6sh/GvST+Ydk6b4mvZqddNhr33TlV/TRE=;
         h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=ZLX1keKiYtyS0FUD45taRcFpUwfFkfBMyi3jzP9Rxv/onati4HHfBQHC5nHw+ae8Y
-         dOLQC9QPemVMdnQFEwGNSgcmpRmGoTCJ/tU6butsaANoQnbW+LwJveCXoA6l2SQNlW
-         swuP32dY9bX5OKiAfQLBFDa+eYAQikpeBKfq1A28=
+        b=GjtcVwkVT2H3TtRiPh8TsACjE0rwYaH1warrJoz1VC/KrC+a5tars3DzZizjOByuU
+         a+Ly5dpD71/kUFp4Hnpmh51Ye20DysFxlp6B1IS0WMAuzj97R0c7QFy4BClRS+uq+A
+         xQbyhXXT6sktK9krSSCJZjgMK6KNvaZA1aE4SOj4=
 Received: from DFLE100.ent.ti.com (dfle100.ent.ti.com [10.64.6.21])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 022K4ccu029339
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 022K4ZNR012964
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 2 Mar 2020 14:04:38 -0600
-Received: from DFLE103.ent.ti.com (10.64.6.24) by DFLE100.ent.ti.com
+        Mon, 2 Mar 2020 14:04:35 -0600
+Received: from DFLE111.ent.ti.com (10.64.6.32) by DFLE100.ent.ti.com
  (10.64.6.21) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Mon, 2 Mar
- 2020 14:04:37 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE103.ent.ti.com
- (10.64.6.24) with Microsoft SMTP Server (version=TLS1_2,
+ 2020 14:04:35 -0600
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE111.ent.ti.com
+ (10.64.6.32) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Mon, 2 Mar 2020 14:04:37 -0600
+ Frontend Transport; Mon, 2 Mar 2020 14:04:35 -0600
 Received: from sokoban.bb.dnainternet.fi (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 022K4UtE074555;
-        Mon, 2 Mar 2020 14:04:36 -0600
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 022K4UtC074555;
+        Mon, 2 Mar 2020 14:04:33 -0600
 From:   Tero Kristo <t-kristo@ti.com>
 To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
         <linux-watchdog@vger.kernel.org>
 CC:     <linux-kernel@vger.kernel.org>
-Subject: [PATCHv2 4/4] arm64: dts: ti: k3-j721e-main: Add MAIN domain watchdog entries
-Date:   Mon, 2 Mar 2020 22:04:26 +0200
-Message-ID: <20200302200426.6492-5-t-kristo@ti.com>
+Subject: [PATCHv2 2/4] watchdog: reset last_hw_keepalive time at start
+Date:   Mon, 2 Mar 2020 22:04:24 +0200
+Message-ID: <20200302200426.6492-3-t-kristo@ti.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200302200426.6492-1-t-kristo@ti.com>
 References: <20200302200426.6492-1-t-kristo@ti.com>
@@ -66,40 +66,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add DT entries for main domain watchdog0 and 1 instances.
+Currently the watchdog core does not initialize the last_hw_keepalive
+time during watchdog startup. This will cause the watchdog to be pinged
+immediately if enough time has passed from the system boot-up time, and
+some types of watchdogs like K3 RTI does not like this.
+
+To avoid the issue, setup the last_hw_keepalive time during watchdog
+startup.
 
 Signed-off-by: Tero Kristo <t-kristo@ti.com>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+v2:
+  * apply functionality always instead of being behind a flag
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 0b9d14b838a1..7ab989496c2c 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -963,4 +963,22 @@
+ drivers/watchdog/watchdog_dev.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8b5c742f24e8..7e4cd34a8c20 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -282,6 +282,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 	if (err == 0) {
+ 		set_bit(WDOG_ACTIVE, &wdd->status);
+ 		wd_data->last_keepalive = started_at;
++		wd_data->last_hw_keepalive = started_at;
+ 		watchdog_update_worker(wdd);
+ 	}
  
- 		status = "disabled";
- 	};
-+
-+	main_rti0: rti@2200000 {
-+		compatible = "ti,rti-wdt";
-+		reg = <0x0 0x2200000 0x0 0x100>;
-+		clocks = <&k3_clks 252 1>;
-+		power-domains = <&k3_pds 252 TI_SCI_PD_EXCLUSIVE>;
-+		assigned-clocks = <&k3_clks 252 1>;
-+		assigned-clock-parents = <&k3_clks 252 5>;
-+	};
-+
-+	main_rti1: rti@2210000 {
-+		compatible = "ti,rti-wdt";
-+		reg = <0x0 0x2210000 0x0 0x100>;
-+		clocks = <&k3_clks 253 1>;
-+		power-domains = <&k3_pds 253 TI_SCI_PD_EXCLUSIVE>;
-+		assigned-clocks = <&k3_clks 253 1>;
-+		assigned-clock-parents = <&k3_clks 253 5>;
-+	};
- };
 -- 
 2.17.1
 
