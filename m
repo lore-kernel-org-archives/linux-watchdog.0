@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B3EEC3F2D2
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Mar 2020 02:51:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95766C3F2D2
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Mar 2020 02:52:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 58963217F4
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Mar 2020 02:51:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DF06217F4
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Mar 2020 02:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583203907;
-	bh=PeHBr6dPrD0S0NEiWd3wlD5q13RzmQoY6W7P6aRl6YY=;
+	s=default; t=1583203977;
+	bh=h9VO2Y3iLgmkckLlYUSL5GxvLwG/mcpr+WlanXYTang=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=V/fSNS1CqQ/ZL03WHnvOm/TjmEp2EJU9tiv1rc8PVSU8ZgS6uIc1zzV5SEKODXNY5
-	 to8BmLnkkZFIUgHi3+Znc2A1fGGmRCZQwTlnf9Xu2h8ePbl4sMwVsr8jGr69dCr3d7
-	 lmwz45aQERWD6GsxhJGdNc6RPAI9SrWrB/WJb83s=
+	b=W0BISc5GhVRY9zU2RYrqzf9pvFKh72G/iREJFZ8fxylxNZUrAkzNex8hNLbMN7T5B
+	 BWxKzGd5mnz0H1RaMvD5rZ13y2z7Ykl8nbhONx2WKq54oF07s8pdLILDRnjhtJ1PyH
+	 SiwCWdZElFcFAI66OfpNLzcX9C5PxG3mj85Ayr8g=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729124AbgCCCuT (ORCPT
+        id S1727974AbgCCCwq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 2 Mar 2020 21:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        Mon, 2 Mar 2020 21:52:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729121AbgCCCuT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:50:19 -0500
+        id S1728997AbgCCCty (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:49:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BD9A246E6;
-        Tue,  3 Mar 2020 02:50:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF67E2468D;
+        Tue,  3 Mar 2020 02:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203818;
-        bh=PeHBr6dPrD0S0NEiWd3wlD5q13RzmQoY6W7P6aRl6YY=;
+        s=default; t=1583203793;
+        bh=h9VO2Y3iLgmkckLlYUSL5GxvLwG/mcpr+WlanXYTang=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzPlT44XkGw00S3mnk9R4MrmmLRbkmUePArrIEXSJt5KI9nloR9rvOi1OgtBEFj9+
-         gNxxt3C3y2bDxDX7S1e0TKe7JPG5Py9ecwkOP0s0cmypvTRjwOHmACHA02MJ19p4Yz
-         N/f/4UhYMJ+0stxQH98fCAlCToCJMD1/5+wpID4s=
+        b=NPeQJzpEU+5YJRYR2IzN0AKMx4mig7m3W4wmZq9aq8C/JXMKoaQ7gRYF/Ikahw5q4
+         VAeYs/lhYAWI/lB8mx/6HUX/zYZ9+Z6AMwowKna3h7r36l+dJ1THDL2PnIzyGV7sgG
+         v9eeiq8aDBa6d7vYju1xfKO0WlYT7J8OlUj/0HmU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marco Felsch <m.felsch@pengutronix.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/13] watchdog: da9062: do not ping the hw during stop()
-Date:   Mon,  2 Mar 2020 21:50:00 -0500
-Message-Id: <20200303025002.10600-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 15/22] watchdog: da9062: do not ping the hw during stop()
+Date:   Mon,  2 Mar 2020 21:49:26 -0500
+Message-Id: <20200303024933.10371-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200303025002.10600-1-sashal@kernel.org>
-References: <20200303025002.10600-1-sashal@kernel.org>
+In-Reply-To: <20200303024933.10371-1-sashal@kernel.org>
+References: <20200303024933.10371-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -86,7 +86,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 deletions(-)
 
 diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index 7386111220d58..daeb645fcea8a 100644
+index 9083d3d922b0b..79383ff620199 100644
 --- a/drivers/watchdog/da9062_wdt.c
 +++ b/drivers/watchdog/da9062_wdt.c
 @@ -126,13 +126,6 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
