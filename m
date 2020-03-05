@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1919C3F2D9
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F73C3F2D2
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBFD421744
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F6D120870
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428895;
-	bh=aTdpUfC9CqY/wB251UlTwSnnH+oYCQX5mXBrUSe7RY0=;
+	s=default; t=1583429053;
+	bh=CJj57vez/X1dcVkerZLsOV4I/r+1s3WBoBpSHJ3tuj4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=vMfXLKyxBqhMgpFPTPzDoyEtgi0Y7CHo+i0NSSvKe0jbHW1WbH6z4/5ZAXLgLlnGB
-	 t/zVshtshmBKw7/J3WcrWTh0ets1fosjNRsPxXyMLSX2At3R1H3148eaLZKyHzcYW0
-	 6PqnZsx8VnfEcg1lyyF5zG2nSSz6ODo2ijBffEZ0=
+	b=UWsYOMgMtK9y6fkKjky1gqr0qVTML2GPCsGyuWw3SSrBQq2Z1FsQ2i312y9/K+7wt
+	 +XsqzEvlVKwUdVH9dkfbKzDRXIKnF9PI1a6QUU/mIGrMeJpw6kPmr43dkp8G+XQGyh
+	 f9fbgzgBKXHWiGfs/6Ez1/7bciqBxo+hqAUNiVEg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbgCEROc (ORCPT
+        id S1726579AbgCERNW (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:14:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40676 "EHLO mail.kernel.org"
+        Thu, 5 Mar 2020 12:13:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725977AbgCEROb (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:31 -0500
+        id S1726565AbgCERNV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:13:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D319621739;
-        Thu,  5 Mar 2020 17:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35BCC2146E;
+        Thu,  5 Mar 2020 17:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428470;
-        bh=aTdpUfC9CqY/wB251UlTwSnnH+oYCQX5mXBrUSe7RY0=;
+        s=default; t=1583428401;
+        bh=CJj57vez/X1dcVkerZLsOV4I/r+1s3WBoBpSHJ3tuj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/QmWYthf+1g71e7SFwDVITcuGtx6jopsmB0d3xhjIkY0UjA3tA8OUTcupzoaZBCB
-         WQXpJXXmt3cUwOVTjt1HkRlpVkcbKOI0BI0lZv9VefE0a63Bf2+fWHab6UL7Iwr+IN
-         WJGLU9a22lPx1Pa7ufk2Y4LWk4fyyRBL9geyz7Gw=
+        b=KrP0y1uVX5x3lCkpUv5xsU2K7pBVdxd8yNYQgqWDNUc/awv3AsazlXGfZLtgheOM8
+         yIt37miZ7RdbM3PweoicpVdk/yOkL8vCW+nmXCXou3s1bwlGCyppn+wKn+CIRjJGj2
+         RlTUErY3uCDOmGJgdphaog3ToYAbGf+DUaSQanXY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
         Jean Delvare <jdelvare@suse.de>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/58] ACPI: watchdog: Set default timeout in probe
-Date:   Thu,  5 Mar 2020 12:13:29 -0500
-Message-Id: <20200305171420.29595-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 08/67] ACPI: watchdog: Set default timeout in probe
+Date:   Thu,  5 Mar 2020 12:12:09 -0500
+Message-Id: <20200305171309.29118-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
-References: <20200305171420.29595-1-sashal@kernel.org>
+In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
+References: <20200305171309.29118-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,7 +80,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 23 insertions(+)
 
 diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index e7cf41aa26c3b..697b04ffee97c 100644
+index b069349b52f55..85d6f16d95cca 100644
 --- a/drivers/watchdog/wdat_wdt.c
 +++ b/drivers/watchdog/wdat_wdt.c
 @@ -54,6 +54,13 @@ module_param(nowayout, bool, 0);
