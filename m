@@ -2,328 +2,358 @@ Return-Path: <SRS0=mVcR=4X=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17FFDC18E5A
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 13:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47533C10DCE
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:12:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EBCCB2084E
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 13:38:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BD962073D
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:12:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="atpLsL6C"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbgCFNiF (ORCPT
+        id S1726990AbgCFPMh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 6 Mar 2020 08:38:05 -0500
-Received: from mail.baikalelectronics.com ([87.245.175.226]:37306 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726490AbgCFNiF (ORCPT
+        Fri, 6 Mar 2020 10:12:37 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:46156 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726565AbgCFPMh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Mar 2020 08:38:05 -0500
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id E508B8030705;
-        Fri,  6 Mar 2020 13:28:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id SB3i3KTZAyDK; Fri,  6 Mar 2020 16:28:29 +0300 (MSK)
-From:   <Sergey.Semin@baikalelectronics.ru>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
+        Fri, 6 Mar 2020 10:12:37 -0500
+Received: by mail-pg1-f195.google.com with SMTP id y30so1197611pga.13;
+        Fri, 06 Mar 2020 07:12:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2jk8iVYV4TDayIdRDshBh+WYf34SSidX9LJ0aaB408k=;
+        b=atpLsL6CVaW/ZltvdF+uNru4piMUzAgvPpckdiSL6bYXsNBNC+hJpXQE3qnlAPLWfg
+         ux7XBRvUkpX4FK6ltaRbPPuoKe8ErIydq3MzNsMJ69Dr/BRROwJFGm64K22K8zsWx6ZQ
+         5PMoO/ImUcEOlm0/ngwZcP19NG+5UpFO72czzJS87fOgEjhgR9nNy+B0nTXl2mb6X68E
+         bEkoC6sWzYqPtGbpj+V2fqnhUAHx+NFTChjo6yMnfcPvyh+5rz0D3d9d0pLxQlzBjoeW
+         VJPDbavsrLuiBHKQxm9YN0p01a8Yi9PoaRdFBk7UflP9pW8ed/Vl172xZH4rejkO1s/M
+         eSDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=2jk8iVYV4TDayIdRDshBh+WYf34SSidX9LJ0aaB408k=;
+        b=isMwoz7eWR606Rw4Ua/Dgod0wUgf21k6H0ucpQj3accDKL61Ca01s+NllpkTRpiesg
+         ZoGgF3EVEI5/GybmutIu0Ne+i4FNgabsdnAhPK4HptPxzwrTui7kJ1F0LDUdnx/IBwPz
+         D1MzIQw1aGC87wgGEdVm27O0cw3gUdPPQBq4HbFjeC7uUHizhsz7RliQa3Nq7yBRvrnC
+         RkVk7S6pAltElm1sf0Gt4M2pm1W+iDcev+Jvbw1ZIWxtZB7Eq7Q65GC6mZUw+LkcIMIs
+         Yysum194qLVLS90nhU+Z1qjrHY02qiO3WSC853PdTPcgjx6IF0iCO3E2bWgYCGFa5+Yh
+         RExQ==
+X-Gm-Message-State: ANhLgQ31QP3+6xdiN4Uqwi91uHUumi0MsHe04Z9JSQyyVRZDK2FBW4oN
+        bb9TN7Kj/1GBJzv9h9zG3ButbFOp
+X-Google-Smtp-Source: ADFU+vuT0M/vFo5LZgwNEBi8C3vUEWTURtfAA6Sg6b90v1b3PCMF26DAbidrlPWyQ3B07+21QrsPiw==
+X-Received: by 2002:a63:f962:: with SMTP id q34mr3707746pgk.229.1583507554840;
+        Fri, 06 Mar 2020 07:12:34 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c20sm20753335pfc.140.2020.03.06.07.12.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Mar 2020 07:12:34 -0800 (PST)
+Subject: Re: [PATCH 7/7] watchdog: dw_wdt: Add DebugFS files
+To:     Sergey.Semin@baikalelectronics.ru,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Paul Burton <paulburton@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
-        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 4/7] watchdog: dw_wdt: Support devices with non-fixed TOP values
-Date:   Fri, 6 Mar 2020 16:27:44 +0300
-In-Reply-To: <20200306132747.14701-1-Sergey.Semin@baikalelectronics.ru>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20200306132747.14701-1-Sergey.Semin@baikalelectronics.ru>
+ <20200306132836.763718030786@mail.baikalelectronics.ru>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <addd7387-b388-3977-575d-d63d77f8fd38@roeck-us.net>
+Date:   Fri, 6 Mar 2020 07:12:32 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
-Message-Id: <20200306132829.E508B8030705@mail.baikalelectronics.ru>
+In-Reply-To: <20200306132836.763718030786@mail.baikalelectronics.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+On 3/6/20 5:27 AM, Sergey.Semin@baikalelectronics.ru wrote:
+> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> 
+> For the sake of the easier device-driver debug procedure, we added a
+> few DebugFS files with the next content: watchdog timeout, watchdog
+> pre-timeout, watchdog ping/kick operation, watchdog start/stop, device
+> registers dump. They are available only if kernel is configured with
+> DebugFS support.
+> 
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> ---
+>  drivers/watchdog/dw_wdt.c | 150 ++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 150 insertions(+)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index 3000120f7e39..9353d83f3e45 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/reset.h>
+>  #include <linux/watchdog.h>
+> +#include <linux/debugfs.h>
+>  
+>  #define WDOG_CONTROL_REG_OFFSET		    0x00
+>  #define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
+> @@ -38,8 +39,14 @@
+>  #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
+>  #define WDOG_INTERRUPT_STATUS_REG_OFFSET    0x10
+>  #define WDOG_INTERRUPT_CLEAR_REG_OFFSET     0x14
+> +#define WDOG_COMP_PARAMS_5_REG_OFFSET       0xe4
+> +#define WDOG_COMP_PARAMS_4_REG_OFFSET       0xe8
+> +#define WDOG_COMP_PARAMS_3_REG_OFFSET       0xec
+> +#define WDOG_COMP_PARAMS_2_REG_OFFSET       0xf0
+>  #define WDOG_COMP_PARAMS_1_REG_OFFSET       0xf4
+>  #define WDOG_COMP_PARAMS_1_USE_FIX_TOP      BIT(6)
+> +#define WDOG_COMP_VERSION_REG_OFFSET        0xf8
+> +#define WDOG_COMP_TYPE_REG_OFFSET           0xfc
+>  
+>  /* There are sixteen TOPs (timeout periods) that can be set in the watchdog. */
+>  #define DW_WDT_NUM_TOPS		16
+> @@ -79,6 +86,10 @@ struct dw_wdt {
+>  	/* Save/restore */
+>  	u32			control;
+>  	u32			timeout;
+> +
+> +#ifdef CONFIG_DEBUG_FS
+> +	struct dentry		*dbgfs_dir;
+> +#endif
+>  };
+>  
+>  #define to_dw_wdt(wdd)	container_of(wdd, struct dw_wdt, wdd)
+> @@ -430,6 +441,141 @@ static void dw_wdt_init_timeouts(struct dw_wdt *dw_wdt, struct device *dev)
+>  			mult_frac(tops[idx], MSEC_PER_SEC, dw_wdt->rate);
+>  }
+>  
+> +#ifdef CONFIG_DEBUG_FS
+> +
+> +static int dw_wdt_dbgfs_timeout_get(void *priv, u64 *val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	*val = dw_wdt_get_timeout(dw_wdt) / MSEC_PER_SEC;
+> +
+> +	return 0;
+> +}
+> +
+> +static int dw_wdt_dbgfs_timeout_set(void *priv, u64 val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	return dw_wdt_set_timeout(&dw_wdt->wdd, val);
+> +}
+> +DEFINE_DEBUGFS_ATTRIBUTE(dw_wdt_dbgfs_timeout_fops,
+> +	dw_wdt_dbgfs_timeout_get, dw_wdt_dbgfs_timeout_set, "%llu\n");
+> +
+> +static int dw_wdt_dbgfs_pretimeout_get(void *priv, u64 *val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	*val = dw_wdt->wdd.pretimeout;
+> +
+> +	return 0;
+> +}
+> +
+> +static int dw_wdt_dbgfs_pretimeout_set(void *priv, u64 val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	return dw_wdt_set_pretimeout(&dw_wdt->wdd, val);
+> +}
+> +DEFINE_DEBUGFS_ATTRIBUTE(dw_wdt_dbgfs_pretimeout_fops,
+> +	dw_wdt_dbgfs_pretimeout_get, dw_wdt_dbgfs_pretimeout_set, "%llu\n");
+> +
+> +static int dw_wdt_dbgfs_ping_set(void *priv, u64 val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	dw_wdt_ping(&dw_wdt->wdd);
+> +
+> +	return 0;
+> +}
+> +DEFINE_DEBUGFS_ATTRIBUTE(dw_wdt_dbgfs_ping_fops,
+> +	NULL, dw_wdt_dbgfs_ping_set, "%llu\n");
+> +
+> +static int dw_wdt_dbgfs_en_get(void *priv, u64 *val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	*val = !!dw_wdt_is_enabled(dw_wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int dw_wdt_dbgfs_en_set(void *priv, u64 val)
+> +{
+> +	struct dw_wdt *dw_wdt = priv;
+> +
+> +	if (val)
+> +		dw_wdt_start(&dw_wdt->wdd);
+> +	else
+> +		dw_wdt_stop(&dw_wdt->wdd);
+> +
+> +	return 0;
+> +}
+> +DEFINE_DEBUGFS_ATTRIBUTE(dw_wdt_dbgfs_en_fops,
+> +	dw_wdt_dbgfs_en_get, dw_wdt_dbgfs_en_set, "%llu\n");
+> +
+> +#define DW_WDT_DBGFS_REG(_name, _off) \
+> +{				      \
+> +	.name = _name,		      \
+> +	.offset = _off		      \
+> +}
+> +
+> +static const struct debugfs_reg32 dw_wdt_dbgfs_regs[] = {
+> +	DW_WDT_DBGFS_REG("cr", WDOG_CONTROL_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("torr", WDOG_TIMEOUT_RANGE_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("ccvr", WDOG_CURRENT_COUNT_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("crr", WDOG_COUNTER_RESTART_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("stat", WDOG_INTERRUPT_STATUS_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("param5", WDOG_COMP_PARAMS_5_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("param4", WDOG_COMP_PARAMS_4_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("param3", WDOG_COMP_PARAMS_3_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("param2", WDOG_COMP_PARAMS_2_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("param1", WDOG_COMP_PARAMS_1_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("version", WDOG_COMP_VERSION_REG_OFFSET),
+> +	DW_WDT_DBGFS_REG("type", WDOG_COMP_TYPE_REG_OFFSET)
+> +};
+> +
+> +static void dw_wdt_dbgfs_init(struct dw_wdt *dw_wdt)
+> +{
+> +	struct device *dev = dw_wdt->wdd.parent;
+> +	struct debugfs_regset32 *regset;
+> +
+> +	regset = devm_kzalloc(dev, sizeof(*regset), GFP_KERNEL);
+> +	if (!regset)
+> +		return;
+> +
+> +	regset->regs = dw_wdt_dbgfs_regs;
+> +	regset->nregs = ARRAY_SIZE(dw_wdt_dbgfs_regs);
+> +	regset->base = dw_wdt->regs;
+> +
+> +	dw_wdt->dbgfs_dir = debugfs_create_dir(dev_name(dev), NULL);
+> +
+> +	debugfs_create_regset32("registers", 0444, dw_wdt->dbgfs_dir, regset);
+> +
+> +	debugfs_create_file_unsafe("timeout", 0600, dw_wdt->dbgfs_dir,
+> +				   dw_wdt, &dw_wdt_dbgfs_timeout_fops);
+> +
+> +	debugfs_create_file_unsafe("pretimeout", 0600, dw_wdt->dbgfs_dir,
+> +				   dw_wdt, &dw_wdt_dbgfs_pretimeout_fops);
+> +
+> +	debugfs_create_file_unsafe("ping", 0200, dw_wdt->dbgfs_dir,
+> +				   dw_wdt, &dw_wdt_dbgfs_ping_fops);
+> +
+> +	debugfs_create_file_unsafe("enable", 0600, dw_wdt->dbgfs_dir,
+> +				   dw_wdt, &dw_wdt_dbgfs_en_fops);
+> +}
 
-In case if the DW Watchdog IP core is synthesised with
-WDT_USE_FIX_TOP == false, the TOP interval indexes make the device
-to load a custom periods to the counter. These periods are hardwired
-at the synthesis stage and can be within [2^8, 2^(WDT_CNT_WIDTH - 1)].
-Alas their values can't be detected at runtime and must be somehow
-supplied to the driver so one could properly determine the watchdog
-timeout intervals. For this purpose we suggest to have a vendor-
-specific dts property "snps,watchdog-tops" utilized, which would
-provide an array of sixteen counter values. At device probe stage they
-will be used to initialize the watchdog device timeouts determined
-from the array values and current clocks source rate.
+I don't oppose debugfs support in general, but I really don't see
+the point replicating watchdog core functionality for it - even more so
+since this bypasses the watchdog core. This lets one, for example,
+enable the watchdog and then unload the driver with the watchdog
+running. This is not only unnecessary, it is way too dangerous,
+debugfs or not.
 
-In order to have custom TOP values supported the driver must be
-altered in the following way. First of all the fixed-top values
-ready-to-use array must be determined for compatibility with currently
-supported devices, which were synthesised with WDT_USE_FIX_TOP == true.
-Secondly we must redefine the timer period search functions. For
-generality they are redesigned in a way to support the TOP array with
-no limitations on the items order or value. Finally an array with
-pre-defined timeouts must be calculated at probe stage from either
-the custom or fixed TOP values depending on the DW watchdog component
-parameter WDT_USE_FIX_TOP value.
+NACK for that part.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
----
- drivers/watchdog/dw_wdt.c | 145 +++++++++++++++++++++++++++++++-------
- 1 file changed, 119 insertions(+), 26 deletions(-)
+Guenter
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index fba21de2bbad..4a57b7d777dc 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -13,6 +13,7 @@
-  */
- 
- #include <linux/bitops.h>
-+#include <linux/limits.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/err.h>
-@@ -34,12 +35,24 @@
- #define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
- #define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
- #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
-+#define WDOG_COMP_PARAMS_1_REG_OFFSET       0xf4
-+#define WDOG_COMP_PARAMS_1_USE_FIX_TOP      BIT(6)
- 
--/* The maximum TOP (timeout period) value that can be set in the watchdog. */
--#define DW_WDT_MAX_TOP		15
-+/* There are sixteen TOPs (timeout periods) that can be set in the watchdog. */
-+#define DW_WDT_NUM_TOPS		16
-+#define DW_WDT_FIX_TOP(_idx)	(1U << (16 + _idx))
- 
- #define DW_WDT_DEFAULT_SECONDS	30
- 
-+static const u32 dw_wdt_fix_tops[DW_WDT_NUM_TOPS] = {
-+	DW_WDT_FIX_TOP(0), DW_WDT_FIX_TOP(1), DW_WDT_FIX_TOP(2),
-+	DW_WDT_FIX_TOP(3), DW_WDT_FIX_TOP(4), DW_WDT_FIX_TOP(5),
-+	DW_WDT_FIX_TOP(6), DW_WDT_FIX_TOP(7), DW_WDT_FIX_TOP(8),
-+	DW_WDT_FIX_TOP(9), DW_WDT_FIX_TOP(10), DW_WDT_FIX_TOP(11),
-+	DW_WDT_FIX_TOP(12), DW_WDT_FIX_TOP(13), DW_WDT_FIX_TOP(14),
-+	DW_WDT_FIX_TOP(15)
-+};
-+
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-@@ -49,6 +62,8 @@ struct dw_wdt {
- 	void __iomem		*regs;
- 	struct clk		*clk;
- 	unsigned long		rate;
-+	unsigned int		max_top;
-+	unsigned int		timeouts[DW_WDT_NUM_TOPS];
- 	struct watchdog_device	wdd;
- 	struct reset_control	*rst;
- 	/* Save/restore */
-@@ -64,20 +79,68 @@ static inline int dw_wdt_is_enabled(struct dw_wdt *dw_wdt)
- 		WDOG_CONTROL_REG_WDT_EN_MASK;
- }
- 
--static inline int dw_wdt_top_in_seconds(struct dw_wdt *dw_wdt, unsigned top)
-+static unsigned int dw_wdt_find_best_top(struct dw_wdt *dw_wdt,
-+					 unsigned int timeout, u32 *top)
- {
-+	u32 diff = UINT_MAX, tmp;
-+	int idx;
-+
- 	/*
--	 * There are 16 possible timeout values in 0..15 where the number of
--	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
-+	 * In general case of non-fixed timeout values they can be arranged in
-+	 * any order so we have to traverse all the array values. We also try
-+	 * to find a closest timeout number and make sure its value is greater
-+	 * than the requested timeout. Note we'll return a maximum timeout
-+	 * if reachable value couldn't be found.
- 	 */
--	return (1U << (16 + top)) / dw_wdt->rate;
-+	for (*top = dw_wdt->max_top, idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx] < timeout)
-+			continue;
-+
-+		tmp = dw_wdt->timeouts[idx] - timeout;
-+		if (tmp < diff) {
-+			diff = tmp;
-+			*top = idx;
-+		}
-+	}
-+
-+	return dw_wdt->timeouts[*top];
-+}
-+
-+static unsigned int dw_wdt_find_min_timeout(struct dw_wdt *dw_wdt)
-+{
-+	u32 min_timeout = UINT_MAX, top;
-+	int idx;
-+
-+	for (top = 0, idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx] <= min_timeout) {
-+			min_timeout = dw_wdt->timeouts[idx];
-+			top = idx;
-+		}
-+	}
-+
-+	return dw_wdt->timeouts[top];
-+}
-+
-+static unsigned int dw_wdt_find_max_top(struct dw_wdt *dw_wdt, u32 *top)
-+{
-+	u32 max_timeout = 0;
-+	int idx;
-+
-+	for (*top = 0, idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx] >= max_timeout) {
-+			max_timeout = dw_wdt->timeouts[idx];
-+			*top = idx;
-+		}
-+	}
-+
-+	return dw_wdt->timeouts[*top];
- }
- 
--static int dw_wdt_get_top(struct dw_wdt *dw_wdt)
-+static unsigned int dw_wdt_get_timeout(struct dw_wdt *dw_wdt)
- {
- 	int top = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
- 
--	return dw_wdt_top_in_seconds(dw_wdt, top);
-+	return dw_wdt->timeouts[top];
- }
- 
- static int dw_wdt_ping(struct watchdog_device *wdd)
-@@ -90,20 +153,13 @@ static int dw_wdt_ping(struct watchdog_device *wdd)
- 	return 0;
- }
- 
--static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
-+static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int req)
- {
- 	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
--	int i, top_val = DW_WDT_MAX_TOP;
-+	unsigned int timeout;
-+	u32 top;
- 
--	/*
--	 * Iterate over the timeout values until we find the closest match. We
--	 * always look for >=.
--	 */
--	for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
--		if (dw_wdt_top_in_seconds(dw_wdt, i) >= top_s) {
--			top_val = i;
--			break;
--		}
-+	timeout = dw_wdt_find_best_top(dw_wdt, req * MSEC_PER_SEC, &top);
- 
- 	/*
- 	 * Set the new value in the watchdog.  Some versions of dw_wdt
-@@ -111,7 +167,7 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
- 	 * CP_WDT_DUAL_TOP in WDT_COMP_PARAMS_1).  On those we
- 	 * effectively get a pat of the watchdog right here.
- 	 */
--	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
-+	writel(top | top << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
- 	       dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
- 
- 	/*
-@@ -119,10 +175,10 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
- 	 * kernel(watchdog_dev.c) helps to feed watchdog before
- 	 * wdd->max_hw_heartbeat_ms
- 	 */
--	if (top_s * 1000 <= wdd->max_hw_heartbeat_ms)
--		wdd->timeout = dw_wdt_top_in_seconds(dw_wdt, top_val);
-+	if (req * MSEC_PER_SEC > wdd->max_hw_heartbeat_ms)
-+		wdd->timeout = req;
- 	else
--		wdd->timeout = top_s;
-+		wdd->timeout = timeout / MSEC_PER_SEC;
- 
- 	return 0;
- }
-@@ -238,6 +294,41 @@ static int dw_wdt_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(dw_wdt_pm_ops, dw_wdt_suspend, dw_wdt_resume);
- 
-+static void dw_wdt_init_timeouts(struct dw_wdt *dw_wdt, struct device *dev)
-+{
-+	u32 data, of_tops[DW_WDT_NUM_TOPS];
-+	const u32 *tops;
-+	int ret, idx;
-+
-+	/*
-+	 * Retrieve custom or fixed counter values depending on the
-+	 * WDT_USE_FIX_TOP flag found in the component specific parameters
-+	 * #1 register.
-+	 */
-+	data = readl(dw_wdt->regs + WDOG_COMP_PARAMS_1_REG_OFFSET);
-+	if (data & WDOG_COMP_PARAMS_1_USE_FIX_TOP) {
-+		tops = dw_wdt_fix_tops;
-+	} else {
-+		ret = of_property_read_variable_u32_array(dev_of_node(dev),
-+			"snps,watchdog-tops", of_tops, DW_WDT_NUM_TOPS,
-+			DW_WDT_NUM_TOPS);
-+		if (ret < 0) {
-+			dev_warn(dev, "No valid TOPs array specified\n");
-+			tops = dw_wdt_fix_tops;
-+		} else {
-+			tops = of_tops;
-+		}
-+	}
-+
-+	/*
-+	 * We'll keep the timeout values in ms to approximate requested
-+	 * timeouts with better accuracy.
-+	 */
-+	for (idx = 0; idx < DW_WDT_NUM_TOPS; ++idx)
-+		dw_wdt->timeouts[idx] =
-+			mult_frac(tops[idx], MSEC_PER_SEC, dw_wdt->rate);
-+}
-+
- static int dw_wdt_drv_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -275,12 +366,14 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 
- 	reset_control_deassert(dw_wdt->rst);
- 
-+	dw_wdt_init_timeouts(dw_wdt, dev);
-+
- 	wdd = &dw_wdt->wdd;
- 	wdd->info = &dw_wdt_ident;
- 	wdd->ops = &dw_wdt_ops;
--	wdd->min_timeout = 1;
-+	wdd->min_timeout = dw_wdt_find_min_timeout(dw_wdt) / MSEC_PER_SEC;
- 	wdd->max_hw_heartbeat_ms =
--		dw_wdt_top_in_seconds(dw_wdt, DW_WDT_MAX_TOP) * 1000;
-+		dw_wdt_find_max_top(dw_wdt, &dw_wdt->max_top);
- 	wdd->parent = dev;
- 
- 	watchdog_set_drvdata(wdd, dw_wdt);
-@@ -293,7 +386,7 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	 * devicetree.
- 	 */
- 	if (dw_wdt_is_enabled(dw_wdt)) {
--		wdd->timeout = dw_wdt_get_top(dw_wdt);
-+		wdd->timeout = dw_wdt_get_timeout(dw_wdt) / MSEC_PER_SEC;
- 		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 	} else {
- 		wdd->timeout = DW_WDT_DEFAULT_SECONDS;
--- 
-2.25.1
+> +
+> +static void dw_wdt_dbgfs_clear(struct dw_wdt *dw_wdt)
+> +{
+> +	debugfs_remove_recursive(dw_wdt->dbgfs_dir);
+> +}
+> +
+> +#else /* !CONFIG_DEBUG_FS */
+> +
+> +static void dw_wdt_dbgfs_init(struct dw_wdt *dw_wdt) {}
+> +static void dw_wdt_dbgfs_clear(struct dw_wdt *dw_wdt) {}
+> +
+> +#endif /* !CONFIG_DEBUG_FS */
+> +
+>  static int dw_wdt_drv_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+> @@ -544,6 +690,8 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		goto out_disable_pclk;
+>  
+> +	dw_wdt_dbgfs_init(dw_wdt);
+> +
+>  	return 0;
+>  
+>  out_disable_pclk:
+> @@ -558,6 +706,8 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+>  {
+>  	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
+>  
+> +	dw_wdt_dbgfs_clear(dw_wdt);
+> +
+>  	watchdog_unregister_device(&dw_wdt->wdd);
+>  	reset_control_assert(dw_wdt->rst);
+>  	clk_disable_unprepare(dw_wdt->pclk);
+> 
 
