@@ -6,28 +6,28 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72EC5C10F26
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:49:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38160C10F27
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:49:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4ABDB208CD
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:49:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F28A2146E
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 15:49:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbgCFPt2 (ORCPT
+        id S1726873AbgCFPtS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 6 Mar 2020 10:49:28 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:53162 "EHLO inva020.nxp.com"
+        Fri, 6 Mar 2020 10:49:18 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:53034 "EHLO inva020.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727080AbgCFPtX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Mar 2020 10:49:23 -0500
+        id S1725873AbgCFPtS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 6 Mar 2020 10:49:18 -0500
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C86941A0BC7;
-        Fri,  6 Mar 2020 16:49:21 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 004B41A0BC4;
+        Fri,  6 Mar 2020 16:49:16 +0100 (CET)
 Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 79CDC1A0BCF;
-        Fri,  6 Mar 2020 16:49:05 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 700461A0BBD;
+        Fri,  6 Mar 2020 16:48:59 +0100 (CET)
 Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id C9ADD402F3;
-        Fri,  6 Mar 2020 23:48:51 +0800 (SGT)
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 5449E402D5;
+        Fri,  6 Mar 2020 23:48:45 +0800 (SGT)
 From:   Anson Huang <Anson.Huang@nxp.com>
 To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         festevam@gmail.com, dmitry.torokhov@gmail.com,
@@ -43,9 +43,9 @@ To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-watchdog@vger.kernel.org
 Cc:     Linux-imx@nxp.com
-Subject: [PATCH 5/5] thermal: add COMPILE_TEST support for IMX_SC_THERMAL
-Date:   Fri,  6 Mar 2020 23:42:36 +0800
-Message-Id: <1583509356-8265-5-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH 2/5] rtc: add COMPILE_TEST support for i.MX SC RTC
+Date:   Fri,  6 Mar 2020 23:42:33 +0800
+Message-Id: <1583509356-8265-2-git-send-email-Anson.Huang@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1583509356-8265-1-git-send-email-Anson.Huang@nxp.com>
 References: <1583509356-8265-1-git-send-email-Anson.Huang@nxp.com>
@@ -55,27 +55,27 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add COMPILE_TEST support to i.MX SC thermal driver for better compile
+Add COMPILE_TEST support to i.MX SC RTC driver for better compile
 testing coverage.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
- drivers/thermal/Kconfig | 2 +-
+ drivers/rtc/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
-index 91af271..55c7641 100644
---- a/drivers/thermal/Kconfig
-+++ b/drivers/thermal/Kconfig
-@@ -254,7 +254,7 @@ config IMX_THERMAL
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index acaf6f98..a86768f 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1772,7 +1772,7 @@ config RTC_DRV_SNVS
+ 	   will be called "rtc-snvs".
  
- config IMX_SC_THERMAL
- 	tristate "Temperature sensor driver for NXP i.MX SoCs with System Controller"
+ config RTC_DRV_IMX_SC
 -	depends on IMX_SCU
 +	depends on IMX_SCU || COMPILE_TEST
- 	depends on OF
+ 	depends on HAVE_ARM_SMCCC
+ 	tristate "NXP i.MX System Controller RTC support"
  	help
- 	  Support for Temperature Monitor (TEMPMON) found on NXP i.MX SoCs with
 -- 
 2.7.4
 
