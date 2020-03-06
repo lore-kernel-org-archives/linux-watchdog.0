@@ -1,125 +1,121 @@
-Return-Path: <SRS0=l7+g=4W=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=mVcR=4X=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F73C3F2D2
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0050AC10F25
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 13:38:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F6D120870
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583429053;
-	bh=CJj57vez/X1dcVkerZLsOV4I/r+1s3WBoBpSHJ3tuj4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=UWsYOMgMtK9y6fkKjky1gqr0qVTML2GPCsGyuWw3SSrBQq2Z1FsQ2i312y9/K+7wt
-	 +XsqzEvlVKwUdVH9dkfbKzDRXIKnF9PI1a6QUU/mIGrMeJpw6kPmr43dkp8G+XQGyh
-	 f9fbgzgBKXHWiGfs/6Ez1/7bciqBxo+hqAUNiVEg=
+	by mail.kernel.org (Postfix) with ESMTP id D912C2084E
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Mar 2020 13:38:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbgCERNW (ORCPT
+        id S1726090AbgCFNiC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:13:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726565AbgCERNV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:13:21 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35BCC2146E;
-        Thu,  5 Mar 2020 17:13:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428401;
-        bh=CJj57vez/X1dcVkerZLsOV4I/r+1s3WBoBpSHJ3tuj4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrP0y1uVX5x3lCkpUv5xsU2K7pBVdxd8yNYQgqWDNUc/awv3AsazlXGfZLtgheOM8
-         yIt37miZ7RdbM3PweoicpVdk/yOkL8vCW+nmXCXou3s1bwlGCyppn+wKn+CIRjJGj2
-         RlTUErY3uCDOmGJgdphaog3ToYAbGf+DUaSQanXY=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 08/67] ACPI: watchdog: Set default timeout in probe
-Date:   Thu,  5 Mar 2020 12:12:09 -0500
-Message-Id: <20200305171309.29118-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
-References: <20200305171309.29118-1-sashal@kernel.org>
+        Fri, 6 Mar 2020 08:38:02 -0500
+Received: from mail.baikalelectronics.com ([87.245.175.226]:37304 "EHLO
+        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726307AbgCFNiC (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 6 Mar 2020 08:38:02 -0500
+Received: from localhost (unknown [127.0.0.1])
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 98D7F80307C2;
+        Fri,  6 Mar 2020 13:28:18 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at baikalelectronics.ru
+Received: from mail.baikalelectronics.ru ([127.0.0.1])
+        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 00CjeEVMtjHR; Fri,  6 Mar 2020 16:28:18 +0300 (MSK)
+From:   <Sergey.Semin@baikalelectronics.ru>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/7] dt-bindings: watchdog: dw-wdt: Add watchdog TOPs array property
+Date:   Fri, 6 Mar 2020 16:27:42 +0300
+In-Reply-To: <20200306132747.14701-1-Sergey.Semin@baikalelectronics.ru>
+References: <20200306132747.14701-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Message-Id: <20200306132818.98D7F80307C2@mail.baikalelectronics.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit cabe17d0173ab04bd3f87b8199ae75f43f1ea473 ]
+In case if DW Watchdog IP core is built with WDT_USE_FIX_TOP == false,
+a custom timeout periods are used to preset the timer counter. In
+this case that periods should be specified in a new "snps,watchdog-tops"
+property of the DW watchdog dts node.
 
-If the BIOS default timeout for the watchdog is too small userspace may
-not have enough time to configure new timeout after opening the device
-before the system is already reset. For this reason program default
-timeout of 30 seconds in the driver probe and allow userspace to change
-this from command line or through module parameter (wdat_wdt.timeout).
-
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
 ---
- drivers/watchdog/wdat_wdt.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ .../bindings/watchdog/snps,dw-wdt.yaml        | 30 +++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index b069349b52f55..85d6f16d95cca 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -54,6 +54,13 @@ module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+index 8b30f9601c38..1b3b71351628 100644
+--- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+@@ -46,6 +46,21 @@ properties:
+     description: Phandle to the DW Watchdog reset lane.
+     maxItems: 1
  
-+#define WDAT_DEFAULT_TIMEOUT	30
++  snps,watchdog-tops:
++    description: |
++      DW APB Watchdog custom timer intervals - Timeout Period ranges (TOPs).
++      Each TOP is a number loaded into the watchdog counter at the moment of
++      the timer restart. The counter decrementing happens each tick of the
++      reference clock. Therefore the TOPs array is equivalent to an array of
++      the timer expiration intervals supported by the DW APB Watchdog. Note
++      DW APB Watchdog IP-cores might be synthesized with fixed TOP values,
++      in which case this property is unnecessary.
++    allOf:
++      - $ref: /schemas/types.yaml#/definitions/uint32-array
++      - items:
++          minItems: 16
++          maxItems: 16
 +
-+static int timeout = WDAT_DEFAULT_TIMEOUT;
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-+		 __MODULE_STRING(WDAT_DEFAULT_TIMEOUT) ")");
-+
- static int wdat_wdt_read(struct wdat_wdt *wdat,
- 	 const struct wdat_instruction *instr, u32 *value)
- {
-@@ -438,6 +445,22 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ additionalProperties: false
  
- 	platform_set_drvdata(pdev, wdat);
- 
-+	/*
-+	 * Set initial timeout so that userspace has time to configure the
-+	 * watchdog properly after it has opened the device. In some cases
-+	 * the BIOS default is too short and causes immediate reboot.
-+	 */
-+	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
-+	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
-+		dev_warn(dev, "Invalid timeout %d given, using %d\n",
-+			 timeout, WDAT_DEFAULT_TIMEOUT);
-+		timeout = WDAT_DEFAULT_TIMEOUT;
-+	}
+ required:
+@@ -63,4 +78,19 @@ examples:
+       clocks = <&per_base_clk>;
+       resets = <&wdt_rst>;
+     };
 +
-+	ret = wdat_wdt_set_timeout(&wdat->wdd, timeout);
-+	if (ret)
-+		return ret;
-+
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
++  - |
++    watchdog1: watchdog@ffd02000 {
++      compatible = "snps,dw-wdt";
++      reg = <0xffd02000 0x1000>;
++      interrupts = <0 171 4>;
++      clocks = <&per_base_clk>;
++      clock-names = "tclk";
++      snps,watchdog-tops = <0x000000FF 0x000001FF 0x000003FF
++                            0x000007FF 0x0000FFFF 0x0001FFFF
++                            0x0003FFFF 0x0007FFFF 0x000FFFFF
++                            0x001FFFFF 0x003FFFFF 0x007FFFFF
++                            0x00FFFFFF 0x01FFFFFF 0x03FFFFFF
++                            0x07FFFFFF>;
++    };
+ ...
 -- 
-2.20.1
+2.25.1
 
