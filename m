@@ -2,33 +2,32 @@ Return-Path: <SRS0=WT1n=42=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1E0AC18E5B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Mar 2020 00:45:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B3F9C10F28
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Mar 2020 00:45:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D20CA20866
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Mar 2020 00:45:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 157D920866
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Mar 2020 00:45:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726445AbgCIApH (ORCPT
+        id S1726446AbgCIApb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 8 Mar 2020 20:45:07 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:55016 "EHLO inva020.nxp.com"
+        Sun, 8 Mar 2020 20:45:31 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:59558 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726352AbgCIApH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 8 Mar 2020 20:45:07 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 668CD1A16A7;
-        Mon,  9 Mar 2020 01:45:05 +0100 (CET)
+        id S1726956AbgCIApb (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 8 Mar 2020 20:45:31 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 0157720151B;
+        Mon,  9 Mar 2020 01:45:29 +0100 (CET)
 Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 5DEC71A078B;
-        Mon,  9 Mar 2020 01:44:46 +0100 (CET)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 6BA57201527;
+        Mon,  9 Mar 2020 01:45:10 +0100 (CET)
 Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 0EC814024E;
-        Mon,  9 Mar 2020 08:44:32 +0800 (SGT)
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id BF832402E5;
+        Mon,  9 Mar 2020 08:44:46 +0800 (SGT)
 From:   Anson Huang <Anson.Huang@nxp.com>
 To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         festevam@gmail.com, dmitry.torokhov@gmail.com,
@@ -45,87 +44,42 @@ To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         linux-input@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
 Cc:     Linux-imx@nxp.com
-Subject: [PATCH V3 1/7] firmware: imx: Add stubs for !CONFIG_IMX_SCU case
-Date:   Mon,  9 Mar 2020 08:38:14 +0800
-Message-Id: <1583714300-19085-1-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V3 7/7] thermal: add COMPILE_TEST support for IMX_SC_THERMAL
+Date:   Mon,  9 Mar 2020 08:38:20 +0800
+Message-Id: <1583714300-19085-7-git-send-email-Anson.Huang@nxp.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1583714300-19085-1-git-send-email-Anson.Huang@nxp.com>
+References: <1583714300-19085-1-git-send-email-Anson.Huang@nxp.com>
 X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add stubs for those i.MX SCU APIs to make those modules depending
-on IMX_SCU can pass build when COMPILE_TEST is enabled.
+Add COMPILE_TEST support to i.MX SC thermal driver for better compile
+testing coverage.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
 ---
-Changes since V2:
-	- return error for stubs.
+No change.
 ---
- include/linux/firmware/imx/ipc.h | 11 +++++++++++
- include/linux/firmware/imx/sci.h | 19 +++++++++++++++++++
- 2 files changed, 30 insertions(+)
+ drivers/thermal/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/firmware/imx/ipc.h b/include/linux/firmware/imx/ipc.h
-index 8910574..9e3d808 100644
---- a/include/linux/firmware/imx/ipc.h
-+++ b/include/linux/firmware/imx/ipc.h
-@@ -34,6 +34,7 @@ struct imx_sc_rpc_msg {
- 	uint8_t func;
- };
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index 9f388ed..6235949 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -253,7 +253,7 @@ config IMX_THERMAL
  
-+#ifdef CONFIG_IMX_SCU
- /*
-  * This is an function to send an RPC message over an IPC channel.
-  * It is called by client-side SCFW API function shims.
-@@ -55,4 +56,14 @@ int imx_scu_call_rpc(struct imx_sc_ipc *ipc, void *msg, bool have_resp);
-  * @return Returns an error code (0 = success, failed if < 0)
-  */
- int imx_scu_get_handle(struct imx_sc_ipc **ipc);
-+#else
-+static inline int imx_scu_call_rpc(struct imx_sc_ipc *ipc, void *msg, bool have_resp)
-+{
-+	return -ENOENT;
-+}
-+static inline int imx_scu_get_handle(struct imx_sc_ipc **ipc)
-+{
-+	return -ENOENT;
-+}
-+#endif
- #endif /* _SC_IPC_H */
-diff --git a/include/linux/firmware/imx/sci.h b/include/linux/firmware/imx/sci.h
-index 17ba4e4..022129b 100644
---- a/include/linux/firmware/imx/sci.h
-+++ b/include/linux/firmware/imx/sci.h
-@@ -16,8 +16,27 @@
- #include <linux/firmware/imx/svc/misc.h>
- #include <linux/firmware/imx/svc/pm.h>
- 
-+#ifdef CONFIG_IMX_SCU
- int imx_scu_enable_general_irq_channel(struct device *dev);
- int imx_scu_irq_register_notifier(struct notifier_block *nb);
- int imx_scu_irq_unregister_notifier(struct notifier_block *nb);
- int imx_scu_irq_group_enable(u8 group, u32 mask, u8 enable);
-+#else
-+static inline int imx_scu_enable_general_irq_channel(struct device *dev)
-+{
-+	return -ENOENT;
-+}
-+static inline int imx_scu_irq_register_notifier(struct notifier_block *nb)
-+{
-+	return -ENOENT;
-+}
-+static inline int imx_scu_irq_unregister_notifier(struct notifier_block *nb)
-+{
-+	return -ENOENT;
-+}
-+static inline int imx_scu_irq_group_enable(u8 group, u32 mask, u8 enable)
-+{
-+	return -ENOENT;
-+}
-+#endif
- #endif /* _SC_SCI_H */
+ config IMX_SC_THERMAL
+ 	tristate "Temperature sensor driver for NXP i.MX SoCs with System Controller"
+-	depends on IMX_SCU
++	depends on IMX_SCU || COMPILE_TEST
+ 	depends on OF
+ 	help
+ 	  Support for Temperature Monitor (TEMPMON) found on NXP i.MX SoCs with
 -- 
 2.7.4
 
