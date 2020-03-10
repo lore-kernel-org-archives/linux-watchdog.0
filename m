@@ -2,113 +2,174 @@ Return-Path: <SRS0=E0ph=43=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93CA8C10F27
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Mar 2020 09:31:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2315FC10F27
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Mar 2020 19:37:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7332824681
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Mar 2020 09:31:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7044208E4
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Mar 2020 19:37:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1583869047;
+	bh=llRqB7vOBH+w/xCHH1Y5KTae7g8J7o9qsA6xQHqX0y4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=AvZl14GHqVTGUQxQE9v7SWHGBcA6q26RA7JflkTMmGl30t2H8dpwk4RmCEVb7rnar
+	 6AyzOI6xowaWknQ0JJUwkomP7hvUlnmU0n/S/OIQsebMnCb1SWk0mbGrwLsbzTyjV+
+	 EK/V9FX/XOgHkMsFmkxJ5w0LpmLK/kSWx1gfqrzc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbgCJJbk (ORCPT
+        id S1727146AbgCJThX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 10 Mar 2020 05:31:40 -0400
-Received: from sauhun.de ([88.99.104.3]:46550 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726446AbgCJJbk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Mar 2020 05:31:40 -0400
-Received: from localhost (p54B33196.dip0.t-ipconnect.de [84.179.49.150])
-        by pokefinder.org (Postfix) with ESMTPSA id 4D28D2C1EB6;
-        Tue, 10 Mar 2020 10:31:37 +0100 (CET)
-Date:   Tue, 10 Mar 2020 10:31:36 +0100
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Jean Delvare <jdelvare@suse.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Martin Volf <martin.volf.42@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] i2c: i801: Do not add ICH_RES_IO_SMI for the
- iTCO_wdt device
-Message-ID: <20200310093136.GE1987@ninjato>
-References: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
- <20200226132122.62805-4-mika.westerberg@linux.intel.com>
+        Tue, 10 Mar 2020 15:37:23 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:42116 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726899AbgCJThX (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Mar 2020 15:37:23 -0400
+Received: by mail-ot1-f68.google.com with SMTP id 66so14355725otd.9;
+        Tue, 10 Mar 2020 12:37:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=GiGH+kf0e9zr45mlrfM5b4we/G65q5yAgOGauiL01s8=;
+        b=orJ7y28PBh3tnG+gW30KFDbE8+U/WQYpKyD84eAJSVugVPRz9AflrpOk4FJnskML++
+         rFBA9VvsimnBkXlypLnlQXB2YrX48/z22Y31z+95jnhum/QWApIOqUwNCKERD4eA9iYI
+         OISu2YT8xKb46QhQ/3bl303nWr3BNgFFODVvCid6VaUnY5Nnr4RoTaGgkr9FOLfJV5U2
+         E3iOTAsJ7RdfBkiEB6Ypoo7INbvCDXzlAj9ZygESzkOLH0ofHs+XyhBYNX94zB1RaOCP
+         RnRoEdtQ2aqK0UbOv8LA/TWUS37r2MFE1xmuDMSWC/Et+8KGy5BpLcBimzhwvkOsIRBp
+         9SDw==
+X-Gm-Message-State: ANhLgQ1AT8IGt2skk8oEBWm0pXI4zJVa7hPjz0EfyaYdCMf/WyTYR+pP
+        0E/9dDp5Lo3+VbeKYf9blNIfZ+U=
+X-Google-Smtp-Source: ADFU+vv5Ufou1gAlKDX6XtyEl/Yqxyi6/Ef2fceOO2APym87C2PtkEFkU+SgtAU4IcyOIenAnsywvQ==
+X-Received: by 2002:a05:6830:1581:: with SMTP id i1mr4949574otr.349.1583869042434;
+        Tue, 10 Mar 2020 12:37:22 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id v2sm3574361oiv.41.2020.03.10.12.37.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 12:37:21 -0700 (PDT)
+Received: (nullmailer pid 30746 invoked by uid 1000);
+        Tue, 10 Mar 2020 19:37:21 -0000
+Date:   Tue, 10 Mar 2020 14:37:21 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Tero Kristo <t-kristo@ti.com>
+Cc:     wim@linux-watchdog.org, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCHv2 1/4] dt-bindings: watchdog: Add support for TI K3 RTI
+ watchdog
+Message-ID: <20200310193721.GA24150@bogus>
+References: <20200302200426.6492-1-t-kristo@ti.com>
+ <20200302200426.6492-2-t-kristo@ti.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="G6nVm6DDWH/FONJq"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200226132122.62805-4-mika.westerberg@linux.intel.com>
+In-Reply-To: <20200302200426.6492-2-t-kristo@ti.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+On Mon, Mar 02, 2020 at 10:04:23PM +0200, Tero Kristo wrote:
+> TI K3 SoCs contain an RTI (Real Time Interrupt) module which can be
+> used to implement a windowed watchdog functionality. Windowed watchdog
+> will generate an error if it is petted outside the time window, either
+> too early or too late.
+> 
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Tero Kristo <t-kristo@ti.com>
+> ---
+>  .../bindings/watchdog/ti,rti-wdt.yaml         | 52 +++++++++++++++++++
+>  1 file changed, 52 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> new file mode 100644
+> index 000000000000..3813f59fb6c3
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> @@ -0,0 +1,52 @@
+> +# SPDX-License-Identifier: GPL-2.0
 
---G6nVm6DDWH/FONJq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dual license new bindings please:
 
-On Wed, Feb 26, 2020 at 04:21:22PM +0300, Mika Westerberg wrote:
-> Martin noticed that nct6775 driver does not load properly on his system
-> in v5.4+ kernels. The issue was bisected to commit b84398d6d7f9 ("i2c:
-> i801: Use iTCO version 6 in Cannon Lake PCH and beyond") but it is
-> likely not the culprit because the faulty code has been in the driver
-> already since commit 9424693035a5 ("i2c: i801: Create iTCO device on
-> newer Intel PCHs"). So more likely some commit that added PCI IDs of
-> recent chipsets made the driver to create the iTCO_wdt device on Martins
-> system.
->=20
-> The issue was debugged to be PCI configuration access to the PMC device
-> that is not present. This returns all 1's when read and this caused the
-> iTCO_wdt driver to accidentally request resourses used by nct6775.
->=20
-> It turns out that the SMI resource is only required for some ancient
-> systems, not the ones supported by this driver. For this reason do not
-> populate the SMI resource at all and drop all the related code. The
-> driver now always populates the main I/O resource and only in case of SPT
-> (Intel Sunrisepoint) compatible devices it adds another resource for the
-> NO_REBOOT bit. These two resources are of different types so
-> platform_get_resource() used by the iTCO_wdt driver continues to find
-> the both resources at index 0.
->=20
-> Link: https://lore.kernel.org/linux-hwmon/CAM1AHpQ4196tyD=3DHhBu-2donSsuo=
-gabkfP03v1YF26Q7_BgvgA@mail.gmail.com/
-> Fixes: 9424693035a5 ("i2c: i801: Create iTCO device on newer Intel PCHs")
-> Reported-by: Martin Volf <martin.volf.42@gmail.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+(GPL-2.0-only OR BSD-2-Clause)
 
-I added a comment saying that the whole series is needed for a complete
-fix. Dunno if there is a better way to express such dependencies for
-stable.
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/watchdog/ti,rti-wdt.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Texas Instruments K3 SoC Watchdog Timer
+> +
+> +maintainers:
+> +  - Tero Kristo <t-kristo@ti.com>
+> +
+> +description: |+
 
-Applied to for-current, thanks!
+You can drop '|+' as there's no formatting to preserve.
 
+> +  The TI K3 SoC watchdog timer is implemented via the RTI (Real Time
+> +  Interrupt) IP module. This timer adds a support for windowed watchdog
+> +  mode, which will signal an error if it is pinged outside the watchdog
+> +  time window, meaning either too early or too late. The error signal
+> +  generated can be routed to either interrupt a safety controller or
+> +  to directly reset the SoC.
+> +
 
---G6nVm6DDWH/FONJq
-Content-Type: application/pgp-signature; name="signature.asc"
+Reference the common watchdog.yaml schema.
 
------BEGIN PGP SIGNATURE-----
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - ti,rti-wdt
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5nXngACgkQFA3kzBSg
-KbZU4w/8DWEsX3sB25IkWCiHMd+k6Xdt9pibradFLjnIPS2iR7fCa2RdyBkB3pQj
-Woql9oxCJX7yrncKky7XaFYalUhAcSiFg/Li8gDQ+p+ilszMrU4bS+9nYCl+MAel
-RXxSmIv7gbdiTewYewssmh8ttNeDkbx96EoIxcyIKMPMNHOITfkcsDihwWTI+grg
-00GwjQafODS2Iyuoy9vZW0dgbBWMXfeZWG2Yk7nQS5QI5Mb4N4s6KwN7aVS6EJCz
-VsHrvzmyyRLd8//LhOGbV2JGsHIwkrp9j5snGRWumXYqWZKpaboXMf1G0xx1ZbU4
-M8qn1R/LaiJa6Lmk+J8Xv/eVEeBBNY4C3ljGw0n8Yut2dmGWUxLZ7Bu5QXM1wUeg
-etlA+NmfABg83PhtLQyImtrmvBuQ/SQGHoA7MZB9wDqBdg3E+mK9fjAGFKXmfED0
-Hjhh+xZrg61RS3oP68SPqcWJVXi2S5BYNzL3132ub5iYuhmdeu9ZXhI34ImwCob9
-ZKxG14azyq/LIPf5IV3aZ3hu+B2kmb9EbL8FWMP5sjk+gI72WdF+Ff84h5OOPyi7
-nyzBUTJDJtacPraxurwQ9elA9cNVjo0iawcTUM/bhD2S/ucfDezKtKEOD0WO/5rQ
-tx7qPcWlol8eGOaFT3SbuJtW2gbNoeHrI3UkpSxHqxg/II5FWJQ=
-=0FFd
------END PGP SIGNATURE-----
+Should be SoC specific possibly with a fallback.
 
---G6nVm6DDWH/FONJq--
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - clocks
+> +
+> +examples:
+> +  - |
+> +    /*
+> +     * RTI WDT in main domain on J721e SoC. Assigned clocks are used to
+> +     * select the source clock for the watchdog, forcing it to tick with
+> +     * a 32kHz clock in this case.
+> +     */
+> +    #include <dt-bindings/soc/ti,sci_pm_domain.h>
+> +
+> +    main_rti0: rti@2200000 {
+
+watchdog@...
+
+> +        compatible = "ti,rti-wdt";
+> +        reg = <0x0 0x2200000 0x0 0x100>;
+> +        clocks = <&k3_clks 252 1>;
+> +        power-domains = <&k3_pds 252 TI_SCI_PD_EXCLUSIVE>;
+
+Not documented.
+
+> +        assigned-clocks = <&k3_clks 252 1>;
+> +        assigned-clock-parents = <&k3_clks 252 5>;
+
+Not documented.
+
+> +    };
+> -- 
+> 2.17.1
+> 
+> --
+> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki. Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
