@@ -2,207 +2,103 @@ Return-Path: <SRS0=J0ll=44=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4965FC3F2D0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Mar 2020 07:49:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB17EC0044D
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Mar 2020 19:24:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 22AC2206B7
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Mar 2020 07:49:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9532720736
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Mar 2020 19:24:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="GYNFIGyJ"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ARE6qGsm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728245AbgCKHtV (ORCPT
+        id S1730705AbgCKTYO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 11 Mar 2020 03:49:21 -0400
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:53100 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728364AbgCKHtV (ORCPT
+        Wed, 11 Mar 2020 15:24:14 -0400
+Received: from mail-il1-f193.google.com ([209.85.166.193]:43675 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730858AbgCKTYO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Mar 2020 03:49:21 -0400
-Received: from lelv0266.itg.ti.com ([10.180.67.225])
-        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02B7mwkl001284;
-        Wed, 11 Mar 2020 02:48:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1583912938;
-        bh=Dt0IRyKZEWT9JVFxfFR5odUXV0yBX2GKXRx7gN7gnOE=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=GYNFIGyJW6mG2Fcwh3k1R+B6NNy2+4VdkMPbpJ+3xJe+1CFjQt4rWycyaUJPXOL3s
-         VR28Mo7e1bzqG1to06qRMH4XRVc8yukHvA0G8UREFuAKBN94EHH+ZJ4gwMqUeImEgt
-         VuLfSbr7PP1EoPEldH3aaegJRBtyL/hw0EKQFETM=
-Received: from DFLE114.ent.ti.com (dfle114.ent.ti.com [10.64.6.35])
-        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 02B7mwYJ061412
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 11 Mar 2020 02:48:58 -0500
-Received: from DFLE104.ent.ti.com (10.64.6.25) by DFLE114.ent.ti.com
- (10.64.6.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 11
- Mar 2020 02:48:58 -0500
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE104.ent.ti.com
- (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Wed, 11 Mar 2020 02:48:57 -0500
-Received: from [127.0.0.1] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02B7mtZJ104143;
-        Wed, 11 Mar 2020 02:48:56 -0500
-Subject: Re: [PATCHv2 1/4] dt-bindings: watchdog: Add support for TI K3 RTI
- watchdog
-To:     Rob Herring <robh@kernel.org>
-CC:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-References: <20200302200426.6492-1-t-kristo@ti.com>
- <20200302200426.6492-2-t-kristo@ti.com> <20200310193721.GA24150@bogus>
-From:   Tero Kristo <t-kristo@ti.com>
-Message-ID: <90e0e943-5b84-ba61-1b6f-fe9259415df7@ti.com>
-Date:   Wed, 11 Mar 2020 09:48:54 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        Wed, 11 Mar 2020 15:24:14 -0400
+Received: by mail-il1-f193.google.com with SMTP id d14so2625044ilq.10
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2020 12:24:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8N/7KqaO2uHDIYZv/eBCikgO0CGFEy0TUrj3C3ZKTKg=;
+        b=ARE6qGsmx2gNgSWJCSYU0TNiWLYMwyiRcF6ENWM3CzZ22PibB5K9mK6zqiGKXRuzWy
+         KopIQ+9mN/zayHYAau1eIEgQO/CVEKQFu7DTE9CQOd0YytHsopNF7ePGCmgBn4lttdgq
+         MMEyPTdXGQ7lKTsi+rgkBT4ejvtJ6j+kWqLpE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8N/7KqaO2uHDIYZv/eBCikgO0CGFEy0TUrj3C3ZKTKg=;
+        b=EVZS8cvMAgKXzhakOxnvNXlJ51V6AuyAghFLl6Wlob9Ob1nGCCwNgO7jg8OaAs5G3g
+         ycGdvd1U2a6mlDEfK/AOayFCs1Kd7+2U+7GtFutK17drz2nmZrS2lflv/mphE7K5+wj2
+         wfp58Y1KHLeOgDa1OVZ98fn0g1vf8QKFBmWL7cLtY07M1qymFik8u6FImPEC8URRqMDb
+         JSTrIsqUYRU11dWDnzWm/v3HYbnbhPkhTBlSL8cp+yZWdMAFPmkLZAmk4aGrRL754JJ2
+         pBOyrMHEzeNzFO955oZunBEXU/1r/ZA4GaarXT/TMuQW6c/dl4nKUgrFVWbx7Jvx1FFa
+         RLmA==
+X-Gm-Message-State: ANhLgQ0/XDSK3pmS0w22F6mH3Cz0gn9Pn4sQzIhkM3w1rbmuUrw9kZM4
+        kXS6GmxpcUyAQ85MRZDbQ2cPiHpcpwHigT4E5RdMDg==
+X-Google-Smtp-Source: ADFU+vu73cL6OluZ5si943eP+eQIpQ8nGNRk/kAu29sLxMb2Kjpld2YYVtSCdcWAgwpjVWtWsQ9Tjb7Cnb1d1i9YbQA=
+X-Received: by 2002:a92:52:: with SMTP id 79mr4698842ila.41.1583954653040;
+ Wed, 11 Mar 2020 12:24:13 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200310193721.GA24150@bogus>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+References: <20200214062637.216209-1-evanbenn@chromium.org>
+ <20200214172512.1.I02ebc5b8743b1a71e0e15f68ea77e506d4e6f840@changeid>
+ <20200219223046.GA16537@bogus> <CAODwPW8JspiUtyU4CC95w9rbNRyUF-Aeb9TuPm1PzmP6u=y1EA@mail.gmail.com>
+ <20200219232005.GA9737@roeck-us.net> <CAKz_xw2hvHL=a4s37dmuCTWDbxefQFR3rfcaNiWYJY4T+jqabA@mail.gmail.com>
+ <e42320b8-266f-0b0e-b20b-b72228510e81@amlogic.com> <CAODwPW94KX46PzSrf_uuEFPKudXor=26d=g3Qta5veRfxmMDUA@mail.gmail.com>
+ <1326f594-3cfd-c03d-4f2c-50eeb75724b2@amlogic.com> <CAODwPW8WwntWb_=dg2J3AMy-gHw2QvNj_g98SufN13+AuGnUSg@mail.gmail.com>
+ <b4ba821a-eef6-4aea-1eba-897171b92c41@amlogic.com> <CAKz_xw2T1UceCwFZnBxg6WVp2D4+MziyvQPdU6tEnR_BdLh-PQ@mail.gmail.com>
+ <ad28aa47-0490-937f-898f-0e4695ef6ec6@amlogic.com>
+In-Reply-To: <ad28aa47-0490-937f-898f-0e4695ef6ec6@amlogic.com>
+From:   Julius Werner <jwerner@chromium.org>
+Date:   Wed, 11 Mar 2020 12:24:01 -0700
+Message-ID: <CAODwPW9oxx33hkO3kv2_G8YyLWvigVHkfJU7xUHLVgB7QU2i3Q@mail.gmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: Add arm,smc-wdt watchdog
+ arm,smc-wdt compatible
+To:     Xingyu Chen <xingyu.chen@amlogic.com>
+Cc:     Evan Benn <evanbenn@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Jianxin Pan <jianxin.pan@amlogic.com>,
+        Rob Herring <robh@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Yonghui Yu <yonghui.yu@amlogic.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Julius Werner <jwerner@chromium.org>,
+        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 10/03/2020 21:37, Rob Herring wrote:
-> On Mon, Mar 02, 2020 at 10:04:23PM +0200, Tero Kristo wrote:
->> TI K3 SoCs contain an RTI (Real Time Interrupt) module which can be
->> used to implement a windowed watchdog functionality. Windowed watchdog
->> will generate an error if it is petted outside the time window, either
->> too early or too late.
->>
->> Cc: Rob Herring <robh@kernel.org>
->> Cc: devicetree@vger.kernel.org
->> Signed-off-by: Tero Kristo <t-kristo@ti.com>
->> ---
->>   .../bindings/watchdog/ti,rti-wdt.yaml         | 52 +++++++++++++++++++
->>   1 file changed, 52 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
->> new file mode 100644
->> index 000000000000..3813f59fb6c3
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
->> @@ -0,0 +1,52 @@
->> +# SPDX-License-Identifier: GPL-2.0
-> 
-> Dual license new bindings please:
-> 
-> (GPL-2.0-only OR BSD-2-Clause)
+> - *_INIT and *GETTIMEOUT.      Although your driver does not need them, could you take them as options in your driver ?
 
-Ok, will fix this.
+The driver already has SMCWD_INFO which is used during probe to
+retrieve the minimum and maximum timeout values supported by the
+hardware at probe time. Maybe it would make sense to rename that to
+INIT (which would still return those values, but can also do whatever
+initialization needs to be done in TF)? GETTIMELEFT I agree we can
+implement optionally, and other platforms would just return a
+PSCI_RET_NOT_SUPPORTED for that.
 
-> 
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/watchdog/ti,rti-wdt.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Texas Instruments K3 SoC Watchdog Timer
->> +
->> +maintainers:
->> +  - Tero Kristo <t-kristo@ti.com>
->> +
->> +description: |+
-> 
-> You can drop '|+' as there's no formatting to preserve.
+> - *_RESETNOW.      It is used to reset the system right now, similar to your SOFT RESET. could you reserve an operation index in ATF ?
 
-Ok.
-
-> 
->> +  The TI K3 SoC watchdog timer is implemented via the RTI (Real Time
->> +  Interrupt) IP module. This timer adds a support for windowed watchdog
->> +  mode, which will signal an error if it is pinged outside the watchdog
->> +  time window, meaning either too early or too late. The error signal
->> +  generated can be routed to either interrupt a safety controller or
->> +  to directly reset the SoC.
->> +
-> 
-> Reference the common watchdog.yaml schema.
-
-I believe you mean just adding:
-
-allOf:
-   - $ref: "watchdog.yaml#"
-
-
-> 
->> +properties:
->> +  compatible:
->> +    enum:
->> +      - ti,rti-wdt
-> 
-> Should be SoC specific possibly with a fallback.
-
-Ok, will change this.
-
-> 
->> +
->> +  reg:
->> +    maxItems: 1
->> +
->> +  clocks:
->> +    maxItems: 1
->> +
->> +required:
->> +  - compatible
->> +  - reg
->> +  - clocks
->> +
->> +examples:
->> +  - |
->> +    /*
->> +     * RTI WDT in main domain on J721e SoC. Assigned clocks are used to
->> +     * select the source clock for the watchdog, forcing it to tick with
->> +     * a 32kHz clock in this case.
->> +     */
->> +    #include <dt-bindings/soc/ti,sci_pm_domain.h>
->> +
->> +    main_rti0: rti@2200000 {
-> 
-> watchdog@...
-
-Right.
-
-> 
->> +        compatible = "ti,rti-wdt";
->> +        reg = <0x0 0x2200000 0x0 0x100>;
->> +        clocks = <&k3_clks 252 1>;
->> +        power-domains = <&k3_pds 252 TI_SCI_PD_EXCLUSIVE>;
-> 
-> Not documented.
-
-For this and assigned-clocks below...
-
-> 
->> +        assigned-clocks = <&k3_clks 252 1>;
->> +        assigned-clock-parents = <&k3_clks 252 5>;
-> 
-> Not documented.
-
-Ok will fix these, I was grepping for examples under the yaml files and 
-some seem to document these standard props, some not. But, I guess 
-everything listed in the examples should be documented.
-
-Sorry all this yaml stuff is still pretty new to me. >.<
-
--Tero
-
-> 
->> +    };
->> -- 
->> 2.17.1
->>
->> --
-
---
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki. Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+Just curious, why do you need this? Shouldn't you use the PSCI
+standard SYSTEM_RESET SMC for that? (If you want to control exactly
+how the platform is reset, you could also use SYSTEM_RESET2 with a
+vendor-defined reset_type.)
