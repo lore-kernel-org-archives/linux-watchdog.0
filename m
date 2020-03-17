@@ -2,199 +2,318 @@ Return-Path: <SRS0=jmB1=5C=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 772B1C0044D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 02:35:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B683C5ACD6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:50:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F5792076B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 02:35:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05B7920754
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:50:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="JBiF2891"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="o7pFSsqu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726650AbgCQCfc (ORCPT
+        id S1726976AbgCQUuz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 16 Mar 2020 22:35:32 -0400
-Received: from mail-eopbgr60057.outbound.protection.outlook.com ([40.107.6.57]:37441
-        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726343AbgCQCfc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Mar 2020 22:35:32 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z9tomkOGjwlLeM6/x7BVFxaP/ktQikCsd8rSSD5Xxb/IZvxUzAzCnVU5NVN1J9xJ7D/AeLGQ2/VVCsmpccdRTKCqdLiuZEJu0pDxkNl0QxOEvMjXOvYGrXFf83u5ZG4bfRA0lNjRi6cFR6Gv+P3HX27JhI+iILGWhwiaeMIOL13pNoqpscugvkUZ9lp60nlwrB1H5GoQVDSpjSOtxxZuPQQVF3jUlm64p/KD+vRLOQKgR/8eFkATs1yt2Fh164sXM5qkq4gwR20+s8ykHZAWM1CNJ+xRUSI52GSRl2Q+1ptR6ieV6tHH5ehWFlQYmtcBLGTM8jFEWnEXl0KJpjmyqw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A+NYqHSmaa0fBdc/KDbiGtkPs+BO62E0Ys3++B97g4k=;
- b=DL3Obz4RclVWWrA2Dc265f6ECkT07iixSyG9aVAqK/e4/2CReyjnwRrja04FRTJy+aPPlSt+Nl94ZMHBTnKLvJHyon/RGVaNJpDJKo4jp8j1Fc1BCu3PDL4pJbYy0NroesVLeT1QI5qmeKV74SIYtP8QgWfkYcAnvmDopCRgw5soB9cxAESsWsgGLtIgsXudIiJ4RaLWNHgtcpJvVq8fGIJHkHJN6STVb0gBWBVa4B1ZVKnvgGTfMfCzb1gwlkhgndGoTii5x0Fg8185ZvOUOArOzZbop9y2mxXrSrDWFRz9ZOEbfvT7RRbSJ97eP+45l9mGRI/GP4TT1bylgTTbVg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A+NYqHSmaa0fBdc/KDbiGtkPs+BO62E0Ys3++B97g4k=;
- b=JBiF2891vczXb2W+U+Kh9dsXUkNgDOQykkDOP1FVj1DNZMOHqy/HjucIf409Uyn00RSIT1qQYIeANF1a/XzNbrA6hGirXzYPb36b+8gW2M9S/UujOilb7UTIwUn1DcElkq+5jaxcTxSJbtxOVC5j23caJ/grTsPXxf32M9p3R6M=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3867.eurprd04.prod.outlook.com (52.134.65.148) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.14; Tue, 17 Mar 2020 02:35:15 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::3143:c46:62e4:8a8b]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::3143:c46:62e4:8a8b%7]) with mapi id 15.20.2814.021; Tue, 17 Mar 2020
- 02:35:15 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     Guenter Roeck <linux@roeck-us.net>, Peng Fan <peng.fan@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC:     Shawn Guo <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "rui.zhang@intel.com" <rui.zhang@intel.com>,
-        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
-        "amit.kucheria@verdurent.com" <amit.kucheria@verdurent.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux@rempel-privat.de" <linux@rempel-privat.de>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "m.felsch@pengutronix.de" <m.felsch@pengutronix.de>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "ronald@innovation.ch" <ronald@innovation.ch>,
-        "krzk@kernel.org" <krzk@kernel.org>,
-        "robh@kernel.org" <robh@kernel.org>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: RE: [PATCH V3 1/7] firmware: imx: Add stubs for !CONFIG_IMX_SCU case
-Thread-Topic: [PATCH V3 1/7] firmware: imx: Add stubs for !CONFIG_IMX_SCU case
-Thread-Index: AQHV9av62LAReQhoZkKZ9LnT5dFdbahARTIAgAopwQCAACFfgIAABHaAgAADEYCAAAR+AIAASuWQgAAKpACAAABIoIAABUuAgAABn+CAAAKDgIAABdZwgAEX1ICAAAQYAIAAADvQ
-Date:   Tue, 17 Mar 2020 02:35:14 +0000
-Message-ID: <DB3PR0402MB3916D27B3D860D8CD7441AA5F5F60@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <20200316005219.GD17221@dragon>
- <AM0PR04MB44819E4A9E027F1555C33D0B88F90@AM0PR04MB4481.eurprd04.prod.outlook.com>
- <20200316030744.GC17221@dragon>
- <AM0PR04MB44817A48746601EADA4E06BC88F90@AM0PR04MB4481.eurprd04.prod.outlook.com>
- <20200316033447.GE17221@dragon>
- <DB3PR0402MB3916DA9F0F175B9D2E9E684FF5F90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <20200316084056.GG4518@piout.net>
- <DB3PR0402MB391663DB37A8D241092AD708F5F90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <20200316090053.GH4518@piout.net>
- <DB3PR0402MB391683A05820920158DFDA77F5F90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <20200316091541.GI4518@piout.net>
- <DB3PR0402MB39169528B3FF39E23C7A90FCF5F90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <AM0PR04MB4481A54C639FD1D45098302088F60@AM0PR04MB4481.eurprd04.prod.outlook.com>
- <b049be1c-1f3f-54fc-3c47-0873d95cb769@roeck-us.net>
-In-Reply-To: <b049be1c-1f3f-54fc-3c47-0873d95cb769@roeck-us.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-originating-ip: [119.31.174.68]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 7c52e271-4b53-454d-54e9-08d7ca1bd327
-x-ms-traffictypediagnostic: DB3PR0402MB3867:|DB3PR0402MB3867:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <DB3PR0402MB386787CA5704A21198D23D91F5F60@DB3PR0402MB3867.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:5236;
-x-forefront-prvs: 0345CFD558
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(39860400002)(396003)(136003)(376002)(346002)(366004)(199004)(66446008)(66556008)(9686003)(66946007)(64756008)(55016002)(66476007)(76116006)(81156014)(8676002)(186003)(81166006)(33656002)(44832011)(26005)(8936002)(71200400001)(54906003)(7696005)(316002)(110136005)(6506007)(53546011)(478600001)(5660300002)(52536014)(4326008)(86362001)(2906002)(7416002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3867;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Z8xABrCeRLQT8wbQN4x43VrI3XB6MxyEJyv8fvR/M09LIG3AnXhyONZrrHps7HoFQLPPa8lofnRrdUevCiPEtmWDs26AHM6CyeHQuThtHKexLUmNKukxVZw6Jmw2bHyDVpw8WXL6xp9nd66/c68vtBYkcO/eOijxErUdYW/6pYPEfE+kCz+53/pSJdh2P0skywAC7H0l3De8F30O8DfbORF3QX+kpT/dH+D6ISoo3LgmzYQdhEOozEVrNaM9pCWaHZQLQFyE+qz1utLQl1zIr4CAM4dGcOzt6P2gKXe7Tn7v1QNg4NtCcB3BwOsiMqQvqUMk66TXym9ewGL0jSPc01F7XOPtn5GlAxiUcnVdxvhUVMRjQYpXqku5tvsPiJs3U24VJnxc2vOakM1JkqxehCyWenRcZUY6I9WEbpHUqCDz7GNTlfaSWNTlWQVq81UZ
-x-ms-exchange-antispam-messagedata: KZmNt9s8qU4StJt9ayQx5SUSX+tY88hgKy5CgyODV/qHfrupsWORm61SrbEeQj11flqM9yHGcJdQZPEcLNZVtCgfR9NUXi7ds3/dGZo81p/RslnrgyHf+VKvMTSqrXd6BuE+pKIUNXLTC+/gLXLLog==
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Tue, 17 Mar 2020 16:50:55 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:58263 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726897AbgCQUuy (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 17 Mar 2020 16:50:54 -0400
+Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 7CB6C23E5E;
+        Tue, 17 Mar 2020 21:50:50 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1584478251;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=y0nO69Q7JxaeYvAKKhyuVwLXm694mhiGkavva5IWoko=;
+        b=o7pFSsquzKt29aXrpzJytIbwVRG0BCKQ6xwXnPIZ5WA8aZbpSHaSxO4kzSILVMr0tuqD68
+        7xb950070fepsQPXEUnSWsTqVnHNZU+gQJBEe0l27HdEjoLJFe4C/BcSWK2zA4mYbt9DeH
+        r259fZtVOSI0JDXaCmAUgDBAtX5fG0E=
+From:   Michael Walle <michael@walle.cc>
+To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Michael Walle <michael@walle.cc>
+Subject: [PATCH 05/18] mfd: Add support for Kontron sl28cpld management controller
+Date:   Tue, 17 Mar 2020 21:50:04 +0100
+Message-Id: <20200317205017.28280-6-michael@walle.cc>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200317205017.28280-1-michael@walle.cc>
+References: <20200317205017.28280-1-michael@walle.cc>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c52e271-4b53-454d-54e9-08d7ca1bd327
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Mar 2020 02:35:15.1202
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: GV1D4U8PA+UsRWkvumzzlzzm4LYD9fxG8vheS7XkU17aDSYRgsHlxN6VJqVlvRcgqFgh2g/VBUzivcji0/GD4g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3867
+Content-Transfer-Encoding: 8bit
+X-Spamd-Bar: ++++++
+X-Rspamd-Server: web
+X-Rspamd-Queue-Id: 7CB6C23E5E
+X-Spamd-Result: default: False [6.40 / 15.00];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         R_MISSING_CHARSET(2.50)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TAGGED_RCPT(0.00)[dt];
+         MIME_GOOD(-0.10)[text/plain];
+         BROKEN_CONTENT_TYPE(1.50)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         NEURAL_SPAM(0.00)[0.498];
+         DKIM_SIGNED(0.00)[];
+         RCPT_COUNT_TWELVE(0.00)[22];
+         MID_CONTAINS_FROM(1.00)[];
+         RCVD_COUNT_ZERO(0.00)[0];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         ASN(0.00)[asn:31334, ipnet:2a02:810c:8000::/33, country:DE];
+         FREEMAIL_CC(0.00)[linaro.org,baylibre.com,kernel.org,suse.com,roeck-us.net,gmail.com,pengutronix.de,linux-watchdog.org,nxp.com,linutronix.de,lakedaemon.net,walle.cc];
+         SUSPICIOUS_RECIPS(1.50)[]
+X-Spam: Yes
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggVjMgMS83XSBmaXJtd2FyZTogaW14OiBBZGQgc3R1YnMg
-Zm9yICFDT05GSUdfSU1YX1NDVQ0KPiBjYXNlDQo+IA0KPiBPbiAzLzE2LzIwIDc6MTggUE0sIFBl
-bmcgRmFuIHdyb3RlOg0KPiA+PiBTdWJqZWN0OiBSRTogW1BBVENIIFYzIDEvN10gZmlybXdhcmU6
-IGlteDogQWRkIHN0dWJzIGZvcg0KPiA+PiAhQ09ORklHX0lNWF9TQ1UgY2FzZQ0KPiA+Pg0KPiA+
-PiBIaSwgQWxleGFuZHJlDQo+ID4+DQo+ID4+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
-PiA+Pj4gRnJvbTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5iZWxsb25pQGJvb3RsaW4u
-Y29tPg0KPiA+Pj4gU2VudDogTW9uZGF5LCBNYXJjaCAxNiwgMjAyMCA1OjE2IFBNDQo+ID4+PiBU
-bzogQW5zb24gSHVhbmcgPGFuc29uLmh1YW5nQG54cC5jb20+DQo+ID4+PiBDYzogU2hhd24gR3Vv
-IDxzaGF3bmd1b0BrZXJuZWwub3JnPjsgUGVuZyBGYW4NCj4gPHBlbmcuZmFuQG54cC5jb20+Ow0K
-PiA+Pj4gcy5oYXVlckBwZW5ndXRyb25peC5kZTsga2VybmVsQHBlbmd1dHJvbml4LmRlOyBmZXN0
-ZXZhbUBnbWFpbC5jb207DQo+ID4+PiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBhLnp1bW1v
-QHRvd2VydGVjaC5pdDsNCj4gPj4gcnVpLnpoYW5nQGludGVsLmNvbTsNCj4gPj4+IGRhbmllbC5s
-ZXpjYW5vQGxpbmFyby5vcmc7IGFtaXQua3VjaGVyaWFAdmVyZHVyZW50LmNvbTsgd2ltQGxpbnV4
-LQ0KPiA+Pj4gd2F0Y2hkb2cub3JnOyBsaW51eEByb2Vjay11cy5uZXQ7IERhbmllbCBCYWx1dGEN
-Cj4gPj4+IDxkYW5pZWwuYmFsdXRhQG54cC5jb20+OyBncmVna2hAbGludXhmb3VuZGF0aW9uLm9y
-ZzsNCj4gPj4+IGxpbnV4QHJlbXBlbC1wcml2YXQuZGU7IHRnbHhAbGludXRyb25peC5kZTsgbS5m
-ZWxzY2hAcGVuZ3V0cm9uaXguZGU7DQo+ID4+PiBhbmRyaXkuc2hldmNoZW5rb0BsaW51eC5pbnRl
-bC5jb207DQo+ID4+PiBhcm5kQGFybmRiLmRlOyByb25hbGRAaW5ub3ZhdGlvbi5jaDsga3J6a0Br
-ZXJuZWwub3JnOw0KPiA+Pj4gcm9iaEBrZXJuZWwub3JnOyBMZW9uYXJkIENyZXN0ZXogPGxlb25h
-cmQuY3Jlc3RlekBueHAuY29tPjsgQWlzaGVuZw0KPiA+Pj4gRG9uZyA8YWlzaGVuZy5kb25nQG54
-cC5jb20+OyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7DQo+ID4+PiBsaW51
-eC0ga2VybmVsQHZnZXIua2VybmVsLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBs
-aW51eC0NCj4gPj4+IHJ0Y0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LXBtQHZnZXIua2VybmVsLm9y
-ZzsgbGludXgtDQo+ID4+PiB3YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGRsLWxpbnV4LWlteCA8
-bGludXgtaW14QG54cC5jb20+DQo+ID4+PiBTdWJqZWN0OiBSZTogW1BBVENIIFYzIDEvN10gZmly
-bXdhcmU6IGlteDogQWRkIHN0dWJzIGZvcg0KPiA+Pj4gIUNPTkZJR19JTVhfU0NVIGNhc2UNCj4g
-Pj4+DQo+ID4+PiBPbiAxNi8wMy8yMDIwIDA5OjA4OjUzKzAwMDAsIEFuc29uIEh1YW5nIHdyb3Rl
-Og0KPiA+Pj4+PiBXaHkgZG8geW91IGFic29sdXRlbHkgbmVlZCB0byBjb21waWxlIHRoZW0gaW5k
-ZXBlbmRlbnRseT8gRnJvbSBhDQo+ID4+Pj4+IGNvZGUgY292ZXJhZ2UgcG9pbnQgb2Ygdmlldywg
-aGF2aW5nOg0KPiA+Pj4+Pg0KPiA+Pj4+PiBDT01QSUxFX1RFU1Q9eQ0KPiA+Pj4+PiBDT05GSUdf
-SU1YX1NDVT15DQo+ID4+Pj4+DQo+ID4+Pj4+IGlzIGVub3VnaCB0byBzZWxlY3QgYW5kIGNvbXBp
-bGUgdGhlIHJlbWFpbmluZyBkcml2ZXJzLg0KPiA+Pj4+DQo+ID4+Pj4gV2hhdCBJIG1lYW50IGlz
-IGZvciBiZWxvdyBjYXNlLCBsaWtlIHVzaW5nIG90aGVyIGFyY2ggY29uZmlnIHdoaWNoDQo+ID4+
-Pj4gZG9lcyBOT1QgaGF2ZSBDT05GSUdfSU1YX1NDVSBzZWxlY3RlZCwgT05MWSB3aXRoIENPTVBJ
-TEVfVEVTVA0KPiA+Pj4+IHNlbGVjdGVkLCBhZGRpbmcgc3R1YnMgZm9yIElNWF9TQ1UgQVBJcyBj
-YW4gZml4IHN1Y2ggc2NlbmFyaW8uDQo+ID4+Pj4NCj4gPj4+PiBDT01QSUxFX1RFU1Q9eQ0KPiA+
-Pj4+IENPTkZJR19JTVhfU0NVPW4NCj4gPj4+Pg0KPiA+Pj4NCj4gPj4+IFdoeSBpcyB0aGF0IGFu
-IGlzc3VlPyBJZiB0aGV5IGRvbid0IGhhdmUgSU1YX1NDVSBzZWxlY3RlZCwgdGhlbiB0aGUNCj4g
-Pj4+IG90aGVyIFNDVSBkcml2ZXIgYXJlIG5vdCBzZWxlY3RlZCBlaXRoZXIsIGhhdmluZyBzdHVi
-cyBkb2Vzbid0DQo+ID4+PiBjaGFuZ2UgdGhhdCB5b3Ugd2lsbCBoYXZlIHRvIHNlbGVjdCBhdCBs
-ZWFzdCBvbmUgb3B0aW9uLiBQbGVhc2UNCj4gPj4+IGV4cGxhaW4gd2hhdCBpcyB0aGUgaXNzdWUg
-dGhhdCBpcyBub3Qgc29sdmVkIGhlcmUuDQo+ID4+DQo+ID4+IE9LLCB3aGF0IEkgdGhvdWdodCBp
-cyBldmVuIHdpdGhvdXQgSU1YX1NDVSBzZWxlY3RlZCwgb3RoZXIgU0NVDQo+ID4+IGRyaXZlcnMg
-c3RpbGwgY2FuIGJlIHNlbGVjdGVkIGZvciBidWlsZCB0ZXN0IGFmdGVyIGFkZGluZw0KPiA+PiAi
-Q09NUElMRV9URVNUIiB0byB0aGUga2NvbmZpZywgbGlrZSBiZWxvdywgaWYgd2l0aG91dCBJTVhf
-U0NVIEFQSQ0KPiA+PiBzdHVicywgdGhlICJDT01QSUxFX1RFU1QiIGNhbiBOT1QgYmUgYWRkZWQg
-dG8gU0NVIGRyaXZlcnMgdG8gZW5hYmxlDQo+ID4+IGJ1aWxkIHRlc3QsIHNvIEkgdGhpbmsgdGhl
-IElNWF9TQ1UgQVBJIHN0dWJzIHNob3VsZCBiZSBhZGRlZD8NCj4gPg0KPiA+IEZvcmdvdCB0byBt
-ZW50aW9uLCB3aXRob3V0IHN0dWIgYXBpLCBmb3IgZHJpdmVycyB3aXRoICIgI2luY2x1ZGUNCj4g
-PiA8bGludXgvZmlybXdhcmUvaW14L3NjaS5oPiAiIHdpbGwgbWV0IGNvbXBpbGUgZXJyb3Igd2l0
-aG91dA0KPiA+ICsjaWZkZWYgQ09ORklHX0lNWF9TQ1UNCj4gPiArI2VuZGlmDQo+ID4NCj4gPiBT
-byB3ZSBoYXZlIHRvIHVzZSBpZmRlZiBDT05GSUdfSU1YX1NDVSB0byBndWFyZCB0aGUgaW5jbHVk
-ZS4NCj4gPg0KPiBBZGQgImRlcGVuZHMgb24gSU1YX1NDVSIgdG8gdGhlIEtjb25maWcgZW50cnkg
-Zm9yIHRob3NlIGRyaXZlcnMsIGFuZC9vcg0KPiBkcm9wICJDT01QSUxFX1RFU1QiIGZyb20gdGhl
-aXIgS2NvbmZpZyBlbnRyeS4NCj4gDQo+IFJlYWxseSwgQ09NUElMRV9URVNUIGlzIGFidXNlZCBo
-ZXJlLiBJIHN0YXJ0IHRvIHVuZGVyc3RhbmQgdGhvc2Ugd2hvDQo+IGFkdm9jYXRlIHRoYXQgaXQg
-c2hvdWxkIGJlIHJlbW92ZWQuIFRoaXMgaXMgYW4gZXhjZWxsZW50IGNhc2UgaW4gcG9pbnQuDQoN
-Cll1cCwgQ09NUElMRV9URVNUIHNob3VsZCBPTkxZIGJlIGFkZGVkIHRvIHRob3NlIGluZGVwZW5k
-ZW50IGRyaXZlcnMsDQp0aG9zZSBkcml2ZXJzIHdpdGggZGVwZW5kZW5jeSBvbiAiY29yZSIgZHJp
-dmVyIHNob3VsZCBOT1QgaGF2ZSBpdCBhZGRlZC4NClNDVSBkcml2ZXJzIGFyZSBzaW1pbGFyLg0K
-DQpBbnNvbg0K
+This patch adds core support for the board management controller found
+on the SMARC-sAL28 board. It consists of the following functions:
+ - watchdog
+ - GPIO controller
+ - PWM controller
+ - fan sensor
+ - interrupt controller
+
+At the moment, this controller is used on the Kontron SMARC-sAL28 board.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+---
+ drivers/mfd/Kconfig    |  21 ++++++
+ drivers/mfd/Makefile   |   2 +
+ drivers/mfd/sl28cpld.c | 155 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 178 insertions(+)
+ create mode 100644 drivers/mfd/sl28cpld.c
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 3c547ed575e6..01588c366476 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -2059,5 +2059,26 @@ config SGI_MFD_IOC3
+ 	  If you have an SGI Origin, Octane, or a PCI IOC3 card,
+ 	  then say Y. Otherwise say N.
+ 
++config MFD_SL28CPLD
++	tristate "Kontron sl28 core driver"
++	depends on I2C=y
++	depends on OF
++	select REGMAP_I2C
++	select REGMAP_IRQ
++	select SL28CPLD_IRQ
++	select MFD_CORE
++	help
++	  This option enables support for the board management controller
++	  found on the Kontron sl28 CPLD. You have to select individual
++	  functions, such as watchdog, GPIO, etc, under the corresponding menus
++	  in order to enable them.
++
++	  Currently supported boards are:
++
++		Kontron SMARC-sAL28
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called sl28cpld.
++
+ endmenu
+ endif
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index f935d10cbf0f..9bc38863b9c7 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -259,3 +259,5 @@ obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
+ obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
+ 
+ obj-$(CONFIG_SGI_MFD_IOC3)	+= ioc3.o
++
++obj-$(CONFIG_MFD_SL28CPLD)	+= sl28cpld.o
+diff --git a/drivers/mfd/sl28cpld.c b/drivers/mfd/sl28cpld.c
+new file mode 100644
+index 000000000000..789f21f90752
+--- /dev/null
++++ b/drivers/mfd/sl28cpld.c
+@@ -0,0 +1,155 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * MFD core for the CPLD on a SMARC-sAL28 board.
++ *
++ * Copyright 2019 Kontron Europe GmbH
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_platform.h>
++#include <linux/i2c.h>
++#include <linux/regmap.h>
++#include <linux/interrupt.h>
++#include <linux/mfd/core.h>
++
++#define SL28CPLD_VERSION 0x03
++#define SL28CPLD_WATCHDOG_BASE 0x4
++#define SL28CPLD_HWMON_FAN_BASE 0xb
++#define SL28CPLD_PWM0_BASE 0xc
++#define SL28CPLD_PWM1_BASE 0xe
++#define SL28CPLD_GPIO0_BASE 0x10
++#define SL28CPLD_GPIO1_BASE 0x15
++#define SL28CPLD_GPO_BASE 0x1a
++#define SL28CPLD_GPI_BASE 0x1b
++#define SL28CPLD_INTC_BASE 0x1c
++
++/* all subdevices share the same IRQ */
++#define SL28CPLD_IRQ 0
++
++#define SL28CPLD_MIN_REQ_VERSION 14
++
++struct sl28cpld {
++	struct device *dev;
++	struct regmap *regmap;
++};
++
++static const struct regmap_config sl28cpld_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.reg_stride = 1,
++};
++
++static struct resource sl28cpld_watchdog_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_WATCHDOG_BASE, 1),
++};
++
++static struct resource sl28cpld_hwmon_fan_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_HWMON_FAN_BASE, 1),
++};
++
++static struct resource sl28cpld_pwm0_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_PWM0_BASE, 1),
++};
++
++static struct resource sl28cpld_pwm1_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_PWM1_BASE, 1),
++};
++
++static struct resource sl28cpld_gpio0_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPIO0_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static struct resource sl28cpld_gpio1_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPIO1_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static struct resource sl28cpld_gpo_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPO_BASE, 1),
++};
++
++static struct resource sl28cpld_gpi_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPI_BASE, 1),
++};
++
++static struct resource sl28cpld_intc_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_INTC_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static const struct mfd_cell sl28cpld_devs[] = {
++	OF_MFD_CELL("sl28cpld-wdt", sl28cpld_watchdog_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-wdt"),
++	OF_MFD_CELL("sl28cpld-fan", sl28cpld_hwmon_fan_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-fan"),
++	OF_MFD_CELL("sl28cpld-pwm", sl28cpld_pwm0_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-pwm"),
++	OF_MFD_CELL("sl28cpld-pwm", sl28cpld_pwm1_resources, NULL, 0, 1,
++		    "kontron,sl28cpld-pwm"),
++	OF_MFD_CELL("sl28cpld-gpio", sl28cpld_gpio0_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-gpio"),
++	OF_MFD_CELL("sl28cpld-gpio", sl28cpld_gpio1_resources, NULL, 0, 1,
++		    "kontron,sl28cpld-gpio"),
++	OF_MFD_CELL("sl28cpld-gpo", sl28cpld_gpo_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-gpo"),
++	OF_MFD_CELL("sl28cpld-gpi", sl28cpld_gpi_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-gpi"),
++	OF_MFD_CELL("sl28cpld-intc", sl28cpld_intc_resources, NULL, 0, 0,
++		    "kontron,sl28cpld-intc"),
++};
++
++static int sl28cpld_probe(struct i2c_client *i2c)
++{
++	struct sl28cpld *sl28cpld;
++	struct device *dev = &i2c->dev;
++	unsigned int cpld_version;
++	int ret;
++
++	sl28cpld = devm_kzalloc(dev, sizeof(*sl28cpld), GFP_KERNEL);
++	if (!sl28cpld)
++		return -ENOMEM;
++
++	sl28cpld->regmap = devm_regmap_init_i2c(i2c, &sl28cpld_regmap_config);
++	if (IS_ERR(sl28cpld->regmap))
++		return PTR_ERR(sl28cpld->regmap);
++
++	ret = regmap_read(sl28cpld->regmap, SL28CPLD_VERSION, &cpld_version);
++	if (ret)
++		return ret;
++
++	if (cpld_version < SL28CPLD_MIN_REQ_VERSION) {
++		dev_err(dev, "unsupported CPLD version %d\n", cpld_version);
++		return -ENODEV;
++	}
++
++	sl28cpld->dev = dev;
++	i2c_set_clientdata(i2c, sl28cpld);
++
++	dev_info(dev, "successfully probed. CPLD version %d\n", cpld_version);
++
++	return devm_mfd_add_devices(dev, -1, sl28cpld_devs,
++				    ARRAY_SIZE(sl28cpld_devs), NULL,
++				    i2c->irq, NULL);
++}
++
++static const struct of_device_id sl28cpld_of_match[] = {
++	{ .compatible = "kontron,sl28cpld", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, sl28cpld_of_match);
++
++static struct i2c_driver sl28cpld_driver = {
++	.probe_new = sl28cpld_probe,
++	.driver = {
++		.name = "sl28cpld",
++		.of_match_table = of_match_ptr(sl28cpld_of_match),
++	},
++};
++module_i2c_driver(sl28cpld_driver);
++
++MODULE_DESCRIPTION("sl28cpld MFD Core Driver");
++MODULE_LICENSE("GPL");
+-- 
+2.20.1
+
