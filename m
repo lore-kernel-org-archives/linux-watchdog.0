@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54817C5AD43
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 464FCC5ACD7
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 26BA22075E
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D4D720754
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="NB4HqA8J"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="kXyRwtVE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727244AbgCQUvi (ORCPT
+        id S1727250AbgCQUvn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 17 Mar 2020 16:51:38 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:58263 "EHLO
+        Tue, 17 Mar 2020 16:51:43 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:59981 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726983AbgCQUu5 (ORCPT
+        with ESMTP id S1726913AbgCQUuz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Mar 2020 16:50:57 -0400
+        Tue, 17 Mar 2020 16:50:55 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id B660B23EB5;
-        Tue, 17 Mar 2020 21:50:54 +0100 (CET)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 23FB023E62;
+        Tue, 17 Mar 2020 21:50:52 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1584478255;
+        t=1584478252;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=E7KYRHF8gW7SJeGi58kiJJTVc48AdiVocJvWLrXB+2c=;
-        b=NB4HqA8JYHZaNI3x93GqOwrkjXX+JsHlDmI6nXR/8mgqGLM1gRkTAk8chQVh7yyr2dNCZ6
-        pMpfgfaXm3I38s68ERSkT77yUNvxec375pPCYM8oPN+NTICxyAekkG4fj8b9clvRP6/Dla
-        vpNAHR1igbCQW4Pi8Ux9QGha+YtjtNQ=
+        bh=Y4g351ZXp/jflpBK37qnXyNw2RDGRC4xBHLB3Avbv3U=;
+        b=kXyRwtVEDZog2sn6iZ6Wbu9Jgt/q8UA+RLZ8ee7kCsr1LgmU9BCr4yGlXezPYx55g30LMx
+        QsPHIIkW7eN3q9gpLkxR79uq2H4Tg6p8lU/sc0ggYA5KyU3fYPJBhZsxG6hRT4kd4vt6Et
+        Obr+pnAqXHtf6UDkzlgf3hgSFkv7eb0=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -58,9 +58,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Jason Cooper <jason@lakedaemon.net>,
         Marc Zyngier <maz@kernel.org>, Michael Walle <michael@walle.cc>
-Subject: [PATCH 11/18] dt-bindings: gpio: Add bindings for sl28cpld GPIO controller
-Date:   Tue, 17 Mar 2020 21:50:10 +0100
-Message-Id: <20200317205017.28280-12-michael@walle.cc>
+Subject: [PATCH 07/18] dt-bindings: watchdog: Add bindings for sl28cpld watchdog
+Date:   Tue, 17 Mar 2020 21:50:06 +0100
+Message-Id: <20200317205017.28280-8-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200317205017.28280-1-michael@walle.cc>
 References: <20200317205017.28280-1-michael@walle.cc>
@@ -68,7 +68,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: B660B23EB5
+X-Rspamd-Queue-Id: 23FB023E62
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -78,7 +78,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          MIME_GOOD(-0.10)[text/plain];
          BROKEN_CONTENT_TYPE(1.50)[];
          TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[0.601];
+         NEURAL_SPAM(0.00)[0.604];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[22];
          MID_CONTAINS_FROM(1.00)[];
@@ -94,28 +94,28 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This adds device tree bindings for the GPIO controller of the sl28 board
+This adds device tree bindings for the watchdog of the sl28cpld
 management controller.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- .../bindings/gpio/kontron,sl28cpld-gpio.yaml  | 46 +++++++++++++++++++
- 1 file changed, 46 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
+ .../watchdog/kontron,sl28cpld-wdt.yaml        | 30 +++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
 
-diff --git a/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
+diff --git a/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml b/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
 new file mode 100644
-index 000000000000..a6af8c4b622f
+index 000000000000..f446372fce34
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
-@@ -0,0 +1,46 @@
++++ b/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
+@@ -0,0 +1,30 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/gpio/kontron,sl28cpld-gpio.yaml#
++$id: http://devicetree.org/schemas/watchdog/kontron,sl28cpld-wdt.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: GPIO driver for the sl28cpld board management controller
++title: Watchdog driver for the sl28cpld board management controller
 +
 +maintainers:
 +  - Michael Walle <michael@walle.cc>
@@ -124,35 +124,19 @@ index 000000000000..a6af8c4b622f
 +  This module is part of the sl28cpld multi-function device. For more
 +  details see Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml.
 +
++allOf:
++  - $ref: watchdog.yaml#
++
 +properties:
 +  compatible:
-+    enum:
-+      - kontron,sl28cpld-gpio
-+      - kontron,sl28cpld-gpi
-+      - kontron,sl28cpld-gpo
++    const: kontron,sl28cpld-wdt
 +
 +  reg:
 +    maxItems: 1
-+    description: Instance number of the GPIO controller
-+
-+  "#interrupt-cells":
-+    const: 2
-+
-+  interrupt-controller: true
-+
-+  "#gpio-cells":
-+    const: 2
-+
-+  gpio-controller: true
-+
-+  gpio-line-names:
-+      minItems: 1
-+      maxItems: 8
++    description: Instance number of the watchdog
 +
 +required:
 +  - compatible
-+  - "#gpio-cells"
-+  - gpio-controller
 +
 +additionalProperties: false
 -- 
