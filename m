@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56082C5AD43
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ADB7C5ACD6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 230762073E
-	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C81220774
+	for <linux-watchdog@archiver.kernel.org>; Tue, 17 Mar 2020 20:51:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="jsqGqW/y"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="vNXBPAAH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727033AbgCQUu6 (ORCPT
+        id S1727228AbgCQUvc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 17 Mar 2020 16:50:58 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:48037 "EHLO
+        Tue, 17 Mar 2020 16:51:32 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:40643 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726958AbgCQUu5 (ORCPT
+        with ESMTP id S1726971AbgCQUu6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Mar 2020 16:50:57 -0400
+        Tue, 17 Mar 2020 16:50:58 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id C5B2823E68;
-        Tue, 17 Mar 2020 21:50:52 +0100 (CET)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 20D3323EA9;
+        Tue, 17 Mar 2020 21:50:54 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1584478253;
+        t=1584478254;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=VqfcYwyDQKikiyO04HE5MBT8kgxBHODa92cy3skiEn0=;
-        b=jsqGqW/yWgCdmWAn2/TKlz1FzzlAfVx4LVerrvKmRnuMaBRtNkWsXvN+jMLUwS7Uy0U63E
-        KDT/SvAArSsGCt3GQ8eg+1UtoXbBhMLOZp/ZERJOtvBvtcPVmKqspt34573eetvemNSl5M
-        yIdOOByfbOZ9ZtQ1Cz5FrRF6Je+NGqc=
+        bh=twd0Ppy8uMjyLaeWbisE1KI8OORpU7NS5ZQrPhswzQo=;
+        b=vNXBPAAH1IrB2oMPSmrVTqppJ4sWHDZ3wEGTJho7rCtDSknH6elwMwiFpJ7GDwL4OHIPDG
+        hBANb2hj37TVSfZyhO9shM0ct0BS7uXXrWdIzHJPFD+9xCaDs0ejBX5yJljtsGvchj6rnD
+        4+4szyk0Pn9J92ZfLEcq6jv1In4IBCw=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -58,9 +58,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Jason Cooper <jason@lakedaemon.net>,
         Marc Zyngier <maz@kernel.org>, Michael Walle <michael@walle.cc>
-Subject: [PATCH 08/18] watchdog: add support for sl28cpld watchdog
-Date:   Tue, 17 Mar 2020 21:50:07 +0100
-Message-Id: <20200317205017.28280-9-michael@walle.cc>
+Subject: [PATCH 10/18] pwm: add support for sl28cpld PWM controller
+Date:   Tue, 17 Mar 2020 21:50:09 +0100
+Message-Id: <20200317205017.28280-11-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200317205017.28280-1-michael@walle.cc>
 References: <20200317205017.28280-1-michael@walle.cc>
@@ -68,7 +68,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: C5B2823E68
+X-Rspamd-Queue-Id: 20D3323EA9
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -78,7 +78,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          MIME_GOOD(-0.10)[text/plain];
          BROKEN_CONTENT_TYPE(1.50)[];
          TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[0.507];
+         NEURAL_SPAM(0.00)[0.506];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[22];
          MID_CONTAINS_FROM(1.00)[];
@@ -94,291 +94,247 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This adds support for the watchdog of the sl28cpld board management
-controller. This is part of a multi-function device driver.
+This adds support for the PWM controller of the sl28cpld board
+management controller. This is part of a multi-function device driver.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- drivers/watchdog/Kconfig        |  11 ++
- drivers/watchdog/Makefile       |   1 +
- drivers/watchdog/sl28cpld_wdt.c | 238 ++++++++++++++++++++++++++++++++
- 3 files changed, 250 insertions(+)
- create mode 100644 drivers/watchdog/sl28cpld_wdt.c
+ drivers/pwm/Kconfig        |  10 ++
+ drivers/pwm/Makefile       |   1 +
+ drivers/pwm/pwm-sl28cpld.c | 192 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 203 insertions(+)
+ create mode 100644 drivers/pwm/pwm-sl28cpld.c
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9ea2b43d4b01..c78b90ccc8cf 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -340,6 +340,17 @@ config MLX_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mlx-wdt.
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 30190beeb6e9..516d70873b4c 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -413,6 +413,16 @@ config PWM_SIFIVE
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called pwm-sifive.
  
-+config SL28CPLD_WATCHDOG
-+	tristate "Kontron sl28 watchdog"
++config PWM_SL28CPLD
++	tristate "Kontron sl28 PWM support"
 +	depends on MFD_SL28CPLD
-+	select WATCHDOG_CORE
 +	help
-+	  Say Y here to include support for the watchdog timer
-+	  on the Kontron sl28 CPLD.
++	  Generic PWM framework driver for board management controller
++	  found on the Kontron sl28 CPLD.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sl28cpld_wdt.
++	  To compile this driver as a module, choose M here: the module
++	  will be called pwm-sl28cpld.
 +
- # ALPHA Architecture
- 
- # ARM Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 2ee352bf3372..060e2f895fe8 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -223,3 +223,4 @@ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
- obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-+obj-$(CONFIG_SL28CPLD_WATCHDOG) += sl28cpld_wdt.o
-diff --git a/drivers/watchdog/sl28cpld_wdt.c b/drivers/watchdog/sl28cpld_wdt.c
+ config PWM_SPEAR
+ 	tristate "STMicroelectronics SPEAr PWM support"
+ 	depends on PLAT_SPEAR
+diff --git a/drivers/pwm/Makefile b/drivers/pwm/Makefile
+index 9a475073dafc..2c2b569dcde9 100644
+--- a/drivers/pwm/Makefile
++++ b/drivers/pwm/Makefile
+@@ -40,6 +40,7 @@ obj-$(CONFIG_PWM_RENESAS_TPU)	+= pwm-renesas-tpu.o
+ obj-$(CONFIG_PWM_ROCKCHIP)	+= pwm-rockchip.o
+ obj-$(CONFIG_PWM_SAMSUNG)	+= pwm-samsung.o
+ obj-$(CONFIG_PWM_SIFIVE)	+= pwm-sifive.o
++obj-$(CONFIG_PWM_SL28CPLD)	+= pwm-sl28cpld.o
+ obj-$(CONFIG_PWM_SPEAR)		+= pwm-spear.o
+ obj-$(CONFIG_PWM_SPRD)		+= pwm-sprd.o
+ obj-$(CONFIG_PWM_STI)		+= pwm-sti.o
+diff --git a/drivers/pwm/pwm-sl28cpld.c b/drivers/pwm/pwm-sl28cpld.c
 new file mode 100644
-index 000000000000..5927b7ad0be4
+index 000000000000..758f46898da6
 --- /dev/null
-+++ b/drivers/watchdog/sl28cpld_wdt.c
-@@ -0,0 +1,238 @@
++++ b/drivers/pwm/pwm-sl28cpld.c
+@@ -0,0 +1,192 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * SMARC-sAL28 Watchdog driver.
++ * SMARC-sAL28 PWM driver.
 + *
 + * Copyright 2019 Kontron Europe GmbH
 + */
 +
 +#include <linux/kernel.h>
 +#include <linux/module.h>
++#include <linux/bitfield.h>
 +#include <linux/of.h>
++#include <linux/of_device.h>
 +#include <linux/of_address.h>
 +#include <linux/regmap.h>
 +#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
++#include <linux/pwm.h>
 +
 +/*
-+ * Watchdog timer block registers.
++ * PWM timer block registers.
 + */
-+#define SL28CPLD_WDT_CTRL	0
-+#define  WDT_CTRL_EN		BIT(0)
-+#define  WDT_CTRL_LOCK		BIT(2)
-+#define SL28CPLD_WDT_TIMEOUT	1
-+#define SL28CPLD_WDT_KICK	2
-+#define  WDT_KICK_VALUE		0x6b
-+#define SL28CPLD_WDT_COUNT	3
++#define SL28CPLD_PWM_CTRL	0
++#define   PWM_ENABLE		BIT(7)
++#define   PWM_MODE_250HZ	0
++#define   PWM_MODE_500HZ	1
++#define   PWM_MODE_1KHZ		2
++#define   PWM_MODE_2KHZ		3
++#define   PWM_MODE_MASK		GENMASK(1, 0)
++#define SL28CPLD_PWM_CYCLE	1
++#define   PWM_CYCLE_MAX		0x7f
 +
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int timeout;
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
-+
-+struct sl28cpld_wdt {
-+	struct watchdog_device wdd;
++struct sl28cpld_pwm {
++	struct pwm_chip pwm_chip;
 +	struct regmap *regmap;
 +	u32 offset;
 +};
 +
-+static int sl28cpld_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(wdt->regmap, wdt->offset + SL28CPLD_WDT_KICK,
-+			    WDT_KICK_VALUE);
-+}
-+
-+static int sl28cpld_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int val;
-+
-+	val = WDT_CTRL_EN;
-+	if (nowayout)
-+		val |= WDT_CTRL_LOCK;
-+
-+	return regmap_update_bits(wdt->regmap, wdt->offset + SL28CPLD_WDT_CTRL,
-+				  val, val);
-+}
-+
-+static int sl28cpld_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->regmap, wdt->offset + SL28CPLD_WDT_CTRL,
-+				  WDT_CTRL_EN, 0);
-+}
-+
-+static unsigned int sl28cpld_wdt_status(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int status;
-+	int ret;
-+
-+	ret = regmap_read(wdt->regmap, wdt->offset + SL28CPLD_WDT_CTRL,
-+			  &status);
-+	if (ret < 0)
-+		return 0;
-+
-+	/* is the watchdog timer running? */
-+	return (status & WDT_CTRL_EN) << WDOG_ACTIVE;
-+}
-+
-+static unsigned int sl28cpld_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	int ret;
-+	unsigned int val;
-+
-+	ret = regmap_read(wdt->regmap, wdt->offset + SL28CPLD_WDT_COUNT, &val);
-+	if (ret < 0)
-+		return 0;
-+
-+	return val;
-+}
-+
-+static int sl28cpld_wdt_set_timeout(struct watchdog_device *wdd,
-+				  unsigned int timeout)
-+{
-+	int ret;
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	ret = regmap_write(wdt->regmap, wdt->offset + SL28CPLD_WDT_TIMEOUT,
-+			   timeout);
-+	if (ret == 0)
-+		wdd->timeout = timeout;
-+
-+	return ret;
-+}
-+
-+static const struct watchdog_info sl28cpld_wdt_info = {
-+	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "SMARC-sAL28 CPLD watchdog",
++struct sl28cpld_pwm_periods {
++	u8 ctrl;
++	unsigned long duty_cycle;
 +};
 +
-+static struct watchdog_ops sl28cpld_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = sl28cpld_wdt_start,
-+	.stop = sl28cpld_wdt_stop,
-+	.status = sl28cpld_wdt_status,
-+	.ping = sl28cpld_wdt_ping,
-+	.set_timeout = sl28cpld_wdt_set_timeout,
-+	.get_timeleft = sl28cpld_wdt_get_timeleft,
++struct sl28cpld_pwm_config {
++	unsigned long period_ns;
++	u8 max_duty_cycle;
 +};
 +
-+static int sl28cpld_wdt_locked(struct sl28cpld_wdt *wdt)
-+{
-+	unsigned int val;
-+	int ret;
++static struct sl28cpld_pwm_config sl28cpld_pwm_config[] = {
++	[PWM_MODE_250HZ] = { .period_ns = 4000000, .max_duty_cycle = 0x80 },
++	[PWM_MODE_500HZ] = { .period_ns = 2000000, .max_duty_cycle = 0x40 },
++	[PWM_MODE_1KHZ] = { .period_ns = 1000000, .max_duty_cycle = 0x20 },
++	[PWM_MODE_2KHZ] = { .period_ns =  500000, .max_duty_cycle = 0x10 },
++};
 +
-+	ret = regmap_read(wdt->regmap, wdt->offset + SL28CPLD_WDT_CTRL, &val);
-+	if (ret < 0)
++static inline struct sl28cpld_pwm *to_sl28cpld_pwm(struct pwm_chip *chip)
++{
++	return container_of(chip, struct sl28cpld_pwm, pwm_chip);
++}
++
++static void sl28cpld_pwm_get_state(struct pwm_chip *chip,
++				   struct pwm_device *pwm,
++				   struct pwm_state *state)
++{
++	struct sl28cpld_pwm *spc = to_sl28cpld_pwm(chip);
++	static struct sl28cpld_pwm_config *config;
++	unsigned int reg;
++	unsigned long cycle;
++	unsigned int mode;
++
++	regmap_read(spc->regmap, spc->offset + SL28CPLD_PWM_CTRL, &reg);
++
++	state->enabled = reg & PWM_ENABLE;
++
++	mode = FIELD_GET(PWM_MODE_MASK, reg);
++	config = &sl28cpld_pwm_config[mode];
++	state->period = config->period_ns;
++
++	regmap_read(spc->regmap, spc->offset + SL28CPLD_PWM_CYCLE, &reg);
++	cycle = reg * config->period_ns;
++	state->duty_cycle = DIV_ROUND_CLOSEST_ULL(cycle,
++						  config->max_duty_cycle);
++}
++
++static int sl28cpld_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
++			      const struct pwm_state *state)
++{
++	struct sl28cpld_pwm *spc = to_sl28cpld_pwm(chip);
++	struct sl28cpld_pwm_config *config;
++	unsigned long long cycle;
++	int ret;
++	int mode;
++	u8 ctrl;
++
++	/* update config, first search best matching period */
++	for (mode = 0; mode < ARRAY_SIZE(sl28cpld_pwm_config); mode++) {
++		config = &sl28cpld_pwm_config[mode];
++		if (state->period == config->period_ns)
++			break;
++	}
++
++	if (mode == ARRAY_SIZE(sl28cpld_pwm_config))
++		return -EINVAL;
++
++	ctrl = FIELD_PREP(PWM_MODE_MASK, mode);
++	if (state->enabled)
++		ctrl |= PWM_ENABLE;
++
++	cycle = state->duty_cycle * config->max_duty_cycle;
++	do_div(cycle, state->period);
++
++	/*
++	 * The hardware doesn't allow to set max_duty_cycle if the
++	 * 250Hz mode is enabled. But since this is "all-high" output
++	 * just use the 500Hz mode with the duty cycle to max value.
++	 */
++	if (cycle == config->max_duty_cycle) {
++		ctrl &= ~PWM_MODE_MASK;
++		ctrl |= FIELD_PREP(PWM_MODE_MASK, PWM_MODE_500HZ);
++		cycle = PWM_CYCLE_MAX;
++	}
++
++	ret = regmap_write(spc->regmap,
++			   spc->offset + SL28CPLD_PWM_CTRL, ctrl);
++	if (ret)
 +		return ret;
 +
-+	return val & WDT_CTRL_LOCK;
++	return regmap_write(spc->regmap,
++			    spc->offset + SL28CPLD_PWM_CYCLE, (u8)cycle);
 +}
 +
-+static int sl28cpld_wdt_probe(struct platform_device *pdev)
++static const struct pwm_ops sl28cpld_pwm_ops = {
++	.apply = sl28cpld_pwm_apply,
++	.get_state = sl28cpld_pwm_get_state,
++	.owner = THIS_MODULE,
++};
++
++static int sl28cpld_pwm_probe(struct platform_device *pdev)
 +{
-+	struct sl28cpld_wdt *wdt;
-+	struct watchdog_device *wdd;
++	struct sl28cpld_pwm *pwm;
++	struct pwm_chip *chip;
 +	struct resource *res;
-+	unsigned int val;
 +	int ret;
 +
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
++	pwm = devm_kzalloc(&pdev->dev, sizeof(*pwm), GFP_KERNEL);
++	if (!pwm)
 +		return -ENOMEM;
 +
 +	if (!pdev->dev.parent)
 +		return -ENODEV;
 +
-+	wdt->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!wdt->regmap)
++	pwm->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!pwm->regmap)
 +		return -ENODEV;
 +
 +	res = platform_get_resource(pdev, IORESOURCE_REG, 0);
-+	if (res == NULL)
++	if (!res)
 +		return -EINVAL;
-+	wdt->offset = res->start;
++	pwm->offset = res->start;
 +
-+	/* initialize struct watchdog_device */
-+	wdd = &wdt->wdd;
-+	wdd->parent = &pdev->dev;
-+	wdd->info = &sl28cpld_wdt_info;
-+	wdd->ops = &sl28cpld_wdt_ops;
-+	wdd->min_timeout = 1;
-+	wdd->max_timeout = 255;
++	/* initialize struct gpio_chip */
++	chip = &pwm->pwm_chip;
++	chip->dev = &pdev->dev;
++	chip->ops = &sl28cpld_pwm_ops;
++	chip->base = -1;
++	chip->npwm = 1;
 +
-+	watchdog_set_drvdata(wdd, wdt);
-+
-+	/* if the watchdog is locked, we set nowayout to true */
-+	ret = sl28cpld_wdt_locked(wdt);
++	ret = pwmchip_add(&pwm->pwm_chip);
 +	if (ret < 0)
 +		return ret;
-+	if (ret)
-+		nowayout = true;
-+	watchdog_set_nowayout(wdd, nowayout);
 +
-+	/*
-+	 * Initial timeout value, can either be set by kernel parameter or by
-+	 * the device tree. If both are not given the current value is used.
-+	 */
-+	watchdog_init_timeout(wdd, timeout, &pdev->dev);
-+	if (wdd->timeout) {
-+		sl28cpld_wdt_set_timeout(wdd, wdd->timeout);
-+	} else {
-+		ret = regmap_read(wdt->regmap,
-+				  wdt->offset + SL28CPLD_WDT_TIMEOUT, &val);
-+		if (ret < 0)
-+			return ret;
-+		wdd->timeout = val;
-+	}
-+
-+	ret = watchdog_register_device(wdd);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "failed to register watchdog device\n");
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	dev_info(&pdev->dev, "CPLD watchdog: initial timeout %d sec%s\n",
-+		wdd->timeout, nowayout ? ", nowayout" : "");
++	platform_set_drvdata(pdev, pwm);
 +
 +	return 0;
 +}
 +
-+static int sl28cpld_wdt_remove(struct platform_device *pdev)
++static int sl28cpld_pwm_remove(struct platform_device *pdev)
 +{
-+	struct sl28cpld_wdt *wdt = platform_get_drvdata(pdev);
++	struct sl28cpld_pwm *pwm = platform_get_drvdata(pdev);
 +
-+	watchdog_unregister_device(&wdt->wdd);
-+
-+	return 0;
++	return pwmchip_remove(&pwm->pwm_chip);
 +}
 +
-+static void sl28cpld_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct sl28cpld_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	sl28cpld_wdt_stop(&wdt->wdd);
-+}
-+
-+static struct platform_driver sl28cpld_wdt_driver = {
-+	.probe = sl28cpld_wdt_probe,
-+	.remove = sl28cpld_wdt_remove,
-+	.shutdown = sl28cpld_wdt_shutdown,
++static struct platform_driver sl28cpld_pwm_driver = {
++	.probe = sl28cpld_pwm_probe,
++	.remove	= sl28cpld_pwm_remove,
 +	.driver = {
-+		.name = "sl28cpld-wdt",
++		.name = "sl28cpld-pwm",
 +	},
 +};
-+module_platform_driver(sl28cpld_wdt_driver);
++module_platform_driver(sl28cpld_pwm_driver);
 +
-+MODULE_DESCRIPTION("sl28cpld Watchdog Driver");
++MODULE_DESCRIPTION("sl28cpld PWM Driver");
 +MODULE_LICENSE("GPL");
 -- 
 2.20.1
