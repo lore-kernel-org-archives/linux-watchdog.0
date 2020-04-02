@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98EC8C2BA1A
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 207F6C2BA2B
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D0F021582
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0C1520BED
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="IravxJ6N"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="IN1QfZM5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731842AbgDBUhS (ORCPT
+        id S2389944AbgDBUhU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Apr 2020 16:37:18 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:59185 "EHLO
+        Thu, 2 Apr 2020 16:37:20 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:53827 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389424AbgDBUhQ (ORCPT
+        with ESMTP id S2388234AbgDBUhS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Apr 2020 16:37:16 -0400
+        Thu, 2 Apr 2020 16:37:18 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id E728B23D1F;
-        Thu,  2 Apr 2020 22:37:12 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 83A9123E2E;
+        Thu,  2 Apr 2020 22:37:14 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1585859833;
+        t=1585859835;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FpYqkdEAoZvWWgB0Fi0mHDSANxSIbyKDKfZDpvgpetA=;
-        b=IravxJ6NBA/WHqhd/Ap2TxqW+Ltp5fGsi4WJyi6IlAbyPdzYlwbV7zZYyccA17ha3w0v2J
-        juwMp3lVo4nlsyuW5NZ2cvCaqMtqVXivatZNCgoF/Mkve/R7X7ixye7C2abcMAdGilYmXH
-        2xoFmQyBAWVFKMNnWRKmSRPTCOqnJNE=
+        bh=iTNc2fs+paG8g8wv0IEPzpme3SvoqEVu94xwCji+MGA=;
+        b=IN1QfZM5KYGPlTrsGi0UKBAcUrtYm2KmQZc7Ds+5dc2GAjGU8uQcDG1RL7SMshvMOjyAS1
+        F7Yp8ULLRPXDOV5JyhTtZBQXQ8HwBvBkBG1fIdYyvpyq6kDhVDXEbdAScfI0gsyhcOmZn7
+        MAxsS75KwcNCONTDszdmZ+StZnL000E=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v2 06/16] mfd: Add support for Kontron sl28cpld management controller
-Date:   Thu,  2 Apr 2020 22:36:46 +0200
-Message-Id: <20200402203656.27047-7-michael@walle.cc>
+Subject: [PATCH v2 08/16] watchdog: add support for sl28cpld watchdog
+Date:   Thu,  2 Apr 2020 22:36:48 +0200
+Message-Id: <20200402203656.27047-9-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200402203656.27047-1-michael@walle.cc>
 References: <20200402203656.27047-1-michael@walle.cc>
@@ -70,7 +70,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: E728B23D1F
+X-Rspamd-Queue-Id: 83A9123E2E
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -83,7 +83,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[24];
          MID_CONTAINS_FROM(1.00)[];
-         NEURAL_HAM(-0.00)[-0.167];
+         NEURAL_HAM(-0.00)[-0.169];
          RCVD_COUNT_ZERO(0.00)[0];
          FROM_EQ_ENVFROM(0.00)[];
          MIME_TRACE(0.00)[0:+];
@@ -96,223 +96,294 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This patch adds core support for the board management controller found
-on the SMARC-sAL28 board. It consists of the following functions:
- - watchdog
- - GPIO controller
- - PWM controller
- - fan sensor
- - interrupt controller
-
-At the moment, this controller is used on the Kontron SMARC-sAL28 board.
-
-Please note that the MFD driver is defined as bool in the Kconfig
-because the next patch will add interrupt support.
+This adds support for the watchdog of the sl28cpld board management
+controller. This is part of a multi-function device driver.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- drivers/mfd/Kconfig    |  19 +++++
- drivers/mfd/Makefile   |   2 +
- drivers/mfd/sl28cpld.c | 153 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 174 insertions(+)
- create mode 100644 drivers/mfd/sl28cpld.c
+ drivers/watchdog/Kconfig        |  11 ++
+ drivers/watchdog/Makefile       |   1 +
+ drivers/watchdog/sl28cpld_wdt.c | 242 ++++++++++++++++++++++++++++++++
+ 3 files changed, 254 insertions(+)
+ create mode 100644 drivers/watchdog/sl28cpld_wdt.c
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 3c547ed575e6..7c6761161f7a 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -2059,5 +2059,24 @@ config SGI_MFD_IOC3
- 	  If you have an SGI Origin, Octane, or a PCI IOC3 card,
- 	  then say Y. Otherwise say N.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 0663c604bd64..6c53c1d0f348 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -340,6 +340,17 @@ config MLX_WDT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mlx-wdt.
  
-+config MFD_SL28CPLD
-+	bool "Kontron sl28 core driver"
-+	depends on I2C=y
-+	depends on OF
-+	select REGMAP_I2C
-+	select MFD_CORE
++config SL28CPLD_WATCHDOG
++	tristate "Kontron sl28 watchdog"
++	depends on MFD_SL28CPLD
++	select WATCHDOG_CORE
 +	help
-+	  This option enables support for the board management controller
-+	  found on the Kontron sl28 CPLD. You have to select individual
-+	  functions, such as watchdog, GPIO, etc, under the corresponding menus
-+	  in order to enable them.
++	  Say Y here to include support for the watchdog timer
++	  on the Kontron sl28 CPLD.
 +
-+	  Currently supported boards are:
++	  To compile this driver as a module, choose M here: the
++	  module will be called sl28cpld_wdt.
 +
-+		Kontron SMARC-sAL28
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called sl28cpld.
-+
- endmenu
- endif
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index f935d10cbf0f..9bc38863b9c7 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -259,3 +259,5 @@ obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
- obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
+ # ALPHA Architecture
  
- obj-$(CONFIG_SGI_MFD_IOC3)	+= ioc3.o
-+
-+obj-$(CONFIG_MFD_SL28CPLD)	+= sl28cpld.o
-diff --git a/drivers/mfd/sl28cpld.c b/drivers/mfd/sl28cpld.c
+ # ARM Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 6de2e4ceef19..b9ecdf2d7347 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -224,3 +224,4 @@ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+ obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+ obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
++obj-$(CONFIG_SL28CPLD_WATCHDOG) += sl28cpld_wdt.o
+diff --git a/drivers/watchdog/sl28cpld_wdt.c b/drivers/watchdog/sl28cpld_wdt.c
 new file mode 100644
-index 000000000000..1e5860cc7ffc
+index 000000000000..79a7e36217a6
 --- /dev/null
-+++ b/drivers/mfd/sl28cpld.c
-@@ -0,0 +1,153 @@
++++ b/drivers/watchdog/sl28cpld_wdt.c
+@@ -0,0 +1,242 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * MFD core for the sl28cpld.
++ * sl28cpld watchdog driver.
 + *
 + * Copyright 2019 Kontron Europe GmbH
 + */
 +
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
 +#include <linux/kernel.h>
-+#include <linux/mfd/core.h>
 +#include <linux/module.h>
-+#include <linux/of_platform.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
 +#include <linux/regmap.h>
++#include <linux/watchdog.h>
 +
-+#define SL28CPLD_VERSION	0x03
-+#define SL28CPLD_WATCHDOG_BASE	0x04
-+#define SL28CPLD_HWMON_FAN_BASE	0x0b
-+#define SL28CPLD_PWM0_BASE	0x0c
-+#define SL28CPLD_PWM1_BASE	0x0e
-+#define SL28CPLD_GPIO0_BASE	0x10
-+#define SL28CPLD_GPIO1_BASE	0x15
-+#define SL28CPLD_GPO_BASE	0x1a
-+#define SL28CPLD_GPI_BASE	0x1b
-+#define SL28CPLD_INTC_BASE	0x1c
++/*
++ * Watchdog timer block registers.
++ */
++#define WDT_CTRL			0x00
++#define  WDT_CTRL_EN			BIT(0)
++#define  WDT_CTRL_LOCK			BIT(2)
++#define  WDT_CTRL_ASSERT_SYS_RESET	BIT(6)
++#define  WDT_CTRL_ASSERT_WDT_TIMEOUT	BIT(7)
++#define WDT_TIMEOUT			0x01
++#define WDT_KICK			0x02
++#define  WDT_KICK_VALUE			0x6b
++#define WDT_COUNT			0x03
 +
-+/* all subdevices share the same IRQ */
-+#define SL28CPLD_IRQ 0
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 +
-+#define SL28CPLD_MIN_REQ_VERSION 14
++static int timeout;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
 +
-+struct sl28cpld {
-+	struct device *dev;
++struct sl28cpld_wdt {
++	struct watchdog_device wdd;
 +	struct regmap *regmap;
++	u32 offset;
++	bool assert_wdt_timeout;
 +};
 +
-+static const struct regmap_config sl28cpld_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.reg_stride = 1,
-+};
-+
-+static struct resource sl28cpld_watchdog_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_WATCHDOG_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_hwmon_fan_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_HWMON_FAN_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_pwm0_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_PWM0_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_pwm1_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_PWM1_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_gpio0_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_GPIO0_BASE, 1),
-+	DEFINE_RES_IRQ(SL28CPLD_IRQ),
-+};
-+
-+static struct resource sl28cpld_gpio1_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_GPIO1_BASE, 1),
-+	DEFINE_RES_IRQ(SL28CPLD_IRQ),
-+};
-+
-+static struct resource sl28cpld_gpo_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_GPO_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_gpi_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_GPI_BASE, 1),
-+};
-+
-+static struct resource sl28cpld_intc_resources[] = {
-+	DEFINE_RES_REG(SL28CPLD_INTC_BASE, 1),
-+	DEFINE_RES_IRQ(SL28CPLD_IRQ),
-+};
-+
-+static const struct mfd_cell sl28cpld_devs[] = {
-+	OF_MFD_CELL_REG("sl28cpld-wdt", sl28cpld_watchdog_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-wdt", 0),
-+	OF_MFD_CELL_REG("sl28cpld-fan", sl28cpld_hwmon_fan_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-fan", 1),
-+	OF_MFD_CELL_REG("sl28cpld-pwm", sl28cpld_pwm0_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-pwm", 2),
-+	OF_MFD_CELL_REG("sl28cpld-pwm", sl28cpld_pwm1_resources,
-+			NULL, 0, 1, "kontron,sl28cpld-pwm", 3),
-+	OF_MFD_CELL_REG("sl28cpld-gpio", sl28cpld_gpio0_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-gpio", 4),
-+	OF_MFD_CELL_REG("sl28cpld-gpio", sl28cpld_gpio1_resources,
-+			NULL, 0, 1, "kontron,sl28cpld-gpio", 5),
-+	OF_MFD_CELL_REG("sl28cpld-gpo", sl28cpld_gpo_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-gpo", 6),
-+	OF_MFD_CELL_REG("sl28cpld-gpi", sl28cpld_gpi_resources,
-+			NULL, 0, 0, "kontron,sl28cpld-gpi", 7),
-+	MFD_CELL_RES("sl28cpld-intc", sl28cpld_intc_resources),
-+};
-+
-+static int sl28cpld_probe(struct i2c_client *i2c)
++static int sl28cpld_wdt_ping(struct watchdog_device *wdd)
 +{
-+	struct sl28cpld *sl28cpld;
-+	struct device *dev = &i2c->dev;
-+	unsigned int cpld_version;
-+	int ret;
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
 +
-+	sl28cpld = devm_kzalloc(dev, sizeof(*sl28cpld), GFP_KERNEL);
-+	if (!sl28cpld)
-+		return -ENOMEM;
-+
-+	sl28cpld->regmap = devm_regmap_init_i2c(i2c, &sl28cpld_regmap_config);
-+	if (IS_ERR(sl28cpld->regmap))
-+		return PTR_ERR(sl28cpld->regmap);
-+
-+	ret = regmap_read(sl28cpld->regmap, SL28CPLD_VERSION, &cpld_version);
-+	if (ret)
-+		return ret;
-+
-+	if (cpld_version < SL28CPLD_MIN_REQ_VERSION) {
-+		dev_err(dev, "unsupported CPLD version %d\n", cpld_version);
-+		return -ENODEV;
-+	}
-+
-+	sl28cpld->dev = dev;
-+	i2c_set_clientdata(i2c, sl28cpld);
-+
-+	dev_info(dev, "successfully probed. CPLD version %d\n", cpld_version);
-+
-+	return devm_mfd_add_devices(dev, -1, sl28cpld_devs,
-+				    ARRAY_SIZE(sl28cpld_devs), NULL,
-+				    i2c->irq, NULL);
++	return regmap_write(wdt->regmap, wdt->offset + WDT_KICK,
++			    WDT_KICK_VALUE);
 +}
 +
-+static const struct of_device_id sl28cpld_of_match[] = {
-+	{ .compatible = "kontron,sl28cpld", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sl28cpld_of_match);
++static int sl28cpld_wdt_start(struct watchdog_device *wdd)
++{
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++	unsigned int val;
 +
-+static struct i2c_driver sl28cpld_driver = {
-+	.probe_new = sl28cpld_probe,
++	val = WDT_CTRL_EN | WDT_CTRL_ASSERT_SYS_RESET;
++	if (wdt->assert_wdt_timeout)
++		val |= WDT_CTRL_ASSERT_WDT_TIMEOUT;
++	if (nowayout)
++		val |= WDT_CTRL_LOCK;
++
++	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
++				  val, val);
++}
++
++static int sl28cpld_wdt_stop(struct watchdog_device *wdd)
++{
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
++				  WDT_CTRL_EN, 0);
++}
++
++static unsigned int sl28cpld_wdt_status(struct watchdog_device *wdd)
++{
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++	unsigned int status;
++	int ret;
++
++	ret = regmap_read(wdt->regmap, wdt->offset + WDT_CTRL, &status);
++	if (ret < 0)
++		return 0;
++
++	/* is the watchdog timer running? */
++	return (status & WDT_CTRL_EN) << WDOG_ACTIVE;
++}
++
++static unsigned int sl28cpld_wdt_get_timeleft(struct watchdog_device *wdd)
++{
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
++	unsigned int val;
++
++	ret = regmap_read(wdt->regmap, wdt->offset + WDT_COUNT, &val);
++	if (ret < 0)
++		return 0;
++
++	return val;
++}
++
++static int sl28cpld_wdt_set_timeout(struct watchdog_device *wdd,
++				  unsigned int timeout)
++{
++	int ret;
++	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	ret = regmap_write(wdt->regmap, wdt->offset + WDT_TIMEOUT, timeout);
++	if (ret == 0)
++		wdd->timeout = timeout;
++
++	return ret;
++}
++
++static const struct watchdog_info sl28cpld_wdt_info = {
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "SMARC-sAL28 CPLD watchdog",
++};
++
++static struct watchdog_ops sl28cpld_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = sl28cpld_wdt_start,
++	.stop = sl28cpld_wdt_stop,
++	.status = sl28cpld_wdt_status,
++	.ping = sl28cpld_wdt_ping,
++	.set_timeout = sl28cpld_wdt_set_timeout,
++	.get_timeleft = sl28cpld_wdt_get_timeleft,
++};
++
++static int sl28cpld_wdt_locked(struct sl28cpld_wdt *wdt)
++{
++	unsigned int val;
++	int ret;
++
++	ret = regmap_read(wdt->regmap, wdt->offset + WDT_CTRL, &val);
++	if (ret < 0)
++		return ret;
++
++	return val & WDT_CTRL_LOCK;
++}
++
++static int sl28cpld_wdt_probe(struct platform_device *pdev)
++{
++	struct sl28cpld_wdt *wdt;
++	struct watchdog_device *wdd;
++	struct resource *res;
++	unsigned int val;
++	int ret;
++
++	if (!pdev->dev.parent)
++		return -ENODEV;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!wdt->regmap)
++		return -ENODEV;
++
++	res = platform_get_resource(pdev, IORESOURCE_REG, 0);
++	if (res == NULL)
++		return -EINVAL;
++	wdt->offset = res->start;
++
++	if (device_property_read_bool(&pdev->dev,
++				      "kontron,assert-wdt-timeout-pin"))
++		wdt->assert_wdt_timeout = true;
++
++	/* initialize struct watchdog_device */
++	wdd = &wdt->wdd;
++	wdd->parent = &pdev->dev;
++	wdd->info = &sl28cpld_wdt_info;
++	wdd->ops = &sl28cpld_wdt_ops;
++	wdd->min_timeout = 1;
++	wdd->max_timeout = 255;
++
++	watchdog_set_drvdata(wdd, wdt);
++
++	/* if the watchdog is locked, we set nowayout to true */
++	ret = sl28cpld_wdt_locked(wdt);
++	if (ret < 0)
++		return ret;
++	if (ret)
++		nowayout = true;
++	watchdog_set_nowayout(wdd, nowayout);
++
++	/*
++	 * Initial timeout value, can either be set by kernel parameter or by
++	 * the device tree. If both are not given the current value is used.
++	 */
++	watchdog_init_timeout(wdd, timeout, &pdev->dev);
++	if (wdd->timeout) {
++		sl28cpld_wdt_set_timeout(wdd, wdd->timeout);
++	} else {
++		ret = regmap_read(wdt->regmap, wdt->offset + WDT_TIMEOUT,
++				  &val);
++		if (ret < 0)
++			return ret;
++		wdd->timeout = val;
++	}
++
++	watchdog_stop_on_reboot(wdd);
++	ret = devm_watchdog_register_device(&pdev->dev, wdd);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to register watchdog device\n");
++		return ret;
++	}
++
++	platform_set_drvdata(pdev, wdt);
++
++	dev_info(&pdev->dev, "CPLD watchdog: initial timeout %d sec%s\n",
++		wdd->timeout, nowayout ? ", nowayout" : "");
++
++	return 0;
++}
++
++static const struct of_device_id sl28cpld_wdt_of_match[] = {
++	{ .compatible = "kontron,sl28cpld-wdt" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, sl28cpld_wdt_of_match);
++
++static const struct platform_device_id sl28cpld_wdt_id_table[] = {
++	{ "sl28cpld-wdt" },
++	{},
++};
++MODULE_DEVICE_TABLE(platform, sl28cpld_wdt_id_table);
++
++static struct platform_driver sl28cpld_wdt_driver = {
++	.probe = sl28cpld_wdt_probe,
++	.id_table = sl28cpld_wdt_id_table,
 +	.driver = {
-+		.name = "sl28cpld",
-+		.of_match_table = of_match_ptr(sl28cpld_of_match),
++		.name = KBUILD_MODNAME,
++		.of_match_table = sl28cpld_wdt_of_match,
 +	},
 +};
-+module_i2c_driver(sl28cpld_driver);
++module_platform_driver(sl28cpld_wdt_driver);
 +
-+MODULE_DESCRIPTION("sl28cpld MFD Core Driver");
++MODULE_DESCRIPTION("sl28cpld Watchdog Driver");
 +MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
 +MODULE_LICENSE("GPL");
 -- 
