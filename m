@@ -1,105 +1,320 @@
-Return-Path: <SRS0=BlbZ=5R=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=UKdL=5S=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36A37C43331
-	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Apr 2020 17:02:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98EC8C2BA1A
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD1492071A
-	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Apr 2020 17:02:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D0F021582
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="EDN83wE7"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="IravxJ6N"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732723AbgDARCQ (ORCPT
+        id S1731842AbgDBUhS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 1 Apr 2020 13:02:16 -0400
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:36452 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732717AbgDARCQ (ORCPT
+        Thu, 2 Apr 2020 16:37:18 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:59185 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389424AbgDBUhQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Apr 2020 13:02:16 -0400
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 031H1uWo001438;
-        Wed, 1 Apr 2020 12:01:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1585760516;
-        bh=tIPQqztfiZihK5VUVh3MvQYpWQeFXNG74Mpn2ahqY/U=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=EDN83wE7CB+aRHQLMQM1+WpkWHNQc/irLpH2Nd/n8PadAGVi1Bm6YxITO+LtcKnit
-         mDa4NlLAe3xxhC+0bI8fCvYP0fURJw+ZzGqUEK5QuJPhR7zorMItPAZ7d8KVtetVKy
-         uOwrnN/QE1XA3Z+rxpRiV942UBlNSIPNPJUENMcw=
-Received: from DLEE115.ent.ti.com (dlee115.ent.ti.com [157.170.170.26])
-        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 031H1uT7017807
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 1 Apr 2020 12:01:56 -0500
-Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE115.ent.ti.com
- (157.170.170.26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 1 Apr
- 2020 12:01:55 -0500
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DLEE103.ent.ti.com
- (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Wed, 1 Apr 2020 12:01:55 -0500
-Received: from [127.0.0.1] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 031H1rni000525;
-        Wed, 1 Apr 2020 12:01:54 -0500
-Subject: Re: [PATCHv3 3/4] watchdog: Add K3 RTI watchdog support
-To:     Guenter Roeck <linux@roeck-us.net>
-CC:     <wim@linux-watchdog.org>, <linux-watchdog@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-References: <aed89814-a78b-4a59-7673-bce5de34022d@roeck-us.net>
- <20200304104214.8625-1-t-kristo@ti.com> <20200304220648.GA31640@roeck-us.net>
- <ac261582-a101-c7c7-66e4-4ef20d037c7d@ti.com>
- <422f7335-9774-9ec1-6b0f-f22f811746cf@roeck-us.net>
-From:   Tero Kristo <t-kristo@ti.com>
-Message-ID: <7e15714e-efed-56ae-7ca7-fbfac031326c@ti.com>
-Date:   Wed, 1 Apr 2020 20:01:53 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        Thu, 2 Apr 2020 16:37:16 -0400
+Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id E728B23D1F;
+        Thu,  2 Apr 2020 22:37:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1585859833;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FpYqkdEAoZvWWgB0Fi0mHDSANxSIbyKDKfZDpvgpetA=;
+        b=IravxJ6NBA/WHqhd/Ap2TxqW+Ltp5fGsi4WJyi6IlAbyPdzYlwbV7zZYyccA17ha3w0v2J
+        juwMp3lVo4nlsyuW5NZ2cvCaqMtqVXivatZNCgoF/Mkve/R7X7ixye7C2abcMAdGilYmXH
+        2xoFmQyBAWVFKMNnWRKmSRPTCOqnJNE=
+From:   Michael Walle <michael@walle.cc>
+To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Walle <michael@walle.cc>
+Subject: [PATCH v2 06/16] mfd: Add support for Kontron sl28cpld management controller
+Date:   Thu,  2 Apr 2020 22:36:46 +0200
+Message-Id: <20200402203656.27047-7-michael@walle.cc>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200402203656.27047-1-michael@walle.cc>
+References: <20200402203656.27047-1-michael@walle.cc>
 MIME-Version: 1.0
-In-Reply-To: <422f7335-9774-9ec1-6b0f-f22f811746cf@roeck-us.net>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: 8bit
+X-Spamd-Bar: ++++++
+X-Rspamd-Server: web
+X-Rspamd-Queue-Id: E728B23D1F
+X-Spamd-Result: default: False [6.40 / 15.00];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         R_MISSING_CHARSET(2.50)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TAGGED_RCPT(0.00)[dt];
+         MIME_GOOD(-0.10)[text/plain];
+         BROKEN_CONTENT_TYPE(1.50)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         DKIM_SIGNED(0.00)[];
+         RCPT_COUNT_TWELVE(0.00)[24];
+         MID_CONTAINS_FROM(1.00)[];
+         NEURAL_HAM(-0.00)[-0.167];
+         RCVD_COUNT_ZERO(0.00)[0];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         ASN(0.00)[asn:31334, ipnet:2a02:810c:8000::/33, country:DE];
+         FREEMAIL_CC(0.00)[linaro.org,baylibre.com,kernel.org,suse.com,roeck-us.net,gmail.com,pengutronix.de,linux-watchdog.org,nxp.com,linutronix.de,lakedaemon.net,linuxfoundation.org,walle.cc];
+         SUSPICIOUS_RECIPS(1.50)[]
+X-Spam: Yes
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 01/04/2020 18:55, Guenter Roeck wrote:
-> On 4/1/20 5:44 AM, Tero Kristo wrote:
->> On 05/03/2020 00:06, Guenter Roeck wrote:
->>> On Wed, Mar 04, 2020 at 12:42:14PM +0200, Tero Kristo wrote:
->>>> Texas Instruments K3 SoCs contain an RTI (Real Time Interrupt) module
->>>> which can be used as a watchdog. This IP provides a support for
->>>> windowed watchdog mode, in which the watchdog must be petted within
->>>> a certain time window. If it is petted either too soon, or too late,
->>>> a watchdog error will be triggered.
->>>>
->>>> Signed-off-by: Tero Kristo <t-kristo@ti.com>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
->> Whats the plan for merging this one + the DT binding doc? I can't see this in linux-next yet at least, I do see the watchdog core change from this series though.
->>
-> 
-> It is in my watchdog-next branch at
-> git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git.
-> 
-> Wim usually picks it up from there.
-> 
-> The core patch didn't depend on DT approval, so I (and Wim) picked it up
-> earlier.
+This patch adds core support for the board management controller found
+on the SMARC-sAL28 board. It consists of the following functions:
+ - watchdog
+ - GPIO controller
+ - PWM controller
+ - fan sensor
+ - interrupt controller
 
-Ok thanks for clarification, I thought there was something like that 
-going in the background but decided to double check.
+At the moment, this controller is used on the Kontron SMARC-sAL28 board.
 
--Tero
---
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki. Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+Please note that the MFD driver is defined as bool in the Kconfig
+because the next patch will add interrupt support.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+---
+ drivers/mfd/Kconfig    |  19 +++++
+ drivers/mfd/Makefile   |   2 +
+ drivers/mfd/sl28cpld.c | 153 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
+ create mode 100644 drivers/mfd/sl28cpld.c
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 3c547ed575e6..7c6761161f7a 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -2059,5 +2059,24 @@ config SGI_MFD_IOC3
+ 	  If you have an SGI Origin, Octane, or a PCI IOC3 card,
+ 	  then say Y. Otherwise say N.
+ 
++config MFD_SL28CPLD
++	bool "Kontron sl28 core driver"
++	depends on I2C=y
++	depends on OF
++	select REGMAP_I2C
++	select MFD_CORE
++	help
++	  This option enables support for the board management controller
++	  found on the Kontron sl28 CPLD. You have to select individual
++	  functions, such as watchdog, GPIO, etc, under the corresponding menus
++	  in order to enable them.
++
++	  Currently supported boards are:
++
++		Kontron SMARC-sAL28
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called sl28cpld.
++
+ endmenu
+ endif
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index f935d10cbf0f..9bc38863b9c7 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -259,3 +259,5 @@ obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
+ obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
+ 
+ obj-$(CONFIG_SGI_MFD_IOC3)	+= ioc3.o
++
++obj-$(CONFIG_MFD_SL28CPLD)	+= sl28cpld.o
+diff --git a/drivers/mfd/sl28cpld.c b/drivers/mfd/sl28cpld.c
+new file mode 100644
+index 000000000000..1e5860cc7ffc
+--- /dev/null
++++ b/drivers/mfd/sl28cpld.c
+@@ -0,0 +1,153 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * MFD core for the sl28cpld.
++ *
++ * Copyright 2019 Kontron Europe GmbH
++ */
++
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/core.h>
++#include <linux/module.h>
++#include <linux/of_platform.h>
++#include <linux/regmap.h>
++
++#define SL28CPLD_VERSION	0x03
++#define SL28CPLD_WATCHDOG_BASE	0x04
++#define SL28CPLD_HWMON_FAN_BASE	0x0b
++#define SL28CPLD_PWM0_BASE	0x0c
++#define SL28CPLD_PWM1_BASE	0x0e
++#define SL28CPLD_GPIO0_BASE	0x10
++#define SL28CPLD_GPIO1_BASE	0x15
++#define SL28CPLD_GPO_BASE	0x1a
++#define SL28CPLD_GPI_BASE	0x1b
++#define SL28CPLD_INTC_BASE	0x1c
++
++/* all subdevices share the same IRQ */
++#define SL28CPLD_IRQ 0
++
++#define SL28CPLD_MIN_REQ_VERSION 14
++
++struct sl28cpld {
++	struct device *dev;
++	struct regmap *regmap;
++};
++
++static const struct regmap_config sl28cpld_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.reg_stride = 1,
++};
++
++static struct resource sl28cpld_watchdog_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_WATCHDOG_BASE, 1),
++};
++
++static struct resource sl28cpld_hwmon_fan_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_HWMON_FAN_BASE, 1),
++};
++
++static struct resource sl28cpld_pwm0_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_PWM0_BASE, 1),
++};
++
++static struct resource sl28cpld_pwm1_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_PWM1_BASE, 1),
++};
++
++static struct resource sl28cpld_gpio0_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPIO0_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static struct resource sl28cpld_gpio1_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPIO1_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static struct resource sl28cpld_gpo_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPO_BASE, 1),
++};
++
++static struct resource sl28cpld_gpi_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_GPI_BASE, 1),
++};
++
++static struct resource sl28cpld_intc_resources[] = {
++	DEFINE_RES_REG(SL28CPLD_INTC_BASE, 1),
++	DEFINE_RES_IRQ(SL28CPLD_IRQ),
++};
++
++static const struct mfd_cell sl28cpld_devs[] = {
++	OF_MFD_CELL_REG("sl28cpld-wdt", sl28cpld_watchdog_resources,
++			NULL, 0, 0, "kontron,sl28cpld-wdt", 0),
++	OF_MFD_CELL_REG("sl28cpld-fan", sl28cpld_hwmon_fan_resources,
++			NULL, 0, 0, "kontron,sl28cpld-fan", 1),
++	OF_MFD_CELL_REG("sl28cpld-pwm", sl28cpld_pwm0_resources,
++			NULL, 0, 0, "kontron,sl28cpld-pwm", 2),
++	OF_MFD_CELL_REG("sl28cpld-pwm", sl28cpld_pwm1_resources,
++			NULL, 0, 1, "kontron,sl28cpld-pwm", 3),
++	OF_MFD_CELL_REG("sl28cpld-gpio", sl28cpld_gpio0_resources,
++			NULL, 0, 0, "kontron,sl28cpld-gpio", 4),
++	OF_MFD_CELL_REG("sl28cpld-gpio", sl28cpld_gpio1_resources,
++			NULL, 0, 1, "kontron,sl28cpld-gpio", 5),
++	OF_MFD_CELL_REG("sl28cpld-gpo", sl28cpld_gpo_resources,
++			NULL, 0, 0, "kontron,sl28cpld-gpo", 6),
++	OF_MFD_CELL_REG("sl28cpld-gpi", sl28cpld_gpi_resources,
++			NULL, 0, 0, "kontron,sl28cpld-gpi", 7),
++	MFD_CELL_RES("sl28cpld-intc", sl28cpld_intc_resources),
++};
++
++static int sl28cpld_probe(struct i2c_client *i2c)
++{
++	struct sl28cpld *sl28cpld;
++	struct device *dev = &i2c->dev;
++	unsigned int cpld_version;
++	int ret;
++
++	sl28cpld = devm_kzalloc(dev, sizeof(*sl28cpld), GFP_KERNEL);
++	if (!sl28cpld)
++		return -ENOMEM;
++
++	sl28cpld->regmap = devm_regmap_init_i2c(i2c, &sl28cpld_regmap_config);
++	if (IS_ERR(sl28cpld->regmap))
++		return PTR_ERR(sl28cpld->regmap);
++
++	ret = regmap_read(sl28cpld->regmap, SL28CPLD_VERSION, &cpld_version);
++	if (ret)
++		return ret;
++
++	if (cpld_version < SL28CPLD_MIN_REQ_VERSION) {
++		dev_err(dev, "unsupported CPLD version %d\n", cpld_version);
++		return -ENODEV;
++	}
++
++	sl28cpld->dev = dev;
++	i2c_set_clientdata(i2c, sl28cpld);
++
++	dev_info(dev, "successfully probed. CPLD version %d\n", cpld_version);
++
++	return devm_mfd_add_devices(dev, -1, sl28cpld_devs,
++				    ARRAY_SIZE(sl28cpld_devs), NULL,
++				    i2c->irq, NULL);
++}
++
++static const struct of_device_id sl28cpld_of_match[] = {
++	{ .compatible = "kontron,sl28cpld", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, sl28cpld_of_match);
++
++static struct i2c_driver sl28cpld_driver = {
++	.probe_new = sl28cpld_probe,
++	.driver = {
++		.name = "sl28cpld",
++		.of_match_table = of_match_ptr(sl28cpld_of_match),
++	},
++};
++module_i2c_driver(sl28cpld_driver);
++
++MODULE_DESCRIPTION("sl28cpld MFD Core Driver");
++MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
++MODULE_LICENSE("GPL");
+-- 
+2.20.1
+
