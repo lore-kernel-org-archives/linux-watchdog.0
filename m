@@ -2,43 +2,41 @@ Return-Path: <SRS0=UKdL=5S=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07701C2BB55
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:38:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8EEEC2BA1E
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:38:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CA2AE21582
+	by mail.kernel.org (Postfix) with ESMTP id 9F16F20857
 	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:38:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="Y94x4R7j"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="bY2/8Jth"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389192AbgDBUiQ (ORCPT
+        id S2388843AbgDBUhM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Apr 2020 16:38:16 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:37255 "EHLO
+        Thu, 2 Apr 2020 16:37:12 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:55213 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388452AbgDBUhN (ORCPT
+        with ESMTP id S1731842AbgDBUhL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Apr 2020 16:37:13 -0400
+        Thu, 2 Apr 2020 16:37:11 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 2B2FE23061;
-        Thu,  2 Apr 2020 22:37:10 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 0328D2305A;
+        Thu,  2 Apr 2020 22:37:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1585859830;
+        t=1585859827;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XEc2Gou41BL3m+JkXNh0S7dWuskCnoHw4qZ/tnV0NvI=;
-        b=Y94x4R7jwtSXY6hghZE2dxI+RMxB0RQS1gg9jbF/I8QESbyEyN6mxkokeCH+0QwudWOCHi
-        dgvabFrggEkWIT8G/WfTtuOdkKnO4wCfyc/hRBWAKUP3dyf0Q8Yt/q8mFJuLSRSH7q7LRS
-        fdyPjf9OVKxhAjALXUOIOrvAGVxm8Ek=
+         content-transfer-encoding:content-transfer-encoding;
+        bh=mnKmTNZijE88RiWkWLDxCt0MHlKHzP9p+BwmR51VIrQ=;
+        b=bY2/8Jth9XsAsvZdDjoPfpawlQtJEkJRbsY/xgcUTDLEh+SIqSZu9SNlf3AJaoX3m0rl6w
+        Pt3DQNCybMZ+qrGOTLqwauIgQZ0YHlDUTmzqBH8RVZlvuJ7rbrH29yj7esGMEHD3ydkDOa
+        iGTC8lyg09CCxseWRurmXQDHjum0lsM=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -60,17 +58,15 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v2 03/16] mfd: mfd-core: match device tree node against reg property
-Date:   Thu,  2 Apr 2020 22:36:43 +0200
-Message-Id: <20200402203656.27047-4-michael@walle.cc>
+Subject: [PATCH v2 00/16] Add support for Kontron sl28cpld
+Date:   Thu,  2 Apr 2020 22:36:40 +0200
+Message-Id: <20200402203656.27047-1-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200402203656.27047-1-michael@walle.cc>
-References: <20200402203656.27047-1-michael@walle.cc>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: 2B2FE23061
+X-Rspamd-Queue-Id: 0328D2305A
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -83,7 +79,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[24];
          MID_CONTAINS_FROM(1.00)[];
-         NEURAL_HAM(-0.00)[-0.174];
+         NEURAL_HAM(-0.00)[-0.141];
          RCVD_COUNT_ZERO(0.00)[0];
          FROM_EQ_ENVFROM(0.00)[];
          MIME_TRACE(0.00)[0:+];
@@ -96,132 +92,129 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-There might be multiple children with the device tree compatible, for
-example if a MFD has multiple instances of the same function. In this
-case only the first is matched and the other children get a wrong
-of_node reference.
-Add a new option to match also against the unit address of the child
-node. Additonally, a new helper OF_MFD_CELL_REG is added.
+The Kontron sl28cpld is a board management chip providing gpio, pwm, fan
+monitoring and an interrupt controller. For now this controller is used on
+the Kontron SMARC-sAL28 board. But because of its flexible nature, it
+might also be used on other boards in the future. The individual blocks
+(like gpio, pwm, etc) are kept intentionally small. The MFD core driver
+then instantiates different (or multiple of the same) blocks. It also
+provides the register layout so it might be updated in the future without a
+device tree change; and support other boards with a different layout or
+functionalities.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
----
- drivers/mfd/mfd-core.c   | 29 ++++++++++++++++++++---------
- include/linux/mfd/core.h | 26 ++++++++++++++++++++------
- 2 files changed, 40 insertions(+), 15 deletions(-)
+See also [1] for more information.
 
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index e735565969b3..4ecb376338f7 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -117,6 +117,7 @@ static int mfd_add_device(struct device *parent, int id,
- 	struct device_node *np = NULL;
- 	int ret = -ENOMEM;
- 	int platform_id;
-+	u32 of_reg;
- 	int r;
- 
- 	if (id == PLATFORM_DEVID_AUTO)
-@@ -151,16 +152,26 @@ static int mfd_add_device(struct device *parent, int id,
- 
- 	if (parent->of_node && cell->of_compatible) {
- 		for_each_child_of_node(parent->of_node, np) {
--			if (of_device_is_compatible(np, cell->of_compatible)) {
--				if (!of_device_is_available(np)) {
--					/* Ignore disabled devices error free */
--					ret = 0;
--					goto fail_alias;
--				}
--				pdev->dev.of_node = np;
--				pdev->dev.fwnode = &np->fwnode;
--				break;
-+			if (!of_device_is_compatible(np, cell->of_compatible))
-+				continue;
-+
-+			/* also match the unit address if set */
-+			if (cell->of_reg & MFD_OF_REG_VALID) {
-+				if (of_property_read_u32(np, "reg", &of_reg))
-+					continue;
-+				if ((cell->of_reg & MFD_OF_REG_MASK) != of_reg)
-+					continue;
- 			}
-+
-+			if (!of_device_is_available(np)) {
-+				/* Ignore disabled devices error free */
-+				ret = 0;
-+				goto fail_alias;
-+			}
-+
-+			pdev->dev.of_node = np;
-+			pdev->dev.fwnode = &np->fwnode;
-+			break;
- 		}
- 	}
- 
-diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-index d01d1299e49d..c2c0ad6b14f3 100644
---- a/include/linux/mfd/core.h
-+++ b/include/linux/mfd/core.h
-@@ -13,8 +13,11 @@
- #include <linux/platform_device.h>
- 
- #define MFD_RES_SIZE(arr) (sizeof(arr) / sizeof(struct resource))
-+#define MFD_OF_REG_VALID	BIT(31)
-+#define MFD_OF_REG_MASK		GENMASK(30, 0)
- 
--#define MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, _compat, _match)\
-+#define MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, _compat,	\
-+		     _of_reg, _match)					\
- 	{								\
- 		.name = (_name),					\
- 		.resources = (_res),					\
-@@ -22,24 +25,32 @@
- 		.platform_data = (_pdata),				\
- 		.pdata_size = (_pdsize),				\
- 		.of_compatible = (_compat),				\
-+		.of_reg = (_of_reg),					\
- 		.acpi_match = (_match),					\
- 		.id = (_id),						\
- 	}
- 
-+#define OF_MFD_CELL_REG(_name, _res, _pdata, _pdsize, _id, _compat,	\
-+			_of_reg)					\
-+	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, _compat,	\
-+		     ((_of_reg) | MFD_OF_REG_VALID), NULL)		\
-+
- #define OF_MFD_CELL(_name, _res, _pdata, _pdsize,_id, _compat)		\
--	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, _compat, NULL)	\
-+	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, _compat,	\
-+		     0, NULL)						\
- 
- #define ACPI_MFD_CELL(_name, _res, _pdata, _pdsize, _id, _match)	\
--	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, NULL, _match)	\
-+	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, NULL, 0,	\
-+		     _match)						\
- 
- #define MFD_CELL_BASIC(_name, _res, _pdata, _pdsize, _id)		\
--	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, NULL, NULL)	\
-+	MFD_CELL_ALL(_name, _res, _pdata, _pdsize, _id, NULL, 0, NULL) \
- 
- #define MFD_CELL_RES(_name, _res)					\
--	MFD_CELL_ALL(_name, _res, NULL, 0, 0, NULL, NULL)		\
-+	MFD_CELL_ALL(_name, _res, NULL, 0, 0, NULL, 0, NULL)		\
- 
- #define MFD_CELL_NAME(_name)						\
--	MFD_CELL_ALL(_name, NULL, NULL, 0, 0, NULL, NULL)		\
-+	MFD_CELL_ALL(_name, NULL, NULL, 0, 0, NULL, 0, NULL)		\
- 
- struct irq_domain;
- struct property_entry;
-@@ -78,6 +89,9 @@ struct mfd_cell {
- 	 */
- 	const char		*of_compatible;
- 
-+	/* matching the reg property if set */
-+	unsigned int		of_reg;
-+
- 	/* Matches ACPI */
- 	const struct mfd_cell_acpi_match	*acpi_match;
- 
+This is my first take of a MFD driver. I don't know whether the subsystem
+maintainers should only be CCed on the patches which affect the subsystem
+or on all patches for this series. I've chosen the latter so you can get a
+more complete picture.
+
+[1] https://lore.kernel.org/linux-devicetree/0e3e8204ab992d75aa07fc36af7e4ab2@walle.cc/
+
+Changes since v1:
+ - use of_match_table in all drivers, needed for automatic module loading,
+   when using OF_MFD_CELL()
+ - add new gpio-regmap.c which adds a generic regmap gpio_chip implemention
+ - new patch for reqmap_irq, so we can reuse its implementation
+ - remove almost any code from gpio-sl28cpld.c, instead use gpio-regmap and
+   regmap-irq
+ - change the handling of the mfd core vs device tree nodes; add a new
+   property "of_reg" to the mfd_cell struct which, when set, is matched to
+   the unit-address of the device tree nodes.
+ - fix sl28cpld watchdog when it is not initialized by the bootloader.
+   Explicitly set the operation mode.
+ - also add support for kontron,assert-wdt-timeout-pin in sl28cpld-wdt.
+
+As suggested by Bartosz Golaszewski:
+ - define registers as hex
+ - make gpio enum uppercase
+ - move parent regmap check before memory allocation
+ - use device_property_read_bool() instead of the of_ version
+ - mention the gpio flavors in the bindings documentation
+
+As suggested by Guenter Roeck:
+ - cleanup #includes and sort them
+ - use devm_watchdog_register_device()
+ - use watchdog_stop_on_reboot()
+ - provide a Documentation/hwmon/sl28cpld.rst
+ - cleaned up the weird tristate->bool and I2C=y issue. Instead mention
+   that the MFD driver is bool because of the following intc patch
+ - removed the SL28CPLD_IRQ typo
+
+As suggested by Rob Herring:
+ - combine all dt bindings docs into one patch
+ - change the node name for all gpio flavors to "gpio"
+ - removed the interrupts-extended rule
+ - cleaned up the unit-address space, see above
+
+Michael Walle (16):
+  include/linux/ioport.h: add helper to define REG resource constructs
+  mfd: mfd-core: Don't overwrite the dma_mask of the child device
+  mfd: mfd-core: match device tree node against reg property
+  regmap-irq: make it possible to add irq_chip do a specific device node
+  dt-bindings: mfd: Add bindings for sl28cpld
+  mfd: Add support for Kontron sl28cpld management controller
+  irqchip: add sl28cpld interrupt controller support
+  watchdog: add support for sl28cpld watchdog
+  pwm: add support for sl28cpld PWM controller
+  gpio: add a reusable generic gpio_chip using regmap
+  gpio: add support for the sl28cpld GPIO controller
+  hwmon: add support for the sl28cpld hardware monitoring controller
+  arm64: dts: freescale: sl28: enable sl28cpld
+  arm64: dts: freescale: sl28: map GPIOs to input events
+  arm64: dts: freescale: sl28: enable LED support
+  arm64: dts: freescale: sl28: enable fan support
+
+ .../bindings/gpio/kontron,sl28cpld-gpio.yaml  |  51 +++
+ .../hwmon/kontron,sl28cpld-hwmon.yaml         |  27 ++
+ .../bindings/mfd/kontron,sl28cpld.yaml        | 162 +++++++++
+ .../bindings/pwm/kontron,sl28cpld-pwm.yaml    |  35 ++
+ .../watchdog/kontron,sl28cpld-wdt.yaml        |  35 ++
+ Documentation/hwmon/sl28cpld.rst              |  36 ++
+ .../fsl-ls1028a-kontron-kbox-a-230-ls.dts     |  14 +
+ .../fsl-ls1028a-kontron-sl28-var3-ads2.dts    |   9 +
+ .../freescale/fsl-ls1028a-kontron-sl28.dts    | 124 +++++++
+ drivers/base/regmap/regmap-irq.c              |  84 ++++-
+ drivers/gpio/Kconfig                          |  15 +
+ drivers/gpio/Makefile                         |   2 +
+ drivers/gpio/gpio-regmap.c                    | 321 ++++++++++++++++++
+ drivers/gpio/gpio-sl28cpld.c                  | 187 ++++++++++
+ drivers/hwmon/Kconfig                         |  10 +
+ drivers/hwmon/Makefile                        |   1 +
+ drivers/hwmon/sl28cpld-hwmon.c                | 152 +++++++++
+ drivers/irqchip/Kconfig                       |   3 +
+ drivers/irqchip/Makefile                      |   1 +
+ drivers/irqchip/irq-sl28cpld.c                |  99 ++++++
+ drivers/mfd/Kconfig                           |  21 ++
+ drivers/mfd/Makefile                          |   2 +
+ drivers/mfd/mfd-core.c                        |  31 +-
+ drivers/mfd/sl28cpld.c                        | 154 +++++++++
+ drivers/pwm/Kconfig                           |  10 +
+ drivers/pwm/Makefile                          |   1 +
+ drivers/pwm/pwm-sl28cpld.c                    | 204 +++++++++++
+ drivers/watchdog/Kconfig                      |  11 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/sl28cpld_wdt.c               | 242 +++++++++++++
+ include/linux/gpio-regmap.h                   |  88 +++++
+ include/linux/ioport.h                        |   5 +
+ include/linux/mfd/core.h                      |  26 +-
+ include/linux/regmap.h                        |  10 +
+ 34 files changed, 2142 insertions(+), 32 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
+ create mode 100644 Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
+ create mode 100644 Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
+ create mode 100644 Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
+ create mode 100644 Documentation/hwmon/sl28cpld.rst
+ create mode 100644 drivers/gpio/gpio-regmap.c
+ create mode 100644 drivers/gpio/gpio-sl28cpld.c
+ create mode 100644 drivers/hwmon/sl28cpld-hwmon.c
+ create mode 100644 drivers/irqchip/irq-sl28cpld.c
+ create mode 100644 drivers/mfd/sl28cpld.c
+ create mode 100644 drivers/pwm/pwm-sl28cpld.c
+ create mode 100644 drivers/watchdog/sl28cpld_wdt.c
+ create mode 100644 include/linux/gpio-regmap.h
+
 -- 
 2.20.1
 
