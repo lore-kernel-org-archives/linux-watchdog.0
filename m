@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0EB5C2BA12
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D918C43331
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6C2D9206E9
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5292C20719
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="E28VyFxO"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="MyKdPwgD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390031AbgDBUhX (ORCPT
+        id S2390069AbgDBUhZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Apr 2020 16:37:23 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:53827 "EHLO
+        Thu, 2 Apr 2020 16:37:25 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:38109 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389950AbgDBUhW (ORCPT
+        with ESMTP id S2390020AbgDBUhY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Apr 2020 16:37:22 -0400
+        Thu, 2 Apr 2020 16:37:24 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 1725F23E3C;
-        Thu,  2 Apr 2020 22:37:19 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 9D8D723E51;
+        Thu,  2 Apr 2020 22:37:21 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1585859839;
+        t=1585859842;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=cDPSFl3DhXa9lr6ftolj/RdcksSf5WhA1OyJSQnsQT0=;
-        b=E28VyFxO60baTwkam22hu8NfEuUbrYyIhpeI5/qDk9GR0WR4/xTZ/WsqDgX8Uf+UXYMk5j
-        WveRx3DnYnoW1VPQJXaXn7Y0/HWF8Z5lPYkui470MM2dE/g0WzzCNT5ICCeOvYixcT99qz
-        cH0EThbPKtg9a5Z0flfTHXDKYdAz3a0=
+        bh=5ltDxDEQqoNxt8d4SzlK52JEqovfZ9pOb0c+YAdkDG4=;
+        b=MyKdPwgDPX+d5enUkwSvx/2L0sV8UrVu3dX5/IA4i5Ya60skFbOlxZUSbkaljHWze57wxJ
+        YepyourbLNsq88j9tc96mszM2nQhTqzVWy8x+ew4eF4vPyi1/bCBCs4qwiPVAQ5CKLz5By
+        +T/X/em2WOCCPej2q57K3m1FvLluDgA=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v2 13/16] arm64: dts: freescale: sl28: enable sl28cpld
-Date:   Thu,  2 Apr 2020 22:36:53 +0200
-Message-Id: <20200402203656.27047-14-michael@walle.cc>
+Subject: [PATCH v2 16/16] arm64: dts: freescale: sl28: enable fan support
+Date:   Thu,  2 Apr 2020 22:36:56 +0200
+Message-Id: <20200402203656.27047-17-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200402203656.27047-1-michael@walle.cc>
 References: <20200402203656.27047-1-michael@walle.cc>
@@ -70,7 +70,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: 1725F23E3C
+X-Rspamd-Queue-Id: 9D8D723E51
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -80,11 +80,10 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          MIME_GOOD(-0.10)[text/plain];
          BROKEN_CONTENT_TYPE(1.50)[];
          TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[0.081];
          DKIM_SIGNED(0.00)[];
-         DBL_PROHIBIT(0.00)[0.0.0.3:email,0.0.0.6:email,0.0.0.2:email,0.0.0.4:email,0.0.0.1:email,0.0.0.0:email,0.0.0.5:email,0.0.0.50:email];
          RCPT_COUNT_TWELVE(0.00)[24];
          MID_CONTAINS_FROM(1.00)[];
+         NEURAL_HAM(-0.00)[-0.071];
          RCVD_COUNT_ZERO(0.00)[0];
          FROM_EQ_ENVFROM(0.00)[];
          MIME_TRACE(0.00)[0:+];
@@ -97,123 +96,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add the board management controller node.
+Add a pwm-fan mapped to the PWM channel 0 which is connected to the
+fan connector of the carrier.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- .../freescale/fsl-ls1028a-kontron-sl28.dts    | 92 +++++++++++++++++++
- 1 file changed, 92 insertions(+)
+ .../dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-index 41ba38adc906..b73794d57db4 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-@@ -8,6 +8,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
+index 0973a6a45217..c45d7b40e374 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
+@@ -15,6 +15,15 @@
+ 	compatible = "kontron,sl28-var3-ads2", "kontron,sl28-var3",
+ 		     "kontron,sl28", "fsl,ls1028a";
  
- /dts-v1/;
- #include "fsl-ls1028a.dtsi"
-+#include <dt-bindings/interrupt-controller/irq.h>
- 
- / {
- 	model = "Kontron SMARC-sAL28";
-@@ -174,6 +175,97 @@
- 		reg = <0x32>;
- 	};
- 
-+	sl28cpld: sl28cpld@4a {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "kontron,sl28cpld";
-+		reg = <0x4a>;
-+		interrupts-extended = <&gpio2 6 IRQ_TYPE_EDGE_FALLING>;
-+
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+
-+		watchdog@0 {
-+			compatible = "kontron,sl28cpld-wdt";
-+			reg = <0>;
-+			kontron,assert-wdt-timeout-pin;
-+		};
-+
-+		hwmon@4 {
-+			compatible = "kontron,sl28cpld-fan";
-+			reg = <1>;
-+		};
-+
-+		sl28cpld_pwm0: pwm@5 {
-+			#pwm-cells = <2>;
-+			compatible = "kontron,sl28cpld-pwm";
-+			reg = <2>;
-+		};
-+
-+		sl28cpld_pwm1: pwm@6 {
-+			#pwm-cells = <2>;
-+			compatible = "kontron,sl28cpld-pwm";
-+			reg = <3>;
-+		};
-+
-+		sl28cpld_gpio0: gpio@0 {
-+			compatible = "kontron,sl28cpld-gpio";
-+			reg = <4>;
-+
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			gpio-line-names =
-+				"GPIO0_CAM0_PWR_N", "GPIO1_CAM1_PWR_N",
-+				"GPIO2_CAM0_RST_N", "GPIO3_CAM1_RST_N",
-+				"GPIO4_HDA_RST_N", "GPIO5_PWM_OUT",
-+				"GPIO6_TACHIN", "GPIO7";
-+
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		sl28cpld_gpio1: gpio@1 {
-+			compatible = "kontron,sl28cpld-gpio";
-+			reg = <5>;
-+
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			gpio-line-names =
-+				"GPIO8", "GPIO9", "GPIO10", "GPIO11",
-+				"", "", "", "";
-+
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		sl28cpld_gpio2: gpio@2 {
-+			compatible = "kontron,sl28cpld-gpo";
-+			reg = <6>;
-+
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			gpio-line-names =
-+				"LCD0 voltage enable",
-+				"LCD0 backlight enable",
-+				"eMMC reset", "LVDS bridge reset",
-+				"LVDS bridge power-down",
-+				"SDIO power enable",
-+				"", "";
-+		};
-+
-+		sl28cpld_gpio3: gpio@3 {
-+			compatible = "kontron,sl28cpld-gpi";
-+			reg = <7>;
-+
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			gpio-line-names =
-+				"Power button", "Force recovery", "Sleep",
-+				"Battery low", "Lid state", "Charging",
-+				"Charger present", "";
-+		};
++	pwm-fan {
++		compatible = "pwm-fan";
++		cooling-min-state = <0>;
++		cooling-max-state = <3>;
++		#cooling-cells = <2>;
++		pwms = <&sl28cpld_pwm0 0 4000000>;
++		cooling-levels = <1 128 192 255>;
 +	};
 +
- 	eeprom@50 {
- 		compatible = "atmel,24c32";
- 		reg = <0x50>;
+ 	sound {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.20.1
 
