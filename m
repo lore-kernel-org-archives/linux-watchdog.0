@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 475C6C2BA12
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB75CC2BA15
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1A129208E0
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92549208E0
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Apr 2020 20:37:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="t/nWLopL"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="Wt3OBFNS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389851AbgDBUhm (ORCPT
+        id S2390173AbgDBUhs (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Apr 2020 16:37:42 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:43695 "EHLO
+        Thu, 2 Apr 2020 16:37:48 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:49933 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389995AbgDBUhX (ORCPT
+        with ESMTP id S2389988AbgDBUhX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 2 Apr 2020 16:37:23 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id F098F23E4F;
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 4E5F923E4D;
         Thu,  2 Apr 2020 22:37:20 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1585859841;
+        t=1585859840;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=dwzL/H/l0nspsFTq6dZ+dvAaPJmjo1s9jrqa6YkXpsA=;
-        b=t/nWLopL6e24o7ERUx3rrh4wqnMmnaKzlJiKpWNdDyrdxsDb1XOYyiSzBsFWpg77Ig3D0K
-        mj9kLB7WtN6CHjfnIZ6GHzUXCqqv+qLpU74JYW3AoHNgObr0DySclDbJSmE6HQ+XBA+Tfl
-        Nnt8nl2TiDvrKa26Caft8+orDP3txOo=
+        bh=kd33CN6cAdmGLTS1IKaKGLQEu25YdHUdM8D7Vve44tE=;
+        b=Wt3OBFNS5kzqcvqXP1yxoca3RYtN0N1YwIJ6PqHDA8a6QokZljD5+MD548WN/Cv2eNkjvT
+        R/g3+NRIah3fVcptj0aLqO1n2ox7PpehhwaKwL/tTmVRPRwKzzPkwkVsiY14Rk638lQY1u
+        FOY2grhMKz5aT1GIzKG1G2nFPzJbXbo=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v2 15/16] arm64: dts: freescale: sl28: enable LED support
-Date:   Thu,  2 Apr 2020 22:36:55 +0200
-Message-Id: <20200402203656.27047-16-michael@walle.cc>
+Subject: [PATCH v2 14/16] arm64: dts: freescale: sl28: map GPIOs to input events
+Date:   Thu,  2 Apr 2020 22:36:54 +0200
+Message-Id: <20200402203656.27047-15-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200402203656.27047-1-michael@walle.cc>
 References: <20200402203656.27047-1-michael@walle.cc>
@@ -70,7 +70,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: F098F23E4F
+X-Rspamd-Queue-Id: 4E5F923E4D
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -83,7 +83,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[24];
          MID_CONTAINS_FROM(1.00)[];
-         NEURAL_HAM(-0.00)[-0.099];
+         NEURAL_HAM(-0.00)[-0.119];
          RCVD_COUNT_ZERO(0.00)[0];
          FROM_EQ_ENVFROM(0.00)[];
          MIME_TRACE(0.00)[0:+];
@@ -96,43 +96,67 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Now that we have support for GPIO lines of the SMARC connector, enable
-LED support on the KBox A-230-LS. There are two LEDs without fixed
-functions, one is yellow and one is green. Unfortunately, it is just one
-multi-color LED, thus while it is possible to enable both at the same
-time it is hard to tell the difference between "yellow only" and "yellow
-and green".
+Now that we have support for GPIO lines of the SMARC connector, map the
+sleep, power and lid switch signals to the corresponding keys using the
+gpio-keys and gpio-keys-polled drivers. The power and sleep signals have
+dedicated interrupts, thus we use these ones. The lid switch is just
+mapped to a GPIO input and needs polling.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- .../fsl-ls1028a-kontron-kbox-a-230-ls.dts          | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ .../freescale/fsl-ls1028a-kontron-sl28.dts    | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-index 4b4cc6a1573d..49cf4fe05c80 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-@@ -16,6 +16,20 @@
- 	model = "Kontron KBox A-230-LS";
- 	compatible = "kontron,kbox-a-230-ls", "kontron,sl28-var4",
- 		     "kontron,sl28", "fsl,ls1028a";
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+index b73794d57db4..263ce50b0b79 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+@@ -9,6 +9,8 @@
+ /dts-v1/;
+ #include "fsl-ls1028a.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
+ 
+ / {
+ 	model = "Kontron SMARC-sAL28";
+@@ -23,6 +25,36 @@
+ 		spi1 = &dspi2;
+ 	};
+ 
++	buttons0 {
++		compatible = "gpio-keys";
 +
-+	leds {
-+		compatible = "gpio-leds";
-+
-+		user_yellow {
-+			label = "s1914:yellow:user";
-+			gpios = <&sl28cpld_gpio0 0 0>;
++		power-button {
++			interrupts-extended = <&sl28cpld
++					       4 IRQ_TYPE_EDGE_BOTH>;
++			linux,code = <KEY_POWER>;
++			label = "Power";
 +		};
 +
-+		user_green {
-+			label = "s1914:green:user";
-+			gpios = <&sl28cpld_gpio1 3 0>;
++		sleep-button {
++			interrupts-extended = <&sl28cpld
++					       5 IRQ_TYPE_EDGE_BOTH>;
++			linux,code = <KEY_SLEEP>;
++			label = "Sleep";
 +		};
 +	};
- };
- 
- &enetc_mdio_pf3 {
++
++	buttons1 {
++		compatible = "gpio-keys-polled";
++		poll-interval = <200>;
++
++		lid-switch {
++			linux,input-type = <EV_SW>;
++			linux,code = <SW_LID>;
++			gpios = <&sl28cpld_gpio3 4 GPIO_ACTIVE_LOW>;
++			label = "Lid";
++		};
++	};
++
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
 -- 
 2.20.1
 
