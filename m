@@ -2,151 +2,101 @@ Return-Path: <SRS0=X7cY=5T=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC80AC2BA18
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Apr 2020 13:07:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06ED2C2BA18
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Apr 2020 22:56:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F0C32073B
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Apr 2020 13:07:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CFF152080C
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Apr 2020 22:56:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=temperror (0-bit key) header.d=phytec.de header.i=@phytec.de header.b="N52sW98Q"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="WPiy5e7K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390855AbgDCNHc (ORCPT
+        id S1727947AbgDCW44 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Apr 2020 09:07:32 -0400
-Received: from mickerik.phytec.de ([195.145.39.210]:65362 "EHLO
-        mickerik.phytec.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390705AbgDCNHc (ORCPT
+        Fri, 3 Apr 2020 18:56:56 -0400
+Received: from mail-il1-f195.google.com ([209.85.166.195]:34385 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728459AbgDCW4z (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Apr 2020 09:07:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; d=phytec.de; s=a1; c=relaxed/simple;
-        q=dns/txt; i=@phytec.de; t=1585919249; x=1588511249;
-        h=From:Sender:Reply-To:Subject:Date:Message-Id:To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=7PCPdXoL92mweYgm+x4Q95mtPQBQ+j+0qqnoFh5R7x4=;
-        b=N52sW98QargAj4vl2lnNzgePvPcL0gArlb/fH0XKisEZ1Baaj6CK86xmpa0NS2dj
-        TfAWx4Qg5LoNaBvEr7ARloGyakfT4GW3YSRWvSs7qOFuvROOlYvLfH1CRQTXBCN3
-        75x0CbLvF2DGc6AYO0xIEi00hITVAG4AFTgE0Im0LIw=;
-X-AuditID: c39127d2-599ff70000001db9-dc-5e873511cfe8
-Received: from idefix.phytec.de (Unknown_Domain [172.16.0.10])
-        by mickerik.phytec.de (PHYTEC Mail Gateway) with SMTP id A2.88.07609.115378E5; Fri,  3 Apr 2020 15:07:29 +0200 (CEST)
-Received: from augenblix2.phytec.de ([172.16.0.56])
-          by idefix.phytec.de (IBM Domino Release 9.0.1FP7)
-          with ESMTP id 2020040315072902-138369 ;
-          Fri, 3 Apr 2020 15:07:29 +0200 
-From:   Stefan Riedmueller <s.riedmueller@phytec.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Support Opensource <support.opensource@diasemi.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/3] watchdog: da9063: Make use of pre-configured timeout during probe
-Date:   Fri, 3 Apr 2020 15:07:27 +0200
-Message-Id: <20200403130728.39260-2-s.riedmueller@phytec.de>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20200403130728.39260-1-s.riedmueller@phytec.de>
-References: <20200403130728.39260-1-s.riedmueller@phytec.de>
+        Fri, 3 Apr 2020 18:56:55 -0400
+Received: by mail-il1-f195.google.com with SMTP id t11so9050946ils.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 03 Apr 2020 15:56:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AqKl27V7RFNmyor6QW5xd8i8kAV8SFQrhYdOkxkJcC8=;
+        b=WPiy5e7K8C3QPMOUC92RgkkaI6mdprM/z4x2IEncYmEy/d6KK7jUOHmCmetCMsnqVc
+         kBUsXiMJ5CPk89GqAtdkTRa9LsdaBYEp/cpn3fJHtLs0/2nM49F6CjWMe6UupK/IYTAT
+         rhxUvgs+Xgt7OFNKBYmzA2qIcnYwH6wRp3tqs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AqKl27V7RFNmyor6QW5xd8i8kAV8SFQrhYdOkxkJcC8=;
+        b=KKaHNTVbXlFrWbqdXUecwM5JS7a5irdlYpC+EPznKC0qrO5ipZnVH5pZn9PC4aSMc2
+         8x38MmtMUZjMAtWWjoCx5qTlQiKda9oQ6IZi6uRidTxSxE36u9CB3u7MEdRogf4nLfvE
+         LsUW9GPXYiizxEvP0XtUIQ0rLZ6RL6HjokivCl+9SndQtYiahuZ3gfrY52DiyHSIifYc
+         S0/LYVg2AfYGnR9gGvVZlEFd4gFOSrk+MVwVV/OikD0W1InR3jEUzpuNDKDRKAqQoBtI
+         D10UgNY7mcXDfWl3UoqfqUeSnxkS24PNd8FbIZTxW/jZAzxwNuQ03tooGAtULRnSQS5i
+         yBDw==
+X-Gm-Message-State: AGi0PuZnAgjLkZWM6FmP3oCRDfvTKn86Be/Qq9BpNACRwjalU9zC3OxY
+        lgksyv2EB3azs2Hg5Ds0Wyl7AwcgmViMy0s7uYCxyg==
+X-Google-Smtp-Source: APiQypL/sgMRDscOesM/zrdL1QTRF5Nh56tikQdrdQDMkREU9bHS6EGHPKDF0BFGjrApSU6HGaGpCM0nXaMias8jAvA=
+X-Received: by 2002:a92:cb49:: with SMTP id f9mr10827666ilq.193.1585954612585;
+ Fri, 03 Apr 2020 15:56:52 -0700 (PDT)
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on Idefix/Phytec(Release 9.0.1FP7|August  17, 2016) at
- 03.04.2020 15:07:29,
-        Serialize by Router on Idefix/Phytec(Release 9.0.1FP7|August  17, 2016) at
- 03.04.2020 15:07:29
-X-TNEFEvaluated: 1
-Content-Transfer-Encoding: quoted-printable
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrHLMWRmVeSWpSXmKPExsWyRoCBS1fQtD3O4PAbYYvLu+awWdxYt4/d
-        4snCM0wWe1svMls8fvmP2YHVY8UnfY+Va9aweuz83sDu8XmTXABLFJdNSmpOZllqkb5dAlfG
-        pMvHWAqeilT8evacpYFxtWAXIweHhICJxPeH9l2MXBxCAtsYJbqbO5m7GDmBnHOMEsuWuYHY
-        bAJGEgumNTKBFIkItDFK7Dk6ixEkwSzgIPF47kMwW1ggUmJr7x8wm0VAReLa5bmsIDavgI3E
-        zE/7GCGWyUscPpQFEuYUsJU48X8OO8QuG4n25ZfZIMoFJU7OfMICsktC4AqjxOPHx8CKJASE
-        JE4vPssMsVdbYtnC18wTGAVmIemZhSS1gJFpFaNQbmZydmpRZrZeQUZlSWqyXkrqJkZgmB6e
-        qH5pB2PfHI9DjEwcjIcYJTiYlUR4HWe0xgnxpiRWVqUW5ccXleakFh9ilOZgURLn3cBbEiYk
-        kJ5YkpqdmlqQWgSTZeLglGpgXHAyNebe34v1y96+qt9U+2n676V9T1nYJv7Pfjb3Eq+KnVGY
-        jNwU//uKD25ucLT4vkBEbfcfrrzJixY3G62UOWhU1ekuk/vTZ5XdNgWPD4s+bZvaf2Pv541L
-        dVbsWrLH5cCxybN29QfN9Y+e5rIgOmUlV8ScpliNyLBPi1ZdnKXK/3VzQPUdWU8lluKMREMt
-        5qLiRABH7JvjQQIAAA==
+References: <20200403052900.258855-1-evanbenn@chromium.org> <20200403162742.v2.2.Ia92bb4d4ce84bcefeba1d00aaa1c1e919b6164ef@changeid>
+In-Reply-To: <20200403162742.v2.2.Ia92bb4d4ce84bcefeba1d00aaa1c1e919b6164ef@changeid>
+From:   Julius Werner <jwerner@chromium.org>
+Date:   Fri, 3 Apr 2020 15:56:40 -0700
+Message-ID: <CAODwPW_iSK_d6EHCk7QUVF7=bHVLuUYHX5mfapf+yeyuHHdNZA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] watchdog: Add new arm_smd_wdt watchdog driver
+To:     Evan Benn <evanbenn@chromium.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Xingyu Chen <xingyu.chen@amlogic.com>,
+        Julius Werner <jwerner@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Marcin Juszkiewicz <marcin.juszkiewicz@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Olof Johansson <olof@lixom.net>, Rob Herring <robh@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Vinod Koul <vkoul@kernel.org>, Will Deacon <will@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The watchdog might already be running during boot with a timeout set by
-e.g. the bootloader. Make use of this pre-configured timeout instead of
-falling back to the default timeout if no device tree value is given.
+> +       wdd->info = &smcwd_info;
+> +       /* get_timeleft is optional */
+> +       if (smcwd_call(SMCWD_GET_TIMELEFT, 0, NULL))
 
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
----
-Changes in v2:
- - Reworked patch to use the pre-configured timeout onyl as a fallback
-   instead of the default value.
- - Removed info message.
----
- drivers/watchdog/da9063=5Fwdt.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+How is this supposed to work? A firmware that implements this call
+would return the time left here which may not be 0 (maybe the watchdog
+was already primed by the bootloader or whatever), so smcwd_call()
+would interpret it as an error.
 
-diff --git a/drivers/watchdog/da9063=5Fwdt.c b/drivers/watchdog/da9063=5Fwd=
-t.c
-index 3d65e92a4e3f..423584252606 100644
---- a/drivers/watchdog/da9063=5Fwdt.c
-+++ b/drivers/watchdog/da9063=5Fwdt.c
-@@ -46,15 +46,16 @@ static unsigned int da9063=5Fwdt=5Ftimeout=5Fto=5Fsel(u=
-nsigned int secs)
- }
-=20
- /*
-- * Return 0 if watchdog is disabled, else non zero.
-+ * Read the currently active timeout.
-+ * Zero means the watchdog is disabled.
-  */
--static unsigned int da9063=5Fwdt=5Fis=5Frunning(struct da9063 *da9063)
-+static unsigned int da9063=5Fwdt=5Fread=5Ftimeout(struct da9063 *da9063)
- {
- 	unsigned int val;
-=20
- 	regmap=5Fread(da9063->regmap, DA9063=5FREG=5FCONTROL=5FD, &val);
-=20
--	return val & DA9063=5FTWDSCALE=5FMASK;
-+	return wdt=5Ftimeout[val & DA9063=5FTWDSCALE=5FMASK];
- }
-=20
- static int da9063=5Fwdt=5Fdisable=5Ftimer(struct da9063 *da9063)
-@@ -191,6 +192,7 @@ static int da9063=5Fwdt=5Fprobe(struct platform=5Fdevic=
-e *pdev)
- 	struct device *dev =3D &pdev->dev;
- 	struct da9063 *da9063;
- 	struct watchdog=5Fdevice *wdd;
-+	unsigned int timeout;
-=20
- 	if (!dev->parent)
- 		return -EINVAL;
-@@ -214,13 +216,19 @@ static int da9063=5Fwdt=5Fprobe(struct platform=5Fdev=
-ice *pdev)
- 	watchdog=5Fset=5Frestart=5Fpriority(wdd, 128);
- 	watchdog=5Fset=5Fdrvdata(wdd, da9063);
-=20
--	/* Set default timeout, maybe override it with DT value, scale it */
- 	wdd->timeout =3D DA9063=5FWDG=5FTIMEOUT;
-+
-+	/* Use pre-configured timeout if watchdog is already running. */
-+	timeout =3D da9063=5Fwdt=5Fread=5Ftimeout(da9063);
-+	if (timeout)
-+		wdd->timeout =3D timeout;
-+
-+	/* Set timeout, maybe override it with DT value, scale it */
- 	watchdog=5Finit=5Ftimeout(wdd, 0, dev);
- 	da9063=5Fwdt=5Fset=5Ftimeout(wdd, wdd->timeout);
-=20
--	/* Change the timeout to the default value if the watchdog is running */
--	if (da9063=5Fwdt=5Fis=5Frunning(da9063)) {
-+	/* Update timeout if the watchdog is already running. */
-+	if (timeout) {
- 		da9063=5Fwdt=5Fupdate=5Ftimeout(da9063, wdd->timeout);
- 		set=5Fbit(WDOG=5FHW=5FRUNNING, &wdd->status);
- 	}
---=20
-2.23.0
-
+I think the cleanest solution would be to stick to the same return
+codes in a0 and use a1 to report the time left when a0 is
+PSCI_SUCCESS. This is more consistent with SMCWD_INIT too.
