@@ -1,158 +1,218 @@
-Return-Path: <SRS0=s5fp=5W=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=XD2f=5X=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0166C2BA2B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Apr 2020 22:43:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C687C2BB55
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Apr 2020 17:47:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6658B20753
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Apr 2020 22:43:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dgsUmkRp"
+	by mail.kernel.org (Postfix) with ESMTP id 4BF592083E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Apr 2020 17:47:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726230AbgDFWnA (ORCPT
+        id S1726510AbgDGRry (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Apr 2020 18:43:00 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:33207 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726197AbgDFWnA (ORCPT
+        Tue, 7 Apr 2020 13:47:54 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:54036 "EHLO
+        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726277AbgDGRrx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Apr 2020 18:43:00 -0400
-Received: by mail-pf1-f195.google.com with SMTP id c138so511871pfc.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Apr 2020 15:42:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RDjcEx6ccXaZmMNdz82QJ8MnVEXDMY7qKwHQQPARDQk=;
-        b=dgsUmkRpTJLIS3xANnGoh9gkD7SJBMrHgc1Z2xCtlnisizOHJ3yePnDUvEFhHSe8Yl
-         RBXnvFOW4odF+Iyijj/kA0z1z/Xhugs+iI/1AAcE9h/8tQFneR45pEHWzEFHX7UQqcqr
-         Z3XuWXG/0nWkK5u/WUpTdU0usL4yn8tr4QgSytpi0l/OzvoLzw1ENSPKFsPUWN1IZFyz
-         vWWKD1D6zIr9nLG7skpZBY4s3z686oE2I7YzBV4KvmqDQgCwJNb7foeOXOYirdorRPiN
-         7viMrgLvYzgo9Q1MFrp1NXjlFA9d+GLppzs5OENePHbqgZqBtRsAGOwieNYZQ4+oXmiS
-         Puhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=RDjcEx6ccXaZmMNdz82QJ8MnVEXDMY7qKwHQQPARDQk=;
-        b=eENl8PcX9k0TnrobKsiP0l451YqObMEazW/FJ/+ziBcbuwxzJvNR0rORfvdTYjwyuC
-         tEDQEFOCNu7GxCD0mOTF5bJOfD7yiWbBqasLU+x1RtBMVQx1n21y5tIcpfsOZnaDsVc9
-         XSA39eej9Cl1ScmBxRCQCGVtVwt/ynzrdmkKMsuGo7tQiQ8xoZWzyxGZQdbuBX12BDSB
-         OeVCUgO3tRcCprMdc/UPRg6Tzt++LaaODEQrgSZWuHmhhOnLLKp25H2K/nVSFfDB41Od
-         Q/Mwf4g5b4PXUf2tjnFko+ooOntxqbrKFiA8iRUe0JwQqcbPhi74ke+phUAwf7W6k3d4
-         /Q0w==
-X-Gm-Message-State: AGi0PuY3CXNa54UExkM8kK5XtPnAkz6IL+HwVPR8ElHnWgorSxEUKJGD
-        AiTZJjSyBxupz5VKveu8RNK1pJHf
-X-Google-Smtp-Source: APiQypJMLmy5B9oKIUjmW1XBQsps1L0FsKUX1ENDmgfRfT0c9gF8SUf0lFaaTQw06lvvwHYLjOxPew==
-X-Received: by 2002:a63:29c1:: with SMTP id p184mr1349516pgp.37.1586212977276;
-        Mon, 06 Apr 2020 15:42:57 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d3sm602845pjz.2.2020.04.06.15.42.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Apr 2020 15:42:56 -0700 (PDT)
-Subject: Re: [PATCH] drivers: watchdog: ts72xx_wdt: fix build error
-To:     Shyam Saini <mayhs11saini@gmail.com>, wim@linux-watchdog.org
-Cc:     linux-watchdog@vger.kernel.org,
-        jerome.oufella@savoirfairelinux.com,
-        Shyam Saini <shyam.saini@savoirfairelinux.com>
-References: <20200406215008.30468-1-shyam.saini@savoirfairelinux.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <54a81d98-d43e-da2d-ecec-1ba78ab01eda@roeck-us.net>
-Date:   Mon, 6 Apr 2020 15:42:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        Tue, 7 Apr 2020 13:47:53 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id C9BCE803078C;
+        Tue,  7 Apr 2020 17:47:45 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at baikalelectronics.ru
+Received: from mail.baikalelectronics.ru ([127.0.0.1])
+        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id ym6rrVGUgDYk; Tue,  7 Apr 2020 20:47:44 +0300 (MSK)
+Date:   Tue, 7 Apr 2020 20:48:06 +0300
+From:   Sergey Semin <Sergey.Semin@baikalelectronics.ru>
+To:     Guenter Roeck <linux@roeck-us.net>
+CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] dt-bindings: watchdog: dw-wdt: Replace legacy
+ bindings file with YAML-based one
+Message-ID: <20200407174805.cbpufcyimt5daycp@ubsrv2.baikal.int>
+References: <20200306132747.14701-1-Sergey.Semin@baikalelectronics.ru>
+ <20200306132803.770DC8030792@mail.baikalelectronics.ru>
+ <20200306151839.374AA80307C2@mail.baikalelectronics.ru>
 MIME-Version: 1.0
-In-Reply-To: <20200406215008.30468-1-shyam.saini@savoirfairelinux.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20200306151839.374AA80307C2@mail.baikalelectronics.ru>
+X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/6/20 2:50 PM, Shyam Saini wrote:
-> If TS72XX_WATCHDOG is y and WATCHDOG_CORE is not enabled or its m,
-> then building fails:
-> 
-> drivers/watchdog/ts72xx_wdt.o: in function `ts72xx_wdt_probe':
-> 	ts72xx_wdt.c:(.text+0x14c): undefined reference to \
-> 	`watchdog_init_timeout'
-> 	ts72xx_wdt.c:(.text+0x15c): undefined reference to \
-> 	`devm_watchdog_register_device'
-> 
-> Select WATCHDOG_CORE to fix this.
-> 
-> Signed-off-by: Shyam Saini <shyam.saini@savoirfairelinux.com>
+Hi Guenter,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->  drivers/watchdog/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
+On Fri, Mar 06, 2020 at 07:18:35AM -0800, Guenter Roeck wrote:
+> On 3/6/20 5:27 AM, Sergey.Semin@baikalelectronics.ru wrote:
+> > From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> > 
+> > Modern device tree bindings are supposed to be created as YAML-files
+> > in accordane with dt-schema. This commit replaces the DW Watchdog
+> > legacy bare text bindings with YAML file. As before the the bindings
+> > states that the corresponding dts node is supposed to have a registers
+> > range reference, at least one clocks phandle reference, optional reset
+> > lines. Seeing all the platforms with DW Watchdog provide the watchdog
+> > interrupt property and since in further commit we'll alter the driver
+> > to use it for pre-timeout functionality implementation, lets declare
+> > the IRQ property to be required.
+> > 
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index cec868f8db3f..62da6e903336 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -669,6 +669,7 @@ config TS4800_WATCHDOG
->  config TS72XX_WATCHDOG
->  	tristate "TS-72XX SBC Watchdog"
->  	depends on MACH_TS72XX || COMPILE_TEST
-> +	select WATCHDOG_CORE
->  	help
->  	  Technologic Systems TS-7200, TS-7250 and TS-7260 boards have
->  	  watchdog timer implemented in a external CPLD chip. Say Y here
+> First, this is not just a replacement - it changes semantics.
 > 
+> Second, I disagree with making interrupts mandatory. They are only needed
+> for pretimeout functionality, and not everyone may want to enable that.
+> I don't see the point of forcing everyone to enable and provide functionality
+> that is neither wanted or needed for a given use case. Yes, the interrupt
+> is provided by all users today, but we may have one coming up tomorrow
+> where the interrupt line is not even wired up. What then ?
 
+Ok. I'll leave the interrupts optional, though I would have to implement
+it in the driver as well. Is this all semantic changes you were referring to?
+
+There is one more change, which you may have also considered as semantic
+update. It's async clocks support - "pclk" clock. Would you like me to
+unpin this alteration into an additional patch? Rob?
+
+I'll also provide the next fixes in v2:
+- single license with GPL-2.0-only,
+- remove copyrights (it's not right to add our copyrights here),
+- replace "additionalProperties: false" with "unevaluatedProperties: false"
+- Remove "assigned-clocks" and "assigned-clock-rates" properties
+
+Regards,
+-Sergey
+
+> 
+> Guenter
+> 
+> > Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> > Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> > Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> > Cc: Paul Burton <paulburton@kernel.org>
+> > Cc: Ralf Baechle <ralf@linux-mips.org>
+> > ---
+> >  .../devicetree/bindings/watchdog/dw_wdt.txt   | 24 -------
+> >  .../bindings/watchdog/snps,dw-wdt.yaml        | 66 +++++++++++++++++++
+> >  2 files changed, 66 insertions(+), 24 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> >  create mode 100644 Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> > 
+> > diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> > deleted file mode 100644
+> > index eb0914420c7c..000000000000
+> > --- a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> > +++ /dev/null
+> > @@ -1,24 +0,0 @@
+> > -Synopsys Designware Watchdog Timer
+> > -
+> > -Required Properties:
+> > -
+> > -- compatible	: Should contain "snps,dw-wdt"
+> > -- reg		: Base address and size of the watchdog timer registers.
+> > -- clocks	: phandle + clock-specifier for the clock that drives the
+> > -		watchdog timer.
+> > -
+> > -Optional Properties:
+> > -
+> > -- interrupts	: The interrupt used for the watchdog timeout warning.
+> > -- resets	: phandle pointing to the system reset controller with
+> > -		line index for the watchdog.
+> > -
+> > -Example:
+> > -
+> > -	watchdog0: wd@ffd02000 {
+> > -		compatible = "snps,dw-wdt";
+> > -		reg = <0xffd02000 0x1000>;
+> > -		interrupts = <0 171 4>;
+> > -		clocks = <&per_base_clk>;
+> > -		resets = <&rst WDT0_RESET>;
+> > -	};
+> > diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> > new file mode 100644
+> > index 000000000000..8b30f9601c38
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> > @@ -0,0 +1,66 @@
+> > +# SPDX-License-Identifier: GPL-2.0
+> > +#
+> > +# Copyright (C) 2019 BAIKAL ELECTRONICS, JSC
+> > +#
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/watchdog/snps,dw-wdt.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: Synopsys Designware Watchdog Timer
+> > +
+> > +allOf:
+> > +  - $ref: "watchdog.yaml#"
+> > +
+> > +maintainers:
+> > +  - Jamie Iles <jamie@jamieiles.com>
+> > +
+> > +properties:
+> > +  compatible:
+> > +    const: snps,dw-wdt
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  interrupts:
+> > +    description: DW Watchdog pre-timeout interrupts.
+> > +    maxItems: 1
+> > +
+> > +  clocks:
+> > +    minItems: 1
+> > +    items:
+> > +      - description: Watchdog timer reference clock.
+> > +      - description: APB3 interface clock.
+> > +
+> > +  clock-names:
+> > +    minItems: 1
+> > +    items:
+> > +      - const: tclk
+> > +      - const: pclk
+> > +
+> > +  assigned-clocks: true
+> > +
+> > +  assigned-clock-rates: true
+> > +
+> > +  resets:
+> > +    description: Phandle to the DW Watchdog reset lane.
+> > +    maxItems: 1
+> > +
+> > +additionalProperties: false
+> > +
+> > +required:
+> > +  - compatible
+> > +  - reg
+> > +  - interrupts
+> > +  - clocks
+> > +
+> > +examples:
+> > +  - |
+> > +    watchdog0: watchdog@ffd02000 {
+> > +      compatible = "snps,dw-wdt";
+> > +      reg = <0xffd02000 0x1000>;
+> > +      interrupts = <0 171 4>;
+> > +      clocks = <&per_base_clk>;
+> > +      resets = <&wdt_rst>;
+> > +    };
+> > +...
+> > 
+> 
