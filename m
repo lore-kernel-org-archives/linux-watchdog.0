@@ -1,200 +1,179 @@
-Return-Path: <SRS0=1I5r=6A=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=OnK6=6B=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B03BC2BB85
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Apr 2020 16:35:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A235C2BB55
+	for <linux-watchdog@archiver.kernel.org>; Fri, 17 Apr 2020 06:34:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B4D021D7E
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Apr 2020 16:35:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E79A5221EC
+	for <linux-watchdog@archiver.kernel.org>; Fri, 17 Apr 2020 06:34:21 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="QJWl4WcT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387660AbgDPQfe (ORCPT
+        id S1728004AbgDQGeT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Apr 2020 12:35:34 -0400
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:58139 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1732541AbgDPQfa (ORCPT
+        Fri, 17 Apr 2020 02:34:19 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:42453 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727912AbgDQGeS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Apr 2020 12:35:30 -0400
-Received: from Internal Mail-Server by MTLPINE2 (envelope-from michaelsh@mellanox.com)
-        with ESMTPS (AES256-SHA encrypted); 16 Apr 2020 19:35:24 +0300
-Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 03GGZIjG013255;
-        Thu, 16 Apr 2020 19:35:24 +0300
-From:   michaelsh@mellanox.com
-To:     linux@roeck-us.net, wim@linux-watchdog.org, andy@infradead.org,
-        dvhart@infradead.org
-Cc:     linux-watchdog@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, vadimp@mellanox.com,
-        Michael Shych <michaelsh@mellanox.com>
-Subject: [PATCH v1 3/4] watchdog: mlx-wdt: support new watchdog type with longer timeout period
-Date:   Thu, 16 Apr 2020 19:35:13 +0300
-Message-Id: <20200416163514.7334-4-michaelsh@mellanox.com>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20200416163514.7334-1-michaelsh@mellanox.com>
-References: <20200416163514.7334-1-michaelsh@mellanox.com>
+        Fri, 17 Apr 2020 02:34:18 -0400
+Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 062C222EEB;
+        Fri, 17 Apr 2020 08:34:09 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1587105252;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yRofvrT7uJxuqc53iK0glkaODL7zqW5wwpHXjFjKcgw=;
+        b=QJWl4WcToI73JqjXrubzRp0qLIcPIjk2ilLyWMLcnLKpiGqrfWON6uL1z8JhJq7r5UUkyF
+        TKqmBRGjCEejYmQaC3M7NJhp8Ji3md43YmGOp9YWBADR/RoIApO6RHynSWNUvMQUz3QA90
+        FlDbwzSR3GqZVaXjssTh33Iz8CDafW4=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Fri, 17 Apr 2020 08:34:09 +0200
+From:   Michael Walle <michael@walle.cc>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, linux-kernel@vger.kernel.org,
+        linux-hwmon@vger.kernel.org, linux-pwm@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 10/16] gpio: add a reusable generic gpio_chip using
+ regmap
+In-Reply-To: <CACRpkdaqgHhPwdKdUai4zvi21qR-cSQUKyzZ3SyfWBLPN9us3w@mail.gmail.com>
+References: <20200402203656.27047-1-michael@walle.cc>
+ <20200402203656.27047-11-michael@walle.cc>
+ <CACRpkdaqgHhPwdKdUai4zvi21qR-cSQUKyzZ3SyfWBLPN9us3w@mail.gmail.com>
+Message-ID: <f82706a8596436d13642c49e26233133@walle.cc>
+X-Sender: michael@walle.cc
+User-Agent: Roundcube Webmail/1.3.10
+X-Spamd-Bar: +
+X-Rspamd-Server: web
+X-Rspamd-Queue-Id: 062C222EEB
+X-Spamd-Result: default: False [1.40 / 15.00];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         TAGGED_RCPT(0.00)[dt];
+         MIME_GOOD(-0.10)[text/plain];
+         DKIM_SIGNED(0.00)[];
+         RCPT_COUNT_TWELVE(0.00)[23];
+         NEURAL_HAM(-0.00)[-0.393];
+         RCVD_COUNT_ZERO(0.00)[0];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         FREEMAIL_CC(0.00)[vger.kernel.org,lists.infradead.org,baylibre.com,kernel.org,suse.com,roeck-us.net,linaro.org,gmail.com,pengutronix.de,linux-watchdog.org,nxp.com,linutronix.de,lakedaemon.net,linuxfoundation.org];
+         MID_RHS_MATCH_FROM(0.00)[];
+         SUSPICIOUS_RECIPS(1.50)[]
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Michael Shych <michaelsh@mellanox.com>
+Hi Linus,
 
-New programmable logic device can have watchdog type 3 implementation.
-It's same as Type 2 with extended maximum timeout period.
-Maximum timeout is up-to 65535 sec.
-Type 3 HW watchdog implementation can exist on all Mellanox systems.
-It is differentiated by WD capability bit.
+Am 2020-04-16 11:27, schrieb Linus Walleij:
+> On Thu, Apr 2, 2020 at 10:37 PM Michael Walle <michael@walle.cc> wrote:
+> 
+>> There are quite a lot simple GPIO controller which are using regmap to
+>> access the hardware. This driver tries to be a base to unify existing
+>> code into one place. This won't cover everything but it should be a 
+>> good
+>> starting point.
+>> 
+>> It does not implement its own irq_chip because there is already a
+>> generic one for regmap based devices. Instead, the irq_chip will be
+>> instanciated in the parent driver and its irq domain will be associate
+>> to this driver.
+>> 
+>> For now it consists of the usual registers, like set (and an optional
+>> clear) data register, an input register and direction registers.
+>> Out-of-the-box, it supports consecutive register mappings and mappings
+>> where the registers have gaps between them with a linear mapping 
+>> between
+>> GPIO offset and bit position. For weirder mappings the user can 
+>> register
+>> its own .xlate().
+>> 
+>> Signed-off-by: Michael Walle <michael@walle.cc>
+> 
+> Overall I really like this driver and I think we should merge is as 
+> soon
+> as it is in reasonable shape and then improve on top so we can start
+> migrating drivers to it.
+> 
+>> +static int gpio_regmap_to_irq(struct gpio_chip *chip, unsigned int 
+>> offset)
+>> +{
+>> +       struct gpio_regmap_data *data = gpiochip_get_data(chip);
+>> +       struct gpio_regmap *gpio = data->gpio;
+>> +
+>> +       /* the user might have its own .to_irq callback */
+>> +       if (gpio->to_irq)
+>> +               return gpio->to_irq(gpio, offset);
+>> +
+>> +       return irq_create_mapping(gpio->irq_domain, offset);
+> 
+> I think that should at least be irq_find_mapping(), the mapping should
+> definately not be created by the .to_irq() callback since that is just
+> a convenience function.
 
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+what do you mean by conenience function? are there other ways? if you 
+use
+irq_find_mapping() who will create the mappings? most gpio drivers use a
+similar function like gpio_regmap_to_irq().
 
-Reviewed-by: Vadim Pasternak <vadimp@mellanox.com>
----
- drivers/watchdog/mlx_wdt.c | 75 +++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 64 insertions(+), 11 deletions(-)
+> 
+>> +       if (gpio->irq_domain)
+>> +               chip->to_irq = gpio_regmap_to_irq;
+> 
+> I don't know about this.
+> (...)
+>> + * @irq_domain:                (Optional) IRQ domain if the 
+>> controller is
+>> + *                     interrupt-capable
+> (...)
+>> +       struct irq_domain *irq_domain;
+> 
+> I don't think this is a good storage place for the irqdomain, we 
+> already have
+> gpio_irq_chip inside gpio_chip and that has an irqdomain, we should
+> strive to reuse that infrastructure also for regmap GPIO I think, for 
+> now
+> I would just leave .to_irq() out of this and let the driver deal with 
+> any
+> irqs.
 
-diff --git a/drivers/watchdog/mlx_wdt.c b/drivers/watchdog/mlx_wdt.c
-index 03b9ac4b99af..c6d81a3d4587 100644
---- a/drivers/watchdog/mlx_wdt.c
-+++ b/drivers/watchdog/mlx_wdt.c
-@@ -21,6 +21,7 @@
- #define MLXREG_WDT_CLOCK_SCALE		1000
- #define MLXREG_WDT_MAX_TIMEOUT_TYPE1	32
- #define MLXREG_WDT_MAX_TIMEOUT_TYPE2	255
-+#define MLXREG_WDT_MAX_TIMEOUT_TYPE3	65535
- #define MLXREG_WDT_MIN_TIMEOUT		1
- #define MLXREG_WDT_OPTIONS_BASE (WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | \
- 				 WDIOF_SETTIMEOUT)
-@@ -49,6 +50,7 @@ struct mlxreg_wdt {
- 	int tleft_idx;
- 	int ping_idx;
- 	int reset_idx;
-+	int regmap_val_sz;
- 	enum mlxreg_wdt_type wdt_type;
- };
- 
-@@ -111,7 +113,8 @@ static int mlxreg_wdt_set_timeout(struct watchdog_device *wdd,
- 	u32 regval, set_time, hw_timeout;
- 	int rc;
- 
--	if (wdt->wdt_type == MLX_WDT_TYPE1) {
-+	switch (wdt->wdt_type) {
-+	case MLX_WDT_TYPE1:
- 		rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
- 		if (rc)
- 			return rc;
-@@ -120,14 +123,33 @@ static int mlxreg_wdt_set_timeout(struct watchdog_device *wdd,
- 		regval = (regval & reg_data->mask) | hw_timeout;
- 		/* Rowndown to actual closest number of sec. */
- 		set_time = BIT(hw_timeout) / MLXREG_WDT_CLOCK_SCALE;
--	} else {
-+		rc = regmap_write(wdt->regmap, reg_data->reg, regval);
-+		break;
-+	case MLX_WDT_TYPE2:
-+		set_time = timeout;
-+		rc = regmap_write(wdt->regmap, reg_data->reg, timeout);
-+		break;
-+	case MLX_WDT_TYPE3:
-+		/* WD_TYPE3 has 2B set time register */
- 		set_time = timeout;
--		regval = timeout;
-+		if (wdt->regmap_val_sz == 1) {
-+			timeout = cpu_to_le16(timeout);
-+			regval = timeout & GENMASK(7, 0);
-+			rc = regmap_write(wdt->regmap, reg_data->reg, regval);
-+			if (!rc) {
-+				regval = ror32((timeout & GENMASK(15, 8)), 8);
-+				rc = regmap_write(wdt->regmap,
-+						reg_data->reg + 1, regval);
-+			}
-+		} else {
-+			rc = regmap_write(wdt->regmap, reg_data->reg, timeout);
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
- 	}
- 
- 	wdd->timeout = set_time;
--	rc = regmap_write(wdt->regmap, reg_data->reg, regval);
--
- 	if (!rc) {
- 		/*
- 		 * Restart watchdog with new timeout period
-@@ -147,10 +169,26 @@ static unsigned int mlxreg_wdt_get_timeleft(struct watchdog_device *wdd)
- {
- 	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
- 	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->tleft_idx];
--	u32 regval;
-+	u32 regval, msb, lsb, reg = reg_data->reg;
- 	int rc;
- 
--	rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-+	if (wdt->wdt_type == MLX_WDT_TYPE2) {
-+		rc = regmap_read(wdt->regmap, reg, &regval);
-+	} else {
-+		/* WD_TYPE3 has 2 byte timeleft register */
-+		if (wdt->regmap_val_sz == 1) {
-+			rc = regmap_read(wdt->regmap, reg, &lsb);
-+			if (!rc) {
-+				rc = regmap_read(wdt->regmap, ++reg, &msb);
-+				regval = rol32((msb & GENMASK(7, 0)), 8) |
-+						(lsb & GENMASK(7, 0));
-+				regval = le16_to_cpu(regval);
-+			}
-+		} else {
-+			rc = regmap_read(wdt->regmap, reg, &regval);
-+		}
-+	}
-+
- 	/* Return 0 timeleft in case of failure register read. */
- 	return rc == 0 ? regval : 0;
- }
-@@ -212,13 +250,23 @@ static void mlxreg_wdt_config(struct mlxreg_wdt *wdt,
- 		wdt->wdd.info = &mlxreg_wdt_aux_info;
- 
- 	wdt->wdt_type = pdata->version;
--	if (wdt->wdt_type == MLX_WDT_TYPE2) {
--		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
--		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE2;
--	} else {
-+	switch (wdt->wdt_type) {
-+	case MLX_WDT_TYPE1:
- 		wdt->wdd.ops = &mlxreg_wdt_ops_type1;
- 		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE1;
-+		break;
-+	case MLX_WDT_TYPE2:
-+		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
-+		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE2;
-+		break;
-+	case MLX_WDT_TYPE3:
-+		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
-+		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE3;
-+		break;
-+	default:
-+		break;
- 	}
-+
- 	wdt->wdd.min_timeout = MLXREG_WDT_MIN_TIMEOUT;
- }
- 
-@@ -249,6 +297,11 @@ static int mlxreg_wdt_probe(struct platform_device *pdev)
- 
- 	wdt->wdd.parent = dev;
- 	wdt->regmap = pdata->regmap;
-+	rc = regmap_get_val_bytes(wdt->regmap);
-+	if (rc <= 0)
-+		return -EINVAL;
-+
-+	wdt->regmap_val_sz = rc;
- 	mlxreg_wdt_config(wdt, pdata);
- 
- 	if ((pdata->features & MLXREG_CORE_WD_FEATURE_NOWAYOUT))
--- 
-2.11.0
+How would a driver attach the to_irq callback then? At the moment, the
+gpio_regmap doesn't expose the gpio_chip. So either we have to do that 
+or
+the config still have to have a .to_irq property.
 
+-michael
