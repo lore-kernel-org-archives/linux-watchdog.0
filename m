@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA591C3A5A0
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:47:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1994DC38A29
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:49:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E5F521D79
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:47:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED66F221F4
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587221262;
-	bh=RTn+kV+lIHQIsGh0H3v5uQledyZ87fbiPFxJRLw6Yfo=;
+	s=default; t=1587221374;
+	bh=AZDbR3+DwhncfRB/3LcL6iiSnYl24c+VsfbZA8eIE5w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=AEDXuvjUr4lJBf890hINiNYP9nGYwDpBatxoH78wfSTpAu74zMaPpkWTTgbpR+bc9
-	 Ld7c26KCd1VC+TElijxWa2gntWycqF+gvPQ818U89zRP2uMNnp+in3e5vX70CTC2HY
-	 oGDvSi3P78F/5f9D442K96ypooQycJVhl8Ktusl0=
+	b=dJzIf9eN8I5JCd/KTtBNrBiW8YUACFVCzTsxtdpc5kCqHbeNGfveH+VuLbJutGSfl
+	 XQaQ7XCniP5Se6G5KkrzxiGc2KZpdOEbnuehhxoBlwYsRCrP9OHVrKsf9rL8BAa2Rv
+	 /kmAOi8w9/F2G9ylEnt5XxVeINSj03xK56loG7bY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728340AbgDROra (ORCPT
+        id S1726842AbgDROt2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 18 Apr 2020 10:47:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55706 "EHLO mail.kernel.org"
+        Sat, 18 Apr 2020 10:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728742AbgDROoI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:08 -0400
+        id S1728597AbgDROnb (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:43:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6B592072B;
-        Sat, 18 Apr 2020 14:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52E4922240;
+        Sat, 18 Apr 2020 14:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221048;
-        bh=RTn+kV+lIHQIsGh0H3v5uQledyZ87fbiPFxJRLw6Yfo=;
+        s=default; t=1587221011;
+        bh=AZDbR3+DwhncfRB/3LcL6iiSnYl24c+VsfbZA8eIE5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLnhgM6B168BwMxYDbPUSvEDdQPAH14RoEWqF8PBxie+xua2BhhJOsZT+IvU2grck
-         MxUYPqjs+mt92qoLb93is+B1evb27KWzELVXt8YTjcr/GZwG3+VW8NskcoUVifPHjM
-         rEsOLqhyvZ8A21eT6QTkA7wmPkBu0lFHXXsKCtco=
+        b=zcDjj6LtKAJkiMs4lMmTKou/o+amBaKeOzV2u0qGpU6GfuRvH8I7akl2mNPPMypNE
+         4uf5IVxAZOmRzajezhLiLxQmhM2w48xwKArQPUC8inUxW3pbRZoAdaBnCwnT8hGh8i
+         QoxHX/66HzESZQM6qvTe0D/JmNmptCIIVore8+d0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tero Kristo <t-kristo@ti.com>, Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 02/23] watchdog: reset last_hw_keepalive time at start
-Date:   Sat, 18 Apr 2020 10:43:44 -0400
-Message-Id: <20200418144405.10565-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/28] watchdog: reset last_hw_keepalive time at start
+Date:   Sat, 18 Apr 2020 10:43:02 -0400
+Message-Id: <20200418144328.10265-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
-References: <20200418144405.10565-1-sashal@kernel.org>
+In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
+References: <20200418144328.10265-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 977fe74e5abe2..9e17d933ea941 100644
+index b30fb637ae947..52e03f1c76e38 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -237,6 +237,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+@@ -245,6 +245,7 @@ static int watchdog_start(struct watchdog_device *wdd)
  	if (err == 0) {
  		set_bit(WDOG_ACTIVE, &wdd->status);
  		wd_data->last_keepalive = started_at;
