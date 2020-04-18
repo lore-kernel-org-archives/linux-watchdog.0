@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90AE3C3A5A9
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:40:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA591C3A5A0
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:47:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6698021D82
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:40:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E5F521D79
+	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Apr 2020 14:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587220853;
-	bh=mNN3goFAdj6cbIOVlz0S+XGlyz6dKS6SjydtWTzaTLw=;
+	s=default; t=1587221262;
+	bh=RTn+kV+lIHQIsGh0H3v5uQledyZ87fbiPFxJRLw6Yfo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ZscSe099uobp/4Ao5lDWrRHtScnWOVxMld9+uInnl/yliyQ7kg2B+qYL9unXUrPmF
-	 Sn5NZCIucMar9WVgv8y06Epqnv5gDWeZ+PX0sWtnKc/qZY9qFWNFmLlHYVSZdNZBuZ
-	 A+3E0MEvXk8zxq+3VAEKVThaNuwwCA7h8gjJPI9s=
+	b=AEDXuvjUr4lJBf890hINiNYP9nGYwDpBatxoH78wfSTpAu74zMaPpkWTTgbpR+bc9
+	 Ld7c26KCd1VC+TElijxWa2gntWycqF+gvPQ818U89zRP2uMNnp+in3e5vX70CTC2HY
+	 oGDvSi3P78F/5f9D442K96ypooQycJVhl8Ktusl0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbgDROkw (ORCPT
+        id S1728340AbgDROra (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 18 Apr 2020 10:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49334 "EHLO mail.kernel.org"
+        Sat, 18 Apr 2020 10:47:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726748AbgDROkw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:40:52 -0400
+        id S1728742AbgDROoI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2376D21974;
-        Sat, 18 Apr 2020 14:40:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6B592072B;
+        Sat, 18 Apr 2020 14:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220851;
-        bh=mNN3goFAdj6cbIOVlz0S+XGlyz6dKS6SjydtWTzaTLw=;
+        s=default; t=1587221048;
+        bh=RTn+kV+lIHQIsGh0H3v5uQledyZ87fbiPFxJRLw6Yfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqWWJIrJtNGA+JF+eLHsfwxolcnWcKYhB/ecEDoHMEjA4c5iPBroW7MiwWIcSx6ab
-         vQhQmGMC6u5U4kRd0+UoMuw7DLnefnrNmVw3gtXicccgXToor6FlmG94WVw5SkXvdP
-         LrtTYI9k6cqfQrlrX/yZGl7UG96/KdV1Q2+QDJpY=
+        b=KLnhgM6B168BwMxYDbPUSvEDdQPAH14RoEWqF8PBxie+xua2BhhJOsZT+IvU2grck
+         MxUYPqjs+mt92qoLb93is+B1evb27KWzELVXt8YTjcr/GZwG3+VW8NskcoUVifPHjM
+         rEsOLqhyvZ8A21eT6QTkA7wmPkBu0lFHXXsKCtco=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tero Kristo <t-kristo@ti.com>, Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/78] watchdog: reset last_hw_keepalive time at start
-Date:   Sat, 18 Apr 2020 10:39:32 -0400
-Message-Id: <20200418144047.9013-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 02/23] watchdog: reset last_hw_keepalive time at start
+Date:   Sat, 18 Apr 2020 10:43:44 -0400
+Message-Id: <20200418144405.10565-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
-References: <20200418144047.9013-1-sashal@kernel.org>
+In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
+References: <20200418144405.10565-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index ce04edc69e5f0..c4147e93aa7d4 100644
+index 977fe74e5abe2..9e17d933ea941 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -282,6 +282,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+@@ -237,6 +237,7 @@ static int watchdog_start(struct watchdog_device *wdd)
  	if (err == 0) {
  		set_bit(WDOG_ACTIVE, &wdd->status);
  		wd_data->last_keepalive = started_at;
