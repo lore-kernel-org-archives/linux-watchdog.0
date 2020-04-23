@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 604D4C54FCB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D4F9C54FD0
 	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:47:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EBB621556
+	by mail.kernel.org (Postfix) with ESMTP id 6F9FA2098B
 	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:47:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="WxQDeRvC"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="ndrLsL6r"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730120AbgDWRq5 (ORCPT
+        id S1730115AbgDWRq5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Thu, 23 Apr 2020 13:46:57 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:53199 "EHLO
+Received: from ssl.serverraum.org ([176.9.125.105]:55937 "EHLO
         ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730038AbgDWRqn (ORCPT
+        with ESMTP id S1730060AbgDWRqn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 23 Apr 2020 13:46:43 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id E635523E25;
-        Thu, 23 Apr 2020 19:46:38 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 68A3123E29;
+        Thu, 23 Apr 2020 19:46:40 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1587663999;
+        t=1587664001;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=kd33CN6cAdmGLTS1IKaKGLQEu25YdHUdM8D7Vve44tE=;
-        b=WxQDeRvC1Z6tokNaaszC4MAJeaxtHFRS0ZwivS4t2qo0+vbaVRTP2Iti4F2fmkvpk8+0hS
-        j2zl2S7Ht5jYIA4AfSwyQlplBAdSIYi7xw5/eB25JV5WkUblJIsoFaGN1KmQuC/s+e8e/v
-        lvSLM0ZMTq/diOiFHxiVHPR2zeaf7fU=
+        bh=5ltDxDEQqoNxt8d4SzlK52JEqovfZ9pOb0c+YAdkDG4=;
+        b=ndrLsL6rTTVpPoRWs2aC5feQCyYUOV3TA68T9rDcGDAiW0u9/1yxyGTNoiZZsnbuvlxHMa
+        zY5HhLxAOEeGohWZ6V3dbrA3U0GZOMsp7NwNLNAoB3xfXNBgV+DtpF3FFsU+Ln6GYlxME0
+        EBIwdSgMqZ3V49SjVC2JaTU0EjFhMTI=
 From:   Michael Walle <michael@walle.cc>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
@@ -61,9 +61,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v3 14/16] arm64: dts: freescale: sl28: map GPIOs to input events
-Date:   Thu, 23 Apr 2020 19:45:41 +0200
-Message-Id: <20200423174543.17161-15-michael@walle.cc>
+Subject: [PATCH v3 16/16] arm64: dts: freescale: sl28: enable fan support
+Date:   Thu, 23 Apr 2020 19:45:43 +0200
+Message-Id: <20200423174543.17161-17-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200423174543.17161-1-michael@walle.cc>
 References: <20200423174543.17161-1-michael@walle.cc>
@@ -71,7 +71,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: E635523E25
+X-Rspamd-Queue-Id: 68A3123E29
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -81,7 +81,7 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          MIME_GOOD(-0.10)[text/plain];
          BROKEN_CONTENT_TYPE(1.50)[];
          TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[1.004];
+         NEURAL_SPAM(0.00)[0.993];
          DKIM_SIGNED(0.00)[];
          RCPT_COUNT_TWELVE(0.00)[25];
          MID_CONTAINS_FROM(1.00)[];
@@ -97,67 +97,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Now that we have support for GPIO lines of the SMARC connector, map the
-sleep, power and lid switch signals to the corresponding keys using the
-gpio-keys and gpio-keys-polled drivers. The power and sleep signals have
-dedicated interrupts, thus we use these ones. The lid switch is just
-mapped to a GPIO input and needs polling.
+Add a pwm-fan mapped to the PWM channel 0 which is connected to the
+fan connector of the carrier.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- .../freescale/fsl-ls1028a-kontron-sl28.dts    | 32 +++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ .../dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-index b73794d57db4..263ce50b0b79 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
-@@ -9,6 +9,8 @@
- /dts-v1/;
- #include "fsl-ls1028a.dtsi"
- #include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
+index 0973a6a45217..c45d7b40e374 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts
+@@ -15,6 +15,15 @@
+ 	compatible = "kontron,sl28-var3-ads2", "kontron,sl28-var3",
+ 		     "kontron,sl28", "fsl,ls1028a";
  
- / {
- 	model = "Kontron SMARC-sAL28";
-@@ -23,6 +25,36 @@
- 		spi1 = &dspi2;
- 	};
- 
-+	buttons0 {
-+		compatible = "gpio-keys";
-+
-+		power-button {
-+			interrupts-extended = <&sl28cpld
-+					       4 IRQ_TYPE_EDGE_BOTH>;
-+			linux,code = <KEY_POWER>;
-+			label = "Power";
-+		};
-+
-+		sleep-button {
-+			interrupts-extended = <&sl28cpld
-+					       5 IRQ_TYPE_EDGE_BOTH>;
-+			linux,code = <KEY_SLEEP>;
-+			label = "Sleep";
-+		};
++	pwm-fan {
++		compatible = "pwm-fan";
++		cooling-min-state = <0>;
++		cooling-max-state = <3>;
++		#cooling-cells = <2>;
++		pwms = <&sl28cpld_pwm0 0 4000000>;
++		cooling-levels = <1 128 192 255>;
 +	};
 +
-+	buttons1 {
-+		compatible = "gpio-keys-polled";
-+		poll-interval = <200>;
-+
-+		lid-switch {
-+			linux,input-type = <EV_SW>;
-+			linux,code = <SW_LID>;
-+			gpios = <&sl28cpld_gpio3 4 GPIO_ACTIVE_LOW>;
-+			label = "Lid";
-+		};
-+	};
-+
- 	chosen {
- 		stdout-path = "serial0:115200n8";
- 	};
+ 	sound {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.20.1
 
