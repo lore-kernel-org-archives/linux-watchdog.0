@@ -2,135 +2,99 @@ Return-Path: <SRS0=KIa8=6H=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA058C55197
-	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:47:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 029ADC54FCB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 22:17:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE9A020781
-	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:47:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4A282077D
+	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 22:17:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="PJ1n/7Eg"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="MVrB7pta"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730230AbgDWRrs (ORCPT
+        id S1727065AbgDWWRW (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 23 Apr 2020 13:47:48 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:43459 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729936AbgDWRqb (ORCPT
+        Thu, 23 Apr 2020 18:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbgDWWRV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 23 Apr 2020 13:46:31 -0400
-Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id A663D23059;
-        Thu, 23 Apr 2020 19:46:27 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1587663988;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=O32DELDjRU5+PMHK61TCvsZ+IJXO1DNHAkIMR41h4Oo=;
-        b=PJ1n/7EgcJLAWKllqdtS8BMBKT55xIpWjQlXcYxh9Eok1bVCDNOKdGnH4MZXJBsM6U+N2s
-        9mG6HXl7ETEWm0Ep2pbfj1Sy7QazALi84QMnt5G33HHrNCeoVhYKaBuyYGB87HsTECRBg0
-        iafM9nI115GkTJ22DlVwvkV6TV+sF80=
-From:   Michael Walle <michael@walle.cc>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Michael Walle <michael@walle.cc>,
-        Robin Murphy <robin.murphy@arm.com>
-Subject: [PATCH v3 02/16] mfd: mfd-core: Don't overwrite the dma_mask of the child device
-Date:   Thu, 23 Apr 2020 19:45:29 +0200
-Message-Id: <20200423174543.17161-3-michael@walle.cc>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200423174543.17161-1-michael@walle.cc>
-References: <20200423174543.17161-1-michael@walle.cc>
+        Thu, 23 Apr 2020 18:17:21 -0400
+Received: from mail-ua1-x941.google.com (mail-ua1-x941.google.com [IPv6:2607:f8b0:4864:20::941])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C42C09B043
+        for <linux-watchdog@vger.kernel.org>; Thu, 23 Apr 2020 15:17:20 -0700 (PDT)
+Received: by mail-ua1-x941.google.com with SMTP id u12so7494949uau.10
+        for <linux-watchdog@vger.kernel.org>; Thu, 23 Apr 2020 15:17:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ImyDKT5GUuGx4UdReAU1SFZBdyoyuA09f+p98B9B22U=;
+        b=MVrB7ptavsGiQQua0Vjywdn5LaMTu4XF0Z1Ou35iDTtlPrECrJF03b1X9OfQreT1Sv
+         Vrs6/p06qmY0edU5rq5DjBnn0HF8gPWw2/bsLkke5gs8JhP6nZqduiZuAIPqaK/geeaF
+         9jGZybC4kWQR1xAWiRngZ+uRtePeQ1MeLOEvk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ImyDKT5GUuGx4UdReAU1SFZBdyoyuA09f+p98B9B22U=;
+        b=IZ+id0I9Q/0Fd0M81LPiy7nDzoHRnsHYxkOoqF2QMLu3lvVGWboHaJjRatxZ06qeiX
+         9q2d94NyzIltEN9119VtD/3RSf0QGnJPycfa9hBmiW5MrOE9dX7GmmtYiznb7xDmLOl6
+         vCfyZFd66fDnsQTmX+0Rh35hhg+tYmby9lNbL4L7UufbBL+3ZFxmuJ8jxP7NdW5qj7/F
+         C/hJQQH2iUqxJvJSOci/JABUR6GThzq57AuWNz2m6S9HaoelqJT1HCwtOD7ehpf+vV1/
+         8TJNCawkKtbOFm0ZZjRtNIDOtlvDslft/DrJjURK4U5guL3b2y12Uz+3bSMvRR2IemZh
+         3idQ==
+X-Gm-Message-State: AGi0PubWuTzRan/ZfvMBk3WnRv3JTejDWu1LYUOvBH+qswhjejM8UgAe
+        GrPg8gHxwGnLiGrIIMUO1BKl9SyoaHOpPlI05M7vlA==
+X-Google-Smtp-Source: APiQypJDlCWw7UIoyUEUjtlXhQdYSbXsrKe/ELL5y8iA5voVOv7hSWTM7nSU1GgatF1cMHiK0C9YmT8nvji7Iv8Jnmc=
+X-Received: by 2002:a67:1447:: with SMTP id 68mr5466353vsu.163.1587680238725;
+ Thu, 23 Apr 2020 15:17:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spamd-Bar: ++++++
-X-Rspamd-Server: web
-X-Rspamd-Queue-Id: A663D23059
-X-Spamd-Result: default: False [6.40 / 15.00];
-         FROM_HAS_DN(0.00)[];
-         TO_DN_SOME(0.00)[];
-         R_MISSING_CHARSET(2.50)[];
-         FREEMAIL_ENVRCPT(0.00)[gmail.com];
-         TAGGED_RCPT(0.00)[dt];
-         MIME_GOOD(-0.10)[text/plain];
-         BROKEN_CONTENT_TYPE(1.50)[];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[0.997];
-         DKIM_SIGNED(0.00)[];
-         RCPT_COUNT_TWELVE(0.00)[26];
-         MID_CONTAINS_FROM(1.00)[];
-         RCVD_COUNT_ZERO(0.00)[0];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         ASN(0.00)[asn:31334, ipnet:2a02:810c:8000::/33, country:DE];
-         FREEMAIL_CC(0.00)[linaro.org,baylibre.com,kernel.org,suse.com,roeck-us.net,gmail.com,pengutronix.de,linux-watchdog.org,nxp.com,linutronix.de,lakedaemon.net,linuxfoundation.org,walle.cc,arm.com];
-         SUSPICIOUS_RECIPS(1.50)[]
-X-Spam: Yes
+References: <20200423044036.234578-1-evanbenn@chromium.org> <20200423143945.v5.2.Ia92bb4d4ce84bcefeba1d00aaa1c1e919b6164ef@changeid>
+In-Reply-To: <20200423143945.v5.2.Ia92bb4d4ce84bcefeba1d00aaa1c1e919b6164ef@changeid>
+From:   Julius Werner <jwerner@chromium.org>
+Date:   Thu, 23 Apr 2020 15:17:06 -0700
+Message-ID: <CAODwPW9-c8EcZh_zB6SwohzvHtCQasaNLQM0fj2bj5O5KuVPfg@mail.gmail.com>
+Subject: Re: [PATCH v5 2/2] watchdog: Add new arm_smc_wdt watchdog driver
+To:     Evan Benn <evanbenn@chromium.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Xingyu Chen <xingyu.chen@amlogic.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>,
+        Marcin Juszkiewicz <marcin.juszkiewicz@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Olof Johansson <olof@lixom.net>, Rob Herring <robh@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Commit cdfee5623290 ("driver core: initialize a default DMA mask for
-platform device") initialize the DMA of a platform device. But if the
-parent doesn't have a dma_mask set, for example if it's an I2C device,
-the dma_mask of the child platform device will be set to zero again.
-Which leads to many "DMA mask not set" warnings, if the MFD cell has the
-of_compatible property set.
+> +       err = of_property_read_u32(pdev->dev.of_node, "arm,smc-id",
+> +                                  &smc_func_id);
+> +       if (err < 0)
+> +               return err;
+> +       watchdog_set_drvdata(wdd, (void *)(uintptr_t)smc_func_id);
 
-[    1.877937] sl28cpld-pwm sl28cpld-pwm: DMA mask not set
-[    1.883282] sl28cpld-pwm sl28cpld-pwm.0: DMA mask not set
-[    1.888795] sl28cpld-gpio sl28cpld-gpio: DMA mask not set
-
-Thus don't overwrite the dma_mask of the children. Instead set the
-dma_mask of the platform device.
-
-Signed-off-by: Michael Walle <michael@walle.cc>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
----
- drivers/mfd/mfd-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index f5a73af60dd4..e735565969b3 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -138,7 +138,7 @@ static int mfd_add_device(struct device *parent, int id,
- 
- 	pdev->dev.parent = parent;
- 	pdev->dev.type = &mfd_dev_type;
--	pdev->dev.dma_mask = parent->dma_mask;
-+	pdev->platform_dma_mask = parent->dma_mask ? *parent->dma_mask : 0;
- 	pdev->dev.dma_parms = parent->dma_parms;
- 	pdev->dev.coherent_dma_mask = parent->coherent_dma_mask;
- 
--- 
-2.20.1
-
+Your device tree binding says there's a default and this is optional.
+I think you need to change the code so that that's actually true.
