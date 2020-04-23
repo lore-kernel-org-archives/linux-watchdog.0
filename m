@@ -4,44 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B40AC54FD0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:46:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 687D7C54FD0
+	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:46:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4CC14218AC
-	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:46:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 443F92098B
+	for <linux-watchdog@archiver.kernel.org>; Thu, 23 Apr 2020 17:46:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="PYtnpbyT"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="A2bO1Xia"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730044AbgDWRqi (ORCPT
+        id S1730081AbgDWRqo (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 23 Apr 2020 13:46:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46436 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730038AbgDWRqg (ORCPT
+        Thu, 23 Apr 2020 13:46:44 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:39037 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730048AbgDWRqm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 23 Apr 2020 13:46:36 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A98C09B042;
-        Thu, 23 Apr 2020 10:46:36 -0700 (PDT)
+        Thu, 23 Apr 2020 13:46:42 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 9540923D06;
-        Thu, 23 Apr 2020 19:46:34 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id E02DA23D22;
+        Thu, 23 Apr 2020 19:46:37 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1587663995;
+        t=1587663998;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=C0mwyzOpo4Hci45ys2sqCNcGyNGL1Gk5vpcSqV75bMI=;
-        b=PYtnpbyTDsSqVeej+oE4e4zzVxtag/2m9gR5aKhsA3zDrg6by5LPTvZzbF3wOVLhN0z6x0
-        NygYN2o92Xy9emcFz/5e4kcOyuconkSayIrYiVFOGhn7vW4e/q14pAtyslZJ74QR3ROrnU
-        dwjFBKewH9NREEGCg8dEGoz8TF/O3H4=
+        bh=cDPSFl3DhXa9lr6ftolj/RdcksSf5WhA1OyJSQnsQT0=;
+        b=A2bO1XiaMVSo+suJ6RXKMrPxznzIjBCnoyzyZYCsNNi0bgUGD+YLCXmgkb41afajujYVra
+        W8XY2onrBi5zbEtPfunlGEclJczVLT3kAgTVe60qLITR1WSfG26GQhb0v/Podc9jnnbkLt
+        L22okslDIrvcka79Fik4/jGOI6Xs2Xw=
 From:   Michael Walle <michael@walle.cc>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
@@ -64,9 +61,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v3 09/16] gpiolib: Introduce gpiochip_irqchip_add_domain()
-Date:   Thu, 23 Apr 2020 19:45:36 +0200
-Message-Id: <20200423174543.17161-10-michael@walle.cc>
+Subject: [PATCH v3 13/16] arm64: dts: freescale: sl28: enable sl28cpld
+Date:   Thu, 23 Apr 2020 19:45:40 +0200
+Message-Id: <20200423174543.17161-14-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200423174543.17161-1-michael@walle.cc>
 References: <20200423174543.17161-1-michael@walle.cc>
@@ -74,7 +71,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++
 X-Rspamd-Server: web
-X-Rspamd-Queue-Id: 9540923D06
+X-Rspamd-Queue-Id: E02DA23D22
 X-Spamd-Result: default: False [6.40 / 15.00];
          FROM_HAS_DN(0.00)[];
          TO_DN_SOME(0.00)[];
@@ -84,8 +81,9 @@ X-Spamd-Result: default: False [6.40 / 15.00];
          MIME_GOOD(-0.10)[text/plain];
          BROKEN_CONTENT_TYPE(1.50)[];
          TO_MATCH_ENVRCPT_ALL(0.00)[];
-         NEURAL_SPAM(0.00)[1.007];
+         NEURAL_SPAM(0.00)[0.955];
          DKIM_SIGNED(0.00)[];
+         DBL_PROHIBIT(0.00)[0.0.0.5:email,0.0.0.6:email,0.0.0.0:email,0.0.0.2:email,0.0.0.1:email,0.0.0.4:email,0.0.0.3:email,0.0.0.50:email];
          RCPT_COUNT_TWELVE(0.00)[25];
          MID_CONTAINS_FROM(1.00)[];
          RCVD_COUNT_ZERO(0.00)[0];
@@ -100,59 +98,123 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This connects an IRQ domain to a gpiochip and reuses gpiochip_to_irq().
+Add the board management controller node.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
- drivers/gpio/gpiolib.c      | 20 ++++++++++++++++++++
- include/linux/gpio/driver.h |  3 +++
- 2 files changed, 23 insertions(+)
+ .../freescale/fsl-ls1028a-kontron-sl28.dts    | 92 +++++++++++++++++++
+ 1 file changed, 92 insertions(+)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 40f2d7f69be2..7b3d7f496b9a 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2722,6 +2722,26 @@ int gpiochip_irqchip_add_key(struct gpio_chip *gc,
- }
- EXPORT_SYMBOL_GPL(gpiochip_irqchip_add_key);
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+index 41ba38adc906..b73794d57db4 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+@@ -8,6 +8,7 @@
  
-+/**
-+ * gpiochip_irqchip_add_key() - adds an irqdomain to a gpiochip
-+ * @gc: the gpiochip to add the irqchip to
-+ * @domain: the irqdomain to add to the gpiochip
-+ *
-+ * This function adds an IRQ domain to the gpiochip.
-+ */
-+int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
-+				struct irq_domain *domain)
-+{
-+	if (!domain)
-+		return -EINVAL;
-+
-+	gc->to_irq = gpiochip_to_irq;
-+	gc->irq.domain = domain;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(gpiochip_irqchip_add_domain);
-+
- #else /* CONFIG_GPIOLIB_IRQCHIP */
+ /dts-v1/;
+ #include "fsl-ls1028a.dtsi"
++#include <dt-bindings/interrupt-controller/irq.h>
  
- static inline int gpiochip_add_irqchip(struct gpio_chip *gc,
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index b8fc92c177eb..dfb1aa0ad4dc 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -599,6 +599,9 @@ int gpiochip_irqchip_add_key(struct gpio_chip *gc,
- bool gpiochip_irqchip_irq_valid(const struct gpio_chip *gc,
- 				unsigned int offset);
+ / {
+ 	model = "Kontron SMARC-sAL28";
+@@ -174,6 +175,97 @@
+ 		reg = <0x32>;
+ 	};
  
-+int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
-+				struct irq_domain *domain);
++	sl28cpld: sl28cpld@4a {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "kontron,sl28cpld";
++		reg = <0x4a>;
++		interrupts-extended = <&gpio2 6 IRQ_TYPE_EDGE_FALLING>;
 +
- #ifdef CONFIG_LOCKDEP
- 
- /*
++		interrupt-controller;
++		#interrupt-cells = <2>;
++
++		watchdog@0 {
++			compatible = "kontron,sl28cpld-wdt";
++			reg = <0>;
++			kontron,assert-wdt-timeout-pin;
++		};
++
++		hwmon@4 {
++			compatible = "kontron,sl28cpld-fan";
++			reg = <1>;
++		};
++
++		sl28cpld_pwm0: pwm@5 {
++			#pwm-cells = <2>;
++			compatible = "kontron,sl28cpld-pwm";
++			reg = <2>;
++		};
++
++		sl28cpld_pwm1: pwm@6 {
++			#pwm-cells = <2>;
++			compatible = "kontron,sl28cpld-pwm";
++			reg = <3>;
++		};
++
++		sl28cpld_gpio0: gpio@0 {
++			compatible = "kontron,sl28cpld-gpio";
++			reg = <4>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"GPIO0_CAM0_PWR_N", "GPIO1_CAM1_PWR_N",
++				"GPIO2_CAM0_RST_N", "GPIO3_CAM1_RST_N",
++				"GPIO4_HDA_RST_N", "GPIO5_PWM_OUT",
++				"GPIO6_TACHIN", "GPIO7";
++
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++
++		sl28cpld_gpio1: gpio@1 {
++			compatible = "kontron,sl28cpld-gpio";
++			reg = <5>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"GPIO8", "GPIO9", "GPIO10", "GPIO11",
++				"", "", "", "";
++
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++
++		sl28cpld_gpio2: gpio@2 {
++			compatible = "kontron,sl28cpld-gpo";
++			reg = <6>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"LCD0 voltage enable",
++				"LCD0 backlight enable",
++				"eMMC reset", "LVDS bridge reset",
++				"LVDS bridge power-down",
++				"SDIO power enable",
++				"", "";
++		};
++
++		sl28cpld_gpio3: gpio@3 {
++			compatible = "kontron,sl28cpld-gpi";
++			reg = <7>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"Power button", "Force recovery", "Sleep",
++				"Battery low", "Lid state", "Charging",
++				"Charger present", "";
++		};
++	};
++
+ 	eeprom@50 {
+ 		compatible = "atmel,24c32";
+ 		reg = <0x50>;
 -- 
 2.20.1
 
