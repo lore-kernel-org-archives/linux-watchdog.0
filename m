@@ -2,34 +2,34 @@ Return-Path: <SRS0=e47x=6L=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74813C5519D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Apr 2020 11:42:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92833C55199
+	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Apr 2020 11:45:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D528206E9
-	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Apr 2020 11:42:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C37B2070B
+	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Apr 2020 11:45:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbgD0LmV (ORCPT
+        id S1727067AbgD0LpP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 27 Apr 2020 07:42:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36238 "EHLO
+        Mon, 27 Apr 2020 07:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727045AbgD0LmV (ORCPT
+        with ESMTP id S1727001AbgD0LpO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 27 Apr 2020 07:42:21 -0400
+        Mon, 27 Apr 2020 07:45:14 -0400
 Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AAF8C0610D5;
-        Mon, 27 Apr 2020 04:42:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAC26C0610D5;
+        Mon, 27 Apr 2020 04:45:14 -0700 (PDT)
 Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tglx@linutronix.de>)
-        id 1jT29J-0001JG-W7; Mon, 27 Apr 2020 13:42:10 +0200
+        id 1jT2C4-0001Mi-Mv; Mon, 27 Apr 2020 13:45:00 +0200
 Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 66B12100606; Mon, 27 Apr 2020 13:42:09 +0200 (CEST)
+        id 1C40E100606; Mon, 27 Apr 2020 13:45:00 +0200 (CEST)
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     Michael Walle <michael@walle.cc>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -52,11 +52,11 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>
-Subject: Re: [PATCH v3 09/16] gpiolib: Introduce gpiochip_irqchip_add_domain()
-In-Reply-To: <20200423174543.17161-10-michael@walle.cc>
-References: <20200423174543.17161-1-michael@walle.cc> <20200423174543.17161-10-michael@walle.cc>
-Date:   Mon, 27 Apr 2020 13:42:09 +0200
-Message-ID: <87mu6xqhny.fsf@nanos.tec.linutronix.de>
+Subject: Re: [PATCH v3 11/16] gpio: add support for the sl28cpld GPIO controller
+In-Reply-To: <20200423174543.17161-12-michael@walle.cc>
+References: <20200423174543.17161-1-michael@walle.cc> <20200423174543.17161-12-michael@walle.cc>
+Date:   Mon, 27 Apr 2020 13:45:00 +0200
+Message-ID: <87k121qhj7.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Linutronix-Spam-Score: -1.0
@@ -68,47 +68,47 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 Michael Walle <michael@walle.cc> writes:
-> This connects an IRQ domain to a gpiochip and reuses
-> gpiochip_to_irq().
+> +struct sl28cpld_gpio {
+> +	struct regmap_irq_chip irq_chip;
+> +	struct regmap_irq_chip_data *irq_data;
+> +};
+> +
+> +static const struct regmap_irq sl28cpld_gpio_irqs[] = {
+> +	REGMAP_IRQ_REG_LINE(0, 8),
+> +	REGMAP_IRQ_REG_LINE(1, 8),
+> +	REGMAP_IRQ_REG_LINE(2, 8),
+> +	REGMAP_IRQ_REG_LINE(3, 8),
+> +	REGMAP_IRQ_REG_LINE(4, 8),
+> +	REGMAP_IRQ_REG_LINE(5, 8),
+> +	REGMAP_IRQ_REG_LINE(6, 8),
+> +	REGMAP_IRQ_REG_LINE(7, 8),
+> +};
 
-A little bit more context and explanation why this function is useful
-would be appreciated.
+This is exactly the same as the one in the irq chip patch.
 
-> Signed-off-by: Michael Walle <michael@walle.cc>
-> ---
->  drivers/gpio/gpiolib.c      | 20 ++++++++++++++++++++
->  include/linux/gpio/driver.h |  3 +++
->  2 files changed, 23 insertions(+)
->
-> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-> index 40f2d7f69be2..7b3d7f496b9a 100644
-> --- a/drivers/gpio/gpiolib.c
-> +++ b/drivers/gpio/gpiolib.c
-> @@ -2722,6 +2722,26 @@ int gpiochip_irqchip_add_key(struct gpio_chip *gc,
->  }
->  EXPORT_SYMBOL_GPL(gpiochip_irqchip_add_key);
->  
-> +/**
-> + * gpiochip_irqchip_add_key() - adds an irqdomain to a gpiochip
-
-Copy & paste is wonderful
-
-> + * @gc: the gpiochip to add the irqchip to
-> + * @domain: the irqdomain to add to the gpiochip
-> + *
-> + * This function adds an IRQ domain to the gpiochip.
-> + */
-> +int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
-> +				struct irq_domain *domain)
+> +static int sl28cpld_gpio_irq_init(struct device *dev,
+> +				  struct sl28cpld_gpio *gpio,
+> +				  struct regmap *regmap, unsigned int base,
+> +				  int irq)
 > +{
-> +	if (!domain)
-> +		return -EINVAL;
+> +	struct regmap_irq_chip *irq_chip = &gpio->irq_chip;
 > +
-> +	gc->to_irq = gpiochip_to_irq;
-> +	gc->irq.domain = domain;
+> +	irq_chip->name = "sl28cpld-gpio-irq",
+> +	irq_chip->irqs = sl28cpld_gpio_irqs;
+> +	irq_chip->num_irqs = ARRAY_SIZE(sl28cpld_gpio_irqs);
+> +	irq_chip->num_regs = 1;
+> +	irq_chip->status_base = base + GPIO_REG_IP;
+> +	irq_chip->mask_base = base + GPIO_REG_IE;
+> +	irq_chip->mask_invert = true,
+> +	irq_chip->ack_base = base + GPIO_REG_IP;
 > +
-> +	return 0;
+> +	return devm_regmap_add_irq_chip_np(dev, dev_of_node(dev), regmap,
+> +					   irq, IRQF_SHARED | IRQF_ONESHOT, 0,
+> +					   irq_chip, &gpio->irq_data);
 > +}
+
+And this looks pretty familiar as well. What's the point of duplicating
+that code?
 
 Thanks,
 
