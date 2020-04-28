@@ -2,204 +2,152 @@ Return-Path: <SRS0=Vdr+=6M=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56C22C83000
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 13:08:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8214BC83006
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 13:12:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BB65206A1
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 13:08:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63122206F0
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 13:12:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NpO/5tlg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727025AbgD1NIg (ORCPT
+        id S1726846AbgD1NMm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Apr 2020 09:08:36 -0400
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:50918 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727054AbgD1NIf (ORCPT
+        Tue, 28 Apr 2020 09:12:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50344 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726785AbgD1NMl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Apr 2020 09:08:35 -0400
-Received: from Internal Mail-Server by MTLPINE1 (envelope-from michaelsh@mellanox.com)
-        with ESMTPS (AES256-SHA encrypted); 28 Apr 2020 16:08:28 +0300
-Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 03SD8OAG026463;
-        Tue, 28 Apr 2020 16:08:28 +0300
-From:   michaelsh@mellanox.com
-To:     linux@roeck-us.net, wim@linux-watchdog.org, andy@infradead.org,
-        dvhart@infradead.org
-Cc:     linux-watchdog@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, vadimp@mellanox.com,
-        Michael Shych <michaelsh@mellanox.com>
-Subject: [PATCH v2 3/4] watchdog: mlx-wdt: support new watchdog type with longer timeout period
-Date:   Tue, 28 Apr 2020 16:08:15 +0300
-Message-Id: <20200428130816.582-4-michaelsh@mellanox.com>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20200428130816.582-1-michaelsh@mellanox.com>
-References: <20200428130816.582-1-michaelsh@mellanox.com>
+        Tue, 28 Apr 2020 09:12:41 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC58C03C1A9;
+        Tue, 28 Apr 2020 06:12:41 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id d3so3061920pgj.6;
+        Tue, 28 Apr 2020 06:12:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wRpIAnjBj3BxWlmS8yDTp7J5iO9oX58HgHE3/exT8fM=;
+        b=NpO/5tlgC7mnEvKYyI3rVMPcRlJDm54VZXo52W/FQOfU+WQLZisS6gAZhFfQU2B69A
+         WsEFOGjDfNXigEXo8g2itAFrzILwmKYiVCk37PxCf9sOSu0LMuFOihgG0oZZBwgrGg4F
+         6PvjDANoAxXVN/v/JhV1Gm9wamSNOJYxHCpozfwsBob7j8Mm2AU46BZwMvu/e3vTsTOg
+         zWVjeyYimmaNeXeiIb9W/ZrNwaiBNKg2wbr5NsvApdC+CIEVnWtNy4PJ6ucOL7V7AdN2
+         1fag8QBTj9ZVgPLn1Swk6YBzxH1z4UdxehC68v9l8gqFqeYm0D2fpSX+1bbLosrXTgBg
+         sNQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=wRpIAnjBj3BxWlmS8yDTp7J5iO9oX58HgHE3/exT8fM=;
+        b=g6PKU81hEMZVeJYD2g3tKcDIFkLhqDfd+/14Xp/TldeoXnY4wOsYwJWQ3sUNzKZITy
+         zG+WJnVL5ZaFSTPWHNDgNc48hHolLKNKQsDsy+J7mY75ECbkrYSqzyOTzMLt4Q8VMjVi
+         t93Qk8tq+pE/YELjfTLNYx4YnKvLPBjaesScp3Lxa28DZjPSOsnbNyjSqugdJunNKLkH
+         JaFV9PPGXNMTKBvzAWJHJKe4KxbZ93GJK6BSrwbVRFHJIBTvQDMtr4LtPcJReim1JCmj
+         MdgpwBpgrizwld9ydRDGgPDgKcKX1vb5kedEDDKb/hAqcMCRh/fU+A7hvp6vpO3YyF4V
+         PVXQ==
+X-Gm-Message-State: AGi0PuYxgvkmO2dsObexId7+ag7/m8av4caPkzX57s0JZx9mIAsDmD/4
+        ZTDAHq8wnP+Trf6FivALtQX+9JUz
+X-Google-Smtp-Source: APiQypKbNSLJdYfPq/Pn/Sng2o0qABCnfEmLJ2efMU1M8dagxFWybQ2u6BtLjsGG+YjFQy5RPCmShw==
+X-Received: by 2002:aa7:9302:: with SMTP id 2mr29293722pfj.256.1588079560700;
+        Tue, 28 Apr 2020 06:12:40 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y3sm2262738pjb.41.2020.04.28.06.12.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Apr 2020 06:12:39 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: riowd: remove unneeded semicolon
+To:     Jason Yan <yanaijie@huawei.com>, wim@linux-watchdog.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200428063333.2743-1-yanaijie@huawei.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <4e4a7471-fbe5-3012-6874-431606674457@roeck-us.net>
+Date:   Tue, 28 Apr 2020 06:12:37 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200428063333.2743-1-yanaijie@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Michael Shych <michaelsh@mellanox.com>
+On 4/27/20 11:33 PM, Jason Yan wrote:
+> Fix the following coccicheck warning:
+> 
+> drivers/watchdog/riowd.c:144:2-3: Unneeded semicolon
+> 
+> Signed-off-by: Jason Yan <yanaijie@huawei.com>
 
-New programmable logic device can have watchdog type 3 implementation.
-It's same as Type 2 with extended maximum timeout period.
-Maximum timeout is up-to 65535 sec.
-Type 3 HW watchdog implementation can exist on all Mellanox systems.
-It is differentiated by WD capability bit.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Reviewed-by: Vadim Pasternak <vadimp@mellanox.com>
----
-v1-v2:
-Make changes pointed out by Guenter:
--Simplify bit operations
--Consistency in registers access
--Don't check irrelevant return code
----
- drivers/watchdog/mlx_wdt.c | 75 +++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 64 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/watchdog/mlx_wdt.c b/drivers/watchdog/mlx_wdt.c
-index 03b9ac4b99af..4e76d4a1af5c 100644
---- a/drivers/watchdog/mlx_wdt.c
-+++ b/drivers/watchdog/mlx_wdt.c
-@@ -21,6 +21,7 @@
- #define MLXREG_WDT_CLOCK_SCALE		1000
- #define MLXREG_WDT_MAX_TIMEOUT_TYPE1	32
- #define MLXREG_WDT_MAX_TIMEOUT_TYPE2	255
-+#define MLXREG_WDT_MAX_TIMEOUT_TYPE3	65535
- #define MLXREG_WDT_MIN_TIMEOUT		1
- #define MLXREG_WDT_OPTIONS_BASE (WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | \
- 				 WDIOF_SETTIMEOUT)
-@@ -49,6 +50,7 @@ struct mlxreg_wdt {
- 	int tleft_idx;
- 	int ping_idx;
- 	int reset_idx;
-+	int regmap_val_sz;
- 	enum mlxreg_wdt_type wdt_type;
- };
- 
-@@ -111,7 +113,8 @@ static int mlxreg_wdt_set_timeout(struct watchdog_device *wdd,
- 	u32 regval, set_time, hw_timeout;
- 	int rc;
- 
--	if (wdt->wdt_type == MLX_WDT_TYPE1) {
-+	switch (wdt->wdt_type) {
-+	case MLX_WDT_TYPE1:
- 		rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
- 		if (rc)
- 			return rc;
-@@ -120,14 +123,33 @@ static int mlxreg_wdt_set_timeout(struct watchdog_device *wdd,
- 		regval = (regval & reg_data->mask) | hw_timeout;
- 		/* Rowndown to actual closest number of sec. */
- 		set_time = BIT(hw_timeout) / MLXREG_WDT_CLOCK_SCALE;
--	} else {
-+		rc = regmap_write(wdt->regmap, reg_data->reg, regval);
-+		break;
-+	case MLX_WDT_TYPE2:
-+		set_time = timeout;
-+		rc = regmap_write(wdt->regmap, reg_data->reg, timeout);
-+		break;
-+	case MLX_WDT_TYPE3:
-+		/* WD_TYPE3 has 2B set time register */
- 		set_time = timeout;
--		regval = timeout;
-+		if (wdt->regmap_val_sz == 1) {
-+			timeout = cpu_to_le16(timeout);
-+			regval = timeout & 0xff;
-+			rc = regmap_write(wdt->regmap, reg_data->reg, regval);
-+			if (!rc) {
-+				regval = (timeout & 0xff00) >> 8;
-+				rc = regmap_write(wdt->regmap,
-+						reg_data->reg + 1, regval);
-+			}
-+		} else {
-+			rc = regmap_write(wdt->regmap, reg_data->reg, timeout);
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
- 	}
- 
- 	wdd->timeout = set_time;
--	rc = regmap_write(wdt->regmap, reg_data->reg, regval);
--
- 	if (!rc) {
- 		/*
- 		 * Restart watchdog with new timeout period
-@@ -147,10 +169,26 @@ static unsigned int mlxreg_wdt_get_timeleft(struct watchdog_device *wdd)
- {
- 	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
- 	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->tleft_idx];
--	u32 regval;
-+	u32 regval, msb, lsb;
- 	int rc;
- 
--	rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-+	if (wdt->wdt_type == MLX_WDT_TYPE2) {
-+		rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-+	} else {
-+		/* WD_TYPE3 has 2 byte timeleft register */
-+		if (wdt->regmap_val_sz == 1) {
-+			rc = regmap_read(wdt->regmap, reg_data->reg, &lsb);
-+			if (!rc) {
-+				rc = regmap_read(wdt->regmap,
-+						reg_data->reg + 1, &msb);
-+				regval = (msb & 0xff) << 8 | (lsb & 0xff);
-+				regval = le16_to_cpu(regval);
-+			}
-+		} else {
-+			rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-+		}
-+	}
-+
- 	/* Return 0 timeleft in case of failure register read. */
- 	return rc == 0 ? regval : 0;
- }
-@@ -212,13 +250,23 @@ static void mlxreg_wdt_config(struct mlxreg_wdt *wdt,
- 		wdt->wdd.info = &mlxreg_wdt_aux_info;
- 
- 	wdt->wdt_type = pdata->version;
--	if (wdt->wdt_type == MLX_WDT_TYPE2) {
--		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
--		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE2;
--	} else {
-+	switch (wdt->wdt_type) {
-+	case MLX_WDT_TYPE1:
- 		wdt->wdd.ops = &mlxreg_wdt_ops_type1;
- 		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE1;
-+		break;
-+	case MLX_WDT_TYPE2:
-+		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
-+		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE2;
-+		break;
-+	case MLX_WDT_TYPE3:
-+		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
-+		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE3;
-+		break;
-+	default:
-+		break;
- 	}
-+
- 	wdt->wdd.min_timeout = MLXREG_WDT_MIN_TIMEOUT;
- }
- 
-@@ -249,6 +297,11 @@ static int mlxreg_wdt_probe(struct platform_device *pdev)
- 
- 	wdt->wdd.parent = dev;
- 	wdt->regmap = pdata->regmap;
-+	rc = regmap_get_val_bytes(wdt->regmap);
-+	if (rc < 0)
-+		return -EINVAL;
-+
-+	wdt->regmap_val_sz = rc;
- 	mlxreg_wdt_config(wdt, pdata);
- 
- 	if ((pdata->features & MLXREG_CORE_WD_FEATURE_NOWAYOUT))
--- 
-2.11.0
+> ---
+>  drivers/watchdog/riowd.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
+> index dc3c06a92f93..1b9a6dc8f982 100644
+> --- a/drivers/watchdog/riowd.c
+> +++ b/drivers/watchdog/riowd.c
+> @@ -141,7 +141,7 @@ static long riowd_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>  
+>  	default:
+>  		return -EINVAL;
+> -	};
+> +	}
+>  
+>  	return 0;
+>  }
+> 
 
