@@ -2,33 +2,47 @@ Return-Path: <SRS0=Vdr+=6M=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34DAAC8300A
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 14:50:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B815C83000
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 15:25:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F3CC206E2
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 14:50:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BE7320730
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Apr 2020 15:25:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1588087552;
+	bh=th3tqv11ZgZgj8E96bFG6ckng9nKhzjnFA3FZBoCqDM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=cPfX1AWVIucPjCIioM4jIjugEMOALHiPXw6HDi0e/X3aI9Jtrp57svqXBS4Z+N49K
+	 MN7d/RToqgqCPcDONvJlMUvdyoB4/0rHY23TJBw8NcCITIyLz1zWW9J+JT5SiQtkCB
+	 vFqFpnac6eri3irXbbvT10gTbvLAUEWAKx91iKfU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728113AbgD1Ot4 (ORCPT
+        id S1728494AbgD1PZr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Apr 2020 10:49:56 -0400
-Received: from foss.arm.com ([217.140.110.172]:53152 "EHLO foss.arm.com"
+        Tue, 28 Apr 2020 11:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727930AbgD1Otz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Apr 2020 10:49:55 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4D0A331B;
-        Tue, 28 Apr 2020 07:49:54 -0700 (PDT)
-Received: from [10.57.33.170] (unknown [10.57.33.170])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 92DCD3F305;
-        Tue, 28 Apr 2020 07:49:50 -0700 (PDT)
-Subject: Re: [PATCH v3 02/16] mfd: mfd-core: Don't overwrite the dma_mask of
- the child device
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Michael Walle <michael@walle.cc>, linux-gpio@vger.kernel.org,
+        id S1728487AbgD1PZr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Apr 2020 11:25:47 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4838206D8;
+        Tue, 28 Apr 2020 15:25:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588087546;
+        bh=th3tqv11ZgZgj8E96bFG6ckng9nKhzjnFA3FZBoCqDM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UlWrbndNBYw9f/3rJZ9vWhuiMI9bols+NUpDrkpb6nMDPcIB+exm9thHsajcNMv2s
+         zF8ons1G+Tu9b/RtEzHyR4oERYHCJhNFS7iYENen9Yfm5zJskPzV8YzecKgzoPwIBB
+         YihdZq8p8AkIueprECGqpetiJGVIrRNXwJ4Om4/8=
+Date:   Tue, 28 Apr 2020 16:25:43 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Michael Walle <michael@walle.cc>, linux-gpio@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-hwmon@vger.kernel.org, linux-pwm@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
@@ -40,95 +54,68 @@ Cc:     Michael Walle <michael@walle.cc>, linux-gpio@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
         Lee Jones <lee.jones@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3 02/16] mfd: mfd-core: Don't overwrite the dma_mask of
+ the child device
+Message-ID: <20200428152543.GI5677@sirena.org.uk>
 References: <20200423174543.17161-1-michael@walle.cc>
  <20200423174543.17161-3-michael@walle.cc>
  <20200428124548.GS185537@smile.fi.intel.com>
  <3cd3705a-4f48-6a46-e869-3ee11dc17323@arm.com>
  <20200428142938.GX185537@smile.fi.intel.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <6ccad285-7b5f-3037-d4d5-ff4d9571b612@arm.com>
-Date:   Tue, 28 Apr 2020 15:49:49 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+ <6ccad285-7b5f-3037-d4d5-ff4d9571b612@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200428142938.GX185537@smile.fi.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LYw3s/afESlflPpp"
+Content-Disposition: inline
+In-Reply-To: <6ccad285-7b5f-3037-d4d5-ff4d9571b612@arm.com>
+X-Cookie: Eschew obfuscation.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2020-04-28 3:29 pm, Andy Shevchenko wrote:
-> On Tue, Apr 28, 2020 at 02:06:20PM +0100, Robin Murphy wrote:
->> On 2020-04-28 1:45 pm, Andy Shevchenko wrote:
->>> On Thu, Apr 23, 2020 at 07:45:29PM +0200, Michael Walle wrote:
->>>> Commit cdfee5623290 ("driver core: initialize a default DMA mask for
->>>> platform device") initialize the DMA of a platform device. But if the
->>>> parent doesn't have a dma_mask set, for example if it's an I2C device,
->>>> the dma_mask of the child platform device will be set to zero again.
->>>> Which leads to many "DMA mask not set" warnings, if the MFD cell has the
->>>> of_compatible property set.
->>>
->>> I'm wondering why parent doesn't have it.
->>
->> Because the parent isn't on a DMA-capable bus, and thus really shouldn't
->> have a valid DMA configuration ever.
-> 
-> Then how come a child is DMA capable?
 
-Because it's a platform device, and thanks to decades of legacy we have 
-to assume that any platform devices *is* DMA capable.
+--LYw3s/afESlflPpp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> MFD takes a physical device node as a
-> parent and creates one of several children with that device as a parent. DMA
-> mask is a property of the device which *does DMA*. Obviously a child is not
-> correct device for that.
-> 
-> Where am I mistaken?
+On Tue, Apr 28, 2020 at 03:49:49PM +0100, Robin Murphy wrote:
 
-In theory you're not, however in practice the driver model doesn't 
-really give us a nice way to express the necessary subtle distinctions 
-between this and other similar-looking but fundamentally different 
-parent-child relationships - if it did, we probably wouldn't need the 
-whole MFD layer in the first place. The logical ideal would be to create 
-the children on the same bus as the parent, but as it is doing that 
-would likely lead to the I2C/SPI/whatever bus code assuming they are 
-first-class devices and open up a whole new world of problems.
+> For better or worse, the platform bus is the dumping ground for random crap,
+> so we just have to deal with all the abstraction breakage that leaks out of
+> that.
 
-For better or worse, the platform bus is the dumping ground for random 
-crap, so we just have to deal with all the abstraction breakage that 
-leaks out of that.
+The reason we're using the platform bus for this is that historically
+people were creating buses which were essentially carbon copies of the
+platform bus with the name changed and it was felt that rather than
+duplicate code it was better to just use platform devices with no MMIO
+ranges defined.  If there's some assumptions about DMA for platform
+devices floating about somewhere it might be reasonable to revisit this
+and create a non-DMA variant of platform devices since there is a
+meaningful difference.
 
-Robin.
+--LYw3s/afESlflPpp
+Content-Type: application/pgp-signature; name="signature.asc"
 
->>> I remember we have explicit patches in the past for buses such as PCI and AMBA
->>> to set default DMA mask for all physical devices on the respective bus, of
->>> course they can individually override it later.
->>>
->>> So, this seems to me a paper over the real issue (absence of default DMA mask
->>> where it's needed) and devices should explicitly define it if they disagree
->>> with default.
->>>
->>> If I'm wrong, you really need elaborate commit message much better.
->>
->> The problem here is that MFD children are created as platform devices
->> (regardless of what their parent is) and assigned an of_node, at which point
->> they look pretty much indistinguishable from SoC devices created by the
->> of_platform code, that *do* have to be assumed to be DMA-capable to prevent
->> ~90% of existing devicetrees from breaking.
->>
->> Of course the real fundamental issue is the platform bus itself, but it's
->> way too late to fix that :(
-> 
-> I don't think it's an issue, rather in model you are describing. Or I miss
-> something not so obvious.
-> 
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6oSvYACgkQJNaLcl1U
+h9Bs4Qf/RCa5JW+qq8H0nchlRU4JeR7TBiAfPi1/fksL+W8k+qMkV0/KwPSMqloA
+CaWErSXTzc1Mk3WKIT7UxNlcK1QsuUfNZnyA3JhFXAg39xjWpt2vSM7A/zY5mnOm
+ZkujuFzw0NzNuBoxG+8OaBH1Ltitu/KpgCPJgrmwT09V5WuZ5uf8b3mjnEo0reaN
+DYcUgV/u3XkUeSbMd1iljqd8bt+jHFHoFlVOVtcw+xh20cKvQ6kOzIPYlDbuz9rM
+tGPZwlyojrQeFd8YYTh1hqSzqeB6E19JgdPEi9P34gi7rIctOcI6b9PwFO9er5fW
+ov2hgkFJC60dI+z5f9j70bLBQfMw/w==
+=hzNB
+-----END PGP SIGNATURE-----
+
+--LYw3s/afESlflPpp--
