@@ -2,208 +2,112 @@ Return-Path: <SRS0=W5cR=6R=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E77F6C28CBC
-	for <linux-watchdog@archiver.kernel.org>; Sun,  3 May 2020 05:34:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89DD7C28CBC
+	for <linux-watchdog@archiver.kernel.org>; Sun,  3 May 2020 16:10:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C987620752
-	for <linux-watchdog@archiver.kernel.org>; Sun,  3 May 2020 05:34:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66D4020757
+	for <linux-watchdog@archiver.kernel.org>; Sun,  3 May 2020 16:10:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a6c65hco"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbgECFef (ORCPT
+        id S1728883AbgECQKx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 3 May 2020 01:34:35 -0400
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:34411 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726921AbgECFef (ORCPT
+        Sun, 3 May 2020 12:10:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728665AbgECQKw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 3 May 2020 01:34:35 -0400
-Received: from Internal Mail-Server by MTLPINE1 (envelope-from michaelsh@mellanox.com)
-        with ESMTPS (AES256-SHA encrypted); 3 May 2020 08:34:29 +0300
-Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 0435YQbT008633;
-        Sun, 3 May 2020 08:34:29 +0300
-From:   michaelsh@mellanox.com
-To:     linux@roeck-us.net, wim@linux-watchdog.org, andy@infradead.org,
-        dvhart@infradead.org
-Cc:     linux-watchdog@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, vadimp@mellanox.com,
-        Michael Shych <michaelsh@mellanox.com>
-Subject: [PATCH v3 2/4] platform/x86: mlx-platform: support new watchdog type with longer timeout
-Date:   Sun,  3 May 2020 08:34:22 +0300
-Message-Id: <20200503053424.31943-3-michaelsh@mellanox.com>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20200503053424.31943-1-michaelsh@mellanox.com>
+        Sun, 3 May 2020 12:10:52 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5302C061A0E;
+        Sun,  3 May 2020 09:10:52 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id a7so2581188pju.2;
+        Sun, 03 May 2020 09:10:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lNEP2F0m0UFazKrvCDAnOWUwZWM1bpEcCCWurLrhkJI=;
+        b=a6c65hcobLfmVxvbRbTKX8Ybbiw2xzcrUQX+Pxzs2cINAgx/uZ8rO+f6gkHt9TRIrd
+         wNz9EksMbNMeYfRiJaVkVLEejP/TbhB4ujAbylpQ/3Q/5lWPSfM8Jp8Fg3cHg9lGbF/i
+         NtQ9rBENI9jZ9StfvJsqRFW/s/O5h1W4nal+fhmZXQUIhe4FmdTTkw+ZFmIgUaWC4DcL
+         uHnfc7WuMxEhtQM3IpUm9t/YdB+SBWcnPrSW0/QE/+tg8mf66jvYITc+pmfM/0oHgWLu
+         b5V1LOczH3TVW7QkM5c37m50ku6vfYdYygithN+hJd9sNp7te+BLZL9ejL1fXDDl7ptR
+         NLvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lNEP2F0m0UFazKrvCDAnOWUwZWM1bpEcCCWurLrhkJI=;
+        b=EK1iPebmTecBLV23g2/Xp7dTQXpCPHoSNJ8rTVujwwOAltW89BRNSCNkHJoPrPiH/N
+         p9i7FSmOVxY33sYConcyqoI/OYYbT7bDf3ssGfxGJBKz0s2mr6pV7bqUnAFRsSWlSjdF
+         5eoDaewjKoraOhc1uB2XFlGelhLsjRlAvBM2JlWt7FGvmDzMpnEWdRTImHAx1J6gOoH8
+         9PyjjLWuBUqIUugByj/ozmiAf/8KdC9abz96yNH+A8jy6gE4sJKn8Y5RF5lyMq/2BNWf
+         e073CB0qSp0Ii74QYenqTJgMiVBvAOSM7S1q4QZpW7lVTdb0lkbefiiRtuH3hu5C1V5t
+         zj5g==
+X-Gm-Message-State: AGi0PuZnKcxBRo5h9CGI2bYmxwOgnSLrtpymL6l260ut+4VrHQlUCAGH
+        rjTFVvkj4I/xyvXqZAyJD2HxLZ1fd2xquEWY9Ak=
+X-Google-Smtp-Source: APiQypLoQLYQKdDpwLOr/HehPEuWMsinBA8F2qs5KS3UF3yDJKoG/eJ7YRd4Z8tbG2mQep8N+P6sIJIREU7qzqbD/uQ=
+X-Received: by 2002:a17:902:7003:: with SMTP id y3mr14472271plk.18.1588522252296;
+ Sun, 03 May 2020 09:10:52 -0700 (PDT)
+MIME-Version: 1.0
 References: <20200503053424.31943-1-michaelsh@mellanox.com>
+In-Reply-To: <20200503053424.31943-1-michaelsh@mellanox.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Sun, 3 May 2020 19:10:40 +0300
+Message-ID: <CAHp75Vff-xe06L1xOc9jMii+kEPJZzmiPBFPVMkeD46v0QW+hw@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] support watchdog with longer timeout period
+To:     michaelsh@mellanox.com
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        linux-watchdog@vger.kernel.org,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Vadim Pasternak <vadimp@mellanox.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Michael Shych <michaelsh@mellanox.com>
+On Sun, May 3, 2020 at 8:34 AM <michaelsh@mellanox.com> wrote:
+>
+> From: Michael Shych <michaelsh@mellanox.com>
+>
+> This patchset adds support of extended new watchdog type 3 of Mellanox
+> Ethernet and Infiniband switch systems.
+> This type of watchdog can have a timeout period longer than 255 or 32 sec.
+> as it was before.
+>
 
-Add verification of WD capability in order to distinguish between
-the existing WD types and new type, implemented in CPLD.
-Add configuration for a new WD type.
-Change access mode for watchdog registers.
+If you ignore my tags, why are you bothering about changes at all?
 
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Reviewed-by: Vadim Pasternak <vadimp@mellanox.com>
----
- drivers/platform/x86/mlx-platform.c | 106 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 106 insertions(+)
+> Michael Shych (4):
+>   platform_data/mlxreg: support new watchdog type with longer timeout
+>     period
+>   platform/x86: mlx-platform: support new watchdog type with longer
+>     timeout
+>   watchdog: mlx-wdt: support new watchdog type with longer timeout
+>     period
+>   docs: watchdog: mlx-wdt: Add description of new watchdog type 3
+>
+>  Documentation/watchdog/mlx-wdt.rst   |  10 ++++
+>  drivers/platform/x86/mlx-platform.c  | 106 ++++++++++++++++++++++++++++++
+>  drivers/watchdog/mlx_wdt.c           |  73 ++++++++++++++++++++----
+>  include/linux/platform_data/mlxreg.h |   5 +-
+>  4 files changed, 182 insertions(+), 12 deletions(-)
+>
+> --
+> 2.11.0
+>
 
-diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
-index c27548fd386a..9d3371cd58d5 100644
---- a/drivers/platform/x86/mlx-platform.c
-+++ b/drivers/platform/x86/mlx-platform.c
-@@ -178,7 +178,9 @@
- #define MLXPLAT_CPLD_WD_RESET_ACT_MASK	GENMASK(7, 1)
- #define MLXPLAT_CPLD_WD_FAN_ACT_MASK	(GENMASK(7, 0) & ~BIT(4))
- #define MLXPLAT_CPLD_WD_COUNT_ACT_MASK	(GENMASK(7, 0) & ~BIT(7))
-+#define MLXPLAT_CPLD_WD_CPBLTY_MASK	(GENMASK(7, 0) & ~BIT(6))
- #define MLXPLAT_CPLD_WD_DFLT_TIMEOUT	30
-+#define MLXPLAT_CPLD_WD3_DFLT_TIMEOUT	600
- #define MLXPLAT_CPLD_WD_MAX_DEVS	2
- 
- /* mlxplat_priv - platform private data
-@@ -1959,6 +1961,84 @@ static struct mlxreg_core_platform_data mlxplat_mlxcpld_wd_set_type2[] = {
- 	},
- };
- 
-+/* Watchdog type3: hardware implementation version 3
-+ * Can be on all systems. It's differentiated by WD capability bit.
-+ * Old systems (MSN2700, MSN2410, MSN2740, MSN2100 and MSN2140)
-+ * still have only one main watchdog.
-+ */
-+static struct mlxreg_core_data mlxplat_mlxcpld_wd_main_regs_type3[] = {
-+	{
-+		.label = "action",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD2_ACT_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_RESET_ACT_MASK,
-+		.bit = 0,
-+	},
-+	{
-+		.label = "timeout",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD2_TMR_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_TYPE2_TO_MASK,
-+		.health_cntr = MLXPLAT_CPLD_WD3_DFLT_TIMEOUT,
-+	},
-+	{
-+		.label = "timeleft",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD2_TMR_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_TYPE2_TO_MASK,
-+	},
-+	{
-+		.label = "ping",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD2_ACT_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_RESET_ACT_MASK,
-+		.bit = 0,
-+	},
-+	{
-+		.label = "reset",
-+		.reg = MLXPLAT_CPLD_LPC_REG_RESET_CAUSE_OFFSET,
-+		.mask = GENMASK(7, 0) & ~BIT(6),
-+		.bit = 6,
-+	},
-+};
-+
-+static struct mlxreg_core_data mlxplat_mlxcpld_wd_aux_regs_type3[] = {
-+	{
-+		.label = "action",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD3_ACT_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_FAN_ACT_MASK,
-+		.bit = 4,
-+	},
-+	{
-+		.label = "timeout",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD3_TMR_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_TYPE2_TO_MASK,
-+		.health_cntr = MLXPLAT_CPLD_WD3_DFLT_TIMEOUT,
-+	},
-+	{
-+		.label = "timeleft",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD3_TMR_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_TYPE2_TO_MASK,
-+	},
-+	{
-+		.label = "ping",
-+		.reg = MLXPLAT_CPLD_LPC_REG_WD3_ACT_OFFSET,
-+		.mask = MLXPLAT_CPLD_WD_FAN_ACT_MASK,
-+		.bit = 4,
-+	},
-+};
-+
-+static struct mlxreg_core_platform_data mlxplat_mlxcpld_wd_set_type3[] = {
-+	{
-+		.data = mlxplat_mlxcpld_wd_main_regs_type3,
-+		.counter = ARRAY_SIZE(mlxplat_mlxcpld_wd_main_regs_type3),
-+		.version = MLX_WDT_TYPE3,
-+		.identity = "mlx-wdt-main",
-+	},
-+	{
-+		.data = mlxplat_mlxcpld_wd_aux_regs_type3,
-+		.counter = ARRAY_SIZE(mlxplat_mlxcpld_wd_aux_regs_type3),
-+		.version = MLX_WDT_TYPE3,
-+		.identity = "mlx-wdt-aux",
-+	},
-+};
-+
- static bool mlxplat_mlxcpld_writeable_reg(struct device *dev, unsigned int reg)
- {
- 	switch (reg) {
-@@ -1989,8 +2069,10 @@ static bool mlxplat_mlxcpld_writeable_reg(struct device *dev, unsigned int reg)
- 	case MLXPLAT_CPLD_LPC_REG_WD1_TMR_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_WD1_ACT_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_WD2_TMR_OFFSET:
-+	case MLXPLAT_CPLD_LPC_REG_WD2_TLEFT_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_WD2_ACT_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_WD3_TMR_OFFSET:
-+	case MLXPLAT_CPLD_LPC_REG_WD3_TLEFT_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_WD3_ACT_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_PWM1_OFFSET:
- 	case MLXPLAT_CPLD_LPC_REG_PWM_CONTROL_OFFSET:
-@@ -2601,6 +2683,27 @@ static int mlxplat_mlxcpld_verify_bus_topology(int *nr)
- 	return 0;
- }
- 
-+static int mlxplat_mlxcpld_check_wd_capability(void *regmap)
-+{
-+	u32 regval;
-+	int i, rc;
-+
-+	rc = regmap_read(regmap, MLXPLAT_CPLD_LPC_REG_PSU_I2C_CAP_OFFSET,
-+			 &regval);
-+	if (rc)
-+		return rc;
-+
-+	if (!(regval & ~MLXPLAT_CPLD_WD_CPBLTY_MASK)) {
-+		for (i = 0; i < ARRAY_SIZE(mlxplat_mlxcpld_wd_set_type3); i++) {
-+			if (mlxplat_wd_data[i])
-+				mlxplat_wd_data[i] =
-+					&mlxplat_mlxcpld_wd_set_type3[i];
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int __init mlxplat_init(void)
- {
- 	struct mlxplat_priv *priv;
-@@ -2733,6 +2836,9 @@ static int __init mlxplat_init(void)
- 	}
- 
- 	/* Add WD drivers. */
-+	err = mlxplat_mlxcpld_check_wd_capability(priv->regmap);
-+	if (err)
-+		goto fail_platform_wd_register;
- 	for (j = 0; j < MLXPLAT_CPLD_WD_MAX_DEVS; j++) {
- 		if (mlxplat_wd_data[j]) {
- 			mlxplat_wd_data[j]->regmap = priv->regmap;
+
 -- 
-2.11.0
-
+With Best Regards,
+Andy Shevchenko
