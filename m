@@ -6,27 +6,27 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1871EC54E90
-	for <linux-watchdog@archiver.kernel.org>; Sun, 10 May 2020 10:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04566C54E93
+	for <linux-watchdog@archiver.kernel.org>; Sun, 10 May 2020 10:59:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0296E2495E
-	for <linux-watchdog@archiver.kernel.org>; Sun, 10 May 2020 10:59:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E2FA8208DB
+	for <linux-watchdog@archiver.kernel.org>; Sun, 10 May 2020 10:59:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728932AbgEJK6l (ORCPT
+        id S1728600AbgEJK6h (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 10 May 2020 06:58:41 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:46602 "EHLO
+        Sun, 10 May 2020 06:58:37 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:46550 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728464AbgEJK6k (ORCPT
+        with ESMTP id S1726080AbgEJK6g (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 10 May 2020 06:58:40 -0400
+        Sun, 10 May 2020 06:58:36 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 7FFDD8030875;
-        Sun, 10 May 2020 10:58:35 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 270B880307CB;
+        Sun, 10 May 2020 10:58:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id GhdIBw_NLIOa; Sun, 10 May 2020 13:58:34 +0300 (MSK)
+        with ESMTP id EqW14APDEKpH; Sun, 10 May 2020 13:58:29 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -41,9 +41,9 @@ CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Philipp Zabel <p.zabel@pengutronix.de>,
         <linux-mips@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 3/7] dt-bindings: watchdog: dw-wdt: Add watchdog TOPs array property
-Date:   Sun, 10 May 2020 13:58:03 +0300
-Message-ID: <20200510105807.880-4-Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH v2 1/7] dt-bindings: watchdog: Convert DW WDT binding to DT schema
+Date:   Sun, 10 May 2020 13:58:01 +0300
+Message-ID: <20200510105807.880-2-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200510105807.880-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200306132758.703FC8030704@mail.baikalelectronics.ru>
  <20200510105807.880-1-Sergey.Semin@baikalelectronics.ru>
@@ -56,10 +56,12 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-In case if DW Watchdog IP core is built with WDT_USE_FIX_TOP == false,
-a custom timeout periods are used to preset the timer counter. In
-this case that periods should be specified in a new "snps,watchdog-tops"
-property of the DW watchdog dts node.
+Modern device tree bindings are supposed to be created as YAML-files
+in accordance with dt-schema. This commit replaces the DW Watchdog
+legacy bare text bindings with YAML file. As before the binding states
+that the corresponding dts node is supposed to have a registers
+range, a watchdog timer references clock source, optional reset line and
+pre-timeout interrupt.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
@@ -72,68 +74,107 @@ Cc: linux-mips@vger.kernel.org
 
 ---
 
-Rob, I had to remove your Reviewed-by tag, since the patch needed
-to be updated a bit (see changelog).
-
 Changelog v2:
 - Rearrange SoBs.
-- Move $ref to the root level of the "snps,watchdog-tops" property
-  so does the constraints.
-- Add default TOP values array.
-- Discard the label definition from the new bindings example.
+- Discard BE copyright header.
+- Replace "additionalProperties: false" with "unevaluatedProperties: false"
+  property.
+- Discard interrupts property from the required properties list.
+- Remove a label definition from the binding example.
+- Move the asynchronous APB3 clock support into a dedicated patch.
 ---
- .../bindings/watchdog/snps,dw-wdt.yaml        | 33 +++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ .../devicetree/bindings/watchdog/dw_wdt.txt   | 24 ---------
+ .../bindings/watchdog/snps,dw-wdt.yaml        | 50 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 24 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
 
+diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+deleted file mode 100644
+index eb0914420c7c..000000000000
+--- a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
++++ /dev/null
+@@ -1,24 +0,0 @@
+-Synopsys Designware Watchdog Timer
+-
+-Required Properties:
+-
+-- compatible	: Should contain "snps,dw-wdt"
+-- reg		: Base address and size of the watchdog timer registers.
+-- clocks	: phandle + clock-specifier for the clock that drives the
+-		watchdog timer.
+-
+-Optional Properties:
+-
+-- interrupts	: The interrupt used for the watchdog timeout warning.
+-- resets	: phandle pointing to the system reset controller with
+-		line index for the watchdog.
+-
+-Example:
+-
+-	watchdog0: wd@ffd02000 {
+-		compatible = "snps,dw-wdt";
+-		reg = <0xffd02000 0x1000>;
+-		interrupts = <0 171 4>;
+-		clocks = <&per_base_clk>;
+-		resets = <&rst WDT0_RESET>;
+-	};
 diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-index 5bf6dc6377f3..cc741fb5a685 100644
---- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+new file mode 100644
+index 000000000000..4f6944756ab4
+--- /dev/null
 +++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-@@ -39,6 +39,24 @@ properties:
-     description: Phandle to the DW Watchdog reset lane
-     maxItems: 1
- 
-+  snps,watchdog-tops:
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    description: |
-+      DW APB Watchdog custom timer intervals - Timeout Period ranges (TOPs).
-+      Each TOP is a number loaded into the watchdog counter at the moment of
-+      the timer restart. The counter decrementing happens each tick of the
-+      reference clock. Therefore the TOPs array is equivalent to an array of
-+      the timer expiration intervals supported by the DW APB Watchdog. Note
-+      DW APB Watchdog IP-core might be synthesized with fixed TOP values,
-+      in which case this property is unnecessary with default TOPs utilized.
-+    default: [0x0001000 0x0002000 0x0004000 0x0008000
-+      0x0010000 0x0020000 0x0040000 0x0080000
-+      0x0100000 0x0200000 0x0400000 0x0800000
-+      0x1000000 0x2000000 0x4000000 0x8000000]
+@@ -0,0 +1,50 @@
++# SPDX-License-Identifier: GPL-2.0-only
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/snps,dw-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Synopsys Designware Watchdog Timer
++
++allOf:
++  - $ref: "watchdog.yaml#"
++
++maintainers:
++  - Jamie Iles <jamie@jamieiles.com>
++
++properties:
++  compatible:
++    const: snps,dw-wdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    description: DW Watchdog pre-timeout interrupt
++    maxItems: 1
++
++  clocks:
 +    items:
-+      minItems: 16
-+      maxItems: 16
++      - description: Watchdog timer reference clock
 +
- unevaluatedProperties: false
- 
- required:
-@@ -55,4 +73,19 @@ examples:
-       clocks = <&per_base_clk>;
-       resets = <&wdt_rst>;
-     };
++  resets:
++    description: Phandle to the DW Watchdog reset lane
++    maxItems: 1
 +
++unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - clocks
++
++examples:
 +  - |
 +    watchdog@ffd02000 {
 +      compatible = "snps,dw-wdt";
 +      reg = <0xffd02000 0x1000>;
 +      interrupts = <0 171 4>;
 +      clocks = <&per_base_clk>;
-+      clock-names = "tclk";
-+      snps,watchdog-tops = <0x000000FF 0x000001FF 0x000003FF
-+                            0x000007FF 0x0000FFFF 0x0001FFFF
-+                            0x0003FFFF 0x0007FFFF 0x000FFFFF
-+                            0x001FFFFF 0x003FFFFF 0x007FFFFF
-+                            0x00FFFFFF 0x01FFFFFF 0x03FFFFFF
-+                            0x07FFFFFF>;
++      resets = <&wdt_rst>;
 +    };
- ...
++...
 -- 
 2.25.1
 
