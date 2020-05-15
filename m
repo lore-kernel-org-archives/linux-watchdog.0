@@ -2,35 +2,36 @@ Return-Path: <SRS0=B8sZ=65=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED0ACC433E2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:17:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7B32C433E4
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:18:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C906220671
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:17:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7FF8206D8
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:18:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="LP/syxty"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="PIHIz5OD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726550AbgEORRP (ORCPT
+        id S1726680AbgEORR6 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 15 May 2020 13:17:15 -0400
-Received: from www.zeus03.de ([194.117.254.33]:51170 "EHLO mail.zeus03.de"
+        Fri, 15 May 2020 13:17:58 -0400
+Received: from www.zeus03.de ([194.117.254.33]:51404 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726504AbgEORRP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 May 2020 13:17:15 -0400
+        id S1726223AbgEORR5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 15 May 2020 13:17:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=AMR5jXEokMZ/3kQZjTX3bu3Iy5KP
-        19A2jn+GsTxjF4c=; b=LP/syxtyG+nb5JwbKx0hlFDzR3GZ5hOhQ9+1Ux6AI8D5
-        ZubTmfoBF/LyI0jHWjAh7xRWUY9oexhNARw6/PyUCai8e6AKFD+efTi1rz6TPyW0
-        13wiXhMtQb9kiZS58cPPzU7VqQ8k5j4XVEqJquja1GlEt5nsjrUgCpZEOlYz3kk=
-Received: (qmail 70421 invoked from network); 15 May 2020 19:10:32 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 May 2020 19:10:32 +0200
-X-UD-Smtp-Session: l3s3148p1@+BUH5LKlRqogAwDPXwnHAMSqtBM6FBGP
-Date:   Fri, 15 May 2020 19:10:31 +0200
+        :content-type:in-reply-to; s=k1; bh=tAJU7taF11lwsgMZCnNGLZ/hRQyk
+        hHP1i8TYZ9hJlgs=; b=PIHIz5OD3mMQYyGfl+/oV/b+3uOn2f0S8kWWw7Z//anj
+        VKd8GPrEZ/NvUtCZm5VBD4CS8EA/G+hYzcw9jJxfVtA3cZN1hGQdXF3RqsSjtd3Z
+        h2xBfAlVOC6ZhK+9/1QBuiQ5ANecPirOcgXsiAqOMeN3QPa4yyGyE7/1qFpjQgI=
+Received: (qmail 72963 invoked from network); 15 May 2020 19:17:54 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 May 2020 19:17:54 +0200
+X-UD-Smtp-Session: l3s3148p1@i2xt/rKlTqogAwDPXwnHAMSqtBM6FBGP
+Date:   Fri, 15 May 2020 19:17:54 +0200
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -45,15 +46,16 @@ Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         netdev@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Prabhakar <prabhakar.csengg@gmail.com>
-Subject: Re: [PATCH 03/17] ARM: dts: r8a7742: Add I2C and IIC support
-Message-ID: <20200515171031.GB19423@ninjato>
+Subject: Re: [PATCH 05/17] mmc: renesas_sdhi_sys_dmac: Add support for
+ r8a7742 SoC
+Message-ID: <20200515171754.GF19423@ninjato>
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1589555337-5498-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1589555337-5498-6-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+        protocol="application/pgp-signature"; boundary="SxgehGEc6vB0cZwN"
 Content-Disposition: inline
-In-Reply-To: <1589555337-5498-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <1589555337-5498-6-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
@@ -61,46 +63,69 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
---IrhDeMKUP4DT/M7F
+--SxgehGEc6vB0cZwN
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 15, 2020 at 04:08:43PM +0100, Lad Prabhakar wrote:
-> Add the I2C[0-3] and IIC[0-3] devices nodes to the R8A7742 device tree.
+On Fri, May 15, 2020 at 04:08:45PM +0100, Lad Prabhakar wrote:
+> Add support for r8a7742 SoC. Renesas RZ/G1H (R8A7742) SDHI is identical to
+> the R-Car Gen2 family.
 >=20
-> Automatic transmission for PMIC control is not available on IIC3 hence
-> compatible string "renesas,rcar-gen2-iic" and "renesas,rmobile-iic" is
-> not added to iic3 node.
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renes=
+as.com>
 
-Makes sense.
+I think we can skip this because of the generic fallback? The other
+entries come from a time when we had a different policy IIRC.
 
-However, both versions (with and without automatic transmission) are
-described with the same "renesas,iic-r8a7742" compatible. Is it possible
-to detect the reduced variant at runtime somehow?
+> ---
+>  drivers/mmc/host/renesas_sdhi_sys_dmac.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/mmc/host/renesas_sdhi_sys_dmac.c b/drivers/mmc/host/=
+renesas_sdhi_sys_dmac.c
+> index 13ff023..dbfcbc2 100644
+> --- a/drivers/mmc/host/renesas_sdhi_sys_dmac.c
+> +++ b/drivers/mmc/host/renesas_sdhi_sys_dmac.c
+> @@ -75,6 +75,7 @@ static const struct of_device_id renesas_sdhi_sys_dmac_=
+of_match[] =3D {
+>  	{ .compatible =3D "renesas,sdhi-r7s72100", .data =3D &of_rz_compatible,=
+ },
+>  	{ .compatible =3D "renesas,sdhi-r8a7778", .data =3D &of_rcar_gen1_compa=
+tible, },
+>  	{ .compatible =3D "renesas,sdhi-r8a7779", .data =3D &of_rcar_gen1_compa=
+tible, },
+> +	{ .compatible =3D "renesas,sdhi-r8a7742", .data =3D &of_rcar_gen2_compa=
+tible, },
+>  	{ .compatible =3D "renesas,sdhi-r8a7743", .data =3D &of_rcar_gen2_compa=
+tible, },
+>  	{ .compatible =3D "renesas,sdhi-r8a7745", .data =3D &of_rcar_gen2_compa=
+tible, },
+>  	{ .compatible =3D "renesas,sdhi-r8a7790", .data =3D &of_rcar_gen2_compa=
+tible, },
+> --=20
+> 2.7.4
+>=20
 
-My concern is that the peculiarity of this SoC might be forgotten if we
-describe it like this and ever add "automatic transmissions" somewhen.
-
-
---IrhDeMKUP4DT/M7F
+--SxgehGEc6vB0cZwN
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6+zQcACgkQFA3kzBSg
-KbYmEg//Sy08rxbE7CQJWmifMe+J/n/a+aH2CCs3cvFNsRE3DPGOOJCs9jLX87oy
-qwsccQ5z/QlX6QZv/jrGh4Tn9Tu+4F8iA9K5JzmtjeNKULwiHHzVjb2vk3vcxHDq
-EXdRjCwXJ0XJbxRwLXyDYZh4TOMhKeoNKcmN8oFEj6VtE6dL64m/F69wyyXdJTez
-ZhIxL1MjQELN+vlbZkA+J4Zo+ugNyTZ3diSL+s9xI5de2fWBJv3IzdeKWoHWG9Su
-ExUWRIs/Y0dBapuAx78sq1FDauAUSer8d4llopIoXN6Snpr0ijJUh4R7VVoZsK+c
-PTZkqlgYBfYWdUZiUBaM2oINk69ef1Y/wqOt9iMxJDXq7cTw/rb3UBd/va6MFbb/
-vOBb4Z2FVai4cseNkkgcLHgz229gkloRr7f+HKGL8r42LRUfMBko0W0D/WEN+DKW
-8Y/0MCRTd7+h1I3SkuVT7fjbPiw+lTkwZhsJrZRrqiqeq+m2J2325tZI+A5hq0qu
-uX27BdGRPS5jaA/i+UQSySuoWvORKCKwAjJIElt/UOOPHQDEWKRH8QoJ8wFkgN2k
-sCrKHi9sS3XcVvIy5ieiF5rf8zEV4mNLtkZV/CzvjqTzMfh5f5eWmoC1tkkkakRc
-KaTrT/4T46ZpQdog7U8GfYXUujn6nRN+X+qnVFOc7MNmGd00yk4=
-=AO2d
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6+zsIACgkQFA3kzBSg
+Kbavxw/5ASj0ysFzi+t9TCWf40CX4RN71FBZfm9Av3vQKK5R4HtL4W2gRXSPslgW
+u0tXjoDL50k+dlzbLKsRyFiW7616nm4JhNQX1YvgYlnTueDa36yRFjaN6hEusujO
+d4oAYuORud2Fyy9s/WT5vPL2ziSy+z9on/bDw2OOS9weSs4dIpqQLhR5zA8BEqrD
+JpM+Cr+/NfDaWwUTs5T1Qygc/1lgBQrejGLPMzWjn+IroyRBh6amG496dcb27zuA
+9Hln6t+NLrtP0ilpYyGw3zQ55ZT3HyxIHNglfRHL66CpdTVNFrRj7hgqW32aPSMg
+h71YDH60ZMmIMJJcYRHURcck2Mv39w+eXv5AF7XI6hopQ7K+ys4yJYX9qy+2EzoY
+DH3j0a/0pgydpwKL4KiJHVPsy7YzKqYrZUQTfPcQ21gEZMV6X3aiXkxTGQKbdX1O
+ULCWZN+HWkr6jFDN0wxzneP3l1NvB+pzRmlBxodg5bx0jrnAmcAv934inwg0yovp
+f/b1f2arn13sImX64Me3P5sV7SM8bbAcDEvy8XsrPkWABDjlba4KJFouArzPJO/A
+M6XEwNEqAXWG8tnWrxlm6VgceZPPA/t6iMW39Kem04WA1nESDm+f86/whSJdXgc+
+vN8ymqYx3M099298eg1Gc+1lda+hJQ8rZyCKjth3iDcKu/YCW5A=
+=y+4+
 -----END PGP SIGNATURE-----
 
---IrhDeMKUP4DT/M7F--
+--SxgehGEc6vB0cZwN--
