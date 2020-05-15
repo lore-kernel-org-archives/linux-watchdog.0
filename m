@@ -7,27 +7,27 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC94CC433E1
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEB1DC433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B858A207C3
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90F62207C3
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727899AbgEOPJt (ORCPT
+        id S1727831AbgEOPJo (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 15 May 2020 11:09:49 -0400
+        Fri, 15 May 2020 11:09:44 -0400
 Received: from relmlor2.renesas.com ([210.160.252.172]:2033 "EHLO
         relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727873AbgEOPJq (ORCPT
+        by vger.kernel.org with ESMTP id S1727803AbgEOPJn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 May 2020 11:09:46 -0400
+        Fri, 15 May 2020 11:09:43 -0400
 X-IronPort-AV: E=Sophos;i="5.73,395,1583161200"; 
-   d="scan'208";a="46974816"
+   d="scan'208";a="46974811"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 16 May 2020 00:09:44 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 16 May 2020 00:09:40 +0900
 Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id DC75140065C1;
-        Sat, 16 May 2020 00:09:40 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 6F65140065C1;
+        Sat, 16 May 2020 00:09:36 +0900 (JST)
 From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
@@ -43,9 +43,9 @@ Cc:     linux-ide@vger.kernel.org, devicetree@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Prabhakar <prabhakar.csengg@gmail.com>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 03/17] ARM: dts: r8a7742: Add I2C and IIC support
-Date:   Fri, 15 May 2020 16:08:43 +0100
-Message-Id: <1589555337-5498-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 02/17] dt-bindings: i2c: renesas,iic: Document r8a7742 support
+Date:   Fri, 15 May 2020 16:08:42 +0100
+Message-Id: <1589555337-5498-3-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -54,151 +54,27 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add the I2C[0-3] and IIC[0-3] devices nodes to the R8A7742 device tree.
-
-Automatic transmission for PMIC control is not available on IIC3 hence
-compatible string "renesas,rcar-gen2-iic" and "renesas,rmobile-iic" is
-not added to iic3 node.
+Document IIC controller for RZ/G1H (R8A7742) SoC, which is compatible
+with R-Car Gen2 SoC family.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 ---
- arch/arm/boot/dts/r8a7742.dtsi | 122 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 122 insertions(+)
+ Documentation/devicetree/bindings/i2c/renesas,iic.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/r8a7742.dtsi b/arch/arm/boot/dts/r8a7742.dtsi
-index 305d808..f28c32d 100644
---- a/arch/arm/boot/dts/r8a7742.dtsi
-+++ b/arch/arm/boot/dts/r8a7742.dtsi
-@@ -359,6 +359,128 @@
- 			ranges = <0 0 0xe6300000 0x40000>;
- 		};
- 
-+		i2c0: i2c@e6508000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,i2c-r8a7742",
-+				     "renesas,rcar-gen2-i2c";
-+			reg = <0 0xe6508000 0 0x40>;
-+			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 931>;
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 931>;
-+			i2c-scl-internal-delay-ns = <110>;
-+			status = "disabled";
-+		};
-+
-+		i2c1: i2c@e6518000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,i2c-r8a7742",
-+				     "renesas,rcar-gen2-i2c";
-+			reg = <0 0xe6518000 0 0x40>;
-+			interrupts = <GIC_SPI 288 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 930>;
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 930>;
-+			i2c-scl-internal-delay-ns = <6>;
-+			status = "disabled";
-+		};
-+
-+		i2c2: i2c@e6530000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,i2c-r8a7742",
-+				     "renesas,rcar-gen2-i2c";
-+			reg = <0 0xe6530000 0 0x40>;
-+			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 929>;
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 929>;
-+			i2c-scl-internal-delay-ns = <6>;
-+			status = "disabled";
-+		};
-+
-+		i2c3: i2c@e6540000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,i2c-r8a7742",
-+				     "renesas,rcar-gen2-i2c";
-+			reg = <0 0xe6540000 0 0x40>;
-+			interrupts = <GIC_SPI 290 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 928>;
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 928>;
-+			i2c-scl-internal-delay-ns = <110>;
-+			status = "disabled";
-+		};
-+
-+		iic0: i2c@e6500000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,iic-r8a7742",
-+				     "renesas,rcar-gen2-iic",
-+				     "renesas,rmobile-iic";
-+			reg = <0 0xe6500000 0 0x425>;
-+			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 318>;
-+			dmas = <&dmac0 0x61>, <&dmac0 0x62>,
-+			       <&dmac1 0x61>, <&dmac1 0x62>;
-+			dma-names = "tx", "rx", "tx", "rx";
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 318>;
-+			status = "disabled";
-+		};
-+
-+		iic1: i2c@e6510000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,iic-r8a7742",
-+				     "renesas,rcar-gen2-iic",
-+				     "renesas,rmobile-iic";
-+			reg = <0 0xe6510000 0 0x425>;
-+			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 323>;
-+			dmas = <&dmac0 0x65>, <&dmac0 0x66>,
-+			       <&dmac1 0x65>, <&dmac1 0x66>;
-+			dma-names = "tx", "rx", "tx", "rx";
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 323>;
-+			status = "disabled";
-+		};
-+
-+		iic2: i2c@e6520000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,iic-r8a7742",
-+				     "renesas,rcar-gen2-iic",
-+				     "renesas,rmobile-iic";
-+			reg = <0 0xe6520000 0 0x425>;
-+			interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 300>;
-+			dmas = <&dmac0 0x69>, <&dmac0 0x6a>,
-+			       <&dmac1 0x69>, <&dmac1 0x6a>;
-+			dma-names = "tx", "rx", "tx", "rx";
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 300>;
-+			status = "disabled";
-+		};
-+
-+		iic3: i2c@e60b0000 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			compatible = "renesas,iic-r8a7742";
-+			reg = <0 0xe60b0000 0 0x425>;
-+			interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 926>;
-+			dmas = <&dmac0 0x77>, <&dmac0 0x78>,
-+			       <&dmac1 0x77>, <&dmac1 0x78>;
-+			dma-names = "tx", "rx", "tx", "rx";
-+			power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-+			resets = <&cpg 926>;
-+			status = "disabled";
-+		};
-+
- 		dmac0: dma-controller@e6700000 {
- 			compatible = "renesas,dmac-r8a7742",
- 				     "renesas,rcar-dmac";
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,iic.txt b/Documentation/devicetree/bindings/i2c/renesas,iic.txt
+index ffe085c..89facb0 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,iic.txt
++++ b/Documentation/devicetree/bindings/i2c/renesas,iic.txt
+@@ -4,6 +4,7 @@ Required properties:
+ - compatible      :
+ 			- "renesas,iic-r8a73a4" (R-Mobile APE6)
+ 			- "renesas,iic-r8a7740" (R-Mobile A1)
++			- "renesas,iic-r8a7742" (RZ/G1H)
+ 			- "renesas,iic-r8a7743" (RZ/G1M)
+ 			- "renesas,iic-r8a7744" (RZ/G1N)
+ 			- "renesas,iic-r8a7745" (RZ/G1E)
 -- 
 2.7.4
 
