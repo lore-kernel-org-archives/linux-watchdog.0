@@ -7,27 +7,27 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E490C433E2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73A06C433E7
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5000207C3
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F304207C3
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726639AbgEOPLY (ORCPT
+        id S1727958AbgEOPJ5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 15 May 2020 11:11:24 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:14629 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728054AbgEOPKR (ORCPT
+        Fri, 15 May 2020 11:09:57 -0400
+Received: from relmlor2.renesas.com ([210.160.252.172]:2033 "EHLO
+        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726341AbgEOPJ4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 May 2020 11:10:17 -0400
+        Fri, 15 May 2020 11:09:56 -0400
 X-IronPort-AV: E=Sophos;i="5.73,395,1583161200"; 
-   d="scan'208";a="47188404"
+   d="scan'208";a="46974832"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 16 May 2020 00:10:15 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 16 May 2020 00:09:53 +0900
 Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 051D6400E8F9;
-        Sat, 16 May 2020 00:10:11 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id C23B640065C1;
+        Sat, 16 May 2020 00:09:49 +0900 (JST)
 From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
@@ -43,9 +43,9 @@ Cc:     linux-ide@vger.kernel.org, devicetree@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Prabhakar <prabhakar.csengg@gmail.com>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 10/17] dt-bindings: net: renesas,ravb: Add support for r8a7742 SoC
-Date:   Fri, 15 May 2020 16:08:50 +0100
-Message-Id: <1589555337-5498-11-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 05/17] mmc: renesas_sdhi_sys_dmac: Add support for r8a7742 SoC
+Date:   Fri, 15 May 2020 16:08:45 +0100
+Message-Id: <1589555337-5498-6-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -54,26 +54,27 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document RZ/G1H (R8A7742) SoC bindings.
+Add support for r8a7742 SoC. Renesas RZ/G1H (R8A7742) SDHI is identical to
+the R-Car Gen2 family.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 ---
- Documentation/devicetree/bindings/net/renesas,ravb.txt | 1 +
+ drivers/mmc/host/renesas_sdhi_sys_dmac.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/net/renesas,ravb.txt b/Documentation/devicetree/bindings/net/renesas,ravb.txt
-index 87dad2d..032b76f 100644
---- a/Documentation/devicetree/bindings/net/renesas,ravb.txt
-+++ b/Documentation/devicetree/bindings/net/renesas,ravb.txt
-@@ -5,6 +5,7 @@ interface contains.
- 
- Required properties:
- - compatible: Must contain one or more of the following:
-+      - "renesas,etheravb-r8a7742" for the R8A7742 SoC.
-       - "renesas,etheravb-r8a7743" for the R8A7743 SoC.
-       - "renesas,etheravb-r8a7744" for the R8A7744 SoC.
-       - "renesas,etheravb-r8a7745" for the R8A7745 SoC.
+diff --git a/drivers/mmc/host/renesas_sdhi_sys_dmac.c b/drivers/mmc/host/renesas_sdhi_sys_dmac.c
+index 13ff023..dbfcbc2 100644
+--- a/drivers/mmc/host/renesas_sdhi_sys_dmac.c
++++ b/drivers/mmc/host/renesas_sdhi_sys_dmac.c
+@@ -75,6 +75,7 @@ static const struct of_device_id renesas_sdhi_sys_dmac_of_match[] = {
+ 	{ .compatible = "renesas,sdhi-r7s72100", .data = &of_rz_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a7778", .data = &of_rcar_gen1_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a7779", .data = &of_rcar_gen1_compatible, },
++	{ .compatible = "renesas,sdhi-r8a7742", .data = &of_rcar_gen2_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a7743", .data = &of_rcar_gen2_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a7745", .data = &of_rcar_gen2_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a7790", .data = &of_rcar_gen2_compatible, },
 -- 
 2.7.4
 
