@@ -2,79 +2,102 @@ Return-Path: <SRS0=B8sZ=65=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEB1DC433E2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4008C433E0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:17:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90F62207C3
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 15:11:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D1BA0206C0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 15 May 2020 17:17:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="CYrRX15U"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727831AbgEOPJo (ORCPT
+        id S1726513AbgEORRE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 15 May 2020 11:09:44 -0400
-Received: from relmlor2.renesas.com ([210.160.252.172]:2033 "EHLO
-        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727803AbgEOPJn (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 May 2020 11:09:43 -0400
-X-IronPort-AV: E=Sophos;i="5.73,395,1583161200"; 
-   d="scan'208";a="46974811"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 16 May 2020 00:09:40 +0900
-Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 6F65140065C1;
-        Sat, 16 May 2020 00:09:36 +0900 (JST)
-From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Fri, 15 May 2020 13:17:04 -0400
+Received: from www.zeus03.de ([194.117.254.33]:51102 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726313AbgEORRD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 15 May 2020 13:17:03 -0400
+X-Greylist: delayed 388 seconds by postgrey-1.27 at vger.kernel.org; Fri, 15 May 2020 13:17:02 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=y/oPAlM3y149jK6KpGqj8Z5Pq8h3
+        NvzaLZuF1iAdHP4=; b=CYrRX15UMLFe4N6YaFxcYR8WOHMQYtKoR7HPoaaAO+Rl
+        dR/GJ7di9Z84KJeaSs8G3YYjMiWTux0qNUlZFXyV6WGdCGWDxmCWhm+4rW2owioe
+        XIcDBF0dR2IqrM+SWBqISth438neo+uCJqOloNYRaYYbdCMCnL00HQYTE31gGj4=
+Received: (qmail 72585 invoked from network); 15 May 2020 19:17:00 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 May 2020 19:17:00 +0200
+X-UD-Smtp-Session: l3s3148p1@hA4w+7KlTKogAwDPXwnHAMSqtBM6FBGP
+Date:   Fri, 15 May 2020 19:17:00 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
         "David S. Miller" <davem@davemloft.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-ide@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-mmc@vger.kernel.org, netdev@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 02/17] dt-bindings: i2c: renesas,iic: Document r8a7742 support
-Date:   Fri, 15 May 2020 16:08:42 +0100
-Message-Id: <1589555337-5498-3-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        Guenter Roeck <linux@roeck-us.net>, linux-ide@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Prabhakar <prabhakar.csengg@gmail.com>
+Subject: Re: [PATCH 04/17] dt-bindings: mmc: renesas,sdhi: Document r8a7742
+ support
+Message-ID: <20200515171700.GE19423@ninjato>
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1589555337-5498-5-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="u5E4XgoOPWr4PD9E"
+Content-Disposition: inline
+In-Reply-To: <1589555337-5498-5-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document IIC controller for RZ/G1H (R8A7742) SoC, which is compatible
-with R-Car Gen2 SoC family.
 
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
----
- Documentation/devicetree/bindings/i2c/renesas,iic.txt | 1 +
- 1 file changed, 1 insertion(+)
+--u5E4XgoOPWr4PD9E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/i2c/renesas,iic.txt b/Documentation/devicetree/bindings/i2c/renesas,iic.txt
-index ffe085c..89facb0 100644
---- a/Documentation/devicetree/bindings/i2c/renesas,iic.txt
-+++ b/Documentation/devicetree/bindings/i2c/renesas,iic.txt
-@@ -4,6 +4,7 @@ Required properties:
- - compatible      :
- 			- "renesas,iic-r8a73a4" (R-Mobile APE6)
- 			- "renesas,iic-r8a7740" (R-Mobile A1)
-+			- "renesas,iic-r8a7742" (RZ/G1H)
- 			- "renesas,iic-r8a7743" (RZ/G1M)
- 			- "renesas,iic-r8a7744" (RZ/G1N)
- 			- "renesas,iic-r8a7745" (RZ/G1E)
--- 
-2.7.4
+On Fri, May 15, 2020 at 04:08:44PM +0100, Lad Prabhakar wrote:
+> Document SDHI controller for RZ/G1H (R8A7742) SoC, which is compatible
+> with R-Car Gen2 SoC family.
+>=20
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renes=
+as.com>
 
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+
+--u5E4XgoOPWr4PD9E
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6+zowACgkQFA3kzBSg
+KbbvIw/9EYa5/sZYqiy76zk/MTv8kk/gPlGwTIjDi2HRy9v89chDKR0n3nVsmAh9
+syTTZT+eIjYSBFMHNr16WfrLBEEe8lWND0daeubEka3tu3/XMcuBOzMXydVzjpdt
+cf6ypbS1YrjSgy8ITo2w8rROpvDv4evP4UKSlJrar7ABLKuY0HZZ3b6JXXjy3JIx
+/JueAAj1RqIwJ/2wTUiBdThfKDKh1tzm2fhV41dfd4t1S8NOnhBzz9zjnDJQ/8Zg
+FJA9TBgPznA16ybyW+kx01+smxxPiKp0uaICTVzftA09Zi+/dkjuFpWx6GShPZ7G
+08bcdZRD5wNjRWcDxXt12oh6l4x2rnwebBl+5FpzJAPc7imRBIcYvuVpJI3Ev9aL
+TDaqoKUWO4k+qHzP5f67cAjARnHh3SyJTePon+1k1L4k1vNC691utDTiGhdEaQ+E
+uLNcMR9bcuFkjQMkKTV7AY07sE6ojXxlKhvGaR122Z5LxtW5+ah620e0QkxArqJ7
+xLbjpahEKrAV4vunMDWW8+vEY3uTLHOM/EvBACC6CL52B3nQPEeRwhbrqYpHhb1l
+PuaOBezOdCOpIOnNm+zHFX5JD7YPNQ3bRh6VjSBgW66yX+mjlkJJV7QR3qXPx4RR
+hCOU+zTdBNM9mgXSidnl9M7slanJKkKmCn4LszbKUAj2+G+Wdsg=
+=m9/n
+-----END PGP SIGNATURE-----
+
+--u5E4XgoOPWr4PD9E--
