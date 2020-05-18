@@ -2,71 +2,55 @@ Return-Path: <SRS0=pdAL=7A=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF6DC433E1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 May 2020 13:23:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F4CCC433DF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 May 2020 15:46:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6AB8D2065F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 May 2020 13:23:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cfcy4DgN"
+	by mail.kernel.org (Postfix) with ESMTP id 05C1120657
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 May 2020 15:46:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727885AbgERNXn (ORCPT
+        id S1728309AbgERPpz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 18 May 2020 09:23:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727003AbgERNXm (ORCPT
+        Mon, 18 May 2020 11:45:55 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:41615 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727005AbgERPpy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 18 May 2020 09:23:42 -0400
-Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E42C061A0C;
-        Mon, 18 May 2020 06:23:42 -0700 (PDT)
-Received: by mail-oo1-xc41.google.com with SMTP id z6so2022339ooz.3;
-        Mon, 18 May 2020 06:23:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DBlvsBNo07SGqI/EUYBm242mZ59YuGTGeckJLd8jOpQ=;
-        b=cfcy4DgNDBCTvF7mVRHlNGMhkmacmQXoOEN7xHQW5RByJmQEOZPVAPyo9YID2+ksAi
-         /afPVXSML+4G3Bw1Av627prEUHM1DSfL+K+x7/YDrloQUeRdA0RHZ/Ci8IiVSn06JvxM
-         ERD+F7OU2G0aYA1jm533gAqjJDTSnLWqrFY36parhqgXEhiSPdgqNwQO5fR9KwIhBQHQ
-         YOpKIOz6q+0B0PXG8v4Biq/vO8dKWXEzyeRa0Y9yjaxmh3OejiceK8lNmw23eVKaKsvC
-         ADaynfCq4eIlVTdkVXFTZbxc33D8fvQN23K/LX+Sx2IBxLRkGYZGb+euiCHZkVjhZq4k
-         d+hQ==
+        Mon, 18 May 2020 11:45:54 -0400
+Received: by mail-oi1-f195.google.com with SMTP id 19so9359277oiy.8;
+        Mon, 18 May 2020 08:45:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=DBlvsBNo07SGqI/EUYBm242mZ59YuGTGeckJLd8jOpQ=;
-        b=C5iMQe4UU3Tl0hFeiOWzE/StQvqw3Kmh7p8HM5Kkzy1UvxF5PqWz/k7wu4t0rTyzPY
-         CMxoOIf04UWyi68XYs7384GaZ0SDhpamcvEm3DUSeXvXTCSvz8TNuG2WP56smSCovt56
-         LlqUTnVaR1pzC7u533b9RMNGOtMFC53EdchJ8tTGz+X8Pbu2B63z/wB6Cv4WQz4N0awh
-         e3C0lzPdxyXf/MMSZrKtX8mlhLhCgq9UHG3OOHLqnr/cF6btir2AVvf5Fy+kZ9vA3HDe
-         aSP9SRgTWbM0lo0Ff2J+4Hg9k2V29nC2ixYhyQC8MEPefYc472Q2J30Pjz+zm9EdrFRJ
-         ynmw==
-X-Gm-Message-State: AOAM5314CWzbmL/eFVDRRvDaCOQ05xk0e3fqsi6ObjmhfTL0TIsidPmZ
-        51DtjthyxZJynOHhm/5qJ02cGYP78rQsUvYhoDE=
-X-Google-Smtp-Source: ABdhPJxVcUiw42ooaQWea/4dYUB4KCyh0tbeqfXUZvqVqSB4YyCTuhyTbJeCJawG71KxJDG6Rdbo2qnrc9R3IY+DJW4=
-X-Received: by 2002:a4a:b346:: with SMTP id n6mr12858795ooo.18.1589808222002;
- Mon, 18 May 2020 06:23:42 -0700 (PDT)
+        bh=/f/rHROcvUhCw63I5sVVKyGk9toPKIj6soJfQz2EyMk=;
+        b=qLeGB4aOl/w5JiRu8iF/OJTmVYQEoafdZUarQZDWXzAC0yq26tJtbUclmzHMpF5CLN
+         s4ii1ZweH8SwgT5fzQWSzcO11IYhLuPFk8kj6EUxdGVVzsYVvwH8X7CxjtA6Op36SUgm
+         RK2Uxi6fImrCYS+e23jnhkAEWL+TTDD5w1uvO0FuxitaqszyvZUelHifa26i1gyTz6Fc
+         AF95uVFYYY7uoIi22QuMZxWRfQn1CWqVVvfrRWW6MYh9T+o5fz19yfaPy7hoFu1QoG9F
+         E3NKPBr7e6oq/5Mr6wymi33+Jp0vtfA263Rag5YGl24sYLt5iqsdNrz+2OGdhIw9uPce
+         cZ9g==
+X-Gm-Message-State: AOAM531QikCru4ApAVm0boY8/2y+33noCex7rbsYb4RqJf4uaC2prQET
+        /puod+lhyUKC+M8xb7r261HYweorV2wv65kQbtk=
+X-Google-Smtp-Source: ABdhPJwSk1XfmEg5VHimLrZlcq2vUCKSvy8da0C+Vb1NpLhDq1xPj9z+Pbn4JqCRj9XUaY6QJTN5Vm86GhCvioFXK6Y=
+X-Received: by 2002:a05:6808:1:: with SMTP id u1mr18216oic.54.1589816752210;
+ Mon, 18 May 2020 08:45:52 -0700 (PDT)
 MIME-Version: 1.0
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
  <1589555337-5498-18-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
  <CAMuHMdVV+2HsgmBytCOFg4pri4XinT_SPWT_Ac6n7FMZN3dR3w@mail.gmail.com>
- <CA+V-a8tmG1LKYqbc7feGZQO2Tj5RCpNUHi9e19vPr+bED0KOyQ@mail.gmail.com> <9ab946d2-1076-ed92-0a48-9a95d798d291@cogentembedded.com>
-In-Reply-To: <9ab946d2-1076-ed92-0a48-9a95d798d291@cogentembedded.com>
-From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date:   Mon, 18 May 2020 14:23:15 +0100
-Message-ID: <CA+V-a8uuP9d6dNeRpn3O0_aOc15CqWoh0bbAfYze1_hn0dCh8g@mail.gmail.com>
+ <CA+V-a8tmG1LKYqbc7feGZQO2Tj5RCpNUHi9e19vPr+bED0KOyQ@mail.gmail.com>
+ <9ab946d2-1076-ed92-0a48-9a95d798d291@cogentembedded.com> <CA+V-a8uuP9d6dNeRpn3O0_aOc15CqWoh0bbAfYze1_hn0dCh8g@mail.gmail.com>
+In-Reply-To: <CA+V-a8uuP9d6dNeRpn3O0_aOc15CqWoh0bbAfYze1_hn0dCh8g@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 18 May 2020 17:45:40 +0200
+Message-ID: <CAMuHMdVkf8vGL-769PvfTkMV=yuqW_V8gjo_ZfwEHVkdDWGTyw@mail.gmail.com>
 Subject: Re: [PATCH 17/17] ARM: dts: r8a7742: Add RWDT node
-To:     Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+To:     "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Cc:     Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -88,46 +72,54 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Sergei,
+On Mon, May 18, 2020 at 3:23 PM Lad, Prabhakar
+<prabhakar.csengg@gmail.com> wrote:
+> On Mon, May 18, 2020 at 2:17 PM Sergei Shtylyov
+> <sergei.shtylyov@cogentembedded.com> wrote:
+> > On 18.05.2020 15:27, Lad, Prabhakar wrote:
+> > >>> Add a device node for the Watchdog Timer (RWDT) controller on the Renesas
+> > >>> RZ/G1H (r8a7742) SoC.
+> > >>>
+> > >>> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > >>> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
+> > >>
+> > >> Thanks for your patch!
+> > >>
+> > >>> --- a/arch/arm/boot/dts/r8a7742.dtsi
+> > >>> +++ b/arch/arm/boot/dts/r8a7742.dtsi
+> > >>> @@ -201,6 +201,16 @@
+> > >>>                  #size-cells = <2>;
+> > >>>                  ranges;
+> > >>>
+> > >>> +               rwdt: watchdog@e6020000 {
+> > >>> +                       compatible = "renesas,r8a7742-wdt",
+> > >>> +                                    "renesas,rcar-gen2-wdt";
+> > >>> +                       reg = <0 0xe6020000 0 0x0c>;
+> > >>> +                       clocks = <&cpg CPG_MOD 402>;
+> > >>> +                       power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
+> > >>> +                       resets = <&cpg 402>;
+> > >>> +                       status = "disabled";
+> > >>
+> > >> Missing "interrupts" property.
+> > >>
+> > > "interrupts" property isn't used by rwdt driver  and can be dropped
+> > > from bindings file.
+> >
+> >     DT describes the hardware, not its driver's abilities.
 
-On Mon, May 18, 2020 at 2:17 PM Sergei Shtylyov
-<sergei.shtylyov@cogentembedded.com> wrote:
->
-> Hello!
->
-> On 18.05.2020 15:27, Lad, Prabhakar wrote:
->
-> >>> Add a device node for the Watchdog Timer (RWDT) controller on the Renesas
-> >>> RZ/G1H (r8a7742) SoC.
-> >>>
-> >>> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> >>> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> >>
-> >> Thanks for your patch!
-> >>
-> >>> --- a/arch/arm/boot/dts/r8a7742.dtsi
-> >>> +++ b/arch/arm/boot/dts/r8a7742.dtsi
-> >>> @@ -201,6 +201,16 @@
-> >>>                  #size-cells = <2>;
-> >>>                  ranges;
-> >>>
-> >>> +               rwdt: watchdog@e6020000 {
-> >>> +                       compatible = "renesas,r8a7742-wdt",
-> >>> +                                    "renesas,rcar-gen2-wdt";
-> >>> +                       reg = <0 0xe6020000 0 0x0c>;
-> >>> +                       clocks = <&cpg CPG_MOD 402>;
-> >>> +                       power-domains = <&sysc R8A7742_PD_ALWAYS_ON>;
-> >>> +                       resets = <&cpg 402>;
-> >>> +                       status = "disabled";
-> >>
-> >> Missing "interrupts" property.
-> >>
-> > "interrupts" property isn't used by rwdt driver  and can be dropped
-> > from bindings file.
->
->     DT describes the hardware, not its driver's abilities.
->
-Agreed will add, I had followed it on similar lines of r8a7743/44.
+Thanks for chiming in, Sergei!
 
-Cheers,
---Prabhakar
+> Agreed will add, I had followed it on similar lines of r8a7743/44.
+
+Yeah. I know it's missing for a few other SoCs, too.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
