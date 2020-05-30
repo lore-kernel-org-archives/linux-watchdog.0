@@ -4,43 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3A07C433E6
-	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D67BFC433E2
+	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 999B120776
-	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE1B92081A
+	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgE3Hgr (ORCPT
+        id S1728890AbgE3HgZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 30 May 2020 03:36:47 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:52098 "EHLO
+        Sat, 30 May 2020 03:36:25 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:52062 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728807AbgE3Hg0 (ORCPT
+        with ESMTP id S1728820AbgE3HgX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 May 2020 03:36:26 -0400
+        Sat, 30 May 2020 03:36:23 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 9C7138030772;
-        Sat, 30 May 2020 07:36:22 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id EB4B18030778;
+        Sat, 30 May 2020 07:36:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id wWMUJ5j0asWF; Sat, 30 May 2020 10:36:21 +0300 (MSK)
+        with ESMTP id yCrZ2nmdqZH2; Sat, 30 May 2020 10:36:20 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
+        Rob Herring <robh@kernel.org>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, <linux-mips@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 5/7] watchdog: dw_wdt: Support devices with asynch clocks
-Date:   Sat, 30 May 2020 10:35:55 +0300
-Message-ID: <20200530073557.22661-6-Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH v4 3/7] dt-bindings: watchdog: dw-wdt: Add watchdog TOPs array property
+Date:   Sat, 30 May 2020 10:35:53 +0300
+Message-ID: <20200530073557.22661-4-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
@@ -52,140 +53,83 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-DW Watchdog IP core can be synthesised with asynchronous timer/APB
-clocks support (WDT_ASYNC_CLK_MODE_ENABLE == 1). In this case
-separate clock signals are supposed to be used to feed watchdog timer
-and APB interface of the device. Currently the driver supports
-the synchronous mode only. Since there is no way to determine which
-mode was actually activated for device from its registers, we have to
-rely on the platform device configuration data. If optional "pclk"
-clock source is supplied, we consider the device working in asynchronous
-mode, otherwise the driver falls back to the synchronous configuration.
+In case if DW Watchdog IP core is built with WDT_USE_FIX_TOP == false,
+a custom timeout periods are used to preset the timer counter. In
+this case that periods should be specified in a new "snps,watchdog-tops"
+property of the DW watchdog dts node.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
 
 ---
 
 Changelog v2:
 - Rearrange SoBs.
----
- drivers/watchdog/dw_wdt.c | 48 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 43 insertions(+), 5 deletions(-)
+- Move $ref to the root level of the "snps,watchdog-tops" property
+  so does the constraints.
+- Add default TOP values array.
+- Discard the label definition from the new bindings example.
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index 693c0d1fd796..efbc36872670 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -68,6 +68,7 @@ struct dw_wdt_timeout {
- struct dw_wdt {
- 	void __iomem		*regs;
- 	struct clk		*clk;
-+	struct clk		*pclk;
- 	unsigned long		rate;
- 	struct dw_wdt_timeout	timeouts[DW_WDT_NUM_TOPS];
- 	struct watchdog_device	wdd;
-@@ -274,6 +275,7 @@ static int dw_wdt_suspend(struct device *dev)
- 	dw_wdt->control = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
- 	dw_wdt->timeout = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+Changelog v3:
+- Remove items property and move the minItems and maxItems constraints to
+  the root level of the snps,watchdog-tops property.
+---
+ .../bindings/watchdog/snps,dw-wdt.yaml        | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+index 5bf6dc6377f3..d9fc7bb851b1 100644
+--- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+@@ -39,6 +39,23 @@ properties:
+     description: Phandle to the DW Watchdog reset lane
+     maxItems: 1
  
-+	clk_disable_unprepare(dw_wdt->pclk);
- 	clk_disable_unprepare(dw_wdt->clk);
- 
- 	return 0;
-@@ -287,6 +289,12 @@ static int dw_wdt_resume(struct device *dev)
- 	if (err)
- 		return err;
- 
-+	err = clk_prepare_enable(dw_wdt->pclk);
-+	if (err) {
-+		clk_disable_unprepare(dw_wdt->clk);
-+		return err;
-+	}
++  snps,watchdog-tops:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    description: |
++      DW APB Watchdog custom timer intervals - Timeout Period ranges (TOPs).
++      Each TOP is a number loaded into the watchdog counter at the moment of
++      the timer restart. The counter decrementing happens each tick of the
++      reference clock. Therefore the TOPs array is equivalent to an array of
++      the timer expiration intervals supported by the DW APB Watchdog. Note
++      DW APB Watchdog IP-core might be synthesized with fixed TOP values,
++      in which case this property is unnecessary with default TOPs utilized.
++    default: [0x0001000 0x0002000 0x0004000 0x0008000
++      0x0010000 0x0020000 0x0040000 0x0080000
++      0x0100000 0x0200000 0x0400000 0x0800000
++      0x1000000 0x2000000 0x4000000 0x8000000]
++    minItems: 16
++    maxItems: 16
 +
- 	writel(dw_wdt->timeout, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
- 	writel(dw_wdt->control, dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+ unevaluatedProperties: false
  
-@@ -393,9 +401,18 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	if (IS_ERR(dw_wdt->regs))
- 		return PTR_ERR(dw_wdt->regs);
- 
--	dw_wdt->clk = devm_clk_get(dev, NULL);
--	if (IS_ERR(dw_wdt->clk))
--		return PTR_ERR(dw_wdt->clk);
-+	/*
-+	 * Try to request the watchdog dedicated timer clock source. It must
-+	 * be supplied if asynchronous mode is enabled. Otherwise fallback
-+	 * to the common timer/bus clocks configuration, in which the very
-+	 * first found clock supply both timer and APB signals.
-+	 */
-+	dw_wdt->clk = devm_clk_get(dev, "tclk");
-+	if (IS_ERR(dw_wdt->clk)) {
-+		dw_wdt->clk = devm_clk_get(dev, NULL);
-+		if (IS_ERR(dw_wdt->clk))
-+			return PTR_ERR(dw_wdt->clk);
-+	}
- 
- 	ret = clk_prepare_enable(dw_wdt->clk);
- 	if (ret)
-@@ -407,10 +424,27 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 		goto out_disable_clk;
- 	}
- 
-+	/*
-+	 * Request APB clock if device is configured with async clocks mode.
-+	 * In this case both tclk and pclk clocks are supposed to be specified.
-+	 * Alas we can't know for sure whether async mode was really activated,
-+	 * so the pclk phandle reference is left optional. If it couldn't be
-+	 * found we consider the device configured in synchronous clocks mode.
-+	 */
-+	dw_wdt->pclk = devm_clk_get_optional(dev, "pclk");
-+	if (IS_ERR(dw_wdt->pclk)) {
-+		ret = PTR_ERR(dw_wdt->pclk);
-+		goto out_disable_clk;
-+	}
+ required:
+@@ -55,4 +72,19 @@ examples:
+       clocks = <&per_base_clk>;
+       resets = <&wdt_rst>;
+     };
 +
-+	ret = clk_prepare_enable(dw_wdt->pclk);
-+	if (ret)
-+		goto out_disable_clk;
-+
- 	dw_wdt->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
- 	if (IS_ERR(dw_wdt->rst)) {
- 		ret = PTR_ERR(dw_wdt->rst);
--		goto out_disable_clk;
-+		goto out_disable_pclk;
- 	}
- 
- 	reset_control_deassert(dw_wdt->rst);
-@@ -449,10 +483,13 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 
- 	ret = watchdog_register_device(wdd);
- 	if (ret)
--		goto out_disable_clk;
-+		goto out_disable_pclk;
- 
- 	return 0;
- 
-+out_disable_pclk:
-+	clk_disable_unprepare(dw_wdt->pclk);
-+
- out_disable_clk:
- 	clk_disable_unprepare(dw_wdt->clk);
- 	return ret;
-@@ -464,6 +501,7 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
- 
- 	watchdog_unregister_device(&dw_wdt->wdd);
- 	reset_control_assert(dw_wdt->rst);
-+	clk_disable_unprepare(dw_wdt->pclk);
- 	clk_disable_unprepare(dw_wdt->clk);
- 
- 	return 0;
++  - |
++    watchdog@ffd02000 {
++      compatible = "snps,dw-wdt";
++      reg = <0xffd02000 0x1000>;
++      interrupts = <0 171 4>;
++      clocks = <&per_base_clk>;
++      clock-names = "tclk";
++      snps,watchdog-tops = <0x000000FF 0x000001FF 0x000003FF
++                            0x000007FF 0x0000FFFF 0x0001FFFF
++                            0x0003FFFF 0x0007FFFF 0x000FFFFF
++                            0x001FFFFF 0x003FFFFF 0x007FFFFF
++                            0x00FFFFFF 0x01FFFFFF 0x03FFFFFF
++                            0x07FFFFFF>;
++    };
+ ...
 -- 
 2.26.2
 
