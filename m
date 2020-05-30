@@ -2,51 +2,47 @@ Return-Path: <SRS0=LoHY=7M=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75AD0C433E1
-	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 542ECC433DF
+	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56F88207DF
-	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A60E20776
+	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728887AbgE3HgY (ORCPT
+        id S1728932AbgE3Hg3 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 30 May 2020 03:36:24 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:52002 "EHLO
+        Sat, 30 May 2020 03:36:29 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:52118 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728786AbgE3HgX (ORCPT
+        with ESMTP id S1728881AbgE3Hg2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 May 2020 03:36:23 -0400
+        Sat, 30 May 2020 03:36:28 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 45ACF8030779;
-        Sat, 30 May 2020 07:36:19 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 084698029EA0;
+        Sat, 30 May 2020 07:36:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id zaFgTL81LlYt; Sat, 30 May 2020 10:36:18 +0300 (MSK)
+        with ESMTP id Web-dGyjf-zT; Sat, 30 May 2020 10:36:23 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Maxim Kaurkin <Maxim.Kaurkin@baikalelectronics.ru>,
-        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Ekaterina Skachko <Ekaterina.Skachko@baikalelectronics.ru>,
-        Vadim Vlasov <V.Vlasov@baikalelectronics.ru>,
-        Alexey Kolotnikov <Alexey.Kolotnikov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Arnd Bergmann <arnd@arndb.de>,
         Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 0/7] watchdog: dw_wdt: Take Baikal-T1 DW WDT peculiarities into account
-Date:   Sat, 30 May 2020 10:35:50 +0300
-Message-ID: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH v4 7/7] watchdog: dw_wdt: Add DebugFS files
+Date:   Sat, 30 May 2020 10:35:57 +0300
+Message-ID: <20200530073557.22661-8-Sergey.Semin@baikalelectronics.ru>
+In-Reply-To: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
+References: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -56,99 +52,145 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Merge window is upon us. Please review/merge in/whatever the rest of the
-patches.
-
-There were a few features enabled at the time of the Baikal-T1 SoC DW WDT
-IP synthesis, which weren't taken into account in the DW WDT driver available
-in the kernel. First of all the SoC engineers synthesized the watchdog core
-with WDT_USE_FIX_TOP set to false (don't really know why, but they did).
-Due to this the timer reset values weren't fixed as the driver expected
-but were initialized with a pre-defined values selected by the engineers.
-Secondly the driver expected that the watchdog APB bus and the timer had
-synchronous reference clocks, while Baikal-T1 SoC DW WDT was created with
-asynchronous ones. So the driver should enable two clock devices: APB bus
-clocks and a separate timer reference clock. Finally DW Watchdog Timer is
-capable of generating a pre-timeout interrupt if corresponding config is
-enabled. The problem was that the pre-timeout IRQ happens when the set
-timeout elapses, while the actual WDT expiration and subsequent reboot take
-place in the next timeout. This makes the pre-timeout functionality
-implementation a bit tricky, since in this case we would have to find a
-WDT timeout twice smaller the requested timeout. All of the changes described
-above are provided by the patches in this patchset.
-
-In addition traditionally we replaced the legacy plain text-based dt-binding
-file with yaml-based one and added the controller registers dump DebugFS node
-to ease the driver debug procedure.
-
-This patchset is rebased and tested on the mainline Linux kernel 5.6-rc4:
-base-commit: 0e698dfa2822 ("Linux 5.7-rc4")
-tag: v5.7-rc4
-
-Changelog v2:
-- Rearrange SoBs.
-- Discard BE copyright header from the binding file.
-- Replace "additionalProperties: false" with "unevaluatedProperties: false"
-  property in the binding.
-- Move the APB3 clocks support declared in the dt binding file into a
-  dedicated patch.
-- Move $ref to the root level of the "snps,watchdog-tops" property
-  so does the constraints.
-- Make Pre-timeout IRQs support being optional.
-- Add "ms" suffix to the methods returning msec and convert the methods
-  with no "ms" suffix to return a timeout in sec.
-- Make sure minimum timeout is at least 1 sec.
-- Refactor the timeouts calculation procedure to to retain the timeouts in
-  the ascending order.
-- Make sure there is no integer overflow in milliseconds calculation. It
-  is saved in a dedicated uint field of the timeout structure.
-- Discard timeout/pretimeout/ping/enable DebugFS nodes. Registers state
-  dump node is only left.
-
-Link: https://lore.kernel.org/linux-watchdog/20200510105807.880-1-Sergey.Semin@baikalelectronics.ru/
-Changelog v3:
-- Add Rob's Reviewed-by tag to the DT-related patches.
-- Remove items from the "snps,watchdog-tops" property and move the
-  minItems and maxItems constraints to the root level of it.
-
-Link: https://lore.kernel.org/linux-watchdog/20200526154123.24402-1-Sergey.Semin@baikalelectronics.ru
-Changelog v4:
-- Add Guenter's Reviewed-by tags.
-- IRQ > 0 is only valid in Linux so make sure we request IRQ only if valid
-  number is returned from platform_get_irq_optional().
+For the sake of the easier device-driver debug procedure, we added a
+DebugFS file with the controller registers state. It's available only if
+kernel is configured with DebugFS support.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Maxim Kaurkin <Maxim.Kaurkin@baikalelectronics.ru>
-Cc: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
-Cc: Ekaterina Skachko <Ekaterina.Skachko@baikalelectronics.ru>
-Cc: Vadim Vlasov <V.Vlasov@baikalelectronics.ru>
-Cc: Alexey Kolotnikov <Alexey.Kolotnikov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
 Cc: devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 
-Serge Semin (7):
-  dt-bindings: watchdog: Convert DW WDT binding to DT schema
-  dt-bindings: watchdog: dw-wdt: Support devices with asynch clocks
-  dt-bindings: watchdog: dw-wdt: Add watchdog TOPs array property
-  watchdog: dw_wdt: Support devices with non-fixed TOP values
-  watchdog: dw_wdt: Support devices with asynch clocks
-  watchdog: dw_wdt: Add pre-timeouts support
-  watchdog: dw_wdt: Add DebugFS files
+---
 
- .../devicetree/bindings/watchdog/dw_wdt.txt   |  24 -
- .../bindings/watchdog/snps,dw-wdt.yaml        |  90 ++++
- drivers/watchdog/dw_wdt.c                     | 437 ++++++++++++++++--
- 3 files changed, 494 insertions(+), 57 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+Changelog v2:
+- Rearrange SoBs.
+- Discard timeout/pretimeout/ping/enable DebugFS nodes. Registers state
+  dump node is only left.
+---
+ drivers/watchdog/dw_wdt.c | 68 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 7a171920dd21..4fec2c6a3c01 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/reset.h>
+ #include <linux/watchdog.h>
++#include <linux/debugfs.h>
+ 
+ #define WDOG_CONTROL_REG_OFFSET		    0x00
+ #define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
+@@ -39,8 +40,14 @@
+ #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
+ #define WDOG_INTERRUPT_STATUS_REG_OFFSET    0x10
+ #define WDOG_INTERRUPT_CLEAR_REG_OFFSET     0x14
++#define WDOG_COMP_PARAMS_5_REG_OFFSET       0xe4
++#define WDOG_COMP_PARAMS_4_REG_OFFSET       0xe8
++#define WDOG_COMP_PARAMS_3_REG_OFFSET       0xec
++#define WDOG_COMP_PARAMS_2_REG_OFFSET       0xf0
+ #define WDOG_COMP_PARAMS_1_REG_OFFSET       0xf4
+ #define WDOG_COMP_PARAMS_1_USE_FIX_TOP      BIT(6)
++#define WDOG_COMP_VERSION_REG_OFFSET        0xf8
++#define WDOG_COMP_TYPE_REG_OFFSET           0xfc
+ 
+ /* There are sixteen TOPs (timeout periods) that can be set in the watchdog. */
+ #define DW_WDT_NUM_TOPS		16
+@@ -85,6 +92,10 @@ struct dw_wdt {
+ 	/* Save/restore */
+ 	u32			control;
+ 	u32			timeout;
++
++#ifdef CONFIG_DEBUG_FS
++	struct dentry		*dbgfs_dir;
++#endif
+ };
+ 
+ #define to_dw_wdt(wdd)	container_of(wdd, struct dw_wdt, wdd)
+@@ -484,6 +495,59 @@ static int dw_wdt_init_timeouts(struct dw_wdt *dw_wdt, struct device *dev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_DEBUG_FS
++
++#define DW_WDT_DBGFS_REG(_name, _off) \
++{				      \
++	.name = _name,		      \
++	.offset = _off		      \
++}
++
++static const struct debugfs_reg32 dw_wdt_dbgfs_regs[] = {
++	DW_WDT_DBGFS_REG("cr", WDOG_CONTROL_REG_OFFSET),
++	DW_WDT_DBGFS_REG("torr", WDOG_TIMEOUT_RANGE_REG_OFFSET),
++	DW_WDT_DBGFS_REG("ccvr", WDOG_CURRENT_COUNT_REG_OFFSET),
++	DW_WDT_DBGFS_REG("crr", WDOG_COUNTER_RESTART_REG_OFFSET),
++	DW_WDT_DBGFS_REG("stat", WDOG_INTERRUPT_STATUS_REG_OFFSET),
++	DW_WDT_DBGFS_REG("param5", WDOG_COMP_PARAMS_5_REG_OFFSET),
++	DW_WDT_DBGFS_REG("param4", WDOG_COMP_PARAMS_4_REG_OFFSET),
++	DW_WDT_DBGFS_REG("param3", WDOG_COMP_PARAMS_3_REG_OFFSET),
++	DW_WDT_DBGFS_REG("param2", WDOG_COMP_PARAMS_2_REG_OFFSET),
++	DW_WDT_DBGFS_REG("param1", WDOG_COMP_PARAMS_1_REG_OFFSET),
++	DW_WDT_DBGFS_REG("version", WDOG_COMP_VERSION_REG_OFFSET),
++	DW_WDT_DBGFS_REG("type", WDOG_COMP_TYPE_REG_OFFSET)
++};
++
++static void dw_wdt_dbgfs_init(struct dw_wdt *dw_wdt)
++{
++	struct device *dev = dw_wdt->wdd.parent;
++	struct debugfs_regset32 *regset;
++
++	regset = devm_kzalloc(dev, sizeof(*regset), GFP_KERNEL);
++	if (!regset)
++		return;
++
++	regset->regs = dw_wdt_dbgfs_regs;
++	regset->nregs = ARRAY_SIZE(dw_wdt_dbgfs_regs);
++	regset->base = dw_wdt->regs;
++
++	dw_wdt->dbgfs_dir = debugfs_create_dir(dev_name(dev), NULL);
++
++	debugfs_create_regset32("registers", 0444, dw_wdt->dbgfs_dir, regset);
++}
++
++static void dw_wdt_dbgfs_clear(struct dw_wdt *dw_wdt)
++{
++	debugfs_remove_recursive(dw_wdt->dbgfs_dir);
++}
++
++#else /* !CONFIG_DEBUG_FS */
++
++static void dw_wdt_dbgfs_init(struct dw_wdt *dw_wdt) {}
++static void dw_wdt_dbgfs_clear(struct dw_wdt *dw_wdt) {}
++
++#endif /* !CONFIG_DEBUG_FS */
++
+ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -607,6 +671,8 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out_disable_pclk;
+ 
++	dw_wdt_dbgfs_init(dw_wdt);
++
+ 	return 0;
+ 
+ out_disable_pclk:
+@@ -621,6 +687,8 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ {
+ 	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
+ 
++	dw_wdt_dbgfs_clear(dw_wdt);
++
+ 	watchdog_unregister_device(&dw_wdt->wdd);
+ 	reset_control_assert(dw_wdt->rst);
+ 	clk_disable_unprepare(dw_wdt->pclk);
 -- 
 2.26.2
 
