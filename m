@@ -6,27 +6,27 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F233C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0848C433DF
 	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DC7320776
+	by mail.kernel.org (Postfix) with ESMTP id A9FAC20776
 	for <linux-watchdog@archiver.kernel.org>; Sat, 30 May 2020 07:36:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbgE3Hgh (ORCPT
+        id S1728962AbgE3Hgh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sat, 30 May 2020 03:36:37 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:52082 "EHLO
+Received: from mail.baikalelectronics.com ([87.245.175.226]:52108 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728839AbgE3Hg2 (ORCPT
+        with ESMTP id S1728874AbgE3Hg2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 30 May 2020 03:36:28 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 2412F803078F;
-        Sat, 30 May 2020 07:36:22 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 9E05E8029FF9;
+        Sat, 30 May 2020 07:36:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id doS4A6znZGhs; Sat, 30 May 2020 10:36:21 +0300 (MSK)
+        with ESMTP id vMMXg8bYfb1Q; Sat, 30 May 2020 10:36:22 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
@@ -38,9 +38,9 @@ CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 4/7] watchdog: dw_wdt: Support devices with non-fixed TOP values
-Date:   Sat, 30 May 2020 10:35:54 +0300
-Message-ID: <20200530073557.22661-5-Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH v4 6/7] watchdog: dw_wdt: Add pre-timeouts support
+Date:   Sat, 30 May 2020 10:35:56 +0300
+Message-ID: <20200530073557.22661-7-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200530073557.22661-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
@@ -52,30 +52,27 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-In case if the DW Watchdog IP core is synthesised with
-WDT_USE_FIX_TOP == false, the TOP interval indexes make the device
-to load a custom periods to the counter. These periods are hardwired
-at the IP synthesis stage and can be within [2^8, 2^(WDT_CNT_WIDTH - 1)].
-Alas their values can't be detected at runtime and must be somehow
-supplied to the driver so one could properly determine the watchdog
-timeout intervals. For this purpose we suggest to have a vendor-
-specific dts property "snps,watchdog-tops" utilized, which would
-provide an array of sixteen counter values. At device probe stage they
-will be used to initialize the watchdog device timeouts determined
-from the array values and current clocks source rate.
+DW Watchdog can rise an interrupt in case if IRQ request mode is enabled
+and timer reaches the zero value. In this case the IRQ lane is left
+pending until either the next watchdog kick event (watchdog restart) or
+until the WDT_EOI register is read or the device/system reset. This
+interface can be used to implement the pre-timeout functionality
+optionally provided by the Linux kernel watchdog devices.
 
-In order to have custom TOP values supported the driver must be
-altered in the following way. First of all the fixed-top values
-ready-to-use array must be determined for compatibility with currently
-supported devices, which were synthesised with WDT_USE_FIX_TOP == true.
-It will be used if either fixed TOP feature is detected being enabled or
-no custom TOPs are fetched from the device dt node. Secondly at the probe
-stage we must initialize an array of the watchdog timeouts corresponding
-to the detected TOPs list and the reference clock rate. For generality the
-procedure of initialization is designed in a way to support the TOPs array
-with no limitations on the items order or value. Finally the watchdog
-period search methods should be altered to support the new timeouts data
-structure.
+IRQ mode provides a two stages timeout interface. It means the IRQ is
+raised when the counter reaches zero, while the system reset occurs only
+after subsequent timeout if the timer restart is not performed. Due to
+this peculiarity the pre-timeout value is actually set to the achieved
+hardware timeout, while the real watchdog timeout is considered to be
+twice as much of it. This applies a significant limitation on the
+pre-timeout values, so current implementation supports either zero value,
+which disables the pre-timeout events, or non-zero values, which imply
+the pre-timeout to be at least half of the current watchdog timeout.
+
+Note that we ask the interrupt controller to detect the rising-edge
+pre-timeout interrupts to prevent the high-level-IRQs flood, since
+if the pre-timeout happens, the IRQ lane will be left pending until
+it's cleared by the timer restart.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
@@ -90,292 +87,275 @@ Cc: devicetree@vger.kernel.org
 
 Changelog v2:
 - Rearrange SoBs.
-- Add "ms" suffix to the methods returning msec and convert the methods
-  with no "ms" suffix to return a timeout in sec.
-- Make sure minimum timeout is at least 1 sec.
-- Refactor the timeouts calculation procedure to retain the timeouts in
-  the ascending order.
-- Make sure there is no integer overflow in milliseconds calculation. It
-  is saved in a dedicated uint field of the timeout structure.
+- Make the Pre-timeout IRQ being optionally supported.
+
+Changelog v4:
+- Linux IRQ > 0 is only valid so make sure we request IRQ only if valid
+  number is returned from platform_get_irq_optional().
 ---
- drivers/watchdog/dw_wdt.c | 191 +++++++++++++++++++++++++++++++++-----
- 1 file changed, 167 insertions(+), 24 deletions(-)
+ drivers/watchdog/dw_wdt.c | 138 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 130 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index fba21de2bbad..693c0d1fd796 100644
+index efbc36872670..7a171920dd21 100644
 --- a/drivers/watchdog/dw_wdt.c
 +++ b/drivers/watchdog/dw_wdt.c
-@@ -13,6 +13,8 @@
-  */
- 
- #include <linux/bitops.h>
-+#include <linux/limits.h>
-+#include <linux/kernel.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/err.h>
-@@ -34,21 +36,40 @@
+@@ -22,6 +22,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/interrupt.h>
+ #include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+@@ -36,6 +37,8 @@
  #define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
  #define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
  #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
-+#define WDOG_COMP_PARAMS_1_REG_OFFSET       0xf4
-+#define WDOG_COMP_PARAMS_1_USE_FIX_TOP      BIT(6)
++#define WDOG_INTERRUPT_STATUS_REG_OFFSET    0x10
++#define WDOG_INTERRUPT_CLEAR_REG_OFFSET     0x14
+ #define WDOG_COMP_PARAMS_1_REG_OFFSET       0xf4
+ #define WDOG_COMP_PARAMS_1_USE_FIX_TOP      BIT(6)
  
--/* The maximum TOP (timeout period) value that can be set in the watchdog. */
--#define DW_WDT_MAX_TOP		15
-+/* There are sixteen TOPs (timeout periods) that can be set in the watchdog. */
-+#define DW_WDT_NUM_TOPS		16
-+#define DW_WDT_FIX_TOP(_idx)	(1U << (16 + _idx))
- 
- #define DW_WDT_DEFAULT_SECONDS	30
- 
-+static const u32 dw_wdt_fix_tops[DW_WDT_NUM_TOPS] = {
-+	DW_WDT_FIX_TOP(0), DW_WDT_FIX_TOP(1), DW_WDT_FIX_TOP(2),
-+	DW_WDT_FIX_TOP(3), DW_WDT_FIX_TOP(4), DW_WDT_FIX_TOP(5),
-+	DW_WDT_FIX_TOP(6), DW_WDT_FIX_TOP(7), DW_WDT_FIX_TOP(8),
-+	DW_WDT_FIX_TOP(9), DW_WDT_FIX_TOP(10), DW_WDT_FIX_TOP(11),
-+	DW_WDT_FIX_TOP(12), DW_WDT_FIX_TOP(13), DW_WDT_FIX_TOP(14),
-+	DW_WDT_FIX_TOP(15)
-+};
-+
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
+@@ -59,6 +62,11 @@ module_param(nowayout, bool, 0);
  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
  		 "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
-+struct dw_wdt_timeout {
-+	u32 top_val;
-+	unsigned int sec;
-+	unsigned int msec;
++enum dw_wdt_rmod {
++	DW_WDT_RMOD_RESET = 1,
++	DW_WDT_RMOD_IRQ = 2
 +};
 +
- struct dw_wdt {
- 	void __iomem		*regs;
+ struct dw_wdt_timeout {
+ 	u32 top_val;
+ 	unsigned int sec;
+@@ -70,6 +78,7 @@ struct dw_wdt {
  	struct clk		*clk;
+ 	struct clk		*pclk;
  	unsigned long		rate;
-+	struct dw_wdt_timeout	timeouts[DW_WDT_NUM_TOPS];
++	enum dw_wdt_rmod	rmod;
+ 	struct dw_wdt_timeout	timeouts[DW_WDT_NUM_TOPS];
  	struct watchdog_device	wdd;
  	struct reset_control	*rst;
- 	/* Save/restore */
-@@ -64,20 +85,66 @@ static inline int dw_wdt_is_enabled(struct dw_wdt *dw_wdt)
+@@ -86,6 +95,20 @@ static inline int dw_wdt_is_enabled(struct dw_wdt *dw_wdt)
  		WDOG_CONTROL_REG_WDT_EN_MASK;
  }
  
--static inline int dw_wdt_top_in_seconds(struct dw_wdt *dw_wdt, unsigned top)
-+static unsigned int dw_wdt_find_best_top(struct dw_wdt *dw_wdt,
-+					 unsigned int timeout, u32 *top_val)
++static void dw_wdt_update_mode(struct dw_wdt *dw_wdt, enum dw_wdt_rmod rmod)
++{
++	u32 val;
++
++	val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
++	if (rmod == DW_WDT_RMOD_IRQ)
++		val |= WDOG_CONTROL_REG_RESP_MODE_MASK;
++	else
++		val &= ~WDOG_CONTROL_REG_RESP_MODE_MASK;
++	writel(val, dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
++
++	dw_wdt->rmod = rmod;
++}
++
+ static unsigned int dw_wdt_find_best_top(struct dw_wdt *dw_wdt,
+ 					 unsigned int timeout, u32 *top_val)
  {
-+	int idx;
-+
- 	/*
--	 * There are 16 possible timeout values in 0..15 where the number of
--	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
-+	 * Find a TOP with timeout greater or equal to the requested number.
-+	 * Note we'll select a TOP with maximum timeout if the requested
-+	 * timeout couldn't be reached.
- 	 */
--	return (1U << (16 + top)) / dw_wdt->rate;
-+	for (idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx].sec >= timeout)
-+			break;
-+	}
-+
-+	if (idx == DW_WDT_NUM_TOPS)
-+		--idx;
-+
-+	*top_val = dw_wdt->timeouts[idx].top_val;
-+
-+	return dw_wdt->timeouts[idx].sec;
- }
+@@ -145,7 +168,11 @@ static unsigned int dw_wdt_get_timeout(struct dw_wdt *dw_wdt)
+ 			break;
+ 	}
  
--static int dw_wdt_get_top(struct dw_wdt *dw_wdt)
-+static unsigned int dw_wdt_get_min_timeout(struct dw_wdt *dw_wdt)
- {
--	int top = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
-+	int idx;
-+
+-	return dw_wdt->timeouts[idx].sec;
 +	/*
-+	 * We'll find a timeout greater or equal to one second anyway because
-+	 * the driver probe would have failed if there was none.
++	 * In IRQ mode due to the two stages counter, the actual timeout is
++	 * twice greater than the TOP setting.
 +	 */
-+	for (idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx].sec)
-+			break;
-+	}
- 
--	return dw_wdt_top_in_seconds(dw_wdt, top);
-+	return dw_wdt->timeouts[idx].sec;
-+}
-+
-+static unsigned int dw_wdt_get_max_timeout_ms(struct dw_wdt *dw_wdt)
-+{
-+	struct dw_wdt_timeout *timeout = &dw_wdt->timeouts[DW_WDT_NUM_TOPS - 1];
-+	u64 msec;
-+
-+	msec = (u64)timeout->sec * MSEC_PER_SEC + timeout->msec;
-+
-+	return msec < UINT_MAX ? msec : UINT_MAX;
-+}
-+
-+static unsigned int dw_wdt_get_timeout(struct dw_wdt *dw_wdt)
-+{
-+	int top_val = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
-+	int idx;
-+
-+	for (idx = 0; idx < DW_WDT_NUM_TOPS; ++idx) {
-+		if (dw_wdt->timeouts[idx].top_val == top_val)
-+			break;
-+	}
-+
-+	return dw_wdt->timeouts[idx].sec;
++	return dw_wdt->timeouts[idx].sec * dw_wdt->rmod;
  }
  
  static int dw_wdt_ping(struct watchdog_device *wdd)
-@@ -93,17 +160,10 @@ static int dw_wdt_ping(struct watchdog_device *wdd)
- static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
- {
- 	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
--	int i, top_val = DW_WDT_MAX_TOP;
-+	unsigned int timeout;
-+	u32 top_val;
+@@ -164,7 +191,20 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
+ 	unsigned int timeout;
+ 	u32 top_val;
  
--	/*
--	 * Iterate over the timeout values until we find the closest match. We
--	 * always look for >=.
--	 */
--	for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
--		if (dw_wdt_top_in_seconds(dw_wdt, i) >= top_s) {
--			top_val = i;
--			break;
--		}
-+	timeout = dw_wdt_find_best_top(dw_wdt, top_s, &top_val);
+-	timeout = dw_wdt_find_best_top(dw_wdt, top_s, &top_val);
++	/*
++	 * Note IRQ mode being enabled means having a non-zero pre-timeout
++	 * setup. In this case we try to find a TOP as close to the half of the
++	 * requested timeout as possible since DW Watchdog IRQ mode is designed
++	 * in two stages way - first timeout rises the pre-timeout interrupt,
++	 * second timeout performs the system reset. So basically the effective
++	 * watchdog-caused reset happens after two watchdog TOPs elapsed.
++	 */
++	timeout = dw_wdt_find_best_top(dw_wdt, DIV_ROUND_UP(top_s, dw_wdt->rmod),
++				       &top_val);
++	if (dw_wdt->rmod == DW_WDT_RMOD_IRQ)
++		wdd->pretimeout = timeout;
++	else
++		wdd->pretimeout = 0;
  
  	/*
  	 * Set the new value in the watchdog.  Some versions of dw_wdt
-@@ -120,7 +180,7 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
+@@ -175,25 +215,47 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
+ 	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
+ 	       dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+ 
++	/* Kick new TOP value into the watchdog counter if activated. */
++	if (watchdog_active(wdd))
++		dw_wdt_ping(wdd);
++
+ 	/*
+ 	 * In case users set bigger timeout value than HW can support,
+ 	 * kernel(watchdog_dev.c) helps to feed watchdog before
  	 * wdd->max_hw_heartbeat_ms
  	 */
  	if (top_s * 1000 <= wdd->max_hw_heartbeat_ms)
--		wdd->timeout = dw_wdt_top_in_seconds(dw_wdt, top_val);
-+		wdd->timeout = timeout;
+-		wdd->timeout = timeout;
++		wdd->timeout = timeout * dw_wdt->rmod;
  	else
  		wdd->timeout = top_s;
  
-@@ -238,6 +298,86 @@ static int dw_wdt_resume(struct device *dev)
+ 	return 0;
+ }
  
- static SIMPLE_DEV_PM_OPS(dw_wdt_pm_ops, dw_wdt_suspend, dw_wdt_resume);
- 
-+/*
-+ * In case if DW WDT IP core is synthesized with fixed TOP feature disabled the
-+ * TOPs array can be arbitrary ordered with nearly any sixteen uint numbers
-+ * depending on the system engineer imagination. The next method handles the
-+ * passed TOPs array to pre-calculate the effective timeouts and to sort the
-+ * TOP items out in the ascending order with respect to the timeouts.
-+ */
-+
-+static void dw_wdt_handle_tops(struct dw_wdt *dw_wdt, const u32 *tops)
++static int dw_wdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
 +{
-+	struct dw_wdt_timeout tout, *dst;
-+	int val, tidx;
-+	u64 msec;
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
 +
 +	/*
-+	 * We walk over the passed TOPs array and calculate corresponding
-+	 * timeouts in seconds and milliseconds. The milliseconds granularity
-+	 * is needed to distinguish the TOPs with very close timeouts and to
-+	 * set the watchdog max heartbeat setting further.
++	 * We ignore actual value of the timeout passed from user-space
++	 * using it as a flag whether the pretimeout functionality is intended
++	 * to be activated.
 +	 */
-+	for (val = 0; val < DW_WDT_NUM_TOPS; ++val) {
-+		tout.top_val = val;
-+		tout.sec = tops[val] / dw_wdt->rate;
-+		msec = (u64)tops[val] * MSEC_PER_SEC;
-+		do_div(msec, dw_wdt->rate);
-+		tout.msec = msec - ((u64)tout.sec * MSEC_PER_SEC);
-+
-+		/*
-+		 * Find a suitable place for the current TOP in the timeouts
-+		 * array so that the list is remained in the ascending order.
-+		 */
-+		for (tidx = 0; tidx < val; ++tidx) {
-+			dst = &dw_wdt->timeouts[tidx];
-+			if (tout.sec > dst->sec || (tout.sec == dst->sec &&
-+			    tout.msec >= dst->msec))
-+				continue;
-+			else
-+				swap(*dst, tout);
-+		}
-+
-+		dw_wdt->timeouts[val] = tout;
-+	}
-+}
-+
-+static int dw_wdt_init_timeouts(struct dw_wdt *dw_wdt, struct device *dev)
-+{
-+	u32 data, of_tops[DW_WDT_NUM_TOPS];
-+	const u32 *tops;
-+	int ret;
-+
-+	/*
-+	 * Retrieve custom or fixed counter values depending on the
-+	 * WDT_USE_FIX_TOP flag found in the component specific parameters
-+	 * #1 register.
-+	 */
-+	data = readl(dw_wdt->regs + WDOG_COMP_PARAMS_1_REG_OFFSET);
-+	if (data & WDOG_COMP_PARAMS_1_USE_FIX_TOP) {
-+		tops = dw_wdt_fix_tops;
-+	} else {
-+		ret = of_property_read_variable_u32_array(dev_of_node(dev),
-+			"snps,watchdog-tops", of_tops, DW_WDT_NUM_TOPS,
-+			DW_WDT_NUM_TOPS);
-+		if (ret < 0) {
-+			dev_warn(dev, "No valid TOPs array specified\n");
-+			tops = dw_wdt_fix_tops;
-+		} else {
-+			tops = of_tops;
-+		}
-+	}
-+
-+	/* Convert the specified TOPs into an array of watchdog timeouts. */
-+	dw_wdt_handle_tops(dw_wdt, tops);
-+	if (!dw_wdt->timeouts[DW_WDT_NUM_TOPS - 1].sec) {
-+		dev_err(dev, "No any valid TOP detected\n");
-+		return -EINVAL;
-+	}
++	dw_wdt_update_mode(dw_wdt, req ? DW_WDT_RMOD_IRQ : DW_WDT_RMOD_RESET);
++	dw_wdt_set_timeout(wdd, wdd->timeout);
 +
 +	return 0;
 +}
 +
- static int dw_wdt_drv_probe(struct platform_device *pdev)
+ static void dw_wdt_arm_system_reset(struct dw_wdt *dw_wdt)
  {
- 	struct device *dev = &pdev->dev;
-@@ -275,12 +415,15 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	u32 val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
  
+-	/* Disable interrupt mode; always perform system reset. */
+-	val &= ~WDOG_CONTROL_REG_RESP_MODE_MASK;
++	/* Disable/enable interrupt mode depending on the RMOD flag. */
++	if (dw_wdt->rmod == DW_WDT_RMOD_IRQ)
++		val |= WDOG_CONTROL_REG_RESP_MODE_MASK;
++	else
++		val &= ~WDOG_CONTROL_REG_RESP_MODE_MASK;
+ 	/* Enable watchdog. */
+ 	val |= WDOG_CONTROL_REG_WDT_EN_MASK;
+ 	writel(val, dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+@@ -231,6 +293,7 @@ static int dw_wdt_restart(struct watchdog_device *wdd,
+ 	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 
+ 	writel(0, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++	dw_wdt_update_mode(dw_wdt, DW_WDT_RMOD_RESET);
+ 	if (dw_wdt_is_enabled(dw_wdt))
+ 		writel(WDOG_COUNTER_RESTART_KICK_VALUE,
+ 		       dw_wdt->regs + WDOG_COUNTER_RESTART_REG_OFFSET);
+@@ -246,9 +309,19 @@ static int dw_wdt_restart(struct watchdog_device *wdd,
+ static unsigned int dw_wdt_get_timeleft(struct watchdog_device *wdd)
+ {
+ 	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
++	unsigned int sec;
++	u32 val;
++
++	val = readl(dw_wdt->regs + WDOG_CURRENT_COUNT_REG_OFFSET);
++	sec = val / dw_wdt->rate;
+ 
+-	return readl(dw_wdt->regs + WDOG_CURRENT_COUNT_REG_OFFSET) /
+-		dw_wdt->rate;
++	if (dw_wdt->rmod == DW_WDT_RMOD_IRQ) {
++		val = readl(dw_wdt->regs + WDOG_INTERRUPT_STATUS_REG_OFFSET);
++		if (!val)
++			sec += wdd->pretimeout;
++	}
++
++	return sec;
+ }
+ 
+ static const struct watchdog_info dw_wdt_ident = {
+@@ -257,16 +330,41 @@ static const struct watchdog_info dw_wdt_ident = {
+ 	.identity	= "Synopsys DesignWare Watchdog",
+ };
+ 
++static const struct watchdog_info dw_wdt_pt_ident = {
++	.options	= WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
++			  WDIOF_PRETIMEOUT | WDIOF_MAGICCLOSE,
++	.identity	= "Synopsys DesignWare Watchdog",
++};
++
+ static const struct watchdog_ops dw_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= dw_wdt_start,
+ 	.stop		= dw_wdt_stop,
+ 	.ping		= dw_wdt_ping,
+ 	.set_timeout	= dw_wdt_set_timeout,
++	.set_pretimeout	= dw_wdt_set_pretimeout,
+ 	.get_timeleft	= dw_wdt_get_timeleft,
+ 	.restart	= dw_wdt_restart,
+ };
+ 
++static irqreturn_t dw_wdt_irq(int irq, void *devid)
++{
++	struct dw_wdt *dw_wdt = devid;
++	u32 val;
++
++	/*
++	 * We don't clear the IRQ status. It's supposed to be done by the
++	 * following ping operations.
++	 */
++	val = readl(dw_wdt->regs + WDOG_INTERRUPT_STATUS_REG_OFFSET);
++	if (!val)
++		return IRQ_NONE;
++
++	watchdog_notify_pretimeout(&dw_wdt->wdd);
++
++	return IRQ_HANDLED;
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static int dw_wdt_suspend(struct device *dev)
+ {
+@@ -447,6 +545,31 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 		goto out_disable_pclk;
+ 	}
+ 
++	/* Enable normal reset without pre-timeout by default. */
++	dw_wdt_update_mode(dw_wdt, DW_WDT_RMOD_RESET);
++
++	/*
++	 * Pre-timeout IRQ is optional, since some hardware may lack support
++	 * of it. Note we must request rising-edge IRQ, since the lane is left
++	 * pending either until the next watchdog kick event or up to the
++	 * system reset.
++	 */
++	ret = platform_get_irq_optional(pdev, 0);
++	if (ret > 0) {
++		ret = devm_request_irq(dev, ret, dw_wdt_irq,
++				       IRQF_SHARED | IRQF_TRIGGER_RISING,
++				       pdev->name, dw_wdt);
++		if (ret)
++			goto out_disable_pclk;
++
++		dw_wdt->wdd.info = &dw_wdt_pt_ident;
++	} else {
++		if (ret == -EPROBE_DEFER)
++			goto out_disable_pclk;
++
++		dw_wdt->wdd.info = &dw_wdt_ident;
++	}
++
  	reset_control_deassert(dw_wdt->rst);
  
-+	ret = dw_wdt_init_timeouts(dw_wdt, dev);
-+	if (ret)
-+		goto out_disable_clk;
-+
- 	wdd = &dw_wdt->wdd;
- 	wdd->info = &dw_wdt_ident;
- 	wdd->ops = &dw_wdt_ops;
--	wdd->min_timeout = 1;
--	wdd->max_hw_heartbeat_ms =
--		dw_wdt_top_in_seconds(dw_wdt, DW_WDT_MAX_TOP) * 1000;
-+	wdd->min_timeout = dw_wdt_get_min_timeout(dw_wdt);
-+	wdd->max_hw_heartbeat_ms = dw_wdt_get_max_timeout_ms(dw_wdt);
- 	wdd->parent = dev;
+ 	ret = dw_wdt_init_timeouts(dw_wdt, dev);
+@@ -454,7 +577,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 		goto out_disable_clk;
  
- 	watchdog_set_drvdata(wdd, dw_wdt);
-@@ -293,7 +436,7 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	 * devicetree.
- 	 */
- 	if (dw_wdt_is_enabled(dw_wdt)) {
--		wdd->timeout = dw_wdt_get_top(dw_wdt);
-+		wdd->timeout = dw_wdt_get_timeout(dw_wdt);
- 		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 	} else {
- 		wdd->timeout = DW_WDT_DEFAULT_SECONDS;
+ 	wdd = &dw_wdt->wdd;
+-	wdd->info = &dw_wdt_ident;
+ 	wdd->ops = &dw_wdt_ops;
+ 	wdd->min_timeout = dw_wdt_get_min_timeout(dw_wdt);
+ 	wdd->max_hw_heartbeat_ms = dw_wdt_get_max_timeout_ms(dw_wdt);
 -- 
 2.26.2
 
