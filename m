@@ -1,174 +1,101 @@
-Return-Path: <SRS0=TjhE=7Q=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=bB/U=7R=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE967C433E0
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Jun 2020 11:49:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0393C433E0
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Jun 2020 16:26:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E17E20738
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Jun 2020 11:49:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6CEC207D8
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Jun 2020 16:26:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="ZGL6/2Iu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d3UuazT6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725930AbgFCLtd (ORCPT
+        id S1729765AbgFDQ0S (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Jun 2020 07:49:33 -0400
-Received: from www.linux-watchdog.org ([185.87.125.42]:51132 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725833AbgFCLtc (ORCPT
+        Thu, 4 Jun 2020 12:26:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729540AbgFDQ0S (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Jun 2020 07:49:32 -0400
-X-Greylist: delayed 498 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jun 2020 07:49:32 EDT
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 398F4409DB; Wed,  3 Jun 2020 12:45:21 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 398F4409DB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1591181121;
-        bh=GZUVWstdXkI+h/i93KPfb8kDZBh1tszMSwwt+h9Hi7U=;
-        h=Date:From:To:Cc:Subject:From;
-        b=ZGL6/2IuOUBQx4dagp8i1lGa6/vSgFM9hcTjxRo58jzxlZ7mnlE0H7rVamp2qsRkY
-         Zijd4jKIDAkJc/KNvy9C0Nhp4jq+f37Ds0XYdxvh6hGIeUTp0e08nrl7PaRGrf18sE
-         ulMbgwWaT5sZ2JS04D7xkL037gpjAQAcDdriyu4c=
-Date:   Wed, 3 Jun 2020 12:45:21 +0200
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Arnd Bergmann <arnd@arndb.de>, Bumsik Kim <kbumsik@gmail.com>,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Evan Benn <evanbenn@chromium.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Jason Yan <yanaijie@huawei.com>,
-        Julius Werner <jwerner@chromium.org>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Shyam Saini <mayhs11saini@gmail.com>,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [GIT PULL REQUEST] watchdog - v5.8 Merge window
-Message-ID: <20200603104521.GA14826@www.linux-watchdog.org>
+        Thu, 4 Jun 2020 12:26:18 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BF8C08C5C0;
+        Thu,  4 Jun 2020 09:26:17 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id r9so5845756wmh.2;
+        Thu, 04 Jun 2020 09:26:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=k/oJM651C1XJTfZwXFxFAzJKWVgKNmEBHsFFiuGKzgM=;
+        b=d3UuazT60KaKwUwL5O57+a5efQX6R1MsdvN9jCbcd6fi4GmPvpnc+W+eBUvofLXoqg
+         lZyMOHAMBp8KOqxqdZC0HtZS4namge1E2uAyjyJC9ot4Elftu5Is4G8BpZnLZ6hQmii8
+         TVCwOxJIvNp2tuKckVAUK+gHaB86W0VBdAbDDy1d3KdcQwmygMiTffJ/py7SO7YpzwGY
+         i6dnd03OjF5Waj110LglLOV3mmZ2M6e3UQhYUKlqKTmfSPVlHUa7vjS8B4T5OWquhdfC
+         18CltNKV09rOSnUHyU32HRmsaJrDTs9olaSCI4DvYRgi1dEy6DcRX30s82jugP/8Ijja
+         MxsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=k/oJM651C1XJTfZwXFxFAzJKWVgKNmEBHsFFiuGKzgM=;
+        b=KS8cD3KSUFt8OcE541SPAl4J2DWFKA4Mh/JNMB+IUgeri33pI6NL97EILl9urKjvQ2
+         c//+LiYT99dZGXRC9wxXZz0Q7qVo0zfS/SL/6rh8HV9pNgfiiCFfx2pvfUSt19ytKQdN
+         b4z0kzGmH24w4EjtGEadDtsY4gWJSC9gzkM1Sbr9XZYpzZssUxsTvB/XvrAcKs42WkTB
+         3+kymbHnUFF8lnmpKauHuE5CdTlDsUAH57Q98P+0KlR5Ya0+4c2w4O56S+fzPswFDran
+         ktReEAGpds0wJ75Xp9nRzME0m/uiw36hTnFqxyHG+8cbetJo4MDwiY6y117tSUXlPkhi
+         ubbQ==
+X-Gm-Message-State: AOAM532Bg5cFbEMTMiNYUve9as4OTUohbUL1WaLfQadoFTflef15CToG
+        ue/17OlfcWq2OOO6yUemUTzv4T9F
+X-Google-Smtp-Source: ABdhPJxxZE2MCOE9HZMY1UfQWfLN7Cknw8JqMOY2ua6JKOI2nB9JnTDXENVzVWFwSqnUNaNX5lVQcQ==
+X-Received: by 2002:a7b:c10d:: with SMTP id w13mr355890wmi.81.1591287976434;
+        Thu, 04 Jun 2020 09:26:16 -0700 (PDT)
+Received: from xps13.lan (3e6b1cc1.rev.stofanet.dk. [62.107.28.193])
+        by smtp.googlemail.com with ESMTPSA id x205sm8707027wmx.21.2020.06.04.09.26.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2020 09:26:15 -0700 (PDT)
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc:     martin@geanix.com, bth@kamstrup.com, bruno.thomsen@gmail.com
+Subject: [PATCH] rtc: pcf2127: watchdog: handle nowayout feature
+Date:   Thu,  4 Jun 2020 18:26:02 +0200
+Message-Id: <20200604162602.76524-1-bruno.thomsen@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.20 (2009-12-10)
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+Driver does not use module parameter for nowayout, so it need to
+statically initialize status variable of the watchdog_device based
+on CONFIG_WATCHDOG_NOWAYOUT.
 
-Please pull the watchdog changes for the v5.8 release cycle.
-
-This series contains:
-* Add new arm_smc_wdt watchdog driver
-* da9062 and da9063 improvements
-* Clarify documentation about stop() that became optional
-* Document r8a7742 support
-* some overall fixes and improvements
-
-Please also note that Stephen Rothwell reported a conflict between the device tree and the watchdog tree on Tue, 26 May 2020 15:20:15 +1000.
-He fixed it with the following patch:
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-index 27e8c4accd67..572f4c912fef 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-@@ -24,6 +24,7 @@ properties:
-
-       - items:
-           - enum:
-+              - renesas,r8a7742-wdt      # RZ/G1H
-               - renesas,r8a7743-wdt      # RZ/G1M
-               - renesas,r8a7744-wdt      # RZ/G1N
-               - renesas,r8a7745-wdt      # RZ/G1E
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
 ---
+ drivers/rtc/rtc-pcf2127.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The output from git request-pull:
-----------------------------------------------------------------
-The following changes since commit 9cb1fd0efd195590b828b9b865421ad345a4a145:
-
-  Linux 5.7-rc7 (2020-05-24 15:32:54 -0700)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.8-rc1
-
-for you to fetch changes up to 072cb8b628d312f5785ffdf324286a0519aed910:
-
-  watchdog: m54xx: Add missing include (2020-05-25 08:55:47 +0200)
-
-----------------------------------------------------------------
-linux-watchdog 5.8-rc1 tag
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      watchdog: iTCO: fix link error
-
-Bumsik Kim (1):
-      watchdog: clarify that stop() is optional
-
-Dinghao Liu (1):
-      watchdog: Fix runtime PM imbalance on error
-
-Evan Benn (1):
-      dt-bindings: watchdog: Add ARM smc wdt for mt8173 watchdog
-
-Fabio Estevam (1):
-      watchdog: imx_sc_wdt: Fix reboot on crash
-
-Jason Yan (1):
-      watchdog: riowd: remove unneeded semicolon
-
-Julius Werner (1):
-      watchdog: Add new arm_smc_wdt watchdog driver
-
-Lad Prabhakar (1):
-      dt-bindings: watchdog: renesas,wdt: Document r8a7742 support
-
-Shyam Saini (1):
-      watchdog: ts72xx_wdt: fix build error
-
-Stefan Riedmueller (3):
-      watchdog: da9062: Initialize timeout during probe
-      watchdog: da9063: Make use of pre-configured timeout during probe
-      watchdog: da9062: No need to ping manually before setting timeout
-
-Thomas Gleixner (1):
-      watchdog: m54xx: Add missing include
-
-Wolfram Sang (1):
-      watchdog: imx2_wdt: update contact email
-
- .../devicetree/bindings/watchdog/arm-smc-wdt.yaml  |  37 ++++
- .../devicetree/bindings/watchdog/renesas,wdt.txt   |   1 +
- .../watchdog/convert_drivers_to_kernel_api.rst     |   2 +-
- Documentation/watchdog/watchdog-kernel-api.rst     |   2 +-
- MAINTAINERS                                        |   7 +
- arch/arm64/configs/defconfig                       |   1 +
- drivers/watchdog/Kconfig                           |  15 ++
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/arm_smc_wdt.c                     | 188 +++++++++++++++++++++
- drivers/watchdog/da9062_wdt.c                      |  32 ++--
- drivers/watchdog/da9063_wdt.c                      |  20 ++-
- drivers/watchdog/imx2_wdt.c                        |   2 +-
- drivers/watchdog/imx_sc_wdt.c                      |   5 +
- drivers/watchdog/m54xx_wdt.c                       |   1 +
- drivers/watchdog/omap_wdt.c                        |   1 +
- drivers/watchdog/riowd.c                           |   2 +-
- include/linux/watchdog.h                           |   4 +-
- 17 files changed, 299 insertions(+), 22 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
- create mode 100644 drivers/watchdog/arm_smc_wdt.c
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 4e50d6768f13..0f7d0a9a2d18 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -441,6 +441,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 	pcf2127->wdd.max_timeout = PCF2127_WD_VAL_MAX;
+ 	pcf2127->wdd.timeout = PCF2127_WD_VAL_DEFAULT;
+ 	pcf2127->wdd.min_hw_heartbeat_ms = 500;
++	pcf2127->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ 
+ 	watchdog_set_drvdata(&pcf2127->wdd, pcf2127);
+ 
+-- 
+2.26.2
 
