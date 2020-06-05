@@ -2,100 +2,143 @@ Return-Path: <SRS0=QFI+=7S=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFDE3C433DF
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Jun 2020 01:42:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A65BDC433DF
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Jun 2020 06:13:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88994207DA
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Jun 2020 01:42:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84D3F207ED
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Jun 2020 06:13:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="HffCxMdy"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Wl7PqVYB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726021AbgFEBmk (ORCPT
+        id S1726129AbgFEGNz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Jun 2020 21:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44632 "EHLO
+        Fri, 5 Jun 2020 02:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725601AbgFEBmj (ORCPT
+        with ESMTP id S1726114AbgFEGNy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 Jun 2020 21:42:39 -0400
-Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98429C08C5C0
-        for <linux-watchdog@vger.kernel.org>; Thu,  4 Jun 2020 18:42:37 -0700 (PDT)
-Received: by mail-vk1-xa44.google.com with SMTP id w188so1856833vkf.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 04 Jun 2020 18:42:37 -0700 (PDT)
+        Fri, 5 Jun 2020 02:13:54 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B98FC08C5C7
+        for <linux-watchdog@vger.kernel.org>; Thu,  4 Jun 2020 23:13:54 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id v19so7303086wmj.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 04 Jun 2020 23:13:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C5ypsurKn6EPPW0g1fbnIZOkTknD4rOPJcEpT9vTQck=;
-        b=HffCxMdymASad9VyvMn/2LNf5v56Dj+53oolcX6jkBuJFGkFou2hGGiXSQfqGBOmNm
-         HVEWDNLljg2ISFqqel2e/W5bnjMEvy3YskA1uOcGblTVNrCvGqzmgYhvPPo9mdMM7heK
-         SLkKGObs2MrKOK4IxHgkDx7gnhF7q1R+N2MBA=
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=yJN2wMTqdmW9Ywj7bcdohdTeZTeJk5SGvJLUrYv99yE=;
+        b=Wl7PqVYB0NgnKYSjXlz5tRPX5NANomxtDkglcbdjvQsRL+/sWEI5cyjRwbLQ+T/mKJ
+         M6Sc4l0Tp0CYqkIM19DWwsyrML2uNkCQzaRdzWEBO4IX78Xj83hqcyrFBi5p0KwQPyyt
+         sKWZhOFZNlEuvbmA8Y7NjXu1NFVModaASoCqeRUiyrCpwF/jDRi5bccIxaSnkUwrc3AE
+         ZUNS+K/7hVqJYlegt7KZSLfRDBX3qMf8IC9CV9c30saGPnT3D1XpB/ptPF5HrUbitr0g
+         QNFtDsD0FRNBDII5Aim6NI2sruSlz3pIyjo6iBcdTBciWCFeOQEA2YSBgxmU2gAXaS5Q
+         HrCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C5ypsurKn6EPPW0g1fbnIZOkTknD4rOPJcEpT9vTQck=;
-        b=eK8U9dnHiEe+zp+JpTHa3VD9u5kMvJCwNoR+sMCh9myhFtnC2YVAv7zvIJCOE/9DNb
-         tKD8IfL14/vm7GuCQhjySwXxmQzKi2crDtcdaajEBmrCa25+wmNX3GoC6lz9/FYibg8W
-         yFqPaj1Nv385qwnPSAztyq+ZSg2jGz2CJ0QnTFEjea8oYmsDhMOETx8j3yn592wp04Yc
-         4ipikyCtx9hYvBnNMp0qVQ4rXQm+wFd2GvKseuOfIq4uAN96L8pcKM45lv+Q7kd1U5B0
-         MSlpgWmlpn+ma4/5MkE4kEWTT96n5/EJucN3g9R9lbEuDo1X2EJ6OPVlI4jKIjtCPWYS
-         96Xw==
-X-Gm-Message-State: AOAM533oKmaNOvW5vt6UivGK18wqUBcIo/0NCW4Qh2DVsqO6afri08ny
-        HihHOa5o8vT3zsWmUYACCGL+hF1ky/I=
-X-Google-Smtp-Source: ABdhPJwWfNPMHiECHiBDo0YasC6eJHFhRsJFLSatPAYgl8kS5Rk+GiznS4iUpbAlLVerWFJnwVtzRA==
-X-Received: by 2002:a1f:e485:: with SMTP id b127mr5370532vkh.99.1591321356426;
-        Thu, 04 Jun 2020 18:42:36 -0700 (PDT)
-Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com. [209.85.221.172])
-        by smtp.gmail.com with ESMTPSA id y12sm956517vko.40.2020.06.04.18.42.35
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Jun 2020 18:42:35 -0700 (PDT)
-Received: by mail-vk1-f172.google.com with SMTP id u15so1836616vkk.6
-        for <linux-watchdog@vger.kernel.org>; Thu, 04 Jun 2020 18:42:35 -0700 (PDT)
-X-Received: by 2002:a1f:5e51:: with SMTP id s78mr5587128vkb.59.1591321355196;
- Thu, 04 Jun 2020 18:42:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200602052104.7795-1-lukas.bulwahn@gmail.com>
- <828311d2-61ea-42cb-1449-a53f3772543d@roeck-us.net> <CAODwPW_oxDxF_5-icRs0eaRVLgtP+bDc_OSKa=EcfeSp=c6Fag@mail.gmail.com>
- <CAKz_xw0Tqr-idoZbNzg_didSCr5L+L1=76xjF=Sqj4DgpL9g7Q@mail.gmail.com>
-In-Reply-To: <CAKz_xw0Tqr-idoZbNzg_didSCr5L+L1=76xjF=Sqj4DgpL9g7Q@mail.gmail.com>
-From:   Evan Benn <evanbenn@chromium.org>
-Date:   Fri, 5 Jun 2020 11:42:09 +1000
-X-Gmail-Original-Message-ID: <CAKz_xw3KuWFSkcz-9hLHGZ2=S7nJ=K=AN6j2FJ6afZBFowJO7g@mail.gmail.com>
-Message-ID: <CAKz_xw3KuWFSkcz-9hLHGZ2=S7nJ=K=AN6j2FJ6afZBFowJO7g@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: rectify entry in ARM SMC WATCHDOG DRIVER
-To:     Julius Werner <jwerner@chromium.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=yJN2wMTqdmW9Ywj7bcdohdTeZTeJk5SGvJLUrYv99yE=;
+        b=e4t4J8FErrJDRTdpLDhXONCMJHwq3aryFZOCIHNiXVuvVMm7QTO+G7y1fk6Rzae1EV
+         p6v4fTKcYZDBkR8K3Mlug9l3CRn3FzGRiBXvC/PqL3REKZXT2d4wlFTNRgWUMTOeLN8R
+         SE3D0S1/3A6PmHTu+eVNix4m2uzLLaed0HaNPGAcw9GA/jmps3dsPSWKQk8wI7IgeAan
+         srE4S6UsGZVrPpQDtBFiTtDqs3X8JM5cGiXtOYCL4s36IhHPYXCME5rqrmZBVlM41yQ8
+         8zR+EliuRHbRqH+Uf5Z11ls7zbXYxFRTPXa+MjaJI/XcVmAI6BJvoK/nJjhkq+XrALJa
+         VPIg==
+X-Gm-Message-State: AOAM531BD7QRXNgK1YcjN6lRAuNF07KMegTJAU41JVbpXE0w31WPWEGB
+        gCDpm6bxN3ZPSNZNmxCQeHWJ9Q==
+X-Google-Smtp-Source: ABdhPJwf5S2OwPHZvteiT4PVJdXt+ehvT08EuJ6eK2OP2Atm5I/Xbi4JETpWh90BOmkczgotX4Fl6Q==
+X-Received: by 2002:a1c:7dd5:: with SMTP id y204mr963235wmc.182.1591337632738;
+        Thu, 04 Jun 2020 23:13:52 -0700 (PDT)
+Received: from dell ([95.147.198.92])
+        by smtp.gmail.com with ESMTPSA id x186sm9871815wmg.8.2020.06.04.23.13.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2020 23:13:51 -0700 (PDT)
+Date:   Fri, 5 Jun 2020 07:13:50 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Michael Walle <michael@walle.cc>
+Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Joe Perches <joe@perches.com>, kernel-janitors@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v4 00/11] Add support for Kontron sl28cpld
+Message-ID: <20200605061350.GC3714@dell>
+References: <20200604211039.12689-1-michael@walle.cc>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200604211039.12689-1-michael@walle.cc>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-AFAICT this has now been merged upstream, I'm not sure what action to take:
+On Thu, 04 Jun 2020, Michael Walle wrote:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5c24a28b4eb842ad1256496be6ae01bab15f1dcb
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=72a9e7fea5866fc471fda78f05f166595c8c6ba6
+> The Kontron sl28cpld is a board management chip providing gpio, pwm, fan
+> monitoring and an interrupt controller. For now this controller is used on
+> the Kontron SMARC-sAL28 board. But because of its flexible nature, it
+> might also be used on other boards in the future. The individual blocks
+> (like gpio, pwm, etc) are kept intentionally small. The MFD core driver
+> then instantiates different (or multiple of the same) blocks. It also
+> provides the register layout so it might be updated in the future without a
+> device tree change; and support other boards with a different layout or
+> functionalities.
+> 
+> See also [1] for more information.
+> 
+> This is my first take of a MFD driver. I don't know whether the subsystem
+> maintainers should only be CCed on the patches which affect the subsystem
+> or on all patches for this series. I've chosen the latter so you can get a
+> more complete picture.
 
-On Wed, Jun 3, 2020 at 9:22 AM Evan Benn <evanbenn@chromium.org> wrote:
->
-> Apologies for that slip up.
->
-> Reviewed-by: Evan Benn <evanbenn@chromium.org>
->
-> On Wed, Jun 3, 2020 at 6:16 AM Julius Werner <jwerner@chromium.org> wrote:
-> >
-> > Reviewed-by: Julius Werner <jwerner@chromium.org>
+You chose wisely. :)
+
+> [1] https://lore.kernel.org/linux-devicetree/0e3e8204ab992d75aa07fc36af7e4ab2@walle.cc/
+> 
+> Changes since v3:
+>  - use of_platform_populate() to populate internal devices using the
+>    internal register offsets as unit-addresses
+>  - because we don't use mfd_cells anymore, we cannot use IORESOURCE_REG,
+>    but instead parse the reg property in each individual driver
+>  - dropped the following patches because they were already merged:
+>      gpiolib: Introduce gpiochip_irqchip_add_domain()
+>      gpio: add a reusable generic gpio_chip using regmap
+>  - dropped the following patches because they are no longer needed:
+>      include/linux/ioport.h: add helper to define REG resource constructs
+>      mfd: mfd-core: Don't overwrite the dma_mask of the child device
+>      mfd: mfd-core: match device tree node against reg property
+>  - rephrase commit messages, as suggested by Thomas Gleixner
+
+It's great to have this changelog overview.
+
+However it's equally, if not arguably more important to have a more
+fine grained changelog in each of the patches, usually placed between
+the '---' and the diff stat.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
