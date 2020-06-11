@@ -2,147 +2,84 @@ Return-Path: <SRS0=w7mh=7Y=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96B61C433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 17:09:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB01CC433E1
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 19:17:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77812206C3
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 17:09:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qNg4jL/V"
+	by mail.kernel.org (Postfix) with ESMTP id ABF26206A4
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 19:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbgFKRJw (ORCPT
+        id S1726671AbgFKTR5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 Jun 2020 13:09:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56536 "EHLO
+        Thu, 11 Jun 2020 15:17:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726527AbgFKRJv (ORCPT
+        with ESMTP id S1725782AbgFKTR4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 Jun 2020 13:09:51 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3DCC08C5C1;
-        Thu, 11 Jun 2020 10:09:50 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id z63so2009129pfb.1;
-        Thu, 11 Jun 2020 10:09:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=tyHbXeosM2dGn8ctHsVNHECdKzxXjGiOzze56QKF4fM=;
-        b=qNg4jL/ViHHZH09XkCQBWqC5JTg6PQgIK1Z6UnNZErJ7PVvQWXyRK358nn0RhTwslk
-         11uBBTkxv646xxvpuQdkuz6GFk4jTgku/n6lDPPURQplHkJOZUTkGdNLl73NnPvtJ7or
-         GB2PZTcvtnhI6oyHICzvtPn7LV4mHZYZ7IIjANClS2Tqs6dZbr11a76kL+E0MSdXop/s
-         OYFTWuO19zU+dQwYLOi4P01Sj+68P+mnhI4UzsaC1Hj64UlTUfintmt2a8bYYiWtUm/3
-         DHp/QhMmLOnrgIF8ODhDBC4rche77xMTtwYSjo/kFy2pWu6h5CErMmo/AUuHVKAdvLbX
-         vttw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=tyHbXeosM2dGn8ctHsVNHECdKzxXjGiOzze56QKF4fM=;
-        b=IBM67AWlrC276jAs2ZBTz610yNq6Ja++XVCstarI1ns14c0DP4wVID0s8qMw2Ia+vN
-         l0uNF16H/nc1ufRBtxZR58DZNVaPbbmZlDPQiVfoYgPePwwueDbqnnVHA3okbaPnZLOO
-         SPmWF6Z2Vu5VZVbetNeNl1Pv9NqF/nJuMOgp9V812vkEB1SFJXyehlufbO5zoVGJ8dLq
-         ywbQZghaUdBx/drq5XeJ8n1y7yJqxrf3IXKER/8a/176kHME6z2VqzN/RcYI3MMpE4Z3
-         ZViZYNgRRwgYm/Pphb/yKx6a9PQRDhhdqF7nnxW/F8T9ZQYGFPg9pwhces+X0yZZI8UL
-         BDMg==
-X-Gm-Message-State: AOAM5308CjW5Etvc1B3RDAsydI0u84QTdQa5EsxAueGAm5K6YUzcDicB
-        Bl5BYlVxjipETEnKvxoHl6I=
-X-Google-Smtp-Source: ABdhPJyhoBlrc1apK/VfDXDccMgZT+ulv/6Cc2mm4EZHUfi5UyuQ5GrxawPgG6uBpsO/602D1sqvcA==
-X-Received: by 2002:a62:c105:: with SMTP id i5mr8205394pfg.250.1591895389697;
-        Thu, 11 Jun 2020 10:09:49 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id b7sm3570250pfo.202.2020.06.11.10.09.47
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 11 Jun 2020 10:09:47 -0700 (PDT)
-Date:   Thu, 11 Jun 2020 10:09:46 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Dilip Kota <eswara.kota@linux.intel.com>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, robbh@kernel.org,
-        linux-kernel@vger.kernel.org, andriy.shevchenko@intel.com,
-        cheol.yong.kim@intel.com, qi-ming.wu@intel.com, yixin.zhu@intel.com
-Subject: Re: [PATCH 1/2] dt-bindings: watchdog: intel: Add YAML Schemas for
- Watchdog timer
-Message-ID: <20200611170946.GA70281@roeck-us.net>
-References: <cover.1591584255.git.eswara.kota@linux.intel.com>
- <ac89e289b79fec0a82d1dd060e17eeca024885d5.1591584255.git.eswara.kota@linux.intel.com>
- <235d301b-3b25-bb00-bd1b-c4392fa23c63@roeck-us.net>
- <4a336f1d-68da-3356-a73a-95747ba4af4c@linux.intel.com>
- <83812b78-41e3-299d-36a0-6ce1576e7e78@roeck-us.net>
- <aabceb6f-265d-fd11-eee1-6bccf2160512@linux.intel.com>
- <c294ced9-a37b-6a90-511e-187bacdec80c@roeck-us.net>
- <4feae044-1956-fb70-7786-19c7c48cc391@linux.intel.com>
+        Thu, 11 Jun 2020 15:17:56 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1C5C08C5C1
+        for <linux-watchdog@vger.kernel.org>; Thu, 11 Jun 2020 12:17:56 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <afa@pengutronix.de>)
+        id 1jjSi1-0002J6-Oi; Thu, 11 Jun 2020 21:17:53 +0200
+Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <afa@pengutronix.de>)
+        id 1jjSi1-0000yP-6Y; Thu, 11 Jun 2020 21:17:53 +0200
+From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Knud Poulsen <knpo@ieee.org>
+Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1 2/8] watchdog: f71808e_wdt: indicate WDIOF_CARDRESET support in watchdog_info.options
+Date:   Thu, 11 Jun 2020 21:17:43 +0200
+Message-Id: <20200611191750.28096-3-a.fatoum@pengutronix.de>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200611191750.28096-1-a.fatoum@pengutronix.de>
+References: <20200611191750.28096-1-a.fatoum@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <4feae044-1956-fb70-7786-19c7c48cc391@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: afa@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 05:38:14PM +0800, Dilip Kota wrote:
-> 
-> On 6/10/2020 9:05 PM, Guenter Roeck wrote:
-> > On 6/10/20 12:54 AM, Dilip Kota wrote:
-> > > On 6/9/2020 9:46 PM, Guenter Roeck wrote:
-> > > > On 6/9/20 1:57 AM, Dilip Kota wrote:
-> > > > > On 6/8/2020 9:37 PM, Guenter Roeck wrote:
-> > > > > > On 6/7/20 10:49 PM, Dilip Kota wrote:
-> [...]
-> > > > > > > +
-> > > > > > > +description: |
-> > > > > > > +  Intel Lightning Mountain SoC has General Purpose Timer Counter(GPTC) which can
-> > > > > > > +  be configured as Clocksource, real time clock and Watchdog timer.
-> > > > > > > +  Each General Purpose Timer Counter has three timers. And total four General
-> > > > > > > +  Purpose Timer Counters are present on Lightning Mountain SoC which sums up
-> > > > > > > +  to 12 timers.
-> > > > > > > +  Lightning Mountain has four CPUs and each CPU is configured with one GPTC
-> > > > > > > +  timer as watchdog timer. Total four timers are configured as watchdog timers
-> > > > > > > +  on Lightning Mountain SoC.
-> > > > > > > +
-> > > > > > Why not just one ? The watchdog subsystem does not monitor individual CPUs,
-> > > > > > it monitors the system.
-> > > > > Intel Atom based Lightning Mountain SoC, system has four CPUs. On Lightning Mountain SoC ,Watchdog subsystem is combination of GPTC timers and reset controller unit. On Lightning Mountain SoC, each CPU is configured with one GPTC timer, so that if any of the CPU hangs or freezes, the watchdog daemon running on respective CPU cannot reset/ping or pet the watchdog timer. This causes the watchdog timeout. On watchdog timeout, reset controller triggers the reset to respective CPU.
-> > > > > 
-> > > > A system watchdog driver should not duplicate functionality
-> > > > from kernel/watchdog.c, which monitors individual CPUs.
-> > > > If the SoC does nto provide a system watchdog timer (which
-> > > > I think is unlikely), it should stick with that. A watchdog
-> > > > resetting an individual CPU instead of the entire system
-> > > > isn't something I would want to see in the watchdog subsystem.
-> > > My bad here, complete hardware reset happens on watchdog timeout not a single CPU or core.
-> > > Could you please clarify: The complete system means, you mean, "a watchdog susbsystem should monitor all the cores/cpus in the SoC. Not like each core/cpu in SoC having a wdt".
-> > > 
-> > No, the watchdog subsystem does not monitor "all cores".
-> > Again, that is the responsibility of kernel/watchdog.c.
-> I am a bit confused here.
-> I have gone through the kernel/watchdog.c code and i see hrtimers are used
-> and panic is triggered for lockup on CPU/core.
-> It looks similar to the watchdog subsystem which uses wdt and triggers
-> hardware reset on timeout, whereas kernel/watchdog.c using hrtimers and
-> triggers panic on timeout.
-> To my understanding Watchdog timer recovers the hardware from software hangs
-> or freeze states on the CPU / cores.
-> Also, what does system mean in your statement " watchdog subsystem monitors
-> the system"? What all comes under the system other than the cores/cpus.
-> And also i see there is no other watchdog subsystem in Lightning Mountain
-> architecture.
-> 
+The driver supports populating bootstatus with WDIOF_CARDRESET, but so
+far userspace couldn't portably determine whether absence of this flag
+meant no watchdog reset or no driver support. Or-in the bit to fix this.
 
-From my perspective, we are not going to duplicate functionality covered
-by kernel/watchdog.c, which means we are not going to support per cpu core
-watchdog drivers in drivers/watchdog.
+Fixes: b97cb21a4634 ("watchdog: f71808e_wdt: Fix WDTMOUT_STS register read")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ drivers/watchdog/f71808e_wdt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-If you insist doing it anyway, please disuss with Wim.
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index a3c44d75d80e..c8ce80c13403 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -692,7 +692,8 @@ static int __init watchdog_init(int sioaddr)
+ 	watchdog.sioaddr = sioaddr;
+ 	watchdog.ident.options = WDIOC_SETTIMEOUT
+ 				| WDIOF_MAGICCLOSE
+-				| WDIOF_KEEPALIVEPING;
++				| WDIOF_KEEPALIVEPING
++				| WDIOF_CARDRESET;
+ 
+ 	snprintf(watchdog.ident.identity,
+ 		sizeof(watchdog.ident.identity), "%s watchdog",
+-- 
+2.27.0
 
-Thanks,
-Guenter
