@@ -1,97 +1,78 @@
-Return-Path: <SRS0=w7mh=7Y=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=gRxM=7Z=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A33AC433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 19:18:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAEECC433E0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 12 Jun 2020 04:57:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D99B207ED
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 Jun 2020 19:18:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B809C20792
+	for <linux-watchdog@archiver.kernel.org>; Fri, 12 Jun 2020 04:57:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726679AbgFKTSd (ORCPT
+        id S1725845AbgFLE5v (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 Jun 2020 15:18:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbgFKTR5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 Jun 2020 15:17:57 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72095C08C5C1
-        for <linux-watchdog@vger.kernel.org>; Thu, 11 Jun 2020 12:17:57 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1jjSi2-0002JP-BA; Thu, 11 Jun 2020 21:17:54 +0200
-Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1jjSi1-0000yi-MR; Thu, 11 Jun 2020 21:17:53 +0200
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Giel van Schijndel <me@mortis.eu>
-Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org,
+        Fri, 12 Jun 2020 00:57:51 -0400
+Received: from mga12.intel.com ([192.55.52.136]:35371 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725809AbgFLE5v (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 12 Jun 2020 00:57:51 -0400
+IronPort-SDR: yY9qTUk9I7dv2FyZmPQKXRsTsDbhw+pJrRA2mhMwqqYwd/NWe3ioKlYdczmc37woBz4yvI1NBI
+ Mu29UAgjY2iw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jun 2020 21:57:51 -0700
+IronPort-SDR: TVAOPOCmSU5HUuOXXiG2CyzlC6NPXkd8H84dQXR3DyQfwZrnRpalFqiat+jxNFcVDqhzh8jw21
+ TdWDnbch88Vg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,501,1583222400"; 
+   d="scan'208";a="474076399"
+Received: from lkp-server01.sh.intel.com (HELO b6eec31c25be) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 11 Jun 2020 21:57:49 -0700
+Received: from kbuild by b6eec31c25be with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1jjblE-0000Vu-EN; Fri, 12 Jun 2020 04:57:48 +0000
+Date:   Fri, 12 Jun 2020 12:57:21 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     kbuild-all@lists.01.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, Ahmad Fatoum <a.fatoum@pengutronix.de>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v1 3/8] watchdog: f71808e_wdt: remove use of wrong watchdog_info option
-Date:   Thu, 11 Jun 2020 21:17:44 +0200
-Message-Id: <20200611191750.28096-4-a.fatoum@pengutronix.de>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200611191750.28096-1-a.fatoum@pengutronix.de>
-References: <20200611191750.28096-1-a.fatoum@pengutronix.de>
+Subject: [RFC PATCH] watchdog: f71808e_wdt: fintek_variants[] can be static
+Message-ID: <20200612045721.GA41703@e3d72cc7cdb3>
+References: <20200611191750.28096-9-a.fatoum@pengutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: afa@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200611191750.28096-9-a.fatoum@pengutronix.de>
+X-Patchwork-Hint: ignore
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The flags that should be or-ed into the watchdog_info.options by drivers
-all start with WDIOF_, e.g. WDIOF_SETTIMEOUT, which indicates that the
-driver's watchdog_ops has a usable set_timeout.
 
-WDIOC_SETTIMEOUT was used instead, which expands to 0xc0045706, which
-equals:
-
-   WDIOF_FANFAULT | WDIOF_EXTERN1 | WDIOF_PRETIMEOUT | WDIOF_ALARMONLY |
-   WDIOF_MAGICCLOSE | 0xc0045000
-
-These were so far indicated to userspace on WDIOC_GETSUPPORT.
-As the driver has not yet been migrated to the new watchdog kernel API,
-the constant can just be dropped without substitute.
-
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for
-       Fintek F71808E and F71882FG")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: kernel test robot <lkp@intel.com>
 ---
- drivers/watchdog/f71808e_wdt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ f71808e_wdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index c8ce80c13403..8e5584c54423 100644
+index c866d05e8788b..849620041c0ef 100644
 --- a/drivers/watchdog/f71808e_wdt.c
 +++ b/drivers/watchdog/f71808e_wdt.c
-@@ -690,8 +690,7 @@ static int __init watchdog_init(int sioaddr)
- 	 * into the module have been registered yet.
- 	 */
- 	watchdog.sioaddr = sioaddr;
--	watchdog.ident.options = WDIOC_SETTIMEOUT
--				| WDIOF_MAGICCLOSE
-+	watchdog.ident.options = WDIOF_MAGICCLOSE
- 				| WDIOF_KEEPALIVEPING
- 				| WDIOF_CARDRESET;
+@@ -484,7 +484,7 @@ static void f81866_pinconf(struct fintek_wdog_data *wd)
+ 	superio_clear_bit(wd->sioaddr, SIO_F81866_REG_GPIO1, 5);
+ }
  
--- 
-2.27.0
-
+-struct fintek_variant fintek_variants[] = {
++static struct fintek_variant fintek_variants[] = {
+ 	{ SIO_F71808_ID,  "f71808fg", f71808fg_pinconf },
+ 	{ SIO_F71862_ID,  "f71862fg", f71862fg_pinconf },
+ 	{ SIO_F71868_ID,  "f71868",   f71868_pinconf },
