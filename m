@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 006A2C433DF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jun 2020 02:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE679C433DF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jun 2020 02:37:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C96F420853
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jun 2020 02:16:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A363B21D82
+	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Jun 2020 02:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592446566;
-	bh=H567rIveBQagBeIyCQT4uZJ6nC8iGaFQT5iuc7GH3jU=;
+	s=default; t=1592447827;
+	bh=BpY0I3vmf68N8BpdZoJscmHBHcofX93f8rmbrcIsk90=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=VJFcQA+BpYqEQ6RGRaXWn5kNZBHpx+Ysz8JnZ4b6hPtm3aCdZoEL7fBJp07BsbuAa
-	 ujBNGiiXFALo5hx+F1Z2zW21loma//c6R3lX5iQdgkC8qPnftASHBf3f1fV3oVtLI+
-	 82346vn7PLDn0W2Kk5oBcKPGK0qPkHA7OKhemyG4=
+	b=tjX1FWs+b8M4aavmu6vSy1Rd+/SrP7qbr0P3gjJ7GpO55Vv9QEyXcWpm1oiXqONaC
+	 Ud4iim0SzEBzRm15lsjVc2tWBNv1dFzBvrvxUoQKGDYbyPxapda1/+LKGBPz3nm2vo
+	 4nzYZnj1RudFyJ7ZcfgD08g9+2bOEi5R21k+HGlI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731073AbgFRCQF (ORCPT
+        id S1733023AbgFRChG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 17 Jun 2020 22:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52538 "EHLO mail.kernel.org"
+        Wed, 17 Jun 2020 22:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730298AbgFRBUX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:23 -0400
+        id S1727806AbgFRBNs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB57620663;
-        Thu, 18 Jun 2020 01:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17F40221EB;
+        Thu, 18 Jun 2020 01:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443222;
-        bh=H567rIveBQagBeIyCQT4uZJ6nC8iGaFQT5iuc7GH3jU=;
+        s=default; t=1592442827;
+        bh=BpY0I3vmf68N8BpdZoJscmHBHcofX93f8rmbrcIsk90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bgu7DCubv2KG0ZuA1MKNueFPurf1cfXwc7EOtE7RQWp3G/Q3E/Nq5jFV2zaBqhz0x
-         y7wz3mCa2x3B5lYX6/jBJQKKPOJE96sqbWPtdIJluRXMOSz/U/l5pMj++MUf+Ahtcv
-         qCftXpK7fnZPQArPrp8EPWRUiBxy6QiV7YoRnJZM=
+        b=cCT/KymKr1zMZ0rs9WBngXGSx6Xr2MJ+NDr6RNydc9bptaQOmn7esr2NNnBpaBHIv
+         uz84+c0XGErHQp48quRp5etmqYb7ZqHfbrD2RNtZanv/3B/1BQ1VyB8ZZLsSFqJp7e
+         JPGnOz6GhzaeSC8wS8WhXHbaicIwykSRHEvSbe4c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Riedmueller <s.riedmueller@phytec.de>,
@@ -46,12 +46,12 @@ Cc:     Stefan Riedmueller <s.riedmueller@phytec.de>,
         Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 177/266] watchdog: da9062: No need to ping manually before setting timeout
-Date:   Wed, 17 Jun 2020 21:15:02 -0400
-Message-Id: <20200618011631.604574-177-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 263/388] watchdog: da9062: No need to ping manually before setting timeout
+Date:   Wed, 17 Jun 2020 21:06:00 -0400
+Message-Id: <20200618010805.600873-263-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -87,10 +87,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 deletions(-)
 
 diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index e92f38fcb7a4..1b9bcfed39e9 100644
+index 0ad15d55071c..18dec438d518 100644
 --- a/drivers/watchdog/da9062_wdt.c
 +++ b/drivers/watchdog/da9062_wdt.c
-@@ -55,11 +55,6 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
+@@ -58,11 +58,6 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
  					      unsigned int regval)
  {
  	struct da9062 *chip = wdt->hw;
