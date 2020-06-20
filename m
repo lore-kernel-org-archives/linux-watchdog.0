@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8648FC433E2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13449C433E1
 	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64FFA20748
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E17E820748
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qSACYR+C"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BJ9R24HY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbgFTRuR (ORCPT
+        id S1728367AbgFTRuQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 20 Jun 2020 13:50:17 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:33775 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728372AbgFTRuQ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 20 Jun 2020 13:50:16 -0400
-Received: by mail-ot1-f65.google.com with SMTP id n6so9854247otl.0
-        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:16 -0700 (PDT)
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:44499 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728369AbgFTRuP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 20 Jun 2020 13:50:15 -0400
+Received: by mail-ot1-f68.google.com with SMTP id e5so9799418ote.11
+        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=SWYmfUtHykqWtLMjWsep9JBV05ID8OlIgVmIpTjPzI0=;
-        b=qSACYR+CCd4djpUUzbXBt5BvEXJ7nYsrxsyHvC3qBos6Hu5RI4hOV0sKmuHZbkZLrH
-         emMEfConKXNdYYJaYPjwzCHXNYvOf5v19lIlX5rMfsn65fIyTWjykX5jtyiKz4IZpVE6
-         6pPC3DDqzkN2EKFeSKrApUYL396LnhgZFfiT8U5q25TWG3Ku3nd0VpLKsEQarpbwBkVZ
-         ctTxsy8UTBARr/E/h4GutM5Re6VeHmZTdBDkFOdXv7sq1KnCoo8cFiIV5kP/HoqA7mJT
-         jBvahanfBhpTsijEBi0tfucPvyTW0lqd2Pupz74ACffhTY7w004IouMcP0ABs2v4Pese
-         gDIw==
+        bh=EZ87HAZTDdt3n3C9oeFellNh4inXOqJx8U+6lc7QfOQ=;
+        b=BJ9R24HYViAnp9paCk61vLoCVDVB8wq0MhANRXPpjyagKgMeyOyq+kOqbgnhnGPLfF
+         IFGHEOUfCDi5T01Jd/7XBrryrvLDR/DpoGZDGQFracj325e0pR430X1rGk+ZhBrldL4Z
+         b/dc3JxPntgtg3/XScTCOCsvEE6vtyH7O6f3QbB/Lf2MNNcFopteSvXmOI9+JTh1LbAi
+         8CVw0ufqVx97lrrR13PMcEW1Z4Tbw1W0C+KfnDn0IU1kNCKAi3lw0PBDEiyxyLeIfdlv
+         gzh+yQscCs9H0JNeqDTOogCvewIuOTtE32J4GLpOQxKgl5xsgHuG6ROZ2NJR5MK2fu0h
+         gNTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=SWYmfUtHykqWtLMjWsep9JBV05ID8OlIgVmIpTjPzI0=;
-        b=fe6OR+mkqle88erRDNDRTRt6H2NDk0FU46k1OELxhzF61Jg8gnDDRbkaLKnrT2LAy2
-         API8o9v4MPwXVtpaotl243H5hI2f0jIyFT6cZJOHFvIkMGN4e/gh9+R8OH9sXOUHCwv9
-         C2Sc15dXeMTu07iklRWOHOzBpDnLjO6MhDDv14OWLoBK0/JY9AuwdMAm/JjmByQycCpi
-         j7sKeQ9xpfx/wqtlfy4fTrplAfybk8429Asfd6p4XsosgrybwaioGaTD7HBhqKg+29M+
-         uNBbuW/HIxeOiZ//oohUt8pHf8EyghZc0w2jvsfzPGHHcuxxKiUqQCXrChV4imXAFRN3
-         mrlg==
-X-Gm-Message-State: AOAM532cbfmTXkqDvKzollhbfBn1Q6FWoIaT2qnIN5l/KXwOWthzNCdb
-        ITdBLTYLyjMHyb7RWX0Qsg==
-X-Google-Smtp-Source: ABdhPJwy//OZpAhAynJvnNSeHpa7pc9E2jSnN9nE30InvUJWsMKodWorrnm4UNYgNyLjsKTIvbUXRQ==
-X-Received: by 2002:a9d:12f7:: with SMTP id g110mr8028643otg.79.1592675355520;
-        Sat, 20 Jun 2020 10:49:15 -0700 (PDT)
+        bh=EZ87HAZTDdt3n3C9oeFellNh4inXOqJx8U+6lc7QfOQ=;
+        b=IIj2ZrH3lHvEwXtvxHuXT6mcC/jJOnHHxC8WCv05TokEjj+ZiP5BnCfP4fdmVoWn3N
+         ztmJZnFUMT+B3vNTY6eU6HYRRBQnjTv59kTfzj33fUYSMpjkFIVkyfBZs3/LweyFRux1
+         BdHDWdbPTIFeYT1F1lPav3JVehJIQvfDYEOC5/y5dweE/mXeKpWoVBtjHa5FprpJWxVt
+         HMEqphReWPSSRxvKBdspy3ICEkysW0mMiwDVv1AwzlDUMJBLXFVc9WBddAFuBpXbMX8f
+         Oow8mHIu0yCa/0dG94Y9ruWakxKngnO3RLpK4dzITl0mgHVk4QbqBxM88HuriXoLfr2U
+         FAUw==
+X-Gm-Message-State: AOAM5325bJHIZGgwGoshXemQfeC0wIQs/4L/ur4pMvCmaBhpNG3oiLea
+        xIPK3OhRPfHlY2tlbNmsTQ==
+X-Google-Smtp-Source: ABdhPJw0CbCwMoZvhYI7R6/GLLKwFKpofJQjrF6y4vveqT5NWORBZU3VlHElFB2pRSsN9CvcQOQYUA==
+X-Received: by 2002:a9d:f07:: with SMTP id 7mr7610999ott.46.1592675353682;
+        Sat, 20 Jun 2020 10:49:13 -0700 (PDT)
 Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id f187sm1994651oig.12.2020.06.20.10.49.13
+        by smtp.gmail.com with ESMTPSA id u80sm2003711oia.5.2020.06.20.10.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Jun 2020 10:49:14 -0700 (PDT)
+        Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:98f8:1e34:b5b7:82f7])
-        by serve.minyard.net (Postfix) with ESMTPA id A802D18055F;
+        by serve.minyard.net (Postfix) with ESMTPA id 7329B180171;
         Sat, 20 Jun 2020 17:49:11 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 05/10] watchdog: Export an interface to start the watchdog
-Date:   Sat, 20 Jun 2020 12:49:02 -0500
-Message-Id: <20200620174907.20229-6-minyard@acm.org>
+Subject: [PATCH 01/10] watchdog: Ignore stop_on_reboot if no stop function
+Date:   Sat, 20 Jun 2020 12:48:58 -0500
+Message-Id: <20200620174907.20229-2-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200620174907.20229-1-minyard@acm.org>
 References: <20200620174907.20229-1-minyard@acm.org>
@@ -75,97 +75,40 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-This way a watchdog driver can start itself.
+The reboot notifier unconditionally calls the stop function on the
+watchdog, which would result in a crash if the watchdog didn't have a
+stop function.  So check at register time to see if there is a stop
+function, and don't do stop_on_reboot if it is NULL.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/watchdog_dev.c | 30 ++++++++++++++++++++++++++----
- include/linux/watchdog.h        |  3 +++
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ drivers/watchdog/watchdog_core.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6c423aed3f3c..752358df1606 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -253,7 +253,7 @@ static enum hrtimer_restart watchdog_timer_expired(struct hrtimer *timer)
- }
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 423844757812..03943a34e9fb 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -260,10 +260,16 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
  
- /*
-- *	watchdog_start: wrapper to start the watchdog.
-+ *	_watchdog_start: wrapper to start the watchdog.
-  *	@wdd: the watchdog device to start
-  *
-  *	The caller must hold wd_data->lock.
-@@ -263,7 +263,7 @@ static enum hrtimer_restart watchdog_timer_expired(struct hrtimer *timer)
-  *	failure.
-  */
- 
--static int watchdog_start(struct watchdog_device *wdd)
-+static int _watchdog_start(struct watchdog_device *wdd)
- {
- 	struct watchdog_core_data *wd_data = wdd->wd_data;
- 	ktime_t started_at;
-@@ -289,6 +289,28 @@ static int watchdog_start(struct watchdog_device *wdd)
- 	return err;
- }
- 
-+/*
-+ *	watchdog_start: External interface to start the watchdog.
-+ *	@wdd: the watchdog device to start
-+ *
-+ *	Start the watchdog if it is not active and mark it active.
-+ *	This function returns zero on success or a negative errno code for
-+ *	failure.
-+ */
-+
-+int watchdog_start(struct watchdog_device *wdd)
-+{
-+	struct watchdog_core_data *wd_data = wdd->wd_data;
-+	int err;
-+
-+	mutex_lock(&wd_data->lock);
-+	err = _watchdog_start(wdd);
-+	mutex_unlock(&wd_data->lock);
-+
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(watchdog_start);
-+
- /*
-  *	watchdog_stop: wrapper to stop the watchdog.
-  *	@wdd: the watchdog device to stop
-@@ -837,7 +859,7 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 				break;
- 		}
- 		if (val & WDIOS_ENABLECARD)
--			err = watchdog_start(wdd);
-+			err = _watchdog_start(wdd);
- 		break;
- 	case WDIOC_KEEPALIVE:
- 		if (!(wdd->info->options & WDIOF_KEEPALIVEPING)) {
-@@ -935,7 +957,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 		goto out_clear;
+ 	/* Module parameter to force watchdog policy on reboot. */
+ 	if (stop_on_reboot != -1) {
+-		if (stop_on_reboot)
+-			set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
+-		else
++		if (stop_on_reboot) {
++			if (!wdd->ops->stop) {
++				pr_err("watchdog%d: stop_on_reboot set, but no stop function.  Ignoring stop_on_reboot.\n", wdd->id);
++				clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
++			} else {
++				set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
++			}
++		} else {
+ 			clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
++		}
  	}
  
--	err = watchdog_start(wdd);
-+	err = _watchdog_start(wdd);
- 	if (err < 0)
- 		goto out_mod;
- 
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 95396b644a9b..1eefae61215d 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -205,6 +205,9 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
- int watchdog_set_timeout(struct watchdog_device *wdd, unsigned int timeout);
- int watchdog_set_pretimeout(struct watchdog_device *wdd, unsigned int timeout);
- 
-+/* Allow the driver to start the watchdog. */
-+int watchdog_start(struct watchdog_device *wdd);
-+
- /* Use the following functions to report watchdog pretimeout event */
- #if IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_GOV)
- void watchdog_notify_pretimeout(struct watchdog_device *wdd);
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
 -- 
 2.17.1
 
