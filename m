@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13449C433E1
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D7A5C433DF
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E17E820748
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D865208D5
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BJ9R24HY"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="coOuX6Xc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728367AbgFTRuQ (ORCPT
+        id S1728380AbgFTRuR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 20 Jun 2020 13:50:16 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:44499 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728369AbgFTRuP (ORCPT
+        Sat, 20 Jun 2020 13:50:17 -0400
+Received: from mail-oo1-f66.google.com ([209.85.161.66]:41590 "EHLO
+        mail-oo1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728374AbgFTRuR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Jun 2020 13:50:15 -0400
-Received: by mail-ot1-f68.google.com with SMTP id e5so9799418ote.11
-        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:14 -0700 (PDT)
+        Sat, 20 Jun 2020 13:50:17 -0400
+Received: by mail-oo1-f66.google.com with SMTP id y45so2544499ooi.8
+        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=EZ87HAZTDdt3n3C9oeFellNh4inXOqJx8U+6lc7QfOQ=;
-        b=BJ9R24HYViAnp9paCk61vLoCVDVB8wq0MhANRXPpjyagKgMeyOyq+kOqbgnhnGPLfF
-         IFGHEOUfCDi5T01Jd/7XBrryrvLDR/DpoGZDGQFracj325e0pR430X1rGk+ZhBrldL4Z
-         b/dc3JxPntgtg3/XScTCOCsvEE6vtyH7O6f3QbB/Lf2MNNcFopteSvXmOI9+JTh1LbAi
-         8CVw0ufqVx97lrrR13PMcEW1Z4Tbw1W0C+KfnDn0IU1kNCKAi3lw0PBDEiyxyLeIfdlv
-         gzh+yQscCs9H0JNeqDTOogCvewIuOTtE32J4GLpOQxKgl5xsgHuG6ROZ2NJR5MK2fu0h
-         gNTw==
+        bh=OncGKKbA6gT/96giqWKN/U+R9TK/ALHmSmRLVCnXkPQ=;
+        b=coOuX6XcUTWgRZU300y5NFlNKGVruiqWyAf8Y4qmFdkl4laHxwHPMEazbQYnJ1bXfH
+         gLwxYilUECU6f+NfwBfetReR2dO+DcKUuW5jVhgshw5E1pEI1VA371GYwmcbehL+BLPE
+         98ugSb2yptFU0b1IpWiHH9YKQcDPxq+41qXmOXpAzHga5RbsZsHKxgZVXstanxK5WV26
+         j3Hpt2mQdsvQzaAyWRFuMj7nGv2ymhM5eXiPajx97i2CJIbO1BlkHWCMKJ8PEaU26DQ1
+         Lq506g2mOw5yYLcYf+AXRGcs7NMCT0unvswehrRdrpeGNY+teV61B4fWNMnOOPTHIci9
+         9z9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=EZ87HAZTDdt3n3C9oeFellNh4inXOqJx8U+6lc7QfOQ=;
-        b=IIj2ZrH3lHvEwXtvxHuXT6mcC/jJOnHHxC8WCv05TokEjj+ZiP5BnCfP4fdmVoWn3N
-         ztmJZnFUMT+B3vNTY6eU6HYRRBQnjTv59kTfzj33fUYSMpjkFIVkyfBZs3/LweyFRux1
-         BdHDWdbPTIFeYT1F1lPav3JVehJIQvfDYEOC5/y5dweE/mXeKpWoVBtjHa5FprpJWxVt
-         HMEqphReWPSSRxvKBdspy3ICEkysW0mMiwDVv1AwzlDUMJBLXFVc9WBddAFuBpXbMX8f
-         Oow8mHIu0yCa/0dG94Y9ruWakxKngnO3RLpK4dzITl0mgHVk4QbqBxM88HuriXoLfr2U
-         FAUw==
-X-Gm-Message-State: AOAM5325bJHIZGgwGoshXemQfeC0wIQs/4L/ur4pMvCmaBhpNG3oiLea
-        xIPK3OhRPfHlY2tlbNmsTQ==
-X-Google-Smtp-Source: ABdhPJw0CbCwMoZvhYI7R6/GLLKwFKpofJQjrF6y4vveqT5NWORBZU3VlHElFB2pRSsN9CvcQOQYUA==
-X-Received: by 2002:a9d:f07:: with SMTP id 7mr7610999ott.46.1592675353682;
-        Sat, 20 Jun 2020 10:49:13 -0700 (PDT)
-Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id u80sm2003711oia.5.2020.06.20.10.49.12
+        bh=OncGKKbA6gT/96giqWKN/U+R9TK/ALHmSmRLVCnXkPQ=;
+        b=peMKIxPo53A442X/bS81NgiqAQ6YfvsVH6DjUclssFydzZexrHTBN16z5pC1O6zNrO
+         skaP6R+7h5psccnBtwMvPxGvppY6TLHfW3bN6fEn5L4AjGSarJnsSTC2uqGVr+eUdyzc
+         ZxjK0XRSOQIyqxHseSkUyic8/P7Ge0kEvHoNjqvVG2T//JL/tyqSyRtBKMSIH7k+fp7S
+         z+a2EbqfdY7k/A4jCDRh3nJBSQQx2E7LeE2zR4KiewFcsU1qtDuf+Feh0USy4RilUhhZ
+         tfCYduOucYErkrpiYRO3kClwga6cjMwM6po+qqgbdbc+Tyl/hxqsENMiCqSN6HqK87+v
+         DPow==
+X-Gm-Message-State: AOAM531vckvHQGZIA61hyrrmTqJIWvkB20YnySsLh+94VbVue4kYezle
+        Skgvr2VPcs+tBsqZes68y5lSnd8=
+X-Google-Smtp-Source: ABdhPJxRws+qAhJg9fLrzbvfEra/lWdn7HzVVl8glAC9Z8cWuGzalmAKnpo6z2OOnfAL5PQJgaiQCQ==
+X-Received: by 2002:a4a:e58a:: with SMTP id o10mr8185528oov.21.1592675355972;
+        Sat, 20 Jun 2020 10:49:15 -0700 (PDT)
+Received: from serve.minyard.net ([47.184.146.204])
+        by smtp.gmail.com with ESMTPSA id e68sm2060840ote.56.2020.06.20.10.49.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
+        Sat, 20 Jun 2020 10:49:14 -0700 (PDT)
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:98f8:1e34:b5b7:82f7])
-        by serve.minyard.net (Postfix) with ESMTPA id 7329B180171;
+        by serve.minyard.net (Postfix) with ESMTPA id DFFB9180563;
         Sat, 20 Jun 2020 17:49:11 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 01/10] watchdog: Ignore stop_on_reboot if no stop function
-Date:   Sat, 20 Jun 2020 12:48:58 -0500
-Message-Id: <20200620174907.20229-2-minyard@acm.org>
+Subject: [PATCH 07/10] ipmi:watchdog: Allow the reboot timeout to be specified
+Date:   Sat, 20 Jun 2020 12:49:04 -0500
+Message-Id: <20200620174907.20229-8-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200620174907.20229-1-minyard@acm.org>
 References: <20200620174907.20229-1-minyard@acm.org>
@@ -75,40 +75,48 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-The reboot notifier unconditionally calls the stop function on the
-watchdog, which would result in a crash if the watchdog didn't have a
-stop function.  So check at register time to see if there is a stop
-function, and don't do stop_on_reboot if it is NULL.
+It was fixed at 120, allow that to be changed.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/watchdog_core.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/char/ipmi/ipmi_watchdog.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 423844757812..03943a34e9fb 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -260,10 +260,16 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
+index 9265a5145691..6e0c9faa6e6a 100644
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -140,6 +140,9 @@ static int pretimeout;
+ /* Default timeout to set on panic */
+ static int panic_wdt_timeout = 255;
  
- 	/* Module parameter to force watchdog policy on reboot. */
- 	if (stop_on_reboot != -1) {
--		if (stop_on_reboot)
--			set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
--		else
-+		if (stop_on_reboot) {
-+			if (!wdd->ops->stop) {
-+				pr_err("watchdog%d: stop_on_reboot set, but no stop function.  Ignoring stop_on_reboot.\n", wdd->id);
-+				clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-+			} else {
-+				set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-+			}
-+		} else {
- 			clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-+		}
- 	}
++/* Default timeout to set on reboot */
++static int reboot_wdt_timeout = 120;
++
+ /* Default action is to reset the board on a timeout. */
+ static unsigned char action_val = WDOG_TIMEOUT_RESET;
  
- 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+@@ -318,6 +321,9 @@ MODULE_PARM_DESC(pretimeout, "Pretimeout value in seconds.");
+ module_param(panic_wdt_timeout, timeout, 0644);
+ MODULE_PARM_DESC(panic_wdt_timeout, "Timeout value on kernel panic in seconds.");
+ 
++module_param(reboot_wdt_timeout, timeout, 0644);
++MODULE_PARM_DESC(reboot_wdt_timeout, "Timeout value on a reboot in seconds.");
++
+ module_param_cb(action, &param_ops_str, action_op, 0644);
+ MODULE_PARM_DESC(action, "Timeout action. One of: "
+ 		 "reset, none, power_cycle, power_off.");
+@@ -1077,8 +1083,8 @@ static int wdog_reboot_handler(struct notifier_block *this,
+ 			/* Set a long timer to let the reboot happen or
+ 			   reset if it hangs, but only if the watchdog
+ 			   timer was already running. */
+-			if (timeout < 120)
+-				timeout = 120;
++			if (timeout < reboot_wdt_timeout)
++				timeout = reboot_wdt_timeout;
+ 			pretimeout = 0;
+ 			ipmi_watchdog_state = WDOG_TIMEOUT_RESET;
+ 			ipmi_set_timeout(&ipmi_wdd, IPMI_SET_TIMEOUT_NO_HB);
 -- 
 2.17.1
 
