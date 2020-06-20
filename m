@@ -2,116 +2,103 @@ Return-Path: <SRS0=xemf=AB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8909BC433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6D96C433E0
 	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A7A020748
+	by mail.kernel.org (Postfix) with ESMTP id 97FAF20748
 	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ir642A0E"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TsXWy34d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728373AbgFTRuQ (ORCPT
+        id S1726838AbgFTRuQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sat, 20 Jun 2020 13:50:16 -0400
-Received: from mail-oo1-f68.google.com ([209.85.161.68]:41591 "EHLO
-        mail-oo1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726838AbgFTRuP (ORCPT
+Received: from mail-ot1-f50.google.com ([209.85.210.50]:41005 "EHLO
+        mail-ot1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728367AbgFTRuP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 20 Jun 2020 13:50:15 -0400
-Received: by mail-oo1-f68.google.com with SMTP id y45so2544493ooi.8
-        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:14 -0700 (PDT)
+Received: by mail-ot1-f50.google.com with SMTP id k15so9816965otp.8
+        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=hwmTKRiVDQp3i0F664avLOH0/PSbmun7vBCp1GPCqU8=;
-        b=Ir642A0EhJl1T4mxMHJTiHyYvQD6DaAZgK8gzZTXuS1H0Fj2tcwx1x5bEu3PLdea/F
-         MhNSpygY8j7kKwzFl+3l5dnT/GAMxA1PJB4fi2uzbuqQVKk7FRQXdQCY6wbl37Zg5o//
-         PbXEha8Lh0vW6a4cly7MnT5fvTVoIgapS+iv5gq/4603zi9GIHTxuuMRczcIygTNcVl8
-         dycoJi1fjznjfIy4VPipPk4LMpPF4shE6/G8kilh0z0+AaHskAsJI+4bZV5vd0nmqepu
-         S1q+0T/rVbHZRXpFYn0Hbre2b+Ft/tL5/ZCx3uwdQCy37NhrvnD+7ZoKIhG+K7g93M5K
-         AhPg==
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=p7tXk/16xSvAY1JeZSZLzNT9FZfossOewJefr2dZ/i4=;
+        b=TsXWy34d0bo+YQ65daZakcpZb4yk1+l0iVjqcWNdGH/h86/Na3ZewYTilgTV0wf9EK
+         IKJDCwdEeoMMBkOdpmmza9yMpuEz1qNFCLj3nWt6iftUmvqoiFiOMpay7pFPOlqoYPGb
+         ludcy75RvehQJ+Ea4IM1upVnG6zHriwF9s73GQO8EDEK+0en/WP1HqIFsFoClwZy4W1E
+         FiTbYLpPXx9gdFF77fYVen42eb9kAdvhdGMzD9vzu6ea1YV+dhXKLz+SCg7zMCx2oTdM
+         vnCoGxeYZLwUo6Z4iynz0FTLNptqLaxm3Hqmm/aKwNMnW3aaGvXoQLd/TZ/tiPDkI1Ik
+         3sZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=hwmTKRiVDQp3i0F664avLOH0/PSbmun7vBCp1GPCqU8=;
-        b=godrH3Y0XfideqbTLBIbBMRPPSQ6GxZdWHe5/aN9JA5ttEKufgarmoE3AC8xq/d31U
-         uj9g5OO3evsCjoRnziL4CxUCLfsmmeAeo/q50X+IsRTBjqjJM9gk0Lp3bjXfoiwwaRnw
-         RaiW2Q+X+YXCRJd4Lx6G+MMt2zcCgMBXf9LIqPevZd1OSVZ/5j2YNZ/cvl1W6qBLvGQQ
-         phWdMwLKG3H9BGfofkZOKxFflQXW2f9E/6GT8g3fwd7ZEBLI8CQebN+Eu+PuywjEBWGQ
-         pXkLviQbPaE2Sgxg5NNeSDLyuHLLB97yTXkInotg0wiCARuCiH/IRUA89VWakYLAmTeW
-         i0rQ==
-X-Gm-Message-State: AOAM530LwRN1fca03Q0sQ9pEgLtZd7jbgGe6QtXUMNGmOrsogfQv1X1h
-        DuFPuTRfp07+RD2HbyEInA==
-X-Google-Smtp-Source: ABdhPJzgvrnY+EsE/UEhh5DsOBXEomwtFkO1eVfeiJKGREQFg8uh2Hnn/eRuux2hlr9/ZmMqaSURgw==
-X-Received: by 2002:a4a:9c44:: with SMTP id c4mr8271551ook.46.1592675354396;
-        Sat, 20 Jun 2020 10:49:14 -0700 (PDT)
-Received: from serve.minyard.net ([47.184.146.204])
-        by smtp.gmail.com with ESMTPSA id g126sm1994804oia.41.2020.06.20.10.49.12
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=p7tXk/16xSvAY1JeZSZLzNT9FZfossOewJefr2dZ/i4=;
+        b=ZPj2hf/iIuxFq/WsudrcQaGKU8PKG1CZpAe+51b8B2kwtuWGnl5bZFgB5vzwVLAXvY
+         r+pSZGDyA0XTipV7QQYyVxEAN85LDgF8nxQyh8VmyVVz+yuEN1UTiW41CCu3bCqmcdRR
+         JPfFP8Mw62KZpXJCk6nbyKYbbq7A2/6+dy4atjYB5/c3J01fUk7v2VrQrvyjIRJaVFqx
+         Deg8uYz9Wany909MwIgh+nyPKVcTF5zjx7qd+XXA+E9eGLITolKIYzR8NMz01PA5jfAE
+         48pyD0pIUNt3TVzECNO+eoiYOxiur842VKUoHCcPCk6Vs5hK14jrfoT1/SCSl3pNpYru
+         UGjw==
+X-Gm-Message-State: AOAM533OMemPbLyZX2Rf7RNPmmqs43EKWAy5//zAoDrsg0KEQ401Hi1b
+        YJ26ViqsLyTSSdLmB48scA==
+X-Google-Smtp-Source: ABdhPJyKHCzGVlB7wTpxFDlBuV7snwQJm8wq95DM0OVm4r+AGx06PVSho0KA5Xm0m+sa0wk8rpC6bQ==
+X-Received: by 2002:a05:6830:18f1:: with SMTP id d17mr7692837otf.51.1592675353295;
+        Sat, 20 Jun 2020 10:49:13 -0700 (PDT)
+Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
+        by smtp.gmail.com with ESMTPSA id j2sm1248746ooq.30.2020.06.20.10.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:98f8:1e34:b5b7:82f7])
-        by serve.minyard.net (Postfix) with ESMTPA id 9296118054B;
+        by serve.minyard.net (Postfix) with ESMTPA id 46DF3180050;
         Sat, 20 Jun 2020 17:49:11 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 03/10] watchdog: Add documentation for read capability
-Date:   Sat, 20 Jun 2020 12:49:00 -0500
-Message-Id: <20200620174907.20229-4-minyard@acm.org>
+Cc:     linux-watchdog@vger.kernel.org
+Subject: [PATCH 00/10] Convert the IPMI watchdog to use the watchdog
+Date:   Sat, 20 Jun 2020 12:48:57 -0500
+Message-Id: <20200620174907.20229-1-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200620174907.20229-1-minyard@acm.org>
-References: <20200620174907.20229-1-minyard@acm.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+This has been discussed before, and I've been working on it.  I think
+this is the minimum that can be done to keep the IPMI watchdog
+functionality exactly the same and use the watchdog subsystem.
 
-Document the read, poll, and async operations.
+The first patch is something that I thought might be a bug, and is not
+directly related to the changes.
 
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
----
- Documentation/watchdog/watchdog-kernel-api.rst | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+The IPMI watchdog has the following capabilities that need extensions to
+the watchdog subsystem:
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.rst b/Documentation/watchdog/watchdog-kernel-api.rst
-index 068a55ee0d4a..aa15a2d35397 100644
---- a/Documentation/watchdog/watchdog-kernel-api.rst
-+++ b/Documentation/watchdog/watchdog-kernel-api.rst
-@@ -132,6 +132,10 @@ The list of watchdog operations is defined as::
- 	unsigned int (*get_timeleft)(struct watchdog_device *);
- 	int (*restart)(struct watchdog_device *);
- 	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
-+	ssize_t (*read)(struct watchdog_device *, struct file *, char __user *,
-+			size_t, loff_t *);
-+	__poll_t (*poll)(struct watchdog_device *, struct file *, poll_table *);
-+	int (*fasync)(struct watchdog_device *, int, struct file *, int);
-   };
- 
- It is important that you first define the module owner of the watchdog timer
-@@ -235,6 +239,14 @@ they are supported. These optional routines/operations are:
-   our own internal ioctl call handling. This routine should return -ENOIOCTLCMD
-   if a command is not supported. The parameters that are passed to the ioctl
-   call are: watchdog_device, cmd and arg.
-+* read: If a read call comes in on the watchdog device, call this function.
-+  This allows a watchdog to provide data to the user.
-+* poll: If a poll call comes in on the watchdog device, call this.  This
-+  allows the user to do select/poll waiting on the device to have read data
-+  ready.
-+* fasync: If a fasync call comes in on the watchdog, call this.  This
-+  allows the user to do async operations waiting for read data from
-+  the device.
- 
- The status bits should (preferably) be set with the set_bit and clear_bit alike
- bit-operations. The status bits that are defined are:
--- 
-2.17.1
+* The ability to provide read data on the device when a pretimeout
+  occurs.
+* The ability to dynamically set the timeout and pretimeout with module
+  parameters.
+* The ability to start the watchdog as soon as the driver starts.
+
+I have no idea if anyone is using the capabilities, but they are there,
+unfortunately.
+
+A patch later in the series adds the ability to modify the watchdog time
+on a reboot.  This was specifically requested in the past, so I know it
+was at least used in the past.  The IPMI watchdog driver can do this
+itself, but it's simple to add to the watchdog framework and gets rid of
+some redundant code.
+
+This leaves the driver code in the ipmi directory.  After these changes
+it could be moved, but it doesn't matter much to me.
+
+Thanks,
+
+-corey
+
 
