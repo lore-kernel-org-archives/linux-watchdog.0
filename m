@@ -7,56 +7,56 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FFA6C433E1
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E558C433E4
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 68C882405E
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68CBC2405C
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DTmFYFHf"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gEb7CAlA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728357AbgFTRfG (ORCPT
+        id S1728355AbgFTRfH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 20 Jun 2020 13:35:06 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:44684 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728126AbgFTRfF (ORCPT
+        Sat, 20 Jun 2020 13:35:07 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:46804 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728191AbgFTRfG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Jun 2020 13:35:05 -0400
-Received: by mail-ot1-f67.google.com with SMTP id e5so9780531ote.11
+        Sat, 20 Jun 2020 13:35:06 -0400
+Received: by mail-oi1-f194.google.com with SMTP id 25so11545623oiy.13
         for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:35:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=f4PL0T6GCERZ/YEDo14hZLuC450xWsmw+SQUtlVusaM=;
-        b=DTmFYFHf2N8OTI5tCrUf5rn2dn4VZ1Y3PK6m11rb3lNXWDWU9Ike6gABkBFEuT4/xl
-         NocJI/qCR9HYx1rUjX9yLpocA8UmMRM7zEyoVviOte0I5SMQY71vpNdcgA9rG4pNNU2V
-         DnxkYCNzfR1ksSUjIztkXT3ooXwIupGfNDMBZvJtJgA+Cxl+10e0vXV/iMhkHPKToOMN
-         X+CrnJF3sNUFTYtVS0F3owIqk67u/lBX65aZcVNuJZVL4nBuE7Rx5OnSdBDqUA4OuIDd
-         b3+inw+nrYbsEJU/BGkR7wAYQalZTDzb7EtJhBKS3yxbH+Wk4KxebHRkaPkW3eJCXTs5
-         3FcQ==
+        bh=hz8GqE3JxF+NFjEiQfFD110wPSsNpDnROS/GHJzNG6w=;
+        b=gEb7CAlAMt8j5b2PDqsBqbi4s2llZ0Cjca7ToGkekUhyLRRNIPwiTKTRLTVB7RZgaQ
+         YRaAIJhiYqe8uJyxBD+qeP2vjW+vzvo/AHv8mNVvF6ImYxx3pQTyvOA9iPeTU/MPZB4W
+         bLesGENar78NZLmleSheB/atz/d5nfS+cGzTV8C3TOtrwq7GNOHRJc4yF6o0Uxkw333f
+         3u6Mxk2B9G50FTRqa2dNTR3sa41QU3Tvhml65MAHggQeAWzcBtrafVzJ9GYXsF6b1Uho
+         uwUGJWH+Y49QPF995bYwQsIWRZOO+nQIS3I9b6Er25cZeWsmw7lOzsh77Vyyn4SURTEr
+         WFKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=f4PL0T6GCERZ/YEDo14hZLuC450xWsmw+SQUtlVusaM=;
-        b=V//qciAGV8UEKN8xzK6lK+m40iPMDikMdDKhX5bt17Nkc+jtl1ncM8aUIS+y7MM0JT
-         StF6RBe3z4zvS9WMCWcCDi4zZr0BgtZBINlIvTjQeHhVxXA8nitPKeKeXfWCy2qluxNK
-         PQCfjzWEtt6O9dK+11R/RE9mml8OQaAWBa1u3+OEfG2ovT08KFsKir0lmgloYLvLw/uR
-         7XcnwwZmagFTGqoDB1ckVpOo1ayisWwfXEm6Og6+579gcurZBBeSybsxBE2zzqN9ieSb
-         xhhUoThiqoS/xba3isg410M40DxbM3bBlrTdXZVDbHnttAKEOJukCwomTQBmViJ30rYz
-         OCIg==
-X-Gm-Message-State: AOAM53070PjLEbRda16n6BcFIsqMiqyAhoAp5ITB48l1z3+qLq/+RFsi
-        NGlrd8kWpCY1rnSQfbx+pUsnDJo=
-X-Google-Smtp-Source: ABdhPJzaqfVKX6ZRV8gBsTlcbwKJXnTzYBdGNtAEhZDTPBi5QD7morWMsndmGyEbK36ECY7sg641Rg==
-X-Received: by 2002:a9d:6e0a:: with SMTP id e10mr7997634otr.171.1592674443480;
+        bh=hz8GqE3JxF+NFjEiQfFD110wPSsNpDnROS/GHJzNG6w=;
+        b=NtMUaROleW7c9CuVZqBVi3sW3Liz9ryrelHhJo3S7hzTQc6f5WSYnTxidSRq5mN+jN
+         d52Whb2/f2Dm37t7k536ySD4zK9xWl9+lQk4vvxkWKrwQZ4V2aLJxzGRBZhBGgdffcua
+         ybRvHecuTcevJxAMtsk2fNYH8u3iiXTKlYHyXtQBDxioQDyV2/IfDcZrOflCCuX/GtR9
+         qDo0lASZ5hioBZZTA8LWjimk+RFjiGp2qunj2mSb0vSFv1Su4ql6j6JCfHn5Ywu1e+tF
+         vuiyxO39X1myxP5Y9Tvd7i6cpx2L3zUw0sbREOnDbedNLeRkK/ikPGTfP9tLTTZU9xzE
+         nOHA==
+X-Gm-Message-State: AOAM532LPoAqOmCAK4yEVv3t5zBiYuLBXPcZOdcHL+07Kd5qIAL4BvWs
+        0tetZ4MnbjRUQxOkAJxQSw==
+X-Google-Smtp-Source: ABdhPJxGwM0r7OnhgY1rekJ7pKdQbFs5eU4T5HFVMVsaLm9lm0Xi1i2vtT8F47XPUnplqISCIzuE6w==
+X-Received: by 2002:aca:603:: with SMTP id 3mr6845193oig.89.1592674443946;
         Sat, 20 Jun 2020 10:34:03 -0700 (PDT)
 Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id u125sm1982816oif.57.2020.06.20.10.34.01
+        by smtp.gmail.com with ESMTPSA id q85sm1994205oic.23.2020.06.20.10.34.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Jun 2020 10:34:01 -0700 (PDT)
+        Sat, 20 Jun 2020 10:34:02 -0700 (PDT)
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:f17b:b355:b0a4:2592])
-        by serve.minyard.net (Postfix) with ESMTPA id 87777180545;
+        by serve.minyard.net (Postfix) with ESMTPA id A04A618054F;
         Sat, 20 Jun 2020 17:34:00 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
@@ -64,9 +64,9 @@ To:     Guenter Roeck <linux@roeck-us.net>,
 Cc:     linux-watchdog@vger.kernel.org,
         Gabriele Paoloni <gabriele.paoloni@intel.com>,
         Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 2/6] watchdog: Add ioctls for millisecond timeout handling
-Date:   Sat, 20 Jun 2020 12:33:47 -0500
-Message-Id: <20200620173351.18752-3-minyard@acm.org>
+Subject: [PATCH 4/6] watchdog: Add documentation for millisecond interfaces
+Date:   Sat, 20 Jun 2020 12:33:49 -0500
+Message-Id: <20200620173351.18752-5-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200620173351.18752-1-minyard@acm.org>
 References: <20200620173351.18752-1-minyard@acm.org>
@@ -77,299 +77,170 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-Add millisecond ioctls for the five timeout ioctls in the watchdog.  If
-the driver being used doesn't support milliseconds, the appropriate
-conversions are done.
+Document the new interfaces and semantics of how this works.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/watchdog_core.c |   5 +-
- drivers/watchdog/watchdog_core.h |   2 +
- drivers/watchdog/watchdog_dev.c  | 123 ++++++++++++++++++++++---------
- include/uapi/linux/watchdog.h    |   5 ++
- 4 files changed, 98 insertions(+), 37 deletions(-)
+ Documentation/watchdog/watchdog-api.rst       | 59 +++++++++++++++++++
+ .../watchdog/watchdog-kernel-api.rst          | 30 ++++++----
+ 2 files changed, 78 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index b54451a9a336..9c531ae05c46 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -138,9 +138,8 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 				 &timeout_parm) == 0) {
- 		if (timeout_parm &&
- 		    !watchdog_timeout_invalid(wdd, timeout_parm)) {
--			if (!(wdd->info->options & WDIOF_MSECTIMER))
--				/* Convert to msecs if not already so. */
--				timeout_parm *= 1000;
-+			timeout_parm = watchdog_timeout_tointernal(wdd, false,
-+							timeout_parm);
- 			goto set_timeout;
- 		}
+diff --git a/Documentation/watchdog/watchdog-api.rst b/Documentation/watchdog/watchdog-api.rst
+index c6c1e9fa9f73..9f9aa1cd7310 100644
+--- a/Documentation/watchdog/watchdog-api.rst
++++ b/Documentation/watchdog/watchdog-api.rst
+@@ -112,6 +112,39 @@ current timeout using the GETTIMEOUT ioctl::
+     ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
+     printf("The timeout was is %d seconds\n", timeout);
  
-diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-index a5062e8e0d13..151806073d58 100644
---- a/drivers/watchdog/watchdog_core.h
-+++ b/drivers/watchdog/watchdog_core.h
-@@ -31,3 +31,5 @@ extern int watchdog_dev_register(struct watchdog_device *);
- extern void watchdog_dev_unregister(struct watchdog_device *);
- extern int __init watchdog_dev_init(void);
- extern void __exit watchdog_dev_exit(void);
-+extern unsigned int watchdog_timeout_tointernal(struct watchdog_device *,
-+						bool, unsigned int);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 480460b89c16..eca13ce1dc91 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -371,6 +371,56 @@ static unsigned int watchdog_get_status(struct watchdog_device *wdd)
- 	return status;
- }
- 
-+/*
-+ *	watchdog_timeout_tointernal: Convert to internal time representation
-+ *	@wdd: the watchdog device
-+ *	@in_msecs: false - timeout in seconds, true - timeout in milliseconds
-+ *	@timeout: timeout to convert
-+ *
-+ *	Convert from an external representation of the timeout in
-+ *	seconds (or milliseconds if in_msecs is true) to the internal
-+ *	timeout in seconds or milliseconds, depending on
-+ *	WDIOF_MSECTIMER.
-+ */
-+unsigned int watchdog_timeout_tointernal(struct watchdog_device *wdd,
-+					 bool in_msecs,
-+					 unsigned int timeout)
-+{
-+	if (wdd->info->options & WDIOF_MSECTIMER) {
-+		if (!in_msecs)
-+			timeout *= 1000;
-+	} else if (in_msecs) {
-+		/* Truncate up. */
-+		timeout = (timeout + 999) / 1000;
-+	}
-+	return timeout;
-+}
++There is also millisecond-level ioctls for setting timeouts in
++millisecond values.  These will work against a watchdog driver that
++only supports seconds, but values will be truncated up on setting and
++truncated on fetching.  So, for instance:
 +
-+/*
-+ *	watchdog_timeout_toexternal: Convert to external time representation
-+ *	@wdd: the watchdog device
-+ *	@in_msecs: false - returns seconds, true - returns milliseconds
-+ *	@timeout: timeout in seconds (or milliseconds if WDIOF_MSECTIMER is set)
-+ *
-+ *	Convert from an internal representation of the timeout in
-+ *	seconds (or milliseconds if WDIOF_MSECTIMER is set) to the
-+ *	external timeout in seconds or milliseconds, depending on
-+ *	in_msecs.
-+ */
-+static unsigned int watchdog_timeout_toexternal(struct watchdog_device *wdd,
-+						bool in_msecs,
-+						unsigned int timeout)
-+{
-+	if (wdd->info->options & WDIOF_MSECTIMER) {
-+		if (!in_msecs)
-+			timeout /= 1000;
-+	} else if (in_msecs) {
-+		timeout *= 1000;
-+	}
++    int timeout = 44001;
++    ioctl(fd, WDIOC_SETTIMEOUT_MS, &timeout);
++    printf("The timeout was set to %d milliseconds\n", timeout);
 +
-+	return timeout;
-+}
++If the driver only supports seconds, the timeout will be set to 45
++seconds because it's truncated up.
 +
- /*
-  *	watchdog_set_timeout: set the watchdog timer timeout
-  *	@wdd: the watchdog device to set the timeout for
-@@ -379,7 +429,7 @@ static unsigned int watchdog_get_status(struct watchdog_device *wdd)
-  *	The caller must hold wd_data->lock.
-  */
++Fetching does similar conversions.  On a driver that supports
++milliseconds, if the current value is 39603 milliseconds:
++
++    ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
++    printf("The timeout was is %d seconds\n", timeout);
++    ioctl(fd, WDIOC_GETTIMEOUT_MS, &timeout);
++    printf("The timeout was is %d milliseconds\n", timeout);
++
++will print 39 seconds and 39603 milliseconds.
++
++If a driver supports millisecond level precision, it will have the
++WDIOF_MSECTIMER flag set in its option field.  Note that does not mean
++that the driver has millisecond level accuracy.  For instance, a
++device might have a 10Hz clock, giving 100ms accuracy.  The driver
++should set the return timeout for WDIOC_SETTIMEOUT_MS to the actual
++setting of the timeout, so you can verify the value.
++
++It would be nice to have a granularity field, but some devices may not
++be linear.  So a granularity is not a general thing that could be
++done.
++
+ Pretimeouts
+ ===========
  
--static int watchdog_set_timeout(struct watchdog_device *wdd,
-+static int watchdog_set_timeout(struct watchdog_device *wdd, bool in_msecs,
- 							unsigned int timeout)
- {
- 	int err = 0;
-@@ -387,11 +437,13 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
- 	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
- 		return -EOPNOTSUPP;
+@@ -137,6 +170,16 @@ There is also a get function for getting the pretimeout::
  
--	if (watchdog_timeout_invalid(wdd, timeout))
-+	if (in_msecs) {
-+		if (_watchdog_timeout_invalid(wdd, timeout))
-+			return -EINVAL;
-+	} else if (watchdog_timeout_invalid(wdd, timeout))
- 		return -EINVAL;
+ Not all watchdog drivers will support a pretimeout.
  
--	if (wdd->info->options & WDIOF_MSECTIMER)
--		timeout *= 1000;
-+	timeout = watchdog_timeout_tointernal(wdd, in_msecs, timeout);
- 	if (wdd->ops->set_timeout) {
- 		err = wdd->ops->set_timeout(wdd, timeout);
- 	} else {
-@@ -413,6 +465,7 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
-  */
++Like timeouts, pretimeouts also have millisecond-level ioctls:
++
++    pretimeout = 10000;
++    ioctl(fd, WDIOC_SETPRETIMEOUT_MS, &pretimeout);
++    ioctl(fd, WDIOC_GETPRETIMEOUT_NS, &pretimeout);
++    printf("The pretimeout was is %d milliseconds\n", pretimeout);
++
++These work just like the timeouts, see that discussion for how
++conversions are done.
++
+ Get the number of seconds before reboot
+ =======================================
  
- static int watchdog_set_pretimeout(struct watchdog_device *wdd,
-+				   bool in_msecs,
- 				   unsigned int timeout)
- {
- 	int err = 0;
-@@ -423,8 +476,7 @@ static int watchdog_set_pretimeout(struct watchdog_device *wdd,
- 	if (watchdog_pretimeout_invalid(wdd, timeout))
- 		return -EINVAL;
+@@ -147,6 +190,14 @@ that returns the number of seconds before reboot::
+     ioctl(fd, WDIOC_GETTIMELEFT, &timeleft);
+     printf("The timeout was is %d seconds\n", timeleft);
  
--	if (wdd->info->options & WDIOF_MSECTIMER)
--		timeout *= 1000;
-+	timeout = watchdog_timeout_tointernal(wdd, in_msecs, timeout);
- 	if (wdd->ops->set_pretimeout)
- 		err = wdd->ops->set_pretimeout(wdd, timeout);
- 	else
-@@ -443,7 +495,7 @@ static int watchdog_set_pretimeout(struct watchdog_device *wdd,
-  *	Get the time before a watchdog will reboot (if not pinged).
-  */
++There is also a millisecond-level version:
++
++    ioctl(fd, WDIOC_GETTIMELEFT_MS, &timeleft);
++    printf("The timeout was is %d milliseconds\n", timeleft);
++
++If the driver only supports seconds, then the value returns is just
++1000 times the seconds value.
++
+ Environmental monitoring
+ ========================
  
--static int watchdog_get_timeleft(struct watchdog_device *wdd,
-+static int watchdog_get_timeleft(struct watchdog_device *wdd, bool in_msecs,
- 							unsigned int *timeleft)
- {
- 	*timeleft = 0;
-@@ -452,8 +504,7 @@ static int watchdog_get_timeleft(struct watchdog_device *wdd,
- 		return -EOPNOTSUPP;
+@@ -223,6 +274,14 @@ sense.
  
- 	*timeleft = wdd->ops->get_timeleft(wdd);
--	if (wdd->info->options & WDIOF_MSECTIMER)
--		*timeleft /= 1000;
-+	*timeleft = watchdog_timeout_toexternal(wdd, in_msecs, *timeleft);
+ The watchdog saw a keepalive ping since it was last queried.
  
- 	return 0;
- }
-@@ -520,13 +571,11 @@ static ssize_t timeleft_show(struct device *dev, struct device_attribute *attr,
- 	unsigned int val;
++	===============		========================================
++	WDIOF_MSECTIMER		Driver can use milliseconds for timeouts
++	===============		========================================
++
++The driver can do millisecond-level timeouts.  The seconds-level
++interfaces still work, but setting values in milliseconds can result
++in finer granularity.
++
+ 	================	=======================
+ 	WDIOF_SETTIMEOUT	Can set/get the timeout
+ 	================	=======================
+diff --git a/Documentation/watchdog/watchdog-kernel-api.rst b/Documentation/watchdog/watchdog-kernel-api.rst
+index 068a55ee0d4a..bee60e6ae274 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.rst
++++ b/Documentation/watchdog/watchdog-kernel-api.rst
+@@ -80,13 +80,13 @@ It contains following fields:
+   additional information about the watchdog timer itself. (Like it's unique name)
+ * ops: a pointer to the list of watchdog operations that the watchdog supports.
+ * gov: a pointer to the assigned watchdog device pretimeout governor or NULL.
+-* timeout: the watchdog timer's timeout value (in seconds).
++* timeout: the watchdog timer's timeout value.
+   This is the time after which the system will reboot if user space does
+   not send a heartbeat request if WDOG_ACTIVE is set.
+-* pretimeout: the watchdog timer's pretimeout value (in seconds).
+-* min_timeout: the watchdog timer's minimum timeout value (in seconds).
++* pretimeout: the watchdog timer's pretimeout value.
++* min_timeout: the watchdog timer's minimum timeout value.
+   If set, the minimum configurable value for 'timeout'.
+-* max_timeout: the watchdog timer's maximum timeout value (in seconds),
++* max_timeout: the watchdog timer's maximum timeout value,
+   as seen from userspace. If set, the maximum configurable value for
+   'timeout'. Not used if max_hw_heartbeat_ms is non-zero.
+ * min_hw_heartbeat_ms: Hardware limit for minimum time between heartbeats,
+@@ -96,7 +96,7 @@ It contains following fields:
+   If set, the infrastructure will send heartbeats to the watchdog driver
+   if 'timeout' is larger than max_hw_heartbeat_ms, unless WDOG_ACTIVE
+   is set and userspace failed to send a heartbeat for at least 'timeout'
+-  seconds. max_hw_heartbeat_ms must be set if a driver does not implement
++  time. max_hw_heartbeat_ms must be set if a driver does not implement
+   the stop function.
+ * reboot_nb: notifier block that is registered for reboot notifications, for
+   internal use only. If the driver calls watchdog_stop_on_reboot, watchdog core
+@@ -117,6 +117,13 @@ It contains following fields:
+ * deferred: entry in wtd_deferred_reg_list which is used to
+   register early initialized watchdogs.
  
- 	mutex_lock(&wd_data->lock);
--	status = watchdog_get_timeleft(wdd, &val);
-+	status = watchdog_get_timeleft(wdd, false, &val);
- 	mutex_unlock(&wd_data->lock);
--	if (!status) {
--		if (wdd->info->options & WDIOF_MSECTIMER)
--			val /= 1000;
--		status = sprintf(buf, "%u\n", val);
--	}
-+	if (!status)
-+		status = sprintf(buf, "%u\n",
-+				 watchdog_timeout_toexternal(wdd, false, val));
++The time value used to interact with the device can either be in
++seconds or milli-seconds except for min_hw_heartbeat_ms and
++max_hw_heartbeat_ms, which are always in milli-seconds. If the driver
++sets WDIOF_MSECTIMER in the driver info flags, then the time values
++will be in milli-seconds. If it is not set, then the time values will
++be in seconds.
++
+ The list of watchdog operations is defined as::
  
- 	return status;
- }
-@@ -536,12 +585,9 @@ static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
- {
- 	struct watchdog_device *wdd = dev_get_drvdata(dev);
--	unsigned int t = wdd->timeout;
+   struct watchdog_ops {
+@@ -212,12 +219,13 @@ they are supported. These optional routines/operations are:
+   also take care of checking if pretimeout is still valid and set up the timer
+   accordingly. This can't be done in the core without races, so it is the
+   duty of the driver.
+-* set_pretimeout: this routine checks and changes the pretimeout value of
+-  the watchdog. It is optional because not all watchdogs support pretimeout
+-  notification. The timeout value is not an absolute time, but the number of
+-  seconds before the actual timeout would happen. It returns 0 on success,
+-  -EINVAL for "parameter out of range" and -EIO for "could not write value to
+-  the watchdog". A value of 0 disables pretimeout notification.
++* set_pretimeout: this routine checks and changes the pretimeout value
++  of the watchdog. It is optional because not all watchdogs support
++  pretimeout notification. The timeout value is not an absolute time,
++  but the time before the actual timeout would happen. It returns 0 on
++  success, -EINVAL for "parameter out of range" and -EIO for "could
++  not write value to the watchdog". A value of 0 disables pretimeout
++  notification.
  
--	if (wdd->info->options & WDIOF_MSECTIMER)
--		t /= 1000;
--
--	return sprintf(buf, "%u\n", t);
-+	return sprintf(buf, "%u\n",
-+		       watchdog_timeout_toexternal(wdd, false, wdd->timeout));
- }
- static DEVICE_ATTR_RO(timeout);
- 
-@@ -549,12 +595,10 @@ static ssize_t pretimeout_show(struct device *dev,
- 			       struct device_attribute *attr, char *buf)
- {
- 	struct watchdog_device *wdd = dev_get_drvdata(dev);
--	unsigned int t = wdd->pretimeout;
--
--	if (wdd->info->options & WDIOF_MSECTIMER)
--		t /= 1000;
- 
--	return sprintf(buf, "%u\n", t);
-+	return sprintf(buf, "%u\n",
-+		       watchdog_timeout_toexternal(wdd, false,
-+						   wdd->pretimeout));
- }
- static DEVICE_ATTR_RO(pretimeout);
- 
-@@ -788,11 +832,13 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 		err = watchdog_ping(wdd);
- 		break;
- 	case WDIOC_SETTIMEOUT:
-+	case WDIOC_SETTIMEOUT_MS:
- 		if (get_user(val, p)) {
- 			err = -EFAULT;
- 			break;
- 		}
--		err = watchdog_set_timeout(wdd, val);
-+		err = watchdog_set_timeout(wdd, cmd == WDIOC_SETTIMEOUT_MS,
-+					   val);
- 		if (err < 0)
- 			break;
- 		/* If the watchdog is active then we send a keepalive ping
-@@ -803,33 +849,42 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 			break;
- 		/* fall through */
- 	case WDIOC_GETTIMEOUT:
-+	case WDIOC_GETTIMEOUT_MS:
- 		/* timeout == 0 means that we don't know the timeout */
- 		if (wdd->timeout == 0) {
- 			err = -EOPNOTSUPP;
- 			break;
- 		}
--		val = wdd->timeout;
--		if (wdd->info->options & WDIOF_MSECTIMER)
--			val /= 1000;
-+		val = watchdog_timeout_toexternal(wdd,
-+					  (cmd == WDIOC_SETTIMEOUT_MS ||
-+					   cmd == WDIOC_GETTIMEOUT_MS),
-+					  wdd->timeout);
- 		err = put_user(val, p);
- 		break;
- 	case WDIOC_GETTIMELEFT:
--		err = watchdog_get_timeleft(wdd, &val);
-+	case WDIOC_GETTIMELEFT_MS:
-+		err = watchdog_get_timeleft(wdd, cmd == WDIOC_GETTIMELEFT_MS,
-+					    &val);
- 		if (err < 0)
- 			break;
- 		err = put_user(val, p);
- 		break;
- 	case WDIOC_SETPRETIMEOUT:
-+	case WDIOC_SETPRETIMEOUT_MS:
- 		if (get_user(val, p)) {
- 			err = -EFAULT;
- 			break;
- 		}
--		err = watchdog_set_pretimeout(wdd, val);
-+		err = watchdog_set_pretimeout(wdd,
-+					      cmd == WDIOC_SETPRETIMEOUT_MS,
-+					      val);
- 		break;
- 	case WDIOC_GETPRETIMEOUT:
--		val = wdd->pretimeout;
--		if (wdd->info->options & WDIOF_MSECTIMER)
--			val /= 1000;
-+	case WDIOC_GETPRETIMEOUT_MS:
-+		val = watchdog_timeout_toexternal(wdd,
-+					  (cmd == WDIOC_SETPRETIMEOUT_MS ||
-+					   cmd == WDIOC_GETPRETIMEOUT_MS),
-+					  wdd->pretimeout);
- 		err = put_user(val, p);
- 		break;
- 	default:
-diff --git a/include/uapi/linux/watchdog.h b/include/uapi/linux/watchdog.h
-index feb3bcc46993..3df7880c6fca 100644
---- a/include/uapi/linux/watchdog.h
-+++ b/include/uapi/linux/watchdog.h
-@@ -32,6 +32,11 @@ struct watchdog_info {
- #define	WDIOC_SETPRETIMEOUT	_IOWR(WATCHDOG_IOCTL_BASE, 8, int)
- #define	WDIOC_GETPRETIMEOUT	_IOR(WATCHDOG_IOCTL_BASE, 9, int)
- #define	WDIOC_GETTIMELEFT	_IOR(WATCHDOG_IOCTL_BASE, 10, int)
-+#define	WDIOC_SETTIMEOUT_MS	_IOWR(WATCHDOG_IOCTL_BASE, 11, int)
-+#define	WDIOC_GETTIMEOUT_MS	_IOR(WATCHDOG_IOCTL_BASE, 12, int)
-+#define	WDIOC_SETPRETIMEOUT_MS	_IOWR(WATCHDOG_IOCTL_BASE, 13, int)
-+#define	WDIOC_GETPRETIMEOUT_MS	_IOR(WATCHDOG_IOCTL_BASE, 14, int)
-+#define	WDIOC_GETTIMELEFT_MS	_IOR(WATCHDOG_IOCTL_BASE, 15, int)
- 
- #define	WDIOF_UNKNOWN		-1	/* Unknown flag error */
- #define	WDIOS_UNKNOWN		-1	/* Unknown status error */
+   (Note: the WDIOF_PRETIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
 -- 
 2.17.1
 
