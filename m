@@ -7,69 +7,67 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9809C433E5
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D275DC433E0
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A559B2404E
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:35:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A18E82067B
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PEYLqeDb"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UekCF6s7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbgFTRfI (ORCPT
+        id S1728306AbgFTRuO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 20 Jun 2020 13:35:08 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:35686 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728351AbgFTRfH (ORCPT
+        Sat, 20 Jun 2020 13:50:14 -0400
+Received: from mail-oo1-f66.google.com ([209.85.161.66]:45114 "EHLO
+        mail-oo1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726838AbgFTRuN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Jun 2020 13:35:07 -0400
-Received: by mail-ot1-f68.google.com with SMTP id d4so9818367otk.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:35:05 -0700 (PDT)
+        Sat, 20 Jun 2020 13:50:13 -0400
+Received: by mail-oo1-f66.google.com with SMTP id k7so2536859ooo.12
+        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=c9eyYnIbSCchZ+Qys6jP+lWq+0wox/nJrkZtPtmSbFE=;
-        b=PEYLqeDbgaF55kY3PIcittV51Y0QoTmaLq7XZdCfTx2NCcJ1u4gOZqM+DKBf/0Zpmu
-         Se+RrqYE03k+1bMsD1JzY4jv05Rj+hEAV27W7hbi/UNT4wcr3LuMWF1k6R0+N1U2qLeL
-         PH+qWgd//mOAnxgS0GtQjtv+OigmUeqS8EkUkMFM11mHGp5lO+l8s0Sv8ROhfaybh2k6
-         iSg9aPoir5xVKeIZRAxhB2/Vv+uptrqdmdqTAG3srrlYAGzg/LiX5lXU1WoDpxobCn9+
-         KlvkKeMmmuyQAOQAVabk6Q/8F69mygucCW6NAgrEZIPYzSbrxTYOJuX0uhdxRgm+X6JJ
-         uliA==
+        bh=9UxhjSoE82TmEXppeCDn14Vvto0FXpWKoJEeMHzGlYo=;
+        b=UekCF6s7D3qzXwRvg84H2d03EQWIOEb6dc3Lu1zHaxHJeqxWiExJrBIVtSoDmf5QQl
+         GDwscbKXnH8Wcoqjx1RT11BsIk643BJTD4vsxgKV47iMh+yw4k0bzNrhJnals2gUE5vZ
+         6Bgh6iS9o7viXmuSaEhZykiDtNUs/LHKZCjH1WaR7U7AWALq/rmSv2pXW3QvcwYojt+B
+         Cb8VnFZcsUAglzAXXBMkCj/87ZbyTRLw7wgi60ZZlmiaI+Dquqw9J1A0FllwF5OeIcVR
+         ddyC5NrDSFLRVL79vpdYdL9UTKklPaIkCXTnKpWk4r9yFs+UOvJLoU2/bPZX7iEkOyGE
+         vJVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=c9eyYnIbSCchZ+Qys6jP+lWq+0wox/nJrkZtPtmSbFE=;
-        b=T7GCYuV0nnWJ75LkGELr/sjtDVUo2koubtNKR6+bgznaMQQINZ5qSMsfZdCdfCEt94
-         vSgfM5AVtUMGpHmkJo0MDluqX6x6s+qfPCLRw19gsuW7ioo8vqaOr915v0ozaZ6zZ6F/
-         gTONJy8FBYwVu0jiir7km2mzaMZ2DfVK5WS/BCG6dgNCByh0fB7Qm2ve2AFzaApTHpvi
-         U2/CKeB4B6ub0p9FGULXcHTFYFYwtpvf0tw7USqN2uqqFzrUQTrhoBemYsBNXhRTKu+R
-         /b0TfxwyXCjLAK6hwRKInhsvwmmDoV68qEJY6n+dTwca7xlOwbkVRJm4leUjKgx0Ce+z
-         ocAA==
-X-Gm-Message-State: AOAM531nZ+Oj67IIzaFmhchv4Q7kaWlOmy9kX7TfD/7Ai451v80SaJcY
-        8OsFIN/eGgAsZKDp8Fxf+w==
-X-Google-Smtp-Source: ABdhPJwQtNAySJVinmJtwXxWchQmPBLW074FRNyCe6odSbGF6uZHx6I3OQ2coJ/fgmeFSubI9Ste5A==
-X-Received: by 2002:a9d:7301:: with SMTP id e1mr7723707otk.289.1592674445302;
-        Sat, 20 Jun 2020 10:34:05 -0700 (PDT)
+        bh=9UxhjSoE82TmEXppeCDn14Vvto0FXpWKoJEeMHzGlYo=;
+        b=JsnOfHaeRTC6iYqOeAHH68S05Wrx2gRrAzCRwAYYazBRAU6BN3gcKPwiwqN/8c0yPT
+         VwldKyjC7WdFY3P3rbxXgbF7Hf6HToagnl9V0Zwbyy5PwFuIFs0Gz4DdjbMHdIsP1agY
+         k4exCuA5KbrmFfbuOQmtWDAxGJ8rTuRw0tzUGDZjN2D70SPEcvN4fSZsir9XX+lfno/S
+         bgin5DREEjoso0fmTal9absa2zvbP3wiKmYrwQ9JMoHfaOqFYoOebN0McnNSHenCBJEd
+         1mCi3DSKxS1j8LbnpvHWTnVP1UgTVPqSdnANx4xWscgSRwvZkgZis+a4oVaWvmi+1M4V
+         ksBw==
+X-Gm-Message-State: AOAM532fZMK/hNTfHt5z+Tinx3xb3cNOyLuQW8OOoJ+LXqvZaNOen4Go
+        1AQzotdkCdtJ+BDE+vH6VJblE8M=
+X-Google-Smtp-Source: ABdhPJzhyC/dF1sfvjhicBX2eMfArY8Ag0C+jhIh52nMNtfIUPR0JkPhRKWCAD87Z269iK+sY7m+4w==
+X-Received: by 2002:a4a:e496:: with SMTP id s22mr8167459oov.67.1592675352862;
+        Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
 Received: from serve.minyard.net ([47.184.146.204])
-        by smtp.gmail.com with ESMTPSA id l20sm2074368otp.35.2020.06.20.10.34.02
+        by smtp.gmail.com with ESMTPSA id w19sm298243otj.10.2020.06.20.10.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Jun 2020 10:34:03 -0700 (PDT)
-Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:f17b:b355:b0a4:2592])
-        by serve.minyard.net (Postfix) with ESMTPA id B95E518055F;
-        Sat, 20 Jun 2020 17:34:00 +0000 (UTC)
+        Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
+Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:98f8:1e34:b5b7:82f7])
+        by serve.minyard.net (Postfix) with ESMTPA id 89471180545;
+        Sat, 20 Jun 2020 17:49:11 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org,
-        Gabriele Paoloni <gabriele.paoloni@intel.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5/6] watchdog:i6300: Convert to a millisecond watchdog device
-Date:   Sat, 20 Jun 2020 12:33:50 -0500
-Message-Id: <20200620173351.18752-6-minyard@acm.org>
+Cc:     linux-watchdog@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 02/10] watchdog: Add read capability
+Date:   Sat, 20 Jun 2020 12:48:59 -0500
+Message-Id: <20200620174907.20229-3-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200620173351.18752-1-minyard@acm.org>
-References: <20200620173351.18752-1-minyard@acm.org>
+In-Reply-To: <20200620174907.20229-1-minyard@acm.org>
+References: <20200620174907.20229-1-minyard@acm.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
@@ -77,113 +75,113 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-The i6300 clock runs at 1Khz, so it's an easy conversion to make it a
-millisecond timer.
+Allow read, poll, and fasync calls on the watchdog device to be passed
+to the driver.  This is so the IPMI driver can be moved over to the
+watchdog framework, as it has the ability to have a read return when
+data comes in on the watchdog.
 
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/watchdog/i6300esb.c | 66 +++++++++++++++++++++++++++++++------
- 1 file changed, 56 insertions(+), 10 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 45 +++++++++++++++++++++++++++++++++
+ include/linux/watchdog.h        |  8 ++++++
+ 2 files changed, 53 insertions(+)
 
-diff --git a/drivers/watchdog/i6300esb.c b/drivers/watchdog/i6300esb.c
-index a30835f547b3..9f5afe6ee622 100644
---- a/drivers/watchdog/i6300esb.c
-+++ b/drivers/watchdog/i6300esb.c
-@@ -69,12 +69,40 @@
- #define ESB_UNLOCK1     0x80            /* Step 1 to unlock reset registers  */
- #define ESB_UNLOCK2     0x86            /* Step 2 to unlock reset registers  */
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 7e4cd34a8c20..45a0a4fe731d 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -698,6 +698,48 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
+ 	return len;
+ }
  
--/* module parameters */
--/* 30 sec default heartbeat (1 < heartbeat < 2*1023) */
 +/*
-+ * Timer clock is driven by a 30ns clock divided by 32768, giving a
-+ * 983.04usec clock.  Not really close enough to say it's 1Khz.  But
-+ * if we multiply by 101725261 / 100000000, that would give us a
-+ * 1000.0000057 usec per increment of time, which is very close and
-+ * slightly slow, which is preferred to slightly fast.  If there is a
-+ * remainder from that calculation, then round up.  So if 1 comes in
-+ * for the time, we will have (1 * 101725261) / 100000000 = 1, and
-+ * (1 * 101725261) % 100000000 = 1725261, so we round up the 1 to a 2, which
-+ * will result in 1.96608msecs.  Remember, better too long than too short.
-+ * All the arithmetic has to be 64 bit to avoid overflow.
++ *	watchdog_read: Pass a read on to the device if it accepts it
++ *	@file: file handle to the device
++ *	@buf: the buffer to read into
++ *	@count: the size of buf in bytes
++ *      @ppos: pointer to the file offset
 + *
-+ * The error gets better as the numbers increase to more reasonable
-+ * values.  For 30 seconds, for instance, we get a count of 30518,
-+ * which is 30.0004 seconds.  Close enough :).
-+ *
-+ * The 2061582 max time comes in because we have 2 20 bit registers
-+ * that count down.  This means that the maximum timeout value we can
-+ * put in the registers is 0x1ffffe.  Run that through the calculation
-+ * backwards and we get 0x1ffffe * 100000000 / 101725261 = 2061582.  If we
-+ * put that into our calculation, we get 2061582 * 101725261 / 100000000 =
-+ * 0x1ffffd which will round up to 0x1ffffe.
-+ *
-+ * These numbers should never result in an error more than 1ms, so
-+ * there is no need to be more accurate.  This is been tested
-+ * exhaustively.
++ *	The watchdog API defines a common set of functions for all watchdogs
++ *	according to their available features.
 + */
- #define ESB_HEARTBEAT_MIN	1
--#define ESB_HEARTBEAT_MAX	2046
--#define ESB_HEARTBEAT_DEFAULT	30
--#define ESB_HEARTBEAT_RANGE __MODULE_STRING(ESB_HEARTBEAT_MIN) \
-+#define ESB_HEARTBEAT_MAX	2061582
-+/* 30 sec default heartbeat */
-+#define ESB_HEARTBEAT_DEFAULT	30000
 +
-+/* module parameters */
-+#define ESB_HEARTBEAT_RANGE __MODULE_STRING(ESB_HEARTBEAT_MIN)	\
- 	"<heartbeat<" __MODULE_STRING(ESB_HEARTBEAT_MAX)
- static int heartbeat; /* in seconds */
- module_param(heartbeat, int, 0);
-@@ -158,17 +186,34 @@ static int esb_timer_set_heartbeat(struct watchdog_device *wdd,
- {
- 	struct esb_dev *edev = to_esb_dev(wdd);
- 	u32 val;
-+	u64 ttime, ctime;
++static ssize_t watchdog_read(struct file *file, char __user *buf,
++			     size_t count, loff_t *ppos)
++{
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd = wd_data->wdd;
 +
-+	/* See comments above ESB_HEARTBEAT_xxx for details on this. */
-+	ttime = (u64) time * 101725261ULL;
-+	ctime = div_u64(ttime, 100000000);
-+	/*
-+	 * You might think that a "if (ttime % 100000000ULL)" would be
-+	 * required here so we don't round up if the time is exact,
-+	 * but with these numbers, there is never a time value that
-+	 * will come in that will result in a zero remainder.  So no
-+	 * need to check.  We round up, as it's better to be a little
-+	 * long than a little short.
-+	 */
-+	ctime += 1;
- 
--	/* We shift by 9, so if we are passed a value of 1 sec,
--	 * val will be 1 << 9 = 512, then write that to two
--	 * timers => 2 * 512 = 1024 (which is decremented at 1KHz)
-+	/*
-+	 * We have two registers that have to count down, so each gets
-+	 * loaded with half the time.
- 	 */
--	val = time << 9;
-+	val = ctime / 2;
- 
- 	/* Write timer 1 */
- 	esb_unlock_registers(edev);
- 	writel(val, ESB_TIMER1_REG(edev));
- 
-+	/* If the time was odd, add the extra tick to the second register. */
-+	val += ctime % 2;
++	if (!wdd->ops->read)
++		return -EINVAL;
++	return wdd->ops->read(wdd, file, buf, count, ppos);
++}
 +
- 	/* Write timer 2 */
- 	esb_unlock_registers(edev);
- 	writel(val, ESB_TIMER2_REG(edev));
-@@ -190,7 +235,8 @@ static int esb_timer_set_heartbeat(struct watchdog_device *wdd,
++static __poll_t watchdog_poll(struct file *file, poll_table *wait)
++{
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd = wd_data->wdd;
++
++	if (!wdd->ops->poll)
++		return DEFAULT_POLLMASK;
++	return wdd->ops->poll(wdd, file, wait);
++}
++
++static int watchdog_fasync(int fd, struct file *file, int on)
++{
++	struct watchdog_core_data *wd_data = file->private_data;
++	struct watchdog_device *wdd = wd_data->wdd;
++
++	if (!wdd->ops->fasync)
++		return 0;
++	return wdd->ops->fasync(wdd, fd, file, on);
++}
++
+ /*
+  *	watchdog_ioctl: handle the different ioctl's for the watchdog device.
+  *	@file: file handle to the device
+@@ -951,6 +993,9 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ static const struct file_operations watchdog_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.write		= watchdog_write,
++	.read		= watchdog_read,
++	.poll		= watchdog_poll,
++	.fasync		= watchdog_fasync,
+ 	.unlocked_ioctl	= watchdog_ioctl,
+ 	.compat_ioctl	= compat_ptr_ioctl,
+ 	.open		= watchdog_open,
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 1464ce6ffa31..36f99c8c973e 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -15,6 +15,7 @@
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+ #include <linux/notifier.h>
++#include <linux/poll.h>
+ #include <uapi/linux/watchdog.h>
  
- static struct watchdog_info esb_info = {
- 	.identity = ESB_MODULE_NAME,
--	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.options = (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE |
-+		    WDIOF_MSECTIMER),
+ struct watchdog_ops;
+@@ -34,6 +35,9 @@ struct watchdog_governor;
+  * @get_timeleft:The routine that gets the time left before a reset (in seconds).
+  * @restart:	The routine for restarting the machine.
+  * @ioctl:	The routines that handles extra ioctl calls.
++ * @read:	Call this is not NULL and a read comes in on the watchdog dev.
++ * @poll:	Call this is not NULL and a poll comes in on the watchdog dev.
++ * @fasync:	Call this is not NULL and a fasync comes in on the watchdog dev.
+  *
+  * The watchdog_ops structure contains a list of low-level operations
+  * that control a watchdog device. It also contains the module that owns
+@@ -53,6 +57,10 @@ struct watchdog_ops {
+ 	unsigned int (*get_timeleft)(struct watchdog_device *);
+ 	int (*restart)(struct watchdog_device *, unsigned long, void *);
+ 	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
++	ssize_t (*read)(struct watchdog_device *, struct file *, char __user *,
++			size_t, loff_t *);
++	__poll_t (*poll)(struct watchdog_device *, struct file *, poll_table *);
++	int (*fasync)(struct watchdog_device *, int, struct file *, int);
  };
  
- static const struct watchdog_ops esb_ops = {
+ /** struct watchdog_device - The structure that defines a watchdog device
 -- 
 2.17.1
 
