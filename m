@@ -2,103 +2,170 @@ Return-Path: <SRS0=xemf=AB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6D96C433E0
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8648FC433E2
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97FAF20748
-	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 64FFA20748
+	for <linux-watchdog@archiver.kernel.org>; Sat, 20 Jun 2020 17:50:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TsXWy34d"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qSACYR+C"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726838AbgFTRuQ (ORCPT
+        id S1728379AbgFTRuR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 20 Jun 2020 13:50:16 -0400
-Received: from mail-ot1-f50.google.com ([209.85.210.50]:41005 "EHLO
-        mail-ot1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728367AbgFTRuP (ORCPT
+        Sat, 20 Jun 2020 13:50:17 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:33775 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728372AbgFTRuQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Jun 2020 13:50:15 -0400
-Received: by mail-ot1-f50.google.com with SMTP id k15so9816965otp.8
-        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:13 -0700 (PDT)
+        Sat, 20 Jun 2020 13:50:16 -0400
+Received: by mail-ot1-f65.google.com with SMTP id n6so9854247otl.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 20 Jun 2020 10:50:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=p7tXk/16xSvAY1JeZSZLzNT9FZfossOewJefr2dZ/i4=;
-        b=TsXWy34d0bo+YQ65daZakcpZb4yk1+l0iVjqcWNdGH/h86/Na3ZewYTilgTV0wf9EK
-         IKJDCwdEeoMMBkOdpmmza9yMpuEz1qNFCLj3nWt6iftUmvqoiFiOMpay7pFPOlqoYPGb
-         ludcy75RvehQJ+Ea4IM1upVnG6zHriwF9s73GQO8EDEK+0en/WP1HqIFsFoClwZy4W1E
-         FiTbYLpPXx9gdFF77fYVen42eb9kAdvhdGMzD9vzu6ea1YV+dhXKLz+SCg7zMCx2oTdM
-         vnCoGxeYZLwUo6Z4iynz0FTLNptqLaxm3Hqmm/aKwNMnW3aaGvXoQLd/TZ/tiPDkI1Ik
-         3sZQ==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=SWYmfUtHykqWtLMjWsep9JBV05ID8OlIgVmIpTjPzI0=;
+        b=qSACYR+CCd4djpUUzbXBt5BvEXJ7nYsrxsyHvC3qBos6Hu5RI4hOV0sKmuHZbkZLrH
+         emMEfConKXNdYYJaYPjwzCHXNYvOf5v19lIlX5rMfsn65fIyTWjykX5jtyiKz4IZpVE6
+         6pPC3DDqzkN2EKFeSKrApUYL396LnhgZFfiT8U5q25TWG3Ku3nd0VpLKsEQarpbwBkVZ
+         ctTxsy8UTBARr/E/h4GutM5Re6VeHmZTdBDkFOdXv7sq1KnCoo8cFiIV5kP/HoqA7mJT
+         jBvahanfBhpTsijEBi0tfucPvyTW0lqd2Pupz74ACffhTY7w004IouMcP0ABs2v4Pese
+         gDIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=p7tXk/16xSvAY1JeZSZLzNT9FZfossOewJefr2dZ/i4=;
-        b=ZPj2hf/iIuxFq/WsudrcQaGKU8PKG1CZpAe+51b8B2kwtuWGnl5bZFgB5vzwVLAXvY
-         r+pSZGDyA0XTipV7QQYyVxEAN85LDgF8nxQyh8VmyVVz+yuEN1UTiW41CCu3bCqmcdRR
-         JPfFP8Mw62KZpXJCk6nbyKYbbq7A2/6+dy4atjYB5/c3J01fUk7v2VrQrvyjIRJaVFqx
-         Deg8uYz9Wany909MwIgh+nyPKVcTF5zjx7qd+XXA+E9eGLITolKIYzR8NMz01PA5jfAE
-         48pyD0pIUNt3TVzECNO+eoiYOxiur842VKUoHCcPCk6Vs5hK14jrfoT1/SCSl3pNpYru
-         UGjw==
-X-Gm-Message-State: AOAM533OMemPbLyZX2Rf7RNPmmqs43EKWAy5//zAoDrsg0KEQ401Hi1b
-        YJ26ViqsLyTSSdLmB48scA==
-X-Google-Smtp-Source: ABdhPJyKHCzGVlB7wTpxFDlBuV7snwQJm8wq95DM0OVm4r+AGx06PVSho0KA5Xm0m+sa0wk8rpC6bQ==
-X-Received: by 2002:a05:6830:18f1:: with SMTP id d17mr7692837otf.51.1592675353295;
-        Sat, 20 Jun 2020 10:49:13 -0700 (PDT)
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=SWYmfUtHykqWtLMjWsep9JBV05ID8OlIgVmIpTjPzI0=;
+        b=fe6OR+mkqle88erRDNDRTRt6H2NDk0FU46k1OELxhzF61Jg8gnDDRbkaLKnrT2LAy2
+         API8o9v4MPwXVtpaotl243H5hI2f0jIyFT6cZJOHFvIkMGN4e/gh9+R8OH9sXOUHCwv9
+         C2Sc15dXeMTu07iklRWOHOzBpDnLjO6MhDDv14OWLoBK0/JY9AuwdMAm/JjmByQycCpi
+         j7sKeQ9xpfx/wqtlfy4fTrplAfybk8429Asfd6p4XsosgrybwaioGaTD7HBhqKg+29M+
+         uNBbuW/HIxeOiZ//oohUt8pHf8EyghZc0w2jvsfzPGHHcuxxKiUqQCXrChV4imXAFRN3
+         mrlg==
+X-Gm-Message-State: AOAM532cbfmTXkqDvKzollhbfBn1Q6FWoIaT2qnIN5l/KXwOWthzNCdb
+        ITdBLTYLyjMHyb7RWX0Qsg==
+X-Google-Smtp-Source: ABdhPJwy//OZpAhAynJvnNSeHpa7pc9E2jSnN9nE30InvUJWsMKodWorrnm4UNYgNyLjsKTIvbUXRQ==
+X-Received: by 2002:a9d:12f7:: with SMTP id g110mr8028643otg.79.1592675355520;
+        Sat, 20 Jun 2020 10:49:15 -0700 (PDT)
 Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id j2sm1248746ooq.30.2020.06.20.10.49.12
+        by smtp.gmail.com with ESMTPSA id f187sm1994651oig.12.2020.06.20.10.49.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Jun 2020 10:49:12 -0700 (PDT)
+        Sat, 20 Jun 2020 10:49:14 -0700 (PDT)
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:98f8:1e34:b5b7:82f7])
-        by serve.minyard.net (Postfix) with ESMTPA id 46DF3180050;
+        by serve.minyard.net (Postfix) with ESMTPA id A802D18055F;
         Sat, 20 Jun 2020 17:49:11 +0000 (UTC)
 From:   minyard@acm.org
 To:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org
-Subject: [PATCH 00/10] Convert the IPMI watchdog to use the watchdog
-Date:   Sat, 20 Jun 2020 12:48:57 -0500
-Message-Id: <20200620174907.20229-1-minyard@acm.org>
+Cc:     linux-watchdog@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 05/10] watchdog: Export an interface to start the watchdog
+Date:   Sat, 20 Jun 2020 12:49:02 -0500
+Message-Id: <20200620174907.20229-6-minyard@acm.org>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200620174907.20229-1-minyard@acm.org>
+References: <20200620174907.20229-1-minyard@acm.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This has been discussed before, and I've been working on it.  I think
-this is the minimum that can be done to keep the IPMI watchdog
-functionality exactly the same and use the watchdog subsystem.
+From: Corey Minyard <cminyard@mvista.com>
 
-The first patch is something that I thought might be a bug, and is not
-directly related to the changes.
+This way a watchdog driver can start itself.
 
-The IPMI watchdog has the following capabilities that need extensions to
-the watchdog subsystem:
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+---
+ drivers/watchdog/watchdog_dev.c | 30 ++++++++++++++++++++++++++----
+ include/linux/watchdog.h        |  3 +++
+ 2 files changed, 29 insertions(+), 4 deletions(-)
 
-* The ability to provide read data on the device when a pretimeout
-  occurs.
-* The ability to dynamically set the timeout and pretimeout with module
-  parameters.
-* The ability to start the watchdog as soon as the driver starts.
-
-I have no idea if anyone is using the capabilities, but they are there,
-unfortunately.
-
-A patch later in the series adds the ability to modify the watchdog time
-on a reboot.  This was specifically requested in the past, so I know it
-was at least used in the past.  The IPMI watchdog driver can do this
-itself, but it's simple to add to the watchdog framework and gets rid of
-some redundant code.
-
-This leaves the driver code in the ipmi directory.  After these changes
-it could be moved, but it doesn't matter much to me.
-
-Thanks,
-
--corey
-
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 6c423aed3f3c..752358df1606 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -253,7 +253,7 @@ static enum hrtimer_restart watchdog_timer_expired(struct hrtimer *timer)
+ }
+ 
+ /*
+- *	watchdog_start: wrapper to start the watchdog.
++ *	_watchdog_start: wrapper to start the watchdog.
+  *	@wdd: the watchdog device to start
+  *
+  *	The caller must hold wd_data->lock.
+@@ -263,7 +263,7 @@ static enum hrtimer_restart watchdog_timer_expired(struct hrtimer *timer)
+  *	failure.
+  */
+ 
+-static int watchdog_start(struct watchdog_device *wdd)
++static int _watchdog_start(struct watchdog_device *wdd)
+ {
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+ 	ktime_t started_at;
+@@ -289,6 +289,28 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 	return err;
+ }
+ 
++/*
++ *	watchdog_start: External interface to start the watchdog.
++ *	@wdd: the watchdog device to start
++ *
++ *	Start the watchdog if it is not active and mark it active.
++ *	This function returns zero on success or a negative errno code for
++ *	failure.
++ */
++
++int watchdog_start(struct watchdog_device *wdd)
++{
++	struct watchdog_core_data *wd_data = wdd->wd_data;
++	int err;
++
++	mutex_lock(&wd_data->lock);
++	err = _watchdog_start(wdd);
++	mutex_unlock(&wd_data->lock);
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(watchdog_start);
++
+ /*
+  *	watchdog_stop: wrapper to stop the watchdog.
+  *	@wdd: the watchdog device to stop
+@@ -837,7 +859,7 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 				break;
+ 		}
+ 		if (val & WDIOS_ENABLECARD)
+-			err = watchdog_start(wdd);
++			err = _watchdog_start(wdd);
+ 		break;
+ 	case WDIOC_KEEPALIVE:
+ 		if (!(wdd->info->options & WDIOF_KEEPALIVEPING)) {
+@@ -935,7 +957,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 		goto out_clear;
+ 	}
+ 
+-	err = watchdog_start(wdd);
++	err = _watchdog_start(wdd);
+ 	if (err < 0)
+ 		goto out_mod;
+ 
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 95396b644a9b..1eefae61215d 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -205,6 +205,9 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+ int watchdog_set_timeout(struct watchdog_device *wdd, unsigned int timeout);
+ int watchdog_set_pretimeout(struct watchdog_device *wdd, unsigned int timeout);
+ 
++/* Allow the driver to start the watchdog. */
++int watchdog_start(struct watchdog_device *wdd);
++
+ /* Use the following functions to report watchdog pretimeout event */
+ #if IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_GOV)
+ void watchdog_notify_pretimeout(struct watchdog_device *wdd);
+-- 
+2.17.1
 
