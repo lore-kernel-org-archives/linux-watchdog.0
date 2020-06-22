@@ -2,81 +2,160 @@ Return-Path: <SRS0=totJ=AD=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A94EEC433DF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jun 2020 11:25:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61AA4C433E0
+	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jun 2020 14:27:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87C5920767
-	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jun 2020 11:25:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 413F320738
+	for <linux-watchdog@archiver.kernel.org>; Mon, 22 Jun 2020 14:27:04 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PrIZIlI/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729025AbgFVLZk (ORCPT
+        id S1729601AbgFVO1A (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 22 Jun 2020 07:25:40 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:46839 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728864AbgFVLZk (ORCPT
+        Mon, 22 Jun 2020 10:27:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729597AbgFVO06 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 22 Jun 2020 07:25:40 -0400
-X-Originating-IP: 86.202.110.81
-Received: from localhost (lfbn-lyo-1-15-81.w86-202.abo.wanadoo.fr [86.202.110.81])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 48B5C240005;
-        Mon, 22 Jun 2020 11:25:37 +0000 (UTC)
-Date:   Mon, 22 Jun 2020 13:25:37 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Johnson CH Chen =?utf-8?B?KOmZs+aYreWLsyk=?= 
-        <JohnsonCH.Chen@moxa.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Mon, 22 Jun 2020 10:26:58 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103F5C061573;
+        Mon, 22 Jun 2020 07:26:58 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id g12so7640861pll.10;
+        Mon, 22 Jun 2020 07:26:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=/r3bF+tmpPN3A1FZstc/snO04L2kX1d7AjII16N9G5g=;
+        b=PrIZIlI/Yn3nD9hrNjJvDv6BZi1oqSPTzzIn1XSzVZ9JM58DJOi17YI9tnWo1jhuPn
+         dtz7cS/d0w9A96WXjA3jXAA7QPRW5x2naSUfMTgrE7CIeT8FQxACPlpM+6FkGkSi8RaF
+         Hk9afPxXO8sIK7jNgxoqcdBRoj4UJHlhY5Qea4M+CJ2sJ2hZALL6qvRGmL/EoKjLDkhD
+         YSh1fI/hfsLVsr7mZC6tFEVnii5LngEbIhRddXsW9dUf6WIYVRgAq43NNcPjNfMWD7jv
+         W+0tCvO31i/IWJpeVvuPFYaWRY7I9Goo1QAl7R4hgrVPo2DTMRNzMHLPSFkfnO3KdiRu
+         YjFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=/r3bF+tmpPN3A1FZstc/snO04L2kX1d7AjII16N9G5g=;
+        b=Mpv0OfNeLFKbgvXegg8uLIWf0aMFQw1hHtnCU+0G8EZKIHPgCc2pQppQkni7fHR84C
+         /WomI7IMrBAWe7KgxSm0/O3KtDq/Ph7IyymA/iscUr+p9nMD08l3Rv3fnivkX+J9ZGm9
+         wve1vMOm3bU4453A89YnTHnRNzDLtnBLFjcMP11z718o8wl7PvXw0DTsn5Rywdu/9Grf
+         2/ZR+Sekm7NiluUaTRysQou7BUdWNeC/WiZN4MriykKbatVkwrlZCBv5YtuB4Be0A5KW
+         Rm/Uewx0M2369OarPn7i9SVdJFzkwk1G7ycA8nPMpOdY+4p7nBi9ONxaAOsE4wCZL8kY
+         1Icg==
+X-Gm-Message-State: AOAM531HYKA5b2w3U4aIffO35xbsmB5yQ4Rbproros8RlCEa1ji/gs/q
+        34VKbGk0tFPh4oXSxb1H588=
+X-Google-Smtp-Source: ABdhPJyTZ+rZ5KBtsK2Zn1v8LHaQ2xA/L+YW2HNOMvVeRR0Ydc7Qe5SRfTI0SX3tSTY5RN5Vypw0YQ==
+X-Received: by 2002:a17:90a:1e:: with SMTP id 30mr17329730pja.25.1592836017574;
+        Mon, 22 Jun 2020 07:26:57 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id h3sm14965860pje.28.2020.06.22.07.26.56
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 22 Jun 2020 07:26:57 -0700 (PDT)
+Date:   Mon, 22 Jun 2020 07:26:56 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Johnson CH Chen =?utf-8?B?KOmZs+aYreWLsyk=?= 
+        <JohnsonCH.Chen@moxa.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 0/3] Use MFD for Dallas/Maxim DS1374 driver series
-Message-ID: <20200622112537.GE131826@piout.net>
-References: <HK2PR01MB3281DAE412911621A7F8963BFA970@HK2PR01MB3281.apcprd01.prod.exchangelabs.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: Re: [PATCH 1/3] mfd: ds1374: Introduce Dallas/Maxim DS1374 MFD core
+ driver
+Message-ID: <20200622142656.GA102380@roeck-us.net>
+References: <HK2PR01MB328111AB2520315A7D4A1172FA970@HK2PR01MB3281.apcprd01.prod.exchangelabs.com>
+ <20200622111413.GV954398@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <HK2PR01MB3281DAE412911621A7F8963BFA970@HK2PR01MB3281.apcprd01.prod.exchangelabs.com>
+In-Reply-To: <20200622111413.GV954398@dell>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
-
-On 22/06/2020 10:03:25+0000, Johnson CH Chen (陳昭勳) wrote:
-> Hello all,
+On Mon, Jun 22, 2020 at 12:14:13PM +0100, Lee Jones wrote:
+> On Mon, 22 Jun 2020, Johnson CH Chen (陳昭勳) wrote:
 > 
-> This patch set uses MFD structure for DS1374 so that RTC and Watchdog
-> functions can be separately. Therefore, we can add more Watchdog 
-> subfunctions here.
+> > Dallas/Maxim DS1374 is a counter designed to continuously count
+> > time in seconds. It provides an I2C interface to the host to
+> > access RTC clock or Alarm/Watchdog timer.
+> > 
+> > Add MFD Core driver, supporting the I2C communication to RTC and
+> > Watchdog devices.
+> > 
+> > Signed-off-by: Johnson Chen <johnsonch.chen@moxa.com>
+> > ---
+> >  drivers/mfd/Kconfig  |  11 +++++
+> >  drivers/mfd/Makefile |   2 +
+> >  drivers/mfd/ds1374.c | 101 +++++++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 114 insertions(+)
+> >  create mode 100644 drivers/mfd/ds1374.c
 > 
-> A DS1374 MFD core driver supports the I2C communication to RTC and
-> Watchdog devices.
-> 
-> 1. Add DS1374 MFD core driver with I2C bus.
-> 2. Let DS1374 RTC driver has RTC and Alarm functions only.
-> 3. Add DS1374 Watchdog driver.
+> Not sure I see the point of this driver.
 > 
 
-For reference, this was the last attempt:
+Not entirely sure either. Seems to me the idea is to use the watchdog
+subsystem for watchdog functionality, but that is just a guess and not
+really necessary (the conversion could be done in the rtc driver).
+I don't think the code as written works - the rtc code uses a mutex
+which the watchdog driver obviously isn't aware of. The mutex would
+have to be moved into the mfd code, with respective access functions.
 
-https://lore.kernel.org/linux-rtc/20170718092245.tc5oosbbb6lzvqpy@dell/
+Overall this adds a lot of complexity, and it seems the interdependencies
+between rtc and watchdog functionality are not well understood. Plus,
+other watchdog drivers have recently been added to other rtc clock chips,
+so this adds some inconsistencies in the rtc subsystem. Are we going
+to see this change for all those combined rtc/watchdog drivers ?
+If so, it might make sense to communicate that now to ensure consistency.
 
-The main issue I see with your series is that there is no way to select
-which of the rtc or the watchdog driver has to be used as IIRC each
-function is mutually exclusive. I think you should work on the DT
-bindings, addressing the few remaining comments.
+Guenter
 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+> How/where is the device part registered?
+> 
+> Is it DT only?  If not, what else?
+> 
+> Also where are the bindings?
+> 
+> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> > index 687e9c848053w.d16031f4b487 100644
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -1980,6 +1980,17 @@ config MFD_STM32_LPTIMER
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called stm32-lptimer.
+> >  
+> > +config MFD_DS1374
+> > +	tristate "Support for Dallas/Maxim DS1374"
+> > +	depends on I2C
+> > +	select MFD_CORE
+> > +	help
+> > +	  Say yes here to add support for Dallas/Maxim DS1374 Semiconductor.
+> > +	  This driver provides RTC and watchdog.
+> > +
+> > +	  This driver can also be built as a module. If so, module will be
+> > +	  called ds1374.
+> > +
+> >  config MFD_STM32_TIMERS
+> >  	tristate "Support for STM32 Timers"
+> >  	depends on (ARCH_STM32 && OF) || COMPILE_TEST
+> 
+> -- 
+> Lee Jones [李琼斯]
+> Senior Technical Lead - Developer Services
+> Linaro.org │ Open source software for Arm SoCs
+> Follow Linaro: Facebook | Twitter | Blog
