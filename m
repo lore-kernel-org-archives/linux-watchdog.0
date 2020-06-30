@@ -7,121 +7,182 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACE79C433E1
-	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:36:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11B3EC433E3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:37:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8AB7E20772
-	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:36:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E587C206B6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:37:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d7ZZOgU2"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HZhRENCM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729517AbgF3Ugi (ORCPT
+        id S1729770AbgF3Uh5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 30 Jun 2020 16:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+        Tue, 30 Jun 2020 16:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725872AbgF3Ugi (ORCPT
+        with ESMTP id S1729704AbgF3Uhz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jun 2020 16:36:38 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0F56C061755;
-        Tue, 30 Jun 2020 13:36:37 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id s14so8945849plq.6;
-        Tue, 30 Jun 2020 13:36:37 -0700 (PDT)
+        Tue, 30 Jun 2020 16:37:55 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0ED5C03E979;
+        Tue, 30 Jun 2020 13:37:54 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id o22so4947321pjw.2;
+        Tue, 30 Jun 2020 13:37:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=1JdJb/nPVAT5gkfGcCX+Fs5CyEjoe06QaSekf6Stnh8=;
-        b=d7ZZOgU2yNglOX/gwwDdMEMpRKngen5f3Xht5ti/J2AnhUkz2mZFmxUJf9mPqaUfhg
-         NTEu3vL5APw55cgTD82Z+6eX4EloHuqjnTO4UxuBLkxdL4eFu++4DDtwo6wYCZ6ktJpU
-         LabSdjrB6EyX9qB/wxFhqht9ZHj0jEDOG/5rf+ntwJDr8rRDqL3kjhTqgoCw6l7cG0+H
-         xG0inm/xX6f0d/4+aopYs8A4ubnKiZBzMAfwdmB2xH7m/oI03/Pyn8XeeVvJuiZJAEFl
-         i96jsx5trjNl5PH5GEgfZB9K3xVXQZUNJ73RedaEKE7wcgWTxzRcmiUjzmN1cuha4TYw
-         bL5Q==
+        bh=Vik1wDMns4lHXvZGrHxJ8AhRkA4fYb5uyHi++Y4drwk=;
+        b=HZhRENCMeqqegrLyoxvhQutm1GVjjQNldim8H8To9sUK4VK1oWZahUq2Xx6LLQugiV
+         dK7a8xKc4SaMxPBuRCX42qHkXPoBzzv91sadC5A5/vgBw4IaX/yDmvIu1T83Hf5r2U01
+         rIGJriM7XOIgHN6oARwT11Mli76jnKkGrKS2KSg8azZkdmx8h56dN9W7YMJB1KDYaqZP
+         s591dEgU0STrc3aL3/f/7qHJ1d3PyftYSPYHffChphin/md7+hvyl30VtZubKabv9RIt
+         hRaiK7riIycPehcuPzm3sZeVo9lESYJJ2xnOoNelO9i7YcqhQ7MvyZNIHBuXjiDsOOEI
+         lgWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=1JdJb/nPVAT5gkfGcCX+Fs5CyEjoe06QaSekf6Stnh8=;
-        b=NFKeOrYwMwndevnL2Ea7rx+tQDWhFpOcsarERQZNiGAtgxA+MIuJG4Cnrb9qWLZvS7
-         DUNco94E2AIM/y2OyK1CeSeKPQ1fZnPcHonWHRAbByVq9IeeP01cy4nYB9e0GRq+ZumQ
-         nkYLJiMyQhllYV2fx97KiQ8frp2uKaLuI/7PrQnygx7RyUSwFLHbcdEPdoESy5q0l254
-         TLzHt+1j/zRISHsHJkJFMaNNoCJd3LfrulolBxiTG5Dusliot9M0s8NEcuCgVOsPvYV9
-         ZAwFYOWJA0ZyC8IS4SoU8lUv6u5k7aBgM6MmF++wAvAFDBz3Snh5JZgJvzzs1ipJwgnK
-         oK8g==
-X-Gm-Message-State: AOAM5324Mwz/rP2UUJreIM4yz+9SBIEiasAy2lOaC9hOCzm5QHZtRDu8
-        P4rr4Jv1R3Mk4emx0LWneOk=
-X-Google-Smtp-Source: ABdhPJymtH7xcMvVH/kgjgDOiZvw/Qgu0o7ylLg9VDhbkJIM4SHD/nGfLFAeDemh4omr59n3AiuKAA==
-X-Received: by 2002:a17:90a:67c7:: with SMTP id g7mr22748358pjm.165.1593549397427;
-        Tue, 30 Jun 2020 13:36:37 -0700 (PDT)
+        bh=Vik1wDMns4lHXvZGrHxJ8AhRkA4fYb5uyHi++Y4drwk=;
+        b=oUZOsGrJspjpZotYEBra47A3FqNGw1GcA5QQ1YwkuAcTBENSsASaksyQEw13tlcYzr
+         rzBkooyFGEOxhhL91dz2UQhMFdEn+/UPH6JaBNMeItc+Djsesf5tyvN1dFUwBiLUgSEu
+         +gAPt2PMi3ZsyFzh9+84hVcpvswMnEcOBvKkCvnJC0b2cDTbom4JfrN3tNVatKCwAhMS
+         lQ2fOQ2aiOw83aXb5u67GtkZ/9g2tipZ8uwiO8x81Hn/hTEQwkVv6NGO2TT3UD3qL1Vz
+         Tk5eRcp9Vj+C0xcqD9j3DYAUJu1Ehl5Wg1Q5I5o+RZgcWrB9EwiEIfJ5A6guN/dHX2s3
+         x89A==
+X-Gm-Message-State: AOAM530eDQzKY2rMcEARenBh2AMWAGfJVFY2Ark1GaqZykpU/g01Ij92
+        1hfEZ8sR+IIioaaeT9P0mQ4=
+X-Google-Smtp-Source: ABdhPJwDv8rmd9PxDGb5EKo1dKzsyH4tuN76FCWm9Uv2Cw1ODUe85eR8mvo86Iveb22sEm+F16siiA==
+X-Received: by 2002:a17:90a:987:: with SMTP id 7mr22502303pjo.186.1593549473444;
+        Tue, 30 Jun 2020 13:37:53 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m4sm3012520pjs.29.2020.06.30.13.36.36
+        by smtp.gmail.com with ESMTPSA id f2sm2397939pfb.184.2020.06.30.13.37.52
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 30 Jun 2020 13:36:36 -0700 (PDT)
-Date:   Tue, 30 Jun 2020 13:36:36 -0700
+        Tue, 30 Jun 2020 13:37:52 -0700 (PDT)
+Date:   Tue, 30 Jun 2020 13:37:52 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Tero Kristo <t-kristo@ti.com>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, jan.kiszka@siemens.com
-Subject: Re: [PATCH 1/2] watchdog: use __watchdog_ping in startup
-Message-ID: <20200630203636.GA20146@roeck-us.net>
-References: <20200624114534.1362-1-t-kristo@ti.com>
- <20200624114534.1362-2-t-kristo@ti.com>
+To:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Cc:     linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>
+Subject: Re: [RESEND PATCHv3 1/2] dt-bindings: watchdog: Convert QCOM
+ watchdog timer bindings to YAML
+Message-ID: <20200630203752.GA20330@roeck-us.net>
+References: <cover.1593112534.git.saiprakash.ranjan@codeaurora.org>
+ <77b47aad9d17cb4ec8359bdbbb30c33d818117e6.1593112534.git.saiprakash.ranjan@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200624114534.1362-2-t-kristo@ti.com>
+In-Reply-To: <77b47aad9d17cb4ec8359bdbbb30c33d818117e6.1593112534.git.saiprakash.ranjan@codeaurora.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jun 24, 2020 at 02:45:33PM +0300, Tero Kristo wrote:
-> Current watchdog startup functionality does not respect the minimum hw
-> heartbeat setup and the last watchdog ping timeframe when watchdog is
-> already running and userspace process attaches to it. Fix this by using
-> the __watchdog_ping from the startup also. For this code path, we can
-> also let the __watchdog_ping handle the bookkeeping for the worker and
-> last keepalive times.
+On Fri, Jun 26, 2020 at 12:59:04AM +0530, Sai Prakash Ranjan wrote:
+> Convert QCOM watchdog timer bindings to DT schema format using
+> json-schema.
 > 
-> Signed-off-by: Tero Kristo <t-kristo@ti.com>
+> Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/watchdog_dev.c | 19 +++++++++++--------
->  1 file changed, 11 insertions(+), 8 deletions(-)
+>  .../devicetree/bindings/watchdog/qcom-wdt.txt | 28 ------------
+>  .../bindings/watchdog/qcom-wdt.yaml           | 44 +++++++++++++++++++
+>  2 files changed, 44 insertions(+), 28 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
 > 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 7e4cd34a8c20..bc1cfa288553 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -275,15 +275,18 @@ static int watchdog_start(struct watchdog_device *wdd)
->  	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
->  
->  	started_at = ktime_get();
-> -	if (watchdog_hw_running(wdd) && wdd->ops->ping)
-> -		err = wdd->ops->ping(wdd);
-> -	else
-> +	if (watchdog_hw_running(wdd) && wdd->ops->ping) {
-> +		err = __watchdog_ping(wdd);
-> +		if (err == 0)
-> +			set_bit(WDOG_ACTIVE, &wdd->status);
-> +	} else {
->  		err = wdd->ops->start(wdd);
-> -	if (err == 0) {
-> -		set_bit(WDOG_ACTIVE, &wdd->status);
-> -		wd_data->last_keepalive = started_at;
-> -		wd_data->last_hw_keepalive = started_at;
-> -		watchdog_update_worker(wdd);
-> +		if (err == 0) {
-> +			set_bit(WDOG_ACTIVE, &wdd->status);
-> +			wd_data->last_keepalive = started_at;
-> +			wd_data->last_hw_keepalive = started_at;
-> +			watchdog_update_worker(wdd);
-> +		}
->  	}
->  
->  	return err;
+> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> deleted file mode 100644
+> index 41aeaa2ff0f8..000000000000
+> --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> +++ /dev/null
+> @@ -1,28 +0,0 @@
+> -Qualcomm Krait Processor Sub-system (KPSS) Watchdog
+> ----------------------------------------------------
+> -
+> -Required properties :
+> -- compatible : shall contain only one of the following:
+> -
+> -			"qcom,kpss-wdt-msm8960"
+> -			"qcom,kpss-wdt-apq8064"
+> -			"qcom,kpss-wdt-ipq8064"
+> -			"qcom,kpss-wdt-ipq4019"
+> -			"qcom,kpss-timer"
+> -			"qcom,scss-timer"
+> -			"qcom,kpss-wdt"
+> -
+> -- reg : shall contain base register location and length
+> -- clocks : shall contain the input clock
+> -
+> -Optional properties :
+> -- timeout-sec : shall contain the default watchdog timeout in seconds,
+> -                if unset, the default timeout is 30 seconds
+> -
+> -Example:
+> -	watchdog@208a038 {
+> -		compatible = "qcom,kpss-wdt-ipq8064";
+> -		reg = <0x0208a038 0x40>;
+> -		clocks = <&sleep_clk>;
+> -		timeout-sec = <10>;
+> -	};
+> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+> new file mode 100644
+> index 000000000000..5448cc537a03
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+> @@ -0,0 +1,44 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/watchdog/qcom-wdt.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Qualcomm Krait Processor Sub-system (KPSS) Watchdog timer
+> +
+> +maintainers:
+> +  - Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+> +
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - qcom,kpss-timer
+> +      - qcom,kpss-wdt
+> +      - qcom,kpss-wdt-apq8064
+> +      - qcom,kpss-wdt-ipq4019
+> +      - qcom,kpss-wdt-ipq8064
+> +      - qcom,kpss-wdt-msm8960
+> +      - qcom,scss-timer
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - clocks
+> +
+> +examples:
+> +  - |
+> +    watchdog@208a038 {
+> +      compatible = "qcom,kpss-wdt-ipq8064";
+> +      reg = <0x0208a038 0x40>;
+> +      clocks = <&sleep_clk>;
+> +      timeout-sec = <10>;
+> +    };
