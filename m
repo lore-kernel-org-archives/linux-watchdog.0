@@ -1,116 +1,116 @@
-Return-Path: <SRS0=F25Y=AJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=oIfu=AL=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A14AC433DF
-	for <linux-watchdog@archiver.kernel.org>; Sun, 28 Jun 2020 17:56:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56FDEC433E0
+	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:00:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 217E22076C
-	for <linux-watchdog@archiver.kernel.org>; Sun, 28 Jun 2020 17:56:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28B96206A1
+	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Jun 2020 20:00:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MsGkyI7p"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CpGnE3fR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726585AbgF1R43 (ORCPT
+        id S1729028AbgF3UAG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 28 Jun 2020 13:56:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
+        Tue, 30 Jun 2020 16:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726438AbgF1R43 (ORCPT
+        with ESMTP id S1728878AbgF3UAF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 28 Jun 2020 13:56:29 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492B5C03E979
-        for <linux-watchdog@vger.kernel.org>; Sun, 28 Jun 2020 10:56:29 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id 12so6061281oir.4
-        for <linux-watchdog@vger.kernel.org>; Sun, 28 Jun 2020 10:56:29 -0700 (PDT)
+        Tue, 30 Jun 2020 16:00:05 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6BF2C061755;
+        Tue, 30 Jun 2020 13:00:04 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id w16so21875309ejj.5;
+        Tue, 30 Jun 2020 13:00:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:reply-to:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=SWaV4KuGDDlEwRWPYnhRmMQ0ubicOGjf8DiR5GbPBMo=;
-        b=MsGkyI7psj++zGl+x/DpidrjmZVuEt4uFPcRAphgKwhxcYwurEYsGIq8UKbNKwhH3S
-         hxp29LHsAxthrfgbmfelZ6BwBCkj7JHg4domLUSNwf7cdp5O5M/S7efVvJDvOrI4vkFw
-         EcMAG6l1s9Wla5T/WXqWGNtQcFfR7FuGIyJGkPPwsiaGMV/e8jxTIN9gakOwaXiQxuZ/
-         8vKnChspqkVsVOm9mn/rim1vdzpdIGiFB7vo503TveqnCf/MwM39ElTzGfOzmbDf+5gC
-         hk1b9DZgCFzQDd4ms1aZRf3zYs1ql7UiYhSRpmo8+4p2nnksbV2dMx2X6KXfbIql7VYx
-         bSvQ==
+        h=from:date:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=ldl1WwxRjxrbVs0UyhlhGaXCB+HE7WnXiRirMFC/VI0=;
+        b=CpGnE3fRqwe5FDnQJHrqoN5FQAsEk/lJgO/etAhGA/GpHiRweSYKsr/NgURn7e6B4D
+         +jlULt0/BZAn/jEV2kKgM2JpUsO2tbI/vCWl5oY8c3yUcT4XBLHmS2C6JcLvxd1POBB3
+         L+D6r9yDP91lkK6SuwP5JX/5MCGetnWX7JdxXibLZH1170XyCBXKQE9RGHZ8xtVJnAkm
+         AJaqI8VOALrvvwx+CoPcg5iN8M3LJYF/OxMIYNQQMU1O/UIRbkHI/nxv5BTaxWNixnNw
+         GugNu3MdWMT1PAl7siYeUGj2EPYdnf0A7WCAm8G8tXOvQKBc934o4PK3ix/HbjhvqfN3
+         Z3Rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :reply-to:references:mime-version:content-disposition:in-reply-to
-         :user-agent;
-        bh=SWaV4KuGDDlEwRWPYnhRmMQ0ubicOGjf8DiR5GbPBMo=;
-        b=G3Qgha5leiPc4QELgRT+apupDoK35t+TjRDxRWMJaS/O8WEgI37bDFjsEFiVPDE8dB
-         +geiiDIx5n5hM96kh1dKqREaFIFi8V/xsyNf3iiDf0hyDUsdLHBGEWNZQcDMdUral76M
-         EvAHCPV/16VbZPIMvsr4X1gjYnJFl+pK8i/caCeYt9Ci94pIocFYwO3SLuWtfhSFIuwb
-         8MPzvkOFfIDHnPIopQjS0DToeg/WGNGcC0+azCpfXGf4bpGErv1eol+l7SYTUszEbIuO
-         9c0CqW0+hJubWIRQ8XXlzlSowdZZO4ciwVWWTFOIJSSKvdiAra+a3yL2WFLf07rGllb/
-         1nwA==
-X-Gm-Message-State: AOAM531g+ON+fQadbDCp8qh3dZ9/su3cW4jN9dXuQh3V/pmW+d2KOqGT
-        6TBc+or9foMsGoodgtsxRg==
-X-Google-Smtp-Source: ABdhPJwhK8sKUWEtkv4bFQV+ufiK2kazkcAi9ehV6ORqzA3QQ0yN9AlchDHoe7HCWQUTzCI6cgeXZQ==
-X-Received: by 2002:aca:d497:: with SMTP id l145mr1285972oig.146.1593366988502;
-        Sun, 28 Jun 2020 10:56:28 -0700 (PDT)
-Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id a10sm8035376ooo.39.2020.06.28.10.56.24
+        h=x-gm-message-state:from:date:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=ldl1WwxRjxrbVs0UyhlhGaXCB+HE7WnXiRirMFC/VI0=;
+        b=BHgq6/80ggRrp6YjM4Hks5ez28MYoCInrJY03M31vKkKiUrYMGbwnEhbdo6QuD143g
+         ie/zwB7oAVtZtqR2WCcHRR8XJp490z9YNBeWuWr/0+G+zEjG9cC18v8XR0YjGmgzlwAd
+         SRcMT18m1eYD7nyoLojPQHHYMyanQymihkbBlt7Kr8gB/Vz7OmLaAbdMmbh6zEMd6cCp
+         cwqqhA2naLBamzWuBbnCWTdT7KjS5pUtv6QgWnK4uFpGjlc6/b7NWogb8asn6GNl07ok
+         xrIKTqeFH083tTsXxXgh5l5axJ1lyJZ84sBADjAt4ucygSPh212vILiyQ5Ho5MppJXKb
+         nsVg==
+X-Gm-Message-State: AOAM5314Qiwwhi4Xw5I2sWKFfKUMLFW02kYT1xGc9SWjfB5hTkcii/Cn
+        6IyYGSi3F8vxh+HyVMnaHVY=
+X-Google-Smtp-Source: ABdhPJx6VFGPGnkdrs5wh+o9pBBfjA00TUqefANt1swuANi6ZEQ+n81vfiqllrSO33moHSoygdt0NA==
+X-Received: by 2002:a17:906:7f90:: with SMTP id f16mr19377109ejr.507.1593547202116;
+        Tue, 30 Jun 2020 13:00:02 -0700 (PDT)
+Received: from felia ([2001:16b8:2d31:bc00:cc6f:aee9:d326:7bf7])
+        by smtp.gmail.com with ESMTPSA id y7sm3768744edq.25.2020.06.30.13.00.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2020 10:56:27 -0700 (PDT)
-Received: from minyard.net (unknown [IPv6:2001:470:b8f6:1b:cd50:aae4:8bae:755])
-        by serve.minyard.net (Postfix) with ESMTPSA id 2601818003B;
-        Sun, 28 Jun 2020 17:56:24 +0000 (UTC)
-Date:   Sun, 28 Jun 2020 12:56:22 -0500
-From:   Corey Minyard <minyard@acm.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org,
-        Gabriele Paoloni <gabriele.paoloni@intel.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: Re: [PATCH 1/6] watchdog: Allow a driver to use milliseconds instead
- of seconds
-Message-ID: <20200628175622.GM3235@minyard.net>
-Reply-To: minyard@acm.org
-References: <20200620173351.18752-1-minyard@acm.org>
- <20200620173351.18752-2-minyard@acm.org>
- <20200628145420.GA80485@roeck-us.net>
+        Tue, 30 Jun 2020 13:00:01 -0700 (PDT)
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+X-Google-Original-From: Lukas Bulwahn <lukas@gmail.com>
+Date:   Tue, 30 Jun 2020 21:59:51 +0200 (CEST)
+X-X-Sender: lukas@felia
+To:     Evan Benn <evanbenn@chromium.org>
+cc:     Julius Werner <jwerner@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Joe Perches <joe@perches.com>, kernel-janitors@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MAINTAINERS: rectify entry in ARM SMC WATCHDOG DRIVER
+In-Reply-To: <CAKz_xw3KuWFSkcz-9hLHGZ2=S7nJ=K=AN6j2FJ6afZBFowJO7g@mail.gmail.com>
+Message-ID: <alpine.DEB.2.21.2006302156120.3966@felia>
+References: <20200602052104.7795-1-lukas.bulwahn@gmail.com> <828311d2-61ea-42cb-1449-a53f3772543d@roeck-us.net> <CAODwPW_oxDxF_5-icRs0eaRVLgtP+bDc_OSKa=EcfeSp=c6Fag@mail.gmail.com> <CAKz_xw0Tqr-idoZbNzg_didSCr5L+L1=76xjF=Sqj4DgpL9g7Q@mail.gmail.com>
+ <CAKz_xw3KuWFSkcz-9hLHGZ2=S7nJ=K=AN6j2FJ6afZBFowJO7g@mail.gmail.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200628145420.GA80485@roeck-us.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Jun 28, 2020 at 07:54:20AM -0700, Guenter Roeck wrote:
-> On Sat, Jun 20, 2020 at 12:33:46PM -0500, minyard@acm.org wrote:
-> > From: Corey Minyard <cminyard@mvista.com>
-> > 
-> > If the WDIOF_MSECTIMER is set, then all the timeouts in the watchdog
-> > structure are expected to be in milliseconds.  Add the flag and the
-> > various conversions.  This should have no effect on existing drivers.
-> > 
+
+
+On Fri, 5 Jun 2020, Evan Benn wrote:
+
+> AFAICT this has now been merged upstream, I'm not sure what action to take:
 > 
-> I have decided to go another route: Instead of using a WDIOF_MSECTIMER
-> flag, provide new callback functions. That increases structure sizes,
-> but ultimately I think it is cleaner.
-> 
-> I implemented a prototype, but didn't have a chance to test it yet.
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5c24a28b4eb842ad1256496be6ae01bab15f1dcb
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=72a9e7fea5866fc471fda78f05f166595c8c6ba6
 
-Oh, ok.  I was looking at going through all the existing drivers and
-changing the direct references to timeout and pretimeout to use accessor
-functions.  That what what I thought you were hinting at, and I thought
-that was a good plan.  My original idea was to provide the ability,
-change everything over, then remove the messy cruft from the core
-driver.
+This patch is still fully valid and still applies to next-20200630; it can 
+be simply applied as any other bug fix to your driver code.
 
-If you want to send something, I can try it out.
+Evan, can you please ask Wim as linux-watchdog maintainer to pick-up this 
+patch, with the reviews below?
 
--corey
+Lukas
 
 > 
-> Guenter
+> On Wed, Jun 3, 2020 at 9:22 AM Evan Benn <evanbenn@chromium.org> wrote:
+> >
+> > Apologies for that slip up.
+> >
+> > Reviewed-by: Evan Benn <evanbenn@chromium.org>
+> >
+> > On Wed, Jun 3, 2020 at 6:16 AM Julius Werner <jwerner@chromium.org> wrote:
+> > >
+> > > Reviewed-by: Julius Werner <jwerner@chromium.org>
+> 
