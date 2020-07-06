@@ -2,236 +2,501 @@ Return-Path: <SRS0=X0wD=AR=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 656C9C433E3
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jul 2020 17:58:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 611C6C433DF
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jul 2020 22:09:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A9CC20773
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jul 2020 17:58:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2303820675
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jul 2020 22:09:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="A13MFhFe"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i7OfbRWE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729661AbgGFR5d (ORCPT
+        id S1726540AbgGFWJU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jul 2020 13:57:33 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:37863 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729413AbgGFR5c (ORCPT
+        Mon, 6 Jul 2020 18:09:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbgGFWJU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jul 2020 13:57:32 -0400
-Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 548A822723;
-        Mon,  6 Jul 2020 19:57:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1594058248;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=dk/Ugy/8fVKtX17Ogq8MbVj6edIvzw0hjma/kggDoqI=;
-        b=A13MFhFe/QeCBTyre0GVifMnKPbmoqV6pRyiVgK8C509MI9CUo2c8jgzy9x8VMga9HSIJ/
-        mKl3QcgpjK187xeLGoZ++YwT/QrL4BDhSz11ovze+vL8iD7jmY5k6w1Xkb9YqTEq/gBeIU
-        QDWWq8YRyqEC9RwjXxmlgU2NdlyHUmU=
-From:   Michael Walle <michael@walle.cc>
-To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        Mon, 6 Jul 2020 18:09:20 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889CEC061755;
+        Mon,  6 Jul 2020 15:09:20 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id cm21so8048035pjb.3;
+        Mon, 06 Jul 2020 15:09:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=+uK4bn6cD0JBlp4TOctK9L6pzNvu2hdJkLGTZY2hRKc=;
+        b=i7OfbRWE+0w7dHWZN8HK6djBI8jms1umhg/j2LwNc5MXMuZ+pGQqTQo5X5oMkuSe8Z
+         0/A639JjH2U71FHWUvRvop2uL/5XHf2Cwmsatq0f2FrDNQ588wYE8j0ZV53N8moMbdti
+         KAM9uXB6tye8WFvumh/gZI8UDcCKcSFue/lPjF/Rwck6ZtSFKMUYTbWPklDzggm05WXI
+         nLEP9gR/qEEmTjGPavRNFJDDeatE9vDZVyhSFq+MQ5r2ZTtpf0eFgXjkBPsWTrv5qFBl
+         2q1QiCINWiGtmwJwBw4lSw34EIIbI5431MoWeD57VTkwYWkNo1+TX8tyRS7VTnm+mQE7
+         essw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=+uK4bn6cD0JBlp4TOctK9L6pzNvu2hdJkLGTZY2hRKc=;
+        b=nKY7uhqsE7darn4BuHUPAxc7aR6a9KLtiOi9PCzz6ZADII1A7BQ1gKmXxLH9hNgIkO
+         kF0r1QJmoNAnCHUArgb+Ogc41VUqcZXpybx4XZUvtPeL+Mm1ol3n3QYfsNZU6QSOnonO
+         L/YIpXILerApiGT+OYpYB3VRPlT0lsxj/bERH886ysPqQ2OB+8yyivEQZvGRG/Hz6D0c
+         eQbm2eTRiZoZV0MvBL8byawpN8FE17lIDvzznP/FqDlwbag0rmrWC8ps5QrQZgPS6Sr7
+         DNpIVvQHgBDBR36fAwuBqD0Sd0gR0tPkkZ5CioQ4LCma5kLBwKS1H1bUgQ1QPQylgnso
+         9Fhw==
+X-Gm-Message-State: AOAM533zF4Rjg7gQTQDb9GNj0pH1bONtmKWJP8yMhi1wCrv99ic501ZN
+        xJEg4FCnKWPaood/YC0zze0=
+X-Google-Smtp-Source: ABdhPJyQj2/o42r5cP5bFEF106zCGkgevjwvfYnV1UPpkRrYkqmvAgt0t/AfuR/7/UzdO8xPlafoSQ==
+X-Received: by 2002:a17:90a:66c7:: with SMTP id z7mr1218180pjl.172.1594073359842;
+        Mon, 06 Jul 2020 15:09:19 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g26sm17746049pfq.205.2020.07.06.15.09.18
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 06 Jul 2020 15:09:19 -0700 (PDT)
+Date:   Mon, 6 Jul 2020 15:09:18 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Johnson CH Chen =?utf-8?B?KO+/ve+/ve+/vUzvv73vv70p?= 
+        <JohnsonCH.Chen@moxa.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Michael Walle <michael@walle.cc>
-Subject: [PATCH v5 00/13] Add support for Kontron sl28cpld
-Date:   Mon,  6 Jul 2020 19:53:40 +0200
-Message-Id: <20200706175353.16404-1-michael@walle.cc>
-X-Mailer: git-send-email 2.20.1
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH v3] rtc: rtc-ds1374: wdt: Use watchdog core for watchdog
+ part
+Message-ID: <20200706220918.GA189452@roeck-us.net>
+References: <HK2PR01MB32815738D286AB8A714B7415FA690@HK2PR01MB3281.apcprd01.prod.exchangelabs.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam: Yes
+In-Reply-To: <HK2PR01MB32815738D286AB8A714B7415FA690@HK2PR01MB3281.apcprd01.prod.exchangelabs.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The Kontron sl28cpld is a board management chip providing gpio, pwm, fan
-monitoring and an interrupt controller. For now this controller is used on
-the Kontron SMARC-sAL28 board. But because of its flexible nature, it
-might also be used on other boards in the future. The individual blocks
-(like gpio, pwm, etc) are kept intentionally small. The MFD core driver
-then instantiates different (or multiple of the same) blocks. It also
-provides the register layout so it might be updated in the future without a
-device tree change; and support other boards with a different layout or
-functionalities.
+On Mon, Jul 06, 2020 at 07:24:25AM +0000, Johnson CH Chen (���L��) wrote:
+> Let ds1374 watchdog use watchdog core functions. It also includes
+> improving watchdog timer setting and nowayout, and just uses ioctl()
+> of watchdog core.
+> 
+> Signed-off-by: Johnson Chen <johnsonch.chen@moxa.com>
+> Reported-by: kernel test robot <lkp@intel.com>
 
-See also [1] for more information.
+This should be dropped. Yes, the test robot reported a problem with
+an earlier version of this patch, but it did not report a problem with
+_this_ version of the patch.
 
-This is my first take of a MFD driver. I don't know whether the subsystem
-maintainers should only be CCed on the patches which affect the subsystem
-or on all patches for this series. I've chosen the latter so you can get a
-more complete picture.
+> 
+> v2->v3:
+> - Fix a problem reported by WATCHDOG_CORE if WATCHDOG
+> - Remove save_client
+> - Let wdt_margin be 0 for watchdog_init_timeout()
+> - Use dev_info() rather than pr_info()
+> - Avoid more strings in this driver
+> 
+> v1->v2:
+> - Use ds1374_wdt_settimeout() before registering the watchdog
+> - Remove watchdog_unregister_device() because devm_watchdog_register_device() is used
+> - Remove ds1374_wdt_ping()
+> - TIMER_MARGIN_MAX to 4095 for 24-bit value
+> - Keep wdt_margin
+> - Fix coding styles
+> ---
 
-[1] https://lore.kernel.org/linux-devicetree/0e3e8204ab992d75aa07fc36af7e4ab2@walle.cc/
+Change log should be here, after "---"
 
-Changes since v4:
- - see individual patches, suggested by Lee.
+>  drivers/rtc/Kconfig      |   1 +
+>  drivers/rtc/rtc-ds1374.c | 253 ++++++++++-----------------------------
+>  2 files changed, 61 insertions(+), 193 deletions(-)
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index b54d87d45c89..c25d51f35f0c 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -282,6 +282,7 @@ config RTC_DRV_DS1374
+>  config RTC_DRV_DS1374_WDT
+>  	bool "Dallas/Maxim DS1374 watchdog timer"
+>  	depends on RTC_DRV_DS1374
+> +	select WATCHDOG_CORE if WATCHDOG
+>  	help
+>  	  If you say Y here you will get support for the
+>  	  watchdog timer in the Dallas Semiconductor DS1374
+> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+> index 9c51a12cf70f..e86e381e52a0 100644
+> --- a/drivers/rtc/rtc-ds1374.c
+> +++ b/drivers/rtc/rtc-ds1374.c
+> @@ -46,6 +46,7 @@
+>  #define DS1374_REG_WDALM2	0x06
+>  #define DS1374_REG_CR		0x07 /* Control */
+>  #define DS1374_REG_CR_AIE	0x01 /* Alarm Int. Enable */
+> +#define DS1374_REG_CR_WDSTR	0x08 /* 1=INT, 0=RST */
+>  #define DS1374_REG_CR_WDALM	0x20 /* 1=Watchdog, 0=Alarm */
+>  #define DS1374_REG_CR_WACE	0x40 /* WD/Alarm counter enable */
+>  #define DS1374_REG_SR		0x08 /* Status */
+> @@ -71,7 +72,9 @@ struct ds1374 {
+>  	struct i2c_client *client;
+>  	struct rtc_device *rtc;
+>  	struct work_struct work;
+> -
+> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> +	struct watchdog_device wdt;
+> +#endif
+>  	/* The mutex protects alarm operations, and prevents a race
+>  	 * between the enable_irq() in the workqueue and the free_irq()
+>  	 * in the remove function.
+> @@ -369,237 +372,99 @@ static const struct rtc_class_ops ds1374_rtc_ops = {
+>   *
+>   *****************************************************************************
+>   */
+> -static struct i2c_client *save_client;
+>  /* Default margin */
+> -#define WD_TIMO 131762
+> +#define TIMER_MARGIN_DEFAULT	32
+> +#define TIMER_MARGIN_MIN	1
+> +#define TIMER_MARGIN_MAX	4095 /* 24-bit value */
+>  
+>  #define DRV_NAME "DS1374 Watchdog"
+>  
+> -static int wdt_margin = WD_TIMO;
+> -static unsigned long wdt_is_open;
+> +static int wdt_margin;
+>  module_param(wdt_margin, int, 0);
+>  MODULE_PARM_DESC(wdt_margin, "Watchdog timeout in seconds (default 32s)");
+>  
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default ="
+> +		__MODULE_STRING(WATCHDOG_NOWAYOUT)")");
+> +
+> +
+>  static const struct watchdog_info ds1374_wdt_info = {
+>  	.identity       = "DS1374 WTD",
+>  	.options        = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+>  						WDIOF_MAGICCLOSE,
+>  };
+>  
+> -static int ds1374_wdt_settimeout(unsigned int timeout)
+> +static int ds1374_wdt_settimeout(struct watchdog_device *wdt, unsigned int timeout)
+>  {
+> -	int ret = -ENOIOCTLCMD;
+> -	int cr;
+> +	int ret, cr;
+> +	struct ds1374 *ds1374 = watchdog_get_drvdata(wdt);
+> +	struct i2c_client *client = ds1374->client;
+>  
+> -	ret = cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
+> -	if (ret < 0)
+> -		goto out;
+> +	wdt->timeout = timeout;
+> +
+> +	cr = i2c_smbus_read_byte_data(client, DS1374_REG_CR);
+> +	if (cr < 0)
+> +		return cr;
+>  
+>  	/* Disable any existing watchdog/alarm before setting the new one */
+>  	cr &= ~DS1374_REG_CR_WACE;
+>  
+> -	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+> +	ret = i2c_smbus_write_byte_data(client, DS1374_REG_CR, cr);
+>  	if (ret < 0)
+> -		goto out;
+> +		return ret;
+>  
+>  	/* Set new watchdog time */
+> -	ret = ds1374_write_rtc(save_client, timeout, DS1374_REG_WDALM0, 3);
+> +	timeout = timeout * 4096;
+> +	ret = ds1374_write_rtc(client, timeout, DS1374_REG_WDALM0, 3);
+>  	if (ret) {
+> -		pr_info("couldn't set new watchdog time\n");
+> -		goto out;
+> +		dev_info(&client->dev, "couldn't set new watchdog time\n");
 
-Changes since v3:
- - use of_platform_populate() to populate internal devices using the
-   internal register offsets as unit-addresses
- - because we don't use mfd_cells anymore, we cannot use IORESOURCE_REG,
-   but instead parse the reg property in each individual driver
- - dropped the following patches because they were already merged:
-     gpiolib: Introduce gpiochip_irqchip_add_domain()
-     gpio: add a reusable generic gpio_chip using regmap
- - dropped the following patches because they are no longer needed:
-     include/linux/ioport.h: add helper to define REG resource constructs
-     mfd: mfd-core: Don't overwrite the dma_mask of the child device
-     mfd: mfd-core: match device tree node against reg property
- - rephrase commit messages, as suggested by Thomas Gleixner
+This should be dev_err(). Note though that I would suggest to drop the message -
+there are other errors for which there is no error message, and I don't see
+why this one would be more important or relevant.
 
-Changes since v2:
-As suggested by Guenter Roeck:
- - added sl28cpld.rst to index.rst
- - removed sl28cpld_wdt_status()
- - reverse christmas tree local variable ordering
- - assign device_property_read_bool() retval directly
- - introduce WDT_DEFAULT_TIMEOUT and use it if the hardware reports
-   0 as timeout.
- - set WDOG_HW_RUNNING if applicable
- - remove platform_set_drvdata() leftover
+> +		return ret;
+>  	}
+>  
+>  	/* Enable watchdog timer */
+>  	cr |= DS1374_REG_CR_WACE | DS1374_REG_CR_WDALM;
+> +	cr &= ~DS1374_REG_CR_WDSTR;/* for RST PIN */
+>  	cr &= ~DS1374_REG_CR_AIE;
+>  
+> -	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+> +	ret = i2c_smbus_write_byte_data(client, DS1374_REG_CR, cr);
+>  	if (ret < 0)
+> -		goto out;
+> +		return ret;
+>  
+>  	return 0;
+> -out:
+> -	return ret;
+>  }
+>  
+> -
+>  /*
+>   * Reload the watchdog timer.  (ie, pat the watchdog)
+>   */
+> -static void ds1374_wdt_ping(void)
+> +static int ds1374_wdt_start(struct watchdog_device *wdt)
+>  {
+>  	u32 val;
+> -	int ret = 0;
+> +	struct ds1374 *ds1374 = watchdog_get_drvdata(wdt);
+>  
+> -	ret = ds1374_read_rtc(save_client, &val, DS1374_REG_WDALM0, 3);
+> -	if (ret)
+> -		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
+> +	return ds1374_read_rtc(ds1374->client, &val, DS1374_REG_WDALM0, 3);
+>  }
+>  
+> -static void ds1374_wdt_disable(void)
+> +static int ds1374_wdt_stop(struct watchdog_device *wdt)
+>  {
+>  	int cr;
+> +	struct ds1374 *ds1374 = watchdog_get_drvdata(wdt);
+> +	struct i2c_client *client = ds1374->client;
 
-As suggested by Bartosz Golaszewski:
- - don't export gpio_regmap_simple_xlate()
- - combine local variable declaration of the same type
- - drop the "struct gpio_regmap_addr", instead use -1 to force an address
-   offset of zero
- - fix typo
- - use "struct gpio_regmap_config" pattern, keep "struct gpio_regmap"
-   private. this also means we need a getter/setter for the driver_data
-   element.
+Nit: Reverse christmas tree looks a bit better.
 
-As suggested by Linus Walleij:
- - don't store irq_domain in gpio-regmap. drop to_irq() altogether for now.
-   Instead there is now a new patch which lets us set the irqdomain of the
-   gpiochip_irqchip and use its .to_irq() function. This way we don't have
-   to expose the gpio_chip inside the gpio-regmap to the user.
++	struct ds1374 *ds1374 = watchdog_get_drvdata(wdt);
++	struct i2c_client *client = ds1374->client;
+	int cr;
 
-Changes since v1:
- - use of_match_table in all drivers, needed for automatic module loading,
-   when using OF_MFD_CELL()
- - add new gpio-regmap.c which adds a generic regmap gpio_chip
-   implementation
- - new patch for reqmap_irq, so we can reuse its implementation
- - remove almost any code from gpio-sl28cpld.c, instead use gpio-regmap and
-   regmap-irq
- - change the handling of the mfd core vs device tree nodes; add a new
-   property "of_reg" to the mfd_cell struct which, when set, is matched to
-   the unit-address of the device tree nodes.
- - fix sl28cpld watchdog when it is not initialized by the bootloader.
-   Explicitly set the operation mode.
- - also add support for kontron,assert-wdt-timeout-pin in sl28cpld-wdt.
+>  
+> -	cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
+> +	cr = i2c_smbus_read_byte_data(client, DS1374_REG_CR);
 
-As suggested by Bartosz Golaszewski:
- - define registers as hex
- - make gpio enum uppercase
- - move parent regmap check before memory allocation
- - use device_property_read_bool() instead of the of_ version
- - mention the gpio flavors in the bindings documentation
+Missing error check:
 
-As suggested by Guenter Roeck:
- - cleanup #includes and sort them
- - use devm_watchdog_register_device()
- - use watchdog_stop_on_reboot()
- - provide a Documentation/hwmon/sl28cpld.rst
- - cleaned up the weird tristate->bool and I2C=y issue. Instead mention
-   that the MFD driver is bool because of the following intc patch
- - removed the SL28CPLD_IRQ typo
+	if (cr < 0)
+		return cr;
 
-As suggested by Rob Herring:
- - combine all dt bindings docs into one patch
- - change the node name for all gpio flavors to "gpio"
- - removed the interrupts-extended rule
- - cleaned up the unit-address space, see above
+>  	/* Disable watchdog timer */
+>  	cr &= ~DS1374_REG_CR_WACE;
+>  
+> -	i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+> +	return i2c_smbus_write_byte_data(client, DS1374_REG_CR, cr);
+>  }
+>  
+> -/*
+> - * Watchdog device is opened, and watchdog starts running.
+> - */
+> -static int ds1374_wdt_open(struct inode *inode, struct file *file)
+> -{
+> -	struct ds1374 *ds1374 = i2c_get_clientdata(save_client);
+> -
+> -	if (MINOR(inode->i_rdev) == WATCHDOG_MINOR) {
+> -		mutex_lock(&ds1374->mutex);
+> -		if (test_and_set_bit(0, &wdt_is_open)) {
+> -			mutex_unlock(&ds1374->mutex);
+> -			return -EBUSY;
+> -		}
+> -		/*
+> -		 *      Activate
+> -		 */
+> -		wdt_is_open = 1;
+> -		mutex_unlock(&ds1374->mutex);
+> -		return stream_open(inode, file);
+> -	}
+> -	return -ENODEV;
+> -}
+> -
+> -/*
+> - * Close the watchdog device.
+> - */
+> -static int ds1374_wdt_release(struct inode *inode, struct file *file)
+> -{
+> -	if (MINOR(inode->i_rdev) == WATCHDOG_MINOR)
+> -		clear_bit(0, &wdt_is_open);
+> -
+> -	return 0;
+> -}
+> -
+> -/*
+> - * Pat the watchdog whenever device is written to.
+> - */
+> -static ssize_t ds1374_wdt_write(struct file *file, const char __user *data,
+> -				size_t len, loff_t *ppos)
+> -{
+> -	if (len) {
+> -		ds1374_wdt_ping();
+> -		return 1;
+> -	}
+> -	return 0;
+> -}
+> -
+> -static ssize_t ds1374_wdt_read(struct file *file, char __user *data,
+> -				size_t len, loff_t *ppos)
+> -{
+> -	return 0;
+> -}
+> -
+> -/*
+> - * Handle commands from user-space.
+> - */
+> -static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
+> -							unsigned long arg)
+> -{
+> -	int new_margin, options;
+> -
+> -	switch (cmd) {
+> -	case WDIOC_GETSUPPORT:
+> -		return copy_to_user((struct watchdog_info __user *)arg,
+> -		&ds1374_wdt_info, sizeof(ds1374_wdt_info)) ? -EFAULT : 0;
+> -
+> -	case WDIOC_GETSTATUS:
+> -	case WDIOC_GETBOOTSTATUS:
+> -		return put_user(0, (int __user *)arg);
+> -	case WDIOC_KEEPALIVE:
+> -		ds1374_wdt_ping();
+> -		return 0;
+> -	case WDIOC_SETTIMEOUT:
+> -		if (get_user(new_margin, (int __user *)arg))
+> -			return -EFAULT;
+> -
+> -		/* the hardware's tick rate is 4096 Hz, so
+> -		 * the counter value needs to be scaled accordingly
+> -		 */
+> -		new_margin <<= 12;
+> -		if (new_margin < 1 || new_margin > 16777216)
+> -			return -EINVAL;
+> -
+> -		wdt_margin = new_margin;
+> -		ds1374_wdt_settimeout(new_margin);
+> -		ds1374_wdt_ping();
+> -		/* fallthrough */
+> -	case WDIOC_GETTIMEOUT:
+> -		/* when returning ... inverse is true */
+> -		return put_user((wdt_margin >> 12), (int __user *)arg);
+> -	case WDIOC_SETOPTIONS:
+> -		if (copy_from_user(&options, (int __user *)arg, sizeof(int)))
+> -			return -EFAULT;
+> -
+> -		if (options & WDIOS_DISABLECARD) {
+> -			pr_info("disable watchdog\n");
+> -			ds1374_wdt_disable();
+> -			return 0;
+> -		}
+> -
+> -		if (options & WDIOS_ENABLECARD) {
+> -			pr_info("enable watchdog\n");
+> -			ds1374_wdt_settimeout(wdt_margin);
+> -			ds1374_wdt_ping();
+> -			return 0;
+> -		}
+> -		return -EINVAL;
+> -	}
+> -	return -ENOTTY;
+> -}
+> -
+> -static long ds1374_wdt_unlocked_ioctl(struct file *file, unsigned int cmd,
+> -			unsigned long arg)
+> -{
+> -	int ret;
+> -	struct ds1374 *ds1374 = i2c_get_clientdata(save_client);
+> -
+> -	mutex_lock(&ds1374->mutex);
+> -	ret = ds1374_wdt_ioctl(file, cmd, arg);
+> -	mutex_unlock(&ds1374->mutex);
+> -
+> -	return ret;
+> -}
+> -
+> -static int ds1374_wdt_notify_sys(struct notifier_block *this,
+> -			unsigned long code, void *unused)
+> -{
+> -	if (code == SYS_DOWN || code == SYS_HALT)
+> -		/* Disable Watchdog */
+> -		ds1374_wdt_disable();
+> -	return NOTIFY_DONE;
+> -}
+> -
+> -static const struct file_operations ds1374_wdt_fops = {
+> -	.owner			= THIS_MODULE,
+> -	.read			= ds1374_wdt_read,
+> -	.unlocked_ioctl		= ds1374_wdt_unlocked_ioctl,
+> -	.compat_ioctl		= compat_ptr_ioctl,
+> -	.write			= ds1374_wdt_write,
+> -	.open                   = ds1374_wdt_open,
+> -	.release                = ds1374_wdt_release,
+> -	.llseek			= no_llseek,
+> +static const struct watchdog_ops ds1374_wdt_ops = {
+> +	.owner          = THIS_MODULE,
+> +	.start          = ds1374_wdt_start,
+> +	.stop           = ds1374_wdt_stop,
+> +	.set_timeout    = ds1374_wdt_settimeout,
+>  };
+>  
+> -static struct miscdevice ds1374_miscdev = {
+> -	.minor          = WATCHDOG_MINOR,
+> -	.name           = "watchdog",
+> -	.fops           = &ds1374_wdt_fops,
+> -};
+> -
+> -static struct notifier_block ds1374_wdt_notifier = {
+> -	.notifier_call = ds1374_wdt_notify_sys,
+> -};
+>  
+>  #endif /*CONFIG_RTC_DRV_DS1374_WDT*/
+>  /*
+> @@ -652,16 +517,23 @@ static int ds1374_probe(struct i2c_client *client,
+>  		return ret;
+>  
+>  #ifdef CONFIG_RTC_DRV_DS1374_WDT
+> -	save_client = client;
+> -	ret = misc_register(&ds1374_miscdev);
+> +	ds1374->wdt.info = &ds1374_wdt_info;
+> +	ds1374->wdt.ops = &ds1374_wdt_ops;
+> +	ds1374->wdt.timeout = TIMER_MARGIN_DEFAULT;
+> +	ds1374->wdt.min_timeout = TIMER_MARGIN_MIN;
+> +	ds1374->wdt.max_timeout = TIMER_MARGIN_MAX;
+> +
+> +	watchdog_init_timeout(&ds1374->wdt, wdt_margin, &client->dev);
+> +	watchdog_set_nowayout(&ds1374->wdt, nowayout);
+> +	watchdog_stop_on_reboot(&ds1374->wdt);
+> +	watchdog_stop_on_unregister(&ds1374->wdt);
+> +	watchdog_set_drvdata(&ds1374->wdt, ds1374);
+> +	ds1374_wdt_settimeout(&ds1374->wdt, ds1374->wdt.timeout);
+> +
+> +
 
-Michael Walle (13):
-  regmap-irq: use fwnode instead of device node in add_irq_chip()
-  mfd: add simple regmap based I2C driver
-  dt-bindings: mfd: Add bindings for sl28cpld
-  mfd: simple-mfd-i2c: add sl28cpld support
-  irqchip: add sl28cpld interrupt controller support
-  watchdog: add support for sl28cpld watchdog
-  pwm: add support for sl28cpld PWM controller
-  gpio: add support for the sl28cpld GPIO controller
-  hwmon: add support for the sl28cpld hardware monitoring controller
-  arm64: dts: freescale: sl28: enable sl28cpld
-  arm64: dts: freescale: sl28: map GPIOs to input events
-  arm64: dts: freescale: sl28: enable LED support
-  arm64: dts: freescale: sl28: enable fan support
+Drop 2nd empty line.
 
- .../bindings/gpio/kontron,sl28cpld-gpio.yaml  |  54 +++++
- .../hwmon/kontron,sl28cpld-hwmon.yaml         |  27 +++
- .../kontron,sl28cpld-intc.yaml                |  54 +++++
- .../bindings/mfd/kontron,sl28cpld.yaml        | 153 ++++++++++++
- .../bindings/pwm/kontron,sl28cpld-pwm.yaml    |  35 +++
- .../watchdog/kontron,sl28cpld-wdt.yaml        |  35 +++
- Documentation/hwmon/index.rst                 |   1 +
- Documentation/hwmon/sl28cpld.rst              |  36 +++
- .../fsl-ls1028a-kontron-kbox-a-230-ls.dts     |  14 ++
- .../fsl-ls1028a-kontron-sl28-var3-ads2.dts    |   9 +
- .../freescale/fsl-ls1028a-kontron-sl28.dts    | 134 ++++++++++
- drivers/base/regmap/regmap-irq.c              |  53 ++--
- drivers/gpio/Kconfig                          |  11 +
- drivers/gpio/Makefile                         |   1 +
- drivers/gpio/gpio-sl28cpld.c                  | 161 ++++++++++++
- drivers/hwmon/Kconfig                         |  10 +
- drivers/hwmon/Makefile                        |   1 +
- drivers/hwmon/sl28cpld-hwmon.c                | 149 ++++++++++++
- drivers/irqchip/Kconfig                       |   8 +
- drivers/irqchip/Makefile                      |   1 +
- drivers/irqchip/irq-sl28cpld.c                |  96 ++++++++
- drivers/mfd/Kconfig                           |   9 +
- drivers/mfd/Makefile                          |   1 +
- drivers/mfd/simple-mfd-i2c.c                  |  51 ++++
- drivers/pwm/Kconfig                           |  10 +
- drivers/pwm/Makefile                          |   1 +
- drivers/pwm/pwm-sl28cpld.c                    | 187 ++++++++++++++
- drivers/watchdog/Kconfig                      |  11 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/sl28cpld_wdt.c               | 229 ++++++++++++++++++
- include/linux/regmap.h                        |  21 +-
- 31 files changed, 1531 insertions(+), 33 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
- create mode 100644 Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml
- create mode 100644 Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
- create mode 100644 Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
- create mode 100644 Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
- create mode 100644 Documentation/hwmon/sl28cpld.rst
- create mode 100644 drivers/gpio/gpio-sl28cpld.c
- create mode 100644 drivers/hwmon/sl28cpld-hwmon.c
- create mode 100644 drivers/irqchip/irq-sl28cpld.c
- create mode 100644 drivers/mfd/simple-mfd-i2c.c
- create mode 100644 drivers/pwm/pwm-sl28cpld.c
- create mode 100644 drivers/watchdog/sl28cpld_wdt.c
-
--- 
-2.20.1
-
+> +	ret = devm_watchdog_register_device(&client->dev, &ds1374->wdt);
+>  	if (ret)
+>  		return ret;
+> -	ret = register_reboot_notifier(&ds1374_wdt_notifier);
+> -	if (ret) {
+> -		misc_deregister(&ds1374_miscdev);
+> -		return ret;
+> -	}
+> -	ds1374_wdt_settimeout(131072);
+>  #endif
+>  
+>  	return 0;
+> @@ -670,11 +542,6 @@ static int ds1374_probe(struct i2c_client *client,
+>  static int ds1374_remove(struct i2c_client *client)
+>  {
+>  	struct ds1374 *ds1374 = i2c_get_clientdata(client);
+> -#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> -	misc_deregister(&ds1374_miscdev);
+> -	ds1374_miscdev.parent = NULL;
+> -	unregister_reboot_notifier(&ds1374_wdt_notifier);
+> -#endif
+>  
+>  	if (client->irq > 0) {
+>  		mutex_lock(&ds1374->mutex);
