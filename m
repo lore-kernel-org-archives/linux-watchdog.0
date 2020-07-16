@@ -2,104 +2,85 @@ Return-Path: <SRS0=ViF7=A3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 177E1C433EB
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D51ACC433E0
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 18:18:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ECDE8207BC
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B00F920739
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 18:18:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbgGPPjJ (ORCPT
+        id S1728237AbgGPSST (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Jul 2020 11:39:09 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:39240 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728967AbgGPPjH (ORCPT
+        Thu, 16 Jul 2020 14:18:19 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:54965 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728182AbgGPSST (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Jul 2020 11:39:07 -0400
-Received: by mail-oi1-f195.google.com with SMTP id w17so5422731oie.6;
-        Thu, 16 Jul 2020 08:39:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Yu8AcriWX3+yo8BiZDGLRtunrtLKttc1XLs4wvDEUps=;
-        b=YIrvU9p1o0ANLrdbVqR7qfAi9LJhRI/aw+RWrQdO9tLlSrFIQ2XElpRJwmd6WDL3Da
-         xiSreaDXn4GL5nG08pELq9QLwWSJ8uQWQn9M2iUZ8+NRvDrKY6d22W3Iu+P9pfsFGuxb
-         FowQ+SLnbl0Mv7f+IZGO+YgbNr5B/261pZLHqKUngKvcF/g+XB81UJS63T4yTHpMeuN0
-         grHKEwkMfo7XhaK7hz010apIgBhG5nXIpnNqIwKlG4t+PPT7aDi1Stj0Y7QU/lvIl2cp
-         aMf6zF5EFKJML7LFVC55nTuppT/W28Ot5AePA/8i2p7EEC9+En+TAPTB0yTeKbSsr36P
-         i0sw==
-X-Gm-Message-State: AOAM533xSUtJDkcIFi3M/VCM6CMSNBESE2g4iFWAXju+GlE4yn20DvKH
-        aS4aSOSDHsY6KnCr3KHSVA9gIh0EplTTXLmXFrQ=
-X-Google-Smtp-Source: ABdhPJz7Nwn+4sTFc6lpaCuTWPVIIEYyDkHi7RbGunkkr/cHBSPm62tq9ZP31mM88tUGaMPM+XdhO5cSQk5iRCsLngU=
-X-Received: by 2002:a05:6808:64a:: with SMTP id z10mr4320772oih.54.1594913945890;
- Thu, 16 Jul 2020 08:39:05 -0700 (PDT)
+        Thu, 16 Jul 2020 14:18:19 -0400
+X-Originating-IP: 90.65.108.121
+Received: from localhost (lfbn-lyo-1-1676-121.w90-65.abo.wanadoo.fr [90.65.108.121])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id EBAA11BF20F;
+        Thu, 16 Jul 2020 18:18:16 +0000 (UTC)
+Date:   Thu, 16 Jul 2020 20:18:16 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Bruno Thomsen <bruno.thomsen@gmail.com>, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, a.zummo@towertech.it,
+        wim@linux-watchdog.org, linux@roeck-us.net, bth@kamstrup.com
+Subject: Re: [PATCH v3 4/5] rtc: pcf2127: add watchdog feature support
+Message-ID: <20200716181816.GF3428@piout.net>
+References: <20190822131936.18772-1-bruno.thomsen@gmail.com>
+ <20190822131936.18772-4-bruno.thomsen@gmail.com>
+ <20200716144705.o57m4r7ptmsm3m6n@pengutronix.de>
 MIME-Version: 1.0
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-9-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <1594811350-14066-9-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 16 Jul 2020 17:38:54 +0200
-Message-ID: <CAMuHMdVpkkVu61gvgNJGfeGpz+c3dWswg6R1rXqeKv+bx-2SSg@mail.gmail.com>
-Subject: Re: [PATCH 08/20] arm64: dts: renesas: r8a774e1: Add TMU device nodes
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, linux-can@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Prabhakar <prabhakar.csengg@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200716144705.o57m4r7ptmsm3m6n@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 1:10 PM Lad Prabhakar
-<prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
-> From: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
->
-> This patch adds TMU[01234] device tree nodes to the r8a774e1
-> SoC specific DT.
->
-> Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Hi,
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-i.e. will queue in renesas-devel for v5.9.
+On 16/07/2020 16:47:05+0200, Uwe Kleine-König wrote:
+> Hello,
+> 
+> On Thu, Aug 22, 2019 at 03:19:35PM +0200, Bruno Thomsen wrote:
+> > Add partial support for the watchdog functionality of
+> > both PCF2127 and PCF2129 chips.
+> 
+> I have a board here with a pcf2127 that has the #RST pin
+> not connected.
+> 
+> The problem this creates is: The bootloader arms the SoC's watchdog and
+> jumps into Linux. The pcf2127 driver happens to load first, so watchdog0
+> is provided by the RTC (but non-functional). Systemd is configured to
+> feed the watchdog, but happens to feed the wrong one, so the machine
+> resets shortly after it is up :-|
+> 
+> So I wonder if we need a dt property that tells the driver if the RST
+> line is connected or not.
+> 
 
-Gr{oetje,eeting}s,
+I guess the current solution is to set WatchdogDevice to point to a link
+that is updated by udev thus ensuring it points to the correct watchdog
+device regardless of the probe order.
 
-                        Geert
+This would be similar to the /dev/rtc symlink, pointing to the systohc
+RTC by default (even if I don't really like that heuristic).
 
+What you suggest is somewhat okay but doesn't really solve the issue if
+both watchdogs are functional and systemd still doesn't pick the one
+that is armed by the bootloader.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
