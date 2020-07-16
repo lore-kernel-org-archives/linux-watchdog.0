@@ -6,46 +6,46 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B29C433EC
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 120BAC433F7
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 731722076A
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED66F2076A
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729514AbgGPPj7 (ORCPT
+        id S1729539AbgGPPkP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Jul 2020 11:39:59 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:42150 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729092AbgGPPjT (ORCPT
+        Thu, 16 Jul 2020 11:40:15 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:46425 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729329AbgGPPjK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Jul 2020 11:39:19 -0400
-Received: by mail-oi1-f194.google.com with SMTP id t4so5402620oij.9;
-        Thu, 16 Jul 2020 08:39:19 -0700 (PDT)
+        Thu, 16 Jul 2020 11:39:10 -0400
+Received: by mail-ot1-f68.google.com with SMTP id n24so4515631otr.13;
+        Thu, 16 Jul 2020 08:39:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ZVj26A778u/qkFwzHHNVLFw5OBJX9iW8thLNG7CeK8M=;
-        b=YEaPUOJqazZIklJvpjKAB8p0kk+syFx/25gzwKd7IPQn9/713qqumwYu1FLsBq08BO
-         RskCtxSFIOW50fP1gdVps+/4Ao1jgMcGbQRERMaA3YlxZXppCzdgb31zjfj4BNvnpodW
-         PnFOuZVlS0CTs25ZeNV9+qOSszDzA6Z3kl+XrNzkGCAEk8too5IvwAfzAeP2WS3hgQHa
-         +XOt9BywS2CjzSwCTh0DJYCcGjxZW3FizYwlAHPYdaLbGb3D9P1FRq0QpaGZ97MApsoe
-         XkE25X6vm6lOH7M1xz00/7rXtnBnsAmhXZ4xxZ20k4yhS0/bXJZqDc/ctwKKE3D3jKk/
-         FBtg==
-X-Gm-Message-State: AOAM533cbyGLJRI/TVUPFeKF6Iuuf6Ko7kbuRyxHUSL/OStuHV5xvlsg
-        zy5bOzWNVGJNP0QEXSKbwOBVTHjgHz4R52KaMC8=
-X-Google-Smtp-Source: ABdhPJy4WUbUbrXDMyLOMudXcFJZ2Xc6Htuh8Qdks0vx0aIZnAn3UtVk52VOzIh1G265cl2z9rT1cE/EmCqOEcmzlzs=
-X-Received: by 2002:aca:5c41:: with SMTP id q62mr4142704oib.148.1594913958746;
- Thu, 16 Jul 2020 08:39:18 -0700 (PDT)
+        bh=4gq7GSJniVhk8mm4mZz3V7JCAZZ3pZpPkZrxw8za4mc=;
+        b=NZzBcnUC2a7Qq6ZQDGTOGbXD95yf/rvUCYCqqo6EvZa53Xrh27YM91SCTkgxfjZpOX
+         V9oO6AXIvUEuY82q/AcGDRKcG7GVqJLO/Y5Bjp6JlmK1eSwP15wQDVvwtyn6uaHWZOLN
+         rdElXeD7rh8DFDMuDf3yhIpCKZPgBRn5gjS/z90URHfyQm4YrYVS+0wlA/XsrbTlGVes
+         kSJsdtPEMX0qubNpfUcS1JE0d86EpeyOFo1bBKveQpKvSRVoQrii6p43PRsFBtVWfuyA
+         kc2Nq+s7H2bpDDIR7APWXnXzEh9DbZE34rzikiOwdZiLYyhGl0I4g31vhjUmyhYaVSnH
+         S2vQ==
+X-Gm-Message-State: AOAM530X3j5rABiZGBQqS+ek0M7ZJg9zaH4Dd7VGlv+UVKljUvKGJwFQ
+        9Rpl1jeBfN8zICGWA3EFKXEbeeHrvZoFEhrP/xI=
+X-Google-Smtp-Source: ABdhPJzjcaNBJZkFuzlxl1kgGoNgVPmT0sGhCGl7NN8SpKXFUUYP81EmP822HK0iYVLU0ZlFzTKnLFvhsjQGBidhSag=
+X-Received: by 2002:a9d:2646:: with SMTP id a64mr4730882otb.107.1594913949510;
+ Thu, 16 Jul 2020 08:39:09 -0700 (PDT)
 MIME-Version: 1.0
 References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-16-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <1594811350-14066-16-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1594811350-14066-10-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <1594811350-14066-10-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 16 Jul 2020 17:39:07 +0200
-Message-ID: <CAMuHMdUBMTM2VmVb9EbtVP6Qszi-BH71gCqQs3Z6UrbwTmdhdQ@mail.gmail.com>
-Subject: Re: [PATCH 15/20] arm64: dts: renesas: r8a774e1: Add MSIOF nodes
+Date:   Thu, 16 Jul 2020 17:38:58 +0200
+Message-ID: <CAMuHMdXuo_yjb+SsvLYQHKVkHcPPVmu+3Whtj0XNiWaLZ+QMng@mail.gmail.com>
+Subject: Re: [PATCH 09/20] arm64: dts: renesas: r8a774e1: Add SCIF and HSCIF nodes
 To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -81,7 +81,8 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On Wed, Jul 15, 2020 at 1:10 PM Lad Prabhakar
 <prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
-> Add the DT nodes needed by MSIOF[0123] interfaces to the SoC dtsi.
+> Add the device nodes for RZ/G2H SCIF and HSCIF serial ports,
+> including clocks, power domains and DMAs.
 >
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
