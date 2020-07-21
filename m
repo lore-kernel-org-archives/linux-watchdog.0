@@ -7,96 +7,96 @@ X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82054C433E7
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jul 2020 02:52:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 540E5C433E6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jul 2020 02:53:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60E8820B1F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jul 2020 02:52:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35CEF22CB3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jul 2020 02:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595299961;
-	bh=PSHQhDUUMFFlMv/poeok/zvVWGxGIgx+DenPXHawYqk=;
+	s=default; t=1595299996;
+	bh=jQurSwoYb0dDca7KKNv+Xge6LlJui9Kz+MzLOaJ/mPY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vOTOu4igJKa6wXkJ/lyRh/z0imaBSLK+DgWBClFrv1nEANct8UT4B1waa15b4Qw6f
-	 6zddMmnjOHzjvoWB/WA6K4cJXJi2EUOYaSzvxNBH1RPy6TKRDTOSch9XUsCz0bU70b
-	 csK6GQ5Yuz5Y75uYdZzcdvUJr8eVXrc1cNHC7RtU=
+	b=O4OvleNja4s2R/WyL+o/QoJxrcbuFyNIZyxjfW/QskhRN/M8JEu6aLU9O4UyIIWtR
+	 8smVeaIpRT4ae72wk3oJ9ZPZUn8LmHCN85D/wly5SZ0zh+x/yDYJRe8fNvNFApn7AU
+	 rwozF1cRN5qkt6nJyYjprj6yI1ixaE84JvIhs798=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbgGUCwh (ORCPT
+        id S1728672AbgGUCxH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 20 Jul 2020 22:52:37 -0400
-Received: from mail-il1-f196.google.com ([209.85.166.196]:42857 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726089AbgGUCwh (ORCPT
+        Mon, 20 Jul 2020 22:53:07 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:38506 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728579AbgGUCxF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Jul 2020 22:52:37 -0400
-Received: by mail-il1-f196.google.com with SMTP id t27so15106623ill.9;
-        Mon, 20 Jul 2020 19:52:36 -0700 (PDT)
+        Mon, 20 Jul 2020 22:53:05 -0400
+Received: by mail-io1-f65.google.com with SMTP id l1so19806472ioh.5;
+        Mon, 20 Jul 2020 19:53:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=oZcsez3qREEIJpjTZJF7jgs0A2ONjPfmWyrkj+SbpNY=;
-        b=QeYeBpw0U5i/q68yOWLQh3EHgJAF06cwFPVc5p5LVzqSlcSk6t09h4VSV60o8Ao0/m
-         ZE+9rIxiWftkciE7DX47YLSa1oTcZvOtpM9PcHsR4E64O79ci7177m4tcSulwfXvAsTI
-         49TBzIXn27Yq7pyT6J0PrsLXjVWXMPDLAuU+ZX3SM4uKoXUg7p06cb9mOpBFZxcSRTUQ
-         9m5eVnKqt0UntgGzZbirrgg4DYlGjid5yld2+kCjm/Vivn3jwbkXKWwGSMCTm9dVq5Nv
-         4ov7q3non9504n2dAgNCKqo8d9HLMhJNtMO2bCltcmr1ahrexlKd0lLLirkm6TZxktMS
-         lFzw==
-X-Gm-Message-State: AOAM531GtBGtZH0SUzL1mr+ECpfpMADdQU/3D++c1Kb3td5NHL03yQIM
-        CgTB0dIIxIX8tji0x+AjBg==
-X-Google-Smtp-Source: ABdhPJwFPJnw5YtIomUTFweM1LRZXSEMVUyRi7aOALZBN4QBjHMCIc9Dgsaqb9GNy36JPxiWldgroQ==
-X-Received: by 2002:a05:6e02:13e2:: with SMTP id w2mr27006727ilj.9.1595299955841;
-        Mon, 20 Jul 2020 19:52:35 -0700 (PDT)
+        bh=xASqgPBn0vQnBjRaakU4/De4PK+WKVGo5AzdY13vuio=;
+        b=ntC4ltZX+BfpHUGVvS8VEpn019uB8Wb2nTUklpcpkmFDgk0xUSm4HNYjUkiPSoNvef
+         dJT1tSN+2F5YjukNs5Inf3pDElG5oDxF5zpvO5Gl1CJQ88nUwuylfO/4Cd8yx9v7RPuU
+         32fpSBNKFOy/jvP3b1guhWhfzkbX/pJ5v4cIvCBkTjW/9xD7n9JWl7cbily43uQAbPoV
+         1TZkL76kxoeuLAW6umMjEdyrHg1MVxAEcB2/eVUn8bPUfdh1KP4DKVbwChEtEniVS/M7
+         R+mGJgewes2vquW0l2qbCj9LGvwa/zesfAI413r9wDXqg25dUcwxpw78Ya3nw0l6Auyu
+         bj0w==
+X-Gm-Message-State: AOAM533z5Y5Xe0Gt/1L7ew7ecLUSctIbZ0QcJhxrK427SkwzrT40kCdA
+        tnk+2CIoZyTwUL9xBixRog==
+X-Google-Smtp-Source: ABdhPJz41h8OM5s4geRzLZHoERqx9LciqCO3xEc+DShybK0JD+WqMSGJQl6OIfjmXHrai9bDWqOecw==
+X-Received: by 2002:a05:6638:1308:: with SMTP id r8mr20353417jad.106.1595299984114;
+        Mon, 20 Jul 2020 19:53:04 -0700 (PDT)
 Received: from xps15 ([64.188.179.252])
-        by smtp.gmail.com with ESMTPSA id u9sm10338345iom.14.2020.07.20.19.52.34
+        by smtp.gmail.com with ESMTPSA id i84sm10099147ill.30.2020.07.20.19.53.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2020 19:52:35 -0700 (PDT)
-Received: (nullmailer pid 3447420 invoked by uid 1000);
-        Tue, 21 Jul 2020 02:52:33 -0000
-Date:   Mon, 20 Jul 2020 20:52:33 -0600
+        Mon, 20 Jul 2020 19:53:03 -0700 (PDT)
+Received: (nullmailer pid 3448269 invoked by uid 1000);
+        Tue, 21 Jul 2020 02:53:01 -0000
+Date:   Mon, 20 Jul 2020 20:53:01 -0600
 From:   Rob Herring <robh@kernel.org>
 To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Magnus Damm <magnus.damm@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-spi@vger.kernel.org, Niklas <niklas.soderlund@ragnatech.se>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        linux-watchdog@vger.kernel.org, netdev@vger.kernel.org,
         Amit Kucheria <amit.kucheria@verdurent.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Prabhakar <prabhakar.csengg@gmail.com>,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        Niklas <niklas.soderlund@ragnatech.se>,
+        "David S. Miller" <davem@davemloft.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        linux-renesas-soc@vger.kernel.org,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>, netdev@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Zhang Rui <rui.zhang@intel.com>, linux-can@vger.kernel.org,
-        linux-pm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH 16/20] dt-bindings: watchdog: renesas,wdt: Document
- r8a774e1 support
-Message-ID: <20200721025233.GA3447371@bogus>
+        linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        linux-i2c@vger.kernel.org, Wolfgang Grandegger <wg@grandegger.com>,
+        Mark Brown <broonie@kernel.org>,
+        Magnus Damm <magnus.damm@gmail.com>, linux-pm@vger.kernel.org,
+        linux-spi@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Prabhakar <prabhakar.csengg@gmail.com>
+Subject: Re: [PATCH 19/20] dt-bindings: can: rcar_canfd: Document r8a774e1
+ support
+Message-ID: <20200721025301.GA3448222@bogus>
 References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-17-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1594811350-14066-20-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1594811350-14066-17-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <1594811350-14066-20-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, 15 Jul 2020 12:09:06 +0100, Lad Prabhakar wrote:
-> RZ/G2H (a.k.a. R8A774E1) watchdog implementation is compatible
-> with R-Car Gen3, therefore add the relevant documentation.
+On Wed, 15 Jul 2020 12:09:09 +0100, Lad Prabhakar wrote:
+> Document the support for rcar_canfd on R8A774E1 SoC devices.
 > 
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 > ---
->  Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml | 1 +
+>  Documentation/devicetree/bindings/net/can/rcar_canfd.txt | 1 +
 >  1 file changed, 1 insertion(+)
 > 
 
