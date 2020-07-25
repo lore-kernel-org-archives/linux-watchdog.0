@@ -7,41 +7,38 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14820C43635
-	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB1BC433E0
+	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5F8920792
-	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 001FC2076C
+	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="C9vhaQ++"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="m+Ehso6C"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbgGYXTx (ORCPT
+        id S1728069AbgGYXTD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 25 Jul 2020 19:19:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728092AbgGYXTE (ORCPT
+        Sat, 25 Jul 2020 19:19:03 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:55099 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727978AbgGYXTC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 25 Jul 2020 19:19:04 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC044C08C5CE;
-        Sat, 25 Jul 2020 16:19:03 -0700 (PDT)
+        Sat, 25 Jul 2020 19:19:02 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 213CF23E42;
-        Sun, 26 Jul 2020 01:19:01 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id D78DA23E3F;
+        Sun, 26 Jul 2020 01:18:58 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1595719142;
+        t=1595719139;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=f9QZpl3KYSoHhNPksCFN8JYkTGbbOAg1wSmhz7xom8k=;
-        b=C9vhaQ++L+qJKTGBKkF+QhiFwo7LwaMNqHcA5WSnTQ+65ploTjOEZsQfh5Y3ZA23BpXVs8
-        ElwT2mNOtQPav5SsPtoe+2McR0ZHknyZ618S4q3XxkxRx3Y0PPnigTNRvUmb5fBoybJ6Rj
-        oTEsxzUrrtiJ0XxZ8R32a8VVv1JtNjM=
+        bh=H2B8ttJ42dTzqVNdmFa3MX4YvKetSzzq/kFHiQy1AgA=;
+        b=m+Ehso6CLT/Ck9ZM3H3xskkzr3b0I/HsSi5C7c8W7/rhwwnKDCS9yUZHTqX1ixQdSkg76Q
+        7fvdoOusdlfr5U+dmdDTHxrezF70JkOR/v7TiXCFr/5lKUkqzq8+iLzlevnb1ak2ORh+DH
+        CgJW6zUpxsigEGELWzDqEcP/0F+07U8=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -66,9 +63,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v6 05/13] watchdog: add support for sl28cpld watchdog
-Date:   Sun, 26 Jul 2020 01:18:26 +0200
-Message-Id: <20200725231834.25642-6-michael@walle.cc>
+Subject: [PATCH v6 03/13] mfd: simple-mfd-i2c: add sl28cpld support
+Date:   Sun, 26 Jul 2020 01:18:24 +0200
+Message-Id: <20200725231834.25642-4-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200725231834.25642-1-michael@walle.cc>
 References: <20200725231834.25642-1-michael@walle.cc>
@@ -80,300 +77,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for the watchdog of the sl28cpld board management
-controller. This is part of a multi-function device driver.
+Add the core support for the board management controller found on the
+SMARC-sAL28 board.
+
+At the moment, this controller is used on the Kontron SMARC-sAL28 board.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
 Changes since v5:
  - none
 
 Changes since v4:
- - update copyright year
- - remove #include <linux/of_device.h>, suggested by Andy.
- - slightly reworked the error code handling (only style), suggested by
-   Andy.
- - Don't use "if (ret < 0)", but only "if (ret)", suggested by Andy.
- - remove comma in terminator line of the compatible strings list
- - don't use KBUID_MODNAME
- - remove the platform device table
+ - new patch
 
-Changes since v3:
- - see cover letter
+ drivers/mfd/simple-mfd-i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/watchdog/Kconfig        |  11 ++
- drivers/watchdog/Makefile       |   1 +
- drivers/watchdog/sl28cpld_wdt.c | 229 ++++++++++++++++++++++++++++++++
- 3 files changed, 241 insertions(+)
- create mode 100644 drivers/watchdog/sl28cpld_wdt.c
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4f4687c46d38..c4115ea0d3f8 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -340,6 +340,17 @@ config MLX_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mlx-wdt.
+diff --git a/drivers/mfd/simple-mfd-i2c.c b/drivers/mfd/simple-mfd-i2c.c
+index 45090ddad104..dd19abd41d30 100644
+--- a/drivers/mfd/simple-mfd-i2c.c
++++ b/drivers/mfd/simple-mfd-i2c.c
+@@ -37,6 +37,7 @@ static int simple_mfd_i2c_probe(struct i2c_client *i2c)
+ }
  
-+config SL28CPLD_WATCHDOG
-+	tristate "Kontron sl28cpld Watchdog"
-+	select MFD_SIMPLE_MFD_I2C
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  on the Kontron sl28 CPLD.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sl28cpld_wdt.
-+
- # ALPHA Architecture
- 
- # ARM Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 97bed1d3d97c..aa6e41126901 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -225,3 +225,4 @@ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
- obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-+obj-$(CONFIG_SL28CPLD_WATCHDOG) += sl28cpld_wdt.o
-diff --git a/drivers/watchdog/sl28cpld_wdt.c b/drivers/watchdog/sl28cpld_wdt.c
-new file mode 100644
-index 000000000000..a45047d8d9ab
---- /dev/null
-+++ b/drivers/watchdog/sl28cpld_wdt.c
-@@ -0,0 +1,229 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * sl28cpld watchdog driver
-+ *
-+ * Copyright 2020 Kontron Europe GmbH
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+/*
-+ * Watchdog timer block registers.
-+ */
-+#define WDT_CTRL			0x00
-+#define  WDT_CTRL_EN			BIT(0)
-+#define  WDT_CTRL_LOCK			BIT(2)
-+#define  WDT_CTRL_ASSERT_SYS_RESET	BIT(6)
-+#define  WDT_CTRL_ASSERT_WDT_TIMEOUT	BIT(7)
-+#define WDT_TIMEOUT			0x01
-+#define WDT_KICK			0x02
-+#define  WDT_KICK_VALUE			0x6b
-+#define WDT_COUNT			0x03
-+
-+#define WDT_DEFAULT_TIMEOUT		10
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int timeout;
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
-+
-+struct sl28cpld_wdt {
-+	struct watchdog_device wdd;
-+	struct regmap *regmap;
-+	u32 offset;
-+	bool assert_wdt_timeout;
-+};
-+
-+static int sl28cpld_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(wdt->regmap, wdt->offset + WDT_KICK,
-+			    WDT_KICK_VALUE);
-+}
-+
-+static int sl28cpld_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int val;
-+
-+	val = WDT_CTRL_EN | WDT_CTRL_ASSERT_SYS_RESET;
-+	if (wdt->assert_wdt_timeout)
-+		val |= WDT_CTRL_ASSERT_WDT_TIMEOUT;
-+	if (nowayout)
-+		val |= WDT_CTRL_LOCK;
-+
-+	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
-+				  val, val);
-+}
-+
-+static int sl28cpld_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
-+				  WDT_CTRL_EN, 0);
-+}
-+
-+static unsigned int sl28cpld_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_COUNT, &val);
-+	if (ret)
-+		return 0;
-+
-+	return val;
-+}
-+
-+static int sl28cpld_wdt_set_timeout(struct watchdog_device *wdd,
-+				    unsigned int timeout)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	int ret;
-+
-+	ret = regmap_write(wdt->regmap, wdt->offset + WDT_TIMEOUT, timeout);
-+	if (ret)
-+		return ret;
-+
-+	wdd->timeout = timeout;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info sl28cpld_wdt_info = {
-+	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "sl28cpld watchdog",
-+};
-+
-+static struct watchdog_ops sl28cpld_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = sl28cpld_wdt_start,
-+	.stop = sl28cpld_wdt_stop,
-+	.ping = sl28cpld_wdt_ping,
-+	.set_timeout = sl28cpld_wdt_set_timeout,
-+	.get_timeleft = sl28cpld_wdt_get_timeleft,
-+};
-+
-+static int sl28cpld_wdt_probe(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdd;
-+	struct sl28cpld_wdt *wdt;
-+	unsigned int status;
-+	unsigned int val;
-+	int ret;
-+
-+	if (!pdev->dev.parent)
-+		return -ENODEV;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!wdt->regmap)
-+		return -ENODEV;
-+
-+	ret = device_property_read_u32(&pdev->dev, "reg", &wdt->offset);
-+	if (ret)
-+		return -EINVAL;
-+
-+	wdt->assert_wdt_timeout = device_property_read_bool(&pdev->dev,
-+							    "kontron,assert-wdt-timeout-pin");
-+
-+	/* initialize struct watchdog_device */
-+	wdd = &wdt->wdd;
-+	wdd->parent = &pdev->dev;
-+	wdd->info = &sl28cpld_wdt_info;
-+	wdd->ops = &sl28cpld_wdt_ops;
-+	wdd->min_timeout = 1;
-+	wdd->max_timeout = 255;
-+
-+	watchdog_set_drvdata(wdd, wdt);
-+	watchdog_stop_on_reboot(wdd);
-+
-+	/*
-+	 * Read the status early, in case of an error, we haven't modified the
-+	 * hardware.
-+	 */
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_CTRL, &status);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Initial timeout value, may be overwritten by device tree or module
-+	 * parmeter in watchdog_init_timeout().
-+	 *
-+	 * Reading a zero here means that either the hardware has a default
-+	 * value of zero (which is very unlikely and definitely a hardware
-+	 * bug) or the bootloader set it to zero. In any case, we handle
-+	 * this case gracefully and set out own timeout.
-+	 */
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_TIMEOUT, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val)
-+		wdd->timeout = val;
-+	else
-+		wdd->timeout = WDT_DEFAULT_TIMEOUT;
-+
-+	watchdog_init_timeout(wdd, timeout, &pdev->dev);
-+	sl28cpld_wdt_set_timeout(wdd, wdd->timeout);
-+
-+	/* if the watchdog is locked, we set nowayout */
-+	if (status & WDT_CTRL_LOCK)
-+		nowayout = true;
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	/*
-+	 * If watchdog is already running, keep it enabled, but make
-+	 * sure its mode is set correctly.
-+	 */
-+	if (status & WDT_CTRL_EN) {
-+		sl28cpld_wdt_start(wdd);
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+	}
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, wdd);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "failed to register watchdog device\n");
-+		return ret;
-+	}
-+
-+	dev_info(&pdev->dev, "initial timeout %d sec%s\n",
-+		 wdd->timeout, nowayout ? ", nowayout" : "");
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id sl28cpld_wdt_of_match[] = {
-+	{ .compatible = "kontron,sl28cpld-wdt" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sl28cpld_wdt_of_match);
-+
-+static struct platform_driver sl28cpld_wdt_driver = {
-+	.probe = sl28cpld_wdt_probe,
-+	.driver = {
-+		.name = "sl28cpld-wdt",
-+		.of_match_table = sl28cpld_wdt_of_match,
-+	},
-+};
-+module_platform_driver(sl28cpld_wdt_driver);
-+
-+MODULE_DESCRIPTION("sl28cpld Watchdog Driver");
-+MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
-+MODULE_LICENSE("GPL");
+ static const struct of_device_id simple_mfd_i2c_of_match[] = {
++	{ .compatible = "kontron,sl28cpld-r1" },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, simple_mfd_i2c_of_match);
 -- 
 2.20.1
 
