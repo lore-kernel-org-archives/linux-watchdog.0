@@ -4,45 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E796EC43458
-	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 222B1C4345D
+	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2FC42070B
-	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8EF520791
+	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="kBVLkIEP"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="kqEGlrmP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728229AbgGYXTR (ORCPT
+        id S1728207AbgGYXTO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 25 Jul 2020 19:19:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728165AbgGYXTK (ORCPT
+        Sat, 25 Jul 2020 19:19:14 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:37695 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728158AbgGYXTI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 25 Jul 2020 19:19:10 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980EAC08C5CE;
-        Sat, 25 Jul 2020 16:19:10 -0700 (PDT)
+        Sat, 25 Jul 2020 19:19:08 -0400
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 7C23B23E55;
-        Sun, 26 Jul 2020 01:19:08 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 10FBE23E4C;
+        Sun, 26 Jul 2020 01:19:05 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1595719149;
+        t=1595719145;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PNc2RG8Tt+EkQg/L/MGAMSEh8dcuaImVAHmm6o6jhBo=;
-        b=kBVLkIEP/C2ReoLMyukzWmgQonAia/PsYLqogFg5iMR5wqlp5oiy3e4/jE9FCMUs+CI+iZ
-        9sq5luyHjrUqugUIRSqr00X1nFrqOMPqukhSU4mAxlWwGGzbsPqqVg12Y+lEyMH34kOrlS
-        A2WaSgaF6BMMipDcQPTQFKHffbMnw+g=
+        bh=9ai0La+0NTz47zNKNe8eCNR0aOanRg5MZY86cm9G5UM=;
+        b=kqEGlrmPMMmvf5UYnEWCX7xD16NalVyHm8iD2CKx6Y+VwWk2EGFCxx+7e2BzfsxBTFTocT
+        xKhT9AwybYVF9eTawp2dkCoEjLAYb9sPdI7mKhh5f5Hp5Tr+Nz3FtcRvrdnqlecrAVjUCY
+        XGTnkTsDPcSANAkKEr4FbAPcv5Jttyc=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -67,9 +63,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v6 13/13] arm64: defconfig: enable the sl28cpld board management controller
-Date:   Sun, 26 Jul 2020 01:18:34 +0200
-Message-Id: <20200725231834.25642-14-michael@walle.cc>
+Subject: [PATCH v6 09/13] arm64: dts: freescale: sl28: enable sl28cpld
+Date:   Sun, 26 Jul 2020 01:18:30 +0200
+Message-Id: <20200725231834.25642-10-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200725231834.25642-1-michael@walle.cc>
 References: <20200725231834.25642-1-michael@walle.cc>
@@ -81,56 +77,142 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Enable the kernel modules for the board management controller "sl28cpld"
-which is used on the SMARC-sAL28 board.
+Add the board management controller node.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
 Changes since v5:
- - new patch
+ - none
 
- arch/arm64/configs/defconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+Changes since v4:
+ - none
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index e0f33826819f..d45a33ccf7d7 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -500,6 +500,7 @@ CONFIG_GPIO_PCA953X=y
- CONFIG_GPIO_PCA953X_IRQ=y
- CONFIG_GPIO_BD9571MWV=m
- CONFIG_GPIO_MAX77620=y
-+CONFIG_GPIO_SL28CPLD=m
- CONFIG_POWER_AVS=y
- CONFIG_QCOM_CPR=y
- CONFIG_ROCKCHIP_IODOMAIN=y
-@@ -513,6 +514,7 @@ CONFIG_SENSORS_ARM_SCPI=y
- CONFIG_SENSORS_LM90=m
- CONFIG_SENSORS_PWM_FAN=m
- CONFIG_SENSORS_RASPBERRYPI_HWMON=m
-+CONFIG_SENSORS_SL28CPLD=m
- CONFIG_SENSORS_INA2XX=m
- CONFIG_SENSORS_INA3221=m
- CONFIG_THERMAL_GOV_POWER_ALLOCATOR=y
-@@ -535,6 +537,7 @@ CONFIG_QCOM_TSENS=y
- CONFIG_QCOM_SPMI_TEMP_ALARM=m
- CONFIG_UNIPHIER_THERMAL=y
- CONFIG_WATCHDOG=y
-+CONFIG_SL28CPLD_WATCHDOG=m
- CONFIG_ARM_SP805_WATCHDOG=y
- CONFIG_ARM_SBSA_WATCHDOG=y
- CONFIG_ARM_SMC_WATCHDOG=y
-@@ -934,8 +937,10 @@ CONFIG_PWM_MESON=m
- CONFIG_PWM_RCAR=m
- CONFIG_PWM_ROCKCHIP=y
- CONFIG_PWM_SAMSUNG=y
-+CONFIG_PWM_SL28CPLD=m
- CONFIG_PWM_SUN4I=m
- CONFIG_PWM_TEGRA=m
-+CONFIG_SL28CPLD_INTC=y
- CONFIG_QCOM_PDC=y
- CONFIG_RESET_QCOM_AOSS=y
- CONFIG_RESET_QCOM_PDC=m
+Changes since v3:
+ - see cover letter
+
+ .../freescale/fsl-ls1028a-kontron-sl28.dts    | 102 ++++++++++++++++++
+ 1 file changed, 102 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+index 360b3a168c10..8712fe82727b 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts
+@@ -8,6 +8,7 @@
+ 
+ /dts-v1/;
+ #include "fsl-ls1028a.dtsi"
++#include <dt-bindings/interrupt-controller/irq.h>
+ 
+ / {
+ 	model = "Kontron SMARC-sAL28";
+@@ -170,6 +171,107 @@
+ 		reg = <0x32>;
+ 	};
+ 
++	sl28cpld@4a {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "kontron,sl28cpld-r1";
++		reg = <0x4a>;
++
++		watchdog@4 {
++			compatible = "kontron,sl28cpld-wdt";
++			reg = <0x4>;
++			kontron,assert-wdt-timeout-pin;
++		};
++
++		hwmon@b {
++			compatible = "kontron,sl28cpld-fan";
++			reg = <0xb>;
++		};
++
++		sl28cpld_pwm0: pwm@c {
++			#pwm-cells = <2>;
++			compatible = "kontron,sl28cpld-pwm";
++			reg = <0xc>;
++		};
++
++		sl28cpld_pwm1: pwm@e {
++			#pwm-cells = <2>;
++			compatible = "kontron,sl28cpld-pwm";
++			reg = <0xe>;
++		};
++
++		sl28cpld_gpio0: gpio@10 {
++			compatible = "kontron,sl28cpld-gpio";
++			reg = <0x10>;
++			interrupts-extended = <&gpio2 6
++					       IRQ_TYPE_EDGE_FALLING>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"GPIO0_CAM0_PWR_N", "GPIO1_CAM1_PWR_N",
++				"GPIO2_CAM0_RST_N", "GPIO3_CAM1_RST_N",
++				"GPIO4_HDA_RST_N", "GPIO5_PWM_OUT",
++				"GPIO6_TACHIN", "GPIO7";
++
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++
++		sl28cpld_gpio1: gpio@15 {
++			compatible = "kontron,sl28cpld-gpio";
++			reg = <0x15>;
++			interrupts-extended = <&gpio2 6
++					       IRQ_TYPE_EDGE_FALLING>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"GPIO8", "GPIO9", "GPIO10", "GPIO11",
++				"", "", "", "";
++
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++
++		sl28cpld_gpio2: gpio@1a {
++			compatible = "kontron,sl28cpld-gpo";
++			reg = <0x1a>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"LCD0 voltage enable",
++				"LCD0 backlight enable",
++				"eMMC reset", "LVDS bridge reset",
++				"LVDS bridge power-down",
++				"SDIO power enable",
++				"", "";
++		};
++
++		sl28cpld_gpio3: gpio@1b {
++			compatible = "kontron,sl28cpld-gpi";
++			reg = <0x1b>;
++
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-line-names =
++				"Power button", "Force recovery", "Sleep",
++				"Battery low", "Lid state", "Charging",
++				"Charger present", "";
++		};
++
++		sl28cpld_intc: interrupt-controller@1c {
++			compatible = "kontron,sl28cpld-intc";
++			reg = <0x1c>;
++			interrupts-extended = <&gpio2 6
++					       IRQ_TYPE_EDGE_FALLING>;
++
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++	};
++
+ 	eeprom@50 {
+ 		compatible = "atmel,24c32";
+ 		reg = <0x50>;
 -- 
 2.20.1
 
