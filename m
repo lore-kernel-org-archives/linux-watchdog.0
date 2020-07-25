@@ -4,44 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FD0FC43446
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E796EC43458
 	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C63B2070B
+	by mail.kernel.org (Postfix) with ESMTP id C2FC42070B
 	for <linux-watchdog@archiver.kernel.org>; Sat, 25 Jul 2020 23:19:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="DayADKKr"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="kBVLkIEP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728222AbgGYXTP (ORCPT
+        id S1728229AbgGYXTR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 25 Jul 2020 19:19:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41326 "EHLO
+        Sat, 25 Jul 2020 19:19:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728091AbgGYXTJ (ORCPT
+        with ESMTP id S1728165AbgGYXTK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 25 Jul 2020 19:19:09 -0400
+        Sat, 25 Jul 2020 19:19:10 -0400
 Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C95CC08C5C0;
-        Sat, 25 Jul 2020 16:19:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980EAC08C5CE;
+        Sat, 25 Jul 2020 16:19:10 -0700 (PDT)
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id BFBDA23E4E;
-        Sun, 26 Jul 2020 01:19:06 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 7C23B23E55;
+        Sun, 26 Jul 2020 01:19:08 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1595719147;
+        t=1595719149;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=x7yHRk0PxQh2un749jI6/AvKt0OkpMZsL/WSj3mhMYk=;
-        b=DayADKKrqj7htUQNGjYNMzg0Y+8NfoTdprdnJVoWefQxQboWar4AADJ8xmlLAooYXBxeXq
-        cDSzwdcfnfoZSfCxZ14Uixx0BEFtip2imK6YAyNNoAYB+h8D1vgPcQcgFHPH3i9Q0Jb5MX
-        kAbO1gi25jz+5z5EDUQk6E2UB8UGtFQ=
+        bh=PNc2RG8Tt+EkQg/L/MGAMSEh8dcuaImVAHmm6o6jhBo=;
+        b=kBVLkIEP/C2ReoLMyukzWmgQonAia/PsYLqogFg5iMR5wqlp5oiy3e4/jE9FCMUs+CI+iZ
+        9sq5luyHjrUqugUIRSqr00X1nFrqOMPqukhSU4mAxlWwGGzbsPqqVg12Y+lEyMH34kOrlS
+        A2WaSgaF6BMMipDcQPTQFKHffbMnw+g=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -66,9 +67,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v6 11/13] arm64: dts: freescale: sl28: enable LED support
-Date:   Sun, 26 Jul 2020 01:18:32 +0200
-Message-Id: <20200725231834.25642-12-michael@walle.cc>
+Subject: [PATCH v6 13/13] arm64: defconfig: enable the sl28cpld board management controller
+Date:   Sun, 26 Jul 2020 01:18:34 +0200
+Message-Id: <20200725231834.25642-14-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200725231834.25642-1-michael@walle.cc>
 References: <20200725231834.25642-1-michael@walle.cc>
@@ -80,52 +81,56 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Now that we have support for GPIO lines of the SMARC connector, enable
-LED support on the KBox A-230-LS. There are two LEDs without fixed
-functions, one is yellow and one is green. Unfortunately, it is just one
-multi-color LED, thus while it is possible to enable both at the same
-time it is hard to tell the difference between "yellow only" and "yellow
-and green".
+Enable the kernel modules for the board management controller "sl28cpld"
+which is used on the SMARC-sAL28 board.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
 Changes since v5:
- - changed the label, suggested by Pavel Machek
+ - new patch
 
-Changes since v4:
- - none
+ arch/arm64/configs/defconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Changes since v3:
- - see cover letter
-
- .../fsl-ls1028a-kontron-kbox-a-230-ls.dts          | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-index 4b4cc6a1573d..8e5e289ce04f 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-@@ -16,6 +16,20 @@
- 	model = "Kontron KBox A-230-LS";
- 	compatible = "kontron,kbox-a-230-ls", "kontron,sl28-var4",
- 		     "kontron,sl28", "fsl,ls1028a";
-+
-+	leds {
-+		compatible = "gpio-leds";
-+
-+		alarm-led {
-+			label = "yellow:alarm";
-+			gpios = <&sl28cpld_gpio0 0 0>;
-+		};
-+
-+		power-led {
-+			label = "green:power";
-+			gpios = <&sl28cpld_gpio1 3 0>;
-+		};
-+	};
- };
- 
- &enetc_mdio_pf3 {
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index e0f33826819f..d45a33ccf7d7 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -500,6 +500,7 @@ CONFIG_GPIO_PCA953X=y
+ CONFIG_GPIO_PCA953X_IRQ=y
+ CONFIG_GPIO_BD9571MWV=m
+ CONFIG_GPIO_MAX77620=y
++CONFIG_GPIO_SL28CPLD=m
+ CONFIG_POWER_AVS=y
+ CONFIG_QCOM_CPR=y
+ CONFIG_ROCKCHIP_IODOMAIN=y
+@@ -513,6 +514,7 @@ CONFIG_SENSORS_ARM_SCPI=y
+ CONFIG_SENSORS_LM90=m
+ CONFIG_SENSORS_PWM_FAN=m
+ CONFIG_SENSORS_RASPBERRYPI_HWMON=m
++CONFIG_SENSORS_SL28CPLD=m
+ CONFIG_SENSORS_INA2XX=m
+ CONFIG_SENSORS_INA3221=m
+ CONFIG_THERMAL_GOV_POWER_ALLOCATOR=y
+@@ -535,6 +537,7 @@ CONFIG_QCOM_TSENS=y
+ CONFIG_QCOM_SPMI_TEMP_ALARM=m
+ CONFIG_UNIPHIER_THERMAL=y
+ CONFIG_WATCHDOG=y
++CONFIG_SL28CPLD_WATCHDOG=m
+ CONFIG_ARM_SP805_WATCHDOG=y
+ CONFIG_ARM_SBSA_WATCHDOG=y
+ CONFIG_ARM_SMC_WATCHDOG=y
+@@ -934,8 +937,10 @@ CONFIG_PWM_MESON=m
+ CONFIG_PWM_RCAR=m
+ CONFIG_PWM_ROCKCHIP=y
+ CONFIG_PWM_SAMSUNG=y
++CONFIG_PWM_SL28CPLD=m
+ CONFIG_PWM_SUN4I=m
+ CONFIG_PWM_TEGRA=m
++CONFIG_SL28CPLD_INTC=y
+ CONFIG_QCOM_PDC=y
+ CONFIG_RESET_QCOM_AOSS=y
+ CONFIG_RESET_QCOM_PDC=m
 -- 
 2.20.1
 
