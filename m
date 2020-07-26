@@ -2,111 +2,103 @@ Return-Path: <SRS0=meI8=BF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF236C433ED
-	for <linux-watchdog@archiver.kernel.org>; Sun, 26 Jul 2020 12:35:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7753CC433DF
+	for <linux-watchdog@archiver.kernel.org>; Sun, 26 Jul 2020 23:13:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF59720714
-	for <linux-watchdog@archiver.kernel.org>; Sun, 26 Jul 2020 12:35:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD56C2073E
+	for <linux-watchdog@archiver.kernel.org>; Sun, 26 Jul 2020 23:13:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="xOPdX7zI"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="cbxFefq0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727041AbgGZMf1 (ORCPT
+        id S1726832AbgGZXNO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 26 Jul 2020 08:35:27 -0400
-Received: from www.zeus03.de ([194.117.254.33]:39950 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbgGZMfX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 26 Jul 2020 08:35:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=onAeRnhffhF8ckRwRk4DsGKcuZ5Z
-        A3FW02cG3cQyVvk=; b=xOPdX7zIGdV+hLDlDtvJQrla1xgvXVqgjudDwZNJcY/y
-        UxH6Uxc3rBrfVuJ6qwDWL6hBSBtWw2GhDWVjKC9p7CtD5q6fULK7WI9rNWEzztj8
-        c6QmeBMw5XkrgpSXrqPG+G4nlMniocnv8rbnHt5MagEQJ3i3L88k/ge12XmPocY=
-Received: (qmail 40298 invoked from network); 26 Jul 2020 14:35:19 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Jul 2020 14:35:19 +0200
-X-UD-Smtp-Session: l3s3148p1@D31ocFer/I8gAwDPXy27AOM4pzPBFrIA
-Date:   Sun, 26 Jul 2020 14:35:19 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>
-Subject: Re: [PATCH 11/20] dt-bindings: i2c: renesas,i2c: Document r8a774e1
- support
-Message-ID: <20200726123519.GC2484@ninjato>
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-12-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        Sun, 26 Jul 2020 19:13:14 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:48504 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726730AbgGZXNO (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 26 Jul 2020 19:13:14 -0400
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 58CAB891B0;
+        Mon, 27 Jul 2020 11:13:09 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1595805189;
+        bh=Wp+Zo0Glxzh1xirvrVu2neQRYBub3jLZKClW8M+YdYk=;
+        h=From:To:Cc:Subject:Date;
+        b=cbxFefq0E94SuYeBWloFTwntCR5et+YQWZVleBnC4XjjzXW2M46PD6ixqlC+P42Bi
+         LcsGx75vdW/bUHzEZyGd8O/tAY8DozXjv7Z6pdm0pAgiS6w4hHSsolb+W38N4GbwZ6
+         JrTOo9mFrceKWfVSH5IyUVrO96SgswgGSPfDGrlAypXrwzHvF5yVMc9Lv7B05qqKPd
+         MUKEmtbbWxGi5BvqR1qpoU+2wqD5l4EaSe5Awp627sx8+8AN2acHpY0d3SESM5emUX
+         PmLR4fTsSGJOc5ge/uqsopyJqjxI9jKfZDJDVBk+WAbkbWvGoCY5vhp2sngHmL8/SA
+         jLdiaVedixxUg==
+Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5f1e0e060000>; Mon, 27 Jul 2020 11:13:10 +1200
+Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
+        by smtp (Postfix) with ESMTP id F3CCE13EEA1;
+        Mon, 27 Jul 2020 11:13:08 +1200 (NZST)
+Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
+        id 1D592280079; Mon, 27 Jul 2020 11:13:09 +1200 (NZST)
+From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        linux@roeck-us.net
+Cc:     linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v2] rtc: ds1307: provide an indication that the watchdog has fired
+Date:   Mon, 27 Jul 2020 11:13:06 +1200
+Message-Id: <20200726231306.734-1-chris.packham@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZwgA9U+XZDXt4+m+"
-Content-Disposition: inline
-In-Reply-To: <1594811350-14066-12-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+x-atlnz-ls: pat
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+There's not much feedback when the ds1388 watchdog fires. Generally it
+yanks on the reset line and the board reboots. Capture the fact that the
+watchdog has fired in the past so that userspace can retrieve it via
+WDIOC_GETBOOTSTATUS. This should help distinguish a watchdog triggered
+reset from a power interruption.
 
---ZwgA9U+XZDXt4+m+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+Changes in v2:
+- Set bootstatus to WDIOF_CARDRESET and let userspace decide what to do w=
+ith
+  the information.
 
-On Wed, Jul 15, 2020 at 12:09:01PM +0100, Lad Prabhakar wrote:
-> Document i2c controller for RZ/G2H (R8A774E1) SoC, which is compatible
-> with R-Car Gen3 SoC family.
->=20
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renes=
-as.com>
+ drivers/rtc/rtc-ds1307.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Applied to for-next, thanks!
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 49702942bb08..209736db510d 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -868,6 +868,14 @@ static int ds1388_wdt_start(struct watchdog_device *=
+wdt_dev)
+ 	struct ds1307 *ds1307 =3D watchdog_get_drvdata(wdt_dev);
+ 	u8 regs[2];
+ 	int ret;
++	int val;
++
++	ret =3D regmap_read(ds1307->regmap, DS1388_REG_FLAG, &val);
++	if (ret)
++		return ret;
++
++	if (val & DS1388_BIT_WF)
++		wdt_dev->bootstatus =3D WDIOF_CARDRESET;
+=20
+ 	ret =3D regmap_update_bits(ds1307->regmap, DS1388_REG_FLAG,
+ 				 DS1388_BIT_WF, 0);
+--=20
+2.27.0
 
-
---ZwgA9U+XZDXt4+m+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8deIcACgkQFA3kzBSg
-KbZbZA//W705bUta/I2fFJX9THCgPXeyts2P3gy1nQcBJvGROOzL6jZJne4W6nHR
-fJdAUnOfyZMTkCvfgnGGrnCa2QRrIgIYmnx1ZpF+dONaPYJPkZOOXoven13LjohY
-0lswiHVVEsKsESNlA8agcPm9Gniuvb8jpzUfpaTOZd2VQr6vV7YSoq53HXOKka+s
-mXwwe5J31Mc/DnJ7Yu0bZYo9jyFdKg4xSXrTwAz5FK+OqdYEyY9Qnu3ne0JZ4k99
-xPaCx5h0DQcoR4rOqIi21dedGiJ7iRuao1sDBgq5X1BxHIzJ5q+1HW1xiwMTdj/d
-6xA2PN1HxqaZ3Ff6p0tamC5AgmjgMQrFJj2cFI+fF/1VWp62V3O8oNZ/5b3f7bP4
-4f5ZwCfNYTcGB9tJnDxqTsAHAXAhnxlNc56kCWEZhTzKDzE7gW+H6+90OZEtzeA5
-Akq7504HPVrlgmL52JBbNcunDvs1eTc9ROjPVYJPGu5BKrcB+m2a0HCwhi2nJRBT
-XE//0zGPvPpiq+wYvUiyxmrBWTE/qKJekKoyLUmEIYlaDy9IdDEes5m9yJFlmsAy
-tvXt/lsCak31bfhyHa6HQQ3O8tjC5h+DTpJ4G1zp4u3d1yqBJcobgbySqibzKalP
-BdwAoJP8ng3+Q1MBRngxSYyKZvv7J3uderjW7yq8BN8+KwjU+uE=
-=FNmn
------END PGP SIGNATURE-----
-
---ZwgA9U+XZDXt4+m+--
