@@ -2,142 +2,81 @@ Return-Path: <SRS0=DRey=BH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 199F1C433E5
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 09:47:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12523C433F2
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 10:43:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0053120786
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 09:47:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DADEB20786
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 10:43:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="BYdWWas9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728355AbgG1Jr2 (ORCPT
+        id S1728793AbgG1Kna (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jul 2020 05:47:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728050AbgG1Jr1 (ORCPT
+        Tue, 28 Jul 2020 06:43:30 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:9906 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728709AbgG1Kna (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jul 2020 05:47:27 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68FC7C061794
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 02:47:27 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1k0MCf-0006Wm-VV; Tue, 28 Jul 2020 11:47:21 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1k0MCe-00025Z-98; Tue, 28 Jul 2020 11:47:20 +0200
-Date:   Tue, 28 Jul 2020 11:47:20 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Michael Walle <michael@walle.cc>
-Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v6 06/13] pwm: add support for sl28cpld PWM controller
-Message-ID: <20200728094720.x6pucwxsfwvz6nvv@pengutronix.de>
-References: <20200725231834.25642-1-michael@walle.cc>
- <20200725231834.25642-7-michael@walle.cc>
- <20200728074352.ckyfso5zwsfgupjx@pengutronix.de>
- <58b53cacc5289f17f669159beeeada03@walle.cc>
+        Tue, 28 Jul 2020 06:43:30 -0400
+X-UUID: 4e32ed1c65404e198558d1d29ecdd233-20200728
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=Dw3IQyGg4pE5zkiPd+QC9P5t/IY8wdV20m7D09enpVw=;
+        b=BYdWWas937HhWp1njwh9n2SWuw5QAD3o+qifB3BAuG9SsYDACF9zbjbwNWarWRH7L5l9lUHGs1gP74qk8ZZVVWZJ8GsCbhCQxX/0UPEkoqI7AtlksaspfSnbI+GPdh16h3Fd15qzkArPxsvKGXC8y9xzM6Zv6jtwAS9s7eRRIxE=;
+X-UUID: 4e32ed1c65404e198558d1d29ecdd233-20200728
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
+        (envelope-from <crystal.guo@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1582942344; Tue, 28 Jul 2020 18:43:26 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs06n2.mediatek.inc (172.21.101.130) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 28 Jul 2020 18:43:24 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 28 Jul 2020 18:43:22 +0800
+From:   Crystal Guo <crystal.guo@mediatek.com>
+To:     <linux@roeck-us.net>, <robh+dt@kernel.org>,
+        <matthias.bgg@gmail.com>
+CC:     <srv_heupstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <seiya.wang@mediatek.com>, Crystal Guo <crystal.guo@mediatek.com>
+Subject: [PATCH 2/3] dt-bindings: watchdog: Add rst-num property
+Date:   Tue, 28 Jul 2020 18:42:28 +0800
+Message-ID: <1595932949-7033-2-git-send-email-crystal.guo@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
+In-Reply-To: <1595932949-7033-1-git-send-email-crystal.guo@mediatek.com>
+References: <1595932949-7033-1-git-send-email-crystal.guo@mediatek.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="htulbp2bdc2ny5pv"
-Content-Disposition: inline
-In-Reply-To: <58b53cacc5289f17f669159beeeada03@walle.cc>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 4AE3E7CC99CCFE9FF0F576862D147629AD17970E556E9E6452DFBA34C0985FE42000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+QWRkIHJzdC1udW0gcHJvcGVydHkgYW5kIHVwZGF0ZSBleGFtcGxlDQoNClNpZ25lZC1vZmYtYnk6
+IENyeXN0YWwgR3VvIDxjcnlzdGFsLmd1b0BtZWRpYXRlay5jb20+DQotLS0NCiBEb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQgfCAyICsrDQogMSBm
+aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL210ay13ZHQudHh0IGIvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL210ay13ZHQudHh0DQppbmRleCA0ZGQzNmJk
+Li5kZjE5YTRkIDEwMDY0NA0KLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L3dhdGNoZG9nL210ay13ZHQudHh0DQorKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmlu
+ZGluZ3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQNCkBAIC0xOCw2ICsxOCw3IEBAIFJlcXVpcmVkIHBy
+b3BlcnRpZXM6DQogT3B0aW9uYWwgcHJvcGVydGllczoNCiAtIHRpbWVvdXQtc2VjOiBjb250YWlu
+cyB0aGUgd2F0Y2hkb2cgdGltZW91dCBpbiBzZWNvbmRzLg0KIC0gI3Jlc2V0LWNlbGxzOiBTaG91
+bGQgYmUgMS4NCistIHJzdC1udW06IHRoZSBudW1iZXIgb2YgcmVzZXQgYml0cyBpbiB0b3ByZ3Uu
+DQogDQogRXhhbXBsZToNCiANCkBAIC0yNiw1ICsyNyw2IEBAIHdhdGNoZG9nOiB3YXRjaGRvZ0Ax
+MDAwNzAwMCB7DQogCQkgICAgICJtZWRpYXRlayxtdDY1ODktd2R0IjsNCiAJcmVnID0gPDAgMHgx
+MDAwNzAwMCAwIDB4MTAwPjsNCiAJdGltZW91dC1zZWMgPSA8MTA+Ow0KKwlyc3QtbnVtID0gPDIz
+PjsNCiAJI3Jlc2V0LWNlbGxzID0gPDE+Ow0KIH07DQotLSANCjEuOC4xLjEuZGlydHkNCg==
 
---htulbp2bdc2ny5pv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hallo,
-
-On Tue, Jul 28, 2020 at 10:21:22AM +0200, Michael Walle wrote:
-> Am 2020-07-28 09:43, schrieb Uwe Kleine-K=F6nig:
-> > On Sun, Jul 26, 2020 at 01:18:27AM +0200, Michael Walle wrote:
-> > > +static int sl28cpld_pwm_probe(struct platform_device *pdev)
-> > > +{
-> > > +	struct sl28cpld_pwm *priv;
-> > > +	struct pwm_chip *chip;
-> > > +	int ret;
-> > > +
-> > > +	if (!pdev->dev.parent)
-> > > +		return -ENODEV;
-> > > +
-> > > +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> > > +	if (!priv)
-> > > +		return -ENOMEM;
-> > > +
-> > > +	priv->regmap =3D dev_get_regmap(pdev->dev.parent, NULL);
-> > > +	if (!priv->regmap)
-> >=20
-> > Error message here?
->=20
-> This shouldn't really happen and I put it into the same category
-> as the two above and report no error. But I can add it.
-
-For kzalloc it is right to not emit an error because a failing kzalloc
-is already loud on its own. I missed the first error path, that should
-get a message, too.
-
-> Generally, it looked to me that more and more drivers don't
-> really report errors anymore, but just return with an -EWHATEVER.
-> So if someone can shed some light here, I'm all ears.
-
-IMHO it's wrong not to add error messages. At one point in time it will
-fail and then you're happy if you don't have to add printks all over the
-place first to debug that.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---htulbp2bdc2ny5pv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl8f9CUACgkQwfwUeK3K
-7AlkpAf9GX/MdqMREp3J4dX8H7TLp3wVx7/FOTFnrRDTkszIftG16IG7J9g1qiyY
-lN54gRXDEtuTo7PfeKcJ09lh/jT2xRPE/Y6kHSW6BQKNw2C0S74Pv2UMc1aYWsvZ
-GlE/2BL1tB7F7+OLVIFRhL5N5O0QKaBO5bxaC/DKd4ZAnvbLPloAcysP0kHzqvXP
-H72qdOstHSP5znm4z6+Vcb7xiI9XiT9GWgnumpwo1f6s58SEGsbQUiLRLXIkRURN
-LKzxXtqSMbW1n+U34jSgI6BI+wyDAGQz0iJ0WxKV6DUa5IO7IqucION92J9s7w32
-ntP5cEULmXHKeTvOGXgM59juqdxEtg==
-=KNkY
------END PGP SIGNATURE-----
-
---htulbp2bdc2ny5pv--
