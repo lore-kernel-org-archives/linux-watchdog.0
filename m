@@ -2,147 +2,172 @@ Return-Path: <SRS0=DRey=BH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=BAYES_00,
-	BODY_QUOTE_MALF_MSGID,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A456C433E8
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 10:51:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 445DAC433E3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 11:43:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A8A220A8B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 10:51:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F94F2074F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 11:43:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="vDkkyU+5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kg5JIfjZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbgG1Kv1 (ORCPT
+        id S1729139AbgG1Lnd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jul 2020 06:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58422 "EHLO
+        Tue, 28 Jul 2020 07:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728918AbgG1Kv0 (ORCPT
+        with ESMTP id S1729036AbgG1Lnd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jul 2020 06:51:26 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65260C0619D2
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 03:51:26 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id r12so17774578wrj.13
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 03:51:26 -0700 (PDT)
+        Tue, 28 Jul 2020 07:43:33 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEFC0C061794;
+        Tue, 28 Jul 2020 04:43:32 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id f7so17994041wrw.1;
+        Tue, 28 Jul 2020 04:43:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=LzOc135fINoaOyyxwY4N4SP5+/4WZUgI3XQn3ZBQrDA=;
-        b=vDkkyU+5XaTOEmRQYW0CYyR4mlMX1mtnZDopRBrR16WWZAymHLppooL3WbRsemUOlF
-         7JAG9CCFFBkNo1ck8oAFsHnGGCFpddbJZI4FvPPe/5vgXZIxS7pdXreW0pAmXl4fefVk
-         uemgsa2HPMS2pgMJSiY5gsoUuJ22Uc9FFMkDS50upr4Y5t/bruJsOn96uJd/Xej/4+wJ
-         r3z4kV7L9g728y5x+aNOBIj6JRK/2vA+lFuGJCCKMNnmmCY7vsMSYcIdJpOO1Lj/2Nk6
-         unQbNqxObw8nTIlx8MnFNeMtUIVxddRTqJvHuyaU1npKp/UQnousCC6p6CUsu9YCp0JA
-         N8gg==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=YY8pKOcwJD4xG9W6savE5HlL+3GNu21Usj1rV1Jy7eY=;
+        b=Kg5JIfjZiTwRt52ZR9xcIlzQP4dbpaiHpxjS5t2LLVa8LCc//EQJR5fWiOSbobaw6f
+         RASs0aZDzmLdIg4dnHSw8nxAm38krcFW7omINEnaMSrijSz/FIc/vvRcHULAeHBI947T
+         QS+pBwJZtz8QXxXoQwlR80hBAUBblDsDsnq3s66X8guNViocUqYwNW/jCq/y5ejhE7nG
+         bIbLZFKYZ3966JO+y/vPaxH32Xn43fYJn7aQX6bTQkFjHwjW+LLgpK96HwD8R1+2XPP5
+         9W7XF3fFInPJbl1CfptpMoGBQZLY92tpzYbRFPEllgrHJzHXQJFLD21Li2+xjMPyjext
+         Zt/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=LzOc135fINoaOyyxwY4N4SP5+/4WZUgI3XQn3ZBQrDA=;
-        b=ZvmI5BN8bNFt0OjqligRAi2Bv74PkUUchsqWfcSQ9ZLUsNOsuEtOVobcp+vsf1eYcc
-         ZJ9N+xonIWKLopQDH4N3O7eiek96aLIqZePR3mwnVo0RbCLfmIfjI0MRPvOcg5J+WCPm
-         WjE+JgfEcREp6B7s9t04IYu1/n1QmikznUn20QNROYOWqGDRRetSNS9V45Ne1zgIDwaK
-         iDY2HIJc3aI/L09MEybuEuIo1h4UXG7rAxoEF5GjltUvyc5Os3rY6UgzmBJzcH3UcPEO
-         CSuKMM3o/u9ATfg7Qx8+R9M4IkTDmO96ihKwM/ZQIT/TdEvQOrUVxqywvJaR7Jcvg7U8
-         sWZA==
-X-Gm-Message-State: AOAM530UvEIbbqhF9dxEUpoXxMqxx4/0wFkJOXI9MKxWIHlH1UNo6KMn
-        agjQw0W8Ubxln3/HJE4TnowHnQ==
-X-Google-Smtp-Source: ABdhPJyXBEeI4zvLVf/tRWpqopuL2jSNCu4L9LZnKQaZP1mCTaWKou6fjAB0L+zVU5NonfUp5NxoSw==
-X-Received: by 2002:a5d:4a90:: with SMTP id o16mr23540803wrq.87.1595933483925;
-        Tue, 28 Jul 2020 03:51:23 -0700 (PDT)
-Received: from dell ([2.27.167.73])
-        by smtp.gmail.com with ESMTPSA id y189sm4194196wmd.27.2020.07.28.03.51.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2020 03:51:23 -0700 (PDT)
-Date:   Tue, 28 Jul 2020 11:51:21 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Michael Walle <michael@walle.cc>, linux-gpio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v6 06/13] pwm: add support for sl28cpld PWM controller
-Message-ID: <20200728105121.GG2419169@dell>
-References: <20200725231834.25642-1-michael@walle.cc>
- <20200725231834.25642-7-michael@walle.cc>
- <20200728074352.ckyfso5zwsfgupjx@pengutronix.de>
- <58b53cacc5289f17f669159beeeada03@walle.cc>
- <20200728094720.x6pucwxsfwvz6nvv@pengutronix.de>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=YY8pKOcwJD4xG9W6savE5HlL+3GNu21Usj1rV1Jy7eY=;
+        b=OgqtuwQzJuLfS48T/1gdq1LLiGGB+iDR44SWR0IUBGnjs3mWNubm2AugYbtOFFr7gH
+         Cfs11DmW/C6BlYuRze83iJNgPhRP7ZIjyap++e/wmkyL4WtEnN7V3baFgRxh0r3vvo0O
+         DzrbexaVApb+PjxkGJDtgBfpmCVlvFc097O4Bq3lbM/PwhoxiQi3yDjU+kpbPCCr5h+Z
+         RnVvlejpMDz0I816Ib+Ch0UWxcxzSlKIUStDa5sNZGlEZkz/JT6C+2GDpWvmkEKu7oNb
+         Q5sTeHVsGaL1qc/Meys0K1Y+ENxm+4Ke+lIwWOfeLmDBSKN5a73tp7IjB/bKen+XnSEU
+         bhPQ==
+X-Gm-Message-State: AOAM530O38/sIMEIRIUp4BrOHrNUblSGKYkthK9AMg3y4LpngkC3RaPa
+        GATXxbFOWNc+M8nXaCgG3QcSsPWhadQ=
+X-Google-Smtp-Source: ABdhPJxwpGy1Qj5Bt8epmU8P3Lo87ZxUfc28bfCO0IJ3PP0BUP4mzW5kO1kVytYnPn6l8PXgOiuGvQ==
+X-Received: by 2002:adf:9d85:: with SMTP id p5mr9624993wre.286.1595936611544;
+        Tue, 28 Jul 2020 04:43:31 -0700 (PDT)
+Received: from ziggy.stardust ([213.195.122.158])
+        by smtp.gmail.com with ESMTPSA id y17sm17639096wrh.63.2020.07.28.04.43.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jul 2020 04:43:30 -0700 (PDT)
+Subject: Re: [PATCH 1/3] watchdog: mtk_wdt: remove mt8xxx-resets.h
+To:     Crystal Guo <crystal.guo@mediatek.com>, linux@roeck-us.net,
+        robh+dt@kernel.org
+Cc:     srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, seiya.wang@mediatek.com
+References: <1595932949-7033-1-git-send-email-crystal.guo@mediatek.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <eb2d8f77-6e4f-9c0d-1556-3db5fa48ada7@gmail.com>
+Date:   Tue, 28 Jul 2020 13:43:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200728094720.x6pucwxsfwvz6nvv@pengutronix.de>
+In-Reply-To: <1595932949-7033-1-git-send-email-crystal.guo@mediatek.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, 28 Jul 2020, Uwe Kleine-König wrote:
-> On Tue, Jul 28, 2020 at 10:21:22AM +0200, Michael Walle wrote:
-> > Am 2020-07-28 09:43, schrieb Uwe Kleine-König:
-> > > On Sun, Jul 26, 2020 at 01:18:27AM +0200, Michael Walle wrote:
-> > > > +static int sl28cpld_pwm_probe(struct platform_device *pdev)
-> > > > +{
-> > > > +	struct sl28cpld_pwm *priv;
-> > > > +	struct pwm_chip *chip;
-> > > > +	int ret;
-> > > > +
-> > > > +	if (!pdev->dev.parent)
-> > > > +		return -ENODEV;
-> > > > +
-> > > > +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> > > > +	if (!priv)
-> > > > +		return -ENOMEM;
-> > > > +
-> > > > +	priv->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> > > > +	if (!priv->regmap)
-> > > 
-> > > Error message here?
-> > 
-> > This shouldn't really happen and I put it into the same category
-> > as the two above and report no error. But I can add it.
-> 
-> For kzalloc it is right to not emit an error because a failing kzalloc
-> is already loud on its own. I missed the first error path, that should
-> get a message, too.
-> 
-> > Generally, it looked to me that more and more drivers don't
-> > really report errors anymore, but just return with an -EWHATEVER.
-> > So if someone can shed some light here, I'm all ears.
-> 
-> IMHO it's wrong not to add error messages. At one point in time it will
-> fail and then you're happy if you don't have to add printks all over the
-> place first to debug that.
 
-Error messages should only be omitted for -ENOMEM and if something is
-already being printed out, ideally by the sub-system API.
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+On 28/07/2020 12:42, Crystal Guo wrote:
+> mt8xxx-resets.h actually just used to define TOPRGU_SW_RST_NUM.
+> Instead of resubmit the mt8xxx-reset.h for a new IC, get the number
+> of reset bits from dtsi is more easier to maintain.
+> 
+
+We want to have all the reset numbers in one header file. It makes no sense to 
+pass the reset number in one driver via DTS and in the rest through the header file.
+
+Sorry but from my side this is NACK.
+
+Regards,
+Matthias
+
+> Signed-off-by: Crystal Guo <crystal.guo@mediatek.com>
+> ---
+>   drivers/watchdog/mtk_wdt.c | 26 +++++---------------------
+>   1 file changed, 5 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index d6a6393..adc88c2 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -9,8 +9,6 @@
+>    * Based on sunxi_wdt.c
+>    */
+>   
+> -#include <dt-bindings/reset-controller/mt2712-resets.h>
+> -#include <dt-bindings/reset-controller/mt8183-resets.h>
+>   #include <linux/delay.h>
+>   #include <linux/err.h>
+>   #include <linux/init.h>
+> @@ -64,18 +62,6 @@ struct mtk_wdt_dev {
+>   	struct reset_controller_dev rcdev;
+>   };
+>   
+> -struct mtk_wdt_data {
+> -	int toprgu_sw_rst_num;
+> -};
+> -
+> -static const struct mtk_wdt_data mt2712_data = {
+> -	.toprgu_sw_rst_num = MT2712_TOPRGU_SW_RST_NUM,
+> -};
+> -
+> -static const struct mtk_wdt_data mt8183_data = {
+> -	.toprgu_sw_rst_num = MT8183_TOPRGU_SW_RST_NUM,
+> -};
+> -
+>   static int toprgu_reset_update(struct reset_controller_dev *rcdev,
+>   			       unsigned long id, bool assert)
+>   {
+> @@ -248,7 +234,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+>   {
+>   	struct device *dev = &pdev->dev;
+>   	struct mtk_wdt_dev *mtk_wdt;
+> -	const struct mtk_wdt_data *wdt_data;
+> +	u32 toprgu_sw_rst_num;
+>   	int err;
+>   
+>   	mtk_wdt = devm_kzalloc(dev, sizeof(*mtk_wdt), GFP_KERNEL);
+> @@ -284,10 +270,10 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+>   	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+>   		 mtk_wdt->wdt_dev.timeout, nowayout);
+>   
+> -	wdt_data = of_device_get_match_data(dev);
+> -	if (wdt_data) {
+> -		err = toprgu_register_reset_controller(pdev,
+> -						       wdt_data->toprgu_sw_rst_num);
+> +	err = of_property_read_u32(pdev->dev.of_node, "rst-num",
+> +				&toprgu_sw_rst_num);
+> +	if (!err) {
+> +		err = toprgu_register_reset_controller(pdev, toprgu_sw_rst_num);
+>   		if (err)
+>   			return err;
+>   	}
+> @@ -319,9 +305,7 @@ static int mtk_wdt_resume(struct device *dev)
+>   #endif
+>   
+>   static const struct of_device_id mtk_wdt_dt_ids[] = {
+> -	{ .compatible = "mediatek,mt2712-wdt", .data = &mt2712_data },
+>   	{ .compatible = "mediatek,mt6589-wdt" },
+> -	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
+>   	{ /* sentinel */ }
+>   };
+>   MODULE_DEVICE_TABLE(of, mtk_wdt_dt_ids);
+> 
