@@ -5,62 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	BODY_QUOTE_MALF_MSGID,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9353FC433E0
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 08:27:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 333A7C433DF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 08:35:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66FC320A8B
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 08:27:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B0D520FC3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jul 2020 08:35:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Qhg6T58a"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wzdHmSNu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727949AbgG1I1M (ORCPT
+        id S1728205AbgG1IfX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jul 2020 04:27:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36040 "EHLO
+        Tue, 28 Jul 2020 04:35:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727878AbgG1I1L (ORCPT
+        with ESMTP id S1727808AbgG1IfW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jul 2020 04:27:11 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554E4C061794
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 01:27:11 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id f18so6379954wmc.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 01:27:11 -0700 (PDT)
+        Tue, 28 Jul 2020 04:35:22 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4708C061794
+        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 01:35:22 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id a5so7439825wrm.6
+        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2020 01:35:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=uGdSTLXzLPoQW4Vv8n7QiN3IXRkY2j1N9K5+wvpg67A=;
-        b=Qhg6T58aAmKWjza2llHFtcN/M5ktqlCBTRyY1BmuOUBUdpKwrXhpz5iTJ+7+tiz7Z8
-         V7n08jcrpM9bhjhsNch1R3b8038XgvDYN4L4lofGSiCZro7bCM2IEHqIlGck39tEouUZ
-         A4r3xC4z/eB4g2zUV7A83vu3lTrDaA9wh5L6Z1W2fU8ATi/A5bBKcqTmWGXnlGh0Nf6y
-         GQYntzxG6o4GCGfR+Ozuy99qbQ1co4mdt+HUnTWNGpXgu3F2G7sBHTHUUfYhG4gEfXtG
-         vCSiH0h4kn4XTvDSo8UU0KwWmMz++xzcD+srqkyl4/3SY3U3JJRBkzLPQ5tjvgVw0sIS
-         Dgwg==
+        bh=wIEap5nu6/u8U1i+WE2J6fe1oYcakn7JFpIXO/o4yqY=;
+        b=wzdHmSNupB/gvHxvaTzGoKr1l0PUZe1L5IJjQHR+y+Mftcr7BWvLUXOOxcbrqw/NeC
+         txj7PBsaU7zWETRFk7Y3jqiE7gbWfXw6QTy5c8RiQnko2Uvtw0n9+h/2MW1oYQ6J3BHm
+         orUCUrnlxxKnUDvUVWzC+ws2mP9aRwuKOLuTxTSGfFE0TLlGcso1EL/1VvUkP/zhmaRf
+         QuXPY1hgq16BhisRZ5VkUg9FH351qj7iV+17Bvy8LvnpWlPHTy61IlLLqRgZqsdqA2F2
+         EgDK32RgjKUxJ3MVsyl1NPNqLT/bU95m5q6dSnXvN1LR4O9aV1Nru/mFvVMbcjy87O1L
+         wbhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to;
-        bh=uGdSTLXzLPoQW4Vv8n7QiN3IXRkY2j1N9K5+wvpg67A=;
-        b=muYUcUivHM2lvDRVMmgNyb041To+Kj7mT1NEf8gRJVWbBPF9537smAigCKVFscPhOT
-         pQWmZBknuBpwM1s9GlVas3z381Acm0uccEx8ESBEw1+x5BTwjXlWmMvtodL3mRbCM7Ke
-         DxrbT3hZzbJw9wizZLcYZEEpuFhMrlWUMvwudYQEwYez0Rp2Gxf+A2UET6BPM5AXb4Fc
-         yEwfLOwNNc8SgCi8HyhgU9ShPASVK03PM69F0ctwwVUymx02CP5Imq+DjrZp41ENLeDj
-         G+HjlteS43KRgWWT//LHiEvJD3ezQFjxhXoDKV8pkHnZe5lNhnjNi1CWDVzgJUmVd9rp
-         TIKw==
-X-Gm-Message-State: AOAM531+h1eJp6IHKPJ0F82RmD3AvsWtJKFp65qvNcGes9gMRL/21O+g
-        x1qkXYzlHhJPTPMlQRx4ssh5Kw==
-X-Google-Smtp-Source: ABdhPJxOdhDnn+eNqujllDon1GsS0dEIq8GDpDLR1DsQSiCtVl87rdAMEtcC8WUAdFNx/vl1MVi7VA==
-X-Received: by 2002:a1c:b007:: with SMTP id z7mr2792839wme.37.1595924829954;
-        Tue, 28 Jul 2020 01:27:09 -0700 (PDT)
+        bh=wIEap5nu6/u8U1i+WE2J6fe1oYcakn7JFpIXO/o4yqY=;
+        b=mMsfq8I3uxxEwLg6irPmRGFxXGyCzboCnLakuFgndRCAB21rDyQfEyV7ygE+Qz2wN0
+         OrrYdLn6heeWwUSFp2mCfdYzHf0dizqL/6LkyFMGYgCznsav49QaMXsXqQ5+LYXJ13Aq
+         tnm4gePM42tQQt4HwxR9aMlG8ikgmQgCndJ3C/q8htUuesCPHr3VnoxI+s5PcsJ0JRb0
+         8uINLcujqnJAQs4YaE6ivWEvwG8QrjmwmvHxilLdy8LrYzI5ii5mQp7f4kyZEwbNVtWo
+         NOUaHJiH1Woz21EYja3LZ2stl1DTMPCoMUF85c2ye9Vf0MbU5rzUfCgXCHTs+lSK1Qqj
+         CVrA==
+X-Gm-Message-State: AOAM532KJg/Gt+PZfk/zqgeXErfucpocbg8RHMHNpirlsQN++2Jlntny
+        cse9qroQyVYCK9yQl8CfSO3f1Q==
+X-Google-Smtp-Source: ABdhPJwG1bTGEwviQBx4fQX6vXqs1qp0AAL5ZGxkde5J0PYhdXIPql4dbkmS6q4z2xbEkiCvqUsGMQ==
+X-Received: by 2002:adf:ec8b:: with SMTP id z11mr23369607wrn.51.1595925321324;
+        Tue, 28 Jul 2020 01:35:21 -0700 (PDT)
 Received: from dell ([2.27.167.73])
-        by smtp.gmail.com with ESMTPSA id s205sm3405256wme.7.2020.07.28.01.27.08
+        by smtp.gmail.com with ESMTPSA id 62sm16885342wrq.31.2020.07.28.01.35.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2020 01:27:09 -0700 (PDT)
-Date:   Tue, 28 Jul 2020 09:27:07 +0100
+        Tue, 28 Jul 2020 01:35:20 -0700 (PDT)
+Date:   Tue, 28 Jul 2020 09:35:18 +0100
 From:   Lee Jones <lee.jones@linaro.org>
 To:     Michael Walle <michael@walle.cc>
 Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
@@ -83,19 +83,20 @@ Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6 02/13] dt-bindings: mfd: Add bindings for sl28cpld
-Message-ID: <20200728082707.GB2419169@dell>
+        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v6 01/13] mfd: add simple regmap based I2C driver
+Message-ID: <20200728083518.GC2419169@dell>
 References: <20200725231834.25642-1-michael@walle.cc>
- <20200725231834.25642-3-michael@walle.cc>
- <20200728072422.GF1850026@dell>
- <1065b0107ce6fd88b2bdd704bf45346b@walle.cc>
+ <20200725231834.25642-2-michael@walle.cc>
+ <20200728071949.GE1850026@dell>
+ <23a9ecf5fe4f15b9b20a91cc292aca80@walle.cc>
+ <20200728081506.GA2419169@dell>
+ <5de219e973e9d3c1455f1a09b4ce4177@walle.cc>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1065b0107ce6fd88b2bdd704bf45346b@walle.cc>
+In-Reply-To: <5de219e973e9d3c1455f1a09b4ce4177@walle.cc>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
@@ -103,135 +104,73 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On Tue, 28 Jul 2020, Michael Walle wrote:
 
-> Am 2020-07-28 09:24, schrieb Lee Jones:
-> > On Sun, 26 Jul 2020, Michael Walle wrote:
+> Am 2020-07-28 10:15, schrieb Lee Jones:
+> > On Tue, 28 Jul 2020, Michael Walle wrote:
 > > 
-> > > Add a device tree bindings for the board management controller found
-> > > on
-> > > the Kontron SMARC-sAL28 board.
+> > > Am 2020-07-28 09:19, schrieb Lee Jones:
+> > > > On Sun, 26 Jul 2020, Michael Walle wrote:
+> > > >
+> > > > > There are I2C devices which contain several different functions but
+> > > > > doesn't require any special access functions. For these kind of
+> > > > > drivers
+> > > > > an I2C regmap should be enough.
+> > > > >
+> > > > > Create an I2C driver which creates an I2C regmap and enumerates its
+> > > > > children. If a device wants to use this as its MFD core driver, it has
+> > > > > to add an individual compatible string. It may provide its own regmap
+> > > > > configuration.
+> > > > >
+> > > > > Subdevices can use dev_get_regmap() on the parent to get their regmap
+> > > > > instance.
+> > > > >
+> > > > > Signed-off-by: Michael Walle <michael@walle.cc>
+> > > > > ---
+> > > > > Changes since v5:
+> > > > >  - removed "select MFD_CORE" in Kconfig
+> > > > >  - removed help text in Kconfig, we assume that the users of this
+> > > >
+> > > > That's the opposite of what I asked for.
 > > > 
-> > > Signed-off-by: Michael Walle <michael@walle.cc>
-> > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > > ---
-> > > Changes since v5:
-> > >  - none
-> > > 
-> > > Changes since v4:
-> > >  - fix the regex of the unit-address
-> > > 
-> > > Changes since v3:
-> > >  - see cover letter
-> > > 
-> > >  .../bindings/gpio/kontron,sl28cpld-gpio.yaml  |  54 +++++++
-> > >  .../hwmon/kontron,sl28cpld-hwmon.yaml         |  27 ++++
-> > >  .../kontron,sl28cpld-intc.yaml                |  54 +++++++
-> > >  .../bindings/mfd/kontron,sl28cpld.yaml        | 153
-> > > ++++++++++++++++++
-> > >  .../bindings/pwm/kontron,sl28cpld-pwm.yaml    |  35 ++++
-> > >  .../watchdog/kontron,sl28cpld-wdt.yaml        |  35 ++++
-> > >  6 files changed, 358 insertions(+)
-> > >  create mode 100644
-> > > Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
-> > >  create mode 100644
-> > > Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
-> > >  create mode 100644 Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml
-> > >  create mode 100644
-> > > Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
-> > >  create mode 100644
-> > > Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
-> > >  create mode 100644
-> > > Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
-> > > 
-> > > diff --git
-> > > a/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
-> > > b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
-> > > new file mode 100644
-> > > index 000000000000..9a63a158a796
-> > > --- /dev/null
-> > > +++
-> > > b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
-> > > @@ -0,0 +1,54 @@
-> > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/gpio/kontron,sl28cpld-gpio.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: GPIO driver for the sl28cpld board management controller
-> > > +
-> > > +maintainers:
-> > > +  - Michael Walle <michael@walle.cc>
-> > > +
-> > > +description: |
-> > > +  This module is part of the sl28cpld multi-function device. For more
-> > > +  details see
-> > > Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml.
+> > > What is the use to describe the symbol, if it is not user selectable?
+> > > I'm not aware this is done anywhere in the kernel, am I missing
+> > > something?
 > > 
-> > Paths are normally relative.
+> > You mean in menuconfig?
+> > 
+> > I find 'help's helpful even outside of menuconfig.
+> > 
+> > Surely I'm not the only one who reads them 'raw'?
 > 
-> grep Documentation/ Documentation
-> 
-> I know there are a lot false positives (esp in the first one)..
-> 
-> $ grep -r "\.\./" Documentation | wc -l
-> 1826
-> $ grep -r "Documentation/" Documentation|wc -l
-> 2862
+> Its already available in the header of the file. But sure, I can
+> copy it.
 
-I actually meant just for Device Tree bindings, but it does appear
-that 'Documentation' is used a bunch there too.
-
-My reasons for not liking full paths is that the intention was always
-to move 'Documentation/devicetree' to a new location outside of the
-kernel source tree.
+Thanks.
 
 [...]
 
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/mfd/kontron,sl28cpld.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: Kontron's sl28cpld board management controller
+> > > Why would you remove information about the intention of this driver?
+> > > If
+> > > someone
+> > > looks for a place to implement its SPI/I3C/Slimbus MFD driver this
+> > > might
+> > > come
+> > > in handy.
 > > 
-> > "S128CPLD" ?
+> > By all means put something similar in the commit log, but it has no
+> > place in the driver itself.  Besides, if we were to add support for
+> > SPI, it is likely to be a completely separate/unrelated driver.
 > 
-> still not, its sl28cpld, think of a project/code name, not the product
-> appended with CPLD.
-> 
-> > "Board Management Controller (BMC)" ?
-> 
-> sounds like IPMI, which I wanted to avoid.
+> Why would that be another driver? It would be 90% copy paste with
+> regmap_init_i2c() replaced by regmap_init_spi() and i2c_driver replaced
+> by spi_driver.
 
-Is there a datasheet?
+We'll investigate options if/when the time comes.  If 'spi_driver' and
+'i2c_driver' can *sensibly* co-exist, then that is certainly an option
+we can explore.
 
-> > > +maintainers:
-> > > +  - Michael Walle <michael@walle.cc>
-> > > +
-> > > +description: |
-> > > +  The board management controller may contain different IP blocks
-> > > like
-> > > +  watchdog, fan monitoring, PWM controller, interrupt controller
-> > > and a
-> > > +  GPIO controller.
-> > > +
-> > > +properties:
-> > > +  compatible:
-> > > +    const: kontron,sl28cpld-r1
-> > 
-> > We don't usually code revision numbers in compatible strings.
-> > 
-> > Is there any way to pull this from the H/W?
-> 
-> No, unfortunately you can't. And I really want to keep that, in case
-> in the future there are some backwards incompatible changes.
+> But I don't care. I'll remove it.
 
-Rob,
-
-I know you reviewed this already, but you can give your opinion on
-this specifically please?  I know that we have pushed back on this in
-the past.
-
+Please.
 
 -- 
 Lee Jones [李琼斯]
