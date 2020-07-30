@@ -2,94 +2,128 @@ Return-Path: <SRS0=B6mG=BJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96225C433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 30 Jul 2020 10:22:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA319C433DF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 30 Jul 2020 11:11:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73EE220838
-	for <linux-watchdog@archiver.kernel.org>; Thu, 30 Jul 2020 10:22:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A67102075F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 30 Jul 2020 11:11:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="AnCLwfNR"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GnWpPtrt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbgG3KWj (ORCPT
+        id S1726873AbgG3LLj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 30 Jul 2020 06:22:39 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:34215 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728972AbgG3KW2 (ORCPT
+        Thu, 30 Jul 2020 07:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726367AbgG3LLi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 30 Jul 2020 06:22:28 -0400
-X-UUID: 9506b8dc5a2442229bffa56ed4d0c835-20200730
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=650NVCPZG1KcydX0hTrnKCdiU0nIw3CgigzQoQXdQQk=;
-        b=AnCLwfNRoY0Za/crMZD+KmDbN9m1OhpBK3T4QnCwpTA+Fz6xaizLnA8+Bsri4uF3GYNldQEECciG96dspMNWxteHicn2/O+UikznD446kZTC1aOWaHhyo3cENUvchTpwDeFmYBPKVuUM/nCwDrGjO5z9AFNxZ07AcWHbZkKJLmY=;
-X-UUID: 9506b8dc5a2442229bffa56ed4d0c835-20200730
-Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw02.mediatek.com
-        (envelope-from <crystal.guo@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1624301822; Thu, 30 Jul 2020 18:22:23 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 30 Jul 2020 18:22:19 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 30 Jul 2020 18:22:19 +0800
-From:   Crystal Guo <crystal.guo@mediatek.com>
-To:     <linux@roeck-us.net>, <robh+dt@kernel.org>,
-        <matthias.bgg@gmail.com>
-CC:     <srv_heupstream@mediatek.com>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <seiya.wang@mediatek.com>, Crystal Guo <crystal.guo@mediatek.com>
-Subject: [v3,4/5] dt-binding: mt8192: add toprgu reset-controller head file
-Date:   Thu, 30 Jul 2020 18:21:49 +0800
-Message-ID: <1596104510-11113-5-git-send-email-crystal.guo@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-In-Reply-To: <1596104510-11113-1-git-send-email-crystal.guo@mediatek.com>
+        Thu, 30 Jul 2020 07:11:38 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24199C061794;
+        Thu, 30 Jul 2020 04:11:37 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id z18so20945418wrm.12;
+        Thu, 30 Jul 2020 04:11:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=+0iowu5xEfPH7yjXvVBsR1zC3LFBJmoKMH8nuby/sFI=;
+        b=GnWpPtrtvLFQrIvPWKQ3x+hLmZQOnsGb2mOxnHtZf+3PKUEyAfUB5sGJImtjtbm6zr
+         6U7vMKvKE8VRMhaUPT21A8bglTvJzmBmah7MqtoF++11LRRhCoBBb5x34ABeYLAMKzZ/
+         OigG88mHCVRGTHXayDVGS9o/pj9cJ2lAIwo07rR5IKKqA4VngkOVFIF10/p8Cqacdqkr
+         IpPvHvvn9RQw5Tsa9iWA4HmvopcWpjmM78H1r6/YC4xXCoz81udYkQez3cJyW71F/2Cs
+         JsS9s+UcdTmDDXnmvtlDzykh+mw+4DO06ELW/mExH6HTUqulWglC73UdJvjMY+ui9Hfn
+         nsUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+0iowu5xEfPH7yjXvVBsR1zC3LFBJmoKMH8nuby/sFI=;
+        b=bZP5aJzltBooiok9oT4jsa0MU1vfIef0j6ZNTeSSEWEBnr0QSiT31iQPXutxe61MTP
+         TXNDVDaGJUtF8visFEpMJH23xPT+dXUnB7Mpt5aJgeXuRUKjUWN3UyJjT698+jFI05fb
+         iJ6cdAKs/zG+61stiDiNeDEfVdo5zcooj+tJJzXp1AXJ49k9D9CGF7ecytumPd7NAHvB
+         2a0QU6M5uy3w158kytzESN0+JS5KyD7PtL//S+ld2ZQANKj97/mcHLQU4bpBS+XqtXsb
+         /TbcDIXAJojlsXHnJlgtxa2HEBNahwFaLtkMSMYRc7m7sWImodcQV75DVeKiQ8kKdi19
+         uXcg==
+X-Gm-Message-State: AOAM5324gLfKY+aAQlkh+5nF3kGe3SjoMwNaDlrCtLgyphCdLDYeDfwi
+        PUBS8+XHmMaOgVoxxJDeIaBcb6/FoHw=
+X-Google-Smtp-Source: ABdhPJyzrCbW0TufxlUf4YkPb0Dtc3clPloAllLT6W6ASv6ufOJZ4JIRJvQHLXGZ3Q5JjOxz3dalBg==
+X-Received: by 2002:a5d:48c8:: with SMTP id p8mr2265618wrs.84.1596107495864;
+        Thu, 30 Jul 2020 04:11:35 -0700 (PDT)
+Received: from ziggy.stardust (81.172.57.81.dyn.user.ono.com. [81.172.57.81])
+        by smtp.gmail.com with ESMTPSA id z8sm8387862wmf.42.2020.07.30.04.11.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2020 04:11:35 -0700 (PDT)
+Subject: Re: [v3,1/5] dt-binding: mediatek: watchdog: fix the description of
+ compatible
+To:     Crystal Guo <crystal.guo@mediatek.com>, linux@roeck-us.net,
+        robh+dt@kernel.org
+Cc:     srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, seiya.wang@mediatek.com
 References: <1596104510-11113-1-git-send-email-crystal.guo@mediatek.com>
+ <1596104510-11113-2-git-send-email-crystal.guo@mediatek.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <2fca091d-4889-2564-0fe0-927093929f10@gmail.com>
+Date:   Thu, 30 Jul 2020 13:11:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+In-Reply-To: <1596104510-11113-2-git-send-email-crystal.guo@mediatek.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-YWRkIHRvcHJndSByZXNldC1jb250cm9sbGVyIGhlYWQgZmlsZSBmb3IgTVQ4MTkyIHBsYXRmb3Jt
-DQoNClNpZ25lZC1vZmYtYnk6IENyeXN0YWwgR3VvIDxjcnlzdGFsLmd1b0BtZWRpYXRlay5jb20+
-DQpSZXZpZXdlZC1ieTogTWF0dGhpYXMgQnJ1Z2dlciA8bWF0dGhpYXMuYmdnQGdtYWlsLmNvbT4N
-Ci0tLQ0KIC4uLi9kdC1iaW5kaW5ncy9yZXNldC1jb250cm9sbGVyL210ODE5Mi1yZXNldHMuaCAg
-IHwgMzAgKysrKysrKysrKysrKysrKysrKysrKw0KIDEgZmlsZSBjaGFuZ2VkLCAzMCBpbnNlcnRp
-b25zKCspDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvZHQtYmluZGluZ3MvcmVzZXQtY29u
-dHJvbGxlci9tdDgxOTItcmVzZXRzLmgNCg0KZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHQtYmluZGlu
-Z3MvcmVzZXQtY29udHJvbGxlci9tdDgxOTItcmVzZXRzLmggYi9pbmNsdWRlL2R0LWJpbmRpbmdz
-L3Jlc2V0LWNvbnRyb2xsZXIvbXQ4MTkyLXJlc2V0cy5oDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0K
-aW5kZXggMDAwMDAwMC4uODRmZWUzNA0KLS0tIC9kZXYvbnVsbA0KKysrIGIvaW5jbHVkZS9kdC1i
-aW5kaW5ncy9yZXNldC1jb250cm9sbGVyL210ODE5Mi1yZXNldHMuaA0KQEAgLTAsMCArMSwzMCBA
-QA0KKy8qIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wICovDQorLyoNCisgKiBDb3B5
-cmlnaHQgKGMpIDIwMjAgTWVkaWFUZWsgSW5jLg0KKyAqIEF1dGhvcjogWW9uZyBMaWFuZyA8eW9u
-Zy5saWFuZ0BtZWRpYXRlay5jb20+DQorICovDQorDQorI2lmbmRlZiBfRFRfQklORElOR1NfUkVT
-RVRfQ09OVFJPTExFUl9NVDgxOTINCisjZGVmaW5lIF9EVF9CSU5ESU5HU19SRVNFVF9DT05UUk9M
-TEVSX01UODE5Mg0KKw0KKyNkZWZpbmUgTVQ4MTgzX1RPUFJHVV9NTV9TV19SU1QJCQkJCTENCisj
-ZGVmaW5lIE1UODE4M19UT1BSR1VfTUZHX1NXX1JTVAkJCQkyDQorI2RlZmluZSBNVDgxODNfVE9Q
-UkdVX1ZFTkNfU1dfUlNUCQkJCTMNCisjZGVmaW5lIE1UODE4M19UT1BSR1VfVkRFQ19TV19SU1QJ
-CQkJNA0KKyNkZWZpbmUgTVQ4MTgzX1RPUFJHVV9JTUdfU1dfUlNUCQkJCTUNCisjZGVmaW5lIE1U
-ODE4M19UT1BSR1VfTURfU1dfUlNUCQkJCQk3DQorI2RlZmluZSBNVDgxODNfVE9QUkdVX0NPTk5f
-U1dfUlNUCQkJCTkNCisjZGVmaW5lIE1UODE4M19UT1BSR1VfQ09OTl9NQ1VfU1dfUlNUCQkJMTIN
-CisjZGVmaW5lIE1UODE4M19UT1BSR1VfSVBVMF9TV19SU1QJCQkJMTQNCisjZGVmaW5lIE1UODE4
-M19UT1BSR1VfSVBVMV9TV19SU1QJCQkJMTUNCisjZGVmaW5lIE1UODE4M19UT1BSR1VfQVVESU9f
-U1dfUlNUCQkJCTE3DQorI2RlZmluZSBNVDgxODNfVE9QUkdVX0NBTVNZU19TV19SU1QJCQkJMTgN
-CisjZGVmaW5lIE1UODE5Ml9UT1BSR1VfTUpDX1NXX1JTVAkJCQkxOQ0KKyNkZWZpbmUgTVQ4MTky
-X1RPUFJHVV9DMktfUzJfU1dfUlNUCQkJCTIwDQorI2RlZmluZSBNVDgxOTJfVE9QUkdVX0MyS19T
-V19SU1QJCQkJMjENCisjZGVmaW5lIE1UODE5Ml9UT1BSR1VfUEVSSV9TV19SU1QJCQkJMjINCisj
-ZGVmaW5lIE1UODE5Ml9UT1BSR1VfUEVSSV9BT19TV19SU1QJCQkyMw0KKw0KKyNkZWZpbmUgTVQ4
-MTkyX1RPUFJHVV9TV19SU1RfTlVNCQkJCTIzDQorDQorI2VuZGlmICAvKiBfRFRfQklORElOR1Nf
-UkVTRVRfQ09OVFJPTExFUl9NVDgxOTIgKi8NCi0tIA0KMS44LjEuMS5kaXJ0eQ0K
 
+
+On 30/07/2020 12:21, Crystal Guo wrote:
+> Besides watchdog, mt2712 and nt8183 also provide sub-system software
+> reset features. But mt6589 not support this feature
+> 
+> Signed-off-by: Crystal Guo <crystal.guo@mediatek.com>
+
+My proposal for the commit message:
+
+"The watchdog driver for MT2712 and MT8183 relies on DT data, so the fallback 
+compatible MT6589 won't work."
+
+With that or anything like that:
+
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+
+> ---
+>   Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> index 4dd36bd..45eedc2 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> @@ -4,13 +4,13 @@ Required properties:
+>   
+>   - compatible should contain:
+>   	"mediatek,mt2701-wdt", "mediatek,mt6589-wdt": for MT2701
+> -	"mediatek,mt2712-wdt", "mediatek,mt6589-wdt": for MT2712
+> +	"mediatek,mt2712-wdt": for MT2712
+>   	"mediatek,mt6589-wdt": for MT6589
+>   	"mediatek,mt6797-wdt", "mediatek,mt6589-wdt": for MT6797
+>   	"mediatek,mt7622-wdt", "mediatek,mt6589-wdt": for MT7622
+>   	"mediatek,mt7623-wdt", "mediatek,mt6589-wdt": for MT7623
+>   	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
+> -	"mediatek,mt8183-wdt", "mediatek,mt6589-wdt": for MT8183
+> +	"mediatek,mt8183-wdt": for MT8183
+>   	"mediatek,mt8516-wdt", "mediatek,mt6589-wdt": for MT8516
+>   
+>   - reg : Specifies base physical address and size of the registers.
+> 
