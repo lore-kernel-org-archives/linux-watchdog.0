@@ -7,38 +7,41 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B487AC433E8
-	for <linux-watchdog@archiver.kernel.org>; Mon,  3 Aug 2020 09:43:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7023C433E1
+	for <linux-watchdog@archiver.kernel.org>; Mon,  3 Aug 2020 09:43:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E6502067D
-	for <linux-watchdog@archiver.kernel.org>; Mon,  3 Aug 2020 09:43:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C9D52067D
+	for <linux-watchdog@archiver.kernel.org>; Mon,  3 Aug 2020 09:43:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="CLBIgRK+"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="c5kanZmq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726963AbgHCJnZ (ORCPT
+        id S1726585AbgHCJmn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 3 Aug 2020 05:43:25 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:44577 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgHCJmo (ORCPT
+        Mon, 3 Aug 2020 05:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726034AbgHCJmk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Aug 2020 05:42:44 -0400
+        Mon, 3 Aug 2020 05:42:40 -0400
+Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365CDC061757;
+        Mon,  3 Aug 2020 02:42:38 -0700 (PDT)
 Received: from mwalle01.sab.local. (unknown [213.135.10.150])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id E01A923E45;
-        Mon,  3 Aug 2020 11:42:38 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 3134723E40;
+        Mon,  3 Aug 2020 11:42:34 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1596447759;
+        t=1596447754;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Nll2nIYoKjy89WeTWZ/ueYdcUnkm9S21+VXP3st7jU4=;
-        b=CLBIgRK+aAV5V8SNAeYuVrK+n5b1Keu5hbTvy7lwhKbIC5jmaZ8tnlByECRvJavnvxAXq4
-        HQSwxKtMXnxJNN7pWMut1RS12uvwpte8JSUptS/Cpuh6MRJrAa4i6VBcLHB2qthjcqXWIr
-        VU65oxGZKnbLPAyCrHiHadTHA77ke3k=
+        bh=1QllJx1w4eW/sp75PkVZvdUNY2zx1Kc2TbgXVA5i+aU=;
+        b=c5kanZmqMxfAYaM9pzbQD3ZvuCKz1YdZRp+od76VjBF3JzAoTcZhWXnJuhReXfJL2A9SDC
+        NhUlu7RTDoWJL941YGTm7l0E6V4feSmFuSWxCIlx9Fa1k0NxGA++DK33JtaetiVzvgvskL
+        r6UP1wntEzfskLaYd6Dg3XowauHvVvQ=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -62,10 +65,10 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Michael Walle <michael@walle.cc>
-Subject: [PATCH v7 05/13] watchdog: add support for sl28cpld watchdog
-Date:   Mon,  3 Aug 2020 11:35:51 +0200
-Message-Id: <20200803093559.12289-6-michael@walle.cc>
+        Michael Walle <michael@walle.cc>, Rob Herring <robh@kernel.org>
+Subject: [PATCH v7 02/13] dt-bindings: mfd: Add bindings for sl28cpld
+Date:   Mon,  3 Aug 2020 11:35:48 +0200
+Message-Id: <20200803093559.12289-3-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200803093559.12289-1-michael@walle.cc>
 References: <20200803093559.12289-1-michael@walle.cc>
@@ -77,303 +80,434 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for the watchdog of the sl28cpld board management
-controller. This is part of a multi-function device driver.
+Add a device tree bindings for the board management controller found on
+the Kontron SMARC-sAL28 board.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 Changes since v6:
- - none
+ - renamed "sl28cpld-r1" to "sl28cpld"
+ - made paths relative
+ - moved "reg" and "compatible" to the top of a node
 
 Changes since v5:
  - none
 
 Changes since v4:
- - update copyright year
- - remove #include <linux/of_device.h>, suggested by Andy.
- - slightly reworked the error code handling (only style), suggested by
-   Andy.
- - Don't use "if (ret < 0)", but only "if (ret)", suggested by Andy.
- - remove comma in terminator line of the compatible strings list
- - don't use KBUID_MODNAME
- - remove the platform device table
+ - fix the regex of the unit-address
 
 Changes since v3:
  - see cover letter
 
- drivers/watchdog/Kconfig        |  11 ++
- drivers/watchdog/Makefile       |   1 +
- drivers/watchdog/sl28cpld_wdt.c | 229 ++++++++++++++++++++++++++++++++
- 3 files changed, 241 insertions(+)
- create mode 100644 drivers/watchdog/sl28cpld_wdt.c
+ .../bindings/gpio/kontron,sl28cpld-gpio.yaml  |  54 +++++++
+ .../hwmon/kontron,sl28cpld-hwmon.yaml         |  27 ++++
+ .../kontron,sl28cpld-intc.yaml                |  54 +++++++
+ .../bindings/mfd/kontron,sl28cpld.yaml        | 153 ++++++++++++++++++
+ .../bindings/pwm/kontron,sl28cpld-pwm.yaml    |  35 ++++
+ .../watchdog/kontron,sl28cpld-wdt.yaml        |  35 ++++
+ 6 files changed, 358 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
+ create mode 100644 Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
+ create mode 100644 Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
+ create mode 100644 Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4f4687c46d38..c4115ea0d3f8 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -340,6 +340,17 @@ config MLX_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mlx-wdt.
- 
-+config SL28CPLD_WATCHDOG
-+	tristate "Kontron sl28cpld Watchdog"
-+	select MFD_SIMPLE_MFD_I2C
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  on the Kontron sl28 CPLD.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sl28cpld_wdt.
-+
- # ALPHA Architecture
- 
- # ARM Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 97bed1d3d97c..aa6e41126901 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -225,3 +225,4 @@ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
- obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-+obj-$(CONFIG_SL28CPLD_WATCHDOG) += sl28cpld_wdt.o
-diff --git a/drivers/watchdog/sl28cpld_wdt.c b/drivers/watchdog/sl28cpld_wdt.c
+diff --git a/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
 new file mode 100644
-index 000000000000..a45047d8d9ab
+index 000000000000..e2d2c10e536a
 --- /dev/null
-+++ b/drivers/watchdog/sl28cpld_wdt.c
-@@ -0,0 +1,229 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * sl28cpld watchdog driver
-+ *
-+ * Copyright 2020 Kontron Europe GmbH
-+ */
++++ b/Documentation/devicetree/bindings/gpio/kontron,sl28cpld-gpio.yaml
+@@ -0,0 +1,54 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/gpio/kontron,sl28cpld-gpio.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+#include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
++title: GPIO driver for the sl28cpld board management controller
 +
-+/*
-+ * Watchdog timer block registers.
-+ */
-+#define WDT_CTRL			0x00
-+#define  WDT_CTRL_EN			BIT(0)
-+#define  WDT_CTRL_LOCK			BIT(2)
-+#define  WDT_CTRL_ASSERT_SYS_RESET	BIT(6)
-+#define  WDT_CTRL_ASSERT_WDT_TIMEOUT	BIT(7)
-+#define WDT_TIMEOUT			0x01
-+#define WDT_KICK			0x02
-+#define  WDT_KICK_VALUE			0x6b
-+#define WDT_COUNT			0x03
++maintainers:
++  - Michael Walle <michael@walle.cc>
 +
-+#define WDT_DEFAULT_TIMEOUT		10
++description: |
++  This module is part of the sl28cpld multi-function device. For more
++  details see ../mfd/kontron,sl28cpld.yaml.
 +
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++  There are three flavors of the GPIO controller, one full featured
++  input/output with interrupt support (kontron,sl28cpld-gpio), one
++  output-only (kontron,sl28-gpo) and one input-only (kontron,sl28-gpi).
 +
-+static int timeout;
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
++  Each controller supports 8 GPIO lines.
 +
-+struct sl28cpld_wdt {
-+	struct watchdog_device wdd;
-+	struct regmap *regmap;
-+	u32 offset;
-+	bool assert_wdt_timeout;
-+};
++properties:
++  compatible:
++    enum:
++      - kontron,sl28cpld-gpio
++      - kontron,sl28cpld-gpi
++      - kontron,sl28cpld-gpo
 +
-+static int sl28cpld_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++  reg:
++    maxItems: 1
 +
-+	return regmap_write(wdt->regmap, wdt->offset + WDT_KICK,
-+			    WDT_KICK_VALUE);
-+}
++  interrupts:
++    maxItems: 1
 +
-+static int sl28cpld_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int val;
++  "#interrupt-cells":
++    const: 2
 +
-+	val = WDT_CTRL_EN | WDT_CTRL_ASSERT_SYS_RESET;
-+	if (wdt->assert_wdt_timeout)
-+		val |= WDT_CTRL_ASSERT_WDT_TIMEOUT;
-+	if (nowayout)
-+		val |= WDT_CTRL_LOCK;
++  interrupt-controller: true
 +
-+	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
-+				  val, val);
-+}
++  "#gpio-cells":
++    const: 2
 +
-+static int sl28cpld_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
++  gpio-controller: true
 +
-+	return regmap_update_bits(wdt->regmap, wdt->offset + WDT_CTRL,
-+				  WDT_CTRL_EN, 0);
-+}
++  gpio-line-names:
++      minItems: 1
++      maxItems: 8
 +
-+static unsigned int sl28cpld_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int val;
-+	int ret;
++required:
++  - compatible
++  - "#gpio-cells"
++  - gpio-controller
 +
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_COUNT, &val);
-+	if (ret)
-+		return 0;
++additionalProperties: false
+diff --git a/Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml b/Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
+new file mode 100644
+index 000000000000..010333cb25c0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/hwmon/kontron,sl28cpld-hwmon.yaml
+@@ -0,0 +1,27 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/hwmon/kontron,sl28cpld-hwmon.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+	return val;
-+}
++title: Hardware monitoring driver for the sl28cpld board management controller
 +
-+static int sl28cpld_wdt_set_timeout(struct watchdog_device *wdd,
-+				    unsigned int timeout)
-+{
-+	struct sl28cpld_wdt *wdt = watchdog_get_drvdata(wdd);
-+	int ret;
++maintainers:
++  - Michael Walle <michael@walle.cc>
 +
-+	ret = regmap_write(wdt->regmap, wdt->offset + WDT_TIMEOUT, timeout);
-+	if (ret)
-+		return ret;
++description: |
++  This module is part of the sl28cpld multi-function device. For more
++  details see ../mfd/kontron,sl28cpld.yaml.
 +
-+	wdd->timeout = timeout;
++properties:
++  compatible:
++    enum:
++      - kontron,sl28cpld-fan
 +
-+	return 0;
-+}
++  reg:
++    maxItems: 1
 +
-+static const struct watchdog_info sl28cpld_wdt_info = {
-+	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "sl28cpld watchdog",
-+};
++required:
++  - compatible
 +
-+static struct watchdog_ops sl28cpld_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = sl28cpld_wdt_start,
-+	.stop = sl28cpld_wdt_stop,
-+	.ping = sl28cpld_wdt_ping,
-+	.set_timeout = sl28cpld_wdt_set_timeout,
-+	.get_timeleft = sl28cpld_wdt_get_timeleft,
-+};
++additionalProperties: false
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml
+new file mode 100644
+index 000000000000..e8dfa6507f64
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/kontron,sl28cpld-intc.yaml
+@@ -0,0 +1,54 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/interrupt-controller/kontron,sl28cpld-intc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+static int sl28cpld_wdt_probe(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdd;
-+	struct sl28cpld_wdt *wdt;
-+	unsigned int status;
-+	unsigned int val;
-+	int ret;
++title: Interrupt controller driver for the sl28cpld board management controller
 +
-+	if (!pdev->dev.parent)
-+		return -ENODEV;
++maintainers:
++  - Michael Walle <michael@walle.cc>
 +
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
++description: |
++  This module is part of the sl28cpld multi-function device. For more
++  details see ../mfd/kontron,sl28cpld.yaml.
 +
-+	wdt->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!wdt->regmap)
-+		return -ENODEV;
++  The following interrupts are available. All types and levels are fixed
++  and handled by the board management controller.
 +
-+	ret = device_property_read_u32(&pdev->dev, "reg", &wdt->offset);
-+	if (ret)
-+		return -EINVAL;
++  ==== ============= ==================================
++   IRQ line/device   description
++  ==== ============= ==================================
++    0  RTC_INT#      Interrupt line from on-board RTC
++    1  SMB_ALERT#    Event on SMB_ALERT# line (P1)
++    2  ESPI_ALERT0#  Event on ESPI_ALERT0# line (S43)
++    3  ESPI_ALERT1#  Event on ESPI_ALERT1# line (S44)
++    4  PWR_BTN#      Event on PWR_BTN# line (P128)
++    5  SLEEP#        Event on SLEEP# line (S149)
++    6  watchdog      Interrupt of the internal watchdog
++    7  n/a           not used
++  ==== ============= ==================================
 +
-+	wdt->assert_wdt_timeout = device_property_read_bool(&pdev->dev,
-+							    "kontron,assert-wdt-timeout-pin");
++properties:
++  compatible:
++    enum:
++      - kontron,sl28cpld-intc
 +
-+	/* initialize struct watchdog_device */
-+	wdd = &wdt->wdd;
-+	wdd->parent = &pdev->dev;
-+	wdd->info = &sl28cpld_wdt_info;
-+	wdd->ops = &sl28cpld_wdt_ops;
-+	wdd->min_timeout = 1;
-+	wdd->max_timeout = 255;
++  reg:
++    maxItems: 1
 +
-+	watchdog_set_drvdata(wdd, wdt);
-+	watchdog_stop_on_reboot(wdd);
++  interrupts:
++    maxItems: 1
 +
-+	/*
-+	 * Read the status early, in case of an error, we haven't modified the
-+	 * hardware.
-+	 */
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_CTRL, &status);
-+	if (ret)
-+		return ret;
++  "#interrupt-cells":
++    const: 2
 +
-+	/*
-+	 * Initial timeout value, may be overwritten by device tree or module
-+	 * parmeter in watchdog_init_timeout().
-+	 *
-+	 * Reading a zero here means that either the hardware has a default
-+	 * value of zero (which is very unlikely and definitely a hardware
-+	 * bug) or the bootloader set it to zero. In any case, we handle
-+	 * this case gracefully and set out own timeout.
-+	 */
-+	ret = regmap_read(wdt->regmap, wdt->offset + WDT_TIMEOUT, &val);
-+	if (ret)
-+		return ret;
++  interrupt-controller: true
 +
-+	if (val)
-+		wdd->timeout = val;
-+	else
-+		wdd->timeout = WDT_DEFAULT_TIMEOUT;
++required:
++  - compatible
++  - interrupts
++  - "#interrupt-cells"
++  - interrupt-controller
 +
-+	watchdog_init_timeout(wdd, timeout, &pdev->dev);
-+	sl28cpld_wdt_set_timeout(wdd, wdd->timeout);
++additionalProperties: false
+diff --git a/Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml b/Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
+new file mode 100644
+index 000000000000..eb3b43547cb6
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/kontron,sl28cpld.yaml
+@@ -0,0 +1,153 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/kontron,sl28cpld.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+	/* if the watchdog is locked, we set nowayout */
-+	if (status & WDT_CTRL_LOCK)
-+		nowayout = true;
-+	watchdog_set_nowayout(wdd, nowayout);
++title: Kontron's sl28cpld board management controller
 +
-+	/*
-+	 * If watchdog is already running, keep it enabled, but make
-+	 * sure its mode is set correctly.
-+	 */
-+	if (status & WDT_CTRL_EN) {
-+		sl28cpld_wdt_start(wdd);
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+	}
++maintainers:
++  - Michael Walle <michael@walle.cc>
 +
-+	ret = devm_watchdog_register_device(&pdev->dev, wdd);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "failed to register watchdog device\n");
-+		return ret;
-+	}
++description: |
++  The board management controller may contain different IP blocks like
++  watchdog, fan monitoring, PWM controller, interrupt controller and a
++  GPIO controller.
 +
-+	dev_info(&pdev->dev, "initial timeout %d sec%s\n",
-+		 wdd->timeout, nowayout ? ", nowayout" : "");
++properties:
++  compatible:
++    const: kontron,sl28cpld
 +
-+	return 0;
-+}
++  reg:
++    description:
++      I2C device address.
++    maxItems: 1
 +
-+static const struct of_device_id sl28cpld_wdt_of_match[] = {
-+	{ .compatible = "kontron,sl28cpld-wdt" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sl28cpld_wdt_of_match);
++  "#address-cells":
++    const: 1
 +
-+static struct platform_driver sl28cpld_wdt_driver = {
-+	.probe = sl28cpld_wdt_probe,
-+	.driver = {
-+		.name = "sl28cpld-wdt",
-+		.of_match_table = sl28cpld_wdt_of_match,
-+	},
-+};
-+module_platform_driver(sl28cpld_wdt_driver);
++  "#size-cells":
++    const: 0
 +
-+MODULE_DESCRIPTION("sl28cpld Watchdog Driver");
-+MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
-+MODULE_LICENSE("GPL");
++  "#interrupt-cells":
++    const: 2
++
++  interrupts:
++    maxItems: 1
++
++  interrupt-controller: true
++
++patternProperties:
++  "^gpio(@[0-9a-f]+)?$":
++    $ref: ../gpio/kontron,sl28cpld-gpio.yaml
++
++  "^hwmon(@[0-9a-f]+)?$":
++    $ref: ../hwmon/kontron,sl28cpld-hwmon.yaml
++
++  "^interrupt-controller(@[0-9a-f]+)?$":
++    $ref: ../interrupt-controller/kontron,sl28cpld-intc.yaml
++
++  "^pwm(@[0-9a-f]+)?$":
++    $ref: ../pwm/kontron,sl28cpld-pwm.yaml
++
++  "^watchdog(@[0-9a-f]+)?$":
++    $ref: ../watchdog/kontron,sl28cpld-wdt.yaml
++
++required:
++  - "#address-cells"
++  - "#size-cells"
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        sl28cpld@4a {
++            compatible = "kontron,sl28cpld";
++            reg = <0x4a>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++
++            watchdog@4 {
++                compatible = "kontron,sl28cpld-wdt";
++                reg = <0x4>;
++                kontron,assert-wdt-timeout-pin;
++            };
++
++            hwmon@b {
++                compatible = "kontron,sl28cpld-fan";
++                reg = <0xb>;
++            };
++
++            pwm@c {
++                compatible = "kontron,sl28cpld-pwm";
++                reg = <0xc>;
++                #pwm-cells = <2>;
++            };
++
++            pwm@e {
++                compatible = "kontron,sl28cpld-pwm";
++                reg = <0xe>;
++                #pwm-cells = <2>;
++            };
++
++            gpio@10 {
++                compatible = "kontron,sl28cpld-gpio";
++                reg = <0x10>;
++                interrupts-extended = <&gpio2 6
++                               IRQ_TYPE_EDGE_FALLING>;
++
++                gpio-controller;
++                #gpio-cells = <2>;
++                gpio-line-names = "a", "b", "c";
++
++                interrupt-controller;
++                #interrupt-cells = <2>;
++            };
++
++            gpio@15 {
++                compatible = "kontron,sl28cpld-gpio";
++                reg = <0x15>;
++                interrupts-extended = <&gpio2 6
++                               IRQ_TYPE_EDGE_FALLING>;
++
++                gpio-controller;
++                #gpio-cells = <2>;
++
++                interrupt-controller;
++                #interrupt-cells = <2>;
++            };
++
++            gpio@1a {
++                compatible = "kontron,sl28cpld-gpo";
++                reg = <0x1a>;
++
++                gpio-controller;
++                #gpio-cells = <2>;
++            };
++
++            gpio@1b {
++                compatible = "kontron,sl28cpld-gpi";
++                reg = <0x1b>;
++
++                gpio-controller;
++                #gpio-cells = <2>;
++            };
++
++            interrupt-controller@1c {
++                compatible = "kontron,sl28cpld-intc";
++                reg = <0x1c>;
++                interrupts-extended = <&gpio2 6
++                               IRQ_TYPE_EDGE_FALLING>;
++
++                interrupt-controller;
++                #interrupt-cells = <2>;
++            };
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml b/Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
+new file mode 100644
+index 000000000000..981cfec53f37
+--- /dev/null
++++ b/Documentation/devicetree/bindings/pwm/kontron,sl28cpld-pwm.yaml
+@@ -0,0 +1,35 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/pwm/kontron,sl28cpld-pwm.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: PWM driver for the sl28cpld board management controller
++
++maintainers:
++  - Michael Walle <michael@walle.cc>
++
++description: |
++  This module is part of the sl28cpld multi-function device. For more
++  details see ../mfd/kontron,sl28cpld.yaml.
++
++  The controller supports one PWM channel and supports only four distinct
++  frequencies (250Hz, 500Hz, 1kHz, 2kHz).
++
++allOf:
++  - $ref: pwm.yaml#
++
++properties:
++  compatible:
++    const: kontron,sl28cpld-pwm
++
++  reg:
++    maxItems: 1
++
++  "#pwm-cells":
++    const: 2
++
++required:
++  - compatible
++
++additionalProperties: false
+diff --git a/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml b/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
+new file mode 100644
+index 000000000000..179272f74de5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/kontron,sl28cpld-wdt.yaml
+@@ -0,0 +1,35 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/kontron,sl28cpld-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Watchdog driver for the sl28cpld board management controller
++
++maintainers:
++  - Michael Walle <michael@walle.cc>
++
++description: |
++  This module is part of the sl28cpld multi-function device. For more
++  details see ../mfd/kontron,sl28cpld.yaml.
++
++allOf:
++  - $ref: watchdog.yaml#
++
++properties:
++  compatible:
++    const: kontron,sl28cpld-wdt
++
++  reg:
++    maxItems: 1
++
++  kontron,assert-wdt-timeout-pin:
++    description: The SMARC standard defines a WDT_TIME_OUT# pin. If this
++      property is set, this output will be pulsed when the watchdog bites
++      and the system resets.
++    type: boolean
++
++required:
++  - compatible
++
++additionalProperties: false
 -- 
 2.20.1
 
