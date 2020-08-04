@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E43C433E3
-	for <linux-watchdog@archiver.kernel.org>; Tue,  4 Aug 2020 19:28:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFAAEC433DF
+	for <linux-watchdog@archiver.kernel.org>; Tue,  4 Aug 2020 19:28:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 993AF22CBB
-	for <linux-watchdog@archiver.kernel.org>; Tue,  4 Aug 2020 19:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6E4222CB1
+	for <linux-watchdog@archiver.kernel.org>; Tue,  4 Aug 2020 19:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1596569314;
-	bh=0xKanm6E3fkk6zot9QwJ67UHOYBOs+wAgdA9lr/fbcg=;
+	s=default; t=1596569319;
+	bh=nHtU3jC68K1szov6StQnB9nGWj8YGb5ZSEYff2gaNZg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ZNuqQqRuLcYw2f3O1imLcxDj3XWkW+GyJmZESgSferm2QOxDzVcaMrSDTctb6u9/6
-	 TmjxlX97Qyd3lYnxrza1csg3SF45FGlOWjaOzRRwgU60jt6yF+qe+ZmsZA9E5Y1W/H
-	 FNKiVrelkuca9St1UK44PoW2rf1H5Um/vt6ADBx0=
+	b=rMdZXlTnCeixt/IebETfO795dZHevfWEfxTJlvxHi85mUUquewFWDfFaAwS5NxYQ3
+	 LcC97UWY5/TNuvKtZdTmKB1Gl3i3GHxJbagtNCgc+lO1TwKNGIBk0nZYW3GMrff/Uj
+	 aklAlpZvnw421x9tYbxfIub9druAS4gXBl8dBif8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728271AbgHDT2d (ORCPT
+        id S1727124AbgHDT2j (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 4 Aug 2020 15:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        Tue, 4 Aug 2020 15:28:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727124AbgHDT2c (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Aug 2020 15:28:32 -0400
+        id S1726961AbgHDT2i (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 4 Aug 2020 15:28:38 -0400
 Received: from localhost.localdomain (unknown [194.230.155.117])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3463522CA1;
-        Tue,  4 Aug 2020 19:28:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E42F822CA0;
+        Tue,  4 Aug 2020 19:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596569312;
-        bh=0xKanm6E3fkk6zot9QwJ67UHOYBOs+wAgdA9lr/fbcg=;
+        s=default; t=1596569318;
+        bh=nHtU3jC68K1szov6StQnB9nGWj8YGb5ZSEYff2gaNZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpljav+vdTG8u8cLpw8pBmP50k/KD2bBhLSoM7BdjLenKPpu5kMea0ammxrgH6mE5
-         7yg8Ok5NGGrKaYfN0mFoSX4EsX9V6fZA7pOZw3mtJt/UHem3XP1uFDauG0HXwrPbrJ
-         LtD6WGrrOvylTCvyK4AMJgeB2AffK4MyRfezy8Lg=
+        b=x3CJiubP9wgIU42gAEtOSgXFF600wkRT/BddRn49+S/ZUrq7GkjK4innamltxZyDi
+         NIxLMqMT7Wl/HZflJWFHTUWhx1bWWYIxiwvK/ZkN/CUzEcO0KUGkenjp+uA4QSU5i8
+         Ghjn108+3bhzjIs8Hm3l4L9nKfLDG9phid8fml0A=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Russell King <linux@armlinux.org.uk>,
         Kukjin Kim <kgene@kernel.org>,
@@ -66,9 +66,9 @@ Cc:     Sergio Prado <sergio.prado@e-labworks.com>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         Sylwester Nawrocki <snawrocki@kernel.org>,
         Cedric Roux <sed@free.fr>, Lihua Yao <ylhuajnu@outlook.com>
-Subject: [PATCH v2 12/13] ARM: s3c24xx: ts: document function argument
-Date:   Tue,  4 Aug 2020 21:26:53 +0200
-Message-Id: <20200804192654.12783-13-krzk@kernel.org>
+Subject: [PATCH v2 13/13] ARM: s3c24xx: camif: include header with prototypes and unify declaration
+Date:   Tue,  4 Aug 2020 21:26:54 +0200
+Message-Id: <20200804192654.12783-14-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200804192654.12783-1-krzk@kernel.org>
 References: <20200804192654.12783-1-krzk@kernel.org>
@@ -77,10 +77,15 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document function argument in kerneldoc comment to fix W=1 compile
-warning:
+The s3c_camif_gpio_put() declaration in
+include/media/drv-intf/s3c_camif.h header was different than definition.
+Fixing this allows to include that header to also fix the W=1 compile
+warnings:
 
-    arch/arm/mach-s3c24xx/setup-ts.c:27: warning: Function parameter or member 'dev' not described in 's3c24xx_ts_cfg_gpio'
+    arch/arm/mach-s3c24xx/setup-camif.c:28:5: warning: no previous prototype for 's3c_camif_gpio_get' [-Wmissing-prototypes]
+       28 | int s3c_camif_gpio_get(void)
+    arch/arm/mach-s3c24xx/setup-camif.c:56:6: warning: no previous prototype for 's3c_camif_gpio_put' [-Wmissing-prototypes]
+       56 | void s3c_camif_gpio_put(void)
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
@@ -89,21 +94,37 @@ Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Changes since v1:
 1. New patch
 ---
- arch/arm/mach-s3c24xx/setup-ts.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-s3c24xx/setup-camif.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-s3c24xx/setup-ts.c b/arch/arm/mach-s3c24xx/setup-ts.c
-index bf1a7fcf465f..272d65400b71 100644
---- a/arch/arm/mach-s3c24xx/setup-ts.c
-+++ b/arch/arm/mach-s3c24xx/setup-ts.c
-@@ -18,6 +18,7 @@ struct platform_device; /* don't need the contents */
+diff --git a/arch/arm/mach-s3c24xx/setup-camif.c b/arch/arm/mach-s3c24xx/setup-camif.c
+index 2b262fae3f61..4046afaad645 100644
+--- a/arch/arm/mach-s3c24xx/setup-camif.c
++++ b/arch/arm/mach-s3c24xx/setup-camif.c
+@@ -7,6 +7,7 @@
+ #include <linux/gpio.h>
+ #include <plat/gpio-cfg.h>
+ #include <mach/gpio-samsung.h>
++#include <media/drv-intf/s3c_camif.h>
  
- /**
-  * s3c24xx_ts_cfg_gpio - configure gpio for s3c2410 systems
-+ * @dev: Device to configure GPIO for (ignored)
-  *
-  * Configure the GPIO for the S3C2410 system, where we have external FETs
-  * connected to the device (later systems such as the S3C2440 integrate
+ /* Number of camera port pins, without FIELD */
+ #define S3C_CAMIF_NUM_GPIOS	13
+@@ -53,7 +54,7 @@ int s3c_camif_gpio_get(void)
+ 	return 0;
+ }
+ 
+-void s3c_camif_gpio_put(void)
++int s3c_camif_gpio_put(void)
+ {
+ 	int i, gpio_start, gpio_reset;
+ 
+@@ -64,4 +65,6 @@ void s3c_camif_gpio_put(void)
+ 		if (gpio != gpio_reset)
+ 			gpio_free(gpio);
+ 	}
++
++	return 0;
+ }
 -- 
 2.17.1
 
