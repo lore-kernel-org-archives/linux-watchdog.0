@@ -5,43 +5,40 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C887EC433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D87CC433E4
 	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:49:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A33E920829
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:49:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBB4420855
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:49:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="PcwPtAe8"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="fOSX/TpX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgHMMtz (ORCPT
+        id S1726792AbgHMMtz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Thu, 13 Aug 2020 08:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55046 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726612AbgHMMs6 (ORCPT
+Received: from ssl.serverraum.org ([176.9.125.105]:43681 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726583AbgHMMs6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 13 Aug 2020 08:48:58 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5CDC061385;
-        Thu, 13 Aug 2020 05:48:58 -0700 (PDT)
 Received: from mwalle01.sab.local. (unknown [213.135.10.150])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 6C73623E4D;
-        Thu, 13 Aug 2020 14:48:56 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id F031F23E47;
+        Thu, 13 Aug 2020 14:48:53 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1597322936;
+        t=1597322934;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=kUSNqf4fbfPjkB54pTr5T1ff03Hc79GXuyMcgsK+vRk=;
-        b=PcwPtAe8KEdr8U+7Zc9qyEQGlEk7fZE0VdyXTxFCFg38da+nYo6i2NJ/+ZirAyA0E9vM8a
-        LBnF17d491pMYn5CVvKYiP7U04dFrGyRE05wOaWn2/YSktEG275DneWYMCFM3RcfoCtxZI
-        6gbkAHZq2IPrQkabnsv/WlJu/GsNDgY=
+        bh=Lm790sIUbpqln4o0pGCCNKP2Vol6TaFB4WWESHJXYVk=;
+        b=fOSX/TpX9vDi34ig74zPaaGFuoKHmDiIHnhs5WuiHnSZabX90q2Vex0riQwitfFBYEu78k
+        ELv00eCFDbJK5I5ci9gXS/iKR2m4z4sY+KTPorMBn9nXWkhwXuFxXSUGV8LndxNv2j9O3i
+        gDSDlKg2pkI+i6YEoQSBpLjWGUVvc18=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -66,9 +63,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v8 11/13] arm64: dts: freescale: sl28: enable LED support
-Date:   Thu, 13 Aug 2020 14:48:30 +0200
-Message-Id: <20200813124832.17349-12-michael@walle.cc>
+Subject: [PATCH v8 07/13] gpio: add support for the sl28cpld GPIO controller
+Date:   Thu, 13 Aug 2020 14:48:26 +0200
+Message-Id: <20200813124832.17349-8-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200813124832.17349-1-michael@walle.cc>
 References: <20200813124832.17349-1-michael@walle.cc>
@@ -80,68 +77,249 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Now that we have support for GPIO lines of the SMARC connector, enable
-LED support on the KBox A-230-LS. There are two LEDs without fixed
-functions, one is yellow and one is green. Unfortunately, it is just one
-multi-color LED, thus while it is possible to enable both at the same
-time it is hard to tell the difference between "yellow only" and "yellow
-and green".
+Add support for the GPIO controller of the sl28 board management
+controller. This driver is part of a multi-function device.
+
+A controller has 8 lines. There are three different flavors:
+full-featured GPIO with interrupt support, input-only and output-only.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 Changes since v7:
- - use new "function" and "color" properties instead of a label
- - added default-on trigger for the power-led
+ - added "depends on MFD_SL28CPLD || COMPILE_TEST"
 
 Changes since v6:
  - none
 
 Changes since v5:
- - changed the label, suggested by Pavel Machek
+ - added "select REGMAP_IRQ"
 
 Changes since v4:
- - none
+ - update copyright year
+ - remove #include <linux/of_device.h>, suggested by Andy.
+ - use device_get_match_data(), suggested by Andy.
+ - drop the irq_support variable, instead call _init_irq() directly,
+   suggested by Andy.
+ - also move the irq code a bit around to make it look nicer
+ - drop "struct sl28cpld_gpio". We don't need to actually store the
+   irq_chip and irq_chip_data, everything is device resource managed.
+ - use 100 chars line limit, suggested by Andy.
+ - remove the platform device table
+ - don't use KBUID_MODNAME
 
 Changes since v3:
  - see cover letter
 
- .../fsl-ls1028a-kontron-kbox-a-230-ls.dts      | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/gpio/Kconfig         |  12 +++
+ drivers/gpio/Makefile        |   1 +
+ drivers/gpio/gpio-sl28cpld.c | 161 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
+ create mode 100644 drivers/gpio/gpio-sl28cpld.c
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-index 4b4cc6a1573d..dd516c0efd8b 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
-@@ -11,11 +11,29 @@
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 8030fd91a3cc..3799cb6048a2 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1223,6 +1223,18 @@ config GPIO_RC5T583
+ 	  This driver provides the support for driving/reading the gpio pins
+ 	  of RC5T583 device through standard gpio library.
  
- /dts-v1/;
- #include "fsl-ls1028a-kontron-sl28-var4.dts"
-+#include <dt-bindings/leds/common.h>
- 
- / {
- 	model = "Kontron KBox A-230-LS";
- 	compatible = "kontron,kbox-a-230-ls", "kontron,sl28-var4",
- 		     "kontron,sl28", "fsl,ls1028a";
++config GPIO_SL28CPLD
++	tristate "Kontron sl28cpld GPIO support"
++	depends on MFD_SL28CPLD || COMPILE_TEST
++	select GPIO_REGMAP
++	select GPIOLIB_IRQCHIP
++	select REGMAP_IRQ
++	help
++	  This enables support for the GPIOs found on the Kontron sl28 CPLD.
 +
-+	leds {
-+		compatible = "gpio-leds";
++	  This driver can also be built as a module. If so, the module will be
++	  called gpio-sl28cpld.
 +
-+		alarm-led {
-+			function = LED_FUNCTION_ALARM;
-+			color = <LED_COLOR_ID_YELLOW>;
-+			gpios = <&sl28cpld_gpio0 0 0>;
-+		};
+ config GPIO_STMPE
+ 	bool "STMPE GPIOs"
+ 	depends on MFD_STMPE
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 4f9abff4f2dc..c3a4e7c94a91 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -132,6 +132,7 @@ obj-$(CONFIG_GPIO_SCH311X)		+= gpio-sch311x.o
+ obj-$(CONFIG_GPIO_SCH)			+= gpio-sch.o
+ obj-$(CONFIG_GPIO_SIFIVE)		+= gpio-sifive.o
+ obj-$(CONFIG_GPIO_SIOX)			+= gpio-siox.o
++obj-$(CONFIG_GPIO_SL28CPLD)		+= gpio-sl28cpld.o
+ obj-$(CONFIG_GPIO_SODAVILLE)		+= gpio-sodaville.o
+ obj-$(CONFIG_GPIO_SPEAR_SPICS)		+= gpio-spear-spics.o
+ obj-$(CONFIG_GPIO_SPRD)			+= gpio-sprd.o
+diff --git a/drivers/gpio/gpio-sl28cpld.c b/drivers/gpio/gpio-sl28cpld.c
+new file mode 100644
+index 000000000000..889b8f5622c2
+--- /dev/null
++++ b/drivers/gpio/gpio-sl28cpld.c
+@@ -0,0 +1,161 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * sl28cpld GPIO driver
++ *
++ * Copyright 2020 Michael Walle <michael@walle.cc>
++ */
 +
-+		power-led {
-+			linux,default-trigger = "default-on";
-+			function = LED_FUNCTION_POWER;
-+			color = <LED_COLOR_ID_GREEN>;
-+			gpios = <&sl28cpld_gpio1 3 0>;
-+		};
-+	};
- };
- 
- &enetc_mdio_pf3 {
++#include <linux/device.h>
++#include <linux/gpio/driver.h>
++#include <linux/gpio/regmap.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++
++/* GPIO flavor */
++#define GPIO_REG_DIR	0x00
++#define GPIO_REG_OUT	0x01
++#define GPIO_REG_IN	0x02
++#define GPIO_REG_IE	0x03
++#define GPIO_REG_IP	0x04
++
++/* input-only flavor */
++#define GPI_REG_IN	0x00
++
++/* output-only flavor */
++#define GPO_REG_OUT	0x00
++
++enum sl28cpld_gpio_type {
++	SL28CPLD_GPIO = 1,
++	SL28CPLD_GPI,
++	SL28CPLD_GPO,
++};
++
++static const struct regmap_irq sl28cpld_gpio_irqs[] = {
++	REGMAP_IRQ_REG_LINE(0, 8),
++	REGMAP_IRQ_REG_LINE(1, 8),
++	REGMAP_IRQ_REG_LINE(2, 8),
++	REGMAP_IRQ_REG_LINE(3, 8),
++	REGMAP_IRQ_REG_LINE(4, 8),
++	REGMAP_IRQ_REG_LINE(5, 8),
++	REGMAP_IRQ_REG_LINE(6, 8),
++	REGMAP_IRQ_REG_LINE(7, 8),
++};
++
++static int sl28cpld_gpio_irq_init(struct platform_device *pdev,
++				  unsigned int base,
++				  struct gpio_regmap_config *config)
++{
++	struct regmap_irq_chip_data *irq_data;
++	struct regmap_irq_chip *irq_chip;
++	struct device *dev = &pdev->dev;
++	int irq, ret;
++
++	if (!device_property_read_bool(dev, "interrupt-controller"))
++		return 0;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	irq_chip = devm_kzalloc(dev, sizeof(*irq_chip), GFP_KERNEL);
++	if (!irq_chip)
++		return -ENOMEM;
++
++	irq_chip->name = "sl28cpld-gpio-irq",
++	irq_chip->irqs = sl28cpld_gpio_irqs;
++	irq_chip->num_irqs = ARRAY_SIZE(sl28cpld_gpio_irqs);
++	irq_chip->num_regs = 1;
++	irq_chip->status_base = base + GPIO_REG_IP;
++	irq_chip->mask_base = base + GPIO_REG_IE;
++	irq_chip->mask_invert = true,
++	irq_chip->ack_base = base + GPIO_REG_IP;
++
++	ret = devm_regmap_add_irq_chip_fwnode(dev, dev_fwnode(dev),
++					      config->regmap, irq,
++					      IRQF_SHARED | IRQF_ONESHOT,
++					      0, irq_chip, &irq_data);
++	if (ret)
++		return ret;
++
++	config->irq_domain = regmap_irq_get_domain(irq_data);
++
++	return 0;
++}
++
++static int sl28cpld_gpio_probe(struct platform_device *pdev)
++{
++	struct gpio_regmap_config config = {0};
++	enum sl28cpld_gpio_type type;
++	struct regmap *regmap;
++	u32 base;
++	int ret;
++
++	if (!pdev->dev.parent)
++		return -ENODEV;
++
++	type = (uintptr_t)device_get_match_data(&pdev->dev);
++	if (!type)
++		return -ENODEV;
++
++	ret = device_property_read_u32(&pdev->dev, "reg", &base);
++	if (ret)
++		return -EINVAL;
++
++	regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!regmap)
++		return -ENODEV;
++
++	config.regmap = regmap;
++	config.parent = &pdev->dev;
++	config.ngpio = 8;
++
++	switch (type) {
++	case SL28CPLD_GPIO:
++		config.reg_dat_base = base + GPIO_REG_IN;
++		config.reg_set_base = base + GPIO_REG_OUT;
++		/* reg_dir_out_base might be zero */
++		config.reg_dir_out_base = GPIO_REGMAP_ADDR(base + GPIO_REG_DIR);
++
++		/* This type supports interrupts */
++		ret = sl28cpld_gpio_irq_init(pdev, base, &config);
++		if (ret)
++			return ret;
++		break;
++	case SL28CPLD_GPO:
++		config.reg_set_base = base + GPO_REG_OUT;
++		break;
++	case SL28CPLD_GPI:
++		config.reg_dat_base = base + GPI_REG_IN;
++		break;
++	default:
++		dev_err(&pdev->dev, "unknown type %d\n", type);
++		return -ENODEV;
++	}
++
++	return PTR_ERR_OR_ZERO(devm_gpio_regmap_register(&pdev->dev, &config));
++}
++
++static const struct of_device_id sl28cpld_gpio_of_match[] = {
++	{ .compatible = "kontron,sl28cpld-gpio", .data = (void *)SL28CPLD_GPIO },
++	{ .compatible = "kontron,sl28cpld-gpi", .data = (void *)SL28CPLD_GPI },
++	{ .compatible = "kontron,sl28cpld-gpo", .data = (void *)SL28CPLD_GPO },
++	{}
++};
++MODULE_DEVICE_TABLE(of, sl28cpld_gpio_of_match);
++
++static struct platform_driver sl28cpld_gpio_driver = {
++	.probe = sl28cpld_gpio_probe,
++	.driver = {
++		.name = "sl28cpld-gpio",
++		.of_match_table = sl28cpld_gpio_of_match,
++	},
++};
++module_platform_driver(sl28cpld_gpio_driver);
++
++MODULE_DESCRIPTION("sl28cpld GPIO Driver");
++MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
++MODULE_LICENSE("GPL");
 -- 
 2.20.1
 
