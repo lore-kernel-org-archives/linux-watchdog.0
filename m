@@ -2,79 +2,57 @@ Return-Path: <SRS0=M+CF=BX=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9037BC433DF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 08:21:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BE28C433E3
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:48:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6530820771
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 08:21:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 374AC20829
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:48:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CPBkyvZ7"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="rwOU+opn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726048AbgHMIVZ (ORCPT
+        id S1726334AbgHMMsv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 13 Aug 2020 04:21:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbgHMIVX (ORCPT
+        Thu, 13 Aug 2020 08:48:51 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:55101 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726053AbgHMMsu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Aug 2020 04:21:23 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A76C061384
-        for <linux-watchdog@vger.kernel.org>; Thu, 13 Aug 2020 01:21:23 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id p14so3959289wmg.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 13 Aug 2020 01:21:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=TaF7t62kA/TvbRHcpZhhq+FrZ2BLcBcydNr4phobFUY=;
-        b=CPBkyvZ7Ndj1BtjjpDBRw/IetD7Td9PZutM7CyHxXlYLdhRS82/KG1/k48nD+072A2
-         bfJqnmgk46n6nhm7Q0Y0eVGg3udaq65u2D5ezFBkon8KkQnon/B8zkl1YhCxEKwDv3Yp
-         5MT0Eer76Dw9KZoSyxzc4iJF/E0fnWqWb00Ae64OEuV0JUJxuUc7bk1YSEmDs3KdDEzv
-         DovsGd3dkPcGBKmrCsQVcXVudeLx/4xpyB6t7sABAHxvOU7rHwE9/C7H4vsES/qRBh4q
-         oMYngG5SioSQO91K+dUnCBQMgnCzeaGqew+HH73ui018xNWwc8Nv3TzCSD3Cnrl4EJpD
-         pCEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=TaF7t62kA/TvbRHcpZhhq+FrZ2BLcBcydNr4phobFUY=;
-        b=kijEEpll70sWmF0H6qqqAIK90ZsAi3RGyHKOVHfLMT9SvWfey6urxyQFF3onDTVKeF
-         1Ng/g1W2Q/TqI3EDUmD6tIgPIVuRVz8TPChEnZjhejGGCBA5aDHDiBFwvPB/20J4YKcj
-         fdT6aC2OSKKwYWHE42eIIFud/wHCYuZ2gkLn6g9rwhyedhFAZmZy6RDeS+YXALJAu0Hi
-         qdAUpS13ovefaXIlbbSMedipPh97mk/+l7jjhidfyMDpVkrLE1oMsDTx1xOGCnVMcv6M
-         /XidY6iRluDTZjgB59mUXZwiSKXvMqC+oSPGK30CpoosDQ8y0PibL15o3zgv1cKNEl/K
-         o3Tg==
-X-Gm-Message-State: AOAM531PPkVOzT3L0gEvPSu0jUKloP51x1uAU1/YdnwBcqFifSbi5rGK
-        INh+NYpY2drLRLkVVaKOMO4l5A==
-X-Google-Smtp-Source: ABdhPJyY8QcT9B4zABBhXsDNtkI2aIFl3IHofq+pxEnxc+vdzhF7RmON/IpqRCGobqpodwk32Gb2kQ==
-X-Received: by 2002:a1c:2045:: with SMTP id g66mr3088521wmg.184.1597306881679;
-        Thu, 13 Aug 2020 01:21:21 -0700 (PDT)
-Received: from dell ([2.27.167.73])
-        by smtp.gmail.com with ESMTPSA id h6sm8768350wrv.40.2020.08.13.01.21.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2020 01:21:20 -0700 (PDT)
-Date:   Thu, 13 Aug 2020 09:21:18 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Michael Walle <michael@walle.cc>
-Cc:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Thu, 13 Aug 2020 08:48:50 -0400
+Received: from mwalle01.sab.local. (unknown [213.135.10.150])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id E85EB22FEB;
+        Thu, 13 Aug 2020 14:48:46 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1597322927;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=W3vsjuvtvKT05YvkX0b8P6sF+NlkwEsgM58H+1oBK6A=;
+        b=rwOU+opncGQLQ8CB7DULYAEAfu7G3J8X0kNwzPp3NY2oAmvd0WSPslI3nhuZbB8DpQcz9V
+        vpshEvLJT3yhczSeHq56ajcmcCsSA7Fg/iTG6UFbU2T1j+m0MxbgtQmqhxNWp0PQUyOAHN
+        VhNlzng+qV5L15lPqzJXwNVV13QsL+E=
+From:   Michael Walle <michael@walle.cc>
+To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Rob Herring <robh+dt@kernel.org>,
         Jean Delvare <jdelvare@suse.com>,
         Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -83,81 +61,160 @@ Cc:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v7 06/13] pwm: add support for sl28cpld PWM controller
-Message-ID: <20200813082118.GJ4354@dell>
-References: <20200803093559.12289-1-michael@walle.cc>
- <20200803093559.12289-7-michael@walle.cc>
- <20200806084000.k3aj5nmqdodmb35v@pengutronix.de>
- <e288ca6cfee819223395712e04159dd9@walle.cc>
- <20200810071328.GB4411@dell>
- <2ca0a3a3f03a1f5b9b2777738824123b@walle.cc>
+        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
+        Michael Walle <michael@walle.cc>
+Subject: [PATCH v8 01/13] mfd: add simple regmap based I2C driver
+Date:   Thu, 13 Aug 2020 14:48:20 +0200
+Message-Id: <20200813124832.17349-2-michael@walle.cc>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200813124832.17349-1-michael@walle.cc>
+References: <20200813124832.17349-1-michael@walle.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2ca0a3a3f03a1f5b9b2777738824123b@walle.cc>
+X-Spam: Yes
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, 10 Aug 2020, Michael Walle wrote:
+There are I2C devices which contain several different functions but
+doesn't require any special access functions. For these kind of drivers
+an I2C regmap should be enough.
 
-> Am 2020-08-10 09:13, schrieb Lee Jones:
-> > On Fri, 07 Aug 2020, Michael Walle wrote:
-> > 
-> > > Hi Uwe, Hi Lee,
-> > > 
-> > > Am 2020-08-06 10:40, schrieb Uwe Kleine-König:
-> > > > On Mon, Aug 03, 2020 at 11:35:52AM +0200, Michael Walle wrote:
-> > > > > diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-> > > > > index 7dbcf6973d33..a0d50d70c3b9 100644
-> > > > > --- a/drivers/pwm/Kconfig
-> > > > > +++ b/drivers/pwm/Kconfig
-> > > > > @@ -428,6 +428,16 @@ config PWM_SIFIVE
-> > > > >  	  To compile this driver as a module, choose M here: the module
-> > > > >  	  will be called pwm-sifive.
-> > > > >
-> > > > > +config PWM_SL28CPLD
-> > > > > +	tristate "Kontron sl28cpld PWM support"
-> > > > > +	select MFD_SIMPLE_MFD_I2C
-> > > >
-> > > > Is it sensible to present this option to everyone? Maybe
-> > > >
-> > > > 	depends on SOME_SYMBOL_ONLY_TRUE_ON_SL28CPLD || COMPILE_TEST
-> > > 
-> > > Because there is now no real MFD driver anymore, there is also
-> > > no symbol for that. The closest would be ARCH_ARM64 but I don't
-> > > think that is a good idea.
-> > > 
-> > > Lee, what do you think about adding a symbol to the MFD, which
-> > > selects MFD_SIMPLE_MFD_I2C but doesn't enable any C modules?
-> > > 
-> > > I.e.
-> > > config MFD_SL28CPLD
-> > >     tristate "Kontron sl28cpld"
-> > >     select MFD_SIMPLE_MFD_I2C
-> > >     help
-> > >       Say yes here to add support for the Kontron sl28cpld board
-> > >       management controller.
-> > > 
-> > > Then all the other device driver could depend on the MFD_SL28CPLD
-> > > symbol.
-> > 
-> > You want to add a virtual symbol to prevent having to present a real
-> > one?  How is that a reasonable solution?
-> 
-> (1) Its a symbol on which all sl28cpld will depend on. Thus they will
->     all be hidden if that is not set.
-> (2) the drivers itself wouldn't need to depend on MFD_SIMPLE_MFD_I2C,
->     which is more correct, because they don't have anything to do with
->     i2c.
+Create an I2C driver which creates an I2C regmap and enumerates its
+children. If a device wants to use this as its MFD core driver, it has
+to add an individual compatible string. It may provide its own regmap
+configuration.
 
-Yes, okay.
+Subdevices can use dev_get_regmap() on the parent to get their regmap
+instance.
 
+Signed-off-by: Michael Walle <michael@walle.cc>
+---
+Changes since v7:
+ - none
+
+Changes since v6:
+ - added SIMPLE_MFD_I2C help text
+ - revised description in module header
+
+Changes since v5:
+ - removed "select MFD_CORE" in Kconfig
+ - removed help text in Kconfig, we assume that the users of this
+   driver will have a "select MFD_SIMPLE_MFD_I2C". Instead added
+   a small description to the driver itself.
+ - removed "struct simple_mfd_i2c_config" and use regmap_config
+   directly
+ - changed builtin_i2c_driver() to module_i2c_driver(), added
+   MODULE_ boilerplate
+ - cleaned up the included files
+
+Changes since v4:
+ - new patch. Lee, please bear with me. I didn't want to delay the
+   new version (where a lot of remarks on the other patches were
+   addressed) even more, just because we haven't figured out how
+   to deal with the MFD part. So for now, I've included this one.
+
+ drivers/mfd/Kconfig          | 12 ++++++++
+ drivers/mfd/Makefile         |  1 +
+ drivers/mfd/simple-mfd-i2c.c | 56 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 69 insertions(+)
+ create mode 100644 drivers/mfd/simple-mfd-i2c.c
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 33df0837ab41..6e1a38944d28 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -1162,6 +1162,18 @@ config MFD_SI476X_CORE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called si476x-core.
+ 
++config MFD_SIMPLE_MFD_I2C
++	tristate
++	depends on I2C
++	select REGMAP_I2C
++	help
++	  This driver creates a single register map with the intention for it
++	  to be shared by all sub-devices.
++
++	  Once the register map has been successfully initialised, any
++	  sub-devices represented by child nodes in Device Tree will be
++	  subsequently registered.
++
+ config MFD_SM501
+ 	tristate "Silicon Motion SM501"
+ 	depends on HAS_DMA
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index a60e5f835283..78d24a3e7c9e 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -264,3 +264,4 @@ obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
+ obj-$(CONFIG_MFD_KHADAS_MCU) 	+= khadas-mcu.o
+ 
+ obj-$(CONFIG_SGI_MFD_IOC3)	+= ioc3.o
++obj-$(CONFIG_MFD_SIMPLE_MFD_I2C)	+= simple-mfd-i2c.o
+diff --git a/drivers/mfd/simple-mfd-i2c.c b/drivers/mfd/simple-mfd-i2c.c
+new file mode 100644
+index 000000000000..09b40ebfdf07
+--- /dev/null
++++ b/drivers/mfd/simple-mfd-i2c.c
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Simple MFD - I2C
++ *
++ * This driver creates a single register map with the intention for it to be
++ * shared by all sub-devices.  Children can use their parent's device structure
++ * (dev.parent) in order reference it.
++ *
++ * Once the register map has been successfully initialised, any sub-devices
++ * represented by child nodes in Device Tree will be subsequently registered.
++ */
++
++#include <linux/i2c.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of_platform.h>
++#include <linux/regmap.h>
++
++static const struct regmap_config simple_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++};
++
++static int simple_mfd_i2c_probe(struct i2c_client *i2c)
++{
++	const struct regmap_config *config;
++	struct regmap *regmap;
++
++	config = device_get_match_data(&i2c->dev);
++	if (!config)
++		config = &simple_regmap_config;
++
++	regmap = devm_regmap_init_i2c(i2c, config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
++	return devm_of_platform_populate(&i2c->dev);
++}
++
++static const struct of_device_id simple_mfd_i2c_of_match[] = {
++	{}
++};
++MODULE_DEVICE_TABLE(of, simple_mfd_i2c_of_match);
++
++static struct i2c_driver simple_mfd_i2c_driver = {
++	.probe_new = simple_mfd_i2c_probe,
++	.driver = {
++		.name = "simple-mfd-i2c",
++		.of_match_table = simple_mfd_i2c_of_match,
++	},
++};
++module_i2c_driver(simple_mfd_i2c_driver);
++
++MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
++MODULE_DESCRIPTION("Simple MFD - I2C driver");
++MODULE_LICENSE("GPL v2");
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.20.1
+
