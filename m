@@ -3,249 +3,118 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A18DBC433EA
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60DF1C433DF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:58:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77165207DA
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:50:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3AD4B20829
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Aug 2020 12:58:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="vmpDWDA8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N2wAovWQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbgHMMuU (ORCPT
+        id S1726131AbgHMM6U (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 13 Aug 2020 08:50:20 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:53059 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726526AbgHMMsy (ORCPT
+        Thu, 13 Aug 2020 08:58:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726102AbgHMM6T (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Aug 2020 08:48:54 -0400
-Received: from mwalle01.sab.local. (unknown [213.135.10.150])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 6D18423E42;
-        Thu, 13 Aug 2020 14:48:50 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1597322930;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2u/cot6CU6/Y5I/4X9Pr9Fa4kSp/X/8BHzwbd62iWRw=;
-        b=vmpDWDA8UybN0DxXCSsQtUYV6eDymo9nJyXlSaBsgq9J8naBE3ygb4VVlQ2oRWs06zoEzq
-        svqJ7mXDoVSz/g6ZEJsXmDtcEljXu1OsYf6jB9aFESn21e3i5zFPTG49i1/97RfDkamE3z
-        VXBRgfxIn2rkuNy5A/pWagWelsZQKfE=
-From:   Michael Walle <michael@walle.cc>
-To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Michael Walle <michael@walle.cc>
-Subject: [PATCH v8 04/13] irqchip: add sl28cpld interrupt controller support
-Date:   Thu, 13 Aug 2020 14:48:23 +0200
-Message-Id: <20200813124832.17349-5-michael@walle.cc>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200813124832.17349-1-michael@walle.cc>
-References: <20200813124832.17349-1-michael@walle.cc>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam: Yes
+        Thu, 13 Aug 2020 08:58:19 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E4FC061757;
+        Thu, 13 Aug 2020 05:58:18 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id u20so2785912pfn.0;
+        Thu, 13 Aug 2020 05:58:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=gTPtLLpVlGWVqCEQ50i6eGJ0HyGEAaWaZg6X6EHGJ8Y=;
+        b=N2wAovWQSI8dNBnAOPeeCXGOCZvLZ/zlHpkRNfRRrXr7TK+FK1x0d0t928qClLtlsJ
+         ePcFzX6FIsx+3Zag95C1ASGvtL1i0gN7g4PQrk0FyILr1vLpIE7c1c/DdloHGOAT4DzQ
+         S3u9a8O8S3x5c2Ez9w0hxSGirLz2Y0e4r8f545233XTtkXYeCHcV/wqgo41VYDlAobvK
+         AYHKoIPG7e4fKvriHYYRgCYaCH/+TTlmmFFi80Bm+buFPoXkja5tV+wLDQQyNC8CaUvF
+         w8bWztwBSf9wYmh7/0ApV/eVRfLXtYJ1Fcugvp3IHeReLEom8EYfdMp3iTNFg6Fa8+0u
+         LkRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=gTPtLLpVlGWVqCEQ50i6eGJ0HyGEAaWaZg6X6EHGJ8Y=;
+        b=hOYq7ytX7N5gmbc8dEteytU2xHM+y2NBtCaTBL7VSBnFGpIozXaI065cIY5yQGFjt+
+         RfBpQv1aRF2KiFofqA6vPMT6JW6/GxOBOyur+XBni1EjYrY1D7wW4EWq6SFwIXuNDvju
+         7XniLa0Wq9HFHn+M4ebK7y5L3DJ+hQeALM6LF8UGPStGquq6AVZ+p6AckBuxT+uF84yO
+         BCbIh9nLu4nAI5nEGqS5SQuvwY6AC+tcITZVtdf8zKIYCdoPzGnDGQaoXi6ZECZzug/N
+         cmAq2lio8qigmnd8YstGkGZ3LwlnML+ltx+2gIkeKg16kcX5oQeehR6BfWQx9ULBwGc1
+         rrMA==
+X-Gm-Message-State: AOAM533YeM0smjgoof/bBEwhxCNrtkLrBdLlV3hJqzXEak+nNFNYWtIZ
+        WDXynJ3EN79NVASME3NIVw==
+X-Google-Smtp-Source: ABdhPJw8tVwRtB2mbHav0pWxygwVqsparobl/2DbPyh0e/21PyJK33hzSdGPRKdiUtrobdCikjuXMw==
+X-Received: by 2002:a63:925d:: with SMTP id s29mr3531093pgn.423.1597323498077;
+        Thu, 13 Aug 2020 05:58:18 -0700 (PDT)
+Received: from localhost.localdomain ([2402:3a80:cea:b0c7:809d:c953:9730:34b1])
+        by smtp.gmail.com with ESMTPSA id t19sm5820505pfc.5.2020.08.13.05.58.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2020 05:58:16 -0700 (PDT)
+From:   madhuparnabhowmik10@gmail.com
+To:     wim@linux-watchdog.org, linux@roeck-us.net
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        andrianov@ispras.ru, ldv-project@linuxtesting.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Subject: [PATCH] drivers: watchdog: pc87413_wdt: Fix Race condition bug
+Date:   Thu, 13 Aug 2020 18:24:51 +0530
+Message-Id: <20200813125451.19118-1-madhuparnabhowmik10@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for the interrupt controller inside the sl28 CPLD management
-controller.
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-The interrupt controller can handle at most 8 interrupts and is really
-simplistic and consists only of an interrupt mask and an interrupt
-pending register.
+After misc_register the open() callback can be called.
+However the base address (swc_base_addr) is set after misc_register()
+in init.
+As a result, if open callback is called before pc87413_get_swc_base_addr()
+then in the following call chain: pc87413_open() -> pc87413_refresh() ->
+pc87413_swc_bank3() : The value of swc_base_addr will be -1.
+Therefore, do misc_register() after pc87413_get_swc_base_addr().
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Marc Zyngier <maz@kernel.org>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 ---
-Changes since v7:
- - added "depends on MFD_SL28CPLD=y || COMPILE_TEST"
+ drivers/watchdog/pc87413_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Changes since v6:
- - none
-
-Changes since v5:
- - none
-
-Changes since v4:
- - update copyright year
- - don't use "int irq" instead of "unsigne int irq", because
-   platform_get_irq() might return a negative error code. Found by "kernel
-   test robot <lkp@intel.com>
- - remove comma in terminator line of the compatible strings list,
-   suggested by Andy
- - use newer devm_regmap_add_irq_chip_fwnode()
- - don't use KBUID_MODNAME, suggested by Andy
- - remove the platform device table
-
-Changes since v3:
- - see cover letter
-
- drivers/irqchip/Kconfig        |  8 +++
- drivers/irqchip/Makefile       |  1 +
- drivers/irqchip/irq-sl28cpld.c | 96 ++++++++++++++++++++++++++++++++++
- 3 files changed, 105 insertions(+)
- create mode 100644 drivers/irqchip/irq-sl28cpld.c
-
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index bb70b7177f94..19cd32ba2155 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -246,6 +246,14 @@ config RENESAS_RZA1_IRQC
- 	  Enable support for the Renesas RZ/A1 Interrupt Controller, to use up
- 	  to 8 external interrupts with configurable sense select.
+diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
+index 73fbfc99083b..ad8b8af2bdc0 100644
+--- a/drivers/watchdog/pc87413_wdt.c
++++ b/drivers/watchdog/pc87413_wdt.c
+@@ -512,6 +512,10 @@ static int __init pc87413_init(void)
+ 	if (ret != 0)
+ 		pr_err("cannot register reboot notifier (err=%d)\n", ret);
  
-+config SL28CPLD_INTC
-+	bool "Kontron sl28cpld IRQ controller"
-+	depends on MFD_SL28CPLD=y || COMPILE_TEST
-+	select REGMAP_IRQ
-+	help
-+	  Interrupt controller driver for the board management controller
-+	  found on the Kontron sl28 CPLD.
++	pc87413_select_wdt_out();
++	pc87413_enable_swc();
++	pc87413_get_swc_base_addr();
 +
- config ST_IRQCHIP
- 	bool
- 	select REGMAP
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index 133f9c45744a..39af7d89204d 100644
---- a/drivers/irqchip/Makefile
-+++ b/drivers/irqchip/Makefile
-@@ -111,3 +111,4 @@ obj-$(CONFIG_LOONGSON_HTPIC)		+= irq-loongson-htpic.o
- obj-$(CONFIG_LOONGSON_HTVEC)		+= irq-loongson-htvec.o
- obj-$(CONFIG_LOONGSON_PCH_PIC)		+= irq-loongson-pch-pic.o
- obj-$(CONFIG_LOONGSON_PCH_MSI)		+= irq-loongson-pch-msi.o
-+obj-$(CONFIG_SL28CPLD_INTC)		+= irq-sl28cpld.o
-diff --git a/drivers/irqchip/irq-sl28cpld.c b/drivers/irqchip/irq-sl28cpld.c
-new file mode 100644
-index 000000000000..0aa50d025ef6
---- /dev/null
-+++ b/drivers/irqchip/irq-sl28cpld.c
-@@ -0,0 +1,96 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * sl28cpld interrupt controller driver
-+ *
-+ * Copyright 2020 Kontron Europe GmbH
-+ */
-+
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+
-+#define INTC_IE 0x00
-+#define INTC_IP 0x01
-+
-+static const struct regmap_irq sl28cpld_irqs[] = {
-+	REGMAP_IRQ_REG_LINE(0, 8),
-+	REGMAP_IRQ_REG_LINE(1, 8),
-+	REGMAP_IRQ_REG_LINE(2, 8),
-+	REGMAP_IRQ_REG_LINE(3, 8),
-+	REGMAP_IRQ_REG_LINE(4, 8),
-+	REGMAP_IRQ_REG_LINE(5, 8),
-+	REGMAP_IRQ_REG_LINE(6, 8),
-+	REGMAP_IRQ_REG_LINE(7, 8),
-+};
-+
-+struct sl28cpld_intc {
-+	struct regmap *regmap;
-+	struct regmap_irq_chip chip;
-+	struct regmap_irq_chip_data *irq_data;
-+};
-+
-+static int sl28cpld_intc_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct sl28cpld_intc *irqchip;
-+	int irq;
-+	u32 base;
-+	int ret;
-+
-+	if (!dev->parent)
-+		return -ENODEV;
-+
-+	irqchip = devm_kzalloc(dev, sizeof(*irqchip), GFP_KERNEL);
-+	if (!irqchip)
-+		return -ENOMEM;
-+
-+	irqchip->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!irqchip->regmap)
-+		return -ENODEV;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	ret = device_property_read_u32(&pdev->dev, "reg", &base);
-+	if (ret)
-+		return -EINVAL;
-+
-+	irqchip->chip.name = "sl28cpld-intc";
-+	irqchip->chip.irqs = sl28cpld_irqs;
-+	irqchip->chip.num_irqs = ARRAY_SIZE(sl28cpld_irqs);
-+	irqchip->chip.num_regs = 1;
-+	irqchip->chip.status_base = base + INTC_IP;
-+	irqchip->chip.mask_base = base + INTC_IE;
-+	irqchip->chip.mask_invert = true,
-+	irqchip->chip.ack_base = base + INTC_IP;
-+
-+	return devm_regmap_add_irq_chip_fwnode(dev, dev_fwnode(dev),
-+					       irqchip->regmap, irq,
-+					       IRQF_SHARED | IRQF_ONESHOT, 0,
-+					       &irqchip->chip,
-+					       &irqchip->irq_data);
-+}
-+
-+static const struct of_device_id sl28cpld_intc_of_match[] = {
-+	{ .compatible = "kontron,sl28cpld-intc" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sl28cpld_intc_of_match);
-+
-+static struct platform_driver sl28cpld_intc_driver = {
-+	.probe = sl28cpld_intc_probe,
-+	.driver = {
-+		.name = "sl28cpld-intc",
-+		.of_match_table = sl28cpld_intc_of_match,
-+	}
-+};
-+module_platform_driver(sl28cpld_intc_driver);
-+
-+MODULE_DESCRIPTION("sl28cpld Interrupt Controller Driver");
-+MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
-+MODULE_LICENSE("GPL");
+ 	ret = misc_register(&pc87413_miscdev);
+ 	if (ret != 0) {
+ 		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
+@@ -520,10 +524,6 @@ static int __init pc87413_init(void)
+ 	}
+ 	pr_info("initialized. timeout=%d min\n", timeout);
+ 
+-	pc87413_select_wdt_out();
+-	pc87413_enable_swc();
+-	pc87413_get_swc_base_addr();
+-
+ 	if (!request_region(swc_base_addr, 0x20, MODNAME)) {
+ 		pr_err("cannot request SWC region at 0x%x\n", swc_base_addr);
+ 		ret = -EBUSY;
 -- 
-2.20.1
+2.17.1
 
