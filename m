@@ -1,150 +1,131 @@
-Return-Path: <SRS0=hq3g=B2=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=/6Wm=B3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA39FC433DF
-	for <linux-watchdog@archiver.kernel.org>; Sun, 16 Aug 2020 07:24:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC9CC433E1
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 Aug 2020 17:01:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DABD2078D
-	for <linux-watchdog@archiver.kernel.org>; Sun, 16 Aug 2020 07:24:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 396B620716
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 Aug 2020 17:01:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LvGMG1n7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fHgr2XhL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726403AbgHPHYs (ORCPT
+        id S1730108AbgHQRB0 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 16 Aug 2020 03:24:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48908 "EHLO
+        Mon, 17 Aug 2020 13:01:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726361AbgHPHYr (ORCPT
+        with ESMTP id S1730003AbgHQRBN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 16 Aug 2020 03:24:47 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E20C061786;
-        Sun, 16 Aug 2020 00:24:47 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id o5so6550082pgb.2;
-        Sun, 16 Aug 2020 00:24:47 -0700 (PDT)
+        Mon, 17 Aug 2020 13:01:13 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D920C061389;
+        Mon, 17 Aug 2020 10:01:11 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id g19so18316221ioh.8;
+        Mon, 17 Aug 2020 10:01:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=RzIG+1vyXz3X47wXuY6TSglS4qmCJSgzuoZiRxj3Erc=;
-        b=LvGMG1n7dRBwxic3RaExkurQFdu2DRCEGL4TTFaSD2AABIqZoQFPO4/ivKbkUzs/jc
-         2kvQNC/A5R+VjIXC9c109YcE2ZtCvwzWnXAFUpEG/tgCCzAiP+8C304Il5gVMbMOppcu
-         EsMk8196tDigexI0o+jobBdXvKqslAbKLwBPgDkIXiAt8gdLHU4SgFjymi4PA9FWKCPZ
-         cP1Xe+ZHAEfSkrD1Qz9xdEmlrgz57vajcqpw3+UF9+uDg/HlV3Jq14+IFOmj/WkZOws0
-         p2BcItnqQ2R28CrGE+wfZn294Ua19cZ0mkpLDa+67jV7srq1Io5bmS7ukPbj8Y4r5YPy
-         qkRA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=7QBcITzR7oBFEugc9nX1hxSt40e3uHeGjBJ8k9Ii1wk=;
+        b=fHgr2XhLG9zj5YkcLQCd22NWhIzfoaeu5QeDS+zuPzhgz6A9WrGtRdh1mQGvYcgzgH
+         6fj9TEyhln/WsR5x6BeC/423hYjuYZ9wlMXn5FPXN6T07cqvK8Y0oPlHotB2Gh5KOdJT
+         LJif1UzKeOQupsxHtrzDH/KPmIbvLLTsQG6KiVJJ3NvgHwx1pmdFar1M/FHW0UasC8Ll
+         R6VPhg+9IY93n8I8ad7FHyBc+B1u5jept/EHHoEy+14aujf43pE8VBOGQoTiOWPAvjEb
+         WdQW5G6QLx6h4Ma3swlKqupxWiwrjKAcA1iKiIuVFJMfGb0ZdOml/F6Vl6D2fImHN7d0
+         gJ8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=RzIG+1vyXz3X47wXuY6TSglS4qmCJSgzuoZiRxj3Erc=;
-        b=Nj/tDRS95xystJdiTjZREhPOqVfTbDutXmPgfUpP3m2ZERGHnQcwWthEr1Hnj41IAS
-         PjIBP9QiUWZ6CWW7KLxFobeGNxEE5sZesxckqlFusCj6Sw06E4NWLHPphnWtvbpNcXRC
-         nzqiq4LjcZmDkzjrejh0suZaUxfSGAGABvar2c3iFA6a5pa0vpCo1y6PhuORXYex022c
-         OgWZv/Fd6vcaNEQd85Ye62KovOVgOocbfx5flAPaFqBZZbOFZvCuIk1YHcjkz8scOiCd
-         Xt1jG1BUa1UY2sl1q2T+ZR8ytCr181pjX8kGTwp2mGZPFNmUUHR9Bb4FrNDrrmUPKFWC
-         gf8w==
-X-Gm-Message-State: AOAM531/6Sr7QDoldzsraTi5SQq6D+4Ea+qB1hyXdCDbDa2Jk0X/H7ZB
-        xXLZI++Q7ZYjsoRw5UIFMg==
-X-Google-Smtp-Source: ABdhPJwPyekNT3ZygpiIZGrHDjPVpPpnkXtp/Qfz8ZuAPkz6xKxKQeUCttdxcmHOrNiSK+UEt9Mt4g==
-X-Received: by 2002:a63:3e0f:: with SMTP id l15mr5508169pga.99.1597562687064;
-        Sun, 16 Aug 2020 00:24:47 -0700 (PDT)
-Received: from madhuparna-HP-Notebook ([2402:3a80:cea:9294:8100:367f:a3dd:e679])
-        by smtp.gmail.com with ESMTPSA id s185sm13154905pgc.18.2020.08.16.00.24.43
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 16 Aug 2020 00:24:46 -0700 (PDT)
-From:   Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-X-Google-Original-From: Madhuparna Bhowmik <change_this_user_name@gmail.com>
-Date:   Sun, 16 Aug 2020 12:54:41 +0530
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     madhuparnabhowmik10@gmail.com, wim@linux-watchdog.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        andrianov@ispras.ru, ldv-project@linuxtesting.org
-Subject: Re: [PATCH] drivers: watchdog: pc87413_wdt: Fix Race condition bug
-Message-ID: <20200816072441.GA13871@madhuparna-HP-Notebook>
-References: <20200813125451.19118-1-madhuparnabhowmik10@gmail.com>
- <20200814150740.GA254327@roeck-us.net>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7QBcITzR7oBFEugc9nX1hxSt40e3uHeGjBJ8k9Ii1wk=;
+        b=fMWw829erfdWc35n5lKmlLLiIh+9HmNE0hB41ezzkPTMFGq6g+qSR7mFqY5/MIMddl
+         5ODHUeaBkz3PtE+NBtBBHbi0a2E4TBMZin4QWu1iuI1AlnYpNm546DDhKaq5FPwStpte
+         HIXUuPNUvvny0duPb7L9gB8/V6wRjFOG0bt3izbF2x/2vallDC4vh3ncRb5H/UpphGL/
+         ZYfU8bEIDhmjWT+pkleAjy+xrJadkmPGvjS2CwIewhShllbqYwuJTfVGZV2fMonyYYuw
+         9zYAGo2mQiduADRfYKfq4WFaPI+tcG+3LnxFdxeeAVUkdxCxY7QtJ5t6yliIlaj8fwac
+         qlNQ==
+X-Gm-Message-State: AOAM533gSSOdGpkkFLrZ6P7QYFJJfyB+B0uX7AeAsatiXMpdviaDGjeM
+        sxC1uD0pX/E3CYCKHN0MGSWceRJTL9Z/fJ+6wtvHBkx6
+X-Google-Smtp-Source: ABdhPJyXrGoxJReNPAI+1RpBbwcrrU2PnQSgVLTs6ychSyck01qgTlPaYHYMzi+J5YyRvm1QP4hn4zCwUZeN4+VdjeU=
+X-Received: by 2002:a02:95ae:: with SMTP id b43mr15158386jai.19.1597683670733;
+ Mon, 17 Aug 2020 10:01:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200814150740.GA254327@roeck-us.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20200804192654.12783-1-krzk@kernel.org> <20200804192654.12783-7-krzk@kernel.org>
+ <20200817165748.GA29664@kozik-lap>
+In-Reply-To: <20200817165748.GA29664@kozik-lap>
+From:   Tomasz Figa <tomasz.figa@gmail.com>
+Date:   Mon, 17 Aug 2020 19:00:54 +0200
+Message-ID: <CA+Ln22Hw8_FT0s2N0rBo=2XVmuLagj=BFrTkTGd10J7d4B1Jow@mail.gmail.com>
+Subject: Re: [PATCH v2 06/13] ARM: samsung: remove HAVE_S3C2410_WATCHDOG and
+ use direct dependencies
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Kukjin Kim <kgene@kernel.org>,
+        Simtec Linux Team <linux@simtec.co.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:SAMSUNG SOC CLOCK DRIVERS" 
+        <linux-samsung-soc@vger.kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        patches@opensource.cirrus.com,
+        "open list:COMMON CLK FRAMEWORK" <linux-clk@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        Sergio Prado <sergio.prado@e-labworks.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sylwester Nawrocki <snawrocki@kernel.org>,
+        Cedric Roux <sed@free.fr>, Lihua Yao <ylhuajnu@outlook.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 14, 2020 at 08:07:40AM -0700, Guenter Roeck wrote:
-> On Thu, Aug 13, 2020 at 06:24:51PM +0530, madhuparnabhowmik10@gmail.com wrote:
-> > From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-> > 
-> > After misc_register the open() callback can be called.
-> > However the base address (swc_base_addr) is set after misc_register()
-> > in init.
-> > As a result, if open callback is called before pc87413_get_swc_base_addr()
-> > then in the following call chain: pc87413_open() -> pc87413_refresh() ->
-> > pc87413_swc_bank3() : The value of swc_base_addr will be -1.
-> > Therefore, do misc_register() after pc87413_get_swc_base_addr().
-> > 
-> > Found by Linux Driver Verification project (linuxtesting.org).
-> > 
-> > Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-> 
-> Another candidate for removal. The entire driver is at the very least
-> questionable: It hard enables the watchdog after registering it, making it
-> mandatory to open it within one minute or the system will reboot. Also,
-> the driver doesn't even check if the hardware even exists; it just assumes
-> that it does. And then it reconfigures that potentially non-existing
-> hardware to use a specific chip pin as wdt output, as if that would be
-> useful if that pin is not wired up. Worst case that driver may actually
-> break something if it is loaded on an arbitrary system.
-> 
-> I really don't see the point of trying to patch it up unless there are users
-> left who can confirm that it even works on existing hardware, and then I'd
-> prefer to have it fixed for good and not just patched up.
+2020=E5=B9=B48=E6=9C=8817=E6=97=A5(=E6=9C=88) 18:57 Krzysztof Kozlowski <kr=
+zk@kernel.org>:
 >
-Sure makes sense. Thank you for reviewing.
-
-Regards,
-Madhuparna
-
-> Thanks,
-> Guenter
-> 
+> On Tue, Aug 04, 2020 at 09:26:47PM +0200, Krzysztof Kozlowski wrote:
+> > A separate Kconfig option HAVE_S3C2410_WATCHDOG for Samsung SoCs is not
+> > really needed and the s3c24xx watchdog driver can depend on Samsung ARM
+> > architectures instead.
+> >
+> > The "HAVE_xxx_WATCHDOG" pattern of dependency is not popular and Samsun=
+g
+> > platforms are here exceptions.  All others just depend on
+> > CONFIG_ARCH_xxx.
+> >
+> > This makes the code slightly smaller without any change in
+> > functionality.
+> >
+> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> >
 > > ---
-> >  drivers/watchdog/pc87413_wdt.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-> > index 73fbfc99083b..ad8b8af2bdc0 100644
-> > --- a/drivers/watchdog/pc87413_wdt.c
-> > +++ b/drivers/watchdog/pc87413_wdt.c
-> > @@ -512,6 +512,10 @@ static int __init pc87413_init(void)
-> >  	if (ret != 0)
-> >  		pr_err("cannot register reboot notifier (err=%d)\n", ret);
-> >  
-> > +	pc87413_select_wdt_out();
-> > +	pc87413_enable_swc();
-> > +	pc87413_get_swc_base_addr();
-> > +
-> >  	ret = misc_register(&pc87413_miscdev);
-> >  	if (ret != 0) {
-> >  		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
-> > @@ -520,10 +524,6 @@ static int __init pc87413_init(void)
-> >  	}
-> >  	pr_info("initialized. timeout=%d min\n", timeout);
-> >  
-> > -	pc87413_select_wdt_out();
-> > -	pc87413_enable_swc();
-> > -	pc87413_get_swc_base_addr();
-> > -
-> >  	if (!request_region(swc_base_addr, 0x20, MODNAME)) {
-> >  		pr_err("cannot request SWC region at 0x%x\n", swc_base_addr);
-> >  		ret = -EBUSY;
+> >
+> > Changes since v1:
+> > 1. Re-add the dependency on architectures to keep same functionality.
+>
+> Hi Guenter, Tomasz,
+>
+> Does such removal of HAVE_S3C2410_WATCHDOG makes sense for you?
+
+I don't have any objections and the patch itself is trivial.
+
+Best regards,
+Tomasz
