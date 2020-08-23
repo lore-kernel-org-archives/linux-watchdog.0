@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B73AC433DF
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 186C2C433E4
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:18:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7089A2078A
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:18:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E79422072D
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598199504;
-	bh=om9ESAnTN0kLIHeSYqTWxWWUBVqyKQ5oPt5eaHUA+2k=;
+	s=default; t=1598199518;
+	bh=FgDauWijE2v2zG1uUmpQp0k3ggKYFyDzL5p9qK38cTA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=1f0+VXAdJq4Mu7RjKQBNtQv1eQTK7WgNrOxu4Gxw2lne+ukn1shPyMhiAA/WY8sse
-	 sjS1Jo8llwPv2JZ53t9tILp5VPiQxSDwH/3VermsNr5lpK2ScRoI7ubeQUvCLJ/mWW
-	 HO4DMgpuGNV1NpsYG2hItxH1BHw+wv6RODSJPZlU=
+	b=skATMQK3OBeOe3EcnxnN9U4ofT6xjysslTIUDx9sRd9ICTVOkPgEvHBl+qu9htO7S
+	 lsUWhiFDmfOQqd1sMV8VD67g7pEwcg+HJukdsoLv8kE81wiNGMvvfbyU8azuASLNNX
+	 J0k5VdTQUmUNRJ3JgOHKRNW+HuLxcjgxEr5ObH+w=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728265AbgHWQSR (ORCPT
+        id S1726839AbgHWQSh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 23 Aug 2020 12:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
+        Sun, 23 Aug 2020 12:18:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728192AbgHWQRl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 23 Aug 2020 12:17:41 -0400
+        id S1727809AbgHWQRc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 23 Aug 2020 12:17:32 -0400
 Received: from kozik-lap.proceq-device.com (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9218120767;
-        Sun, 23 Aug 2020 16:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 723892075B;
+        Sun, 23 Aug 2020 16:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598199460;
-        bh=om9ESAnTN0kLIHeSYqTWxWWUBVqyKQ5oPt5eaHUA+2k=;
+        s=default; t=1598199451;
+        bh=FgDauWijE2v2zG1uUmpQp0k3ggKYFyDzL5p9qK38cTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoaAR81iHPTZTaeVWIysT1dgDiueIU1wsfTlQmwilaHTXOgNAp2Kiv1ZDYbmTEZyi
-         DbkAGv4UahUvhmnSz7YofRG8QUC2usXaH+ng4qRtMnjpwEwJ0MYFy+B7fPsiKiAjUy
-         4a6SBWOT+dxnoeMz6fUlewNe3Rk55M2pp2KWemUs=
+        b=iQKrnvwOPFy36zo9ouWkzK/k66jZBtwE1DCl0+FuKAc2CgHeyOrQ5moiyAj1WqiAY
+         uF7zNC19Jf2QR/TpzqOO7bPHGqzuKaCiNASOMBvMr2UgOvStlsr8RD5J0BczCkYabW
+         byjfqz7daDcQ65RwP0IJAkDuLqXYySK83JNx8+8Y=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -56,9 +56,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
 Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Anson Huang <Anson.Huang@nxp.com>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 22/22] arm64: dts: imx8mp: Remove i.MX7 compatible from DDR PMU
-Date:   Sun, 23 Aug 2020 18:15:50 +0200
-Message-Id: <20200823161550.3981-22-krzk@kernel.org>
+Subject: [PATCH 20/22] arm64: dts: imx8qxp: Remove i.MX7 compatible from UART
+Date:   Sun, 23 Aug 2020 18:15:48 +0200
+Message-Id: <20200823161550.3981-20-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200823161550.3981-1-krzk@kernel.org>
 References: <20200823161550.3981-1-krzk@kernel.org>
@@ -67,33 +67,62 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The DDR PMU on i.MX 8MP has its own compatible described in bindings and
-used in the driver (with its own quirks).  Remove additional
-fsl,imx8m-ddr-pmu compatible to fix dtbs_check warnings like:
+The UART on i.MX 8QXP has its own compatible described in bindings
+and used in the driver (with its own quirks).  Remove additional
+fsl,imx7ulp-lpuart compatible to fix dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dt.yaml: ddr-pmu@3d800000:
-    compatible: ['fsl,imx8mq-ddr-pmu', 'fsl,imx8m-ddr-pmu'] is not valid under any of the given schemas (Possible causes of the failure):
-    arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dt.yaml: ddr-pmu@3d800000: compatible: ['fsl,imx8mq-ddr-pmu', 'fsl,imx8m-ddr-pmu'] is too long
-    From schema: Docmentation/devicetree/bindings/perf/fsl-imx-ddr.yaml
+  arch/arm64/boot/dts/freescale/imx8qxp-mek.dt.yaml: serial@5a060000:
+    compatible: ['fsl,imx8qxp-lpuart', 'fsl,imx7ulp-lpuart'] is too long
+    From schema: Documentation/devicetree/bindings/serial/fsl-lpuart.yaml
+
+  arch/arm64/boot/dts/freescale/imx8qxp-mek.dt.yaml: serial@5a060000:
+    compatible: Additional items are not allowed ('fsl,imx7ulp-lpuart' was unexpected)
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-index 9de2aa1c573c..e34eff19fcae 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-@@ -746,7 +746,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+index e46faac1fe71..61bccb69f09e 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+@@ -257,7 +257,7 @@
  		};
  
- 		ddr-pmu@3d800000 {
--			compatible = "fsl,imx8mp-ddr-pmu", "fsl,imx8m-ddr-pmu";
-+			compatible = "fsl,imx8mp-ddr-pmu";
- 			reg = <0x3d800000 0x400000>;
- 			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
+ 		adma_lpuart0: serial@5a060000 {
+-			compatible = "fsl,imx8qxp-lpuart", "fsl,imx7ulp-lpuart";
++			compatible = "fsl,imx8qxp-lpuart";
+ 			reg = <0x5a060000 0x1000>;
+ 			interrupts = <GIC_SPI 225 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&adma_lpcg IMX_ADMA_LPCG_UART0_IPG_CLK>,
+@@ -268,7 +268,7 @@
  		};
+ 
+ 		adma_lpuart1: serial@5a070000 {
+-			compatible = "fsl,imx8qxp-lpuart", "fsl,imx7ulp-lpuart";
++			compatible = "fsl,imx8qxp-lpuart";
+ 			reg = <0x5a070000 0x1000>;
+ 			interrupts = <GIC_SPI 226 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&adma_lpcg IMX_ADMA_LPCG_UART1_IPG_CLK>,
+@@ -279,7 +279,7 @@
+ 		};
+ 
+ 		adma_lpuart2: serial@5a080000 {
+-			compatible = "fsl,imx8qxp-lpuart", "fsl,imx7ulp-lpuart";
++			compatible = "fsl,imx8qxp-lpuart";
+ 			reg = <0x5a080000 0x1000>;
+ 			interrupts = <GIC_SPI 227 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&adma_lpcg IMX_ADMA_LPCG_UART2_IPG_CLK>,
+@@ -290,7 +290,7 @@
+ 		};
+ 
+ 		adma_lpuart3: serial@5a090000 {
+-			compatible = "fsl,imx8qxp-lpuart", "fsl,imx7ulp-lpuart";
++			compatible = "fsl,imx8qxp-lpuart";
+ 			reg = <0x5a090000 0x1000>;
+ 			interrupts = <GIC_SPI 228 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&adma_lpcg IMX_ADMA_LPCG_UART3_IPG_CLK>,
 -- 
 2.17.1
 
