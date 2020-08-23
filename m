@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72D9EC433E4
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:16:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD75EC433E3
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:16:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A6092078D
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:16:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92FE02078A
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598199385;
-	bh=piseENgaR2QSPn9XfpxUjGFJvzdbXTHX56nDAe1ZDaQ=;
+	s=default; t=1598199391;
+	bh=qT97af3F+6zT5YN98/ik4UyHTeDAWVRhgipmgnsunZo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=R8TqeJp3EpudSX5gMdnW5h6qQeZxyMQNGdL15IbPA7RaDZ1YUg/l/yQ312eK9WMhr
-	 +bvWTe7CkYPG38RtHjrpdwKegrhQxQ5XAFVpPbmXUQOYnz78p2Uk4/acxCEettDL5t
-	 rwm461kamNa2Z7f4DuwkhKkfV0/8BLQfbIOtbz1o=
+	b=kBqCpk6rj6g077+/YjG2pbbKD7nr038u6sRngpUd2a1YkHXOWorNhOgx6caUnLbwT
+	 tRhzrfhV+Cy7uUjmX7MqbyafG6JWNyZrEpKD9qGDH5hhpXrdwoEhEDuUJ6CEU5VkKK
+	 TEh1OjOxM8IjWVa6IDjbJ7bbhl1Oh1Qmxg2dDQm4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727809AbgHWQQI (ORCPT
+        id S1728005AbgHWQQb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 23 Aug 2020 12:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
+        Sun, 23 Aug 2020 12:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725996AbgHWQQH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 23 Aug 2020 12:16:07 -0400
+        id S1727905AbgHWQQQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 23 Aug 2020 12:16:16 -0400
 Received: from kozik-lap.proceq-device.com (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1827E2078A;
-        Sun, 23 Aug 2020 16:16:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96E282072D;
+        Sun, 23 Aug 2020 16:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598199366;
-        bh=piseENgaR2QSPn9XfpxUjGFJvzdbXTHX56nDAe1ZDaQ=;
+        s=default; t=1598199375;
+        bh=qT97af3F+6zT5YN98/ik4UyHTeDAWVRhgipmgnsunZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGCxuLS1OZqpLzWh1cnW+UvCxjPrHBWtvFVqNnaBVe091iKQl5aMftHrIECPrjE+Y
-         8/twxs9zLuAfF88znM8CwPr2V8vnYa4eRcx+lC+Qu74cJ7o/Tg5L4H74lojKyxVes0
-         Kd/f2ltpiewZpSWZ6+UoRgD3yT5w8DUQqToaBx3k=
+        b=IYTIJdnKD8ggSMwFP0uCdP7QfLgD+Q74psSfXOgJNF5q1PJXOQdH2j3H/mktYKKxk
+         DnYLOalxi3KdGoGad4midcoNESDhAXpSuIJlQ+fPr/zEZ7AILWav3BrpWW3cBW04+m
+         3PvCTduJ7FmVeJHkBVTHB+S1jPBqkoz9/l8chR/o=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -56,9 +56,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
 Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Anson Huang <Anson.Huang@nxp.com>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 02/22] dt-bindings: gpio: fsl-imx-gpio: Add gpio-ranges property
-Date:   Sun, 23 Aug 2020 18:15:30 +0200
-Message-Id: <20200823161550.3981-2-krzk@kernel.org>
+Subject: [PATCH 04/22] dt-bindings: gpio: fsl-imx-gpio: Add power-domains
+Date:   Sun, 23 Aug 2020 18:15:32 +0200
+Message-Id: <20200823161550.3981-4-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200823161550.3981-1-krzk@kernel.org>
 References: <20200823161550.3981-1-krzk@kernel.org>
@@ -67,50 +67,31 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The GPIO controller node can have gpio-ranges property.  This fixes
-dtbs_check warnings like:
+Parse also optional power-domains property to fix dtbs_check warnings
+like:
 
-  arch/arm64/boot/dts/freescale/imx8mm-evk.dt.yaml: gpio@30200000: 'gpio-ranges' does not match any of the regexes: 'pinctrl-[0-9]+'
+  arch/arm64/boot/dts/freescale/imx8qxp-ai_ml.dt.yaml: gpio@5d080000: 'power-domains' does not match any of the regexes: 'pinctrl-[0-9]+'
     From schema: Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- .../devicetree/bindings/gpio/fsl-imx-gpio.yaml    | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml b/Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml
-index 454db20c2d1a..1fac69573bb9 100644
+index 337b99343dce..a7d17a98df6b 100644
 --- a/Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml
 +++ b/Documentation/devicetree/bindings/gpio/fsl-imx-gpio.yaml
-@@ -51,6 +51,9 @@ properties:
+@@ -54,6 +54,9 @@ properties:
+   gpio-ranges:
+     maxItems: 1
  
-   gpio-controller: true
- 
-+  gpio-ranges:
++  power-domains:
 +    maxItems: 1
 +
- required:
-   - compatible
-   - reg
-@@ -62,6 +65,18 @@ required:
- 
- additionalProperties: false
- 
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,imx8mp-gpio
-+    then:
-+      properties:
-+        gpio-ranges:
-+          minItems: 1
-+          maxItems: 2
-+
- examples:
-   - |
-     gpio0: gpio@73f84000 {
+ patternProperties:
+   "^(hog-[0-9]+|.+-hog(-[0-9]+)?)$":
+     type: object
 -- 
 2.17.1
 
