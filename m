@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B24FC433E3
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:17:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E22C7C433E5
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:17:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73811208E4
-	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:17:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C37BB2224D
+	for <linux-watchdog@archiver.kernel.org>; Sun, 23 Aug 2020 16:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598199441;
-	bh=1X/cRmfopwt+rCsRoYRr5R5QW8XW/gYCIDl6hjON3qs=;
+	s=default; t=1598199462;
+	bh=CnRSnps+AJEG/CNxkZZ3JT+RUcAXLf0eIGA4Cov4d+8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=QylAKr3SOCwG4VXF6Ja/jQC2U4kaYIlmomAu2+MtmvBh5DAvJ5uobEuyk1uBEaAGj
-	 3B/l8YTpce/RL6hjz0OiwR6VdPMc3Ixlc27wVsvd6lC+V6jb5sr6PpOydLOLbnJBEg
-	 yLAgX2+K7WMf5TqHAIWtLlY3bFiiZkAMeXu3O/gc=
+	b=O6VV+8v2FBBiJLM4PgAQxyMWmmEMRUiC49yIwPfjBnpZukgfbtVn6Jnf75dEgIFoI
+	 4liflDGLxH9COapLzkoxcSoEEji3ElO0VOfenCLwtunYJA0Pvd20poHvHepfZMxl/3
+	 xJpIYRVNp2e6YLP+XupokSKV7HTuQ4Zip4WLEaBc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgHWQRS (ORCPT
+        id S1728218AbgHWQRm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 23 Aug 2020 12:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        Sun, 23 Aug 2020 12:17:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728148AbgHWQRL (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 23 Aug 2020 12:17:11 -0400
+        id S1728174AbgHWQRV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 23 Aug 2020 12:17:21 -0400
 Received: from kozik-lap.proceq-device.com (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3BC72072D;
-        Sun, 23 Aug 2020 16:17:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79BBE2072D;
+        Sun, 23 Aug 2020 16:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598199431;
-        bh=1X/cRmfopwt+rCsRoYRr5R5QW8XW/gYCIDl6hjON3qs=;
+        s=default; t=1598199440;
+        bh=CnRSnps+AJEG/CNxkZZ3JT+RUcAXLf0eIGA4Cov4d+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmxIKuI0++TYe9fb9g6cyyUrwH9XYJ6k5PXI+/VqYSNFPo4x2EIXeD/6b3/YO/9Z5
-         Nm0uZORFSVdiL8NVmYUoiu/w+rB3+zxfMAKDZ7eCd3+DeDav3kfCSYLNK4Lr5DRdlY
-         vv+cL69/sf2gnMqWSl3I8uTPr85T8nzUd5PY3Bb8=
+        b=auHjhuwkCd7pI2CH8VXG0d4rXiAOTn7549CnoGcR0isa3OD6lmhUbuPzOQeSVZ2Ih
+         qVsrJdktxrWBmkpSbH+5Sl4u13xqmc1p6yFv6zxyhnjr+kO/H8kNuaJDzjtVUDoAr3
+         09SCTA+NPhmxWpLwgijMlDyTnp+5VG7+YvKvAKes=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -56,9 +56,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
 Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Anson Huang <Anson.Huang@nxp.com>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 16/22] dt-bindings: interrupt-controller: fsl,irqsteer: Fix compatible matching
-Date:   Sun, 23 Aug 2020 18:15:44 +0200
-Message-Id: <20200823161550.3981-16-krzk@kernel.org>
+Subject: [PATCH 18/22] arm64: dts: imx8mq-zii-ultra: Add hog suffixes to GPIO hogs
+Date:   Sun, 23 Aug 2020 18:15:46 +0200
+Message-Id: <20200823161550.3981-18-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200823161550.3981-1-krzk@kernel.org>
 References: <20200823161550.3981-1-krzk@kernel.org>
@@ -67,40 +67,52 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The i.MX 8M DTSes use two compatibles so update the binding to fix
-dtbs_check warnings like:
-
-  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
-    compatible: ['fsl,imx8m-irqsteer', 'fsl,imx-irqsteer'] is too long
-    From schema: Domentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-
-  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
-    compatible: Additional items are not allowed ('fsl,imx-irqsteer' was unexpected)
+According to device tree specification, device node names should be
+somewhat generic and reflecting the function of the device so add the
+"hog" suffixes to all GPIO hog nodes.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- .../bindings/interrupt-controller/fsl,irqsteer.yaml       | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-index 360a575ef8b0..3b11a1a15398 100644
---- a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-+++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-@@ -11,9 +11,11 @@ maintainers:
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+index 0d1088dcaa02..fa7a041ffcfd 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+@@ -229,28 +229,28 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_gpio3_hog>;
  
- properties:
-   compatible:
--    enum:
--      - fsl,imx8m-irqsteer
--      - fsl,imx-irqsteer
-+    oneOf:
-+      - const: fsl,imx-irqsteer
-+      - items:
-+          - const: fsl,imx8m-irqsteer
-+          - const: fsl,imx-irqsteer
+-	usb-emulation {
++	usb-emulation-hog {
+ 		gpio-hog;
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		output-low;
+ 		line-name = "usb-emulation";
+ 	};
  
-   reg:
-     maxItems: 1
+-	usb-mode1 {
++	usb-mode1-hog {
+ 		gpio-hog;
+ 		gpios = <11 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+ 		line-name = "usb-mode1";
+ 	};
+ 
+-	usb-pwr {
++	usb-pwr-hog {
+ 		gpio-hog;
+ 		gpios = <12 GPIO_ACTIVE_LOW>;
+ 		output-high;
+ 		line-name = "usb-pwr-ctrl-en-n";
+ 	};
+ 
+-	usb-mode2 {
++	usb-mode2-hog {
+ 		gpio-hog;
+ 		gpios = <13 GPIO_ACTIVE_HIGH>;
+ 		output-high;
 -- 
 2.17.1
 
