@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C36EC433E1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF013C433DF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:29:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B8E121741
-	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:29:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8EB5B2072D
+	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598286544;
-	bh=oGMgQUbt8WNzS5RCzjRyum21Cxzr14wZYyuSrHfBP2M=;
+	s=default; t=1598286552;
+	bh=1X/cRmfopwt+rCsRoYRr5R5QW8XW/gYCIDl6hjON3qs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=pf+HSeD/yrUf31OGVceGZryf2TKKh6yR3UR8Wxan6M9LuRl8WaQtDdGdXiw0bRklk
-	 0ciYwflkD0aQBK3pE1NDXjnHZRgHB2FF/R+z/4J96O0XRMhDw381A3BI0QR4tc9J1g
-	 174huwqK1vG9uPiLJSwysJ029FO8Hjdtlgv6x+CE=
+	b=zxjdV5FXxbpWHEs5qioHZeOLhzYIpbhlEgeErNgQU3sgNvmD4X/xk5agWikHhR4zg
+	 fFumt2lTMOPZ7G+NeRCUNnOdcXRYt7jX4f4POpmBuDbWXGMYXJ+kEWnf1mZeebJ9w8
+	 9E5Kptj5s9dkLnVK8nmqn+5x1dn9h+Nz1zmH19b8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728116AbgHXQ3B (ORCPT
+        id S1725962AbgHXQ3G (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 24 Aug 2020 12:29:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58172 "EHLO mail.kernel.org"
+        Mon, 24 Aug 2020 12:29:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728085AbgHXQ2t (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:28:49 -0400
+        id S1728120AbgHXQ3C (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:29:02 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7115420738;
-        Mon, 24 Aug 2020 16:28:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A084820838;
+        Mon, 24 Aug 2020 16:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286528;
-        bh=oGMgQUbt8WNzS5RCzjRyum21Cxzr14wZYyuSrHfBP2M=;
+        s=default; t=1598286541;
+        bh=1X/cRmfopwt+rCsRoYRr5R5QW8XW/gYCIDl6hjON3qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNtHfi1f78SmcdBGTBgoM3jOejs7NERNPLniDOZ0H5575eGcUlaZOep8EqmBUNqol
-         BE7Yaxey7A9qot+A3EXHg8WwA6MRwvzewtdD3KNSb2aMBuTvN+uKghNuNLfeZH6oN0
-         IYp/ElKvhyXZAMp5GMmiwbLwAQBn13+olpuwuipc=
+        b=HTcV7Hq+Wz0fVWlImWpXbdNqymi7ZC+FwJ/OIwCOfq8K9wbZIjSZtBzDx6PFIz8fU
+         PIP0T6mdf09RI7GCUVUqF7RowOAcTp0QisWNDZj3RKLjEprWRBPyG38N/o8OlxbQ1l
+         vnvPxUrFusOoVuYCi0ANy/2bdox1qweZxaKgVQ/E=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -66,9 +66,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
         linux-pwm@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2 14/19] dt-bindings: arm: fsl: Fix Toradex Colibri i.MX 8 binding
-Date:   Mon, 24 Aug 2020 18:26:47 +0200
-Message-Id: <20200824162652.21047-14-krzk@kernel.org>
+Subject: [PATCH v2 16/19] dt-bindings: interrupt-controller: fsl,irqsteer: Fix compatible matching
+Date:   Mon, 24 Aug 2020 18:26:49 +0200
+Message-Id: <20200824162652.21047-16-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200824162652.21047-1-krzk@kernel.org>
 References: <20200824162652.21047-1-krzk@kernel.org>
@@ -77,36 +77,40 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The Toradex Colibri i.MX 8 Evaluation board has two Toradex compatibles
-so it needs separate entry.  This fixes dtbs_check warning:
+The i.MX 8M DTSes use two compatibles so update the binding to fix
+dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8qxp-colibri-eval-v3.dt.yaml: /:
-    compatible: ['toradex,colibri-imx8x-eval-v3', 'toradex,colibri-imx8x', 'fsl,imx8qxp'] is not valid under any of the given schemas (Possible causes of the failure):
-    arch/arm64/boot/dts/freescale/imx8qxp-colibri-eval-v3.dt.yaml: /: compatible: ['toradex,colibri-imx8x-eval-v3', 'toradex,colibri-imx8x', 'fsl,imx8qxp'] is too long
+  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
+    compatible: ['fsl,imx8m-irqsteer', 'fsl,imx-irqsteer'] is too long
+    From schema: Domentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
+
+  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
+    compatible: Additional items are not allowed ('fsl,imx-irqsteer' was unexpected)
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- Documentation/devicetree/bindings/arm/fsl.yaml | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../bindings/interrupt-controller/fsl,irqsteer.yaml       | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/arm/fsl.yaml b/Documentation/devicetree/bindings/arm/fsl.yaml
-index 37592e7bfee9..377fc2a4c159 100644
---- a/Documentation/devicetree/bindings/arm/fsl.yaml
-+++ b/Documentation/devicetree/bindings/arm/fsl.yaml
-@@ -379,7 +379,13 @@ properties:
-               - einfochips,imx8qxp-ai_ml  # i.MX8QXP AI_ML Board
-               - fsl,imx8qxp-mek           # i.MX8QXP MEK Board
-               - toradex,colibri-imx8x         # Colibri iMX8X Module
-+          - const: fsl,imx8qxp
-+
-+      - description: Toradex Colibri i.MX8 Evaluation Board
-+        items:
-+          - enum:
-               - toradex,colibri-imx8x-eval-v3 # Colibri iMX8X Module on Colibri Evaluation Board V3
-+          - const: toradex,colibri-imx8x
-           - const: fsl,imx8qxp
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
+index 360a575ef8b0..3b11a1a15398 100644
+--- a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
++++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
+@@ -11,9 +11,11 @@ maintainers:
  
-       - description:
+ properties:
+   compatible:
+-    enum:
+-      - fsl,imx8m-irqsteer
+-      - fsl,imx-irqsteer
++    oneOf:
++      - const: fsl,imx-irqsteer
++      - items:
++          - const: fsl,imx8m-irqsteer
++          - const: fsl,imx-irqsteer
+ 
+   reg:
+     maxItems: 1
 -- 
 2.17.1
 
