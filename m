@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB7C2C433E1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17DEEC433E4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:30:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 963EF2074D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:30:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3BA8207CD
+	for <linux-watchdog@archiver.kernel.org>; Mon, 24 Aug 2020 16:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598286613;
-	bh=IcWdUIpZPLrTFhfMFn5K5VkjUKVluLTxZ3P2v5TWsEE=;
+	s=default; t=1598286639;
+	bh=gOESEJc7aA4Bdlbw/0GS4VThO3taNCzjhxOFB6At2XY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=jhpVewf12PUpKs2B3hHwGqz6UUvLrJ96UvzZCdz9Q1Mc2yVty3xOayzDbdLTlka7O
-	 VLDiTsbUI6lfflwF3O4gkyRi/kBSIhm6qmnh0YJHenBTsHrI6gjuKpI7tUwAVwy3nL
-	 lsjrQPvdn8dFy7cBq9kplEn3D1zSf7KZSxbLtMew=
+	b=QYUHRNHs8hqpX1wx3s3IapdGPiWJ10Kmdax6FGhEZjQ0Mcvv3GoUYxtNPCr1ErsgD
+	 s5AvRshEXTzkOWIgqyHcxFilVmyRiU8HPVyLxATIUvfWHsh1Jht57kSddCC2minCdC
+	 Vl+W/naWs36RG2g2tBaE19t9ZpdTqxIslen2s8BM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbgHXQaK (ORCPT
+        id S1728131AbgHXQaf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 24 Aug 2020 12:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
+        Mon, 24 Aug 2020 12:30:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728138AbgHXQ3Q (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:29:16 -0400
+        id S1728080AbgHXQ2z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 24 Aug 2020 12:28:55 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 215E920866;
-        Mon, 24 Aug 2020 16:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12E472074D;
+        Mon, 24 Aug 2020 16:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598286556;
-        bh=IcWdUIpZPLrTFhfMFn5K5VkjUKVluLTxZ3P2v5TWsEE=;
+        s=default; t=1598286535;
+        bh=gOESEJc7aA4Bdlbw/0GS4VThO3taNCzjhxOFB6At2XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyGTA3pl2iZ6iwRTHRYvbqGpkvnk43nFCR8d3W1X2RJu/hO3ZgALLiUgPt8e58Ibx
-         kfvaz4xYS3ZNqva0peuSxSgYny+/X7lvFzweEhN8BcH8LaKhgC47hEq4bwVGeK3yLC
-         5BKfBbu4I0HwGbZ+9otThfJkwOjs9tiFPmxyxcvE=
+        b=bz8SqDs4rFnLVFy9fjZrXh8NVo9GVwojru9OTglcSdI3wl17KPorg7NtyoHqhV4bN
+         47R46lF9BdF+EUDQpoUn2zWx/P1IYHdJBWFsTPBLXqFCZqBVbG9TORCWgoQeKs/d4J
+         hyGPPb1c/43B98AXJeRQuRd6GeITtXc3WoEyGQ/0=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -66,9 +66,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
         linux-pwm@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2 18/19] arm64: dts: imx8mq-evk: Add hog suffix to wl-reg-on
-Date:   Mon, 24 Aug 2020 18:26:51 +0200
-Message-Id: <20200824162652.21047-18-krzk@kernel.org>
+Subject: [PATCH v2 15/19] dt-bindings: arm: fsl: Add ZII Ultra boards binding
+Date:   Mon, 24 Aug 2020 18:26:48 +0200
+Message-Id: <20200824162652.21047-15-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200824162652.21047-1-krzk@kernel.org>
 References: <20200824162652.21047-1-krzk@kernel.org>
@@ -77,28 +77,32 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-According to device tree specification, device node names should be
-somewhat generic and reflecting the function of the device so add the
-"hog" suffix to wl-reg-on GPIO hog.
+Document the binding for Zodiac Inflight Innovations Ultra Boards.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq-evk.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/arm/fsl.yaml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-evk.dts b/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-index 8aa9cd8e495a..a088831d2e24 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-@@ -157,7 +157,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_wifi_reset>;
+diff --git a/Documentation/devicetree/bindings/arm/fsl.yaml b/Documentation/devicetree/bindings/arm/fsl.yaml
+index 377fc2a4c159..b48dbf924cfe 100644
+--- a/Documentation/devicetree/bindings/arm/fsl.yaml
++++ b/Documentation/devicetree/bindings/arm/fsl.yaml
+@@ -373,6 +373,14 @@ properties:
+               - technexion,pico-pi-imx8m  # TechNexion PICO-PI-8M evk
+           - const: fsl,imx8mq
  
--	wl-reg-on {
-+	wl-reg-on-hog {
- 		gpio-hog;
- 		gpios = <29 GPIO_ACTIVE_HIGH>;
- 		output-high;
++      - description: Zodiac Inflight Innovations Ultra Boards
++        items:
++          - enum:
++              - zii,imx8mq-ultra-rmb3
++              - zii,imx8mq-ultra-zest
++          - const: zii,imx8mq-ultra
++          - const: fsl,imx8mq
++
+       - description: i.MX8QXP based Boards
+         items:
+           - enum:
 -- 
 2.17.1
 
