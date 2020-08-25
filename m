@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0AD4C433DF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 25 Aug 2020 19:38:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 270D1C433E1
+	for <linux-watchdog@archiver.kernel.org>; Tue, 25 Aug 2020 19:38:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8A4C2075F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 25 Aug 2020 19:38:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F36522075E
+	for <linux-watchdog@archiver.kernel.org>; Tue, 25 Aug 2020 19:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598384313;
-	bh=IcWdUIpZPLrTFhfMFn5K5VkjUKVluLTxZ3P2v5TWsEE=;
+	s=default; t=1598384320;
+	bh=CnRSnps+AJEG/CNxkZZ3JT+RUcAXLf0eIGA4Cov4d+8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=F6Y5h/knGN1K6Pd6ITyR/mM/DmQS41a9mIGnzzfe8J4qxnYHL3EHN6LWoBSxQylCb
-	 Q6CZcO2JNwi6/ADtNAhopMxDTH5Xo4nb3IWJ8Hh8OVlgz9TtL05LOaJvSUNT3kRXCJ
-	 MPqe8eEpdczD6bndglEtZ28pPNidDspgqAndF8rM=
+	b=IrZb0+/l8EeabEIWHrS7H/Jr2SbZFRCGy+kVlL1hgbXqq9wxKOStCrIUUcXWvQmxG
+	 /cAhaF/IafuG2uFZwlrbKtaENcTjL4LAUYnPDjGR/3Ij3MHYI8ys4ryzYm4cWZT2Jr
+	 CnfSEoHEp/QhxFG7AqtiaSgrbIEWcTtzebKww37Y=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727834AbgHYTib (ORCPT
+        id S1727869AbgHYTii (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 25 Aug 2020 15:38:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44838 "EHLO mail.kernel.org"
+        Tue, 25 Aug 2020 15:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726149AbgHYTi2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Aug 2020 15:38:28 -0400
+        id S1726149AbgHYTif (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Aug 2020 15:38:35 -0400
 Received: from localhost.localdomain (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 903BA2076C;
-        Tue, 25 Aug 2020 19:38:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32F632075E;
+        Tue, 25 Aug 2020 19:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598384307;
-        bh=IcWdUIpZPLrTFhfMFn5K5VkjUKVluLTxZ3P2v5TWsEE=;
+        s=default; t=1598384314;
+        bh=CnRSnps+AJEG/CNxkZZ3JT+RUcAXLf0eIGA4Cov4d+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJHNNnI+e6F9M/j7H2BKfgIoxpLcyVT0jAV7Hqq8/V4GMtu7v7xkqaeWBcfrsFyCm
-         2wAcS5fv1Pi0A9WGjUQzniBV4GuEgYGDR7xQeSNcYMfnn4wgGuKcJOm0LG2hippJbT
-         JFURqXPBstDg6mKTN0g6YvQkg/50s1viQMPkiwRU=
+        b=nZTh8uDdJN0oZDjmHM1fwbgW4o+BHRN/PdSZyKy0cU32v1H396hLroUhBIucTU7/f
+         3B0SVkiukyEhDsxBnB/gjN/d9cgXbw0CgVNhPRcS5j4M/AQeQI+ZzsRpqurlX/UIwC
+         DDVYRERMdKorKgSdTO6orDExuLSLLLg5FXVqp4Mk=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -61,9 +61,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
         linux-pwm@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 18/19] arm64: dts: imx8mq-evk: Add hog suffix to wl-reg-on
-Date:   Tue, 25 Aug 2020 21:35:35 +0200
-Message-Id: <20200825193536.7332-19-krzk@kernel.org>
+Subject: [PATCH v3 19/19] arm64: dts: imx8mq-zii-ultra: Add hog suffixes to GPIO hogs
+Date:   Tue, 25 Aug 2020 21:35:36 +0200
+Message-Id: <20200825193536.7332-20-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200825193536.7332-1-krzk@kernel.org>
 References: <20200825193536.7332-1-krzk@kernel.org>
@@ -74,25 +74,49 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 According to device tree specification, device node names should be
 somewhat generic and reflecting the function of the device so add the
-"hog" suffix to wl-reg-on GPIO hog.
+"hog" suffixes to all GPIO hog nodes.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq-evk.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-evk.dts b/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-index 8aa9cd8e495a..a088831d2e24 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-evk.dts
-@@ -157,7 +157,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+index 0d1088dcaa02..fa7a041ffcfd 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+@@ -229,28 +229,28 @@
  	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_wifi_reset>;
+ 	pinctrl-0 = <&pinctrl_gpio3_hog>;
  
--	wl-reg-on {
-+	wl-reg-on-hog {
+-	usb-emulation {
++	usb-emulation-hog {
  		gpio-hog;
- 		gpios = <29 GPIO_ACTIVE_HIGH>;
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		output-low;
+ 		line-name = "usb-emulation";
+ 	};
+ 
+-	usb-mode1 {
++	usb-mode1-hog {
+ 		gpio-hog;
+ 		gpios = <11 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+ 		line-name = "usb-mode1";
+ 	};
+ 
+-	usb-pwr {
++	usb-pwr-hog {
+ 		gpio-hog;
+ 		gpios = <12 GPIO_ACTIVE_LOW>;
+ 		output-high;
+ 		line-name = "usb-pwr-ctrl-en-n";
+ 	};
+ 
+-	usb-mode2 {
++	usb-mode2-hog {
+ 		gpio-hog;
+ 		gpios = <13 GPIO_ACTIVE_HIGH>;
  		output-high;
 -- 
 2.17.1
