@@ -1,87 +1,70 @@
-Return-Path: <SRS0=QDNn=CF=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=VqY2=CG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACB2BC433DF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Aug 2020 20:52:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2902C433E6
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 07:49:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86AA220848
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Aug 2020 20:52:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6017C20CC7
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 07:49:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="a8d/peyy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726266AbgH0UwF (ORCPT
+        id S1726643AbgH1Htu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Aug 2020 16:52:05 -0400
-Received: from smtp4-g21.free.fr ([212.27.42.4]:35916 "EHLO smtp4-g21.free.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726147AbgH0UwF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Aug 2020 16:52:05 -0400
-Received: from [IPv6:2a01:cb1d:6eb:3100:ad4:cff:fee2:7ba1] (unknown [IPv6:2a01:cb1d:6eb:3100:ad4:cff:fee2:7ba1])
-        (Authenticated sender: sed)
-        by smtp4-g21.free.fr (Postfix) with ESMTPSA id DAD4519F61F;
-        Thu, 27 Aug 2020 22:50:30 +0200 (CEST)
-Subject: Re: [PATCH v2 13/13] ARM: s3c24xx: camif: include header with
- prototypes and unify declaration
-To:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        Fri, 28 Aug 2020 03:49:50 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:20893 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726571AbgH1Htt (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 28 Aug 2020 03:49:49 -0400
+X-UUID: 552b9658b9b740db87259b1cbdace8cb-20200828
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=0EKafp0Drld7nVRG3II9HXY8sizTyEYsQ0QqqSX3Mxw=;
+        b=a8d/peyy+GFrYEF9CYvnWm8+9kIJPVnJqhyXSuwUP9asBnqEA9mtfcOABJMTCUnXTfzAqnhVdk2TUlP1GKOQ62vq2e+iNmlToJalzwBREXamkeh7buqxW+5svNfoGo5So3eEWkgR4pjro6OAnQwnqScw/FO9QvIioUoYMXXY1QY=;
+X-UUID: 552b9658b9b740db87259b1cbdace8cb-20200828
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        (envelope-from <freddy.hsin@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 2003930412; Fri, 28 Aug 2020 15:49:47 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 28 Aug 2020 15:49:43 +0800
+Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 28 Aug 2020 15:49:46 +0800
+From:   Freddy Hsin <freddy.hsin@mediatek.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Kukjin Kim <kgene@kernel.org>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Simtec Linux Team <linux@simtec.co.uk>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" 
-        <linux-samsung-soc@vger.kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        patches@opensource.cirrus.com,
-        Sergio Prado <sergio.prado@e-labworks.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        Lihua Yao <ylhuajnu@outlook.com>
-References: <20200804192654.12783-1-krzk@kernel.org>
- <20200804192654.12783-14-krzk@kernel.org>
- <159721917443.33733.7919188364233003142@swboyd.mtv.corp.google.com>
- <CGME20200812091510eucas1p15944eb26bb496e20b9fadd609063a490@eucas1p1.samsung.com>
- <CAK8P3a13u0KY0jzxNLs=irTs6ZSXyObKKTp-8KEmowcOZrZXxQ@mail.gmail.com>
- <8066413c-367d-2f8d-3e7b-dacd954675be@samsung.com>
- <CAK8P3a1xXe56k5nKuCJ-25h1VqWKRb9JGnFrr=SPg_icay-vZA@mail.gmail.com>
- <6ccf14a9-802f-25b8-494d-e957cafd073d@samsung.com>
- <20200812133109.GA15697@pi3>
-From:   Cedric Roux <sed@free.fr>
-Message-ID: <30eb6355-0749-8268-c87a-f389dc4b4f1b@free.fr>
-Date:   Thu, 27 Aug 2020 22:52:26 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+CC:     <wsd_upstream@mediatek.com>, <chang-an.chen@mediatek.com>,
+        <kuohong.wang@mediatek.com>, <chun-hung.wu@mediatek.com>
+Subject: [PATCH 0/1] Refine mtk wdt driver init flow
+Date:   Fri, 28 Aug 2020 15:49:27 +0800
+Message-ID: <1598600968-28498-1-git-send-email-freddy.hsin@mediatek.com>
+X-Mailer: git-send-email 1.7.9.5
 MIME-Version: 1.0
-In-Reply-To: <20200812133109.GA15697@pi3>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-TM-SNTS-SMTP: F61C1D996371B3870C761BAAAB54EFE1717CDD80FFDF00FED470060D87C340982000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 8/12/20 3:31 PM, Krzysztof Kozlowski wrote:
-> Or even more important - is it worth to spend effort and time on this?
-> If there is no single production system using recent Linux kernel, the
-> answer should be negative...
+QWRkIG10a193ZHRfaW5pdCgpIGZ1bmN0aW4gaW4gcHJvYmUgZmxvdyB0byBkZXRlcm1pbmUNCmVu
+YWJsZS9kaXNhYmxlIHRoZSBodyB3YXRjaGRvZyBieSBpdHMgb3JpZ2luYWwgc2V0dGluZw0KDQpG
+cmVkZHkgSHNpbiAoMSk6DQogIGRyaXZlcjogd2F0Y2hkb2c6IEFkZCBtdGtfd2R0X2luaXQgZm9y
+IG1lZGlhdGVrIHdhdGNoZG9nIGh3IGluaXQNCg0KIGRyaXZlcnMvd2F0Y2hkb2cvbXRrX3dkdC5j
+IHwgICAyMiArKysrKysrKysrKysrKysrKysrKystDQogMSBmaWxlIGNoYW5nZWQsIDIxIGluc2Vy
+dGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCg==
 
-Well, I have a server running on mini2440 with a not-too-young
-but not-too-old kernel. I don't have much time to test recent
-kernels though so I guess that doesn't count.
