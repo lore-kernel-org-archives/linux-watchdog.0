@@ -2,221 +2,114 @@ Return-Path: <SRS0=VqY2=CG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BDE9C433E2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5600C433E6
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 678A220665
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A96920665
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1598620175;
+	bh=Jz1R7zl/5TWZ/3q3OHGpTZ7g+KdahLSUuNkMZ/xqGJo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=X3NizA/Sqmwr7p5h9Lze6wMY3NErlQmpyeMImHQ9irMQ2XALmyoLrV70foFhlS6ND
+	 K1F8zSuL1cUQhW3HYcYxMhFRJq+zujh0tu21OBPD3PXK1RCmYxPu2PiRhlpq+as+sO
+	 5pAmQwrWVP/jigudx/4AQBHYK3sNsd9B/oKEJcgE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729485AbgH1NHj (ORCPT
+        id S1729528AbgH1NJY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 Aug 2020 09:07:39 -0400
-Received: from foss.arm.com ([217.140.110.172]:48734 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729416AbgH1NGX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Aug 2020 09:06:23 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E53E211D4;
-        Fri, 28 Aug 2020 06:06:18 -0700 (PDT)
-Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9702A3F66B;
-        Fri, 28 Aug 2020 06:06:17 -0700 (PDT)
-From:   Andre Przywara <andre.przywara@arm.com>
-To:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Viresh Kumar <vireshk@kernel.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 04/10] arm64: dts: freescale: Fix SP805 clock-names
-Date:   Fri, 28 Aug 2020 14:05:56 +0100
-Message-Id: <20200828130602.42203-5-andre.przywara@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200828130602.42203-1-andre.przywara@arm.com>
-References: <20200828130602.42203-1-andre.przywara@arm.com>
+        Fri, 28 Aug 2020 09:09:24 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:35284 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729397AbgH1NIo (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 28 Aug 2020 09:08:44 -0400
+Received: by mail-ed1-f65.google.com with SMTP id ba12so1120747edb.2;
+        Fri, 28 Aug 2020 06:08:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=E+aHZUYr4/xAk5Vx/I2zH6eSvAeQy3DL/RIU7rMycss=;
+        b=E6cZZR0YEuayjCgtPIhKLaUIm015EoxA1zp2DQ3mJjPxd8e8zcjzbcRiES2lP5KKil
+         ZHyxfWyVrPmfud2YWtfm3unM/emunX0V+iZXtBUG9oHa3pw3fCHCAbTTZmfYdIQKHH0U
+         rJT5GRgunJKmH1PyhbcYYS7Btq7HCcNhg5y1FuZZB0Qfo7Sl+fo9v6AMaXS4ztoHCxsR
+         avp1g1C8naIobLfPK0qRzrne94ZuHbkeyJEBl9xZv+olRpo2HmP0MBQXX53WZqcOO/JZ
+         tITcVbeNrmkmMhjjJ2jjzt85u1WmVXTJw2IxcJdBQ6duH9npieWavBV6l1Yrx3NgSErr
+         J7zw==
+X-Gm-Message-State: AOAM531Cr0WRLpsOxHehy9OwhcqbaIGYQtMpX3hNg6pX13RJ2Z2JcA4o
+        /IQpt6b6ooKDnE9aSm6JNU4=
+X-Google-Smtp-Source: ABdhPJw2sUyi5oI180j1s6a0iPM15L1BAjci1fZItmg5NmiUYVf2976kX7V0+smnXtOdifVljCX0Xg==
+X-Received: by 2002:a50:bf08:: with SMTP id f8mr1717050edk.207.1598620121241;
+        Fri, 28 Aug 2020 06:08:41 -0700 (PDT)
+Received: from kozik-lap ([194.230.155.216])
+        by smtp.googlemail.com with ESMTPSA id j21sm849059eja.109.2020.08.28.06.08.39
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 28 Aug 2020 06:08:40 -0700 (PDT)
+Date:   Fri, 28 Aug 2020 15:08:37 +0200
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Han Xu <han.xu@nxp.com>,
+        Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        linux-mtd@lists.infradead.org, linux-pwm@vger.kernel.org,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v3 00/19] dt-bindings / arm64: Cleanup of i.MX 8 bindings
+Message-ID: <20200828130837.GA14163@kozik-lap>
+References: <20200825193536.7332-1-krzk@kernel.org>
+ <CACRpkdb4j2kJvpY23G-os9gTktZW5HT287MsvMZxC=ovgn_9LQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CACRpkdb4j2kJvpY23G-os9gTktZW5HT287MsvMZxC=ovgn_9LQ@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The SP805 binding sets the order of the clock-names to be: "wdog_clk",
-"apb_pclk" (in exactly that order).
+On Fri, Aug 28, 2020 at 02:51:20PM +0200, Linus Walleij wrote:
+> On Tue, Aug 25, 2020 at 9:35 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> 
+> > This is a v3 of cleanup of i.XM 8 bindings and DTSes.
+> 
+> If you are going to be working a lot on Freescale SoC code going forward
+> I wouldn't mind if you could add yourself as maintainer for the
+> Freescale pin controller and GPIO at least, I already have high trust
+> in you in general so if the Freescale maintainers also have that I think you
+> should just sign up as maintainer. This makes it easier to do pull requests
+> and things like that.
 
-Change the order in the DTs for Freescale platforms to match that. The
-two clocks given in all nodes are actually the same, so that does not
-change any behaviour.
+Thanks for encouragement.  Indeed I am planning to do more work around
+i.MX 8M platforms from NXP/Freescale. However there are already four
+maintainers for Freescale pin controller drivers so I doubt there is
+need for fifth entry :).
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
----
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi |  4 ++--
- arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 16 ++++++++--------
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 16 ++++++++--------
- 3 files changed, 18 insertions(+), 18 deletions(-)
+Different question is the GPIO driver which apparently lacks entry in
+Maintainers file.
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 0efeb8fa773e..13c0163939ad 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -722,14 +722,14 @@
- 			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core1_watchdog: watchdog@c010000 {
- 			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		sai1: audio-controller@f100000 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-index 169f4742ae3b..762d571e929c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-@@ -658,56 +658,56 @@
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core1_watchdog: wdt@c010000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core2_watchdog: wdt@c020000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc020000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core3_watchdog: wdt@c030000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc030000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core0_watchdog: wdt@c100000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core1_watchdog: wdt@c110000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core2_watchdog: wdt@c120000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc120000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core3_watchdog: wdt@c130000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc130000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		fsl_mc: fsl-mc@80c000000 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index 41102dacc2e1..d3d87c56616c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -231,56 +231,56 @@
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core1_watchdog: wdt@c010000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core0_watchdog: wdt@c100000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core1_watchdog: wdt@c110000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster3_core0_watchdog: wdt@c200000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc200000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster3_core1_watchdog: wdt@c210000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc210000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster4_core0_watchdog: wdt@c300000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc300000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster4_core1_watchdog: wdt@c310000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc310000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		crypto: crypto@8000000 {
--- 
-2.17.1
+Best regards,
+Krzysztof
 
