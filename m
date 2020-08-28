@@ -2,106 +2,90 @@ Return-Path: <SRS0=VqY2=CG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F191AC433E6
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 12:52:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE7FFC433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:07:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C80A32086A
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 12:52:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Pf4uaxGE"
+	by mail.kernel.org (Postfix) with ESMTP id C7A0E20665
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:07:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729445AbgH1MwI (ORCPT
+        id S1729468AbgH1NHS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 Aug 2020 08:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40644 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729489AbgH1Mvg (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Aug 2020 08:51:36 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB399C061235
-        for <linux-watchdog@vger.kernel.org>; Fri, 28 Aug 2020 05:51:34 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id w14so1178027ljj.4
-        for <linux-watchdog@vger.kernel.org>; Fri, 28 Aug 2020 05:51:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RSrvv0FJmitf6q9JxmYipGO4Y6PZy6cFkX1VzqR3xEU=;
-        b=Pf4uaxGE3D9QkcwZ3m7v40UpPYGsLMXlPXzxXdofFxgCOrudLrDJjKqDtapXdZT1me
-         U/qpgdyHur4b2ylpfOmLYfGRbbgioYR4DE8hUX9n3OD1PsJjx4bY6DfOPPLZ+nR7uoPR
-         t2fPwIQzvGmoNipg0tib+zvmAuyzH0asX7NHoXYzOS+c1S9GjWZHK3ZfK4tTEAShELZn
-         UQgYkmIIjXX9+QwSVHsgwAXyE2t1Y98bukfmK6CGzaKFvQbixk0LvK3eWs+XS6UxLeZr
-         H6WwkkQfXpaJarmhsieD/FOJieotOGDuhvpWyJnLOHQ5bvJH2PkEoyOghCRX7loqwBdo
-         Wlxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RSrvv0FJmitf6q9JxmYipGO4Y6PZy6cFkX1VzqR3xEU=;
-        b=kQv9F5i/H7qKcNX7ajYXFlIe8jg9BvjgYoAKkG//E0JY0QZTKyiVuBIRGsjj3/OhzD
-         vqJP9o0X2JtJVPAZh47ldfS00HlJ4DY6sij+b5pUWjdx9V64YKYUpP1I5ics+u6/GH57
-         eAQbYFVip3RxaSaFVes6aWa4nFuKP01fMyESTLNpAb0ZpptSxMfBgIGnNpHAycsQYc3+
-         5es9Xky7/mWBLTY1Rcm2Tux/HSQl/Yxf4HTrP8TQivN3TYAUEyv/k8nXkVQcQrgsOoBJ
-         4w+Aiw5E655h0E6+UmV5zOuPQVT26hVGffSzZ+iyXM2H59KHb/YLb+vcl/ybPbK/HxKv
-         tKuQ==
-X-Gm-Message-State: AOAM530Xx6Y9uHPqjZpKo9iPtE5RhEUrZzsQq89BEduo111+IcoRYaXy
-        30dq22EPFzjJaG0a69sYKAw1DoaZAWN5i+PWAR61LA==
-X-Google-Smtp-Source: ABdhPJzTyH+jeLvxiBsauaVxTH5hij7/x8BNA+Ly/857QQXdScYFOsf9kjoayIwSsdP0TIKRwlItOzGM4zkgBEGoiX8=
-X-Received: by 2002:a2e:b80b:: with SMTP id u11mr872506ljo.286.1598619091424;
- Fri, 28 Aug 2020 05:51:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200825193536.7332-1-krzk@kernel.org>
-In-Reply-To: <20200825193536.7332-1-krzk@kernel.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 28 Aug 2020 14:51:20 +0200
-Message-ID: <CACRpkdb4j2kJvpY23G-os9gTktZW5HT287MsvMZxC=ovgn_9LQ@mail.gmail.com>
-Subject: Re: [PATCH v3 00/19] dt-bindings / arm64: Cleanup of i.MX 8 bindings
-To:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Han Xu <han.xu@nxp.com>,
-        Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        linux-mtd@lists.infradead.org, linux-pwm@vger.kernel.org,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Fri, 28 Aug 2020 09:07:18 -0400
+Received: from foss.arm.com ([217.140.110.172]:48702 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729386AbgH1NGX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 28 Aug 2020 09:06:23 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A02B7106F;
+        Fri, 28 Aug 2020 06:06:15 -0700 (PDT)
+Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1B17E3F66B;
+        Fri, 28 Aug 2020 06:06:14 -0700 (PDT)
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Viresh Kumar <vireshk@kernel.org>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 02/10] arm64: dts: arm: Fix SP805 clock-names
+Date:   Fri, 28 Aug 2020 14:05:54 +0100
+Message-Id: <20200828130602.42203-3-andre.przywara@arm.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200828130602.42203-1-andre.przywara@arm.com>
+References: <20200828130602.42203-1-andre.przywara@arm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 9:35 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+The SP805 binding sets the name for the actual watchdog clock to
+"wdog_clk" (with an underscore).
 
-> This is a v3 of cleanup of i.XM 8 bindings and DTSes.
+Change the name in the DTs for ARM Ltd. platforms to match that. The
+Linux and U-Boot driver use the *first* clock for this purpose anyway,
+so it does not break anything.
 
-If you are going to be working a lot on Freescale SoC code going forward
-I wouldn't mind if you could add yourself as maintainer for the
-Freescale pin controller and GPIO at least, I already have high trust
-in you in general so if the Freescale maintainers also have that I think you
-should just sign up as maintainer. This makes it easier to do pull requests
-and things like that.
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+---
+ arch/arm64/boot/dts/arm/juno-motherboard.dtsi    | 2 +-
+ arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/arch/arm64/boot/dts/arm/juno-motherboard.dtsi b/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
+index eeee51f1251b..40d95c58b55e 100644
+--- a/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
+@@ -251,7 +251,7 @@
+ 					reg = <0x0f0000 0x10000>;
+ 					interrupts = <7>;
+ 					clocks = <&mb_clk24mhz>, <&soc_smc50mhz>;
+-					clock-names = "wdogclk", "apb_pclk";
++					clock-names = "wdog_clk", "apb_pclk";
+ 				};
+ 
+ 				v2m_timer01: timer@110000 {
+diff --git a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
+index 001a0a3c7f66..4c4a381d2c75 100644
+--- a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
++++ b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
+@@ -195,7 +195,7 @@
+ 					reg = <0x0f0000 0x1000>;
+ 					interrupts = <0>;
+ 					clocks = <&v2m_refclk32khz>, <&v2m_clk24mhz>;
+-					clock-names = "wdogclk", "apb_pclk";
++					clock-names = "wdog_clk", "apb_pclk";
+ 				};
+ 
+ 				v2m_timer01: timer@110000 {
+-- 
+2.17.1
+
