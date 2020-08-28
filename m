@@ -4,41 +4,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83DBAC433E7
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE9EC433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:10:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6169C208C9
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:09:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92A5B20872
+	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Aug 2020 13:10:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729123AbgH1NJt (ORCPT
+        id S1729547AbgH1NJs (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 Aug 2020 09:09:49 -0400
-Received: from foss.arm.com ([217.140.110.172]:48826 "EHLO foss.arm.com"
+        Fri, 28 Aug 2020 09:09:48 -0400
+Received: from foss.arm.com ([217.140.110.172]:48816 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729458AbgH1NHh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1729431AbgH1NHh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 28 Aug 2020 09:07:37 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0BE6514BF;
-        Fri, 28 Aug 2020 06:06:27 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 599A51396;
+        Fri, 28 Aug 2020 06:06:20 -0700 (PDT)
 Received: from donnerap.arm.com (donnerap.cambridge.arm.com [10.1.195.35])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7B95D3F66B;
-        Fri, 28 Aug 2020 06:06:25 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 254E43F66B;
+        Fri, 28 Aug 2020 06:06:19 -0700 (PDT)
 From:   Andre Przywara <andre.przywara@arm.com>
 To:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
 Cc:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Viresh Kumar <vireshk@kernel.org>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        bcm-kernel-feedback-list@broadcom.com
-Subject: [PATCH 09/10] ARM: dts: NSP: Fix SP805 clock-names
-Date:   Fri, 28 Aug 2020 14:06:01 +0100
-Message-Id: <20200828130602.42203-10-andre.przywara@arm.com>
+        Wei Xu <xuwei5@hisilicon.com>
+Subject: [PATCH 05/10] arm64: dts: hisilicon: Fix SP805 clocks
+Date:   Fri, 28 Aug 2020 14:05:57 +0100
+Message-Id: <20200828130602.42203-6-andre.przywara@arm.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200828130602.42203-1-andre.przywara@arm.com>
 References: <20200828130602.42203-1-andre.przywara@arm.com>
@@ -47,31 +44,65 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The SP805 binding sets the name for the actual watchdog clock to
-"wdog_clk" (with an underscore).
+The SP805 DT binding requires two clocks to be specified, but
+Hisilicon platform DTs currently only specify one clock.
 
-Change the name in the DTs for the Broadcom NSP platform to match that.
-The Linux and U-Boot driver use the *first* clock for this purpose
-anyway, so it does not break anything.
+In practice, Linux would pick a clock named "apb_pclk" for the bus
+clock, and the Linux and U-Boot SP805 driver would use the first clock
+to derive the actual watchdog counter frequency.
+
+Since currently both are the very same clock, we can just double the
+clock reference, and add the correct clock-names, to match the binding.
 
 Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 ---
- arch/arm/boot/dts/bcm-nsp.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/hisilicon/hi3660.dtsi | 10 ++++++----
+ arch/arm64/boot/dts/hisilicon/hi6220.dtsi |  5 +++--
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
-index 1333ef8be0a2..351908b4a39c 100644
---- a/arch/arm/boot/dts/bcm-nsp.dtsi
-+++ b/arch/arm/boot/dts/bcm-nsp.dtsi
-@@ -438,7 +438,7 @@
- 			reg = <0x39000 0x1000>;
- 			interrupts = <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&iprocslow>, <&iprocslow>;
--			clock-names = "wdogclk", "apb_pclk";
+diff --git a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
+index d25aac5e0bf8..994140fbc916 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
+@@ -1089,16 +1089,18 @@
+ 			compatible = "arm,sp805-wdt", "arm,primecell";
+ 			reg = <0x0 0xe8a06000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&crg_ctrl HI3660_OSC32K>;
+-			clock-names = "apb_pclk";
++			clocks = <&crg_ctrl HI3660_OSC32K>,
++				 <&crg_ctrl HI3660_OSC32K>;
 +			clock-names = "wdog_clk", "apb_pclk";
  		};
  
- 		lcpll0: lcpll0@3f100 {
+ 		watchdog1: watchdog@e8a07000 {
+ 			compatible = "arm,sp805-wdt", "arm,primecell";
+ 			reg = <0x0 0xe8a07000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&crg_ctrl HI3660_OSC32K>;
+-			clock-names = "apb_pclk";
++			clocks = <&crg_ctrl HI3660_OSC32K>,
++				 <&crg_ctrl HI3660_OSC32K>;
++			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		tsensor: tsensor@fff30000 {
+diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+index 3d189d9f0d24..6578f8191d71 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+@@ -843,8 +843,9 @@
+ 			compatible = "arm,sp805-wdt", "arm,primecell";
+ 			reg = <0x0 0xf8005000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ao_ctrl HI6220_WDT0_PCLK>;
+-			clock-names = "apb_pclk";
++			clocks = <&ao_ctrl HI6220_WDT0_PCLK>,
++				 <&ao_ctrl HI6220_WDT0_PCLK>;
++			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		tsensor: tsensor@0,f7030700 {
 -- 
 2.17.1
 
