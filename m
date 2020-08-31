@@ -2,85 +2,100 @@ Return-Path: <SRS0=1S4C=CJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FE88C43461
-	for <linux-watchdog@archiver.kernel.org>; Mon, 31 Aug 2020 03:25:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DB37C433E6
+	for <linux-watchdog@archiver.kernel.org>; Mon, 31 Aug 2020 03:55:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7507F20DD4
-	for <linux-watchdog@archiver.kernel.org>; Mon, 31 Aug 2020 03:25:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598844311;
-	bh=OTw00Oc3Wju4RQXg/5vC2M1kiJAGqeJnd4hSVyX2Nho=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vhfYmhGxrnwwQia+l11UFhQ7yUh+XcUmpZezb6Pa4fUAZ6rKKqbt51P59sQWJJsV0
-	 VngFf1ENli0X5ZXXErqA+xNbwZMtsxGNeg6Ug47w+9Qg1lIwFwcNoym4PeS/EHdMTr
-	 Hq91oPri47AXOomS0puAc+vgz4l9Mn7KhZL5gJs8=
+	by mail.kernel.org (Postfix) with ESMTP id 6EDA42076D
+	for <linux-watchdog@archiver.kernel.org>; Mon, 31 Aug 2020 03:55:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZIOAaWCI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727940AbgHaDZL (ORCPT
+        id S1726687AbgHaDzR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 30 Aug 2020 23:25:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727043AbgHaDZK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 30 Aug 2020 23:25:10 -0400
-Received: from dragon (80.251.214.228.16clouds.com [80.251.214.228])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E36D4206A5;
-        Mon, 31 Aug 2020 03:25:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598844309;
-        bh=OTw00Oc3Wju4RQXg/5vC2M1kiJAGqeJnd4hSVyX2Nho=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rVLLTDyxwzW/PJVfK7yIzJrqtfSe/2PHz//izP4j8Y1/zK30FLylp1/r8uA1YD9EQ
-         O/Eo6rpof3wr8IQspo+5OD8HskGGJ+jFmTGDC2D7EL/pU3JUHqIWUqAfFfnhCYU3Y9
-         GIa7il8sA0rs8/VrFkDjwwIbiGp4mlzE94bl2Bvo=
-Date:   Mon, 31 Aug 2020 11:25:01 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Han Xu <han.xu@nxp.com>,
-        Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-pwm@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 19/19] arm64: dts: imx8mq-zii-ultra: Add hog suffixes
- to GPIO hogs
-Message-ID: <20200831032501.GI4488@dragon>
-References: <20200825193536.7332-1-krzk@kernel.org>
- <20200825193536.7332-20-krzk@kernel.org>
+        Sun, 30 Aug 2020 23:55:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726584AbgHaDzP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 30 Aug 2020 23:55:15 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79838C061573;
+        Sun, 30 Aug 2020 20:55:15 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id b124so2132200pfg.13;
+        Sun, 30 Aug 2020 20:55:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Wg8+XIELhXp1eOdAN1w0GvhqUi4hDTzyY8WpXV067qI=;
+        b=ZIOAaWCIccTssd8TBtoljJNC1Zwi3xB+EeHq/60odFFAk7ap8xCAJCLbYzoAbM9EvE
+         mCuNBS/ZLA3cCd8n52aUzN+tzrLAUvBdFMA4nUqWww9YaxhFy19cGGkady3n14TNgzg9
+         oDs8yKQNE/djZPGM4NZJ2Pi1xMJcq0JKV+RTTKUo7F8cRWks/ZteMwSBnRA3fm/xzz/w
+         piSw9yUeLiRZ1pDElxyt0aSPYoS+phKxHejB7BcahILkJERw3ec9FPUCcv3uo2+0j0XJ
+         mqHT1RoewguMx6lHn5ht6MjWdLcyUuhaRisGZeQSXIAUxy3R2Pb3F7VjKogyYzAHbygE
+         9tow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Wg8+XIELhXp1eOdAN1w0GvhqUi4hDTzyY8WpXV067qI=;
+        b=QFq2I9oLsArhn7DQs5tGPYtjfCW0iFs+VSScHgSUBFmEq/qp6uak4UG9UBmhkjokrd
+         lXiqwQW5BVCKct5z8JO0Soe95b8NCsk3+2gKiWrLRcmh1Lh6Tp3zSsGfcQzUEIBcdO7W
+         edkvchKPizqKyAdS1I3DSHNdDu3YdH1WWsC5iHR5HkS89fUzvXpuFo9gi6c8qzNRkLsF
+         nNoBqvzOr2Dt+cfjONYyd60cx2FkK8Pl8XxwI6j0YluBVM+z7oFWWqN5I9cfIDvh05CS
+         SbdvSjJFRdnh3PtNTmL99I5HR79qwm5pEx6rWuUuD1Yui9KftECIAiC2ql+kFxtxzMTX
+         zkJg==
+X-Gm-Message-State: AOAM5323XrtSUy5iRBlj+YBKB3O0lE7KhILH7DdSur/WvxAz4LEUJF1U
+        1WhBaoPrRhhiPfNccVhDOmpMAkLmb80=
+X-Google-Smtp-Source: ABdhPJw99fF7LlZyPCLHC4RpRR0gK4EMFXPGa4u154dgttVI2xu8puoWvDDlaHgC3hUpn/X2w8NA8g==
+X-Received: by 2002:a62:7d51:: with SMTP id y78mr7931535pfc.182.1598846114937;
+        Sun, 30 Aug 2020 20:55:14 -0700 (PDT)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id p9sm5602658pjm.1.2020.08.30.20.55.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Aug 2020 20:55:14 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     bcm-kernel-feedback-list@broadcom.com,
+        Andre Przywara <andre.przywara@arm.com>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Viresh Kumar <vireshk@kernel.org>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>
+Subject: Re: [PATCH 08/10] ARM: dts: Cygnus: Fix SP805 clocks
+Date:   Sun, 30 Aug 2020 20:55:06 -0700
+Message-Id: <20200831035506.1332109-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200828130602.42203-9-andre.przywara@arm.com>
+References: <20200828130602.42203-1-andre.przywara@arm.com> <20200828130602.42203-9-andre.przywara@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200825193536.7332-20-krzk@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 09:35:36PM +0200, Krzysztof Kozlowski wrote:
-> According to device tree specification, device node names should be
-> somewhat generic and reflecting the function of the device so add the
-> "hog" suffixes to all GPIO hog nodes.
+On Fri, 28 Aug 2020 14:06:00 +0100, Andre Przywara <andre.przywara@arm.com> wrote:
+> The SP805 DT binding requires two clocks to be specified, but the
+> Broadcom Cygnus DT currently only specifies one clock.
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> In practice, Linux would pick a clock named "apb_pclk" for the bus
+> clock, and the Linux and U-Boot SP805 driver would use the first clock
+> to derive the actual watchdog counter frequency.
+> 
+> Since currently both are the very same clock, we can just double the
+> clock reference, and add the correct clock-names, to match the binding.
+> 
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> ---
 
-Applied, thanks.
+Applied to qspi-fixes, thanks!
+--
+Florian
