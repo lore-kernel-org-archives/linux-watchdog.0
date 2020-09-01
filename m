@@ -2,113 +2,158 @@ Return-Path: <SRS0=ZOXR=CK=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E504C433E2
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Sep 2020 15:51:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB9CDC433E7
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Sep 2020 15:56:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C1DC2064B
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Sep 2020 15:51:23 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtgpeBdN"
+	by mail.kernel.org (Postfix) with ESMTP id D6E8F206EB
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Sep 2020 15:56:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbgIAPvP (ORCPT
+        id S1732160AbgIAP4z (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Sep 2020 11:51:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57234 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732148AbgIAPtz (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Sep 2020 11:49:55 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69CCC061244;
-        Tue,  1 Sep 2020 08:49:55 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id g6so812017pjl.0;
-        Tue, 01 Sep 2020 08:49:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=NGBSU+CgLpSPsdC80u7iauksX1Sac24OXoCHOndJlzQ=;
-        b=GtgpeBdNqm5lRLgGo6xrb0yDPoWjyEONbkVcVJWHSAH2a/OJ5fYndn88ybZaSRojH3
-         hmo8XjgwKA8PFT30NIGlkak6hIHKA8yBUcmgWKBjcZHbI3CmuR0ftsIcYFpacDXcBWy2
-         DDZE7ffgv+z9N9gFYdhIPlNOILq1nVJdijon2jGFMxqQSg7C4iEOF/rwtXHSoKqeq2LG
-         i7IXDGwLGDuK7ZoTqL0fuz3Wk08UJ59pzR+NjxYcep9f1imQTdERtJ52Sv6Lsy2ylPbz
-         jdW+ZsfymZSYdJaj8ksrXcDTrpPZxBHXdGy+r21IYy15Hsbo+l41I91LyDCN/B3tZiRd
-         cfvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=NGBSU+CgLpSPsdC80u7iauksX1Sac24OXoCHOndJlzQ=;
-        b=npZ0P/pAsxISFI4w//9nB5RhD+AeYGVPxTgTpRg/QuMQ3bZAYXbPQDfVHa0HBEx59g
-         1cRjje85yhS8YscTXrTlMMkWKvOe+8EaAStJr7iSdvUA6FQNjIL+yHhqUIBNwi3bg6ks
-         cLp3IHzwS3SwIVD45F4Eybou8IeNkL81KSx8EflFXICgzTmcYknI8Iae8HT6sLG1YaW6
-         3VAkHqYe4I04yUm3doJlh7qw2Vyz7hnSeYB+Ofspc97dXW1SR7cWY7smApq1gzRFziHV
-         pUKNQZpuD2QUNQHnFOiZ2B47XLCZ6oB4tFpQm/hUi3uDKbxGYpTcy8M4o7nL4sIqpYLL
-         72Bw==
-X-Gm-Message-State: AOAM531DmSCPnyXqwVjYUpY/T0yIukZuKs/F+2m3iq/mfd5bqk/HJh2V
-        Maoy7ftpETJXCYIUObYgQAK8k35ENC0=
-X-Google-Smtp-Source: ABdhPJyVvVkxeG1bRyYB6J4ng9wXy9QZQTOfz4+UAKVr6JMVhJXHXri/dn+mDxtt84mBPMpWr/02RQ==
-X-Received: by 2002:a17:902:7790:: with SMTP id o16mr1992754pll.299.1598975395197;
-        Tue, 01 Sep 2020 08:49:55 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c3sm2458634pfo.120.2020.09.01.08.49.53
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 01 Sep 2020 08:49:53 -0700 (PDT)
-Date:   Tue, 1 Sep 2020 08:49:52 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] watchdog: cadence: Simplify with dev_err_probe()
-Message-ID: <20200901154952.GA106798@roeck-us.net>
-References: <20200901153141.18960-1-krzk@kernel.org>
+        Tue, 1 Sep 2020 11:56:55 -0400
+Received: from foss.arm.com ([217.140.110.172]:44610 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731364AbgIAP4f (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 1 Sep 2020 11:56:35 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BFAE91045;
+        Tue,  1 Sep 2020 08:56:34 -0700 (PDT)
+Received: from [192.168.2.22] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 17F3C3F71F;
+        Tue,  1 Sep 2020 08:56:31 -0700 (PDT)
+Subject: Re: [PATCH 00/10] dt-bindings: Convert SP805 to Json-schema (and fix
+ users)
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Viresh Kumar <vireshk@kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Chanho Min <chanho.min@lge.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Wei Xu <xuwei5@hisilicon.com>
+References: <20200828130602.42203-1-andre.przywara@arm.com>
+ <19c6a67e-48f0-c0b6-3653-32a5a1f09e07@gmail.com>
+ <CAL_JsqKvcGAotS6xL7pu+wM8X33PLCQCuoaXYmWrA3j3OdoR5A@mail.gmail.com>
+ <bbba0345-f1e3-a240-eaca-d67fa5f8259b@gmail.com>
+From:   =?UTF-8?Q?Andr=c3=a9_Przywara?= <andre.przywara@arm.com>
+Autocrypt: addr=andre.przywara@arm.com; prefer-encrypt=mutual; keydata=
+ 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
+ i4aIXCH3Wv6K
+Organization: ARM Ltd.
+Message-ID: <5fc1f463-7d48-e1e1-e316-3083becf8c34@arm.com>
+Date:   Tue, 1 Sep 2020 16:56:13 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200901153141.18960-1-krzk@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <bbba0345-f1e3-a240-eaca-d67fa5f8259b@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Sep 01, 2020 at 05:31:39PM +0200, Krzysztof Kozlowski wrote:
-> Common pattern of handling deferred probe can be simplified with
-> dev_err_probe().  Less code and the error value gets printed.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+On 28/08/2020 22:32, Florian Fainelli wrote:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Hi,
 
-> ---
->  drivers/watchdog/cadence_wdt.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
+Florian, thanks for queueing the Broadcom specific patches!
+
+> On 8/28/20 2:28 PM, Rob Herring wrote:
+>> On Fri, Aug 28, 2020 at 1:34 PM Florian Fainelli <f.fainelli@gmail.com> wrote:
+>>>
+>>> On 8/28/20 6:05 AM, Andre Przywara wrote:
+>>>> This is an attempt to convert the SP805 watchdog DT binding to yaml.
+>>>> This is done in the first patch, the remaining nine fix some DT users.
+>>>>
+>>>> I couldn't test any of those DT files on actual machines, but tried
+>>>> to make the changes in a way that would be transparent to at least the
+>>>> Linux driver. The only other SP805 DT user I could find is U-Boot, which
+>>>> seems to only use a very minimal subset of the binding (just the first
+>>>> clock).
+>>>> I only tried to fix those DTs that were easily and reliably fixable.
+>>>> AFAICT, a missing primecell compatible string, for instance, would
+>>>> prevent the Linux driver from probing the device at all, so I didn't
+>>>> dare to touch those DTs at all. Missing clocks are equally fatal.
+>>>
+>>> What is the plan for merging this series? Should Rob pick up all changes
+>>> or since those are non critical changes, should we just leave it to the
+>>> SoC maintainers to pick up the changes in their tree?
+>>
+>> I don't take .dts files. Either subarch maintainers can pick up
+>> individual patches or send a PR to SoC maintainers.
 > 
-> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-> index 672b184da875..bc99e9164930 100644
-> --- a/drivers/watchdog/cadence_wdt.c
-> +++ b/drivers/watchdog/cadence_wdt.c
-> @@ -334,12 +334,9 @@ static int cdns_wdt_probe(struct platform_device *pdev)
->  	watchdog_set_drvdata(cdns_wdt_device, wdt);
->  
->  	wdt->clk = devm_clk_get(dev, NULL);
-> -	if (IS_ERR(wdt->clk)) {
-> -		ret = PTR_ERR(wdt->clk);
-> -		if (ret != -EPROBE_DEFER)
-> -			dev_err(dev, "input clock not found\n");
-> -		return ret;
-> -	}
-> +	if (IS_ERR(wdt->clk))
-> +		return dev_err_probe(dev, PTR_ERR(wdt->clk),
-> +				     "input clock not found\n");
->  
->  	ret = clk_prepare_enable(wdt->clk);
->  	if (ret) {
-> -- 
-> 2.17.1
-> 
+> OK, so we are fine, to say make sure this all lands in v5.10-rc1 at some
+> point and the warnings should no longer exist by then?
+
+So yes, I would be very grateful if subsystem maintainers take this at
+their discretion.
+For once, I didn't actually change anything in the binding, so most
+things were already slightly wrong according to the .txt binding, just
+nobody realised or cared. So those .dts files changes are actually
+independent and justified even without patch 01/10.
+
+Secondly, there are already so many warnings in many .dts files at the
+moment, that (in the worst case) a few more - for a brief period of time
+- do not really matter. But at the end it will improve the situation.
+
+Rob, if you are fine with the actual binding, I would try to pursue the
+remaining subsystem maintainers to get the .dts changes merged.
+
+Thanks,
+Andre.
