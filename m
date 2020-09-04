@@ -2,121 +2,117 @@ Return-Path: <SRS0=HIY2=CN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66FC9C2BB84
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D68A9C433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:30:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 387682074D
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:27:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599233234;
-	bh=sKvZCsZobU7Bh4Xu+fGf9ZJCYmD7SquliyFmgqG50Oo=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=j0OCh5VlYy3+CP5m/G43rE32vb0fN7CtocwgZUIvVnSpSdW1F+LrRr0YvSwLGxO5x
-	 BIpcBa5ZPIOJkqr2y3EOfZOn6W02Mau4X5vA05dVLxan3yOjlpLNBcKJhFVXoj7D6f
-	 1/Jg2JQP5tiOZlsalMXXwNdNLnVgZLUZ5lxhuEkw=
+	by mail.kernel.org (Postfix) with ESMTP id A95E520829
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:30:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qPYjFdX5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730939AbgIDPYW (ORCPT
+        id S1726109AbgIDPaD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:24:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730829AbgIDPYU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:24:20 -0400
-Received: from kozik-lap.mshome.net (unknown [194.230.155.106])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB3F420770;
-        Fri,  4 Sep 2020 15:24:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599233059;
-        bh=sKvZCsZobU7Bh4Xu+fGf9ZJCYmD7SquliyFmgqG50Oo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sV58pfGmmWQn8uohb/hknW48UOzALop3pIk3iQCR4uyFQ0gZyZbkeRJ5Qu8MEqccx
-         Mkiwo6Wf3oJFhnVa4ToV7+vibP0Ihhvq3O5bvcBpigvWvC8sLMGLbJFQuBKgZhExcg
-         M/98mPuaOqB0LDnKCPaiqseidOtLyrZLK/gWkZYU=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Rob Herring <robh+dt@kernel.org>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-pwm@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 00/14] dt-bindings: Cleanup of i.MX 8
-Date:   Fri,  4 Sep 2020 17:23:50 +0200
-Message-Id: <20200904152404.20636-1-krzk@kernel.org>
-X-Mailer: git-send-email 2.17.1
+        Fri, 4 Sep 2020 11:30:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41352 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725984AbgIDPaC (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 4 Sep 2020 11:30:02 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331D2C061244;
+        Fri,  4 Sep 2020 08:30:02 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id gf14so3195992pjb.5;
+        Fri, 04 Sep 2020 08:30:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=iebi0z2mlsaS/MsI2PAICvEB1QQjSGqa/F+RwGkGDOI=;
+        b=qPYjFdX5evc0l2TJ203QDpjrFD6lufBE+yb+11A/VO/XZ6rv25HLw62qs9LAJL1XYO
+         ii8//MHd1dduxpUkQRGcf2d9untvUQrKXQyEWBVTiPzC6PiE9XRsMNhuoBAp1ZJ8jykl
+         hdfsFk7xGuDq9swEYSEw5HOpv6s1zyk1YLyeN5sAskT1ifGgeuvmaZVGRKEOw4Q9Z42Y
+         f6TDMFdIsTdXLvzKDS0slyfLls+i4gmwUz/BhcigDEMZPdRXtgaKigCGSkTNZLL+wYjE
+         eCQdts4zkpStdcUOr2mywi+Oei4RUi8QEpYNM5GYksnyC+K5INGITXR+d/FAp1LDw2YB
+         4SAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iebi0z2mlsaS/MsI2PAICvEB1QQjSGqa/F+RwGkGDOI=;
+        b=T2TKXqzI/8J42zGMea/Wj1dGvILt7cZeiCAu4Y7rCj4ANkrztZ5fSCMYcxXzsgwM8s
+         QdHUOlWfQUReAxs9C1hwVZ653bMvF0nS4kVXQaLtmDI2ZYiSXPpgbh9QJ3infL+fOSv/
+         5vG2mtfswDzKfQ1hRV6izgYQuS+jBn9lR9ZxRNRyxlvhVtiqBYyzErR/WwkB+wsVVCba
+         JLOy6jOlElLcwaBLRL/sOEuJZwjEwijrcIKHdAXpQzWfcSYaPXYjjdGfW0+X3suIl5Mb
+         qkUsnSwPgGEissSrSkT+AbgzK5irFi8FzUmEpbwVfosZ/K8I+l0Xm1qRTBSNs8/LEExC
+         u7Vg==
+X-Gm-Message-State: AOAM5314gQReqFBDO24jgVjytsKFE7v+jyGZqQGXJZHKgM7Hg/R9F+nn
+        1JrPKZO0XKA9gpV1rnWJapU=
+X-Google-Smtp-Source: ABdhPJz2hYfNBzOEEK9l+8DUohjFIb9XcVD4neyJl/SxS3d+OlhUR9w3ukXGK2jcYC7brorIMOkPsg==
+X-Received: by 2002:a17:90b:4a4f:: with SMTP id lb15mr7224272pjb.146.1599233401669;
+        Fri, 04 Sep 2020 08:30:01 -0700 (PDT)
+Received: from [10.230.30.107] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id w10sm5603097pjq.46.2020.09.04.08.29.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Sep 2020 08:30:01 -0700 (PDT)
+Subject: Re: [PATCH 00/10] dt-bindings: Convert SP805 to Json-schema (and fix
+ users)
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Viresh Kumar <vireshk@kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Chanho Min <chanho.min@lge.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Wei Xu <xuwei5@hisilicon.com>
+References: <20200828130602.42203-1-andre.przywara@arm.com>
+ <19c6a67e-48f0-c0b6-3653-32a5a1f09e07@gmail.com>
+ <CACRpkdbMbNd87145iwdL7=x501cvgU7wiZXNLF456sn6WvoodQ@mail.gmail.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <302c54fd-5183-c8d0-7038-f6e60c7bb056@gmail.com>
+Date:   Fri, 4 Sep 2020 08:29:57 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.2.1
+MIME-Version: 1.0
+In-Reply-To: <CACRpkdbMbNd87145iwdL7=x501cvgU7wiZXNLF456sn6WvoodQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Rob,
-
-I am resending the series (v3) without actual changes.  You already
-reviewed many of them.  I think that subsystem maintainers are hesitant
-to pick them up, so maybe this could go via your tree (all of them)?
-
-Changes against previous revisions are in individual patches.
-
-Best regards,
-Krzysztof
 
 
-Krzysztof Kozlowski (14):
-  dt-bindings: perf: fsl-imx-ddr: Add i.MX 8M compatibles
-  dt-bindings: pwm: imx-pwm: Add i.MX 8M compatibles
-  dt-bindings: serial: fsl-imx-uart: Add i.MX 8M compatibles
-  dt-bindings: serial: fsl-lpuart: Fix compatible matching
-  dt-bindings: watchdog: fsl-imx-wdt: Add i.MX 8M compatibles
-  dt-bindings: reset: fsl,imx7-src: Add i.MX 8M compatibles
-  dt-bindings: thermal: imx8mm-thermal: Add i.MX 8M Nano compatible
-  dt-bindings: nvmem: imx-ocotp: Update i.MX 8M compatibles
-  dt-bindings: mfd: rohm,bd71847-pmic: Correct clock properties
-    requirements
-  dt-bindings: interrupt-controller: fsl,irqsteer: Fix compatible
-    matching
-  dt-bindings: mtd: gpmi-nand: Add i.MX 8M compatibles
-  dt-bindings: mtd: gpmi-nand: Fix matching of clocks on different SoCs
-  dt-bindings: mtd: nand-controller: Fix matching with size-cells==1
-  dt-bindings: clock: imx8m: Integrate duplicated i.MX 8M schemas
+On 9/4/2020 1:58 AM, Linus Walleij wrote:
+> On Fri, Aug 28, 2020 at 9:34 PM Florian Fainelli <f.fainelli@gmail.com> wrote:
+>> On 8/28/20 6:05 AM, Andre Przywara wrote:
+> 
+>> What is the plan for merging this series? Should Rob pick up all changes
+>> or since those are non critical changes, should we just leave it to the
+>> SoC maintainers to pick up the changes in their tree?
+> 
+> What about André just send a pull request to the ARM SoC maintainers
+> for the whole thing?
 
- .../bindings/clock/imx8m-clock.yaml           | 125 ++++++++++++++++++
- .../bindings/clock/imx8mm-clock.yaml          |  68 ----------
- .../bindings/clock/imx8mn-clock.yaml          |  70 ----------
- .../bindings/clock/imx8mp-clock.yaml          |  70 ----------
- .../bindings/clock/imx8mq-clock.yaml          |  72 ----------
- .../interrupt-controller/fsl,irqsteer.yaml    |   8 +-
- .../bindings/mfd/rohm,bd71847-pmic.yaml       |   9 +-
- .../devicetree/bindings/mtd/gpmi-nand.yaml    |  94 ++++++++++---
- .../bindings/mtd/nand-controller.yaml         |   5 +-
- .../devicetree/bindings/nvmem/imx-ocotp.yaml  |  38 +++---
- .../devicetree/bindings/perf/fsl-imx-ddr.yaml |  16 ++-
- .../devicetree/bindings/pwm/imx-pwm.yaml      |  14 +-
- .../bindings/reset/fsl,imx7-src.yaml          |  19 ++-
- .../bindings/serial/fsl-imx-uart.yaml         |   4 +
- .../bindings/serial/fsl-lpuart.yaml           |  17 ++-
- .../bindings/thermal/imx8mm-thermal.yaml      |  10 +-
- .../bindings/watchdog/fsl-imx-wdt.yaml        |  11 +-
- 17 files changed, 303 insertions(+), 347 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/clock/imx8m-clock.yaml
- delete mode 100644 Documentation/devicetree/bindings/clock/imx8mm-clock.yaml
- delete mode 100644 Documentation/devicetree/bindings/clock/imx8mn-clock.yaml
- delete mode 100644 Documentation/devicetree/bindings/clock/imx8mp-clock.yaml
- delete mode 100644 Documentation/devicetree/bindings/clock/imx8mq-clock.yaml
-
+I already applied some of the patches, if we got that route please CC me 
+so I can drop them from my local queue. Thanks
 -- 
-2.17.1
-
+Florian
