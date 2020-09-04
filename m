@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F9E6C43461
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62EEEC43461
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 438262074D
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2791B2074D
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599233113;
-	bh=AsONb93CXsGCysEwXEAxnPU7VWFjSTyiaEX2pb1M2ZE=;
+	s=default; t=1599233117;
+	bh=sGtFPuXEsVbIrliCojcp2Mbe+DlIhAJbh8Iyk2PAwVI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=dEmxO90JIhvRnC5iSnmrOcf3JqC00fd/BgzxvMEE+aSv9ZZ59bbAW70Pi95pt2lsp
-	 +tFlqMSz891Wdl/2VH8w4kBhE27XMc1DfwSzmx+gmiLXgUrWYyrY6jCV5M3/7Ix7Mt
-	 g3S6ey28qqNHZktvuyErH38bZdIJSxDmIRey2fos=
+	b=rI7I4eZ6fhW7PraowQAdbkr84NpBrKgu8Eh1Op05DCJhBTTd2OjJ6s/MfZufpD5bB
+	 hij5J9vfQSBVoPKbRUBfecoh+UORWlmfrrg957v6r8Pzlg7/gz55+bR4d/TelwSoDO
+	 Aa1z7RxzIIPCH67wOg6ewFoglOgDtYO/I/hsBhCw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730810AbgIDPZE (ORCPT
+        id S1731042AbgIDPZN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:25:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33654 "EHLO mail.kernel.org"
+        Fri, 4 Sep 2020 11:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731025AbgIDPY4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:24:56 -0400
+        id S1730890AbgIDPZG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 4 Sep 2020 11:25:06 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.106])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60DEF20772;
-        Fri,  4 Sep 2020 15:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 191C020770;
+        Fri,  4 Sep 2020 15:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599233095;
-        bh=AsONb93CXsGCysEwXEAxnPU7VWFjSTyiaEX2pb1M2ZE=;
+        s=default; t=1599233105;
+        bh=sGtFPuXEsVbIrliCojcp2Mbe+DlIhAJbh8Iyk2PAwVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDpqGE7KH8BNydNe5y8eAGpsNvjKveDRcRWy/plCr6Zn+t+lb/me7GDRN3F98FfMK
-         VIaoZuwzOlnAA1eMW+icWk5gDnZmWYnCkSo60x2a11m+TrFMCeDG0tzx5dqZPYq5gF
-         e6IMCVUblw5xbGOYT9yDPPQ+uLCnIJ4etg6bSX6o=
+        b=zRirnnYd3FGxe0dUFdE8DvFE0FU/H0s3bbImFJXNJW7w9evOqWZTQvYfzxOY3YSJH
+         UuGEI33eBHTyUJ/lPD9ZTMWgvqgfrMRjcrklGPX6f92Z508TII5K67hwppcAVQw5dC
+         oBwibSc/29+qW9X+xSWPKGcoQ3CmZglEAs2qSsgY=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -54,9 +54,9 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         NXP Linux Team <linux-imx@nxp.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 08/14] dt-bindings: nvmem: imx-ocotp: Update i.MX 8M compatibles
-Date:   Fri,  4 Sep 2020 17:23:58 +0200
-Message-Id: <20200904152404.20636-9-krzk@kernel.org>
+Subject: [PATCH v3 10/14] dt-bindings: interrupt-controller: fsl,irqsteer: Fix compatible matching
+Date:   Fri,  4 Sep 2020 17:24:00 +0200
+Message-Id: <20200904152404.20636-11-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200904152404.20636-1-krzk@kernel.org>
 References: <20200904152404.20636-1-krzk@kernel.org>
@@ -65,75 +65,38 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-DTSes with new i.MX 8M SoCs use two compatibles so update the binding to
-fix dtbs_check warnings like:
+The i.MX 8M DTSes use two compatibles so update the binding to fix
+dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: efuse@30350000: compatible:1: 'syscon' was expected
-    From schema: Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
+  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
+    compatible: ['fsl,imx8m-irqsteer', 'fsl,imx-irqsteer'] is too long
+    From schema: Domentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
 
-  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: efuse@30350000:
-    compatible: ['fsl,imx8mn-ocotp', 'fsl,imx8mm-ocotp', 'syscon'] is too long
-
-  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: efuse@30350000:
-    compatible: Additional items are not allowed ('syscon' was unexpected)
+  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
+    compatible: Additional items are not allowed ('fsl,imx-irqsteer' was unexpected)
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Reviewed-by: Rob Herring <robh@kernel.org>
-
 ---
+ .../bindings/interrupt-controller/fsl,irqsteer.yaml       | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Changes since v2:
-1. Remove moved compatibles.
----
- .../devicetree/bindings/nvmem/imx-ocotp.yaml  | 38 +++++++++++--------
- 1 file changed, 23 insertions(+), 15 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml b/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
-index 1c9d7f05f173..5a7284737229 100644
---- a/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
-+++ b/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
-@@ -19,21 +19,29 @@ allOf:
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
+index 360a575ef8b0..3b11a1a15398 100644
+--- a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
++++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
+@@ -11,9 +11,11 @@ maintainers:
  
  properties:
    compatible:
--    items:
--      - enum:
--          - fsl,imx6q-ocotp
--          - fsl,imx6sl-ocotp
--          - fsl,imx6sx-ocotp
--          - fsl,imx6ul-ocotp
--          - fsl,imx6ull-ocotp
--          - fsl,imx7d-ocotp
--          - fsl,imx6sll-ocotp
--          - fsl,imx7ulp-ocotp
--          - fsl,imx8mq-ocotp
--          - fsl,imx8mm-ocotp
--          - fsl,imx8mn-ocotp
--          - fsl,imx8mp-ocotp
--      - const: syscon
+-    enum:
+-      - fsl,imx8m-irqsteer
+-      - fsl,imx-irqsteer
 +    oneOf:
++      - const: fsl,imx-irqsteer
 +      - items:
-+          - enum:
-+              - fsl,imx6q-ocotp
-+              - fsl,imx6sl-ocotp
-+              - fsl,imx6sx-ocotp
-+              - fsl,imx6ul-ocotp
-+              - fsl,imx6ull-ocotp
-+              - fsl,imx7d-ocotp
-+              - fsl,imx6sll-ocotp
-+              - fsl,imx7ulp-ocotp
-+              - fsl,imx8mq-ocotp
-+              - fsl,imx8mm-ocotp
-+          - const: syscon
-+      - items:
-+          - enum:
-+              - fsl,imx8mn-ocotp
-+              # i.MX8MP not really compatible with fsl,imx8mm-ocotp, however
-+              # the code for getting SoC revision depends on fsl,imx8mm-ocotp
-+              # compatible.
-+              - fsl,imx8mp-ocotp
-+          - const: fsl,imx8mm-ocotp
-+          - const: syscon
++          - const: fsl,imx8m-irqsteer
++          - const: fsl,imx-irqsteer
  
    reg:
      maxItems: 1
