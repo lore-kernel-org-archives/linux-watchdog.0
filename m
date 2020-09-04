@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5072C2D0A8
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:26:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DBBBC433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:26:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 722F82074D
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:26:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E052E2074D
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599233163;
-	bh=rOlkyLq/MJZ1DAenvWhfuxACksm2nB3ySP8n+l1ST3Y=;
+	s=default; t=1599233198;
+	bh=0k6vgSKAVff6Efz20oLlcyZ3f09Mw5A8acbLpSprSBQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=qzkBWxQrXBYA82dstoLKMJBOMFxvGdMEABvS/gut8qXWRa4Lb0fiaaKU/akGtXRjS
-	 Nn7ZMZdTi+I3c9iQixIhRX0XvqK58QA2izwq4kuni8yjSMyyVlQYrRqERVZd3WOa8g
-	 sOEFyxrmigaPm/2glQXPtZ1rv3wq3MaNp/wrdd98=
+	b=Z6BAerqQlWBdvibkw4tVvs2RxaFwJdEVBkvOCUbGRLQvWtN59+tccZN+glqQH/3MD
+	 YHbh4kjCul31XoYnffw3YtHuGA+FxHUQsFhgF1X3DN1+OxSPQ+z179V0Ysw5t0W9rE
+	 WEBs0Zn+kvUUVQGE7ay2SyC8wrhWPX86p78QeCpg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731101AbgIDP0B (ORCPT
+        id S1731019AbgIDPYy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:26:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33924 "EHLO mail.kernel.org"
+        Fri, 4 Sep 2020 11:24:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731025AbgIDPZK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:25:10 -0400
+        id S1731011AbgIDPYv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 4 Sep 2020 11:24:51 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.106])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F855207EA;
-        Fri,  4 Sep 2020 15:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2BD02087E;
+        Fri,  4 Sep 2020 15:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599233109;
-        bh=rOlkyLq/MJZ1DAenvWhfuxACksm2nB3ySP8n+l1ST3Y=;
+        s=default; t=1599233090;
+        bh=0k6vgSKAVff6Efz20oLlcyZ3f09Mw5A8acbLpSprSBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PaqVKv+51CMd2e9jRYvN5mgOE1tx7YFjPJhMSEGmg2XQ3ymKdZ66xjmWr5W96AsNt
-         Sbp14LlTgVHVTrIkUavHwuloFSKQ9BRKfxRR3HfhdVUcWfFWEdsI2H+I0PoII5XAdD
-         SVG53WgpDzJUZak63DFMEuU0uXbaXBR35ZNkTiXQ=
+        b=Peb/n64yLuaRY+6rbVGW6dLRUH33GOtiDX6s01BmF0hTqxyTaROGG9U6AnvpFKMzm
+         LdVkd6D3nZbQzz6kDJdfbKJF2EMW5hI/YNLSzMkbrzpMcmun13n72/A5TPCHCll078
+         +XTjrOsWNVhAuYaHtv5zpCOWb1NpAK6S87EeaEks=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -54,9 +54,9 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         NXP Linux Team <linux-imx@nxp.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 11/14] dt-bindings: mtd: gpmi-nand: Add i.MX 8M compatibles
-Date:   Fri,  4 Sep 2020 17:24:01 +0200
-Message-Id: <20200904152404.20636-12-krzk@kernel.org>
+Subject: [PATCH v3 07/14] dt-bindings: thermal: imx8mm-thermal: Add i.MX 8M Nano compatible
+Date:   Fri,  4 Sep 2020 17:23:57 +0200
+Message-Id: <20200904152404.20636-8-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200904152404.20636-1-krzk@kernel.org>
 References: <20200904152404.20636-1-krzk@kernel.org>
@@ -68,51 +68,43 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 DTSes with new i.MX 8M SoCs introduce their own compatibles so add them
 to fix dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8mm-evk.dt.yaml: nand-controller@33002000:
-    compatible:0: 'fsl,imx8mm-gpmi-nand' is not one of ['fsl,imx23-gpmi-nand', 'fsl,imx28-gpmi-nand', 'fsl,imx6q-gpmi-nand', 'fsl,imx6sx-gpmi-nand', 'fsl,imx7d-gpmi-nand']
-    From schema: Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
+  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: tmu@30260000:
+    compatible:0: 'fsl,imx8mn-tmu' is not one of ['fsl,imx8mm-tmu', 'fsl,imx8mp-tmu']
+    From schema: Documentation/devicetree/bindings/thermal/imx8mm-thermal.yaml
 
-  arch/arm64/boot/dts/freescale/imx8mm-evk.dt.yaml: nand-controller@33002000:
-    compatible: ['fsl,imx8mm-gpmi-nand', 'fsl,imx7d-gpmi-nand'] is too long
+  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: tmu@30260000:
+    compatible: ['fsl,imx8mn-tmu', 'fsl,imx8mm-tmu'] is too long
 
-  arch/arm64/boot/dts/freescale/imx8mm-evk.dt.yaml: nand-controller@33002000:
-    compatible: Additional items are not allowed ('fsl,imx7d-gpmi-nand' was unexpected)
+  arch/arm64/boot/dts/freescale/imx8mn-evk.dt.yaml: tmu@30260000:
+    compatible: Additional items are not allowed ('fsl,imx8mm-tmu' was unexpected)
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../devicetree/bindings/mtd/gpmi-nand.yaml     | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ .../devicetree/bindings/thermal/imx8mm-thermal.yaml    | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml b/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
-index 3201372b7f85..28ff8c581837 100644
---- a/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
-+++ b/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
-@@ -20,12 +20,18 @@ description: |
+diff --git a/Documentation/devicetree/bindings/thermal/imx8mm-thermal.yaml b/Documentation/devicetree/bindings/thermal/imx8mm-thermal.yaml
+index 38852877b8e3..89c54e08ee61 100644
+--- a/Documentation/devicetree/bindings/thermal/imx8mm-thermal.yaml
++++ b/Documentation/devicetree/bindings/thermal/imx8mm-thermal.yaml
+@@ -18,9 +18,13 @@ description: |
  
  properties:
    compatible:
 -    enum:
--      - fsl,imx23-gpmi-nand
--      - fsl,imx28-gpmi-nand
--      - fsl,imx6q-gpmi-nand
--      - fsl,imx6sx-gpmi-nand
--      - fsl,imx7d-gpmi-nand
+-      - fsl,imx8mm-tmu
+-      - fsl,imx8mp-tmu
 +    oneOf:
 +      - enum:
-+          - fsl,imx23-gpmi-nand
-+          - fsl,imx28-gpmi-nand
-+          - fsl,imx6q-gpmi-nand
-+          - fsl,imx6sx-gpmi-nand
-+          - fsl,imx7d-gpmi-nand
++          - fsl,imx8mm-tmu
++          - fsl,imx8mp-tmu
 +      - items:
-+          - enum:
-+              - fsl,imx8mm-gpmi-nand
-+              - fsl,imx8mn-gpmi-nand
-+          - const: fsl,imx7d-gpmi-nand
++          - const: fsl,imx8mn-tmu
++          - const: fsl,imx8mm-tmu
  
    reg:
-     items:
+     maxItems: 1
 -- 
 2.17.1
 
