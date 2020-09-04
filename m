@@ -2,134 +2,125 @@ Return-Path: <SRS0=HIY2=CN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65476C433E2
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:40:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41F0FC433E2
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 21:17:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35286206B7
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:40:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M4Iyt6hm"
+	by mail.kernel.org (Postfix) with ESMTP id CB5A2208C7
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 21:17:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbgIDPk3 (ORCPT
+        id S1728001AbgIDVRb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726340AbgIDPkY (ORCPT
+        Fri, 4 Sep 2020 17:17:31 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60625 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727923AbgIDVR3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:40:24 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A5CC061244;
-        Fri,  4 Sep 2020 08:40:23 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id z15so1330872plo.7;
-        Fri, 04 Sep 2020 08:40:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=IQDo8FpZy7wFoQHqQEGpuc/VN48kIyQ/D/5kCAdKndk=;
-        b=M4Iyt6hmbuC0Nc1C+qmGy0wqKy3g7yP3OwrgHydu/W17QGa5LA0SEC8NOWK8g7RdN/
-         tvQa78oWiD6OWtUkE/xRkoZj8WnVN538mg1l7XKcHv0mszsqV8zEu5QZGBcY1B6lCgyu
-         QTJSSBiNSHwy7BK59Zu8tiXVOLAm1qjSwSWtct41vqcHSJFOl7VlHhxggz3zsmiENGiG
-         HGkLwmTYFk9IGB5qMYbuWT5gpIrJ0zMU6XbaEjyUG5znsZQTvpxae1OT84ZyyMHoTxwD
-         Lm1Bc9Bw3al/mmId8M40rDWu6D5fJpIoB/zoxBoHvRuyc50AMuvMFSgcSEH3iJ+p3kDN
-         nd7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=IQDo8FpZy7wFoQHqQEGpuc/VN48kIyQ/D/5kCAdKndk=;
-        b=onnhuTO2HfgdJDSbjiQrQ5FL6a4iZnYz/zW4rUUKD9qi7hahnzXRKVGU9pZ1Z034Y7
-         RMeH3lFyX7hRKgkpzI1Qc+3awpBbqk04ymCcBjvtqOj4WwbI5KF3BTmPXjzhwBT27ar0
-         0CfBt+NI4Sm4uC4hxBQFXshKJko8FIO8D+CCQjJVUKBzzkDJBT7M+mBFU47z2Q/Dh8oT
-         vkC97R7A6OWGxUMOd2jlvyYQL1PjH526US/MxAsN4xMx0+RB8zecGdhsOucR+okDrbLs
-         csgTqY4ko27BxWLCgucUAqnxT46kRnS+Gu7eu9U2JT49J45ax6t9mTmEELA8taljWyV2
-         JRwA==
-X-Gm-Message-State: AOAM533JiTf95FuK+0L8lggPhHzOxcWWwOy8IgBAvUSqwMPAbl1ne+ZM
-        L02YyHDUDrqIzw6DHEoI22Y=
-X-Google-Smtp-Source: ABdhPJzX0Yhp5J3UeAfE+CsyKGNiSh6rI3Mpd1uBXgvYBR9CDaJEgfIYRv4WtYU7vXCEQXAc+2pKlA==
-X-Received: by 2002:a17:90b:4c0f:: with SMTP id na15mr8514030pjb.119.1599234023415;
-        Fri, 04 Sep 2020 08:40:23 -0700 (PDT)
-Received: from [10.230.30.107] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id v17sm6889773pfn.24.2020.09.04.08.40.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Sep 2020 08:40:22 -0700 (PDT)
-Subject: Re: [PATCH 00/10] dt-bindings: Convert SP805 to Json-schema (and fix
- users)
-To:     =?UTF-8?Q?Andr=c3=a9_Przywara?= <andre.przywara@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Viresh Kumar <vireshk@kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Chanho Min <chanho.min@lge.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Wei Xu <xuwei5@hisilicon.com>
-References: <20200828130602.42203-1-andre.przywara@arm.com>
- <19c6a67e-48f0-c0b6-3653-32a5a1f09e07@gmail.com>
- <CACRpkdbMbNd87145iwdL7=x501cvgU7wiZXNLF456sn6WvoodQ@mail.gmail.com>
- <302c54fd-5183-c8d0-7038-f6e60c7bb056@gmail.com>
- <26416b9b-d390-d7df-ee1f-8ec7ca08ba72@arm.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <1eea5f98-b437-1fda-d967-facf878c704c@gmail.com>
-Date:   Fri, 4 Sep 2020 08:40:12 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.2.1
+        Fri, 4 Sep 2020 17:17:29 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 5C5EEAFB;
+        Fri,  4 Sep 2020 17:17:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 04 Sep 2020 17:17:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        open-music-kontrollers.ch; h=from:to:cc:subject:date:message-id
+        :in-reply-to:references:mime-version:content-transfer-encoding;
+         s=fm3; bh=peUDp0pNQ6Mbe/9IFdEaUL4hm+A5G2i/KNTyI2Pd8c8=; b=elaUB
+        5TXc6pRBZH3Jg71IsUECbR3LTfcqidjYvD2ufkHvUbw/Zv6qUM07zB0YX/koPtEf
+        V7eDlAUcY15hlyIq9laAYCT4ksmqY7mSXYLMOwI65y6Ck5DQhQbniKjKj5DfkfrE
+        JeQZYS3t1sV5WL6o9bMV0wk2mkpC0ZdWi/j3KKWdlMXDnb2Yl8lag11zZnqpPpvM
+        lQ7JqGqCeQlGFPwfrRoYfqmmfFw5gDqNFcGnlj9hZ2ScZGb54iUGb9a157bP8kF6
+        4RRIEEYYtFyG5pi/6W9P6u8qpzqnDjV211D8QCcBAxIM6rDfz1iMMqWo8Eg8Vs0m
+        Li+XNNlalYoiluWiQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; bh=peUDp0pNQ6Mbe/9IFdEaUL4hm+A5G2i/KNTyI2Pd8c8=; b=Q3VdN5qZ
+        XBFIQ5q8uFVjX0uRx/SATV7b7aDUZj6m/lhlPrixKSUgXaA4g7ppUI9W1Rzz+UG3
+        73rhM0Imu4HKTKHwIFqmhU0aZwUKZSyT6fZXhBDWb5GJvb2qlpErnbaXe3gKwACZ
+        8vwVGFxEyCF+Y0ZBqGng75TjlHABBXSajHwxXzKVxQEcj8OiRHjUN9ECz40k/C26
+        iBAosygg0b+bY324V1nuIGslo6o6hHNyurqV30IGTplLG/8gNKDf9mfB6eDBzfwT
+        wHoJBWFTDlgeJEBk1mW4vQHr/PT9iFcDwHK1CtEcVsJyvWJAovc2x6Q1yInsOHik
+        ZrpfDWn6KqEngw==
+X-ME-Sender: <xms:5q5SXxLi810DIf2Jqs5Ee7al3OP63y1dBUH9tsLudXV-asMLhGhuAA>
+    <xme:5q5SX9KJgWqS7s13WWC-9s6cx-erP7QG9-6W1MLskeZWEdcnwjl5hjwfOEMtYpk1A
+    1x_lsWk297DzXc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudegfedgudeitdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffojghfggfgsedtke
+    ertdertddtnecuhfhrohhmpefjrghnshhpvghtvghrucfrohhrthhnvghruceouggvvhes
+    ohhpvghnqdhmuhhsihgtqdhkohhnthhrohhllhgvrhhsrdgthheqnecuggftrfgrthhtvg
+    hrnhepteeugfdvgedvhfejvdevgfffteekueethefhjeevfffgkeejjeefveffveevgfej
+    necukfhppeegiedruddvjedruddtledrieenucevlhhushhtvghrufhiiigvpedtnecurf
+    grrhgrmhepmhgrihhlfhhrohhmpeguvghvsehophgvnhdqmhhushhitgdqkhhonhhtrhho
+    lhhlvghrshdrtghh
+X-ME-Proxy: <xmx:5q5SX5uy8ttkvPyF8f81YThUGqbaPJKAwK8tjahEtmSaHF4E22pjiw>
+    <xmx:5q5SXya6lAi89JYEV2VKCai-c2aU-KtwtvUISX1cBdqHw1ibhxeYWQ>
+    <xmx:5q5SX4Yq3RGWtRUFdmdfijyfRfEKQIUnOBLwieT_xiKJ8_9nExBG9Q>
+    <xmx:5q5SXzyknhf7jVj5kG_eofUYGJuPbdGgKMHkPBgTQnW6B514JKl9Tg>
+Received: from localhost.localdomain (46-127-109-6.dynamic.hispeed.ch [46.127.109.6])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0DA00306005F;
+        Fri,  4 Sep 2020 17:17:25 -0400 (EDT)
+From:   Hanspeter Portner <dev@open-music-kontrollers.ch>
+To:     wim@linux-watchdog.org
+Cc:     linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        dev@open-music-kontrollers.ch
+Subject: [PATCH 2/2] watchdog: it87_wdt: add IT8784 ID
+Date:   Fri,  4 Sep 2020 23:16:39 +0200
+Message-Id: <20200904211639.18787-2-dev@open-music-kontrollers.ch>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200904211639.18787-1-dev@open-music-kontrollers.ch>
+References: <20200904211639.18787-1-dev@open-music-kontrollers.ch>
 MIME-Version: 1.0
-In-Reply-To: <26416b9b-d390-d7df-ee1f-8ec7ca08ba72@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+IT8784 watchdog works as in IT878x
 
+Tested on SHAREVDY K10 board.
 
-On 9/4/2020 8:35 AM, André Przywara wrote:
-> On 04/09/2020 16:29, Florian Fainelli wrote:
-> 
-> Hi,
-> 
->> On 9/4/2020 1:58 AM, Linus Walleij wrote:>> On Fri, Aug 28, 2020 at 9:34 PM Florian Fainelli
->>> <f.fainelli@gmail.com> wrote:
->>>> On 8/28/20 6:05 AM, Andre Przywara wrote:
->>>
->>>> What is the plan for merging this series? Should Rob pick up all changes
->>>> or since those are non critical changes, should we just leave it to the
->>>> SoC maintainers to pick up the changes in their tree?
->>>
->>> What about André just send a pull request to the ARM SoC maintainers
->>> for the whole thing?
->>
->> I already applied some of the patches, if we got that route please CC me
->> so I can drop them from my local queue. Thanks
-> 
-> I would for sure drop these from any PR.
-> 
-> Rob, are you happy with the actual binding conversion? If you are
-> willing to take it as it is (Viresh has already acked), I could then
-> split off the DT fixes and either chase the maintainers or send ARM SoC
-> a PR. But this really depends on the binding being good.
+Signed-off-by: Hanspeter Portner <dev@open-music-kontrollers.ch>
+---
+ drivers/watchdog/it87_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-We had discussed this in an another leg of this thread that starts here:
+diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
+index 2dac0ba551ce..2b4831842162 100644
+--- a/drivers/watchdog/it87_wdt.c
++++ b/drivers/watchdog/it87_wdt.c
+@@ -15,7 +15,7 @@
+  *	Support of the watchdog timers, which are available on
+  *	IT8607, IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686,
+  *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728,
+- *	IT8772 and IT8783.
++ *	IT8772, IT8783 and IT8784.
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -68,6 +68,7 @@
+ #define IT8728_ID	0x8728
+ #define IT8772_ID	0x8772
+ #define IT8783_ID	0x8783
++#define IT8784_ID	0x8784
+ #define IT8786_ID	0x8786
+ 
+ /* GPIO Configuration Registers LDN=0x07 */
+@@ -297,6 +298,7 @@ static int __init it87_wdt_init(void)
+ 	case IT8728_ID:
+ 	case IT8772_ID:
+ 	case IT8783_ID:
++	case IT8784_ID:
+ 	case IT8786_ID:
+ 		max_units = 65535;
+ 		break;
+-- 
+2.28.0
 
-https://lore.kernel.org/linux-devicetree/CAL_JsqKvcGAotS6xL7pu+wM8X33PLCQCuoaXYmWrA3j3OdoR5A@mail.gmail.com/
---
-Florian
