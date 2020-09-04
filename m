@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62EEEC43461
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BDA3C43461
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2791B2074D
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C295A207EA
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Sep 2020 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599233117;
-	bh=sGtFPuXEsVbIrliCojcp2Mbe+DlIhAJbh8Iyk2PAwVI=;
+	s=default; t=1599233130;
+	bh=Dd93FE9oQpev+CVY2ipzNLkXaKzEf3vCB92IiF1lQ2Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=rI7I4eZ6fhW7PraowQAdbkr84NpBrKgu8Eh1Op05DCJhBTTd2OjJ6s/MfZufpD5bB
-	 hij5J9vfQSBVoPKbRUBfecoh+UORWlmfrrg957v6r8Pzlg7/gz55+bR4d/TelwSoDO
-	 Aa1z7RxzIIPCH67wOg6ewFoglOgDtYO/I/hsBhCw=
+	b=l/OhRxLbH9QSq0CbXPoQl0uPSNZew6J3ZJQmOlEppLnpqZ0pDk4KjQzCGPbu9IIRG
+	 jpeU6hJ8ksS6XlxYxYoqty27mqni+J+EFWYbxsiITOLq1vleCytQ3HFNheLBVaJ7Xg
+	 7MXNbv+bdEr53LbfCkCoKo8BxlBy1fMXKd2i/XMI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731042AbgIDPZN (ORCPT
+        id S1731071AbgIDPZ2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33812 "EHLO mail.kernel.org"
+        Fri, 4 Sep 2020 11:25:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730890AbgIDPZG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Sep 2020 11:25:06 -0400
+        id S1731051AbgIDPZU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 4 Sep 2020 11:25:20 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.106])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 191C020770;
-        Fri,  4 Sep 2020 15:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B200220772;
+        Fri,  4 Sep 2020 15:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599233105;
-        bh=sGtFPuXEsVbIrliCojcp2Mbe+DlIhAJbh8Iyk2PAwVI=;
+        s=default; t=1599233119;
+        bh=Dd93FE9oQpev+CVY2ipzNLkXaKzEf3vCB92IiF1lQ2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRirnnYd3FGxe0dUFdE8DvFE0FU/H0s3bbImFJXNJW7w9evOqWZTQvYfzxOY3YSJH
-         UuGEI33eBHTyUJ/lPD9ZTMWgvqgfrMRjcrklGPX6f92Z508TII5K67hwppcAVQw5dC
-         oBwibSc/29+qW9X+xSWPKGcoQ3CmZglEAs2qSsgY=
+        b=G2g6yeunx3Er8BuGMgPm7rLE0oNqNL6t1jPmBNIWE1PGDPRu7FEN7h0TZI6XSmG5D
+         6AMwT61dT9xL6JpEZjcNNzY9aXQ8wqaN9TUkG0S/rpylmqhSB+zNZxptTHmkhEFJiK
+         ndzT/91ejUDsMmTe/jvdUAWhlr5rHwq5tXtYGa7Y=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -54,9 +54,9 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         NXP Linux Team <linux-imx@nxp.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 10/14] dt-bindings: interrupt-controller: fsl,irqsteer: Fix compatible matching
-Date:   Fri,  4 Sep 2020 17:24:00 +0200
-Message-Id: <20200904152404.20636-11-krzk@kernel.org>
+Subject: [PATCH v3 13/14] dt-bindings: mtd: nand-controller: Fix matching with size-cells==1
+Date:   Fri,  4 Sep 2020 17:24:03 +0200
+Message-Id: <20200904152404.20636-14-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200904152404.20636-1-krzk@kernel.org>
 References: <20200904152404.20636-1-krzk@kernel.org>
@@ -65,41 +65,33 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The i.MX 8M DTSes use two compatibles so update the binding to fix
-dtbs_check warnings like:
+Most of Freescale/NXP GPMI device trees use size-cells==1 (even when
+actually not needed except few boards).  This fixes dtbs_check warnings
+like:
 
-  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
-    compatible: ['fsl,imx8m-irqsteer', 'fsl,imx-irqsteer'] is too long
-    From schema: Domentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-
-  arch/arm64/boot/dts/freescale/imx8mq-thor96.dt.yaml: interrupt-controller@32e2d000:
-    compatible: Additional items are not allowed ('fsl,imx-irqsteer' was unexpected)
+    arch/arm64/boot/dts/freescale/imx8mm-beacon-kit.dt.yaml: nand-controller@33002000: #size-cells:0:0: 0 was expected
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../bindings/interrupt-controller/fsl,irqsteer.yaml       | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/mtd/nand-controller.yaml | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-index 360a575ef8b0..3b11a1a15398 100644
---- a/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-+++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,irqsteer.yaml
-@@ -11,9 +11,11 @@ maintainers:
+diff --git a/Documentation/devicetree/bindings/mtd/nand-controller.yaml b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+index 40fc5b0b2b8c..0879e1108837 100644
+--- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
++++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+@@ -34,7 +34,10 @@ properties:
+     const: 1
  
- properties:
-   compatible:
--    enum:
--      - fsl,imx8m-irqsteer
--      - fsl,imx-irqsteer
-+    oneOf:
-+      - const: fsl,imx-irqsteer
-+      - items:
-+          - const: fsl,imx8m-irqsteer
-+          - const: fsl,imx-irqsteer
+   "#size-cells":
+-    const: 0
++    description:
++      Depends on your controller. Put zero unless you need a mapping between CS
++      lines and dedicated memory regions.
++    enum: [0, 1]
  
-   reg:
-     maxItems: 1
+   ranges: true
+ 
 -- 
 2.17.1
 
