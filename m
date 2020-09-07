@@ -4,42 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11925C43461
-	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 21:39:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F245C2D0A7
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 21:39:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0CDA217BA
-	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 21:39:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A10B21924
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 21:39:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="rYnYoZs4"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="M7d4Nd4Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728242AbgIGVjb (ORCPT
+        id S1728289AbgIGVjw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 7 Sep 2020 17:39:31 -0400
-Received: from ssl.serverraum.org ([176.9.125.105]:59791 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727962AbgIGVi2 (ORCPT
+        Mon, 7 Sep 2020 17:39:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727937AbgIGViZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 Sep 2020 17:38:28 -0400
+        Mon, 7 Sep 2020 17:38:25 -0400
+Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C12CC061573;
+        Mon,  7 Sep 2020 14:38:25 -0700 (PDT)
 Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id BE44723E53;
-        Mon,  7 Sep 2020 23:38:24 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id EA81A23E50;
+        Mon,  7 Sep 2020 23:38:22 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1599514705;
+        t=1599514703;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=71mdC86/Fcunign5gPMpdC7J2IQuSCE8Diy5kr7ogGE=;
-        b=rYnYoZs4FiPLygWx98yRbTb6OXx6BEaOjEVKvgyyeHwdt0byEoXV6MFp90dGS/G/ilygSB
-        dnuoviiOyGitlXDyOn0MiMoIVTlMeURqi53GPfyCxphjuzMkhkOSf7YHiMuZ4dDQALzn6q
-        X2n7JTKQV+RsxCODnOCyLxoOQUdYex8=
+        bh=fllBoRDe6RDYSJ/jv0SIWXQtzbgvr1lMMidfWl/R6Cw=;
+        b=M7d4Nd4Yg/ikQSHkA435CpsXCo/H9AmZwmgbijIRPqI1K/XbJY6wPOzMFPZmIhsGGCSMJo
+        ej36BH/0JtKchQWG23XfLCNCHbRob2uGYgF69Y/SlStGSHAXL2wVgJH6H7drwan7hsImWY
+        Hw3qwNcQZsx5xtLBrW8qCm7+KdfNAKw=
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -64,9 +66,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v9 13/13] arm64: defconfig: enable the sl28cpld board management controller
-Date:   Mon,  7 Sep 2020 23:38:02 +0200
-Message-Id: <20200907213802.26745-14-michael@walle.cc>
+Subject: [PATCH v9 11/13] arm64: dts: freescale: sl28: enable LED support
+Date:   Mon,  7 Sep 2020 23:38:00 +0200
+Message-Id: <20200907213802.26745-12-michael@walle.cc>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200907213802.26745-1-michael@walle.cc>
 References: <20200907213802.26745-1-michael@walle.cc>
@@ -78,8 +80,12 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Enable the kernel modules for the board management controller "sl28cpld"
-which is used on the SMARC-sAL28 board.
+Now that we have support for GPIO lines of the SMARC connector, enable
+LED support on the KBox A-230-LS. There are two LEDs without fixed
+functions, one is yellow and one is green. Unfortunately, it is just one
+multi-color LED, thus while it is possible to enable both at the same
+time it is hard to tell the difference between "yellow only" and "yellow
+and green".
 
 Signed-off-by: Michael Walle <michael@walle.cc>
 ---
@@ -87,64 +93,58 @@ Changes since v8:
  - none
 
 Changes since v7:
- - added new virtual symbol CONFIG_MFD_SL28CPLD
+ - use new "function" and "color" properties instead of a label
+ - added default-on trigger for the power-led
 
 Changes since v6:
  - none
 
 Changes since v5:
- - new patch
+ - changed the label, suggested by Pavel Machek
 
- arch/arm64/configs/defconfig | 6 ++++++
- 1 file changed, 6 insertions(+)
+Changes since v4:
+ - none
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 39b409eef0b1..c2ae4e8cd7c2 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -507,6 +507,7 @@ CONFIG_GPIO_PCA953X=y
- CONFIG_GPIO_PCA953X_IRQ=y
- CONFIG_GPIO_BD9571MWV=m
- CONFIG_GPIO_MAX77620=y
-+CONFIG_GPIO_SL28CPLD=m
- CONFIG_POWER_AVS=y
- CONFIG_QCOM_CPR=y
- CONFIG_ROCKCHIP_IODOMAIN=y
-@@ -520,6 +521,7 @@ CONFIG_SENSORS_ARM_SCPI=y
- CONFIG_SENSORS_LM90=m
- CONFIG_SENSORS_PWM_FAN=m
- CONFIG_SENSORS_RASPBERRYPI_HWMON=m
-+CONFIG_SENSORS_SL28CPLD=m
- CONFIG_SENSORS_INA2XX=m
- CONFIG_SENSORS_INA3221=m
- CONFIG_THERMAL_GOV_POWER_ALLOCATOR=y
-@@ -542,6 +544,7 @@ CONFIG_QCOM_TSENS=y
- CONFIG_QCOM_SPMI_TEMP_ALARM=m
- CONFIG_UNIPHIER_THERMAL=y
- CONFIG_WATCHDOG=y
-+CONFIG_SL28CPLD_WATCHDOG=m
- CONFIG_ARM_SP805_WATCHDOG=y
- CONFIG_ARM_SBSA_WATCHDOG=y
- CONFIG_ARM_SMC_WATCHDOG=y
-@@ -567,6 +570,7 @@ CONFIG_MFD_MAX77620=y
- CONFIG_MFD_SPMI_PMIC=y
- CONFIG_MFD_RK808=y
- CONFIG_MFD_SEC_CORE=y
-+CONFIG_MFD_SL28CPLD=y
- CONFIG_MFD_ROHM_BD718XX=y
- CONFIG_MFD_WCD934X=m
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
-@@ -966,8 +970,10 @@ CONFIG_PWM_MESON=m
- CONFIG_PWM_RCAR=m
- CONFIG_PWM_ROCKCHIP=y
- CONFIG_PWM_SAMSUNG=y
-+CONFIG_PWM_SL28CPLD=m
- CONFIG_PWM_SUN4I=m
- CONFIG_PWM_TEGRA=m
-+CONFIG_SL28CPLD_INTC=y
- CONFIG_QCOM_PDC=y
- CONFIG_RESET_IMX7=y
- CONFIG_RESET_QCOM_AOSS=y
+Changes since v3:
+ - see cover letter
+
+ .../fsl-ls1028a-kontron-kbox-a-230-ls.dts      | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
+index 4b4cc6a1573d..dd516c0efd8b 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
+@@ -11,11 +11,29 @@
+ 
+ /dts-v1/;
+ #include "fsl-ls1028a-kontron-sl28-var4.dts"
++#include <dt-bindings/leds/common.h>
+ 
+ / {
+ 	model = "Kontron KBox A-230-LS";
+ 	compatible = "kontron,kbox-a-230-ls", "kontron,sl28-var4",
+ 		     "kontron,sl28", "fsl,ls1028a";
++
++	leds {
++		compatible = "gpio-leds";
++
++		alarm-led {
++			function = LED_FUNCTION_ALARM;
++			color = <LED_COLOR_ID_YELLOW>;
++			gpios = <&sl28cpld_gpio0 0 0>;
++		};
++
++		power-led {
++			linux,default-trigger = "default-on";
++			function = LED_FUNCTION_POWER;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&sl28cpld_gpio1 3 0>;
++		};
++	};
+ };
+ 
+ &enetc_mdio_pf3 {
 -- 
 2.20.1
 
