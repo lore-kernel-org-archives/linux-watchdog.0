@@ -2,65 +2,65 @@ Return-Path: <SRS0=YEeI=CQ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8A1EC433E2
-	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 15:51:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A5D2C43461
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 19:18:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B1F621481
-	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 15:51:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23C182151B
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Sep 2020 19:18:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LsejvMmV"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eBLtGWDU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730067AbgIGPvE (ORCPT
+        id S1728675AbgIGTSy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 7 Sep 2020 11:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52838 "EHLO
+        Mon, 7 Sep 2020 15:18:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730108AbgIGPcD (ORCPT
+        with ESMTP id S1728276AbgIGTSw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 Sep 2020 11:32:03 -0400
+        Mon, 7 Sep 2020 15:18:52 -0400
 Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C81CC061573;
-        Mon,  7 Sep 2020 08:31:56 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id x14so13871846oic.9;
-        Mon, 07 Sep 2020 08:31:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77535C061573;
+        Mon,  7 Sep 2020 12:18:51 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id u126so14349510oif.13;
+        Mon, 07 Sep 2020 12:18:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=npHh/qmHojYeg1ybHFh5uRnQefyQPJhFSUgTOiuB5aY=;
-        b=LsejvMmV3B/L7RD+2wFmh6yNEwJ7FzTg0e6pT6dCcS3S5wJSMcVGthf7JrdgyKMJN3
-         1Irz+ZDmtB10UMzSslhVwdBJy1vjU+sk3cGM4Pky3oauQBGk0OKvg4t8fGBQ6BhVOX4y
-         Q3ZwOYd5jRBiy8fqLaNNohGAZOIGxnYmS7UhPZ+qbOHM971Lhwq1wkDjqShg8kED+xgf
-         rFsQPcjqGXGBo1/VaEbys8ZnKrBfqPFi8OAu7t0QJrbDl/csDz6zqPcV7GQOCw16vXeZ
-         4yO64jrploURQao7O9MiVn4SG8pRGwMEACK0eIQX5DsI/P1xq9/VtbBnQk2Oed7NKN4e
-         Bl0A==
+        bh=tw4hMqmDCcYV6RTmqf3Mjv2EXG9Hn6MQsUisGZAuJA0=;
+        b=eBLtGWDURgfDUHSAhDP3Q8TcCZddyTtcC47JTAu6+k3MU6TlR0LHSwk8Cg3QMQbYpd
+         eQvPczSDDgIFtQKu+kYQne9iLSb6qbbis9AJK1pLkveB0lhchwn93w+IOkaCdPCegafB
+         s1ZnxHJ3Dc809fyBnLr72+/AwvtvwfGud9oaPMl+C2IpmMSSV9FS8dtyUbFnqi2LZeu2
+         CYv2h/Hb/+JE5E+USLOD1lRURoNUA1jPeAB69czy6EcADGI0IOWgyoM/ljTXDlLdFYAv
+         P4ds1A+R2yGCKHIvWqWnM2v51ri7hILw79kptdv4vdzmIEB/0PQtihhkuEARQR9BKgPR
+         wa3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=npHh/qmHojYeg1ybHFh5uRnQefyQPJhFSUgTOiuB5aY=;
-        b=i1GzbR6TdTI6aR34KNt9DGvGWPhAxG7hCJ8t8QgbpO27tb8KOdu+47jdxWB1J8jUTk
-         qyHZch9/ZBOqti0FvXvH4Fm9IwF7G+hP6Dj/W4tVrlnRjKCMDT+iSn4WtcZX1AkQrF4Q
-         RBpmXnikoPM3y7b/Hb1+kY83X0SG/f7E9bw+O98YJwDVVNnJnwgLnH6g2DRNDtKGstkv
-         GR5KFi3qUxsoc3htcKH3UpLslGSMq0TiGBiutQ+dytSFo0J5W9posRxBpqvZN0mXiQGL
-         pPyQ9Zvu+UJdSOVIWrao2gsBi6q+zYwMDSWruRLc/r6xAztISy+H0zGXC1y6Ly5kR+GN
-         BT6A==
-X-Gm-Message-State: AOAM530FoV9x9ICkr6d6R23XA5OWKUJ+yT+r+jqUzWFQQfclwFx/sLc4
-        B7q31dHNQl9qoJnFUz/6gIg=
-X-Google-Smtp-Source: ABdhPJxIkezbM3sguIAYljJVchG9RxXpc6zobFoqrXxo1KIadzk6gjMW6peCFnrLg9gGeaeLooEN8g==
-X-Received: by 2002:aca:f256:: with SMTP id q83mr3321021oih.165.1599492714276;
-        Mon, 07 Sep 2020 08:31:54 -0700 (PDT)
+        bh=tw4hMqmDCcYV6RTmqf3Mjv2EXG9Hn6MQsUisGZAuJA0=;
+        b=HiybKQiCkUfwBHMqFjkA3hQsHHU4vkYI1/I3xCXWp6P5MN5vVFvKwKGS9xQb1oL1Ik
+         Dg+IY2H9u9AQDQ3IdpMcz3nPRHtCpXcz3QkYNJDLIkZHUkuj9EIAqxlgOAvmpXPfpXdv
+         dkZZSwMJj4j89HAqWyUKiuoALZiWhK399TuQnC26CIkE3LaWE8e9yWcUU1oNrlAeEQmz
+         spo9Fv9M1+sLN+vH+ACkHYpHFcu6cVcnFrMlQdlxMqua1LUglG+iSGs1xUXLOELBxS4e
+         9GbCvw3HBmMTrhCccQdnQOVg4aoHKvQhvqbCMsSHLn23+GIMxbhhQh6mWHdEsxYNWTy5
+         kt1g==
+X-Gm-Message-State: AOAM531XIyDx/luvu5R491lrhTE3gTZ4OS6w8Mi1X3/K0kkB/CqdYkxT
+        1a7LGsvVK1CafEdhGq6+eLc=
+X-Google-Smtp-Source: ABdhPJy+jLazfD58Sdz8NGjRx+5/r0uftIQjcp6T+gsXTjD45k8oX2dUwDL4htQA1zlirBvrV/KcDw==
+X-Received: by 2002:aca:5a83:: with SMTP id o125mr478490oib.53.1599506330861;
+        Mon, 07 Sep 2020 12:18:50 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l136sm2824036oig.7.2020.09.07.08.31.52
+        by smtp.gmail.com with ESMTPSA id l63sm2854052oia.56.2020.09.07.12.18.49
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Sep 2020 08:31:53 -0700 (PDT)
+        Mon, 07 Sep 2020 12:18:50 -0700 (PDT)
 Subject: Re: watchdog: sp5100_tco support for AMD V/R/E series
 To:     Jan Kiszka <jan.kiszka@siemens.com>, linux-watchdog@vger.kernel.org
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -69,6 +69,8 @@ Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>,
         "Farnsworth, Wade" <wade_farnsworth@mentor.com>
 References: <15c8913e-9026-2649-9911-71d6f1c79519@siemens.com>
+ <f7e3233b-97e4-1f25-e18e-edb39ca86ce9@roeck-us.net>
+ <9e270546-7962-932b-2e4c-3c833b7d4b30@siemens.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -113,12 +115,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <f7e3233b-97e4-1f25-e18e-edb39ca86ce9@roeck-us.net>
-Date:   Mon, 7 Sep 2020 08:31:51 -0700
+Message-ID: <a70578a9-4e55-602b-68fe-56a01805965e@roeck-us.net>
+Date:   Mon, 7 Sep 2020 12:18:48 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <15c8913e-9026-2649-9911-71d6f1c79519@siemens.com>
+In-Reply-To: <9e270546-7962-932b-2e4c-3c833b7d4b30@siemens.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -127,53 +129,70 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 9/7/20 4:20 AM, Jan Kiszka wrote:
-> Hi all,
+On 9/7/20 8:46 AM, Jan Kiszka wrote:
+> On 07.09.20 17:31, Guenter Roeck wrote:
+>> On 9/7/20 4:20 AM, Jan Kiszka wrote:
+>>> Hi all,
+>>>
+>>> Arsalan reported that the upstream driver for sp5100_tco does not work
+>>> for embedded Ryzen. Meanwhile, I was able to confirm that on an R1505G:
+>>>
+>>> [   11.607251] sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver
+>>> [   11.607337] sp5100-tco sp5100-tco: Using 0xfed80b00 for watchdog MMIO address
+>>> [   11.607344] sp5100-tco sp5100-tco: Watchdog hardware is disabled
+>>>
+>>> ..and fix it:
+>>>
+>>> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+>>> index 85e9664318c9..5482154fde42 100644
+>>> --- a/drivers/watchdog/sp5100_tco.c
+>>> +++ b/drivers/watchdog/sp5100_tco.c
+>>> @@ -193,7 +193,8 @@ static void tco_timer_enable(struct sp5100_tco *tco)
+>>>  		/* Set the Watchdog timer resolution to 1 sec and enable */
+>>>  		sp5100_tco_update_pm_reg8(EFCH_PM_DECODEEN3,
+>>>  					  ~EFCH_PM_WATCHDOG_DISABLE,
+>>> -					  EFCH_PM_DECODEEN_SECOND_RES);
+>>> +					  EFCH_PM_DECODEEN_SECOND_RES |
+>>> +					  EFCH_PM_DECODEEN_WDT_TMREN);
+>>
+>> Confusing. The register in question is a 32-bit register, but only a byte
+>> is written into it. Bit 24-25 are supposed to be the resolution, bit 25-26
+>> set to 0 enable the watchdog. Bit 7 is supposed to enable MMIO decoding.
+>> This is from AMD Publication 52740. So something in the existing code
+>> is (or seems to be) wrong, but either case I don't see how setting bit 7
+>> (or 31 ?) would enable the watchdog hardware.
+>>
+>> Hmm, I wrote that code. Guess I'll need to to spend some time figuring out
+>> what is going on.
 > 
-> Arsalan reported that the upstream driver for sp5100_tco does not work
-> for embedded Ryzen. Meanwhile, I was able to confirm that on an R1505G:
+> The logic came from [1] which inspired [2] - that's where I pointed out
+> the large overlap with the existing upstream driver. I would love to see
+> all that consolidated.
 > 
-> [   11.607251] sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver
-> [   11.607337] sp5100-tco sp5100-tco: Using 0xfed80b00 for watchdog MMIO address
-> [   11.607344] sp5100-tco sp5100-tco: Watchdog hardware is disabled
+> BTW, the R1505G is family 0x17. Maybe something changed there, and that
+> bit 7 was just reserved/ignored so far. ENOSPECS
 > 
-> ..and fix it:
-> 
-> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index 85e9664318c9..5482154fde42 100644
-> --- a/drivers/watchdog/sp5100_tco.c
-> +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -193,7 +193,8 @@ static void tco_timer_enable(struct sp5100_tco *tco)
->  		/* Set the Watchdog timer resolution to 1 sec and enable */
->  		sp5100_tco_update_pm_reg8(EFCH_PM_DECODEEN3,
->  					  ~EFCH_PM_WATCHDOG_DISABLE,
-> -					  EFCH_PM_DECODEEN_SECOND_RES);
-> +					  EFCH_PM_DECODEEN_SECOND_RES |
-> +					  EFCH_PM_DECODEEN_WDT_TMREN);
 
-Confusing. The register in question is a 32-bit register, but only a byte
-is written into it. Bit 24-25 are supposed to be the resolution, bit 25-26
-set to 0 enable the watchdog. Bit 7 is supposed to enable MMIO decoding.
-This is from AMD Publication 52740. So something in the existing code
-is (or seems to be) wrong, but either case I don't see how setting bit 7
-(or 31 ?) would enable the watchdog hardware.
+Thanks for the pointers.
 
-Hmm, I wrote that code. Guess I'll need to to spend some time figuring out
-what is going on.
+I think you are talking about bit 31. Bit 7 is and was WatchdogTmrEn, but that
+supposedly only enables watchdog timer memory access at 0xfeb00000. From what
+I glance from the other drivers, the existing code is wrong. It should set
+the disable and resolution bits in register offset 3 (bit 24..27), not 0.
+In other words, EFCH_PM_DECODEEN3 should be defined as 0x03, not as 0x00.
+Which actually makes sense from the name.
+
+Playing with my hardware, turns out that setting bit 7 in EFCH_PM_DECODEEN
+(register offset 0) does indeed enable the watchdog. I'll need to check
+if it actually works. Either case, -ENOSPECS is really a problem here.
 
 Guenter
 
->  		break;
->  	}
->  }
-> 
-> Does anyone have an idea if such unconditional setting could be 
-> problematic on older/different efch? We probe for that bit in
-> sp5100_tco_setupdevice but we never set it so far.
-> 
-> I'm missing specs...
-> 
-> Thanks,
 > Jan
+> 
+> [1]
+> https://git.yoctoproject.org/cgit/cgit.cgi/meta-amd/commit/meta-amd-bsp/recipes-kernel/amd-wdt/files/amd_wdt.c?id=cd760c9f04d276382a0f5156dabdb766594ace56
+> [2]
+> https://github.com/siemens/efibootguard/commit/3a702aa96d193f26571ea4e70db29ef01a0d4d5f
 > 
 
