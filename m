@@ -2,98 +2,191 @@ Return-Path: <SRS0=g4WE=CT=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 857E4C43461
-	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Sep 2020 16:41:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E84E6C433E2
+	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Sep 2020 17:04:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 186442075A
-	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Sep 2020 16:41:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A43D1214F1
+	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Sep 2020 17:04:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h+WxcfKU"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G0oo/YKN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726660AbgIJQk7 (ORCPT
+        id S1726979AbgIJREq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 10 Sep 2020 12:40:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47862 "EHLO
+        Thu, 10 Sep 2020 13:04:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726980AbgIJQi4 (ORCPT
+        with ESMTP id S1727067AbgIJQzd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 10 Sep 2020 12:38:56 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D61C06179B;
-        Thu, 10 Sep 2020 09:31:13 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id c10so5833649otm.13;
-        Thu, 10 Sep 2020 09:31:13 -0700 (PDT)
+        Thu, 10 Sep 2020 12:55:33 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE65C061389;
+        Thu, 10 Sep 2020 09:53:21 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id t76so6555107oif.7;
+        Thu, 10 Sep 2020 09:53:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=ZLflO+6y2CV3/36DCXEjAkXxKljpWSRITCgyl2EiC0E=;
-        b=h+WxcfKUGurTr1Vg8vZwYENOYIbO1DOxXVl8Xda6agOKRjwLTrSyAgxMznXVpYX8Mi
-         CccsFN7kQjAUeB5YIr7unKtqjkw5h/ArbKznGmFNlJ8hYiCeCwClYWFh+EUHv0ATdSzW
-         O7vxYexA0wV+sXea809M/UT2QghMMY5dhB1GvjHZZJwltFyCUuY2DfvjvhoQemxhs+sX
-         OMeI5MGuF++hiKL0OY1eC0pcr6WxkV4EY78J6f8GlXUJrFUJry1PvY7SkVBz7vdytA3O
-         iW6gDpqS/OtQU2NURMBg9xiXuuUnKid1k/x48K1c3Zc3EcfuPuYXUQBWA0IFBTkWGJDv
-         mKaA==
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=OF9x9aCRYQId9DTEeUUlbYKv+AnvnaiO1HEaClAF3pU=;
+        b=G0oo/YKN3aMocisM9YvUVUXZ6P0HjlzEh1aN0JBLSr1UF685NZz4FvV9yy9ciETOdg
+         MkSjfl7r3DqSkVXT67uAu6Cs2Ab2eoYVWMIWpwvCFIAkW6cxwts4h7e338HO1cNgygv/
+         UNG5BeaCdOu6SLhPNATJBf1TX3engBh5U0LPzR0T43v9Dv5WU3udl29CuTakPLk9fVSg
+         XMr5C0iW6krWRxoIOi9+eNgeFsuyZFfZj8VSp+lrT88zXcFS85Z/7aeVmjK0iD2DrBWX
+         1J1UF1RLPaSpGBD1CGMMCODa+LIKZirT7cdKdRVaQnAwKBpDYi76Eb8ZesKvUiROGD4i
+         rQWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=ZLflO+6y2CV3/36DCXEjAkXxKljpWSRITCgyl2EiC0E=;
-        b=a5P/vTLY7X6wFJIpDHCtjxc4cFBNiTl2guTLLSu5iNi/XJmyKXpBDfFE0ExWf+hRMv
-         1kLlNXZ92Jum3Lfv9HmYRSf5Kn3Fv8TKFdumDDzZooeQ3ro20DZic5jUWCnGni2hYrg/
-         pO/zLXh66kY+6GN0Zlut1J3Bus37HQ5C5jri/WfnshcqUhQvtCNGAhKpWzHG3SXvHUYt
-         aw2SVQHnzL58l+rlR6HNP18rRN36kc0kXpiV2E83PogdOxbyjH74WzYlmYkDCXOa9yk0
-         OLo7ctioGyz53/wiFVtlNgNWLOgPuwBmuIDONEFx4iNE4J0SAHlNs3rcnBzrM9FcSMjJ
-         ljew==
-X-Gm-Message-State: AOAM531E1HkjbMMRis7m6lB/Ixmzu+YHsvtz5opqJd/Y3Emv5Hcj5XBA
-        EhZwE5OJBBc17DrHexS8NIyh8kBpJpM=
-X-Google-Smtp-Source: ABdhPJzhynudBwKeLwB1Aj9BrSLpIfKd4RBlv+9wHJEWtWQ/FAL6Libb8a9POXIeNWNMewacJ82phQ==
-X-Received: by 2002:a05:6830:1e8a:: with SMTP id n10mr4610427otr.371.1599755472414;
-        Thu, 10 Sep 2020 09:31:12 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d83sm965480oib.43.2020.09.10.09.31.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 10 Sep 2020 09:31:11 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=OF9x9aCRYQId9DTEeUUlbYKv+AnvnaiO1HEaClAF3pU=;
+        b=Xb8Y+dLmLVl/zabUA59PyyOneY37HHoEiwTTG+SYvwLhcuR1skaq0fwN5bOpMVW6fv
+         XXNKAZtJKX5IRSWwEYzSUGU3cxfeNYJyXW4PuOVWS1EpUlpasNyoyLuYTBUkxyRKagKY
+         RaEVgITQP21ze+WdEfmn5vwhakcahw6ToK09XoVEexjtpNRC/gcu0Yl0+obdYshs/q5C
+         uv/CINimL14DFFLd+UlmJctnnbOnMfkPz+R1unnmvtJJFlsSFpwVRI5kXHOxXzBxCcs7
+         R6C0dMJPQo0u9u6V2Tsz5oGQx8HgqPzIc1oLoHATX1Ya6XINKwynqn4oHSN3iRISkpRR
+         8mfA==
+X-Gm-Message-State: AOAM532zuGFyBxOHh2meR5FE8v0SigBnar6JQwDgOqZW/XgS0AeYX7yE
+        1xERQfzUEdveF3sPPMig6GCl5tbTw8w=
+X-Google-Smtp-Source: ABdhPJxxQYeAOeg3pQKmRgUNcP8siZqU1f68A6vskafhEbE4hH+ZCtk/VqtxCUvbHWW164Fa89jkYw==
+X-Received: by 2002:a54:4e84:: with SMTP id c4mr586085oiy.22.1599756799753;
+        Thu, 10 Sep 2020 09:53:19 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b1sm1004074oof.8.2020.09.10.09.53.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Sep 2020 09:53:18 -0700 (PDT)
+Subject: Re: [PATCH 2/2] watchdog: sp5100_tco: Enable watchdog on Family 17h
+ devices if disabled
+To:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200910163109.235136-1-linux@roeck-us.net>
+ <20200910163109.235136-2-linux@roeck-us.net>
+ <30f69c2c-d4c8-a143-6bfa-34394b6361cf@siemens.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH 1/2] watchdog: sp5100: Fix definition of EFCH_PM_DECODEEN3
-Date:   Thu, 10 Sep 2020 09:31:08 -0700
-Message-Id: <20200910163109.235136-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <6ff3df92-3465-f619-7c21-eed421ff719d@roeck-us.net>
+Date:   Thu, 10 Sep 2020 09:53:17 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <30f69c2c-d4c8-a143-6bfa-34394b6361cf@siemens.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-EFCH_PM_DECODEEN3 is supposed to access DECODEEN register bits 24..31,
-in other words the register at byte offset 3.
+Hi Jan,
 
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Fixes: 887d2ec51e34b ("watchdog: sp5100_tco: Add support for recent FCH versions")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/sp5100_tco.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 9/10/20 9:34 AM, Jan Kiszka wrote:
+> On 10.09.20 18:31, Guenter Roeck wrote:
+>> On Family 17h (Ryzen) devices, the WatchdogTmrEn bit of PmDecodeEn not only
+>> enables watchdog memory decoding at 0xfeb00000, it also enables the
+>> watchdog hardware itself. Use this information to enable the watchdog if
+>> it is not already enabled.
+>>
+>> Cc: Jan Kiszka <jan.kiszka@siemens.com>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>> ---
+>>  drivers/watchdog/sp5100_tco.c | 18 ++++++++++++++++++
+>>  1 file changed, 18 insertions(+)
+>>
+>> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+>> index 85e9664318c9..a730ecbf78cd 100644
+>> --- a/drivers/watchdog/sp5100_tco.c
+>> +++ b/drivers/watchdog/sp5100_tco.c
+>> @@ -17,6 +17,12 @@
+>>   *	    AMD Publication 51192 "AMD Bolton FCH Register Reference Guide"
+>>   *	    AMD Publication 52740 "BIOS and Kernel Developer’s Guide (BKDG)
+>>   *				for AMD Family 16h Models 30h-3Fh Processors"
+>> + *	    AMD Publication 55570-B1-PUB "Processor Programming Reference (PPR)
+>> + *				for AMD Family 17h Model 18h, Revision B1
+>> + *				Processors (PUB)
+>> + *	    AMD Publication 55772-A1-PUB "Processor Programming Reference (PPR)
+>> + *				for AMD Family 17h Model 20h, Revision A1
+>> + *				Processors (PUB)
+>>   */
+>>  
+>>  /*
+>> @@ -241,6 +247,18 @@ static int sp5100_tco_setupdevice(struct device *dev,
+>>  		break;
+>>  	case efch:
+>>  		dev_name = SB800_DEVNAME;
+>> +		/*
+>> +		 * On Family 17h devices, the EFCH_PM_DECODEEN_WDT_TMREN bit of
+>> +		 * EFCH_PM_DECODEEN not only enables the EFCH_PM_WDT_ADDR memory
+>> +		 * region, it also enables the watchdog itself.
+>> +		 */
+>> +		if (boot_cpu_data.x86 == 0x17) {
+>> +			val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
+>> +			if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
+>> +				sp5100_tco_update_pm_reg8(EFCH_PM_DECODEEN, 0xff,
+>> +							  EFCH_PM_DECODEEN_WDT_TMREN);
+>> +			}
+>> +		}
+>>  		val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
+>>  		if (val & EFCH_PM_DECODEEN_WDT_TMREN)
+>>  			mmio_addr = EFCH_PM_WDT_ADDR;
+>>
+> 
+> Won't that bring us EFCH_PM_WDT_ADDR as address, rather than
+> EFCH_PM_ACPI_MMIO_ADDR which worked in my case? Or is one an alias of
+> the other.
+> 
 
-diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
-index 87eaf357ae01..adf015aa4126 100644
---- a/drivers/watchdog/sp5100_tco.h
-+++ b/drivers/watchdog/sp5100_tco.h
-@@ -70,7 +70,7 @@
- #define EFCH_PM_DECODEEN_WDT_TMREN	BIT(7)
- 
- 
--#define EFCH_PM_DECODEEN3		0x00
-+#define EFCH_PM_DECODEEN3		0x03
- #define EFCH_PM_DECODEEN_SECOND_RES	GENMASK(1, 0)
- #define EFCH_PM_WATCHDOG_DISABLE	((u8)GENMASK(3, 2))
- 
--- 
-2.17.1
+Yes, it does use EFCH_PM_WDT_ADDR. EFCH_PM_ACPI_MMIO_ADDR works as well,
+but is meant to be a fallback. Both point to the watchdog memory space.
 
+Thanks,
+Guenter
