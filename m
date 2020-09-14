@@ -2,46 +2,46 @@ Return-Path: <SRS0=8RgI=CX=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FA8C31E5C
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Sep 2020 21:46:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B99EC2BBD1
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Sep 2020 21:51:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97D3F21741
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Sep 2020 21:46:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 666F1208DB
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Sep 2020 21:51:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="DAIUSYJO"
+	dkim=pass (1024-bit key) header.d=walle.cc header.i=@walle.cc header.b="cDs8xrI9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726187AbgINVqX (ORCPT
+        id S1726039AbgINVvD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 14 Sep 2020 17:46:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726059AbgINVoD (ORCPT
+        Mon, 14 Sep 2020 17:51:03 -0400
+Received: from ssl.serverraum.org ([176.9.125.105]:54093 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbgINVu6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Sep 2020 17:44:03 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE453C06178B;
-        Mon, 14 Sep 2020 14:44:02 -0700 (PDT)
-Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        Mon, 14 Sep 2020 17:50:58 -0400
+Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 933F823E3E;
-        Mon, 14 Sep 2020 23:44:00 +0200 (CEST)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id D1C2222708;
+        Mon, 14 Sep 2020 23:50:55 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1600119841;
+        t=1600120256;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=1Aospi5BHa7CcuGBXB40wDj2JAeA/bgHk3Hc0N/nxVw=;
-        b=DAIUSYJOzxL/V8Op1AoJZ+U7D3bWv4G7u/cXaxneceZVRhoU/93y4ofdnOr4Dfj9jnLQLX
-        367b7pCupary4fKeV4vAmR1Vho++X6cPSXt2mcThqmqQBUCIwlrNujGEPAe1hjkn6+0A1N
-        P4Zn//BJTDq5yhxzktFgNiNPTFFRYpw=
+        bh=WEZa4tMQ4cVvyWubxXAttSAni9x1Ad4LL/hdsYs9YIY=;
+        b=cDs8xrI9zE2wtJ2jpwESYmihri49VCiZX/oeN+Irn5SNubSaItGRdVZVurT88O3m0jXMNd
+        oCuQYBjeRIH7It/XhJvqhvMVBr2XIqMWiMnihUjd7Oxg/Cz0EuQSU5WGGgcb9uy+bK/1LP
+        IlutsJIUgbVkvo//mzQNp3WBP9tRs4k=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 14 Sep 2020 23:50:55 +0200
 From:   Michael Walle <michael@walle.cc>
 To:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
@@ -54,8 +54,7 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Lee Jones <lee.jones@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -64,197 +63,46 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Michael Walle <michael@walle.cc>
-Subject: [PATCH v10 04/13] irqchip: add sl28cpld interrupt controller support
-Date:   Mon, 14 Sep 2020 23:43:32 +0200
-Message-Id: <20200914214341.14268-5-michael@walle.cc>
-X-Mailer: git-send-email 2.20.1
+        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v10 00/13] Add support for Kontron sl28cpld
 In-Reply-To: <20200914214341.14268-1-michael@walle.cc>
 References: <20200914214341.14268-1-michael@walle.cc>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam: Yes
+User-Agent: Roundcube Webmail/1.4.8
+Message-ID: <9146339946ff041df991cae8e155413b@walle.cc>
+X-Sender: michael@walle.cc
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for the interrupt controller inside the sl28 CPLD management
-controller.
+Hi Lee, Hi Shawn,
 
-The interrupt controller can handle at most 8 interrupts and is really
-simplistic and consists only of an interrupt mask and an interrupt
-pending register.
+Am 2020-09-14 23:43, schrieb Michael Walle:
+> The Kontron sl28cpld is a board management chip providing gpio, pwm, 
+> fan
+> monitoring and an interrupt controller. For now this controller is used 
+> on
+> the Kontron SMARC-sAL28 board. But because of its flexible nature, it
+> might also be used on other boards in the future. The individual blocks
+> (like gpio, pwm, etc) are kept intentionally small. The MFD core driver
+> then instantiates different (or multiple of the same) blocks. It also
+> provides the register layout so it might be updated in the future 
+> without a
+> device tree change; and support other boards with a different layout or
+> functionalities.
+[..]
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Marc Zyngier <maz@kernel.org>
----
-Changes since v9:
- - none
+Lee, because my last v9 wasn't merged for now, I though I can do a new 
+v10
+with the requested fixes.
 
-Changes since v8:
- - none
+Shawn, do you have any remarks on the "arm64:" patches? Will you merge 
+them
+through your tree. If there are any remarks, I'd wait and repost them in 
+an
+own series once the actual drivers are merged. I guess there is no need 
+to
+have all the maintainters on CC for these patches anymore.
 
-Changes since v7:
- - added "depends on MFD_SL28CPLD=y || COMPILE_TEST"
-
-Changes since v6:
- - none
-
-Changes since v5:
- - none
-
-Changes since v4:
- - update copyright year
- - don't use "int irq" instead of "unsigne int irq", because
-   platform_get_irq() might return a negative error code. Found by "kernel
-   test robot <lkp@intel.com>
- - remove comma in terminator line of the compatible strings list,
-   suggested by Andy
- - use newer devm_regmap_add_irq_chip_fwnode()
- - don't use KBUID_MODNAME, suggested by Andy
- - remove the platform device table
-
-Changes since v3:
- - see cover letter
-
- drivers/irqchip/Kconfig        |  8 +++
- drivers/irqchip/Makefile       |  1 +
- drivers/irqchip/irq-sl28cpld.c | 96 ++++++++++++++++++++++++++++++++++
- 3 files changed, 105 insertions(+)
- create mode 100644 drivers/irqchip/irq-sl28cpld.c
-
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index cdb769383a50..ca7630543a8a 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -246,6 +246,14 @@ config RENESAS_RZA1_IRQC
- 	  Enable support for the Renesas RZ/A1 Interrupt Controller, to use up
- 	  to 8 external interrupts with configurable sense select.
- 
-+config SL28CPLD_INTC
-+	bool "Kontron sl28cpld IRQ controller"
-+	depends on MFD_SL28CPLD=y || COMPILE_TEST
-+	select REGMAP_IRQ
-+	help
-+	  Interrupt controller driver for the board management controller
-+	  found on the Kontron sl28 CPLD.
-+
- config ST_IRQCHIP
- 	bool
- 	select REGMAP
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index 8c983ad774f6..db5e37d2db11 100644
---- a/drivers/irqchip/Makefile
-+++ b/drivers/irqchip/Makefile
-@@ -110,3 +110,4 @@ obj-$(CONFIG_LOONGSON_HTPIC)		+= irq-loongson-htpic.o
- obj-$(CONFIG_LOONGSON_HTVEC)		+= irq-loongson-htvec.o
- obj-$(CONFIG_LOONGSON_PCH_PIC)		+= irq-loongson-pch-pic.o
- obj-$(CONFIG_LOONGSON_PCH_MSI)		+= irq-loongson-pch-msi.o
-+obj-$(CONFIG_SL28CPLD_INTC)		+= irq-sl28cpld.o
-diff --git a/drivers/irqchip/irq-sl28cpld.c b/drivers/irqchip/irq-sl28cpld.c
-new file mode 100644
-index 000000000000..0aa50d025ef6
---- /dev/null
-+++ b/drivers/irqchip/irq-sl28cpld.c
-@@ -0,0 +1,96 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * sl28cpld interrupt controller driver
-+ *
-+ * Copyright 2020 Kontron Europe GmbH
-+ */
-+
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+
-+#define INTC_IE 0x00
-+#define INTC_IP 0x01
-+
-+static const struct regmap_irq sl28cpld_irqs[] = {
-+	REGMAP_IRQ_REG_LINE(0, 8),
-+	REGMAP_IRQ_REG_LINE(1, 8),
-+	REGMAP_IRQ_REG_LINE(2, 8),
-+	REGMAP_IRQ_REG_LINE(3, 8),
-+	REGMAP_IRQ_REG_LINE(4, 8),
-+	REGMAP_IRQ_REG_LINE(5, 8),
-+	REGMAP_IRQ_REG_LINE(6, 8),
-+	REGMAP_IRQ_REG_LINE(7, 8),
-+};
-+
-+struct sl28cpld_intc {
-+	struct regmap *regmap;
-+	struct regmap_irq_chip chip;
-+	struct regmap_irq_chip_data *irq_data;
-+};
-+
-+static int sl28cpld_intc_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct sl28cpld_intc *irqchip;
-+	int irq;
-+	u32 base;
-+	int ret;
-+
-+	if (!dev->parent)
-+		return -ENODEV;
-+
-+	irqchip = devm_kzalloc(dev, sizeof(*irqchip), GFP_KERNEL);
-+	if (!irqchip)
-+		return -ENOMEM;
-+
-+	irqchip->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!irqchip->regmap)
-+		return -ENODEV;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	ret = device_property_read_u32(&pdev->dev, "reg", &base);
-+	if (ret)
-+		return -EINVAL;
-+
-+	irqchip->chip.name = "sl28cpld-intc";
-+	irqchip->chip.irqs = sl28cpld_irqs;
-+	irqchip->chip.num_irqs = ARRAY_SIZE(sl28cpld_irqs);
-+	irqchip->chip.num_regs = 1;
-+	irqchip->chip.status_base = base + INTC_IP;
-+	irqchip->chip.mask_base = base + INTC_IE;
-+	irqchip->chip.mask_invert = true,
-+	irqchip->chip.ack_base = base + INTC_IP;
-+
-+	return devm_regmap_add_irq_chip_fwnode(dev, dev_fwnode(dev),
-+					       irqchip->regmap, irq,
-+					       IRQF_SHARED | IRQF_ONESHOT, 0,
-+					       &irqchip->chip,
-+					       &irqchip->irq_data);
-+}
-+
-+static const struct of_device_id sl28cpld_intc_of_match[] = {
-+	{ .compatible = "kontron,sl28cpld-intc" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sl28cpld_intc_of_match);
-+
-+static struct platform_driver sl28cpld_intc_driver = {
-+	.probe = sl28cpld_intc_probe,
-+	.driver = {
-+		.name = "sl28cpld-intc",
-+		.of_match_table = sl28cpld_intc_of_match,
-+	}
-+};
-+module_platform_driver(sl28cpld_intc_driver);
-+
-+MODULE_DESCRIPTION("sl28cpld Interrupt Controller Driver");
-+MODULE_AUTHOR("Michael Walle <michael@walle.cc>");
-+MODULE_LICENSE("GPL");
 -- 
-2.20.1
-
+-michael
