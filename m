@@ -1,116 +1,116 @@
-Return-Path: <SRS0=JKJl=CY=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=sx2n=C2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47E59C433E2
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Sep 2020 21:04:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8079C43461
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Sep 2020 08:06:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 090F720770
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Sep 2020 21:04:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3AEE21D90
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Sep 2020 08:06:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727806AbgIOVEH (ORCPT
+        id S1726438AbgIQIGi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Sep 2020 17:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727986AbgIOVEF (ORCPT
+        Thu, 17 Sep 2020 04:06:38 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:44821 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726408AbgIQIGg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Sep 2020 17:04:05 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1747C061797
-        for <linux-watchdog@vger.kernel.org>; Tue, 15 Sep 2020 14:03:54 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kII79-00006G-Jl; Tue, 15 Sep 2020 23:03:47 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kII73-00019G-6I; Tue, 15 Sep 2020 23:03:41 +0200
-Date:   Tue, 15 Sep 2020 23:03:40 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Michael Walle <michael@walle.cc>, Lee Jones <lee.jones@linaro.org>
-Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Thu, 17 Sep 2020 04:06:36 -0400
+Received: by mail-lf1-f67.google.com with SMTP id d15so1150895lfq.11;
+        Thu, 17 Sep 2020 01:04:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Z2cMPrnQf5Z9BUMQYWdci5L6icLIhq49YJLAXZRSXl0=;
+        b=kUrvj2ln/LJPCG8zTbIvcsKQvsnbtdlg0xseXAwcrITiIyn0qFPo9xVUMp/00H70MM
+         dfLkJF+FzLyfieUqS0nsXw1LPCdgOFSlx8gYXp9msnTkdSsttbGPdD1uwpC2CP7nzPGE
+         GVA1Y3glkFKK9W2KrnOWbocWZiLFShfCU0pT7ONK6WZhsyMiW6WoTs0Si27IlIUplnXf
+         tt/1HH7d5Xkbt+NIq3ImDGUus8JHXzXnbrBcR2CIpyvKUbMRlLUkQGNZ/nAY/kkbtat+
+         pkoNLTk4RQnTI94RoerT1Zhnn1E7/ja670c5VHiT5Dmf4eJsijqvPPU0Tz58o6xxsDza
+         dgXQ==
+X-Gm-Message-State: AOAM530twc3LrLo8UONqbZY7n2753ZnutIXwvoB2PYxY1EIYvVZy5scF
+        QJ+dnEyYNrat6o5mj0Jag9Q=
+X-Google-Smtp-Source: ABdhPJzX5oLzb4C53YfeJYtuZP0zd8DG+nEsuvOi+XpsvP5f5D4FioGJS5r7XaMIWwa+3LG/o71vGg==
+X-Received: by 2002:ac2:4301:: with SMTP id l1mr8104366lfh.389.1600329843054;
+        Thu, 17 Sep 2020 01:04:03 -0700 (PDT)
+Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
+        by smtp.gmail.com with ESMTPSA id t2sm5089852lff.150.2020.09.17.01.04.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 01:04:01 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 11:03:54 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v10 06/13] pwm: add support for sl28cpld PWM controller
-Message-ID: <20200915210340.xg5xwmajufedyltr@pengutronix.de>
-References: <20200914214341.14268-1-michael@walle.cc>
- <20200914214341.14268-7-michael@walle.cc>
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v1 6/6] MAINTAINERS: Add ROHM BD9576MUF and BD9573MUF drivers
+Message-ID: <358f571158d344196dc56b2eab7fcd802a236d69.1600329307.git.matti.vaittinen@fi.rohmeurope.com>
+References: <cover.1600329307.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="cyiwyjcsxpn452wt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200914214341.14268-7-michael@walle.cc>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
-Sender: linux-watchdog-owner@vger.kernel.org
+In-Reply-To: <cover.1600329307.git.matti.vaittinen@fi.rohmeurope.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Add maintainer entries for ROHM BD9576MUF and ROHM BD9573MUF drivers.
+MFD, regulator and watchdog drivers were introduced for these PMICs.
 
---cyiwyjcsxpn452wt
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+---
+ MAINTAINERS | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-On Mon, Sep 14, 2020 at 11:43:34PM +0200, Michael Walle wrote:
-> Add support for the PWM controller of the sl28cpld board management
-> controller. This is part of a multi-function device driver.
->=20
-> The controller has one PWM channel and can just generate four distinct
-> frequencies.
->=20
-> Signed-off-by: Michael Walle <michael@walle.cc>
-> Acked-by: Thierry Reding <thierry.reding@gmail.com>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b5cfab015bd6..630a23fc84f0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14956,16 +14956,20 @@ F:	drivers/gpio/gpio-bd71828.c
+ F:	drivers/mfd/rohm-bd70528.c
+ F:	drivers/mfd/rohm-bd71828.c
+ F:	drivers/mfd/rohm-bd718x7.c
++F:	drivers/mfd/rohm-bd9576.c
+ F:	drivers/power/supply/bd70528-charger.c
+ F:	drivers/regulator/bd70528-regulator.c
+ F:	drivers/regulator/bd71828-regulator.c
+ F:	drivers/regulator/bd718x7-regulator.c
++F:	drivers/regulator/bd9576-regulator.c
+ F:	drivers/regulator/rohm-regulator.c
+ F:	drivers/rtc/rtc-bd70528.c
+ F:	drivers/watchdog/bd70528_wdt.c
++F:	drivers/watchdog/bd9576_wdt.c
+ F:	include/linux/mfd/rohm-bd70528.h
+ F:	include/linux/mfd/rohm-bd71828.h
+ F:	include/linux/mfd/rohm-bd718x7.h
++F:	include/linux/mfd/rohm-bd957x.h
+ F:	include/linux/mfd/rohm-generic.h
+ F:	include/linux/mfd/rohm-shared.h
+ 
+-- 
+2.21.0
 
-Reviewed-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-@Lee: From my side taking the patch via your mfd tree is fine.
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
 
-Thanks for your effort to align your patch to my reviews
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---cyiwyjcsxpn452wt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl9hLCkACgkQwfwUeK3K
-7AmJogf/X2AMslmJpJk0/t52+83yxuLmP8HEPZ/fZLyaE9/xTy0N/O2LeLsp13pK
-Jy7h+pQXkSORq2B/y38E5O+HAYSHquEkhnJKCG6sQk6gFxBH4F4eU14Y3LB7etqM
-8mNonE4LjJoNew2Mv2hBdO+9fTMum16bEe7rcQwBY3B6BYFkmad7ZK9XoDYm4cfB
-V5aLHywUaFB9/CZ2fqXDvtN/47Rf+ejnkrijTYwwu+BGf8i6bxIOUzSTHrrm5KnF
-fZ+GAFFikBriPAKpJvrVA0w3/tOhHpaOhNu405ghN4+aNwieSq0f6OZVP8IgJP3T
-c/G/lstWFGVi0MbWlbzQfVxcrCnBpg==
-=I40k
------END PGP SIGNATURE-----
-
---cyiwyjcsxpn452wt--
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
+Simon says - in Latin please.
+~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
+Thanks to Simon Glass for the translation =] 
