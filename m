@@ -2,106 +2,116 @@ Return-Path: <SRS0=6V1x=C6=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 821A3C43465
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 09:13:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 777FFC43466
+	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 16:58:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4BB5921D7A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 09:13:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 408202388B
+	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 16:58:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sqePeyhl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbgIUJNK (ORCPT
+        id S1728391AbgIUQ60 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 21 Sep 2020 05:13:10 -0400
-Received: from mo-csw1116.securemx.jp ([210.130.202.158]:57980 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726334AbgIUJNJ (ORCPT
+        Mon, 21 Sep 2020 12:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36312 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728997AbgIUQ6F (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 21 Sep 2020 05:13:09 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1116) id 08L9CfMj019274; Mon, 21 Sep 2020 18:12:41 +0900
-X-Iguazu-Qid: 2wHHjJER8YyHUbfWCH
-X-Iguazu-QSIG: v=2; s=0; t=1600679560; q=2wHHjJER8YyHUbfWCH; m=2kg8CbwQ10zgxLgNj1b4DaAvHMEKIpqTs6QU11ddojQ=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1112) id 08L9Ccgt033210;
-        Mon, 21 Sep 2020 18:12:39 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id 08L9CcPE022062;
-        Mon, 21 Sep 2020 18:12:38 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id 08L9Cc2l016936;
-        Mon, 21 Sep 2020 18:12:38 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     punit1.agrawal@toshiba.co.jp, yuji2.ishikawa@toshiba.co.jp,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH v4 0/2] Add WDT driver for Toshiba Visconti ARM SoC
-Date:   Mon, 21 Sep 2020 18:12:33 +0900
-X-TSB-HOP: ON
-Message-Id: <20200921091235.299774-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.27.0
+        Mon, 21 Sep 2020 12:58:05 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC77C061755;
+        Mon, 21 Sep 2020 09:58:04 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id c18so13562507wrm.9;
+        Mon, 21 Sep 2020 09:58:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Pwode9WuxR0NQny1g826zVRL54o0hpVVy92ZYMK8Dvw=;
+        b=sqePeyhlvkDMq0UuJOosFLcsXj2NVMi0T9t825erutMdwMYePO3YQMyHztvv+S1Srj
+         wkVr70iSteaGLlw7mDX/twUNDKPIhbw6XBW+b/L69MDnrin/dhAuHT/Rg8LQtAaFkzxX
+         mguMEZDzJz76tly4LqvPvL1IP6fvei34A+HDuK1yPzz27CUPqlGNpy3lCSVu3CK8s109
+         4kUaP5QXR9KQjqDiMOFDdvkJzaC73W4TFufIUzh8+oazfB425amqUx1A8WrssgUqSaU7
+         wjiGZJV2PPbGvfDsUPmtm1j7UTMzisPYeBx0pKeelDWfvwOdxPeo3wPQDyZZcLauACxm
+         FswA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Pwode9WuxR0NQny1g826zVRL54o0hpVVy92ZYMK8Dvw=;
+        b=KOLjeGCWvqtJoqXUG/qoCRpg/ojIoH301ExOEU5eA5CE8hCit9KGD6ijRj20lK4vlZ
+         tEbM7gJXn7M31d+WYoMN4vR+aEa0sJQzy3AKeGlkIhJQ3l8EAJJLw1JTbs7aW4LuBZ9P
+         KVC5+J+l5u9QNIhTwGylXs9L2CntZukZqUzt9E7iTolYiy9JqnDqNs4u2ubCyo0LLBX9
+         JwK1dohGMoB5eQkfPT4XTnTYyDSnTPpJqb5lOc64F6welcrQ13FrYTPYx/8yBlP4BTTj
+         8iuuFEWHXI4QYVNVq/sCKmc0caV5MZ7Z0z61fnNDVlPy7Faq1uOxgVwxYwX9gnqBlud8
+         +v4w==
+X-Gm-Message-State: AOAM5325RzhzPgCc1PbV/TlDpfbNq97IFZA+3Lw85it/zNlvy5rf8cPV
+        g7LiEbwV7MXqcvDy1F3GYpI=
+X-Google-Smtp-Source: ABdhPJysuN26CjjKmkh684/LBj0YsHAp2r5E1WyzP+CrVHERk8Z/A+gg8P+I+kN1vdh511YnZzgQeA==
+X-Received: by 2002:a5d:6049:: with SMTP id j9mr684578wrt.295.1600707483654;
+        Mon, 21 Sep 2020 09:58:03 -0700 (PDT)
+Received: from ziggy.stardust ([213.195.113.201])
+        by smtp.gmail.com with ESMTPSA id h2sm22648597wrp.69.2020.09.21.09.58.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Sep 2020 09:58:02 -0700 (PDT)
+Subject: Re: [v4,2/5] arm64: dts: mt8183: update watchdog device node
+To:     Crystal Guo <crystal.guo@mediatek.com>, linux@roeck-us.net,
+        robh+dt@kernel.org
+Cc:     srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, seiya.wang@mediatek.com
+References: <20200803071501.30634-1-crystal.guo@mediatek.com>
+ <20200803071501.30634-3-crystal.guo@mediatek.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <8df5726d-2be4-48b8-145e-67539f5a23f5@gmail.com>
+Date:   Mon, 21 Sep 2020 18:58:02 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200803071501.30634-3-crystal.guo@mediatek.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
 
-This is the WDT driver for Toshiba's ARM SoC, Visconti[0].
-This has not yet been included in Linux kernel, but patches have been posted [1]
-and some patches have been applied [2].
 
-Since this is a SoC driver, this cannot work by itself, but I have confirmed that it
-works with the patch series sent as [1] with DT setting.
+On 03/08/2020 09:14, Crystal Guo wrote:
+> The watchdog driver for MT8183 relies on DT data, so the fallback
+> compatible MT6589 won't work, need to update watchdog device node
+> to sync with watchdog dt-binding document.
+> 
+> Signed-off-by: Crystal Guo <crystal.guo@mediatek.com>
 
-Best regards,
-  Nobuhiro
+Applied to v5.9-next/dts64
 
-[0]: https://toshiba.semicon-storage.com/ap-en/semiconductor/product/image-recognition-processors-visconti.html
-[1]: http://lists.infradead.org/pipermail/linux-arm-kernel/2020-September/599678.html
-[2]: http://lists.infradead.org/pipermail/linux-arm-kernel/2020-September/600578.html
+Thanks!
 
-watchdog: bindings: Add binding documentation for Toshiba Visconti watchdog device
-  v3 - > v4:
-    - Add timeout-sec property 
-    - Add Reviewed-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-  v2 - > v3:
-    - no update
-  v1 - > v2:
-    - no update
-
-watchdog: Add Toshiba Visconti watchdog driver
-  v3 - > v4:
-    - Remove unnecessary include file.
-    - Drop unnecessary MODULE_AUTHOR.
-    - Add Reviewed-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-  v2 - > v3:
-    - Fix unnecessary split lines
-    - Fix negative value check and handling for visconti_wdt_get_timelef()
-  v1 - > v2:
-    - Sort incclude alphabetically.
-    - Add negative value check and handling for visconti_wdt_get_timelef()
-    - Use dev_err_probe() with devm_clk_get()
-
-Nobuhiro Iwamatsu (2):
-  watchdog: bindings: Add binding documentation for Toshiba Visconti
-    watchdog device
-  watchdog: Add Toshiba Visconti watchdog driver
-
- .../watchdog/toshiba,visconti-wdt.yaml        |  52 +++++
- drivers/watchdog/Kconfig                      |   8 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/visconti_wdt.c               | 189 ++++++++++++++++++
- 4 files changed, 250 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/toshiba,visconti-wdt.yaml
- create mode 100644 drivers/watchdog/visconti_wdt.c
-
--- 
-2.27.0
-
+> ---
+>   arch/arm64/boot/dts/mediatek/mt8183.dtsi | 3 +--
+>   1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> index 1e03c849dc5d..f8d835746ab8 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> +++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> @@ -310,8 +310,7 @@
+>   		};
+>   
+>   		watchdog: watchdog@10007000 {
+> -			compatible = "mediatek,mt8183-wdt",
+> -				     "mediatek,mt6589-wdt";
+> +			compatible = "mediatek,mt8183-wdt";
+>   			reg = <0 0x10007000 0 0x100>;
+>   			#reset-cells = <1>;
+>   		};
+> 
