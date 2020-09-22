@@ -1,117 +1,159 @@
-Return-Path: <SRS0=6V1x=C6=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=hMMH=C7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 777FFC43466
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 16:58:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63D7BC47423
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Sep 2020 02:59:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 408202388B
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Sep 2020 16:58:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sqePeyhl"
+	by mail.kernel.org (Postfix) with ESMTP id 3087623A62
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Sep 2020 02:59:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600743557;
+	bh=b2qwnEFh+ba+rThRPVC7+mIXVik4Np6wC8ogIy5np/E=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=C6fcwUGu6vrykE5zml+rbFhoUKY48Cw52Z10Xk2rF9iLjUb5uZWbwbGlD/HWKNUmm
+	 EF1DfdnhKREgY31Bfb/0zr9v+IJ+nhFSbJVegcr7OjdBqI+fWSvxzyTgisWExVEJrU
+	 ofXP7gUyDwL5PTzZ+9i5wXgBhkkAcROENdx9DIP0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728391AbgIUQ60 (ORCPT
+        id S1729089AbgIVC7P (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 21 Sep 2020 12:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728997AbgIUQ6F (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:58:05 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC77C061755;
-        Mon, 21 Sep 2020 09:58:04 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id c18so13562507wrm.9;
-        Mon, 21 Sep 2020 09:58:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Pwode9WuxR0NQny1g826zVRL54o0hpVVy92ZYMK8Dvw=;
-        b=sqePeyhlvkDMq0UuJOosFLcsXj2NVMi0T9t825erutMdwMYePO3YQMyHztvv+S1Srj
-         wkVr70iSteaGLlw7mDX/twUNDKPIhbw6XBW+b/L69MDnrin/dhAuHT/Rg8LQtAaFkzxX
-         mguMEZDzJz76tly4LqvPvL1IP6fvei34A+HDuK1yPzz27CUPqlGNpy3lCSVu3CK8s109
-         4kUaP5QXR9KQjqDiMOFDdvkJzaC73W4TFufIUzh8+oazfB425amqUx1A8WrssgUqSaU7
-         wjiGZJV2PPbGvfDsUPmtm1j7UTMzisPYeBx0pKeelDWfvwOdxPeo3wPQDyZZcLauACxm
-         FswA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Pwode9WuxR0NQny1g826zVRL54o0hpVVy92ZYMK8Dvw=;
-        b=KOLjeGCWvqtJoqXUG/qoCRpg/ojIoH301ExOEU5eA5CE8hCit9KGD6ijRj20lK4vlZ
-         tEbM7gJXn7M31d+WYoMN4vR+aEa0sJQzy3AKeGlkIhJQ3l8EAJJLw1JTbs7aW4LuBZ9P
-         KVC5+J+l5u9QNIhTwGylXs9L2CntZukZqUzt9E7iTolYiy9JqnDqNs4u2ubCyo0LLBX9
-         JwK1dohGMoB5eQkfPT4XTnTYyDSnTPpJqb5lOc64F6welcrQ13FrYTPYx/8yBlP4BTTj
-         8iuuFEWHXI4QYVNVq/sCKmc0caV5MZ7Z0z61fnNDVlPy7Faq1uOxgVwxYwX9gnqBlud8
-         +v4w==
-X-Gm-Message-State: AOAM5325RzhzPgCc1PbV/TlDpfbNq97IFZA+3Lw85it/zNlvy5rf8cPV
-        g7LiEbwV7MXqcvDy1F3GYpI=
-X-Google-Smtp-Source: ABdhPJysuN26CjjKmkh684/LBj0YsHAp2r5E1WyzP+CrVHERk8Z/A+gg8P+I+kN1vdh511YnZzgQeA==
-X-Received: by 2002:a5d:6049:: with SMTP id j9mr684578wrt.295.1600707483654;
-        Mon, 21 Sep 2020 09:58:03 -0700 (PDT)
-Received: from ziggy.stardust ([213.195.113.201])
-        by smtp.gmail.com with ESMTPSA id h2sm22648597wrp.69.2020.09.21.09.58.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Sep 2020 09:58:02 -0700 (PDT)
-Subject: Re: [v4,2/5] arm64: dts: mt8183: update watchdog device node
-To:     Crystal Guo <crystal.guo@mediatek.com>, linux@roeck-us.net,
-        robh+dt@kernel.org
-Cc:     srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, seiya.wang@mediatek.com
-References: <20200803071501.30634-1-crystal.guo@mediatek.com>
- <20200803071501.30634-3-crystal.guo@mediatek.com>
-From:   Matthias Brugger <matthias.bgg@gmail.com>
-Message-ID: <8df5726d-2be4-48b8-145e-67539f5a23f5@gmail.com>
-Date:   Mon, 21 Sep 2020 18:58:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        Mon, 21 Sep 2020 22:59:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59904 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728991AbgIVC7O (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 21 Sep 2020 22:59:14 -0400
+Received: from dragon (80.251.214.228.16clouds.com [80.251.214.228])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A63F239A1;
+        Tue, 22 Sep 2020 02:59:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600743554;
+        bh=b2qwnEFh+ba+rThRPVC7+mIXVik4Np6wC8ogIy5np/E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tkH+HRlJL6TKGegQlflvBRnj+TIfWuAQPjXVI8pWBtpZOXwhNMefqNKGTU0bpuMVw
+         DD6Ga0B1wscRBHHGKEVoH5uyZqzR4yY2wu+W2k4UwMKfHbrxS9AtdUUgF6f1ZMGon/
+         YGWy+3a3BE7LVRfsD2XXyK7tnl3j5p/XgI+sKie8=
+Date:   Tue, 22 Sep 2020 10:59:05 +0800
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Michael Walle <michael@walle.cc>
+Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v10 11/13] arm64: dts: freescale: sl28: enable LED support
+Message-ID: <20200922025904.GX25109@dragon>
+References: <20200914214341.14268-1-michael@walle.cc>
+ <20200914214341.14268-12-michael@walle.cc>
 MIME-Version: 1.0
-In-Reply-To: <20200803071501.30634-3-crystal.guo@mediatek.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200914214341.14268-12-michael@walle.cc>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-
-On 03/08/2020 09:14, Crystal Guo wrote:
-> The watchdog driver for MT8183 relies on DT data, so the fallback
-> compatible MT6589 won't work, need to update watchdog device node
-> to sync with watchdog dt-binding document.
+On Mon, Sep 14, 2020 at 11:43:39PM +0200, Michael Walle wrote:
+> Now that we have support for GPIO lines of the SMARC connector, enable
+> LED support on the KBox A-230-LS. There are two LEDs without fixed
+> functions, one is yellow and one is green. Unfortunately, it is just one
+> multi-color LED, thus while it is possible to enable both at the same
+> time it is hard to tell the difference between "yellow only" and "yellow
+> and green".
 > 
-> Signed-off-by: Crystal Guo <crystal.guo@mediatek.com>
-
-Applied to v5.9-next/dts64
-
-Thanks!
-
+> Signed-off-by: Michael Walle <michael@walle.cc>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
 > ---
->   arch/arm64/boot/dts/mediatek/mt8183.dtsi | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
+> Changes since v9:
+>  - none
 > 
-> diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-> index 1e03c849dc5d..f8d835746ab8 100644
-> --- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-> +++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-> @@ -310,8 +310,7 @@
->   		};
->   
->   		watchdog: watchdog@10007000 {
-> -			compatible = "mediatek,mt8183-wdt",
-> -				     "mediatek,mt6589-wdt";
-> +			compatible = "mediatek,mt8183-wdt";
->   			reg = <0 0x10007000 0 0x100>;
->   			#reset-cells = <1>;
->   		};
+> Changes since v8:
+>  - none
+> 
+> Changes since v7:
+>  - use new "function" and "color" properties instead of a label
+>  - added default-on trigger for the power-led
+> 
+> Changes since v6:
+>  - none
+> 
+> Changes since v5:
+>  - changed the label, suggested by Pavel Machek
+> 
+> Changes since v4:
+>  - none
+> 
+> Changes since v3:
+>  - see cover letter
+> 
+>  .../fsl-ls1028a-kontron-kbox-a-230-ls.dts      | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
+> index 4b4cc6a1573d..dd516c0efd8b 100644
+> --- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
+> +++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dts
+> @@ -11,11 +11,29 @@
+>  
+>  /dts-v1/;
+>  #include "fsl-ls1028a-kontron-sl28-var4.dts"
+> +#include <dt-bindings/leds/common.h>
+>  
+>  / {
+>  	model = "Kontron KBox A-230-LS";
+>  	compatible = "kontron,kbox-a-230-ls", "kontron,sl28-var4",
+>  		     "kontron,sl28", "fsl,ls1028a";
+> +
+> +	leds {
+> +		compatible = "gpio-leds";
+> +
+> +		alarm-led {
+> +			function = LED_FUNCTION_ALARM;
+> +			color = <LED_COLOR_ID_YELLOW>;
+> +			gpios = <&sl28cpld_gpio0 0 0>;
+> +		};
+> +
+> +		power-led {
+> +			linux,default-trigger = "default-on";
+> +			function = LED_FUNCTION_POWER;
+> +			color = <LED_COLOR_ID_GREEN>;
+> +			gpios = <&sl28cpld_gpio1 3 0>;
+
+Use GPIO_ACTIVE_HIGH for polarity to improve the readability.
+
+I fixed them up and applied patch #9 ~ #13.
+
+Shawn
+
+> +		};
+> +	};
+>  };
+>  
+>  &enetc_mdio_pf3 {
+> -- 
+> 2.20.1
 > 
