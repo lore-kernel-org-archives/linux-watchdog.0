@@ -2,165 +2,145 @@ Return-Path: <SRS0=db9M=DB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F108DC47423
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Sep 2020 10:53:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05035C2D0E2
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Sep 2020 16:59:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D180D2396E
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Sep 2020 10:53:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3FFE2220C
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Sep 2020 16:59:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="opeaTU8h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbgIXKxF (ORCPT
+        id S1728264AbgIXQ7v (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 24 Sep 2020 06:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        Thu, 24 Sep 2020 12:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726729AbgIXKxF (ORCPT
+        with ESMTP id S1727010AbgIXQ7u (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 Sep 2020 06:53:05 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16622C0613D4
-        for <linux-watchdog@vger.kernel.org>; Thu, 24 Sep 2020 03:53:05 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kLOs0-00062R-SC; Thu, 24 Sep 2020 12:53:00 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kLOrz-0005Ce-07; Thu, 24 Sep 2020 12:52:59 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Qiang Zhao <qiang.zhao@nxp.com>,
-        Bruno Thomsen <bruno.thomsen@gmail.com>
-Cc:     linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, robh+dt@kernel.org,
-        kernel@pengutronix.de, Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 1/2] rtc: pcf2127: move watchdog initialisation to a separate function
-Date:   Thu, 24 Sep 2020 12:52:55 +0200
-Message-Id: <20200924105256.18162-2-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200924105256.18162-1-u.kleine-koenig@pengutronix.de>
-References: <20200924074715.GT9675@piout.net>
- <20200924105256.18162-1-u.kleine-koenig@pengutronix.de>
+        Thu, 24 Sep 2020 12:59:50 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4470C0613CE;
+        Thu, 24 Sep 2020 09:59:50 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id e23so5514813eja.3;
+        Thu, 24 Sep 2020 09:59:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+1TNRMBksp0ZgyPa79AqDX/KsIzG5AY4VLIzrVQYq/s=;
+        b=opeaTU8hCe8259r7Jy3Bwmk8TeN10WvSFkY4pGk0h2k+pVLxnmrcR7anMAVBEGfW3l
+         zAIVq3cj1CvSDhR2B7YEYynA9wE+GFw6xsjZiQ9jQJtyGPfPOUr+PWnu0AscIM89h7gb
+         K8gYXq6GWR9Sxjp7fd7wmlnIMPYkZo4gqskb+D+WKGQA9u3MbiZ0excKw+IczPRks99X
+         e+VMH86xPl1LV+DzCOIva90my3DNxiyFvdqhieuO7igLDCsQr4qQWFISXBhJAUThcP/a
+         Bfbc5EdrmmuP6PwTArek6/4nJzq5g9OIoqIBtq9x0BGXGRgc3kdTY1ce5q3pp5Tsp7aI
+         agPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+1TNRMBksp0ZgyPa79AqDX/KsIzG5AY4VLIzrVQYq/s=;
+        b=MkN/lZb707HRnlfL2dYgtNq4pn7b0FldPI8Ki2VWSABYotiRV8OmQ0XoMr1vBCxWLo
+         MB4BGKPK22u//LB353P4Q+hWUl5xtH3QM3yYzcnDeu3JVFtDXDExR/fLmDTLjdQdzC+k
+         p5TzJVbgGI11Z2SluQFdNws8GUSlnH5XFy3gob7LaJyboPaWb1H001LEsQ35AprxKn2y
+         SsGjFSqT53EElem1VQY/zjoj0jzmPmyoG8Yhl34UUJuQVdg1tF6CJrjfMi+qPwANjXJl
+         4GUkGWAOfZK29s1FDmJ5T37vuxG4hA+eX6fODr8uhTyBfFrQsJASWrDpTte1+BLnJwUc
+         TurQ==
+X-Gm-Message-State: AOAM532rJ7MM/oOl0YBm2ppHbk4n7GoqSFXoYuG3nMmUvEWXUFrtwFOh
+        R0Tp4VGYhVVaQr6i7tmW7+C6KezvSto066rprpk=
+X-Google-Smtp-Source: ABdhPJyvmZQkFTapW8MqkbWB0p7BH9gIdf2jN0mm+srARTEERotirnhHqtVSSegNQTH+02fWXv/y2S9UoAa79UKY82E=
+X-Received: by 2002:a17:907:9ed:: with SMTP id ce13mr859425ejc.180.1600966789263;
+ Thu, 24 Sep 2020 09:59:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+References: <20200921054821.26071-1-qiang.zhao@nxp.com> <20200923094449.GP9675@piout.net>
+ <DB8PR04MB67635518BE38EEF5292C8D0991390@DB8PR04MB6763.eurprd04.prod.outlook.com>
+ <20200924070456.rovgp6n5q25s53vc@pengutronix.de> <VE1PR04MB6768783CAE7CA611365661AF91390@VE1PR04MB6768.eurprd04.prod.outlook.com>
+ <20200924074715.GT9675@piout.net>
+In-Reply-To: <20200924074715.GT9675@piout.net>
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+Date:   Thu, 24 Sep 2020 18:59:33 +0200
+Message-ID: <CAH+2xPAi+f2eKdeYiipc=W7eeeNdiXngTLkchpdoFMjJn9Og9w@mail.gmail.com>
+Subject: Re: [Patch v2 1/3] dt-bindings: rtc: pcf2127: Add bindings for nxp,pcf2127
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Qiang Zhao <qiang.zhao@nxp.com>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The obvious advantages are:
+Den tor. 24. sep. 2020 kl. 09.47 skrev Alexandre Belloni
+<alexandre.belloni@bootlin.com>:
+>
+> Hi,
+>
+> On 24/09/2020 07:23:18+0000, Qiang Zhao wrote:
+> > > > Yes, you are right, There is not a fundamental solution.
+> > > > However it somewhat avoid this situation at least.
+> > > >
+> > > > And if without this issue,
+> > > > is it correct to register a rtc device as watchdog no matter it is used as
+> > > watchdog on the board?
+> > > > Every time Linux are booted up, watchdog device should be configured to the
+> > > right one manually.
+> > > > So the patch are useful, even though it is not for the issue.
+> > > >
+> > > > What should we do to really resolve this issue?
+> > >
+> > > I still think we need a kernel solution here. I would expect that most assembled
+> > > pcf2127 chips are unable to act as a watchdog (i.e. don't have the RST output
+> > > connected to something that resets the machine).
+> > >
+> > > So my favoured solution would be a positive property like:
+> > >
+> > >     has-watchdog;
+> > >
+> > > or something similar. In my eyes this is definitely something we want to specify
+> > > in the device tree because it is a relevant hardware property.
+> > > I consider it a bug to give a watchdog device to userspace that isn't functional.
+> > >
+> > > Best regards
+> > > Uwe
+> >
+> > I strongly agree with you! It should be positive property.
+> > However, we couldn't identify which board are using pcf2127 as watchdog,
+> > So we are unable to modify the boards' dts to correct (watchdog or not) in this patchset.
+> >
+> > I noticed that only LS series platforms and imx6 have pcf2127 node, as far as I know, the LS platforms don't use it as watchdog,
+> > But I am not sure about imx6
+> >
+>
+> I don't think there is any user upstream and it is recent engouh that we
+> can probably make that a positive property.
+>
+> Bruno, is it ok for you? you are the only know user of the feature.
 
- - The linker can drop the watchdog functions if CONFIG_WATCHDOG is off.
- - All watchdog stuff grouped together with only a single function call
-   left in generic code.
- - Watchdog register is only read when it is actually used.
- - Less #ifdefery
+Hi
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/rtc/rtc-pcf2127.c | 56 ++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 25 deletions(-)
+This seems like an okay solution to me.
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index ed6316992cbb..5b1f1949b5e5 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -335,6 +335,36 @@ static const struct watchdog_ops pcf2127_watchdog_ops = {
- 	.set_timeout = pcf2127_wdt_set_timeout,
- };
- 
-+static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
-+{
-+	u32 wdd_timeout;
-+	int ret;
-+
-+	if (!IS_ENABLED(CONFIG_WATCHDOG))
-+		return 0;
-+
-+	pcf2127->wdd.parent = dev;
-+	pcf2127->wdd.info = &pcf2127_wdt_info;
-+	pcf2127->wdd.ops = &pcf2127_watchdog_ops;
-+	pcf2127->wdd.min_timeout = PCF2127_WD_VAL_MIN;
-+	pcf2127->wdd.max_timeout = PCF2127_WD_VAL_MAX;
-+	pcf2127->wdd.timeout = PCF2127_WD_VAL_DEFAULT;
-+	pcf2127->wdd.min_hw_heartbeat_ms = 500;
-+	pcf2127->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	watchdog_set_drvdata(&pcf2127->wdd, pcf2127);
-+
-+	/* Test if watchdog timer is started by bootloader */
-+	ret = regmap_read(pcf2127->regmap, PCF2127_REG_WD_VAL, &wdd_timeout);
-+	if (ret)
-+		return ret;
-+
-+	if (wdd_timeout)
-+		set_bit(WDOG_HW_RUNNING, &pcf2127->wdd.status);
-+
-+	return devm_watchdog_register_device(dev, &pcf2127->wdd);
-+}
-+
- /* Alarm */
- static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
-@@ -536,7 +566,6 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 			 int alarm_irq, const char *name, bool has_nvmem)
- {
- 	struct pcf2127 *pcf2127;
--	u32 wdd_timeout;
- 	int ret = 0;
- 
- 	dev_dbg(dev, "%s\n", __func__);
-@@ -575,17 +604,6 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 		pcf2127->rtc->ops = &pcf2127_rtc_alrm_ops;
- 	}
- 
--	pcf2127->wdd.parent = dev;
--	pcf2127->wdd.info = &pcf2127_wdt_info;
--	pcf2127->wdd.ops = &pcf2127_watchdog_ops;
--	pcf2127->wdd.min_timeout = PCF2127_WD_VAL_MIN;
--	pcf2127->wdd.max_timeout = PCF2127_WD_VAL_MAX;
--	pcf2127->wdd.timeout = PCF2127_WD_VAL_DEFAULT;
--	pcf2127->wdd.min_hw_heartbeat_ms = 500;
--	pcf2127->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
--
--	watchdog_set_drvdata(&pcf2127->wdd, pcf2127);
--
- 	if (has_nvmem) {
- 		struct nvmem_config nvmem_cfg = {
- 			.priv = pcf2127,
-@@ -615,19 +633,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 		return ret;
- 	}
- 
--	/* Test if watchdog timer is started by bootloader */
--	ret = regmap_read(pcf2127->regmap, PCF2127_REG_WD_VAL, &wdd_timeout);
--	if (ret)
--		return ret;
--
--	if (wdd_timeout)
--		set_bit(WDOG_HW_RUNNING, &pcf2127->wdd.status);
--
--#ifdef CONFIG_WATCHDOG
--	ret = devm_watchdog_register_device(dev, &pcf2127->wdd);
--	if (ret)
--		return ret;
--#endif /* CONFIG_WATCHDOG */
-+	pcf2127_watchdog_init(dev, pcf2127);
- 
- 	/*
- 	 * Disable battery low/switch-over timestamp and interrupts.
--- 
-2.28.0
+I have a patch series on the way with a new product dts[1] that is
+using the watchdog
+feature in the pcf2127 chip.
 
+I know that the watchdog feature is used by other products with
+out-of-tree dts, but I
+will make sure to give them a heads up.
+
+/Bruno
+
+[1] https://lore.kernel.org/linux-arm-kernel/20200923154024.11417-2-bruno.thomsen@gmail.com/
