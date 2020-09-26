@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABF2AC2D0A8
-	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Sep 2020 16:23:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D62E9C2D0A8
+	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Sep 2020 16:23:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D4B921D95
-	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Sep 2020 16:23:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D9C521D95
+	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Sep 2020 16:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1601137401;
-	bh=+9yfl2jckejDp+YvTFaezUtdMxSTh2bScLudFAAcmdA=;
+	s=default; t=1601137408;
+	bh=23S8PlmoizwoDDCnCcCrWFCxtImXsCXRd9SYnjug7u4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=vlx3+NEPG8HsdPT+x/qfvQ+h/PoAbUhjWrCQcy58jq2SJdnfVJGLmZ02Whd+gJoR6
-	 0VNjS9BU49C7KHJaqaObwvUahai4dny7vuxIjyASLx6ZXvvXKa3EjIBLaooM2J+jbh
-	 5A91sH8apifj7sL3FpCuidxp7aCJMarPHcU8DUHw=
+	b=tLH2a/O8IhzQ8seD8/BWnz2TTvq/JgrgQmROy2BohhSogXLLbVhmRW2kfhov8ni1M
+	 s+bKzlE/BQ+/RnRMkAlhE+MPAnXo7Y4P+aCMsYydfnXbeNYH8r0c+nRrMEOOmW8NbU
+	 QT+T6l1NrlfZywKNd+ifeASYIAJ7de68wORHPU98=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729898AbgIZQXV (ORCPT
+        id S1729914AbgIZQXZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 26 Sep 2020 12:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
+        Sat, 26 Sep 2020 12:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725208AbgIZQXV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 26 Sep 2020 12:23:21 -0400
+        id S1725208AbgIZQXY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 26 Sep 2020 12:23:24 -0400
 Received: from localhost.localdomain (unknown [194.230.155.132])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07C542177B;
-        Sat, 26 Sep 2020 16:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB84321D7F;
+        Sat, 26 Sep 2020 16:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601137400;
-        bh=+9yfl2jckejDp+YvTFaezUtdMxSTh2bScLudFAAcmdA=;
+        s=default; t=1601137404;
+        bh=23S8PlmoizwoDDCnCcCrWFCxtImXsCXRd9SYnjug7u4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXTsRNdyvg5jHN8SNyICrLo0CRar97Wd5BlQ9dV+LrhxJ5HxoRlVvUhsa9o7W4qBX
-         v6yflhRDUS9sPO0Z8VszVVHtFk3rRBbW7pl0QZNfsC5715vwPbv4NQwXR/0jx1yvdi
-         AJnFBWMrTDPk5wOhLmffWCzu/5lTukrlwCWUE4vA=
+        b=toF7ShKescNDouGdXJ3ukzImtXw9kCEOA+T0vXe5Sd2sxB5M0Zs/wI5Z8YjS4DJ4q
+         WGtMXeJpG0xW8SPaxlz4vDtI/NUgAJNJeTxyDUdB8e1a5s+56NcrmQUooO7vToScUN
+         fNfEuk59n7jyFr4i+32j2vNcNZkVAl+85vmQWcHA=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -53,9 +53,9 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 2/3] ARM: dts: imx: align watchdog node name with dtschema
-Date:   Sat, 26 Sep 2020 18:23:01 +0200
-Message-Id: <20200926162302.32525-2-krzk@kernel.org>
+Subject: [PATCH 3/3] ARM: dts: vf: align watchdog node name with dtschema
+Date:   Sat, 26 Sep 2020 18:23:02 +0200
+Message-Id: <20200926162302.32525-3-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200926162302.32525-1-krzk@kernel.org>
 References: <20200926162302.32525-1-krzk@kernel.org>
@@ -65,131 +65,27 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 The dtschema expects watchdog device node name to be "watchdog":
 
-  arch/arm/boot/dts/imx31-bug.dt.yaml: wdog@53fdc000:
-    $nodename:0: 'wdog@53fdc000' does not match '^watchdog(@.*|-[0-9a-f])?$'
+  arch/arm/boot/dts/vf500-colibri-eval-v3.dt.yaml: wdog@4003e000:
+    $nodename:0: 'wdog@4003e000' does not match '^watchdog(@.*|-[0-9a-f])?$'
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- arch/arm/boot/dts/imx25.dtsi | 2 +-
- arch/arm/boot/dts/imx27.dtsi | 2 +-
- arch/arm/boot/dts/imx31.dtsi | 3 ++-
- arch/arm/boot/dts/imx35.dtsi | 2 +-
- arch/arm/boot/dts/imx50.dtsi | 2 +-
- arch/arm/boot/dts/imx51.dtsi | 4 ++--
- arch/arm/boot/dts/imx53.dtsi | 4 ++--
- 7 files changed, 10 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/vfxxx.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 1ab19f1268f8..fdcca82c9986 100644
---- a/arch/arm/boot/dts/imx25.dtsi
-+++ b/arch/arm/boot/dts/imx25.dtsi
-@@ -525,7 +525,7 @@
- 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx25.bin";
- 			};
- 
--			wdog@53fdc000 {
-+			watchdog@53fdc000 {
- 				compatible = "fsl,imx25-wdt", "fsl,imx21-wdt";
- 				reg = <0x53fdc000 0x4000>;
- 				clocks = <&clks 126>;
-diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
-index 7bc132737a37..fd525c3b16fa 100644
---- a/arch/arm/boot/dts/imx27.dtsi
-+++ b/arch/arm/boot/dts/imx27.dtsi
-@@ -99,7 +99,7 @@
- 				#dma-channels = <16>;
- 			};
- 
--			wdog: wdog@10002000 {
-+			wdog: watchdog@10002000 {
- 				compatible = "fsl,imx27-wdt", "fsl,imx21-wdt";
- 				reg = <0x10002000 0x1000>;
- 				interrupts = <27>;
-diff --git a/arch/arm/boot/dts/imx31.dtsi b/arch/arm/boot/dts/imx31.dtsi
-index 45333f7e10ea..948d2a543f8d 100644
---- a/arch/arm/boot/dts/imx31.dtsi
-+++ b/arch/arm/boot/dts/imx31.dtsi
-@@ -315,10 +315,11 @@
- 				clock-names = "ref", "ipg";
- 			};
- 
--			wdog: wdog@53fdc000 {
-+			wdog: watchdog@53fdc000 {
- 				compatible = "fsl,imx31-wdt", "fsl,imx21-wdt";
- 				reg = <0x53fdc000 0x4000>;
- 				clocks = <&clks 41>;
-+				interrupts = <55>;
- 			};
- 
- 			pwm: pwm@53fe0000 {
-diff --git a/arch/arm/boot/dts/imx35.dtsi b/arch/arm/boot/dts/imx35.dtsi
-index aba16252faab..98ccc81ca6d9 100644
---- a/arch/arm/boot/dts/imx35.dtsi
-+++ b/arch/arm/boot/dts/imx35.dtsi
-@@ -294,7 +294,7 @@
- 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx35.bin";
- 			};
- 
--			wdog: wdog@53fdc000 {
-+			wdog: watchdog@53fdc000 {
- 				compatible = "fsl,imx35-wdt", "fsl,imx21-wdt";
- 				reg = <0x53fdc000 0x4000>;
- 				clocks = <&clks 74>;
-diff --git a/arch/arm/boot/dts/imx50.dtsi b/arch/arm/boot/dts/imx50.dtsi
-index b6b2e6af9b96..a969f335b240 100644
---- a/arch/arm/boot/dts/imx50.dtsi
-+++ b/arch/arm/boot/dts/imx50.dtsi
-@@ -267,7 +267,7 @@
- 					      <&iomuxc 20 140 11>;
- 			};
- 
--			wdog1: wdog@53f98000 {
-+			wdog1: watchdog@53f98000 {
- 				compatible = "fsl,imx50-wdt", "fsl,imx21-wdt";
- 				reg = <0x53f98000 0x4000>;
- 				interrupts = <58>;
-diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
-index 985e1be03ad6..7ebb46ce9e36 100644
---- a/arch/arm/boot/dts/imx51.dtsi
-+++ b/arch/arm/boot/dts/imx51.dtsi
-@@ -370,14 +370,14 @@
+diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
+index 2259d11af721..0c8d15fd9253 100644
+--- a/arch/arm/boot/dts/vfxxx.dtsi
++++ b/arch/arm/boot/dts/vfxxx.dtsi
+@@ -293,7 +293,7 @@
  				status = "disabled";
  			};
  
--			wdog1: wdog@73f98000 {
-+			wdog1: watchdog@73f98000 {
- 				compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
- 				reg = <0x73f98000 0x4000>;
- 				interrupts = <58>;
- 				clocks = <&clks IMX5_CLK_DUMMY>;
- 			};
- 
--			wdog2: wdog@73f9c000 {
-+			wdog2: watchdog@73f9c000 {
- 				compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
- 				reg = <0x73f9c000 0x4000>;
- 				interrupts = <59>;
-diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
-index 500eeaa3a27c..000050aeeabe 100644
---- a/arch/arm/boot/dts/imx53.dtsi
-+++ b/arch/arm/boot/dts/imx53.dtsi
-@@ -427,14 +427,14 @@
- 				status = "disabled";
- 			};
- 
--			wdog1: wdog@53f98000 {
-+			wdog1: watchdog@53f98000 {
- 				compatible = "fsl,imx53-wdt", "fsl,imx21-wdt";
- 				reg = <0x53f98000 0x4000>;
- 				interrupts = <58>;
- 				clocks = <&clks IMX5_CLK_DUMMY>;
- 			};
- 
--			wdog2: wdog@53f9c000 {
-+			wdog2: watchdog@53f9c000 {
- 				compatible = "fsl,imx53-wdt", "fsl,imx21-wdt";
- 				reg = <0x53f9c000 0x4000>;
- 				interrupts = <59>;
+-			wdoga5: wdog@4003e000 {
++			wdoga5: watchdog@4003e000 {
+ 				compatible = "fsl,vf610-wdt", "fsl,imx21-wdt";
+ 				reg = <0x4003e000 0x1000>;
+ 				interrupts = <20 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.17.1
 
