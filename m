@@ -1,98 +1,79 @@
-Return-Path: <SRS0=7mNx=DJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=zq0E=DL=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E324C4363C
-	for <linux-watchdog@archiver.kernel.org>; Fri,  2 Oct 2020 17:37:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF884C46466
+	for <linux-watchdog@archiver.kernel.org>; Sun,  4 Oct 2020 09:58:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AA33920795
-	for <linux-watchdog@archiver.kernel.org>; Fri,  2 Oct 2020 17:37:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VvYITN5d"
+	by mail.kernel.org (Postfix) with ESMTP id BE650207FF
+	for <linux-watchdog@archiver.kernel.org>; Sun,  4 Oct 2020 09:58:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387692AbgJBRhJ (ORCPT
+        id S1725930AbgJDJ6Y convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 2 Oct 2020 13:37:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726813AbgJBRhJ (ORCPT
+        Sun, 4 Oct 2020 05:58:24 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:49374 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725825AbgJDJ6Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 2 Oct 2020 13:37:09 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEBEC0613D0;
-        Fri,  2 Oct 2020 10:37:05 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id m128so1982126oig.7;
-        Fri, 02 Oct 2020 10:37:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=hUOyiDlGxtVYCkFUlhAd55rFu3JXozDtPtR2lsh7Bn4=;
-        b=VvYITN5dJbSa2AAHUrZJ+HkBWRSMjGIg+dZ4EwhTxTg85xAOp9yFLwNSdeCZOt82P/
-         Fdsgq87Ij8J+1rImho+HXblPqF+OUQ1oxqmZf+vccNNbyXAwcnPmPx70DGUOkkw63pZ0
-         SJYRgB578/VKkUcvAUFL4i9ozGdR6ApHSCzqn+6dUCeRCHrYyMGBEs0bJEDlW2iUY+RO
-         cn0VC6cAHSL6VYfPXh1fAWLWZAzvLZ5pRpqmuHx75PHdrgcRs6UtFi5zA/nAwDXerwTo
-         nvs0UQCk9AClfzs1HHz8PafkfsAVeMk+ur6dJmtQEXA87xE/2769uU0V3VkndYR1hFEQ
-         HvIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=hUOyiDlGxtVYCkFUlhAd55rFu3JXozDtPtR2lsh7Bn4=;
-        b=czSod3xGWxAu24+NjJE6+lmpWabuSYk1bHKrBQnWQ80EAjrU+XvlV7ANobA2OHCwY8
-         MdF6jQVaa1o1ckXFgi0CfhUeaubzpmKSSTD4bynoKK73ESPwZDx/EVbZIy9KKNrNzEoB
-         UDoBYJYnMnfWpCFXGwm1yuV/siYqVP27lBXMG3If80H0o+p+JzGkdFDnAN0BHUOCdOqk
-         kVfUQ3ctIQBoPmAQCtfrsgnJoFNjcmmNHPa1HePoO0U7hQfY1GPMamuwLVO7iOt4T9PH
-         Yp9JhE599rcBLLP6TJrTLfld8NQZ+QbwCSRjRSmtItdnxObvWgRsl7Zw7bF7oB53ZQmb
-         EhBg==
-X-Gm-Message-State: AOAM531+gG28AccAVJglDYQAd5JnW0ekGjUPzUJ1gr7NW5oiE2bTKvFM
-        d1+BFdgm8bSLvAwZ3Ax+uc8=
-X-Google-Smtp-Source: ABdhPJy12xAyjffG45w32N7JyLvOfly4SIVNYL1rcoYbFQb7I7Bob08T+YgAHRn4pox18eycnLOXYg==
-X-Received: by 2002:aca:1717:: with SMTP id j23mr1794097oii.61.1601660224509;
-        Fri, 02 Oct 2020 10:37:04 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u9sm531964otq.54.2020.10.02.10.37.03
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 02 Oct 2020 10:37:03 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 2 Oct 2020 10:37:02 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] watchdog: cadence: Simplify with dev_err_probe()
-Message-ID: <20201002173702.GA51198@roeck-us.net>
-References: <20200901153141.18960-1-krzk@kernel.org>
- <20200901154952.GA106798@roeck-us.net>
- <20201002163124.GB6464@kozik-lap>
+        Sun, 4 Oct 2020 05:58:24 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 897651C0B76; Sun,  4 Oct 2020 11:58:20 +0200 (CEST)
+Date:   Sun, 4 Oct 2020 11:58:19 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Michael Walle <michael@walle.cc>
+Cc:     linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Uwe Kleine-K??nig <u.kleine-koenig@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v9 11/13] arm64: dts: freescale: sl28: enable LED support
+Message-ID: <20201004095818.GA1104@bug>
+References: <20200907213802.26745-1-michael@walle.cc>
+ <20200907213802.26745-12-michael@walle.cc>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201002163124.GB6464@kozik-lap>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200907213802.26745-12-michael@walle.cc>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 02, 2020 at 06:31:24PM +0200, Krzysztof Kozlowski wrote:
-> On Tue, Sep 01, 2020 at 08:49:52AM -0700, Guenter Roeck wrote:
-> > On Tue, Sep 01, 2020 at 05:31:39PM +0200, Krzysztof Kozlowski wrote:
-> > > Common pattern of handling deferred probe can be simplified with
-> > > dev_err_probe().  Less code and the error value gets printed.
-> > > 
-> > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > 
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On Mon 2020-09-07 23:38:00, Michael Walle wrote:
+> Now that we have support for GPIO lines of the SMARC connector, enable
+> LED support on the KBox A-230-LS. There are two LEDs without fixed
+> functions, one is yellow and one is green. Unfortunately, it is just one
+> multi-color LED, thus while it is possible to enable both at the same
+> time it is hard to tell the difference between "yellow only" and "yellow
+> and green".
 > 
-> Thanks for the review. Who could pick up these patches?
-> 
+> Signed-off-by: Michael Walle <michael@walle.cc>
 
-They are queued up in my watchdog-next branch, and Wim usually
-picks up patches from there.
+Acked-by: Pavel Machek <pavel@ucw.cz>
 
-Guenter
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
