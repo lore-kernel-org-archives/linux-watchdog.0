@@ -2,70 +2,70 @@ Return-Path: <SRS0=jv0W=DN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F513C47425
-	for <linux-watchdog@archiver.kernel.org>; Tue,  6 Oct 2020 14:34:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A76C41604
+	for <linux-watchdog@archiver.kernel.org>; Tue,  6 Oct 2020 16:58:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4120206DD
-	for <linux-watchdog@archiver.kernel.org>; Tue,  6 Oct 2020 14:34:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D093120782
+	for <linux-watchdog@archiver.kernel.org>; Tue,  6 Oct 2020 16:58:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="phaTkyO1"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="BNlP07G2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726590AbgJFOeA (ORCPT
+        id S1726519AbgJFQ6G (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 6 Oct 2020 10:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36310 "EHLO
+        Tue, 6 Oct 2020 12:58:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725947AbgJFOdz (ORCPT
+        with ESMTP id S1726560AbgJFQ6A (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 6 Oct 2020 10:33:55 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF09C061755;
-        Tue,  6 Oct 2020 07:33:53 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id f10so3942620otb.6;
-        Tue, 06 Oct 2020 07:33:53 -0700 (PDT)
+        Tue, 6 Oct 2020 12:58:00 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC61C0613D1
+        for <linux-watchdog@vger.kernel.org>; Tue,  6 Oct 2020 09:57:58 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id 188so6618091qkk.12
+        for <linux-watchdog@vger.kernel.org>; Tue, 06 Oct 2020 09:57:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=FTJOMRgNjOToAcXPJkmXLa7vLqsenaphJtffgkk66Qk=;
-        b=phaTkyO13rpXYHo4O5AG958iYSrSfQe1qFcb/UKDQzNqH4Srs9tSB81O8BoH85sYWD
-         LSfmW30I8b3dXbe1ltjh8ynt5/vshQway6lXJlLTGT6ZeyHr+s++4Z87T9Li7mmE0smY
-         ml0urep/7pu6QaViwCvVNZGYEa8JXD9wS76H0yQQs98wvz9+KaPBMCuguUyue7hOuPCh
-         cy1AjwN+ykTHDh0vkq1DiE1XzjdZxiolfstEH5P8QHJtudAXjSKVKPzKrbzXVgnJRnED
-         XuTjRhkkvKyXAvc0WV7ELLk7T7HYa3aG23qtrbSoK3wyvaxXZinGY6etw6QrrMTsRnXK
-         PAdw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DHrOFpKmiQPqygrsi76mVafr6Hnv7oIeTDmAlk50SEw=;
+        b=BNlP07G273E4+0hQBOiJc97MDRv4c26kMFybo4P6FVE7aJ4NnGx3UpMpVLhoAEMky5
+         dg/t37eaYAfO3Vn3yqNuKOAPRMubPrBoQY6IcLcN55SYoC086vIsWEFXnyOihCmoq2E6
+         MfO4KEVvNoPueSehxRqmODwScFXuRhWhRzYfPmQaeE77ff2U2NbjbdPjMddO4VnJImmY
+         sjk9xJXT93P2U4cZHL34iWfDnVdVRsuFEYgtEfTNUUe6ouWjFwRozfQ/ivvUjlyZ7ECt
+         erUc1GdWrkEvn9f3vNXgvmi01ErZ8gQtKfjCF6OKcEXcbsDIwLg3kV6zl2gVJyxG3wp+
+         JbPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=FTJOMRgNjOToAcXPJkmXLa7vLqsenaphJtffgkk66Qk=;
-        b=r6jqAlOTkBv6zM7QzMKQ6K93lHE3cDE3quBwS+dhyUsnoWiKLXbTanDp4BSrFLd/Zq
-         ual55qMk8DS6+JXxtkfsris3Fgvnimi53/YanjeHAsOkPo8nze7fBl/nWpE0fUDBe50G
-         r3KvWsF4pSljIdYSfVeAJKxeUxSIjiMRRELmW+AhOaPyAgZvShKdwGWFaWzoOGN53Nfh
-         dD2KpaKR7aPAABM0pQWsmUQkEezZJq94gUKhksYSSjKcD+OMwZyBJMxZ6ynwVSQVwS2K
-         MJcmPqzMiGoybkMFUdzZR763t+6lJQrz9rdZ82dPuymJI+C7h6Nqm/cF/M3OKbbM+Zjg
-         5q8w==
-X-Gm-Message-State: AOAM531goR2949LbjRbanCm9ufTh6Lyv9efo1dyQUlCzbfZNjsix6cA9
-        bbQHg/0+tR+vuXy/ZZuUH0uXs3UzuqGLjw==
-X-Google-Smtp-Source: ABdhPJy7v7zJX4C6TL0lVDafxVsm/taAEx4zkJ1jUiobCtK5p+Ip7ZhMfsFJwAZ3Yzi8rzOORrcfpA==
-X-Received: by 2002:a9d:6:: with SMTP id 6mr1049161ota.235.1601994832308;
-        Tue, 06 Oct 2020 07:33:52 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h5sm919134otb.11.2020.10.06.07.33.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Oct 2020 07:33:51 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DHrOFpKmiQPqygrsi76mVafr6Hnv7oIeTDmAlk50SEw=;
+        b=TqqQFp9HqOpObqpnbLztdDXyJVm6azNbQMz/wiIpJKUvBvnqe0aR2LxE8drRxTMbey
+         XYWRDQm/8x1aQex3TGfp91WISrMDPpBm0nqW6GLBOO7/HhrHXVyRMN8M6I1sZmG7iwJi
+         zpixBbl1WwAbK7cCRbmFRzt88T83xjPpSLt4Wz6vFlyFhdkTTrxo13HbCKrhatn3Jgkx
+         UyR23U/3rsFv0qeFvccO23e+6l3GJg+9Pu/F+CwzzLq1ShxfTqNJ0seDFqpHQXUNFEz6
+         cFcqMBqpFa/dVq7IWJFKJYEILB5ukSQcafAlSnU6zFMvH4GgAxKwv418H8smG+jWg0BP
+         2DFg==
+X-Gm-Message-State: AOAM530m1VJHa+ZwHEJVhuw8ZBOeYtY3dwWLj04M+kljOeA60GUZW+UI
+        vTyREH0odB9mx8Fd/DKUOUem0kAF7rOgMy6J2v8efQd49Vo=
+X-Google-Smtp-Source: ABdhPJypUewWN3RG/GCbrcRtnZy3PEqBVFt13TUjm1lNIkNSsIi0TIwav1FBHp6Am4T6R+kYegyeHi4iTqvVSCxvKzw=
+X-Received: by 2002:a05:6638:3a7:: with SMTP id z7mr2258771jap.52.1602003474851;
+ Tue, 06 Oct 2020 09:57:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <20201005183830.486085-1-robh@kernel.org> <20201005183830.486085-2-robh@kernel.org>
+In-Reply-To: <20201005183830.486085-2-robh@kernel.org>
+From:   Mathieu Poirier <mathieu.poirier@linaro.org>
+Date:   Tue, 6 Oct 2020 10:57:43 -0600
+Message-ID: <CANLsYkz=TCkU9NPiF5aywP0VNYqOL9BvJK0uAMBSyKmZA=1gwA@mail.gmail.com>
 Subject: Re: [PATCH 1/4] dt-bindings: Add missing 'unevaluatedProperties'
-To:     Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Albert Ou <aou@eecs.berkeley.edu>,
+To:     Rob Herring <robh@kernel.org>
+Cc:     devicetree@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Andrew Lunn <andrew@lunn.ch>,
         Bjorn Helgaas <bhelgaas@google.com>,
@@ -88,7 +88,6 @@ Cc:     Albert Ou <aou@eecs.berkeley.edu>,
         Linus Walleij <linus.walleij@linaro.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         MyungJoo Ham <myungjoo.ham@samsung.com>,
@@ -112,93 +111,45 @@ Cc:     Albert Ou <aou@eecs.berkeley.edu>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Wolfgang Grandegger <wg@grandegger.com>,
         Zhang Rui <rui.zhang@intel.com>,
-        linux-arm-kernel@lists.infradead.org, linux-can@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-ide@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-References: <20201005183830.486085-1-robh@kernel.org>
- <20201005183830.486085-2-robh@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <0e1c8745-120c-ccb1-656a-cb3e0fbbe1fd@roeck-us.net>
-Date:   Tue, 6 Oct 2020 07:33:42 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20201005183830.486085-2-robh@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-can@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 10/5/20 11:38 AM, Rob Herring wrote:
+On Mon, 5 Oct 2020 at 12:38, Rob Herring <robh@kernel.org> wrote:
+>
 > This doesn't yet do anything in the tools, but make it explicit so we can
 > check either 'unevaluatedProperties' or 'additionalProperties' is present
 > in schemas.
-> 
+>
 > 'unevaluatedProperties' is appropriate when including another schema (via
 > '$ref') and all possible properties and/or child nodes are not
 > explicitly listed in the schema with the '$ref'.
-> 
+>
 > This is in preparation to add a meta-schema to check for missing
 > 'unevaluatedProperties' or 'additionalProperties'. This has been a
 > constant source of review issues.
-> 
+>
 > Signed-off-by: Rob Herring <robh@kernel.org>
 > ---
 >  Documentation/devicetree/bindings/arm/coresight-cti.yaml     | 2 ++
+
+For CoreSight:
+
+Acked-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+
 >  Documentation/devicetree/bindings/arm/stm32/st,mlahb.yaml    | 2 ++
 >  Documentation/devicetree/bindings/ata/faraday,ftide010.yaml  | 2 ++
 >  Documentation/devicetree/bindings/bus/renesas,bsc.yaml       | 2 ++
@@ -311,15 +262,8 @@ On 10/5/20 11:38 AM, Rob Herring wrote:
 >  Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml  | 2 ++
 >  .../devicetree/bindings/watchdog/st,stm32-iwdg.yaml          | 2 ++
 >  Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml   | 2 ++
-
-For watchdog:
-
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
-
 >  113 files changed, 229 insertions(+)
-> 
+>
 > diff --git a/Documentation/devicetree/bindings/arm/coresight-cti.yaml b/Documentation/devicetree/bindings/arm/coresight-cti.yaml
 > index e42ff69d8bfb..21e3515491f4 100644
 > --- a/Documentation/devicetree/bindings/arm/coresight-cti.yaml
@@ -327,7 +271,7 @@ Guenter
 > @@ -220,6 +220,8 @@ then:
 >    required:
 >      - cpu
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -340,7 +284,7 @@ Guenter
 > @@ -50,6 +50,8 @@ required:
 >    - '#size-cells'
 >    - dma-ranges
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -353,7 +297,7 @@ Guenter
 > @@ -64,6 +64,8 @@ allOf:
 >        required:
 >          - sata
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -366,7 +310,7 @@ Guenter
 > @@ -44,6 +44,8 @@ properties:
 >  required:
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -379,7 +323,7 @@ Guenter
 > @@ -72,6 +72,8 @@ required:
 >    - spi-max-frequency
 >    - port
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -392,7 +336,7 @@ Guenter
 > @@ -62,6 +62,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -405,7 +349,7 @@ Guenter
 > @@ -81,6 +81,8 @@ required:
 >    - clocks
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -418,7 +362,7 @@ Guenter
 > @@ -33,6 +33,8 @@ required:
 >    - reg
 >    - dma-masters
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -431,7 +375,7 @@ Guenter
 > @@ -84,6 +84,8 @@ required:
 >    - clocks
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -444,7 +388,7 @@ Guenter
 > @@ -141,6 +141,8 @@ then:
 >    required:
 >      - ti,udma-atype
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -457,7 +401,7 @@ Guenter
 > @@ -36,6 +36,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -470,7 +414,7 @@ Guenter
 > @@ -44,6 +44,8 @@ required:
 >    - clocks
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -483,7 +427,7 @@ Guenter
 > @@ -70,4 +70,6 @@ required:
 >    - sda-gpios
 >    - scl-gpios
->  
+>
 > +unevaluatedProperties: false
 > +
 >  ...
@@ -494,7 +438,7 @@ Guenter
 > @@ -117,6 +117,8 @@ then:
 >    required:
 >      - rockchip,grf
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -507,7 +451,7 @@ Guenter
 > @@ -37,6 +37,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -520,7 +464,7 @@ Guenter
 > @@ -37,6 +37,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -533,7 +477,7 @@ Guenter
 > @@ -94,6 +94,8 @@ required:
 >    - resets
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -546,7 +490,7 @@ Guenter
 > @@ -36,6 +36,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -559,7 +503,7 @@ Guenter
 > @@ -30,6 +30,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -572,7 +516,7 @@ Guenter
 > @@ -40,6 +40,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -585,7 +529,7 @@ Guenter
 > @@ -30,6 +30,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -598,7 +542,7 @@ Guenter
 > @@ -108,6 +108,8 @@ patternProperties:
 >        - reg
 >        - diff-channels
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -611,7 +555,7 @@ Guenter
 > @@ -92,6 +92,8 @@ required:
 >    - spi-cpol
 >    - spi-cpha
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -624,7 +568,7 @@ Guenter
 > @@ -63,6 +63,8 @@ patternProperties:
 >      required:
 >        - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -637,7 +581,7 @@ Guenter
 > @@ -102,6 +102,8 @@ required:
 >    - interrupts
 >    - adi,conversion-start-gpios
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -650,7 +594,7 @@ Guenter
 > @@ -47,6 +47,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -663,7 +607,7 @@ Guenter
 > @@ -45,6 +45,8 @@ required:
 >    - vdd-supply
 >    - vref-supply
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -676,7 +620,7 @@ Guenter
 > @@ -130,6 +130,8 @@ required:
 >    - channel@4
 >    - channel@5
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -689,7 +633,7 @@ Guenter
 > @@ -46,6 +46,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -702,7 +646,7 @@ Guenter
 > @@ -33,6 +33,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -715,7 +659,7 @@ Guenter
 > @@ -116,6 +116,8 @@ allOf:
 >        dependencies:
 >          adi,sync-mode: [ clocks ]
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -728,7 +672,7 @@ Guenter
 > @@ -50,6 +50,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -741,7 +685,7 @@ Guenter
 > @@ -40,6 +40,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -754,7 +698,7 @@ Guenter
 > @@ -48,6 +48,8 @@ required:
 >    - vdd-supply
 >    - linux,keycodes
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -767,7 +711,7 @@ Guenter
 > @@ -41,6 +41,8 @@ required:
 >    - interrupt-controller
 >    - '#interrupt-cells'
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -779,8 +723,8 @@ Guenter
 > +++ b/Documentation/devicetree/bindings/interrupt-controller/loongson,liointc.yaml
 > @@ -67,6 +67,8 @@ required:
 >    - 'loongson,parent_int_map'
->  
->  
+>
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -793,7 +737,7 @@ Guenter
 > @@ -61,6 +61,8 @@ patternProperties:
 >            - cfi-flash
 >            - jedec,spi-nor
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -806,7 +750,7 @@ Guenter
 > @@ -50,6 +50,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -819,7 +763,7 @@ Guenter
 > @@ -117,6 +117,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -832,7 +776,7 @@ Guenter
 > @@ -56,6 +56,8 @@ required:
 >    - dmas
 >    - dma-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -845,7 +789,7 @@ Guenter
 > @@ -43,6 +43,8 @@ required:
 >    - dmas
 >    - dma-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -858,7 +802,7 @@ Guenter
 > @@ -102,6 +102,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -871,7 +815,7 @@ Guenter
 > @@ -73,6 +73,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -884,7 +828,7 @@ Guenter
 > @@ -77,6 +77,8 @@ required:
 >    - reset-names
 >    - resets
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -897,7 +841,7 @@ Guenter
 > @@ -42,6 +42,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -910,7 +854,7 @@ Guenter
 > @@ -128,6 +128,8 @@ required:
 >    - clock-names
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -923,7 +867,7 @@ Guenter
 > @@ -51,6 +51,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -936,7 +880,7 @@ Guenter
 > @@ -94,6 +94,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -949,7 +893,7 @@ Guenter
 > @@ -36,6 +36,8 @@ properties:
 >      enum: [ 4, 8, 12, 16, 20, 24 ]
 >      default: 8
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -962,7 +906,7 @@ Guenter
 > @@ -120,6 +120,8 @@ required:
 >    - clock-names
 >    - phy-mode
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -975,7 +919,7 @@ Guenter
 > @@ -30,6 +30,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -988,7 +932,7 @@ Guenter
 > @@ -35,6 +35,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1001,7 +945,7 @@ Guenter
 > @@ -61,6 +61,8 @@ required:
 >    - mediatek,pericfg
 >    - phy-handle
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1014,7 +958,7 @@ Guenter
 > @@ -34,6 +34,8 @@ patternProperties:
 >      required:
 >        - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1027,7 +971,7 @@ Guenter
 > @@ -72,6 +72,8 @@ required:
 >    - resets
 >    - reset-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1040,7 +984,7 @@ Guenter
 > @@ -59,6 +59,8 @@ properties:
 >        regulator to VDDIO.
 >      $ref: /schemas/regulator/regulator.yaml
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1053,7 +997,7 @@ Guenter
 > @@ -31,6 +31,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1066,7 +1010,7 @@ Guenter
 > @@ -33,6 +33,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1079,7 +1023,7 @@ Guenter
 > @@ -85,6 +85,8 @@ required:
 >    - clocks
 >    - pinctrl-0
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1092,7 +1036,7 @@ Guenter
 > @@ -88,6 +88,8 @@ required:
 >    - clock-names
 >    - st,syscon
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1105,7 +1049,7 @@ Guenter
 > @@ -58,6 +58,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1118,7 +1062,7 @@ Guenter
 > @@ -109,6 +109,8 @@ properties:
 >  required:
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1131,7 +1075,7 @@ Guenter
 > @@ -79,6 +79,8 @@ properties:
 >  required:
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1142,9 +1086,9 @@ Guenter
 > --- a/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
 > +++ b/Documentation/devicetree/bindings/nvmem/imx-ocotp.yaml
 > @@ -76,6 +76,8 @@ patternProperties:
->  
+>
 >      additionalProperties: false
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1157,7 +1101,7 @@ Guenter
 > @@ -49,6 +49,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1168,9 +1112,9 @@ Guenter
 > --- a/Documentation/devicetree/bindings/nvmem/qcom,spmi-sdam.yaml
 > +++ b/Documentation/devicetree/bindings/nvmem/qcom,spmi-sdam.yaml
 > @@ -66,6 +66,8 @@ patternProperties:
->  
+>
 >      additionalProperties: false
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1183,7 +1127,7 @@ Guenter
 > @@ -51,6 +51,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1196,7 +1140,7 @@ Guenter
 > @@ -42,6 +42,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1209,7 +1153,7 @@ Guenter
 > @@ -29,6 +29,8 @@ required:
 >    - reg
 >    - reg-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1222,7 +1166,7 @@ Guenter
 > @@ -31,6 +31,8 @@ required:
 >    - reg
 >    - reg-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1235,12 +1179,12 @@ Guenter
 > @@ -137,6 +137,8 @@ allOf:
 >          reg:
 >            maxItems: 1
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
 >    - |
->  
+>
 > diff --git a/Documentation/devicetree/bindings/pci/loongson.yaml b/Documentation/devicetree/bindings/pci/loongson.yaml
 > index 30e7cf1aeb87..81bae060cbde 100644
 > --- a/Documentation/devicetree/bindings/pci/loongson.yaml
@@ -1248,12 +1192,12 @@ Guenter
 > @@ -39,6 +39,8 @@ required:
 >    - reg
 >    - ranges
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
 >    - |
->  
+>
 > diff --git a/Documentation/devicetree/bindings/pci/ti,j721e-pci-ep.yaml b/Documentation/devicetree/bindings/pci/ti,j721e-pci-ep.yaml
 > index b3c3d0c3c390..3ae3e1a2d4b0 100644
 > --- a/Documentation/devicetree/bindings/pci/ti,j721e-pci-ep.yaml
@@ -1261,7 +1205,7 @@ Guenter
 > @@ -63,6 +63,8 @@ required:
 >    - phys
 >    - phy-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1274,7 +1218,7 @@ Guenter
 > @@ -72,6 +72,8 @@ required:
 >    - phys
 >    - phy-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1287,7 +1231,7 @@ Guenter
 > @@ -48,6 +48,8 @@ required:
 >    - interrupt-map
 >    - interrupt-map-mask
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1300,7 +1244,7 @@ Guenter
 > @@ -49,6 +49,8 @@ required:
 >    - "#power-domain-cells"
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1313,7 +1257,7 @@ Guenter
 > @@ -73,6 +73,8 @@ required:
 >    - compatible
 >    - regulator-name
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1326,7 +1270,7 @@ Guenter
 > @@ -28,6 +28,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1339,7 +1283,7 @@ Guenter
 > @@ -91,6 +91,8 @@ required:
 >    - gpios
 >    - states
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1352,7 +1296,7 @@ Guenter
 > @@ -34,6 +34,8 @@ required:
 >    - st,syscfg
 >    - vdda-supply
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1365,7 +1309,7 @@ Guenter
 > @@ -36,6 +36,8 @@ required:
 >    - clocks
 >    - vdda-supply
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1378,7 +1322,7 @@ Guenter
 > @@ -28,6 +28,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1391,7 +1335,7 @@ Guenter
 > @@ -68,6 +68,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1404,7 +1348,7 @@ Guenter
 > @@ -74,6 +74,8 @@ allOf:
 >            items:
 >              - const: rtc
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1417,7 +1361,7 @@ Guenter
 > @@ -9,6 +9,9 @@ title: Ingenic SoCs UART controller devicetree bindings
 >  maintainers:
 >    - Paul Cercueil <paul@crapouillou.net>
->  
+>
 > +allOf:
 > +  - $ref: /schemas/serial.yaml#
 > +
@@ -1427,7 +1371,7 @@ Guenter
 > @@ -64,6 +67,8 @@ required:
 >    - dmas
 >    - dma-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1440,7 +1384,7 @@ Guenter
 > @@ -100,6 +100,8 @@ required:
 >    - clock-names
 >    - power-domains
->  
+>
 > +unevaluatedProperties: false
 > +
 >  if:
@@ -1453,7 +1397,7 @@ Guenter
 > @@ -54,6 +54,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1466,7 +1410,7 @@ Guenter
 > @@ -149,6 +149,8 @@ then:
 >    required:
 >      - resets
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1479,7 +1423,7 @@ Guenter
 > @@ -75,6 +75,8 @@ required:
 >    - clock-names
 >    - power-domains
->  
+>
 > +unevaluatedProperties: false
 > +
 >  if:
@@ -1492,7 +1436,7 @@ Guenter
 > @@ -75,6 +75,8 @@ required:
 >    - clock-names
 >    - power-domains
->  
+>
 > +unevaluatedProperties: false
 > +
 >  if:
@@ -1505,7 +1449,7 @@ Guenter
 > @@ -101,6 +101,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1518,7 +1462,7 @@ Guenter
 > @@ -77,6 +77,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1531,7 +1475,7 @@ Guenter
 > @@ -35,6 +35,8 @@ required:
 >    - reg
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1544,7 +1488,7 @@ Guenter
 > @@ -24,6 +24,8 @@ required:
 >    - compatible
 >    - reg
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1557,7 +1501,7 @@ Guenter
 > @@ -29,6 +29,8 @@ required:
 >    - '#address-cells'
 >    - '#size-cells'
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1570,7 +1514,7 @@ Guenter
 > @@ -56,6 +56,8 @@ required:
 >    - clock-names
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1583,7 +1527,7 @@ Guenter
 > @@ -40,6 +40,8 @@ required:
 >    - '#address-cells'
 >    - '#size-cells'
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1596,7 +1540,7 @@ Guenter
 > @@ -123,6 +123,8 @@ allOf:
 >        required:
 >          - resets
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1609,7 +1553,7 @@ Guenter
 > @@ -140,6 +140,8 @@ required:
 >    - '#address-cells'
 >    - '#size-cells'
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1622,7 +1566,7 @@ Guenter
 > @@ -44,6 +44,8 @@ required:
 >    - "#address-cells"
 >    - "#size-cells"
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1635,7 +1579,7 @@ Guenter
 > @@ -53,6 +53,8 @@ required:
 >    - num-chipselects
 >    - sck-gpios
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1648,7 +1592,7 @@ Guenter
 > @@ -48,6 +48,8 @@ required:
 >    - spi-max-frequency
 >    - mux-controls
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1661,7 +1605,7 @@ Guenter
 > @@ -128,6 +128,8 @@ required:
 >    - reg
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1674,7 +1618,7 @@ Guenter
 > @@ -85,6 +85,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1687,7 +1631,7 @@ Guenter
 > @@ -66,6 +66,8 @@ required:
 >    - interrupts
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1700,7 +1644,7 @@ Guenter
 > @@ -53,6 +53,8 @@ required:
 >    - clocks
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1713,7 +1657,7 @@ Guenter
 > @@ -76,6 +76,8 @@ required:
 >    - clocks
 >    - interrupts
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1726,7 +1670,7 @@ Guenter
 > @@ -31,6 +31,8 @@ required:
 >    - reg
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1739,7 +1683,7 @@ Guenter
 > @@ -25,6 +25,8 @@ properties:
 >  required:
 >    - compatible
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1752,7 +1696,7 @@ Guenter
 > @@ -38,6 +38,8 @@ required:
 >    - reg
 >    - clocks
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1765,7 +1709,7 @@ Guenter
 > @@ -62,6 +62,8 @@ allOf:
 >        required:
 >          - samsung,syscon-phandle
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1778,7 +1722,7 @@ Guenter
 > @@ -43,6 +43,8 @@ required:
 >    - clocks
 >    - clock-names
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
@@ -1791,11 +1735,12 @@ Guenter
 > @@ -46,6 +46,8 @@ required:
 >    - clocks
 >    - power-domains
->  
+>
 > +unevaluatedProperties: false
 > +
 >  examples:
 >    - |
 >      /*
-> 
-
+> --
+> 2.25.1
+>
