@@ -2,203 +2,78 @@ Return-Path: <SRS0=EsQz=DV=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4217AC2BB1B
-	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Oct 2020 08:29:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AF40C433E7
+	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Oct 2020 13:19:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8C4D214D8
-	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Oct 2020 08:29:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B30EF22203
+	for <linux-watchdog@archiver.kernel.org>; Wed, 14 Oct 2020 13:19:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxLYr8LJ"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="Qx8r96Zx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729373AbgJNI3y (ORCPT
+        id S1729536AbgJNNTp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 14 Oct 2020 04:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60240 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728460AbgJNI3e (ORCPT
+        Wed, 14 Oct 2020 09:19:45 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:53234 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726810AbgJNNTp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 14 Oct 2020 04:29:34 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2ADC051124;
-        Wed, 14 Oct 2020 00:52:00 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id e20so2566195otj.11;
-        Wed, 14 Oct 2020 00:52:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QDJfcPOQbZTBW8GXk6ProqMjdIJhA/2KN34mrGmh0Q8=;
-        b=IxLYr8LJuOMkGLR4kWSHiruCU/Suyv91Q5yMz76pApgiQ26yqPu/4yDbvItAdtM0p6
-         RcNTV7JgRtZJO2LOQSwsOSFdxsKx1/QjzMm0vFI/WnxdIMheySf2PmH4fg19bA7hzgJv
-         PA34TdbsIGp/lwKgvPhqxXKr19MEz+C7rd5HTG8nn9pv4f7IwhdJFX+DjjTMIFz0wEBo
-         vQd/bKkP9drcbJWGNSSRW4h9PeGQLXvcCGtz4CX7Xwy8BXgRUoGzVxpYI6tPJLpHAsM5
-         Vq6KkKJuia6mbqJrj6MXvsc3s1OQQw9JrH0NhWYq6wMLkaxLLJuTZqJdma6ZU+a+poDD
-         MjKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=QDJfcPOQbZTBW8GXk6ProqMjdIJhA/2KN34mrGmh0Q8=;
-        b=NhZ0rt8ZAFEmDry4+mw/5cR9Sgfrg5W+5zl5xYqap2CuKa42RSSRSfPTYdIWGy2XkB
-         bvv88OxGL8n9ngAypnh4mHI2jmKObwZqUAEpaESI727u6SngK6cR1sLcZk+5/Ah28mqm
-         25R49/fAyXoRwKsrxq5LfufoiAoplGjXP51WeVIMeMGC/7Em9P1+bzQizPh0jPDu7Vt+
-         16f42ZWD9nrPc8Gzljrt3xuJwNZ7XIp4R/LztneqD9YO9PzWTvapjboPB1MRsfc7HRVU
-         biw4LkdIaKPdHJVesQEtnm/GS63uZzJvJjhAJMRwx8Pwl2O33219+OxjvwhaT7jThShs
-         IbIQ==
-X-Gm-Message-State: AOAM532/dFMu3BuiHRQ9y/J7oApNm5N69+LmHjHEE0qnnglb4YBigk0f
-        LkyQ7vsRS0W1BRmBGpD/fa6qBO8qSX8=
-X-Google-Smtp-Source: ABdhPJwTDFPmjx+48CvSfHKJWnfO4jDKNdjLqZRJ07o0QE6niuhYscELBr8Qy1Stvf7v8bmpxC9PTA==
-X-Received: by 2002:a05:6830:19d9:: with SMTP id p25mr2661403otp.135.1602661919645;
-        Wed, 14 Oct 2020 00:51:59 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 8sm1067510oii.45.2020.10.14.00.51.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2020 00:51:58 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 1/1] watchdog: remove unneeded inclusion of
- <uapi/linux/sched/types.h>
-To:     "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        linux-watchdog <linux-watchdog@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200827062154.1847-1-thunder.leizhen@huawei.com>
- <55ad40ff-dcc1-5051-65d2-24201c471a8f@roeck-us.net>
- <f80cc7ea-9d1f-64a4-7c18-faf672bf8cf6@huawei.com>
- <18762ecb-9b47-18ed-6fbf-7cb4ee561a10@roeck-us.net>
- <1098f1d5-0c36-d5b4-741a-4f2f6f42b428@huawei.com>
- <fd1d675e-4d7d-6d4f-64bc-feee23161b6d@huawei.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <e2f920fc-7e75-b8e2-7c95-c1a44d38c82b@roeck-us.net>
-Date:   Wed, 14 Oct 2020 00:51:57 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Wed, 14 Oct 2020 09:19:45 -0400
+X-UUID: 0897a8009ae84ab2adfe51b8aa15057e-20201014
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=XOh+CwCYnhs9kvGtToUoQb1luTda6cidr+gGJX2AfNc=;
+        b=Qx8r96ZxOjLt+yhdA67wqvpogE/2DYeyYfLIP6wIZD4weIgSJTjaSydJHKzwQxEH2onM3lEEddBWwXQhWKM1twwG6YYtcblfRnp9JuNQ18xdbfKbLJeBrS0yrnkLdhwQdxHcxE2ZqmJZfxzkKiyJ+15kBiUNOf3usCMxL0i74j8=;
+X-UUID: 0897a8009ae84ab2adfe51b8aa15057e-20201014
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        (envelope-from <crystal.guo@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1391071074; Wed, 14 Oct 2020 21:19:42 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs08n1.mediatek.inc (172.21.101.55) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 14 Oct 2020 21:19:39 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 14 Oct 2020 21:19:38 +0800
+From:   Crystal Guo <crystal.guo@mediatek.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>
+CC:     <srv_heupstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <seiya.wang@mediatek.com>, Crystal Guo <crystal.guo@mediatek.com>
+Subject: [v6,2/4] dt-binding: mediatek: mt8192: update mtk-wdt document
+Date:   Wed, 14 Oct 2020 21:19:34 +0800
+Message-ID: <20201014131936.20584-3-crystal.guo@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20201014131936.20584-1-crystal.guo@mediatek.com>
+References: <20201014131936.20584-1-crystal.guo@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <fd1d675e-4d7d-6d4f-64bc-feee23161b6d@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 10/13/20 7:14 PM, Leizhen (ThunderTown) wrote:
-> 
-> 
-> On 2020/9/8 11:34, Leizhen (ThunderTown) wrote:
->>
->>
->> On 2020/9/8 10:40, Guenter Roeck wrote:
->>> On 9/7/20 12:50 AM, Leizhen (ThunderTown) wrote:
->>>> Hi, Wim Van Sebroeck, Guenter Roeck:
->>>>   What's your opinion? Guenter Roeck given "Reviewed-by" two weeks ago.
->>>>
->>>
->>> The patch is in my watchdog-next branch, and Wim usually picks it up
->>> from there.
->>
-> 
-> Hi, Guenter:
->   Have you sent [GIT PULL] updates for 5.10, I don't see this patch in linux-next.
-> 
-
-Wim does that. Unfortunately, he often does not pick up patches until shortly
-before he sends a pull request to Linus.
-
-Guenter
-
->> Oh, thanks.
->>
->>>
->>> Guenter
->>>
->>>>
->>>> On 2020/8/27 21:40, Guenter Roeck wrote:
->>>>> On 8/26/20 11:21 PM, Zhen Lei wrote:
->>>>>> There has been no reference to "struct sched_param" since
->>>>>> commit 94beddacb53c ("sched,watchdog: Convert to sched_set_fifo()"), so
->>>>>> there's no need to include <uapi/linux/sched/types.h> any more, delete
->>>>>> it.
->>>>>>
->>>>>> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
->>>>>
->>>>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>>>>
->>>>>> ---
->>>>>>  drivers/watchdog/watchdog_dev.c | 2 --
->>>>>>  1 file changed, 2 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
->>>>>> index 6798addabd5a067..0f18fa2433310b0 100644
->>>>>> --- a/drivers/watchdog/watchdog_dev.c
->>>>>> +++ b/drivers/watchdog/watchdog_dev.c
->>>>>> @@ -43,8 +43,6 @@
->>>>>>  #include <linux/watchdog.h>	/* For watchdog specific items */
->>>>>>  #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
->>>>>>  
->>>>>> -#include <uapi/linux/sched/types.h>	/* For struct sched_param */
->>>>>> -
->>>>>>  #include "watchdog_core.h"
->>>>>>  #include "watchdog_pretimeout.h"
->>>>>>  
->>>>>>
->>>>>
->>>>>
->>>>>
->>>>
->>>
->>>
->>>
-> 
+dXBkYXRlIG10ay13ZHQgZG9jdW1lbnQgZm9yIE1UODE5MiBwbGF0Zm9ybQ0KDQpTaWduZWQtb2Zm
+LWJ5OiBDcnlzdGFsIEd1byA8Y3J5c3RhbC5ndW9AbWVkaWF0ZWsuY29tPg0KLS0tDQogRG9jdW1l
+bnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL210ay13ZHQudHh0IHwgMSArDQog
+MSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspDQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQgYi9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQNCmluZGV4IDQ1ZWVk
+YzJjMzE0MS4uZTM2YmE2MGRlODI5IDEwMDY0NA0KLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL3dhdGNoZG9nL210ay13ZHQudHh0DQorKysgYi9Eb2N1bWVudGF0aW9uL2Rl
+dmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvbXRrLXdkdC50eHQNCkBAIC0xMiw2ICsxMiw3IEBA
+IFJlcXVpcmVkIHByb3BlcnRpZXM6DQogCSJtZWRpYXRlayxtdDc2Mjktd2R0IiwgIm1lZGlhdGVr
+LG10NjU4OS13ZHQiOiBmb3IgTVQ3NjI5DQogCSJtZWRpYXRlayxtdDgxODMtd2R0IjogZm9yIE1U
+ODE4Mw0KIAkibWVkaWF0ZWssbXQ4NTE2LXdkdCIsICJtZWRpYXRlayxtdDY1ODktd2R0IjogZm9y
+IE1UODUxNg0KKwkibWVkaWF0ZWssbXQ4MTkyLXdkdCI6IGZvciBNVDgxOTINCiANCiAtIHJlZyA6
+IFNwZWNpZmllcyBiYXNlIHBoeXNpY2FsIGFkZHJlc3MgYW5kIHNpemUgb2YgdGhlIHJlZ2lzdGVy
+cy4NCiANCi0tIA0KMi4xOC4wDQo=
 
