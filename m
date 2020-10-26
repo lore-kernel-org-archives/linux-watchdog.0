@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29764C56202
-	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Oct 2020 00:21:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F00FC2D0A3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Oct 2020 00:21:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E139720723
-	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Oct 2020 00:21:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3C7A20708
+	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Oct 2020 00:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1603758062;
-	bh=isBamgWBxS5236aK7+U83pE38RWTsXz6aA9LIhKDgVw=;
+	s=default; t=1603758104;
+	bh=03IWLhNICanjpu44Xap0cbktcyiY4USCLLvEEvUWjh4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ZpTgbltpgnt77ynBimwupTs7v5DG3K3dTb8D00j01C5B+QbQvHgY0RRmPY6TNGG3a
-	 zVYzFYzqoIhWIpn+V4kIE8NfcIgTiKC1Xbr9Il9K593Dn2RjX0s21r/Gs9pqWMa2ZN
-	 BsNYEYnCEprd6wZKiMcb0iW+LtFi4F7JJxz5dCVQ=
+	b=tGifsZzNtg19A1V5icoSHw2Hh3QZudopY6utEdZaJB6WwyZftzoG24u2z4tbgRCDb
+	 k0Q6jyAwFz3olOuroxkJonwhhcVmdWcNwiYU9DkmyQcszgaNQTufN06xnt/CxSMAHI
+	 4Gjipct1E9HouRDGdbxhX3i9F4OclM3fehjeVKcs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437745AbgJ0AGA (ORCPT
+        id S2410985AbgJZXzv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 26 Oct 2020 20:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
+        Mon, 26 Oct 2020 19:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438163AbgJ0AFM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:05:12 -0400
+        id S2410195AbgJZXyV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:54:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88D2B2087C;
-        Tue, 27 Oct 2020 00:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95BAD21655;
+        Mon, 26 Oct 2020 23:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757112;
-        bh=isBamgWBxS5236aK7+U83pE38RWTsXz6aA9LIhKDgVw=;
+        s=default; t=1603756460;
+        bh=03IWLhNICanjpu44Xap0cbktcyiY4USCLLvEEvUWjh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jg5lmsBLrv/YuT++g14qQz/xk9r+keZkuvBKzt/CZ301pEWtIDPfP1zA++81wBSFp
-         PkfApX8a7t4oCKT3A5egLVHoOXLdKG2uDTqd+0do0R6swsC8rF3lcyeV/sKMacx77I
-         gRMkgi6mZ74/Hg0ImwOxRCF745kWa3JpoQ5A5dBY=
+        b=vLnMNsKSkjZBfKOiy6zSRrAs8+VIZVdKq2etiIC5rEHYgjjptuTpjzNa7XUdIV1Qt
+         2V56HUSE38JPXG5lJ8+6n0ZiZom1ZGYppB/SJWj1xHrfhQ4LKSoG6WJvpuiuxlshNK
+         Elnv01vGLgYMVr1CqPwY01ThN7l6vWqYtuNWY+B4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
@@ -46,12 +46,12 @@ Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 48/60] drivers: watchdog: rdc321x_wdt: Fix race condition bugs
-Date:   Mon, 26 Oct 2020 20:04:03 -0400
-Message-Id: <20201027000415.1026364-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 109/132] drivers: watchdog: rdc321x_wdt: Fix race condition bugs
+Date:   Mon, 26 Oct 2020 19:51:41 -0400
+Message-Id: <20201026235205.1023962-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
-References: <20201027000415.1026364-1-sashal@kernel.org>
+In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
+References: <20201026235205.1023962-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -87,10 +87,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
-index a281aa84bfb14..4c3b4ea4e17f5 100644
+index 57187efeb86f1..f0c94ea51c3e4 100644
 --- a/drivers/watchdog/rdc321x_wdt.c
 +++ b/drivers/watchdog/rdc321x_wdt.c
-@@ -244,6 +244,8 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
+@@ -231,6 +231,8 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
  
  	rdc321x_wdt_device.sb_pdev = pdata->sb_pdev;
  	rdc321x_wdt_device.base_reg = r->start;
@@ -99,7 +99,7 @@ index a281aa84bfb14..4c3b4ea4e17f5 100644
  
  	err = misc_register(&rdc321x_wdt_misc);
  	if (err < 0) {
-@@ -258,14 +260,11 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
+@@ -245,14 +247,11 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
  				rdc321x_wdt_device.base_reg, RDC_WDT_RST);
  
  	init_completion(&rdc321x_wdt_device.stop);
