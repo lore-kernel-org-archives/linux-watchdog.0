@@ -2,106 +2,107 @@ Return-Path: <SRS0=q9YU=EE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D85F0C55178
-	for <linux-watchdog@archiver.kernel.org>; Thu, 29 Oct 2020 07:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A35FCC2D0A3
+	for <linux-watchdog@archiver.kernel.org>; Thu, 29 Oct 2020 08:10:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C2892151B
-	for <linux-watchdog@archiver.kernel.org>; Thu, 29 Oct 2020 07:56:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CB5A20780
+	for <linux-watchdog@archiver.kernel.org>; Thu, 29 Oct 2020 08:10:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jpkjTuHp"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="NZrMALkn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731482AbgJ2H4l (ORCPT
+        id S1726987AbgJ2H64 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 29 Oct 2020 03:56:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731422AbgJ2Hxq (ORCPT
+        Thu, 29 Oct 2020 03:58:56 -0400
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:24564 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727442AbgJ2H6z (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 29 Oct 2020 03:53:46 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491D0C0613D5;
-        Thu, 29 Oct 2020 00:53:46 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id w21so1660198pfc.7;
-        Thu, 29 Oct 2020 00:53:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hGeI6Nxv27zFf1cpMaROkZffEIZtimpVmaFXRbyPh5g=;
-        b=jpkjTuHp/ctst1xgZYhQNSh47JeAQHhVsyo8EnPyzhahwTfkT2Fb+NAYJfV2Rdu2vi
-         o8JuN/eNsBnk/h5Bp1VG+kpYoXHlnKcyzoj6PjL4IgsG8w0yhOIFaRIHdkyj37t4loZm
-         NB9XE98LfUzwNQvLNA7tEeyvaScTMT3vSPFT6L0UzF9ETeC9joKPc6RcDe4lRmjBp+uf
-         QiZLY0q1l33KFgXJdVeNp12KiRrzOmQ1LvUy85ukxZlR5cfI/ZoNVYwfENs7frtCQumf
-         NuzpeLAW3Mn75bAAduwhfPG1hDOHrpoYIVk1tlP+lRW5vpm7iSJma5jFZE4AE4WgEpJW
-         19DQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hGeI6Nxv27zFf1cpMaROkZffEIZtimpVmaFXRbyPh5g=;
-        b=rdfHVgdMXNmSJwcDullGpZW1dil+wPtgawmqRZBkoZ3LAwK+8FVbK0mGdFP71WExOE
-         bEwpRtpgsMjup9aFbX4HUWaxU4ZUjIsZ3gUv6HSPETnxBPQvRrNDCkmOfLi2xwrQhSQm
-         8IFdriPv8icJIcYjvz6LXSVv00xCCfGJ5Lzy7znFDzz6jmmXrg0BpviHk0tbXrwCfHB+
-         t7PFboN+1YcZ2ayXVchd3vHevJuEyDBxBLFiCfDsYggnHDn00OAWLBiiin5cHjAEzhEM
-         Meuj6Xp3uQk8vD3Y2ekOZLkqjzQkmWmWer5QnM3E6x1zCO64KwDH7JlN6y5gO8TBEwcF
-         gftA==
-X-Gm-Message-State: AOAM532qVFJxPjDKYYf/+DR640LPuoV6TLomBM70KZJkGrUv758UkWXy
-        0klrlQu3oQuk6toOAxYAg38=
-X-Google-Smtp-Source: ABdhPJz2IbK59ooRsRBpzJmOcejoWwaK66Nh3QtHv/cEW0cCfp9Hlvco1DL9HvRtNqhvEYfoM76LHg==
-X-Received: by 2002:a17:90a:4b45:: with SMTP id o5mr2843503pjl.223.1603958025956;
-        Thu, 29 Oct 2020 00:53:45 -0700 (PDT)
-Received: from localhost ([2409:8a28:3c42:6840:9efc:e8ff:fef2:1cdc])
-        by smtp.gmail.com with ESMTPSA id h184sm1890523pfe.161.2020.10.29.00.53.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 00:53:45 -0700 (PDT)
-From:   Coiby Xu <coiby.xu@gmail.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org (open list:WATCHDOG DEVICE DRIVERS),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 1/3] ACPI: watchdog: remove unnecessary CONFIG_PM_SLEEP
-Date:   Thu, 29 Oct 2020 15:53:25 +0800
-Message-Id: <20201029075327.228570-1-coiby.xu@gmail.com>
-X-Mailer: git-send-email 2.28.0
+        Thu, 29 Oct 2020 03:58:55 -0400
+Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09T7vAWa013935;
+        Thu, 29 Oct 2020 08:58:32 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : references : in-reply-to : content-type : content-id
+ : content-transfer-encoding : mime-version; s=STMicroelectronics;
+ bh=XV/PGflp4CJVwMij+k8693KpWraYm+Qoc900pW4/PaI=;
+ b=NZrMALknbTwyhNicvs1u9rf0kVJIZtr2TVhVQKgt+ARzAT40WxunZ1er/GkJsvltZszC
+ tH14XisGANnIE6YurU17mavzCx0nFZXcaxSWnSbUS2Pz343Y+xoTfB0KP1B/xTtn/A4Z
+ d5VxfXZugwJTpuQzKXiV3PZamQq7MfxFaJz4jqn9jq7G+amfpPM0PM4dAkkDpEUOA7Go
+ CZhFklvdj0zU0VIR0Ji3v2WvYhXVh15P6JTrnuVEEZIng+7oE3J5VF/qS1NGLjlCF9WJ
+ CNiD8W+IOS55kDlFLJCWWYae84+cJp7PwOP/G1j8n01fCDXiLgaHl8uOhN1ED2ohvBNx Fg== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 34ccj26gny-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Oct 2020 08:58:32 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 2880B10002A;
+        Thu, 29 Oct 2020 08:58:31 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 18CA0230AD9;
+        Thu, 29 Oct 2020 08:58:31 +0100 (CET)
+Received: from SFHDAG2NODE3.st.com (10.75.127.6) by SFHDAG2NODE3.st.com
+ (10.75.127.6) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 29 Oct
+ 2020 08:58:30 +0100
+Received: from SFHDAG2NODE3.st.com ([fe80::31b3:13bf:2dbe:f64c]) by
+ SFHDAG2NODE3.st.com ([fe80::31b3:13bf:2dbe:f64c%20]) with mapi id
+ 15.00.1473.003; Thu, 29 Oct 2020 08:58:30 +0100
+From:   Patrice CHOTARD <patrice.chotard@st.com>
+To:     Coiby Xu <coiby.xu@gmail.com>, Guenter Roeck <linux@roeck-us.net>,
+        "Wim Van Sebroeck" <wim@linux-watchdog.org>
+CC:     "moderated list:ARM/STI ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:WATCHDOG DEVICE DRIVERS" <linux-watchdog@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] watchdog: st_lpc_wdt: remove unnecessary
+ CONFIG_PM_SLEEP
+Thread-Topic: [PATCH 2/3] watchdog: st_lpc_wdt: remove unnecessary
+ CONFIG_PM_SLEEP
+Thread-Index: AQHWrcioFNV8nEJJDUWW2CVWTCiEIqmuJjyA
+Date:   Thu, 29 Oct 2020 07:58:30 +0000
+Message-ID: <23c07a77-2ce3-1ebd-c8d7-001cd896f157@st.com>
+References: <20201029075327.228570-1-coiby.xu@gmail.com>
+ <20201029075327.228570-2-coiby.xu@gmail.com>
+In-Reply-To: <20201029075327.228570-2-coiby.xu@gmail.com>
+Accept-Language: fr-FR, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.75.127.46]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <9030CB49FBBA024DBA76FE5721EDE49E@st.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-29_03:2020-10-29,2020-10-29 signatures=0
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-SET_NOIRQ_SYSTEM_SLEEP_PM_OPS has already took good care of CONFIG_PM_CONFIG.
-
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
----
- drivers/watchdog/wdat_wdt.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 3065dd670a18..0d912ceb2ecd 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -465,7 +465,6 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
- 
--#ifdef CONFIG_PM_SLEEP
- static int wdat_wdt_suspend_noirq(struct device *dev)
- {
- 	struct wdat_wdt *wdat = dev_get_drvdata(dev);
-@@ -526,7 +525,6 @@ static int wdat_wdt_resume_noirq(struct device *dev)
- 
- 	return wdat_wdt_start(&wdat->wdd);
- }
--#endif
- 
- static const struct dev_pm_ops wdat_wdt_pm_ops = {
- 	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(wdat_wdt_suspend_noirq,
--- 
-2.28.0
-
+SGkgQ29pYnkNCg0KT24gMTAvMjkvMjAgODo1MyBBTSwgQ29pYnkgWHUgd3JvdGU6DQo+IFNJTVBM
+RV9ERVZfUE1fT1BTIGhhcyBhbHJlYWR5IHRvb2sgZ29vZCBjYXJlIG9mIENPTkZJR19QTV9DT05G
+SUcuDQo+DQo+IFNpZ25lZC1vZmYtYnk6IENvaWJ5IFh1IDxjb2lieS54dUBnbWFpbC5jb20+DQo+
+IC0tLQ0KPiAgZHJpdmVycy93YXRjaGRvZy9zdF9scGNfd2R0LmMgfCAyIC0tDQo+ICAxIGZpbGUg
+Y2hhbmdlZCwgMiBkZWxldGlvbnMoLSkNCj4NCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hk
+b2cvc3RfbHBjX3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9zdF9scGNfd2R0LmMNCj4gaW5kZXgg
+MTRhYjY1NTljNzQ4Li5jMTQyOGQ2M2RjOWUgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvd2F0Y2hk
+b2cvc3RfbHBjX3dkdC5jDQo+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvc3RfbHBjX3dkdC5jDQo+
+IEBAIC0yNDgsNyArMjQ4LDYgQEAgc3RhdGljIGludCBzdF93ZG9nX3JlbW92ZShzdHJ1Y3QgcGxh
+dGZvcm1fZGV2aWNlICpwZGV2KQ0KPiAgCXJldHVybiAwOw0KPiAgfQ0KPiAgDQo+IC0jaWZkZWYg
+Q09ORklHX1BNX1NMRUVQDQo+ICBzdGF0aWMgaW50IHN0X3dkb2dfc3VzcGVuZChzdHJ1Y3QgZGV2
+aWNlICpkZXYpDQo+ICB7DQo+ICAJc3RydWN0IHN0X3dkb2cgKnN0X3dkb2cgPSB3YXRjaGRvZ19n
+ZXRfZHJ2ZGF0YSgmc3Rfd2RvZ19kZXYpOw0KPiBAQCAtMjg1LDcgKzI4NCw2IEBAIHN0YXRpYyBp
+bnQgc3Rfd2RvZ19yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0KPiAgDQo+ICAJcmV0dXJuIDA7
+DQo+ICB9DQo+IC0jZW5kaWYNCj4gIA0KPiAgc3RhdGljIFNJTVBMRV9ERVZfUE1fT1BTKHN0X3dk
+b2dfcG1fb3BzLA0KPiAgCQkJIHN0X3dkb2dfc3VzcGVuZCwNCg0KUmV2aWV3ZWQtYnk6IFBhdHJp
+Y2UgQ2hvdGFyZCA8cGF0cmljZS5jaG90YXJkQHN0LmNvbT4NCg0KVGhhbmtzDQoNClBhdHJpY2UN
+Cg==
