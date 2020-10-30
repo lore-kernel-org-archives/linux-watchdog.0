@@ -2,91 +2,143 @@ Return-Path: <SRS0=+3Tt=EF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF234C2D0A3
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 00:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25F77C00A89
+	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 05:22:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C1D02076D
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 00:40:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604018425;
-	bh=BeJoLlxlE4Q2QqDM2+waIn2TFdSYqmTJYwjPZdPne9s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=qhlowzg64ORAzcuNTTsiLJDPItKDRDgEc/HA2V611Yma64RadnMQQiHxn/bjcCbsx
-	 LFmHNjWeG5//CkIiVoJbvB6BustgEBk767sffxdnR7m1hz9QCBNWO9173CqlhIdIak
-	 K2O+oX0vtzUo9/TcMRPkyDrMZCkQam9MIw34u3yw=
+	by mail.kernel.org (Postfix) with ESMTP id 9D398221FF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 05:22:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="uqn0ZNr0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725811AbgJ3AkZ (ORCPT
+        id S1725355AbgJ3FWx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 29 Oct 2020 20:40:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
+        Fri, 30 Oct 2020 01:22:53 -0400
+Received: from z5.mailgun.us ([104.130.96.5]:20523 "EHLO z5.mailgun.us"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbgJ3AkY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 29 Oct 2020 20:40:24 -0400
-Received: from dragon (80.251.214.228.16clouds.com [80.251.214.228])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725767AbgJ3FWx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 30 Oct 2020 01:22:53 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1604035355; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=TnWAZdBttXycLF7Pg/ea+orhZ9ZprM5LnpXC0r6qX6s=;
+ b=uqn0ZNr06HWoZAjTY7dRRm5J+dOBS/GHPMM5YMp2I8r/PdxMD5iqAOxlbB24NTiAGwD/haMr
+ GTvczn2nFWhsJzzHeoqFIKUJXd6IOWQV31uKUWywcrDF3N/Elq2LvlTdlufgILsSXh7bUnkm
+ DLlCB/itkSgejQPogAaynXv14/w=
+X-Mailgun-Sending-Ip: 104.130.96.5
+X-Mailgun-Sid: WyJmNTk5OSIsICJsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmciLCAiYmU5ZTRhIl0=
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n07.prod.us-west-2.postgun.com with SMTP id
+ 5f9ba2d68335df1657b8ab90 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 30 Oct 2020 05:21:26
+ GMT
+Sender: kathirav=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 7E077C433C6; Fri, 30 Oct 2020 05:21:26 +0000 (UTC)
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B2DA206CB;
-        Fri, 30 Oct 2020 00:40:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604018424;
-        bh=BeJoLlxlE4Q2QqDM2+waIn2TFdSYqmTJYwjPZdPne9s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hU2ZGPh2fqXSWA3m8DQIGTgHfRUzHj1RMxqaM8NejSAaDe/yJ69l7SpW8NnRu7x6I
-         lbak6bRk7S2604i23DAMDi7jgu/UkxKnlYXBODG4JY5Ke2iD3BqCr+AV1stjHlS/J0
-         onkED1luDxb4KdLOFgpM70luuXRtHnxsWwEAww2Y=
-Date:   Fri, 30 Oct 2020 08:40:16 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] ARM: dts: freescale: align watchdog node name
- with dtschema
-Message-ID: <20201030004015.GA28755@dragon>
-References: <20201029162133.81016-1-krzk@kernel.org>
- <20201029162133.81016-2-krzk@kernel.org>
+        (Authenticated sender: kathirav)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id F015EC433F0;
+        Fri, 30 Oct 2020 05:21:24 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201029162133.81016-2-krzk@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Fri, 30 Oct 2020 10:51:24 +0530
+From:   kathirav@codeaurora.org
+To:     Robert Marko <robert.marko@sartura.hr>
+Cc:     agross@kernel.org, bjorn.andersson@linaro.org,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "Luka Perkov <luka.perkov@sartura.hr>" <kathirav@codeaurora.org>
+Subject: Re: [PATCH v2] watchdog: qcom_wdt: set WDOG_HW_RUNNING bit when
+ appropriate
+In-Reply-To: <20201028114635.7570-1-robert.marko@sartura.hr>
+References: <20201028114635.7570-1-robert.marko@sartura.hr>
+Message-ID: <2f0653b7d05d1ef26f6624b38d1d7b2d@codeaurora.org>
+X-Sender: kathirav@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 05:21:33PM +0100, Krzysztof Kozlowski wrote:
-> The dtschema expects watchdog device node name to be "watchdog":
+On 2020-10-28 17:16, Robert Marko wrote:
+> If the watchdog hardware is enabled/running during boot, e.g.
+> due to a boot loader configuring it, we must tell the
+> watchdog framework about this fact so that it can ping the
+> watchdog until userspace opens the device and takes over
+> control.
 > 
->   arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dt.yaml: wdog@2ad0000:
->     $nodename:0: 'wdog@2ad0000' does not match '^watchdog(@.*|-[0-9a-f])?$'
+> Do so using the WDOG_HW_RUNNING flag that exists for exactly
+> that use-case.
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-
-s/ARM/arm64 in subject.
-
-I fixed it up and applied the patch.
-
-Shawn
-
+> Given the watchdog driver core doesn't know what timeout was
+> originally set by whoever started the watchdog (boot loader),
+> we make sure to update the timeout in the hardware according
+> to what the watchdog core thinks it is.
 > 
+> Signed-off-by: Robert Marko <robert.marko@sartura.hr>
+> Cc: Luka Perkov <luka.perkov@sartura.hr>
 > ---
+> Changes in v2:
+> * Correct authorship
 > 
-> Changes since v1:
-> 1. New patch
-> ---
->  arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi | 2 +-
->  arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  drivers/watchdog/qcom-wdt.c | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index ab7465d186fd..28c93a918e38 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -152,6 +152,13 @@ static int qcom_wdt_restart(struct
+> watchdog_device *wdd, unsigned long action,
+>  	return 0;
+>  }
+> 
+> +static int qcom_wdt_is_running(struct watchdog_device *wdd)
+> +{
+> +	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
+> +
+> +	return (readl(wdt_addr(wdt, WDT_EN)) & 1);
+
+QCOM_WDT_ENABLE macro can be used instead of 1?
+
+> +}
+> +
+>  static const struct watchdog_ops qcom_wdt_ops = {
+>  	.start		= qcom_wdt_start,
+>  	.stop		= qcom_wdt_stop,
+> @@ -294,6 +301,21 @@ static int qcom_wdt_probe(struct platform_device 
+> *pdev)
+>  	wdt->wdd.timeout = min(wdt->wdd.max_timeout, 30U);
+>  	watchdog_init_timeout(&wdt->wdd, 0, dev);
+> 
+> +	if (qcom_wdt_is_running(&wdt->wdd)) {
+> +		/*
+> +		 * Make sure to apply timeout from watchdog core, taking
+> +		 * the prescaler of this driver here into account (the
+> +		 * boot loader might be using a different prescaler).
+> +		 *
+> +		 * To avoid spurious resets because of different scaling,
+> +		 * we first disable the watchdog, set the new prescaler
+> +		 * and timeout, and then re-enable the watchdog.
+> +		 */
+> +		qcom_wdt_stop(&wdt->wdd);
+
+qcom_wdt_start disables the WDT, configure the timeout values and 
+enables it. Do we still need to call qcom_wdt_stop?
+
+> +		qcom_wdt_start(&wdt->wdd);
+> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> +	}
+> +
+>  	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+>  	if (ret)
+>  		return ret;
