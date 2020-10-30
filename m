@@ -2,143 +2,72 @@ Return-Path: <SRS0=+3Tt=EF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25F77C00A89
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 05:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC11AC00A89
+	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 15:55:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D398221FF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 05:22:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="uqn0ZNr0"
+	by mail.kernel.org (Postfix) with ESMTP id 59A92206CA
+	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 15:55:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725355AbgJ3FWx (ORCPT
+        id S1726384AbgJ3Pz3 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 30 Oct 2020 01:22:53 -0400
-Received: from z5.mailgun.us ([104.130.96.5]:20523 "EHLO z5.mailgun.us"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725767AbgJ3FWx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Oct 2020 01:22:53 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1604035355; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=TnWAZdBttXycLF7Pg/ea+orhZ9ZprM5LnpXC0r6qX6s=;
- b=uqn0ZNr06HWoZAjTY7dRRm5J+dOBS/GHPMM5YMp2I8r/PdxMD5iqAOxlbB24NTiAGwD/haMr
- GTvczn2nFWhsJzzHeoqFIKUJXd6IOWQV31uKUWywcrDF3N/Elq2LvlTdlufgILsSXh7bUnkm
- DLlCB/itkSgejQPogAaynXv14/w=
-X-Mailgun-Sending-Ip: 104.130.96.5
-X-Mailgun-Sid: WyJmNTk5OSIsICJsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmciLCAiYmU5ZTRhIl0=
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n07.prod.us-west-2.postgun.com with SMTP id
- 5f9ba2d68335df1657b8ab90 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 30 Oct 2020 05:21:26
- GMT
-Sender: kathirav=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 7E077C433C6; Fri, 30 Oct 2020 05:21:26 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kathirav)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id F015EC433F0;
-        Fri, 30 Oct 2020 05:21:24 +0000 (UTC)
+        Fri, 30 Oct 2020 11:55:29 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:6996 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726178AbgJ3Pz3 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 30 Oct 2020 11:55:29 -0400
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4CN60R69GSzhZf3;
+        Fri, 30 Oct 2020 23:38:31 +0800 (CST)
+Received: from huawei.com (10.90.53.225) by DGGEMS408-HUB.china.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server id 14.3.487.0; Fri, 30 Oct 2020
+ 23:38:24 +0800
+From:   Zhang Qilong <zhangqilong3@huawei.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>
+CC:     <linux-watchdog@vger.kernel.org>
+Subject: [PATCH] watchdog: rti-wdt: fix reference leak in rti_wdt_probe
+Date:   Fri, 30 Oct 2020 23:49:09 +0800
+Message-ID: <20201030154909.100023-1-zhangqilong3@huawei.com>
+X-Mailer: git-send-email 2.26.0.106.g9fadedd
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 30 Oct 2020 10:51:24 +0530
-From:   kathirav@codeaurora.org
-To:     Robert Marko <robert.marko@sartura.hr>
-Cc:     agross@kernel.org, bjorn.andersson@linaro.org,
-        wim@linux-watchdog.org, linux@roeck-us.net,
-        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Luka Perkov <luka.perkov@sartura.hr>" <kathirav@codeaurora.org>
-Subject: Re: [PATCH v2] watchdog: qcom_wdt: set WDOG_HW_RUNNING bit when
- appropriate
-In-Reply-To: <20201028114635.7570-1-robert.marko@sartura.hr>
-References: <20201028114635.7570-1-robert.marko@sartura.hr>
-Message-ID: <2f0653b7d05d1ef26f6624b38d1d7b2d@codeaurora.org>
-X-Sender: kathirav@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.90.53.225]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2020-10-28 17:16, Robert Marko wrote:
-> If the watchdog hardware is enabled/running during boot, e.g.
-> due to a boot loader configuring it, we must tell the
-> watchdog framework about this fact so that it can ping the
-> watchdog until userspace opens the device and takes over
-> control.
-> 
-> Do so using the WDOG_HW_RUNNING flag that exists for exactly
-> that use-case.
-> 
-> Given the watchdog driver core doesn't know what timeout was
-> originally set by whoever started the watchdog (boot loader),
-> we make sure to update the timeout in the hardware according
-> to what the watchdog core thinks it is.
-> 
-> Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-> Cc: Luka Perkov <luka.perkov@sartura.hr>
-> ---
-> Changes in v2:
-> * Correct authorship
-> 
->  drivers/watchdog/qcom-wdt.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index ab7465d186fd..28c93a918e38 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -152,6 +152,13 @@ static int qcom_wdt_restart(struct
-> watchdog_device *wdd, unsigned long action,
->  	return 0;
->  }
-> 
-> +static int qcom_wdt_is_running(struct watchdog_device *wdd)
-> +{
-> +	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
-> +
-> +	return (readl(wdt_addr(wdt, WDT_EN)) & 1);
+pm_runtime_get_sync() will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put_noidle will result
+in reference leak in rti_wdt_probe, so we should fix it.
 
-QCOM_WDT_ENABLE macro can be used instead of 1?
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+---
+ drivers/watchdog/rti_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> +}
-> +
->  static const struct watchdog_ops qcom_wdt_ops = {
->  	.start		= qcom_wdt_start,
->  	.stop		= qcom_wdt_stop,
-> @@ -294,6 +301,21 @@ static int qcom_wdt_probe(struct platform_device 
-> *pdev)
->  	wdt->wdd.timeout = min(wdt->wdd.max_timeout, 30U);
->  	watchdog_init_timeout(&wdt->wdd, 0, dev);
-> 
-> +	if (qcom_wdt_is_running(&wdt->wdd)) {
-> +		/*
-> +		 * Make sure to apply timeout from watchdog core, taking
-> +		 * the prescaler of this driver here into account (the
-> +		 * boot loader might be using a different prescaler).
-> +		 *
-> +		 * To avoid spurious resets because of different scaling,
-> +		 * we first disable the watchdog, set the new prescaler
-> +		 * and timeout, and then re-enable the watchdog.
-> +		 */
-> +		qcom_wdt_stop(&wdt->wdd);
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 836319cbaca9..359302f71f7e 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -227,8 +227,10 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_noidle(dev);
+ 		return dev_err_probe(dev, ret, "runtime pm failed\n");
++	}
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-- 
+2.17.1
 
-qcom_wdt_start disables the WDT, configure the timeout values and 
-enables it. Do we still need to call qcom_wdt_stop?
-
-> +		qcom_wdt_start(&wdt->wdd);
-> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
-> +	}
-> +
->  	ret = devm_watchdog_register_device(dev, &wdt->wdd);
->  	if (ret)
->  		return ret;
