@@ -1,110 +1,139 @@
-Return-Path: <SRS0=+3Tt=EF=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=jpjT=EG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D658C00A89
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 17:35:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20BF2C388F7
+	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Oct 2020 11:52:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D67B20A8B
-	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Oct 2020 17:35:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E219F206A1
+	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Oct 2020 11:52:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DAaNDC3e"
+	dkim=pass (2048-bit key) header.d=sartura-hr.20150623.gappssmtp.com header.i=@sartura-hr.20150623.gappssmtp.com header.b="PXwnzLKr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbgJ3RfY (ORCPT
+        id S1727092AbgJaLw1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 30 Oct 2020 13:35:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35864 "EHLO
+        Sat, 31 Oct 2020 07:52:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726272AbgJ3RfY (ORCPT
+        with ESMTP id S1726935AbgJaLwZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Oct 2020 13:35:24 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E03C0613CF
-        for <linux-watchdog@vger.kernel.org>; Fri, 30 Oct 2020 10:35:24 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id u127so7416762oib.6
-        for <linux-watchdog@vger.kernel.org>; Fri, 30 Oct 2020 10:35:24 -0700 (PDT)
+        Sat, 31 Oct 2020 07:52:25 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17ADC0613D8
+        for <linux-watchdog@vger.kernel.org>; Sat, 31 Oct 2020 04:52:23 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id i16so3803000wrv.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 31 Oct 2020 04:52:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=F+IauR9qU07iIuHRwGgSsAW838D+4rlP5cqNxXTm0BU=;
-        b=DAaNDC3elN0VFyTQpnbtWVmCJEImwSUJRosS19BCA6GEuQYX8O5Ve6ceH699prXFXA
-         KVgzDewueVJ+uxR8mhPbN19l39kvNASmm4sUDtRYMvP8rhfOP+Ib4OoanOfWKZK1+n47
-         VEPwnk7tEFOPPkH+s5IGUDzFLB0MrK8NcmdB4j4VbOQLoLdDhVszfSD6Fh5v6guz5vq/
-         71FBWvESaL/ozL4G5hAoxMNrXfAu4YRfm/k9WX0qFAxnR9vB3+t1z2VXc2UyLaADmppV
-         NdgBZkd3w0Hd54raeoOCQGgqEDGJg2XfxLT42KaOU+cX2lpDEp27z/X+NePCLsaEqBfK
-         SNcQ==
+        d=sartura-hr.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xZI+7zrxUit9O0OB+cBOuMZaBCXyEeMzsbomcOevAsU=;
+        b=PXwnzLKrmPa724apY5KdTLJ1lHk1YpkaszXOfU/DkGXWrvIsTtBmZ500okhl0tu8Sc
+         xRQ2C1o5jgjD0gBHNNhzcMGL2nYICMI8RMuEGYzpzLUtfIZ8SYnojUy+/iZ7lDj7lHmK
+         qNc0ULMswjCZ5JTuyLtoQdCbe8YajKNyivt/OwBVickW+xr4zhJZPleXg4asfTM8BTiU
+         Of71gB7Ov6lWX/f0ZVo9DVHFgnPHZelkrG1L91zdmZ5kjMPXBh2zJ6cYYBYoL85+zHNB
+         2Di8d3uuTTs1f4ORyipB9sQkKtfl44qNOmZA3GQRIe6bPXrn4UQOyReRme3k5kgHE4dS
+         QOiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=F+IauR9qU07iIuHRwGgSsAW838D+4rlP5cqNxXTm0BU=;
-        b=VKT1dHdlTJO+F5k4QRxUoW+1G5CfMjjKiqr1VZLID1M/ZLm3QBGJXQeMh/tVv0Q9Oe
-         11yVLaZDYgONzlSCctaX7PlqByxzmJESfqQvUsQnaoBlKcDogZDxwj9l66f4qmYk1S6q
-         OQcDQWFUsovxGVvWL+djjjHHoPOH5UJCRJgBFt1sDwGcO6rVXjM6lo1dY7gmQZCGOaSK
-         8vgwhqMAo68qobL9fw9UHNm8jZhfezTLFVSRENuthYx1zNJnO4AJFU2zsOuHyJUjqKJE
-         vHOLdX/0WbtFvMYOGIIktpg4Es5yseLaHpi9WeGwiWGFkLJWw8xJ51RxLbdyCbsPL2oA
-         djQw==
-X-Gm-Message-State: AOAM533Pqj2HtRROKPn+zUphwy0iQj8NrAuQSEhGK1IVMKG2xjx0V1bv
-        t1GIOG64Dm3k/JPyY6znRpE=
-X-Google-Smtp-Source: ABdhPJwObe5V1PaQXbT+3p1bOVGovEv6il881KG9b3UeqFIS23l0ubmYd/ndTV8309gxtlHT6C9MqQ==
-X-Received: by 2002:aca:c410:: with SMTP id u16mr2501725oif.65.1604079323988;
-        Fri, 30 Oct 2020 10:35:23 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z12sm1560056oos.12.2020.10.30.10.35.23
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 30 Oct 2020 10:35:23 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 30 Oct 2020 10:35:22 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Zhang Qilong <zhangqilong3@huawei.com>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: rti-wdt: fix reference leak in rti_wdt_probe
-Message-ID: <20201030173522.GA73389@roeck-us.net>
-References: <20201030154909.100023-1-zhangqilong3@huawei.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xZI+7zrxUit9O0OB+cBOuMZaBCXyEeMzsbomcOevAsU=;
+        b=eis2zrPVgAiOgKsRi4QxdnbU/lJdHEbl1jHgG2eizFoKqq9Tb3aDY9cTu5/zKrc2v4
+         8D3+WoMKnwPWeBrgetMUAT/Fgp7+UtHH9ShGX9/eqFpG1wGZ0T/W++YQUCPlYLnB/HeK
+         itY1I+2MDmeez+foUG7Vxb9rdR1/c7CEOO73XHXLEahe1KKHhqw7SgHb4Mx3lM4RSSWR
+         nVzT+wwPtbWFrP10VXNcOWgzqJ7xzBoFkZe6oHq8iFjl+0QrbVa5XrHcPUO9fpInP3Ik
+         9KvKeF4X8k4BXOop4sM1hoGNTc0d1NgW/bVfg+3DSI44BQ+l3XcPzMwBk2imQJ4N7tvG
+         IOhw==
+X-Gm-Message-State: AOAM533EF3wcJycW/SKVk+0MSVczFMKdbCM5APSYj/29lRABZtzGugnf
+        +0E5Xyf+q1EuG6uR4JJszMgoPA==
+X-Google-Smtp-Source: ABdhPJzWvqvCScz0A6d9wkUBJ3XLp0zLPLJThcngoOT6+IyCWmGSa1rl2nZHbswOJjjLaYS2/skqwQ==
+X-Received: by 2002:a5d:688c:: with SMTP id h12mr9272925wru.92.1604145142232;
+        Sat, 31 Oct 2020 04:52:22 -0700 (PDT)
+Received: from localhost.localdomain (dh207-97-136.xnet.hr. [88.207.97.136])
+        by smtp.googlemail.com with ESMTPSA id g186sm17829847wma.1.2020.10.31.04.52.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 31 Oct 2020 04:52:21 -0700 (PDT)
+From:   Robert Marko <robert.marko@sartura.hr>
+To:     agross@kernel.org, bjorn.andersson@linaro.org,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Robert Marko <robert.marko@sartura.hr>,
+        Luka Perkov <luka.perkov@sartura.hr>
+Subject: [PATCH v3] watchdog: qcom_wdt: set WDOG_HW_RUNNING bit when appropriate
+Date:   Sat, 31 Oct 2020 12:52:14 +0100
+Message-Id: <20201031115214.355531-1-robert.marko@sartura.hr>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201030154909.100023-1-zhangqilong3@huawei.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 11:49:09PM +0800, Zhang Qilong wrote:
-> pm_runtime_get_sync() will increment pm usage counter even it
-> failed. Forgetting to call pm_runtime_put_noidle will result
-> in reference leak in rti_wdt_probe, so we should fix it.
-> 
-> Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+If the watchdog hardware is enabled/running during boot, e.g.
+due to a boot loader configuring it, we must tell the
+watchdog framework about this fact so that it can ping the
+watchdog until userspace opens the device and takes over
+control.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Do so using the WDOG_HW_RUNNING flag that exists for exactly
+that use-case.
 
-> ---
->  drivers/watchdog/rti_wdt.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-> index 836319cbaca9..359302f71f7e 100644
-> --- a/drivers/watchdog/rti_wdt.c
-> +++ b/drivers/watchdog/rti_wdt.c
-> @@ -227,8 +227,10 @@ static int rti_wdt_probe(struct platform_device *pdev)
->  
->  	pm_runtime_enable(dev);
->  	ret = pm_runtime_get_sync(dev);
-> -	if (ret)
-> +	if (ret) {
-> +		pm_runtime_put_noidle(dev);
->  		return dev_err_probe(dev, ret, "runtime pm failed\n");
-> +	}
->  
->  	platform_set_drvdata(pdev, wdt);
->  
-> -- 
-> 2.17.1
-> 
+Signed-off-by: Robert Marko <robert.marko@sartura.hr>
+Cc: Luka Perkov <luka.perkov@sartura.hr>
+---
+Changes in v3:
+* Drop call to stop as start already does it
+* Update commit message
+
+Changes in v2:
+* Correct authorship
+
+ drivers/watchdog/qcom-wdt.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index ab7465d186fd..64f44a4b7eb8 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -152,6 +152,13 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 	return 0;
+ }
+ 
++static int qcom_wdt_is_running(struct watchdog_device *wdd)
++{
++	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
++
++	return (readl(wdt_addr(wdt, WDT_EN)) & 1);
++}
++
+ static const struct watchdog_ops qcom_wdt_ops = {
+ 	.start		= qcom_wdt_start,
+ 	.stop		= qcom_wdt_stop,
+@@ -294,6 +301,17 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.timeout = min(wdt->wdd.max_timeout, 30U);
+ 	watchdog_init_timeout(&wdt->wdd, 0, dev);
+ 
++	/*
++	 * If WDT is already running, call WDT start which
++	 * will stop the WDT, set timeouts as bootloader
++	 * might use different ones and set running bit
++	 * to inform the WDT subsystem to ping the WDT
++	 */
++	if (qcom_wdt_is_running(&wdt->wdd)) {
++		qcom_wdt_start(&wdt->wdd);
++		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
++	}
++
+ 	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+ 	if (ret)
+ 		return ret;
+-- 
+2.28.0
+
