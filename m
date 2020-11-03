@@ -2,95 +2,117 @@ Return-Path: <SRS0=ndJk=EJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 532E9C2D0A3
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Nov 2020 06:53:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09F41C2D0A3
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Nov 2020 07:06:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 22CB4223AB
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Nov 2020 06:53:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4062206E3
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Nov 2020 07:06:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726109AbgKCGxB (ORCPT
+        id S1725968AbgKCHGH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 3 Nov 2020 01:53:01 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:7405 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727794AbgKCGxB (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 Nov 2020 01:53:01 -0500
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4CQL7l2Db1z6xy6;
-        Tue,  3 Nov 2020 14:52:35 +0800 (CST)
-Received: from huawei.com (10.175.112.208) by DGGEMS408-HUB.china.huawei.com
- (10.3.19.208) with Microsoft SMTP Server id 14.3.487.0; Tue, 3 Nov 2020
- 14:52:27 +0800
-From:   Wang Wensheng <wangwensheng4@huawei.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <rui.xiang@huawei.com>, <guohanjun@huawei.com>
-Subject: [PATCH -next v2 1/2] watchdog: Clean up error handlings of __watchdog_register_device
-Date:   Tue, 3 Nov 2020 06:52:16 +0000
-Message-ID: <20201103065217.67876-1-wangwensheng4@huawei.com>
-X-Mailer: git-send-email 2.25.0
+        Tue, 3 Nov 2020 02:06:07 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:2565 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725958AbgKCHGG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 3 Nov 2020 02:06:06 -0500
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4CQLRF59cFz9vCyQ;
+        Tue,  3 Nov 2020 08:06:01 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id dy9O089jaZQ3; Tue,  3 Nov 2020 08:06:01 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4CQLRF3rlfz9vCyP;
+        Tue,  3 Nov 2020 08:06:01 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 458018B783;
+        Tue,  3 Nov 2020 08:06:02 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id UlvOiLioe_Vf; Tue,  3 Nov 2020 08:06:02 +0100 (CET)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 9D42E8B77E;
+        Tue,  3 Nov 2020 08:06:01 +0100 (CET)
+Subject: Re: [PATCH -next v2 1/2] watchdog: Clean up error handlings of
+ __watchdog_register_device
+To:     Wang Wensheng <wangwensheng4@huawei.com>, wim@linux-watchdog.org,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     rui.xiang@huawei.com, guohanjun@huawei.com
+References: <20201103065217.67876-1-wangwensheng4@huawei.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <11e45cab-108f-db0e-6350-82ae49ed6b23@csgroup.eu>
+Date:   Tue, 3 Nov 2020 08:05:56 +0100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.112.208]
-X-CFilter-Loop: Reflected
+In-Reply-To: <20201103065217.67876-1-wangwensheng4@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
----
- drivers/watchdog/watchdog_core.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+Hi,
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 423844757812..c73871f41142 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -252,10 +252,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		wdd->id = id;
- 
- 		ret = watchdog_dev_register(wdd);
--		if (ret) {
--			ida_simple_remove(&watchdog_ida, id);
--			return ret;
--		}
-+		if (ret)
-+			goto id_remove;
- 	}
- 
- 	/* Module parameter to force watchdog policy on reboot. */
-@@ -273,9 +271,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		if (ret) {
- 			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
- 			       wdd->id, ret);
--			watchdog_dev_unregister(wdd);
--			ida_simple_remove(&watchdog_ida, id);
--			return ret;
-+			goto dev_unregister;
- 		}
- 	}
- 
-@@ -289,6 +285,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 	}
- 
- 	return 0;
-+
-+dev_unregister:
-+	watchdog_dev_unregister(wdd);
-+id_remove:
-+	ida_simple_remove(&watchdog_ida, id);
-+
-+	return ret;
- }
- 
- /**
--- 
-2.25.0
+Can you provide in the commit a description of what you are doing and why ?
 
+Christophe
+
+Le 03/11/2020 à 07:52, Wang Wensheng a écrit :
+> Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+> ---
+>   drivers/watchdog/watchdog_core.c | 17 ++++++++++-------
+>   1 file changed, 10 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 423844757812..c73871f41142 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -252,10 +252,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		wdd->id = id;
+>   
+>   		ret = watchdog_dev_register(wdd);
+> -		if (ret) {
+> -			ida_simple_remove(&watchdog_ida, id);
+> -			return ret;
+> -		}
+> +		if (ret)
+> +			goto id_remove;
+>   	}
+>   
+>   	/* Module parameter to force watchdog policy on reboot. */
+> @@ -273,9 +271,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		if (ret) {
+>   			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
+>   			       wdd->id, ret);
+> -			watchdog_dev_unregister(wdd);
+> -			ida_simple_remove(&watchdog_ida, id);
+> -			return ret;
+> +			goto dev_unregister;
+>   		}
+>   	}
+>   
+> @@ -289,6 +285,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   	}
+>   
+>   	return 0;
+> +
+> +dev_unregister:
+> +	watchdog_dev_unregister(wdd);
+> +id_remove:
+> +	ida_simple_remove(&watchdog_ida, id);
+> +
+> +	return ret;
+>   }
+>   
+>   /**
+> 
