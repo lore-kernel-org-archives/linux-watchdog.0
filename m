@@ -2,221 +2,90 @@ Return-Path: <SRS0=xYvk=EL=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 889C2C388F7
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Nov 2020 11:40:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A99EC00A89
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Nov 2020 12:39:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38E472083B
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Nov 2020 11:40:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD4ED20936
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Nov 2020 12:39:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729827AbgKELkI (ORCPT
+        id S1730184AbgKEMjN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Nov 2020 06:40:08 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:46045 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730266AbgKELhx (ORCPT
+        Thu, 5 Nov 2020 07:39:13 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:7058 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725468AbgKEMjM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Nov 2020 06:37:53 -0500
-Received: by mail-lj1-f196.google.com with SMTP id t13so1199883ljk.12;
-        Thu, 05 Nov 2020 03:37:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=l6GNHxWenXClMpzDH8vAZfwF26Q3bXxn5PspaMcty4Y=;
-        b=Kntr2hRb/Q37alBSYES+3BiQ2Q30Ux8kiGM1UEa33L4YDu4UFPsvpkqaeV1l2AupPW
-         TGjzgDIyWTjAfAkBkcJH5+qw6QgnTDPSw9FVUhBTtkrfR0W1eq+6g7glkORgBQ8pSV23
-         guiox8TVnqt6V0wHX+dt5ZcAz5OQ33q6Uhw/rYAdSKb27lJjgUADCj/GD+HoELGhr13w
-         TlqzZOXJDgUQopHQ3QHWZK2P91/iZX+vvYIVjU/DQ3vcrkuzrgrUYppafhSoSckms8Qq
-         zA4aIcBH8jwn1idS59glIan6Oo00Wq/FVUbVozNXwAPyNZD9F+3cYLzGDfA5z3Pa7Z9z
-         oxVA==
-X-Gm-Message-State: AOAM53130rMP91WiDkwUYxGDB49wiGeZmg55Sy4ZUIl/DmtkzE7Mu9h7
-        OIPyP476G7r2kYfV1DuhAYs=
-X-Google-Smtp-Source: ABdhPJx4kEGRJ3yy4aBPZCqAS4ORuF7w47nAJV1xwDvOv4Fl1RFNR9ZpKoMWKtHR+3nACK67ZaL2pQ==
-X-Received: by 2002:a2e:81d4:: with SMTP id s20mr692925ljg.396.1604576270595;
-        Thu, 05 Nov 2020 03:37:50 -0800 (PST)
-Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id u25sm154756lfo.198.2020.11.05.03.37.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2020 03:37:49 -0800 (PST)
-Date:   Thu, 5 Nov 2020 13:37:43 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v5 1/4] dt_bindings: mfd: Add ROHM BD9576MUF and BD9573MUF
- PMICs
-Message-ID: <36f11c031ff2988015ba73808cabe7279c1a2f49.1604574431.git.matti.vaittinen@fi.rohmeurope.com>
-References: <cover.1604574431.git.matti.vaittinen@fi.rohmeurope.com>
+        Thu, 5 Nov 2020 07:39:12 -0500
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4CRjkf56XVzhXfl;
+        Thu,  5 Nov 2020 20:39:06 +0800 (CST)
+Received: from huawei.com (10.175.112.208) by DGGEMS404-HUB.china.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server id 14.3.487.0; Thu, 5 Nov 2020
+ 20:39:01 +0800
+From:   Wang Wensheng <wangwensheng4@huawei.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <rui.xiang@huawei.com>, <guohanjun@huawei.com>
+Subject: [PATCH -next v3 1/2] watchdog: Fix potential dereferencing of null pointer
+Date:   Thu, 5 Nov 2020 12:38:47 +0000
+Message-ID: <20201105123848.93735-1-wangwensheng4@huawei.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1604574431.git.matti.vaittinen@fi.rohmeurope.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.112.208]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add bindings for ROHM BD9576MUF and BD9573MUF PMICs. These
-PMICs are primarily intended to be used to power the R-Car series
-processors. They provide 6 power outputs, safety features and a
-watchdog with two functional modes.
+A reboot notifier, which stops the WDT by calling the stop hook without
+any check, would be registered when we set WDOG_STOP_ON_REBOOT flag.
 
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Howerer we allow the WDT driver to omit the stop hook since commit
+"d0684c8a93549" ("watchdog: Make stop function optional") and provide
+a module parameter for user that controls the WDOG_STOP_ON_REBOOT flag
+in commit 9232c80659e94 ("watchdog: Add stop_on_reboot parameter to
+control reboot policy"). Together that commits make user potential to
+insert a watchdog driver that don't provide a stop hook but with the
+stop_on_reboot parameter set, then dereferencing of null pointer occurs
+on system reboot.
+
+Check the stop hook before registering the reboot notifier to fix the
+issue.
+
+Fixes: d0684c8a9354 ("watchdog: Make stop function optional")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
 ---
- .../bindings/mfd/rohm,bd9576-pmic.yaml        | 123 ++++++++++++++++++
- 1 file changed, 123 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd9576-pmic.yaml
+ drivers/watchdog/watchdog_core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd9576-pmic.yaml b/Documentation/devicetree/bindings/mfd/rohm,bd9576-pmic.yaml
-new file mode 100644
-index 000000000000..6483860da955
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd9576-pmic.yaml
-@@ -0,0 +1,123 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/rohm,bd9576-pmic.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: ROHM BD9576MUF and BD9573MUF Power Management Integrated Circuit bindings
-+
-+maintainers:
-+  - Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-+
-+description: |
-+  BD9576MUF and BD9573MUF are power management ICs primarily intended for
-+  powering the R-Car series processors.
-+  The IC provides 6 power outputs with configurable sequencing and safety
-+  monitoring. A watchdog logic with slow ping/windowed modes is also included.
-+
-+properties:
-+  compatible:
-+    enum:
-+      - rohm,bd9576
-+      - rohm,bd9573
-+
-+  reg:
-+    description:
-+      I2C slave address.
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  rohm,vout1-en-low:
-+    description:
-+      BD9576 and BD9573 VOUT1 regulator enable state can be individually
-+      controlled by a GPIO. This is dictated by state of vout1-en pin during
-+      the PMIC startup. If vout1-en is LOW during PMIC startup then the VOUT1
-+      enable sate is controlled via this pin. Set this property if vout1-en
-+      is wired to be down at PMIC start-up.
-+    type: boolean
-+
-+  rohm,vout1-en-gpios:
-+    description:
-+      GPIO specifier to specify the GPIO connected to vout1-en for vout1 ON/OFF
-+      state control.
-+    maxItems: 1
-+
-+  rohm,ddr-sel-low:
-+    description:
-+      The BD9576 and BD9573 output voltage for DDR can be selected by setting
-+      the ddr-sel pin low or high. Set this property if ddr-sel is grounded.
-+    type: boolean
-+
-+  rohm,watchdog-enable-gpios:
-+    description: The GPIO line used to enable the watchdog.
-+    maxItems: 1
-+
-+  rohm,watchdog-ping-gpios:
-+    description: The GPIO line used to ping the watchdog.
-+    maxItems: 1
-+
-+  rohm,hw-timeout-ms:
-+    maxItems: 2
-+    description:
-+      Watchog timeout in milliseconds. If single value is given it is
-+      the maximum timeout. Eg. if pinging watchdog is not done within this time
-+      limit the watchdog will be triggered. If two values are given watchdog
-+      is configured in "window mode". Then first value is limit for short-ping
-+      Eg. if watchdog is pinged sooner than that the watchdog will trigger.
-+      When two values is given the second value is the maximum timeout.
-+      # (HW) minimum for short timeout is 2ms, maximum 220 ms.
-+      # (HW) minimum for max timeout is 4ms, maximum 4416 ms.
-+
-+  regulators:
-+    $ref: ../regulator/rohm,bd9576-regulator.yaml
-+    description:
-+      List of child nodes that specify the regulators.
-+
-+required:
-+  - compatible
-+  - reg
-+  - regulators
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/leds/common.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        pmic: pmic@30 {
-+            compatible = "rohm,bd9576";
-+            reg = <0x30>;
-+            rohm,vout1-en-low;
-+            rohm,vout1-en-gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
-+            rohm,ddr-sel-low;
-+            rohm,watchdog-enable-gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
-+            rohm,watchdog-ping-gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
-+            rohm,hw-timeout-ms = <150>, <2300>;
-+
-+            regulators {
-+                boost1: regulator-vd50 {
-+                    regulator-name = "VD50";
-+                };
-+                buck1: regulator-vd18 {
-+                    regulator-name = "VD18";
-+                };
-+                buck2: regulator-vdddr {
-+                    regulator-name = "VDDDR";
-+                };
-+                buck3: regulator-vd10 {
-+                    regulator-name = "VD10";
-+                };
-+                ldo: regulator-voutl1 {
-+                    regulator-name = "VOUTL1";
-+                };
-+                sw: regulator-vouts1 {
-+                    regulator-name = "VOUTS1";
-+                };
-+            };
-+        };
-+    };
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 423844757812..945ab38b14b8 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -267,8 +267,15 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 	}
+ 
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+-		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
++		if (!wdd->ops->stop) {
++			pr_err("watchdog%d: Cannot support stop_on_reboot\n",
++				wdd->id);
++			watchdog_dev_unregister(wdd);
++			ida_simple_remove(&watchdog_ida, id);
++			return -EINVAL;
++		}
+ 
++		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+ 		ret = register_reboot_notifier(&wdd->reboot_nb);
+ 		if (ret) {
+ 			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
 -- 
-2.21.3
+2.25.0
 
-
--- 
-Matti Vaittinen, Linux device drivers
-ROHM Semiconductors, Finland SWDC
-Kiviharjunlenkki 1E
-90220 OULU
-FINLAND
-
-~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
-Simon says - in Latin please.
-~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
-Thanks to Simon Glass for the translation =] 
