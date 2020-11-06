@@ -2,51 +2,50 @@ Return-Path: <SRS0=ZefP=EM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A6DC4741F
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C671DC4741F
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D923E208B3
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D1C4208B8
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="QHQy1OMl"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="OY+Lsz1A"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726010AbgKFOct (ORCPT
+        id S1727463AbgKFOcy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 6 Nov 2020 09:32:49 -0500
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:34512 "EHLO
+        Fri, 6 Nov 2020 09:32:54 -0500
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:34404 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726565AbgKFOct (ORCPT
+        by vger.kernel.org with ESMTP id S1727451AbgKFOcx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Nov 2020 09:32:49 -0500
+        Fri, 6 Nov 2020 09:32:53 -0500
 Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A6EWDkl022669;
-        Fri, 6 Nov 2020 15:32:27 +0100
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A6EWDku022669;
+        Fri, 6 Nov 2020 15:32:34 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-type; s=STMicroelectronics;
- bh=gxL+3W7NeUQn84nqYpY2cBP3e8fFsOZ0M8nvt5bAy4I=;
- b=QHQy1OMl/3gn+e9jj4//ePtm9KdrLveBFJClGr7P3aJwwKrhCdtv5LEBqOrbXiR7Ls3C
- 0lv5rmOZA/XhKye9ixg2BsmhCj/INt7NG29Awzh2ysxXQDm+Fifik8zHECdbTbwOHtkn
- buIcr/YMvuTy6QPnQ+b3EAvzcsZDI0hgPylb4PZTSwXYJ6c1Hpw8wRMfo0/SMxHPOyOm
- uMdYa8sSw7+uMljlefDxiM9nLpYA8Apl06r8CTI/WjCzSGtSCb5HiwAs2DaDzjolxHhI
- yeSp8wikLuuK8sBO6mfFyCt5gHEIXudGMkjXVLvrYstJggeovPi+wPiNp0OAlkQCYdJb bQ== 
+ : date : message-id : mime-version : content-type; s=STMicroelectronics;
+ bh=TqUJuC3My8Iz9+K0q9sV4IpHuACP0Xg9U709fHwKzSI=;
+ b=OY+Lsz1AS7s4dhnwlpkEjjLuTq8ydXIjIn//vhe3UoUwSJXfZeeJTC5S2Vlojd1oBPz1
+ gqbp8CD5Sz6ND68jsN4uAcbOpudlrjC5tcWkcv9+uQTDs14AAa15Flb8DMHPbZEjFMzI
+ IlgLEPMjpEONmM+0SDuJ4LdGKd5Pfib+0C68SpvHPbjzc8Vhlbyko/TjrITfpkwRRKd3
+ fkOyIXR8gmWZ+t4lBT7878Jw00whMajQBunv6t6qGmktRnU6WbPGJ9D4MG6GOH5sPNbu
+ 8WB9xCcoR9EnKXYzIhixweLUcV14clLSA0MvMeWKE8+UJeDD0vGYSvOIuOy6e+ryxWFn Sg== 
 Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 34h00evvkm-1
+        by mx07-00178001.pphosted.com with ESMTP id 34h00evvkn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Nov 2020 15:32:27 +0100
+        Fri, 06 Nov 2020 15:32:34 +0100
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B85871000BB;
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B899F1000BC;
         Fri,  6 Nov 2020 15:23:55 +0100 (CET)
 Received: from Webmail-eu.st.com (sfhdag1node3.st.com [10.75.127.3])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id A8BAB2AD2BA;
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id A161D2AD2B9;
         Fri,  6 Nov 2020 15:23:55 +0100 (CET)
 Received: from localhost (10.75.127.46) by SFHDAG1NODE3.st.com (10.75.127.3)
- with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 6 Nov 2020 15:23:33
+ with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 6 Nov 2020 15:23:32
  +0100
 From:   Christophe Roullier <christophe.roullier@st.com>
 To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
@@ -54,18 +53,15 @@ To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
 CC:     <linux-watchdog@vger.kernel.org>, <christophe.roullier@st.com>,
         <linux-kernel@vger.kernel.org>,
         <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Etienne Carriere <etienne.carriere@st.com>
-Subject: [PATCH V2 1/1] watchdog: stm32_iwdg: don't print an error on probe deferral
-Date:   Fri, 6 Nov 2020 15:23:27 +0100
-Message-ID: <20201106142327.3129-2-christophe.roullier@st.com>
+        <linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH V2 0/1]  watchdog: stm32_iwdg: don't print an error on probe deferral
+Date:   Fri, 6 Nov 2020 15:23:26 +0100
+Message-ID: <20201106142327.3129-1-christophe.roullier@st.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201106142327.3129-1-christophe.roullier@st.com>
-References: <20201106142327.3129-1-christophe.roullier@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG3NODE1.st.com (10.75.127.7) To SFHDAG1NODE3.st.com
+X-ClientProxiedBy: SFHDAG1NODE3.st.com (10.75.127.3) To SFHDAG1NODE3.st.com
  (10.75.127.3)
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
  definitions=2020-11-06_06:2020-11-05,2020-11-06 signatures=0
@@ -73,44 +69,17 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Etienne Carriere <etienne.carriere@st.com>
-
 Do not print an error trace when deferring probe for clock resources.
 
-Signed-off-by: Etienne Carriere <etienne.carriere@st.com>
-Signed-off-by: Christophe Roullier <christophe.roullier@st.com>
----
+Version 2: Remark from Guenter and Ahmad
+		use dev_err_probe instead 
+
+Etienne Carriere (1):
+  watchdog: stm32_iwdg: don't print an error on probe deferral
+
  drivers/watchdog/stm32_iwdg.c | 13 +++++--------
  1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
-index 25188d6bbe15..a3436c296c97 100644
---- a/drivers/watchdog/stm32_iwdg.c
-+++ b/drivers/watchdog/stm32_iwdg.c
-@@ -162,18 +162,15 @@ static int stm32_iwdg_clk_init(struct platform_device *pdev,
- 	u32 ret;
- 
- 	wdt->clk_lsi = devm_clk_get(dev, "lsi");
--	if (IS_ERR(wdt->clk_lsi)) {
--		dev_err(dev, "Unable to get lsi clock\n");
--		return PTR_ERR(wdt->clk_lsi);
--	}
-+	if (IS_ERR(wdt->clk_lsi))
-+		return dev_err_probe(dev, PTR_ERR(wdt->clk_lsi), "Unable to get lsi clock\n");
- 
- 	/* optional peripheral clock */
- 	if (wdt->data->has_pclk) {
- 		wdt->clk_pclk = devm_clk_get(dev, "pclk");
--		if (IS_ERR(wdt->clk_pclk)) {
--			dev_err(dev, "Unable to get pclk clock\n");
--			return PTR_ERR(wdt->clk_pclk);
--		}
-+		if (IS_ERR(wdt->clk_pclk))
-+			return dev_err_probe(dev, PTR_ERR(wdt->clk_pclk),
-+					     "Unable to get pclk clock\n");
- 
- 		ret = clk_prepare_enable(wdt->clk_pclk);
- 		if (ret) {
 -- 
 2.17.1
 
