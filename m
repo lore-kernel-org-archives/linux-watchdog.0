@@ -2,183 +2,115 @@ Return-Path: <SRS0=ZefP=EM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23CCBC2D0A3
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 13:19:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A6DC4741F
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A183B20702
-	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 13:19:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D923E208B3
+	for <linux-watchdog@archiver.kernel.org>; Fri,  6 Nov 2020 14:32:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DOsBqRxt"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="QHQy1OMl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727166AbgKFNTf (ORCPT
+        id S1726010AbgKFOct (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 6 Nov 2020 08:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726939AbgKFNTe (ORCPT
+        Fri, 6 Nov 2020 09:32:49 -0500
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:34512 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726565AbgKFOct (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Nov 2020 08:19:34 -0500
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6D4C0613CF;
-        Fri,  6 Nov 2020 05:19:34 -0800 (PST)
-Received: by mail-oi1-x243.google.com with SMTP id m13so1278325oih.8;
-        Fri, 06 Nov 2020 05:19:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=KJB1xgKq9a1nDIt664i0hHb75r+6UHn2yvPVaWKbhxg=;
-        b=DOsBqRxtlNHR5ZreCneNhifwRaW0lb046z4iq3WQ1KfggQtlzfU8J2qXJREhyDQ7cg
-         ++BcXlYn2XWSI80IMs3qZRytRdnxuwGaACeb98bAQBtqeGaPn+XuaM1iuPMhS24SAtTC
-         r3LGYYfV+UV+4u0LOj3Y6Z4q8/RVJN3ov2Wh8wtD/UG3bTSUd4ptom+gTl+T8xBf2naU
-         5xNP24vO1EnlXXuKvhw0kDCu4FSmTkdHzXLVQi67rxS9aLXzU614i2nv4SmFaoB7uZhd
-         Ue5mD1REr01eXLZrlhBR0f2qkYLHhYmKu8Vlf6gLHOjHDC5hnsReZf90U9RKAOudX/Ye
-         V4+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=KJB1xgKq9a1nDIt664i0hHb75r+6UHn2yvPVaWKbhxg=;
-        b=LMXJ1RS86YRdw4BPsi4VLVrMB6FTCGo4pP+64Q6UF1CF3wRkEe7L4itm38wNANqD5a
-         mtvWY1hRtjtNtX7iLip6PIV5lMe8hJi00j+PES5bF/mCNuy+H/2Jzo5aGbcntoJ84ygF
-         daVDo3NXNycrJ+ZqDCnqZYcP1jj8eUaQTYiwPImempX9CP70lGlpas37MOpdj9bWakCG
-         7il30sBCkqedhWKsjSADl1RNixu5p6XvGLXjdtTIWE8/+OowgxzV/WtCwBHQH2SuHRWY
-         06njw7/r5N55k8avYR3M+ua/+cOUyeDY3H9UKEqqzuo26iYhoh1xDkZNx0+cORp+MZ8K
-         v/Dg==
-X-Gm-Message-State: AOAM531lzwYzjizXyS3R/QgyNhi/KBe/9DnoqZRObY6GrTY4f7LLTvzJ
-        8K/iYOD30LIDpzc3zvGXQlH3/GjfayI=
-X-Google-Smtp-Source: ABdhPJy//DTLAwtKxOi4CFlZ1NvnIpSpWaxe8a66KjJ8ASGzscPZnO1sTkVM8HlWE9XeUr2CKK5t0A==
-X-Received: by 2002:aca:33c2:: with SMTP id z185mr1130517oiz.174.1604668774086;
-        Fri, 06 Nov 2020 05:19:34 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y3sm282369ota.62.2020.11.06.05.19.33
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 06 Nov 2020 05:19:33 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 6 Nov 2020 05:19:32 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     "wangwensheng (C)" <wangwensheng4@huawei.com>
-Cc:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Xiangrui (Euler)" <rui.xiang@huawei.com>,
-        "Guohanjun (Hanjun Guo)" <guohanjun@huawei.com>
-Subject: Re: [PATCH -next v3 1/2] watchdog: Fix potential dereferencing of
- null pointer
-Message-ID: <20201106131932.GE14837@roeck-us.net>
-References: <20201105123848.93735-1-wangwensheng4@huawei.com>
- <20201105142621.GB1389@roeck-us.net>
- <4a85d0170a69430585fb89aba7490d9a@huawei.com>
+        Fri, 6 Nov 2020 09:32:49 -0500
+Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A6EWDkl022669;
+        Fri, 6 Nov 2020 15:32:27 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=STMicroelectronics;
+ bh=gxL+3W7NeUQn84nqYpY2cBP3e8fFsOZ0M8nvt5bAy4I=;
+ b=QHQy1OMl/3gn+e9jj4//ePtm9KdrLveBFJClGr7P3aJwwKrhCdtv5LEBqOrbXiR7Ls3C
+ 0lv5rmOZA/XhKye9ixg2BsmhCj/INt7NG29Awzh2ysxXQDm+Fifik8zHECdbTbwOHtkn
+ buIcr/YMvuTy6QPnQ+b3EAvzcsZDI0hgPylb4PZTSwXYJ6c1Hpw8wRMfo0/SMxHPOyOm
+ uMdYa8sSw7+uMljlefDxiM9nLpYA8Apl06r8CTI/WjCzSGtSCb5HiwAs2DaDzjolxHhI
+ yeSp8wikLuuK8sBO6mfFyCt5gHEIXudGMkjXVLvrYstJggeovPi+wPiNp0OAlkQCYdJb bQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 34h00evvkm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Nov 2020 15:32:27 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B85871000BB;
+        Fri,  6 Nov 2020 15:23:55 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag1node3.st.com [10.75.127.3])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id A8BAB2AD2BA;
+        Fri,  6 Nov 2020 15:23:55 +0100 (CET)
+Received: from localhost (10.75.127.46) by SFHDAG1NODE3.st.com (10.75.127.3)
+ with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 6 Nov 2020 15:23:33
+ +0100
+From:   Christophe Roullier <christophe.roullier@st.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>
+CC:     <linux-watchdog@vger.kernel.org>, <christophe.roullier@st.com>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Etienne Carriere <etienne.carriere@st.com>
+Subject: [PATCH V2 1/1] watchdog: stm32_iwdg: don't print an error on probe deferral
+Date:   Fri, 6 Nov 2020 15:23:27 +0100
+Message-ID: <20201106142327.3129-2-christophe.roullier@st.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201106142327.3129-1-christophe.roullier@st.com>
+References: <20201106142327.3129-1-christophe.roullier@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4a85d0170a69430585fb89aba7490d9a@huawei.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.46]
+X-ClientProxiedBy: SFHDAG3NODE1.st.com (10.75.127.7) To SFHDAG1NODE3.st.com
+ (10.75.127.3)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-06_06:2020-11-05,2020-11-06 signatures=0
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Nov 06, 2020 at 07:37:08AM +0000, wangwensheng (C) wrote:
-> 在 2020/11/5 22:26, Guenter Roeck 写道:
-> > On Thu, Nov 05, 2020 at 12:38:47PM +0000, Wang Wensheng wrote:
-> >> A reboot notifier, which stops the WDT by calling the stop hook without
-> >> any check, would be registered when we set WDOG_STOP_ON_REBOOT flag.
-> >>
-> >> Howerer we allow the WDT driver to omit the stop hook since commit
-> >> "d0684c8a93549" ("watchdog: Make stop function optional") and provide
-> >> a module parameter for user that controls the WDOG_STOP_ON_REBOOT flag
-> >> in commit 9232c80659e94 ("watchdog: Add stop_on_reboot parameter to
-> >> control reboot policy"). Together that commits make user potential to
-> >> insert a watchdog driver that don't provide a stop hook but with the
-> >> stop_on_reboot parameter set, then dereferencing of null pointer occurs
-> >> on system reboot.
-> >>
-> >> Check the stop hook before registering the reboot notifier to fix the
-> >> issue.
-> >>
-> >> Fixes: d0684c8a9354 ("watchdog: Make stop function optional")
-> >> Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-> >> ---
-> >>   drivers/watchdog/watchdog_core.c | 9 ++++++++-
-> >>   1 file changed, 8 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> >> index 423844757812..945ab38b14b8 100644
-> >> --- a/drivers/watchdog/watchdog_core.c
-> >> +++ b/drivers/watchdog/watchdog_core.c
-> >> @@ -267,8 +267,15 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> >>   	}
-> >>   
-> >>   	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
-> >> -		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
-> >> +		if (!wdd->ops->stop) {
-> >> +			pr_err("watchdog%d: Cannot support stop_on_reboot\n",
-> >> +				wdd->id);
-> >> +			watchdog_dev_unregister(wdd);
-> >> +			ida_simple_remove(&watchdog_ida, id);
-> >> +			return -EINVAL;
-> >> +		}
-> > 
-> > The problem with this is that setting the "stop_on_reboot" module parameter
-> > would now prevent the watchdog from being loaded, which isn't really
-> > desirable and might go unnoticed. I think the initial check should be
-> > above, with the "Mandatory operations" check, and
-> > 	if (stop_on_reboot != -1) {
-> > should be extended to
-> > 	if (stop_on_reboot != -1 && wdd->ops->stop) {
-> > 
-> > or possibly more fancy:
-> > 
-> > 	if (stop_on_reboot != -1) {
-> > 		if (stop_on_reboot) {
-> > 			if (!wdd->ops->stop)
-> > 				pr_warn("watchdog%d: stop_on_reboot not supported\n", wdd->id);
-> > 			else
-> > 				set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-> > 		} else {
-> > 			clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-> > 		}
-> > 	}
-> > 
-> > Thanks,
-> > Guenter
-> 
-> Now the divergence is that should we stop the registering process and 
-> return error when the STOP_ON_REBOOT flag is set but the driver doesn't 
-> support it. The flag is set in two scenes.
-> Firstly,the driver that should provide the stop hook may set the flag 
-> staticlly, and it is a bug of the driver if it set the flag but without 
-> a stop hook. Then giving an error shall be more striking.
-> Secondly, the user can change the flag using module parameter. Is it 
-> reasonable to just ignore the STOP_ON_REBOOT flag and give a warning 
-> when the user truely want it? And under this circumstance a warning is 
-> easier to get unnoticed than an error.
-> I prefer to stop the registering process and return an error in those 
-> two scenes.
-> 
+From: Etienne Carriere <etienne.carriere@st.com>
 
-I disagree. A bad module parameter should not result in module load
-failures.
+Do not print an error trace when deferring probe for clock resources.
 
-Guenter
+Signed-off-by: Etienne Carriere <etienne.carriere@st.com>
+Signed-off-by: Christophe Roullier <christophe.roullier@st.com>
+---
+ drivers/watchdog/stm32_iwdg.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-> Thanks
-> > 
-> >>   
-> >> +		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
-> >>   		ret = register_reboot_notifier(&wdd->reboot_nb);
-> >>   		if (ret) {
-> >>   			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
-> >> -- 
-> >> 2.25.0
-> >>
-> > 
-> 
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index 25188d6bbe15..a3436c296c97 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -162,18 +162,15 @@ static int stm32_iwdg_clk_init(struct platform_device *pdev,
+ 	u32 ret;
+ 
+ 	wdt->clk_lsi = devm_clk_get(dev, "lsi");
+-	if (IS_ERR(wdt->clk_lsi)) {
+-		dev_err(dev, "Unable to get lsi clock\n");
+-		return PTR_ERR(wdt->clk_lsi);
+-	}
++	if (IS_ERR(wdt->clk_lsi))
++		return dev_err_probe(dev, PTR_ERR(wdt->clk_lsi), "Unable to get lsi clock\n");
+ 
+ 	/* optional peripheral clock */
+ 	if (wdt->data->has_pclk) {
+ 		wdt->clk_pclk = devm_clk_get(dev, "pclk");
+-		if (IS_ERR(wdt->clk_pclk)) {
+-			dev_err(dev, "Unable to get pclk clock\n");
+-			return PTR_ERR(wdt->clk_pclk);
+-		}
++		if (IS_ERR(wdt->clk_pclk))
++			return dev_err_probe(dev, PTR_ERR(wdt->clk_pclk),
++					     "Unable to get pclk clock\n");
+ 
+ 		ret = clk_prepare_enable(wdt->clk_pclk);
+ 		if (ret) {
+-- 
+2.17.1
+
