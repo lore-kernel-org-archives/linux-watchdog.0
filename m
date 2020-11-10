@@ -2,29 +2,28 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F9EBC4742C
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:07:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A3AFC388F7
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:07:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E70D5206A1
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:06:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 330A62068D
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:07:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387494AbgKJEGZ (ORCPT
+        id S1732791AbgKJEGP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Nov 2020 23:06:25 -0500
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:50000 "EHLO
+        Mon, 9 Nov 2020 23:06:15 -0500
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:40664 "EHLO
         smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387433AbgKJEGX (ORCPT
+        by vger.kernel.org with ESMTP id S1728403AbgKJEGM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Nov 2020 23:06:23 -0500
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.2995258|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00377925-0.00159346-0.994627;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047188;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=29;RT=29;SR=0;TI=SMTPD_---.IulFdj5_1604981159;
+        Mon, 9 Nov 2020 23:06:12 -0500
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.1739784|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0582695-0.00106321-0.940667;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047199;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=28;RT=28;SR=0;TI=SMTPD_---.IulFdj5_1604981159;
 Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.IulFdj5_1604981159)
           by smtp.aliyun-inc.com(10.147.42.135);
-          Tue, 10 Nov 2020 12:06:15 +0800
+          Tue, 10 Nov 2020 12:06:04 +0800
 From:   Frank Lee <frank@allwinnertech.com>
 To:     vkoul@kernel.org, robh+dt@kernel.org, mripard@kernel.org,
         wens@csie.org, ulf.hansson@linaro.org, kishon@ti.com,
@@ -38,63 +37,62 @@ To:     vkoul@kernel.org, robh+dt@kernel.org, mripard@kernel.org,
         linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
         tiny.windzz@gmail.com
-Cc:     Yangtao Li <frank@allwinnertech.com>, stable@vger.kernel.org
-Subject: [PATCH 03/19] pinctrl: sunxi: Always call chained_irq_{enter, exit} in sunxi_pinctrl_irq_handler
-Date:   Tue, 10 Nov 2020 12:05:37 +0800
-Message-Id: <20201110040553.1381-4-frank@allwinnertech.com>
+Cc:     Frank Lee <frank@allwinnertech.com>
+Subject: [PATCH 00/19] Second step support for A100
+Date:   Tue, 10 Nov 2020 12:05:34 +0800
+Message-Id: <20201110040553.1381-1-frank@allwinnertech.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201110040553.1381-1-frank@allwinnertech.com>
-References: <20201110040553.1381-1-frank@allwinnertech.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Yangtao Li <frank@allwinnertech.com>
+Hi,
 
-It is found on many allwinner soc that there is a low probability that
-the interrupt status cannot be read in sunxi_pinctrl_irq_handler. This
-will cause the interrupt status of a gpio bank to always be active on
-gic, preventing gic from responding to other spi interrupts correctly.
+Let's add watchdog, arm-pmu, dma, usb, mmc..... support for allwinner
+a100 soc.
 
-So we should call the chained_irq_* each time enter sunxi_pinctrl_irq_handler().
+Yangtao Li (19):
+  pinctrl: sunxi: fix irq bank map for the Allwinner A100 pin controller
+  pinctrl: sunxi: Mark the irq bank not found in
+    sunxi_pinctrl_irq_handler() with WARN_ON
+  pinctrl: sunxi: Always call chained_irq_{enter, exit} in
+    sunxi_pinctrl_irq_handler
+  dt-bindings: dma: allwinner,sun50i-a64-dma: Add A100 compatible
+  dmaengine: sun6i: Add support for A100 DMA
+  arm64: allwinner: a100: Add device node for DMA controller
+  arm64: dts: allwinner: A100: Add PMU mode
+  phy: sun4i-usb: remove enable_pmu_unk1 from sun50i_h6_cfg
+  phy: allwinner: Convert to devm_platform_ioremap_* API
+  dt-bindings: watchdog: sun4i: Add A100 compatible
+  arm64: dts: allwinner: a100: add watchdog node
+  dt-bindings: Add bindings for USB phy on Allwinner A100
+  phy: sun4i-usb: add support for A100 USB PHY
+  arm64: dts: allwinner: a100: add usb related nodes
+  arm64: allwinner: A100: enable EHCI, OHCI and USB PHY nodes in Perf1
+  dt-bindings: mmc: sunxi: Add A100 compatibles
+  mmc: sunxi: add support for A100 mmc controller
+  arm64: allwinner: a100: Add MMC related nodes
+  arm64: dts: allwinner: a100: perf1: Add eMMC and MMC node
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Yangtao Li <frank@allwinnertech.com>
----
- drivers/pinctrl/sunxi/pinctrl-sunxi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../dma/allwinner,sun50i-a64-dma.yaml         |   5 +-
+ .../bindings/mmc/allwinner,sun4i-a10-mmc.yaml |   2 +
+ .../phy/allwinner,sun50i-a100-usb-phy.yaml    | 105 ++++++++++
+ .../watchdog/allwinner,sun4i-a10-wdt.yaml     |   3 +
+ .../allwinner/sun50i-a100-allwinner-perf1.dts |  54 +++++
+ .../arm64/boot/dts/allwinner/sun50i-a100.dtsi | 197 +++++++++++++++++-
+ drivers/dma/sun6i-dma.c                       |  25 +++
+ drivers/mmc/host/sunxi-mmc.c                  |  28 ++-
+ drivers/phy/allwinner/phy-sun4i-usb.c         |  29 ++-
+ drivers/phy/allwinner/phy-sun50i-usb3.c       |   4 +-
+ drivers/phy/allwinner/phy-sun6i-mipi-dphy.c   |   4 +-
+ drivers/phy/allwinner/phy-sun9i-usb.c         |   4 +-
+ drivers/pinctrl/sunxi/pinctrl-sun50i-a100.c   |   2 +-
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c         |   9 +-
+ 14 files changed, 443 insertions(+), 28 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/phy/allwinner,sun50i-a100-usb-phy.yaml
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-sunxi.c b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-index 9d8b59dafa4b..dc8d39ae045b 100644
---- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-@@ -1141,20 +1141,22 @@ static void sunxi_pinctrl_irq_handler(struct irq_desc *desc)
- 
- 	WARN_ON(bank == pctl->desc->irq_banks);
- 
-+	chained_irq_enter(chip, desc);
-+
- 	reg = sunxi_irq_status_reg_from_bank(pctl->desc, bank);
- 	val = readl(pctl->membase + reg);
- 
- 	if (val) {
- 		int irqoffset;
- 
--		chained_irq_enter(chip, desc);
- 		for_each_set_bit(irqoffset, &val, IRQ_PER_BANK) {
- 			int pin_irq = irq_find_mapping(pctl->domain,
- 						       bank * IRQ_PER_BANK + irqoffset);
- 			generic_handle_irq(pin_irq);
- 		}
--		chained_irq_exit(chip, desc);
- 	}
-+
-+	chained_irq_exit(chip, desc);
- }
- 
- static int sunxi_pinctrl_add_function(struct sunxi_pinctrl *pctl,
 -- 
 2.28.0
 
