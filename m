@@ -2,29 +2,29 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FA9BC388F7
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EABD7C4742C
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:06:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08E7D206A1
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:06:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAF7120721
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Nov 2020 04:06:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387522AbgKJEG3 (ORCPT
+        id S1733026AbgKJEGz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Nov 2020 23:06:29 -0500
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:48526 "EHLO
+        Mon, 9 Nov 2020 23:06:55 -0500
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:53880 "EHLO
         smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733307AbgKJEGZ (ORCPT
+        by vger.kernel.org with ESMTP id S2387513AbgKJEG3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Nov 2020 23:06:25 -0500
-X-Alimail-AntiSpam: AC=SUSPECT;BC=0.6465102|-1;BR=01201311R861b1;CH=blue;DM=|SUSPECT|false|;DS=CONTINUE|ham_system_inform|0.0102791-0.00112627-0.988595;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047202;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=28;RT=28;SR=0;TI=SMTPD_---.IulFdj5_1604981159;
+        Mon, 9 Nov 2020 23:06:29 -0500
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.1478366|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0231434-0.00763199-0.969225;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047199;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=28;RT=28;SR=0;TI=SMTPD_---.IulFdj5_1604981159;
 Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.IulFdj5_1604981159)
           by smtp.aliyun-inc.com(10.147.42.135);
-          Tue, 10 Nov 2020 12:06:17 +0800
+          Tue, 10 Nov 2020 12:06:22 +0800
 From:   Frank Lee <frank@allwinnertech.com>
 To:     vkoul@kernel.org, robh+dt@kernel.org, mripard@kernel.org,
         wens@csie.org, ulf.hansson@linaro.org, kishon@ti.com,
@@ -39,9 +39,9 @@ To:     vkoul@kernel.org, robh+dt@kernel.org, mripard@kernel.org,
         linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
         tiny.windzz@gmail.com
 Cc:     Yangtao Li <frank@allwinnertech.com>
-Subject: [PATCH 04/19] dt-bindings: dma: allwinner,sun50i-a64-dma: Add A100 compatible
-Date:   Tue, 10 Nov 2020 12:05:38 +0800
-Message-Id: <20201110040553.1381-5-frank@allwinnertech.com>
+Subject: [PATCH 06/19] arm64: allwinner: a100: Add device node for DMA controller
+Date:   Tue, 10 Nov 2020 12:05:40 +0800
+Message-Id: <20201110040553.1381-7-frank@allwinnertech.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201110040553.1381-1-frank@allwinnertech.com>
 References: <20201110040553.1381-1-frank@allwinnertech.com>
@@ -53,36 +53,39 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Yangtao Li <frank@allwinnertech.com>
 
-Add a binding for A100's dma controller.
+The A100 SoC has a DMA controller that supports 8 DMA channels
+to and from various peripherals.
+
+Add a device node for it.
 
 Signed-off-by: Yangtao Li <frank@allwinnertech.com>
 ---
- .../devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml    | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml b/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
-index 372679dbd216..b6e1ebfaf366 100644
---- a/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
-+++ b/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
-@@ -21,6 +21,7 @@ properties:
-   compatible:
-     oneOf:
-       - const: allwinner,sun50i-a64-dma
-+      - const: allwinner,sun50i-a100-dma
-       - const: allwinner,sun50i-h6-dma
-       - items:
-           - const: allwinner,sun8i-r40-dma
-@@ -56,7 +57,9 @@ required:
- if:
-   properties:
-     compatible:
--      const: allwinner,sun50i-h6-dma
-+      enum:
-+        - allwinner,sun50i-a100-dma
-+        - allwinner,sun50i-h6-dma
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+index cc321c04f121..c34ed8045363 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+@@ -101,6 +101,18 @@ ccu: clock@3001000 {
+ 			#reset-cells = <1>;
+ 		};
  
- then:
-   properties:
++		dma: dma-controller@3002000 {
++			compatible = "allwinner,sun50i-a100-dma";
++			reg = <0x03002000 0x1000>;
++			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_DMA>, <&ccu CLK_MBUS_DMA>;
++			clock-names = "bus", "mbus";
++			dma-channels = <8>;
++			dma-requests = <51>;
++			resets = <&ccu RST_BUS_DMA>;
++			#dma-cells = <1>;
++		};
++
+ 		gic: interrupt-controller@3021000 {
+ 			compatible = "arm,gic-400";
+ 			reg = <0x03021000 0x1000>, <0x03022000 0x2000>,
 -- 
 2.28.0
 
