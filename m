@@ -2,429 +2,151 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 554B9C2D0E4
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 06:21:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5180C64E69
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 13:04:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F264D2073C
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 06:21:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 637AF20758
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 13:04:14 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="huMDpxd3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgKWGVR (ORCPT
+        id S2388396AbgKWNDu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 23 Nov 2020 01:21:17 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:44477 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727193AbgKWGVQ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 Nov 2020 01:21:16 -0500
-Received: by mail-lf1-f68.google.com with SMTP id d20so6272085lfe.11;
-        Sun, 22 Nov 2020 22:21:13 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KQ1jUB1TLe5Ie7g5wnnVpkKb0czx1UkePFWu+CQaJ6o=;
-        b=UzIGgqD5Rg0vvmIBPcDfykZ+piCjUBtwTI2dBDCkk5aZttlq80BkhYhNnB7/Ph3v7I
-         aGk3cd42gbOCeBBFKjIC2AW/6UMgyayMtSbNIdHzrgvNqW4dPVtZB5alhSRWMxb43fms
-         KqtvRN1lyDu17R8XoNKLNUMz4MarD0eCspaN04vasu924MfUuGmJPLsC/dK2lBla7CZE
-         HOaOJ0WjhSxm/ycqkfNopk9LyvOb8hn4eIZd3M2fXPzo4G+8lg5eVcxtsHpNSDPioMOL
-         vFPXtL0AquHtAzt92MXGwpqleeS264UEzL7pabdXK1yJUi7gMSyfa8NED2p5plazspHG
-         zJ9Q==
-X-Gm-Message-State: AOAM533gWKacrwUBeOFHgVqbFTdDGpTv1iQHWxyqDv7+GXGV/sxq0UxT
-        1d+t8g1JVPlsRy/EHGEt8+M=
-X-Google-Smtp-Source: ABdhPJzPQ64PRiW6n9PtT2YkuAuLjrK5e51A6wXTWn2vNO4ZxHqKsc6MxbosvwIpwSxBcPa0rJ0Wwg==
-X-Received: by 2002:ac2:598f:: with SMTP id w15mr11625487lfn.148.1606112473083;
-        Sun, 22 Nov 2020 22:21:13 -0800 (PST)
-Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id l6sm210661lfk.150.2020.11.22.22.21.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2020 22:21:12 -0800 (PST)
-Date:   Mon, 23 Nov 2020 08:21:05 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH RESEND v6 3/4] wdt: Support wdt on ROHM BD9576MUF and
- BD9573MUF
-Message-ID: <247f47ee8cabbdabb07f6a66e79b0e2a6e25bd86.1605882179.git.matti.vaittinen@fi.rohmeurope.com>
-References: <cover.1605882179.git.matti.vaittinen@fi.rohmeurope.com>
+        Mon, 23 Nov 2020 08:03:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388335AbgKWNDp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 23 Nov 2020 08:03:45 -0500
+Received: from embeddedor (187-162-31-110.static.axtel.net [187.162.31.110])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 191D120758;
+        Mon, 23 Nov 2020 13:03:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1606136621;
+        bh=J/TET3MqSRKQBkZDLmw3offBuTNq8xblR6VPj5c7KTQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=huMDpxd34lY8zl81VJt6WrkzA8VbZ3WZKfCc+01YUsnQkEm+dvBfrNL343ZTscxgS
+         4cn7RRAIuR/6lyK6TO0qxACy3TNrSBuTodAx+s4Q2YpvApK9inZpqsbsSdtJmbV9Zx
+         YwwBYqtSxUH9kHvWkiEz2t98c4vnYVnAJ6qqQTEg=
+Date:   Mon, 23 Nov 2020 07:03:48 -0600
+From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
+To:     James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc:     Joe Perches <joe@perches.com>, Kees Cook <keescook@chromium.org>,
+        Jakub Kicinski <kuba@kernel.org>, alsa-devel@alsa-project.org,
+        linux-atm-general@lists.sourceforge.net,
+        reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        linux-ide@vger.kernel.org, dm-devel@redhat.com,
+        keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
+        GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
+        samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
+        linux1394-devel@lists.sourceforge.net,
+        linux-afs@lists.infradead.org,
+        usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
+        devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
+        rds-devel@oss.oracle.com,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org,
+        oss-drivers@netronome.com, bridge@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org,
+        amd-gfx@lists.freedesktop.org,
+        linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
+        linux-acpi@vger.kernel.org, coreteam@netfilter.org,
+        intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org,
+        Miguel Ojeda <ojeda@kernel.org>,
+        tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org,
+        linux-can@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+        linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org,
+        nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org,
+        x86@kernel.org, linux-nfs@vger.kernel.org,
+        GR-Linux-NIC-Dev@marvell.com, linux-mm@kvack.org,
+        netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net,
+        linux-mmc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-sctp@vger.kernel.org, linux-usb@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        patches@opensource.cirrus.com, linux-integrity@vger.kernel.org,
+        target-devel@vger.kernel.org, linux-hardening@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [Intel-wired-lan] [PATCH 000/141] Fix fall-through warnings for
+ Clang
+Message-ID: <20201123130348.GA3119@embeddedor>
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011201129.B13FDB3C@keescook>
+ <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011220816.8B6591A@keescook>
+ <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
+ <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
+ <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
+ <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
+ <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1605882179.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add Watchdog support for ROHM BD9576MUF and BD9573MUF PMICs which are
-mainly used to power the R-Car series processors. The watchdog is
-pinged using a GPIO and enabled using another GPIO. Additionally
-watchdog time-out can be configured to HW prior starting the watchdog.
-Watchdog timeout can be configured to detect only delayed ping or in
-a window mode where also too fast pings are detected.
+On Sun, Nov 22, 2020 at 11:53:55AM -0800, James Bottomley wrote:
+> On Sun, 2020-11-22 at 11:22 -0800, Joe Perches wrote:
+> > On Sun, 2020-11-22 at 11:12 -0800, James Bottomley wrote:
+> > > On Sun, 2020-11-22 at 10:25 -0800, Joe Perches wrote:
+> > > > On Sun, 2020-11-22 at 10:21 -0800, James Bottomley wrote:
+> > > > > Please tell me our reward for all this effort isn't a single
+> > > > > missing error print.
+> > > > 
+> > > > There were quite literally dozens of logical defects found
+> > > > by the fallthrough additions.  Very few were logging only.
+> > > 
+> > > So can you give us the best examples (or indeed all of them if
+> > > someone is keeping score)?  hopefully this isn't a US election
+> > > situation ...
+> > 
+> > Gustavo?  Are you running for congress now?
+> > 
+> > https://lwn.net/Articles/794944/
+> 
+> That's 21 reported fixes of which about 50% seem to produce no change
+> in code behaviour at all, a quarter seem to have no user visible effect
+> with the remaining quarter producing unexpected errors on obscure
+> configuration parameters, which is why no-one really noticed them
+> before.
 
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/Kconfig      |  13 ++
- drivers/watchdog/Makefile     |   1 +
- drivers/watchdog/bd9576_wdt.c | 291 ++++++++++++++++++++++++++++++++++
- 3 files changed, 305 insertions(+)
- create mode 100644 drivers/watchdog/bd9576_wdt.c
+The really important point here is the number of bugs this has prevented
+and will prevent in the future. See an example of this, below:
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fd7968635e6d..d5fec1bdf23e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -172,6 +172,19 @@ config BD70528_WATCHDOG
- 	  Alternatively say M to compile the driver as a module,
- 	  which will be called bd70528_wdt.
- 
-+config BD957XMUF_WATCHDOG
-+	tristate "ROHM BD9576MUF and BD9573MUF PMIC Watchdog"
-+	depends on MFD_ROHM_BD957XMUF
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the ROHM BD9576 and BD9573 PMICs.
-+	  These PMIC ICs contain watchdog block which can be configured
-+	  to toggle reset line if SoC fails to ping watchdog via GPIO.
-+
-+	  Say Y here to include support for the ROHM BD9576 or BD9573
-+	  watchdog. Alternatively say M to compile the driver as a module,
-+	  which will be called bd9576_wdt.
-+
- config DA9052_WATCHDOG
- 	tristate "Dialog DA9052 Watchdog"
- 	depends on PMIC_DA9052 || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 071a2e50be98..54f39883f3ac 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -209,6 +209,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
- 
- # Architecture Independent
- obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
-+obj-$(CONFIG_BD957XMUF_WATCHDOG) += bd9576_wdt.o
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
- obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
- obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-diff --git a/drivers/watchdog/bd9576_wdt.c b/drivers/watchdog/bd9576_wdt.c
-new file mode 100644
-index 000000000000..0b6999f3b6e8
---- /dev/null
-+++ b/drivers/watchdog/bd9576_wdt.c
-@@ -0,0 +1,291 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Copyright (C) 2020 ROHM Semiconductors
-+ *
-+ * ROHM BD9576MUF and BD9573MUF Watchdog driver
-+ */
-+
-+#include <linux/err.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/mfd/rohm-bd957x.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+static bool nowayout;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		"Watchdog cannot be stopped once started (default=\"false\")");
-+
-+#define HW_MARGIN_MIN 2
-+#define HW_MARGIN_MAX 4416
-+#define BD957X_WDT_DEFAULT_MARGIN 4416
-+#define WATCHDOG_TIMEOUT 30
-+
-+struct bd9576_wdt_priv {
-+	struct gpio_desc	*gpiod_ping;
-+	struct gpio_desc	*gpiod_en;
-+	struct device		*dev;
-+	struct regmap		*regmap;
-+	bool			always_running;
-+	struct watchdog_device	wdd;
-+};
-+
-+static void bd9576_wdt_disable(struct bd9576_wdt_priv *priv)
-+{
-+	gpiod_set_value_cansleep(priv->gpiod_en, 0);
-+}
-+
-+static int bd9576_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct bd9576_wdt_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	/* Pulse */
-+	gpiod_set_value_cansleep(priv->gpiod_ping, 1);
-+	gpiod_set_value_cansleep(priv->gpiod_ping, 0);
-+
-+	return 0;
-+}
-+
-+static int bd9576_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct bd9576_wdt_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	gpiod_set_value_cansleep(priv->gpiod_en, 1);
-+
-+	return bd9576_wdt_ping(wdd);
-+}
-+
-+static int bd9576_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct bd9576_wdt_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	if (!priv->always_running)
-+		bd9576_wdt_disable(priv);
-+	else
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info bd957x_wdt_ident = {
-+	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
-+			  WDIOF_SETTIMEOUT,
-+	.identity	= "BD957x Watchdog",
-+};
-+
-+static const struct watchdog_ops bd957x_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= bd9576_wdt_start,
-+	.stop		= bd9576_wdt_stop,
-+	.ping		= bd9576_wdt_ping,
-+};
-+
-+/* Unit is hundreds of uS */
-+#define FASTNG_MIN 23
-+
-+static int find_closest_fast(int target, int *sel, int *val)
-+{
-+	int i;
-+	int window = FASTNG_MIN;
-+
-+	for (i = 0; i < 8 && window < target; i++)
-+		window <<= 1;
-+
-+	*val = window;
-+	*sel = i;
-+
-+	if (i == 8)
-+		return -EINVAL;
-+
-+	return 0;
-+
-+}
-+
-+static int find_closest_slow_by_fast(int fast_val, int target, int *slowsel)
-+{
-+	int sel;
-+	static const int multipliers[] = {2, 3, 7, 15};
-+
-+	for (sel = 0; sel < ARRAY_SIZE(multipliers) &&
-+	     multipliers[sel] * fast_val < target; sel++)
-+		;
-+
-+	if (sel == ARRAY_SIZE(multipliers))
-+		return -EINVAL;
-+
-+	*slowsel = sel;
-+
-+	return 0;
-+}
-+
-+static int find_closest_slow(int target, int *slow_sel, int *fast_sel)
-+{
-+	static const int multipliers[] = {2, 3, 7, 15};
-+	int i, j;
-+	int val = 0;
-+	int window = FASTNG_MIN;
-+
-+	for (i = 0; i < 8; i++) {
-+		for (j = 0; j < ARRAY_SIZE(multipliers); j++) {
-+			int slow;
-+
-+			slow = window * multipliers[j];
-+			if (slow >= target && (!val || slow < val)) {
-+				val = slow;
-+				*fast_sel = i;
-+				*slow_sel = j;
-+			}
-+		}
-+		window <<= 1;
-+	}
-+	if (!val)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+#define BD957X_WDG_TYPE_WINDOW BIT(5)
-+#define BD957X_WDG_TYPE_SLOW 0
-+#define BD957X_WDG_TYPE_MASK BIT(5)
-+#define BD957X_WDG_NG_RATIO_MASK 0x18
-+#define BD957X_WDG_FASTNG_MASK 0x7
-+
-+static int bd957x_set_wdt_mode(struct bd9576_wdt_priv *priv, int hw_margin,
-+			       int hw_margin_min)
-+{
-+	int ret, fastng, slowng, type, reg, mask;
-+	struct device *dev = priv->dev;
-+
-+	/* convert to 100uS */
-+	hw_margin *= 10;
-+	hw_margin_min *= 10;
-+	if (hw_margin_min) {
-+		int min;
-+
-+		type = BD957X_WDG_TYPE_WINDOW;
-+		dev_dbg(dev, "Setting type WINDOW 0x%x\n", type);
-+		ret = find_closest_fast(hw_margin_min, &fastng, &min);
-+		if (ret) {
-+			dev_err(dev, "bad WDT window for fast timeout\n");
-+			return ret;
-+		}
-+
-+		ret = find_closest_slow_by_fast(min, hw_margin, &slowng);
-+		if (ret) {
-+			dev_err(dev, "bad WDT window\n");
-+			return ret;
-+		}
-+
-+	} else {
-+		type = BD957X_WDG_TYPE_SLOW;
-+		dev_dbg(dev, "Setting type SLOW 0x%x\n", type);
-+		ret = find_closest_slow(hw_margin, &slowng, &fastng);
-+		if (ret) {
-+			dev_err(dev, "bad WDT window\n");
-+			return ret;
-+		}
-+	}
-+
-+	slowng <<= ffs(BD957X_WDG_NG_RATIO_MASK) - 1;
-+	reg = type | slowng | fastng;
-+	mask = BD957X_WDG_TYPE_MASK | BD957X_WDG_NG_RATIO_MASK |
-+	       BD957X_WDG_FASTNG_MASK;
-+	ret = regmap_update_bits(priv->regmap, BD957X_REG_WDT_CONF,
-+				 mask, reg);
-+
-+	return ret;
-+}
-+
-+static int bd9576_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->parent->of_node;
-+	struct bd9576_wdt_priv *priv;
-+	u32 hw_margin[2];
-+	u32 hw_margin_max = BD957X_WDT_DEFAULT_MARGIN, hw_margin_min = 0;
-+	int ret;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, priv);
-+
-+	priv->dev = dev;
-+	priv->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!priv->regmap) {
-+		dev_err(dev, "No regmap found\n");
-+		return -ENODEV;
-+	}
-+
-+	priv->gpiod_en = devm_gpiod_get_from_of_node(dev, dev->parent->of_node,
-+						     "rohm,watchdog-enable-gpios",
-+						     0, GPIOD_OUT_LOW,
-+						     "watchdog-enable");
-+	if (IS_ERR(priv->gpiod_en))
-+		return dev_err_probe(dev, PTR_ERR(priv->gpiod_en),
-+			      "getting watchdog-enable GPIO failed\n");
-+
-+	priv->gpiod_ping = devm_gpiod_get_from_of_node(dev, dev->parent->of_node,
-+						     "rohm,watchdog-ping-gpios",
-+						     0, GPIOD_OUT_LOW,
-+						     "watchdog-ping");
-+	if (IS_ERR(priv->gpiod_ping))
-+		return dev_err_probe(dev, PTR_ERR(priv->gpiod_ping),
-+				     "getting watchdog-ping GPIO failed\n");
-+
-+	ret = of_property_read_variable_u32_array(np, "rohm,hw-timeout-ms",
-+						  &hw_margin[0], 1, 2);
-+	if (ret < 0 && ret != -EINVAL)
-+		return ret;
-+
-+	if (ret == 1)
-+		hw_margin_max = hw_margin[0];
-+
-+	if (ret == 2) {
-+		hw_margin_max = hw_margin[1];
-+		hw_margin_min = hw_margin[0];
-+	}
-+
-+	ret = bd957x_set_wdt_mode(priv, hw_margin_max, hw_margin_min);
-+	if (ret)
-+		return ret;
-+
-+	priv->always_running = of_property_read_bool(np, "always-running");
-+
-+	watchdog_set_drvdata(&priv->wdd, priv);
-+
-+	priv->wdd.info			= &bd957x_wdt_ident;
-+	priv->wdd.ops			= &bd957x_wdt_ops;
-+	priv->wdd.min_hw_heartbeat_ms	= hw_margin_min;
-+	priv->wdd.max_hw_heartbeat_ms	= hw_margin_max;
-+	priv->wdd.parent		= dev;
-+	priv->wdd.timeout		= WATCHDOG_TIMEOUT;
-+
-+	watchdog_init_timeout(&priv->wdd, 0, dev);
-+	watchdog_set_nowayout(&priv->wdd, nowayout);
-+
-+	watchdog_stop_on_reboot(&priv->wdd);
-+
-+	if (priv->always_running)
-+		bd9576_wdt_start(&priv->wdd);
-+
-+	return devm_watchdog_register_device(dev, &priv->wdd);
-+}
-+
-+static struct platform_driver bd9576_wdt_driver = {
-+	.driver	= {
-+		.name = "bd9576-wdt",
-+	},
-+	.probe	= bd9576_wdt_probe,
-+};
-+
-+module_platform_driver(bd9576_wdt_driver);
-+
-+MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-+MODULE_DESCRIPTION("ROHM BD9576/BD9573 Watchdog driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:bd9576-wdt");
--- 
-2.25.4
+https://lore.kernel.org/linux-iio/20190813135802.GB27392@kroah.com/
+
+This work is still relevant, even if the total number of issues/bugs
+we find in the process is zero (which is not the case).
+
+"The sucky thing about doing hard work to deploy hardening is that the
+result is totally invisible by definition (things not happening) [..]"
+- Dmitry Vyukov
+
+Thanks
+--
+Gustavo
 
 
--- 
-Matti Vaittinen, Linux device drivers
-ROHM Semiconductors, Finland SWDC
-Kiviharjunlenkki 1E
-90220 OULU
-FINLAND
 
-~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
-Simon says - in Latin please.
-~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
-Thanks to Simon Glass for the translation =] 
+
+
