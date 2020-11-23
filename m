@@ -2,93 +2,90 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85B73C5519F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDC4DC63777
 	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 02:09:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2C76E20936
+	by mail.kernel.org (Postfix) with ESMTP id 68D9720DD4
 	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Nov 2020 02:09:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=hpe.com header.i=@hpe.com header.b="ni61ff/P"
+	dkim=pass (2048-bit key) header.d=hpe.com header.i=@hpe.com header.b="ONKc3smT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726881AbgKWCJH (ORCPT
+        id S1726886AbgKWCJJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 22 Nov 2020 21:09:07 -0500
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:59982 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726711AbgKWCJH (ORCPT
+        Sun, 22 Nov 2020 21:09:09 -0500
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:22120 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726883AbgKWCJI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Nov 2020 21:09:07 -0500
-Received: from pps.filterd (m0134424.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AN22xTj032267;
-        Mon, 23 Nov 2020 02:08:52 GMT
+        Sun, 22 Nov 2020 21:09:08 -0500
+Received: from pps.filterd (m0150242.ppops.net [127.0.0.1])
+        by mx0a-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AN287BB005147;
+        Mon, 23 Nov 2020 02:08:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
- : date : message-id : mime-version; s=pps0720;
- bh=QmfE6Ij+KMUhLcZONLYWnxLEH3a1rnm42vF1KrXJGeY=;
- b=ni61ff/PIjaSkVwvILSPj0qcMlA2Oc6XsL4OFjOKTa9ipZtD++yVTjmCwOWlpG/KHH1v
- jVzf+pYNy8K1WH13q8JMQYyjqt0SSjYptFjbXR5dQjhOZPLvql7JQB14dyjONMO1Fr7r
- nw9tjbyWE4vFsgTWz6f0qRusfzMkIp3Cq4NyvpPvivfbTHVa0h6H1rcDNAkzsg20Sn/w
- RV6NRlPpAzOMbpyIaSLRsTqTRzzJ3F7izSZVRBtoEzsYxi5uwMrvUTnxyc0YuFR4bfY3
- uezePPPrM38VlRjad9vyr2mfiZ6NNtCEIlyod43cHh5az67xe18Jw4KC5hCE/AhQunS2 2A== 
+ : date : message-id : in-reply-to : references; s=pps0720;
+ bh=g1Ppm9Sf5jSt57qR+VOpWGKclrgw88xXc0p8R5zZegs=;
+ b=ONKc3smTliBoP9rkKr+cauayqKSkWZAJRVcY0LMmkO1iieeuVN9pJjSJj2k7x3IiCEzZ
+ tt5E/EPnKfuIiSsAoSY1APj2YrkgEgNh88IUR6pRRqEYdyZ69iBhQTelBnD+2LahbGvn
+ JHbflRzFWHaePrtV2rQoP0IbvbqFyxYzsLxekHdJF1SCSJ/Le7o4qx5mFDETVCog7GlX
+ zfxar0Hp5uzlgZ+QGpatZxy8gLrQFrtYaublCTbl722BY+reYXYrdzitPJb67z5pRma4
+ P/y6Pe1ogWedzzrMwXJ+f7E+XLb+9pbsjPFvHvowIq9ZSqW0e9zfCvK7Je2Bi3zFtvw4 GA== 
 Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
-        by mx0b-002e3701.pphosted.com with ESMTP id 34xsvn2b0a-1
+        by mx0a-002e3701.pphosted.com with ESMTP id 34ycyfdau1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Nov 2020 02:08:52 +0000
+        Mon, 23 Nov 2020 02:08:53 +0000
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3427.houston.hpe.com (Postfix) with ESMTP id 085F55C;
+        by g4t3427.houston.hpe.com (Postfix) with ESMTP id A8B6266;
         Mon, 23 Nov 2020 02:08:52 +0000 (UTC)
 Received: from lxbuild.ftc.rdlabs.hpecorp.net (lxbuild.ftc.rdlabs.hpecorp.net [16.78.34.175])
-        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 6BCCA4B;
-        Mon, 23 Nov 2020 02:08:51 +0000 (UTC)
+        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 5ED554B;
+        Mon, 23 Nov 2020 02:08:52 +0000 (UTC)
 From:   Jerry Hoemann <jerry.hoemann@hpe.com>
 To:     linux@roeck-us.net, wim@linux-watchdog.org
 Cc:     kasong@redhat.com, linux-watchdog@vger.kernel.org,
         Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 0/2] watchdog/hpwdt: Disable Pretimeout/NMI in Crash Path
-Date:   Sun, 22 Nov 2020 19:08:38 -0700
-Message-Id: <1606097320-56762-1-git-send-email-jerry.hoemann@hpe.com>
+Subject: [PATCH 2/2] watchdog/hpwdt: Reflect changes
+Date:   Sun, 22 Nov 2020 19:08:40 -0700
+Message-Id: <1606097320-56762-3-git-send-email-jerry.hoemann@hpe.com>
 X-Mailer: git-send-email 1.8.3.1
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+In-Reply-To: <1606097320-56762-1-git-send-email-jerry.hoemann@hpe.com>
+References: <1606097320-56762-1-git-send-email-jerry.hoemann@hpe.com>
 X-HPE-SCL: -1
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
  definitions=2020-11-22_16:2020-11-20,2020-11-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- mlxlogscore=597 suspectscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
- phishscore=0 clxscore=1011 adultscore=0 priorityscore=1501 impostorscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 clxscore=1015
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011230011
+ definitions=main-2011230012
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-An intermittent issue was first noticed on RHEL 8.x during kdump.
-When the dump completed and the system was in the process of resetting
-an NMI would get generated as a result of an IO error.
+Bump driver number to reflect recent changes.
 
-For a discussion of the underlying cause and attempt to fix see:
-	https://lkml.org/lkml/2019/12/25/159
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+---
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The kernel's handling of the NMI generated an intermittent
-secondary NMI that would hang the system.
-
-As systemd enables WDT during shutdown, the WDT should have broken
-the system out of the hang, but hpwdt_pretimeout stops the WDT
-in order to allow the collection of a kdump.  But as we are
-already in the crash kernel when the NMI is received, stopping 
-the WDT is not necessary.
-
-Jerry Hoemann (2):
-  watchdog/hpwdt: Disable NMI in Crash Kernel
-  watchdog/hpwdt: Reflect changes
-
- drivers/watchdog/hpwdt.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index eeb4df2..cbd1498 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -23,7 +23,7 @@
+ #include <asm/nmi.h>
+ #include <linux/crash_dump.h>
+ 
+-#define HPWDT_VERSION			"2.0.3"
++#define HPWDT_VERSION			"2.0.4"
+ #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+ #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
+ #define HPWDT_MAX_TICKS			65535
 -- 
 1.8.3.1
 
