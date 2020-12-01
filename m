@@ -2,142 +2,136 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44FFDC64E90
-	for <linux-watchdog@archiver.kernel.org>; Mon, 30 Nov 2020 23:57:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD5AAC83019
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Dec 2020 05:56:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3401206E9
-	for <linux-watchdog@archiver.kernel.org>; Mon, 30 Nov 2020 23:57:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81F0B2168B
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Dec 2020 05:56:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.b="ohegBH8r"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="emDPbOhP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388723AbgK3X5R (ORCPT
+        id S1726935AbgLAFyv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 30 Nov 2020 18:57:17 -0500
-Received: from gproxy10-pub.mail.unifiedlayer.com ([69.89.20.226]:55497 "EHLO
-        gproxy10-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388124AbgK3X5R (ORCPT
+        Tue, 1 Dec 2020 00:54:51 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:58724 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725859AbgLAFyt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 30 Nov 2020 18:57:17 -0500
-Received: from CMGW (unknown [10.9.0.13])
-        by gproxy10.mail.unifiedlayer.com (Postfix) with ESMTP id 929ED140437
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Nov 2020 16:56:36 -0700 (MST)
-Received: from bh-25.webhostbox.net ([208.91.199.152])
-        by cmsmtp with ESMTP
-        id jt24kGAsfi1lMjt24kELjP; Mon, 30 Nov 2020 16:56:36 -0700
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.2 cv=VoRTO6+n c=1 sm=1 tr=0
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=kj9zAlcOel0A:10 a=nNwsprhYR40A:10
- a=evQFzbml-YQA:10 a=LpQP-O61AAAA:8 a=_jlGtV7tAAAA:8 a=o6rA3mgfRGNJ6BWNUK4A:9
- a=CjuIK1q_8ugA:10 a=pioyyrs4ZptJ924tMmac:22 a=nlm17XC03S6CtCLSeiRr:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=7Cv2ADl5wlW0FzpIAWuvEi3KmaSqX25T5Zo5cTY82DY=; b=ohegBH8rAeAYMUwcTSAwXN/bM9
-        u1+TQGrXe/1WCrhxvgI5TSJkOMGzxEzUgU2WB2gMUs5Th+IeMsjb36equeL3JN2i/QIviBEYZJzCq
-        NXgLIsYYNIH6fBKqhzaU31SV4KvsgBtBPJA1fahpSqHvvrEfpjohl0BK2w3pIk/WaYeBLEuLcxjxL
-        sqO3xnMw8VydIslyoDtwn7jVth1S/liAR/lng/KSXmAQOtXkjNjY48/3NDU5p+2Umi2zUJhOErqfV
-        So74U/giXOYgZGhj1tQemhIr//fi0KN/hFIP1W3EnFP7vOLdWDUCVhJWB4gD7qD9677Un+/RuEkAA
-        1FPf85JA==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57056 helo=localhost)
-        by bh-25.webhostbox.net with esmtpa (Exim 4.93)
-        (envelope-from <linux@roeck-us.net>)
-        id 1kjt23-002FmK-JI; Mon, 30 Nov 2020 23:56:35 +0000
-Date:   Mon, 30 Nov 2020 15:56:35 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Robert Marko <robert.marko@sartura.hr>
-Cc:     Kathiravan T <kathirav@codeaurora.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        wim@linux-watchdog.org,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Luka Perkov <luka.perkov@sartura.hr>
-Subject: Re: [PATCH v4] watchdog: qcom_wdt: set WDOG_HW_RUNNING bit when
- appropriate
-Message-ID: <20201130235635.GA46844@roeck-us.net>
-References: <20201031121115.542752-1-robert.marko@sartura.hr>
- <a71307f5-22b4-0d38-2880-96084bb07275@roeck-us.net>
- <23aea80f-265b-8a23-e8ea-f46639dd4129@codeaurora.org>
- <5b7def39-8c23-d30f-e2d3-bc38beee8919@roeck-us.net>
- <dedebcc4-1c1f-bd56-07a6-ff7f44c06ed1@codeaurora.org>
- <CA+HBbNFtfNcGKC0Tv7cfeBO-4p_momdQ9fr1=1hEd4O2ieskfw@mail.gmail.com>
+        Tue, 1 Dec 2020 00:54:49 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B15n67q107471;
+        Tue, 1 Dec 2020 05:53:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : message-id : references : date : in-reply-to : mime-version :
+ content-type; s=corp-2020-01-29;
+ bh=l9ihS9O8ty7fvCGsyg6t+FL2UWzq+Pp7wI7g9M3fu94=;
+ b=emDPbOhPomsDJ0NVhkgalKaWcDmTVt43uxmasZhRdsIKDAK5SyUn3ZBbDT0tfjc2Ub+G
+ pwnVB+2L6jYArSQUwoKsFjxw+gIeAIQd1agInCI9m5zu6sstYek99cFlGrF83pfAMoYp
+ 7h3VW08t/kH06cHx+UsVCvNai9zlonapT50haza8ExqU3V0ifCJ/7nW0lmA/qRSavM+P
+ eE0d7ezZdfPLepa71ISDd/u3VXj3GbiZhoaxq0dsKdiEuu46H687kMfk2k9ooRtVL0+n
+ yN1cC747fo++ObKGg9Es3E0DMkXRjQCXCIESHdIfuri0sdDNQNO6hiI2IHC3bOw+gche Nw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2130.oracle.com with ESMTP id 353c2aru96-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 01 Dec 2020 05:53:05 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B15oGDF104852;
+        Tue, 1 Dec 2020 05:53:04 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by userp3020.oracle.com with ESMTP id 3540arqfy6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 01 Dec 2020 05:53:04 +0000
+Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0B15r2KY111063;
+        Tue, 1 Dec 2020 05:53:02 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 3540arqfwj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 01 Dec 2020 05:53:02 +0000
+Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0B15qbsa005213;
+        Tue, 1 Dec 2020 05:52:40 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 30 Nov 2020 21:52:37 -0800
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+        amd-gfx@lists.freedesktop.org, bridge@lists.linux-foundation.org,
+        ceph-devel@vger.kernel.org, cluster-devel@redhat.com,
+        coreteam@netfilter.org, devel@driverdev.osuosl.org,
+        dm-devel@redhat.com, drbd-dev@tron.linbit.com,
+        dri-devel@lists.freedesktop.org, GR-everest-linux-l2@marvell.com,
+        GR-Linux-NIC-Dev@marvell.com, intel-gfx@lists.freedesktop.org,
+        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net, linux-acpi@vger.kernel.org,
+        linux-afs@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net,
+        linux-block@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-cifs@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-decnet-user@lists.sourceforge.net,
+        linux-ext4@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-geode@lists.infradead.org, linux-gpio@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-i3c@lists.infradead.org, linux-ide@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
+        op-tee@lists.trustedfirmware.org, oss-drivers@netronome.com,
+        patches@opensource.cirrus.com, rds-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org, samba-technical@lists.samba.org,
+        selinux@vger.kernel.org, target-devel@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        usb-storage@lists.one-eyed-alien.net,
+        virtualization@lists.linux-foundation.org,
+        wcn36xx@lists.infradead.org, x86@kernel.org,
+        xen-devel@lists.xenproject.org, linux-hardening@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miguel Ojeda <ojeda@kernel.org>, Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <yq1h7p6gjkk.fsf@ca-mkp.ca.oracle.com>
+References: <cover.1605896059.git.gustavoars@kernel.org>
+Date:   Tue, 01 Dec 2020 00:52:27 -0500
+In-Reply-To: <cover.1605896059.git.gustavoars@kernel.org> (Gustavo
+        A. R. Silva's message of "Fri, 20 Nov 2020 12:21:39 -0600")
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+HBbNFtfNcGKC0Tv7cfeBO-4p_momdQ9fr1=1hEd4O2ieskfw@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1kjt23-002FmK-JI
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57056
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 4
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9821 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 lowpriorityscore=0
+ clxscore=1011 bulkscore=0 mlxlogscore=289 phishscore=0 malwarescore=0
+ spamscore=0 adultscore=0 mlxscore=0 priorityscore=1501 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012010039
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 30, 2020 at 07:27:00PM +0100, Robert Marko wrote:
-> On Mon, Nov 2, 2020 at 6:19 AM Kathiravan T <kathirav@codeaurora.org> wrote:
-> >
-> >
-> > On 11/2/2020 10:33 AM, Guenter Roeck wrote:
-> > > On 11/1/20 7:58 PM, Kathiravan T wrote:
-> > >> On 10/31/2020 7:38 PM, Guenter Roeck wrote:
-> > >>> On 10/31/20 5:11 AM, Robert Marko wrote:
-> > >>>> If the watchdog hardware is enabled/running during boot, e.g.
-> > >>>> due to a boot loader configuring it, we must tell the
-> > >>>> watchdog framework about this fact so that it can ping the
-> > >>>> watchdog until userspace opens the device and takes over
-> > >>>> control.
-> > >>>>
-> > >>>> Do so using the WDOG_HW_RUNNING flag that exists for exactly
-> > >>>> that use-case.
-> > >>>>
-> > >>>> Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-> > >>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > >> Thanks for addressing the comments and now the patch looks good to me. One more suggestion, can we make the initcall level of the driver to subsys_initcall_sync so that the driver gets registered immediately after the watchdog_core is registered and watchdog_core starts pinging the WDT?
-> > >>
-> > > That would mean to replace module_platform_driver(), which would be a whole
-> > > different discussion, is not widely needed, and would potentially interfere
-> > > with the subsys_initcall_sync() in the watchdog core. This will require
-> > > specific evidence that a problem is seen in the field, and that it is truly
-> > > needed. Plus, it would have to be a different patch (which you could submit
-> > > yourself, with evidence). Let's stick with one logical change per patch,
-> > > please.
-> > >
-> > > Guenter
-> > Yeah, of course I don't want to squash the initcall level change with
-> > this one. Just made a suggestion to consider it. Anyway I will try to
-> > collect some data and post the patch by own on that suggestion. Thanks
-> > Guenter.
-> >
-> > --
-> > QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
-> >
-> 
-> Any chance this could be picked for 5.11?
-> I have some boards depending on it for normal boot.
-> 
-It is queued in my watchdog-next branch, so Wim will most likely pick it up.
 
-Guenter
+Gustavo,
+
+> This series aims to fix almost all remaining fall-through warnings in
+> order to enable -Wimplicit-fallthrough for Clang.
+
+Applied 20-22,54,120-124 to 5.11/scsi-staging, thanks.
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
