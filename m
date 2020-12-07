@@ -2,74 +2,129 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FF21C0018C
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Dec 2020 09:28:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39A74C433FE
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Dec 2020 06:01:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7A1D227BF
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Dec 2020 09:28:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F05FE229C6
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Dec 2020 06:01:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387594AbgLDJ2g (ORCPT
+        id S1725933AbgLGGBB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Dec 2020 04:28:36 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:53195 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbgLDJ2g (ORCPT
+        Mon, 7 Dec 2020 01:01:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725911AbgLGGBB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Dec 2020 04:28:36 -0500
-Received: from localhost (lfbn-lyo-1-997-19.w86-194.abo.wanadoo.fr [86.194.74.19])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 2209F200007;
-        Fri,  4 Dec 2020 09:27:53 +0000 (UTC)
-Date:   Fri, 4 Dec 2020 10:27:52 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Qiang Zhao <qiang.zhao@nxp.com>,
-        Bruno Thomsen <bruno.thomsen@gmail.com>,
-        linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, robh+dt@kernel.org,
-        kernel@pengutronix.de, Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 0/2] rtc: pcf2127: only use watchdog when explicitly
- available
-Message-ID: <20201204092752.GE74177@piout.net>
-References: <20200924074715.GT9675@piout.net>
- <20200924105256.18162-1-u.kleine-koenig@pengutronix.de>
- <c82fe7a9-0a5a-fd70-ae3d-6fdc5fca5a9a@prevas.dk>
+        Mon, 7 Dec 2020 01:01:01 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223E9C0613D0
+        for <linux-watchdog@vger.kernel.org>; Sun,  6 Dec 2020 22:00:21 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id 131so8710995pfb.9
+        for <linux-watchdog@vger.kernel.org>; Sun, 06 Dec 2020 22:00:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+idpF1Cpaw9/DMbUpS5qXRNzr1N/vr5SsKMNGSE2vHk=;
+        b=x79cIv8rBUanEoOew+mnd9hYuXueqtvt1P7zhrODyiIZJA0gGZxJlX8ERMYPIaUHkt
+         6hA/uQTumgor3gmMCC0GvgCUyJmyaHUYeccbYaUimayzV1LA06hrHTckeKReL1DDEsQq
+         1ktKcI5iii6mqj7t3I2ytqToNYB8rumkBc5lMRZY18skyk26PBraYIJR1c8LA0uw+6gh
+         mIbDG5bh/EocQ/i8OitLQHiCQ4tWSF1rXRoHm1HL9VlKkuRUJnvYJNhHXGxRqgwTliXt
+         lUJ9DP9gjJ2VViDYtV+ZHsIUpbfPeyY+CTK04cQC4+CSxAHHucNUltD4B+VpCC4l/88f
+         TZPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+idpF1Cpaw9/DMbUpS5qXRNzr1N/vr5SsKMNGSE2vHk=;
+        b=ctnIJJel6uXCUE4+t2sFaiuU82Po6BHw8lUPrL0MAXikmI4irzUW0WCkTz1KohBr5M
+         jK/hnMAzewphUmZ2c5NQm1sphmlsKspstx8FXNQuxB41OExFYXY+r+/9/GG3dIpGjkuN
+         1DlYebMkbhsc5vwtZDNlY93LtTM19ZGEhklqU3QIB9xNYBTmq7Y1WkwFFZvNOcB9B5lJ
+         YGW/TheLJPShI4DMEapbB6Jk5VFZXtLqfhoRX4L0eAzyOv+NXm2kfDWbQiJWMSHZn9zK
+         YzbQEQuwd/AZtu1L9toUkWGUAWVEuG6iaVDsHB4LLmBN1dJR34vKoQIu6ckbfRLaw973
+         ZD6A==
+X-Gm-Message-State: AOAM5307XQI1uzVEEegBvi+8gngD3/Id6E7j4wec+yzx/bK/39/hzcIa
+        oDG9an8QQXYvpltKGcSAj0I4bA+T9ZMr
+X-Google-Smtp-Source: ABdhPJyGFxd72bRvqQPuwgeNFZEl7f8JSsSvuxN+jQfdDwk9LX5/0aSNMeOPU5/uajhspNF9NPAZUA==
+X-Received: by 2002:a63:c46:: with SMTP id 6mr16859201pgm.353.1607320820543;
+        Sun, 06 Dec 2020 22:00:20 -0800 (PST)
+Received: from localhost.localdomain ([2409:4072:89:c10a:c01b:880c:5d14:a5a4])
+        by smtp.gmail.com with ESMTPSA id i26sm12953744pfq.148.2020.12.06.22.00.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Dec 2020 22:00:19 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     wim@linux-watchdog.org, linux@roeck-us.net
+Cc:     agross@kernel.org, bjorn.andersson@linaro.org,
+        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH] watchdog: qcom: Avoid context switch in restart handler
+Date:   Mon,  7 Dec 2020 11:30:05 +0530
+Message-Id: <20201207060005.21293-1-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <c82fe7a9-0a5a-fd70-ae3d-6fdc5fca5a9a@prevas.dk>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 30/11/2020 10:51:41+0100, Rasmus Villemoes wrote:
-> On 24/09/2020 12.52, Uwe Kleine-König wrote:
-> > Hello,
-> > 
-> > now that there are two people stumbling over the pcf2127 driver
-> > providing a non-functional watchdog device, here comes an RFC patch to
-> > address this.
-> 
-> I just want to add a "me too" here, as I'm also now affected by the
-> pcf2127 exposing a watchdog device (1) it didn't use to (affecting what
-> /dev/watchdog0 means) and (2) is not actually hooked up in hardware.
-> 
-> So can we please move forward with adding the has-watchdog opt-in DT
-> property so existing boards will not be affected?
-> 
+The use of msleep() in the restart handler will cause scheduler to
+induce a context switch which is not desirable. This generates below
+warning on SDX55 when WDT is the only available restart source:
 
-Well, someone has to get that property reviewed by Rob. Maybe this could
-be reset-source as we have wakeup-source.
+[   39.800188] reboot: Restarting system
+[   39.804115] ------------[ cut here ]------------
+[   39.807855] WARNING: CPU: 0 PID: 678 at kernel/rcu/tree_plugin.h:297 rcu_note_context_switch+0x190/0x764
+[   39.812538] Modules linked in:
+[   39.821954] CPU: 0 PID: 678 Comm: reboot Not tainted 5.10.0-rc1-00063-g33a9990d1d66-dirty #47
+[   39.824854] Hardware name: Generic DT based system
+[   39.833470] [<c0310fbc>] (unwind_backtrace) from [<c030c544>] (show_stack+0x10/0x14)
+[   39.838154] [<c030c544>] (show_stack) from [<c0c218f0>] (dump_stack+0x8c/0xa0)
+[   39.846049] [<c0c218f0>] (dump_stack) from [<c0322f80>] (__warn+0xd8/0xf0)
+[   39.853058] [<c0322f80>] (__warn) from [<c0c1dc08>] (warn_slowpath_fmt+0x64/0xc8)
+[   39.859925] [<c0c1dc08>] (warn_slowpath_fmt) from [<c038b6f4>] (rcu_note_context_switch+0x190/0x764)
+[   39.867503] [<c038b6f4>] (rcu_note_context_switch) from [<c0c2aa3c>] (__schedule+0x84/0x640)
+[   39.876685] [<c0c2aa3c>] (__schedule) from [<c0c2b050>] (schedule+0x58/0x10c)
+[   39.885095] [<c0c2b050>] (schedule) from [<c0c2eed0>] (schedule_timeout+0x1e8/0x3d4)
+[   39.892135] [<c0c2eed0>] (schedule_timeout) from [<c039ad40>] (msleep+0x2c/0x38)
+[   39.899947] [<c039ad40>] (msleep) from [<c0a59d0c>] (qcom_wdt_restart+0xc4/0xcc)
+[   39.907319] [<c0a59d0c>] (qcom_wdt_restart) from [<c0a58290>] (watchdog_restart_notifier+0x18/0x28)
+[   39.914715] [<c0a58290>] (watchdog_restart_notifier) from [<c03468e0>] (atomic_notifier_call_chain+0x60/0x84)
+[   39.923487] [<c03468e0>] (atomic_notifier_call_chain) from [<c030ae64>] (machine_restart+0x78/0x7c)
+[   39.933551] [<c030ae64>] (machine_restart) from [<c0348048>] (__do_sys_reboot+0xdc/0x1e0)
+[   39.942397] [<c0348048>] (__do_sys_reboot) from [<c0300060>] (ret_fast_syscall+0x0/0x54)
+[   39.950721] Exception stack(0xc3e0bfa8 to 0xc3e0bff0)
+[   39.958855] bfa0:                   0001221c bed2fe24 fee1dead 28121969 01234567 00000000
+[   39.963832] bfc0: 0001221c bed2fe24 00000003 00000058 000225e0 00000000 00000000 00000000
+[   39.971985] bfe0: b6e62560 bed2fc84 00010fd8 b6e62580
+[   39.980124] ---[ end trace 3f578288bad866e4 ]---
 
+Hence, replace msleep() with mdelay() to fix this issue.
+
+Fixes: 05e487d905ab ("watchdog: qcom: register a restart notifier")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ drivers/watchdog/qcom-wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index ab7465d186fd..cdf754233e53 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -148,7 +148,7 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 	 */
+ 	wmb();
+ 
+-	msleep(150);
++	mdelay(150);
+ 	return 0;
+ }
+ 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.25.1
+
