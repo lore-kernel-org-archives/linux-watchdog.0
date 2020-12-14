@@ -2,125 +2,82 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74746C433FE
-	for <linux-watchdog@archiver.kernel.org>; Sun, 13 Dec 2020 16:17:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0CB5C2BB40
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Dec 2020 22:56:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4EA0922DFA
-	for <linux-watchdog@archiver.kernel.org>; Sun, 13 Dec 2020 16:17:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6555D22509
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Dec 2020 22:56:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392576AbgLMQRQ (ORCPT
+        id S2441234AbgLNW4Q (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 13 Dec 2020 11:17:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730046AbgLMQRQ (ORCPT
+        Mon, 14 Dec 2020 17:56:16 -0500
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:44357 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2441243AbgLNW4L (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 13 Dec 2020 11:17:16 -0500
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F294CC0613CF;
-        Sun, 13 Dec 2020 08:16:35 -0800 (PST)
-Received: by mail-oi1-x244.google.com with SMTP id d27so16390926oic.0;
-        Sun, 13 Dec 2020 08:16:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=wn3kZ9eoiz2kfwwRpuyMg/j17oBtSySw24zP5dlXSfI=;
-        b=qooO/KV5EjNcitWHFP/0gcFvFLwMLFBM24mZ2h0icy1TDAuOA5x8QR1oxR3LPBfQAJ
-         PUXL3SdMGXEdtvVFM0m5POCU5gi2b3FGsEyCNvWf5XaS1JBiOxXjo2tIplLYx24664n6
-         FgGrVU6o6IdmjjyM/mybtmKchUJnbBdaDn7vMmOHCfBS9neOlwAkD5Aso4bmAS8S1ZGs
-         wZjVsSMct1mwyfNNXaOVM/LELQphf5ipME9yifPTLGxcsyi1vkmk3fhCctiEwmKRVCST
-         7NmE0g6t2GGRBESY69T3UdUuV0XnFHdu8nrhdFvkGwLNX0Iv3T7BK+NEhquXmpGZO8qt
-         6LAg==
+        Mon, 14 Dec 2020 17:56:11 -0500
+Received: by mail-oi1-f196.google.com with SMTP id d189so21129395oig.11;
+        Mon, 14 Dec 2020 14:55:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wn3kZ9eoiz2kfwwRpuyMg/j17oBtSySw24zP5dlXSfI=;
-        b=P0B8sANdkoYKjIt7kSCp2yNXWnqiQTIFHyc4e42+XqBUe/BQ1NfWsxnPu8eTjXK4MO
-         E+J0wlVkw/bD4KZH8suybgTziCoeHBoq2Di7M3RtmmK5gqunAUySqoAy2nc35KzNBF4h
-         C63bEq4OdCLr4e8sb9sCJza/kewn0p3ZoZioZ5ZKOGLszX4alKOioiD4E7Lhb1OwzLSd
-         74sfe5+xXFzii1BlfNAlhgQy8COIu+4t2WsVGl7z7Bs0ZgfJp1ZjAMmqVKJrYDNvp/0o
-         0PzTwK+nYX4HJ3okEB6tlsnJjTi1gbllBdLulwqeRLmMZcVIqk2qhtNIP9KuVdnB/B0F
-         o4CQ==
-X-Gm-Message-State: AOAM530UuBB7FkyQnHu4qcWKamycIK4ARzTqRY8C7PO39rImOVn0dD/o
-        F18rIG2sZA5uN760XT8elBc=
-X-Google-Smtp-Source: ABdhPJzCUnsh2yzJjDGf2Ifk+qHTgOCfGhjh87nCxzS2MMtIDKjLjscKkMo+yuxozRdN4S6HI/jZhA==
-X-Received: by 2002:a05:6808:3b8:: with SMTP id n24mr15263083oie.89.1607876195391;
-        Sun, 13 Dec 2020 08:16:35 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m10sm3644548oig.27.2020.12.13.08.16.34
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 13 Dec 2020 08:16:34 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sun, 13 Dec 2020 08:16:33 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Johan Jonker <jbx6244@gmail.com>
-Cc:     heiko@sntech.de, robh+dt@kernel.org, wim@linux-watchdog.org,
-        jamie@jamieiles.com, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-binding: watchdog: add Rockchip compatibles to
- snps,dw-wdt.yaml
-Message-ID: <20201213161633.GA44820@roeck-us.net>
-References: <20201116142539.12377-1-jbx6244@gmail.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Bit7ziA6HeSaOdhpmx8q59hTwt6FMYGB0HNYpOxOcVU=;
+        b=CaWRJqQCkbs+gaKitWUnbgBxbxS3Bt6Q/P8Mfr0IsDTTbX+bNVG8ntPHSoM4Z9jRy4
+         6joQyDaT1j2oNv+FIXKs+6ngRUqKeOT8yp4dBRTMmHf4YL6ajs1H4DQluahvcZdqa6Nj
+         NfSWJIKDWmJ6JclYM5KZx5TtryX4zpHQ9i6vdOWb7V1yZar4qF3nB0XCD+0gdyyEs2gR
+         j7/RtnRv59M+dJZf0roDCVwriTDCl177ujJsdELpap8xzJrQzEFXMGBVJ2u9oluSWysn
+         w2FuG2gVI64sHgUVhae8gujGIxi9zkYyoxYQSwzPglgCVF3FLyjMKh3tnRJLOPxsMpOm
+         dt9g==
+X-Gm-Message-State: AOAM5312LpSZSufDCw/b+p5G7UDleybPeL4bdMHEivim3JxfQ4SeA87r
+        RGXefFFMJ5PDZH/wVU8fRg==
+X-Google-Smtp-Source: ABdhPJwGZwf48PbHeFXODr1tfn9rIqVN/+4N5j+fiA8m54iPdD8NCo5O8o3x8KIdojDze0iGxBgi/A==
+X-Received: by 2002:aca:c5c8:: with SMTP id v191mr14942760oif.67.1607986530226;
+        Mon, 14 Dec 2020 14:55:30 -0800 (PST)
+Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id q4sm4254206ooo.1.2020.12.14.14.55.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Dec 2020 14:55:29 -0800 (PST)
+Received: (nullmailer pid 2535435 invoked by uid 1000);
+        Mon, 14 Dec 2020 22:55:27 -0000
+Date:   Mon, 14 Dec 2020 16:55:27 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Andre Przywara <andre.przywara@arm.com>
+Cc:     Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <mripard@kernel.org>,
+        Icenowy Zheng <icenowy@aosc.xyz>, linux-sunxi@googlegroups.com,
+        Shuosheng Huang <huangshuosheng@allwinnertech.com>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        =?iso-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>
+Subject: Re: [PATCH v2 17/21] dt-bindings: watchdog: sun4i: Add H616
+ compatible string
+Message-ID: <20201214225527.GA2535405@robh.at.kernel.org>
+References: <20201211011934.6171-1-andre.przywara@arm.com>
+ <20201211011934.6171-18-andre.przywara@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201116142539.12377-1-jbx6244@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20201211011934.6171-18-andre.przywara@arm.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 16, 2020 at 03:25:39PM +0100, Johan Jonker wrote:
-> The Rockchip watchdog compatibles below are already in use,
-> but somehow never added to a document,
-> so add them to the snps,dw-wdt.yaml file.
+On Fri, 11 Dec 2020 01:19:30 +0000, Andre Przywara wrote:
+> Use enums to group all compatible devices together on the way.
 > 
-> "rockchip,rk3066-wdt", "snps,dw-wdt"
-> "rockchip,rk3188-wdt", "snps,dw-wdt"
-> "rockchip,rk3288-wdt", "snps,dw-wdt"
-> "rockchip,rk3368-wdt", "snps,dw-wdt"
-> 
-> make ARCH=arm dtbs_check
-> DT_SCHEMA_FILES=Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> 
-> make ARCH=arm64 dtbs_check
-> DT_SCHEMA_FILES=Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> 
-> Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 > ---
->  Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
+>  .../bindings/watchdog/allwinner,sun4i-a10-wdt.yaml   | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> index d9fc7bb85..f7ee9229c 100644
-> --- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> @@ -14,7 +14,15 @@ maintainers:
->  
->  properties:
->    compatible:
-> -    const: snps,dw-wdt
-> +    oneOf:
-> +      - const: snps,dw-wdt
-> +      - items:
-> +          - enum:
-> +              - rockchip,rk3066-wdt
-> +              - rockchip,rk3188-wdt
-> +              - rockchip,rk3288-wdt
-> +              - rockchip,rk3368-wdt
-> +          - const: snps,dw-wdt
->  
->    reg:
->      maxItems: 1
+
+Acked-by: Rob Herring <robh@kernel.org>
