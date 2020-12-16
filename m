@@ -2,101 +2,70 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10425C2BBCA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Dec 2020 16:28:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 563ABC4361B
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Dec 2020 13:28:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A86422251E
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Dec 2020 16:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07419233A0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Dec 2020 13:28:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730696AbgLOQ2X (ORCPT
+        id S1726248AbgLPN2D (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Dec 2020 11:28:23 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:39546 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730667AbgLOQ14 (ORCPT
+        Wed, 16 Dec 2020 08:28:03 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:9626 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726132AbgLPN2D (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Dec 2020 11:27:56 -0500
-Received: by mail-ot1-f67.google.com with SMTP id d8so19935793otq.6;
-        Tue, 15 Dec 2020 08:27:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0wE9xxwceDsZ28zByo+4tEOtDOwFOo+Prr+3q9/hj2o=;
-        b=rtcEwb7Fk597grcApcass3vXbTbl+YbA8tmjPRJQEGfzA5ZEz9fAC8doJn2/GK2xEL
-         zSNDbyO+5qm/QbRzMtbZAdOYXFSyW2rcTrOq4y65v9kLqURtlbHijFPufBPvhm8nsGOK
-         Fr3rdCVgkMdrcMdt1NM9oAMgg030UG310D3MIdDfZFgivEVzH3w8EFOxLt5ntbea33zh
-         +av2G+WTmXBYItU7P6PDW9HtPtuhus8Nkq1Ll+W6p/zsxZ0nlpOb1U0bD8b+2VJHLHiT
-         MebhPcOZWtdufR5FuX0Nb49PjkmmEM1ojuX58bs11J1xOSrLyCSCKygVTQjXR6veLfkJ
-         VIpA==
-X-Gm-Message-State: AOAM530oGsCvOhc+o5IbncS1/cAdMqoInaz6g+1Nwo3hmMd18oOOmq6C
-        dPiVmqP5q1aDyMFi7/wyTZ+whNaZ1g==
-X-Google-Smtp-Source: ABdhPJy1abSIEoMit2agW50JmubPYDwJhEqtAqTA8omppWigtJGNrpVDmK82Ox8qoB4eAbF+QfcVFQ==
-X-Received: by 2002:a9d:64da:: with SMTP id n26mr23393499otl.64.1608049635151;
-        Tue, 15 Dec 2020 08:27:15 -0800 (PST)
-Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id k3sm4745446oor.19.2020.12.15.08.27.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Dec 2020 08:27:14 -0800 (PST)
-Received: (nullmailer pid 3972401 invoked by uid 1000);
-        Tue, 15 Dec 2020 16:27:13 -0000
-Date:   Tue, 15 Dec 2020 10:27:13 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Icenowy Zheng <icenowy@aosc.io>
-Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [RFC PATCH 09/12] dt-bindings: watchdog: sunxi: add compatible
- string for V831/V833 WDT
-Message-ID: <20201215162713.GA3970789@robh.at.kernel.org>
-References: <20201212040157.3639864-1-icenowy@aosc.io>
- <20201212050519.3644837-1-icenowy@aosc.io>
+        Wed, 16 Dec 2020 08:28:03 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4CwwrS404xz15cYN;
+        Wed, 16 Dec 2020 21:26:32 +0800 (CST)
+Received: from ubuntu.network (10.175.138.68) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.498.0; Wed, 16 Dec 2020 21:27:01 +0800
+From:   Zheng Yongjun <zhengyongjun3@huawei.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     Zheng Yongjun <zhengyongjun3@huawei.com>
+Subject: [PATCH -next] watchdog: convert comma to semicolon
+Date:   Wed, 16 Dec 2020 21:27:33 +0800
+Message-ID: <20201216132733.15635-1-zhengyongjun3@huawei.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201212050519.3644837-1-icenowy@aosc.io>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.138.68]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sat, Dec 12, 2020 at 01:05:16PM +0800, Icenowy Zheng wrote:
-> V831/V833 has a watchdog similar to the ones on previous Allwinner SoCs
-> after sun6i.
-> 
-> Add a compatible string for it.
-> 
-> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-> ---
->  .../devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml  | 3 +++
->  1 file changed, 3 insertions(+)
+Replace a comma between expression statements by a semicolon.
 
-This is going to conflict with Andre's series for H616.
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+---
+ drivers/watchdog/mpc8xxx_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
-> index e8f226376108..2f3c350b0057 100644
-> --- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
-> @@ -18,6 +18,9 @@ properties:
->      oneOf:
->        - const: allwinner,sun4i-a10-wdt
->        - const: allwinner,sun6i-a31-wdt
-> +      - items:
-> +          - const: allwinner,sun8i-v831-wdt
-> +          - const: allwinner,sun6i-a31-wdt
->        - items:
->            - const: allwinner,sun50i-a64-wdt
->            - const: allwinner,sun6i-a31-wdt
-> -- 
-> 2.28.0
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index 3fc457bc16db..2f7ded32e878 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -175,8 +175,8 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 
+ 	spin_lock_init(&ddata->lock);
+ 
+-	ddata->wdd.info = &mpc8xxx_wdt_info,
+-	ddata->wdd.ops = &mpc8xxx_wdt_ops,
++	ddata->wdd.info = &mpc8xxx_wdt_info;
++	ddata->wdd.ops = &mpc8xxx_wdt_ops;
+ 
+ 	ddata->wdd.timeout = WATCHDOG_TIMEOUT;
+ 	watchdog_init_timeout(&ddata->wdd, timeout, dev);
+-- 
+2.22.0
+
