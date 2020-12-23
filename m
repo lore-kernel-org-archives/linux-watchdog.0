@@ -2,46 +2,59 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 127A7C433E0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Dec 2020 18:39:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD88CC433E6
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Dec 2020 23:42:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9917222B3
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Dec 2020 18:39:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79D122333E
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Dec 2020 23:42:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbgLWSj0 (ORCPT
+        id S1728295AbgLWXmB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Dec 2020 13:39:26 -0500
-Received: from www.linux-watchdog.org ([185.87.125.42]:41410 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726662AbgLWSj0 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Dec 2020 13:39:26 -0500
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 28BB140934; Wed, 23 Dec 2020 18:31:35 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 28BB140934
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1608744695;
-        bh=dhTdCT4pN5VMQkKtMd4VeCNbKGXEpje8KEf5ClHXk8o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SEMZ4PQyXqJi7my/XBFznaqAlsrtu/FXyGNkVknCrf/JR8Ye4KDTu3zmdYvlBUtSJ
-         zYoXlq25KtAtwxuIsPnL7iuD3OaWjUjQc7pDymGXHbj+RmDjdG9FRhytnSJRRRwy/O
-         u/RIp8cjphRMgFW1hczNLE3gnVhjQrvEYrgfT7Uk=
-Date:   Wed, 23 Dec 2020 18:31:35 +0100
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wed, 23 Dec 2020 18:42:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727012AbgLWXmA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 23 Dec 2020 18:42:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id 02F2321D79;
+        Wed, 23 Dec 2020 23:41:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608766880;
+        bh=xmMk6t/Y0Hs1WsIXbGW+WhVtvvSi3xAZPRQ0JWzoz5k=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=YNChb6fK/UJt4omIdD3u6k7Rk7jguDiyYPF7z6K14IA/XCO2heEGKe7pKBc2JAYru
+         UneTz+D8opvI7UccZNXmpn7y8XCd2fhY7JwaMMfbldAflXmSJCmoEBzPzLQ2DDLe/z
+         LmvJfVVQvuo9RcEETgtOU776Px34xDKqP+lkl78Sk9kS42a1eWVALZRF5mkYsc4bMa
+         TlA2TUrBtGYjWc/x1xmZj43iccplHXRSpiRduKVQVxkMPXJyD0ZleK6Urs83p2KC52
+         fYuLlmBUcC+ceyTOFmJoD04H0IU++WBsvlt773SbdLFxcHLkhsf7qRmzAUfGXslyb0
+         //BreXOEQrFJQ==
+Subject: Re: [GIT PULL REQUEST] watchdog - v5.11 Merge window
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20201222163452.GA1524@www.linux-watchdog.org>
+References: <20201222163452.GA1524@www.linux-watchdog.org>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20201222163452.GA1524@www.linux-watchdog.org>
+X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git linux-watchdog-5.11-rc1
+X-PR-Tracked-Commit-Id: 0b9491b621196a5d7f163dde81d98e0687bdba97
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 6755f4563144e38f375f43dbb01926fd4ce08620
+Message-Id: <160876687985.7832.2291710904978088213.pr-tracker-bot@kernel.org>
+Date:   Wed, 23 Dec 2020 23:41:19 +0000
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Arnd Bergmann <arnd@arndb.de>,
         Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        "Enrico Weigelt, metux IT consult" <info@metux.net>,
+        EnricoWeigelt@www.linux-watchdog.org,
+        metux IT consult <info@metux.net>,
         Etienne Carriere <etienne.carriere@st.com>,
         Jerry Hoemann <jerry.hoemann@hpe.com>,
         Johan Jonker <jbx6244@gmail.com>,
@@ -57,41 +70,19 @@ Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Zhang Qilong <zhangqilong3@huawei.com>,
         Zhao Qiang <qiang.zhao@nxp.com>,
         Zheng Yongjun <zhengyongjun3@huawei.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v5.11 Merge window
-Message-ID: <20201223173134.GA23404@www.linux-watchdog.org>
-References: <20201222163452.GA1524@www.linux-watchdog.org>
- <CAHk-=wjEHYdDMwUqy0LqWMvAOqkce6Dj6Q5dkUpJOdd01sVhdw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wjEHYdDMwUqy0LqWMvAOqkce6Dj6Q5dkUpJOdd01sVhdw@mail.gmail.com>
-User-Agent: Mutt/1.5.20 (2009-12-10)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+The pull request you sent on Tue, 22 Dec 2020 17:34:52 +0100:
 
-> >
-> >   git://www.linux-watchdog.org/linux-watchdog.git linux-watchdog-5.11-rc1
-> 
-> There's no such tag there. Forgot to push out?
-> 
-> I can see the the top-of-tree has the SHA1 that you mention:
-> 
-> > for you to fetch changes up to 0b9491b621196a5d7f163dde81d98e0687bdba97:
-> 
-> but the tag itself is missing. And outside of kernel.org, I do require
-> signed tags (and even on kernel.org I very strongly prefer them), so I
-> won't just pull that HEAD branch.
+> git://www.linux-watchdog.org/linux-watchdog.git linux-watchdog-5.11-rc1
 
-I know you require the tag and I did create it. So I checked what went wrong and stupid me: i created it in the wrong repository :-( .
-So it was indeed not there...
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/6755f4563144e38f375f43dbb01926fd4ce08620
 
-Anyway, I created it in the correct repostitory now. You should be able to fetch it correctly now.
+Thank you!
 
-Forgive my stupidity...
-
-Kind regards and Happy Christmas,
-Wim.
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
