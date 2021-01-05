@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA66C4361A
-	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Jan 2021 14:06:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BAA1C072B1
+	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Jan 2021 14:06:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 464AA22AAB
+	by mail.kernel.org (Postfix) with ESMTP id EA4E122AAB
 	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Jan 2021 14:06:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730645AbhAEOFn (ORCPT
+        id S1729638AbhAEOFJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 5 Jan 2021 09:05:43 -0500
-Received: from mx2.suse.de ([195.135.220.15]:57716 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728968AbhAEOFJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 5 Jan 2021 09:05:09 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57644 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726059AbhAEOFA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 5 Jan 2021 09:05:00 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A4388AEFE;
-        Tue,  5 Jan 2021 14:03:47 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 79861AEC1;
+        Tue,  5 Jan 2021 14:03:45 +0000 (UTC)
 From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 To:     Matt Mackall <mpm@selenic.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
@@ -47,9 +47,9 @@ To:     Matt Mackall <mpm@selenic.com>,
         linux-mtd@lists.infradead.org, netdev@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
         linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH 10/10] ASoC: txx9: Remove driver
-Date:   Tue,  5 Jan 2021 15:02:55 +0100
-Message-Id: <20210105140305.141401-11-tsbogend@alpha.franken.de>
+Subject: [PATCH 08/10] rtc: tx4939: Remove driver
+Date:   Tue,  5 Jan 2021 15:02:53 +0100
+Message-Id: <20210105140305.141401-9-tsbogend@alpha.franken.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210105140305.141401-1-tsbogend@alpha.franken.de>
 References: <20210105140305.141401-1-tsbogend@alpha.franken.de>
@@ -59,939 +59,355 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-CPU support for TX49xx is getting removed, so remove sound support for it.
+CPU support for TX49xx is getting removed, so remove rtc driver for it.
 
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 ---
- sound/soc/Kconfig                 |   1 -
- sound/soc/Makefile                |   1 -
- sound/soc/txx9/Kconfig            |  30 ---
- sound/soc/txx9/Makefile           |  12 -
- sound/soc/txx9/txx9aclc-ac97.c    | 230 ----------------
- sound/soc/txx9/txx9aclc-generic.c |  88 -------
- sound/soc/txx9/txx9aclc.c         | 422 ------------------------------
- sound/soc/txx9/txx9aclc.h         |  71 -----
- 8 files changed, 855 deletions(-)
- delete mode 100644 sound/soc/txx9/Kconfig
- delete mode 100644 sound/soc/txx9/Makefile
- delete mode 100644 sound/soc/txx9/txx9aclc-ac97.c
- delete mode 100644 sound/soc/txx9/txx9aclc-generic.c
- delete mode 100644 sound/soc/txx9/txx9aclc.c
- delete mode 100644 sound/soc/txx9/txx9aclc.h
+ drivers/rtc/Kconfig      |   7 -
+ drivers/rtc/Makefile     |   1 -
+ drivers/rtc/rtc-tx4939.c | 303 ---------------------------------------
+ 3 files changed, 311 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-tx4939.c
 
-diff --git a/sound/soc/Kconfig b/sound/soc/Kconfig
-index 71a6fe87d1a1..47da9ce17693 100644
---- a/sound/soc/Kconfig
-+++ b/sound/soc/Kconfig
-@@ -71,7 +71,6 @@ source "sound/soc/stm/Kconfig"
- source "sound/soc/sunxi/Kconfig"
- source "sound/soc/tegra/Kconfig"
- source "sound/soc/ti/Kconfig"
--source "sound/soc/txx9/Kconfig"
- source "sound/soc/uniphier/Kconfig"
- source "sound/soc/ux500/Kconfig"
- source "sound/soc/xilinx/Kconfig"
-diff --git a/sound/soc/Makefile b/sound/soc/Makefile
-index ddbac3a2169f..508dbaa1814e 100644
---- a/sound/soc/Makefile
-+++ b/sound/soc/Makefile
-@@ -54,7 +54,6 @@ obj-$(CONFIG_SND_SOC)	+= stm/
- obj-$(CONFIG_SND_SOC)	+= sunxi/
- obj-$(CONFIG_SND_SOC)	+= tegra/
- obj-$(CONFIG_SND_SOC)	+= ti/
--obj-$(CONFIG_SND_SOC)	+= txx9/
- obj-$(CONFIG_SND_SOC)	+= uniphier/
- obj-$(CONFIG_SND_SOC)	+= ux500/
- obj-$(CONFIG_SND_SOC)	+= xilinx/
-diff --git a/sound/soc/txx9/Kconfig b/sound/soc/txx9/Kconfig
-deleted file mode 100644
-index d928edf9f5a9..000000000000
---- a/sound/soc/txx9/Kconfig
-+++ /dev/null
-@@ -1,30 +0,0 @@
--# SPDX-License-Identifier: GPL-2.0-only
--##
--## TXx9 ACLC
--##
--config SND_SOC_TXX9ACLC
--	tristate "SoC Audio for TXx9"
--	depends on HAS_TXX9_ACLC && TXX9_DMAC
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6123f9f4fbc9..3b5510c9bffa 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1587,13 +1587,6 @@ config RTC_DRV_STARFIRE
+ 	  If you say Y here you will get support for the RTC found on
+ 	  Starfire systems.
+ 
+-config RTC_DRV_TX4939
+-	tristate "TX4939 SoC"
+-	depends on SOC_TX4939 || COMPILE_TEST
 -	help
--	  This option enables support for the AC Link Controllers in TXx9 SoC.
+-	  Driver for the internal RTC (Realtime Clock) module found on
+-	  Toshiba TX4939 SoC.
 -
--config HAS_TXX9_ACLC
--	bool
--
--config SND_SOC_TXX9ACLC_AC97
--	tristate
--	select AC97_BUS
--	select SND_AC97_CODEC
--	select SND_SOC_AC97_BUS
--
--
--##
--## Boards
--##
--config SND_SOC_TXX9ACLC_GENERIC
--	tristate "Generic TXx9 ACLC sound machine"
--	depends on SND_SOC_TXX9ACLC
--	select SND_SOC_TXX9ACLC_AC97
--	select SND_SOC_AC97_CODEC
--	help
--	  This is a generic AC97 sound machine for use in TXx9 based systems.
-diff --git a/sound/soc/txx9/Makefile b/sound/soc/txx9/Makefile
+ config RTC_DRV_MV
+ 	tristate "Marvell SoC RTC"
+ 	depends on ARCH_DOVE || ARCH_MVEBU || COMPILE_TEST
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index bb8f319b09fb..a020adde4bbd 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -171,7 +171,6 @@ obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
+ obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
+ obj-$(CONFIG_RTC_DRV_TPS80031)	+= rtc-tps80031.o
+ obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
+-obj-$(CONFIG_RTC_DRV_TX4939)	+= rtc-tx4939.o
+ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
+ obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
+ obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
+diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
 deleted file mode 100644
-index 37ad833eb329..000000000000
---- a/sound/soc/txx9/Makefile
+index c3309db5448d..000000000000
+--- a/drivers/rtc/rtc-tx4939.c
 +++ /dev/null
-@@ -1,12 +0,0 @@
--# SPDX-License-Identifier: GPL-2.0
--# Platform
--snd-soc-txx9aclc-objs := txx9aclc.o
--snd-soc-txx9aclc-ac97-objs := txx9aclc-ac97.o
--
--obj-$(CONFIG_SND_SOC_TXX9ACLC) += snd-soc-txx9aclc.o
--obj-$(CONFIG_SND_SOC_TXX9ACLC_AC97) += snd-soc-txx9aclc-ac97.o
--
--# Machine
--snd-soc-txx9aclc-generic-objs := txx9aclc-generic.o
--
--obj-$(CONFIG_SND_SOC_TXX9ACLC_GENERIC) += snd-soc-txx9aclc-generic.o
-diff --git a/sound/soc/txx9/txx9aclc-ac97.c b/sound/soc/txx9/txx9aclc-ac97.c
-deleted file mode 100644
-index d9e348444bd0..000000000000
---- a/sound/soc/txx9/txx9aclc-ac97.c
-+++ /dev/null
-@@ -1,230 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
+@@ -1,303 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
 -/*
-- * TXx9 ACLC AC97 driver
-- *
-- * Copyright (C) 2009 Atsushi Nemoto
-- *
+- * TX4939 internal RTC driver
 - * Based on RBTX49xx patch from CELF patch archive.
-- * (C) Copyright TOSHIBA CORPORATION 2004-2006
+- *
+- * (C) Copyright TOSHIBA CORPORATION 2005-2007
 - */
--
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/delay.h>
+-#include <linux/rtc.h>
+-#include <linux/platform_device.h>
 -#include <linux/interrupt.h>
+-#include <linux/module.h>
 -#include <linux/io.h>
 -#include <linux/gfp.h>
--#include <asm/mach-tx39xx/ioremap.h> /* for TXX9_DIRECTMAP_BASE */
--#include <sound/core.h>
--#include <sound/pcm.h>
--#include <sound/soc.h>
--#include "txx9aclc.h"
 -
--#define AC97_DIR	\
--	(SND_SOC_DAIDIR_PLAYBACK | SND_SOC_DAIDIR_CAPTURE)
+-#define TX4939_RTCCTL_ALME	0x00000080
+-#define TX4939_RTCCTL_ALMD	0x00000040
+-#define TX4939_RTCCTL_BUSY	0x00000020
 -
--#define AC97_RATES	\
--	SNDRV_PCM_RATE_8000_48000
+-#define TX4939_RTCCTL_COMMAND	0x00000007
+-#define TX4939_RTCCTL_COMMAND_NOP	0x00000000
+-#define TX4939_RTCCTL_COMMAND_GETTIME	0x00000001
+-#define TX4939_RTCCTL_COMMAND_SETTIME	0x00000002
+-#define TX4939_RTCCTL_COMMAND_GETALARM	0x00000003
+-#define TX4939_RTCCTL_COMMAND_SETALARM	0x00000004
 -
--#ifdef __BIG_ENDIAN
--#define AC97_FMTS	SNDRV_PCM_FMTBIT_S16_BE
--#else
--#define AC97_FMTS	SNDRV_PCM_FMTBIT_S16_LE
--#endif
+-#define TX4939_RTCTBC_PM	0x00000080
+-#define TX4939_RTCTBC_COMP	0x0000007f
 -
--static DECLARE_WAIT_QUEUE_HEAD(ac97_waitq);
+-#define TX4939_RTC_REG_RAMSIZE	0x00000100
+-#define TX4939_RTC_REG_RWBSIZE	0x00000006
 -
--/* REVISIT: How to find txx9aclc_drvdata from snd_ac97? */
--static struct txx9aclc_plat_drvdata *txx9aclc_drvdata;
--
--static int txx9aclc_regready(struct txx9aclc_plat_drvdata *drvdata)
--{
--	return __raw_readl(drvdata->base + ACINTSTS) & ACINT_REGACCRDY;
--}
--
--/* AC97 controller reads codec register */
--static unsigned short txx9aclc_ac97_read(struct snd_ac97 *ac97,
--					 unsigned short reg)
--{
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	void __iomem *base = drvdata->base;
--	u32 dat;
--
--	if (!(__raw_readl(base + ACINTSTS) & ACINT_CODECRDY(ac97->num)))
--		return 0xffff;
--	reg |= ac97->num << 7;
--	dat = (reg << ACREGACC_REG_SHIFT) | ACREGACC_READ;
--	__raw_writel(dat, base + ACREGACC);
--	__raw_writel(ACINT_REGACCRDY, base + ACINTEN);
--	if (!wait_event_timeout(ac97_waitq, txx9aclc_regready(txx9aclc_drvdata), HZ)) {
--		__raw_writel(ACINT_REGACCRDY, base + ACINTDIS);
--		printk(KERN_ERR "ac97 read timeout (reg %#x)\n", reg);
--		dat = 0xffff;
--		goto done;
--	}
--	dat = __raw_readl(base + ACREGACC);
--	if (((dat >> ACREGACC_REG_SHIFT) & 0xff) != reg) {
--		printk(KERN_ERR "reg mismatch %x with %x\n",
--			dat, reg);
--		dat = 0xffff;
--		goto done;
--	}
--	dat = (dat >> ACREGACC_DAT_SHIFT) & 0xffff;
--done:
--	__raw_writel(ACINT_REGACCRDY, base + ACINTDIS);
--	return dat;
--}
--
--/* AC97 controller writes to codec register */
--static void txx9aclc_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
--				unsigned short val)
--{
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	void __iomem *base = drvdata->base;
--
--	__raw_writel(((reg | (ac97->num << 7)) << ACREGACC_REG_SHIFT) |
--		     (val << ACREGACC_DAT_SHIFT),
--		     base + ACREGACC);
--	__raw_writel(ACINT_REGACCRDY, base + ACINTEN);
--	if (!wait_event_timeout(ac97_waitq, txx9aclc_regready(txx9aclc_drvdata), HZ)) {
--		printk(KERN_ERR
--			"ac97 write timeout (reg %#x)\n", reg);
--	}
--	__raw_writel(ACINT_REGACCRDY, base + ACINTDIS);
--}
--
--static void txx9aclc_ac97_cold_reset(struct snd_ac97 *ac97)
--{
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	void __iomem *base = drvdata->base;
--	u32 ready = ACINT_CODECRDY(ac97->num) | ACINT_REGACCRDY;
--
--	__raw_writel(ACCTL_ENLINK, base + ACCTLDIS);
--	udelay(1);
--	__raw_writel(ACCTL_ENLINK, base + ACCTLEN);
--	/* wait for primary codec ready status */
--	__raw_writel(ready, base + ACINTEN);
--	if (!wait_event_timeout(ac97_waitq,
--				(__raw_readl(base + ACINTSTS) & ready) == ready,
--				HZ)) {
--		dev_err(&ac97->dev, "primary codec is not ready "
--			"(status %#x)\n",
--			__raw_readl(base + ACINTSTS));
--	}
--	__raw_writel(ACINT_REGACCRDY, base + ACINTSTS);
--	__raw_writel(ready, base + ACINTDIS);
--}
--
--/* AC97 controller operations */
--static struct snd_ac97_bus_ops txx9aclc_ac97_ops = {
--	.read		= txx9aclc_ac97_read,
--	.write		= txx9aclc_ac97_write,
--	.reset		= txx9aclc_ac97_cold_reset,
+-struct tx4939_rtc_reg {
+-	__u32 ctl;
+-	__u32 adr;
+-	__u32 dat;
+-	__u32 tbc;
 -};
 -
--static irqreturn_t txx9aclc_ac97_irq(int irq, void *dev_id)
--{
--	struct txx9aclc_plat_drvdata *drvdata = dev_id;
--	void __iomem *base = drvdata->base;
+-struct tx4939rtc_plat_data {
+-	struct rtc_device *rtc;
+-	struct tx4939_rtc_reg __iomem *rtcreg;
+-	spinlock_t lock;
+-};
 -
--	__raw_writel(__raw_readl(base + ACINTMSTS), base + ACINTDIS);
--	wake_up(&ac97_waitq);
+-static int tx4939_rtc_cmd(struct tx4939_rtc_reg __iomem *rtcreg, int cmd)
+-{
+-	int i = 0;
+-
+-	__raw_writel(cmd, &rtcreg->ctl);
+-	/* This might take 30us (next 32.768KHz clock) */
+-	while (__raw_readl(&rtcreg->ctl) & TX4939_RTCCTL_BUSY) {
+-		/* timeout on approx. 100us (@ GBUS200MHz) */
+-		if (i++ > 200 * 100)
+-			return -EBUSY;
+-		cpu_relax();
+-	}
+-	return 0;
+-}
+-
+-static int tx4939_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev);
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	unsigned long secs = rtc_tm_to_time64(tm);
+-	int i, ret;
+-	unsigned char buf[6];
+-
+-	buf[0] = 0;
+-	buf[1] = 0;
+-	buf[2] = secs;
+-	buf[3] = secs >> 8;
+-	buf[4] = secs >> 16;
+-	buf[5] = secs >> 24;
+-	spin_lock_irq(&pdata->lock);
+-	__raw_writel(0, &rtcreg->adr);
+-	for (i = 0; i < 6; i++)
+-		__raw_writel(buf[i], &rtcreg->dat);
+-	ret = tx4939_rtc_cmd(rtcreg,
+-			     TX4939_RTCCTL_COMMAND_SETTIME |
+-			     (__raw_readl(&rtcreg->ctl) & TX4939_RTCCTL_ALME));
+-	spin_unlock_irq(&pdata->lock);
+-	return ret;
+-}
+-
+-static int tx4939_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev);
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	int i, ret;
+-	unsigned long sec;
+-	unsigned char buf[6];
+-
+-	spin_lock_irq(&pdata->lock);
+-	ret = tx4939_rtc_cmd(rtcreg,
+-			     TX4939_RTCCTL_COMMAND_GETTIME |
+-			     (__raw_readl(&rtcreg->ctl) & TX4939_RTCCTL_ALME));
+-	if (ret) {
+-		spin_unlock_irq(&pdata->lock);
+-		return ret;
+-	}
+-	__raw_writel(2, &rtcreg->adr);
+-	for (i = 2; i < 6; i++)
+-		buf[i] = __raw_readl(&rtcreg->dat);
+-	spin_unlock_irq(&pdata->lock);
+-	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
+-		(buf[3] << 8) | buf[2];
+-	rtc_time64_to_tm(sec, tm);
+-	return 0;
+-}
+-
+-static int tx4939_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev);
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	int i, ret;
+-	unsigned long sec;
+-	unsigned char buf[6];
+-
+-	sec = rtc_tm_to_time64(&alrm->time);
+-	buf[0] = 0;
+-	buf[1] = 0;
+-	buf[2] = sec;
+-	buf[3] = sec >> 8;
+-	buf[4] = sec >> 16;
+-	buf[5] = sec >> 24;
+-	spin_lock_irq(&pdata->lock);
+-	__raw_writel(0, &rtcreg->adr);
+-	for (i = 0; i < 6; i++)
+-		__raw_writel(buf[i], &rtcreg->dat);
+-	ret = tx4939_rtc_cmd(rtcreg, TX4939_RTCCTL_COMMAND_SETALARM |
+-			     (alrm->enabled ? TX4939_RTCCTL_ALME : 0));
+-	spin_unlock_irq(&pdata->lock);
+-	return ret;
+-}
+-
+-static int tx4939_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev);
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	int i, ret;
+-	unsigned long sec;
+-	unsigned char buf[6];
+-	u32 ctl;
+-
+-	spin_lock_irq(&pdata->lock);
+-	ret = tx4939_rtc_cmd(rtcreg,
+-			     TX4939_RTCCTL_COMMAND_GETALARM |
+-			     (__raw_readl(&rtcreg->ctl) & TX4939_RTCCTL_ALME));
+-	if (ret) {
+-		spin_unlock_irq(&pdata->lock);
+-		return ret;
+-	}
+-	__raw_writel(2, &rtcreg->adr);
+-	for (i = 2; i < 6; i++)
+-		buf[i] = __raw_readl(&rtcreg->dat);
+-	ctl = __raw_readl(&rtcreg->ctl);
+-	alrm->enabled = (ctl & TX4939_RTCCTL_ALME) ? 1 : 0;
+-	alrm->pending = (ctl & TX4939_RTCCTL_ALMD) ? 1 : 0;
+-	spin_unlock_irq(&pdata->lock);
+-	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
+-		(buf[3] << 8) | buf[2];
+-	rtc_time64_to_tm(sec, &alrm->time);
+-	return rtc_valid_tm(&alrm->time);
+-}
+-
+-static int tx4939_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev);
+-
+-	spin_lock_irq(&pdata->lock);
+-	tx4939_rtc_cmd(pdata->rtcreg,
+-		       TX4939_RTCCTL_COMMAND_NOP |
+-		       (enabled ? TX4939_RTCCTL_ALME : 0));
+-	spin_unlock_irq(&pdata->lock);
+-	return 0;
+-}
+-
+-static irqreturn_t tx4939_rtc_interrupt(int irq, void *dev_id)
+-{
+-	struct tx4939rtc_plat_data *pdata = dev_get_drvdata(dev_id);
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	unsigned long events = RTC_IRQF;
+-
+-	spin_lock(&pdata->lock);
+-	if (__raw_readl(&rtcreg->ctl) & TX4939_RTCCTL_ALMD) {
+-		events |= RTC_AF;
+-		tx4939_rtc_cmd(rtcreg, TX4939_RTCCTL_COMMAND_NOP);
+-	}
+-	spin_unlock(&pdata->lock);
+-	rtc_update_irq(pdata->rtc, 1, events);
+-
 -	return IRQ_HANDLED;
 -}
 -
--static int txx9aclc_ac97_probe(struct snd_soc_dai *dai)
+-static const struct rtc_class_ops tx4939_rtc_ops = {
+-	.read_time		= tx4939_rtc_read_time,
+-	.read_alarm		= tx4939_rtc_read_alarm,
+-	.set_alarm		= tx4939_rtc_set_alarm,
+-	.set_time		= tx4939_rtc_set_time,
+-	.alarm_irq_enable	= tx4939_rtc_alarm_irq_enable,
+-};
+-
+-static int tx4939_nvram_read(void *priv, unsigned int pos, void *val,
+-			     size_t bytes)
 -{
--	txx9aclc_drvdata = snd_soc_dai_get_drvdata(dai);
+-	struct tx4939rtc_plat_data *pdata = priv;
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	u8 *buf = val;
+-
+-	spin_lock_irq(&pdata->lock);
+-	for (; bytes; bytes--) {
+-		__raw_writel(pos++, &rtcreg->adr);
+-		*buf++ = __raw_readl(&rtcreg->dat);
+-	}
+-	spin_unlock_irq(&pdata->lock);
 -	return 0;
 -}
 -
--static int txx9aclc_ac97_remove(struct snd_soc_dai *dai)
+-static int tx4939_nvram_write(void *priv, unsigned int pos, void *val,
+-			      size_t bytes)
 -{
--	struct txx9aclc_plat_drvdata *drvdata = snd_soc_dai_get_drvdata(dai);
+-	struct tx4939rtc_plat_data *pdata = priv;
+-	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	u8 *buf = val;
 -
--	/* disable AC-link */
--	__raw_writel(ACCTL_ENLINK, drvdata->base + ACCTLDIS);
--	txx9aclc_drvdata = NULL;
+-	spin_lock_irq(&pdata->lock);
+-	for (; bytes; bytes--) {
+-		__raw_writel(pos++, &rtcreg->adr);
+-		__raw_writel(*buf++, &rtcreg->dat);
+-	}
+-	spin_unlock_irq(&pdata->lock);
 -	return 0;
 -}
 -
--static struct snd_soc_dai_driver txx9aclc_ac97_dai = {
--	.probe			= txx9aclc_ac97_probe,
--	.remove			= txx9aclc_ac97_remove,
--	.playback = {
--		.rates		= AC97_RATES,
--		.formats	= AC97_FMTS,
--		.channels_min	= 2,
--		.channels_max	= 2,
--	},
--	.capture = {
--		.rates		= AC97_RATES,
--		.formats	= AC97_FMTS,
--		.channels_min	= 2,
--		.channels_max	= 2,
--	},
--};
--
--static const struct snd_soc_component_driver txx9aclc_ac97_component = {
--	.name		= "txx9aclc-ac97",
--};
--
--static int txx9aclc_ac97_dev_probe(struct platform_device *pdev)
+-static int __init tx4939_rtc_probe(struct platform_device *pdev)
 -{
--	struct txx9aclc_plat_drvdata *drvdata;
--	struct resource *r;
--	int err;
--	int irq;
+-	struct rtc_device *rtc;
+-	struct tx4939rtc_plat_data *pdata;
+-	int irq, ret;
+-	struct nvmem_config nvmem_cfg = {
+-		.name = "tx4939_nvram",
+-		.size = TX4939_RTC_REG_RAMSIZE,
+-		.reg_read = tx4939_nvram_read,
+-		.reg_write = tx4939_nvram_write,
+-	};
 -
 -	irq = platform_get_irq(pdev, 0);
 -	if (irq < 0)
--		return irq;
--
--	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
--	if (!drvdata)
+-		return -ENODEV;
+-	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+-	if (!pdata)
 -		return -ENOMEM;
+-	platform_set_drvdata(pdev, pdata);
 -
--	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	drvdata->base = devm_ioremap_resource(&pdev->dev, r);
--	if (IS_ERR(drvdata->base))
--		return PTR_ERR(drvdata->base);
+-	pdata->rtcreg = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(pdata->rtcreg))
+-		return PTR_ERR(pdata->rtcreg);
 -
--	platform_set_drvdata(pdev, drvdata);
--	drvdata->physbase = r->start;
--	if (sizeof(drvdata->physbase) > sizeof(r->start) &&
--	    r->start >= TXX9_DIRECTMAP_BASE &&
--	    r->start < TXX9_DIRECTMAP_BASE + 0x400000)
--		drvdata->physbase |= 0xf00000000ull;
--	err = devm_request_irq(&pdev->dev, irq, txx9aclc_ac97_irq,
--			       0, dev_name(&pdev->dev), drvdata);
--	if (err < 0)
--		return err;
+-	spin_lock_init(&pdata->lock);
+-	tx4939_rtc_cmd(pdata->rtcreg, TX4939_RTCCTL_COMMAND_NOP);
+-	if (devm_request_irq(&pdev->dev, irq, tx4939_rtc_interrupt,
+-			     0, pdev->name, &pdev->dev) < 0)
+-		return -EBUSY;
+-	rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
 -
--	err = snd_soc_set_ac97_ops(&txx9aclc_ac97_ops);
--	if (err < 0)
--		return err;
+-	rtc->ops = &tx4939_rtc_ops;
+-	rtc->range_max = U32_MAX;
 -
--	return devm_snd_soc_register_component(&pdev->dev, &txx9aclc_ac97_component,
--					  &txx9aclc_ac97_dai, 1);
--}
+-	pdata->rtc = rtc;
 -
--static int txx9aclc_ac97_dev_remove(struct platform_device *pdev)
--{
--	snd_soc_set_ac97_ops(NULL);
--	return 0;
--}
--
--static struct platform_driver txx9aclc_ac97_driver = {
--	.probe		= txx9aclc_ac97_dev_probe,
--	.remove		= txx9aclc_ac97_dev_remove,
--	.driver		= {
--		.name	= "txx9aclc-ac97",
--	},
--};
--
--module_platform_driver(txx9aclc_ac97_driver);
--
--MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
--MODULE_DESCRIPTION("TXx9 ACLC AC97 driver");
--MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:txx9aclc-ac97");
-diff --git a/sound/soc/txx9/txx9aclc-generic.c b/sound/soc/txx9/txx9aclc-generic.c
-deleted file mode 100644
-index d6893721ba1d..000000000000
---- a/sound/soc/txx9/txx9aclc-generic.c
-+++ /dev/null
-@@ -1,88 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Generic TXx9 ACLC machine driver
-- *
-- * Copyright (C) 2009 Atsushi Nemoto
-- *
-- * Based on RBTX49xx patch from CELF patch archive.
-- * (C) Copyright TOSHIBA CORPORATION 2004-2006
-- *
-- * This is a very generic AC97 sound machine driver for boards which
-- * have (AC97) audio at ACLC (e.g. RBTX49XX boards).
-- */
--
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <sound/core.h>
--#include <sound/pcm.h>
--#include <sound/soc.h>
--#include "txx9aclc.h"
--
--SND_SOC_DAILINK_DEFS(hifi,
--	DAILINK_COMP_ARRAY(COMP_CPU("txx9aclc-ac97")),
--	DAILINK_COMP_ARRAY(COMP_CODEC("ac97-codec", "ac97-hifi")),
--	DAILINK_COMP_ARRAY(COMP_PLATFORM("txx9aclc-pcm-audio")));
--
--static struct snd_soc_dai_link txx9aclc_generic_dai = {
--	.name = "AC97",
--	.stream_name = "AC97 HiFi",
--	SND_SOC_DAILINK_REG(hifi),
--};
--
--static struct snd_soc_card txx9aclc_generic_card = {
--	.name		= "Generic TXx9 ACLC Audio",
--	.owner		= THIS_MODULE,
--	.dai_link	= &txx9aclc_generic_dai,
--	.num_links	= 1,
--};
--
--static struct platform_device *soc_pdev;
--
--static int __init txx9aclc_generic_probe(struct platform_device *pdev)
--{
--	int ret;
--
--	soc_pdev = platform_device_alloc("soc-audio", -1);
--	if (!soc_pdev)
--		return -ENOMEM;
--	platform_set_drvdata(soc_pdev, &txx9aclc_generic_card);
--	ret = platform_device_add(soc_pdev);
--	if (ret) {
--		platform_device_put(soc_pdev);
--		return ret;
--	}
--
--	return 0;
--}
--
--static int __exit txx9aclc_generic_remove(struct platform_device *pdev)
--{
--	platform_device_unregister(soc_pdev);
--	return 0;
--}
--
--static struct platform_driver txx9aclc_generic_driver = {
--	.remove = __exit_p(txx9aclc_generic_remove),
--	.driver = {
--		.name = "txx9aclc-generic",
--	},
--};
--
--static int __init txx9aclc_generic_init(void)
--{
--	return platform_driver_probe(&txx9aclc_generic_driver,
--				     txx9aclc_generic_probe);
--}
--
--static void __exit txx9aclc_generic_exit(void)
--{
--	platform_driver_unregister(&txx9aclc_generic_driver);
--}
--
--module_init(txx9aclc_generic_init);
--module_exit(txx9aclc_generic_exit);
--
--MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
--MODULE_DESCRIPTION("Generic TXx9 ACLC ALSA SoC audio driver");
--MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:txx9aclc-generic");
-diff --git a/sound/soc/txx9/txx9aclc.c b/sound/soc/txx9/txx9aclc.c
-deleted file mode 100644
-index 1d2d0d9b57b0..000000000000
---- a/sound/soc/txx9/txx9aclc.c
-+++ /dev/null
-@@ -1,422 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Generic TXx9 ACLC platform driver
-- *
-- * Copyright (C) 2009 Atsushi Nemoto
-- *
-- * Based on RBTX49xx patch from CELF patch archive.
-- * (C) Copyright TOSHIBA CORPORATION 2004-2006
-- */
--
--#include <linux/module.h>
--#include <linux/init.h>
--#include <linux/platform_device.h>
--#include <linux/scatterlist.h>
--#include <linux/slab.h>
--#include <linux/dmaengine.h>
--#include <sound/core.h>
--#include <sound/pcm.h>
--#include <sound/pcm_params.h>
--#include <sound/soc.h>
--#include "txx9aclc.h"
--
--#define DRV_NAME "txx9aclc"
--
--static struct txx9aclc_soc_device {
--	struct txx9aclc_dmadata dmadata[2];
--} txx9aclc_soc_device;
--
--/* REVISIT: How to find txx9aclc_drvdata from snd_ac97? */
--static struct txx9aclc_plat_drvdata *txx9aclc_drvdata;
--
--static int txx9aclc_dma_init(struct txx9aclc_soc_device *dev,
--			     struct txx9aclc_dmadata *dmadata);
--
--static const struct snd_pcm_hardware txx9aclc_pcm_hardware = {
--	/*
--	 * REVISIT: SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID
--	 * needs more works for noncoherent MIPS.
--	 */
--	.info		  = SNDRV_PCM_INFO_INTERLEAVED |
--			    SNDRV_PCM_INFO_BATCH |
--			    SNDRV_PCM_INFO_PAUSE,
--	.period_bytes_min = 1024,
--	.period_bytes_max = 8 * 1024,
--	.periods_min	  = 2,
--	.periods_max	  = 4096,
--	.buffer_bytes_max = 32 * 1024,
--};
--
--static int txx9aclc_pcm_hw_params(struct snd_soc_component *component,
--				  struct snd_pcm_substream *substream,
--				  struct snd_pcm_hw_params *params)
--{
--	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct txx9aclc_dmadata *dmadata = runtime->private_data;
--
--	dev_dbg(component->dev,
--		"runtime->dma_area = %#lx dma_addr = %#lx dma_bytes = %zd "
--		"runtime->min_align %ld\n",
--		(unsigned long)runtime->dma_area,
--		(unsigned long)runtime->dma_addr, runtime->dma_bytes,
--		runtime->min_align);
--	dev_dbg(component->dev,
--		"periods %d period_bytes %d stream %d\n",
--		params_periods(params), params_period_bytes(params),
--		substream->stream);
--
--	dmadata->substream = substream;
--	dmadata->pos = 0;
--	return 0;
--}
--
--static int txx9aclc_pcm_prepare(struct snd_soc_component *component,
--				struct snd_pcm_substream *substream)
--{
--	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct txx9aclc_dmadata *dmadata = runtime->private_data;
--
--	dmadata->dma_addr = runtime->dma_addr;
--	dmadata->buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
--	dmadata->period_bytes = snd_pcm_lib_period_bytes(substream);
--
--	if (dmadata->buffer_bytes == dmadata->period_bytes) {
--		dmadata->frag_bytes = dmadata->period_bytes >> 1;
--		dmadata->frags = 2;
--	} else {
--		dmadata->frag_bytes = dmadata->period_bytes;
--		dmadata->frags = dmadata->buffer_bytes / dmadata->period_bytes;
--	}
--	dmadata->frag_count = 0;
--	dmadata->pos = 0;
--	return 0;
--}
--
--static void txx9aclc_dma_complete(void *arg)
--{
--	struct txx9aclc_dmadata *dmadata = arg;
--	unsigned long flags;
--
--	/* dma completion handler cannot submit new operations */
--	spin_lock_irqsave(&dmadata->dma_lock, flags);
--	if (dmadata->frag_count >= 0) {
--		dmadata->dmacount--;
--		if (!WARN_ON(dmadata->dmacount < 0))
--			queue_work(system_highpri_wq, &dmadata->work);
--	}
--	spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--}
--
--static struct dma_async_tx_descriptor *
--txx9aclc_dma_submit(struct txx9aclc_dmadata *dmadata, dma_addr_t buf_dma_addr)
--{
--	struct dma_chan *chan = dmadata->dma_chan;
--	struct dma_async_tx_descriptor *desc;
--	struct scatterlist sg;
--
--	sg_init_table(&sg, 1);
--	sg_set_page(&sg, pfn_to_page(PFN_DOWN(buf_dma_addr)),
--		    dmadata->frag_bytes, buf_dma_addr & (PAGE_SIZE - 1));
--	sg_dma_address(&sg) = buf_dma_addr;
--	desc = dmaengine_prep_slave_sg(chan, &sg, 1,
--		dmadata->substream->stream == SNDRV_PCM_STREAM_PLAYBACK ?
--		DMA_MEM_TO_DEV : DMA_DEV_TO_MEM,
--		DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
--	if (!desc) {
--		dev_err(&chan->dev->device, "cannot prepare slave dma\n");
--		return NULL;
--	}
--	desc->callback = txx9aclc_dma_complete;
--	desc->callback_param = dmadata;
--	dmaengine_submit(desc);
--	return desc;
--}
--
--#define NR_DMA_CHAIN		2
--
--static void txx9aclc_dma_work(struct work_struct *work)
--{
--	struct txx9aclc_dmadata *dmadata =
--		container_of(work, struct txx9aclc_dmadata, work);
--	struct dma_chan *chan = dmadata->dma_chan;
--	struct dma_async_tx_descriptor *desc;
--	struct snd_pcm_substream *substream = dmadata->substream;
--	u32 ctlbit = substream->stream == SNDRV_PCM_STREAM_PLAYBACK ?
--		ACCTL_AUDODMA : ACCTL_AUDIDMA;
--	int i;
--	unsigned long flags;
--
--	spin_lock_irqsave(&dmadata->dma_lock, flags);
--	if (dmadata->frag_count < 0) {
--		struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--		void __iomem *base = drvdata->base;
--
--		spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--		dmaengine_terminate_all(chan);
--		/* first time */
--		for (i = 0; i < NR_DMA_CHAIN; i++) {
--			desc = txx9aclc_dma_submit(dmadata,
--				dmadata->dma_addr + i * dmadata->frag_bytes);
--			if (!desc)
--				return;
--		}
--		dmadata->dmacount = NR_DMA_CHAIN;
--		dma_async_issue_pending(chan);
--		spin_lock_irqsave(&dmadata->dma_lock, flags);
--		__raw_writel(ctlbit, base + ACCTLEN);
--		dmadata->frag_count = NR_DMA_CHAIN % dmadata->frags;
--		spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--		return;
--	}
--	if (WARN_ON(dmadata->dmacount >= NR_DMA_CHAIN)) {
--		spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--		return;
--	}
--	while (dmadata->dmacount < NR_DMA_CHAIN) {
--		dmadata->dmacount++;
--		spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--		desc = txx9aclc_dma_submit(dmadata,
--			dmadata->dma_addr +
--			dmadata->frag_count * dmadata->frag_bytes);
--		if (!desc)
--			return;
--		dma_async_issue_pending(chan);
--
--		spin_lock_irqsave(&dmadata->dma_lock, flags);
--		dmadata->frag_count++;
--		dmadata->frag_count %= dmadata->frags;
--		dmadata->pos += dmadata->frag_bytes;
--		dmadata->pos %= dmadata->buffer_bytes;
--		if ((dmadata->frag_count * dmadata->frag_bytes) %
--		    dmadata->period_bytes == 0)
--			snd_pcm_period_elapsed(substream);
--	}
--	spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--}
--
--static int txx9aclc_pcm_trigger(struct snd_soc_component *component,
--				struct snd_pcm_substream *substream, int cmd)
--{
--	struct txx9aclc_dmadata *dmadata = substream->runtime->private_data;
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	void __iomem *base = drvdata->base;
--	unsigned long flags;
--	int ret = 0;
--	u32 ctlbit = substream->stream == SNDRV_PCM_STREAM_PLAYBACK ?
--		ACCTL_AUDODMA : ACCTL_AUDIDMA;
--
--	spin_lock_irqsave(&dmadata->dma_lock, flags);
--	switch (cmd) {
--	case SNDRV_PCM_TRIGGER_START:
--		dmadata->frag_count = -1;
--		queue_work(system_highpri_wq, &dmadata->work);
--		break;
--	case SNDRV_PCM_TRIGGER_STOP:
--	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
--	case SNDRV_PCM_TRIGGER_SUSPEND:
--		__raw_writel(ctlbit, base + ACCTLDIS);
--		break;
--	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
--	case SNDRV_PCM_TRIGGER_RESUME:
--		__raw_writel(ctlbit, base + ACCTLEN);
--		break;
--	default:
--		ret = -EINVAL;
--	}
--	spin_unlock_irqrestore(&dmadata->dma_lock, flags);
--	return ret;
--}
--
--static snd_pcm_uframes_t
--txx9aclc_pcm_pointer(struct snd_soc_component *component,
--		     struct snd_pcm_substream *substream)
--{
--	struct txx9aclc_dmadata *dmadata = substream->runtime->private_data;
--
--	return bytes_to_frames(substream->runtime, dmadata->pos);
--}
--
--static int txx9aclc_pcm_open(struct snd_soc_component *component,
--			     struct snd_pcm_substream *substream)
--{
--	struct txx9aclc_soc_device *dev = &txx9aclc_soc_device;
--	struct txx9aclc_dmadata *dmadata = &dev->dmadata[substream->stream];
--	int ret;
--
--	ret = snd_soc_set_runtime_hwparams(substream, &txx9aclc_pcm_hardware);
+-	nvmem_cfg.priv = pdata;
+-	ret = devm_rtc_nvmem_register(rtc, &nvmem_cfg);
 -	if (ret)
 -		return ret;
--	/* ensure that buffer size is a multiple of period size */
--	ret = snd_pcm_hw_constraint_integer(substream->runtime,
--					    SNDRV_PCM_HW_PARAM_PERIODS);
--	if (ret < 0)
--		return ret;
--	substream->runtime->private_data = dmadata;
+-
+-	return devm_rtc_register_device(rtc);
+-}
+-
+-static int __exit tx4939_rtc_remove(struct platform_device *pdev)
+-{
+-	struct tx4939rtc_plat_data *pdata = platform_get_drvdata(pdev);
+-
+-	spin_lock_irq(&pdata->lock);
+-	tx4939_rtc_cmd(pdata->rtcreg, TX4939_RTCCTL_COMMAND_NOP);
+-	spin_unlock_irq(&pdata->lock);
 -	return 0;
 -}
 -
--static int txx9aclc_pcm_close(struct snd_soc_component *component,
--			      struct snd_pcm_substream *substream)
--{
--	struct txx9aclc_dmadata *dmadata = substream->runtime->private_data;
--	struct dma_chan *chan = dmadata->dma_chan;
--
--	dmadata->frag_count = -1;
--	dmaengine_terminate_all(chan);
--	return 0;
--}
--
--static int txx9aclc_pcm_new(struct snd_soc_component *component,
--			    struct snd_soc_pcm_runtime *rtd)
--{
--	struct snd_card *card = rtd->card->snd_card;
--	struct snd_soc_dai *dai = asoc_rtd_to_cpu(rtd, 0);
--	struct snd_pcm *pcm = rtd->pcm;
--	struct platform_device *pdev = to_platform_device(component->dev);
--	struct txx9aclc_soc_device *dev;
--	struct resource *r;
--	int i;
--	int ret;
--
--	/* at this point onwards the AC97 component has probed and this will be valid */
--	dev = snd_soc_dai_get_drvdata(dai);
--
--	dev->dmadata[0].stream = SNDRV_PCM_STREAM_PLAYBACK;
--	dev->dmadata[1].stream = SNDRV_PCM_STREAM_CAPTURE;
--	for (i = 0; i < 2; i++) {
--		r = platform_get_resource(pdev, IORESOURCE_DMA, i);
--		if (!r) {
--			ret = -EBUSY;
--			goto exit;
--		}
--		dev->dmadata[i].dma_res = r;
--		ret = txx9aclc_dma_init(dev, &dev->dmadata[i]);
--		if (ret)
--			goto exit;
--	}
--
--	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
--		card->dev, 64 * 1024, 4 * 1024 * 1024);
--	return 0;
--
--exit:
--	for (i = 0; i < 2; i++) {
--		if (dev->dmadata[i].dma_chan)
--			dma_release_channel(dev->dmadata[i].dma_chan);
--		dev->dmadata[i].dma_chan = NULL;
--	}
--	return ret;
--}
--
--static bool filter(struct dma_chan *chan, void *param)
--{
--	struct txx9aclc_dmadata *dmadata = param;
--	char *devname;
--	bool found = false;
--
--	devname = kasprintf(GFP_KERNEL, "%s.%d", dmadata->dma_res->name,
--		(int)dmadata->dma_res->start);
--	if (strcmp(dev_name(chan->device->dev), devname) == 0) {
--		chan->private = &dmadata->dma_slave;
--		found = true;
--	}
--	kfree(devname);
--	return found;
--}
--
--static int txx9aclc_dma_init(struct txx9aclc_soc_device *dev,
--			     struct txx9aclc_dmadata *dmadata)
--{
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	struct txx9dmac_slave *ds = &dmadata->dma_slave;
--	dma_cap_mask_t mask;
--
--	spin_lock_init(&dmadata->dma_lock);
--
--	ds->reg_width = sizeof(u32);
--	if (dmadata->stream == SNDRV_PCM_STREAM_PLAYBACK) {
--		ds->tx_reg = drvdata->physbase + ACAUDODAT;
--		ds->rx_reg = 0;
--	} else {
--		ds->tx_reg = 0;
--		ds->rx_reg = drvdata->physbase + ACAUDIDAT;
--	}
--
--	/* Try to grab a DMA channel */
--	dma_cap_zero(mask);
--	dma_cap_set(DMA_SLAVE, mask);
--	dmadata->dma_chan = dma_request_channel(mask, filter, dmadata);
--	if (!dmadata->dma_chan) {
--		printk(KERN_ERR
--			"DMA channel for %s is not available\n",
--			dmadata->stream == SNDRV_PCM_STREAM_PLAYBACK ?
--			"playback" : "capture");
--		return -EBUSY;
--	}
--	INIT_WORK(&dmadata->work, txx9aclc_dma_work);
--	return 0;
--}
--
--static int txx9aclc_pcm_probe(struct snd_soc_component *component)
--{
--	snd_soc_component_set_drvdata(component, &txx9aclc_soc_device);
--	return 0;
--}
--
--static void txx9aclc_pcm_remove(struct snd_soc_component *component)
--{
--	struct txx9aclc_soc_device *dev = snd_soc_component_get_drvdata(component);
--	struct txx9aclc_plat_drvdata *drvdata = txx9aclc_drvdata;
--	void __iomem *base = drvdata->base;
--	int i;
--
--	/* disable all FIFO DMAs */
--	__raw_writel(ACCTL_AUDODMA | ACCTL_AUDIDMA, base + ACCTLDIS);
--	/* dummy R/W to clear pending DMAREQ if any */
--	__raw_writel(__raw_readl(base + ACAUDIDAT), base + ACAUDODAT);
--
--	for (i = 0; i < 2; i++) {
--		struct txx9aclc_dmadata *dmadata = &dev->dmadata[i];
--		struct dma_chan *chan = dmadata->dma_chan;
--
--		if (chan) {
--			dmadata->frag_count = -1;
--			dmaengine_terminate_all(chan);
--			dma_release_channel(chan);
--		}
--		dev->dmadata[i].dma_chan = NULL;
--	}
--}
--
--static const struct snd_soc_component_driver txx9aclc_soc_component = {
--	.name		= DRV_NAME,
--	.probe		= txx9aclc_pcm_probe,
--	.remove		= txx9aclc_pcm_remove,
--	.open		= txx9aclc_pcm_open,
--	.close		= txx9aclc_pcm_close,
--	.hw_params	= txx9aclc_pcm_hw_params,
--	.prepare	= txx9aclc_pcm_prepare,
--	.trigger	= txx9aclc_pcm_trigger,
--	.pointer	= txx9aclc_pcm_pointer,
--	.pcm_construct	= txx9aclc_pcm_new,
--};
--
--static int txx9aclc_soc_platform_probe(struct platform_device *pdev)
--{
--	return devm_snd_soc_register_component(&pdev->dev,
--					&txx9aclc_soc_component, NULL, 0);
--}
--
--static struct platform_driver txx9aclc_pcm_driver = {
--	.driver = {
--			.name = "txx9aclc-pcm-audio",
+-static struct platform_driver tx4939_rtc_driver = {
+-	.remove		= __exit_p(tx4939_rtc_remove),
+-	.driver		= {
+-		.name	= "tx4939rtc",
 -	},
--
--	.probe = txx9aclc_soc_platform_probe,
 -};
 -
--module_platform_driver(txx9aclc_pcm_driver);
+-module_platform_driver_probe(tx4939_rtc_driver, tx4939_rtc_probe);
 -
 -MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
--MODULE_DESCRIPTION("TXx9 ACLC Audio DMA driver");
--MODULE_LICENSE("GPL");
-diff --git a/sound/soc/txx9/txx9aclc.h b/sound/soc/txx9/txx9aclc.h
-deleted file mode 100644
-index 37c691ba56ed..000000000000
---- a/sound/soc/txx9/txx9aclc.h
-+++ /dev/null
-@@ -1,71 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * TXx9 SoC AC Link Controller
-- */
--
--#ifndef __TXX9ACLC_H
--#define __TXX9ACLC_H
--
--#include <linux/interrupt.h>
--#include <asm/txx9/dmac.h>
--
--#define ACCTLEN			0x00	/* control enable */
--#define ACCTLDIS		0x04	/* control disable */
--#define   ACCTL_ENLINK		0x00000001	/* enable/disable AC-link */
--#define   ACCTL_AUDODMA		0x00000100	/* AUDODMA enable/disable */
--#define   ACCTL_AUDIDMA		0x00001000	/* AUDIDMA enable/disable */
--#define   ACCTL_AUDOEHLT	0x00010000	/* AUDO error halt
--						   enable/disable */
--#define   ACCTL_AUDIEHLT	0x00100000	/* AUDI error halt
--						   enable/disable */
--#define ACREGACC		0x08	/* codec register access */
--#define   ACREGACC_DAT_SHIFT	0	/* data field */
--#define   ACREGACC_REG_SHIFT	16	/* address field */
--#define   ACREGACC_CODECID_SHIFT	24	/* CODEC ID field */
--#define   ACREGACC_READ		0x80000000	/* CODEC read */
--#define   ACREGACC_WRITE	0x00000000	/* CODEC write */
--#define ACINTSTS		0x10	/* interrupt status */
--#define ACINTMSTS		0x14	/* interrupt masked status */
--#define ACINTEN			0x18	/* interrupt enable */
--#define ACINTDIS		0x1c	/* interrupt disable */
--#define   ACINT_CODECRDY(n)	(0x00000001 << (n))	/* CODECn ready */
--#define   ACINT_REGACCRDY	0x00000010	/* ACREGACC ready */
--#define   ACINT_AUDOERR		0x00000100	/* AUDO underrun error */
--#define   ACINT_AUDIERR		0x00001000	/* AUDI overrun error */
--#define ACDMASTS		0x80	/* DMA request status */
--#define   ACDMA_AUDO		0x00000001	/* AUDODMA pending */
--#define   ACDMA_AUDI		0x00000010	/* AUDIDMA pending */
--#define ACAUDODAT		0xa0	/* audio out data */
--#define ACAUDIDAT		0xb0	/* audio in data */
--#define ACREVID			0xfc	/* revision ID */
--
--struct txx9aclc_dmadata {
--	struct resource *dma_res;
--	struct txx9dmac_slave dma_slave;
--	struct dma_chan *dma_chan;
--	struct work_struct work;
--	spinlock_t dma_lock;
--	int stream; /* SNDRV_PCM_STREAM_PLAYBACK or SNDRV_PCM_STREAM_CAPTURE */
--	struct snd_pcm_substream *substream;
--	unsigned long pos;
--	dma_addr_t dma_addr;
--	unsigned long buffer_bytes;
--	unsigned long period_bytes;
--	unsigned long frag_bytes;
--	int frags;
--	int frag_count;
--	int dmacount;
--};
--
--struct txx9aclc_plat_drvdata {
--	void __iomem *base;
--	u64 physbase;
--};
--
--static inline struct txx9aclc_plat_drvdata *txx9aclc_get_plat_drvdata(
--	struct snd_soc_dai *dai)
--{
--	return dev_get_drvdata(dai->dev);
--}
--
--#endif /* __TXX9ACLC_H */
+-MODULE_DESCRIPTION("TX4939 internal RTC driver");
+-MODULE_LICENSE("GPL v2");
+-MODULE_ALIAS("platform:tx4939rtc");
 -- 
 2.29.2
 
