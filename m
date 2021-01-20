@@ -7,455 +7,355 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 881F9C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1CBEC433E0
 	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:08:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AF43233F6
+	by mail.kernel.org (Postfix) with ESMTP id 5F612233FE
 	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:08:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392406AbhATTHu (ORCPT
+        id S1733114AbhATTHx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Jan 2021 14:07:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55824 "EHLO
+        Wed, 20 Jan 2021 14:07:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392514AbhATTEV (ORCPT
+        with ESMTP id S2392509AbhATTEO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Jan 2021 14:04:21 -0500
-Received: from mail-oo1-xc34.google.com (mail-oo1-xc34.google.com [IPv6:2607:f8b0:4864:20::c34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BCEC0613D3;
-        Wed, 20 Jan 2021 11:03:40 -0800 (PST)
-Received: by mail-oo1-xc34.google.com with SMTP id i18so6038589ooh.5;
-        Wed, 20 Jan 2021 11:03:40 -0800 (PST)
+        Wed, 20 Jan 2021 14:04:14 -0500
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C9CC061575;
+        Wed, 20 Jan 2021 11:03:33 -0800 (PST)
+Received: by mail-ot1-x32c.google.com with SMTP id d1so3889697otl.13;
+        Wed, 20 Jan 2021 11:03:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=mZHCQLBWgYTEgzSBfLyQwdOZmWFmiaHz92a3fY5qrZ8=;
-        b=CUh0fU/hNLXVy0MlCQf1QZfIz2nmfwrT4uAQSV+we2EbyAe7LA6AIj9sFg8jSx19z/
-         s5s35Ejp/G7wKrsgu9u8qPtykal9uI1+JcpbiGdmfA0rxS7xdXmB6s+hH0ujmbKp9bho
-         tTgKAiYoFELuA8X8JelTE0Brai+SN23zx8ukrCQVQzkWzEEhz+BwZxv20mFrY0SmtCJe
-         hYMRfc6OLtdW0iS9YzVgPAeZessEZB6I4wXkG9nFubXnxcCgWnISSQqly+yeULDL+lPa
-         bnMB9K8e9E29AL60b4Nsusxx6rV5S2zdEUOknP84XHm8l5gQJQGCSTrhGbQqx724jYSC
-         alZQ==
+        bh=yodXS05JaL1ig72R6kKKKEE90PAC0RRrwwex9Cghq4s=;
+        b=ROFfkVyfGBkAGvNNZjTYhEX9Ndte+ns9H6TWMgabwdd3ztk5M+Ev65bfohW6BZ9noY
+         gufFeTDYBiQTVKKSD/0hJC16l4k91KcRHPFRCuKq1wR4rXJdyuqERW7YfWQqWnxsBLIq
+         NnQqjVjDpK5uRlzqb1HOPRqhjmxrSAIOdQSWi+PhnCl5t3k9TpNdP312/yqlP4uEnM6M
+         KCEJDhTqxePmE66XR0/SV8UP35c7fnqiH+zbrB/mJWhe7b2/+5SX9vmqaqpJLeTHndCG
+         Y5adOoVpHo3dXEGl//699Ej6QKqoV1IdUBZea/GpW3zUrRgWQCy+1ZICUx0g+731YCjx
+         2tRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=mZHCQLBWgYTEgzSBfLyQwdOZmWFmiaHz92a3fY5qrZ8=;
-        b=RxGbthjJtZOFr6/nbCBEgVWY+P1M+s3pLimbYUaBj6AJsv2i40chi2qho6a/7QWOmp
-         YOQXiXxTShCLRjCz/yGtJSbqO8PEtdNNL0A+T3P8mufLX6X5PE+J3fj/exLoYiEHxWy5
-         fd97tr/dyGMAx7anMmE7GJPToMFu07jU1/E6C6TjDv2H1y6jxtEpd5T1TiuLfDXtwQS1
-         C3uaOmwjuDu7utk4VwSiBSgJ24kHkS6bBrJI353Kaddpl5QI2GrHLj/7QEvD2v0eqJQ2
-         UOPdIRGE6mIdQS4sQBgkjdjKQ23puGWrJdKzAqiEt4q5Zc66JUxrb1ta224BIJ2R/M2o
-         WikA==
-X-Gm-Message-State: AOAM531S0AEvJT+FxUPxReAC60KhEh66yW9+JgK2UJV5IsG8AlsEkCmU
-        29cMgfO483HHNQTsrsANEEx8pnuAa/k=
-X-Google-Smtp-Source: ABdhPJxUTFc04Gji/7r+9oq9BNrxSz6hiTIvbHuocmHrh9X476t35pcXcHwVrXnFM1GmjxEHEF9pzw==
-X-Received: by 2002:a4a:1e42:: with SMTP id 63mr7170833ooq.57.1611169419938;
-        Wed, 20 Jan 2021 11:03:39 -0800 (PST)
+        bh=yodXS05JaL1ig72R6kKKKEE90PAC0RRrwwex9Cghq4s=;
+        b=aYQA46e9phJe+4gd/n1n5el+UNX1456qPQHyOtXP+g4dkl9/VQpEK6RXQvnAxEwpl8
+         Q7/TF7C7To37NPeGE9bZFOtlH+4UhQODpA2PBJ6A4UxeP7fzTLUSfW3Ho+uI8xrIlS22
+         wQQTA4PpP04i0ujVx9unt7LoIEWzJp40SGbQU6S9G6UuGcpE2BdVMCeK7g6jacg40oZ8
+         e248e3DhxKgCG3RQgR4soT6mHY8ldu4Mh8vfpU7xr6AlJOjycqQlvvK5u39VtPjJg6US
+         3gEgTCZoy83HLqbdXrc6/ShB5WS+SHtHSCm2ovmkccPYIObjoGVrw2ap4UNydLB7jMkb
+         rf1g==
+X-Gm-Message-State: AOAM530cS3N7qjNsjKHK6oSYKqIuo3o27wXyqE20Z08uVFz5kO4htxtY
+        mNjkBX9ajq6GOAwrI84q/W8=
+X-Google-Smtp-Source: ABdhPJzBurChML7P64dMp1Ak3EmVH3K0rNEhC6ZxP+ROXBEFUPRiw9STymQvZdA52WtySGnZPUMsaw==
+X-Received: by 2002:a9d:1421:: with SMTP id h30mr5411823oth.45.1611169411743;
+        Wed, 20 Jan 2021 11:03:31 -0800 (PST)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w5sm519541oow.7.2021.01.20.11.03.38
+        by smtp.gmail.com with ESMTPSA id z9sm564599otj.67.2021.01.20.11.03.30
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 20 Jan 2021 11:03:39 -0800 (PST)
+        Wed, 20 Jan 2021 11:03:31 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 20 Jan 2021 11:03:38 -0800
+Date:   Wed, 20 Jan 2021 11:03:29 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Arnd Bergmann <arnd@arndb.de>, Jun Nie <jun.nie@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 3/5] watchdog: remove zte zx driver
-Message-ID: <20210120190337.GC162747@roeck-us.net>
+        Arnd Bergmann <arnd@arndb.de>, Barry Song <baohua@kernel.org>
+Subject: Re: [PATCH 2/5] watchdog: remove sirf atlas driver
+Message-ID: <20210120190329.GB162747@roeck-us.net>
 References: <20210120162745.61268-1-arnd@kernel.org>
- <20210120162745.61268-4-arnd@kernel.org>
+ <20210120162745.61268-3-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210120162745.61268-4-arnd@kernel.org>
+In-Reply-To: <20210120162745.61268-3-arnd@kernel.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 05:27:43PM +0100, Arnd Bergmann wrote:
+On Wed, Jan 20, 2021 at 05:27:42PM +0100, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> The zte zx platform is getting removed, so this driver is no
-> longer needed.
+> The CSR SiRF prima2/atlas platforms are getting removed, so this driver
+> is no longer needed.
 > 
-> Cc: Jun Nie <jun.nie@linaro.org>
-> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: Barry Song <baohua@kernel.org>
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  .../bindings/watchdog/zte,zx2967-wdt.txt      |  32 --
->  drivers/watchdog/Kconfig                      |  10 -
->  drivers/watchdog/Makefile                     |   1 -
->  drivers/watchdog/zx2967_wdt.c                 | 279 ------------------
->  4 files changed, 322 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
->  delete mode 100644 drivers/watchdog/zx2967_wdt.c
+>  drivers/watchdog/Kconfig      |  10 --
+>  drivers/watchdog/Makefile     |   1 -
+>  drivers/watchdog/atlas7_wdt.c | 221 ----------------------------------
+>  3 files changed, 232 deletions(-)
+>  delete mode 100644 drivers/watchdog/atlas7_wdt.c
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> deleted file mode 100644
-> index 06ce67766756..000000000000
-> --- a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> +++ /dev/null
-> @@ -1,32 +0,0 @@
-> -ZTE zx2967 Watchdog timer
-> -
-> -Required properties:
-> -
-> -- compatible : should be one of the following.
-> -       * zte,zx296718-wdt
-> -- reg : Specifies base physical address and size of the registers.
-> -- clocks : Pairs of phandle and specifier referencing the controller's clocks.
-> -- resets : Reference to the reset controller controlling the watchdog
-> -           controller.
-> -
-> -Optional properties:
-> -
-> -- timeout-sec : Contains the watchdog timeout in seconds.
-> -- zte,wdt-reset-sysctrl : Directs how to reset system by the watchdog.
-> -	if we don't want to restart system when watchdog been triggered,
-> -	it's not required, vice versa.
-> -	It should include following fields.
-> -	  * phandle of aon-sysctrl.
-> -	  * offset of register that be written, should be 0xb0.
-> -	  * configure value that be written to aon-sysctrl.
-> -	  * bit mask, corresponding bits will be affected.
-> -
-> -Example:
-> -
-> -wdt: watchdog@1465000 {
-> -	compatible = "zte,zx296718-wdt";
-> -	reg = <0x1465000 0x1000>;
-> -	clocks = <&topcrm WDT_WCLK>;
-> -	resets = <&toprst 35>;
-> -	zte,wdt-reset-sysctrl = <&aon_sysctrl 0xb0 1 0x115>;
-> -};
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 5559e4325f6a..c36f8233f60b 100644
+> index 88f4827849e4..5559e4325f6a 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -919,16 +919,6 @@ config ASPEED_WATCHDOG
+> @@ -890,16 +890,6 @@ config LPC18XX_WATCHDOG
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called aspeed_wdt.
+>  	  module will be called lpc18xx_wdt.
 >  
-> -config ZX2967_WATCHDOG
-> -	tristate "ZTE zx2967 SoCs watchdog support"
-> -	depends on ARCH_ZX
-> -	select WATCHDOG_CORE
+> -config ATLAS7_WATCHDOG
+> -	tristate "CSRatlas7 watchdog"
+> -	depends on ARCH_ATLAS7 || COMPILE_TEST
 > -	help
-> -	  Say Y here to include support for the watchdog timer
-> -	  in ZTE zx2967 SoCs.
-> -	  To compile this driver as a module, choose M here: the
-> -	  module will be called zx2967_wdt.
+> -	  Say Y here to include Watchdog timer support for the watchdog
+> -	  existing on the CSRatlas7 series platforms.
 > -
->  config STM32_WATCHDOG
->  	tristate "STM32 Independent WatchDoG (IWDG) support"
->  	depends on ARCH_STM32
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called atlas7_wdt.
+> -
+>  config RENESAS_WDT
+>  	tristate "Renesas WDT Watchdog"
+>  	depends on ARCH_RENESAS || COMPILE_TEST
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 40b94403c487..7a95b280cd9f 100644
+> index 1741ed3c6ce6..40b94403c487 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -86,7 +86,6 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+> @@ -83,7 +83,6 @@ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+>  obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
+>  obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
+>  obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+> -obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
 >  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
 >  obj-$(CONFIG_RENESAS_RZAWDT) += rza_wdt.o
 >  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
-> -obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
->  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
->  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
->  obj-$(CONFIG_RTD119X_WATCHDOG) += rtd119x_wdt.o
-> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
+> diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
 > deleted file mode 100644
-> index bf183e73671a..000000000000
-> --- a/drivers/watchdog/zx2967_wdt.c
+> index 9bfe650d802f..000000000000
+> --- a/drivers/watchdog/atlas7_wdt.c
 > +++ /dev/null
-> @@ -1,279 +0,0 @@
+> @@ -1,221 +0,0 @@
 > -// SPDX-License-Identifier: GPL-2.0-only
 > -/*
-> - * watchdog driver for ZTE's zx2967 family
+> - * Watchdog driver for CSR Atlas7
 > - *
-> - * Copyright (C) 2017 ZTE Ltd.
-> - *
-> - * Author: Baoyou Xie <baoyou.xie@linaro.org>
+> - * Copyright (c) 2015 Cambridge Silicon Radio Limited, a CSR plc group company.
 > - */
 > -
 > -#include <linux/clk.h>
 > -#include <linux/io.h>
-> -#include <linux/mfd/syscon.h>
 > -#include <linux/module.h>
-> -#include <linux/of_address.h>
+> -#include <linux/moduleparam.h>
+> -#include <linux/of.h>
 > -#include <linux/platform_device.h>
-> -#include <linux/regmap.h>
-> -#include <linux/reset.h>
 > -#include <linux/watchdog.h>
 > -
-> -#define ZX2967_WDT_CFG_REG			0x4
-> -#define ZX2967_WDT_LOAD_REG			0x8
-> -#define ZX2967_WDT_REFRESH_REG			0x18
-> -#define ZX2967_WDT_START_REG			0x1c
+> -#define ATLAS7_TIMER_WDT_INDEX		5
+> -#define ATLAS7_WDT_DEFAULT_TIMEOUT	20
 > -
-> -#define ZX2967_WDT_REFRESH_MASK			GENMASK(5, 0)
+> -#define ATLAS7_WDT_CNT_CTRL	(0 + 4 * ATLAS7_TIMER_WDT_INDEX)
+> -#define ATLAS7_WDT_CNT_MATCH	(0x18 + 4 * ATLAS7_TIMER_WDT_INDEX)
+> -#define ATLAS7_WDT_CNT		(0x48 +  4 * ATLAS7_TIMER_WDT_INDEX)
+> -#define ATLAS7_WDT_CNT_EN	(BIT(0) | BIT(1))
+> -#define ATLAS7_WDT_EN		0x64
 > -
-> -#define ZX2967_WDT_CFG_DIV(n)			((((n) & 0xff) - 1) << 8)
-> -#define ZX2967_WDT_START_EN			0x1
+> -static unsigned int timeout = ATLAS7_WDT_DEFAULT_TIMEOUT;
+> -static bool nowayout = WATCHDOG_NOWAYOUT;
 > -
-> -/*
-> - * Hardware magic number.
-> - * When watchdog reg is written, the lowest 16 bits are valid, but
-> - * the highest 16 bits should be always this number.
-> - */
-> -#define ZX2967_WDT_WRITEKEY			(0x1234 << 16)
-> -#define ZX2967_WDT_VAL_MASK			GENMASK(15, 0)
+> -module_param(timeout, uint, 0);
+> -module_param(nowayout, bool, 0);
 > -
-> -#define ZX2967_WDT_DIV_DEFAULT			16
-> -#define ZX2967_WDT_DEFAULT_TIMEOUT		32
-> -#define ZX2967_WDT_MIN_TIMEOUT			1
-> -#define ZX2967_WDT_MAX_TIMEOUT			524
-> -#define ZX2967_WDT_MAX_COUNT			0xffff
+> -MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
+> -MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> -			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > -
-> -#define ZX2967_WDT_CLK_FREQ			0x8000
-> -
-> -#define ZX2967_WDT_FLAG_REBOOT_MON		BIT(0)
-> -
-> -struct zx2967_wdt {
-> -	struct watchdog_device	wdt_device;
-> -	void __iomem		*reg_base;
-> -	struct clk		*clock;
+> -struct atlas7_wdog {
+> -	struct device *dev;
+> -	void __iomem *base;
+> -	unsigned long tick_rate;
+> -	struct clk *clk;
 > -};
 > -
-> -static inline u32 zx2967_wdt_readl(struct zx2967_wdt *wdt, u16 reg)
+> -static unsigned int atlas7_wdt_gettimeleft(struct watchdog_device *wdd)
 > -{
-> -	return readl_relaxed(wdt->reg_base + reg);
+> -	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> -	u32 counter, match, delta;
+> -
+> -	counter = readl(wdt->base + ATLAS7_WDT_CNT);
+> -	match = readl(wdt->base + ATLAS7_WDT_CNT_MATCH);
+> -	delta = match - counter;
+> -
+> -	return  delta / wdt->tick_rate;
 > -}
 > -
-> -static inline void zx2967_wdt_writel(struct zx2967_wdt *wdt, u16 reg, u32 val)
+> -static int atlas7_wdt_ping(struct watchdog_device *wdd)
 > -{
-> -	writel_relaxed(val | ZX2967_WDT_WRITEKEY, wdt->reg_base + reg);
-> -}
+> -	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> -	u32 counter, match, delta;
 > -
-> -static void zx2967_wdt_refresh(struct zx2967_wdt *wdt)
-> -{
-> -	u32 val;
+> -	counter = readl(wdt->base + ATLAS7_WDT_CNT);
+> -	delta = wdd->timeout * wdt->tick_rate;
+> -	match = counter + delta;
 > -
-> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_REFRESH_REG);
-> -	/*
-> -	 * Bit 4-5, 1 and 2: refresh config info
-> -	 * Bit 2-3, 1 and 2: refresh counter
-> -	 * Bit 0-1, 1 and 2: refresh int-value
-> -	 * we shift each group value between 1 and 2 to refresh all data.
-> -	 */
-> -	val ^= ZX2967_WDT_REFRESH_MASK;
-> -	zx2967_wdt_writel(wdt, ZX2967_WDT_REFRESH_REG,
-> -			  val & ZX2967_WDT_VAL_MASK);
-> -}
-> -
-> -static int
-> -zx2967_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
-> -{
-> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	unsigned int divisor = ZX2967_WDT_DIV_DEFAULT;
-> -	u32 count;
-> -
-> -	count = timeout * ZX2967_WDT_CLK_FREQ;
-> -	if (count > divisor * ZX2967_WDT_MAX_COUNT)
-> -		divisor = DIV_ROUND_UP(count, ZX2967_WDT_MAX_COUNT);
-> -	count = DIV_ROUND_UP(count, divisor);
-> -	zx2967_wdt_writel(wdt, ZX2967_WDT_CFG_REG,
-> -			ZX2967_WDT_CFG_DIV(divisor) & ZX2967_WDT_VAL_MASK);
-> -	zx2967_wdt_writel(wdt, ZX2967_WDT_LOAD_REG,
-> -			count & ZX2967_WDT_VAL_MASK);
-> -	zx2967_wdt_refresh(wdt);
-> -	wdd->timeout =  (count * divisor) / ZX2967_WDT_CLK_FREQ;
+> -	writel(match, wdt->base + ATLAS7_WDT_CNT_MATCH);
 > -
 > -	return 0;
 > -}
 > -
-> -static void __zx2967_wdt_start(struct zx2967_wdt *wdt)
+> -static int atlas7_wdt_enable(struct watchdog_device *wdd)
 > -{
-> -	u32 val;
+> -	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
 > -
-> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
-> -	val |= ZX2967_WDT_START_EN;
-> -	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
-> -			val & ZX2967_WDT_VAL_MASK);
-> -}
+> -	atlas7_wdt_ping(wdd);
 > -
-> -static void __zx2967_wdt_stop(struct zx2967_wdt *wdt)
-> -{
-> -	u32 val;
-> -
-> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
-> -	val &= ~ZX2967_WDT_START_EN;
-> -	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
-> -			val & ZX2967_WDT_VAL_MASK);
-> -}
-> -
-> -static int zx2967_wdt_start(struct watchdog_device *wdd)
-> -{
-> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> -
-> -	zx2967_wdt_set_timeout(wdd, wdd->timeout);
-> -	__zx2967_wdt_start(wdt);
+> -	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) | ATLAS7_WDT_CNT_EN,
+> -	      wdt->base + ATLAS7_WDT_CNT_CTRL);
+> -	writel(1, wdt->base + ATLAS7_WDT_EN);
 > -
 > -	return 0;
 > -}
 > -
-> -static int zx2967_wdt_stop(struct watchdog_device *wdd)
+> -static int atlas7_wdt_disable(struct watchdog_device *wdd)
 > -{
-> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> -	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
 > -
-> -	__zx2967_wdt_stop(wdt);
+> -	writel(0, wdt->base + ATLAS7_WDT_EN);
+> -	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) & ~ATLAS7_WDT_CNT_EN,
+> -	      wdt->base + ATLAS7_WDT_CNT_CTRL);
 > -
 > -	return 0;
 > -}
 > -
-> -static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
+> -static int atlas7_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
 > -{
-> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> -
-> -	zx2967_wdt_refresh(wdt);
+> -	wdd->timeout = to;
 > -
 > -	return 0;
 > -}
 > -
-> -#define ZX2967_WDT_OPTIONS \
-> -	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-> -static const struct watchdog_info zx2967_wdt_ident = {
-> -	.options          =     ZX2967_WDT_OPTIONS,
-> -	.identity         =	"zx2967 watchdog",
+> -#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+> -
+> -static const struct watchdog_info atlas7_wdt_ident = {
+> -	.options = OPTIONS,
+> -	.firmware_version = 0,
+> -	.identity = "atlas7 Watchdog",
 > -};
 > -
-> -static const struct watchdog_ops zx2967_wdt_ops = {
+> -static const struct watchdog_ops atlas7_wdt_ops = {
 > -	.owner = THIS_MODULE,
-> -	.start = zx2967_wdt_start,
-> -	.stop = zx2967_wdt_stop,
-> -	.ping = zx2967_wdt_keepalive,
-> -	.set_timeout = zx2967_wdt_set_timeout,
+> -	.start = atlas7_wdt_enable,
+> -	.stop = atlas7_wdt_disable,
+> -	.get_timeleft = atlas7_wdt_gettimeleft,
+> -	.ping = atlas7_wdt_ping,
+> -	.set_timeout = atlas7_wdt_settimeout,
 > -};
 > -
-> -static void zx2967_wdt_reset_sysctrl(struct device *dev)
-> -{
-> -	int ret;
-> -	void __iomem *regmap;
-> -	unsigned int offset, mask, config;
-> -	struct of_phandle_args out_args;
+> -static struct watchdog_device atlas7_wdd = {
+> -	.info = &atlas7_wdt_ident,
+> -	.ops = &atlas7_wdt_ops,
+> -	.timeout = ATLAS7_WDT_DEFAULT_TIMEOUT,
+> -};
 > -
-> -	ret = of_parse_phandle_with_fixed_args(dev->of_node,
-> -			"zte,wdt-reset-sysctrl", 3, 0, &out_args);
-> -	if (ret)
-> -		return;
+> -static const struct of_device_id atlas7_wdt_ids[] = {
+> -	{ .compatible = "sirf,atlas7-tick"},
+> -	{}
+> -};
 > -
-> -	offset = out_args.args[0];
-> -	config = out_args.args[1];
-> -	mask = out_args.args[2];
-> -
-> -	regmap = syscon_node_to_regmap(out_args.np);
-> -	if (IS_ERR(regmap)) {
-> -		of_node_put(out_args.np);
-> -		return;
-> -	}
-> -
-> -	regmap_update_bits(regmap, offset, mask, config);
-> -	of_node_put(out_args.np);
-> -}
-> -
-> -static void zx2967_clk_disable_unprepare(void *data)
+> -static void atlas7_clk_disable_unprepare(void *data)
 > -{
 > -	clk_disable_unprepare(data);
 > -}
 > -
-> -static int zx2967_wdt_probe(struct platform_device *pdev)
+> -static int atlas7_wdt_probe(struct platform_device *pdev)
 > -{
 > -	struct device *dev = &pdev->dev;
-> -	struct zx2967_wdt *wdt;
+> -	struct atlas7_wdog *wdt;
+> -	struct clk *clk;
 > -	int ret;
-> -	struct reset_control *rstc;
 > -
 > -	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
 > -	if (!wdt)
 > -		return -ENOMEM;
+> -	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+> -	if (IS_ERR(wdt->base))
+> -		return PTR_ERR(wdt->base);
 > -
-> -	platform_set_drvdata(pdev, wdt);
-> -
-> -	wdt->wdt_device.info = &zx2967_wdt_ident;
-> -	wdt->wdt_device.ops = &zx2967_wdt_ops;
-> -	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
-> -	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
-> -	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
-> -	wdt->wdt_device.parent = dev;
-> -
-> -	wdt->reg_base = devm_platform_ioremap_resource(pdev, 0);
-> -	if (IS_ERR(wdt->reg_base))
-> -		return PTR_ERR(wdt->reg_base);
-> -
-> -	zx2967_wdt_reset_sysctrl(dev);
-> -
-> -	wdt->clock = devm_clk_get(dev, NULL);
-> -	if (IS_ERR(wdt->clock)) {
-> -		dev_err(dev, "failed to find watchdog clock source\n");
-> -		return PTR_ERR(wdt->clock);
-> -	}
-> -
-> -	ret = clk_prepare_enable(wdt->clock);
-> -	if (ret < 0) {
-> -		dev_err(dev, "failed to enable clock\n");
+> -	clk = devm_clk_get(dev, NULL);
+> -	if (IS_ERR(clk))
+> -		return PTR_ERR(clk);
+> -	ret = clk_prepare_enable(clk);
+> -	if (ret) {
+> -		dev_err(dev, "clk enable failed\n");
 > -		return ret;
 > -	}
-> -	ret = devm_add_action_or_reset(dev, zx2967_clk_disable_unprepare,
-> -				       wdt->clock);
-> -	if (ret)
-> -		return ret;
-> -	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
-> -
-> -	rstc = devm_reset_control_get_exclusive(dev, NULL);
-> -	if (IS_ERR(rstc)) {
-> -		dev_err(dev, "failed to get rstc");
-> -		return PTR_ERR(rstc);
-> -	}
-> -
-> -	reset_control_assert(rstc);
-> -	reset_control_deassert(rstc);
-> -
-> -	watchdog_set_drvdata(&wdt->wdt_device, wdt);
-> -	watchdog_init_timeout(&wdt->wdt_device,
-> -			ZX2967_WDT_DEFAULT_TIMEOUT, dev);
-> -	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
-> -
-> -	ret = devm_watchdog_register_device(dev, &wdt->wdt_device);
+> -	ret = devm_add_action_or_reset(dev, atlas7_clk_disable_unprepare, clk);
 > -	if (ret)
 > -		return ret;
 > -
-> -	dev_info(dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
-> -		 wdt->wdt_device.timeout, WATCHDOG_NOWAYOUT);
+> -	/* disable watchdog hardware */
+> -	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL);
+> -
+> -	wdt->tick_rate = clk_get_rate(clk);
+> -	if (!wdt->tick_rate)
+> -		return -EINVAL;
+> -
+> -	wdt->clk = clk;
+> -	atlas7_wdd.min_timeout = 1;
+> -	atlas7_wdd.max_timeout = UINT_MAX / wdt->tick_rate;
+> -
+> -	watchdog_init_timeout(&atlas7_wdd, 0, dev);
+> -	watchdog_set_nowayout(&atlas7_wdd, nowayout);
+> -
+> -	watchdog_set_drvdata(&atlas7_wdd, wdt);
+> -	platform_set_drvdata(pdev, &atlas7_wdd);
+> -
+> -	watchdog_stop_on_reboot(&atlas7_wdd);
+> -	watchdog_stop_on_unregister(&atlas7_wdd);
+> -	return devm_watchdog_register_device(dev, &atlas7_wdd);
+> -}
+> -
+> -static int __maybe_unused atlas7_wdt_suspend(struct device *dev)
+> -{
+> -	/*
+> -	 * NOTE:timer controller registers settings are saved
+> -	 * and restored back by the timer-atlas7.c
+> -	 */
+> -	return 0;
+> -}
+> -
+> -static int __maybe_unused atlas7_wdt_resume(struct device *dev)
+> -{
+> -	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> -
+> -	/*
+> -	 * NOTE: Since timer controller registers settings are saved
+> -	 * and restored back by the timer-atlas7.c, so we need not
+> -	 * update WD settings except refreshing timeout.
+> -	 */
+> -	atlas7_wdt_ping(wdd);
 > -
 > -	return 0;
 > -}
 > -
-> -static const struct of_device_id zx2967_wdt_match[] = {
-> -	{ .compatible = "zte,zx296718-wdt", },
-> -	{}
-> -};
-> -MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
+> -static SIMPLE_DEV_PM_OPS(atlas7_wdt_pm_ops,
+> -		atlas7_wdt_suspend, atlas7_wdt_resume);
 > -
-> -static struct platform_driver zx2967_wdt_driver = {
-> -	.probe		= zx2967_wdt_probe,
-> -	.driver		= {
-> -		.name	= "zx2967-wdt",
-> -		.of_match_table	= of_match_ptr(zx2967_wdt_match),
+> -MODULE_DEVICE_TABLE(of, atlas7_wdt_ids);
+> -
+> -static struct platform_driver atlas7_wdt_driver = {
+> -	.driver = {
+> -		.name = "atlas7-wdt",
+> -		.pm = &atlas7_wdt_pm_ops,
+> -		.of_match_table	= atlas7_wdt_ids,
 > -	},
+> -	.probe = atlas7_wdt_probe,
 > -};
-> -module_platform_driver(zx2967_wdt_driver);
+> -module_platform_driver(atlas7_wdt_driver);
 > -
-> -MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
-> -MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
+> -MODULE_DESCRIPTION("CSRatlas7 watchdog driver");
+> -MODULE_AUTHOR("Guo Zeng <Guo.Zeng@csr.com>");
 > -MODULE_LICENSE("GPL v2");
+> -MODULE_ALIAS("platform:atlas7-wdt");
 > -- 
 > 2.29.2
 > 
