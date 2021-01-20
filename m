@@ -7,39 +7,41 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B460C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D26FC433E9
 	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 16:29:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D71EA233ED
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 16:29:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1802823407
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 16:29:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403913AbhATQ2p (ORCPT
+        id S2404039AbhATQ2u (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Jan 2021 11:28:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
+        Wed, 20 Jan 2021 11:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404023AbhATQ2f (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Jan 2021 11:28:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 884AA233ED;
-        Wed, 20 Jan 2021 16:27:53 +0000 (UTC)
+        id S2404029AbhATQ2k (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 20 Jan 2021 11:28:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A72C233EF;
+        Wed, 20 Jan 2021 16:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611160074;
-        bh=8t/vUX79MLT4nMpsBC1iyCjhlTnBqrIDgGulZeCocaw=;
+        s=k20201202; t=1611160078;
+        bh=jPW3DWnen6gp/eVSJofcmx953mXWqom339hMbgq0tXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecZimvwsY0CTFL45FrAUGd3R+8/fNn6L5RHMnpClLWq/UL5E4kqmMNwrbI6VVJaAY
-         IA/XGw/JJ4NWwrpCnIpPNtL0d4Nt9jrAHnDcnoSVUdpMb8f9jGqhiGBVWMc3PJmdoJ
-         Z4n7s5FRNbvBEyZeJm2NN9QAzxSslz3+ae6n6LDSjmtIVARzLWxWhW0/wp3qpyUTBI
-         dkPabENcwVjaRIRiIu9KbXPcbPjrUR82BaJ+rdEH1704/9p8tZAXxyioDYVu2ytCl2
-         8c05jf3FQ4cn7VZuYWcilrwKHtNAhaSrpZhikfkRa+JnWuWkwHTT0WWcAFJjfbuUCz
-         P0bh1Y5KCGjag==
+        b=KXuzufr9iuru6KOWWMcZp0a8VOXD4+ZN/gA87wSieCBKT+fUCGprL9XiE8WzqpdOt
+         Qa9jCxeQyreDsCvFPtAI0OgqHw9A6kP2mi/NKzKqd5TFB7hS8XU3Gp7PBS0nhq/3HL
+         E/b2mCfIqyg8OAOzvsEj1KM20sHm0ireZACBQgHVm7nsGCXSUVFBTcGhJVluUoLYAP
+         U1emkGVWAGhvMXvo3fets0VB4Qdts4S6Wul0qIWsDV8Ap8GHcYPC1PjvhecuSjk6YI
+         qP5m/5+G3Dj404/W0cfVS+RiDCZd+PBekcbFhPJnczf01HciqaZR8WOCBM9uDKEnfU
+         mE3hql7XFqtEQ==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Arnd Bergmann <arnd@arndb.de>, Barry Song <baohua@kernel.org>
-Subject: [PATCH 2/5] watchdog: remove sirf atlas driver
-Date:   Wed, 20 Jan 2021 17:27:42 +0100
-Message-Id: <20210120162745.61268-3-arnd@kernel.org>
+        Arnd Bergmann <arnd@arndb.de>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Mans Rullgard <mans@mansr.com>
+Subject: [PATCH 4/5] watchdog: remove tango driver
+Date:   Wed, 20 Jan 2021 17:27:44 +0100
+Message-Id: <20210120162745.61268-5-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210120162745.61268-1-arnd@kernel.org>
 References: <20210120162745.61268-1-arnd@kernel.org>
@@ -51,278 +53,268 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The CSR SiRF prima2/atlas platforms are getting removed, so this driver
-is no longer needed.
+The tango platform is getting removed, so the driver is no
+longer needed.
 
-Cc: Barry Song <baohua@kernel.org>
+Cc: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Cc: Mans Rullgard <mans@mansr.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/watchdog/Kconfig      |  10 --
+ drivers/watchdog/Kconfig      |  11 --
  drivers/watchdog/Makefile     |   1 -
- drivers/watchdog/atlas7_wdt.c | 221 ----------------------------------
- 3 files changed, 232 deletions(-)
- delete mode 100644 drivers/watchdog/atlas7_wdt.c
+ drivers/watchdog/tangox_wdt.c | 209 ----------------------------------
+ 3 files changed, 221 deletions(-)
+ delete mode 100644 drivers/watchdog/tangox_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 88f4827849e4..5559e4325f6a 100644
+index c36f8233f60b..10efbb351f14 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -890,16 +890,6 @@ config LPC18XX_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called lpc18xx_wdt.
+@@ -254,17 +254,6 @@ config MENZ069_WATCHDOG
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called menz069_wdt.
  
--config ATLAS7_WATCHDOG
--	tristate "CSRatlas7 watchdog"
--	depends on ARCH_ATLAS7 || COMPILE_TEST
+-config TANGOX_WATCHDOG
+-	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+-	select WATCHDOG_CORE
+-	depends on ARCH_TANGO || COMPILE_TEST
+-	depends on HAS_IOMEM
 -	help
--	  Say Y here to include Watchdog timer support for the watchdog
--	  existing on the CSRatlas7 series platforms.
+-	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
+-	  and SMP87xx (tango4) family chips.
 -
--	  To compile this driver as a module, choose M here: the
--	  module will be called atlas7_wdt.
+-	  This driver can be built as a module. The module name is tangox_wdt.
 -
- config RENESAS_WDT
- 	tristate "Renesas WDT Watchdog"
- 	depends on ARCH_RENESAS || COMPILE_TEST
+ config WDAT_WDT
+ 	tristate "ACPI Watchdog Action Table (WDAT)"
+ 	depends on ACPI
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 1741ed3c6ce6..40b94403c487 100644
+index 7a95b280cd9f..1ff40d6a027f 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -83,7 +83,6 @@ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
- obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
- obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
- obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
--obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
- obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
- obj-$(CONFIG_RENESAS_RZAWDT) += rza_wdt.o
- obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
-diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
+@@ -210,7 +210,6 @@ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
+ obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
+ obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+ obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
+-obj-$(CONFIG_TANGOX_WATCHDOG) += tangox_wdt.o
+ obj-$(CONFIG_WDAT_WDT) += wdat_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
 deleted file mode 100644
-index 9bfe650d802f..000000000000
---- a/drivers/watchdog/atlas7_wdt.c
+index 1afb0e9d808c..000000000000
+--- a/drivers/watchdog/tangox_wdt.c
 +++ /dev/null
-@@ -1,221 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
+@@ -1,209 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
 -/*
-- * Watchdog driver for CSR Atlas7
-- *
-- * Copyright (c) 2015 Cambridge Silicon Radio Limited, a CSR plc group company.
+- *  Copyright (C) 2015 Mans Rullgard <mans@mansr.com>
+- *  SMP86xx/SMP87xx Watchdog driver
 - */
 -
+-#include <linux/bitops.h>
 -#include <linux/clk.h>
+-#include <linux/delay.h>
 -#include <linux/io.h>
+-#include <linux/kernel.h>
 -#include <linux/module.h>
 -#include <linux/moduleparam.h>
--#include <linux/of.h>
+-#include <linux/mod_devicetable.h>
 -#include <linux/platform_device.h>
 -#include <linux/watchdog.h>
 -
--#define ATLAS7_TIMER_WDT_INDEX		5
--#define ATLAS7_WDT_DEFAULT_TIMEOUT	20
+-#define DEFAULT_TIMEOUT 30
 -
--#define ATLAS7_WDT_CNT_CTRL	(0 + 4 * ATLAS7_TIMER_WDT_INDEX)
--#define ATLAS7_WDT_CNT_MATCH	(0x18 + 4 * ATLAS7_TIMER_WDT_INDEX)
--#define ATLAS7_WDT_CNT		(0x48 +  4 * ATLAS7_TIMER_WDT_INDEX)
--#define ATLAS7_WDT_CNT_EN	(BIT(0) | BIT(1))
--#define ATLAS7_WDT_EN		0x64
--
--static unsigned int timeout = ATLAS7_WDT_DEFAULT_TIMEOUT;
 -static bool nowayout = WATCHDOG_NOWAYOUT;
--
--module_param(timeout, uint, 0);
 -module_param(nowayout, bool, 0);
+-MODULE_PARM_DESC(nowayout,
+-		 "Watchdog cannot be stopped once started (default="
+-		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 -
--MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
--MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
--			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+-static unsigned int timeout;
+-module_param(timeout, int, 0);
+-MODULE_PARM_DESC(timeout, "Watchdog timeout");
 -
--struct atlas7_wdog {
--	struct device *dev;
+-/*
+- * Counter counts down from programmed value.  Reset asserts when
+- * the counter reaches 1.
+- */
+-#define WD_COUNTER		0
+-
+-#define WD_CONFIG		4
+-#define WD_CONFIG_XTAL_IN	BIT(0)
+-#define WD_CONFIG_DISABLE	BIT(31)
+-
+-struct tangox_wdt_device {
+-	struct watchdog_device wdt;
 -	void __iomem *base;
--	unsigned long tick_rate;
+-	unsigned long clk_rate;
 -	struct clk *clk;
 -};
 -
--static unsigned int atlas7_wdt_gettimeleft(struct watchdog_device *wdd)
+-static int tangox_wdt_set_timeout(struct watchdog_device *wdt,
+-				  unsigned int new_timeout)
 -{
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
--	u32 counter, match, delta;
--
--	counter = readl(wdt->base + ATLAS7_WDT_CNT);
--	match = readl(wdt->base + ATLAS7_WDT_CNT_MATCH);
--	delta = match - counter;
--
--	return  delta / wdt->tick_rate;
--}
--
--static int atlas7_wdt_ping(struct watchdog_device *wdd)
--{
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
--	u32 counter, match, delta;
--
--	counter = readl(wdt->base + ATLAS7_WDT_CNT);
--	delta = wdd->timeout * wdt->tick_rate;
--	match = counter + delta;
--
--	writel(match, wdt->base + ATLAS7_WDT_CNT_MATCH);
+-	wdt->timeout = new_timeout;
 -
 -	return 0;
 -}
 -
--static int atlas7_wdt_enable(struct watchdog_device *wdd)
+-static int tangox_wdt_start(struct watchdog_device *wdt)
 -{
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+-	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
+-	u32 ticks;
 -
--	atlas7_wdt_ping(wdd);
--
--	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) | ATLAS7_WDT_CNT_EN,
--	      wdt->base + ATLAS7_WDT_CNT_CTRL);
--	writel(1, wdt->base + ATLAS7_WDT_EN);
+-	ticks = 1 + wdt->timeout * dev->clk_rate;
+-	writel(ticks, dev->base + WD_COUNTER);
 -
 -	return 0;
 -}
 -
--static int atlas7_wdt_disable(struct watchdog_device *wdd)
+-static int tangox_wdt_stop(struct watchdog_device *wdt)
 -{
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+-	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
 -
--	writel(0, wdt->base + ATLAS7_WDT_EN);
--	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) & ~ATLAS7_WDT_CNT_EN,
--	      wdt->base + ATLAS7_WDT_CNT_CTRL);
+-	writel(0, dev->base + WD_COUNTER);
 -
 -	return 0;
 -}
 -
--static int atlas7_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
+-static unsigned int tangox_wdt_get_timeleft(struct watchdog_device *wdt)
 -{
--	wdd->timeout = to;
+-	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
+-	u32 count;
+-
+-	count = readl(dev->base + WD_COUNTER);
+-
+-	if (!count)
+-		return 0;
+-
+-	return (count - 1) / dev->clk_rate;
+-}
+-
+-static const struct watchdog_info tangox_wdt_info = {
+-	.options  = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+-	.identity = "tangox watchdog",
+-};
+-
+-static int tangox_wdt_restart(struct watchdog_device *wdt,
+-			      unsigned long action, void *data)
+-{
+-	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
+-
+-	writel(1, dev->base + WD_COUNTER);
 -
 -	return 0;
 -}
 -
--#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
--
--static const struct watchdog_info atlas7_wdt_ident = {
--	.options = OPTIONS,
--	.firmware_version = 0,
--	.identity = "atlas7 Watchdog",
+-static const struct watchdog_ops tangox_wdt_ops = {
+-	.start		= tangox_wdt_start,
+-	.stop		= tangox_wdt_stop,
+-	.set_timeout	= tangox_wdt_set_timeout,
+-	.get_timeleft	= tangox_wdt_get_timeleft,
+-	.restart	= tangox_wdt_restart,
 -};
 -
--static const struct watchdog_ops atlas7_wdt_ops = {
--	.owner = THIS_MODULE,
--	.start = atlas7_wdt_enable,
--	.stop = atlas7_wdt_disable,
--	.get_timeleft = atlas7_wdt_gettimeleft,
--	.ping = atlas7_wdt_ping,
--	.set_timeout = atlas7_wdt_settimeout,
--};
--
--static struct watchdog_device atlas7_wdd = {
--	.info = &atlas7_wdt_ident,
--	.ops = &atlas7_wdt_ops,
--	.timeout = ATLAS7_WDT_DEFAULT_TIMEOUT,
--};
--
--static const struct of_device_id atlas7_wdt_ids[] = {
--	{ .compatible = "sirf,atlas7-tick"},
--	{}
--};
--
--static void atlas7_clk_disable_unprepare(void *data)
+-static void tangox_clk_disable_unprepare(void *data)
 -{
 -	clk_disable_unprepare(data);
 -}
 -
--static int atlas7_wdt_probe(struct platform_device *pdev)
+-static int tangox_wdt_probe(struct platform_device *pdev)
 -{
--	struct device *dev = &pdev->dev;
--	struct atlas7_wdog *wdt;
--	struct clk *clk;
--	int ret;
+-	struct tangox_wdt_device *dev;
+-	u32 config;
+-	int err;
 -
--	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
--	if (!wdt)
+-	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+-	if (!dev)
 -		return -ENOMEM;
--	wdt->base = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(wdt->base))
--		return PTR_ERR(wdt->base);
 -
--	clk = devm_clk_get(dev, NULL);
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
--	ret = clk_prepare_enable(clk);
--	if (ret) {
--		dev_err(dev, "clk enable failed\n");
--		return ret;
--	}
--	ret = devm_add_action_or_reset(dev, atlas7_clk_disable_unprepare, clk);
--	if (ret)
--		return ret;
+-	dev->base = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(dev->base))
+-		return PTR_ERR(dev->base);
 -
--	/* disable watchdog hardware */
--	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL);
+-	dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(dev->clk))
+-		return PTR_ERR(dev->clk);
 -
--	wdt->tick_rate = clk_get_rate(clk);
--	if (!wdt->tick_rate)
+-	err = clk_prepare_enable(dev->clk);
+-	if (err)
+-		return err;
+-	err = devm_add_action_or_reset(&pdev->dev,
+-				       tangox_clk_disable_unprepare, dev->clk);
+-	if (err)
+-		return err;
+-
+-	dev->clk_rate = clk_get_rate(dev->clk);
+-	if (!dev->clk_rate)
 -		return -EINVAL;
 -
--	wdt->clk = clk;
--	atlas7_wdd.min_timeout = 1;
--	atlas7_wdd.max_timeout = UINT_MAX / wdt->tick_rate;
+-	dev->wdt.parent = &pdev->dev;
+-	dev->wdt.info = &tangox_wdt_info;
+-	dev->wdt.ops = &tangox_wdt_ops;
+-	dev->wdt.timeout = DEFAULT_TIMEOUT;
+-	dev->wdt.min_timeout = 1;
+-	dev->wdt.max_hw_heartbeat_ms = (U32_MAX - 1) / dev->clk_rate;
 -
--	watchdog_init_timeout(&atlas7_wdd, 0, dev);
--	watchdog_set_nowayout(&atlas7_wdd, nowayout);
+-	watchdog_init_timeout(&dev->wdt, timeout, &pdev->dev);
+-	watchdog_set_nowayout(&dev->wdt, nowayout);
+-	watchdog_set_drvdata(&dev->wdt, dev);
 -
--	watchdog_set_drvdata(&atlas7_wdd, wdt);
--	platform_set_drvdata(pdev, &atlas7_wdd);
--
--	watchdog_stop_on_reboot(&atlas7_wdd);
--	watchdog_stop_on_unregister(&atlas7_wdd);
--	return devm_watchdog_register_device(dev, &atlas7_wdd);
--}
--
--static int __maybe_unused atlas7_wdt_suspend(struct device *dev)
--{
 -	/*
--	 * NOTE:timer controller registers settings are saved
--	 * and restored back by the timer-atlas7.c
+-	 * Deactivate counter if disable bit is set to avoid
+-	 * accidental reset.
 -	 */
+-	config = readl(dev->base + WD_CONFIG);
+-	if (config & WD_CONFIG_DISABLE)
+-		writel(0, dev->base + WD_COUNTER);
+-
+-	writel(WD_CONFIG_XTAL_IN, dev->base + WD_CONFIG);
+-
+-	/*
+-	 * Mark as active and restart with configured timeout if
+-	 * already running.
+-	 */
+-	if (readl(dev->base + WD_COUNTER)) {
+-		set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
+-		tangox_wdt_start(&dev->wdt);
+-	}
+-
+-	watchdog_set_restart_priority(&dev->wdt, 128);
+-
+-	watchdog_stop_on_unregister(&dev->wdt);
+-	err = devm_watchdog_register_device(&pdev->dev, &dev->wdt);
+-	if (err)
+-		return err;
+-
+-	platform_set_drvdata(pdev, dev);
+-
+-	dev_info(&pdev->dev, "SMP86xx/SMP87xx watchdog registered\n");
+-
 -	return 0;
 -}
 -
--static int __maybe_unused atlas7_wdt_resume(struct device *dev)
--{
--	struct watchdog_device *wdd = dev_get_drvdata(dev);
--
--	/*
--	 * NOTE: Since timer controller registers settings are saved
--	 * and restored back by the timer-atlas7.c, so we need not
--	 * update WD settings except refreshing timeout.
--	 */
--	atlas7_wdt_ping(wdd);
--
--	return 0;
--}
--
--static SIMPLE_DEV_PM_OPS(atlas7_wdt_pm_ops,
--		atlas7_wdt_suspend, atlas7_wdt_resume);
--
--MODULE_DEVICE_TABLE(of, atlas7_wdt_ids);
--
--static struct platform_driver atlas7_wdt_driver = {
--	.driver = {
--		.name = "atlas7-wdt",
--		.pm = &atlas7_wdt_pm_ops,
--		.of_match_table	= atlas7_wdt_ids,
--	},
--	.probe = atlas7_wdt_probe,
+-static const struct of_device_id tangox_wdt_dt_ids[] = {
+-	{ .compatible = "sigma,smp8642-wdt" },
+-	{ .compatible = "sigma,smp8759-wdt" },
+-	{ }
 -};
--module_platform_driver(atlas7_wdt_driver);
+-MODULE_DEVICE_TABLE(of, tangox_wdt_dt_ids);
 -
--MODULE_DESCRIPTION("CSRatlas7 watchdog driver");
--MODULE_AUTHOR("Guo Zeng <Guo.Zeng@csr.com>");
--MODULE_LICENSE("GPL v2");
--MODULE_ALIAS("platform:atlas7-wdt");
+-static struct platform_driver tangox_wdt_driver = {
+-	.probe	= tangox_wdt_probe,
+-	.driver	= {
+-		.name		= "tangox-wdt",
+-		.of_match_table	= tangox_wdt_dt_ids,
+-	},
+-};
+-
+-module_platform_driver(tangox_wdt_driver);
+-
+-MODULE_AUTHOR("Mans Rullgard <mans@mansr.com>");
+-MODULE_DESCRIPTION("SMP86xx/SMP87xx Watchdog driver");
+-MODULE_LICENSE("GPL");
 -- 
 2.29.2
 
