@@ -5,573 +5,457 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91CEFC433E0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:05:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 881F9C433E6
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:08:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B839233FE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:05:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AF43233F6
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Jan 2021 19:08:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392527AbhATTE5 (ORCPT
+        id S2392406AbhATTHu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Jan 2021 14:04:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55904 "EHLO
+        Wed, 20 Jan 2021 14:07:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392241AbhATTEm (ORCPT
+        with ESMTP id S2392514AbhATTEV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Jan 2021 14:04:42 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A951C061786;
-        Wed, 20 Jan 2021 11:03:58 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id w8so4365718oie.2;
-        Wed, 20 Jan 2021 11:03:58 -0800 (PST)
+        Wed, 20 Jan 2021 14:04:21 -0500
+Received: from mail-oo1-xc34.google.com (mail-oo1-xc34.google.com [IPv6:2607:f8b0:4864:20::c34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BCEC0613D3;
+        Wed, 20 Jan 2021 11:03:40 -0800 (PST)
+Received: by mail-oo1-xc34.google.com with SMTP id i18so6038589ooh.5;
+        Wed, 20 Jan 2021 11:03:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=YRqq46o10qaHszA8HoRJ+lunhjMxq7AlYpEe12aWrSo=;
-        b=okBdbI7thAGcPZtLF4MF2LYIkaZNhdcAMHuLD+zyQikElBZ0DXJDHfbHYX6Y8Asa5R
-         cAI1Mzy7hBrKlfycljJHDAahY2RcC4EP+THcYCYexLY8ASypt8WMpebVYuT3YnY/GCq3
-         MDjSEC5JIOD5ykiNLffx6kVCJ+78Pyu2xPV3ylW8D1PKx4/aO7RFLat5tfHP2glCY8Pi
-         eDDWSV4e/dxGoC4w8un7solC1eW363K8VsuazAhSsHM7EbFD9UYxcxhANDR6RNpKGUmt
-         FEZ9fQ5cH3TG9YKnbdaWNiIoh9z7KP22KetBm1bQP9X55sbctMyaRvdaNZIbPL3naIjI
-         +JRg==
+        bh=mZHCQLBWgYTEgzSBfLyQwdOZmWFmiaHz92a3fY5qrZ8=;
+        b=CUh0fU/hNLXVy0MlCQf1QZfIz2nmfwrT4uAQSV+we2EbyAe7LA6AIj9sFg8jSx19z/
+         s5s35Ejp/G7wKrsgu9u8qPtykal9uI1+JcpbiGdmfA0rxS7xdXmB6s+hH0ujmbKp9bho
+         tTgKAiYoFELuA8X8JelTE0Brai+SN23zx8ukrCQVQzkWzEEhz+BwZxv20mFrY0SmtCJe
+         hYMRfc6OLtdW0iS9YzVgPAeZessEZB6I4wXkG9nFubXnxcCgWnISSQqly+yeULDL+lPa
+         bnMB9K8e9E29AL60b4Nsusxx6rV5S2zdEUOknP84XHm8l5gQJQGCSTrhGbQqx724jYSC
+         alZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=YRqq46o10qaHszA8HoRJ+lunhjMxq7AlYpEe12aWrSo=;
-        b=KU5vf2S71k6ZEhHpWIjTcy/BjsNkHCk5pIJIROl45ntlcc6Nfh7hXqhGfD8DnGi05x
-         IKenFsYr6Z57u/wUfFJ3r0NrsIn2Q3oXYBiY6s+aTuC/RxmZDrSxZLZCokFfHKPiu14o
-         YlG8+X5nu1ZOfYQ6R3Sco2JkdVjPcCn10195wz2Ui450iHIb/FiroB2kx5O548msUp9o
-         ehQ31rITmpWd2Indq7cIgRyANrZG55w9GvakS4umlMG7/gWsEjai8HDlzujqo8h+qy5x
-         iKTIkV/NqxKNsSnO5LwVW7hCks26inst3sSBdkRtf/8T+Gsrd4U8CB+xEr9oEOt2A9ue
-         UPCw==
-X-Gm-Message-State: AOAM530JuudkqxHaHorKRaQcZ4vuFftRFqOLLbiFIcT/47oWCqMpRxmx
-        5+vSTRW6NmoEh0p+TrYTvZqTV+inF4Y=
-X-Google-Smtp-Source: ABdhPJzL05nKxea8Qbhd55QTfJT0E5t/t6c46IYGb7f5ToWTkWxszwFgsYO7X65F51UIex4DQdNfLw==
-X-Received: by 2002:aca:438a:: with SMTP id q132mr3681964oia.12.1611169437591;
-        Wed, 20 Jan 2021 11:03:57 -0800 (PST)
+        bh=mZHCQLBWgYTEgzSBfLyQwdOZmWFmiaHz92a3fY5qrZ8=;
+        b=RxGbthjJtZOFr6/nbCBEgVWY+P1M+s3pLimbYUaBj6AJsv2i40chi2qho6a/7QWOmp
+         YOQXiXxTShCLRjCz/yGtJSbqO8PEtdNNL0A+T3P8mufLX6X5PE+J3fj/exLoYiEHxWy5
+         fd97tr/dyGMAx7anMmE7GJPToMFu07jU1/E6C6TjDv2H1y6jxtEpd5T1TiuLfDXtwQS1
+         C3uaOmwjuDu7utk4VwSiBSgJ24kHkS6bBrJI353Kaddpl5QI2GrHLj/7QEvD2v0eqJQ2
+         UOPdIRGE6mIdQS4sQBgkjdjKQ23puGWrJdKzAqiEt4q5Zc66JUxrb1ta224BIJ2R/M2o
+         WikA==
+X-Gm-Message-State: AOAM531S0AEvJT+FxUPxReAC60KhEh66yW9+JgK2UJV5IsG8AlsEkCmU
+        29cMgfO483HHNQTsrsANEEx8pnuAa/k=
+X-Google-Smtp-Source: ABdhPJxUTFc04Gji/7r+9oq9BNrxSz6hiTIvbHuocmHrh9X476t35pcXcHwVrXnFM1GmjxEHEF9pzw==
+X-Received: by 2002:a4a:1e42:: with SMTP id 63mr7170833ooq.57.1611169419938;
+        Wed, 20 Jan 2021 11:03:39 -0800 (PST)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h18sm581126otk.26.2021.01.20.11.03.56
+        by smtp.gmail.com with ESMTPSA id w5sm519541oow.7.2021.01.20.11.03.38
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 20 Jan 2021 11:03:56 -0800 (PST)
+        Wed, 20 Jan 2021 11:03:39 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 20 Jan 2021 11:03:55 -0800
+Date:   Wed, 20 Jan 2021 11:03:38 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 5/5] watchdog: remove coh901 driver
-Message-ID: <20210120190355.GE162747@roeck-us.net>
+        Arnd Bergmann <arnd@arndb.de>, Jun Nie <jun.nie@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH 3/5] watchdog: remove zte zx driver
+Message-ID: <20210120190337.GC162747@roeck-us.net>
 References: <20210120162745.61268-1-arnd@kernel.org>
- <20210120162745.61268-6-arnd@kernel.org>
+ <20210120162745.61268-4-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210120162745.61268-6-arnd@kernel.org>
+In-Reply-To: <20210120162745.61268-4-arnd@kernel.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 05:27:45PM +0100, Arnd Bergmann wrote:
+On Wed, Jan 20, 2021 at 05:27:43PM +0100, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> The ST-Ericsson U300 platform is getting removed, so this driver is no
+> The zte zx platform is getting removed, so this driver is no
 > longer needed.
 > 
-> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Jun Nie <jun.nie@linaro.org>
+> Cc: Shawn Guo <shawnguo@kernel.org>
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  .../watchdog/stericsson-coh901327.txt         |  19 -
->  drivers/watchdog/Kconfig                      |  11 -
+>  .../bindings/watchdog/zte,zx2967-wdt.txt      |  32 --
+>  drivers/watchdog/Kconfig                      |  10 -
 >  drivers/watchdog/Makefile                     |   1 -
->  drivers/watchdog/coh901327_wdt.c              | 408 ------------------
->  4 files changed, 439 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/stericsson-coh901327.txt
->  delete mode 100644 drivers/watchdog/coh901327_wdt.c
+>  drivers/watchdog/zx2967_wdt.c                 | 279 ------------------
+>  4 files changed, 322 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+>  delete mode 100644 drivers/watchdog/zx2967_wdt.c
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/stericsson-coh901327.txt b/Documentation/devicetree/bindings/watchdog/stericsson-coh901327.txt
+> diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 > deleted file mode 100644
-> index 8ffb88e39e76..000000000000
-> --- a/Documentation/devicetree/bindings/watchdog/stericsson-coh901327.txt
+> index 06ce67766756..000000000000
+> --- a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 > +++ /dev/null
-> @@ -1,19 +0,0 @@
-> -ST-Ericsson COH 901 327 Watchdog timer
+> @@ -1,32 +0,0 @@
+> -ZTE zx2967 Watchdog timer
 > -
 > -Required properties:
-> -- compatible: must be "stericsson,coh901327".
-> -- reg: physical base address of the controller and length of memory mapped
-> -  region.
-> -- interrupts: the interrupt used for the watchdog timeout warning.
+> -
+> -- compatible : should be one of the following.
+> -       * zte,zx296718-wdt
+> -- reg : Specifies base physical address and size of the registers.
+> -- clocks : Pairs of phandle and specifier referencing the controller's clocks.
+> -- resets : Reference to the reset controller controlling the watchdog
+> -           controller.
 > -
 > -Optional properties:
-> -- timeout-sec: contains the watchdog timeout in seconds.
+> -
+> -- timeout-sec : Contains the watchdog timeout in seconds.
+> -- zte,wdt-reset-sysctrl : Directs how to reset system by the watchdog.
+> -	if we don't want to restart system when watchdog been triggered,
+> -	it's not required, vice versa.
+> -	It should include following fields.
+> -	  * phandle of aon-sysctrl.
+> -	  * offset of register that be written, should be 0xb0.
+> -	  * configure value that be written to aon-sysctrl.
+> -	  * bit mask, corresponding bits will be affected.
 > -
 > -Example:
 > -
-> -watchdog: watchdog@c0012000 {
-> -	compatible = "stericsson,coh901327";
-> -	reg = <0xc0012000 0x1000>;
-> -	interrupts = <3>;
-> -	timeout-sec = <60>;
+> -wdt: watchdog@1465000 {
+> -	compatible = "zte,zx296718-wdt";
+> -	reg = <0x1465000 0x1000>;
+> -	clocks = <&topcrm WDT_WCLK>;
+> -	resets = <&toprst 35>;
+> -	zte,wdt-reset-sysctrl = <&aon_sysctrl 0xb0 1 0x115>;
 > -};
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 10efbb351f14..3b73735b0c8b 100644
+> index 5559e4325f6a..c36f8233f60b 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -619,17 +619,6 @@ config SUNXI_WATCHDOG
+> @@ -919,16 +919,6 @@ config ASPEED_WATCHDOG
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called sunxi_wdt.
+>  	  module will be called aspeed_wdt.
 >  
-> -config COH901327_WATCHDOG
-> -	bool "ST-Ericsson COH 901 327 watchdog"
-> -	depends on ARCH_U300 || (ARM && COMMON_CLK && COMPILE_TEST)
-> -	default y if MACH_U300
+> -config ZX2967_WATCHDOG
+> -	tristate "ZTE zx2967 SoCs watchdog support"
+> -	depends on ARCH_ZX
 > -	select WATCHDOG_CORE
 > -	help
-> -	  Say Y here to include Watchdog timer support for the
-> -	  watchdog embedded into the ST-Ericsson U300 series platforms.
-> -	  This watchdog is used to reset the system and thus cannot be
-> -	  compiled as a module.
+> -	  Say Y here to include support for the watchdog timer
+> -	  in ZTE zx2967 SoCs.
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called zx2967_wdt.
 > -
->  config NPCM7XX_WATCHDOG
->  	tristate "Nuvoton NPCM750 watchdog"
->  	depends on ARCH_NPCM || COMPILE_TEST
+>  config STM32_WATCHDOG
+>  	tristate "STM32 Independent WatchDoG (IWDG) support"
+>  	depends on ARCH_STM32
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 1ff40d6a027f..1685dbc70a15 100644
+> index 40b94403c487..7a95b280cd9f 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -61,7 +61,6 @@ obj-$(CONFIG_K3_RTI_WATCHDOG) += rti_wdt.o
->  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
->  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
->  obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
-> -obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
->  obj-$(CONFIG_NPCM7XX_WATCHDOG) += npcm_wdt.o
->  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
->  obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
-> diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+> @@ -86,7 +86,6 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+>  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
+>  obj-$(CONFIG_RENESAS_RZAWDT) += rza_wdt.o
+>  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+> -obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+>  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+>  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+>  obj-$(CONFIG_RTD119X_WATCHDOG) += rtd119x_wdt.o
+> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
 > deleted file mode 100644
-> index 260c50b08483..000000000000
-> --- a/drivers/watchdog/coh901327_wdt.c
+> index bf183e73671a..000000000000
+> --- a/drivers/watchdog/zx2967_wdt.c
 > +++ /dev/null
-> @@ -1,408 +0,0 @@
-> -// SPDX-License-Identifier: GPL-2.0
+> @@ -1,279 +0,0 @@
+> -// SPDX-License-Identifier: GPL-2.0-only
 > -/*
-> - * coh901327_wdt.c
+> - * watchdog driver for ZTE's zx2967 family
 > - *
-> - * Copyright (C) 2008-2009 ST-Ericsson AB
-> - * Watchdog driver for the ST-Ericsson AB COH 901 327 IP core
-> - * Author: Linus Walleij <linus.walleij@stericsson.com>
+> - * Copyright (C) 2017 ZTE Ltd.
+> - *
+> - * Author: Baoyou Xie <baoyou.xie@linaro.org>
 > - */
-> -#include <linux/moduleparam.h>
-> -#include <linux/mod_devicetable.h>
-> -#include <linux/types.h>
-> -#include <linux/watchdog.h>
-> -#include <linux/interrupt.h>
-> -#include <linux/pm.h>
-> -#include <linux/platform_device.h>
-> -#include <linux/io.h>
-> -#include <linux/bitops.h>
+> -
 > -#include <linux/clk.h>
-> -#include <linux/delay.h>
-> -#include <linux/err.h>
+> -#include <linux/io.h>
+> -#include <linux/mfd/syscon.h>
+> -#include <linux/module.h>
+> -#include <linux/of_address.h>
+> -#include <linux/platform_device.h>
+> -#include <linux/regmap.h>
+> -#include <linux/reset.h>
+> -#include <linux/watchdog.h>
 > -
-> -#define DRV_NAME "WDOG COH 901 327"
+> -#define ZX2967_WDT_CFG_REG			0x4
+> -#define ZX2967_WDT_LOAD_REG			0x8
+> -#define ZX2967_WDT_REFRESH_REG			0x18
+> -#define ZX2967_WDT_START_REG			0x1c
 > -
-> -/*
-> - * COH 901 327 register definitions
-> - */
+> -#define ZX2967_WDT_REFRESH_MASK			GENMASK(5, 0)
 > -
-> -/* WDOG_FEED Register 32bit (-/W) */
-> -#define U300_WDOG_FR							0x00
-> -#define U300_WDOG_FR_FEED_RESTART_TIMER					0xFEEDU
-> -/* WDOG_TIMEOUT Register 32bit (R/W) */
-> -#define U300_WDOG_TR							0x04
-> -#define U300_WDOG_TR_TIMEOUT_MASK					0x7FFFU
-> -/* WDOG_DISABLE1 Register 32bit (-/W) */
-> -#define U300_WDOG_D1R							0x08
-> -#define U300_WDOG_D1R_DISABLE1_DISABLE_TIMER				0x2BADU
-> -/* WDOG_DISABLE2 Register 32bit (R/W) */
-> -#define U300_WDOG_D2R							0x0C
-> -#define U300_WDOG_D2R_DISABLE2_DISABLE_TIMER				0xCAFEU
-> -#define U300_WDOG_D2R_DISABLE_STATUS_DISABLED				0xDABEU
-> -#define U300_WDOG_D2R_DISABLE_STATUS_ENABLED				0x0000U
-> -/* WDOG_STATUS Register 32bit (R/W) */
-> -#define U300_WDOG_SR							0x10
-> -#define U300_WDOG_SR_STATUS_TIMED_OUT					0xCFE8U
-> -#define U300_WDOG_SR_STATUS_NORMAL					0x0000U
-> -#define U300_WDOG_SR_RESET_STATUS_RESET					0xE8B4U
-> -/* WDOG_COUNT Register 32bit (R/-) */
-> -#define U300_WDOG_CR							0x14
-> -#define U300_WDOG_CR_VALID_IND						0x8000U
-> -#define U300_WDOG_CR_VALID_STABLE					0x0000U
-> -#define U300_WDOG_CR_COUNT_VALUE_MASK					0x7FFFU
-> -/* WDOG_JTAGOVR Register 32bit (R/W) */
-> -#define U300_WDOG_JOR							0x18
-> -#define U300_WDOG_JOR_JTAG_MODE_IND					0x0002U
-> -#define U300_WDOG_JOR_JTAG_WATCHDOG_ENABLE				0x0001U
-> -/* WDOG_RESTART Register 32bit (-/W) */
-> -#define U300_WDOG_RR							0x1C
-> -#define U300_WDOG_RR_RESTART_VALUE_RESUME				0xACEDU
-> -/* WDOG_IRQ_EVENT Register 32bit (R/W) */
-> -#define U300_WDOG_IER							0x20
-> -#define U300_WDOG_IER_WILL_BARK_IRQ_EVENT_IND				0x0001U
-> -#define U300_WDOG_IER_WILL_BARK_IRQ_ACK_ENABLE				0x0001U
-> -/* WDOG_IRQ_MASK Register 32bit (R/W) */
-> -#define U300_WDOG_IMR							0x24
-> -#define U300_WDOG_IMR_WILL_BARK_IRQ_ENABLE				0x0001U
-> -/* WDOG_IRQ_FORCE Register 32bit (R/W) */
-> -#define U300_WDOG_IFR							0x28
-> -#define U300_WDOG_IFR_WILL_BARK_IRQ_FORCE_ENABLE			0x0001U
-> -
-> -/* Default timeout in seconds = 1 minute */
-> -#define U300_WDOG_DEFAULT_TIMEOUT					60
-> -
-> -static unsigned int margin;
-> -static int irq;
-> -static void __iomem *virtbase;
-> -static struct device *parent;
-> -
-> -static struct clk *clk;
+> -#define ZX2967_WDT_CFG_DIV(n)			((((n) & 0xff) - 1) << 8)
+> -#define ZX2967_WDT_START_EN			0x1
 > -
 > -/*
-> - * Enabling and disabling functions.
+> - * Hardware magic number.
+> - * When watchdog reg is written, the lowest 16 bits are valid, but
+> - * the highest 16 bits should be always this number.
 > - */
-> -static void coh901327_enable(u16 timeout)
-> -{
-> -	u16 val;
-> -	unsigned long freq;
-> -	unsigned long delay_ns;
+> -#define ZX2967_WDT_WRITEKEY			(0x1234 << 16)
+> -#define ZX2967_WDT_VAL_MASK			GENMASK(15, 0)
 > -
-> -	/* Restart timer if it is disabled */
-> -	val = readw(virtbase + U300_WDOG_D2R);
-> -	if (val == U300_WDOG_D2R_DISABLE_STATUS_DISABLED)
-> -		writew(U300_WDOG_RR_RESTART_VALUE_RESUME,
-> -		       virtbase + U300_WDOG_RR);
-> -	/* Acknowledge any pending interrupt so it doesn't just fire off */
-> -	writew(U300_WDOG_IER_WILL_BARK_IRQ_ACK_ENABLE,
-> -	       virtbase + U300_WDOG_IER);
-> -	/*
-> -	 * The interrupt is cleared in the 32 kHz clock domain.
-> -	 * Wait 3 32 kHz cycles for it to take effect
-> -	 */
-> -	freq = clk_get_rate(clk);
-> -	delay_ns = DIV_ROUND_UP(1000000000, freq); /* Freq to ns and round up */
-> -	delay_ns = 3 * delay_ns; /* Wait 3 cycles */
-> -	ndelay(delay_ns);
-> -	/* Enable the watchdog interrupt */
-> -	writew(U300_WDOG_IMR_WILL_BARK_IRQ_ENABLE, virtbase + U300_WDOG_IMR);
-> -	/* Activate the watchdog timer */
-> -	writew(timeout, virtbase + U300_WDOG_TR);
-> -	/* Start the watchdog timer */
-> -	writew(U300_WDOG_FR_FEED_RESTART_TIMER, virtbase + U300_WDOG_FR);
-> -	/*
-> -	 * Extra read so that this change propagate in the watchdog.
-> -	 */
-> -	(void) readw(virtbase + U300_WDOG_CR);
-> -	val = readw(virtbase + U300_WDOG_D2R);
-> -	if (val != U300_WDOG_D2R_DISABLE_STATUS_ENABLED)
-> -		dev_err(parent,
-> -			"%s(): watchdog not enabled! D2R value %04x\n",
-> -			__func__, val);
-> -}
+> -#define ZX2967_WDT_DIV_DEFAULT			16
+> -#define ZX2967_WDT_DEFAULT_TIMEOUT		32
+> -#define ZX2967_WDT_MIN_TIMEOUT			1
+> -#define ZX2967_WDT_MAX_TIMEOUT			524
+> -#define ZX2967_WDT_MAX_COUNT			0xffff
 > -
-> -static void coh901327_disable(void)
-> -{
-> -	u16 val;
+> -#define ZX2967_WDT_CLK_FREQ			0x8000
 > -
-> -	/* Disable the watchdog interrupt if it is active */
-> -	writew(0x0000U, virtbase + U300_WDOG_IMR);
-> -	/* If the watchdog is currently enabled, attempt to disable it */
-> -	val = readw(virtbase + U300_WDOG_D2R);
-> -	if (val != U300_WDOG_D2R_DISABLE_STATUS_DISABLED) {
-> -		writew(U300_WDOG_D1R_DISABLE1_DISABLE_TIMER,
-> -		       virtbase + U300_WDOG_D1R);
-> -		writew(U300_WDOG_D2R_DISABLE2_DISABLE_TIMER,
-> -		       virtbase + U300_WDOG_D2R);
-> -		/* Write this twice (else problems occur) */
-> -		writew(U300_WDOG_D2R_DISABLE2_DISABLE_TIMER,
-> -		       virtbase + U300_WDOG_D2R);
-> -	}
-> -	val = readw(virtbase + U300_WDOG_D2R);
-> -	if (val != U300_WDOG_D2R_DISABLE_STATUS_DISABLED)
-> -		dev_err(parent,
-> -			"%s(): watchdog not disabled! D2R value %04x\n",
-> -			__func__, val);
-> -}
+> -#define ZX2967_WDT_FLAG_REBOOT_MON		BIT(0)
 > -
-> -static int coh901327_start(struct watchdog_device *wdt_dev)
-> -{
-> -	coh901327_enable(wdt_dev->timeout * 100);
-> -	return 0;
-> -}
-> -
-> -static int coh901327_stop(struct watchdog_device *wdt_dev)
-> -{
-> -	coh901327_disable();
-> -	return 0;
-> -}
-> -
-> -static int coh901327_ping(struct watchdog_device *wdd)
-> -{
-> -	/* Feed the watchdog */
-> -	writew(U300_WDOG_FR_FEED_RESTART_TIMER,
-> -	       virtbase + U300_WDOG_FR);
-> -	return 0;
-> -}
-> -
-> -static int coh901327_settimeout(struct watchdog_device *wdt_dev,
-> -				unsigned int time)
-> -{
-> -	wdt_dev->timeout = time;
-> -	/* Set new timeout value */
-> -	writew(time * 100, virtbase + U300_WDOG_TR);
-> -	/* Feed the dog */
-> -	writew(U300_WDOG_FR_FEED_RESTART_TIMER,
-> -	       virtbase + U300_WDOG_FR);
-> -	return 0;
-> -}
-> -
-> -static unsigned int coh901327_gettimeleft(struct watchdog_device *wdt_dev)
-> -{
-> -	u16 val;
-> -
-> -	/* Read repeatedly until the value is stable! */
-> -	val = readw(virtbase + U300_WDOG_CR);
-> -	while (val & U300_WDOG_CR_VALID_IND)
-> -		val = readw(virtbase + U300_WDOG_CR);
-> -	val &= U300_WDOG_CR_COUNT_VALUE_MASK;
-> -	if (val != 0)
-> -		val /= 100;
-> -
-> -	return val;
-> -}
-> -
-> -/*
-> - * This interrupt occurs 10 ms before the watchdog WILL bark.
-> - */
-> -static irqreturn_t coh901327_interrupt(int irq, void *data)
-> -{
-> -	u16 val;
-> -
-> -	/*
-> -	 * Ack IRQ? If this occurs we're FUBAR anyway, so
-> -	 * just acknowledge, disable the interrupt and await the imminent end.
-> -	 * If you at some point need a host of callbacks to be called
-> -	 * when the system is about to watchdog-reset, add them here!
-> -	 *
-> -	 * NOTE: on future versions of this IP-block, it will be possible
-> -	 * to prevent a watchdog reset by feeding the watchdog at this
-> -	 * point.
-> -	 */
-> -	val = readw(virtbase + U300_WDOG_IER);
-> -	if (val == U300_WDOG_IER_WILL_BARK_IRQ_EVENT_IND)
-> -		writew(U300_WDOG_IER_WILL_BARK_IRQ_ACK_ENABLE,
-> -		       virtbase + U300_WDOG_IER);
-> -	writew(0x0000U, virtbase + U300_WDOG_IMR);
-> -	dev_crit(parent, "watchdog is barking!\n");
-> -	return IRQ_HANDLED;
-> -}
-> -
-> -static const struct watchdog_info coh901327_ident = {
-> -	.options = WDIOF_CARDRESET | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> -	.identity = DRV_NAME,
+> -struct zx2967_wdt {
+> -	struct watchdog_device	wdt_device;
+> -	void __iomem		*reg_base;
+> -	struct clk		*clock;
 > -};
 > -
-> -static const struct watchdog_ops coh901327_ops = {
+> -static inline u32 zx2967_wdt_readl(struct zx2967_wdt *wdt, u16 reg)
+> -{
+> -	return readl_relaxed(wdt->reg_base + reg);
+> -}
+> -
+> -static inline void zx2967_wdt_writel(struct zx2967_wdt *wdt, u16 reg, u32 val)
+> -{
+> -	writel_relaxed(val | ZX2967_WDT_WRITEKEY, wdt->reg_base + reg);
+> -}
+> -
+> -static void zx2967_wdt_refresh(struct zx2967_wdt *wdt)
+> -{
+> -	u32 val;
+> -
+> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_REFRESH_REG);
+> -	/*
+> -	 * Bit 4-5, 1 and 2: refresh config info
+> -	 * Bit 2-3, 1 and 2: refresh counter
+> -	 * Bit 0-1, 1 and 2: refresh int-value
+> -	 * we shift each group value between 1 and 2 to refresh all data.
+> -	 */
+> -	val ^= ZX2967_WDT_REFRESH_MASK;
+> -	zx2967_wdt_writel(wdt, ZX2967_WDT_REFRESH_REG,
+> -			  val & ZX2967_WDT_VAL_MASK);
+> -}
+> -
+> -static int
+> -zx2967_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
+> -{
+> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> -	unsigned int divisor = ZX2967_WDT_DIV_DEFAULT;
+> -	u32 count;
+> -
+> -	count = timeout * ZX2967_WDT_CLK_FREQ;
+> -	if (count > divisor * ZX2967_WDT_MAX_COUNT)
+> -		divisor = DIV_ROUND_UP(count, ZX2967_WDT_MAX_COUNT);
+> -	count = DIV_ROUND_UP(count, divisor);
+> -	zx2967_wdt_writel(wdt, ZX2967_WDT_CFG_REG,
+> -			ZX2967_WDT_CFG_DIV(divisor) & ZX2967_WDT_VAL_MASK);
+> -	zx2967_wdt_writel(wdt, ZX2967_WDT_LOAD_REG,
+> -			count & ZX2967_WDT_VAL_MASK);
+> -	zx2967_wdt_refresh(wdt);
+> -	wdd->timeout =  (count * divisor) / ZX2967_WDT_CLK_FREQ;
+> -
+> -	return 0;
+> -}
+> -
+> -static void __zx2967_wdt_start(struct zx2967_wdt *wdt)
+> -{
+> -	u32 val;
+> -
+> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
+> -	val |= ZX2967_WDT_START_EN;
+> -	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
+> -			val & ZX2967_WDT_VAL_MASK);
+> -}
+> -
+> -static void __zx2967_wdt_stop(struct zx2967_wdt *wdt)
+> -{
+> -	u32 val;
+> -
+> -	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
+> -	val &= ~ZX2967_WDT_START_EN;
+> -	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
+> -			val & ZX2967_WDT_VAL_MASK);
+> -}
+> -
+> -static int zx2967_wdt_start(struct watchdog_device *wdd)
+> -{
+> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> -
+> -	zx2967_wdt_set_timeout(wdd, wdd->timeout);
+> -	__zx2967_wdt_start(wdt);
+> -
+> -	return 0;
+> -}
+> -
+> -static int zx2967_wdt_stop(struct watchdog_device *wdd)
+> -{
+> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> -
+> -	__zx2967_wdt_stop(wdt);
+> -
+> -	return 0;
+> -}
+> -
+> -static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
+> -{
+> -	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> -
+> -	zx2967_wdt_refresh(wdt);
+> -
+> -	return 0;
+> -}
+> -
+> -#define ZX2967_WDT_OPTIONS \
+> -	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+> -static const struct watchdog_info zx2967_wdt_ident = {
+> -	.options          =     ZX2967_WDT_OPTIONS,
+> -	.identity         =	"zx2967 watchdog",
+> -};
+> -
+> -static const struct watchdog_ops zx2967_wdt_ops = {
 > -	.owner = THIS_MODULE,
-> -	.start = coh901327_start,
-> -	.stop = coh901327_stop,
-> -	.ping = coh901327_ping,
-> -	.set_timeout = coh901327_settimeout,
-> -	.get_timeleft = coh901327_gettimeleft,
+> -	.start = zx2967_wdt_start,
+> -	.stop = zx2967_wdt_stop,
+> -	.ping = zx2967_wdt_keepalive,
+> -	.set_timeout = zx2967_wdt_set_timeout,
 > -};
 > -
-> -static struct watchdog_device coh901327_wdt = {
-> -	.info = &coh901327_ident,
-> -	.ops = &coh901327_ops,
-> -	/*
-> -	 * Max timeout is 327 since the 10ms
-> -	 * timeout register is max
-> -	 * 0x7FFF = 327670ms ~= 327s.
-> -	 */
-> -	.min_timeout = 1,
-> -	.max_timeout = 327,
-> -	.timeout = U300_WDOG_DEFAULT_TIMEOUT,
-> -};
+> -static void zx2967_wdt_reset_sysctrl(struct device *dev)
+> -{
+> -	int ret;
+> -	void __iomem *regmap;
+> -	unsigned int offset, mask, config;
+> -	struct of_phandle_args out_args;
 > -
-> -static int __init coh901327_probe(struct platform_device *pdev)
+> -	ret = of_parse_phandle_with_fixed_args(dev->of_node,
+> -			"zte,wdt-reset-sysctrl", 3, 0, &out_args);
+> -	if (ret)
+> -		return;
+> -
+> -	offset = out_args.args[0];
+> -	config = out_args.args[1];
+> -	mask = out_args.args[2];
+> -
+> -	regmap = syscon_node_to_regmap(out_args.np);
+> -	if (IS_ERR(regmap)) {
+> -		of_node_put(out_args.np);
+> -		return;
+> -	}
+> -
+> -	regmap_update_bits(regmap, offset, mask, config);
+> -	of_node_put(out_args.np);
+> -}
+> -
+> -static void zx2967_clk_disable_unprepare(void *data)
+> -{
+> -	clk_disable_unprepare(data);
+> -}
+> -
+> -static int zx2967_wdt_probe(struct platform_device *pdev)
 > -{
 > -	struct device *dev = &pdev->dev;
+> -	struct zx2967_wdt *wdt;
 > -	int ret;
-> -	u16 val;
+> -	struct reset_control *rstc;
 > -
-> -	parent = dev;
+> -	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+> -	if (!wdt)
+> -		return -ENOMEM;
 > -
-> -	virtbase = devm_platform_ioremap_resource(pdev, 0);
-> -	if (IS_ERR(virtbase))
-> -		return PTR_ERR(virtbase);
+> -	platform_set_drvdata(pdev, wdt);
 > -
-> -	clk = clk_get(dev, NULL);
-> -	if (IS_ERR(clk)) {
-> -		ret = PTR_ERR(clk);
-> -		dev_err(dev, "could not get clock\n");
+> -	wdt->wdt_device.info = &zx2967_wdt_ident;
+> -	wdt->wdt_device.ops = &zx2967_wdt_ops;
+> -	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
+> -	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
+> -	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
+> -	wdt->wdt_device.parent = dev;
+> -
+> -	wdt->reg_base = devm_platform_ioremap_resource(pdev, 0);
+> -	if (IS_ERR(wdt->reg_base))
+> -		return PTR_ERR(wdt->reg_base);
+> -
+> -	zx2967_wdt_reset_sysctrl(dev);
+> -
+> -	wdt->clock = devm_clk_get(dev, NULL);
+> -	if (IS_ERR(wdt->clock)) {
+> -		dev_err(dev, "failed to find watchdog clock source\n");
+> -		return PTR_ERR(wdt->clock);
+> -	}
+> -
+> -	ret = clk_prepare_enable(wdt->clock);
+> -	if (ret < 0) {
+> -		dev_err(dev, "failed to enable clock\n");
 > -		return ret;
 > -	}
-> -	ret = clk_prepare_enable(clk);
-> -	if (ret) {
-> -		dev_err(dev, "could not prepare and enable clock\n");
-> -		goto out_no_clk_enable;
-> -	}
-> -
-> -	val = readw(virtbase + U300_WDOG_SR);
-> -	switch (val) {
-> -	case U300_WDOG_SR_STATUS_TIMED_OUT:
-> -		dev_info(dev, "watchdog timed out since last chip reset!\n");
-> -		coh901327_wdt.bootstatus |= WDIOF_CARDRESET;
-> -		/* Status will be cleared below */
-> -		break;
-> -	case U300_WDOG_SR_STATUS_NORMAL:
-> -		dev_info(dev, "in normal status, no timeouts have occurred.\n");
-> -		break;
-> -	default:
-> -		dev_info(dev, "contains an illegal status code (%08x)\n", val);
-> -		break;
-> -	}
-> -
-> -	val = readw(virtbase + U300_WDOG_D2R);
-> -	switch (val) {
-> -	case U300_WDOG_D2R_DISABLE_STATUS_DISABLED:
-> -		dev_info(dev, "currently disabled.\n");
-> -		break;
-> -	case U300_WDOG_D2R_DISABLE_STATUS_ENABLED:
-> -		dev_info(dev, "currently enabled! (disabling it now)\n");
-> -		coh901327_disable();
-> -		break;
-> -	default:
-> -		dev_err(dev, "contains an illegal enable/disable code (%08x)\n",
-> -			val);
-> -		break;
-> -	}
-> -
-> -	/* Reset the watchdog */
-> -	writew(U300_WDOG_SR_RESET_STATUS_RESET, virtbase + U300_WDOG_SR);
-> -
-> -	irq = platform_get_irq(pdev, 0);
-> -	if (request_irq(irq, coh901327_interrupt, 0,
-> -			DRV_NAME " Bark", pdev)) {
-> -		ret = -EIO;
-> -		goto out_no_irq;
-> -	}
-> -
-> -	watchdog_init_timeout(&coh901327_wdt, margin, dev);
-> -
-> -	coh901327_wdt.parent = dev;
-> -	ret = watchdog_register_device(&coh901327_wdt);
+> -	ret = devm_add_action_or_reset(dev, zx2967_clk_disable_unprepare,
+> -				       wdt->clock);
 > -	if (ret)
-> -		goto out_no_wdog;
+> -		return ret;
+> -	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
 > -
-> -	dev_info(dev, "initialized. (timeout=%d sec)\n",
-> -			coh901327_wdt.timeout);
-> -	return 0;
-> -
-> -out_no_wdog:
-> -	free_irq(irq, pdev);
-> -out_no_irq:
-> -	clk_disable_unprepare(clk);
-> -out_no_clk_enable:
-> -	clk_put(clk);
-> -	return ret;
-> -}
-> -
-> -#ifdef CONFIG_PM
-> -
-> -static u16 wdogenablestore;
-> -static u16 irqmaskstore;
-> -
-> -static int coh901327_suspend(struct platform_device *pdev, pm_message_t state)
-> -{
-> -	irqmaskstore = readw(virtbase + U300_WDOG_IMR) & 0x0001U;
-> -	wdogenablestore = readw(virtbase + U300_WDOG_D2R);
-> -	/* If watchdog is on, disable it here and now */
-> -	if (wdogenablestore == U300_WDOG_D2R_DISABLE_STATUS_ENABLED)
-> -		coh901327_disable();
-> -	return 0;
-> -}
-> -
-> -static int coh901327_resume(struct platform_device *pdev)
-> -{
-> -	/* Restore the watchdog interrupt */
-> -	writew(irqmaskstore, virtbase + U300_WDOG_IMR);
-> -	if (wdogenablestore == U300_WDOG_D2R_DISABLE_STATUS_ENABLED) {
-> -		/* Restart the watchdog timer */
-> -		writew(U300_WDOG_RR_RESTART_VALUE_RESUME,
-> -		       virtbase + U300_WDOG_RR);
-> -		writew(U300_WDOG_FR_FEED_RESTART_TIMER,
-> -		       virtbase + U300_WDOG_FR);
+> -	rstc = devm_reset_control_get_exclusive(dev, NULL);
+> -	if (IS_ERR(rstc)) {
+> -		dev_err(dev, "failed to get rstc");
+> -		return PTR_ERR(rstc);
 > -	}
+> -
+> -	reset_control_assert(rstc);
+> -	reset_control_deassert(rstc);
+> -
+> -	watchdog_set_drvdata(&wdt->wdt_device, wdt);
+> -	watchdog_init_timeout(&wdt->wdt_device,
+> -			ZX2967_WDT_DEFAULT_TIMEOUT, dev);
+> -	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
+> -
+> -	ret = devm_watchdog_register_device(dev, &wdt->wdt_device);
+> -	if (ret)
+> -		return ret;
+> -
+> -	dev_info(dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
+> -		 wdt->wdt_device.timeout, WATCHDOG_NOWAYOUT);
+> -
 > -	return 0;
 > -}
-> -#else
-> -#define coh901327_suspend NULL
-> -#define coh901327_resume  NULL
-> -#endif
 > -
-> -/*
-> - * Mistreating the watchdog is the only way to perform a software reset of the
-> - * system on EMP platforms. So we implement this and export a symbol for it.
-> - */
-> -void coh901327_watchdog_reset(void)
-> -{
-> -	/* Enable even if on JTAG too */
-> -	writew(U300_WDOG_JOR_JTAG_WATCHDOG_ENABLE,
-> -	       virtbase + U300_WDOG_JOR);
-> -	/*
-> -	 * Timeout = 5s, we have to wait for the watchdog reset to
-> -	 * actually take place: the watchdog will be reloaded with the
-> -	 * default value immediately, so we HAVE to reboot and get back
-> -	 * into the kernel in 30s, or the device will reboot again!
-> -	 * The boot loader will typically deactivate the watchdog, so we
-> -	 * need time enough for the boot loader to get to the point of
-> -	 * deactivating the watchdog before it is shut down by it.
-> -	 *
-> -	 * NOTE: on future versions of the watchdog, this restriction is
-> -	 * gone: the watchdog will be reloaded with a default value (1 min)
-> -	 * instead of last value, and you can conveniently set the watchdog
-> -	 * timeout to 10ms (value = 1) without any problems.
-> -	 */
-> -	coh901327_enable(500);
-> -	/* Return and await doom */
-> -}
-> -
-> -static const struct of_device_id coh901327_dt_match[] = {
-> -	{ .compatible = "stericsson,coh901327" },
-> -	{},
+> -static const struct of_device_id zx2967_wdt_match[] = {
+> -	{ .compatible = "zte,zx296718-wdt", },
+> -	{}
 > -};
+> -MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
 > -
-> -static struct platform_driver coh901327_driver = {
-> -	.driver = {
-> -		.name	= "coh901327_wdog",
-> -		.of_match_table = coh901327_dt_match,
-> -		.suppress_bind_attrs = true,
+> -static struct platform_driver zx2967_wdt_driver = {
+> -	.probe		= zx2967_wdt_probe,
+> -	.driver		= {
+> -		.name	= "zx2967-wdt",
+> -		.of_match_table	= of_match_ptr(zx2967_wdt_match),
 > -	},
-> -	.suspend	= coh901327_suspend,
-> -	.resume		= coh901327_resume,
 > -};
-> -builtin_platform_driver_probe(coh901327_driver, coh901327_probe);
+> -module_platform_driver(zx2967_wdt_driver);
 > -
-> -/* not really modular, but ... */
-> -module_param(margin, uint, 0);
-> -MODULE_PARM_DESC(margin, "Watchdog margin in seconds (default 60s)");
+> -MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
+> -MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
+> -MODULE_LICENSE("GPL v2");
 > -- 
 > 2.29.2
 > 
