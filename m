@@ -2,126 +2,112 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C014AC433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Jan 2021 21:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09BEBC433DB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Jan 2021 23:12:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9424D23A22
-	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Jan 2021 21:14:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFE6823A54
+	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Jan 2021 23:12:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727475AbhAUVIl (ORCPT
+        id S1726015AbhAUXMT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 21 Jan 2021 16:08:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51718 "EHLO
+        Thu, 21 Jan 2021 18:12:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727453AbhAUU6P (ORCPT
+        with ESMTP id S1726310AbhAUXIo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 21 Jan 2021 15:58:15 -0500
-X-Greylist: delayed 485 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jan 2021 12:57:22 PST
-Received: from antares.kleine-koenig.org (antares.kleine-koenig.org [IPv6:2a01:4f8:c0c:3a97::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD63EC06174A;
-        Thu, 21 Jan 2021 12:57:22 -0800 (PST)
-Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
-        id 4F281AD8EB0; Thu, 21 Jan 2021 21:48:22 +0100 (CET)
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Thu, 21 Jan 2021 18:08:44 -0500
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38F7C06174A;
+        Thu, 21 Jan 2021 15:08:03 -0800 (PST)
+Received: by mail-oo1-xc30.google.com with SMTP id y72so452461ooa.5;
+        Thu, 21 Jan 2021 15:08:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=LWjZgdo97IW93hy4Usf24J0zQ4uGQOVb4b9yo0/e594=;
+        b=eIRT85xpOmLi71n2IImPgBt7CKzRdgj5W+h00sZGlqcxCuw2ozByIKjCc9Ob6YSo5A
+         21DyFtFFE1wXXBvdbKLFywvdI0Zujk6MQxSyimxvX+K7hge/Ujv5yxBMt3TqKqY2RDOi
+         DTrqrCKvES/SNn5/yzMjKbbBnwIAY94iPwVwb/kinrA2F7GisdPrO5fmxllAwcAxZ38Z
+         GpAPJBetlGeWtVQUw/gQhHSCmU9C36phcIQ7qd2db4YLFlu2ejucvbaxyg8DWafPcDt+
+         +L0rG0VQeOuDx5Dz4jXXymVBwUo5wARu+HTHAaJAX88XXT5wGULTmuYRx0pm5OyrRpKs
+         gfKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=LWjZgdo97IW93hy4Usf24J0zQ4uGQOVb4b9yo0/e594=;
+        b=e9iqECGPxZxlxJ1sWSXBYEik2dzjSYKHkBjzECj8KraXgm/rlGwj6ypPPrNtDPWlLx
+         hTaJDN9j0MXus7SFyiF0t0E50CZ5KPDdpdnpr6X/6bKokGpL4eHDdLFr3Leo9Wl+7+GP
+         wC2laBuSYq20p+YCZWKIJ7i1z6ZsNF7aAq22JWCQdzNfEE6i/212uxGgG6WnZJkhm4Mj
+         ANDqINZIK79SXMTlP05ezHQESXhmLSn+uu3uVKmz17NoCz/yO9S5uTGB2o8vYgWWx+Uu
+         My1PPm4pmPNkMKc9OkGD4/t5/LeT9ti/mVD2fb1oSSu9K3ACNOGVtzpN5GTxXCBADc+e
+         hdsA==
+X-Gm-Message-State: AOAM532+5VoHaPZL9Qz7bJS3uZi3rUVTiZ3i4shTqEx6CKD6Vj2YOtns
+        dnBS0BZx71DfmOQRfM9Mt0gCYXArlBY=
+X-Google-Smtp-Source: ABdhPJy8TqARNlQR+IXrZabLeg7vmPZahAddmHTJQjLh7retVvWvngf8Mt5GbP7QGzuj8BGD0gfZJw==
+X-Received: by 2002:a4a:e1b5:: with SMTP id 21mr1651726ooy.64.1611270483115;
+        Thu, 21 Jan 2021 15:08:03 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r14sm1352138ote.28.2021.01.21.15.08.01
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 21 Jan 2021 15:08:01 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 21 Jan 2021 15:08:00 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         William Breathitt Gray <vilhelm.gray@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pau Oliva Fora <pof@eslack.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Hannes Reinecke <hare@suse.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH v1 0/2] isa: Make the remove callback for isa drivers return void
-Date:   Thu, 21 Jan 2021 21:48:10 +0100
-Message-Id: <20210121204812.402589-1-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.29.2
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 1/2] watchdog: pcwd: drop always-false if from remove
+ callback
+Message-ID: <20210121230800.GA37574@roeck-us.net>
+References: <20210121204812.402589-1-uwe@kleine-koenig.org>
+ <20210121204812.402589-2-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210121204812.402589-2-uwe@kleine-koenig.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello,
+On Thu, Jan 21, 2021 at 09:48:11PM +0100, Uwe Kleine-König wrote:
+> If pcwd_isa_probe() succeeded pcwd_private.io_addr cannot be NULL. (And
+> if pcwd_isa_probe() failed, pcwd_isa_remove() isn't called.)
+> 
+> Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
 
-as described in the commit log of the 2nd patch returning an error code
-from a bus' remove callback doesn't make any difference as the driver
-core ignores it and still considers the device removed.
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-So change the remove callback to return void to not give driver authors
-an incentive to believe they could return an error.
-
-There is only a single isa driver in the tree (assuming I didn't miss
-any) that has a remove callback that can return a non zero return code.
-This is "fixed" in the first patch, to make the second patch more
-obviously correct.
-
-Best regards
-Uwe
-
-Uwe Kleine-KÃ¶nig (2):
-  watchdog: pcwd: drop always-false if from remove callback
-  isa: Make the remove callback for isa drivers return void
-
- drivers/base/isa.c                   | 2 +-
- drivers/i2c/busses/i2c-elektor.c     | 4 +---
- drivers/i2c/busses/i2c-pca-isa.c     | 4 +---
- drivers/input/touchscreen/htcpen.c   | 4 +---
- drivers/media/radio/radio-sf16fmr2.c | 4 +---
- drivers/net/can/sja1000/tscan1.c     | 4 +---
- drivers/net/ethernet/3com/3c509.c    | 3 +--
- drivers/scsi/advansys.c              | 3 +--
- drivers/scsi/aha1542.c               | 3 +--
- drivers/scsi/fdomain_isa.c           | 3 +--
- drivers/scsi/g_NCR5380.c             | 3 +--
- drivers/watchdog/pcwd.c              | 7 +------
- include/linux/isa.h                  | 2 +-
- sound/isa/ad1848/ad1848.c            | 3 +--
- sound/isa/adlib.c                    | 3 +--
- sound/isa/cmi8328.c                  | 3 +--
- sound/isa/cmi8330.c                  | 3 +--
- sound/isa/cs423x/cs4231.c            | 3 +--
- sound/isa/cs423x/cs4236.c            | 3 +--
- sound/isa/es1688/es1688.c            | 3 +--
- sound/isa/es18xx.c                   | 3 +--
- sound/isa/galaxy/galaxy.c            | 3 +--
- sound/isa/gus/gusclassic.c           | 3 +--
- sound/isa/gus/gusextreme.c           | 3 +--
- sound/isa/gus/gusmax.c               | 3 +--
- sound/isa/gus/interwave.c            | 3 +--
- sound/isa/msnd/msnd_pinnacle.c       | 3 +--
- sound/isa/opl3sa2.c                  | 3 +--
- sound/isa/opti9xx/miro.c             | 3 +--
- sound/isa/opti9xx/opti92x-ad1848.c   | 3 +--
- sound/isa/sb/jazz16.c                | 3 +--
- sound/isa/sb/sb16.c                  | 3 +--
- sound/isa/sb/sb8.c                   | 3 +--
- sound/isa/sc6000.c                   | 3 +--
- sound/isa/sscape.c                   | 3 +--
- sound/isa/wavefront/wavefront.c      | 3 +--
- 36 files changed, 36 insertions(+), 79 deletions(-)
-
-
-base-commit: 5a158981aafa7f29709034b17bd007b15cb29983
--- 
-2.29.2
+> ---
+>  drivers/watchdog/pcwd.c | 3 ---
+>  1 file changed, 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/pcwd.c b/drivers/watchdog/pcwd.c
+> index e86fa7f8351d..b95cd38f3ceb 100644
+> --- a/drivers/watchdog/pcwd.c
+> +++ b/drivers/watchdog/pcwd.c
+> @@ -956,9 +956,6 @@ static int pcwd_isa_remove(struct device *dev, unsigned int id)
+>  	if (debug >= DEBUG)
+>  		pr_debug("pcwd_isa_remove id=%d\n", id);
+>  
+> -	if (!pcwd_private.io_addr)
+> -		return 1;
+> -
+>  	/*  Disable the board  */
+>  	if (!nowayout)
+>  		pcwd_stop();
+> -- 
+> 2.29.2
+> 
