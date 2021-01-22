@@ -2,325 +2,183 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B130C433E0
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 14:42:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA8AFC433DB
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 14:54:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC80123A63
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 14:42:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E550239EF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 14:54:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbhAVOmS (ORCPT
+        id S1728627AbhAVOyB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Jan 2021 09:42:18 -0500
-Received: from mail-lf1-f54.google.com ([209.85.167.54]:43821 "EHLO
-        mail-lf1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728788AbhAVOd2 (ORCPT
+        Fri, 22 Jan 2021 09:54:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728633AbhAVOXs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:33:28 -0500
-Received: by mail-lf1-f54.google.com with SMTP id q8so7773135lfm.10;
-        Fri, 22 Jan 2021 06:33:10 -0800 (PST)
+        Fri, 22 Jan 2021 09:23:48 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A453DC06174A;
+        Fri, 22 Jan 2021 06:23:08 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id w124so6124895oia.6;
+        Fri, 22 Jan 2021 06:23:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=vqm/5IS836BfNYf0ZtG5mNjdaBB9uK6WkVWMGfpI2MA=;
+        b=KWDyotPc8z/8AfcJ/xMfbDdqtrlgQRNkdxp67t/xtg2/QRdzEwGmXlIFeE7d3qC3r/
+         vIFltDpwGm3I3omRLQu7gKzAyo2oJ0mHobXF9ky8Lk2DVHLtENFshxJLxMErMIGSJ1GL
+         BkFzA1pKe7EBmMRb7DoAsEVVMahlOB9lei5l0uL/dveBIdTFocP0DzZ8LEgvkVhqOGuX
+         GJ3mrS/F3v3Ae0moU3JCjaz8G82msQLwfKbgngJ5S9WCZ0RvtozuoFkQQz4s7Jjra12J
+         KXfG13kYxm2977ZvWHAgrGGxHvfc3zS2oCjdfVFB6wPM9SEuGGUar9z8HoY5x/eYOlNC
+         PM8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=QmKdGmpyR1860REDqptgTVJ6FHrKoF2qHMt+HhA8O2s=;
-        b=BUFHX42SuxLDUKpn0oObd3SK3r77FV/rDTTQgo++gU6uTEzagwIvV5vlilQAsdRQME
-         cnxHFbdyi6Fm3SJrEGXFH9n7RvULy2+dN3pCBMtAiJfcjdSyBV7H0B/4YhhhpD1cIg2l
-         NwxKHdNXszdJDiSB0NcC1ZdubxxVOr8MDEMj2rHbxZBDCeNYmXIPg58itCmxeDzdEgT3
-         CGrfwtR+nwwbJS5NeHfyD/ZPA9DPUVL9X5W9Ju0xDr4y3AL6vnDFISbFJmVypfLfZ4QW
-         o1NySvB3O5XbORy4Jw4xv6pwjZkm28dw2DZGmv3ZIjLKguYf0xPTfkzIZOGI1U2ZF5h2
-         +lWw==
-X-Gm-Message-State: AOAM531kh44sirjxQbdd09K6afrhKbZkUH3PEZetgk/hqs/UKrMPUHv4
-        O9IQtQqGxZbOO56Pb6Y20bg=
-X-Google-Smtp-Source: ABdhPJyoXL5r3dOaVXdMNRVKeK4cYuZUMNvggVvItlNFda1W4qzuLVHZc5Tj+JspET1Cikr1XXJg3g==
-X-Received: by 2002:a19:7f4d:: with SMTP id a74mr2380110lfd.618.1611325964022;
-        Fri, 22 Jan 2021 06:32:44 -0800 (PST)
-Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id n13sm981387ljj.70.2021.01.22.06.32.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jan 2021 06:32:43 -0800 (PST)
-Date:   Fri, 22 Jan 2021 16:32:36 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-power@fi.rohmeurope.com, linux-watchdog@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH v7 2/6] mfd: Support ROHM BD9576MUF and BD9573MUF
-Message-ID: <185621c77e5eaecea239e0146ea48bc7a2648b9f.1611324968.git.matti.vaittinen@fi.rohmeurope.com>
-References: <cover.1611324968.git.matti.vaittinen@fi.rohmeurope.com>
+        h=x-gm-message-state:sender:subject:to:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=vqm/5IS836BfNYf0ZtG5mNjdaBB9uK6WkVWMGfpI2MA=;
+        b=sTGMBjiZyiGodZdeAFeELp6C7Iwh66UxW1+tQB6mxnNLHgNnrzdlidje3dfwlCayDl
+         7Z4N8mYPy6IczX71tsY6kOQ9HVMEaN3RSWpajBFu96hK9QWOvPg5wzVPiIlEE95Q6mxb
+         mX773eP47J/lzrC2BAUwrwJ5vLq4IxLXCzuBdAGe+8id1fCQLwpJJW17qRHvoJU/ksum
+         8edC3R92EiDo8Oott4GlDNjee0NqfN9UgDpADxYGI5peyb4uFhjGdHvEx/ImSbA8wPyw
+         L5DeHmKsPy1UMwtmHpDaErIV9j+3e0YoOdxQSAenJ3OygTgVBdYPUDP+XkkMima4YPq8
+         Ui7A==
+X-Gm-Message-State: AOAM533+HyKSoD+8SCklMoxDAwrt4WOcSM/s+Q10hUx8MH1Z93IxNPhY
+        OSqGDgKFOBYvg1tiqINE5y0=
+X-Google-Smtp-Source: ABdhPJzHDPnSj73dur54fKvdNq6aCvt1gDpkuVsPd6J2mMP7/VsGA+ldglnBzAqqUGO97S9Rnxk8BQ==
+X-Received: by 2002:aca:fd49:: with SMTP id b70mr3381122oii.92.1611325388158;
+        Fri, 22 Jan 2021 06:23:08 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 8sm1760934oii.45.2021.01.22.06.23.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Jan 2021 06:23:07 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH v1 5/5] platform/x86: intel_scu_wdt: Get rid of custom x86
+ model comparison
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        platform-driver-x86@vger.kernel.org,
+        Mark Gross <mgross@linux.intel.com>,
+        linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+References: <20210122123201.40935-1-andriy.shevchenko@linux.intel.com>
+ <20210122123201.40935-5-andriy.shevchenko@linux.intel.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <692bcf6f-78ce-e865-8bbc-05f260c41502@roeck-us.net>
+Date:   Fri, 22 Jan 2021 06:23:05 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1611324968.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <20210122123201.40935-5-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add core support for ROHM BD9576MUF and BD9573MUF PMICs which are
-mainly used to power the R-Car series processors.
+On 1/22/21 4:32 AM, Andy Shevchenko wrote:
+> Switch the platform code to use x86_id_table and accompanying API
+> instead of custom comparison against x86 CPU model.
+> 
+> This is one of the last users of custom API for that and following
+> changes will remove it for the good.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
----
-Changes since v6:
- - no changes
- drivers/mfd/Kconfig              |  11 ++++
- drivers/mfd/Makefile             |   1 +
- drivers/mfd/rohm-bd9576.c        | 108 +++++++++++++++++++++++++++++++
- include/linux/mfd/rohm-bd957x.h  |  59 +++++++++++++++++
- include/linux/mfd/rohm-generic.h |   2 +
- 5 files changed, 181 insertions(+)
- create mode 100644 drivers/mfd/rohm-bd9576.c
- create mode 100644 include/linux/mfd/rohm-bd957x.h
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index bdfce7b15621..53c7c96283bd 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1998,6 +1998,17 @@ config MFD_ROHM_BD71828
- 	  Also included is a Coulomb counter, a real-time clock (RTC), and
- 	  a 32.768 kHz clock gate.
- 
-+config MFD_ROHM_BD957XMUF
-+	tristate "ROHM BD9576MUF and BD9573MUF Power Management ICs"
-+	depends on I2C=y
-+	depends on OF
-+	select REGMAP_I2C
-+	select MFD_CORE
-+	help
-+	  Select this option to get support for the ROHM BD9576MUF and
-+	  BD9573MUF Power Management ICs. BD9576 and BD9573 are primarily
-+	  designed to be used to power R-Car series processors.
-+
- config MFD_STM32_LPTIMER
- 	tristate "Support for STM32 Low-Power Timer"
- 	depends on (ARCH_STM32 && OF) || COMPILE_TEST
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 14fdb188af02..e58fae024bb2 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -262,6 +262,7 @@ obj-$(CONFIG_RAVE_SP_CORE)	+= rave-sp.o
- obj-$(CONFIG_MFD_ROHM_BD70528)	+= rohm-bd70528.o
- obj-$(CONFIG_MFD_ROHM_BD71828)	+= rohm-bd71828.o
- obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
-+obj-$(CONFIG_MFD_ROHM_BD957XMUF)	+= rohm-bd9576.o
- obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
- obj-$(CONFIG_MFD_KHADAS_MCU) 	+= khadas-mcu.o
- 
-diff --git a/drivers/mfd/rohm-bd9576.c b/drivers/mfd/rohm-bd9576.c
-new file mode 100644
-index 000000000000..f4dd9e438427
---- /dev/null
-+++ b/drivers/mfd/rohm-bd9576.c
-@@ -0,0 +1,108 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+//
-+// Copyright (C) 2020 ROHM Semiconductors
-+//
-+// ROHM BD9576MUF and BD9573MUF PMIC driver
-+
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/ioport.h>
-+#include <linux/irq.h>
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/rohm-bd957x.h>
-+#include <linux/mfd/rohm-generic.h>
-+#include <linux/module.h>
-+#include <linux/of_device.h>
-+#include <linux/regmap.h>
-+#include <linux/types.h>
-+
-+static struct mfd_cell bd9573_mfd_cells[] = {
-+	{ .name = "bd9573-pmic", },
-+	{ .name = "bd9576-wdt", },
-+};
-+
-+static struct mfd_cell bd9576_mfd_cells[] = {
-+	{ .name = "bd9576-pmic", },
-+	{ .name = "bd9576-wdt", },
-+};
-+
-+static const struct regmap_range volatile_ranges[] = {
-+	regmap_reg_range(BD957X_REG_SMRB_ASSERT, BD957X_REG_SMRB_ASSERT),
-+	regmap_reg_range(BD957X_REG_PMIC_INTERNAL_STAT,
-+			 BD957X_REG_PMIC_INTERNAL_STAT),
-+	regmap_reg_range(BD957X_REG_INT_THERM_STAT, BD957X_REG_INT_THERM_STAT),
-+	regmap_reg_range(BD957X_REG_INT_OVP_STAT, BD957X_REG_INT_SYS_STAT),
-+	regmap_reg_range(BD957X_REG_INT_MAIN_STAT, BD957X_REG_INT_MAIN_STAT),
-+};
-+
-+static const struct regmap_access_table volatile_regs = {
-+	.yes_ranges = &volatile_ranges[0],
-+	.n_yes_ranges = ARRAY_SIZE(volatile_ranges),
-+};
-+
-+static struct regmap_config bd957x_regmap = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.volatile_table = &volatile_regs,
-+	.max_register = BD957X_MAX_REGISTER,
-+	.cache_type = REGCACHE_RBTREE,
-+};
-+
-+static int bd957x_i2c_probe(struct i2c_client *i2c,
-+			     const struct i2c_device_id *id)
-+{
-+	int ret;
-+	struct regmap *regmap;
-+	struct mfd_cell *mfd;
-+	int cells;
-+	unsigned long chip_type;
-+
-+	chip_type = (unsigned long)of_device_get_match_data(&i2c->dev);
-+
-+	switch (chip_type) {
-+	case ROHM_CHIP_TYPE_BD9576:
-+		mfd = bd9576_mfd_cells;
-+		cells = ARRAY_SIZE(bd9576_mfd_cells);
-+		break;
-+	case ROHM_CHIP_TYPE_BD9573:
-+		mfd = bd9573_mfd_cells;
-+		cells = ARRAY_SIZE(bd9573_mfd_cells);
-+		break;
-+	default:
-+		dev_err(&i2c->dev, "Unknown device type");
-+		return -EINVAL;
-+	}
-+
-+	regmap = devm_regmap_init_i2c(i2c, &bd957x_regmap);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&i2c->dev, "Failed to initialize Regmap\n");
-+		return PTR_ERR(regmap);
-+	}
-+
-+	ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_AUTO, mfd, cells,
-+				   NULL, 0, NULL);
-+	if (ret)
-+		dev_err(&i2c->dev, "Failed to create subdevices\n");
-+
-+	return ret;
-+}
-+
-+static const struct of_device_id bd957x_of_match[] = {
-+	{ .compatible = "rohm,bd9576", .data = (void *)ROHM_CHIP_TYPE_BD9576, },
-+	{ .compatible = "rohm,bd9573", .data = (void *)ROHM_CHIP_TYPE_BD9573, },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, bd957x_of_match);
-+
-+static struct i2c_driver bd957x_drv = {
-+	.driver = {
-+		.name = "rohm-bd957x",
-+		.of_match_table = bd957x_of_match,
-+	},
-+	.probe = &bd957x_i2c_probe,
-+};
-+module_i2c_driver(bd957x_drv);
-+
-+MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-+MODULE_DESCRIPTION("ROHM BD9576MUF and BD9573MUF Power Management IC driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/rohm-bd957x.h b/include/linux/mfd/rohm-bd957x.h
-new file mode 100644
-index 000000000000..3e7ca6fe5d4f
---- /dev/null
-+++ b/include/linux/mfd/rohm-bd957x.h
-@@ -0,0 +1,59 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/* Copyright (C) 2020 ROHM Semiconductors */
-+
-+#ifndef __LINUX_MFD_BD957X_H__
-+#define __LINUX_MFD_BD957X_H__
-+
-+enum {
-+	BD957X_VD50,
-+	BD957X_VD18,
-+	BD957X_VDDDR,
-+	BD957X_VD10,
-+	BD957X_VOUTL1,
-+	BD957X_VOUTS1,
-+};
-+
-+#define BD957X_REG_SMRB_ASSERT		0x15
-+#define BD957X_REG_PMIC_INTERNAL_STAT	0x20
-+#define BD957X_REG_INT_THERM_STAT	0x23
-+#define BD957X_REG_INT_THERM_MASK 0x24
-+#define BD957X_REG_INT_OVP_STAT 0x25
-+#define BD957X_REG_INT_SCP_STAT 0x26
-+#define BD957X_REG_INT_OCP_STAT 0x27
-+#define BD957X_REG_INT_OVD_STAT 0x28
-+#define BD957X_REG_INT_UVD_STAT 0x29
-+#define BD957X_REG_INT_UVP_STAT 0x2a
-+#define BD957X_REG_INT_SYS_STAT 0x2b
-+#define BD957X_REG_INT_SYS_MASK 0x2c
-+#define BD957X_REG_INT_MAIN_STAT 0x30
-+#define BD957X_REG_INT_MAIN_MASK 0x31
-+
-+#define BD957X_REG_WDT_CONF 0x16
-+
-+#define BD957X_REG_POW_TRIGGER1 0x41
-+#define BD957X_REG_POW_TRIGGER2 0x42
-+#define BD957X_REG_POW_TRIGGER3 0x43
-+#define BD957X_REG_POW_TRIGGER4 0x44
-+#define BD957X_REG_POW_TRIGGERL1 0x45
-+#define BD957X_REG_POW_TRIGGERS1 0x46
-+
-+#define BD957X_REGULATOR_EN_MASK 0xff
-+#define BD957X_REGULATOR_DIS_VAL 0xff
-+
-+#define BD957X_VSEL_REG_MASK	0xff
-+
-+#define BD957X_MASK_VOUT1_TUNE	0x87
-+#define BD957X_MASK_VOUT2_TUNE	0x87
-+#define BD957X_MASK_VOUT3_TUNE	0x1f
-+#define BD957X_MASK_VOUT4_TUNE	0x1f
-+#define BD957X_MASK_VOUTL1_TUNE	0x87
-+
-+#define BD957X_REG_VOUT1_TUNE	0x50
-+#define BD957X_REG_VOUT2_TUNE	0x53
-+#define BD957X_REG_VOUT3_TUNE	0x56
-+#define BD957X_REG_VOUT4_TUNE	0x59
-+#define BD957X_REG_VOUTL1_TUNE	0x5c
-+
-+#define BD957X_MAX_REGISTER 0x61
-+
-+#endif
-diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-generic.h
-index 4283b5b33e04..58b4f1a0f4af 100644
---- a/include/linux/mfd/rohm-generic.h
-+++ b/include/linux/mfd/rohm-generic.h
-@@ -12,6 +12,8 @@ enum rohm_chip_type {
- 	ROHM_CHIP_TYPE_BD71847,
- 	ROHM_CHIP_TYPE_BD70528,
- 	ROHM_CHIP_TYPE_BD71828,
-+	ROHM_CHIP_TYPE_BD9576,
-+	ROHM_CHIP_TYPE_BD9573,
- 	ROHM_CHIP_TYPE_AMOUNT
- };
- 
--- 
-2.25.4
+> ---
+>  drivers/platform/x86/intel_scu_wdt.c | 14 ++++++++++++--
+>  1 file changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/intel_scu_wdt.c b/drivers/platform/x86/intel_scu_wdt.c
+> index 19f7686a3c19..85ee85ca2215 100644
+> --- a/drivers/platform/x86/intel_scu_wdt.c
+> +++ b/drivers/platform/x86/intel_scu_wdt.c
+> @@ -11,6 +11,8 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/platform_data/intel-mid_wdt.h>
+>  
+> +#include <asm/cpu_device_id.h>
+> +#include <asm/intel-family.h>
+>  #include <asm/intel-mid.h>
+>  #include <asm/io_apic.h>
+>  #include <asm/hw_irq.h>
+> @@ -48,12 +50,20 @@ static struct intel_mid_wdt_pdata tangier_pdata = {
+>  	.probe = tangier_probe,
+>  };
+>  
+> +static const struct x86_cpu_id intel_mid_cpu_ids[] = {
+> +	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT_MID, &tangier_pdata),
+> +	{}
+> +};
+> +
+>  static int __init register_mid_wdt(void)
+>  {
+> -	if (intel_mid_identify_cpu() != INTEL_MID_CPU_CHIP_TANGIER)
+> +	const struct x86_cpu_id *id;
+> +
+> +	id = x86_match_cpu(intel_mid_cpu_ids);
+> +	if (!id)
+>  		return -ENODEV;
+>  
+> -	wdt_dev.dev.platform_data = &tangier_pdata;
+> +	wdt_dev.dev.platform_data = (const struct intel_mid_wdt_pdata *)id->driver_data;
+>  	return platform_device_register(&wdt_dev);
+>  }
+>  arch_initcall(register_mid_wdt);
+> 
 
-
--- 
-Matti Vaittinen, Linux device drivers
-ROHM Semiconductors, Finland SWDC
-Kiviharjunlenkki 1E
-90220 OULU
-FINLAND
-
-~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
-Simon says - in Latin please.
-~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
-Thanks to Simon Glass for the translation =] 
