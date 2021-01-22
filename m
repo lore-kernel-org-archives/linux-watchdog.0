@@ -2,188 +2,102 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA91C43381
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 12:32:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7B87C433E0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 12:35:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 694FF22D57
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 12:32:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8127A23437
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Jan 2021 12:35:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727957AbhAVMcY (ORCPT
+        id S1727970AbhAVMfO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Jan 2021 07:32:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727154AbhAVJZj (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Jan 2021 04:25:39 -0500
-Received: from antares.kleine-koenig.org (antares.kleine-koenig.org [IPv6:2a01:4f8:c0c:3a97::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452ECC06174A;
-        Fri, 22 Jan 2021 01:24:58 -0800 (PST)
-Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
-        id D74D7AD996A; Fri, 22 Jan 2021 10:24:55 +0100 (CET)
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pau Oliva Fora <pof@eslack.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Hannes Reinecke <hare@suse.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH v2 0/3] isa: Make the remove callback for isa drivers return void
-Date:   Fri, 22 Jan 2021 10:24:46 +0100
-Message-Id: <20210122092449.426097-1-uwe@kleine-koenig.org>
+        Fri, 22 Jan 2021 07:35:14 -0500
+Received: from mga12.intel.com ([192.55.52.136]:11230 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728156AbhAVMek (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 22 Jan 2021 07:34:40 -0500
+IronPort-SDR: 0ty8CsPaFZLWcDRDaGuoC3XNIwN7XH2/Nb/Ors1JlzyzKAGbKM+iBfGtAmhljHv9zQbkXUiplU
+ z6ip9VSUDp4Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9871"; a="158617608"
+X-IronPort-AV: E=Sophos;i="5.79,366,1602572400"; 
+   d="scan'208";a="158617608"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 04:32:07 -0800
+IronPort-SDR: BrIzskPsl6Sg9+MjqpUaQLYlI3dmaMvKvn4C6ItAeijJRYhnW8X+MhR5NQdzbrUOGkeI3PlAkR
+ DDH06W3KNUmA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,366,1602572400"; 
+   d="scan'208";a="351883204"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga003.jf.intel.com with ESMTP; 22 Jan 2021 04:32:03 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id D1B5212A; Fri, 22 Jan 2021 14:32:02 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        platform-driver-x86@vger.kernel.org,
+        Mark Gross <mgross@linux.intel.com>,
+        linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH v1 2/5] watchdog: intel-mid_wdt: Postpone IRQ handler registration till SCU is ready
+Date:   Fri, 22 Jan 2021 14:31:58 +0200
+Message-Id: <20210122123201.40935-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210122123201.40935-1-andriy.shevchenko@linux.intel.com>
+References: <20210122123201.40935-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello,
+When SCU is not ready and CONFIG_DEBUG_SHIRQ=y we got deferred probe followed
+by fired test IRQ which immediately makes kernel panic. Fix this by delaying
+IRQ handler registration till SCU is ready.
 
-changes since v1
-(https://lore.kernel.org/r/20210121204812.402589-1-uwe@kleine-koenig.org):
- - fix build failure, found by the kernel test robot
-   (my grep missed the struct isa_driver embedded in struct
-   radio_isa_driver). For this I introduced patch 2 and adapted patch 3
-   a bit. An interdiff is below.
- - Added Acks/Reviews by Guenter Roeck, William Breathitt Gray, Marc
-   Kleine-Budde, Wolfram Sang and Takashi Iwai <tiwai@suse.de>
+Fixes: 80ae679b8f86 ("watchdog: intel-mid_wdt: Convert to use new SCU IPC API")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/watchdog/intel-mid_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-The base-commit I specified (by hand *sigh*) in v1 was broken, must be a
-cut-n-paste-error, sorry for that.
-
-Takashi suggested to take this series via sound.git given that this is
-the most affected tree. This is fine for me. Otherwise I can also
-provide an immutable branch. For both variants we still need a few acks
-though.
-
-Best regards
-Uwe
-
-Uwe Kleine-König (3):
-  watchdog: pcwd: drop always-false if from remove callback
-  media/radio: Make radio_isa_common_remove() return void
-  isa: Make the remove callback for isa drivers return void
-
- drivers/base/isa.c                   | 2 +-
- drivers/i2c/busses/i2c-elektor.c     | 4 +---
- drivers/i2c/busses/i2c-pca-isa.c     | 4 +---
- drivers/input/touchscreen/htcpen.c   | 4 +---
- drivers/media/radio/radio-isa.c      | 9 ++++-----
- drivers/media/radio/radio-isa.h      | 2 +-
- drivers/media/radio/radio-sf16fmr2.c | 4 +---
- drivers/net/can/sja1000/tscan1.c     | 4 +---
- drivers/net/ethernet/3com/3c509.c    | 3 +--
- drivers/scsi/advansys.c              | 3 +--
- drivers/scsi/aha1542.c               | 3 +--
- drivers/scsi/fdomain_isa.c           | 3 +--
- drivers/scsi/g_NCR5380.c             | 5 ++---
- drivers/watchdog/pcwd.c              | 7 +------
- include/linux/isa.h                  | 2 +-
- sound/isa/ad1848/ad1848.c            | 3 +--
- sound/isa/adlib.c                    | 3 +--
- sound/isa/cmi8328.c                  | 3 +--
- sound/isa/cmi8330.c                  | 3 +--
- sound/isa/cs423x/cs4231.c            | 3 +--
- sound/isa/cs423x/cs4236.c            | 3 +--
- sound/isa/es1688/es1688.c            | 3 +--
- sound/isa/es18xx.c                   | 5 ++---
- sound/isa/galaxy/galaxy.c            | 3 +--
- sound/isa/gus/gusclassic.c           | 3 +--
- sound/isa/gus/gusextreme.c           | 3 +--
- sound/isa/gus/gusmax.c               | 3 +--
- sound/isa/gus/interwave.c            | 3 +--
- sound/isa/msnd/msnd_pinnacle.c       | 3 +--
- sound/isa/opl3sa2.c                  | 3 +--
- sound/isa/opti9xx/miro.c             | 3 +--
- sound/isa/opti9xx/opti92x-ad1848.c   | 5 ++---
- sound/isa/sb/jazz16.c                | 3 +--
- sound/isa/sb/sb16.c                  | 3 +--
- sound/isa/sb/sb8.c                   | 3 +--
- sound/isa/sc6000.c                   | 3 +--
- sound/isa/sscape.c                   | 3 +--
- sound/isa/wavefront/wavefront.c      | 3 +--
- 38 files changed, 44 insertions(+), 88 deletions(-)
-
-Interdiff against v1:
-diff --git a/drivers/media/radio/radio-isa.c b/drivers/media/radio/radio-isa.c
-index ad2ac16ff12d..c591c0851fa2 100644
---- a/drivers/media/radio/radio-isa.c
-+++ b/drivers/media/radio/radio-isa.c
-@@ -273,8 +273,8 @@ static int radio_isa_common_probe(struct radio_isa_card *isa,
- 	return res;
- }
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+index 1ae03b64ef8b..9b2173f765c8 100644
+--- a/drivers/watchdog/intel-mid_wdt.c
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -154,6 +154,10 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdt_dev, WATCHDOG_NOWAYOUT);
+ 	watchdog_set_drvdata(wdt_dev, mid);
  
--static int radio_isa_common_remove(struct radio_isa_card *isa,
--				   unsigned region_size)
-+static void radio_isa_common_remove(struct radio_isa_card *isa,
-+				    unsigned region_size)
- {
- 	const struct radio_isa_ops *ops = isa->drv->ops;
++	mid->scu = devm_intel_scu_ipc_dev_get(dev);
++	if (!mid->scu)
++		return -EPROBE_DEFER;
++
+ 	ret = devm_request_irq(dev, pdata->irq, mid_wdt_irq,
+ 			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
+ 			       wdt_dev);
+@@ -162,10 +166,6 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
-@@ -285,7 +285,6 @@ static int radio_isa_common_remove(struct radio_isa_card *isa,
- 	release_region(isa->io, region_size);
- 	v4l2_info(&isa->v4l2_dev, "Removed radio card %s\n", isa->drv->card);
- 	kfree(isa);
--	return 0;
- }
- 
- int radio_isa_probe(struct device *pdev, unsigned int dev)
-@@ -338,11 +337,11 @@ int radio_isa_probe(struct device *pdev, unsigned int dev)
- }
- EXPORT_SYMBOL_GPL(radio_isa_probe);
- 
--int radio_isa_remove(struct device *pdev, unsigned int dev)
-+void radio_isa_remove(struct device *pdev, unsigned int dev)
- {
- 	struct radio_isa_card *isa = dev_get_drvdata(pdev);
- 
--	return radio_isa_common_remove(isa, isa->drv->region_size);
-+	radio_isa_common_remove(isa, isa->drv->region_size);
- }
- EXPORT_SYMBOL_GPL(radio_isa_remove);
- 
-diff --git a/drivers/media/radio/radio-isa.h b/drivers/media/radio/radio-isa.h
-index 2f0736edfda8..c9159958203e 100644
---- a/drivers/media/radio/radio-isa.h
-+++ b/drivers/media/radio/radio-isa.h
-@@ -91,7 +91,7 @@ struct radio_isa_driver {
- 
- int radio_isa_match(struct device *pdev, unsigned int dev);
- int radio_isa_probe(struct device *pdev, unsigned int dev);
--int radio_isa_remove(struct device *pdev, unsigned int dev);
-+void radio_isa_remove(struct device *pdev, unsigned int dev);
- #ifdef CONFIG_PNP
- int radio_isa_pnp_probe(struct pnp_dev *dev,
- 			const struct pnp_device_id *dev_id);
-
-base-commit: e609571b5ffa3528bf85292de1ceaddac342bc1c
+-	mid->scu = devm_intel_scu_ipc_dev_get(dev);
+-	if (!mid->scu)
+-		return -EPROBE_DEFER;
+-
+ 	/*
+ 	 * The firmware followed by U-Boot leaves the watchdog running
+ 	 * with the default threshold which may vary. When we get here
 -- 
 2.29.2
 
