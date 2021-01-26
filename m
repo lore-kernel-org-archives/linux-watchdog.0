@@ -2,109 +2,95 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99F28C43381
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 15:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 210B6C433E0
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 15:54:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F2FC217BA
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 15:52:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E76BD207C8
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 15:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392788AbhAZPv5 (ORCPT
+        id S2392811AbhAZPtX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Jan 2021 10:51:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392031AbhAZPvn (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Jan 2021 10:51:43 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB4DC061D73;
-        Tue, 26 Jan 2021 07:51:02 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id j21so5383821pls.7;
-        Tue, 26 Jan 2021 07:51:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=e1wIxfZ2pa94U6ERVc2TBu1sPL7/ZYPSJAmu9tbJ7iw=;
-        b=fInUUBW/u2yZkKQ9i4u1tJ4c+stOkTJCJtSFcDLZ7m/xs9cZT542Eb2J5XlAOl8xPv
-         DtHadV5tMMfxNK6aBMVjHNggIwvNKjBxXQJORTHKRarKVjBMRj4aZ2ZFbdCSu6m/QBiJ
-         8WEOou3Sj7ixxzifYtQN/LX5gb98Of28SIfvk8keig14TyEK02m0ZM9sX5KjF+raFYRX
-         i9zNWhK5pY/8Qa/Ywd0D5gQzpd6FaQMM6bM69oPwHXiDxOmf7yaNaO9ibFdCQIUWeb70
-         PLaqHLpZ9cFYa9GvvdBBgHTZw2e6bySE0pNTApwJTaDkDEd/egu/gBGsb12p/44eYqRY
-         gXxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=e1wIxfZ2pa94U6ERVc2TBu1sPL7/ZYPSJAmu9tbJ7iw=;
-        b=aSwpLjMzOaZSydQoU2DoupjjU74RYSVy1ktDdvMSO1Sfs1NI/X1Z3TFIg9Erx24gm7
-         zdbtfXkgSBvn3I3lKzhnzEyjPkVj52y3byefejl7966VcU4vc+QXeqdH+hi6fZQNr7fK
-         nXwfRfYSFsejYhBMcnuVLQpi/L66W2iRlr5mKnOeTgeGFbPcxgVO4pcWP9euL1xC6kRt
-         GOT1SAIwTuAcwB+G1njOvgIKmkGty2wOHJFlyZcD8YnhUw4kpfEc+9eE0zVZ6ECqXKHY
-         3hDjArDs2EWPUmpdjdSEk97mwyH3QGIjfKc6ZH/F3oAPcFKeZ/u8t6CIWX380J0CDy8e
-         K4Lw==
-X-Gm-Message-State: AOAM5301zX7du/pS4/x3rKYYBd38IsiR+09z88mJoG9zQdXLIXymw84A
-        D4ANM0429pG6NS33Rh+iL+pvTae+vb9tPKDZyyg=
-X-Google-Smtp-Source: ABdhPJx5glss0sqleRtDBlXmNqPnxXWh5zBE4ZdTKEjL+tUMNHRV8Ts7oKcmyySbHPNP8WfNZVvgavGou2cpAroNDx4=
-X-Received: by 2002:a17:90a:c84:: with SMTP id v4mr423673pja.228.1611676262312;
- Tue, 26 Jan 2021 07:51:02 -0800 (PST)
-MIME-Version: 1.0
-References: <YBANNJ8XtoRf7SuW@smile.fi.intel.com> <CAMeQTsbGBrTvfkz6BStwL240Kz-dbrQVKtXbYkRtbD3OoUKCcg@mail.gmail.com>
-In-Reply-To: <CAMeQTsbGBrTvfkz6BStwL240Kz-dbrQVKtXbYkRtbD3OoUKCcg@mail.gmail.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 26 Jan 2021 17:51:51 +0200
-Message-ID: <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
-Subject: Re: [GIT PULL] ib-drm-gpio-pdx86-rtc-wdt-v5.12-1
-To:     Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+        Tue, 26 Jan 2021 10:49:23 -0500
+Received: from m42-8.mailgun.net ([69.72.42.8]:46799 "EHLO m42-8.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2392618AbhAZPs4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 26 Jan 2021 10:48:56 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1611676114; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=AIGp3sOSpcvWiZSeRL/t8BvDsbq1gMaRV6JTPMxNUP4=; b=HnoQy3TBL56iSQmM9CDJOZooOWkZ6LR9o9xIzP4SM0pyFMdnRYtr8+CAFnlglRfnzUwjJEyD
+ DaNioeeQ8KVOwYCqEv6l1OeC9TkFdHuvqqYECWMQ9lahW1ctQVDUnKTNGjYnpz5obeq0yoHB
+ WP7hwZDHiujY+qFigk+s3o1HCEs=
+X-Mailgun-Sending-Ip: 69.72.42.8
+X-Mailgun-Sid: WyJmNTk5OSIsICJsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmciLCAiYmU5ZTRhIl0=
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n06.prod.us-west-2.postgun.com with SMTP id
+ 601039ab72b7c29fd5db02d2 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 26 Jan 2021 15:47:55
+ GMT
+Sender: saiprakash.ranjan=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 5DBBAC43467; Tue, 26 Jan 2021 15:47:55 +0000 (UTC)
+Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: saiprakash.ranjan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 49718C433CA;
+        Tue, 26 Jan 2021 15:47:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 49718C433CA
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=saiprakash.ranjan@codeaurora.org
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Subject: [PATCH 0/4] arm64: dts: qcom: Add watchdog bark irq for  SC7180, SDM845, SM8150, SM8250
+Date:   Tue, 26 Jan 2021 21:17:28 +0530
+Message-Id: <cover.1611466260.git.saiprakash.ranjan@codeaurora.org>
+X-Mailer: git-send-email 2.29.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 5:25 PM Patrik Jakobsson
-<patrik.r.jakobsson@gmail.com> wrote:
-> On Tue, Jan 26, 2021 at 1:37 PM Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> wrote:
-> >
-> > Hi guys,
-> >
-> > This is first part of Intel MID outdated platforms removal. It's collected into
-> > immutable branch with a given tag, please pull to yours subsystems.
->
-> Hi Andy,
-> Do you plan on eventually removing X86_INTEL_MID completely? If so,
-> then I should probably start looking at removing the corresponding
-> parts in GMA500.
+This series adds pre-timeout notification support via bark
+interrupt for SC7180, SDM845, SM8150, SM8250 SoCs.
 
-Nope. It is related to only Medfield / Clovertrail platforms.
+Note: This has a functional dependency on [1] without which
+the watchdog functionality would be broken.
 
-There are other (MID) platforms that may / might utilize this driver
-in the future.
+[1] https://lore.kernel.org/patchwork/patch/1371266/
 
-I.o.w. we probably can remove the oldest stuff in the driver WRT above
-mentioned platforms, but leave the driver for the rest.
-I wouldn't be in a hurry with this though, display drivers are easy to
-remove, but really hard to get back on velocity after that.
+Sai Prakash Ranjan (4):
+  arm64: dts: qcom: sc7180: Add watchdog bark interrupt
+  arm64: dts: qcom: sdm845: Add watchdog bark interrupt
+  arm64: dts: qcom: sm8150: Add watchdog bark interrupt
+  arm64: dts: qcom: sm8250: Add watchdog bark interrupt
 
+ arch/arm64/boot/dts/qcom/sc7180.dtsi | 1 +
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 1 +
+ arch/arm64/boot/dts/qcom/sm8150.dtsi | 1 +
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 1 +
+ 4 files changed, 4 insertions(+)
+
+
+base-commit: 76bb4dc36d0e6bd13c70536a77240f93a0260f7e
+prerequisite-patch-id: 46f598da3a2dbddfefa72da5636438142a00babd
 -- 
-With Best Regards,
-Andy Shevchenko
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
+
