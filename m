@@ -2,190 +2,117 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A34C18E16
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 17:00:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3717CC433E0
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 17:26:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2B562311D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 17:00:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BB482075F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jan 2021 17:26:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728272AbhAZGBN (ORCPT
+        id S1728349AbhAZR0W (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Jan 2021 01:01:13 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55384 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728998AbhAYNku (ORCPT
+        Tue, 26 Jan 2021 12:26:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731101AbhAZQ4k (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Jan 2021 08:40:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611581952;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3IjtZuDDA2/cFI4YzNshXxFpENBPrTYgWly++K/E6vI=;
-        b=FTOQDs3+kx7Styv0W6rp/SVH6WPWqCqYKMjv9IwM68Z5xRVVoKnCNBaxP1kgrC4wRar92v
-        YDtV8q60HUMO4TOMkcYTnqq7UytpmPHIl9lGaJkTYvIgzSlD3KFO/Duk1B8VCD667EjkTT
-        DTR44zXGzxM5DRId+zgiNpdreMrGv7M=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-545-RZNHXejiPcSg5zLmKoPI1Q-1; Mon, 25 Jan 2021 06:23:06 -0500
-X-MC-Unique: RZNHXejiPcSg5zLmKoPI1Q-1
-Received: by mail-ed1-f69.google.com with SMTP id t9so7192711edd.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 25 Jan 2021 03:23:06 -0800 (PST)
+        Tue, 26 Jan 2021 11:56:40 -0500
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3880EC061D7D;
+        Tue, 26 Jan 2021 08:56:00 -0800 (PST)
+Received: by mail-lf1-x135.google.com with SMTP id b26so23618682lff.9;
+        Tue, 26 Jan 2021 08:56:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IUDDZRZxdmyV3zHbIgFV/f+pJvlpZPQNewiwbQaO6tE=;
+        b=lW8J7gdCPRMweOQw8pwNhFi4aRG/l+tBBUD0aanYKeGqx5yQ1nLZ7amwTrNZHy6vU2
+         V9wwSXUgUvgm4WHsgQysRp7Qdnkj7lv13RJkpJmXiHgv2vptiA6hb/h3zaYrFtGVwNnB
+         wp0favvJMQzNKEyLe/ecQt4MU1Y4BDQ3+CCBSvfEouaXwPVNEjIMQaAm/INI0V4d4EYR
+         Euctr81IITXkASr5McZpLWSUZxaj+GPouo/1cYqAlGbcxNNFf46cYkjGnSmBVeBb3I4t
+         CHAgzgNNdr4nM29pWXKyRFzV2kGPi9FpD5hWu07RxVRd70ZvB5sgyWWcNPRMllyENxG9
+         800Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3IjtZuDDA2/cFI4YzNshXxFpENBPrTYgWly++K/E6vI=;
-        b=XKPfchbPD9rvpwrDSfbJUsCa9nLfIVVAz6NSk3GvFGs+hKZZI5wXviEn86D7lYWrs8
-         1RJyBotp9n1Vjdi3IEcXEuafZAqRDPvegjX1VIJ9V5sUq9s8hwzJ7+8gGM2/zDQo2Z8V
-         88KbnGmVhey43IuTEhSF+mid7rxFogJxxcyQbWmLZeXAm92NsDkUt4t+SkyjKMOADKp/
-         szo22I/n0t4vuG5oapIQExDDfoVRF+USZETAjhyI4ZETbDY06qqUCSyvpPW7upaSNQdh
-         gDT+fxIC4uKjmg4oy0KdoVpBx/KAzQhAjXRzCKrga7+WWEJIlAm1kMVjBdV8DPJPOGoH
-         o00g==
-X-Gm-Message-State: AOAM530Hon+YK6Jb37+dkVDMUyGywHn3Z5kdhzyZXunAwSJCSaXAsqdZ
-        nWFxHinNeTCZVkRBuQ1Ee3732LYZ07zABeawWikc4OJTm2mtZwlBH7AIIYL5+F0xL5sQy3Wakh3
-        iB7wiwZySSqi5e7DJzupphNRoDLk=
-X-Received: by 2002:a05:6402:1655:: with SMTP id s21mr30001edx.360.1611573785181;
-        Mon, 25 Jan 2021 03:23:05 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx/lEmC0ELKChTQcbvuINIiOY64kpZ3OjM5r5wqEI0r3THJrzBNCnSmjQlGeR2B6SaYkRQ1jQ==
-X-Received: by 2002:a05:6402:1655:: with SMTP id s21mr29986edx.360.1611573785032;
-        Mon, 25 Jan 2021 03:23:05 -0800 (PST)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-37a3-353b-be90-1238.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:37a3:353b:be90:1238])
-        by smtp.gmail.com with ESMTPSA id x25sm10187897edv.65.2021.01.25.03.23.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Jan 2021 03:23:04 -0800 (PST)
-Subject: Re: [PATCH v1 1/5] watchdog: intel_scu_watchdog: Remove driver for
- deprecated platform
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IUDDZRZxdmyV3zHbIgFV/f+pJvlpZPQNewiwbQaO6tE=;
+        b=O+IzDx/R5ply9lEv35ei1unhLF3QYjDeuIYvzGQfiWiF87wsenSAkYO6FpwABMX3Ru
+         0xp7N1Jo6dYj3eKAgqzIC+1xMACy3ys0W1AGWW0q3bUIkKevD0Och9oOM/coUU5bLfRX
+         /nH4voJzJoN1keIo0BNnCR9KhWMcofF87SJ8vpMQh6n4cSw/ACRwdWhZanCa8r1M+C1Y
+         IalR1nxjWJtqffvvxVAXPs8t3drkFN+BM62ZPfFX8sAZc1FXIV/ZSGmDSw+tkpf+9ds7
+         XhCyV3lquhdNHdXV8IhPaQYW1xz68OseUUxbRGg511FN5k7W/ECDkIfWk9qYGXBU9V6O
+         deVw==
+X-Gm-Message-State: AOAM530JYyAGWFrUSOZ09yN0WvOX+hCGP/wRgXULqPxylsy5Evy+bCxd
+        daJeIpWfsX0lR+mFEEGDMRecAPW04mHGqFgJx68=
+X-Google-Smtp-Source: ABdhPJy9dl1Tk9pVWPFcSjiX8vKJgMaCDnwogfliEKqUrmBFXH5j360/BhKOOcxo7U7KWVqbda7Zg9HYVSXc7AKyd7I=
+X-Received: by 2002:ac2:515b:: with SMTP id q27mr2948208lfd.516.1611680158749;
+ Tue, 26 Jan 2021 08:55:58 -0800 (PST)
+MIME-Version: 1.0
+References: <YBANNJ8XtoRf7SuW@smile.fi.intel.com> <CAMeQTsbGBrTvfkz6BStwL240Kz-dbrQVKtXbYkRtbD3OoUKCcg@mail.gmail.com>
+ <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
+In-Reply-To: <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
+From:   Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Date:   Tue, 26 Jan 2021 17:55:47 +0100
+Message-ID: <CAMeQTsY6k64LUg3DYbi67W6-Gx6znOeJbDfKUhzGt-BxF2BgKA@mail.gmail.com>
+Subject: Re: [GIT PULL] ib-drm-gpio-pdx86-rtc-wdt-v5.12-1
 To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
         Mark Gross <mgross@linux.intel.com>,
-        linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>
-References: <20210122123201.40935-1-andriy.shevchenko@linux.intel.com>
- <1f3d5ad1-9f8f-4a78-6239-6cdcbeeeb95b@redhat.com>
- <YArtsQSQsGdfNlBI@smile.fi.intel.com> <YArzAvcZXfv8DaI4@smile.fi.intel.com>
- <4ba64643-9254-055d-49a0-55104b8669d8@redhat.com>
- <1d57c7b0-9ef4-3306-1566-2b99f40d92d1@roeck-us.net>
- <eeda93c6-04cb-a775-7d79-b29a53c6a138@redhat.com>
- <CAHp75VdE4LSHTKLuZ6x744224N2AvbMU0JeMmTWoqeEHDj7=2A@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <f89f2650-73aa-337d-5219-141cd1a2ba32@redhat.com>
-Date:   Mon, 25 Jan 2021 12:23:03 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
-MIME-Version: 1.0
-In-Reply-To: <CAHp75VdE4LSHTKLuZ6x744224N2AvbMU0JeMmTWoqeEHDj7=2A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+On Tue, Jan 26, 2021 at 4:51 PM Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+>
+> On Tue, Jan 26, 2021 at 5:25 PM Patrik Jakobsson
+> <patrik.r.jakobsson@gmail.com> wrote:
+> > On Tue, Jan 26, 2021 at 1:37 PM Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com> wrote:
+> > >
+> > > Hi guys,
+> > >
+> > > This is first part of Intel MID outdated platforms removal. It's collected into
+> > > immutable branch with a given tag, please pull to yours subsystems.
+> >
+> > Hi Andy,
+> > Do you plan on eventually removing X86_INTEL_MID completely? If so,
+> > then I should probably start looking at removing the corresponding
+> > parts in GMA500.
+>
+> Nope. It is related to only Medfield / Clovertrail platforms.
+>
+> There are other (MID) platforms that may / might utilize this driver
+> in the future.
 
-On 1/25/21 12:15 PM, Andy Shevchenko wrote:
-> On Sat, Jan 23, 2021 at 2:08 PM Hans de Goede <hdegoede@redhat.com> wrote:
->> On 1/23/21 1:27 AM, Guenter Roeck wrote:
->>> On 1/22/21 1:04 PM, Hans de Goede wrote:
->>>> On 1/22/21 4:45 PM, Andy Shevchenko wrote:
->>>>> On Fri, Jan 22, 2021 at 05:22:25PM +0200, Andy Shevchenko wrote:
->>>>>> On Fri, Jan 22, 2021 at 03:59:34PM +0100, Hans de Goede wrote:
-> 
->>>>>>> What is the plan for merging this series ?
->>>>>>>
->>>>>>> It touches files under:
->>>>>>> arch/x86
->>>>>>> drivers/watchdog
->>>>>>> drivers/platform/x86
->>>>>>>
->>>>>>> It is probably best if the entire series is merged through a single
->>>>>>> tree. I don't expect this to cause any conflicts with current / upcoming
->>>>>>> changes under drivers/platform/x86, so I'm fine with this being merged
->>>>>>> through another tree.
->>>>>>>
->>>>>>> Or if I can get an ack for that from the x86 and watchdog maintainers
->>>>>>> I can merge the entire series through the pdx86 tree.
->>>>>>
->>>>>> For time being I'm collecting tags and comments.
->>>>>> As of today this series is independent per se, but other (later) clean up
->>>>>> patches may rely on this.
->>>>>>
->>>>>> One strategy can be providing an immutable branch for anybody who wants it and
->>>>>> merge thru PDx86 or watchdog tree (I guess PDx86 is preferable because there
->>>>>> are more patches touching other stuff, though independently, in this matters).
->>>>>
->>>>> Yes, I think one more time and guess the best is:
->>>>>  - get tags from x86 / watchdog
->>>>>  - get tag from RTC
->>>>>  - collect everything in PDx86 immutable branch
->>>>
->>>> Ok, that works for me. I assume that it is best for the other subsystems
->>>> if I create an immutable branch for this based on 5.11-rc1
->>>> (and then merge that into pdx86/for-next) ?
->>>>
->>>> Guenter, I believe you have already reviewed all the watchdog changes,
->>>> are you ok with me creating an immutable branch for the entire series
->>>> and then sending you a pull-req for that ?
->>>
->>> Wim handles watchdog pull requests,
-> 
-> Wim, can you Ack the watchdog changes?
-> 
->> Ah, sorry I was under the impression you would do that because you were
->> doing the reviews (which I'm sure Wim appreciates).
->>
->>> and he usually creates a branch
->>> for Linus to pull from either during or shortly before a commit window.
->>> Also, I don't immediately see why the watchdog tree should carry the other
->>> patches of this series, immutable or not; I would not expect a dependency
->>> against those.
->>>
->>> Anyway, I am fine if the the wdt driver removal is submitted through some
->>> other branch.
->>
->> Hmm, looking at the code again it indeed seems that patch 1/5 + 2/5 could
->> be simply merged through the watchdog tree, as they don't appear to
->> have any interdependencies with the arch/x86 and drivers/platform/x86
->> changes.  Andy ?
-> 
-> The first patch is a dependency to the later (that are not published yet).
-> I was considering gathering all dependent patches in immutable
-> branches and doing in three parts / phases.
-> 
-> I can prepare a branch with a first batch (with Acks from respective
-> maintainers) and send a PR to you.
-> Would it work?
+Right, there's still Oaktrail / Moorestown with hardware in the wild.
 
-I guess you would then publish this as an immutable branch yourself and
-send a PR to all involved subsys-maintainers ?
+>
+> I.o.w. we probably can remove the oldest stuff in the driver WRT above
+> mentioned platforms, but leave the driver for the rest.
+> I wouldn't be in a hurry with this though, display drivers are easy to
+> remove, but really hard to get back on velocity after that.
 
-You have commit rights to the pdx86/platform-drivers-x86 git repo if
-I'm not mistaken, so you could publish the immutable branch there if
-you want.
+Ok, I'll have a look at removing Medfield. That code should have been
+removed a long time ago.
 
-That actually sounds like a good plan to me, assuming the other maintainers
-are ok with it too.
-
-Regards,
-
-Hans
-
+-Patrik
