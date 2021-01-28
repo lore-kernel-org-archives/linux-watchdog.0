@@ -4,972 +4,604 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 761CCC433E6
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Jan 2021 15:14:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9650EC433DB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Jan 2021 20:17:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F2E864DF0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Jan 2021 15:14:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5593264E05
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Jan 2021 20:17:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231388AbhA1POj (ORCPT
+        id S231175AbhA1UQk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Jan 2021 10:14:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
+        Thu, 28 Jan 2021 15:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231210AbhA1POd (ORCPT
+        with ESMTP id S229819AbhA1UQc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Jan 2021 10:14:33 -0500
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B66C061573;
-        Thu, 28 Jan 2021 07:13:50 -0800 (PST)
-Received: by mail-oo1-xc33.google.com with SMTP id z36so1488504ooi.6;
-        Thu, 28 Jan 2021 07:13:50 -0800 (PST)
+        Thu, 28 Jan 2021 15:16:32 -0500
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D24C061573;
+        Thu, 28 Jan 2021 12:16:17 -0800 (PST)
+Received: by mail-oi1-x234.google.com with SMTP id h6so7409302oie.5;
+        Thu, 28 Jan 2021 12:16:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=oCzNee7Lz+W5ooM8cJ/i44KxsunkmaBg1QIkneSDMJ0=;
-        b=VCaSZedjoMeZBYXyLdDT1NR5wB0FGnohGt7Am0zQcDQwN/BfS9HP8P8iy/cI2sr5O3
-         SOwlB6dOZT9K+Xye5/hSn5mU5K2PB3kGhyryPFt1srwyJBzt9ztTQ5+OxAxPYimBjcFe
-         DOKqpr256kAiToFv1Jh/ZYW79vKEWFfFb5Omk6DbSVPM486AT0FvJsMRXEzrxndxspmn
-         Kc62gARI2odDJpnVj9ayVT9ZToDmgXxvxnmWbmxy80QNJTHFKX0cQWpd4lUXvCJngdBe
-         uJX2Tfv8e4Km3jbafMkQKucpYTr1EM4E3Zw53Y6Bob2/eiq3WwqtkTMdgHEZCV5UGyOb
-         vcXg==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=NbR4sKxTe8Xk3QFUJ5MkOhNqu5cUJjYRre+fhp43tDA=;
+        b=L8DUiqGCZH3HOJzJkaJ0fHmbCboh54IwZiDIfsVyDJhm3hr0gnI4829XA07Gjdd/r7
+         bngJuJd49M9IDX9alXP6s88kDs2HCIqVskFPws0r4lg4s4jlHztDzu3xyCFXbbL62AoX
+         GX9+RnP81/r0BGvKyC6E1KAbOfvOhj+JAO3PbPHU6NjeYY8FhNDe9PZmZ7oOytX2pmOC
+         hhbTn2PhmpmH6NQVkMzgc3E7jsshGGKE/CA7Xf+/8g3l+MZ4MHB6C5fg7VLDe9TuBobE
+         uZloJoytl7Kzgynd65ahFvyqImzB1bLbsEdjvi+dz/ickIR/sU5xG7L+lGw194O2BbDt
+         bPIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=oCzNee7Lz+W5ooM8cJ/i44KxsunkmaBg1QIkneSDMJ0=;
-        b=KhXJ9NZ8rYI6RQa+W5qytlQAq5scSk0D5UGdOOfGVH8xNj4skNpxcTMIgCxoRzw6to
-         +4sBiPbQxA7L3LjUgkavOLtfWBm+bzOWAyKTwwUZuFM3GZkpwuvxIM+sQiS/h009d2Q5
-         94TmlpaghDwFPKe9Uv+rXjFGNEIfN5dr1tSo6eWURVzdlUJpmsdz/+Q5n4WFn1EB6k1S
-         XF88DS8g3m+x67noXBNd5c0RMM5CeAQ6tfGxS5O1gdso8xQLUJYW7IuJE0R71luerQ5n
-         uE6jInYAECLwahyvvcfFrXQ0r50+yLsdYm0M8DNjYcgLP/DJATF6f/LpmG6zroOIznwg
-         OaKA==
-X-Gm-Message-State: AOAM530i4xdnX/7pPBMKZRiSEsQiaQm71mqmWREHsytat68wYqEuC9EG
-        DpoUmhVCJ6xhZrFkv25F0hc=
-X-Google-Smtp-Source: ABdhPJyWPIErgyHQnWwrCjNcoBvtFewlxOsbKfzUI+7xiOaVY2o0L0iaBPmgnAYFZz7E7Az5ohKulg==
-X-Received: by 2002:a4a:cb87:: with SMTP id y7mr43771ooq.1.1611846828812;
-        Thu, 28 Jan 2021 07:13:48 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k65sm1111838oia.19.2021.01.28.07.13.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 07:13:47 -0800 (PST)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=NbR4sKxTe8Xk3QFUJ5MkOhNqu5cUJjYRre+fhp43tDA=;
+        b=DsW6KEhv3PDO4G5mQvQtcNvRvU9mPQmfQKhU7QImimpoLevAJadv0OFfCV6rOfOI1+
+         kUUgX10FrIS/xv7nnx2pMsPnYx/bQpPog1NQaFmj7QCwRLTyBJWTLYLIAIGW8qmt16hC
+         ksB23inoct/oyOhYN1s3kQAYv/HMNyTM1DboDT2LDNxIpjPIJGnfHWsP047cK13LsWG1
+         GxZy1HikVF76ejFO9W2qyTweMTPLXgJRqkQORMjSC+ZJJkkGr2CUu0H7ZBdmCm9BHcZY
+         7HpUHz+nT01lT1zcpttZ70N9bAytR0rHKSb1km3NGDRRGwKpsom5feYLk19XBVlkpyAX
+         Buhg==
+X-Gm-Message-State: AOAM532SY4ocVjIFCcRX3YLXw7c2zXXgxOO4YB5DRcPGlRJuR9HNNA2d
+        AYBDBWBIHN0JSB52MMCl1Qc=
+X-Google-Smtp-Source: ABdhPJwKTddIgafMAXCVLpPKj0eoCZh5EsWbxp66w4cnhr28RJ4ur9qbLj/Jah4JdGXJ7rwQk5sKww==
+X-Received: by 2002:a54:458d:: with SMTP id z13mr663924oib.45.1611864976977;
+        Thu, 28 Jan 2021 12:16:16 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 2sm1204743otg.6.2021.01.28.12.16.15
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 28 Jan 2021 12:16:16 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH v6 5/6] hwmon: ahc1ec0-hwmon: Add sub-device hwmon for
- Advantech embedded controller
-To:     "Campion.Kang" <Campion.Kang@advantech.com.tw>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        AceLan Kao <chia-lin.kao@canonical.com>
-References: <20210118123749.4769-1-campion.kang@advantech.com.tw>
- <20210118123749.4769-5-campion.kang@advantech.com.tw>
- <20210123163524.GA50825@roeck-us.net>
- <66338d379bb14c2fbd8a6507075384ce@Taipei11.ADVANTECH.CORP>
+Date:   Thu, 28 Jan 2021 12:16:14 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <449c46a0-f786-00da-6060-a64036ddfec0@roeck-us.net>
-Date:   Thu, 28 Jan 2021 07:13:45 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     Rob Herring <robh@kernel.org>
+Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jean Delvare <jdelvare@suse.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Wolfram Sang <wolfram@the-dreams.de>,
+        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Cleanup standard unit properties
+Message-ID: <20210128201614.GA162245@roeck-us.net>
+References: <20210128194515.743252-1-robh@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <66338d379bb14c2fbd8a6507075384ce@Taipei11.ADVANTECH.CORP>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210128194515.743252-1-robh@kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 1/28/21 2:28 AM, Campion.Kang wrote:
-> Hello Guenter,
+On Thu, Jan 28, 2021 at 01:45:15PM -0600, Rob Herring wrote:
+> Properties with standard unit suffixes already have a type and don't need
+> type definitions. They also default to a single entry, so 'maxItems: 1'
+> can be dropped.
 > 
-> Thanks your review and suggestion. I will fix them. 
-> One issue I am not clear, Documentation is missing, which document?
-> Did you mean this file Documentation\devicetree\bindings\mfd\ahc1ec0.yaml? If yes, it submit in this patch "[PATCH v6 3/6] dt-bindings: mfd: ahc1ec0.yaml: Add Advantech embedded controller - AHC1EC0".
-> Would you kindly give me more information? 
+> adi,ad5758 is an oddball which defined an enum of arrays. While a valid
+> schema, it is simpler as a whole to only define scalar constraints.
 > 
+> Cc: Jean Delvare <jdelvare@suse.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Jonathan Cameron <jic23@kernel.org>
+> Cc: Lars-Peter Clausen <lars@metafoo.de>
+> Cc: Alexandre Torgue <alexandre.torgue@st.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Ulf Hansson <ulf.hansson@linaro.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Sebastian Reichel <sre@kernel.org>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Serge Semin <fancer.lancer@gmail.com>
+> Cc: Wolfram Sang <wolfram@the-dreams.de>
+> Cc: linux-hwmon@vger.kernel.org
 
-Per Documentation/hwmon/submitting-patches.rst:
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-3. New drivers
---------------
-...
-* Document the driver in Documentation/hwmon/<driver_name>.rst.
-
-Please read and follow that document. It will save us both a lot of time.
-
-Thanks,
-Guenter
-
-> Best regards,
-> Campion
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-iio@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-mmc@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-rtc@vger.kernel.org
+> Cc: linux-serial@vger.kernel.org
+> Cc: alsa-devel@alsa-project.org
+> Cc: linux-watchdog@vger.kernel.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>  .../devicetree/bindings/arm/cpus.yaml         |  1 -
+>  .../bindings/extcon/wlf,arizona.yaml          |  1 -
+>  .../bindings/hwmon/adi,ltc2947.yaml           |  1 -
+>  .../bindings/hwmon/baikal,bt1-pvt.yaml        |  8 ++--
+>  .../devicetree/bindings/hwmon/ti,tmp513.yaml  |  1 -
+>  .../devicetree/bindings/i2c/i2c-gpio.yaml     |  2 -
+>  .../bindings/i2c/snps,designware-i2c.yaml     |  3 --
+>  .../bindings/iio/adc/maxim,max9611.yaml       |  1 -
+>  .../bindings/iio/adc/st,stm32-adc.yaml        |  1 -
+>  .../bindings/iio/adc/ti,palmas-gpadc.yaml     |  2 -
+>  .../bindings/iio/dac/adi,ad5758.yaml          | 41 ++++++++++++-------
+>  .../bindings/iio/health/maxim,max30100.yaml   |  1 -
+>  .../input/touchscreen/touchscreen.yaml        |  2 -
+>  .../bindings/mmc/mmc-controller.yaml          |  1 -
+>  .../bindings/mmc/mmc-pwrseq-simple.yaml       |  2 -
+>  .../bindings/net/ethernet-controller.yaml     |  2 -
+>  .../devicetree/bindings/net/snps,dwmac.yaml   |  1 -
+>  .../bindings/power/supply/battery.yaml        |  3 --
+>  .../bindings/power/supply/bq2515x.yaml        |  1 -
+>  .../bindings/regulator/dlg,da9121.yaml        |  1 -
+>  .../bindings/regulator/fixed-regulator.yaml   |  2 -
+>  .../devicetree/bindings/rtc/rtc.yaml          |  2 -
+>  .../devicetree/bindings/serial/pl011.yaml     |  2 -
+>  .../devicetree/bindings/sound/sgtl5000.yaml   |  2 -
+>  .../bindings/watchdog/watchdog.yaml           |  1 -
+>  25 files changed, 29 insertions(+), 56 deletions(-)
 > 
->> -----Original Message-----
->> From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
->> Sent: Sunday, January 24, 2021 12:35 AM
->> To: Campion.Kang <Campion.Kang@advantech.com.tw>
->> Cc: Lee Jones <lee.jones@linaro.org>; Rob Herring <robh+dt@kernel.org>;
->> linux-kernel@vger.kernel.org; devicetree@vger.kernel.org; Jean Delvare
->> <jdelvare@suse.com>; Wim Van Sebroeck <wim@linux-watchdog.org>;
->> linux-hwmon@vger.kernel.org; linux-watchdog@vger.kernel.org; AceLan Kao
->> <chia-lin.kao@canonical.com>
->> Subject: Re: [PATCH v6 5/6] hwmon: ahc1ec0-hwmon: Add sub-device hwmon
->> for Advantech embedded controller
->>
->> On Mon, Jan 18, 2021 at 08:37:48PM +0800, Campion Kang wrote:
->>> This is one of sub-device driver for Advantech embedded controller
->>> AHC1EC0. This driver provides sysfs ABI for Advantech related
->>> applications to monitor the system status.
->>>
->>> Changed since V5:
->>> 	- remove unnecessary header files
->>> 	- Using [devm_]hwmon_device_register_with_info() to register hwmon
->>> driver based on reviewer's suggestion
->>>
->>> Signed-off-by: Campion Kang <campion.kang@advantech.com.tw>
->>> Tested-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
->>
->> checkpatch --strict says:
->>
->> total: 0 errors, 1 warnings, 10 checks, 683 lines checked
->>
->> The MAINTAINERS warning is irrelevant, but there are a number of
->> alignment and other style issues. Please fix those.
->>
->>> ---
->>>  drivers/hwmon/Kconfig         |  10 +
->>>  drivers/hwmon/Makefile        |   1 +
->>>  drivers/hwmon/ahc1ec0-hwmon.c | 660
->>> ++++++++++++++++++++++++++++++++++
->>
->> Documentation is missing.
->>
->>>  3 files changed, 671 insertions(+)
->>>  create mode 100644 drivers/hwmon/ahc1ec0-hwmon.c
->>>
->>> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig index
->>> 1ecf697d8d99..bfa007026679 100644
->>> --- a/drivers/hwmon/Kconfig
->>> +++ b/drivers/hwmon/Kconfig
->>> @@ -2139,6 +2139,16 @@ config SENSORS_INTEL_M10_BMC_HWMON
->>>  	  sensors monitor various telemetry data of different components on
->> the
->>>  	  card, e.g. board temperature, FPGA core
->> temperature/voltage/current.
->>>
->>> +config SENSORS_AHC1EC0_HWMON
->>> +	tristate "Advantech AHC1EC0 Hardware Monitor Function"
->>> +	depends on MFD_AHC1EC0
->>> +	help
->>> +	  This driver provide support for the hardware monitoring
->> functionality
->>> +	  for Advantech AHC1EC0 embedded controller on the board.
->>> +
->>> +	  This driver provides the sysfs attributes for applications to monitor
->>> +	  the system status, including system temperatures, voltages, current.
->>> +
->>>  if ACPI
->>>
->>>  comment "ACPI drivers"
->>> diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile index
->>> 09a86c5e1d29..0c37747e8c4f 100644
->>> --- a/drivers/hwmon/Makefile
->>> +++ b/drivers/hwmon/Makefile
->>> @@ -45,6 +45,7 @@ obj-$(CONFIG_SENSORS_ADT7411)	+= adt7411.o
->>>  obj-$(CONFIG_SENSORS_ADT7462)	+= adt7462.o
->>>  obj-$(CONFIG_SENSORS_ADT7470)	+= adt7470.o
->>>  obj-$(CONFIG_SENSORS_ADT7475)	+= adt7475.o
->>> +obj-$(CONFIG_SENSORS_AHC1EC0_HWMON)	+= ahc1ec0-hwmon.o
->>>  obj-$(CONFIG_SENSORS_AMD_ENERGY) += amd_energy.o
->>>  obj-$(CONFIG_SENSORS_APPLESMC)	+= applesmc.o
->>>  obj-$(CONFIG_SENSORS_ARM_SCMI)	+= scmi-hwmon.o
->>> diff --git a/drivers/hwmon/ahc1ec0-hwmon.c
->>> b/drivers/hwmon/ahc1ec0-hwmon.c new file mode 100644 index
->>> 000000000000..688f07e6a6e0
->>> --- /dev/null
->>> +++ b/drivers/hwmon/ahc1ec0-hwmon.c
->>> @@ -0,0 +1,660 @@
->>> +// SPDX-License-Identifier: GPL-2.0-only
->>> +/*
->>> + * HWMON Driver for Advantech Embedded Controller chip AHC1EC0
->>> + *
->>> + * Copyright 2020, Advantech IIoT Group
->>> + *
->>> + */
->>> +
->>> +#include <linux/device.h>
->>> +#include <linux/errno.h>
->>> +#include <linux/hwmon-sysfs.h>
->>> +#include <linux/hwmon.h>
->>> +#include <linux/mfd/ahc1ec0.h>
->>> +#include <linux/module.h>
->>> +#include <linux/platform_device.h>
->>> +#include <linux/property.h>
->>> +#include <linux/string.h>
->>> +#include <linux/types.h>
->>> +
->>> +struct ec_hwmon_attrs {
->>> +	const char		*name;
->>> +	umode_t			mode;
->>> +	int (*read)(struct device *dev, long *val); };
->>> +
->>> +struct adv_hwmon_profile {
->>> +	int offset;
->>> +	unsigned long resolution, resolution_vin, resolution_sys,
->> resolution_curr, resolution_power;
->>> +	unsigned long r1, r1_vin, r1_sys, r1_curr, r1_power;
->>> +	unsigned long r2, r2_vin, r2_sys, r2_curr, r2_power;
->>> +	int hwmon_in_list_cnt;
->>> +	int temp_list_cnt;
->>> +	int *hwmon_in_list;
->>> +	int *temp_list;
->>> +};
->>> +
->>> +struct ec_hwmon_data {
->>> +	struct device *dev;
->>> +	struct device *hwmon_dev;
->>> +	struct adv_ec_platform_data *adv_ec_data;
->>> +	unsigned long temperature[3];
->>> +	unsigned long ec_current[5];
->>> +	unsigned long power[5];
->>> +	unsigned long voltage[7];
->>> +
->>> +	struct ec_hw_pin_table pin_tbl;
->>> +	struct ec_smbuso_em0 ec_smboem0;
->>> +	struct adv_hwmon_profile *profile;
->>> +};
->>> +
->>> +static int get_ec_in_vbat_input(struct device *dev, long *val);
->>> +static int get_ec_in_v5_input(struct device *dev, long *val); static
->>> +int get_ec_in_v12_input(struct device *dev, long *val); static int
->>> +get_ec_in_vcore_input(struct device *dev, long *val); static int
->>> +get_ec_current1_input(struct device *dev, long *val); static int
->>> +get_ec_cpu_temp(struct device *dev, long *val); static int
->>> +get_ec_sys_temp(struct device *dev, long *val);
->>> +
->>
->> Please reorder code to not require those declarations.
->>
->>> +const struct ec_hwmon_attrs ec_hwmon_in_attr_template[] = {
->>> +	{"VBAT",	0444, get_ec_in_vbat_input},	// in1
->>> +	{"5VSB",	0444, get_ec_in_v5_input},	// in2
->>> +	{"Vin",		0444, get_ec_in_v12_input},	// in3 (== in8)
->>> +	{"VCORE",	0444, get_ec_in_vcore_input},	// in4
->>> +	{"Vin1",	0444, NULL},	// in5
->>> +	{"Vin2",	0444, NULL},	// in6
->>> +	{"System Voltage", 0444, NULL},	// in7
->>> +	{"Current",	0444, get_ec_current1_input},
->>> +};
->>> +
->>> +const struct ec_hwmon_attrs ec_temp_attrs_template[] = {
->>> +	{"CPU Temp",	0444, get_ec_cpu_temp},
->>> +	{"System Temp",	0444, get_ec_sys_temp},
->>> +};
->>> +
->>> +enum ec_hwmon_in_type {
->>> +	EC_HWMON_IN_VBAT,
->>> +	EC_HWMON_IN_5VSB,
->>> +	EC_HWMON_IN_12V,
->>> +	EC_HWMON_IN_VCORE,
->>> +	EC_HWMON_IN_VIN1,
->>> +	EC_HWMON_IN_VIN2,
->>> +	EC_HWMON_IN_SYS_VOL,
->>> +	EC_HWMON_IN_CURRENT,
->>> +};
->>> +
->>> +enum ec_temp_type {
->>> +	EC_TEMP_CPU,
->>> +	EC_TEMP_SYS,
->>> +};
->>> +
->>> +static int hwmon_in_list_0[] = {
->>> +	EC_HWMON_IN_VBAT,
->>> +	EC_HWMON_IN_5VSB,
->>> +	EC_HWMON_IN_12V,
->>> +	EC_HWMON_IN_VCORE,
->>> +	EC_HWMON_IN_CURRENT,
->>> +};
->>> +
->>> +static int hwmon_in_list_1[] = {
->>> +	EC_HWMON_IN_VBAT,
->>> +	EC_HWMON_IN_5VSB,
->>> +	EC_HWMON_IN_12V,
->>> +	EC_HWMON_IN_VCORE,
->>> +};
->>> +
->>> +static int temp_list_0[] = {
->>> +	EC_TEMP_CPU,
->>> +};
->>> +
->>> +static int temp_list_1[] = {
->>> +	EC_TEMP_CPU,
->>> +	EC_TEMP_SYS,
->>> +};
->>> +
->>> +static struct adv_hwmon_profile advec_profile[] = {
->>> +	/*
->>> +	 * TPC-8100TR, TPC-651T-E3AE, TPC-1251T-E3AE, TPC-1551T-E3AE,
->>> +	 * TPC-1751T-E3AE, TPC-1051WP-E3AE, TPC-1551WP-E3AE,
->> TPC-1581WP-433AE,
->>> +	 * TPC-1782H-433AE, UNO-1483G-434AE, UNO-2483G-434AE,
->> UNO-3483G-374AE,
->>> +	 * UNO-2473G, UNO-2484G-6???AE, UNO-2484G-7???AE,
->> UNO-3283G-674AE,
->>> +	 * UNO-3285G-674AE
->>
->> What is all this ? Please add a brief explanation (affected hardware ? chips ?)
->>
->>> +	 * [0] AHC1EC0_HWMON_PRO_TEMPLATE
->>> +	 */
->>> +	{
->>> +		.resolution = 2929,
->>> +		.r1 = 1912,
->>> +		.r2 = 1000,
->>> +		.offset = 0,
->>> +		.hwmon_in_list_cnt = ARRAY_SIZE(hwmon_in_list_0),
->>> +		.temp_list_cnt = ARRAY_SIZE(temp_list_0),
->>> +		.hwmon_in_list = hwmon_in_list_0,
->>> +		.temp_list = temp_list_0,
->>> +	},
->>> +	/*
->>> +	 * TPC-B500-6??AE, TPC-5???T-6??AE, TPC-5???W-6??AE,
->> TPC-B200-???AE,
->>> +	 * TPC-2???T-???AE, TPC-2???W-???AE
->>> +	 * [1] AHC1EC0_HWMON_PRO_TPC5XXX
->>> +	 */
->>> +	{
->>> +		.resolution = 2929,
->>> +		.r1 = 1912,
->>> +		.r2 = 1000,
->>> +		.offset = 0,
->>> +		.hwmon_in_list_cnt = ARRAY_SIZE(hwmon_in_list_1),
->>> +		.temp_list_cnt = ARRAY_SIZE(temp_list_0),
->>> +		.hwmon_in_list = hwmon_in_list_1,
->>> +		.temp_list = temp_list_0,
->>> +	},
->>> +	/* PR/VR4
->>> +	 * [2] AHC1EC0_HWMON_PRO_PRVR4
->>> +	 */
->>> +	{
->>> +		.resolution = 2929,
->>> +		.r1 = 1912,
->>> +		.r2 = 1000,
->>> +		.offset = 0,
->>> +		.hwmon_in_list_cnt = ARRAY_SIZE(hwmon_in_list_1),
->>> +		.temp_list_cnt = ARRAY_SIZE(temp_list_1),
->>> +		.hwmon_in_list = hwmon_in_list_1,
->>> +		.temp_list = temp_list_1,
->>> +	},
->>> +	/* UNO-2271G-E22AE/E23AE/E022AE/E023AE,UNO-420
->>> +	 * [3] AHC1EC0_HWMON_PRO_UNO2271G
->>> +	 */
->>> +	{
->>> +		.resolution = 2929,
->>> +		.r1 = 1912,
->>> +		.r2 = 1000,
->>> +		.offset = 0,
->>> +		.hwmon_in_list_cnt = ARRAY_SIZE(hwmon_in_list_1),
->>> +		.temp_list_cnt = ARRAY_SIZE(temp_list_0),
->>> +		.hwmon_in_list = hwmon_in_list_1,
->>> +		.temp_list = temp_list_0,
->>> +	},
->>> +};
->>> +
->>> +static void adv_ec_init_hwmon_profile(u32 profile, struct
->>> +ec_hwmon_data *lmsensor_data) {
->>> +	int i;
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->> lmsensor_data->adv_ec_data;
->>> +	struct ec_dynamic_table *dym_tbl = adv_ec_data->dym_tbl;
->>> +
->>> +	if (profile >= ARRAY_SIZE(advec_profile))
->>> +		return;
->>
->> This can not happen. Please no unnecessary error checks.
->>
->>> +
->>> +	lmsensor_data->profile = &advec_profile[profile];
->>> +
->>> +	for (i = 0; i < EC_MAX_TBL_NUM ; i++) {
->>> +		switch (dym_tbl[i].device_id) {
->>> +		case EC_DID_CMOSBAT:
->>> +			ptbl->vbat[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vbat[1] = 1;
->>> +			break;
->>> +		case EC_DID_CMOSBAT_X2:
->>> +			ptbl->vbat[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vbat[1] = 2;
->>> +			break;
->>> +		case EC_DID_CMOSBAT_X10:
->>> +			ptbl->vbat[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vbat[1] = 10;
->>> +			break;
->>> +		case EC_DID_5VS0:
->>> +		case EC_DID_5VS5:
->>> +			ptbl->v5[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v5[1] = 1;
->>> +			break;
->>> +		case EC_DID_5VS0_X2:
->>> +		case EC_DID_5VS5_X2:
->>> +			ptbl->v5[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v5[1] = 2;
->>> +			break;
->>> +		case EC_DID_5VS0_X10:
->>> +		case EC_DID_5VS5_X10:
->>> +			ptbl->v5[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v5[1] = 10;
->>> +			break;
->>> +		case EC_DID_12VS0:
->>> +			ptbl->v12[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v12[1] = 1;
->>> +			break;
->>> +		case EC_DID_12VS0_X2:
->>> +			ptbl->v12[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v12[1] = 2;
->>> +			break;
->>> +		case EC_DID_12VS0_X10:
->>> +			ptbl->v12[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->v12[1] = 10;
->>> +			break;
->>> +		case EC_DID_VCOREA:
->>> +		case EC_DID_VCOREB:
->>> +			ptbl->vcore[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vcore[1] = 1;
->>> +			break;
->>> +		case EC_DID_VCOREA_X2:
->>> +		case EC_DID_VCOREB_X2:
->>> +			ptbl->vcore[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vcore[1] = 2;
->>> +			break;
->>> +		case EC_DID_VCOREA_X10:
->>> +		case EC_DID_VCOREB_X10:
->>> +			ptbl->vcore[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vcore[1] = 10;
->>> +			break;
->>> +		case EC_DID_DC:
->>> +			ptbl->vdc[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vdc[1] = 1;
->>> +			break;
->>> +		case EC_DID_DC_X2:
->>> +			ptbl->vdc[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vdc[1] = 2;
->>> +			break;
->>> +		case EC_DID_DC_X10:
->>> +			ptbl->vdc[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->vdc[1] = 10;
->>> +			break;
->>> +		case EC_DID_CURRENT:
->>> +			ptbl->ec_current[0] = dym_tbl[i].hw_pin_num;
->>> +			ptbl->ec_current[1] = 1;
->>> +			break;
->>> +		case EC_DID_SMBOEM0:
->>> +			lmsensor_data->ec_smboem0.hw_pin_num =
->> dym_tbl[i].hw_pin_num;
->>> +			break;
->>> +		default:
->>> +			break;
->>> +		}
->>> +	}
->>> +}
->>> +
->>> +static int get_ec_in_vbat_input(struct device *dev, long *val) {
->>> +	unsigned int temp = 0;
->>> +	unsigned long voltage = 0;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_hwmon_profile *profile = lmsensor_data->profile;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	temp = read_ad_value(adv_ec_data, ptbl->vbat[0], ptbl->vbat[1]);
->>> +
->>> +	if (profile->r2 != 0)
->>> +		voltage = temp * (profile->r1 + profile->r2) / profile->r2;
->>> +
->>> +	if (profile->resolution != 0)
->>> +		voltage =  temp * profile->resolution / 1000 / 1000;
->>> +
->>> +	if (profile->offset != 0)
->>> +		voltage += (int)profile->offset * 100;
->>> +
->>> +	lmsensor_data->voltage[0] = 10 * voltage;
->>> +
->>> +	*val = lmsensor_data->voltage[0];
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_in_v5_input(struct device *dev, long *val) {
->>> +	unsigned int temp;
->>> +	unsigned long voltage = 0;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>
->> Please no empty lines in variable declarations.
->>
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_hwmon_profile *profile = lmsensor_data->profile;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	temp = read_ad_value(adv_ec_data, ptbl->v5[0], ptbl->v5[1]);
->>> +
->>> +	if (profile->r2 != 0)
->>> +		voltage = temp * (profile->r1 + profile->r2) / profile->r2;
->>> +
->>> +	if (profile->resolution != 0)
->>> +		voltage =  temp * profile->resolution / 1000 / 1000;
->>> +
->>> +	if (profile->offset != 0)
->>> +		voltage += (int)profile->offset * 100;
->>> +
->>> +	lmsensor_data->voltage[1] = 10 * voltage;
->>> +
->>> +	*val = lmsensor_data->voltage[1];
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_in_v12_input(struct device *dev, long *val) {
->>> +	int temp;
->>> +	unsigned long voltage = 0;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_hwmon_profile *profile = lmsensor_data->profile;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	temp = read_ad_value(adv_ec_data, ptbl->v12[0], ptbl->v12[1]);
->>> +	if (temp == -1)
->>> +		temp = read_ad_value(adv_ec_data, ptbl->vdc[0], ptbl->vdc[1]);
->>> +
->>> +	if (profile->r2 != 0)
->>> +		voltage = temp * (profile->r1 + profile->r2) / profile->r2;
->>> +
->>> +	if (profile->resolution != 0)
->>> +		voltage =  temp * profile->resolution / 1000 / 1000;
->>> +
->>> +	if (profile->offset != 0)
->>> +		voltage += profile->offset * 100;
->>> +
->>> +	lmsensor_data->voltage[2] = 10 * voltage;
->>> +
->>> +	*val = lmsensor_data->voltage[2];
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_in_vcore_input(struct device *dev, long *val) {
->>> +	int temp;
->>> +	unsigned int voltage = 0;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_hwmon_profile *profile = lmsensor_data->profile;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	temp = read_ad_value(adv_ec_data, ptbl->vcore[0], ptbl->vcore[1]);
->>> +
->>> +	if (profile->r2 != 0)
->>> +		voltage = temp * (profile->r1 + profile->r2) / profile->r2;
->>> +
->>> +	if (profile->resolution != 0)
->>> +		voltage = temp * profile->resolution / 1000 / 1000;
->>> +
->>> +	if (profile->offset != 0)
->>> +		voltage += profile->offset * 100;
->>> +
->>> +	lmsensor_data->voltage[3] = 10 * voltage;
->>> +
->>> +	*val = lmsensor_data->voltage[3];
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_current1_input(struct device *dev, long *val) {
->>> +	int temp;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	struct ec_hw_pin_table *ptbl = &lmsensor_data->pin_tbl;
->>> +	struct adv_hwmon_profile *profile = lmsensor_data->profile;
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	temp = read_ad_value(adv_ec_data, ptbl->ec_current[0],
->>> +ptbl->ec_current[1]);
->>> +
->>> +	if (profile->r2 != 0)
->>> +		temp = temp * (profile->r1 + profile->r2) / profile->r2;
->>> +
->>> +	if (profile->resolution != 0)
->>> +		temp = temp * profile->resolution / 1000 / 1000;
->>> +
->>> +	if (profile->offset != 0)
->>> +		temp += profile->offset * 100;
->>> +
->>> +	lmsensor_data->ec_current[3] = 10 * temp;
->>> +
->>> +	*val = lmsensor_data->ec_current[3];
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_cpu_temp(struct device *dev, long *val) {
->>> +	#define EC_ACPI_THERMAL1_REMOTE_TEMP 0x61
->>
->> Pease move defines to top of file. Also, please use
->>
->> #define<space>IDENTIFER<tab>value
->>
->>> +
->>> +	unsigned char value;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	read_acpi_value(adv_ec_data, EC_ACPI_THERMAL1_REMOTE_TEMP,
->> &value);
->>
->> This is not an appropriate function name for a device specific exported
->> function. The function name should have a prefix.
->>
->> Also, the error code from read_acpi_value needs to be checked and
->> handled.
->>
->>> +	*val = 1000 * value;
->>> +	return 0;
->>> +}
->>> +
->>> +static int get_ec_sys_temp(struct device *dev, long *val) {
->>> +	#define EC_ACPI_THERMAL1_LOCAL_TEMP 0x60
->>> +
->>> +	unsigned char value;
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +	struct adv_ec_platform_data *adv_ec_data =
->>> +lmsensor_data->adv_ec_data;
->>> +
->>> +	read_acpi_value(adv_ec_data, EC_ACPI_THERMAL1_LOCAL_TEMP,
->> &value);
->>> +	*val = 1000 * value;
->>> +	return 0;
->>> +}
->>> +
->>> +
->>> +static int
->>> +ahc1ec0_read_in(struct device *dev, u32 attr, int channel, long *val)
->>> +{
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	if (!(lmsensor_data && lmsensor_data->profile))
->>> +		return -EINVAL;
->>
->> This can not happen. Also, please don't use double negations.
->>
->>> +
->>> +	if (attr == hwmon_in_input &&
->>> +		lmsensor_data->profile->hwmon_in_list_cnt > channel) {
->>
->> This is unnecessary. Again, please drop all those unnecessary checks.
->>
->>> +		int index = lmsensor_data->profile->hwmon_in_list[channel];
->>> +		const struct ec_hwmon_attrs *ec_hwmon_attr =
->>> +&ec_hwmon_in_attr_template[index];
->>> +
->>> +		return ec_hwmon_attr->read(dev, val);
->>> +	}
->>> +
->>> +	return -EOPNOTSUPP;
->>> +}
->>> +
->>> +static int
->>> +ahc1ec0_read_temp(struct device *dev, u32 attr, int channel, long
->>> +*val) {
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	if (!(lmsensor_data && lmsensor_data->profile))
->>> +		return -EINVAL;
->>> +
->>> +	switch (attr) {
->>> +	case hwmon_temp_input:
->>> +		if (lmsensor_data->profile->temp_list_cnt > channel) {
->>> +			int index = lmsensor_data->profile->temp_list[channel];
->>> +			const struct ec_hwmon_attrs *devec_hwmon_attr =
->>> +				&ec_temp_attrs_template[index];
->>> +
->>> +			return devec_hwmon_attr->read(dev, val);
->>> +		}
->>> +		return -EOPNOTSUPP;
->>> +	case hwmon_temp_crit:
->>> +		// both CPU temp and System temp are all this value
->>> +		*val = 100000;
->>> +		return 0;
->>> +	default:
->>> +		return -EOPNOTSUPP;
->>> +	}
->>> +}
->>> +
->>> +static int
->>> +ahc1ec0_read_string(struct device *dev,
->>> +					enum hwmon_sensor_types type,
->>> +					u32 attr,
->>> +					int channel,
->>> +					const char **str)
->>> +{
->>> +	struct ec_hwmon_data *lmsensor_data = dev_get_drvdata(dev);
->>> +
->>> +	if (!(lmsensor_data && lmsensor_data->profile))
->>> +		return -EINVAL;
->>> +
->>> +	if ((type == hwmon_in && attr == hwmon_in_label) &&
->>> +		(lmsensor_data->profile->hwmon_in_list_cnt > channel)) {
->>
->> lmsensor_data->profile->hwmon_in_list_cnt > channel is unnecessary, and
->> the () around it as well.
->>
->>> +		int index = lmsensor_data->profile->hwmon_in_list[channel];
->>> +		const struct ec_hwmon_attrs *ec_hwmon_attr =
->>> +&ec_hwmon_in_attr_template[index];
->>> +
->>> +		*str = ec_hwmon_attr->name;
->>> +		return 0;
->>> +	}
->>> +
->>> +	if ((type == hwmon_temp && attr == hwmon_temp_label) &&
->>> +		(lmsensor_data->profile->temp_list_cnt > channel)) {
->>> +		int index = lmsensor_data->profile->temp_list[channel];
->>> +		const struct ec_hwmon_attrs *ec_hwmon_attr =
->>> +&ec_temp_attrs_template[index];
->>> +
->>> +		*str = ec_hwmon_attr->name;
->>> +		return 0;
->>> +	}
->>> +
->>> +	return -EOPNOTSUPP;
->>> +}
->>> +
->>> +static int
->>> +ahc1ec0_read(struct device *dev,
->>> +			enum hwmon_sensor_types type,
->>> +			u32 attr,
->>> +			int channel,
->>> +			long *val)
->>
->> Too many line splits. Please reduce to minuimum required.
->>
->>> +{
->>> +	switch (type) {
->>> +	case hwmon_in:
->>> +		return ahc1ec0_read_in(dev, attr, channel, val);
->>> +	case hwmon_temp:
->>> +		return ahc1ec0_read_temp(dev, attr, channel, val);
->>> +	default:
->>> +		return -EOPNOTSUPP;
->>> +	}
->>> +}
->>> +
->>> +static umode_t
->>> +ec_hwmon_in_visible(const void *data, u32 attr, int channel) {
->>> +	switch (attr) {
->>> +	case hwmon_in_input:
->>> +	case hwmon_in_label:
->>> +		return 0444;
->>> +	default:
->>> +		return 0;
->>> +	}
->>
->> The code needs to take channel into account, and return 0 if a voltage
->> sensor is not supported.
->>
->>> +}
->>> +
->>> +static umode_t
->>> +ec_temp_in_visible(const void *data, u32 attr, int channel) {
->>> +	switch (attr) {
->>> +	case hwmon_temp_input:
->>> +	case hwmon_temp_crit:
->>> +	case hwmon_temp_label:
->>> +		return 0444;
->>> +	default:
->>> +		return 0;
->>> +	}
->>
->> The code needs to take channel into account, and return 0 if the second
->> temperature sensor is not supported.
->>
->>> +}
->>> +
->>> +static umode_t
->>> +ahc1ec0_is_visible(const void *data,
->>> +					enum hwmon_sensor_types type, u32 attr, int
->> channel)
->>
->> Now this is a really odd (nd unnecessary) continuation line.
->>
->>> +{
->>> +	switch (type) {
->>> +	case hwmon_in:
->>> +		return ec_hwmon_in_visible(data, attr, channel);
->>> +	case hwmon_temp:
->>> +		return ec_temp_in_visible(data, attr, channel);
->>> +	default:
->>> +		return 0;
->>> +	}
->>> +}
->>> +
->>> +static const u32 ahc1ec0_in_config[] = {
->>> +	HWMON_I_INPUT | HWMON_I_LABEL,
->>> +	HWMON_I_INPUT | HWMON_I_LABEL,
->>> +	HWMON_I_INPUT | HWMON_I_LABEL,
->>> +	HWMON_I_INPUT | HWMON_I_LABEL,
->>> +	0
->>> +};
->>> +
->>> +static const struct hwmon_channel_info ahc1ec0_in = {
->>> +	.type = hwmon_in,
->>> +	.config = ahc1ec0_in_config,
->>> +};
->>> +
->>> +static const u32 ahc1ec0_temp_config[] = {
->>> +	HWMON_T_INPUT | HWMON_T_CRIT | HWMON_T_LABEL,
->>
->> I don't think this works as intended. it only lists one temperature sensor, but
->> the code clearly suggests that there can be two.
->>
->>> +	0
->>> +};
->>> +
->>> +static const struct hwmon_channel_info ahc1ec0_temp = {
->>> +	.type = hwmon_temp,
->>> +	.config = ahc1ec0_temp_config,
->>> +};
->>> +
->>> +static const struct hwmon_channel_info *ahc1ec0_info[] = {
->>> +	&ahc1ec0_in,
->>> +	&ahc1ec0_temp,
->>> +	NULL
->>> +};
->>> +
->>> +static const struct hwmon_ops ahc1ec0_hwmon_ops = {
->>> +	.is_visible = ahc1ec0_is_visible,
->>> +	.read = ahc1ec0_read,
->>> +	.read_string = ahc1ec0_read_string,
->>> +};
->>> +
->>> +static const struct hwmon_chip_info ahc1ec0_chip_info = {
->>> +	.ops = &ahc1ec0_hwmon_ops,
->>> +	.info = ahc1ec0_info,
->>> +};
->>> +
->>> +static int adv_ec_hwmon_probe(struct platform_device *pdev) {
->>> +	int ret;
->>> +	u32 profile;
->>> +	struct device *dev = &pdev->dev;
->>> +	struct adv_ec_platform_data *adv_ec_data;
->>> +	struct ec_hwmon_data *lmsensor_data;
->>> +
->>> +	adv_ec_data = dev_get_drvdata(dev->parent);
->>> +	if (!adv_ec_data)
->>> +		return -EINVAL;
->>> +
->>> +	ret = device_property_read_u32(dev->parent,
->> "advantech,hwmon-profile", &profile);
->>> +	if (ret < 0) {
->>> +		dev_err(dev, "get hwmon-profile failed! (%d)", ret);
->>> +		return ret;
->>> +	}
->>> +
->>> +	if (!(profile < ARRAY_SIZE(advec_profile))) {
->>
->> Please no double negations.
->> 	if (profile >= ARRAY_SIZE(advec_profile)) is much easier to understand.
->>
->>> +		dev_err(dev, "not support hwmon profile(%d)!\n", profile);
->>> +		return -EINVAL;
->>> +	}
->>> +
->>> +	lmsensor_data = devm_kzalloc(dev, sizeof(struct ec_hwmon_data),
->> GFP_KERNEL);
->>> +	if (!lmsensor_data)
->>> +		return -ENOMEM;
->>> +
->>> +	lmsensor_data->adv_ec_data = adv_ec_data;
->>> +	lmsensor_data->dev = dev;
->>> +	dev_set_drvdata(dev, lmsensor_data);
->>> +
->>> +	adv_ec_init_hwmon_profile(profile, lmsensor_data);
->>> +
->>> +	lmsensor_data->hwmon_dev  =
->> devm_hwmon_device_register_with_info(dev,
->>> +			"ahc1ec0.hwmon", lmsensor_data, &ahc1ec0_chip_info,
->> NULL);
->>> +
->>> +	return PTR_ERR_OR_ZERO(lmsensor_data->hwmon_dev);
->>> +}
->>> +
->>> +static struct platform_driver adv_hwmon_drv = {
->>> +	.driver = {
->>> +		.name = "ahc1ec0-hwmon",
->>> +	},
->>> +	.probe = adv_ec_hwmon_probe,
->>> +};
->>> +module_platform_driver(adv_hwmon_drv);
->>> +
->>> +MODULE_LICENSE("Dual BSD/GPL");
->>> +MODULE_ALIAS("platform:ahc1ec0-hwmon");
->>> +MODULE_DESCRIPTION("Advantech Embedded Controller HWMON
->> Driver.");
->>> +MODULE_AUTHOR("Campion Kang <campion.kang@advantech.com.tw>");
->>> +MODULE_AUTHOR("Jianfeng Dai <jianfeng.dai@advantech.com.cn>");
->>> +MODULE_VERSION("1.0");
-
+> diff --git a/Documentation/devicetree/bindings/arm/cpus.yaml b/Documentation/devicetree/bindings/arm/cpus.yaml
+> index 14cd727d3c4b..f02fd10de604 100644
+> --- a/Documentation/devicetree/bindings/arm/cpus.yaml
+> +++ b/Documentation/devicetree/bindings/arm/cpus.yaml
+> @@ -232,7 +232,6 @@ properties:
+>        by this cpu (see ./idle-states.yaml).
+>  
+>    capacity-dmips-mhz:
+> -    $ref: '/schemas/types.yaml#/definitions/uint32'
+>      description:
+>        u32 value representing CPU capacity (see ./cpu-capacity.txt) in
+>        DMIPS/MHz, relative to highest capacity-dmips-mhz
+> diff --git a/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml b/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
+> index 5fe784f487c5..efdf59abb2e1 100644
+> --- a/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
+> +++ b/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
+> @@ -85,7 +85,6 @@ properties:
+>    wlf,micd-timeout-ms:
+>      description:
+>        Timeout for microphone detection, specified in milliseconds.
+> -    $ref: "/schemas/types.yaml#/definitions/uint32"
+>  
+>    wlf,micd-force-micbias:
+>      description:
+> diff --git a/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml b/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
+> index eef614962b10..bf04151b63d2 100644
+> --- a/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
+> +++ b/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
+> @@ -49,7 +49,6 @@ properties:
+>      description:
+>        This property controls the Accumulation Dead band which allows to set the
+>        level of current below which no accumulation takes place.
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      maximum: 255
+>      default: 0
+>  
+> diff --git a/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml b/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
+> index 00a6511354e6..5d3ce641fcde 100644
+> --- a/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
+> +++ b/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
+> @@ -73,11 +73,9 @@ properties:
+>      description: |
+>        Temperature sensor trimming factor. It can be used to manually adjust the
+>        temperature measurements within 7.130 degrees Celsius.
+> -    maxItems: 1
+> -    items:
+> -      default: 0
+> -      minimum: 0
+> -      maximum: 7130
+> +    default: 0
+> +    minimum: 0
+> +    maximum: 7130
+>  
+>  additionalProperties: false
+>  
+> diff --git a/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml b/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
+> index 8020d739a078..1502b22c77cc 100644
+> --- a/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
+> +++ b/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
+> @@ -52,7 +52,6 @@ properties:
+>    ti,bus-range-microvolt:
+>      description: |
+>        This is the operating range of the bus voltage in microvolt
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      enum: [16000000, 32000000]
+>      default: 32000000
+>  
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+> index cc3aa2a5e70b..ff99344788ab 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+> @@ -39,11 +39,9 @@ properties:
+>  
+>    i2c-gpio,delay-us:
+>      description: delay between GPIO operations (may depend on each platform)
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    i2c-gpio,timeout-ms:
+>      description: timeout to get data
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    # Deprecated properties, do not use in new device tree sources:
+>    gpios:
+> diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+> index c22b66b6219e..d9293c57f573 100644
+> --- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+> @@ -66,21 +66,18 @@ properties:
+>      default: 400000
+>  
+>    i2c-sda-hold-time-ns:
+> -    maxItems: 1
+>      description: |
+>        The property should contain the SDA hold time in nanoseconds. This option
+>        is only supported in hardware blocks version 1.11a or newer or on
+>        Microsemi SoCs.
+>  
+>    i2c-scl-falling-time-ns:
+> -    maxItems: 1
+>      description: |
+>        The property should contain the SCL falling time in nanoseconds.
+>        This value is used to compute the tLOW period.
+>      default: 300
+>  
+>    i2c-sda-falling-time-ns:
+> -    maxItems: 1
+>      description: |
+>        The property should contain the SDA falling time in nanoseconds.
+>        This value is used to compute the tHIGH period.
+> diff --git a/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml b/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
+> index 9475a9e6e920..95774a55629d 100644
+> --- a/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
+> +++ b/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
+> @@ -23,7 +23,6 @@ properties:
+>      maxItems: 1
+>  
+>    shunt-resistor-micro-ohms:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: |
+>        Value in micro Ohms of the shunt resistor connected between the RS+ and
+>        RS- inputs, across which the current is measured.  Value needed to compute
+> diff --git a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
+> index 6364ede9bb5f..a58334c3bb76 100644
+> --- a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
+> +++ b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
+> @@ -248,7 +248,6 @@ patternProperties:
+>            Resolution (bits) to use for conversions:
+>              - can be 6, 8, 10 or 12 on stm32f4
+>              - can be 8, 10, 12, 14 or 16 on stm32h7 and stm32mp1
+> -        $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>        st,adc-channels:
+>          description: |
+> diff --git a/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml b/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
+> index 692dacd0fee5..7b895784e008 100644
+> --- a/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
+> +++ b/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
+> @@ -42,7 +42,6 @@ properties:
+>      const: 1
+>  
+>    ti,channel0-current-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: Channel 0 current in uA.
+>      enum:
+>        - 0
+> @@ -51,7 +50,6 @@ properties:
+>        - 20
+>  
+>    ti,channel3-current-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: Channel 3 current in uA.
+>      enum:
+>        - 0
+> diff --git a/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml b/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
+> index 626ccb6fe21e..fd4edca34a28 100644
+> --- a/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
+> +++ b/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
+> @@ -46,31 +46,42 @@ properties:
+>        two properties must be present:
+>  
+>    adi,range-microvolt:
+> -    $ref: /schemas/types.yaml#/definitions/int32-array
+>      description: |
+>        Voltage output range specified as <minimum, maximum>
+> -    enum:
+> -      - [[0, 5000000]]
+> -      - [[0, 10000000]]
+> -      - [[-5000000, 5000000]]
+> -      - [[-10000000, 10000000]]
+> +    oneOf:
+> +      - items:
+> +          - const: 0
+> +          - enum: [5000000, 10000000]
+> +      - items:
+> +          - const: -5000000
+> +          - const: 5000000
+> +      - items:
+> +          - const: -10000000
+> +          - const: 10000000
+>  
+>    adi,range-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/int32-array
+>      description: |
+>        Current output range specified as <minimum, maximum>
+> -    enum:
+> -      - [[0, 20000]]
+> -      - [[0, 24000]]
+> -      - [[4, 24000]]
+> -      - [[-20000, 20000]]
+> -      - [[-24000, 24000]]
+> -      - [[-1000, 22000]]
+> +    oneOf:
+> +      - items:
+> +          - const: 0
+> +          - enum: [20000, 24000]
+> +      - items:
+> +          - const: 4
+> +          - const: 24000
+> +      - items:
+> +          - const: -20000
+> +          - const: 20000
+> +      - items:
+> +          - const: -24000
+> +          - const: 24000
+> +      - items:
+> +          - const: -1000
+> +          - const: 22000
+>  
+>    reset-gpios: true
+>  
+>    adi,dc-dc-ilim-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      enum: [150000, 200000, 250000, 300000, 350000, 400000]
+>      description: |
+>        The dc-to-dc converter current limit.
+> diff --git a/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml b/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
+> index 64b862637039..967778fb0ce8 100644
+> --- a/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
+> +++ b/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
+> @@ -21,7 +21,6 @@ properties:
+>      description: Connected to ADC_RDY pin.
+>  
+>    maxim,led-current-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/uint32-array
+>      minItems: 2
+>      maxItems: 2
+>      description: |
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> index a771a15f053f..046ace461cc9 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> @@ -70,11 +70,9 @@ properties:
+>  
+>    touchscreen-x-mm:
+>      description: horizontal length in mm of the touchscreen
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    touchscreen-y-mm:
+>      description: vertical length in mm of the touchscreen
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>  dependencies:
+>    touchscreen-size-x: [ touchscreen-size-y ]
+> diff --git a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+> index df4ee4c778ae..e141330c1114 100644
+> --- a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+> +++ b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+> @@ -261,7 +261,6 @@ properties:
+>        waiting for I/O signalling and card power supply to be stable,
+>        regardless of whether pwrseq-simple is used. Default to 10ms if
+>        no available.
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      default: 10
+>  
+>    supports-cqe:
+> diff --git a/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml b/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
+> index 6cd57863c1db..226fb191913d 100644
+> --- a/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
+> +++ b/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
+> @@ -41,13 +41,11 @@ properties:
+>      description:
+>        Delay in ms after powering the card and de-asserting the
+>        reset-gpios (if any).
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    power-off-delay-us:
+>      description:
+>        Delay in us after asserting the reset-gpios (if any)
+>        during power off of the card.
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>  required:
+>    - compatible
+> diff --git a/Documentation/devicetree/bindings/net/ethernet-controller.yaml b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
+> index 0965f6515f9e..dac4aadb6e2e 100644
+> --- a/Documentation/devicetree/bindings/net/ethernet-controller.yaml
+> +++ b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
+> @@ -122,7 +122,6 @@ properties:
+>        such as flow control thresholds.
+>  
+>    rx-internal-delay-ps:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: |
+>        RGMII Receive Clock Delay defined in pico seconds.
+>        This is used for controllers that have configurable RX internal delays.
+> @@ -140,7 +139,6 @@ properties:
+>        is used for components that can have configurable fifo sizes.
+>  
+>    tx-internal-delay-ps:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: |
+>        RGMII Transmit Clock Delay defined in pico seconds.
+>        This is used for controllers that have configurable TX internal delays.
+> diff --git a/Documentation/devicetree/bindings/net/snps,dwmac.yaml b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> index b2f6083f556a..9ac77b8cb767 100644
+> --- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> +++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> @@ -208,7 +208,6 @@ properties:
+>        Triplet of delays. The 1st cell is reset pre-delay in micro
+>        seconds. The 2nd cell is reset pulse in micro seconds. The 3rd
+>        cell is reset post-delay in micro seconds.
+> -    $ref: /schemas/types.yaml#/definitions/uint32-array
+>      minItems: 3
+>      maxItems: 3
+>  
+> diff --git a/Documentation/devicetree/bindings/power/supply/battery.yaml b/Documentation/devicetree/bindings/power/supply/battery.yaml
+> index 0c7e2e44793b..c3b4b7543591 100644
+> --- a/Documentation/devicetree/bindings/power/supply/battery.yaml
+> +++ b/Documentation/devicetree/bindings/power/supply/battery.yaml
+> @@ -83,21 +83,18 @@ properties:
+>        for each of the battery capacity lookup table.
+>  
+>    operating-range-celsius:
+> -    $ref: /schemas/types.yaml#/definitions/uint32-array
+>      description: operating temperature range of a battery
+>      items:
+>        - description: minimum temperature at which battery can operate
+>        - description: maximum temperature at which battery can operate
+>  
+>    ambient-celsius:
+> -    $ref: /schemas/types.yaml#/definitions/uint32-array
+>      description: safe range of ambient temperature
+>      items:
+>        - description: alert when ambient temperature is lower than this value
+>        - description: alert when ambient temperature is higher than this value
+>  
+>    alert-celsius:
+> -    $ref: /schemas/types.yaml#/definitions/uint32-array
+>      description: safe range of battery temperature
+>      items:
+>        - description: alert when battery temperature is lower than this value
+> diff --git a/Documentation/devicetree/bindings/power/supply/bq2515x.yaml b/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
+> index 75a56773be4a..813d6afde606 100644
+> --- a/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
+> +++ b/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
+> @@ -50,7 +50,6 @@ properties:
+>      maxItems: 1
+>  
+>    input-current-limit-microamp:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description: Maximum input current in micro Amps.
+>      minimum: 50000
+>      maximum: 500000
+> diff --git a/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml b/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
+> index 6f2164f7bc57..228018c87bea 100644
+> --- a/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
+> +++ b/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
+> @@ -62,7 +62,6 @@ properties:
+>      description: IRQ line information.
+>  
+>    dlg,irq-polling-delay-passive-ms:
+> -    $ref: "/schemas/types.yaml#/definitions/uint32"
+>      minimum: 1000
+>      maximum: 10000
+>      description: |
+> diff --git a/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml b/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
+> index d3d0dc13dd8b..8850c01bd470 100644
+> --- a/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
+> +++ b/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
+> @@ -72,11 +72,9 @@ properties:
+>  
+>    startup-delay-us:
+>      description: startup time in microseconds
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    off-on-delay-us:
+>      description: off delay time in microseconds
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>  
+>    enable-active-high:
+>      description:
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+> index d30dc045aac6..0ec3551f12dd 100644
+> --- a/Documentation/devicetree/bindings/rtc/rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+> @@ -27,7 +27,6 @@ properties:
+>        1: chargeable
+>  
+>    quartz-load-femtofarads:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description:
+>        The capacitive load of the quartz(x-tal), expressed in femto
+>        Farad (fF). The default value shall be listed (if optional),
+> @@ -47,7 +46,6 @@ properties:
+>      deprecated: true
+>  
+>    trickle-resistor-ohms:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description:
+>        Selected resistor for trickle charger. Should be given
+>        if trickle charger should be enabled.
+> diff --git a/Documentation/devicetree/bindings/serial/pl011.yaml b/Documentation/devicetree/bindings/serial/pl011.yaml
+> index c23c93b400f0..07fa6d26f2b4 100644
+> --- a/Documentation/devicetree/bindings/serial/pl011.yaml
+> +++ b/Documentation/devicetree/bindings/serial/pl011.yaml
+> @@ -88,14 +88,12 @@ properties:
+>      description:
+>        Rate at which poll occurs when auto-poll is set.
+>        default 100ms.
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      default: 100
+>  
+>    poll-timeout-ms:
+>      description:
+>        Poll timeout when auto-poll is set, default
+>        3000ms.
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      default: 3000
+>  
+>  required:
+> diff --git a/Documentation/devicetree/bindings/sound/sgtl5000.yaml b/Documentation/devicetree/bindings/sound/sgtl5000.yaml
+> index d116c174b545..70b4a8831073 100644
+> --- a/Documentation/devicetree/bindings/sound/sgtl5000.yaml
+> +++ b/Documentation/devicetree/bindings/sound/sgtl5000.yaml
+> @@ -41,14 +41,12 @@ properties:
+>        values of 2k, 4k or 8k. If set to 0 it will be off. If this node is not
+>        mentioned or if the value is unknown, then micbias resistor is set to
+>        4k.
+> -    $ref: "/schemas/types.yaml#/definitions/uint32"
+>      enum: [ 0, 2, 4, 8 ]
+>  
+>    micbias-voltage-m-volts:
+>      description: The bias voltage to be used in mVolts. The voltage can take
+>        values from 1.25V to 3V by 250mV steps. If this node is not mentioned
+>        or the value is unknown, then the value is set to 1.25V.
+> -    $ref: "/schemas/types.yaml#/definitions/uint32"
+>      enum: [ 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000 ]
+>  
+>    lrclk-strength:
+> diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.yaml b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
+> index 4e2c26cd981d..e3dfb02f0ca5 100644
+> --- a/Documentation/devicetree/bindings/watchdog/watchdog.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
+> @@ -19,7 +19,6 @@ properties:
+>      pattern: "^watchdog(@.*|-[0-9a-f])?$"
+>  
+>    timeout-sec:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+>      description:
+>        Contains the watchdog timeout in seconds.
+>  
+> -- 
+> 2.27.0
+> 
