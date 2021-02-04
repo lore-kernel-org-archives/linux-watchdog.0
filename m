@@ -2,321 +2,170 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 639A6C433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Feb 2021 17:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83C34C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Feb 2021 18:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3466964F6A
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Feb 2021 17:05:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46A5C64F45
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Feb 2021 18:23:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237485AbhBDRFA (ORCPT
+        id S238990AbhBDSXq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Feb 2021 12:05:00 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:40793 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236997AbhBDREU (ORCPT
+        Thu, 4 Feb 2021 13:23:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48098 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239050AbhBDSXa (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 Feb 2021 12:04:20 -0500
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        Thu, 4 Feb 2021 13:23:30 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD23C061788
+        for <linux-watchdog@vger.kernel.org>; Thu,  4 Feb 2021 10:22:48 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1l7i0V-0002k5-Cy; Thu, 04 Feb 2021 18:01:27 +0100
-Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1l7i0V-0001Ne-4M; Thu, 04 Feb 2021 18:01:27 +0100
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     kernel@pengutronix.de, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH v3 1/3] watchdog: f71808e_wdt: rename variant-independent identifiers appropriately
-Date:   Thu,  4 Feb 2021 18:00:48 +0100
-Message-Id: <7516c77a131261bc3c606b0d49d8c656a22d5f2d.1612457906.git-series.a.fatoum@pengutronix.de>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <cover.dedd9f1159389b0a438076ef5e5a46aded186463.1612457906.git-series.a.fatoum@pengutronix.de>
-References: <cover.dedd9f1159389b0a438076ef5e5a46aded186463.1612457906.git-series.a.fatoum@pengutronix.de>
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l7jAm-0002WQ-TD; Thu, 04 Feb 2021 19:16:08 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l7jAV-0005Pi-Pr; Thu, 04 Feb 2021 19:15:51 +0100
+Date:   Thu, 4 Feb 2021 19:15:51 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-fbdev@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>, kvm@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org,
+        Jaroslav Kysela <perex@perex.cz>,
+        Eric Anholt <eric@anholt.net>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig.org@pengutronix.de>, linux-i2c@vger.kernel.org,
+        Jiri Slaby <jirislaby@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Takashi Iwai <tiwai@suse.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-serial@vger.kernel.org, linux-input@vger.kernel.org,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mike Leach <mike.leach@linaro.org>,
+        linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        coresight@lists.linaro.org, Vladimir Zapolskiy <vz@mleia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Matt Mackall <mpm@selenic.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-spi@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        linux-crypto@vger.kernel.org, kernel@pengutronix.de,
+        Leo Yan <leo.yan@linaro.org>, dmaengine@vger.kernel.org
+Subject: Re: [GIT PULL] immutable branch for amba changes targeting v5.12-rc1
+Message-ID: <20210204181551.ethtuzm65flujmwe@pengutronix.de>
+References: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
+ <20210202135350.36nj3dmcoq3t7gcf@pengutronix.de>
+ <YBlcTXlxemmC2lgr@kroah.com>
+ <20210204165224.GA1463@shell.armlinux.org.uk>
+ <YBwnUrQqlAz2LDPI@kroah.com>
+ <20210204165951.GB1463@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: afa@pengutronix.de
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="mw66hszyvu2hxhxe"
+Content-Disposition: inline
+In-Reply-To: <20210204165951.GB1463@shell.armlinux.org.uk>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Code for the common parts of the driver either uses watchdog_ as
-prefix for the watchdog API or f71808e_ for everything else.
 
-The driver now supports 9 more variants besides the f71808e,
-so let's rename the common parts to start with fintek_wdt_ instead.
+--mw66hszyvu2hxhxe
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This makes code browsing easier, because it's readily apparent
-that functions are not variant-specific. Some watchdog_-prefixed
-functions remain, but these will be dropped altogether with the move
-to the kernel watchdog API in a later commit.
+On Thu, Feb 04, 2021 at 04:59:51PM +0000, Russell King - ARM Linux admin wr=
+ote:
+> On Thu, Feb 04, 2021 at 05:56:50PM +0100, Greg Kroah-Hartman wrote:
+> > On Thu, Feb 04, 2021 at 04:52:24PM +0000, Russell King - ARM Linux admi=
+n wrote:
+> > > On Tue, Feb 02, 2021 at 03:06:05PM +0100, Greg Kroah-Hartman wrote:
+> > > > I'm glad to take this through my char/misc tree, as that's where the
+> > > > other coresight changes flow through.  So if no one else objects, I=
+ will
+> > > > do so...
+> > >=20
+> > > Greg, did you end up pulling this after all? If not, Uwe produced a v=
+2.
+> > > I haven't merged v2 yet as I don't know what you've done.
+> >=20
+> > I thought you merged this?
+>=20
+> I took v1, and put it in a branch I've promised in the past not to
+> rebase/rewind. Uwe is now asking for me to take a v2 or apply a patch
+> on top.
+>=20
+> The only reason to produce an "immutable" branch is if it's the basis
+> for some dependent work and you need that branch merged into other
+> people's trees... so the whole "lets produce a v2" is really odd
+> workflow... I'm confused about what I should do, and who has to be
+> informed which option I take.
+>=20
+> I'm rather lost here too.
 
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
----
- drivers/watchdog/f71808e_wdt.c | 66 +++++++++++++++++------------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+Sorry to have cause this confusion. After I saw that my initial tag
+missed to adapt a driver I wanted to make it easy for you to fix the
+situation.
+So I created a patch to fix it and created a second tag with the patch
+squashed in. Obviously only one of them have to be picked and I hoped
+you (=3D Russell + Greg) would agree which option to pick.
 
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index f60beec1bbae..665bef272a33 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -113,7 +113,7 @@ MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
- enum chips { f71808fg, f71858fg, f71862fg, f71868, f71869, f71882fg, f71889fg,
- 	     f81803, f81865, f81866};
- 
--static const char *f71808e_names[] = {
-+static const char *fintek_wdt_names[] = {
- 	"f71808fg",
- 	"f71858fg",
- 	"f71862fg",
-@@ -136,7 +136,7 @@ static inline int superio_enter(int base);
- static inline void superio_select(int base, int ld);
- static inline void superio_exit(int base);
- 
--struct watchdog_data {
-+struct fintek_wdt {
- 	unsigned short	sioaddr;
- 	enum chips	type;
- 	unsigned long	opened;
-@@ -152,7 +152,7 @@ struct watchdog_data {
- 	char		caused_reboot;	/* last reboot was by the watchdog */
- };
- 
--static struct watchdog_data watchdog = {
-+static struct fintek_wdt watchdog = {
- 	.lock = __MUTEX_INITIALIZER(watchdog.lock),
- };
- 
-@@ -218,7 +218,7 @@ static inline void superio_exit(int base)
- 	release_region(base, 2);
- }
- 
--static int watchdog_set_timeout(int timeout)
-+static int fintek_wdt_set_timeout(int timeout)
- {
- 	if (timeout <= 0
- 	 || timeout >  max_timeout) {
-@@ -242,7 +242,7 @@ static int watchdog_set_timeout(int timeout)
- 	return 0;
- }
- 
--static int watchdog_set_pulse_width(unsigned int pw)
-+static int fintek_wdt_set_pulse_width(unsigned int pw)
- {
- 	int err = 0;
- 	unsigned int t1 = 25, t2 = 125, t3 = 5000;
-@@ -276,7 +276,7 @@ static int watchdog_set_pulse_width(unsigned int pw)
- 	return err;
- }
- 
--static int watchdog_keepalive(void)
-+static int fintek_wdt_keepalive(void)
- {
- 	int err = 0;
- 
-@@ -306,13 +306,13 @@ static int watchdog_keepalive(void)
- 	return err;
- }
- 
--static int watchdog_start(void)
-+static int fintek_wdt_start(void)
- {
- 	int err;
- 	u8 tmp;
- 
- 	/* Make sure we don't die as soon as the watchdog is enabled below */
--	err = watchdog_keepalive();
-+	err = fintek_wdt_keepalive();
- 	if (err)
- 		return err;
- 
-@@ -433,7 +433,7 @@ static int watchdog_start(void)
- 	return err;
- }
- 
--static int watchdog_stop(void)
-+static int fintek_wdt_stop(void)
- {
- 	int err = 0;
- 
-@@ -465,7 +465,7 @@ static int watchdog_get_status(void)
- 	return status;
- }
- 
--static bool watchdog_is_running(void)
-+static bool fintek_wdt_is_running(void)
- {
- 	/*
- 	 * if we fail to determine the watchdog's status assume it to be
-@@ -499,7 +499,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 	if (test_and_set_bit(0, &watchdog.opened))
- 		return -EBUSY;
- 
--	err = watchdog_start();
-+	err = fintek_wdt_start();
- 	if (err) {
- 		clear_bit(0, &watchdog.opened);
- 		return err;
-@@ -517,10 +517,10 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	clear_bit(0, &watchdog.opened);
- 
- 	if (!watchdog.expect_close) {
--		watchdog_keepalive();
-+		fintek_wdt_keepalive();
- 		pr_crit("Unexpected close, not stopping watchdog!\n");
- 	} else if (!nowayout) {
--		watchdog_stop();
-+		fintek_wdt_stop();
- 	}
- 	return 0;
- }
-@@ -561,7 +561,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *buf,
- 		}
- 
- 		/* someone wrote to us, we should restart timer */
--		watchdog_keepalive();
-+		fintek_wdt_keepalive();
- 	}
- 	return count;
- }
-@@ -608,24 +608,24 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 			return -EFAULT;
- 
- 		if (new_options & WDIOS_DISABLECARD)
--			watchdog_stop();
-+			fintek_wdt_stop();
- 
- 		if (new_options & WDIOS_ENABLECARD)
--			return watchdog_start();
-+			return fintek_wdt_start();
- 		fallthrough;
- 
- 	case WDIOC_KEEPALIVE:
--		watchdog_keepalive();
-+		fintek_wdt_keepalive();
- 		return 0;
- 
- 	case WDIOC_SETTIMEOUT:
- 		if (get_user(new_timeout, uarg.i))
- 			return -EFAULT;
- 
--		if (watchdog_set_timeout(new_timeout))
-+		if (fintek_wdt_set_timeout(new_timeout))
- 			return -EINVAL;
- 
--		watchdog_keepalive();
-+		fintek_wdt_keepalive();
- 		fallthrough;
- 
- 	case WDIOC_GETTIMEOUT:
-@@ -641,7 +641,7 @@ static int watchdog_notify_sys(struct notifier_block *this, unsigned long code,
- 	void *unused)
- {
- 	if (code == SYS_DOWN || code == SYS_HALT)
--		watchdog_stop();
-+		fintek_wdt_stop();
- 	return NOTIFY_DONE;
- }
- 
-@@ -679,7 +679,7 @@ static int __init watchdog_init(int sioaddr)
- 
- 	snprintf(watchdog.ident.identity,
- 		sizeof(watchdog.ident.identity), "%s watchdog",
--		f71808e_names[watchdog.type]);
-+		fintek_wdt_names[watchdog.type]);
- 
- 	err = superio_enter(sioaddr);
- 	if (err)
-@@ -698,10 +698,10 @@ static int __init watchdog_init(int sioaddr)
- 
- 	superio_exit(sioaddr);
- 
--	err = watchdog_set_timeout(timeout);
-+	err = fintek_wdt_set_timeout(timeout);
- 	if (err)
- 		return err;
--	err = watchdog_set_pulse_width(pulse_width);
-+	err = fintek_wdt_set_pulse_width(pulse_width);
- 	if (err)
- 		return err;
- 
-@@ -724,7 +724,7 @@ static int __init watchdog_init(int sioaddr)
- 			goto exit_miscdev;
- 		}
- 
--		err = watchdog_start();
-+		err = fintek_wdt_start();
- 		if (err) {
- 			pr_err("cannot start watchdog timer\n");
- 			goto exit_miscdev;
-@@ -772,7 +772,7 @@ static int __init watchdog_init(int sioaddr)
- 	return err;
- }
- 
--static int __init f71808e_find(int sioaddr)
-+static int __init fintek_wdt_find(int sioaddr)
- {
- 	u16 devid;
- 	int err = superio_enter(sioaddr);
-@@ -828,14 +828,14 @@ static int __init f71808e_find(int sioaddr)
- 	}
- 
- 	pr_info("Found %s watchdog chip, revision %d\n",
--		f71808e_names[watchdog.type],
-+		fintek_wdt_names[watchdog.type],
- 		(int)superio_inb(sioaddr, SIO_REG_DEVREV));
- exit:
- 	superio_exit(sioaddr);
- 	return err;
- }
- 
--static int __init f71808e_init(void)
-+static int __init fintek_wdt_init(void)
- {
- 	static const unsigned short addrs[] = { 0x2e, 0x4e };
- 	int err = -ENODEV;
-@@ -847,7 +847,7 @@ static int __init f71808e_init(void)
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(addrs); i++) {
--		err = f71808e_find(addrs[i]);
-+		err = fintek_wdt_find(addrs[i]);
- 		if (err == 0)
- 			break;
- 	}
-@@ -857,11 +857,11 @@ static int __init f71808e_init(void)
- 	return watchdog_init(addrs[i]);
- }
- 
--static void __exit f71808e_exit(void)
-+static void __exit fintek_wdt_exit(void)
- {
--	if (watchdog_is_running()) {
-+	if (fintek_wdt_is_running()) {
- 		pr_warn("Watchdog timer still running, stopping it\n");
--		watchdog_stop();
-+		fintek_wdt_stop();
- 	}
- 	misc_deregister(&watchdog_miscdev);
- 	unregister_reboot_notifier(&watchdog_notifier);
-@@ -871,5 +871,5 @@ MODULE_DESCRIPTION("F71808E Watchdog Driver");
- MODULE_AUTHOR("Giel van Schijndel <me@mortis.eu>");
- MODULE_LICENSE("GPL");
- 
--module_init(f71808e_init);
--module_exit(f71808e_exit);
-+module_init(fintek_wdt_init);
-+module_exit(fintek_wdt_exit);
--- 
-git-series 0.9.1
+My preference would be if you both pick up v2 of the tag to yield a
+history that is bisectable without build problems, but if Russell (who
+already picked up the broken tag) considers his tree immutable and so
+isn't willing to rebase, then picking up the patch is the way to go.
+
+I suggest that Russell descides which option he wants to pick and tells
+Greg to do the same!?
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--mw66hszyvu2hxhxe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmAcOdQACgkQwfwUeK3K
+7AlatwgAoTySm2q5g+gxl/CCA9C6tYko2Pu8wLkL3YfNBIgf05iOJ9G8Miwhd95G
+eDv5Ue6LEvHVOMZHbbZMliKzacCtSGzzhTpNpIcL7SZH/Vu0nyB8qGbN+PAm+rsX
+K54DEaOvyPIcDUkuXgUGC2e0nXjg7499oDQs/rajEADbs8ECpDvKCTRYczmQ6E8v
+VS9a/GOt/WDa0dqOdAt6OfxirahLKjPQC1/FS1kcREk1QBYbH6TqM/t8b4t0ED9p
+A5RYkSHAXArD/ifkinbRDUIhLY7XzhBYGEiiNgwCCtsbHE06GP/BNPlXMj6+fLAY
+g/wGBoyP1j9OrCrpGDnsy/oyv64XRg==
+=Rv8c
+-----END PGP SIGNATURE-----
+
+--mw66hszyvu2hxhxe--
