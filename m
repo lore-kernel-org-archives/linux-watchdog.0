@@ -2,244 +2,165 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0921C433E0
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Feb 2021 18:49:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88EBEC433E6
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Feb 2021 21:23:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69EB764F09
-	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Feb 2021 18:49:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6100464FBA
+	for <linux-watchdog@archiver.kernel.org>; Fri,  5 Feb 2021 21:23:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233410AbhBERGp (ORCPT
+        id S233624AbhBEVW7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 5 Feb 2021 12:06:45 -0500
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:55306 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233721AbhBERE6 (ORCPT
+        Fri, 5 Feb 2021 16:22:59 -0500
+Received: from mail-oi1-f171.google.com ([209.85.167.171]:34834 "EHLO
+        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233816AbhBEVWR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 5 Feb 2021 12:04:58 -0500
-Received: from pps.filterd (m0148663.ppops.net [127.0.0.1])
-        by mx0a-002e3701.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 115IhQel031216;
-        Fri, 5 Feb 2021 18:46:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pps0720;
- bh=UInLbiuJNu8TJIclFMkD5otkO2egA1ejEmVSYy3bqoE=;
- b=dbUMgMOdoEJ1PQR88awy2E3O/6kuDkdgDVSxwZNjMJTXX3uSQFkYj/oofVcNLfY03tS3
- uonSynHwSvVUPlR/o5n9+ODk3FY4Fv3xdrXOz9ER599OfRyYM7XacW3QQAIY98Rii5JS
- hZEOvIzY3jwhWSZdtDjscUpm+xqxPIrmgaR7CpCE8zxpBVKNpjUWXMuvRxJmL0XDsDPt
- jkW/wAUoyADm1i7KPrHdMm798+SlukPosFAJoFyVo2yx1cO0iNaakVwb2jq9wn0/IwNN
- 4q2sCMzy2wOhtyEN+O19/ovfl5nXblBg182F20E3cDGWIaFcB/X57glGy5OcN0QOgZtc GQ== 
-Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
-        by mx0a-002e3701.pphosted.com with ESMTP id 36fq1egw4r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Feb 2021 18:46:24 +0000
-Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
-        by g2t2354.austin.hpe.com (Postfix) with ESMTP id EB27083;
-        Fri,  5 Feb 2021 18:46:23 +0000 (UTC)
-Received: from hpnsw4892.rose.rdlabs.hpecorp.net (hpnsw4892.rose.rdlabs.hpecorp.net [15.116.51.176])
-        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id 4E8CA36;
-        Fri,  5 Feb 2021 18:46:22 +0000 (UTC)
-From:   JP Ertola <jp.ertola@hpe.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org
-Cc:     JP Ertola <jp.ertola@hpe.com>
-Subject: [PATCH v5] Extend watchdog timeout during kernel panic.
-Date:   Fri,  5 Feb 2021 10:46:20 -0800
-Message-Id: <20210205184620.56103-1-jp.ertola@hpe.com>
-X-Mailer: git-send-email 2.29.0
+        Fri, 5 Feb 2021 16:22:17 -0500
+Received: by mail-oi1-f171.google.com with SMTP id w8so9025962oie.2;
+        Fri, 05 Feb 2021 13:22:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=jocZMba4zIL2h1yCNatGbik1KvXn4y8YG1xTFpkN/Co=;
+        b=VYbwU+vjRnQ7LryvnO+z0mcRvOWam2Wjao4Ve3IVQO8pt2uo7BCFcAm/QujniCledz
+         F/6mA8yDoZyuacvHlhZmJvWdpjphTVydip/2lVzIWi/BcJ9KMthpGjd5UPX5hoWRfPHw
+         LQ7ClVsvV/jAkdX9Ril49c04Zq+NznRGU21aLLvH04O9sRnQX4PKCVW+Jz4/lFNi4/xe
+         9vTJhk+ug4mSNV8xE3g2vSq4qrjcAkJOn2X44bSGka1etyOFG065bqUzeJZpyz2idYaT
+         TGY4mvT6igAz0rYfer2AMduhb5KYC/KMrp/8ztfV5aMBZw9owRM4Gp1onWmGHQ8cwQmj
+         9f7g==
+X-Gm-Message-State: AOAM531H1OtySxBpce/jqYViYIMkWoFXQwVfyWytNTuwUzQFkjGE2OAM
+        0woi7ZoVWWwYj8UtgP+qSu3iHalBAA==
+X-Google-Smtp-Source: ABdhPJyBctuEa2lJbXV3As6EdaWOf8hcdJvn9AQoelXaG4VA2D6LMqtHhVNUj/qEHT7t+fAFVfQWEA==
+X-Received: by 2002:aca:3b06:: with SMTP id i6mr4363448oia.81.1612560095487;
+        Fri, 05 Feb 2021 13:21:35 -0800 (PST)
+Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id q20sm2040441otf.2.2021.02.05.13.21.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Feb 2021 13:21:34 -0800 (PST)
+Received: (nullmailer pid 3765901 invoked by uid 1000);
+        Fri, 05 Feb 2021 21:21:33 -0000
+Date:   Fri, 5 Feb 2021 15:21:33 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Campion Kang <campion.kang@advantech.com.tw>
+Cc:     Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        AceLan Kao <chia-lin.kao@canonical.com>
+Subject: Re: [PATCH v6 3/6] dt-bindings: mfd: ahc1ec0.yaml: Add Advantech
+ embedded controller - AHC1EC0
+Message-ID: <20210205212133.GA3759495@robh.at.kernel.org>
+References: <20210118123749.4769-1-campion.kang@advantech.com.tw>
+ <20210118123749.4769-3-campion.kang@advantech.com.tw>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-05_10:2021-02-05,2021-02-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- bulkscore=0 spamscore=0 priorityscore=1501 clxscore=1015 impostorscore=0
- mlxscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102050115
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210118123749.4769-3-campion.kang@advantech.com.tw>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-If the watchdog timeout is set such that the crash kernel does not
-have time to collect a coredump and the crash kernel is not equipped to
-ping the watchdog timer itself, then a kernel coredump will not be collected
-before the watchdog fires. This change registers a panic notifier and
-callback so the watchdog timeout can be extended if a kernel panic occurs.
-This timeout extension would give the crash kernel enough time to collect
-a coredump before the CPU resets. The watchdog timeout is extended if and only
-if a crash kernel image is loaded in memory, the watchdog is active at the
-time of the panic, and the kconfig setting is set.
+On Mon, Jan 18, 2021 at 08:37:46PM +0800, Campion Kang wrote:
+> Add DT binding schema for Advantech embedded controller AHC1EC0.
+> 
+> Changed since V5:
+> 	- rename dt-bindings/mfd/ahc1ec0.h to dt-bindings/mfd/ahc1ec0-dt.h
+> 	that found errors by bot 'make dt_binding_check'
+> 
+> Signed-off-by: Campion Kang <campion.kang@advantech.com.tw>
+> ---
+>  .../devicetree/bindings/mfd/ahc1ec0.yaml      | 69 +++++++++++++++++++
+>  1 file changed, 69 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/ahc1ec0.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/ahc1ec0.yaml b/Documentation/devicetree/bindings/mfd/ahc1ec0.yaml
+> new file mode 100644
+> index 000000000000..40af14bb9c0a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/ahc1ec0.yaml
+> @@ -0,0 +1,69 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/mfd/ahc1ec0.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Advantech Embedded Controller (AHC1EC0)
+> +
+> +maintainers:
+> +  - Campion Kang <campion.kang@advantech.com.tw>
+> +
+> +description: |
+> +  AHC1EC0 is one of the embedded controllers used by Advantech to provide several
+> +  functions such as watchdog, hwmon, brightness, etc. Advantech related applications
+> +  can control the whole system via these functions.
+> +
+> +properties:
+> +  compatible:
+> +    const: advantech,ahc1ec0
+> +
+> +  advantech,sub-dev-nb:
+> +    description:
+> +      The number of sub-devices specified in the platform.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    maxItems: 1
 
-A Kconfig option has been added to configure the timeout duration at
-compile-time. Default is zero seconds.
+You don't need this, just count the length of the next property:
 
-Signed-off-by: JP Ertola <jp.ertola@hpe.com>
----
-v5: Clean up variable names and spacing. Call __watchdog_ping() instead of 
-wdd->ops->ping(). Remove notifier_from_errno() as it could cause unintended
-behavior in the future if this watchdog extension notifier has its priority
-elevated above minimum.
-v4: Remove optional callback mechanism alltogether. I agree with Guenter,
-not widely used.
-v3: Fix logic so timeout extension is not longer than wdd->max_timeout
-v2: Remove dead code and comments.
+> +
+> +  advantech,sub-dev:
+> +    description:
+> +      A list of the sub-devices supported in the platform. Defines for the
+> +      appropriate values can found in dt-bindings/mfd/ahc1ec0-dt.h.
+> +    $ref: "/schemas/types.yaml#/definitions/uint32-array"
+> +    minItems: 1
+> +    maxItems: 6
 
- drivers/watchdog/Kconfig        | 13 ++++++
- drivers/watchdog/watchdog_dev.c | 73 ++++++++++++++++++++++++++++++++-
- include/linux/watchdog.h        |  1 +
- 3 files changed, 85 insertions(+), 2 deletions(-)
+But as I said before, this binding is odd. It doesn't look like how we 
+do any other MFD. Either we have child nodes or they are implicit.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fd7968635e6d..f1055985e100 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -141,6 +141,19 @@ comment "Watchdog Device Drivers"
- 
- # Architecture Independent
- 
-+config DEFAULT_WATCHDOG_CRASH_KERNEL_TIMEOUT
-+	int "Default timeout for watchdog timer before crash kernel starts (seconds)"
-+	default 0
-+	help
-+	  This option allows an extended timeout to be used for the watchdog when
-+	  the kernel panics and a crash kernel is about to start. This is helpful
-+	  when the existing WDT timeout value is less than the time required for
-+	  crash kernel to run and the crash kernel is unable to handle the
-+	  the watchdog itself. The timeout extension happens last in chain of
-+	  kernel panic handler callbacks just in case another panic handler
-+	  hangs unexpectedly. When this value is set to 0, the watchdog timeout
-+	  will not be changed.
-+
- config SOFT_WATCHDOG
- 	tristate "Software watchdog"
- 	select WATCHDOG_CORE
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 2946f3a63110..92d11ef9fbb4 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -34,6 +34,7 @@
- #include <linux/init.h>		/* For __init/__exit/... */
- #include <linux/hrtimer.h>	/* For hrtimers */
- #include <linux/kernel.h>	/* For printk/panic/... */
-+#include <linux/kexec.h>	/* For checking if crash kernel is loaded */
- #include <linux/kthread.h>	/* For kthread_work */
- #include <linux/miscdevice.h>	/* For handling misc devices */
- #include <linux/module.h>	/* For module stuff/... */
-@@ -82,6 +83,8 @@ static bool handle_boot_enabled =
- 
- static unsigned open_timeout = CONFIG_WATCHDOG_OPEN_TIMEOUT;
- 
-+static unsigned int wdt_panic_timeout = CONFIG_DEFAULT_WATCHDOG_CRASH_KERNEL_TIMEOUT;
-+
- static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
- {
- 	return ktime_after(ktime_get(), data->open_deadline);
-@@ -658,6 +661,50 @@ static int watchdog_ioctl_op(struct watchdog_device *wdd, unsigned int cmd,
-  *	off the watchdog (if 'nowayout' is not set).
-  */
- 
-+static int watchdog_panic_notifier(struct notifier_block *nb,
-+	unsigned long code, void *data)
-+{
-+	struct watchdog_device *wdd;
-+	int ret;
-+	unsigned int timeout = wdt_panic_timeout;
-+
-+	if (wdt_panic_timeout == 0)
-+		return NOTIFY_DONE;
-+
-+	wdd = container_of(nb, struct watchdog_device, panic_nb);
-+
-+	if (watchdog_timeout_invalid(wdd, wdt_panic_timeout)) {
-+		timeout = min(wdt_panic_timeout, wdd->max_timeout);
-+		pr_err("watchdog%d: timeout extension value invalid. Falling back to %d seconds\n",
-+			wdd->id, timeout);
-+	}
-+
-+	if (kexec_crash_image && watchdog_active(wdd)) {
-+		int ping_ret;
-+
-+		ret = watchdog_set_timeout(wdd, timeout);
-+		if (ret) {
-+			pr_err("watchdog%d: Unable to extend watchdog timeout before starting crash kernel (%d)",
-+				wdd->id, ret);
-+		}
-+
-+		/* Many watchdog implementations will reset the timer
-+		* when the timeout is changed, but ping again to be
-+		* safe.
-+		*/
-+		ping_ret = __watchdog_ping(wdd);
-+		if (ping_ret) {
-+			pr_warn("watchdog%d: Unable to ping watchdog before starting crash kernel (%d)\n",
-+				wdd->id, ping_ret);
-+		}
-+		if (ret == 0 && ping_ret == 0) {
-+			pr_info("watchdog%d: Extending watchdog timeout to %d seconds\n",
-+				wdd->id, timeout);
-+		}
-+	}
-+	return ret;
-+}
-+
- static ssize_t watchdog_write(struct file *file, const char __user *data,
- 						size_t len, loff_t *ppos)
- {
-@@ -1118,10 +1165,27 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 		return ret;
- 
- 	ret = watchdog_register_pretimeout(wdd);
--	if (ret)
-+	if (ret) {
- 		watchdog_cdev_unregister(wdd);
-+		return ret;
-+	}
- 
--	return ret;
-+	/*
-+	 * Setting panic_nb priority to minimum ensures the watchdog device
-+	 * panic callback runs last in the chain of kernel panic callbacks.
-+	 * This way, the watchdog device will still fire in the event another
-+	 * panic callback hangs.
-+	 */
-+	wdd->panic_nb.priority = INT_MIN;
-+	wdd->panic_nb.notifier_call = watchdog_panic_notifier;
-+
-+	ret = atomic_notifier_chain_register(&panic_notifier_list,
-+					&wdd->panic_nb);
-+	if (ret)
-+		pr_warn("watchdog%d: Cannot register panic notifier (%d)\n",
-+			wdd->id, ret);
-+
-+	return 0;
- }
- 
- /*
-@@ -1228,3 +1292,8 @@ module_param(open_timeout, uint, 0644);
- MODULE_PARM_DESC(open_timeout,
- 	"Maximum time (in seconds, 0 means infinity) for userspace to take over a running watchdog (default="
- 	__MODULE_STRING(CONFIG_WATCHDOG_OPEN_TIMEOUT) ")");
-+
-+module_param(wdt_panic_timeout, uint, 0444);
-+MODULE_PARM_DESC(wdt_panic_timeout,
-+	"Watchdog timeout extension duration upon kernel panic. (default="
-+	__MODULE_STRING(CONFIG_DEFAULT_WATCHDOG_CRASH_KERNEL_TIMEOUT) " seconds)");
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 9b19e6bb68b5..bc7e6e8aa7ab 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -107,6 +107,7 @@ struct watchdog_device {
- 	unsigned int max_hw_heartbeat_ms;
- 	struct notifier_block reboot_nb;
- 	struct notifier_block restart_nb;
-+	struct notifier_block panic_nb;
- 	void *driver_data;
- 	struct watchdog_core_data *wd_data;
- 	unsigned long status;
--- 
-2.29.0
-
+> +
+> +  advantech,hwmon-profile:
+> +    description:
+> +      The number of sub-devices specified in the platform. Defines for the
+> +      hwmon profiles can found in dt-bindings/mfd/ahc1ec0-dt.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - advantech,sub-dev-nb
+> +  - advantech,sub-dev
+> +
+> +if:
+> +  properties:
+> +    advantech,sub-dev:
+> +      contains:
+> +        const: 0x3
+> +then:
+> +  required:
+> +    - advantech,hwmon-profile
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/mfd/ahc1ec0-dt.h>
+> +    ahc1ec0 {
+> +        compatible = "advantech,ahc1ec0";
+> +
+> +        advantech,sub-dev-nb = <2>;
+> +        advantech,sub-dev = <AHC1EC0_SUBDEV_HWMON
+> +                             AHC1EC0_SUBDEV_WDT>;
+> +
+> +        advantech,hwmon-profile = <AHC1EC0_HWMON_PRO_UNO2271G>;
+> +    };
+> -- 
+> 2.17.1
+> 
