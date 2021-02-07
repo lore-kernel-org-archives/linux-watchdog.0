@@ -2,155 +2,81 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED281C43381
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Feb 2021 03:29:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE7EEC433E0
+	for <linux-watchdog@archiver.kernel.org>; Sun,  7 Feb 2021 22:24:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB8A464F9C
-	for <linux-watchdog@archiver.kernel.org>; Sat,  6 Feb 2021 03:29:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DB9C64E3A
+	for <linux-watchdog@archiver.kernel.org>; Sun,  7 Feb 2021 22:24:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbhBFD3T (ORCPT
+        id S229631AbhBGWYd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 5 Feb 2021 22:29:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232518AbhBFDV4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 5 Feb 2021 22:21:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B28764F9D;
-        Sat,  6 Feb 2021 01:25:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612574755;
-        bh=/OO95ptKWwAfPKnln79sj7p50JlIFunorcpU1Za6txs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pGgQmtxfWDXFXdKv2lSHbQ8Hffg6ZF3khCddSyZagHNacjnJaiAhbckTqDOXSlJJw
-         smcT7P+JGZSL/MjDF4Cr8Rs6HfFWATUw/sTBGhUPRRRpjDs3haoC8wG9ic1njvO/iK
-         rA1Cyzbi+mBzO9SFOe5WFmN5JDg7RgiYb53u4NFEFWBc78kD1AKiH1wec60VpnljyX
-         5yAvAzFuWeaQAaZ5McL28B12bYT5mLA0y/C30Ug7IchPcpGuxmaACHs+AUk24p6dwI
-         S3tKhxddOqP8c9w+NOQxMKcPulyOZs43cf5XSh7rqi9xUyn0TiyVcGfr8ZD7n7HFTi
-         xaZJjX6p2Okig==
-Date:   Sat, 6 Feb 2021 02:25:51 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Stephen Boyd <sboyd@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Daniel Palmer <daniel@thingy.jp>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>,
+        Sun, 7 Feb 2021 17:24:33 -0500
+Received: from antares.kleine-koenig.org ([94.130.110.236]:48874 "EHLO
+        antares.kleine-koenig.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229623AbhBGWYd (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 7 Feb 2021 17:24:33 -0500
+Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
+        id 991A5AF2EE4; Sun,  7 Feb 2021 23:23:51 +0100 (CET)
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To:     Tomas Winkler <tomas.winkler@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Vincent Cheng <vincent.cheng.xh@renesas.com>,
-        linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/3] dt-bindings: Fix undocumented compatible strings in
- examples
-Message-ID: <20210206012551.GB3847@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Daniel Palmer <daniel@thingy.jp>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Tali Perry <tali.perry1@gmail.com>, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>, Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Vincent Cheng <vincent.cheng.xh@renesas.com>,
-        linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-watchdog@vger.kernel.org
-References: <20210202205544.24812-1-robh@kernel.org>
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v1 1/2] mei: bus: simplify mei_cl_device_remove()
+Date:   Sun,  7 Feb 2021 23:22:23 +0100
+Message-Id: <20210207222224.97547-1-uwe@kleine-koenig.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
-Content-Disposition: inline
-In-Reply-To: <20210202205544.24812-1-robh@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+The driver core only calls a bus' remove function when there is actually
+a driver and a device. So drop the needless check and assign cldrv earlier.
 
---ZfOjI3PrQbgiZnxM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+(Side note: The check for cldev being non-NULL is broken anyhow, because
+to_mei_cl_device() is a wrapper around container_of() for a member that is
+not the first one. So cldev only can become NULL if dev is (void *)0xc
+(for archs with 32 bit pointers) or (void *)0x18 (for archs with 64 bit
+pointers).)
 
-On Tue, Feb 02, 2021 at 02:55:42PM -0600, Rob Herring wrote:
-> Running 'dt-validate -m' will flag any compatible strings missing a schem=
-a.
-> Fix all the errors found in DT binding examples. Most of these are just
-> typos.
->=20
-> Cc: Stephen Boyd <sboyd@kernel.org>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: Chen-Yu Tsai <wens@csie.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Daniel Palmer <daniel@thingy.jp>
-> Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> Cc: Avi Fishman <avifishman70@gmail.com>
-> Cc: Tomer Maimon <tmaimon77@gmail.com>
-> Cc: Tali Perry <tali.perry1@gmail.com>
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Andrew Jeffery <andrew@aj.id.au>
-> Cc: Joel Stanley <joel@jms.id.au>
-> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> Cc: Vincent Cheng <vincent.cheng.xh@renesas.com>
-> Cc: linux-clk@vger.kernel.org
-> Cc: linux-crypto@vger.kernel.org
-> Cc: linux-gpio@vger.kernel.org
-> Cc: linux-i2c@vger.kernel.org
-> Cc: iommu@lists.linux-foundation.org
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
+---
+ drivers/misc/mei/bus.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
+diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
+index 2907db260fba..50d617e7467e 100644
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -878,13 +878,9 @@ static int mei_cl_device_probe(struct device *dev)
+ static int mei_cl_device_remove(struct device *dev)
+ {
+ 	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+-	struct mei_cl_driver *cldrv;
++	struct mei_cl_driver *cldrv = to_mei_cl_driver(dev->driver);
+ 	int ret = 0;
+ 
+-	if (!cldev || !dev->driver)
+-		return 0;
+-
+-	cldrv = to_mei_cl_driver(dev->driver);
+ 	if (cldrv->remove)
+ 		ret = cldrv->remove(cldev);
+ 
 
+base-commit: 5c8fe583cce542aa0b84adc939ce85293de36e5e
+-- 
+2.29.2
 
---ZfOjI3PrQbgiZnxM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAd8B4ACgkQFA3kzBSg
-KbbdSRAAtkrymAGNS5LGn321fm8TqaN3fodZIhNLfeeWULr/eImrk2RJCYzunjC6
-Nb8wJvEywJuB1E4YzkiFTgWxKVeLmFnUFodUSlufnefhzGl4Q+2udtIlUr3CqBaM
-K7b7RS452nISpyzJHTBfdWr4VwEUOHqmrYXG3jLExytI6Enrun7qqY6hu7WwXUIT
-tZ7CUUP30kMy3K1ahkItDx0SGBRf5hWrG+KAzSj9cyZKHFBaIv3WKV/bUMC6OC+Y
-h83LhJP40pBTFZWlk+jwchtr4ZWNF6GG9vuIcXWI35Y9tYUDsX0fWnRj3LSMdp8u
-QMK0sZFo4oIejPXH61NxPWZ6IHVcy21veXay4ZXApxNjsuwyitBb7/aRrJDEoJsr
-MlS6IMR7MXnujHlxwoJ+3sSIvPhRyeWgTC1pmp4qL2LwImDHrooS3pJANxAl7Ws6
-+RKt3Mkf0w5k5r2HiukAHI7Lywkwb74sit3LU3D6awsZicpRT9c/tNlGnTNsl6Hu
-+Mu9JP+//QSe+eRhOsXCnwMl8eEutYWvPadijYg87IbPxat3uDuiQz5E7S5dMTSR
-UerC7itsB9z9Hpb8zDdQAboNPdw04c+kfWn53Mu7cxhvxhzYyf+jZsu8tMIG60Bb
-LheRj95DOtU9bnIaQ8NdiBy3k9LESOW9ULADetyHoQZLM5Qb7Zk=
-=d/1y
------END PGP SIGNATURE-----
-
---ZfOjI3PrQbgiZnxM--
