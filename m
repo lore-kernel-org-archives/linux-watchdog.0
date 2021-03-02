@@ -4,29 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B29E3C433E0
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 06:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E92C1C433DB
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 07:07:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E45364EE3
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 06:59:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CEA464EDE
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 07:07:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236656AbhCCGu6 (ORCPT
+        id S239915AbhCCG7f (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Mar 2021 01:50:58 -0500
-Received: from gecko.sbs.de ([194.138.37.40]:55490 "EHLO gecko.sbs.de"
+        Wed, 3 Mar 2021 01:59:35 -0500
+Received: from lizzard.sbs.de ([194.138.37.39]:46166 "EHLO lizzard.sbs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1384786AbhCBQqx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 2 Mar 2021 11:46:53 -0500
+        id S1579464AbhCBQ6e (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 2 Mar 2021 11:58:34 -0500
 Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
-        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 122GhEw0015430
+        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 122GXDXW028682
         (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 Mar 2021 17:43:14 +0100
-Received: from md1za8fc.ad001.siemens.net ([167.87.44.113])
-        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 122GXBHQ025192;
         Tue, 2 Mar 2021 17:33:13 +0100
+Received: from md1za8fc.ad001.siemens.net ([167.87.44.113])
+        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 122GXBHO025192;
+        Tue, 2 Mar 2021 17:33:12 +0100
 From:   Henning Schild <henning.schild@siemens.com>
 To:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
@@ -39,9 +39,9 @@ Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
         Mark Gross <mgross@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 3/4] watchdog: simatic-ipc-wdt: add new driver for Siemens Industrial PCs
-Date:   Tue,  2 Mar 2021 17:33:08 +0100
-Message-Id: <20210302163309.25528-4-henning.schild@siemens.com>
+Subject: [PATCH 1/4] platform/x86: simatic-ipc: add main driver for Siemens devices
+Date:   Tue,  2 Mar 2021 17:33:06 +0100
+Message-Id: <20210302163309.25528-2-henning.schild@siemens.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210302163309.25528-1-henning.schild@siemens.com>
 References: <20210302163309.25528-1-henning.schild@siemens.com>
@@ -53,65 +53,74 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Henning Schild <henning.schild@siemens.com>
 
-This driver adds initial support for several devices from Siemens. It is
-based on a platform driver introduced in an earlier commit.
+This mainly implements detection of these devices and will allow
+secondary drivers to work on such machines.
+
+The identification is DMI-based with a vendor specific way to tell them
+apart in a reliable way.
+
+Drivers for LEDs and Watchdogs will follow to make use of that platform
+detection.
 
 Signed-off-by: Gerd Haeussler <gerd.haeussler.ext@siemens.com>
 Signed-off-by: Henning Schild <henning.schild@siemens.com>
 ---
- drivers/watchdog/Kconfig           |  11 ++
- drivers/watchdog/Makefile          |   1 +
- drivers/watchdog/simatic-ipc-wdt.c | 305 +++++++++++++++++++++++++++++
- 3 files changed, 317 insertions(+)
- create mode 100644 drivers/watchdog/simatic-ipc-wdt.c
+ drivers/platform/x86/Kconfig                  |   9 +
+ drivers/platform/x86/Makefile                 |   3 +
+ drivers/platform/x86/simatic-ipc.c            | 166 ++++++++++++++++++
+ .../platform_data/x86/simatic-ipc-base.h      |  33 ++++
+ include/linux/platform_data/x86/simatic-ipc.h |  68 +++++++
+ 5 files changed, 279 insertions(+)
+ create mode 100644 drivers/platform/x86/simatic-ipc.c
+ create mode 100644 include/linux/platform_data/x86/simatic-ipc-base.h
+ create mode 100644 include/linux/platform_data/x86/simatic-ipc.h
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 1fe0042a48d2..948497eb4bef 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1575,6 +1575,17 @@ config NIC7018_WDT
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called nic7018_wdt.
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index ad4e630e73e2..bb9e282d89cf 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -1284,6 +1284,15 @@ config INTEL_TELEMETRY
+ 	  directly via debugfs files. Various tools may use
+ 	  this interface for SoC state monitoring.
  
-+config SIEMENS_SIMATIC_IPC_WDT
-+	tristate "Siemens Simatic IPC Watchdog"
-+	depends on SIEMENS_SIMATIC_IPC
-+	select WATCHDOG_CORE
++config SIEMENS_SIMATIC_IPC
++	tristate "Siemens Simatic IPC Class driver"
++	depends on PCI
 +	help
-+	  This driver adds support for several watchdogs found in Industrial
-+	  PCs from Siemens.
++	  This Simatic IPC class driver is the central of several drivers. It
++	  is mainly used for system identification, after which drivers in other
++	  classes will take care of driving specifics of those machines.
++	  i.e. leds and watchdogs
 +
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called simatic-ipc-wdt.
+ endif # X86_PLATFORM_DEVICES
+ 
+ config PMC_ATOM
+diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+index 60d554073749..26cdebf2e701 100644
+--- a/drivers/platform/x86/Makefile
++++ b/drivers/platform/x86/Makefile
+@@ -138,3 +138,6 @@ obj-$(CONFIG_INTEL_TELEMETRY)		+= intel_telemetry_core.o \
+ 					   intel_telemetry_pltdrv.o \
+ 					   intel_telemetry_debugfs.o
+ obj-$(CONFIG_PMC_ATOM)			+= pmc_atom.o
 +
- # M68K Architecture
- 
- config M54xx_WATCHDOG
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index f3a6540e725e..7f5c73ec058c 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -142,6 +142,7 @@ obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
- obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
- obj-$(CONFIG_MLX_WDT) += mlx_wdt.o
- obj-$(CONFIG_KEEMBAY_WATCHDOG) += keembay_wdt.o
-+obj-$(CONFIG_SIEMENS_SIMATIC_IPC_WDT) += simatic-ipc-wdt.o
- 
- # M68K Architecture
- obj-$(CONFIG_M54xx_WATCHDOG) += m54xx_wdt.o
-diff --git a/drivers/watchdog/simatic-ipc-wdt.c b/drivers/watchdog/simatic-ipc-wdt.c
++# Siemens Simatic Industrial PCs
++obj-$(CONFIG_SIEMENS_SIMATIC_IPC)	+= simatic-ipc.o
+diff --git a/drivers/platform/x86/simatic-ipc.c b/drivers/platform/x86/simatic-ipc.c
 new file mode 100644
-index 000000000000..b5c8b7ceb404
+index 000000000000..6adcdac1a0d7
 --- /dev/null
-+++ b/drivers/watchdog/simatic-ipc-wdt.c
-@@ -0,0 +1,305 @@
++++ b/drivers/platform/x86/simatic-ipc.c
+@@ -0,0 +1,166 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Siemens SIMATIC IPC driver for Watchdogs
++ * Siemens SIMATIC IPC driver for LEDs
 + *
-+ * Copyright (c) Siemens AG, 2020-2021
++ * Copyright (c) Siemens AG, 2018-2021
 + *
 + * Authors:
++ *  Henning Schild <henning.schild@siemens.com>
++ *  Jan Kiszka <jan.kiszka@siemens.com>
 + *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -119,297 +128,269 @@ index 000000000000..b5c8b7ceb404
 + * published by the Free Software Foundation.
 + */
 +
-+#include <linux/device.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
 +#include <linux/module.h>
++#include <linux/kernel.h>
 +#include <linux/platform_device.h>
-+#include <linux/errno.h>
-+#include <linux/watchdog.h>
-+#include <linux/ioport.h>
-+#include <linux/sizes.h>
-+#include <linux/io.h>
-+#include <linux/platform_data/x86/simatic-ipc-base.h>
++#include <linux/platform_data/x86/simatic-ipc.h>
 +
-+#define WD_ENABLE_IOADR		0x62
-+#define WD_TRIGGER_IOADR	0x66
-+#define GPIO_COMMUNITY0_PORT_ID 0xaf
-+#define PAD_CFG_DW0_GPP_A_23	0x4b8
-+#define SAFE_EN_N_427E		0x01
-+#define SAFE_EN_N_227E		0x04
-+#define WD_ENABLED		0x01
++static struct platform_device *ipc_led_platform_device;
++static struct platform_device *ipc_wdt_platform_device;
 +
-+#define TIMEOUT_MIN	2
-+#define TIMEOUT_DEF	64
-+#define TIMEOUT_MAX	64
++static const struct dmi_system_id simatic_ipc_whitelist[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
++		},
++	},
++	{}
++};
 +
-+#define GP_STATUS_REG_227E	0x404D	/* IO PORT for SAFE_EN_N on 227E */
++static struct simatic_ipc_platform platform_data;
 +
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0000);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++static struct {
++	u32 station_id;
++	u8 led_mode;
++	u8 wdt_mode;
++} device_modes[] = {
++	{ SIMATIC_IPC_IPC127E, SIMATIC_IPC_DEVICE_127E, SIMATIC_IPC_DEVICE_NONE},
++	{ SIMATIC_IPC_IPC227D, SIMATIC_IPC_DEVICE_227D, SIMATIC_IPC_DEVICE_NONE},
++	{ SIMATIC_IPC_IPC227E, SIMATIC_IPC_DEVICE_427E, SIMATIC_IPC_DEVICE_227E},
++	{ SIMATIC_IPC_IPC277E, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_227E},
++	{ SIMATIC_IPC_IPC427D, SIMATIC_IPC_DEVICE_427E, SIMATIC_IPC_DEVICE_NONE},
++	{ SIMATIC_IPC_IPC427E, SIMATIC_IPC_DEVICE_427E, SIMATIC_IPC_DEVICE_427E},
++	{ SIMATIC_IPC_IPC477E, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_427E},
++};
 +
-+static DEFINE_SPINLOCK(io_lock);	/* the lock for io operations */
-+static struct watchdog_device wdd;
-+
-+static struct resource gp_status_reg_227e_res =
-+	DEFINE_RES_IO_NAMED(GP_STATUS_REG_227E, SZ_1, KBUILD_MODNAME);
-+
-+static struct resource io_resource =
-+	DEFINE_RES_IO_NAMED(WD_ENABLE_IOADR, SZ_1,
-+			    KBUILD_MODNAME " WD_ENABLE_IOADR");
-+
-+/* the actual start will be discovered with pci, 0 is a placeholder */
-+static struct resource mem_resource =
-+	DEFINE_RES_MEM_NAMED(0, SZ_4, "WD_RESET_BASE_ADR");
-+
-+static u32 wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
-+static void __iomem *wd_reset_base_addr;
-+
-+static int get_timeout_idx(u32 timeout)
++static int register_platform_devices(u32 station_id)
 +{
 +	int i;
++	u8 ledmode = SIMATIC_IPC_DEVICE_NONE;
++	u8 wdtmode = SIMATIC_IPC_DEVICE_NONE;
 +
-+	i = ARRAY_SIZE(wd_timeout_table) - 1;
-+	for (; i >= 0; i--) {
-+		if (timeout >= wd_timeout_table[i])
++	platform_data.devmode = SIMATIC_IPC_DEVICE_NONE;
++
++	for (i = 0; i < ARRAY_SIZE(device_modes); i++) {
++		if (device_modes[i].station_id == station_id) {
++			ledmode = device_modes[i].led_mode;
++			wdtmode = device_modes[i].wdt_mode;
 +			break;
-+	}
-+
-+	return i;
-+}
-+
-+static int wd_start(struct watchdog_device *wdd)
-+{
-+	u8 regval;
-+
-+	spin_lock(&io_lock);
-+
-+	regval = inb(WD_ENABLE_IOADR);
-+	regval |= WD_ENABLED;
-+	outb(regval, WD_ENABLE_IOADR);
-+
-+	spin_unlock(&io_lock);
-+
-+	return 0;
-+}
-+
-+static int wd_stop(struct watchdog_device *wdd)
-+{
-+	u8 regval;
-+
-+	spin_lock(&io_lock);
-+
-+	regval = inb(WD_ENABLE_IOADR);
-+	regval &= ~WD_ENABLED;
-+	outb(regval, WD_ENABLE_IOADR);
-+
-+	spin_unlock(&io_lock);
-+
-+	return 0;
-+}
-+
-+static int wd_ping(struct watchdog_device *wdd)
-+{
-+	inb(WD_TRIGGER_IOADR);
-+	return 0;
-+}
-+
-+static int wd_set_timeout(struct watchdog_device *wdd, unsigned int t)
-+{
-+	u8 regval;
-+	int timeout_idx = get_timeout_idx(t);
-+
-+	spin_lock(&io_lock);
-+
-+	regval = inb(WD_ENABLE_IOADR) & 0xc7;
-+	regval |= timeout_idx << 3;
-+	outb(regval, WD_ENABLE_IOADR);
-+
-+	spin_unlock(&io_lock);
-+	wdd->timeout = wd_timeout_table[timeout_idx];
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info wdt_ident = {
-+	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
-+			  WDIOF_SETTIMEOUT,
-+	.identity	= KBUILD_MODNAME,
-+};
-+
-+static const struct watchdog_ops wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= wd_start,
-+	.stop		= wd_stop,
-+	.ping		= wd_ping,
-+	.set_timeout	= wd_set_timeout,
-+};
-+
-+static void wd_set_safe_en_n(u32 wdtmode, bool safe_en_n)
-+{
-+	u16 resetbit;
-+
-+	if (wdtmode == SIMATIC_IPC_DEVICE_227E) {
-+		/* enable SAFE_EN_N on GP_STATUS_REG_227E */
-+		resetbit = inw(GP_STATUS_REG_227E);
-+		if (safe_en_n)
-+			resetbit &= ~SAFE_EN_N_227E;
-+		else
-+			resetbit |= SAFE_EN_N_227E;
-+
-+		outw(resetbit, GP_STATUS_REG_227E);
-+	} else {
-+		/* enable SAFE_EN_N on PCH D1600 */
-+		resetbit = ioread16(wd_reset_base_addr);
-+
-+		if (safe_en_n)
-+			resetbit &= ~SAFE_EN_N_427E;
-+		else
-+			resetbit |= SAFE_EN_N_427E;
-+
-+		iowrite16(resetbit, wd_reset_base_addr);
-+	}
-+}
-+
-+static int wd_setup(u32 wdtmode, bool safe_en_n)
-+{
-+	u8 regval;
-+	int timeout_idx = 0;
-+	bool alarm_active;
-+
-+	timeout_idx = get_timeout_idx(TIMEOUT_DEF);
-+
-+	wd_set_safe_en_n(wdtmode, safe_en_n);
-+
-+	/* read wd register to determine alarm state */
-+	regval = inb(WD_ENABLE_IOADR);
-+	if (regval & 0x80) {
-+		pr_warn("Watchdog alarm active.\n");
-+		regval = 0x82;	/* use only macro mode, reset alarm bit */
-+		alarm_active = true;
-+	} else {
-+		regval = 0x02;	/* use only macro mode */
-+		alarm_active = false;
-+	}
-+
-+	regval |= timeout_idx << 3;
-+	if (nowayout)
-+		regval |= WD_ENABLED;
-+
-+	outb(regval, WD_ENABLE_IOADR);
-+
-+	return alarm_active;
-+}
-+
-+static int simatic_ipc_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	int rc = 0;
-+	struct simatic_ipc_platform *plat = pdev->dev.platform_data;
-+	struct resource *res;
-+
-+	pr_debug(KBUILD_MODNAME ":%s(#%d) WDT mode: %d\n",
-+		 __func__, __LINE__, plat->devmode);
-+
-+	switch (plat->devmode) {
-+	case SIMATIC_IPC_DEVICE_227E:
-+		if (!devm_request_region(dev, gp_status_reg_227e_res.start,
-+					 resource_size(&gp_status_reg_227e_res),
-+					 KBUILD_MODNAME)) {
-+			dev_err(dev,
-+				"Unable to register IO resource at %pR\n",
-+				&gp_status_reg_227e_res);
-+			return -EBUSY;
 +		}
-+		fallthrough;
-+	case SIMATIC_IPC_DEVICE_427E:
-+		wdd.info = &wdt_ident;
-+		wdd.ops = &wdt_ops;
-+		wdd.min_timeout = TIMEOUT_MIN;
-+		wdd.max_timeout = TIMEOUT_MAX;
-+		wdd.parent = NULL;
-+		break;
-+	default:
++	}
++
++	if (ledmode != SIMATIC_IPC_DEVICE_NONE) {
++		platform_data.devmode = ledmode;
++		ipc_led_platform_device = platform_device_register_data
++			(NULL, KBUILD_MODNAME "_leds", PLATFORM_DEVID_NONE,
++			 &platform_data, sizeof(struct simatic_ipc_platform));
++		if (IS_ERR(ipc_led_platform_device))
++			return PTR_ERR(ipc_led_platform_device);
++
++		pr_debug(KBUILD_MODNAME ": device=%s created\n",
++			 ipc_led_platform_device->name);
++	}
++
++	if (wdtmode != SIMATIC_IPC_DEVICE_NONE) {
++		platform_data.devmode = wdtmode;
++		ipc_wdt_platform_device = platform_device_register_data
++			(NULL, KBUILD_MODNAME "_wdt", PLATFORM_DEVID_NONE,
++			 &platform_data, sizeof(struct simatic_ipc_platform));
++		if (IS_ERR(ipc_wdt_platform_device))
++			return PTR_ERR(ipc_wdt_platform_device);
++
++		pr_debug(KBUILD_MODNAME ": device=%s created\n",
++			 ipc_wdt_platform_device->name);
++	}
++
++	if (ledmode == SIMATIC_IPC_DEVICE_NONE &&
++	    wdtmode == SIMATIC_IPC_DEVICE_NONE) {
++		pr_warn(KBUILD_MODNAME
++			": unsupported IPC detected, station id=%08x\n",
++			station_id);
 +		return -EINVAL;
++	} else {
++		return 0;
++	}
++}
++
++/*
++ * Get membase address from PCI, used in leds and wdt modul. Here we read
++ * the bar0. The final address calculation is done in the appropriate modules
++ */
++
++u32 simatic_ipc_get_membase0(unsigned int p2sb)
++{
++	u32 bar0 = 0;
++#ifdef CONFIG_PCI
++	struct pci_bus *bus;
++	/*
++	 * The GPIO memory is bar0 of the hidden P2SB device. Unhide the device
++	 * to have a quick look at it, before we hide it again.
++	 * Also grab the pci rescan lock so that device does not get discovered
++	 * and remapped while it is visible.
++	 * This code is inspired by drivers/mfd/lpc_ich.c
++	 */
++	bus = pci_find_bus(0, 0);
++	pci_lock_rescan_remove();
++	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x0);
++	pci_bus_read_config_dword(bus, p2sb, PCI_BASE_ADDRESS_0, &bar0);
++
++	bar0 &= ~0xf;
++	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x1);
++	pci_unlock_rescan_remove();
++#endif /* CONFIG_PCI */
++	return bar0;
++}
++EXPORT_SYMBOL(simatic_ipc_get_membase0);
++
++static int __init simatic_ipc_init_module(void)
++{
++	const struct dmi_system_id *match;
++	u32 station_id;
++	int err;
++
++	match = dmi_first_match(simatic_ipc_whitelist);
++	if (!match)
++		return 0;
++
++	err = dmi_walk(simatic_ipc_find_dmi_entry_helper, &station_id);
++
++	if (err || station_id == SIMATIC_IPC_INVALID_STATION_ID) {
++		pr_warn(KBUILD_MODNAME ": DMI entry %d not found\n",
++			DMI_ENTRY_OEM);
++		return 0;
 +	}
 +
-+	if (!devm_request_region(dev, io_resource.start,
-+				 resource_size(&io_resource),
-+				 io_resource.name)) {
-+		dev_err(dev,
-+			"Unable to register IO resource at %#x\n",
-+			WD_ENABLE_IOADR);
-+		return -EBUSY;
-+	}
-+
-+	if (plat->devmode == SIMATIC_IPC_DEVICE_427E) {
-+		res = &mem_resource;
-+
-+		/* get GPIO base from PCI */
-+		res->start = simatic_ipc_get_membase0(PCI_DEVFN(0x1f, 1));
-+		if (res->start == 0)
-+			return -ENODEV;
-+
-+		/* do the final address calculation */
-+		res->start = res->start + (GPIO_COMMUNITY0_PORT_ID << 16) +
-+			     PAD_CFG_DW0_GPP_A_23;
-+		res->end += res->start;
-+
-+		wd_reset_base_addr = devm_ioremap_resource(dev, res);
-+		if (IS_ERR(wd_reset_base_addr))
-+			return -ENOMEM;
-+	}
-+
-+	wdd.bootstatus = wd_setup(plat->devmode, true);
-+	if (wdd.bootstatus)
-+		pr_warn(KBUILD_MODNAME ": last reboot caused by watchdog reset\n");
-+
-+	watchdog_set_nowayout(&wdd, nowayout);
-+	watchdog_stop_on_reboot(&wdd);
-+
-+	rc = devm_watchdog_register_device(dev, &wdd);
-+
-+	if (rc == 0)
-+		pr_debug("initialized. nowayout=%d\n",
-+			 nowayout);
-+
-+	return rc;
++	return register_platform_devices(station_id);
 +}
 +
-+static int simatic_ipc_wdt_remove(struct platform_device *pdev)
++static void __exit simatic_ipc_exit_module(void)
 +{
-+	struct simatic_ipc_platform *plat = pdev->dev.platform_data;
++	platform_device_unregister(ipc_led_platform_device);
++	ipc_led_platform_device = NULL;
 +
-+	wd_setup(plat->devmode, false);
-+	return 0;
++	platform_device_unregister(ipc_wdt_platform_device);
++	ipc_wdt_platform_device = NULL;
 +}
 +
-+static struct platform_driver wdt_driver = {
-+	.probe = simatic_ipc_wdt_probe,
-+	.remove = simatic_ipc_wdt_remove,
-+	.driver = {
-+		.name = KBUILD_MODNAME,
-+	},
-+};
-+
-+static int __init simatic_ipc_wdt_init(void)
-+{
-+	return platform_driver_register(&wdt_driver);
-+}
-+
-+static void __exit simatic_ipc_wdt_exit(void)
-+{
-+	platform_driver_unregister(&wdt_driver);
-+}
-+
-+module_init(simatic_ipc_wdt_init);
-+module_exit(simatic_ipc_wdt_exit);
++module_init(simatic_ipc_init_module);
++module_exit(simatic_ipc_exit_module);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" KBUILD_MODNAME);
 +MODULE_AUTHOR("Gerd Haeussler <gerd.haeussler.ext@siemens.com>");
++MODULE_ALIAS("dmi:*:svnSIEMENSAG:*");
+diff --git a/include/linux/platform_data/x86/simatic-ipc-base.h b/include/linux/platform_data/x86/simatic-ipc-base.h
+new file mode 100644
+index 000000000000..d8e59eb8fc96
+--- /dev/null
++++ b/include/linux/platform_data/x86/simatic-ipc-base.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Siemens SIMATIC IPC drivers
++ *
++ * Copyright (c) Siemens AG, 2018-2021
++ *
++ * Authors:
++ *  Henning Schild <henning.schild@siemens.com>
++ *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H
++#define __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H
++
++#include <linux/pci.h>
++
++#define SIMATIC_IPC_DEVICE_NONE 0
++#define SIMATIC_IPC_DEVICE_227D 1
++#define SIMATIC_IPC_DEVICE_427E 2
++#define SIMATIC_IPC_DEVICE_127E 3
++#define SIMATIC_IPC_DEVICE_227E 4
++
++struct simatic_ipc_platform {
++	u8	devmode;
++};
++
++u32 simatic_ipc_get_membase0(unsigned int p2sb);
++
++#endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H */
+diff --git a/include/linux/platform_data/x86/simatic-ipc.h b/include/linux/platform_data/x86/simatic-ipc.h
+new file mode 100644
+index 000000000000..90bb0d7cf09a
+--- /dev/null
++++ b/include/linux/platform_data/x86/simatic-ipc.h
+@@ -0,0 +1,68 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Siemens SIMATIC IPC drivers
++ *
++ * Copyright (c) Siemens AG, 2018-2021
++ *
++ * Authors:
++ *  Henning Schild <henning.schild@siemens.com>
++ *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __PLATFORM_DATA_X86_SIMATIC_IPC_H
++#define __PLATFORM_DATA_X86_SIMATIC_IPC_H
++
++#include <linux/dmi.h>
++#include <linux/platform_data/x86/simatic-ipc-base.h>
++
++#define DMI_ENTRY_OEM	129
++
++enum simatic_ipc_station_ids {
++	SIMATIC_IPC_INVALID_STATION_ID = 0,
++	SIMATIC_IPC_IPC227D = 0x00000501,
++	SIMATIC_IPC_IPC427D = 0x00000701,
++	SIMATIC_IPC_IPC227E = 0x00000901,
++	SIMATIC_IPC_IPC277E = 0x00000902,
++	SIMATIC_IPC_IPC427E = 0x00000A01,
++	SIMATIC_IPC_IPC477E = 0x00000A02,
++	SIMATIC_IPC_IPC127E = 0x00000D01,
++};
++
++static inline u32 simatic_ipc_get_station_id(u8 *data)
++{
++	u32 station_id = SIMATIC_IPC_INVALID_STATION_ID;
++	int i;
++	struct {
++		u8	type;		/* type (0xff = binary) */
++		u8	len;		/* len of data entry */
++		u8	reserved[3];
++		u32	station_id;	/* station id (LE) */
++	} __packed * data_entry = (void *)data;
++
++	/* find 4th entry in OEM data */
++	for (i = 0; i < 3; i++)
++		data_entry = (void *)((u8 *)(data_entry) + data_entry->len);
++
++	/* decode station id */
++	if (data_entry && data_entry->type == 0xff && data_entry->len == 9)
++		station_id = le32_to_cpu(data_entry->station_id);
++
++	return station_id;
++}
++
++static inline void
++simatic_ipc_find_dmi_entry_helper(const struct dmi_header *dh, void *_data)
++{
++	u32 *id = _data;
++
++	if (dh->type != DMI_ENTRY_OEM)
++		return;
++
++	*id = simatic_ipc_get_station_id((u8 *)dh + sizeof(struct dmi_header));
++}
++
++#endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_H */
 -- 
 2.26.2
 
