@@ -2,99 +2,128 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A37E2C433DB
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 07:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16201C433E9
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 07:07:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A42364ED4
+	by mail.kernel.org (Postfix) with ESMTP id B6D0A64ED4
 	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Mar 2021 07:07:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234822AbhCCG7w (ORCPT
+        id S235791AbhCCHAH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Mar 2021 01:59:52 -0500
-Received: from gecko.sbs.de ([194.138.37.40]:33851 "EHLO gecko.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346285AbhCBRgN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 2 Mar 2021 12:36:13 -0500
-Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
-        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 122GcC5A009123
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 Mar 2021 17:38:12 +0100
-Received: from md1za8fc.ad001.siemens.net ([167.87.44.113])
-        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 122GXBHN025192;
-        Tue, 2 Mar 2021 17:33:11 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
+        Wed, 3 Mar 2021 02:00:07 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:36108 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1381321AbhCBU4Q (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 2 Mar 2021 15:56:16 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 0F40C1C0B81; Tue,  2 Mar 2021 21:54:53 +0100 (CET)
+Date:   Tue, 2 Mar 2021 21:54:52 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Henning Schild <henning.schild@siemens.com>
+Cc:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Srikanth Krishnakar <skrishnakar@gmail.com>,
         Jan Kiszka <jan.kiszka@siemens.com>,
-        Henning Schild <henning.schild@siemens.com>,
         Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mark Gross <mgross@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 0/4] add device drivers for Siemens Industrial PCs
-Date:   Tue,  2 Mar 2021 17:33:05 +0100
-Message-Id: <20210302163309.25528-1-henning.schild@siemens.com>
-X-Mailer: git-send-email 2.26.2
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 2/4] leds: simatic-ipc-leds: add new driver for Siemens
+ Industial PCs
+Message-ID: <20210302205452.GA32573@duo.ucw.cz>
+References: <20210302163309.25528-1-henning.schild@siemens.com>
+ <20210302163309.25528-3-henning.schild@siemens.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+In-Reply-To: <20210302163309.25528-3-henning.schild@siemens.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Henning Schild <henning.schild@siemens.com>
 
-This series adds support for watchdogs and leds of several x86 devices
-from Siemens.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is structured with a platform driver that mainly does identification
-of the machines. It might trigger loading of the actual device drivers
-by attaching devices to the platform bus.
+Hi!
 
-The identification is vendor specific, parsing a special binary DMI
-entry. The implementation of that platform identification is applied on
-pmc_atom clock quirks in the final patch.
+> This driver adds initial support for several devices from Siemens. It is
+> based on a platform driver introduced in an earlier commit.
 
-It is all structured in a way that we can easily add more devices and
-more platform drivers later. Internally we have some more code for
-hardware monitoring, more leds, watchdogs etc. This will follow some
-day.
+Ok.
 
-But the idea here is to share early, and hopefully not fail early.
+> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> index 2a698df9da57..c15e1e3c5958 100644
+> --- a/drivers/leds/Makefile
+> +++ b/drivers/leds/Makefile
+> @@ -93,6 +93,7 @@ obj-$(CONFIG_LEDS_TURRIS_OMNIA)		+=3D leds-turris-omnia=
+=2Eo
+>  obj-$(CONFIG_LEDS_WM831X_STATUS)	+=3D leds-wm831x-status.o
+>  obj-$(CONFIG_LEDS_WM8350)		+=3D leds-wm8350.o
+>  obj-$(CONFIG_LEDS_WRAP)			+=3D leds-wrap.o
+> +obj-$(CONFIG_LEDS_SIEMENS_SIMATIC_IPC)	+=3D simatic-ipc-leds.o
 
-Henning Schild (4):
-  platform/x86: simatic-ipc: add main driver for Siemens devices
-  leds: simatic-ipc-leds: add new driver for Siemens Industial PCs
-  watchdog: simatic-ipc-wdt: add new driver for Siemens Industrial PCs
-  platform/x86: pmc_atom: improve critclk_systems matching for Siemens
-    PCs
+Let's put this into drivers/leds/simple. You'll have to create it.
 
- drivers/leds/Kconfig                          |  11 +
- drivers/leds/Makefile                         |   1 +
- drivers/leds/simatic-ipc-leds.c               | 224 +++++++++++++
- drivers/platform/x86/Kconfig                  |   9 +
- drivers/platform/x86/Makefile                 |   3 +
- drivers/platform/x86/pmc_atom.c               |  39 +--
- drivers/platform/x86/simatic-ipc.c            | 166 ++++++++++
- drivers/watchdog/Kconfig                      |  11 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/simatic-ipc-wdt.c            | 305 ++++++++++++++++++
- .../platform_data/x86/simatic-ipc-base.h      |  33 ++
- include/linux/platform_data/x86/simatic-ipc.h |  68 ++++
- 12 files changed, 853 insertions(+), 18 deletions(-)
- create mode 100644 drivers/leds/simatic-ipc-leds.c
- create mode 100644 drivers/platform/x86/simatic-ipc.c
- create mode 100644 drivers/watchdog/simatic-ipc-wdt.c
- create mode 100644 include/linux/platform_data/x86/simatic-ipc-base.h
- create mode 100644 include/linux/platform_data/x86/simatic-ipc.h
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
 
--- 
-2.26.2
+Remove?
 
+> +static struct simatic_ipc_led simatic_ipc_leds_io[] =3D {
+> +	{1 << 15, "simatic-ipc:green:run-stop"},
+> +	{1 << 7,  "simatic-ipc:yellow:run-stop"},
+> +	{1 << 14, "simatic-ipc:red:error"},
+> +	{1 << 6,  "simatic-ipc:yellow:error"},
+> +	{1 << 13, "simatic-ipc:red:maint"},
+> +	{1 << 5,  "simatic-ipc:yellow:maint"},
+> +	{0, ""},
+> +};
+
+Please use names consistent with other systems, this is user
+visible. If you have two-color power led, it should be
+:green:power... See include/dt-bindings/leds/common.h .
+
+Please avoid // comments in the code.
+
+> +module_init(simatic_ipc_led_init_module);
+> +module_exit(simatic_ipc_led_exit_module);
+
+No need for such verbosity for functions that are static.
+
+> +MODULE_LICENSE("GPL");
+
+GPL v2?
+
+Best regards,
+								Pavel
+
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--cWoXeonUoKmBZSoM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYD6mHAAKCRAw5/Bqldv6
+8jccAKCW5J5k8GW26pDj+wn7z3ClTwgz9gCdG2YoZJI2nYD8w2mz8d3Xbt3YS1w=
+=iNci
+-----END PGP SIGNATURE-----
+
+--cWoXeonUoKmBZSoM--
