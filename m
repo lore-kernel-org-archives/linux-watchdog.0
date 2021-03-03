@@ -2,37 +2,32 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CCA3C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FE86C433DB
 	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 00:51:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 095BC64FB5
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 00:51:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED59964FDF
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 00:51:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241836AbhCDAvk (ORCPT
+        id S241843AbhCDAvk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Wed, 3 Mar 2021 19:51:40 -0500
-Received: from gecko.sbs.de ([194.138.37.40]:36180 "EHLO gecko.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1838579AbhCCTBG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Mar 2021 14:01:06 -0500
-Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
-        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 123IxwIh025455
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 Mar 2021 19:59:58 +0100
-Received: from md1za8fc.ad001.siemens.net ([139.22.36.86])
-        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 123InvaB000593;
-        Wed, 3 Mar 2021 19:49:57 +0100
-Date:   Wed, 3 Mar 2021 19:49:56 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     <linux-kernel@vger.kernel.org>, <linux-leds@vger.kernel.org>,
-        <platform-driver-x86@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>,
+Received: from jabberwock.ucw.cz ([46.255.230.98]:43408 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387635AbhCCTea (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 3 Mar 2021 14:34:30 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 1509A1C0B88; Wed,  3 Mar 2021 20:31:35 +0100 (CET)
+Date:   Wed, 3 Mar 2021 20:31:34 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Henning Schild <henning.schild@siemens.com>
+Cc:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
         Srikanth Krishnakar <skrishnakar@gmail.com>,
         Jan Kiszka <jan.kiszka@siemens.com>,
         Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
@@ -42,52 +37,71 @@ Cc:     <linux-kernel@vger.kernel.org>, <linux-leds@vger.kernel.org>,
         Hans de Goede <hdegoede@redhat.com>
 Subject: Re: [PATCH 2/4] leds: simatic-ipc-leds: add new driver for Siemens
  Industial PCs
-Message-ID: <20210303194956.5b36a73c@md1za8fc.ad001.siemens.net>
-In-Reply-To: <20210303174040.GA3305@amd>
+Message-ID: <20210303193134.GB8720@amd>
 References: <20210302163309.25528-1-henning.schild@siemens.com>
-        <20210302163309.25528-3-henning.schild@siemens.com>
-        <20210302205452.GA32573@duo.ucw.cz>
-        <20210303183714.62c0f06f@md1za8fc.ad001.siemens.net>
-        <20210303174040.GA3305@amd>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+ <20210302163309.25528-3-henning.schild@siemens.com>
+ <20210302205452.GA32573@duo.ucw.cz>
+ <20210303141052.30641e6b@md1za8fc.ad001.siemens.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
+Content-Disposition: inline
+In-Reply-To: <20210303141052.30641e6b@md1za8fc.ad001.siemens.net>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Am Wed, 3 Mar 2021 18:40:40 +0100
-schrieb Pavel Machek <pavel@ucw.cz>:
 
-> Hi!
-> 
-> > > > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > > > index 2a698df9da57..c15e1e3c5958 100644
-> > > > --- a/drivers/leds/Makefile
-> > > > +++ b/drivers/leds/Makefile
-> > > > @@ -93,6 +93,7 @@ obj-$(CONFIG_LEDS_TURRIS_OMNIA)
-> > > > 	+= leds-turris-omnia.o
-> > > > obj-$(CONFIG_LEDS_WM831X_STATUS)	+= leds-wm831x-status.o
-> > > > obj-$(CONFIG_LEDS_WM8350)		+= leds-wm8350.o
-> > > > obj-$(CONFIG_LEDS_WRAP)			+= leds-wrap.o
-> > > > +obj-$(CONFIG_LEDS_SIEMENS_SIMATIC_IPC)	+=
-> > > > simatic-ipc-leds.o    
-> > > 
-> > > Let's put this into drivers/leds/simple. You'll have to create
-> > > it.  
-> > 
-> > Can you please go into detail why? We plan to add more devices in
-> > the future, which might in fact make this a little less simple. But
-> > we can discuss that when the time is right and start with simple.  
-> 
-> There's already way too many drivers in the directory, and your driver
-> is very different from drivers for camera flash (for example).
+--uQr8t48UFsdbeI+V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Understood, the whole Makefile Kconfig thingy?
+Hi!
 
-Henning
+> > > +static struct simatic_ipc_led simatic_ipc_leds_io[] =3D {
+> > > +	{1 << 15, "simatic-ipc:green:run-stop"},
+> > > +	{1 << 7,  "simatic-ipc:yellow:run-stop"},
+> > > +	{1 << 14, "simatic-ipc:red:error"},
+> > > +	{1 << 6,  "simatic-ipc:yellow:error"},
+> > > +	{1 << 13, "simatic-ipc:red:maint"},
+> > > +	{1 << 5,  "simatic-ipc:yellow:maint"},
+> > > +	{0, ""},
+> > > +}; =20
+> >=20
+> > Please use names consistent with other systems, this is user
+> > visible. If you have two-color power led, it should be
+> > :green:power... See include/dt-bindings/leds/common.h .
+>=20
+> Well we wanted to pick names that are printed on the devices and would
+> like to stick to those. Has been a discussion ...
+> Can we have symlinks to have multiple names per LED?
 
-> Best regards,
-> 								Pavel
+No symlinks. We plan to have command line tool to manipulate LEDs,
+aliases might be possible there.
 
+> How strong would you feel about us using our names?
+
+Strongly. :-)
+
+Do you have a picture how the leds look like?
+
+Best regards,
+							Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--uQr8t48UFsdbeI+V
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmA/5BYACgkQMOfwapXb+vIK9wCfQwnYrmkVRInVpriJCbZaZoMW
+uVcAn0kh4wxyuJCBuz8Fi4tylz+NNX38
+=INzV
+-----END PGP SIGNATURE-----
+
+--uQr8t48UFsdbeI+V--
