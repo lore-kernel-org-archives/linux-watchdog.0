@@ -2,142 +2,77 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CA42C433E0
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 00:52:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02CA0C433DB
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 04:52:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 28D5D64F4C
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 00:52:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCF3964EFE
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 04:52:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241501AbhCDAvj (ORCPT
+        id S233868AbhCDEvf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:51:39 -0500
-Received: from lizzard.sbs.de ([194.138.37.39]:40675 "EHLO lizzard.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1379569AbhCCNaX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Mar 2021 08:30:23 -0500
-Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 123DBEi5032384
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 Mar 2021 14:11:14 +0100
-Received: from md1za8fc.ad001.siemens.net ([167.87.44.113])
-        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 123DBDdd020542;
-        Wed, 3 Mar 2021 14:11:13 +0100
-Date:   Wed, 3 Mar 2021 14:11:12 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     <linux-kernel@vger.kernel.org>, <linux-leds@vger.kernel.org>,
-        <platform-driver-x86@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>,
-        Srikanth Krishnakar <skrishnakar@gmail.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Gross <mgross@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/4] leds: simatic-ipc-leds: add new driver for Siemens
- Industial PCs
-Message-ID: <20210303141052.30641e6b@md1za8fc.ad001.siemens.net>
-In-Reply-To: <20210302205452.GA32573@duo.ucw.cz>
-References: <20210302163309.25528-1-henning.schild@siemens.com>
-        <20210302163309.25528-3-henning.schild@siemens.com>
-        <20210302205452.GA32573@duo.ucw.cz>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        Wed, 3 Mar 2021 23:51:35 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:13051 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234047AbhCDEvD (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 3 Mar 2021 23:51:03 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DrdfL2XlKzMfbV;
+        Thu,  4 Mar 2021 12:48:10 +0800 (CST)
+Received: from localhost.localdomain (10.175.102.38) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.498.0; Thu, 4 Mar 2021 12:50:11 +0800
+From:   'Wei Yongjun <weiyongjun1@huawei.com>
+To:     <weiyongjun1@huawei.com>, Paul Cercueil <paul@crapouillou.net>,
+        "Wim Van Sebroeck" <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+CC:     <linux-mips@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
+Subject: [PATCH -next] watchdog: jz4740: Fix return value check in jz4740_wdt_probe()
+Date:   Thu, 4 Mar 2021 04:59:09 +0000
+Message-ID: <20210304045909.945799-1-weiyongjun1@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type:   text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Originating-IP: [10.175.102.38]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Pavel,
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-thanks for looking into this.
+In case of error, the function device_node_to_regmap() returns
+ERR_PTR() and never returns NULL. The NULL test in the return
+value check should be replaced with IS_ERR().
 
-Am Tue, 2 Mar 2021 21:54:52 +0100
-schrieb Pavel Machek <pavel@ucw.cz>:
+Fixes: 6d532143c915 ("watchdog: jz4740: Use regmap provided by TCU driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+---
+ drivers/watchdog/jz4740_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> Hi!
-> 
-> > This driver adds initial support for several devices from Siemens.
-> > It is based on a platform driver introduced in an earlier commit.  
-> 
-> Ok.
-> 
-> > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > index 2a698df9da57..c15e1e3c5958 100644
-> > --- a/drivers/leds/Makefile
-> > +++ b/drivers/leds/Makefile
-> > @@ -93,6 +93,7 @@ obj-$(CONFIG_LEDS_TURRIS_OMNIA)		+=
-> > leds-turris-omnia.o obj-$(CONFIG_LEDS_WM831X_STATUS)	+=
-> > leds-wm831x-status.o obj-$(CONFIG_LEDS_WM8350)		+=
-> > leds-wm8350.o obj-$(CONFIG_LEDS_WRAP)			+=
-> > leds-wrap.o +obj-$(CONFIG_LEDS_SIEMENS_SIMATIC_IPC)	+=
-> > simatic-ipc-leds.o  
-> 
-> Let's put this into drivers/leds/simple. You'll have to create it.
-
-Ok will do
-
-> > + *
-> > + * This program is free software; you can redistribute it and/or
-> > modify
-> > + * it under the terms of the GNU General Public License version 2
-> > as
-> > + * published by the Free Software Foundation.
-> > + */  
-> 
-> Remove?
-
-Sure, was found in wdt as well. Thx
-
-> > +static struct simatic_ipc_led simatic_ipc_leds_io[] = {
-> > +	{1 << 15, "simatic-ipc:green:run-stop"},
-> > +	{1 << 7,  "simatic-ipc:yellow:run-stop"},
-> > +	{1 << 14, "simatic-ipc:red:error"},
-> > +	{1 << 6,  "simatic-ipc:yellow:error"},
-> > +	{1 << 13, "simatic-ipc:red:maint"},
-> > +	{1 << 5,  "simatic-ipc:yellow:maint"},
-> > +	{0, ""},
-> > +};  
-> 
-> Please use names consistent with other systems, this is user
-> visible. If you have two-color power led, it should be
-> :green:power... See include/dt-bindings/leds/common.h .
-
-Well we wanted to pick names that are printed on the devices and would
-like to stick to those. Has been a discussion ...
-Can we have symlinks to have multiple names per LED?
-
-How strong would you feel about us using our names?
-
-> Please avoid // comments in the code.
-
-Ok
-
-> > +module_init(simatic_ipc_led_init_module);
-> > +module_exit(simatic_ipc_led_exit_module);  
-> 
-> No need for such verbosity for functions that are static.
-> 
-> > +MODULE_LICENSE("GPL");  
-> 
-> GPL v2?
-
-Will do.
-
-Stay tuned for v2.
-
-regards,
-Henning
-
-
-> Best regards,
-> 								Pavel
-> 
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index bdf9564efa29..395bde79e292 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -176,9 +176,9 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_drvdata(jz4740_wdt, drvdata);
+ 
+ 	drvdata->map = device_node_to_regmap(dev->parent->of_node);
+-	if (!drvdata->map) {
++	if (IS_ERR(drvdata->map)) {
+ 		dev_err(dev, "regmap not found\n");
+-		return -EINVAL;
++		return PTR_ERR(drvdata->map);
+ 	}
+ 
+ 	return devm_watchdog_register_device(dev, &drvdata->wdt);
 
