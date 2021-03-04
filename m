@@ -5,55 +5,55 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5F5C433DB
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 22:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CBA6C433E9
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 22:13:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 980CC64FF1
+	by mail.kernel.org (Postfix) with ESMTP id C839B64F52
 	for <linux-watchdog@archiver.kernel.org>; Thu,  4 Mar 2021 22:13:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbhCDWM4 (ORCPT
+        id S230449AbhCDWMz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 Mar 2021 17:12:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50544 "EHLO
+        Thu, 4 Mar 2021 17:12:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231497AbhCDWMy (ORCPT
+        with ESMTP id S231309AbhCDWMy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 4 Mar 2021 17:12:54 -0500
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DC3BC061765
-        for <linux-watchdog@vger.kernel.org>; Thu,  4 Mar 2021 14:12:54 -0800 (PST)
-Received: by mail-ed1-x52c.google.com with SMTP id p1so32575917edy.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 04 Mar 2021 14:12:54 -0800 (PST)
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BA3C061574
+        for <linux-watchdog@vger.kernel.org>; Thu,  4 Mar 2021 14:12:52 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id jt13so52579719ejb.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 04 Mar 2021 14:12:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=UCo3mKQIbcpollGcJ9PYHtksoboB7Ro207jOYrCfzdo=;
-        b=g1Zn6sewFIleBOXnOHM71n+XqDprG9IKVcU3vrwC/LmP7RiEYZWioiuOo6u8eay8rp
-         1efpcjma6Y7hUyfQyOqliLwpMX7YVcRtMkHFwd4IttHF9G22LrA/mMggvqUZaqDgqmU1
-         133cDV7S24kpbxsZu8wG18e2IJ81VwzKnsak4=
+        bh=IxSjyHvfhJ/CRzXpd7kM65mxSitdSKejDB4yVJ8QdLI=;
+        b=SGDVknug8AsUYWYZSGdHKwErk1ohZtG+21USh8vDWbvcM6aFt8ZKYPoHP34FY7/Or4
+         RqoAtJe0dwn1Bch/dFzWvOCOo/dEqgcOjFOFMzAB0e2Vh5Kw37/tNktSN79n3iIUqm/j
+         jWI2HYdntIV9Dpa68IH6OENLdI+eeMvCb2PM0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=UCo3mKQIbcpollGcJ9PYHtksoboB7Ro207jOYrCfzdo=;
-        b=qDgT7F19vDaoorCmWYXAKU5KIvPVsC8eLO5zn35/iW1aQTA+rxkYF7S1rlLVC5xflv
-         IqQGkYo02oFJqsPAgeSY2uiDRpKVNBjBTzwRT1oKtjGkIuBwe/KdiC8g5LSfqu7XNJw7
-         dG7huW8BhVUkrgcNJzG+BdD5Z2UptJLqltVaQoehiho9/A8RM7FRgW+APfY6rQO3CvZP
-         eAv5BnYT1/YBOuwdz2rEDUGouNM/7401IaGt+Qe3Z/aUQtbEf8r5CXwIovEwi/DuIMwI
-         BRITR9YFTrrg8e88P8QkMc5aIFE09f5wdDhuVssskjtuENC0mqXakCmikzgN99oP9B8O
-         8zgw==
-X-Gm-Message-State: AOAM5331CsIJoPMlFmFS1FNrPRFC+Lddyx+sGVQuvBHi7MlFskaRVMPF
-        nXp8nGNoUkyEAmuo1oa9+jRhpw==
-X-Google-Smtp-Source: ABdhPJzme5MAAWpf/zramDLF/Q+YNk0uNjfX+zRiBm3mY5cw1s0ZQPbrq+hYw2HTPbmIl+2U4okoLg==
-X-Received: by 2002:aa7:cd8c:: with SMTP id x12mr6809476edv.355.1614895972903;
-        Thu, 04 Mar 2021 14:12:52 -0800 (PST)
+        bh=IxSjyHvfhJ/CRzXpd7kM65mxSitdSKejDB4yVJ8QdLI=;
+        b=LSaD5CfueyvCjwi7q5ey3QUWcTUx/X8uhjKroR+z+B0u+NTE4qv2daXWR5irghC4dA
+         tyXgZV1bhaIS/NgKgsR5+mGZXCwddr9aEV7DpiTXx3JL6ESLNPTQgEhuyg25FELWjVE3
+         WxnvK51jn6QThhdrAOQamP7nEPWAIRhdm0sku6M3DetNCCWTfye5DXWebCNKzFkTYOoF
+         /+0EUYTyQnsdbbW22tKdDbMValYGVK1xI4uDMlPJzLscwvvV5gwPbkKd0bO9me5Q9mtg
+         6tpts0BQPcDxLYvkoq9Ji5UCaJBGPz1fsZAK71wREOypGHOTG/F4mH7NnEdn+CdF5qPq
+         djZg==
+X-Gm-Message-State: AOAM532fG7088anD4zWCX/y9t66rgPCLEcE2UDsXvXf/RKYPYYHaiKVL
+        4SyfqPggiw2lU/Rh75sG0T9FTA==
+X-Google-Smtp-Source: ABdhPJwVN0AcFGjBUTQ8VzGydpnWSzRyWvOOXLUP2ekeX/od+/cEZvBhl2UzMVMC2N0PmxVQKV+mMg==
+X-Received: by 2002:a17:906:3acc:: with SMTP id z12mr6648419ejd.494.1614895971264;
+        Thu, 04 Mar 2021 14:12:51 -0800 (PST)
 Received: from prevas-ravi.prevas.se ([80.208.71.141])
-        by smtp.gmail.com with ESMTPSA id q22sm362099ejy.5.2021.03.04.14.12.52
+        by smtp.gmail.com with ESMTPSA id q22sm362099ejy.5.2021.03.04.14.12.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Mar 2021 14:12:52 -0800 (PST)
+        Thu, 04 Mar 2021 14:12:50 -0800 (PST)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
 To:     Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
         Stephen Boyd <sboyd@kernel.org>
@@ -61,9 +61,9 @@ Cc:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: [PATCH v2 3/3] watchdog: gpio_wdt: implement support for optional "delay" clock
-Date:   Thu,  4 Mar 2021 23:12:47 +0100
-Message-Id: <20210304221247.488173-4-linux@rasmusvillemoes.dk>
+Subject: [PATCH v2 1/3] clk: add devm_clk_prepare_enable() helper
+Date:   Thu,  4 Mar 2021 23:12:45 +0100
+Message-Id: <20210304221247.488173-2-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210304221247.488173-1-linux@rasmusvillemoes.dk>
 References: <20210226141411.2517368-1-linux@rasmusvillemoes.dk>
@@ -74,57 +74,88 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-[DO NOT MERGE - see cover letter]
-
-We have a board where the reset output from the ADM706S is split in
-two: directly routed to an interrupt, and also to start a ripple
-counter, which 64 ms later than pulls the SOC's reset pin. That ripple
-counter only works if the RTC's 32kHz output is enabled, and since
-linux by default disables unused clocks, that effectively renders the
-watchdog useless.
-
-Add driver support for an optional "delay" clock, as documented in the
-preceding patch.
+Add a managed wrapper for clk_prepare_enable().
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 ---
- drivers/watchdog/gpio_wdt.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ .../driver-api/driver-model/devres.rst        |  1 +
+ drivers/clk/clk-devres.c                      | 29 +++++++++++++++++++
+ include/linux/clk.h                           | 13 +++++++++
+ 3 files changed, 43 insertions(+)
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index 0923201ce874..f812c39bc1e8 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -6,6 +6,7 @@
-  */
+diff --git a/Documentation/driver-api/driver-model/devres.rst b/Documentation/driver-api/driver-model/devres.rst
+index cd8b6e657b94..8ee2557f9ad7 100644
+--- a/Documentation/driver-api/driver-model/devres.rst
++++ b/Documentation/driver-api/driver-model/devres.rst
+@@ -253,6 +253,7 @@ CLOCK
+   devm_clk_hw_register()
+   devm_of_clk_add_hw_provider()
+   devm_clk_hw_register_clkdev()
++  devm_clk_prepare_enable()
  
- #include <linux/err.h>
-+#include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/gpio/consumer.h>
-@@ -111,6 +112,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	enum gpiod_flags gflags;
- 	unsigned int hw_margin;
- 	const char *algo;
-+	struct clk *clk;
- 	int ret;
- 
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -164,6 +166,13 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	if (priv->always_running)
- 		gpio_wdt_start(&priv->wdd);
- 
-+	clk = devm_clk_get_optional(dev, "delay");
-+	if (IS_ERR(clk))
-+		return PTR_ERR(clk);
-+	ret = devm_clk_prepare_enable(dev, clk);
-+	if (ret)
-+		return ret;
-+
- 	return devm_watchdog_register_device(dev, &priv->wdd);
+ DMA
+   dmaenginem_async_device_register()
+diff --git a/drivers/clk/clk-devres.c b/drivers/clk/clk-devres.c
+index be160764911b..d5bfa8cd7347 100644
+--- a/drivers/clk/clk-devres.c
++++ b/drivers/clk/clk-devres.c
+@@ -156,3 +156,32 @@ struct clk *devm_get_clk_from_child(struct device *dev,
+ 	return clk;
  }
- 
+ EXPORT_SYMBOL(devm_get_clk_from_child);
++
++static void devm_clk_disable_unprepare(struct device *dev, void *res)
++{
++	clk_disable_unprepare(*(struct clk **)res);
++}
++
++int devm_clk_prepare_enable(struct device *dev, struct clk *clk)
++{
++	struct clk **ptr;
++	int ret;
++
++	if (!clk)
++		return 0;
++
++	ptr = devres_alloc(devm_clk_disable_unprepare, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return -ENOMEM;
++
++	ret = clk_prepare_enable(clk);
++	if (!ret) {
++		*ptr = clk;
++		devres_add(dev, ptr);
++	} else {
++		devres_free(ptr);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL(devm_clk_prepare_enable);
+diff --git a/include/linux/clk.h b/include/linux/clk.h
+index 266e8de3cb51..04d135520480 100644
+--- a/include/linux/clk.h
++++ b/include/linux/clk.h
+@@ -485,6 +485,19 @@ struct clk *devm_clk_get_optional(struct device *dev, const char *id);
+  */
+ struct clk *devm_get_clk_from_child(struct device *dev,
+ 				    struct device_node *np, const char *con_id);
++/**
++ * devm_clk_prepare_enable - prepare and enable a clock source
++ * @dev: device for clock "consumer"
++ * @clk: clock source
++ *
++ * This function calls clk_prepare_enable() on @clk, and ensures the
++ * clock will automatically be disabled and unprepared when the device
++ * is unbound from the bus.
++ *
++ * Must not be called from within atomic context.
++ */
++int devm_clk_prepare_enable(struct device *dev, struct clk *clk);
++
+ /**
+  * clk_rate_exclusive_get - get exclusivity over the rate control of a
+  *                          producer
 -- 
 2.29.2
 
