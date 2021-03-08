@@ -2,27 +2,28 @@ Return-Path: <SRS0=SJvS=IG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FCF0C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D49E8C433DB
 	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Mar 2021 11:22:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 139AB650F2
+	by mail.kernel.org (Postfix) with ESMTP id 8B6EF650F2
 	for <linux-watchdog@archiver.kernel.org>; Mon,  8 Mar 2021 11:22:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229965AbhCHLWZ (ORCPT
+        id S229754AbhCHLW1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 8 Mar 2021 06:22:25 -0500
+        Mon, 8 Mar 2021 06:22:27 -0500
 Received: from smtp.asem.it ([151.1.184.197]:58542 "EHLO smtp.asem.it"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231958AbhCHLWH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 8 Mar 2021 06:22:07 -0500
+        id S231963AbhCHLWJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 8 Mar 2021 06:22:09 -0500
 Received: from webmail.asem.it
         by asem.it (smtp.asem.it)
         (SecurityGateway 6.5.2)
-        with ESMTP id SG000850606.MSG 
+        with ESMTP id SG000850608.MSG 
         for <linux-watchdog@vger.kernel.org>; Mon, 08 Mar 2021 12:21:56 +0100S
 Received: from ASAS044.asem.intra (172.16.16.44) by ASAS044.asem.intra
  (172.16.16.44) with Microsoft SMTP Server (version=TLS1_2,
@@ -37,121 +38,47 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mika Westerberg <mika.westerberg@linux.intel.com>
 CC:     <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Flavio Suligoi <f.suligoi@asem.it>
-Subject: [PATCH v1 0/2] Watchdog Core Global Parameters
-Date:   Mon, 8 Mar 2021 12:21:49 +0100
-Message-ID: <20210308112151.716315-1-f.suligoi@asem.it>
+Subject: [PATCH v1 2/2] watchdog: wdat: add start_enable global parameter
+Date:   Mon, 8 Mar 2021 12:21:51 +0100
+Message-ID: <20210308112151.716315-3-f.suligoi@asem.it>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210308112151.716315-1-f.suligoi@asem.it>
+References: <20210308112151.716315-1-f.suligoi@asem.it>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-SGHeloLookup-Result: pass smtp.helo=webmail.asem.it (ip=172.16.16.44)
 X-SGSPF-Result: none (smtp.asem.it)
-X-SGOP-RefID: str=0001.0A782F1A.604608D3.007C,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
+X-SGOP-RefID: str=0001.0A782F1A.604608D3.00BB,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This patch series add a new way to consider the module parameters for the
-watchdog module.
+The "start_enable" global parameter, managed in watchdog_core.c,
+forces the driver to start the watchdog countdown in the same moment of the
+module insertion.
+The driver also updates the watchdog status, setting the WDOG_HW_RUNNING
+flag, to enable the watchdog ping feature managed by the watchdog_core
+itself.
 
-Instead of adding this kind of module parameters independently to each
-driver, the best solution is declaring each feature only once,
-in the watchdog core.
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+---
+ drivers/watchdog/wdat_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Additionally, I added a implementation example of this "global" parameters
-using the module "wdat_wdt"
-
-In details:
-
-===============================
-Watchdog Core Global Parameters
-===============================
-
-Information for watchdog kernel modules developers.
-
-Introduction
-============
-
-Different watchdog modules frequently require the same type of parameters
-(for example: *timeout*, *nowayout* feature, *start_enabled* to start the
-watchdog on module insertion, etc.).
-Instead of adding this kind of module parameters independently to each
-driver, the best solution is declaring each feature only once,
-in the watchdog core.
-
-In this way, each driver can read these "global" parameters and then,
-if needed, can implement them, according to the particular hw watchdog
-characteristic.
-
-Using this approach, it is possible reduce some duplicate code in the *new*
-watchdog drivers and simplify the code maintenance.  Moreover, the code
-will be clearer, since the same kind of parameters are often called
-with different names (see Documentation/watchdog/watchdog-parameters.rst).
-Obviously, for compatibility reasons, we cannot remove the already existing
-parameters from the code of the various watchdog modules, but we can use
-this "global" approach for the new watchdog drivers.
-
-
-Global parameters declaration
-==============================
-
-The global parameters data structure is declared in
-include/linux/watchdog.h, as::
-
-	struct watchdog_global_parameters_struct {
-		int timeout;
-		int ioport;
-		int irq;
-		unsigned long features;
-		/* Bit numbers for features flags */
-		#define WDOG_GLOBAL_PARAM_VERBOSE	0
-		#define WDOG_GLOBAL_PARAM_TEST_MODE	1
-		#define WDOG_GLOBAL_PARAM_START_ENABLED	2
-		#define WDOG_GLOBAL_PARAM_NOWAYOUT	3
-	};
-
-The variable "feature" is a bitwise flags container, to store boolean
-features, such as:
-
-* nowayout
-* start_enable
-* etc...
-
-Other variables can be added, to store some numerical values and other data
-required.
-
-The global parameters are declared (as usual for the module parameters)
-in the first part of drivers/watchdog/watchdog_core.c file.
-The above global data structure is then managed by the function
-*void global_parameters_init()*, in the same file.
-
-Global parameters use
-=====================
-
-Each watchdog driver, to check if one of the global parameters is enabled,
-can use the corresponding in-line function declared in
-include/linux/watchdog.h.
-At the moment the following functions are ready to use:
-
-* watchdog_global_param_verbose_enabled()
-* watchdog_global_param_test_mode_enabled()
-* watchdog_global_param_start_enabled()
-* watchdog_global_param_nowayout_enabled()
-
-
-
-Flavio Suligoi (2):
-  watchdog: add global watchdog kernel module parameters structure
-  watchdog: wdat: add start_enable global parameter
-
- Documentation/watchdog/index.rst              |  1 +
- .../watchdog-core-global-parameters.rst       | 74 +++++++++++++++++++
- drivers/watchdog/watchdog_core.c              | 74 +++++++++++++++++++
- drivers/watchdog/wdat_wdt.c                   |  2 +
- include/linux/watchdog.h                      | 42 +++++++++++
- 5 files changed, 193 insertions(+)
- create mode 100644 Documentation/watchdog/watchdog-core-global-parameters.rst
-
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index cec7917790e5..7304a335227f 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -437,6 +437,8 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	wdat_wdt_boot_status(wdat);
++	if (watchdog_global_param_start_enabled())
++		wdat_wdt_start(&wdat->wdd);
+ 	wdat_wdt_set_running(wdat);
+ 
+ 	ret = wdat_wdt_enable_reboot(wdat);
 -- 
 2.25.1
 
