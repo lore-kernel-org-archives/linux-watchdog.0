@@ -2,229 +2,148 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43787C433E0
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Mar 2021 10:32:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B1C1C433E0
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Mar 2021 10:48:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F8B464E64
-	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Mar 2021 10:32:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6F3564E76
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Mar 2021 10:48:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbhCOKby (ORCPT
+        id S229884AbhCOKrl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 15 Mar 2021 06:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56138 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbhCOKb2 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 15 Mar 2021 06:31:28 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0E8C061574;
-        Mon, 15 Mar 2021 03:31:28 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id y67so6298025pfb.2;
-        Mon, 15 Mar 2021 03:31:28 -0700 (PDT)
+        Mon, 15 Mar 2021 06:47:41 -0400
+Received: from mail-dm6nam11on2086.outbound.protection.outlook.com ([40.107.223.86]:34809
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230002AbhCOKrY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 15 Mar 2021 06:47:24 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SiQp7IWMwYRclMVAVRSismVFFX+ajLLz/pTVnwX9ukzHMdfP+A6nMifov3thuv1KVFB1RdDAXUXwKKP9Z8MteIAciwy9BUzWg2INFvze5spGmCNl57IGKWlKBhk0rd42IYSY5PaUHHBocCEHNMDLWFlJzsWsuO0ftXRjPR4W9ADpZLbOi/tnCP8c0152vcz9kjEO5wGETpyUbBMQRXDmZCrp/1TNOxHdcdgorjyi9FfucQtbMYsOnMbwubqz2GUn+rejn0JMhc4cRZHc/LhNJMOrWa6xkJHayr+K3XlJ916ZPWyAXx1HmUafdGLjCzSwqff3r0uic0PNFazoi6R/HA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+St41h16lx3eOLcbriBkxDc2LwEYg1dz45xs2HifVWc=;
+ b=cFbgAqXboFGdtuAW3E0PiEmAMktT6xeXFQzlud6jt/qLrBe+Lzwtk9qnEo65g9gWx7usljkXLoPLlEzxFEVKExXy8WfUqdOpcolKGU7iIy2j1qsl5X0qSSh0EHWGDyHY6/yzNHcHU6puiPyc4DIR0hefl6A02z8omMQT2AdqnAc8463Ks40hO9/BnYjmKxHbrlK8UyyM0GQAQVqg2WBsH1rTo/duT0uSjNZdxl3f6i2lMY6lkRamHeMV4rhNebaGE2/OVbmWsuPHHs0CIE4EdtqhFQ/zoywRlRIecsqCfexPK4LqtiCpaqGXiYGLYhNru3ubIAtGdXI8CxT4lkinSA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 149.199.62.198) smtp.rcpttodomain=roeck-us.net smtp.mailfrom=xilinx.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
+ dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6PdMcbuBDVYu4pfnkkEXp7Zeyvz8D3r+uXiYvPZcDso=;
-        b=vDerLbS2szcXcEP6NFNqJJTkBnnr7RjyysW/E0XcGAGLEq0BpSXuB5ojeHGbDNck5P
-         oHvtKNAtnXrkDlbc1aVWKdCrA/FpNP+zClF58ftFJeTZjtjUQ+e8v1DChN3eM23+IMxp
-         Hc4Fyqy4MqaGwTXwy/r7XSiyqvyzWN6EdsQcXpwHrccSGftvjSPPXxUaqPVEUsjqptqf
-         mbPvXMeSSkqZpkYs9bzfbx+gHPEGdiQmKMtl7KViFPhSRWaMo2C6umAB23Gh0km/oUa4
-         aj96y8/66oMP8hUkYG9iVQixNcUJbzEmSH1GbBIW+QKEOzcfG+9Nspe42dSGSH4rZA9J
-         U9Jw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6PdMcbuBDVYu4pfnkkEXp7Zeyvz8D3r+uXiYvPZcDso=;
-        b=iL0yqJtqfVLrME6S14byDX/txCmZh0r3MLUdYd4FaeM3My9RZT7XAOAF7/XY/8GRYB
-         kIfG8GAjFKckhILdUQSOjmx5s9VfaRDfQMEyUJxU0Ifnin4P0/kCnMVRPU9RqOdWBwXY
-         VjPuxMPB1sDo4v9NjlmLC9eM/bV+PJh6xl2e5JktiaLN5naZi9BVpMccVMfc7W22+6xG
-         LFrr2P8wL33W853sa49QCzTmgzMCkxllLwIlvTklXH1JrJnesNX1lOE6RPpqdAfpfBCy
-         L8EqAw6XcElqqqz+MhmKS9d0zAooR6PWGgiAUY6bJQzh+9sJr8d8PInMijzzId6cvkk1
-         F7oA==
-X-Gm-Message-State: AOAM5315Inzg5j2V57rQxz6++0kTkySEASm75hpRenEEaev2huw5GUJh
-        10eEIy4IHOdlwltNwlBPKLPRZuGoILySi5tf2BM=
-X-Google-Smtp-Source: ABdhPJyHWGsmCNhd61PqCgK3SsbcfpQfxMOyuLLgU8rBG7ONOLaDWA6yK76yx3cFkaiCa5am1VGB0HU9WFDVffVL/dA=
-X-Received: by 2002:a62:7c43:0:b029:1ef:20ce:ba36 with SMTP id
- x64-20020a627c430000b02901ef20ceba36mr24341655pfc.40.1615804287645; Mon, 15
- Mar 2021 03:31:27 -0700 (PDT)
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+St41h16lx3eOLcbriBkxDc2LwEYg1dz45xs2HifVWc=;
+ b=hV3Fnwg7TXcaXsyJguh94CRKoMY6RzEjtmhNT7wjV4/sPU3CSMFQVME13T15WwPJ8d+HF2xqOSwiBwdp1LxGAvCcRg7hQ44isb+jmLMcPxfC6CCJcpNFlOsRTDaj6s56BqS3cm3mQaPpBm9Bh8AR6nlQZARkm/J2F7aTztyrrm0=
+Received: from CY4PR14CA0035.namprd14.prod.outlook.com (2603:10b6:903:101::21)
+ by BYAPR02MB4583.namprd02.prod.outlook.com (2603:10b6:a03:12::33) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3933.32; Mon, 15 Mar
+ 2021 10:47:22 +0000
+Received: from CY1NAM02FT027.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:903:101:cafe::9f) by CY4PR14CA0035.outlook.office365.com
+ (2603:10b6:903:101::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3933.31 via Frontend
+ Transport; Mon, 15 Mar 2021 10:47:22 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
+ smtp.mailfrom=xilinx.com; roeck-us.net; dkim=none (message not signed)
+ header.d=none;roeck-us.net; dmarc=pass action=none header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com;
+Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
+ CY1NAM02FT027.mail.protection.outlook.com (10.152.75.159) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.3933.32 via Frontend Transport; Mon, 15 Mar 2021 10:47:21 +0000
+Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
+ xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Mon, 15 Mar 2021 03:47:15 -0700
+Received: from smtp.xilinx.com (172.19.127.96) by
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
+ 15.1.2106.2 via Frontend Transport; Mon, 15 Mar 2021 03:47:15 -0700
+Envelope-to: git@xilinx.com,
+ linux@roeck-us.net,
+ wim@linux-watchdog.org,
+ linux-watchdog@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Received: from [10.140.6.40] (port=50876 helo=xhdsivadur40.xilinx.com)
+        by smtp.xilinx.com with esmtp (Exim 4.90)
+        (envelope-from <srinivas.neeli@xilinx.com>)
+        id 1lLkkk-00055N-Ih; Mon, 15 Mar 2021 03:47:15 -0700
+From:   Srinivas Neeli <srinivas.neeli@xilinx.com>
+To:     <linux@roeck-us.net>, <michal.simek@xilinx.com>,
+        <shubhrajyoti.datta@xilinx.com>, <sgoud@xilinx.com>
+CC:     <wim@linux-watchdog.org>, <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <git@xilinx.com>,
+        Srinivas Goud <srinivas.goud@xilinx.com>,
+        Srinivas Neeli <srinivas.neeli@xilinx.com>
+Subject: [PATCH 1/9] watchdog: of_xilinx_wdt: Add comment to spinlock
+Date:   Mon, 15 Mar 2021 16:16:46 +0530
+Message-ID: <1615805214-24857-2-git-send-email-srinivas.neeli@xilinx.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1615805214-24857-1-git-send-email-srinivas.neeli@xilinx.com>
+References: <1615805214-24857-1-git-send-email-srinivas.neeli@xilinx.com>
 MIME-Version: 1.0
-References: <20210315095710.7140-1-henning.schild@siemens.com> <20210315095710.7140-2-henning.schild@siemens.com>
-In-Reply-To: <20210315095710.7140-2-henning.schild@siemens.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Mon, 15 Mar 2021 12:31:11 +0200
-Message-ID: <CAHp75VdXDcTfNL9QRQ5XE-zVLHacfMKHUxhse3=dAfJbOJdObQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] platform/x86: simatic-ipc: add main driver for
- Siemens devices
-To:     Henning Schild <henning.schild@siemens.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux LED Subsystem <linux-leds@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        Srikanth Krishnakar <skrishnakar@gmail.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Gross <mgross@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 67ec6a80-a737-4599-cdd8-08d8e79fb662
+X-MS-TrafficTypeDiagnostic: BYAPR02MB4583:
+X-Microsoft-Antispam-PRVS: <BYAPR02MB4583DE01BED7AAAD3E41A759AF6C9@BYAPR02MB4583.namprd02.prod.outlook.com>
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-Oob-TLC-OOBClassifiers: OLM:2733;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ROconV9d2zhrhUnpNE+ppEfeytlT9uLBxuLyAa83nHf/HZUWVFUEleKRyaCOlYEfcJn+gh3oiKHC1Nmbk21h56Y8qzNjYeXb77wzfDLfYsLnu850YJX4HJDdX+MqcCBUBLKpJsDh5zFn9aYPluM1q7XZA6KXlbnwaGFKF+myWZmK1qJ9XRL56IxO3rga03ELxMe4PDpq6/+MbFksYLWNWPxHirmSOKg/h8GHuUCEU3+n5iSP7SsIm+0Tk6uee61bLiZlBUbpL+oP6uV4/kDEhoBQpVXq7egbMgNQjhMMDonzlrpcEmTFbXM2dPHHQz6Q6UOqzAwGu22j5AsVOhy8XqQjpPJFN6O+8barHMdscOPvdCKiH1GQdgZ/5tgXSLnR0cgB9Ysj4037hD3FuVkIF8wnOSdrdhET93SrqDcud3iJI8Y0bz8e0YYezbv43Uh8sRL0WQjimIfetOYD/sjZD52pWPDZe/rQUjuMOV6oIq9f5OGvpOOGasmGLRNbnVw/ZMT48q9cdl1CqAnd1SoqDfLVfmge3OoTkS/RHJSANDeEznh6BA07ZYbHF7EhM3LkWTnok3ULyF8GfqFjog3EqxHGIpByZghe6UmZHABH10maG38zZJbNjGI9T0rkMn2H6quzNMbIOXZR1xZmC+DY78HINwygvlsiyjFoT3Mw1XnNIhiNIMOmTMYFZcS+D3EW
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(4636009)(39860400002)(136003)(346002)(376002)(396003)(36840700001)(46966006)(110136005)(82310400003)(54906003)(186003)(36756003)(70586007)(70206006)(82740400003)(9786002)(4744005)(47076005)(2616005)(107886003)(2906002)(44832011)(316002)(36906005)(36860700001)(356005)(7696005)(5660300002)(426003)(83380400001)(4326008)(26005)(8676002)(8936002)(6636002)(336012)(6666004)(478600001)(7636003)(102446001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2021 10:47:21.8020
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 67ec6a80-a737-4599-cdd8-08d8e79fb662
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: CY1NAM02FT027.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR02MB4583
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 12:02 PM Henning Schild
-<henning.schild@siemens.com> wrote:
->
-> This mainly implements detection of these devices and will allow
-> secondary drivers to work on such machines.
->
-> The identification is DMI-based with a vendor specific way to tell them
-> apart in a reliable way.
->
-> Drivers for LEDs and Watchdogs will follow to make use of that platform
-> detection.
+From: Srinivas Goud <srinivas.goud@xilinx.com>
 
-...
+Based on checkpatch every spinlock should be documented.
+The patch is fixing this issue:
+./scripts/checkpatch.pl --strict -f drivers/watchdog/of_xilinx_wdt.c
+CHECK: spinlock_t definition without comment
++	spinlock_t spinlock;
 
-> +static int register_platform_devices(u32 station_id)
-> +{
-> +       u8 ledmode = SIMATIC_IPC_DEVICE_NONE;
-> +       u8 wdtmode = SIMATIC_IPC_DEVICE_NONE;
-> +       int i;
-> +
-> +       platform_data.devmode = SIMATIC_IPC_DEVICE_NONE;
-> +
-> +       for (i = 0; i < ARRAY_SIZE(device_modes); i++) {
-> +               if (device_modes[i].station_id == station_id) {
-> +                       ledmode = device_modes[i].led_mode;
-> +                       wdtmode = device_modes[i].wdt_mode;
-> +                       break;
-> +               }
-> +       }
-> +
-> +       if (ledmode != SIMATIC_IPC_DEVICE_NONE) {
-> +               platform_data.devmode = ledmode;
-> +               ipc_led_platform_device =
-> +                       platform_device_register_data(NULL,
-> +                               KBUILD_MODNAME "_leds", PLATFORM_DEVID_NONE,
-> +                               &platform_data,
-> +                               sizeof(struct simatic_ipc_platform));
-> +               if (IS_ERR(ipc_led_platform_device))
-> +                       return PTR_ERR(ipc_led_platform_device);
-> +
-> +               pr_debug("device=%s created\n",
-> +                        ipc_led_platform_device->name);
-> +       }
-> +
-> +       if (wdtmode != SIMATIC_IPC_DEVICE_NONE) {
-> +               platform_data.devmode = wdtmode;
-> +               ipc_wdt_platform_device =
-> +                       platform_device_register_data(NULL,
-> +                               KBUILD_MODNAME "_wdt", PLATFORM_DEVID_NONE,
-> +                               &platform_data,
-> +                               sizeof(struct simatic_ipc_platform));
-> +               if (IS_ERR(ipc_wdt_platform_device))
-> +                       return PTR_ERR(ipc_wdt_platform_device);
-> +
-> +               pr_debug("device=%s created\n",
-> +                        ipc_wdt_platform_device->name);
-> +       }
-> +
-> +       if (ledmode == SIMATIC_IPC_DEVICE_NONE &&
-> +           wdtmode == SIMATIC_IPC_DEVICE_NONE) {
-> +               pr_warn("unsupported IPC detected, station id=%08x\n",
-> +                       station_id);
-> +               return -EINVAL;
-> +       }
-> +
-> +       return 0;
-> +}
+Signed-off-by: Srinivas Goud <srinivas.goud@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+---
+ drivers/watchdog/of_xilinx_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Why not use MFD here?
-
-...
-
-> +/*
-> + * Get membase address from PCI, used in leds and wdt modul. Here we read
-> + * the bar0. The final address calculation is done in the appropriate modules
-> + */
-
-No blank line here.
-
-I would add FIXME or REVISIT here to point out that this should be
-deduplicated in the future.
-
-> +u32 simatic_ipc_get_membase0(unsigned int p2sb)
-> +{
-> +       struct pci_bus *bus;
-> +       u32 bar0 = 0;
-> +
-> +       /*
-> +        * The GPIO memory is bar0 of the hidden P2SB device. Unhide the device
-
-No, it's not a GPIO's bar. It's P2SB's one. GPIO resides in that bar somewhere.
-
-> +        * to have a quick look at it, before we hide it again.
-> +        * Also grab the pci rescan lock so that device does not get discovered
-> +        * and remapped while it is visible.
-> +        * This code is inspired by drivers/mfd/lpc_ich.c
-> +        */
-> +       bus = pci_find_bus(0, 0);
-> +       pci_lock_rescan_remove();
-> +       pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x0);
-> +       pci_bus_read_config_dword(bus, p2sb, PCI_BASE_ADDRESS_0, &bar0);
-> +
-> +       bar0 &= ~0xf;
-> +       pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x1);
-> +       pci_unlock_rescan_remove();
-> +
-> +       return bar0;
-> +}
-> +EXPORT_SYMBOL(simatic_ipc_get_membase0);
-
-...
-
-> +static inline u32 simatic_ipc_get_station_id(u8 *data, int max_len)
-> +{
-> +       u32 station_id = SIMATIC_IPC_INVALID_STATION_ID;
-> +       int i;
-
-Reversed xmas tree order, please.
-
-> +       struct {
-> +               u8      type;           /* type (0xff = binary) */
-> +               u8      len;            /* len of data entry */
-> +               u8      reserved[3];
-> +               u32     station_id;     /* station id (LE) */
-
-> +       } __packed
-> +       *data_entry = (void *)data + sizeof(struct dmi_header);
-
-Can be one line.
-
-> +       /* find 4th entry in OEM data */
-> +       for (i = 0; i < 3; i++)
-
-3 is magic!
-
-> +               data_entry = (void *)((u8 *)(data_entry) + data_entry->len);
-> +
-> +       /* decode station id */
-> +       if (data_entry && (u8 *)data_entry < data + max_len &&
-> +           data_entry->type == 0xff && data_entry->len == 9)
-> +               station_id = le32_to_cpu(data_entry->station_id);
-> +
-> +       return station_id;
-> +}
-
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index 7fe4f7c3f7ce..00549164b3d7 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -40,7 +40,7 @@
+ struct xwdt_device {
+ 	void __iomem *base;
+ 	u32 wdt_interval;
+-	spinlock_t spinlock;
++	spinlock_t spinlock; /* spinlock for register handling */
+ 	struct watchdog_device xilinx_wdt_wdd;
+ 	struct clk		*clk;
+ };
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
+
