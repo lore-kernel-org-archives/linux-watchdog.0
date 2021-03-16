@@ -2,107 +2,104 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2789EC433E9
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Mar 2021 11:17:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF5ADC433DB
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Mar 2021 17:47:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 032E965016
-	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Mar 2021 11:17:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 956C565120
+	for <linux-watchdog@archiver.kernel.org>; Tue, 16 Mar 2021 17:47:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237255AbhCPLQ0 (ORCPT
+        id S239243AbhCPRrX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 16 Mar 2021 07:16:26 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:49255 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S237164AbhCPLPt (ORCPT
+        Tue, 16 Mar 2021 13:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239239AbhCPRrU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Mar 2021 07:15:49 -0400
-X-UUID: 42179b8708ba47c39f044b8a965d052d-20210316
-X-UUID: 42179b8708ba47c39f044b8a965d052d-20210316
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
-        (envelope-from <seiya.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 212771105; Tue, 16 Mar 2021 19:15:46 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs08n2.mediatek.inc (172.21.101.56) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 16 Mar 2021 19:15:44 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 16 Mar 2021 19:15:44 +0800
-From:   Seiya Wang <seiya.wang@mediatek.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Tue, 16 Mar 2021 13:47:20 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD86EC06174A
+        for <linux-watchdog@vger.kernel.org>; Tue, 16 Mar 2021 10:47:19 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=[IPv6:::1])
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <a.fatoum@pengutronix.de>)
+        id 1lMDmo-0006fa-Dw; Tue, 16 Mar 2021 18:47:18 +0100
+Subject: Re: [PATCH v3 0/3] watchdog: f71808e_wdt: migrate to new kernel API
+From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Seiya Wang <seiya.wang@mediatek.com>,
-        Fabien Parent <fparent@baylibre.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Zhiyong Tao <zhiyong.tao@mediatek.com>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Wenbin Mei <wenbin.mei@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bayi Cheng <bayi.cheng@mediatek.com>,
-        Chuanhong Guo <gch981213@gmail.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-iio@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>, <srv_heupstream@mediatek.com>
-Subject: [PATCH 09/10] dt-bindings: arm: Add compatible for Mediatek MT8195
-Date:   Tue, 16 Mar 2021 19:14:42 +0800
-Message-ID: <20210316111443.3332-10-seiya.wang@mediatek.com>
-X-Mailer: git-send-email 2.14.1
-In-Reply-To: <20210316111443.3332-1-seiya.wang@mediatek.com>
-References: <20210316111443.3332-1-seiya.wang@mediatek.com>
+        linux-kernel@vger.kernel.org
+Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+References: <cover.dedd9f1159389b0a438076ef5e5a46aded186463.1612457906.git-series.a.fatoum@pengutronix.de>
+Message-ID: <d25d96fa-0b88-930b-3160-fda3e69d3cba@pengutronix.de>
+Date:   Tue, 16 Mar 2021 18:47:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: 8F886DB36CF4E8DFBAC87582214747023E00CBD53B2B5085642E423E236B81C62000:8
-X-MTK:  N
+In-Reply-To: <cover.dedd9f1159389b0a438076ef5e5a46aded186463.1612457906.git-series.a.fatoum@pengutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: a.fatoum@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This commit adds dt-binding documentation for the Mediatek MT8195
-reference board.
+Hello,
 
-Signed-off-by: Seiya Wang <seiya.wang@mediatek.com>
----
- Documentation/devicetree/bindings/arm/mediatek.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+On 04.02.21 18:00, Ahmad Fatoum wrote:
+> This series migrates the driver to the new kernel watchdog API and
+> then to the driver model.
+> 
+> Main feedback from Guenther on v2 was that I need to split it up to
+> enable review. I have done so by removing the extra refactoring for
+> now and focused on the functional changes described above. The diff
+> is now much better readable.
+> 
+> I tested it on a f81866.
 
-diff --git a/Documentation/devicetree/bindings/arm/mediatek.yaml b/Documentation/devicetree/bindings/arm/mediatek.yaml
-index 93b3bdf6eaeb..a95224fcff9f 100644
---- a/Documentation/devicetree/bindings/arm/mediatek.yaml
-+++ b/Documentation/devicetree/bindings/arm/mediatek.yaml
-@@ -118,6 +118,10 @@ properties:
-           - enum:
-               - mediatek,mt8183-evb
-           - const: mediatek,mt8183
-+      - items:
-+          - enum:
-+              - mediatek,mt8195-evb
-+          - const: mediatek,mt8195
-       - description: Google Krane (Lenovo IdeaPad Duet, 10e,...)
-         items:
-           - enum:
+Gentle ping.
+
+> 
+> v2 -> v3:
+>   https://lore.kernel.org/linux-watchdog/20201020062112.6762-1-a.fatoum@pengutronix.de/
+>   - factored out identifier renaming again for easier review
+>   - reordered commits
+>   - removed refactoring that can go in later. Focusing now on kernel watchdog
+>     API and platform device/driver migration
+>   - removed platform_device_id and changed code to match by name
+> 
+> v1 -> v2:
+>   https://lore.kernel.org/linux-watchdog/20200611191750.28096-1-a.fatoum@pengutronix.de/
+>   - reworked to platform device/driver pair (Guenther)
+>   - squashed identifier renaming into the patches that touch
+>     the respective lines anyway
+>   - fixed checkpatch.pl nitpicks (Guenther)
+>   - fixed locally used variable declared without static (0-day)
+>   - fixed unneded line break due to old line limit (Guenther)
+>   - renamed struct fintek_wdog_data to struct fintek_wdt
+> 
+> Ahmad Fatoum (3):
+>   watchdog: f71808e_wdt: rename variant-independent identifiers appropriately
+>   watchdog: f71808e_wdt: migrate to new kernel watchdog API
+>   watchdog: f71808e_wdt: refactor to platform device/driver pair
+> 
+>  drivers/watchdog/Kconfig       |   1 +-
+>  drivers/watchdog/f71808e_wdt.c | 450 +++++++---------------------------
+>  2 files changed, 100 insertions(+), 351 deletions(-)
+> 
+> base-commit: 1048ba83fb1c00cd24172e23e8263972f6b5d9ac
+> 
+
 -- 
-2.14.1
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
