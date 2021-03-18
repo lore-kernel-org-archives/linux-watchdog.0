@@ -2,215 +2,303 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14807C2BA1E
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Mar 2021 06:09:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AF83C433E6
+	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Mar 2021 10:26:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAAA964F18
-	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Mar 2021 06:09:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DE7364EED
+	for <linux-watchdog@archiver.kernel.org>; Thu, 18 Mar 2021 10:26:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbhCRGJM (ORCPT
+        id S230092AbhCRK0J (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 18 Mar 2021 02:09:12 -0400
-Received: from mailgw02.mediatek.com ([216.200.240.185]:36832 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229841AbhCRGIw (ORCPT
+        Thu, 18 Mar 2021 06:26:09 -0400
+Received: from mout.kundenserver.de ([217.72.192.73]:43955 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230048AbhCRKZi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 18 Mar 2021 02:08:52 -0400
-X-Greylist: delayed 300 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Mar 2021 02:08:50 EDT
-X-UUID: 56fea7607ad44cba8f66adb8f9978347-20210317
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=uQSiOMXDhmEHV9qxsBXHJ8UvwmwJKYtttU3s4BkgnZ4=;
-        b=gjiMSnYRF3Rhp4H/KcVX1fzmTXstXSe2HRdTWAh/V5qHtsNZqBYEVel6ryNmpvIXdw3dn4x7gCDwV7o2ZkodOfbFy8yYMlZ1qtQxlvZ0WNKrlTUgyS1uWvRr6iAOc+801Huzz1sOaTQMw52rgUZtFFWNqW3ZSOagWRg35IzLOm4=;
-X-UUID: 56fea7607ad44cba8f66adb8f9978347-20210317
-Received: from mtkcas68.mediatek.inc [(172.29.94.19)] by mailgw02.mediatek.com
-        (envelope-from <seiya.wang@mediatek.com>)
-        (musrelay.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1799923838; Wed, 17 Mar 2021 22:03:46 -0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- MTKMBS62N1.mediatek.inc (172.29.193.41) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 17 Mar 2021 23:03:44 -0700
-Received: from [172.21.84.99] (172.21.84.99) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 18 Mar 2021 14:03:43 +0800
-Message-ID: <1616047423.29855.3.camel@mtksdccf07>
-Subject: Re: [PATCH 10/10] arm64: dts: Add Mediatek SoC MT8195 and
- evaluation board dts and Makefile
-From:   Seiya Wang <seiya.wang@mediatek.com>
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-CC:     Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        "Lars-Peter Clausen" <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        "Ulf Hansson" <ulf.hansson@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Daniel Lezcano" <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Thu, 18 Mar 2021 06:25:38 -0400
+Received: from [192.168.1.155] ([77.4.36.33]) by mrelayeu.kundenserver.de
+ (mreue107 [212.227.15.183]) with ESMTPSA (Nemesis) id
+ 1MZT2u-1lAEww22Uw-00WYti; Thu, 18 Mar 2021 11:25:12 +0100
+Subject: Re: [PATCH v2 2/4] leds: simatic-ipc-leds: add new driver for Siemens
+ Industial PCs
+To:     Henning Schild <henning.schild@siemens.com>,
+        linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        "Fabien Parent" <fparent@baylibre.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        "Zhiyong Tao" <zhiyong.tao@mediatek.com>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Wenbin Mei <wenbin.mei@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bayi Cheng <bayi.cheng@mediatek.com>,
-        "Chuanhong Guo" <gch981213@gmail.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-iio@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>, <srv_heupstream@mediatek.com>
-Date:   Thu, 18 Mar 2021 14:03:43 +0800
-In-Reply-To: <1616036277.25733.33.camel@mhfsdcap03>
-References: <20210316111443.3332-1-seiya.wang@mediatek.com>
-         <20210316111443.3332-11-seiya.wang@mediatek.com>
-         <1616036277.25733.33.camel@mhfsdcap03>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mark Gross <mgross@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+References: <20210315095710.7140-1-henning.schild@siemens.com>
+ <20210315095710.7140-3-henning.schild@siemens.com>
+From:   "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Message-ID: <546c300c-cb13-1074-de37-68ed6fad4b27@metux.net>
+Date:   Thu, 18 Mar 2021 11:25:10 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+In-Reply-To: <20210315095710.7140-3-henning.schild@siemens.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: tl
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:vpCr7PjTZL1h2C/itAJPIrkpsGcasBsQ05mYDQaw69Idl+QVoEv
+ BiHXJi2/ydCplB2NLkP/7ulor+GZr2qlvx4rOXsuBFT6gCqdW7gGJSSHyAFp7e2Gq4OZwAj
+ q2WGAh8AcEnq3P5njHacj/vMTnJNcZzXEeakTrptDEdstSQ/Oyd/fg18JqowYbBOvAUbZ57
+ tmWYZ/6LXne1nt4b0PzXQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:da/qLqnaKz4=:nVATpdo8f+EPYzfU1oN5Fh
+ F6wKFbp0cIQ/Is8/Ceaq38E94+dfqoE0JDFAvPav8GYa1m/Uc17s8ywTeKveIrFQjC4+eLznr
+ 9xNkh0xU1Hid1qm854zqb7VrgPmGI+iEqGq30T3+vYBftMLKZPR/N8uPU7+UIQnD4Jgw5hXuM
+ 5wBdo1cN+UdOWVyMdaF1TFWwN0uZk8asCOF5nj6JAxLA6Mlws4/LzduB8gqatZxsd6xmYN6mU
+ G2A6xD+9aTxyxNq6m08BW5/gm6oay9+sfjc1iX70ZOYg+UkLAQJVtynvBibEk3ujBHYJc/qLy
+ wl1H515bzEJcNYgGWf2vc3+hf2i+VUf2EXMQ6QXRJS3yJgIPNRhSbL9f6AdXjZxHCKvCbfwJ/
+ C9mTkJR7/CSK6gOmZASQkY7pkgPLLI8ZAAHwrCqpvMaCUt0IZ6V9nb8eGfU1f
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-T24gVGh1LCAyMDIxLTAzLTE4IGF0IDEwOjU3ICswODAwLCBDaHVuZmVuZyBZdW4gd3JvdGU6DQo+
-IE9uIFR1ZSwgMjAyMS0wMy0xNiBhdCAxOToxNCArMDgwMCwgU2VpeWEgV2FuZyB3cm90ZToNCj4g
-PiBBZGQgYmFzaWMgY2hpcCBzdXBwb3J0IGZvciBNZWRpYXRlayBNVDgxOTUNCj4gPiANCj4gPiBT
-aWduZWQtb2ZmLWJ5OiBTZWl5YSBXYW5nIDxzZWl5YS53YW5nQG1lZGlhdGVrLmNvbT4NCj4gPiAt
-LS0NCj4gPiAgYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9NYWtlZmlsZSAgICAgICB8ICAg
-MSArDQo+ID4gIGFyY2gvYXJtNjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTk1LWV2Yi5kdHMgfCAg
-MjkgKysNCj4gPiAgYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9tdDgxOTUuZHRzaSAgICB8
-IDQ3NyArKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+ID4gIDMgZmlsZXMgY2hhbmdlZCwg
-NTA3IGluc2VydGlvbnMoKykNCj4gPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gvYXJtNjQvYm9v
-dC9kdHMvbWVkaWF0ZWsvbXQ4MTk1LWV2Yi5kdHMNCj4gPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFy
-Y2gvYXJtNjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTk1LmR0c2kNCj4gPiANCj4gPiBkaWZmIC0t
-Z2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9NYWtlZmlsZSBiL2FyY2gvYXJtNjQv
-Ym9vdC9kdHMvbWVkaWF0ZWsvTWFrZWZpbGUNCj4gPiBpbmRleCBkZWJhMjdhYjc2NTcuLmFlZTRi
-OTcxNWQyZiAxMDA2NDQNCj4gPiAtLS0gYS9hcmNoL2FybTY0L2Jvb3QvZHRzL21lZGlhdGVrL01h
-a2VmaWxlDQo+ID4gKysrIGIvYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9NYWtlZmlsZQ0K
-PiA+IEBAIC0xNiw0ICsxNiw1IEBAIGR0Yi0kKENPTkZJR19BUkNIX01FRElBVEVLKSArPSBtdDgx
-ODMtZXZiLmR0Yg0KPiA+ICBkdGItJChDT05GSUdfQVJDSF9NRURJQVRFSykgKz0gbXQ4MTgzLWt1
-a3VpLWtyYW5lLXNrdTAuZHRiDQo+ID4gIGR0Yi0kKENPTkZJR19BUkNIX01FRElBVEVLKSArPSBt
-dDgxODMta3VrdWkta3JhbmUtc2t1MTc2LmR0Yg0KPiA+ICBkdGItJChDT05GSUdfQVJDSF9NRURJ
-QVRFSykgKz0gbXQ4MTkyLWV2Yi5kdGINCj4gPiArZHRiLSQoQ09ORklHX0FSQ0hfTUVESUFURUsp
-ICs9IG10ODE5NS1ldmIuZHRiDQo+ID4gIGR0Yi0kKENPTkZJR19BUkNIX01FRElBVEVLKSArPSBt
-dDg1MTYtcHVtcGtpbi5kdGINCj4gPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9t
-ZWRpYXRlay9tdDgxOTUtZXZiLmR0cyBiL2FyY2gvYXJtNjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4
-MTk1LWV2Yi5kdHMNCj4gPiBuZXcgZmlsZSBtb2RlIDEwMDY0NA0KPiA+IGluZGV4IDAwMDAwMDAw
-MDAwMC4uODJiYjEwZTlhNTMxDQo+ID4gLS0tIC9kZXYvbnVsbA0KPiA+ICsrKyBiL2FyY2gvYXJt
-NjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTk1LWV2Yi5kdHMNCj4gPiBAQCAtMCwwICsxLDI5IEBA
-DQo+ID4gKy8vIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiAoR1BMLTIuMCBPUiBNSVQpDQo+ID4g
-Ky8qDQo+ID4gKyAqIENvcHlyaWdodCAoQykgMjAyMSBNZWRpYVRlayBJbmMuDQo+ID4gKyAqIEF1
-dGhvcjogU2VpeWEgV2FuZyA8c2VpeWEud2FuZ0BtZWRpYXRlay5jb20+DQo+ID4gKyAqLw0KPiA+
-ICsvZHRzLXYxLzsNCj4gPiArI2luY2x1ZGUgIm10ODE5NS5kdHNpIg0KPiA+ICsNCj4gPiArLyB7
-DQo+ID4gKwltb2RlbCA9ICJNZWRpYVRlayBNVDgxOTUgZXZhbHVhdGlvbiBib2FyZCI7DQo+ID4g
-Kwljb21wYXRpYmxlID0gIm1lZGlhdGVrLG10ODE5NS1ldmIiLCAibWVkaWF0ZWssbXQ4MTk1IjsN
-Cj4gPiArDQo+ID4gKwlhbGlhc2VzIHsNCj4gPiArCQlzZXJpYWwwID0gJnVhcnQwOw0KPiA+ICsJ
-fTsNCj4gPiArDQo+ID4gKwljaG9zZW4gew0KPiA+ICsJCXN0ZG91dC1wYXRoID0gInNlcmlhbDA6
-OTIxNjAwbjgiOw0KPiA+ICsJfTsNCj4gPiArDQo+ID4gKwltZW1vcnlANDAwMDAwMDAgew0KPiA+
-ICsJCWRldmljZV90eXBlID0gIm1lbW9yeSI7DQo+ID4gKwkJcmVnID0gPDAgMHg0MDAwMDAwMCAw
-IDB4ODAwMDAwMDA+Ow0KPiA+ICsJfTsNCj4gPiArfTsNCj4gPiArDQo+ID4gKyZ1YXJ0MCB7DQo+
-ID4gKwlzdGF0dXMgPSAib2theSI7DQo+ID4gK307DQo+ID4gZGlmZiAtLWdpdCBhL2FyY2gvYXJt
-NjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTk1LmR0c2kgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL21l
-ZGlhdGVrL210ODE5NS5kdHNpDQo+ID4gbmV3IGZpbGUgbW9kZSAxMDA2NDQNCj4gPiBpbmRleCAw
-MDAwMDAwMDAwMDAuLjM1NjU4M2ZlNGYwMw0KPiA+IC0tLSAvZGV2L251bGwNCj4gPiArKysgYi9h
-cmNoL2FybTY0L2Jvb3QvZHRzL21lZGlhdGVrL210ODE5NS5kdHNpDQo+ID4gQEAgLTAsMCArMSw0
-NzcgQEANCj4gPiArLy8gU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IChHUEwtMi4wIE9SIE1JVCkN
-Cj4gPiArLyoNCj4gPiArICogQ29weXJpZ2h0IChjKSAyMDIxIE1lZGlhVGVrIEluYy4NCj4gPiAr
-ICogQXV0aG9yOiBTZWl5YSBXYW5nIDxzZWl5YS53YW5nQG1lZGlhdGVrLmNvbT4NCj4gPiArICov
-DQo+ID4gKw0KPiA+ICsvZHRzLXYxLzsNCj4gPiArDQo+ID4gKyNpbmNsdWRlIDxkdC1iaW5kaW5n
-cy9pbnRlcnJ1cHQtY29udHJvbGxlci9hcm0tZ2ljLmg+DQo+ID4gKyNpbmNsdWRlIDxkdC1iaW5k
-aW5ncy9pbnRlcnJ1cHQtY29udHJvbGxlci9pcnEuaD4NCj4gPiArDQo+ID4gKy8gew0KPiA+ICsJ
-Y29tcGF0aWJsZSA9ICJtZWRpYXRlayxtdDgxOTUiOw0KPiA+ICsJaW50ZXJydXB0LXBhcmVudCA9
-IDwmZ2ljPjsNCj4gPiArCSNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KPiA+ICsJI3NpemUtY2VsbHMg
-PSA8Mj47DQo+ID4gKw0KPiA+ICsJY2xvY2tzIHsNCj4gPiArCQljbGsyNm06IG9zY2lsbGF0b3Iw
-IHsNCj4gPiArCQkJY29tcGF0aWJsZSA9ICJmaXhlZC1jbG9jayI7DQo+ID4gKwkJCSNjbG9jay1j
-ZWxscyA9IDwwPjsNCj4gPiArCQkJY2xvY2stZnJlcXVlbmN5ID0gPDI2MDAwMDAwPjsNCj4gPiAr
-CQkJY2xvY2stb3V0cHV0LW5hbWVzID0gImNsazI2bSI7DQo+ID4gKwkJfTsNCj4gPiArDQo+ID4g
-KwkJY2xrMzJrOiBvc2NpbGxhdG9yMSB7DQo+ID4gKwkJCWNvbXBhdGlibGUgPSAiZml4ZWQtY2xv
-Y2siOw0KPiA+ICsJCQkjY2xvY2stY2VsbHMgPSA8MD47DQo+ID4gKwkJCWNsb2NrLWZyZXF1ZW5j
-eSA9IDwzMjc2OD47DQo+ID4gKwkJCWNsb2NrLW91dHB1dC1uYW1lcyA9ICJjbGszMmsiOw0KPiA+
-ICsJCX07DQo+ID4gKwl9Ow0KPiBbLi4uXQ0KPiA+ICsNCj4gPiArCQlub3JfZmxhc2g6IG5vckAx
-MTMyYzAwMCB7DQo+ID4gKwkJCWNvbXBhdGlibGUgPSAibWVkaWF0ZWssbXQ4MTk1LW5vciIsICJt
-ZWRpYXRlayxtdDgxNzMtbm9yIjsNCj4gPiArCQkJcmVnID0gPDAgMHgxMTMyYzAwMCAwIDB4MTAw
-MD47DQo+ID4gKwkJCWludGVycnVwdHMgPSA8R0lDX1NQSSA4MjUgSVJRX1RZUEVfTEVWRUxfSElH
-SCAwPjsNCj4gPiArCQkJY2xvY2tzID0gPCZjbGsyNm0+LCA8JmNsazI2bT47DQo+ID4gKwkJCWNs
-b2NrLW5hbWVzID0gInNwaSIsICJzZiI7DQo+ID4gKwkJCSNhZGRyZXNzLWNlbGxzID0gPDE+Ow0K
-PiA+ICsJCQkjc2l6ZS1jZWxscyA9IDwwPjsNCj4gPiArCQkJc3RhdHVzID0gImRpc2FibGVkIjsN
-Cj4gPiArCQl9Ow0KPiA+ICsNCj4gPiArCQl1M3BoeTI6IHVzYi1waHkyQDExYzQwMDAwIHsNCj4g
-dXNlIHQtcGh5IGluc3RlYWQgb2YgdXNiLXBoeTINCj4gDQo+IEl0J3MgYmV0dGVyIHRvIHJ1biBk
-dGJzX2NoZWNrIGZvciB0aGlzIHBhdGNoDQo+IA0KPiA+ICsJCQljb21wYXRpYmxlID0gIm1lZGlh
-dGVrLG10ODE5NS10cGh5IiwgIm1lZGlhdGVrLGdlbmVyaWMtdHBoeS12MiI7DQo+ID4gKwkJCWNs
-b2NrcyA9IDwmY2xrMjZtPjsNCj4gPiArCQkJY2xvY2stbmFtZXMgPSAidTNwaHlhX3JlZiI7DQo+
-IE5vIG5lZWQgY2xvY2tzIGZvciB2Mg0KPiA+ICsJCQkjYWRkcmVzcy1jZWxscyA9IDwxPjsNCj4g
-PiArCQkJI3NpemUtY2VsbHMgPSA8MT47DQo+ID4gKwkJCXJhbmdlcyA9IDwwIDAgMHgxMWM0MDAw
-MCAweDcwMD47DQo+ID4gKwkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7DQo+ID4gKw0KPiA+ICsJCQl1
-MnBvcnQyOiB1c2IyLXBoeTJAMCB7DQo+IHVzZSB1c2ItcGh5IGluc3RlYWQgb2YgdXNiMi1waHky
-DQo+IA0KPiA+ICsJCQkJcmVnID0gPDB4MCAweDcwMD47DQo+ID4gKwkJCQljbG9ja3MgPSA8JmNs
-azI2bT47DQo+ID4gKwkJCQljbG9jay1uYW1lcyA9ICJyZWYiOw0KPiA+ICsJCQkJI3BoeS1jZWxs
-cyA9IDwxPjsNCj4gPiArCQkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7DQo+IEkgdGhpbmsgbm8gbmVl
-ZCBkaXNhYmxlIGl0DQo+IGl0J3MgcGFyZW50IG5vZGUgaXMgYWxyZWFkeSBkaXNhYmxlZC4gaWYg
-ZW5hYmxlIHBhcmVudCBub2RlLA0KPiB3ZSBhbHNvIHdhbnQgdG8gZW5hYmxlIGFsbCBjaGlsZHJl
-biBhdCB0aGUgc2FtZSB0aW1lLg0KPiANCj4gPiArCQkJfTsNCj4gPiArCQl9Ow0KPiA+ICsNCj4g
-PiArCQl1M3BoeTM6IHVzYi1waHkzQDExYzUwMDAwIHsNCj4gdC1waHlALi4uDQo+ID4gKwkJCWNv
-bXBhdGlibGUgPSAibWVkaWF0ZWssbXQ4MTk1LXRwaHkiLCAibWVkaWF0ZWssZ2VuZXJpYy10cGh5
-LXYyIjsNCj4gPiArCQkJY2xvY2tzID0gPCZjbGsyNm0+Ow0KPiA+ICsJCQljbG9jay1uYW1lcyA9
-ICJ1M3BoeWFfcmVmIjsNCj4gTm8gbmVlZCBjbG9ja3MNCj4gPiArCQkJI2FkZHJlc3MtY2VsbHMg
-PSA8MT47DQo+ID4gKwkJCSNzaXplLWNlbGxzID0gPDE+Ow0KPiA+ICsJCQlyYW5nZXMgPSA8MCAw
-IDB4MTFjNTAwMDAgMHg3MDA+Ow0KPiA+ICsJCQlzdGF0dXMgPSAiZGlzYWJsZWQiOw0KPiA+ICsN
-Cj4gPiArCQkJdTJwb3J0MzogdXNiMi1waHkzQDAgew0KPiB1c2UgdXNiLXBoeQ0KPiA+ICsJCQkJ
-cmVnID0gPDB4MCAweDcwMD47DQo+ID4gKwkJCQljbG9ja3MgPSA8JmNsazI2bT47DQo+ID4gKwkJ
-CQljbG9jay1uYW1lcyA9ICJyZWYiOw0KPiA+ICsJCQkJI3BoeS1jZWxscyA9IDwxPjsNCj4gPiAr
-CQkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7DQo+IHJlbW92ZSBzdGF0dXMNCj4gPiArCQkJfTsNCj4g
-PiArCQl9Ow0KPiA+ICsNCj4gPiArCQl1M3BoeTE6IHVzYi1waHkxQDExZTMwMDAwIHsNCj4gdC1w
-aHkNCj4gPiArCQkJY29tcGF0aWJsZSA9ICJtZWRpYXRlayxtdDgxOTUtdHBoeSIsICJtZWRpYXRl
-ayxnZW5lcmljLXRwaHktdjIiOw0KPiA+ICsJCQljbG9ja3MgPSA8JmNsazI2bT47DQo+ID4gKwkJ
-CWNsb2NrLW5hbWVzID0gInUzcGh5YV9yZWYiOw0KPiByZW1vdmUgY2xvY2tzKg0KPiA+ICsJCQkj
-YWRkcmVzcy1jZWxscyA9IDwxPjsNCj4gPiArCQkJI3NpemUtY2VsbHMgPSA8MT47DQo+ID4gKwkJ
-CXJhbmdlcyA9IDwwIDAgMHgxMWUzMDAwMCAweGUwMD47DQo+ID4gKwkJCXN0YXR1cyA9ICJkaXNh
-YmxlZCI7DQo+ID4gKw0KPiA+ICsJCQl1MnBvcnQxOiB1c2IyLXBoeTFAMCB7DQo+IHVzYi1waHkN
-Cj4gPiArCQkJCXJlZyA9IDwweDAgMHg3MDA+Ow0KPiA+ICsJCQkJY2xvY2tzID0gPCZjbGsyNm0+
-Ow0KPiA+ICsJCQkJY2xvY2stbmFtZXMgPSAicmVmIjsNCj4gPiArCQkJCSNwaHktY2VsbHMgPSA8
-MT47DQo+ID4gKwkJCQlzdGF0dXMgPSAiZGlzYWJsZWQiOw0KPiByZW1vdmUgc3RhdHVzDQo+ID4g
-KwkJCX07DQo+ID4gKw0KPiA+ICsJCQl1M3BvcnQxOiB1c2IzLXBoeTFANzAwIHsNCj4gdXNiLXBo
-eQ0KPiA+ICsJCQkJcmVnID0gPDB4NzAwIDB4NzAwPjsNCj4gPiArCQkJCWNsb2NrcyA9IDwmY2xr
-MjZtPjsNCj4gPiArCQkJCWNsb2NrLW5hbWVzID0gInJlZiI7DQo+ID4gKwkJCQkjcGh5LWNlbGxz
-ID0gPDE+Ow0KPiA+ICsJCQkJc3RhdHVzID0gImRpc2FibGVkIjsNCj4gcmVtb3ZlIHN0YXR1cw0K
-PiA+ICsJCQl9Ow0KPiA+ICsJCX07DQo+ID4gKw0KPiA+ICsJCXUzcGh5MDogdXNiLXBoeTBAMTFl
-NDAwMDAgew0KPiB0LXBoeQ0KPiA+ICsJCQljb21wYXRpYmxlID0gIm1lZGlhdGVrLG10ODE5NS10
-cGh5IiwgIm1lZGlhdGVrLGdlbmVyaWMtdHBoeS12MiI7DQo+ID4gKwkJCWNsb2NrcyA9IDwmY2xr
-MjZtPjsNCj4gPiArCQkJY2xvY2stbmFtZXMgPSAidTNwaHlhX3JlZiI7DQo+IHJlbW92ZSBjbG9j
-a3MqDQo+ID4gKwkJCSNhZGRyZXNzLWNlbGxzID0gPDE+Ow0KPiA+ICsJCQkjc2l6ZS1jZWxscyA9
-IDwxPjsNCj4gPiArCQkJcmFuZ2VzID0gPDAgMCAweDExZTQwMDAwIDB4ZTAwPjsNCj4gPiArCQkJ
-c3RhdHVzID0gImRpc2FibGVkIjsNCj4gPiArDQo+ID4gKwkJCXUycG9ydDA6IHVzYjItcGh5MEAw
-IHsNCj4gdXNiLXBoeQ0KPiA+ICsJCQkJcmVnID0gPDB4MCAweDcwMD47DQo+ID4gKwkJCQljbG9j
-a3MgPSA8JmNsazI2bT47DQo+ID4gKwkJCQljbG9jay1uYW1lcyA9ICJyZWYiOw0KPiA+ICsJCQkJ
-I3BoeS1jZWxscyA9IDwxPjsNCj4gPiArCQkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7DQo+IHJlbW92
-ZSBzdGF0dXMNCj4gPiArCQkJfTsNCj4gPiArDQo+ID4gKwkJCXUzcG9ydDA6IHVzYjMtcGh5MEA3
-MDAgew0KPiB1c2ItcGh5DQo+ID4gKwkJCQlyZWcgPSA8MHg3MDAgMHg3MDA+Ow0KPiA+ICsJCQkJ
-Y2xvY2tzID0gPCZjbGsyNm0+Ow0KPiA+ICsJCQkJY2xvY2stbmFtZXMgPSAicmVmIjsNCj4gPiAr
-CQkJCSNwaHktY2VsbHMgPSA8MT47DQo+ID4gKwkJCQlzdGF0dXMgPSAiZGlzYWJsZWQiOw0KPiBy
-ZW1vdmUgc3RhdHVzDQo+ID4gKwkJCX07DQo+ID4gKwkJfTsNCj4gPiArDQo+ID4gKwkJdWZzcGh5
-OiBwaHlAMTFmYTAwMDAgew0KPiB1c2YtcGh5IGluc3RlYWQgb2YgcGh5DQo+ID4gKwkJCWNvbXBh
-dGlibGUgPSAibWVkaWF0ZWssbXQ4MTk1LXVmc3BoeSIsICJtZWRpYXRlayxtdDgxODMtdWZzcGh5
-IjsNCj4gPiArCQkJcmVnID0gPDAgMHgxMWZhMDAwMCAwIDB4YzAwMD47DQo+ID4gKwkJCWNsb2Nr
-cyA9IDwmY2xrMjZtPiwgPCZjbGsyNm0+Ow0KPiA+ICsJCQljbG9jay1uYW1lcyA9ICJ1bmlwcm8i
-LCAibXAiOw0KPiA+ICsJCQkjcGh5LWNlbGxzID0gPDA+Ow0KPiBkaXNhYmxlZD8NCj4gDQo+IFRo
-YW5rcyBhIGxvdA0KDQpJIHdpbGwgdXBkYXRlIHRoZSBwYXRjaCBhZnRlciBhIG5ldyBsaW51eC1u
-ZXh0IHRhZyBhdmFpbGFibGUuDQpUaGFuayB5b3UgdmVyeSBtdWNoLg0KDQo+ID4gKwkJfTsNCj4g
-PiArCX07DQo+ID4gK307DQo+IA0KPiANCg0K
+On 15.03.21 10:57, Henning Schild wrote:
 
+Hi,
+
+> diff --git a/drivers/leds/simple/simatic-ipc-leds.c b/drivers/leds/simple/simatic-ipc-leds.c
+> new file mode 100644
+> index 000000000000..0f7e6320e10d
+> --- /dev/null
+> +++ b/drivers/leds/simple/simatic-ipc-leds.c
+> @@ -0,0 +1,210 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Siemens SIMATIC IPC driver for LEDs
+> + *
+> + * Copyright (c) Siemens AG, 2018-2021
+> + *
+> + * Authors:
+> + *  Henning Schild <henning.schild@siemens.com>
+> + *  Jan Kiszka <jan.kiszka@siemens.com>
+> + *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
+> + */
+> +
+> +#include <linux/ioport.h>
+> +#include <linux/kernel.h>
+> +#include <linux/leds.h>
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <linux/platform_data/x86/simatic-ipc-base.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/sizes.h>
+> +#include <linux/spinlock.h>
+> +
+> +#define SIMATIC_IPC_LED_PORT_BASE	0x404E
+> +
+> +struct simatic_ipc_led {
+> +	unsigned int value; /* mask for io and offset for mem */
+> +	char name[32];
+> +	struct led_classdev cdev;
+> +};
+> +
+> +static struct simatic_ipc_led simatic_ipc_leds_io[] = {
+> +	{1 << 15, "simatic-ipc:green:" LED_FUNCTION_STATUS "-1" },
+> +	{1 << 7,  "simatic-ipc:yellow:" LED_FUNCTION_STATUS "-1" },
+> +	{1 << 14, "simatic-ipc:red:" LED_FUNCTION_STATUS "-2" },
+> +	{1 << 6,  "simatic-ipc:yellow:" LED_FUNCTION_STATUS "-2" },
+> +	{1 << 13, "simatic-ipc:red:" LED_FUNCTION_STATUS "-3" },
+> +	{1 << 5,  "simatic-ipc:yellow:" LED_FUNCTION_STATUS "-3" },
+> +	{0, ""},
+> +};
+
+Wouldn't it be better to name them like they're labeled on the device,
+as shown on page #19 of the manual, or perhaps a little bit more
+generic nameing (eg. power, status, error, maint) ?
+
+> +/* the actual start will be discovered with pci, 0 is a placeholder */
+> +struct resource simatic_ipc_led_mem_res =
+> +	DEFINE_RES_MEM_NAMED(0, SZ_4K, KBUILD_MODNAME);
+ > +
+ > +static void *simatic_ipc_led_memory;
+ > +
+
+hmm, could there *ever* be multiple instances of the driver ?
+
+Wouldn't it be better to put this in the device priv data instead ?
+
+> +static struct simatic_ipc_led simatic_ipc_leds_mem[] = {
+> +	{0x500 + 0x1A0, "simatic-ipc:red:" LED_FUNCTION_STATUS "-1"},
+> +	{0x500 + 0x1A8, "simatic-ipc:green:" LED_FUNCTION_STATUS "-1"},
+> +	{0x500 + 0x1C8, "simatic-ipc:red:" LED_FUNCTION_STATUS "-2"},
+> +	{0x500 + 0x1D0, "simatic-ipc:green:" LED_FUNCTION_STATUS "-2"},
+> +	{0x500 + 0x1E0, "simatic-ipc:red:" LED_FUNCTION_STATUS "-3"},
+> +	{0x500 + 0x198, "simatic-ipc:green:" LED_FUNCTION_STATUS "-3"},
+> +	{0, ""},
+> +};
+> +
+> +static struct resource simatic_ipc_led_io_res =
+> +	DEFINE_RES_IO_NAMED(SIMATIC_IPC_LED_PORT_BASE, SZ_1, KBUILD_MODNAME);
+> +
+> +static DEFINE_SPINLOCK(reg_lock);
+
+Does this protect global data structures ? If not, I'd rather put it
+into the device priv data instead.
+
+BTW: doesn't have struct led_classdev already have a lock that
+can be used ? Can multiple calls to led ops (within the same device)
+at the same time happen at all, or does led core already serialize
+that ?
+
+> +static void simatic_ipc_led_set_io(struct led_classdev *led_cd,
+> +				   enum led_brightness brightness)
+> +{
+> +	struct simatic_ipc_led *led =
+> +		container_of(led_cd, struct simatic_ipc_led, cdev);
+> +	unsigned long flags;
+> +	unsigned int val;
+> +
+> +	spin_lock_irqsave(&reg_lock, flags);
+> +
+> +	val = inw(SIMATIC_IPC_LED_PORT_BASE);
+> +	if (brightness == LED_OFF)
+> +		outw(val | led->value, SIMATIC_IPC_LED_PORT_BASE);
+> +	else
+> +		outw(val & ~led->value, SIMATIC_IPC_LED_PORT_BASE);
+
+Don't we already have an helper for setting or clearing bits in IO
+registers (that already does the read + set/clear + write at once) ?
+
+Does that really need to be protected by lock ?
+(can happen multiple calls to that func from different threads happen
+at all ?)
+
+Is the port really *always* the same, so it really can be a const ?
+
+<snip>
+
+> +static int simatic_ipc_leds_probe(struct platform_device *pdev)
+> +{
+> +	struct simatic_ipc_platform *plat;
+> +	struct device *dev = &pdev->dev;
+> +	struct simatic_ipc_led *ipcled;
+> +	struct led_classdev *cdev;
+> +	struct resource *res;
+> +	int err, type;
+> +	u32 *p;
+> +
+> +	plat = pdev->dev.platform_data;
+
+Maybe put this into swnode ?
+
+IIRC, the consensus is not to introduce new platform data structs
+anymore, instead legacy pdata to swnode some day.
+
+> +	switch (plat->devmode) {
+> +	case SIMATIC_IPC_DEVICE_227D:
+> +	case SIMATIC_IPC_DEVICE_427E:
+> +		res = &simatic_ipc_led_io_res;
+> +		ipcled = simatic_ipc_leds_io;
+> +		/* the 227D is high on while 427E is low on, invert the struct
+> +		 * we have
+> +		 */
+> +		if (plat->devmode == SIMATIC_IPC_DEVICE_227D) {
+> +			while (ipcled->value) {
+> +				ipcled->value = swab16(ipcled->value);
+
+Uff, better use explicit endian conversion macros (eg. be*_to_cpu()) for
+that.
+
+Also, I wouldn't change those global structs, instead put those data
+into device priv data and make the global stuff const. You could also
+use the same field for both port-io and mmap'ed variants. And adding
+regmap to the equation, could use the same led ops for both. (IMHO,
+the little bit of overhead by regmap shouldn't matter here)
+
+> +				ipcled++;
+> +			}
+> +			ipcled = simatic_ipc_leds_io;
+> +		}
+> +		type = IORESOURCE_IO;
+> +		if (!devm_request_region(dev, res->start,
+> +					 resource_size(res),
+> +					 KBUILD_MODNAME)) {
+> +			dev_err(dev,
+> +				"Unable to register IO resource at %pR\n",
+> +				res);
+> +			return -EBUSY;
+> +		}
+> +		break;
+> +	case SIMATIC_IPC_DEVICE_127E:
+> +		res = &simatic_ipc_led_mem_res;
+> +		ipcled = simatic_ipc_leds_mem;
+> +		type = IORESOURCE_MEM;
+> +
+> +		/* get GPIO base from PCI */
+> +		res->start = simatic_ipc_get_membase0(PCI_DEVFN(13, 0));
+> +		if (res->start == 0)
+> +			return -ENODEV;
+
+Where does that device actually sit on ? Some generic card ? Some ASIC
+or FPGA ?
+
+It seems this driver is instantiated by another one, which already knows
+what device we're actually dealing with (as it sets plat->devmode).
+Why not letting that parent device also tell the io resource to this
+driver ?
+
+> +	while (ipcled->value) {
+> +		cdev = &ipcled->cdev;
+> +		cdev->brightness_set = simatic_ipc_led_set_io;
+> +		cdev->brightness_get = simatic_ipc_led_get_io;
+> +		if (type == IORESOURCE_MEM) {
+> +			cdev->brightness_set = simatic_ipc_led_set_mem;
+> +			cdev->brightness_get = simatic_ipc_led_get_mem;
+> +		}
+
+Why not if/else ?
+
+> +		cdev->max_brightness = LED_ON;
+> +		cdev->name = ipcled->name;
+> +
+> +		err = devm_led_classdev_register(dev, cdev);
+> +		if (err < 0)
+> +			return err;
+> +		ipcled++;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver led_driver = {
+
+Why not calling it simatic_ipc_led_driver ?
+
+> +	.probe = simatic_ipc_leds_probe,
+> +	.driver = {
+> +		.name = KBUILD_MODNAME,
+> +	},
+> +};
+> +
+> +module_platform_driver(led_driver);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform:" KBUILD_MODNAME);
+> +MODULE_AUTHOR("Henning Schild <henning.schild@siemens.com>");
+> 
+
+
+--mtx
+
+-- 
+---
+Hinweis: unverschlüsselte E-Mails können leicht abgehört und manipuliert
+werden ! Für eine vertrauliche Kommunikation senden Sie bitte ihren
+GPG/PGP-Schlüssel zu.
+---
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287
