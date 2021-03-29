@@ -2,121 +2,101 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E3FAC433C1
-	for <linux-watchdog@archiver.kernel.org>; Sat, 27 Mar 2021 19:51:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5005CC433E4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 11:53:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F11D61981
-	for <linux-watchdog@archiver.kernel.org>; Sat, 27 Mar 2021 19:51:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 194DB61969
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 11:53:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230350AbhC0Tud (ORCPT
+        id S229628AbhC2LxX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 27 Mar 2021 15:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60954 "EHLO
+        Mon, 29 Mar 2021 07:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230002AbhC0TuM (ORCPT
+        with ESMTP id S229788AbhC2LxL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 27 Mar 2021 15:50:12 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB0DC0613B1;
-        Sat, 27 Mar 2021 12:50:12 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id z15so9248560oic.8;
-        Sat, 27 Mar 2021 12:50:12 -0700 (PDT)
+        Mon, 29 Mar 2021 07:53:11 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 878EAC061574;
+        Mon, 29 Mar 2021 04:53:11 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id 12so6453364wmf.5;
+        Mon, 29 Mar 2021 04:53:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0rkxaOhq4ua/j8OldplsuIq44B2gNxVTYKHiBF2id1M=;
-        b=ILdd+sZP/+TBAJTc+C4cRZFC77QOs2qk8/C7A6RAdv0erlQxlc/C7ChUDpBbvK8r6c
-         140dj/t83jroex7B4plKEUeeMoTNh6y4p5xl+wxUzqx33GUGCMud4w9KGJwY52aEf/jA
-         gT5XJ5tssoOhgylRKbm0iX70sn0vUSAdvI3z4K2EeLZGWSxHJE4QrWoScbU6Ol85DFM5
-         uMHEo8IkiGiCnIl3dOVJ2sugjr7lmLMa0Qf91v/uSHH6iax1m6UMkdYwIjgLHS7jHOvP
-         f8kRdKZmLhtLocrYYmu8nfQeEJTS+XPWZnm8uUJ2e9pNd2TxscC8PiaM0ge+1yjHHV1N
-         FaJQ==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=wQLkbOswuI+BpoLUVhG6EjT/ZfQAs/+vgKlOUr1dkh8=;
+        b=kB8a7321/zav80c5lhd8wZGVmThE+nFkEER4zryYbkFuKOXBXQMvHs4iLXBJ6VXzXT
+         ij3ks0AmPIQGyWUzO91Xlq2I5ber8JoTGXEapHt3DqUNEaAZT/w9E9SKUT4sVuoP+Gif
+         nXhD51DjjmeMBwVPWmSStADEi596U66Xlu1FDbr9vY/PVowc53F/TkWM6r1/WQcDLDq6
+         uExvPnbjC/m+TXuBx47elnEOfTA8R8tMjnI2llRyO6GK+/M/ibpechVcd+EcQVXmQD6H
+         3O1L6YweNFGsRn1VUTMi/hfEwDYMaBDFFJ+iMFOPU4693G2c7YplKtHyMk2ddfG8akaq
+         BeSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=0rkxaOhq4ua/j8OldplsuIq44B2gNxVTYKHiBF2id1M=;
-        b=DrQlTMOchF7VJJuWVIbw9hqSze1dGqwQRpys6MmFzFVvhveF8nWF9KRc/ZwpTOYU9c
-         Rd0LrLFVCSKoI9SMqG7QoFGQyMwh1hnXnSd6JJs1ZTERKkhLHsukzkjbo54rzt7xRROt
-         nnBYfsnrFfN0F5Omz0VH2VLtLC0MfvrByugmutZ5PLV5Li/gJo+mKBklZqzrk4ISXpNT
-         9wUCJ7Qofcp9DgRDwOb4e9mtVuU5YO9QEo6C/GugjvsdBJNIJp31QT+G7IF0mZHLGbgh
-         iPFVd84R+OrhbkLihaNpZw8VYVE2fMgrFfJJOLABKPuw654pazKigXwoDxqZelx84Lcv
-         Dhcw==
-X-Gm-Message-State: AOAM532hCvESBi6cLNglHDa470FEYfWq96wElmtG4F8DnG28evObRm/i
-        5QFVbQWpNYs8gWdKuvZ+ZPSbvNCqv+I=
-X-Google-Smtp-Source: ABdhPJzd03f31NhyQwjnMvMCXt92c3XksdWwiKRj4+ue0TcBSD5zxvLCMp5D74jBwDIRz1cMtKanKA==
-X-Received: by 2002:aca:ef84:: with SMTP id n126mr14023702oih.84.1616874611445;
-        Sat, 27 Mar 2021 12:50:11 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d1sm2661256oop.0.2021.03.27.12.50.09
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wQLkbOswuI+BpoLUVhG6EjT/ZfQAs/+vgKlOUr1dkh8=;
+        b=cqerFq0uUW/iJ/JzRzxBvVmlkR7pGfZXVZ3hOEPvopNUmR5xFsP5Wd9JE3wYJm2J3y
+         jiX7Xd3w7F+N+bmbLul/wmWzDRrMBsuPrYUd6lnf1q2PFixQ9dv3odg7dGfB5wWifzZQ
+         dOQDNeuJ6SUFoJIXXDWVpE8an4nJNFbUPgGs3th6YCoyCrLF3Gjb8+etgDoLC647B9mX
+         ficYb1AYZLFpa0wAoC+rl1M2OP3Q3ByuX6fsDS52Owf3k+4pClytDJhUjSuHp3QyA7kj
+         kj7ijqYBBbAXhKpU/t8yDLbI4Jd/5osfIYZuu1x16UzAojM+WeBEZIxMbLySIjFRwr2p
+         9/Zg==
+X-Gm-Message-State: AOAM5320TQcckd+40cybFJ8RgWvNxZ8+OUXbpBhwMMNUp5vE5qCkl9Sj
+        UmPUDjmNk3JyZjjEPU7qf9o=
+X-Google-Smtp-Source: ABdhPJw0EXyW8g/N+HbtdIOdlmlhALM9J0chb1Wv/F56E/RlCvHktkk4fZbvbFKh72p7d6sbBzHefA==
+X-Received: by 2002:a1c:e383:: with SMTP id a125mr24553877wmh.125.1617018790275;
+        Mon, 29 Mar 2021 04:53:10 -0700 (PDT)
+Received: from ziggy.stardust (80.174.240.175.dyn.user.ono.com. [80.174.240.175])
+        by smtp.gmail.com with ESMTPSA id g15sm22721058wmq.31.2021.03.29.04.53.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 27 Mar 2021 12:50:10 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 1/1] watchdog: dw_wdt: Remove duplicated header file
- inclusion
-To:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Mon, 29 Mar 2021 04:53:09 -0700 (PDT)
+Subject: Re: [PATCH v2 2/8] dt-bindings: serial: Add compatible for Mediatek
+ MT8195
+To:     Seiya Wang <seiya.wang@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog <linux-watchdog@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20210327012028.1606-1-thunder.leizhen@huawei.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <28b7616a-daa7-e944-8c0f-640eddaaebc8@roeck-us.net>
-Date:   Sat, 27 Mar 2021 12:50:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Guenter Roeck <linux@roeck-us.net>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Fabien Parent <fparent@baylibre.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Zhiyong Tao <zhiyong.tao@mediatek.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Wenbin Mei <wenbin.mei@mediatek.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-serial@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, srv_heupstream@mediatek.com
+References: <20210319023427.16711-1-seiya.wang@mediatek.com>
+ <20210319023427.16711-4-seiya.wang@mediatek.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <96b1e804-fc1c-d343-2308-f96c95d82e81@gmail.com>
+Date:   Mon, 29 Mar 2021 13:53:08 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20210327012028.1606-1-thunder.leizhen@huawei.com>
+In-Reply-To: <20210319023427.16711-4-seiya.wang@mediatek.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -124,36 +104,33 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 3/26/21 6:20 PM, Zhen Lei wrote:
-> The header file <linux/kernel.h> is already included above and can be
-> removed here.
+
+
+On 19/03/2021 03:34, Seiya Wang wrote:
+> This commit adds dt-binding documentation of uart for Mediatek MT8195 SoC
+> Platform.
 > 
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+> Signed-off-by: Seiya Wang <seiya.wang@mediatek.com>
 
-Already submitted:
+Applied to v5.12-next/dts64
 
-https://patchwork.kernel.org/project/linux-watchdog/patch/20210325112916.865510-1-wanjiabing@vivo.com/
+Thanks!
 
-In general, when removing duplicate or unnecessary header files,
-please retain or improve alphabetic order. This patch makes it worse.
-
-Guenter
 
 > ---
->  drivers/watchdog/dw_wdt.c | 1 -
->  1 file changed, 1 deletion(-)
+>  Documentation/devicetree/bindings/serial/mtk-uart.txt | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 32d0e1781e63c4e..b1642e2d9175584 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -19,7 +19,6 @@
->  #include <linux/delay.h>
->  #include <linux/err.h>
->  #include <linux/io.h>
-> -#include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/interrupt.h>
+> diff --git a/Documentation/devicetree/bindings/serial/mtk-uart.txt b/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> index 647b5aee86f3..64c4fb59acd1 100644
+> --- a/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> +++ b/Documentation/devicetree/bindings/serial/mtk-uart.txt
+> @@ -20,6 +20,7 @@ Required properties:
+>    * "mediatek,mt8173-uart" for MT8173 compatible UARTS
+>    * "mediatek,mt8183-uart", "mediatek,mt6577-uart" for MT8183 compatible UARTS
+>    * "mediatek,mt8192-uart", "mediatek,mt6577-uart" for MT8192 compatible UARTS
+> +  * "mediatek,mt8195-uart", "mediatek,mt6577-uart" for MT8195 compatible UARTS
+>    * "mediatek,mt8516-uart" for MT8516 compatible UARTS
+>    * "mediatek,mt6577-uart" for MT6577 and all of the above
+>  
 > 
-
