@@ -7,27 +7,27 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A51C433C1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 16:21:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83A88C433E2
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 16:21:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C887461964
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 16:21:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5356161964
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 Mar 2021 16:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231197AbhC2QUs (ORCPT
+        id S231259AbhC2QUu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 29 Mar 2021 12:20:48 -0400
-Received: from mail-dm6nam11on2078.outbound.protection.outlook.com ([40.107.223.78]:31905
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        Mon, 29 Mar 2021 12:20:50 -0400
+Received: from mail-dm6nam10on2040.outbound.protection.outlook.com ([40.107.93.40]:57056
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230248AbhC2QUQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:20:16 -0400
+        id S230399AbhC2QUS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:20:18 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=J06dUG6mb2Z0HEmDVVcINJ0BMs0EFtmjpOhhQ/qtZU9eNN5GQ1oEQsMdVQyJjJeEYLX7EZj1qcOLLrdvNx3odx7Ga305Sog2eLZ+3ew7qXzBlubKxKRf3cePeGJC/aNKx8nrv32uKg75xdAhdQCgZ6KOHWZG8VV4GLNyItxYxh111e4atI3VpxLgkuBM7VTfX1a2670e/Z+1ZHX6QmBhqlaiNuAbakAbeEiauXDR0VT1oTZZ9x/LVm+0vz3z9G5HUgYYvF9bBNCwTJNMlZ4J5q/LvFhPsQskVMaB4eeUb3BbY4fdodeS2ifqpI9f0SbEtO9DVnYewJCYp3FwDpIQ3Q==
+ b=awX48N9thbjASUrdjfHU08Y9WeWg+tpY0Ez6ivRm7+E4vekVr+/HnWK/pNSs3w+e1KwWfZuZZq28y3Z4PTdAiMO4v6fF1IvzfxnT+FysQRqTyuCMQDcyhW19TVmXBst1Taka/3xKIqRemOkVIBivkJzBD4x/iEMv/PR5cwBBO/P3LhZLLw97UFQZR62FprzK14skOaM+2BPdT4Ki+AO/cHkZYEz0/SPWhfBo3dVd3d/0gLWiGh+FcMiZHoVJVDh0Ye8o6FmXDspq33HvcEmB4HKfoGGsHV9SbgB7VO+lh3n44eDqGAK6+8lWpz0RWxEuNbNTcEDbarHjfzn7ZzI0HQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yA0XV+Gknyqig2JLsiLL3A/TgDtxmHbHg/MTSn9A2wQ=;
- b=EZ1UfGlgXfq9Csuy51pj0TDJt4fPKgEadTq7b36F0Drr3SHpOJRsOq5Na8ioH47SpbwEbejCsCWiH6PLiT1BwEC763XQpChxhYfrvEaQ3qmXZnQbpi4gRbwpMIPahWzWV09TfOqpA7UpagbGNR1unA+TGApgno6cqUGtweZZHyOpx4Dp8qiJX1rwu5BnFzfit15qRGXJut1Xh8MEzCfilTjWUnr5whvDqD7QL1qCS+x4r0sYYEx6YRJlzv4XHVovWd6ZDoMGAHje2biToXU2hU881UfQVOr6Qsgpmxb42D+RFCrjyuxbXYv9hNYCDw1H5NRiNt/5V8pCXOG/ICw/BA==
+ bh=qe5DPw70EUXqevLT7Mwr9qTrImsAq1HJ94uLtEUhAYo=;
+ b=CYT8+uz3e780oXsGkoCDw46pe5ktx8lDv0IcURLmAn982qjGzL2akVGiqfMxu3L0XwKYWWQh866HJ80HEoJ1bbFsE0vw3V757mF+Pk6smsmR/tl1rzJuldzIk12UGXQnFzDEth4JGYIsSSSYwFkJ5wLIZav7meIZnUaeTMd7BDMFrynkkGaVKfAWkH18AMC4U9loGn06V6lvnv4Mjvgj9jvIwFq0xrYa/VcIiVNUZuo4j6dZU7CSxF8OCePihcCT4jbYo/edLiLjF/9CXo4X48GE93flN09zXa9cVuRSvcEirIeg0D6tR3dMWmNs9OkyMtZsXbBA0UFLPlHLUbsiew==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  149.199.62.198) smtp.rcpttodomain=roeck-us.net smtp.mailfrom=xilinx.com;
  dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
@@ -35,35 +35,34 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yA0XV+Gknyqig2JLsiLL3A/TgDtxmHbHg/MTSn9A2wQ=;
- b=nm/QSmGz0+5bLA8gHaO4rQabbjCCqrBKjo0oTo9lnMyvPSJc2RhjSPUV0R5IJjIZKHL4BmePGUB+R9r5T5blHJi+rKE8huPSglLeS+VlaxrTCHtHCzA0r1gyt4bCmaMZhKGpxVuVpROqQFJvhG2jMdL4ncBjaPWy7mnfs7NxKeo=
-Received: from CY4PR22CA0044.namprd22.prod.outlook.com (2603:10b6:903:ed::30)
- by DM5PR02MB3702.namprd02.prod.outlook.com (2603:10b6:4:b3::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.33; Mon, 29 Mar
- 2021 16:20:12 +0000
-Received: from CY1NAM02FT014.eop-nam02.prod.protection.outlook.com
- (2603:10b6:903:ed:cafe::e) by CY4PR22CA0044.outlook.office365.com
- (2603:10b6:903:ed::30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.24 via Frontend
- Transport; Mon, 29 Mar 2021 16:20:12 +0000
+ bh=qe5DPw70EUXqevLT7Mwr9qTrImsAq1HJ94uLtEUhAYo=;
+ b=aGF5KbmYPsMQfU7MGGhgggwS6Dibl+OsqJFAZuzOvIpMGP9FyQBkIkLiK+aHAS3GxugKHFDItMs3A9U/O4rNFz8+6M/TNDJmxqLKkFGkaA6XbvwCJ+ASZzoNCoaM0bk/h53Slsh1c3l+XT2gXlDXBhPSyGXPvjxD/400L4G3lig=
+Received: from DM3PR03CA0021.namprd03.prod.outlook.com (2603:10b6:0:50::31) by
+ DM6PR02MB5211.namprd02.prod.outlook.com (2603:10b6:5:49::32) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3977.25; Mon, 29 Mar 2021 16:20:17 +0000
+Received: from CY1NAM02FT055.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:0:50:cafe::1c) by DM3PR03CA0021.outlook.office365.com
+ (2603:10b6:0:50::31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.26 via Frontend
+ Transport; Mon, 29 Mar 2021 16:20:17 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
  smtp.mailfrom=xilinx.com; roeck-us.net; dkim=none (message not signed)
  header.d=none;roeck-us.net; dmarc=pass action=none header.from=xilinx.com;
 Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
  149.199.62.198 as permitted sender) receiver=protection.outlook.com;
- client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com;
-Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
- CY1NAM02FT014.mail.protection.outlook.com (10.152.75.142) with Microsoft SMTP
+ client-ip=149.199.62.198; helo=xsj-pvapexch02.xlnx.xilinx.com;
+Received: from xsj-pvapexch02.xlnx.xilinx.com (149.199.62.198) by
+ CY1NAM02FT055.mail.protection.outlook.com (10.152.74.80) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.3977.25 via Frontend Transport; Mon, 29 Mar 2021 16:20:12 +0000
+ 15.20.3977.25 via Frontend Transport; Mon, 29 Mar 2021 16:20:16 +0000
 Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
- xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 29 Mar 2021 09:20:00 -0700
+ 15.1.2106.2; Mon, 29 Mar 2021 09:19:55 -0700
 Received: from smtp.xilinx.com (172.19.127.96) by
  xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
- 15.1.2106.2 via Frontend Transport; Mon, 29 Mar 2021 09:20:00 -0700
+ 15.1.2106.2 via Frontend Transport; Mon, 29 Mar 2021 09:19:55 -0700
 Envelope-to: git@xilinx.com,
  linux@roeck-us.net,
  wim@linux-watchdog.org,
@@ -72,16 +71,17 @@ Envelope-to: git@xilinx.com,
 Received: from [172.23.80.241] (port=50308 helo=xhdsneeli40x.xilinx.com)
         by smtp.xilinx.com with esmtp (Exim 4.90)
         (envelope-from <srinivas.neeli@xilinx.com>)
-        id 1lQucR-0002qR-DO; Mon, 29 Mar 2021 09:19:59 -0700
+        id 1lQucL-0002qR-Tu; Mon, 29 Mar 2021 09:19:54 -0700
 From:   Srinivas Neeli <srinivas.neeli@xilinx.com>
 To:     <linux@roeck-us.net>, <shubhraj@xilinx.com>, <sgoud@xilinx.com>,
         <michal.simek@xilinx.com>
 CC:     <wim@linux-watchdog.org>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <git@xilinx.com>,
+        Srinivas Goud <srinivas.goud@xilinx.com>,
         Srinivas Neeli <srinivas.neeli@xilinx.com>
-Subject: [PATCH V2 5/5] watchdog: of_xilinx_wdt: Skip printing pointer value
-Date:   Mon, 29 Mar 2021 21:49:39 +0530
-Message-ID: <20210329161939.37680-6-srinivas.neeli@xilinx.com>
+Subject: [PATCH V2 3/5] watchdog: of_xilinx_wdt: Used dev_dbg()
+Date:   Mon, 29 Mar 2021 21:49:37 +0530
+Message-ID: <20210329161939.37680-4-srinivas.neeli@xilinx.com>
 X-Mailer: git-send-email 2.9.1
 In-Reply-To: <20210329161939.37680-1-srinivas.neeli@xilinx.com>
 References: <20210329161939.37680-1-srinivas.neeli@xilinx.com>
@@ -90,53 +90,66 @@ Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-Office365-Filtering-HT: Tenant
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e9416ba6-76a9-414b-d9d5-08d8f2ce87b3
-X-MS-TrafficTypeDiagnostic: DM5PR02MB3702:
-X-Microsoft-Antispam-PRVS: <DM5PR02MB3702D7D2B3BBAF25A24BC803AF7E9@DM5PR02MB3702.namprd02.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 5bfdafdb-6cdb-49ab-07c4-08d8f2ce89ee
+X-MS-TrafficTypeDiagnostic: DM6PR02MB5211:
+X-Microsoft-Antispam-PRVS: <DM6PR02MB521143695138B8BE19C44CA6AF7E9@DM6PR02MB5211.namprd02.prod.outlook.com>
 X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-Oob-TLC-OOBClassifiers: OLM:1388;
+X-MS-Oob-TLC-OOBClassifiers: OLM:1051;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: igpZQrgbM9HBXjUVkLzHI2O7FV3YKAaxpridshMbOEfqBN+kwwTrRlEX3DgwtpVuOs5bfS1z5jcjzjx7tdWbG4NzdB360DIckqL1HuqevMe3BgJGkA9ALLt3H8orpNfwgr1LyhSlz2rJvADEQh7rs9yIIZ35EryulIeUTYIoNUU/LmfKJFePe3LfRSz0GpSWtVMhLCopBx6486ekbrOc5mvdPx+pj7oxqfmDHRjas0yUimiSMYXq89PfOdE15JxAFcDIvMstD7BE/2LRE1YPjy219cYw587PfJe+YoyABTj+dC7qTfA+30vebzfE/TGKOz9JAk83o6alqDJU/zltd28JBdxWdyV4CJicbBjnv8HVbv88wFk3QJdko3c8NNTYpiKVfleNcL19lZ07dUeWO0M+Hsy7hnzLa9BfE4TfkLYt/kAC1LkH4Qv+F2mgK4Lm9AxdsfN/H0P7Htld7hQvx05nWdnMD+C/54me5Y4Fo3oAxAKayFo7Zp9D3Le+vqW5xHfBYIaXCmG7O8QTmCRzKhP1tz50mpnc9LMI9Z9L+Ix7Kc6iHIrytvSZ5LPUkbugvQ5YvL+nDjp5ipA0OpHl9si2qBvZxdLkueSCO2FJ0tlOEesDV01LxIRqyTRTsGiEE2OAFJ1ml1yESFq7UzWJNYYa1pRdvzkrFp1tAygA353zkLyG4UDGlU6RHWTOrjWx
-X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(4636009)(39860400002)(136003)(396003)(376002)(346002)(46966006)(36840700001)(8936002)(478600001)(26005)(36860700001)(107886003)(6636002)(82310400003)(426003)(82740400003)(9786002)(36906005)(54906003)(8676002)(186003)(7696005)(2906002)(110136005)(316002)(70206006)(36756003)(6666004)(4744005)(70586007)(5660300002)(336012)(356005)(4326008)(1076003)(2616005)(44832011)(83380400001)(7636003)(47076005)(102446001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: BILbD2ucxD/mmxQUrImjwUWOX3JOtsJ4qp5lVMaukYcAvPiDEJT61mNMCcuVQ3eE84uEnw8R7PhzSg33beCFpxa689BTq8+ugj8czG1fnafH6Z+4zURl75w2coECipJBw/EbCt/DCAONZAk6g7zsiESWaz6tPQG6re6BnRw94qS2FNTiTNJP8uPBOS3mh6J7lR9Tk/7OsEDBDzIKJ/15Ut92Sv6tAVdP+RpIN9TA+WUQNw+zSy8myS61OAYzWtkokYiCVGEU4LoI8zSYxAMyPNHY8D+BTsCkYIP/nGyiOD3uQZcIpTxoovhKHKKRoLPDPRChsXmlWs2oeXkrfqgXk9sNwftDD+/8YUfnr8H69lr9C5SPHygjqG1PYJdfHte9MxCJMZcw22TDCPTo9QFYyXV84V9NKtqx4voA4GuZKo2Z0Kb8KdRx1JVAbtB5ZHUS2v0KfYrhWkHDKsbnD+6BAwzmsmK70vx7Fv/p/A7YKKf7wWQyvYQ+6DaYq3vHweVBnmQ+rDgMtT5AYFxuZdzzjNIi9jcJWazgg/WTiFSWUpznloKf4xhJdpTFB+EHdy77GhoiyC4jDOUbgLIr5hocJhxrTztU8vk0ED7yDj5GKPkOsmvqBv0go2jm+A2EREXye+lqrw35UIFWtOhCJ0WVlz7rI78tv7znd5Pngioytr5RqUYJSPspVvCHHTpRXD3Y
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch02.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(4636009)(136003)(39860400002)(346002)(376002)(396003)(46966006)(36840700001)(82310400003)(7696005)(336012)(70586007)(7636003)(47076005)(70206006)(82740400003)(4326008)(107886003)(9786002)(8676002)(356005)(8936002)(186003)(36860700001)(426003)(2616005)(83380400001)(5660300002)(110136005)(316002)(1076003)(2906002)(54906003)(478600001)(6666004)(44832011)(36906005)(6636002)(36756003)(26005)(102446001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2021 16:20:12.6181
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2021 16:20:16.3459
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e9416ba6-76a9-414b-d9d5-08d8f2ce87b3
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5bfdafdb-6cdb-49ab-07c4-08d8f2ce89ee
 X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
-X-MS-Exchange-CrossTenant-AuthSource: CY1NAM02FT014.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch02.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: CY1NAM02FT055.eop-nam02.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR02MB3702
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR02MB5211
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-"%p" is not printing the pointer value.
-In driver, printing pointer value is not useful so avoiding print.
+From: Srinivas Goud <srinivas.goud@xilinx.com>
 
+This patch removes pr_info in stop function and adds dev_dbg()
+in start/stop function to display device specific debug info.
+
+Signed-off-by: Srinivas Goud <srinivas.goud@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/of_xilinx_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in V2:
+-Updated minor review comments.
+---
+ drivers/watchdog/of_xilinx_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index afbff79cce42..3318544366b8 100644
+index f76ec56859a4..5f31fdea517a 100644
 --- a/drivers/watchdog/of_xilinx_wdt.c
 +++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -245,8 +245,8 @@ static int xwdt_probe(struct platform_device *pdev)
+@@ -71,6 +71,8 @@ static int xilinx_wdt_start(struct watchdog_device *wdd)
+ 
+ 	spin_unlock(&xdev->spinlock);
+ 
++	dev_dbg(wdd->parent, "Watchdog Started!\n");
++
+ 	return 0;
+ }
+ 
+@@ -92,7 +94,7 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
  
  	clk_disable(xdev->clk);
  
--	dev_info(dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
--		 xdev->base, xilinx_wdt_wdd->timeout);
-+	dev_info(dev, "Xilinx Watchdog Timer with timeout %ds\n",
-+		 xilinx_wdt_wdd->timeout);
+-	pr_info("Stopped!\n");
++	dev_dbg(wdd->parent, "Watchdog Stopped!\n");
  
- 	platform_set_drvdata(pdev, xdev);
- 
+ 	return 0;
+ }
 -- 
 2.9.1
 
