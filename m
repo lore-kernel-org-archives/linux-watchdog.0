@@ -2,118 +2,117 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0243DC4363F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 10 May 2021 13:42:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E904AC43619
+	for <linux-watchdog@archiver.kernel.org>; Mon, 10 May 2021 13:42:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C561661076
-	for <linux-watchdog@archiver.kernel.org>; Mon, 10 May 2021 13:42:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C51206101B
+	for <linux-watchdog@archiver.kernel.org>; Mon, 10 May 2021 13:42:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238114AbhEJNnW (ORCPT
+        id S237353AbhEJNnV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 10 May 2021 09:43:22 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:44920 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240563AbhEJNS0 (ORCPT
+        Mon, 10 May 2021 09:43:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240405AbhEJNRo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 May 2021 09:18:26 -0400
-Received: from mail-ej1-f71.google.com ([209.85.218.71])
-        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <juerg.haefliger@canonical.com>)
-        id 1lg5mc-0008VA-98
-        for linux-watchdog@vger.kernel.org; Mon, 10 May 2021 13:17:14 +0000
-Received: by mail-ej1-f71.google.com with SMTP id x21-20020a1709064bd5b029037c44cb861cso4729544ejv.4
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 May 2021 06:17:14 -0700 (PDT)
+        Mon, 10 May 2021 09:17:44 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6C5C06138D
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 May 2021 06:16:22 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id d21so15707910oic.11
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 May 2021 06:16:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=zYlkllCHA8MEYno0PceJLqwYYdjDIXNC8s32eZt7T44=;
+        b=opIo0fj/1cjiUXILCSSNZ1dSsTJYb8ZYzw4Ekjs5iyi7UrlYq7Q1+p6wW+A30ZVENp
+         2MBoav+NtfhbXxb9h+wjZNCkV8Rfiv3f/2cRAsYfiJSFOs7N8lwoPDSErtnQQEsqkBN6
+         R4rsyJoQcS0xVitxLYKqvuRAXBiyGpW9RqRk7AuMSjvYfXV+YMhcJcbrIPJDSamuwh8X
+         OTv8IMva9PfFBlgsmXEXpRGjPzj1RfPY9FuYK7mPB2q/vzy4bTsxppgjh9GW/4TEQJNW
+         XCOfxqs21VxzB0v1ox1JPg2lEcfEhrUHQWUULH7QzItEk9lfPXuEWstp3AWWBuw14irR
+         8/CQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=vG3tTWsmMu3oqxb/plnA4yFpnSWfUCGEOED97VmRmp4=;
-        b=q1qtU84pKh10JFhHI29qcF69AtQ4ATTDdyPP9rGGNwpQUHvewoSl0N0nhPJvMSz0CZ
-         864jKSa5H33yXPiSAspw4zq4eGAWhubBCPWjbmDVsvLEwFBoFQy5Qze32K+wZ1jh2l2T
-         KQSJzMPXkzog2uABa5gCSBQV9i/by6xHrQECnrbo4RXyaL7tMYkicHO9PCTvxGNcdVbh
-         Orb3ybt+Sks1AJjQlC7Z5brlzEGrOvUXR/045dA07aCh2KbcQv4+HTvOGAsXHheztv+1
-         n1wraDV/p1QFEB4NQ1pNz3ALY+fiYZ/S674W6wA6cGjgh22P5J9SntfqzKmdiSrh3lfa
-         NBcA==
-X-Gm-Message-State: AOAM531GpNe1bJdHlRBc0KFwvL9qGSILgiAEsteAg/81HtEK1CHN5OEo
-        JxL/CpCJa2E9P0bsMElnr7D0um6aQFcHYyUmEBIIIsZHCRh1LA1MHMx+tzz/X+0zle11AImcjii
-        im9dHVNx+cNhH7MnWJVoP0cQIxd41YU9sp3Qjly222Byb
-X-Received: by 2002:aa7:c150:: with SMTP id r16mr28881486edp.82.1620652634046;
-        Mon, 10 May 2021 06:17:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJztp1MixkujLzViLZ92V7b0dpslg7cIAsojR9bew+6zXzFZNGNVNI/oYuSZ6wQQX7SK/BgLZw==
-X-Received: by 2002:aa7:c150:: with SMTP id r16mr28881458edp.82.1620652633840;
-        Mon, 10 May 2021 06:17:13 -0700 (PDT)
-Received: from gollum.fritz.box ([194.191.244.86])
-        by smtp.gmail.com with ESMTPSA id b21sm9116750ejg.80.2021.05.10.06.17.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 06:17:13 -0700 (PDT)
-From:   Juerg Haefliger <juerg.haefliger@canonical.com>
-X-Google-Original-From: Juerg Haefliger <juergh@canonical.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net,
+        bh=zYlkllCHA8MEYno0PceJLqwYYdjDIXNC8s32eZt7T44=;
+        b=TqxWXeTTwqWrOZDUYhbZTLprVr+TxDboCPcfoYsyj7dMxPWYH7hueWQqWRMHZtpvIb
+         XF2uDA1BPfzm4BWcWO6oDel+7HSQpLu/k6Q8l800s0asXa4FpEiZmvlYdDD40ek/mWoC
+         ZEGhV17aDLA0kRWsZxnrthprZE+FTUxNYv/HF+Z1uupjuPH6rOExZGaYzRJ+vpjPoy8k
+         LAJelzuRAWW9Of6Iq3FEVvYeqk4uwIY/NQ7WeFKHDKOyvsWP6dN0o+cQTBR6Q0YgA1CI
+         IWYPfivSvlzqA0Sp/8Dr6Rhs69hMBZaWvlr617BFtDONaVYN/3kiKcLE1MDNhcurMgzz
+         PpfA==
+X-Gm-Message-State: AOAM532l1LsalwT63d6g4YgZ2PcKYfOjMwDpjCcb2p9k2bw9mYGR0FCW
+        yruupfmtRRmGaVPqNEyTx/likZPTrk8=
+X-Google-Smtp-Source: ABdhPJwAI5838VLB0bxysigDJMc5ieSZb9okSh+XgEC2H6wFhW3MgMtsDVNWyXBi4bJSSyZWzVh6uw==
+X-Received: by 2002:aca:c109:: with SMTP id r9mr25236323oif.83.1620652582201;
+        Mon, 10 May 2021 06:16:22 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r72sm2584184oie.20.2021.05.10.06.16.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 May 2021 06:16:21 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH] watchdog: sbsa: Support architecture version 1
+To:     Shaokun Zhang <zhangshaokun@hisilicon.com>,
         linux-watchdog@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Juerg Haefliger <juergh@canonical.com>
-Subject: [PATCH] watchdog: Add {min,max}_timeout sysfs nodes
-Date:   Mon, 10 May 2021 15:16:25 +0200
-Message-Id: <20210510131625.21506-1-juergh@canonical.com>
-X-Mailer: git-send-email 2.27.0
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Al Stone <al.stone@linaro.org>,
+        Jianchao Hu <hujianchao@hisilicon.com>,
+        Huiqiang Wang <wanghuiqiang@huawei.com>
+References: <1620618117-20135-1-git-send-email-zhangshaokun@hisilicon.com>
+ <87833e5a-978a-aac5-fc4b-1a922864066b@roeck-us.net>
+ <bf9e1b65-119b-d027-fc3d-8491cbc38cde@hisilicon.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <669e1175-2eee-6c4b-8524-c672626022b6@roeck-us.net>
+Date:   Mon, 10 May 2021 06:16:19 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <bf9e1b65-119b-d027-fc3d-8491cbc38cde@hisilicon.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The valid range for the 'timeout' value is useful information so expose
-the min and max timeout values via sysfs.
+On 5/10/21 1:25 AM, Shaokun Zhang wrote:
+> Hi Guenter,
+> 
+> On 2021/5/10 12:25, Guenter Roeck wrote:
+>> On 5/9/21 8:41 PM, Shaokun Zhang wrote:
+>>> Arm Base System Architecture 1.0[1] has introduced watchdog
+>>> revision 1 that increases the length the watchdog offset
+>>
+>> Is that how they call the watchdog count register ?
+>>
+> 
+> I think yes.
+> 
+>> Also, doesn't that mean that the maximum timeout supported
+>> by the hardware is now larger ?
+> 
+> No, maximum timeout is the same. But the clock can be higher than
+> before. For Armv8.6, The frequency of CNTFRQ_EL0 is standardized to
+> a frequency of 1GHz which will set gwdt->clk. If the timeout is
+> greater than 4(second), the 32-bit counter(WOR) is not enough.
+> 
 
-Signed-off-by: Juerg Haefliger <juergh@canonical.com>
----
- drivers/watchdog/watchdog_dev.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+The maximuma timeout is limited with
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 2946f3a63110..b84d53a79618 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -525,6 +525,24 @@ static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RO(timeout);
- 
-+static ssize_t min_timeout_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->min_timeout);
-+}
-+static DEVICE_ATTR_RO(min_timeout);
-+
-+static ssize_t max_timeout_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->max_timeout);
-+}
-+static DEVICE_ATTR_RO(max_timeout);
-+
- static ssize_t pretimeout_show(struct device *dev,
- 			       struct device_attribute *attr, char *buf)
- {
-@@ -609,6 +627,8 @@ static struct attribute *wdt_attrs[] = {
- 	&dev_attr_state.attr,
- 	&dev_attr_identity.attr,
- 	&dev_attr_timeout.attr,
-+	&dev_attr_min_timeout.attr,
-+	&dev_attr_max_timeout.attr,
- 	&dev_attr_pretimeout.attr,
- 	&dev_attr_timeleft.attr,
- 	&dev_attr_bootstatus.attr,
--- 
-2.27.0
+wdd->max_hw_heartbeat_ms = U32_MAX / gwdt->clk * 1000;
 
+You did not update that calculation. That means that the maximuma
+timeout is still U32_MAX / gwdt->clk * 1000, which still fits
+into 32 bit.
+
+Please correct me if I am missing something.
+
+Guenter
