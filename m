@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE236C433B4
-	for <linux-watchdog@archiver.kernel.org>; Mon, 17 May 2021 17:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91294C433B4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 May 2021 17:50:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B713C610A1
-	for <linux-watchdog@archiver.kernel.org>; Mon, 17 May 2021 17:50:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77733610CD
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 May 2021 17:50:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242697AbhEQRvh (ORCPT
+        id S239953AbhEQRvx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 17 May 2021 13:51:37 -0400
-Received: from mga17.intel.com ([192.55.52.151]:14172 "EHLO mga17.intel.com"
+        Mon, 17 May 2021 13:51:53 -0400
+Received: from mga02.intel.com ([134.134.136.20]:12911 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243031AbhEQRv3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 May 2021 13:51:29 -0400
-IronPort-SDR: 5ydVnbHUvzHyTBErDeCoWpouY511OMX0BKcdAjRjmvpKjpfFjs7Cm/BM4eWwNAxRdbU2okMn3+
- iKqGI0xaoqkg==
-X-IronPort-AV: E=McAfee;i="6200,9189,9987"; a="180803237"
+        id S236481AbhEQRvv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 17 May 2021 13:51:51 -0400
+IronPort-SDR: XdxYovPiruQELSQe1EnMyHFdbHdU/8xoIg67DaSALAvgtlLmSVyH3QC/mHa0ytfsUj0blFjSp6
+ oSNlr7bmzymQ==
+X-IronPort-AV: E=McAfee;i="6200,9189,9987"; a="187646363"
 X-IronPort-AV: E=Sophos;i="5.82,307,1613462400"; 
-   d="scan'208";a="180803237"
+   d="scan'208";a="187646363"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 10:50:13 -0700
-IronPort-SDR: 0zvNqGITTTv+q8uvBCJb430O3pFtrXVdTB1J/V7Tm+MoyLONlyq4ws916i90ywfdaEBIRF27LI
- FrLscaWd4eyw==
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 10:50:34 -0700
+IronPort-SDR: XjpWXgykiTLLgTMKL6EL1poYl732Ta6evkuDt/sC/CLVVHeXP2gmVDeLVHXFzn+DfAOqNKbVP4
+ i4TcqgCVahfg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.82,307,1613462400"; 
-   d="scan'208";a="460394122"
+   d="scan'208";a="460394214"
 Received: from bspteam04.iind.intel.com ([10.106.46.142])
-  by fmsmga004.fm.intel.com with ESMTP; 17 May 2021 10:50:09 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 17 May 2021 10:50:18 -0700
 From:   shruthi.sanil@intel.com
 To:     wim@linux-watchdog.org, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -41,9 +41,9 @@ Cc:     andriy.shevchenko@linux.intel.com, kris.pan@linux.intel.com,
         mgross@linux.intel.com, srikanth.thokala@intel.com,
         lakshmi.bai.raja.subramanian@intel.com,
         mallikarjunappa.sangannavar@intel.com, shruthi.sanil@intel.com
-Subject: [PATCH v2 5/9] watchdog: keembay: Remove timeout update in the WDT start function
-Date:   Mon, 17 May 2021 23:19:49 +0530
-Message-Id: <20210517174953.19404-6-shruthi.sanil@intel.com>
+Subject: [PATCH v2 7/9] watchdog: keembay: MACRO for WDT enable and disable values
+Date:   Mon, 17 May 2021 23:19:51 +0530
+Message-Id: <20210517174953.19404-8-shruthi.sanil@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20210517174953.19404-1-shruthi.sanil@intel.com>
 References: <20210517174953.19404-1-shruthi.sanil@intel.com>
@@ -53,32 +53,47 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Shruthi Sanil <shruthi.sanil@intel.com>
 
-Removed set timeout from the start WDT function. There is a function
-defined to set the timeout. Hence no need to set the timeout again in
-start function as the timeout would have been already updated
-before calling the start/enable.
+Introduced MACRO's for WDT enable and disable values for better readability
 
-Fixes: fa0f8d51e90d ("watchdog: Add watchdog driver for Intel Keembay Soc")
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Kris Pan <kris.pan@intel.com>
 Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
 ---
- drivers/watchdog/keembay_wdt.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/watchdog/keembay_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/keembay_wdt.c b/drivers/watchdog/keembay_wdt.c
-index f2a16c9933c3..039753b9932b 100644
+index dd192b8dff55..d8c50b6291cd 100644
 --- a/drivers/watchdog/keembay_wdt.c
 +++ b/drivers/watchdog/keembay_wdt.c
-@@ -84,7 +84,6 @@ static int keembay_wdt_start(struct watchdog_device *wdog)
+@@ -27,6 +27,8 @@
+ #define WDT_TO_INT_MASK		BIT(9)
+ #define WDT_ISR_CLEAR		0x8200ff18
+ #define WDT_UNLOCK		0xf1d0dead
++#define WDT_DISABLE		0x0
++#define WDT_ENABLE		0x1
+ #define WDT_LOAD_MAX		U32_MAX
+ #define WDT_LOAD_MIN		1
+ #define WDT_TIMEOUT		5
+@@ -84,7 +86,7 @@ static int keembay_wdt_start(struct watchdog_device *wdog)
  {
  	struct keembay_wdt *wdt = watchdog_get_drvdata(wdog);
  
--	keembay_wdt_set_timeout_reg(wdog);
- 	keembay_wdt_writel(wdt, TIM_WDOG_EN, 1);
+-	keembay_wdt_writel(wdt, TIM_WDOG_EN, 1);
++	keembay_wdt_writel(wdt, TIM_WDOG_EN, WDT_ENABLE);
  
  	return 0;
+ }
+@@ -93,7 +95,7 @@ static int keembay_wdt_stop(struct watchdog_device *wdog)
+ {
+ 	struct keembay_wdt *wdt = watchdog_get_drvdata(wdog);
+ 
+-	keembay_wdt_writel(wdt, TIM_WDOG_EN, 0);
++	keembay_wdt_writel(wdt, TIM_WDOG_EN, WDT_DISABLE);
+ 
+ 	return 0;
+ }
 -- 
 2.17.1
 
