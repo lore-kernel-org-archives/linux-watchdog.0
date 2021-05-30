@@ -2,123 +2,101 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA594C47097
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 07:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03782C47089
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8760B61241
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 07:27:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3BA860234
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229694AbhE3H2v (ORCPT
+        id S229581AbhE3J2Y (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 30 May 2021 03:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbhE3H2t (ORCPT
+        Sun, 30 May 2021 05:28:24 -0400
+Received: from mout.kundenserver.de ([212.227.17.13]:41329 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229500AbhE3J2Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 30 May 2021 03:28:49 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09FAC061574;
-        Sun, 30 May 2021 00:27:09 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id n4so7535399wrw.3;
-        Sun, 30 May 2021 00:27:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=bqTv+TFAOMBiEQMLXRI7rx6F3LpfuebvVaCG8zYT/N8=;
-        b=t3XOZQ0+GPBHMvc7jKJ8+B5qJmp/hejArOvrKUIw76PRgRmsGHr1xHHCdcAuiTUoSW
-         oImLysP4I+2u7smPG7iKmW2WrN2lERvYmUdBhKUYYhdSiQsoLg0IqL2GB+IYMsofB//Y
-         orsO+64lBcObe1XdOAH6L+zsyDBfYWnhIJSNGDblFnujLV3DgxA6XsX9UjIeZ84+z5Ir
-         p6jKrFF1UHI8eN+V3ZuIMxllX4sEDIdkLUXhwOq6pIG7qDilhObsolSedYuQ1LeeMcKv
-         gcH7oiu7jcZplPVEvxdB4PHf9vT6ounW2djTC290B48esvXXx4h+MPsGf7+qgog7Fk2U
-         ELhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bqTv+TFAOMBiEQMLXRI7rx6F3LpfuebvVaCG8zYT/N8=;
-        b=egiVn49c297uIZ3e503DwYaMbUzXFUJpEn2WDFMsEV4PbzItZCReNQcjZlkx8jBWct
-         aiMUlZyPTnUPrJryxwgCZ7AmN63RUCNDMhtFG0Prpg0LOkr8Jawhf9cuExM7rVfJYO4S
-         j9MJC8XQBqhICoiORWJsjyEsoLt7/AWBCDrII+Mj134joV+vmAkLIDyCuLSae8SyfUDC
-         O7YFBJcTiJVWdohfHmy5J3rXAtWYCzCJobqIPtn5JJF19/xvGRL6BkqUJ05F6clliBSw
-         1SpCN+URY48oI0Y5U4Z2JR68+990nG0h/9G7PC49RUnBQzVjFM7d8KWO9cHDJG0cyToE
-         Erpg==
-X-Gm-Message-State: AOAM530axOUnaZok95swXR2QWDosQMw1FAcVwU1YMG4j5mbySLy6j7/h
-        5HaOlsgbCNzGZbaOZtChhxtvzAnVAAg=
-X-Google-Smtp-Source: ABdhPJycgQu9cG1MwDFjSHOPKfw74miis8053epUTviXFreI7IyYvT+4JMmX6yYXeboUH6GojL5xKg==
-X-Received: by 2002:adf:82ee:: with SMTP id 101mr10144233wrc.137.1622359628314;
-        Sun, 30 May 2021 00:27:08 -0700 (PDT)
-Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id h14sm23841045wmb.1.2021.05.30.00.27.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 May 2021 00:27:07 -0700 (PDT)
-From:   Romain Perier <romain.perier@gmail.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Daniel Palmer <daniel@0x0f.com>,
-        Mohammed Billoo <mohammed.billoo@gmail.com>,
+        Sun, 30 May 2021 05:28:24 -0400
+Received: from localhost.localdomain ([37.4.249.151]) by
+ mrelayeu.kundenserver.de (mreue106 [212.227.15.183]) with ESMTPSA (Nemesis)
+ id 1N33ZD-1lQ0mo1C7J-013L7p; Sun, 30 May 2021 11:26:23 +0200
+From:   Stefan Wahren <stefan.wahren@i2se.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>
+List-Id: <soc.lore.kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        soc@kernel.org, Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] ARM: dts: mstar: Add watchdog device_node definition
-Date:   Sun, 30 May 2021 09:26:45 +0200
-Message-Id: <20210530072645.10379-4-romain.perier@gmail.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210530072645.10379-1-romain.perier@gmail.com>
-References: <20210530072645.10379-1-romain.perier@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Stefan Wahren <stefan.wahren@i2se.com>
+Subject: [PATCH 1/6] ARM: dts: bcm283x: Fix up MMC node names
+Date:   Sun, 30 May 2021 11:26:10 +0200
+Message-Id: <1622366775-5309-2-git-send-email-stefan.wahren@i2se.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
+References: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
+X-Provags-ID: V03:K1:zU43vaxG+aviVLNrCI/EJL4B8YCOUb5/nUyh6xHFOfoaHTiga8y
+ mn2JIOjJXEYn0AOzLQCVNHBfyAdXgIBfc+Y0J+1FlTdSQC5PrRSBFyNBUZZ5RQTAV+TwY2U
+ /Vzj0UGSnnRen0BSE7x9Yr5gXZZhuKPZ/WTXOphHSlql+AS1FLSouKmPXmzAic+dyNGxbdG
+ sKHcib4DUxU62/AhxGirA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:BXOAIRfrMrA=:OzaYHAs0xVvwgJGlfZz9fb
+ COFvigPoPyhg/rx5AGNc8BDMlY/IzlbHspvjPOJA420EyPLoBacGcxcydhkGGkHiI+i78cja7
+ sngly6uGu9q73jzZLGBUYAkIcFIURnAtA2EN3f+mSGIUI1+BVqGaLwtRGSd/i0BtUWeJa7JcA
+ ehCaVvkHwrNBlenr7SeYe7IJ3OFM6f14LxHST4b/Lww9ccpD6ORVZ4U13GVm4k+RckTFP0nGq
+ u7Jw8guiF+Rqvk1BA9MoEuDex/2CPRYY/JkuXe9U2lHqrQ2MT8naWv0RPUFstHb8TbYw2poCB
+ fceb/jzRARunLREt+JSEWb1v+kbqcBacU1JZOppotTdrQXimED7LkDc4YWF3CZOWASSC+Bs/8
+ hCJwt0MT7LcX8WqxjAdV6FLfPXt8WjsF+fKulKk0xwazhoRNJu6fmx5ectoaWMdttYocIQZJf
+ +uFjagEknAOfdffOhAldjoKVsTGrUeY4zEUQPVb+S+eHLbEJyuTTjaQVggKKyR/i5YCYqOqy5
+ DhTm/CkcF1wmrayKTzj+vs=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This adds the definition of both an oscillator at 12Mhz required by the
-the watchdog and the watchdog device_node.
+Fix the node names for the MMC/SD card controller to conform
+to the standard node name mmc@..
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 ---
- arch/arm/boot/dts/mstar-v7.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm/boot/dts/bcm2711.dtsi | 2 +-
+ arch/arm/boot/dts/bcm283x.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/mstar-v7.dtsi b/arch/arm/boot/dts/mstar-v7.dtsi
-index 3d5d8c634de3..23dff8fe4731 100644
---- a/arch/arm/boot/dts/mstar-v7.dtsi
-+++ b/arch/arm/boot/dts/mstar-v7.dtsi
-@@ -62,6 +62,14 @@ rtc_xtal: rtc_xtal {
- 			clock-frequency = <32768>;
+diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
+index 720beec..d872064 100644
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -413,7 +413,7 @@
+ 		ranges = <0x0 0x7e000000  0x0 0xfe000000  0x01800000>;
+ 		dma-ranges = <0x0 0xc0000000  0x0 0x00000000  0x40000000>;
+ 
+-		emmc2: emmc2@7e340000 {
++		emmc2: mmc@7e340000 {
+ 			compatible = "brcm,bcm2711-emmc2";
+ 			reg = <0x0 0x7e340000 0x100>;
+ 			interrupts = <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index b83a864..0f3be55 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -420,7 +420,7 @@
  			status = "disabled";
  		};
-+
-+		xtal_div2: xtal_div2 {
-+			#clock-cells = <0>;
-+			compatible = "fixed-factor-clock";
-+			clocks = <&xtal>;
-+			clock-div = <2>;
-+			clock-mult = <1>;
-+		};
- 	};
  
- 	soc: soc {
-@@ -119,6 +127,12 @@ pm_irin_pins: pm_irin {
- 				};
- 			};
- 
-+			watchdog: watchdog@6000 {
-+				compatible = "mstar,msc313e-wdt";
-+				reg = <0x6000 0x1f>;
-+				clocks = <&xtal_div2>;
-+			};
-+
- 			intc_fiq: interrupt-controller@201310 {
- 				compatible = "mstar,mst-intc";
- 				reg = <0x201310 0x40>;
+-		sdhci: sdhci@7e300000 {
++		sdhci: mmc@7e300000 {
+ 			compatible = "brcm,bcm2835-sdhci";
+ 			reg = <0x7e300000 0x100>;
+ 			interrupts = <2 30>;
 -- 
-2.30.2
+2.7.4
 
