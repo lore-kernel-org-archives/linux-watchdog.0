@@ -2,101 +2,138 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C63CC4708F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 May 2021 14:23:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 042CCC47092
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 07:27:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A5446127A
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 May 2021 14:23:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CEA9E6124B
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 07:27:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235077AbhE1OYu (ORCPT
+        id S229658AbhE3H2r (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 May 2021 10:24:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60030 "EHLO
+        Sun, 30 May 2021 03:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235271AbhE1OYt (ORCPT
+        with ESMTP id S229500AbhE3H2q (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 May 2021 10:24:49 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9066C06174A
-        for <linux-watchdog@vger.kernel.org>; Fri, 28 May 2021 07:23:13 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id g38so5714609ybi.12
-        for <linux-watchdog@vger.kernel.org>; Fri, 28 May 2021 07:23:13 -0700 (PDT)
+        Sun, 30 May 2021 03:28:46 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730D3C061574;
+        Sun, 30 May 2021 00:27:07 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id j14so7514078wrq.5;
+        Sun, 30 May 2021 00:27:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=syysfoCLQhlZX4I15Hdgek+czZDdAMbqNxcJPk1EsOQ=;
-        b=Bi4g/rtry3daF+gwc3vRtRNefr36ib+72ReLa3GeeD9O3ybgsW5H+StLvG598fcTA2
-         MxJCazJmuhXChu6NvwkTut4KABCZtDklevvhSdJrjzkGSFpjSB9y1qKrfSy/NJ2F9zqa
-         SZ1tZs0U6q14X/bQF2A24cWdOm+OoG6tGIOcgxXj07e6xNBC4d2gkVJuryB4N0qhMpSv
-         vjosCTpmqAA7DzXW5J9O4/xo9afKZ9gPBnxKBSRuGMrT6i6aZSDO3XwKpRv4Txh494Db
-         xnpj5063UpPa68aZM8xfll+N3FUZukP1ajAbSd7u4yzb1znukr81z6bLt4hdid2Qss8i
-         6bRg==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=VR1JWU4nW1DmUrTHeiF6/6cj0vIS4fC0uA+HnyAg+8M=;
+        b=nfQyXGynWV5qx3p236HjiMJZbTrBjzjcj90dibObqRZhKXbi2SBB3O6t9YVyfzigwf
+         KiQsb+atjC1B5neqnXnzmoWHxEL3S/xfSBDS9eNj3LWAWOKLcMh1LnFI/lJbrQuRo+3i
+         TYoXYYR1OP7XDkP0FD4r2RtbXYEDV5OT6/kFgccGxiQVb+1VuB6Mfzi2DVSvW9C62+DI
+         TD4tcCLCJp1ySwXSVxAwNu5NIGHSJ19I82+PGY7jQVV8i6aFojCJYKIASdj3oajgky3Y
+         Cva0q/z2UQ/CxCZMBCRbs/QLQ5AumYFR87xw71Set7bOZK2Gb0Y2BROMdR2MsDkrA8s2
+         rngw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=syysfoCLQhlZX4I15Hdgek+czZDdAMbqNxcJPk1EsOQ=;
-        b=WsC1qDBsvhBd7XiFqe//8Dh6O078JvCmDBNnuYIugGUCcz0DwE/3647zj67y9emZx0
-         v4jGvA8hoMCgfK6Qu6dsjg3Sds7x6btrqWhJvkYTVJ+RphZQFWSa6kmsu2vLCJXa7x2F
-         Y2OgCosK0Q/Q3l46woafLjs86av/JVtuaaXtZQ1BC3Itpk2zeO0jr2dSvNxa4VQBRGDg
-         2RXk4G6TVkC6fVRfIGN5kz16BjhHNVzLPs4otGB4CiI5BPvhr8HO4xEwonhpiFjKxhhG
-         pVTRIwIv7HqoCApDQaVjRo4lLHQdF+ioKFcBWb787NecYW2V4pIAYlVaZJJpG9s0g9CP
-         UosQ==
-X-Gm-Message-State: AOAM532SiVX+WBtA+y90lj82mgUzYrHmuX/vYIwuutChWnCR/mKn+PuS
-        91wq/d8CXjueS9Pgh5q1qkKgemrf9s7gxhQASJ98Ng==
-X-Google-Smtp-Source: ABdhPJx8mHtOAu17ADz6J7AwfAXA/YIRldt+oDMdzuZLRNE9q/0fTWnkdiCMlbQ3GUS+scmZ1tLW01HbzK50dqSraow=
-X-Received: by 2002:a25:420c:: with SMTP id p12mr9823321yba.25.1622211792670;
- Fri, 28 May 2021 07:23:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <cover.1621937490.git.matti.vaittinen@fi.rohmeurope.com> <dba3927a575645e5bf1ff35edea5ad74ea86885e.1621937490.git.matti.vaittinen@fi.rohmeurope.com>
-In-Reply-To: <dba3927a575645e5bf1ff35edea5ad74ea86885e.1621937490.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Fri, 28 May 2021 16:23:02 +0200
-Message-ID: <CAMpxmJU8GY568LwEyKnxiN3vPgOreyCYYJF_sD2dFKuMOm6A4A@mail.gmail.com>
-Subject: Re: [PATCH 6/9] gpio: bd70528 Drop BD70528 support
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=VR1JWU4nW1DmUrTHeiF6/6cj0vIS4fC0uA+HnyAg+8M=;
+        b=j6wH6ZGYnAmNWHJ+ioOL2MGjmBT4XqVdK+dcYEkhfUeU2ykeGJ1fvT1TCGGml8twvG
+         IHVei91CkMBcDHE32S2oFhYopU/0SPVeIxfMcnkPCbWUVae4b0VbJJEQCDt2a1RqC06G
+         CUuGUMbBxmQ16QDOh+LiQifKbGG6XIEZc1h2e+ja+6QXF6fVr8JPz0nsiu+5FZ9yIZSu
+         D+08qGlu9zmOQKVp77+ISNlPouvX6P9EobfifzLMFzOHL03aEfJBkkjfA1lWskJqu4qK
+         MZs5lHLLPbAIB9ZRJ21/imzcVAFZakg8JskOBg0jOa4NaHSlJmxd8mg8CNh+/ibq29eU
+         0ctw==
+X-Gm-Message-State: AOAM531JaLQlf/MYAz83S86tjKHcWyLDkxHT71MHxlbHQa6ydC8fzNfJ
+        UahbxLzyr3oS1S9oVOd+rWm3ngl87IDXRg==
+X-Google-Smtp-Source: ABdhPJzJPaqMTzCmSATP2Vsc2WhP/KoRTsQczXH9z8vZkNUUNQlMN/64A+6g+MRUEvYeX7D4gBE4Lw==
+X-Received: by 2002:adf:ebc6:: with SMTP id v6mr13915446wrn.398.1622359625655;
+        Sun, 30 May 2021 00:27:05 -0700 (PDT)
+Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
+        by smtp.gmail.com with ESMTPSA id e8sm12700797wrt.30.2021.05.30.00.27.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 May 2021 00:27:05 -0700 (PDT)
+From:   Romain Perier <romain.perier@gmail.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        linux-devicetree <devicetree@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        linux-power <linux-power@fi.rohmeurope.com>,
-        linux-gpio <linux-gpio@vger.kernel.org>,
-        linux-pm <linux-pm@vger.kernel.org>, linux-rtc@vger.kernel.org,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Daniel Palmer <daniel@0x0f.com>,
+        Mohammed Billoo <mohammed.billoo@gmail.com>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/3] Documentation: watchdog: Add Mstar MSC313e WDT devicetree bindings documentation
+Date:   Sun, 30 May 2021 09:26:43 +0200
+Message-Id: <20210530072645.10379-2-romain.perier@gmail.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210530072645.10379-1-romain.perier@gmail.com>
+References: <20210530072645.10379-1-romain.perier@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, May 25, 2021 at 12:15 PM Matti Vaittinen
-<matti.vaittinen@fi.rohmeurope.com> wrote:
->
-> The only known BD70528 use-cases are such that the PMIC is controlled
-> from separate MCU which is not running Linux. I am not aware of
-> any Linux driver users. Furthermore, it seems there is no demand for
-> this IC. Let's ease the maintenance burden and drop the driver. We can
-> always add it back if there is sudden need for it.
->
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
->
-> ---
+This adds the documentation for the devicetree bindings of the Mstar
+MSC313e watchdog driver, found from MSC313e SoCs and newer.
 
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+---
+ .../bindings/watchdog/msc313e-wdt.yaml        | 40 +++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/msc313e-wdt.yaml
+
+diff --git a/Documentation/devicetree/bindings/watchdog/msc313e-wdt.yaml b/Documentation/devicetree/bindings/watchdog/msc313e-wdt.yaml
+new file mode 100644
+index 000000000000..70b8e1be5e8e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/msc313e-wdt.yaml
+@@ -0,0 +1,40 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/msc313e-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MStar Watchdog Device Tree Bindings
++
++maintainers:
++  - Daniel Palmer <daniel@0x0f.com>
++  - Romain Perier <romain.perier@gmail.com>
++
++allOf:
++  - $ref: watchdog.yaml#
++
++properties:
++  compatible:
++    enum:
++      - mstar,msc313e-wdt
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++required:
++  - compatible
++  - clocks
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    watchdog: watchdog@6000 {
++        compatible = "mstar,msc313e-wdt";
++        reg = <0x6000 0x1f>;
++        clocks = <&xtal_div2>;
++    };
+-- 
+2.30.2
+
