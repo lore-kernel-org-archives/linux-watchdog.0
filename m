@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB31CC47093
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 344B0C47089
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A903E611C2
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11A9B610C7
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229783AbhE3J22 (ORCPT
+        id S229790AbhE3J23 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 30 May 2021 05:28:28 -0400
-Received: from mout.kundenserver.de ([217.72.192.75]:43165 "EHLO
+        Sun, 30 May 2021 05:28:29 -0400
+Received: from mout.kundenserver.de ([217.72.192.75]:40473 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbhE3J20 (ORCPT
+        with ESMTP id S229646AbhE3J20 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Sun, 30 May 2021 05:28:26 -0400
 Received: from localhost.localdomain ([37.4.249.151]) by
  mrelayeu.kundenserver.de (mreue106 [212.227.15.183]) with ESMTPSA (Nemesis)
- id 1N3sNa-1lMzR23wKu-00zklA; Sun, 30 May 2021 11:26:25 +0200
+ id 1N6bwO-1lLJgV48Kc-017zow; Sun, 30 May 2021 11:26:26 +0200
 From:   Stefan Wahren <stefan.wahren@i2se.com>
 To:     Rob Herring <robh+dt@kernel.org>,
         Nicolas Saenz Julienne <nsaenz@kernel.org>
@@ -39,48 +39,59 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org,
         Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH 4/6] dt-bindings: arm: bcm2835: Add Raspberry Pi 400 to DT schema
-Date:   Sun, 30 May 2021 11:26:13 +0200
-Message-Id: <1622366775-5309-5-git-send-email-stefan.wahren@i2se.com>
+Subject: [PATCH 6/6] arm64: dts: broadcom: Add reference to RPi 400
+Date:   Sun, 30 May 2021 11:26:15 +0200
+Message-Id: <1622366775-5309-7-git-send-email-stefan.wahren@i2se.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
 References: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
-X-Provags-ID: V03:K1:iSxQJiv4EPLM741bFXFPcUmIZnM+ASxBr4E+FP5KuGtjpH+hqah
- XbWC/P/lcTRRPyQVYwbQ0u6THdF6G2ZlnqM4nP3y9c8KxtSeXV/SM7w4VM3GeonQ4XPF54O
- +xwOcgIotAG+c6Uvpg55YytS6vYczvVNAdcvBdsrW5wakA/5CcDp1cul0GbIDGhjP4NF4AC
- ew7QXH7oitTkXoRpJFB5Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:MbSo70PsCNo=:l/cfdKz+N1MWPf3ciTZN1s
- 22sODCcGviGqCd3udm64FjkGV0fIQGo++TkEA8X6vB/Js52V9nqCDARM5C/vQyMARR7pT8elc
- MNYT2T+nDEAIysRdzwoDbCP9kAjlMvfVy0iiEj3YmkapJDtvI8sLNxIk8kljd2+fZMbvq2JOk
- cVyMEAWuwuFj/O+ZtphLsSa6NjvKtUdddOEWoDq5c+wJakYKvb5siPzuuPf7jQExM5hkhIy3G
- yK40QWOcxSmN2s+XP/HKbOZnEStgWPimbdn5Dpu/vYjT7cdxiCCIAdL2AJb4J7XFJ4dFiEyP1
- dSlekKoVxXBkimNgGld/NM7tjULvYWzjDFfAPxuhFvJzwKgUiGuwT1K/A7RPAniwaKyDfQvmQ
- Ly4xePMJUyFSdqSX8T7ud8AevNL0ZQSNWeZ9NNlQxTk0J+DofMIGD6izN/+7CZd0V9NOpsmW5
- J6uxMnRSQ0PBzOCRuIm2nFKh5+/UQnl34j7qun1nsHcWQeZWBzvK2GLeEw/rlaz9pPsPx/buh
- lLKHiFggBIsW3dWUWECOSM=
+X-Provags-ID: V03:K1:q/IbM1RlSms3sEeZn3zRYhinPp/899xwqhVcoiG5y1OBVgwsH6O
+ e7PYL8xAInkdBGzu1pOE39H3F6P9naNEqYuwAc2mpB1xyVd5yvqvtTi658nyWWz/82oD93a
+ 3pkVyQzPykdSjEGnG44qgyV2CFFgG/9NvEtNjADpNfOqWDnJ5sUAZ4jUIhhg8Vrjwyaj2jX
+ qIWusPryam50OJwErfRZA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:mju3w2jQjGc=:3jeTML6iMxctlGtCXzoSbA
+ zwlvr5OyBCNqFLSUOhJ/T9zgQMAH6EOsUeqY5HiuWTYdGgVnVt9hGuRNVie2LZPEh3BGfM3T6
+ OqE0716A90G4quNQ7SamvcvomRKgtNRMwamzKI/huIOUbOG4/l+b0gBTscn/w51XsG+vk0eNW
+ eTs/GaWkNk9uvmzGmoyn71cwVQK+yF0F0/4/XbaJKScptNnuoqkmEaoIafFwHD/c/5GEAjE3K
+ PTFM3oxkCN5cW/UNLVHl+305m1HrqMaeWnLRY3GTm207x/weU0iGoTMfRxnw2BbJaqqYGCNDC
+ iIsqV+8//ToAobliW5LFFMr1T15l3PSdWaolSVr5WcS1JxB8yBJKE5y1lNVknMUTfYXjsYLh/
+ oCvsi1B+sQKJD66agRWgCW1JHtTxVWiDI9aS/6ceoWvH3+i2KsZ8W3HweNKdE4Y7583atVle0
+ nS62CzSjpjRgMiGP0slRljV2RAa91HZ8aDpO+/cx+cq74PfrQf7syfLwxTX6979YRCZAj8Cmf
+ chqmXcWOYgNcmADcGiAkbA=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add new Raspberry Pi 400 to DT schema.
+This adds a reference to the dts of the Raspberry Pi 400,
+so we don't need to maintain the content in arm64.
 
 Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 ---
- Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/broadcom/Makefile            | 3 ++-
+ arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts
 
-diff --git a/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml b/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-index 812ae8c..230b80d 100644
---- a/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-+++ b/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-@@ -18,6 +18,7 @@ properties:
-       - description: BCM2711 based Boards
-         items:
-           - enum:
-+              - raspberrypi,400
-               - raspberrypi,4-model-b
-           - const: brcm,bcm2711
- 
+diff --git a/arch/arm64/boot/dts/broadcom/Makefile b/arch/arm64/boot/dts/broadcom/Makefile
+index 998e240..11eae3e 100644
+--- a/arch/arm64/boot/dts/broadcom/Makefile
++++ b/arch/arm64/boot/dts/broadcom/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+-dtb-$(CONFIG_ARCH_BCM2835) += bcm2711-rpi-4-b.dtb \
++dtb-$(CONFIG_ARCH_BCM2835) += bcm2711-rpi-400.dtb \
++			      bcm2711-rpi-4-b.dtb \
+ 			      bcm2837-rpi-3-a-plus.dtb \
+ 			      bcm2837-rpi-3-b.dtb \
+ 			      bcm2837-rpi-3-b-plus.dtb \
+diff --git a/arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts b/arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts
+new file mode 100644
+index 0000000..b9000f5
+--- /dev/null
++++ b/arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts
+@@ -0,0 +1,2 @@
++// SPDX-License-Identifier: GPL-2.0
++#include "arm/bcm2711-rpi-400.dts"
 -- 
 2.7.4
 
