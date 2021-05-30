@@ -2,291 +2,105 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8559C47097
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8710DC47089
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 10:06:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1CC761108
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 09:26:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E74061005
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 May 2021 10:06:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbhE3J2a (ORCPT
+        id S229579AbhE3KHr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 30 May 2021 05:28:30 -0400
-Received: from mout.kundenserver.de ([212.227.17.24]:36415 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbhE3J2Z (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 30 May 2021 05:28:25 -0400
-Received: from localhost.localdomain ([37.4.249.151]) by
- mrelayeu.kundenserver.de (mreue106 [212.227.15.183]) with ESMTPSA (Nemesis)
- id 1MJW18-1m70QK1a7E-00JrUK; Sun, 30 May 2021 11:26:24 +0200
-From:   Stefan Wahren <stefan.wahren@i2se.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>
-List-Id: <soc.lore.kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
-        soc@kernel.org, Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH 3/6] ARM: dts: Move BCM2711 RPi specific into separate dtsi
-Date:   Sun, 30 May 2021 11:26:12 +0200
-Message-Id: <1622366775-5309-4-git-send-email-stefan.wahren@i2se.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
-References: <1622366775-5309-1-git-send-email-stefan.wahren@i2se.com>
-X-Provags-ID: V03:K1:M8P44XuD5Ei2tpIgR2aUmBNMRJXf3EtIhzOfSqlO1+r54TVGlJv
- uMtmJe2KUsQ+TXJhrR/6/uvGgPsJ5O7W1K7QC8Hu+WFFOTqcSCNqINi8CwHkTuazSShm+ob
- 1Xhba/kbK5nGBMLvkhI4vDhlQkigi9vnQgLe5JhENEHZRWEWLW5N7p7+m7FJUSSgxnKQyRL
- 5BbmelIYYV8UHW/brQjjw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:UQGBprPtfMA=:7/EZxsNghN2DwbripBocLG
- QQlqrpQYui+S0FsZnmexJ8AN3ITvvVOcegFRb3WNSpBV7mDoUzSknXthPUY/aXjR5yj1Ye4fN
- KppoGoth9GQWfFVUY+P7vPuCg7lEW+gvf2aaj2zf7ajy2uXPnbQB8b7jMijhlOT7IzMBUhrCM
- XkTo2MlTle0dLcUsBK1swUea4kmJ0wa2RkzN4EpnIrfAICWerTFRYIGAt9j+tBkUhh1gjrBu2
- 4sjvmoZAvXwFOHog1fW7fAmXU1hJ91ZKFrAul1d4sFFy4+KOu0rPGviAonz5wEQQLgQ6iK/sJ
- VZs8a9k2jk1vHKlj9VI/8LmRDkru3zqihBUAaEey6k03JjiSz2SUt4wYp0HVCXklOcOJ7l+FH
- +5RmJ542u5yM3bEMaHWAko1C7qpnP9o6RYe0YvNDEpchUAXIUMpcMDnhCXWxrcbMlpuEVobPe
- sxzMYANfArGtuyEguCgS1LfiC1zw8xrKzzbEaFMNDnlV6v+0MkHoxi1egZi+eqy8GOtra6bTL
- 8vYTuUA2sJj7CiK8ZSUQ9Q=
+        Sun, 30 May 2021 06:07:47 -0400
+Received: from gecko.sbs.de ([194.138.37.40]:35904 "EHLO gecko.sbs.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229500AbhE3KHq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 30 May 2021 06:07:46 -0400
+X-Greylist: delayed 407 seconds by postgrey-1.27 at vger.kernel.org; Sun, 30 May 2021 06:07:45 EDT
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 14U9wufY030721
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 30 May 2021 11:58:56 +0200
+Received: from [167.87.72.222] ([167.87.72.222])
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 14U9wtEv030019;
+        Sun, 30 May 2021 11:58:55 +0200
+From:   Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH] watchdog: iTCO_wdt: Account for rebooting on second timeout
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Christian Storm <christian.storm@siemens.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Message-ID: <73a36792-28f8-e513-b384-bdbe7d31ca05@siemens.com>
+Date:   Sun, 30 May 2021 11:58:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-There is a lot of Raspberry Pi specific stuff (neither SoC or board
-specific) for the BCM2711 which is currently in the RPi 4 B dts. In order
-to avoid copy & paste for every new BCM2711 based Raspberry Pi, move it
-into a separate dtsi.
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+This was already attempted to fix via 1fccb73011ea: If the BIOS did not
+enable TCO SMIs, the timer definitely needs to trigger twice in order to
+cause a reboot. If TCO SMIs are on, we can continue to assume that the
+BIOS will perform a reboot on the first timeout.
+
+QEMU with its ICH9 and related BIOS falls into the former category,
+currently taking twice the configured timeout in order to reboot the
+machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
+this is also true and was currently only addressed for v1, irrespective
+of the turn_SMI_watchdog_clear_off value.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/arm/boot/dts/bcm2711-rpi-4-b.dts | 62 +----------------------------
- arch/arm/boot/dts/bcm2711-rpi.dtsi    | 75 +++++++++++++++++++++++++++++++++++
- 2 files changed, 76 insertions(+), 61 deletions(-)
- create mode 100644 arch/arm/boot/dts/bcm2711-rpi.dtsi
+ drivers/watchdog/iTCO_wdt.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-index 3b4ab94..78142a0 100644
---- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-+++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-@@ -1,11 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0
- /dts-v1/;
- #include "bcm2711.dtsi"
--#include "bcm2835-rpi.dtsi"
-+#include "bcm2711-rpi.dtsi"
- #include "bcm283x-rpi-usb-peripheral.dtsi"
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index bf31d7b67a69..091797d12146 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -71,6 +71,7 @@
+ #define TCOBASE(p)	((p)->tco_res->start)
+ /* SMI Control and Enable Register */
+ #define SMI_EN(p)	((p)->smi_res->start)
++#define TCO_EN		(1 << 13)
  
--#include <dt-bindings/reset/raspberrypi,firmware-reset.h>
--
- / {
- 	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";
- 	model = "Raspberry Pi 4 Model B";
-@@ -22,10 +20,7 @@
- 	};
+ #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
+ #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
+@@ -355,8 +356,11 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
  
- 	aliases {
--		emmc2bus = &emmc2bus;
- 		ethernet0 = &genet;
--		pcie0 = &pcie0;
--		blconfig = &blconfig;
- 	};
+ 	tmrval = seconds_to_ticks(p, t);
  
- 	leds {
-@@ -80,11 +75,6 @@
- };
- 
- &firmware {
--	firmware_clocks: clocks {
--		compatible = "raspberrypi,firmware-clocks";
--		#clock-cells = <1>;
--	};
--
- 	expgpio: gpio {
- 		compatible = "raspberrypi,firmware-gpio";
- 		gpio-controller;
-@@ -99,11 +89,6 @@
- 				  "";
- 		status = "okay";
- 	};
--
--	reset: reset {
--		compatible = "raspberrypi,firmware-reset";
--		#reset-cells = <1>;
--	};
- };
- 
- &gpio {
-@@ -180,23 +165,13 @@
- };
- 
- &hdmi0 {
--	clocks = <&firmware_clocks 13>, <&firmware_clocks 14>, <&dvp 0>, <&clk_27MHz>;
--	clock-names = "hdmi", "bvb", "audio", "cec";
--	wifi-2.4ghz-coexistence;
- 	status = "okay";
- };
- 
- &hdmi1 {
--	clocks = <&firmware_clocks 13>, <&firmware_clocks 14>, <&dvp 1>, <&clk_27MHz>;
--	clock-names = "hdmi", "bvb", "audio", "cec";
--	wifi-2.4ghz-coexistence;
- 	status = "okay";
- };
- 
--&hvs {
--	clocks = <&firmware_clocks 4>;
--};
--
- &pixelvalve0 {
- 	status = "okay";
- };
-@@ -219,22 +194,6 @@
- 	status = "okay";
- };
- 
--&rmem {
--	/*
--	 * RPi4's co-processor will copy the board's bootloader configuration
--	 * into memory for the OS to consume. It'll also update this node with
--	 * its placement information.
--	 */
--	blconfig: nvram@0 {
--		compatible = "raspberrypi,bootloader-config", "nvmem-rmem";
--		#address-cells = <1>;
--		#size-cells = <1>;
--		reg = <0x0 0x0 0x0>;
--		no-map;
--		status = "disabled";
--	};
--};
--
- /* SDHCI is used to control the SDIO for wireless */
- &sdhci {
- 	#address-cells = <1>;
-@@ -273,21 +232,6 @@
- 	};
- };
- 
--&pcie0 {
--	pci@1,0 {
--		#address-cells = <3>;
--		#size-cells = <2>;
--		ranges;
--
--		reg = <0 0 0 0 0>;
--
--		usb@1,0 {
--			reg = <0x10000 0 0 0 0>;
--			resets = <&reset RASPBERRYPI_FIRMWARE_RESET_ID_USB>;
--		};
--	};
--};
--
- /* uart0 communicates with the BT module */
- &uart0 {
- 	pinctrl-names = "default";
-@@ -309,10 +253,6 @@
- 	status = "okay";
- };
- 
--&vchiq {
--	interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
--};
--
- &vc4 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm2711-rpi.dtsi b/arch/arm/boot/dts/bcm2711-rpi.dtsi
-new file mode 100644
-index 0000000..b4bc7f6
---- /dev/null
-+++ b/arch/arm/boot/dts/bcm2711-rpi.dtsi
-@@ -0,0 +1,75 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include "bcm2835-rpi.dtsi"
-+
-+#include <dt-bindings/reset/raspberrypi,firmware-reset.h>
-+
-+/ {
-+	aliases {
-+		emmc2bus = &emmc2bus;
-+		pcie0 = &pcie0;
-+		blconfig = &blconfig;
-+	};
-+};
-+
-+&firmware {
-+	firmware_clocks: clocks {
-+		compatible = "raspberrypi,firmware-clocks";
-+		#clock-cells = <1>;
-+	};
-+
-+	reset: reset {
-+		compatible = "raspberrypi,firmware-reset";
-+		#reset-cells = <1>;
-+	};
-+};
-+
-+&hdmi0 {
-+	clocks = <&firmware_clocks 13>, <&firmware_clocks 14>, <&dvp 0>, <&clk_27MHz>;
-+	clock-names = "hdmi", "bvb", "audio", "cec";
-+	wifi-2.4ghz-coexistence;
-+};
-+
-+&hdmi1 {
-+	clocks = <&firmware_clocks 13>, <&firmware_clocks 14>, <&dvp 1>, <&clk_27MHz>;
-+	clock-names = "hdmi", "bvb", "audio", "cec";
-+	wifi-2.4ghz-coexistence;
-+};
-+
-+&hvs {
-+	clocks = <&firmware_clocks 4>;
-+};
-+
-+&pcie0 {
-+	pci@1,0 {
-+		#address-cells = <3>;
-+		#size-cells = <2>;
-+		ranges;
-+
-+		reg = <0 0 0 0 0>;
-+
-+		usb@1,0 {
-+			reg = <0x10000 0 0 0 0>;
-+			resets = <&reset RASPBERRYPI_FIRMWARE_RESET_ID_USB>;
-+		};
-+	};
-+};
-+
-+&rmem {
+-	/* For TCO v1 the timer counts down twice before rebooting */
+-	if (p->iTCO_version == 1)
 +	/*
-+	 * RPi4's co-processor will copy the board's bootloader configuration
-+	 * into memory for the OS to consume. It'll also update this node with
-+	 * its placement information.
++	 * If TCO SMIs are off, the timer counts down twice before rebooting.
++	 * Otherwise, the BIOS generally reboots when the SMI triggers.
 +	 */
-+	blconfig: nvram@0 {
-+		compatible = "raspberrypi,bootloader-config", "nvmem-rmem";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		reg = <0x0 0x0 0x0>;
-+		no-map;
-+		status = "disabled";
-+	};
-+};
-+
-+&vchiq {
-+	interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
-+};
++	if (p->smi_res && !(SMI_EN(p) & TCO_EN))
+ 		tmrval /= 2;
+ 
+ 	/* from the specs: */
+@@ -521,7 +525,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 		 * Disables TCO logic generating an SMI#
+ 		 */
+ 		val32 = inl(SMI_EN(p));
+-		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
++		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
+ 		outl(val32, SMI_EN(p));
+ 	}
+ 
 -- 
-2.7.4
-
+2.26.2
