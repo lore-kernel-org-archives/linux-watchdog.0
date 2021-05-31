@@ -8,28 +8,28 @@ X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1D29C47082
-	for <linux-watchdog@archiver.kernel.org>; Mon, 31 May 2021 13:20:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DC83C47083
+	for <linux-watchdog@archiver.kernel.org>; Mon, 31 May 2021 13:26:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AABBD613F8
-	for <linux-watchdog@archiver.kernel.org>; Mon, 31 May 2021 13:20:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6C88E61455
+	for <linux-watchdog@archiver.kernel.org>; Mon, 31 May 2021 13:26:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231927AbhEaNVo (ORCPT
+        id S232225AbhEaN1o (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 31 May 2021 09:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        Mon, 31 May 2021 09:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231823AbhEaNUD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 31 May 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 234386135D;
-        Mon, 31 May 2021 13:18:20 +0000 (UTC)
+        id S232022AbhEaNZm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 31 May 2021 09:25:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C335613C1;
+        Mon, 31 May 2021 13:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467101;
-        bh=2DKgRIUx3bq4bj2n7TveWOz0TPwQ1RJ+G6bHpOUG4Y0=;
+        s=korg; t=1622467257;
+        bh=7bfA1jP82NQ2FwXenvFJkxagimlL0jZ0JK6itcjHu1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UldYwMDCEXgBfzPCNJpwLovVefGRYpGncnKVWEwJOEXoOXGYuC+RL2Wnm3Ukhzc//
-         MndCNoybVjc1Y6SGWW7QBb/WcEN9iABFwJnuY6qVSjCk/l0mSIWdnddTASfYMIhy4q
-         F2BKaxf83vjvmk5LmrwAY5o/7WI1mwZbHuVMh+H8=
+        b=QC3jNlrT2ectMbwYkBFWvbH4cPXpPzMSlstYN74MPNr037hHoKNqJ1UAxEPbHrMfc
+         8qwyEmIyt/LTjJdnEjncacgktciOFYOg8dDQVwPjtjULcW9ydR8WcqADkjy15hkxAZ
+         ib76WdN3BGebwnsM2F6dBeutwfbSfQgU8cE52gJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -40,12 +40,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-watchdog@vger.kernel.org,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 51/54] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
-Date:   Mon, 31 May 2021 15:14:17 +0200
-Message-Id: <20210531130636.666522100@linuxfoundation.org>
+Subject: [PATCH 4.9 64/66] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
+Date:   Mon, 31 May 2021 15:14:37 +0200
+Message-Id: <20210531130638.277030241@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,9 +76,11 @@ Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/of.c |    2 ++
+ arch/mips/ralink/of.c | 2 ++
  1 file changed, 2 insertions(+)
 
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 0aa67a2d0ae6..6b7226830354 100644
 --- a/arch/mips/ralink/of.c
 +++ b/arch/mips/ralink/of.c
 @@ -10,6 +10,7 @@
@@ -97,5 +99,8 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  
  __iomem void *plat_of_remap_node(const char *node)
  {
+-- 
+2.30.2
+
 
 
