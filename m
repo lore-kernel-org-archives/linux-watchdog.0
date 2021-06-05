@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ADF2C47082
-	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jun 2021 17:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 929F2C47082
+	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jun 2021 17:05:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 28C2D61358
-	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jun 2021 17:05:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 793216141C
+	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jun 2021 17:05:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbhFERGs (ORCPT
+        id S230097AbhFERGu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 5 Jun 2021 13:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
+        Sat, 5 Jun 2021 13:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230035AbhFERGr (ORCPT
+        with ESMTP id S230035AbhFERGu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 5 Jun 2021 13:06:47 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C27AC061766;
-        Sat,  5 Jun 2021 10:04:49 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id r13so7211085wmq.1;
-        Sat, 05 Jun 2021 10:04:49 -0700 (PDT)
+        Sat, 5 Jun 2021 13:06:50 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0847C061789;
+        Sat,  5 Jun 2021 10:04:51 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id a11so10573315wrt.13;
+        Sat, 05 Jun 2021 10:04:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=kMAviFGUdQ730F6Q+HNCqv4PBNG+qYb32j7SS7VdG80=;
-        b=T4YcfwlFx/bNv2XRve4QVU+8Px8MmC85/qLW6/NqgmyEGAU0J+csP45R1Az+wZBqKc
-         nsz+ouuW2wnmh09bcst7pLFZDVn2CYrZ/N2wkWzgoi1HjMhKfPnDvmBehUFEro1jgFMu
-         ldWvHYGqq7tITc1kncdLMD12khzerRMpJmr9bU4QlzTjNFudcxkLV4zgLZ8DEQime1lS
-         acD5DAy3m5+QTsI2KZn0dhY76zN3CZS00N0MT+bzIH+3jOOUzGq0VYhKurmjqLXQZ7l6
-         i80TN+wkBDCNx4z/b+jVMzUF6M0n3ivvmc7nrYhUx0AYkziVjL8lQCbZIm1kD3rX/o+0
-         Bcqg==
+        bh=g/W44ow+C6jPmps5gfwR35TPNfFxt3RYI3mHXT3ZiRU=;
+        b=Bw2IBYrnzHyx4A99ZqsNvFNjENfkjgf2045SpAsco2Ufqd1uK/etMZ7muBq3Ida0AX
+         GDxstPbhFwStHlWpaxXwRVC4m56a/XUcNBqkRpMOtSZHmZf83QaYbbKvdCBjnfzU4kKp
+         E0MClDxVpoHeoNHPzdIWPS2mvFZ5vo7DiDt2yjBoSFlf0bGrM71MCmcsUJ+wNhEVhfx4
+         NQHo+LmWi+AnA80SdQj6e5INRe0a+b395toR0ot52zKtv3umVc0Lz4o9oqtoIGwh0ePI
+         jmOyxBYuYDXrZuaqUBEe3/8KLXNn+/MmfKKPhmexZilVC3Sg2CYuvLkgnV1dn9l5dWSK
+         ofhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kMAviFGUdQ730F6Q+HNCqv4PBNG+qYb32j7SS7VdG80=;
-        b=pSsKByLDjKxnKeqRajs8IxSWRHT0V6DLMyODc/lEFOYHgVZ+b74neysosePMikrt4u
-         j8zNQYxCh7F7+m7qpMSG3+tKwSwY+/T6r/dXGpheGstrCT40jCEB1X0WsJJC2jeoQBHG
-         hV2+OTohYdvQvw1p7eTEotXolPFFpjfQsjQNvXNG86wuhn/B9TD5aXmlM5OcbI8gOlIu
-         +dxAOybAp7OH9HW6FGsehtxe9Ov29Z+08q8Tv+RzPCSfmow9Uo4UUtu9dttWqwtKWkIz
-         sK2Z+2Ky8K6o3egCPR/m/ZHigcqFdzMCW/8/EyeOVgDIFVv79mrTCpguF+mcMVo8chit
-         UOaA==
-X-Gm-Message-State: AOAM531zKynon7GhWyYrg4w84ScRy5BY8tX6aB986JbjBp+Gy05DiUgs
-        UJWH92IuWBjrgx34QpTiLqrFBocjrb0=
-X-Google-Smtp-Source: ABdhPJz9ttxsRiszpElW2T+klCpdvZGzurgBYu4mcaVfbcjKn2K576/AGqoxjsy3M7WG51sOXPLruw==
-X-Received: by 2002:a1c:6a0b:: with SMTP id f11mr9111010wmc.114.1622912687664;
-        Sat, 05 Jun 2021 10:04:47 -0700 (PDT)
+        bh=g/W44ow+C6jPmps5gfwR35TPNfFxt3RYI3mHXT3ZiRU=;
+        b=GP+pwLTa1iKmzZA/EUin27Iu4hl3dy0A5ihV0UmWDANY6OmSSfL+vMfZcC6V6v8/CE
+         wYpmGhtKMghzrQYOLufuB/+1c6qQt1/ztakMekCo/Ar03eXQBiVp268EaTCe19n7aS6G
+         NOrpSJ3F9zvJ2ZRRJDnUj1Uf5xbRzftOqBFrDlVbFWmcz0hbmj/MQXQf6YtWdUlLbTiy
+         RU73RG8oMBee0YW0P8S73sjPefPs8b8ez/77aH64+M+6saekC6i3puBEwCfUJluxO0cS
+         G7Rc16tNmqHICZBoommjc2wfdf7/tXeCn0B7IhS7+3r6ga2Lt3cmdNSPx7flRJqSY3Gt
+         9zyQ==
+X-Gm-Message-State: AOAM530hAg5W/qqiBJDk5kQsf0KaEbm0AN/1WrxG1paHRhXtT7JUo0fo
+        jKJEznTplWvj4sck3SLxbxerXNqrSqg=
+X-Google-Smtp-Source: ABdhPJybYMS+Qt8hUA7uuNlltK6Z2xKsKaPvHD9Ky0eTMbcjFktPuaTwZqWLA98/yeoyRA08QmTKfg==
+X-Received: by 2002:a5d:414e:: with SMTP id c14mr8965921wrq.81.1622912690062;
+        Sat, 05 Jun 2021 10:04:50 -0700 (PDT)
 Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id w13sm9053230wmi.4.2021.06.05.10.04.47
+        by smtp.gmail.com with ESMTPSA id z19sm11201170wmf.31.2021.06.05.10.04.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Jun 2021 10:04:47 -0700 (PDT)
+        Sat, 05 Jun 2021 10:04:49 -0700 (PDT)
 From:   Romain Perier <romain.perier@gmail.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -67,9 +67,9 @@ Cc:     Daniel Palmer <daniel@0x0f.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/3] dt-bindings: watchdog: Add Mstar MSC313e WDT devicetree bindings documentation
-Date:   Sat,  5 Jun 2021 19:04:39 +0200
-Message-Id: <20210605170441.33667-2-romain.perier@gmail.com>
+Subject: [PATCH v3 3/3] ARM: dts: mstar: Add watchdog device_node definition
+Date:   Sat,  5 Jun 2021 19:04:41 +0200
+Message-Id: <20210605170441.33667-4-romain.perier@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210605170441.33667-1-romain.perier@gmail.com>
 References: <20210605170441.33667-1-romain.perier@gmail.com>
@@ -79,61 +79,46 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This adds the documentation for the devicetree bindings of the Mstar
-MSC313e watchdog driver, found from MSC313e SoCs and newer.
+This adds the definition of both an oscillator at 12Mhz required by the
+the watchdog and the watchdog device_node.
 
 Signed-off-by: Romain Perier <romain.perier@gmail.com>
 ---
- .../bindings/watchdog/mstar,msc313e-wdt.yaml  | 40 +++++++++++++++++++
- 1 file changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
+ arch/arm/boot/dts/mstar-v7.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
-new file mode 100644
-index 000000000000..e3e8b86dbf63
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
-@@ -0,0 +1,40 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/mstar,msc313e-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/arch/arm/boot/dts/mstar-v7.dtsi b/arch/arm/boot/dts/mstar-v7.dtsi
+index 3d5d8c634de3..471d005e2e62 100644
+--- a/arch/arm/boot/dts/mstar-v7.dtsi
++++ b/arch/arm/boot/dts/mstar-v7.dtsi
+@@ -62,6 +62,14 @@ rtc_xtal: rtc_xtal {
+ 			clock-frequency = <32768>;
+ 			status = "disabled";
+ 		};
 +
-+title: MStar Watchdog Device Tree Bindings
++		xtal_div2: xtal_div2 {
++			#clock-cells = <0>;
++			compatible = "fixed-factor-clock";
++			clocks = <&xtal>;
++			clock-div = <2>;
++			clock-mult = <1>;
++		};
+ 	};
+ 
+ 	soc: soc {
+@@ -119,6 +127,12 @@ pm_irin_pins: pm_irin {
+ 				};
+ 			};
+ 
++			watchdog@6000 {
++				compatible = "mstar,msc313e-wdt";
++				reg = <0x6000 0x1f>;
++				clocks = <&xtal_div2>;
++			};
 +
-+maintainers:
-+  - Daniel Palmer <daniel@0x0f.com>
-+  - Romain Perier <romain.perier@gmail.com>
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - mstar,msc313e-wdt
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - clocks
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    watchdog@6000 {
-+        compatible = "mstar,msc313e-wdt";
-+        reg = <0x6000 0x1f>;
-+        clocks = <&xtal_div2>;
-+    };
+ 			intc_fiq: interrupt-controller@201310 {
+ 				compatible = "mstar,mst-intc";
+ 				reg = <0x201310 0x40>;
 -- 
 2.30.2
 
