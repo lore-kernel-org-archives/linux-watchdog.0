@@ -4,142 +4,85 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 129FAC4743D
-	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5720C47096
+	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 14:49:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB707611CA
-	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D0596142A
+	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 14:49:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230088AbhFFMSx (ORCPT
+        id S230025AbhFFOvO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 6 Jun 2021 08:18:53 -0400
-Received: from mout.kundenserver.de ([212.227.17.13]:50627 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbhFFMSv (ORCPT
+        Sun, 6 Jun 2021 10:51:14 -0400
+Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:19886 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230050AbhFFOvL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 6 Jun 2021 08:18:51 -0400
-Received: from localhost.localdomain ([37.4.249.157]) by
- mrelayeu.kundenserver.de (mreue108 [212.227.15.183]) with ESMTPSA (Nemesis)
- id 1MrhHm-1l2AsK2p88-00ngV6; Sun, 06 Jun 2021 14:16:36 +0200
-From:   Stefan Wahren <stefan.wahren@i2se.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>
-List-Id: <soc.lore.kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
-        soc@kernel.org, Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH V2 6/7] ARM: dts: Add Raspberry Pi 400 support
-Date:   Sun,  6 Jun 2021 14:16:16 +0200
-Message-Id: <1622981777-5023-7-git-send-email-stefan.wahren@i2se.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1622981777-5023-1-git-send-email-stefan.wahren@i2se.com>
-References: <1622981777-5023-1-git-send-email-stefan.wahren@i2se.com>
-X-Provags-ID: V03:K1:qDXNiQNnXszhu7ZZn9qpiJjEOk/8SKuGCRk5P1O58HSgHSRlMLV
- 0xTH6Q+aPq28bWe7QSGDeV5lSsliVSiBA3k6TJs3CJKeIAEw7NFeK3ulpqriEj9rG7Kv09V
- f5yU99ZAK5+2om8JacoafiHBpbVGX9mLuw67b41uH2+buQZXHhd/vEsMYJuZdrkoAqxavb0
- XZzPZDPPXY9LZ3wix21Rw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:TznBIvEQkDg=:GcLEDfRD80lGvCBDkMB65D
- n2NlGC6mkIjaUFrd5E9zZjH4kw+x9NA0hx9T0NWVp1ziEK3LHEL0hbgRb1eGvl867sbWe8Q/e
- F+/chJU1Mx0LnCpYtoSWFgn78hnQZJhGVxXq5//4mI3VEtfF9AR8GB+3HGCKfwrJIMGBo5Z5C
- Kbv39tIHz3XTISYrHVYqeoxMUNOZQ33vvSjziiWgEbr8MNV4my2sannMZeUBZQ1rfAUiOwJdE
- SafIVH+YbqGPYzy6kL1rz9v/wvq8qLcckHQlUI7bRNlhEUMt+smWFRhRRCDF6cnMKFbpNxf8N
- cBTBrYFLng5QRI23HFhu4XUe22u54bxcSeBToKQ7m/X1ARrVXdad++bxXayrAO+wwp6+KjdsO
- UGB4w5h4r4fw8SOAfV/4qpN4GcpWhnUdDQGkcIQFY4lXIGnOubFKi8EQK9Nu9O9Ky4v15aqXU
- wlW2w05R7Nw3UkdBbPiUzlEKUKxOxWAdrONwwMZxYNrKR2vf/cjHXKSLx2b3F9MzPOiS/NmA1
- J486J/wnFJuU58pVA9Dftc=
+        Sun, 6 Jun 2021 10:51:11 -0400
+Received: from localhost.localdomain ([86.243.172.93])
+        by mwinf5d04 with ME
+        id DqpK2500C21Fzsu03qpKgY; Sun, 06 Jun 2021 16:49:21 +0200
+X-ME-Helo: localhost.localdomain
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Sun, 06 Jun 2021 16:49:21 +0200
+X-ME-IP: 86.243.172.93
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     wim@linux-watchdog.org, linux@roeck-us.net,
+        martyn.welch@gefanuc.com
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] watchdog: gef_wdt:  Fix an error handling path in 'gef_wdt_probe()'
+Date:   Sun,  6 Jun 2021 16:49:18 +0200
+Message-Id: <3d775a5ac7e26fa5dd4c47f75fef6d5f336de1e3.1622990863.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The Raspberry Pi 400 is like a Pi 4 B designed into a keyboard. But there
-are some minor differences:
+If an error occurs after a successful 'of_iomap()' call, it must be undone
+by a corresponding 'iounmap()' call, as already done in the remove
+function.
 
-- higher CPU clock rate (1.8 GHz)
-- different Wifi chip (BCM43456)
-- power off is now handled via GPIO
-- no ACT LED
-
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Fixes: 3268b5618f38 ("[WATCHDOG] Basic support for GE Fanuc's FPGA based watchdog timer")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
- arch/arm/boot/dts/Makefile            |  1 +
- arch/arm/boot/dts/bcm2711-rpi-400.dts | 45 +++++++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+)
- create mode 100644 arch/arm/boot/dts/bcm2711-rpi-400.dts
+ drivers/watchdog/gef_wdt.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index f8f09c5..ec00dba 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -88,6 +88,7 @@ dtb-$(CONFIG_ARCH_BCM2835) += \
- 	bcm2837-rpi-3-b.dtb \
- 	bcm2837-rpi-3-b-plus.dtb \
- 	bcm2837-rpi-cm3-io3.dtb \
-+	bcm2711-rpi-400.dtb \
- 	bcm2711-rpi-4-b.dtb \
- 	bcm2835-rpi-zero.dtb \
- 	bcm2835-rpi-zero-w.dtb
-diff --git a/arch/arm/boot/dts/bcm2711-rpi-400.dts b/arch/arm/boot/dts/bcm2711-rpi-400.dts
-new file mode 100644
-index 0000000..f4d2fc2
---- /dev/null
-+++ b/arch/arm/boot/dts/bcm2711-rpi-400.dts
-@@ -0,0 +1,45 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/dts-v1/;
-+#include "bcm2711-rpi-4-b.dts"
+diff --git a/drivers/watchdog/gef_wdt.c b/drivers/watchdog/gef_wdt.c
+index df5406aa7d25..52573176101f 100644
+--- a/drivers/watchdog/gef_wdt.c
++++ b/drivers/watchdog/gef_wdt.c
+@@ -264,6 +264,7 @@ static int gef_wdt_probe(struct platform_device *dev)
+ {
+ 	int timeout = 10;
+ 	u32 freq;
++	int ret;
+ 
+ 	bus_clk = 133; /* in MHz */
+ 
+@@ -280,7 +281,15 @@ static int gef_wdt_probe(struct platform_device *dev)
+ 
+ 	gef_wdt_handler_disable();	/* in case timer was already running */
+ 
+-	return misc_register(&gef_wdt_miscdev);
++	ret = misc_register(&gef_wdt_miscdev);
++	if (ret)
++		goto iounmap_err;
 +
-+/ {
-+	compatible = "raspberrypi,400", "brcm,bcm2711";
-+	model = "Raspberry Pi 400";
++	return 0;
 +
-+	chosen {
-+		/* 8250 auxiliary UART instead of pl011 */
-+		stdout-path = "serial1:115200n8";
-+	};
-+
-+	leds {
-+		/delete-node/ led-act;
-+
-+		led-pwr {
-+			gpios = <&gpio 42 GPIO_ACTIVE_HIGH>;
-+		};
-+	};
-+
-+	gpio-poweroff {
-+		compatible = "gpio-poweroff";
-+		gpios = <&expgpio 5 GPIO_ACTIVE_HIGH>;
-+	};
-+};
-+
-+&expgpio {
-+	gpio-line-names = "BT_ON",
-+			  "WL_ON",
-+			  "",
-+			  "GLOBAL_RESET",
-+			  "VDD_SD_IO_SEL",
-+			  "CAM_GPIO",
-+			  "SD_PWR_ON",
-+			  "SD_OC_N";
-+};
-+
-+&genet_mdio {
-+	clock-frequency = <1950000>;
-+};
-+
-+&pm {
-+	/delete-property/ system-power-controller;
-+};
++iounmap_err:
++	iounmap(gef_wdt_regs);
++	return ret;
+ }
+ 
+ static int gef_wdt_remove(struct platform_device *dev)
 -- 
-2.7.4
+2.30.2
 
