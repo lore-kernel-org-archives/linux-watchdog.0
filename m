@@ -2,28 +2,27 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD3F0C4743D
-	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF7A5C48BC2
+	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B96D4608FE
-	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B94596142E
+	for <linux-watchdog@archiver.kernel.org>; Sun,  6 Jun 2021 12:17:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbhFFMSu (ORCPT
+        id S230111AbhFFMSu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Sun, 6 Jun 2021 08:18:50 -0400
-Received: from mout.kundenserver.de ([212.227.17.24]:49267 "EHLO
+Received: from mout.kundenserver.de ([212.227.17.13]:57575 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbhFFMSt (ORCPT
+        with ESMTP id S229776AbhFFMSt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Sun, 6 Jun 2021 08:18:49 -0400
 Received: from localhost.localdomain ([37.4.249.157]) by
  mrelayeu.kundenserver.de (mreue108 [212.227.15.183]) with ESMTPSA (Nemesis)
- id 1MrhHm-1l2AsP35e8-00ngV6; Sun, 06 Jun 2021 14:16:33 +0200
+ id 1MRTIx-1m2HvI0993-00NSMz; Sun, 06 Jun 2021 14:16:33 +0200
 From:   Stefan Wahren <stefan.wahren@i2se.com>
 To:     Rob Herring <robh+dt@kernel.org>,
         Nicolas Saenz Julienne <nsaenz@kernel.org>
@@ -39,65 +38,74 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org,
         Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH V2 1/7] ARM: dts: bcm283x: Fix up MMC node names
-Date:   Sun,  6 Jun 2021 14:16:11 +0200
-Message-Id: <1622981777-5023-2-git-send-email-stefan.wahren@i2se.com>
+Subject: [PATCH V2 0/7] ARM: dts: Add Raspberry Pi 400 support
+Date:   Sun,  6 Jun 2021 14:16:10 +0200
+Message-Id: <1622981777-5023-1-git-send-email-stefan.wahren@i2se.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1622981777-5023-1-git-send-email-stefan.wahren@i2se.com>
-References: <1622981777-5023-1-git-send-email-stefan.wahren@i2se.com>
-X-Provags-ID: V03:K1:Z/8QOVZ2cHa4lrvfJQqghM920G55e/tsw2Kl4Gl3CPhqRzxY/3Q
- pT8KAXiiYtiG2LFpO056LY5tzxOi+Gl7HNwVXnCr+Uls5Fn7P4AA8tzcENmameXpJB0f9It
- 8CH8xbxBjWLR5DpsYYCYLmH1B5T/npNc7UitcUViH5+GE/J+7E9mdNSn0WFUl1ASkuRaqAE
- ggvIa84w6NiZwRifXy9Sw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:JGozPp/tc2Y=:4TCkNj3rNqgSZbnKTrYoqP
- l1TepbDJDswV1l8Zp+ZeCLvGoYDTNt7cbcn/4aRectbcMXGtVbUa4BGolWhSQXyRXXF82jtfq
- WV7YYFnDSSPbxeS2Nb72G0gCb4p8y7Jhrn3OEmf9u0ioh1eJf0Qmc/e8F6dKFSGp8piXCrUDs
- V3ujKZDCWp3yRArZVwUJNGZYlmy6ASPsPdqFJVmSd0lFkl3rxbQULHxQLpJNwYu6h2Cs22aoQ
- vn2iVIvozWRyxj6rjV8yOvTeYtljiYkCQo7OFxC3jGL4z2thwaTbJwBCfiFCiEZMSE4lrE/Ym
- tknNkOdEI9gIh67xgYU2gX4FVuS1YmLzHlzM4S+ux++MtXvYaWsbMzMnTRNDEn0F46KP2rT8n
- L6yQC6wlLaFjrYdbEfsc2PZjeNPEuzL+FPoD/TNtgjp4m3pTgsOD0q1HJzN7QBFwJRqEG4FPM
- BaFNC8FdQobzUHTdhm421SGhsKQ1iN+JbUfHn7Og7L9xpZtZJ25GdM+HxxQ0bp+KsjDCoHC+J
- ztsPy592xs8odkDq9tJffA=
+X-Provags-ID: V03:K1:cKdZAghuMN9u/MoXRONPhzTKOrn/mHEJNZp99Sxo8X78wXXiy6M
+ tj7C3B3SeODAb/YZPhIv5eUGOIYbpEPWjmCqhS7HCmEhqYEr1gwB1A0VB304wDVTcgKs9mi
+ n6Ldmd2vzgDV3U919Z3dgMok3snEs1Cbm+yji1DmRSohmcAKUu8px3k5mOa/0hYdA2T8JFZ
+ DO9ssTRMA+pWHjWgWvy3A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:XRWkM5WYsaM=:+jSITSSqJUfariSKqZ7TNf
+ aAI40weEZwnI1Pv/N4g4xBKBa6PxYU4H6o2WcGjKYWJ/CYr4IQGQeDWEbNBTj/Pf3gWv48ECS
+ q9NLGyc8gJPThw2OFFh/KgAoyPHCZCxMaZEgfTpzvcck7djL6WLXaxiZyM1cJKRwUAAvQNVOq
+ AwjzVIqXq/jKwHjAJN9uG1WhcIrvBSnOz8JonTTh5/t82ksTEpSE2Hksnk7RNxVqw4eDWVZqh
+ RlCBOo8ZnRoPdDPf1BBp+U8DZF0LZeYfjWrmfq5WMbYb5GAfj/fIQL5OzHgHldCKJPC1j9yET
+ jvX7GDapqmFQgzGdPhietSn/MQLnA2UI8H2ym8wu+ytBHDLoAcwVGZtHTtaLdysY95syb4RLF
+ Q/GnphLqrlAULv14R9izCXdaQk65i72UVXgGy4C4gPO/Y9zBUpxjmU+VqmzFR05Bn4HQeOQv7
+ K29X5y5XiU8WLXqbXZMMqpxCAuwvulst+pQOq7oX/YhUIFp02hvztLD+TlxDVPTLWw6KBSaUZ
+ zIKrEdDrmH1IwFA0C27B9U=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Fix the node names for the MMC/SD card controller to conform
-to the standard node name mmc@..
+This series adds support for the Raspberry Pi 400.
 
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
----
- arch/arm/boot/dts/bcm2711.dtsi | 2 +-
- arch/arm/boot/dts/bcm283x.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Changes in V2:
+- add collected Reviewed-by and Acked-by
+- add memory node, ethernet alias and gpio expander to bcm2711-rpi.dtsi
+- drop PCIe USB reset control from bcm2711-rpi.dtsi
+- add patch to fixup LED node names
+- include RPi 4 B dts into RPi 400 dts
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 720beec..d872064 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -413,7 +413,7 @@
- 		ranges = <0x0 0x7e000000  0x0 0xfe000000  0x01800000>;
- 		dma-ranges = <0x0 0xc0000000  0x0 0x00000000  0x40000000>;
- 
--		emmc2: emmc2@7e340000 {
-+		emmc2: mmc@7e340000 {
- 			compatible = "brcm,bcm2711-emmc2";
- 			reg = <0x0 0x7e340000 0x100>;
- 			interrupts = <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index b83a864..0f3be55 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -420,7 +420,7 @@
- 			status = "disabled";
- 		};
- 
--		sdhci: sdhci@7e300000 {
-+		sdhci: mmc@7e300000 {
- 			compatible = "brcm,bcm2835-sdhci";
- 			reg = <0x7e300000 0x100>;
- 			interrupts = <2 30>;
+Stefan Wahren (7):
+  ARM: dts: bcm283x: Fix up MMC node names
+  watchdog: bcm2835_wdt: consider system-power-controller property
+  ARM: dts: Move BCM2711 RPi specific into separate dtsi
+  dt-bindings: arm: bcm2835: Add Raspberry Pi 400 to DT schema
+  ARM: dts: bcm283x: Fix up GPIO LED node names
+  ARM: dts: Add Raspberry Pi 400 support
+  arm64: dts: broadcom: Add reference to RPi 400
+
+ .../devicetree/bindings/arm/bcm/bcm2835.yaml       |  1 +
+ arch/arm/boot/dts/Makefile                         |  1 +
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts              | 85 +++-------------------
+ arch/arm/boot/dts/bcm2711-rpi-400.dts              | 45 ++++++++++++
+ arch/arm/boot/dts/bcm2711-rpi.dtsi                 | 74 +++++++++++++++++++
+ arch/arm/boot/dts/bcm2711.dtsi                     |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-a-plus.dts           |  4 +-
+ arch/arm/boot/dts/bcm2835-rpi-a.dts                |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b-plus.dts           |  4 +-
+ arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts           |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b.dts                |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi             |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts           |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero.dts             |  2 +-
+ arch/arm/boot/dts/bcm2835-rpi.dtsi                 |  2 +-
+ arch/arm/boot/dts/bcm2836-rpi-2-b.dts              |  4 +-
+ arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts         |  4 +-
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts         |  4 +-
+ arch/arm/boot/dts/bcm2837-rpi-3-b.dts              |  2 +-
+ arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi             |  2 +-
+ arch/arm/boot/dts/bcm283x.dtsi                     |  2 +-
+ arch/arm64/boot/dts/broadcom/Makefile              |  3 +-
+ arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts   |  2 +
+ drivers/watchdog/bcm2835_wdt.c                     | 10 ++-
+ 24 files changed, 165 insertions(+), 98 deletions(-)
+ create mode 100644 arch/arm/boot/dts/bcm2711-rpi-400.dts
+ create mode 100644 arch/arm/boot/dts/bcm2711-rpi.dtsi
+ create mode 100644 arch/arm64/boot/dts/broadcom/bcm2711-rpi-400.dts
+
 -- 
 2.7.4
 
