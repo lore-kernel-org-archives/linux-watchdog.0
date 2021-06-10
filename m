@@ -2,112 +2,80 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62F62C48BCF
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Jun 2021 23:56:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36383C47094
+	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Jun 2021 16:57:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 483A5610A3
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Jun 2021 23:56:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C737613C9
+	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Jun 2021 16:57:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229961AbhFIX57 (ORCPT
+        id S231560AbhFJQ7Y (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 9 Jun 2021 19:57:59 -0400
-Received: from mail-oi1-f172.google.com ([209.85.167.172]:44021 "EHLO
-        mail-oi1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbhFIX57 (ORCPT
+        Thu, 10 Jun 2021 12:59:24 -0400
+Received: from mail-ot1-f45.google.com ([209.85.210.45]:41653 "EHLO
+        mail-ot1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230184AbhFJQ7Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 9 Jun 2021 19:57:59 -0400
-Received: by mail-oi1-f172.google.com with SMTP id x196so101019oif.10;
-        Wed, 09 Jun 2021 16:55:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0BAkC6SDg+gNX9Eg6Cq1bSt7plTJAqywTZpNENH6AqA=;
-        b=aD/VDvZoO69WHrj0j5dkqQHbondnOBSIAfssxrd2/9ov+ZHMLRTXfcUJPJqaLKN5li
-         IK1ksJ4yG++gLs81C1pA42Y8ThRNjSxAjTc887SX1Y1hpurwlbgYw47k1e0owSpOwWRE
-         NbeIuPzJzD3bhbzrnaeIG281j9yAtj/yp0NjhifXLEwOKiP6zSE1XiSbUFtiRDHQv/IH
-         VWruU2JRmStOpoc2u3okt2lYVHvZ0KiwRZE/HdeD/PrkXINX0LGcCZS6cHKyQ1463CYo
-         sQ7sSm5/6oOFSTZR7ynGEfoIM90zl7IyEmHp8U6vhAHjeHSTqAoj98q4NsYS0tygzbmB
-         ucTQ==
+        Thu, 10 Jun 2021 12:59:24 -0400
+Received: by mail-ot1-f45.google.com with SMTP id 36-20020a9d0ba70000b02902e0a0a8fe36so337514oth.8;
+        Thu, 10 Jun 2021 09:57:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=0BAkC6SDg+gNX9Eg6Cq1bSt7plTJAqywTZpNENH6AqA=;
-        b=b4530TP4fp8xLMxKkPG6hk4/rG0i7GR4yLgAK8oBpf+PMejw7QkEhQEd0JiPgR3SVr
-         cFnJK7wDLRMj+TuZXOaBV3pbqRfQaZE2h1oCpRakCdIGKQrD4CoLjIfiH8Vklk3pVucX
-         Kby0kqDOSJS96p/eDMhemvPM4GrqSjua+O3PTFi2Wu1ZUlMZcgif36drIcJVdg2t7CIa
-         a1h2OuB2262mKE7+tZiky0UaU8tDdLreKnixn/d0chT/d+4Sp/8NL36a46h5q7+BjD+Y
-         MtRKpynZCZS4B6pKirQzAJiYuJtQ6N8hzNWPQwkAqOC3egxwY18LQ+QOIrskzo+V9192
-         E8Ag==
-X-Gm-Message-State: AOAM532vo5BWIHCiG2gYrzYvagfoeXapJeV2YnX47uwBrbK6ibBIeqWB
-        /+MxDAh9RVWOq9TfGE+sK6hmotg6PSE=
-X-Google-Smtp-Source: ABdhPJyenjUerRx6o7lhPtXOpcqaJZ+rgXnyiRndEJdjkdChPUvVuiJ9xwcfMDS9esCZquSRqW5srg==
-X-Received: by 2002:aca:c302:: with SMTP id t2mr7963850oif.67.1623282888572;
-        Wed, 09 Jun 2021 16:54:48 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 16sm257198oie.33.2021.06.09.16.54.47
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Rpk9mMadMlubIUupImrRcIPYmdZMWvf9CrNUh5GvfhY=;
+        b=uKi0O1AIVCS64vo42XmlcuQ0GE3WaNeTjC1UazN4VeuiqRdaCy3zcsvhMe5QtCEMDa
+         ty3vkm/rCWFdxEEmY286IjEr3YaJydAvfjGNI+iMfvPDUuxckWa9T1z0I3DL65AId1rg
+         daXnaJu3rJOeEwh9mGh4XtwaYVl8wmVaYH3si4XMLgXRkRzyPfCu73OvhrXQvE48A2OM
+         cOoCzyTL98/vPX85R3SF7pu010rOAamPSZ1S9NwevrdSsi2ohpFM71Pp5xRBWdBBrAq8
+         QFAraHJowd5X6RFPkGNUjp8ylKolomxFm84j4F27/spa2lzn+H23ZNzh2KlOPltN21Bu
+         +BzA==
+X-Gm-Message-State: AOAM531rEPP8g+IyYAqrLhtdqHSdRcAZgrWJml3Wm5y/LB88pB7nernZ
+        G4KR7fgXFFXXvu39TXnw8Q==
+X-Google-Smtp-Source: ABdhPJxkWeRbLMG1xLRqP6wAwGiOrxpRQmlxtncpjCzdTkcurSxgutw59zEEym37ZvGzNwyHCQmHew==
+X-Received: by 2002:a05:6830:3147:: with SMTP id c7mr2757649ots.332.1623344231343;
+        Thu, 10 Jun 2021 09:57:11 -0700 (PDT)
+Received: from robh.at.kernel.org ([172.58.99.113])
+        by smtp.gmail.com with ESMTPSA id z6sm670609oiz.39.2021.06.10.09.57.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Jun 2021 16:54:48 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 9 Jun 2021 16:54:46 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     "Enrico Weigelt, metux IT consult" <info@metux.net>,
-        linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] watchdog: iTCO_wdt: use dev_*() instead of pr_*()
- for logging
-Message-ID: <20210609235446.GA2542004@roeck-us.net>
-References: <20201117152214.32244-2-info@metux.net>
- <20210609203229.GA2664456@bjorn-Precision-5520>
+        Thu, 10 Jun 2021 09:57:10 -0700 (PDT)
+Received: (nullmailer pid 1960841 invoked by uid 1000);
+        Thu, 10 Jun 2021 16:57:02 -0000
+Date:   Thu, 10 Jun 2021 11:57:02 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Romain Perier <romain.perier@gmail.com>
+Cc:     linux-watchdog@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Mohammed Billoo <mohammed.billoo@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-kernel@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: Re: [PATCH v3 1/3] dt-bindings: watchdog: Add Mstar MSC313e WDT
+ devicetree bindings documentation
+Message-ID: <20210610165702.GA1960781@robh.at.kernel.org>
+References: <20210605170441.33667-1-romain.perier@gmail.com>
+ <20210605170441.33667-2-romain.perier@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210609203229.GA2664456@bjorn-Precision-5520>
+In-Reply-To: <20210605170441.33667-2-romain.perier@gmail.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 03:32:29PM -0500, Bjorn Helgaas wrote:
-> On Tue, Nov 17, 2020 at 04:22:13PM +0100, Enrico Weigelt, metux IT consult wrote:
-> > For device log outputs, it's better to have device name / ID
-> > prefixed in all messages, so use the proper dev_*() functions here.
-> > 
-> > Explicit message on module load/unload don't seem to be really helpful
-> > (we have other means to check which modules have been loaded), instead
-> > just add noise to the kernel log. So, removing them.
-> > 
-> > Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+On Sat, 05 Jun 2021 19:04:39 +0200, Romain Perier wrote:
+> This adds the documentation for the devicetree bindings of the Mstar
+> MSC313e watchdog driver, found from MSC313e SoCs and newer.
 > 
-> I like this patch a lot; thanks for doing it!  It's merged upstream as
-> c21172b3a73e ("watchdog: iTCO_wdt: use dev_*() instead of pr_*() for
-> logging").
+> Signed-off-by: Romain Perier <romain.perier@gmail.com>
+> ---
+>  .../bindings/watchdog/mstar,msc313e-wdt.yaml  | 40 +++++++++++++++++++
+>  1 file changed, 40 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
 > 
-> It looks like there are a couple more pr_err() uses, so I wondered if
-> they were missed or skipped intentionally:
-> 
->   if (p->smi_res) {
->           /* The TCO logic uses the TCO_EN bit in the SMI_EN register */
->           if (!devm_request_region(dev, p->smi_res->start,
->                                    resource_size(p->smi_res),
->                                    pdev->name)) {
->                   pr_err("I/O address 0x%04llx already in use, device disabled\n",
->                          (u64)SMI_EN(p));
->                   return -EBUSY;
->           }
->   } else if (iTCO_vendorsupport ||
->              turn_SMI_watchdog_clear_off >= p->iTCO_version) {
->           pr_err("SMI I/O resource is missing\n");
->           return -ENODEV;
->   }
-> 
-The above came in with a recent commit. I suspect they simply got lost,
-and they should be converted as well.
 
-Guenter
+Reviewed-by: Rob Herring <robh@kernel.org>
