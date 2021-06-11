@@ -2,61 +2,62 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 170DFC48BE0
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:08:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8835C48BD1
+	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:08:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAE6B613D9
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:08:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F637613D9
+	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:08:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbhFKUKO (ORCPT
+        id S231249AbhFKUKR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 11 Jun 2021 16:10:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
+        Fri, 11 Jun 2021 16:10:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230455AbhFKUKL (ORCPT
+        with ESMTP id S230455AbhFKUKQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Jun 2021 16:10:11 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52409C061574;
-        Fri, 11 Jun 2021 13:08:11 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id y13-20020a1c4b0d0000b02901c20173e165so1359760wma.0;
-        Fri, 11 Jun 2021 13:08:11 -0700 (PDT)
+        Fri, 11 Jun 2021 16:10:16 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53130C061574;
+        Fri, 11 Jun 2021 13:08:18 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id z8so7251665wrp.12;
+        Fri, 11 Jun 2021 13:08:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pQvBGQPM+4w1LJKirfQgMfUIzZPFlCZTOGktZwuQaYc=;
-        b=jNJBfNd8zZ3ivpE/UxiHzzZYXgzlr6uaLwqoXf2DRIYslOfPlxFmUjSlqFOxk0LhUo
-         fmNV84jBpmxEMT0wO95CO9jJVJuaPeEMcAw916ICzJT/bUoeni8d7QL08vCKYuweZe4W
-         DNySCVSj5y62WlbDF8x2HawYxiBVWlwKSFt/bjsyLu7U+PeQAKQVG6rCfnI3CqUzn3BE
-         Bz5t7Qw395Nvd+kGJlk09VNRt26+ic4fncGcFUA7EndBGyOS0rmbnKnsRvVwI4UxO+d3
-         KpAAiMNG0RfXStzNwvFL5YELCC52zDtDQxfKRSUI3icDYjcTQIVnPaGAITwW0iQ+OA3Z
-         oYJQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tzxiu7KFGSluOPtUekhY+72u7lbVVCqQQlsEwyNj1Qg=;
+        b=vROX4jNiaWGHijnOjfKBo6d3pqx42H+5qGdwurRLD7O4fPmDhIObwlDUtzfLG0SLPX
+         IP3T74La8bnvi5+gAlLEjRAqSXP6pwRoLT18wH2ix+Uv8xNtvhZshrq7iTepo78ZXJgB
+         d+PYhb9GC2VESBbumysCwNWeDs9yOOSiYKcc1O0lpDpGwz6I/iWEl42IYnML8PRSLGjK
+         iVDNJcWsoyBknsHj5yeEi4/mRhVE7up5FUHOY9fYATHd6RYSNURnyheHWe8+Iqmlzgwt
+         tfrRefoW/3Vevrj2/glIm6DDo/KIZiRruGZmC2yqZh44/vcR6uhFsgBGTKer5t9/uCNr
+         mgZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pQvBGQPM+4w1LJKirfQgMfUIzZPFlCZTOGktZwuQaYc=;
-        b=JW8X+G/kAI9JwhxG6vE/gaqKj3MtdKdtmQycu1rppP+3ouVZv07KqFv2LP/TeDvkum
-         tzjNptOtdbwaTZQy66G9J7eLgjjYfPZ8udXqxYf22ENA179ucV9j6ai8trRIAbn6/nPd
-         Q55mflJma2Jlqei29EzCdyglfdRdLwMxpDxIYotSZkLism/rFsSbSEbbLr8GplAY9YLi
-         Sn+LakN6Z8ntcFUj9zE1LJCW7TZrQ8lvsOj4LsjbVZqCbRzTj64DFhjk72m4kdPIKNKa
-         m1qv7SmZTMuHsDGZ411hJpER+ObKKxfPI2x6d2f0OzriUw+dTOMPtWDpfKvV1XdcrQoo
-         BrGw==
-X-Gm-Message-State: AOAM532qxFXG86Y/MZfzCmmHwyU6HHxsioiCXjrVnBn1pdeit/kTIavi
-        yRhTmbtHe+Alr54z5ZSbbm8CI0xJi0A=
-X-Google-Smtp-Source: ABdhPJzmmt4gAVNToIzO9KFeAllKOw033ujMqZUMWvszjzkU44Fm2edAqQp9/A0HGoQzRhnzlgL8fA==
-X-Received: by 2002:a05:600c:251:: with SMTP id 17mr21757584wmj.137.1623442089640;
-        Fri, 11 Jun 2021 13:08:09 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tzxiu7KFGSluOPtUekhY+72u7lbVVCqQQlsEwyNj1Qg=;
+        b=cIlG9jFEiPe27zCkZvxyG2oeG3Ib+tmPU+COkSNus+i9H7rh7OP0QFIA9lGutkQ53V
+         qaIXCM0/a9PFAjG3wUj4b6kbQvs0roItwQDTUK5GWlfwEdqgmwJBY7PpdXKsJY8sKstQ
+         QfTe8R6McF1RcQ9tD8/J79jf3KlacZ2Vq0aYCXOHZBtQX4R1M139Yc92PiNEIT5m+qut
+         Ig+fLkO4E+xovSst5ok6cbLO6DCUzLGkcJ0go+Dp9wydIGHpBMo7rMCjeunSCzOanCrH
+         FDI2uxShTkwznebY6qqX5J4+b6MubaDOc1/ZzncHnLtjeOyo7tEqeId3MKuyyoC6MCNg
+         8RJw==
+X-Gm-Message-State: AOAM530vo0Zuw1fTCTKUjyZOoYadJrcydnCGYPTzefz+qmvGRxuAXQCU
+        SqPAlZ0BrVLdOyX/51DbwmYZoVMynCE=
+X-Google-Smtp-Source: ABdhPJygC3PA0tq7FMN68+kal30TbfxTd8WdXPm5eg88bWh3p2DjciczPD3JHFYt0GkINaM3gpDTMg==
+X-Received: by 2002:a5d:4fc6:: with SMTP id h6mr5973499wrw.1.1623442093463;
+        Fri, 11 Jun 2021 13:08:13 -0700 (PDT)
 Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id l16sm14167072wmj.47.2021.06.11.13.08.08
+        by smtp.gmail.com with ESMTPSA id u20sm6741319wmq.24.2021.06.11.13.08.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Jun 2021 13:08:09 -0700 (PDT)
+        Fri, 11 Jun 2021 13:08:13 -0700 (PDT)
 From:   Romain Perier <romain.perier@gmail.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -66,56 +67,58 @@ Cc:     Daniel Palmer <daniel@0x0f.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v4 0/3] Add watchdog for Mstar SoCs
-Date:   Fri, 11 Jun 2021 22:07:58 +0200
-Message-Id: <20210611200801.52139-1-romain.perier@gmail.com>
+Subject: [PATCH v4 3/3] ARM: dts: mstar: Add watchdog device_node definition
+Date:   Fri, 11 Jun 2021 22:08:01 +0200
+Message-Id: <20210611200801.52139-4-romain.perier@gmail.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210611200801.52139-1-romain.perier@gmail.com>
+References: <20210611200801.52139-1-romain.perier@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This patches series adds a new driver for the watchdog found in the Mstar
-MSC313e SoCs and newer. It adds a basic watchdog driver, the
-corresponding devicetree bindings and its documentation.
+This adds the definition of both an oscillator at 12Mhz required by the
+the watchdog and the watchdog device_node.
 
-This work has been co-developed with Daniel Palmer.
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+---
+ arch/arm/boot/dts/mstar-v7.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Changes since v3:
-- Rebased onto v5.13-rc5
-- Added Reviewed-by tags
-
-Changes since v2:
-- Renamed the dt-bindings documentation to mstar,msc313e-wdt.yaml
-- Fixed the subject of the first commit
-- Dropped unused dt labels
-
-Changes since v1:
-- Dropped "depends OF" from Kconfig (not required)
-- Dropped unneeded include files
-- Re-ordered include files
-- Compute timeout_max dynamically from the probe function to avoid
-  an overflow in _start().
-
-Daniel Palmer (1):
-  watchdog: Add Mstar MSC313e WDT driver
-
-Romain Perier (2):
-  dt-bindings: watchdog: Add Mstar MSC313e WDT devicetree bindings
-    documentation
-  ARM: dts: mstar: Add watchdog device_node definition
-
- .../bindings/watchdog/mstar,msc313e-wdt.yaml  |  40 +++++
- MAINTAINERS                                   |   1 +
- arch/arm/boot/dts/mstar-v7.dtsi               |  14 ++
- drivers/watchdog/Kconfig                      |  12 ++
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/msc313e_wdt.c                | 166 ++++++++++++++++++
- 6 files changed, 234 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
- create mode 100644 drivers/watchdog/msc313e_wdt.c
-
+diff --git a/arch/arm/boot/dts/mstar-v7.dtsi b/arch/arm/boot/dts/mstar-v7.dtsi
+index 075d583d6f40..2273295e140f 100644
+--- a/arch/arm/boot/dts/mstar-v7.dtsi
++++ b/arch/arm/boot/dts/mstar-v7.dtsi
+@@ -60,6 +60,14 @@ rtc_xtal: rtc_xtal {
+ 			clock-frequency = <32768>;
+ 			status = "disabled";
+ 		};
++
++		xtal_div2: xtal_div2 {
++			#clock-cells = <0>;
++			compatible = "fixed-factor-clock";
++			clocks = <&xtal>;
++			clock-div = <2>;
++			clock-mult = <1>;
++		};
+ 	};
+ 
+ 	soc: soc {
+@@ -101,6 +109,12 @@ reboot {
+ 				mask = <0x79>;
+ 			};
+ 
++			watchdog@6000 {
++				compatible = "mstar,msc313e-wdt";
++				reg = <0x6000 0x1f>;
++				clocks = <&xtal_div2>;
++			};
++
+ 			intc_fiq: interrupt-controller@201310 {
+ 				compatible = "mstar,mst-intc";
+ 				reg = <0x201310 0x40>;
 -- 
 2.30.2
 
