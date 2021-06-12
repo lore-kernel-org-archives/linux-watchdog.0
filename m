@@ -2,316 +2,131 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35230C48BE0
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:09:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C5E7C48BE5
+	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Jun 2021 12:59:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10546613D9
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Jun 2021 20:09:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8431F6138C
+	for <linux-watchdog@archiver.kernel.org>; Sat, 12 Jun 2021 12:59:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230380AbhFKULY (ORCPT
+        id S231314AbhFLNBZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 11 Jun 2021 16:11:24 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:45675 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbhFKULY (ORCPT
+        Sat, 12 Jun 2021 09:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230470AbhFLNBY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Jun 2021 16:11:24 -0400
-Received: by mail-wr1-f45.google.com with SMTP id z8so7251620wrp.12;
-        Fri, 11 Jun 2021 13:09:13 -0700 (PDT)
+        Sat, 12 Jun 2021 09:01:24 -0400
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF98CC061574;
+        Sat, 12 Jun 2021 05:59:17 -0700 (PDT)
+Received: by mail-ot1-x333.google.com with SMTP id w23-20020a9d5a970000b02903d0ef989477so6005578oth.9;
+        Sat, 12 Jun 2021 05:59:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=PmJ9Jxo4Lbmg6MA3nwKVDYJgcfhZz5j0y7pWVKNZShU=;
-        b=tOizCCSuFQSrmfww36al05J3+vWQ/4DaMIJWWm/hc2v+679eV6MEX8FoNldHzEkWn3
-         YSmBbwLWzYnnwHoLM6e8E8T5x8VRC6LMQ8afCTpGEwTk39eoRdUaF74ZhddJw1pDH6V5
-         Cl1P7veE18uhRE/p/ilnThopDhPvwI6uj7Bc/pbIMe0sbg7nf/zbl89IOZ9HjNQO7nSY
-         5LvD4V3jzeOMUkXNILC3dqb3DVAIHwR15GvmrQqZcJ14gzrNTw4qiIcbY8nvfI47kgzf
-         0c3y178n5Dr1qnvgzVBpCu1Y8Cj/RLrL4k6vMmKq82QymR76eJI4+0RQOMIUqIJmd7Uu
-         XiHQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ZIFz0BtmkjFj3bkkH8PuE91K4c5YccOjYJdoSb+1UZw=;
+        b=TEkxtKoVCT/P8tBtKk8O15WKo/797BscQjnlCuX2IA3xQf0iYThWesfGQMY1CnoUin
+         gustkgdgRrzJcapw+1Vmpgsu2e2lsPAPTtb4Ayq5J5VMnAKePlryv1NZlR+GYHi49G5r
+         ARs7mIJq2GVop/5aA2I5ZQCTOFdK8XVzd1WlftzkrCO9oQWILxqpVs5maQnI4jcoJfxt
+         0zHK5WuAguUvGwNZEO6N+vz7i5m+6wfdx7EA7/v2WScZMjdZ9+TRo9j3t/T6C+wOtVUE
+         ffqsOUtTIpX6kyKl1R6v4uVHw4m6W8nVRWjJiVTdF2DfxgvQGNWkXgQpT1lrocFhqrPk
+         2C7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=PmJ9Jxo4Lbmg6MA3nwKVDYJgcfhZz5j0y7pWVKNZShU=;
-        b=YvE0BCoWGyqBGTiyqyQWCGM0Nl9+OEF98+7JEiwz8a4QdeW3WkWW+Yi6U+Pi8vwlrx
-         EAJ+LjzBOCx07KzCOrBsDvvgo8w0CXon8CReWymug52L5pzqTqBh+JW9nRYpFHYDlk65
-         qfBPrhlkw5kWnkmG5UxacpKDa//8W3NFYYRmcsvPo/sK6T9kc9wuoEfNU6D/u4/jGuhr
-         WXXqV9qL0NaILpwgnzUcRYp7OZHCRkmD94It1NKWMK6oTPCfg1rB7zAd6SG9u1zIiX3Z
-         SaDKJwkMhg+4wOglCObDfIAMtOKebCCreXiIr6Q/u5PDQS5MKaq/Q8yStydc9Oaomgai
-         sNVw==
-X-Gm-Message-State: AOAM532A41J9LQa5fAStyMUDwRa49iaTWTyfgWlEerNWmRKQ+NEDLYxd
-        7kQLfLHcvWWPlK9oGhzVPa5JEYi8/CI=
-X-Google-Smtp-Source: ABdhPJwrMiJ9B238uwRrod6E462j6eBvIsPck7pnBMkUg6Kck2Km1FFRCcItaz8ODUc5pu+MXhZCvg==
-X-Received: by 2002:a5d:4fc6:: with SMTP id h6mr5973426wrw.1.1623442092182;
-        Fri, 11 Jun 2021 13:08:12 -0700 (PDT)
-Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id l5sm13101481wmi.46.2021.06.11.13.08.11
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=ZIFz0BtmkjFj3bkkH8PuE91K4c5YccOjYJdoSb+1UZw=;
+        b=msj3994rfrMVVLbKapq3wAXYvngZjUIsMaSeltNPrL8Gr//xIdCmGA1NUgsGAAThKZ
+         f1DyB7QdwoBONj8I//y+4V7xZgbMg8gCH4h+V8PnZaNiGwb8zOD89J6NX7Wl25v6+zEq
+         cwFproSSiylSBE4nG8QTx+y8dnrmQa+xwYosJtYA6taR/TsB7mvUERL1zXVRvxBh8/28
+         IJknZXerKpRUTpHgrF+KhoWb8qrw+3UZQVPyVTvzr3qGZEuaHhXdiX/5vW7RbnzOO9ta
+         pOPaU1WFHeveGhOUEJF/uUQf1Ga7yV+JaFm7ZvlmxCLISk9M08QhdiPt/SUWSm0l3Zpd
+         Z/rA==
+X-Gm-Message-State: AOAM530PIs2lppxOj7QCbmErYMkg/P+f75PcrxFgiztjXYHmny94OW1t
+        137zwbAoPDaRaCCBfo38aTo=
+X-Google-Smtp-Source: ABdhPJwiJaZfxu8otOuUwqtwrbMTXy7n3lY+zzFDQduJ2Gxx49M4jTtI7sp1U2Tl2OwQvLS+N1bH9w==
+X-Received: by 2002:a9d:77c8:: with SMTP id w8mr6632293otl.137.1623502757252;
+        Sat, 12 Jun 2021 05:59:17 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s15sm1792922oih.15.2021.06.12.05.59.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Jun 2021 13:08:11 -0700 (PDT)
-From:   Romain Perier <romain.perier@gmail.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Daniel Palmer <daniel@0x0f.com>,
+        Sat, 12 Jun 2021 05:59:16 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 12 Jun 2021 05:59:15 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Romain Perier <romain.perier@gmail.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Palmer <daniel@0x0f.com>,
         Mohammed Billoo <mohammed.billoo@gmail.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v4 2/3] watchdog: Add Mstar MSC313e WDT driver
-Date:   Fri, 11 Jun 2021 22:08:00 +0200
-Message-Id: <20210611200801.52139-3-romain.perier@gmail.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210611200801.52139-1-romain.perier@gmail.com>
+Subject: Re: [PATCH v4 0/3] Add watchdog for Mstar SoCs
+Message-ID: <20210612125915.GA320112@roeck-us.net>
 References: <20210611200801.52139-1-romain.perier@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210611200801.52139-1-romain.perier@gmail.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Daniel Palmer <daniel@0x0f.com>
+On Fri, Jun 11, 2021 at 10:07:58PM +0200, Romain Perier wrote:
+> This patches series adds a new driver for the watchdog found in the Mstar
+> MSC313e SoCs and newer. It adds a basic watchdog driver, the
+> corresponding devicetree bindings and its documentation.
+> 
+> This work has been co-developed with Daniel Palmer.
+> 
+> Changes since v3:
+> - Rebased onto v5.13-rc5
+> - Added Reviewed-by tags
 
-It adds a driver for the IP block handling the watchdog timer found for
-Mstar MSC313e SoCs and newer.
+This works better. I applied patches 1 & 2 to my watchdog-next branch for
+hand-off to Wim. Note that the arm dts patch needs to be pushed through the
+arm tree.
 
-Signed-off-by: Daniel Palmer <daniel@0x0f.com>
-Co-developed-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- MAINTAINERS                    |   1 +
- drivers/watchdog/Kconfig       |  12 +++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/msc313e_wdt.c | 166 +++++++++++++++++++++++++++++++++
- 4 files changed, 180 insertions(+)
- create mode 100644 drivers/watchdog/msc313e_wdt.c
+Thanks,
+Guenter
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index b706dd20ff2b..50e9573494d2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2175,6 +2175,7 @@ F:	arch/arm/boot/dts/mstar-*
- F:	arch/arm/mach-mstar/
- F:	drivers/clk/mstar/
- F:	drivers/gpio/gpio-msc313.c
-+F:	drivers/watchdog/msc313e_wdt.c
- F:	include/dt-bindings/clock/mstar-*
- F:	include/dt-bindings/gpio/msc313-gpio.h
- 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 355100dad60a..4af84df1ce22 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -980,6 +980,18 @@ config VISCONTI_WATCHDOG
- 	  Say Y here to include support for the watchdog timer in Toshiba
- 	  Visconti SoCs.
- 
-+config MSC313E_WATCHDOG
-+	tristate "MStar MSC313e watchdog"
-+	depends on ARCH_MSTARV7 || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the Watchdog timer embedded
-+	  into MStar MSC313e chips. This will reboot your system when the
-+	  timeout is reached.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called msc313e_wdt.
-+
- # X86 (i386 + ia64 + x86_64) Architecture
- 
- config ACQUIRE_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a7eade8b4d45..7fa392ae3000 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -92,6 +92,7 @@ obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
- obj-$(CONFIG_PM8916_WATCHDOG) += pm8916_wdt.o
- obj-$(CONFIG_ARM_SMC_WATCHDOG) += arm_smc_wdt.o
- obj-$(CONFIG_VISCONTI_WATCHDOG) += visconti_wdt.o
-+obj-$(CONFIG_MSC313E_WATCHDOG) += msc313e_wdt.o
- 
- # X86 (i386 + ia64 + x86_64) Architecture
- obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
-diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
-new file mode 100644
-index 000000000000..0d497aa0fb7d
---- /dev/null
-+++ b/drivers/watchdog/msc313e_wdt.c
-@@ -0,0 +1,166 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * MStar WDT driver
-+ *
-+ * Copyright (C) 2019 - 2021 Daniel Palmer
-+ * Copyright (C) 2021 Romain Perier
-+ *
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+
-+#define REG_WDT_CLR			0x0
-+#define REG_WDT_MAX_PRD_L		0x10
-+#define REG_WDT_MAX_PRD_H		0x14
-+
-+#define MSC313E_WDT_MIN_TIMEOUT		1
-+#define MSC313E_WDT_DEFAULT_TIMEOUT	30
-+
-+static unsigned int timeout;
-+
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
-+
-+struct msc313e_wdt_priv {
-+	void __iomem *base;
-+	struct watchdog_device wdev;
-+	struct clk *clk;
-+};
-+
-+static int msc313e_wdt_start(struct watchdog_device *wdev)
-+{
-+	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
-+	u32 timeout;
-+	int err;
-+
-+	err = clk_prepare_enable(priv->clk);
-+	if (err)
-+		return err;
-+
-+	timeout = wdev->timeout * clk_get_rate(priv->clk);
-+	writew(timeout & 0xffff, priv->base + REG_WDT_MAX_PRD_L);
-+	writew((timeout >> 16) & 0xffff, priv->base + REG_WDT_MAX_PRD_H);
-+	writew(1, priv->base + REG_WDT_CLR);
-+	return 0;
-+}
-+
-+static int msc313e_wdt_ping(struct watchdog_device *wdev)
-+{
-+	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	writew(1, priv->base + REG_WDT_CLR);
-+	return 0;
-+}
-+
-+static int msc313e_wdt_stop(struct watchdog_device *wdev)
-+{
-+	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	writew(0, priv->base + REG_WDT_MAX_PRD_L);
-+	writew(0, priv->base + REG_WDT_MAX_PRD_H);
-+	writew(0, priv->base + REG_WDT_CLR);
-+	clk_disable_unprepare(priv->clk);
-+	return 0;
-+}
-+
-+static int msc313e_wdt_settimeout(struct watchdog_device *wdev, unsigned int new_time)
-+{
-+	wdev->timeout = new_time;
-+
-+	return msc313e_wdt_start(wdev);
-+}
-+
-+static const struct watchdog_info msc313e_wdt_ident = {
-+	.identity = "MSC313e watchdog",
-+	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+};
-+
-+static const struct watchdog_ops msc313e_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = msc313e_wdt_start,
-+	.stop = msc313e_wdt_stop,
-+	.ping = msc313e_wdt_ping,
-+	.set_timeout = msc313e_wdt_settimeout,
-+};
-+
-+static const struct of_device_id msc313e_wdt_of_match[] = {
-+	{ .compatible = "mstar,msc313e-wdt", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, msc313e_wdt_of_match);
-+
-+static int msc313e_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct msc313e_wdt_priv *priv;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(priv->base))
-+		return PTR_ERR(priv->base);
-+
-+	priv->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(priv->clk)) {
-+		dev_err(dev, "No input clock\n");
-+		return PTR_ERR(priv->clk);
-+	}
-+
-+	priv->wdev.info = &msc313e_wdt_ident,
-+	priv->wdev.ops = &msc313e_wdt_ops,
-+	priv->wdev.parent = dev;
-+	priv->wdev.min_timeout = MSC313E_WDT_MIN_TIMEOUT;
-+	priv->wdev.max_timeout = U32_MAX / clk_get_rate(priv->clk);
-+	priv->wdev.timeout = MSC313E_WDT_DEFAULT_TIMEOUT;
-+
-+	watchdog_set_drvdata(&priv->wdev, priv);
-+
-+	watchdog_init_timeout(&priv->wdev, timeout, dev);
-+	watchdog_stop_on_reboot(&priv->wdev);
-+	watchdog_stop_on_unregister(&priv->wdev);
-+
-+	return devm_watchdog_register_device(dev, &priv->wdev);
-+}
-+
-+static int __maybe_unused msc313e_wdt_suspend(struct device *dev)
-+{
-+	struct msc313e_wdt_priv *priv = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&priv->wdev))
-+		msc313e_wdt_stop(&priv->wdev);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused msc313e_wdt_resume(struct device *dev)
-+{
-+	struct msc313e_wdt_priv *priv = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&priv->wdev))
-+		msc313e_wdt_start(&priv->wdev);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(msc313e_wdt_pm_ops, msc313e_wdt_suspend, msc313e_wdt_resume);
-+
-+static struct platform_driver msc313e_wdt_driver = {
-+	.driver = {
-+		.name = "msc313e-wdt",
-+		.of_match_table = msc313e_wdt_of_match,
-+		.pm = &msc313e_wdt_pm_ops,
-+	},
-+	.probe = msc313e_wdt_probe,
-+};
-+module_platform_driver(msc313e_wdt_driver);
-+
-+MODULE_AUTHOR("Daniel Palmer <daniel@thingy.jp>");
-+MODULE_DESCRIPTION("Watchdog driver for MStar MSC313e");
-+MODULE_LICENSE("GPL v2");
--- 
-2.30.2
-
+> 
+> Changes since v2:
+> - Renamed the dt-bindings documentation to mstar,msc313e-wdt.yaml
+> - Fixed the subject of the first commit
+> - Dropped unused dt labels
+> 
+> Changes since v1:
+> - Dropped "depends OF" from Kconfig (not required)
+> - Dropped unneeded include files
+> - Re-ordered include files
+> - Compute timeout_max dynamically from the probe function to avoid
+>   an overflow in _start().
+> 
+> Daniel Palmer (1):
+>   watchdog: Add Mstar MSC313e WDT driver
+> 
+> Romain Perier (2):
+>   dt-bindings: watchdog: Add Mstar MSC313e WDT devicetree bindings
+>     documentation
+>   ARM: dts: mstar: Add watchdog device_node definition
+> 
+>  .../bindings/watchdog/mstar,msc313e-wdt.yaml  |  40 +++++
+>  MAINTAINERS                                   |   1 +
+>  arch/arm/boot/dts/mstar-v7.dtsi               |  14 ++
+>  drivers/watchdog/Kconfig                      |  12 ++
+>  drivers/watchdog/Makefile                     |   1 +
+>  drivers/watchdog/msc313e_wdt.c                | 166 ++++++++++++++++++
+>  6 files changed, 234 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
+>  create mode 100644 drivers/watchdog/msc313e_wdt.c
+> 
+> -- 
+> 2.30.2
+> 
