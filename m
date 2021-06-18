@@ -2,149 +2,107 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D62CAC49EA2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jun 2021 08:32:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB484C48BDF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jun 2021 19:51:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BFEE6613BA
-	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jun 2021 08:32:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97092610A1
+	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jun 2021 19:51:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhFRIe5 (ORCPT
+        id S232816AbhFRTxK (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 18 Jun 2021 04:34:57 -0400
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:10130 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233809AbhFRIew (ORCPT
+        Fri, 18 Jun 2021 15:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33580 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232803AbhFRTxK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 18 Jun 2021 04:34:52 -0400
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15I8Cjxt029418;
-        Fri, 18 Jun 2021 10:32:39 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=selector1;
- bh=tobkvdP0XEB3rizTcrRI77boeUhPqCNPjzbxlCZFFxA=;
- b=X5X8I/QkX33NRBreeXhB2ivJwbQuY5nuHgNW56Uf80eHr1kpxFzJX/wxy30SZc3yHrRO
- gxoRyWbYCAvnGgSb8aL8RUYEo+Lnc2jiUKv9J3aqrgQvmbAepjonsNVPl4jb5fZwrxQS
- WRaNuhHVAs8RVOMDVNmyvf3h5FnSW9OUwOn94pr5kQC/EUAJ0ZiFwOfJLOLLnrCAYFUs
- BZIaGP163AH9zXouCLD1bZlXEQSjs+vGTyV3+iVAhFNuSFJte2f9xJJLgimn2EW1nPti
- xLNiTJugAuzBGR39U+LRrbT90wL6HdH/11sqQflFkResdNC8fu2/znIYJiJtvorF2b9Q Kw== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 3984bm6b7h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 10:32:39 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 668DE10002A;
-        Fri, 18 Jun 2021 10:32:38 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id F05B921B501;
-        Fri, 18 Jun 2021 10:32:37 +0200 (CEST)
-Received: from lmecxl0889.lme.st.com (10.75.127.50) by SFHDAG2NODE3.st.com
- (10.75.127.6) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 18 Jun
- 2021 10:32:35 +0200
-Subject: Re: [PATCH] dt-bindings: Drop redundant minItems/maxItems
-To:     Rob Herring <robh@kernel.org>, <devicetree@vger.kernel.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-        <linux-clk@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-crypto@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-        <dmaengine@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-iio@vger.kernel.org>, <alsa-devel@alsa-project.org>,
-        <iommu@lists.linux-foundation.org>, <linux-media@vger.kernel.org>,
-        <linux-mmc@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <linux-can@vger.kernel.org>, <linux-pci@vger.kernel.org>,
-        <linux-phy@lists.infradead.org>, <linux-gpio@vger.kernel.org>,
-        <linux-pwm@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
-        <linux-riscv@lists.infradead.org>, <linux-rtc@vger.kernel.org>,
-        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-usb@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, Vinod Koul <vkoul@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        Jassi Brar <jassisinghbrar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-References: <20210615191543.1043414-1-robh@kernel.org>
-From:   Arnaud POULIQUEN <arnaud.pouliquen@foss.st.com>
-Message-ID: <e61633b9-48d1-81bf-9ab2-59a7b64987f3@foss.st.com>
-Date:   Fri, 18 Jun 2021 10:32:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        Fri, 18 Jun 2021 15:53:10 -0400
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997DAC06175F
+        for <linux-watchdog@vger.kernel.org>; Fri, 18 Jun 2021 12:51:00 -0700 (PDT)
+Received: by mail-lf1-x129.google.com with SMTP id r5so18481988lfr.5
+        for <linux-watchdog@vger.kernel.org>; Fri, 18 Jun 2021 12:51:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CPNUC1INpkBGp7L0c6yR9HA1R8pzzjkYXv1R+/dnXdc=;
+        b=JbpUejWIGvdWnGdaScvOssgSjlQOm6+oUTSDMXhPVQU17pxE44HrVju0YelRoaFNhI
+         j63avYLtLaX7KWvuQNZZ40b4KqNxCl8kLOCGy5dnSL3ukn0FvO6D1xQYhDXtwS4x/Iyl
+         uqeoUquKOq1oEsEBOVVL1/DMrMnrozFtlAZU9IsxEHSQycwtRdaYDaPwMjAiRnwwCrEj
+         lLe6Xsf0uvNluuIP0veR3+Dka65ddrYNIFUAZ/qw5zyM5rc7MFQaB2UB0iyd6h/4eWI1
+         Dyyn18WMyPfrSeHIMlhOzEnQrbbYog2eyq36FGpxY2cW1GRBbHSeUyNZP49WR3IT3W6q
+         G+VA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CPNUC1INpkBGp7L0c6yR9HA1R8pzzjkYXv1R+/dnXdc=;
+        b=ny0HjI3t/21iDQjLwtQs0zdPk8igZiQDQA+fmGWQRW+LYE6QPgCVHd0x6IX67Uwtff
+         MS3cMwEqiD9zPl5pDDY5GvAP8p+X5jKvvRTby6WPA9N/XHaf7e0a71+LD3IV4Kgy4q6V
+         3FuZskbpm5HemZ/43cg5Xj9lLwyuWFqjuV9kw4SbJwEBe/D8qLmiEl3KT+/ysNF9HF7I
+         D2jEA62giG8+zPkNxAOwazhhF/p5sMILVhFqot8vTB39o7yr5x8GfgnxYTX/focjG9dB
+         CQ7S4TMza5Bv6SXm1dma9JRLqQOT+sQ31FZWcIDYwfPkx/ygrXFid/ch77pEfqxXhnps
+         3RMw==
+X-Gm-Message-State: AOAM5320TwvfqP1/NnGdIpwb7tt4J8DFS1IHBSeYSwwkX8Vbuhm+VgDc
+        S0Sgs1FXawSB6jSDnXPOzbTkEg==
+X-Google-Smtp-Source: ABdhPJwSCScqwnEQQilC7ZOKJUU/HzRiR2R7hdC02vTd9iU32d4X7neASyXaR24rQhCDirfjQi57qQ==
+X-Received: by 2002:a05:6512:3da5:: with SMTP id k37mr4585528lfv.181.1624045858969;
+        Fri, 18 Jun 2021 12:50:58 -0700 (PDT)
+Received: from gilgamesh.lab.semihalf.net ([83.142.187.85])
+        by smtp.gmail.com with ESMTPSA id o7sm993221lfu.215.2021.06.18.12.50.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Jun 2021 12:50:58 -0700 (PDT)
+From:   Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+To:     wim@linux-watchdog.org, linux@roeck-us.net, shawnguo@kernel.org
+Cc:     linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        grzegorz.jaszczyk@linaro.org
+Subject: [PATCH v2 0/2] introduce watchdog_dev_suspend/resume
+Date:   Fri, 18 Jun 2021 21:50:31 +0200
+Message-Id: <20210618195033.3209598-1-grzegorz.jaszczyk@linaro.org>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-In-Reply-To: <20210615191543.1043414-1-robh@kernel.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.50]
-X-ClientProxiedBy: SFHDAG2NODE3.st.com (10.75.127.6) To SFHDAG2NODE3.st.com
- (10.75.127.6)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-17_17:2021-06-15,2021-06-17 signatures=0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello ROb,
+Hi All,
 
-On 6/15/21 9:15 PM, Rob Herring wrote:
-> If a property has an 'items' list, then a 'minItems' or 'maxItems' with the
-> same size as the list is redundant and can be dropped. Note that is DT
-> schema specific behavior and not standard json-schema behavior. The tooling
-> will fixup the final schema adding any unspecified minItems/maxItems.
-> 
-> This condition is partially checked with the meta-schema already, but
-> only if both 'minItems' and 'maxItems' are equal to the 'items' length.
-> An improved meta-schema is pending.
-> 
-[...]
->  .../devicetree/bindings/iio/adc/st,stm32-dfsdm-adc.yaml     | 2 --
-[...]
->  .../devicetree/bindings/mailbox/st,stm32-ipcc.yaml          | 2 --
-[...]
->  .../devicetree/bindings/remoteproc/st,stm32-rproc.yaml      | 2 --
-[...]
->  Documentation/devicetree/bindings/sound/st,stm32-sai.yaml   | 3 ---
-Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+The following is a v2 version of the series [1] that fixes system hang which
+occurs when the ping worker fires after wdog suspend and before wdog resume.
+This happens because the ping worker can issue low-level ping while the wdog clk
+was disabled by the suspend routine (accessing hw wdog registers while they are
+not fed by the clk).
 
-Thanks,
-Arnaud
+To overcome this issue two patches were introduced. Patch #1 introduces pm
+notifier in the watchdog core which will call watchdog_dev_suspend/resume and
+actually cancel ping worker during suspend and restore it back, if needed,
+during resume.
+
+Patch #2 introduces relevant changes to imx2_wdt driver and notifies wdog core
+to stop ping worker on suspend.
+
+[1] https://lkml.org/lkml/2021/6/15/542
+
+Best regards,
+Grzegorz
+
+Grzegorz Jaszczyk (2):
+  watchdog: introduce watchdog_dev_suspend/resume
+  watchdog: imx2_wdg: notify wdog core to stop ping worker on suspend
+
+ drivers/watchdog/imx2_wdt.c      |  1 +
+ drivers/watchdog/watchdog_core.c | 37 +++++++++++++++++++++++++
+ drivers/watchdog/watchdog_dev.c  | 47 ++++++++++++++++++++++++++++++++
+ include/linux/watchdog.h         | 10 +++++++
+ 4 files changed, 95 insertions(+)
+
+-- 
+2.29.0
+
