@@ -2,89 +2,95 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8C5EC49EA3
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Jun 2021 06:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E21FEC49EA6
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jun 2021 02:05:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADBED61156
-	for <linux-watchdog@archiver.kernel.org>; Mon, 21 Jun 2021 06:11:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B76E861003
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jun 2021 02:05:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbhFUGOM (ORCPT
+        id S231128AbhFVCHz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 21 Jun 2021 02:14:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbhFUGOM (ORCPT
+        Mon, 21 Jun 2021 22:07:55 -0400
+Received: from lucky1.263xmail.com ([211.157.147.132]:34478 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230423AbhFVCHy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 21 Jun 2021 02:14:12 -0400
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09ACC06175F
-        for <linux-watchdog@vger.kernel.org>; Sun, 20 Jun 2021 23:11:57 -0700 (PDT)
-Received: by mail-il1-x129.google.com with SMTP id s19so7515080ilj.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 20 Jun 2021 23:11:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dFqcjBkyeVbZVV81wdO/BU0CaNfO5X/9PBfKgEeRgeo=;
-        b=WjN0ZfJouIM92ExeXVN/VfvHeYcui9sJMlsZgf7lusL7S4EQxITNUOTsLH5uA7wcCd
-         sd9HxvUQEptKg87qlalK3+ECk9KIpBGUueOJphaKYCTcY+zaDxCRt5/EFP2aeiXUE4mp
-         WAbKqn1i6UvyfZK8ZbplzZF425eacqmBWN4kxvcNc36b4+piHL9VMVV/7sEZiKiVXHcL
-         LWQeNuRua71aYtIUoCjBZ0XLEjxj2L1KBh4riLZuBawH7AYONHm4L4nCGqucnGtPv+eF
-         vrcPVPsWJTmgS48Ktr7qVB/f6U+94aoO7Rgu4yW0drPPCVsfANfhxpR3PUKiZBxhRRyf
-         4hzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dFqcjBkyeVbZVV81wdO/BU0CaNfO5X/9PBfKgEeRgeo=;
-        b=NbcVASwh8QHKhwE5OkySRrqCwaPUUPqU+SYPt1EDioHssqHwaJBdgjUyW+6kh6/M0j
-         WBjoUDrdlk+AU/QdH1fahrVpHEGMYWIuVWGDFLTS8tEWej1VLNN8K0BsGDMp5Va9k6Ej
-         ioxIwrgodZk34QhjjLamSACF3z1TQ68KmO1y5ygMJ29DWBZIS6KS22v2pPT3CxfHHocf
-         xPNpemqKCG28wuqoexBkLtQs3r2IjFfT0O2sgFA/VPICBPaWEuLV92YWDHwrZKJxblCH
-         f0GVWgsuAN4nAjFRr/majT/2xRd0ScDxCnGBci3SQ29ka+ROlaQjvBb4MSZwwUoCm9Jd
-         GQ1g==
-X-Gm-Message-State: AOAM532zWnbFwbFEZYd8Rwa4yi7tu099PS88kPoVSMfu549Z7Twe5zxH
-        2ffq5aRiBlYamNVDzYiTimax0R+2b0pbZE0lXCwHEw==
-X-Google-Smtp-Source: ABdhPJyXrNphIWVha3+XvhL1Wr4g/Hu/IsLOdxATEkfyUq93ra89qOiGrsa3KzRhW7mYzOPs9o+vEAQLm/voaAEOIIo=
-X-Received: by 2002:a05:6e02:13e4:: with SMTP id w4mr12312587ilj.127.1624255917176;
- Sun, 20 Jun 2021 23:11:57 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210620134954.15233-1-Christine.Zhu@mediatek.com> <20210620134954.15233-3-Christine.Zhu@mediatek.com>
-In-Reply-To: <20210620134954.15233-3-Christine.Zhu@mediatek.com>
-From:   Tzung-Bi Shih <tzungbi@google.com>
-Date:   Mon, 21 Jun 2021 14:11:46 +0800
-Message-ID: <CA+Px+wVTAbU37tEtGWmLGPaMSJkrQXOUyMRzY==rQQ5E7=m6+g@mail.gmail.com>
-Subject: Re: [v1,2/3] dt-binding: mt8195: add toprgu reset-controller head file
-To:     Christine Zhu <christine.zhu@mediatek.com>
-Cc:     linux@roeck-us.net, robh+dt@kernel.org, wim@linux-watchdog.org,
-        matthias.bgg@gmail.com, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        seiya.wang@mediatek.com, linux-watchdog@vger.kernel.org,
-        rex-bc.chen@mediatek.com,
-        Project_Global_Chrome_Upstream_Group@mediatek.com,
-        srv_heupstream@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+        Mon, 21 Jun 2021 22:07:54 -0400
+Received: from localhost (unknown [192.168.167.235])
+        by lucky1.263xmail.com (Postfix) with ESMTP id AC11FF789D;
+        Tue, 22 Jun 2021 10:05:27 +0800 (CST)
+X-MAIL-GRAY: 0
+X-MAIL-DELIVERY: 1
+X-ADDR-CHECKED4: 1
+X-SKE-CHECKED: 1
+X-ANTISPAM-LEVEL: 2
+Received: from localhost.localdomain (unknown [58.22.7.114])
+        by smtp.263.net (postfix) whith ESMTP id P14866T140098544858880S1624327520607083_;
+        Tue, 22 Jun 2021 10:05:24 +0800 (CST)
+X-IP-DOMAINF: 1
+X-UNIQUE-TAG: <fb4f117f35b23537e991a936fcaa1a86>
+X-RL-SENDER: cl@rock-chips.com
+X-SENDER: cl@rock-chips.com
+X-LOGIN-NAME: cl@rock-chips.com
+X-FST-TO: heiko@sntech.de
+X-RCPT-COUNT: 30
+X-SENDER-IP: 58.22.7.114
+X-ATTACHMENT-NUM: 0
+X-System-Flag: 0
+From:   <cl@rock-chips.com>
+To:     heiko@sntech.de
+Cc:     robh+dt@kernel.org, jagan@amarulasolutions.com, wens@csie.org,
+        uwe@kleine-koenig.org, mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        cl@rock-chips.com, wim@linux-watchdog.org, linux@roeck-us.net,
+        jamie@jamieiles.com, linux-watchdog@vger.kernel.org, maz@kernel.org
+Subject: [PATCH v5 1/4] dt-bindings: pwm: rockchip: add description for rk3568
+Date:   Tue, 22 Jun 2021 10:05:14 +0800
+Message-Id: <20210622020517.13100-2-cl@rock-chips.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210622020517.13100-1-cl@rock-chips.com>
+References: <20210622020517.13100-1-cl@rock-chips.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Jun 20, 2021 at 9:50 PM Christine Zhu
-<Christine.Zhu@mediatek.com> wrote:
-> add toprgu reset-controller head file for MT8195 platform
-Please write complete sentences.
+From: Liang Chen <cl@rock-chips.com>
 
-> Change-Id: Ib08da609e87d31ff0aa06b066f9797070931a693
-Remove the unneeded tag.
+add "rockchip,rk3568-pwm", "rockchip,rk3328-pwm" for pwm nodes on
+a rk3568 platform to pwm-rockchip.yaml.
 
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Copyright (c) 2020 MediaTek Inc.
-Maybe 2021?
+Signed-off-by: Liang Chen <cl@rock-chips.com>
+---
+ Documentation/devicetree/bindings/pwm/pwm-rockchip.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-The patch needs other proper prefixes.  For example, "dt-bindings:
-reset: mt8195".
+diff --git a/Documentation/devicetree/bindings/pwm/pwm-rockchip.yaml b/Documentation/devicetree/bindings/pwm/pwm-rockchip.yaml
+index 5596bee70509..81a54a4e8e3e 100644
+--- a/Documentation/devicetree/bindings/pwm/pwm-rockchip.yaml
++++ b/Documentation/devicetree/bindings/pwm/pwm-rockchip.yaml
+@@ -29,6 +29,7 @@ properties:
+           - enum:
+               - rockchip,px30-pwm
+               - rockchip,rk3308-pwm
++              - rockchip,rk3568-pwm
+           - const: rockchip,rk3328-pwm
+ 
+   reg:
+-- 
+2.17.1
+
+
+
