@@ -2,100 +2,83 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C19EC4743C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jun 2021 12:40:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFAC1C2B9F4
+	for <linux-watchdog@archiver.kernel.org>; Fri, 25 Jun 2021 05:11:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 560F86024A
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jun 2021 12:40:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CC6661289
+	for <linux-watchdog@archiver.kernel.org>; Fri, 25 Jun 2021 05:11:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhFWMmv (ORCPT
+        id S233039AbhFYFNk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jun 2021 08:42:51 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:55039 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S231157AbhFWMmb (ORCPT
+        Fri, 25 Jun 2021 01:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230404AbhFYFNk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jun 2021 08:42:31 -0400
-X-UUID: 97f8fcefaad8497fb4513dbc8a51f1cc-20210623
-X-UUID: 97f8fcefaad8497fb4513dbc8a51f1cc-20210623
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
-        (envelope-from <christine.zhu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 876596850; Wed, 23 Jun 2021 20:40:10 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs08n2.mediatek.inc (172.21.101.56) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 23 Jun 2021 20:40:03 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 23 Jun 2021 20:40:02 +0800
-From:   Christine Zhu <Christine.Zhu@mediatek.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>
-CC:     <srv_heupstream@mediatek.com>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <seiya.wang@mediatek.com>,
-        Christine Zhu <Christine.Zhu@mediatek.com>
-Subject: [v4,3/3] watchdog: mediatek: mt8195: add wdt support
-Date:   Wed, 23 Jun 2021 20:38:54 +0800
-Message-ID: <20210623123854.21941-4-Christine.Zhu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20210623123854.21941-1-Christine.Zhu@mediatek.com>
-References: <20210623123854.21941-1-Christine.Zhu@mediatek.com>
+        Fri, 25 Jun 2021 01:13:40 -0400
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E87C06175F
+        for <linux-watchdog@vger.kernel.org>; Thu, 24 Jun 2021 22:11:18 -0700 (PDT)
+Received: by mail-il1-x12e.google.com with SMTP id i12so8627539ila.13
+        for <linux-watchdog@vger.kernel.org>; Thu, 24 Jun 2021 22:11:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=57iRP0TyZJaJvCo9zaWn65f6DCvfYNmLe//EEF6wtFI=;
+        b=G6+6+qUtWHt/mqMvaRgc+Gqz00z1xMlxhpRYQaYaJeWU6yyTNZO7do743gVv4jHK7c
+         Cf5fa4oH+l8dQtBujIa2tJFrQRypUsbuJ2g8w6/YNwhK2cvn75uo+BnD2640X3Jfvh+o
+         wFfQo/c1oKk8n/1bkCxzeyTec06Fcim6K/v6kY42xxpa7N4xaoLzFD/9k8in9l1u6iTD
+         O55APOWGyjaWFYwJ584SyR2fdNogeMoVGUqYZX0zNBFYopgk0bB5ZB+CItgZTzzguukZ
+         /tesrwRM2nHhFov0bwkPo49Sx87WDir775v9FI0XrjZc4u5WWKqhO8YiqyaFfgqmthnl
+         vbZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=57iRP0TyZJaJvCo9zaWn65f6DCvfYNmLe//EEF6wtFI=;
+        b=nvfPsr5pKMzhuWw/L3rfcx9G/HYVT/FPGMZ6CsThqyBWvauLSpT5i06pMDQK6SUuvy
+         z+MLt8nLie4djbHVWf+G2aeN9TsmaU43LTuM3MbObhJ/HZgR5XNL1Yha44dgs1CscXhd
+         uNbIXNp7re+ADt8s+AtFA2OYUA80K7oXZAxAt3LID0hVtUxZWgtLveqN+tpLie1wG1Uh
+         RFzgyyb3w3qpgFMgJ7RaevGsfwOTdkoyhdaTIQCPsLeIRKpUibEFpzjbb80fquzA9H51
+         Zx7xPMbVlTu5pJu+3wNmnWxC2sqfwgI1AJWFXPaitZtBIZUl//1E4/9WreGLUjR5S933
+         1cag==
+X-Gm-Message-State: AOAM532BE+nzfaptkwsQl5YNW91+RLxvvO5JIzQTfFNymZzGUwZAVnlQ
+        hEv1f9SLaun1m7UokU/6os6OOI4gNW5sfXWXhpMITA==
+X-Google-Smtp-Source: ABdhPJwzLav6Dz0Iv39Al05WGPtRKLaG6fOQ1SvXRk6WVJyGlBBTuVK9ecDEQXceJq+eiH2V6GoNaWQum484UavOJCU=
+X-Received: by 2002:a05:6e02:1064:: with SMTP id q4mr6269901ilj.127.1624597878160;
+ Thu, 24 Jun 2021 22:11:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+References: <20210623123854.21941-1-Christine.Zhu@mediatek.com> <20210623123854.21941-4-Christine.Zhu@mediatek.com>
+In-Reply-To: <20210623123854.21941-4-Christine.Zhu@mediatek.com>
+From:   Tzung-Bi Shih <tzungbi@google.com>
+Date:   Fri, 25 Jun 2021 13:11:07 +0800
+Message-ID: <CA+Px+wX7yBvuzj=KWf0MhLkTQOi4Rfn8F6z_+g-T66K3iMfb=w@mail.gmail.com>
+Subject: Re: [v4,3/3] watchdog: mediatek: mt8195: add wdt support
+To:     Christine Zhu <christine.zhu@mediatek.com>
+Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
+        matthias.bgg@gmail.com, srv_heupstream@mediatek.com,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        seiya.wang@mediatek.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: "Christine Zhu" <Christine.Zhu@mediatek.com>
+On Wed, Jun 23, 2021 at 8:44 PM Christine Zhu
+<Christine.Zhu@mediatek.com> wrote:
+> From: "Christine Zhu" <Christine.Zhu@mediatek.com>
+>
+> Support MT8195 watchdog device.
+>
+> Signed-off-by: christine.zhu <Christine.Zhu@mediatek.com>
+Still missed this part per suggestion in [1].
 
-Support MT8195 watchdog device.
-
-Signed-off-by: christine.zhu <Christine.Zhu@mediatek.com>
----
- drivers/watchdog/mtk_wdt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 97ca993bd009..8231cb9cf5f9 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -12,6 +12,7 @@
- #include <dt-bindings/reset-controller/mt2712-resets.h>
- #include <dt-bindings/reset-controller/mt8183-resets.h>
- #include <dt-bindings/reset-controller/mt8192-resets.h>
-+#include <dt-bindings/reset-controller/mt8195-resets.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/init.h>
-@@ -81,6 +82,10 @@ static const struct mtk_wdt_data mt8192_data = {
- 	.toprgu_sw_rst_num = MT8192_TOPRGU_SW_RST_NUM,
- };
- 
-+static const struct mtk_wdt_data mt8195_data = {
-+	.toprgu_sw_rst_num = MT8195_TOPRGU_SW_RST_NUM,
-+};
-+
- static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 			       unsigned long id, bool assert)
- {
-@@ -341,6 +346,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
- 	{ .compatible = "mediatek,mt6589-wdt" },
- 	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
- 	{ .compatible = "mediatek,mt8192-wdt", .data = &mt8192_data },
-+	{ .compatible = "mediatek,mt8195-wdt", .data = &mt8195_data },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, mtk_wdt_dt_ids);
--- 
-2.18.0
-
+[1]: https://patchwork.kernel.org/project/linux-mediatek/patch/20210623092917.4447-2-Christine.Zhu@mediatek.com/#24270619
