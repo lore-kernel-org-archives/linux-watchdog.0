@@ -2,96 +2,213 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88953C49EA5
-	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Jun 2021 23:49:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1709DC48BC2
+	for <linux-watchdog@archiver.kernel.org>; Sun, 27 Jun 2021 14:52:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60A8C61C47
-	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Jun 2021 23:49:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E10D461C29
+	for <linux-watchdog@archiver.kernel.org>; Sun, 27 Jun 2021 14:52:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbhFZXvf (ORCPT
+        id S230288AbhF0Oy3 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 26 Jun 2021 19:51:35 -0400
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:38108 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229556AbhFZXvf (ORCPT
+        Sun, 27 Jun 2021 10:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230225AbhF0Oy2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 26 Jun 2021 19:51:35 -0400
-Received: from pps.filterd (m0134422.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15QNdPTP029050;
-        Sat, 26 Jun 2021 23:48:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
- : date : message-id; s=pps0720;
- bh=KSH85L5/d4ls/oo5uSxRdbVkC4cWcVHyeaA780T1o94=;
- b=eTXpXDTliyJR0RUnjNrR+O/VWBEu9iH/TU8MY9TOhxJH9VTjLXebmGfWm3VguIjIV/qf
- 61FC4MTBxDDYG4mcxnaWDoWKjz2JTKyjzFJ4ost+j0WBeAf3vc7EbUfpGfgoV1O7Uq/z
- MapTJej5IPmQgtKbVMwRE5rMWdeKLhiae4Io6moz5PkbG1CNiX3RUF4GN/YWCXXHBX6Z
- ayLBnqr55sOkf/gAsDs7et/loxfiFUAtD64CynctWnU8wUtjYHwlwcE6MIFnUDlriEW3
- EliuClmXua0C3ieMueXhmca7AtxKSlYYJteg1QNFvNO2W7qmLy0QDMr25EHNSyjJPD08 vg== 
-Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
-        by mx0b-002e3701.pphosted.com with ESMTP id 39dwmkvdgg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 26 Jun 2021 23:48:58 +0000
-Received: from hpnsw-phaguraws.rose.rdlabs.hpecorp.net (unknown [16.93.60.123])
-        by g2t2354.austin.hpe.com (Postfix) with ESMTP id 4E8CD81;
-        Sat, 26 Jun 2021 23:48:56 +0000 (UTC)
-From:   Curtis Klein <curtis.klein@hpe.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Curtis Klein <curtis.klein@hpe.com>
-Subject: [PATCH] watchdog: only run driver set_pretimeout op if device supports it
-Date:   Sat, 26 Jun 2021 16:47:45 -0700
-Message-Id: <1624751265-24785-1-git-send-email-curtis.klein@hpe.com>
-X-Mailer: git-send-email 2.7.4
-X-Proofpoint-GUID: of6wWYXuINwng-3tMKg5NVE19IlKfPy3
-X-Proofpoint-ORIG-GUID: of6wWYXuINwng-3tMKg5NVE19IlKfPy3
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-26_15:2021-06-25,2021-06-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- suspectscore=0 bulkscore=0 mlxlogscore=999 phishscore=0 impostorscore=0
- mlxscore=0 spamscore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2106260170
+        Sun, 27 Jun 2021 10:54:28 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986B8C061574;
+        Sun, 27 Jun 2021 07:52:03 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id n99-20020a9d206c0000b029045d4f996e62so15632197ota.4;
+        Sun, 27 Jun 2021 07:52:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8JlGNa6xDnpVxYBfS98MOdpdA309kEiRIoLQtbWVtQI=;
+        b=jP0xYsQ1qY6nP9ydCeuPdeNaneMkTJSQi+A6Eyp532mMiSWuG6wY2B3BAQrkEfh8uu
+         XAC1wqJ+q0EesVeihOPwZOHDeaS2VjH4wsFiDmuQ9C/1Sfolf4et87ciFstrG2lf9Ln+
+         n8cB+pGBbwdaBya3tZgGxG8fI6H0fLrqWsXI/MU+ZyAG0ThEz+cKcHwlHRgpqL8+PpXU
+         fgDjQ6pplyu5Li31PCEB1fns5xMvx5pp3aqxjTrF4PKS+s1cM+FTLvno4YZEmkUrf41M
+         HOjtACbJSFrav6iKz2RvmB6tWWmgFMEmULR3h3u7gm0idlQTGuxKno/iqzprpFBlVmMF
+         +TAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8JlGNa6xDnpVxYBfS98MOdpdA309kEiRIoLQtbWVtQI=;
+        b=jcpvtss3mhEKfE2ymOoGkEAXgrooYKGp0z7gHnbefSLhuIRp2KmJPAVUgUdtHgoeY2
+         UrRy5JQ7+vnJmLrv2vh8nHG4EpDbiMecYAtgyKYjTDqdwl5QSdFoKYXu16iLR2ZdI+yl
+         AumLMd6zSsd2Q+ZXgevwuu6nnmfyXA8OSyyiBcqYPVUQVP5H7tqxgu7NFGt1WI1Q4pOj
+         e/ZJ/TFo26oPKBWz/aM2YVtC0ZMMxCSh5cI0/P9A9vInsHvx91xyUCOl2arsZP4qiIe4
+         OJ98hcQPugT1CEBmSYsG0/5WLujDpjP4GB0wpoZMR04iOmhRUyfyNfL3x5WCtm8k/fkQ
+         n0yA==
+X-Gm-Message-State: AOAM533CkiqoOgGWzSj/5kHPa5kK38tCC0/ONPdN7MXm3qxd5Zl/Oqzi
+        jqhsssThlAtK/BtvCuSdMw3EJv9S9yU=
+X-Google-Smtp-Source: ABdhPJyv+eB8H+MxsVYS+g4gfUB0RzK7mwTsZfG6gpditrj6ySTKXB+lfziSwj+hLttg0vMi5xPfXw==
+X-Received: by 2002:a9d:7558:: with SMTP id b24mr18133925otl.60.1624805522763;
+        Sun, 27 Jun 2021 07:52:02 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a7sm934167oia.42.2021.06.27.07.52.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 27 Jun 2021 07:52:01 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH] watchdog: Replace symbolic permissions with octal
+ permissions
+To:     Jinchao Wang <wjc@cdjrlc.com>, tomas.winkler@intel.com,
+        wim@linux-watchdog.org
+Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <20210626100922.54218-1-wjc@cdjrlc.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <4d344004-b307-9bc9-7989-674e9e9d87a5@roeck-us.net>
+Date:   Sun, 27 Jun 2021 07:51:59 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
+MIME-Version: 1.0
+In-Reply-To: <20210626100922.54218-1-wjc@cdjrlc.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Some watchdog devices might conditionally support pretimeouts (e.g. if
-an interrupt is exposed for the device) but some watchdog drivers might
-still define the set_pretimeout operation (e.g. the mtk_wdt driver) and
-indicate support at runtime through the WDIOF_PRETIMEOUT flag. If the
-kernel is compiled with CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT enabled,
-watchdog_set_pretimeout would run the driver specific set_pretimeout
-even if WDIOF_PRETIMEOUT is not set which might have unintended
-consequences.
+On 6/26/21 3:09 AM, Jinchao Wang wrote:
+> Resolve following checkpatch issue,
+> Replace symbolic permissions with octal permissions
+> 
+> Signed-off-by: Jinchao Wang <wjc@cdjrlc.com>
 
-So this change checks that the device flags and only runs the driver
-operation if pretimeouts are supported.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Curtis Klein <curtis.klein@hpe.com>
----
- drivers/watchdog/watchdog_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 3bab324..5bf795c 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -401,7 +401,7 @@ static int watchdog_set_pretimeout(struct watchdog_device *wdd,
- 	if (watchdog_pretimeout_invalid(wdd, timeout))
- 		return -EINVAL;
- 
--	if (wdd->ops->set_pretimeout)
-+	if (wdd->ops->set_pretimeout && (wdd->info->options & WDIOF_PRETIMEOUT))
- 		err = wdd->ops->set_pretimeout(wdd, timeout);
- 	else
- 		wdd->pretimeout = timeout;
--- 
-2.7.4
+> ---
+>   drivers/watchdog/mei_wdt.c     | 4 ++--
+>   drivers/watchdog/ni903x_wdt.c  | 2 +-
+>   drivers/watchdog/sbsa_gwdt.c   | 2 +-
+>   drivers/watchdog/sun4v_wdt.c   | 2 +-
+>   drivers/watchdog/xen_wdt.c     | 4 ++--
+>   drivers/watchdog/ziirave_wdt.c | 8 ++++----
+>   6 files changed, 11 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+> index c7a7235e6224..3ee5b9e83c7e 100644
+> --- a/drivers/watchdog/mei_wdt.c
+> +++ b/drivers/watchdog/mei_wdt.c
+> @@ -545,9 +545,9 @@ static void dbgfs_register(struct mei_wdt *wdt)
+>   	dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+>   	wdt->dbgfs_dir = dir;
+>   
+> -	debugfs_create_file("state", S_IRUSR, dir, wdt, &dbgfs_fops_state);
+> +	debugfs_create_file("state", 0400, dir, wdt, &dbgfs_fops_state);
+>   
+> -	debugfs_create_file("activation", S_IRUSR, dir, wdt,
+> +	debugfs_create_file("activation", 0400, dir, wdt,
+>   			    &dbgfs_fops_activation);
+>   }
+>   
+> diff --git a/drivers/watchdog/ni903x_wdt.c b/drivers/watchdog/ni903x_wdt.c
+> index 4cebad324b20..4d85082e0ce9 100644
+> --- a/drivers/watchdog/ni903x_wdt.c
+> +++ b/drivers/watchdog/ni903x_wdt.c
+> @@ -48,7 +48,7 @@ MODULE_PARM_DESC(timeout,
+>   		 __MODULE_STRING(NIWD_DEFAULT_TIMEOUT) ")");
+>   
+>   static int nowayout = WATCHDOG_NOWAYOUT;
+> -module_param(nowayout, int, S_IRUGO);
+> +module_param(nowayout, int, 0444);
+>   MODULE_PARM_DESC(nowayout,
+>   		 "Watchdog cannot be stopped once started (default="
+>   		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> index ee9ff38929eb..369d2f922ecc 100644
+> --- a/drivers/watchdog/sbsa_gwdt.c
+> +++ b/drivers/watchdog/sbsa_gwdt.c
+> @@ -112,7 +112,7 @@ MODULE_PARM_DESC(action, "after watchdog gets WS0 interrupt, do: "
+>   		 "0 = skip(*)  1 = panic");
+>   
+>   static bool nowayout = WATCHDOG_NOWAYOUT;
+> -module_param(nowayout, bool, S_IRUGO);
+> +module_param(nowayout, bool, 0444);
+>   MODULE_PARM_DESC(nowayout,
+>   		 "Watchdog cannot be stopped once started (default="
+>   		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> diff --git a/drivers/watchdog/sun4v_wdt.c b/drivers/watchdog/sun4v_wdt.c
+> index 8db86ad5ee3d..22ee4b6093a2 100644
+> --- a/drivers/watchdog/sun4v_wdt.c
+> +++ b/drivers/watchdog/sun4v_wdt.c
+> @@ -30,7 +30,7 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+>   	__MODULE_STRING(WDT_TIMEOUT) ")");
+>   
+>   static bool nowayout = WATCHDOG_NOWAYOUT;
+> -module_param(nowayout, bool, S_IRUGO);
+> +module_param(nowayout, bool, 0444);
+>   MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>   	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>   
+> diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+> index b343f421dc72..d9e8408ce60d 100644
+> --- a/drivers/watchdog/xen_wdt.c
+> +++ b/drivers/watchdog/xen_wdt.c
+> @@ -28,12 +28,12 @@ static time64_t wdt_expires;
+>   
+>   #define WATCHDOG_TIMEOUT 60 /* in seconds */
+>   static unsigned int timeout;
+> -module_param(timeout, uint, S_IRUGO);
+> +module_param(timeout, uint, 0444);
+>   MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds "
+>   	"(default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+>   
+>   static bool nowayout = WATCHDOG_NOWAYOUT;
+> -module_param(nowayout, bool, S_IRUGO);
+> +module_param(nowayout, bool, 0444);
+>   MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+>   	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>   
+> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+> index c5a9b820d43a..aa6dcb604ab0 100644
+> --- a/drivers/watchdog/ziirave_wdt.c
+> +++ b/drivers/watchdog/ziirave_wdt.c
+> @@ -451,7 +451,7 @@ static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
+>   	return ret;
+>   }
+>   
+> -static DEVICE_ATTR(firmware_version, S_IRUGO, ziirave_wdt_sysfs_show_firm,
+> +static DEVICE_ATTR(firmware_version, 0444, ziirave_wdt_sysfs_show_firm,
+>   		   NULL);
+>   
+>   static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
+> @@ -475,7 +475,7 @@ static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
+>   	return ret;
+>   }
+>   
+> -static DEVICE_ATTR(bootloader_version, S_IRUGO, ziirave_wdt_sysfs_show_boot,
+> +static DEVICE_ATTR(bootloader_version, 0444, ziirave_wdt_sysfs_show_boot,
+>   		   NULL);
+>   
+>   static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
+> @@ -497,7 +497,7 @@ static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
+>   	return ret;
+>   }
+>   
+> -static DEVICE_ATTR(reset_reason, S_IRUGO, ziirave_wdt_sysfs_show_reason,
+> +static DEVICE_ATTR(reset_reason, 0444, ziirave_wdt_sysfs_show_reason,
+>   		   NULL);
+>   
+>   static ssize_t ziirave_wdt_sysfs_store_firm(struct device *dev,
+> @@ -552,7 +552,7 @@ static ssize_t ziirave_wdt_sysfs_store_firm(struct device *dev,
+>   	return err ? err : count;
+>   }
+>   
+> -static DEVICE_ATTR(update_firmware, S_IWUSR, NULL,
+> +static DEVICE_ATTR(update_firmware, 0200, NULL,
+>   		   ziirave_wdt_sysfs_store_firm);
+>   
+>   static struct attribute *ziirave_wdt_attrs[] = {
+> 
 
