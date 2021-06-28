@@ -2,79 +2,80 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.0 required=3.0 tests=BAYES_50,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49126C2B9F4
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jun 2021 10:38:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34555C2B9F4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jun 2021 11:39:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 307BA61C6D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jun 2021 10:38:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1889E61C70
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jun 2021 11:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232556AbhF1Kkd (ORCPT
+        id S232353AbhF1Llb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jun 2021 06:40:33 -0400
-Received: from flippiebeckerswealthmgr.xyz ([62.173.147.16]:44548 "EHLO
-        host.flippiebeckerswealthmgr.xyz" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232426AbhF1Kkc (ORCPT
+        Mon, 28 Jun 2021 07:41:31 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:55894 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S232526AbhF1Lla (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jun 2021 06:40:32 -0400
-X-Greylist: delayed 1028 seconds by postgrey-1.27 at vger.kernel.org; Mon, 28 Jun 2021 06:40:32 EDT
-Received: from flippiebeckerswealthmgr.xyz (ec2-54-157-176-210.compute-1.amazonaws.com [54.157.176.210])
-        by host.flippiebeckerswealthmgr.xyz (Postfix) with ESMTPA id 132BD1405A
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jun 2021 13:13:37 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippiebeckerswealthmgr.xyz 132BD1405A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flippiebeckerswealthmgr.xyz; s=default; t=1624875218;
-        bh=G3PrS2ssLE6xKmHDCm5hvScMpvbJPlyTw8R1AuPMkGc=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=voiXcDNcBtp75d3xrWDuUKWuYH61WhuuYJR/tANgsjyhducpejmIaysZgvkm8LDWM
-         07Kq9Iv9dOX4vZtxOS66zOx8YtSLs5gW7oWwg1ZcK0q0wNbLGued6A3wBy3Rdq076s
-         FLqHjD0RZkyFOSAturRM7mO21FcRF1ObWgJilGbQ=
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippiebeckerswealthmgr.xyz 132BD1405A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flippiebeckerswealthmgr.xyz; s=default; t=1624875218;
-        bh=G3PrS2ssLE6xKmHDCm5hvScMpvbJPlyTw8R1AuPMkGc=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=voiXcDNcBtp75d3xrWDuUKWuYH61WhuuYJR/tANgsjyhducpejmIaysZgvkm8LDWM
-         07Kq9Iv9dOX4vZtxOS66zOx8YtSLs5gW7oWwg1ZcK0q0wNbLGued6A3wBy3Rdq076s
-         FLqHjD0RZkyFOSAturRM7mO21FcRF1ObWgJilGbQ=
-Reply-To: jmasuku09@flippiebecker.com
-From:   Jotham Masuku <jmasuku09@flippiebeckerswealthmgr.xyz>
-To:     linux-watchdog@vger.kernel.org
-Subject: Projects
-Date:   28 Jun 2021 10:13:37 +0000
-Message-ID: <20210628101337.7C64A487F8AC61F2@flippiebeckerswealthmgr.xyz>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        Mon, 28 Jun 2021 07:41:30 -0400
+X-UUID: 906c8f10508e48a3a2886492a53d2305-20210628
+X-UUID: 906c8f10508e48a3a2886492a53d2305-20210628
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        (envelope-from <christine.zhu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1890320054; Mon, 28 Jun 2021 19:39:02 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 28 Jun 2021 19:39:01 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 28 Jun 2021 19:39:00 +0800
+From:   Christine Zhu <Christine.Zhu@mediatek.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>
+CC:     <srv_heupstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <seiya.wang@mediatek.com>,
+        Christine Zhu <Christine.Zhu@mediatek.com>
+Subject: [v5,1/3] dt-bindings: mediatek: mt8195: update mtk-wdt document
+Date:   Mon, 28 Jun 2021 19:37:29 +0800
+Message-ID: <20210628113730.26107-2-Christine.Zhu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20210628113730.26107-1-Christine.Zhu@mediatek.com>
+References: <20210628113730.26107-1-Christine.Zhu@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello there,
+From: "Christine Zhu" <Christine.Zhu@mediatek.com>
 
-I hope this message finds you in good spirits especially during=20
-this challenging time of coronavirus pandemic. I hope you and=20
-your family are well and keeping safe. Anyway, I am Jotham=20
-Masuku, a broker working with Flippiebecker Wealth. I got your=20
-contact through an online business directory and I thought I=20
-should contact you to see if you are interested in this=20
-opportunity. I am contacting you because one of my high profile=20
-clients is interested in investing abroad and has asked me to=20
-look for individuals and companies in your country with=20
-interesting business ideas and projects that he can invest in. He=20
-wants to invest a substantial amount of asset abroad.
+Update mtk-wdt document for MT8195 platform.
 
-I have decided to keep this brief for now but please kindly=20
-respond back to this email if you are interested in this=20
-opportunity. Once I receive your response, I will give you more=20
-details and we can plan a strategy that will be beneficial to all=20
-parties.
+Signed-off-by: Christine Zhu <Christine.Zhu@mediatek.com>
+---
+ Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Best regards
+diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+index e36ba60de829..d15a321b22bc 100644
+--- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"mediatek,mt8183-wdt": for MT8183
+ 	"mediatek,mt8516-wdt", "mediatek,mt6589-wdt": for MT8516
+ 	"mediatek,mt8192-wdt": for MT8192
++	"mediatek,mt8195-wdt": for MT8195
+ 
+ - reg : Specifies base physical address and size of the registers.
+ 
+-- 
+2.18.0
 
-J Masuku
-Flippiebecker Wealth
