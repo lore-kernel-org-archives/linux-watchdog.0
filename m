@@ -2,83 +2,109 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62CD0C11F64
-	for <linux-watchdog@archiver.kernel.org>; Tue, 29 Jun 2021 02:13:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34EDAC07E98
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Jul 2021 06:50:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4180B61CD4
-	for <linux-watchdog@archiver.kernel.org>; Tue, 29 Jun 2021 02:13:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A8BB613D1
+	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Jul 2021 06:50:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbhF2CQJ (ORCPT
+        id S229907AbhGEGwq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jun 2021 22:16:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51892 "EHLO
+        Mon, 5 Jul 2021 02:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231398AbhF2CQJ (ORCPT
+        with ESMTP id S229930AbhGEGwn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jun 2021 22:16:09 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E68C061760
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jun 2021 19:13:42 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id s19so24784628ioc.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jun 2021 19:13:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rcncWXlDetcYOR5cxpoHR6LBZHK6k4JsfTUcGr7lEAY=;
-        b=oH0bBjWOO81W8a/L6iXurUAI6ixFtjz6ToQGhDLBOmO7m0qNn2JY8imwqEqkUOsJgb
-         EE/p8bWvP7ak+HW/yUa7XkN0wziLHFqgZiJSSL6UULw1Fp/eDk+sB+njiA4W5jLyLh5m
-         e8NW3GqJ7oR14mpH+E4/IxYmmAVxiCfsohMNN1MqK4jtimirxaBEfUKyq7jOzrRODKTg
-         QwDn6pYZ7qNnFDLc47E/L4bKxpCylujJdIlXVihpxnRNY3vdTqjfeuitvCKuCxkRTQ2q
-         nqtCp3ULPQmKpxG2AS05R+byNzKj7KZhAwVAgOiDkQcKh6FNTA04MRyZEaOfv4BBcZyU
-         XiHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rcncWXlDetcYOR5cxpoHR6LBZHK6k4JsfTUcGr7lEAY=;
-        b=YaZxdoE+A3p+nuU91QGJQQ/G8CJGb3yFm6beLSyhbctM7WpunubTOUjJ9HbkYISjuI
-         V0w483QFar2rXoJv2G3+qDLE8iHjipgND+dphHG9icBplkFOz96TF0UG4Cgvjujqz6hD
-         FrTWUrz71niJmRIJSPsSKGhMe6a6vCA9UP9CaU5aIi03YzItgtbnKKVJil4wCHjVwCma
-         JNDWeMuDidTvQVR8aJVGleBlCkcHMypTo6azezF/5xmKD/egeVIOVNuZMl+V4ZB3Ps9u
-         GP7itOgpJ4llpUpi/tIM7R7dtJbRtpZjEQjZy0RY1byNIohZ+iguGKBNIjXVWHSJeMc9
-         MuKQ==
-X-Gm-Message-State: AOAM530tnkJ2Cq0C7q1mxLe7V/omxzz9PyhLB66YCKulenjfhPGZ5dsY
-        n1wcwddrdhsgNy7LfnyedH62f5hQFtB+sCEaBIrc0g==
-X-Google-Smtp-Source: ABdhPJx6MW16x6OLxQk6NypGbyMZlz+0sgCozwnDG28+XM6Z/8kDLeMpPr0LcPhWAxEg/47OFX21/HUOVP6vp4W/Ol4=
-X-Received: by 2002:a6b:2b04:: with SMTP id r4mr1928898ior.195.1624932821270;
- Mon, 28 Jun 2021 19:13:41 -0700 (PDT)
+        Mon, 5 Jul 2021 02:52:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F001C061760
+        for <linux-watchdog@vger.kernel.org>; Sun,  4 Jul 2021 23:50:07 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1m0IPx-0000W8-T5; Mon, 05 Jul 2021 08:49:21 +0200
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1m0IPq-0003Kv-Ry; Mon, 05 Jul 2021 08:49:14 +0200
+Date:   Mon, 5 Jul 2021 08:49:14 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     cl@rock-chips.com, thierry.reding@gmail.com, robh+dt@kernel.org,
+        heiko@sntech.de
+Cc:     jagan@amarulasolutions.com, wens@csie.org, uwe@kleine-koenig.org,
+        mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        wim@linux-watchdog.org, linux@roeck-us.net, jamie@jamieiles.com,
+        linux-watchdog@vger.kernel.org, maz@kernel.org,
+        lee.jones@linaro.org, linux-pwm@vger.kernel.org
+Subject: Re: [RESEND PATCH v5 1/4] dt-bindings: pwm: rockchip: add
+ description for rk3568
+Message-ID: <20210705064914.o2neaiwqndjfdyqd@pengutronix.de>
+References: <20210622020517.13100-1-cl@rock-chips.com>
+ <20210623021303.28015-1-cl@rock-chips.com>
 MIME-Version: 1.0
-References: <20210628113730.26107-1-Christine.Zhu@mediatek.com> <20210628113730.26107-4-Christine.Zhu@mediatek.com>
-In-Reply-To: <20210628113730.26107-4-Christine.Zhu@mediatek.com>
-From:   Tzung-Bi Shih <tzungbi@google.com>
-Date:   Tue, 29 Jun 2021 10:13:30 +0800
-Message-ID: <CA+Px+wUDSDjLo4qePN=o6JPb=Tv=y4vqZqjFO2ZBEPJrF8sxKA@mail.gmail.com>
-Subject: Re: [v5,3/3] watchdog: mediatek: mt8195: add wdt support
-To:     Christine Zhu <christine.zhu@mediatek.com>
-Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        matthias.bgg@gmail.com, srv_heupstream@mediatek.com,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        seiya.wang@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="h77ynqqu64e6evvv"
+Content-Disposition: inline
+In-Reply-To: <20210623021303.28015-1-cl@rock-chips.com>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jun 28, 2021 at 7:39 PM Christine Zhu
-<Christine.Zhu@mediatek.com> wrote:
->
-> From: "Christine Zhu" <Christine.Zhu@mediatek.com>
->
-> Support MT8195 watchdog device.
->
-> Signed-off-by: Christine Zhu <Christine.Zhu@mediatek.com>
 
-Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
+--h77ynqqu64e6evvv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jun 23, 2021 at 10:13:03AM +0800, cl@rock-chips.com wrote:
+> From: Liang Chen <cl@rock-chips.com>
+>=20
+> add "rockchip,rk3568-pwm", "rockchip,rk3328-pwm" for pwm nodes on
+> a rk3568 platform to pwm-rockchip.yaml.
+
+Looks good to me
+
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+
+Who is supposed to apply this patch? Does this need blessing by Rob?
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--h77ynqqu64e6evvv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmDiq2IACgkQwfwUeK3K
+7Alswgf/S2t8Y0UpADbCraly5vO0IlgBk3eruOuhWsPvl4ytixaHcF2m/IXzJn1F
+CTm3Q4Fa8c5K6/tiVQR+LacMzobKgCaFmf5LLNUrhYggBjAgHEPXbuJc4BOUsGfv
+GLAQyRKHIUNeGdAc/Gw89sg5f20ieHij6kcgcpvGg5nhXx4r2m020hIToIbiD17u
+W+7LrS+IhuELk+mgkauwKBVpjyJ5r9pN5U7UWYPwCZPeF1FPQkTQaNRA2B3Q+7A0
+5IYkmJrv53afyC/XzA4/kGwsbGrwdeInvSCmCWnb8BarKh0hERXgSQvBEn9KU/XV
+utWTTaMgclkWJIJluRaO4dTAmRjkjQ==
+=oHYF
+-----END PGP SIGNATURE-----
+
+--h77ynqqu64e6evvv--
