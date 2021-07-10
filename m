@@ -5,45 +5,42 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FC46C11F68
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC0B7C11F6D
 	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F36AC613B5
-	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB699613B5
+	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233595AbhGJXz1 (ORCPT
+        id S233615AbhGJXz2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 10 Jul 2021 19:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
+        Sat, 10 Jul 2021 19:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233699AbhGJXya (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:54:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0101B61362;
-        Sat, 10 Jul 2021 23:51:20 +0000 (UTC)
+        id S233711AbhGJXyc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:54:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA2D613D2;
+        Sat, 10 Jul 2021 23:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961082;
-        bh=eWAWdoYUyGT4tcyRnagC6znYfXGQBgaN1dR66rV/snc=;
+        s=k20201202; t=1625961084;
+        bh=tCUh3rEoL7t0V6Q9DxLofggK+iSzdMEzMiUzlyIwDPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFFZEr5Fh0o47HJpzIS5LhZXyv6y47GFvEVMyy8ukL04JasTPnRA7uCht3oZdKgNV
-         mY/AVta6r3yHJCzXoz9FOqRezwJIRDo7CH3oAWlIFJ3fPz8LHDkJxYWCOGYeu8RjKm
-         BVU2ZEzBgUU6Rsd+9A/UU+aoXo1pMVhu4uaSEweMw7YXSGb4lT+zQze1A1Gz2grpfs
-         kz3kSukTfTx1DL0QgBvUbhpTUt8g+4b3IWqK5tvsCBwF26ChX3yETBPbAtz1Xiy9QZ
-         LwNU/WEGjkJ8MEcaJfxcztfxkMR1SYc/YW7lAnEk7/ELaLqN3TmQuC0eMRW7AXTSpS
-         TbofHxr3V3Vsw==
+        b=RoD8Y0c+qpsB5OKYw27avvDXSXBDajIRNRHUadxwsHRLY30xXNcn3blEiqhv0GJRO
+         GItiSbVh4Q9OBoKVDzyf5g4iLwdgbzEeS0uB+kRp3xaijU1dC82aWQnnnrA+LLiwqr
+         3HY/+OFBz+fcYMiJOG4PuRFJwtauQveMzQNhm+tRLXXRPd22A+xh4OkoMgVxzEAmd2
+         s05uX+pTaA6C1l4NMpV2T713GRkYB99vkJ3/t+5lkG0hLKFEJDJ0rrx7WTq7u9HhDN
+         F+AntMcgv2exX7qt23NhnPq2jMZ5gOlCXwaEXoFtiCgpPF5aaEpS6Ho86i44DMdByY
+         mdNhABNtGPkxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 11/28] watchdog: Fix possible use-after-free by calling del_timer_sync()
-Date:   Sat, 10 Jul 2021 19:50:50 -0400
-Message-Id: <20210710235107.3221840-11-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/28] watchdog: iTCO_wdt: Account for rebooting on second timeout
+Date:   Sat, 10 Jul 2021 19:50:52 -0400
+Message-Id: <20210710235107.3221840-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
@@ -55,56 +52,68 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+[ Upstream commit cb011044e34c293e139570ce5c01aed66a34345c ]
 
-This driver's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+This was already attempted to fix via 1fccb73011ea: If the BIOS did not
+enable TCO SMIs, the timer definitely needs to trigger twice in order to
+cause a reboot. If TCO SMIs are on, as well as SMIs in general, we can
+continue to assume that the BIOS will perform a reboot on the first
+timeout.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+QEMU with its ICH9 and related BIOS falls into the former category,
+currently taking twice the configured timeout in order to reboot the
+machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
+this is also true and was currently only addressed for v1, irrespective
+of the turn_SMI_watchdog_clear_off value.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
+Link: https://lore.kernel.org/r/0b8bb307-d08b-41b5-696c-305cdac6789c@siemens.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/iTCO_wdt.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index 78cf11c94941..60b6d74f267d 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index e707c4797f76..08e534fba1bf 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -72,6 +72,8 @@
+ #define TCOBASE(p)	((p)->tco_res->start)
+ /* SMI Control and Enable Register */
+ #define SMI_EN(p)	((p)->smi_res->start)
++#define TCO_EN		(1 << 13)
++#define GBL_SMI_EN	(1 << 0)
  
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
+ #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
+ #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
+@@ -344,8 +346,12 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
  
- 	return 0;
- }
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index 6eb5185d6ea6..d9addf06b44d 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -166,7 +166,7 @@ static void wdt_startup(void)
- static void wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
+ 	tmrval = seconds_to_ticks(p, t);
  
- 	wdt_change(WDT_DISABLE);
+-	/* For TCO v1 the timer counts down twice before rebooting */
+-	if (p->iTCO_version == 1)
++	/*
++	 * If TCO SMIs are off, the timer counts down twice before rebooting.
++	 * Otherwise, the BIOS generally reboots when the SMI triggers.
++	 */
++	if (p->smi_res &&
++	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+ 		tmrval /= 2;
+ 
+ 	/* from the specs: */
+@@ -510,7 +516,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 		 * Disables TCO logic generating an SMI#
+ 		 */
+ 		val32 = inl(SMI_EN(p));
+-		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
++		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
+ 		outl(val32, SMI_EN(p));
+ 	}
  
 -- 
 2.30.2
