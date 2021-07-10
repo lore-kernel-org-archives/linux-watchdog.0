@@ -7,40 +7,43 @@ X-Spam-Status: No, score=-19.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56B05C07E9B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E46E6C11F67
 	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D9F4613B5
+	by mail.kernel.org (Postfix) with ESMTP id D0D5061362
 	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233389AbhGJXz0 (ORCPT
+        id S233453AbhGJXz1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 10 Jul 2021 19:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40316 "EHLO mail.kernel.org"
+        Sat, 10 Jul 2021 19:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233425AbhGJXya (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S233172AbhGJXya (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 10 Jul 2021 19:54:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F22613AF;
-        Sat, 10 Jul 2021 23:51:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75B55613B5;
+        Sat, 10 Jul 2021 23:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961080;
-        bh=ms9YRNTIYNavmZmPXDww3mZ1tmy/t85F9z+8UsdPNmQ=;
+        s=k20201202; t=1625961083;
+        bh=3UyRC9YMHv61tWXMtibjr5Yon1kzlZ7gv818W/5RkWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FICOR2iclACOn4bbJClUP38dDtQB+n35JpTogonOmMox9tb4xYcfwZbu8cLBwc9qS
-         VL12/U2VMgvYnEk+AH9gvC9VBc9i2a1QIDUWTkxiMYdk+Js/iCfc2Xjasd5LZcolG4
-         VN9Bqorui7BjgC1R0/Vbd/C3OZS2ZkkqLddrmuB+u1mExBO3kKzY9PpsKcZqo9tNWR
-         0tag2JG/+3+D8lO8jAjNM2PLnLcgDXRMfTG4OdNZGjGGTMFnJeE8v8SL2Jq82CfARs
-         CQO+XzVX+DOtCVn2TwjVTEjHVTTqf1GUrUlApK3acRRxpLrQmsuYiEXl2hlTxrW9Ou
-         YWq+czRsmRIzA==
+        b=sSUfFioPWqW3tVnjQxBV2nj4NnmD17sgp7uuXFNT3bwUeTRcEOtSM23zGmxd5UQpd
+         EsPSYiFq6yVZMx13FKE6hhBN+SznA2DbbK44IIuCWNMLQHqWTxqXj6kpUKHMVCerpS
+         GzSRbgPnleAK8owcDzwnioIKUI5mgXBnlK+1HKU2vy/y2veGo+QGqnf4DwKsFG8Ymx
+         UUhPSYJ+yQn8k6hvcjES9UGAZx1M/SfgryXrrS4JmM7Fq+4j46eF13TbsulzA46OzW
+         6q9dKlJdG3shlkqdisF41XMea/PvBmav+cy51dIBfQhB+so3UUe0AB50XXHA3TStLa
+         YM95htEgGKRuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Stefan Eichenberger <eichest@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/28] watchdog: sc520_wdt: Fix possible use-after-free in wdt_turnoff()
-Date:   Sat, 10 Jul 2021 19:50:49 -0400
-Message-Id: <20210710235107.3221840-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 12/28] watchdog: imx_sc_wdt: fix pretimeout
+Date:   Sat, 10 Jul 2021 19:50:51 -0400
+Message-Id: <20210710235107.3221840-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
@@ -52,42 +55,67 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Stefan Eichenberger <eichest@gmail.com>
 
-[ Upstream commit 90b7c141132244e8e49a34a4c1e445cce33e07f4 ]
+[ Upstream commit 854478a381078ee86ae2a7908a934b1ded399130 ]
 
-This module's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+If the WDIOF_PRETIMEOUT flag is not set when registering the device the
+driver will not show the sysfs entries or register the default governor.
+By moving the registering after the decision whether pretimeout is
+supported this gets fixed.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Stefan Eichenberger <eichest@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1620716691-108460-1-git-send-email-zou_wei@huawei.com
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20210519080311.142928-1-eichest@gmail.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sc520_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/imx_sc_wdt.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
-index a612128c5f80..57969564c7f9 100644
---- a/drivers/watchdog/sc520_wdt.c
-+++ b/drivers/watchdog/sc520_wdt.c
-@@ -186,7 +186,7 @@ static int wdt_startup(void)
- static int wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
+diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
+index e0e62149a6f4..8c9936e78bee 100644
+--- a/drivers/watchdog/imx_sc_wdt.c
++++ b/drivers/watchdog/imx_sc_wdt.c
+@@ -185,16 +185,12 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+ 	watchdog_stop_on_reboot(wdog);
+ 	watchdog_stop_on_unregister(wdog);
  
- 	/* Stop the watchdog */
- 	wdt_config(0);
+-	ret = devm_watchdog_register_device(dev, wdog);
+-	if (ret)
+-		return ret;
+-
+ 	ret = imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
+ 				       SC_IRQ_WDOG,
+ 				       true);
+ 	if (ret) {
+ 		dev_warn(dev, "Enable irq failed, pretimeout NOT supported\n");
+-		return 0;
++		goto register_device;
+ 	}
+ 
+ 	imx_sc_wdd->wdt_notifier.notifier_call = imx_sc_wdt_notify;
+@@ -205,7 +201,7 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+ 					 false);
+ 		dev_warn(dev,
+ 			 "Register irq notifier failed, pretimeout NOT supported\n");
+-		return 0;
++		goto register_device;
+ 	}
+ 
+ 	ret = devm_add_action_or_reset(dev, imx_sc_wdt_action,
+@@ -215,7 +211,8 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+ 	else
+ 		dev_warn(dev, "Add action failed, pretimeout NOT supported\n");
+ 
+-	return 0;
++register_device:
++	return devm_watchdog_register_device(dev, wdog);
+ }
+ 
+ static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
 -- 
 2.30.2
 
