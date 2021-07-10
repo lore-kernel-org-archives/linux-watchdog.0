@@ -7,46 +7,43 @@ X-Spam-Status: No, score=-19.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E0D3C11F76
-	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CA80C07E95
+	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77DF8613DC
-	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:51:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27721613F0
+	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:52:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233565AbhGJXx7 (ORCPT
+        id S231766AbhGJXzN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 10 Jul 2021 19:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
+        Sat, 10 Jul 2021 19:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232775AbhGJXxZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:53:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 389686139A;
-        Sat, 10 Jul 2021 23:50:38 +0000 (UTC)
+        id S233606AbhGJXyO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:54:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5049C613BF;
+        Sat, 10 Jul 2021 23:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961039;
-        bh=4l/AoMsvGwjk7Lsth8aoRoQQpUwOUt4rTVkI0sOT9vM=;
+        s=k20201202; t=1625961079;
+        bh=ZZadxa0w8dtzQqSSAXWpiz/dHqayTUoeHiO1uRLZiEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TE6JovPzR6zvKsghLdm1tD1Vdtebtcvos95PVBpMois3LJZ9gSNjBks+6KZxUKVuz
-         2sYAIk2IkHMjSwCMEjPa5YvwMmH1JcCr55mktz7nI63XA76mqlr59FwpyLtp9THfYj
-         MwIfb82c0JjV9htX9ZKsJkaNdmwzqVQ/UNYnHqq8VooGACQBnuwr/woRb4ixZYgJ9Z
-         aITr5fcSPh7SlnvWfyHYKS1rkTEWwCrGSaFDmH7KveFNINQpdaFynTM77ZIrNepZTD
-         mw7vgEVTaodh76atdIfNmeZv/BeBFRIf/mOQUzKLZRKlOx3AEGxhtYMs9ude/q1r4/
-         YcjQmSJdNdzcA==
+        b=kuQvc+uh5SI28uuM+Agw7O31Zy0sgXaRcVkosgAFFDjwuOGh6W+mmZQ5PeUqcQ4j5
+         5+SALzY3W5HyYlv/9/jK70+bpykjn7AZc9qsEbTo7eDqGxy3NQt2ul4I4dydg6pUdq
+         T1nEaqvjJn0YcRyebIFOtmBJH+bbZkJKizR4vjLA9mqVyCCjroHL9FqF9L4TF6Wf8s
+         1xZfZH5T8tT1Z5LmYj+QcDdvALEe8vQSqQkxincQi/fu97I9Hk4PRtkopKJP9cs9ON
+         uw8nw7IhexdqM1+hYOFvuH7ajNKTI2zrd+e7LG0LoNdl+V1bZZBHHb5mo7k70geQ+D
+         Bv3WYP+Jn1PFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 16/37] watchdog: Fix possible use-after-free by calling del_timer_sync()
-Date:   Sat, 10 Jul 2021 19:49:54 -0400
-Message-Id: <20210710235016.3221124-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/28] watchdog: Fix possible use-after-free in wdt_startup()
+Date:   Sat, 10 Jul 2021 19:50:48 -0400
+Message-Id: <20210710235107.3221840-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710235016.3221124-1-sashal@kernel.org>
-References: <20210710235016.3221124-1-sashal@kernel.org>
+In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
+References: <20210710235107.3221840-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,9 +54,9 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+[ Upstream commit c08a6b31e4917034f0ed0cb457c3bb209576f542 ]
 
-This driver's remove path calls del_timer(). However, that function
+This module's remove path calls del_timer(). However, that function
 does not wait until the timer handler finishes. This means that the
 timer handler may still be running after the driver's remove function
 has finished, which would result in a use-after-free.
@@ -70,42 +67,27 @@ has finished, and unable to re-schedule itself.
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zou Wei <zou_wei@huawei.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
+Link: https://lore.kernel.org/r/1620716495-108352-1-git-send-email-zou_wei@huawei.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/sbc60xxwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index 78cf11c94941..60b6d74f267d 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
- 
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
- 
- 	return 0;
- }
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index 5772cc5d3780..f2650863fd02 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -166,7 +166,7 @@ static void wdt_startup(void)
+diff --git a/drivers/watchdog/sbc60xxwdt.c b/drivers/watchdog/sbc60xxwdt.c
+index c3151642694c..de1f7add05c3 100644
+--- a/drivers/watchdog/sbc60xxwdt.c
++++ b/drivers/watchdog/sbc60xxwdt.c
+@@ -146,7 +146,7 @@ static void wdt_startup(void)
  static void wdt_turnoff(void)
  {
  	/* Stop the timer */
 -	del_timer(&timer);
 +	del_timer_sync(&timer);
- 
- 	wdt_change(WDT_DISABLE);
- 
+ 	inb_p(wdt_stop);
+ 	pr_info("Watchdog timer is now disabled...\n");
+ }
 -- 
 2.30.2
 
