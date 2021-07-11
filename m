@@ -2,110 +2,94 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D1F0C11F6C
-	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:58:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A46E3C07E9B
+	for <linux-watchdog@archiver.kernel.org>; Sun, 11 Jul 2021 17:44:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6368261184
-	for <linux-watchdog@archiver.kernel.org>; Sat, 10 Jul 2021 23:58:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92BA561159
+	for <linux-watchdog@archiver.kernel.org>; Sun, 11 Jul 2021 17:44:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbhGKAA4 (ORCPT
+        id S232896AbhGKRra convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 10 Jul 2021 20:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
+        Sun, 11 Jul 2021 13:47:30 -0400
+Received: from gloria.sntech.de ([185.11.138.130]:53612 "EHLO gloria.sntech.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231183AbhGJX6e (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:58:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5D9E613E5;
-        Sat, 10 Jul 2021 23:53:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961192;
-        bh=hkADfCiMoQJ+risbIzZYtyX+fRNEebwVd2J4+7NsjoQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+473WzxsJVlMlI//5oz5nzQQNOxdhQGKBoJNNY//jdtvWq4DTNwPt0D28QWlg1Tj
-         /JYyCnVVdB3W5huPFWyomPPOC8L940caP6iSYMq937iEaXfAkumnUfAED0PoiHF/kE
-         8u+KgFBUUUvJH/E4BXU9Myzl3r56TNmBEne4Qpsk3SR41GhJopQZ1skiJDZ8BragOA
-         dkkGqN20bQCLxd1g9fNKGrM6TE2d2rawFBknjUJPI8BiZ1LcI8bFu6nJV/y12nlb38
-         umQ7pS6ngTCeo/5jc9QXsKdcjhBs2RrI/LJI3sr/HrXPfxGqx8s36z+bwqzI7nn0hm
-         0+kO4yYtJkaXQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 07/12] watchdog: Fix possible use-after-free by calling del_timer_sync()
-Date:   Sat, 10 Jul 2021 19:52:57 -0400
-Message-Id: <20210710235302.3222809-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710235302.3222809-1-sashal@kernel.org>
-References: <20210710235302.3222809-1-sashal@kernel.org>
+        id S230353AbhGKRra (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 11 Jul 2021 13:47:30 -0400
+Received: from ip5f5aa64a.dynamic.kabel-deutschland.de ([95.90.166.74] helo=diego.localnet)
+        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <heiko@sntech.de>)
+        id 1m2dV2-0008H7-WF; Sun, 11 Jul 2021 19:44:17 +0200
+From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To:     Lee Jones <lee.jones@linaro.org>,
+        Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     cl@rock-chips.com, thierry.reding@gmail.com, robh+dt@kernel.org,
+        jagan@amarulasolutions.com, wens@csie.org, uwe@kleine-koenig.org,
+        mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        wim@linux-watchdog.org, linux@roeck-us.net, jamie@jamieiles.com,
+        linux-watchdog@vger.kernel.org, maz@kernel.org,
+        linux-pwm@vger.kernel.org
+Subject: Re: [RESEND PATCH v5 1/4] dt-bindings: pwm: rockchip: add description for rk3568
+Date:   Sun, 11 Jul 2021 19:44:12 +0200
+Message-ID: <5069193.2yuIWEeYC1@diego>
+In-Reply-To: <20210705074405.uj62h4evd6htftf3@pengutronix.de>
+References: <20210622020517.13100-1-cl@rock-chips.com> <YOK1+pMy+N64eR75@dell> <20210705074405.uj62h4evd6htftf3@pengutronix.de>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+Am Montag, 5. Juli 2021, 09:44:05 CEST schrieb Uwe Kleine-König:
+> Hello Lee,
+> 
+> On Mon, Jul 05, 2021 at 08:34:18AM +0100, Lee Jones wrote:
+> > On Mon, 05 Jul 2021, Uwe Kleine-König wrote:
+> > > On Wed, Jun 23, 2021 at 10:13:03AM +0800, cl@rock-chips.com wrote:
+> > > > From: Liang Chen <cl@rock-chips.com>
+> > > > 
+> > > > add "rockchip,rk3568-pwm", "rockchip,rk3328-pwm" for pwm nodes on
+> > > > a rk3568 platform to pwm-rockchip.yaml.
+> > > 
+> > > [...]
+> > > 
+> > > Who is supposed to apply this patch? Does this need blessing by Rob?
+> > 
+> > There is no standard. [...]
+> 
+> I'm aware of that. That's why I asked to prevent that everybody thinks
+> some other maintainer will care for it.
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+I suppose Thierry would be the one responsible?
 
-This driver's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+I.e. bindings normally go through the subsystem tree and
+	$ scripts/get_maintainer.pl drivers/pwm
+returns:
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+Thierry Reding <thierry.reding@gmail.com> (maintainer:PWM SUBSYSTEM)
+"Uwe Kleine-König" <u.kleine-koenig@pengutronix.de> (reviewer:PWM SUBSYSTEM)
+Lee Jones <lee.jones@linaro.org> (maintainer:PWM SUBSYSTEM)
+linux-pwm@vger.kernel.org (open list:PWM SUBSYSTEM)
+linux-kernel@vger.kernel.org (open list)
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index ab7b8b185d99..fbdc0f32e666 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -309,7 +309,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	unregister_restart_handler(&lpc18xx_wdt->restart_handler);
- 
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
- 
- 	watchdog_unregister_device(&lpc18xx_wdt->wdt_dev);
- 	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index f0483c75ed32..4b52cf321747 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -170,7 +170,7 @@ static void wdt_startup(void)
- static void wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
- 
- 	wdt_change(WDT_DISABLE);
- 
--- 
-2.30.2
+See my reply to the original pwm binding patch from 2021-06-21.
+
+Heiko
+
 
