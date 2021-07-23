@@ -2,93 +2,80 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2402BC6377D
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Jul 2021 10:15:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9110EC4338F
+	for <linux-watchdog@archiver.kernel.org>; Fri, 23 Jul 2021 09:32:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C49D61287
-	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Jul 2021 10:15:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D28260E8E
+	for <linux-watchdog@archiver.kernel.org>; Fri, 23 Jul 2021 09:32:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231713AbhGVJen (ORCPT
+        id S231139AbhGWIwA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 22 Jul 2021 05:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43938 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231704AbhGVJem (ORCPT
+        Fri, 23 Jul 2021 04:52:00 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:33494 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S229949AbhGWIv7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Jul 2021 05:34:42 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E510C0613D3
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Jul 2021 03:15:16 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1m6Vj8-00019U-Mu; Thu, 22 Jul 2021 12:14:50 +0200
-Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1m6Vj7-0001KQ-3C; Thu, 22 Jul 2021 12:14:49 +0200
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Cc:     kernel@pengutronix.de, linux-kernel@vger.kernel.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH v4 1/5] watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
-Date:   Thu, 22 Jul 2021 12:14:40 +0200
-Message-Id: <7f2a07eaa7dbd7c3f8162a89d364c3eef45883ea.1626948810.git-series.a.fatoum@pengutronix.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <cover.c711be1db54f4e07c0153266dd1a831e92e3d49d.1626948810.git-series.a.fatoum@pengutronix.de>
-References: <cover.c711be1db54f4e07c0153266dd1a831e92e3d49d.1626948810.git-series.a.fatoum@pengutronix.de>
+        Fri, 23 Jul 2021 04:51:59 -0400
+X-UUID: d4173402705d470d9d8b5dc487989237-20210723
+X-UUID: d4173402705d470d9d8b5dc487989237-20210723
+Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
+        (envelope-from <christine.zhu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 29985510; Fri, 23 Jul 2021 17:32:30 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 23 Jul 2021 17:32:29 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 23 Jul 2021 17:32:28 +0800
+From:   Christine Zhu <Christine.Zhu@mediatek.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>
+CC:     <srv_heupstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <seiya.wang@mediatek.com>,
+        <Rex-BC.Chen@mediatek.com>,
+        Christine Zhu <Christine.Zhu@mediatek.com>
+Subject: [v6,1/3] dt-bindings: mediatek: mt8195: update mtk-wdt document
+Date:   Fri, 23 Jul 2021 17:31:26 +0800
+Message-ID: <20210723093127.24568-2-Christine.Zhu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20210723093127.24568-1-Christine.Zhu@mediatek.com>
+References: <20210723093127.24568-1-Christine.Zhu@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: afa@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The fintek watchdog timer can configure timeouts of second granularity
-only up to 255 seconds. Beyond that, the timeout needs to be configured
-with minute granularity. WDIOC_GETTIMEOUT should report the actual
-timeout configured, not just echo back the timeout configured by the
-user. Do so.
+Update mtk-wdt document for MT8195 platform.
 
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Christine Zhu <Christine.Zhu@mediatek.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/watchdog/f71808e_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index f60beec1bbae..f7d82d261913 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -228,15 +228,17 @@ static int watchdog_set_timeout(int timeout)
+diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+index e36ba60de829..ca9b67ab7c44 100644
+--- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"mediatek,mt8183-wdt": for MT8183
+ 	"mediatek,mt8516-wdt", "mediatek,mt6589-wdt": for MT8516
+ 	"mediatek,mt8192-wdt": for MT8192
++	"mediatek,mt8195-wdt": for MT8195
  
- 	mutex_lock(&watchdog.lock);
+ - reg : Specifies base physical address and size of the registers.
  
--	watchdog.timeout = timeout;
- 	if (timeout > 0xff) {
- 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
- 		watchdog.minutes_mode = true;
-+		timeout = watchdog.timer_val * 60;
- 	} else {
- 		watchdog.timer_val = timeout;
- 		watchdog.minutes_mode = false;
- 	}
- 
-+	watchdog.timeout = timeout;
-+
- 	mutex_unlock(&watchdog.lock);
- 
- 	return 0;
 -- 
-git-series 0.9.1
+2.18.0
+
