@@ -2,99 +2,100 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 517B9C4338F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:31:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BFD0C4338F
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:39:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3548B60F45
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:31:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B1AE60F55
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:39:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234120AbhGZLvD (ORCPT
+        id S234039AbhGZL6m (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 26 Jul 2021 07:51:03 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:37790 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S234110AbhGZLuz (ORCPT
+        Mon, 26 Jul 2021 07:58:42 -0400
+Received: from goliath.siemens.de ([192.35.17.28]:44724 "EHLO
+        goliath.siemens.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233859AbhGZL6m (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Jul 2021 07:50:55 -0400
-X-UUID: 119136e097104ddcb3445739bbcef377-20210726
-X-UUID: 119136e097104ddcb3445739bbcef377-20210726
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
-        (envelope-from <christine.zhu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 412292837; Mon, 26 Jul 2021 20:31:18 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 26 Jul 2021 20:31:17 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 26 Jul 2021 20:31:16 +0800
-From:   Christine Zhu <Christine.Zhu@mediatek.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>
-CC:     <srv_heupstream@mediatek.com>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <seiya.wang@mediatek.com>,
-        Christine Zhu <Christine.Zhu@mediatek.com>
-Subject: [v7,3/3] watchdog: mediatek: mt8195: add wdt support
-Date:   Mon, 26 Jul 2021 20:29:02 +0800
-Message-ID: <20210726122901.12195-4-Christine.Zhu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20210726122901.12195-1-Christine.Zhu@mediatek.com>
-References: <20210726122901.12195-1-Christine.Zhu@mediatek.com>
+        Mon, 26 Jul 2021 07:58:42 -0400
+X-Greylist: delayed 2075 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Jul 2021 07:58:41 EDT
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by goliath.siemens.de (8.15.2/8.15.2) with ESMTPS id 16QC4Iac011365
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Jul 2021 14:04:18 +0200
+Received: from [139.22.37.28] ([139.22.37.28])
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 16QC4HQP009313;
+        Mon, 26 Jul 2021 14:04:18 +0200
+Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Christian Storm <christian.storm@siemens.com>,
+        =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>
+References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
+ <CAHp75VfCydLguFX=MSoAQ_gayra5ovuwLxcY7m_pHiafvB7b5w@mail.gmail.com>
+From:   Jan Kiszka <jan.kiszka@siemens.com>
+Message-ID: <c1c15112-b102-570b-1432-568ca219ccf9@siemens.com>
+Date:   Mon, 26 Jul 2021 14:04:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+In-Reply-To: <CAHp75VfCydLguFX=MSoAQ_gayra5ovuwLxcY7m_pHiafvB7b5w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Support MT8195 watchdog device.
+On 26.07.21 14:01, Andy Shevchenko wrote:
+> On Mon, Jul 26, 2021 at 2:46 PM Jan Kiszka <jan.kiszka@siemens.com> wrote:
+>>
+>> From: Jan Kiszka <jan.kiszka@siemens.com>
+>>
+>> Obviously, the test needs to run against the register content, not its
+>> address.
+>>
+>> Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on second timeout")
+>> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
+> 
+>> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> 
+> Missed SoB of the submitter (hint: configure your Git to make sure
+> that submitter and author are the same in terms of name-email).
 
-Signed-off-by: Christine Zhu <Christine.Zhu@mediatek.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
----
- drivers/watchdog/mtk_wdt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+The signed off is there. Not sure what you are referring to.
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 97ca993bd009..3c3f8adc45ac 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -12,6 +12,7 @@
- #include <dt-bindings/reset-controller/mt2712-resets.h>
- #include <dt-bindings/reset-controller/mt8183-resets.h>
- #include <dt-bindings/reset-controller/mt8192-resets.h>
-+#include <dt-bindings/reset/mt8195-resets.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/init.h>
-@@ -81,6 +82,10 @@ static const struct mtk_wdt_data mt8192_data = {
- 	.toprgu_sw_rst_num = MT8192_TOPRGU_SW_RST_NUM,
- };
- 
-+static const struct mtk_wdt_data mt8195_data = {
-+	.toprgu_sw_rst_num = MT8195_TOPRGU_SW_RST_NUM,
-+};
-+
- static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 			       unsigned long id, bool assert)
- {
-@@ -341,6 +346,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
- 	{ .compatible = "mediatek,mt6589-wdt" },
- 	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
- 	{ .compatible = "mediatek,mt8192-wdt", .data = &mt8192_data },
-+	{ .compatible = "mediatek,mt8195-wdt", .data = &mt8195_data },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, mtk_wdt_dt_ids);
+> 
+> ...
+> 
+>>         if (p->smi_res &&
+>> -           (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+>> +           (inl(SMI_EN(p)) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+>>                 tmrval /= 2;
+> 
+> There are so many parentheses, perhaps
+> 
+> #define TCO_GBL_SMI_EN   (TCO_EN | GBL_SMI_EN)
+> ...
+>        if (p->smi_res &&
+>            (inl(SMI_EN(p)) & TCO_GBL_SMI_EN) != TCO_GBL_SMI_EN)
+>                tmrval /= 2;
+> 
+> ?
+> 
+
+Let's focus on the regression fix (and you could have mentioned that on
+the original patch already).
+
+Jan
+
 -- 
-2.18.0
-
+Siemens AG, T RDA IOT
+Corporate Competence Center Embedded Linux
