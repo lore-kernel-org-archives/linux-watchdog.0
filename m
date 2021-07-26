@@ -2,102 +2,108 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2ABDC4320A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:45:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F14D6C43214
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 13:42:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC8C960F45
-	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 12:45:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC1B060241
+	for <linux-watchdog@archiver.kernel.org>; Mon, 26 Jul 2021 13:42:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbhGZMEv (ORCPT
+        id S234161AbhGZNCH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 26 Jul 2021 08:04:51 -0400
-Received: from david.siemens.de ([192.35.17.14]:56883 "EHLO david.siemens.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233754AbhGZMEu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Jul 2021 08:04:50 -0400
-X-Greylist: delayed 2361 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Jul 2021 08:04:50 EDT
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by david.siemens.de (8.15.2/8.15.2) with ESMTPS id 16QC5dFX005210
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 26 Jul 2021 14:05:40 +0200
-Received: from [139.22.37.28] ([139.22.37.28])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 16QC5d4G009611;
-        Mon, 26 Jul 2021 14:05:39 +0200
-Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Storm <christian.storm@siemens.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>,
-        stable <stable@vger.kernel.org>
-References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
- <b3b75b72-33d4-ce21-a8f4-77a37156aa9e@redhat.com>
-From:   Jan Kiszka <jan.kiszka@siemens.com>
-Message-ID: <0e37c448-26cc-7f4a-4f1a-598c595ce07e@siemens.com>
-Date:   Mon, 26 Jul 2021 14:05:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        Mon, 26 Jul 2021 09:02:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233903AbhGZNBd (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 26 Jul 2021 09:01:33 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B919C061757;
+        Mon, 26 Jul 2021 06:41:26 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id m10-20020a17090a34cab0290176b52c60ddso2598pjf.4;
+        Mon, 26 Jul 2021 06:41:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=86rnBHji9Xk7NcgifSarZEp/toeYNcQuiSn6nVGy4jI=;
+        b=BsfxXeWHHatzRFSCVSXTdXPDLk1Ots3pqTmqFAI115TTo+Zo2p2z1f5yHtCVyZJO3v
+         6iJnkeWyUvFXtOKQxzzPndHgbgAT+zETR8dI0mkcLG2Z9YiuxGXDXC4XT0DfnAIqXJ95
+         u5VDpb932B7swQ9r1WXwYxgIPst2b8FjOOcW4tPmuiuWVlBAsixtD38sTrAqHwsaXSOR
+         efBqNPeH/DvtTplRKtJ/c+AOuM7hCeiNw5Vt+MM+8ZWcg1i/kU0HaCujVVujz2jsCMhf
+         QqLiha147kf3nz9m5naLWB795yp1aD/rSsGvt20utJ5HhPyiL3t/dt+mhgEejkLFUJGF
+         Pmvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=86rnBHji9Xk7NcgifSarZEp/toeYNcQuiSn6nVGy4jI=;
+        b=jnnMQAp80B0mtySDjhwHuxMVc8pn2wLabJjwSR77VuTWNCSWIKfwNJNgjp6fdamsHe
+         Cv1tDmXbNBSo3ITjSDgyxpg8rMlqFcc/QFu7xZXvKXsOD4uDcS6SwpAwen7aKkV0Pt05
+         Gexn9Uj4D8/lOfn5BMyaqb7kKqzz7exhehrfU/N5X2GLrOzeKr6AyoKbu2HLswWcrGcR
+         qenqBlHz5DDCPJgoKWDj+lfmiqjEEBy2rh01izaHBRUuxatCd5rFxg3F0aL7/MFZvB98
+         lziG/RpFKYjFBw5G+pgy6wvRd3WgbxvXROtJNj+/GShk8LWiv8/0WHrwAivfLH2lh2vS
+         Tovw==
+X-Gm-Message-State: AOAM531RzDz4+FNK03wF4606gBLTRy0nwcIJpHGRr8LuZmD9nqW3P/p3
+        yawTrizH7Ysr6Swufk/MxX0kQV8gFtD5GuUaVrE=
+X-Google-Smtp-Source: ABdhPJzEXc2js49a534TAA/L9dTGjfTDfJsyWqiSyFNh72SEYXOKzinkpjCDr6CdAxWVGoCoEt7XWoCfyYPuOSk+Dbc=
+X-Received: by 2002:a63:5a5b:: with SMTP id k27mr18348648pgm.74.1627306885943;
+ Mon, 26 Jul 2021 06:41:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <b3b75b72-33d4-ce21-a8f4-77a37156aa9e@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
+ <CAHp75VfCydLguFX=MSoAQ_gayra5ovuwLxcY7m_pHiafvB7b5w@mail.gmail.com> <c1c15112-b102-570b-1432-568ca219ccf9@siemens.com>
+In-Reply-To: <c1c15112-b102-570b-1432-568ca219ccf9@siemens.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Mon, 26 Jul 2021 16:40:46 +0300
+Message-ID: <CAHp75VdYUUqVi6rd6C-W+1aTXCPs7ehSLDcRfo4RVe7XU+6c+A@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
+To:     Jan Kiszka <jan.kiszka@siemens.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Christian Storm <christian.storm@siemens.com>,
+        =?UTF-8?Q?Mantas_Mikul=C4=97nas?= <grawity@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 26.07.21 14:03, Paolo Bonzini wrote:
-> On 26/07/21 13:46, Jan Kiszka wrote:
->> From: Jan Kiszka <jan.kiszka@siemens.com>
->>
->> Obviously, the test needs to run against the register content, not its
->> address.
->>
->> Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on
->> second timeout")
->> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
->> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
->> ---
->>   drivers/watchdog/iTCO_wdt.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
->> index b3f604669e2c..643c6c2d0b72 100644
->> --- a/drivers/watchdog/iTCO_wdt.c
->> +++ b/drivers/watchdog/iTCO_wdt.c
->> @@ -362,7 +362,7 @@ static int iTCO_wdt_set_timeout(struct
->> watchdog_device *wd_dev, unsigned int t)
->>        * Otherwise, the BIOS generally reboots when the SMI triggers.
->>        */
->>       if (p->smi_res &&
->> -        (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
->> +        (inl(SMI_EN(p)) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN |
->> GBL_SMI_EN))
->>           tmrval /= 2;
->>         /* from the specs: */
->>
-> 
-> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: stable@vger.kernel.org
-> 
-> (the latter because cb011044e34c has been picked up by stable kernels
-> already).
-> 
+On Mon, Jul 26, 2021 at 3:04 PM Jan Kiszka <jan.kiszka@siemens.com> wrote:
+>
+> On 26.07.21 14:01, Andy Shevchenko wrote:
+> > On Mon, Jul 26, 2021 at 2:46 PM Jan Kiszka <jan.kiszka@siemens.com> wro=
+te:
+> >>
+> >> From: Jan Kiszka <jan.kiszka@siemens.com>
+> >>
+> >> Obviously, the test needs to run against the register content, not its
+> >> address.
+> >>
+> >> Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on sec=
+ond timeout")
+> >> Reported-by: Mantas Mikul=C4=97nas <grawity@gmail.com>
+> >
+> >> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> >
+> > Missed SoB of the submitter (hint: configure your Git to make sure
+> > that submitter and author are the same in terms of name-email).
+>
+> The signed off is there. Not sure what you are referring to.
 
-Thanks. Originally wanted to add stable myself, but I'm still unsure
-whether this is the privilege of the subsystem maintainer or should also
-be done by contributors.
+Nope. It's not. The sign of that is the From: line in the body of the
+email. It happens when the submitter !=3D author. And SoB of the former
+one is absent. But what is strange is that reading them here I haven't
+found the difference. Maybe one is in UTF-8 while the other is not and
+a unicode character degraded to Latin-1 or so?
 
-Jan
-
--- 
-Siemens AG, T RDA IOT
-Corporate Competence Center Embedded Linux
+--=20
+With Best Regards,
+Andy Shevchenko
