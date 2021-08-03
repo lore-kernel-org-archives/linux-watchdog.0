@@ -2,132 +2,91 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A32C4338F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:27:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F16C7C432BE
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:32:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D40E60F93
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:27:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D74AB60FC2
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:32:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236699AbhHCP11 (ORCPT
+        id S236605AbhHCPcj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 3 Aug 2021 11:27:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236616AbhHCP11 (ORCPT
+        Tue, 3 Aug 2021 11:32:39 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:34804 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236593AbhHCPci (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 Aug 2021 11:27:27 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A77C061757;
-        Tue,  3 Aug 2021 08:27:14 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id x15so28528441oic.9;
-        Tue, 03 Aug 2021 08:27:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=pFZLhwf8uWtcoFg6OfsbtxXzjUjvk0s3pcwcMmfspy0=;
-        b=ni3iNbITXEYEyCTXCxrlMZen+f7/t4wpiwd3sXfLn+H4GebKXwRulbPoh5qXFILWcE
-         1F4J6eS7SDQ4KZFZ2v0V4Dadtc6qFFQJ4BkFhEbbLf/uPgAGLMaBFpsYt8VaJhNVQtoS
-         XY5HviP+PGT8ayMYiarLdzcJVbh4ilO+kIA/EYW4aqH7IBMYkgqCJISMPvakCGN5729N
-         /pF2bqYh2HSVXLurw/12eKdoLq/loO5HeM1BESS3fE+zQBE/btM6qdLZ5SJeWLztHuAX
-         z/obhYGfen9a7Ke9Iej4P0fo6lFXQIgYHjEMggmXUQP4wGvWC5li+12Hy/YVb8T7HKL4
-         UuWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:to:cc:references:from:subject:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pFZLhwf8uWtcoFg6OfsbtxXzjUjvk0s3pcwcMmfspy0=;
-        b=ZlgowPs0hNdbEdRhgqCiYvFjllRwdEshV2cBXxTuSMB7WxYf5SVdDC+L4UnUA+N7K7
-         MZJX3Atv4mUp+Xh8bEr+6STXwmDXRpAPpH2Iqp2zeJX846EjtbTCLDxy3IV8W0v9tv3M
-         lDbiaFdPsOh4NuEMvbzu5h7HWfbEvE+Mc4hAyWWS92BdBJS8Nj4odLvmSjcVEvufL9/d
-         9ZMD0cn+37uBfM4F7hPzPOgvTH0v7LwPiOWxGDZFvc19pRuyaGcSuZy53z4UmINmLTfY
-         G9aT/Xh2a5ygyS+T1QyKWomuqvLibkSWylQnSgOIAVLHirhmVtDXnj2DdbALjngxAzzU
-         FulQ==
-X-Gm-Message-State: AOAM531oW7OMoJQYTInicMRIhKn+cHFizVu4RlTfAMKiO4H8iNPNMZeq
-        1AL+PX3O92elz2SpqgJZptA=
-X-Google-Smtp-Source: ABdhPJzyv9fwUlGn+ncWIpH5NywzojqyMhKAAI0QZZ4oVryaoqVD0LqTAYzCtgBIff8stPTX63tAFQ==
-X-Received: by 2002:a05:6808:1d6:: with SMTP id x22mr14906323oic.8.1628004434089;
-        Tue, 03 Aug 2021 08:27:14 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j30sm2543937otc.43.2021.08.03.08.27.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Aug 2021 08:27:13 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-To:     Jan Kiszka <jan.kiszka@siemens.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        linux-watchdog@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Tue, 3 Aug 2021 11:32:38 -0400
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id B143D200E0;
+        Tue,  3 Aug 2021 15:32:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1628004746; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6OSGPF5D3q2JVOZFpz/DvWMm2k1bbReM2uj7mjlJYE4=;
+        b=oZHbQhBn1C2LmR02dutvb14acpqmuNknv0BhcGeMdv3uRwLRp+n+jy32/l/hhflLEjobVj
+        Ej83IJ1ZlF7lCcehxTog55L6zU2qHOPcNuX9yZT4/sm0DcHB9yIFAPvK0lTJE3iGHDaD2+
+        PdbfB0vXWhNySVWwz5LS/vVNXXQlBeA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1628004746;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6OSGPF5D3q2JVOZFpz/DvWMm2k1bbReM2uj7mjlJYE4=;
+        b=ZmXcoS0024uai/HmjA25bhV/Nph9in9Uy5KqMAhxMcZI82DT3WPJeK9oLIFWZ+OqnQ3+tw
+        FVL9emYRQbRBMYDQ==
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 3E9BA13B68;
+        Tue,  3 Aug 2021 15:32:26 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap1.suse-dmz.suse.de with ESMTPSA
+        id rmcYC4phCWFBeQAAGKfGzw
+        (envelope-from <jdelvare@suse.de>); Tue, 03 Aug 2021 15:32:26 +0000
+Date:   Tue, 3 Aug 2021 17:32:24 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Jan Kiszka <jan.kiszka@siemens.com>
+Cc:     linux-watchdog@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Michael Marley <michael@michaelmarley.com>
-References: <20210803165108.4154cd52@endymion>
- <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
- <67815219-7226-1a90-4599-5649e9bbc861@siemens.com>
-From:   Guenter Roeck <linux@roeck-us.net>
 Subject: Re: Faulty commit "watchdog: iTCO_wdt: Account for rebooting on
  second timeout"
-Message-ID: <2dae7010-f375-ecbe-c477-0bbd28b92aac@roeck-us.net>
-Date:   Tue, 3 Aug 2021 08:27:12 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+Message-ID: <20210803173224.7bdfcbc7@endymion>
+In-Reply-To: <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
+References: <20210803165108.4154cd52@endymion>
+        <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <67815219-7226-1a90-4599-5649e9bbc861@siemens.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 8/3/21 8:01 AM, Jan Kiszka wrote:
-> On 03.08.21 16:59, Jan Kiszka wrote:
->> On 03.08.21 16:51, Jean Delvare wrote:
->>> Hi all,
->>>
->>> Commit cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on
->>> second timeout") causes a regression on several systems. Symptoms are:
->>> system reboots automatically after a short period of time if watchdog
->>> is enabled (by systemd for example). This has been reported in bugzilla:
->>>
->>> https://bugzilla.kernel.org/show_bug.cgi?id=213809
->>>
->>> Unfortunately this commit was backported to all stable kernel branches
->>> (4.14, 4.19, 5.4, 5.10, 5.12 and 5.13). I'm not sure why that is the
->>> case, BTW, as there is no Fixes tag and no Cc to stable@vger either.
->>> And the fix is not trivial, has apparently not seen enough testing,
->>> and addresses a problem that has a known and simple workaround. IMHO it
->>> should never have been accepted as a stable patch in the first place.
->>> Especially when the previous attempt to fix this issue already ended
->>> with a regression and a revert.
->>>
->>> Anyway... After a glance at the patch, I see what looks like a nice
->>> thinko:
->>>
->>> +	if (p->smi_res &&
->>> +	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
->>>
->>> The author most certainly meant inl(SMI_EN(p)) (the register's value)
->>> and not SMI_EN(p) (the register's address).
->>>
+On Tue, 3 Aug 2021 16:59:02 +0200, Jan Kiszka wrote:
+> https://lkml.org/lkml/2021/7/26/349
 
-Yes, shame on me that I didn't see that.
+For the record, I tested this fix successfully on my system (as in: no
+more random reboots).
 
->>
->> https://lkml.org/lkml/2021/7/26/349
->>
-> 
-> That's for the fix (in line with your analysis).
-> 
-> I was also wondering if backporting that quickly was needed. Didn't
-> propose it, though.
-> 
+Tested-by: Jean Delvare <jdelvare@suse.de>
 
-I'd suggest to discuss that with Greg and Sasha. Backporting is pretty
-aggressive nowadays.
-
-Guenter
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
