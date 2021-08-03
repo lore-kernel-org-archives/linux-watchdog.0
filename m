@@ -2,124 +2,83 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAD8EC4320E
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Aug 2021 09:41:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4187C4320A
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 05:38:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93F3D61050
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 Aug 2021 09:41:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2E6C60EBD
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 05:38:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbhHBJlo (ORCPT
+        id S233869AbhHCFiO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 2 Aug 2021 05:41:44 -0400
-Received: from lizzard.sbs.de ([194.138.37.39]:57572 "EHLO lizzard.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231625AbhHBJlo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 Aug 2021 05:41:44 -0400
-X-Greylist: delayed 1155 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Aug 2021 05:41:42 EDT
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 1729LkuU019819
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 Aug 2021 11:21:46 +0200
-Received: from md1za8fc.ad001.siemens.net ([139.25.0.59])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 1729Ljod022415;
-        Mon, 2 Aug 2021 11:21:45 +0200
-Date:   Mon, 2 Aug 2021 11:21:42 +0200
-From:   Henning Schild <henning.schild@siemens.com>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux LED Subsystem <linux-leds@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        Srikanth Krishnakar <skrishnakar@gmail.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Gross <mgross@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        "Farooq, Muhammad Hamza" <hamza.farooq@siemens.com>
-Subject: Re: [PATCH v2 0/4] add device drivers for Siemens Industrial PCs
-Message-ID: <20210802112142.065b46a5@md1za8fc.ad001.siemens.net>
-In-Reply-To: <CAHp75Vfu1PoN6bH4ew99Ct9JS=d9KSXtM0EXV_T7VF211TW-Yg@mail.gmail.com>
-References: <20210315095710.7140-1-henning.schild@siemens.com>
-        <CAHp75Vfu1PoN6bH4ew99Ct9JS=d9KSXtM0EXV_T7VF211TW-Yg@mail.gmail.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        Tue, 3 Aug 2021 01:38:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233758AbhHCFiN (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 3 Aug 2021 01:38:13 -0400
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737C9C0613D5
+        for <linux-watchdog@vger.kernel.org>; Mon,  2 Aug 2021 22:38:03 -0700 (PDT)
+Received: by mail-io1-xd2a.google.com with SMTP id z7so22162589iog.13
+        for <linux-watchdog@vger.kernel.org>; Mon, 02 Aug 2021 22:38:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vi76Iy2+G7lRArH6vuam1Hfh2GEzigTGHE+mXu3eEQw=;
+        b=qLj1y6fObSImVY0F0di8u/IF17wANqqqgvULYkhwRpKAGIdln28rEco4Riz8tMS4z+
+         3ZfBL+GTgm0I3uYsrPqR38H1ZePcnoxJJA5jHljoEUgk57jKKhKJvmj1uXlK8Fcrcnfw
+         IYoUcNNbQStu/smuDcK/AU7hIRpe5mCbAHIJtLG4wBYq1OiM5cIO1KCjwMHyu3O6SzwR
+         VSrTFDVzKDqdZwOqIY+qk3GT8nxZWCAXeKQiVxkNrWwQKgihwE1nYU1//j0WTbUzxCiw
+         GlEZZTBXyEK8nzark4WGWGiA/azDDniWdirEvCdMJ9NtpU6nygtVUuN0+rQgaX56lt0I
+         pD5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vi76Iy2+G7lRArH6vuam1Hfh2GEzigTGHE+mXu3eEQw=;
+        b=rB2TL3e0zSC3ZvK5TWzKtQjeqHx5zgAh3dxgU8jbvtJsn73rVog0GrV25Gqt5kwjsF
+         W5qLC6G4mNi1ru1iAHglfephgimCDQBZ9zucRD02sEXxN8Fqr6w5hdc49X9F3HOpUi+9
+         dIr9NfPDkfx32sOCHYbPRs0N0IHmQrQ40pL2Sq4zGLaZy1ydpE+Qpg0kZHWL+asJ21sP
+         +F6HVQ/5GXbfFazOcVlYXxdE4AE6vt6oQZz3a5B1CmbdGl0JbvwoCGsT0Fw5iHLqQc4d
+         4YcWXp7GD2NBUyQ3RsyqJ/yttg4mgITozmzZ1McEumSBqRy0XjxolKGPPS8384r1jwbq
+         dmHQ==
+X-Gm-Message-State: AOAM533UF0X5RgHm6kPACLtEWh0HiZSZOQ7eqc09rLzTV6pH9fLxfsUF
+        wVw/GGW7a12wdt/2JXP7OFw6k9Y8KCjR4+LzKIqSMTYnLz/XRw==
+X-Google-Smtp-Source: ABdhPJw/2YigJyn4JYO2+qd6bLRkOERLsf4W8mUBRLblDDC0N6ey6KPmqUc7erPS6iYqy2aN3qVsIE+0gB6rMCfF710=
+X-Received: by 2002:a02:ba87:: with SMTP id g7mr11453418jao.110.1627969081709;
+ Mon, 02 Aug 2021 22:38:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20210726122901.12195-1-Christine.Zhu@mediatek.com> <20210726122901.12195-2-Christine.Zhu@mediatek.com>
+In-Reply-To: <20210726122901.12195-2-Christine.Zhu@mediatek.com>
+From:   Tzung-Bi Shih <tzungbi@google.com>
+Date:   Tue, 3 Aug 2021 13:37:50 +0800
+Message-ID: <CA+Px+wX+gy4hV3BsTU81ThS=FUe0HidUV-iZZvQ3qm4WxKXGxQ@mail.gmail.com>
+Subject: Re: [v7,1/3] dt-bindings: mediatek: mt8195: update mtk-wdt document
+To:     Christine Zhu <christine.zhu@mediatek.com>
+Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
+        matthias.bgg@gmail.com, srv_heupstream@mediatek.com,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        seiya.wang@mediatek.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Am Mon, 15 Mar 2021 12:55:13 +0200
-schrieb Andy Shevchenko <andy.shevchenko@gmail.com>:
-
-> On Mon, Mar 15, 2021 at 12:12 PM Henning Schild
-> <henning.schild@siemens.com> wrote:
-> >
-> > changes since v1:
-> >
-> > - fixed lots of style issues found in v1
-> >   - (debug) printing
-> >   - header ordering
-> > - fixed license issues GPLv2 and SPDX in all files
-> > - module_platform_driver instead of __init __exit
-> > - wdt simplifications cleanup
-> > - lots of fixes in wdt driver, all that was found in v1
-> > - fixed dmi length in dmi helper
-> > - changed LED names to allowed ones
-> > - move led driver to simple/
-> > - switched pmc_atom to dmi callback with global variable
-> >
-> > --
-> >
-> > This series adds support for watchdogs and leds of several x86
-> > devices from Siemens.
-> >
-> > It is structured with a platform driver that mainly does
-> > identification of the machines. It might trigger loading of the
-> > actual device drivers by attaching devices to the platform bus.
-> >
-> > The identification is vendor specific, parsing a special binary DMI
-> > entry. The implementation of that platform identification is
-> > applied on pmc_atom clock quirks in the final patch.
-> >
-> > It is all structured in a way that we can easily add more devices
-> > and more platform drivers later. Internally we have some more code
-> > for hardware monitoring, more leds, watchdogs etc. This will follow
-> > some day.  
-> 
-> Thanks for an update!
-> 
-> I did review more thoughtfully the series and realized that you can
-> avoid that P2SB thingy and may the approach be much cleaner if you
-> register the real GPIO driver and convert your LEDs to be a GPIO LEDs.
-> Then you won't need any custom code for it (except some board file, or
-> what would be better to file _DSD in your ACPI tables.
-
-For the next generation of these machines i managed to involve the BIOS
-guys. Goal would be to describe as much as possible in a generic and
-standard way in ACPI, to reduce cost on driver dev and maint in the
-long run. Hopefully across OSs.
-
-The first thing we wanted to look into is LEDs. The way they can be
-described for leds-gpio does not seem to be standard but at least seems
-generic. At the same time we contemplated whether to model the LEDs
-using the multicolor class.
-
-One thing that seems to speak against using multicolor seems to be
-missing ACPI "support", while regular LEDs can be described in ACPI, it
-does not seem like multicolor can. Or did we miss something?
-
-regards,
-Henning
-
-> --
-> With Best Regards,
-> Andy Shevchenko
-
+On Mon, Jul 26, 2021 at 8:30 PM Christine Zhu
+<Christine.Zhu@mediatek.com> wrote:
+> @@ -13,6 +13,7 @@ Required properties:
+>         "mediatek,mt8183-wdt": for MT8183
+>         "mediatek,mt8516-wdt", "mediatek,mt6589-wdt": for MT8516
+>         "mediatek,mt8192-wdt": for MT8192
+> +       "mediatek,mt8195-wdt": for MT8195
+Just realized the patch has been applied in commit b326f2c85f3d
+("dt-bindings: watchdog: Add compatible for Mediatek MT8195").  Could
+you rebase the series to the latest tree and resend?
