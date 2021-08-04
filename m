@@ -2,91 +2,69 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F16C7C432BE
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:32:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D50EC4338F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  4 Aug 2021 00:12:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D74AB60FC2
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 Aug 2021 15:32:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E24A60F94
+	for <linux-watchdog@archiver.kernel.org>; Wed,  4 Aug 2021 00:12:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236605AbhHCPcj (ORCPT
+        id S234078AbhHDAMd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 3 Aug 2021 11:32:39 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:34804 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236593AbhHCPci (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 Aug 2021 11:32:38 -0400
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        Tue, 3 Aug 2021 20:12:33 -0400
+Received: from 2098.x.rootbsd.net ([208.79.82.66]:55009 "EHLO pilot.trilug.org"
+        rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S233118AbhHDAMd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 3 Aug 2021 20:12:33 -0400
+X-Greylist: delayed 488 seconds by postgrey-1.27 at vger.kernel.org; Tue, 03 Aug 2021 20:12:32 EDT
+Received: by pilot.trilug.org (Postfix, from userid 8)
+        id 52AC95979A; Tue,  3 Aug 2021 20:04:10 -0400 (EDT)
+Received: from michaelmarley.com (unknown [IPv6:2605:a600:1d05:afa8::1])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B143D200E0;
-        Tue,  3 Aug 2021 15:32:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1628004746; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6OSGPF5D3q2JVOZFpz/DvWMm2k1bbReM2uj7mjlJYE4=;
-        b=oZHbQhBn1C2LmR02dutvb14acpqmuNknv0BhcGeMdv3uRwLRp+n+jy32/l/hhflLEjobVj
-        Ej83IJ1ZlF7lCcehxTog55L6zU2qHOPcNuX9yZT4/sm0DcHB9yIFAPvK0lTJE3iGHDaD2+
-        PdbfB0vXWhNySVWwz5LS/vVNXXQlBeA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1628004746;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6OSGPF5D3q2JVOZFpz/DvWMm2k1bbReM2uj7mjlJYE4=;
-        b=ZmXcoS0024uai/HmjA25bhV/Nph9in9Uy5KqMAhxMcZI82DT3WPJeK9oLIFWZ+OqnQ3+tw
-        FVL9emYRQbRBMYDQ==
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 3E9BA13B68;
-        Tue,  3 Aug 2021 15:32:26 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap1.suse-dmz.suse.de with ESMTPSA
-        id rmcYC4phCWFBeQAAGKfGzw
-        (envelope-from <jdelvare@suse.de>); Tue, 03 Aug 2021 15:32:26 +0000
-Date:   Tue, 3 Aug 2021 17:32:24 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Jan Kiszka <jan.kiszka@siemens.com>
-Cc:     linux-watchdog@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Michael Marley <michael@michaelmarley.com>
+        by pilot.trilug.org (Postfix) with ESMTPSA id 1B5005838B;
+        Tue,  3 Aug 2021 20:04:07 -0400 (EDT)
+Received: from michaelmarley.com (localhost [IPv6:::1])
+        by michaelmarley.com (Postfix) with ESMTP id 5478C18010B;
+        Tue,  3 Aug 2021 20:04:06 -0400 (EDT)
+Received: from [IPv6:fdda:5f29:421b:3:99bb:f97:ec80:f7a6] ([fdda:5f29:421b:3:99bb:f97:ec80:f7a6])
+        by michaelmarley.com with ESMTPSA
+        id NqdiFHbZCWH5PQAAnAHMIA
+        (envelope-from <michael@michaelmarley.com>); Tue, 03 Aug 2021 20:04:06 -0400
 Subject: Re: Faulty commit "watchdog: iTCO_wdt: Account for rebooting on
  second timeout"
-Message-ID: <20210803173224.7bdfcbc7@endymion>
-In-Reply-To: <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
+To:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        linux-watchdog@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
 References: <20210803165108.4154cd52@endymion>
-        <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+ <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
+From:   Michael Marley <michael@michaelmarley.com>
+Message-ID: <934e0af4-3c4c-3ac5-30e2-958f0725a21d@michaelmarley.com>
+Date:   Tue, 3 Aug 2021 20:04:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <e13f45c4-70e2-e2c2-9513-ce38c8235b4f@siemens.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, 3 Aug 2021 16:59:02 +0200, Jan Kiszka wrote:
+On 8/3/21 10:59 AM, Jan Kiszka wrote:
+
 > https://lkml.org/lkml/2021/7/26/349
 
-For the record, I tested this fix successfully on my system (as in: no
-more random reboots).
+It fixes the problem for me (the person who opened the Bugzilla report) 
+too, thanks!
 
-Tested-by: Jean Delvare <jdelvare@suse.de>
+Tested-by: Michael Marley <michael@michaelmarley.com>
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
