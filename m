@@ -1,191 +1,116 @@
 Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,LOTS_OF_MONEY,MAILING_LIST_MULTI,
+	MONEY_FREEMAIL_REPTO,MONEY_NOHTML,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3E17C4320A
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Aug 2021 04:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0BADC4338F
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Aug 2021 22:04:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E71861078
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Aug 2021 04:57:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C50D661156
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Aug 2021 22:04:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236761AbhHEE5i (ORCPT
+        id S238640AbhHEWE4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Aug 2021 00:57:38 -0400
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:43563 "EHLO
-        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236808AbhHEE5h (ORCPT
+        Thu, 5 Aug 2021 18:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237601AbhHEWEw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Aug 2021 00:57:37 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.west.internal (Postfix) with ESMTP id E14702B005AE;
-        Thu,  5 Aug 2021 00:57:22 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Thu, 05 Aug 2021 00:57:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=ihmVq/5E6B8RM
-        yKVyGoR6c5bmUO1IuRGAjBHKTOJfhw=; b=U2NV4aUQG9wR4z0XiwQi3HdYxn/+m
-        05cgs80oX14V4BQ8UKQowZAA3BNqBfB5272W03NeFYnmyWe+4+B8WRdY1oDetfAd
-        sSyC8Sdescx1nANWS9pcPKJjovX8fYsR06J1YYgQ0FMvaeS0uOHfxpC2N2e3xHP4
-        jGmx2WWvHAfiQ/V0I8GhGbXF+L5UGWjdPhDnAVRC3fszaVKlnoSTqq+8LO0ythP1
-        RP6qWbFwL6boOpYpMyZRhJLXy9OLKTDgBGUJxb0edqvpK0PJQCfW36ZdQCYBiogV
-        rGt26zAC062KXuVXzd/njzVmNNG/fn/JbKb6A02QnRuvJ6I/tTA796dDQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=ihmVq/5E6B8RMyKVyGoR6c5bmUO1IuRGAjBHKTOJfhw=; b=NwiumweV
-        sRelxj4vHvK3lYRvYcco9o5tF+vjGQHeBR1Fl23rP9obSJinM8lZjiQ9Ogwn1Stt
-        AhbwIbjoO+cn43eIL/aR8UmFyEKVt4Fc+B4MD74rQqOA+8J+TKGi9s57IyKbLdQT
-        P+W6BbAg32GiVglqyfG6sQ/R8jHztYj9p/0In2P2L8gv8AcPkvWITBO5swCPtRnd
-        1pSz/6A3p/xRAFc3Er52bgnUxZsJ8MifP/hb6dsXGDCgzdzSn8qFixCWLN1wSox0
-        Hi5sd9VOaXs3EJ3ObxVhFuFI+fXlccCbdhI8Xl9YCd8P1zbF/ZQ+ULXmbHJemsUU
-        JrUAVo1etj6Fcg==
-X-ME-Sender: <xms:sm8LYfmol11OBXOWalNw1CcNDQwa9JOVl2uUEHPqGtgfccV366UXbA>
-    <xme:sm8LYS3E5BaJMlgkrvWDI1zWD_-XTIbjKPMlzeb9SAjcFjSCNUVSa8zJ9wLEq3RDF
-    pdf4JJFFWu6-7kOEA>
-X-ME-Received: <xmr:sm8LYVpNhB5z7K3PEmmcyrsjIj0q_Vxya3az7YwSI83qD1aJRD69oWJFkq2l0lZkJlUM8Bym6BeQ6xOi1s3osDr6x0n306ldYux5ICEWo7mNwjSJ2OReWxCuZXAd1X7GJCyesA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrieekgdekiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
-    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
-    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
-    jeehueeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:sm8LYXk3r3sx7OXNj8i8uTZOzFnnqAoBnW4_GpzsnWIEm_0jZCRbiA>
-    <xmx:sm8LYd0YQWOiUVxfliI8jxlYjtdzxmLpje4KOmgQZgc1F2_tCiuMFw>
-    <xmx:sm8LYWvAsNFl7Cn9FNGrDca5drT4sxA3BQwgxBXBZYlE4cHRxcKmWQ>
-    <xmx:sm8LYWucQ2r_683M7atFVlYPervBE4l3zsJY6MtxYQtSCEXRM5wNhfdWGFI>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 5 Aug 2021 00:57:21 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v2 3/3] watchdog: sunxi_wdt: Add support for D1
-Date:   Wed,  4 Aug 2021 23:57:16 -0500
-Message-Id: <20210805045716.46141-3-samuel@sholland.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210805045716.46141-1-samuel@sholland.org>
-References: <20210805045716.46141-1-samuel@sholland.org>
+        Thu, 5 Aug 2021 18:04:52 -0400
+Received: from server.example.com (unknown [IPv6:2001:41d0:8:808d::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AE6C0613D5
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Aug 2021 15:04:37 -0700 (PDT)
+Received: by server.example.com (Postfix, from userid 1023)
+        id D0613D4651F; Thu,  5 Aug 2021 21:15:39 +0000 (UTC)
+To:     linux-watchdog@vger.kernel.org
+Subject: {Spam?} =?UTF-8?Q?Z._HD,Sehr_geehrte_/_r_Fondsempf=C3=A4nger?=
+Date:   Thu, 5 Aug 2021 21:15:39 +0000
+From:   "ANWALT BILBAO &EMMA ASSOZIIERT & CO..." 
+        <support@quali.speed.hebergement-com4design.fr>
+Reply-To: buroLotto.es@spainmail.com
+Message-ID: <58144ed867f4dda2cb9cdbf0d0172c1c@www.quali.speed.hebergement-com4design.fr>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner-ID: D0613D4651F.AB16D
+X-yoursite-MailScanner: Found to be clean
+X-yoursite-MailScanner-SpamCheck: spam, SpamAssassin (cached, score=7.061,
+        required 6, ADVANCE_FEE_2_NEW_MONEY 0.15,
+        FREEMAIL_FORGED_REPLYTO 2.50, FREEMAIL_REPLYTO 1.00,
+        LOTS_OF_MONEY 0.00, MONEY_FREEMAIL_REPTO 2.43, MONEY_NOHTML 0.97,
+        NO_RELAYS -0.00, T_FILL_THIS_FORM_SHORT 0.01, XFER_LOTSA_MONEY 0.00)
+X-yoursite-MailScanner-SpamScore: sssssss
+X-yoursite-MailScanner-From: support@quali.speed.hebergement-com4design.fr
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-D1 adds a key field to the "CFG" and "MODE" registers, that must be set
-to change the other bits. Add logic to set the key when updating those
-registers.
+Rechtsanwältin BILBAO &EMMA ASSOZIIERT & CO...
+#########################################
+AV/DE GRAN VIA NO.38k, 28008 MADRID.   SPAIN 
+TEL. ( 34) 602 810 185 FAX: ( 34) 931-702-120
+Eingetragener Fall NR: GY/Q3J63753 / SQQ/93000XS10.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
-Changes v1 to v2:
- - None.
+Ihnen wird empfohlen, die folgenden Informationen an Ihre Bevollmächtigte zu senden. Rechtsanwältin  BILBAO & EMMA  ASSOZIIERT CO ERMÖGLICHT IHNEN DIE FREIGABE IHRES FONDS:Wir bitten dringend, Ihre E-Mails an unsere Büro-E-Mail zu beantworten, buroLotto.es@spainmail.com, 
 
- drivers/watchdog/sunxi_wdt.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+Wir gratulieren und informieren Sie über die Auswahl des Geldpreises €935.470,00 EUROS, SOMMERBONANZA, EL GORDO DE LA PRIMITIVA LOTTERIE IN VERBINDUNG MIT EUROMILLIONS ESPAÑA INTERNATIONAL LOTTERIE BEFÖRDERUNG  PROGRAMM Madrid Spanien
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index b50757882a98..6cf82922d3fb 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -48,6 +48,7 @@ struct sunxi_wdt_reg {
- 	u8 wdt_timeout_shift;
- 	u8 wdt_reset_mask;
- 	u8 wdt_reset_val;
-+	u32 wdt_key_val;
- };
+ Sehr Geehrter  Begünstigten, 
+Wir möchten Sie informieren, dass das Büro des nicht Beanspruchten Preisgeldes in Spanien,unsere Anwaltskanzlei ernannt hat, als gesetzliche Berater zu handeln, in der Verarbeitung und der Zahlung eines Preisgeldes, das auf Ihrem Namen gutgeschrieben wurde, und nun seit über zwei Jahren nicht beansprucht wurde.
+
+ Der Gesamtbetrag der ihnen zusteht beträgt momentan €935, 470, 15, cent.
+
+Der Gesamtbetrag der ihnen zusteht beträgt momentan  €935, 470, 15, neunhundert fünfunddreißigtausend, vierhundertsiebzig und fünfzehn Cent, Das ursprüngliche Preisgeld bertug €785.810, 15.00 EUROS. Siebenhundert Fünfundachtzigtausend Acht Hundertzehn Euro und fünfzehn Cent Diese Summe wurde fuer nun mehr als zwei Jahre,Gewinnbringend  angelegt,daher die aufstockung auf die oben genannte Gesamtsumme.Entsprechend dem Büros des nicht Beanspruchten  Preisgeldes,wurde dieses Geld als nicht beanspruchten Gewinn einer Lotterie Firma bei ihnen zum verwalten niedergelegt und  in ihrem namen versichert. Nach Ansicht der Lotterie Firma wurde ihnen das Geld nach einer Weihnachts Förderung Lotterie  zugesprochen. 
+
+ Die Kupons wurden von einer Investmentgesellschaft gekauft.Nach Ansicht der Lotterie Firma wurden sie damals Angeschrieben um Sie über dieses Geld zu informieren es hat sich aber leider bis zum Ablauf  der  gesetzten  Frist  keiner gemeldet um den Gewinn zu Beanspruchen. Dieses war der Grund weshalb das Geld zum verwalten niedergelegt wurde. Gemab des Spanischen Gesetzes muss der inhaber alle zwei Jahre ueber seinen vorhanden Gewinn informiert werden.Sollte dass Geld wieder nicht beansprucht werden,.wird der Gewinn abermals ueber eine Investierung gesellschaft fur eine weitere Periode von zwei Jahren angelegt werden.Wir sind daher, durch das Buro des nicht Beanspruchten Preisgelds beauftragt worden sie anzuschreiben.Dies ist eine Notifikation für das Beanspruchen dieses Gelds.
+
+Wir möchten sie darauf hinweisen, dass die Lotteriegesellschaft überprüfen und bestätigen wird ob ihre Identität  übereinstimmt bevor ihnen ihr Geld ausbezahlt wird.Wir werden sie beraten wie sie ihren Anspruch geltend machen.Bitte  setzen sie sich dafuer mit unserer Deutsch Spanisch oder Englisch Sprachigen Rechtsanwalt in Verbindung Rechtsanwältin: Bilbao & Emma ASSOZIIERT & CO.., TEL( 34) 602 810 185 & email,( Ihre Antwort sollte an diese E-MAIL-Adresse gerichtet, (promolottooffice@spainmail.com  )ist zustaendig fuer  Auszahlungen ins Ausland und wird ihnen in dieser sache zur seite stehen. Der Anspruch sollte vor den 30 August 2021 geltend  gemacht werden,da sonst dass Geld wieder angelegt werden wuerde.Wir freuen uns, von Ihnen zu hören, während wir Ihnen  unsere Rechtshilfe Versichern.
+
+Nachdem Sie die von Ihnen geforderten Daten bereitgestellt haben, können Sie davon ausgehen, dass Sie innerhalb weniger  Stunden direkt von diesem Büro erfahren werden. Bis dahin müssen wir Ihre Informationen verarbeitet und Ihre Fonds Akte für  die Zustellung vorbereitet haben, um Verzögerungen zu vermeiden. 
+Wir gehen davon aus, dass Sie die erläuternden Anweisungen und Anweisungen für den Erhalt Ihrer Prämien (935 €, 470, 15 Cent) verstehen, die Ihnen von der spanischen Euro Millones /El Gordo de la Primitiva International lotterie Madrid Spain legal zugesprochen werden.
+
+HINWEIS: Um unnötige Verzögerungen zu vermeiden, wenn es eine Änderung Ihrer Adresse oder Komplikationen geben, informieren Sie Ihren Agenten so schnell wie möglich, Ihr Agent wird 10% des Premium Preises bezahlt, da die Provision NACH Dem, was Sie Ihr Geld auf Ihr kostenpflichtiges Konto erhalten haben. Das Zahlungsbearbeitung Formular ist mit einer Fotokopie Ihres Ausweises auszufüllen und zur Überprüfung per Faxnummer zu senden: ( 34) 935457490 & E-Mail: Wir bitten dringend, Ihre E-Mails an unsere Büro-E-Mail zu beantworten  promolottooffice@spainmail.com
+
+Mit Freundlichen Grüßen
+Rechtsanwältin Bilbao & Emma ASSOZIIERT & CO..
+
+ANMELDEFORMULAR FÜR DEN GEWINNANSPRUCH Vom 28. Juni bis 30. August 2021
+Hinweis bitte geben Sie die folgenden Informationen, wie unten gefordert, faxen   34935457490 oder e mail: promolottooffice@spainmail.com ,es zurück in mein Büro sofort für uns in der Lage zu sein die Legalisierung Prozess Ihrer  Persönliche investiertes Preisgeld zu vervollständigen, und das Geld wird Ihnen von Zentralbank spain Int  ausgezahlt.  Alle Prozess Überprüfung durch unsere Kanzlei ist für Sie kostenlos, weil unsere Kosten werden von der internationalen  Lotto Kommission am Ende des Prozesses zu zahlen, wenn Sie Ihr Geld erhalten.Wenn Sie nicht die erforderlichen  Informationen vor der Zeit gegeben hat, können ist Anwaltskanzlei nicht haftbar gemacht werden, wenn Ihr Geld reinvestiert  wurde.
+
+Ein Bestätigungsschreiben wird Ihnen gefaxt werden sofort wenn wir komplette Überprüfung der Informationen die Sie uns zur  Verfügung stellen habe, Ich werde die Investmentbank unverzüglich über die von Ihnen angegebene Informationen zu kommen,  bevor sie werden mit Ihnen Kontakt aufnehmen für die ausZahlung von Ihrem Geld . Ihre Daten werden vertraulich gehalten  nach der Europäischen Union Datenschutzrecht.
+
+"Antworten Sie nicht auf die Absenderadresse oder die Quell-E-Mail-Adresse, es wird über den Computer gesendet virtuelle  Hilfe für die Antwort wird  nicht meine menschliche sondern Computer" Daher müssen Sie die Treuhänder über Telefon und E- Mail-Adresse oben" (ACHTUNG Wir (bitten Sie, auf diese E-Mail-Adresse zu antworten, (promolottooffice@spainmail.com )
+########################################################
+
+REF.NR:………………………………STAPELN Sie NR:…………………………
+Vorname:……………………Vor-NACHNAME…………………………………
+GEBURTSDATUM:……………………………BERUF:……………………………
+STRASSE:………………………………………PLZ/ORT…………………………
+ADRESSE:……………………………………………………………………………
+TELEFON:(___)……………………HANDY:(__)………………FAX (__)………
+EMAIL:…………………………………………………………Nationalitit:……
+
+HINWEIS: BANKVERBINDUNG IST NUR ERFORDERLICH, WENN SIE BESCHLIEßEN, IHREN GEWINN ZU ERHALTEN PER ÜBERWEISUNG
+
+Nachdem Sie die von Ihnen geforderten Daten bereitgestellt haben, können Sie davon ausgehen, dass Sie innerhalb weniger  Stunden direkt von diesem Büro erfahren werden. Bis dahin müssen wir Ihre Informationen verarbeitet und Ihre Fonds Akte für  die Zustellung vorbereitet haben, um Verzögerungen zu vermeiden. Wir gehen davon aus, dass Sie die erklärenden Anweisungen  und Anweisungen zum Einholen und Einholen Ihrer Auszeichnungen (€935,470,15 EUROS) verstehen, die Ihnen vom spanischen Euro Millones de La Primitiva International Madrid legal zugesprochen wurden
+
+BANK ZAHLUNGSOPTIONEN: A / BANKÜBERWEISUNG Oder BANK CERTIFIED CHECK (BANKDATEN SIND NUR NOTWENDIG, WENN SIE SICH FÜR EINE  BANKÜBERWEISUNG ENTSCHIEDEN HABEN)
+ZAHLUNGSOPTION: (A) BESTÄTIGTER SCHECK (BEZAHLEN Sie ÜBERTRAGUNG EIN
+
+BETRÄGE GEWONNEN: ……………………………………………………
+NAME DER BANK:……………………………………………………………
+KONTONUMMER:…………………………SWIFT-CODE:…………………
+ADRESSE DER BANK …………………………………………………………
+GEB-DATUM:…………Unterschrift …………(Erst bei hmeAbna)
+
+Rechtsanwältin  Bilbao & Emma Asociados, Abogados, Fiscal Y Accesorios horario de consultas Lunes.bis Samstag De. 09 - 16.30 Uhr  654280 / MLA & (Seien Sie informiert, dass Ihr Vertreter 10% des Preises als Provision erhält, wenn Sie Ihr Geld auf Ihrem  angegebenen Konto erhalten haben) Mitglied des Consejo de Constitucional de España, (ACHTUNG Wir bitten Sie, auf diese E-Mail-Adresse zu antworten (promolottooffice@spainmail.com) BÜRO-KONTOINFORMATIONEN- BANK NAME: P.F.S.SPAIN SL SWIFT CODE: PFSSESM1 IBAN: ES17 6713   0002 5700 0584 3906)COPYRIGHT 2019.LOTERIA SPANIEN. Alle Rechte vorbehalten. NUTZUNGSBEDINGUNGEN HANDELSPOLITIK DATENSCHUTZ VON BESCHWERDEN....
  
- struct sunxi_wdt_dev {
-@@ -91,12 +92,14 @@ static int sunxi_wdt_restart(struct watchdog_device *wdt_dev,
- 	val = readl(wdt_base + regs->wdt_cfg);
- 	val &= ~(regs->wdt_reset_mask);
- 	val |= regs->wdt_reset_val;
-+	val |= regs->wdt_key_val;
- 	writel(val, wdt_base + regs->wdt_cfg);
- 
- 	/* Set lowest timeout and enable watchdog */
- 	val = readl(wdt_base + regs->wdt_mode);
- 	val &= ~(WDT_TIMEOUT_MASK << regs->wdt_timeout_shift);
- 	val |= WDT_MODE_EN;
-+	val |= regs->wdt_key_val;
- 	writel(val, wdt_base + regs->wdt_mode);
- 
- 	/*
-@@ -109,6 +112,7 @@ static int sunxi_wdt_restart(struct watchdog_device *wdt_dev,
- 		mdelay(5);
- 		val = readl(wdt_base + regs->wdt_mode);
- 		val |= WDT_MODE_EN;
-+		val |= regs->wdt_key_val;
- 		writel(val, wdt_base + regs->wdt_mode);
- 	}
- 	return 0;
-@@ -141,6 +145,7 @@ static int sunxi_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 	reg = readl(wdt_base + regs->wdt_mode);
- 	reg &= ~(WDT_TIMEOUT_MASK << regs->wdt_timeout_shift);
- 	reg |= wdt_timeout_map[timeout] << regs->wdt_timeout_shift;
-+	reg |= regs->wdt_key_val;
- 	writel(reg, wdt_base + regs->wdt_mode);
- 
- 	sunxi_wdt_ping(wdt_dev);
-@@ -154,7 +159,7 @@ static int sunxi_wdt_stop(struct watchdog_device *wdt_dev)
- 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
- 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
- 
--	writel(0, wdt_base + regs->wdt_mode);
-+	writel(regs->wdt_key_val, wdt_base + regs->wdt_mode);
- 
- 	return 0;
- }
-@@ -176,11 +181,13 @@ static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
- 	reg = readl(wdt_base + regs->wdt_cfg);
- 	reg &= ~(regs->wdt_reset_mask);
- 	reg |= regs->wdt_reset_val;
-+	reg |= regs->wdt_key_val;
- 	writel(reg, wdt_base + regs->wdt_cfg);
- 
- 	/* Enable watchdog */
- 	reg = readl(wdt_base + regs->wdt_mode);
- 	reg |= WDT_MODE_EN;
-+	reg |= regs->wdt_key_val;
- 	writel(reg, wdt_base + regs->wdt_mode);
- 
- 	return 0;
-@@ -220,9 +227,20 @@ static const struct sunxi_wdt_reg sun6i_wdt_reg = {
- 	.wdt_reset_val = 0x01,
- };
- 
-+static const struct sunxi_wdt_reg sun20i_wdt_reg = {
-+	.wdt_ctrl = 0x10,
-+	.wdt_cfg = 0x14,
-+	.wdt_mode = 0x18,
-+	.wdt_timeout_shift = 4,
-+	.wdt_reset_mask = 0x03,
-+	.wdt_reset_val = 0x01,
-+	.wdt_key_val = 0x16aa0000,
-+};
-+
- static const struct of_device_id sunxi_wdt_dt_ids[] = {
- 	{ .compatible = "allwinner,sun4i-a10-wdt", .data = &sun4i_wdt_reg },
- 	{ .compatible = "allwinner,sun6i-a31-wdt", .data = &sun6i_wdt_reg },
-+	{ .compatible = "allwinner,sun20i-d1-wdt", .data = &sun20i_wdt_reg },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
--- 
-2.31.1
+Diese E-Mail ist für den vorgesehenen Empfänger bestimmt und enthält Informationen, die vertraulich sein können. Wenn Sie nicht der beabsichtigte Empfänger sind, benachrichtigen Sie bitte den Absender per E-Mail und löschen Sie diese E-Mail aus Ihrem Posteingang. Jede unbefugte Nutzung oder Verbreitung dieser E-Mail, ganz oder teilweise, ist strengstens untersagt und kann rechtswidrig sein. Alle in dieser E-Mail enthaltenen Preisangebote sind nur indikativ und führen zu keiner rechtlich bindenden oder durchsetzbaren Verpflichtung. Sofern nicht ausdrücklich als beabsichtigter E-Vertrag bezeichnet, stellt diese E-Mail kein Vertragsangebot, keine Vertragsänderung oder eine Annahme eines Vertragsangebots dar.
+WWW.GORDO/ EUROMILLIONS ESPAÑA  Sitz der Gesellschaft: Torre Europa Paseo de la Barcelona 15. Planta 16 28006 • Madrid. (Spanien)
 
