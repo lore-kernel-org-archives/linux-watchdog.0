@@ -4,43 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4456C4338F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D22C432BE
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88E9660041
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5756960041
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhHIQWB (ORCPT
+        id S233045AbhHIQWD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Aug 2021 12:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42674 "EHLO
+        Mon, 9 Aug 2021 12:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233254AbhHIQVq (ORCPT
+        with ESMTP id S232987AbhHIQVr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Aug 2021 12:21:46 -0400
+        Mon, 9 Aug 2021 12:21:47 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C8DC06179A
-        for <linux-watchdog@vger.kernel.org>; Mon,  9 Aug 2021 09:21:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D935C06179B
+        for <linux-watchdog@vger.kernel.org>; Mon,  9 Aug 2021 09:21:26 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <afa@pengutronix.de>)
-        id 1mD816-00021c-BA; Mon, 09 Aug 2021 18:20:44 +0200
+        id 1mD816-00021e-BE; Mon, 09 Aug 2021 18:20:44 +0200
 Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <afa@pengutronix.de>)
-        id 1mD814-0008Kj-Tf; Mon, 09 Aug 2021 18:20:42 +0200
+        id 1mD814-0008Kp-Uu; Mon, 09 Aug 2021 18:20:42 +0200
 From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, kernel@pengutronix.de,
         Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH v5 5/7] watchdog: f71808e_wdt: migrate to new kernel watchdog API
-Date:   Mon,  9 Aug 2021 18:20:35 +0200
-Message-Id: <35d9dbf57b58c5f003cef31dc256ec2fec044524.1628525954.git-series.a.fatoum@pengutronix.de>
+Subject: [PATCH v5 7/7] watchdog: f71808e_wdt: dynamically allocate watchdog driver data
+Date:   Mon,  9 Aug 2021 18:20:37 +0200
+Message-Id: <1baffdc410d6476cccffe9712cec56350335812a.1628525954.git-series.a.fatoum@pengutronix.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
 References: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
@@ -54,589 +54,494 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Migrating the driver lets us drop the watchdog misc device boilerplate
-and reduces size by 285 lines. It also brings us support for new
-functionality like CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED.
+While the driver will only match against a single device, convention is
+to dynamically allocate the driver data.
 
-This incurs a slight backwards-compatibility break, because the new
-kernel watchdog API doesn't support unloading modules for drivers
-whose watchdog hardware is reported to be running.
-
-This means following scenario will be no longer supported:
- - BIOS has enabled watchdog
- - Module is loaded and unloaded without opening watchdog
- - module_exit is expected to succeed and disable watchdog HW
-
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 ---
- drivers/watchdog/Kconfig       |   1 +-
- drivers/watchdog/f71808e_wdt.c | 387 ++++------------------------------
- 2 files changed, 57 insertions(+), 331 deletions(-)
+ drivers/watchdog/f71808e_wdt.c | 198 +++++++++++++++++++---------------
+ 1 file changed, 111 insertions(+), 87 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 546dfc1e2349..3cc6aac18006 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1063,6 +1063,7 @@ config EBC_C384_WDT
- config F71808E_WDT
- 	tristate "Fintek F718xx, F818xx Super I/O Watchdog"
- 	depends on X86
-+	select WATCHDOG_CORE
- 	help
- 	  This is the driver for the hardware watchdog on the Fintek F71808E,
- 	  F71862FG, F71868, F71869, F71882FG, F71889FG, F81803, F81865, and
 diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 82da9bad66ec..67e344627586 100644
+index a23f68be137f..ee90c5f943f9 100644
 --- a/drivers/watchdog/f71808e_wdt.c
 +++ b/drivers/watchdog/f71808e_wdt.c
-@@ -9,16 +9,10 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
- #include <linux/err.h>
--#include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/ioport.h>
--#include <linux/miscdevice.h>
- #include <linux/module.h>
--#include <linux/mutex.h>
--#include <linux/notifier.h>
--#include <linux/reboot.h>
--#include <linux/uaccess.h>
- #include <linux/watchdog.h>
- 
- #define DRVNAME "f71808e_wdt"
-@@ -136,24 +130,18 @@ static inline void superio_select(int base, int ld);
- static inline void superio_exit(int base);
- 
- struct fintek_wdt {
-+	struct watchdog_device wdd;
- 	unsigned short	sioaddr;
- 	enum chips	type;
--	unsigned long	opened;
--	struct mutex	lock;
--	char		expect_close;
- 	struct watchdog_info ident;
- 
--	unsigned short	timeout;
- 	u8		timer_val;	/* content for the wd_time register */
- 	char		minutes_mode;
- 	u8		pulse_val;	/* pulse width flag */
+@@ -142,7 +142,9 @@ struct fintek_wdt {
  	char		pulse_mode;	/* enable pulse output mode? */
--	char		caused_reboot;	/* last reboot was by the watchdog */
  };
  
--static struct fintek_wdt watchdog = {
--	.lock = __MUTEX_INITIALIZER(watchdog.lock),
--};
-+static struct fintek_wdt watchdog;
+-static struct fintek_wdt watchdog;
++struct fintek_wdt_pdata {
++	enum chips	type;
++};
  
  /* Super I/O functions */
  static inline int superio_inb(int base, int reg)
-@@ -217,16 +205,8 @@ static inline void superio_exit(int base)
- 	release_region(base, 2);
- }
+@@ -208,13 +210,15 @@ static inline void superio_exit(int base)
  
--static int fintek_wdt_set_timeout(int timeout)
-+static int fintek_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
+ static int fintek_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
  {
--	if (timeout <= 0
--	 || timeout >  WATCHDOG_MAX_TIMEOUT) {
--		pr_err("watchdog timeout out of range\n");
--		return -EINVAL;
--	}
--
--	mutex_lock(&watchdog.lock);
--
++	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
++
  	if (timeout > 0xff) {
- 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
- 		watchdog.minutes_mode = true;
-@@ -236,16 +216,13 @@ static int fintek_wdt_set_timeout(int timeout)
- 		watchdog.minutes_mode = false;
+-		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
+-		watchdog.minutes_mode = true;
+-		timeout = watchdog.timer_val * 60;
++		wd->timer_val = DIV_ROUND_UP(timeout, 60);
++		wd->minutes_mode = true;
++		timeout = wd->timer_val * 60;
+ 	} else {
+-		watchdog.timer_val = timeout;
+-		watchdog.minutes_mode = false;
++		wd->timer_val = timeout;
++		wd->minutes_mode = false;
  	}
  
--	watchdog.timeout = timeout;
--
--	mutex_unlock(&watchdog.lock);
-+	wdd->timeout = timeout;
+ 	wdd->timeout = timeout;
+@@ -222,63 +226,65 @@ static int fintek_wdt_set_timeout(struct watchdog_device *wdd, unsigned int time
+ 	return 0;
+ }
+ 
+-static int fintek_wdt_set_pulse_width(unsigned int pw)
++static int fintek_wdt_set_pulse_width(struct fintek_wdt *wd, unsigned int pw)
+ {
+ 	unsigned int t1 = 25, t2 = 125, t3 = 5000;
+ 
+-	if (watchdog.type == f71868) {
++	if (wd->type == f71868) {
+ 		t1 = 30;
+ 		t2 = 150;
+ 		t3 = 6000;
+ 	}
+ 
+ 	if        (pw <=  1) {
+-		watchdog.pulse_val = 0;
++		wd->pulse_val = 0;
+ 	} else if (pw <= t1) {
+-		watchdog.pulse_val = 1;
++		wd->pulse_val = 1;
+ 	} else if (pw <= t2) {
+-		watchdog.pulse_val = 2;
++		wd->pulse_val = 2;
+ 	} else if (pw <= t3) {
+-		watchdog.pulse_val = 3;
++		wd->pulse_val = 3;
+ 	} else {
+ 		pr_err("pulse width out of range\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	watchdog.pulse_mode = pw;
++	wd->pulse_mode = pw;
  
  	return 0;
  }
  
- static int fintek_wdt_set_pulse_width(unsigned int pw)
+ static int fintek_wdt_keepalive(struct watchdog_device *wdd)
  {
--	int err = 0;
- 	unsigned int t1 = 25, t2 = 125, t3 = 5000;
++	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
+ 	int err;
  
- 	if (watchdog.type == f71868) {
-@@ -254,8 +231,6 @@ static int fintek_wdt_set_pulse_width(unsigned int pw)
- 		t3 = 6000;
- 	}
- 
--	mutex_lock(&watchdog.lock);
--
- 	if        (pw <=  1) {
- 		watchdog.pulse_val = 0;
- 	} else if (pw <= t1) {
-@@ -266,25 +241,21 @@ static int fintek_wdt_set_pulse_width(unsigned int pw)
- 		watchdog.pulse_val = 3;
- 	} else {
- 		pr_err("pulse width out of range\n");
--		err = -EINVAL;
--		goto exit_unlock;
-+		return -EINVAL;
- 	}
- 
- 	watchdog.pulse_mode = pw;
- 
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
--	return err;
-+	return 0;
- }
- 
--static int fintek_wdt_keepalive(void)
-+static int fintek_wdt_keepalive(struct watchdog_device *wdd)
- {
--	int err = 0;
-+	int err;
- 
--	mutex_lock(&watchdog.lock);
- 	err = superio_enter(watchdog.sioaddr);
+-	err = superio_enter(watchdog.sioaddr);
++	err = superio_enter(wd->sioaddr);
  	if (err)
--		goto exit_unlock;
-+		return err;
- 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+ 		return err;
+-	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
++	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
  
- 	if (watchdog.minutes_mode)
-@@ -302,25 +273,22 @@ static int fintek_wdt_keepalive(void)
+-	if (watchdog.minutes_mode)
++	if (wd->minutes_mode)
+ 		/* select minutes for timer units */
+-		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++		superio_set_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 				F71808FG_FLAG_WD_UNIT);
+ 	else
+ 		/* select seconds for timer units */
+-		superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++		superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 				F71808FG_FLAG_WD_UNIT);
  
- 	superio_exit(watchdog.sioaddr);
+ 	/* Set timer value */
+-	superio_outb(watchdog.sioaddr, F71808FG_REG_WD_TIME,
+-			   watchdog.timer_val);
++	superio_outb(wd->sioaddr, F71808FG_REG_WD_TIME,
++			   wd->timer_val);
  
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
--	return err;
-+	return 0;
+-	superio_exit(watchdog.sioaddr);
++	superio_exit(wd->sioaddr);
+ 
+ 	return 0;
  }
  
--static int fintek_wdt_start(void)
-+static int fintek_wdt_start(struct watchdog_device *wdd)
+ static int fintek_wdt_start(struct watchdog_device *wdd)
  {
++	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
  	int err;
  	u8 tmp;
  
- 	/* Make sure we don't die as soon as the watchdog is enabled below */
--	err = fintek_wdt_keepalive();
-+	err = fintek_wdt_keepalive(wdd);
+@@ -287,57 +293,57 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
  	if (err)
  		return err;
  
--	mutex_lock(&watchdog.lock);
- 	err = superio_enter(watchdog.sioaddr);
+-	err = superio_enter(watchdog.sioaddr);
++	err = superio_enter(wd->sioaddr);
  	if (err)
--		goto exit_unlock;
-+		return err;
- 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+ 		return err;
+-	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
++	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
  
  	/* Watchdog pin configuration */
-@@ -428,20 +396,17 @@ static int fintek_wdt_start(void)
+-	switch (watchdog.type) {
++	switch (wd->type) {
+ 	case f71808fg:
+ 		/* Set pin 21 to GPIO23/WDTRST#, then to WDTRST# */
+-		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT2, 3);
+-		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 3);
++		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT2, 3);
++		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT3, 3);
+ 		break;
+ 
+ 	case f71862fg:
+ 		if (f71862fg_pin == 63) {
+ 			/* SPI must be disabled first to use this pin! */
+-			superio_clear_bit(watchdog.sioaddr, SIO_REG_ROM_ADDR_SEL, 6);
+-			superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 4);
++			superio_clear_bit(wd->sioaddr, SIO_REG_ROM_ADDR_SEL, 6);
++			superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT3, 4);
+ 		} else if (f71862fg_pin == 56) {
+-			superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 1);
++			superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT1, 1);
+ 		}
+ 		break;
+ 
+ 	case f71868:
+ 	case f71869:
+ 		/* GPIO14 --> WDTRST# */
+-		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 4);
++		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT1, 4);
+ 		break;
+ 
+ 	case f71882fg:
+ 		/* Set pin 56 to WDTRST# */
+-		superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 1);
++		superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT1, 1);
+ 		break;
+ 
+ 	case f71889fg:
+ 		/* set pin 40 to WDTRST# */
+-		superio_outb(watchdog.sioaddr, SIO_REG_MFUNCT3,
+-			superio_inb(watchdog.sioaddr, SIO_REG_MFUNCT3) & 0xcf);
++		superio_outb(wd->sioaddr, SIO_REG_MFUNCT3,
++			superio_inb(wd->sioaddr, SIO_REG_MFUNCT3) & 0xcf);
+ 		break;
+ 
+ 	case f81803:
+ 		/* Enable TSI Level register bank */
+-		superio_clear_bit(watchdog.sioaddr, SIO_REG_CLOCK_SEL, 3);
++		superio_clear_bit(wd->sioaddr, SIO_REG_CLOCK_SEL, 3);
+ 		/* Set pin 27 to WDTRST# */
+-		superio_outb(watchdog.sioaddr, SIO_REG_TSI_LEVEL_SEL, 0x5f &
+-			superio_inb(watchdog.sioaddr, SIO_REG_TSI_LEVEL_SEL));
++		superio_outb(wd->sioaddr, SIO_REG_TSI_LEVEL_SEL, 0x5f &
++			superio_inb(wd->sioaddr, SIO_REG_TSI_LEVEL_SEL));
+ 		break;
+ 
+ 	case f81865:
+ 		/* Set pin 70 to WDTRST# */
+-		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 5);
++		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT3, 5);
+ 		break;
+ 
+ 	case f81866:
+@@ -347,12 +353,12 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
+ 		 *     BIT5: 0 -> WDTRST#
+ 		 *           1 -> GPIO15
+ 		 */
+-		tmp = superio_inb(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL);
++		tmp = superio_inb(wd->sioaddr, SIO_F81866_REG_PORT_SEL);
+ 		tmp &= ~(BIT(3) | BIT(0));
+ 		tmp |= BIT(2);
+-		superio_outb(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, tmp);
++		superio_outb(wd->sioaddr, SIO_F81866_REG_PORT_SEL, tmp);
+ 
+-		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1, 5);
++		superio_clear_bit(wd->sioaddr, SIO_F81866_REG_GPIO1, 5);
+ 		break;
+ 
+ 	default:
+@@ -364,63 +370,64 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
+ 		goto exit_superio;
+ 	}
+ 
+-	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+-	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
++	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
++	superio_set_bit(wd->sioaddr, SIO_REG_ENABLE, 0);
+ 
+-	if (watchdog.type == f81865 || watchdog.type == f81866)
+-		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
++	if (wd->type == f81865 || wd->type == f81866)
++		superio_set_bit(wd->sioaddr, F81865_REG_WDO_CONF,
+ 				F81865_FLAG_WDOUT_EN);
+ 	else
+-		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
++		superio_set_bit(wd->sioaddr, F71808FG_REG_WDO_CONF,
+ 				F71808FG_FLAG_WDOUT_EN);
+ 
+-	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++	superio_set_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 			F71808FG_FLAG_WD_EN);
+ 
+-	if (watchdog.pulse_mode) {
++	if (wd->pulse_mode) {
+ 		/* Select "pulse" output mode with given duration */
+-		u8 wdt_conf = superio_inb(watchdog.sioaddr,
++		u8 wdt_conf = superio_inb(wd->sioaddr,
+ 				F71808FG_REG_WDT_CONF);
+ 
+ 		/* Set WD_PSWIDTH bits (1:0) */
+-		wdt_conf = (wdt_conf & 0xfc) | (watchdog.pulse_val & 0x03);
++		wdt_conf = (wdt_conf & 0xfc) | (wd->pulse_val & 0x03);
+ 		/* Set WD_PULSE to "pulse" mode */
+ 		wdt_conf |= BIT(F71808FG_FLAG_WD_PULSE);
+ 
+-		superio_outb(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++		superio_outb(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 				wdt_conf);
+ 	} else {
+ 		/* Select "level" output mode */
+-		superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++		superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 				F71808FG_FLAG_WD_PULSE);
+ 	}
  
  exit_superio:
- 	superio_exit(watchdog.sioaddr);
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
+-	superio_exit(watchdog.sioaddr);
++	superio_exit(wd->sioaddr);
  
  	return err;
  }
  
--static int fintek_wdt_stop(void)
-+static int fintek_wdt_stop(struct watchdog_device *wdd)
+ static int fintek_wdt_stop(struct watchdog_device *wdd)
  {
--	int err = 0;
-+	int err;
++	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
+ 	int err;
  
--	mutex_lock(&watchdog.lock);
- 	err = superio_enter(watchdog.sioaddr);
+-	err = superio_enter(watchdog.sioaddr);
++	err = superio_enter(wd->sioaddr);
  	if (err)
--		goto exit_unlock;
-+		return err;
- 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
- 
- 	superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-@@ -449,232 +414,31 @@ static int fintek_wdt_stop(void)
- 
- 	superio_exit(watchdog.sioaddr);
- 
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
--
--	return err;
--}
--
--static int watchdog_get_status(void)
--{
--	int status = 0;
--
--	mutex_lock(&watchdog.lock);
--	status = (watchdog.caused_reboot) ? WDIOF_CARDRESET : 0;
--	mutex_unlock(&watchdog.lock);
--
--	return status;
--}
--
--static bool fintek_wdt_is_running(void)
--{
--	/*
--	 * if we fail to determine the watchdog's status assume it to be
--	 * running to be on the safe side
--	 */
--	bool is_running = true;
--
--	mutex_lock(&watchdog.lock);
--	if (superio_enter(watchdog.sioaddr))
--		goto exit_unlock;
+ 		return err;
 -	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
--
--	is_running = (superio_inb(watchdog.sioaddr, SIO_REG_ENABLE) & BIT(0))
--		&& (superio_inb(watchdog.sioaddr, F71808FG_REG_WDT_CONF)
--			& BIT(F71808FG_FLAG_WD_EN));
--
++	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
+ 
+-	superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
++	superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
+ 			F71808FG_FLAG_WD_EN);
+ 
 -	superio_exit(watchdog.sioaddr);
--
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
--	return is_running;
--}
--
--/* /dev/watchdog api */
--
--static int watchdog_open(struct inode *inode, struct file *file)
--{
--	int err;
--
--	/* If the watchdog is alive we don't need to start it again */
--	if (test_and_set_bit(0, &watchdog.opened))
--		return -EBUSY;
--
--	err = fintek_wdt_start();
--	if (err) {
--		clear_bit(0, &watchdog.opened);
--		return err;
--	}
--
--	if (nowayout)
--		__module_get(THIS_MODULE);
--
--	watchdog.expect_close = 0;
--	return stream_open(inode, file);
--}
--
--static int watchdog_release(struct inode *inode, struct file *file)
--{
--	clear_bit(0, &watchdog.opened);
--
--	if (!watchdog.expect_close) {
--		fintek_wdt_keepalive();
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--	} else if (!nowayout) {
--		fintek_wdt_stop();
--	}
++	superio_exit(wd->sioaddr);
+ 
  	return 0;
  }
  
--/*
-- *      watchdog_write:
-- *      @file: file handle to the watchdog
-- *      @buf: buffer to write
-- *      @count: count of bytes
-- *      @ppos: pointer to the position to write. No seeks allowed
-- *
-- *      A write to a watchdog device is defined as a keepalive signal. Any
-- *      write of data will do, as we we don't define content meaning.
-- */
--
--static ssize_t watchdog_write(struct file *file, const char __user *buf,
--			    size_t count, loff_t *ppos)
--{
--	if (count) {
--		if (!nowayout) {
--			size_t i;
--
--			/* In case it was set long ago */
--			bool expect_close = false;
--
--			for (i = 0; i != count; i++) {
--				char c;
--				if (get_user(c, buf + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_close = true;
--			}
--
--			/* Properly order writes across fork()ed processes */
--			mutex_lock(&watchdog.lock);
--			watchdog.expect_close = expect_close;
--			mutex_unlock(&watchdog.lock);
--		}
--
--		/* someone wrote to us, we should restart timer */
--		fintek_wdt_keepalive();
--	}
--	return count;
--}
--
--/*
-- *      watchdog_ioctl:
-- *      @inode: inode of the device
-- *      @file: file handle to the device
-- *      @cmd: watchdog command
-- *      @arg: argument pointer
-- *
-- *      The watchdog API defines a common set of functions for all watchdogs
-- *      according to their available features.
-- */
--static long watchdog_ioctl(struct file *file, unsigned int cmd,
--	unsigned long arg)
-+static bool fintek_wdt_is_running(u8 wdt_conf)
+-static bool fintek_wdt_is_running(u8 wdt_conf)
++static bool fintek_wdt_is_running(struct fintek_wdt *wd, u8 wdt_conf)
  {
--	int status;
--	int new_options;
--	int new_timeout;
--	union {
--		struct watchdog_info __user *ident;
--		int __user *i;
--	} uarg;
--
--	uarg.i = (int __user *)arg;
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(uarg.ident, &watchdog.ident,
--			sizeof(watchdog.ident)) ? -EFAULT : 0;
--
--	case WDIOC_GETSTATUS:
--		status = watchdog_get_status();
--		if (status < 0)
--			return status;
--		return put_user(status, uarg.i);
--
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, uarg.i);
--
--	case WDIOC_SETOPTIONS:
--		if (get_user(new_options, uarg.i))
--			return -EFAULT;
--
--		if (new_options & WDIOS_DISABLECARD)
--			fintek_wdt_stop();
--
--		if (new_options & WDIOS_ENABLECARD)
--			return fintek_wdt_start();
--		fallthrough;
--
--	case WDIOC_KEEPALIVE:
--		fintek_wdt_keepalive();
--		return 0;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_timeout, uarg.i))
--			return -EFAULT;
--
--		if (fintek_wdt_set_timeout(new_timeout))
--			return -EINVAL;
--
--		fintek_wdt_keepalive();
--		fallthrough;
--
--	case WDIOC_GETTIMEOUT:
--		return put_user(watchdog.timeout, uarg.i);
--
--	default:
--		return -ENOTTY;
--
--	}
-+	return (superio_inb(watchdog.sioaddr, SIO_REG_ENABLE) & BIT(0))
-+		&& (wdt_conf & BIT(F71808FG_FLAG_WD_EN));
+-	return (superio_inb(watchdog.sioaddr, SIO_REG_ENABLE) & BIT(0))
++	return (superio_inb(wd->sioaddr, SIO_REG_ENABLE) & BIT(0))
+ 		&& (wdt_conf & BIT(F71808FG_FLAG_WD_EN));
  }
  
--static int watchdog_notify_sys(struct notifier_block *this, unsigned long code,
--	void *unused)
--{
--	if (code == SYS_DOWN || code == SYS_HALT)
--		fintek_wdt_stop();
--	return NOTIFY_DONE;
--}
--
--static const struct file_operations watchdog_fops = {
--	.owner		= THIS_MODULE,
--	.llseek		= no_llseek,
--	.open		= watchdog_open,
--	.release	= watchdog_release,
--	.write		= watchdog_write,
--	.unlocked_ioctl	= watchdog_ioctl,
--	.compat_ioctl	= compat_ptr_ioctl,
--};
--
--static struct miscdevice watchdog_miscdev = {
--	.minor		= WATCHDOG_MINOR,
--	.name		= "watchdog",
--	.fops		= &watchdog_fops,
--};
--
--static struct notifier_block watchdog_notifier = {
--	.notifier_call = watchdog_notify_sys,
-+static const struct watchdog_ops fintek_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = fintek_wdt_start,
-+	.stop = fintek_wdt_stop,
-+	.ping = fintek_wdt_keepalive,
-+	.set_timeout = fintek_wdt_set_timeout,
- };
- 
- static int __init watchdog_init(int sioaddr)
+@@ -435,7 +442,9 @@ static const struct watchdog_ops fintek_wdt_ops = {
+ static int fintek_wdt_probe(struct platform_device *pdev)
  {
-+	struct watchdog_device *wdd;
+ 	struct device *dev = &pdev->dev;
++	struct fintek_wdt_pdata *pdata;
+ 	struct watchdog_device *wdd;
++	struct fintek_wdt *wd;
  	int wdt_conf, err = 0;
+ 	struct resource *res;
+ 	int sioaddr;
+@@ -446,20 +455,27 @@ static int fintek_wdt_probe(struct platform_device *pdev)
  
--	/* No need to lock watchdog.lock here because no entry points
--	 * into the module have been registered yet.
--	 */
- 	watchdog.sioaddr = sioaddr;
--	watchdog.ident.options = WDIOF_MAGICCLOSE
-+	watchdog.ident.options = WDIOF_SETTIMEOUT
-+				| WDIOF_MAGICCLOSE
- 				| WDIOF_KEEPALIVEPING
- 				| WDIOF_CARDRESET;
+ 	sioaddr = res->start;
  
-@@ -688,7 +452,6 @@ static int __init watchdog_init(int sioaddr)
- 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+-	watchdog.sioaddr = sioaddr;
+-	watchdog.ident.options = WDIOF_SETTIMEOUT
+-				| WDIOF_MAGICCLOSE
+-				| WDIOF_KEEPALIVEPING
+-				| WDIOF_CARDRESET;
++	wd = devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
++	if (!wd)
++		return -ENOMEM;
++
++	pdata = dev->platform_data;
++
++	wd->type = pdata->type;
++	wd->sioaddr = sioaddr;
++	wd->ident.options = WDIOF_SETTIMEOUT
++			| WDIOF_MAGICCLOSE
++			| WDIOF_KEEPALIVEPING
++			| WDIOF_CARDRESET;
+ 
+-	snprintf(watchdog.ident.identity,
+-		sizeof(watchdog.ident.identity), "%s watchdog",
+-		fintek_wdt_names[watchdog.type]);
++	snprintf(wd->ident.identity,
++		sizeof(wd->ident.identity), "%s watchdog",
++		fintek_wdt_names[wd->type]);
+ 
+ 	err = superio_enter(sioaddr);
+ 	if (err)
+ 		return err;
+-	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
++	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
  
  	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
--	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
  
- 	/*
- 	 * We don't want WDTMOUT_STS to stick around till regular reboot.
-@@ -697,80 +460,47 @@ static int __init watchdog_init(int sioaddr)
+@@ -470,19 +486,20 @@ static int fintek_wdt_probe(struct platform_device *pdev)
  	superio_outb(sioaddr, F71808FG_REG_WDT_CONF,
  		     wdt_conf | BIT(F71808FG_FLAG_WDTMOUT_STS));
  
-+	wdd = &watchdog.wdd;
-+
-+	if (fintek_wdt_is_running(wdt_conf))
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+
+-	wdd = &watchdog.wdd;
++	wdd = &wd->wdd;
+ 
+-	if (fintek_wdt_is_running(wdt_conf))
++	if (fintek_wdt_is_running(wd, wdt_conf))
+ 		set_bit(WDOG_HW_RUNNING, &wdd->status);
+ 
  	superio_exit(sioaddr);
  
--	err = fintek_wdt_set_timeout(timeout);
--	if (err)
--		return err;
--	err = fintek_wdt_set_pulse_width(pulse_width);
--	if (err)
--		return err;
-+	wdd->info               = &watchdog.ident;
-+	wdd->ops                = &fintek_wdt_ops;
-+	wdd->min_timeout        = 1;
-+	wdd->max_timeout        = WATCHDOG_MAX_TIMEOUT;
+ 	wdd->parent		= dev;
+-	wdd->info               = &watchdog.ident;
++	wdd->info               = &wd->ident;
+ 	wdd->ops                = &fintek_wdt_ops;
+ 	wdd->min_timeout        = 1;
+ 	wdd->max_timeout        = WATCHDOG_MAX_TIMEOUT;
  
--	err = register_reboot_notifier(&watchdog_notifier);
--	if (err)
--		return err;
-+	watchdog_set_nowayout(wdd, nowayout);
-+	watchdog_stop_on_unregister(wdd);
-+	watchdog_stop_on_reboot(wdd);
-+	watchdog_init_timeout(wdd, start_withtimeout ?: timeout, NULL);
++	watchdog_set_drvdata(wdd, wd);
+ 	watchdog_set_nowayout(wdd, nowayout);
+ 	watchdog_stop_on_unregister(wdd);
+ 	watchdog_stop_on_reboot(wdd);
+@@ -497,7 +514,7 @@ static int fintek_wdt_probe(struct platform_device *pdev)
+ 	 * unconditionally.
+ 	 */
+ 	fintek_wdt_set_timeout(wdd, wdd->timeout);
+-	fintek_wdt_set_pulse_width(pulse_width);
++	fintek_wdt_set_pulse_width(wd, pulse_width);
  
--	err = misc_register(&watchdog_miscdev);
--	if (err) {
--		pr_err("cannot register miscdev on minor=%d\n",
--		       watchdog_miscdev.minor);
--		goto exit_reboot;
--	}
-+	if (wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS))
-+		wdd->bootstatus = WDIOF_CARDRESET;
- 
--	if (start_withtimeout) {
--		if (start_withtimeout <= 0
--		 || start_withtimeout >  WATCHDOG_MAX_TIMEOUT) {
--			pr_err("starting timeout out of range\n");
--			err = -EINVAL;
--			goto exit_miscdev;
--		}
-+	/*
-+	 * WATCHDOG_HANDLE_BOOT_ENABLED can result in keepalive being directly
-+	 * called without a set_timeout before, so it needs to be done here
-+	 * unconditionally.
-+	 */
-+	fintek_wdt_set_timeout(wdd, wdd->timeout);
-+	fintek_wdt_set_pulse_width(pulse_width);
- 
--		err = fintek_wdt_start();
-+	if (start_withtimeout) {
-+		err = fintek_wdt_start(wdd);
- 		if (err) {
- 			pr_err("cannot start watchdog timer\n");
--			goto exit_miscdev;
-+			return err;
- 		}
- 
--		mutex_lock(&watchdog.lock);
--		err = superio_enter(sioaddr);
--		if (err)
--			goto exit_unlock;
--		superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
--
--		if (start_withtimeout > 0xff) {
--			/* select minutes for timer units */
--			superio_set_bit(sioaddr, F71808FG_REG_WDT_CONF,
--				F71808FG_FLAG_WD_UNIT);
--			superio_outb(sioaddr, F71808FG_REG_WD_TIME,
--				DIV_ROUND_UP(start_withtimeout, 60));
--		} else {
--			/* select seconds for timer units */
--			superio_clear_bit(sioaddr, F71808FG_REG_WDT_CONF,
--				F71808FG_FLAG_WD_UNIT);
--			superio_outb(sioaddr, F71808FG_REG_WD_TIME,
--				start_withtimeout);
--		}
--
--		superio_exit(sioaddr);
--		mutex_unlock(&watchdog.lock);
--
--		if (nowayout)
--			__module_get(THIS_MODULE);
--
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 		pr_info("watchdog started with initial timeout of %u sec\n",
- 			start_withtimeout);
- 	}
- 
--	return 0;
--
--exit_unlock:
--	mutex_unlock(&watchdog.lock);
--exit_miscdev:
--	misc_deregister(&watchdog_miscdev);
--exit_reboot:
--	unregister_reboot_notifier(&watchdog_notifier);
--
--	return err;
-+	return watchdog_register_device(wdd);
- }
+ 	if (start_withtimeout) {
+ 		err = fintek_wdt_start(wdd);
+@@ -516,6 +533,7 @@ static int fintek_wdt_probe(struct platform_device *pdev)
  
  static int __init fintek_wdt_find(int sioaddr)
-@@ -860,12 +590,7 @@ static int __init fintek_wdt_init(void)
- 
- static void __exit fintek_wdt_exit(void)
  {
--	if (fintek_wdt_is_running()) {
--		pr_warn("Watchdog timer still running, stopping it\n");
--		fintek_wdt_stop();
--	}
--	misc_deregister(&watchdog_miscdev);
--	unregister_reboot_notifier(&watchdog_notifier);
-+	watchdog_unregister_device(&watchdog.wdd);
++	enum chips type;
+ 	u16 devid;
+ 	int err = superio_enter(sioaddr);
+ 	if (err)
+@@ -531,36 +549,36 @@ static int __init fintek_wdt_find(int sioaddr)
+ 	devid = force_id ? force_id : superio_inw(sioaddr, SIO_REG_DEVID);
+ 	switch (devid) {
+ 	case SIO_F71808_ID:
+-		watchdog.type = f71808fg;
++		type = f71808fg;
+ 		break;
+ 	case SIO_F71862_ID:
+-		watchdog.type = f71862fg;
++		type = f71862fg;
+ 		break;
+ 	case SIO_F71868_ID:
+-		watchdog.type = f71868;
++		type = f71868;
+ 		break;
+ 	case SIO_F71869_ID:
+ 	case SIO_F71869A_ID:
+-		watchdog.type = f71869;
++		type = f71869;
+ 		break;
+ 	case SIO_F71882_ID:
+-		watchdog.type = f71882fg;
++		type = f71882fg;
+ 		break;
+ 	case SIO_F71889_ID:
+-		watchdog.type = f71889fg;
++		type = f71889fg;
+ 		break;
+ 	case SIO_F71858_ID:
+ 		/* Confirmed (by datasheet) not to have a watchdog. */
+ 		err = -ENODEV;
+ 		goto exit;
+ 	case SIO_F81803_ID:
+-		watchdog.type = f81803;
++		type = f81803;
+ 		break;
+ 	case SIO_F81865_ID:
+-		watchdog.type = f81865;
++		type = f81865;
+ 		break;
+ 	case SIO_F81866_ID:
+-		watchdog.type = f81866;
++		type = f81866;
+ 		break;
+ 	default:
+ 		pr_info("Unrecognized Fintek device: %04x\n",
+@@ -570,11 +588,12 @@ static int __init fintek_wdt_find(int sioaddr)
+ 	}
+ 
+ 	pr_info("Found %s watchdog chip, revision %d\n",
+-		fintek_wdt_names[watchdog.type],
++		fintek_wdt_names[type],
+ 		(int)superio_inb(sioaddr, SIO_REG_DEVREV));
++
+ exit:
+ 	superio_exit(sioaddr);
+-	return err;
++	return err ? err : type;
  }
  
- MODULE_DESCRIPTION("F71808E Watchdog Driver");
+ static struct platform_driver fintek_wdt_driver = {
+@@ -589,8 +608,9 @@ static struct platform_device *fintek_wdt_pdev;
+ static int __init fintek_wdt_init(void)
+ {
+ 	static const unsigned short addrs[] = { 0x2e, 0x4e };
++	struct fintek_wdt_pdata pdata;
+ 	struct resource wdt_res = {};
+-	int err = -ENODEV;
++	int ret;
+ 	int i;
+ 
+ 	if (f71862fg_pin != 63 && f71862fg_pin != 56) {
+@@ -599,12 +619,14 @@ static int __init fintek_wdt_init(void)
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(addrs); i++) {
+-		err = fintek_wdt_find(addrs[i]);
+-		if (err == 0)
++		ret = fintek_wdt_find(addrs[i]);
++		if (ret >= 0)
+ 			break;
+ 	}
+ 	if (i == ARRAY_SIZE(addrs))
+-		return err;
++		return ret;
++
++	pdata.type = ret;
+ 
+ 	platform_driver_register(&fintek_wdt_driver);
+ 
+@@ -613,7 +635,9 @@ static int __init fintek_wdt_init(void)
+ 	wdt_res.start = addrs[i];
+ 	wdt_res.end   = addrs[i] + 1;
+ 
+-	fintek_wdt_pdev = platform_device_register_simple(DRVNAME, -1, &wdt_res, 1);
++	fintek_wdt_pdev = platform_device_register_resndata(NULL, DRVNAME, -1,
++							    &wdt_res, 1,
++							    &pdata, sizeof(pdata));
+ 	if (IS_ERR(fintek_wdt_pdev)) {
+ 		platform_driver_unregister(&fintek_wdt_driver);
+ 		return PTR_ERR(fintek_wdt_pdev);
 -- 
 git-series 0.9.1
