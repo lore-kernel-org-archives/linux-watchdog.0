@@ -7,40 +7,40 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD479C4338F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:20:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E9CC4320A
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A191A60EB9
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:20:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 03E166054F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:20:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232851AbhHIQVN (ORCPT
+        id S233023AbhHIQVT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Aug 2021 12:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42476 "EHLO
+        Mon, 9 Aug 2021 12:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232913AbhHIQVH (ORCPT
+        with ESMTP id S233022AbhHIQVP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Aug 2021 12:21:07 -0400
+        Mon, 9 Aug 2021 12:21:15 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7519C061796
-        for <linux-watchdog@vger.kernel.org>; Mon,  9 Aug 2021 09:20:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7C7C061799
+        for <linux-watchdog@vger.kernel.org>; Mon,  9 Aug 2021 09:20:54 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <afa@pengutronix.de>)
-        id 1mD816-00021X-B7; Mon, 09 Aug 2021 18:20:44 +0200
+        id 1mD816-00021d-B8; Mon, 09 Aug 2021 18:20:44 +0200
 Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <afa@pengutronix.de>)
-        id 1mD814-0008KX-Ri; Mon, 09 Aug 2021 18:20:42 +0200
+        id 1mD814-0008Km-UP; Mon, 09 Aug 2021 18:20:42 +0200
 From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, kernel@pengutronix.de,
         Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH v5 1/7] watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
-Date:   Mon,  9 Aug 2021 18:20:31 +0200
-Message-Id: <5e17960fe8cc0e3cb2ba53de4730b75d9a0f33d5.1628525954.git-series.a.fatoum@pengutronix.de>
+Subject: [PATCH v5 6/7] watchdog: f71808e_wdt: refactor to platform device/driver pair
+Date:   Mon,  9 Aug 2021 18:20:36 +0200
+Message-Id: <9e1088839662e5c357286cab0b9de0bb0602e4fd.1628525954.git-series.a.fatoum@pengutronix.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
 References: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
@@ -54,42 +54,130 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The fintek watchdog timer can configure timeouts of second granularity
-only up to 255 seconds. Beyond that, the timeout needs to be configured
-with minute granularity. WDIOC_GETTIMEOUT should report the actual
-timeout configured, not just echo back the timeout configured by the
-user. Do so.
+Driver so far wasn't ported to the driver model and registered
+the watchdog device out of the init after probing the I/O ports
+for a watchdog with correct vendor and device revision.
 
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
+Keep the device detection part at init time, but move watchdog
+registration to a platform driver probe function.
+
 Suggested-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 ---
- drivers/watchdog/f71808e_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/f71808e_wdt.c | 49 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 42 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index f60beec1bbae..f7d82d261913 100644
+index 67e344627586..a23f68be137f 100644
 --- a/drivers/watchdog/f71808e_wdt.c
 +++ b/drivers/watchdog/f71808e_wdt.c
-@@ -228,15 +228,17 @@ static int watchdog_set_timeout(int timeout)
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/ioport.h>
+ #include <linux/module.h>
++#include <linux/platform_device.h>
+ #include <linux/watchdog.h>
  
- 	mutex_lock(&watchdog.lock);
+ #define DRVNAME "f71808e_wdt"
+@@ -431,10 +432,19 @@ static const struct watchdog_ops fintek_wdt_ops = {
+ 	.set_timeout = fintek_wdt_set_timeout,
+ };
  
--	watchdog.timeout = timeout;
- 	if (timeout > 0xff) {
- 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
- 		watchdog.minutes_mode = true;
-+		timeout = watchdog.timer_val * 60;
- 	} else {
- 		watchdog.timer_val = timeout;
- 		watchdog.minutes_mode = false;
+-static int __init watchdog_init(int sioaddr)
++static int fintek_wdt_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	int wdt_conf, err = 0;
++	struct resource *res;
++	int sioaddr;
++
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	if (!res)
++		return -ENXIO;
++
++	sioaddr = res->start;
+ 
+ 	watchdog.sioaddr = sioaddr;
+ 	watchdog.ident.options = WDIOF_SETTIMEOUT
+@@ -467,6 +477,7 @@ static int __init watchdog_init(int sioaddr)
+ 
+ 	superio_exit(sioaddr);
+ 
++	wdd->parent		= dev;
+ 	wdd->info               = &watchdog.ident;
+ 	wdd->ops                = &fintek_wdt_ops;
+ 	wdd->min_timeout        = 1;
+@@ -491,16 +502,16 @@ static int __init watchdog_init(int sioaddr)
+ 	if (start_withtimeout) {
+ 		err = fintek_wdt_start(wdd);
+ 		if (err) {
+-			pr_err("cannot start watchdog timer\n");
++			dev_err(dev, "cannot start watchdog timer\n");
+ 			return err;
+ 		}
+ 
+ 		set_bit(WDOG_HW_RUNNING, &wdd->status);
+-		pr_info("watchdog started with initial timeout of %u sec\n",
+-			start_withtimeout);
++		dev_info(dev, "watchdog started with initial timeout of %u sec\n",
++			 start_withtimeout);
  	}
  
-+	watchdog.timeout = timeout;
-+
- 	mutex_unlock(&watchdog.lock);
+-	return watchdog_register_device(wdd);
++	return devm_watchdog_register_device(dev, wdd);
+ }
  
- 	return 0;
+ static int __init fintek_wdt_find(int sioaddr)
+@@ -566,9 +577,19 @@ static int __init fintek_wdt_find(int sioaddr)
+ 	return err;
+ }
+ 
++static struct platform_driver fintek_wdt_driver = {
++	.probe          = fintek_wdt_probe,
++	.driver         = {
++		.name   = DRVNAME,
++	},
++};
++
++static struct platform_device *fintek_wdt_pdev;
++
+ static int __init fintek_wdt_init(void)
+ {
+ 	static const unsigned short addrs[] = { 0x2e, 0x4e };
++	struct resource wdt_res = {};
+ 	int err = -ENODEV;
+ 	int i;
+ 
+@@ -585,12 +606,26 @@ static int __init fintek_wdt_init(void)
+ 	if (i == ARRAY_SIZE(addrs))
+ 		return err;
+ 
+-	return watchdog_init(addrs[i]);
++	platform_driver_register(&fintek_wdt_driver);
++
++	wdt_res.name = "superio port";
++	wdt_res.flags = IORESOURCE_IO;
++	wdt_res.start = addrs[i];
++	wdt_res.end   = addrs[i] + 1;
++
++	fintek_wdt_pdev = platform_device_register_simple(DRVNAME, -1, &wdt_res, 1);
++	if (IS_ERR(fintek_wdt_pdev)) {
++		platform_driver_unregister(&fintek_wdt_driver);
++		return PTR_ERR(fintek_wdt_pdev);
++	}
++
++	return 0;
+ }
+ 
+ static void __exit fintek_wdt_exit(void)
+ {
+-	watchdog_unregister_device(&watchdog.wdd);
++	platform_device_unregister(fintek_wdt_pdev);
++	platform_driver_unregister(&fintek_wdt_driver);
+ }
+ 
+ MODULE_DESCRIPTION("F71808E Watchdog Driver");
 -- 
 git-series 0.9.1
