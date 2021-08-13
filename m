@@ -2,546 +2,254 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D22C432BE
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A90A9C43216
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Aug 2021 05:22:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5756960041
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Aug 2021 16:21:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E56160FC0
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Aug 2021 05:22:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233045AbhHIQWD (ORCPT
+        id S238608AbhHMFWz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Aug 2021 12:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232987AbhHIQVr (ORCPT
+        Fri, 13 Aug 2021 01:22:55 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:51558 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S234013AbhHMFWy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Aug 2021 12:21:47 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D935C06179B
-        for <linux-watchdog@vger.kernel.org>; Mon,  9 Aug 2021 09:21:26 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1mD816-00021e-BE; Mon, 09 Aug 2021 18:20:44 +0200
-Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <afa@pengutronix.de>)
-        id 1mD814-0008Kp-Uu; Mon, 09 Aug 2021 18:20:42 +0200
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Fri, 13 Aug 2021 01:22:54 -0400
+X-UUID: 32b21d2b23274a81972bdaf52ff45cc1-20210813
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=d1iGUgjfLwkDVNjTYAgUPypY9kTOq21tOcsfabF0x98=;
+        b=ERy9x3MMY7o2CrTyVJiNMWRWDQnb4Pq1STfC6L7QwYcrrY7oijpyYe/XyEGxEhij7XEXjpyQbbL2AbVs32/secXGB8+/WF0BFGghlu8LADZSnzsnOO8ihaA7Q20l0o1Eyd7LedCu35Zci6Q8Pwl1XcE95ek5fSNGWFxK+Wve34E=;
+X-UUID: 32b21d2b23274a81972bdaf52ff45cc1-20210813
+Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
+        (envelope-from <sam.shih@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1745074859; Fri, 13 Aug 2021 13:22:23 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 13 Aug 2021 13:22:22 +0800
+Received: from mtksdccf07 (172.21.84.99) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 13 Aug 2021 13:22:21 +0800
+Message-ID: <8b14d7a730bd787a9d162d368a2d3aae64256ca6.camel@mediatek.com>
+Subject: Re: [PATCH 01/12] dt-bindings: clock: mediatek: document clk
+ bindings for mediatek mt7986 SoC
+From:   Sam Shih <sam.shih@mediatek.com>
+To:     Chen-Yu Tsai <wenst@chromium.org>
+CC:     Rob Herring <robh+dt@kernel.org>, Sean Wang <sean.wang@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matt Mackall <mpm@selenic.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, kernel@pengutronix.de,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH v5 7/7] watchdog: f71808e_wdt: dynamically allocate watchdog driver data
-Date:   Mon,  9 Aug 2021 18:20:37 +0200
-Message-Id: <1baffdc410d6476cccffe9712cec56350335812a.1628525954.git-series.a.fatoum@pengutronix.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
-References: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        "Seiya Wang" <seiya.wang@mediatek.com>,
+        Devicetree List <devicetree@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>, <linux-gpio@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-crypto@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>, <linux-clk@vger.kernel.org>,
+        John Crispin <john@phrozen.org>,
+        Ryder Lee <Ryder.Lee@mediatek.com>
+Date:   Fri, 13 Aug 2021 13:22:21 +0800
+In-Reply-To: <CAGXv+5F1tPC8W6FcBqn4TdoOrSmFUr4GWpD3hQC9QsPi3o__=g@mail.gmail.com>
+References: <20210726071439.14248-1-sam.shih@mediatek.com>
+         <20210726071439.14248-2-sam.shih@mediatek.com>
+         <CAGXv+5GeEBAkXKfA=S7XGOLYtCRihP5ov6kSiw+eevPAi74GAQ@mail.gmail.com>
+         <083a0e8fdd07c0f940285dce2dc26cb0f5e798a6.camel@mediatek.com>
+         <CAGXv+5F1tPC8W6FcBqn4TdoOrSmFUr4GWpD3hQC9QsPi3o__=g@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: afa@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-While the driver will only match against a single device, convention is
-to dynamically allocate the driver data.
+SGksDQoNClNvcnJ5IGZvciB0aGUgbGF0ZSByZXBseSxJIGhhdmUgcHJlcGFyZWQgdjIgcGF0Y2hl
+cywgYnV0IGZvciBzb21lIG9mIHlvdXIgc3VnZ2VzdGlvbnMsIEkgdGhpbmsNCml0IGlzIGEgYml0
+IGRpZmZpY3VsdCB0byBhcHBseSB0byBvdXIgZHJpdmVycy4NCg0KDQpPbiBGcmksIDIwMjEtMDct
+MzAgYXQgMTQ6MzAgKzA4MDAsIENoZW4tWXUgVHNhaSB3cm90ZToNCj4gT24gRnJpLCBKdWwgMzAs
+IDIwMjEgYXQgMjowMSBQTSBTYW0gU2hpaCA8c2FtLnNoaWhAbWVkaWF0ZWsuY29tPg0KPiB3cm90
+ZToNCj4gPiANCj4gPiBIaSwNCj4gPiANCj4gPiBPbiBNb24sIDIwMjEtMDctMjYgYXQgMTc6MjAg
+KzA4MDAsIENoZW4tWXUgVHNhaSB3cm90ZToNCj4gPiA+IEZ1cnRoZXJtb3JlLCBiYXNlZCBvbiB0
+aGUgZHJpdmVyIHBhdGNoIGFuZCB0aGUgZmFjdCB0aGF0IHRoZXkNCj4gPiA+IHNoYXJlDQo+ID4g
+PiB0aGUNCj4gPiA+IHNhbWUgY29tcGF0aWJsZSBzdHJpbmcsIGl0IHNlZW1zIHlvdSBzaG91bGRu
+J3QgbmVlZCB0byBoYXZlIHR3bw0KPiA+ID4gY29tcGF0aWJsZQ0KPiA+ID4gc3RyaW5ncyBmb3Ig
+dHdvIGlkZW50aWNhbCBoYXJkd2FyZSBibG9ja3MuIFRoZSBuZWVkIGZvciBzZXBhcmF0ZQ0KPiA+
+ID4gZW50cmllcw0KPiA+ID4gdG8gaGF2ZSBkaWZmZXJlbnQgY2xvY2sgbmFtZXMgaXMgYW4gaW1w
+bGVtZW50YXRpb24gZGV0YWlsLiBQbGVhc2UNCj4gPiA+IGNvbnNpZGVyDQo+ID4gPiB1c2luZyBh
+bmQgc3VwcG9ydGluZyBjbG9jay1vdXRwdXQtbmFtZXMuDQo+ID4gPiANCj4gPiA+IEFsc28sIHBs
+ZWFzZSBjaGVjayBvdXQgdGhlIE1UODE5NSBjbG9jayBkcml2ZXIgc2VyaWVzIFsxXS4gSSdtDQo+
+ID4gPiBndWVzc2luZw0KPiA+ID4gYSBsb3Qgb2YgdGhlIGNvbW1lbnRzIGFwcGx5IHRvIHRoaXMg
+b25lIGFzIHdlbGwuDQo+ID4gPiANCj4gPiA+IFJlZ2FyZHMNCj4gPiA+IENoZW5ZdQ0KPiA+ID4g
+DQo+ID4gPiBbMV0NCj4gPiA+IA0KaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8v
+bG9yZS5rZXJuZWwub3JnL2xpbnV4LW1lZGlhdGVrLzIwMjEwNjE2MjI0NzQzLjUxMDktMS1jaHVu
+LWppZS5jaGVuQG1lZGlhdGVrLmNvbS9ULyp0X187SXchIUNUUk5LQTl3TWcwQVJidyEyOXBiNFRK
+aUdITHZMYllKZ0RCMkRoZjhNcHc1VlU4elYtVzNOck1hbl9SUFFydFdUMkVkUlR5eWpXcHUwblpF
+JA0KPiA+ID4gDQo+ID4gPiANCj4gPiANCj4gPiBJIGhhdmUgb3JnYW5pemVkIHlvdXIgY29tbWVu
+dHMgaW4gIk1lZGlhdGVrIE1UODE5NSBjbG9jayBzdXBwb3J0Ig0KPiA+IHNlcmllcyBpbnRvIHRo
+ZSBmb2xsb3dpbmcgbGlzdCwgcmVwbHkgdG8geW91ciBoZXJlOg0KPiA+IA0KPiA+ID4gZHQtYmlu
+ZGluZzogTW92ZSB0aGUgbm90LXRvLWJlLWV4cG9zZWQgY2xvY2sgdG8gZHJpdmVyIGRpcmVjdG9y
+eQ0KPiA+ID4gb3INCj4gPiA+IHNpbXBseSBsZWZ0IG91dA0KPiA+IA0KPiA+IE9rYXksIHRoYW5r
+cyBmb3IgeW91ciBjb21tZW50LCBJIHdpbGwgdXBkYXRlIHRoaXMgaW4gdGhlIG5leHQgcGF0Y2gN
+Cj4gPiBzZXQNCj4gDQo+IFNlZSB0aGUgZm9sbG93aW5nIGZpbGUgZm9yIGFuIGV4YW1wbGU6DQo+
+IA0KPiANCg0KPiBodHRwczovL3VybGRlZmVuc2UuY29tL3YzL19faHR0cHM6Ly9lbGl4aXIuYm9v
+dGxpbi5jb20vbGludXgvbGF0ZXN0L3NvdXJjZS9kcml2ZXJzL2Nsay9zdW54aS1uZy9jY3Utc3Vu
+NTBpLWE2NC5oX187ISFDVFJOS0E5d01nMEFSYnchMy0tVUVwRkZHZVpfV1RDYVdzal85dmJiYjRT
+U0UxdlBDSUxGbGVUaHpwYTFucTdtdmVGZlFNRHFiYWNkVDVJNiQgDQo+IA0KPiBkcml2ZXJzIHdv
+dWxkIG5vdCBiZSBhYmxlIHRvIHVzZSB0aGUgbm9uLWV4cG9ydGVkIGludGVybWVkaWF0ZQ0KPiBj
+bG9ja3MuDQo+IA0KVGhhbmtzLCBJIHdlbGwgZGVsZXRlIHNvbWUgY2xvY2tzIHRoYXQgYXJlIG5v
+dCBleHBlY3RlZCB0byBiZSB1c2UgaW4NCmRldmljZSB0cmVlLg0KDQo+ID4gPiBkZXNjcmliZSBz
+b21lIG9mIHRoZSBjbG9jayByZWxhdGlvbnMgYmV0d2VlbiB0aGUgdmFyaW91cyBjbG9jaw0KPiA+
+ID4gY29udHJvbGxlcnMNCj4gPiANCj4gPiBJIGhhdmUgY2hlY2tlZCB0aGUgZmlsZXMgaW4NCj4g
+PiAiRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2FybS9tZWRpYXRlayIsIEl0IHNl
+ZW1zIHRoYXQgYWxsDQo+ID4gTWVkaWFUZWsgU29DIGNsb2NrcyBhcmUgc2ltcGx5IGRlc2NyaWJl
+ZCBieSBlYWNoIGNvbnRyb2xsZXIsIGxpa2UNCj4gPiAibWVkaWF0ZWssaW5mcmFjZmcudHh0IiBh
+bmQgIm1lZGlhdGVrLHRvcGNrZ2VuLnR4dCIsIGFuZCB0aG9zZQ0KPiA+IGRvY3VtZW50DQo+ID4g
+b25seSBpbmNsdWRlIGNvbXBhdGlibGUgc3RyaW5ncyBpbmZvcm1hdGlvbiBhbmQgZXhhbXBsZXMu
+DQo+ID4gQ2FuIHdlIGluc2VydCB0aGUgY2xvY2sgcmVsYXRpb25zaGlwIG9mIE1UNzk4NiBkaXJl
+Y3RsbHkgaW4gY29tbW9uDQo+ID4gZG9jdW1lbnRzPw0KPiANCj4gV2hhdCBJIG1lYW50IHdhcyB0
+aGF0IHNpbmNlIGVhY2ggY2xvY2sgY29udHJvbGxlciBoYXJkd2FyZSBibG9jayBoYXMNCj4gb25l
+IG9yIG1hbnkgY2xvY2sgaW5wdXRzLCB0aGVzZSBzaG91bGQgYmUgZGVzY3JpYmVkIGluIHRoZSBi
+aW5kaW5nDQo+IGFzIHJlcXVpcmVkICJjbG9ja3MiIGFuZCAiY2xvY2stbmFtZXMiIHByb3BlcnRp
+ZXMuDQo+IA0KPiBTbyBpdCdzIG5vdCBhYm91dCBkZXNjcmliaW5nIHRoZSBhY3R1YWwgcmVsYXRp
+b25zaGlwIG9yIGNsb2NrIHRyZWUsDQo+IGJ1dCBqdXN0IGhhdmluZyB0aGUgaW5wdXRzIGFjY3Vy
+YXRlbHkgZGVzY3JpYmVkLg0KPiANCj4gPiBPciB3ZSBzaG91bGQgYWRkIGEgbmV3ICJtZWRpYXRl
+ayxtdDc5ODYtY2xvY2sueWFtbCIgYW5kIG1vdmUNCj4gPiBjb21wYXRpYmxlDQo+ID4gc3RyaW5n
+cyBpbmZvcm1hdGlvbiBhbmQgZXhhbXBsZSB0byB0aGlzIGZpbGUsIGFuZCBpbnNlcnQgY2xvY2sN
+Cj4gPiByZWxhdGlvbnNoaXAgZGVzY3JpcHRpb25zIHRvIHRoaXMgZmlsZT8gV291bGRu4oCZdCBp
+dCBiZSBzdHJhbmdlIHRvDQo+ID4gc2tpcA0KPiA+IGV4aXN0aW5nIGZpbGVzIGFuZCBjcmVhdGUg
+YSBuZXcgb25lPw0KPiANCj4gSSB0aGluayB0aGF0IGlzIGEgcXVlc3Rpb24gZm9yIHRoZSBkZXZp
+Y2UgdHJlZSBiaW5kaW5nIG1haW50YWluZXIsDQo+IFJvYi4NCj4gQXQgbGVhc3QgZm9yIE1lZGlh
+dGVrIHN0dWZmLCB0aGVyZSBzZWVtIHRvIGJlIG1hbnkgc2VwYXJhdGUgZmlsZXMuDQo+IA0KPiA+
+ID4gZXh0ZXJuYWwgb3NjaWxsYXRvcidzIGNhc2UsIHRoZSBvc2NpbGxhdG9yIGlzIGRlc2NyaWJl
+ZCBpbiB0aGUNCj4gPiA+IGRldmljZQ0KPiA+ID4gdHJlZQ0KPiA+IA0KPiA+IFllcywgd2UgaGF2
+ZSAiY2xreHRhbCIgaW4gdGhlIERULCB3aGljaCBzdGFuZHMgZm9yIGV4dGVybmFsDQo+ID4gb3Nj
+aWxsYXRvciwNCj4gPiBBbGwgY2xvY2tzIGluIGFwbWl4ZWRzeXMgdXNlICJjbGt4dGFsIiBhcyB0
+aGUgcGFyZW50IGNsb2NrDQo+IA0KPiBTbyBmb3IgdGhlIGFwbWl4ZWRzeXMgZGV2aWNlIG5vZGUs
+IGl0IHdvdWxkIGF0IGxlYXN0IGhhdmUgc29tZXRoaW5nDQo+IGxpa2U6DQo+IA0KPiAgICAgY2xv
+Y2tzID0gPCZjbGt4dGFsPjsNCj4gICAgIGNsb2NrLW5hbWVzID0gInh0YWwiOw0KPiANCj4gRm9y
+IHRvcGNrZ2VuLCBzaW5jZSBpdCBoYXMgeHRhbCBhbmQgc29tZSBQTExzIGZyb20gYXBtaXhlZHN5
+cyBhcw0KPiBpbnB1dHM6DQo+IA0KPiAgICAgY2xvY2tzID0gPCZjbGt4dGFsPiwgPCZhcG1peGVk
+c3lzIENMS19JRF9QTExYWFg+LCA8JmFwbWl4ZWRzeXMNCj4gQ0xLX0lEX1BMTFlZWT47DQo+ICAg
+ICBjbG9jay1uYW1lcyA9ICJ4dGFsIiwgInBsbFhYWCIsICJwbGxZWVkiDQo+IA0KPiBUaGUgYWJv
+dmUgaXMganVzdCBhbiBleGFtcGxlLiBZb3Ugc2hvdWxkIGFkYXB0IGl0IHRvIGZpdCB5b3VyDQo+
+IGhhcmR3YXJlDQo+IGRlc2NyaXB0aW9uLiBBbmQgdGhlIGJpbmRpbmdzIHNob3VsZCBkZXNjcmli
+ZSB3aGF0IGlzIHJlcXVpcmVkLiBOb3RlDQo+IHRoYXQgdGhlIGNsb2NrIG5hbWVzIHVzZWQgaGVy
+ZSBhcmUgbG9jYWwgdG8gdGhpcyBkZXZpY2Ugbm9kZS4gVGhleSBkbw0KPiBub3QgbmVlZCB0byBt
+YXRjaCB3aGF0IHRoZSBjbG9jayBkcml2ZXIgdXNlcyBmb3IgdGhlIGdsb2JhbCBuYW1lLiBTbw0K
+PiBqdXN0IGdvIHdpdGggc29tZXRoaW5nIGRlc2NyaXB0aXZlLg0KPiANCj4gVGhlIHBvaW50IGlz
+LCBjcm9zcyBoYXJkd2FyZSBibG9jayBkZXBlbmRlbmNpZXMgc2hvdWxkIGJlIGNsZWFybHkNCj4g
+ZGVzY3JpYmVkDQo+IGluIHRoZSBkZXZpY2UgdHJlZSwgaW5zdGVhZCBvZiBpbXBsaWNpdGx5IGJ1
+cmllZCBpbiB0aGUgY2xvY2sNCj4gZHJpdmVycy4NCj4gDQoNCk1ha2UgY3Jvc3MgaGFyZHdhcmUg
+YmxvY2sgZGVwZW5kZW5jaWVzIGNsZWFybHkgZGVzY3JpYmVkIGluIHRoZSBkZXZpY2UNCnRyZWUg
+c2VlbXMgdW5zdWl0YWJsZSBiZXR3ZWVuICJ0b3BjayIgYW5kICJpbmZyYSIgYmxvY2sgb2YgbXQ3
+OTg2Lg0KDQpJbiB5b3VyIGV4YW1wbGUsIHBhc3NpbmcgImNsa3h0YWwiIGZyb20gdGhlIGRldmlj
+ZSB0cmVlIHNlZW1zIG9rLiBFdmVuDQpmb3IgdG9wY2tnZW4sIHBhc3NpbmcgImNsa3h0YWwiLCAi
+cGxsWFhYIiwgInBsbFlZWSIgZnJvbSB0aGUgZGV2aWNlDQp0cmVlIGFuZCB1c2luZyB0aGVzZSBj
+bG9ja3MgYXMgdGhlIHBhcmVudCBjbG9jayBvZiB0b3Bja2dlbiBhbHNvIHNlZW1zDQp0byB3b3Jr
+LiBJdCBpcyBmZWFzaWJsZSBiZWNhdXNlIGl0IGlzIG5vdCBtdWNoIGNsb2NrIGJldHdlZW4gdGhl
+c2UgdHdvDQpoYXJkd2FyZSBibG9ja3MuDQoNCkJ1dCBmb3IgdGhlIGNsb2NrIHJlbGVhdGlvbnNo
+aXAgYmV0d2VlbiAidG9wY2tnIiBhbmQgImluZnJhIiwgdGhleSBhcmUNCnZlcnkgY29tcGxpY2F0
+ZWQgaW4gaGFyZHdhcmUgZGVzaWduLiBUaGVyZSBhcmUgZG96ZW5zIG9mIGNsb2NrcyBhbmQNCmlu
+dGVyYWN0IHdpdGggZWFjaCBvdGhlci4gSWYgd2Ugd2FudCB0byBkZXNjcmliZSB0aGVzZSByZWxh
+dGlvbnNoaXBzIGluDQp0aGUgZGV2aWNlIHRyZWUsIHdlIG5lZWQgdG8gdXNlIGEgYmlnIGFycmF5
+IGluc2lkZSB0aGUgZGV2aWNlIHRyZWUgYW5kDQptYWtlIGRldmljZSB0cmVlIGxvb2tzIHZlcnkg
+bWVzc3kuIFRoZXJlZm9yZSwgb3VyIHByZXZpb3VzIG1ldGhvZCBvZg0Kd3JpdGluZyBhIGNsb2Nr
+IGRyaXZlciBpcyB0byB1c2UgdGhlIGdsb2JhbCBjbG9jayBhbmQgZGVzY3JpcGJlIHRoZQ0KY2xv
+Y2sgcmVsZWF0aW9uc2hpcCBpbnNpZGUgdGhlIGNsb2NrIGRyaXZlci4NCg0KICAgICAgICAgICAg
+ICAgX19fX19fICAgX19fX19fX18gICAgX19fX19fX18NCiAgICBjbGt4dGFsIC0tfCAgICAgIHwg
+IHwgICAgICAgfC54LnwgICAgICAgfA0KICAgICAgICAgICAgICB8YXBtaXgufC0tfCB0b3BjayB8
+LngufCBpbmZyYSB8DQogICAgICAgICAgICAgIHwgICAgICB8LS18ICAgICAgIHwueC58X19fX19f
+X3wNCiAgICAgICAgICAgICAgfCAgICAgIHwgIHwgICAgICAgfCAgIF9fX19fX19fDQogICAgICAg
+ICAgICAgIHxfX19fX198ICB8ICAgICAgIHwtLXwgICAgICAgIHwNCiAgICAgICAgICAgICAgICAg
+ICAgICAgIHwgICAgICAgfC0tfCBldGhzeXMgfA0KICAgICAgICAgICAgICAgICAgICAgICAgfF9f
+X19fX198ICB8X19fX19fX198DQoNCk1heWJlIHdlIHNob3VsZCBrZWVwIHRoZSBjbG9jayByZWxh
+dGlvbnNoaXAgaW4gb3VyIGNsb2NrIGRyaXZlciBsaWtlDQp0aGUgcHJldmlvdXMgbWVkaWF0ZWsg
+Y2xvY2sgZHJpdmVycy4NCg0KDQo+ID4gPiBEdWFsIGxpY2Vuc2UgcGxlYXNlIChhbmQgdGhlIGR0
+cyBmaWxlcykuDQo+ID4gDQo+ID4gT2theSwgdGhhbmtzIGZvciB5b3VyIGNvbW1lbnQsIEkgd2ls
+bCB1cGRhdGUgdGhpcyBpbiB0aGUgbmV4dCBwYXRjaA0KPiA+IHNldA0KPiA+IA0KPiA+ID4gV2h5
+IGFyZSB0aGlzIGFuZCBvdGhlciAxOjEgZmFjdG9yIGNsa3MgbmVlZGVkPyBUaGV5IGxvb2sgbGlr
+ZQ0KPiA+ID4gcGxhY2Vob2xkZXJzLiBQbGVhc2UgcmVtb3ZlIHRoZW0uDQo+ID4gDQo+ID4gT2th
+eSwgdGhhbmtzIGZvciB5b3VyIGNvbW1lbnQsIEkgd2lsbCB1cGRhdGUgdGhpcyBpbiB0aGUgbmV4
+dCBwYXRjaA0KPiA+IHNldA0KPiANCj4gSWRlYWxseSB0aGUgY2xvY2sgZHJpdmVyIHdvdWxkIHVz
+ZSB0aGUgZGV2aWNlIHRyZWUgdG8gZ2V0IGxvY2FsDQo+IHJlZmVyZW5jZXMNCj4gZm9yIHRoaXMs
+IGJ1dCB0aGF0IGlzIGdvaW5nIHRvIHJlcXVpcmUgc29tZSByZXdvcmsgdG8gTWVkaWF0ZWsncw0K
+PiBjb21tb24NCj4gY2xvY2sgY29kZS4NCj4gDQoNClRvIHRyYW5zZmVyIHRoZSBjbG9jayByZWxh
+dGlvbnNoaXAgdGhyb3VnaCB0aGUgZGV2aWNlIHRyZWUsIGl0IGlzDQpuZWNlc3NhcnkgdG8gbWFr
+ZSBtb2RpZmljYXRpb25zIHRvIHRoZSBjb21tb24gcGFydCBvZiB0aGUgbXRrIGNsb2NrDQpkcml2
+ZXIgdGhhdCBoYXMgYmVlbiBtZXJnZWQsIGFuZCBtYXkgYWxzbyBtb2RpZnkgb3RoZXIgbWVkaWF0
+ZWsgY2xvY2sNCmRyaXZlcnMuDQoNCkxldCdzIG1vdmUgdG8gdGhlIHNvdXJjZSBjb2RlOg0KCQ0K
+YXBtaXhlZHN5cyB7DQogICAgLi4uDQp9DQoJDQp0b3Bja2dlbiB7DQogICAgLi4uDQogICAgY2xv
+Y2tzID0gLi4uICwgPCZhcG1peGVkc3lzIE5FVDJQTEw+ICwgLi4uIDsNCiAgICBjbG9jay1uYW1l
+cyA9IC4uLiAsICJuZXQycGxsIiAsIC4uLiA7DQp9DQoNCmNoYXIgKnBhcmVudF9uYW1lOw0KICAg
+IGZvciBlYWNoIGNsayBpbiA8ZGV2aWNlX3RyZWVfbm9kZT46DQogICAgICAgIHBhcmVudF9uYW1l
+ID0gX19jbGtfZ2V0X25hbWUob2ZfY2xrX2dldChucCwgaSkpDQoJDQooYXJtYWRhLTM3eHgtdGJn
+LmMgdXNlIHRoaXMgbWV0aG9kIHRvIGdldCBnbG9iYWwgbmFtZSBvZiBwYXJlbnQgY2xvY2spDQoN
+CklkZWFsbHksIHdlIHNob3VsZCB1c2UgdGhlIHBhcmVudF9uYW1lIHZhcmlhYmxlIGFib3ZlIHRv
+IGNyZWF0ZSBhDQpjbG9jaywgQnV0IG10a19maXhlZF9mYWN0b3IgZXhwZWN0cyBpbnB1dCBjb25z
+dCBzdHJpbmdzDQoJDQp2b2lkIG10a19jbGtfcmVnaXN0ZXJfZmFjdG9ycyhjb25zdCBzdHJ1Y3Qg
+bXRrX2ZpeGVkX2ZhY3RvciAqY2xrcywgLi4uKQ0KCQ0Kc3RydWN0IG10a19maXhlZF9mYWN0b3Ig
+ew0KICAgIC4uLg0KICAgIGNvbnN0IGNoYXIgKm5hbWU7DQogICAgY29uc3QgY2hhciAqcGFyZW50
+Ow0KICAgIC4uLg0KfTsNCg0KU28gd2Ugc3RpbGwgbmVlZCB0byB1c2UgcHJlLWRlZmluZWQgY2xv
+Y2sgbmFtZSBpbiBzdGF0aWMgY29uc3QgY2xvY2sNCnRhYmxlIGV2ZW4gd2UgY2FuIGdldCBjbG9j
+ayBuYW1lIGFzIHZhcmlhYmxlIGZyb20gZGV2aWNlIHRyZWUuDQoNCg0Kc3RhdGljIGNvbnN0IHN0
+cnVjdCBtdGtfZml4ZWRfZmFjdG9yIHRvcF9kaXZzW10gX19pbml0Y29uc3QgPSB7DQogICAgLi4u
+DQogICAgRkFDVE9SKENLX1RPUF9ORVQyX0Q0X0QyLCAibmV0Ml9kNF9kMiIsICJuZXQycGxsIiwg
+MSwgOCksDQogICAgRkFDVE9SKENLX1RPUF9ORVQyX0QzX0QyLCAibmV0Ml9kM19kMiIsICJuZXQy
+cGxsIiwgMSwgMiksDQogICAgLi4uDQp9DQoNCg0KDQo+ID4gPiBNZXJnZSBkdXBsaWNhdGUgcGFy
+ZW50IGluc3RhbmNlcw0KPiA+IA0KPiA+IFdlIGhhdmUgY29uc2lkZXJlZCB0aGlzIGluIHRoZSBN
+VDc5ODYgYmFzaWMgY2xvY2sgZHJpdmVyLCBidXQgSQ0KPiA+IHdpbGwNCj4gPiBjaGVjayBhZ2Fp
+bi4gSWYgY29ycmVjdGlvbnMgYXJlIG5lZWRlZCwgSSB3aWxsIG1ha2UgY2hhbmdlcyBpbiB0aGUN
+Cj4gPiBuZXh0DQo+ID4gcGF0Y2ggc2V0Lg0KPiA+IA0KPiA+ID4gTGVha2luZyBjbGtfZGF0YSBp
+ZiBzb21lIGZ1bmN0aW9uIHJldHVybiBmYWlsDQo+ID4gDQo+ID4gT2theSwgdGhhbmtzIGZvciB5
+b3VyIGNvbW1lbnQsIEkgd2lsbCB1cGRhdGUgdGhpcyBpbiB0aGUgbmV4dCBwYXRjaA0KPiA+IHNl
+dA0KPiA+IA0KPiA+ID4gVGhpcyBmaWxlIGNvbnRhaW5zIGZvdXIgZHJpdmVycy4gVGhleSBkbyBu
+b3QgaGF2ZSBkZXBlbmQgb24gZWFjaA0KPiA+ID4gb3RoZXIsIGFuZCBkbyBub3QgbmVlZCB0byBi
+ZSBpbiB0aGUgc2FtZSBmaWxlLiBQbGVhc2Ugc3BsaXQgdGhlbQ0KPiA+ID4gaW50bw0KPiA+ID4g
+ZGlmZmVyZW4gZmlsZXMgYW5kIHByZWZlcmFibHkgZGlmZmVyZW50IHBhdGNoZXMNCj4gPiANCj4g
+PiBPa2F5LCB0aGFua3MgZm9yIHlvdXIgY29tbWVudCwgSSB3aWxsIHNlcGFyYXRlIHRob3NlIGNs
+b2NrIGRyaXZlcnMNCj4gPiBpbg0KPiA+IHRoZSBuZXh0IHBhdGNoIHNldA0KPiA+IA0KPiA+ID4g
+SXMgdGhlcmUgYW55IHBhcnRpY3VsYXIgcmVhc29uIGZvciBhcmNoX2luaXRjYWxsDQo+ID4gDQo+
+ID4gV2UgaGF2ZSBjb25zaWRlcmVkIHRoaXMgaW4gTVQ3OTg2IGJhc2ljIGNsb2NrIGRyaXZlciwg
+YW5kIHVzZQ0KPiA+IENMS19PRl9ERUNMQVJFIGluc3RlYWQgb2YgYXJjaF9pbml0Y2FsbC4NCj4g
+DQo+IEhhdmluZyB0byBzZXF1ZW5jZSBjbG9jayByZWdpc3RyYXRpb24gbWFudWFsbHkgaXMgbGlr
+ZWx5IGEgc3ltcHRvbSBvZg0KPiBpbmFkZXF1YXRlIGNsb2NrIGRlcGVuZGVuY3kgaGFuZGxpbmcu
+IFNvIGlmIHRoZSBkcml2ZXJzIGFyZSBvbmx5DQo+IHVzaW5nDQo+IGdsb2JhbCBjbG9jayBuYW1l
+cyB0byBkZXNjcmliZSBwYXJlbnRzLCB3aGF0IGhhcHBlbnMgaXMgdGhhdCBldmVuIGlmDQo+IHRo
+ZSBwYXJlbnQgaXNuJ3QgaW4gdGhlIHN5c3RlbSB5ZXQsIHRoZSByZWdpc3RyYXRpb24gaXMgYWxs
+b3dlZCB0bw0KPiBzdWNjZWVkLiBIb3dldmVyIHNpbmNlIHRoZSBwYXJlbnQgY2xvY2sgaXNuJ3Qg
+YXZhaWxhYmxlIHlldCwgYW55DQo+IGNhbGN1bGF0aW9ucyBpbnZvbHZpbmcgaXQsIHN1Y2ggYXMg
+Y2FsY3VsYXRpbmcgY2xvY2sgcmF0ZXMsIHdpbGwNCj4geWllbGQgaW52YWxpZCByZXN1bHRzLCBz
+dWNoIGFzIDAgY2xvY2sgcmF0ZS4NCj4gDQo+ID4gQW5vdGhlciBxdWVzdGlvbjoNCj4gPiBTaG91
+bGQgdGhlIGNsb2NrIHBhdGNoZXMgaW4gIkFkZCBiYXNpYyBTb0Mgc3VwcG9ydCBmb3IgTWVkaWFU
+ZWsNCj4gPiBtdDc5ODYiDQo+ID4gbmVlZCB0byBiZSBzZXBhcmF0ZWQgaW50byBhbm90aGVyIHBh
+dGNoIHNlcmllcywgc3VjaCBhcyBNVDgxOTUNCj4gPiAiTWVkaWF0ZWsgTVQ4MTk1IGNsb2NrIHN1
+cHBvcnQiID8NCj4gDQo+IE5vcGUuIFRoZSBNVDgxOTUgdGVhbSBzZWVtcyB0byBiZSBzcGxpdHRp
+bmcgdGhpbmdzIHVwIGJ5IG1vZHVsZSwgd2l0aA0KPiB0aGUgZGV2aWNlIHRyZWUgYmVpbmcgaXRz
+IG93biBzZXBhcmF0ZSBtb2R1bGUuIElkZWFsbHkgeW91IHdhbnQgdG8NCj4gc2VuZA0KPiBkcml2
+ZXJzIGFsb25nIHdpdGggdGhlIHJlbGF0ZWQgZGV2aWNlIHRyZWUgY2hhbmdlcywgc28gcGVvcGxl
+DQo+IHJldmlld2luZw0KPiBjYW4gZ2V0IGEgc2Vuc2Ugb2YgaG93IHRoaW5ncyB3b3JrLiBBbmQg
+aWYgdGhlIGhhcmR3YXJlIGlzIHB1YmxpY2x5DQo+IGF2YWlsYWJsZSwgcGVvcGxlIGNhbiBhY3R1
+YWxseSB0ZXN0IHRoZSBjaGFuZ2VzLiBXZSBjYW4ndCBkbyB0aGF0IGlmDQo+IHRoZQ0KPiBkZXZp
+Y2UgdHJlZSBjaGFuZ2VzIGFyZW4ndCBidW5kbGVkIHRvZ2V0aGVyLg0KPiANCk9LLCBJIHdpbGwg
+a2VlcCBjbG9jayBwYXRjaGVzIGFuZCBiYXNpYyBwYXJ0IHBhdGNoZXMgaW4gdGhlIHNhbWUgc2Vy
+aWVzDQoocGF0Y2hlcyB2MikNCg0KDQpSZWdhcmRzLA0KU2FtDQpUaGFua3MsIEkgd2lsbCBkZWxl
+dGUgc29tZSBjbG9ja3MgdGhhdCBhcmUgbm90IGV4cGVjdGVkIHRvIGINCg==
 
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
----
- drivers/watchdog/f71808e_wdt.c | 198 +++++++++++++++++++---------------
- 1 file changed, 111 insertions(+), 87 deletions(-)
-
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index a23f68be137f..ee90c5f943f9 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -142,7 +142,9 @@ struct fintek_wdt {
- 	char		pulse_mode;	/* enable pulse output mode? */
- };
- 
--static struct fintek_wdt watchdog;
-+struct fintek_wdt_pdata {
-+	enum chips	type;
-+};
- 
- /* Super I/O functions */
- static inline int superio_inb(int base, int reg)
-@@ -208,13 +210,15 @@ static inline void superio_exit(int base)
- 
- static int fintek_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
- {
-+	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
-+
- 	if (timeout > 0xff) {
--		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
--		watchdog.minutes_mode = true;
--		timeout = watchdog.timer_val * 60;
-+		wd->timer_val = DIV_ROUND_UP(timeout, 60);
-+		wd->minutes_mode = true;
-+		timeout = wd->timer_val * 60;
- 	} else {
--		watchdog.timer_val = timeout;
--		watchdog.minutes_mode = false;
-+		wd->timer_val = timeout;
-+		wd->minutes_mode = false;
- 	}
- 
- 	wdd->timeout = timeout;
-@@ -222,63 +226,65 @@ static int fintek_wdt_set_timeout(struct watchdog_device *wdd, unsigned int time
- 	return 0;
- }
- 
--static int fintek_wdt_set_pulse_width(unsigned int pw)
-+static int fintek_wdt_set_pulse_width(struct fintek_wdt *wd, unsigned int pw)
- {
- 	unsigned int t1 = 25, t2 = 125, t3 = 5000;
- 
--	if (watchdog.type == f71868) {
-+	if (wd->type == f71868) {
- 		t1 = 30;
- 		t2 = 150;
- 		t3 = 6000;
- 	}
- 
- 	if        (pw <=  1) {
--		watchdog.pulse_val = 0;
-+		wd->pulse_val = 0;
- 	} else if (pw <= t1) {
--		watchdog.pulse_val = 1;
-+		wd->pulse_val = 1;
- 	} else if (pw <= t2) {
--		watchdog.pulse_val = 2;
-+		wd->pulse_val = 2;
- 	} else if (pw <= t3) {
--		watchdog.pulse_val = 3;
-+		wd->pulse_val = 3;
- 	} else {
- 		pr_err("pulse width out of range\n");
- 		return -EINVAL;
- 	}
- 
--	watchdog.pulse_mode = pw;
-+	wd->pulse_mode = pw;
- 
- 	return 0;
- }
- 
- static int fintek_wdt_keepalive(struct watchdog_device *wdd)
- {
-+	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
- 	int err;
- 
--	err = superio_enter(watchdog.sioaddr);
-+	err = superio_enter(wd->sioaddr);
- 	if (err)
- 		return err;
--	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
-+	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
- 
--	if (watchdog.minutes_mode)
-+	if (wd->minutes_mode)
- 		/* select minutes for timer units */
--		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+		superio_set_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 				F71808FG_FLAG_WD_UNIT);
- 	else
- 		/* select seconds for timer units */
--		superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+		superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 				F71808FG_FLAG_WD_UNIT);
- 
- 	/* Set timer value */
--	superio_outb(watchdog.sioaddr, F71808FG_REG_WD_TIME,
--			   watchdog.timer_val);
-+	superio_outb(wd->sioaddr, F71808FG_REG_WD_TIME,
-+			   wd->timer_val);
- 
--	superio_exit(watchdog.sioaddr);
-+	superio_exit(wd->sioaddr);
- 
- 	return 0;
- }
- 
- static int fintek_wdt_start(struct watchdog_device *wdd)
- {
-+	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
- 	int err;
- 	u8 tmp;
- 
-@@ -287,57 +293,57 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
- 	if (err)
- 		return err;
- 
--	err = superio_enter(watchdog.sioaddr);
-+	err = superio_enter(wd->sioaddr);
- 	if (err)
- 		return err;
--	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
-+	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
- 
- 	/* Watchdog pin configuration */
--	switch (watchdog.type) {
-+	switch (wd->type) {
- 	case f71808fg:
- 		/* Set pin 21 to GPIO23/WDTRST#, then to WDTRST# */
--		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT2, 3);
--		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 3);
-+		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT2, 3);
-+		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT3, 3);
- 		break;
- 
- 	case f71862fg:
- 		if (f71862fg_pin == 63) {
- 			/* SPI must be disabled first to use this pin! */
--			superio_clear_bit(watchdog.sioaddr, SIO_REG_ROM_ADDR_SEL, 6);
--			superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 4);
-+			superio_clear_bit(wd->sioaddr, SIO_REG_ROM_ADDR_SEL, 6);
-+			superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT3, 4);
- 		} else if (f71862fg_pin == 56) {
--			superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 1);
-+			superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT1, 1);
- 		}
- 		break;
- 
- 	case f71868:
- 	case f71869:
- 		/* GPIO14 --> WDTRST# */
--		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 4);
-+		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT1, 4);
- 		break;
- 
- 	case f71882fg:
- 		/* Set pin 56 to WDTRST# */
--		superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 1);
-+		superio_set_bit(wd->sioaddr, SIO_REG_MFUNCT1, 1);
- 		break;
- 
- 	case f71889fg:
- 		/* set pin 40 to WDTRST# */
--		superio_outb(watchdog.sioaddr, SIO_REG_MFUNCT3,
--			superio_inb(watchdog.sioaddr, SIO_REG_MFUNCT3) & 0xcf);
-+		superio_outb(wd->sioaddr, SIO_REG_MFUNCT3,
-+			superio_inb(wd->sioaddr, SIO_REG_MFUNCT3) & 0xcf);
- 		break;
- 
- 	case f81803:
- 		/* Enable TSI Level register bank */
--		superio_clear_bit(watchdog.sioaddr, SIO_REG_CLOCK_SEL, 3);
-+		superio_clear_bit(wd->sioaddr, SIO_REG_CLOCK_SEL, 3);
- 		/* Set pin 27 to WDTRST# */
--		superio_outb(watchdog.sioaddr, SIO_REG_TSI_LEVEL_SEL, 0x5f &
--			superio_inb(watchdog.sioaddr, SIO_REG_TSI_LEVEL_SEL));
-+		superio_outb(wd->sioaddr, SIO_REG_TSI_LEVEL_SEL, 0x5f &
-+			superio_inb(wd->sioaddr, SIO_REG_TSI_LEVEL_SEL));
- 		break;
- 
- 	case f81865:
- 		/* Set pin 70 to WDTRST# */
--		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 5);
-+		superio_clear_bit(wd->sioaddr, SIO_REG_MFUNCT3, 5);
- 		break;
- 
- 	case f81866:
-@@ -347,12 +353,12 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
- 		 *     BIT5: 0 -> WDTRST#
- 		 *           1 -> GPIO15
- 		 */
--		tmp = superio_inb(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL);
-+		tmp = superio_inb(wd->sioaddr, SIO_F81866_REG_PORT_SEL);
- 		tmp &= ~(BIT(3) | BIT(0));
- 		tmp |= BIT(2);
--		superio_outb(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, tmp);
-+		superio_outb(wd->sioaddr, SIO_F81866_REG_PORT_SEL, tmp);
- 
--		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1, 5);
-+		superio_clear_bit(wd->sioaddr, SIO_F81866_REG_GPIO1, 5);
- 		break;
- 
- 	default:
-@@ -364,63 +370,64 @@ static int fintek_wdt_start(struct watchdog_device *wdd)
- 		goto exit_superio;
- 	}
- 
--	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
--	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
-+	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
-+	superio_set_bit(wd->sioaddr, SIO_REG_ENABLE, 0);
- 
--	if (watchdog.type == f81865 || watchdog.type == f81866)
--		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
-+	if (wd->type == f81865 || wd->type == f81866)
-+		superio_set_bit(wd->sioaddr, F81865_REG_WDO_CONF,
- 				F81865_FLAG_WDOUT_EN);
- 	else
--		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
-+		superio_set_bit(wd->sioaddr, F71808FG_REG_WDO_CONF,
- 				F71808FG_FLAG_WDOUT_EN);
- 
--	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+	superio_set_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 			F71808FG_FLAG_WD_EN);
- 
--	if (watchdog.pulse_mode) {
-+	if (wd->pulse_mode) {
- 		/* Select "pulse" output mode with given duration */
--		u8 wdt_conf = superio_inb(watchdog.sioaddr,
-+		u8 wdt_conf = superio_inb(wd->sioaddr,
- 				F71808FG_REG_WDT_CONF);
- 
- 		/* Set WD_PSWIDTH bits (1:0) */
--		wdt_conf = (wdt_conf & 0xfc) | (watchdog.pulse_val & 0x03);
-+		wdt_conf = (wdt_conf & 0xfc) | (wd->pulse_val & 0x03);
- 		/* Set WD_PULSE to "pulse" mode */
- 		wdt_conf |= BIT(F71808FG_FLAG_WD_PULSE);
- 
--		superio_outb(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+		superio_outb(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 				wdt_conf);
- 	} else {
- 		/* Select "level" output mode */
--		superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+		superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 				F71808FG_FLAG_WD_PULSE);
- 	}
- 
- exit_superio:
--	superio_exit(watchdog.sioaddr);
-+	superio_exit(wd->sioaddr);
- 
- 	return err;
- }
- 
- static int fintek_wdt_stop(struct watchdog_device *wdd)
- {
-+	struct fintek_wdt *wd = watchdog_get_drvdata(wdd);
- 	int err;
- 
--	err = superio_enter(watchdog.sioaddr);
-+	err = superio_enter(wd->sioaddr);
- 	if (err)
- 		return err;
--	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
-+	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
- 
--	superio_clear_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
-+	superio_clear_bit(wd->sioaddr, F71808FG_REG_WDT_CONF,
- 			F71808FG_FLAG_WD_EN);
- 
--	superio_exit(watchdog.sioaddr);
-+	superio_exit(wd->sioaddr);
- 
- 	return 0;
- }
- 
--static bool fintek_wdt_is_running(u8 wdt_conf)
-+static bool fintek_wdt_is_running(struct fintek_wdt *wd, u8 wdt_conf)
- {
--	return (superio_inb(watchdog.sioaddr, SIO_REG_ENABLE) & BIT(0))
-+	return (superio_inb(wd->sioaddr, SIO_REG_ENABLE) & BIT(0))
- 		&& (wdt_conf & BIT(F71808FG_FLAG_WD_EN));
- }
- 
-@@ -435,7 +442,9 @@ static const struct watchdog_ops fintek_wdt_ops = {
- static int fintek_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-+	struct fintek_wdt_pdata *pdata;
- 	struct watchdog_device *wdd;
-+	struct fintek_wdt *wd;
- 	int wdt_conf, err = 0;
- 	struct resource *res;
- 	int sioaddr;
-@@ -446,20 +455,27 @@ static int fintek_wdt_probe(struct platform_device *pdev)
- 
- 	sioaddr = res->start;
- 
--	watchdog.sioaddr = sioaddr;
--	watchdog.ident.options = WDIOF_SETTIMEOUT
--				| WDIOF_MAGICCLOSE
--				| WDIOF_KEEPALIVEPING
--				| WDIOF_CARDRESET;
-+	wd = devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
-+	if (!wd)
-+		return -ENOMEM;
-+
-+	pdata = dev->platform_data;
-+
-+	wd->type = pdata->type;
-+	wd->sioaddr = sioaddr;
-+	wd->ident.options = WDIOF_SETTIMEOUT
-+			| WDIOF_MAGICCLOSE
-+			| WDIOF_KEEPALIVEPING
-+			| WDIOF_CARDRESET;
- 
--	snprintf(watchdog.ident.identity,
--		sizeof(watchdog.ident.identity), "%s watchdog",
--		fintek_wdt_names[watchdog.type]);
-+	snprintf(wd->ident.identity,
-+		sizeof(wd->ident.identity), "%s watchdog",
-+		fintek_wdt_names[wd->type]);
- 
- 	err = superio_enter(sioaddr);
- 	if (err)
- 		return err;
--	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
-+	superio_select(wd->sioaddr, SIO_F71808FG_LD_WDT);
- 
- 	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
- 
-@@ -470,19 +486,20 @@ static int fintek_wdt_probe(struct platform_device *pdev)
- 	superio_outb(sioaddr, F71808FG_REG_WDT_CONF,
- 		     wdt_conf | BIT(F71808FG_FLAG_WDTMOUT_STS));
- 
--	wdd = &watchdog.wdd;
-+	wdd = &wd->wdd;
- 
--	if (fintek_wdt_is_running(wdt_conf))
-+	if (fintek_wdt_is_running(wd, wdt_conf))
- 		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 
- 	superio_exit(sioaddr);
- 
- 	wdd->parent		= dev;
--	wdd->info               = &watchdog.ident;
-+	wdd->info               = &wd->ident;
- 	wdd->ops                = &fintek_wdt_ops;
- 	wdd->min_timeout        = 1;
- 	wdd->max_timeout        = WATCHDOG_MAX_TIMEOUT;
- 
-+	watchdog_set_drvdata(wdd, wd);
- 	watchdog_set_nowayout(wdd, nowayout);
- 	watchdog_stop_on_unregister(wdd);
- 	watchdog_stop_on_reboot(wdd);
-@@ -497,7 +514,7 @@ static int fintek_wdt_probe(struct platform_device *pdev)
- 	 * unconditionally.
- 	 */
- 	fintek_wdt_set_timeout(wdd, wdd->timeout);
--	fintek_wdt_set_pulse_width(pulse_width);
-+	fintek_wdt_set_pulse_width(wd, pulse_width);
- 
- 	if (start_withtimeout) {
- 		err = fintek_wdt_start(wdd);
-@@ -516,6 +533,7 @@ static int fintek_wdt_probe(struct platform_device *pdev)
- 
- static int __init fintek_wdt_find(int sioaddr)
- {
-+	enum chips type;
- 	u16 devid;
- 	int err = superio_enter(sioaddr);
- 	if (err)
-@@ -531,36 +549,36 @@ static int __init fintek_wdt_find(int sioaddr)
- 	devid = force_id ? force_id : superio_inw(sioaddr, SIO_REG_DEVID);
- 	switch (devid) {
- 	case SIO_F71808_ID:
--		watchdog.type = f71808fg;
-+		type = f71808fg;
- 		break;
- 	case SIO_F71862_ID:
--		watchdog.type = f71862fg;
-+		type = f71862fg;
- 		break;
- 	case SIO_F71868_ID:
--		watchdog.type = f71868;
-+		type = f71868;
- 		break;
- 	case SIO_F71869_ID:
- 	case SIO_F71869A_ID:
--		watchdog.type = f71869;
-+		type = f71869;
- 		break;
- 	case SIO_F71882_ID:
--		watchdog.type = f71882fg;
-+		type = f71882fg;
- 		break;
- 	case SIO_F71889_ID:
--		watchdog.type = f71889fg;
-+		type = f71889fg;
- 		break;
- 	case SIO_F71858_ID:
- 		/* Confirmed (by datasheet) not to have a watchdog. */
- 		err = -ENODEV;
- 		goto exit;
- 	case SIO_F81803_ID:
--		watchdog.type = f81803;
-+		type = f81803;
- 		break;
- 	case SIO_F81865_ID:
--		watchdog.type = f81865;
-+		type = f81865;
- 		break;
- 	case SIO_F81866_ID:
--		watchdog.type = f81866;
-+		type = f81866;
- 		break;
- 	default:
- 		pr_info("Unrecognized Fintek device: %04x\n",
-@@ -570,11 +588,12 @@ static int __init fintek_wdt_find(int sioaddr)
- 	}
- 
- 	pr_info("Found %s watchdog chip, revision %d\n",
--		fintek_wdt_names[watchdog.type],
-+		fintek_wdt_names[type],
- 		(int)superio_inb(sioaddr, SIO_REG_DEVREV));
-+
- exit:
- 	superio_exit(sioaddr);
--	return err;
-+	return err ? err : type;
- }
- 
- static struct platform_driver fintek_wdt_driver = {
-@@ -589,8 +608,9 @@ static struct platform_device *fintek_wdt_pdev;
- static int __init fintek_wdt_init(void)
- {
- 	static const unsigned short addrs[] = { 0x2e, 0x4e };
-+	struct fintek_wdt_pdata pdata;
- 	struct resource wdt_res = {};
--	int err = -ENODEV;
-+	int ret;
- 	int i;
- 
- 	if (f71862fg_pin != 63 && f71862fg_pin != 56) {
-@@ -599,12 +619,14 @@ static int __init fintek_wdt_init(void)
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(addrs); i++) {
--		err = fintek_wdt_find(addrs[i]);
--		if (err == 0)
-+		ret = fintek_wdt_find(addrs[i]);
-+		if (ret >= 0)
- 			break;
- 	}
- 	if (i == ARRAY_SIZE(addrs))
--		return err;
-+		return ret;
-+
-+	pdata.type = ret;
- 
- 	platform_driver_register(&fintek_wdt_driver);
- 
-@@ -613,7 +635,9 @@ static int __init fintek_wdt_init(void)
- 	wdt_res.start = addrs[i];
- 	wdt_res.end   = addrs[i] + 1;
- 
--	fintek_wdt_pdev = platform_device_register_simple(DRVNAME, -1, &wdt_res, 1);
-+	fintek_wdt_pdev = platform_device_register_resndata(NULL, DRVNAME, -1,
-+							    &wdt_res, 1,
-+							    &pdata, sizeof(pdata));
- 	if (IS_ERR(fintek_wdt_pdev)) {
- 		platform_driver_unregister(&fintek_wdt_driver);
- 		return PTR_ERR(fintek_wdt_pdev);
--- 
-git-series 0.9.1
