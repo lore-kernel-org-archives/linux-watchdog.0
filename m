@@ -2,116 +2,111 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6732C4338F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 14 Aug 2021 19:56:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CBE4C4338F
+	for <linux-watchdog@archiver.kernel.org>; Sun, 15 Aug 2021 01:33:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9973760F92
-	for <linux-watchdog@archiver.kernel.org>; Sat, 14 Aug 2021 19:56:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71F0960FC1
+	for <linux-watchdog@archiver.kernel.org>; Sun, 15 Aug 2021 01:33:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbhHNT5R (ORCPT
+        id S233296AbhHOBdv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 14 Aug 2021 15:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36082 "EHLO
+        Sat, 14 Aug 2021 21:33:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbhHNT5Q (ORCPT
+        with ESMTP id S229453AbhHOBdv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 14 Aug 2021 15:57:16 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49CFCC061764
-        for <linux-watchdog@vger.kernel.org>; Sat, 14 Aug 2021 12:56:48 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id r5so21052654oiw.7
-        for <linux-watchdog@vger.kernel.org>; Sat, 14 Aug 2021 12:56:48 -0700 (PDT)
+        Sat, 14 Aug 2021 21:33:51 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A46C061764
+        for <linux-watchdog@vger.kernel.org>; Sat, 14 Aug 2021 18:33:22 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id n1-20020a9d1e810000b0290514da4485e4so13993319otn.4
+        for <linux-watchdog@vger.kernel.org>; Sat, 14 Aug 2021 18:33:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=uRfwNgrD75JLYmXwUCtNm9bkZCtiGwp3ZGULtH2XEO4=;
-        b=lQry2peiAvYsJLE7aDmAKfikUFAOe7vLpHS2u/LJqnvVVu5sg9BjZ5DuI4efajI+iY
-         1Ay+38DqTSMM7Nfog5kLcTQ5PvwqyTLGkUPh9hXIzObRvWG/6Y5C+bZUcw3bjHFfix31
-         rQpocdn4X9K/wGL1XdZHVH5SuGTbyPhni/eN3nEcqxgp8pkjhvssjqNK9XwBX+uObXE4
-         qqX6L/eG9hXh5tCTgTsUnG1GhgD8Bi4CwOsCPUWTpLcJ+ArMpyqCPYLVKPcYW37PpeWX
-         HJQKsO4Elm86JOrmLuY5dzdrEbomAJ6K7V9l4nbfwRoQjV5Z/mXi6pbF+6nVmZoXHnzq
-         3k8Q==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=QNg6DHPO36uwXaa8JMydyWibJnVxQgOHhmUSoxi0VUk=;
+        b=B6c4vcI+x0jDCfu00mhI18NQygq3uDDYeFE+pZwU+nbDCg470+yCiTUoRWJpClgIA7
+         VlV1rabodbP3kLF4CQtNWpp4a4tpnjAtTdMWw47OhCacf0zd/xf+YA+px7OKitaSXU/G
+         EE9SxDYoFUms2ig74MpFjZ3NJG6eW01J2rN8vkxrqsQtSLuP4lK8RISRPrEXQkZ9Qt61
+         5iBUyIH1WsieG8dnW2B7SeDmRdfS+TvIfM2PIgX7GtBzarQ0nvNHWhjFj2OVvOXwVaEh
+         tSgtdobJmdJDaEivzYSpM0qGmcVby3HtBuzqZiLzQvDDe/vTqORxUiKfWKiFd6qsGg78
+         GFgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=uRfwNgrD75JLYmXwUCtNm9bkZCtiGwp3ZGULtH2XEO4=;
-        b=grDY3jV0oc1CkQ8/N2SE43EpzNzI7d8hblg0PemR2axPKhduwp8g2TlLVz9nwr/35Q
-         37MOHIwIXDZC06l3pav7vMNgFavq/XvSc1Ie6kELOIV6I5gWD26C9L2W+yRt45F5P+9m
-         5IbenlaNh6kCwOMribC5cBdqk2OCpIHvlM6fklFO7OAJrwvsmHg/Pw1NkPmuD1pH6zEV
-         5F3yoODjT8KAKAuTFdQbOdqQpzLZiMxAfz4LxaKgYeUiZbLioX74YSXJOrZfb0YM8Nrc
-         aTvISg2uywFsWrZcCEaSB/u+Bztif7lsNJ2/LgQN78ca61ErO7THFzDN9I9WN3d2JbFj
-         5iZw==
-X-Gm-Message-State: AOAM533xjs7bp5iHUcLIaP8/cKLFBmy5sUzmuf1kqYu0RT5NTiBAV9+v
-        7OGrhvNVpOZR14vJ4jLDNVA=
-X-Google-Smtp-Source: ABdhPJwyV5fd6zsa40uJADmxGsrlpE1atAPhrIqS2ewDjytgVbTqMWSKV9/1t4xiYjHbQpvj+PwYlw==
-X-Received: by 2002:aca:5c57:: with SMTP id q84mr6480107oib.159.1628971007710;
-        Sat, 14 Aug 2021 12:56:47 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=QNg6DHPO36uwXaa8JMydyWibJnVxQgOHhmUSoxi0VUk=;
+        b=MQqKhu4E2ibcPgUbkCnve77vPP5TpJBnOaCbrmk5A8NyNwAhRFqXk1bVoDMC47+l2c
+         CW8mSBGciaS0Wnp1C2JhOse+l5xfm9MUdZ3P8EEpn16fZqA0Y53Av6zhP2HTQSfPrqCt
+         wWUzpKeoQcVFFRGvzVLlUVE9fO1FvwBk4rVN+Ficj/kbjxzfCCowzlBPiZ91//YrQQVq
+         RfSMkaEmeNB8l6nW5T4m1qVLxeX3xRPOW0InyuVMlQ4eRlTw4JPu9zNQqPWGyS8sLXaT
+         1wAwhy32Jowf0mmxHJjmzUT2sE+UUa8yPXUW5CSt6ZbR4rxWiKMXrgtI954YJVrvtcSw
+         iToQ==
+X-Gm-Message-State: AOAM532Y5rBGv73i0aJbpXQkqFb5gIMmbRNAhRNyurVmOpOYTSZHFNLU
+        AFrjdT/xgAuVJJMosqkUDWIcXb0zA3Y=
+X-Google-Smtp-Source: ABdhPJyJ0gfzb4ft7BAi2hRc4ms18BQ1+9bIhuLstTgjnvVfVAz8Cr5bgpVz1sBYtwf79WJ73NrdCQ==
+X-Received: by 2002:a05:6830:1bc5:: with SMTP id v5mr4087003ota.329.1628991201441;
+        Sat, 14 Aug 2021 18:33:21 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h6sm1190325otu.16.2021.08.14.12.56.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Aug 2021 12:56:47 -0700 (PDT)
+        by smtp.gmail.com with ESMTPSA id u18sm1220649ooi.40.2021.08.14.18.33.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 14 Aug 2021 18:33:20 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 14 Aug 2021 12:56:46 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] watchdog: Device must be opened for writing
 To:     Stanislav German-Evtushenko <ginermail@gmail.com>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Device must be opened for writing
-Message-ID: <20210814195646.GB3951799@roeck-us.net>
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 References: <20210814191345.27221-1-ginermail@gmail.com>
+ <20210814195646.GB3951799@roeck-us.net>
+ <CAPeRZrV+HwdmBKFB3tmG_tEHjsR8h3WLxKQYGDLOLgw178oq=A@mail.gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <b9818198-48f1-c75e-2dbe-eabfc36b6725@roeck-us.net>
+Date:   Sat, 14 Aug 2021 18:33:19 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210814191345.27221-1-ginermail@gmail.com>
+In-Reply-To: <CAPeRZrV+HwdmBKFB3tmG_tEHjsR8h3WLxKQYGDLOLgw178oq=A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Aug 15, 2021 at 04:13:45AM +0900, Stanislav German-Evtushenko wrote:
-> If userspace opens the watchdog device self-feeding stops. Sometimes
-> opening the device happens by accident, e.g. by mistakenly running grep
-> recursively in a wrong directory which leads to the server being reset.
+On 8/14/21 5:19 PM, Stanislav German-Evtushenko wrote:
+> On Saturday, August 14, 2021, Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>> wrote:
+>  > On Sun, Aug 15, 2021 at 04:13:45AM +0900, Stanislav German-Evtushenko wrote:
+>  >> If userspace opens the watchdog device self-feeding stops. Sometimes
+>  >> opening the device happens by accident, e.g. by mistakenly running grep
+>  >> recursively in a wrong directory which leads to the server being reset.
+>  >>
+>  >> Watchdog device does not handle read operation therefore the issue can be
+>  >> prevented by requiring the device to be opened for writing:
+>  >>
+>  >> - Prevent opening the device without FMODE_WRITE
+>  >>
+>  >> Signed-off-by: Stanislav German-Evtushenko <ginermail@gmail.com <mailto:ginermail@gmail.com>>
+>  >
+>  > NACK. That would be a major undocumented ABI change. Opening /dev/watchdog
+>  > for reading can be and is used today to test a watchdog.
+>  >
+>  > Guenter
+>  >
 > 
-> Watchdog device does not handle read operation therefore the issue can be
-> prevented by requiring the device to be opened for writing:
+> I see. This is unfortunate.
 > 
-> - Prevent opening the device without FMODE_WRITE
+> In this case I'll try to find the right place in the documentation and make it more explicit unless it is already there and I've overlooked.
 > 
-> Signed-off-by: Stanislav German-Evtushenko <ginermail@gmail.com>
-
-NACK. That would be a major undocumented ABI change. Opening /dev/watchdog
-for reading can be and is used today to test a watchdog.
+No. That isn't the point. This is used and must not be changed.
+Again, people (including me( are _using_ this to test watchdogs.
+We are not going to disable that because some people are not
+careful when executing commands as root.
 
 Guenter
-
-> ---
->  drivers/watchdog/watchdog_dev.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 3bab32485273..28b88542a4d0 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -835,6 +835,10 @@ static int watchdog_open(struct inode *inode, struct file *file)
->  	bool hw_running;
->  	int err;
->  
-> +	/* Must be open for writing */
-> +	if (!(file->f_mode & FMODE_WRITE))
-> +		return -EINVAL;
-> +
->  	/* Get the corresponding watchdog device */
->  	if (imajor(inode) == MISC_MAJOR)
->  		wd_data = old_wd_data;
-> 
-> base-commit: cf813c67d9619fd474c785698cbed543b94209dd
-> -- 
-> 2.25.1
-> 
