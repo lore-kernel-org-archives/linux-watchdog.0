@@ -2,88 +2,117 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A552C4338F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 24 Aug 2021 15:06:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53F3BC4320E
+	for <linux-watchdog@archiver.kernel.org>; Wed, 25 Aug 2021 10:26:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A743610CD
-	for <linux-watchdog@archiver.kernel.org>; Tue, 24 Aug 2021 15:06:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F59E61052
+	for <linux-watchdog@archiver.kernel.org>; Wed, 25 Aug 2021 10:26:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238056AbhHXPHE (ORCPT
+        id S240002AbhHYK13 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 24 Aug 2021 11:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58364 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237966AbhHXPHE (ORCPT
+        Wed, 25 Aug 2021 06:27:29 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:48046 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239967AbhHYK11 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Aug 2021 11:07:04 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9F9C061757;
-        Tue, 24 Aug 2021 08:06:19 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id i3-20020a056830210300b0051af5666070so37144677otc.4;
-        Tue, 24 Aug 2021 08:06:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=atzFJRXRbCbQFJp+Cx+oxoNlg0fdbGcCA11T+Oo8BfQ=;
-        b=rcMgLQ/niWzQ63BA59QilTaas8j32JoOgGcgNT+tsSgfqFJ1WRBukFpKrazCE+Nvxb
-         +FU9JyWunrSUSAp2sQuKjnhwFBmqKq4Q7BP+rfkFlDTwZcrOnDDNDJj1nyf8Dlbp3tpt
-         TGH+trQWboaPiSN9SVpdSJhhMvbHVAnk/XajpFLbLlZIqeoemVHLu21RZTCwLQdh8IYA
-         JifdjUAYwePcCGSuZ6KSSQrzElW3ZrUV0IQu6gNhIf0R1d0cLkIi1k6iWpaCSwvwdF5U
-         Rs9cNX53+Mb3l43WYD+WSuPr3vCMR0xex1ksWDAAhlSIPGyRBXjR2mTg9WBGpd1xEl/m
-         8pOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=atzFJRXRbCbQFJp+Cx+oxoNlg0fdbGcCA11T+Oo8BfQ=;
-        b=OJQzun3WrQkNlgEW9VlL4re45LuJUW83NwShAPW+AwrS+QPOY+ORTUSkrRh+8dKKrO
-         1gRQoC7kQCy3lsKeB3STgIWugWJpCxus5DuoglyyA913YzKGlbwhxZIqYnHe/bIktQjx
-         9mckWbrJmtDnNWhiuapn0DM10q92mBcDGoa+6so4SaanesAcvXRQfEfC3vUbuwakZTt2
-         jaQ4vr3Yv514f6Ljd8az0Zr4uM4XWdnahUSOq5wMig917WmO4+I2FhIARnhu5D/WCEMn
-         maN0H21KkiD89PQK82kxPKit16IMgOVwmIasZjXM86+it7tl20vLoOjclrjHkKRFSPy1
-         PhFQ==
-X-Gm-Message-State: AOAM533tXP1bHIEpIhkwZXU2Py6ViTMBlf3XFn07Bxo82nrSc0+uLJIx
-        3qsDweRgxLoJP40Qp7UvLb0=
-X-Google-Smtp-Source: ABdhPJwT1EFS3KoLFxituJ+ofchSqtIKpCCv/eOETdOlQdsZA4Hkq0g2vsZi1mRcstTmhpJpqAvYvQ==
-X-Received: by 2002:a05:6808:208b:: with SMTP id s11mr3085370oiw.95.1629817579204;
-        Tue, 24 Aug 2021 08:06:19 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a15sm4569159otq.13.2021.08.24.08.06.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 08:06:18 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 24 Aug 2021 08:06:17 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Christine Zhu <Christine.Zhu@mediatek.com>
-Cc:     wim@linux-watchdog.org, robh+dt@kernel.org, matthias.bgg@gmail.com,
-        srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        seiya.wang@mediatek.com
-Subject: Re: [RESEND v8,0/2] watchdog: mt8195: add wdt support
-Message-ID: <20210824150617.GA3394785@roeck-us.net>
-References: <20210824062633.14374-1-Christine.Zhu@mediatek.com>
+        Wed, 25 Aug 2021 06:27:27 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: eballetbo)
+        with ESMTPSA id 795431F436E1
+From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     matthias.bgg@gmail.com, hsinyi@chromium.org,
+        linux-mediatek@lists.infradead.org, jitao.shi@mediatek.com,
+        eizan@chromium.org, drinkcat@chromium.org, chunkuang.hu@kernel.org,
+        kernel@collabora.com, Guenter Roeck <linux@roeck-us.net>,
+        Crystal Guo <crystal.guo@mediatek.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 1/7] arm64: dts: mediatek: Move reset controller constants into common location
+Date:   Wed, 25 Aug 2021 12:26:26 +0200
+Message-Id: <20210825122613.v3.1.I514d9aafff3a062f751b37d3fea7402f67595b86@changeid>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210825102632.601614-1-enric.balletbo@collabora.com>
+References: <20210825102632.601614-1-enric.balletbo@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210824062633.14374-1-Christine.Zhu@mediatek.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+The DT binding includes for reset controllers are located in
+include/dt-bindings/reset/. Move the Mediatek reset constants in there.
 
-On Tue, Aug 24, 2021 at 02:26:32PM +0800, Christine Zhu wrote:
-> Supports MT8195 watchdog device. Supports MT8195 watchdog reset-controller feature.
-> 
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+---
 
-The series is already queued in my watchdog-next branch; no need to resend.
-We'll have to wait for Wim to pick it up from there.
+(no changes since v2)
 
-Thanks,
-Guenter
+Changes in v2:
+- Fix build test ERROR Reported-by: kernel test robot <lkp@intel.com>
+
+ arch/arm64/boot/dts/mediatek/mt8183.dtsi                    | 2 +-
+ drivers/watchdog/mtk_wdt.c                                  | 6 +++---
+ .../dt-bindings/{reset-controller => reset}/mt2712-resets.h | 0
+ .../dt-bindings/{reset-controller => reset}/mt8183-resets.h | 0
+ .../dt-bindings/{reset-controller => reset}/mt8192-resets.h | 0
+ 5 files changed, 4 insertions(+), 4 deletions(-)
+ rename include/dt-bindings/{reset-controller => reset}/mt2712-resets.h (100%)
+ rename include/dt-bindings/{reset-controller => reset}/mt8183-resets.h (100%)
+ rename include/dt-bindings/{reset-controller => reset}/mt8192-resets.h (100%)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+index d1efc4a38a41..9f72701a3b2e 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+@@ -11,7 +11,7 @@
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/memory/mt8183-larb-port.h>
+ #include <dt-bindings/power/mt8183-power.h>
+-#include <dt-bindings/reset-controller/mt8183-resets.h>
++#include <dt-bindings/reset/mt8183-resets.h>
+ #include <dt-bindings/phy/phy.h>
+ #include <dt-bindings/thermal/thermal.h>
+ #include "mt8183-pinfunc.h"
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 16b6aff324a7..6986bc740465 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -9,9 +9,9 @@
+  * Based on sunxi_wdt.c
+  */
+ 
+-#include <dt-bindings/reset-controller/mt2712-resets.h>
+-#include <dt-bindings/reset-controller/mt8183-resets.h>
+-#include <dt-bindings/reset-controller/mt8192-resets.h>
++#include <dt-bindings/reset/mt2712-resets.h>
++#include <dt-bindings/reset/mt8183-resets.h>
++#include <dt-bindings/reset/mt8192-resets.h>
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+diff --git a/include/dt-bindings/reset-controller/mt2712-resets.h b/include/dt-bindings/reset/mt2712-resets.h
+similarity index 100%
+rename from include/dt-bindings/reset-controller/mt2712-resets.h
+rename to include/dt-bindings/reset/mt2712-resets.h
+diff --git a/include/dt-bindings/reset-controller/mt8183-resets.h b/include/dt-bindings/reset/mt8183-resets.h
+similarity index 100%
+rename from include/dt-bindings/reset-controller/mt8183-resets.h
+rename to include/dt-bindings/reset/mt8183-resets.h
+diff --git a/include/dt-bindings/reset-controller/mt8192-resets.h b/include/dt-bindings/reset/mt8192-resets.h
+similarity index 100%
+rename from include/dt-bindings/reset-controller/mt8192-resets.h
+rename to include/dt-bindings/reset/mt8192-resets.h
+-- 
+2.30.2
+
