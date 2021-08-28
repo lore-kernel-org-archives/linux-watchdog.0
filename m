@@ -2,113 +2,120 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ACC8C4338F
-	for <linux-watchdog@archiver.kernel.org>; Wed, 25 Aug 2021 10:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F2E5C432BE
+	for <linux-watchdog@archiver.kernel.org>; Sat, 28 Aug 2021 16:07:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15EEC611C9
-	for <linux-watchdog@archiver.kernel.org>; Wed, 25 Aug 2021 10:26:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2DC560E90
+	for <linux-watchdog@archiver.kernel.org>; Sat, 28 Aug 2021 16:07:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240037AbhHYK1b (ORCPT
+        id S234504AbhH1QH4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 25 Aug 2021 06:27:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
+        Sat, 28 Aug 2021 12:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239975AbhHYK10 (ORCPT
+        with ESMTP id S234494AbhH1QH4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 25 Aug 2021 06:27:26 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EF5C061757;
-        Wed, 25 Aug 2021 03:26:40 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: eballetbo)
-        with ESMTPSA id 14CAE1F436E0
-From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     matthias.bgg@gmail.com, hsinyi@chromium.org,
-        linux-mediatek@lists.infradead.org, jitao.shi@mediatek.com,
-        eizan@chromium.org, drinkcat@chromium.org, chunkuang.hu@kernel.org,
-        kernel@collabora.com, Crystal Guo <crystal.guo@mediatek.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        Fabien Parent <fparent@baylibre.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 0/7] Add support to the mmsys driver to be a reset controller
-Date:   Wed, 25 Aug 2021 12:26:25 +0200
-Message-Id: <20210825102632.601614-1-enric.balletbo@collabora.com>
-X-Mailer: git-send-email 2.30.2
+        Sat, 28 Aug 2021 12:07:56 -0400
+Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821B1C0613D9;
+        Sat, 28 Aug 2021 09:07:05 -0700 (PDT)
+Received: by mail-oi1-x22b.google.com with SMTP id w19so13932705oik.10;
+        Sat, 28 Aug 2021 09:07:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=2N4hXKjAGAGxHdHjCs7o/+MoEQA/CXytYWZZ2Rbz+8c=;
+        b=dkrU86+tSFsSlGnz3N1bri/bBm4GtsENNqkRTvSkSS/6gcg9bNguZR1YC4BGNg1bdA
+         Bzcwqj19tcmCwYGknWuG2/5warweQF+KViO53IeSA3/SnZIGIRZ6Vgg3yeczeYCFy/1o
+         IOx09YDj+C64Dtc1L7+8kML+5GkiF+LIkG7hKa8eFxHhDkIGvz9FQTrV/f0aefcF4g8O
+         6FQJvRaQowVX3ys9BCL96fQKUE2+JPTTXZLH0Z2PKaAbz/h9G7H5kTgOWL2OJbrNjqOw
+         U32DTd7Gk7h0Yl/8mxPkCDGCyJZ0OdEIx5ovWdz7skQ6zdsmULARiRJzXhU5N7orgej0
+         2elw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=2N4hXKjAGAGxHdHjCs7o/+MoEQA/CXytYWZZ2Rbz+8c=;
+        b=WMAFoHWm1JObTSWcrdWZNCpQk5pQDKc5q9NGVGiLjTOVJbtZ7pEKZQKTpHISDtobEs
+         Xt8/Qyes70R7bBL85Ohi7cskJuzD2W3eTNSggPGfhIXJ+H0eEaAZgABJQjel45B4mo5Y
+         8gGKiza1ntoY3nELANWJkQWxPvC/k/GLze2XKFgauXNT9/ttFQY5WtRwYB3LEXkPxTFV
+         iV9leknSX9FPdQZzE2oNzNWtjgrHy0InHRicotpoFk95NHykxZsbrox8iTAGklmIJ4jT
+         2BmqVvSVwG/6q0ET7E/B9ExRQLMikmN5tmTrlV8ncvkl/rCUjR+LiTt18d18lQTaoW/R
+         Y8Bw==
+X-Gm-Message-State: AOAM531p9JorHxUGz7lrzIQ+zSS0TZbs+iGBfPilcVQXM1F0z7sohVHE
+        Ute065/bLkK/g7bOdq/IxpM=
+X-Google-Smtp-Source: ABdhPJz+N1t9wv12duSVrVefN3Rtc7EZiHwK1wUTVm/OCni5laro3n/ttAiOKcZOUkDzi9ohKSkhcQ==
+X-Received: by 2002:a05:6808:181a:: with SMTP id bh26mr19693569oib.166.1630166824889;
+        Sat, 28 Aug 2021 09:07:04 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b2sm1840736ook.46.2021.08.28.09.07.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Aug 2021 09:07:04 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 28 Aug 2021 09:07:03 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Ahmad Fatoum <a.fatoum@pengutronix.de>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: Re: [PATCH v5 2/7] watchdog: f71808e_wdt: remove superfluous global
+Message-ID: <20210828160703.GA821909@roeck-us.net>
+References: <cover.3654d10d79751f1b01adc9403f9840543df4bcc4.1628525954.git-series.a.fatoum@pengutronix.de>
+ <d1f8cda90283855633537adee0af2c6b00a9ec25.1628525954.git-series.a.fatoum@pengutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1f8cda90283855633537adee0af2c6b00a9ec25.1628525954.git-series.a.fatoum@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Dear all,
+On Mon, Aug 09, 2021 at 06:20:32PM +0200, Ahmad Fatoum wrote:
+> max_timeout never served any purpose over WATCHDOG_MAX_TIMEOUT, which it
+> was initialized with. Drop it.
+> 
+> Suggested-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-The following patchset is a reimplementation of the patch sent by Jitao
-Shi [1] some time ago. As suggested by Chun-Kuang Hu, this time the
-reset is done using the reset API, where the mmsys driver is the reset
-controller and the mtk_dsi driver is the reset consumer.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Note that the first patch is kind of unrelated change, it's just a
-cleanup but is needed if you want to apply all the following patches
-cleanly.
-
-This patchset is important in order to have the DSI panel working on some
-kukui MT8183 Chromebooks (i.e Lenovo IdeaPad Duet). Without it, you just
-get a black screen.
-
-Best regards,
-  Enric
-
-[1] https://lore.kernel.org/linux-arm-kernel/20210420132614.150242-4-jitao.shi@mediatek.com/
-
-
-Changes in v3:
-- Based on top of the patch that converts mmsys to schema
-- Fix typo in the commit description
-
-Changes in v2:
-- Fix build test ERROR Reported-by: kernel test robot <lkp@intel.com>
-- Added a new patch to describe the dsi reset optional property.
-
-Enric Balletbo i Serra (7):
-  arm64: dts: mediatek: Move reset controller constants into common
-    location
-  dt-bindings: mediatek: Add #reset-cells to mmsys system controller
-  dt-bindings: display: mediatek: add dsi reset optional property
-  arm64: dts: mt8173: Add the mmsys reset bit to reset the dsi0
-  arm64: dts: mt8183: Add the mmsys reset bit to reset the dsi0
-  soc: mediatek: mmsys: Add reset controller support
-  drm/mediatek: mtk_dsi: Reset the dsi0 hardware
-
- .../bindings/arm/mediatek/mediatek,mmsys.yaml |  4 ++
- .../display/mediatek/mediatek,dsi.txt         |  6 ++
- arch/arm64/boot/dts/mediatek/mt8173.dtsi      |  2 +
- arch/arm64/boot/dts/mediatek/mt8183.dtsi      |  5 +-
- drivers/gpu/drm/mediatek/mtk_dsi.c            |  5 +-
- drivers/soc/mediatek/mtk-mmsys.c              | 69 +++++++++++++++++++
- drivers/soc/mediatek/mtk-mmsys.h              |  2 +
- drivers/watchdog/mtk_wdt.c                    |  6 +-
- .../mt2712-resets.h                           |  0
- include/dt-bindings/reset/mt8173-resets.h     |  2 +
- .../mt8183-resets.h                           |  3 +
- .../mt8192-resets.h                           |  0
- 12 files changed, 98 insertions(+), 6 deletions(-)
- rename include/dt-bindings/{reset-controller => reset}/mt2712-resets.h (100%)
- rename include/dt-bindings/{reset-controller => reset}/mt8183-resets.h (98%)
- rename include/dt-bindings/{reset-controller => reset}/mt8192-resets.h (100%)
-
--- 
-2.30.2
-
+> ---
+>  drivers/watchdog/f71808e_wdt.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+> index f7d82d261913..3a0b29cb5854 100644
+> --- a/drivers/watchdog/f71808e_wdt.c
+> +++ b/drivers/watchdog/f71808e_wdt.c
+> @@ -81,7 +81,6 @@ static unsigned short force_id;
+>  module_param(force_id, ushort, 0);
+>  MODULE_PARM_DESC(force_id, "Override the detected device ID");
+>  
+> -static const int max_timeout = WATCHDOG_MAX_TIMEOUT;
+>  static int timeout = WATCHDOG_TIMEOUT;	/* default timeout in seconds */
+>  module_param(timeout, int, 0);
+>  MODULE_PARM_DESC(timeout,
+> @@ -221,7 +220,7 @@ static inline void superio_exit(int base)
+>  static int watchdog_set_timeout(int timeout)
+>  {
+>  	if (timeout <= 0
+> -	 || timeout >  max_timeout) {
+> +	 || timeout >  WATCHDOG_MAX_TIMEOUT) {
+>  		pr_err("watchdog timeout out of range\n");
+>  		return -EINVAL;
+>  	}
+> @@ -720,7 +719,7 @@ static int __init watchdog_init(int sioaddr)
+>  
+>  	if (start_withtimeout) {
+>  		if (start_withtimeout <= 0
+> -		 || start_withtimeout >  max_timeout) {
+> +		 || start_withtimeout >  WATCHDOG_MAX_TIMEOUT) {
+>  			pr_err("starting timeout out of range\n");
+>  			err = -EINVAL;
+>  			goto exit_miscdev;
