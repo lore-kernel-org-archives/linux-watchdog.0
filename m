@@ -2,129 +2,99 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DDB7C4320A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 30 Aug 2021 20:00:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25600C4320A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 31 Aug 2021 19:27:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E7E8D60F12
-	for <linux-watchdog@archiver.kernel.org>; Mon, 30 Aug 2021 20:00:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0AF2E6108B
+	for <linux-watchdog@archiver.kernel.org>; Tue, 31 Aug 2021 19:27:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233986AbhH3UBU (ORCPT
+        id S240803AbhHaT2b (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 30 Aug 2021 16:01:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41434 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbhH3UBT (ORCPT
+        Tue, 31 Aug 2021 15:28:31 -0400
+Received: from mail-oi1-f180.google.com ([209.85.167.180]:38868 "EHLO
+        mail-oi1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240607AbhHaT20 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 30 Aug 2021 16:01:19 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE867C061575;
-        Mon, 30 Aug 2021 13:00:25 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id i8-20020a056830402800b0051afc3e373aso19914668ots.5;
-        Mon, 30 Aug 2021 13:00:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=mA95KUP0dYKYEnYZnEFeu7CCPib9IonakfUcwEE/oNw=;
-        b=pOjLWxcC6TZyp0PNKbMFVHrbtffNwVR+PSEUdvVN96tugh2yf6nPx4fuxjYjBknWxo
-         wIuG2VQoerR3QSoZ85GLtgByveplnptziB2bAxZOL9JVN245t71ZklyaB5XyGvHS+EJK
-         jYIkBnEHmkUvyJgmbJ85EM2L4/VDQ0C0mPQd8qBGklaI2LxM1hJcIiKWRKJ1PjHiEZ57
-         ojM67wIRS3PRPQojQQuIe9ePPEjmDIyuxtliAyMz0dR7gZZtO1bUddhKJyfxnpu98aAr
-         DakS/V2V7aj+d/ZshZU53eT+WKvBfGKTjj+J6XQzlyOrIdDxOXyBGMe561GyoGVrbpRi
-         8Q3Q==
+        Tue, 31 Aug 2021 15:28:26 -0400
+Received: by mail-oi1-f180.google.com with SMTP id u25so567486oiv.5;
+        Tue, 31 Aug 2021 12:27:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=mA95KUP0dYKYEnYZnEFeu7CCPib9IonakfUcwEE/oNw=;
-        b=KiYvjmkixOWzRs+hIYSMDOEg3y+ipn0LrEJFzIj2c3/1XFZ7VLf7SNBJcVkp6W7jlx
-         1A6Dpq5P1tM2GQwLMbQ0rNcQiypGUTy3a3j24Q+BwsF4adc1stnjB2NkpgHUa+Uppra/
-         UNwPSid/zis3woJ2MRrlm3ua2g8IIgIl9XfH+T1NOYvql/QUZ5t4yJvfz16axB70PZER
-         pwzCXEA6g3Le3VCp7Rl4VmGOVuX1l+vsYb4xIeB8An2s8Rx1ET87/hMfOgumB5bDkWMU
-         BX+rwqGk2QzdZ1921exPhStDqbJ/uIdgCUHTMO98u1SZuAC94LyUXcmDcZfjoMAJL4xC
-         jJAg==
-X-Gm-Message-State: AOAM530OZg+CxPJbdT2IoOj8dYi2e0K0kHy2ye6XTnXWFfgbDio3oo3R
-        kCaceV3RB2/3NBYxh4fWYpE=
-X-Google-Smtp-Source: ABdhPJzu9t6ULQDN9iPuR1EwZkartl+sZ7v42aI2K8dwtEpW2CpzhjgTbqrl3Dog7smMDFurjtOKzA==
-X-Received: by 2002:a05:6830:4124:: with SMTP id w36mr21016879ott.72.1630353625041;
-        Mon, 30 Aug 2021 13:00:25 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z78sm3106348ooa.29.2021.08.30.13.00.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 Aug 2021 13:00:24 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
-To:     Jan Kiszka <jan.kiszka@siemens.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Christian Storm <christian.storm@siemens.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>
-References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
- <1444efd5-b778-949b-34e8-99d2541350e9@siemens.com>
- <85c2c85e-147c-b54e-e84d-10b989610979@siemens.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <904ea225-e7de-a11a-419a-0c7ac05e9b6e@roeck-us.net>
-Date:   Mon, 30 Aug 2021 13:00:22 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=B18XCxdh5roXXYBkgIgsolQaF3/RyCT+RYjyoh97Brk=;
+        b=p/K7gazXe3lixbGJQhpSlMMBsSaHaLL9r11KMAZPuYN6euzDBiqxKMoPvLu397c0Fx
+         0Yjhxb7elnwVI+RgLm0KersY5tqv1Rn3KROfZfKxND20+0QCkXuP3JFfZxcVpMz1CZbY
+         +V7xCMOeN4zKnCvltLRJLyV48jfcJzBAzL8N0BA5WtNoeaJy7OhTjINMYi78FGsiwEo9
+         st42Pp1rtkSUYeb/kvshA/f4l7aYkJN3TnjEQgTErml7RKRAxGgG+QkQGadiLe3rE6Jk
+         aYBMpz17HUCKL/FONrAzgqigRS4N3MR3OojosvZv9lJS6rsfW41gOdrgh9eoQD+doIMT
+         k10g==
+X-Gm-Message-State: AOAM532L1Ck3ANTACeGOZLg6bMaXtLx0U3s460Y6JEANYkSIwjxNqYhX
+        3tvAg7MDFWyFsVd5Ezq+mjwbX5pO7g==
+X-Google-Smtp-Source: ABdhPJyISGNvUkiwv/aZwGtTy7OmqleXpitzw8KMrZYdmigKN/S7wGPQvq/Drjnoa3iN8bG0Uc6OpA==
+X-Received: by 2002:a54:4182:: with SMTP id 2mr4533320oiy.66.1630438050741;
+        Tue, 31 Aug 2021 12:27:30 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id o8sm3712041oiw.55.2021.08.31.12.27.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Aug 2021 12:27:30 -0700 (PDT)
+Received: (nullmailer pid 515234 invoked by uid 1000);
+        Tue, 31 Aug 2021 19:27:28 -0000
+Date:   Tue, 31 Aug 2021 14:27:28 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Sam Shih <sam.shih@mediatek.com>
+Cc:     Sean Wang <sean.wang@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matt Mackall <mpm@selenic.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        Seiya Wang <seiya.wang@mediatek.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-clk@vger.kernel.org, John Crispin <john@phrozen.org>,
+        Ryder Lee <Ryder.Lee@mediatek.com>
+Subject: Re: [v2,05/12] dt-bindings: pinctrl: update bindings for MT7986 SoC
+Message-ID: <YS6CoAxnarhqdTl+@robh.at.kernel.org>
+References: <20210817074557.30953-1-sam.shih@mediatek.com>
+ <20210817074557.30953-6-sam.shih@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <85c2c85e-147c-b54e-e84d-10b989610979@siemens.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210817074557.30953-6-sam.shih@mediatek.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 8/30/21 12:47 PM, Jan Kiszka wrote:
-> On 20.08.21 15:45, Jan Kiszka wrote:
->> On 26.07.21 13:46, Jan Kiszka wrote:
->>> From: Jan Kiszka <jan.kiszka@siemens.com>
->>>
->>> Obviously, the test needs to run against the register content, not its
->>> address.
->>>
->>> Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on second timeout")
->>> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
->>> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
->>> ---
->>>   drivers/watchdog/iTCO_wdt.c | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
->>> index b3f604669e2c..643c6c2d0b72 100644
->>> --- a/drivers/watchdog/iTCO_wdt.c
->>> +++ b/drivers/watchdog/iTCO_wdt.c
->>> @@ -362,7 +362,7 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
->>>   	 * Otherwise, the BIOS generally reboots when the SMI triggers.
->>>   	 */
->>>   	if (p->smi_res &&
->>> -	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
->>> +	    (inl(SMI_EN(p)) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
->>>   		tmrval /= 2;
->>>   
->>>   	/* from the specs: */
->>>
->>
->> Ping, this is still missing in master. Stable kernels had the revert,
->> but 5.14 will need this.
->>
+On Tue, Aug 17, 2021 at 03:45:50PM +0800, Sam Shih wrote:
+> This updates bindings for MT7986 pinctrl driver.
+> The difference of pinctrl between mt7986a and mt7986b
+> is that pin-41 to pin-65 do not exist on mt7986b
 > 
-> Second reminder: 5.14 is out and now broken. Is the patch queued
-> somewhere? I do not see it in the watchdog staging branch.
+> Signed-off-by: Sam Shih <sam.shih@mediatek.com>
 > 
+> ---
+> v2 : deleted the redundant description of mt7986a/mt7986b
+> 
+> ---
+>  .../bindings/pinctrl/pinctrl-mt7622.txt       | 170 ++++++++++++++++++
+>  1 file changed, 170 insertions(+)
 
-I had it in my own watchdog-next branch for about a month.
-Usually Wim picks it up from there or from the mainling list;
-he handles all upstreaming. Wim ?
+This is adding a lot to not be in schema format. I imagine this will 
+need to be a separate file if the pin and function names are different 
+for each SoC.
 
-Guenter
+Rob
