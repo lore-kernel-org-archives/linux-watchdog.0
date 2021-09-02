@@ -2,118 +2,109 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 086BBC432BE
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Sep 2021 14:05:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30F4DC433F5
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Sep 2021 22:57:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8143610D2
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Sep 2021 14:05:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C218610E8
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Sep 2021 22:57:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345465AbhIBOGT (ORCPT
+        id S239414AbhIBW6y (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Sep 2021 10:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345459AbhIBOGS (ORCPT
+        Thu, 2 Sep 2021 18:58:54 -0400
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:38897 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232013AbhIBW6x (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Sep 2021 10:06:18 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBE5DC061575
-        for <linux-watchdog@vger.kernel.org>; Thu,  2 Sep 2021 07:05:18 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id q39so2629053oiw.12
-        for <linux-watchdog@vger.kernel.org>; Thu, 02 Sep 2021 07:05:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=tAHCvmHcSH3m/SZaoMP/0L4bp5v38r0l2BpP5UIOqfQ=;
-        b=PCosjpN9gcCwkfzjfPvXlyXQsgrPVLlGAZ0cxw6bdXbiljiDrqLNr62ZbkvdEhyNcM
-         GXjWUtTtfJl7TSDDCNi730vV57UboxvKgpQ8odPBy502ECd1u5e/9KzaO5RAkEe51TJD
-         Y1PhWyiznBBY3Elw6rkTVNWnqR/ciGU/FCtccmnLO0ObdIi0h/TeB0IHC3R6geY0P9UI
-         inI3YbHhKcJk3ykNslCmXQxtA89bSsY1gh3e+RTs1izfWEt8MXmXI65jX6v9tsrk5QEJ
-         ui1hevRV6aaVE/sL0/J8PfFt21M6gH4xGJpb1o+glqagzA1vIC7P+gCOoogBJIwvgdkZ
-         ng8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tAHCvmHcSH3m/SZaoMP/0L4bp5v38r0l2BpP5UIOqfQ=;
-        b=uBJmO8vBOuMS2U3K3YBm9lB3J4Lx5JgsknUNrBETpDBaz1VXy6fwXiPdIXEyvfbj3q
-         UgyR3qhEcSEUiMv3vHEwoWYagZ3SEXnA/Gtbee0PPxAq47hHSiuBztNuVuRkSoe4Bw5s
-         SgDgwTNOpHpch7mM6xfGwxX4o9pBZ5BZnCsgxkXfl+vPiZi4Y/bwiUEfBWcfx59VGvm7
-         ul1Edm0Y6hJld2ABtMVRECNGwkLkqDmXpzVHoOPmAOHwV9TSgGEMU5yeluiIq8imuLBZ
-         Dtg12iCXc5YwFCtAN8/qxk1Rd2f6wZSP82gKdC1JlUemsL1oPnAPKFPvykgPlamKy3XL
-         yUwA==
-X-Gm-Message-State: AOAM530BX2sHOT6lPC4Fcg5dpHb/0mMsz7S0xDUG6CGpC7Aasdq2WN+r
-        1B3YlnodRNPLnymyDwtUH8GYJxAJnU4=
-X-Google-Smtp-Source: ABdhPJyb2jHkf4qq3VBXKZYSisQ/mYQL5sdsysVzcl9utjMqjOrXIHV/7dC+nBKaXs2lFK0hE0xgvg==
-X-Received: by 2002:aca:b80b:: with SMTP id i11mr2334901oif.26.1630591517818;
-        Thu, 02 Sep 2021 07:05:17 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k8sm387646oom.20.2021.09.02.07.05.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Sep 2021 07:05:17 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH v3] watchdog: Add hrtimer-based pretimeout feature
-To:     Jiri Slaby <jirislaby@kernel.org>,
-        Curtis Klein <curtis.klein@hpe.com>, wim@linux-watchdog.org
-Cc:     linux-watchdog@vger.kernel.org
-References: <1612383090-27110-1-git-send-email-curtis.klein@hpe.com>
- <67d601c9-8f95-cb10-40df-4d962ec6f9ba@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <7fdd262e-84fb-0c34-baa9-162130f1e109@roeck-us.net>
-Date:   Thu, 2 Sep 2021 07:05:15 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Thu, 2 Sep 2021 18:58:53 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.west.internal (Postfix) with ESMTP id B432F2B00053;
+        Thu,  2 Sep 2021 18:57:53 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 02 Sep 2021 18:57:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=qq4KILFhNX+2NAhG1FBp30Jzcd
+        dxrR8B8njvflWfJ6A=; b=KhShorhRUwKNfiawh29mCc5Sv+rnnfMFOqqAzye8/r
+        tv2aNK9UoS/Q48AtWMqbmyxt2GQJsqm0qKOdMrT3o0eh6n7DoBVPDg+gNj6V+BGk
+        tx9+MgUJbO3efNX+PCuABuuR6D/uQNaNim/14EN28dqpz4AQ4pZiMBa5BNV1vMlB
+        4rfn1/cXzlrY+4fQnaA6V/0NxgA/hACqFGv6WuZ0511bTldm2OIZgNeGXp+eAoQq
+        IQ9IMnfy97bVsGyDcdJ1agsLcX8dl+Bm9L92b7JmHeN1cy3r1ugc2UiIjxjQRZGj
+        UyydlLz24SlPVST3oO/76/t2XNRtDnIamyvKziXt+JAQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=qq4KILFhNX+2NAhG1
+        FBp30JzcddxrR8B8njvflWfJ6A=; b=YfpSJUlsU3ac/rsKwHUdmgZnaBmcSumEf
+        dtP1E/xsAz3iapA8mYEE0HNqxAsEH2PlRmtDjNN51OGpr1ggrBHBTKeDXk8JwEd7
+        vDEmDzyPRqfQMe78ZZpg3R/n+GD1M8CYN8ZdWVwOR3OZlWWCMC5mZZl+9dkCZFzJ
+        rsTrde6b4LhJjCV4QF2Angai8gmdtf0Uut8XiMgftKunNvRv1QGiWh9L/lXJm570
+        OLort5l+sUXwXu12T8e0RxpmOaD1b7+o4M50AwcDBRsU8FUmnsqCL/V1DIk1VG6y
+        5oe3An2PJ1kJd/jPH/uF7bc+uNLTf+PVEwCs4ESXxjshevpDFVgEw==
+X-ME-Sender: <xms:71YxYR-73ia2Hwla52-EYzCtHeJQdoMC5g33vOSmL3f0E66EfPtsNw>
+    <xme:71YxYVuifVNyfZz1Ak6VjLSevtEwGqS7kM0k0GhMdkPZbjz1kf61ssw9Mm-tBSvo1
+    y71TtCv6Lzkkvdghw>
+X-ME-Received: <xmr:71YxYfA6oPnnIm1A9ZMHB-rF7Zt-RBnM61OWzILP6OYsQDNIEfqRYMK1OuBWPKfxc--GoaeurmLkomb4fJt-BXEDvCIkMhMWJCdNcb2kuYKGIzMSVdD47ZA-oW4oo2hazUe85g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddviedgudejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
+    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtffrrg
+    htthgvrhhnpeeiteekhfehuddugfeltddufeejjeefgeevheekueffhffhjeekheeiffdt
+    vedtveenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hsrghmuhgvlhesshhhohhllhgrnhgurdhorhhg
+X-ME-Proxy: <xmx:71YxYVckUPhwQ5xAJwnCdzEzPnRFh2XCcKI1a5nEhKSBIPZRHXxc6A>
+    <xmx:71YxYWNnPengs6f9ne6TIukFYz3Qm2rdyPbDoPVWfUy_KXHJHCjxxw>
+    <xmx:71YxYXmTMiRMiUFPSinOmgjV0xZmnPVlD_UMKf1vq7AiCgRYd_kKMg>
+    <xmx:8VYxYXl2aAcVg8ONqX91NFi5mcFZBXRgcI0oMNbpGdCDH1B9jdJz7yjBkFA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 2 Sep 2021 18:57:51 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc:     Icenowy Zheng <icenowy@aosc.io>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Samuel Holland <samuel@sholland.org>
+Subject: [PATCH v3 0/3] Allwinner R329 and D1 watchdog support
+Date:   Thu,  2 Sep 2021 17:57:47 -0500
+Message-Id: <20210902225750.29313-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <67d601c9-8f95-cb10-40df-4d962ec6f9ba@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 9/1/21 11:55 PM, Jiri Slaby wrote:
-> On 03. 02. 21, 21:11, Curtis Klein wrote:
->> This adds the option to use a hrtimer to generate a watchdog pretimeout
->> event for hardware watchdogs that do not natively support watchdog
->> pretimeouts.
->>
->> With this enabled, all watchdogs will appear to have pretimeout support
->> in userspace. If no pretimeout value is set, there will be no change in
->> the watchdog's behavior.
-> 
-> Hi,
-> 
-> on my Dell Latitude 7280, CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT=y causes all reboot, kexec, suspend to panic. Disabling that option makes it all work again. Provided it happens very late in the process, I don't know how to grab some logs...
-> 
-> Any ideas?
-> 
+This series adds bindings and driver support for the R329 and D1
+watchdogs. The R329 is fully backward-compatible, so no driver changes
+are needed for it.
 
-AFAICS the timer does not stop on reboot. I think we'll need to augment the code
-to do that.
+v3 of this series adds two new compatibles, as I discovered that the
+immediate "soft reset" functionality was specific to the watchdog that
+is part of the same block as the sun4i timer, and is not available in
+the RISC-V or DSP watchdog instances.
 
-Guenter
+My intention is to use the soft reset function as OpenSBI's system reset
+backend, so it needs to know which watchdog instance has that feature.
 
-> ...
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -73,6 +73,14 @@ config WATCHDOG_SYSFS
->>         Say Y here if you want to enable watchdog device status read through
->>         sysfs attributes.
->> +config WATCHDOG_HRTIMER_PRETIMEOUT
->> +    bool "Enable watchdog hrtimer-based pretimeouts"
->> +    help
->> +      Enable this if you want to use a hrtimer timer based pretimeout for
->> +      watchdogs that do not natively support pretimeout support. Be aware
->> +      that because this pretimeout functionality uses hrtimers, it may not
->> +      be able to fire before the actual watchdog fires in some situations.
-> 
-> thanks,
+Samuel Holland (3):
+  dt-bindings: watchdog: sunxi: Add compatibles for R329
+  dt-bindings: watchdog: sunxi: Add compatibles for D1
+  watchdog: sunxi_wdt: Add support for D1
+
+ .../watchdog/allwinner,sun4i-a10-wdt.yaml     | 48 ++++++++++++++++++-
+ drivers/watchdog/sunxi_wdt.c                  | 20 +++++++-
+ 2 files changed, 66 insertions(+), 2 deletions(-)
+
+-- 
+2.31.1
 
