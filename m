@@ -2,40 +2,73 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2BFBC433F5
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 20:46:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D2C2C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 21:05:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C2C561051
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 20:46:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 126996103E
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 21:05:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239567AbhIGUrq (ORCPT
+        id S1346933AbhIGVHF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 Sep 2021 16:47:46 -0400
-Received: from www.linux-watchdog.org ([185.87.125.42]:33928 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235991AbhIGUrq (ORCPT
+        Tue, 7 Sep 2021 17:07:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346984AbhIGVGt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Sep 2021 16:47:46 -0400
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 03F44409F1; Tue,  7 Sep 2021 21:25:14 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 03F44409F1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1631042715;
-        bh=PGkuTDCDd3i6DC4bFdpQ/fveXnx7OxAThx5/gh+kQE4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kfGp9Tw9UUuxoESjNY1Z9NPBcdwmZPeOlRISNrl6hAoGQmaf1II6ikxomjPfccmyX
-         pta8FigjEnQgRsduZbYlY0wzJzbk5NIqxUSqdwYi27blxzKgvPmS0PAy4TqGSZ/nTk
-         XESiO6u/7J/WZ3WLSaEe5kJKlBmRZ6z51ynCgto4=
-Date:   Tue, 7 Sep 2021 21:25:14 +0200
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+        Tue, 7 Sep 2021 17:06:49 -0400
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25269C06175F
+        for <linux-watchdog@vger.kernel.org>; Tue,  7 Sep 2021 14:05:31 -0700 (PDT)
+Received: by mail-lf1-x134.google.com with SMTP id e23so393303lfj.9
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Sep 2021 14:05:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g82twVHBT3nIwib1kNATw3EUKJ53a0N5uNazF9kw1V4=;
+        b=HSXE0gT8Qf6IWPV3zzXIMyBL4YFWjcmOD76oYR9y2M7iKdgH8f3CcGYRcw/d/6jDwg
+         t7rKZa35VISPjjjZlybtFixfQxBmUt576kNn8j2nN3tWQfOsfN6OQhVB29iWsxtB+WUE
+         Put9hy7fgU6BBlaLFM7bEenbHfnXtM39prIKo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=g82twVHBT3nIwib1kNATw3EUKJ53a0N5uNazF9kw1V4=;
+        b=dQjzfaIB7enn6mGlXiatuCGcL59LvudEOgQfALQ9B4Zsz6xz3ybOt8NgiyDu+34ihE
+         QDCUbu8DXUki/+ZXrGFz1GtG/zFACez61TwESp6SmW/i+SdTH5jzfCCTwzt9AjcmkGcv
+         Kp82Yiaq8k1U5npXhe88SuvTfzGoePP+CZe+ywfr1/EXFxcev0symWU3wH5bisf/T4Dj
+         udVmn3dWUGNHXowwSoJwQmoiGJjJ4kjy8rWH3iUFFE3oU3wkdo+ToCC57RcyURNDZJkv
+         MaAV2gMbUigIT11pPVVDbyxM6tg0HgBoiCNUGdG/X8UJnj9FRLBcLpQNSkbQh9Rw3oEu
+         gUkg==
+X-Gm-Message-State: AOAM5330cJTt8+QX+msA6B6A2spQYWDLVt+O4y7pe9h5p05GfmvgxldX
+        rZMXDPUI0O/ODUa1oOFlRyZ1I/v22p2Bs7SSD4Y=
+X-Google-Smtp-Source: ABdhPJxthxd/GIhG+TAI0MD7FOykWFeTtiuyPiUYHRGBxLB3U+cMYhymt/3nj6mof8KDOVUXItvWIQ==
+X-Received: by 2002:a05:6512:304f:: with SMTP id b15mr260653lfb.462.1631048729202;
+        Tue, 07 Sep 2021 14:05:29 -0700 (PDT)
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
+        by smtp.gmail.com with ESMTPSA id j17sm6051lfe.55.2021.09.07.14.05.29
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Sep 2021 14:05:29 -0700 (PDT)
+Received: by mail-lf1-f51.google.com with SMTP id e23so393254lfj.9
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Sep 2021 14:05:29 -0700 (PDT)
+X-Received: by 2002:a2e:a363:: with SMTP id i3mr153633ljn.56.1631048334025;
+ Tue, 07 Sep 2021 13:58:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210907191139.GA18865@www.linux-watchdog.org> <20210907192514.GA18886@www.linux-watchdog.org>
+In-Reply-To: <20210907192514.GA18886@www.linux-watchdog.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 7 Sep 2021 13:58:38 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wi7NEnwnbrNewJLvjsMc4gAOmGb4nOMfooZUXMr627Zxg@mail.gmail.com>
+Message-ID: <CAHk-=wi7NEnwnbrNewJLvjsMc4gAOmGb4nOMfooZUXMr627Zxg@mail.gmail.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v5.12 Merge window
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -48,22 +81,26 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Rikard Falkeborn <rikard.falkeborn@gmail.com>,
         Sam Shih <sam.shih@mediatek.com>,
         Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v5.12 Merge window
-Message-ID: <20210907192514.GA18886@www.linux-watchdog.org>
-References: <20210907191139.GA18865@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210907191139.GA18865@www.linux-watchdog.org>
-User-Agent: Mutt/1.5.20 (2009-12-10)
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+On Tue, Sep 7, 2021 at 1:46 PM Wim Van Sebroeck <wim@linux-watchdog.org> wrote:
+>
+> My Apologies. The subject of this e-mail is wrong again. It should have been [GIT PULL REQUEST] watchdog - v5.15 Merge window
 
-My Apologies. The subject of this e-mail is wrong again. It should have been [GIT PULL REQUEST] watchdog - v5.15 Merge window
+Heh. That was fairly obvious. No problem.
 
-Sorry,
-Wim.
+My email search terms end up being just "git" and "pull", so it's not
+like I end up even really looking at the version numbers except closer
+to the end of the release. At that point people start sending me early
+pull requests for the next merge window, and I start looking more
+closely just to make sure I differentiate between "fixes for this
+release" and "updates for the next merge window".
 
+... and even then, it's usually pretty obvious from the actual
+contents, and if somebody gets a version number wrong it generally
+isn't all that confusing.
+
+            Linus
