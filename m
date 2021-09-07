@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAB0BC433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 07:43:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0687CC4332F
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 07:43:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B516B610CB
+	by mail.kernel.org (Postfix) with ESMTP id E588661104
 	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 07:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240143AbhIGHoM (ORCPT
+        id S241624AbhIGHoM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Tue, 7 Sep 2021 03:44:12 -0400
-Received: from mx21.baidu.com ([220.181.3.85]:45106 "EHLO baidu.com"
+Received: from mx20.baidu.com ([111.202.115.85]:45528 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S241870AbhIGHng (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Sep 2021 03:43:36 -0400
-Received: from BC-Mail-Ex24.internal.baidu.com (unknown [172.31.51.18])
-        by Forcepoint Email with ESMTPS id 361429DCC28D2C569E46;
-        Tue,  7 Sep 2021 15:42:29 +0800 (CST)
+        id S241132AbhIGHoA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 7 Sep 2021 03:44:00 -0400
+Received: from BC-Mail-Ex22.internal.baidu.com (unknown [172.31.51.16])
+        by Forcepoint Email with ESMTPS id 8D55F6478E73D627499E;
+        Tue,  7 Sep 2021 15:42:43 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex24.internal.baidu.com (172.31.51.18) with Microsoft SMTP Server
+ BC-Mail-Ex22.internal.baidu.com (172.31.51.16) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Tue, 7 Sep 2021 15:42:28 +0800
+ 15.1.2242.12; Tue, 7 Sep 2021 15:42:43 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Tue, 7 Sep 2021 15:42:28 +0800
+ 15.1.2308.14; Tue, 7 Sep 2021 15:42:42 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] watchdog: ar7_wdt: Make use of the helper function devm_platform_ioremap_resource_byname()
-Date:   Tue, 7 Sep 2021 15:42:22 +0800
-Message-ID: <20210907074223.2706-1-caihuoqing@baidu.com>
+Subject: [PATCH] watchdog: rti-wdt: Make use of the helper function devm_platform_ioremap_resource()
+Date:   Tue, 7 Sep 2021 15:42:36 +0800
+Message-ID: <20210907074237.2808-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -49,39 +49,37 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Use the devm_platform_ioremap_resource_byname() helper instead of
-calling platform_get_resource_byname() and devm_ioremap_resource()
+Use the devm_platform_ioremap_resource() helper instead of
+calling platform_get_resource() and devm_ioremap_resource()
 separately
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/watchdog/ar7_wdt.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/watchdog/rti_wdt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
-index ff37dc91057d..743e171d97a3 100644
---- a/drivers/watchdog/ar7_wdt.c
-+++ b/drivers/watchdog/ar7_wdt.c
-@@ -63,8 +63,6 @@ static DEFINE_SPINLOCK(wdt_lock);
- /* XXX currently fixed, allows max margin ~68.72 secs */
- #define prescale_value 0xffff
- 
--/* Resource of the WDT registers */
--static struct resource *ar7_regs_wdt;
- /* Pointer to the remapped WDT IO space */
- static struct ar7_wdt *ar7_wdt;
- 
-@@ -265,9 +263,7 @@ static int ar7_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 359302f71f7e..117bc2a8eb0a 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -194,7 +194,6 @@ static int rti_wdt_probe(struct platform_device *pdev)
  {
- 	int rc;
+ 	int ret = 0;
+ 	struct device *dev = &pdev->dev;
+-	struct resource *wdt_mem;
+ 	struct watchdog_device *wdd;
+ 	struct rti_wdt_device *wdt;
+ 	struct clk *clk;
+@@ -246,8 +245,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdd, 1);
+ 	watchdog_set_restart_priority(wdd, 128);
  
--	ar7_regs_wdt =
--		platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
--	ar7_wdt = devm_ioremap_resource(&pdev->dev, ar7_regs_wdt);
-+	ar7_wdt = devm_platform_ioremap_resource_byname(pdev, "regs");
- 	if (IS_ERR(ar7_wdt))
- 		return PTR_ERR(ar7_wdt);
- 
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(dev, wdt_mem);
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(wdt->base)) {
+ 		ret = PTR_ERR(wdt->base);
+ 		goto err_iomap;
 -- 
 2.25.1
 
