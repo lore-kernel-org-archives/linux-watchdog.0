@@ -2,115 +2,86 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3882C433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 02:56:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA307C433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 07:43:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D45BA6109F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 02:56:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C47B61100
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 07:43:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbhIGC56 (ORCPT
+        id S242480AbhIGHoG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Sep 2021 22:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56472 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbhIGC56 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Sep 2021 22:57:58 -0400
-Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA19CC061575
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Sep 2021 19:56:52 -0700 (PDT)
-Received: by mail-ot1-x331.google.com with SMTP id o16-20020a9d2210000000b0051b1e56c98fso11046137ota.8
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Sep 2021 19:56:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=rfTPh05SljWLqE54TG2P76kYj86OLIMHnddAO9esLK0=;
-        b=LODsiPGx3xZu6vp8JavgMVe3eTiXdxVAADfr9n8PtkN/5Wt+ShB5Bo/V/c2hQHpd5s
-         oDtSizSXW5Yznc4GFxl5o+OvOxa+BihzTNMN0Mybn5gwTT+J04rjwossqALIybbicGPy
-         WL0IuKk1xcD5D6UA5DbmAW3GR2iBMbSmeoPiv0LU7gsqdow5ZxPzvQ+9sKh1WIf1Yl79
-         ue57tSofhUJGIKOmPUtAGdWGLE+OSHcSd7r23ujDVHa3VeDjVnWzqa6w+iSNnnLEAcEm
-         D0IVO/q3tszBGs/R2tDH/HE+bHF5GR4owv5ZVjKdcZcN2fQdumFIyxRmgr4x4/s/SokR
-         3f+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=rfTPh05SljWLqE54TG2P76kYj86OLIMHnddAO9esLK0=;
-        b=nBYmEBKXzUit7o8YzglOtG6lOJfymddqo7m/IhLAIc0MeZHI9x9wVKstRGgcv7tqkL
-         FcPpHA7h6+Ig/vioqPJwXKePgHoOVSa1cKLxJ3TpjOIiMGffR3otrk2K4Ztg4h3d8rvq
-         e7stvNcCrWgnvRvBBFoR/0v5QVwCwbdI7Z71Vzfzad2KOdJmaX+8e4yXi2bhIHiEECS/
-         yfkm8vlTBA3LUjTyy6Pfr5Qti8wHAmvYv3JO0xg7yI4XszL0xE4MS0uC+JPo5Ber8zv/
-         7ifHNJGl3fSK5N2YX7EZv+bSgfsee8BfhceeAVs+QcGo3dR3zLBfYh8IQq/xnws4avOr
-         imcw==
-X-Gm-Message-State: AOAM53231bJIVaX+No28ZLJXQsJ6g7YOvTfTcw+NeeONbMdfKwyk6FfN
-        7byRYIG4k0Z1pgMe9VMfYwABEL1bi4g=
-X-Google-Smtp-Source: ABdhPJx4Yw0favJq+XOAM2I9XKEtBh0OM/6pqjb6XcTHRVDmaTcH+P0NIHnFKLjBuYpoSpYt4aklYw==
-X-Received: by 2002:a05:6830:2a0c:: with SMTP id y12mr1805372otu.93.1630983411223;
-        Mon, 06 Sep 2021 19:56:51 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 33sm2124842otx.19.2021.09.06.19.56.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Sep 2021 19:56:50 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH] ar7: fix kernel builds for compiler test
-To:     Jackie Liu <liu.yun@linux.dev>, wim@linux-watchdog.org
-Cc:     linux-watchdog@vger.kernel.org
-References: <20210907024904.4127611-1-liu.yun@linux.dev>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <cf3c4565-2cab-a168-72fb-03c3847e6ec9@roeck-us.net>
-Date:   Mon, 6 Sep 2021 19:56:49 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Tue, 7 Sep 2021 03:44:06 -0400
+Received: from mx20.baidu.com ([111.202.115.85]:45210 "EHLO baidu.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S241955AbhIGHnp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 7 Sep 2021 03:43:45 -0400
+Received: from BC-Mail-Ex23.internal.baidu.com (unknown [172.31.51.17])
+        by Forcepoint Email with ESMTPS id 5A432D70E7AF7E549FC2;
+        Tue,  7 Sep 2021 15:42:36 +0800 (CST)
+Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
+ BC-Mail-Ex23.internal.baidu.com (172.31.51.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2242.12; Tue, 7 Sep 2021 15:42:36 +0800
+Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
+ BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2308.14; Tue, 7 Sep 2021 15:42:35 +0800
+From:   Cai Huoqing <caihuoqing@baidu.com>
+To:     <caihuoqing@baidu.com>
+CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] watchdog: iTCO_wdt: Make use of the helper function devm_platform_ioremap_resource()
+Date:   Tue, 7 Sep 2021 15:42:29 +0800
+Message-ID: <20210907074230.2757-1-caihuoqing@baidu.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <20210907024904.4127611-1-liu.yun@linux.dev>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [172.31.63.8]
+X-ClientProxiedBy: BJHW-Mail-Ex09.internal.baidu.com (10.127.64.32) To
+ BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 9/6/21 7:49 PM, Jackie Liu wrote:
-> From: Jackie Liu <liuyun01@kylinos.cn>
-> 
-> TI AR7 Watchdog Timer is only build for 32bit.
-> 
-> Avoid error like:
-> In file included from drivers/watchdog/ar7_wdt.c:29:
-> ./arch/mips/include/asm/mach-ar7/ar7.h: In function ‘ar7_is_titan’:
-> ./arch/mips/include/asm/mach-ar7/ar7.h:111:24: error: implicit declaration of function ‘KSEG1ADDR’; did you mean ‘CKSEG1ADDR’? [-Werror=implicit-function-declaration]
->    111 |  return (readl((void *)KSEG1ADDR(AR7_REGS_GPIO + 0x24)) & 0xffff) ==
->        |                        ^~~~~~~~~
->        |                        CKSEG1ADDR
-> 
-> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Use the devm_platform_ioremap_resource() helper instead of
+calling platform_get_resource() and devm_ioremap_resource()
+separately
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
+---
+ drivers/watchdog/iTCO_wdt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-> ---
->   drivers/watchdog/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 0bc7046ab942..cb5cfa31849d 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1691,7 +1691,7 @@ config SIBYTE_WDOG
->   
->   config AR7_WDT
->   	tristate "TI AR7 Watchdog Timer"
-> -	depends on AR7 || (MIPS && COMPILE_TEST)
-> +	depends on AR7 || (MIPS && 32BIT && COMPILE_TEST)
->   	help
->   	  Hardware driver for the TI AR7 Watchdog Timer.
->   
-> 
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 643c6c2d0b72..ebf7e5bc1199 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -96,7 +96,6 @@ struct iTCO_wdt_private {
+ 	 * NO_REBOOT flag is Memory-Mapped GCS register bit 5 (TCO version 2),
+ 	 * or memory-mapped PMC register bit 4 (TCO version 3).
+ 	 */
+-	struct resource *gcs_pmc_res;
+ 	unsigned long __iomem *gcs_pmc;
+ 	/* the lock for io operations */
+ 	spinlock_t io_lock;
+@@ -503,10 +502,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 	 */
+ 	if (p->iTCO_version >= 2 && p->iTCO_version < 6 &&
+ 	    !pdata->no_reboot_use_pmc) {
+-		p->gcs_pmc_res = platform_get_resource(pdev,
+-						       IORESOURCE_MEM,
+-						       ICH_RES_MEM_GCS_PMC);
+-		p->gcs_pmc = devm_ioremap_resource(dev, p->gcs_pmc_res);
++		p->gcs_pmc = devm_platform_ioremap_resource(pdev, ICH_RES_MEM_GCS_PMC);
+ 		if (IS_ERR(p->gcs_pmc))
+ 			return PTR_ERR(p->gcs_pmc);
+ 	}
+-- 
+2.25.1
 
