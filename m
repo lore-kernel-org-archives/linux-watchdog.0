@@ -2,82 +2,109 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4DB3C433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 19:28:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 025D3C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 20:23:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2B4661078
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 19:28:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBD6060F14
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Sep 2021 20:23:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234528AbhIGT3Z (ORCPT
+        id S1346362AbhIGUZE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 Sep 2021 15:29:25 -0400
-Received: from mail-oo1-f46.google.com ([209.85.161.46]:35539 "EHLO
-        mail-oo1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbhIGT3Y (ORCPT
+        Tue, 7 Sep 2021 16:25:04 -0400
+Received: from infomag.iguana.be ([185.87.124.46]:42222 "EHLO
+        infomag.iguana.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232456AbhIGUZE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Sep 2021 15:29:24 -0400
-Received: by mail-oo1-f46.google.com with SMTP id y3-20020a4ab403000000b00290e2a52c71so124325oon.2;
-        Tue, 07 Sep 2021 12:28:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=TFNxI/th+I6c8v2S1JhOFknsclAVoGZJrQS33g8IB4s=;
-        b=eVIS3EcZbE2zeKIIhu8+LxuBw4cJ8CfHRMnNHR52UDNWfo2GlfolKlntX8agJ6+QcY
-         ujnweaz3RM9n2jF3AHEHRGitEhR4wNrdpF6g5ytqR2aoMeQ2XhP0hO2O900ku66EPcgV
-         84454TIGv+lAJ8MDMUc3NDGLK1dtNaY6O+G6AdzagOfd6lii5MP8kbs1Tn9gNQ/tKs6i
-         fKDJHtZhVFZtq4yR1nfRc+WuCom0yJzMeErVemrkcrTE42VD9nUJLLkFql+Qpfq8JlNO
-         wPZLUjtPb6Qdn/UD3a+a+ObkRK2W3wANiAtg+oMoiUWSWIAW7s+tiLS+C5er537s9/od
-         mRQg==
-X-Gm-Message-State: AOAM5315VfGlsylr8o9HGqV7p6gNQR5/WYjjXWXE1Yl5ubRMnPShCNDW
-        DQxd73GlMGyr12ci91t02w==
-X-Google-Smtp-Source: ABdhPJyw2cjiz04Vl4DlvrU3cwBlg7+DslpHmlBuvmJuxSQy2fZDpW50Db/BYzeqQzzFQUqSJMu3hw==
-X-Received: by 2002:a4a:ab0c:: with SMTP id i12mr1342573oon.24.1631042897722;
-        Tue, 07 Sep 2021 12:28:17 -0700 (PDT)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id c14sm2582754otd.62.2021.09.07.12.28.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 12:28:16 -0700 (PDT)
-Received: (nullmailer pid 205682 invoked by uid 1000);
-        Tue, 07 Sep 2021 19:28:15 -0000
-Date:   Tue, 7 Sep 2021 14:28:15 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Fengquan Chen <Fengquan.Chen@mediatek.com>
-Cc:     randy.wu@mediatek.com, Rob Herring <robh+dt@kernel.org>,
-        linux-watchdog@vger.kernel.org, rex-bc.chen@mediatek.com,
-        Guenter Roeck <linux@roeck-us.net>, christine.zhu@mediatek.com,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        Tue, 7 Sep 2021 16:25:04 -0400
+X-Greylist: delayed 565 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Sep 2021 16:25:03 EDT
+Received: by infomag.iguana.be (Postfix, from userid 1001)
+        id 1408D603CACE; Tue,  7 Sep 2021 22:14:29 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 infomag.iguana.be 1408D603CACE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=iguana.be;
+        s=infomag-20180602; t=1631045669;
+        bh=Wq1Ut3kmDA4Qs1MUa9QhyW5dfF/rigDOl+Eh9VKTXik=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=swsLaixR7nTIu8HccvB8qTzPt89gCreJJaG+BOPsOl0p/RPbkRFuB8Z5fPidYJZlt
+         idzkIvBFM5IdATAWY3xfEPBCarsU90heHYzxVQjO7JnzpfRhYU31Vym1OyuTbR9c9S
+         Ska3mtf0sSKvu3JLmlvv0Lr8yMBEw7vH5/3bZc8k=
+Date:   Tue, 7 Sep 2021 22:14:29 +0200
+From:   Wim Van Sebroeck <wim@iguana.be>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, zhishuang.zhang@mediatek.com,
-        fengquan.chen@mediatek.com, tinghan.shen@mediatek.com,
-        joe.yang@mediatek.com
-Subject: Re: [v2,2/2] dt-bindings: watchdog: mtk-wdt: add disable_wdt_extrst
- support
-Message-ID: <YTe9T/oqpwN5CHKR@robh.at.kernel.org>
-References: <20210903061623.10715-1-Fengquan.Chen@mediatek.com>
- <20210903061623.10715-3-Fengquan.Chen@mediatek.com>
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Christian Storm <christian.storm@siemens.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
+Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
+Message-ID: <20210907201428.GA1109@infomag.iguana.be>
+References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
+ <1444efd5-b778-949b-34e8-99d2541350e9@siemens.com>
+ <85c2c85e-147c-b54e-e84d-10b989610979@siemens.com>
+ <904ea225-e7de-a11a-419a-0c7ac05e9b6e@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210903061623.10715-3-Fengquan.Chen@mediatek.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <904ea225-e7de-a11a-419a-0c7ac05e9b6e@roeck-us.net>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, 03 Sep 2021 14:16:23 +0800, Fengquan Chen wrote:
-> This patch add a description and example of disable_wdt_extrst
-> element for watchdog on MTK Socs
-> 
-> Signed-off-by: fengquan.chen <fengquan.chen@mediatek.com>
-> ---
->  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 2 ++
->  1 file changed, 2 insertions(+)
-> 
+Hi All,
 
-Acked-by: Rob Herring <robh@kernel.org>
+> On 8/30/21 12:47 PM, Jan Kiszka wrote:
+> >On 20.08.21 15:45, Jan Kiszka wrote:
+> >>On 26.07.21 13:46, Jan Kiszka wrote:
+> >>>From: Jan Kiszka <jan.kiszka@siemens.com>
+> >>>
+> >>>Obviously, the test needs to run against the register content, not its
+> >>>address.
+> >>>
+> >>>Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on second timeout")
+> >>>Reported-by: Mantas Mikulėnas <grawity@gmail.com>
+> >>>Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> >>>---
+> >>>  drivers/watchdog/iTCO_wdt.c | 2 +-
+> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>>
+> >>>diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+> >>>index b3f604669e2c..643c6c2d0b72 100644
+> >>>--- a/drivers/watchdog/iTCO_wdt.c
+> >>>+++ b/drivers/watchdog/iTCO_wdt.c
+> >>>@@ -362,7 +362,7 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
+> >>>  	 * Otherwise, the BIOS generally reboots when the SMI triggers.
+> >>>  	 */
+> >>>  	if (p->smi_res &&
+> >>>-	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+> >>>+	    (inl(SMI_EN(p)) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+> >>>  		tmrval /= 2;
+> >>>  	/* from the specs: */
+> >>>
+> >>
+> >>Ping, this is still missing in master. Stable kernels had the revert,
+> >>but 5.14 will need this.
+> >>
+> >
+> >Second reminder: 5.14 is out and now broken. Is the patch queued
+> >somewhere? I do not see it in the watchdog staging branch.
+> >
+> 
+> I had it in my own watchdog-next branch for about a month.
+> Usually Wim picks it up from there or from the mainling list;
+> he handles all upstreaming. Wim ?
+
+This one is in linux-watchdog-next since 22 Aug.
+Working on getting it upstream now.
+
+Kind regards,
+Wim.
+
