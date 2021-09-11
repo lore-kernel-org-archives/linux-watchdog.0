@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE1E8C433F5
-	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Sep 2021 13:15:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC27C433EF
+	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Sep 2021 13:17:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A5209611CC
-	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Sep 2021 13:15:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4673361153
+	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Sep 2021 13:17:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236062AbhIKNQr (ORCPT
+        id S236753AbhIKNS4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 11 Sep 2021 09:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        Sat, 11 Sep 2021 09:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236090AbhIKNOy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:14:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D71611CC;
-        Sat, 11 Sep 2021 13:12:58 +0000 (UTC)
+        id S236207AbhIKNRE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:17:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39BF861263;
+        Sat, 11 Sep 2021 13:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365979;
+        s=k20201202; t=1631366014;
         bh=8YZEMHsLG3BuOCuXFZG8Zydc7f/xFEd6Ys2Rg4ECE7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JH6VMTo/zG+m67fFa73HMNtYlpbjyiC2YeAcM/xLONe6d/OdYBSsV5g/Bxm+JaRl3
-         ZyOHSb7f4hij3FTzD2sTPBYz2LAdNupHmgZR0Uqk+qFKQj4kEnnx0F+KzaXSOH006I
-         ngk/p6Al52EORoMPwVKBijxHEiugqYFf22ouCU6k3GOIzeGehKb6CJVfrOlXUAWMGu
-         asmESqQG3X0mcuuXpmhj6NpkFg60UYx0jwYodTJvD7tFixKttDgs5X+bxjlJOJoPb6
-         q9sIe+ULyZ5a0dx5HIZfFENWev6Wa0G83rwRb0OejBf8sF3OSiMCEu9sSqHhC1IqAa
-         0ITzqiumT5POw==
+        b=FAYLXiu/mI/z5PZnm1C2OkzLz/YARGFppELWcyGwUEVHvhLcKML4PCgMwiDGfo7i0
+         xQa1QE8dJVNOAugalhD68ZbKm3RoZSW6ZtCrW0BLxYxJIRYLspPzIulnzWaQWo6kTx
+         khYcwQcJzeNXG4sLTqkldGekILslu8nKAcihUUQeVpjviO1drPk32+47WG5+0iFlFB
+         5VetVwQvMzCUB/uvxBsmSnxZNuhm5NWC3eJEuEhbh2HtvmWe4MvMa3DQyOWjp3rMAK
+         YVwCOVenmaGAJXllDOSDjxxXpe+bEjB1BmMvr+SnyNSExQemLvN61d1XzeaUDaxp17
+         tvYnD6OC8hbeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 19/29] watchdog: Start watchdog in watchdog_set_last_hw_keepalive only if appropriate
-Date:   Sat, 11 Sep 2021 09:12:23 -0400
-Message-Id: <20210911131233.284800-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 16/25] watchdog: Start watchdog in watchdog_set_last_hw_keepalive only if appropriate
+Date:   Sat, 11 Sep 2021 09:13:03 -0400
+Message-Id: <20210911131312.285225-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210911131233.284800-1-sashal@kernel.org>
-References: <20210911131233.284800-1-sashal@kernel.org>
+In-Reply-To: <20210911131312.285225-1-sashal@kernel.org>
+References: <20210911131312.285225-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
