@@ -2,108 +2,151 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-22.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 407A4C433F5
-	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Sep 2021 11:42:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62A4AC433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Sep 2021 15:31:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A26F61056
-	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Sep 2021 11:42:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A1DC61051
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Sep 2021 15:31:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237978AbhIMLnT (ORCPT
+        id S1343704AbhIMPc5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 13 Sep 2021 07:43:19 -0400
-Received: from gecko.sbs.de ([194.138.37.40]:49200 "EHLO gecko.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236395AbhIMLnS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:43:18 -0400
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 18DBfiqp009507
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Sep 2021 13:41:44 +0200
-Received: from [167.87.36.252] ([167.87.36.252])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 18DBfhOV005983;
-        Mon, 13 Sep 2021 13:41:43 +0200
-From:   Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [RFC][PATCH] watchdog: rti-wdt: Provide set_timeout handler to make
- existing userspace happy
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Mon, 13 Sep 2021 11:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245403AbhIMPco (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 13 Sep 2021 11:32:44 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98964C120D49;
+        Mon, 13 Sep 2021 07:37:05 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id n27so14356404oij.0;
+        Mon, 13 Sep 2021 07:37:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=jPneWkdJJ/yC2zoSfmCm8kIHoNWifAPRW5x1OCcNU6g=;
+        b=BbwbDPBrhOXA/sOMKhWIz6rm4L4v3eguY72PBETM7s8cprasKUlY6xXHNR+i5wurHV
+         HkbG8HWSs+0xtx3FcGDSqKwSFxOxRihfrlhTHsMRGO7YDmfbyLCOQ8+Q0XQ0DSt5gfyi
+         DDfHK9ILuf6L8AHj/AzcGfDXsLeNj7BSRQXU9gKNdKiz9DCQevSYBc4jrXX3+cqt8BnO
+         cMfMk1FNB5eLwvFDEpVfeU+PMd3wvTlliJapGwP3I+sgl/TAmL9zPLIpG9pp8gBQ8SpX
+         7dJDNFGrZdRbQyAMdlYbxBIqjkoOMjqNjSqA0dsV/2u4tXYfb8WvvU42eu0dRZHFkvpD
+         mSng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=jPneWkdJJ/yC2zoSfmCm8kIHoNWifAPRW5x1OCcNU6g=;
+        b=hRklGJ/yUhUg39GoUOmTtpaypqqCdI2lNhtZ9TGixWuApqSSF1+GKJ7lyOaamn2UJ7
+         fm8MwZRIErCHlbGvj/tUUASFj8pCwGNuI427RxAT4wbiahPktrw9WBTPNyeOjEU0eYvR
+         XjDQlC6XivjsVUnkQzEu5XkK+b0v7dVpcuKIsUUWUpyTFfnErZRkmYQW1wjLtFYN/3+7
+         Q8dVO5fx2XKGGgbkdx6KIuVvHaXDvETglfe2YaSYXtSsSFCplQrtHpWQilORTYQXPaZW
+         BsC4Tudeox1UXE7y7kxvwqFEGAlFmt14dCsk8WovHa6euSr2++VeLYaM62gnFOEHIfPm
+         CI8Q==
+X-Gm-Message-State: AOAM5300GJBmrm7U0BBgkhtWV1srPQc6JhaY05shoBD8C5SG1Ogb9bx5
+        uPtstDrPuujJIGZRjx4Y9qK2eWqGyWo=
+X-Google-Smtp-Source: ABdhPJzLvPuR+YB+ZDrU3ATCDeUAPO1GNcb3YP3Jy5cn9yjdwAWUz9DKjtj5LE0Xdgmb2PTOoX946Q==
+X-Received: by 2002:a05:6808:10c8:: with SMTP id s8mr8210876ois.6.1631543824718;
+        Mon, 13 Sep 2021 07:37:04 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k23sm1899911ood.12.2021.09.13.07.37.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Sep 2021 07:37:04 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [RFC][PATCH] watchdog: rti-wdt: Provide set_timeout handler to
+ make existing userspace happy
+To:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Tero Kristo <t-kristo@ti.com>,
         "Su, Bao Cheng (RC-CN DF FA R&D)" <baocheng.su@siemens.com>
-Message-ID: <4d82b8ce-bc34-e4b2-c5fe-9e883b0db59d@siemens.com>
-Date:   Mon, 13 Sep 2021 13:41:43 +0200
+References: <4d82b8ce-bc34-e4b2-c5fe-9e883b0db59d@siemens.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <a454fd16-b49d-b803-6bcd-c245e059d3d8@roeck-us.net>
+Date:   Mon, 13 Sep 2021 07:37:02 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4d82b8ce-bc34-e4b2-c5fe-9e883b0db59d@siemens.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+On 9/13/21 4:41 AM, Jan Kiszka wrote:
+> From: Jan Kiszka <jan.kiszka@siemens.com>
+> 
+> Prominent userspace - systemd - cannot handle watchdogs without
+> WDIOF_SETTIMEOUT, even if it was configured to the same time as the
+> driver selected or was used by firmware to start the watchdog. To avoid
+> failing in this case, implement a handler that only fails if a deviating
+> set_timeout is requested.
+> 
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
-Prominent userspace - systemd - cannot handle watchdogs without
-WDIOF_SETTIMEOUT, even if it was configured to the same time as the
-driver selected or was used by firmware to start the watchdog. To avoid
-failing in this case, implement a handler that only fails if a deviating
-set_timeout is requested.
+NACK. This is a userspace problem. The ABI clearly states that
+WDIOF_SETTIMEOUT is optional, and userspace must not depend on it.
+We can not start making kernel changes just to make broken userspace
+code happy. systemd should be fixed instead.
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
----
+Guenter
 
-See also https://github.com/systemd/systemd/issues/20683
+> ---
+> 
+> See also https://github.com/systemd/systemd/issues/20683
+> 
+>   drivers/watchdog/rti_wdt.c | 17 ++++++++++++++++-
+>   1 file changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+> index 359302f71f7e..365255b15a0d 100644
+> --- a/drivers/watchdog/rti_wdt.c
+> +++ b/drivers/watchdog/rti_wdt.c
+> @@ -173,13 +173,27 @@ static unsigned int rti_wdt_get_timeleft_ms(struct watchdog_device *wdd)
+>   	return timer_counter;
+>   }
+>   
+> +static int rti_wdt_set_timeout(struct watchdog_device *wdd,
+> +			       unsigned int timeout)
+> +{
+> +	/*
+> +	 * Updating the timeout after start is actually not supported, but
+> +	 * let's ignore requests for the already configured value. Helps
+> +	 * existing userspace such as systemd.
+> +	 */
+> +	if (timeout != heartbeat)
+> +		return -EOPNOTSUPP;
+> +
+> +	return 0;
+> +}
+> +
+>   static unsigned int rti_wdt_get_timeleft(struct watchdog_device *wdd)
+>   {
+>   	return rti_wdt_get_timeleft_ms(wdd) / 1000;
+>   }
+>   
+>   static const struct watchdog_info rti_wdt_info = {
+> -	.options = WDIOF_KEEPALIVEPING,
+> +	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
+>   	.identity = "K3 RTI Watchdog",
+>   };
+>   
+> @@ -187,6 +201,7 @@ static const struct watchdog_ops rti_wdt_ops = {
+>   	.owner		= THIS_MODULE,
+>   	.start		= rti_wdt_start,
+>   	.ping		= rti_wdt_ping,
+> +	.set_timeout	= rti_wdt_set_timeout,
+>   	.get_timeleft	= rti_wdt_get_timeleft,
+>   };
+>   
+> 
 
- drivers/watchdog/rti_wdt.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 359302f71f7e..365255b15a0d 100644
---- a/drivers/watchdog/rti_wdt.c
-+++ b/drivers/watchdog/rti_wdt.c
-@@ -173,13 +173,27 @@ static unsigned int rti_wdt_get_timeleft_ms(struct watchdog_device *wdd)
- 	return timer_counter;
- }
- 
-+static int rti_wdt_set_timeout(struct watchdog_device *wdd,
-+			       unsigned int timeout)
-+{
-+	/*
-+	 * Updating the timeout after start is actually not supported, but
-+	 * let's ignore requests for the already configured value. Helps
-+	 * existing userspace such as systemd.
-+	 */
-+	if (timeout != heartbeat)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
- static unsigned int rti_wdt_get_timeleft(struct watchdog_device *wdd)
- {
- 	return rti_wdt_get_timeleft_ms(wdd) / 1000;
- }
- 
- static const struct watchdog_info rti_wdt_info = {
--	.options = WDIOF_KEEPALIVEPING,
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
- 	.identity = "K3 RTI Watchdog",
- };
- 
-@@ -187,6 +201,7 @@ static const struct watchdog_ops rti_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= rti_wdt_start,
- 	.ping		= rti_wdt_ping,
-+	.set_timeout	= rti_wdt_set_timeout,
- 	.get_timeleft	= rti_wdt_get_timeleft,
- };
- 
--- 
-2.31.1
