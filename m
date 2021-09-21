@@ -2,92 +2,97 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38EE4C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 17 Sep 2021 22:28:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72703C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Sep 2021 10:29:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1164261100
-	for <linux-watchdog@archiver.kernel.org>; Fri, 17 Sep 2021 22:28:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 521EC610A1
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Sep 2021 10:29:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344693AbhIQW3r (ORCPT
+        id S231713AbhIUKa2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 17 Sep 2021 18:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235667AbhIQW3r (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Sep 2021 18:29:47 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CDDC061757
-        for <linux-watchdog@vger.kernel.org>; Fri, 17 Sep 2021 15:28:24 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id z24so12492862lfu.13
-        for <linux-watchdog@vger.kernel.org>; Fri, 17 Sep 2021 15:28:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ATG5NnjBZl5uROxRiGQuGsgW+WoiTqVTfaTtEyWboD4=;
-        b=GIxqeNwHyHeXl9iWMRj3tvHiLtIR8wE8ZDUo49LZQyHArLZ5Y8u5tw9G02aO7GfZSr
-         d4RiONMGCMitnH03p/SPXvtPRfw93zOOagGcWOIiNwhcTOuc5p7DL00jY22JfoDQ/0iu
-         7bkKj1eIsUgbIpiOSHKqnGnXToC3qmkdxpp6z6KKBsGatuAnXsacWt/IVR3vy0zGi0DH
-         Adsc+WdzyRa3R00hPVKRIsrckqyqlxosWyPOFI8ihA2HgIJLhTzmGuvHqQcNUDJnBlRQ
-         F0DUlyuusMf+8Dgjl0h2SWMmpRdhBi487vWd3auyOndzagE9ZllRxv25dHsKZ5cHyCZJ
-         PCnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ATG5NnjBZl5uROxRiGQuGsgW+WoiTqVTfaTtEyWboD4=;
-        b=dFbt93Spl7u9WhCELi4PPnlFeSSnese6lvHIVpHoIjZb/1jdMHwRCg457Yq5afYKLq
-         xYWwOcEPBWApMxWyAftn+FaDiFS/oUoH0kQ5Rn0zLZxZvd8qqHmPYbvO7lYjLzaQMbx4
-         Xx7q6gCYpWdy3JCI2fsWba3oC81HBuOf3WrMNw2Hg5Uy9DgP+H7WHimYIC6dj8+8PkhR
-         tjKHOJfbFjoBJwYYiX4IE0pZTuLcuLc4l3EzYtG86eXWk3PuMBNoGHLGd2v4h0WWr0wo
-         9pwaLmvRMKocXHUhyYkVbCqu8KoAyXFqBmERVrKFbWbM9zQAG84ou9ZCJfJKHY/1WIWG
-         Tv1A==
-X-Gm-Message-State: AOAM533+14yznSWACRqalHc9Hq5apz5hRiW2LaJnaOxR6n7BpFh06X8Z
-        SYXWivMveHHM2nLYo6oncUOchkxfeSnC6yMmTOoGClZCHeU=
-X-Google-Smtp-Source: ABdhPJyJzS6Eh5ph0KTz0AHFM3V7mMDZRHus4peWL04EIpE/0/VyQ76dzmHnSnuRLtGQVLTH7syzF4tuj9ZRm7UveqU=
-X-Received: by 2002:a05:6512:12c4:: with SMTP id p4mr10112672lfg.72.1631917702757;
- Fri, 17 Sep 2021 15:28:22 -0700 (PDT)
+        Tue, 21 Sep 2021 06:30:28 -0400
+Received: from mga12.intel.com ([192.55.52.136]:25034 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231615AbhIUKa2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 21 Sep 2021 06:30:28 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10113"; a="202820032"
+X-IronPort-AV: E=Sophos;i="5.85,310,1624345200"; 
+   d="scan'208";a="202820032"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2021 03:29:00 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,310,1624345200"; 
+   d="scan'208";a="474103519"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga007.jf.intel.com with ESMTP; 21 Sep 2021 03:28:56 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1001)
+        id CE9A614A; Tue, 21 Sep 2021 13:29:00 +0300 (EEST)
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     Malin Jonsson <malin.jonsson@ericsson.com>, john.jacques@intel.com,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v2] watchdog: iTCO_wdt: No need to stop the timer in probe
+Date:   Tue, 21 Sep 2021 13:29:00 +0300
+Message-Id: <20210921102900.61586-1-mika.westerberg@linux.intel.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-References: <20210911042925.556889-1-linux@roeck-us.net>
-In-Reply-To: <20210911042925.556889-1-linux@roeck-us.net>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sat, 18 Sep 2021 00:28:11 +0200
-Message-ID: <CACRpkdYjSX0_y_N5nQweenfDMJYa3OEimbweN5XCVQeGsq+cBQ@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: ixp4xx_wdt: Fix address space warning
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sat, Sep 11, 2021 at 6:29 AM Guenter Roeck <linux@roeck-us.net> wrote:
+The watchdog core can handle pinging of the watchdog before userspace
+opens the device. For this reason instead of stopping the timer, just
+mark it as running and let the watchdog core take care of it.
 
-> sparse reports the following address space warning.
->
-> drivers/watchdog/ixp4xx_wdt.c:122:20: sparse:
->         incorrect type in assignment (different address spaces)
-> drivers/watchdog/ixp4xx_wdt.c:122:20: sparse:
->         expected void [noderef] __iomem *base
-> drivers/watchdog/ixp4xx_wdt.c:122:20: sparse:
->         got void *platform_data
->
-> Add a typecast to solve the problem.
->
-> Fixes: 21a0a29d16c6 ("watchdog: ixp4xx: Rewrite driver to use core")
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Malin Jonsson <malin.jonsson@ericsson.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+Changes from v1:
 
-Thanks for fixing this!
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+ - Only set the WDOG_HW_RUNNING flag.
 
-Yours,
-Linus Walleij
+ drivers/watchdog/iTCO_wdt.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 643c6c2d0b72..a0e8ad3901a4 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -430,6 +430,16 @@ static unsigned int iTCO_wdt_get_timeleft(struct watchdog_device *wd_dev)
+ 	return time_left;
+ }
+ 
++static void iTCO_wdt_set_running(struct iTCO_wdt_private *p)
++{
++	u16 val;
++
++	/* Bit 11: TCO Timer Halt -> 0 = The TCO timer is * enabled */
++	val = inw(TCO1_CNT(p));
++	if (!(val & BIT(11)))
++		set_bit(WDOG_HW_RUNNING, &p->wddev.status);
++}
++
+ /*
+  *	Kernel Interfaces
+  */
+@@ -572,8 +582,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_drvdata(&p->wddev, p);
+ 	platform_set_drvdata(pdev, p);
+ 
+-	/* Make sure the watchdog is not running */
+-	iTCO_wdt_stop(&p->wddev);
++	iTCO_wdt_set_running(p);
+ 
+ 	/* Check that the heartbeat value is within it's range;
+ 	   if not reset to the default */
+-- 
+2.33.0
+
