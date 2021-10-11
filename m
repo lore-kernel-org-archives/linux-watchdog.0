@@ -2,300 +2,168 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE77CC433F5
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 01:46:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8470CC433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEB8960F3A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 01:46:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6346260ED4
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233290AbhJKBsJ (ORCPT
+        id S230306AbhJKQOZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 10 Oct 2021 21:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40238 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232812AbhJKBsH (ORCPT
+        Mon, 11 Oct 2021 12:14:25 -0400
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:47316 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229544AbhJKQOW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 10 Oct 2021 21:48:07 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C747DC061570;
-        Sun, 10 Oct 2021 18:46:08 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id k2-20020a056830168200b0054e523d242aso10219659otr.6;
-        Sun, 10 Oct 2021 18:46:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HACLZwdhjcmKsKaL3skVTjexZS/nk6K5PaP3br5Yqbs=;
-        b=OVfTwDF7oJSs5+vFxLjoprIk842DPu2vJyQfF2mWv/Esc046SL7IkOytKskHlVown0
-         biHbluY748JG4nORTZoFV/tTn25PPdWPCCM8M1/p+xE9Gz7XZ5GjEW8yrVHuI8RuzjBe
-         E49UOJI318SiTNEWK/VK4lQNhO18qwpmMVfamcwTc8vitgPEvjZ80KtWTXVOWNOdOzLm
-         1AmQkoiylFHRxzZlMkbeNORhXUj0TtWDF5vWKvj93tXmvBNZmnJo45e2v8rS8iTvbE35
-         OJkzAWZMwQCIM0/j030f0+S6P1APZraRZ8FFic/SehftB4Da6gUfU8IGuCAmsi4bCYUG
-         V6ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=HACLZwdhjcmKsKaL3skVTjexZS/nk6K5PaP3br5Yqbs=;
-        b=IXcfAe2kaaReDKJ5gFFb08mlwht3QIilwZXpmmC0lPqFK58DxWm1QXlVC0nQkT4zTJ
-         259I7JuLmw9L2aOzedZ6m+6LUafWm0VCMpyh99bB8CIN8d99F355/H+P4z7S8iPgII9/
-         CfKE5JGe+6AtBpJEMC6LpU2cRsDe4FwwfR/g3/y7GzUwLSfk3XorpYZvhIBB2NOWNE+q
-         EX0McXDMYY1yqOblLWilTVjRYwRJrWLfIwxL/1pvCrn3XwjSRTKUe09IBjJg04vm/soP
-         U0EwgCQ3wFX8OWXBYIcsLesXeH10oabkf/issRLzlT4TuLcC3FCasPVsMQnSOB+TpIDn
-         QZ1A==
-X-Gm-Message-State: AOAM53181uYiYX1CjXHl3/lLnte9m74xXLtBYIqnzwyLqj84OecHNO5U
-        e5SqPbmXHquqRzYmUEWWKEw=
-X-Google-Smtp-Source: ABdhPJxcXxYcLbVxfz8x7TBFUmJG0eDZztaKdir5GuNYpcwZOG7xULEYf9Noa57veBzCk1bMHLoYbw==
-X-Received: by 2002:a05:6830:24b8:: with SMTP id v24mr19452163ots.100.1633916768101;
-        Sun, 10 Oct 2021 18:46:08 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id bd24sm1456873oib.52.2021.10.10.18.46.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Oct 2021 18:46:07 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sun, 10 Oct 2021 18:46:06 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Curtis Klein <curtis.klein@hpe.com>
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6] watchdog: Extend watchdog timeout during kernel panic
-Message-ID: <20211011014606.GA3781525@roeck-us.net>
-References: <1628994598-30907-1-git-send-email-curtis.klein@hpe.com>
+        Mon, 11 Oct 2021 12:14:22 -0400
+X-Greylist: delayed 949 seconds by postgrey-1.27 at vger.kernel.org; Mon, 11 Oct 2021 12:14:21 EDT
+Received: from [77.244.183.192] (port=65428 helo=[192.168.178.41])
+        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1mZxuV-00DfCf-MU; Mon, 11 Oct 2021 18:12:19 +0200
+Subject: Re: [PATCH 8/8] rtc: max77686: add MAX77714 support
+To:     linux-kernel@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Chiwoong Byun <woong.byun@samsung.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>
+References: <20211011155615.257529-1-luca@lucaceresoli.net>
+ <20211011155615.257529-9-luca@lucaceresoli.net>
+From:   Luca Ceresoli <luca@lucaceresoli.net>
+Message-ID: <6d7fd095-948a-c5a7-e53a-422fe33fec57@lucaceresoli.net>
+Date:   Mon, 11 Oct 2021 18:12:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1628994598-30907-1-git-send-email-curtis.klein@hpe.com>
+In-Reply-To: <20211011155615.257529-9-luca@lucaceresoli.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
+X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sat, Aug 14, 2021 at 07:29:58PM -0700, Curtis Klein wrote:
-> From: JP Ertola <jp.ertola@hpe.com>
+Hi,
+
+see below for the issues with interrupt implementation that I mentioned
+in the cover letter.
+
+On 11/10/21 17:56, Luca Ceresoli wrote:
+> The RTC included in the MAX77714 PMIC is very similar to the one in the
+> MAX77686. Reuse the rtc-max77686.c driver with the minimum required changes
+> for the MAX77714 RTC.
 > 
-> If the watchdog timeout is set such that the crash kernel does not
-> have time to collect a coredump and the crash kernel is not equipped to
-> ping the watchdog timer itself, then a kernel coredump will not be
-> collected before the watchdog fires. This change registers a panic
-> notifier and callback so the watchdog timeout can be extended if a
-> kernel panic occurs. This timeout extension would give the crash kernel
-> enough time to collect a coredump before the CPU resets. The watchdog
-> timeout is extended if and only if a crash kernel image is loaded in
-> memory, the watchdog is active at the time of the panic, and the kconfig
-> setting is set.
-> 
-> A Kconfig option has been added to configure the timeout duration at
-> compile-time. Default is zero seconds.
-> 
-> Signed-off-by: JP Ertola <jp.ertola@hpe.com>
-> Co-developed-by: Curtis Klein <curtis.klein@hpe.com>
-> Signed-off-by: Curtis Klein <curtis.klein@hpe.com>
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 > ---
-> v6: 
->  - Only register panic notifier if wdt_panic_timeout is set. 
->  - Exit notifier callback early if watchdog is not active and hw is not running
->  - Handle more scenarios where the wdt_panic_timeout is invalid.
->  - Unregister notifier in watchdog_dev_unregister.
->  - Rework notifier callback flow
+>  drivers/rtc/Kconfig        |  2 +-
+>  drivers/rtc/rtc-max77686.c | 24 ++++++++++++++++++++++++
+>  2 files changed, 25 insertions(+), 1 deletion(-)
 > 
-> v5: Clean up variable names and spacing. Call __watchdog_ping() instead of 
-> wdd->ops->ping(). Remove notifier_from_errno() as it could cause unintended
-> behavior in the future if this watchdog extension notifier has its priority
-> elevated above minimum.
-> v4: Remove optional callback mechanism alltogether. I agree with Guenter,
-> not widely used.
-> v3: Fix logic so timeout extension is not longer than wdd->max_timeout
-> v2: Remove dead code and comments.
-> 
->  drivers/watchdog/Kconfig        | 13 +++++++
->  drivers/watchdog/watchdog_dev.c | 84 ++++++++++++++++++++++++++++++++++-------
->  include/linux/watchdog.h        |  1 +
->  3 files changed, 84 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 546dfc1..e7c6230 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -149,6 +149,19 @@ comment "Watchdog Device Drivers"
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index e1bc5214494e..a73591ad292b 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -375,7 +375,7 @@ config RTC_DRV_MAX8997
 >  
->  # Architecture Independent
+>  config RTC_DRV_MAX77686
+>  	tristate "Maxim MAX77686"
+> -	depends on MFD_MAX77686 || MFD_MAX77620 || COMPILE_TEST
+> +	depends on MFD_MAX77686 || MFD_MAX77620 || MFD_MAX77714 || COMPILE_TEST
+>  	help
+>  	  If you say yes here you will get support for the
+>  	  RTC of Maxim MAX77686/MAX77620/MAX77802 PMIC.
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 9901c596998a..e6564bc2171e 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -19,6 +19,7 @@
 >  
-> +config DEFAULT_WATCHDOG_CRASH_KERNEL_TIMEOUT
-> +	int "Default timeout for watchdog timer before crash kernel starts (seconds)"
-> +	default 0
-> +	help
-> +	  This option allows an extended timeout to be used for the watchdog when
-> +	  the kernel panics and a crash kernel is about to start. This is helpful
-> +	  when the existing WDT timeout value is less than the time required for
-> +	  crash kernel to run and the crash kernel is unable to handle the
-> +	  the watchdog itself. The timeout extension happens last in chain of
-> +	  kernel panic handler callbacks just in case another panic handler
-> +	  hangs unexpectedly. When this value is set to 0, the watchdog timeout
-> +	  will not be changed.
-> +
->  config SOFT_WATCHDOG
->  	tristate "Software watchdog"
->  	select WATCHDOG_CORE
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 3bab324..68e1281 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -29,20 +29,22 @@
+>  #define MAX77686_I2C_ADDR_RTC		(0x0C >> 1)
+>  #define MAX77620_I2C_ADDR_RTC		0x68
+> +#define MAX77714_I2C_ADDR_RTC		0x48
+>  #define MAX77686_INVALID_I2C_ADDR	(-1)
 >  
->  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+>  /* Define non existing register */
+> @@ -203,6 +204,28 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
+>  	.regmap_config = &max77686_rtc_regmap_config,
+>  };
 >  
-> -#include <linux/cdev.h>		/* For character device */
-> -#include <linux/errno.h>	/* For the -ENODEV/... values */
-> -#include <linux/fs.h>		/* For file operations */
-> -#include <linux/init.h>		/* For __init/__exit/... */
-> -#include <linux/hrtimer.h>	/* For hrtimers */
-> -#include <linux/kernel.h>	/* For printk/panic/... */
-> -#include <linux/kthread.h>	/* For kthread_work */
-> -#include <linux/miscdevice.h>	/* For handling misc devices */
-> -#include <linux/module.h>	/* For module stuff/... */
-> -#include <linux/mutex.h>	/* For mutexes */
-> -#include <linux/slab.h>		/* For memory functions */
-> -#include <linux/types.h>	/* For standard types (like size_t) */
-> -#include <linux/watchdog.h>	/* For watchdog specific items */
-> -#include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
-> +#include <linux/cdev.h>		    /* For character device */
-> +#include <linux/errno.h>	    /* For the -ENODEV/... values */
-> +#include <linux/fs.h>		    /* For file operations */
-> +#include <linux/init.h>		    /* For __init/__exit/... */
-> +#include <linux/hrtimer.h>	    /* For hrtimers */
-> +#include <linux/kernel.h>	    /* For printk/panic/... */
-> +#include <linux/kexec.h>	    /* For checking if crash kernel is loaded */
-> +#include <linux/kthread.h>	    /* For kthread_work */
-> +#include <linux/miscdevice.h>	    /* For handling misc devices */
-> +#include <linux/module.h>	    /* For module stuff/... */
-> +#include <linux/mutex.h>	    /* For mutexes */
-> +#include <linux/panic_notifier.h>   /* For panic_notifier_list */
-> +#include <linux/slab.h>		    /* For memory functions */
-> +#include <linux/types.h>	    /* For standard types (like size_t) */
-> +#include <linux/watchdog.h>	    /* For watchdog specific items */
-> +#include <linux/uaccess.h>	    /* For copy_to_user/put_user/... */
-
-Please drop unrelated changes.
-
->  
->  #include "watchdog_core.h"
->  #include "watchdog_pretimeout.h"
-> @@ -57,6 +59,9 @@ static struct kthread_worker *watchdog_kworker;
->  static bool handle_boot_enabled =
->  	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
->  
-> +static unsigned int wdt_panic_timeout =
-> +	CONFIG_DEFAULT_WATCHDOG_CRASH_KERNEL_TIMEOUT;
+> +static const struct regmap_irq_chip max77714_rtc_irq_chip = {
+> +	.name		= "max77714-rtc",
+> +	.status_base	= MAX77686_RTC_INT,
+> +	.mask_base	= MAX77686_RTC_INTM,
+> +	.num_regs	= 1,
+> +	.irqs		= max77686_rtc_irqs,
+> +	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs) - 1, /* no WTSR on 77714 */
+> +};
 > +
->  static unsigned open_timeout = CONFIG_WATCHDOG_OPEN_TIMEOUT;
->  
->  static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
-> @@ -818,6 +823,43 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
->  	return err;
->  }
->  
-> +static int watchdog_panic_notifier(struct notifier_block *nb,
-> +	unsigned long code, void *data)
-> +{
-> +	struct watchdog_device *wdd = container_of(nb, struct watchdog_device, panic_nb);
-> +	unsigned int timeout = wdt_panic_timeout;
-> +	int set_timeout_ret, ping_ret;
-> +
-> +	if (wdd == NULL || wdt_panic_timeout == 0 || kexec_crash_image == NULL ||
+> +static const struct max77686_rtc_driver_data max77714_drv_data = {
+> +	.delay = 16000,
+> +	.mask  = 0x7f,
+> +	.map   = max77686_map,
+> +	.alarm_enable_reg = false,
+> +	.rtc_irq_from_platform = false,
 
-wdd can not be NULL here.
+As far as I could understand, rtc_irq_from_platform should be 'true'.
+This would trigger the 'if' branch in function
+max77686_init_rtc_regmap() [0]:
 
-> +	    !(watchdog_active(wdd) || watchdog_hw_running(wdd)))
+  if (info->drv_data->rtc_irq_from_platform) {
+	struct platform_device *pdev = to_platform_device(info->dev);
 
-!(a || b) --> !a && !b
+	info->rtc_irq = platform_get_irq(pdev, 0);
+	if (info->rtc_irq < 0)
+		return info->rtc_irq;
+  } else {
+	info->rtc_irq =  parent_i2c->irq;
+  }
 
-Please use (!watchdog_active(wdd) && !watchdog_hw_running(wdd))
-which is much easier to understand.
+Calling platform_get_irq() seems correct for the MAX77714, which can
+generate various IRQ events, collecting them in a register, and raise a
+single IRQ to the CPU via a physical pin.
 
-> +		return NOTIFY_DONE;
-> +
-> +	if (wdd->max_hw_heartbeat_ms && wdd->max_hw_heartbeat_ms < wdt_panic_timeout * 1000)
-> +		timeout = wdd->max_hw_heartbeat_ms / 1000;
+However, if I set rtc_irq_from_platform = true, platform_get_irq()
+returns IRQ number '1', which ends up in:
 
-FWIW, this won't help much if max_hw_heartbeat_ms is really low.
-It might make sense to list that limitation in the Kconfig
-description (the watchdog timeout will never be higher than
-the maximum hardware watchdog timeout).
+  dummy 0-0048: Failed to request IRQ 1 for max77714-rtc: -22
+  max77686-rtc max77714-rtc: Failed to add RTC irq chip: -22
+  max77686-rtc: probe of max77714-rtc failed with error -22
 
-> +	else if (watchdog_timeout_invalid(wdd, wdt_panic_timeout))
-> +		timeout = wdd->max_timeout;
-> +
-> +	if (timeout != wdt_panic_timeout)
-> +		pr_err("watchdog%d: Cannot set specified panic timeout, using %ds.\n",
-> +			wdd->id, timeout);
-> +
-> +	set_timeout_ret = watchdog_set_timeout(wdd, timeout);
-> +	if (set_timeout_ret)
-> +		pr_err("watchdog%d: Failed to extend watchdog timeout (%d)\n",
-> +			wdd->id, set_timeout_ret);
-> +
-> +	ping_ret = watchdog_ping(wdd);
-> +	if (ping_ret)
-> +		pr_warn("watchdog%d: Failed to ping watchdog (%d)\n",
-> +			wdd->id, ping_ret);
-> +
-> +	if (set_timeout_ret == 0 && ping_ret == 0)
+I compared my code with other MFD drivers and their cell drivers (but
+their datasheets is not available so I had to add some guesswork), and
+couldn't find out where my code is wrong.
 
-	if (!set_timeout_ret && !ping_ret)
+Unfortunately I have no IRQ access on my board (and I don't need them
+for my use case). For this reason I initially thought of disabling all
+the IRQ code in rtc-max77686.c via a new flag, but it would be quite
+invasive and I wouldn't even be able to test that existing hardware
+still works. Implementing a new RTC driver for the MAX77714 does not
+seem to be a sane option as the hardware is really 99% equal to the
+MAX77686 RTC.
 
-> +		pr_info("watchdog%d: Extended watchdog timeout to %d seconds\n",
-> +			wdd->id, timeout);
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
->  /*
->   *	watchdog_open: open the /dev/watchdog* devices.
->   *	@inode: inode of device
-> @@ -1129,6 +1171,17 @@ int watchdog_dev_register(struct watchdog_device *wdd)
->  	if (ret)
->  		watchdog_cdev_unregister(wdd);
->  
-> +	if (wdt_panic_timeout) {
-> +		wdd->panic_nb.priority = INT_MIN; /* Run last */
-> +		wdd->panic_nb.notifier_call = watchdog_panic_notifier;
-> +
-> +		ret = atomic_notifier_chain_register(&panic_notifier_list,
-> +						     &wdd->panic_nb);
-> +		if (ret)
-> +			pr_warn("watchdog%d: Cannot register panic notifier (%d)\n",
-> +				wdd->id, ret);
+Any suggestions on how to move on? -- Thanks!
 
-ret is returned to the caller, and thus the calling code will fail
-and assume that watchdog registration failed. That happens without cleanup.
-Specifically, the watchdog character device will still exist after the error.
-If this is considered fatal, please make it pr_error and handle cleanup
-as necessary. I am not convinced that it is fatal, though, so please
-also provide justification.
+[0]
+https://elixir.bootlin.com/linux/latest/source/drivers/rtc/rtc-max77686.c#L676
 
-> +	}
-> +
->  	return ret;
->  }
->  
-> @@ -1142,6 +1195,9 @@ int watchdog_dev_register(struct watchdog_device *wdd)
->  
->  void watchdog_dev_unregister(struct watchdog_device *wdd)
->  {
-> +	if (wdt_panic_timeout)
-> +		atomic_notifier_chain_unregister(&panic_notifier_list, &wdd->panic_nb);
-> +
->  	watchdog_unregister_pretimeout(wdd);
->  	watchdog_cdev_unregister(wdd);
->  }
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 9b19e6b..bc7e6e8 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -107,6 +107,7 @@ struct watchdog_device {
->  	unsigned int max_hw_heartbeat_ms;
->  	struct notifier_block reboot_nb;
->  	struct notifier_block restart_nb;
-> +	struct notifier_block panic_nb;
->  	void *driver_data;
->  	struct watchdog_core_data *wd_data;
->  	unsigned long status;
+Regards,
+-- 
+Luca
