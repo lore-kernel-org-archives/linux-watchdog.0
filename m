@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79CC7C433EF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5156BC433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 17:06:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BBA660EDF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D692603E7
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Oct 2021 17:06:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232586AbhJKQO2 (ORCPT
+        id S233127AbhJKRIk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 11 Oct 2021 12:14:28 -0400
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:41107 "EHLO
+        Mon, 11 Oct 2021 13:08:40 -0400
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:33215 "EHLO
         hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231560AbhJKQO1 (ORCPT
+        by vger.kernel.org with ESMTP id S232866AbhJKRIk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 11 Oct 2021 12:14:27 -0400
+        Mon, 11 Oct 2021 13:08:40 -0400
 Received: from [77.244.183.192] (port=63592 helo=melee.dev.aim)
         by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1mZxfL-00DXft-03; Mon, 11 Oct 2021 17:56:39 +0200
+        id 1mZxfP-00DXft-Iw; Mon, 11 Oct 2021 17:56:43 +0200
 From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
@@ -35,9 +35,9 @@ Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Chiwoong Byun <woong.byun@samsung.com>,
         Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [PATCH 1/8] mfd: max77686: Correct tab-based alignment of register addresses
-Date:   Mon, 11 Oct 2021 17:56:08 +0200
-Message-Id: <20211011155615.257529-2-luca@lucaceresoli.net>
+Subject: [PATCH 5/8] dt-bindings: mfd: add Maxim MAX77714 PMIC
+Date:   Mon, 11 Oct 2021 17:56:12 +0200
+Message-Id: <20211011155615.257529-6-luca@lucaceresoli.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211011155615.257529-1-luca@lucaceresoli.net>
 References: <20211011155615.257529-1-luca@lucaceresoli.net>
@@ -57,67 +57,95 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Some lines have an extra tab, remove them for proper visual alignment as
-present on the rest of this file.
+Add bindings for the MAX77714 PMIC with GPIO, RTC and watchdog.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 ---
- include/linux/mfd/max77686-private.h | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ .../bindings/mfd/maxim,max77714.yaml          | 58 +++++++++++++++++++
+ MAINTAINERS                                   |  5 ++
+ 2 files changed, 63 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
 
-diff --git a/include/linux/mfd/max77686-private.h b/include/linux/mfd/max77686-private.h
-index 833e578e051e..b1482b3cf353 100644
---- a/include/linux/mfd/max77686-private.h
-+++ b/include/linux/mfd/max77686-private.h
-@@ -133,35 +133,35 @@ enum max77686_pmic_reg {
- 	/* Reserved: 0x7A-0x7D */
+diff --git a/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml b/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
+new file mode 100644
+index 000000000000..2b0ce3b9bc92
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
+@@ -0,0 +1,58 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/maxim,max77714.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MAX77714 PMIC with GPIO, RTC and watchdog from Maxim Integrated.
++
++maintainers:
++  - Luca Ceresoli <luca@lucaceresoli.net>
++
++description: |
++  MAX77714 is a Power Management IC with 4 buck regulators, 9
++  low-dropout regulators, 8 GPIOs, RTC and watchdog.
++
++properties:
++  compatible:
++    const: maxim,max77714
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  interrupt-controller: true
++
++  "#interrupt-cells":
++    const: 2
++    description:
++      The first cell is the IRQ number, the second cell is the trigger type.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-controller
++  - "#interrupt-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        pmic@1c {
++            compatible = "maxim,max77714";
++            reg = <0x1c>;
++            interrupt-parent = <&gpio2>;
++            interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++
++            interrupt-controller;
++            #interrupt-cells = <2>;
++        };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a4a0c2baaf27..4d0134752537 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11385,6 +11385,11 @@ F:	drivers/power/supply/max77650-charger.c
+ F:	drivers/regulator/max77650-regulator.c
+ F:	include/linux/mfd/max77650.h
  
- 	MAX77686_REG_BBAT_CHG		= 0x7E,
--	MAX77686_REG_32KHZ			= 0x7F,
-+	MAX77686_REG_32KHZ		= 0x7F,
- 
- 	MAX77686_REG_PMIC_END		= 0x80,
- };
- 
- enum max77686_rtc_reg {
--	MAX77686_RTC_INT			= 0x00,
--	MAX77686_RTC_INTM			= 0x01,
-+	MAX77686_RTC_INT		= 0x00,
-+	MAX77686_RTC_INTM		= 0x01,
- 	MAX77686_RTC_CONTROLM		= 0x02,
- 	MAX77686_RTC_CONTROL		= 0x03,
- 	MAX77686_RTC_UPDATE0		= 0x04,
- 	/* Reserved: 0x5 */
- 	MAX77686_WTSR_SMPL_CNTL		= 0x06,
--	MAX77686_RTC_SEC			= 0x07,
--	MAX77686_RTC_MIN			= 0x08,
--	MAX77686_RTC_HOUR			= 0x09,
-+	MAX77686_RTC_SEC		= 0x07,
-+	MAX77686_RTC_MIN		= 0x08,
-+	MAX77686_RTC_HOUR		= 0x09,
- 	MAX77686_RTC_WEEKDAY		= 0x0A,
--	MAX77686_RTC_MONTH			= 0x0B,
--	MAX77686_RTC_YEAR			= 0x0C,
--	MAX77686_RTC_DATE			= 0x0D,
--	MAX77686_ALARM1_SEC			= 0x0E,
--	MAX77686_ALARM1_MIN			= 0x0F,
-+	MAX77686_RTC_MONTH		= 0x0B,
-+	MAX77686_RTC_YEAR		= 0x0C,
-+	MAX77686_RTC_DATE		= 0x0D,
-+	MAX77686_ALARM1_SEC		= 0x0E,
-+	MAX77686_ALARM1_MIN		= 0x0F,
- 	MAX77686_ALARM1_HOUR		= 0x10,
- 	MAX77686_ALARM1_WEEKDAY		= 0x11,
- 	MAX77686_ALARM1_MONTH		= 0x12,
- 	MAX77686_ALARM1_YEAR		= 0x13,
- 	MAX77686_ALARM1_DATE		= 0x14,
--	MAX77686_ALARM2_SEC			= 0x15,
--	MAX77686_ALARM2_MIN			= 0x16,
-+	MAX77686_ALARM2_SEC		= 0x15,
-+	MAX77686_ALARM2_MIN		= 0x16,
- 	MAX77686_ALARM2_HOUR		= 0x17,
- 	MAX77686_ALARM2_WEEKDAY		= 0x18,
- 	MAX77686_ALARM2_MONTH		= 0x19,
++MAXIM MAX77714 PMIC MFD DRIVER
++M:	Luca Ceresoli <luca@lucaceresoli.net>
++S:	Maintained
++F:	Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
++
+ MAXIM MAX77802 PMIC REGULATOR DEVICE DRIVER
+ M:	Javier Martinez Canillas <javier@dowhile0.org>
+ L:	linux-kernel@vger.kernel.org
 -- 
 2.25.1
 
