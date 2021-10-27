@@ -2,205 +2,105 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7D21C4167D
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Oct 2021 18:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADDC2C433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Oct 2021 20:40:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3E0F610CA
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Oct 2021 18:16:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8AA5360F21
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Oct 2021 20:40:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243494AbhJ0STQ (ORCPT
+        id S240554AbhJ0Umg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Oct 2021 14:19:16 -0400
-Received: from smtprelay0188.hostedemail.com ([216.40.44.188]:60032 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S243507AbhJ0SSv (ORCPT
+        Wed, 27 Oct 2021 16:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235613AbhJ0Umg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Oct 2021 14:18:51 -0400
-X-Greylist: delayed 4652 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Oct 2021 14:18:42 EDT
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
-        by smtpgrave04.hostedemail.com (Postfix) with ESMTP id D94841811FE43;
-        Wed, 27 Oct 2021 16:58:46 +0000 (UTC)
-Received: from omf01.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay05.hostedemail.com (Postfix) with ESMTP id 88CE218027A8A;
-        Wed, 27 Oct 2021 16:58:41 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf01.hostedemail.com (Postfix) with ESMTPA id 34EC11727C;
-        Wed, 27 Oct 2021 16:57:52 +0000 (UTC)
-Message-ID: <20ffb5604269f9add568b343701d42097c599c89.camel@perches.com>
-Subject: Re: dt-bindings: treewide: Update @st.com email address to
- @foss.st.com
-From:   Joe Perches <joe@perches.com>
-To:     Patrice CHOTARD <patrice.chotard@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        maxime coquelin <mcoquelin.stm32@gmail.com>,
-        alexandre torgue <alexandre.torgue@foss.st.com>,
-        michael turquette <mturquette@baylibre.com>,
-        stephen boyd <sboyd@kernel.org>,
-        herbert xu <herbert@gondor.apana.org.au>,
-        "david s . miller" <davem@davemloft.net>,
-        david airlie <airlied@linux.ie>,
-        daniel vetter <daniel@ffwll.ch>,
-        thierry reding <thierry.reding@gmail.com>,
-        sam ravnborg <sam@ravnborg.org>,
-        yannick fertre <yannick.fertre@foss.st.com>,
-        philippe cornu <philippe.cornu@foss.st.com>,
-        benjamin gaignard <benjamin.gaignard@linaro.org>,
-        vinod koul <vkoul@kernel.org>,
-        ohad ben-cohen <ohad@wizery.com>,
-        bjorn andersson <bjorn.andersson@linaro.org>,
-        baolin wang <baolin.wang7@gmail.com>,
-        jonathan cameron <jic23@kernel.org>,
-        lars-peter clausen <lars@metafoo.de>,
-        olivier moysan <olivier.moysan@foss.st.com>,
-        arnaud pouliquen <arnaud.pouliquen@foss.st.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jassi Brar <jassisinghbrar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hugues Fruchet <hugues.fruchet@foss.st.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Matt Mackall <mpm@selenic.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Jagan Teki <jagan@amarulasolutions.com>,
-        dillon min <dillon.minfei@gmail.com>,
-        Marek Vasut <marex@denx.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Christophe Roullier <christophe.roullier@foss.st.com>,
-        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
-        Lionel Debieve <lionel.debieve@foss.st.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Ludovic Barre <ludovic.barre@foss.st.com>,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        pascal Paillet <p.paillet@foss.st.com>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        Le Ray <erwan.leray@foss.st.com>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-        linux-crypto@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        dmaengine@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-media@vger.kernel.org,
-        linux-mtd@lists.infradead.org, netdev@vger.kernel.org,
-        linux-phy@lists.infradead.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
-Date:   Wed, 27 Oct 2021 09:57:50 -0700
-In-Reply-To: <865a4055-5c2f-0793-bdce-9f04eac167d2@foss.st.com>
-References: <20211020065000.21312-1-patrice.chotard@foss.st.com>
-         <22fb6f19-21eb-dcb5-fa31-bb243d4a7eaf@canonical.com>
-         <878ryoc4dc.wl-maz@kernel.org>
-         <82492eb2-5a5e-39a2-a058-5e2ba75323e0@foss.st.com>
-         <865a4055-5c2f-0793-bdce-9f04eac167d2@foss.st.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.40.4-1 
+        Wed, 27 Oct 2021 16:42:36 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 406D5C061570
+        for <linux-watchdog@vger.kernel.org>; Wed, 27 Oct 2021 13:40:10 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id bq11so8771398lfb.10
+        for <linux-watchdog@vger.kernel.org>; Wed, 27 Oct 2021 13:40:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:to:cc:references
+         :from:in-reply-to:content-transfer-encoding;
+        bh=bPDGMxcrYahsroetOlB/6LQFQ3wCyay4FWwNAP0nHzs=;
+        b=HSA4zjKYo184O/oGxYxS7/oNDCA3v7SUPRmtYTtfuLqh62fflrHUcZxPAclYTzGs2G
+         x3hLMLa8Bcbc0RF+oXgn8CbURfvyoMWwt/N7LRtYK/MjJUpR0SD8dkvrp+BuAxl5E5kl
+         CL0HHtNctmk4x3nwrF1It4sy5RppVaFvbgGqbGePM3l3NCrZyFLsCaoqkZgUQDoY8Bfr
+         SRwITX/VKwBcqknbf8OKNY2tTZyqYbO3ygIWblaiB2EJU8U1R+NHYtjSFaI1Q/HaOFPo
+         4scctRfjlj84jAzgFUsGWIpaqM/zZyhFoyOPjv0zrfFpJIVQOTnelFSbiiX4xevAwQ3v
+         qkDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :to:cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=bPDGMxcrYahsroetOlB/6LQFQ3wCyay4FWwNAP0nHzs=;
+        b=mCDJpqVm4FuAfB50vPSeA0Zkr7MTt2EokiQBNS6cFo53d8fTalh+513DJDRH1MWiq4
+         ctHpVmaKk/gMWjcTi5JYAE+z6hs0ugVaHxnS2IK5IEBIK+I7jyLaTIw86GkzMZ3TacOr
+         Q7Wpgm3DUMkOpV16YCnTKEycSIiKKJRuY0r51x4VerepLUKs9qen5+agqJEiylpvTUe3
+         nTPrXnPWE2mxQdKgPEqWj8nz7fQ8T9U9XOQAgi5/Dhc0FejE/Xqtdi43W/35BfW253kK
+         Py8QRo8N54pgTruBP5gcQ5rc0n6PjDDAKUwc9tdlmX1dE6ibAVpvu724v3ETbBAEDjKL
+         mkzg==
+X-Gm-Message-State: AOAM5323X1i29YBWDM9F639mfkinDqPX7GDi93pOIeD46RhFRxt1viiv
+        16cg5BaLrdCvbCcMg7ynfst5MUci2lU=
+X-Google-Smtp-Source: ABdhPJxySo/K2Y3yWsdUf4FAUXSwGkfWlDVXMbg+kYfp9XTMg1MZOtM7p7hn9Svdd6gVDam2aTycRg==
+X-Received: by 2002:a05:6512:3f0e:: with SMTP id y14mr31881603lfa.505.1635367208561;
+        Wed, 27 Oct 2021 13:40:08 -0700 (PDT)
+Received: from [192.168.26.149] (ip-194-187-74-233.konfederacka.maverick.com.pl. [194.187.74.233])
+        by smtp.googlemail.com with ESMTPSA id bq23sm95293lfb.262.2021.10.27.13.40.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Oct 2021 13:40:08 -0700 (PDT)
+Message-ID: <fe1b90d7-4898-694b-02ae-97baa3377206@gmail.com>
+Date:   Wed, 27 Oct 2021 22:40:07 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:94.0) Gecko/20100101
+ Thunderbird/94.0
+Subject: Re: [PATCH] watchdog: bcm63xx_wdt: fix fallthrough warning
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
+References: <20211027123135.27458-1-zajec5@gmail.com>
+ <20211027173114.GA2327649@roeck-us.net>
+ <7bb51f0f-6ba1-d91a-6e1c-7c7c4f5f3cbc@gmail.com>
+From:   =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+In-Reply-To: <7bb51f0f-6ba1-d91a-6e1c-7c7c4f5f3cbc@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Stat-Signature: d7f39g9ut4x78f1qzm6ux4u3z7warbny
-X-Rspamd-Server: rspamout02
-X-Rspamd-Queue-Id: 34EC11727C
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX1/mP1yO9Xb7wezovkJWdqP2VR+2BHiCxac=
-X-HE-Tag: 1635353872-396338
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, 2021-10-27 at 15:56 +0200, Patrice CHOTARD wrote:
-> On 10/27/21 8:11 AM, Patrice CHOTARD wrote:
-> > On 10/20/21 1:39 PM, Marc Zyngier wrote:
-> > > On Wed, 20 Oct 2021 08:45:02 +0100,
-> > > Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com> wrote:
-> > > > On 20/10/2021 08:50, patrice.chotard@foss.st.com wrote:
-> > > > > From: Patrice Chotard <patrice.chotard@foss.st.com>
-> > > > > 
-> > > > > Not all @st.com email address are concerned, only people who have
-> > > > > a specific @foss.st.com email will see their entry updated.
-> > > > > For some people, who left the company, remove their email.
-> > > > Also would be nice to see here explained *why* are you doing this.
-> > > 
-> > > And why this can't be done with a single update to .mailmap, like
-> > > anyone else does.
-> > 
-> > Thanks for the tips, yes, it will be simpler.
+On 27.10.2021 19:39, Florian Fainelli wrote:
+> On 10/27/21 10:31 AM, Guenter Roeck wrote:
+>> On Wed, Oct 27, 2021 at 02:31:35PM +0200, Rafał Miłecki wrote:
+>>> From: Rafał Miłecki <rafal@milecki.pl>
+>>>
+>>> This fixes:
+>>> drivers/watchdog/bcm63xx_wdt.c: In function 'bcm63xx_wdt_ioctl':
+>>> drivers/watchdog/bcm63xx_wdt.c:208:17: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>>>
+>>> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+>>
+>> [reluctantly]
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> ... because the driver should really be converted to use the watchdog subsystem,
+>> by someone with the necessary hardware to test it.
 > 
-> I made a try by updating .mailmap with adding a new entry with my @foss.st.com email :
-> 
->  Pali Roh�r <pali@kernel.org> <pali.rohar@gmail.com>
->  Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> +Patrice Chotard <patrice.chotard@foss.st.com> <patrice.chotard@st.com>
->  Patrick Mochel <mochel@digitalimplant.org>
->  Paul Burton <paulburton@kernel.org> <paul.burton@imgtec.com>
-> 
-> But when running ./scripts/get_maintainer.pl Documentation/devicetree/bindings/arm/sti.yaml, by old email is still displayed
-> 
-> Rob Herring <robh+dt@kernel.org> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-> Patrice Chotard <patrice.chotard@st.com> (in file)
-> devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-> linux-kernel@vger.kernel.org (open list)
-> 
-> By default, the get_maintainer.pl script is using .mailmap file ($email_use_mailmap = 1).
-> 
-> It seems there is an issue with get_maintainer.pl and maintainer name/e-mail found in yaml file ?
+> The driver should ideally be removed and we should use bcm7038_wdt.c
+> moving forward. Rafal, is this something you can try on 4908?
 
-I'm of two minds whether it's an "issue" actually.
+I wasn't sure if I should proceed with bcm63xx_wdt.c or bcm7038_wdt.c so
+I chose 63xx. Possibly a bad decision, I'm not sure.
 
-get_maintainer is not the only tool used to create email
-address lists.
-
-Some actually read files like MAINTAINERS or .dts or .yaml
-files directly to find maintainer addresses.
-
-So If your name and email address is listed in an source file
-where nominally active email addresses are entered then I
-believe .mailmap should not modify it.
-
-So I believe email addresses in each file should be updated
-in preference to using a mailmap entry for nominally active
-email addresses in these files.
-
----
-
-$ cat Documentation/devicetree/bindings/arm/sti.yaml
-# SPDX-License-Identifier: GPL-2.0
-%YAML 1.2
----
-$id: http://devicetree.org/schemas/arm/sti.yaml#
-$schema: http://devicetree.org/meta-schemas/core.yaml#
-
-title: ST STi Platforms Device Tree Bindings
-
-maintainers:
-  - Patrice Chotard <patrice.chotard@st.com>
-
-
-
+I've already bcm63xx_wdt.c changes developed locally to support BCM4908.
+I just need to add Documentation/dt-bindings/ part. I'll do that
+tomorrow. Then you can let me know if that's acceptable or should I
+refactor my changes.
