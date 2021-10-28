@@ -2,58 +2,60 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99B9AC433F5
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Oct 2021 09:31:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C87C433FE
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Oct 2021 16:29:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 849E660E78
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Oct 2021 09:31:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18CF6610CF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Oct 2021 16:29:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbhJ1Jdo (ORCPT
+        id S230226AbhJ1QcR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Oct 2021 05:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
+        Thu, 28 Oct 2021 12:32:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230098AbhJ1Jdo (ORCPT
+        with ESMTP id S230225AbhJ1QcQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Oct 2021 05:33:44 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F63CC061570;
-        Thu, 28 Oct 2021 02:31:17 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id u21so12213318lff.8;
-        Thu, 28 Oct 2021 02:31:17 -0700 (PDT)
+        Thu, 28 Oct 2021 12:32:16 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2F5C061570;
+        Thu, 28 Oct 2021 09:29:49 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id y14-20020a17090a2b4e00b001a5824f4918so1556245pjc.4;
+        Thu, 28 Oct 2021 09:29:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=5SCRR+E6hGA2qUYlZFUC09MM/t1uJnD/XLaVJ8yfNfk=;
-        b=DIPttbwdnzYKTfXlI6MpZLACsySVnJjafi/Cj4futVxmFjkow5Tup11a5aSutu7COq
-         FatUpMi61V6yWEoPZzhaBLMIXpJWkOFJ4R+UESLPOZ+yCzoPeZQZ67U6ElGS2o2lr7rE
-         fMtMgxdDn0w3ksR0+aWxjPBJOlR548utKKa4PAuURNr4s35RCgHTMCjB3Wn4lAe5U2cZ
-         jR4DTITlTVOjxWRBvn0JNWcPycCnS9KJm8vkHqYSeb6oVj1a3+klyPhFaTeiSiT+TYO4
-         3gJ54Mz2nm1fC7pQOAYxjRhgP+vOvEV4mdPOK/sRPID8Q/nkyXa77hGmLf8w7wffQy5/
-         /7Sw==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=iOMV47zPl+WXbviyBiqlGpEOAdHC+x+zs56ErTuovVc=;
+        b=pL7Bgh3tX9dNjUtKyckQRc2XeD6p6QKslnDUItLeTZ+KIFqI8imYlti7k6O002UtNI
+         CdcDCTnzq9rRBjKIDxAFjj6Xsy8/bxxfWQfGHFgpBflqJLWLbrEdtHFsIIXt7UYdDoTe
+         q+B5cRJwdfPB80P8oEEApP5ur4+xVl/sQoB7QtuA5S/UacVm+4A8EZglenAywIge6U2J
+         rx+HyUJ26dKdW/3Z/rDyElVfCdWslQc6dtyrqbE78OfRfmgS7AbQ2eavr41w9/zZ4ay8
+         QRBG85zDfRe2Z8QpsdQRpyk7W54V6xptNJUUSD+IgX7OYQqcVH2HZg/x5LNm8AFHr4FV
+         nSSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=5SCRR+E6hGA2qUYlZFUC09MM/t1uJnD/XLaVJ8yfNfk=;
-        b=6hlUpvT6CClcYTKlpuW7JswIbrlPpz+HVNFrzw4xBVQ0AgeC07vQ7havNIgxrcMwSP
-         J60jKR5CKQa7Q/Zdrb9KcYFL7vSImV3LKkHyAocgzES1nbg/0MosW6mLlGYRM2qTI5/E
-         Ib8K5/RRuMacLyvwsh/YEI21RAkRIFO88ig13fVrUQYKs//VWajWq8oUehTaIGzzQcL7
-         jlLEjcHPSTOhZvlCndCuX3RazI5IrZAmpbuZqrzVa3CCQQo3s6ZD04rlD/2aR42ojp6A
-         Sp8HSthPDybrdiS9XlujbK56SY5gCpnXIBXtS9rXtq46QZQbsbAKACZmjllcoNTox97L
-         DrwA==
-X-Gm-Message-State: AOAM533YrF0QmnvsYJYj+q6TtjQJOaIvnBlO3fIp9D+XmbCwxNvreVoH
-        +RtRnJ5/RYTs5jT+DCopsUQ=
-X-Google-Smtp-Source: ABdhPJzHdKxqhsU7CoH1gvpFRrC1HQosEE7pvQ3GRH5o89V/kvy/XsJXdCk2D7WOcoxrEq+EL13rlQ==
-X-Received: by 2002:a05:6512:3049:: with SMTP id b9mr3103568lfb.660.1635413475449;
-        Thu, 28 Oct 2021 02:31:15 -0700 (PDT)
-Received: from localhost.lan (ip-194-187-74-233.konfederacka.maverick.com.pl. [194.187.74.233])
-        by smtp.gmail.com with ESMTPSA id o26sm231548ljg.92.2021.10.28.02.31.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Oct 2021 02:31:15 -0700 (PDT)
-From:   =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iOMV47zPl+WXbviyBiqlGpEOAdHC+x+zs56ErTuovVc=;
+        b=lrsmagPccaF1wiUGmXBpnoKHvDSL12AzYnqBZY5QgvZpVx+cOgdPgAa7IrYNrI0S3T
+         dEdyNnpkrhVfOIAq6//1lqpT6p3JtHEGKEWN5co9mZoN9FAenOPXfrm8pQjscrSblwxs
+         BpNavOH+Pyo3jsBkVhDYpnU/Xpi0oq+iiiqZzP+Od84qklhYTuIdOqsLgquE2diTC9cS
+         VqWD1BWAHA5pjYeJUtIrOEpELy2ZTmplRb1Ds67vN1Glt8TiM+VlN8l2MyNIvd4CAOon
+         f/NFUicOJnMaAdygpy5d4LZKX8VudCKBIUYoHFphmIOaJNPgCnP6IxiDKDvF76/c1inA
+         zAyw==
+X-Gm-Message-State: AOAM531H8pFPMjRh/fUGCG35OE60CX+FDDCkbbgLjb2ItYrp/UUpMLXF
+        +AQghaHNUKtTXs4l2LkN3OY=
+X-Google-Smtp-Source: ABdhPJxbv77NUT6Q6Ou4dZoDsM+bgTIO25Un8DnF+mGPV5GA9+oGHexjWDC0g96hlAWDmoCYUuS6Hw==
+X-Received: by 2002:a17:90a:7e13:: with SMTP id i19mr5574766pjl.120.1635438589365;
+        Thu, 28 Oct 2021 09:29:49 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id mr2sm2411672pjb.25.2021.10.28.09.29.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Oct 2021 09:29:48 -0700 (PDT)
+Subject: Re: [PATCH 3/3] watchdog: bcm7038_wdt: support BCM4908 SoC
+To:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>
 Cc:     Florian Fainelli <f.fainelli@gmail.com>,
@@ -61,226 +63,56 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         linux-mips@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
-Subject: [PATCH 3/3] watchdog: bcm7038_wdt: support BCM4908 SoC
-Date:   Thu, 28 Oct 2021 11:30:59 +0200
-Message-Id: <20211028093059.32535-3-zajec5@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211028093059.32535-1-zajec5@gmail.com>
+        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
 References: <20211028093059.32535-1-zajec5@gmail.com>
+ <20211028093059.32535-3-zajec5@gmail.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <f78d1573-4909-039d-8647-d4fc13205f47@gmail.com>
+Date:   Thu, 28 Oct 2021 09:29:47 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20211028093059.32535-3-zajec5@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+On 10/28/21 2:30 AM, Rafał Miłecki wrote:
+> From: Rafał Miłecki <rafal@milecki.pl>
+> 
+> Hardware supported by this driver goes back to the old bcm63xx days. It
+> was then reused in BCM7038 and later also in BCM4908.
+> 
+> Depending on SoC model registers layout differs a bit. This commit
+> introduces support for per-chipset registers offsets & adds BCM4908
+> layout.
+> 
+> Later on BCM63xx SoCs support should be added too (probably as platform
+> devices due to missing DT). Eventually this driver should replace
+> bcm63xx_wdt.c.
+> 
+> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> ---
 
-Hardware supported by this driver goes back to the old bcm63xx days. It
-was then reused in BCM7038 and later also in BCM4908.
+[snip]
 
-Depending on SoC model registers layout differs a bit. This commit
-introduces support for per-chipset registers offsets & adds BCM4908
-layout.
+> +
+> +static const u16 bcm7038_wdt_regs_bcm4908[] = {
+> +	[BCM63XX_WDT_REG_DEFVAL]	= 0x28,
+> +	[BCM63XX_WDT_REG_CTL]		= 0x2c,
+> +	[BCM63XX_WDT_REG_SOFTRESET]	= 0x34,
 
-Later on BCM63xx SoCs support should be added too (probably as platform
-devices due to missing DT). Eventually this driver should replace
-bcm63xx_wdt.c.
+I don't understand what you are doing here and why you are not
+offsetting the "reg" property appropriately when you create your
+bcm4908-wdt Device Tree node such that the base starts at 0, and the
+existing driver becomes usable as-is. This does not make any sense to me
+when it is obviously the simplest way to make the driver "accept" the
+resource being passed.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
----
- drivers/watchdog/Kconfig       |  2 +-
- drivers/watchdog/bcm7038_wdt.c | 89 ++++++++++++++++++++++++++--------
- 2 files changed, 69 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index bf59faeb3de1..324aa942b182 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1756,7 +1756,7 @@ config BCM7038_WDT
- 	tristate "BCM7038 Watchdog"
- 	select WATCHDOG_CORE
- 	depends on HAS_IOMEM
--	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
-+	depends on ARCH_BCM4908 || ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
- 	help
- 	 Watchdog driver for the built-in hardware in Broadcom 7038 and
- 	 later SoCs used in set-top boxes.  BCM7038 was made public
-diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index acaaa0005d5b..352689f869c1 100644
---- a/drivers/watchdog/bcm7038_wdt.c
-+++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -9,6 +9,7 @@
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/watchdog.h>
-@@ -18,14 +19,17 @@
- #define WDT_STOP_1		0xee00
- #define WDT_STOP_2		0x00ee
- 
--#define WDT_TIMEOUT_REG		0x0
--#define WDT_CMD_REG		0x4
--
- #define WDT_MIN_TIMEOUT		1 /* seconds */
- #define WDT_DEFAULT_TIMEOUT	30 /* seconds */
- #define WDT_DEFAULT_RATE	27000000
- 
-+enum bcm63xx_wdt_soc {
-+	BCM63XX_WDT_SOC_BCM4908,
-+	BCM63XX_WDT_SOC_BCM7038,
-+};
-+
- struct bcm7038_watchdog {
-+	enum bcm63xx_wdt_soc	soc;
- 	void __iomem		*base;
- 	struct watchdog_device	wdd;
- 	u32			rate;
-@@ -34,8 +38,52 @@ struct bcm7038_watchdog {
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
- 
--static inline void bcm7038_wdt_write(u32 value, void __iomem *addr)
-+static const struct of_device_id bcm7038_wdt_match[] = {
-+	{ .compatible = "brcm,bcm4908-wdt", .data = (const void *)BCM63XX_WDT_SOC_BCM4908, },
-+	{ .compatible = "brcm,bcm7038-wdt", .data = (const void *)BCM63XX_WDT_SOC_BCM7038, },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
-+
-+enum bcm7038_wdt_regs {
-+	BCM63XX_WDT_REG_DEFVAL = 0,
-+	BCM63XX_WDT_REG_CTL,
-+	BCM63XX_WDT_REG_SOFTRESET,
-+};
-+
-+static const u16 bcm7038_wdt_regs_bcm4908[] = {
-+	[BCM63XX_WDT_REG_DEFVAL]	= 0x28,
-+	[BCM63XX_WDT_REG_CTL]		= 0x2c,
-+	[BCM63XX_WDT_REG_SOFTRESET]	= 0x34,
-+};
-+
-+static const u16 bcm7038_wdt_regs_bcm7038[] = {
-+	[BCM63XX_WDT_REG_DEFVAL]	= 0x00,
-+	[BCM63XX_WDT_REG_CTL]		= 0x04,
-+};
-+
-+static void __iomem *bcm7038_wdt_reg_addr(struct watchdog_device *wdog,
-+					  enum bcm7038_wdt_regs reg)
- {
-+	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
-+	void __iomem *addr = wdt->base;
-+
-+	switch (wdt->soc) {
-+	case BCM63XX_WDT_SOC_BCM4908:
-+		return addr + bcm7038_wdt_regs_bcm4908[reg];
-+	case BCM63XX_WDT_SOC_BCM7038:
-+		return addr + bcm7038_wdt_regs_bcm7038[reg];
-+	default:
-+		WARN_ON(1);
-+		return NULL;
-+	}
-+}
-+
-+static void bcm7038_wdt_write(struct watchdog_device *wdog,
-+			      enum bcm7038_wdt_regs reg, u32 value)
-+{
-+	void __iomem *addr = bcm7038_wdt_reg_addr(wdog, reg);
-+
- 	/* MIPS chips strapped for BE will automagically configure the
- 	 * peripheral registers for CPU-native byte order.
- 	 */
-@@ -45,8 +93,11 @@ static inline void bcm7038_wdt_write(u32 value, void __iomem *addr)
- 		writel_relaxed(value, addr);
- }
- 
--static inline u32 bcm7038_wdt_read(void __iomem *addr)
-+static inline u32 bcm7038_wdt_read(struct watchdog_device *wdog,
-+				   enum bcm7038_wdt_regs reg)
- {
-+	void __iomem *addr = bcm7038_wdt_reg_addr(wdog, reg);
-+
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		return __raw_readl(addr);
- 	else
-@@ -60,15 +111,13 @@ static void bcm7038_wdt_set_timeout_reg(struct watchdog_device *wdog)
- 
- 	timeout = wdt->rate * wdog->timeout;
- 
--	bcm7038_wdt_write(timeout, wdt->base + WDT_TIMEOUT_REG);
-+	bcm7038_wdt_write(wdog, BCM63XX_WDT_REG_DEFVAL, timeout);
- }
- 
- static int bcm7038_wdt_ping(struct watchdog_device *wdog)
- {
--	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
--
--	bcm7038_wdt_write(WDT_START_1, wdt->base + WDT_CMD_REG);
--	bcm7038_wdt_write(WDT_START_2, wdt->base + WDT_CMD_REG);
-+	bcm7038_wdt_write(wdog, BCM63XX_WDT_REG_CTL, WDT_START_1);
-+	bcm7038_wdt_write(wdog, BCM63XX_WDT_REG_CTL, WDT_START_2);
- 
- 	return 0;
- }
-@@ -83,10 +132,8 @@ static int bcm7038_wdt_start(struct watchdog_device *wdog)
- 
- static int bcm7038_wdt_stop(struct watchdog_device *wdog)
- {
--	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
--
--	bcm7038_wdt_write(WDT_STOP_1, wdt->base + WDT_CMD_REG);
--	bcm7038_wdt_write(WDT_STOP_2, wdt->base + WDT_CMD_REG);
-+	bcm7038_wdt_write(wdog, BCM63XX_WDT_REG_CTL, WDT_STOP_1);
-+	bcm7038_wdt_write(wdog, BCM63XX_WDT_REG_CTL, WDT_STOP_2);
- 
- 	return 0;
- }
-@@ -107,7 +154,7 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
- 	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
- 	u32 time_left;
- 
--	time_left = bcm7038_wdt_read(wdt->base + WDT_CMD_REG);
-+	time_left = bcm7038_wdt_read(wdog, BCM63XX_WDT_REG_CTL);
- 
- 	return time_left / wdt->rate;
- }
-@@ -134,6 +181,7 @@ static void bcm7038_clk_disable_unprepare(void *data)
- static int bcm7038_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-+	const struct of_device_id *of_id;
- 	struct bcm7038_watchdog *wdt;
- 	int err;
- 
-@@ -143,6 +191,11 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, wdt);
- 
-+	of_id = of_match_device(bcm7038_wdt_match, dev);
-+	if (!of_id)
-+		return -EINVAL;
-+	wdt->soc = (enum bcm63xx_wdt_soc)of_id->data;
-+
- 	wdt->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
-@@ -211,12 +264,6 @@ static int bcm7038_wdt_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
- 			 bcm7038_wdt_resume);
- 
--static const struct of_device_id bcm7038_wdt_match[] = {
--	{ .compatible = "brcm,bcm7038-wdt" },
--	{},
--};
--MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
--
- static struct platform_driver bcm7038_wdt_driver = {
- 	.probe		= bcm7038_wdt_probe,
- 	.driver		= {
+I am going to send my patch series converting the bcm63xx_wdt.c driver
+over to bcm7038_wdt.c, feel free to use or discard it.
 -- 
-2.31.1
-
+Florian
