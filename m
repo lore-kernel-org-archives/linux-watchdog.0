@@ -2,93 +2,96 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7762C4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:55:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 270EFC433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:57:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC53961056
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:55:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1228160F93
+	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:57:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbhJ2U5u (ORCPT
+        id S231575AbhJ2U7t (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 29 Oct 2021 16:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230334AbhJ2U5u (ORCPT
+        Fri, 29 Oct 2021 16:59:49 -0400
+Received: from 5.mo583.mail-out.ovh.net ([87.98.173.103]:60443 "EHLO
+        5.mo583.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231484AbhJ2U7s (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 29 Oct 2021 16:57:50 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687D4C061714;
-        Fri, 29 Oct 2021 13:55:21 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id v193so10285120pfc.4;
-        Fri, 29 Oct 2021 13:55:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QYbseYhKxTr9fJBl8ehiwzBXY+1XMJKsk2yK23bAITo=;
-        b=kT8GFGUSps7Ht3FvdqD6pKams0fRSyJvzESw3YVCdmtxHgbvcp4laYRXfbERr9eMV4
-         t5W+BJU9EbCIEFD6V1Naj68chXsaiTqcvy5l2o4PyQds9HZito0FHrGvm28fMHVlOrkj
-         uTQoz+9S3reFYqeDMTYnWQzmH4vuehmlcFVm4VBvc5FbN59gGMkF5le8G2PT9EzYxJoQ
-         3xKtlu/4Y1mri1/yNGVA5vbKU7ehNims+v9YZ91xq0EZp1GNTo1Ay+/2qqKSCITqeTGu
-         PMLqLNWTxnsTeJ8QzJLHGvKQIR/W+xfrhtl2Bw3Bs0mXk5LhLrvgNdVMVxiugxLCvUid
-         a3Ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QYbseYhKxTr9fJBl8ehiwzBXY+1XMJKsk2yK23bAITo=;
-        b=nUg0cViRMtoXU4VAq0T2Je6G6mU/uCYjyBxT+e1pL74yULwsjkNfJQavGxSeklt75h
-         bWURnfFxKJlOy++WYyq4kVQUAqhFzbvE0RwQeF26bj582PO9UbkEHGJeLCjG1CnaqLnP
-         YOqApcIe79JxHUyu/2BTzj6O/0oUY7U6uOczARLS0q9527x6L9jbdwSHNcn5zh1q1Uu6
-         sn/Txgc5HWWzFXSTEfhl4DV+NzZ37LWq2mk/m+vS7BR3tN2SjqwwX4Gzql8Bzm9opbpg
-         vbwIDSzdmJIOB+rUQFSMCeDXRbJWmTRAnwnGv7/EtPfZnvO2yJxuT0/v9ihlrGwuTHzo
-         70HA==
-X-Gm-Message-State: AOAM532d++1Wva5k0n3LndJkZwoDLjyTxGqlNdKzegKl6O+o8FeHz4Gu
-        h9VF5aeqNvbPg16eGCEL2Jc=
-X-Google-Smtp-Source: ABdhPJyFMkRhmBw6XmMtK9HWBDlZSrwA9ptmgang4zpouPvZmLiIq4ge47Tw1SE/2Zh0gqvEYbcFjA==
-X-Received: by 2002:a63:5fcc:: with SMTP id t195mr426828pgb.332.1635540920901;
-        Fri, 29 Oct 2021 13:55:20 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id m4sm1864714pjs.1.2021.10.29.13.55.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Oct 2021 13:55:20 -0700 (PDT)
-Subject: Re: [PATCH 1/2] dt-bindings: watchdog: convert Broadcom's WDT to the
- json-schema
-To:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        Fri, 29 Oct 2021 16:59:48 -0400
+X-Greylist: delayed 27601 seconds by postgrey-1.27 at vger.kernel.org; Fri, 29 Oct 2021 16:59:48 EDT
+Received: from player770.ha.ovh.net (unknown [10.110.208.115])
+        by mo583.mail-out.ovh.net (Postfix) with ESMTP id 0717722063
+        for <linux-watchdog@vger.kernel.org>; Fri, 29 Oct 2021 12:38:02 +0000 (UTC)
+Received: from RCM-web10.webmail.mail.ovh.net (ip-194-187-74-233.konfederacka.maverick.com.pl [194.187.74.233])
+        (Authenticated sender: rafal@milecki.pl)
+        by player770.ha.ovh.net (Postfix) with ESMTPSA id 5DEA823DC6CDD;
+        Fri, 29 Oct 2021 12:37:51 +0000 (UTC)
+MIME-Version: 1.0
+Date:   Fri, 29 Oct 2021 14:37:51 +0200
+From:   =?UTF-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <rafal@milecki.pl>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     linux-kernel@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Justin Chen <justinpopo6@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         bcm-kernel-feedback-list@broadcom.com,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-mips@vger.kernel.org,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
-References: <20211029202505.7106-1-zajec5@gmail.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <7dae9f8b-b73e-fecf-35dd-1d64db8fde51@gmail.com>
-Date:   Fri, 29 Oct 2021 13:55:19 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-MIME-Version: 1.0
-In-Reply-To: <20211029202505.7106-1-zajec5@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        Justin Chen <justinpopo6@gmail.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 5/7] watchdog: bcm7038_wdt: Add platform device id for
+ bcm63xx-wdt
+In-Reply-To: <20211028172322.4021440-6-f.fainelli@gmail.com>
+References: <20211028172322.4021440-1-f.fainelli@gmail.com>
+ <20211028172322.4021440-6-f.fainelli@gmail.com>
+User-Agent: Roundcube Webmail/1.4.11
+Message-ID: <02cb3c1a160854c92895d024e59a831b@milecki.pl>
+X-Sender: rafal@milecki.pl
+X-Originating-IP: 194.187.74.233
+X-Webmail-UserID: rafal@milecki.pl
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 16945356551679290136
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvtddrvdeghedgheduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepggffhffvufgjfhgfkfigihgtgfesthejjhdttdervdenucfhrhhomheptfgrfhgrlhgpofhilhgvtghkihcuoehrrghfrghlsehmihhlvggtkhhirdhplheqnecuggftrfgrthhtvghrnhepveefvdetjeffueefkeeuuedvgefhgeegjefgvedvgeeiteduueeivdeltedthfetnecukfhppedtrddtrddtrddtpdduleegrddukeejrdejgedrvdeffeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphhouhhtpdhhvghlohepphhlrgihvghrjeejtddrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpehrrghfrghlsehmihhlvggtkhhirdhplhdprhgtphhtthhopehlihhnuhigqdifrghttghhughoghesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 10/29/21 1:25 PM, Rafał Miłecki wrote:
-> From: Rafał Miłecki <rafal@milecki.pl>
+On 2021-10-28 19:23, Florian Fainelli wrote:
+> In order to phase out bcm63xx_wdt and use bcm7038_wdt instead, 
+> introduce
+> a platform_device_id table that allows both names to be matched.
 > 
-> This helps validating DTS files.
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> ---
+>  drivers/watchdog/bcm7038_wdt.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> diff --git a/drivers/watchdog/bcm7038_wdt.c 
+> b/drivers/watchdog/bcm7038_wdt.c
+> index 506cd7ef9c77..2535f450e8a1 100644
+> --- a/drivers/watchdog/bcm7038_wdt.c
+> +++ b/drivers/watchdog/bcm7038_wdt.c
+> @@ -223,6 +223,13 @@ static const struct of_device_id 
+> bcm7038_wdt_match[] = {
+>  };
+>  MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
+> 
+> +static const struct platform_device_id bcm7038_wdt_devtype[] = {
+> +	{ .name = "bcm7038-wdt" },
+> +	{ .name = "bcm63xx-wdt" },
+> +	{ /* sentinel */ },
+> +};
+> +MODULE_DEVICE_TABLE(platform, bcm7038_wdt_devtype);
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Do we really want "bcm7038-wdt" here? I don't think it will ever be used
+as apparently BCM7038 uses DT.
+
+I'd also prefer to have Rob's comment on mapping blocks vs. mapping
+registers.
+
+If we were to map whole hardware blocks, we should have per-SoC
+bindings and handling registers layouts in a driver. Right now
+bcm63xx arch code maps selected part of hardware block that is
+meant to match driver's logic (offsets 0x00 and 0x04).
