@@ -2,102 +2,162 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DFFBC4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 19:25:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56A2FC433F5
+	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:25:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 76ADE60E8B
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 19:25:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2ECF16101E
+	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Oct 2021 20:25:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbhJ2T1q (ORCPT
+        id S230411AbhJ2U1j (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 29 Oct 2021 15:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
+        Fri, 29 Oct 2021 16:27:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbhJ2T1p (ORCPT
+        with ESMTP id S229441AbhJ2U1i (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 29 Oct 2021 15:27:45 -0400
-Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364E9C061767
-        for <linux-watchdog@vger.kernel.org>; Fri, 29 Oct 2021 12:25:16 -0700 (PDT)
-Received: by mail-ua1-x92e.google.com with SMTP id f4so20037721uad.4
-        for <linux-watchdog@vger.kernel.org>; Fri, 29 Oct 2021 12:25:16 -0700 (PDT)
+        Fri, 29 Oct 2021 16:27:38 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A567AC061570;
+        Fri, 29 Oct 2021 13:25:09 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id u5so18674405ljo.8;
+        Fri, 29 Oct 2021 13:25:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iOhkeO72w3GegdH+UyM0cQ4je/Oq7dw9gY0y8l00Dps=;
-        b=BpYkTOMfIuxl1LvyX+8FrzDYBlDk2ILzW92lnelWdll4LauIavVrbIPnAdsBba0Bay
-         9GJPOu/gc7iBsuroJcRmM5lFQTkB4KMxWzntnKzRtuF6APyI1rZYLwj1RWgS2b3AqL28
-         W1ZOYWW/N2Ert+OifD7ruHFgHUxPG7dTZIav8RyjyScTzUYcLo9O3a45doCe1j8rvHTM
-         4cJz19rDuihHt7YuFsYSwrKnZzIwaThqghVxPcpbJmMU2HXGA+43vMqONmFbciTK/TYL
-         GaZsyRWAUFJafjTZ4bOeV8XLUAVo7C+kccYIKaEwihABlZwGP36nNgrQTvIGBKkyl5nc
-         gx1g==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uwSQ5O46XQWq/lDnechLXeMde+M4E9bl0BI41ywS9so=;
+        b=qFHa+Y0nq19Wnz1rYDkGGnQ7CPH8tO2/O/fq8Kwcy7a/S7ublc/0U1PsykHPMEjRBV
+         mJCZop8bzU6RGKjK7x686hQZBcHhBAehEraBgbAtnzqyGJ0stJ2QZm6ayAXA7lqRUJrn
+         v4QWRBaHpRadOFfU3eyb6qfRMzYoXEQVQ8U+rAoiCXo3y/q2IzhivXi4Ds9yXi/3sst0
+         ozqUaeT4xVto5IVVligZHVrxdkcRDXX3+WgYrdY86uJ8Fdt9rNkpw3CcSNxjXCAr+Kay
+         SZo4eQOQkHbsn2rPmP9MHtcsENy6zxtxT+izm2LtibT304gStT13ERDGAqRR5oY24s5Y
+         sC4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iOhkeO72w3GegdH+UyM0cQ4je/Oq7dw9gY0y8l00Dps=;
-        b=GVDOhMNK8HcNhnSZwB1YpSZ+BReZTr8SL0GOfEsk9YXSkJX52QzwnZaaJCPatmsH2U
-         yDaPYdWMkx2VKquPE8RiuPYZSjg0yDMm65H8bgxlBuyPsDpBN3nfZL65s8jfUcR33p1J
-         e6JXDI0lMLtbUwPCi+H/Naropj5DMJqQ3ywJH55wfGtovK77/BER+ySNiWVYLM2xj7dp
-         cfaTpuMWH339DmOofDG7HVy/tH/Gb7SSv+Zzj6fmZHp8+8np3wSlc5zePcgOFTfNWF+K
-         zG60LVAw6DbUnkMz2EXoWazUI9JVxnVDLsmlap1CojJqEfIkLCmEHJDUxLwiAqJ97izo
-         /Hcg==
-X-Gm-Message-State: AOAM533wWvW24IllS9deQjIlv5OfFOtKl6lwzMHAVcujxRTZipErrHvT
-        Wx+v+xHzGtIllxmu6H0xFz4ZnsVcKTdERFcpwdEceQ==
-X-Google-Smtp-Source: ABdhPJxLz+zekne4P7GYaeUWmfz8nQqPqtIf+Pn0XUP0NhGOqQedWV6arFH39XiTpXDM/Najz07v14Z2+6erQK70Hlg=
-X-Received: by 2002:a67:f1ca:: with SMTP id v10mr15087571vsm.55.1635535515312;
- Fri, 29 Oct 2021 12:25:15 -0700 (PDT)
-MIME-Version: 1.0
-References: <20211028183527.3050-1-semen.protsenko@linaro.org>
- <20211028183527.3050-4-semen.protsenko@linaro.org> <b9c33def-6b12-1e5a-4449-b1e0869a0e3a@roeck-us.net>
- <2a5ff8d0-c665-e25e-cb40-51326db2e26a@canonical.com>
-In-Reply-To: <2a5ff8d0-c665-e25e-cb40-51326db2e26a@canonical.com>
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-Date:   Fri, 29 Oct 2021 22:25:03 +0300
-Message-ID: <CAPLW+4kd0Woxenf2DUJTRD2zCn9gSg6Wq0Vbt+EjSM5zeTDvHQ@mail.gmail.com>
-Subject: Re: [PATCH 3/7] watchdog: s3c2410: Make reset disable optional
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uwSQ5O46XQWq/lDnechLXeMde+M4E9bl0BI41ywS9so=;
+        b=NwyJh03Jmv8VLvqwNMchp8gI6pRHmYugwu9q3xlr0ciLkeoRBV9o+DlYxfs8+9d7iA
+         akNAZIhja7UoV6Pd/VZn3C1J7+ROknS47YWwY8aCuEumuDoNDNTbESRL8T+6cbTvd6ma
+         +FDVhRcGATkwEv36znBjY/PdXWsP+ZlBc9ji7X/m7ENoqsNGcxZQxRxaKTM93JjTO/qk
+         uRCT1DoqxkfJUXtB8s2jrt8Qlz6EA/4VblqvKQlTlSR4kwVkPvAIOnYRj3BE1lu1TF9s
+         kA45BEujRzNYJkeLGZmBnUR7MStF51y0lo2MgQjmLM/YlJGMsYbaNSesWT+Wqa9s9WPN
+         QFhw==
+X-Gm-Message-State: AOAM530zPc8ZziO4VQZKYxiM2CEk5Xue4TxseuzsjCt2LfIOy7FTQXi/
+        UCq49EPa+MB3k5QnxcJNBC0=
+X-Google-Smtp-Source: ABdhPJwM7qQIaQzjKAfq7HyW7IxgXBps3wCGWHUVtI6GyptFa1yoEs+L5X/1tC8iQmGC3lWoaniORA==
+X-Received: by 2002:a05:651c:510:: with SMTP id o16mr14152214ljp.359.1635539107957;
+        Fri, 29 Oct 2021 13:25:07 -0700 (PDT)
+Received: from localhost.lan (ip-194-187-74-233.konfederacka.maverick.com.pl. [194.187.74.233])
+        by smtp.gmail.com with ESMTPSA id c19sm692715lfv.225.2021.10.29.13.25.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Oct 2021 13:25:07 -0700 (PDT)
+From:   =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com,
         linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Linux Samsung SOC <linux-samsung-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
+Subject: [PATCH 1/2] dt-bindings: watchdog: convert Broadcom's WDT to the json-schema
+Date:   Fri, 29 Oct 2021 22:25:04 +0200
+Message-Id: <20211029202505.7106-1-zajec5@gmail.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, 29 Oct 2021 at 11:04, Krzysztof Kozlowski
-<krzysztof.kozlowski@canonical.com> wrote:
->
-> On 29/10/2021 02:16, Guenter Roeck wrote:
-> > On 10/28/21 11:35 AM, Sam Protsenko wrote:
-> >> Not all SoCs have AUTOMATIC_WDT_RESET_DISABLE register, examples are
-> >> Exynos850 and Exynos9. On such chips reset disable register shouldn't be
-> >> accessed. Provide a way to avoid handling that register. This is done by
-> >> introducing separate callbacks to driver data structure: one for reset
-> >> disable register, and one for mask reset register. Now those callbacks
-> >> can be checked and called only when those were set in driver data.
-> >>
-> >> This commit doesn't bring any functional change to existing devices, but
-> >> merely provides an infrastructure for upcoming chips support.
-> >>
-> >
-> > That doesn't explain why the callbacks are needed instead of additional
-> > feature flags.
-> >
->
-> Or why not skipping the disable operations if disable_reg is not provided?
->
+From: Rafał Miłecki <rafal@milecki.pl>
 
-Yeah, that was my first thought too :) Then I figured disable_reg is
-offset, and 0x0 is a valid offset too. Anyway, I'll rework this patch
-using quirks, as discussed above. Will send v2 soon.
+This helps validating DTS files.
 
->
-> Best regards,
-> Krzysztof
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+---
+ .../bindings/watchdog/brcm,bcm7038-wdt.txt    | 19 ---------
+ .../bindings/watchdog/brcm,bcm7038-wdt.yaml   | 40 +++++++++++++++++++
+ 2 files changed, 40 insertions(+), 19 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+deleted file mode 100644
+index 84122270be8f..000000000000
+--- a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-BCM7038 Watchdog timer
+-
+-Required properties:
+-
+-- compatible : should be "brcm,bcm7038-wdt"
+-- reg : Specifies base physical address and size of the registers.
+-
+-Optional properties:
+-
+-- clocks: The clock running the watchdog. If no clock is found the
+-	  driver will default to 27000000 Hz.
+-
+-Example:
+-
+-watchdog@f040a7e8 {
+-	compatible = "brcm,bcm7038-wdt";
+-	clocks = <&upg_fixed>;
+-	reg = <0xf040a7e8 0x16>;
+-};
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+new file mode 100644
+index 000000000000..69e5a1ef6a1f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+@@ -0,0 +1,40 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/brcm,bcm63xx-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: BCM7038 watchdog timer
++
++allOf:
++  - $ref: "watchdog.yaml#"
++
++maintainers:
++  - Florian Fainelli <f.fainelli@gmail.com>
++  - Justin Chen <justinpopo6@gmail.com>
++  - Rafał Miłecki <rafal@milecki.pl>
++
++properties:
++  compatible:
++    const: brcm,bcm7038-wdt
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    description: >
++      The clock running the watchdog. If no clock is found the driver will
++      default to 27000000 Hz.
++
++unevaluatedProperties: false
++
++required:
++  - reg
++
++examples:
++  - |
++    watchdog@f040a7e8 {
++      compatible = "brcm,bcm7038-wdt";
++      reg = <0xf040a7e8 0x16>;
++      clocks = <&upg_fixed>;
++    };
+-- 
+2.31.1
+
