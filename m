@@ -2,56 +2,56 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 089C3C4321E
-	for <linux-watchdog@archiver.kernel.org>; Sun, 31 Oct 2021 12:22:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE97BC4332F
+	for <linux-watchdog@archiver.kernel.org>; Sun, 31 Oct 2021 12:22:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAD2960F4C
+	by mail.kernel.org (Postfix) with ESMTP id A547160F93
 	for <linux-watchdog@archiver.kernel.org>; Sun, 31 Oct 2021 12:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232168AbhJaMZF (ORCPT
+        id S232087AbhJaMZD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 31 Oct 2021 08:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
+        Sun, 31 Oct 2021 08:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbhJaMZC (ORCPT
+        with ESMTP id S231906AbhJaMY5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 31 Oct 2021 08:25:02 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA23C061714
-        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:30 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id 5so53959117edw.7
-        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:30 -0700 (PDT)
+        Sun, 31 Oct 2021 08:24:57 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F23C0613B9
+        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:25 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id r12so55177214edt.6
+        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=s77d0wvzKKrSJpucHvgANP4+TsflGbcPJf8/uZ/lNKk=;
-        b=jRMbi4nqcs9a5JQkI0Cr9Cklz6leEzR3ZhtfiU9GMAHWdeGvXJIMuRdYU/fnXpL+Vv
-         LDP1eoAXkY7FDTmwLwg7elB55SlOr2CQMd9O9rJEOA0UVuoHOEGuhhLzHPhmDoKOz3LS
-         I4QBIWt7fbZUKyqjokfgEB4K8pL6di70v798gNlU4ZMJXCXak5cYE+qFpMraUW9HoKVs
-         c6k5D2eoeZIBmvH0lWloBC1GXt1zeMnsptfLyHtp9hi9rR9E4/zd9Jw7nAZBNATj0KJV
-         Y6CapdZrftViMNJUU0RBIP7aeTKhHyh//kDhuVFSgXqbRtF3Hi9mZhum1NCXf+hvehd9
-         ch3w==
+        bh=LNl1brM/0oXFKhQmO4fHWOzGU7TOB+zbc6A9TEvFH+g=;
+        b=Mt4GxUwluXo6qfBzqJMCobzIh/e7NlPjR790yx6wBKljB2HMFxyT7ed8dNUBNwYMid
+         Ruxtc072sOhL/BHpKkDoqR8HiMNg3zYpqbIMIlsIixVI3xjgWTmtOjTJQX/VFivOGE17
+         12RRSAqhQ6gIHBH7/HMSzFfIQflHwIhbt6QbFu6F8kyZyVGUiWhR7b8p0bpUMEXgKV/R
+         yX6Tu1D9pRFMz4QTRFgksACTUvj2/jQ9bCqXg3Ro1CzswG326XRVp7efQqhVbord/cIv
+         dmYn2evhkTa34BXF6wcbHrmmat8kIGiUGfIMud3UsS9Y5lNDqZsRyCLUU2ZsydSKgp69
+         D2Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=s77d0wvzKKrSJpucHvgANP4+TsflGbcPJf8/uZ/lNKk=;
-        b=VUs72sH7ZIvqVPCxNHMEVgOo8931LMPp22+VAqa8Kv2ns+RpRgWuo1ABm/MZ7zjPUM
-         Yh0pxuttwe0BBdA1y921jxqfbYkQOFjn/he8J4QHvAI0Ve90/8GH9NaOszTYGAa3KUob
-         yaPcS0M/XlhVeYDbdBwgGmvy/roUBu7JGZbw/iT+SDLTe+tDPXonc1B9n9EXaSIRUMdh
-         1YToljIndU1z02SdKQwFFDLxtYi2UxdljXIzLRpWMqn2PLfTCLDxtinFmjHJH/YgXZV/
-         jT0K9dgLuNY2bdUUEDjIm4Tl9kwM9Gbky7ViBtkK5PqW5KxIRDRvq+LYiLaQpNhjEx0F
-         FArg==
-X-Gm-Message-State: AOAM530ZJ3RzT2IRFxIUsq8bcU8S96kjNvr3+6O9DGLt/kOgW8UoFCnF
-        cGWJ81/n/IZOV2dJGnQ37VLWfA==
-X-Google-Smtp-Source: ABdhPJz2UmDtjEDIFiKJVzl050VIheNsVtvLNBcQI6PpUy99DNfQmJS/VNOCYC0lRtZRsIXma21NUA==
-X-Received: by 2002:a05:6402:5252:: with SMTP id t18mr31049774edd.129.1635682949333;
-        Sun, 31 Oct 2021 05:22:29 -0700 (PDT)
+        bh=LNl1brM/0oXFKhQmO4fHWOzGU7TOB+zbc6A9TEvFH+g=;
+        b=B2errMeCHdtkUZQrJqaWBp9Kn0o/MDcuUBgSAN0HD/RE7EYm6QWs/Zia4CLzivHR3B
+         wPpoNeqfMePCaFUyEk8AMP6+iD3JJvzoDtVC7gu2yN0rgkqJLZvxrVEUpnARW/l8KjJ/
+         nRFZQcw+CFuJgeqZl6gUWAS7sERxjYTaCbaR6u9/1vtMYifsOiuS8r842DDANsQX7RhK
+         waDoW5wdss/WFdA8Y8QawzLbkiSd4sshtOF+cVhA3VM4Djt+sKSRQdwt9B0xQs7Kjon+
+         ptqPxUSlfP4TxUxQsl33Y1uVfnAvtoN0hS2EPTwcSQn+fkxEnX0VEylZHdTnBZQnauVN
+         jWMA==
+X-Gm-Message-State: AOAM530CTPFASDtBIBpZqvQRtk/VFDUCa+A/ZiLzIkCR4YrknoZacWO5
+        ED+gcmFogLkjA9mFkzI7JT9XgQ==
+X-Google-Smtp-Source: ABdhPJyJ0+tkYyi6vFJFEgzcRpei2xggOdrZBJZMRcg/vJFYotRsaVbIQq2Qbf0/XD5FsOzRz95udw==
+X-Received: by 2002:a05:6402:5c9:: with SMTP id n9mr3212732edx.395.1635682944363;
+        Sun, 31 Oct 2021 05:22:24 -0700 (PDT)
 Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id cw20sm3842945ejc.32.2021.10.31.05.22.28
+        by smtp.gmail.com with ESMTPSA id u23sm6983345edr.97.2021.10.31.05.22.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 31 Oct 2021 05:22:28 -0700 (PDT)
+        Sun, 31 Oct 2021 05:22:23 -0700 (PDT)
 From:   Sam Protsenko <semen.protsenko@linaro.org>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -60,9 +60,9 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org
-Subject: [PATCH v2 07/12] watchdog: s3c2410: Implement a way to invert mask reg value
-Date:   Sun, 31 Oct 2021 14:22:11 +0200
-Message-Id: <20211031122216.30212-8-semen.protsenko@linaro.org>
+Subject: [PATCH v2 04/12] watchdog: s3c2410: Let kernel kick watchdog
+Date:   Sun, 31 Oct 2021 14:22:08 +0200
+Message-Id: <20211031122216.30212-5-semen.protsenko@linaro.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211031122216.30212-1-semen.protsenko@linaro.org>
 References: <20211031122216.30212-1-semen.protsenko@linaro.org>
@@ -72,57 +72,71 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On new Exynos chips (like Exynos850) the MASK_WDT_RESET_REQUEST register
-is replaced with CLUSTERx_NONCPU_INT_EN, and its mask bit value meaning
-was reversed: for new register the bit value "1" means "Interrupt
-enabled", while for MASK_WDT_RESET_REQUEST register "1" means "Mask the
-interrupt" (i.e. "Interrupt disabled").
+When "tmr_atboot" module param is set, the watchdog is started in
+driver's probe. In that case, also set WDOG_HW_RUNNING bit to let
+watchdog core driver know it's running. This way watchdog core can kick
+the watchdog for us (if CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED option is
+enabled), until user space takes control.
 
-Introduce "mask_reset_inv" boolean field in driver data structure; when
-that field is "true", mask register handling function will invert the
-value before setting it to the register.
-
-This commit doesn't bring any functional change to existing devices, but
-merely provides an infrastructure for upcoming chips support.
+WDOG_HW_RUNNING bit must be set before registering the watchdog. So the
+"tmr_atboot" handling code is moved before watchdog registration, to
+avoid performing the same check twice. This is also logical because
+WDOG_HW_RUNNING bit makes WDT core expect actually running watchdog.
 
 Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
 ---
 Changes in v2:
-  - (none): it's a new patch
+  - Added explanation on moving the code block to commit message
+  - [PATCH 03/12] handles the case when tmr_atboot is present but valid
+    timeout wasn't found
 
- drivers/watchdog/s3c2410_wdt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/watchdog/s3c2410_wdt.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 4ac0a30e835e..2a61b6ea5602 100644
+index 00421cf22556..0845c05034a1 100644
 --- a/drivers/watchdog/s3c2410_wdt.c
 +++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -92,6 +92,7 @@ MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, 0 to
-  * timer reset functionality.
-  * @mask_reset_reg: Offset in pmureg for the register that masks the watchdog
-  * timer reset functionality.
-+ * @mask_reset_inv: If set, mask_reset_reg value will have inverted meaning.
-  * @mask_bit: Bit number for the watchdog timer in the disable register and the
-  * mask reset register.
-  * @rst_stat_reg: Offset in pmureg for the register that has the reset status.
-@@ -103,6 +104,7 @@ MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, 0 to
- struct s3c2410_wdt_variant {
- 	int disable_reg;
- 	int mask_reset_reg;
-+	bool mask_reset_inv;
- 	int mask_bit;
- 	int rst_stat_reg;
- 	int rst_stat_bit;
-@@ -219,7 +221,8 @@ static int s3c2410wdt_disable_wdt_reset(struct s3c2410_wdt *wdt, bool mask)
- static int s3c2410wdt_mask_wdt_reset(struct s3c2410_wdt *wdt, bool mask)
- {
- 	const u32 mask_val = BIT(wdt->drv_data->mask_bit);
--	const u32 val = mask ? mask_val : 0;
-+	const bool val_inv = wdt->drv_data->mask_reset_inv;
-+	const u32 val = (mask ^ val_inv) ? mask_val : 0;
- 	int ret;
+@@ -604,6 +604,21 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
+ 	wdt->wdt_device.parent = dev;
  
- 	ret = regmap_update_bits(wdt->pmureg, wdt->drv_data->mask_reset_reg,
++	/*
++	 * If "tmr_atboot" param is non-zero, start the watchdog right now. Also
++	 * set WDOG_HW_RUNNING bit, so that watchdog core can kick the watchdog.
++	 *
++	 * If we're not enabling the watchdog, then ensure it is disabled if it
++	 * has been left running from the bootloader or other source.
++	 */
++	if (tmr_atboot) {
++		dev_info(dev, "starting watchdog timer\n");
++		s3c2410wdt_start(&wdt->wdt_device);
++		set_bit(WDOG_HW_RUNNING, &wdt->wdt_device.status);
++	} else {
++		s3c2410wdt_stop(&wdt->wdt_device);
++	}
++
+ 	ret = watchdog_register_device(&wdt->wdt_device);
+ 	if (ret)
+ 		goto err_cpufreq;
+@@ -612,17 +627,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		goto err_unregister;
+ 
+-	if (tmr_atboot) {
+-		dev_info(dev, "starting watchdog timer\n");
+-		s3c2410wdt_start(&wdt->wdt_device);
+-	} else {
+-		/* if we're not enabling the watchdog, then ensure it is
+-		 * disabled if it has been left running from the bootloader
+-		 * or other source */
+-
+-		s3c2410wdt_stop(&wdt->wdt_device);
+-	}
+-
+ 	platform_set_drvdata(pdev, wdt);
+ 
+ 	/* print out a statement of readiness */
 -- 
 2.30.2
 
