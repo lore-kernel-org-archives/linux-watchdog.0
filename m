@@ -2,56 +2,56 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA816C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D68D1C4332F
 	for <linux-watchdog@archiver.kernel.org>; Sun, 31 Oct 2021 12:22:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D39AC60F4C
+	by mail.kernel.org (Postfix) with ESMTP id C444060FC1
 	for <linux-watchdog@archiver.kernel.org>; Sun, 31 Oct 2021 12:22:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbhJaMY4 (ORCPT
+        id S231949AbhJaMZB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 31 Oct 2021 08:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50958 "EHLO
+        Sun, 31 Oct 2021 08:25:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbhJaMYy (ORCPT
+        with ESMTP id S232131AbhJaMY7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 31 Oct 2021 08:24:54 -0400
+        Sun, 31 Oct 2021 08:24:59 -0400
 Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BAEC061767
-        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:22 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id h7so55557137ede.8
-        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE07C061746
+        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:27 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id w15so55105590edc.9
+        for <linux-watchdog@vger.kernel.org>; Sun, 31 Oct 2021 05:22:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=4hAAB9ACVGB7w+5kN6PqXP+giYjWZ8rzjhqYUsb2soQ=;
-        b=tjyz05UAvEZeR+kQ75NlySwkepTuKYMqx5I3q57MUpX7MKgJSmnaMUPMwEhGRpfycy
-         n2cLROtK8MOo0BcrjMwbvdwuemUh3b7OGnESGtyLaai/EPMQNZWgMRPqEorWVFf5RvHH
-         lFu7O7usjBu8fTxLOgWo+xFBrP/Ed4oNB9EI/VgGj6iEekppWtWsjiPF8lpWE0bmugiu
-         RQ/VDXyZHY5YLMxeD1LrDzHbyX2w1cPTTAPUtawtewhfKo4kHKo2GGBIW352q7uVqIvG
-         nJ+lZWXnWWnBA+zROr1/3+9SlL/MfIqoMwkn1OX9R+sNhjCRkuZDRXu2do8zY/KA17GS
-         X7yQ==
+        bh=l/1LxvCuuFDJGwtjOtmgZOfuOt8wH/h/0UaZ8nhlwUA=;
+        b=r4WYK47YXxinnVjs/tkpEUTNJ56wjldwJfKCnLmWtvZT8cXGvQRKsuqa6qan/AtFzK
+         /r2stn+pTKVjVGdo1Rj+umP6K1FkHMvmoHHjfNEUmXwmktle0xwAGgRC5uowsZQ1Gh3I
+         l0uR3EW3bnZJLUdIaB3/DV6en/syF2WV1ldeOb6stll8DWEe/+eOX1vMQFhqtDXY6Wvk
+         9dBkkgvuwNAIJpoGr2cb/Z1RkL/wT+/d9Q6dMv2zixItvDWepAVSxMTKpIg7P4ll6TNk
+         tau9XXLfFuMaizVosPJ2LsUtkKHrM3RrWQk7r67DJT+6DJ/geilxYhpN+1IdYzZku7qp
+         1cSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4hAAB9ACVGB7w+5kN6PqXP+giYjWZ8rzjhqYUsb2soQ=;
-        b=Kj7d7U+7jT1Q7E3/vslddfPbGY/cBO9Xe/iZfuNnL3u3wzOVfazaA4Kbekxbz0i1Z6
-         m6703ZVh8SiF3hBWMWRi22lS6ImK719decwf5YaWzFdZx03vz6Rfj/NPkdgC7Q+Aa9S3
-         rqqbyNSBrhXZ5qXP+K0zwgod3r5fcAKQBWXvPIWQJXbsOS9J+av2UlSE7hcRiGKutUam
-         b6v5LNLZlGEplrDvXpd9Le0JiTz6glzumexrAmm9a+tl8W6zXCohRnaIGgFMeUp/dQ0B
-         aReWN4Ivpf0Gmgk0rpHTTRwmIPEdTI0l7tl66IPgTTiRgq53JHkHUJXExIwz8R4Pgzxk
-         xqAw==
-X-Gm-Message-State: AOAM531Xch39bVebMiV9fbADynx8KrEfh5320PLN1oLbtD9bwPsh9LRd
-        6Rhp0CBe8foTdasrgm72Um0TKA==
-X-Google-Smtp-Source: ABdhPJw1btUJn7dyIICN98vaTkAsHX3B/Uv+co666O+A3jpDVitVf+48qEz1YZu90eIvjdvpsZlgAw==
-X-Received: by 2002:a17:906:269a:: with SMTP id t26mr28852315ejc.20.1635682941200;
-        Sun, 31 Oct 2021 05:22:21 -0700 (PDT)
+        bh=l/1LxvCuuFDJGwtjOtmgZOfuOt8wH/h/0UaZ8nhlwUA=;
+        b=aUHJncmqwg+pSZXeZLAUUWPl9ScFTCPdLJ23hL0k9AcNaCi1fKx0fSXFRrGla0UFad
+         Ap0q8piLJGgNmK6+r7uolC0Q6qmNY8bBQNakOz1MVEiH4MWQ76DWUbAH7Veq7946jmiN
+         /9f9uLOi2+dnlyrAzdSNJdAkVNLWtlxla/woebkccf4WBziWTFNpbLaZBDXuTYq3YlCu
+         kau2drKi5deZoCdyd3a2VNspxloY7tp4yLbnYMg0p2Zfd2DnHP/RCMP08drMVecpw+RE
+         pYTutF0eq/vHOBseRVrugtI6ASr2M343MZYsDBqNCl4s4MGUEvIVTcQ8xJcprYadDXV6
+         BqCg==
+X-Gm-Message-State: AOAM530+bX9n8TZBDP50cXpPeri8sAttbB6V5990xuuGc5mUJzK7gKdm
+        aK4Ntfkam9u0BmBol0LD98I6RQ==
+X-Google-Smtp-Source: ABdhPJwdxXzOyQrZCUIk6ItBBUXusTHqCFBfjHyfm5iiwuVPEuhCYVnaqavTp82n047YIr5IUAdvhQ==
+X-Received: by 2002:a05:6402:3588:: with SMTP id y8mr31603322edc.285.1635682946076;
+        Sun, 31 Oct 2021 05:22:26 -0700 (PDT)
 Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id x3sm7738974edd.67.2021.10.31.05.22.20
+        by smtp.gmail.com with ESMTPSA id m9sm5539310eje.102.2021.10.31.05.22.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 31 Oct 2021 05:22:20 -0700 (PDT)
+        Sun, 31 Oct 2021 05:22:25 -0700 (PDT)
 From:   Sam Protsenko <semen.protsenko@linaro.org>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -60,9 +60,9 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org
-Subject: [PATCH v2 02/12] dt-bindings: watchdog: Document Exynos850 watchdog bindings
-Date:   Sun, 31 Oct 2021 14:22:06 +0200
-Message-Id: <20211031122216.30212-3-semen.protsenko@linaro.org>
+Subject: [PATCH v2 05/12] watchdog: s3c2410: Make reset disable register optional
+Date:   Sun, 31 Oct 2021 14:22:09 +0200
+Message-Id: <20211031122216.30212-6-semen.protsenko@linaro.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211031122216.30212-1-semen.protsenko@linaro.org>
 References: <20211031122216.30212-1-semen.protsenko@linaro.org>
@@ -72,110 +72,91 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Exynos850 SoC has two CPU clusters:
-  - cluster 0: contains CPUs #0, #1, #2, #3
-  - cluster 1: contains CPUs #4, #5, #6, #7
+On new Exynos chips (e.g. Exynos850 and Exynos9) the
+AUTOMATIC_WDT_RESET_DISABLE register was removed, and its value can be
+thought of as "always 0x0". Add correspondig quirk bit, so that the
+driver can omit accessing it if it's not present.
 
-Each cluster has its own dedicated watchdog timer. Those WDT instances
-are controlled using different bits in PMU registers, new
-"samsung,index" property is added to tell the driver which bits to use
-for defined watchdog node.
-
-Also on Exynos850 the peripheral clock and the source clock are two
-different clocks. Provide a way to specify two clocks in watchdog device
-tree node.
+This commit doesn't bring any functional change to existing devices, but
+merely provides an infrastructure for upcoming chips support.
 
 Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
 ---
 Changes in v2:
-  - Stated explicitly that Exynos850 driver requires 2 clocks
-  - Used single compatible for Exynos850
-  - Added "index" property to specify CPU cluster index
-  - Fixed a typo in commit message: dedicater -> dedicated
+  - Used quirks instead of callbacks for all added PMU registers
+  - Used BIT() macro
+  - Extracted splitting the s3c2410wdt_mask_and_disable_reset() function
+    to separate patch
+  - Extracted cleanup code to separate patch to minimize changes and
+    ease the review and porting
 
- .../bindings/watchdog/samsung-wdt.yaml        | 44 +++++++++++++++++--
- 1 file changed, 40 insertions(+), 4 deletions(-)
+ drivers/watchdog/s3c2410_wdt.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-index 93cd77a6e92c..f29d0ca4eced 100644
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-@@ -22,25 +22,32 @@ properties:
-       - samsung,exynos5250-wdt                # for Exynos5250
-       - samsung,exynos5420-wdt                # for Exynos5420
-       - samsung,exynos7-wdt                   # for Exynos7
-+      - samsung,exynos850-wdt                 # for Exynos850
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 0845c05034a1..048ca47d0b8a 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -59,10 +59,12 @@
+ #define QUIRK_HAS_PMU_CONFIG			(1 << 0)
+ #define QUIRK_HAS_RST_STAT			(1 << 1)
+ #define QUIRK_HAS_WTCLRINT_REG			(1 << 2)
++#define QUIRK_HAS_PMU_AUTO_DISABLE		(1 << 3)
  
-   reg:
-     maxItems: 1
+ /* These quirks require that we have a PMU register map */
+ #define QUIRKS_HAVE_PMUREG			(QUIRK_HAS_PMU_CONFIG | \
+-						 QUIRK_HAS_RST_STAT)
++						 QUIRK_HAS_RST_STAT | \
++						 QUIRK_HAS_PMU_AUTO_DISABLE)
  
-   clocks:
--    maxItems: 1
-+    minItems: 1
-+    maxItems: 2
+ static bool nowayout	= WATCHDOG_NOWAYOUT;
+ static int tmr_margin;
+@@ -137,7 +139,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
+ 	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
+ 	.rst_stat_bit = 20,
+ 	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
+-		  | QUIRK_HAS_WTCLRINT_REG,
++		  | QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_AUTO_DISABLE,
+ };
  
-   clock-names:
--    items:
--      - const: watchdog
-+    minItems: 1
-+    maxItems: 2
+ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+@@ -147,7 +149,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+ 	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
+ 	.rst_stat_bit = 9,
+ 	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
+-		  | QUIRK_HAS_WTCLRINT_REG,
++		  | QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_AUTO_DISABLE,
+ };
  
-   interrupts:
-     maxItems: 1
+ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
+@@ -157,7 +159,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
+ 	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
+ 	.rst_stat_bit = 23,	/* A57 WDTRESET */
+ 	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
+-		  | QUIRK_HAS_WTCLRINT_REG,
++		  | QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_AUTO_DISABLE,
+ };
  
-+  samsung,index:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description:
-+      Index of CPU cluster on which watchdog is running (in case of Exynos850)
-+
-   samsung,syscon-phandle:
-     $ref: /schemas/types.yaml#/definitions/phandle
-     description:
-       Phandle to the PMU system controller node (in case of Exynos5250,
--      Exynos5420 and Exynos7).
-+      Exynos5420, Exynos7 and Exynos850).
+ static const struct of_device_id s3c2410_wdt_match[] = {
+@@ -213,11 +215,13 @@ static int s3c2410wdt_mask_and_disable_reset(struct s3c2410_wdt *wdt, bool mask)
+ 	if (mask)
+ 		val = mask_val;
  
- required:
-   - compatible
-@@ -59,9 +66,38 @@ allOf:
-               - samsung,exynos5250-wdt
-               - samsung,exynos5420-wdt
-               - samsung,exynos7-wdt
-+              - samsung,exynos850-wdt
-     then:
-       required:
-         - samsung,syscon-phandle
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - samsung,exynos850-wdt
-+    then:
-+      properties:
-+        clocks:
-+          items:
-+            - description: Bus clock, used for register interface
-+            - description: Source clock (driving watchdog counter)
-+        clock-names:
-+          items:
-+            - const: watchdog
-+            - const: watchdog_src
-+        samsung,index:
-+          enum: [0, 1]
-+      required:
-+        - samsung,index
-+    else:
-+      properties:
-+        clocks:
-+          items:
-+            - description: Bus clock, which is also a source clock
-+        clock-names:
-+          items:
-+            - const: watchdog
+-	ret = regmap_update_bits(wdt->pmureg,
+-			wdt->drv_data->disable_reg,
+-			mask_val, val);
+-	if (ret < 0)
+-		goto error;
++	if (wdt->drv_data->quirks & QUIRK_HAS_PMU_AUTO_DISABLE) {
++		ret = regmap_update_bits(wdt->pmureg,
++				wdt->drv_data->disable_reg,
++				mask_val, val);
++		if (ret < 0)
++			goto error;
++	}
  
- unevaluatedProperties: false
- 
+ 	ret = regmap_update_bits(wdt->pmureg,
+ 			wdt->drv_data->mask_reset_reg,
 -- 
 2.30.2
 
