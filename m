@@ -2,56 +2,56 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 735A1C433FE
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Nov 2021 23:14:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14AD5C433F5
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Nov 2021 23:14:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A5E060F70
-	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Nov 2021 23:14:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F1C88611C4
+	for <linux-watchdog@archiver.kernel.org>; Wed,  3 Nov 2021 23:14:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbhKCXQ7 (ORCPT
+        id S230478AbhKCXRB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 3 Nov 2021 19:16:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        Wed, 3 Nov 2021 19:17:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230108AbhKCXQ5 (ORCPT
+        with ESMTP id S229964AbhKCXQ7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 3 Nov 2021 19:16:57 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E9DC061203;
-        Wed,  3 Nov 2021 16:14:20 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id j9so3735595pgh.1;
-        Wed, 03 Nov 2021 16:14:20 -0700 (PDT)
+        Wed, 3 Nov 2021 19:16:59 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642C1C061714;
+        Wed,  3 Nov 2021 16:14:22 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id f5so3686608pgc.12;
+        Wed, 03 Nov 2021 16:14:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=KS/QFIB9iRAFf7dtvYUgDKvUDEV07sqKABKwHV353E8=;
-        b=me12WnyGdwLMVZ0v7borp06LEDIYMoUZ8EFi4SMmQIiumh8992jWROHeUwgURRBBOg
-         xF35bG0dLz6tdn4MXlkgtrYTEUCK3DNf4puhsOFCdxXgEGi0K3vsI/D4NDu5473t3n2G
-         P5dmxtDTT2Ku77KOnbh0oCVl7/x4MKvMOdRdRCz1JDW0OJ3k/9BKeWv6VOC7mTj1NU/z
-         7OgY2vnKe6GsfY9ozLDQBCb8gHPFRL4Xg5pDAgkGm1mVGIU4eYkPYmoxdLrqoYIXPQhf
-         u/x3UwASxkFqlc3qDkOSa24AXhh0sht6XZJ8CNqz/FI6xQlmuSbokimXr0kAmIYCDmxG
-         brgw==
+        bh=5tJguGsd/yhajMqKVQpl9RHTa8E0C6uvBpHGThfw2qI=;
+        b=i46YcPFhxeJhhR5TNgTJjEH3myValJYdzJWuapw45e3IBgNQzawBZOrfCNnqaRk0vl
+         BJWq0d8tzSFe2k1GKL94t1zw5iOr35odGaURpRFE+IwUcAxIzxOE8H9lI15RICS9ZVpX
+         gq9IA+hyNAR0s2nSVYiEI3u8xkzfwYis5Zb7Yc0nFYqwQAHKnrxH+grZfuIkE5yK64sZ
+         SzVWuwnUPVSRwYBnE4cXnc2hrmm6dJiJMSInLQERMwzq4pvz2Iezx5kJObsCydHtGOdt
+         CqSEYGya6XYBe/I53VGTD8L+mhhFtrpwi1mLs2DXxqpfgrz4ei9mSgpItn1nkxtbq350
+         hvpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=KS/QFIB9iRAFf7dtvYUgDKvUDEV07sqKABKwHV353E8=;
-        b=TvG9NZji6ulMV4BqkkVS9NyOzA1RA62ezgepWaD9Ojwi2TMb55rBbuauMjijPspP1z
-         wl6ux8W7aC3ph2dJlEfz5/u0VOzITysQAyRFYDE8+1EGM1wInIeQeGPIojZeXj0KPdim
-         07CfoBsignhTZ26j6FJvbsNpbnIi5Rf8R4X8NNnqaZYBEPAYXye6/3I1dHajjbMz/E+j
-         ow8O7IkeDeLb2lCxWs2Q2dLuwwvZzyO6/P9Bn/QzF/yYnAcfSqyunXyJhh0dqow6in2P
-         nHoMC+13/QdkqtYKlGdT27T/g27zLpj+aBdKEzT6hdiBl/kKMx2BRU90EP0DLKONEe+5
-         OK2Q==
-X-Gm-Message-State: AOAM530cG1q2/R7o5MlVky76BNfhCWMuzZ+aGzTE1h6KiU6JrYb7Liap
-        hx1ypmZNxbDg1tSdkVAyS3ZbIayPOE0=
-X-Google-Smtp-Source: ABdhPJwtP9MBIxJTTfIoh7nHEOsZ8ARrx44Cp9SZ6rw4PTxqqwC4CDGcAM2Fw7zrsCMUI4lNs6Yi+Q==
-X-Received: by 2002:a05:6a00:24d1:b0:481:1ee9:a253 with SMTP id d17-20020a056a0024d100b004811ee9a253mr19047097pfv.16.1635981259287;
-        Wed, 03 Nov 2021 16:14:19 -0700 (PDT)
+        bh=5tJguGsd/yhajMqKVQpl9RHTa8E0C6uvBpHGThfw2qI=;
+        b=XEFKI8ylwuzn/KvaUORKQWzEGi8z/5/kG+RZJ5nOePE2g6BEnB1PBx7lB/cqsnk/AG
+         B7WMMpHJHT7Ys+RByMgzVe12z5xSuSIVUO6bn9zNUp0rJ+mqelpkLo4tXp74rH08ASR1
+         mXpbPHsiTx0TN4bYg6vqNXjPfb6AYxlu/Q3aCDNc0oIeUcZ+0HwxubZvjds5B+8mGVsY
+         EFjWTwjDVFtooLo30agqqIao6WpcjD1ehM07dqA10zti9AKwwnspzrpkqmu2kCHbwnes
+         aO704Uyzmj8u1UNdlYF502y8jL0PJ1htjJo2SxoL7rYXU3hhyW2i2j87qa6WiSzJB5Hj
+         9rxQ==
+X-Gm-Message-State: AOAM531NgyWIVZSztEO1nRFMCy1vi1U/4R8FnwAyxiqPBQNQczyNYy/U
+        9CJDaSaOIGFZsdDi8531QnhAm6RsbNo=
+X-Google-Smtp-Source: ABdhPJz1ckvqLaN1kUqu98azVkkNO+1zbwA/6iP2o1lSawNhg4pK1LG/PnwPsSYg9iE4wQONeNfbNg==
+X-Received: by 2002:a05:6a00:22c2:b0:481:1f34:d8eb with SMTP id f2-20020a056a0022c200b004811f34d8ebmr18675523pfj.38.1635981261766;
+        Wed, 03 Nov 2021 16:14:21 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id p7sm2613549pgn.52.2021.11.03.16.14.18
+        by smtp.gmail.com with ESMTPSA id p7sm2613549pgn.52.2021.11.03.16.14.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Nov 2021 16:14:19 -0700 (PDT)
+        Wed, 03 Nov 2021 16:14:21 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Florian Fainelli <f.fainelli@gmail.com>,
@@ -67,9 +67,9 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-mips@vger.kernel.org (open list:MIPS),
         linux-arm-kernel@lists.infradead.org (moderated list:BROADCOM BCM63XX
         ARM ARCHITECTURE)
-Subject: [PATCH v3 3/7] watchdog: bcm7038_wdt: Support platform data configuration
-Date:   Wed,  3 Nov 2021 16:13:23 -0700
-Message-Id: <20211103231327.385186-4-f.fainelli@gmail.com>
+Subject: [PATCH v3 5/7] watchdog: bcm7038_wdt: Add platform device id for bcm63xx-wdt
+Date:   Wed,  3 Nov 2021 16:13:25 -0700
+Message-Id: <20211103231327.385186-6-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211103231327.385186-1-f.fainelli@gmail.com>
 References: <20211103231327.385186-1-f.fainelli@gmail.com>
@@ -79,67 +79,36 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The BCM7038 watchdog driver needs to be able to obtain a specific clock
-name on BCM63xx platforms which is the "periph" clock ticking at 50MHz.
-make it possible to specify the clock name to obtain via platform data.
+In order to phase out bcm63xx_wdt and use bcm7038_wdt instead, introduce
+a platform_device_id table that allows both names to be matched.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/watchdog/bcm7038_wdt.c            | 8 +++++++-
- include/linux/platform_data/bcm7038_wdt.h | 8 ++++++++
- 2 files changed, 15 insertions(+), 1 deletion(-)
- create mode 100644 include/linux/platform_data/bcm7038_wdt.h
+ drivers/watchdog/bcm7038_wdt.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index acaaa0005d5b..506cd7ef9c77 100644
+index 506cd7ef9c77..a8a0e8485125 100644
 --- a/drivers/watchdog/bcm7038_wdt.c
 +++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -10,6 +10,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/platform_data/bcm7038_wdt.h>
- #include <linux/pm.h>
- #include <linux/watchdog.h>
+@@ -223,8 +223,16 @@ static const struct of_device_id bcm7038_wdt_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
  
-@@ -133,8 +134,10 @@ static void bcm7038_clk_disable_unprepare(void *data)
- 
- static int bcm7038_wdt_probe(struct platform_device *pdev)
- {
-+	struct bcm7038_wdt_platform_data *pdata = pdev->dev.platform_data;
- 	struct device *dev = &pdev->dev;
- 	struct bcm7038_watchdog *wdt;
-+	const char *clk_name = NULL;
- 	int err;
- 
- 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-@@ -147,7 +150,10 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
- 
--	wdt->clk = devm_clk_get(dev, NULL);
-+	if (pdata && pdata->clk_name)
-+		clk_name = pdata->clk_name;
-+
-+	wdt->clk = devm_clk_get(dev, clk_name);
- 	/* If unable to get clock, use default frequency */
- 	if (!IS_ERR(wdt->clk)) {
- 		err = clk_prepare_enable(wdt->clk);
-diff --git a/include/linux/platform_data/bcm7038_wdt.h b/include/linux/platform_data/bcm7038_wdt.h
-new file mode 100644
-index 000000000000..e18cfd9ec8f9
---- /dev/null
-+++ b/include/linux/platform_data/bcm7038_wdt.h
-@@ -0,0 +1,8 @@
-+#ifndef __BCM7038_WDT_PDATA_H
-+#define __BCM7038_WDT_PDATA_H
-+
-+struct bcm7038_wdt_platform_data {
-+	const char *clk_name;
++static const struct platform_device_id bcm7038_wdt_devtype[] = {
++	{ .name = "bcm7038-wdt" },
++	{ .name = "bcm63xx-wdt" },
++	{ /* sentinel */ },
 +};
++MODULE_DEVICE_TABLE(platform, bcm7038_wdt_devtype);
 +
-+#endif /* __BCM7038_WDT_PDATA_H */
+ static struct platform_driver bcm7038_wdt_driver = {
+ 	.probe		= bcm7038_wdt_probe,
++	.id_table	= bcm7038_wdt_devtype,
+ 	.driver		= {
+ 		.name		= "bcm7038-wdt",
+ 		.of_match_table	= bcm7038_wdt_match,
 -- 
 2.25.1
 
