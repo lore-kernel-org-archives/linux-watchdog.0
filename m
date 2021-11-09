@@ -2,135 +2,183 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22DFEC433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Nov 2021 15:30:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6940C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Nov 2021 15:31:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3BC661215
-	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Nov 2021 15:30:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB362611CA
+	for <linux-watchdog@archiver.kernel.org>; Tue,  9 Nov 2021 15:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236974AbhKIPdB (ORCPT
+        id S238817AbhKIPdo (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 9 Nov 2021 10:33:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42512 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236981AbhKIPc6 (ORCPT
+        Tue, 9 Nov 2021 10:33:44 -0500
+Received: from www.linux-watchdog.org ([185.87.125.42]:39240 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236981AbhKIPdm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Nov 2021 10:32:58 -0500
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979BEC061766;
-        Tue,  9 Nov 2021 07:30:12 -0800 (PST)
-Received: by mail-ot1-x32a.google.com with SMTP id q33-20020a056830442100b0055abeab1e9aso31408386otv.7;
-        Tue, 09 Nov 2021 07:30:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0WsRLZzA+8WjebZk6MQ2yQcE7NyK/cID66AG50nvoVc=;
-        b=A3ZlGo23Y03n58pNlCX3VHiJ9bXqoKSn3wUaTr67d7afWz8UbNpvScGMEqMCV7Jrc3
-         ok3KIcMo7mXQa1KYm88SQyBLo0JasHLfF3gsxxPQzzGiFMQNeMcepBY/b1+ABOWJccMZ
-         yEwJARs6Iw9+PC8vu3aYoO+PDoqfy4XmCnc+lQ8PxgEw3H1hTiS/eJkab3JtQ+Ge3okZ
-         dxe8K3sEr4J/uAUbu89GY4vZmdJOM+d1QBM1CaGyNIUQTpx8XLeV/yGVbXj7gGLELnon
-         w3CNPvIQ9gEWjQ823XGQR7SbNZ35FdiaGj3qk5jRITqIIFEcdRUPOnmr6Ee5UVVT296X
-         Af2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0WsRLZzA+8WjebZk6MQ2yQcE7NyK/cID66AG50nvoVc=;
-        b=MEhWEEc8u+AVbLf3g2RHCFZ8wAwYh4IlrvZnotBipHNvit9bKUhFBwcsgFRb9kbYjJ
-         BnJXPPLintfvXtH0fALWJryEag8URjTDoF07hQXdQENMLy5S4m3jXLPzl304BX59q67c
-         vPLBLaqh90I/AWLmJbLZE/HfumrATzevPM/m9xgtMR/b0L8KsI+s7V2Dzs0QWMkZLFqd
-         fHUUeB41RqBVKbux70VUAvr+Dpce9DrC6kRhVV4yqZHaUdgqC4kCAhJO8zrWTA+6wg7p
-         zimPziYnmqYHEP3alrck2c94DYV5k81/rmzcVerroLhqjQXdCrHmmAqthkNtB8Z3T/fV
-         VZ+g==
-X-Gm-Message-State: AOAM533RnKJ+qWeUDLac2fJLd2knYtVI8eXG2wligJq9K1lQqo/mkzM9
-        dZHOE+goSMeNd3naZ96sCqV+tQ8TJ6g=
-X-Google-Smtp-Source: ABdhPJxpyLpi4skiHMAK0ayI3zl7zHHQ5Xt5N5DUoX1F1aZAsG4RL86djvldh6Ns7Zr1Ru4loTZMow==
-X-Received: by 2002:a9d:2ab:: with SMTP id 40mr6894622otl.208.1636471811989;
-        Tue, 09 Nov 2021 07:30:11 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f12sm3292856ote.75.2021.11.09.07.30.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Nov 2021 07:30:07 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH v4 3/3] watchdog: meson_gxbb_wdt: remove stop_on_reboot
-To:     Art Nikpal <email2tema@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Cc:     wim@linux-watchdog.org, Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        Tue, 9 Nov 2021 10:33:42 -0500
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id 5854040A08; Tue,  9 Nov 2021 15:05:40 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 5854040A08
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1636466747;
+        bh=Ca/EqhI6H4/tBr6sU9eDYFTOdR7fHeD62jwIH6GKZKI=;
+        h=Date:From:To:Cc:Subject:From;
+        b=gVFZfNhDBZRyY2dgzLxTt7A9smMhq2G7vyGuVY+MoZQ9yW/4HvIabQyxOlXv0IJl7
+         JvV/RZhM/98KifQSaXVK0nbfCMZHScc5G/IfxrtDmVxQgnNnAtCkEwopQyaGY7qSG2
+         XDJrnWIIsYJE8ny5Pb+QoaSqFtRJHOCu+iGI5d9k=
+Date:   Tue, 9 Nov 2021 15:05:40 +0100
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
-        Artem Lapkin <art@khadas.com>, Nick Xie <nick@khadas.com>,
-        Gouwa Wang <gouwa@khadas.com>
-References: <20210730041355.2810397-1-art@khadas.com>
- <20210730041355.2810397-4-art@khadas.com>
- <CAKaHn9KxZDAHdKGZg3-Pi3jZO5E3knESHCFjgaV09u5QYe074A@mail.gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <24363743-48fb-c01f-eb5d-0cd486d099f7@roeck-us.net>
-Date:   Tue, 9 Nov 2021 07:30:04 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Artem Lapkin <email2tema@gmail.com>,
+        Cai Huoqing <caihuoqing@baidu.com>,
+        Fengquan Chen <Fengquan.Chen@mediatek.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Primoz Fiser <primoz.fiser@norik.com>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        Samuel Holland <samuel@sholland.org>,
+        Tang Bin <tangbin@cmss.chinamobile.com>,
+        Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
+Subject: [GIT PULL REQUEST] watchdog - v5.16 Merge window
+Message-ID: <20211109140540.GA29107@www.linux-watchdog.org>
 MIME-Version: 1.0
-In-Reply-To: <CAKaHn9KxZDAHdKGZg3-Pi3jZO5E3knESHCFjgaV09u5QYe074A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 11/8/21 11:59 PM, Art Nikpal wrote:
-> hi Guenter Roeck
-> why still not merged to upstream ?
-> 
+Hi Linus,
 
-I had asked you to provide an updated description, without the "personal
-opinion" part which does not belong into a commit log. The other two
-patches wait for Wim to send them upstream.
+Please pull the watchdog changes for the v5.16 release cycle.
 
-Guenter
+This series contains:
+* f71808e_wdt: convert to watchdog framework
+* db8500_wdt: Rename driver (was ux500_wdt.c)
+* sunxi: Add compatibles for R329 and D1
+* mtk: add disable_wdt_extrst support
+* several other small fixes and improvements
 
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit cd004d8299f1dc6cfa6a4eea8f94cb45eaedf070:
 
-> On Fri, Jul 30, 2021 at 12:14 PM Artem Lapkin <email2tema@gmail.com> wrote:
->>
->> Remove watchdog_stop_on_reboot()
->>
->> Meson platform still have some hardware drivers problems for some
->> configurations which can freeze device on shutdown/reboot stage and i
->> think better to have reboot warranty by default.
->>
->> I feel that it is important to keep the watchdog running during the
->> reboot sequence, in the event that an abnormal driver freezes the reboot
->> process.
->>
->> This is my personal opinion and I hope the driver authors will agree
->> with my proposal, or just ignore this commit if not.
->>
->> https://lore.kernel.org/linux-watchdog/20210729072308.1908904-1-art@khadas.com/T/#t
->>
->> Signed-off-by: Artem Lapkin <art@khadas.com>
->> ---
->>   drivers/watchdog/meson_gxbb_wdt.c | 1 -
->>   1 file changed, 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/meson_gxbb_wdt.c b/drivers/watchdog/meson_gxbb_wdt.c
->> index 945f5e65db57..d3c9e2f6e63b 100644
->> --- a/drivers/watchdog/meson_gxbb_wdt.c
->> +++ b/drivers/watchdog/meson_gxbb_wdt.c
->> @@ -198,7 +198,6 @@ static int meson_gxbb_wdt_probe(struct platform_device *pdev)
->>
->>          meson_gxbb_wdt_set_timeout(&data->wdt_dev, data->wdt_dev.timeout);
->>
->> -       watchdog_stop_on_reboot(&data->wdt_dev);
->>          return devm_watchdog_register_device(dev, &data->wdt_dev);
->>   }
->>
->> --
->> 2.25.1
->>
+  watchdog: Fix OMAP watchdog early handling (2021-10-26 20:22:51 +0200)
+
+are available in the git repository at:
+
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.16-rc1
+
+for you to fetch changes up to c738888032ffafa1bbb971cd55b3d43b05b344cf:
+
+  watchdog: db8500_wdt: Rename symbols (2021-11-01 20:18:09 +0100)
+
+----------------------------------------------------------------
+linux-watchdog 5.16-rc1 tag
+
+----------------------------------------------------------------
+Ahmad Fatoum (7):
+      watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
+      watchdog: f71808e_wdt: remove superfluous global
+      watchdog: f71808e_wdt: constify static array
+      watchdog: f71808e_wdt: rename variant-independent identifiers appropriately
+      watchdog: f71808e_wdt: migrate to new kernel watchdog API
+      watchdog: f71808e_wdt: refactor to platform device/driver pair
+      watchdog: f71808e_wdt: dynamically allocate watchdog driver data
+
+Artem Lapkin (2):
+      watchdog: meson_gxbb_wdt: add nowayout parameter
+      watchdog: meson_gxbb_wdt: add timeout parameter
+
+Cai Huoqing (3):
+      watchdog: ar7_wdt: Make use of the helper function devm_platform_ioremap_resource_byname()
+      watchdog: iTCO_wdt: Make use of the helper function devm_platform_ioremap_resource()
+      watchdog: rti-wdt: Make use of the helper function devm_platform_ioremap_resource()
+
+Fengquan Chen (2):
+      dt-bindings: watchdog: mtk-wdt: add disable_wdt_extrst support
+      watchdog: mtk: add disable_wdt_extrst support
+
+Geert Uytterhoeven (1):
+      watchdog: rza_wdt: Use semicolons instead of commas
+
+Jackie Liu (1):
+      ar7: fix kernel builds for compiler test
+
+Krzysztof Kozlowski (1):
+      watchdog: s3c2410: describe driver in KConfig
+
+Linus Walleij (3):
+      watchdog: ux500_wdt: Drop platform data
+      watchdog: db8500_wdt: Rename driver
+      watchdog: db8500_wdt: Rename symbols
+
+Lukas Bulwahn (1):
+      watchdog: remove dead iop watchdog timer driver
+
+Mika Westerberg (1):
+      watchdog: iTCO_wdt: No need to stop the timer in probe
+
+Philipp Zabel (1):
+      watchdog: mlx-wdt: Use regmap_write_bits()
+
+Primoz Fiser (1):
+      watchdog: da9062: da9063: prevent pings ahead of machine reset
+
+Rafał Miłecki (1):
+      watchdog: bcm63xx_wdt: fix fallthrough warning
+
+Samuel Holland (3):
+      dt-bindings: watchdog: sunxi: Add compatibles for R329
+      dt-bindings: watchdog: sunxi: Add compatibles for D1
+      watchdog: sunxi_wdt: Add support for D1
+
+Tang Bin (1):
+      watchdog: stm32_iwdg: drop superfluous error message
+
+Thomas Weißschuh (1):
+      watchdog: sp5100_tco: Add support for get_timeleft
+
+ .../bindings/watchdog/allwinner,sun4i-a10-wdt.yaml |  48 +-
+ .../devicetree/bindings/watchdog/mtk-wdt.txt       |   2 +
+ drivers/mfd/db8500-prcmu.c                         |  13 +-
+ drivers/watchdog/Kconfig                           |  35 +-
+ drivers/watchdog/Makefile                          |   3 +-
+ drivers/watchdog/ar7_wdt.c                         |   6 +-
+ drivers/watchdog/bcm63xx_wdt.c                     |   2 +
+ drivers/watchdog/da9062_wdt.c                      |   7 +
+ drivers/watchdog/da9063_wdt.c                      |   7 +
+ drivers/watchdog/{ux500_wdt.c => db8500_wdt.c}     |  89 ++-
+ drivers/watchdog/f71808e_wdt.c                     | 615 +++++++--------------
+ drivers/watchdog/iTCO_wdt.c                        |  19 +-
+ drivers/watchdog/iop_wdt.c                         | 250 ---------
+ drivers/watchdog/meson_gxbb_wdt.c                  |  12 +
+ drivers/watchdog/mlx_wdt.c                         |   5 +-
+ drivers/watchdog/mtk_wdt.c                         |   7 +
+ drivers/watchdog/rti_wdt.c                         |   4 +-
+ drivers/watchdog/rza_wdt.c                         |   4 +-
+ drivers/watchdog/sp5100_tco.c                      |   9 +
+ drivers/watchdog/stm32_iwdg.c                      |   4 +-
+ drivers/watchdog/sunxi_wdt.c                       |  20 +-
+ include/linux/platform_data/ux500_wdt.h            |  18 -
+ 22 files changed, 384 insertions(+), 795 deletions(-)
+ rename drivers/watchdog/{ux500_wdt.c => db8500_wdt.c} (54%)
+ delete mode 100644 drivers/watchdog/iop_wdt.c
+ delete mode 100644 include/linux/platform_data/ux500_wdt.h
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
 
