@@ -2,57 +2,169 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B84BC433EF
-	for <linux-watchdog@archiver.kernel.org>; Sat, 13 Nov 2021 11:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F59C433EF
+	for <linux-watchdog@archiver.kernel.org>; Sat, 13 Nov 2021 11:47:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1593460FE7
-	for <linux-watchdog@archiver.kernel.org>; Sat, 13 Nov 2021 11:24:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10E956117A
+	for <linux-watchdog@archiver.kernel.org>; Sat, 13 Nov 2021 11:47:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbhKML1H (ORCPT
+        id S235634AbhKMLtz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 13 Nov 2021 06:27:07 -0500
-Received: from soltyk.jannau.net ([144.76.91.90]:54798 "EHLO soltyk.jannau.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231735AbhKML1H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 13 Nov 2021 06:27:07 -0500
-X-Greylist: delayed 602 seconds by postgrey-1.27 at vger.kernel.org; Sat, 13 Nov 2021 06:27:06 EST
-Received: by soltyk.jannau.net (Postfix, from userid 1000)
-        id 11E04261AB8; Sat, 13 Nov 2021 12:14:11 +0100 (CET)
-Date:   Sat, 13 Nov 2021 12:14:11 +0100
-From:   Janne Grunau <j@jannau.net>
-To:     Sven Peter <sven@svenpeter.dev>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sat, 13 Nov 2021 06:49:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232651AbhKMLtx (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 13 Nov 2021 06:49:53 -0500
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3305EC061766;
+        Sat, 13 Nov 2021 03:47:01 -0800 (PST)
+Received: by mail-lj1-x231.google.com with SMTP id z8so23837144ljz.9;
+        Sat, 13 Nov 2021 03:47:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7KkUIV1LwFCMjUl/KiUeHScGU6JLrELrF5Hve79Ozkg=;
+        b=Tiq/Vq0YRfm7QAGYOD6YtRdJihK9+CoePNBVXFNNVxfaUpqEnlEG4OspmsyVUoVy/o
+         vTroDEKfVz9f+pZ2V8CKrQrI3o/qV9fg2tZNAuDf3/t9xz7xDcJYq0hFBA0VJFCh2Fm4
+         Gbh/Tx/ya+rWtbO+OwBBOMTtfKeVJxq0FTtoRnhTtTuJooexTFfafVmp2/co3tIFrW74
+         YjBDimlBPxrdjQPwhiTSvGVsBXEUx7QDCFnKXbCEQBvHD1fpH/TLyhsw0D/bCbQ5Qeo+
+         xaYYzpumSwwIWhtJ4mDAh4AKkphCyIQHyVg4IeXZB+dmn+9pU1zTJTsh2ilGUUOvc6IY
+         mA0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7KkUIV1LwFCMjUl/KiUeHScGU6JLrELrF5Hve79Ozkg=;
+        b=GWzhtlCSCXxz45UI0736D3Q1ScDWVNEH1rAi3fw3tc4LD5mqdnpyhi82qSUjIZtL6f
+         b9tVm5886fG8oLAtw/kcdLTKfxMproN20AWOX/kSMuf9rEbT2nsEcNKOZRT4YkqF3C+s
+         aZPnjNK+9wpqQYk3cVHFkeDXBGu46zOWxSbFxZ1xNBM4uIGoEWs+CLeFZmoMhQnMHg+S
+         TP/fwv4Xiz4uyd6QKja1B1ZDiIcRUNBDrcVyM8C0MIriS3AkePwvICxzFICLwsVHkvzX
+         rvdUZo84ZP2SRKO5/jw8oN9nX1zNNv/zCRHRUs/TX33jmXxpbgWseWCpafBnYrPGnitg
+         RyDw==
+X-Gm-Message-State: AOAM530PNG/x2Dn0lFQf+zsFaKbCKj8V3uiL8VLTG4piSvmRvp5v9RNf
+        HpQZunkzgWGAup5hzEvBcQM=
+X-Google-Smtp-Source: ABdhPJxDvsFT7jq2E3FeQ+QBy8tzZ3rJlzya8Tm+RUV+xahNrNmGKPkDEZaWcBeAiVVGeCMKMpNj5w==
+X-Received: by 2002:a2e:890d:: with SMTP id d13mr22127238lji.396.1636804019397;
+        Sat, 13 Nov 2021 03:46:59 -0800 (PST)
+Received: from localhost.lan (ip-194-187-74-233.konfederacka.maverick.com.pl. [194.187.74.233])
+        by smtp.gmail.com with ESMTPSA id m8sm941676lfg.140.2021.11.13.03.46.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Nov 2021 03:46:58 -0800 (PST)
+From:   =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Hector Martin <marcan@marcan.st>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Kettenis <mark.kettenis@xs4all.nl>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com,
         linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/2] watchdog: Add Apple SoC watchdog driver
-Message-ID: <20211113111410.GB10073@jannau.net>
-References: <20211113094732.73889-1-sven@svenpeter.dev>
- <20211113094732.73889-2-sven@svenpeter.dev>
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH V4 1/2] dt-bindings: watchdog: convert Broadcom's WDT to the json-schema
+Date:   Sat, 13 Nov 2021 12:46:44 +0100
+Message-Id: <20211113114645.27360-1-zajec5@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211113094732.73889-2-sven@svenpeter.dev>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2021-11-13 10:47:32 +0100, Sven Peter wrote:
-> Add support for the watchdog timer found in Apple SoCs. This driver is
-> also required to reboot these machines.
+From: Rafał Miłecki <rafal@milecki.pl>
 
-Tested on a M1 Max with
-compatibe = "apple,t6000-wdt", "apple,wdt";
-MacOS 12 on the same machine does not use the watchdog for reset. MacOS 
-log output suggests that it uses a "pgmr" call for reset.
+This helps validating DTS files.
 
-Feel free to add
-Tested-by: Janne Grunau <j@jannau.net>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+V2: Use valid $id
+V3: Add "clocks" maxItems and include Rob's Reviewed-by
+---
+ .../bindings/watchdog/brcm,bcm7038-wdt.txt    | 19 ---------
+ .../bindings/watchdog/brcm,bcm7038-wdt.yaml   | 41 +++++++++++++++++++
+ 2 files changed, 41 insertions(+), 19 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
 
-Janne
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+deleted file mode 100644
+index 84122270be8f..000000000000
+--- a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-BCM7038 Watchdog timer
+-
+-Required properties:
+-
+-- compatible : should be "brcm,bcm7038-wdt"
+-- reg : Specifies base physical address and size of the registers.
+-
+-Optional properties:
+-
+-- clocks: The clock running the watchdog. If no clock is found the
+-	  driver will default to 27000000 Hz.
+-
+-Example:
+-
+-watchdog@f040a7e8 {
+-	compatible = "brcm,bcm7038-wdt";
+-	clocks = <&upg_fixed>;
+-	reg = <0xf040a7e8 0x16>;
+-};
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+new file mode 100644
+index 000000000000..ed6210666ead
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+@@ -0,0 +1,41 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/brcm,bcm7038-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: BCM7038 watchdog timer
++
++allOf:
++  - $ref: "watchdog.yaml#"
++
++maintainers:
++  - Florian Fainelli <f.fainelli@gmail.com>
++  - Justin Chen <justinpopo6@gmail.com>
++  - Rafał Miłecki <rafal@milecki.pl>
++
++properties:
++  compatible:
++    const: brcm,bcm7038-wdt
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++    description: >
++      The clock running the watchdog. If no clock is found the driver will
++      default to 27000000 Hz.
++
++unevaluatedProperties: false
++
++required:
++  - reg
++
++examples:
++  - |
++    watchdog@f040a7e8 {
++      compatible = "brcm,bcm7038-wdt";
++      reg = <0xf040a7e8 0x16>;
++      clocks = <&upg_fixed>;
++    };
+-- 
+2.31.1
+
