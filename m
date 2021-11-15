@@ -2,52 +2,110 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72AC1C433EF
-	for <linux-watchdog@archiver.kernel.org>; Sun, 14 Nov 2021 13:45:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00484C433FE
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Nov 2021 02:10:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E47461026
-	for <linux-watchdog@archiver.kernel.org>; Sun, 14 Nov 2021 13:45:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBA6960F46
+	for <linux-watchdog@archiver.kernel.org>; Mon, 15 Nov 2021 02:10:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235827AbhKNNsj (ORCPT
+        id S236232AbhKOCNa (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 14 Nov 2021 08:48:39 -0500
-Received: from rosenzweig.io ([138.197.143.207]:48428 "EHLO rosenzweig.io"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233638AbhKNNsh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 14 Nov 2021 08:48:37 -0500
-Date:   Sun, 14 Nov 2021 08:18:16 -0500
-From:   Alyssa Rosenzweig <alyssa@rosenzweig.io>
-To:     Sven Peter <sven@svenpeter.dev>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Hector Martin <marcan@marcan.st>,
+        Sun, 14 Nov 2021 21:13:30 -0500
+Received: from mail-oo1-f45.google.com ([209.85.161.45]:44648 "EHLO
+        mail-oo1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236191AbhKOCN3 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 14 Nov 2021 21:13:29 -0500
+Received: by mail-oo1-f45.google.com with SMTP id t9-20020a4a8589000000b002c5c4d19723so1081941ooh.11;
+        Sun, 14 Nov 2021 18:10:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=EcWazStHMBzkeUqUKg871NcAh5km8nD2bxzBNAKhSts=;
+        b=sjEr3aPBiEvX5PP+vKYRuTZ2OcFTeZazHUHB/o3jmv3xIBJ0zTsbIZWRWbg9DnvgXr
+         NzhDuvQ2KWCkGqYXd99Ssyw6fqEIJNDMMgNgCGFdj/VxUH1j5DPTIFRl5tPytEpGr4xo
+         poYyClwpDlqxz3Hq/G3OEwfJqyPZ6l/JhnuaeuOXJ1xWIkghA6eRVDs/tNJTKtsjWncZ
+         RFcC4VJKQN8hnCrHcgx86SajoVSOW6GhJ2BJEyr+HEBerj3MgEMdgRA4fSkVt9ErCZmW
+         Zk7HbvKXvU6hgQ9DiMScfJlKmDNX35tfan9wfTeolGU/YS9ci3YyCCXQup4SAnp13/kd
+         yYwg==
+X-Gm-Message-State: AOAM530RqRxEQk2xYpShYk2MDHo18tVAaatn3sQ8x2KQBV2NaYKDG/jr
+        2vDreYTpyOnSEBVyHrRZYk+eBXnYXw==
+X-Google-Smtp-Source: ABdhPJyQC8PXrpS/2xNBLC9mcCg4j3oZwxmowhchO5VctfLmSSbKl9dqq5AzmhwQB31Tgnq9HhS7Gw==
+X-Received: by 2002:a4a:da1a:: with SMTP id e26mr3719912oou.79.1636942234563;
+        Sun, 14 Nov 2021 18:10:34 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id l2sm2731307otl.61.2021.11.14.18.10.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Nov 2021 18:10:34 -0800 (PST)
+Received: (nullmailer pid 3712867 invoked by uid 1000);
+        Mon, 15 Nov 2021 02:10:32 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc:     Lee Jones <lee.jones@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Justin Chen <justinpopo6@gmail.com>,
+        =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
         Rob Herring <robh+dt@kernel.org>,
-        Mark Kettenis <mark.kettenis@xs4all.nl>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/2] watchdog: Add Apple SoC watchdog driver
-Message-ID: <YZEMmH49D+GZEewi@sunset>
-References: <20211113094732.73889-1-sven@svenpeter.dev>
- <20211113094732.73889-2-sven@svenpeter.dev>
- <YY/YnlCxLqdw/zAo@sunset>
- <95dea968-f452-4ba0-9b66-c9bc4269a52c@www.fastmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <95dea968-f452-4ba0-9b66-c9bc4269a52c@www.fastmail.com>
+        linux-arm-kernel@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org
+In-Reply-To: <20211113114645.27360-2-zajec5@gmail.com>
+References: <20211113114645.27360-1-zajec5@gmail.com> <20211113114645.27360-2-zajec5@gmail.com>
+Subject: Re: [PATCH V4 2/2] dt-bindings: mfd: add Broadcom's Timer-Watchdog block
+Date:   Sun, 14 Nov 2021 20:10:32 -0600
+Message-Id: <1636942232.944025.3712866.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-> >> + * This HW block has three separate watchdogs. WD0 resets the machine
-> >> + * to recovery mode and is not very useful for us. WD1 and WD2 trigger a normal
-> >> + * machine reset. WD0 additionally supports a configurable interrupt.
-> >
-> > Do we have any idea what the difference between WD1 and WD2 is?
+On Sat, 13 Nov 2021 12:46:45 +0100, Rafał Miłecki wrote:
+> From: Rafał Miłecki <rafal@milecki.pl>
 > 
-> I've never seen macOS write to WD2 when running in our hypervisor and only
-> found that one when I was looking at the rest of the MMIO region.
-> >From what I can tell it works exactly like WD1.
+> It's a block implementing few time related functions depending on a
+> (SoC specific) variant. At this point there is ready binding for a
+> watchdog only. Work on remaining subblocks (e.g. "reg" based reboot) is
+> in progress.
+> 
+> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> ---
+> V2: Update $id, description, compatible, example & commit message
+> V3: Drop "brcm,twd" from compatible list per Rob's review
+> ---
+>  .../devicetree/bindings/mfd/brcm,twd.yaml     | 61 +++++++++++++++++++
+>  1 file changed, 61 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/brcm,twd.yaml
+> 
 
-Makes sense, thanks.
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
+
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+Unknown file referenced: [Errno 2] No such file or directory: '/usr/local/lib/python3.8/dist-packages/dtschema/schemas/watchdog/brcm,bcm7038-wdt.yaml'
+xargs: dt-doc-validate: exited with status 255; aborting
+make[1]: *** Deleting file 'Documentation/devicetree/bindings/mfd/brcm,twd.example.dt.yaml'
+Unknown file referenced: [Errno 2] No such file or directory: '/usr/local/lib/python3.8/dist-packages/dtschema/schemas/watchdog/brcm,bcm7038-wdt.yaml'
+make[1]: *** [scripts/Makefile.lib:385: Documentation/devicetree/bindings/mfd/brcm,twd.example.dt.yaml] Error 255
+make[1]: *** Waiting for unfinished jobs....
+make: *** [Makefile:1441: dt_binding_check] Error 2
+
+doc reference errors (make refcheckdocs):
+
+See https://patchwork.ozlabs.org/patch/1554679
+
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
+
