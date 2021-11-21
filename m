@@ -2,146 +2,127 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3DA2C433EF
-	for <linux-watchdog@archiver.kernel.org>; Sun, 21 Nov 2021 16:58:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C274EC4332F
+	for <linux-watchdog@archiver.kernel.org>; Sun, 21 Nov 2021 17:20:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238435AbhKURBU (ORCPT
+        id S238304AbhKURXr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 21 Nov 2021 12:01:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42938 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237304AbhKURAB (ORCPT
+        Sun, 21 Nov 2021 12:23:47 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:49658
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236719AbhKURXq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 21 Nov 2021 12:00:01 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E09C061714
-        for <linux-watchdog@vger.kernel.org>; Sun, 21 Nov 2021 08:56:55 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id b1so68822383lfs.13
-        for <linux-watchdog@vger.kernel.org>; Sun, 21 Nov 2021 08:56:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=avAIqxonoUpxUgZ8evBQJpwJeOjfCUq9oOQFKLq1vLw=;
-        b=l8/nixacKiaxqNeKCxYAE0IUTq5hEDB8TTXvtvby/62PVSbNYfYY6252ILQpVGtR7i
-         sbemH3A5gPoGfbrUD6LEW5wIvv6tC1kb1A0t7BeDEdUIMRdwCB1hjNGnjc+9H9rCRsNk
-         DXXISrdJn5HHIZXbdLJHiG7Y9ItMeM9TZ/ES3JmOx0e9G2qGzUZuOSe92a6M6u1aOFXF
-         R22l12gpRGIxgeJkSiXfNQEeK9ADL6+2q2qrx6U5YawFgqS88WzYpaQkcQoT9LLaob7N
-         eOcCpXMC44QyGjOw6QQmYqcDhm4wHPqsDR75s6Mh7apWxp9VUt9JGFwMxszPSsQmLQuf
-         wyZg==
+        Sun, 21 Nov 2021 12:23:46 -0500
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com [209.85.167.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id A86063F1C0
+        for <linux-watchdog@vger.kernel.org>; Sun, 21 Nov 2021 17:20:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1637515240;
+        bh=NhrY2YoYU8o49TvBH2U7Xc9BTYaL2Sw0oQZK6cM53jg=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=A790Fe7d5Pgr4WRmbxlyDsOGjRddmKqGwOMTmQxiWXNZew6AO3HSTQi0xA7QXb0Dx
+         hmNXHB9/QmjKlRYGTwOVm2o7fWVcnlC/bKIHrSeiOgXUhHyIBAdV/Flc0ebjx8DhAf
+         IgSWMLr6UtXeoV2V1ZvpCGv0Gabme1r+kvMK/wBgI53dO+SwOli91pib9xB4KSAg6K
+         kVvUPmC+qOtRmup8H/GpkWsbdMaoivXvmF9cAVjY9i9yW4c0rjoP0yPZPhLqAkHL+W
+         30ADOV0kFUtwM52dgrERdvW4q2gEwGZhlWro/smYJVzMtOogIG/rohMYiCSo0/tZ9t
+         doEwsPohFB8AA==
+Received: by mail-lf1-f71.google.com with SMTP id c40-20020a05651223a800b004018e2f2512so10359121lfv.11
+        for <linux-watchdog@vger.kernel.org>; Sun, 21 Nov 2021 09:20:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=avAIqxonoUpxUgZ8evBQJpwJeOjfCUq9oOQFKLq1vLw=;
-        b=lvRKQf2zZPbolvniXZiZVUmWjH4ITUtaAlIfyxzcxX2nKOxyXqGgO/p623Gock7wH2
-         R+r6z5nKgKui00JyoL8XSlo/oeoRHNSnAelUWeJKEEfgORJu2qm7Pl8LGJwWsE1XsC4Z
-         UrT3A0Yx75xomqiPdReV7lYzeFR4Wku87wsUzNIumH0/HluhNji2meDF1bWk/+Do8jDK
-         pZN+R07aAMX9QDWyejYcmzToBLtL60CHt72ez/QKd2CzKRXne10s3/mby4YuPQjOXcJs
-         mtdvVf1rdD2fR7GVJEvrm/Cu5DsLtmfMtg4+g899hI58CQOp90s+wAc6LmD6JQ8EYOZs
-         vELg==
-X-Gm-Message-State: AOAM532Z/7CbpiWFVCUTsCIbqZ2hRIqI6HIy/gxcjdjOzBKO2y0h8cHy
-        g8Pg3Q7q3opPAGldQOFK+G/9FA==
-X-Google-Smtp-Source: ABdhPJwYEKjZatumNr73KLVhsFjF7ggTEf2VUTH3bcl9kKsPaJy+T2FEelvbOp4Uw4qCh4SilM5EBQ==
-X-Received: by 2002:a05:651c:2dd:: with SMTP id f29mr44338195ljo.464.1637513814116;
-        Sun, 21 Nov 2021 08:56:54 -0800 (PST)
-Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id s15sm688642lfp.252.2021.11.21.08.56.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Nov 2021 08:56:53 -0800 (PST)
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH v4 03/12] watchdog: s3c2410: Fail probe if can't find valid timeout
-Date:   Sun, 21 Nov 2021 18:56:38 +0200
-Message-Id: <20211121165647.26706-4-semen.protsenko@linaro.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211121165647.26706-1-semen.protsenko@linaro.org>
-References: <20211121165647.26706-1-semen.protsenko@linaro.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=NhrY2YoYU8o49TvBH2U7Xc9BTYaL2Sw0oQZK6cM53jg=;
+        b=n2vyfWJU/3lsCw+dQGK0G4du3iDDfArz6Rp0zdJJvTfSR5k+pjX2t5NGmA+M+eAJJ2
+         d380CTbP6AG1Fyiz4Axc6oAHInnDO+xMJIp240GQVUL2fJnTA/pliN6c+Mud8kAHAWXu
+         k9ifed6lCUc5o3EQWqt6/HrYrbHXBKIYfHWjeEJVibRbmyqOi8zQErT/CFK5A1MwhyzO
+         GjZE6wQviO8MW8AXwZ3+67w54pVextEZeldk71wQ9CCaEeAY0BkMM78ttkWQ3wOEOnFW
+         dX/jA3vV8ynR5oPxsNRkqR0vfdipcGnWnLqtlt/Y2qb8a08m7xQn6GEAFWe+0X8ZQ1o1
+         ClBw==
+X-Gm-Message-State: AOAM532nd8JWhdcpvqHfe4a4qYpDkBbPer89mT0fX/h86Xhe8aksR6Wk
+        rKb0CLgM6nBXSHSkMw0d6MP1xDNhxZE2ez4P111tAnOaVtKQhyTB/bBXJAcDsPHiAU4ZnfTQNFJ
+        ryFBdMo1v3ZwbD3fEUirjGvgfibj0NWBM1oGVuBcXur+M
+X-Received: by 2002:a05:6512:3996:: with SMTP id j22mr52673219lfu.637.1637515239414;
+        Sun, 21 Nov 2021 09:20:39 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw3OJlK6L++IcfAoz7b9WAy/3faXnNWTTp/ncrpwEtPTPXJ5uUwkzUh2rlxkju/Nt2T4ynj0w==
+X-Received: by 2002:a05:6512:3996:: with SMTP id j22mr52673176lfu.637.1637515239152;
+        Sun, 21 Nov 2021 09:20:39 -0800 (PST)
+Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id m8sm799964lfg.140.2021.11.21.09.20.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 21 Nov 2021 09:20:36 -0800 (PST)
+Message-ID: <42516013-3b4e-0c05-5e4a-5a1fe9ff942b@canonical.com>
+Date:   Sun, 21 Nov 2021 18:20:34 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH v4 5/9] mfd: max77714: Add driver for Maxim MAX77714 PMIC
+Content-Language: en-US
+To:     Luca Ceresoli <luca@lucaceresoli.net>, linux-kernel@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Chiwoong Byun <woong.byun@samsung.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Randy Dunlap <rdunlap@infradead.org>
+References: <20211120155707.4019487-1-luca@lucaceresoli.net>
+ <20211120155707.4019487-6-luca@lucaceresoli.net>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20211120155707.4019487-6-luca@lucaceresoli.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Driver can't work properly if there no valid timeout was found in
-s3c2410wdt_set_heartbeat(). Ideally, that function should be reworked in
-a way that it's always able to find some valid timeout. As a temporary
-solution let's for now just fail the driver probe in case the valid
-timeout can't be found in s3c2410wdt_set_heartbeat() function.
+On 20/11/2021 16:57, Luca Ceresoli wrote:
+> Add a simple driver for the Maxim MAX77714 PMIC, supporting RTC and
+> watchdog only.
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> 
+> ---
+> 
+> Changes in v4: none
+> 
+> Changes in v3:
+>  - Suggested by Lee Jones:
+>    - move struct mfd_cell to top of file
+>    - remove struct max77714 and its kmalloc, not used after probe
+>    - reword error messages
+>    - add "/* pF */" onto the end of the load_cap line
+> 
+> Changes in v2:
+>  - fix "watchdog" word in heading comment (Guenter Roeck)
+>  - move struct max77714 to .c file (Krzysztof Kozlowski)
+>  - change include guard format (Krzysztof Kozlowski)
+>  - allow building as a module (Krzysztof Kozlowski)
+>  - remove of_match_ptr usage (Krzysztof Kozlowski / lkp)
+>    (Reported-by: kernel test robot <lkp@intel.com>)
+> ---
+>  MAINTAINERS                  |   2 +
+>  drivers/mfd/Kconfig          |  14 ++++
+>  drivers/mfd/Makefile         |   1 +
+>  drivers/mfd/max77714.c       | 152 +++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/max77714.h |  60 ++++++++++++++
+>  5 files changed, 229 insertions(+)
+>  create mode 100644 drivers/mfd/max77714.c
+>  create mode 100644 include/linux/mfd/max77714.h
+> 
 
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
+
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
-Changes in v4:
-  - Added R-b tag by Guenter Roeck
 
-Changes in v3:
-  - Added R-b tag by Krzysztof Kozlowski
 
-Changes in v2:
-  - (none): it's a new patch
-
- drivers/watchdog/s3c2410_wdt.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 2395f353e52d..00421cf22556 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -515,7 +515,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	struct s3c2410_wdt *wdt;
- 	struct resource *wdt_irq;
- 	unsigned int wtcon;
--	int started = 0;
- 	int ret;
- 
- 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-@@ -581,15 +580,15 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
- 					wdt->wdt_device.timeout);
- 	if (ret) {
--		started = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
--					S3C2410_WATCHDOG_DEFAULT_TIME);
--
--		if (started == 0)
--			dev_info(dev,
--				 "tmr_margin value out of range, default %d used\n",
-+		ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
-+					       S3C2410_WATCHDOG_DEFAULT_TIME);
-+		if (ret == 0) {
-+			dev_warn(dev, "tmr_margin value out of range, default %d used\n",
- 				 S3C2410_WATCHDOG_DEFAULT_TIME);
--		else
--			dev_info(dev, "default timer value is out of range, cannot start\n");
-+		} else {
-+			dev_err(dev, "failed to use default timeout\n");
-+			goto err_cpufreq;
-+		}
- 	}
- 
- 	ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
-@@ -613,10 +612,10 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto err_unregister;
- 
--	if (tmr_atboot && started == 0) {
-+	if (tmr_atboot) {
- 		dev_info(dev, "starting watchdog timer\n");
- 		s3c2410wdt_start(&wdt->wdt_device);
--	} else if (!tmr_atboot) {
-+	} else {
- 		/* if we're not enabling the watchdog, then ensure it is
- 		 * disabled if it has been left running from the bootloader
- 		 * or other source */
--- 
-2.30.2
-
+Best regards,
+Krzysztof
