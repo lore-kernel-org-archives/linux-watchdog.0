@@ -2,44 +2,41 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 091A5C433EF
-	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Nov 2021 08:33:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49B5AC433F5
+	for <linux-watchdog@archiver.kernel.org>; Wed, 24 Nov 2021 09:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240896AbhKXIgS (ORCPT
+        id S230029AbhKXJDX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 24 Nov 2021 03:36:18 -0500
-Received: from cpanel.siel.si ([46.19.9.99]:47024 "EHLO cpanel.siel.si"
+        Wed, 24 Nov 2021 04:03:23 -0500
+Received: from cpanel.siel.si ([46.19.9.99]:53072 "EHLO cpanel.siel.si"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240831AbhKXIgR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 Nov 2021 03:36:17 -0500
+        id S229566AbhKXJDW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 24 Nov 2021 04:03:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=0GFj0ec5nvqhJicygYIAPY76a2qiNJxCIyQsOhKxA64=; b=RACAbDAe23kvZ4Emc1mQGF6zsA
-        euZ21JKF+F70DH7Bf94xW7w0Ypo8jLeOKuOO1VuAlch2Kk7Sr4K00/YVMzb7bTxOu+DUMyRzBWDbK
-        mgXQ5pWRgHiwCV3PXHQQAyyKAyD94MkakKBwS+UGsPnwu/kSkwl/weT2QiKNpEC7fYozFVdH4qW+k
-        CEM1lirok3TYMACYgtKdU3+RIn+wKJ+OLJvDtCk6C2kA+2KEG2OvpyePWRnk+Lr6trnZB4zlAjYS/
-        84qk0xIRQqiGvkkXxG6hU1AkXQh6ZweGeYYxJtS0fD6OrKC4Ld3jJGebcd5cvhuVGT3xjnSyBWvzC
-        ub5Uy67Q==;
-Received: from [89.212.21.243] (port=40936 helo=localhost.localdomain)
+        bh=gaygclyJZpzbxv+h2cP2IMtq9E7VELCJFUngccvwCL8=; b=RoBqk2NKAn76/9Tqhgkz8ZHAkp
+        U4PN+qla/fQ8wq+twFGSJKc6stW5bns8NOUL231v8BALQCJDdU8DnHIUkSeJmq37qEAKlo58rfWG6
+        cSZcCwnU0L0xXCR7mOTRo5uL0QGGe05WvlURfM6Cgp8laovI2+OeWHsKwQK3eoaHQAc+MH/nFBzzX
+        XXDrcuYJo8d+HKM6FRKOSlYXcdK24TtSA2VNKVLEhhP7SvbNfjd9vGA9LpyFEVRscUoy/VcZ0svED
+        /xDOh7AMLArZpeUM9rGmgLMQiinwCJKORdDW4j/RufuIVWSUvQ+9Tbly14QkMZUcoc1b1NsNLdZws
+        vaY3rBJQ==;
+Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:40314 helo=localhost.localdomain)
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.94.2)
         (envelope-from <andrej.picej@norik.com>)
-        id 1mpni2-006FoM-J7; Wed, 24 Nov 2021 09:33:01 +0100
+        id 1mpnIp-006BLM-Ot; Wed, 24 Nov 2021 09:06:59 +0100
 From:   Andrej Picej <andrej.picej@norik.com>
 To:     support.opensource@diasemi.com, wim@linux-watchdog.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Cc:     andrej.picej@norik.com, y.bas@phytec.de,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] watchdog: da9062: reset board on watchdog timeout
-Date:   Wed, 24 Nov 2021 09:32:58 +0100
-Message-Id: <20211124083258.2606511-2-andrej.picej@norik.com>
+Cc:     andrej.picej@norik.com, y.bas@phytec.de
+Subject: [PATCH] watchdog: da9063: use atomic safe i2c transfer in reset handler
+Date:   Wed, 24 Nov 2021 09:06:54 +0100
+Message-Id: <20211124080654.2601135-1-andrej.picej@norik.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211124083258.2606511-1-andrej.picej@norik.com>
-References: <20211124083258.2606511-1-andrej.picej@norik.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -56,46 +53,53 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Stefan Christ <s.christ@phytec.de>
+From: Yunus Bas <y.bas@phytec.de>
 
-In the default fuse configuration the watchdog poweroffs the system
-instead of resetting it on a watchdog timeout. This patch changes the
-behavior. Now the board is reseted and reboots.
+This patch is based on commit 057b52b4b3d5 ("watchdog: da9062: make restart
+handler atomic safe"), which uses the atomic transfer capability of the
+i2c framework.
 
-Note: This patch requires that the config register CONFIG_I is
-configured as writable in the da9062 multi function device.
-
-Signed-off-by: Stefan Christ <s.christ@phytec.de>
+Signed-off-by: Yunus Bas <y.bas@phytec.de>
 Signed-off-by: Andrej Picej <andrej.picej@norik.com>
 ---
- drivers/watchdog/da9062_wdt.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/watchdog/da9063_wdt.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index f02cbd530538..a04613e68f4a 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -87,6 +87,20 @@ static int da9062_wdt_start(struct watchdog_device *wdd)
- 	unsigned int selector;
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index d79ce64e26a9..9adad1862bbd 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -14,6 +14,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
++#include <linux/i2c.h>
+ #include <linux/delay.h>
+ #include <linux/mfd/da9063/registers.h>
+ #include <linux/mfd/da9063/core.h>
+@@ -169,14 +170,19 @@ static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 			      void *data)
+ {
+ 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
++	struct i2c_client *client = to_i2c_client(da9063->dev);
  	int ret;
  
-+	/*
-+	 * Use da9062's SHUTDOWN mode instead of POWERDOWN for watchdog reset.
-+	 * On timeout the PMIC should reset the system, not powering it
-+	 * off.
-+	 */
-+	ret = regmap_update_bits(wdt->hw->regmap,
-+				 DA9062AA_CONFIG_I,
-+				 DA9062AA_WATCHDOG_SD_MASK,
-+				 DA9062AA_WATCHDOG_SD_MASK);
-+	if (ret)
-+		dev_err(wdt->hw->dev,
-+			"failed to set wdt reset mode. Expect poweroff on watchdog reset: %d\n",
-+			ret);
+-	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+-			   DA9063_SHUTDOWN);
+-	if (ret)
++	/* Don't use regmap because it is not atomic safe */
++	ret = i2c_smbus_write_byte_data(client, DA9063_REG_CONTROL_F,
++					DA9063_SHUTDOWN);
++	if (ret < 0)
+ 		dev_alert(da9063->dev, "Failed to shutdown (err = %d)\n",
+ 			  ret);
+ 
++	/* wait for reset to assert... */
++	mdelay(500);
 +
- 	selector = da9062_wdt_timeout_to_sel(wdt->wdtdev.timeout);
- 	ret = da9062_wdt_update_timeout_register(wdt, selector);
- 	if (ret)
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
