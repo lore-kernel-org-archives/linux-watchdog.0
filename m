@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0558C433FE
-	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:24:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2226AC433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:26:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbhKZO2C (ORCPT
+        id S1377819AbhKZOaF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 26 Nov 2021 09:28:02 -0500
+        Fri, 26 Nov 2021 09:30:05 -0500
 Received: from lizzard.sbs.de ([194.138.37.39]:57752 "EHLO lizzard.sbs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240922AbhKZO0C (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Nov 2021 09:26:02 -0500
+        id S1353694AbhKZO2E (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Nov 2021 09:28:04 -0500
 X-Greylist: delayed 713 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 09:26:01 EST
 Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 1AQEAVDo014275
+        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 1AQEAYI6014284
         (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 26 Nov 2021 15:10:31 +0100
+        Fri, 26 Nov 2021 15:10:34 +0100
 Received: from localhost.localdomain ([139.22.47.90])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 1AQEAUXF030519;
-        Fri, 26 Nov 2021 15:10:30 +0100
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 1AQEAUXJ030519;
+        Fri, 26 Nov 2021 15:10:33 +0100
 From:   Henning Schild <henning.schild@siemens.com>
 To:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
@@ -33,91 +33,159 @@ Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Pavel Machek <pavel@ucw.cz>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Enrico Weigelt <lkml@metux.net>
-Subject: [PATCH v4 0/4] add device drivers for Siemens Industrial PCs
-Date:   Fri, 26 Nov 2021 15:10:23 +0100
-Message-Id: <20211126141027.16161-1-henning.schild@siemens.com>
+        Enrico Weigelt <lkml@metux.net>,
+        Michael Haener <michael.haener@siemens.com>
+Subject: [PATCH v4 4/4] platform/x86: pmc_atom: improve critclk_systems matching for Siemens PCs
+Date:   Fri, 26 Nov 2021 15:10:27 +0100
+Message-Id: <20211126141027.16161-5-henning.schild@siemens.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211126141027.16161-1-henning.schild@siemens.com>
+References: <20211126141027.16161-1-henning.schild@siemens.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-changes since v3:
+Siemens industrial PCs unfortunately can not always be properly
+identified the way we used to. An earlier commit introduced code that
+allows proper identification without looking at DMI strings that could
+differ based on product branding.
+Switch over to that proper way and revert commits that used to collect
+the machines based on unstable strings.
 
-- fix io access width and region reservations
-- fix style in p1
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Fixes: e8796c6c69d1 ("platform/x86: pmc_atom: Add Siemens CONNECT ...")
+Fixes: f110d252ae79 ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
+Fixes: ad0d315b4d4e ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
+Tested-by: Michael Haener <michael.haener@siemens.com>
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+---
+ drivers/platform/x86/pmc_atom.c | 54 ++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
 
-changes since v2:
-
-- remove "simatic-ipc" prefix from LED names
-- fix style issues found in v2, mainly LED driver
-- fix OEM specific dmi code, and remove magic numbers
-- more "simatic_ipc" name prefixing
-- improved pmc quirk code using callbacks
-
-changes since v1:
-
-- fixed lots of style issues found in v1
-  - (debug) printing
-  - header ordering
-- fixed license issues GPLv2 and SPDX in all files
-- module_platform_driver instead of __init __exit
-- wdt simplifications cleanup
-- lots of fixes in wdt driver, all that was found in v1
-- fixed dmi length in dmi helper
-- changed LED names to allowed ones
-- move led driver to simple/
-- switched pmc_atom to dmi callback with global variable
-
-
-This series adds support for watchdogs and leds of several x86 devices
-from Siemens.
-
-It is structured with a platform driver that mainly does identification
-of the machines. It might trigger loading of the actual device drivers
-by attaching devices to the platform bus.
-
-The identification is vendor specific, parsing a special binary DMI
-entry. The implementation of that platform identification is applied on
-pmc_atom clock quirks in the final patch.
-
-It is all structured in a way that we can easily add more devices and
-more platform drivers later. Internally we have some more code for
-hardware monitoring, more leds, watchdogs etc. This will follow some
-day.
-
-Henning Schild (4):
-  platform/x86: simatic-ipc: add main driver for Siemens devices
-  leds: simatic-ipc-leds: add new driver for Siemens Industial PCs
-  watchdog: simatic-ipc-wdt: add new driver for Siemens Industrial PCs
-  platform/x86: pmc_atom: improve critclk_systems matching for Siemens
-    PCs
-
- drivers/leds/Kconfig                          |   3 +
- drivers/leds/Makefile                         |   3 +
- drivers/leds/simple/Kconfig                   |  11 +
- drivers/leds/simple/Makefile                  |   2 +
- drivers/leds/simple/simatic-ipc-leds.c        | 202 ++++++++++++++++
- drivers/platform/x86/Kconfig                  |  12 +
- drivers/platform/x86/Makefile                 |   3 +
- drivers/platform/x86/pmc_atom.c               |  54 +++--
- drivers/platform/x86/simatic-ipc.c            | 168 +++++++++++++
- drivers/watchdog/Kconfig                      |  11 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/simatic-ipc-wdt.c            | 228 ++++++++++++++++++
- .../platform_data/x86/simatic-ipc-base.h      |  29 +++
- include/linux/platform_data/x86/simatic-ipc.h |  72 ++++++
- 14 files changed, 778 insertions(+), 21 deletions(-)
- create mode 100644 drivers/leds/simple/Kconfig
- create mode 100644 drivers/leds/simple/Makefile
- create mode 100644 drivers/leds/simple/simatic-ipc-leds.c
- create mode 100644 drivers/platform/x86/simatic-ipc.c
- create mode 100644 drivers/watchdog/simatic-ipc-wdt.c
- create mode 100644 include/linux/platform_data/x86/simatic-ipc-base.h
- create mode 100644 include/linux/platform_data/x86/simatic-ipc.h
-
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index a9d2a4b98e57..a40fae6edc84 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/platform_data/x86/clk-pmc-atom.h>
+ #include <linux/platform_data/x86/pmc_atom.h>
++#include <linux/platform_data/x86/simatic-ipc.h>
+ #include <linux/platform_device.h>
+ #include <linux/pci.h>
+ #include <linux/seq_file.h>
+@@ -362,6 +363,30 @@ static void pmc_dbgfs_register(struct pmc_dev *pmc)
+ }
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static bool pmc_clk_is_critical = true;
++
++static int dmi_callback(const struct dmi_system_id *d)
++{
++	pr_info("%s critclks quirk enabled\n", d->ident);
++
++	return 1;
++}
++
++static int dmi_callback_siemens(const struct dmi_system_id *d)
++{
++	u32 st_id;
++
++	if (dmi_walk(simatic_ipc_find_dmi_entry_helper, &st_id))
++		goto out;
++
++	if (st_id == SIMATIC_IPC_IPC227E || st_id == SIMATIC_IPC_IPC277E)
++		return dmi_callback(d);
++
++out:
++	pmc_clk_is_critical = false;
++	return 1;
++}
++
+ /*
+  * Some systems need one or more of their pmc_plt_clks to be
+  * marked as critical.
+@@ -370,6 +395,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
+ 		.ident = "MPL CEC1x",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
+@@ -378,6 +404,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
+ 		.ident = "Lex 3I380D",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
+@@ -386,6 +413,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+ 		.ident = "Lex 2I385SW",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
+@@ -394,30 +422,17 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+ 		.ident = "Beckhoff Baytrail",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
+ 		},
+ 	},
+ 	{
+-		.ident = "SIMATIC IPC227E",
++		.ident = "SIEMENS AG",
++		.callback = dmi_callback_siemens,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
+-		},
+-	},
+-	{
+-		.ident = "SIMATIC IPC277E",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "6AV7882-0"),
+-		},
+-	},
+-	{
+-		.ident = "CONNECT X300",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
+ 		},
+ 	},
+ 
+@@ -429,7 +444,6 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ {
+ 	struct platform_device *clkdev;
+ 	struct pmc_clk_data *clk_data;
+-	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
+ 
+ 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
+ 	if (!clk_data)
+@@ -437,10 +451,8 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ 
+ 	clk_data->base = pmc_regmap; /* offset is added by client */
+ 	clk_data->clks = pmc_data->clks;
+-	if (d) {
+-		clk_data->critical = true;
+-		pr_info("%s critclks quirk enabled\n", d->ident);
+-	}
++	if (dmi_check_system(critclk_systems))
++		clk_data->critical = pmc_clk_is_critical;
+ 
+ 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
+ 					       PLATFORM_DEVID_NONE,
 -- 
 2.32.0
 
