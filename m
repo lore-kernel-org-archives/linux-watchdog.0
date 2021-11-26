@@ -2,190 +2,134 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2226AC433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:26:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DA48C433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:37:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377819AbhKZOaF (ORCPT
+        id S1377668AbhKZOlG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 26 Nov 2021 09:30:05 -0500
-Received: from lizzard.sbs.de ([194.138.37.39]:57752 "EHLO lizzard.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353694AbhKZO2E (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Nov 2021 09:28:04 -0500
-X-Greylist: delayed 713 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 09:26:01 EST
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 1AQEAYI6014284
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 26 Nov 2021 15:10:34 +0100
-Received: from localhost.localdomain ([139.22.47.90])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 1AQEAUXJ030519;
-        Fri, 26 Nov 2021 15:10:33 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
+        Fri, 26 Nov 2021 09:41:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37418 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377828AbhKZOjG (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Nov 2021 09:39:06 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB14C0619DE;
+        Fri, 26 Nov 2021 06:03:25 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id w1so39517069edc.6;
+        Fri, 26 Nov 2021 06:03:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=JBMGUDVxwKtvGxZl8Me4y2JzyAcn1+e3Ny5rJgr5yXo=;
+        b=GTvJ+9xGy0b+U9k5O+gjafXYaURTKxwOjBRV82D0mrG4fmhpjqkJSx/m14EMsuLBgy
+         xWVBppUlJvyRIaID1UHB4qCw45EEeWY9CCKPtgqH9FdbfKkJtGDh6W1ABKhsk5XD9pG/
+         +CjLOF5PlKRtNZRKinhuNaVP30boQ/ZRARpSE1QPYN9zVtMnS/w623fEPkugwgbQldmE
+         jea4JICn6QFcOiaFxxMscNlSfR2QwHtKNlg9pgCvFUnDSKn7yed6m2E11K3p39RuS9Xg
+         CHPr2DXhgFfZ3e31K5VY+ZJgzhVN9LqkDXg0Ml1z2gi/wwtWz7JhqmZm35kR60tNaN2X
+         h7aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=JBMGUDVxwKtvGxZl8Me4y2JzyAcn1+e3Ny5rJgr5yXo=;
+        b=BdNSk8VU/2NiaiI06caXgd0DWFMzX1jkhKQ/gvXxiWjAzRh2CGm9QIHKzvD9Rc2e43
+         g2bxXKaoaT+tEHLJK6+PBXihMXZlPHRT6BQq5YA2AJI8VgREUBQXhhC5t4ce9SkcPmU0
+         V0ol9ZiHqgyo5kIOuO/0vBg4udHj30SYNHNhh9ywFOqTdkiParGwXzRqTcnYPX2ndFdK
+         wXKGk1i/wc+ajArPVLv5JGFo/JIVxfexa/KeDahcFqp9OD2AcvfkwRU2yNpuusAAfjC5
+         /A7gY6HYz9EPnmBp8ya+Nsq+Fcw/KZOryLSkYUvtPA1wsM3hZXHMhbeZjCQbWOEQVMMo
+         cEpg==
+X-Gm-Message-State: AOAM533hyHwYRt/arfNneOPdwyEQKQ9+GHIb13WPUpYbTug6wjxOah0g
+        FxcXjBgFbmTbpfifs832OkUH0PAZYt9+EDrUzEY=
+X-Google-Smtp-Source: ABdhPJwQcvfywxLUOt/7eTZuUFffT9ho18Gm9PwKOl+HSnZEPb47vv8qfxiuT32OkPVQ9/VpvEuQO9pn+dI3MI5yF/U=
+X-Received: by 2002:a50:d741:: with SMTP id i1mr47189263edj.37.1637935404131;
+ Fri, 26 Nov 2021 06:03:24 -0800 (PST)
+MIME-Version: 1.0
+References: <20210329174928.18816-1-henning.schild@siemens.com>
+ <20210329174928.18816-3-henning.schild@siemens.com> <CAHp75Vdh_YAJLE4DWPhxhYY1g5Fc_7EFgr4FED3crpfpzwXeRg@mail.gmail.com>
+ <20211126142827.78d2348d@md1za8fc.ad001.siemens.net>
+In-Reply-To: <20211126142827.78d2348d@md1za8fc.ad001.siemens.net>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Fri, 26 Nov 2021 16:02:48 +0200
+Message-ID: <CAHp75VeX89T7t=Q7-q56sndbfRyuPDEUjSMsMFo4sS8cb9AAmw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/4] leds: simatic-ipc-leds: add new driver for Siemens
+ Industial PCs
+To:     Henning Schild <henning.schild@siemens.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        Srikanth Krishnakar <skrishnakar@gmail.com>,
         Jan Kiszka <jan.kiszka@siemens.com>,
-        Henning Schild <henning.schild@siemens.com>,
         Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mark Gross <mgross@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Enrico Weigelt <lkml@metux.net>,
-        Michael Haener <michael.haener@siemens.com>
-Subject: [PATCH v4 4/4] platform/x86: pmc_atom: improve critclk_systems matching for Siemens PCs
-Date:   Fri, 26 Nov 2021 15:10:27 +0100
-Message-Id: <20211126141027.16161-5-henning.schild@siemens.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211126141027.16161-1-henning.schild@siemens.com>
-References: <20211126141027.16161-1-henning.schild@siemens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Pavel Machek <pavel@ucw.cz>, Enrico Weigelt <lkml@metux.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Siemens industrial PCs unfortunately can not always be properly
-identified the way we used to. An earlier commit introduced code that
-allows proper identification without looking at DMI strings that could
-differ based on product branding.
-Switch over to that proper way and revert commits that used to collect
-the machines based on unstable strings.
+On Fri, Nov 26, 2021 at 3:28 PM Henning Schild
+<henning.schild@siemens.com> wrote:
+> Am Tue, 30 Mar 2021 14:04:35 +0300
+> schrieb Andy Shevchenko <andy.shevchenko@gmail.com>:
+> > On Mon, Mar 29, 2021 at 8:59 PM Henning Schild
+> > <henning.schild@siemens.com> wrote:
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Fixes: e8796c6c69d1 ("platform/x86: pmc_atom: Add Siemens CONNECT ...")
-Fixes: f110d252ae79 ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
-Fixes: ad0d315b4d4e ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
-Tested-by: Michael Haener <michael.haener@siemens.com>
-Signed-off-by: Henning Schild <henning.schild@siemens.com>
----
- drivers/platform/x86/pmc_atom.c | 54 ++++++++++++++++++++-------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
+...
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index a9d2a4b98e57..a40fae6edc84 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -13,6 +13,7 @@
- #include <linux/io.h>
- #include <linux/platform_data/x86/clk-pmc-atom.h>
- #include <linux/platform_data/x86/pmc_atom.h>
-+#include <linux/platform_data/x86/simatic-ipc.h>
- #include <linux/platform_device.h>
- #include <linux/pci.h>
- #include <linux/seq_file.h>
-@@ -362,6 +363,30 @@ static void pmc_dbgfs_register(struct pmc_dev *pmc)
- }
- #endif /* CONFIG_DEBUG_FS */
- 
-+static bool pmc_clk_is_critical = true;
-+
-+static int dmi_callback(const struct dmi_system_id *d)
-+{
-+	pr_info("%s critclks quirk enabled\n", d->ident);
-+
-+	return 1;
-+}
-+
-+static int dmi_callback_siemens(const struct dmi_system_id *d)
-+{
-+	u32 st_id;
-+
-+	if (dmi_walk(simatic_ipc_find_dmi_entry_helper, &st_id))
-+		goto out;
-+
-+	if (st_id == SIMATIC_IPC_IPC227E || st_id == SIMATIC_IPC_IPC277E)
-+		return dmi_callback(d);
-+
-+out:
-+	pmc_clk_is_critical = false;
-+	return 1;
-+}
-+
- /*
-  * Some systems need one or more of their pmc_plt_clks to be
-  * marked as critical.
-@@ -370,6 +395,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
- 		.ident = "MPL CEC1x",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
-@@ -378,6 +404,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
- 		.ident = "Lex 3I380D",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
-@@ -386,6 +413,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Lex 2I385SW",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
-@@ -394,30 +422,17 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Beckhoff Baytrail",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
- 			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
- 		},
- 	},
- 	{
--		.ident = "SIMATIC IPC227E",
-+		.ident = "SIEMENS AG",
-+		.callback = dmi_callback_siemens,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
--		},
--	},
--	{
--		.ident = "SIMATIC IPC277E",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "6AV7882-0"),
--		},
--	},
--	{
--		.ident = "CONNECT X300",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
- 		},
- 	},
- 
-@@ -429,7 +444,6 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
- {
- 	struct platform_device *clkdev;
- 	struct pmc_clk_data *clk_data;
--	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
- 
- 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
- 	if (!clk_data)
-@@ -437,10 +451,8 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
- 
- 	clk_data->base = pmc_regmap; /* offset is added by client */
- 	clk_data->clks = pmc_data->clks;
--	if (d) {
--		clk_data->critical = true;
--		pr_info("%s critclks quirk enabled\n", d->ident);
--	}
-+	if (dmi_check_system(critclk_systems))
-+		clk_data->critical = pmc_clk_is_critical;
- 
- 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
- 					       PLATFORM_DEVID_NONE,
+> > > +static struct simatic_ipc_led simatic_ipc_leds_mem[] = {
+> > > +       {0x500 + 0x1A0, "red:" LED_FUNCTION_STATUS "-1"},
+> > > +       {0x500 + 0x1A8, "green:" LED_FUNCTION_STATUS "-1"},
+> > > +       {0x500 + 0x1C8, "red:" LED_FUNCTION_STATUS "-2"},
+> > > +       {0x500 + 0x1D0, "green:" LED_FUNCTION_STATUS "-2"},
+> > > +       {0x500 + 0x1E0, "red:" LED_FUNCTION_STATUS "-3"},
+> > > +       {0x500 + 0x198, "green:" LED_FUNCTION_STATUS "-3"},
+> > > +       { }
+> > > +};
+> >
+> > It seems to me like poking GPIO controller registers directly. This
+> > is not good. The question still remains: Can we simply register a
+> > GPIO (pin control) driver and use an LED GPIO driver with an
+> > additional board file that instantiates it?
+>
+> The short answer for v4 will be "No we can not!". The pinctrl drivers
+> do not currently probe on any of the devices and attempts to fix that
+> have failed or gut stuck. I tried to help out where i could and waited
+> for a long time.
+
+I see, unfortunately I have stuck with some other (more important
+tasks) and can't fulfil this, but I still consider it's no go for
+driver poking pin control registers directly. Lemme see if I can
+prioritize this for next week.
+
+> Now my take is to turn the order around. We go in like that and will
+> happily switch to pinctrl if that ever comes up on the machines.
+> Meaning P2SB series on top of this, no more delays please.
+
+I don't want to slip bad code into the kernel where we can avoid that.
+
+> We do use request_region so have a mutex in place. Meaning we really
+> only touch GPIO while pinctrl does not!
+
+I haven't got this. On Intel SoCs GPIO is a part of pin control
+registers. You can't touch GPIO without touching pin control.
+
+> I see no issue here, waited for a long time and now expect to be
+> allowed to get merged first.
+
+Okay, I have these questions / asks so far:
+1) Can firmware be fixed in order to provide an ACPI table for the pin
+control devices?
+2) Can you share firmware (BIOS ROM file I suppose) that I may flash
+on an Apollo Lake machine and see if I can reproduce the issue?
+3) As may be a last resort, can you share (remotely) or even send to
+us the device in question to try?
+
 -- 
-2.32.0
-
+With Best Regards,
+Andy Shevchenko
