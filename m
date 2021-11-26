@@ -2,170 +2,427 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC001C4321E
-	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 07:45:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F60FC433FE
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 12:41:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359549AbhKZHsR (ORCPT
+        id S1377335AbhKZMow (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 26 Nov 2021 02:48:17 -0500
-Received: from mail-eopbgr130041.outbound.protection.outlook.com ([40.107.13.41]:41349
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1359361AbhKZHqP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Nov 2021 02:46:15 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kCdm33CWDwlOqG7wJ2w5bkjuR2vzorjpOj2Ol1anA0BOS19oNhGyRkkddm6KGCZQgZ5eVwFv/FubluVEsKtzuHVedE5bE3cFdVi4r22Tr/c4VwHdgAzNgk795e4Ze2GJf4qxHUMFfoeW7L/rZlKG0BaX+SAv9SstdyDf/YDcruUYHwO+eStMvVDH//PaxMGvk6pAbH/BR6SKJAON8Sn9TlnVbDVgIU3DfOfUo/Vy4V+XlJVvf6KsQdo952+lnqNkix/UqGBV+BUymNh6FFOQ7Af1cNORYcT/1+g54bwc5ywMMHKJ91dObzV7URaZbPmZ/AWZ2612SHaDXkSjhXPhvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0VMZ+XXQYTR7fSXglhObWCy6u0ktzcJjKdgKl7A6QCo=;
- b=UKjf6LzUV/IaF0x99csdsEAkgDX9JyCSuZY0Mr61Ltq/EbcFo1DDdoJs6WvgwjulyJTiireK04jgNBFnahPRIz7BrMCZrEk06CH9QOOp0tcjsmmoORGifXigN7lXcFuqRYNsmTHf7rvZIMN/cxUF5OQ8p0cVGsAIr83s0n93E/GVj7YVWdbAUiKl3Z/Yz2F8U/jY6gtQVHMH51VtrZniOz/c05ENLZNq+kLuLAu7rB3sYF0I2QwCF+tabZjUOxI9ygY/N3axKnko5Bsv3W8oJZgusHqKx7JwbZbJTU4R0qo204naLfmb5BP10X1Ti8XMYpv7D7BUamvY8lcATNMTGQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector2-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0VMZ+XXQYTR7fSXglhObWCy6u0ktzcJjKdgKl7A6QCo=;
- b=YzJOZGrRBkfCPiC1KfUjshdePuA8hcOtJUwyso0+QlDc1O3N38uVIU2nC/J9C3iNXKKPYzzDjnNXT6BOs37dRRk5VTjYMDQaViuhpP0iRXmzv+mlB7Jdq331Jt+3dVJdiD47Ey3c/zoc9y195IX5DKDnmNmgJQTwyMxhFTNZsog=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from DU0PR04MB9417.eurprd04.prod.outlook.com (2603:10a6:10:358::11)
- by DU2PR04MB8790.eurprd04.prod.outlook.com (2603:10a6:10:2e1::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.20; Fri, 26 Nov
- 2021 07:41:23 +0000
-Received: from DU0PR04MB9417.eurprd04.prod.outlook.com
- ([fe80::82e:6ad2:dd1d:df43]) by DU0PR04MB9417.eurprd04.prod.outlook.com
- ([fe80::82e:6ad2:dd1d:df43%9]) with mapi id 15.20.4713.027; Fri, 26 Nov 2021
- 07:41:23 +0000
-From:   "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-To:     robh+dt@kernel.org, aisheng.dong@nxp.com, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, ulf.hansson@linaro.org, broonie@kernel.org,
-        linux@roeck-us.net, wim@linux-watchdog.org, linux@rempel-privat.de
-Cc:     kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        daniel.lezcano@linaro.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mmc@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
-        Rob Herring <robh@kernel.org>, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH V6 4/7] dt-bindings: watchdog: imx7ulp-wdt: Add imx8ulp compatible string
-Date:   Fri, 26 Nov 2021 15:39:59 +0800
-Message-Id: <20211126074002.1535696-5-peng.fan@oss.nxp.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211126074002.1535696-1-peng.fan@oss.nxp.com>
-References: <20211126074002.1535696-1-peng.fan@oss.nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SG2PR04CA0139.apcprd04.prod.outlook.com
- (2603:1096:3:16::23) To DU0PR04MB9417.eurprd04.prod.outlook.com
- (2603:10a6:10:358::11)
+        Fri, 26 Nov 2021 07:44:52 -0500
+Received: from thoth.sbs.de ([192.35.17.2]:49800 "EHLO thoth.sbs.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1377237AbhKZMmv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Nov 2021 07:42:51 -0500
+Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
+        by thoth.sbs.de (8.15.2/8.15.2) with ESMTPS id 1AQCdC6N001686
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Nov 2021 13:39:12 +0100
+Received: from md1za8fc.ad001.siemens.net ([139.22.47.90])
+        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 1AQCdAdV022198;
+        Fri, 26 Nov 2021 13:39:10 +0100
+Date:   Fri, 26 Nov 2021 13:39:09 +0100
+From:   Henning Schild <henning.schild@siemens.com>
+To:     <linux-kernel@vger.kernel.org>, <linux-leds@vger.kernel.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>
+Cc:     Srikanth Krishnakar <skrishnakar@gmail.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        "Gerd Haeussler" <gerd.haeussler.ext@siemens.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mark Gross <mgross@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Enrico Weigelt <lkml@metux.net>
+Subject: Re: [PATCH v3 1/4] platform/x86: simatic-ipc: add main driver for
+ Siemens devices
+Message-ID: <20211126133909.33fb1937@md1za8fc.ad001.siemens.net>
+In-Reply-To: <20210329174928.18816-2-henning.schild@siemens.com>
+References: <20210329174928.18816-1-henning.schild@siemens.com>
+        <20210329174928.18816-2-henning.schild@siemens.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (119.31.174.66) by SG2PR04CA0139.apcprd04.prod.outlook.com (2603:1096:3:16::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22 via Frontend Transport; Fri, 26 Nov 2021 07:41:17 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5fb19470-3127-498e-b9b9-08d9b0b02506
-X-MS-TrafficTypeDiagnostic: DU2PR04MB8790:
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-Microsoft-Antispam-PRVS: <DU2PR04MB8790054F3A3088CEB6436549C9639@DU2PR04MB8790.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:350;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: i97PJpkE9fzIc5b8mzH9x6S7ePHrLgPfipU/XPv3zbQ/LrvPXIOmK6JDCEkvAfXnZZ8blisHchsCMCS0UmfP+hl/Iwf7Cwrkhxll3YPj4ZBso0xhX+2l9SXWfkc2htupv+Pu5qKUj5tFJOAvOrCcrckMKZvJ4DL0P+CnNSvzFlVVfLGKSq/ZbBnUVmnIUQkv2i6kboKHdTdiYhjB+3yqlmbl70UmR0gdHGXkhP/6W5BL2rw0Bm2zyPVEwXeIxZb/JsnJ3S7AnArQxtQuT6BpAj8i7XGey9iao+BCpeIkI7uTxP7CYshzreTtIDvsQHShp3mVf474XWkVwIjn2iIhu9l6BGvjirh/xtG58SKIZDRa9gE2Vil2DFWhJyExbfUrTuSyyZC7PKiBbwCzyy2TyQRicdDPX2fbDKCwnaRGTBhCIv+x7eK5FlxYepyeTq0/BLdcO/7jh69hnn7uJZE/O08mMfmG8zrrs9P49jWDd5i9z7SJbnbO0NN4g+8111cEMpALOQUfCBVu2QFv6VVnE3qx09+r/EmmCn/s13TaHtsr7kBDPpC6KIoeVrdiArobxRpDVC0KHnbSuArnQ23YPJH+pMvmvMzXxiJ87jtKCF3byZkCJUksahaq1yqI5jmSmnIHvgQBJKaGSOZuLlj3RjVHdDi5qUOrUD12b2HMrYaBZS7TT1fN9W9wVW27cO9WlFPpvzjUIyYsH2Is0OGB150a4JCL887fPcYJeIX88dM=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU0PR04MB9417.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6486002)(66556008)(83380400001)(6506007)(66476007)(6512007)(316002)(186003)(956004)(86362001)(66946007)(38100700002)(2906002)(1076003)(508600001)(4326008)(8936002)(6666004)(26005)(54906003)(8676002)(52116002)(5660300002)(2616005)(38350700002)(7416002)(32563001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?IY6PBEhruaFYvIpjasdU+XlrE9NARHdIpmHpjKZfVva55w/3Fbf8ydChOKCL?=
- =?us-ascii?Q?/Gi1Xp0sfN2hspXnPHgQOSIWN/NZ1yJUcoA3tThbgFRKOCHSagFbZBQwXQI0?=
- =?us-ascii?Q?BbGZNjUIq+hqpFGZkuiTUht/RVZ2iovTNelTony14kRXdxEFhWBmXSAocCOr?=
- =?us-ascii?Q?Fk276kM2UKkxfw0QItOhVnqH4eiiDmiTLFOM/AtmgyX6s7e9rkHIqveVbSie?=
- =?us-ascii?Q?oG3zq1BMys+6Xw57fcAt+Bm5+o4d7Auo3FKhwstvZhjhG+j0Q3yL7KzS2KXs?=
- =?us-ascii?Q?S2cBwvTp2hb64CB6ovu+4+0+3fiZSJeBqqcgvzWINDoWt7dd1AaJ+oI3n0SO?=
- =?us-ascii?Q?DX0X4C2BIq0IKN2JgN2DWrym5LJSKtqHnQNc/+JvLi+da/erzLaehx+VRfad?=
- =?us-ascii?Q?6RtkKQWGYhrWmO7V3CYLbq39yKImc1Lw14Bk5/nSIm1dreRK+K16IIxOprDT?=
- =?us-ascii?Q?/9Lar5nWWF/JJYfrOH4SiV0kOBOQDSAif0dCFSLUcPJmri+dWwLQNXAj4S04?=
- =?us-ascii?Q?Q+YgDOGdzfUaxN9zti6bD+JQIUSYY9Nr4OKL3MoEwu/H83txtpLzI+igK0wF?=
- =?us-ascii?Q?onB9UAZoVXTGOpJ17ZPY65RPV0qznICiI+L3qZ93A+mG/cjCJUEOhO7mpjE0?=
- =?us-ascii?Q?+BO6XWRuaJU5f1HIFWFtzUOZ9Yd2FgE7g19XypX5c6TFusUt0pkoSMtNsK13?=
- =?us-ascii?Q?8BRmVbPv9ranvekktzjAIG6UQnpbmK47JlE326YBcREW6nCkmeWf4I7phiPc?=
- =?us-ascii?Q?aVU+1sL+DEcAGnlxgYjhn4MbI4RP+I80Q35FoBIGvmU9Brts9/GZj/d/Rk66?=
- =?us-ascii?Q?o6VE0o/x7yApkWUEdm+VdHIwtfUukcNvlH+F8cB5GNZ338d3r+mTTrOLMB7w?=
- =?us-ascii?Q?XWRoiFD6fofM5+H8mEuk0h5TtSunDq8iWIwWPEyVZZy8BiDk9LH4mO9FOp4F?=
- =?us-ascii?Q?8r9yP2fIls5HCN3nV9r3E/W18dy2iANpLwLDgtZAePwdvEoGTf8j1pC94FqS?=
- =?us-ascii?Q?Fwh6mXny9sD9cGPfJEceZ8LDQpEvGqrFw+v22U+fuft4USbZzqUgcC4ACBXK?=
- =?us-ascii?Q?5JMlowpLVTq51+bUFgdccCt5jdSJ+oYCBlAavS+QMEtJIDlBz7XthLAlYrLh?=
- =?us-ascii?Q?D/bmBity7GsyzLZ0Pya10Re4alo7leLIHJO5miyYiQO+Ci9y4XfEc4aKZc23?=
- =?us-ascii?Q?t5ANCtiloXlFm1xjMMqb4lygGQtj5uilBzsE+5wa9bCdEoT5Yc6GMb6MFqd9?=
- =?us-ascii?Q?ykYLXbZLljeUhj3BBmyxgPmW0GwTKoZRjgO9bTLYDxVweadsm05TJOeg0NtP?=
- =?us-ascii?Q?BV43yr3ZtO110VSINB9dzIerg6B6ySQNq8Q27oaMj01HTnMFH3MB/d9ccEcT?=
- =?us-ascii?Q?xlfVbQnD4B4rKD1aK4UEJk/EtA5URcXgTr7cYn9TzVUXrmaJ6onK0H76RvjJ?=
- =?us-ascii?Q?VLx3rYNwd2eofOm/aBQVqpm/Tj4o1kFZc2D4u/bAeeVCr/A0HKs/3Uxz0M0T?=
- =?us-ascii?Q?mRmq1qKI8I+skQl7TUY6HfGdEhqjzKFtx7mNYe+9c/w+6hLYJWw3pbvIb57R?=
- =?us-ascii?Q?H6ulv40Mr6JWopSpLKnwOnan65PaxpPMsnuqo5YzvmQV+akaJYP8CT5trZQS?=
- =?us-ascii?Q?wkE/xOjffK42pnMMsiDeoWo=3D?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5fb19470-3127-498e-b9b9-08d9b0b02506
-X-MS-Exchange-CrossTenant-AuthSource: DU0PR04MB9417.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Nov 2021 07:41:23.4981
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: BqX+UxFfTzXVE/0HhrUJVzt5CWbZ5sEOpOrC528FiyQDpBlXMeX0NcS+bcllyZyio7sD3N7f12qFmWfV5M6l/w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR04MB8790
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Jacky Bai <ping.bai@nxp.com>
+Am Mon, 29 Mar 2021 19:49:25 +0200
+schrieb Henning Schild <henning.schild@siemens.com>:
 
-The wdog on i.MX8ULP is derived from i.MX7ULP, it uses two compatible
-strings, so update the compatible string for i.MX8ULP.
+> This mainly implements detection of these devices and will allow
+> secondary drivers to work on such machines.
+> 
+> The identification is DMI-based with a vendor specific way to tell
+> them apart in a reliable way.
+> 
+> Drivers for LEDs and Watchdogs will follow to make use of that
+> platform detection.
+> 
+> Signed-off-by: Henning Schild <henning.schild@siemens.com>
+> ---
+>  drivers/platform/x86/Kconfig                  |  12 ++
+>  drivers/platform/x86/Makefile                 |   3 +
+>  drivers/platform/x86/simatic-ipc.c            | 169
+> ++++++++++++++++++ .../platform_data/x86/simatic-ipc-base.h      |
+> 29 +++ include/linux/platform_data/x86/simatic-ipc.h |  72 ++++++++
+>  5 files changed, 285 insertions(+)
+>  create mode 100644 drivers/platform/x86/simatic-ipc.c
+>  create mode 100644 include/linux/platform_data/x86/simatic-ipc-base.h
+>  create mode 100644 include/linux/platform_data/x86/simatic-ipc.h
+> 
+> diff --git a/drivers/platform/x86/Kconfig
+> b/drivers/platform/x86/Kconfig index 461ec61530eb..1eaa03d0d183 100644
+> --- a/drivers/platform/x86/Kconfig
+> +++ b/drivers/platform/x86/Kconfig
+> @@ -1289,6 +1289,18 @@ config INTEL_TELEMETRY
+>  	  directly via debugfs files. Various tools may use
+>  	  this interface for SoC state monitoring.
+>  
+> +config SIEMENS_SIMATIC_IPC
+> +	tristate "Siemens Simatic IPC Class driver"
+> +	depends on PCI
+> +	help
+> +	  This Simatic IPC class driver is the central of several
+> drivers. It
+> +	  is mainly used for system identification, after which
+> drivers in other
+> +	  classes will take care of driving specifics of those
+> machines.
+> +	  i.e. LEDs and watchdog.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> module
+> +	  will be called simatic-ipc.
+> +
+>  endif # X86_PLATFORM_DEVICES
+>  
+>  config PMC_ATOM
+> diff --git a/drivers/platform/x86/Makefile
+> b/drivers/platform/x86/Makefile index 60d554073749..26cdebf2e701
+> 100644 --- a/drivers/platform/x86/Makefile
+> +++ b/drivers/platform/x86/Makefile
+> @@ -138,3 +138,6 @@ obj-$(CONFIG_INTEL_TELEMETRY)		+=
+> intel_telemetry_core.o \ intel_telemetry_pltdrv.o \
+>  					   intel_telemetry_debugfs.o
+>  obj-$(CONFIG_PMC_ATOM)			+= pmc_atom.o
+> +
+> +# Siemens Simatic Industrial PCs
+> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC)	+= simatic-ipc.o
+> diff --git a/drivers/platform/x86/simatic-ipc.c
+> b/drivers/platform/x86/simatic-ipc.c new file mode 100644
+> index 000000000000..52e8596bc63d
+> --- /dev/null
+> +++ b/drivers/platform/x86/simatic-ipc.c
+> @@ -0,0 +1,169 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Siemens SIMATIC IPC platform driver
+> + *
+> + * Copyright (c) Siemens AG, 2018-2021
+> + *
+> + * Authors:
+> + *  Henning Schild <henning.schild@siemens.com>
+> + *  Jan Kiszka <jan.kiszka@siemens.com>
+> + *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
+> + */
+> +
+> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> +
+> +#include <linux/dmi.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <linux/platform_data/x86/simatic-ipc.h>
+> +#include <linux/platform_device.h>
+> +
+> +static struct platform_device *ipc_led_platform_device;
+> +static struct platform_device *ipc_wdt_platform_device;
+> +
+> +static const struct dmi_system_id simatic_ipc_whitelist[] = {
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+> +		},
+> +	},
+> +	{}
+> +};
+> +
+> +static struct simatic_ipc_platform platform_data;
+> +
+> +static struct {
+> +	u32 station_id;
+> +	u8 led_mode;
+> +	u8 wdt_mode;
+> +} device_modes[] = {
+> +	{SIMATIC_IPC_IPC127E, SIMATIC_IPC_DEVICE_127E,
+> SIMATIC_IPC_DEVICE_NONE},
+> +	{SIMATIC_IPC_IPC227D, SIMATIC_IPC_DEVICE_227D,
+> SIMATIC_IPC_DEVICE_NONE},
+> +	{SIMATIC_IPC_IPC227E, SIMATIC_IPC_DEVICE_427E,
+> SIMATIC_IPC_DEVICE_227E},
+> +	{SIMATIC_IPC_IPC277E, SIMATIC_IPC_DEVICE_NONE,
+> SIMATIC_IPC_DEVICE_227E},
+> +	{SIMATIC_IPC_IPC427D, SIMATIC_IPC_DEVICE_427E,
+> SIMATIC_IPC_DEVICE_NONE},
+> +	{SIMATIC_IPC_IPC427E, SIMATIC_IPC_DEVICE_427E,
+> SIMATIC_IPC_DEVICE_427E},
+> +	{SIMATIC_IPC_IPC477E, SIMATIC_IPC_DEVICE_NONE,
+> SIMATIC_IPC_DEVICE_427E}, +};
+> +
+> +static int register_platform_devices(u32 station_id)
+> +{
+> +	u8 ledmode = SIMATIC_IPC_DEVICE_NONE;
+> +	u8 wdtmode = SIMATIC_IPC_DEVICE_NONE;
+> +	int i;
+> +
+> +	platform_data.devmode = SIMATIC_IPC_DEVICE_NONE;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(device_modes); i++) {
+> +		if (device_modes[i].station_id == station_id) {
+> +			ledmode = device_modes[i].led_mode;
+> +			wdtmode = device_modes[i].wdt_mode;
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (ledmode != SIMATIC_IPC_DEVICE_NONE) {
+> +		platform_data.devmode = ledmode;
+> +		ipc_led_platform_device =
+> +			platform_device_register_data(NULL,
+> +				KBUILD_MODNAME "_leds",
+> PLATFORM_DEVID_NONE,
+> +				&platform_data,
+> +				sizeof(struct simatic_ipc_platform));
+> +		if (IS_ERR(ipc_led_platform_device))
+> +			return PTR_ERR(ipc_led_platform_device);
+> +
+> +		pr_debug("device=%s created\n",
+> +			 ipc_led_platform_device->name);
+> +	}
+> +
+> +	if (wdtmode != SIMATIC_IPC_DEVICE_NONE) {
+> +		platform_data.devmode = wdtmode;
+> +		ipc_wdt_platform_device =
+> +			platform_device_register_data(NULL,
+> +				KBUILD_MODNAME "_wdt",
+> PLATFORM_DEVID_NONE,
+> +				&platform_data,
+> +				sizeof(struct simatic_ipc_platform));
+> +		if (IS_ERR(ipc_wdt_platform_device))
+> +			return PTR_ERR(ipc_wdt_platform_device);
+> +
+> +		pr_debug("device=%s created\n",
+> +			 ipc_wdt_platform_device->name);
+> +	}
+> +
+> +	if (ledmode == SIMATIC_IPC_DEVICE_NONE &&
+> +	    wdtmode == SIMATIC_IPC_DEVICE_NONE) {
+> +		pr_warn("unsupported IPC detected, station
+> id=%08x\n",
+> +			station_id);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +
 
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Jacky Bai <ping.bai@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- - v6 changes:
-   rebase
+extra newline, should be removed
 
- - v5 changes:
-   no
+> +/* FIXME: this should eventually be done with generic P2SB discovery
+> code */ +/*
+> + * Get membase address from PCI, used in leds and wdt modul. Here we
+> read
 
- - v4 changes:
-   no
+/modul/module/
 
- - v3 changes:
-   no
+was pointed out already but forgotten about
 
- - v2 changes:
-   refine the commit message
+Henning
 
- .../devicetree/bindings/watchdog/fsl-imx7ulp-wdt.yaml      | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.yaml b/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.yaml
-index 51d6d482bbc2..fb603a20e396 100644
---- a/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/fsl-imx7ulp-wdt.yaml
-@@ -14,8 +14,11 @@ allOf:
- 
- properties:
-   compatible:
--    enum:
--      - fsl,imx7ulp-wdt
-+    oneOf:
-+      - const: fsl,imx7ulp-wdt
-+      - items:
-+          - const: fsl,imx8ulp-wdt
-+          - const: fsl,imx7ulp-wdt
- 
-   reg:
-     maxItems: 1
--- 
-2.25.1
+> + * the bar0. The final address calculation is done in the
+> appropriate modules
+> + */
+> +u32 simatic_ipc_get_membase0(unsigned int p2sb)
+> +{
+> +	struct pci_bus *bus;
+> +	u32 bar0 = 0;
+> +	/*
+> +	 * The GPIO memory is in bar0 of the hidden P2SB device.
+> +	 * Unhide the device to have a quick look at it, before we
+> hide it
+> +	 * again.
+> +	 * Also grab the pci rescan lock so that device does not get
+> discovered
+> +	 * and remapped while it is visible.
+> +	 * This code is inspired by drivers/mfd/lpc_ich.c
+> +	 */
+> +	bus = pci_find_bus(0, 0);
+> +	pci_lock_rescan_remove();
+> +	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x0);
+> +	pci_bus_read_config_dword(bus, p2sb, PCI_BASE_ADDRESS_0,
+> &bar0); +
+> +	bar0 &= ~0xf;
+> +	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x1);
+> +	pci_unlock_rescan_remove();
+> +
+> +	return bar0;
+> +}
+> +EXPORT_SYMBOL(simatic_ipc_get_membase0);
+> +
+> +static int __init simatic_ipc_init_module(void)
+> +{
+> +	const struct dmi_system_id *match;
+> +	u32 station_id;
+> +	int err;
+> +
+> +	match = dmi_first_match(simatic_ipc_whitelist);
+> +	if (!match)
+> +		return 0;
+> +
+> +	err = dmi_walk(simatic_ipc_find_dmi_entry_helper,
+> &station_id); +
+> +	if (err || station_id == SIMATIC_IPC_INVALID_STATION_ID) {
+> +		pr_warn("DMI entry %d not found\n",
+> SIMATIC_IPC_DMI_ENTRY_OEM);
+> +		return 0;
+> +	}
+> +
+> +	return register_platform_devices(station_id);
+> +}
+> +
+> +static void __exit simatic_ipc_exit_module(void)
+> +{
+> +	platform_device_unregister(ipc_led_platform_device);
+> +	ipc_led_platform_device = NULL;
+> +
+> +	platform_device_unregister(ipc_wdt_platform_device);
+> +	ipc_wdt_platform_device = NULL;
+> +}
+> +
+> +module_init(simatic_ipc_init_module);
+> +module_exit(simatic_ipc_exit_module);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Gerd Haeussler <gerd.haeussler.ext@siemens.com>");
+> +MODULE_ALIAS("dmi:*:svnSIEMENSAG:*");
+> diff --git a/include/linux/platform_data/x86/simatic-ipc-base.h
+> b/include/linux/platform_data/x86/simatic-ipc-base.h new file mode
+> 100644 index 000000000000..62d2bc774067
+> --- /dev/null
+> +++ b/include/linux/platform_data/x86/simatic-ipc-base.h
+> @@ -0,0 +1,29 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Siemens SIMATIC IPC drivers
+> + *
+> + * Copyright (c) Siemens AG, 2018-2021
+> + *
+> + * Authors:
+> + *  Henning Schild <henning.schild@siemens.com>
+> + *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
+> + */
+> +
+> +#ifndef __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H
+> +#define __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H
+> +
+> +#include <linux/types.h>
+> +
+> +#define SIMATIC_IPC_DEVICE_NONE 0
+> +#define SIMATIC_IPC_DEVICE_227D 1
+> +#define SIMATIC_IPC_DEVICE_427E 2
+> +#define SIMATIC_IPC_DEVICE_127E 3
+> +#define SIMATIC_IPC_DEVICE_227E 4
+> +
+> +struct simatic_ipc_platform {
+> +	u8	devmode;
+> +};
+> +
+> +u32 simatic_ipc_get_membase0(unsigned int p2sb);
+> +
+> +#endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H */
+> diff --git a/include/linux/platform_data/x86/simatic-ipc.h
+> b/include/linux/platform_data/x86/simatic-ipc.h new file mode 100644
+> index 000000000000..f3b76b39776b
+> --- /dev/null
+> +++ b/include/linux/platform_data/x86/simatic-ipc.h
+> @@ -0,0 +1,72 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Siemens SIMATIC IPC drivers
+> + *
+> + * Copyright (c) Siemens AG, 2018-2021
+> + *
+> + * Authors:
+> + *  Henning Schild <henning.schild@siemens.com>
+> + *  Gerd Haeussler <gerd.haeussler.ext@siemens.com>
+> + */
+> +
+> +#ifndef __PLATFORM_DATA_X86_SIMATIC_IPC_H
+> +#define __PLATFORM_DATA_X86_SIMATIC_IPC_H
+> +
+> +#include <linux/dmi.h>
+> +#include <linux/platform_data/x86/simatic-ipc-base.h>
+> +
+> +#define SIMATIC_IPC_DMI_ENTRY_OEM	129
+> +/* binary type */
+> +#define SIMATIC_IPC_DMI_TYPE		0xff
+> +#define SIMATIC_IPC_DMI_GROUP		0x05
+> +#define SIMATIC_IPC_DMI_ENTRY		0x02
+> +#define SIMATIC_IPC_DMI_TID		0x02
+> +
+> +enum simatic_ipc_station_ids {
+> +	SIMATIC_IPC_INVALID_STATION_ID = 0,
+> +	SIMATIC_IPC_IPC227D = 0x00000501,
+> +	SIMATIC_IPC_IPC427D = 0x00000701,
+> +	SIMATIC_IPC_IPC227E = 0x00000901,
+> +	SIMATIC_IPC_IPC277E = 0x00000902,
+> +	SIMATIC_IPC_IPC427E = 0x00000A01,
+> +	SIMATIC_IPC_IPC477E = 0x00000A02,
+> +	SIMATIC_IPC_IPC127E = 0x00000D01,
+> +};
+> +
+> +static inline u32 simatic_ipc_get_station_id(u8 *data, int max_len)
+> +{
+> +	struct {
+> +		u8	type;		/* type (0xff =
+> binary) */
+> +		u8	len;		/* len of data entry */
+> +		u8	group;
+> +		u8	entry;
+> +		u8	tid;
+> +		__le32	station_id;	/* station id (LE)
+> */
+> +	} __packed * data_entry = (void *)data + sizeof(struct
+> dmi_header); +
+> +	while ((u8 *)data_entry < data + max_len) {
+> +		if (data_entry->type == SIMATIC_IPC_DMI_TYPE &&
+> +		    data_entry->len == sizeof(*data_entry) &&
+> +		    data_entry->group == SIMATIC_IPC_DMI_GROUP &&
+> +		    data_entry->entry == SIMATIC_IPC_DMI_ENTRY &&
+> +		    data_entry->tid == SIMATIC_IPC_DMI_TID) {
+> +			return le32_to_cpu(data_entry->station_id);
+> +		}
+> +		data_entry = (void *)((u8 *)(data_entry) +
+> data_entry->len);
+> +	}
+> +
+> +	return SIMATIC_IPC_INVALID_STATION_ID;
+> +}
+> +
+> +static inline void
+> +simatic_ipc_find_dmi_entry_helper(const struct dmi_header *dh, void
+> *_data) +{
+> +	u32 *id = _data;
+> +
+> +	if (dh->type != SIMATIC_IPC_DMI_ENTRY_OEM)
+> +		return;
+> +
+> +	*id = simatic_ipc_get_station_id((u8 *)dh, dh->length);
+> +}
+> +
+> +#endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_H */
 
