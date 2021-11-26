@@ -2,60 +2,27 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DA48C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:37:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A95F3C433F5
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 Nov 2021 14:46:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377668AbhKZOlG (ORCPT
+        id S1377811AbhKZOuG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 26 Nov 2021 09:41:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377828AbhKZOjG (ORCPT
+        Fri, 26 Nov 2021 09:50:06 -0500
+Received: from goliath.siemens.de ([192.35.17.28]:38507 "EHLO
+        goliath.siemens.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345231AbhKZOsG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Nov 2021 09:39:06 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB14C0619DE;
-        Fri, 26 Nov 2021 06:03:25 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id w1so39517069edc.6;
-        Fri, 26 Nov 2021 06:03:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JBMGUDVxwKtvGxZl8Me4y2JzyAcn1+e3Ny5rJgr5yXo=;
-        b=GTvJ+9xGy0b+U9k5O+gjafXYaURTKxwOjBRV82D0mrG4fmhpjqkJSx/m14EMsuLBgy
-         xWVBppUlJvyRIaID1UHB4qCw45EEeWY9CCKPtgqH9FdbfKkJtGDh6W1ABKhsk5XD9pG/
-         +CjLOF5PlKRtNZRKinhuNaVP30boQ/ZRARpSE1QPYN9zVtMnS/w623fEPkugwgbQldmE
-         jea4JICn6QFcOiaFxxMscNlSfR2QwHtKNlg9pgCvFUnDSKn7yed6m2E11K3p39RuS9Xg
-         CHPr2DXhgFfZ3e31K5VY+ZJgzhVN9LqkDXg0Ml1z2gi/wwtWz7JhqmZm35kR60tNaN2X
-         h7aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JBMGUDVxwKtvGxZl8Me4y2JzyAcn1+e3Ny5rJgr5yXo=;
-        b=BdNSk8VU/2NiaiI06caXgd0DWFMzX1jkhKQ/gvXxiWjAzRh2CGm9QIHKzvD9Rc2e43
-         g2bxXKaoaT+tEHLJK6+PBXihMXZlPHRT6BQq5YA2AJI8VgREUBQXhhC5t4ce9SkcPmU0
-         V0ol9ZiHqgyo5kIOuO/0vBg4udHj30SYNHNhh9ywFOqTdkiParGwXzRqTcnYPX2ndFdK
-         wXKGk1i/wc+ajArPVLv5JGFo/JIVxfexa/KeDahcFqp9OD2AcvfkwRU2yNpuusAAfjC5
-         /A7gY6HYz9EPnmBp8ya+Nsq+Fcw/KZOryLSkYUvtPA1wsM3hZXHMhbeZjCQbWOEQVMMo
-         cEpg==
-X-Gm-Message-State: AOAM533hyHwYRt/arfNneOPdwyEQKQ9+GHIb13WPUpYbTug6wjxOah0g
-        FxcXjBgFbmTbpfifs832OkUH0PAZYt9+EDrUzEY=
-X-Google-Smtp-Source: ABdhPJwQcvfywxLUOt/7eTZuUFffT9ho18Gm9PwKOl+HSnZEPb47vv8qfxiuT32OkPVQ9/VpvEuQO9pn+dI3MI5yF/U=
-X-Received: by 2002:a50:d741:: with SMTP id i1mr47189263edj.37.1637935404131;
- Fri, 26 Nov 2021 06:03:24 -0800 (PST)
-MIME-Version: 1.0
-References: <20210329174928.18816-1-henning.schild@siemens.com>
- <20210329174928.18816-3-henning.schild@siemens.com> <CAHp75Vdh_YAJLE4DWPhxhYY1g5Fc_7EFgr4FED3crpfpzwXeRg@mail.gmail.com>
- <20211126142827.78d2348d@md1za8fc.ad001.siemens.net>
-In-Reply-To: <20211126142827.78d2348d@md1za8fc.ad001.siemens.net>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Fri, 26 Nov 2021 16:02:48 +0200
-Message-ID: <CAHp75VeX89T7t=Q7-q56sndbfRyuPDEUjSMsMFo4sS8cb9AAmw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] leds: simatic-ipc-leds: add new driver for Siemens
- Industial PCs
-To:     Henning Schild <henning.schild@siemens.com>
+        Fri, 26 Nov 2021 09:48:06 -0500
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by goliath.siemens.de (8.15.2/8.15.2) with ESMTPS id 1AQEiT7E011393
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Nov 2021 15:44:29 +0100
+Received: from md1za8fc.ad001.siemens.net ([139.22.47.90])
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 1AQEiRhZ027622;
+        Fri, 26 Nov 2021 15:44:28 +0100
+Date:   Fri, 26 Nov 2021 15:44:27 +0100
+From:   Henning Schild <henning.schild@siemens.com>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Linux LED Subsystem <linux-leds@vger.kernel.org>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
@@ -68,68 +35,119 @@ Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Mark Gross <mgross@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Pavel Machek <pavel@ucw.cz>, Enrico Weigelt <lkml@metux.net>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v3 2/4] leds: simatic-ipc-leds: add new driver for
+ Siemens Industial PCs
+Message-ID: <20211126154427.41bf024e@md1za8fc.ad001.siemens.net>
+In-Reply-To: <CAHp75VeX89T7t=Q7-q56sndbfRyuPDEUjSMsMFo4sS8cb9AAmw@mail.gmail.com>
+References: <20210329174928.18816-1-henning.schild@siemens.com>
+        <20210329174928.18816-3-henning.schild@siemens.com>
+        <CAHp75Vdh_YAJLE4DWPhxhYY1g5Fc_7EFgr4FED3crpfpzwXeRg@mail.gmail.com>
+        <20211126142827.78d2348d@md1za8fc.ad001.siemens.net>
+        <CAHp75VeX89T7t=Q7-q56sndbfRyuPDEUjSMsMFo4sS8cb9AAmw@mail.gmail.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Nov 26, 2021 at 3:28 PM Henning Schild
-<henning.schild@siemens.com> wrote:
-> Am Tue, 30 Mar 2021 14:04:35 +0300
-> schrieb Andy Shevchenko <andy.shevchenko@gmail.com>:
-> > On Mon, Mar 29, 2021 at 8:59 PM Henning Schild
-> > <henning.schild@siemens.com> wrote:
+Am Fri, 26 Nov 2021 16:02:48 +0200
+schrieb Andy Shevchenko <andy.shevchenko@gmail.com>:
 
-...
-
-> > > +static struct simatic_ipc_led simatic_ipc_leds_mem[] = {
-> > > +       {0x500 + 0x1A0, "red:" LED_FUNCTION_STATUS "-1"},
-> > > +       {0x500 + 0x1A8, "green:" LED_FUNCTION_STATUS "-1"},
-> > > +       {0x500 + 0x1C8, "red:" LED_FUNCTION_STATUS "-2"},
-> > > +       {0x500 + 0x1D0, "green:" LED_FUNCTION_STATUS "-2"},
-> > > +       {0x500 + 0x1E0, "red:" LED_FUNCTION_STATUS "-3"},
-> > > +       {0x500 + 0x198, "green:" LED_FUNCTION_STATUS "-3"},
-> > > +       { }
-> > > +};
+> On Fri, Nov 26, 2021 at 3:28 PM Henning Schild
+> <henning.schild@siemens.com> wrote:
+> > Am Tue, 30 Mar 2021 14:04:35 +0300
+> > schrieb Andy Shevchenko <andy.shevchenko@gmail.com>:  
+> > > On Mon, Mar 29, 2021 at 8:59 PM Henning Schild
+> > > <henning.schild@siemens.com> wrote:  
+> 
+> ...
+> 
+> > > > +static struct simatic_ipc_led simatic_ipc_leds_mem[] = {
+> > > > +       {0x500 + 0x1A0, "red:" LED_FUNCTION_STATUS "-1"},
+> > > > +       {0x500 + 0x1A8, "green:" LED_FUNCTION_STATUS "-1"},
+> > > > +       {0x500 + 0x1C8, "red:" LED_FUNCTION_STATUS "-2"},
+> > > > +       {0x500 + 0x1D0, "green:" LED_FUNCTION_STATUS "-2"},
+> > > > +       {0x500 + 0x1E0, "red:" LED_FUNCTION_STATUS "-3"},
+> > > > +       {0x500 + 0x198, "green:" LED_FUNCTION_STATUS "-3"},
+> > > > +       { }
+> > > > +};  
+> > >
+> > > It seems to me like poking GPIO controller registers directly.
+> > > This is not good. The question still remains: Can we simply
+> > > register a GPIO (pin control) driver and use an LED GPIO driver
+> > > with an additional board file that instantiates it?  
 > >
-> > It seems to me like poking GPIO controller registers directly. This
-> > is not good. The question still remains: Can we simply register a
-> > GPIO (pin control) driver and use an LED GPIO driver with an
-> > additional board file that instantiates it?
->
-> The short answer for v4 will be "No we can not!". The pinctrl drivers
-> do not currently probe on any of the devices and attempts to fix that
-> have failed or gut stuck. I tried to help out where i could and waited
-> for a long time.
+> > The short answer for v4 will be "No we can not!". The pinctrl
+> > drivers do not currently probe on any of the devices and attempts
+> > to fix that have failed or gut stuck. I tried to help out where i
+> > could and waited for a long time.  
+> 
+> I see, unfortunately I have stuck with some other (more important
+> tasks) and can't fulfil this, but I still consider it's no go for
+> driver poking pin control registers directly. Lemme see if I can
+> prioritize this for next week.
 
-I see, unfortunately I have stuck with some other (more important
-tasks) and can't fulfil this, but I still consider it's no go for
-driver poking pin control registers directly. Lemme see if I can
-prioritize this for next week.
+I just sent v4. And am sick of waiting on you. Sorry to be that clear
+here. I want that order changed! If you still end up being fast,
+perfect. But i want to be faster!
 
-> Now my take is to turn the order around. We go in like that and will
-> happily switch to pinctrl if that ever comes up on the machines.
-> Meaning P2SB series on top of this, no more delays please.
+> > Now my take is to turn the order around. We go in like that and will
+> > happily switch to pinctrl if that ever comes up on the machines.
+> > Meaning P2SB series on top of this, no more delays please.  
+> 
+> I don't want to slip bad code into the kernel where we can avoid that.
 
-I don't want to slip bad code into the kernel where we can avoid that.
+It is not bad code! That is unfair to say. It can be improved on and
+that is what we have a FIXME line for. The worst code is code that is
+not there ... devices without drivers!
+That is bad, not i minor poke of parts of a resource no other driver
+claimed!
 
-> We do use request_region so have a mutex in place. Meaning we really
-> only touch GPIO while pinctrl does not!
+> > We do use request_region so have a mutex in place. Meaning we really
+> > only touch GPIO while pinctrl does not!  
+> 
+> I haven't got this. On Intel SoCs GPIO is a part of pin control
+> registers. You can't touch GPIO without touching pin control.
 
-I haven't got this. On Intel SoCs GPIO is a part of pin control
-registers. You can't touch GPIO without touching pin control.
+i meant pin control, if it ever did probe it would reserve the region
+and push our hack out, or the other way around ... no conflict!
+To get both we just need a simple patch and switch to pinctrl, just
+notify me once your stuff is ready and i will write that patch.
+ 
+> > I see no issue here, waited for a long time and now expect to be
+> > allowed to get merged first.  
+> 
+> Okay, I have these questions / asks so far:
+> 1) Can firmware be fixed in order to provide an ACPI table for the pin
+> control devices?
 
-> I see no issue here, waited for a long time and now expect to be
-> allowed to get merged first.
+No. The firmware will only receive security but no feature updates ...
 
-Okay, I have these questions / asks so far:
-1) Can firmware be fixed in order to provide an ACPI table for the pin
-control devices?
-2) Can you share firmware (BIOS ROM file I suppose) that I may flash
-on an Apollo Lake machine and see if I can reproduce the issue?
-3) As may be a last resort, can you share (remotely) or even send to
-us the device in question to try?
+> 2) Can you share firmware (BIOS ROM file I suppose) that I may flash
+> on an Apollo Lake machine and see if I can reproduce the issue?
 
--- 
-With Best Regards,
-Andy Shevchenko
+I do not have access. But all you need is a firware with no ACPI entry
+and P2SB hidden. Or simply patch out the two probe paths ;). 
+
+> 3) As may be a last resort, can you share (remotely) or even send to
+> us the device in question to try?
+
+We are talking about multiple devices. Not just that one apollo lake on
+which your patches kind of worked.
+
+But showed some weirdness which could really become a problem if
+someone decided to add an ACPI entry ..
+
+It pin 42 name could be 
+GPIO_LOOKUP_IDX("apollolake-pinctrl.0", 42
+or
+GPIO_LOOKUP_IDX("INT3452:01", 42
+
+I guess that conflict will have to be dealt with before your can switch
+to probing pinctrl drivers based on cpu model and not only ACPI/P2SB any
+longer.
+
+regards,
+Henning
