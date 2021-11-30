@@ -2,49 +2,51 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53149C43219
-	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Nov 2021 13:43:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2806EC433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 30 Nov 2021 13:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241593AbhK3NqU (ORCPT
+        id S241436AbhK3Nw4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 30 Nov 2021 08:46:20 -0500
-Received: from cpanel.siel.si ([46.19.9.99]:38808 "EHLO cpanel.siel.si"
+        Tue, 30 Nov 2021 08:52:56 -0500
+Received: from cpanel.siel.si ([46.19.9.99]:40168 "EHLO cpanel.siel.si"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229473AbhK3NqS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Nov 2021 08:46:18 -0500
+        id S240008AbhK3Nw4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 30 Nov 2021 08:52:56 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:
+        Date:Message-ID:From:References:Cc:Subject:Sender:Reply-To:To:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=BvHiFyzOTpt2hGyCVuXl2Hq70zeCH55Isy6IrmH3KWk=; b=cWl9oq/4vTFGXnI+wJBiW6mF9D
-        /IK6jOjzj+mymY26YgwwFEqP4Pundtak8vH9c+qepdVo4nypxPu93IoBmYpPnu6U5lItXYiiAk/Tj
-        VXT7WV/u3VWc7ugdw8AV3PDJ44EyLnznAcLBYayR9BxKDUL9q3RZz3nfE5YWON2/eIp7dSBCCyklk
-        hRguONk6kSdBpxvJSribO/aDhBPcAmebZ0XID07uGfTCkzaxfLC4Jy6ka6BqBvh9AcWvNpxKujBrc
-        TTLdf66vW+r0Uxb2YzSACwyXvTlASv65CGLAdoEriO9uw3BeZatVJIW1KzMHBq+dUqxZegqQHkb4/
-        jOAwRHcg==;
-Received: from [89.212.21.243] (port=49710 helo=localhost.localdomain)
+        bh=UUkiGbBHuD3eoYdG87cPn3KIRvGU68JXHLpxrL5OQnA=; b=WarnI8/lds1InnXOVfZIELG5iC
+        O/avmgMNYpz41a5i//VEf3U/fQwgciuiunGT99nwUmKSxoSK73VXihYsveJroy5+uDP+Qe5oMjW5I
+        E+lllwkkgfoCRb+U757HjUN4BEgtrI9HsuMIq2b9wnv52bzQ9JCSg3+cudIA6GmZ+5rknHSuKqUnC
+        QrQaZqD6Ta30XUcCCg06d8BMS39kqhAudcr/6Zrp5WkiEp3Q4/T8N5HpPGGTjUIZzqgt3XlfUOfgy
+        YZmORsYGSiq7/l8SOt+toJXPeaKKR8ri286dZ2vffRhyrcb5KWuKHPNPPMnqA/orWqlzMa9AQkP4U
+        hcz6eYBQ==;
+Received: from [89.212.21.243] (port=49774 helo=[192.168.69.215])
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.94.2)
         (envelope-from <andrej.picej@norik.com>)
-        id 1ms3PJ-0039GW-Hp; Tue, 30 Nov 2021 14:42:53 +0100
-From:   Andrej Picej <andrej.picej@norik.com>
-Cc:     andrej.picej@norik.com, support.opensource@diasemi.com,
-        wim@linux-watchdog.org, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        robh+dt@kernel.org, devicetree@vger.kernel.org,
-        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 3/4] dt-bindings: watchdog: da9062: add watchdog timeout mode
-Date:   Tue, 30 Nov 2021 14:42:41 +0100
-Message-Id: <20211130134242.3516619-3-andrej.picej@norik.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211130134242.3516619-1-andrej.picej@norik.com>
+        id 1ms3Vj-003AE3-EG; Tue, 30 Nov 2021 14:49:31 +0100
+Subject: Re: [PATCH v2 1/4] mfd: da9062: make register CONFIG_I writable
+Cc:     support.opensource@diasemi.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, shawnguo@kernel.org,
+        s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
+        linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org
 References: <20211130134242.3516619-1-andrej.picej@norik.com>
+From:   Andrej Picej <andrej.picej@norik.com>
+Message-ID: <b62b026d-3f89-6638-d2b9-c8ddd002458b@norik.com>
+Date:   Tue, 30 Nov 2021 14:49:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211130134242.3516619-1-andrej.picej@norik.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cpanel.siel.si
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -60,30 +62,38 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document the watchdog timeout mode property. If this property is used
-the user can select what happens on watchdog timeout. Set this property
-to 1 to enable SHUTDOWN (the device resets), set it to 0 and the device
-will go to POWERDOWN on watchdog timeout.
+Hi,
 
-Signed-off-by: Andrej Picej <andrej.picej@norik.com>
----
- Documentation/devicetree/bindings/watchdog/da9062-wdt.txt | 3 +++
- 1 file changed, 3 insertions(+)
+On 30. 11. 21 14:42, Andrej Picej wrote:
+> From: Stefan Christ <s.christ@phytec.de>
+> 
+> Make the config register CONFIG_I writable to change the watchdog mode.
+> 
+> Signed-off-by: Stefan Christ <s.christ@phytec.de>
+> Signed-off-by: Andrej Picej <andrej.picej@norik.com>
+> ---
+>   drivers/mfd/da9062-core.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+> index 01f8e10dfa55..7041ba53efb4 100644
+> --- a/drivers/mfd/da9062-core.c
+> +++ b/drivers/mfd/da9062-core.c
+> @@ -556,6 +556,7 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
+>   	regmap_reg_range(DA9062AA_VBUCK3_B, DA9062AA_VBUCK3_B),
+>   	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
+>   	regmap_reg_range(DA9062AA_BBAT_CONT, DA9062AA_BBAT_CONT),
+> +	regmap_reg_range(DA9062AA_CONFIG_I, DA9062AA_CONFIG_I),
+>   	regmap_reg_range(DA9062AA_GP_ID_0, DA9062AA_GP_ID_19),
+>   };
+>   
+> 
 
-diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-index 950e4fba8dbc..e3e6e56cee21 100644
---- a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-@@ -10,6 +10,9 @@ Optional properties:
- - dlg,use-sw-pm: Add this property to disable the watchdog during suspend.
- 	Only use this option if you can't use the watchdog automatic suspend
- 	function during a suspend (see register CONTROL_B).
-+- dlg,wdt-sd: Set what happens on watchdog timeout. If this bit is set the
-+	watchdog timeout triggers SHUTDOWN, if cleared the watchdog triggers
-+	POWERDOWN. Can be 0 or 1.
- 
- Example: DA9062
- 
--- 
-2.25.1
+Changes in v2:
+- no changes
 
+sorry, just noticed I forgot to add what I changed for v2 patch series.
+Should I resend the patches with that fixed/added? Should that be v3 
+then or still v2?
+
+Thanks.
