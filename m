@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED23AC433F5
-	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Dec 2021 08:15:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C349EC4332F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Dec 2021 08:15:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347902AbhLAISy (ORCPT
+        id S1347917AbhLAIS4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 1 Dec 2021 03:18:54 -0500
-Received: from cpanel.siel.si ([46.19.9.99]:54120 "EHLO cpanel.siel.si"
+        Wed, 1 Dec 2021 03:18:56 -0500
+Received: from cpanel.siel.si ([46.19.9.99]:54172 "EHLO cpanel.siel.si"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347890AbhLAISw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1347892AbhLAISw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Wed, 1 Dec 2021 03:18:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=ajvHKaf0+LgO7cQ6eDi53nI2uxKkWsWNL99lhHLwFXQ=; b=UEq6+zMDDxyoHd5XFekh30hfX5
-        tYp9ePkTomqGlxaWpQXqUj0a5wyo+09gb0SW0D3nVA8+4SeSEqG5e9LxHIJBdmJ8gmIALuN+Ia8pt
-        3T8B0K47atN8eBKUw61cqEb6QcldJTv5umdEBMskQmOT2qSc9os8xdxICBWXFyd8AijsYeHbECXtB
-        6Rt2Pn7WwZ6bljMyvnFJKs8HCGQctCUY29nuMmrmaTeGgg2eIwTgQg5AxcxGar/72JMl+p5KANLDY
-        2oikykbLP2eYX4OpbN/DfN+RqWD1NbgnGCfMsCgGCY9mgZYeEh8at28vIN826iv9rdsE48ZWW1tRJ
-        Duulrjjw==;
+        bh=xdrTiqESD9Grk59I9BTw6TCEauQQQ1XgoZZ8AlUk9+4=; b=AEj7bM395MwdEr3quD5g0zsT5Z
+        NPqde2E8s1Iadoi3ymZpic4N4em6q2fVbsMkY2fyXgbrp96glFUA/57YTUZjPn3k8QpNeowRgsk9y
+        HCXCFgR9b5uMnGvgUie8rNArmIrkJqIprvqJn7GUOMLfxn4wBym9HNJJ8CuYQaDpJirJByUaewbdS
+        YuTDst6sBU9qy+j+grPpPVb4vIfsenf10dJxBpHshVgFtGJ5/+oraGlDvYefqCUTC3zZ++KO3Io+D
+        f1jQEj08f2w8XPkTRG0yfjLRMRgGYgTKs49BPq/Oi6Ly1szaOSmsAszX/S4b06osNnzQpBOQye64q
+        FUnHa1+A==;
 Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:60688 helo=localhost.localdomain)
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.94.2)
         (envelope-from <andrej.picej@norik.com>)
-        id 1msKls-007fXk-AT; Wed, 01 Dec 2021 09:15:27 +0100
+        id 1msKls-007fXk-Rz; Wed, 01 Dec 2021 09:15:28 +0100
 From:   Andrej Picej <andrej.picej@norik.com>
 To:     support.opensource@diasemi.com, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org
@@ -37,10 +37,12 @@ Cc:     andrej.picej@norik.com, wim@linux-watchdog.org,
         devicetree@vger.kernel.org, shawnguo@kernel.org,
         s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
         linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v3 1/4] mfd: da9062: make register CONFIG_I writable
-Date:   Wed,  1 Dec 2021 09:15:09 +0100
-Message-Id: <20211201081512.3580837-1-andrej.picej@norik.com>
+Subject: [PATCH v3 4/4] ARM: dts: imx6: phycore-som: set watchdog timeout mode to shutdown
+Date:   Wed,  1 Dec 2021 09:15:12 +0100
+Message-Id: <20211201081512.3580837-4-andrej.picej@norik.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211201081512.3580837-1-andrej.picej@norik.com>
+References: <20211201081512.3580837-1-andrej.picej@norik.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -57,34 +59,31 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Stefan Christ <s.christ@phytec.de>
+Enable system restart when the watchdog timeout occurs.
 
-Make the config register CONFIG_I writable to change the watchdog mode.
-
-Signed-off-by: Stefan Christ <s.christ@phytec.de>
 Signed-off-by: Andrej Picej <andrej.picej@norik.com>
 ---
 Changes in v3:
- - no chagnes
+ - no changes
 
 Changes in v2:
- - no changes
+ - new patch, enable shutdown mode for phytec-phycore (da9062 user)
 ---
- drivers/mfd/da9062-core.c | 1 +
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 01f8e10dfa55..7041ba53efb4 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -556,6 +556,7 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
- 	regmap_reg_range(DA9062AA_VBUCK3_B, DA9062AA_VBUCK3_B),
- 	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
- 	regmap_reg_range(DA9062AA_BBAT_CONT, DA9062AA_BBAT_CONT),
-+	regmap_reg_range(DA9062AA_CONFIG_I, DA9062AA_CONFIG_I),
- 	regmap_reg_range(DA9062AA_GP_ID_0, DA9062AA_GP_ID_19),
- };
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+index a80aa08a37cb..743343e525cf 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+@@ -111,6 +111,7 @@ da9062_onkey: onkey {
+ 		watchdog {
+ 			compatible = "dlg,da9062-watchdog";
+ 			dlg,use-sw-pm;
++			dlg,wdt-sd = <1>;
+ 		};
  
+ 		regulators {
 -- 
 2.25.1
 
