@@ -2,103 +2,112 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C031C4167B
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Dec 2021 09:32:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 007C2C433F5
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Dec 2021 11:06:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356487AbhLBJgM (ORCPT
+        id S1346296AbhLBLJ2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Dec 2021 04:36:12 -0500
-Received: from cpanel.siel.si ([46.19.9.99]:49402 "EHLO cpanel.siel.si"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356439AbhLBJgJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Dec 2021 04:36:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=JoWVJsvCXYY1I9He6RtFyygHgrm4/b7pQYSgt5eRc5I=; b=NRIXNTkb1H3IH21rsQLN8s/SPB
-        R3weB2PYieJTrJQimij0T58d6xS5b1qj/Xi/RdUkCAgeH7+H81L/+I1btUJraTw1sUtP77+xpN2jB
-        pSxhHIne6ZDctDk6/kad5LvHFoyVVLPPuTyde2VsIkHNZNQeTleUspMnkUWTz52QLozwcy4pdFoTX
-        Wg2OIo1NMA9ZSLlz/FivNyELI2ApMKqa+1Bz1Yjpkr1X2UJiiwGdPDQTlPkfvdcOmEOPhjBh0o1Kx
-        kv+jAaPaxGnfdp1QkkCZDqT48KCqnPHMONN5uoSjEW3q72HqMnKwMuFc0FxvUb8aC0Bzc1uWmZBJY
-        bLZ79BNw==;
-Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:52018 helo=localhost.localdomain)
-        by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <andrej.picej@norik.com>)
-        id 1msiSB-00DPB6-81; Thu, 02 Dec 2021 10:32:42 +0100
-From:   Andrej Picej <andrej.picej@norik.com>
-To:     support.opensource@diasemi.com, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org
-Cc:     andrej.picej@norik.com, wim@linux-watchdog.org,
-        linux-kernel@vger.kernel.org, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
-        linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v4 3/4] dt-bindings: watchdog: da9062: add watchdog timeout mode
-Date:   Thu,  2 Dec 2021 10:32:29 +0100
-Message-Id: <20211202093230.3951996-3-andrej.picej@norik.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211202093230.3951996-1-andrej.picej@norik.com>
-References: <20211202093230.3951996-1-andrej.picej@norik.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cpanel.siel.si
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - norik.com
-X-Get-Message-Sender-Via: cpanel.siel.si: authenticated_id: andrej.picej@norik.com
-X-Authenticated-Sender: cpanel.siel.si: andrej.picej@norik.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+        Thu, 2 Dec 2021 06:09:28 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:34621 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237400AbhLBLJ1 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 2 Dec 2021 06:09:27 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id E811B320152C;
+        Thu,  2 Dec 2021 06:06:03 -0500 (EST)
+Received: from imap47 ([10.202.2.97])
+  by compute3.internal (MEProxy); Thu, 02 Dec 2021 06:06:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svenpeter.dev;
+         h=mime-version:message-id:in-reply-to:references:date:from:to
+        :cc:subject:content-type; s=fm3; bh=FDOzHcF5ovrdFj5eVBCoCkU4ZS0u
+        zh4hDCHusrpsRdI=; b=HKfTwARhi7SRFaZDHdsWPa6vG6Z8HPzdS8uMemnKuvdX
+        nmwAlK6N0XLZmRULvHtPXUfhaTkMtjaSzSS1yJtWqS/TYiZF+GUXSUhKyPc2Ldrp
+        SF92R+MlVZKz84Z0tQpcRX2zowV+LpSQZ1Z4AtdjkyfXFIvdCvDd5Wwu95e6p2z+
+        zmpKxyNi3gFZ4cZd6hFymr4o/bDiKG3yPavRLQF6vrrkwpykRmOC5tCDMYWUxIAF
+        a96sohyXRTvSwDqRyKFV50/Y6S2Yz4uvZnn7zNzkJDfehiC7wh5k4CbO0NYk/2y9
+        duEd4KAAj25aBRzpK2kA3PRFoMfimajhbC1WJYEemQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=FDOzHc
+        F5ovrdFj5eVBCoCkU4ZS0uzh4hDCHusrpsRdI=; b=SAhUzluUDtNaYXEcYiVgQ8
+        SX9xFJHbgauGGywfb3mhyqUgQzXGRJRjjYb09f/rICYfoyTRuHTeZJJoAHeSHW9j
+        XM3fbCAvdnw9IQ+/OvCW3qQ+znAuYcxiaNMgKjadI6XODhhWl8Um1Kz9e5zsDo4U
+        11ggWWqiMY+EjVgNm0qBbgTMfPWsi5vsC1n2HS/9Q0T2e55IhV6KucbsEMKs++rJ
+        dVAA68C9XDgcroXJrqtGKP+4RDmASXgXVqJJkNFgq5qrwl+lKqAZ7RqFIZI+YVVB
+        5hdIuPz4Fb06NRy2BSggNr2aqTgrmfbR5mGnf7Dv6Vke9SziBNhEopC/CzXSF27w
+        ==
+X-ME-Sender: <xms:maioYd2_3sJ4ZGVwNV8MQ-D3Iau2EDRcCJvbcOCazeNnwpKGChI1Cw>
+    <xme:maioYUFb6ubxGit2Ihmp6ARGc1uCgjqDWreFPX87NxqbgBZJaycHzRn2LNkb59IFT
+    Ehqvk94a8HUKKXHrhI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrieehgddvfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedfufhvvghn
+    ucfrvghtvghrfdcuoehsvhgvnhesshhvvghnphgvthgvrhdruggvvheqnecuggftrfgrth
+    htvghrnhepgfeigeeiffeuhfettdejgfetjeetfeelfefgfefgvddvtdfghfffudehvdef
+    keffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsh
+    hvvghnsehsvhgvnhhpvghtvghrrdguvghv
+X-ME-Proxy: <xmx:maioYd6YEVUDYmW2pVAwaUaSHzNEh1GozTs5ok42XTiICYQAgxjKHQ>
+    <xmx:maioYa32YL0jkX3yfmv8dADi6rvJBKx_F89r_55aUwI0zFPaeHdgeA>
+    <xmx:maioYQE6qGmYW988nAm41oHpz78AxlOgibbIJeYM2X-SL1hLdGieSQ>
+    <xmx:m6ioYb03FSKIIy_EQH-ai6iiKag_Gr9hB5nhh0zzJKo8KzLZWks6wQ>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id BF55C27407A2; Thu,  2 Dec 2021 06:06:01 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.5.0-alpha0-4458-g51a91c06b2-fm-20211130.004-g51a91c06
+Mime-Version: 1.0
+Message-Id: <0abd0537-3485-4b6c-9299-158d26224466@www.fastmail.com>
+In-Reply-To: <ca52e4ee-b5f3-b892-1ba5-7c5656e45fdd@marcan.st>
+References: <20211113094732.73889-1-sven@svenpeter.dev>
+ <20211113094732.73889-2-sven@svenpeter.dev> <YY/YnlCxLqdw/zAo@sunset>
+ <95dea968-f452-4ba0-9b66-c9bc4269a52c@www.fastmail.com>
+ <YZEMmH49D+GZEewi@sunset> <ca52e4ee-b5f3-b892-1ba5-7c5656e45fdd@marcan.st>
+Date:   Thu, 02 Dec 2021 12:05:41 +0100
+From:   "Sven Peter" <sven@svenpeter.dev>
+To:     "Hector Martin" <marcan@marcan.st>,
+        "Alyssa Rosenzweig" <alyssa@rosenzweig.io>
+Cc:     "Wim Van Sebroeck" <wim@linux-watchdog.org>,
+        "Guenter Roeck" <linux@roeck-us.net>,
+        "Rob Herring" <robh+dt@kernel.org>,
+        "Mark Kettenis" <mark.kettenis@xs4all.nl>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 2/2] watchdog: Add Apple SoC watchdog driver
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document the watchdog timeout mode property. If this property is used
-the user can select what happens on watchdog timeout. Set this property
-to 1 to enable SHUTDOWN (the device resets), set it to 0 and the device
-will go to POWERDOWN on watchdog timeout.
 
-If this property is not set, don't touch the WATCHDOG_SD bit and leave
-the configuration to OTP. This way backward compatibility is not broken.
 
-Signed-off-by: Andrej Picej <andrej.picej@norik.com>
----
-Changes in v4:
- - no changes
+On Thu, Dec 2, 2021, at 06:14, Hector Martin wrote:
+> On 14/11/2021 22.18, Alyssa Rosenzweig wrote:
+>>>>> + * This HW block has three separate watchdogs. WD0 resets the machine
+>>>>> + * to recovery mode and is not very useful for us. WD1 and WD2 trigger a normal
+>>>>> + * machine reset. WD0 additionally supports a configurable interrupt.
+>>>>
+>>>> Do we have any idea what the difference between WD1 and WD2 is?
+>>>
+>>> I've never seen macOS write to WD2 when running in our hypervisor and only
+>>> found that one when I was looking at the rest of the MMIO region.
+>>> >From what I can tell it works exactly like WD1.
+>> 
+>> Makes sense, thanks.
+>> 
+>
+> Are any of these watchdogs active when we boot, and are we leaving them 
+> like that? I'm pretty sure at least some of the coprocessors have their 
+> own watchdog (SMC...), which might be one of these. We should make sure 
+> we don't clobber that.
 
-Changes in v3:
- - add note about using the default OTP setting if this DT binding is
-   not specified
+That's what I thought at first as well but they are all disabled except for
+WD1 which we disable in m1n1.
+I don't touch WD0 or WD2 in this driver anyway and v2 also checks if WD1 is
+running (because it might've been started by u-boot) and makes sure the
+watchdog core is aware and keeps pinging it.
 
-Changes in v2:
- - new patch, document new DT binding
----
- Documentation/devicetree/bindings/watchdog/da9062-wdt.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-index 950e4fba8dbc..354314d854ef 100644
---- a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-@@ -10,6 +10,12 @@ Optional properties:
- - dlg,use-sw-pm: Add this property to disable the watchdog during suspend.
- 	Only use this option if you can't use the watchdog automatic suspend
- 	function during a suspend (see register CONTROL_B).
-+- dlg,wdt-sd: Set what happens on watchdog timeout. If this bit is set the
-+	watchdog timeout triggers SHUTDOWN, if cleared the watchdog triggers
-+	POWERDOWN. Can be 0 or 1. Only use this option if you want to change the
-+	default chip's OTP setting for WATCHDOG_SD bit. If this property is NOT
-+	set the WATCHDOG_SD bit and on timeout watchdog behavior will match the
-+	chip's OTP settings.
- 
- Example: DA9062
- 
--- 
-2.25.1
-
+Sven
