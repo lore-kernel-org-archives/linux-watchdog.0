@@ -2,15 +2,15 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE5A9C433FE
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Dec 2021 06:47:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FCD4C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Dec 2021 06:47:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237961AbhLFGvN (ORCPT
+        id S237995AbhLFGvO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Dec 2021 01:51:13 -0500
-Received: from cpanel.siel.si ([46.19.9.99]:43350 "EHLO cpanel.siel.si"
+        Mon, 6 Dec 2021 01:51:14 -0500
+Received: from cpanel.siel.si ([46.19.9.99]:43388 "EHLO cpanel.siel.si"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237922AbhLFGvM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S237859AbhLFGvM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 6 Dec 2021 01:51:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
         s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
@@ -18,17 +18,17 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=vZCZcj5C5fQdVQXJ2dLCDmj5tpTww7mWFs7wRr+gs+s=; b=bWxslIDkTdg8ZftYgAxXHhS6Lw
-        fzgwRPNbzkkTIrgVxK92nOp0b1JpENxHhtcDaZa6teYkEPPBrkLEPIcjdy0/pFHpSZUW9NmFXq/M7
-        4iPkeccSo3OlSbNwDvFSnMSdqYvHh+VzvAjRn5T/9JpYcvLpAtfydKP0aaLIp7VzMBaLLSZKMq0D6
-        leu2rJdt/M4C4KM8xc8pqPUzmxigLZlo/aHzGprdG+4CXSZ6g7bHsisgcykyl5ts9trlMV17Qx6lj
-        31l6ObOaNxwl/a570c4OU0U0SE0/uqLxE0xmi6GvONBwg3InBq5vbc0TJZcoD36h9bUXPmZmN78jc
-        +jXC/TEg==;
+        bh=5w/TJryA/cWW+EL8XelUEuk9S77Liq/Se2Hvh6rnlRU=; b=pJ5VuKvJXR7p4qM2/SlVuPFLz1
+        h+046geMgBy8GVcToA1ZPHLpi5xt5fXxcfqnZH9pwGuUT31YaXqYmE6clmtvWGczaNUskNjRT94SO
+        O6eNA8mKe73H11ZqlhYYnZ0zSGkivUvhKwBZpmjeXvr230KUWNhNvlQ04VXPQvNFARlFzrO83Yy9E
+        ia1h/jySj1v8fV+v1OF7fRkl693xpDFXqB2FUhwxuG4qjeFn+da76azGVsZ5o1ksao/5+LcjnCIWH
+        nNyH8Pkuoc+iawZBXrQ99lt5+smThKooqYY8FkeGOituu5JsGAJCeVH2D7DJkRjZVg595rWile96q
+        qA2FZy4A==;
 Received: from [89.212.21.243] (port=40020 helo=localhost.localdomain)
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.94.2)
         (envelope-from <andrej.picej@norik.com>)
-        id 1mu7me-00GJXR-LI; Mon, 06 Dec 2021 07:47:40 +0100
+        id 1mu7mf-00GJXR-0C; Mon, 06 Dec 2021 07:47:40 +0100
 From:   Andrej Picej <andrej.picej@norik.com>
 To:     support.opensource@diasemi.com, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org
@@ -38,9 +38,9 @@ Cc:     andrej.picej@norik.com, wim@linux-watchdog.org,
         s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
         linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org,
         cniedermaier@dh-electronics.com
-Subject: [PATCH v5 3/5] watchdog: da9062: reset board on watchdog timeout
-Date:   Mon,  6 Dec 2021 07:47:30 +0100
-Message-Id: <20211206064732.280375-3-andrej.picej@norik.com>
+Subject: [PATCH v5 5/5] ARM: dts: imx6: phycore-som: set watchdog timeout mode to shutdown
+Date:   Mon,  6 Dec 2021 07:47:32 +0100
+Message-Id: <20211206064732.280375-5-andrej.picej@norik.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211206064732.280375-1-andrej.picej@norik.com>
 References: <20211206064732.280375-1-andrej.picej@norik.com>
@@ -60,83 +60,37 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Implement a method to change watchdog timeout configuration based on DT
-binding ("dlg,wdt-sd"). There is a possibility to change the behaviour
-of watchdog reset. Setting WATCHDOG_SD bit enables SHUTDOWN mode, and
-clearing it enables POWERDOWN mode on watchdog timeout.
-
-If no DT binding is specified the WATCHDOG_SD bit stays in default
-configuration, not breaking behaviour of devices which might depend on
-default fuse configuration.
-
-Note: This patch requires that the config register CONFIG_I is
-configured as writable in the da9061/2 multi function device.
+Enable system restart when the watchdog timeout occurs.
 
 Signed-off-by: Andrej Picej <andrej.picej@norik.com>
 ---
 Changes in v5:
- - fix spelling mistake in commit message
+ - no changes
 
 Changes in v4:
- - move the code to probe function
+ - no changes
 
 Changes in v3:
  - no changes
 
 Changes in v2:
- - don't force the "reset" for all da9062-watchdog users, instead add DT
-   binding where the behavior can be selected
+ - new patch, enable shutdown mode for phytec-phycore (da9062 user)
 ---
- drivers/watchdog/da9062_wdt.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index f02cbd530538..bd85f84b0fd4 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -195,8 +195,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	unsigned int timeout;
-+	unsigned int mask;
- 	struct da9062 *chip;
- 	struct da9062_watchdog *wdt;
-+	int ret;
-+	u32 val;
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+index a80aa08a37cb..743343e525cf 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+@@ -111,6 +111,7 @@ da9062_onkey: onkey {
+ 		watchdog {
+ 			compatible = "dlg,da9062-watchdog";
+ 			dlg,use-sw-pm;
++			dlg,wdt-sd = <1>;
+ 		};
  
- 	chip = dev_get_drvdata(dev->parent);
- 	if (!chip)
-@@ -236,6 +239,30 @@ static int da9062_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &wdt->wdtdev.status);
- 	}
- 
-+	/*
-+	 * Configure what happens on watchdog timeout. Can be specified with
-+	 * "dlg,wdt-sd" dt-binding (0 -> POWERDOWN, 1 -> SHUTDOWN).
-+	 * If "dlg,wdt-sd" dt-binding is NOT set use the default.
-+	 */
-+	ret = device_property_read_u32(dev, "dlg,wdt-sd", &val);
-+	if (!ret) {
-+		if (val)
-+			/* Use da9062's SHUTDOWN mode */
-+			mask = DA9062AA_WATCHDOG_SD_MASK;
-+		else
-+			/* Use da9062's POWERDOWN mode. */
-+			mask = 0x0;
-+
-+		ret = regmap_update_bits(wdt->hw->regmap,
-+						DA9062AA_CONFIG_I,
-+						DA9062AA_WATCHDOG_SD_MASK,
-+						mask);
-+
-+		if (ret)
-+			dev_err(dev, "failed to set wdt reset mode: %d\n",
-+				ret);
-+	}
-+
- 	return devm_watchdog_register_device(dev, &wdt->wdtdev);
- }
- 
+ 		regulators {
 -- 
 2.25.1
 
