@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72404C433F5
-	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Dec 2021 12:05:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D730BC433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Dec 2021 12:05:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbhLMMFQ (ORCPT
+        id S235342AbhLMMFT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 13 Dec 2021 07:05:16 -0500
-Received: from mail-eopbgr60046.outbound.protection.outlook.com ([40.107.6.46]:32965
+        Mon, 13 Dec 2021 07:05:19 -0500
+Received: from mail-eopbgr60077.outbound.protection.outlook.com ([40.107.6.77]:35308
         "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229618AbhLMMFP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 13 Dec 2021 07:05:15 -0500
+        id S231585AbhLMMFQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 13 Dec 2021 07:05:16 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hp6TmfKL8pC5mRvMejfEvq5neWcNC/Ods4EF93Cd5tdypnt85mX0njWDjbGwm4bzp1cImZOGWie9ur95hJ270OfNtxfJunxqRWLlxHckYlSg/ZoqOObsCjVbueGWFe8KYNiM0iDa+dcT80FwmSh9ANkaA7pgisJIUoHlmVq7yw+TZcc55wgqJwzmshh6T/sbfe/wR1FS4BXcaOd8Yqxlcbe1dP9tSUo+JzYMfmcmhdqj8V+v7Qeo+wnQKR+n6eAaw2upzQ3o8aoZ60naoU6f0A0kP5YMi2H+KZB3i7NjlIPQJlLvYBUfCsSFgZV1ndD9nTyoIhV4UGuM1MjAHIoG2Q==
+ b=ktEu+kj3OM22b99O2mgZ8WV3rL8Z/olQhF3mxtzSEUQtLlfBYvLNyq5raGx/5PywGCMyWx8JPphae0RUiRsMVkL+tD0hK5ZDxJgm3ef8Qu8NJTCYWLKI/st5g9oKepy/SrrIEue1TWxwdVwa/CY+AnGnHx0t4pLGN3aIWtPvq47BlxpEhKnJrKpfrgRjNc0jiLnn7Sn79D7VnW83C5/+KRBtciBxGDvG6B8kd4GKMO3aJJMVed3aGE/geF8irNskkIdEJcxFb7w5DN0LvcnLTxSGLh4329JEnBJOwYfakXdbmYViUU9blXAqUGis/ACtN1tXjNNmU4J7uQqGrokauA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yMAWZj7JtMho6QTTu3ke3PjJz/uK+VQkd7jSZRXmIKQ=;
- b=TZ77VuJS+ReTMyhEhXWqyuDm9+1YAGY0xxtt3lXaMg0moDukonyMonV1BnshelJSygMBCsiWHe+gKLOguRQGBnrjLjmm/WtEsUJfux+OmE6v7tFk89CyJikExTRhxZsT6p4hnWdzO+kRUzc50RVe96426QeH+/X2I0FfoKiZfrONbQojzRdNpgg+cNGw37xglw01+Ta09+ei2vnvY+D6+CNxLAIJUZGy4mtsCFWChc13Ub5rvhRv3VQMVIkR57dGhw5a2sQjMyNkvLcs884jInKMOr97xXmusedZsLXgFBuBQElBmpJ9feZoF0LSZkIBUT5jpQl+sPff5P89R/IILg==
+ bh=/MMImjCflvRWW0qQ8q9+2d2EpYqtxf/o51w1lYHVRW0=;
+ b=bTEMiZzFKhVRq7cq+goYaQDBmVSUPWTDGqCt4FBngXsKSDPLj3DfCmHLiczCQEk1ZqXB4s/s/OTypnm8tRWTXjEjXdn+7Vm/aursr4gh67uZ53ouRaH//j1pdj/zvhkz3wEu3UTAIun7uBxJNTUZidM+YaCWwdZ0YdjnPaepbcp3mXptQV7t8wP+OV5X6Cyr+B9ZS+KG7ET6vioinoFUP76yE0mhuE98L2gw6yHjBLCvP8dHHHgGgpHIcO2WEPk9af0nFk6EIxXAApbCpCkEIgTAEs4DbAQvIpFMHvuHiORvtYAuR6Pn53Tcm0v8S8R0MWUHv4bhHTlGmR3h/e5mGg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  194.138.21.72) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=siemens.com;
  dmarc=pass (p=none sp=none pct=100) action=none header.from=siemens.com;
@@ -27,18 +27,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=siemens.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yMAWZj7JtMho6QTTu3ke3PjJz/uK+VQkd7jSZRXmIKQ=;
- b=NU3eZ7SxcSA3CnnZT481gP6UcbjUHzMKZ+nLiVpYiqcWwLuglA3mSggJGp7pjfPFckaMhhi2uciEc/OYhQvqe9m6FIX62cicHexz8bVTzuALpVsPGh4/yCnm5hwxZ6F8KJaOPnSG4U7yNmCzM8ZUbSTDNwiAmb7XgHWnjtQmzNEpj1yHv8HLK4vn8hM2a+AYviQ+4V/ugXCrkqslIIh5w7vYHUaHW8RDwryU7Nj3S9p3fGZbphcqspB4Xyzh6+t8bjEgS6kSIp+RhSNvnH3G+R1USVkwHZvAIAHJAb7tsnXzow9L6kpFEpQ/EZq8aDE05tFbp55XE2kzLP9W05wX9g==
-Received: from DU2PR04CA0267.eurprd04.prod.outlook.com (2603:10a6:10:28e::32)
- by AS8PR10MB4661.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:33e::9) with
+ bh=/MMImjCflvRWW0qQ8q9+2d2EpYqtxf/o51w1lYHVRW0=;
+ b=Y++kqUBXQVSPlFpR73RUbWWGfTXAqN//DzuMSpOXtrwQ67GzSf5KVZBcKLDqYmA0KPJOb9eIVVznw9ep625aDrYJnRcK7yYs6fPVCwGzvOh9EFf9uwh73os/u+HntfkCnOK+FGPRfo47QTQ/rQE/p2oRL5yTDl4MRiOBqmudIFVZDrfkCElEoKvj38BfWfLkl7h0A61+Y+9hQ0oddD3c8sbzqdux40R3RE53G5y/tIr/WcvvLLdF1nzNHx46dmwjuaWY7jDKjc/nj4Im4bvAxYTpKz7bjiOcKnoTWi6MDGBUM/3E/W+ZcVrBorNndGWr7e/76ZAKybSO9BuGW4tY1Q==
+Received: from DB6PR0501CA0046.eurprd05.prod.outlook.com (2603:10a6:4:67::32)
+ by DB9PR10MB5233.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:33e::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.11; Mon, 13 Dec
- 2021 12:05:13 +0000
-Received: from DB5EUR01FT022.eop-EUR01.prod.protection.outlook.com
- (2603:10a6:10:28e:cafe::5d) by DU2PR04CA0267.outlook.office365.com
- (2603:10a6:10:28e::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.12 via Frontend
- Transport; Mon, 13 Dec 2021 12:05:13 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.17; Mon, 13 Dec
+ 2021 12:05:14 +0000
+Received: from DB5EUR01FT043.eop-EUR01.prod.protection.outlook.com
+ (2603:10a6:4:67:cafe::44) by DB6PR0501CA0046.outlook.office365.com
+ (2603:10a6:4:67::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.11 via Frontend
+ Transport; Mon, 13 Dec 2021 12:05:14 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 194.138.21.72)
  smtp.mailfrom=siemens.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=siemens.com;
@@ -46,9 +46,9 @@ Received-SPF: Pass (protection.outlook.com: domain of siemens.com designates
  194.138.21.72 as permitted sender) receiver=protection.outlook.com;
  client-ip=194.138.21.72; helo=hybrid.siemens.com;
 Received: from hybrid.siemens.com (194.138.21.72) by
- DB5EUR01FT022.mail.protection.outlook.com (10.152.4.244) with Microsoft SMTP
+ DB5EUR01FT043.mail.protection.outlook.com (10.152.5.103) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4778.12 via Frontend Transport; Mon, 13 Dec 2021 12:05:13 +0000
+ 15.20.4778.12 via Frontend Transport; Mon, 13 Dec 2021 12:05:14 +0000
 Received: from DEMCHDC8A0A.ad011.siemens.net (139.25.226.106) by
  DEMCHDC9SMA.ad011.siemens.net (194.138.21.72) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
@@ -56,7 +56,7 @@ Received: from DEMCHDC8A0A.ad011.siemens.net (139.25.226.106) by
 Received: from md1za8fc.ad001.siemens.net (139.25.69.80) by
  DEMCHDC8A0A.ad011.siemens.net (139.25.226.106) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 13 Dec 2021 13:05:12 +0100
+ 15.1.2375.17; Mon, 13 Dec 2021 13:05:13 +0100
 From:   Henning Schild <henning.schild@siemens.com>
 To:     <linux-kernel@vger.kernel.org>, <linux-leds@vger.kernel.org>,
         <platform-driver-x86@vger.kernel.org>,
@@ -71,11 +71,14 @@ CC:     Srikanth Krishnakar <skrishnakar@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Pavel Machek <pavel@ucw.cz>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Enrico Weigelt <lkml@metux.net>
-Subject: [PATCH v5 0/4] add device drivers for Siemens Industrial PCs
-Date:   Mon, 13 Dec 2021 13:04:58 +0100
-Message-ID: <20211213120502.20661-1-henning.schild@siemens.com>
+        Enrico Weigelt <lkml@metux.net>,
+        Michael Haener <michael.haener@siemens.com>
+Subject: [PATCH v5 4/4] platform/x86: pmc_atom: improve critclk_systems matching for Siemens PCs
+Date:   Mon, 13 Dec 2021 13:05:02 +0100
+Message-ID: <20211213120502.20661-5-henning.schild@siemens.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211213120502.20661-1-henning.schild@siemens.com>
+References: <20211213120502.20661-1-henning.schild@siemens.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -84,115 +87,168 @@ X-ClientProxiedBy: DEMCHDC89YA.ad011.siemens.net (139.25.226.104) To
  DEMCHDC8A0A.ad011.siemens.net (139.25.226.106)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c94555f7-4896-4a7c-4769-08d9be30d1ac
-X-MS-TrafficTypeDiagnostic: AS8PR10MB4661:EE_
-X-Microsoft-Antispam-PRVS: <AS8PR10MB46610579B4F6DED0A7E190A785749@AS8PR10MB4661.EURPRD10.PROD.OUTLOOK.COM>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Office365-Filtering-Correlation-Id: e4888c9a-a9be-4f8a-abd6-08d9be30d22c
+X-MS-TrafficTypeDiagnostic: DB9PR10MB5233:EE_
+X-Microsoft-Antispam-PRVS: <DB9PR10MB5233A8AA849D60CDF0DFB98E85749@DB9PR10MB5233.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:159;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: mJcizBIiSeU58JtJvUx56IPt+agryRKti+ew1O1HxQcF3IfvuHvYNhBVIbvt1OINyUExBotpF+oXHtwhmymHfKDRXnYx5AOreeC3aAffnofGikhETM0h9fmRnEdlvSUujZx2zvB9AJOMahfs5aWE6z17MLd8ZvoSnE/lypk7kFxovCn/TQ5B7QtI5Mw3Zeti7pHbcQOMcsiz1xyYidCG0H/4KriTjFKd/kdGOBdlbX+DkJJYbrtUibuxUUhxKh0bw1MG4hhO3OaaxgdUOAltF/AG03T/0oI3cQEaTnBuYnQu+TwvZjo06kpKlwgINOVEuZQvYJIWuJGD5O3Y8Az6QDEy0H+S/8ngGsZuziPzNaUqK//mAaR33bdea/U2FCCkhFIMF51vygvGMLJACM683cox3f0s5alXmErxdIQDqHvIBzoxB0CVHFkXLIqLiiUZArcRFMzAXTKw7BHGtA1FwiqrV162HPDvDthyaHsrElO/ajqzbkpGg+XYo4+Y2iKElN95NNW8cAzlzjYPAebKmDTISg8dvuyRyJ6P9RSaJNqDH1QnX9QGkvNgawedwjKk1KjhzWtwptZqnum25sM1TfQV1lu13x7WoXSKgL4tHefzczN0V1ZRcNfPYNh7rQNcM7BaLciiso12RHlfB0lGNYAXIJV6XhunotopEjvbpRJxIf/h+f3N25GGyZ9sRm1q0y3b43fZTCbDhqu8RsROXdHNQa26K5HXo6dxwiHU9OI=
-X-Forefront-Antispam-Report: CIP:194.138.21.72;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:hybrid.siemens.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(16526019)(336012)(36860700001)(4326008)(86362001)(2616005)(81166007)(8936002)(5660300002)(508600001)(6666004)(44832011)(356005)(70206006)(70586007)(316002)(186003)(110136005)(26005)(82960400001)(36756003)(1076003)(82310400004)(8676002)(956004)(47076005)(7416002)(2906002)(54906003)(83380400001)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: qHF/x6fU4nE70XGgTCEhuMldbUPpESJ/rVhSkaiqrshejM3fJwBWjZmB2cBjkm2YrEaTynSAa2FUdqJsKidjVXyfCcYRzrQDednOtO0Ux4hj4tuuo33jaQcIVTgg3tWWgZELVxzalovbyjfvBT/NQ3wii1sj9Dx9jBgWEShT1eq3etOD1H04LD4VfRrHZEbe0SDORtbcaVsR/zg6jQmzAnUYNQVVmELU6a8mnnSmk9j7A7RvXybqbkNl9KFv3LV2SHViOci4/30JXcZ9JV4Z1z4dVoCUrXzJQMDkOPEeu4NtErr78bmEoBTSD3dExtpPDCEEpO4uRcRAqAK2m01e6gNe3pax+QIZzKMgf7CDQ6RxFc8+n00/pHFMcJyX5QizFgRet0HG3EvcfbjqCvPli+S06YPdtt48lcSvZLYJA2Z+BScy1dQqIH/lLxs3iOoT1UBpR8DD7p8dxRsqd6+NkKpPCh4Hhqbppznjg0yoN8IR1oxZzjo2o/olIMEbhFErfy4dlJCeeEHVt0HOj1Ag6v985Ghe8b2oUi+X+lXuv9oQLh7J9u2BHP5WuOHZNrcICmedoygyqRevgjcrWNZcdYx7o5W7rwF4xFnwZ5LPKDZe6sIjHmV9IhaUOPDrZePUs1PMQ5DXpFGjObAHiXPlS8Cna3DWlsgBslgOSl3D/E+YpAd7lsUC+9E8Phlys/TrkWExmrfRQGRiG2BswORkR/kHsuvqYnjucxX3Qo2LAPw=
+X-Forefront-Antispam-Report: CIP:194.138.21.72;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:hybrid.siemens.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(1076003)(36756003)(26005)(316002)(82960400001)(8676002)(336012)(956004)(186003)(508600001)(8936002)(16526019)(4326008)(54906003)(107886003)(44832011)(6666004)(70586007)(82310400004)(70206006)(110136005)(81166007)(5660300002)(47076005)(2616005)(36860700001)(7416002)(86362001)(2906002)(83380400001)(356005)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: siemens.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2021 12:05:13.4290
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2021 12:05:14.2782
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c94555f7-4896-4a7c-4769-08d9be30d1ac
+X-MS-Exchange-CrossTenant-Network-Message-Id: e4888c9a-a9be-4f8a-abd6-08d9be30d22c
 X-MS-Exchange-CrossTenant-Id: 38ae3bcd-9579-4fd4-adda-b42e1495d55a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38ae3bcd-9579-4fd4-adda-b42e1495d55a;Ip=[194.138.21.72];Helo=[hybrid.siemens.com]
-X-MS-Exchange-CrossTenant-AuthSource: DB5EUR01FT022.eop-EUR01.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DB5EUR01FT043.eop-EUR01.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR10MB4661
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR10MB5233
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-changes since v4:
-- make everything around GPIO memory usage more verbose
-  - commit messages, FIXME in p1, cover-letter
+Siemens industrial PCs unfortunately can not always be properly
+identified the way we used to. An earlier commit introduced code that
+allows proper identification without looking at DMI strings that could
+differ based on product branding.
+Switch over to that proper way and revert commits that used to collect
+the machines based on unstable strings.
 
-changes since v3:
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Fixes: e8796c6c69d1 ("platform/x86: pmc_atom: Add Siemens CONNECT ...")
+Fixes: f110d252ae79 ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
+Fixes: ad0d315b4d4e ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
+Tested-by: Michael Haener <michael.haener@siemens.com>
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+---
+ drivers/platform/x86/pmc_atom.c | 54 ++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
 
-- fix io access width and region reservations
-- fix style in p1
-
-changes since v2:
-
-- remove "simatic-ipc" prefix from LED names
-- fix style issues found in v2, mainly LED driver
-- fix OEM specific dmi code, and remove magic numbers
-- more "simatic_ipc" name prefixing
-- improved pmc quirk code using callbacks
-
-changes since v1:
-
-- fixed lots of style issues found in v1
-  - (debug) printing
-  - header ordering
-- fixed license issues GPLv2 and SPDX in all files
-- module_platform_driver instead of __init __exit
-- wdt simplifications cleanup
-- lots of fixes in wdt driver, all that was found in v1
-- fixed dmi length in dmi helper
-- changed LED names to allowed ones
-- move led driver to simple/
-- switched pmc_atom to dmi callback with global variable
-
-
-This series adds support for watchdogs and leds of several x86 devices
-from Siemens.
-
-It is structured with a platform driver that mainly does identification
-of the machines. It might trigger loading of the actual device drivers
-by attaching devices to the platform bus.
-
-The identification is vendor specific, parsing a special binary DMI
-entry. The implementation of that platform identification is applied on
-pmc_atom clock quirks in the final patch.
-
-It is all structured in a way that we can easily add more devices and
-more platform drivers later. Internally we have some more code for
-hardware monitoring, more leds, watchdogs etc. This will follow some
-day.
-
-The LED as well as the watchdog drivers access GPIO memory directly.
-Using pinctrl is not possible because the machines lack ACPI entries for
-the pinctrl drivers. Updates to the ACPI tables are not expected. So we
-can rule out a conflict where two drivers would try and access that GPIO
-memory.
-So we do not use those pins as "general purpose" but as "Siemens
-purpose", after having identified the devices very clearly. 
-
-Henning Schild (4):
-  platform/x86: simatic-ipc: add main driver for Siemens devices
-  leds: simatic-ipc-leds: add new driver for Siemens Industial PCs
-  watchdog: simatic-ipc-wdt: add new driver for Siemens Industrial PCs
-  platform/x86: pmc_atom: improve critclk_systems matching for Siemens
-    PCs
-
- drivers/leds/Kconfig                          |   3 +
- drivers/leds/Makefile                         |   3 +
- drivers/leds/simple/Kconfig                   |  11 +
- drivers/leds/simple/Makefile                  |   2 +
- drivers/leds/simple/simatic-ipc-leds.c        | 202 ++++++++++++++++
- drivers/platform/x86/Kconfig                  |  12 +
- drivers/platform/x86/Makefile                 |   3 +
- drivers/platform/x86/pmc_atom.c               |  54 +++--
- drivers/platform/x86/simatic-ipc.c            | 176 ++++++++++++++
- drivers/watchdog/Kconfig                      |  11 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/simatic-ipc-wdt.c            | 228 ++++++++++++++++++
- .../platform_data/x86/simatic-ipc-base.h      |  29 +++
- include/linux/platform_data/x86/simatic-ipc.h |  72 ++++++
- 14 files changed, 786 insertions(+), 21 deletions(-)
- create mode 100644 drivers/leds/simple/Kconfig
- create mode 100644 drivers/leds/simple/Makefile
- create mode 100644 drivers/leds/simple/simatic-ipc-leds.c
- create mode 100644 drivers/platform/x86/simatic-ipc.c
- create mode 100644 drivers/watchdog/simatic-ipc-wdt.c
- create mode 100644 include/linux/platform_data/x86/simatic-ipc-base.h
- create mode 100644 include/linux/platform_data/x86/simatic-ipc.h
-
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index a9d2a4b98e57..a40fae6edc84 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/platform_data/x86/clk-pmc-atom.h>
+ #include <linux/platform_data/x86/pmc_atom.h>
++#include <linux/platform_data/x86/simatic-ipc.h>
+ #include <linux/platform_device.h>
+ #include <linux/pci.h>
+ #include <linux/seq_file.h>
+@@ -362,6 +363,30 @@ static void pmc_dbgfs_register(struct pmc_dev *pmc)
+ }
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static bool pmc_clk_is_critical = true;
++
++static int dmi_callback(const struct dmi_system_id *d)
++{
++	pr_info("%s critclks quirk enabled\n", d->ident);
++
++	return 1;
++}
++
++static int dmi_callback_siemens(const struct dmi_system_id *d)
++{
++	u32 st_id;
++
++	if (dmi_walk(simatic_ipc_find_dmi_entry_helper, &st_id))
++		goto out;
++
++	if (st_id == SIMATIC_IPC_IPC227E || st_id == SIMATIC_IPC_IPC277E)
++		return dmi_callback(d);
++
++out:
++	pmc_clk_is_critical = false;
++	return 1;
++}
++
+ /*
+  * Some systems need one or more of their pmc_plt_clks to be
+  * marked as critical.
+@@ -370,6 +395,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
+ 		.ident = "MPL CEC1x",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
+@@ -378,6 +404,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
+ 		.ident = "Lex 3I380D",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
+@@ -386,6 +413,7 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+ 		.ident = "Lex 2I385SW",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
+@@ -394,30 +422,17 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+ 		.ident = "Beckhoff Baytrail",
++		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
+ 		},
+ 	},
+ 	{
+-		.ident = "SIMATIC IPC227E",
++		.ident = "SIEMENS AG",
++		.callback = dmi_callback_siemens,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
+-		},
+-	},
+-	{
+-		.ident = "SIMATIC IPC277E",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "6AV7882-0"),
+-		},
+-	},
+-	{
+-		.ident = "CONNECT X300",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
+ 		},
+ 	},
+ 
+@@ -429,7 +444,6 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ {
+ 	struct platform_device *clkdev;
+ 	struct pmc_clk_data *clk_data;
+-	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
+ 
+ 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
+ 	if (!clk_data)
+@@ -437,10 +451,8 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ 
+ 	clk_data->base = pmc_regmap; /* offset is added by client */
+ 	clk_data->clks = pmc_data->clks;
+-	if (d) {
+-		clk_data->critical = true;
+-		pr_info("%s critclks quirk enabled\n", d->ident);
+-	}
++	if (dmi_check_system(critclk_systems))
++		clk_data->critical = pmc_clk_is_critical;
+ 
+ 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
+ 					       PLATFORM_DEVID_NONE,
 -- 
 2.32.0
 
