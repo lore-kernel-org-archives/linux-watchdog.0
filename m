@@ -2,147 +2,142 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8180DC433F5
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Dec 2021 20:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAD98C433EF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Dec 2021 21:45:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241203AbhLPUGB (ORCPT
+        id S241840AbhLPVpO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Dec 2021 15:06:01 -0500
-Received: from mail-oo1-f47.google.com ([209.85.161.47]:37617 "EHLO
-        mail-oo1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbhLPUGA (ORCPT
+        Thu, 16 Dec 2021 16:45:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33238 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242309AbhLPVod (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Dec 2021 15:06:00 -0500
-Received: by mail-oo1-f47.google.com with SMTP id v19-20020a4a2453000000b002bb88bfb594so69428oov.4;
-        Thu, 16 Dec 2021 12:06:00 -0800 (PST)
+        Thu, 16 Dec 2021 16:44:33 -0500
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D00C08E7B1;
+        Thu, 16 Dec 2021 13:43:25 -0800 (PST)
+Received: by mail-yb1-xb2f.google.com with SMTP id e136so920719ybc.4;
+        Thu, 16 Dec 2021 13:43:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MCvRIN88cvRRyNaT6C9m3J4R8+HA36mI5cyJE+PFjmo=;
+        b=gtdSaMh94TK8rrahc+3/8Nzu5QLzB2HC011WXA3oIa3M0p1zxNKfqgvbde25n1EPUI
+         +fwrquEQmW+6xEOkCBYPpzJuQXvsXsBwGxgNuw5vu96xcgD1GZZzqQRU9mzXuKnqrj4D
+         lSNLvnGg4FnqG+OaMAI/CbTBZZmk+3156jFpOkUgjvtXml0ZH4AJNcUmABkCqUJNAnLH
+         kSu8WRMV/imP0v6bxPHVwcaDeir8N1FL3pxwRWHMaUFkpoXzxKE8p0b4tstYMSuzMTOs
+         sVeU7bVANKvCopp7gesCK5gcGLv+c3bf6owL5WNkSx9Of0VCnkoGRKo13JRO6fvb3YC1
+         JhjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=E/i1QfoNP41D0v1l+fFljT7XuXIUpeAfbgQOkVLC7ZQ=;
-        b=SH46dkEJX943KITLe1oKYtYE6odMEHYivPm6x1HX460jP2ReHNas9ndtv4+l5pp1GR
-         63I4/z70tbKx0Xzdyugd7clR9jfnJPV0sprsMEYj3Uk3qgLgahSnV3sYSCd2J3BMNJvK
-         hiqy3wfm7A2qOKGRFM29+Tf0AXq54Sl+cgKpjRW1SNFjFbo8SrO74jpjpvucyyiEnfja
-         LCyjlfKuEW/aj3jPt0qRTzqWfxi4vMRlBFfEZQ91T1Yta9NLz65qiIfQDbSUSDZ2/Qyc
-         vV1/EXvz77xGbyppYrp1vTGJmCP24WrSb9VetIbke93VgIwcWKlSE9pSHVreencE5cy1
-         GujQ==
-X-Gm-Message-State: AOAM532zb3uXn5EKgsUxrp34khaKSlt0m0y2MG98hDilU7f0x8Fabq3s
-        Qc5IKhzbGEp/pbogOApXf62+K/sjyw==
-X-Google-Smtp-Source: ABdhPJyIw1usEhvXLNgoSg9c6ablaAifSOIE8K5INypzYK8aFSlXK/cLXjMz17LxL9hv8hPFxX110Q==
-X-Received: by 2002:a4a:db77:: with SMTP id o23mr12240152ood.15.1639685158510;
-        Thu, 16 Dec 2021 12:05:58 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id f20sm1257735oiw.48.2021.12.16.12.05.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Dec 2021 12:05:57 -0800 (PST)
-Received: (nullmailer pid 662296 invoked by uid 1000);
-        Thu, 16 Dec 2021 20:05:56 -0000
-Date:   Thu, 16 Dec 2021 14:05:56 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Xiantao Hu <xt.hu@cqplus1.com>
-Cc:     wim@linux-watchdog.org, p.zabel@pengutronix.de,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        wells.lu@sunplus.com, qinjian@cqplus1.com
-Subject: Re: [PATCH v3 1/2] dt-bindings: watchdog: Add bindings doc for
- Sunplus SP7021
-Message-ID: <YbucJFI0um3zjKVl@robh.at.kernel.org>
-References: <20211215101831.256667-1-xt.hu@cqplus1.com>
- <20211215101831.256667-2-xt.hu@cqplus1.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MCvRIN88cvRRyNaT6C9m3J4R8+HA36mI5cyJE+PFjmo=;
+        b=c5eSlwYwLEyvke0ly+SYzSQYfxfitYQ7AHD02be0Wzw9Evv0Oj5PABsLZJLwd7i2u/
+         gGibdeolmZX8i8+QteTOyv9DTLpA7U03A8rH7ymDnJjVwljm/9jPgw1OwfXrsOH+rOAS
+         +T/Z7pMRnhjsN93LxtDnr0Ppu8t2E8KP/AdJty8AxJUvQMmqlJYf5bDd/rhpjTrIdEhY
+         0KvsrYoI+e4/6GkqlRSgmLHEhROnDyC+Pn28o9ODwoWHO9PsAupbfTRyeN2mq9wTawXd
+         jKaHF4UgNv39xakrInkHWh5SVEjKsBmRZajOySlZyK7ZC93Fv3MfXOP6Y41S8oCGXcNQ
+         u8Vg==
+X-Gm-Message-State: AOAM533+119miqu7uTfNIBouGqQyyxxU4hEj/VskaoMRDCXIHeAXvyrk
+        1QgPkmVmMHZzMYfHoStg97b/Fr8D65qLSKt94jX4a8QthGA=
+X-Google-Smtp-Source: ABdhPJwKu2cVmo3f5Ohp0DqRDtIJ5E4ZlhFFBipbvdQZt0VyPsDlrQmuE461BA/8qJGBmqJ/msZlaDDfjoki4wAKUXw=
+X-Received: by 2002:a25:abe3:: with SMTP id v90mr15572ybi.315.1639691004872;
+ Thu, 16 Dec 2021 13:43:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211215101831.256667-2-xt.hu@cqplus1.com>
+References: <20211216183639.7710-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <3733aa67-8606-58de-69cb-f7a167713da4@roeck-us.net>
+In-Reply-To: <3733aa67-8606-58de-69cb-f7a167713da4@roeck-us.net>
+From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date:   Thu, 16 Dec 2021 21:42:58 +0000
+Message-ID: <CA+V-a8v6-zO6rYDHyFsPZ15YyjVaoP9A=WWNLXaVfY=Kkgrr+g@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: s3c2410: Use platform_get_irq() to get the interrupt
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        LAK <linux-arm-kernel@lists.infradead.org>,
+        linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Dec 15, 2021 at 06:18:30PM +0800, Xiantao Hu wrote:
-> Add bindings documentation for Sunplus SP7021 SoC.
-> 
-> Signed-off-by: Xiantao Hu <xt.hu@cqplus1.com>
-> ---
-> Changes in v3:
->  - removed second reg source. The registers are not used in the driver.
+Hi Guenter,
 
-Use by a driver doesn't matter. If they are part of the h/w, put them in 
-the binding.
+Thank you for the review.
 
-> 
->  .../bindings/watchdog/sunplus,sp7021-wdt.yaml | 45 +++++++++++++++++++
->  MAINTAINERS                                   |  6 +++
->  2 files changed, 51 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml b/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
-> new file mode 100644
-> index 000000000..033e2f599
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
-> @@ -0,0 +1,45 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +# Copyright (C) Sunplus Co., Ltd. 2021
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/watchdog/sunplus,sp7021-wdt.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Sunplus SoCs Watchdog Device Tree Bindings
-> +
-> +maintainers:
-> +  - XianTao Hu <xt.hu@cqplus1.com>
-> +
-> +allOf:
-> +  - $ref: watchdog.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: sunplus,sp7021-wdt
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  resets:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - clocks
-> +  - resets
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    watchdog: watchdog@9c000630 {
-> +        compatible = "sunplus,sp7021-wdt";
-> +        reg = <0x9c000630 0x08>;
-> +        clocks = <&clkc 0x24>;
-> +        resets = <&rstc 0x14>;
-> +    };
-> +...
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index e0bca0de0..c2ba65155 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -17933,6 +17933,12 @@ L:	netdev@vger.kernel.org
->  S:	Maintained
->  F:	drivers/net/ethernet/dlink/sundance.c
->  
-> +SUNPLUS WATCHDOG DRIVER
-> +M:	Xiantao Hu <xt.hu@cqplus1.com>
-> +L:	linux-watchdog@vger.kernel.org
-> +S:	Maintained
-> +F:	Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
-> +
->  SUPERH
->  M:	Yoshinori Sato <ysato@users.sourceforge.jp>
->  M:	Rich Felker <dalias@libc.org>
-> -- 
-> 2.33.1
-> 
-> 
+On Thu, Dec 16, 2021 at 7:01 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> On 12/16/21 10:36 AM, Lad Prabhakar wrote:
+> > platform_get_resource(pdev, IORESOURCE_IRQ, ..) relies on static
+> > allocation of IRQ resources in DT core code, this causes an issue
+> > when using hierarchical interrupt domains using "interrupts" property
+> > in the node as this bypassed the hierarchical setup and messed up the
+> > irq chaining.
+> >
+> > In preparation for removal of static setup of IRQ resource from DT core
+> > code use platform_get_irq().
+> >
+> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > ---
+> >   drivers/watchdog/s3c2410_wdt.c | 13 ++++++-------
+> >   1 file changed, 6 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+> > index 2395f353e52d..f5aced344b7b 100644
+> > --- a/drivers/watchdog/s3c2410_wdt.c
+> > +++ b/drivers/watchdog/s3c2410_wdt.c
+> > @@ -513,9 +513,9 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+> >   {
+> >       struct device *dev = &pdev->dev;
+> >       struct s3c2410_wdt *wdt;
+> > -     struct resource *wdt_irq;
+> >       unsigned int wtcon;
+> >       int started = 0;
+> > +     int wdt_irq;
+> >       int ret;
+> >
+> >       wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+> > @@ -536,10 +536,9 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+> >               }
+> >       }
+> >
+> > -     wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> > -     if (wdt_irq == NULL) {
+> > -             dev_err(dev, "no irq resource specified\n");
+> > -             ret = -ENOENT;
+> > +     wdt_irq = platform_get_irq(pdev, 0);
+> > +     if (wdt_irq < 0) {
+> > +             ret = wdt_irq;
+> >               goto err;
+>
+> All those "goto err;" statements in this function are pointless since they
+> just return ret. Since this is the first of those goto statements, please
+> replace it with "return wdt_irq;".
+>
+Sure will do and post a v2.
+
+> Thanks,
+> Guenter
+>
+> >       }
+> >
+> > @@ -592,8 +591,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+> >                       dev_info(dev, "default timer value is out of range, cannot start\n");
+> >       }
+> >
+> > -     ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
+> > -                             pdev->name, pdev);
+> > +     ret = devm_request_irq(dev, wdt_irq, s3c2410wdt_irq, 0,
+> > +                            pdev->name, pdev);
+> >       if (ret != 0) {
+> >               dev_err(dev, "failed to install irq (%d)\n", ret);
+> >               goto err_cpufreq;
+> >
+>
+Cheers,
+Prabhakar
