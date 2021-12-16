@@ -2,103 +2,103 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30A04C4332F
-	for <linux-watchdog@archiver.kernel.org>; Wed, 15 Dec 2021 22:28:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC9B5C433EF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Dec 2021 16:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231616AbhLOW2K (ORCPT
+        id S233722AbhLPQkp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 15 Dec 2021 17:28:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50228 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231415AbhLOW1z (ORCPT
+        Thu, 16 Dec 2021 11:40:45 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:43780
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233473AbhLPQkp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 15 Dec 2021 17:27:55 -0500
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C965C06175A
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Dec 2021 14:27:55 -0800 (PST)
-Received: by mail-oi1-x22b.google.com with SMTP id m6so33737121oim.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Dec 2021 14:27:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=0k/4WghU8oFurHJHEHSouu6Us6eVLuVOzOhdp+JcH0k=;
-        b=NeDhHnDzQKmHQdukLfPb57fcY9sRvEeshRGWjl6VbHYN/VNd2WIdiGucN3VyQHfHyi
-         ODX0tPBTzdHUhS/K/UFskuk3zbVPplOGuu1x/3hM6Od2OgzHrir6KktuGRDLF4LOX+Vz
-         smHiXw5l4g/gYIGX3S+KGZWonIZx7TDqmoQI+DekZRsEy3SrNmlSXlyCCG5uZAu0Yfzf
-         LJrhT5CgejLIjStw/okC2VQgzpIsD4mkhq6Jnn8j/tcQRpqfLEkVXuhlhZMr5QdglWyz
-         S7wASV77km5m+lI0oQ4m2DMor4fr4TyP/uoOVeJECDFrpy5pBzEl3XpiE4O2sXMtjjSt
-         YvUA==
+        Thu, 16 Dec 2021 11:40:45 -0500
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com [209.85.128.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 04B1C409F7
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Dec 2021 16:40:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1639672843;
+        bh=wzGK8JrM0qK5K+9nNV1QJqS+dRB/4uLBgfT0d3ILjG4=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=cQtlT3utN3EaG2IlL/0ZZOmZpSfG5EKJooSdBfn4rIQiKfruqDbfjU2TYXkZJ5HSg
+         TZ2o5wAycEYCyQv2MDtqk9OXzsStdBHwyB4y7qjeprDyLJCJJkEtATjVFu058bqn+7
+         VTMMXRsoGzg3uIPjfFDuTjVjE/Ed6mvlpZC2WvSIxcTExyTmehL4l5Zup9UjRRhIQg
+         UeuMg7MfT2nOUD8T//NBLDj0ArCmr/TVWxh/1F7L90mY+JR1hHZ5Mb8VT/Iz8cgPl8
+         K3VkYb6N4nvkDMOa0m83RGgrpyJ0KgMiBHR2ijr6m0VBNHMH4VtOGjgg+KIYFkX3DP
+         g3Yo63t8KteHg==
+Received: by mail-wm1-f69.google.com with SMTP id a203-20020a1c7fd4000000b0034574187420so597450wmd.5
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Dec 2021 08:40:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0k/4WghU8oFurHJHEHSouu6Us6eVLuVOzOhdp+JcH0k=;
-        b=TKLbNOq6fTCDsqc8+m0vZLWKgEUc5acINmFsTAwxUBl4lI73ESDl/3O0PbBbO/gRB7
-         kabmrlpiRN0x6ei8sgtoo8R+Ml5hngDOv5+/O6jKKkZeCUHAoAROALDZAfy+b5peEU5y
-         T0qLXOc1OnSwremLe5jX99xHP06hEgr7QWRh0qMajU3EacSu4sZH63qDP0oo0eR0nHB/
-         zu8/1ai+Gty35X7zjpHQMjq/n4HhUYiKUmeYCkH6e15idWDF/C2OqRM1C45YLEvLYWwG
-         wniW0b5ax+nMAd8Zx42g7cIrbgNe/EmrdWaAiIPGlabQy/mO5PW5RYVw59g5ju0I3Uzy
-         y20g==
-X-Gm-Message-State: AOAM532M2EkzOKNKp0N1EUjEsfWl4vLQ1JAprPy7UQ6bvr4D+/QndSZi
-        SMIPfE4RkHwy6gzjrPLrTyzoWw==
-X-Google-Smtp-Source: ABdhPJyiZGSg7nl3iPZNacNkzzIriIsA8K+pbTW1R7BSm60R5ayfzMXsdIZwV+OW92zh2rfswPUntA==
-X-Received: by 2002:aca:1202:: with SMTP id 2mr1806801ois.63.1639607274378;
-        Wed, 15 Dec 2021 14:27:54 -0800 (PST)
-Received: from builder.lan (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
-        by smtp.gmail.com with ESMTPSA id t14sm700500oth.81.2021.12.15.14.27.53
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wzGK8JrM0qK5K+9nNV1QJqS+dRB/4uLBgfT0d3ILjG4=;
+        b=l7OVinPZNmsp2rw9oA/KpsWMkwxZUQScEHfIZRAUjxP7iSp9mEzw8+AdHGb2OpDYLU
+         bQDhpeJQweqr5SLUkS8mkz2l7U2wNOWAISj40SMKfBWNybdR6mv338ko9TLlI4Vy0+OS
+         yQHZECzI7JR/YgnDfiDbekVtMMDqpiPIawIDX+B8TPFtGvCb9VozlG3HSswcBGc/uBVW
+         8oCC016TDI6ZjxLwAi+iPcBvbTfUTUqFvW17eu2LL1CLBkenQAiiCC2fWUtQOjGT29T1
+         XH4fLlTNAFmO5PvHe8v0xp10Iij42kk0Bn71kji8vxRk2hdQJ4BZTppPDrAm3iSRrLy7
+         3QRw==
+X-Gm-Message-State: AOAM5311WvUJaz1JTLsVOa9qcc8eowgD/5nVL9h6+n84L3Qr1yjatyaB
+        ePv7RgACEfnMGodOWxcP7+4m52MFrQw4K5MwJ/mtUS/bQsFP5C2TRHkBRXWtqPh9FKHTKTnTTLk
+        m+uJEu3K/cM62R7j6yQmpc3etYWbi2md0rt73Yp+mrqwN
+X-Received: by 2002:adf:eb4c:: with SMTP id u12mr4157668wrn.707.1639672842472;
+        Thu, 16 Dec 2021 08:40:42 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwMEaAfgUDbbHkpgBFCHapS6AIPsW5OiAs1LX+6oRtRz2kYhV8oYHhxxQZU7b3y6qvplc2a+w==
+X-Received: by 2002:adf:eb4c:: with SMTP id u12mr4157652wrn.707.1639672842269;
+        Thu, 16 Dec 2021 08:40:42 -0800 (PST)
+Received: from alex.home (lfbn-gre-1-195-1.w90-112.abo.wanadoo.fr. [90.112.158.1])
+        by smtp.gmail.com with ESMTPSA id o4sm3938290wmc.43.2021.12.16.08.40.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Dec 2021 14:27:53 -0800 (PST)
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     linux-arm-msm@vger.kernel.org,
-        Luca Weiss <luca.weiss@fairphone.com>
-Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
-        de Goede <hdegoede@redhat.com>, linux-phy@lists.infradead.org,
-        linux-fbdev@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
-        Rob Herring <robh@kernel.org>,
-        Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Amit Kucheria <amitk@kernel.org>, phone-devel@vger.kernel.org,
-        linux-usb@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        ~postmarketos/upstreaming@lists.sr.ht,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Manu Gautam <mgautam@codeaurora.org>
-Subject: Re: (subset) [PATCH 00/10] dt-binding patches for sm6350
-Date:   Wed, 15 Dec 2021 16:27:26 -0600
-Message-Id: <163960723734.3062250.16152122166909189415.b4-ty@linaro.org>
+        Thu, 16 Dec 2021 08:40:41 -0800 (PST)
+From:   Alexandre Ghiti <alexandre.ghiti@canonical.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Cc:     Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Subject: [PATCH v2 1/2] dt-bindings: mfd: Fix typo "DA9093" -> "DA9063"
+Date:   Thu, 16 Dec 2021 17:40:36 +0100
+Message-Id: <20211216164037.2888316-1-alexandre.ghiti@canonical.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211213082614.22651-1-luca.weiss@fairphone.com>
-References: <20211213082614.22651-1-luca.weiss@fairphone.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, 13 Dec 2021 09:26:01 +0100, Luca Weiss wrote:
-> This series adds compatibles to the dt-bindings documentation where it
-> was missed before.
-> 
-> Finally, the last patch solves some further dtbs_check errors by
-> modifying the sm6350.dtsi to match the binding docs more closely.
-> 
-> Please note, that the first patch from Konrad is a resend that wasn't
-> picked up when sent to the lists in August 2021.
-> 
-> [...]
+The device described is the "DA9063", not "DA9093", so fix this typo.
 
-Applied, thanks!
+Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+---
+ Documentation/devicetree/bindings/mfd/da9063.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[10/10] arm64: dts: qcom: sm6350: Fix validation errors
-        commit: f56498fc6a9364a35dd74af791bd1251467e9cc1
-
-Best regards,
+diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Documentation/devicetree/bindings/mfd/da9063.txt
+index 8da879935c59..91b79a21d403 100644
+--- a/Documentation/devicetree/bindings/mfd/da9063.txt
++++ b/Documentation/devicetree/bindings/mfd/da9063.txt
+@@ -1,6 +1,6 @@
+ * Dialog DA9063/DA9063L Power Management Integrated Circuit (PMIC)
+ 
+-DA9093 consists of a large and varied group of sub-devices (I2C Only):
++DA9063 consists of a large and varied group of sub-devices (I2C Only):
+ 
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
 -- 
-Bjorn Andersson <bjorn.andersson@linaro.org>
+2.32.0
+
