@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85877C433F5
-	for <linux-watchdog@archiver.kernel.org>; Tue, 18 Jan 2022 17:09:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F5DEC4332F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 18 Jan 2022 17:09:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347028AbiARRJR (ORCPT
+        id S234574AbiARRJR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Tue, 18 Jan 2022 12:09:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37586 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230126AbiARRJQ (ORCPT
+        with ESMTP id S1346258AbiARRJR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 18 Jan 2022 12:09:16 -0500
-Received: from albert.telenet-ops.be (albert.telenet-ops.be [IPv6:2a02:1800:110:4::f00:1a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A200C061401
+        Tue, 18 Jan 2022 12:09:17 -0500
+Received: from laurent.telenet-ops.be (laurent.telenet-ops.be [IPv6:2a02:1800:110:4::f00:19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6070EC061746
         for <linux-watchdog@vger.kernel.org>; Tue, 18 Jan 2022 09:09:15 -0800 (PST)
 Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed20:76d0:2bff:fec8:549])
-        by albert.telenet-ops.be with bizsmtp
-        id kH992600H0kcUhD06H99m4; Tue, 18 Jan 2022 18:09:13 +0100
+        by laurent.telenet-ops.be with bizsmtp
+        id kH992600K0kcUhD01H99pM; Tue, 18 Jan 2022 18:09:13 +0100
 Received: from rox.of.borg ([192.168.97.57])
         by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1n9ryn-00AH3D-4M; Tue, 18 Jan 2022 18:09:09 +0100
+        id 1n9rym-00AH39-SU; Tue, 18 Jan 2022 18:09:08 +0100
 Received: from geert by rox.of.borg with local (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1n9rym-001Bli-Er; Tue, 18 Jan 2022 18:09:08 +0100
+        id 1n9rym-001BlH-B8; Tue, 18 Jan 2022 18:09:08 +0100
 From:   Geert Uytterhoeven <geert+renesas@glider.be>
 To:     Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
@@ -39,49 +39,53 @@ Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4/5] arm64: dts: renesas: r8a779f0: Add RWDT node
-Date:   Tue, 18 Jan 2022 18:09:04 +0100
-Message-Id: <556a7f41bdadceecbe8b59b79ac7e9f592ca17a2.1642525158.git.geert+renesas@glider.be>
+Subject: [PATCH 0/5] arm64: renesas: Add R-Car S4-8 watchdog support on Spider
+Date:   Tue, 18 Jan 2022 18:09:00 +0100
+Message-Id: <cover.1642525158.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <cover.1642525158.git.geert+renesas@glider.be>
-References: <cover.1642525158.git.geert+renesas@glider.be>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add a device node for the RCLK Watchdog Timer (RWDT) on the Renesas
-R-Car S4-8 (R8A779F0) SoC.
+	Hi all,
 
-Extracted from a larger patch in the BSP by LUU HOAI.
+This patch series adds support for the RCLK Watchdog Timer (RWDT) in the
+R-Car S4-8 SoC, and enables it on the Renesas Spider development board.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- arch/arm64/boot/dts/renesas/r8a779f0.dtsi | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Patch 1 is to be queued in renesas-clk for v5.18.
+Patches 2 and 3 are intended for the watchdog tree.
+Patches 4 and 5 are to be queued in renesas-devel for v5.18.
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a779f0.dtsi b/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-index 5426532d10e2a472..0ac8c345558efc17 100644
---- a/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-@@ -59,6 +59,16 @@ soc: soc {
- 		#size-cells = <2>;
- 		ranges;
- 
-+		rwdt: watchdog@e6020000 {
-+			compatible = "renesas,r8a779f0-wdt",
-+				     "renesas,rcar-gen4-wdt";
-+			reg = <0 0xe6020000 0 0x0c>;
-+			clocks = <&cpg CPG_MOD 907>;
-+			power-domains = <&sysc R8A779F0_PD_ALWAYS_ON>;
-+			resets = <&cpg 907>;
-+			status = "disabled";
-+		};
-+
- 		cpg: clock-controller@e6150000 {
- 			compatible = "renesas,r8a779f0-cpg-mssr";
- 			reg = <0 0xe6150000 0 0x4000>;
+Thanks for your comments!
+
+Geert Uytterhoeven (3):
+  clk: renesas: r8a779f0: Add WDT clock
+  arm64: dts: renesas: r8a779f0: Add RWDT node
+  arm64: dts: renesas: spider-cpu: Enable watchdog timer
+
+Thanh Quan (2):
+  dt-bindings: watchdog: renesas-wdt: Document r8a779f0 support
+  watchdog: renesas_wdt: Add R-Car Gen4 support
+
+ .../devicetree/bindings/watchdog/renesas,wdt.yaml      |  5 +++++
+ arch/arm64/boot/dts/renesas/r8a779f0-spider-cpu.dtsi   |  5 +++++
+ arch/arm64/boot/dts/renesas/r8a779f0.dtsi              | 10 ++++++++++
+ drivers/clk/renesas/r8a779f0-cpg-mssr.c                |  9 +++++++++
+ drivers/watchdog/renesas_wdt.c                         |  1 +
+ 5 files changed, 30 insertions(+)
+
 -- 
 2.25.1
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
