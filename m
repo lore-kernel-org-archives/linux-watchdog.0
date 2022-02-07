@@ -2,104 +2,101 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 169CCC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3732DC43217
 	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Feb 2022 13:22:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbiBGNVL (ORCPT
+        id S231411AbiBGNVM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 7 Feb 2022 08:21:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40770 "EHLO
+        Mon, 7 Feb 2022 08:21:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448045AbiBGNDO (ORCPT
+        with ESMTP id S1442351AbiBGMU4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 Feb 2022 08:03:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E32C043188;
-        Mon,  7 Feb 2022 05:03:14 -0800 (PST)
+        Mon, 7 Feb 2022 07:20:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEE0C02B5C4;
+        Mon,  7 Feb 2022 04:08:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20C39B8112E;
-        Mon,  7 Feb 2022 13:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D32CC340EF;
-        Mon,  7 Feb 2022 13:03:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66A1061027;
+        Mon,  7 Feb 2022 12:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239F2C004E1;
+        Mon,  7 Feb 2022 12:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644238991;
-        bh=3fdvgWMdmk/LpdvMUDXaIyajFOvzUUp8bUnAjxNG7W0=;
+        s=k20201202; t=1644235696;
+        bh=aJS2fMJOFOu6nNUlDjL6FgGlZo9MICA7XYvXLN/4y6k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jaU088b4m3B+rV+eJmQvTITIh98MRbu1x3hz1cjjRncsb81J/kIHzfozneivLbK0u
-         UyhS9Ee2puYHT7pqat/bBm8gfoS6Qpg3OX/MiuAW/+VbZvO9plXdwXlFdmq9Rq7vKC
-         iCend3YdLyj8Zy7eZeesVy69w742TRhLSI1DCesCdg7gkTs5wl51h9Xy2tmNJ5ftEn
-         QGKf2iXbIqb84dQHMUcpZoVmPpRG89IKI3+5H2cd6top00CLeQo1QxhNIVeJtFdUtK
-         0q6yBbCU8OccaXDrWcSg9Dlmd8jVFOLYUY7E4jq7wDVRvEmeVK7t9NiQgOrsrIlDvZ
-         8XMjvAd7NQoqQ==
-Date:   Mon, 7 Feb 2022 14:03:08 +0100
+        b=Fhg3SvK4SFuwMYrPoW/24O1P70+1xqqeudOs8fEyomQr/FN/UJwWCMoUdDjxmgPS5
+         cCesZajB+PjlwovB1EeOhC2UyCYNhejtYILBJuv3/GQWjAQbOoxRpcCyB7IjAoDGVm
+         YiR5fhwPIjf3EZ5/ygKIbW5UuLTD3pT7F0x4rzXVfH+R5ugiHn6pXsESDJtYOAZnZ1
+         UELlN2dofYGqtcQfawmd+sDerheL3N77KK/p2Ku40CYIO8EsZXUjxISCl4gt7MtUmI
+         Efopu4Zp8pTdtKFm0/SHx7zfNKGRZhB8UmS74f7Afv0uRnHJBnx5EMTMCf+efZOVdQ
+         NVkwj+x+4B4xw==
+Date:   Mon, 7 Feb 2022 13:08:10 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     Terry Bowman <terry.bowman@amd.com>, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
-        andy.shevchenko@gmail.com, rafael.j.wysocki@intel.com,
-        linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
-        rrichter@amd.com, thomas.lendacky@amd.com, sudheesh.mavila@amd.com,
-        Nehal-bakulchandra.Shah@amd.com, Basavaraj.Natikar@amd.com,
-        Shyam-sundar.S-k@amd.com, Mario.Limonciello@amd.com
-Subject: Re: [PATCH v4 0/4] Watchdog: sp5100_tco: Replace cd6h/cd7h port I/O
- accesses with MMIO accesses
-Message-ID: <YgEYjOwoxtbkBdfq@shikoro>
+To:     Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>
+Cc:     linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org, andy.shevchenko@gmail.com,
+        rafael.j.wysocki@intel.com, linux-kernel@vger.kernel.org,
+        wim@linux-watchdog.org, rrichter@amd.com, thomas.lendacky@amd.com,
+        sudheesh.mavila@amd.com, Nehal-bakulchandra.Shah@amd.com,
+        Basavaraj.Natikar@amd.com, Shyam-sundar.S-k@amd.com,
+        Mario.Limonciello@amd.com
+Subject: Re: [PATCH v4 0/9] i2c: piix4: Replace cd6h/cd7h port I/O accesses
+ with MMIO accesses
+Message-ID: <YgELqjDHnPdJeor8@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Jean Delvare <jdelvare@suse.de>,
-        Terry Bowman <terry.bowman@amd.com>, linux@roeck-us.net,
+        Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
         andy.shevchenko@gmail.com, rafael.j.wysocki@intel.com,
         linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
         rrichter@amd.com, thomas.lendacky@amd.com, sudheesh.mavila@amd.com,
         Nehal-bakulchandra.Shah@amd.com, Basavaraj.Natikar@amd.com,
         Shyam-sundar.S-k@amd.com, Mario.Limonciello@amd.com
-References: <20220130191225.303115-1-terry.bowman@amd.com>
- <20220207134416.72c22504@endymion.delvare>
+References: <20220130184130.176646-1-terry.bowman@amd.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="uE7U7PhPAYtL4Nla"
+        protocol="application/pgp-signature"; boundary="0kO5rWOtCL0wqwOz"
 Content-Disposition: inline
-In-Reply-To: <20220207134416.72c22504@endymion.delvare>
+In-Reply-To: <20220130184130.176646-1-terry.bowman@amd.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
---uE7U7PhPAYtL4Nla
+--0kO5rWOtCL0wqwOz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+On Sun, Jan 30, 2022 at 12:41:21PM -0600, Terry Bowman wrote:
+> This series changes the piix4_smbus driver's cd6h/cd7h port I/O accesses
+> to use MMIO instead. This is necessary because cd6h/cd7h port I/O may be
+> disabled on later AMD processors.
+
+Review from Andy is already great, I'll give Jean a few more days for comments.
 
 
-> Confirmed. I reviewed the 4 patches of this version of the series and
-> I'm fine with them. I also tested the result successfully on my laptop.
->=20
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> Tested-by: Jean Delvare <jdelvare@suse.de>
-
-Does that mean you are happy with the i2c-piix4 changes as well?
-
-
---uE7U7PhPAYtL4Nla
+--0kO5rWOtCL0wqwOz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBGIwACgkQFA3kzBSg
-KbZwOBAAn5+NGZNzWvSTjotYTqK77pdmgqkcSCKwLYSeAH3ZJrldCI2nVyDp2G3d
-ouQV9vMsY/xxkXhTA59QMx4dNJUCcKHvPLNu//6S2cbRERpIUbQLAZ/pWcsgvkp7
-UFsBvGcRgUP8kh2QPt/aE6kjLphLNAV2QGGLe3pQxNDmCg8Z2Py5qiYaxCwIKKob
-/qNqTLWIAdn4UOyCK/W7fVy3YXCescjXg3oJn57jAB/89v9A5DGCpkwJzothv8Pa
-XgwX4oa2aDWiwFRNT8fkIKlcVuGfl8UBye3HTxCnVsvL3QtZYHw2dTl4oNHO8USR
-Jch1ou9X8AOubwV4AOjiHsnqfW7sJ4sA0vYuuM5uCr799xPlM4kVj0eh6sLAgEFh
-k3etXfI5bNme29ngQT0+Ae0Du0B1WWTfXR6Wr/TTs74GiEK36Ba5PGBTU0Y6szdi
-ac5luk/vKMamNfGc56d20LhljXx6a4PL9zsrZfV5H7jnrEQKd8dNbXl3G2Xjxx8w
-j7DR7v4e3ZVsPs+cjTWrBcBgReF9p9hk0xnvPqFf4OKQc/YBJuKH30dd3VR/ErUr
-W9fofT28RFJxeuWAM1nNCtIDwwVtm03t+zZZytyLrelaGQIK75/mE2x899YEa1eU
-V98GzT7Y4cr1n6/H0ee/0j06UQf28VMFt3QN5uAO+8WxmJ+T91I=
-=keYh
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBC6YACgkQFA3kzBSg
+Kbbf+A//QnkzRA2XLzIn4yFkblDLK1v4Eb8XLapnVWTg6CF3fjzr5vYT0PTd/J+c
+OdWVrwW1SlhKHMRVEyfZMpXPw/6Zys8EPKuoBA7eitqXCnz3mSu0RFx9SNcAd1Xm
+HPPamxgrf38Tq7jFOaVpUPzTulkB4rvDfBcy4CdKJAF7hKUdXvGtC3n3tKwRHvrw
+gZalZOaCKK6bvL/VcCrNr0MagP32Lte9+uziOSgBY6e5OJovnux7xHYGlsSU/E49
+Uvy6dcIkK+351RUT+kHe//hPGTyeK8EZ1/vIDd7YSAbOY2bfAC7fcC7UV4DBoX5T
+hwdi2s7nRybXqfORTbN1sPoxjyJx/l3w3yLghhrm3zknNGu24qF/7iAh7ZggRvpK
+we5a1eLAe//7ozZQmmk7Evj1+uEj/JPbDsAX3fOXDJfMlkYaRaGRFtcbCViY7cJj
+1gVApL4oA2/0RhRC9G0DJNsvXeyY6tsW2Kf0RYtAjVnxs4PGFxzDOfyPno78pRuY
+6udoUbHHw46sMYRnhiRxRz8L4EFcNfbKpKjkEV8Ynazpp5qlDwDThCjUgg+EwBSp
+x9H7HjlcuD8T3s2cXtZpyjvT0JoCHcWYL5HYIplBjM+LBF6bjvERHv2xP6PyS0lF
++KHLpea6ON3CJDH+/NWLe8lpNWEZy7IqY36GVMp7xlg/mdQowCw=
+=+FEx
 -----END PGP SIGNATURE-----
 
---uE7U7PhPAYtL4Nla--
+--0kO5rWOtCL0wqwOz--
