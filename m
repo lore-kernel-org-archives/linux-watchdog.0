@@ -2,101 +2,102 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3732DC43217
-	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Feb 2022 13:22:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A332C433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Feb 2022 16:22:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbiBGNVM (ORCPT
+        id S238379AbiBGQUy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 7 Feb 2022 08:21:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
+        Mon, 7 Feb 2022 11:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442351AbiBGMU4 (ORCPT
+        with ESMTP id S231171AbiBGQKA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 Feb 2022 07:20:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEE0C02B5C4;
-        Mon,  7 Feb 2022 04:08:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66A1061027;
-        Mon,  7 Feb 2022 12:08:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239F2C004E1;
-        Mon,  7 Feb 2022 12:08:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644235696;
-        bh=aJS2fMJOFOu6nNUlDjL6FgGlZo9MICA7XYvXLN/4y6k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Fhg3SvK4SFuwMYrPoW/24O1P70+1xqqeudOs8fEyomQr/FN/UJwWCMoUdDjxmgPS5
-         cCesZajB+PjlwovB1EeOhC2UyCYNhejtYILBJuv3/GQWjAQbOoxRpcCyB7IjAoDGVm
-         YiR5fhwPIjf3EZ5/ygKIbW5UuLTD3pT7F0x4rzXVfH+R5ugiHn6pXsESDJtYOAZnZ1
-         UELlN2dofYGqtcQfawmd+sDerheL3N77KK/p2Ku40CYIO8EsZXUjxISCl4gt7MtUmI
-         Efopu4Zp8pTdtKFm0/SHx7zfNKGRZhB8UmS74f7Afv0uRnHJBnx5EMTMCf+efZOVdQ
-         NVkwj+x+4B4xw==
-Date:   Mon, 7 Feb 2022 13:08:10 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Terry Bowman <terry.bowman@amd.com>,
-        Jean Delvare <jdelvare@suse.de>
-Cc:     linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org, andy.shevchenko@gmail.com,
-        rafael.j.wysocki@intel.com, linux-kernel@vger.kernel.org,
-        wim@linux-watchdog.org, rrichter@amd.com, thomas.lendacky@amd.com,
-        sudheesh.mavila@amd.com, Nehal-bakulchandra.Shah@amd.com,
-        Basavaraj.Natikar@amd.com, Shyam-sundar.S-k@amd.com,
-        Mario.Limonciello@amd.com
-Subject: Re: [PATCH v4 0/9] i2c: piix4: Replace cd6h/cd7h port I/O accesses
- with MMIO accesses
-Message-ID: <YgELqjDHnPdJeor8@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Terry Bowman <terry.bowman@amd.com>,
-        Jean Delvare <jdelvare@suse.de>, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
-        andy.shevchenko@gmail.com, rafael.j.wysocki@intel.com,
-        linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
-        rrichter@amd.com, thomas.lendacky@amd.com, sudheesh.mavila@amd.com,
-        Nehal-bakulchandra.Shah@amd.com, Basavaraj.Natikar@amd.com,
-        Shyam-sundar.S-k@amd.com, Mario.Limonciello@amd.com
-References: <20220130184130.176646-1-terry.bowman@amd.com>
+        Mon, 7 Feb 2022 11:10:00 -0500
+Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01EFC0401E4;
+        Mon,  7 Feb 2022 08:09:49 -0800 (PST)
+Received: by mail-ua1-f50.google.com with SMTP id v5so12490976uam.3;
+        Mon, 07 Feb 2022 08:09:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+LwQeVOnQCWNpFLdo7pqlk7xaw1LpJP48h0uOFcXbfc=;
+        b=VzZP4Mdb3FGOa4Hfy6vTcrIQdbXzvLMd3jiy5F+41UVvUPJrUvmY16Ya5LguYUkRfv
+         35Hk60iGjFsC78tQn4VFPxu/rYkB9u2jECJWlyI4vnwKRVcz+WxRQ75i3EQ1O7IwJ7tJ
+         2ntgBDJ4HlYsSbl+px3xBSbCNKyE/gFyP6Vd60lOlaE6mqs1B7Y+o6aWg4RUQ479PyXp
+         NEsdP+Ll9tRL06jI8jUQyNARKiLexfBgR42Ax1rI6ldIXH+Ko+FS7QJsnsjpCrK+xgok
+         t5fh5GMG9vJ17JmKIrSh6klSPgx/Dv8YWUCUgXIauGRpo9AwOsaYbFnOpaph84oMvJIr
+         mvtg==
+X-Gm-Message-State: AOAM532kPYISmIP9JyKkEm2MmGFVCHYGGdloenY2QLlrJkGy9x5C0AKE
+        SEdIcThVWIZeUb86noZi9K2x9+N3ukSXFw==
+X-Google-Smtp-Source: ABdhPJwI7bkbhXaqE1tEo833VGDq+q3xVaz5GnddKM124z5UNJJiTC6lCJIq1PxSEsC4KrQFWsLKOA==
+X-Received: by 2002:ab0:2317:: with SMTP id a23mr130088uao.0.1644250189066;
+        Mon, 07 Feb 2022 08:09:49 -0800 (PST)
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com. [209.85.217.47])
+        by smtp.gmail.com with ESMTPSA id q69sm2372697vka.21.2022.02.07.08.09.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Feb 2022 08:09:48 -0800 (PST)
+Received: by mail-vs1-f47.google.com with SMTP id v62so146019vsv.4;
+        Mon, 07 Feb 2022 08:09:48 -0800 (PST)
+X-Received: by 2002:a67:fd63:: with SMTP id h3mr40171vsa.77.1644250188406;
+ Mon, 07 Feb 2022 08:09:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0kO5rWOtCL0wqwOz"
-Content-Disposition: inline
-In-Reply-To: <20220130184130.176646-1-terry.bowman@amd.com>
+References: <20220204161806.3126321-1-jjhiblot@traphandler.com> <20220204161806.3126321-4-jjhiblot@traphandler.com>
+In-Reply-To: <20220204161806.3126321-4-jjhiblot@traphandler.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 7 Feb 2022 17:09:37 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWMtYtJB7Kix7+-a0tsoyhbL6Cby7cMLLr8rpH_ZTza-w@mail.gmail.com>
+Message-ID: <CAMuHMdWMtYtJB7Kix7+-a0tsoyhbL6Cby7cMLLr8rpH_ZTza-w@mail.gmail.com>
+Subject: Re: [PATCH 3/6] dt-bindings: watchdog: renesas,wdt: Add support for RZ/N1
+To:     Jean-Jacques Hiblot <jjhiblot@traphandler.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hi Jean-Jacques,
 
---0kO5rWOtCL0wqwOz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, Feb 4, 2022 at 5:18 PM Jean-Jacques Hiblot
+<jjhiblot@traphandler.com> wrote:
+> Describe the WDT hardware in the RZ/N1 series.
+>
+> Signed-off-by: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
 
-On Sun, Jan 30, 2022 at 12:41:21PM -0600, Terry Bowman wrote:
-> This series changes the piix4_smbus driver's cd6h/cd7h port I/O accesses
-> to use MMIO instead. This is necessary because cd6h/cd7h port I/O may be
-> disabled on later AMD processors.
+Thanks for your patch!
 
-Review from Andy is already great, I'll give Jean a few more days for comments.
+> --- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> @@ -19,6 +19,9 @@ properties:
+>                - renesas,r7s9210-wdt      # RZ/A2
+>            - const: renesas,rza-wdt       # RZ/A
+>
+> +      - items:
+> +          - const: renesas,rzn1-wdt # RZ/N1
 
+I think it would be good to have an SoC-specific compatible value
+("renesas,r9a06g032-wdt") in addition to the family-specific one.
 
---0kO5rWOtCL0wqwOz
-Content-Type: application/pgp-signature; name="signature.asc"
+> +
+>        - items:
+>            - enum:
+>                - renesas,r9a07g044-wdt    # RZ/G2{L,LC}
 
------BEGIN PGP SIGNATURE-----
+Gr{oetje,eeting}s,
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBC6YACgkQFA3kzBSg
-Kbbf+A//QnkzRA2XLzIn4yFkblDLK1v4Eb8XLapnVWTg6CF3fjzr5vYT0PTd/J+c
-OdWVrwW1SlhKHMRVEyfZMpXPw/6Zys8EPKuoBA7eitqXCnz3mSu0RFx9SNcAd1Xm
-HPPamxgrf38Tq7jFOaVpUPzTulkB4rvDfBcy4CdKJAF7hKUdXvGtC3n3tKwRHvrw
-gZalZOaCKK6bvL/VcCrNr0MagP32Lte9+uziOSgBY6e5OJovnux7xHYGlsSU/E49
-Uvy6dcIkK+351RUT+kHe//hPGTyeK8EZ1/vIDd7YSAbOY2bfAC7fcC7UV4DBoX5T
-hwdi2s7nRybXqfORTbN1sPoxjyJx/l3w3yLghhrm3zknNGu24qF/7iAh7ZggRvpK
-we5a1eLAe//7ozZQmmk7Evj1+uEj/JPbDsAX3fOXDJfMlkYaRaGRFtcbCViY7cJj
-1gVApL4oA2/0RhRC9G0DJNsvXeyY6tsW2Kf0RYtAjVnxs4PGFxzDOfyPno78pRuY
-6udoUbHHw46sMYRnhiRxRz8L4EFcNfbKpKjkEV8Ynazpp5qlDwDThCjUgg+EwBSp
-x9H7HjlcuD8T3s2cXtZpyjvT0JoCHcWYL5HYIplBjM+LBF6bjvERHv2xP6PyS0lF
-+KHLpea6ON3CJDH+/NWLe8lpNWEZy7IqY36GVMp7xlg/mdQowCw=
-=+FEx
------END PGP SIGNATURE-----
+                        Geert
 
---0kO5rWOtCL0wqwOz--
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
