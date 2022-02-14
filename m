@@ -2,118 +2,110 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A615C433F5
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Feb 2022 15:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45CB8C433FE
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Feb 2022 15:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbiBNPkv (ORCPT
+        id S1346797AbiBNPsw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 14 Feb 2022 10:40:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37482 "EHLO
+        Mon, 14 Feb 2022 10:48:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231735AbiBNPku (ORCPT
+        with ESMTP id S1346014AbiBNPsw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Feb 2022 10:40:50 -0500
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97DBE60AA5
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Feb 2022 07:40:42 -0800 (PST)
-Received: from relay8-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::228])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 452ABCCC27
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Feb 2022 15:36:08 +0000 (UTC)
-Received: (Authenticated sender: gregory.clement@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id E74B61BF206;
-        Mon, 14 Feb 2022 15:36:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1644852963;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wZaVsNZfL1Y9JFue2k1wM/baHSjDOG975omNd7JZ0b8=;
-        b=aqQuBbvuyYLqCNZtSOtTuL3CX+GcC3c1knhe2FBkGI27DstNgcmIo8dkzUj/I2g4J8TYyF
-        EhbnU/edAwqFoVwmDRxyHAECs2UI4JIpwRIBIRaU/UeZD9p/osq9HR9WlAb03yBwTuZM2b
-        w1tvyXusl4cS7GwmsD0ueu6zvHf1OLII2BSkzggnWkFOmV7YZECIm0zYRwfumU51KdgTS+
-        NnmMuX9PDCkZBoGIjmXxUU1K2IiL4oZ4VFt0wOP7pGqJOP8oOq3I6gOLHbE0Ei7nhNgR00
-        3LwTisFaYjlmxha4VWUbVHCjnOm0FeGnUBZzBFBUpOXmMFvASN+ABniCj/HzNg==
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Chris Packham <chris.packham@alliedtelesis.co.nz>, andrew@lunn.ch,
-        robh+dt@kernel.org, wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: Re: [PATCH 2/2] watchdog: orion_wdt: support pretimeout on Armada-XP
-In-Reply-To: <20220211003257.2037332-3-chris.packham@alliedtelesis.co.nz>
-References: <20220211003257.2037332-1-chris.packham@alliedtelesis.co.nz>
- <20220211003257.2037332-3-chris.packham@alliedtelesis.co.nz>
-Date:   Mon, 14 Feb 2022 16:36:01 +0100
-Message-ID: <87r185jw9q.fsf@BL-laptop>
+        Mon, 14 Feb 2022 10:48:52 -0500
+Received: from mail-oo1-xc2a.google.com (mail-oo1-xc2a.google.com [IPv6:2607:f8b0:4864:20::c2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D214C60A94;
+        Mon, 14 Feb 2022 07:48:44 -0800 (PST)
+Received: by mail-oo1-xc2a.google.com with SMTP id u25-20020a4ad0d9000000b002e8d4370689so19733396oor.12;
+        Mon, 14 Feb 2022 07:48:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=eNNtqm8EpmpM3533I3FfPpJ0jXPvy/LfN0oxAHh3x3M=;
+        b=EI+aGyX21Q8PfcNohLpV4XGV+abyjxsipwep0JcybqAGDvqFYQeXfqJ7gFegBzd7L7
+         Dswir/ivkF3yIy0wTnzyfUFnNyQDRjuZuNWo3JfkuF8MaRqWYhEMifEP9U79VK8nmRdk
+         a04I3YtRx6aC88R8ewLtlQ3ph2zD68oesh+UwotboudNujD1pEEtq0WQLLACWpzmIeQr
+         bMrpQp/Hq5obBWumz8K5luW7c2GBXA3Mgbjtllc0GVEIPf6TJwMtjcOKVdoa5i7VtWA/
+         U6WeBsoq0XhHkp3nRgPQN0hu0WZVBKD0R5RwJs4XxgVgVBWER7xXzZfhU9RDT89M0OpL
+         gkCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=eNNtqm8EpmpM3533I3FfPpJ0jXPvy/LfN0oxAHh3x3M=;
+        b=HNez435M6BLH+EzyYwMnk698dhpgPxsAHZ8b2jUgAzzKmY1ghSQSqPBJ0BPpC8k6V6
+         hc3DRnPP/DPkY6JV9Vk+5NI0CxPBtz257yljOV8Sdizi32ObShG/NyGiH+tF2iB8ERxo
+         HFVGdu7lecIZuV778MHceEcS6tiP0nLEAjnldXr1IzN6GvAq7+murD6Lb+y742ZjbuWx
+         Q5CNpOqU9kN3V5du19F+CTl7H6r5eplFzLixK7W5tcayiEogqCkv+ruv42u9lbF/kGRq
+         Wq5AxpoAQUw+nUtOE+H/5679vsOXPMghr+lZYTQ6dE7ggWnee4NvNGwbZdlqpBApXR1p
+         0qyg==
+X-Gm-Message-State: AOAM530uQnN2sKY+2K8yO7z9Upk6RnXgKrhrZZf5JXWo7KaWYN9/92C3
+        cAuOInTlLEG8xWcm3RCcQvw=
+X-Google-Smtp-Source: ABdhPJzkywkhm7Rq6NsxeJ2BNJkNSdrH42e5c/sMzjJ4wifWqh1sy4XWOc5vypLnNe3xPZSd3VubIg==
+X-Received: by 2002:a05:6870:a11e:: with SMTP id m30mr36609oae.260.1644853724274;
+        Mon, 14 Feb 2022 07:48:44 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id v32sm1930812oaa.4.2022.02.14.07.48.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Feb 2022 07:48:43 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 14 Feb 2022 07:48:42 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        LUU HOAI <hoai.luu.ub@renesas.com>, linux-clk@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org,
+        Thanh Quan <thanh.quan.xn@renesas.com>
+Subject: Re: [PATCH 2/5] dt-bindings: watchdog: renesas-wdt: Document
+ r8a779f0 support
+Message-ID: <20220214154842.GA4172444@roeck-us.net>
+References: <cover.1642525158.git.geert+renesas@glider.be>
+ <cca61a83ae82ecf5c23eb28e30c39f2f661f0e02.1642525158.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cca61a83ae82ecf5c23eb28e30c39f2f661f0e02.1642525158.git.geert+renesas@glider.be>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Chris Packham <chris.packham@alliedtelesis.co.nz> writes:
+On Tue, Jan 18, 2022 at 06:09:02PM +0100, Geert Uytterhoeven wrote:
+> From: Thanh Quan <thanh.quan.xn@renesas.com>
+> 
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car S4-8 (R8A779F0) SoC.
+> 
+> Signed-off-by: Thanh Quan <thanh.quan.xn@renesas.com>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-> Commit e07a4c79ca75 ("watchdog: orion_wdt: use timer1 as a pretimeout")
-> added support for a pretimeout on Armada-38x variants. Because the
-> Armada-XP variants use armada370_start/armada370_stop (due to missing an
-> explicit RSTOUT mask bit for the watchdog). Add the required pretimeout
-> support to armada370_start/armada370_stop for Armada-XP.
->
-> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-
-Thanks,
-
-Gregory
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/orion_wdt.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 127eefc9161d..e25e6bf4647f 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -238,8 +238,10 @@ static int armada370_start(struct watchdog_device *wdt_dev)
->  	atomic_io_modify(dev->reg + TIMER_A370_STATUS, WDT_A370_EXPIRED, 0);
+>  Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> index 91a98ccd4226f505..d060438e1402d502 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> @@ -55,6 +55,11 @@ properties:
+>                - renesas,r8a779a0-wdt     # R-Car V3U
+>            - const: renesas,rcar-gen3-wdt # R-Car Gen3 and RZ/G2
 >  
->  	/* Enable watchdog timer */
-> -	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit,
-> -						dev->data->wdt_enable_bit);
-> +	reg = dev->data->wdt_enable_bit;
-> +	if (dev->wdt.info->options & WDIOF_PRETIMEOUT)
-> +		reg |= TIMER1_ENABLE_BIT;
-> +	atomic_io_modify(dev->reg + TIMER_CTRL, reg, reg);
+> +      - items:
+> +          - enum:
+> +              - renesas,r8a779f0-wdt     # R-Car S4-8
+> +          - const: renesas,rcar-gen4-wdt # R-Car Gen4
+> +
+>    reg:
+>      maxItems: 1
 >  
->  	/* Enable reset on watchdog */
->  	reg = readl(dev->rstout);
-> @@ -312,7 +314,7 @@ static int armada375_stop(struct watchdog_device *wdt_dev)
->  static int armada370_stop(struct watchdog_device *wdt_dev)
->  {
->  	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
-> -	u32 reg;
-> +	u32 reg, mask;
->  
->  	/* Disable reset on watchdog */
->  	reg = readl(dev->rstout);
-> @@ -320,7 +322,10 @@ static int armada370_stop(struct watchdog_device *wdt_dev)
->  	writel(reg, dev->rstout);
->  
->  	/* Disable watchdog timer */
-> -	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit, 0);
-> +	mask = dev->data->wdt_enable_bit;
-> +	if (wdt_dev->info->options & WDIOF_PRETIMEOUT)
-> +		mask |= TIMER1_ENABLE_BIT;
-> +	atomic_io_modify(dev->reg + TIMER_CTRL, mask, 0);
->  
->  	return 0;
->  }
-> -- 
-> 2.35.1
->
-
--- 
-Gregory Clement, Bootlin
-Embedded Linux and Kernel engineering
-http://bootlin.com
