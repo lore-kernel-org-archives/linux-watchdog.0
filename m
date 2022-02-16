@@ -2,30 +2,32 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FEE5C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D678C4332F
 	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Feb 2022 01:45:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245580AbiBPBph (ORCPT
+        id S245582AbiBPBps (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Feb 2022 20:45:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58568 "EHLO
+        Tue, 15 Feb 2022 20:45:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245581AbiBPBpg (ORCPT
+        with ESMTP id S245593AbiBPBpi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Feb 2022 20:45:36 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70EBBFA203;
-        Tue, 15 Feb 2022 17:45:25 -0800 (PST)
-X-UUID: 7d6e79b21ed345c6877061cb766db82a-20220216
-X-UUID: 7d6e79b21ed345c6877061cb766db82a-20220216
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        Tue, 15 Feb 2022 20:45:38 -0500
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C8FFA203;
+        Tue, 15 Feb 2022 17:45:26 -0800 (PST)
+X-UUID: 1cb115f701f247ab9f007cfb0ab9a4f5-20220216
+X-UUID: 1cb115f701f247ab9f007cfb0ab9a4f5-20220216
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
         (envelope-from <rex-bc.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 229836840; Wed, 16 Feb 2022 09:45:21 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.792.15; Wed, 16 Feb 2022 09:45:20 +0800
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 837203341; Wed, 16 Feb 2022 09:45:21 +0800
+Received: from mtkexhb02.mediatek.inc (172.21.101.103) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 16 Feb 2022 09:45:20 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb02.mediatek.inc
+ (172.21.101.103) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 16 Feb
+ 2022 09:45:20 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
  Transport; Wed, 16 Feb 2022 09:45:20 +0800
@@ -40,9 +42,9 @@ CC:     <runyang.chen@mediatek.com>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>,
         Rex-BC Chen <rex-bc.chen@mediatek.com>
-Subject: [PATCH 1/4] dt-bindings: watchdog: Add compatible for MediaTek MT8186
-Date:   Wed, 16 Feb 2022 09:45:02 +0800
-Message-ID: <20220216014505.28428-2-rex-bc.chen@mediatek.com>
+Subject: [3/4] dt-bindings: reset: mt8186: add DSI reset bit for MMSYS
+Date:   Wed, 16 Feb 2022 09:45:04 +0800
+Message-ID: <20220216014505.28428-4-rex-bc.chen@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
 References: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
@@ -53,25 +55,25 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add dt-binding documentation of watchdog for MediaTek MT8186 SoC.
+Add DSI software reset bit which is controlled by MMSYS for MT8186.
 
 Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
 ---
- Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
+ include/dt-bindings/reset/mt8186-resets.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-index 0114871f887a..74db01e3658b 100644
---- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-@@ -15,6 +15,7 @@ Required properties:
- 	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
- 	"mediatek,mt7986-wdt", "mediatek,mt6589-wdt": for MT7986
- 	"mediatek,mt8183-wdt": for MT8183
-+	"mediatek,mt8186-wdt", "mediatek,mt6589-wdt": for MT8186
- 	"mediatek,mt8516-wdt", "mediatek,mt6589-wdt": for MT8516
- 	"mediatek,mt8192-wdt": for MT8192
- 	"mediatek,mt8195-wdt", "mediatek,mt6589-wdt": for MT8195
+diff --git a/include/dt-bindings/reset/mt8186-resets.h b/include/dt-bindings/reset/mt8186-resets.h
+index 36e5764e2e6c..5f850370c42c 100644
+--- a/include/dt-bindings/reset/mt8186-resets.h
++++ b/include/dt-bindings/reset/mt8186-resets.h
+@@ -30,4 +30,7 @@
+ #define MT8186_TOPRGU_IMG2_SW_RST				22
+ #define MT8186_TOPRGU_SW_RST_NUM				23
+ 
++/* MMSYS resets */
++#define MT8186_MMSYS_SW0_RST_B_DISP_DSI0			19
++
+ #endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT8186 */
 -- 
 2.18.0
 
