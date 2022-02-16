@@ -2,109 +2,76 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEA24C43217
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Feb 2022 01:45:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9496AC433F5
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Feb 2022 02:46:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245591AbiBPBps (ORCPT
+        id S1343874AbiBPCqR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Feb 2022 20:45:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58668 "EHLO
+        Tue, 15 Feb 2022 21:46:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245609AbiBPBpi (ORCPT
+        with ESMTP id S1343868AbiBPCqQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Feb 2022 20:45:38 -0500
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E7DFA219;
-        Tue, 15 Feb 2022 17:45:27 -0800 (PST)
-X-UUID: 88f8d295ebc64782ba95925e1d1d58e6-20220216
-X-UUID: 88f8d295ebc64782ba95925e1d1d58e6-20220216
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
-        (envelope-from <rex-bc.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1411497216; Wed, 16 Feb 2022 09:45:21 +0800
-Received: from mtkexhb01.mediatek.inc (172.21.101.102) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 16 Feb 2022 09:45:20 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb01.mediatek.inc
- (172.21.101.102) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 16 Feb
- 2022 09:45:20 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
+        Tue, 15 Feb 2022 21:46:16 -0500
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9A7FBA74;
+        Tue, 15 Feb 2022 18:46:04 -0800 (PST)
+X-UUID: 11f221bd83bf42e288ace2ff2ff6b487-20220216
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:CC:To:Subject; bh=hDrxhPxjQENGAHEi4n1oPYu6PsljPhzDv0c7ynvHbXY=;
+        b=Hr5wceSmSREZHLDnvA/oUCSY2KPYMlJHpB3cbGt1YVlkviw/fmLyfWpbUQ3irEYRqhZZq4D6+viuYJurPPlazojLQEu6rP8VCIHbInS1711VfzgFtnKbxotPa+CCL25Cs4ft0hug+3LMiDf1YtPFbEvi1LejLGMt7ja5azjiaAg=;
+X-UUID: 11f221bd83bf42e288ace2ff2ff6b487-20220216
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 683217625; Wed, 16 Feb 2022 10:45:59 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Wed, 16 Feb 2022 10:45:58 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 16 Feb 2022 09:45:20 +0800
-From:   Rex-BC Chen <rex-bc.chen@mediatek.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <p.zabel@pengutronix.de>
+ Transport; Wed, 16 Feb 2022 10:45:58 +0800
+Subject: Re: [0/4] Add watchdog support for MT8186 SoC
+To:     Rex-BC Chen <rex-bc.chen@mediatek.com>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <matthias.bgg@gmail.com>,
+        <robh+dt@kernel.org>, <p.zabel@pengutronix.de>
 CC:     <runyang.chen@mediatek.com>, <linux-watchdog@vger.kernel.org>,
         <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-mediatek@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
-        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>
-Subject: [2/4] dt-bindings: reset: mt8186: add toprgu reset-controller header file
-Date:   Wed, 16 Feb 2022 09:45:03 +0800
-Message-ID: <20220216014505.28428-3-rex-bc.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>
 References: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+Message-ID: <a680164d-9be2-8f96-abe3-27e93e5c2ad2@mediatek.com>
+Date:   Wed, 16 Feb 2022 10:45:58 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+In-Reply-To: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Runyang Chen <runyang.chen@mediatek.com>
-
-Add toprgu reset-controller header file for MT8186.
-
-Signed-off-by: Runyang Chen <runyang.chen@mediatek.com>
-Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
----
- include/dt-bindings/reset/mt8186-resets.h | 33 +++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
- create mode 100644 include/dt-bindings/reset/mt8186-resets.h
-
-diff --git a/include/dt-bindings/reset/mt8186-resets.h b/include/dt-bindings/reset/mt8186-resets.h
-new file mode 100644
-index 000000000000..36e5764e2e6c
---- /dev/null
-+++ b/include/dt-bindings/reset/mt8186-resets.h
-@@ -0,0 +1,33 @@
-+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
-+/*
-+ * Copyright (c) 2022 MediaTek Inc.
-+ * Author: Runyang Chen <runyang.chen@mediatek.com>
-+ */
-+
-+#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT8186
-+#define _DT_BINDINGS_RESET_CONTROLLER_MT8186
-+
-+#define MT8186_TOPRGU_INFRA_SW_RST				0
-+#define MT8186_TOPRGU_MM_SW_RST					1
-+#define MT8186_TOPRGU_MFG_SW_RST				2
-+#define MT8186_TOPRGU_VENC_SW_RST				3
-+#define MT8186_TOPRGU_VDEC_SW_RST				4
-+#define MT8186_TOPRGU_IMG_SW_RST				5
-+#define MT8186_TOPRGU_DDR_SW_RST				6
-+#define MT8186_TOPRGU_INFRA_AO_SW_RST				8
-+#define MT8186_TOPRGU_CONNSYS_SW_RST				9
-+#define MT8186_TOPRGU_APMIXED_SW_RST				10
-+#define MT8186_TOPRGU_PWRAP_SW_RST				11
-+#define MT8186_TOPRGU_CONN_MCU_SW_RST				12
-+#define MT8186_TOPRGU_IPNNA_SW_RST				13
-+#define MT8186_TOPRGU_WPE_SW_RST				14
-+#define MT8186_TOPRGU_ADSP_SW_RST				15
-+#define MT8186_TOPRGU_AUDIO_SW_RST				17
-+#define MT8186_TOPRGU_CAM_MAIN_SW_RST				18
-+#define MT8186_TOPRGU_CAM_RAWA_SW_RST				19
-+#define MT8186_TOPRGU_CAM_RAWB_SW_RST				20
-+#define MT8186_TOPRGU_IPE_SW_RST				21
-+#define MT8186_TOPRGU_IMG2_SW_RST				22
-+#define MT8186_TOPRGU_SW_RST_NUM				23
-+
-+#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT8186 */
--- 
-2.18.0
+DQoNCk9uIDIvMTYvMjIgOTo0NSBBTSwgUmV4LUJDIENoZW4gd3JvdGU6DQo+IHYxOg0KPiAxLiBB
+ZGQgbXQ4MTg2LXJlc2V0cy5oIHRvIGRlZmluZSBkZWZpbml0aW9uIG9mIHJlc2V0IGJpdHMuDQo+
+IDIuIEFkZCB3ZHQgY29tcGF0aWJsZSBmb3IgTVQ4MTg2Lg0KPiANCj4gUmV4LUJDIENoZW4gKDIp
+Og0KPiAgICBkdC1iaW5kaW5nczogd2F0Y2hkb2c6IEFkZCBjb21wYXRpYmxlIGZvciBNZWRpYVRl
+ayBNVDgxODYNCj4gICAgZHQtYmluZGluZ3M6IHJlc2V0OiBtdDgxODY6IGFkZCBEU0kgcmVzZXQg
+Yml0IGZvciBNTVNZUw0KPiANCj4gUnVueWFuZyBDaGVuICgyKToNCj4gICAgZHQtYmluZGluZ3M6
+IHJlc2V0OiBtdDgxODY6IGFkZCB0b3ByZ3UgcmVzZXQtY29udHJvbGxlciBoZWFkZXIgZmlsZQ0K
+PiAgICB3YXRjaGRvZzogbWVkaWF0ZWs6IG10ODE4NjogYWRkIHdkdCBzdXBwb3J0DQo+IA0KPiAg
+IC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL210ay13ZHQudHh0ICB8ICAxICsNCj4g
+ICBkcml2ZXJzL3dhdGNoZG9nL210a193ZHQuYyAgICAgICAgICAgICAgICAgICAgfCAgNiArKysr
+DQo+ICAgaW5jbHVkZS9kdC1iaW5kaW5ncy9yZXNldC9tdDgxODYtcmVzZXRzLmggICAgIHwgMzYg
+KysrKysrKysrKysrKysrKysrKw0KPiAgIDMgZmlsZXMgY2hhbmdlZCwgNDMgaW5zZXJ0aW9ucygr
+KQ0KPiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2R0LWJpbmRpbmdzL3Jlc2V0L210ODE4
+Ni1yZXNldHMuaA0KPiANCg0KV2h5IGRpZCB5b3UgZHJvcCBbUEFUQ0hdIHRhZyBpbiB0aGUgc3Vi
+amVjdCBvZiB5b3VyIHBhdGNoIHNlcmllcz8NClBsZWFzZSBrZWVwIGl0IGZvciBkaXN0aW5ndWlz
+aGluZyBpdCBmcm9tIFJGQyBhbmQgb3RoZXIgbWVhbmluZ2Z1bCB0YWdzIA0KbmV4dCB0aW1lLg0K
+DQpUaGFua3MNCk1hY3BhdWwgTGlu
 
