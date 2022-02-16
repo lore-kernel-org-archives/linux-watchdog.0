@@ -2,29 +2,32 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D444C4321E
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Feb 2022 01:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEA24C43217
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Feb 2022 01:45:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245600AbiBPBps (ORCPT
+        id S245591AbiBPBps (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Tue, 15 Feb 2022 20:45:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58690 "EHLO
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245618AbiBPBpk (ORCPT
+        with ESMTP id S245609AbiBPBpi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Feb 2022 20:45:40 -0500
+        Tue, 15 Feb 2022 20:45:38 -0500
 Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86847FA218;
-        Tue, 15 Feb 2022 17:45:28 -0800 (PST)
-X-UUID: 6af3a39fced34740b99e1e1ee75b6b69-20220216
-X-UUID: 6af3a39fced34740b99e1e1ee75b6b69-20220216
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E7DFA219;
+        Tue, 15 Feb 2022 17:45:27 -0800 (PST)
+X-UUID: 88f8d295ebc64782ba95925e1d1d58e6-20220216
+X-UUID: 88f8d295ebc64782ba95925e1d1d58e6-20220216
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
         (envelope-from <rex-bc.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 73449647; Wed, 16 Feb 2022 09:45:21 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1411497216; Wed, 16 Feb 2022 09:45:21 +0800
+Received: from mtkexhb01.mediatek.inc (172.21.101.102) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
  15.0.1497.2; Wed, 16 Feb 2022 09:45:20 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb01.mediatek.inc
+ (172.21.101.102) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 16 Feb
+ 2022 09:45:20 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
  Transport; Wed, 16 Feb 2022 09:45:20 +0800
@@ -39,9 +42,9 @@ CC:     <runyang.chen@mediatek.com>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>,
         Rex-BC Chen <rex-bc.chen@mediatek.com>
-Subject: [4/4] watchdog: mediatek: mt8186: add wdt support
-Date:   Wed, 16 Feb 2022 09:45:05 +0800
-Message-ID: <20220216014505.28428-5-rex-bc.chen@mediatek.com>
+Subject: [2/4] dt-bindings: reset: mt8186: add toprgu reset-controller header file
+Date:   Wed, 16 Feb 2022 09:45:03 +0800
+Message-ID: <20220216014505.28428-3-rex-bc.chen@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
 References: <20220216014505.28428-1-rex-bc.chen@mediatek.com>
@@ -54,45 +57,54 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Runyang Chen <runyang.chen@mediatek.com>
 
-Support MT8186 watchdog device.
+Add toprgu reset-controller header file for MT8186.
 
 Signed-off-by: Runyang Chen <runyang.chen@mediatek.com>
 Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
 ---
- drivers/watchdog/mtk_wdt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/dt-bindings/reset/mt8186-resets.h | 33 +++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+ create mode 100644 include/dt-bindings/reset/mt8186-resets.h
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 4577a76dd464..fe5a2ecba97a 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -11,6 +11,7 @@
- 
- #include <dt-bindings/reset/mt2712-resets.h>
- #include <dt-bindings/reset/mt8183-resets.h>
-+#include <dt-bindings/reset/mt8186-resets.h>
- #include <dt-bindings/reset/mt8192-resets.h>
- #include <dt-bindings/reset/mt8195-resets.h>
- #include <linux/delay.h>
-@@ -80,6 +81,10 @@ static const struct mtk_wdt_data mt8183_data = {
- 	.toprgu_sw_rst_num = MT8183_TOPRGU_SW_RST_NUM,
- };
- 
-+static const struct mtk_wdt_data mt8186_data = {
-+	.toprgu_sw_rst_num = MT8186_TOPRGU_SW_RST_NUM,
-+};
+diff --git a/include/dt-bindings/reset/mt8186-resets.h b/include/dt-bindings/reset/mt8186-resets.h
+new file mode 100644
+index 000000000000..36e5764e2e6c
+--- /dev/null
++++ b/include/dt-bindings/reset/mt8186-resets.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
++/*
++ * Copyright (c) 2022 MediaTek Inc.
++ * Author: Runyang Chen <runyang.chen@mediatek.com>
++ */
 +
- static const struct mtk_wdt_data mt8192_data = {
- 	.toprgu_sw_rst_num = MT8192_TOPRGU_SW_RST_NUM,
- };
-@@ -419,6 +424,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
- 	{ .compatible = "mediatek,mt2712-wdt", .data = &mt2712_data },
- 	{ .compatible = "mediatek,mt6589-wdt" },
- 	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
-+	{ .compatible = "mediatek,mt8186-wdt", .data = &mt8186_data },
- 	{ .compatible = "mediatek,mt8192-wdt", .data = &mt8192_data },
- 	{ .compatible = "mediatek,mt8195-wdt", .data = &mt8195_data },
- 	{ /* sentinel */ }
++#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT8186
++#define _DT_BINDINGS_RESET_CONTROLLER_MT8186
++
++#define MT8186_TOPRGU_INFRA_SW_RST				0
++#define MT8186_TOPRGU_MM_SW_RST					1
++#define MT8186_TOPRGU_MFG_SW_RST				2
++#define MT8186_TOPRGU_VENC_SW_RST				3
++#define MT8186_TOPRGU_VDEC_SW_RST				4
++#define MT8186_TOPRGU_IMG_SW_RST				5
++#define MT8186_TOPRGU_DDR_SW_RST				6
++#define MT8186_TOPRGU_INFRA_AO_SW_RST				8
++#define MT8186_TOPRGU_CONNSYS_SW_RST				9
++#define MT8186_TOPRGU_APMIXED_SW_RST				10
++#define MT8186_TOPRGU_PWRAP_SW_RST				11
++#define MT8186_TOPRGU_CONN_MCU_SW_RST				12
++#define MT8186_TOPRGU_IPNNA_SW_RST				13
++#define MT8186_TOPRGU_WPE_SW_RST				14
++#define MT8186_TOPRGU_ADSP_SW_RST				15
++#define MT8186_TOPRGU_AUDIO_SW_RST				17
++#define MT8186_TOPRGU_CAM_MAIN_SW_RST				18
++#define MT8186_TOPRGU_CAM_RAWA_SW_RST				19
++#define MT8186_TOPRGU_CAM_RAWB_SW_RST				20
++#define MT8186_TOPRGU_IPE_SW_RST				21
++#define MT8186_TOPRGU_IMG2_SW_RST				22
++#define MT8186_TOPRGU_SW_RST_NUM				23
++
++#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT8186 */
 -- 
 2.18.0
 
