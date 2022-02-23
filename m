@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6173EC433FE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C751C433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244153AbiBWTKK (ORCPT
+        id S244155AbiBWTKN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Feb 2022 14:10:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
+        Wed, 23 Feb 2022 14:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiBWTKK (ORCPT
+        with ESMTP id S229913AbiBWTKM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Feb 2022 14:10:10 -0500
+        Wed, 23 Feb 2022 14:10:12 -0500
 Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785903BA6A;
-        Wed, 23 Feb 2022 11:09:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC90F3BA6A;
+        Wed, 23 Feb 2022 11:09:44 -0800 (PST)
 Received: from [77.244.183.192] (port=62116 helo=melee.fritz.box)
         by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1nMvvw-00039p-MB; Wed, 23 Feb 2022 19:00:12 +0100
+        id 1nMvv9-00039p-6u; Wed, 23 Feb 2022 18:59:23 +0100
 From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
@@ -33,9 +33,9 @@ Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 7/8] watchdog: max77620: add comment to clarify set_timeout procedure
-Date:   Wed, 23 Feb 2022 18:59:07 +0100
-Message-Id: <20220223175908.191618-8-luca@lucaceresoli.net>
+Subject: [PATCH v6 3/8] rtc: max77686: remove unused code to read in 12-hour mode
+Date:   Wed, 23 Feb 2022 18:59:03 +0100
+Message-Id: <20220223175908.191618-4-luca@lucaceresoli.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220223175908.191618-1-luca@lucaceresoli.net>
 References: <20220223175908.191618-1-luca@lucaceresoli.net>
@@ -55,42 +55,82 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Clarify why we need to ping the watchdog before changing the timeout by
-quoting the MAX77714 datasheet.
+The MAX77714 RTC chip is explicitly set to 24-hour mode in
+max77686_rtc_probe() -> max77686_rtc_init_reg() and never changed back to
+12-hour mode. Accordingly info->rtc_24hr_mode is set to 1 in the same place
+and never modified later, so it is de facto a constant. Yet there is code
+to read 12-hour time, which is unreachable.
+
+Remove the unused variable, the unreachable code to manage 12-hour mode and
+the defines that become unused due to the above changes.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
 ---
 
 Changes in v6: none
 
-Changes in v5:
- - improve comment to remove misleading ambiguous interpretation
-   (Guenter Roeck)
+Changes in v5: none
 
-This patch is new in v4. It adds a clarification comment to the max77620
-driver taken from v3 patch 7.
+Changes in v4: none
+
+Changes in v3: none
+
+Changes in v2:
+ - remove the now-unused defines too (Alexandre Belloni)
+ - improve the commit message
 ---
- drivers/watchdog/max77620_wdt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-max77686.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-index cd321c7e0d59..b76ad6ba0915 100644
---- a/drivers/watchdog/max77620_wdt.c
-+++ b/drivers/watchdog/max77620_wdt.c
-@@ -123,6 +123,11 @@ static int max77620_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 		break;
- 	}
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 7e765207f28e..5c64d08c0732 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -34,9 +34,6 @@
+ #define RTC_UDR_MASK			BIT(RTC_UDR_SHIFT)
+ #define RTC_RBUDR_SHIFT			4
+ #define RTC_RBUDR_MASK			BIT(RTC_RBUDR_SHIFT)
+-/* RTC Hour register */
+-#define HOUR_PM_SHIFT			6
+-#define HOUR_PM_MASK			BIT(HOUR_PM_SHIFT)
+ /* RTC Alarm Enable */
+ #define ALARM_ENABLE_SHIFT		7
+ #define ALARM_ENABLE_MASK		BIT(ALARM_ENABLE_SHIFT)
+@@ -99,7 +96,6 @@ struct max77686_rtc_info {
  
-+	/*
-+	 * "If the value of TWD needs to be changed, clear the system
-+	 * watchdog timer first [...], then change the value of TWD."
-+	 * (MAX77714 datasheet but applies to MAX77620 too)
-+	 */
- 	ret = regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl3,
- 				 wdt->drv_data->wdtc_mask, 0x1);
- 	if (ret < 0)
+ 	int rtc_irq;
+ 	int virq;
+-	int rtc_24hr_mode;
+ };
+ 
+ enum MAX77686_RTC_OP {
+@@ -278,13 +274,7 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
+ 
+ 	tm->tm_sec = data[RTC_SEC] & mask;
+ 	tm->tm_min = data[RTC_MIN] & mask;
+-	if (info->rtc_24hr_mode) {
+-		tm->tm_hour = data[RTC_HOUR] & 0x1f;
+-	} else {
+-		tm->tm_hour = data[RTC_HOUR] & 0x0f;
+-		if (data[RTC_HOUR] & HOUR_PM_MASK)
+-			tm->tm_hour += 12;
+-	}
++	tm->tm_hour = data[RTC_HOUR] & 0x1f;
+ 
+ 	/* Only a single bit is set in data[], so fls() would be equivalent */
+ 	tm->tm_wday = ffs(data[RTC_WEEKDAY] & mask) - 1;
+@@ -662,8 +652,6 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
+ 	data[0] = (1 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
+ 	data[1] = (0 << BCD_EN_SHIFT) | (1 << MODEL24_SHIFT);
+ 
+-	info->rtc_24hr_mode = 1;
+-
+ 	ret = regmap_bulk_write(info->rtc_regmap,
+ 				info->drv_data->map[REG_RTC_CONTROLM],
+ 				data, ARRAY_SIZE(data));
 -- 
 2.25.1
 
