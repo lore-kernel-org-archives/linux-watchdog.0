@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38FDFC43217
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 974B4C43219
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239937AbiBWTJ5 (ORCPT
+        id S234384AbiBWTKA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Feb 2022 14:09:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52516 "EHLO
+        Wed, 23 Feb 2022 14:10:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiBWTJ5 (ORCPT
+        with ESMTP id S229913AbiBWTJ7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Feb 2022 14:09:57 -0500
+        Wed, 23 Feb 2022 14:09:59 -0500
 Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD003BF91;
-        Wed, 23 Feb 2022 11:09:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99C0D3BA6A;
+        Wed, 23 Feb 2022 11:09:31 -0800 (PST)
 Received: from [77.244.183.192] (port=62116 helo=melee.fritz.box)
         by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1nMvvt-00039p-Ku; Wed, 23 Feb 2022 19:00:09 +0100
+        id 1nMvvz-00039p-AE; Wed, 23 Feb 2022 19:00:15 +0100
 From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
@@ -33,9 +33,9 @@ Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 6/8] watchdog: max77620: add support for the max77714 variant
-Date:   Wed, 23 Feb 2022 18:59:06 +0100
-Message-Id: <20220223175908.191618-7-luca@lucaceresoli.net>
+Subject: [PATCH v6 8/8] rtc: max77686: add MAX77714 support
+Date:   Wed, 23 Feb 2022 18:59:08 +0100
+Message-Id: <20220223175908.191618-9-luca@lucaceresoli.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220223175908.191618-1-luca@lucaceresoli.net>
 References: <20220223175908.191618-1-luca@lucaceresoli.net>
@@ -55,238 +55,92 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The MAX77714 is a MFD chip whose watchdog has the same programming
-procedures as the MAX77620 watchdog, but most register offsets and bit
-masks are different, as well as some features.
-
-Support the MAX77714 watchdog by adding a variant description table holding
-the differences.
-
-All the features implemented by this driver are available on the MAX77714
-except for the lack of a WDTOFFC bit. Instead of using a "HAS_*" flag we
-handle this by holding in the cnfg_glbl2_cfg_bits struct field the bits
-(i.e. the features) to enable in the CNFG_GLBL2 register. These bits differ
-among the two models. This implementation allows to avoid any conditional
-code, keeping the execution flow unchanged.
+The RTC included in the MAX77714 PMIC is very similar to the one in the
+MAX77686. Reuse the rtc-max77686.c driver with the minimum required changes
+for the MAX77714 RTC.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
 ---
 
-Changes in v6:
- - Update copyright year
+Changes in v6: none
 
-Changes in v5:
- - keep a unique watchdog_info for both models (Guenter Roeck)
+Changes in v5: none
 
-This patch is new in v4. It replaces v3 patch 7 ("watchdog: max77714: add
-driver for the watchdog in the MAX77714 PMIC") by adding MAX77714 wdog
-support to the existing MAX77620 wdog driver instead of adding a new
-driver. Suggested by Guenter Roeck and Krzysztof Kozlowski.
+Changes in v4: none
+
+Changes in v3: none
+
+Changes in v2: none
 ---
- drivers/watchdog/Kconfig        |  2 +-
- drivers/watchdog/max77620_wdt.c | 80 ++++++++++++++++++++++++++-------
- 2 files changed, 65 insertions(+), 17 deletions(-)
+ drivers/rtc/Kconfig        |  2 +-
+ drivers/rtc/rtc-max77686.c | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index c8fa79da23b3..5373ecdec58e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -678,7 +678,7 @@ config MAX63XX_WATCHDOG
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index d85a3c31347c..f6d6d4c26361 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -375,7 +375,7 @@ config RTC_DRV_MAX8997
  
- config MAX77620_WATCHDOG
- 	tristate "Maxim Max77620 Watchdog Timer"
--	depends on MFD_MAX77620 || COMPILE_TEST
-+	depends on MFD_MAX77620 || MFD_MAX77714 || COMPILE_TEST
- 	select WATCHDOG_CORE
+ config RTC_DRV_MAX77686
+ 	tristate "Maxim MAX77686"
+-	depends on MFD_MAX77686 || MFD_MAX77620 || COMPILE_TEST
++	depends on MFD_MAX77686 || MFD_MAX77620 || MFD_MAX77714 || COMPILE_TEST
  	help
- 	  This is the driver for the Max77620 watchdog timer.
-diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-index be6a53c30002..cd321c7e0d59 100644
---- a/drivers/watchdog/max77620_wdt.c
-+++ b/drivers/watchdog/max77620_wdt.c
-@@ -3,8 +3,10 @@
-  * Maxim MAX77620 Watchdog Driver
-  *
-  * Copyright (C) 2016 NVIDIA CORPORATION. All rights reserved.
-+ * Copyright (C) 2022 Luca Ceresoli
-  *
-  * Author: Laxman Dewangan <ldewangan@nvidia.com>
-+ * Author: Luca Ceresoli <luca@lucaceresoli.net>
-  */
+ 	  If you say yes here you will get support for the
+ 	  RTC of Maxim MAX77686/MAX77620/MAX77802 PMIC.
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 5c64d08c0732..b0250d91fb00 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -19,6 +19,7 @@
  
- #include <linux/err.h>
-@@ -13,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
- #include <linux/mfd/max77620.h>
-+#include <linux/mfd/max77714.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
-@@ -20,17 +23,57 @@
+ #define MAX77686_I2C_ADDR_RTC		(0x0C >> 1)
+ #define MAX77620_I2C_ADDR_RTC		0x68
++#define MAX77714_I2C_ADDR_RTC		0x48
+ #define MAX77686_INVALID_I2C_ADDR	(-1)
  
- static bool nowayout = WATCHDOG_NOWAYOUT;
- 
-+/**
-+ * struct max77620_variant - Data specific to a chip variant
-+ * @wdt_info:            watchdog descriptor
-+ * @reg_onoff_cnfg2:     ONOFF_CNFG2 register offset
-+ * @reg_cnfg_glbl2:      CNFG_GLBL2 register offset
-+ * @reg_cnfg_glbl3:      CNFG_GLBL3 register offset
-+ * @wdtc_mask:           WDTC bit mask in CNFG_GLBL3 (=bits to update to ping the watchdog)
-+ * @bit_wd_rst_wk:       WD_RST_WK bit offset within ONOFF_CNFG2
-+ * @cnfg_glbl2_cfg_bits: configuration bits to enable in CNFG_GLBL2 register
-+ */
-+struct max77620_variant {
-+	u8 reg_onoff_cnfg2;
-+	u8 reg_cnfg_glbl2;
-+	u8 reg_cnfg_glbl3;
-+	u8 wdtc_mask;
-+	u8 bit_wd_rst_wk;
-+	u8 cnfg_glbl2_cfg_bits;
-+};
-+
- struct max77620_wdt {
- 	struct device			*dev;
- 	struct regmap			*rmap;
-+	const struct max77620_variant	*drv_data;
- 	struct watchdog_device		wdt_dev;
+ /* Define non existing register */
+@@ -200,6 +201,28 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
+ 	.regmap_config = &max77686_rtc_regmap_config,
  };
  
-+static const struct max77620_variant max77620_wdt_data = {
-+	.reg_onoff_cnfg2     = MAX77620_REG_ONOFFCNFG2,
-+	.reg_cnfg_glbl2      = MAX77620_REG_CNFGGLBL2,
-+	.reg_cnfg_glbl3      = MAX77620_REG_CNFGGLBL3,
-+	.wdtc_mask           = MAX77620_WDTC_MASK,
-+	.bit_wd_rst_wk       = MAX77620_ONOFFCNFG2_WD_RST_WK,
-+	/* Set WDT clear in OFF and sleep mode */
-+	.cnfg_glbl2_cfg_bits = MAX77620_WDTSLPC | MAX77620_WDTOFFC,
++static const struct regmap_irq_chip max77714_rtc_irq_chip = {
++	.name		= "max77714-rtc",
++	.status_base	= MAX77686_RTC_INT,
++	.mask_base	= MAX77686_RTC_INTM,
++	.num_regs	= 1,
++	.irqs		= max77686_rtc_irqs,
++	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs) - 1, /* no WTSR on 77714 */
 +};
 +
-+static const struct max77620_variant max77714_wdt_data = {
-+	.reg_onoff_cnfg2     = MAX77714_CNFG2_ONOFF,
-+	.reg_cnfg_glbl2      = MAX77714_CNFG_GLBL2,
-+	.reg_cnfg_glbl3      = MAX77714_CNFG_GLBL3,
-+	.wdtc_mask           = MAX77714_WDTC,
-+	.bit_wd_rst_wk       = MAX77714_WD_RST_WK,
-+	/* Set WDT clear in sleep mode (there is no WDTOFFC on MAX77714) */
-+	.cnfg_glbl2_cfg_bits = MAX77714_WDTSLPC,
++static const struct max77686_rtc_driver_data max77714_drv_data = {
++	.delay = 16000,
++	.mask  = 0x7f,
++	.map   = max77686_map,
++	.alarm_enable_reg = false,
++	.rtc_irq_from_platform = false,
++	/* On MAX77714 RTCA1 is BIT 1 of RTCINT (0x00). Not supported by this driver. */
++	.alarm_pending_status_reg = MAX77686_INVALID_REG,
++	.rtc_i2c_addr = MAX77714_I2C_ADDR_RTC,
++	.rtc_irq_chip = &max77714_rtc_irq_chip,
++	.regmap_config = &max77686_rtc_regmap_config,
 +};
 +
- static int max77620_wdt_start(struct watchdog_device *wdt_dev)
- {
- 	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
- 
--	return regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
-+	return regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl2,
- 				  MAX77620_WDTEN, MAX77620_WDTEN);
- }
- 
-@@ -38,7 +81,7 @@ static int max77620_wdt_stop(struct watchdog_device *wdt_dev)
- {
- 	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
- 
--	return regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
-+	return regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl2,
- 				  MAX77620_WDTEN, 0);
- }
- 
-@@ -46,8 +89,8 @@ static int max77620_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
- 
--	return regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL3,
--				  MAX77620_WDTC_MASK, 0x1);
-+	return regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl3,
-+				  wdt->drv_data->wdtc_mask, 0x1);
- }
- 
- static int max77620_wdt_set_timeout(struct watchdog_device *wdt_dev,
-@@ -80,12 +123,12 @@ static int max77620_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 		break;
- 	}
- 
--	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL3,
--				 MAX77620_WDTC_MASK, 0x1);
-+	ret = regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl3,
-+				 wdt->drv_data->wdtc_mask, 0x1);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
-+	ret = regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl2,
- 				 MAX77620_TWD_MASK, regval);
- 	if (ret < 0)
- 		return ret;
-@@ -109,6 +152,7 @@ static const struct watchdog_ops max77620_wdt_ops = {
- 
- static int max77620_wdt_probe(struct platform_device *pdev)
- {
-+	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	struct device *dev = &pdev->dev;
- 	struct max77620_wdt *wdt;
- 	struct watchdog_device *wdt_dev;
-@@ -120,6 +164,8 @@ static int max77620_wdt_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	wdt->dev = dev;
-+	wdt->drv_data = (const struct max77620_variant *) id->driver_data;
-+
- 	wdt->rmap = dev_get_regmap(dev->parent, NULL);
- 	if (!wdt->rmap) {
- 		dev_err(wdt->dev, "Failed to get parent regmap\n");
-@@ -136,25 +182,25 @@ static int max77620_wdt_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, wdt);
- 
- 	/* Enable WD_RST_WK - WDT expire results in a restart */
--	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_ONOFFCNFG2,
--				 MAX77620_ONOFFCNFG2_WD_RST_WK,
--				 MAX77620_ONOFFCNFG2_WD_RST_WK);
-+	ret = regmap_update_bits(wdt->rmap, wdt->drv_data->reg_onoff_cnfg2,
-+				 wdt->drv_data->bit_wd_rst_wk,
-+				 wdt->drv_data->bit_wd_rst_wk);
- 	if (ret < 0) {
- 		dev_err(wdt->dev, "Failed to set WD_RST_WK: %d\n", ret);
- 		return ret;
- 	}
- 
--	/* Set WDT clear in OFF and sleep mode */
--	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
--				 MAX77620_WDTOFFC | MAX77620_WDTSLPC,
--				 MAX77620_WDTOFFC | MAX77620_WDTSLPC);
-+	/* Set the "auto WDT clear" bits available on the chip */
-+	ret = regmap_update_bits(wdt->rmap, wdt->drv_data->reg_cnfg_glbl2,
-+				 wdt->drv_data->cnfg_glbl2_cfg_bits,
-+				 wdt->drv_data->cnfg_glbl2_cfg_bits);
- 	if (ret < 0) {
- 		dev_err(wdt->dev, "Failed to set WDT OFF mode: %d\n", ret);
- 		return ret;
- 	}
- 
- 	/* Check if WDT running and if yes then set flags properly */
--	ret = regmap_read(wdt->rmap, MAX77620_REG_CNFGGLBL2, &regval);
-+	ret = regmap_read(wdt->rmap, wdt->drv_data->reg_cnfg_glbl2, &regval);
- 	if (ret < 0) {
- 		dev_err(wdt->dev, "Failed to read WDT CFG register: %d\n", ret);
- 		return ret;
-@@ -186,7 +232,8 @@ static int max77620_wdt_probe(struct platform_device *pdev)
- }
- 
- static const struct platform_device_id max77620_wdt_devtype[] = {
--	{ .name = "max77620-watchdog", },
-+	{ "max77620-watchdog", (kernel_ulong_t)&max77620_wdt_data },
-+	{ "max77714-watchdog", (kernel_ulong_t)&max77714_wdt_data },
- 	{ },
+ static const struct regmap_config max77620_rtc_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -843,6 +866,7 @@ static const struct platform_device_id rtc_id[] = {
+ 	{ "max77686-rtc", .driver_data = (kernel_ulong_t)&max77686_drv_data, },
+ 	{ "max77802-rtc", .driver_data = (kernel_ulong_t)&max77802_drv_data, },
+ 	{ "max77620-rtc", .driver_data = (kernel_ulong_t)&max77620_drv_data, },
++	{ "max77714-rtc", .driver_data = (kernel_ulong_t)&max77714_drv_data, },
+ 	{},
  };
- MODULE_DEVICE_TABLE(platform, max77620_wdt_devtype);
-@@ -208,4 +255,5 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
- MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
-+MODULE_AUTHOR("Luca Ceresoli <luca@lucaceresoli.net>");
- MODULE_LICENSE("GPL v2");
+ MODULE_DEVICE_TABLE(platform, rtc_id);
 -- 
 2.25.1
 
