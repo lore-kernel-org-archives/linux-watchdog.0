@@ -2,188 +2,123 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E495EC433EF
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8D05C433FE
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Feb 2022 07:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244156AbiBWTKP (ORCPT
+        id S231160AbiBXHvr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Feb 2022 14:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
+        Thu, 24 Feb 2022 02:51:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiBWTKP (ORCPT
+        with ESMTP id S231324AbiBXHvj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Feb 2022 14:10:15 -0500
-Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196413BA6A;
-        Wed, 23 Feb 2022 11:09:47 -0800 (PST)
-Received: from [77.244.183.192] (port=62116 helo=melee.fritz.box)
-        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1nMvv8-00039p-1V; Wed, 23 Feb 2022 18:59:22 +0100
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-To:     linux-kernel@vger.kernel.org
-Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 2/8] rtc: max77686: rename day-of-month defines
-Date:   Wed, 23 Feb 2022 18:59:02 +0100
-Message-Id: <20220223175908.191618-3-luca@lucaceresoli.net>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220223175908.191618-1-luca@lucaceresoli.net>
-References: <20220223175908.191618-1-luca@lucaceresoli.net>
+        Thu, 24 Feb 2022 02:51:39 -0500
+Received: from mx1.cqplus1.com (unknown [113.204.237.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7C9318A78A
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2022 23:50:59 -0800 (PST)
+X-MailGates: (compute_score:DELIVER,40,3)
+Received: from 172.28.114.216
+        by mx1.cqplus1.com with MailGates ESMTP Server V5.0(26020:0:AUTH_RELAY)
+        (envelope-from <xt.hu@cqplus1.com>); Thu, 24 Feb 2022 15:42:25 +0800 (CST)
+From:   Xiantao Hu <xt.hu@cqplus1.com>
+To:     wim@linux-watchdog.org, p.zabel@pengutronix.de,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux@roeck-us.net, robh+dt@kernel.org, devicetree@vger.kernel.org
+Cc:     wells.lu@sunplus.com, qinjian@cqplus1.com,
+        Xiantao Hu <xt.hu@cqplus1.com>, Rob Herring <robh@kernel.org>
+Subject: [PATCH v6 1/2] watchdog: Add Sunplus SP7021 WDT devicetree bindings documentation
+Date:   Thu, 24 Feb 2022 15:42:41 +0800
+Message-Id: <20220224074242.6944-2-xt.hu@cqplus1.com>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20220224074242.6944-1-xt.hu@cqplus1.com>
+References: <20220224074242.6944-1-xt.hu@cqplus1.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-RTC_DATE and REG_RTC_DATE are used for the registers holding the day of
-month. Rename these constants to mean what they mean.
+This adds the documentation for the devicetree bindings of the Sunplus
+SP7021 watchdog driver, found from SP7021 SoCs and newer.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Xiantao Hu <xt.hu@cqplus1.com>
 ---
+ .../bindings/watchdog/sunplus,sp7021-wdt.yaml | 47 +++++++++++++++++++
+ MAINTAINERS                                   |  6 +++
+ 2 files changed, 53 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
 
-Changes in v6: none
-
-Changes in v5: none
-
-Changes in v4: none
-
-Changes in v3: none
-
-Changes in v2:
- - fix drivers/mfd/max77686.c build failure due to missing rename
-   (Reported-by: kernel test robot <lkp@intel.com>)
----
- drivers/mfd/max77686.c               |  2 +-
- drivers/rtc/rtc-max77686.c           | 16 ++++++++--------
- include/linux/mfd/max77686-private.h |  4 ++--
- 3 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
-index f9e12ab2bc75..2ac64277fb84 100644
---- a/drivers/mfd/max77686.c
-+++ b/drivers/mfd/max77686.c
-@@ -87,7 +87,7 @@ static bool max77802_rtc_is_volatile_reg(struct device *dev, unsigned int reg)
- 		reg == MAX77802_RTC_WEEKDAY ||
- 		reg == MAX77802_RTC_MONTH ||
- 		reg == MAX77802_RTC_YEAR ||
--		reg == MAX77802_RTC_DATE);
-+		reg == MAX77802_RTC_MONTHDAY);
- }
+diff --git a/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml b/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
+new file mode 100644
+index 000000000..9a9bfe150
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
+@@ -0,0 +1,47 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright (C) Sunplus Co., Ltd. 2021
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/sunplus,sp7021-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Sunplus SoCs Watchdog Device Tree Bindings
++
++maintainers:
++  - XianTao Hu <xt.hu@cqplus1.com>
++
++allOf:
++  - $ref: watchdog.yaml#
++
++properties:
++  compatible:
++    const: sunplus,sp7021-wdt
++
++  reg:
++    items:
++      - description: watchdog registers regions
++      - description: miscellaneous control registers regions
++
++  clocks:
++    maxItems: 1
++
++  resets:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - resets
++
++additionalProperties: false
++
++examples:
++  - |
++    watchdog: watchdog@9c000630 {
++        compatible = "sunplus,sp7021-wdt";
++        reg = <0x9c000630 0x08>, <0x9C000274 0x04>;
++        clocks = <&clkc 0x24>;
++        resets = <&rstc 0x14>;
++    };
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fb18ce716..fe6cc971c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -18242,6 +18242,12 @@ L:	netdev@vger.kernel.org
+ S:	Maintained
+ F:	drivers/net/ethernet/dlink/sundance.c
  
- static bool max77802_is_volatile_reg(struct device *dev, unsigned int reg)
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index bac52cdea97d..7e765207f28e 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -57,7 +57,7 @@ enum {
- 	RTC_WEEKDAY,
- 	RTC_MONTH,
- 	RTC_YEAR,
--	RTC_DATE,
-+	RTC_MONTHDAY,
- 	RTC_NR_TIME
- };
- 
-@@ -119,7 +119,7 @@ enum max77686_rtc_reg_offset {
- 	REG_RTC_WEEKDAY,
- 	REG_RTC_MONTH,
- 	REG_RTC_YEAR,
--	REG_RTC_DATE,
-+	REG_RTC_MONTHDAY,
- 	REG_ALARM1_SEC,
- 	REG_ALARM1_MIN,
- 	REG_ALARM1_HOUR,
-@@ -150,7 +150,7 @@ static const unsigned int max77686_map[REG_RTC_END] = {
- 	[REG_RTC_WEEKDAY]    = MAX77686_RTC_WEEKDAY,
- 	[REG_RTC_MONTH]      = MAX77686_RTC_MONTH,
- 	[REG_RTC_YEAR]       = MAX77686_RTC_YEAR,
--	[REG_RTC_DATE]       = MAX77686_RTC_DATE,
-+	[REG_RTC_MONTHDAY]   = MAX77686_RTC_MONTHDAY,
- 	[REG_ALARM1_SEC]     = MAX77686_ALARM1_SEC,
- 	[REG_ALARM1_MIN]     = MAX77686_ALARM1_MIN,
- 	[REG_ALARM1_HOUR]    = MAX77686_ALARM1_HOUR,
-@@ -233,7 +233,7 @@ static const unsigned int max77802_map[REG_RTC_END] = {
- 	[REG_RTC_WEEKDAY]    = MAX77802_RTC_WEEKDAY,
- 	[REG_RTC_MONTH]      = MAX77802_RTC_MONTH,
- 	[REG_RTC_YEAR]       = MAX77802_RTC_YEAR,
--	[REG_RTC_DATE]       = MAX77802_RTC_DATE,
-+	[REG_RTC_MONTHDAY]   = MAX77802_RTC_MONTHDAY,
- 	[REG_ALARM1_SEC]     = MAX77802_ALARM1_SEC,
- 	[REG_ALARM1_MIN]     = MAX77802_ALARM1_MIN,
- 	[REG_ALARM1_HOUR]    = MAX77802_ALARM1_HOUR,
-@@ -288,7 +288,7 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
- 
- 	/* Only a single bit is set in data[], so fls() would be equivalent */
- 	tm->tm_wday = ffs(data[RTC_WEEKDAY] & mask) - 1;
--	tm->tm_mday = data[RTC_DATE] & 0x1f;
-+	tm->tm_mday = data[RTC_MONTHDAY] & 0x1f;
- 	tm->tm_mon = (data[RTC_MONTH] & 0x0f) - 1;
- 	tm->tm_year = data[RTC_YEAR] & mask;
- 	tm->tm_yday = 0;
-@@ -309,7 +309,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
- 	data[RTC_MIN] = tm->tm_min;
- 	data[RTC_HOUR] = tm->tm_hour;
- 	data[RTC_WEEKDAY] = 1 << tm->tm_wday;
--	data[RTC_DATE] = tm->tm_mday;
-+	data[RTC_MONTHDAY] = tm->tm_mday;
- 	data[RTC_MONTH] = tm->tm_mon + 1;
- 
- 	if (info->drv_data->alarm_enable_reg) {
-@@ -565,8 +565,8 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 			data[RTC_MONTH] |= (1 << ALARM_ENABLE_SHIFT);
- 		if (data[RTC_YEAR] & info->drv_data->mask)
- 			data[RTC_YEAR] |= (1 << ALARM_ENABLE_SHIFT);
--		if (data[RTC_DATE] & 0x1f)
--			data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
-+		if (data[RTC_MONTHDAY] & 0x1f)
-+			data[RTC_MONTHDAY] |= (1 << ALARM_ENABLE_SHIFT);
- 
- 		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
- 					data, ARRAY_SIZE(data));
-diff --git a/include/linux/mfd/max77686-private.h b/include/linux/mfd/max77686-private.h
-index b1482b3cf353..3acceeedbaba 100644
---- a/include/linux/mfd/max77686-private.h
-+++ b/include/linux/mfd/max77686-private.h
-@@ -152,7 +152,7 @@ enum max77686_rtc_reg {
- 	MAX77686_RTC_WEEKDAY		= 0x0A,
- 	MAX77686_RTC_MONTH		= 0x0B,
- 	MAX77686_RTC_YEAR		= 0x0C,
--	MAX77686_RTC_DATE		= 0x0D,
-+	MAX77686_RTC_MONTHDAY		= 0x0D,
- 	MAX77686_ALARM1_SEC		= 0x0E,
- 	MAX77686_ALARM1_MIN		= 0x0F,
- 	MAX77686_ALARM1_HOUR		= 0x10,
-@@ -352,7 +352,7 @@ enum max77802_rtc_reg {
- 	MAX77802_RTC_WEEKDAY		= 0xCA,
- 	MAX77802_RTC_MONTH		= 0xCB,
- 	MAX77802_RTC_YEAR		= 0xCC,
--	MAX77802_RTC_DATE		= 0xCD,
-+	MAX77802_RTC_MONTHDAY		= 0xCD,
- 	MAX77802_RTC_AE1		= 0xCE,
- 	MAX77802_ALARM1_SEC		= 0xCF,
- 	MAX77802_ALARM1_MIN		= 0xD0,
++SUNPLUS WATCHDOG DRIVER
++M:	Xiantao Hu <xt.hu@cqplus1.com>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
++
+ SUPERH
+ M:	Yoshinori Sato <ysato@users.sourceforge.jp>
+ M:	Rich Felker <dalias@libc.org>
 -- 
-2.25.1
+2.33.1
 
