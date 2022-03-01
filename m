@@ -2,35 +2,33 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 132F6C4332F
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Mar 2022 05:38:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04569C433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Mar 2022 05:44:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232487AbiCAFij (ORCPT
+        id S231362AbiCAFox (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Mar 2022 00:38:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
+        Tue, 1 Mar 2022 00:44:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232507AbiCAFii (ORCPT
+        with ESMTP id S231538AbiCAFow (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Mar 2022 00:38:38 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34614A91C;
-        Mon, 28 Feb 2022 21:37:55 -0800 (PST)
-X-UUID: 87e90516592f4d07952e7df1ac23aa4f-20220301
-X-UUID: 87e90516592f4d07952e7df1ac23aa4f-20220301
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        Tue, 1 Mar 2022 00:44:52 -0500
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E658F56211;
+        Mon, 28 Feb 2022 21:44:10 -0800 (PST)
+X-UUID: 3d3003d1a2a74517b08e8617e4ac3e85-20220301
+X-UUID: 3d3003d1a2a74517b08e8617e4ac3e85-20220301
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
         (envelope-from <rex-bc.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1116615421; Tue, 01 Mar 2022 13:37:36 +0800
-Received: from mtkexhb02.mediatek.inc (172.21.101.103) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 1 Mar 2022 13:37:35 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb02.mediatek.inc
- (172.21.101.103) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 1 Mar
- 2022 13:37:35 +0800
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1677084206; Tue, 01 Mar 2022 13:44:07 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Tue, 1 Mar 2022 13:44:07 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 1 Mar 2022 13:37:35 +0800
+ Transport; Tue, 1 Mar 2022 13:44:07 +0800
 From:   Rex-BC Chen <rex-bc.chen@mediatek.com>
 To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
         <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
@@ -42,12 +40,12 @@ CC:     <runyang.chen@mediatek.com>, <linux-watchdog@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>,
         Rex-BC Chen <rex-bc.chen@mediatek.com>
-Subject: [PATCH v2 1/3] dt-bindings: watchdog: Add compatible for MediaTek MT8186
-Date:   Tue, 1 Mar 2022 13:37:31 +0800
-Message-ID: <20220301053733.24755-2-rex-bc.chen@mediatek.com>
+Subject: [RESEND V2 1/3] dt-bindings: watchdog: Add compatible for MediaTek MT8186
+Date:   Tue, 1 Mar 2022 13:44:03 +0800
+Message-ID: <20220301054405.25021-2-rex-bc.chen@mediatek.com>
 X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220301053733.24755-1-rex-bc.chen@mediatek.com>
-References: <20220301053733.24755-1-rex-bc.chen@mediatek.com>
+In-Reply-To: <20220301054405.25021-1-rex-bc.chen@mediatek.com>
+References: <20220301054405.25021-1-rex-bc.chen@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MTK:  N
