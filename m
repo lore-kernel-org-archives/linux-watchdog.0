@@ -2,116 +2,146 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C60C43219
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Mar 2022 05:44:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 483ADC433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Mar 2022 09:44:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbiCAFpA (ORCPT
+        id S233980AbiCAJpO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Mar 2022 00:45:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
+        Tue, 1 Mar 2022 04:45:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232195AbiCAFo6 (ORCPT
+        with ESMTP id S233982AbiCAJpF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Mar 2022 00:44:58 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4FB5677C;
-        Mon, 28 Feb 2022 21:44:17 -0800 (PST)
-X-UUID: 4dd73bebb20948ff97e3fff8dcde1472-20220301
-X-UUID: 4dd73bebb20948ff97e3fff8dcde1472-20220301
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <rex-bc.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 235188049; Tue, 01 Mar 2022 13:44:08 +0800
-Received: from mtkexhb02.mediatek.inc (172.21.101.103) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Tue, 1 Mar 2022 13:44:07 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb02.mediatek.inc
- (172.21.101.103) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 1 Mar
- 2022 13:44:07 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 1 Mar 2022 13:44:07 +0800
-From:   Rex-BC Chen <rex-bc.chen@mediatek.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <p.zabel@pengutronix.de>
-CC:     <runyang.chen@mediatek.com>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>
-Subject: [RESEND V2 2/3] dt-bindings: reset: mt8186: add reset-controller header file
-Date:   Tue, 1 Mar 2022 13:44:04 +0800
-Message-ID: <20220301054405.25021-3-rex-bc.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220301054405.25021-1-rex-bc.chen@mediatek.com>
-References: <20220301054405.25021-1-rex-bc.chen@mediatek.com>
+        Tue, 1 Mar 2022 04:45:05 -0500
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4E57B6005C;
+        Tue,  1 Mar 2022 01:44:18 -0800 (PST)
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1nOz3I-0003z9-00; Tue, 01 Mar 2022 10:44:16 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id A90D6C2860; Tue,  1 Mar 2022 10:09:58 +0100 (CET)
+Date:   Tue, 1 Mar 2022 10:09:58 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Hauke Mehrtens <hauke@hauke-m.de>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, dmaengine@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Remove TX39XX support
+Message-ID: <20220301090958.GA6517@alpha.franken.de>
+References: <20220222090435.62571-1-tsbogend@alpha.franken.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220222090435.62571-1-tsbogend@alpha.franken.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Runyang Chen <runyang.chen@mediatek.com>
+On Tue, Feb 22, 2022 at 10:04:28AM +0100, Thomas Bogendoerfer wrote:
+> No (active) developer owns this hardware, so let's remove Linux support.
+> 
+> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> ---
+>  arch/mips/Kbuild.platforms                    |   1 -
+>  arch/mips/Kconfig                             |  24 +-
+>  arch/mips/Makefile                            |   1 -
+>  arch/mips/configs/jmr3927_defconfig           |  50 ---
+>  arch/mips/include/asm/cpu-features.h          |   3 -
+>  arch/mips/include/asm/cpu-type.h              |   6 -
+>  arch/mips/include/asm/cpu.h                   |   6 -
+>  arch/mips/include/asm/isadep.h                |   2 +-
+>  .../asm/mach-ath25/cpu-feature-overrides.h    |   1 -
+>  .../asm/mach-ath79/cpu-feature-overrides.h    |   1 -
+>  .../asm/mach-au1x00/cpu-feature-overrides.h   |   1 -
+>  .../asm/mach-bcm47xx/cpu-feature-overrides.h  |   1 -
+>  .../cpu-feature-overrides.h                   |   1 -
+>  .../asm/mach-cobalt/cpu-feature-overrides.h   |   1 -
+>  .../asm/mach-dec/cpu-feature-overrides.h      |   1 -
+>  .../asm/mach-ingenic/cpu-feature-overrides.h  |   1 -
+>  .../asm/mach-ip27/cpu-feature-overrides.h     |   1 -
+>  .../asm/mach-ip30/cpu-feature-overrides.h     |   1 -
+>  .../falcon/cpu-feature-overrides.h            |   1 -
+>  .../mach-loongson2ef/cpu-feature-overrides.h  |   1 -
+>  .../mach-loongson64/cpu-feature-overrides.h   |   1 -
+>  .../mt7620/cpu-feature-overrides.h            |   1 -
+>  .../mt7621/cpu-feature-overrides.h            |   1 -
+>  .../rt288x/cpu-feature-overrides.h            |   1 -
+>  .../rt305x/cpu-feature-overrides.h            |   1 -
+>  .../rt3883/cpu-feature-overrides.h            |   1 -
+>  .../asm/mach-rc32434/cpu-feature-overrides.h  |   1 -
+>  arch/mips/include/asm/mach-tx39xx/ioremap.h   |  25 --
+>  .../include/asm/mach-tx39xx/mangle-port.h     |  24 -
+>  arch/mips/include/asm/mach-tx39xx/spaces.h    |  17 -
+>  arch/mips/include/asm/stackframe.h            |   6 +-
+>  arch/mips/include/asm/txx9/boards.h           |   3 -
+>  arch/mips/include/asm/txx9/jmr3927.h          | 179 --------
+>  arch/mips/include/asm/txx9/tx3927.h           | 341 ---------------
+>  arch/mips/include/asm/txx9irq.h               |   4 -
+>  arch/mips/include/asm/txx9tmr.h               |   4 -
+>  arch/mips/include/asm/vermagic.h              |   2 -
+>  arch/mips/kernel/Makefile                     |   1 -
+>  arch/mips/kernel/cpu-probe.c                  |  23 -
+>  arch/mips/kernel/cpu-r3k-probe.c              |  22 -
+>  arch/mips/kernel/entry.S                      |   2 +-
+>  arch/mips/kernel/genex.S                      |   4 +-
+>  arch/mips/kernel/idle.c                       |  10 -
+>  arch/mips/kernel/irq_txx9.c                   |  13 -
+>  arch/mips/kernel/proc.c                       |   2 -
+>  arch/mips/kernel/process.c                    |   2 +-
+>  arch/mips/lib/Makefile                        |   1 -
+>  arch/mips/lib/r3k_dump_tlb.c                  |   4 -
+>  arch/mips/mm/Makefile                         |   1 -
+>  arch/mips/mm/c-tx39.c                         | 414 ------------------
+>  arch/mips/mm/cache.c                          |   5 -
+>  arch/mips/mm/tlb-r3k.c                        |  40 +-
+>  arch/mips/pci/Makefile                        |   2 -
+>  arch/mips/pci/fixup-jmr3927.c                 |  79 ----
+>  arch/mips/pci/ops-tx3927.c                    | 231 ----------
+>  arch/mips/txx9/Kconfig                        |  18 -
+>  arch/mips/txx9/Makefile                       |   6 -
+>  arch/mips/txx9/Platform                       |   3 -
+>  arch/mips/txx9/generic/Makefile               |   1 -
+>  arch/mips/txx9/generic/irq_tx3927.c           |  25 --
+>  arch/mips/txx9/generic/setup.c                |  55 ---
+>  arch/mips/txx9/generic/setup_tx3927.c         | 136 ------
+>  arch/mips/txx9/jmr3927/Makefile               |   6 -
+>  arch/mips/txx9/jmr3927/irq.c                  | 128 ------
+>  arch/mips/txx9/jmr3927/prom.c                 |  52 ---
+>  arch/mips/txx9/jmr3927/setup.c                | 223 ----------
+>  drivers/dma/Kconfig                           |   2 +-
+>  drivers/watchdog/Kconfig                      |   2 +-
+>  68 files changed, 18 insertions(+), 2212 deletions(-)
+>  delete mode 100644 arch/mips/configs/jmr3927_defconfig
+>  delete mode 100644 arch/mips/include/asm/mach-tx39xx/ioremap.h
+>  delete mode 100644 arch/mips/include/asm/mach-tx39xx/mangle-port.h
+>  delete mode 100644 arch/mips/include/asm/mach-tx39xx/spaces.h
+>  delete mode 100644 arch/mips/include/asm/txx9/jmr3927.h
+>  delete mode 100644 arch/mips/include/asm/txx9/tx3927.h
+>  delete mode 100644 arch/mips/mm/c-tx39.c
+>  delete mode 100644 arch/mips/pci/fixup-jmr3927.c
+>  delete mode 100644 arch/mips/pci/ops-tx3927.c
+>  delete mode 100644 arch/mips/txx9/generic/irq_tx3927.c
+>  delete mode 100644 arch/mips/txx9/generic/setup_tx3927.c
+>  delete mode 100644 arch/mips/txx9/jmr3927/Makefile
+>  delete mode 100644 arch/mips/txx9/jmr3927/irq.c
+>  delete mode 100644 arch/mips/txx9/jmr3927/prom.c
+>  delete mode 100644 arch/mips/txx9/jmr3927/setup.c
 
-- Add toprgu reset-controller header file for MT8186.
-- Add DSI software reset bit which is controlled in MMSYS for MT8186.
+applied to mips-next.
 
-Signed-off-by: Runyang Chen <runyang.chen@mediatek.com>
-Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- include/dt-bindings/reset/mt8186-resets.h | 36 +++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
- create mode 100644 include/dt-bindings/reset/mt8186-resets.h
+Thomas.
 
-diff --git a/include/dt-bindings/reset/mt8186-resets.h b/include/dt-bindings/reset/mt8186-resets.h
-new file mode 100644
-index 000000000000..5f850370c42c
---- /dev/null
-+++ b/include/dt-bindings/reset/mt8186-resets.h
-@@ -0,0 +1,36 @@
-+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
-+/*
-+ * Copyright (c) 2022 MediaTek Inc.
-+ * Author: Runyang Chen <runyang.chen@mediatek.com>
-+ */
-+
-+#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT8186
-+#define _DT_BINDINGS_RESET_CONTROLLER_MT8186
-+
-+#define MT8186_TOPRGU_INFRA_SW_RST				0
-+#define MT8186_TOPRGU_MM_SW_RST					1
-+#define MT8186_TOPRGU_MFG_SW_RST				2
-+#define MT8186_TOPRGU_VENC_SW_RST				3
-+#define MT8186_TOPRGU_VDEC_SW_RST				4
-+#define MT8186_TOPRGU_IMG_SW_RST				5
-+#define MT8186_TOPRGU_DDR_SW_RST				6
-+#define MT8186_TOPRGU_INFRA_AO_SW_RST				8
-+#define MT8186_TOPRGU_CONNSYS_SW_RST				9
-+#define MT8186_TOPRGU_APMIXED_SW_RST				10
-+#define MT8186_TOPRGU_PWRAP_SW_RST				11
-+#define MT8186_TOPRGU_CONN_MCU_SW_RST				12
-+#define MT8186_TOPRGU_IPNNA_SW_RST				13
-+#define MT8186_TOPRGU_WPE_SW_RST				14
-+#define MT8186_TOPRGU_ADSP_SW_RST				15
-+#define MT8186_TOPRGU_AUDIO_SW_RST				17
-+#define MT8186_TOPRGU_CAM_MAIN_SW_RST				18
-+#define MT8186_TOPRGU_CAM_RAWA_SW_RST				19
-+#define MT8186_TOPRGU_CAM_RAWB_SW_RST				20
-+#define MT8186_TOPRGU_IPE_SW_RST				21
-+#define MT8186_TOPRGU_IMG2_SW_RST				22
-+#define MT8186_TOPRGU_SW_RST_NUM				23
-+
-+/* MMSYS resets */
-+#define MT8186_MMSYS_SW0_RST_B_DISP_DSI0			19
-+
-+#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT8186 */
 -- 
-2.18.0
-
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
