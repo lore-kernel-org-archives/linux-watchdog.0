@@ -2,108 +2,64 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E07DFC433F5
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Mar 2022 14:55:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 528CFC433F5
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Mar 2022 08:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233475AbiCAO4W (ORCPT
+        id S231156AbiCDIOB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Mar 2022 09:56:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56456 "EHLO
+        Fri, 4 Mar 2022 03:14:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231549AbiCAO4W (ORCPT
+        with ESMTP id S231195AbiCDIOA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Mar 2022 09:56:22 -0500
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0821DA2525
-        for <linux-watchdog@vger.kernel.org>; Tue,  1 Mar 2022 06:55:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=NWFwramrqcFN43h+FBE0GPSWZHqM
-        i8FJofMttgZwmB0=; b=J6slbFMQLnPPz2J5t9hb+AoYlMna/ORbwBNKz1CGhoUr
-        Ym+qcrtL1mF9xTFEiC6jy7J1IDIj6fcNJvRd4zlljN092tZnUB6B9U4OUO5/2FjV
-        BgswJtc1TZ70PcYe/ZnhaJQbQQKWO6S9roZue0GE90+rlbekCLWX19IG7qdhyQU=
-Received: (qmail 3901312 invoked from network); 1 Mar 2022 15:55:38 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 1 Mar 2022 15:55:38 +0100
-X-UD-Smtp-Session: l3s3148p1@keipWynZ9NQgAQnoAGI9AP6D0HJXVmR3
-Date:   Tue, 1 Mar 2022 15:55:38 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        linux-kernel@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] dt-bindings: watchdog: renesas,wdt: Document RZ/V2L
- SoC
-Message-ID: <Yh4z6kUetYEtP2BJ@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        linux-kernel@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        linux-watchdog@vger.kernel.org
-References: <20220301122332.14796-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        Fri, 4 Mar 2022 03:14:00 -0500
+Received: from mx1.cqplus1.com (unknown [113.204.237.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B482734BBA
+        for <linux-watchdog@vger.kernel.org>; Fri,  4 Mar 2022 00:13:02 -0800 (PST)
+X-MailGates: (flag:4,DYNAMIC,BADHELO,RELAY,NOHOST:PASS)(compute_score:DE
+        LIVER,40,3)
+Received: from 172.28.114.216
+        by mx1.cqplus1.com with MailGates ESMTP Server V5.0(26037:0:AUTH_RELAY)
+        (envelope-from <xt.hu@cqplus1.com>); Fri, 04 Mar 2022 16:11:51 +0800 (CST)
+From:   Xiantao Hu <xt.hu@cqplus1.com>
+To:     wim@linux-watchdog.org, p.zabel@pengutronix.de,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux@roeck-us.net, robh+dt@kernel.org, devicetree@vger.kernel.org
+Cc:     wells.lu@sunplus.com, qinjian@cqplus1.com,
+        Xiantao Hu <xt.hu@cqplus1.com>
+Subject: [PATCH v7 0/2] Add watchdog driver for Sunplus SP7021 SoC
+Date:   Fri,  4 Mar 2022 16:12:07 +0800
+Message-Id: <20220304081209.672-1-xt.hu@cqplus1.com>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IB0UhyAI3pAW8tBk"
-Content-Disposition: inline
-In-Reply-To: <20220301122332.14796-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+This is a patch series for watchdog driver for Sunplus SP7021 SoC.
 
---IB0UhyAI3pAW8tBk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sunplus SP7021 is an ARM Cortex A7 (4 cores) based SoC. It integrates
+many peripherals (ex: UART, I2C, SPI, SDIO, eMMC, USB, SD card and
+etc.) into a single chip. It is designed for industrial control.
 
-On Tue, Mar 01, 2022 at 12:23:32PM +0000, Lad Prabhakar wrote:
-> Document RZ/V2L WDT bindings. RZ/V2L WDT is identical to one found
-> on the RZ/G2L SoC. No driver changes are required as generic compatible
-> string "renesas,rzg2l-wdt" will be used as a fallback.
->=20
-> While at it, drop the comment "# RZ/G2L" for "renesas,rzg2l-wdt"
-> compatible string as this will avoid changing the line for every new
-> SoC addition.
->=20
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Refer to:
+https://sunplus-tibbo.atlassian.net/wiki/spaces/doc/overview
+https://tibbo.com/store/plus1.html
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Xiantao Hu (2):
+  dt-bindings: watchdog: Add watchdog yaml file for Sunplus SP7021
+  watchdog: Add watchdog driver for Sunplus SP7021
 
+ .../bindings/watchdog/sunplus,sp7021-wdt.yaml |  47 ++++
+ MAINTAINERS                                   |   7 +
+ drivers/watchdog/Kconfig                      |  11 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/sunplus_wdt.c                | 220 ++++++++++++++++++
+ 5 files changed, 286 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
+ create mode 100644 drivers/watchdog/sunplus_wdt.c
 
---IB0UhyAI3pAW8tBk
-Content-Type: application/pgp-signature; name="signature.asc"
+-- 
+2.33.1
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIeM+oACgkQFA3kzBSg
-KbY1dQ/9HhVFB9t7bUHKAmblMsWFLb4M+BaQnTCbCaI8oQTi4U75I3XSVnNcqMyS
-qTTX+m0FusfG3XjVXeKg4Bniv5O25Zppt0cp631e3ghBY16aRNYBuo/xCXRtRHSS
-kynx6Uustw2K2PxZ35XFDE4NzUgYw33COlNU9QOOIfs0bt5Z+oe9h+mvbQMeV7PO
-qXjWVjcTZnaBf1yBEwL+YQ9O80+3xRay4NMcgCJ9zvsy2QvDDN8wy3IgKOTYnSSr
-pEuH3RkGuOwFwW2Mie+a78QfYjkFX/o0yxLHEzgBri7wlnt5JRDRy7lHjGo79IIG
-6dG/ACRu1+f4bs25lSoGIPIkivitYMICFJH6BLgTxmQzEDbf95h+/LskfGf77vLZ
-blIJncavupjf5nf8gHfyOlJzZN13vi3Cv7PjS5zLYpSmWBX+JNUyE2o6pyYHegib
-TKuP9jFSG3NNH8DVZd+J0HpgVIQIq9J+MYGq3IkOFKZpWuBB6W7uFdV/mqXUZ9oq
-Go1agEP5cTQ7vx6J+R0VWgH64XZTrg/ia+Nj8tCe+pw/rz2bPhfdF5LxVvMNtS54
-hek4o2SLjgGzW/PpvObIjze4foEdmDOGs8MrrLMzug8MqXQghjVGLgFF7hzLdN1T
-2tK7ouGke1MV5YgxyQrVIQZx6igHz9N+1qY4gv65ThBSPFv3j0A=
-=Jowe
------END PGP SIGNATURE-----
-
---IB0UhyAI3pAW8tBk--
