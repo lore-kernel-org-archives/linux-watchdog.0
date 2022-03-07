@@ -2,92 +2,166 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B58BFC4332F
-	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Mar 2022 02:41:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDE00C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon,  7 Mar 2022 08:53:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbiCECml (ORCPT
+        id S231767AbiCGIx5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Mar 2022 21:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
+        Mon, 7 Mar 2022 03:53:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229956AbiCECml (ORCPT
+        with ESMTP id S231362AbiCGIx4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Mar 2022 21:42:41 -0500
-Received: from mail-vk1-xa29.google.com (mail-vk1-xa29.google.com [IPv6:2607:f8b0:4864:20::a29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C295A24F866;
-        Fri,  4 Mar 2022 18:41:52 -0800 (PST)
-Received: by mail-vk1-xa29.google.com with SMTP id x62so5318394vkg.6;
-        Fri, 04 Mar 2022 18:41:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KkcNCtjpcO8rVm8LUzoHbBDqzf+JRgklTyG6XGrgh2A=;
-        b=n3v5g4r26iSDUpyH/15c34qb0OSlTQqGD+1AH+W+Ewm3Q8qbcr6ZF6eVUJqPxPg4AK
-         v1GMcYCik7Q682YyBSUSvzc4tarHahIlPrBHLKlVNZ6xWcydkFrucAajd29dD6DrJJwB
-         KTzCOgZpQjNn+KApVn46AtG6+ybOyLOhA9IoX4hMorNwLui+negdc5M2M9uoYiNIs9yd
-         rBlpV3llDOutr17RMr5lWoEb9FOXiZ9lIk79HMyeVyH1CJcoAt+fTwQEcMbyduPCmZax
-         Ew3hwauqxhC3lmJkK/c1qRQHdxy6tAj+6Hq97iFEV2MNzbiVNsP8nR/6Cf4PLyfkf3T6
-         J5CA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KkcNCtjpcO8rVm8LUzoHbBDqzf+JRgklTyG6XGrgh2A=;
-        b=xdZXcN9ndX6kIjQSkktOsaEWTkfV/+JtGBe5Tiy4wCcYZjhq2uxKVQ0TQMNAFTSNoD
-         29ckoy8axEIFoc7y4PEQm5uaFXxCAgPPnb1iqcio403cY4MNpoDFqSH7xUTztYTStCI/
-         Y9dn0fTy+jO6U630wuOY4Ci2+sx//kcZH6s0Me0oksnu0ZZTUy/ClYSoM9vSTBsOn0kS
-         ZegBiwEgNgCk+jmyVWy7EAxBIwap5CuQOtqfUS/kT9O9ebsc9HdWhrhnTwzxYXafus++
-         bYDD5jPFxxarNP2ON8gOqRSLUkRzKrcgqMXElCcKSWhhkNfrXObLB5aDM6OhmK9PkSQD
-         2TNg==
-X-Gm-Message-State: AOAM531VMTI4FhWRyCvpHzxIQA0Z+62a7ky8EVFagBAXlNCwHd1lNwH4
-        G5ykantArbgyJyL3RVa8f+3N2rDE+9Im3KVt00iZBH3z
-X-Google-Smtp-Source: ABdhPJxOsN2RrE8cJHgE60PZbU5R7UZ2J4YCIf+ekeTLJwL7RE7YXmJekBtVPUrks2W4I8GY7/R3s05NmLLJnOyQapA=
-X-Received: by 2002:a1f:ee4a:0:b0:336:e616:82c6 with SMTP id
- m71-20020a1fee4a000000b00336e61682c6mr603775vkh.8.1646448111552; Fri, 04 Mar
- 2022 18:41:51 -0800 (PST)
+        Mon, 7 Mar 2022 03:53:56 -0500
+Received: from JPN01-OS0-obe.outbound.protection.outlook.com (mail-os0jpn01on2121.outbound.protection.outlook.com [40.107.113.121])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9FD9CE8;
+        Mon,  7 Mar 2022 00:53:00 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NGfznPCcDj8S4ZRmRM28Iiloi51SCw+NCx52AofyNgQlaOBCYvipRkOIr5m/KO7s/CbW6YLLGYs7566kHFtO9tslTVhus0xuLJbVnJBE13BlR7RrzCp426zf0KXilXKzf1MMqMVuPZopBMXMUUz/AVnvCaocuzLH5tClXzIVH8WcmxchabOCmh74QRlkZueDKC++zQnWrBcEEh2IecS9HBNUTDko6D5eJ/VCZTKjfeyCaKB0mxWMMAJaJxWOxE/7DhIR+xyco5kqzgnQKE2XbNP3E0FCpMRS7Xlq+4eKrGv8hhG7J0QgmpNxEaeyRvuRHw7LDR+LVujyk7bQSYbJ4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=AkansIYwDCazl7juiDzgiXDLPVdckSopcm2mht/Psw8=;
+ b=OPGe13qPpkf+xIfeDRDbQvKGNyX/FD3SbtDosQNB8MkpvwbFuox8r1w48ZP9/cQfNa6TIAuPOqqfmq6SPL2gR0DcXH2izIvkwmVi1whyq3EXf2ElX4KxxnN4HqtV2JAgTTbhMmbP5BC6J3Y0mkWAkD/xADd1eNQWIVMpQLtA3gO6avcFxxu8Hkfnuwfp0VjRNTYDXFHjEnsMEv4A+auYpGVuWnBkQOcqO11vO7GfvzCMnzIIMy6KjRBMfRr/i8V64YTokeJ0lFum6ZCxCobR6uClWnXlhEQc9aP7bXUS/61CdOEuC7aVbZfXIRj2ilUX/pGTv9Gy78qnvGP/TlAtWA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
+ header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AkansIYwDCazl7juiDzgiXDLPVdckSopcm2mht/Psw8=;
+ b=jqjLZgkDSyljoDvtRsmG46lyiwg9RzM2JiDxN6rQdul9ElSSoYl/7i+WhvoTY9OVtUiyvuMpOJ5Jnf53Cdg7JjFQqbrJ49cBVm7bgmC4bCEXRT5t6iwAbSwyfuQX6wxhd58E8Oa+70WukYmthq3SUMTb+NMJAc8/5JHeM0NrQoU=
+Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com (2603:1096:604:bb::5)
+ by TYAPR01MB2128.jpnprd01.prod.outlook.com (2603:1096:404:2::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14; Mon, 7 Mar
+ 2022 08:52:58 +0000
+Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com
+ ([fe80::58d9:6a15:cebd:5500]) by OS0PR01MB5922.jpnprd01.prod.outlook.com
+ ([fe80::58d9:6a15:cebd:5500%4]) with mapi id 15.20.5038.023; Mon, 7 Mar 2022
+ 08:52:58 +0000
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>
+Subject: RE: [PATCH v5 0/7] RZG2L_WDT Fixes and Improvements
+Thread-Topic: [PATCH v5 0/7] RZG2L_WDT Fixes and Improvements
+Thread-Index: AQHYKnCZrKtJ0aTHxkCr0aawkDygoKyzrFnw
+Date:   Mon, 7 Mar 2022 08:52:58 +0000
+Message-ID: <OS0PR01MB5922BE07E79DB3CF32B8D95C86089@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+References: <20220225175320.11041-1-biju.das.jz@bp.renesas.com>
+In-Reply-To: <20220225175320.11041-1-biju.das.jz@bp.renesas.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=bp.renesas.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: bfdb04a5-5d54-4415-d099-08da0017e0f2
+x-ms-traffictypediagnostic: TYAPR01MB2128:EE_
+x-microsoft-antispam-prvs: <TYAPR01MB2128A0B1F49D092A62BFDCA786089@TYAPR01MB2128.jpnprd01.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ecjm4E8GK9wPYUt2Cy0YAU/ZBwrCGoIs4iyA+ZRaYyJQNVGIq/E98HspjIuBzZYq5mPHobFwugKTOQvmo5Xp8CQYV5TZgWJRQfpNThNgvBFyhpcARCnIpupyF7iWDiOACoU8xNZXZVuE7TY1veKSD47tdHLYbIlqv3V39tyuOky68WeRE1+YQ9sNUQYPVs1V3bp2XNLyUo40muEOove0rVb22je17IZEN5CisYpCt83H624eS0+6PkrqI6rmk8mkFdraHQl/8EPJQICw0Cye42SuFIXHXtzYJ6Pr63+Lk+LD4ZDgnI1/1+ZjUGFI2IEgJwWoyBxYtnDR0W0vHdyTpJvF/CkrrHdDjFaAZxZeYuLVcsKAnEHPaw4ToX7AGd6rr0joeYdMnDipO3dneF+X3VgMJj2Fkb2czEVLrY8PjUrWWiRl5ZPEecnmzjIUYR6LdYnYu/YXw+EOedHfNRMzpY8RNlexefzKyw75V+kbwJYURakPWvNaKTWhDYtTDneqc1j4SOxywa5WXrozcCWtOrz2cK7xefOkMBCe4dsa+xJpsYxI17wvsOZxbxm70Sr6wJ14edk1mMoYu2CXCJzwzoYe6AJY4LjX15NNfVLLpdqcb5IFWUH8xt+W5c3sftFsSNk+GdWd0SwyJE6Cvq02xaOFRq+Oo9t9CHZBDnaHrwSk54TvS9z3ICutUgo4FInYSy8dcQW5c4ny+p4Zws+CwQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OS0PR01MB5922.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(7696005)(26005)(9686003)(6506007)(54906003)(71200400001)(5660300002)(38100700002)(33656002)(110136005)(76116006)(508600001)(186003)(38070700005)(316002)(122000001)(2906002)(55016003)(86362001)(64756008)(83380400001)(52536014)(8676002)(66556008)(66476007)(8936002)(66946007)(4326008)(66446008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?3OHJTWXdK4q+LmO30qA3xvZcAOTabIPjDgapCKLXDqP6AE55mZjho/d1t4zJ?=
+ =?us-ascii?Q?d+epnmWyVPjD9QyAzpX/+Rcn2yz6JJ2R19iR3XGBPGZYkdGMln/2LicjjV8v?=
+ =?us-ascii?Q?FAhViNqV6lRTojRZQ6qCoLm/h+WoIGWYKcPEhTEcASd6rC1IhIgWEjU/JC1L?=
+ =?us-ascii?Q?CEBaKnAKmDpuceXiRUdTjgDEY18qfQDz74wt7OkwTCel6vGzjLw78bxRv7mj?=
+ =?us-ascii?Q?WkFKzM5ulz8Aj2Cxnp9r/YGVBSIuZGq6cDq+oaUq9OVqhU5KXU2BzU7usXRt?=
+ =?us-ascii?Q?HYLaGf/X3kcmmM2rJnxXGzCpRhfRvag33ob08fr4KMmXkO029fvVTA/gKqVK?=
+ =?us-ascii?Q?IZ7KjRo19H9IFVRR7qAlob15Yaibl0NszW82qdeAtR7zP5E9TSYOfBxs08WZ?=
+ =?us-ascii?Q?EbOXKgc5S/2fvcxIXA3hODuhBSAkU4B4UiCloRkp/4UXy0F4joA/oEpBBAOv?=
+ =?us-ascii?Q?k5+hUGWiCdnjentj2YA1v78LqQu0vAuVpJuMlxyN2jfTAA7CGxqwk60fKdLK?=
+ =?us-ascii?Q?GmWW64lMVLfzq6fdBovxyTeUwEo83HZDXdWeN9g2/SpNBnJ7nfmGYB6PTyRD?=
+ =?us-ascii?Q?An8oN8/WbYN5A6rPVHaEQ/dVCD6QD02NeEwJSGOzQ4ZVfaV3j+QuS6AuTPr/?=
+ =?us-ascii?Q?sQKAKlIbDY3UIMIkXB5APAQSHx+TmBFH2666ec98unaqlT0DxGVBMf6527iG?=
+ =?us-ascii?Q?WqDZxqeEwzsoaCb/sWv5y4xs+axaHSGmPZSXs1Z87zFMGtok/bNgOoXvLSj8?=
+ =?us-ascii?Q?FblukESiI5ppKqC7V47n8W9cJuJwo+wd563ryoMcJRDJhPrbEN1tEMmSLnaS?=
+ =?us-ascii?Q?IUkmdamIhVq00B72Jz38hH8cahvfRBrTAn8vSR6Q8n5+ngfSqKwinJmdjYkS?=
+ =?us-ascii?Q?UPdZhZ0Gvd89wv3CmbR8U7iUunKm6EMRdcBpyJkTZy+JwYwFbQlN8ag2yVRc?=
+ =?us-ascii?Q?PK/OUkKWiDtMu5AwRpUs6UNtb7lAlE1xmmJZ2Ov1/pH+e+/GLl4mipdbGfbp?=
+ =?us-ascii?Q?YT5qoJV/R8UoB/IU4LV1dWcLgGDsWa6ueyuHMjZXgcpjKxKdiiGpwD3haiOK?=
+ =?us-ascii?Q?zO8s0/2KkPQDz6/vk7CwOhs3nGzG0C3cxGKYNjhmxEFHIyNwtplMf70pOvWG?=
+ =?us-ascii?Q?EP0HF/x0X0I6fRz3mMr55kujMDc7WPKhaQp9leVLRlFDgXdrFeRvS/rbDlDz?=
+ =?us-ascii?Q?kD0HzvRzfP2UIy8zcnJQQzdR+m9XJAXzHaELgn6YmB5iWlEp/C8VC53GIw/i?=
+ =?us-ascii?Q?AmI0Vn24c8Xwyx3VtHgfAbXBiT3PPdi0nalwQBQEt3W0PUHQeVg1tEAEtY+8?=
+ =?us-ascii?Q?2gk/kKBJLvGvW0AdWrRkQlVMWbdUBp8zq/7XjmWUobS56IIp3A7XFDHNbKtS?=
+ =?us-ascii?Q?IMWAxhtKPTYK6tFm3ImK3wDJkXppefKRqj3U3vDf6K/8NwvNaeK5YwJ+wytK?=
+ =?us-ascii?Q?3pR0vWLeip1i7GFtBha7liw+0G9lL9OIpYL6ITg80sudDKtgxlrw1aKvYnE9?=
+ =?us-ascii?Q?Tx1zeNhZPknM8UDx2WGsDMXDz1w9ASeHenoUfJ+gfsZlYGQAv30dJSi7nooX?=
+ =?us-ascii?Q?0Y3uUQ/Z9JIFGg1UnAlj3buCxKiwXZ11Jp00cXdexdnoX0vB/hSVJVEBUr7W?=
+ =?us-ascii?Q?iuIEQxml9nPGTs8RLDro9qv5oNFO9N8Gxw2KWVzdwb3wnVuf073eXyXEKH4m?=
+ =?us-ascii?Q?Xv9V4Q=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20210226141411.2517368-1-linux@rasmusvillemoes.dk>
- <20210304221247.488173-1-linux@rasmusvillemoes.dk> <20210304221247.488173-2-linux@rasmusvillemoes.dk>
- <4b560502-3885-91a0-3100-4b5506a17b32@roeck-us.net>
-In-Reply-To: <4b560502-3885-91a0-3100-4b5506a17b32@roeck-us.net>
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Fri, 4 Mar 2022 18:41:39 -0800
-Message-ID: <CAKdAkRQj9fTv-g03__ncNrnyNh5x+4uG2_yioyrc-iFAd22c3Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] clk: add devm_clk_prepare_enable() helper
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: bp.renesas.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: OS0PR01MB5922.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bfdb04a5-5d54-4415-d099-08da0017e0f2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Mar 2022 08:52:58.3822
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: nMtpP8ClQj++7DOfKqCHSbM+I8jZNYQtMsnv5A9CLeuBwnSV3jo4UYrIsfbP2stkh1butSyNpggB2PGCaNi1N2BYirXV294VyvQUtNlEa+s=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB2128
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 8, 2021 at 9:32 PM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On 3/4/21 2:12 PM, Rasmus Villemoes wrote:
-> > Add a managed wrapper for clk_prepare_enable().
-> >
-> > Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
->
-> That has been tried several times, including by yours truly,
-> and has always been rejected.
->
-> Just use devm_add_action_or_reset() like many other watchdog
-> drivers.
+Hi All,
 
-Can we apply the devm version for crying out loud? I do not see what
-benefit there is to force everyone open-code it with
-devm_add_action_or_reset(). By simply blocking it we are not making
-the kernel better and it's been stalled for a very long time.
+Gentle ping. Are we happy with this patch series?
 
-Thanks.
+Please let me know.
 
--- 
-Dmitry
+Cheers,
+Biju
+
+> Subject: [PATCH v5 0/7] RZG2L_WDT Fixes and Improvements
+>=20
+> The first 4 patch in this series fixes the below issues
+> 1) 32 bit overflow issue
+> 2) Runtime PM usage count issue
+> 3) BUG: Invalid context during reset.
+> 4) Reset control imbalance
+>=20
+> The later 3 patches are enhancements to the WDT driver.
+> 1) Adding error check for reset_control_deassert() and fixing
+> reset_control imbalance.
+> 2) Generate Parity error for WDT reset
+> 3) Add support for set_timeout callback
+>=20
+> v4->v5:
+>  * Updated commit description of patch#4
+>  * Added Rb tag from Geert.
+>  * Separated reset control imbalance from patch#4
+>=20
+> Biju Das (7):
+>   watchdog: rzg2l_wdt: Fix 32bit overflow issue
+>   watchdog: rzg2l_wdt: Fix Runtime PM usage
+>   watchdog: rzg2l_wdt: Fix 'BUG: Invalid wait context'
+>   watchdog: rzg2l_wdt: Fix reset control imbalance
+>   watchdog: rzg2l_wdt: Add error check for reset_control_deassert
+>   watchdog: rzg2l_wdt: Use force reset for WDT reset
+>   watchdog: rzg2l_wdt: Add set_timeout callback
+>=20
+>  drivers/watchdog/rzg2l_wdt.c | 83 ++++++++++++++++++++----------------
+>  1 file changed, 47 insertions(+), 36 deletions(-)
+>=20
+> --
+> 2.17.1
+
