@@ -2,69 +2,68 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD20C433EF
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:58:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08CCEC433F5
+	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Mar 2022 00:07:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234847AbiCIX7N (ORCPT
+        id S238914AbiCJAIB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 9 Mar 2022 18:59:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59014 "EHLO
+        Wed, 9 Mar 2022 19:08:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiCIX7N (ORCPT
+        with ESMTP id S238908AbiCJAIA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 9 Mar 2022 18:59:13 -0500
-X-Greylist: delayed 1760 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 15:58:13 PST
-Received: from gateway30.websitewelcome.com (gateway30.websitewelcome.com [192.185.151.58])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD2ACE939
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:58:13 -0800 (PST)
-Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
-        by gateway30.websitewelcome.com (Postfix) with ESMTP id 477DF7636
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:03:47 -0600 (CST)
+        Wed, 9 Mar 2022 19:08:00 -0500
+X-Greylist: delayed 1491 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 16:06:59 PST
+Received: from gateway23.websitewelcome.com (gateway23.websitewelcome.com [192.185.50.107])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC08123412
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 16:06:59 -0800 (PST)
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway23.websitewelcome.com (Postfix) with ESMTP id 544124D
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:42:08 -0600 (CST)
 Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
         by cmsmtp with SMTP
-        id S5LPn2ECzdx86S5LPn7BGm; Wed, 09 Mar 2022 17:03:47 -0600
+        id S5wWnMP0D9AGSS5wWncTcl; Wed, 09 Mar 2022 17:42:08 -0600
 X-Authority-Reason: nr=8
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=YES7NizivrMmp+DCNWfLveM3VyxLU3dLyruJlPIenrs=; b=l2Myd8MkFJOHCb44HpN40rPaU7
-        oMZr7HRZUI9YCYhjYYuFAdAZLvQ6lX0eQSKa3uDdW7dpMsSzmQAgDVEmNE3ekHMkiF8NzSKfw59G8
-        pSO1zABRwX+ki5ysLAaBQ2qhmlO++RczUZFiG10goYeaP2+OoCL5V2ZnvKQWlgprscGUkhi0b6/Pt
-        huuJFtcMGmLGTrCX7Yqop6UMYKEdfKkwYDtsFksu5OrkahynxMdqGHHBKtbNOJ9NEYFN1U35fxJl0
-        EiRBAEmUH7fcqwwbL1+HA/4CaJVj270JUAJAZTnvecBIaA2iSLLDhoKlA2l5cg41CtWfh/e9v879H
-        WRZGipGg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57402 helo=localhost)
+        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=GPyJkkzP2b2Zzo0Mi+hbVkx7KDeH96AGeS0W7v+SO+s=; b=OuoQIRyOFs0Tpv9h58tBwa6OLI
+        /i0153JtPSaqeGelbVsHSf8+BC2QA17NWy+NgwcM12ZOUJwFsENUO/jYvsw+StsyPbGz85gPSU3Aj
+        tEOHfnVv4isZ47YsK9o8XakEgMkOj1xDjrG8M6Pe1QL02BqPyGkzgO/AUPMAzOscZkuO6TYVvbmgB
+        SAKEaQCAeEXw4zMfAVEGViVmLMKEerLw2UqG8P5WbsJfTPAqMIQMvn9GPvxxLp5+LehH4tsGG3Rhg
+        UILWSV6fqvjoYsCmLgSB3L6Av56XbiyldfDa1DhQexhU64f+S2n012MkSFsAQlXRc1Zyz51F6AuqU
+        juofjcWw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:54206)
         by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <linux@roeck-us.net>)
-        id 1nS5LO-000CNo-2I; Wed, 09 Mar 2022 23:03:46 +0000
-Date:   Wed, 9 Mar 2022 15:03:44 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Andre Przywara <andre.przywara@arm.com>
-Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mesih Kilinc <mesihkilinc@gmail.com>,
-        Icenowy Zheng <icenowy@aosc.io>,
-        Jesse Taube <mr.bossman075@gmail.com>,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>,
-        George Hilliard <thirtythreeforty@gmail.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 02/14] ARM: dts: suniv: F1C100: fix watchdog compatible
-Message-ID: <20220309230344.GA3801454@roeck-us.net>
-References: <20220307143421.1106209-1-andre.przywara@arm.com>
- <20220307143421.1106209-3-andre.przywara@arm.com>
+        id 1nS5wV-000dtB-Om; Wed, 09 Mar 2022 23:42:07 +0000
+Message-ID: <53821770-23b0-11ef-a76a-1e0beda01c42@roeck-us.net>
+Date:   Wed, 9 Mar 2022 15:42:06 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220307143421.1106209-3-andre.przywara@arm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v5 0/7] RZG2L_WDT Fixes and Improvements
+Content-Language: en-US
+To:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+Cc:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>
+References: <20220225175320.11041-1-biju.das.jz@bp.renesas.com>
+ <OS0PR01MB5922BE07E79DB3CF32B8D95C86089@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <OS0PR01MB5922BE07E79DB3CF32B8D95C86089@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -73,56 +72,67 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1nS5LO-000CNo-2I
+X-Exim-ID: 1nS5wV-000dtB-Om
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57402
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 17
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:54206
+X-Source-Auth: linux@roeck-us.net
+X-Email-Count: 101
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 02:34:09PM +0000, Andre Przywara wrote:
-> The F1C100 series of SoCs actually have their watchdog IP being
-> compatible with the newer Allwinner generation, not the older one.
+On 3/7/22 00:52, Biju Das wrote:
+> Hi All,
 > 
-> The currently described sun4i-a10-wdt actually does not work, neither
-> the watchdog functionality (just never fires), nor the reset part
-> (reboot hangs).
+> Gentle ping. Are we happy with this patch series?
 > 
-> Replace the compatible string with the one used by the newer generation.
-> Verified to work with both the watchdog and reboot functionality on a
-> LicheePi Nano.
+> Please let me know.
 > 
-> Also add the missing interrupt line and clock source, to make it binding
-> compliant.
-> 
-> Fixes: 4ba16d17efdd ("ARM: dts: suniv: add initial DTSI file for F1C100s")
-> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Should be good to go. I added the series to my watchdog-next branch.
+Usually Wim picks it up from there.
 
-> ---
->  arch/arm/boot/dts/suniv-f1c100s.dtsi | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+Guenter
+
+> Cheers,
+> Biju
 > 
-> diff --git a/arch/arm/boot/dts/suniv-f1c100s.dtsi b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-> index 6100d3b75f61..def830101448 100644
-> --- a/arch/arm/boot/dts/suniv-f1c100s.dtsi
-> +++ b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-> @@ -104,8 +104,10 @@ timer@1c20c00 {
->  
->  		wdt: watchdog@1c20ca0 {
->  			compatible = "allwinner,suniv-f1c100s-wdt",
-> -				     "allwinner,sun4i-a10-wdt";
-> +				     "allwinner,sun6i-a31-wdt";
->  			reg = <0x01c20ca0 0x20>;
-> +			interrupts = <16>;
-> +			clocks = <&osc32k>;
->  		};
->  
->  		uart0: serial@1c25000 {
+>> Subject: [PATCH v5 0/7] RZG2L_WDT Fixes and Improvements
+>>
+>> The first 4 patch in this series fixes the below issues
+>> 1) 32 bit overflow issue
+>> 2) Runtime PM usage count issue
+>> 3) BUG: Invalid context during reset.
+>> 4) Reset control imbalance
+>>
+>> The later 3 patches are enhancements to the WDT driver.
+>> 1) Adding error check for reset_control_deassert() and fixing
+>> reset_control imbalance.
+>> 2) Generate Parity error for WDT reset
+>> 3) Add support for set_timeout callback
+>>
+>> v4->v5:
+>>   * Updated commit description of patch#4
+>>   * Added Rb tag from Geert.
+>>   * Separated reset control imbalance from patch#4
+>>
+>> Biju Das (7):
+>>    watchdog: rzg2l_wdt: Fix 32bit overflow issue
+>>    watchdog: rzg2l_wdt: Fix Runtime PM usage
+>>    watchdog: rzg2l_wdt: Fix 'BUG: Invalid wait context'
+>>    watchdog: rzg2l_wdt: Fix reset control imbalance
+>>    watchdog: rzg2l_wdt: Add error check for reset_control_deassert
+>>    watchdog: rzg2l_wdt: Use force reset for WDT reset
+>>    watchdog: rzg2l_wdt: Add set_timeout callback
+>>
+>>   drivers/watchdog/rzg2l_wdt.c | 83 ++++++++++++++++++++----------------
+>>   1 file changed, 47 insertions(+), 36 deletions(-)
+>>
+>> --
+>> 2.17.1
+> 
+
