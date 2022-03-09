@@ -2,333 +2,370 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C3AC433F5
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 08:24:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1704CC433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:11:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiCIIZB convert rfc822-to-8bit (ORCPT
+        id S236672AbiCIXMh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 9 Mar 2022 03:25:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54308 "EHLO
+        Wed, 9 Mar 2022 18:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbiCIIZA (ORCPT
+        with ESMTP id S237585AbiCIXMg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 9 Mar 2022 03:25:00 -0500
-Received: from smtpout1.mo3004.mail-out.ovh.net (smtpout1.mo3004.mail-out.ovh.net [79.137.123.219])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C30B01EEEC;
-        Wed,  9 Mar 2022 00:24:01 -0800 (PST)
-Received: from pro2.mail.ovh.net (unknown [10.108.1.71])
-        by mo3004.mail-out.ovh.net (Postfix) with ESMTPS id 2CEFE243AE3;
-        Wed,  9 Mar 2022 08:23:59 +0000 (UTC)
-Received: from mail-pj1-f54.google.com (209.85.216.54) by DAG1EX2.emp2.local
- (172.16.2.2) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Wed, 9 Mar
- 2022 09:23:57 +0100
-Received: by mail-pj1-f54.google.com with SMTP id ge19-20020a17090b0e1300b001bcca16e2e7so4540066pjb.3;
-        Wed, 09 Mar 2022 00:23:57 -0800 (PST)
-X-Gm-Message-State: AOAM530aOEevekolDMxXm42Hd2EWZggXySpD/CaXXRZvfJF72kN8Kh0/
-        s4J5+gmtrKDT1sLurtktd3Sy/3byDC6mPwyAPRw=
-X-Google-Smtp-Source: ABdhPJxcZMxgxJr8eEgo1VA8jWfRrHG5nHyVJ0pSrVkrKZTDy0134lOowoe2zlEMOgXNgxGAu8VXPZHiCuYWujdrKYg=
-X-Received: by 2002:a17:90b:2092:b0:1be:e373:2ed9 with SMTP id
- hb18-20020a17090b209200b001bee3732ed9mr9121203pjb.128.1646814235906; Wed, 09
- Mar 2022 00:23:55 -0800 (PST)
+        Wed, 9 Mar 2022 18:12:36 -0500
+X-Greylist: delayed 401 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 15:11:35 PST
+Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com [192.185.144.219])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC1E122F7B
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:11:35 -0800 (PST)
+Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 2F4EE9E28
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:11:35 -0600 (CST)
+Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id S5SxnRRm522u3S5SxnBDVJ; Wed, 09 Mar 2022 17:11:35 -0600
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=i8kFLI+Tm1matLlL1pryUxp07vAmOodnzwuyFagel/M=; b=zhJH2MmiBH6AFaC8wv0loLP2Le
+        IGEUzZ+FXOcbE8+bBSgz6UDSIb6YEWWhCdyP+s4WQgfJnafBMAWTYaONRnMsrQsyksM98rFpYPKph
+        gZ9W9YJfMal8al9hSFLcIsp3VsKwJYBYlJSLdFDkR3nEGMQpNLRESfd4JCIG2pylFCuMbpNKvyjCZ
+        L2CJd/RqKSi5ZvNgjBJbSRlZhoO6Pr9B7BKd+edjZewEjZoGrR53ZyYcWrpmge5ehacAleiVV5nXi
+        F19RCor7X7d1w/9L7Z2LUfBUIbmjtzocfjvv+s+AIQfp/s33luqPxa8H2mX1Q93qOK10JiSgVPgjJ
+        J/TQbesA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57410 helo=localhost)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@roeck-us.net>)
+        id 1nS5Sw-000GnA-GH; Wed, 09 Mar 2022 23:11:34 +0000
+Date:   Wed, 9 Mar 2022 15:11:33 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Xiantao Hu <xt.hu@cqplus1.com>
+Cc:     wim@linux-watchdog.org, p.zabel@pengutronix.de,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        robh+dt@kernel.org, devicetree@vger.kernel.org,
+        wells.lu@sunplus.com, qinjian@cqplus1.com
+Subject: Re: [PATCH v7 2/2] watchdog: Add watchdog driver for Sunplus SP7021
+Message-ID: <20220309231133.GA3802268@roeck-us.net>
+References: <20220304081209.672-1-xt.hu@cqplus1.com>
+ <20220304081209.672-3-xt.hu@cqplus1.com>
 MIME-Version: 1.0
-References: <20220221095032.95054-1-jjhiblot@traphandler.com> <20220221095032.95054-6-jjhiblot@traphandler.com>
-In-Reply-To: <20220221095032.95054-6-jjhiblot@traphandler.com>
-From:   Jean-Jacques Hiblot <jjhiblot@traphandler.com>
-Date:   Wed, 9 Mar 2022 09:23:19 +0100
-X-Gmail-Original-Message-ID: <CACh+v5NrQw-fpgSFQExErOGcgT3r75rQrg_jDpyDYEn3Cw5VCQ@mail.gmail.com>
-Message-ID: <CACh+v5NrQw-fpgSFQExErOGcgT3r75rQrg_jDpyDYEn3Cw5VCQ@mail.gmail.com>
-Subject: Re: [PATCH v3 5/5] watchdog: Add Renesas RZ/N1 Watchdog driver
-To:     <linux-renesas-soc@vger.kernel.org>, <geert+renesas@glider.be>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-CC:     Phil Edworthy <phil.edworthy@renesas.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [209.85.216.54]
-X-ClientProxiedBy: DAG4EX2.emp2.local (172.16.2.32) To DAG1EX2.emp2.local
- (172.16.2.2)
-X-Ovh-Tracer-Id: 7214485128906488148
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvvddruddujedgudduiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeggfhgjhfffkffuvfgtgfhisehtqhertddttdejnecuhfhrohhmpeflvggrnhdqlfgrtghquhgvshcujfhisghlohhtuceojhhjhhhisghlohhtsehtrhgrphhhrghnughlvghrrdgtohhmqeenucggtffrrghtthgvrhhnpedugeegleehjeefiedvueekuefghfelveefledtudffkeffteetiedtffeuhfegjeenucfkpheptddrtddrtddrtddpvddtledrkeehrddvudeirdehgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphhouhhtpdhhvghlohepphhrohdvrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepjhhjhhhisghlohhtsehtrhgrphhhrghnughlvghrrdgtohhmpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqfigrthgthhguohhgsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220304081209.672-3-xt.hu@cqplus1.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1nS5Sw-000GnA-GH
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57410
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 67
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Geert, Guenter,
+On Fri, Mar 04, 2022 at 04:12:09PM +0800, Xiantao Hu wrote:
+> Sunplus SP7021 requires watchdog timer support.
+> Add watchdog driver to enable this.
+> 
+> Signed-off-by: Xiantao Hu <xt.hu@cqplus1.com>
 
-What is the status of this patch ? There has been no comment on v3, I
-had hoped it could go in the next version.
-Thanks,
-Jean-Jacques
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-
-Le lun. 21 févr. 2022 à 10:51, Jean-Jacques Hiblot
-<jjhiblot@traphandler.com> a écrit :
-
->
-> From: Phil Edworthy <phil.edworthy@renesas.com>
->
-> This is a driver for the standard WDT on the RZ/N1 devices. This WDT has
-> very limited timeout capabilities. However, it can reset the device.
-> To do so, the corresponding bits in the SysCtrl RSTEN register need to
-> be enabled. This is not done by this driver.
->
-> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-> Signed-off-by: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
 > ---
->  drivers/watchdog/Kconfig    |   8 ++
->  drivers/watchdog/Makefile   |   1 +
->  drivers/watchdog/rzn1_wdt.c | 206 ++++++++++++++++++++++++++++++++++++
->  3 files changed, 215 insertions(+)
->  create mode 100644 drivers/watchdog/rzn1_wdt.c
->
+> Changes in v7:
+>  - Addressed all comments from Mr. Guenter Roeck.
+>    Fix sp_wdt_ping() and add comment to explain the calculation.
+> 
+>  MAINTAINERS                    |   1 +
+>  drivers/watchdog/Kconfig       |  11 ++
+>  drivers/watchdog/Makefile      |   1 +
+>  drivers/watchdog/sunplus_wdt.c | 220 +++++++++++++++++++++++++++++++++
+>  4 files changed, 233 insertions(+)
+>  create mode 100644 drivers/watchdog/sunplus_wdt.c
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index fe6cc971c..a1b3d76e2 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -18247,6 +18247,7 @@ M:	Xiantao Hu <xt.hu@cqplus1.com>
+>  L:	linux-watchdog@vger.kernel.org
+>  S:	Maintained
+>  F:	Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
+> +F:	drivers/watchdog/sunplus_wdt.c
+>  
+>  SUPERH
+>  M:	Yoshinori Sato <ysato@users.sourceforge.jp>
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index c8fa79da23b3..ba6e4ebef404 100644
+> index 9d222ba17..d3dbe8695 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -883,6 +883,14 @@ config RENESAS_RZAWDT
->           This driver adds watchdog support for the integrated watchdogs in the
->           Renesas RZ/A SoCs. These watchdogs can be used to reset a system.
->
-> +config RENESAS_RZN1WDT
-> +       tristate "Renesas RZ/N1 watchdog"
-> +       depends on ARCH_RENESAS || COMPILE_TEST
-> +       select WATCHDOG_CORE
-> +       help
-> +         This driver adds watchdog support for the integrated watchdogs in the
-> +         Renesas RZ/N1 SoCs. These watchdogs can be used to reset a system.
+> @@ -976,6 +976,17 @@ config MSC313E_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called msc313e_wdt.
+>  
+> +config SUNPLUS_WATCHDOG
+> +	tristate "Sunplus watchdog support"
+> +	depends on ARCH_SUNPLUS || COMPILE_TEST
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support for the watchdog timer
+> +	  in Sunplus SoCs.
 > +
->  config RENESAS_RZG2LWDT
->         tristate "Renesas RZ/G2L WDT Watchdog"
->         depends on ARCH_RENESAS || COMPILE_TEST
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called sunplus_wdt.
+> +
+>  # X86 (i386 + ia64 + x86_64) Architecture
+>  
+>  config ACQUIRE_WDT
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index f7da867e8782..38d38564f47b 100644
+> index 2ee970641..0fa548ee6 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -84,6 +84,7 @@ obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
->  obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
->  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
->  obj-$(CONFIG_RENESAS_RZAWDT) += rza_wdt.o
-> +obj-$(CONFIG_RENESAS_RZN1WDT) += rzn1_wdt.o
->  obj-$(CONFIG_RENESAS_RZG2LWDT) += rzg2l_wdt.o
->  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
->  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
-> diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
+> @@ -93,6 +93,7 @@ obj-$(CONFIG_PM8916_WATCHDOG) += pm8916_wdt.o
+>  obj-$(CONFIG_ARM_SMC_WATCHDOG) += arm_smc_wdt.o
+>  obj-$(CONFIG_VISCONTI_WATCHDOG) += visconti_wdt.o
+>  obj-$(CONFIG_MSC313E_WATCHDOG) += msc313e_wdt.o
+> +obj-$(CONFIG_SUNPLUS_WATCHDOG) += sunplus_wdt.o
+>  
+>  # X86 (i386 + ia64 + x86_64) Architecture
+>  obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+> diff --git a/drivers/watchdog/sunplus_wdt.c b/drivers/watchdog/sunplus_wdt.c
 > new file mode 100644
-> index 000000000000..7f5884e5d460
+> index 000000000..e2d8c532b
 > --- /dev/null
-> +++ b/drivers/watchdog/rzn1_wdt.c
-> @@ -0,0 +1,206 @@
-> +// SPDX-License-Identifier: GPL-2.0
+> +++ b/drivers/watchdog/sunplus_wdt.c
+> @@ -0,0 +1,220 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
 > +/*
-> + * Renesas RZ/N1 Watchdog timer.
-> + * This is a 12-bit timer driver from a (62.5/16384) MHz clock. It can't even
-> + * cope with 2 seconds.
+> + * sunplus Watchdog Driver
 > + *
-> + * Copyright 2018 Renesas Electronics Europe Ltd.
+> + * Copyright (C) 2021 Sunplus Technology Co., Ltd.
 > + *
-> + * Derived from Ralink RT288x watchdog timer.
 > + */
 > +
 > +#include <linux/clk.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
+> +#include <linux/io.h>
 > +#include <linux/module.h>
-> +#include <linux/of_address.h>
-> +#include <linux/of_irq.h>
+> +#include <linux/mod_devicetable.h>
 > +#include <linux/platform_device.h>
+> +#include <linux/reset.h>
 > +#include <linux/watchdog.h>
 > +
-> +#define DEFAULT_TIMEOUT                60
+> +#define WDT_CTRL		0x00
+> +#define WDT_CNT			0x04
 > +
-> +#define RZN1_WDT_RETRIGGER                     0x0
-> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL          0
-> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL_MASK     0xfff
-> +#define RZN1_WDT_RETRIGGER_PRESCALE            BIT(12)
-> +#define RZN1_WDT_RETRIGGER_ENABLE              BIT(13)
-> +#define RZN1_WDT_RETRIGGER_WDSI                        (0x2 << 14)
+> +#define WDT_STOP		0x3877
+> +#define WDT_RESUME		0x4A4B
+> +#define WDT_CLRIRQ		0x7482
+> +#define WDT_UNLOCK		0xAB00
+> +#define WDT_LOCK		0xAB01
+> +#define WDT_CONMAX		0xDEAF
 > +
-> +#define RZN1_WDT_PRESCALER                     16384
-> +#define RZN1_WDT_MAX                           4095
+> +/* TIMEOUT_MAX = ffff0/90kHz =11.65, so longer than 11 seconds will time out. */
+> +#define SP_WDT_MAX_TIMEOUT	11U
+> +#define SP_WDT_DEFAULT_TIMEOUT	10
 > +
-> +struct rzn1_watchdog {
-> +       struct watchdog_device          wdt;
-> +       void __iomem                    *base;
-> +       unsigned long                   clk_rate;
+> +#define STC_CLK			90000
+> +
+> +#define DEVICE_NAME		"sunplus-wdt"
+> +
+> +static unsigned int timeout;
+> +module_param(timeout, int, 0);
+> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +struct sp_wdt_priv {
+> +	struct watchdog_device wdev;
+> +	void __iomem *base;
+> +	struct clk *clk;
+> +	struct reset_control *rstc;
 > +};
 > +
-> +#define to_rzn1_watchdog(_ptr) \
-> +       container_of(_ptr, struct rzn1_watchdog, wdt)
-> +
-> +static inline uint32_t get_max_heart_beat(unsigned long clk_rate)
+> +static int sp_wdt_restart(struct watchdog_device *wdev,
+> +			  unsigned long action, void *data)
 > +{
-> +       return (RZN1_WDT_MAX * RZN1_WDT_PRESCALER) / (clk_rate / 1000);
+> +	struct sp_wdt_priv *priv = watchdog_get_drvdata(wdev);
+> +	void __iomem *base = priv->base;
+> +
+> +	writel(WDT_STOP, base + WDT_CTRL);
+> +	writel(WDT_UNLOCK, base + WDT_CTRL);
+> +	writel(0x0001, base + WDT_CNT);
+> +	writel(WDT_LOCK, base + WDT_CTRL);
+> +	writel(WDT_RESUME, base + WDT_CTRL);
+> +
+> +	return 0;
 > +}
 > +
-> +static inline uint32_t compute_reload_value(uint32_t tick_ms,
-> +                                           unsigned long clk_rate)
+> +static int sp_wdt_ping(struct watchdog_device *wdev)
 > +{
-> +       return (tick_ms * (clk_rate / 1000)) / RZN1_WDT_PRESCALER;
+> +	struct sp_wdt_priv *priv = watchdog_get_drvdata(wdev);
+> +	void __iomem *base = priv->base;
+> +	u32 count;
+> +
+> +	if (wdev->timeout > SP_WDT_MAX_TIMEOUT) {
+> +		/* WDT_CONMAX sets the count to the maximum (down-counting). */
+> +		writel(WDT_CONMAX, base + WDT_CTRL);
+> +	} else {
+> +		writel(WDT_UNLOCK, base + WDT_CTRL);
+> +		/*
+> +		 * Watchdog timer is a 20-bit down-counting based on STC_CLK.
+> +		 * This register bits[16:0] is from bit[19:4] of the watchdog
+> +		 * timer counter.
+> +		 */
+> +		count = (wdev->timeout * STC_CLK) >> 4;
+> +		writel(count, base + WDT_CNT);
+> +		writel(WDT_LOCK, base + WDT_CTRL);
+> +	}
+> +
+> +	return 0;
 > +}
 > +
-> +static int rzn1_wdt_ping(struct watchdog_device *w)
+> +static int sp_wdt_stop(struct watchdog_device *wdev)
 > +{
-> +       struct rzn1_watchdog *wdt = to_rzn1_watchdog(w);
+> +	struct sp_wdt_priv *priv = watchdog_get_drvdata(wdev);
+> +	void __iomem *base = priv->base;
 > +
-> +       /* Any value retrigggers the watchdog */
-> +       writel(0, wdt->base + RZN1_WDT_RETRIGGER);
+> +	writel(WDT_STOP, base + WDT_CTRL);
 > +
-> +       return 0;
+> +	return 0;
 > +}
 > +
-> +static int rzn1_wdt_start(struct watchdog_device *w)
+> +static int sp_wdt_start(struct watchdog_device *wdev)
 > +{
-> +       struct rzn1_watchdog *wdt = to_rzn1_watchdog(w);
-> +       u32 val;
+> +	struct sp_wdt_priv *priv = watchdog_get_drvdata(wdev);
+> +	void __iomem *base = priv->base;
 > +
-> +       /*
-> +        * The hardware allows you to write to this reg only once.
-> +        * Since this includes the reload value, there is no way to change the
-> +        * timeout once started. Also note that the WDT clock is half the bus
-> +        * fabric clock rate, so if the bus fabric clock rate is changed after
-> +        * the WDT is started, the WDT interval will be wrong.
-> +        */
-> +       val = RZN1_WDT_RETRIGGER_WDSI;
-> +       val |= RZN1_WDT_RETRIGGER_ENABLE;
-> +       val |= RZN1_WDT_RETRIGGER_PRESCALE;
-> +       val |= compute_reload_value(w->max_hw_heartbeat_ms, wdt->clk_rate);
-> +       writel(val, wdt->base + RZN1_WDT_RETRIGGER);
+> +	writel(WDT_RESUME, base + WDT_CTRL);
 > +
-> +       return 0;
+> +	return 0;
 > +}
 > +
-> +static irqreturn_t rzn1_wdt_irq(int irq, void *_wdt)
+> +static unsigned int sp_wdt_get_timeleft(struct watchdog_device *wdev)
 > +{
-> +       struct rzn1_watchdog *wdt = (struct rzn1_watchdog *)_wdt;
+> +	struct sp_wdt_priv *priv = watchdog_get_drvdata(wdev);
+> +	void __iomem *base = priv->base;
+> +	u32 val;
 > +
-> +       dev_info(wdt->wdt.parent, "%s triggered\n", __func__);
-> +       return IRQ_HANDLED;
+> +	val = readl(base + WDT_CNT);
+> +	val &= 0xffff;
+> +	val = val << 4;
+> +
+> +	return val;
 > +}
 > +
-> +static struct watchdog_info rzn1_wdt_info = {
-> +       .identity = "RZ/N1 Watchdog",
-> +       .options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +static const struct watchdog_info sp_wdt_info = {
+> +	.identity	= DEVICE_NAME,
+> +	.options	= WDIOF_SETTIMEOUT |
+> +			  WDIOF_MAGICCLOSE |
+> +			  WDIOF_KEEPALIVEPING,
 > +};
 > +
-> +static const struct watchdog_ops rzn1_wdt_ops = {
-> +       .owner = THIS_MODULE,
-> +       .start = rzn1_wdt_start,
-> +       .ping = rzn1_wdt_ping,
+> +static const struct watchdog_ops sp_wdt_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= sp_wdt_start,
+> +	.stop		= sp_wdt_stop,
+> +	.ping		= sp_wdt_ping,
+> +	.get_timeleft	= sp_wdt_get_timeleft,
+> +	.restart	= sp_wdt_restart,
 > +};
 > +
-> +static const struct watchdog_device rzn1_wdt = {
-> +       .info = &rzn1_wdt_info,
-> +       .ops = &rzn1_wdt_ops,
-> +       .status = WATCHDOG_NOWAYOUT_INIT_STATUS,
-> +};
-> +
-> +static void rzn1_wdt_clk_disable_unprepare(void *data)
+> +static void sp_clk_disable_unprepare(void *data)
 > +{
-> +       clk_disable_unprepare(data);
+> +	clk_disable_unprepare(data);
 > +}
 > +
-> +static int rzn1_wdt_probe(struct platform_device *pdev)
+> +static void sp_reset_control_assert(void *data)
 > +{
-> +       struct device *dev = &pdev->dev;
-> +       struct rzn1_watchdog *wdt;
-> +       struct device_node *np = dev->of_node;
-> +       struct clk *clk;
-> +       int ret;
-> +       int irq;
-> +
-> +       wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-> +       if (!wdt)
-> +               return -ENOMEM;
-> +
-> +       wdt->wdt = rzn1_wdt;
-> +       wdt->wdt.parent = dev;
-> +
-> +       wdt->base = devm_platform_ioremap_resource(pdev, 0);
-> +       if (IS_ERR(wdt->base))
-> +               return PTR_ERR(wdt->base);
-> +
-> +       irq = platform_get_irq(pdev, 0);
-> +       if (irq < 0)
-> +               return irq;
-> +
-> +       ret = devm_request_irq(dev, irq, rzn1_wdt_irq, 0,
-> +                              np->name, wdt);
-> +       if (ret) {
-> +               dev_err(dev, "failed to request irq %d\n", irq);
-> +               return ret;
-> +       }
-> +
-> +       clk = devm_clk_get(dev, NULL);
-> +       if (IS_ERR(clk)) {
-> +               dev_err(dev, "failed to get the clock\n");
-> +               return PTR_ERR(clk);
-> +       }
-> +
-> +       ret = clk_prepare_enable(clk);
-> +       if (ret) {
-> +               dev_err(dev, "failed to prepare/enable the clock\n");
-> +               return ret;
-> +       }
-> +
-> +       ret = devm_add_action_or_reset(dev, rzn1_wdt_clk_disable_unprepare,
-> +                                      clk);
-> +       if (ret) {
-> +               dev_err(dev, "failed to register clock unprepare callback\n");
-> +               return ret;
-> +       }
-> +
-> +       wdt->clk_rate = clk_get_rate(clk);
-> +       if (!wdt->clk_rate) {
-> +               dev_err(dev, "failed to get the clock rate\n");
-> +               return -EINVAL;
-> +       }
-> +
-> +       /*
-> +        * The period of the watchdog cannot be changed once set
-> +        * and is limited to a very short period.
-> +        * Configure it for a 1s period once and for all, and
-> +        * rely on the heart-beat provided by the watchdog core
-> +        * to make this usable by the user-space.
-> +        */
-> +       wdt->wdt.max_hw_heartbeat_ms = get_max_heart_beat(wdt->clk_rate);
-> +       if (wdt->wdt.max_hw_heartbeat_ms > 1000)
-> +               wdt->wdt.max_hw_heartbeat_ms = 1000;
-> +
-> +       wdt->wdt.timeout = DEFAULT_TIMEOUT;
-> +       ret = watchdog_init_timeout(&wdt->wdt, 0, dev);
-> +
-> +       return devm_watchdog_register_device(dev, &wdt->wdt);
+> +	reset_control_assert(data);
 > +}
 > +
+> +static int sp_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct sp_wdt_priv *priv;
+> +	int ret;
 > +
-> +static const struct of_device_id rzn1_wdt_match[] = {
-> +       { .compatible = "renesas,rzn1-wdt" },
-> +       {},
+> +	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->clk = devm_clk_get(dev, NULL);
+> +	if (IS_ERR(priv->clk))
+> +		return dev_err_probe(dev, PTR_ERR(priv->clk), "Failed to get clock\n");
+> +
+> +	ret = clk_prepare_enable(priv->clk);
+> +	if (ret)
+> +		return dev_err_probe(dev, ret, "Failed to enable clock\n");
+> +
+> +	ret = devm_add_action_or_reset(dev, sp_clk_disable_unprepare, priv->clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* The timer and watchdog shared the STC reset */
+> +	priv->rstc = devm_reset_control_get_shared(dev, NULL);
+> +	if (IS_ERR(priv->rstc))
+> +		return dev_err_probe(dev, PTR_ERR(priv->rstc), "Failed to get reset\n");
+> +
+> +	reset_control_deassert(priv->rstc);
+> +
+> +	ret = devm_add_action_or_reset(dev, sp_reset_control_assert, priv->rstc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	priv->base = devm_platform_ioremap_resource(pdev, 0);
+> +	if (IS_ERR(priv->base))
+> +		return PTR_ERR(priv->base);
+> +
+> +	priv->wdev.info = &sp_wdt_info;
+> +	priv->wdev.ops = &sp_wdt_ops;
+> +	priv->wdev.timeout = SP_WDT_DEFAULT_TIMEOUT;
+> +	priv->wdev.max_hw_heartbeat_ms = SP_WDT_MAX_TIMEOUT * 1000;
+> +	priv->wdev.min_timeout = 1;
+> +	priv->wdev.parent = dev;
+> +
+> +	watchdog_set_drvdata(&priv->wdev, priv);
+> +	watchdog_init_timeout(&priv->wdev, timeout, dev);
+> +	watchdog_set_nowayout(&priv->wdev, nowayout);
+> +	watchdog_stop_on_reboot(&priv->wdev);
+> +	watchdog_set_restart_priority(&priv->wdev, 128);
+> +
+> +	return devm_watchdog_register_device(dev, &priv->wdev);
+> +}
+> +
+> +static const struct of_device_id sp_wdt_of_match[] = {
+> +	{.compatible = "sunplus,sp7021-wdt", },
+> +	{ /* sentinel */ }
 > +};
-> +MODULE_DEVICE_TABLE(of, rzn1_wdt_match);
+> +MODULE_DEVICE_TABLE(of, sp_wdt_of_match);
 > +
-> +static struct platform_driver rzn1_wdt_driver = {
-> +       .probe          = rzn1_wdt_probe,
-> +       .driver         = {
-> +               .name           = KBUILD_MODNAME,
-> +               .of_match_table = rzn1_wdt_match,
-> +       },
+> +static struct platform_driver sp_wdt_driver = {
+> +	.probe = sp_wdt_probe,
+> +	.driver = {
+> +		   .name = DEVICE_NAME,
+> +		   .of_match_table = sp_wdt_of_match,
+> +	},
 > +};
 > +
-> +module_platform_driver(rzn1_wdt_driver);
+> +module_platform_driver(sp_wdt_driver);
 > +
-> +MODULE_DESCRIPTION("Renesas RZ/N1 hardware watchdog");
-> +MODULE_AUTHOR("Phil Edworthy <phil.edworthy@renesas.com>");
-> +MODULE_LICENSE("GPL v2");
-> --
-> 2.25.1
->
+> +MODULE_AUTHOR("Xiantao Hu <xt.hu@cqplus1.com>");
+> +MODULE_DESCRIPTION("Sunplus Watchdog Timer Driver");
+> +MODULE_LICENSE("GPL");
