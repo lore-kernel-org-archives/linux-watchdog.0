@@ -2,27 +2,26 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26B6AC433F5
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8608DC433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:45:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiCIXcm (ORCPT
+        id S238007AbiCIXqq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 9 Mar 2022 18:32:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55892 "EHLO
+        Wed, 9 Mar 2022 18:46:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiCIXcl (ORCPT
+        with ESMTP id S233366AbiCIXqq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 9 Mar 2022 18:32:41 -0500
-X-Greylist: delayed 1482 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 15:31:42 PST
-Received: from gateway34.websitewelcome.com (gateway34.websitewelcome.com [192.185.148.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20CF11940F
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:31:42 -0800 (PST)
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
-        by gateway34.websitewelcome.com (Postfix) with ESMTP id D0E5F365652
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:06:59 -0600 (CST)
+        Wed, 9 Mar 2022 18:46:46 -0500
+Received: from gateway22.websitewelcome.com (gateway22.websitewelcome.com [192.185.47.168])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95036119416
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:45:46 -0800 (PST)
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway22.websitewelcome.com (Postfix) with ESMTP id 70CDEACD3
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:25:25 -0600 (CST)
 Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
         by cmsmtp with SMTP
-        id S5OVn5jn2XvvJS5OVnR56Q; Wed, 09 Mar 2022 17:06:59 -0600
+        id S5gLn2UeDdx86S5gLn7QeX; Wed, 09 Mar 2022 17:25:25 -0600
 X-Authority-Reason: nr=8
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
@@ -30,38 +29,38 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=d9Pj9k0JNH8SUjGrNlVfpwb0uWjmzh22akXzSnwgw0c=; b=rmdVolCQVW9S9lBuuetI/MtrZr
-        oX/qOdvDQd+546CwDLIO70GhQ6P22WhZuIqNFA2uxpFwp+PUAWGNgM0Mo+C8W9MJl5TDS9wChh1vq
-        il5GOzwPz/CYfnBj3lRalIxlvq20Hww5g2d/kdCCPiH3tRinT470AbCwz5KJXvWuXZiDQTjjvGjbK
-        8Xs4xbEQPmyU7sMhZifoo+oWNWwP3STJY3ldX0NDa7FR3Zpue80qKYkx24kq6d3jQg2D9AvHRTCW5
-        ydNBP/Zq360MgkkEUd3D7dmboCN9Tlyp89zbAbMKgXZABSG1Ej6/YzrpBdsJLTvlRQADWCTLfNEU7
-        NBYN5nnQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57404 helo=localhost)
+        bh=j2oKgn9eLs375qgfE96Bspnkel26NAPBR0e3aVigLuw=; b=VCjIdmK58ynNO/iJx0ibGOYrGa
+        Xz6VUjXhlFYjVIKSabx4AgiaYKW/pZuFAINqpRTo1en+nDXx8LaG7u095SUH7ntqjrjQEVQcPLSpB
+        mjExvyJQ+k36LQfCMBZQN4C3mDnIUdcPki3diEXSZ9WjOz5r5rQ6Jo6P4llFXS3JAKVmFk/BfonG7
+        IMzq0DZa62vEuUy2PVzwIh2pxz9dhTHIWiQpNLUFL9QyPAm46dG2jhEjyWcAhDSC8XT9G7Mk4LZDc
+        w3jffoxYlBhkZe1nDzeWZraDQp4ffh64VwFQwPBNUS6Sj3UNYlgDIAz3INC2gNW3qYrC33qOES3eo
+        zaj0V5hg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57414 helo=localhost)
         by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <linux@roeck-us.net>)
-        id 1nS5OU-000E8V-Pr; Wed, 09 Mar 2022 23:06:58 +0000
-Date:   Wed, 9 Mar 2022 15:06:57 -0800
+        id 1nS5gK-000V88-Nj; Wed, 09 Mar 2022 23:25:24 +0000
+Date:   Wed, 9 Mar 2022 15:25:23 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+To:     Sam Shih <sam.shih@mediatek.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-kernel@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] dt-bindings: watchdog: renesas,wdt: Document RZ/V2L
- SoC
-Message-ID: <20220309230657.GA3801916@roeck-us.net>
-References: <20220301122332.14796-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        Ryder Lee <ryder.lee@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
+        John Crispin <john@phrozen.org>
+Subject: Re: [PATCH 1/2] dt-bindings: reset: mt7986: Add reset-controller
+ header file
+Message-ID: <20220309232523.GA3804043@roeck-us.net>
+References: <20220105100456.7126-1-sam.shih@mediatek.com>
+ <20220105100456.7126-2-sam.shih@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220301122332.14796-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20220105100456.7126-2-sam.shih@mediatek.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -70,60 +69,91 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1nS5OU-000E8V-Pr
+X-Exim-ID: 1nS5gK-000V88-Nj
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57404
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57414
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 33
+X-Email-Count: 85
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 01, 2022 at 12:23:32PM +0000, Lad Prabhakar wrote:
-> Document RZ/V2L WDT bindings. RZ/V2L WDT is identical to one found
-> on the RZ/G2L SoC. No driver changes are required as generic compatible
-> string "renesas,rzg2l-wdt" will be used as a fallback.
+On Wed, Jan 05, 2022 at 06:04:55PM +0800, Sam Shih wrote:
+> Add infracfg, toprgu, and ethsys reset-controller header file
+> for MT7986 platform.
 > 
-> While at it, drop the comment "# RZ/G2L" for "renesas,rzg2l-wdt"
-> compatible string as this will avoid changing the line for every new
-> SoC addition.
-> 
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Sam Shih <sam.shih@mediatek.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
-> v1->v2:
-> * Included RB tags
-> * Drop the comment "# RZ/G2L" for "renesas,rzg2l-wdt" compatible string
->   as suggested by Geert.
+>  include/dt-bindings/reset/mt7986-resets.h | 55 +++++++++++++++++++++++
+>  1 file changed, 55 insertions(+)
+>  create mode 100644 include/dt-bindings/reset/mt7986-resets.h
 > 
-> v1:
-> https://patchwork.kernel.org/project/linux-renesas-soc/patch/
-> 20220227225309.28098-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
-> ---
->  Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-> index 91a98ccd4226..146ae20eacbb 100644
-> --- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
-> @@ -22,7 +22,8 @@ properties:
->        - items:
->            - enum:
->                - renesas,r9a07g044-wdt    # RZ/G2{L,LC}
-> -          - const: renesas,rzg2l-wdt     # RZ/G2L
-> +              - renesas,r9a07g054-wdt    # RZ/V2L
-> +          - const: renesas,rzg2l-wdt
->  
->        - items:
->            - enum:
+> diff --git a/include/dt-bindings/reset/mt7986-resets.h b/include/dt-bindings/reset/mt7986-resets.h
+> new file mode 100644
+> index 000000000000..af3d16c81192
+> --- /dev/null
+> +++ b/include/dt-bindings/reset/mt7986-resets.h
+> @@ -0,0 +1,55 @@
+> +/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+> +/*
+> + * Copyright (c) 2022 MediaTek Inc.
+> + * Author: Sam Shih <sam.shih@mediatek.com>
+> + */
+> +
+> +#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT7986
+> +#define _DT_BINDINGS_RESET_CONTROLLER_MT7986
+> +
+> +/* INFRACFG resets */
+> +#define MT7986_INFRACFG_PEXTP_MAC_SW_RST	6
+> +#define MT7986_INFRACFG_SSUSB_SW_RST		7
+> +#define MT7986_INFRACFG_EIP97_SW_RST		8
+> +#define MT7986_INFRACFG_AUDIO_SW_RST		13
+> +#define MT7986_INFRACFG_CQ_DMA_SW_RST		14
+> +
+> +#define MT7986_INFRACFG_TRNG_SW_RST		17
+> +#define MT7986_INFRACFG_AP_DMA_SW_RST		32
+> +#define MT7986_INFRACFG_I2C_SW_RST		33
+> +#define MT7986_INFRACFG_NFI_SW_RST		34
+> +#define MT7986_INFRACFG_SPI0_SW_RST		35
+> +#define MT7986_INFRACFG_SPI1_SW_RST		36
+> +#define MT7986_INFRACFG_UART0_SW_RST		37
+> +#define MT7986_INFRACFG_UART1_SW_RST		38
+> +#define MT7986_INFRACFG_UART2_SW_RST		39
+> +#define MT7986_INFRACFG_AUXADC_SW_RST		43
+> +
+> +#define MT7986_INFRACFG_APXGPT_SW_RST		66
+> +#define MT7986_INFRACFG_PWM_SW_RST		68
+> +
+> +#define MT7986_INFRACFG_SW_RST_NUM		69
+> +
+> +/* TOPRGU resets */
+> +#define MT7986_TOPRGU_APMIXEDSYS_SW_RST		0
+> +#define MT7986_TOPRGU_SGMII0_SW_RST		1
+> +#define MT7986_TOPRGU_SGMII1_SW_RST		2
+> +#define MT7986_TOPRGU_INFRA_SW_RST		3
+> +#define MT7986_TOPRGU_U2PHY_SW_RST		5
+> +#define MT7986_TOPRGU_PCIE_SW_RST		6
+> +#define MT7986_TOPRGU_SSUSB_SW_RST		7
+> +#define MT7986_TOPRGU_ETHDMA_SW_RST		20
+> +#define MT7986_TOPRGU_CONSYS_SW_RST		23
+> +
+> +#define MT7986_TOPRGU_SW_RST_NUM		24
+> +
+> +/* ETHSYS Subsystem resets */
+> +#define MT7986_ETHSYS_FE_SW_RST			6
+> +#define MT7986_ETHSYS_PMTR_SW_RST		8
+> +#define MT7986_ETHSYS_GMAC_SW_RST		23
+> +#define MT7986_ETHSYS_PPE0_SW_RST		30
+> +#define MT7986_ETHSYS_PPE1_SW_RST		31
+> +
+> +#define MT7986_ETHSYS_SW_RST_NUM		32
+> +
+> +#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT7986 */
