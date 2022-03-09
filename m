@@ -2,26 +2,27 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C49DAC433F5
-	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:45:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC061C433F5
+	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Mar 2022 23:54:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbiCIXqr (ORCPT
+        id S229937AbiCIXzV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 9 Mar 2022 18:46:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
+        Wed, 9 Mar 2022 18:55:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234529AbiCIXqq (ORCPT
+        with ESMTP id S229586AbiCIXzU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 9 Mar 2022 18:46:46 -0500
-Received: from gateway22.websitewelcome.com (gateway22.websitewelcome.com [192.185.47.168])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F6C11D7B4
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:45:46 -0800 (PST)
-Received: from cm14.websitewelcome.com (cm14.websitewelcome.com [100.42.49.7])
-        by gateway22.websitewelcome.com (Postfix) with ESMTP id 0108B13DB1
-        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:23:15 -0600 (CST)
+        Wed, 9 Mar 2022 18:55:20 -0500
+X-Greylist: delayed 1499 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 15:54:19 PST
+Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com [192.185.143.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884A8119423
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 15:54:18 -0800 (PST)
+Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 008B784BB3
+        for <linux-watchdog@vger.kernel.org>; Wed,  9 Mar 2022 17:04:54 -0600 (CST)
 Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
         by cmsmtp with SMTP
-        id S5cIn4a59HnotS5cInS2M3; Wed, 09 Mar 2022 17:21:14 -0600
+        id S5KXnCy3ARnrrS5KXnsqsg; Wed, 09 Mar 2022 17:02:53 -0600
 X-Authority-Reason: nr=8
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
@@ -29,32 +30,42 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=4sY1MYouI2yDENvehlFaI2WACHcKwdLFIJ9kPx6lQQE=; b=5eS9fEZjHpnSTPBA77XG4fIq1G
-        CZ/FGLeEdjmGw3krFFank3f0iIGARfEeDGtmyt8mF5/hWcKgaA1jkqv+y1Iv/DB/8iXkm4oYzfq5+
-        10kei1w4874hur3ogx8Ti4WGNlzFPP1qf5oLYzpjHjHN2GOH8NoWf2kkkAqRwqG2I37PZZBhhYnV5
-        +DQv47TLhCbGjEWWETIXbuxv7RwoTC9pL8Xr2pr5FKGpqMtWpmzfWxe6hxkPJ5tPeZJVGG4rQXX6t
-        1rGWfSczImgRN3zP88dXUVbgMXQYy3I/TgIo6+ypxnFSSdko+cO2ve1rGy90Nr+/g9TiaYzvVwG/W
-        gOxux2SQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57412 helo=localhost)
+        bh=/E4QRft2wGBO0a9Wvaf6Y1EmpcR+nckbhrH9ovhYHHQ=; b=CkXCCVHB29d3LEjOS2UK9U2yLM
+        plV4p1UzLLEOMDV28uYKD6qtQiGpAe3IAef4N+qOSqSSYn7ESVMEj4tGI9uD5u+PkMlhqIPLIHwXG
+        WUqGX7GeTuFG47SIjWGWJmeVqaSyBe/Xh+KkcRri5qVKO9pAr8jQrUz0iUPeM68ij/4PTNZyvvANx
+        sXsJ7TDpvLSzc5urnBVaLAe+qnNzkynNcgUTyqTcD48pSn7OLdHZwhXcS3BtVfQdDDd+68KuEwI4J
+        1zI9u5Sw3sPicAGGFOJz6iJkbLq941wK6RiV/ONqCVi4oOsOlng0Zaerr4BU0wlZLRoBIL57Z1aVp
+        qmaZ8lpw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57400 helo=localhost)
         by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <linux@roeck-us.net>)
-        id 1nS5cH-000Sd7-MC; Wed, 09 Mar 2022 23:21:13 +0000
-Date:   Wed, 9 Mar 2022 15:21:12 -0800
+        id 1nS5KW-000Boi-Ci; Wed, 09 Mar 2022 23:02:52 +0000
+Date:   Wed, 9 Mar 2022 15:02:51 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Corentin Labbe <clabbe@baylibre.com>
-Cc:     krzysztof.kozlowski@canonical.com, robh+dt@kernel.org,
-        wim@linux-watchdog.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4] dt-bindings: watchdog: convert faraday,ftwdt010 to
- yaml
-Message-ID: <20220309232112.GA3803602@roeck-us.net>
-References: <20220211115528.3382374-1-clabbe@baylibre.com>
+To:     Andre Przywara <andre.przywara@arm.com>
+Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mesih Kilinc <mesihkilinc@gmail.com>,
+        Icenowy Zheng <icenowy@aosc.io>,
+        Jesse Taube <mr.bossman075@gmail.com>,
+        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        George Hilliard <thirtythreeforty@gmail.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 01/14] dt-bindings: watchdog: sunxi: fix F1C100s
+ compatible
+Message-ID: <20220309230251.GA3801394@roeck-us.net>
+References: <20220307143421.1106209-1-andre.przywara@arm.com>
+ <20220307143421.1106209-2-andre.przywara@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220211115528.3382374-1-clabbe@baylibre.com>
+In-Reply-To: <20220307143421.1106209-2-andre.przywara@arm.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -63,151 +74,42 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1nS5cH-000Sd7-MC
+X-Exim-ID: 1nS5KW-000Boi-Ci
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57412
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57400
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 74
+X-Email-Count: 1
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 11:55:28AM +0000, Corentin Labbe wrote:
-> Converts watchdog/faraday,ftwdt010.txt to yaml.
-> This permits to detect missing properties like clocks and resets or
-> compatible like moxa,moxart-watchdog.
+On Mon, Mar 07, 2022 at 02:34:08PM +0000, Andre Przywara wrote:
+> The F1C100 series actually features a newer generation watchdog IP, so
+> the compatible string was wrong.
 > 
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
 > Acked-by: Rob Herring <robh@kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
-> Changes since v1:
-> - Added myself as maintainer as requested by Linus
-> - Added $ref to watchdog.yaml
-> - Removed useless quotes
-> - Added blank lines between properties
-> - Removed timeout-secs as already provided by watchdog.yaml
+>  .../devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml   | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Change since v2:
-> - rewrite compatible section
-> 
-> Changes since v3:
-> - Fix indent errors reported by yamllint
-> - Change additionalProperties to unevaluatedProperties
-> - Added timeout-secs in example
-> 
->  .../bindings/watchdog/faraday,ftwdt010.txt    | 22 ------
->  .../bindings/watchdog/faraday,ftwdt010.yaml   | 67 +++++++++++++++++++
->  2 files changed, 67 insertions(+), 22 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
->  create mode 100644 Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
-> deleted file mode 100644
-> index 9ecdb502e605..000000000000
-> --- a/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
-> +++ /dev/null
-> @@ -1,22 +0,0 @@
-> -Faraday Technology FTWDT010 watchdog
-> -
-> -This is an IP part from Faraday Technology found in the Gemini
-> -SoCs and others.
-> -
-> -Required properties:
-> -- compatible : must be one of
-> -  "faraday,ftwdt010"
-> -  "cortina,gemini-watchdog", "faraday,ftwdt010"
-> -- reg : shall contain base register location and length
-> -- interrupts : shall contain the interrupt for the watchdog
-> -
-> -Optional properties:
-> -- timeout-sec : the default watchdog timeout in seconds.
-> -
-> -Example:
-> -
-> -watchdog@41000000 {
-> -	compatible = "faraday,ftwdt010";
-> -	reg = <0x41000000 0x1000>;
-> -	interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
-> -};
-> diff --git a/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.yaml b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.yaml
-> new file mode 100644
-> index 000000000000..ca9e1beff76b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.yaml
-> @@ -0,0 +1,67 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/watchdog/faraday,ftwdt010.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Faraday Technology FTWDT010 watchdog
-> +
-> +maintainers:
-> +  - Linus Walleij <linus.walleij@linaro.org>
-> +  - Corentin Labbe <clabbe@baylibre.com>
-> +
-> +description: |
-> +  This is an IP part from Faraday Technology found in the Gemini
-> +  SoCs and others.
-> +
-> +allOf:
-> +  - $ref: "watchdog.yaml#"
-> +
-> +properties:
-> +  compatible:
-> +    oneOf:
-> +      - const: faraday,ftwdt010
-> +      - items:
-> +          - enum:
-> +              - cortina,gemini-watchdog
-> +              - moxa,moxart-watchdog
-> +          - const: faraday,ftwdt010
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  resets:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  clock-names:
-> +    const: PCLK
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +    watchdog@41000000 {
-> +      compatible = "faraday,ftwdt010";
-> +      reg = <0x41000000 0x1000>;
-> +      interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
-> +      timeout-secs = <5>;
-> +    };
-> +  - |
-> +    watchdog: watchdog@98500000 {
-> +      compatible = "moxa,moxart-watchdog", "faraday,ftwdt010";
-> +      reg = <0x98500000 0x10>;
-> +      clocks = <&clk_apb>;
-> +      clock-names = "PCLK";
-> +    };
-> +...
+> diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> index 43afa24513b9..d90655418d0e 100644
+> --- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> @@ -29,7 +29,7 @@ properties:
+>            - const: allwinner,sun6i-a31-wdt
+>        - items:
+>            - const: allwinner,suniv-f1c100s-wdt
+> -          - const: allwinner,sun4i-a10-wdt
+> +          - const: allwinner,sun6i-a31-wdt
+>        - const: allwinner,sun20i-d1-wdt
+>        - items:
+>            - const: allwinner,sun20i-d1-wdt-reset
