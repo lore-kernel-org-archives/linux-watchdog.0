@@ -2,38 +2,37 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2C45C4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Mar 2022 13:07:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0307AC433FE
+	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Mar 2022 13:07:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348766AbiCKNIv (ORCPT
+        id S1348773AbiCKNIx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 11 Mar 2022 08:08:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36658 "EHLO
+        Fri, 11 Mar 2022 08:08:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348758AbiCKNIt (ORCPT
+        with ESMTP id S1348769AbiCKNIv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Mar 2022 08:08:49 -0500
+        Fri, 11 Mar 2022 08:08:51 -0500
 Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB8838BC6;
-        Fri, 11 Mar 2022 05:07:40 -0800 (PST)
-X-UUID: ba33f1c641ab4fbfade2a4e789cbd18e-20220311
-X-UUID: ba33f1c641ab4fbfade2a4e789cbd18e-20220311
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ACF5424A5;
+        Fri, 11 Mar 2022 05:07:44 -0800 (PST)
+X-UUID: 0a4a6629a9164cfd969f6b33ee00cf22-20220311
+X-UUID: 0a4a6629a9164cfd969f6b33ee00cf22-20220311
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
         (envelope-from <allen-kh.cheng@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 906071416; Fri, 11 Mar 2022 21:07:36 +0800
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 52713596; Fri, 11 Mar 2022 21:07:35 +0800
 Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Fri, 11 Mar 2022 21:07:35 +0800
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 11 Mar 2022 21:07:34 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 11 Mar 2022 21:07:34 +0800
+ Transport; Fri, 11 Mar 2022 21:07:33 +0800
 From:   Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 To:     Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Kishon Vijay Abraham I <kishon@ti.com>,
-        "Daniel Lezcano" <daniel.lezcano@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
@@ -44,9 +43,9 @@ CC:     <hsinyi@chromium.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-watchdog@vger.kernel.org>,
         Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
-Subject: [PATCH v4 3/4] dt-bindings: arm: Add compatible for Mediatek MT8186
-Date:   Fri, 11 Mar 2022 21:07:31 +0800
-Message-ID: <20220311130732.22706-4-allen-kh.cheng@mediatek.com>
+Subject: [PATCH v4 1/4] dt-bindings: timer: Add compatible for Mediatek MT8186
+Date:   Fri, 11 Mar 2022 21:07:29 +0800
+Message-ID: <20220311130732.22706-2-allen-kh.cheng@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20220311130732.22706-1-allen-kh.cheng@mediatek.com>
 References: <20220311130732.22706-1-allen-kh.cheng@mediatek.com>
@@ -59,29 +58,26 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
 
-This commit adds dt-binding documentation for the Mediatek MT8186
-reference board.
+This commit adds dt-binding documentation of timer for Mediatek MT8186 SoC
+Platform.
 
 Signed-off-by: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
 ---
- Documentation/devicetree/bindings/arm/mediatek.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/arm/mediatek.yaml b/Documentation/devicetree/bindings/arm/mediatek.yaml
-index ab0593c77321..ac5a64523b21 100644
---- a/Documentation/devicetree/bindings/arm/mediatek.yaml
-+++ b/Documentation/devicetree/bindings/arm/mediatek.yaml
-@@ -131,6 +131,10 @@ properties:
-           - enum:
-               - mediatek,mt8183-evb
-           - const: mediatek,mt8183
-+      - items:
-+          - enum:
-+              - mediatek,mt8186-evb
-+          - const: mediatek,mt8186
-       - items:
-           - enum:
-               - mediatek,mt8195-evb
+diff --git a/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt b/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
+index fbd76a8e023b..6f1f9dba6e88 100644
+--- a/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
++++ b/Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt
+@@ -23,6 +23,7 @@ Required properties:
+ 
+ 	For those SoCs that use SYST
+ 	* "mediatek,mt8183-timer" for MT8183 compatible timers (SYST)
++	* "mediatek,mt8186-timer" for MT8186 compatible timers (SYST)
+ 	* "mediatek,mt8192-timer" for MT8192 compatible timers (SYST)
+ 	* "mediatek,mt8195-timer" for MT8195 compatible timers (SYST)
+ 	* "mediatek,mt7629-timer" for MT7629 compatible timers (SYST)
 -- 
 2.18.0
 
