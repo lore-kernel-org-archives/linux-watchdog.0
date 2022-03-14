@@ -2,224 +2,125 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0F46C4321E
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Mar 2022 14:18:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88BFBC433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Mar 2022 17:39:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242317AbiCNOTl (ORCPT
+        id S231934AbiCNRlI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 14 Mar 2022 10:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56662 "EHLO
+        Mon, 14 Mar 2022 13:41:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242315AbiCNOTf (ORCPT
+        with ESMTP id S235429AbiCNRlH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Mar 2022 10:19:35 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974BD1A82E
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Mar 2022 07:18:19 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1nTlVQ-0004zI-Ju; Mon, 14 Mar 2022 15:17:04 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1nTlVH-000f2a-PX; Mon, 14 Mar 2022 15:16:54 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1nTlVF-0097aV-Ov; Mon, 14 Mar 2022 15:16:53 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        UNGLinuxDriver@microchip.com, linux-hwmon@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Michael Hennerich <Michael.Hennerich@analog.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Matt Mackall <mpm@selenic.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mon, 14 Mar 2022 13:41:07 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4909F11C0C;
+        Mon, 14 Mar 2022 10:39:57 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BE4C8D6E;
+        Mon, 14 Mar 2022 10:39:56 -0700 (PDT)
+Received: from slackpad.lan (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6A2BB3F66F;
+        Mon, 14 Mar 2022 10:39:54 -0700 (PDT)
+Date:   Mon, 14 Mar 2022 17:39:16 +0000
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mesih Kilinc <mesihkilinc@gmail.com>,
+        Icenowy Zheng <icenowy@aosc.io>,
+        Jesse Taube <mr.bossman075@gmail.com>,
+        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        George Hilliard <thirtythreeforty@gmail.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>
-Cc:     linux-clk@vger.kernel.org, kernel@pengutronix.de,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Tomislav Denis <tomislav.denis@avl.com>,
-        Anand Ashok Dumbre <anand.ashok.dumbre@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        =?utf-8?q?Andr=C3=A9_Gustavo_Nakagomi_Lopez?= <andregnl@usp.br>,
-        Cai Huoqing <caihuoqing@baidu.com>, linux-iio@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-amlogic@lists.infradead.org,
-        linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-mips@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-pwm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-spi@vger.kernel.org,
-        Amireddy Mallikarjuna reddy 
-        <mallikarjunax.reddy@linux.intel.com>, dmaengine@vger.kernel.org
-Subject: [PATCH v8 00/16] clk: provide new devm helpers for prepared and enabled clocks
-Date:   Mon, 14 Mar 2022 15:16:27 +0100
-Message-Id: <20220314141643.22184-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.35.1
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 01/14] dt-bindings: watchdog: sunxi: fix F1C100s
+ compatible
+Message-ID: <20220314173839.2a7b593a@slackpad.lan>
+In-Reply-To: <661806b7-d63f-a7cf-9192-f67c4cd79f29@sholland.org>
+References: <20220307143421.1106209-1-andre.przywara@arm.com>
+        <20220307143421.1106209-2-andre.przywara@arm.com>
+        <661806b7-d63f-a7cf-9192-f67c4cd79f29@sholland.org>
+Organization: Arm Ltd.
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-slackware-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5140; i=uwe@kleine-koenig.org; h=from:subject; bh=UyYZYiS1jsIjibZ2MrufsJ1VrXFVRIfOx2nxS5wK9sc=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBiL03mRL8wE3boX5TsxdQb7A/4ALVpT93/3rzycIlB hFpTWs+JATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCYi9N5gAKCRDB/BR4rcrsCc4ZB/ 9EDZG3qguuMeWbZAfXaH9prZGcSynBDBtwqLtmnGRt28ZTaarFw88YmZERvpaHjVQ0WPcNKCMjBphZ C/YPMpezXK2TikRkYqr2gsFaWKLwJ5+rqhGqxNSg4wZqzBgxjEgMa4BRbXRgQZvFOb/8ucyk4f/y3U oXCTg8ZOWQwebvd7JJsMztn6aZl6uW9im2ZqZji8vnmZt0yG28aNRWS33RDwWlQzrat//LG5Pb7S41 7uVOkFnphQjm5eRjOvblGRbYIxlM0SEETKun6FycjvR4gk1OvqrePSrWZY01rN3iXQF/v/C3RrHXL6 fzr+e9MLjqZjR6qpuN+DvujbCtKzRp
-X-Developer-Key: i=uwe@kleine-koenig.org; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello,
+On Wed, 9 Mar 2022 18:46:46 -0600
+Samuel Holland <samuel@sholland.org> wrote:
 
-this is another try to convince the relevant people that
-devm_clk_get_enabled() is a nice idea. Compared to v7 (back in May 2021) this
-series is rebased to v5.17-rc8 and converts quite some drivers that open code
-devm_clk_get_enabled() up to now (patches #3 - #11).
+> Hi Andre,
+> 
+> On 3/7/22 8:34 AM, Andre Przywara wrote:
+> > The F1C100 series actually features a newer generation watchdog IP, so
+> > the compatible string was wrong.  
+> 
+> The F1C100s watchdog seems to be unique in that it uses LOSC/osc32k as its only
+> clock source instead of HOSC/osc24M. The current binding requires that the first
+> clock is "hosc", so it seems that the binding needs to be relaxed to allow for
+> this case.
+> 
+> As long as there's only one clock source available, we don't really care where
+> it comes from. They are both divided to be approximately 32 kHz. So I don't
+> think this difference prevents using A31 as a fallback compatible.
 
-A concern about devm_clk_get_enabled() in v7 was that it helps people to be
-lazy and I agree that in some situations when devm_clk_get_enabled() is used it
-would be more efficient and sensible to care to only enable the clk when really
-needed.
+Right, these were roughly my findings as well, but I should have
+written them down, at least in the commit message.
 
-On the other hand, the function is right for some users, e.g. the watchdog
-drivers. For the others it's not so simple to judge. Given that there are a
-lot of drivers that are lazy even if doing so is some effort (i.e. calling
-clk_prepare_enable() and devm_add_action()) convinces me, that introducing the
-function family is sensible. (And if you want to work on these drivers,
-grepping for devm_clk_get_enabled gives you a few candidates once the
-series is in :-)
+So shall the binding be explicit:
+1) Most SoCs required exactly one clock, the 24 MHz HOSC.
+2) The F1C100s requires exactly one clock, the 32KHz LOSC.
+3) R329/D1 require two clocks with clock-names?
 
-Otherwise looking at the diffstat of this series:
+Or do you want to collapse 1) and 2) into one relaxed case? Still not
+entirely sure what "LOSC / 32 KHz" means for the F1C100 (32768 or 32000
+Hz), or where it really comes from, but it does not seem to matter.
 
- 48 files changed, 257 insertions(+), 851 deletions(-)
+FreeBSD, Xen and U-Boot don't care about clocks at all, and Linux
+always uses the first clock and just enables it, so we should be good
+either way.
 
-is quite convincing. Just the first two patches (which introduce the new
-functions) account for
+> 
+> > Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> > ---
+> >  .../devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml   | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> > index 43afa24513b9..d90655418d0e 100644
+> > --- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> > +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> > @@ -29,7 +29,7 @@ properties:
+> >            - const: allwinner,sun6i-a31-wdt
+> >        - items:
+> >            - const: allwinner,suniv-f1c100s-wdt
+> > -          - const: allwinner,sun4i-a10-wdt
+> > +          - const: allwinner,sun6i-a31-wdt  
+> 
+> This can be combined with the enum of other compatibles that fall back to
+> allwinner,sun6i-a31-wdt (earlier in the file).
 
- 2 files changed, 169 insertions(+), 17 deletions(-)
+Oh, right, I missed that.
 
-. A rough third of the added lines is documentation. The rest is driver
-updates which then has:
+Cheers,
+Andre
 
- 46 files changed, 88 insertions(+), 834 deletions(-)
-
-which makes a really nice cleanup.
-
-The series is build-tested on arm64, m68k, powerpc, riscv, s390, sparc64
-and x86_64 using an allmodconfig.
-
-Best regards
-Uwe
-
-Uwe Kleine-König (16):
-  clk: generalize devm_clk_get() a bit
-  clk: Provide new devm_clk helpers for prepared and enabled clocks
-  hwmon: Make use of devm_clk_get_enabled()
-  iio: Make use of devm_clk_get_enabled()
-  hwrng: meson - Don't open-code devm_clk_get_optional_enabled()
-  bus: bt1: Don't open code devm_clk_get_enabled()
-  gpio: vf610: Simplify error handling in probe
-  drm/meson: dw-hdmi: Don't open code devm_clk_get_enabled()
-  rtc: ingenic: Simplify using devm_clk_get_enabled()
-  clk: meson: axg-audio: Don't duplicate devm_clk_get_enabled()
-  watchdog: Make use of devm_clk_get_enabled()
-  pwm: atmel: Simplify using devm_clk_get_prepared()
-  rtc: at91sam9: Simplify using devm_clk_get_enabled()
-  i2c: imx: Simplify using devm_clk_get_enabled()
-  spi: davinci: Simplify using devm_clk_get_enabled()
-  dmaengine: lgm: Fix error handling
-
- drivers/bus/bt1-apb.c                 | 23 +------
- drivers/bus/bt1-axi.c                 | 23 +------
- drivers/char/hw_random/meson-rng.c    | 20 +-----
- drivers/clk/clk-devres.c              | 96 ++++++++++++++++++++++-----
- drivers/clk/meson/axg-audio.c         | 36 ++--------
- drivers/dma/lgm/lgm-dma.c             |  8 +--
- drivers/gpio/gpio-vf610.c             | 45 +++----------
- drivers/gpu/drm/meson/meson_dw_hdmi.c | 48 +++++---------
- drivers/hwmon/axi-fan-control.c       | 15 +----
- drivers/hwmon/ltc2947-core.c          | 17 +----
- drivers/hwmon/mr75203.c               | 26 +-------
- drivers/hwmon/sparx5-temp.c           | 19 +-----
- drivers/i2c/busses/i2c-imx.c          | 12 +---
- drivers/iio/adc/ad7124.c              | 15 +----
- drivers/iio/adc/ad7768-1.c            | 17 +----
- drivers/iio/adc/ad9467.c              | 17 +----
- drivers/iio/adc/ingenic-adc.c         | 15 +----
- drivers/iio/adc/lpc18xx_adc.c         | 18 +----
- drivers/iio/adc/rockchip_saradc.c     | 44 +-----------
- drivers/iio/adc/ti-ads131e08.c        | 19 +-----
- drivers/iio/adc/xilinx-ams.c          | 15 +----
- drivers/iio/adc/xilinx-xadc-core.c    | 18 +----
- drivers/iio/frequency/adf4371.c       | 17 +----
- drivers/iio/frequency/admv1013.c      | 15 +----
- drivers/iio/frequency/adrf6780.c      | 16 +----
- drivers/iio/imu/adis16475.c           | 15 +----
- drivers/pwm/pwm-atmel.c               | 16 +----
- drivers/rtc/rtc-at91sam9.c            | 22 ++----
- drivers/rtc/rtc-jz4740.c              | 21 +-----
- drivers/spi/spi-davinci.c             | 11 +--
- drivers/watchdog/cadence_wdt.c        | 17 +----
- drivers/watchdog/davinci_wdt.c        | 18 +----
- drivers/watchdog/imgpdc_wdt.c         | 31 +--------
- drivers/watchdog/imx2_wdt.c           | 15 +----
- drivers/watchdog/imx7ulp_wdt.c        | 15 +----
- drivers/watchdog/loongson1_wdt.c      | 17 +----
- drivers/watchdog/lpc18xx_wdt.c        | 30 +--------
- drivers/watchdog/meson_gxbb_wdt.c     | 16 +----
- drivers/watchdog/of_xilinx_wdt.c      | 16 +----
- drivers/watchdog/pic32-dmt.c          | 15 +----
- drivers/watchdog/pic32-wdt.c          | 17 +----
- drivers/watchdog/pnx4008_wdt.c        | 15 +----
- drivers/watchdog/qcom-wdt.c           | 16 +----
- drivers/watchdog/rtd119x_wdt.c        | 16 +----
- drivers/watchdog/st_lpc_wdt.c         | 16 +----
- drivers/watchdog/stm32_iwdg.c         | 31 +--------
- drivers/watchdog/visconti_wdt.c       | 18 +----
- include/linux/clk.h                   | 90 ++++++++++++++++++++++++-
- 48 files changed, 257 insertions(+), 851 deletions(-)
-
-
-base-commit: 09688c0166e76ce2fb85e86b9d99be8b0084cdf9
--- 
-2.35.1
+> 
+> Regards,
+> Samuel
+> 
+> >        - const: allwinner,sun20i-d1-wdt
+> >        - items:
+> >            - const: allwinner,sun20i-d1-wdt-reset
+> >   
+> 
+> 
 
