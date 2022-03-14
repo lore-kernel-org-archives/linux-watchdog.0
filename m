@@ -2,82 +2,91 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ED26C43217
-	for <linux-watchdog@archiver.kernel.org>; Fri, 11 Mar 2022 15:53:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E926FC433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Mar 2022 01:47:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348423AbiCKPyf (ORCPT
+        id S230508AbiCNBso (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 11 Mar 2022 10:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58696 "EHLO
+        Sun, 13 Mar 2022 21:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349899AbiCKPwV (ORCPT
+        with ESMTP id S230042AbiCNBso (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Mar 2022 10:52:21 -0500
-Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1FA31CCB08;
-        Fri, 11 Mar 2022 07:50:55 -0800 (PST)
-Received: by mail-oo1-f43.google.com with SMTP id 6-20020a4a0906000000b0031d7eb98d31so10915194ooa.10;
-        Fri, 11 Mar 2022 07:50:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=YxoZwXk5JXeLrOiq7bY7pTDwkNHArk5BUIDnHUOp3fI=;
-        b=XjHeNiwB/r1gEk87H55x7G8nUSVmS2XYotqcJ+zHrd8i5gLH6/CnuJVRijRG2LphtW
-         r3zXGoWF9YDLkCcJWeehuF46+cFnlKpKUra+LMjbuXfl23QvS2FDVNaRHpWQs2+RVkI7
-         4hxFuu6Sqg5NslZy4xFS2bKXamYzExjyQZ1rBc10rHdx2Y+inWkRMahD8hOKIIZx/HAJ
-         ppApSKyBdV8ejl5joExQHB28jOYZ6BUqzlcCXUWPsHa57/VzXYiwS2wmXRYBbrl8k6Ww
-         IFraIgtn44jcAqZayr0oDH3CCfMf/goMaMp76rBcQmBdLJtujhWfvbaY4DTSJCJ3iU+N
-         tGKg==
-X-Gm-Message-State: AOAM530Fqs23SpZs1oxrTvRd3LafvaGvJK4UVtMuN8SM7TvLaBT8H/N8
-        ftaelxF0WMabyCcr7W0zMlrMpG7e9Q==
-X-Google-Smtp-Source: ABdhPJwTNhTLkhpo9jtKQvQYWXEtv5T34b0UK/llvnOM7PooDJmEUR4392gY6ZLXZe41uYkJ8Pb+sQ==
-X-Received: by 2002:a05:6870:4149:b0:da:5e34:9448 with SMTP id r9-20020a056870414900b000da5e349448mr11505061oad.112.1647013855095;
-        Fri, 11 Mar 2022 07:50:55 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id n11-20020a9d710b000000b005af4ceeaac1sm3727274otj.37.2022.03.11.07.50.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 07:50:54 -0800 (PST)
-Received: (nullmailer pid 3867362 invoked by uid 1000);
-        Fri, 11 Mar 2022 15:50:52 -0000
-Date:   Fri, 11 Mar 2022 09:50:52 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Cc:     hsinyi@chromium.org, Thomas Gleixner <tglx@linutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>,
-        Project_Global_Chrome_Upstream_Group@mediatek.com,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sun, 13 Mar 2022 21:48:44 -0400
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B520D3EF0D;
+        Sun, 13 Mar 2022 18:47:34 -0700 (PDT)
+X-UUID: d728eb265687495fa82ae314004082be-20220314
+X-UUID: d728eb265687495fa82ae314004082be-20220314
+Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
+        (envelope-from <rex-bc.chen@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1440433874; Mon, 14 Mar 2022 09:46:48 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 14 Mar 2022 09:46:47 +0800
+Received: from mtksdccf07 (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 14 Mar 2022 09:46:47 +0800
+Message-ID: <c429d079010051552c3673baafc3b20289043875.camel@mediatek.com>
+Subject: Re: [PATCH v4 2/4] dt-bindings: watchdog: Add compatible for
+ Mediatek MT8186
+From:   Rex-BC Chen <rex-bc.chen@mediatek.com>
+To:     Rob Herring <robh@kernel.org>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+CC:     Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        "Kishon Vijay Abraham I" <kishon@ti.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
+        <hsinyi@chromium.org>,
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: Re: [PATCH v4 1/4] dt-bindings: timer: Add compatible for Mediatek
- MT8186
-Message-ID: <Yitv3IUpCzp1/eGX@robh.at.kernel.org>
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Date:   Mon, 14 Mar 2022 09:46:47 +0800
+In-Reply-To: <Yitv4sRQMuewLcfT@robh.at.kernel.org>
 References: <20220311130732.22706-1-allen-kh.cheng@mediatek.com>
- <20220311130732.22706-2-allen-kh.cheng@mediatek.com>
+         <20220311130732.22706-3-allen-kh.cheng@mediatek.com>
+         <Yitv4sRQMuewLcfT@robh.at.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220311130732.22706-2-allen-kh.cheng@mediatek.com>
+Content-Transfer-Encoding: 7bit
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, 11 Mar 2022 21:07:29 +0800, Allen-KH Cheng wrote:
-> From: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
+On Fri, 2022-03-11 at 09:50 -0600, Rob Herring wrote:
+> On Fri, 11 Mar 2022 21:07:30 +0800, Allen-KH Cheng wrote:
+> > From: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
+> > 
+> > This commit adds dt-binding documentation of watchdog for Mediatek
+> > MT8186 SoC Platform.
+> > 
+> > Signed-off-by: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
+> > ---
+> >  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
 > 
-> This commit adds dt-binding documentation of timer for Mediatek MT8186 SoC
-> Platform.
-> 
-> Signed-off-by: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
-> ---
->  Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
+> Acked-by: Rob Herring <robh@kernel.org>
 
-Acked-by: Rob Herring <robh@kernel.org>
+Hello Allen,
+
+I have mentioned I also upstreamed wdt serires for MT8186 which is
+inclduing binding patch, and my patch is accepted by Guenter in [1].
+Please drop this patch in next version.
+
+Thanks.
+
+[1]:
+https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git/commit/?h=watchdog-next&id=888423f98c8fbf67e8cb2df8099678ff57274911
+
+BRs,
+Rex
+
