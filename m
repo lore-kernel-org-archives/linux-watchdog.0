@@ -2,105 +2,123 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46CF6C43219
-	for <linux-watchdog@archiver.kernel.org>; Wed, 30 Mar 2022 11:55:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F19F7C433EF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 31 Mar 2022 06:09:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244837AbiC3L5S (ORCPT
+        id S230420AbiCaGKp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 30 Mar 2022 07:57:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
+        Thu, 31 Mar 2022 02:10:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344839AbiC3Lxl (ORCPT
+        with ESMTP id S230413AbiCaGKm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Mar 2022 07:53:41 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AAA126F20C
-        for <linux-watchdog@vger.kernel.org>; Wed, 30 Mar 2022 04:49:46 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id d7so28896075wrb.7
-        for <linux-watchdog@vger.kernel.org>; Wed, 30 Mar 2022 04:49:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Zz5V7y6zyX28uzHv7nbJNO/THNVqL6J0WR2WWuQ7SCY=;
-        b=ZUOogO2MuK6NJjubHjbfEz+haJ4Oh6ePGA6/+gd7oK40h63IMjwzaVvnJYUmTxImAs
-         MyvMzaw35CVlu+C1Qwxa9gZov8B7ynpIwE3Kahpcz6sN0ho/mSj65L6ftNnsKk0N0nfj
-         4FD0bVTJb2fmEnKM40jG3JvPfGa1UEDFrVUzYozFy2JbNwdiOUCDqvoRUU5p/1MuvQtk
-         H1t8//3ATlKAdlXRm+jWADGLrIYnbjN2Vd+1QzD13qGQn0d2D1eJ8SeQBqJ9cpJE8m8y
-         rxQTaDbTj6arnFaptoXI1QxDOgI01CGVevoN+fRv/LEDGV5rgU6D1hGjCmYn3/CIg8i5
-         eoDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Zz5V7y6zyX28uzHv7nbJNO/THNVqL6J0WR2WWuQ7SCY=;
-        b=E1ouPd+877+VsfzFsLT5CW/kRvIFiWK/kWrsAd78lrr5kOh5CUfMy8PwMCIqIZj07D
-         fA9V34z3GwDafdCSaaZ/kpPRoEYXdX8qwWXJRqgg3w0N5tpyW+Wiyj0RZ5jmKNOKA+Lk
-         LRCjUZACt3dMuWeY6/6PzkHUS+qu286I8717gRwriD13ZrJwyJgsB7V/THx/kJWxG6M0
-         N0mlxCbWKYaXB690bkXA91nCZOM5Em+F3sigrdxvI2Q0nW4iY4TijIAQbsjPhlL8tf1u
-         5o89cbVzNRHOyuQ8vo7sPIKpZwdqrKgyQ6FcapE3PQkHAmVV3vBlJaIh5P8dJbrpIcTy
-         N1oQ==
-X-Gm-Message-State: AOAM532wkyEtrkmhalyRttEu7CLsH1qe+Nd09dJrl3xpspd4365nEbsM
-        YzNHx8CGelq5ag+3vYV0B2BX8A==
-X-Google-Smtp-Source: ABdhPJxlxhSbqKiKCa9E9IGILcoh2/H6PVy3wwrQdQj0w9n8pdqxILCg+dwurPk7Vv6V2VCi3BDOrQ==
-X-Received: by 2002:adf:d1e5:0:b0:205:85f5:656c with SMTP id g5-20020adfd1e5000000b0020585f5656cmr35738237wrd.65.1648640983633;
-        Wed, 30 Mar 2022 04:49:43 -0700 (PDT)
-Received: from ?IPV6:2a01:e34:ed2f:f020:8f92:3217:a3c6:3ee8? ([2a01:e34:ed2f:f020:8f92:3217:a3c6:3ee8])
-        by smtp.googlemail.com with ESMTPSA id z5-20020a05600c0a0500b0037fa93193a8sm5539221wmp.44.2022.03.30.04.49.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 30 Mar 2022 04:49:43 -0700 (PDT)
-Message-ID: <98be733a-62b0-4cf6-ab27-992ea49da5b1@linaro.org>
-Date:   Wed, 30 Mar 2022 13:49:41 +0200
+        Thu, 31 Mar 2022 02:10:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041F038D90;
+        Wed, 30 Mar 2022 23:08:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93A276167F;
+        Thu, 31 Mar 2022 06:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70875C340F0;
+        Thu, 31 Mar 2022 06:08:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648706934;
+        bh=pgB4jTziZhebTrn8JVBVdaOH2FmDFsYbZ9Mh1b/KUQc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sG1tSuJFevehjqzpmojcnru0IbEdYN3e9pxUrAOZKBPHTsIAyL4Avm3hyb74jlAXW
+         NyTp9UXFJe0tSQB57iOX34o8kBqmiy6OA6nVgD4iFCbNeBA7aUnmAJNHw7+ZVH8OdP
+         FWHrWlIcoJDhjGILTWkvyP8n34MaAixTpIAXTsf8fN2QcvxoBKUA90e8pufpyTqwnY
+         m98S7CyDTOyXu7GszhA1Zs6OBFl2UhBUbyMWtBFHQRMiU6P4JgK5hTl2iz+KsmDIB+
+         RzUf/uVAb+4BKK0nphmRHy6v9LhW0dDaw89+Nt/Xc62c8FVc9O5HWbMPx961Msnhb3
+         ZjUV27ZqX/WJg==
+Date:   Thu, 31 Mar 2022 14:08:51 +0800
+From:   Tzung-Bi Shih <tzungbi@kernel.org>
+To:     Jean-Jacques Hiblot <jjhiblot@traphandler.com>
+Cc:     wim@linux-watchdog.org, linux@roeck-us.net,
+        geert+renesas@glider.be, linux-watchdog@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Phil Edworthy <phil.edworthy@renesas.com>
+Subject: Re: [PATCH v4 2/2] watchdog: Add Renesas RZ/N1 Watchdog driver
+Message-ID: <YkVFc6Q6/6rxSw89@google.com>
+References: <20220330100829.1000679-1-jjhiblot@traphandler.com>
+ <20220330100829.1000679-3-jjhiblot@traphandler.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v4 1/4] dt-bindings: timer: Add compatible for Mediatek
- MT8186
-Content-Language: en-US
-To:     Rob Herring <robh@kernel.org>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Cc:     hsinyi@chromium.org, Thomas Gleixner <tglx@linutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Project_Global_Chrome_Upstream_Group@mediatek.com,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-References: <20220311130732.22706-1-allen-kh.cheng@mediatek.com>
- <20220311130732.22706-2-allen-kh.cheng@mediatek.com>
- <Yitv3IUpCzp1/eGX@robh.at.kernel.org>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-In-Reply-To: <Yitv3IUpCzp1/eGX@robh.at.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220330100829.1000679-3-jjhiblot@traphandler.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 11/03/2022 16:50, Rob Herring wrote:
-> On Fri, 11 Mar 2022 21:07:29 +0800, Allen-KH Cheng wrote:
->> From: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
->>
->> This commit adds dt-binding documentation of timer for Mediatek MT8186 SoC
->> Platform.
->>
->> Signed-off-by: Allen-KH Cheng <Allen-KH.Cheng@mediatek.com>
->> ---
->>   Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt | 1 +
->>   1 file changed, 1 insertion(+)
->>
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
+On Wed, Mar 30, 2022 at 12:08:29PM +0200, Jean-Jacques Hiblot wrote:
+> diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
+[...]
+> +/*
+> + * Renesas RZ/N1 Watchdog timer.
+> + * This is a 12-bit timer driver from a (62.5/16384) MHz clock. It can't even
+> + * cope with 2 seconds.
+> + *
+> + * Copyright 2018 Renesas Electronics Europe Ltd.
 
-Applied, thanks
+s/2018/2022/ ?
 
--- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+> +#define RZN1_WDT_RETRIGGER			0x0
+> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL		0
+> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL_MASK	0xfff
+> +#define RZN1_WDT_RETRIGGER_PRESCALE		BIT(12)
+> +#define RZN1_WDT_RETRIGGER_ENABLE		BIT(13)
+> +#define RZN1_WDT_RETRIGGER_WDSI			(0x2 << 14)
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+Do RZN1_WDT_RETRIGGER_RELOAD_VAL and RZN1_WDT_RETRIGGER_WDSI get 1 more tab
+indent intentionally?
+
+> +static const struct watchdog_device rzn1_wdt = {
+> +	.info = &rzn1_wdt_info,
+> +	.ops = &rzn1_wdt_ops,
+> +	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
+> +};
+[...]
+> +static int rzn1_wdt_probe(struct platform_device *pdev)
+> +{
+[...]
+> +	wdt->wdt = rzn1_wdt;
+
+Does it really need to copy the memory?  For example,
+
+1. Use the memory in `wdt` directly and fill the `wdd`.
+
+struct watchdog_device *wdd = &wdt->wdt;
+wdd->info = &rzn1_wdt_info;
+wdd->ops = &rzn1_wdt_ops;
+...
+
+2. Use drvdata instead of container_of().
+
+Use watchdog_set_drvdata() in _probe and watchdog_get_drvdata() in the
+watchdog ops to get struct rzn1_watchdog.
+
+> +static const struct of_device_id rzn1_wdt_match[] = {
+> +	{ .compatible = "renesas,rzn1-wdt" },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, rzn1_wdt_match);
+
+Doesn't it need to guard by CONFIG_OF?
+
+> +static struct platform_driver rzn1_wdt_driver = {
+> +	.probe		= rzn1_wdt_probe,
+> +	.driver		= {
+> +		.name		= KBUILD_MODNAME,
+> +		.of_match_table	= rzn1_wdt_match,
+
+Does it makes more sense to use of_match_ptr()?
+
+> +	},
+> +};
+> +
+> +module_platform_driver(rzn1_wdt_driver);
+
+To make it look like a whole thing, I prefer to remove the extra blank line
+in between struct platform_driver and module_platform_driver().
