@@ -2,126 +2,88 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D3B4C433FE
-	for <linux-watchdog@archiver.kernel.org>; Fri,  1 Apr 2022 13:04:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD032C433EF
+	for <linux-watchdog@archiver.kernel.org>; Sun,  3 Apr 2022 05:23:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346148AbiDANFs (ORCPT
+        id S232244AbiDCFY4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 1 Apr 2022 09:05:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
+        Sun, 3 Apr 2022 01:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346156AbiDANFq (ORCPT
+        with ESMTP id S229566AbiDCFY4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 1 Apr 2022 09:05:46 -0400
-Received: from smtpout1.mo3004.mail-out.ovh.net (smtpout1.mo3004.mail-out.ovh.net [79.137.123.219])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7232211C26;
-        Fri,  1 Apr 2022 06:03:44 -0700 (PDT)
-Received: from pro2.mail.ovh.net (unknown [10.108.20.220])
-        by mo3004.mail-out.ovh.net (Postfix) with ESMTPS id E28952451C7;
-        Fri,  1 Apr 2022 13:03:31 +0000 (UTC)
-Received: from [192.168.1.42] (88.125.132.78) by DAG1EX2.emp2.local
- (172.16.2.2) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Fri, 1 Apr
- 2022 15:03:30 +0200
-Message-ID: <8fb86bde-7672-87e1-28a1-e78f371bfcca@traphandler.com>
-Date:   Fri, 1 Apr 2022 15:03:29 +0200
+        Sun, 3 Apr 2022 01:24:56 -0400
+Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36DF3B7DC;
+        Sat,  2 Apr 2022 22:23:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1648963383; x=1680499383;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=rAtvMqa3UEA1I/gQzlxH67hrGaELitMbpfXhAAOLSoU=;
+  b=L46yBIMVBoGlrFN9T4cWb6VLINHQi8MR+aEI07Im+WPAUz/OUS3JtOn2
+   8u4Ne0X8W4H+iWxPMRjCbu6UrZaGFp0MWDmMwUwlVXm5wX7z/25vbAT1N
+   t8unrJcMMhiOyCYFmuJ6Y4lbja0L2tiNcx3jdqSgI8Or0ChTNkBvQsIae
+   A=;
+X-IronPort-AV: E=Sophos;i="5.90,231,1643673600"; 
+   d="scan'208";a="189965259"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-90d70b14.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-6002.iad6.amazon.com with ESMTP; 03 Apr 2022 05:22:53 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1e-90d70b14.us-east-1.amazon.com (Postfix) with ESMTPS id 97AA4C0291;
+        Sun,  3 Apr 2022 05:22:52 +0000 (UTC)
+Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.32; Sun, 3 Apr 2022 05:22:50 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
+ EX13D13UWB003.ant.amazon.com (10.43.161.233) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.32; Sun, 3 Apr 2022 05:22:50 +0000
+Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
+ (172.19.116.181) by mail-relay.amazon.com (10.43.161.249) with Microsoft SMTP
+ Server id 15.0.1497.32 via Frontend Transport; Sun, 3 Apr 2022 05:22:50 +0000
+Received: by dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com (Postfix, from userid 14301484)
+        id 168431687; Sun,  3 Apr 2022 05:22:49 +0000 (UTC)
+From:   Eliav Farber <farbere@amazon.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <ronenk@amazon.com>, <talel@amazon.com>, <hhhawa@amazon.com>,
+        <jonnyc@amazon.com>, <hanochu@amazon.com>, <farbere@amazon.com>,
+        <dwmw@amazon.co.uk>
+Subject: [PATCH] watchdog: sp805: disable watchdog on remove
+Date:   Sun, 3 Apr 2022 05:22:49 +0000
+Message-ID: <20220403052249.48784-1-farbere@amazon.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v4 2/2] watchdog: Add Renesas RZ/N1 Watchdog driver
-Content-Language: en-US
-To:     Tzung-Bi Shih <tzungbi@kernel.org>
-CC:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <geert+renesas@glider.be>, <linux-watchdog@vger.kernel.org>,
-        <linux-renesas-soc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Phil Edworthy <phil.edworthy@renesas.com>
-References: <20220330100829.1000679-1-jjhiblot@traphandler.com>
- <20220330100829.1000679-3-jjhiblot@traphandler.com>
- <YkVFc6Q6/6rxSw89@google.com>
-From:   Jean-Jacques Hiblot <jjhiblot@traphandler.com>
-In-Reply-To: <YkVFc6Q6/6rxSw89@google.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [88.125.132.78]
-X-ClientProxiedBy: DAG3EX1.emp2.local (172.16.2.21) To DAG1EX2.emp2.local
- (172.16.2.2)
-X-Ovh-Tracer-Id: 17880416423138572789
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvvddrudeiiedgheelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkfffgggfuffvfhfhjggtgfhisehtjeertddtfeejnecuhfhrohhmpeflvggrnhdqlfgrtghquhgvshcujfhisghlohhtuceojhhjhhhisghlohhtsehtrhgrphhhrghnughlvghrrdgtohhmqeenucggtffrrghtthgvrhhnpefhiedthedttdegueeggfdtjeegtdeileeftdegheeutdetjeeuieehtdevvdefieenucfkpheptddrtddrtddrtddpkeekrdduvdehrddufedvrdejkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphhouhhtpdhhvghlohepphhrohdvrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepjhhjhhhisghlohhtsehtrhgrphhhrghnughlvghrrdgtohhmpdhnsggprhgtphhtthhopedupdhrtghpthhtohepphhhihhlrdgvugifohhrthhhhiesrhgvnhgvshgrshdrtghomh
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Disable the watchdog if it is active while removing the module.
+It is necessary in order to prevent a reset in case watchdog
+hw was running before the removal.
 
-On 31/03/2022 08:08, Tzung-Bi Shih wrote:
-> On Wed, Mar 30, 2022 at 12:08:29PM +0200, Jean-Jacques Hiblot wrote:
->> diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
-> [...]
->> +/*
->> + * Renesas RZ/N1 Watchdog timer.
->> + * This is a 12-bit timer driver from a (62.5/16384) MHz clock. It can't even
->> + * cope with 2 seconds.
->> + *
->> + * Copyright 2018 Renesas Electronics Europe Ltd.
-> s/2018/2022/ ?
-This driver wasn't written by me originally. So I'd rather not change 
-this line.
->
->> +#define RZN1_WDT_RETRIGGER			0x0
->> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL		0
->> +#define RZN1_WDT_RETRIGGER_RELOAD_VAL_MASK	0xfff
->> +#define RZN1_WDT_RETRIGGER_PRESCALE		BIT(12)
->> +#define RZN1_WDT_RETRIGGER_ENABLE		BIT(13)
->> +#define RZN1_WDT_RETRIGGER_WDSI			(0x2 << 14)
-> Do RZN1_WDT_RETRIGGER_RELOAD_VAL and RZN1_WDT_RETRIGGER_WDSI get 1 more tab
-> indent intentionally?
->
->> +static const struct watchdog_device rzn1_wdt = {
->> +	.info = &rzn1_wdt_info,
->> +	.ops = &rzn1_wdt_ops,
->> +	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
->> +};
-> [...]
->> +static int rzn1_wdt_probe(struct platform_device *pdev)
->> +{
-> [...]
->> +	wdt->wdt = rzn1_wdt;
-> Does it really need to copy the memory?  For example,
->
-> 1. Use the memory in `wdt` directly and fill the `wdd`.
->
-> struct watchdog_device *wdd = &wdt->wdt;
-> wdd->info = &rzn1_wdt_info;
-> wdd->ops = &rzn1_wdt_ops;
-> ...
->
-> 2. Use drvdata instead of container_of().
->
-> Use watchdog_set_drvdata() in _probe and watchdog_get_drvdata() in the
-> watchdog ops to get struct rzn1_watchdog.
-I'll rework this. Thanks for the review
->> +static const struct of_device_id rzn1_wdt_match[] = {
->> +	{ .compatible = "renesas,rzn1-wdt" },
->> +	{},
->> +};
->> +MODULE_DEVICE_TABLE(of, rzn1_wdt_match);
-> Doesn't it need to guard by CONFIG_OF?
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+---
+ drivers/watchdog/sp805_wdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I don't think it has to.
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index d8876fba686d..d7dc0f3f16ec 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -311,6 +311,9 @@ static int sp805_wdt_remove(struct amba_device *adev)
+ {
+ 	struct sp805_wdt *wdt = amba_get_drvdata(adev);
+ 
++	if (watchdog_active(&wdt->wdd))
++		wdt_disable(&wdt->wdd);
++
+ 	watchdog_unregister_device(&wdt->wdd);
+ 	watchdog_set_drvdata(&wdt->wdd, NULL);
+ 
+-- 
+2.32.0
 
->
->> +static struct platform_driver rzn1_wdt_driver = {
->> +	.probe		= rzn1_wdt_probe,
->> +	.driver		= {
->> +		.name		= KBUILD_MODNAME,
->> +		.of_match_table	= rzn1_wdt_match,
-> Does it makes more sense to use of_match_ptr()?
->
->> +	},
->> +};
->> +
->> +module_platform_driver(rzn1_wdt_driver);
-> To make it look like a whole thing, I prefer to remove the extra blank line
-> in between struct platform_driver and module_platform_driver().
