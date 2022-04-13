@@ -2,87 +2,116 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A69FBC433F5
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Apr 2022 07:55:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 989A2C433FE
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Apr 2022 08:25:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233554AbiDMH6H (ORCPT
+        id S231206AbiDMI2B (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 13 Apr 2022 03:58:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50666 "EHLO
+        Wed, 13 Apr 2022 04:28:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233332AbiDMH6F (ORCPT
+        with ESMTP id S233750AbiDMI2A (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 13 Apr 2022 03:58:05 -0400
-Received: from smtpout1.mo3004.mail-out.ovh.net (smtpout1.mo3004.mail-out.ovh.net [79.137.123.219])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3518D49694;
-        Wed, 13 Apr 2022 00:55:44 -0700 (PDT)
-Received: from pro2.mail.ovh.net (unknown [10.108.1.92])
-        by mo3004.mail-out.ovh.net (Postfix) with ESMTPS id E1E6D23F7BC;
-        Wed, 13 Apr 2022 07:55:41 +0000 (UTC)
-Received: from [192.168.1.42] (88.125.132.16) by DAG1EX2.emp2.local
+        Wed, 13 Apr 2022 04:28:00 -0400
+Received: from smtpout1.mo528.mail-out.ovh.net (smtpout1.mo528.mail-out.ovh.net [46.105.34.251])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319E4344F8;
+        Wed, 13 Apr 2022 01:25:39 -0700 (PDT)
+Received: from pro2.mail.ovh.net (unknown [10.108.1.157])
+        by mo528.mail-out.ovh.net (Postfix) with ESMTPS id F171EF63521E;
+        Wed, 13 Apr 2022 10:25:36 +0200 (CEST)
+Received: from localhost.localdomain (88.125.132.16) by DAG1EX2.emp2.local
  (172.16.2.2) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Wed, 13 Apr
- 2022 09:55:40 +0200
-Message-ID: <e433c3b8-5118-47ad-0cfd-8ca79acbf7e0@traphandler.com>
-Date:   Wed, 13 Apr 2022 09:55:39 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v5 2/2] watchdog: Add Renesas RZ/N1 Watchdog driver
-Content-Language: en-US
-To:     Tzung-Bi Shih <tzungbi@kernel.org>
-CC:     <linux@roeck-us.net>, <wim@linux-watchdog.org>,
-        <geert+renesas@glider.be>, <linux-watchdog@vger.kernel.org>,
-        <linux-renesas-soc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Phil Edworthy <phil.edworthy@renesas.com>
-References: <20220408200205.2833931-1-jjhiblot@traphandler.com>
- <20220408200205.2833931-3-jjhiblot@traphandler.com>
- <YlOJVzA49rTrBDH3@google.com>
+ 2022 10:25:35 +0200
 From:   Jean-Jacques Hiblot <jjhiblot@traphandler.com>
-In-Reply-To: <YlOJVzA49rTrBDH3@google.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     <wim@linux-watchdog.org>, <geert+renesas@glider.be>,
+        <tzungbi@kernel.org>, <linux-watchdog@vger.kernel.org>
+CC:     <linux-renesas-soc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Jean-Jacques Hiblot <jjhiblot@traphandler.com>
+Subject: [PATCH v6 0/2] ARM: r9a06g032: add support for the watchdogs
+Date:   Wed, 13 Apr 2022 10:25:25 +0200
+Message-ID: <20220413082527.155740-1-jjhiblot@traphandler.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [88.125.132.16]
-X-ClientProxiedBy: DAG3EX2.emp2.local (172.16.2.22) To DAG1EX2.emp2.local
+X-ClientProxiedBy: DAG8EX1.emp2.local (172.16.2.81) To DAG1EX2.emp2.local
  (172.16.2.2)
-X-Ovh-Tracer-Id: 9366924277373221365
+X-Ovh-Tracer-Id: 9872171861315238363
 X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvvddrudekledguddvhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfhfhfgjtgfgihesthejredttdefjeenucfhrhhomheplfgvrghnqdflrggtqhhuvghsucfjihgslhhothcuoehjjhhhihgslhhothesthhrrghphhgrnhgulhgvrhdrtghomheqnecuggftrfgrthhtvghrnhephfeitdehtddtgeeugefgtdejgedtieelfedtgeehuedtteejueeihedtvedvfeeinecukfhppedtrddtrddtrddtpdekkedruddvhedrudefvddrudeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpohhuthdphhgvlhhopehprhhovddrmhgrihhlrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpehjjhhhihgslhhothesthhrrghphhgrnhgulhgvrhdrtghomhdpnhgspghrtghpthhtohepuddprhgtphhtthhopehphhhilhdrvggufihorhhthhihsehrvghnvghsrghsrdgtohhm
+X-VR-SPAMSCORE: 0
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvvddrudeltddgtdegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvffufffkofgggfgtihesthekredtredttdenucfhrhhomheplfgvrghnqdflrggtqhhuvghsucfjihgslhhothcuoehjjhhhihgslhhothesthhrrghphhgrnhgulhgvrhdrtghomheqnecuggftrfgrthhtvghrnhepjedugfffleelheehveevuedtjeffgfejkedukeekudfguedtfeefuefhueevheeinecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkpheptddrtddrtddrtddpkeekrdduvdehrddufedvrdduieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphhouhhtpdhhvghlohepphhrohdvrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepjhhjhhhisghlohhtsehtrhgrphhhrghnughlvghrrdgtohhmpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hi all,
 
-On 11/04/2022 03:50, Tzung-Bi Shih wrote:
-> On Fri, Apr 08, 2022 at 10:02:05PM +0200, Jean-Jacques Hiblot wrote:
->> From: Phil Edworthy <phil.edworthy@renesas.com>
->>
->> This is a driver for the standard WDT on the RZ/N1 devices. This WDT has
->> very limited timeout capabilities. However, it can reset the device.
->> To do so, the corresponding bits in the SysCtrl RSTEN register need to
->> be enabled. This is not done by this driver.
->>
->> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
->> Signed-off-by: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
-> With a minor comment:
-> Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+This series adds support for the watchdog timers of the RZ/N1.
+The watchdog driver (rzn1-wdt.c) is derived from the driver available at
+https://github.com/renesas-rz/rzn1_linux.git with a few modifications
 
-Thanks for the time you took reviewing this.
+In order to be able to reset the board when a watchdog timer expires,
+the RSTEN register must be configured. it is the responsability of the
+bootloader to set those bits (or not, depending on the chosen policy).
 
->
->> +static int rzn1_wdt_probe(struct platform_device *pdev)
->> +{
-> [...]
->> +	wdt->wdtdev.timeout = DEFAULT_TIMEOUT;
->> +	ret = watchdog_init_timeout(&wdt->wdtdev, 0, dev);
-> Could it drop the assignment if `ret` is unused?
+If the watchdog reset source is not enabled, an interrupt is triggered
+when the watchdog expires. The interrupt handler will trigger an
+emergency restart.
 
-I'll keep the assignment but check the value: watchdog_timeout_invalid()
+Changes v5 -> v6:
+* check the value returned by watchdog_init_timeout()
+* fix checkpatch warning about the LICENSE identifier ("GPL v2" -> "GPL")
 
-will return an error if the dt supplied value is out of range.
+Changes v4 -> v5:
+* use watchdog_get/set_drvdata() instead of container_of()
+* In probe(), initialize each member of struct watchdog_device separately
+  instead of copying the whole struct from a template.
 
-JJ
+Changes v3 -> v4:
+ * dts: removed the patches that modify the device tree (already taken in
+   the renesas dt tree)
+ * driver: Call emergency_restart() in the interrupt handler.
+ 
+Changes v2 -> v3:
+* dts: changed compatible strings to include "renesas,r9a06g032-wdt" and
+  "renesas,rzn1-wdt".
+* driver: removed the SOC-specific "renesas,r9a06g032-wdt".
+* removed all the changes in the clock driver: the watchdog reset source
+  are not disabled anymore when the machine is halted.
+* fixed the clock rate type in the computations.
+* removed unnecessary printout and call to clk_disable_unprepare() in the
+  driver probe().
+    
+Changes v1 -> v2:
+* Modified the clock driver to not enable the watchdog reset sources.
+  On other renesas platforms, those bits are by the bootloader. The
+  watchdog reset sources are still disabled when the platform is halted
+  to prevent a watchdog reset.
+* Added a SOC-specific compatible "renesas,r9a06g032-wdt"
+* reordered the dts/i entries
+* default timeout is 60 seconds
+* reworked the probe function of the wdt driver to better error cases
+* removed the set_timeout() and use a fixed period computed in probe().
+  This removes the confusion and makes it clear that the period defined
+  by the user space in indeed handled by the watchdog core
 
+
+Jean-Jacques Hiblot (1):
+  dt-bindings: watchdog: renesas,wdt: Add support for RZ/N1
+
+Phil Edworthy (1):
+  watchdog: Add Renesas RZ/N1 Watchdog driver
+
+ .../bindings/watchdog/renesas,wdt.yaml        |   6 +
+ drivers/watchdog/Kconfig                      |   8 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/rzn1_wdt.c                   | 203 ++++++++++++++++++
+ 4 files changed, 218 insertions(+)
+ create mode 100644 drivers/watchdog/rzn1_wdt.c
+
+-- 
+2.25.1
 
