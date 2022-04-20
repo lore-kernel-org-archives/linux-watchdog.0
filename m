@@ -2,152 +2,126 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA55AC43217
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Apr 2022 15:00:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E0C7C4321E
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Apr 2022 15:00:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379908AbiDTPDD (ORCPT
+        id S1379895AbiDTPDE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Apr 2022 11:03:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
+        Wed, 20 Apr 2022 11:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379881AbiDTPC4 (ORCPT
+        with ESMTP id S1379904AbiDTPDB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Apr 2022 11:02:56 -0400
-Received: from mx0b-002e3701.pphosted.com (mx0b-002e3701.pphosted.com [148.163.143.35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9877E11A20;
-        Wed, 20 Apr 2022 08:00:09 -0700 (PDT)
-Received: from pps.filterd (m0134424.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 23KETO8K024773;
-        Wed, 20 Apr 2022 14:59:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : subject :
- date : message-id; s=pps0720;
- bh=SrJ1s9ybwVbdOOH7gaX0781T69f23uJScMgAQXx2D9s=;
- b=mVF4jgUb+ooe5pMgvTeUB8D2IRz/uWHiglputfztkKAkwk6gsaEwG7oS6upmuSAJYrZC
- mRfEWStqBrfn7UfCC1Hkk4ZwoJjL/NddIwX58nxUWasnE4DzlZFoKqqN7KtY7SFn6i7O
- ZyyU49dZzCjy7/k13YU7u0/BiUb4cPgkjl2iHV+hr2+cz6yC4u8akKmVK2UnKZUn/yo7
- XPQjmMzexasVeotZmsUxRgRaToSjYjK1zG8W+qodNuWZ+cYXHDMw1Gj5rTt4sehGTcct
- 0UnZinGKVaYO6VVwAKA3PLjMwP60njxIfyEIE4otZ2EVXQ/2SBaooxc/hVVaU3P07gjR 2Q== 
-Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
-        by mx0b-002e3701.pphosted.com (PPS) with ESMTPS id 3fjkypr8t3-1
+        Wed, 20 Apr 2022 11:03:01 -0400
+Received: from mx0a-002e3701.pphosted.com (mx0a-002e3701.pphosted.com [148.163.147.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3981E14013;
+        Wed, 20 Apr 2022 08:00:13 -0700 (PDT)
+Received: from pps.filterd (m0134422.ppops.net [127.0.0.1])
+        by mx0b-002e3701.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 23KERNLq001481;
+        Wed, 20 Apr 2022 14:59:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version; s=pps0720;
+ bh=zBrTf6Qo31CzintAEZ1ZV+ruktO4W9tsAWx5OVdR+dM=;
+ b=KupYLTLCRJ816BY6MxTsA3kTlXLHqoCQ2eUbX+X5vMz4Lfl7wuRFAtQDNh9pwLVYBK+L
+ flou89e0Ap6sIPUsP0vsiPbtoH9Hi32NGOjw28iIXJC11ZFCx9y4QyWUNYXMWTWaJeHY
+ kE6qRi+FhCZLAvWhgiCKamiZCd+NhFQZfBmd9klOg4DH2raB+FaBHbhQilVOn+VqfNPP
+ zw+oQmahUD/lq3u7nG5TFO2nYHOVwLthGN/NZKSlr7k1B1WzlOh+d5lisAwJpZsMLseB
+ FFykq86XkIPSON0xL2mIR2Sl1kpO6aghZJly6kMTAwit+vffU0bW+64jMGut9dFyClSq Lw== 
+Received: from g2t2353.austin.hpe.com (g2t2353.austin.hpe.com [15.233.44.26])
+        by mx0b-002e3701.pphosted.com (PPS) with ESMTPS id 3fjky1g9va-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 14:59:15 +0000
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id F03E255;
-        Wed, 20 Apr 2022 14:59:13 +0000 (UTC)
+        Wed, 20 Apr 2022 14:59:54 +0000
+Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
+        by g2t2353.austin.hpe.com (Postfix) with ESMTP id 8708465;
+        Wed, 20 Apr 2022 14:59:53 +0000 (UTC)
 Received: from hpe.com (cigateway-dev.us.rdlabs.hpecorp.net [10.14.73.30])
-        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 711514A;
-        Wed, 20 Apr 2022 14:59:12 +0000 (UTC)
+        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id 2C7C03A;
+        Wed, 20 Apr 2022 14:59:53 +0000 (UTC)
 From:   nick.hawkins@hpe.com
-To:     verdun@hpe.com, nick.hawkins@hpe.com, robh+dt@kernel.org,
-        daniel.lezcano@linaro.org, tglx@linutronix.de,
-        gregkh@linuxfoundation.org, wim@linux-watchdog.org,
-        linux@roeck-us.net, linux@armlinux.org.uk, arnd@arndb.de,
-        olof@lixom.net, joel@jms.id.au, soc@kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v4 00/11] ARM: Introduce HPE GXP Architecture
-Date:   Wed, 20 Apr 2022 10:01:14 -0500
-Message-Id: <20220420150114.47356-1-nick.hawkins@hpe.com>
+To:     verdun@hpe.com, nick@hpe.com, joel@jms.id.au, arnd@arndb.de
+Cc:     Nick Hawkins <nick.hawkins@hpe.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v4 06/11] dt-bindings: watchdog: Add HPE GXP Watchdog timer binding
+Date:   Wed, 20 Apr 2022 10:01:50 -0500
+Message-Id: <20220420150156.47405-6-nick.hawkins@hpe.com>
 X-Mailer: git-send-email 2.17.1
-X-Proofpoint-ORIG-GUID: HaEgkcqBFgiSzCPe6r6przRCKLH88dHH
-X-Proofpoint-GUID: HaEgkcqBFgiSzCPe6r6przRCKLH88dHH
+In-Reply-To: <20220420150156.47405-1-nick.hawkins@hpe.com>
+References: <20220420150156.47405-1-nick.hawkins@hpe.com>
+X-Proofpoint-ORIG-GUID: ybzwJOOO4EBSPXrdjN8Ue_p6Yr-YjTJq
+X-Proofpoint-GUID: ybzwJOOO4EBSPXrdjN8Ue_p6Yr-YjTJq
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-HPE-SCL: -1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-20_04,2022-04-20_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- malwarescore=0 bulkscore=0 spamscore=0 clxscore=1011 adultscore=0
- impostorscore=0 mlxlogscore=851 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204200089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 phishscore=0 spamscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 mlxlogscore=923
+ lowpriorityscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2204200089
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Nick Hawkins <nick.hawkins@hpe.com>
 
-Changes since v3:
- *Completely redid the dtsi file to represent architecture
- *Reduced device tree size
- *Rewrote the timer driver to start the watchdog driver due
- to similar register region
- *Made adjustments to timer
- *Made adjustments to watchdog
- *Changed gxp.yaml to hpe,gxp.yaml with changes
- *Updated Maintainers to represent new file names
- *Added hpe bindings to generic-ehci and generic-ohci
- *Fixed clock architecture to be accurate
+Add the hpe gxp watchdog timer binding hpe,gxp-wdt.
+This will enable support for the HPE GXP Watchdog
 
-Changes since v2:
- *Reduced size of changes, put them into patchset format
+Signed-off-by: Nick Hawkins <nick.hawkins@hpe.com>
 
-Changes since v1:
- *Fixed compiler warnings
-
-The GXP is the HPE BMC SoC that is used in the majority
-of HPE Generation 10 servers. Traditionally the asic will
-last multiple generations of server before being replaced.
-
-Info about SoC:
-
- HPE GXP is the name of the HPE Soc. This SoC is used to implement
- many BMC features at HPE. It supports ARMv7 architecture based on
- the Cortex A9 core. It is capable of using an AXI bus to which
- a memory controller is attached. It has multiple SPI interfaces
- to connect boot flash and BIOS flash. It uses a 10/100/1000 MAC
- for network connectivity. It has multiple i2c engines to drive
- connectivity with a host infrastructure. The initial patches
- enable the watchdog and timer enabling the host to be able to
- boot. Based on feedback from the device tree gxp-timer now
- creates a gxp-wdt child because of similar register region.
-
-Nick Hawkins (11):
-  arch: arm: mach-hpe: Introduce the HPE GXP architecture
-  arch: arm: configs: multi_v7_defconfig
-  drivers: wdt: Introduce HPE GXP SoC Watchdog
-  clocksource/drivers: Add HPE GXP timer
-  dt-bindings: timer: Add HPE GXP Timer Binding
-  dt-bindings: watchdog: Add HPE GXP Watchdog timer binding
-  dt-bindings: arm: Add HPE GXP Binding
-  dt-bindings: usb: generic-echi:  Add HPE GXP echi binding
-  dt-bindings: usb: generic-ochi:  Add HPE GXP ochi binding
-  arch: arm: boot: dts: Introduce HPE GXP Device tree
-  maintainers: Introduce HPE GXP Architecture
-
- .../devicetree/bindings/arm/hpe,gxp.yaml      |  22 +++
- .../bindings/timer/hpe,gxp-timer.yaml         |  49 +++++
- .../devicetree/bindings/usb/generic-ehci.yaml |   1 +
- .../devicetree/bindings/usb/generic-ohci.yaml |   1 +
- .../bindings/watchdog/hpe,gxp-wdt.yaml        |  30 +++
- MAINTAINERS                                   |  13 ++
- arch/arm/Kconfig                              |   2 +
- arch/arm/Makefile                             |   1 +
- arch/arm/boot/dts/Makefile                    |   2 +
- arch/arm/boot/dts/hpe-bmc-dl360gen10.dts      |  13 ++
- arch/arm/boot/dts/hpe-gxp.dtsi                | 128 ++++++++++++
- arch/arm/configs/multi_v7_defconfig           |   3 +
- arch/arm/mach-hpe/Kconfig                     |  17 ++
- arch/arm/mach-hpe/Makefile                    |   1 +
- arch/arm/mach-hpe/gxp.c                       |  16 ++
- drivers/clocksource/Kconfig                   |   8 +
- drivers/clocksource/Makefile                  |   1 +
- drivers/clocksource/timer-gxp.c               | 183 ++++++++++++++++++
- drivers/watchdog/Kconfig                      |   8 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/gxp-wdt.c                    | 166 ++++++++++++++++
- 21 files changed, 666 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/arm/hpe,gxp.yaml
- create mode 100644 Documentation/devicetree/bindings/timer/hpe,gxp-timer.yaml
+---
+v2:
+*Made watchdog a child of timer because of same register
+area based on review feedback
+*Simplified the watchdog yaml as it will get information
+from parent device
+---
+ .../bindings/watchdog/hpe,gxp-wdt.yaml        | 30 +++++++++++++++++++
+ 1 file changed, 30 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/hpe,gxp-wdt.yaml
- create mode 100644 arch/arm/boot/dts/hpe-bmc-dl360gen10.dts
- create mode 100644 arch/arm/boot/dts/hpe-gxp.dtsi
- create mode 100644 arch/arm/mach-hpe/Kconfig
- create mode 100644 arch/arm/mach-hpe/Makefile
- create mode 100644 arch/arm/mach-hpe/gxp.c
- create mode 100644 drivers/clocksource/timer-gxp.c
- create mode 100644 drivers/watchdog/gxp-wdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/hpe,gxp-wdt.yaml b/Documentation/devicetree/bindings/watchdog/hpe,gxp-wdt.yaml
+new file mode 100644
+index 000000000000..c20da146352f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/hpe,gxp-wdt.yaml
+@@ -0,0 +1,30 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/hpe,gxp-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: HPE GXP Controlled Watchdog
++
++allOf:
++  - $ref: "watchdog.yaml#"
++
++maintainers:
++  - Nick Hawkins <nick.hawkins@hpe.com>
++  - Jean-Marie Verdun <verdun@hpe.com>
++
++properties:
++  compatible:
++    const: hpe,gxp-wdt
++
++required:
++  - compatible
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    watchdog0:  watchdog {
++      compatible = "hpe,gxp-wdt";
++    };
++
 -- 
 2.17.1
 
