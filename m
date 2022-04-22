@@ -2,37 +2,37 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C24C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Apr 2022 08:02:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4803C433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Apr 2022 08:03:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445436AbiDVIFU (ORCPT
+        id S1445444AbiDVIGA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Apr 2022 04:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
+        Fri, 22 Apr 2022 04:06:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445443AbiDVIFT (ORCPT
+        with ESMTP id S1445443AbiDVIF7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Apr 2022 04:05:19 -0400
+        Fri, 22 Apr 2022 04:05:59 -0400
 Received: from cpanel.siel.si (cpanel.siel.si [46.19.9.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37E1527D1;
-        Fri, 22 Apr 2022 01:02:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7A1527DB;
+        Fri, 22 Apr 2022 01:03:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=cZWm1q63rwYi32f1VKD80rczQVSL9KwMkpmg6YC11cM=; b=PSkCcqo0nrud4oXCPvekf/9txM
-        5q7ZlWXBzBOIdJ2TETKLOitv6M9pNEhPzeYA9+2BWPVKj5KSh4VGKx7TDGrapMquJQVK3FMKiqHRS
-        HNVbmv4KKEF4po2JmQ/Jp6WQSoK72cxnrPQjghMvNhwl7uhQLANud0gxI1oBrxoo6qVf56OgW7QVV
-        HD5jM2n9TO0fANCHzZlJEK9pRUBMkZhUlg6WBvE7N2E3p7TZlEgHW4H+rVXeiv0SHWsh3JsGNrpZA
-        2h8nZ7tfFiePi8x6QhSGF8WKsi51rV1eAq+ebU5z0+1rI1X8fgyK8pRJk+vvmNBP1FEI0SmQnvJRj
-        1s1KCSCg==;
+        bh=rwpmI405aL91duchnEQbP99H3yfe1UPXHbd9Vu/Vayg=; b=QIXmre30beWxx4rsbcS5WhYA5l
+        I27zSviwbbyiPRFMveb95lxOjLP2ufFsEASx53tRMgp/9HdCUORWOcWoKnb4rX2B75N0EvSeRVTph
+        4uRQ+GLvsuWFcl5fBgC2qksWyfjmz7KyRcC35eZ8rAg2yVfdj22N2ihIzN9J+NN3TpM4VC561aAlu
+        aR7Rucv1zX9ii8WcqrZCgdAWVzwbHfuzMtVaW5AK4fmnuYewPZGpP1PoXeXhvlOaYE74IngljnMxx
+        7SlNZf3VG2Qu4UChVraVD68j9b/Zkl7fGpaI+Xb8IR9qmLI4fpOuQX6vTtc5gviMuxjnyfCVCLWzs
+        FfAxsm5g==;
 Received: from [89.212.21.243] (port=36186 helo=localhost.localdomain)
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.95)
         (envelope-from <primoz.fiser@norik.com>)
-        id 1nhnh2-007P6W-Qh;
+        id 1nhnh3-007P6W-45;
         Fri, 22 Apr 2022 09:27:12 +0200
 From:   Primoz Fiser <primoz.fiser@norik.com>
 To:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
@@ -47,10 +47,12 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
         Primoz Fiser <primoz.fiser@norik.com>,
         Andrej Picej <andrej.picej@norik.com>, upstream@phytec.de
-Subject: [PATCH 1/3] dt-bindings: mfd: da9063: watchdog: add suspend disable option
-Date:   Fri, 22 Apr 2022 09:27:11 +0200
-Message-Id: <20220422072713.3172345-1-primoz.fiser@norik.com>
+Subject: [PATCH 3/3] ARM: dts: imx6: phyFLEX: disable da9063 watchdog during suspend
+Date:   Fri, 22 Apr 2022 09:27:13 +0200
+Message-Id: <20220422072713.3172345-3-primoz.fiser@norik.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220422072713.3172345-1-primoz.fiser@norik.com>
+References: <20220422072713.3172345-1-primoz.fiser@norik.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -67,38 +69,29 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document the watchdog disable option which can be used if the hardware
-automatic suspend option is broken.
-
-Based on commit c514430c51ee8 ("dt-bindings: watchdog: da9062: add
-suspend disable option").
+If DA9063 PMIC is left enabled during suspend, PMIC's watchdog needs to
+be disabled before entering suspended state to allow board to sleep for
+longer period than the watchdog timeout period. Otherwise board will be
+reset by the watchdog. Thus disable watchdog on suspend and re-enable it
+upon resume.
 
 Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
 ---
- Documentation/devicetree/bindings/mfd/da9063.txt | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Documentation/devicetree/bindings/mfd/da9063.txt
-index 91b79a21d403..aa8b800cc4ad 100644
---- a/Documentation/devicetree/bindings/mfd/da9063.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9063.txt
-@@ -64,10 +64,13 @@ Sub-nodes:
-     and KEY_SLEEP.
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 1f2ba6f6254e..56b29c3294c6 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -212,6 +212,7 @@ da9063_rtc: rtc {
  
- - watchdog : This node defines settings for the Watchdog timer associated
--  with the DA9063 and DA9063L. There are currently no entries in this
--  binding, however compatible = "dlg,da9063-watchdog" should be added
--  if a node is created.
-+  with the DA9063 and DA9063L. The node should contain the compatible property
-+  with the value "dlg,da9063-watchdog".
+ 		da9063_wdog: watchdog {
+ 			compatible = "dlg,da9063-watchdog";
++			dlg,use-sw-pm;
+ 		};
  
-+  Optional watchdog properties:
-+  - dlg,use-sw-pm: Add this property to disable the watchdog during suspend.
-+  Only use this option if you can't use the watchdog automatic suspend
-+  function during a suspend (see register CONTROL_B).
- 
- Example:
- 
+ 		onkey {
 -- 
 2.25.1
 
