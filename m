@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6668C43217
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Apr 2022 14:53:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75A2CC4332F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Apr 2022 14:53:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351754AbiDZO5A (ORCPT
+        id S1351749AbiDZO46 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Apr 2022 10:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51650 "EHLO
+        Tue, 26 Apr 2022 10:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351740AbiDZO45 (ORCPT
+        with ESMTP id S1347212AbiDZO45 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 26 Apr 2022 10:56:57 -0400
 Received: from chinatelecom.cn (prt-mail.chinatelecom.cn [42.123.76.227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ED2E964720;
-        Tue, 26 Apr 2022 07:53:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8ADC262111;
+        Tue, 26 Apr 2022 07:53:44 -0700 (PDT)
 HMM_SOURCE_IP: 172.18.0.48:49914.31750849
 HMM_ATTACHE_NUM: 0000
 HMM_SOURCE_TYPE: SMTP
 Received: from clientip-202.80.192.38 (unknown [172.18.0.48])
-        by chinatelecom.cn (HERMES) with SMTP id AA711280096;
-        Tue, 26 Apr 2022 22:53:44 +0800 (CST)
+        by chinatelecom.cn (HERMES) with SMTP id B7D8F28008B;
+        Tue, 26 Apr 2022 22:53:37 +0800 (CST)
 X-189-SAVE-TO-SEND: +liuxp11@chinatelecom.cn
 Received: from  ([172.18.0.48])
-        by app0024 with ESMTP id 21e3df7c56364a0393e71f2c8c7eefe9 for wim@linux-watchdog.org;
-        Tue, 26 Apr 2022 22:53:46 CST
-X-Transaction-ID: 21e3df7c56364a0393e71f2c8c7eefe9
+        by app0024 with ESMTP id 2f49a4b11dc54529ab945bd273b1aea4 for wim@linux-watchdog.org;
+        Tue, 26 Apr 2022 22:53:39 CST
+X-Transaction-ID: 2f49a4b11dc54529ab945bd273b1aea4
 X-Real-From: liuxp11@chinatelecom.cn
 X-Receive-IP: 172.18.0.48
 X-MEDUSA-Status: 0
@@ -35,37 +35,44 @@ From:   Liu Xinpeng <liuxp11@chinatelecom.cn>
 To:     wim@linux-watchdog.org, linux@roeck-us.net, tzungbi@kernel.org
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Liu Xinpeng <liuxp11@chinatelecom.cn>
-Subject: [PATCH v8 3/3] watchdog: wdat_wdt: Stop watchdog when uninstalling module
-Date:   Tue, 26 Apr 2022 22:53:30 +0800
-Message-Id: <1650984810-6247-4-git-send-email-liuxp11@chinatelecom.cn>
+Subject: [PATCH v8 0/3] Some impovements about acpi hardware watchdog
+Date:   Tue, 26 Apr 2022 22:53:27 +0800
+Message-Id: <1650984810-6247-1-git-send-email-liuxp11@chinatelecom.cn>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1650984810-6247-1-git-send-email-liuxp11@chinatelecom.cn>
-References: <1650984810-6247-1-git-send-email-liuxp11@chinatelecom.cn>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Test shows that wachdog still reboots machine after the module
-is removed. Use watchdog_stop_on_unregister to stop the watchdog
-on removing.
+Changelog:
+v1->v2 Update the commit messages
 
-Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
----
- drivers/watchdog/wdat_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+v2->v3 - Add the context about why using watchdog_timeout_invalid.
+       - Using SET_NOIRQ_SYSTEM_SLEEP_PM_OPS reduces redundant code for
+       iTCO watchdog.
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 6f36a653767b..e6f95e99156d 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -463,6 +463,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
- 	watchdog_stop_on_reboot(&wdat->wdd);
-+	watchdog_stop_on_unregister(&wdat->wdd);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
- 
+v3->v4 - For patch 1, update commit message, rename WDAT_TIMEOUT_MIN
+       to WDAT_MIN_TIMEOUT, keeps consistent with WDAT_DEFAULT_TIMEOUT.
+       - For patch 4, iTCO_wdt_suspend_noirq and iTCO_wdt_resume_noirq
+       are possible unused, so keep "ifdef CONFIG_PM_SLEEP ... #endif".
+
+v4->v5 Split iTCO_wdt's commit from this patchset.
+
+v5->v6 For patch 1, drop "Context: " and to change "existed" in the
+       subject to "existing".
+
+v6->v7 Rename "watchdog: wdat_wdg" in subject to "watchdog: wdat_wdt".
+
+v7->v8 Set min_timeout to 1 without using a define.
+
+Liu Xinpeng (3):
+  watchdog: wdat_wdt: Using the existing function to check parameter
+    timeout
+  watchdog: wdat_wdt: Stop watchdog when rebooting the system
+  watchdog: wdat_wdt: Stop watchdog when uninstalling module
+
+ drivers/watchdog/wdat_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
 -- 
 2.23.0
 
