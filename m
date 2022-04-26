@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB3D3C433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Apr 2022 10:03:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE970C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Apr 2022 10:03:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345041AbiDZKGW (ORCPT
+        id S1344345AbiDZKGU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Apr 2022 06:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
+        Tue, 26 Apr 2022 06:06:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348457AbiDZKFt (ORCPT
+        with ESMTP id S1348453AbiDZKFt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 26 Apr 2022 06:05:49 -0400
 Received: from chinatelecom.cn (prt-mail.chinatelecom.cn [42.123.76.223])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 85BF6DAFFA;
-        Tue, 26 Apr 2022 02:27:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 95FD8D8903;
+        Tue, 26 Apr 2022 02:27:18 -0700 (PDT)
 HMM_SOURCE_IP: 172.18.0.48:52296.987177822
 HMM_ATTACHE_NUM: 0000
 HMM_SOURCE_TYPE: SMTP
 Received: from clientip-202.80.192.39 (unknown [172.18.0.48])
-        by chinatelecom.cn (HERMES) with SMTP id AD8E62800CE;
-        Tue, 26 Apr 2022 17:27:20 +0800 (CST)
+        by chinatelecom.cn (HERMES) with SMTP id 870172800D6;
+        Tue, 26 Apr 2022 17:27:15 +0800 (CST)
 X-189-SAVE-TO-SEND: +liuxp11@chinatelecom.cn
 Received: from  ([172.18.0.48])
-        by app0024 with ESMTP id c9ebb7d387624d15902d35f6ff010ce8 for wim@linux-watchdog.org;
-        Tue, 26 Apr 2022 17:27:25 CST
-X-Transaction-ID: c9ebb7d387624d15902d35f6ff010ce8
+        by app0024 with ESMTP id 7663d7eee3b34c73b957a6bd3c735649 for wim@linux-watchdog.org;
+        Tue, 26 Apr 2022 17:27:17 CST
+X-Transaction-ID: 7663d7eee3b34c73b957a6bd3c735649
 X-Real-From: liuxp11@chinatelecom.cn
 X-Receive-IP: 172.18.0.48
 X-MEDUSA-Status: 0
@@ -35,9 +35,9 @@ From:   Liu Xinpeng <liuxp11@chinatelecom.cn>
 To:     wim@linux-watchdog.org, linux@roeck-us.net, tzungbi@kernel.org
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Liu Xinpeng <liuxp11@chinatelecom.cn>
-Subject: [PATCH v6 3/3] watchdog: wdat_wdg: Stop watchdog when uninstalling module
-Date:   Tue, 26 Apr 2022 17:27:01 +0800
-Message-Id: <1650965221-2533-4-git-send-email-liuxp11@chinatelecom.cn>
+Subject: [PATCH v6 1/3] watchdog: wdat_wdg: Using the existing function to check parameter timeout
+Date:   Tue, 26 Apr 2022 17:26:59 +0800
+Message-Id: <1650965221-2533-2-git-send-email-liuxp11@chinatelecom.cn>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1650965221-2533-1-git-send-email-liuxp11@chinatelecom.cn>
 References: <1650965221-2533-1-git-send-email-liuxp11@chinatelecom.cn>
@@ -45,27 +45,47 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Test shows that wachdog still reboots machine after the module
-is removed. Use watchdog_stop_on_unregister to stop the watchdog
-on removing.
+If max_hw_heartbeat_ms is provided, the configured maximum timeout is not
+limited by it. The limit check in this driver therefore doesn't make much
+sense. Similar, the watchdog core ensures that minimum timeout limits are
+met if min_hw_heartbeat_ms is set. Using watchdog_timeout_invalid() makes
+more sense because it takes this into account.
 
 Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
 ---
- drivers/watchdog/wdat_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/wdat_wdt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 0ef2b918364a..6732d7fc4f94 100644
+index 195c8c004b69..9db01d165310 100644
 --- a/drivers/watchdog/wdat_wdt.c
 +++ b/drivers/watchdog/wdat_wdt.c
-@@ -464,6 +464,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+@@ -55,6 +55,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
- 	watchdog_stop_on_reboot(&wdat->wdd);
-+	watchdog_stop_on_unregister(&wdat->wdd);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
+ #define WDAT_DEFAULT_TIMEOUT	30
++#define WDAT_MIN_TIMEOUT     1
  
+ static int timeout = WDAT_DEFAULT_TIMEOUT;
+ module_param(timeout, int, 0);
+@@ -344,6 +345,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 	wdat->period = tbl->timer_period;
+ 	wdat->wdd.min_hw_heartbeat_ms = wdat->period * tbl->min_count;
+ 	wdat->wdd.max_hw_heartbeat_ms = wdat->period * tbl->max_count;
++	wdat->wdd.min_timeout = WDAT_MIN_TIMEOUT;
+ 	wdat->stopped_in_sleep = tbl->flags & ACPI_WDAT_STOPPED;
+ 	wdat->wdd.info = &wdat_wdt_info;
+ 	wdat->wdd.ops = &wdat_wdt_ops;
+@@ -450,8 +452,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 	 * watchdog properly after it has opened the device. In some cases
+ 	 * the BIOS default is too short and causes immediate reboot.
+ 	 */
+-	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
+-	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
++	if (watchdog_timeout_invalid(&wdat->wdd, timeout)) {
+ 		dev_warn(dev, "Invalid timeout %d given, using %d\n",
+ 			 timeout, WDAT_DEFAULT_TIMEOUT);
+ 		timeout = WDAT_DEFAULT_TIMEOUT;
 -- 
 2.23.0
 
