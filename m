@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FCF1C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CF59C433FE
 	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Apr 2022 07:11:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343798AbiDZHOY (ORCPT
+        id S1343681AbiDZHOZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Apr 2022 03:14:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51882 "EHLO
+        Tue, 26 Apr 2022 03:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343701AbiDZHN5 (ORCPT
+        with ESMTP id S1343736AbiDZHOF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Apr 2022 03:13:57 -0400
+        Tue, 26 Apr 2022 03:14:05 -0400
 Received: from chinatelecom.cn (prt-mail.chinatelecom.cn [42.123.76.221])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 771B01403F;
-        Tue, 26 Apr 2022 00:10:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D2B6C1403F;
+        Tue, 26 Apr 2022 00:10:58 -0700 (PDT)
 HMM_SOURCE_IP: 172.18.0.188:50678.1670155976
 HMM_ATTACHE_NUM: 0000
 HMM_SOURCE_TYPE: SMTP
 Received: from clientip-202.80.192.39 (unknown [172.18.0.188])
-        by chinatelecom.cn (HERMES) with SMTP id 466162800A9;
-        Tue, 26 Apr 2022 15:10:44 +0800 (CST)
+        by chinatelecom.cn (HERMES) with SMTP id F12502800AC;
+        Tue, 26 Apr 2022 15:10:52 +0800 (CST)
 X-189-SAVE-TO-SEND: +liuxp11@chinatelecom.cn
 Received: from  ([172.18.0.188])
-        by app0023 with ESMTP id cad0a28d3faa422aabfbb6caf3f45541 for wim@linux-watchdog.org;
-        Tue, 26 Apr 2022 15:10:49 CST
-X-Transaction-ID: cad0a28d3faa422aabfbb6caf3f45541
+        by app0023 with ESMTP id 9d368a681f8f43ebb6b097333c3148d6 for wim@linux-watchdog.org;
+        Tue, 26 Apr 2022 15:10:56 CST
+X-Transaction-ID: 9d368a681f8f43ebb6b097333c3148d6
 X-Real-From: liuxp11@chinatelecom.cn
 X-Receive-IP: 172.18.0.188
 X-MEDUSA-Status: 0
@@ -35,37 +35,47 @@ From:   Liu Xinpeng <liuxp11@chinatelecom.cn>
 To:     wim@linux-watchdog.org, linux@roeck-us.net, tzungbi@kernel.org
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Liu Xinpeng <liuxp11@chinatelecom.cn>
-Subject: [PATCH v4 0/4] Some impovements about watchdog
-Date:   Tue, 26 Apr 2022 15:10:25 +0800
-Message-Id: <1650957029-910-1-git-send-email-liuxp11@chinatelecom.cn>
+Subject: [PATCH v4 2/4] watchdog: wdat_wdg: Stop watchdog when rebooting the system
+Date:   Tue, 26 Apr 2022 15:10:27 +0800
+Message-Id: <1650957029-910-3-git-send-email-liuxp11@chinatelecom.cn>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1650957029-910-1-git-send-email-liuxp11@chinatelecom.cn>
+References: <1650957029-910-1-git-send-email-liuxp11@chinatelecom.cn>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Changelog:
-v1->v2 Update the commit messages
-v2->v3 - Add the context about why using watchdog_timeout_invalid.
-       - Using SET_NOIRQ_SYSTEM_SLEEP_PM_OPS reduces redundant code for
-       iTCO watchdog.
-v3->v4 - For patch 1, update commit message, rename WDAT_TIMEOUT_MIN 
-       to WDAT_MIN_TIMEOUT, keeps consistent with WDAT_DEFAULT_TIMEOUT.
-       - For patch 4, iTCO_wdt_suspend_noirq and iTCO_wdt_resume_noirq
-       are possible unused, so keep "ifdef CONFIG_PM_SLEEP ... #endif".
+Executing reboot command several times on the machine "Dell
+PowerEdge R740", UEFI security detection stopped machine
+with the following prompt:
 
-       Thanks Guenter Roeck and Tzung-Bi Shih's suggestions.
+UEFI0082: The system was reset due to a timeout from the watchdog
+timer. Check the System Event Log (SEL) or crash dumps from
+Operating Sysstem to identify the source that triggered the
+watchdog timer reset. Update the firmware or driver for the
+identified device.
 
-Liu Xinpeng (4):
-  watchdog: wdat_wdg: Using the existed function to check parameter
-    timeout
-  watchdog: wdat_wdg: Stop watchdog when rebooting the system
-  watchdog: wdat_wdg: Stop watchdog when uninstalling module
-  watchdog: iTCO_wdg: Make code more clearly with macro definition
+iDRAC has warning event: "The watchdog timer reset the system".
 
- drivers/watchdog/iTCO_wdt.c | 12 +++---------
- drivers/watchdog/wdat_wdt.c |  7 +++++--
- 2 files changed, 8 insertions(+), 11 deletions(-)
+This patch fixes this issue by adding the reboot notifier.
 
+Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
+---
+ drivers/watchdog/wdat_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index 9db01d165310..0ef2b918364a 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -463,6 +463,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	watchdog_set_nowayout(&wdat->wdd, nowayout);
++	watchdog_stop_on_reboot(&wdat->wdd);
+ 	return devm_watchdog_register_device(dev, &wdat->wdd);
+ }
+ 
 -- 
 2.23.0
 
