@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3E88C43219
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 13:35:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F134C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 13:35:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385450AbiEBNjE (ORCPT
+        id S236124AbiEBNjG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 2 May 2022 09:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42700 "EHLO
+        Mon, 2 May 2022 09:39:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385354AbiEBNiv (ORCPT
+        with ESMTP id S1385358AbiEBNiv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 2 May 2022 09:38:51 -0400
 Received: from albert.telenet-ops.be (albert.telenet-ops.be [IPv6:2a02:1800:110:4::f00:1a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D23B64C1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBE86555
         for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 06:35:20 -0700 (PDT)
 Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:194e:5782:c420:7f87])
         by albert.telenet-ops.be with bizsmtp
-        id Rpb52700728fWK506pb5V7; Mon, 02 May 2022 15:35:18 +0200
+        id Rpb52700828fWK506pb5V8; Mon, 02 May 2022 15:35:18 +0200
 Received: from rox.of.borg ([192.168.97.57])
         by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCe-002mre-Ig; Mon, 02 May 2022 15:35:04 +0200
+        id 1nlWCe-002mri-Lv; Mon, 02 May 2022 15:35:04 +0200
 Received: from geert by rox.of.borg with local (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCd-002vA6-UR; Mon, 02 May 2022 15:35:03 +0200
+        id 1nlWCe-002vAY-2e; Mon, 02 May 2022 15:35:04 +0200
 From:   Geert Uytterhoeven <geert+renesas@glider.be>
 To:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -45,9 +45,9 @@ Cc:     devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
         linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 1/7] dt-bindings: gpio: renesas,rcar-gpio: R-Car V3U is R-Car Gen4
-Date:   Mon,  2 May 2022 15:34:53 +0200
-Message-Id: <5628a862688bd9d3b4f6c66cb338671211058641.1651497024.git.geert+renesas@glider.be>
+Subject: [PATCH 5/7] dt-bindings: serial: renesas,hscif: R-Car V3U is R-Car Gen4
+Date:   Mon,  2 May 2022 15:34:57 +0200
+Message-Id: <dd734aaa4e5e0b32864b038b79eafe72907fb99f.1651497024.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <cover.1651497024.git.geert+renesas@glider.be>
 References: <cover.1651497024.git.geert+renesas@glider.be>
@@ -62,26 +62,27 @@ family.  Hence move its compatible value to the R-Car Gen4 section.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ Documentation/devicetree/bindings/serial/renesas,hscif.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml b/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
-index 0681a4790cd62e23..75e5da6a7cc04bbd 100644
---- a/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
-+++ b/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
-@@ -48,11 +48,9 @@ properties:
-               - renesas,gpio-r8a77995     # R-Car D3
-           - const: renesas,rcar-gen3-gpio # R-Car Gen3 or RZ/G2
+diff --git a/Documentation/devicetree/bindings/serial/renesas,hscif.yaml b/Documentation/devicetree/bindings/serial/renesas,hscif.yaml
+index d688a07a0e2970cd..87180d95cd4c5d14 100644
+--- a/Documentation/devicetree/bindings/serial/renesas,hscif.yaml
++++ b/Documentation/devicetree/bindings/serial/renesas,hscif.yaml
+@@ -51,12 +51,12 @@ properties:
+               - renesas,hscif-r8a77980     # R-Car V3H
+               - renesas,hscif-r8a77990     # R-Car E3
+               - renesas,hscif-r8a77995     # R-Car D3
+-              - renesas,hscif-r8a779a0     # R-Car V3U
+           - const: renesas,rcar-gen3-hscif # R-Car Gen3 and RZ/G2
+           - const: renesas,hscif           # generic HSCIF compatible UART
  
--      - items:
--          - const: renesas,gpio-r8a779a0  # R-Car V3U
--
        - items:
            - enum:
-+              - renesas,gpio-r8a779a0     # R-Car V3U
-               - renesas,gpio-r8a779f0     # R-Car S4-8
-           - const: renesas,rcar-gen4-gpio # R-Car Gen4
- 
++              - renesas,hscif-r8a779a0     # R-Car V3U
+               - renesas,hscif-r8a779g0     # R-Car V4H
+           - const: renesas,rcar-gen4-hscif # R-Car Gen4
+           - const: renesas,hscif           # generic HSCIF compatible UART
 -- 
 2.25.1
 
