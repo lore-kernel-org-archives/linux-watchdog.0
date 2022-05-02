@@ -2,31 +2,35 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19583C4167B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 13:36:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9DBFC433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 13:45:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235959AbiEBNjh (ORCPT
+        id S1349796AbiEBNsi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 2 May 2022 09:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
+        Mon, 2 May 2022 09:48:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385414AbiEBNiz (ORCPT
+        with ESMTP id S232825AbiEBNsi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 May 2022 09:38:55 -0400
-Received: from michel.telenet-ops.be (michel.telenet-ops.be [IPv6:2a02:1800:110:4::f00:18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B859BBF6D
-        for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 06:35:26 -0700 (PDT)
+        Mon, 2 May 2022 09:48:38 -0400
+X-Greylist: delayed 588 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 02 May 2022 06:45:08 PDT
+Received: from gauss.telenet-ops.be (gauss.telenet-ops.be [195.130.132.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D0412083
+        for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 06:45:08 -0700 (PDT)
+Received: from albert.telenet-ops.be (albert.telenet-ops.be [IPv6:2a02:1800:110:4::f00:1a])
+        by gauss.telenet-ops.be (Postfix) with ESMTPS id 4KsPGt5kzhz4wwlW
+        for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 15:35:18 +0200 (CEST)
 Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:194e:5782:c420:7f87])
-        by michel.telenet-ops.be with bizsmtp
-        id Rpb52700N28fWK506pb5Ue; Mon, 02 May 2022 15:35:18 +0200
+        by albert.telenet-ops.be with bizsmtp
+        id Rpb52700A28fWK506pb5V9; Mon, 02 May 2022 15:35:18 +0200
 Received: from rox.of.borg ([192.168.97.57])
         by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCe-002mrf-PY; Mon, 02 May 2022 15:35:04 +0200
+        id 1nlWCe-002mrd-PI; Mon, 02 May 2022 15:35:04 +0200
 Received: from geert by rox.of.borg with local (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCd-002vAB-VO; Mon, 02 May 2022 15:35:03 +0200
+        id 1nlWCd-002vA0-Ss; Mon, 02 May 2022 15:35:03 +0200
 From:   Geert Uytterhoeven <geert+renesas@glider.be>
 To:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -45,47 +49,67 @@ Cc:     devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
         linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 2/7] dt-bindings: i2c: renesas,rcar-i2c: R-Car V3U is R-Car Gen4
-Date:   Mon,  2 May 2022 15:34:54 +0200
-Message-Id: <a0402ff46027196953fe9c13f60576d40c5aea4c.1651497024.git.geert+renesas@glider.be>
+Subject: [PATCH 0/7] dt-bindings: renesas: R-Car V3U is R-Car Gen4
+Date:   Mon,  2 May 2022 15:34:52 +0200
+Message-Id: <cover.1651497024.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <cover.1651497024.git.geert+renesas@glider.be>
-References: <cover.1651497024.git.geert+renesas@glider.be>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+	Hi all,
+
 Despite the name, R-Car V3U is the first member of the R-Car Gen4
-family.  I2C on R-Car V3U also supports some extra features (e.g. Slave
-Clock Stretch Select), which are supported by other R-Car Gen4 SoCs, but
-not by any other R-Car Gen3 SoC.
+family[1].
 
-Hence move its compatible value to the R-Car Gen4 section.
+Hence this patch series updates various DT binding documents to move
+compatible values for R-Car V3U devices to R-Car Gen4 sections, in
+bindings where the latter already exist.  Other DT binding documents
+will be updated progressively, after adding support for more SoCs in the
+R-Car Gen4 family.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+These patches are intended to be taken by DT or subsystem maintainers.
+Separate patches to update the DTS file[2] and SoC identication code[3]
+are in-flight.
 
-diff --git a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
-index c30107833a5145f9..f9929578c7613f07 100644
---- a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
-@@ -46,11 +46,11 @@ properties:
-               - renesas,i2c-r8a77980     # R-Car V3H
-               - renesas,i2c-r8a77990     # R-Car E3
-               - renesas,i2c-r8a77995     # R-Car D3
--              - renesas,i2c-r8a779a0     # R-Car V3U
-           - const: renesas,rcar-gen3-i2c # R-Car Gen3 and RZ/G2
- 
-       - items:
-           - enum:
-+              - renesas,i2c-r8a779a0     # R-Car V3U
-               - renesas,i2c-r8a779f0     # R-Car S4-8
-           - const: renesas,rcar-gen4-i2c # R-Car Gen4
- 
+Thanks for your comments!
+
+[1] https://www.renesas.com/eu/en/products/automotive-products/automotive-system-chips-socs/r-car-v3u-best-class-r-car-v3u-asil-d-system-chip-automated-driving
+[2] [PATCH] arm64: dts: renesas: r8a779a0: Update to R-Car Gen4 compatible values
+    https://lore.kernel.org/73cea9d5e1a6639422c67e4df4285042e31c9fd5.1651497071.git.geert+renesas@glider.be
+[3] [PATCH] soc: renesas: R-Car V3U is R-Car Gen4
+    https://lore.kernel.org/2bbecad7b6c24c0d5c1797b3f7f0733d5ba33842.1651497066.git.geert+renesas@glider.be
+
+Geert Uytterhoeven (7):
+  dt-bindings: gpio: renesas,rcar-gpio: R-Car V3U is R-Car Gen4
+  dt-bindings: i2c: renesas,rcar-i2c: R-Car V3U is R-Car Gen4
+  dt-bindings: iommu: renesas,ipmmu-vmsa: R-Car V3U is R-Car Gen4
+  dt-bindings: renesas,rcar-dmac: R-Car V3U is R-Car Gen4
+  dt-bindings: serial: renesas,hscif: R-Car V3U is R-Car Gen4
+  dt-bindings: serial: renesas,scif: R-Car V3U is R-Car Gen4
+  dt-bindings: watchdog: renesas,wdt: R-Car V3U is R-Car Gen4
+
+ .../devicetree/bindings/dma/renesas,rcar-dmac.yaml     | 10 ++++------
+ .../devicetree/bindings/gpio/renesas,rcar-gpio.yaml    |  4 +---
+ .../devicetree/bindings/i2c/renesas,rcar-i2c.yaml      |  2 +-
+ .../devicetree/bindings/iommu/renesas,ipmmu-vmsa.yaml  |  4 ++--
+ .../devicetree/bindings/serial/renesas,hscif.yaml      |  2 +-
+ .../devicetree/bindings/serial/renesas,scif.yaml       |  2 +-
+ .../devicetree/bindings/watchdog/renesas,wdt.yaml      |  2 +-
+ 7 files changed, 11 insertions(+), 15 deletions(-)
+
 -- 
 2.25.1
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
