@@ -2,114 +2,135 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9DBFC433F5
-	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 13:45:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91653C433F5
+	for <linux-watchdog@archiver.kernel.org>; Mon,  2 May 2022 15:05:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349796AbiEBNsi (ORCPT
+        id S238931AbiEBPIy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 2 May 2022 09:48:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53852 "EHLO
+        Mon, 2 May 2022 11:08:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232825AbiEBNsi (ORCPT
+        with ESMTP id S238956AbiEBPIx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 May 2022 09:48:38 -0400
-X-Greylist: delayed 588 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 02 May 2022 06:45:08 PDT
-Received: from gauss.telenet-ops.be (gauss.telenet-ops.be [195.130.132.49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D0412083
-        for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 06:45:08 -0700 (PDT)
-Received: from albert.telenet-ops.be (albert.telenet-ops.be [IPv6:2a02:1800:110:4::f00:1a])
-        by gauss.telenet-ops.be (Postfix) with ESMTPS id 4KsPGt5kzhz4wwlW
-        for <linux-watchdog@vger.kernel.org>; Mon,  2 May 2022 15:35:18 +0200 (CEST)
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:194e:5782:c420:7f87])
-        by albert.telenet-ops.be with bizsmtp
-        id Rpb52700A28fWK506pb5V9; Mon, 02 May 2022 15:35:18 +0200
-Received: from rox.of.borg ([192.168.97.57])
-        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCe-002mrd-PI; Mon, 02 May 2022 15:35:04 +0200
-Received: from geert by rox.of.borg with local (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1nlWCd-002vA0-Ss; Mon, 02 May 2022 15:35:03 +0200
-From:   Geert Uytterhoeven <geert+renesas@glider.be>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mon, 2 May 2022 11:08:53 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61AF7E09C;
+        Mon,  2 May 2022 08:05:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1651503889;
+        bh=aJ3JHLVrs8e6RirYuV2oCs4M43xpWB7y1g+S6XmEMCo=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=XjhgOjrzgackXjMpkVN8D2iIcRvZycxB5NwIM0NIU0QiR4jfJM65PfTGvf9SDQ3Kq
+         5C58iF+NEuPlj/ajI1KiHDod/Rs8vZ2Fb3tDj5N+6lN0P0PEylzC9s5MvOwvxyJo+t
+         Zm9+CRR5dRL5K+a2+16+ISK36939/Wmv2RQZ00NA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from longitude ([37.201.215.103]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MoO6M-1oDxXd392m-00oqAD; Mon, 02
+ May 2022 17:04:49 +0200
+Date:   Mon, 2 May 2022 17:04:47 +0200
+From:   Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        linux-clk@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc:     devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
-        linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 0/7] dt-bindings: renesas: R-Car V3U is R-Car Gen4
-Date:   Mon,  2 May 2022 15:34:52 +0200
-Message-Id: <cover.1651497024.git.geert+renesas@glider.be>
-X-Mailer: git-send-email 2.25.1
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2 4/7] dt-bindings: clock: Add Nuvoton WPCM450
+ clock/reset controller
+Message-ID: <Ym/zDx2PQfybo9mm@latitude>
+References: <20220429172030.398011-1-j.neuschaefer@gmx.net>
+ <20220429172030.398011-5-j.neuschaefer@gmx.net>
+ <3c2f2e75-153b-05bf-9878-70fc1c1a81b1@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="iJIm8ItN0stP3fsU"
+Content-Disposition: inline
+In-Reply-To: <3c2f2e75-153b-05bf-9878-70fc1c1a81b1@linaro.org>
+X-Provags-ID: V03:K1:TZdL9LJQvffWCywN7yHsPoZieyCLTqiPONLOMGAo7ZUvz5KCzrs
+ aVVfLiCR8XYIq5pRQdqsgtuSzfW5jxFtVgFoJnT+tdw0gHA3PWNL5a/WpBopwDpv31SOXlk
+ NO4ZumurZWJA2bVke/3KoB/EpXuqC6NUgr/EeqwVqHjVaPNRPiwfcQGPEvRyY9cvrqadFUU
+ OKbY3s4F3KDVkqNZTCwAw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:E7rPTkpJM3M=:THgyq7C721gGP/p0tFEbsg
+ t6HkfFPiIqULbvlKleEjFP5yWBm5QbEDrgmSEekDh1y71bWAXqdABZvnDw1D6qhu+JTJ5xnmm
+ ssz3Wfhf3Rk2RENrfcqjELA1hVGqD4NwIXXnuWQbBM4rQmPxKgWHswIYDTJq3ChLPA3aL/gX3
+ y527ROTiebMuArl6jtyyifasZVjQhl70ibcSw7AfTZX8ByMEQRmgEwwDdwMqYZm1YqxAqi3YQ
+ POcu6UPTSIi0hoSI3QWIP5Iemf9NQtpDTc9M4nF2mmN0daOyUEov2ZWtnLRAIrUkLQL3Ydfpj
+ UyaFmqPjsWUCWmGKBGNVq9KSVro4hCDG4+MhjB3RCExIGoPXr+QTFWaJ1OrkU3kZXv0yiw+RS
+ KzIq62OxYJZEMAAgQOrQmEotd/xX7iNHYapereiOLcswikq0v3kZT9OhptsPuP7xeNa2b24eU
+ jcCjnwTKx4DLVTjpzY+wKLi7fcppp1e2WYxdtSX4iwuxwLeOoxBtz/081k00d+jjAE4Qz9KaB
+ rGO+Nx3qP913N6Ic5FDI2BQ5gvEjFKWlCqhudgElhyYzeGvrcM2pTSx4Vm+24CnJ47RH2/kgp
+ TrYlZ00If+4GTdbTyo4A5bvIkDVZxAurdzZXWR9qt/gFvJw8d0pOzyRACClcNxxncsWbrVjVq
+ VhpnO4+CMyYpRm9mZ9kQnfGnHZUbBE2P1VRtRG4pOBEhBqbI6NuAGW4AOyVluuYYBOOnHCSag
+ ADYxYotr9Mn9uXn1E5V5cSod8RPmXRXWb9MN69I8Q3bw7zEROdKzWoYQNhpG4W/rm/JLJFtRc
+ B7CQu+6zvBlkSVl28kTmVhNWbGKzYrBLAEuh7NwT2kogkgKzXhJHTCmNofENaHq7thhnrXMSW
+ z0zA/5LhHIfG5rE1FElMXCzchjxyq740ZyomeanrqmSKkrM1CzNX58f0/JG+LVi/SF95oPECB
+ GE37J4dLcKOH2Qw099sLmOsWLbTGc+CSlA3ooNKMXwGi1puZ4SsJJfVMhvG9Jw2SOZECRUXu+
+ ZWnnZWI4XnHSLLjgr0VeMn/7N6bM4AS78wwmliS7KfwQTFG3SL8dym+yXZ6mixYbAT5/57YI2
+ aZlfrONZ6xSpR0=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-	Hi all,
 
-Despite the name, R-Car V3U is the first member of the R-Car Gen4
-family[1].
+--iJIm8ItN0stP3fsU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hence this patch series updates various DT binding documents to move
-compatible values for R-Car V3U devices to R-Car Gen4 sections, in
-bindings where the latter already exist.  Other DT binding documents
-will be updated progressively, after adding support for more SoCs in the
-R-Car Gen4 family.
+On Sun, May 01, 2022 at 10:55:37AM +0200, Krzysztof Kozlowski wrote:
+> On 29/04/2022 19:20, Jonathan Neusch=C3=A4fer wrote:
+> > The Nuvoton WPCM450 SoC has a combined clock and reset controller.
+> > Add a devicetree binding for it, as well as definitions for the bit
+> > numbers used by it.
+> >=20
+> > Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+> > ---
+[...]
+> > +  clock-names:
+> > +    items:
+> > +      - const: refclk
+>=20
+> Sorry for not bringing it up earlier - this should be just "ref". Names
+> in values should not have suffixes (so no "tx-dma", "wake-gpio",
+> "ref-clk" etc).
 
-These patches are intended to be taken by DT or subsystem maintainers.
-Separate patches to update the DTS file[2] and SoC identication code[3]
-are in-flight.
+Ok, I'll fix it throughout the patchset.
 
-Thanks for your comments!
 
-[1] https://www.renesas.com/eu/en/products/automotive-products/automotive-system-chips-socs/r-car-v3u-best-class-r-car-v3u-asil-d-system-chip-automated-driving
-[2] [PATCH] arm64: dts: renesas: r8a779a0: Update to R-Car Gen4 compatible values
-    https://lore.kernel.org/73cea9d5e1a6639422c67e4df4285042e31c9fd5.1651497071.git.geert+renesas@glider.be
-[3] [PATCH] soc: renesas: R-Car V3U is R-Car Gen4
-    https://lore.kernel.org/2bbecad7b6c24c0d5c1797b3f7f0733d5ba33842.1651497066.git.geert+renesas@glider.be
+Jonathan
 
-Geert Uytterhoeven (7):
-  dt-bindings: gpio: renesas,rcar-gpio: R-Car V3U is R-Car Gen4
-  dt-bindings: i2c: renesas,rcar-i2c: R-Car V3U is R-Car Gen4
-  dt-bindings: iommu: renesas,ipmmu-vmsa: R-Car V3U is R-Car Gen4
-  dt-bindings: renesas,rcar-dmac: R-Car V3U is R-Car Gen4
-  dt-bindings: serial: renesas,hscif: R-Car V3U is R-Car Gen4
-  dt-bindings: serial: renesas,scif: R-Car V3U is R-Car Gen4
-  dt-bindings: watchdog: renesas,wdt: R-Car V3U is R-Car Gen4
+--iJIm8ItN0stP3fsU
+Content-Type: application/pgp-signature; name="signature.asc"
 
- .../devicetree/bindings/dma/renesas,rcar-dmac.yaml     | 10 ++++------
- .../devicetree/bindings/gpio/renesas,rcar-gpio.yaml    |  4 +---
- .../devicetree/bindings/i2c/renesas,rcar-i2c.yaml      |  2 +-
- .../devicetree/bindings/iommu/renesas,ipmmu-vmsa.yaml  |  4 ++--
- .../devicetree/bindings/serial/renesas,hscif.yaml      |  2 +-
- .../devicetree/bindings/serial/renesas,scif.yaml       |  2 +-
- .../devicetree/bindings/watchdog/renesas,wdt.yaml      |  2 +-
- 7 files changed, 11 insertions(+), 15 deletions(-)
+-----BEGIN PGP SIGNATURE-----
 
--- 
-2.25.1
+iQIzBAABCgAdFiEEvHAHGBBjQPVy+qvDCDBEmo7zX9sFAmJv8ugACgkQCDBEmo7z
+X9uxvg//SxUnanNqiaNcEGDN/q839nwe+ZlnAB+RHsg3zz5Myd3rFgwg+Or75NZS
+6NXE6b32M0p8QIb8AOLUlQjf2Noqu7u7nuF4gmXTwjlyM+p9GgyX+G2X9IpHAJLd
+vtXj++SbRts2AWM5pcvnW8WR2/gKDFg7cqryVZE60uyuc14pb57xCGqKBmdtUxxn
+K6/wugMsEfhB+UPb7gfQL9Equ0ku03lJRKKtdTQTC5uvozRGy5PXX+yYaTpYiPRw
+MiQ0b/8sFmGmRpWvmyG2eGRyGIpQwPMXfngyAaZ2KyTEZ/qqzV1cw5LunC0IWmLI
+OIL4qcz+StrKlk9foTAniJYMksDeeTtYJVkL0dMx3N17q4sHZlb39MpCxFrqhL05
+wnZnIBCQzAhKJISqasd4wzJPc7SifE3lUTEeIqNUXWG+sG+rTtTrjtFbB5RbdHeW
+7YCmEjKGAZ3+EoWphVrDUkrQa/FJxAaITEsa7D0hnEhfcwjJVMD+WYt1wA7RZhDw
+c5rcEfybgjSzVYLDken1hWRXDqG6SglXUvr75AxAnKiYoIiL3E14jLdGiVuT1/9S
+TQDEGIszP+x/mgzBtq+Y/5ri6CvMZmpzgMd80bYOmXmsQv5JHMUVYGhTTLYZ3QBI
+Yi0zPWd1kLdSL49PU7uQYDGl8JDdoo4KRPblZwnP7fQZ3ljjUf4=
+=BKcw
+-----END PGP SIGNATURE-----
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--iJIm8ItN0stP3fsU--
