@@ -2,61 +2,61 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96633C4321E
-	for <linux-watchdog@archiver.kernel.org>; Tue,  3 May 2022 13:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F430C433F5
+	for <linux-watchdog@archiver.kernel.org>; Tue,  3 May 2022 13:02:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235668AbiECNFk (ORCPT
+        id S235719AbiECNGC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 3 May 2022 09:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46250 "EHLO
+        Tue, 3 May 2022 09:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbiECNFh (ORCPT
+        with ESMTP id S235680AbiECNGB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 May 2022 09:05:37 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D2B15811
-        for <linux-watchdog@vger.kernel.org>; Tue,  3 May 2022 06:02:04 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id i19so33245670eja.11
-        for <linux-watchdog@vger.kernel.org>; Tue, 03 May 2022 06:02:04 -0700 (PDT)
+        Tue, 3 May 2022 09:06:01 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D771EAFE
+        for <linux-watchdog@vger.kernel.org>; Tue,  3 May 2022 06:02:29 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id d6so19757423ede.8
+        for <linux-watchdog@vger.kernel.org>; Tue, 03 May 2022 06:02:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
          :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=wjuyFMi3EftK+wExgb79hTBMB0k+0b/v8BwPvQxw7y4=;
-        b=oOvQhBmRi4yPVLzZLUCYGs+BVsIOuNPmOP7zuAv3LXMD5ryY+jr8t0qhKx9q+F29WQ
-         BFUMY9tC0t8775IV0zq6ZGatAqZ8vb+XQPoD5u8WlFYXY9Uh+p91xkYsKG1i6AMM+dea
-         QjUYneOUmX+FKsXrxfDeRI0ClPGkjLAM7MA2UhERQfXsNikqp61+ZKvyowpZMAVC1kcc
-         IE+J4noOuFayzwmzRnfXx3bb+i4h+LEFOJSnIgygLWD/q1uU/+Jj/KuwQbLrnbyGdnyL
-         bI29AB4FWa5i4EPxR51jt+dA0JJVySxiPs/gI4T72agQLr11VJ9FxB4fZ4IyFzsXoqlV
-         6vHg==
+        bh=iV4tVGnh7QHG+PfLI7Q0mYHuyjPaEc/xG5BZIpO4pGA=;
+        b=vlfeNENfF1eD8fgkOGVOtjFsvzln7tEDY/uEOryyt3IHcK5bc03CduITlrE+RmjT9t
+         HkAcbdG/F1yq25CW01RMJG7ZegtpUArT99f7TXV4enR2D5bIaMgR0oSP347XArZCCdpS
+         qGSVQMoY0pywrhjAmsy+EyIiVd3XrNGmKpA7wEeUYOj3/GPonpwV6l21NY2iA4ja9oML
+         7h3cupaTpNJ/0caFjvOLT2aAtApxXPpQt20omxMugYYxJRyy81Lq5aRFR8DbbG6dyOnM
+         90GXzqKSr8WPkPU3me/B2ilh5xwXh6CrlYYYdpjNUcY33g6ag+ddd5hhIfNbf8ogTk8i
+         v/Lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=wjuyFMi3EftK+wExgb79hTBMB0k+0b/v8BwPvQxw7y4=;
-        b=ytI4159PqIDLuCcqukHdUrGRGqJWb2N7de3Q0Lampxvu5Ko4UoHUifi+YIKxDCUwwf
-         pKbhbOXnxW3m6BUqJkOevpwyn26uL/FbGgh+buYAxkzVAfqII5G/hG/+QByQeb2oi7I0
-         3AuuMRyQ2troMt9D4GHW24ZEHMAbOONLwfMorUvVTr8hsnGMg48YKAAfLTX1MacBfnVY
-         UcyxR8OkeIDlWcIHbi71XIQrRDvZO5ILgSh5Yzr74uVR2QFQLvhrtwr7WwCzRZRSW/IR
-         3VC3FYsBH0DOR9sQL3wYQN7xOP/qCSAFtvr/+slUjbfxABEblebK1uED9IZVFX5pR5zv
-         Z+jA==
-X-Gm-Message-State: AOAM532ylVD1KcmYXxIAo5TU5ACj3yEShTQEqq4wOZMedBog0I6dQ4WJ
-        JdYV0Xgdn07CCw/9eZ/ai3Xc3Q==
-X-Google-Smtp-Source: ABdhPJxwG4sLoDPShcHTI6lbe5nIz0+kudelkrlQymVFFYb3TDP1oKvJEVUWereTSbkBgJoKAqV1MA==
-X-Received: by 2002:a17:907:6e28:b0:6f4:6428:6ee8 with SMTP id sd40-20020a1709076e2800b006f464286ee8mr6584030ejc.608.1651582918486;
-        Tue, 03 May 2022 06:01:58 -0700 (PDT)
+        bh=iV4tVGnh7QHG+PfLI7Q0mYHuyjPaEc/xG5BZIpO4pGA=;
+        b=TvWWPuWz+Hr7zZ28WOMf5graWRgGfW3CTSK7gq2iE+F2KZZCtqCJyXqo9eIjHlsuwh
+         WH9SalxUobPCI0h2g4S2VvcdYW0nT6SVz7ej661AQqzurvlqI38WWmmGJc/LDF6FeWqS
+         LQRrSF5q6XdycBonaEQCH/bXCrhWe2CLcWpY3kqqFgtX15DWX+cDAkFv1kJJvpCAVrok
+         19oAyVQFzxhB2PaFi+PHEUjYLCPhEs4qTFttmPSEICIeA81XwJcXDG1mW/KFXzG8Hq4M
+         dEnUzwAj5+R1SWRnCGwrK+4opFGd7rbmirqubqg59/GBxm9BR1jgdmNgZFr7c6K5p1E+
+         FWvw==
+X-Gm-Message-State: AOAM531uKtiqO9TZx+excOtySvGEt01rv8w2LHYj3WQOPDHEcdssAu8l
+        BcPItobC1rC1e98hpe90Xocrw5PPkIJFnQ==
+X-Google-Smtp-Source: ABdhPJwIvyRvYCHNzuAJACjjuKhS9C3I9YB94dUMYFyGqf8a7sXjPP+2fhc+RFrOulXQwqT8A5V5tQ==
+X-Received: by 2002:a05:6402:5107:b0:427:ded9:9234 with SMTP id m7-20020a056402510700b00427ded99234mr4223009edd.275.1651582947612;
+        Tue, 03 May 2022 06:02:27 -0700 (PDT)
 Received: from [192.168.0.203] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id jz26-20020a17090775fa00b006f3ef214e49sm4580080ejc.175.2022.05.03.06.01.56
+        by smtp.gmail.com with ESMTPSA id hg1-20020a1709072cc100b006f3ef214e72sm4579481ejc.216.2022.05.03.06.02.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 May 2022 06:01:57 -0700 (PDT)
-Message-ID: <b854c7b1-b0b5-b921-e6bf-ee88472d2f66@linaro.org>
-Date:   Tue, 3 May 2022 15:01:56 +0200
+        Tue, 03 May 2022 06:02:26 -0700 (PDT)
+Message-ID: <7dec1fb4-1803-838e-291f-10f56b9fe10e@linaro.org>
+Date:   Tue, 3 May 2022 15:02:25 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH 3/7] dt-bindings: iommu: renesas,ipmmu-vmsa: R-Car V3U is
- R-Car Gen4
+Subject: Re: [PATCH 4/7] dt-bindings: renesas,rcar-dmac: R-Car V3U is R-Car
+ Gen4
 Content-Language: en-US
 To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Rob Herring <robh+dt@kernel.org>,
@@ -76,9 +76,9 @@ Cc:     devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
         linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org
 References: <cover.1651497024.git.geert+renesas@glider.be>
- <d351ca12724d5b306119bd8dcd9bfac09ba2a925.1651497024.git.geert+renesas@glider.be>
+ <e6e4cf701f3a43b061b9c3f7f0adc4d6addd4722.1651497024.git.geert+renesas@glider.be>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <d351ca12724d5b306119bd8dcd9bfac09ba2a925.1651497024.git.geert+renesas@glider.be>
+In-Reply-To: <e6e4cf701f3a43b061b9c3f7f0adc4d6addd4722.1651497024.git.geert+renesas@glider.be>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -90,6 +90,9 @@ On 02/05/2022 15:34, Geert Uytterhoeven wrote:
 > family.  Hence move its compatible value to the R-Car Gen4 section.
 > 
 > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  .../devicetree/bindings/dma/renesas,rcar-dmac.yaml     | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
