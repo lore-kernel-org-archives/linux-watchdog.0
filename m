@@ -2,92 +2,112 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 608D6C4332F
-	for <linux-watchdog@archiver.kernel.org>; Wed,  4 May 2022 20:34:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3020EC433F5
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 May 2022 13:05:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356096AbiEDUhk (ORCPT
+        id S1378729AbiEENJG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 4 May 2022 16:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        Thu, 5 May 2022 09:09:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378100AbiEDUhj (ORCPT
+        with ESMTP id S1378754AbiEENIr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 May 2022 16:37:39 -0400
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3F150056;
-        Wed,  4 May 2022 13:34:02 -0700 (PDT)
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-edf3b6b0f2so1997243fac.9;
-        Wed, 04 May 2022 13:34:02 -0700 (PDT)
+        Thu, 5 May 2022 09:08:47 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38AD25674B
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 May 2022 06:05:07 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id n10so8611188ejk.5
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 May 2022 06:05:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sxVJoGvxoT/BfORhwUe0lF83tKeGUQ56jY7vzgfAHU4=;
+        b=Y0K2T7eDDIErEPqMy8O6G47SIMuNV/FV2iBabtCwdZYCRksLJj+E+c7fbrSt9ZBBXD
+         DaXJNvwCp8O95B7G3qBBBXd/ZY5LglYP8OcOlRsRkLkFbnOz5YGjf1+Kq+Cej6sf1PKz
+         8jox3zcMMsB69mnVMtXKZEg+/RyB0rS4FojXfONdqL7k9Dw/I4yA/G/3RFFnSgWC8agR
+         bsZsTNdQJo4ur+mN0mOVzXqc/pW10pVTqbvQpkdO4R2oawKCjQrPZ/LhQquGSb8INoG5
+         zUIcx6Usp3yJ11Kt8LC8bG4AgtPbYUl5xx+MqNZTXX94AuUxIh18hRHgvcWzdek9DC0O
+         2i3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=PE0/mr3CK6LI2EW3G3CcGXz8d3sJvD5z1eOffL3SZjk=;
-        b=1SP7q/suYRiCPJ3lc0mmXbgPUaHyuKYGEwfYMMAao+6wa4RIEgJiiPmEzNDfJK1tfd
-         Mg4JFdGtKhChF7DThRmVySvv5Bs+qNEghF/zoPcYdQWWshqOsfurFVCIzcXaOWZTZb7Y
-         BYSzQKGYR+TFlsrV4gpPvVEHXugZKrO8fwb/4asmc57JFtXJXNf/sez5hsO6vyh/ytBB
-         AvBf2rHn7YKs3awUTn3pZ9WhFSvhwsl2xCx9EQPPMTsmyLAGtKwGxPcTjirBEasLyhmY
-         W4YYiDug+wAmaqKgRH7QdZXMsr7+s5lHZza/mD+YCc5Hl/Fx7Wiqq8+oVPGt0iJQFHzo
-         iN6A==
-X-Gm-Message-State: AOAM533depqa0A+FlyrJX2wobkkzN8x1sIH4UuBVi7YmIxOy2NhQlWQo
-        HXebyefROCOQuVTiuhHPVKq4o7VvXg==
-X-Google-Smtp-Source: ABdhPJzaPpzsZu9OKNhkox9cq3OHRCZ9ylrNs5rWf3k1HTRCFemLek1wCkKpOsQ6zTmeEYZ9rFdaHA==
-X-Received: by 2002:a05:6870:8896:b0:ed:a31a:fbf7 with SMTP id m22-20020a056870889600b000eda31afbf7mr656809oam.273.1651696441692;
-        Wed, 04 May 2022 13:34:01 -0700 (PDT)
-Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id f11-20020a4ae60b000000b0035eb4e5a6bdsm6217952oot.19.2022.05.04.13.34.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 13:34:01 -0700 (PDT)
-Received: (nullmailer pid 2180122 invoked by uid 1000);
-        Wed, 04 May 2022 20:34:00 -0000
-Date:   Wed, 4 May 2022 15:34:00 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>
-Cc:     Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        openbmc@lists.ozlabs.org, Benjamin Fair <benjaminfair@google.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-clk@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
-        linux-watchdog@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Nancy Yuen <yuenn@google.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Patrick Venture <venture@google.com>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v2 1/7] dt-bindings: timer: nuvoton,npcm7xx-timer: Allow
- specifying all clocks
-Message-ID: <YnLjOH+2WMHFV86j@robh.at.kernel.org>
-References: <20220429172030.398011-1-j.neuschaefer@gmx.net>
- <20220429172030.398011-2-j.neuschaefer@gmx.net>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sxVJoGvxoT/BfORhwUe0lF83tKeGUQ56jY7vzgfAHU4=;
+        b=gDkq4wz8BgR2hS73h71IE0C7OMkPnQzATaIg7fpLpxCLUYaO5pFxrE72lY0/t0KPvZ
+         ItYe6NW9IuuZgKP/5/aERwOfxeHNQgJL71167PtlOrBpDFUEEbqcjOISMm3MzuMP0A8r
+         8qS3dKrgHhANIgLHE1hqs1cnUrDrtWinxC7ah5oXD9mkOdMg0/5Y3KHQLMrDvqAIyfEt
+         HBTCzjEM/ZAfA4w00bi0wMk0rX/FKYf4wi07J1uP9sp+g07xo9PN+G28gI2N+NGyrMfJ
+         sXrPn2XS1BZLLd+MCmRByB9ooOR9MODre0R/iFzPmLn6CqnrAchkHe2RyMC/UTwiH0SN
+         v3IA==
+X-Gm-Message-State: AOAM530JQ6qYbvVN9K8KI50JhV5W1xRUYMsgPB9ojJMnOK+2vOrHqANm
+        h5tNFWWqSrW10vvZxetsobDgbbpwO7+GGNYAkX5CqQ==
+X-Google-Smtp-Source: ABdhPJxyNkSLwouP3OR63NyFLRxUlmDS+dFIZZqJlV9mcUABNttg9TsG8+o4n8l4yoY3YgwsQa8BiV83N6jWTpdMxkc=
+X-Received: by 2002:a17:907:3e28:b0:6f4:3900:78f8 with SMTP id
+ hp40-20020a1709073e2800b006f4390078f8mr21714935ejc.736.1651755905797; Thu, 05
+ May 2022 06:05:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220429172030.398011-2-j.neuschaefer@gmx.net>
+References: <cover.1651497024.git.geert+renesas@glider.be> <5628a862688bd9d3b4f6c66cb338671211058641.1651497024.git.geert+renesas@glider.be>
+In-Reply-To: <5628a862688bd9d3b4f6c66cb338671211058641.1651497024.git.geert+renesas@glider.be>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Thu, 5 May 2022 15:04:55 +0200
+Message-ID: <CAMRc=MeQZ_T_AoHUO3qx7oW68UMC6HH9CaC041vYr7wQisqjHA@mail.gmail.com>
+Subject: Re: [PATCH 1/7] dt-bindings: gpio: renesas,rcar-gpio: R-Car V3U is
+ R-Car Gen4
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        devicetree <devicetree@vger.kernel.org>,
+        dmaengine@vger.kernel.org,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        iommu@lists.linux-foundation.org, linux-serial@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, 29 Apr 2022 19:20:24 +0200, Jonathan Neuschäfer wrote:
-> The timer module contains multiple timers. In the WPCM450 SoC, each timer
-> runs off a clock can be gated individually. To model this correctly, the
-> timer node in the devicetree needs to take multiple clock inputs.
-> 
-> Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+On Mon, May 2, 2022 at 3:35 PM Geert Uytterhoeven
+<geert+renesas@glider.be> wrote:
+>
+> Despite the name, R-Car V3U is the first member of the R-Car Gen4
+> family.  Hence move its compatible value to the R-Car Gen4 section.
+>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > ---
-> 
-> v2:
-> - no changes
-> ---
->  .../devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml  | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
+>  Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml b/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
+> index 0681a4790cd62e23..75e5da6a7cc04bbd 100644
+> --- a/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
+> +++ b/Documentation/devicetree/bindings/gpio/renesas,rcar-gpio.yaml
+> @@ -48,11 +48,9 @@ properties:
+>                - renesas,gpio-r8a77995     # R-Car D3
+>            - const: renesas,rcar-gen3-gpio # R-Car Gen3 or RZ/G2
+>
+> -      - items:
+> -          - const: renesas,gpio-r8a779a0  # R-Car V3U
+> -
+>        - items:
+>            - enum:
+> +              - renesas,gpio-r8a779a0     # R-Car V3U
+>                - renesas,gpio-r8a779f0     # R-Car S4-8
+>            - const: renesas,rcar-gen4-gpio # R-Car Gen4
+>
+> --
+> 2.25.1
+>
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
