@@ -2,127 +2,123 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD1DFC433FE
-	for <linux-watchdog@archiver.kernel.org>; Sat,  7 May 2022 19:38:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F550C433F5
+	for <linux-watchdog@archiver.kernel.org>; Sun,  8 May 2022 19:44:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392519AbiEGTmi (ORCPT
+        id S229854AbiEHTsL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 7 May 2022 15:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        Sun, 8 May 2022 15:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346517AbiEGTmh (ORCPT
+        with ESMTP id S229445AbiEHTsK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 7 May 2022 15:42:37 -0400
-Received: from ixit.cz (ip-94-112-206-30.net.upcbroadband.cz [94.112.206.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAF020BE4;
-        Sat,  7 May 2022 12:38:49 -0700 (PDT)
-Received: from newone.lan (_gateway [10.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ixit.cz (Postfix) with ESMTPSA id AA43A2007F;
-        Sat,  7 May 2022 21:38:47 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-        t=1651952327;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=HW4Cx51Vp49UQrokPwRu5HexTiL/GEL06MgcDX2AjBg=;
-        b=QxvMjoKgVNL+cBPygbvBVrGL0vW6gOpO1VuZ5BFNZt+nn9HAyeU05OS/tM2QqUo7k+AYyr
-        wdwkUA24jazqp9hl5zfs8ljPQ4lC6R44ZQSjmNBP4s42LWH3YrYGmTatkIVgj7yZRB7ovE
-        i7p2RO6Vi0Ki9vayvuvJxkNBpPgjQbE=
-From:   David Heidelberg <david@ixit.cz>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sun, 8 May 2022 15:48:10 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED98B849;
+        Sun,  8 May 2022 12:44:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1652039024;
+        bh=mGjWYLEwtu+ry5GXvt2ravbif89/+OFp+v9Ndwokqdo=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=KPG+FxkKQDZ5nsfn9b/rDbyRj/EIqKAafJrmd0UKHk3sF7F0EpIr9E0HuW+sj9MmE
+         F6jSp87+YhIrpWvSy/70KQZZgiUasjqmT3gk+bqpdehgm0Tu1LSAxs+xcWauIFHWJO
+         LN0zyxBJ2Q90EaNevt4+QnKnN3sWHZxrhChH4Y5M=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from longitude ([37.201.215.103]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1M59C8-1noskF3cxw-001D9L; Sun, 08
+ May 2022 21:43:43 +0200
+From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     linux-clk@vger.kernel.org, openbmc@lists.ozlabs.org
+Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc:     David Heidelberg <david@ixit.cz>, Rob Herring <robh@kernel.org>,
-        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3] dt-bindings: watchdog: improve QCOM compatible parsing for modern chips
-Date:   Sat,  7 May 2022 21:38:45 +0200
-Message-Id: <20220507193846.35487-1-david@ixit.cz>
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v3 1/7] dt-bindings: timer: nuvoton,npcm7xx-timer: Allow specifying all clocks
+Date:   Sun,  8 May 2022 21:43:26 +0200
+Message-Id: <20220508194333.2170161-2-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220508194333.2170161-1-j.neuschaefer@gmx.net>
+References: <20220508194333.2170161-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam: Yes
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:+B8D9NNv1GquKXyh+yewe8u/YXwDSp0omRF9EcPdcedfR2AXylE
+ J1AAfDCtk1qY+HAxFunLVRrV18OJHIvc7EDyOOtcTwouPCChp/DNsHnUQHZDqgWERyuPagV
+ X3P1BvR4gdkav6U/K/2NPsrhWLngw/NR5mURmKEnd+ZzDRYHM7q7F0VB6IL7wxqCkulSdi9
+ N3W8ciYjZX4nRwIkhXYvg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:3V62gOaobJc=:u7MPmttD/cbQagij6o+M6e
+ A1ZgpIfOP04t2VpF2yls4Fr1yKyPFRpoJAVOsfVK3lip+W4IH6N1atgx+OYVetTttNeE6sJe8
+ UFvKAKZ7rIDLPMnxXkzCQ1HTarfQ8W+Zdsks+9dSjg25zN1RbNF+wUUfeS1qBa4yj21neK38i
+ +FsmfZSiHWlv9dIa14fF+lceiHFEElLdVfZK1uj+YZbqPveniamE8ccpQIK0/U1xuFaFgCKsU
+ 6CsIy0FsbEE9DdBDpwL0FDsfkAUHJ8CLvvIVEtmHIAf8Xo3YId+07sCAZLFKCPH12bvRQPqSx
+ AtdPOYd+4htYu86XBjRSkKiHSkG9w2hG/XtTEGea32xKLScSm7Mue2rPzc1PhK8FyelEb3Fhk
+ kfB65E7zXM3FTwmUcSkZKQsMSHpsobQpHu7t3+mYvYFt0E3iVe3ld0dsWUGL7l8/0veOTPTdk
+ Hfl89lyE9m/kuTbw2DycNFTu08GAlP3+8hfpCdI8Qbp0GvmYlYqyGDOlAJ3sZCqZor6+x1OkE
+ fks595DFnq3ROcqdSVcSqvtx5Gp5WLVrAwAp+pC0MyzboFr/0erS1Wosk6O6QCSrc+xrGw4Du
+ s9ZnU7q9PXs6aiR06M8ckI4AZuIUlxggw8Aa1lGiOh69MokAfR3mnxSZ83zwopw0Np1eYRneb
+ 5mkm5b3cok+GZ8QLShpqXTBICOXyzxW9/d1gXsL7PY7QfCvjA6y8IvFt/8n60BT+Jxj6YMfsl
+ EvTPmKJSW3pcYtthQu5mPTaR9BL3KvcHzROGLEFbAszRf6BhamQJx8zWC7oGL9NAzEowy/ZIE
+ 39fepLWo06hJoD64GqoCZmf6uQ6gK/wV8Y8EcIGhBe5yRniHbRo43EzVlwppfdWCjwYASYEca
+ QQRS3fC1+C71MdUIpJdvuRq9k85w7VejOD/Oj5bLgM1/5EihGiA0CsjHWs/m5Sjw3633cTci2
+ tdmO2yicl189R7qgV92XYLkvyVi2TL/C+WASWvEkZ8F4VwBKk289fpCssVSTDQRCud5PwkTpU
+ AGVvu1qOjbkaFI/DRQsk+P2ODF8N6DLo9cKituwDI3IwO8qU7ifhLkfAnKzWfMAIcD64b30/8
+ 6v6fStfcg2PBro=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Parse compatible as expected for modern QCOMs.
+The timer module contains multiple timers. In the WPCM450 SoC, each timer
+runs off a clock can be gated individually. To model this correctly, the
+timer node in the devicetree needs to take multiple clock inputs.
 
-Fixes warnings as:
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: watchdog@17980000: compatible: ['qcom,apss-wdt-sdm845', 'qcom,kpss-wdt'] is too long
-        From schema: Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: watchdog@17980000: compatible: Additional items are not allowed ('qcom,kpss-wdt' was unexpected)
-        From schema: Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 Reviewed-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
-v2:
- - updated compatible list as two compatibles has been added upstream
- -> resolve merge conflict
+=2D--
+
 v3:
- - rebased, added Guenter R-b
+- Add R-b tag
 
- .../bindings/watchdog/qcom-wdt.yaml           | 37 +++++++++++--------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+v2:
+- no changes
+=2D--
+ .../devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml  | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-index 16c6f82a13ca..4ff8c59c59ab 100644
---- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-@@ -14,22 +14,27 @@ allOf:
- 
- properties:
-   compatible:
--    enum:
--      - qcom,apss-wdt-qcs404
--      - qcom,apss-wdt-sc7180
--      - qcom,apss-wdt-sc7280
--      - qcom,apss-wdt-sdm845
--      - qcom,apss-wdt-sdx55
--      - qcom,apss-wdt-sm6350
--      - qcom,apss-wdt-sm8150
--      - qcom,apss-wdt-sm8250
--      - qcom,kpss-timer
--      - qcom,kpss-wdt
--      - qcom,kpss-wdt-apq8064
--      - qcom,kpss-wdt-ipq4019
--      - qcom,kpss-wdt-ipq8064
--      - qcom,kpss-wdt-msm8960
--      - qcom,scss-timer
-+    oneOf:
-+      - items:
-+          - enum:
-+              - qcom,apss-wdt-qcs404
-+              - qcom,apss-wdt-sc7180
-+              - qcom,apss-wdt-sc7280
-+              - qcom,apss-wdt-sdm845
-+              - qcom,apss-wdt-sdx55
-+              - qcom,apss-wdt-sm6350
-+              - qcom,apss-wdt-sm8150
-+              - qcom,apss-wdt-sm8250
-+          - const: qcom,kpss-wdt
-+      - items:
-+          - enum:
-+              - qcom,kpss-wdt
-+              - qcom,kpss-timer
-+              - qcom,kpss-wdt-apq8064
-+              - qcom,kpss-wdt-ipq4019
-+              - qcom,kpss-wdt-ipq8064
-+              - qcom,kpss-wdt-msm8960
-+              - qcom,scss-timer
- 
-   reg:
-     maxItems: 1
--- 
+diff --git a/Documentation/devicetree/bindings/timer/nuvoton,npcm7xx-timer=
+.yaml b/Documentation/devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml
+index 0cbc26a721514..023c999113c38 100644
+=2D-- a/Documentation/devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml
++++ b/Documentation/devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml
+@@ -23,7 +23,13 @@ properties:
+       - description: The timer interrupt of timer 0
+
+   clocks:
+-    maxItems: 1
++    items:
++      - description: The reference clock for timer 0
++      - description: The reference clock for timer 1
++      - description: The reference clock for timer 2
++      - description: The reference clock for timer 3
++      - description: The reference clock for timer 4
++    minItems: 1
+
+ required:
+   - compatible
+=2D-
 2.35.1
 
