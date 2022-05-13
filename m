@@ -2,88 +2,68 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D78F7C433EF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 12 May 2022 09:58:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32A5AC433F5
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 May 2022 08:10:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352321AbiELJ6i (ORCPT
+        id S1378093AbiEMIKT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 12 May 2022 05:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        Fri, 13 May 2022 04:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352324AbiELJ6h (ORCPT
+        with ESMTP id S1378089AbiEMIKS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 May 2022 05:58:37 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDBC22EA61;
-        Thu, 12 May 2022 02:58:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652349516; x=1683885516;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6GELAe/ApmVBKafQ2S7vNKp/RtrglRXEhF1UXL6PS3M=;
-  b=P+ra6eRELOFYjAUEjyMlWl0p89RWLxKiY+3ScAYLNvk3hurrRzLuv4D7
-   +IjAW9wJ6vKncHus1aPePHCP2Gm32Dz3MSHaahQwn3j0XHjQksjtqysrk
-   dHKVgFlKrfn5WZq+KU0h8GUE63EEFZTtAaNeA40VIELXAuVifdo03355q
-   Jzz23VPGxtGHBNhhMtmMGZrF1T1WvBejg5ZSp3QDCDYUutbCjISNgAXZw
-   mz+mVwkjYN1tjCXKghJ64PEU7mVFXOmuwrsfitkH1OLRcp8+FSNs3HZba
-   J7CoyLPYvstmFTm9Ebak8Vw3qLfB4eUTw1E6ea8uZjGSeL85LAlU5gzxZ
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10344"; a="249850492"
-X-IronPort-AV: E=Sophos;i="5.91,219,1647327600"; 
-   d="scan'208";a="249850492"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2022 02:58:34 -0700
-X-IronPort-AV: E=Sophos;i="5.91,219,1647327600"; 
-   d="scan'208";a="542705299"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2022 02:58:31 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1np5aV-00F9q1-T7;
-        Thu, 12 May 2022 12:58:27 +0300
-Date:   Thu, 12 May 2022 12:58:27 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Henning Schild <henning.schild@siemens.com>
-Cc:     Mark Gross <markgross@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, Enrico Weigelt <lkml@metux.net>,
-        Gerd Haeussler <gerd.haeussler.ext@siemens.com>
-Subject: Re: [PATCH v2 4/4] leds: simatic-ipc-leds-gpio: add GPIO version of
- Siemens driver
-Message-ID: <YnzaQxProKeOkR41@smile.fi.intel.com>
-References: <20220511153905.13980-1-henning.schild@siemens.com>
- <20220511153905.13980-5-henning.schild@siemens.com>
- <20220512104424.1430c9a3@md1za8fc.ad001.siemens.net>
+        Fri, 13 May 2022 04:10:18 -0400
+Received: from mail.coredeal.pl (mail.coredeal.pl [51.75.73.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C84F2A4A2B
+        for <linux-watchdog@vger.kernel.org>; Fri, 13 May 2022 01:10:17 -0700 (PDT)
+Received: by mail.coredeal.pl (Postfix, from userid 1002)
+        id 93E08A2C6E; Fri, 13 May 2022 08:06:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=coredeal.pl; s=mail;
+        t=1652429226; bh=9KGuIG62LgzC9aYmjKxzocuYLRCVghXg6v9Q1q2LHec=;
+        h=Date:From:To:Subject:From;
+        b=mex2pjLTUv5MfaQ+uCy/8fhkx/EQZFDAYE/83Ejn/Xq56EbBImY8BeFWH1hUW5XyI
+         hC8ZTuZnNa+9AxY3hWlGblhIw3Sv2bdtez4jx/00dcbftFGa94cRkQ9AUsUDKzgnvc
+         Z1MVd1sKLpzOAM7r4Ep/fQZylIBCQU8qtdsRGBjjdpsGTIAYN8pIJLWtAEhlIq1dZ7
+         blXbALCXfGzt0C06cFTVBVd3w5nO1WIgksKjrGWYugGZ7QvTsmMInWNxSEswDw/mIJ
+         EG3ymSIJVe9Rq94jUAMPUz3M0OWoDLNAHsli15EHM9CZ5aZP0ftqaxxVOFM7W/Srw5
+         t+JizSZNYBiFg==
+Received: by mail.coredeal.pl for <linux-watchdog@vger.kernel.org>; Fri, 13 May 2022 08:05:55 GMT
+Message-ID: <20220513064500-0.1.33.o13r.0.6k5dq5cugz@coredeal.pl>
+Date:   Fri, 13 May 2022 08:05:55 GMT
+From:   "Krzysztof Maj" <krzysztof.maj@coredeal.pl>
+To:     <linux-watchdog@vger.kernel.org>
+Subject: Biznesowy angielski
+X-Mailer: mail.coredeal.pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220512104424.1430c9a3@md1za8fc.ad001.siemens.net>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, May 12, 2022 at 10:44:24AM +0200, Henning Schild wrote:
-> Am Wed, 11 May 2022 17:39:05 +0200
-> schrieb Henning Schild <henning.schild@siemens.com>:
+Dzie=C5=84 dobry,=20
 
-...
+czy rozwa=C5=BCali Pa=C5=84stwo rozw=C3=B3j kwalifikacji j=C4=99zykowych =
+swoich pracownik=C3=B3w?
 
-> > +config LEDS_SIEMENS_SIMATIC_IPC_GPIO
-> 
-> I wonder if i really should introduce a new switch here or just carry
-> this one under LEDS_SIEMENS_SIMATIC_IPC
-> 
-> For a v3 i will likely put two modules under that one config switch.
+Opracowali=C5=9Bmy kursy j=C4=99zykowe dla r=C3=B3=C5=BCnych bran=C5=BC, =
+w kt=C3=B3rych koncentrujemy si=C4=99 na podniesieniu poziomu s=C5=82owni=
+ctwa i jako=C5=9Bci komunikacji wykorzystuj=C4=85c autorsk=C4=85 metod=C4=
+=99, stworzon=C4=85 specjalnie dla wymagaj=C4=85cego biznesu.=20
 
-For me either is okay, but I'm not a LED maintainer.
+Niestandardowy kurs on-line, dopasowany do profilu firmy i obszar=C3=B3w =
+=C5=9Bwiadczonych us=C5=82ug, w szybkim czasie przyniesie efekty, kt=C3=B3=
+re zwi=C4=99ksz=C4=85 komfort i jako=C5=9B=C4=87 pracy, rozwijaj=C4=85c m=
+o=C5=BCliwo=C5=9Bci biznesowe.=20
 
--- 
-With Best Regards,
-Andy Shevchenko
+Zdalne szkolenie j=C4=99zykowe to m.in. zaj=C4=99cia z native speakerami,=
+ kt=C3=B3re w szybkim czasie naucz=C4=85 pracownik=C3=B3w rozmawia=C4=87 =
+za pomoc=C4=85 jasnego i zwi=C4=99z=C5=82ego j=C4=99zyka Business English=
+=2E
+
+Czy m=C3=B3g=C5=82bym przedstawi=C4=87 wi=C4=99cej szczeg=C3=B3=C5=82=C3=B3=
+w i opowiedzie=C4=87 jak dzia=C5=82amy?=20
 
 
+Pozdrawiam
+Krzysztof Maj
