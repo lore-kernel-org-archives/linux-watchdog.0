@@ -2,58 +2,58 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4893CC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAA5BC43217
 	for <linux-watchdog@archiver.kernel.org>; Fri, 13 May 2022 08:37:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378384AbiEMIhH (ORCPT
+        id S1378391AbiEMIhI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 May 2022 04:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50080 "EHLO
+        Fri, 13 May 2022 04:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357443AbiEMIhH (ORCPT
+        with ESMTP id S1378276AbiEMIhH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 13 May 2022 04:37:07 -0400
-Received: from EUR05-AM6-obe.outbound.protection.outlook.com (mail-am6eur05on2069.outbound.protection.outlook.com [40.107.22.69])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBD8F26272A;
-        Fri, 13 May 2022 01:37:05 -0700 (PDT)
+Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-eopbgr70052.outbound.protection.outlook.com [40.107.7.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495E426273E;
+        Fri, 13 May 2022 01:37:06 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aXW739Bh8i3dtNieaVy4uLMrVgizznx9cT0X4Eo6cysejPemuk9uFEHlX1zoQalTz5frPE+Aj9q/2gJloZGN4vSo+fGg8JCZnQK1FIfjvX+meFyGbETSmRnXtx+SV4EfHS8uPFdwSZWbu0OmUeL2Omx5zOLhuYnubioDxkngfK2DqhwiWtH+kgaIvSdz8aZowCNpKb4yrHKEorJuAlhou/0E10wgSzD5BXsFCrdT+O0JAdH6tE7wCA23d1MH7d2tP60ViQARboLrkhuCTglExyGWkeuqNiP6lwdI15cza1xeDYck/J42kspIMXgqjkkT0TBnCGW6R/Uq8lBFWFsQ3A==
+ b=EA5e4SKJxkEgam/g/N7xtfQUZuiWPlLQOwO1SEIBMml8hrWXlqcQxNsW+jQNEGtBwuCTL88cFwgnr1Wy/rTASwbOnT8ZYD0Z8Um4IOcs5NwVlEV56w4PcY8He32PPaCSYAH2WzGPrRuoySVmc0aE2e8RgFSlVMQkAOsEh8P+gcgG+fOP07SbowmD5mVdAQPhwckfgLdHakf12+zbPZ5/Jhf55+bn9f0mR8Y46qcGUgl9Kf/UTDP9Gqkm7qNIlPjwm6SlctL7WvWKXNJ1N7dEnk0q8dVH9HhqZu/nXeT2sHV7rR2XK2kHijpDG/bGafa38IyyT6Kl76vYEJ8Eqbsv+g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fCMBtJbMyV/cjCfQO+Fr9l/MGok0Uze7XYprSk3Xbiw=;
- b=OcWPTh0SPLHqhiMQCTNyiauPuhO1iqheud8Z1VN0iB721r5Ciy0KCyaV/dPaLxuRxAKFqOJFprEVCBoRVZj425Xkp91to2dg5HNO1gUXJfy+pPlnw6zQF2c57rW3fSWSlu+yK/kfWEZ1yq1jojjRtoMFLAWhcOJPWfn9C6Dt2kha6Rqsem1Y2sCnNOcQH9ky2cQSmYs0OisBEZdTjDnnj/efgSP0Akf3FmahsPryRFxtbYwEg64SwB6ygv99vist0YhMuForPvKC1+oOt+Q3yghyWgja9S68y3P04RLU0R7SRDV4VIPgOVcCj4I/EBKdGRouW5+UdKJ7IiN2sn5q+g==
+ bh=g/bvzut7vDPs6Qu42tMSsNBM1KLXMXM7ArXnJxh9Qi4=;
+ b=Jl5VFKN6j5JnGzVypZQ5mXs/CtgQl4ofFdRy7va+iWhHDY9isv1u89OQNrWiAhLtavQwcA8xwfHsPQqNr7iS3J/jQO95BYM6uK3Sku7GI4jLvOmFlZWQYCuMRiaarbiUXrobgg3PkvsU4kdThRTbWhwfDecfZPRV48/ih5ZhPNl57ptERSJXW2X767TvgWTeeKNqtyL6kP6uedLdox+6BfFpJDEKVQMskMMCP00qgpIRUKcTkoAef3NOaFr4izbPFmYToY/s03JYbilo2eZ+DMmmZsuPsD3452OcI8sRNJbr02QNitDKkZ2KU5TtO/dyozYZpYgHH7Cm/lWjfi8O5A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 194.138.21.70) smtp.rcpttodomain=linux.intel.com smtp.mailfrom=siemens.com;
+ 194.138.21.73) smtp.rcpttodomain=linux.intel.com smtp.mailfrom=siemens.com;
  dmarc=pass (p=none sp=none pct=100) action=none header.from=siemens.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=siemens.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fCMBtJbMyV/cjCfQO+Fr9l/MGok0Uze7XYprSk3Xbiw=;
- b=WIq07T09k3xq8BNamWQkVXKfNefCCEF2DdGYp21s3TkKpI7wPlYDeGTc8+g676fAEq4y5722zUT9+z7cp4Rg4JrRtd1kiafeQwh29ZMfF0BOQPErta/DWqQVG44J/ZgkCvqqU3KwcXndIf2Xftn2BzDJ3ppbUa4z5TzP3TM1sKi0dU8k+2sZMzz1FHqUwyVWp+A23MyO/6jfxO0dtHWZRwsJ12cmdE1UBATh4Eq8Oo0rmUq5JiHaFJDDGnzbpmJz6tFP6nPbsTxXUlnp6zPNcB3IBYyYDPo4jJmCaOBwsq8zk4qG6InSfHBIKWc31JzYuS3zdtJ3sT/sH9H2VhXxvQ==
-Received: from AS9PR06CA0780.eurprd06.prod.outlook.com (2603:10a6:20b:484::35)
- by AM7PR10MB3624.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:13e::24) with
+ bh=g/bvzut7vDPs6Qu42tMSsNBM1KLXMXM7ArXnJxh9Qi4=;
+ b=z/t8LAziRB251j2aq8EtSohVI4kdC2RKaNo0j6uIDZbki26HikS0kQIlp7LyGHkBEaVtVGqU3kt80DQzL0me3daVpWXQ+9PNNaoqODTIho6X5eFSkhW3IJ+2nzjeqpf4a1E3lJjS15jGXk8vHY/JUP7ssbm08EEl5lerCvC9MtHXx/6FfDwLMv7cmnIroY5ebaXNAlJejA7CADdEXdHsgu4BNi1DwifybiG28NfZh7v0iXSTx5TypAVaHqVr024X+RDlYbqFTg/pLNqJGjvZOoKAG7zh6xOx3dkdlktBGf/NnCLsHqp0WfgOu8c/u0sU2+S8Xxw8Pak63qubE1NHtg==
+Received: from DBBPR09CA0004.eurprd09.prod.outlook.com (2603:10a6:10:c0::16)
+ by GVXPR10MB5792.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:150:6e::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.13; Fri, 13 May
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5227.21; Fri, 13 May
  2022 08:37:03 +0000
-Received: from VE1EUR01FT055.eop-EUR01.prod.protection.outlook.com
- (2603:10a6:20b:484:cafe::f8) by AS9PR06CA0780.outlook.office365.com
- (2603:10a6:20b:484::35) with Microsoft SMTP Server (version=TLS1_2,
+Received: from DB5EUR01FT039.eop-EUR01.prod.protection.outlook.com
+ (2603:10a6:10:c0:cafe::6a) by DBBPR09CA0004.outlook.office365.com
+ (2603:10a6:10:c0::16) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.13 via Frontend
  Transport; Fri, 13 May 2022 08:37:03 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 194.138.21.70)
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 194.138.21.73)
  smtp.mailfrom=siemens.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=siemens.com;
 Received-SPF: Pass (protection.outlook.com: domain of siemens.com designates
- 194.138.21.70 as permitted sender) receiver=protection.outlook.com;
- client-ip=194.138.21.70; helo=hybrid.siemens.com;
-Received: from hybrid.siemens.com (194.138.21.70) by
- VE1EUR01FT055.mail.protection.outlook.com (10.152.3.104) with Microsoft SMTP
+ 194.138.21.73 as permitted sender) receiver=protection.outlook.com;
+ client-ip=194.138.21.73; helo=hybrid.siemens.com;
+Received: from hybrid.siemens.com (194.138.21.73) by
+ DB5EUR01FT039.mail.protection.outlook.com (10.152.5.18) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.20.5250.13 via Frontend Transport; Fri, 13 May 2022 08:37:03 +0000
 Received: from DEMCHDC8A0A.ad011.siemens.net (139.25.226.106) by
- DEMCHDC9SJA.ad011.siemens.net (194.138.21.70) with Microsoft SMTP Server
+ DEMCHDC9SNA.ad011.siemens.net (194.138.21.73) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.1.2375.24; Fri, 13 May 2022 10:37:02 +0200
 Received: from md1za8fc.ad001.siemens.net (139.25.69.210) by
@@ -70,10 +70,12 @@ CC:     Mark Gross <markgross@kernel.org>,
         <linux-watchdog@vger.kernel.org>, Enrico Weigelt <lkml@metux.net>,
         Gerd Haeussler <gerd.haeussler.ext@siemens.com>,
         Henning Schild <henning.schild@siemens.com>
-Subject: [PATCH v3 0/4] simatic-ipc additions to p2sb apl lake gpio
-Date:   Fri, 13 May 2022 10:36:48 +0200
-Message-ID: <20220513083652.974-1-henning.schild@siemens.com>
+Subject: [PATCH v3 2/4] watchdog: simatic-ipc-wdt: convert to use P2SB accessor
+Date:   Fri, 13 May 2022 10:36:50 +0200
+Message-ID: <20220513083652.974-3-henning.schild@siemens.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220513083652.974-1-henning.schild@siemens.com>
+References: <20220513083652.974-1-henning.schild@siemens.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -82,63 +84,103 @@ X-ClientProxiedBy: DEMCHDC89XA.ad011.siemens.net (139.25.226.103) To
  DEMCHDC8A0A.ad011.siemens.net (139.25.226.106)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 89f26962-4374-494f-f443-08da34bbc12b
-X-MS-TrafficTypeDiagnostic: AM7PR10MB3624:EE_
-X-Microsoft-Antispam-PRVS: <AM7PR10MB36240FB8A3AAA2E511A3BE6985CA9@AM7PR10MB3624.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Office365-Filtering-Correlation-Id: a434ec37-4ade-4c53-c2aa-08da34bbc167
+X-MS-TrafficTypeDiagnostic: GVXPR10MB5792:EE_
+X-Microsoft-Antispam-PRVS: <GVXPR10MB579289AD2B1D002D1318577985CA9@GVXPR10MB5792.EURPRD10.PROD.OUTLOOK.COM>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: mZl7k87cQH3CWIC6pVJ8QUH2+wH7tMYuQDQLIGCcQmjc1NEs+h0//tFcTT7phBtchd3cqq23/F0qxpja7IDbd/neGFY4exB/JcTkzEa4bBEmSxVN61cnY15wykn5WpodcfxGJ45jVMo2Q+bX6yFENpZ6xOF/FBOnMzBXJqpuiA9xPKBlrwEgqDydrlYOzlVVRUepvLiW0fwIWZovw37HmkQb7txuuAfSIRmxM/xET1UhUXRbog0xhLZEguTOrZjRsgTu5X5UJe1YXYCy8ohIlR79zYfumoHZcM9BWcVrHZj3Sr9LUeUqRAYbaFBdHTFf9FEo4wwXb4PoQpO/p/n81+pkJzfj1Lc+f6kmt3tcL3V8WyOxtQ/7JnLrSwbaQVQFwe+Zd9pMuREB7kuGc6qs/bfRXfEBv6zMQ76XELA2fShDDvcYJucqaR2uJokg9MGRhyS3BX/1fv+b0R419w1olrSIJUqi7pjUI7bUTBh21Felw8j1JcZRkCGn7kJi1fj6v3nLbEUIwMT8xIb6WVMqP51oDQKPhXv7I8WseC9lQHVkrXiU5yzVWzlZc6tffGQ9/MQ4cJDF73WcSEmTE2LH5XJTq/C1nvcOAsIv522qGisM+jAOZwE4a+p9jEvcNDOgQV8wpT6+k5pSvo+lYDM3i6F+H61pmHl99l2FEuB245w5aDSEuz4/h6utkU5OBDml
-X-Forefront-Antispam-Report: CIP:194.138.21.70;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:hybrid.siemens.com;PTR:hybrid.siemens.com;CAT:NONE;SFS:(13230001)(4636009)(40470700004)(46966006)(36840700001)(36756003)(186003)(16526019)(36860700001)(82310400005)(356005)(107886003)(2616005)(956004)(40460700003)(26005)(508600001)(1076003)(336012)(316002)(47076005)(6916009)(2906002)(54906003)(70206006)(70586007)(5660300002)(86362001)(6666004)(7636003)(83380400001)(7596003)(82960400001)(4326008)(8676002)(44832011)(8936002);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: HM8HVcro9pWg/W8xmDX1W9SAUYVfOQmgZ8QtpR1UEkZZx6pgXRL13x6SUV0Y9sheFy8jr0WKtzUPXJpxOePx03GxFbWCLhGmwluYGEfNojlARpYNFBPd4ggB+sEAqjzMcpZRw1wzhE512fxOjfaPnfuJVhH+9/xA5Y3QL0zgd/G4XYMVMI6iKbfsOipIELeTOXWoDa/3l57r2Zmv1Yals5UAi18gAOKfVm5/w5GNhB7QNPmaSu2p4E5FmJRpNV2HW37uip8HxG+qSH4hTNMPSZ0mP/3aFrdZvQHMMSXkuoV4cHYtpTsUXPLlvv7Gy4+N95IxgJ7z0uh/e/bO3ZYRwd69UazUAPU5AfjCJOKQp5KMn0w8+Wvr3RQl27kHFf8kOvyBylQ+jvCzAx+eB3zCY5bwFpZF2NDtsY8X2WG/XIstVm1oY7GA3xMz11mj+t5ttPI/8bn4jmUxtMyF+qIuYd/zxUVEFPDjXDulwZuc3/N6uv1nE6jb8XxRf2mVmr6YnTeWdYj3XEZHBK+pc6FRJcEEngbIr5cqeTtmcywCN81FGOmnev53AmB94yeBBFqFMAd3p2+Pw9eDEyaW64yQVtR2ha1tEmZq4q9k8FY/4P4WpbciGKeaM8Q59qBcduIcgMVLh1gQLDxkpojTMt5UikBu4zFZDQVyeoBMUPsZh7b+6ZCFBQJ3/9AMS2F5GpcCwBHJGpvJTXdMHzPCIPd2UQ==
+X-Forefront-Antispam-Report: CIP:194.138.21.73;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:hybrid.siemens.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(2906002)(70586007)(54906003)(4326008)(70206006)(81166007)(107886003)(6916009)(8676002)(336012)(47076005)(2616005)(82310400005)(16526019)(186003)(36860700001)(956004)(356005)(82960400001)(40460700003)(36756003)(83380400001)(6666004)(8936002)(1076003)(508600001)(316002)(5660300002)(26005)(86362001)(44832011)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: siemens.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2022 08:37:03.0289
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2022 08:37:03.4052
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 89f26962-4374-494f-f443-08da34bbc12b
+X-MS-Exchange-CrossTenant-Network-Message-Id: a434ec37-4ade-4c53-c2aa-08da34bbc167
 X-MS-Exchange-CrossTenant-Id: 38ae3bcd-9579-4fd4-adda-b42e1495d55a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38ae3bcd-9579-4fd4-adda-b42e1495d55a;Ip=[194.138.21.70];Helo=[hybrid.siemens.com]
-X-MS-Exchange-CrossTenant-AuthSource: VE1EUR01FT055.eop-EUR01.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38ae3bcd-9579-4fd4-adda-b42e1495d55a;Ip=[194.138.21.73];Helo=[hybrid.siemens.com]
+X-MS-Exchange-CrossTenant-AuthSource: DB5EUR01FT039.eop-EUR01.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR10MB3624
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR10MB5792
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-changed since v2:
- - put GPIO led module under same config switch
- - some style changes from review
- - init gpios with gpiod_get_index and drop gpiod_set_value
- - drop bogus "if" from watchdog Kconfig
+Since we have a common P2SB accessor in tree we may use it instead of
+open coded variants.
 
-changed since v1:
- - rebased
- - split p1 into p1-3
+Replace custom code by p2sb_bar() call.
 
-This switches the simatic-ipc modules to using the upcoming p2sb 
-interface introduced by Andy with 
-"platform/x86: introduce p2sb_bar() helper".
-The series relies on these p2sb changes already applied and Andy will
-likely take them into his series at some point.
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+---
+ drivers/watchdog/Kconfig           |  1 +
+ drivers/watchdog/simatic-ipc-wdt.c | 15 ++++++++-------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-It also switches to one apollo lake device to using gpio leds.
-
-Henning Schild (4):
-  leds: simatic-ipc-leds: convert to use P2SB accessor
-  watchdog: simatic-ipc-wdt: convert to use P2SB accessor
-  platform/x86: simatic-ipc: drop custom P2SB bar code
-  leds: simatic-ipc-leds-gpio: add GPIO version of Siemens driver
-
- drivers/leds/simple/Kconfig                   |   6 +-
- drivers/leds/simple/Makefile                  |   1 +
- drivers/leds/simple/simatic-ipc-leds-gpio.c   | 105 ++++++++++++++++++
- drivers/leds/simple/simatic-ipc-leds.c        |  80 +------------
- drivers/platform/x86/simatic-ipc.c            |  43 +------
- drivers/watchdog/Kconfig                      |   1 +
- drivers/watchdog/simatic-ipc-wdt.c            |  15 +--
- .../platform_data/x86/simatic-ipc-base.h      |   2 -
- 8 files changed, 126 insertions(+), 127 deletions(-)
- create mode 100644 drivers/leds/simple/simatic-ipc-leds-gpio.c
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index a7cd3ef5b3d8..0097fbb455ab 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1639,6 +1639,7 @@ config SIEMENS_SIMATIC_IPC_WDT
+ 	tristate "Siemens Simatic IPC Watchdog"
+ 	depends on SIEMENS_SIMATIC_IPC
+ 	select WATCHDOG_CORE
++	select P2SB
+ 	help
+ 	  This driver adds support for several watchdogs found in Industrial
+ 	  PCs from Siemens.
+diff --git a/drivers/watchdog/simatic-ipc-wdt.c b/drivers/watchdog/simatic-ipc-wdt.c
+index 8bac793c63fb..6599695dc672 100644
+--- a/drivers/watchdog/simatic-ipc-wdt.c
++++ b/drivers/watchdog/simatic-ipc-wdt.c
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
++#include <linux/platform_data/x86/p2sb.h>
+ #include <linux/platform_data/x86/simatic-ipc-base.h>
+ #include <linux/platform_device.h>
+ #include <linux/sizes.h>
+@@ -54,9 +55,9 @@ static struct resource io_resource_trigger =
+ 	DEFINE_RES_IO_NAMED(WD_TRIGGER_IOADR, SZ_1,
+ 			    KBUILD_MODNAME " WD_TRIGGER_IOADR");
+ 
+-/* the actual start will be discovered with pci, 0 is a placeholder */
++/* the actual start will be discovered with p2sb, 0 is a placeholder */
+ static struct resource mem_resource =
+-	DEFINE_RES_MEM_NAMED(0, SZ_4, "WD_RESET_BASE_ADR");
++	DEFINE_RES_MEM_NAMED(0, 0, "WD_RESET_BASE_ADR");
+ 
+ static u32 wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
+ static void __iomem *wd_reset_base_addr;
+@@ -150,6 +151,7 @@ static int simatic_ipc_wdt_probe(struct platform_device *pdev)
+ 	struct simatic_ipc_platform *plat = pdev->dev.platform_data;
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
++	int ret;
+ 
+ 	switch (plat->devmode) {
+ 	case SIMATIC_IPC_DEVICE_227E:
+@@ -190,15 +192,14 @@ static int simatic_ipc_wdt_probe(struct platform_device *pdev)
+ 	if (plat->devmode == SIMATIC_IPC_DEVICE_427E) {
+ 		res = &mem_resource;
+ 
+-		/* get GPIO base from PCI */
+-		res->start = simatic_ipc_get_membase0(PCI_DEVFN(0x1f, 1));
+-		if (res->start == 0)
+-			return -ENODEV;
++		ret = p2sb_bar(NULL, 0, res);
++		if (ret)
++			return ret;
+ 
+ 		/* do the final address calculation */
+ 		res->start = res->start + (GPIO_COMMUNITY0_PORT_ID << 16) +
+ 			     PAD_CFG_DW0_GPP_A_23;
+-		res->end += res->start;
++		res->end = res->start + SZ_4 - 1;
+ 
+ 		wd_reset_base_addr = devm_ioremap_resource(dev, res);
+ 		if (IS_ERR(wd_reset_base_addr))
 -- 
 2.35.1
 
