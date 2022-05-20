@@ -2,99 +2,123 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1288C4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 20 May 2022 13:02:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2CF4C433FE
+	for <linux-watchdog@archiver.kernel.org>; Fri, 20 May 2022 17:21:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236266AbiETNCE (ORCPT
+        id S1352127AbiETRVl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 20 May 2022 09:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57862 "EHLO
+        Fri, 20 May 2022 13:21:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236247AbiETNCD (ORCPT
+        with ESMTP id S1352125AbiETRVi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 20 May 2022 09:02:03 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD6035DFC
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 May 2022 06:02:00 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id u23so14225653lfc.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 May 2022 06:02:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=JuZHQ6f7UwG9sEcrBgd7CjvcA+TEESz6YOxMScXKub4=;
-        b=oe7Ihu+Q38xydzIWx7L1VP2mveLIrDlraThtNZ/ZoAz2/WRIXeZBgN41A/MlyIrclb
-         OrX55qBrx2BeXGVMyQKJbo8sTNu1m0W/RI7XqzVOHPKzCVEtYZnvMUGxFIcRe2ku3vab
-         nwDsk93wl9k0K2zNJAs0PP78ghFBgt3k+U/qwe1a+5tmVnQ790bG2ZRF+bm8Og18bq4D
-         qiKQA+S5Bq6mbVtHuUk1zZm0+HdDEDMuIA62eCVS8LFH+eewGz4diDxDPYrnXemlBhfn
-         nhmz/94tEOF8VvLgU7moZKumeAShxaGFQwb50yMb4q+gRqyKCUG2dJw/rM3D6yu14Xb9
-         CWpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=JuZHQ6f7UwG9sEcrBgd7CjvcA+TEESz6YOxMScXKub4=;
-        b=f4TKT8UjBnzFuzQee529HPgn0kf9vtNmSVhLsk9+y7HkIxdRV4CTLYEFWqagPnw1QM
-         57yuw5EheptrEHXtJNh6XwuZQHaMFU9aN/ImODi08YXCtLm4WGCcxYFtJLPd7D3H2Bj6
-         rBHZLMyY9XgNJD7E7Qs6ipQBYlwWiHWCobORF2GFfBAToC+FjdEw6UoXupU1gGD4Mm6P
-         BNg7y5Awr1w+w/2pQhnpD0+5MXZyDarbqAxD3sWDiLhdZa7Lltf/1WrUWM/p3y4z4IBP
-         OweLyh1gTKnZlH74lMgvCj2j88L/Kyhdy02D5yDvkfaweAQUFJBBeTk9TM4NtdgQPSo+
-         PRaw==
-X-Gm-Message-State: AOAM530u+Hgt4EYrn+mNxhVCbbR/5bRq6QFtznVmw2gqJaKNmUrGvj2d
-        8LZwEzfhM0Hrg1J5DuFaZ0OuUA==
-X-Google-Smtp-Source: ABdhPJxWUauG7t9fEtUHzFuI8dk+jUlB1lV9RhKNo3qpTJb8fi//3+EhuolJeMHUbppfvl9h7cj5gA==
-X-Received: by 2002:a19:4306:0:b0:471:bc59:aeb1 with SMTP id q6-20020a194306000000b00471bc59aeb1mr6715970lfa.566.1653051718531;
-        Fri, 20 May 2022 06:01:58 -0700 (PDT)
-Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id b9-20020a056512024900b0047255d21148sm653005lfo.119.2022.05.20.06.01.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 20 May 2022 06:01:58 -0700 (PDT)
-Message-ID: <4c0c64ac-df79-f677-c6bb-1ba52af41bea@linaro.org>
-Date:   Fri, 20 May 2022 15:01:56 +0200
+        Fri, 20 May 2022 13:21:38 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB295535D
+        for <linux-watchdog@vger.kernel.org>; Fri, 20 May 2022 10:21:36 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KEhZ7C013150;
+        Fri, 20 May 2022 17:21:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=BhHz2NWnv5Thv9erLKDeP0DPuizaqMdQMQYzzbc3UzI=;
+ b=ioTSSDRYDebXueNxwsqnau+k8yWxwJgzBDdArPjtHUdsxTDDu/SHPeHjpKHd8oPWZtw7
+ nxtCpkJOhVsADafy0Pkwps/7TigPsjSRhoQHab23TF3OWOAh5y9aRpfSoXN/FRdw0cjw
+ oiHYp+TJrVW9/kTEE9b9J09zxlNfr0MK7lsHfZ9nRDm6lwVfpLyJRLf/N/r4HuYVIzkD
+ PkKMUI9azBOe5BcTC4nHZtOVfVgF83BvyFoUupQVS2jGp3TgSbJ6cbJqm9QAA0YcSx5G
+ Lvgtu7hEAemIH6eH4/scgXbom0DxUeUlHcHBqXORz+112BkvD1nMc+IBdgwaS3i81Kyz nQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6d0cu3jy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 17:21:15 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KGmVTP002510;
+        Fri, 20 May 2022 17:21:15 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6d0cu3jp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 17:21:15 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KHCWpS024800;
+        Fri, 20 May 2022 17:21:14 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma03dal.us.ibm.com with ESMTP id 3g242b75y9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 17:21:14 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KHLCTB23265560
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 May 2022 17:21:12 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DDB11AC060;
+        Fri, 20 May 2022 17:21:12 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8C28AC059;
+        Fri, 20 May 2022 17:21:12 +0000 (GMT)
+Received: from localhost (unknown [9.41.178.126])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 20 May 2022 17:21:12 +0000 (GMT)
+From:   Scott Cheloha <cheloha@linux.ibm.com>
+To:     linux-watchdog@vger.kernel.org
+Cc:     linux@roeck-us.net, tzungbi@kernel.org, brking@linux.ibm.com,
+        nathanl@linux.ibm.com, aik@ozlabs.ru, npiggin@gmail.com,
+        vaishnavi@linux.ibm.com, wvoigt@us.ibm.com,
+        linuxppc-dev@lists.ozlabs.org,
+        Scott Cheloha <cheloha@linux.ibm.com>
+Subject: [PATCH v1 1/4] powerpc/pseries: hvcall.h: add H_WATCHDOG opcode, H_NOOP return code
+Date:   Fri, 20 May 2022 12:20:52 -0500
+Message-Id: <20220520172055.32220-1-cheloha@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 2/4] watchdog: s3c2410_wdt: support exynosautov9 watchdog
-Content-Language: en-US
-To:     Chanho Park <chanho61.park@samsung.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Sam Protsenko <semen.protsenko@linaro.org>,
-        linux-watchdog@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        devicetree@vger.kernel.org
-References: <20220520121750.71473-1-chanho61.park@samsung.com>
- <CGME20220520121722epcas2p25b1d7b12db6030b490f191c2ae3e9f9d@epcas2p2.samsung.com>
- <20220520121750.71473-3-chanho61.park@samsung.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220520121750.71473-3-chanho61.park@samsung.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lKAtRmB4AjGoSE3d5gBIvDJMNWLSoTPc
+X-Proofpoint-GUID: HgNM_YKoyFWGxpdP4Ry7-9hMUhy4N0cq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-20_05,2022-05-20_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
+ adultscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 mlxscore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205200111
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 20/05/2022 14:17, Chanho Park wrote:
+PAPR v2.12 defines a new hypercall, H_WATCHDOG.  The hypercall permits
+guest control of one or more virtual watchdog timers.
 
-> @@ -644,9 +675,11 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev)
->  
->  		switch (index) {
->  		case 0:
-> -			return &drv_data_exynos850_cl0;
-> +			return variant;
->  		case 1:
-> -			return &drv_data_exynos850_cl1;
-> +			return (variant == &drv_data_exynos850_cl0) ?
-> +				&drv_data_exynos850_cl1 :
-> +				&drv_data_exynosautov9_cl1;
+Add the opcode for the H_WATCHDOG hypercall to hvcall.h.  While here,
+add a definition for H_NOOP, a possible return code for H_WATCHDOG.
 
-This stops scaling... it's fine now, but any next variant will require
-some rework.
+Signed-off-by: Scott Cheloha <cheloha@linux.ibm.com>
+---
+ arch/powerpc/include/asm/hvcall.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/arch/powerpc/include/asm/hvcall.h b/arch/powerpc/include/asm/hvcall.h
+index d92a20a85395..4b4f69c35b4f 100644
+--- a/arch/powerpc/include/asm/hvcall.h
++++ b/arch/powerpc/include/asm/hvcall.h
+@@ -87,6 +87,7 @@
+ #define H_P7		-60
+ #define H_P8		-61
+ #define H_P9		-62
++#define H_NOOP		-63
+ #define H_TOO_BIG	-64
+ #define H_UNSUPPORTED	-67
+ #define H_OVERLAP	-68
+@@ -324,7 +325,8 @@
+ #define H_RPT_INVALIDATE	0x448
+ #define H_SCM_FLUSH		0x44C
+ #define H_GET_ENERGY_SCALE_INFO	0x450
+-#define MAX_HCALL_OPCODE	H_GET_ENERGY_SCALE_INFO
++#define H_WATCHDOG		0x45C
++#define MAX_HCALL_OPCODE	H_WATCHDOG
+ 
+ /* Scope args for H_SCM_UNBIND_ALL */
+ #define H_UNBIND_SCOPE_ALL (0x1)
+-- 
+2.27.0
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
-
-Best regards,
-Krzysztof
