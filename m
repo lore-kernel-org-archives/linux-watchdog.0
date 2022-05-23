@@ -2,132 +2,148 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D77D9C433EF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 May 2022 09:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85D00C433FE
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 May 2022 11:30:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbiEWJkZ (ORCPT
+        id S234859AbiEWLac (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 23 May 2022 05:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+        Mon, 23 May 2022 07:30:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233475AbiEWJkW (ORCPT
+        with ESMTP id S234749AbiEWLa1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 May 2022 05:40:22 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC421EED9;
-        Mon, 23 May 2022 02:40:19 -0700 (PDT)
-Received: from mail-yb1-f179.google.com ([209.85.219.179]) by
- mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MCayD-1o152Q2tDn-009keD; Mon, 23 May 2022 11:40:17 +0200
-Received: by mail-yb1-f179.google.com with SMTP id x2so24035398ybi.8;
-        Mon, 23 May 2022 02:40:17 -0700 (PDT)
-X-Gm-Message-State: AOAM533jYsDxsPXRyDKVdyfflbydYmIwRi4A/bU3dlBPnBtiArvpWuWn
-        PT6IYiRzFL4Slp6ai/6YYmEjSael8VOAdtFhr9w=
-X-Google-Smtp-Source: ABdhPJwPSWjf0+4YNJaSIgYV3+A8L+w17pCRPMTjSGU6t40/PC+JSliP4KqFNtyVOp/6cKrGh1RaU8G2YIBlaJLXrPQ=
-X-Received: by 2002:a25:c747:0:b0:64f:62fb:f55e with SMTP id
- w68-20020a25c747000000b0064f62fbf55emr13651825ybe.106.1653298805675; Mon, 23
- May 2022 02:40:05 -0700 (PDT)
+        Mon, 23 May 2022 07:30:27 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8554F9CE
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 04:30:24 -0700 (PDT)
+Received: from epcas2p3.samsung.com (unknown [182.195.41.55])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20220523113022epoutp045d191900b530ac4bbd5dfd2237fcf9c8~xuIWszD0Y0077000770epoutp04F
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 11:30:22 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20220523113022epoutp045d191900b530ac4bbd5dfd2237fcf9c8~xuIWszD0Y0077000770epoutp04F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1653305422;
+        bh=4IFayU2lfdgNu9EW5xKS0zmUvY4WPz8PL5PJzayhj5E=;
+        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+        b=pRkEXneOXeLZl+CVYdMU+/jafXUIobkCRAYWX9ZUMvMv7D5/g89Mn55UpMU+RjthL
+         HKWL0VYeEI6KIqvJCiUhQd/c/qvazWQ70JHg/vpJBWWWXbM28wdWgckBi56lvbYW/J
+         5JH1ZZ0BPAbgi1zkGqUz/emnTv5WhIiux6eE809Q=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas2p1.samsung.com (KnoxPortal) with ESMTP id
+        20220523113022epcas2p1706d6327843dc6faab846ee2920441ba~xuIWR6uWA3019930199epcas2p1C;
+        Mon, 23 May 2022 11:30:22 +0000 (GMT)
+Received: from epsmges2p3.samsung.com (unknown [182.195.36.89]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4L6FVx70Sbz4x9Pp; Mon, 23 May
+        2022 11:30:17 +0000 (GMT)
+Received: from epcas2p1.samsung.com ( [182.195.41.53]) by
+        epsmges2p3.samsung.com (Symantec Messaging Gateway) with SMTP id
+        BF.7E.10028.8407B826; Mon, 23 May 2022 20:30:16 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas2p3.samsung.com (KnoxPortal) with ESMTPA id
+        20220523113016epcas2p360bf51a6b39a6e17f258fcae4ee158a5~xuIQzBrAO2186921869epcas2p3u;
+        Mon, 23 May 2022 11:30:16 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20220523113016epsmtrp2bba6fa6640e4263ba5561724c0ebb7ad~xuIQyUVk20080900809epsmtrp2p;
+        Mon, 23 May 2022 11:30:16 +0000 (GMT)
+X-AuditID: b6c32a47-589ff7000000272c-f4-628b70487e36
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        A1.8D.11276.8407B826; Mon, 23 May 2022 20:30:16 +0900 (KST)
+Received: from KORCO082417 (unknown [10.229.8.121]) by epsmtip1.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20220523113015epsmtip1988448b1e301280d7630bdf1485edb3b~xuIQpgv1T1284612846epsmtip1z;
+        Mon, 23 May 2022 11:30:15 +0000 (GMT)
+From:   "Chanho Park" <chanho61.park@samsung.com>
+To:     "'Krzysztof Kozlowski'" <krzysztof.kozlowski@linaro.org>,
+        "'Wim Van Sebroeck'" <wim@linux-watchdog.org>,
+        "'Guenter Roeck'" <linux@roeck-us.net>,
+        "'Rob Herring'" <robh+dt@kernel.org>
+Cc:     "'Sam Protsenko'" <semen.protsenko@linaro.org>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-samsung-soc@vger.kernel.org>, <devicetree@vger.kernel.org>
+In-Reply-To: <02fb065d-5ad9-07df-0e1d-1b47beb883dc@linaro.org>
+Subject: RE: [PATCH 3/4] arm64: dts: exynosautov9: add watchdog DT nodes
+Date:   Mon, 23 May 2022 20:30:16 +0900
+Message-ID: <003f01d86e98$798eddc0$6cac9940$@samsung.com>
 MIME-Version: 1.0
-References: <20220522155046.260146-1-tmaimon77@gmail.com> <20220522155046.260146-19-tmaimon77@gmail.com>
-In-Reply-To: <20220522155046.260146-19-tmaimon77@gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 23 May 2022 11:39:48 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1LCkM-w_Oi2qUqgq_Qxsg64uoGg5aaz=X8pBENHBhj0A@mail.gmail.com>
-Message-ID: <CAK8P3a1LCkM-w_Oi2qUqgq_Qxsg64uoGg5aaz=X8pBENHBhj0A@mail.gmail.com>
-Subject: Re: [PATCH v1 18/19] arm64: dts: nuvoton: Add initial NPCM845 EVB
- device tree
-To:     Tomer Maimon <tmaimon77@gmail.com>
-Cc:     Avi Fishman <avifishman70@gmail.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Patrick Venture <venture@google.com>,
-        Nancy Yuen <yuenn@google.com>,
-        Benjamin Fair <benjaminfair@google.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        gregkh <gregkh@linuxfoundation.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        robert.hancock@calian.com,
-        "nathan=20Neusch=C3=A4fer?=" <j.neuschaefer@gmx.net>,
-        Lubomir Rintel <lkundrak@v3.sk>, SoC Team <soc@kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:n7zvqzJoyeIQrt0t+bbdn3QVYisX2S5bXfz3u0VUhVzjsm2+x+o
- 659/sfSLnFqNBG7X7VtbYSKUHJCRzLZl40EszBTEYhCu20ZCEsrGsEmNe7Ab7THLuGp+tMJ
- grFXdUbW4oucpYzpzItMge4A6IxrrQMX94YKma6DD8XWZYfzC70RbHiunite5+fqf89+eXN
- LIbl0pJkO4UAdKfAmCifw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:2Z5BTVOu2s8=:cPSYfOv2MjhdvbMxTorHlS
- rLOLv/JIQN8ZNLEEprUL4opOISkNGyOHPLhQKpnatFNPTFFK02SGwqdbwGA0rASndK3H8NgsF
- LZN/NZTFC3UWBK9dYkR+3nhaYyNEBsujW6GSyVgBo4qjC3thY8Y7VHbAbIq4yKL5TFmEejH/c
- rxSVFWZNU9ayduqPmLC0YauJf9eSOUEumcaGtfToKFbiLxH3PpzVdPP+mNqVH627ZJPcLyH1/
- pZWGY73x5YfhQOG8wH2pRENhz2XhpJGDtPYQdOPRI0qEQy9B3feuoXtBT8nk4vs0RthkhUjVG
- YTMcCHeG+PGuvjeq1PW7hCCppuC56oraAaein7sADyfAA/hkici9fEeglyVbU73OHFNqNrQqC
- o3QzyBh6ySmIZoIMOt0GNUm8i4QF+zHvhlYKDQb/Bs1WnMv7NIj36tNEJQx6SJ/x7kGE+/+oq
- n/QUiVPXGaEfRoxpLDRDxk6IYWCAVX0ZTbIryM7UUsH7ZWCpYlPXDmpGUBLDVxXRIMm59HZ1z
- Pt4zHYKLBv6RwUu/+ybaRsPbj+WCF8QeUz8E+57JEvpuHEuB8dhV3GX6tlUQr4WPzKecDqqz4
- T32am9CBSUCwexZ1cSPdYtC5Q/Trv951eX9cSIIaoujwBZAOQcvFLVj7djbC/M6ZNUgSm0WMe
- CRMLZxuiIRLiSk990cWjlHcSxnpkVyf3vjbUChAduqG+XGP2T3WYkoUq0APyG5N4yq1GQr6Tb
- mq6s0kHhLW6onkYm489d0lZtKdHS3W3AkyjFaMovTV7mqs5ywNjC/fIsp17D1OtR9M6boXjPy
- OO1nH20/LhOtiqXq99IR9CUpxNLN1GkRgqFVx9OQsVJWROkdKXtTn+ST8u8/5SCfR+l+8/pJs
- Rgkjp4U1VhoUWZ7g6s3dnRWuluTCjnnmNDLILdiVg=
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQFlWeMGeRnkp6RKcHlQJHAIxTVWcwKk/mfLAdT13k8BkyXh8a3iE/tQ
+Content-Language: ko
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprDJsWRmVeSWpSXmKPExsWy7bCmqa5HQXeSwbIWBYv5R86xWux9vZXd
+        Ysb5fUwWN9btY7d4svAMk0Xr3iPsFs/7gGKPX/5jduDw2LSqk83jzrU9bB4r16xh9dj5vYHd
+        4/MmuQDWqGybjNTElNQihdS85PyUzLx0WyXv4HjneFMzA0NdQ0sLcyWFvMTcVFslF58AXbfM
+        HKBblBTKEnNKgUIBicXFSvp2NkX5pSWpChn5xSW2SqkFKTkF5gV6xYm5xaV56Xp5qSVWhgYG
+        RqZAhQnZGWsOdTIW/OWoeP7kIVsD42r2LkZODgkBE4lTe24zdTFycQgJ7GCUOD2tlRUkISTw
+        iVHiw+NQiMQ3Ron9Z66wwXRsevsdqmMvo8TD20tYIJwXjBJT/n4Em8smoC/xsmMbK0hCBKRq
+        0oaDYHOZBWYzSkw8aAhicwrYSVzqnMECYgsLeEjcbZsI1swioCrR37wXKM7BwStgKdHQ7Q0S
+        5hUQlDg58wkLxBhtiWULXzNDXKQg8fPpMrDxIgJuEr8PTmGGqBGRmN3Zxgxyg4TAXA6JLfuO
+        QTW4SJzb08kEYQtLvDq+BRoYUhKf3+2FerNYYumsT0wQzQ2MEpe3/YJKGEvMetbOCHIcs4Cm
+        xPpd+iCmhICyxJFbULfxSXQc/ssOEeaV6GgTgmhUlziwfToLhC0r0T3nM+sERqVZSD6bheSz
+        WUg+mIWwawEjyypGsdSC4tz01GKjAmN4ZCfn525iBCdTLfcdjDPeftA7xMjEwXiIUYKDWUmE
+        d3tiR5IQb0piZVVqUX58UWlOavEhRlNgUE9klhJNzgem87ySeEMTSwMTMzNDcyNTA3MlcV6v
+        lA2JQgLpiSWp2ampBalFMH1MHJxSDUxbjvxI6HuqUlk4c+Z17mlfN2lcqF4z8xBvnjsrf1Kb
+        i+7fN7/Sls+ezTTt+6dXu/epLL/R5tlip/Hp2wad9rRNc0pf3D3mPG37RW5v7X1FikGVP9MX
+        vwo8IVHoKsn+/Jwyk+L+J7csHPmeXtno/r303/V7aoFxX0R9zDj+Hrig+9xX6dpVrv7Nn7JX
+        bOOK4Jw+1561ODavJKzmzStLF2nOLhlv/s2rnXvD21KsEw/PZV0WfeMim52x5rEczvQo+QCF
+        owfsUm4JSPIp/DC8WdltZqb40zZp5nRWKb1deckinHzftLZdjI1aZupempe3VrzZ58hryfN7
+        +l7sfpWs8fEas2Cv3e8rFydohNs/e6fEUpyRaKjFXFScCADIHeypLwQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgkeLIzCtJLcpLzFFi42LZdlhJTtejoDvJYMlKVov5R86xWux9vZXd
+        Ysb5fUwWN9btY7d4svAMk0Xr3iPsFs/7gGKPX/5jduDw2LSqk83jzrU9bB4r16xh9dj5vYHd
+        4/MmuQDWKC6blNSczLLUIn27BK6MszvOMBdc5qg489GsgbGRvYuRk0NCwERi09vvTF2MXBxC
+        ArsZJbbN/8kGkZCVePZuB1SRsMT9liOsILaQwDNGiTmNSiA2m4C+xMuObawgzSIC+xkl/qyZ
+        AjaJWWAuo0Rv4x92iLFfGSXaj04CG8spYCdxqXMGC4gtLOAhcbdtItgKFgFVif7mvUBxDg5e
+        AUuJhm5vkDCvgKDEyZlPwMqZBbQleh+2MsLYyxa+Zoa4TkHi59NlYNeJCLhJ/D44hRmiRkRi
+        dmcb8wRG4VlIRs1CMmoWklGzkLQsYGRZxSiZWlCcm55bbFhgmJdarlecmFtcmpeul5yfu4kR
+        HFlamjsYt6/6oHeIkYmD8RCjBAezkgjv9sSOJCHelMTKqtSi/Pii0pzU4kOM0hwsSuK8F7pO
+        xgsJpCeWpGanphakFsFkmTg4pRqYIh4HXW/qv1Af8e5n76zDV8+FBZ+fdKM+uMPuyudI3x++
+        GnOlxD/Ny09zcHjh83VlxbGXvK5PmO9JLP2vHfPl2oa9D2cLXfFLTnk7x1OtITO3UEWSd6XH
+        zrlfhDO3vmF9yFN69paHfqZ1TVLAfL+NwRfnq+vb6czre3Lt5s/KeQ5za20mrf/zrjpTJ3T+
+        jIxOqet3ovll9P1fhFb/ynv9LGrFipdrTQLmnvE9mCjAZnJ0hWpNobXT2nMetSK2d2Z27a9y
+        bIjccH5N3jE+C8v66TbxNzsMD20JClzw/RR7H+f0jcsMHJ3DspkO8Gs8TvU9du75u7CJST9e
+        T1U/w+9YKpR4eqNZSLPyqlXRPlnZSizFGYmGWsxFxYkA8/q4NBsDAAA=
+X-CMS-MailID: 20220523113016epcas2p360bf51a6b39a6e17f258fcae4ee158a5
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: AUTO_CONFIDENTIAL
+CMS-TYPE: 102P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20220520121722epcas2p169b2669f367e7461fa41663f3e90d303
+References: <20220520121750.71473-1-chanho61.park@samsung.com>
+        <CGME20220520121722epcas2p169b2669f367e7461fa41663f3e90d303@epcas2p1.samsung.com>
+        <20220520121750.71473-4-chanho61.park@samsung.com>
+        <02fb065d-5ad9-07df-0e1d-1b47beb883dc@linaro.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, May 22, 2022 at 5:50 PM Tomer Maimon <tmaimon77@gmail.com> wrote:
-> +/ {
-> +       model = "Nuvoton npcm845 Development Board (Device Tree)";
-> +       compatible = "nuvoton,npcm845";
-> +
-> +       aliases {
-> +               serial0 = &serial0;
-> +               serial1 = &serial1;
-> +               serial2 = &serial2;
-> +               serial3 = &serial3;
-> +       };
+> > diff --git a/arch/arm64/boot/dts/exynos/exynosautov9.dtsi
+> > b/arch/arm64/boot/dts/exynos/exynosautov9.dtsi
+> > index 3e23db8f09d9..34be955dc2d5 100644
+> > --- a/arch/arm64/boot/dts/exynos/exynosautov9.dtsi
+> > +++ b/arch/arm64/boot/dts/exynos/exynosautov9.dtsi
+> > =40=40 -400,6 +400,28 =40=40 ufs_0: ufs0=4017e00000 =7B
+> >  			samsung,sysreg =3D <&syscon_fsys2 0x710>;
+> >  			status =3D =22disabled=22;
+> >  		=7D;
+> > +
+> > +		watchdog_cl0: watchdog=4010050000 =7B
+> > +			compatible =3D =22samsung,exynosautov9-wdt=22;
+> > +			reg =3D <0x10050000 0x100>;
+> > +			interrupts =3D <GIC_SPI 476 IRQ_TYPE_LEVEL_HIGH>;
+> > +			clocks =3D <&cmu_peris CLK_GOUT_WDT_CLUSTER0>, <&xtcxo>;
+> > +			clock-names =3D =22watchdog=22, =22watchdog_src=22;
+> > +			samsung,syscon-phandle =3D <&pmu_system_controller>;
+> > +			samsung,cluster-index =3D <0>;
+> > +			status =3D =22disabled=22;
+>=20
+> Blocks which do not need board-level resources should be enabled by
+> default, so drop status and drop patch =234.
 
-> +               apb {
-> +                       serial0: serial@0 {
-> +                               status = "okay";
-> +                       };
-> +
-> +                       serial1: serial@1000 {
-> +                               status = "disabled";
-> +                       };
-> +
-> +                       serial2: serial@2000 {
-> +                               status = "disabled";
-> +                       };
-> +
-> +                       serial3: serial@3000 {
-> +                               status = "disabled";
-> +                       };
+Okay. They can be enabled as default. I'll drop the status and =234 patch a=
+s well.
 
-Please drop the aliases for disabled uarts. It probably also makes
-sense to have the status="disabled" properties in the .dtsi file and
-only override them when you explicitly want to enable a uart for a
-board.
+Best Regards,
+Chanho Park
 
-       Arnd
