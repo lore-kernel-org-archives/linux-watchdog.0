@@ -2,61 +2,61 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCCC0C4332F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 May 2022 07:33:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6240C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 May 2022 07:33:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbiEWHc4 (ORCPT
+        id S229851AbiEWHdD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 23 May 2022 03:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47142 "EHLO
+        Mon, 23 May 2022 03:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229961AbiEWHcj (ORCPT
+        with ESMTP id S230300AbiEWHch (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 May 2022 03:32:39 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7FF2C0
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 00:32:17 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id bq30so24081997lfb.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 00:32:17 -0700 (PDT)
+        Mon, 23 May 2022 03:32:37 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E525FB5
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 00:31:38 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id l13so17371164lfp.11
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2022 00:31:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
          :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=17JqV26wVHdgo28ZqibLwQLBrW+2wdRYXH2zbWrVfCo=;
-        b=Ib9IYf1AvLT27iihXTu9RkqmCryClPTfougnJ4FyWIlLyfyQLNoahME9lk60jT7YXm
-         jD+7fF0WQXgTnEJ244khLVZ2ruXBE8MS1uUVUlTeK2ut3gzKojOjbTDWEHyZ98VTUslE
-         NjdYJQZNiVrEOIgva4BhEJiS4Ewom+kaGwXmokXK9WVHBOaGDsVce74hQ1PaoCqMtfm7
-         tmQCCcjUUAYxDvOTYI9RRd+9Bf0ud4XjKoAI+6sp0abtcwlOGdCJsf7ESg6hkRNhtrw8
-         nO0lprI8/GsPSj3vbIte8Vsmr0wnD5DbJ9z2/t0tu+2zMycYVUyl8WY7wWrEoa1qh7HP
-         gHmg==
+        bh=KyV9lT9+ytqJp/YOSL0Uwp6DljeF8AaxfinieX67j3o=;
+        b=lYKCMl/RGy09NhRM6yiabyzHYXnCsb6xykBD2OmT7C4UGXL/tS5cDHEr01DiJT8wXk
+         GDf9X9/aRLHK1aymH4u5opnx2hngCfPwvCdog5UoF6q/sWbvrzunVSLIQmEhmPnLAFAi
+         VkrnAqF0VCikJaynFl5OSGuVIeoLsaCeMiLJuorcsw08+U7Lmi9vU+0A0pLIzwN6ScZn
+         y2TLWJEJ+umDzjeFsXXL9+fYVXTyfd2nsJS7sZCg1RQY4LOavXbz94DUAJQUCzyY34RA
+         8CFQAdnNMsY/ImY0bdfrrWurLzTAAB7MumIRewwvAImYXo0/Tel3qr5Cu0dKYX4hsIPB
+         Gr1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=17JqV26wVHdgo28ZqibLwQLBrW+2wdRYXH2zbWrVfCo=;
-        b=e/4EnUwiH+KSB0fOexibs5RWtiUrnhO/SGfSkMqT9+5dBkU2AHpwcQepXtS92dqVtC
-         GnjpoBB3e+ytPyMtpUscFGweKNx2zeBfCXxmEdMDGboz1xmvADccU9fdPvrPgR9dNce7
-         IOdYEIdtzjOV5+XGB13cft6iiv10yy8DPH/9SK1YpecR7ANePurTeBIvxv4wMksoQ+Av
-         0Xe4OC+D5dvCEAxrXy6jmAHJq7Sg3PQwpXnqdlb/SDiAe0jU1fMOVf8AyNpwNGiQ+kw8
-         veIEr4JQmxd1V7Z9OC6+ycgZy4sgda6wmxQhCWLVYdtNDPQaLlHaEgr8eZfe3yNRpoLS
-         TqxA==
-X-Gm-Message-State: AOAM530XZORaAUy+kvZ4AJiaCyeVA+U5EDSJk12QngYn8APZ9GAPDJZG
-        aUzuAluOCZ0/iLvb6FuYEwEVNg==
-X-Google-Smtp-Source: ABdhPJwr/sSdCGIN0en6yM1a+IjJKGEZWdESs2RUoX6hwQ9lIqGKLwQqPAREwe3x2yxzBpnbbnpjpg==
-X-Received: by 2002:ac2:43a1:0:b0:478:5867:5047 with SMTP id t1-20020ac243a1000000b0047858675047mr9556576lfl.37.1653291135678;
-        Mon, 23 May 2022 00:32:15 -0700 (PDT)
+        bh=KyV9lT9+ytqJp/YOSL0Uwp6DljeF8AaxfinieX67j3o=;
+        b=rmHK+wdQgs2CS8RjlbeuOth4+J98mdOdWVYTEGKSUQZMJiSkeYhm33hg/sGZqC7qGu
+         HheU5StAP1DTKRqD9KdmhotkpW8MeA3BsrUJcloyuED8fNWWz6/QuzQauDmhDLnFRDrx
+         Ota+wyfkyx/IniTP4a2EMrRTItO19HGz+MbP3NdAGn8o6g7F9sYnG33cYBHQOaZiqj3Y
+         fqzezsM8Y71SdAE7SVOoK6TpCsgGQTRGDWvjbk+d17Zl4Fc30HsUqYuFN0EI02lhURgg
+         H663MuJLUx2Z9QdMfBDTRuKlmE8+oSVSgLxTnrB9VTLBj5t+qREF2hNIkDzdQANgR9Gw
+         0riw==
+X-Gm-Message-State: AOAM53160jXvRkyVVCLNDs6PxBPHfZKXOEpzy4jEFNsqBQjUEmftZXL+
+        PIJbBUZdcSiyRifjo5+zmK5Drw==
+X-Google-Smtp-Source: ABdhPJyGZyOu9VIxr33EGSOKBZFSxGoiwpEjxX4VFoXSuoPjjAbUXKOBkNH955vm37QLR3a4tkoUxQ==
+X-Received: by 2002:a05:6512:927:b0:473:ebb9:ec7d with SMTP id f7-20020a056512092700b00473ebb9ec7dmr14833260lft.637.1653291097068;
+        Mon, 23 May 2022 00:31:37 -0700 (PDT)
 Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id r5-20020a19ac45000000b0047255d21167sm1828342lfc.150.2022.05.23.00.32.13
+        by smtp.gmail.com with ESMTPSA id 10-20020a05651c00ca00b00253e88591f1sm817885ljr.23.2022.05.23.00.31.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 May 2022 00:32:15 -0700 (PDT)
-Message-ID: <d48f8b9b-92e2-2fc9-6d06-0b1496768d4e@linaro.org>
-Date:   Mon, 23 May 2022 09:32:13 +0200
+        Mon, 23 May 2022 00:31:36 -0700 (PDT)
+Message-ID: <bff38fba-86c7-36b6-c616-cd96d2a22111@linaro.org>
+Date:   Mon, 23 May 2022 09:31:34 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.1
-Subject: Re: [PATCH v1 03/19] dt-bindings: serial: 8250: Add npcm845
- compatible string
+Subject: Re: [PATCH v1 01/19] dt-bindings: timer: npcm: Add npcm845 compatible
+ string
 Content-Language: en-US
 To:     Tomer Maimon <tmaimon77@gmail.com>, avifishman70@gmail.com,
         tali.perry1@gmail.com, joel@jms.id.au, venture@google.com,
@@ -76,9 +76,9 @@ Cc:     soc@kernel.org, devicetree@vger.kernel.org,
         linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
 References: <20220522155046.260146-1-tmaimon77@gmail.com>
- <20220522155046.260146-4-tmaimon77@gmail.com>
+ <20220522155046.260146-2-tmaimon77@gmail.com>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220522155046.260146-4-tmaimon77@gmail.com>
+In-Reply-To: <20220522155046.260146-2-tmaimon77@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -86,10 +86,13 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On 22/05/2022 17:50, Tomer Maimon wrote:
-> Add a compatible string for Nuvoton BMC NPCM845 UART.
+> Add a compatible string for Nuvoton BMC NPCM845 timer.
 > 
 > Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
 > ---
+>  .../devicetree/bindings/timer/nuvoton,npcm7xx-timer.yaml        | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
 
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
