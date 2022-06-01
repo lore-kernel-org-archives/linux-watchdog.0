@@ -2,35 +2,56 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13C18C433EF
-	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Jun 2022 18:32:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8B7FCCA473
+	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Jun 2022 21:53:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233570AbiFAScc (ORCPT
+        id S231980AbiFAVxG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 1 Jun 2022 14:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        Wed, 1 Jun 2022 17:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229871AbiFAScb (ORCPT
+        with ESMTP id S231818AbiFAVxF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Jun 2022 14:32:31 -0400
-X-Greylist: delayed 507 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 01 Jun 2022 11:32:28 PDT
-Received: from www.linux-watchdog.org (www.linux-watchdog.org [185.87.125.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E5E1A3E0C9;
-        Wed,  1 Jun 2022 11:32:27 -0700 (PDT)
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id D6328409E9; Wed,  1 Jun 2022 18:47:51 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org D6328409E9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1654102072;
-        bh=1vj6WJ6ARQ0Bom7Std6lVrJRnQykJGc1MrnHVqM+yFA=;
-        h=Date:From:To:Cc:Subject:From;
-        b=pa7tCHB5OBLid/FC29WciT4Cn3OCbTNUa/LAyZ3ApITy7+xE5iVGQZpHDBLJEUurB
-         QkHdpsRqq9qdIm6ToL9jQokvUEff6zfGqbHEnITNMdFS9fqntkSEHvrsPQSIdBaBKL
-         7Z+e/91u6ZcWVap3T3FrwbaymuOWmsWpKdpUwdvM=
-Date:   Wed, 1 Jun 2022 18:47:51 +0200
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Wed, 1 Jun 2022 17:53:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C599021270;
+        Wed,  1 Jun 2022 14:53:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 638546135F;
+        Wed,  1 Jun 2022 21:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C9F8BC385B8;
+        Wed,  1 Jun 2022 21:53:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654120383;
+        bh=2ef3IVdlKcVfrNV1wmzB14KcX264rHauUU7I1DoOyjQ=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=WiFyOVlwugMVfCb4Lu9oeF2o3pnYumCIrgPYM0fzgfVGW8Vx4vj2uR61K63dxflsn
+         ERgVpaY5bsjVJ0V2Fd9Ck9Y+UyLhV2rdpCV8aq37sZKcaRSnkvWcrV+mtkRAK2hZuh
+         T1DSjkNnmiRX20McC1DaRm2hl6U8TTkeoOFQNZ4Iqp2b2RuBZT4NLrLodmBVkNFq0b
+         +GybdCqaXlvULVrCyT6K3bfisaZ4EivZxKyKBR90UG9wLHP8rM6bYU6TbR0dLy1eSm
+         7o/QReeEmYJ82aAYCRhM1b7C2ZXFRhKFqbCtdlthvKs3I+UidDupOVxv9UYtw2eQTo
+         UGr06fCnUvMVw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id B4300F0394E;
+        Wed,  1 Jun 2022 21:53:03 +0000 (UTC)
+Subject: Re: [GIT PULL REQUEST] watchdog - v5.19 Merge window
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20220601164751.GA15198@www.linux-watchdog.org>
+References: <20220601164751.GA15198@www.linux-watchdog.org>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20220601164751.GA15198@www.linux-watchdog.org>
+X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.19-rc1
+X-PR-Tracked-Commit-Id: 5d24df3d690809952528e7a19a43d84bc5b99d44
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 96752be4d7b443e6f1e322428d61f777d7d8bd4d
+Message-Id: <165412038373.5556.14925725235196892855.pr-tracker-bot@kernel.org>
+Date:   Wed, 01 Jun 2022 21:53:03 +0000
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -55,169 +76,19 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Runyang Chen <runyang.chen@mediatek.com>,
         Sam Shih <sam.shih@mediatek.com>,
         Xiantao Hu <xt.hu@cqplus1.com>
-Subject: [GIT PULL REQUEST] watchdog - v5.19 Merge window
-Message-ID: <20220601164751.GA15198@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.20 (2009-12-10)
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+The pull request you sent on Wed, 1 Jun 2022 18:47:51 +0200:
 
-Hi Linus,
+> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.19-rc1
 
-Please pull the watchdog changes for the v5.19 release cycle.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/96752be4d7b443e6f1e322428d61f777d7d8bd4d
 
-This series contains:
-* Add MediaTek MT8186 support
-* Add Mediatek MT7986 reset-controller support
-* Add i.MX93 support
-* Add watchdog driver for Sunplus SP7021
-* Add SC8180X and SC8280XP compatibles
-* Add Renesas RZ/N1 Watchdog driver and support for RZ/N1
-* rzg2l_wdt improvements and fixes
-* Several other improvements and fixes
+Thank you!
 
-The output from git request-pull:
-----------------------------------------------------------------
-The following changes since commit 672c0c5173427e6b3e2a9bbb7be51ceeec78093a:
-
-  Linux 5.18-rc5 (2022-05-01 13:57:58 -0700)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.19-rc1
-
-for you to fetch changes up to 5d24df3d690809952528e7a19a43d84bc5b99d44:
-
-  watchdog: ts4800_wdt: Fix refcount leak in ts4800_wdt_probe (2022-05-21 10:09:31 +0200)
-
-----------------------------------------------------------------
-linux-watchdog 5.19-rc1 tag
-
-----------------------------------------------------------------
-Andre Przywara (2):
-      dt-bindings: watchdog: sunxi: fix F1C100s compatible
-      dt-bindings: watchdog: sunxi: clarify clock support
-
-Andrej Picej (1):
-      dt-bindings: watchdog: da9062: add watchdog timeout mode
-
-Biju Das (8):
-      watchdog: rzg2l_wdt: Fix 32bit overflow issue
-      watchdog: rzg2l_wdt: Fix Runtime PM usage
-      watchdog: rzg2l_wdt: Fix 'BUG: Invalid wait context'
-      watchdog: rzg2l_wdt: Fix reset control imbalance
-      watchdog: rzg2l_wdt: Add error check for reset_control_deassert
-      watchdog: rzg2l_wdt: Use force reset for WDT reset
-      watchdog: rzg2l_wdt: Add set_timeout callback
-      dt-bindings: watchdog: renesas,wdt: Document RZ/G2UL SoC
-
-Bjorn Andersson (1):
-      dt-bindings: watchdog: Add SC8180X and SC8280XP compatibles
-
-Corentin Labbe (1):
-      dt-bindings: watchdog: convert faraday,ftwdt010 to yaml
-
-David Heidelberg (1):
-      dt-bindings: watchdog: improve QCOM compatible parsing for modern chips
-
-Eliav Farber (1):
-      watchdog: sp805: disable watchdog on remove
-
-Geert Uytterhoeven (1):
-      dt-bindings: watchdog: renesas,wdt: R-Car V3U is R-Car Gen4
-
-Jan Kiszka (1):
-      watchdog: rti_wdt: Fix calculation and evaluation of preset heartbeat
-
-Jean-Jacques Hiblot (1):
-      dt-bindings: watchdog: renesas,wdt: Add support for RZ/N1
-
-Kunihiko Hayashi (1):
-      dt-bindings: watchdog: uniphier: Use unevaluatedProperties
-
-Lad Prabhakar (1):
-      dt-bindings: watchdog: renesas,wdt: Document RZ/V2L SoC
-
-Liu Xinpeng (4):
-      watchdog: iTCO_wdt: Using existing macro define covers more scenarios
-      watchdog: wdat_wdt: Using the existing function to check parameter timeout
-      watchdog: wdat_wdt: Stop watchdog when rebooting the system
-      watchdog: wdat_wdt: Stop watchdog when uninstalling module
-
-Miaoqian Lin (2):
-      watchdog: rti-wdt: Fix pm_runtime_get_sync() error checking
-      watchdog: ts4800_wdt: Fix refcount leak in ts4800_wdt_probe
-
-Peng Fan (1):
-      dt-bindings: watchdog: imx7ulp-wdt: Add imx93 compatible string
-
-Phil Edworthy (1):
-      watchdog: Add Renesas RZ/N1 Watchdog driver
-
-Primoz Fiser (2):
-      dt-bindings: mfd: da9063: watchdog: add suspend disable option
-      watchdog: da9063: optionally disable watchdog during suspend
-
-Rafał Miłecki (1):
-      watchdog: bcm7038_wdt: Support BCM6345 compatible string
-
-Rex-BC Chen (1):
-      dt-bindings: watchdog: Add compatible for MediaTek MT8186
-
-Runyang Chen (2):
-      dt-bindings: reset: mt8186: add reset-controller header file
-      watchdog: mediatek: mt8186: add wdt support
-
-Sam Shih (2):
-      watchdog: mtk_wdt: mt7986: Add toprgu reset controller support
-      dt-bindings: reset: mt7986: Add reset-controller header file
-
-Xiantao Hu (2):
-      dt-bindings: watchdog: Add watchdog yaml file for Sunplus SP7021
-      watchdog: Add watchdog driver for Sunplus SP7021
-
- Documentation/devicetree/bindings/mfd/da9063.txt   |   9 +-
- .../bindings/watchdog/allwinner,sun4i-a10-wdt.yaml |  24 +--
- .../devicetree/bindings/watchdog/da9062-wdt.txt    |   6 +
- .../bindings/watchdog/faraday,ftwdt010.txt         |  22 ---
- .../bindings/watchdog/faraday,ftwdt010.yaml        |  67 +++++++
- .../bindings/watchdog/fsl-imx7ulp-wdt.yaml         |   1 +
- .../devicetree/bindings/watchdog/mtk-wdt.txt       |   1 +
- .../devicetree/bindings/watchdog/qcom-wdt.yaml     |  39 ++--
- .../devicetree/bindings/watchdog/renesas,wdt.yaml  |  12 +-
- .../bindings/watchdog/socionext,uniphier-wdt.yaml  |   2 +-
- .../bindings/watchdog/sunplus,sp7021-wdt.yaml      |  47 +++++
- MAINTAINERS                                        |   7 +
- drivers/watchdog/Kconfig                           |  19 ++
- drivers/watchdog/Makefile                          |   2 +
- drivers/watchdog/bcm7038_wdt.c                     |   1 +
- drivers/watchdog/da9063_wdt.c                      |  36 ++++
- drivers/watchdog/iTCO_wdt.c                        |  20 +-
- drivers/watchdog/mtk_wdt.c                         |  12 ++
- drivers/watchdog/rti_wdt.c                         |  10 +-
- drivers/watchdog/rzg2l_wdt.c                       |  83 ++++----
- drivers/watchdog/rzn1_wdt.c                        | 203 +++++++++++++++++++
- drivers/watchdog/sp805_wdt.c                       |   1 +
- drivers/watchdog/sunplus_wdt.c                     | 220 +++++++++++++++++++++
- drivers/watchdog/ts4800_wdt.c                      |   5 +-
- drivers/watchdog/wdat_wdt.c                        |   6 +-
- include/dt-bindings/reset/mt7986-resets.h          |  55 ++++++
- include/dt-bindings/reset/mt8186-resets.h          |  36 ++++
- 27 files changed, 831 insertions(+), 115 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.yaml
- create mode 100644 Documentation/devicetree/bindings/watchdog/sunplus,sp7021-wdt.yaml
- create mode 100644 drivers/watchdog/rzn1_wdt.c
- create mode 100644 drivers/watchdog/sunplus_wdt.c
- create mode 100644 include/dt-bindings/reset/mt7986-resets.h
- create mode 100644 include/dt-bindings/reset/mt8186-resets.h
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
