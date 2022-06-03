@@ -2,25 +2,25 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FBEEC433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Jun 2022 17:15:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44412C433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Jun 2022 17:22:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242745AbiFCRPr (ORCPT
+        id S1344367AbiFCRWe (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Jun 2022 13:15:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42448 "EHLO
+        Fri, 3 Jun 2022 13:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240019AbiFCRPq (ORCPT
+        with ESMTP id S1344365AbiFCRWd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Jun 2022 13:15:46 -0400
+        Fri, 3 Jun 2022 13:22:33 -0400
 Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA67B527E5;
-        Fri,  3 Jun 2022 10:15:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8169D6396;
+        Fri,  3 Jun 2022 10:22:31 -0700 (PDT)
 Received: from [77.244.183.192] (port=64530 helo=melee.fritz.box)
         by hostingweb31.netsons.net with esmtpa (Exim 4.95)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1nx9iD-0009cb-MM;
-        Fri, 03 Jun 2022 17:59:45 +0200
+        id 1nx9hv-0009cb-DZ;
+        Fri, 03 Jun 2022 17:59:27 +0200
 From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Michael Turquette <mturquette@baylibre.com>,
@@ -37,9 +37,9 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Luca Ceresoli <luca@lucaceresoli.net>,
         Luca Ceresoli <luca.ceresoli@bootlin.com>
-Subject: [PATCH 4/6] mfd: max77714: update Luca Ceresoli's e-mail address
-Date:   Fri,  3 Jun 2022 17:57:25 +0200
-Message-Id: <20220603155727.1232061-4-luca@lucaceresoli.net>
+Subject: [PATCH 2/6] dt-bindings: update Luca Ceresoli's e-mail address
+Date:   Fri,  3 Jun 2022 17:57:23 +0200
+Message-Id: <20220603155727.1232061-2-luca@lucaceresoli.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220603155727.1232061-1-luca@lucaceresoli.net>
 References: <20220603155727.1232061-1-luca@lucaceresoli.net>
@@ -64,43 +64,50 @@ My Bootlin address is preferred from now on.
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
 ---
- drivers/mfd/max77714.c       | 4 ++--
- include/linux/mfd/max77714.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/clock/idt,versaclock5.yaml    | 2 +-
+ Documentation/devicetree/bindings/mfd/maxim,max77714.yaml       | 2 +-
+ .../devicetree/bindings/power/supply/maxim,max77976.yaml        | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/max77714.c b/drivers/mfd/max77714.c
-index d1e4247800d2..143a432ea343 100644
---- a/drivers/mfd/max77714.c
-+++ b/drivers/mfd/max77714.c
-@@ -3,7 +3,7 @@
-  * Maxim MAX77714 Core Driver
-  *
-  * Copyright (C) 2022 Luca Ceresoli
-- * Author: Luca Ceresoli <luca@lucaceresoli.net>
-+ * Author: Luca Ceresoli <luca.ceresoli@bootlin.com>
-  */
+diff --git a/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml b/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
+index be66f1e8b547..7c331bfbe370 100644
+--- a/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
++++ b/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
+@@ -45,7 +45,7 @@ description: |
+   The case where SH and SP are both 1 is likely not very interesting.
  
- #include <linux/i2c.h>
-@@ -148,5 +148,5 @@ static struct i2c_driver max77714_driver = {
- module_i2c_driver(max77714_driver);
+ maintainers:
+-  - Luca Ceresoli <luca@lucaceresoli.net>
++  - Luca Ceresoli <luca.ceresoli@bootlin.com>
  
- MODULE_DESCRIPTION("Maxim MAX77714 MFD core driver");
--MODULE_AUTHOR("Luca Ceresoli <luca@lucaceresoli.net>");
-+MODULE_AUTHOR("Luca Ceresoli <luca.ceresoli@bootlin.com>");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/max77714.h b/include/linux/mfd/max77714.h
-index a970dc455426..7947e0d697a5 100644
---- a/include/linux/mfd/max77714.h
-+++ b/include/linux/mfd/max77714.h
-@@ -3,7 +3,7 @@
-  * Maxim MAX77714 Register and data structures definition.
-  *
-  * Copyright (C) 2022 Luca Ceresoli
-- * Author: Luca Ceresoli <luca@lucaceresoli.net>
-+ * Author: Luca Ceresoli <luca.ceresoli@bootlin.com>
-  */
+ properties:
+   compatible:
+diff --git a/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml b/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
+index 74a6867d3c82..edac14af101e 100644
+--- a/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
++++ b/Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: MAX77714 PMIC with GPIO, RTC and watchdog from Maxim Integrated.
  
- #ifndef __LINUX_MFD_MAX77714_H_
+ maintainers:
+-  - Luca Ceresoli <luca@lucaceresoli.net>
++  - Luca Ceresoli <luca.ceresoli@bootlin.com>
+ 
+ description: |
+   MAX77714 is a Power Management IC with 4 buck regulators, 9
+diff --git a/Documentation/devicetree/bindings/power/supply/maxim,max77976.yaml b/Documentation/devicetree/bindings/power/supply/maxim,max77976.yaml
+index 675b9b26d233..f23dcc50793e 100644
+--- a/Documentation/devicetree/bindings/power/supply/maxim,max77976.yaml
++++ b/Documentation/devicetree/bindings/power/supply/maxim,max77976.yaml
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: Maxim Integrated MAX77976 Battery charger
+ 
+ maintainers:
+-  - Luca Ceresoli <luca@lucaceresoli.net>
++  - Luca Ceresoli <luca.ceresoli@bootlin.com>
+ 
+ description: |
+   The Maxim MAX77976 is a 19Vin / 5.5A, 1-Cell Li+ battery charger
 -- 
 2.25.1
 
