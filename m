@@ -2,25 +2,25 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30569C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Jun 2022 17:08:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E870CC433EF
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Jun 2022 17:13:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343630AbiFCRIx (ORCPT
+        id S1344327AbiFCRNb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Jun 2022 13:08:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52084 "EHLO
+        Fri, 3 Jun 2022 13:13:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbiFCRIv (ORCPT
+        with ESMTP id S1344349AbiFCRNW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Jun 2022 13:08:51 -0400
+        Fri, 3 Jun 2022 13:13:22 -0400
 Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 966355250B;
-        Fri,  3 Jun 2022 10:08:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9400537A03;
+        Fri,  3 Jun 2022 10:13:20 -0700 (PDT)
 Received: from [77.244.183.192] (port=64530 helo=melee.fritz.box)
         by hostingweb31.netsons.net with esmtpa (Exim 4.95)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1nx9iW-0009cb-2q;
-        Fri, 03 Jun 2022 18:00:04 +0200
+        id 1nx9iA-0009cb-Tu;
+        Fri, 03 Jun 2022 17:59:43 +0200
 From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Michael Turquette <mturquette@baylibre.com>,
@@ -37,9 +37,9 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Luca Ceresoli <luca@lucaceresoli.net>,
         Luca Ceresoli <luca.ceresoli@bootlin.com>
-Subject: [PATCH 6/6] watchdog: max77620: update Luca Ceresoli's e-mail address
-Date:   Fri,  3 Jun 2022 17:57:27 +0200
-Message-Id: <20220603155727.1232061-6-luca@lucaceresoli.net>
+Subject: [PATCH 3/6] media: i2c: imx274: update Luca Ceresoli's e-mail address
+Date:   Fri,  3 Jun 2022 17:57:24 +0200
+Message-Id: <20220603155727.1232061-3-luca@lucaceresoli.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220603155727.1232061-1-luca@lucaceresoli.net>
 References: <20220603155727.1232061-1-luca@lucaceresoli.net>
@@ -64,29 +64,22 @@ My Bootlin address is preferred from now on.
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
 ---
- drivers/watchdog/max77620_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/imx274.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-index b76ad6ba0915..33835c0b06de 100644
---- a/drivers/watchdog/max77620_wdt.c
-+++ b/drivers/watchdog/max77620_wdt.c
+diff --git a/drivers/media/i2c/imx274.c b/drivers/media/i2c/imx274.c
+index 7de1f2948e53..ee07b50b0702 100644
+--- a/drivers/media/i2c/imx274.c
++++ b/drivers/media/i2c/imx274.c
 @@ -6,7 +6,7 @@
-  * Copyright (C) 2022 Luca Ceresoli
   *
-  * Author: Laxman Dewangan <ldewangan@nvidia.com>
-- * Author: Luca Ceresoli <luca@lucaceresoli.net>
-+ * Author: Luca Ceresoli <luca.ceresoli@bootlin.com>
+  * Leon Luo <leonl@leopardimaging.com>
+  * Edwin Zou <edwinz@leopardimaging.com>
+- * Luca Ceresoli <luca@lucaceresoli.net>
++ * Luca Ceresoli <luca.ceresoli@bootlin.com>
   */
  
- #include <linux/err.h>
-@@ -260,5 +260,5 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
- MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
--MODULE_AUTHOR("Luca Ceresoli <luca@lucaceresoli.net>");
-+MODULE_AUTHOR("Luca Ceresoli <luca.ceresoli@bootlin.com>");
- MODULE_LICENSE("GPL v2");
+ #include <linux/clk.h>
 -- 
 2.25.1
 
