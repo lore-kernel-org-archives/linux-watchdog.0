@@ -2,45 +2,45 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1B0CCCA48E
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:42:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E11E5CCA48C
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:42:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241876AbiFFQmD (ORCPT
+        id S241899AbiFFQmU (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jun 2022 12:42:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        Mon, 6 Jun 2022 12:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbiFFQl4 (ORCPT
+        with ESMTP id S241896AbiFFQmP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jun 2022 12:41:56 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E76DF8B;
-        Mon,  6 Jun 2022 09:41:54 -0700 (PDT)
+        Mon, 6 Jun 2022 12:42:15 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241A614AF6F;
+        Mon,  6 Jun 2022 09:42:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654533714; x=1686069714;
+  t=1654533723; x=1686069723;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=RI6UqOh9xYxAqMF8vYRnoqK0g1vUqPho6h1TZ3tsMs0=;
-  b=bKyKxpFTr8JCaLEaBiVouN7EWZFr0Us16prKB3fJBifWg8wFJR6IXnDl
-   lIycI/p1K/l5r062zHjleG0TPR+Mi8sQyzpVGM9xvU525ZR8NPhWZyAx9
-   RCiGVubp0nV5JvoY8rv7/iD5B4yppw0Ps+3RUV0Nq15lWjuWeB+Z6LbjW
-   rqKt90BGoUU+9xacVwwCCcOMqL6ozKBAGtqoMytyg6Cw82tQoPc6fBwCl
-   Gridm6KbiseW3mlYt8WEBnK9iRn9ZbsEE6OZYHsugfH4/Yeyrtt6cRDdv
-   +JMvT39SgGJ7rcG48sZct/kkiFxLEeCH72B425UjKuDXVq2X3ch1pfP4S
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="275446378"
+  bh=i/BHfkSClXrJHdGjI0wAgKwK+rSAKuDD4h/xRkOs6sU=;
+  b=BMrK5INwNSNRMu5VBtAx5fUS/2hNo6WsJNTeCA9vsLX7/cbXEyYPv9n5
+   cNLk8NlEmu9iAk3QqcswrXJa7Yc4EThj0dgbxGaXVx+lOrnfRiDeG0ZE6
+   XYTbn595Rif5Fh1NXh1g8rRPAv/E7z4PK2dq1Po9D7fnGlSSVkJonmw62
+   UwTCRzxzatqXxYOu+aaORjSxe09hZePy2DEFWap3qRh30yxnZQUDpoRvB
+   jBkjATbD85aL01osyX737Ylto4zLFKRtdneV6WQ0PkuoC4H0d9lQyUuJG
+   kUUYof9vv9crXx3/48XRYrWSOAajqwDKoFJFx5t790KtMU0B5bNOfoDII
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="302031893"
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="275446378"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:41:54 -0700
+   d="scan'208";a="302031893"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:42:02 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="906623914"
+   d="scan'208";a="608819859"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga005.fm.intel.com with ESMTP; 06 Jun 2022 09:41:47 -0700
+  by orsmga008.jf.intel.com with ESMTP; 06 Jun 2022 09:41:55 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 7CE85A97; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
+        id D8EEC10D6; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Tony Luck <tony.luck@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -66,9 +66,9 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Peter Tyser <ptyser@xes-inc.com>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>
-Subject: [PATCH v6 03/12] mfd: lpc_ich: Factor out lpc_ich_enable_spi_write()
-Date:   Mon,  6 Jun 2022 19:41:29 +0300
-Message-Id: <20220606164138.66535-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v6 10/12] leds: simatic-ipc-leds: convert to use P2SB accessor
+Date:   Mon,  6 Jun 2022 19:41:36 +0300
+Message-Id: <20220606164138.66535-11-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
@@ -78,79 +78,74 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Factor out duplicate code to lpc_ich_enable_spi_write() helper function.
+From: Henning Schild <henning.schild@siemens.com>
 
+Since we have a common P2SB accessor in tree we may use it instead of
+open coded variants.
+
+Replace custom code by p2sb_bar() call.
+
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Henning Schild <henning.schild@siemens.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mfd/lpc_ich.c | 31 ++++++++++++++-----------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ drivers/leds/simple/Kconfig            |  1 +
+ drivers/leds/simple/simatic-ipc-leds.c | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
-index 9ffab9aafd81..d9175cb8a2d5 100644
---- a/drivers/mfd/lpc_ich.c
-+++ b/drivers/mfd/lpc_ich.c
-@@ -1100,35 +1100,32 @@ static bool lpc_ich_byt_set_writeable(void __iomem *base, void *data)
- 	return val & BYT_BCR_WPD;
- }
+diff --git a/drivers/leds/simple/Kconfig b/drivers/leds/simple/Kconfig
+index 9f6a68336659..bbf8cff3c3f6 100644
+--- a/drivers/leds/simple/Kconfig
++++ b/drivers/leds/simple/Kconfig
+@@ -3,6 +3,7 @@ config LEDS_SIEMENS_SIMATIC_IPC
+ 	tristate "LED driver for Siemens Simatic IPCs"
+ 	depends on LEDS_CLASS
+ 	depends on SIEMENS_SIMATIC_IPC
++	select P2SB
+ 	help
+ 	  This option enables support for the LEDs of several Industrial PCs
+ 	  from Siemens.
+diff --git a/drivers/leds/simple/simatic-ipc-leds.c b/drivers/leds/simple/simatic-ipc-leds.c
+index 078d43f5ba38..2e7597c143d8 100644
+--- a/drivers/leds/simple/simatic-ipc-leds.c
++++ b/drivers/leds/simple/simatic-ipc-leds.c
+@@ -15,6 +15,7 @@
+ #include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
++#include <linux/platform_data/x86/p2sb.h>
+ #include <linux/platform_data/x86/simatic-ipc-base.h>
+ #include <linux/platform_device.h>
+ #include <linux/sizes.h>
+@@ -38,8 +39,8 @@ static struct simatic_ipc_led simatic_ipc_leds_io[] = {
+ 	{ }
+ };
  
--static bool lpc_ich_lpt_set_writeable(void __iomem *base, void *data)
-+static bool lpc_ich_set_writeable(struct pci_bus *bus, unsigned int devfn)
- {
--	struct pci_dev *pdev = data;
- 	u32 bcr;
+-/* the actual start will be discovered with PCI, 0 is a placeholder */
+-static struct resource simatic_ipc_led_mem_res = DEFINE_RES_MEM_NAMED(0, SZ_4K, KBUILD_MODNAME);
++/* the actual start will be discovered with p2sb, 0 is a placeholder */
++static struct resource simatic_ipc_led_mem_res = DEFINE_RES_MEM_NAMED(0, 0, KBUILD_MODNAME);
  
--	pci_read_config_dword(pdev, BCR, &bcr);
-+	pci_bus_read_config_dword(bus, devfn, BCR, &bcr);
- 	if (!(bcr & BCR_WPD)) {
- 		bcr |= BCR_WPD;
--		pci_write_config_dword(pdev, BCR, bcr);
--		pci_read_config_dword(pdev, BCR, &bcr);
-+		pci_bus_write_config_dword(bus, devfn, BCR, bcr);
-+		pci_bus_read_config_dword(bus, devfn, BCR, &bcr);
- 	}
+ static void __iomem *simatic_ipc_led_memory;
  
- 	return bcr & BCR_WPD;
- }
+@@ -145,14 +146,13 @@ static int simatic_ipc_leds_probe(struct platform_device *pdev)
+ 		ipcled = simatic_ipc_leds_mem;
+ 		type = IORESOURCE_MEM;
  
--static bool lpc_ich_bxt_set_writeable(void __iomem *base, void *data)
-+static bool lpc_ich_lpt_set_writeable(void __iomem *base, void *data)
- {
--	unsigned int spi = PCI_DEVFN(13, 2);
--	struct pci_bus *bus = data;
--	u32 bcr;
-+	struct pci_dev *pdev = data;
+-		/* get GPIO base from PCI */
+-		res->start = simatic_ipc_get_membase0(PCI_DEVFN(13, 0));
+-		if (res->start == 0)
+-			return -ENODEV;
++		err = p2sb_bar(NULL, 0, res);
++		if (err)
++			return err;
  
--	pci_bus_read_config_dword(bus, spi, BCR, &bcr);
--	if (!(bcr & BCR_WPD)) {
--		bcr |= BCR_WPD;
--		pci_bus_write_config_dword(bus, spi, BCR, bcr);
--		pci_bus_read_config_dword(bus, spi, BCR, &bcr);
--	}
-+	return lpc_ich_set_writeable(pdev->bus, pdev->devfn);
-+}
+ 		/* do the final address calculation */
+ 		res->start = res->start + (0xC5 << 16);
+-		res->end += res->start;
++		res->end = res->start + SZ_4K - 1;
  
--	return bcr & BCR_WPD;
-+static bool lpc_ich_bxt_set_writeable(void __iomem *base, void *data)
-+{
-+	struct pci_dev *pdev = data;
-+
-+	return lpc_ich_set_writeable(pdev->bus, PCI_DEVFN(13, 2));
- }
- 
- static int lpc_ich_init_spi(struct pci_dev *dev)
-@@ -1185,7 +1182,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
- 			res->end = res->start + SPIBASE_APL_SZ - 1;
- 
- 			info->set_writeable = lpc_ich_bxt_set_writeable;
--			info->data = bus;
-+			info->data = dev;
- 		}
- 
- 		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x1);
+ 		simatic_ipc_led_memory = devm_ioremap_resource(dev, res);
+ 		if (IS_ERR(simatic_ipc_led_memory))
 -- 
 2.35.1
 
