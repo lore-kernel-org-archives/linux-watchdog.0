@@ -2,45 +2,45 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C9C6CCA482
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:47:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF7A9CCA473
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 17:14:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242029AbiFFQrK (ORCPT
+        id S229698AbiFFROH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jun 2022 12:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41452 "EHLO
+        Mon, 6 Jun 2022 13:14:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230448AbiFFQrJ (ORCPT
+        with ESMTP id S229831AbiFFRNs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jun 2022 12:47:09 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91D460D0;
-        Mon,  6 Jun 2022 09:47:06 -0700 (PDT)
+        Mon, 6 Jun 2022 13:13:48 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B793878A;
+        Mon,  6 Jun 2022 10:04:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654534027; x=1686070027;
+  t=1654535076; x=1686071076;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=zMDaFErYdosBw6t1cOtbrQIJ7oAPIRfoeWKglruaukA=;
-  b=ngSGUCoP+53yBtO2vvAp2hb7nOD7i83VLg/OoCw/YBEByJLBucLBQreE
-   lLsGeH8LZgaOINL8hpYN24CeaGzT1TrzK8BAtzIZy2oZsJTwaiPEUagX7
-   JcCZmeasAi0OXgmKzvUf731H+fN7oV5pzo2hmtbEh0EuUrvEnHm5u2iqy
-   qtC2QbBEbpIDfNhl6vshRRLYZLXIDC2UFe3lWJW2C/fVEpCULDDtNcEa0
-   U3EI/ME/kCYITlI6v4riaIPsyLd1kdVRjZB6mTl+leVgYyYWd9CD+nW12
-   j4QQPcg+se/yrPSgMUTH3QvU+IeZiaD40gKMO+UNblJDTtU9z6yPIIZQQ
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="276760031"
+  bh=8B3oBa5J+/nZtfBbVHEcmqTofXo8TT8r9m6GWKF4qqA=;
+  b=VOXLQdbqEmDOjfQLktWJcGsVLYc1dwvVlie7eG5SUvbUDdvn9gyVgaPj
+   NVIJWWV9F6GN8AS54gAf9qZGQdzBEONDo4/LHw125sVOwcugo/sOnV7YD
+   XzwHpbBeKGqMGcVCxRdgN8cED4XCGmPpiiL6OjZKwqgoUqVCGtZmJyF8e
+   n2bE7jOAo3vR9rmJnSsgUqwO+b5tDL9pZjo3wp+BiiZbLwJrYo974aUST
+   0FsnKdTaaVDmmYCtSqFaLd+bpplGAwVxAuJki9f/rK3taaSyfjlLHcEto
+   NAU/lLHBW7DZqQIHply7dTwWsUownZin9C8saFPr/hfOW8LdeBvPEs6ok
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="277055858"
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="276760031"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:42:02 -0700
+   d="scan'208";a="277055858"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:42:02 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="758640349"
+   d="scan'208";a="709122657"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 06 Jun 2022 09:41:55 -0700
+  by orsmga004.jf.intel.com with ESMTP; 06 Jun 2022 09:41:55 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id CE26E10C1; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
+        id E430A11FA; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Tony Luck <tony.luck@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -66,9 +66,9 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Peter Tyser <ptyser@xes-inc.com>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>
-Subject: [PATCH v6 09/12] watchdog: simatic-ipc-wdt: convert to use P2SB accessor
-Date:   Mon,  6 Jun 2022 19:41:35 +0300
-Message-Id: <20220606164138.66535-10-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v6 11/12] platform/x86: simatic-ipc: drop custom P2SB bar code
+Date:   Mon,  6 Jun 2022 19:41:37 +0300
+Message-Id: <20220606164138.66535-12-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
@@ -80,83 +80,76 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Henning Schild <henning.schild@siemens.com>
 
-Since we have a common P2SB accessor in tree we may use it instead of
-open coded variants.
-
-Replace custom code by p2sb_bar() call.
+The two drivers that used to use this have been switched over to the
+common P2SB accessor, so this code is not needed any longer.
 
 Signed-off-by: Henning Schild <henning.schild@siemens.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/watchdog/Kconfig           |  1 +
- drivers/watchdog/simatic-ipc-wdt.c | 15 ++++++++-------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/platform/x86/simatic-ipc.c            | 38 -------------------
+ .../platform_data/x86/simatic-ipc-base.h      |  2 -
+ 2 files changed, 40 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 32fd37698932..0796f6a9e8ff 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1647,6 +1647,7 @@ config SIEMENS_SIMATIC_IPC_WDT
- 	tristate "Siemens Simatic IPC Watchdog"
- 	depends on SIEMENS_SIMATIC_IPC
- 	select WATCHDOG_CORE
-+	select P2SB
- 	help
- 	  This driver adds support for several watchdogs found in Industrial
- 	  PCs from Siemens.
-diff --git a/drivers/watchdog/simatic-ipc-wdt.c b/drivers/watchdog/simatic-ipc-wdt.c
-index 8bac793c63fb..6599695dc672 100644
---- a/drivers/watchdog/simatic-ipc-wdt.c
-+++ b/drivers/watchdog/simatic-ipc-wdt.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-+#include <linux/platform_data/x86/p2sb.h>
- #include <linux/platform_data/x86/simatic-ipc-base.h>
- #include <linux/platform_device.h>
- #include <linux/sizes.h>
-@@ -54,9 +55,9 @@ static struct resource io_resource_trigger =
- 	DEFINE_RES_IO_NAMED(WD_TRIGGER_IOADR, SZ_1,
- 			    KBUILD_MODNAME " WD_TRIGGER_IOADR");
+diff --git a/drivers/platform/x86/simatic-ipc.c b/drivers/platform/x86/simatic-ipc.c
+index b599cda5ba3c..26c35e1660cb 100644
+--- a/drivers/platform/x86/simatic-ipc.c
++++ b/drivers/platform/x86/simatic-ipc.c
+@@ -101,44 +101,6 @@ static int register_platform_devices(u32 station_id)
+ 	return 0;
+ }
  
--/* the actual start will be discovered with pci, 0 is a placeholder */
-+/* the actual start will be discovered with p2sb, 0 is a placeholder */
- static struct resource mem_resource =
--	DEFINE_RES_MEM_NAMED(0, SZ_4, "WD_RESET_BASE_ADR");
-+	DEFINE_RES_MEM_NAMED(0, 0, "WD_RESET_BASE_ADR");
+-/* FIXME: this should eventually be done with generic P2SB discovery code
+- * the individual drivers for watchdogs and LEDs access memory that implements
+- * GPIO, but pinctrl will not come up because of missing ACPI entries
+- *
+- * While there is no conflict a cleaner solution would be to somehow bring up
+- * pinctrl even with these ACPI entries missing, and base the drivers on pinctrl.
+- * After which the following function could be dropped, together with the code
+- * poking the memory.
+- */
+-/*
+- * Get membase address from PCI, used in leds and wdt module. Here we read
+- * the bar0. The final address calculation is done in the appropriate modules
+- */
+-u32 simatic_ipc_get_membase0(unsigned int p2sb)
+-{
+-	struct pci_bus *bus;
+-	u32 bar0 = 0;
+-	/*
+-	 * The GPIO memory is in bar0 of the hidden P2SB device.
+-	 * Unhide the device to have a quick look at it, before we hide it
+-	 * again.
+-	 * Also grab the pci rescan lock so that device does not get discovered
+-	 * and remapped while it is visible.
+-	 * This code is inspired by drivers/mfd/lpc_ich.c
+-	 */
+-	bus = pci_find_bus(0, 0);
+-	pci_lock_rescan_remove();
+-	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x0);
+-	pci_bus_read_config_dword(bus, p2sb, PCI_BASE_ADDRESS_0, &bar0);
+-
+-	bar0 &= ~0xf;
+-	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x1);
+-	pci_unlock_rescan_remove();
+-
+-	return bar0;
+-}
+-EXPORT_SYMBOL(simatic_ipc_get_membase0);
+-
+ static int __init simatic_ipc_init_module(void)
+ {
+ 	const struct dmi_system_id *match;
+diff --git a/include/linux/platform_data/x86/simatic-ipc-base.h b/include/linux/platform_data/x86/simatic-ipc-base.h
+index 62d2bc774067..39fefd48cf4d 100644
+--- a/include/linux/platform_data/x86/simatic-ipc-base.h
++++ b/include/linux/platform_data/x86/simatic-ipc-base.h
+@@ -24,6 +24,4 @@ struct simatic_ipc_platform {
+ 	u8	devmode;
+ };
  
- static u32 wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
- static void __iomem *wd_reset_base_addr;
-@@ -150,6 +151,7 @@ static int simatic_ipc_wdt_probe(struct platform_device *pdev)
- 	struct simatic_ipc_platform *plat = pdev->dev.platform_data;
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
-+	int ret;
- 
- 	switch (plat->devmode) {
- 	case SIMATIC_IPC_DEVICE_227E:
-@@ -190,15 +192,14 @@ static int simatic_ipc_wdt_probe(struct platform_device *pdev)
- 	if (plat->devmode == SIMATIC_IPC_DEVICE_427E) {
- 		res = &mem_resource;
- 
--		/* get GPIO base from PCI */
--		res->start = simatic_ipc_get_membase0(PCI_DEVFN(0x1f, 1));
--		if (res->start == 0)
--			return -ENODEV;
-+		ret = p2sb_bar(NULL, 0, res);
-+		if (ret)
-+			return ret;
- 
- 		/* do the final address calculation */
- 		res->start = res->start + (GPIO_COMMUNITY0_PORT_ID << 16) +
- 			     PAD_CFG_DW0_GPP_A_23;
--		res->end += res->start;
-+		res->end = res->start + SZ_4 - 1;
- 
- 		wd_reset_base_addr = devm_ioremap_resource(dev, res);
- 		if (IS_ERR(wd_reset_base_addr))
+-u32 simatic_ipc_get_membase0(unsigned int p2sb);
+-
+ #endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H */
 -- 
 2.35.1
 
