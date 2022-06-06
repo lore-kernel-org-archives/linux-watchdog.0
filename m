@@ -2,45 +2,45 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07139CCA473
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:42:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA726CCA473
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:46:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241926AbiFFQm0 (ORCPT
+        id S241987AbiFFQq1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jun 2022 12:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44376 "EHLO
+        Mon, 6 Jun 2022 12:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241869AbiFFQmQ (ORCPT
+        with ESMTP id S230448AbiFFQq0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jun 2022 12:42:16 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C9112A96;
-        Mon,  6 Jun 2022 09:42:06 -0700 (PDT)
+        Mon, 6 Jun 2022 12:46:26 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A8A415BAE2;
+        Mon,  6 Jun 2022 09:46:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654533727; x=1686069727;
+  t=1654533985; x=1686069985;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=kPfOvWxtiOQgydvhidTbirNyYEpGUtcQOWxp4O2/dTk=;
-  b=M1FkoIGpdtkIE3Ex55nVqOW7QEhDG/b53A6t9t023pQ8w9TJh7gF4Sdr
-   Yrl+Ihv0EpPGpRndSIQSjBEK4WsOY2CnvITaZO1UUpOQq0MYXYR98S6b8
-   k3DC0mvy0s76Q7j+EQ0xtdNrvXmJakE8JiJnB4d24CFMJNnwwQilAZtIT
-   oFbByyItxnNNquCkBJaWKp9FJtzXkKYYWwIOUu7VAOwjihC6r+RzH7CLg
-   LnOf94LG3AVeUQB55+xfqeBSiUvStc0RDUijJkGaYJiyNXc5w3rMEu/4F
-   xxEC02k4gm81dVxxaJFdx0nA03cILCGpg+RVQUxdfmaYgKfRaEttqxbYg
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="275446410"
+  bh=Y7E4CLRa6BgtD+lqadZc0VtoWUMuhkwoVujS7HBVdOA=;
+  b=Bb5yvQn4U7Unc9LHRwuLc04qwcd5V/mfjRBnCgR2HF9A2v+KJzkVOXLe
+   mm6EDL3YHal8FT3YP1l/6lbwO/Gxy75TjBJouBjwJHFy+YuCITLN3f57U
+   NkhltW0TP+EfhITZbVmChU2cmRM5TLds8TxWppW+mAas9Zrk8FmrYe2mS
+   GkzqD/9YiGw67C12a+cJ5pzGAjS938SQhtnwQJ6rr+5RJeV5rl7QQ3Nz/
+   J87s6fYWAd3mYk9vYbQnHlbxA1qd8Ugpb6m5Zycc8mcqgKuIIXG5NZAOr
+   wB0XsHyyxtRD4F7zcSHNw5XXy1jeliQRbN3Z/EkIqvgFmY+6GdcjUk575
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="259081431"
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="275446410"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:42:06 -0700
+   d="scan'208";a="259081431"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:41:54 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="579224475"
+   d="scan'208";a="532206862"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga007.jf.intel.com with ESMTP; 06 Jun 2022 09:41:55 -0700
+  by orsmga003.jf.intel.com with ESMTP; 06 Jun 2022 09:41:47 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id B81D6F60; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
+        id 8A9D6B85; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Tony Luck <tony.luck@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -66,9 +66,9 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Peter Tyser <ptyser@xes-inc.com>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>
-Subject: [PATCH v6 07/12] EDAC, pnd2: Use proper I/O accessors and address space annotation
-Date:   Mon,  6 Jun 2022 19:41:33 +0300
-Message-Id: <20220606164138.66535-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v6 04/12] mfd: lpc_ich: Switch to generic p2sb_bar()
+Date:   Mon,  6 Jun 2022 19:41:30 +0300
+Message-Id: <20220606164138.66535-5-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
@@ -78,41 +78,102 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The driver uses rather voodoo kind of castings and I/O accessors.
-Replace it with proper __iomem annotation and readl()/readq() calls.
+Instead of open coding p2sb_bar() functionality we are going to
+use generic library. There is one more user en route.
+
+This is more than just a clean-up. It also fixes a potential issue
+seen when SPI BAR is 64-bit. The current code works if and only if
+the PCI BAR of the hidden device is inside 4G address space. In case
+when firmware decides to go above 4G, we will get a wrong address.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Henning Schild <henning.schild@siemens.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/edac/pnd2_edac.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/mfd/Kconfig   |  1 +
+ drivers/mfd/lpc_ich.c | 27 ++++++++-------------------
+ 2 files changed, 9 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index c94ca1f790c4..7d1df120e24c 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -265,7 +265,7 @@ static u64 get_sideband_reg_base_addr(void)
- static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *name)
- {
- 	struct pci_dev *pdev;
--	char *base;
-+	void __iomem *base;
- 	u64 addr;
- 	unsigned long size;
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 3b59456f5545..9566341de470 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -572,6 +572,7 @@ config LPC_ICH
+ 	tristate "Intel ICH LPC"
+ 	depends on PCI
+ 	select MFD_CORE
++	select P2SB if X86
+ 	help
+ 	  The LPC bridge function of the Intel ICH provides support for
+ 	  many functional units. This driver provides needed support for
+diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+index d9175cb8a2d5..e360651c5406 100644
+--- a/drivers/mfd/lpc_ich.c
++++ b/drivers/mfd/lpc_ich.c
+@@ -45,6 +45,7 @@
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
+ #include <linux/platform_data/itco_wdt.h>
++#include <linux/platform_data/x86/p2sb.h>
  
-@@ -297,8 +297,9 @@ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
- 			return -ENODEV;
+ #define ACPIBASE		0x40
+ #define ACPIBASE_GPE_OFF	0x28
+@@ -71,8 +72,6 @@
+ #define BCR			0xdc
+ #define BCR_WPD			BIT(0)
  
- 		if (sz == 8)
--			*(u32 *)(data + 4) = *(u32 *)(base + off + 4);
--		*(u32 *)data = *(u32 *)(base + off);
-+			*(u64 *)data = readq(base + off);
-+		else
-+			*(u32 *)data = readl(base + off);
+-#define SPIBASE_APL_SZ		4096
+-
+ #define GPIOBASE_ICH0		0x58
+ #define GPIOCTRL_ICH0		0x5C
+ #define GPIOBASE_ICH6		0x48
+@@ -1134,6 +1133,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
+ 	struct resource *res = &intel_spi_res[0];
+ 	struct intel_spi_boardinfo *info;
+ 	u32 spi_base, rcba;
++	int ret;
  
- 		iounmap(base);
- 	}
+ 	info = devm_kzalloc(&dev->dev, sizeof(*info), GFP_KERNEL);
+ 	if (!info)
+@@ -1164,30 +1164,19 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
+ 		}
+ 		break;
+ 
+-	case INTEL_SPI_BXT: {
+-		unsigned int p2sb = PCI_DEVFN(13, 0);
+-		unsigned int spi = PCI_DEVFN(13, 2);
+-		struct pci_bus *bus = dev->bus;
+-
++	case INTEL_SPI_BXT:
+ 		/*
+ 		 * The P2SB is hidden by BIOS and we need to unhide it in
+ 		 * order to read BAR of the SPI flash device. Once that is
+ 		 * done we hide it again.
+ 		 */
+-		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x0);
+-		pci_bus_read_config_dword(bus, spi, PCI_BASE_ADDRESS_0,
+-					  &spi_base);
+-		if (spi_base != ~0) {
+-			res->start = spi_base & 0xfffffff0;
+-			res->end = res->start + SPIBASE_APL_SZ - 1;
+-
+-			info->set_writeable = lpc_ich_bxt_set_writeable;
+-			info->data = dev;
+-		}
++		ret = p2sb_bar(dev->bus, PCI_DEVFN(13, 2), res);
++		if (ret)
++			return ret;
+ 
+-		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x1);
++		info->set_writeable = lpc_ich_bxt_set_writeable;
++		info->data = dev;
+ 		break;
+-	}
+ 
+ 	default:
+ 		return -EINVAL;
 -- 
 2.35.1
 
