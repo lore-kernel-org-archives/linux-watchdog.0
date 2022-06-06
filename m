@@ -2,154 +2,136 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF7A9CCA473
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 17:14:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55E5BCCA473
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 22:51:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbiFFROH (ORCPT
+        id S232401AbiFFWvy (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Jun 2022 13:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
+        Mon, 6 Jun 2022 18:51:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229831AbiFFRNs (ORCPT
+        with ESMTP id S232248AbiFFWvx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Jun 2022 13:13:48 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B793878A;
-        Mon,  6 Jun 2022 10:04:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654535076; x=1686071076;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=8B3oBa5J+/nZtfBbVHEcmqTofXo8TT8r9m6GWKF4qqA=;
-  b=VOXLQdbqEmDOjfQLktWJcGsVLYc1dwvVlie7eG5SUvbUDdvn9gyVgaPj
-   NVIJWWV9F6GN8AS54gAf9qZGQdzBEONDo4/LHw125sVOwcugo/sOnV7YD
-   XzwHpbBeKGqMGcVCxRdgN8cED4XCGmPpiiL6OjZKwqgoUqVCGtZmJyF8e
-   n2bE7jOAo3vR9rmJnSsgUqwO+b5tDL9pZjo3wp+BiiZbLwJrYo974aUST
-   0FsnKdTaaVDmmYCtSqFaLd+bpplGAwVxAuJki9f/rK3taaSyfjlLHcEto
-   NAU/lLHBW7DZqQIHply7dTwWsUownZin9C8saFPr/hfOW8LdeBvPEs6ok
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="277055858"
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="277055858"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:42:02 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="709122657"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 06 Jun 2022 09:41:55 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id E430A11FA; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Tony Luck <tony.luck@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Henning Schild <henning.schild@siemens.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Mon, 6 Jun 2022 18:51:53 -0400
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB81512AAD;
+        Mon,  6 Jun 2022 15:51:52 -0700 (PDT)
+Received: by mail-il1-f171.google.com with SMTP id y16so12990688ili.13;
+        Mon, 06 Jun 2022 15:51:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vnL10i9b7RWVPFntTkTs63ETZHkZVU4m6YqQkxBLyPI=;
+        b=Fo4V4TxJE8yaK58bV6lEQWEE+e5d6s6iIpWefgtcd35USpFJOPYRKkmC77JNqSjvQY
+         j4Eocoa2i/PFX4LAy4f/ZVkgfl5zreqsb/nXp1fTSbhJjqwMnbSLNvn009hmRQDz2pOl
+         NsctmPgw5sISeKxhk+q0IGaTGdcS7e1c/3dQRLdaB5R8OPhqTg2hcymem4olI+AfMj7W
+         WNYnImjhvGCqZf3eUMbEcFKaMfHnS2oPcuG76KtN2i0+RVDqamvb+dDmsK47nhUgqdtO
+         RQNUbFQInjd4MZ+vBQRi0MLDf7oWLDx1VMip5Jw56/kYP22z8L1wkVUaZah2mGHmpRf2
+         MRqg==
+X-Gm-Message-State: AOAM532/ktpMSWOKbWSN6imwKHLF749lnUMnJ/VddIVMOEcoXTb8RWNz
+        ujX0sAumV9TNnZmO3euuIA==
+X-Google-Smtp-Source: ABdhPJyAQUX2H8fc0GojDtjC87rM9lUE0xrU9ZS9ZA5TIL7KupIiDXA9szJb+jy1xUCWw/NBrpswhw==
+X-Received: by 2002:a92:cf52:0:b0:2d3:afc7:2379 with SMTP id c18-20020a92cf52000000b002d3afc72379mr15153701ilr.310.1654555911895;
+        Mon, 06 Jun 2022 15:51:51 -0700 (PDT)
+Received: from xps15.herring.priv ([64.188.179.251])
+        by smtp.googlemail.com with ESMTPSA id d18-20020a056e020bf200b002cde6e352d4sm6644019ilu.30.2022.06.06.15.51.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 15:51:51 -0700 (PDT)
+From:   Rob Herring <robh@kernel.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Hu Ziji <huziji@marvell.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-gpio@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Cc:     Borislav Petkov <bp@alien8.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>, Pavel Machek <pavel@ucw.cz>,
-        Peter Tyser <ptyser@xes-inc.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Mark Gross <markgross@kernel.org>
-Subject: [PATCH v6 11/12] platform/x86: simatic-ipc: drop custom P2SB bar code
-Date:   Mon,  6 Jun 2022 19:41:37 +0300
-Message-Id: <20220606164138.66535-12-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
-References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
+        Guenter Roeck <linux@roeck-us.net>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <mripard@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH] dt-bindings: Drop more redundant 'maxItems/minItems' in if/then schemas
+Date:   Mon,  6 Jun 2022 17:51:36 -0500
+Message-Id: <20220606225137.1536010-1-robh@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Henning Schild <henning.schild@siemens.com>
+Another round from new cases in 5.19-rc of removing redundant
+minItems/maxItems when 'items' list is specified. This time it is in
+if/then schemas as the meta-schema was failing to check this case.
 
-The two drivers that used to use this have been switched over to the
-common P2SB accessor, so this code is not needed any longer.
+If a property has an 'items' list, then a 'minItems' or 'maxItems' with the
+same size as the list is redundant and can be dropped. Note that is DT
+schema specific behavior and not standard json-schema behavior. The tooling
+will fixup the final schema adding any unspecified minItems/maxItems.
 
-Signed-off-by: Henning Schild <henning.schild@siemens.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- drivers/platform/x86/simatic-ipc.c            | 38 -------------------
- .../platform_data/x86/simatic-ipc-base.h      |  2 -
- 2 files changed, 40 deletions(-)
+ .../bindings/memory-controllers/nvidia,tegra186-mc.yaml        | 3 ---
+ Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml | 1 -
+ .../devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml  | 1 -
+ 3 files changed, 5 deletions(-)
 
-diff --git a/drivers/platform/x86/simatic-ipc.c b/drivers/platform/x86/simatic-ipc.c
-index b599cda5ba3c..26c35e1660cb 100644
---- a/drivers/platform/x86/simatic-ipc.c
-+++ b/drivers/platform/x86/simatic-ipc.c
-@@ -101,44 +101,6 @@ static int register_platform_devices(u32 station_id)
- 	return 0;
- }
+diff --git a/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml b/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
+index c7cfa6c2cd81..935d63d181d9 100644
+--- a/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
++++ b/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
+@@ -150,7 +150,6 @@ allOf:
+           description: 5 memory controller channels and 1 for stream-id registers
  
--/* FIXME: this should eventually be done with generic P2SB discovery code
-- * the individual drivers for watchdogs and LEDs access memory that implements
-- * GPIO, but pinctrl will not come up because of missing ACPI entries
-- *
-- * While there is no conflict a cleaner solution would be to somehow bring up
-- * pinctrl even with these ACPI entries missing, and base the drivers on pinctrl.
-- * After which the following function could be dropped, together with the code
-- * poking the memory.
-- */
--/*
-- * Get membase address from PCI, used in leds and wdt module. Here we read
-- * the bar0. The final address calculation is done in the appropriate modules
-- */
--u32 simatic_ipc_get_membase0(unsigned int p2sb)
--{
--	struct pci_bus *bus;
--	u32 bar0 = 0;
--	/*
--	 * The GPIO memory is in bar0 of the hidden P2SB device.
--	 * Unhide the device to have a quick look at it, before we hide it
--	 * again.
--	 * Also grab the pci rescan lock so that device does not get discovered
--	 * and remapped while it is visible.
--	 * This code is inspired by drivers/mfd/lpc_ich.c
--	 */
--	bus = pci_find_bus(0, 0);
--	pci_lock_rescan_remove();
--	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x0);
--	pci_bus_read_config_dword(bus, p2sb, PCI_BASE_ADDRESS_0, &bar0);
--
--	bar0 &= ~0xf;
--	pci_bus_write_config_byte(bus, p2sb, 0xE1, 0x1);
--	pci_unlock_rescan_remove();
--
--	return bar0;
--}
--EXPORT_SYMBOL(simatic_ipc_get_membase0);
--
- static int __init simatic_ipc_init_module(void)
- {
- 	const struct dmi_system_id *match;
-diff --git a/include/linux/platform_data/x86/simatic-ipc-base.h b/include/linux/platform_data/x86/simatic-ipc-base.h
-index 62d2bc774067..39fefd48cf4d 100644
---- a/include/linux/platform_data/x86/simatic-ipc-base.h
-+++ b/include/linux/platform_data/x86/simatic-ipc-base.h
-@@ -24,6 +24,4 @@ struct simatic_ipc_platform {
- 	u8	devmode;
- };
+         reg-names:
+-          maxItems: 6
+           items:
+             - const: sid
+             - const: broadcast
+@@ -170,7 +169,6 @@ allOf:
+           description: 17 memory controller channels and 1 for stream-id registers
  
--u32 simatic_ipc_get_membase0(unsigned int p2sb);
--
- #endif /* __PLATFORM_DATA_X86_SIMATIC_IPC_BASE_H */
+         reg-names:
+-          minItems: 18
+           items:
+             - const: sid
+             - const: broadcast
+@@ -202,7 +200,6 @@ allOf:
+           description: 17 memory controller channels and 1 for stream-id registers
+ 
+         reg-names:
+-          minItems: 18
+           items:
+             - const: sid
+             - const: broadcast
+diff --git a/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml b/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+index c79639e9027e..7a2b22dd6d05 100644
+--- a/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
++++ b/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+@@ -145,7 +145,6 @@ allOf:
+           items:
+             - description: Xenon IP registers
+             - description: Armada 3700 SoC PHY PAD Voltage Control register
+-          minItems: 2
+ 
+         marvell,pad-type:
+           $ref: /schemas/types.yaml#/definitions/string
+diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+index cbcf19f51411..ed6c1ca80dcc 100644
+--- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+@@ -64,7 +64,6 @@ if:
+ then:
+   properties:
+     clocks:
+-      minItems: 2
+       items:
+         - description: High-frequency oscillator input, divided internally
+         - description: Low-frequency oscillator input
 -- 
-2.35.1
+2.34.1
 
