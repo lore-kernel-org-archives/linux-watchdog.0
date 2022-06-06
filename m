@@ -2,45 +2,45 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E43FFCCA48D
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:42:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5D1DCCA48F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Jun 2022 16:42:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241855AbiFFQmA (ORCPT
+        id S241866AbiFFQmA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Mon, 6 Jun 2022 12:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42836 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbiFFQl4 (ORCPT
+        with ESMTP id S230472AbiFFQl4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 6 Jun 2022 12:41:56 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE722BD;
-        Mon,  6 Jun 2022 09:41:54 -0700 (PDT)
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2543417063;
+        Mon,  6 Jun 2022 09:41:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654533714; x=1686069714;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=PuD+XkjvNTTehA+a3gWnWgL8PXJajHjYvjG4npSfsms=;
-  b=e/eX0tu1d5GFE3q8GAreKP6R4T6UAHRB6StAyYBDbt5dYg48wWuto+/t
-   SPYdi3xWQ7F8XZdX32iSNa/6GtH/ne7PS6F1aw+CZwCUfCTKTz2yX6hii
-   ef8BUC+RJ22VNszbQ+K3K0WsMensvJdmRsJz/zWkXlvIjAigFeLSshugf
-   hBLVOK9OAUTys/rP269h8uiW+2OyOnY3VA+zrV2PnNFsUoQFOP30QNrvj
-   mWdt0CP8buo56SfxLi8ZmzNB8r2ggotSfMNRTlFVc0E0AlLJxsnaPaicP
-   eQdKTn+2/d6YkPw90dQpeVVHo1ssPVap9kPx8mhz7y0Aq6K/xP52dg30J
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="257114169"
+  t=1654533715; x=1686069715;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=cOu3jRGTW0KgXBqJv9jcdMCL/k7Jmllrb7yTFDGi3W0=;
+  b=nER6QsbtxPOgUL/mOcGWMlo56wsfzHIVuM6vUwTo5xB1G8O0XIL9L4NM
+   sKv43Jeng4ijmFXtRHoY9jM90yF5zd4GuDJt5rMq7oufqsrjWfLuiSeTf
+   PWfUw/vkAiWlowMx/oUA/MP09s/qm9To7dcf0PmxgAtGOXt4IM3PhOa0t
+   +BtDuXgFDKp6+t/bxYKDB34j1g0qjZPYgobFzuWR1mk1PVLXxAoKoGz7N
+   SmKMIy7eVXx7jwcoWlmhtVquTHkdB237uMEMqpZ8cQ/deD5T1dKZdftNS
+   oZVIl7kaoa7wj7j28Pe0D25ptXF6VEtM6m1DJB3Stvs0H4Zrzhk2gDmO/
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10370"; a="276710527"
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="257114169"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:41:53 -0700
+   d="scan'208";a="276710527"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 09:41:54 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="647618752"
+   d="scan'208";a="608819816"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga004.fm.intel.com with ESMTP; 06 Jun 2022 09:41:47 -0700
+  by orsmga008.jf.intel.com with ESMTP; 06 Jun 2022 09:41:47 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 4C80FF8; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
+        id 6F8789A9; Mon,  6 Jun 2022 19:41:50 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Tony Luck <tony.luck@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -66,124 +66,71 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Peter Tyser <ptyser@xes-inc.com>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>
-Subject: [PATCH v6 00/12] platform/x86: introduce p2sb_bar() helper
-Date:   Mon,  6 Jun 2022 19:41:26 +0300
-Message-Id: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v6 02/12] pinctrl: intel: Check against matching data instead of ACPI companion
+Date:   Mon,  6 Jun 2022 19:41:28 +0300
+Message-Id: <20220606164138.66535-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
+References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-There are a few users that would like to utilize P2SB mechanism of hiding
-and unhiding a device from the PCI configuration space.
+In some cases we may get a platform device that has ACPI companion
+which is different to the pin control described in the ACPI tables.
+This is primarily happens when device is instantiated by board file.
 
-Here is the series to consolidate p2sb handling code for existing users
-and to provide a generic way for new comer(s).
+In order to allow this device being enumerated, refactor
+intel_pinctrl_get_soc_data() to check the matching data instead of
+ACPI companion.
 
-It also includes a patch to enable GPIO controllers on Apollo Lake
-when it's used with ABL bootloader w/o ACPI support.
+Reported-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Henning Schild <henning.schild@siemens.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/intel/pinctrl-intel.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-The patch that brings the helper ("platform/x86/intel: Add Primary to
-Sideband (P2SB) bridge support") has a commit message that sheds a light
-on what the P2SB is and why this is needed.
-
-I have tested this on Apollo Lake platform (I'm able to see SPI NOR and
-since we have an ACPI device for GPIO I do not see any attempts to recreate
-one).
-
-The series is ready to be merged via MFD tree, but see below.
-
-The series also includes updates for Simatic IPC drivers that partially
-tagged by respective maintainers (the main question is if Pavel is okay
-with the last three patches, since I believe Hans is okay with removing
-some code under PDx86). Hence the first 8 patches can be merged right
-away and the rest when Pavel does his review.
-
-Changes in v6:
-- added tag to patch 5 (Lee)
-- incorporated Henning's series on top of v5
-
-Changes in v5:
-- rewritten patch 1 to use pci_scan_single_device() (Lukas, Bjorn)
-- rebased patch 2 on top of the new Intel SPI NOR codebase
-- fixed a potential bug and rewritten resource filling in patch 5 (Lee)
-- added many different tags in a few patches (Jean, Wolfram, Henning)
-
-Changes in v4:
-- added tag to the entire series (Hans)
-- added tag to pin control patch (Mika)
-- dropped PCI core changes (PCI core doesn't want modifications to be made)
-- as a consequence of the above merged necessary bits into p2sb.c
-- added a check that p2sb is really hidden (Hans)
-- added EDAC patches (reviewed by maintainer internally)
-
-Changes in v3:
-- resent with cover letter
-
-Changes in v2:
-- added parentheses around bus in macros (Joe)
-- added tag (Jean)
-- fixed indentation and wrapping in the header (Christoph)
-- moved out of PCI realm to PDx86 as the best common denominator (Bjorn)
-- added a verbose commit message to explain P2SB thingy (Bjorn)
-- converted first parameter from pci_dev to pci_bus
-- made first two parameters (bus and devfn) optional (Henning, Lee)
-- added Intel pin control patch to the series (Henning, Mika)
-- fixed English style in the commit message of one of MFD patch (Lee)
-- added tags to my MFD LPC ICH patches (Lee)
-- used consistently (c) (Lee)
-- made indexing for MFD cell and resource arrays (Lee)
-- fixed the resource size in i801 (Jean)
-
-Andy Shevchenko (6):
-  pinctrl: intel: Check against matching data instead of ACPI companion
-  mfd: lpc_ich: Factor out lpc_ich_enable_spi_write()
-  mfd: lpc_ich: Switch to generic p2sb_bar()
-  i2c: i801: convert to use common P2SB accessor
-  EDAC, pnd2: Use proper I/O accessors and address space annotation
-  EDAC, pnd2: convert to use common P2SB accessor
-
-Henning Schild (4):
-  watchdog: simatic-ipc-wdt: convert to use P2SB accessor
-  leds: simatic-ipc-leds: convert to use P2SB accessor
-  platform/x86: simatic-ipc: drop custom P2SB bar code
-  leds: simatic-ipc-leds-gpio: add GPIO version of Siemens driver
-
-Jonathan Yong (1):
-  platform/x86/intel: Add Primary to Sideband (P2SB) bridge support
-
-Tan Jui Nee (1):
-  mfd: lpc_ich: Add support for pinctrl in non-ACPI system
-
- drivers/edac/Kconfig                          |   1 +
- drivers/edac/pnd2_edac.c                      |  62 +++----
- drivers/i2c/busses/Kconfig                    |   1 +
- drivers/i2c/busses/i2c-i801.c                 |  39 +----
- drivers/leds/simple/Kconfig                   |   6 +-
- drivers/leds/simple/Makefile                  |   1 +
- drivers/leds/simple/simatic-ipc-leds-gpio.c   | 105 ++++++++++++
- drivers/leds/simple/simatic-ipc-leds.c        |  80 +--------
- drivers/mfd/Kconfig                           |   1 +
- drivers/mfd/lpc_ich.c                         | 161 ++++++++++++++----
- drivers/pinctrl/intel/pinctrl-intel.c         |  14 +-
- drivers/platform/x86/intel/Kconfig            |  12 ++
- drivers/platform/x86/intel/Makefile           |   2 +
- drivers/platform/x86/intel/p2sb.c             | 133 +++++++++++++++
- drivers/platform/x86/simatic-ipc.c            |  43 +----
- drivers/watchdog/Kconfig                      |   1 +
- drivers/watchdog/simatic-ipc-wdt.c            |  15 +-
- include/linux/platform_data/x86/p2sb.h        |  28 +++
- .../platform_data/x86/simatic-ipc-base.h      |   2 -
- 19 files changed, 464 insertions(+), 243 deletions(-)
- create mode 100644 drivers/leds/simple/simatic-ipc-leds-gpio.c
- create mode 100644 drivers/platform/x86/intel/p2sb.c
- create mode 100644 include/linux/platform_data/x86/p2sb.h
-
-
-base-commit: 40b58e42584bf5bd9230481dc8946f714fb387de
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index ffc045f7bf00..fd093e36c3a8 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1641,16 +1641,14 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
+ 
+ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_device *pdev)
+ {
++	const struct intel_pinctrl_soc_data * const *table;
+ 	const struct intel_pinctrl_soc_data *data = NULL;
+-	const struct intel_pinctrl_soc_data **table;
+-	struct acpi_device *adev;
+-	unsigned int i;
+ 
+-	adev = ACPI_COMPANION(&pdev->dev);
+-	if (adev) {
+-		const void *match = device_get_match_data(&pdev->dev);
++	table = device_get_match_data(&pdev->dev);
++	if (table) {
++		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
++		unsigned int i;
+ 
+-		table = (const struct intel_pinctrl_soc_data **)match;
+ 		for (i = 0; table[i]; i++) {
+ 			if (!strcmp(adev->pnp.unique_id, table[i]->uid)) {
+ 				data = table[i];
+@@ -1664,7 +1662,7 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
+ 		if (!id)
+ 			return ERR_PTR(-ENODEV);
+ 
+-		table = (const struct intel_pinctrl_soc_data **)id->driver_data;
++		table = (const struct intel_pinctrl_soc_data * const *)id->driver_data;
+ 		data = table[pdev->id];
+ 	}
+ 
 -- 
 2.35.1
 
