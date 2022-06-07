@@ -2,101 +2,154 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1153C43334
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jun 2022 06:34:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E0AC43334
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Jun 2022 10:43:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237057AbiFGGej (ORCPT
+        id S241290AbiFGKnX (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 Jun 2022 02:34:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        Tue, 7 Jun 2022 06:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237050AbiFGGeh (ORCPT
+        with ESMTP id S241286AbiFGKnV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Jun 2022 02:34:37 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 826D730F6F
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Jun 2022 23:34:34 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id u12so33140678eja.8
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jun 2022 23:34:34 -0700 (PDT)
+        Tue, 7 Jun 2022 06:43:21 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B9B1D316
+        for <linux-watchdog@vger.kernel.org>; Tue,  7 Jun 2022 03:43:17 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id h23so27646854lfe.4
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Jun 2022 03:43:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=BS02hl5lG0fU1teehsFBTzwy9idYtqKSriIvuXGDAVw=;
-        b=a7CXUgo1LhI6a6Wn7l3MjaqsS2nWFcnVUfB+fpGL3Su3s8vvd+hexirjTkuKfqfJku
-         tpNMIqWEqQEc2ykTutSqnsatSkZguMPoVRX3zgp44CcWRwEfmM1O1H6YW+PdMuDF7l1h
-         GQ6t7rKl0oPrV2wyje3dJJlB8t/G+d+oEPBjgNvSx5jNjOGBUUFO1INCvt51Z5vD9upr
-         zpEb/NvfB8O/xEMwCpBTttttkHN5KejGkpvAyS3ebegD2zJBG1dA9Qz1ci0llYeESeo+
-         JMbAguBqPVrXMBWFpgVz6EOSHE3P+6K+R88uzWCgJV4Flf2vyjRbzalZP0Jxm4TrIWS4
-         iuAw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8XdRg5mTQzw6nhVkPbcttepeHu1kmSLwBbs3fva93xc=;
+        b=N1DSIYQ2tUBiiR928h/wpbuAkWoyNemmJ20vBlcsKVQyNN84AnPudb55G8X5EEHZc5
+         VrfLCbnWDAtsrhHYhabH4L0BcK6Yj8HILDRD4QS8o9jivIkV09uQ9k8+flwSL9YhpfOf
+         EKIY6RpNWcq9H5P5HOecjEdKbfbUTACnthsEE+FVdO9ZPFQkU20CO5hbDY+TsXwi7Gyk
+         XR89OVy0Qnt+8Lqc8HgO4+mf7B2XbeP3Iw4IkdQhRpmxypzV+y4NmZjw14ztQ0cTRyjV
+         Vc9XiSpbooXYnaIEGWYbXJ0j+c6+AycmpTWR911QhQRT0pklscDEgFFUW/dz8ZLGdIVr
+         VVCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=BS02hl5lG0fU1teehsFBTzwy9idYtqKSriIvuXGDAVw=;
-        b=ov/FrcDDWiP3rLhrPHKIHDbFR9EHnPsJsf4BtcfiF2HgEXGXNMvDwjp/4iTS+DbVg8
-         z8HuYPSFInETTxeqLqNg/BDLqTTD0Rxp10Aj5dKIKUIgMFoOcgS+isXES5FHJh9eiQLv
-         DZmyOurzYf19gTnbn60i3dybieJyGwW3lJmIcDk7N33AsU9V/hqX6wC0Sn1g89gHONAF
-         gVcKFeVk8WGCz174+/GEtYm/hpI9smVszsr/wMB+A3KuHrQK6x80jZh6GEjssMPfVxs4
-         r2PuqE/dQEmy5tc64svovpaOOrE9+42KlE4veWZ4nMOhgYwp+huiXTrWl7nzpCVHanyy
-         gtvA==
-X-Gm-Message-State: AOAM5327RE1wJ/DlsEKJ6zXCNRe1AHGEOXr/Ejwwm6gawRTELwXY0iU8
-        LZfmUI9BpBm4FN+Xk/avNHmnBg==
-X-Google-Smtp-Source: ABdhPJxeChl1qKeEil8PnLVpGZrlHOFtfAIS6W5eozpO3H9ZCDC+R/hedgSwKsMBni0ziaZVCtATcQ==
-X-Received: by 2002:a17:907:7e8b:b0:711:e5e6:6694 with SMTP id qb11-20020a1709077e8b00b00711e5e66694mr150753ejc.35.1654583673038;
-        Mon, 06 Jun 2022 23:34:33 -0700 (PDT)
-Received: from [192.168.0.181] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id me3-20020a170906aec300b006ff01fbb7ccsm7153425ejb.40.2022.06.06.23.34.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jun 2022 23:34:32 -0700 (PDT)
-Message-ID: <717eb4d5-f547-4763-1670-51e90cbe0803@linaro.org>
-Date:   Tue, 7 Jun 2022 08:34:31 +0200
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8XdRg5mTQzw6nhVkPbcttepeHu1kmSLwBbs3fva93xc=;
+        b=t8+3zlOsAzJHtC+wFG3xMKW4yEqfOEfn/D9KbYZdd2CznWM86hrnPg08rZhMyUNAVE
+         DRMiRAjY84vZ1Ft9t9BNS7w49KlKuoNg9qNFnpihdzbKqZkoAjEFZcbxmPFMdHeni/VZ
+         Esc6tNPmZxm3oJcH6/98pJ1bG6rr5HR0fyL7PD3C4HGniO6Qs8c3gNyk29Prycorbs3Q
+         3cabnbUniH9/m8Q4GyBoVSuVq576037J9H3gJKpBjkM+rqdytnDCJ5h4jEbrRD4W4hBS
+         jOPPuNVR49enyBGx8/5flihvilVRuKkqIFDRDcZfuEceUbJMVO4dpIkxoH3wm9L2sJUC
+         OcqA==
+X-Gm-Message-State: AOAM532ITcba4E5gJJ20P9nqlQ55Afhvm8H9SCInRq2AxUmFj75qedlD
+        BZIsg9S89OsaU8Z+hFZDKf4OQAkoeojqaXpZRBepOw==
+X-Google-Smtp-Source: ABdhPJzxvjAZjQF6R+Mrr94IoW1X7wi8uwFKBgPf5GLnc+Gvu4doMpfp0SK0kukM6bfhDVOV0zyEW3g+vrtCParwkeY=
+X-Received: by 2002:a05:6512:403:b0:479:1627:a9b7 with SMTP id
+ u3-20020a056512040300b004791627a9b7mr15634227lfk.233.1654598595349; Tue, 07
+ Jun 2022 03:43:15 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
+References: <20220606225137.1536010-1-robh@kernel.org>
+In-Reply-To: <20220606225137.1536010-1-robh@kernel.org>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Tue, 7 Jun 2022 12:42:38 +0200
+Message-ID: <CAPDyKFqNiJB_2aEaQpBo4=Vzc60-986=aKKw4JZtXvO=X9WTqQ@mail.gmail.com>
 Subject: Re: [PATCH] dt-bindings: Drop more redundant 'maxItems/minItems' in
  if/then schemas
-Content-Language: en-US
-To:     Rob Herring <robh@kernel.org>,
+To:     Rob Herring <robh@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
         Jonathan Hunter <jonathanh@nvidia.com>,
         Hu Ziji <huziji@marvell.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Chen-Yu Tsai <wens@csie.org>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
         Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <mripard@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        Maxime Ripard <mripard@kernel.org>,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-References: <20220606225137.1536010-1-robh@kernel.org>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220606225137.1536010-1-robh@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 07/06/2022 00:51, Rob Herring wrote:
+On Tue, 7 Jun 2022 at 00:51, Rob Herring <robh@kernel.org> wrote:
+>
 > Another round from new cases in 5.19-rc of removing redundant
 > minItems/maxItems when 'items' list is specified. This time it is in
 > if/then schemas as the meta-schema was failing to check this case.
-> 
+>
 > If a property has an 'items' list, then a 'minItems' or 'maxItems' with the
 > same size as the list is redundant and can be dropped. Note that is DT
 > schema specific behavior and not standard json-schema behavior. The tooling
 > will fixup the final schema adding any unspecified minItems/maxItems.
-> 
+>
 > Signed-off-by: Rob Herring <robh@kernel.org>
 
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Kind regards
+Uffe
 
-
-Best regards,
-Krzysztof
+> ---
+>  .../bindings/memory-controllers/nvidia,tegra186-mc.yaml        | 3 ---
+>  Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml | 1 -
+>  .../devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml  | 1 -
+>  3 files changed, 5 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml b/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
+> index c7cfa6c2cd81..935d63d181d9 100644
+> --- a/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
+> +++ b/Documentation/devicetree/bindings/memory-controllers/nvidia,tegra186-mc.yaml
+> @@ -150,7 +150,6 @@ allOf:
+>            description: 5 memory controller channels and 1 for stream-id registers
+>
+>          reg-names:
+> -          maxItems: 6
+>            items:
+>              - const: sid
+>              - const: broadcast
+> @@ -170,7 +169,6 @@ allOf:
+>            description: 17 memory controller channels and 1 for stream-id registers
+>
+>          reg-names:
+> -          minItems: 18
+>            items:
+>              - const: sid
+>              - const: broadcast
+> @@ -202,7 +200,6 @@ allOf:
+>            description: 17 memory controller channels and 1 for stream-id registers
+>
+>          reg-names:
+> -          minItems: 18
+>            items:
+>              - const: sid
+>              - const: broadcast
+> diff --git a/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml b/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+> index c79639e9027e..7a2b22dd6d05 100644
+> --- a/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+> +++ b/Documentation/devicetree/bindings/mmc/marvell,xenon-sdhci.yaml
+> @@ -145,7 +145,6 @@ allOf:
+>            items:
+>              - description: Xenon IP registers
+>              - description: Armada 3700 SoC PHY PAD Voltage Control register
+> -          minItems: 2
+>
+>          marvell,pad-type:
+>            $ref: /schemas/types.yaml#/definitions/string
+> diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> index cbcf19f51411..ed6c1ca80dcc 100644
+> --- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> @@ -64,7 +64,6 @@ if:
+>  then:
+>    properties:
+>      clocks:
+> -      minItems: 2
+>        items:
+>          - description: High-frequency oscillator input, divided internally
+>          - description: Low-frequency oscillator input
+> --
+> 2.34.1
+>
