@@ -2,90 +2,121 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3DDCC43334
-	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jun 2022 07:32:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2F50CCA47B
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jun 2022 08:15:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232518AbiFHHcj (ORCPT
+        id S231140AbiFHIPV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 8 Jun 2022 03:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
+        Wed, 8 Jun 2022 04:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354388AbiFHGTd (ORCPT
+        with ESMTP id S232615AbiFHINg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 8 Jun 2022 02:19:33 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4DAFE2058;
-        Tue,  7 Jun 2022 23:09:39 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id f65so7786752pgc.7;
-        Tue, 07 Jun 2022 23:09:39 -0700 (PDT)
+        Wed, 8 Jun 2022 04:13:36 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59AE3104CB
+        for <linux-watchdog@vger.kernel.org>; Wed,  8 Jun 2022 00:42:44 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id j5-20020a05600c1c0500b0039c5dbbfa48so1364469wms.5
+        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jun 2022 00:42:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5XPLdEjhOMoKfPO/4HrcmUy4dcFm1Nhd2plHLfQ24R8=;
-        b=IQuHLDlbIjp9DRwZU/OIR7MWti2kse/Nurh507vTWHUe3/erAaXfyISuSWL+fUD7i7
-         2ayOLC7Gj42Lu/sgu0DMPvlBmZlVf+BM4wkFYtEUTY6Jqb3Yds1APmCl93nEubCX33jP
-         QGaB/ZTVmKrx4aE1mx5tcCVGMyizFvHQLdv5xaVTJ12yXGUN1eh8xChRHZdEPmr8Rr/E
-         do5+xgQpIFQD2ly1A43X+qPR7/h3rJBX7Ch3KlgKR8lzOOooOhwhqEouzZ9BSUZ5WYJe
-         7EuGQcrwa8fHeV7eP/SfJ97Ti3TUPBf+hE+U+y0qZpz/mLh0LJhXd8Ww9YTawcDPtJE+
-         OKDw==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=pDUMQH/JwikS3dGEuoL+s1rn8CjjChIDmrF7b583qjU=;
+        b=fKa3RQzgR1C9gPuzjlK18lPR2ODRZc9Pj5Y+S/gKLpIzbFKHaf1hSkOcGwqMnNsq9r
+         XMuR0mXisUyo/8tXYSJHQu1AEBby8iCEMYFo9QfFIPo7CeBdgGwt4qVeeX7wVgxf6yLX
+         bw288huVE7wnORJcuCI5o1dxTMI8dpA+TRhyYRY3VuiE+BlZ/D2EkZIJVJKnQEiTN0M4
+         2Tc/6fwu7DLHDdQbhhhmCxEbH3XYI2IzWnO/zUDfPluY0N6BMqQOxDd5pl8kgFNumtlP
+         e0rNv4a89XGj4Yn2zUj5RD1kWvz2pHoia7MKcqd+835Rt8u8iwj82sJeJYf00LEQTTM1
+         RbHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5XPLdEjhOMoKfPO/4HrcmUy4dcFm1Nhd2plHLfQ24R8=;
-        b=vD+DCwlQgybdvlGD/wkxFYuqI7meZFGAcCULHDgei/ZfUzGEv4DukcGzoIwYRcAp38
-         xwspBJ2a80SdktefWsfxKLJCIVc2RKrmNN4wrkPWk8QF7Y0P8TRTC5DWbGZt/JM6L8kL
-         VWFsQ7d7dbB0HweYw08iGKdups1DvuWoaL0ipkIDT2q7o42Fm/1lrjg3SgL2+t7hsZFZ
-         ocfNYRmYubdwDYzTUbCBy4sY4PiNLER96ggtFuGz8m+uMK97tOnLEy8UikWbnHqhBSpC
-         ugF6+wSq1rV/h2Hb8rHb0eKXGIsmTu8fFma1iyq4pHsh3PZFf2SXiksYvBO10lFAoLs9
-         xteQ==
-X-Gm-Message-State: AOAM531AW3FR5NrY2t6pLEowzonNIR+QG3r4K7BW5/kC/GPBmyApyd3J
-        rXxEilMRNACvwhsvUn7q4r1d9Sbj2zJcLxRGVtEe0g==
-X-Google-Smtp-Source: ABdhPJxsG8KPgBeOiJI4hS9gvx8TWMr04L/5uTmyUY3hJG1NJLpVPAoDPEROSaIapoiX49Od4nzglw==
-X-Received: by 2002:a63:5723:0:b0:3fd:d8b4:c19f with SMTP id l35-20020a635723000000b003fdd8b4c19fmr10089040pgb.137.1654668579316;
-        Tue, 07 Jun 2022 23:09:39 -0700 (PDT)
-Received: from localhost.localdomain ([116.128.244.169])
-        by smtp.gmail.com with ESMTPSA id u5-20020a17090a400500b001e30a63ca3asm13193671pjc.2.2022.06.07.23.09.37
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=pDUMQH/JwikS3dGEuoL+s1rn8CjjChIDmrF7b583qjU=;
+        b=toqyUoTzeLTTRw9Lhdcp0qbh7fODWMgppxYRvA/yorOJ1tbhanTiVrtN9ZQH9VOLyY
+         GKIAI4OP02S2a4fnhWRqg+A24ApUxMwzJH9NUp5f1pMrtqcSRu6T5h1ymIuxr/u0ReRC
+         oHVe07ymlLQ2zUzWIJ/dBaUhyVbWV90zxntyR9KFcV3t+e9LoT0PODV5b5JgHaH7xlt4
+         aRmKLEv49E90bUneX8tykdN23syp3Nl5NSCfIL8Gloek49pmQBMbExwJFT6I81NYLQ+s
+         T/GRUWGQicoyPmu8lZ4C6qNhe289viksthvcgW8XdHnhuDewaEc34J76lwVgj6WuOfHr
+         IyKw==
+X-Gm-Message-State: AOAM530BiVzzbHpLn4pMZwOkf7pAO9rl3ko4V2BZ5d5GuFeY6u0ru8YX
+        ygAiRQZmvyqRpMY/X1CW5bBRaw==
+X-Google-Smtp-Source: ABdhPJxfmsfGuJRdtDGKUMYuiYyopBGOApn2Jgo+2/o+D5JV/RRywsnhNTpqwclfgNE8JAcQiqHOkA==
+X-Received: by 2002:a05:600c:5021:b0:39c:6571:e0b0 with SMTP id n33-20020a05600c502100b0039c6571e0b0mr190102wmr.177.1654674163150;
+        Wed, 08 Jun 2022 00:42:43 -0700 (PDT)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id g20-20020a05600c4c9400b0039749b01ea7sm26101954wmp.32.2022.06.08.00.42.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 23:09:38 -0700 (PDT)
-From:   luoxueqin <luoxueqin66@gmail.com>
-X-Google-Original-From: luoxueqin <937225041@qq.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        luoxueqin <luoxueqin@kylinos.cn>
-Subject: [PATCH -next] watchdog:Fix typo in comment
-Date:   Wed,  8 Jun 2022 14:09:33 +0800
-Message-Id: <20220608060933.13062-1-937225041@qq.com>
-X-Mailer: git-send-email 2.25.1
+        Wed, 08 Jun 2022 00:42:42 -0700 (PDT)
+Date:   Wed, 8 Jun 2022 08:42:40 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Tony Luck <tony.luck@intel.com>, Wolfram Sang <wsa@kernel.org>,
+        Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Henning Schild <henning.schild@siemens.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-gpio@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>
+Subject: Re: [PATCH v6 00/12] platform/x86: introduce p2sb_bar() helper
+Message-ID: <YqBS8I62YBPFC9iS@google.com>
+References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: luoxueqin <luoxueqin@kylinos.cn>
+On Mon, 06 Jun 2022, Andy Shevchenko wrote:
 
-Spelling mistake in comment.
+> There are a few users that would like to utilize P2SB mechanism of hiding
+> and unhiding a device from the PCI configuration space.
+> 
+> Here is the series to consolidate p2sb handling code for existing users
+> and to provide a generic way for new comer(s).
+> 
+> It also includes a patch to enable GPIO controllers on Apollo Lake
+> when it's used with ABL bootloader w/o ACPI support.
+> 
+> The patch that brings the helper ("platform/x86/intel: Add Primary to
+> Sideband (P2SB) bridge support") has a commit message that sheds a light
+> on what the P2SB is and why this is needed.
+> 
+> I have tested this on Apollo Lake platform (I'm able to see SPI NOR and
+> since we have an ACPI device for GPIO I do not see any attempts to recreate
+> one).
+> 
+> The series is ready to be merged via MFD tree, but see below.
+> 
+> The series also includes updates for Simatic IPC drivers that partially
+> tagged by respective maintainers (the main question is if Pavel is okay
+> with the last three patches, since I believe Hans is okay with removing
+> some code under PDx86). Hence the first 8 patches can be merged right
+> away and the rest when Pavel does his review.
 
-Signed-off-by: luoxueqin <luoxueqin@kylinos.cn>
----
- drivers/watchdog/pc87413_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Can we just wait for Pavel's review, then merge them all at once?
 
-diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-index 9f9a340427fc..c7f745caf203 100644
---- a/drivers/watchdog/pc87413_wdt.c
-+++ b/drivers/watchdog/pc87413_wdt.c
-@@ -442,7 +442,7 @@ static long pc87413_ioctl(struct file *file, unsigned int cmd,
- 	}
- }
- 
--/* -- Notifier funtions -----------------------------------------*/
-+/* -- Notifier functions -----------------------------------------*/
- 
- /**
-  *	pc87413_notify_sys:
 -- 
-2.25.1
-
+Lee Jones [李琼斯]
+Principal Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
