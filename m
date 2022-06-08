@@ -2,90 +2,121 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A18C8CCA483
-	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jun 2022 10:30:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7F82C433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed,  8 Jun 2022 10:51:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237228AbiFHKam (ORCPT
+        id S236912AbiFHKv0 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 8 Jun 2022 06:30:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
+        Wed, 8 Jun 2022 06:51:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238220AbiFHK35 (ORCPT
+        with ESMTP id S236971AbiFHKvZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 8 Jun 2022 06:29:57 -0400
-Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3FB54194259;
-        Wed,  8 Jun 2022 03:22:10 -0700 (PDT)
-Received: from NTHCCAS04.nuvoton.com (NTHCCAS04.nuvoton.com [10.1.8.29])
-        by maillog.nuvoton.com (Postfix) with ESMTP id 725981C80A77;
-        Wed,  8 Jun 2022 17:56:31 +0800 (CST)
-Received: from NTHCML01A.nuvoton.com (10.1.8.177) by NTHCCAS04.nuvoton.com
- (10.1.8.29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Wed, 8 Jun
- 2022 17:56:31 +0800
-Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCML01A.nuvoton.com
- (10.1.8.177) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Wed, 8 Jun 2022
- 17:56:31 +0800
-Received: from taln60.nuvoton.com (10.191.1.180) by NTHCCAS01.nuvoton.com
- (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
- Transport; Wed, 8 Jun 2022 17:56:30 +0800
-Received: by taln60.nuvoton.com (Postfix, from userid 10070)
-        id 1FFAE62D98; Wed,  8 Jun 2022 12:56:30 +0300 (IDT)
-From:   Tomer Maimon <tmaimon77@gmail.com>
-To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
-        <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
-        <benjaminfair@google.com>, <robh+dt@kernel.org>,
-        <krzysztof.kozlowski+dt@linaro.org>, <mturquette@baylibre.com>,
-        <sboyd@kernel.org>, <p.zabel@pengutronix.de>,
-        <gregkh@linuxfoundation.org>, <daniel.lezcano@linaro.org>,
-        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
-        <linux@roeck-us.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
-        <arnd@arndb.de>, <olof@lixom.net>, <jirislaby@kernel.org>,
-        <shawnguo@kernel.org>, <bjorn.andersson@linaro.org>,
-        <geert+renesas@glider.be>, <marcel.ziswiler@toradex.com>,
-        <vkoul@kernel.org>, <biju.das.jz@bp.renesas.com>,
-        <nobuhiro1.iwamatsu@toshiba.co.jp>, <robert.hancock@calian.com>,
-        <j.neuschaefer@gmx.net>, <lkundrak@v3.sk>
-CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v2 02/20] dt-bindings: serial: 8250: Add npcm845 compatible string
-Date:   Wed, 8 Jun 2022 12:56:05 +0300
-Message-ID: <20220608095623.22327-3-tmaimon77@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20220608095623.22327-1-tmaimon77@gmail.com>
-References: <20220608095623.22327-1-tmaimon77@gmail.com>
+        Wed, 8 Jun 2022 06:51:25 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145041E7AF8;
+        Wed,  8 Jun 2022 03:51:21 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id d14so965517eda.12;
+        Wed, 08 Jun 2022 03:51:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J6hYfUhU7mRYwVUWV1xGzdqXXNAttpIl10AtMQCOSgI=;
+        b=DRmwxIkZoL4DqetzrcoZfZzVNax4JPN3514EUieQo+WYusBkzmwNoM3bIyiy/eO2oD
+         2RPdMoJv5i17WqdhHNx0ygl6WDG0VOkLBNCcVFxlgvFfl9HHDOEl0qtK8cxzKqc0NgxQ
+         MmL5Ijv2vFv/2k3DSxKoPr7l2PZ11uuUTj/O3uWMZN+AYIddD9Sonwc6SgJJV/tqfv05
+         vJMtDRmsgBLpOcO13EL88pFXx+MHFmCowiXkadU/u4fWHcGLmEMvTETyl+ZECY40wF7i
+         VDTndhEBm+eWs9JQfuvWvSQwuPIi1nG0gMZ/5gjKtJJu3IO0leqswYYz8aJ/mTjxiKwj
+         UASQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J6hYfUhU7mRYwVUWV1xGzdqXXNAttpIl10AtMQCOSgI=;
+        b=G7u7CuCglQSdZP6Y5BCrT07j4hKmDuXnYuWaJxmEETh6tA3uujYNTGcvMp4TDDGs56
+         oJSU/ahMpMfguoUboc3FPnNKbdZC18By3Mw3TtqofSQX5VI+gp5nGYT42C6v4U/GVWM1
+         KWdUYkFIJ1YWVq5bhlUvQlC6boarvF89VnA98kP/J4PcmmmCQ9YY7/zg9/41n7kdKNgL
+         CKcgORry5oWYgorcY3WUDYoODRQq0SyleLdkUdjnGVjbGlYsQ0bxb0cYD9eJz84WcZUa
+         cO9TACIxq/V4CocSkwrUpQ6N0RSUSKM0i65Y7zSvPitpf6oe8igdxWD6pvZRDSJvx47s
+         Y5dQ==
+X-Gm-Message-State: AOAM532AhR6SRxkPY39nVxk9sAfPBWK2x79vl8iGB8sx0ZjTWB9HVOo5
+        kZonTd+YUBTm4pi+pi0DFhm2FSYpTtsA4f8THCs=
+X-Google-Smtp-Source: ABdhPJyT27iK6nu3n1SZGfqncYVgcfI2rm+neMbh7OrIHWE8u3KQraEwyLH1GjS9Y+7iJb+hRPt8Qu3n7OBk775xVRw=
+X-Received: by 2002:aa7:c396:0:b0:42d:8b86:a8dc with SMTP id
+ k22-20020aa7c396000000b0042d8b86a8dcmr37783861edq.54.1654685480497; Wed, 08
+ Jun 2022 03:51:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
+References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com> <YqBS8I62YBPFC9iS@google.com>
+In-Reply-To: <YqBS8I62YBPFC9iS@google.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 8 Jun 2022 12:50:44 +0200
+Message-ID: <CAHp75Ve9Lju8AEQd5huz1aYGg4sOu-ae7tTdyDWCXPCBR=wXbQ@mail.gmail.com>
+Subject: Re: [PATCH v6 00/12] platform/x86: introduce p2sb_bar() helper
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>, Wolfram Sang <wsa@kernel.org>,
+        Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Henning Schild <henning.schild@siemens.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-edac@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add a compatible string for Nuvoton BMC NPCM845 UART.
+On Wed, Jun 8, 2022 at 9:42 AM Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Mon, 06 Jun 2022, Andy Shevchenko wrote:
+>
+> > There are a few users that would like to utilize P2SB mechanism of hiding
+> > and unhiding a device from the PCI configuration space.
+> >
+> > Here is the series to consolidate p2sb handling code for existing users
+> > and to provide a generic way for new comer(s).
+> >
+> > It also includes a patch to enable GPIO controllers on Apollo Lake
+> > when it's used with ABL bootloader w/o ACPI support.
+> >
+> > The patch that brings the helper ("platform/x86/intel: Add Primary to
+> > Sideband (P2SB) bridge support") has a commit message that sheds a light
+> > on what the P2SB is and why this is needed.
+> >
+> > I have tested this on Apollo Lake platform (I'm able to see SPI NOR and
+> > since we have an ACPI device for GPIO I do not see any attempts to recreate
+> > one).
+> >
+> > The series is ready to be merged via MFD tree, but see below.
+> >
+> > The series also includes updates for Simatic IPC drivers that partially
+> > tagged by respective maintainers (the main question is if Pavel is okay
+> > with the last three patches, since I believe Hans is okay with removing
+> > some code under PDx86). Hence the first 8 patches can be merged right
+> > away and the rest when Pavel does his review.
+>
+> Can we just wait for Pavel's review, then merge them all at once?
 
-Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- Documentation/devicetree/bindings/serial/8250.yaml | 1 +
- 1 file changed, 1 insertion(+)
+Sure, it would be the best course of action.
 
-diff --git a/Documentation/devicetree/bindings/serial/8250.yaml b/Documentation/devicetree/bindings/serial/8250.yaml
-index 5f6b113d378f..6258f5f59b19 100644
---- a/Documentation/devicetree/bindings/serial/8250.yaml
-+++ b/Documentation/devicetree/bindings/serial/8250.yaml
-@@ -62,6 +62,7 @@ properties:
-       - const: mrvl,pxa-uart
-       - const: nuvoton,wpcm450-uart
-       - const: nuvoton,npcm750-uart
-+      - const: nuvoton,npcm845-uart
-       - const: nvidia,tegra20-uart
-       - const: nxp,lpc3220-uart
-       - items:
 -- 
-2.33.0
-
+With Best Regards,
+Andy Shevchenko
