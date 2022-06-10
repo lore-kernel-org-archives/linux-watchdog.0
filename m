@@ -2,267 +2,189 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5431C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Jun 2022 07:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41BE3C43334
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Jun 2022 07:58:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346764AbiFJHW5 (ORCPT
+        id S1347075AbiFJH5x (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 10 Jun 2022 03:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
+        Fri, 10 Jun 2022 03:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346747AbiFJHWu (ORCPT
+        with ESMTP id S1347055AbiFJH5o (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 10 Jun 2022 03:22:50 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B9F2D1C4;
-        Fri, 10 Jun 2022 00:22:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654845732;
-        bh=oIMa8rnYrI38DLEzC+BHBidNksqHveHBE860Em1sc3Q=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=BxEOJKL1te6l3KSIM77YaWtvuXV67m9wJYOzn/j3+dupMT2SkSHuCAAwkWYWR3rtk
-         okxpABDget83xXZf/4mBpDD75ouVIFelyJazIHRa88kmS4u6Tp6kwpYSV3GT5Nhpmt
-         E2/yxMfNqDuW+scPq4pBQUsPW37W47+iUf+lS8Rw=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([5.146.195.3]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1N5G9n-1naIqH1fcL-011AZS; Fri, 10
- Jun 2022 09:22:12 +0200
-From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
-To:     linux-clk@vger.kernel.org, openbmc@lists.ozlabs.org
-Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Fri, 10 Jun 2022 03:57:44 -0400
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C0C1CAD2C;
+        Fri, 10 Jun 2022 00:57:42 -0700 (PDT)
+Received: by mail-vs1-f52.google.com with SMTP id i186so24749692vsc.9;
+        Fri, 10 Jun 2022 00:57:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rhFLG17+HSZFIUtjJ3pglwpyIrcDVcUBh/MHVe0DumU=;
+        b=sY+B+Vk3nEHM3jVdCGYB1HFl5A0SJV4gPxHsHVRKsrDWTNEzCfijgBTVDhOC/zGW85
+         HIDz9LFiwNmYTAKwp4cuCrKp7E8kaMPtOlKIp9lKPqS9w0UMYTmJ6UIkqhz+a75ODmqz
+         ewwDzrr7BYPRJOdaw9fYIFftYMQy/ZfYMjJPojeIw78WONFkgOe0ntfwyk4/defD+mtf
+         kuc+xcEKJ+1lZiHAMSYadiVo8iXvq7w0G3tr7++GTgVGsfILWLzbB8s7s73uSdz65VCj
+         eq+oO4JyMoMoXRO8MnFDy+VqWRmrYYOckSn9LyW+5Bf1sJVwFEcbVJDtNTYFH48aR4/4
+         9xCQ==
+X-Gm-Message-State: AOAM530s5kzeX79Di1g6I+bgliuYH3OkKrWEnDaOoDSNrgSi1BccAmZm
+        yCP3TsVV6uQFg7RkAR3Lgpk6GXOwDLcsvw==
+X-Google-Smtp-Source: ABdhPJx5OLkgVosgsi10qkThxp3GNADF4JBKRaEwg/zDa3CaUkT4XldFhyw3BA65RicH3NjlDY+utQ==
+X-Received: by 2002:a05:6102:3f0f:b0:32a:46dd:a908 with SMTP id k15-20020a0561023f0f00b0032a46dda908mr18912577vsv.48.1654847861764;
+        Fri, 10 Jun 2022 00:57:41 -0700 (PDT)
+Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com. [209.85.222.43])
+        by smtp.gmail.com with ESMTPSA id s20-20020a67efd4000000b003483282cf47sm2798674vsp.26.2022.06.10.00.57.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Jun 2022 00:57:41 -0700 (PDT)
+Received: by mail-ua1-f43.google.com with SMTP id r9so8800287uaf.13;
+        Fri, 10 Jun 2022 00:57:41 -0700 (PDT)
+X-Received: by 2002:a81:1dd2:0:b0:30f:a4fc:315e with SMTP id
+ d201-20020a811dd2000000b0030fa4fc315emr49092228ywd.383.1654847850764; Fri, 10
+ Jun 2022 00:57:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220608095623.22327-1-tmaimon77@gmail.com> <20220608095623.22327-19-tmaimon77@gmail.com>
+ <24ad8ba0-4244-1159-328d-12d0e67951e1@linaro.org> <CAP6Zq1iXaN8D-g2O=cD-XERGj3BROQO=NJ66mquVsOw8nSM=0A@mail.gmail.com>
+In-Reply-To: <CAP6Zq1iXaN8D-g2O=cD-XERGj3BROQO=NJ66mquVsOw8nSM=0A@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Fri, 10 Jun 2022 09:57:18 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdU53RWvKXd0cPcPA8SiMA820stcpK4_UsTDGDAfByhcYg@mail.gmail.com>
+Message-ID: <CAMuHMdU53RWvKXd0cPcPA8SiMA820stcpK4_UsTDGDAfByhcYg@mail.gmail.com>
+Subject: Re: [PATCH v2 18/20] arm64: dts: nuvoton: Add initial NPCM8XX device tree
+To:     Tomer Maimon <tmaimon77@gmail.com>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Avi Fishman <avifishman70@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
         Tali Perry <tali.perry1@gmail.com>,
+        Joel Stanley <joel@jms.id.au>,
         Patrick Venture <venture@google.com>,
         Nancy Yuen <yuenn@google.com>,
         Benjamin Fair <benjaminfair@google.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Greg KH <gregkh@linuxfoundation.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Subject: [PATCH v4 3/6] dt-bindings: clock: Add Nuvoton WPCM450 clock/reset controller
-Date:   Fri, 10 Jun 2022 09:21:38 +0200
-Message-Id: <20220610072141.347795-4-j.neuschaefer@gmx.net>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220610072141.347795-1-j.neuschaefer@gmx.net>
-References: <20220610072141.347795-1-j.neuschaefer@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:oBCOVoQiYTeIEeH6b1Ro7wMEWAN7NkTLykjMJfZGa+J7xGKQhzZ
- a6ne3cy/bSOv+OY/6OoQBHJu8Ufm3dUgzf14gUvrBIr7WhO2ToN//NDK6TXvFZxzUykzc8j
- 82pZHIeow6pL04QMpuARrnu63H1zAR1AOPFhl2y5+CmACK8h010dISuB998jGcRZxf+YroH
- EpG9ZjdNe/T4gr0EG2nWA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:KecseXm5aMc=:e6YrHlomRt8ARNEcnULCkk
- TcentPRMksSZqXLh7+RMzFwuv/ZpRCrmu2fK8F96k44BA6nmWCfeEn4eMabWZ7/Zax8bai9Kg
- IbOWuiBiT3rJRuagHnteIe/QFzPUVkrn/GpPHk0VBhoLwR/M0bDJYdbCZyoLeL5bFeXQVTdSP
- Tl9NvYL0FD7ILYmCMaS2SEnd0Iqp+HUO19Pxs9m0Gcglr35Km65WAGmy01uFsvEK81ryGQWtv
- i3yAP1Qvk0Q6Xm918V3HsSR6FPvpFS+JbHykS3Kks+yBU5SMwbQniJMPl19NiAY1d9+4zKrZq
- bIyIIhczlYzzT5rSf7eTXNY8Ew6/jG1TNA5i5l5BKI+j93IQvjtS3rJXKuOyyTU7bPSP4BKpj
- vu2nEpbxRjOe05fKY3B2SBOWhTt5T97LGyVe3apPFh1V3TFL0l5oAWm1XXOY9AwELJpLzSPHq
- TX8v2A7ov2ZYQSi7KbhPQhWOMS5tTZ1XTyB11wLZs7cdmhrJIC1k6Bo2u7hl9NRJYQEZzhkBC
- vXDf0fVk8Z0rCQSbx55ivI0ygP9zIcyiVY+yGyR6ix0IID2pCmxxKHLf+bJAnDr7Xt3cEJlXR
- 2KR5I02q2PUE/6ZFJBGZc3v8rFDGvXyu3TerRwMCv0mjv7pn4If3wHNsPA4SLKwgErYP9G6BO
- T5z6iuLPJYLqOB6DlXv/jI38u0TZuOrGCe1WNn5wLdRF2n2bIjB4ZDuxJVLNLgmRr4XAICLjo
- fXLUADEm9o6OoYfo2/MdsqyoL6t24CC+F8vAYwsiIQH0pdw2JTimg0oOt2XZXsZ8/y/YrqzOa
- kYEDD3dTgUbE9BxzH3btdY8op/qWZPcBcW+vHN2kBUtDtAmaJB/cN3kkLEkDxVjFNCMiTtyh9
- Uv0mbd8hlwlKGIb0ChXTqZh1+EQnkqfVY+N/YBaXGRgTPs+SsfWxn9plU51Bw7grEWWd40sry
- 9OusBzIb+sEIhniqixK1s2H5cIvFizfevPtAMJPCVZnleprwR5PARHByExsQU7NFyqUXGdoF4
- Nra0rWQgXqEFfp3Fy0zK3qkNu+ZVscnFXvIEccl8apVTM5roiUdH1RzRNagi84kqH8V1+KxvO
- xuRGachzOVfPugocd+yR7OAowWujGqBwuuh1tn4q9nVW7a0AdJXiNBh6Q==
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Olof Johansson <olof@lixom.net>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Robert Hancock <robert.hancock@calian.com>,
+        =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The Nuvoton WPCM450 SoC has a combined clock and reset controller.
-Add a devicetree binding for it, as well as definitions for the bit
-numbers used by it.
+Hi Tomer,
 
-Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-=2D--
+On Fri, Jun 10, 2022 at 12:30 AM Tomer Maimon <tmaimon77@gmail.com> wrote:
+> On Wed, 8 Jun 2022 at 13:21, Krzysztof Kozlowski
+> <krzysztof.kozlowski@linaro.org> wrote:
+> > On 08/06/2022 11:56, Tomer Maimon wrote:
+> > > This adds initial device tree support for the
+> > > Nuvoton NPCM845 Board Management controller (BMC) SoC family.
+> > >
+> > > The NPCM845 based quad-core Cortex-A35 ARMv8 architecture and
+> > > have various peripheral IPs.
+> > >
+> > > Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
 
-v4:
-- Add R-b tag
+> > > --- /dev/null
+> > > +++ b/arch/arm64/boot/dts/nuvoton/nuvoton-common-npcm8xx.dtsi
+> > > @@ -0,0 +1,197 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > > +// Copyright (c) 2021 Nuvoton Technology tomer.maimon@nuvoton.com
+> > > +
+> > > +#include <dt-bindings/clock/nuvoton,npcm8xx-clock.h>
+> > > +#include <dt-bindings/interrupt-controller/arm-gic.h>
+> > > +#include <dt-bindings/interrupt-controller/irq.h>
+> > > +
+> > > +/ {
+> > > +     #address-cells = <2>;
+> > > +     #size-cells = <2>;
+> > > +     interrupt-parent = <&gic>;
+> > > +
+> > > +     /* external reference clock */
+> > > +     clk_refclk: clk-refclk {
+> > > +             compatible = "fixed-clock";
+> > > +             #clock-cells = <0>;
+> > > +             clock-frequency = <25000000>;
+> >
+> > Ignored comment.
+> Could we use it as a default clock-frequency?
 
-v3:
-- Change clock-output-names and clock-names from "refclk" to "ref", sugges=
-ted
-  by Krzysztof Kozlowski
+If the oscillator is present on the board, and not an SoC builtin, its
+clock frequency should be described in the board DTS.
+Some clocks may be optional, and left unpopulated.
+Others clocks may be fed with different frequencies than the default.
 
-v2:
-- https://lore.kernel.org/lkml/20220429172030.398011-5-j.neuschaefer@gmx.n=
-et/
-- Various improvements, suggested by Krzysztof Kozlowski
+> >
+> > > +             clock-output-names = "refclk";
+> > > +     };
+> > > +
+> > > +     /* external reference clock for cpu. float in normal operation */
+> > > +     clk_sysbypck: clk-sysbypck {
+> > > +             compatible = "fixed-clock";
+> > > +             #clock-cells = <0>;
+> > > +             clock-frequency = <1000000000>;
+> >
+> > Ignored comment.
+> same as above
+> >
+> > > +             clock-output-names = "sysbypck";
+> > > +     };
+> > > +
+> > > +     /* external reference clock for MC. float in normal operation */
+> > > +     clk_mcbypck: clk-mcbypck {
+> > > +             compatible = "fixed-clock";
+> > > +             #clock-cells = <0>;
+> > > +             clock-frequency = <1050000000>;
+> same as above
+> > > +             clock-output-names = "mcbypck";
+> > > +     };
 
-v1:
-- https://lore.kernel.org/lkml/20220422183012.444674-5-j.neuschaefer@gmx.n=
-et/
-=2D--
- .../bindings/clock/nuvoton,wpcm450-clk.yaml   | 66 ++++++++++++++++++
- .../dt-bindings/clock/nuvoton,wpcm450-clk.h   | 67 +++++++++++++++++++
- 2 files changed, 133 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/clock/nuvoton,wpcm45=
-0-clk.yaml
- create mode 100644 include/dt-bindings/clock/nuvoton,wpcm450-clk.h
+>  "+             cpu0: cpu@0 {
+>  +                     device_type = "cpu";
+>  +                     compatible = "arm,cortex-a35";
+>  +                     clocks = <&clk NPCM8XX_CLK_CPU>;
+>  +                     reg = <0x0 0x0>;
+> Why do you have two address cells? A bit more complicated and not
+> necessary, I think."
+> the arm,cortex-a35 is 64 Bit this is why we use  #address-cells = <2>;
+> and therefore reg = <0x0 0x0>;
 
-diff --git a/Documentation/devicetree/bindings/clock/nuvoton,wpcm450-clk.y=
-aml b/Documentation/devicetree/bindings/clock/nuvoton,wpcm450-clk.yaml
-new file mode 100644
-index 0000000000000..525024a58df4c
-=2D-- /dev/null
-+++ b/Documentation/devicetree/bindings/clock/nuvoton,wpcm450-clk.yaml
-@@ -0,0 +1,66 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/clock/nuvoton,wpcm450-clk.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Nuvoton WPCM450 clock controller
-+
-+maintainers:
-+  - Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-+
-+description:
-+  The clock controller of the Nuvoton WPCM450 SoC supplies clocks and res=
-ets to
-+  the rest of the chip.
-+
-+properties:
-+  compatible:
-+    const: nuvoton,wpcm450-clk
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: Reference clock oscillator (should be 48 MHz)
-+
-+  clock-names:
-+    items:
-+      - const: ref
-+
-+  '#clock-cells':
-+    const: 1
-+
-+  '#reset-cells':
-+    const: 1
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - clock-names
-+  - '#clock-cells'
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/nuvoton,wpcm450-clk.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    refclk: clock-48mhz {
-+      /* 48 MHz reference oscillator */
-+      compatible =3D "fixed-clock";
-+      clock-output-names =3D "ref";
-+      clock-frequency =3D <48000000>;
-+      #clock-cells =3D <0>;
-+    };
-+
-+    clk: clock-controller@b0000200 {
-+      reg =3D <0xb0000200 0x100>;
-+      compatible =3D "nuvoton,wpcm450-clk";
-+      clocks =3D <&refclk>;
-+      clock-names =3D "ref";
-+      #clock-cells =3D <1>;
-+      #reset-cells =3D <1>;
-+    };
-diff --git a/include/dt-bindings/clock/nuvoton,wpcm450-clk.h b/include/dt-=
-bindings/clock/nuvoton,wpcm450-clk.h
-new file mode 100644
-index 0000000000000..86e1c895921b7
-=2D-- /dev/null
-+++ b/include/dt-bindings/clock/nuvoton,wpcm450-clk.h
-@@ -0,0 +1,67 @@
-+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-+
-+#ifndef _DT_BINDINGS_CLOCK_NUVOTON_WPCM450_CLK_H
-+#define _DT_BINDINGS_CLOCK_NUVOTON_WPCM450_CLK_H
-+
-+/* Clocks based on CLKEN bits */
-+#define WPCM450_CLK_FIU            0
-+#define WPCM450_CLK_XBUS           1
-+#define WPCM450_CLK_KCS            2
-+#define WPCM450_CLK_SHM            4
-+#define WPCM450_CLK_USB1           5
-+#define WPCM450_CLK_EMC0           6
-+#define WPCM450_CLK_EMC1           7
-+#define WPCM450_CLK_USB0           8
-+#define WPCM450_CLK_PECI           9
-+#define WPCM450_CLK_AES           10
-+#define WPCM450_CLK_UART0         11
-+#define WPCM450_CLK_UART1         12
-+#define WPCM450_CLK_SMB2          13
-+#define WPCM450_CLK_SMB3          14
-+#define WPCM450_CLK_SMB4          15
-+#define WPCM450_CLK_SMB5          16
-+#define WPCM450_CLK_HUART         17
-+#define WPCM450_CLK_PWM           18
-+#define WPCM450_CLK_TIMER0        19
-+#define WPCM450_CLK_TIMER1        20
-+#define WPCM450_CLK_TIMER2        21
-+#define WPCM450_CLK_TIMER3        22
-+#define WPCM450_CLK_TIMER4        23
-+#define WPCM450_CLK_MFT0          24
-+#define WPCM450_CLK_MFT1          25
-+#define WPCM450_CLK_WDT           26
-+#define WPCM450_CLK_ADC           27
-+#define WPCM450_CLK_SDIO          28
-+#define WPCM450_CLK_SSPI          29
-+#define WPCM450_CLK_SMB0          30
-+#define WPCM450_CLK_SMB1          31
-+
-+/* Other clocks */
-+#define WPCM450_CLK_USBPHY        32
-+
-+#define WPCM450_NUM_CLKS          33
-+
-+/* Resets based on IPSRST bits */
-+#define WPCM450_RESET_FIU          0
-+#define WPCM450_RESET_EMC0         6
-+#define WPCM450_RESET_EMC1         7
-+#define WPCM450_RESET_USB0         8
-+#define WPCM450_RESET_USB1         9
-+#define WPCM450_RESET_AES_PECI    10
-+#define WPCM450_RESET_UART        11
-+#define WPCM450_RESET_MC          12
-+#define WPCM450_RESET_SMB2        13
-+#define WPCM450_RESET_SMB3        14
-+#define WPCM450_RESET_SMB4        15
-+#define WPCM450_RESET_SMB5        16
-+#define WPCM450_RESET_PWM         18
-+#define WPCM450_RESET_TIMER       19
-+#define WPCM450_RESET_ADC         27
-+#define WPCM450_RESET_SDIO        28
-+#define WPCM450_RESET_SSPI        29
-+#define WPCM450_RESET_SMB0        30
-+#define WPCM450_RESET_SMB1        31
-+
-+#define WPCM450_NUM_RESETS        32
-+
-+#endif /* _DT_BINDINGS_CLOCK_NUVOTON_WPCM450_CLK_H */
-=2D-
-2.35.1
+These addresses are not addresses on the main memory bus (which
+is indeed 64-bit), but on the logical CPU bus.
+Now, Documentation/devicetree/bindings/arm/cpus.yaml says you can
+have #address-cells = <2> if you have non-zero MPIDR_EL1 high bits.
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
