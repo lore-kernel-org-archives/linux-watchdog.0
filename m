@@ -2,65 +2,148 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E4A4CCA47D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Jun 2022 18:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5E67C43334
+	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Jun 2022 18:47:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233163AbiFMSrt (ORCPT
+        id S240097AbiFMSr5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 13 Jun 2022 14:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
+        Mon, 13 Jun 2022 14:47:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245317AbiFMSr0 (ORCPT
+        with ESMTP id S243670AbiFMSrn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 13 Jun 2022 14:47:26 -0400
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A35B2D8097;
-        Mon, 13 Jun 2022 08:06:00 -0700 (PDT)
+        Mon, 13 Jun 2022 14:47:43 -0400
+Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C2112DA612;
+        Mon, 13 Jun 2022 08:06:20 -0700 (PDT)
 X-IronPort-AV: E=Sophos;i="5.91,297,1647270000"; 
-   d="scan'208";a="122769625"
+   d="scan'208";a="124246690"
 Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie5.idc.renesas.com with ESMTP; 14 Jun 2022 00:05:59 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 14 Jun 2022 00:06:20 +0900
 Received: from localhost.localdomain (unknown [10.226.93.20])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id B4B7D425F851;
-        Tue, 14 Jun 2022 00:05:56 +0900 (JST)
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 05B5A425A308;
+        Tue, 14 Jun 2022 00:06:17 +0900 (JST)
 From:   Phil Edworthy <phil.edworthy@renesas.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+        Guenter Roeck <linux@roeck-us.net>
 Cc:     Phil Edworthy <phil.edworthy@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v2 0/2] arm64: renesas: Add RZ/V2M watchdog support
-Date:   Mon, 13 Jun 2022 16:05:48 +0100
-Message-Id: <20220613150550.70334-1-phil.edworthy@renesas.com>
+        linux-renesas-soc@vger.kernel.org,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH v2 2/2] watchdog: rzg2l_wdt: Add rzv2m support
+Date:   Mon, 13 Jun 2022 16:05:50 +0100
+Message-Id: <20220613150550.70334-3-phil.edworthy@renesas.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220613150550.70334-1-phil.edworthy@renesas.com>
+References: <20220613150550.70334-1-phil.edworthy@renesas.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello all,
+The WDT on RZ/V2M devices is basically the same as RZ/G2L, but without
+the parity error registers. This means the driver has to reset the
+hardware plus set the minimum timeout in order to do a restart and has
+a single interrupt.
 
-This patch series adds support for the Watchdog Timer (WDT) in the
-RZ/V2M SoC.
-
+Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+---
 v2:
- - dt-bindings: Added minItems for interrupt-names and clock-names
- - driver: Replace use of parity error registers in restart
- - driver: Commit msg modified to reflect different contents
+ - Replace use of parity error registers in restart
+ - Commit msg modified to reflect different contents
+---
+ drivers/watchdog/rzg2l_wdt.c | 37 ++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-Phil Edworthy (2):
-  dt-bindings: watchdog: renesas,wdt: Add r9a09g011 (RZ/V2M) support
-  watchdog: rzg2l_wdt: Add rzv2m support
-
- .../bindings/watchdog/renesas,wdt.yaml        | 71 ++++++++++++-------
- drivers/watchdog/rzg2l_wdt.c                  | 37 +++++++---
- 2 files changed, 76 insertions(+), 32 deletions(-)
-
+diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
+index 6eea0ee4af49..f3b6da5c964a 100644
+--- a/drivers/watchdog/rzg2l_wdt.c
++++ b/drivers/watchdog/rzg2l_wdt.c
+@@ -9,8 +9,9 @@
+ #include <linux/delay.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
++#include <linux/math64.h>
+ #include <linux/module.h>
+-#include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
+@@ -40,6 +41,11 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++enum rz_wdt_type {
++	I2C_RZG2L,
++	I2C_RZV2M,
++};
++
+ struct rzg2l_wdt_priv {
+ 	void __iomem *base;
+ 	struct watchdog_device wdev;
+@@ -48,6 +54,7 @@ struct rzg2l_wdt_priv {
+ 	unsigned long delay;
+ 	struct clk *pclk;
+ 	struct clk *osc_clk;
++	enum rz_wdt_type devtype;
+ };
+ 
+ static void rzg2l_wdt_wait_delay(struct rzg2l_wdt_priv *priv)
+@@ -139,14 +146,25 @@ static int rzg2l_wdt_restart(struct watchdog_device *wdev,
+ {
+ 	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
+ 
+-	clk_prepare_enable(priv->pclk);
+-	clk_prepare_enable(priv->osc_clk);
++	if (priv->devtype == I2C_RZG2L) {
++		clk_prepare_enable(priv->pclk);
++		clk_prepare_enable(priv->osc_clk);
+ 
+-	/* Generate Reset (WDTRSTB) Signal on parity error */
+-	rzg2l_wdt_write(priv, 0, PECR);
++		/* Generate Reset (WDTRSTB) Signal on parity error */
++		rzg2l_wdt_write(priv, 0, PECR);
+ 
+-	/* Force parity error */
+-	rzg2l_wdt_write(priv, PEEN_FORCE, PEEN);
++		/* Force parity error */
++		rzg2l_wdt_write(priv, PEEN_FORCE, PEEN);
++	} else {
++		/* RZ/V2M doesn't have parity error registers */
++
++		wdev->timeout = 0;
++		rzg2l_wdt_start(wdev);
++
++		/* Wait 2 consecutive overflow cycles for reset */
++		udelay(DIV64_U64_ROUND_UP(2 * 0xFFFFF * 1000000ULL,
++					  priv->osc_clk_rate));
++	}
+ 
+ 	return 0;
+ }
+@@ -227,6 +245,8 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return dev_err_probe(dev, ret, "failed to deassert");
+ 
++	priv->devtype = (enum rz_wdt_type)of_device_get_match_data(dev);
++
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	priv->wdev.info = &rzg2l_wdt_ident;
+@@ -255,7 +275,8 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id rzg2l_wdt_ids[] = {
+-	{ .compatible = "renesas,rzg2l-wdt", },
++	{ .compatible = "renesas,rzg2l-wdt", .data = (void *)I2C_RZG2L },
++	{ .compatible = "renesas,rzv2m-wdt", .data = (void *)I2C_RZV2M },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, rzg2l_wdt_ids);
 -- 
 2.34.1
 
