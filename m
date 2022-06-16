@@ -2,172 +2,237 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03EF7C433EF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jun 2022 16:45:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43716C433EF
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Jun 2022 16:46:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378176AbiFPQp1 (ORCPT
+        id S1378337AbiFPQq5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 16 Jun 2022 12:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        Thu, 16 Jun 2022 12:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378139AbiFPQpF (ORCPT
+        with ESMTP id S232675AbiFPQql (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Jun 2022 12:45:05 -0400
-Received: from EUR03-AM5-obe.outbound.protection.outlook.com (mail-eopbgr30044.outbound.protection.outlook.com [40.107.3.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B85882DA96;
-        Thu, 16 Jun 2022 09:44:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=V0rDIX3gJTCVIN4cdNwc7vG2h3Ifyr5eg963dFD/cbjRyJOgpG8wkF8TWPoUSpVYNiirbppY+U2NvZ6A2X5IKyUo2Ko6yMoPPw9QT0XNQ56gY7ibnuQQ4L/MhHWefIqmE24c456D442cpByxF1MzF2BBcT3KePl1q9ydvv4ZZKkMzsVeNR/xr+4LfYA5jYY+PpAWM2vb1m8RCqFcXpeZDNEszvyI1QYQWPqdmfD9kA0KC9igpGPv40ztrZ2AF04TBiwXWyVBqA4kKmFCTuaLAJYpuiwdd7+f0YNSpep0MIw6d31JsXgpAX4JNaJC0VEU6KZUFo90hemvANp5qs7c1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XmvZuov1bWzSuIePc+fURkWMa24hcuw4hTzM7bn6owA=;
- b=bDQIozZ+K1ZXalsSpAKenR9F7HIiHcck2DOsURJmyzJf3Bpbkx0b5Z4cRsIG12FYRNKYu37PhYJxJYXBwFlfEDD2u11r6i/hsmSMFGRAvtmlWv5xBrv2cLHEmG06dZTnehtog9zJKeD7npKwC3e//NKwkxCp+mQ11V/nTExR1A71kVBpmf70S399vvYdFgLrcJp53scaM6xtouUkGNqzbxgK2vrebhLlu48WMKn++ZNvTS0Mn4O0oPcb3bVrJbtcHpUUbyr1XjrSGQIwucdrL8kYTfKx/okgHl+Z1tiy4r4/GUEvNUYFNvt3CteEBzrCYrMZi+tGdn8B+xB5jqBz6Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XmvZuov1bWzSuIePc+fURkWMa24hcuw4hTzM7bn6owA=;
- b=XGA7qyIHFuL/gkbsA/HsAurCuHllqvDVBVQ7RxdoAVzuAB2WOgHFIZjkCZDT0RljOrvNOlIsfg7EuFYdqj2AhRyfGmU/odjAeAS/pytWSLKw1ju4ZhJn0hgyRwTh1WYMVt9fVelqG0Fun2+enaBszgsvhWB+XQ+qTI3GyidvRkI=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from VI1PR04MB5005.eurprd04.prod.outlook.com (2603:10a6:803:57::30)
- by HE1PR0401MB2649.eurprd04.prod.outlook.com (2603:10a6:3:85::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.20; Thu, 16 Jun
- 2022 16:44:23 +0000
-Received: from VI1PR04MB5005.eurprd04.prod.outlook.com
- ([fe80::7505:2581:368f:5619]) by VI1PR04MB5005.eurprd04.prod.outlook.com
- ([fe80::7505:2581:368f:5619%5]) with mapi id 15.20.5353.015; Thu, 16 Jun 2022
- 16:44:23 +0000
-From:   Viorel Suman <viorel.suman@nxp.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Viorel Suman <viorel.suman@nxp.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Liu Ying <victor.liu@nxp.com>,
-        Ming Qian <ming.qian@nxp.com>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Abel Vesa <abel.vesa@nxp.com>
-Subject: [PATCH v5 13/14] arm64: dts: freescale: imx8qxp: Fix the keys node name
-Date:   Thu, 16 Jun 2022 19:43:02 +0300
-Message-Id: <20220616164303.790379-14-viorel.suman@nxp.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220616164303.790379-1-viorel.suman@nxp.com>
-References: <20220616164303.790379-1-viorel.suman@nxp.com>
-Content-Type: text/plain; charset="iso-8859-1"
+        Thu, 16 Jun 2022 12:46:41 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5599532FE
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jun 2022 09:45:42 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25GGU9te028670;
+        Thu, 16 Jun 2022 16:45:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=hmhAJDvbUnN56qdBjb6q51rrHEMp0FhSmyk8wyC+8JY=;
+ b=pTgOotLzUd/+SNQXpdCiFa8kzVbPTXBde6mzlOf7O0BOfJmlCtVrwDMGwwO9A446PYP/
+ Y8JCVCk/VBE8hJE4rT7dv2te/uLSgrOaF2t9gEOPXlaHq5XN5T/j8NbCjWaBBNXTt63Y
+ H55DE+ULOYxmo1+0Of73qCtMhb3N8TwD548Zopw9ET5X6gXb56EVZGpD3ZZgpVEclkgn
+ s0N7wCx7nNVRKk060QYWrRvPtk1yxGuVyQjoX+74oPAmR2lCl9czj5Y4waGhhadv8Hxu
+ tHxsVuCfCHrZ2oh1myqkDYxFarrR+4/arqOOpAMThaHT6yzK5duVHAHLrBrYVnaoPLqv Ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gqxe2gqxq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Jun 2022 16:45:02 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25GGfGs3006317;
+        Thu, 16 Jun 2022 16:45:02 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gqxe2gqx7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Jun 2022 16:45:02 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25GGbusG009236;
+        Thu, 16 Jun 2022 16:45:01 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma02dal.us.ibm.com with ESMTP id 3gmjpakqg6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Jun 2022 16:45:01 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25GGj0Oi32178482
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Jun 2022 16:45:00 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0886EAC05E;
+        Thu, 16 Jun 2022 16:45:00 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ADF2FAC05B;
+        Thu, 16 Jun 2022 16:44:57 +0000 (GMT)
+Received: from [9.160.59.133] (unknown [9.160.59.133])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Jun 2022 16:44:57 +0000 (GMT)
+Message-ID: <e5d65186-8247-ac6e-d785-e560f380014a@linux.ibm.com>
+Date:   Thu, 16 Jun 2022 09:44:56 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v2 0/4] pseries-wdt: initial support for H_WATCHDOG-based
+ watchdog timers
+Content-Language: en-US
+To:     Daniel Henrique Barboza <danielhb413@gmail.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        linux-watchdog@vger.kernel.org
+Cc:     nathanl@linux.ibm.com, wvoigt@us.ibm.com, aik@ozlabs.ru,
+        vaishnavi@linux.ibm.com, npiggin@gmail.com, tzungbi@kernel.org,
+        brking@linux.ibm.com, linuxppc-dev@lists.ozlabs.org,
+        linux@roeck-us.net
+References: <20220602175353.68942-1-cheloha@linux.ibm.com>
+ <74ac21a1-d56f-50fb-71c2-e800e943f340@gmail.com>
+From:   Tyrel Datwyler <tyreld@linux.ibm.com>
+In-Reply-To: <74ac21a1-d56f-50fb-71c2-e800e943f340@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RSgseW4hDF64XfyI88HQbIg7F0eSAcW7
+X-Proofpoint-ORIG-GUID: tt7LCTADttLQqYolu5Ghu21bZGVnzI_U
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: AM0PR04CA0029.eurprd04.prod.outlook.com
- (2603:10a6:208:122::42) To VI1PR04MB5005.eurprd04.prod.outlook.com
- (2603:10a6:803:57::30)
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c6f18c07-ac27-4c7c-e6e4-08da4fb7775a
-X-MS-TrafficTypeDiagnostic: HE1PR0401MB2649:EE_
-X-LD-Processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-X-Microsoft-Antispam-PRVS: <HE1PR0401MB2649CA1D456A85BEFA281A0B92AC9@HE1PR0401MB2649.eurprd04.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: d+nUREjNLfylS7DgrL5Wa8bybH9SFGWKVkDkg9KhsNhR10BSkNWnFEQiFPaxLspKod5KcbuTTOi/dmFJpi6JW2KItYCyMET/DsdXvS3PXRb8U+EP92d1jo7aKCzu1nxxK2lXaNtiJx1pO/SIq9nnIygEE8asQe8hB/bQfeMRzil7hvS2ZH45lEV4aUNw2Xb4x7wWS5WVACvk3gNem3bIzg0EsZ1d4uHqEvP7UJLIilw3djjpASiND+xiI11XSxIBE0wRJsOd7YUyUoufM3Mma29DoI9FFmzl/Vw77PLMczLMWRulei4WV5Uw+oOTFlKMBFX1/7lw9Bd/zyQnCO0H5xVZZyhR6YXNugvufMD4xZiV+vVCv/qXfcudS8mEJ1pY9ndnCMEpPbQjwyowudwPo1IWkLGIzsWppZ1xdtZqm16DqM/yg3p8WGjNelUoN25UAtx8A+Og2XuggYQ/idY860jqo4K8Q7KmyNtLAHuofPl+Po0djuE12hozo4VjNCzkxBd4DV26wQU67NrFAr0BHwnfIyIOf/II8pJCvjlAcQWEgYAH5JM4AFMHzY+L1RUTusdldk0cm2Ahtb4adKFXWA6pTeoYiUHkUYsH7SAigFTUDcokD2N3aDGi0VzXLje0xGg3CYKfrfVBp5vD/EJ1P2Db/ez5gLU13G6XF/GUPjvjH1tvETIbY9Rsy8Eztmhv2V1fXOMeQtO4oHKVytCUw4Ce55DknoO2OfY4Yt1rg0SFaMktxf9obzbAW68FPPYT
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5005.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(1076003)(86362001)(186003)(38100700002)(6666004)(4744005)(5660300002)(2616005)(26005)(7416002)(6512007)(66556008)(7406005)(2906002)(83380400001)(66946007)(38350700002)(316002)(110136005)(52116002)(6506007)(8676002)(508600001)(44832011)(4326008)(36756003)(6486002)(66476007)(8936002)(921005)(32563001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?LTarlczJh/sZp6Kxsne14bNRW3wWrRA1kYZRDlgYXfg/tdaprbspapL7SR?=
- =?iso-8859-1?Q?JNOK35cfaoUvjuB5TO/gttuG5+/Cc2ndD67k94Ksln8nHtbh/Al7wTIsY6?=
- =?iso-8859-1?Q?1Lw4QLVg5A/gCt8+ZGBSmqda8Qt/Et7iThF+AlFxLNoYwoj0uODJvtT6S3?=
- =?iso-8859-1?Q?mYrsqvCeaDOwMWPXW3V9SJvzeXM0E0/TxTZDsl/gJMamRpBwmgKqgIlSQb?=
- =?iso-8859-1?Q?e14nlkBGlXrT4tSxeLivq7bxtrlrKY4NNxc+D2Bbm8/r2iyhZpYo1zbqtd?=
- =?iso-8859-1?Q?4kZi8+L55y1r4Q+nOwPALmPWXxNGCkGraFYWyoVVaQQ5YyDYx7APRP1t4h?=
- =?iso-8859-1?Q?od3RLgP/hCS3u+lbD2RekiNPj4A8sQ/xFne4YdlgD5X1xnELWkgSal72U7?=
- =?iso-8859-1?Q?/XWwmNG7S+237Wy63K3aCuycS3rwZNSCqH5VANy0VrnQomTPJgdcEprmYM?=
- =?iso-8859-1?Q?SZw6O5HSVFqB1M/bppmtUGV5AkaR82mceaxVjHPaObgkpod5Sp0vUTZjWd?=
- =?iso-8859-1?Q?SU6BRk3sFkjoDkuR79iU7qfkoaW0V2Q0uZ+GSY/toM+GBAPhDm3hXFpSX4?=
- =?iso-8859-1?Q?qjjhQpJpjX3CisXxpplGISGjDsFaPQ7FMp7QmBP1jUygmy38plGMN/E3g+?=
- =?iso-8859-1?Q?LVQDGfHX+b3U58+dsKjHJogPSDShw1WKzB+O083sUfdjwM6P9Vz25DCiDy?=
- =?iso-8859-1?Q?HfuVrV3jemYUut26epz6mF2BR70mGAT91lb/1c4idd+n1Pia1GrTTfoSkv?=
- =?iso-8859-1?Q?xQWA33wSU/ewS0MmQwefUnz+nnIx9z2YWjdVfxtQJiWTR1PvfhTlSvgGrI?=
- =?iso-8859-1?Q?pVdqeI3qNbKCn6rsQBVpRrdfOFIbLpQSX+dW79pMwLSR/X5eqdWmt0b0DT?=
- =?iso-8859-1?Q?bUYGkVWE24loK7qqNSp4AgfeKWTLfMFUV/Qm6DxChVKOhK2B0BwoaPMBFi?=
- =?iso-8859-1?Q?y0jajUZIPcE23ZCJr85NVK79v2PKfC6eJXsr1Ob1MC6fGmB09JXmFbp43Y?=
- =?iso-8859-1?Q?V4J4sNoIgB1yvTVzBS/ugvpcEQ3SKRs3J+JWEgh6E+mJMJSbWeGmwGrfdp?=
- =?iso-8859-1?Q?lgubHjeipelweDFJ+wZk1zysryr5q0I80btrSy0pdtjJW0PKFF/6WvKpBL?=
- =?iso-8859-1?Q?STUwG5UFiRVMsp09v6qGaixlerACOy63p9m1Fjcv4/pXkedEB42ux0DcGj?=
- =?iso-8859-1?Q?o+IaX0bLF4jyxzCTX8+MjTjZzEnq9nJ2aTQT2mmmlEDU6WPNeI0ImAxpC2?=
- =?iso-8859-1?Q?FUGkFvVPWw9e0ig5rL81fdTNE9FBdAaKXEQ02CFB3tGbBkGqvpEfAm8lMO?=
- =?iso-8859-1?Q?IfDbmQYRr4mheN9D1Fk71ovLuSk+kpKRJiy5P0GZn/QbyKkKzxwOXIgzFW?=
- =?iso-8859-1?Q?nK5oScDV7z8DiH8F+krwtgOFX6mCqyo9SFb2DlJclgmH1G6MUXBhanPjbb?=
- =?iso-8859-1?Q?TCLjK4m+V14meD6QwZR6vyBTbBKjhqT4bFgRpxoIHYr3OgW7gFxbgwQpME?=
- =?iso-8859-1?Q?9LED6GdcEJYmiikmp9idsfmxcNCnrmoE++kCGy2k2BHWGpykLh/8pMLJrO?=
- =?iso-8859-1?Q?pRC830LhcxAZZRKB9DyBV/rfAjNSe0nA0J38PC7svqUQ9fwV0vLWXhdnIJ?=
- =?iso-8859-1?Q?mSQL9FZs+mHdxTi6ga1eQVpNbLPzrvSjJDlYmNVUAFLpopE3E7qQOpoqq4?=
- =?iso-8859-1?Q?7SBuvbkumcnW7N2DhD0gdxhLf5bw1oALRJCOnrDmg0Jy4OqTFZ7NtCnyOK?=
- =?iso-8859-1?Q?aFipCTbfCuSfbh51Lq3JqtBpw07lEXTcAMiDxktKdjAb9YS9aZ7/zPZhfX?=
- =?iso-8859-1?Q?m5xx3S4pfQ=3D=3D?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c6f18c07-ac27-4c7c-e6e4-08da4fb7775a
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5005.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2022 16:44:22.8276
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zj5Hqlfdd1+VAwK3YudTpUHoqGI3URRbFLIVP9n/lDYTeSpERlbhJA+Hzy3HOT/m2r2MdFk9u3uVXfmdclrQ3w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR0401MB2649
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-16_12,2022-06-16_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1011 spamscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
+ adultscore=0 mlxscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206160068
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@nxp.com>
+On 6/15/22 18:43, Daniel Henrique Barboza wrote:
+> Hi,
+> 
+> I tried this series out with mainline QEMU built with Alexey's patch [1]
+> and I wasn't able to get it to work. I'm using a simple QEMU command line
+> booting a fedora36 guest in a Power9 boston host:
 
-The proper name is 'keys', not 'scu-keys'.
+I would assume the H_WATCHDOG hypercall is not implemented by the qemu pseries
+machine type. It is a very new hypercall.
 
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
----
- arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-Tyrel
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-index f9c3090c632e..1ef736815969 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-@@ -232,7 +232,7 @@ ocotp: imx8qx-ocotp {
- 			#size-cells = <1>;
- 		};
- 
--		scu_key: scu-key {
-+		scu_key: keys {
- 			compatible = "fsl,imx8qxp-sc-key", "fsl,imx-sc-key";
- 			linux,keycodes = <KEY_POWER>;
- 			status = "disabled";
--- 
-2.25.1
+> 
+> sudo  ./qemu-system-ppc64 \
+> -M
+> pseries,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,ic-mode=dual
+> \
+> -m 4G -accel kvm -cpu POWER9 -smp 1,maxcpus=1,threads=1,cores=1,sockets=1 \
+> -device virtio-scsi-pci,id=scsi0,bus=pci.0,addr=0x2 \
+> -drive
+> file=/home/danielhb/fedora36.qcow2,if=none,id=drive-scsi0-0-0-0,format=qcow2,cache=none
+> \
+> -device
+> scsi-hd,bus=scsi0.0,channel=0,scsi-id=0,lun=0,drive=drive-scsi0-0-0-0,id=scsi0-0-0-0,bootindex=2
+> \
+> -device qemu-xhci,id=usb,bus=pci.0,addr=0x4 -nographic -display none
+> 
+> 
+> Guest is running v5.19-rc2 with this series applied. Kernel config consists of
+> 'pseries_le_defconfig' plus the following 'watchdog' related changes:
+> 
+> [root@fedora ~]# cat linux/.config | grep PSERIES_WDT
+> CONFIG_PSERIES_WDT=y
+> 
+> [root@fedora ~]# cat linux/.config | grep -i watchdog
+> CONFIG_PPC_WATCHDOG=y
+> CONFIG_HAVE_NMI_WATCHDOG=y
+> CONFIG_WATCHDOG=y
+> CONFIG_WATCHDOG_CORE=y
+> CONFIG_WATCHDOG_NOWAYOUT=y
+> CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED=y
+> CONFIG_WATCHDOG_OPEN_TIMEOUT=0
+> # CONFIG_WATCHDOG_SYSFS is not set
+> # CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT is not set
+> # Watchdog Pretimeout Governors
+> # CONFIG_WATCHDOG_PRETIMEOUT_GOV is not set
+> # Watchdog Device Drivers
+> # CONFIG_SOFT_WATCHDOG is not set
+> # CONFIG_XILINX_WATCHDOG is not set
+> # CONFIG_ZIIRAVE_WATCHDOG is not set
+> # CONFIG_CADENCE_WATCHDOG is not set
+> # CONFIG_DW_WATCHDOG is not set
+> # CONFIG_MAX63XX_WATCHDOG is not set
+> CONFIG_WATCHDOG_RTAS=y
+> # PCI-based Watchdog Cards
+> # CONFIG_PCIPCWATCHDOG is not set
+> # USB-based Watchdog Cards
+> # CONFIG_USBPCWATCHDOG is not set
+> # CONFIG_WQ_WATCHDOG is not set
+> [root@fedora ~]#
+> 
+> 
+> 
+> Kernel command line:
+> 
+> [root@fedora ~]# cat /proc/cmdline
+> BOOT_IMAGE=(ieee1275/disk,msdos2)/vmlinuz-5.19.0-rc2-00054-g12ede8ffb103 \
+> root=/dev/mapper/fedora_fedora-root ro rd.lvm.lv=fedora_fedora/root \
+> pseries-wdt.timeout=60 pseries-wdt.nowayout=1 pseries-wdt.action=2
+> 
+> 
+> With all that, executing
+> 
+> echo V > /dev/watchdog0
+> 
+> Does nothing. dmesg is clean and the guest doesn't reboot after the 60 sec
+> timeout.  I also tried with PSERIES_WDT being compiled as a module instead
+> of built-in. Same results.
+> 
+> 
+> What am I missing?
+> 
+> 
+> [1]
+> https://patchwork.ozlabs.org/project/qemu-ppc/patch/20220608030153.1862335-1-aik@ozlabs.ru/
+> 
+> 
+> 
+> 
+> Thanks,
+> 
+> 
+> Daniel
+> 
+> 
+> 
+> 
+> On 6/2/22 14:53, Scott Cheloha wrote:
+>> PAPR v2.12 defines a new hypercall, H_WATCHDOG.  This patch series
+>> adds support for this hypercall to powerpc/pseries kernels and
+>> introduces a new watchdog driver, "pseries-wdt", for the virtual
+>> timers exposed by the hypercall.
+>>
+>> This series is preceded by the following:
+>>
+>> RFC v1:
+>> https://lore.kernel.org/linux-watchdog/20220413165104.179144-1-cheloha@linux.ibm.com/
+>>
+>> RFC v2:
+>> https://lore.kernel.org/linux-watchdog/20220509174357.5448-1-cheloha@linux.ibm.com/
+>>
+>> PATCH v1:
+>> https://lore.kernel.org/linux-watchdog/20220520183552.33426-1-cheloha@linux.ibm.com/
+>>
+>>
+>> Changes of note from PATCH v1:
+>>
+>> - Trim down the large comment documenting the H_WATCHDOG hypercall.
+>>    The comment is likely to rot, so remove anything we aren't using
+>>    and anything overly obvious.
+>>
+>> - Remove any preprocessor definitions not actually used in the module
+>>    right now.  If we want to use other features offered by the hypercall
+>>    we can add them in later.  They're just clutter until then.
+>>
+>> - Simplify the "action" module parameter.  The value is now an index
+>>    into an array of possible timeoutAction values.  This design removes
+>>    the need for the custom get/set methods used in PATCH v1.
+>>
+>>    Now we merely need to check that the "action" value is a valid
+>>    index during pseries_wdt_probe().  Easy.
+>>
+>> - Make the timeoutAction a member of pseries_wdt, "action".  This
+>>    eliminates the use of a global variable during pseries_wdt_start().
+>>
+>> - Use watchdog_init_timeout() idiomatically.  Check its return value
+>>    and error out of pseries_wdt_probe() if it fails.
+>>
+>>
 
