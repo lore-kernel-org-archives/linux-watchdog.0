@@ -2,94 +2,95 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 012B9C433EF
-	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jun 2022 13:15:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34397C433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 21 Jun 2022 13:34:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351481AbiFUNO7 (ORCPT
+        id S1350642AbiFUNeY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 21 Jun 2022 09:14:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
+        Tue, 21 Jun 2022 09:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351096AbiFUNOh (ORCPT
+        with ESMTP id S232613AbiFUNbI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 Jun 2022 09:14:37 -0400
-Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 62B0E1A05F;
-        Tue, 21 Jun 2022 06:14:35 -0700 (PDT)
-Received: from NTHCCAS04.nuvoton.com (NTHCCAS04.nuvoton.com [10.1.8.29])
-        by maillog.nuvoton.com (Postfix) with ESMTP id 7CDAF1C811E4;
-        Tue, 21 Jun 2022 21:14:30 +0800 (CST)
-Received: from NTHCCAS03.nuvoton.com (10.1.20.28) by NTHCCAS04.nuvoton.com
- (10.1.8.29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Tue, 21
- Jun 2022 21:14:30 +0800
-Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCCAS03.nuvoton.com
- (10.1.20.28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1847.3; Tue, 21 Jun
- 2022 21:14:30 +0800
-Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
- (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
- Transport; Tue, 21 Jun 2022 21:14:29 +0800
-Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
-        id 75F8463A4C; Tue, 21 Jun 2022 16:14:27 +0300 (IDT)
-From:   Tomer Maimon <tmaimon77@gmail.com>
-To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
-        <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
-        <benjaminfair@google.com>, <robh+dt@kernel.org>,
-        <krzysztof.kozlowski+dt@linaro.org>, <mturquette@baylibre.com>,
-        <sboyd@kernel.org>, <p.zabel@pengutronix.de>,
-        <gregkh@linuxfoundation.org>, <daniel.lezcano@linaro.org>,
-        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
-        <linux@roeck-us.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
-        <arnd@arndb.de>, <olof@lixom.net>, <jirislaby@kernel.org>,
-        <shawnguo@kernel.org>, <bjorn.andersson@linaro.org>,
-        <geert+renesas@glider.be>, <marcel.ziswiler@toradex.com>,
-        <vkoul@kernel.org>, <biju.das.jz@bp.renesas.com>,
-        <nobuhiro1.iwamatsu@toshiba.co.jp>, <robert.hancock@calian.com>,
-        <j.neuschaefer@gmx.net>, <lkundrak@v3.sk>
-CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 10/18] dt-bindings: reset: npcm: Add support for NPCM8XX
-Date:   Tue, 21 Jun 2022 16:14:16 +0300
-Message-ID: <20220621131424.162355-11-tmaimon77@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20220621131424.162355-1-tmaimon77@gmail.com>
-References: <20220621131424.162355-1-tmaimon77@gmail.com>
+        Tue, 21 Jun 2022 09:31:08 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB64C1CB02
+        for <linux-watchdog@vger.kernel.org>; Tue, 21 Jun 2022 06:28:42 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 898F521B8B;
+        Tue, 21 Jun 2022 13:28:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1655818121; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=c0jsH01SfEzILkpTUyW7Wnn5Y0ercoLAGhzu6n/8SFs=;
+        b=iJR+MFDhayFeRbMLSHHrtPwDW9KtOdXQIRXiMeMxiV8/NRh0aY/n8YMzZIBUVoXCtbFFo4
+        aDCjlgzho6JmKu5v8eLBvbgvXh7j3atoPFiZ8SxZ07uZYRjZEcjsKRziZmY+7wFWAjPUad
+        KDLN1pzqb8LPdsO8O6tiOvwBAAOvnNs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1655818121;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=c0jsH01SfEzILkpTUyW7Wnn5Y0ercoLAGhzu6n/8SFs=;
+        b=n3KfSpcO09d7BiNBiMn+lbtt1o0GwM8FJs0OQq9kiE8uqnzF3xWbqrzUp0VC0XKbs56nyj
+        VMOr5C+lc/BG2dBQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 511C313A88;
+        Tue, 21 Jun 2022 13:28:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id yjdEEonHsWJpLQAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Tue, 21 Jun 2022 13:28:41 +0000
+Date:   Tue, 21 Jun 2022 15:28:40 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     linux-watchdog@vger.kernel.org
+Cc:     Terry Bowman <terry.bowman@amd.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: sp5100_tco: Fix a memory leak of EFCH MMIO
+ resource
+Message-ID: <20220621152840.420a0f4c@endymion.delvare>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add binding document and device tree binding constants for Nuvoton BMC
-NPCM8XX reset controller.
+Unlike release_mem_region(), a call to release_resource() does not
+free the resource, so it has to be freed explicitly to avoid a memory
+leak.
 
-Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 0578fff4aae5 ("Watchdog: sp5100_tco: Add initialization using EFCH MMIO")
+Cc: Terry Bowman <terry.bowman@amd.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 ---
- .../devicetree/bindings/reset/nuvoton,npcm750-reset.yaml      | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/sp5100_tco.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml b/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
-index 43a6e77cbf4e..d82e65e37cc0 100644
---- a/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
-+++ b/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
-@@ -11,7 +11,9 @@ maintainers:
+--- linux-5.18.orig/drivers/watchdog/sp5100_tco.c	2022-05-22 21:52:31.000000000 +0200
++++ linux-5.18/drivers/watchdog/sp5100_tco.c	2022-06-21 15:07:31.868814828 +0200
+@@ -402,6 +402,7 @@ static int sp5100_tco_setupdevice_mmio(s
+ 		iounmap(addr);
  
- properties:
-   compatible:
--    const: nuvoton,npcm750-reset
-+    enum:
-+      - nuvoton,npcm750-reset        # Poleg NPCM7XX SoC
-+      - nuvoton,npcm845-reset        # Arbel NPCM8XX SoC
+ 	release_resource(res);
++	kfree(res);
  
-   reg:
-     maxItems: 1
+ 	return ret;
+ }
+
+
 -- 
-2.33.0
-
+Jean Delvare
+SUSE L3 Support
