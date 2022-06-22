@@ -2,36 +2,36 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B97CCA496
-	for <linux-watchdog@archiver.kernel.org>; Wed, 22 Jun 2022 13:23:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 075FAC43334
+	for <linux-watchdog@archiver.kernel.org>; Wed, 22 Jun 2022 13:23:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355441AbiFVNXM (ORCPT
+        id S1354748AbiFVNXt (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 22 Jun 2022 09:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        Wed, 22 Jun 2022 09:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236201AbiFVNXI (ORCPT
+        with ESMTP id S244997AbiFVNXN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 22 Jun 2022 09:23:08 -0400
+        Wed, 22 Jun 2022 09:23:13 -0400
 Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 311262FFEC;
-        Wed, 22 Jun 2022 06:23:06 -0700 (PDT)
-Received: from NTHCCAS04.nuvoton.com (NTHCCAS04.nuvoton.com [10.1.8.29])
-        by maillog.nuvoton.com (Postfix) with ESMTP id 62AB61C810FB;
-        Wed, 22 Jun 2022 21:23:05 +0800 (CST)
-Received: from NTHCML01B.nuvoton.com (10.1.8.178) by NTHCCAS04.nuvoton.com
- (10.1.8.29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Wed, 22
- Jun 2022 21:23:05 +0800
-Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCML01B.nuvoton.com
- (10.1.8.178) with Microsoft SMTP Server (version=TLS1_2,
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2C8682FFF6;
+        Wed, 22 Jun 2022 06:23:11 -0700 (PDT)
+Received: from NTHCCAS01.nuvoton.com (NTHCCAS01.nuvoton.com [10.1.8.28])
+        by maillog.nuvoton.com (Postfix) with ESMTP id A748F1C811F5;
+        Wed, 22 Jun 2022 21:23:06 +0800 (CST)
+Received: from NTHCCAS02.nuvoton.com (10.1.9.121) by NTHCCAS01.nuvoton.com
+ (10.1.8.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.7; Wed, 22 Jun
+ 2022 21:23:06 +0800
+Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCCAS02.nuvoton.com
+ (10.1.9.121) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Wed, 22 Jun
- 2022 21:23:04 +0800
+ 2022 21:23:06 +0800
 Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
  (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
- Transport; Wed, 22 Jun 2022 21:23:04 +0800
+ Transport; Wed, 22 Jun 2022 21:23:05 +0800
 Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
-        id EBFC563A17; Wed, 22 Jun 2022 16:23:03 +0300 (IDT)
+        id 2382D63A20; Wed, 22 Jun 2022 16:23:04 +0300 (IDT)
 From:   Tomer Maimon <tmaimon77@gmail.com>
 To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
         <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
@@ -51,11 +51,10 @@ CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
         <linux-watchdog@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v5 04/18] dt-bindings: watchdog: npcm: Add npcm845 compatible string
-Date:   Wed, 22 Jun 2022 16:22:48 +0300
-Message-ID: <20220622132302.267010-5-tmaimon77@gmail.com>
+        Tomer Maimon <tmaimon77@gmail.com>
+Subject: [PATCH v5 08/18] ARM: dts: nuvoton: add reset syscon property
+Date:   Wed, 22 Jun 2022 16:22:52 +0300
+Message-ID: <20220622132302.267010-9-tmaimon77@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20220622132302.267010-1-tmaimon77@gmail.com>
 References: <20220622132302.267010-1-tmaimon77@gmail.com>
@@ -66,29 +65,26 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add a compatible string for Nuvoton BMC NPCM845 watchdog.
+Add nuvoton,sysgcr syscon property to the reset node to handle the general
+control registers.
 
 Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
- .../devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt          | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/nuvoton-common-npcm7xx.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-index 9059f54dc023..866a958b8a2b 100644
---- a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-@@ -6,7 +6,8 @@ expiry.
+diff --git a/arch/arm/boot/dts/nuvoton-common-npcm7xx.dtsi b/arch/arm/boot/dts/nuvoton-common-npcm7xx.dtsi
+index 3696980a3da1..8a2f29016291 100644
+--- a/arch/arm/boot/dts/nuvoton-common-npcm7xx.dtsi
++++ b/arch/arm/boot/dts/nuvoton-common-npcm7xx.dtsi
+@@ -110,6 +110,7 @@ rstc: rstc@f0801000 {
+ 			compatible = "nuvoton,npcm750-reset";
+ 			reg = <0xf0801000 0x70>;
+ 			#reset-cells = <2>;
++			nuvoton,sysgcr = <&gcr>;
+ 		};
  
- Required properties:
- - compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg), or
--                    "nuvoton,wpcm450-wdt" for WPCM450 (Hermon).
-+                    "nuvoton,wpcm450-wdt" for WPCM450 (Hermon), or
-+                    "nuvoton,npcm845-wdt" for NPCM845 (Arbel).
- - reg             : Offset and length of the register set for the device.
- - interrupts      : Contain the timer interrupt with flags for
-                     falling edge.
+ 		clk: clock-controller@f0801000 {
 -- 
 2.33.0
 
