@@ -2,176 +2,83 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D456CCCA483
-	for <linux-watchdog@archiver.kernel.org>; Wed, 22 Jun 2022 11:14:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DDE1C433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 22 Jun 2022 13:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354748AbiFVLOu (ORCPT
+        id S1354879AbiFVNXJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 22 Jun 2022 07:14:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54568 "EHLO
+        Wed, 22 Jun 2022 09:23:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355441AbiFVLOt (ORCPT
+        with ESMTP id S1354755AbiFVNXI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 22 Jun 2022 07:14:49 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A9F3A739
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jun 2022 04:14:46 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id m1so15141061wrb.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jun 2022 04:14:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=PUdU9WfpnqAsGBFkVc2KUHImdcpkKUBXRwogLKDyHSY=;
-        b=z/ocsiUElwq2Ol2fF5l1HRqMMaNGMSC1/+8oQHLpQWLu429YrVBR/tnvq7KNWtwIO1
-         vKJqA7rgUAiiGOKNdlwMjFurZAQLeqniaiGR74ASbDLlSriMOOzxItVhWE0QSvWSDF1z
-         wnPR/hU6q/nU74KNLjXg2X84SJR1U2jxSqWO8a/x7jRbPZXjDqGeLFevtBezqUe56R1a
-         7f0rlv+IRmpyGwRbiZXR3FrVvja2Yq3MOLg0mNs6za1kfz0V4uxdyGWKXZaA8ELytILx
-         BDkiRFg7pp2SBYMObq/aoJYfogEZJWR+YhfycgXRStqMXxha87O37ft3cnQe33+/4mvE
-         LISg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=PUdU9WfpnqAsGBFkVc2KUHImdcpkKUBXRwogLKDyHSY=;
-        b=X/aVG/bqUlKpc0WK+rVG+GknpEJqFWj7XP4hzJXr4aKw6coMglBYzM4sSsVJhL6ZgF
-         9+M3538kXkf1LRlGLFPebV03jcA0pewx1nNpRCzwP3jC8sJ3xxwD2rCbN4HAeop9eHyQ
-         90luAAurkKX+6kDjn+a0OBFOExlW3EzeTnpMS33hcynzdxAPwTvYpImOBIBT5A+92WAI
-         q63XCnRwE89MbplXYOVSQ0zS8QUgoyHA52V0pBcV4a+E6fGdHfCtFDQHwBPfXABb8cf8
-         vPFuQOe7bq1kBxX18bYAVuDVblodxM8rwSqWBZcP9zJYN0ye+3zqprDWSrdqY44rQ3Ca
-         f/aQ==
-X-Gm-Message-State: AJIora/1wvi1Jn0ReGPigrtpPK2fcV28RyoR8Zgg30LfI/Hu2ZSRHGjB
-        BQUyj++lmeZOCsQRJibJk/eNSA==
-X-Google-Smtp-Source: AGRyM1v8ZhY0hH8c8n7TvnmAfbU48Dyk1bFg4uJSDokafOQgQ79E0o3w+OeeG5ifCToe2pBEDS6Ykw==
-X-Received: by 2002:adf:fe81:0:b0:21a:3574:ec8e with SMTP id l1-20020adffe81000000b0021a3574ec8emr2726909wrr.410.1655896484628;
-        Wed, 22 Jun 2022 04:14:44 -0700 (PDT)
-Received: from ?IPV6:2001:861:44c0:66c0:1a3a:95bd:5b55:a798? ([2001:861:44c0:66c0:1a3a:95bd:5b55:a798])
-        by smtp.gmail.com with ESMTPSA id e16-20020adfdbd0000000b0021b91ec8f6esm7841714wrj.67.2022.06.22.04.14.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jun 2022 04:14:43 -0700 (PDT)
-Message-ID: <d57a6c52-a9e1-5660-cd47-6f9ba2389d86@baylibre.com>
-Date:   Wed, 22 Jun 2022 13:14:40 +0200
+        Wed, 22 Jun 2022 09:23:08 -0400
+Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 312952FFF4;
+        Wed, 22 Jun 2022 06:23:06 -0700 (PDT)
+Received: from NTHCCAS04.nuvoton.com (NTHCCAS04.nuvoton.com [10.1.8.29])
+        by maillog.nuvoton.com (Postfix) with ESMTP id 3598E1C8099D;
+        Wed, 22 Jun 2022 21:23:05 +0800 (CST)
+Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCCAS04.nuvoton.com
+ (10.1.8.29) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Wed, 22
+ Jun 2022 21:23:04 +0800
+Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
+ (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
+ Transport; Wed, 22 Jun 2022 21:23:04 +0800
+Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
+        id D220962E6B; Wed, 22 Jun 2022 16:23:03 +0300 (IDT)
+From:   Tomer Maimon <tmaimon77@gmail.com>
+To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
+        <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
+        <benjaminfair@google.com>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <mturquette@baylibre.com>,
+        <sboyd@kernel.org>, <p.zabel@pengutronix.de>,
+        <gregkh@linuxfoundation.org>, <daniel.lezcano@linaro.org>,
+        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
+        <arnd@arndb.de>, <olof@lixom.net>, <jirislaby@kernel.org>,
+        <shawnguo@kernel.org>, <bjorn.andersson@linaro.org>,
+        <geert+renesas@glider.be>, <marcel.ziswiler@toradex.com>,
+        <vkoul@kernel.org>, <biju.das.jz@bp.renesas.com>,
+        <nobuhiro1.iwamatsu@toshiba.co.jp>, <robert.hancock@calian.com>,
+        <j.neuschaefer@gmx.net>, <lkundrak@v3.sk>
+CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Tomer Maimon <tmaimon77@gmail.com>
+Subject: [PATCH v5 02/18] clocksource: timer-npcm7xx: Add NPCM845 timer support
+Date:   Wed, 22 Jun 2022 16:22:46 +0300
+Message-ID: <20220622132302.267010-3-tmaimon77@gmail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20220622132302.267010-1-tmaimon77@gmail.com>
+References: <20220622132302.267010-1-tmaimon77@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH v8 01/16] clk: generalize devm_clk_get() a bit
-Content-Language: en-US
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     Jon Hunter <jonathanh@nvidia.com>, Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Russell King <linux@armlinux.org.uk>,
-        =?UTF-8?Q?Nuno_S=c3=a1?= <nuno.sa@analog.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
-        linux-hwmon@vger.kernel.org,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Michael Hennerich <Michael.Hennerich@analog.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Tomislav Denis <tomislav.denis@avl.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        linux-iio <linux-iio@vger.kernel.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Andy Gross <agross@kernel.org>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        linux-pwm@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Anand Ashok Dumbre <anand.ashok.dumbre@xilinx.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        =?UTF-8?Q?Andr=c3=a9_Gustavo_Nakagomi_Lopez?= <andregnl@usp.br>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        linux-amlogic <linux-amlogic@lists.infradead.org>,
-        Amireddy Mallikarjuna reddy 
-        <mallikarjunax.reddy@linux.intel.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Cai Huoqing <caihuoqing@baidu.com>,
-        linux-crypto <linux-crypto@vger.kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        dmaengine <dmaengine@vger.kernel.org>
-References: <20220314141643.22184-1-u.kleine-koenig@pengutronix.de>
- <20220314141643.22184-2-u.kleine-koenig@pengutronix.de>
- <d6b890c8-bfb5-cfa5-c6d8-ee245701c077@nvidia.com>
- <20220621204914.byokkrxiznvod7vq@pengutronix.de>
- <CAHp75VcBEpLo+pYy+RG3O2BbePJbGEQ89jxi-oG1W6=+2hgXrQ@mail.gmail.com>
-From:   Neil Armstrong <narmstrong@baylibre.com>
-Organization: Baylibre
-In-Reply-To: <CAHp75VcBEpLo+pYy+RG3O2BbePJbGEQ89jxi-oG1W6=+2hgXrQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 22/06/2022 12:36, Andy Shevchenko wrote:
-> On Tue, Jun 21, 2022 at 11:01 PM Uwe Kleine-König
-> <u.kleine-koenig@pengutronix.de> wrote:
->> On Tue, Jun 21, 2022 at 08:57:00PM +0100, Jon Hunter wrote:
-> 
-> ...
-> 
->> (Pro tipp: The commit in next has a Link: footer. If you follow the
->> link, you find the thread that was actually applied (i.e. v9) and where
->> the fix is also contained.)
-> 
-> Even easier, you may take a message-id from the Link and supply to `b4`:
-> 
->    b4 mbox ${message-id}
->    mutt -f ${message-id}.mbx # or whatever MUA that handles mboxes
-> 
-> 
-> Dunno if `b4` has capability to parse Link instead of message-id.
-> 
+Add Nuvoton BMC NPCM845 timer support, The NPCM845 uses the same timer
+controller as the NPCM750.
 
-It does:
+Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
+---
+ drivers/clocksource/timer-npcm7xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/clocksource/timer-npcm7xx.c b/drivers/clocksource/timer-npcm7xx.c
+index a00520cbb660..1630daad4df5 100644
+--- a/drivers/clocksource/timer-npcm7xx.c
++++ b/drivers/clocksource/timer-npcm7xx.c
+@@ -210,4 +210,5 @@ static int __init npcm7xx_timer_init(struct device_node *np)
+ 
+ TIMER_OF_DECLARE(wpcm450, "nuvoton,wpcm450-timer", npcm7xx_timer_init);
+ TIMER_OF_DECLARE(npcm7xx, "nuvoton,npcm750-timer", npcm7xx_timer_init);
++TIMER_OF_DECLARE(npcm8xx, "nuvoton,npcm845-timer", npcm7xx_timer_init);
+ 
+-- 
+2.33.0
 
-$ b4 mbox https://lore.kernel.org/r/20220616144915.3988071-1-windhl@126.com
-Looking up https://lore.kernel.org/r/20220616144915.3988071-1-windhl%40126.com
-Grabbing thread from lore.kernel.org/all/20220616144915.3988071-1-windhl%40126.com/t.mbox.gz
-5 messages in the thread
-Saved ./20220616144915.3988071-1-windhl@126.com.mbx
-
-Neil
