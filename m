@@ -2,165 +2,165 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DD37CCA473
-	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Jun 2022 13:54:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76D35C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Jun 2022 14:10:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235393AbiF0Nyq (ORCPT
+        id S236767AbiF0OKI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 27 Jun 2022 09:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57124 "EHLO
+        Mon, 27 Jun 2022 10:10:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235354AbiF0Nyd (ORCPT
+        with ESMTP id S236778AbiF0OKH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 27 Jun 2022 09:54:33 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E67F643B;
-        Mon, 27 Jun 2022 06:54:31 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RDDPbX030325;
-        Mon, 27 Jun 2022 13:53:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ZoX2KeeTTIfhJtt8SK3et9fRdjFWHZxAUxNccobhCQg=;
- b=HmGz0Hub0+afYO6CFlQ/9C7M7pH/thvC9PkBnU6/1gzR3DMjB1MCd47GBjsbJ0imKbex
- HI4jqeULoRe3jNKBT1IwA7gCehEdOJYPdztUuysJ8uVNSJDo2ePga4k7AAZ7NbiXivOC
- 9gYdyrH7oAEqIMP0y1WRPzU/TXKjF5+dS8/Sn2IrK8rrddloZYCZOIPfoa5f9EfkqPhk
- y4LVidvX9KgOPoulljUhxdjkZmHypx3UIEJ9dUZwXFTZiikF3e+MhsDFRCZ4TueFEGeL
- 3VE8E52LRWSbuuj8e55GZ0x9ciPnYZWBDAQ0+1LeDUM6zwKhUz2Itt5d3LBRBAVpywzl nA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyd89h61u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 13:53:55 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25RDHAXu015356;
-        Mon, 27 Jun 2022 13:53:55 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyd89h61a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 13:53:55 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RDqYbd030164;
-        Mon, 27 Jun 2022 13:53:53 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3gwt092aem-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 13:53:53 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RDrojS21496136
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Jun 2022 13:53:50 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 103DFAE045;
-        Mon, 27 Jun 2022 13:53:50 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D6A7AE053;
-        Mon, 27 Jun 2022 13:53:49 +0000 (GMT)
-Received: from pomme.tlslab.ibm.com (unknown [9.101.4.33])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 27 Jun 2022 13:53:49 +0000 (GMT)
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net, mpe@ellerman.id.au,
-        benh@kernel.crashing.org, paulus@samba.org, nathanl@linux.ibm.com,
-        haren@linux.vnet.ibm.com, npiggin@gmail.com
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 3/4] powerpc/watchdog: introduce a NMI watchdog's factor
-Date:   Mon, 27 Jun 2022 15:53:46 +0200
-Message-Id: <20220627135347.32624-4-ldufour@linux.ibm.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627135347.32624-1-ldufour@linux.ibm.com>
-References: <20220627135347.32624-1-ldufour@linux.ibm.com>
+        Mon, 27 Jun 2022 10:10:07 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E9313D57;
+        Mon, 27 Jun 2022 07:10:02 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id c205so9134149pfc.7;
+        Mon, 27 Jun 2022 07:10:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:content-language:to
+         :cc:references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=ST6/uI8tXZH7pQ+ernx/OpLdl4iQTKy4m9qi3OodjQ4=;
+        b=kIw8mhUiKbPeLo0As7uG2MNu5ap8qTeY/RACkMNYn8LsaVMPzOu/OJtP44qHEBcAkH
+         sYGcmzEWrS2vCmL0B88d5G5CvdLkqmU77kwt2LnIOsqYaXUAk0De06YlREObw7UPOH2T
+         NAPabwtB6pzztaY7esa3xh1SpwjTyxaK+5/TXIb/f2raXilEFSnH8Ycmbso/Wx6GaCbx
+         g0MwqdfXJTur9rvTRBdrybxRyRD4stI6otaX7/kwQwQ1Ln9voIFM3Yba9wdxtnvkxFF2
+         8GjtA210HW7ONZ9rU2KHEp8MVN17q5qhJ08UNJ1/Qv1efRsCrod7IWDleV0IIbAgAH/R
+         ZIbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=ST6/uI8tXZH7pQ+ernx/OpLdl4iQTKy4m9qi3OodjQ4=;
+        b=VcirpalS5CsHei2aaEuw1bk/Wo1RjfFD0dG0NOmQ03s8HHmPue8uP+vAo562Z9+uPn
+         vynJTrTP2oAlVq2fm4eLYdIS90wEe+y2FHLtU5Hn9jTsf0Hjc5ZTQDPwBn4ShsrAv8mU
+         nGiIU9mrnbc2rBZL6thG+060hMvp6kiCfYcv/Cn3kk1c2VDg7QIzDG7jDfoY6flZuSWU
+         Ynch1FidGVMh+O8R//M00Zf3cEs1OWn+jMMjEJtEn8Hp2dSjyQIejsV9Xv8nYrkJ48mW
+         fNPg3fCJpXvG9YvA6rSVzIIdL5eopuaTRtKxyFxPF5d+gpzRKjpwoUnEGpSqv2rUSFqm
+         TUkQ==
+X-Gm-Message-State: AJIora+8mBe3ILTDXZ2ONE6T4kJb+46LW7QIKGpjTD9E5YV8Z4mpcG+5
+        R6Jqg2oo1Cz89zY5LW7EeEA=
+X-Google-Smtp-Source: AGRyM1tBQeXN7XNGVt3OnoOjUNRnLyC6rpMTRKosrRaZA7d2TM4t51FfNE/Aa2S1l/R/utkVhVvSKg==
+X-Received: by 2002:a63:6e08:0:b0:40c:7557:c4aa with SMTP id j8-20020a636e08000000b0040c7557c4aamr13192976pgc.356.1656339001070;
+        Mon, 27 Jun 2022 07:10:01 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id em20-20020a17090b015400b001eae86cf683sm7390569pjb.42.2022.06.27.07.09.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Jun 2022 07:10:00 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <a0c31814-43e9-bbe4-57d3-d97724e8ae60@roeck-us.net>
+Date:   Mon, 27 Jun 2022 07:09:58 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sQ5Cqp20Zfj5nFrveBXjq4PbGHHVMD9g
-X-Proofpoint-GUID: B-FpR0e-5RjdwG9oRQjvsPe2svmvL4qD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 malwarescore=0 phishscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 bulkscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206270059
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Content-Language: en-US
+To:     Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org
+References: <20220627111432.2625168-1-stephan.gerhold@kernkonzept.com>
+ <20220627111432.2625168-3-stephan.gerhold@kernkonzept.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 2/3] watchdog: pm8916_wdt: Report reboot reason
+In-Reply-To: <20220627111432.2625168-3-stephan.gerhold@kernkonzept.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Introduce a factor which would apply to the NMI watchdog timeout.
+On 6/27/22 04:14, Stephan Gerhold wrote:
+> The PM8916 PMIC provides "power-off reason" (POFF_REASON) registers
+> to allow detecting why the board was powered off or rebooted. This
+> can be used to expose if a reset happened due to a watchdog timeout.
+> The watchdog API also provides status bits for overtemperature and
+> undervoltage which happen to be reported in the same PMIC register.
+> 
+> Make this information available as part of the watchdog device
+> so userspace can decide to handle the situation accordingly.
+> 
+> Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+> ---
+>   drivers/watchdog/pm8916_wdt.c | 25 ++++++++++++++++++++++++-
+>   1 file changed, 24 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+> index 670cd79f4cf9..3fc03fdae466 100644
+> --- a/drivers/watchdog/pm8916_wdt.c
+> +++ b/drivers/watchdog/pm8916_wdt.c
+> @@ -9,6 +9,12 @@
+>   #include <linux/regmap.h>
+>   #include <linux/watchdog.h>
+>   
+> +#define PON_POFF_REASON1		0x0c
+> +#define PON_POFF_REASON1_PMIC_WD	BIT(2)
+> +#define PON_POFF_REASON2		0x0d
+> +#define PON_POFF_REASON2_UVLO		BIT(5)
+> +#define PON_POFF_REASON2_OTST3		BIT(6)
+> +
+>   #define PON_INT_RT_STS			0x10
+>   #define PMIC_WD_BARK_STS_BIT		BIT(6)
+>   
+> @@ -110,12 +116,14 @@ static irqreturn_t pm8916_wdt_isr(int irq, void *arg)
+>   }
+>   
+>   static const struct watchdog_info pm8916_wdt_ident = {
+> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE |
+> +		   WDIOF_OVERHEAT | WDIOF_CARDRESET | WDIOF_POWERUNDER,
+>   	.identity = "QCOM PM8916 PON WDT",
+>   };
+>   
+>   static const struct watchdog_info pm8916_wdt_pt_ident = {
+>   	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE |
+> +		   WDIOF_OVERHEAT | WDIOF_CARDRESET | WDIOF_POWERUNDER |
+>   		   WDIOF_PRETIMEOUT,
+>   	.identity = "QCOM PM8916 PON WDT",
+>   };
+> @@ -135,6 +143,7 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+>   	struct pm8916_wdt *wdt;
+>   	struct device *parent;
+>   	int err, irq;
+> +	u8 poff[2];
+>   
+>   	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+>   	if (!wdt)
+> @@ -175,6 +184,20 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+>   		wdt->wdev.info = &pm8916_wdt_ident;
+>   	}
+>   
+> +	err = regmap_bulk_read(wdt->regmap, wdt->baseaddr + PON_POFF_REASON1,
+> +			       &poff, ARRAY_SIZE(poff));
+> +	if (err == 0) {
+> +		dev_dbg(dev, "POFF reason: %#x %#x\n", poff[0], poff[1]);
+> +		if (poff[0] & PON_POFF_REASON1_PMIC_WD)
+> +			wdt->wdev.bootstatus |= WDIOF_CARDRESET;
+> +		if (poff[1] & PON_POFF_REASON2_UVLO)
+> +			wdt->wdev.bootstatus |= WDIOF_POWERUNDER;
+> +		if (poff[1] & PON_POFF_REASON2_OTST3)
+> +			wdt->wdev.bootstatus |= WDIOF_OVERHEAT;
+> +	} else {
+> +		dev_err(dev, "failed to read POFF reason: %d\n", err);
+> +	}
 
-This factor is a percentage added to the watchdog_tresh value. The value is
-set under the watchdog_mutex protection and lockup_detector_reconfigure()
-is called to recompute wd_panic_timeout_tb.
+Error handling first, please:
 
-Once the factor is set, it remains until it is set back to 0, which means
-no impact.
+	if (err) {
+	} else {
+	}
 
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
----
- arch/powerpc/include/asm/nmi.h |  2 ++
- arch/powerpc/kernel/watchdog.c | 21 ++++++++++++++++++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+Also, decide if this is indeed an error or not. If it is an error, abort
+probe. Otherwise use dev_warn() and explain why the problem is ignored /
+not fatal.
 
-diff --git a/arch/powerpc/include/asm/nmi.h b/arch/powerpc/include/asm/nmi.h
-index ea0e487f87b1..7d6a8d9b0543 100644
---- a/arch/powerpc/include/asm/nmi.h
-+++ b/arch/powerpc/include/asm/nmi.h
-@@ -5,8 +5,10 @@
- #ifdef CONFIG_PPC_WATCHDOG
- extern void arch_touch_nmi_watchdog(void);
- long soft_nmi_interrupt(struct pt_regs *regs);
-+void watchdog_nmi_set_lpm_factor(u64 factor);
- #else
- static inline void arch_touch_nmi_watchdog(void) {}
-+static inline void watchdog_nmi_set_lpm_factor(u64 factor) {}
- #endif
- 
- #ifdef CONFIG_NMI_IPI
-diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
-index 7d28b9553654..80851b228f71 100644
---- a/arch/powerpc/kernel/watchdog.c
-+++ b/arch/powerpc/kernel/watchdog.c
-@@ -91,6 +91,10 @@ static cpumask_t wd_smp_cpus_pending;
- static cpumask_t wd_smp_cpus_stuck;
- static u64 wd_smp_last_reset_tb;
- 
-+#ifdef CONFIG_PPC_PSERIES
-+static u64 wd_factor;
-+#endif
-+
- /*
-  * Try to take the exclusive watchdog action / NMI IPI / printing lock.
-  * wd_smp_lock must be held. If this fails, we should return and wait
-@@ -527,7 +531,13 @@ static int stop_watchdog_on_cpu(unsigned int cpu)
- 
- static void watchdog_calc_timeouts(void)
- {
--	wd_panic_timeout_tb = watchdog_thresh * ppc_tb_freq;
-+	u64 threshold = watchdog_thresh;
-+
-+#ifdef CONFIG_PPC_PSERIES
-+	threshold += (READ_ONCE(wd_factor) * threshold) / 100;
-+#endif
-+
-+	wd_panic_timeout_tb = threshold * ppc_tb_freq;
- 
- 	/* Have the SMP detector trigger a bit later */
- 	wd_smp_panic_timeout_tb = wd_panic_timeout_tb * 3 / 2;
-@@ -570,3 +580,12 @@ int __init watchdog_nmi_probe(void)
- 	}
- 	return 0;
- }
-+
-+#ifdef CONFIG_PPC_PSERIES
-+void watchdog_nmi_set_lpm_factor(u64 factor)
-+{
-+	pr_info("Set the NMI watchdog factor to %llu%%\n", factor);
-+	WRITE_ONCE(wd_factor, factor);
-+	lockup_detector_reconfigure();
-+}
-+#endif
--- 
-2.36.1
+Thanks,
+Guenter
+
+> +
+>   	/* Configure watchdog to hard-reset mode */
+>   	err = regmap_write(wdt->regmap,
+>   			   wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL,
 
