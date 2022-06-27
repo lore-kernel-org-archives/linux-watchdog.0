@@ -2,71 +2,83 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49A77C433EF
-	for <linux-watchdog@archiver.kernel.org>; Fri, 24 Jun 2022 15:37:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B185DCCA481
+	for <linux-watchdog@archiver.kernel.org>; Mon, 27 Jun 2022 11:53:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbiFXPhL (ORCPT
+        id S238615AbiF0Lxl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 24 Jun 2022 11:37:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44530 "EHLO
+        Mon, 27 Jun 2022 07:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiFXPhK (ORCPT
+        with ESMTP id S239063AbiF0LxN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 24 Jun 2022 11:37:10 -0400
-Received: from gate.crashing.org (gate.crashing.org [63.228.1.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1418947074
-        for <linux-watchdog@vger.kernel.org>; Fri, 24 Jun 2022 08:37:07 -0700 (PDT)
-Received: from gate.crashing.org (localhost.localdomain [127.0.0.1])
-        by gate.crashing.org (8.14.1/8.14.1) with ESMTP id 25OFVaCv017983;
-        Fri, 24 Jun 2022 10:31:37 -0500
-Received: (from segher@localhost)
-        by gate.crashing.org (8.14.1/8.14.1/Submit) id 25OFVYlh017982;
-        Fri, 24 Jun 2022 10:31:34 -0500
-X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
-Date:   Fri, 24 Jun 2022 10:31:34 -0500
-From:   Segher Boessenkool <segher@kernel.crashing.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Scott Cheloha <cheloha@linux.ibm.com>,
-        linux-watchdog@vger.kernel.org, nathanl@linux.ibm.com,
-        wvoigt@us.ibm.com, aik@ozlabs.ru, vaishnavi@linux.ibm.com,
-        npiggin@gmail.com, tzungbi@kernel.org, brking@linux.ibm.com,
-        linuxppc-dev@lists.ozlabs.org, linux@roeck-us.net
-Subject: Re: [PATCH v2 4/4] watchdog/pseries-wdt: initial support for H_WATCHDOG-based watchdog timers
-Message-ID: <20220624153134.GV25951@gate.crashing.org>
-References: <20220602175353.68942-1-cheloha@linux.ibm.com> <20220602175353.68942-5-cheloha@linux.ibm.com> <87wnd642f7.fsf@mpe.ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87wnd642f7.fsf@mpe.ellerman.id.au>
-User-Agent: Mutt/1.4.2.3i
+        Mon, 27 Jun 2022 07:53:13 -0400
+Received: from mx.kernkonzept.com (serv1.kernkonzept.com [IPv6:2a01:4f8:1c1c:b490::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05719BC2A
+        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jun 2022 04:47:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kernkonzept.com; s=mx1; h=Content-Transfer-Encoding:MIME-Version:References
+        :In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=K4NMIcLvgXEpj+bXVjTFu2L5k2WlTzyocNMqodrm3NU=; b=mvwfVneYzELaZXs+GlASrrPNJg
+        sgT6j7xpRcsSJNvyEBAxrBnM14nKQjvmt6mQvFRG5xT1bAl9OISdrGEiavFz27aYLNeZtrxaBxawR
+        c7xHi8/CnVQ6VNwSVVjBSTxHtMh09d3F/gqXwlhXcry4xrlPMiuoWjvyXJ8yiyjFBXPpI0TZcwby4
+        R52MUqBdkIyWsLnPbtjSJWlniernhUGX3CCo64kE9HF3yjpw2fen9fSndaEon/wQIjTUojCB2PyVK
+        HmtsKFfieyaeClIA/jRFFNLK2k7oX0S0IuCd6WJU8j7UL25LQfp3PWK160T36yw9kuYK3ItKfJGor
+        Wscpixxg==;
+Received: from [10.22.3.24] (helo=kernkonzept.com)
+        by mx.kernkonzept.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim 4.94.2)
+        id 1o5mhm-006C6l-U5; Mon, 27 Jun 2022 13:14:58 +0200
+From:   Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Subject: [PATCH 1/3] watchdog: pm8916_wdt: Avoid read of write-only PET register
+Date:   Mon, 27 Jun 2022 13:14:30 +0200
+Message-Id: <20220627111432.2625168-2-stephan.gerhold@kernkonzept.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220627111432.2625168-1-stephan.gerhold@kernkonzept.com>
+References: <20220627111432.2625168-1-stephan.gerhold@kernkonzept.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Jun 24, 2022 at 11:27:24PM +1000, Michael Ellerman wrote:
-> Scott Cheloha <cheloha@linux.ibm.com> writes:
-> > + * - For the "Query Watchdog Capabilities" operation, a 64-bit
-> > + *   value structured as follows:
-> > + *
-> > + *       Bits  0-15: The minimum supported timeout in milliseconds.
-> > + *       Bits 16-31: The number of watchdogs supported.
-> > + *       Bits 32-63: Reserved.
-> > + */
-> > +#define PSERIES_WDTQ_MIN_TIMEOUT(cap)	GETFIELD((cap), 0, 15)
-> 
-> This one is less obviously better, but I still think it's clearer as all
-> the logic is there in front of you, rather than hidden in the macro. It
-> is clearer that we're only returning a 16-bit value.
-> 
-> #define PSERIES_WDTQ_MIN_TIMEOUT(cap)	(((cap) >> 48) & 0xffff)
+PMIC_WD_RESET_PET is a write-only register that is used to ping
+the watchdog. It does not make sense to use read-modify-write
+for it: a register read will never return anything but zero.
+(And actually even if it did we would still want to write again
+to ensure the watchdog is pinged.)
 
-Or even
-  ((cap) >> 48)
-since it is a 64-bit value.  If you want better defences you should not
-use macros here at all, anyway (but inline functions, instead).
+Reduce the overhead for the watchdog ping a bit by using
+regmap_write() directly instead.
 
-I could rant about the 1000UL being meaningless and/or misleading, or
-that 0x1 is just silly, but it is a sunny day :-)
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+---
+ drivers/watchdog/pm8916_wdt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+index 0937b8d33104..670cd79f4cf9 100644
+--- a/drivers/watchdog/pm8916_wdt.c
++++ b/drivers/watchdog/pm8916_wdt.c
+@@ -58,9 +58,8 @@ static int pm8916_wdt_ping(struct watchdog_device *wdev)
+ {
+ 	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
+ 
+-	return regmap_update_bits(wdt->regmap,
+-				  wdt->baseaddr + PON_PMIC_WD_RESET_PET,
+-				  WATCHDOG_PET_BIT, WATCHDOG_PET_BIT);
++	return regmap_write(wdt->regmap, wdt->baseaddr + PON_PMIC_WD_RESET_PET,
++			    WATCHDOG_PET_BIT);
+ }
+ 
+ static int pm8916_wdt_configure_timers(struct watchdog_device *wdev)
+-- 
+2.30.2
 
-Segher
