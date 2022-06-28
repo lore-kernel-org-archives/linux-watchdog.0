@@ -2,78 +2,77 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76813CCA488
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 20:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4A97CCA486
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 20:13:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiF1UNK (ORCPT
+        id S229980AbiF1UNI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jun 2022 16:13:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
+        Tue, 28 Jun 2022 16:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbiF1UL5 (ORCPT
+        with ESMTP id S230498AbiF1UMB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jun 2022 16:11:57 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DCA73B3C2;
-        Tue, 28 Jun 2022 13:03:26 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id d5so12002576plo.12;
-        Tue, 28 Jun 2022 13:03:26 -0700 (PDT)
+        Tue, 28 Jun 2022 16:12:01 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14242F1F;
+        Tue, 28 Jun 2022 13:03:46 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id k14so12047126plh.4;
+        Tue, 28 Jun 2022 13:03:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=99fhhNvuvIbHAOoiSzGURisNVQReiX0ThP8Z5TEm4ms=;
-        b=VU+A5eJzI2U7m+mJYjyw7lpgRmpeTDwnTj4pLDu1aXawQqGrSR10KRTxvBoOHwXyf3
-         hW7JB4AhctcUtnswoLUq33aOUKlup2EgpV7bkEsq6IY1XdkvIBFgk+wG3pZn5M0ppHAG
-         6O9EZk9OROAb6ImOpgE8ImJwCf5FinYQuRq8zO6u6YCpRfXFZf4ErMS0JZqhxwN2VIdK
-         DCnmABcS/oT/8oXpggRZXNKAOIb92I9iOSFLTfN5bHf9aqXRQ1kX9K3UmuD9M5/Amcpm
-         vLm7jIsfC1aDb9sJ+B+XRd4FE9Qr+qhzIlgwmtwB+bjgc5s9TOfFyheyTqhr2VGci74d
-         4Ngw==
+        bh=9xiXVBUTdDVI8lRFYwUuLEFozRiUfkYmSBpqeP5Pj/g=;
+        b=PO5WlPn4qyG4yNi2+rfOJbSHxIALmYuUWrA4TZGVKhRjHZpxR6pbZ7hBxxRbA/sDSL
+         3DIop8siw1tIJcZZUyINlra+VotftTItQo+UEEk4C/GBBbTp9iUpuwArkASybwBUmvQ6
+         ZQP7QL3nRp+3wrYyNfKoclZ4au6MmWiBNY2Br25HFduPBdm90fbyayjYHeGtc3o5/rHs
+         6eCYPJ1fe41zPw8yNflAEx898BD0jc2eGvGa+lVrwjMZD6U2sv5XU6J2QxRh14thpujn
+         sIbNlQxH6qROqEGbwd15TppO5R5Sl04g7DDUNQqVMWgTGQP8tkhf0emNLRIxkqyNvU/4
+         CV6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to;
-        bh=99fhhNvuvIbHAOoiSzGURisNVQReiX0ThP8Z5TEm4ms=;
-        b=XtIUDozdWPoHZrNaITce4O1MK/N2ckGFgCLfAfB3eiFupIh5JXfOVuLHKuIxuNhn7G
-         AkJj/vm5c3X+CN4Z+7Wg0ZF2JqtTgNp6p3pndk0zBdvDgnnpfmQ4BQG9tKb/DVCcbhY8
-         LCS0A2nERWjxu7QoGo9QOalViU5j4M1Rc/VfwRSUCh6mXCq3PNtc0OJjdq2u8pjbg+2W
-         GvNmmuYqVcpWvwX3iQ+9luu4ZKZ7kacc7xgiE7uMZWsoRlUHUWvYE6PGPiYIBm7W5h5Y
-         5Z+VdB8weMnK4bwmZT1wsDi2RPmqdyNHRMMsAbhrAtkqOXyoj+l8OEhdzZ6PqgA2TrcO
-         S7jA==
-X-Gm-Message-State: AJIora8BjosLS2Cbr2cys+EM5ezcv4s2wGtSsqFLdQoWIuONCwfD9/BB
-        CMHq/RwdHi9g0poWF70fazM=
-X-Google-Smtp-Source: AGRyM1utJi2f0eWDb12GVb8yGIc2maVMddBIJD0klZ6MqKdwimi2DcqR9ljs1+MZ4t0cPjcx1cJsQA==
-X-Received: by 2002:a17:902:e889:b0:16a:6c64:aa50 with SMTP id w9-20020a170902e88900b0016a6c64aa50mr6481514plg.142.1656446606014;
-        Tue, 28 Jun 2022 13:03:26 -0700 (PDT)
+        bh=9xiXVBUTdDVI8lRFYwUuLEFozRiUfkYmSBpqeP5Pj/g=;
+        b=OlC81HLlG8+pIxcIPj1W3fTJeDE26QTqZD+QesH7Yui8nm2f6PxGsBlciUlOmrf+qy
+         A91dypjTr3occXh4ufhmDiWRG1ZHP55WA9FRbuQ9/G6L4VQ6Kr7mzlDHY62w2/fNEnGd
+         c67HumGXGkGYdPYV+L9s7dglhq/ugArPrUabPKSOj0KfTj3ZoRZmTmYwLTROxAzMZ70f
+         eNyLjSJzcLuzFYcp0gtqhnR4Ilt7njuVXSJdkNuUFvEQqgFlgWc7erZlk5L7FYzgLSAG
+         Qxka/vBFIFPr1TYSu+kLGD4L4pxqPz9dZHq5JT2ZW6Y8X0p4YkB+jbED71WcWd/Ym6qQ
+         fWYg==
+X-Gm-Message-State: AJIora+71cR6ulVT6n66xrVCCKemrzdIj/L0vKMzXkHW6RvZ4M56Q/wH
+        0IyBoe4QseuAzu6sVhonmxc=
+X-Google-Smtp-Source: AGRyM1uBeSIjhAvi/nwBQTbee0LM7InUMfH8GHZBCqCHIukRmzKJIegbahKfSxwL6pqkTHIBh086dA==
+X-Received: by 2002:a17:902:e80b:b0:16a:61da:924 with SMTP id u11-20020a170902e80b00b0016a61da0924mr6655821plg.54.1656446625604;
+        Tue, 28 Jun 2022 13:03:45 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t13-20020a17090340cd00b00166496ba268sm9604612pld.285.2022.06.28.13.03.24
+        by smtp.gmail.com with ESMTPSA id i17-20020a17090320d100b0016a38f8ba7fsm9722949plb.162.2022.06.28.13.03.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 13:03:25 -0700 (PDT)
+        Tue, 28 Jun 2022 13:03:44 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 28 Jun 2022 13:03:24 -0700
+Date:   Tue, 28 Jun 2022 13:03:43 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 5/8] watchdog: sama5d4_wdt: Remove #ifdef guards for PM
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 7/8] watchdog: tegra_wdt: Remove #ifdef guards for PM
  related functions
-Message-ID: <20220628200324.GE3633970@roeck-us.net>
+Message-ID: <20220628200343.GG3633970@roeck-us.net>
 References: <20220628193449.160585-1-paul@crapouillou.net>
- <20220628193449.160585-6-paul@crapouillou.net>
+ <20220628193449.160585-8-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220628193449.160585-6-paul@crapouillou.net>
+In-Reply-To: <20220628193449.160585-8-paul@crapouillou.net>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 08:34:46PM +0100, Paul Cercueil wrote:
-> Use the new LATE_SYSTEM_SLEEP_PM_OPS() and pm_sleep_ptr() macros to
+On Tue, Jun 28, 2022 at 08:34:48PM +0100, Paul Cercueil wrote:
+> Use the new DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr() macros to
 > handle the .suspend/.resume callbacks.
 > 
 > These macros allow the suspend and resume functions to be automatically
@@ -82,51 +81,71 @@ On Tue, Jun 28, 2022 at 08:34:46PM +0100, Paul Cercueil wrote:
 > always compiled independently of any Kconfig option, and thanks to that
 > bugs and regressions are easier to catch.
 > 
+> While at it, the functions tegra_wdt_runtime_{suspend,resume} were
+> renamed to tegra_wdt_{suspend,resume}, as they are *not* runtime-PM
+> callbacks, but standard system suspend/resume callbacks.
+> 
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
-> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Jonathan Hunter <jonathanh@nvidia.com>
+> Cc: linux-tegra@vger.kernel.org
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/sama5d4_wdt.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+>  drivers/watchdog/tegra_wdt.c | 14 +++++---------
+>  1 file changed, 5 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index ec20ad4e534f..aeee934ca51b 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -339,7 +339,6 @@ static const struct of_device_id sama5d4_wdt_of_match[] = {
->  };
->  MODULE_DEVICE_TABLE(of, sama5d4_wdt_of_match);
+> diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
+> index dfe06e506cad..d5de6c0657a5 100644
+> --- a/drivers/watchdog/tegra_wdt.c
+> +++ b/drivers/watchdog/tegra_wdt.c
+> @@ -230,8 +230,7 @@ static int tegra_wdt_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
 >  
 > -#ifdef CONFIG_PM_SLEEP
->  static int sama5d4_wdt_suspend_late(struct device *dev)
+> -static int tegra_wdt_runtime_suspend(struct device *dev)
+> +static int tegra_wdt_suspend(struct device *dev)
 >  {
->  	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
-> @@ -366,18 +365,17 @@ static int sama5d4_wdt_resume_early(struct device *dev)
+>  	struct tegra_wdt *wdt = dev_get_drvdata(dev);
+>  
+> @@ -241,7 +240,7 @@ static int tegra_wdt_runtime_suspend(struct device *dev)
+>  	return 0;
+>  }
+>  
+> -static int tegra_wdt_runtime_resume(struct device *dev)
+> +static int tegra_wdt_resume(struct device *dev)
+>  {
+>  	struct tegra_wdt *wdt = dev_get_drvdata(dev);
+>  
+> @@ -250,7 +249,6 @@ static int tegra_wdt_runtime_resume(struct device *dev)
 >  
 >  	return 0;
 >  }
 > -#endif
 >  
->  static const struct dev_pm_ops sama5d4_wdt_pm_ops = {
-> -	SET_LATE_SYSTEM_SLEEP_PM_OPS(sama5d4_wdt_suspend_late,
-> -			sama5d4_wdt_resume_early)
-> +	LATE_SYSTEM_SLEEP_PM_OPS(sama5d4_wdt_suspend_late,
-> +				 sama5d4_wdt_resume_early)
+>  static const struct of_device_id tegra_wdt_of_match[] = {
+>  	{ .compatible = "nvidia,tegra30-timer", },
+> @@ -258,16 +256,14 @@ static const struct of_device_id tegra_wdt_of_match[] = {
 >  };
+>  MODULE_DEVICE_TABLE(of, tegra_wdt_of_match);
 >  
->  static struct platform_driver sama5d4_wdt_driver = {
->  	.probe		= sama5d4_wdt_probe,
+> -static const struct dev_pm_ops tegra_wdt_pm_ops = {
+> -	SET_SYSTEM_SLEEP_PM_OPS(tegra_wdt_runtime_suspend,
+> -				tegra_wdt_runtime_resume)
+> -};
+> +static DEFINE_SIMPLE_DEV_PM_OPS(tegra_wdt_pm_ops,
+> +				tegra_wdt_suspend, tegra_wdt_resume);
+>  
+>  static struct platform_driver tegra_wdt_driver = {
+>  	.probe		= tegra_wdt_probe,
 >  	.driver		= {
->  		.name	= "sama5d4_wdt",
-> -		.pm	= &sama5d4_wdt_pm_ops,
-> +		.pm	= pm_sleep_ptr(&sama5d4_wdt_pm_ops),
->  		.of_match_table = sama5d4_wdt_of_match,
->  	}
+>  		.name	= "tegra-wdt",
+> -		.pm	= &tegra_wdt_pm_ops,
+> +		.pm	= pm_sleep_ptr(&tegra_wdt_pm_ops),
+>  		.of_match_table = tegra_wdt_of_match,
+>  	},
 >  };
 > -- 
 > 2.35.1
