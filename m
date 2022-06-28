@@ -2,99 +2,117 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45476C43334
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 05:45:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 382B0C433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 13:55:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245043AbiF1Fpu (ORCPT
+        id S1346212AbiF1Nzg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jun 2022 01:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57410 "EHLO
+        Tue, 28 Jun 2022 09:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243496AbiF1Fpu (ORCPT
+        with ESMTP id S245534AbiF1Nze (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jun 2022 01:45:50 -0400
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4C31EAC9;
-        Mon, 27 Jun 2022 22:45:49 -0700 (PDT)
-Received: by mail-qk1-x730.google.com with SMTP id v6so8929921qkh.2;
-        Mon, 27 Jun 2022 22:45:49 -0700 (PDT)
+        Tue, 28 Jun 2022 09:55:34 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC5230542;
+        Tue, 28 Jun 2022 06:55:33 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id h9-20020a17090a648900b001ecb8596e43so12687045pjj.5;
+        Tue, 28 Jun 2022 06:55:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bDB1yQIYsmDWYDrdv3aqDf3xld4an2jBw75K40efpKQ=;
-        b=AVlqRKA9fQpKhzMjJ/YjxARfBVbnVtbVvcoyN2TRyUdR+R0UJnLIyM1EvLINj00Iyn
-         B19+WAZx1kN4XiJ7ar1vu1h7DM6ZIbx9YdeGbJnda1Y4dgvOb5bZqCr7ULg6c+uckzop
-         2pVjy3AWDwVGyjoR5Uv0I4NKugIu+f3JuMzFHn4zFSYaL+m/gQAGiGbx8KuN2B4Aw5nl
-         JZKp4HC82Uyqq7CT+b3gSeeXTYUH6f33VsDU8+Ikeu4Ec6/74ZxGZRxldS1mPBi0I7NE
-         qseDenQecnLDBKPEOMh6QVK/e7MvdkW7Y8rHJbEjwip4vDa/Jf+rs0ZP/z/kRdWtdaao
-         YodA==
+        h=sender:message-id:date:mime-version:user-agent:content-language:to
+         :cc:references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=BDUJ/ka+kgkQoriSSldrNOaZy2Lthlgzh4tWOgyV1eg=;
+        b=TTcVoKDwF/QDCDhip9ZNimV8pF3crRWHTJ3htHT9TRpOVaa0OEhUJsLWLYvjeHvfpg
+         lW9Z3yjh68KgFUkH0zRbYLGF7frgorqrDpa1HhEfqJ1nobJRdob+22uuUqIQ3ep4PVIo
+         jhUpbWBMfdxuSQNtUaAQVOeXBwitrScreoawp8isdXe9FKRtIJJSNvttP7nJDt7sDPuf
+         WhuK5Du25kXZTZKE2PJmbepcoa+2woOeKOshq/vwP1QtGK3lziv+XJyuMgw5AnXIiTFp
+         jlMvO2X/3hx/eAlZXAgXjZcM9637e9k5Fesr1sI38+PcTum0aI4YlXq4wl219KI9BCaF
+         1DQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
          :content-transfer-encoding;
-        bh=bDB1yQIYsmDWYDrdv3aqDf3xld4an2jBw75K40efpKQ=;
-        b=KE7eXWUrFZ8HkE5AYdqgEwsMZokuzKvf16X75kIL36Kk9WFl9VT3aL9mQ2rFi60W40
-         M5ZNTbuztTbq1D7hqz7SKW6g0hqPM1ZjYsqzalhqx7RuIsgDN8zr9uCn7PNBXBwIF8lb
-         NTQUbmwjEKzm7u8dNO8H3fd7WN+MuzQp4YtdAAQouS5CYD7m3FYBqQwi2crKjdvOhuEj
-         k7y3IJ5WbeOUcxbzf7Jb15p1Z3H8rI1OzDlZH81Cf1QEioBxqII91+5Q3nl/3J3Uvgs5
-         rJTe05ZLXv8uHYtXpAaQa7pGMImkppe/Q2SouDZm+bRbbEsOEfXGBmsZaa7R19tTveBM
-         Bn1w==
-X-Gm-Message-State: AJIora9S/Le76p5OiZm3bStE8QF6ysHgn0CcwvnpdtQ7baaCxCJ9jHak
-        tAuVqmvwb3k9LlxYzNEKL1U=
-X-Google-Smtp-Source: AGRyM1tf5mJP+t3vGwsUjLUnw/w1HOD6eqfpDPcHaSfcs5FbCMA26VN8obCrZ2yZ+lIi9v7qYfZByw==
-X-Received: by 2002:a05:620a:4053:b0:6af:2d27:e791 with SMTP id i19-20020a05620a405300b006af2d27e791mr5244735qko.555.1656395148651;
-        Mon, 27 Jun 2022 22:45:48 -0700 (PDT)
-Received: from MBP.hobot.cc (ec2-13-59-0-164.us-east-2.compute.amazonaws.com. [13.59.0.164])
-        by smtp.gmail.com with ESMTPSA id x26-20020ae9e91a000000b006a6edbbca84sm9850143qkf.94.2022.06.27.22.45.45
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Jun 2022 22:45:48 -0700 (PDT)
-From:   Schspa Shi <schspa@gmail.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        zhaohui.shi@horizon.ai, Schspa Shi <schspa@gmail.com>
-Subject: [PATCH] watchdog: dw_wdt: Fix buffer overflow when get timeout
-Date:   Tue, 28 Jun 2022 13:45:39 +0800
-Message-Id: <20220628054539.33187-1-schspa@gmail.com>
-X-Mailer: git-send-email 2.29.0
+        bh=BDUJ/ka+kgkQoriSSldrNOaZy2Lthlgzh4tWOgyV1eg=;
+        b=xYPzPBw9gQa79/+D0oplG6e4osCyT8bVrF6iUqX1V3+4VGYqQZMPOs3/9HIxgMbrQo
+         n7yzZrhfSQ76vs103IptgXmfQnULBeh1+VIMZw8Dxmt6M/2wQw2xAN6qwdvBbyvfoZLY
+         D/AXeTCZt4RUgu2npWO9xJfGiWQb5cF4777VjSgN2sQGOxmBVWa7yOPueloLekdqn1Xc
+         kMqBLvf8u4j7gGPh90Su/CY6RLZKDw/ZqI9p6D9QUPk4u3YUULZZ9R8PYAJuMjbrqfga
+         ruGxSYj589kSodL2D+mEvHDnAHOEs8C9WEGOiPBQBGWmNxFbteHmip1gr7o2DsKwx4/o
+         yl+g==
+X-Gm-Message-State: AJIora8L0nt5XcwX3u8BcBBDYbnihtgghhI8SXM7NnQ5FhIDdiZ/bggZ
+        vO6ASKuNLM8GZF20+xT9uuo=
+X-Google-Smtp-Source: AGRyM1tPf23++oTwJhdLzgnRQtVlTLSLIDsf8xfKQ5RuIU55wlphxpz/Eafpsh3K64XDOfBxVSFiXQ==
+X-Received: by 2002:a17:90b:d86:b0:1ec:caca:170a with SMTP id bg6-20020a17090b0d8600b001eccaca170amr27829769pjb.94.1656424532909;
+        Tue, 28 Jun 2022 06:55:32 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 64-20020a17090a09c600b001ec9ae91e30sm11594026pjo.12.2022.06.28.06.55.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jun 2022 06:55:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <c230ccdc-b20d-32a6-c3cb-715698d06945@roeck-us.net>
+Date:   Tue, 28 Jun 2022 06:55:29 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Content-Language: en-US
+To:     Schspa Shi <schspa@gmail.com>, wim@linux-watchdog.org
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        zhaohui.shi@horizon.ai
+References: <20220628054539.33187-1-schspa@gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] watchdog: dw_wdt: Fix buffer overflow when get timeout
+In-Reply-To: <20220628054539.33187-1-schspa@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The top_val can be obtained from device-tree, if it is not configured
-correctly, there will be buffer overflow.
+On 6/27/22 22:45, Schspa Shi wrote:
+> The top_val can be obtained from device-tree, if it is not configured
+> correctly, there will be buffer overflow.
+> 
+> Signed-off-by: Schspa Shi <schspa@gmail.com>
+> ---
+>   drivers/watchdog/dw_wdt.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index cd578843277e..1f8605c0d712 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -155,6 +155,9 @@ static unsigned int dw_wdt_get_min_timeout(struct dw_wdt *dw_wdt)
+>   			break;
+>   	}
+>   
+> +	if (WARN_ON_ONCE(idx == DW_WDT_NUM_TOPS))
+> +		idx = DW_WDT_NUM_TOPS - 1;
+> +
+dw_wdt_get_min_timeout() returns the lowest non-0 configurable timeout.
+The  last entry in the timeout array must not be 0, meaning there must
+be at least one entry in the array where the timeout is not 0. Therefore
+this situation can not happen.
 
-Signed-off-by: Schspa Shi <schspa@gmail.com>
----
- drivers/watchdog/dw_wdt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+>   	return dw_wdt->timeouts[idx].sec;
+>   }
+>   
+> @@ -178,6 +181,9 @@ static unsigned int dw_wdt_get_timeout(struct dw_wdt *dw_wdt)
+>   			break;
+>   	}
+>   
+> +	if (WARN_ON_ONCE(idx == DW_WDT_NUM_TOPS))
+> +		idx = DW_WDT_NUM_TOPS - 1;
+> +
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index cd578843277e..1f8605c0d712 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -155,6 +155,9 @@ static unsigned int dw_wdt_get_min_timeout(struct dw_wdt *dw_wdt)
- 			break;
- 	}
- 
-+	if (WARN_ON_ONCE(idx == DW_WDT_NUM_TOPS))
-+		idx = DW_WDT_NUM_TOPS - 1;
-+
- 	return dw_wdt->timeouts[idx].sec;
- }
- 
-@@ -178,6 +181,9 @@ static unsigned int dw_wdt_get_timeout(struct dw_wdt *dw_wdt)
- 			break;
- 	}
- 
-+	if (WARN_ON_ONCE(idx == DW_WDT_NUM_TOPS))
-+		idx = DW_WDT_NUM_TOPS - 1;
-+
- 	/*
- 	 * In IRQ mode due to the two stages counter, the actual timeout is
- 	 * twice greater than the TOP setting.
--- 
-2.29.0
+idx is derived from a top_val value written into WDOG_TIMEOUT_RANGE_REG_OFFSET,
+and the value written is derived from an entry in the timeouts array.
+This array contains an entry for each possible top_val. While the array is not
+sorted by top_val, dw_wdt_handle_tops() still guarantees that an entry exists.
 
+I do not see how bad devicetree data can circumvent that. If it does, please
+provide an example and explain.
+
+Thanks,
+Guenter
