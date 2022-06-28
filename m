@@ -2,41 +2,46 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12DA3CCA47E
-	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 19:43:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD67C433EF
+	for <linux-watchdog@archiver.kernel.org>; Tue, 28 Jun 2022 19:43:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbiF1TnC (ORCPT
+        id S232172AbiF1Tnl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 28 Jun 2022 15:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
+        Tue, 28 Jun 2022 15:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231928AbiF1TmY (ORCPT
+        with ESMTP id S229490AbiF1Tm7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Jun 2022 15:42:24 -0400
+        Tue, 28 Jun 2022 15:42:59 -0400
 Received: from aposti.net (aposti.net [89.234.176.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597753EF05;
-        Tue, 28 Jun 2022 12:35:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9743F895;
+        Tue, 28 Jun 2022 12:35:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1656444899; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1656444901; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=yujh1grN3o7CefTxugVeGaE4Abhbtk5+SE7AhEnZWWQ=;
-        b=kWcsUfWDTKRWDnabuPUWr73Dthy6mrja1T6Pkvhn47DyiA8e/Fgd6+Qja8PdcsBPQlMhxP
-        lObAd72hMk82QpUkH9fpq1hbmWaJNSqTmyLdauLmxHcq+vpGmh1Dj32xoHDCHAJJ2tVs7c
-        bsRw2V0GDdBdw/0PE5sni/58G3IdK7U=
+        bh=XGopMg7rrQDjhUvGbHD50XRWYmeZSip2Vhlfrfv9/RM=;
+        b=XeE2AuIr+XIVkVMs8Gpx0JQCB1N3qu6Wm83uBYXDAj0lChptVLvJPQ1kJWOEpuDuPigYH9
+        GFzCpmX6Sp7pREsl4WFwjmzSEOhaVIFd41/HX8cz4mci6R4m3jENeSr8sLxR4DSDXFHtLw
+        pdYKQTXEBgA1HqE1Xxc4a2WVjRU3nOM=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 2/8] watchdog: dw_wdt: Remove #ifdef guards for PM related functions
-Date:   Tue, 28 Jun 2022 20:34:43 +0100
-Message-Id: <20220628193449.160585-3-paul@crapouillou.net>
+        Paul Cercueil <paul@crapouillou.net>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH 4/8] watchdog: s3c2410_wdt: Remove #ifdef guards for PM related functions
+Date:   Tue, 28 Jun 2022 20:34:45 +0100
+Message-Id: <20220628193449.160585-5-paul@crapouillou.net>
 In-Reply-To: <20220628193449.160585-1-paul@crapouillou.net>
 References: <20220628193449.160585-1-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam: Yes
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -51,42 +56,49 @@ always compiled independently of any Kconfig option, and thanks to that
 bugs and regressions are easier to catch.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
 ---
- drivers/watchdog/dw_wdt.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/watchdog/s3c2410_wdt.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index cd578843277e..060dae67d852 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -375,7 +375,6 @@ static irqreturn_t dw_wdt_irq(int irq, void *devid)
- 	return IRQ_HANDLED;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 6db22f2e3a4f..95919392927f 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -845,8 +845,6 @@ static void s3c2410wdt_shutdown(struct platform_device *dev)
+ 	s3c2410wdt_stop(&wdt->wdt_device);
  }
  
 -#ifdef CONFIG_PM_SLEEP
- static int dw_wdt_suspend(struct device *dev)
+-
+ static int s3c2410wdt_suspend(struct device *dev)
  {
- 	struct dw_wdt *dw_wdt = dev_get_drvdata(dev);
-@@ -410,9 +409,8 @@ static int dw_wdt_resume(struct device *dev)
+ 	int ret;
+@@ -885,10 +883,9 @@ static int s3c2410wdt_resume(struct device *dev)
  
  	return 0;
  }
--#endif /* CONFIG_PM_SLEEP */
+-#endif
  
--static SIMPLE_DEV_PM_OPS(dw_wdt_pm_ops, dw_wdt_suspend, dw_wdt_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(dw_wdt_pm_ops, dw_wdt_suspend, dw_wdt_resume);
+-static SIMPLE_DEV_PM_OPS(s3c2410wdt_pm_ops, s3c2410wdt_suspend,
+-			s3c2410wdt_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(s3c2410wdt_pm_ops,
++				s3c2410wdt_suspend, s3c2410wdt_resume);
  
- /*
-  * In case if DW WDT IP core is synthesized with fixed TOP feature disabled the
-@@ -710,7 +708,7 @@ static struct platform_driver dw_wdt_driver = {
+ static struct platform_driver s3c2410wdt_driver = {
+ 	.probe		= s3c2410wdt_probe,
+@@ -897,7 +894,7 @@ static struct platform_driver s3c2410wdt_driver = {
+ 	.id_table	= s3c2410_wdt_ids,
  	.driver		= {
- 		.name	= "dw_wdt",
- 		.of_match_table = of_match_ptr(dw_wdt_of_match),
--		.pm	= &dw_wdt_pm_ops,
-+		.pm	= pm_sleep_ptr(&dw_wdt_pm_ops),
+ 		.name	= "s3c2410-wdt",
+-		.pm	= &s3c2410wdt_pm_ops,
++		.pm	= pm_sleep_ptr(&s3c2410wdt_pm_ops),
+ 		.of_match_table	= of_match_ptr(s3c2410_wdt_match),
  	},
  };
- 
 -- 
 2.35.1
 
