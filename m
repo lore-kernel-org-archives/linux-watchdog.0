@@ -2,44 +2,44 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CCF8C43334
-	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Jun 2022 08:48:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EECCCCA482
+	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Jun 2022 08:48:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbiF2Iss (ORCPT
+        id S232912AbiF2Iss (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Wed, 29 Jun 2022 04:48:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232904AbiF2Isr (ORCPT
+        with ESMTP id S232905AbiF2Isr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Wed, 29 Jun 2022 04:48:47 -0400
 Received: from mx.kernkonzept.com (serv1.kernkonzept.com [IPv6:2a01:4f8:1c1c:b490::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017843CA64;
-        Wed, 29 Jun 2022 01:48:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243773CFDB;
+        Wed, 29 Jun 2022 01:48:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=kernkonzept.com; s=mx1; h=Content-Transfer-Encoding:MIME-Version:References
         :In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=nysqDoSIXnF5KIZKd2MprpDgDytNBqd05oO/1KPwa/A=; b=HKHZiMHDaaiICoTViS7cSvKxeL
-        pULqDCx+WfoeEznxIym2jHCh+xJymnby3nY4aGmT/7PCswi3irCJ6hs3owLfWJcj3TzDw30/D62Wu
-        16lnkaKWLHZIsWwfpbgXzFLQf97JPapF8kEgMVSTU76hPbxbG+myGjQqKAniiFS2RAGPTYoYib1w4
-        krfgoxhOSPGJu3pb6DNBACcrMFbPO7sVnvIIeUHwb7MQJPPNJVMs9VqS9r3oHDijt2pi65CEfN231
-        jyK5d4YTcYVgavOPMhr9UkIu7ogYMCza4NUc0V0VmEtfeVh2FktbJ0UG6zn4K5ihkW7fORbFgL9bj
-        pr0W48tQ==;
+        bh=1zHHTk30qvYg0NNWrgCR4OkuDHBLcPmoA3RGRJcNtZg=; b=aByI+JUdpUINa5miQrIDDe8TWK
+        DwQAifGcnXN5rotUZxeSASfYQOFnYb2B1z6gI5x77ufh54cEFM0auQcd+XRFYZpLBfZYXm/PtaI3H
+        MLnaFm6GxlwWj3hx5GRV610eGCizY8WCCgXHal03M5skeU0mozarJwEYuAqwSqabQjJh7KTPONniL
+        WnV6Sc0V4aPsWWXlhlCmcHemWTCwkt7CdxOCSTRR2nR4b0LDfeVxv5OLnH4AawgBxe92hvEQgWWzR
+        LhWr3Mlgiff6dTDnVytVRu4x+vY8kRzo0IHIV3FHRgzDFRS8+25rZTdrJB1QwFyOESrXPswqq/JLA
+        SJZv09Jg==;
 Received: from [10.22.3.24] (helo=kernkonzept.com)
         by mx.kernkonzept.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim 4.94.2)
-        id 1o6TNG-006RUL-Un; Wed, 29 Jun 2022 10:48:38 +0200
+        id 1o6TNI-006RUL-5X; Wed, 29 Jun 2022 10:48:40 +0200
 From:   Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     Loic Poulain <loic.poulain@linaro.org>,
         linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Subject: [PATCH v2 1/3] watchdog: pm8916_wdt: Avoid read of write-only PET register
-Date:   Wed, 29 Jun 2022 10:48:14 +0200
-Message-Id: <20220629084816.125515-2-stephan.gerhold@kernkonzept.com>
+Subject: [PATCH v2 3/3] watchdog: pm8916_wdt: Handle watchdog enabled by bootloader
+Date:   Wed, 29 Jun 2022 10:48:16 +0200
+Message-Id: <20220629084816.125515-4-stephan.gerhold@kernkonzept.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220629084816.125515-1-stephan.gerhold@kernkonzept.com>
 References: <20220629084816.125515-1-stephan.gerhold@kernkonzept.com>
@@ -49,39 +49,48 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-PMIC_WD_RESET_PET is a write-only register that is used to ping
-the watchdog. It does not make sense to use read-modify-write
-for it: a register read will never return anything but zero.
-(And actually even if it did we would still want to write again
-to ensure the watchdog is pinged.)
+The bootloader might already enable the watchdog to catch hangs
+during the boot process. In that case the kernel needs to ping
+the watchdog temporarily until userspace is fully started.
 
-Reduce the overhead for the watchdog ping slightly by using
-regmap_write() directly instead.
+Add a check for this in the probe() function and set the WDOG_HW_RUNNING
+flag to make the watchdog core handle this automatically.
 
 Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
-Changes in v2: Add Guenter's Reviewed-by
+Changes in v2: Improve error handling (suggested by Guenter)
 ---
- drivers/watchdog/pm8916_wdt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/watchdog/pm8916_wdt.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
-index 0937b8d33104..670cd79f4cf9 100644
+index 49f1a5204526..f4bfbffaf49c 100644
 --- a/drivers/watchdog/pm8916_wdt.c
 +++ b/drivers/watchdog/pm8916_wdt.c
-@@ -58,9 +58,8 @@ static int pm8916_wdt_ping(struct watchdog_device *wdev)
- {
- 	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
+@@ -142,6 +142,7 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct pm8916_wdt *wdt;
+ 	struct device *parent;
++	unsigned int val;
+ 	int err, irq;
+ 	u8 poff[2];
  
--	return regmap_update_bits(wdt->regmap,
--				  wdt->baseaddr + PON_PMIC_WD_RESET_PET,
--				  WATCHDOG_PET_BIT, WATCHDOG_PET_BIT);
-+	return regmap_write(wdt->regmap, wdt->baseaddr + PON_PMIC_WD_RESET_PET,
-+			    WATCHDOG_PET_BIT);
- }
+@@ -199,6 +200,15 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 	if (poff[1] & PON_POFF_REASON2_OTST3)
+ 		wdt->wdev.bootstatus |= WDIOF_OVERHEAT;
  
- static int pm8916_wdt_configure_timers(struct watchdog_device *wdev)
++	err = regmap_read(wdt->regmap, wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL2,
++			  &val);
++	if (err)  {
++		dev_err(dev, "failed to check if watchdog is active: %d\n", err);
++		return err;
++	}
++	if (val & S2_RESET_EN_BIT)
++		set_bit(WDOG_HW_RUNNING, &wdt->wdev.status);
++
+ 	/* Configure watchdog to hard-reset mode */
+ 	err = regmap_write(wdt->regmap,
+ 			   wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL,
 -- 
 2.30.2
 
