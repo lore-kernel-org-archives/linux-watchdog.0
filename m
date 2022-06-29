@@ -2,77 +2,86 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A25C43334
-	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Jun 2022 08:25:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CCF8C43334
+	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Jun 2022 08:48:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230088AbiF2IZZ (ORCPT
+        id S232909AbiF2Iss (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 29 Jun 2022 04:25:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        Wed, 29 Jun 2022 04:48:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232549AbiF2IZY (ORCPT
+        with ESMTP id S232904AbiF2Isr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 29 Jun 2022 04:25:24 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51153BFAC;
-        Wed, 29 Jun 2022 01:25:23 -0700 (PDT)
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 4CF0666018F4;
-        Wed, 29 Jun 2022 09:25:22 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1656491122;
-        bh=0EEMo713xuhiHvrr74nGxbYhhEiW7g5+BgdFVNHIrR8=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=jKXRgLt656eTCfQq+Ge4efTa5Ejo/MfX5HM57WKCAjr4Pmw2RD1GATn2B89wVW7S/
-         z2Q1Xp21o/eaVOC9jU2TDQWxa1hmRoIEy7Di7DHrYQ+pFtLMJQygDA0538Qvnz/Lmh
-         Ewz1phtFGFO+WdgNmh6C/+0vclKcVqPc6YshCQqxQsmcz9KyxL5h25eqVdIR8yo9Lj
-         J+GashTxqS5bmzrz3jby0xCVAFM0eR4M7ERFj02iDlUX8qC7CmMSVjf1BujyndIx/c
-         G9Jl2bzwKDfI6+BxsO0gsxtmzSf4PzhvX/MB75GwtPPvfiNd+SctVUNXk3HFrwTdsO
-         g+V1i0t498vIQ==
-Message-ID: <cc55775b-5e9e-ac92-581a-ff8defdf11f8@collabora.com>
-Date:   Wed, 29 Jun 2022 10:25:20 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH 3/8] watchdog: mtk_wdt: Remove #ifdef guards for PM
- related functions
-Content-Language: en-US
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wed, 29 Jun 2022 04:48:47 -0400
+Received: from mx.kernkonzept.com (serv1.kernkonzept.com [IPv6:2a01:4f8:1c1c:b490::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017843CA64;
+        Wed, 29 Jun 2022 01:48:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kernkonzept.com; s=mx1; h=Content-Transfer-Encoding:MIME-Version:References
+        :In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=nysqDoSIXnF5KIZKd2MprpDgDytNBqd05oO/1KPwa/A=; b=HKHZiMHDaaiICoTViS7cSvKxeL
+        pULqDCx+WfoeEznxIym2jHCh+xJymnby3nY4aGmT/7PCswi3irCJ6hs3owLfWJcj3TzDw30/D62Wu
+        16lnkaKWLHZIsWwfpbgXzFLQf97JPapF8kEgMVSTU76hPbxbG+myGjQqKAniiFS2RAGPTYoYib1w4
+        krfgoxhOSPGJu3pb6DNBACcrMFbPO7sVnvIIeUHwb7MQJPPNJVMs9VqS9r3oHDijt2pi65CEfN231
+        jyK5d4YTcYVgavOPMhr9UkIu7ogYMCza4NUc0V0VmEtfeVh2FktbJ0UG6zn4K5ihkW7fORbFgL9bj
+        pr0W48tQ==;
+Received: from [10.22.3.24] (helo=kernkonzept.com)
+        by mx.kernkonzept.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim 4.94.2)
+        id 1o6TNG-006RUL-Un; Wed, 29 Jun 2022 10:48:38 +0200
+From:   Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-References: <20220628193449.160585-1-paul@crapouillou.net>
- <20220628193449.160585-4-paul@crapouillou.net>
-From:   AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-In-Reply-To: <20220628193449.160585-4-paul@crapouillou.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Subject: [PATCH v2 1/3] watchdog: pm8916_wdt: Avoid read of write-only PET register
+Date:   Wed, 29 Jun 2022 10:48:14 +0200
+Message-Id: <20220629084816.125515-2-stephan.gerhold@kernkonzept.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220629084816.125515-1-stephan.gerhold@kernkonzept.com>
+References: <20220629084816.125515-1-stephan.gerhold@kernkonzept.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Il 28/06/22 21:34, Paul Cercueil ha scritto:
-> Use the new DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr() macros to
-> handle the .suspend/.resume callbacks.
-> 
-> These macros allow the suspend and resume functions to be automatically
-> dropped by the compiler when CONFIG_SUSPEND is disabled, without having
-> to use #ifdef guards. Not using #ifdef guards means that the code is
-> always compiled independently of any Kconfig option, and thanks to that
-> bugs and regressions are easier to catch.
-> 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Cc: Matthias Brugger <matthias.bgg@gmail.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-mediatek@lists.infradead.org
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+PMIC_WD_RESET_PET is a write-only register that is used to ping
+the watchdog. It does not make sense to use read-modify-write
+for it: a register read will never return anything but zero.
+(And actually even if it did we would still want to write again
+to ensure the watchdog is pinged.)
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reduce the overhead for the watchdog ping slightly by using
+regmap_write() directly instead.
+
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Changes in v2: Add Guenter's Reviewed-by
+---
+ drivers/watchdog/pm8916_wdt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+index 0937b8d33104..670cd79f4cf9 100644
+--- a/drivers/watchdog/pm8916_wdt.c
++++ b/drivers/watchdog/pm8916_wdt.c
+@@ -58,9 +58,8 @@ static int pm8916_wdt_ping(struct watchdog_device *wdev)
+ {
+ 	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
+ 
+-	return regmap_update_bits(wdt->regmap,
+-				  wdt->baseaddr + PON_PMIC_WD_RESET_PET,
+-				  WATCHDOG_PET_BIT, WATCHDOG_PET_BIT);
++	return regmap_write(wdt->regmap, wdt->baseaddr + PON_PMIC_WD_RESET_PET,
++			    WATCHDOG_PET_BIT);
+ }
+ 
+ static int pm8916_wdt_configure_timers(struct watchdog_device *wdev)
+-- 
+2.30.2
+
