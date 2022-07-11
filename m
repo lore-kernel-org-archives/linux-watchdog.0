@@ -2,36 +2,36 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27FFACCA490
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A152CCA496
 	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Jul 2022 12:35:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbiGKMfb (ORCPT
+        id S231759AbiGKMfv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 11 Jul 2022 08:35:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59742 "EHLO
+        Mon, 11 Jul 2022 08:35:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229775AbiGKMf3 (ORCPT
+        with ESMTP id S231545AbiGKMfe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 11 Jul 2022 08:35:29 -0400
+        Mon, 11 Jul 2022 08:35:34 -0400
 Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5513952FCC;
-        Mon, 11 Jul 2022 05:35:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9630954CB0;
+        Mon, 11 Jul 2022 05:35:30 -0700 (PDT)
 Received: from NTHCCAS01.nuvoton.com (NTHCCAS01.nuvoton.com [10.1.8.28])
-        by maillog.nuvoton.com (Postfix) with ESMTP id 0A4AA1C81191;
-        Mon, 11 Jul 2022 20:35:25 +0800 (CST)
+        by maillog.nuvoton.com (Postfix) with ESMTP id 461651C811AE;
+        Mon, 11 Jul 2022 20:35:26 +0800 (CST)
 Received: from NTHCML01B.nuvoton.com (10.1.8.178) by NTHCCAS01.nuvoton.com
  (10.1.8.28) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.7; Mon, 11 Jul
- 2022 20:35:24 +0800
+ 2022 20:35:26 +0800
 Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCML01B.nuvoton.com
  (10.1.8.178) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Mon, 11 Jul
- 2022 20:35:24 +0800
+ 2022 20:35:25 +0800
 Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
  (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
- Transport; Mon, 11 Jul 2022 20:35:24 +0800
+ Transport; Mon, 11 Jul 2022 20:35:25 +0800
 Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
-        id 927B363A4C; Mon, 11 Jul 2022 15:35:23 +0300 (IDT)
+        id 258DE63A57; Mon, 11 Jul 2022 15:35:24 +0300 (IDT)
 From:   Tomer Maimon <tmaimon77@gmail.com>
 To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
         <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
@@ -53,9 +53,9 @@ CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         Tomer Maimon <tmaimon77@gmail.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v8 02/16] dt-bindings: watchdog: npcm: Add npcm845 compatible string
-Date:   Mon, 11 Jul 2022 15:35:05 +0300
-Message-ID: <20220711123519.217219-3-tmaimon77@gmail.com>
+Subject: [PATCH v8 12/16] dt-bindings: arm: npcm: Add nuvoton,npcm845 GCR compatible string
+Date:   Mon, 11 Jul 2022 15:35:15 +0300
+Message-ID: <20220711123519.217219-13-tmaimon77@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20220711123519.217219-1-tmaimon77@gmail.com>
 References: <20220711123519.217219-1-tmaimon77@gmail.com>
@@ -66,29 +66,26 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add a compatible string for Nuvoton BMC NPCM845 watchdog.
+Add a compatible string for Nuvoton BMC NPCM845 global control registers.
 
 Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
- .../devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt          | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/arm/npcm/nuvoton,gcr.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-index 9059f54dc023..866a958b8a2b 100644
---- a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-@@ -6,7 +6,8 @@ expiry.
+diff --git a/Documentation/devicetree/bindings/arm/npcm/nuvoton,gcr.yaml b/Documentation/devicetree/bindings/arm/npcm/nuvoton,gcr.yaml
+index aad7c85e787f..94e72f25b331 100644
+--- a/Documentation/devicetree/bindings/arm/npcm/nuvoton,gcr.yaml
++++ b/Documentation/devicetree/bindings/arm/npcm/nuvoton,gcr.yaml
+@@ -21,6 +21,7 @@ properties:
+       - enum:
+           - nuvoton,wpcm450-gcr
+           - nuvoton,npcm750-gcr
++          - nuvoton,npcm845-gcr
+       - const: syscon
+       - const: simple-mfd
  
- Required properties:
- - compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg), or
--                    "nuvoton,wpcm450-wdt" for WPCM450 (Hermon).
-+                    "nuvoton,wpcm450-wdt" for WPCM450 (Hermon), or
-+                    "nuvoton,npcm845-wdt" for NPCM845 (Arbel).
- - reg             : Offset and length of the register set for the device.
- - interrupts      : Contain the timer interrupt with flags for
-                     falling edge.
 -- 
 2.33.0
 
