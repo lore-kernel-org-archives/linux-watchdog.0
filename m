@@ -2,233 +2,187 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 107E7CCA486
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Jul 2022 11:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A260CCA480
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Jul 2022 12:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230218AbiGKL3a (ORCPT
+        id S230085AbiGKMfb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 11 Jul 2022 07:29:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47752 "EHLO
+        Mon, 11 Jul 2022 08:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbiGKL25 (ORCPT
+        with ESMTP id S229755AbiGKMf3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 11 Jul 2022 07:28:57 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1951627170
-        for <linux-watchdog@vger.kernel.org>; Mon, 11 Jul 2022 04:10:24 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id ss3so2186565ejc.11
-        for <linux-watchdog@vger.kernel.org>; Mon, 11 Jul 2022 04:10:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=zkANRKcZbCaKSgW3zgTNeMUMr8X2SBwRfvqFLff+8ZA=;
-        b=ZBgFbOgBqk32UIWTND6ietHkpJ9TJrOwwXtkzswaVpoU8cqklMCFk81fOuqvtO9b9+
-         193XC1MSSCbyeRCTelx7Em66ORq+FmDBSYBVSERNcNEchxozN6pHqlwerTuLzywh1PJ7
-         PPr5INbdvszlJtgdHO6XhLDVfxRYSD+EpLfYzREdWmvAqfTXb1AYuMVQyzz+UgfSKZsT
-         OipXrh2/XOdyT0NtEXhNWLcAzerxjK/m2z7jd3nRq6uX7U+n5jKV+w1Tq89vDB1ZQFIh
-         KjdKi2LPGjl7/fc3L/TZkwDsVRLWhTZ+cQonFNbttvBLHusUdIQosAAUe4FLvsRMbyrB
-         i/ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=zkANRKcZbCaKSgW3zgTNeMUMr8X2SBwRfvqFLff+8ZA=;
-        b=0F4JJ13+f+RpWBMs8MJsMsvX8kW221ltptT1vGH+W2ZKvvN5LZUXzm82/3RgX2bz2W
-         RIO0FYVWfeTKaBY71201bzROfvcr6ffssh/aqmpNv/wTM/V7uojf7rscZhg/dasLHsF3
-         L6+ba803FkebDLkN+F3REbkonc5qbReau53DkQx1hrRyuHUKfEjxX7ti4BybueVOAjWg
-         qn5fn/LxpcWj5shmt9lIvzRB3vKANhod3wfqoWcOkQvCe3x1OT5hOqsbtWal3W79QhIw
-         Q4vqoXSpihylM7dfwoP2m/rN48y+S3WkxxWNl2UqyH7wD+etzpvhgtUUtQuef7U5KizT
-         ofgQ==
-X-Gm-Message-State: AJIora/SvXbeors+Iq1zRv6ODA1kUP2+aEe4AoobH5sXnbY86aMYpk0A
-        Nu403xNdh/CV2ciLRCrwoJCw9w==
-X-Google-Smtp-Source: AGRyM1uSmvI2XhE/U0vJsp/yH6sycrVAD/rDP9hVX00y91ePkUQ92JzvhV0TAf2kqlLOX6iymV68bw==
-X-Received: by 2002:a17:907:6ea3:b0:726:ca39:5d98 with SMTP id sh35-20020a1709076ea300b00726ca395d98mr17992224ejc.400.1657537822607;
-        Mon, 11 Jul 2022 04:10:22 -0700 (PDT)
-Received: from linaro.org ([94.52.112.99])
-        by smtp.gmail.com with ESMTPSA id gx16-20020a170906f1d000b0072b1bb3cc08sm2562448ejb.120.2022.07.11.04.10.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jul 2022 04:10:22 -0700 (PDT)
-Date:   Mon, 11 Jul 2022 14:10:19 +0300
-From:   Abel Vesa <abel.vesa@linaro.org>
-To:     "Viorel Suman (OSS)" <viorel.suman@oss.nxp.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Viorel Suman <viorel.suman@nxp.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Peng Fan <peng.fan@nxp.com>, Liu Ying <victor.liu@nxp.com>,
-        Shijie Qin <shijie.qin@nxp.com>, Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v8 01/15] dt-bindings: clk: imx: Add fsl,scu-clk yaml file
-Message-ID: <YswFG/JdjGC03rHU@linaro.org>
-References: <20220707125022.1156498-1-viorel.suman@oss.nxp.com>
- <20220707125022.1156498-2-viorel.suman@oss.nxp.com>
+        Mon, 11 Jul 2022 08:35:29 -0400
+Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0506E52FFF;
+        Mon, 11 Jul 2022 05:35:26 -0700 (PDT)
+Received: from NTHCCAS01.nuvoton.com (NTHCCAS01.nuvoton.com [10.1.8.28])
+        by maillog.nuvoton.com (Postfix) with ESMTP id F14BE1C8117B;
+        Mon, 11 Jul 2022 20:35:24 +0800 (CST)
+Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCCAS01.nuvoton.com
+ (10.1.8.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.7; Mon, 11 Jul
+ 2022 20:35:24 +0800
+Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
+ (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
+ Transport; Mon, 11 Jul 2022 20:35:24 +0800
+Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
+        id 9EF6F63A4E; Mon, 11 Jul 2022 15:35:23 +0300 (IDT)
+From:   Tomer Maimon <tmaimon77@gmail.com>
+To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
+        <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
+        <benjaminfair@google.com>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <mturquette@baylibre.com>,
+        <sboyd@kernel.org>, <p.zabel@pengutronix.de>,
+        <gregkh@linuxfoundation.org>, <daniel.lezcano@linaro.org>,
+        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
+        <arnd@arndb.de>, <olof@lixom.net>, <jirislaby@kernel.org>,
+        <shawnguo@kernel.org>, <bjorn.andersson@linaro.org>,
+        <geert+renesas@glider.be>, <marcel.ziswiler@toradex.com>,
+        <vkoul@kernel.org>, <biju.das.jz@bp.renesas.com>,
+        <nobuhiro1.iwamatsu@toshiba.co.jp>, <robert.hancock@calian.com>,
+        <j.neuschaefer@gmx.net>, <lkundrak@v3.sk>
+CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v8 03/16] dt-binding: clk: npcm845: Add binding for Nuvoton NPCM8XX Clock
+Date:   Mon, 11 Jul 2022 15:35:06 +0300
+Message-ID: <20220711123519.217219-4-tmaimon77@gmail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20220711123519.217219-1-tmaimon77@gmail.com>
+References: <20220711123519.217219-1-tmaimon77@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220707125022.1156498-2-viorel.suman@oss.nxp.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 22-07-07 15:50:08, Viorel Suman (OSS) wrote:
-> From: Abel Vesa <abel.vesa@nxp.com>
->
-> In order to replace the fsl,scu txt file from bindings/arm/freescale,
-> we need to split it between the right subsystems. This patch documents
-> separately the 'clock' child node of the SCU main node.
->
-> Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-> Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
-> Acked-by: Stephen Boyd <sboyd@kernel.org>
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Add binding for the Arbel BMC NPCM8XX Clock controller.
 
-Shawn, I'm assuming you're going to pick this up through your tree,
-right?
+Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ .../bindings/clock/nuvoton,npcm845-clk.yaml   | 49 +++++++++++++++++++
+ .../dt-bindings/clock/nuvoton,npcm845-clk.h   | 49 +++++++++++++++++++
+ 2 files changed, 98 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/clock/nuvoton,npcm845-clk.yaml
+ create mode 100644 include/dt-bindings/clock/nuvoton,npcm845-clk.h
 
-> ---
->  .../bindings/arm/freescale/fsl,scu.txt        | 31 -------------
->  .../bindings/clock/fsl,scu-clk.yaml           | 43 +++++++++++++++++++
->  2 files changed, 43 insertions(+), 31 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/clock/fsl,scu-clk.yaml
->
-> diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> index a87ec15e28d2..ef7f5222ac48 100644
-> --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> @@ -79,29 +79,6 @@ Required properties:
->  			See detailed Resource ID list from:
->  			include/dt-bindings/firmware/imx/rsrc.h
->
-> -Clock bindings based on SCU Message Protocol
-> -------------------------------------------------------------
-> -
-> -This binding uses the common clock binding[1].
-> -
-> -Required properties:
-> -- compatible:		Should be one of:
-> -			  "fsl,imx8dxl-clk"
-> -			  "fsl,imx8qm-clk"
-> -			  "fsl,imx8qxp-clk"
-> -			followed by "fsl,scu-clk"
-> -- #clock-cells:		Should be 2.
-> -			Contains the Resource and Clock ID value.
-> -- clocks:		List of clock specifiers, must contain an entry for
-> -			each required entry in clock-names
-> -- clock-names:		Should include entries "xtal_32KHz", "xtal_24MHz"
-> -
-> -The clock consumer should specify the desired clock by having the clock
-> -ID in its "clocks" phandle cell.
-> -
-> -See the full list of clock IDs from:
-> -include/dt-bindings/clock/imx8qxp-clock.h
-> -
->  Pinctrl bindings based on SCU Message Protocol
->  ------------------------------------------------------------
->
-> @@ -127,7 +104,6 @@ Required properties for Pinctrl sub nodes:
->  			Please refer to i.MX8QXP Reference Manual for detailed
->  			CONFIG settings.
->
-> -[1] Documentation/devicetree/bindings/clock/clock-bindings.txt
->  [2] Documentation/devicetree/bindings/power/power-domain.yaml
->  [3] Documentation/devicetree/bindings/pinctrl/fsl,imx-pinctrl.txt
->
-> @@ -208,11 +184,6 @@ firmware {
->  			  &lsio_mu1 1 3
->  			  &lsio_mu1 3 3>;
->
-> -		clk: clk {
-> -			compatible = "fsl,imx8qxp-clk", "fsl,scu-clk";
-> -			#clock-cells = <2>;
-> -		};
-> -
->  		iomuxc {
->  			compatible = "fsl,imx8qxp-iomuxc";
->
-> @@ -265,7 +236,5 @@ serial@5a060000 {
->  	...
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_lpuart0>;
-> -	clocks = <&uart0_clk IMX_SC_R_UART_0 IMX_SC_PM_CLK_PER>;
-> -	clock-names = "ipg";
->  	power-domains = <&pd IMX_SC_R_UART_0>;
->  };
-> diff --git a/Documentation/devicetree/bindings/clock/fsl,scu-clk.yaml b/Documentation/devicetree/bindings/clock/fsl,scu-clk.yaml
-> new file mode 100644
-> index 000000000000..f2c48460a399
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/clock/fsl,scu-clk.yaml
-> @@ -0,0 +1,43 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/clock/fsl,scu-clk.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: i.MX SCU Client Device Node - Clock bindings based on SCU Message Protocol
-> +
-> +maintainers:
-> +  - Abel Vesa <abel.vesa@nxp.com>
-> +
-> +description: i.MX SCU Client Device Node
-> +  Client nodes are maintained as children of the relevant IMX-SCU device node.
-> +  This binding uses the common clock binding.
-> +  (Documentation/devicetree/bindings/clock/clock-bindings.txt)
-> +  The clock consumer should specify the desired clock by having the clock
-> +  ID in its "clocks" phandle cell. See the full list of clock IDs from
-> +  include/dt-bindings/clock/imx8qxp-clock.h
-> +
-> +properties:
-> +  compatible:
-> +    items:
-> +      - enum:
-> +          - fsl,imx8dxl-clk
-> +          - fsl,imx8qm-clk
-> +          - fsl,imx8qxp-clk
-> +      - const: fsl,scu-clk
-> +
-> +  '#clock-cells':
-> +    const: 2
-> +
-> +required:
-> +  - compatible
-> +  - '#clock-cells'
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    clock-controller {
-> +        compatible = "fsl,imx8qxp-clk", "fsl,scu-clk";
-> +        #clock-cells = <2>;
-> +    };
-> --
-> 2.25.1
->
+diff --git a/Documentation/devicetree/bindings/clock/nuvoton,npcm845-clk.yaml b/Documentation/devicetree/bindings/clock/nuvoton,npcm845-clk.yaml
+new file mode 100644
+index 000000000000..771db2ddf026
+--- /dev/null
++++ b/Documentation/devicetree/bindings/clock/nuvoton,npcm845-clk.yaml
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/clock/nuvoton,npcm845-clk.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Nuvoton NPCM8XX Clock Controller Binding
++
++maintainers:
++  - Tomer Maimon <tmaimon77@gmail.com>
++
++description: |
++  Nuvoton Arbel BMC NPCM8XX contains an integrated clock controller, which
++  generates and supplies clocks to all modules within the BMC.
++
++properties:
++  compatible:
++    enum:
++      - nuvoton,npcm845-clk
++
++  reg:
++    maxItems: 1
++
++  '#clock-cells':
++    const: 1
++    description:
++      See include/dt-bindings/clock/nuvoton,npcm8xx-clock.h for the full
++      list of NPCM8XX clock IDs.
++
++required:
++  - compatible
++  - reg
++  - '#clock-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    ahb {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        clock-controller@f0801000 {
++            compatible = "nuvoton,npcm845-clk";
++            reg = <0x0 0xf0801000 0x0 0x1000>;
++            #clock-cells = <1>;
++        };
++    };
++...
+diff --git a/include/dt-bindings/clock/nuvoton,npcm845-clk.h b/include/dt-bindings/clock/nuvoton,npcm845-clk.h
+new file mode 100644
+index 000000000000..e5cce08b00e1
+--- /dev/null
++++ b/include/dt-bindings/clock/nuvoton,npcm845-clk.h
+@@ -0,0 +1,49 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++/*
++ * Copyright (C) 2021 Nuvoton Technologies.
++ * Author: Tomer Maimon <tomer.maimon@nuvoton.com>
++ *
++ * Device Tree binding constants for NPCM8XX clock controller.
++ */
++
++#ifndef __DT_BINDINGS_CLOCK_NPCM8XX_H
++#define __DT_BINDINGS_CLOCK_NPCM8XX_H
++
++#define NPCM8XX_CLK_CPU		0
++#define NPCM8XX_CLK_GFX_PIXEL	1
++#define NPCM8XX_CLK_MC		2
++#define NPCM8XX_CLK_ADC		3
++#define NPCM8XX_CLK_AHB		4
++#define NPCM8XX_CLK_TIMER	5
++#define NPCM8XX_CLK_UART	6
++#define NPCM8XX_CLK_UART2	7
++#define NPCM8XX_CLK_MMC		8
++#define NPCM8XX_CLK_SPI3	9
++#define NPCM8XX_CLK_PCI		10
++#define NPCM8XX_CLK_AXI		11
++#define NPCM8XX_CLK_APB4	12
++#define NPCM8XX_CLK_APB3	13
++#define NPCM8XX_CLK_APB2	14
++#define NPCM8XX_CLK_APB1	15
++#define NPCM8XX_CLK_APB5	16
++#define NPCM8XX_CLK_CLKOUT	17
++#define NPCM8XX_CLK_GFX		18
++#define NPCM8XX_CLK_SU		19
++#define NPCM8XX_CLK_SU48	20
++#define NPCM8XX_CLK_SDHC	21
++#define NPCM8XX_CLK_SPI0	22
++#define NPCM8XX_CLK_SPI1	23
++#define NPCM8XX_CLK_SPIX	24
++#define NPCM8XX_CLK_RG		25
++#define NPCM8XX_CLK_RCP		26
++#define NPCM8XX_CLK_PRE_ADC	27
++#define NPCM8XX_CLK_ATB		28
++#define NPCM8XX_CLK_PRE_CLK	29
++#define NPCM8XX_CLK_TH		30
++#define NPCM8XX_CLK_REFCLK	31
++#define NPCM8XX_CLK_SYSBYPCK	32
++#define NPCM8XX_CLK_MCBYPCK	33
++
++#define NPCM8XX_NUM_CLOCKS	(NPCM8XX_CLK_MCBYPCK + 1)
++
++#endif
+-- 
+2.33.0
+
