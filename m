@@ -2,120 +2,176 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CCDCCCA47C
-	for <linux-watchdog@archiver.kernel.org>; Tue, 12 Jul 2022 09:55:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54896C43334
+	for <linux-watchdog@archiver.kernel.org>; Tue, 12 Jul 2022 14:32:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbiGLJzX (ORCPT
+        id S232170AbiGLOch (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 12 Jul 2022 05:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44786 "EHLO
+        Tue, 12 Jul 2022 10:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbiGLJzW (ORCPT
+        with ESMTP id S231684AbiGLOcg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 12 Jul 2022 05:55:22 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C2DAA814
-        for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2022 02:55:20 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id z25so13070583lfr.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2022 02:55:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :references:from:in-reply-to:content-transfer-encoding;
-        bh=axICpN3J/kMmaCf6S84TqGPCux368wms9PQ9I5oaU1Y=;
-        b=sgRn9iuPJDgWVdjaKv2jASetCuvgyB1fPCM+Uk+k1rQUY3idehVWK1F4ch8IyPAEL5
-         FLVBeM9+sq3kyoUucHx7vTTLeD+achPZeHZy3NRQrkkyVfNWc9F7WQWm+Oj2EuYQPdpz
-         YXxhCFWIt7xsMqneckUIjOBUTiPboVK1aOSBEj/wO+dTDnBnKSvtzuwMQk08jASq7gNo
-         9JD7RhZ8ken9hZb2xjtdeNiAvgrDcyErGBZ1dvLfdvb2636w+OTb7KBnEmJVvfILLFpA
-         +V+7xgf0gQlYirp33ZUZFPzMd/R7CdXvfPH9MK2WANEwqze1NZIyyqKWFx86eZNeXxcg
-         Q5dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=axICpN3J/kMmaCf6S84TqGPCux368wms9PQ9I5oaU1Y=;
-        b=lruFsWN3mmC0GDIg7b+m4yCRtLXxooowz/0pf09Wg5Z9CK5VGNhjeyVCYSb/wRoL2b
-         3ccokToCE1pTCm9eIFul+RowIM5w8PzbZjkW2PH2Q7URinv6BX6goIEmtlppIqRNpAcR
-         K8+JrG2PmyC6fggPOr7JKUbfMg2WpN2mFeywM/H1dIEnkaks4oMkWteMmPrzy/BLDazc
-         hOBXVVx7FfnDPqLKgzrrvbTJjxC28iFI559ykIFzGuGZCL68XWaNu17ZoMK/9Bk7wmmp
-         ZWtpqMnCkEqRr7z0eK8olLI3AcgmloDyhyxG8bx7nb/HKf6C7pPVHORFFtD7rFTrHlgU
-         5pyA==
-X-Gm-Message-State: AJIora9uKygfChvHFtRiYSXDFlacPfscygWbZ5F4Y0eU115Kz6lol7DD
-        KYMoQcatn1f7MlnIYDMxjvYjzw==
-X-Google-Smtp-Source: AGRyM1ssaxls1fUxMc6/WdaimSgtDYowXLkqFMFTIULBRqh8A9jBeagdf7UHpFRz2wr0G30u76TsUw==
-X-Received: by 2002:a05:6512:108d:b0:489:e640:df8c with SMTP id j13-20020a056512108d00b00489e640df8cmr4334829lfg.332.1657619718613;
-        Tue, 12 Jul 2022 02:55:18 -0700 (PDT)
-Received: from [10.0.0.8] (fwa5da9-171.bb.online.no. [88.93.169.171])
-        by smtp.gmail.com with ESMTPSA id f28-20020a05651c03dc00b0025d40241c1dsm2354259ljp.6.2022.07.12.02.55.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Jul 2022 02:55:17 -0700 (PDT)
-Message-ID: <6f9d2ea8-1ffd-41d1-9441-00c2b35187ec@linaro.org>
-Date:   Tue, 12 Jul 2022 11:55:13 +0200
+        Tue, 12 Jul 2022 10:32:36 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56F2240AC;
+        Tue, 12 Jul 2022 07:32:35 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26CDBugK007915;
+        Tue, 12 Jul 2022 14:32:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=0DhHvsxCxRfs8ONe0EUj23JBu5ERuQgHbLPOK7uZoz4=;
+ b=Kcql+c5vfVTWypeyQaPJEwNBwFhWg8xSeKuDQiQ0zOyv5VCLVhj2WPmnO9WjMFmsAi3E
+ vpZceXF81G0cm9k3pQy3KNPYRR3cpygpycF7MEOXeWg1OpS7g0B7SDHNBX6UkJmun0nI
+ Wv3jfak+WMfl9bCjASAoaBHZszV8/PpG8N6hC63xk/Z3RFPVrhw70+jHQqTIiQGJRAxy
+ z6Te9FR5jLXp/uWOdlg0nkVgShC7eLRJ93lIuEDvBK89Cr7iEsJSlttG1SAMrQ6zwrzJ
+ NbG7qvL2z1T3GcuBxcM+SEZf6wgyI9TUErFRKZlnH1wgeJcbtZgz03iZDeIJI2f1+xLf kA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h98jvm1fn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 14:32:08 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26CEUH2B029687;
+        Tue, 12 Jul 2022 14:32:08 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h98jvm1e2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 14:32:08 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26CEKX4u024863;
+        Tue, 12 Jul 2022 14:32:06 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3h70xhvaut-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 14:32:06 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26CEW3tK16253304
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jul 2022 14:32:03 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5417A405F;
+        Tue, 12 Jul 2022 14:32:03 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C07FA405B;
+        Tue, 12 Jul 2022 14:32:03 +0000 (GMT)
+Received: from pomme.tlslab.ibm.com (unknown [9.101.4.33])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Jul 2022 14:32:03 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        wim@linux-watchdog.org, linux@roeck-us.net, nathanl@linux.ibm.com
+Cc:     haren@linux.vnet.ibm.com, hch@infradead.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v4 1/4] powerpc/mobility: wait for memory transfer to complete
+Date:   Tue, 12 Jul 2022 16:31:59 +0200
+Message-Id: <20220712143202.23144-2-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.37.0
+In-Reply-To: <20220712143202.23144-1-ldufour@linux.ibm.com>
+References: <20220712143202.23144-1-ldufour@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v8 09/15] dt-bindings: firmware: Add fsl,scu yaml file
-Content-Language: en-US
-To:     "Viorel Suman (OSS)" <viorel.suman@oss.nxp.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Viorel Suman <viorel.suman@nxp.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Peng Fan <peng.fan@nxp.com>, Liu Ying <victor.liu@nxp.com>,
-        Shijie Qin <shijie.qin@nxp.com>, Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20220707125022.1156498-1-viorel.suman@oss.nxp.com>
- <20220707125022.1156498-10-viorel.suman@oss.nxp.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220707125022.1156498-10-viorel.suman@oss.nxp.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tfBTM2f9QAUpjECIqqJp_2ByD9f3wySB
+X-Proofpoint-ORIG-GUID: a9YD_9VNreQoh8r922KXmEml-utvB6L6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-12_08,2022-07-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ suspectscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 clxscore=1015 spamscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207120055
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 07/07/2022 14:50, Viorel Suman (OSS) wrote:
-> From: Abel Vesa <abel.vesa@nxp.com>
-> 
-> In order to replace the fsl,scu txt file from bindings/arm/freescale,
-> we need to split it between the right subsystems. This patch adds the
-> fsl,scu.yaml in the firmware bindings folder. This one is only for
-> the main SCU node. The old txt file will be removed only after all
-> the child nodes have been properly switch to yaml.
-> 
-> Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-> Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
+In pseries_migration_partition(), loop until the memory transfer is
+complete. This way the calling drmgr process will not exit earlier,
+allowing callbacks to be run only once the migration is fully completed.
 
+If reading the VASI state is done after the hypervisor has completed the
+migration, the HCALL is returning H_PARAMETER. We can safely assume that
+the memory transfer is achieved if this happens.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+This will also allow to manage the NMI watchdog state in the next commits.
 
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+---
+ arch/powerpc/platforms/pseries/mobility.c | 48 ++++++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 2 deletions(-)
 
-Best regards,
-Krzysztof
+diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
+index 78f3f74c7056..6297467072e6 100644
+--- a/arch/powerpc/platforms/pseries/mobility.c
++++ b/arch/powerpc/platforms/pseries/mobility.c
+@@ -427,6 +427,43 @@ static int wait_for_vasi_session_suspending(u64 handle)
+ 	return ret;
+ }
+ 
++static void wait_for_vasi_session_completed(u64 handle)
++{
++	unsigned long state = 0;
++	int ret;
++
++	pr_info("waiting for memory transfer to complete...\n");
++
++	/*
++	 * Wait for transition from H_VASI_RESUMED to H_VASI_COMPLETED.
++	 */
++	while (true) {
++		ret = poll_vasi_state(handle, &state);
++
++		/*
++		 * If the memory transfer is already complete and the migration
++		 * has been cleaned up by the hypervisor, H_PARAMETER is return,
++		 * which is translate in EINVAL by poll_vasi_state().
++		 */
++		if (ret == -EINVAL || (!ret && state == H_VASI_COMPLETED)) {
++			pr_info("memory transfer completed.\n");
++			break;
++		}
++
++		if (ret) {
++			pr_err("H_VASI_STATE return error (%d)\n", ret);
++			break;
++		}
++
++		if (state != H_VASI_RESUMED) {
++			pr_err("unexpected H_VASI_STATE result %lu\n", state);
++			break;
++		}
++
++		msleep(500);
++	}
++}
++
+ static void prod_single(unsigned int target_cpu)
+ {
+ 	long hvrc;
+@@ -673,9 +710,16 @@ static int pseries_migrate_partition(u64 handle)
+ 	vas_migration_handler(VAS_SUSPEND);
+ 
+ 	ret = pseries_suspend(handle);
+-	if (ret == 0)
++	if (ret == 0) {
+ 		post_mobility_fixup();
+-	else
++		/*
++		 * Wait until the memory transfer is complete, so that the user
++		 * space process returns from the syscall after the transfer is
++		 * complete. This allows the user hooks to be executed at the
++		 * right time.
++		 */
++		wait_for_vasi_session_completed(handle);
++	} else
+ 		pseries_cancel_migration(handle, ret);
+ 
+ 	vas_migration_handler(VAS_RESUME);
+-- 
+2.37.0
+
