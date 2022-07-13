@@ -2,118 +2,193 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53FA8C43334
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Jul 2022 14:42:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A17BC433EF
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Jul 2022 15:48:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiGMOmo (ORCPT
+        id S236963AbiGMPsJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 13 Jul 2022 10:42:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46506 "EHLO
+        Wed, 13 Jul 2022 11:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231653AbiGMOmn (ORCPT
+        with ESMTP id S236971AbiGMPsH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 13 Jul 2022 10:42:43 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9810232ECE;
-        Wed, 13 Jul 2022 07:42:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=68ViflEzlXDx+7TKBapr6Ak8Jvjo25dHgw/5Ff89KiA=; b=HaOk0QSze3GgDOQtZ2NA1ChzrB
-        usRgqoTT6zsaUHt8WwxG5NjIR/C3QKzIvOK8QiwZV49eD3cKcM7pshfOyxDFZNMJeyx+1uiE1u1BA
-        igLOsmbFzYzVF5usNyifn9hftgG908/stYIT7ZbwHLL0GeHjXupvFUkBk7ICROmWcAw8zjYp1tXhA
-        uDcu1qQYoaf0rleXhptUIFl8LKxfKeSPSritkl1naMbWV5AjZ6UwrMCaZe4ju+8EIJ97aUanDeFrN
-        SqiNIZhfvbl7jBpBlurF8NVlxua+/AcW0sGs2XFfR0dk5APgiJSXgRHedNwzikoyi1xuiwgU5zat5
-        6Hm6vLOw==;
-Received: from [2601:1c0:6280:3f0::a6b3]
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oBdZQ-004coL-AJ; Wed, 13 Jul 2022 14:42:32 +0000
-Message-ID: <c2e80ab1-2c28-2963-9c5a-c7cff6b3450c@infradead.org>
-Date:   Wed, 13 Jul 2022 07:42:31 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v4 4/4] pseries/mobility: set NMI watchdog factor during
- LPM
-Content-Language: en-US
-To:     Laurent Dufour <ldufour@linux.ibm.com>, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        wim@linux-watchdog.org, linux@roeck-us.net, nathanl@linux.ibm.com
+        Wed, 13 Jul 2022 11:48:07 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D204F19B;
+        Wed, 13 Jul 2022 08:48:07 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DFCICs024483;
+        Wed, 13 Jul 2022 15:47:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=OqEsGehoDv7WhZIWjrAncQCiO+QkUV2kIJiuCbfX46c=;
+ b=IcU9eY3ZkVEYPEGHwYf6kJx35SUocyJ2UoV1otKhae4IDG4ARoiFBtQPgnvKmnyLp6K1
+ RrS40QPFiOoWUU2Kmni8Bg7fOcGHcdDmhGXMGjb1dMm8nRHiUlhs07f5IP8929TFHxcz
+ Bn2jfSvaAVP3dMB9hvQdRbyC04/EQ0fm96wN88AY4xalX6xahgSxT+olpdG553B9zK87
+ ORiYWHfTaSrxx1hum7mHCQ6ohSLN41QOzPEwk8xxZL6SbDF8J+oB8d0iMtgBb1/4/pPu
+ vHcunGsbXZP0ZMv6pRJBBheH/2oBTnFFZCzZnT580+e+w04sclyBUgE3XVBMBb+WaTHo fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ha0g111cb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Jul 2022 15:47:38 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DFCx38026640;
+        Wed, 13 Jul 2022 15:47:37 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ha0g111bd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Jul 2022 15:47:37 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DFOLHt008933;
+        Wed, 13 Jul 2022 15:47:35 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3h71a8wvgc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Jul 2022 15:47:34 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DFlgHo33030590
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Jul 2022 15:47:42 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A0C4AE045;
+        Wed, 13 Jul 2022 15:47:32 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7850FAE055;
+        Wed, 13 Jul 2022 15:47:31 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.2.121])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Jul 2022 15:47:31 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        wim@linux-watchdog.org, linux@roeck-us.net, nathanl@linux.ibm.com,
+        rdunlap@infradead.org
 Cc:     haren@linux.vnet.ibm.com, hch@infradead.org,
         linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-watchdog@vger.kernel.org
-References: <20220712143202.23144-1-ldufour@linux.ibm.com>
- <20220712143202.23144-5-ldufour@linux.ibm.com>
- <a646b2e9-e7a7-3d52-413e-4e2b8c48e383@infradead.org>
- <d78f65a7-67bb-b5f3-007b-fca5a9f98a69@linux.ibm.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <d78f65a7-67bb-b5f3-007b-fca5a9f98a69@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v5 2/4] watchdog: export lockup_detector_reconfigure
+Date:   Wed, 13 Jul 2022 17:47:27 +0200
+Message-Id: <20220713154729.80789-3-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.37.0
+In-Reply-To: <20220713154729.80789-1-ldufour@linux.ibm.com>
+References: <20220713154729.80789-1-ldufour@linux.ibm.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rqJP_mbwYCmnQydzmQ3Ap22ZOt3BR0mg
+X-Proofpoint-GUID: A8FtXGMeQqSr63HUK0sI1DiJRnUWJEq3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-13_04,2022-07-13_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ priorityscore=1501 adultscore=0 spamscore=0 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 mlxscore=0 impostorscore=0 bulkscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207130062
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+In some circumstances it may be interesting to reconfigure the watchdog
+from inside the kernel.
 
-On 7/13/22 03:56, Laurent Dufour wrote:
-> Le 12/07/2022 à 18:25, Randy Dunlap a écrit :
->> Hi--
->>
->> On 7/12/22 07:32, Laurent Dufour wrote:
+On PowerPC, this may helpful before and after a LPAR migration (LPM) is
+initiated, because it implies some latencies, watchdog, and especially NMI
+watchdog is expected to be triggered during this operation. Reconfiguring
+the watchdog with a factor, would prevent it to happen too frequently
+during LPM.
 
->>>
->>> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
->>> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
->>> ---
->>>  Documentation/admin-guide/sysctl/kernel.rst | 12 ++++++
->>>  arch/powerpc/platforms/pseries/mobility.c   | 43 +++++++++++++++++++++
->>>  2 files changed, 55 insertions(+)
->>>
->>> diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
->>> index ddccd1077462..0bb0b7f27e96 100644
->>> --- a/Documentation/admin-guide/sysctl/kernel.rst
->>> +++ b/Documentation/admin-guide/sysctl/kernel.rst
->>> @@ -592,6 +592,18 @@ to the guest kernel command line (see
->>>  Documentation/admin-guide/kernel-parameters.rst).
->>>  
->>
->> This entire block should be in kernel-parameters.txt, not .rst,
->> and it should be formatted like everything else in the .txt file.
+Rename lockup_detector_reconfigure() as __lockup_detector_reconfigure() and
+create a new function lockup_detector_reconfigure() calling
+__lockup_detector_reconfigure() under the protection of watchdog_mutex.
 
-My apologies. I misread the file name.
-I don't see a problem with this part of the patch or its location.
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+---
+ include/linux/nmi.h |  2 ++
+ kernel/watchdog.c   | 21 ++++++++++++++++-----
+ 2 files changed, 18 insertions(+), 5 deletions(-)
 
-> Thanks for reviewing this patch.
-> 
-> I'll apply your requests in the next version.
-> 
-> However, regarding the change in kernel-parameters.txt, I'm confused. The
-> newly introduced parameter is only exposed through sysctl. Not as a kernel
-> boot option. In that case, should it be mentioned in kernel-parameters.txt?
-> 
-> Documentation/process/4.Coding.rst says:
-> The file :ref:`Documentation/admin-guide/kernel-parameters.rst
-> <kernelparameters>` describes all of the kernel's boot-time parameters.
-> Any patch which adds new parameters should add the appropriate entries to
-> this file.
-> 
-> And Documentation/process/submit-checklist.rst says:
-> 16) All new kernel boot parameters are documented in
->     ``Documentation/admin-guide/kernel-parameters.rst``.
-> 
-> What are the rules about editing .txt or .rst files?
-
-Yeah, that's a little confusing.
-kernel-parameters.txt in included in kernel-parameters.rst when
-'make htmldocs' is run, so the produced output looks like it is from
-the .rst file.
-
-Kernel boot parameters should be added to the .txt file.
-The .rst file is just intro material.
-
-Thanks.
-
+diff --git a/include/linux/nmi.h b/include/linux/nmi.h
+index 750c7f395ca9..f700ff2df074 100644
+--- a/include/linux/nmi.h
++++ b/include/linux/nmi.h
+@@ -122,6 +122,8 @@ int watchdog_nmi_probe(void);
+ int watchdog_nmi_enable(unsigned int cpu);
+ void watchdog_nmi_disable(unsigned int cpu);
+ 
++void lockup_detector_reconfigure(void);
++
+ /**
+  * touch_nmi_watchdog - restart NMI watchdog timeout.
+  *
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index 20a7a55e62b6..90e6c41d5e33 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -541,7 +541,7 @@ int lockup_detector_offline_cpu(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-static void lockup_detector_reconfigure(void)
++static void __lockup_detector_reconfigure(void)
+ {
+ 	cpus_read_lock();
+ 	watchdog_nmi_stop();
+@@ -561,6 +561,13 @@ static void lockup_detector_reconfigure(void)
+ 	__lockup_detector_cleanup();
+ }
+ 
++void lockup_detector_reconfigure(void)
++{
++	mutex_lock(&watchdog_mutex);
++	__lockup_detector_reconfigure();
++	mutex_unlock(&watchdog_mutex);
++}
++
+ /*
+  * Create the watchdog infrastructure and configure the detector(s).
+  */
+@@ -577,13 +584,13 @@ static __init void lockup_detector_setup(void)
+ 		return;
+ 
+ 	mutex_lock(&watchdog_mutex);
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ 	softlockup_initialized = true;
+ 	mutex_unlock(&watchdog_mutex);
+ }
+ 
+ #else /* CONFIG_SOFTLOCKUP_DETECTOR */
+-static void lockup_detector_reconfigure(void)
++void __lockup_detector_reconfigure(void)
+ {
+ 	cpus_read_lock();
+ 	watchdog_nmi_stop();
+@@ -591,9 +598,13 @@ static void lockup_detector_reconfigure(void)
+ 	watchdog_nmi_start();
+ 	cpus_read_unlock();
+ }
++static inline void lockup_detector_reconfigure(void)
++{
++	__lockup_detector_reconfigure();
++}
+ static inline void lockup_detector_setup(void)
+ {
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ }
+ #endif /* !CONFIG_SOFTLOCKUP_DETECTOR */
+ 
+@@ -633,7 +644,7 @@ static void proc_watchdog_update(void)
+ {
+ 	/* Remove impossible cpus to keep sysctl output clean. */
+ 	cpumask_and(&watchdog_cpumask, &watchdog_cpumask, cpu_possible_mask);
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ }
+ 
+ /*
 -- 
-~Randy
+2.37.0
+
