@@ -2,160 +2,110 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EC4BC43334
-	for <linux-watchdog@archiver.kernel.org>; Sat, 16 Jul 2022 21:07:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB00C43334
+	for <linux-watchdog@archiver.kernel.org>; Sun, 17 Jul 2022 09:16:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbiGPVHm (ORCPT
+        id S232348AbiGQJQb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 16 Jul 2022 17:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33294 "EHLO
+        Sun, 17 Jul 2022 05:16:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbiGPVHm (ORCPT
+        with ESMTP id S230235AbiGQJQb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 16 Jul 2022 17:07:42 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1920517073;
-        Sat, 16 Jul 2022 14:07:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1658005661; x=1689541661;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=5DwnM/iJM+O7it4IR8HPbw0em/nh8SdUF1KmWmnb4T4=;
-  b=LMz34OcM6tjYcLXxBChcECkpek8ITC6YCB0PxOvI8ApgzbV6QEM2WaLX
-   KptTDzrdeA/ZbxMkNCKzPSmeX/cZlxhgRLlJ/9MnU5+eWmQSPkREZDqSq
-   2jTrnOojUradZBz4vvsIf+JUFitnzYqDqceNe+mw7vGGPqF0NwLdZPnRf
-   6Zu4GEAZ7sLLkbRG80leeFAR/h2SaVaEcpa6WKLgkPZSNoCIUkUcjbZ9j
-   ufPd7876jhcL8YC9tfWSImbBTfK+BazqPtOjJ9mc/GjUqtrgteGheetKV
-   oULmDdY4p9D4eW5DacbI9gJEGD8UBGqOPAFvLtW6mI1foS5/96hAGacRn
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10410"; a="287150022"
-X-IronPort-AV: E=Sophos;i="5.92,277,1650956400"; 
-   d="scan'208";a="287150022"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2022 14:07:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,277,1650956400"; 
-   d="scan'208";a="654778692"
-Received: from lkp-server02.sh.intel.com (HELO ff137eb26ff1) ([10.239.97.151])
-  by fmsmga008.fm.intel.com with ESMTP; 16 Jul 2022 14:07:37 -0700
-Received: from kbuild by ff137eb26ff1 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1oCp0i-00029O-QP;
-        Sat, 16 Jul 2022 21:07:36 +0000
-Date:   Sun, 17 Jul 2022 05:07:02 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Alexey Klimov <klimov.linux@gmail.com>,
-        linux-watchdog@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, wim@linux-watchdog.org,
-        linux@roeck-us.net, oneukum@suse.com, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, atishp@rivosinc.com,
-        atishp@atishpatra.org, yury.norov@gmail.com, aklimov@redhat.com,
-        atomlin@redhat.com, klimov.linux@gmail.com
-Subject: Re: [PATCH v4] watchdog: add driver for StreamLabs USB watchdog
- device
-Message-ID: <202207170459.ZyslrGcE-lkp@intel.com>
-References: <20220715234442.3910204-1-klimov.linux@gmail.com>
+        Sun, 17 Jul 2022 05:16:31 -0400
+Received: from maillog.nuvoton.com (maillog.nuvoton.com [202.39.227.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0FABF1581E;
+        Sun, 17 Jul 2022 02:16:28 -0700 (PDT)
+Received: from NTHCCAS01.nuvoton.com (NTHCCAS01.nuvoton.com [10.1.8.28])
+        by maillog.nuvoton.com (Postfix) with ESMTP id E4C041C8116F;
+        Sun, 17 Jul 2022 17:16:26 +0800 (CST)
+Received: from NTHCCAS03.nuvoton.com (10.1.20.28) by NTHCCAS01.nuvoton.com
+ (10.1.8.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.7; Sun, 17 Jul
+ 2022 17:16:26 +0800
+Received: from NTHCCAS01.nuvoton.com (10.1.8.28) by NTHCCAS03.nuvoton.com
+ (10.1.20.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1847.3; Sun, 17 Jul
+ 2022 17:16:26 +0800
+Received: from taln60.nuvoton.co.il (10.191.1.180) by NTHCCAS01.nuvoton.com
+ (10.1.12.25) with Microsoft SMTP Server id 15.1.2375.7 via Frontend
+ Transport; Sun, 17 Jul 2022 17:16:26 +0800
+Received: by taln60.nuvoton.co.il (Postfix, from userid 10070)
+        id 8664C63A4E; Sun, 17 Jul 2022 12:16:25 +0300 (IDT)
+From:   Tomer Maimon <tmaimon77@gmail.com>
+To:     <avifishman70@gmail.com>, <tali.perry1@gmail.com>,
+        <joel@jms.id.au>, <venture@google.com>, <yuenn@google.com>,
+        <benjaminfair@google.com>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <mturquette@baylibre.com>,
+        <sboyd@kernel.org>, <p.zabel@pengutronix.de>,
+        <gregkh@linuxfoundation.org>, <daniel.lezcano@linaro.org>,
+        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <catalin.marinas@arm.com>, <will@kernel.org>,
+        <arnd@arndb.de>, <olof@lixom.net>, <jirislaby@kernel.org>,
+        <shawnguo@kernel.org>, <bjorn.andersson@linaro.org>,
+        <geert+renesas@glider.be>, <marcel.ziswiler@toradex.com>,
+        <vkoul@kernel.org>, <biju.das.jz@bp.renesas.com>,
+        <nobuhiro1.iwamatsu@toshiba.co.jp>, <robert.hancock@calian.com>,
+        <j.neuschaefer@gmx.net>, <lkundrak@v3.sk>
+CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-clk@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v9 05/16] dt-bindings: reset: npcm: add GCR syscon property
+Date:   Sun, 17 Jul 2022 12:15:58 +0300
+Message-ID: <20220717091609.122968-6-tmaimon77@gmail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20220717091609.122968-1-tmaimon77@gmail.com>
+References: <20220717091609.122968-1-tmaimon77@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220715234442.3910204-1-klimov.linux@gmail.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Alexey,
+Describe syscon property that handles general control registers (GCR) in
+Nuvoton BMC NPCM reset driver.
 
-I love your patch! Perhaps something to improve:
+Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ .../devicetree/bindings/reset/nuvoton,npcm750-reset.yaml    | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-[auto build test WARNING on groeck-staging/hwmon-next]
-[also build test WARNING on linus/master v5.19-rc6 next-20220715]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Alexey-Klimov/watchdog-add-driver-for-StreamLabs-USB-watchdog-device/20220717-000621
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon-next
-config: arc-randconfig-s032-20220717 (https://download.01.org/0day-ci/archive/20220717/202207170459.ZyslrGcE-lkp@intel.com/config)
-compiler: arceb-elf-gcc (GCC) 12.1.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # apt-get install sparse
-        # sparse version: v0.6.4-39-gce1a6720-dirty
-        # https://github.com/intel-lab-lkp/linux/commit/897fbad1d3a4917a703454a9f79728c6af44d0a4
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Alexey-Klimov/watchdog-add-driver-for-StreamLabs-USB-watchdog-device/20220717-000621
-        git checkout 897fbad1d3a4917a703454a9f79728c6af44d0a4
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=arc SHELL=/bin/bash drivers/watchdog/
-
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
-
-
-sparse warnings: (new ones prefixed by >>)
->> drivers/watchdog/streamlabs_wdt.c:70:23: sparse: sparse: restricted __le16 degrades to integer
->> drivers/watchdog/streamlabs_wdt.c:96:16: sparse: sparse: incorrect type in assignment (different base types) @@     expected unsigned short [usertype] @@     got restricted __le16 [usertype] @@
-   drivers/watchdog/streamlabs_wdt.c:96:16: sparse:     expected unsigned short [usertype]
-   drivers/watchdog/streamlabs_wdt.c:96:16: sparse:     got restricted __le16 [usertype]
-   drivers/watchdog/streamlabs_wdt.c:97:16: sparse: sparse: incorrect type in assignment (different base types) @@     expected unsigned short [usertype] @@     got restricted __le16 [usertype] @@
-   drivers/watchdog/streamlabs_wdt.c:97:16: sparse:     expected unsigned short [usertype]
-   drivers/watchdog/streamlabs_wdt.c:97:16: sparse:     got restricted __le16 [usertype]
-   drivers/watchdog/streamlabs_wdt.c:98:16: sparse: sparse: incorrect type in assignment (different base types) @@     expected unsigned short [usertype] @@     got restricted __le16 [usertype] @@
-   drivers/watchdog/streamlabs_wdt.c:98:16: sparse:     expected unsigned short [usertype]
-   drivers/watchdog/streamlabs_wdt.c:98:16: sparse:     got restricted __le16 [usertype]
-
-vim +70 drivers/watchdog/streamlabs_wdt.c
-
-    57	
-    58	static bool nowayout = WATCHDOG_NOWAYOUT;
-    59	module_param(nowayout, bool, 0);
-    60	MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-    61				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-    62	
-    63	/*
-    64	 * This function is used to check if watchdog actually changed
-    65	 * its state to disabled that is reported in first two bytes of response
-    66	 * message.
-    67	 */
-    68	static int usb_streamlabs_wdt_check_stop(u16 *buf)
-    69	{
-  > 70		if (buf[0] != cpu_to_le16(STREAMLABS_CMD_STOP))
-    71			return -EINVAL;
-    72	
-    73		return 0;
-    74	}
-    75	
-    76	static int usb_streamlabs_wdt_validate_response(u8 *buf)
-    77	{
-    78		/*
-    79		 * If watchdog device understood the command it will acknowledge
-    80		 * with values 1,2,3,4 at indexes 10, 11, 12, 13 in response message
-    81		 * when response treated as 8bit message.
-    82		 */
-    83		if (buf[10] != 1 || buf[11] != 2 || buf[12] != 3 || buf[13] != 4)
-    84			return -EPROTO;
-    85	
-    86		return 0;
-    87	}
-    88	
-    89	static void usb_streamlabs_wdt_prepare_buf(u16 *buf, u16 cmd,
-    90							unsigned long timeout_msec)
-    91	{
-    92		/*
-    93		 * remaining elements expected to be zero everytime during
-    94		 * communication
-    95		 */
-  > 96		buf[0] = cpu_to_le16(cmd);
-    97		buf[1] = cpu_to_le16(0x8000);
-    98		buf[3] = cpu_to_le16(timeout_msec);
-    99		buf[5] = 0x0;
-   100		buf[6] = 0x0;
-   101	}
-   102	
-
+diff --git a/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml b/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
+index fa5e4ea6400e..43a6e77cbf4e 100644
+--- a/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
++++ b/Documentation/devicetree/bindings/reset/nuvoton,npcm750-reset.yaml
+@@ -19,6 +19,10 @@ properties:
+   '#reset-cells':
+     const: 2
+ 
++  nuvoton,sysgcr:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description: a phandle to access GCR registers.
++
+   nuvoton,sw-reset-number:
+     $ref: /schemas/types.yaml#/definitions/uint32
+     minimum: 1
+@@ -31,6 +35,7 @@ required:
+   - compatible
+   - reg
+   - '#reset-cells'
++  - nuvoton,sysgcr
+ 
+ additionalProperties: false
+ 
+@@ -41,6 +46,7 @@ examples:
+         compatible = "nuvoton,npcm750-reset";
+         reg = <0xf0801000 0x70>;
+         #reset-cells = <2>;
++        nuvoton,sysgcr = <&gcr>;
+         nuvoton,sw-reset-number = <2>;
+     };
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.33.0
+
