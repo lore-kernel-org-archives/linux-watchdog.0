@@ -2,133 +2,202 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1DD6C43334
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Jul 2022 14:21:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D22C433EF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Jul 2022 19:14:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbiGROVN (ORCPT
+        id S235170AbiGRTO5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 18 Jul 2022 10:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48392 "EHLO
+        Mon, 18 Jul 2022 15:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiGROVM (ORCPT
+        with ESMTP id S230298AbiGRTO4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 18 Jul 2022 10:21:12 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7CAA6276
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 Jul 2022 07:21:10 -0700 (PDT)
-Received: from mail-oa1-f50.google.com ([209.85.160.50]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1M3UEW-1oDzqp08ag-000cFv for <linux-watchdog@vger.kernel.org>; Mon, 18 Jul
- 2022 16:21:09 +0200
-Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-10bf634bc50so24053609fac.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 Jul 2022 07:21:08 -0700 (PDT)
-X-Gm-Message-State: AJIora8r2YVfcfozk7jBa4E/5ThTqDiuC2n9kSVJQxTOoCF0XxvNFgV6
-        cV6KkLemMmFuWvGAWUW7uZcpQz/doLSAlBM/DSU=
-X-Google-Smtp-Source: AGRyM1u3T7s1p1tMCI3Ux3IMuwbe7i4DiTt+21krVOs89HFUCcgbDFyHfQD+kzZHPRaiPmpi1WSRcKQJW4jBIRjM+80=
-X-Received: by 2002:a05:6870:6114:b0:10c:6bf:542f with SMTP id
- s20-20020a056870611400b0010c06bf542fmr16739255oae.188.1658143714477; Mon, 18
- Jul 2022 04:28:34 -0700 (PDT)
+        Mon, 18 Jul 2022 15:14:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD92C2CCB4;
+        Mon, 18 Jul 2022 12:14:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D524616BD;
+        Mon, 18 Jul 2022 19:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B5D3C341C0;
+        Mon, 18 Jul 2022 19:14:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1658171694;
+        bh=dqjX1mmlML3aigT0dIo8r1Wy/YrsKN/Sc5/hAu3AZzE=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=g5m5lFVBpvfVj/WQ+kexwatTrjuly4N3LBV3QOw/e0BZ3pUCvUeUn9ogK8GqAA/He
+         3GjokFeeQjW9zgoMmALq66vrpNXxp9pqDOw0T9C6y2RE2QnH9T5UYntnaYytTYW6iC
+         BZSChVAJv9ydeKNVw3xFg8QSQRSCcntrrS1T5NxqwfHwTy3hY0Yr4ST6W5c+LFT/Gr
+         Ts+dsAqW5UX3PhieBu/xbTnqjQLDQNvlyFB+P1qn5hSUCqL4eC3xARjzRPQgNecrKm
+         lbyEwb1cL4pBOblVbBagqIitt/yx0TtUhlh8eySseKctsxu259KSAAZD0ZWuPDHkXZ
+         j21F1HzcZR6fg==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220706165406.117349-1-tmaimon77@gmail.com> <CACPK8Xd0n5cpsCJ6guPzEj8JfXkz_ERzU3VdXW-Xx2QX8ssNKg@mail.gmail.com>
- <CAK8P3a0Ojf1hm5Q2FJZEGLygku+qkPmKnKpBD8eAZPeRZtb=gw@mail.gmail.com>
-In-Reply-To: <CAK8P3a0Ojf1hm5Q2FJZEGLygku+qkPmKnKpBD8eAZPeRZtb=gw@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 18 Jul 2022 13:28:18 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3Dh+wTyPYhvv5c-wsqMK24ZgqPWHw2C7xuFh9vL53XfA@mail.gmail.com>
-Message-ID: <CAK8P3a3Dh+wTyPYhvv5c-wsqMK24ZgqPWHw2C7xuFh9vL53XfA@mail.gmail.com>
-Subject: Re: [PATCH v7 00/16] Introduce Nuvoton Arbel NPCM8XX BMC SoC
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Joel Stanley <joel@jms.id.au>, Tomer Maimon <tmaimon77@gmail.com>,
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAP6Zq1ie_RgJ_9S3ftoVJ=eJHX1xR4_O_czKZghNPKVEFOzC8Q@mail.gmail.com>
+References: <20220711123519.217219-1-tmaimon77@gmail.com> <20220711123519.217219-5-tmaimon77@gmail.com> <20220711195544.70A30C34115@smtp.kernel.org> <CAP6Zq1ie_RgJ_9S3ftoVJ=eJHX1xR4_O_czKZghNPKVEFOzC8Q@mail.gmail.com>
+Subject: Re: [PATCH v8 04/16] clk: npcm8xx: add clock controller
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
         Avi Fishman <avifishman70@gmail.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Patrick Venture <venture@google.com>,
-        Nancy Yuen <yuenn@google.com>,
         Benjamin Fair <benjaminfair@google.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Olof Johansson <olof@lixom.net>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Vinod Koul <vkoul@kernel.org>,
         Biju Das <biju.das.jz@bp.renesas.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        Robert Hancock <robert.hancock@calian.com>,
-        =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jonathan =?utf-8?q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Joel Stanley <joel@jms.id.au>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Lubomir Rintel <lkundrak@v3.sk>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Olof Johansson <olof@lixom.net>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Robert Hancock <robert.hancock@calian.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Thomas G leixner <tglx@linutronix.de>,
+        Patrick Venture <venture@google.com>,
+        Vinod Koul <vkoul@kernel.org>, Will Deacon <will@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Nancy Yuen <yuenn@google.com>,
         devicetree <devicetree@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>, open list:
+        SERIAL DRIVERS <linux-serial@vger.kernel.org>,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Qin Jian <qinjian@cqplus1.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:NH4leMXlbzQhyBB3UMIydoNuubOb5LdJ1qaHn3pnqfDW/EWfFGN
- GVdmWiht72SrnHd9zbqGNe17He+ayKaiBfVe1dIQSq4v+BI15fyVox60ng3H55gV/uMRs8j
- lJI0dtakGVMmLZyuY3d/tI8sZiOhECQigIEr3yex/ZGaCwHSA/nhvlAkaEl78PcxxnKYudK
- GLLrYFNIuSxKgWxTSRoxA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:yzVU3sfF8kM=:MrpR+C/MlOPZozJtsAMvG9
- kV+yy9gGX99spkILJ5bsI5hDHkZIzY7NKyrMpiDEj2r9VkhmgjnUMf/hR3BOLpPMopP6lcJC3
- pvZV3dB21pOG2iQD6vRFUOkz9Zz/PXVBIg6bNi1iwCu51ZwZI0PNrWJjPyc9FeZA+6rb8UqGB
- EPnnJHIoxHCCaFcM4YO3ZgOTSESpChLTzZ2OFEuGG2wv0VIO2BYgCvbNOphCPNWSYdG3efwUi
- kjJRxhcfLat1sx/NklLlFDYsM5Q1443igkj/LClgsu32N39hPOn7uo+ZahNetmqHJAdK0hjId
- gy/CbDq6oye8KPPksVamx/wbm5zxw7tx6hCr9ja3N6ikufv9dk5yGDlPLqcB+3XYLk3OKqD8/
- LW4f9OGautJJ+I8OvsGtSGS54r1MJekDEkT5ibWqN4Liwp6U6Pd14dWdVJ3FLXN0KmEB0JH0R
- XlcXw8Nd7r1D4RzCK2Wh0+8+tLZ0ph6JgsLSquMgx4sGuJcWaxaOJ35t6HkOstM2EARqfNE1A
- 2IZLOaToU8hf0dOnIiJuwmZmjpyda+5QVl8wG3I7jrwuyWhrNoghL5XbPwPFsjavAWUZpGCi7
- MyKxsuHPC1mvp7drZd+6DhIGg8QEJsVUUX/BYF4YDK79G3Su4mx9nL/yioKjYjeJ4TDm05b/Z
- pJRIEXwlOgACOZ0BLrb7M4MozoecK3iQEgRN0rTS0EXs4JhGbMZLIGWvHFOo5l1BIyDvGvDit
- hSp/44RJNeGM4va+REv1oiuplVW7FekdZcjHODufWGVN9FyTqnjZO/B7suwN/XEgggBa54whG
- lHyThxo22H1sCG5ZyulTGRC/0w/9TruDKq0UZ8yjjm1in0CQwdUgJYetBWzVlhv17br0/jA9b
- v41L3tmjd7gJ8E7FMMQA==
+        Linux ARM <linux-arm-kernel@lists.infradead.org>, ;
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+        Cc:     ;
+                        ^-missing semicolon to end mail group, extraneous tokens in mailbox, missing end of mailbox
+To:     Tomer Maimon <tmaimon77@gmail.com>
+Date:   Mon, 18 Jul 2022 12:14:52 -0700
+User-Agent: alot/0.10
+Message-Id: <20220718191454.5B5D3C341C0@smtp.kernel.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Jul 8, 2022 at 3:45 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> On Fri, Jul 8, 2022 at 8:50 AM Joel Stanley <joel@jms.id.au> wrote:
-> > Are you happy with a cross tree new soc branch for this series? If so
-> > I can put them in a branch and get some build coverage before sending
-> > them out.
+Quoting Tomer Maimon (2022-07-12 00:28:30)
+> On Mon, 11 Jul 2022 at 22:55, Stephen Boyd <sboyd@kernel.org> wrote:
 > >
-> > (I notice the clock and reset changes are waiting on acks still)
->
-> Yes, I think we should merge the parts that are reviewed already, but I'd
-> leave out the clk (4/16) and reset (9/16) patches in this case.
->
-> Krzysztof has reviewed the binding changes, so I don't mind having
-> the DT nodes added in the soc tree even if the two drivers are still
-> missing.
->
-> I would do the same thing for the sunplus SP7021 platform that
-> Qin Jian has been posting, as this is also waiting for a final Ack
-> on the clk driver.
->
-> I would put both of the new platforms into a single branch in the
-> SoC tree, separate from the usual dt/drivers/soc/defconfig
-> branches. I was already planning to pick npcm8xx up myself,
-> but if you can do a pull request, that would be even better.
+> > Quoting Tomer Maimon (2022-07-11 05:35:07)
+> > > +        */
+> > > +       int onecell_idx;
+> > > +};
+> > > +
+> > > +struct npcm8xx_clk_pll_data {
+> > > +       u32 reg;
+> > > +       const char *name;
+> > > +       const char *parent_name;
+> >
+> > Any reason why we're not using clk_parent_data or direct clk_hw
+> > pointers?
+> For more historical reasons, I did the same method as done in the
+> NPCM7XX driver.
+> The clk_init_data struct can use * const *parent_names,
+> https://elixir.bootlin.com/linux/v5.19-rc6/source/include/linux/clk-provi=
+der.h#L289
+> Is it problematic?
 
-I see there is now a v9 of the series, let me know if I should
-apply some or all of those, or if I should wait for a pull request
-from you.
+It will need to be changed to not use global string matching. Ideally
+new drivers use clk_parent_data or clk_hw pointers directly. It's faster
+and preferred.
 
-I've just merged the Sunplus sp7021 support leaving out the
-clock driver in order to make progress on that one, and
-we can do the same thing here if there is still ongoing discussion
-about some of the drivers. It would be nice to not wait too long
-though, as we are already past -rc7.
+> >
+> > > +       NPCM8XX_CLK_S_AHB, CLK_DIVIDER_READ_ONLY, 0, NPCM8XX_CLK_SPI0=
+},
+> > > +       /* bit 10-6 SPI0CKDV*/
+> > > +       {NPCM8XX_CLKDIV3, 1, 5, NPCM8XX_CLK_S_SPIX,
+> > > +       NPCM8XX_CLK_S_AHB, CLK_DIVIDER_READ_ONLY, 0, NPCM8XX_CLK_SPIX=
+},
+> > > +       /* bit 5-1 SPIXCKDV*/
+> > > +
+> > > +       {NPCM8XX_CLKDIV4, 28, 4, NPCM8XX_CLK_S_RG, NPCM8XX_CLK_S_RG_M=
+UX,
+> > > +       CLK_DIVIDER_READ_ONLY, 0, NPCM8XX_CLK_RG},
+> > > +       /* bit 31-28 RGREFDIV*/
+> > > +       {NPCM8XX_CLKDIV4, 12, 4, NPCM8XX_CLK_S_RCP, NPCM8XX_CLK_S_RCP=
+_MUX,
+> > > +       CLK_DIVIDER_READ_ONLY, 0, NPCM8XX_CLK_RCP},
+> > > +       /* bit 15-12 RCPREFDIV*/
+> > > +       {NPCM8XX_THRTL_CNT, 0, 2, NPCM8XX_CLK_S_TH, NPCM8XX_CLK_S_CPU=
+_MUX,
+> > > +       CLK_DIVIDER_READ_ONLY | CLK_DIVIDER_POWER_OF_TWO, 0, NPCM8XX_=
+CLK_TH},
+> > > +       /* bit 1-0 TH_DIV*/
+> > > +};
+> > > +
+> > > +static DEFINE_SPINLOCK(npcm8xx_clk_lock);
+> > > +
+> > > +static int npcm8xx_clk_probe(struct platform_device *pdev)
+> > > +{
+> > > +       struct clk_hw_onecell_data *npcm8xx_clk_data;
+> > > +       struct device *dev =3D &pdev->dev;
+> > > +       struct device_node *np =3D dev->of_node;
+> > > +       void __iomem *clk_base;
+> > > +       struct resource res;
+> > > +       struct clk_hw *hw;
+> > > +       int i, err;
+> > > +
+> > > +       npcm8xx_clk_data =3D devm_kzalloc(dev, struct_size(npcm8xx_cl=
+k_data, hws,
+> > > +                                                        NPCM8XX_NUM_=
+CLOCKS),
+> > > +                                       GFP_KERNEL);
+> > > +       if (!npcm8xx_clk_data)
+> > > +               return -ENOMEM;
+> > > +
+> > > +       err =3D of_address_to_resource(np, 0, &res);
+> >
+> > Why can't we use platform_get_resource()?
+> >
+> > > +       if (err) {
+> > > +               dev_err(dev, "Failed to get resource, ret %d\n", err);
+> > > +               return err;
+> > > +       }
+> > > +
+> > > +       clk_base =3D ioremap(res.start, resource_size(&res));
+> >
+> > And use devm_platform_ioremap_resource()?
+> Clock and reset driver use the same memory register map 0xF0801000 - 0xF0=
+801FFF.
+> For historical reasons the registers of both modules are mixed in the
+> memory range 0xF0801000 - 0xF0801FFF this is why we can't have a
+> separate region for each module.
+> In case I will use devm_platform_ioremap_resource function the reset
+> ioremap will fail so the driver using the method above.
 
-      Arnd
+So the clk and reset driver should be the same driver, or one driver
+should register the other and use the auxiliary bus to express the
+relationship. That way we know that the drivers are tightly coupled and
+aren't going to stomp over each other.
+
+> >
+> > > +       if (!clk_base) {
+> > > +               dev_err(&pdev->dev, "Failed to remap I/O memory\n");
+> > > +               return -ENOMEM;
+> > > +       }
+> > > +
+> > > +       npcm8xx_clk_data->num =3D NPCM8XX_NUM_CLOCKS;
+> > > +
+> > > +       for (i =3D 0; i < NPCM8XX_NUM_CLOCKS; i++)
+> > > +               npcm8xx_clk_data->hws[i] =3D ERR_PTR(-EPROBE_DEFER);
+> > > +
+> > > +       /* Reference 25MHz clock */
+> >
+> > Does this exist on the board? If so, I'd make a fixed rate clk in the
+> > dts and have 'refclk' be an input in the binding for this clk controlle=
+r.
+> No, it is an internal clock in the SoC, this is why it is in the driver.
+
+Ok. I suppose that could be inside the 'soc' node for this device as a
+fixed rate clk but registering it here is also fine.
