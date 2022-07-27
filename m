@@ -2,67 +2,94 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFE18C19F2D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Jul 2022 13:45:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF068C19F21
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Jul 2022 05:22:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238662AbiGZNqJ (ORCPT
+        id S233762AbiG0FW3 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Jul 2022 09:46:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
+        Wed, 27 Jul 2022 01:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237702AbiGZNqI (ORCPT
+        with ESMTP id S229507AbiG0FW2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Jul 2022 09:46:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C451E3D2;
-        Tue, 26 Jul 2022 06:46:08 -0700 (PDT)
+        Wed, 27 Jul 2022 01:22:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3C33334B;
+        Tue, 26 Jul 2022 22:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 96DFACE177F;
-        Tue, 26 Jul 2022 13:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C306CC433C1;
-        Tue, 26 Jul 2022 13:46:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC2360FFB;
+        Wed, 27 Jul 2022 05:22:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535D8C433C1;
+        Wed, 27 Jul 2022 05:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658843164;
-        bh=+UhYb0dzvKjOkG0VYJ/1cx3N8s82SPJh0+o97Kdk5JE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=mHUcOIVOuKh+EeAM9Mz6bKpuq8nSEuyUF6Nm9A8TxlIMpH12o9/KW2RaPsHbQklRc
-         pk7+Ul1XExL+oOJdxkpfe3oYlsUs1VlZ/xWrVZuKt0JtlxbHPQJfVnhlKDDkmqR2HY
-         wD1uSwHvKoR58Frak5G5NE598XrszZECTirSSud/ocEKnjpDgUDRPLVu4zq7aq/N8S
-         hEnJx1kRwH+zM9xemdKcqEQ3XGPUl427GGSV6GSxpfwnghzMcI1KPnKaXdT2oUHIWt
-         T/7c2bIgJ8G6PvuoV7uj5oubbOcenLJlgdb873cnE5PE7Y+8V87Z8Z2cHMjkvGWZhm
-         MMkWaJEq37JGw==
-Date:   Tue, 26 Jul 2022 15:45:58 +0200
-From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
-To:     Pali =?UTF-8?B?Um9ow6Fy?= <pali@kernel.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: armada_37xx_wdt: Fix .set_timeout callback
-Message-ID: <20220726154558.6571a452@dellmb>
-In-Reply-To: <20220726085612.10672-1-pali@kernel.org>
-References: <20220726085612.10672-1-pali@kernel.org>
-X-Mailer: Claws Mail 3.19.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        s=k20201202; t=1658899342;
+        bh=UWehIRE9q60XFILZMhHT7IsWYtVMdvIibhozslF4jrE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hRNtS+N+CUb5dAZx8Ijqf9EmFA1pYh4gX6BnTzhXRzOjra67D/TJaTmekkX6L+6Lu
+         5oA0VfQuNOaffImYqp9VnqOJfwK6QGpPEdCEzrH1KroWygDZ/ZIV6C0hZ0wMq1zaFn
+         0g14uYJbtRgCyG5QQ80bTfsuOd4AI63gRJhiAhX5b51uFDaLh0FF4dZs3D+xlDQN+F
+         n5UlXVnIzFHnbHOMTRwd5xhorUH2grFR+ufvzgaaUJ5em+OSUthRkViBfnEY4i5wJG
+         6NiS485janYtM2Y5Cuo6GtKyKQBVO960gaik1hhZ4Jca0Czz3sD/i6FpwA9+16XrUf
+         KpdleZ7Q8PV/w==
+Date:   Wed, 27 Jul 2022 10:52:17 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-pm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: power: reset: qcom,pon: use absolute
+ path to other schema
+Message-ID: <YuDLiZLCa9PK/XJo@matsya>
+References: <20220726120215.101868-1-krzysztof.kozlowski@linaro.org>
+ <20220726120215.101868-2-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220726120215.101868-2-krzysztof.kozlowski@linaro.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, 26 Jul 2022 10:56:12 +0200
-Pali Roh=C3=A1r <pali@kernel.org> wrote:
+On 26-07-22, 14:02, Krzysztof Kozlowski wrote:
+> Absolute path to other DT schema is preferred over relative one.
 
-> ioctl(WDIOC_SETTIMEOUT) calls .set_timeout and .ping callbacks and it is
-> expected that it changes current watchdog timeout.
->=20
-> armada_37xx_wdt's .ping callback just reping counter 0 and does not touch
-> counter 1 used for timeout. So it is needed to set counter 1 to the new
-> value in .set_timeout callback to ensure ioctl(WDIOC_SETTIMEOUT)
-> functionality. Fix it.
->=20
-> Fixes: 54e3d9b518c8 ("watchdog: Add support for Armada 37xx CPU watchdog")
-> Signed-off-by: Pali Roh=C3=A1r <pali@kernel.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
 
-Reviewed-by: Marek Beh=C3=BAn <kabel@kernel.org>
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> ---
+>  Documentation/devicetree/bindings/power/reset/qcom,pon.yaml | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> index 353f155df0f4..e8ecb75155db 100644
+> --- a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> +++ b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> @@ -30,11 +30,11 @@ properties:
+>  
+>    pwrkey:
+>      type: object
+> -    $ref: "../../input/qcom,pm8941-pwrkey.yaml#"
+> +    $ref: /schemas/input/qcom,pm8941-pwrkey.yaml#
+>  
+>    resin:
+>      type: object
+> -    $ref: "../../input/qcom,pm8941-pwrkey.yaml#"
+> +    $ref: /schemas/input/qcom,pm8941-pwrkey.yaml#
+>  
+>  required:
+>    - compatible
+> -- 
+> 2.34.1
+
+-- 
+~Vinod
