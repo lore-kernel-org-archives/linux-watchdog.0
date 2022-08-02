@@ -2,50 +2,62 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78C8FC00144
-	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Aug 2022 02:08:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEC77C00140
+	for <linux-watchdog@archiver.kernel.org>; Tue,  2 Aug 2022 07:46:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232390AbiHBCId (ORCPT
+        id S236123AbiHBHqx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 1 Aug 2022 22:08:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53756 "EHLO
+        Tue, 2 Aug 2022 03:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbiHBCId (ORCPT
+        with ESMTP id S236101AbiHBHqv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 1 Aug 2022 22:08:33 -0400
-Received: from mail-pl1-f193.google.com (mail-pl1-f193.google.com [209.85.214.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF8C64331E;
-        Mon,  1 Aug 2022 19:08:31 -0700 (PDT)
-Received: by mail-pl1-f193.google.com with SMTP id x10so11422311plb.3;
-        Mon, 01 Aug 2022 19:08:31 -0700 (PDT)
+        Tue, 2 Aug 2022 03:46:51 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644C941D22;
+        Tue,  2 Aug 2022 00:46:48 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id w17-20020a17090a8a1100b001f326c73df6so12896879pjn.3;
+        Tue, 02 Aug 2022 00:46:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=K6iJGYL9UOTfyxZuhDtKKHtK7jVAlQ/d6e1AxqHuS90=;
+        b=j1V7g5kHpM84c24sFm2MSN0xyHQwwxiV6p9M/inrKVk7e9dIyRzG+aN5O0ShzLLBkE
+         /ZISirsnYhatV4TiHi+rX9xaeYPK/ZBGbTW0nMXWVZfluuha/Rg+3Ej+7E8w/UXEznEH
+         SjsfitQVr1ZfboQJZqPz8n28nhC5RPrJDCxVB1BT7WeSBRTAeKEnMwjsTR5/e8A0y31V
+         GBae34RqtDO8B/AgGgF5gnO0jv4BiT74u6bt2Gmyr0c3aHjm4TdYNNQkSWEG05QgDnCI
+         mGmIXETZcFDCdIvcGEXbB+sIY3PaZ5XtYCsnCtvn3AfQudA/VyyMln1/cysl/yI2byq4
+         Zx+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc;
-        bh=5t8YdSCit9Ty96RekM4UJNc7grp60HZVSHT6eIxMCH0=;
-        b=kmBnknLPeKUDam4c7UBEkrNkPtQlxMd80yFwjXDaDSU4VDnUkCR7vS7PbV4zBov5c4
-         BCVhOsNJ/2SlRKe3RVi5Vn49BGPLNAkEPHdPMZeQJuQ/aY/wRJc49RNS74OWz6rZdFxQ
-         XsVRC50o1hvrCh2NaOUyALIIuaExsNnQyteHprTw3CTqg8q4utAeDIr+WSz5aajTS9u7
-         61aQR17ljpZrnz21K8L9lDLpmJpvx7Tx9fvOxATb6TF1ppwgCHW1FWThgZJH+ktDoTKc
-         k0z+7T2w3bV4B1uR+VfeHOT67KPhvQPB8nHnLcYoy1JrFdEcOxrdR7/bWgQrGV1G1c53
-         a/wA==
-X-Gm-Message-State: ACgBeo3srDXyBR/ggQapI6HUvsbBJtOHwAFczrtVUR+W/ynj/IODg50a
-        bohAWffxrdJRlYxWNwocSA==
-X-Google-Smtp-Source: AA6agR4uxWsch5pYg/gaUsVGabaIimDA5ozylNx1b/0zOzvhXRQDY4OmqBDM1jvUKD6TOLaENZlqRg==
-X-Received: by 2002:a17:90b:3b49:b0:1f4:df09:d671 with SMTP id ot9-20020a17090b3b4900b001f4df09d671mr13940191pjb.129.1659406110927;
-        Mon, 01 Aug 2022 19:08:30 -0700 (PDT)
-Received: from localhost.localdomain ([156.146.53.107])
-        by smtp.gmail.com with ESMTPSA id n7-20020a622707000000b0052dbad1ea2esm1552941pfn.6.2022.08.01.19.08.26
+        bh=K6iJGYL9UOTfyxZuhDtKKHtK7jVAlQ/d6e1AxqHuS90=;
+        b=f1+XQXmCSAJgm7UMNA4UAZTyxJ3xEAZHAwVdcol43URL/kdPmUAOmYJ0XFpOLzp9ZH
+         focrq2nHzkFhduqqkt9QgRPeuu+Wzb6VHRRoOkw1BCMjLPLkz2vrxAe7NiP5eDHG9K7A
+         Vt294XT0sQdEXvKwYMpOhsLeLmmhw+9y8la8SqwziawEoQyrsKKPTVvQiJfNMagmVRKN
+         fGwc4SYlfc+LlhdCXAdZK7C6xLRbT8yKVI9RnjfJupSAW1Edruv609C3hlxyGbsHSaZ2
+         40TV9md1HqnSyZ99ewh2Fl+eP+elgC0y4dqP42hghy7mOHTtc5hURKYvWcbzNVqDHp2H
+         NE8g==
+X-Gm-Message-State: ACgBeo1cCrBbjJo1Z9K/5eQs1hQX2AUU9s/PVb+lAiBtX90EGGX/UkBr
+        KXJuz370t5TY33pA52c58qCuJ66i2UE=
+X-Google-Smtp-Source: AA6agR6NJD6v46rHuBj5hpjEvVeguESNO5hkrR6/GJoopeoZsOqyR8AKCEVdvD/ZYByGEimpl9QxPg==
+X-Received: by 2002:a17:902:f608:b0:16d:20a0:5339 with SMTP id n8-20020a170902f60800b0016d20a05339mr19841374plg.133.1659426407650;
+        Tue, 02 Aug 2022 00:46:47 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id q30-20020a631f5e000000b0041c6541383dsm784429pgm.60.2022.08.02.00.46.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Aug 2022 19:08:30 -0700 (PDT)
-From:   sunliming <sunliming@kylinos.cn>
-To:     wim@linux-watchdog.org, linux@roeck-us.net, arnd@arndb.de
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kelulanainsley@gmail.com, sunliming <sunliming@kylinos.cn>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH] watchdog: sa1100: make variable sa1100dog_driver static
-Date:   Tue,  2 Aug 2022 10:08:19 +0800
-Message-Id: <20220802020819.1226454-1-sunliming@kylinos.cn>
+        Tue, 02 Aug 2022 00:46:47 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: ye.xingchen@zte.com.cn
+To:     linux-kernel@vger.kernel.org
+Cc:     linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        ye xingchen <ye.xingchen@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] watchdog: rti-wdt:using the pm_runtime_resume_and_get  to simplify the code
+Date:   Tue,  2 Aug 2022 07:46:43 +0000
+Message-Id: <20220802074643.1648660-1-ye.xingchen@zte.com.cn>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -53,32 +65,31 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This symbol is not used outside of sa1100_wdt.c, so marks it static.
+From: ye xingchen <ye.xingchen@zte.com.cn>
 
-Fixes the following warning:
+Using pm_runtime_resume_and_get() to instade of  pm_runtime_get_sync
+and pm_runtime_put_noidle.
 
->> drivers/watchdog/sa1100_wdt.c:241:24: sparse: sparse: symbol 'sa1100dog_driver'
-was not declared. Should it be static?
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: sunliming <sunliming@kylinos.cn>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
 ---
- drivers/watchdog/sa1100_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/rti_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
-index 2d0a06a158a8..82ac5d19f519 100644
---- a/drivers/watchdog/sa1100_wdt.c
-+++ b/drivers/watchdog/sa1100_wdt.c
-@@ -238,7 +238,7 @@ static int sa1100dog_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 053ef3bde12d..6e9253761fc1 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -225,9 +225,8 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 		wdt->freq = wdt->freq * 9 / 10;
  
--struct platform_driver sa1100dog_driver = {
-+static struct platform_driver sa1100dog_driver = {
- 	.driver.name = "sa1100_wdt",
- 	.probe	  = sa1100dog_probe,
- 	.remove	  = sa1100dog_remove,
+ 	pm_runtime_enable(dev);
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0) {
+-		pm_runtime_put_noidle(dev);
+ 		pm_runtime_disable(&pdev->dev);
+ 		return dev_err_probe(dev, ret, "runtime pm failed\n");
+ 	}
 -- 
 2.25.1
-
