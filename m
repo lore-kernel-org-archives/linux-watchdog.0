@@ -2,202 +2,120 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9F22C32772
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 15:55:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B6B8C32774
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 16:31:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243384AbiHWPzG (ORCPT
+        id S238336AbiHWQbl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Aug 2022 11:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
+        Tue, 23 Aug 2022 12:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243423AbiHWPym (ORCPT
+        with ESMTP id S244928AbiHWQac (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Aug 2022 11:54:42 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224D0B14F2;
-        Tue, 23 Aug 2022 05:02:23 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id 2so12637851pll.0;
-        Tue, 23 Aug 2022 05:02:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc;
-        bh=MW5XHnocsOAaHtG3kygIZyIxCnx5KeX6wL9mjNNXSWw=;
-        b=eZXrnK9xqPJeFdFVnwd4Dje9M1VtwDGevH3/C76E5FZrjekitnJDYxsTALFSLxXNUQ
-         +hSN7IIZom46H8XOL0s/gvJ5CWl3GPmcwMFYy844ihT8T4UPUmolsMLwEFj8pxwhs/Q7
-         H72Kk0vhrcz/74qsNYB1qcnQDlyJcuAANhKPG8s8uv5PywigVU69kW3Y8nmzVT/2TUQH
-         GeJtib/WA8YU+yjQCnaK7R2NmAw6TaJitJT7rIZMt2mYewBNbKeZZUV/YvFhs+xxDTJt
-         Z07Lh+gR7pnDCMfT19XhJiE11ZPuQ34c1K2tLqr0ZW+t/IfxNZQn9enzejASxwF5FxdB
-         OJ5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
-        bh=MW5XHnocsOAaHtG3kygIZyIxCnx5KeX6wL9mjNNXSWw=;
-        b=TONB3UJ+tMbPqdFJmiZkamB9hEQ1Bt8/27janl4NqsXZncN4R1rrZ4ZvXlz2Rzchl/
-         a1lEVWZk/0VEUpAcIBM5GovTYvuUoJRsAWeqUh7KaKhB7+dWANZ1BDGvTWtcFZMyDb9c
-         Jm8g2cSSsrt2RmQlye3UyO6FhF1ZGG437OAW9ySrn+SvpXBClWgdMbLkURuvBkcCGE4L
-         4YW2X9gFVsHKMeyVjIQsBBmb2FnyIcT4ZO8xEhk7meqo6nZU+nqWLUH/QICvtMp8xmVI
-         xZL8ZDRbfZzsEHpcldsRwuUSCLbs4col89jECwNBXX5RjMTnue2WHxHm6EYL6tJwGo1n
-         ciEA==
-X-Gm-Message-State: ACgBeo1xl1VU+o0gK8JX8u/L0IMnALl0Gc+eRsPbhCBftJCudZDtrtbQ
-        VPkjguWVWONTXecn1m3tsk0=
-X-Google-Smtp-Source: AA6agR78SqzHncKtHN1CIlqDbFm1R7V4cFot4jLfRNHLIMGY1Ft28MBNZOJ5ydYRsctb+ZOzo/3cqA==
-X-Received: by 2002:a17:902:b483:b0:170:a89f:32b3 with SMTP id y3-20020a170902b48300b00170a89f32b3mr24219704plr.149.1661256142738;
-        Tue, 23 Aug 2022 05:02:22 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t15-20020a17090340cf00b0016dbce87aecsm6684594pld.182.2022.08.23.05.02.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Aug 2022 05:02:21 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 23 Aug 2022 05:02:19 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Marco Felsch <m.felsch@pengutronix.de>
-Cc:     "Alice Guo (OSS)" <alice.guo@oss.nxp.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory barrier for
- unlock sequence
-Message-ID: <20220823120219.GA203169@roeck-us.net>
-References: <20220816043643.26569-1-alice.guo@oss.nxp.com>
- <20220816043643.26569-3-alice.guo@oss.nxp.com>
- <20220816062330.z2fvurteg337krw2@pengutronix.de>
- <AM6PR04MB60537292F559EC012F0EB510E2719@AM6PR04MB6053.eurprd04.prod.outlook.com>
- <20220822080010.ecdphpm3i26cco5f@pengutronix.de>
- <20220822140347.GA4087281@roeck-us.net>
- <AM6PR04MB6053E26CB59410EBCC2C93AEE2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
- <20220823091027.ezyxkn64asajvjom@pengutronix.de>
+        Tue, 23 Aug 2022 12:30:32 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B533F183B7;
+        Tue, 23 Aug 2022 06:00:07 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 42F3022AF8;
+        Tue, 23 Aug 2022 13:00:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1661259606; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SeCJBSVqOhAGWvX3rLkYeyZ0F7kVhjopz07El5TE35g=;
+        b=dTe0UjB0yIX4nY3F+zS/45UC/LYnMpG/bzHrG777J0GXX56UWfZAqtaLxrKBZ2xZdAipyW
+        OPwm+hEPTUlKGJUqf8a4in/v5bPEpPl8WUIIRUKXyB2b/2b788rVR/9rQjKNxYy5GEyoo4
+        /qNFOoaTCBO3rgspBD74zkUFwuM71pM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1661259606;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SeCJBSVqOhAGWvX3rLkYeyZ0F7kVhjopz07El5TE35g=;
+        b=1RnAL5TU+0iluQFJM11wgDO7i6gMipFzGf7G919num4t1EGMDljjFIXBOzonsjjpaw63iF
+        z8jiEIzW0hE9SyAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D5A2D13A89;
+        Tue, 23 Aug 2022 13:00:05 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id upyNMlXPBGMBVgAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Tue, 23 Aug 2022 13:00:05 +0000
+Date:   Tue, 23 Aug 2022 15:00:03 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Liu Xinpeng <liuxp11@chinatelecom.cn>
+Subject: Re: [PATCH v2] watchdog: wdat_wdt: Set the min and max timeout
+ values properly
+Message-ID: <20220823150003.6199b8fd@endymion.delvare>
+In-Reply-To: <20220806081524.5636461a@endymion.delvare>
+References: <20220806081524.5636461a@endymion.delvare>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220823091027.ezyxkn64asajvjom@pengutronix.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Aug 23, 2022 at 11:10:27AM +0200, Marco Felsch wrote:
-> On 22-08-23, Alice Guo (OSS) wrote:
-> > 
-> > 
-> > > -----Original Message-----
-> > > From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
-> > > Sent: Monday, August 22, 2022 10:04 PM
-> > > To: Marco Felsch <m.felsch@pengutronix.de>
-> > > Cc: Alice Guo (OSS) <alice.guo@oss.nxp.com>; wim@linux-watchdog.org;
-> > > shawnguo@kernel.org; s.hauer@pengutronix.de; festevam@gmail.com;
-> > > linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org;
-> > > dl-linux-imx <linux-imx@nxp.com>; kernel@pengutronix.de;
-> > > linux-watchdog@vger.kernel.org
-> > > Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory barrier for
-> > > unlock sequence
-> > > 
-> > > On Mon, Aug 22, 2022 at 10:00:10AM +0200, Marco Felsch wrote:
-> > > > On 22-08-22, Alice Guo (OSS) wrote:
-> > > > > > -----Original Message-----
-> > > > > > From: Marco Felsch <m.felsch@pengutronix.de>
-> > > > > > Sent: Tuesday, August 16, 2022 2:24 PM
-> > > > > > To: Alice Guo (OSS) <alice.guo@oss.nxp.com>
-> > > > > > Cc: wim@linux-watchdog.org; linux@roeck-us.net;
-> > > > > > shawnguo@kernel.org; s.hauer@pengutronix.de; festevam@gmail.com;
-> > > > > > linux-arm-kernel@lists.infradead.org;
-> > > > > > linux-kernel@vger.kernel.org; dl-linux-imx <linux-imx@nxp.com>;
-> > > > > > kernel@pengutronix.de; linux-watchdog@vger.kernel.org
-> > > > > > Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory
-> > > > > > barrier for unlock sequence
-> > > > > >
-> > > > > > On 22-08-16, Alice Guo (OSS) wrote:
-> > > > > > > From: Jacky Bai <ping.bai@nxp.com>
-> > > > > > >
-> > > > > > > Add explict memory barrier for the wdog unlock sequence.
-> > > > > >
-> > > > > > Did you inspected any failures? It's not enough to say what you
-> > > > > > did, you need to specify the why as well.
-> > > > > >
-> > > > > > Regards,
-> > > > > >   Marco
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > Two 16-bit writes of unlocking the Watchdog should be completed within a
-> > > certain time. The first mb() is used to ensure that previous instructions are
-> > > completed.
-> > > > > The second mb() is used to ensure that the unlock sequence cannot be
-> > > affected by subsequent instructions. The reason will be added in the commit
-> > > log of v2.
-> > > >
-> > > > Hi,
-> > > >
-> > > > I know what memory barriers are. My question was, did you see any
-> > > > issues? Since the driver is used mainline and no one reported issues.
-> > > >
-> > > > Also just don't use the *_relaxed() versions is more common, than
-> > > > adding
-> > > > mb() calls around *_relaxed() versions.
-> > > >
-> > > 
-> > > Agreed with both. The series is a bit short in explaining _why_ the changes are
-> > > made.
-> > > 
-> > > Guenter
-> > > 
-> > > > Regards,
-> > > >   Marco
-> > > >
-> > > > >
-> > 
-> > Hi Guenter and Marco,
-> > 
-> > 1. did you see any issues?
-> > This WDOG Timer first appeared in i.MX7ULP, no one report issues
-> > probably because few people use i.MX7ULP. This issue was found when we
-> > did a stress test on it. When we reconfigure the WDOG Timer, there is
-> > a certain probability that it reset. The reason for the error is that
-> > when WDOG_CS[CMD32EN] is 0, the unlock sequence is two 16-bit writes
-> > (0xC520, 0xD928) to the CNT register within 16 bus clocks, and
-> > improper unlock sequence causes the WDOG to reset. Adding mb() is to
-> > guarantee that two 16-bit writes are finished within 16 bus clocks.
-> 
-> After this explanation the whole imx7ulp_wdt_init() seems a bit buggy
-> because writel_relaxed() as well as writel() are 32bit access functions.
-> So the very first thing to do is to enable the 32-bit mode.
-> 
-Agreed. This is much better than having extra code to deal with
-both 16-bit and 32-bit access.
+Hi all,
 
-> Also this is a explanation worth to be added to the commit message ;)
+On Sat, 6 Aug 2022 08:15:24 +0200, Jean Delvare wrote:
+> The wdat_wdt driver is misusing the min_hw_heartbeat_ms field. This
+> field should only be used when the hardware watchdog device should not
+> be pinged more frequently than a specific period. The ACPI WDAT
+> "Minimum Count" field, on the other hand, specifies the minimum
+> timeout value that can be set. This corresponds to the min_timeout
+> field in Linux's watchdog infrastructure.
 > 
+> Setting min_hw_heartbeat_ms instead can cause pings to the hardware
+> to be delayed when there is no reason for that, eventually leading to
+> unexpected firing of the watchdog timer (and thus unexpected reboot).
+> (...)
 
-Definitely. Also, the use of mb(), if it should indeed be needed,
-would have to be explained in a code comment.
+This patch no longer applies as it conflicts with:
 
-Thanks,
-Guenter
+commit 6d72c7ac9fbe26a77800676507da980436b40b2f
+Author: Liu Xinpeng
+Date:   Tue Apr 26 22:53:28 2022 +0800
 
-> > 2. Also just don't use the *_relaxed() versions is more common, than
-> > adding mb() calls around *_relaxed() versions.  Memory barriers cannot
-> > be added between two 16-bit writes. I do not know the reason.
-> 
-> As written above, writel() as well as writel_relaxed() are not 16-bit
-> access functions.
-> 
-> So to me it looks as you need first to ensure that 32-bit access mode is
-> enabled. After that you can write drop the to writel_relaxed() functions
-> and instead just write:
-> 
->    writel(UNLOCK, wdt->base + WDOG_CNT);
-> 
-> Also why do we need to unlock the watchdog during imx7ulp_wdt_init()?
-> This is handled just fine during imx7ulp_wdt_enable() and during
-> imx7ulp_wdt_set_timeout(). So just drop those relaxed writes and
-> everything should be fine.
-> 
-> Regards,
->   Marco
+which made it into kernel v5.19.
+
+Having reviewed the commit mentioned above, I must say I'm skeptical. I
+can't see how setting min_timeout to 1 arbitrarily has been considered
+a good thing. This allows setting timeout values lower than the ACPI
+WDAT "Minimum Count" field, while presumably the hardware does not
+support such short timeouts.
+
+Furthermore, calling watchdog_timeout_invalid() to validate the timeout
+value is a good idea in principle, however, given that min_timeout is
+now 1 and max_hw_heartbeat_ms is defined, the function is no longer
+checking much.
+
+My understanding is that the original code was checking the right
+limits (from the WDAT table's perspective) using the wrong fields (from
+the watchdog core's perspective). This fix from Liu is not really fixing
+the problem (min_hw_heartbeat_ms and max_hw_heartbeat_ms are still set,
+which enables watchdog core facilities that the driver doesn't need
+IMHO) and is adding a new problem (the timeout limits defined in the
+ACPI WDAT table are no longer checked).
+
+I will rebase my patch on top and address both problems.
+
+-- 
+Jean Delvare
+SUSE L3 Support
