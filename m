@@ -2,155 +2,162 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E51DEC49EC0
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 11:57:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0048CC32772
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 14:47:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358742AbiHWL5C (ORCPT
+        id S239419AbiHWOrY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Aug 2022 07:57:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
+        Tue, 23 Aug 2022 10:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358845AbiHWLy4 (ORCPT
+        with ESMTP id S242281AbiHWOpS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Aug 2022 07:54:56 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 803722190;
-        Tue, 23 Aug 2022 02:33:23 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="5.93,257,1654527600"; 
-   d="scan'208";a="132257384"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 23 Aug 2022 18:33:08 +0900
-Received: from localhost.localdomain (unknown [10.226.93.107])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 5AF8B423AE47;
-        Tue, 23 Aug 2022 18:33:06 +0900 (JST)
-From:   Phil Edworthy <phil.edworthy@renesas.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     Phil Edworthy <phil.edworthy@renesas.com>,
-        linux-watchdog@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org,
-        Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH v4 2/2] watchdog: rzg2l_wdt: Add rzv2m support
-Date:   Tue, 23 Aug 2022 10:32:33 +0100
-Message-Id: <20220823093233.8577-3-phil.edworthy@renesas.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220823093233.8577-1-phil.edworthy@renesas.com>
-References: <20220823093233.8577-1-phil.edworthy@renesas.com>
+        Tue, 23 Aug 2022 10:45:18 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566B0DF4DA;
+        Tue, 23 Aug 2022 05:06:29 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id 1so6075800pfu.0;
+        Tue, 23 Aug 2022 05:06:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc;
+        bh=kyFhrbWpMoqpbaaeBfMKJhxmPkYAP/kAn0s8ogIirHY=;
+        b=kUPKmzaoHw0F7lxzyruB2Al7Fo9nFaUBdzgQDJg5hr8Z1+wwIz8Bvtr5xukaPHD8p2
+         QD25gRhO9MA1XUZBoplYuVWBk+wpi9ukGuHV9cmBvjS5tldBkMU08Siv3FJPA9kQhxDf
+         F3MWe2KYLPVo41OfQ21nzNVzG22Tipt4Wmfv82S83CQbdZyySwR9t4XOeCe2MLq6KXXq
+         z+A7CbvPB5jD1ULv9actSJdg/vsp+eNlfcAVh4LuJUS4T0ISQbTT8FbnxYT4Yfzc4NWm
+         qB6hxMb7MKZ7od4dU54snzsSGCR9f4RmKfBYF3GJDPRgYJ3y+pzZ4qM7TwKNCT/979tR
+         R00Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
+        bh=kyFhrbWpMoqpbaaeBfMKJhxmPkYAP/kAn0s8ogIirHY=;
+        b=Ft3/XXMeDuRc0/aWl9as9thbmw7hR978hMdjRfH7bHTOHz/gnpiWZv/iV1l9fDlBzv
+         uHOhRgoh3GnKOmtBe0uSwoTv7EkqcTPYC9aWmL3XLOd/QfDb8zDkpdAT39LXszZf9vOK
+         efmak0de7AoPqvu0bok38O9ThAVtAEa5j2JH91p0d+wbg6Yt7z6akcB0vfWdeyHqIUg5
+         FiBT+OPCgMVZCiE+OWezc3/EFaufJ6QKrQuWDqWP872YjiFxtazVizRzENyR8YeiAw0z
+         2A1PqCwsbH8z6p+aofLcJHCt0SATzfGKU9nItwqAzVZHqF1DV3UcZ7vdfus/rqyer+8h
+         NjBg==
+X-Gm-Message-State: ACgBeo3iH9/D5jvr345WL3leMQeOfwzJz60iFB0lQGfKpiN6uDR1ei9k
+        DhsjbbrNkK8IA6e7rMK/Qlk=
+X-Google-Smtp-Source: AA6agR7ffd/XO/wZqU88ZC5eF1NtcSC0aUyRg5oeg59+DtqQqTane8yLeJrnkiNw29enLw8LSIOw5g==
+X-Received: by 2002:a65:6bc4:0:b0:3c2:2f7c:cc74 with SMTP id e4-20020a656bc4000000b003c22f7ccc74mr20199853pgw.307.1661256328479;
+        Tue, 23 Aug 2022 05:05:28 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p63-20020a634242000000b004291cb9c047sm9037934pga.87.2022.08.23.05.05.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Aug 2022 05:05:26 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 23 Aug 2022 05:05:25 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     "Alice Guo (OSS)" <alice.guo@oss.nxp.com>
+Cc:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/7] watchdog: imx7ulp_wdt: Check CMD32EN in wdog init
+Message-ID: <20220823120525.GB203169@roeck-us.net>
+References: <20220816043643.26569-1-alice.guo@oss.nxp.com>
+ <20220816043643.26569-4-alice.guo@oss.nxp.com>
+ <20220822140557.GB4087281@roeck-us.net>
+ <AM6PR04MB6053DBC927D643877A2A979AE2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR04MB6053DBC927D643877A2A979AE2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The WDT on RZ/V2M devices is basically the same as RZ/G2L, but without
-the parity error registers. This means the driver has to reset the
-hardware plus set the minimum timeout in order to do a restart and has
-a single interrupt.
+On Tue, Aug 23, 2022 at 05:46:55AM +0000, Alice Guo (OSS) wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
+> > Sent: Monday, August 22, 2022 10:06 PM
+> > To: Alice Guo (OSS) <alice.guo@oss.nxp.com>
+> > Cc: wim@linux-watchdog.org; shawnguo@kernel.org;
+> > s.hauer@pengutronix.de; festevam@gmail.com; kernel@pengutronix.de;
+> > dl-linux-imx <linux-imx@nxp.com>; linux-watchdog@vger.kernel.org;
+> > linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH 3/7] watchdog: imx7ulp_wdt: Check CMD32EN in wdog
+> > init
+> > 
+> > On Tue, Aug 16, 2022 at 12:36:39PM +0800, Alice Guo (OSS) wrote:
+> > > From: Ye Li <ye.li@nxp.com>
+> > >
+> > > When bootloader has enabled the CMD32EN bit, switch to use 32bits
+> > > unlock command to unlock the CS register. Using 32bits command will
+> > > help on avoiding 16 bus cycle window violation for two 16 bits
+> > > commands.
+> > >
+> > > Signed-off-by: Ye Li <ye.li@nxp.com>
+> > > Signed-off-by: Alice Guo <alice.guo@nxp.com>
+> > > Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+> > > Acked-by: Jason Liu <jason.hui.liu@nxp.com>
+> > > ---
+> > >  drivers/watchdog/imx7ulp_wdt.c | 15 ++++++++++-----
+> > >  1 file changed, 10 insertions(+), 5 deletions(-)
+> > >
+> > > diff --git a/drivers/watchdog/imx7ulp_wdt.c
+> > > b/drivers/watchdog/imx7ulp_wdt.c index b8ac0cb04d2f..a0f6b8cea78f
+> > > 100644
+> > > --- a/drivers/watchdog/imx7ulp_wdt.c
+> > > +++ b/drivers/watchdog/imx7ulp_wdt.c
+> > > @@ -180,11 +180,16 @@ static int imx7ulp_wdt_init(void __iomem *base,
+> > > unsigned int timeout)
+> > >
+> > >  	local_irq_disable();
+> > >
+> > > -	mb();
+> > > -	/* unlock the wdog for reconfiguration */
+> > > -	writel_relaxed(UNLOCK_SEQ0, base + WDOG_CNT);
+> > > -	writel_relaxed(UNLOCK_SEQ1, base + WDOG_CNT);
+> > > -	mb();
+> > > +	val = readl(base + WDOG_CS);
+> > > +	if (val & WDOG_CS_CMD32EN) {
+> > > +		writel(UNLOCK, base + WDOG_CNT);
+> > > +	} else {
+> > > +		mb();
+> > > +		/* unlock the wdog for reconfiguration */
+> > > +		writel_relaxed(UNLOCK_SEQ0, base + WDOG_CNT);
+> > > +		writel_relaxed(UNLOCK_SEQ1, base + WDOG_CNT);
+> > > +		mb();
+> > 
+> > Now this is intermixing writel() with writel_relaxed(), making the code all but
+> > impossible to understand.
+> > 
+> > Guenter
+> 
+> Hi Guenter,
+> 
+> Intermixing writel() with writel_relaxed() is unavoidable here. Because there cannot be a memory barrier between writing UNLOCK_SEQ0 and writing UNLOCK_SEQ1. This may be determined by hardware design.
+> 
 
-Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-v4:
- - Fix enum names from I2C_* to WDT_*
- - Change cast from of_device_get_match_data() to avoid clang warning
-v3:
- - Don't call pm_runtime_get_sync() in restart()
- - Use mdelay instead of udelay, avoids DIV64_U64_ROUND_UP
-v2:
- - Replace use of parity error registers in restart
- - Commit msg modified to reflect different contents
----
- drivers/watchdog/rzg2l_wdt.c | 39 ++++++++++++++++++++++++++++++------
- 1 file changed, 33 insertions(+), 6 deletions(-)
+If it is indeed impossible to configure the watchdog for 32-bit
+access mode, that needs to be explained in the code and backed up,
+for example with a reference to the documentation. Similar,
+it needs to be documented in the code why writel() does not work
+here and why mb() is needed.
 
-diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
-index 6eea0ee4af49..974a4194a8fd 100644
---- a/drivers/watchdog/rzg2l_wdt.c
-+++ b/drivers/watchdog/rzg2l_wdt.c
-@@ -10,7 +10,7 @@
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/reset.h>
-@@ -40,6 +40,11 @@ module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
-+enum rz_wdt_type {
-+	WDT_RZG2L,
-+	WDT_RZV2M,
-+};
-+
- struct rzg2l_wdt_priv {
- 	void __iomem *base;
- 	struct watchdog_device wdev;
-@@ -48,6 +53,7 @@ struct rzg2l_wdt_priv {
- 	unsigned long delay;
- 	struct clk *pclk;
- 	struct clk *osc_clk;
-+	enum rz_wdt_type devtype;
- };
- 
- static void rzg2l_wdt_wait_delay(struct rzg2l_wdt_priv *priv)
-@@ -142,11 +148,29 @@ static int rzg2l_wdt_restart(struct watchdog_device *wdev,
- 	clk_prepare_enable(priv->pclk);
- 	clk_prepare_enable(priv->osc_clk);
- 
--	/* Generate Reset (WDTRSTB) Signal on parity error */
--	rzg2l_wdt_write(priv, 0, PECR);
-+	if (priv->devtype == WDT_RZG2L) {
-+		/* Generate Reset (WDTRSTB) Signal on parity error */
-+		rzg2l_wdt_write(priv, 0, PECR);
-+
-+		/* Force parity error */
-+		rzg2l_wdt_write(priv, PEEN_FORCE, PEEN);
-+	} else {
-+		/* RZ/V2M doesn't have parity error registers */
-+
-+		wdev->timeout = 0;
-+
-+		/* Initialize time out */
-+		rzg2l_wdt_init_timeout(wdev);
- 
--	/* Force parity error */
--	rzg2l_wdt_write(priv, PEEN_FORCE, PEEN);
-+		/* Initialize watchdog counter register */
-+		rzg2l_wdt_write(priv, 0, WDTTIM);
-+
-+		/* Enable watchdog timer*/
-+		rzg2l_wdt_write(priv, WDTCNT_WDTEN, WDTCNT);
-+
-+		/* Wait 2 consecutive overflow cycles for reset */
-+		mdelay(DIV_ROUND_UP(2 * 0xFFFFF * 1000, priv->osc_clk_rate));
-+	}
- 
- 	return 0;
- }
-@@ -227,6 +251,8 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		return dev_err_probe(dev, ret, "failed to deassert");
- 
-+	priv->devtype = (uintptr_t)of_device_get_match_data(dev);
-+
- 	pm_runtime_enable(&pdev->dev);
- 
- 	priv->wdev.info = &rzg2l_wdt_ident;
-@@ -255,7 +281,8 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
- }
- 
- static const struct of_device_id rzg2l_wdt_ids[] = {
--	{ .compatible = "renesas,rzg2l-wdt", },
-+	{ .compatible = "renesas,rzg2l-wdt", .data = (void *)WDT_RZG2L },
-+	{ .compatible = "renesas,rzv2m-wdt", .data = (void *)WDT_RZV2M },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, rzg2l_wdt_ids);
--- 
-2.34.1
+Thanks,
+Guenter
 
+> Best Regards,
+> Alice Guo
+>  
+> > > +	}
+> > >
+> > >  	ret = imx7ulp_wdt_wait(base, WDOG_CS_ULK);
+> > >  	if (ret)
+> > > --
+> > > 2.17.1
+> > >
