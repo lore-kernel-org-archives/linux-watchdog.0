@@ -2,168 +2,202 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F78AC32774
-	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 14:47:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9F22C32772
+	for <linux-watchdog@archiver.kernel.org>; Tue, 23 Aug 2022 15:55:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240270AbiHWOrZ (ORCPT
+        id S243384AbiHWPzG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 23 Aug 2022 10:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46076 "EHLO
+        Tue, 23 Aug 2022 11:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243351AbiHWOpv (ORCPT
+        with ESMTP id S243423AbiHWPym (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 Aug 2022 10:45:51 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D9732E0D87;
-        Tue, 23 Aug 2022 05:07:17 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id g8so8724022plq.11;
-        Tue, 23 Aug 2022 05:07:17 -0700 (PDT)
+        Tue, 23 Aug 2022 11:54:42 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224D0B14F2;
+        Tue, 23 Aug 2022 05:02:23 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id 2so12637851pll.0;
+        Tue, 23 Aug 2022 05:02:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc;
-        bh=M5pm4/VJrTNRCgV/1Wc0seJfX5yLDcrWOklZuTfCCtY=;
-        b=mZogj9xQ/+Vr8S1jpK658n2Aj6QC8la6Mu9cjfOmB9kNWjGGC9cQXzFTKC79hcf2Al
-         iApFcNWbN+fGk4x4EwXIpvjKYnfyJLaupJhr+DvGL293rVOKGiVa5ArAwZr0bA91Zamm
-         LK7Zts76zmrF40Y8XdbaYrMXuYdd//mM8L8B9Ih+NKblceMjwDBIEVE+/2pbNKtXeoki
-         LtluyOn1PhbNCwCYifRzOxDnUZ7sNQA2RCTeEWwiCTElBqe0AmQzMAY8nN7rU3VNdIvU
-         2XeNxogrjLCx8HZ/4nSFiBXu3N5xQUHu2oji2nz/AqkGGjAVZ0RYrp0LQyO5SsmIFUka
-         H1DA==
+        bh=MW5XHnocsOAaHtG3kygIZyIxCnx5KeX6wL9mjNNXSWw=;
+        b=eZXrnK9xqPJeFdFVnwd4Dje9M1VtwDGevH3/C76E5FZrjekitnJDYxsTALFSLxXNUQ
+         +hSN7IIZom46H8XOL0s/gvJ5CWl3GPmcwMFYy844ihT8T4UPUmolsMLwEFj8pxwhs/Q7
+         H72Kk0vhrcz/74qsNYB1qcnQDlyJcuAANhKPG8s8uv5PywigVU69kW3Y8nmzVT/2TUQH
+         GeJtib/WA8YU+yjQCnaK7R2NmAw6TaJitJT7rIZMt2mYewBNbKeZZUV/YvFhs+xxDTJt
+         Z07Lh+gR7pnDCMfT19XhJiE11ZPuQ34c1K2tLqr0ZW+t/IfxNZQn9enzejASxwF5FxdB
+         OJ5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
-        bh=M5pm4/VJrTNRCgV/1Wc0seJfX5yLDcrWOklZuTfCCtY=;
-        b=HoUOJP4AVBH4QCJEhc+ifClEjNGq4gds57huSMV84ZzcmO7B9JUEheaHBO9h2eOr54
-         NZsMR73ZUtCYf/G+L+F6VjSouR4T2cRxfOFKrZJWMECw1SNHbYPP2cs7uYwwynxd3/Tz
-         5FtCZsZR5L7yYmxWLzg4sfUdGX2iQRU+QlBOCOQu9F1g40V7hf2s+Q19kdaFfAB6XbOo
-         GS/R3MPdIysRW4AA4zL7xkCzWVQOT66kGS7omWjc32el8DXI5Ow0HG8UHdHX3Fg8hT3x
-         bSK78oSP5N3ncoW9NVdluHd/GycUMmTsmma7sfJDUTaNkqXwe+AZtRp8U/7xoqVjN12e
-         4daA==
-X-Gm-Message-State: ACgBeo0slDv3Q/g4EtUExHV5EN5T7r8rbhUIW7Vc9MZ/MxuuI2y5r0we
-        R3Zx6P02JRbu96MZCRdUhW4=
-X-Google-Smtp-Source: AA6agR6AKJbbncEdljYSR29LkZvk9rh/Ilz5/vWWK3pRLPjSRG84vapc9XlKp48gYeP57U0Da/y1Gw==
-X-Received: by 2002:a17:90b:1c8e:b0:1f7:524f:bfcc with SMTP id oo14-20020a17090b1c8e00b001f7524fbfccmr3025566pjb.132.1661256418503;
-        Tue, 23 Aug 2022 05:06:58 -0700 (PDT)
+        bh=MW5XHnocsOAaHtG3kygIZyIxCnx5KeX6wL9mjNNXSWw=;
+        b=TONB3UJ+tMbPqdFJmiZkamB9hEQ1Bt8/27janl4NqsXZncN4R1rrZ4ZvXlz2Rzchl/
+         a1lEVWZk/0VEUpAcIBM5GovTYvuUoJRsAWeqUh7KaKhB7+dWANZ1BDGvTWtcFZMyDb9c
+         Jm8g2cSSsrt2RmQlye3UyO6FhF1ZGG437OAW9ySrn+SvpXBClWgdMbLkURuvBkcCGE4L
+         4YW2X9gFVsHKMeyVjIQsBBmb2FnyIcT4ZO8xEhk7meqo6nZU+nqWLUH/QICvtMp8xmVI
+         xZL8ZDRbfZzsEHpcldsRwuUSCLbs4col89jECwNBXX5RjMTnue2WHxHm6EYL6tJwGo1n
+         ciEA==
+X-Gm-Message-State: ACgBeo1xl1VU+o0gK8JX8u/L0IMnALl0Gc+eRsPbhCBftJCudZDtrtbQ
+        VPkjguWVWONTXecn1m3tsk0=
+X-Google-Smtp-Source: AA6agR78SqzHncKtHN1CIlqDbFm1R7V4cFot4jLfRNHLIMGY1Ft28MBNZOJ5ydYRsctb+ZOzo/3cqA==
+X-Received: by 2002:a17:902:b483:b0:170:a89f:32b3 with SMTP id y3-20020a170902b48300b00170a89f32b3mr24219704plr.149.1661256142738;
+        Tue, 23 Aug 2022 05:02:22 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g1-20020a170902e38100b0016bdf0032b9sm10206494ple.110.2022.08.23.05.06.57
+        by smtp.gmail.com with ESMTPSA id t15-20020a17090340cf00b0016dbce87aecsm6684594pld.182.2022.08.23.05.02.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Aug 2022 05:06:57 -0700 (PDT)
+        Tue, 23 Aug 2022 05:02:21 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 23 Aug 2022 05:06:56 -0700
+Date:   Tue, 23 Aug 2022 05:02:19 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     "Alice Guo (OSS)" <alice.guo@oss.nxp.com>
-Cc:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+To:     Marco Felsch <m.felsch@pengutronix.de>
+Cc:     "Alice Guo (OSS)" <alice.guo@oss.nxp.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "shawnguo@kernel.org" <shawnguo@kernel.org>,
         "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
         "festevam@gmail.com" <festevam@gmail.com>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-arm-kernel@lists.infradead.org" 
         <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/7] watchdog: imx7ulp_wdt: Fix RCS timeout issue
-Message-ID: <20220823120656.GC203169@roeck-us.net>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory barrier for
+ unlock sequence
+Message-ID: <20220823120219.GA203169@roeck-us.net>
 References: <20220816043643.26569-1-alice.guo@oss.nxp.com>
- <20220816043643.26569-5-alice.guo@oss.nxp.com>
- <20220822140946.GC4087281@roeck-us.net>
- <AM6PR04MB60533A1ABDFA1DEDE59BB847E2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
+ <20220816043643.26569-3-alice.guo@oss.nxp.com>
+ <20220816062330.z2fvurteg337krw2@pengutronix.de>
+ <AM6PR04MB60537292F559EC012F0EB510E2719@AM6PR04MB6053.eurprd04.prod.outlook.com>
+ <20220822080010.ecdphpm3i26cco5f@pengutronix.de>
+ <20220822140347.GA4087281@roeck-us.net>
+ <AM6PR04MB6053E26CB59410EBCC2C93AEE2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
+ <20220823091027.ezyxkn64asajvjom@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AM6PR04MB60533A1ABDFA1DEDE59BB847E2709@AM6PR04MB6053.eurprd04.prod.outlook.com>
+In-Reply-To: <20220823091027.ezyxkn64asajvjom@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Aug 23, 2022 at 05:59:11AM +0000, Alice Guo (OSS) wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
-> > Sent: Monday, August 22, 2022 10:10 PM
-> > To: Alice Guo (OSS) <alice.guo@oss.nxp.com>
-> > Cc: wim@linux-watchdog.org; shawnguo@kernel.org;
-> > s.hauer@pengutronix.de; festevam@gmail.com; kernel@pengutronix.de;
-> > dl-linux-imx <linux-imx@nxp.com>; linux-watchdog@vger.kernel.org;
-> > linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH 4/7] watchdog: imx7ulp_wdt: Fix RCS timeout issue
+On Tue, Aug 23, 2022 at 11:10:27AM +0200, Marco Felsch wrote:
+> On 22-08-23, Alice Guo (OSS) wrote:
 > > 
-> > On Tue, Aug 16, 2022 at 12:36:40PM +0800, Alice Guo (OSS) wrote:
-> > > From: Ye Li <ye.li@nxp.com>
-> > >
-> > > According to measure on i.MX7ULP and i.MX8ULP, the RCS done needs
-> > > about 3400us and 6700us respectively. So current 20us timeout is not
-> > > enough. When reconfiguring is on-going, unlock and configure CS will
-> > > lead to unknown result.
-> > >
-> > > Increase the wait timeout value to 10ms and check the return value of
-> > > RCS wait to fix the issue
-> > >
 > > 
-> > You'll have to find a better solution. An active (non-sleep) wait of
-> > 10 ms is unacceptable.
+> > > -----Original Message-----
+> > > From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
+> > > Sent: Monday, August 22, 2022 10:04 PM
+> > > To: Marco Felsch <m.felsch@pengutronix.de>
+> > > Cc: Alice Guo (OSS) <alice.guo@oss.nxp.com>; wim@linux-watchdog.org;
+> > > shawnguo@kernel.org; s.hauer@pengutronix.de; festevam@gmail.com;
+> > > linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org;
+> > > dl-linux-imx <linux-imx@nxp.com>; kernel@pengutronix.de;
+> > > linux-watchdog@vger.kernel.org
+> > > Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory barrier for
+> > > unlock sequence
+> > > 
+> > > On Mon, Aug 22, 2022 at 10:00:10AM +0200, Marco Felsch wrote:
+> > > > On 22-08-22, Alice Guo (OSS) wrote:
+> > > > > > -----Original Message-----
+> > > > > > From: Marco Felsch <m.felsch@pengutronix.de>
+> > > > > > Sent: Tuesday, August 16, 2022 2:24 PM
+> > > > > > To: Alice Guo (OSS) <alice.guo@oss.nxp.com>
+> > > > > > Cc: wim@linux-watchdog.org; linux@roeck-us.net;
+> > > > > > shawnguo@kernel.org; s.hauer@pengutronix.de; festevam@gmail.com;
+> > > > > > linux-arm-kernel@lists.infradead.org;
+> > > > > > linux-kernel@vger.kernel.org; dl-linux-imx <linux-imx@nxp.com>;
+> > > > > > kernel@pengutronix.de; linux-watchdog@vger.kernel.org
+> > > > > > Subject: Re: [PATCH 2/7] watchdog: imx7ulp: Add explict memory
+> > > > > > barrier for unlock sequence
+> > > > > >
+> > > > > > On 22-08-16, Alice Guo (OSS) wrote:
+> > > > > > > From: Jacky Bai <ping.bai@nxp.com>
+> > > > > > >
+> > > > > > > Add explict memory barrier for the wdog unlock sequence.
+> > > > > >
+> > > > > > Did you inspected any failures? It's not enough to say what you
+> > > > > > did, you need to specify the why as well.
+> > > > > >
+> > > > > > Regards,
+> > > > > >   Marco
+> > > > >
+> > > > > Hi,
+> > > > >
+> > > > > Two 16-bit writes of unlocking the Watchdog should be completed within a
+> > > certain time. The first mb() is used to ensure that previous instructions are
+> > > completed.
+> > > > > The second mb() is used to ensure that the unlock sequence cannot be
+> > > affected by subsequent instructions. The reason will be added in the commit
+> > > log of v2.
+> > > >
+> > > > Hi,
+> > > >
+> > > > I know what memory barriers are. My question was, did you see any
+> > > > issues? Since the driver is used mainline and no one reported issues.
+> > > >
+> > > > Also just don't use the *_relaxed() versions is more common, than
+> > > > adding
+> > > > mb() calls around *_relaxed() versions.
+> > > >
+> > > 
+> > > Agreed with both. The series is a bit short in explaining _why_ the changes are
+> > > made.
+> > > 
+> > > Guenter
+> > > 
+> > > > Regards,
+> > > >   Marco
+> > > >
+> > > > >
 > > 
-> > Guenter
+> > Hi Guenter and Marco,
+> > 
+> > 1. did you see any issues?
+> > This WDOG Timer first appeared in i.MX7ULP, no one report issues
+> > probably because few people use i.MX7ULP. This issue was found when we
+> > did a stress test on it. When we reconfigure the WDOG Timer, there is
+> > a certain probability that it reset. The reason for the error is that
+> > when WDOG_CS[CMD32EN] is 0, the unlock sequence is two 16-bit writes
+> > (0xC520, 0xD928) to the CNT register within 16 bus clocks, and
+> > improper unlock sequence causes the WDOG to reset. Adding mb() is to
+> > guarantee that two 16-bit writes are finished within 16 bus clocks.
 > 
-> Hi Guenter,
+> After this explanation the whole imx7ulp_wdt_init() seems a bit buggy
+> because writel_relaxed() as well as writel() are 32bit access functions.
+> So the very first thing to do is to enable the 32-bit mode.
 > 
-> Sorry. I think this patch should be merged with " watchdog: imx7ulp_wdt: Handle wdog reconfigure failure", but I didn't merge them. I will send v2.
+Agreed. This is much better than having extra code to deal with
+both 16-bit and 32-bit access.
+
+> Also this is a explanation worth to be added to the commit message ;)
 > 
 
-That doesn't change the fact that a 10 ms hot wait is unacceptable.
+Definitely. Also, the use of mb(), if it should indeed be needed,
+would have to be explained in a code comment.
 
 Thanks,
 Guenter
 
-> Best Regards,
-> Alice Guo
+> > 2. Also just don't use the *_relaxed() versions is more common, than
+> > adding mb() calls around *_relaxed() versions.  Memory barriers cannot
+> > be added between two 16-bit writes. I do not know the reason.
 > 
-> > > Signed-off-by: Ye Li <ye.li@nxp.com>
-> > > Signed-off-by: Alice Guo <alice.guo@nxp.com>
-> > > Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-> > > Acked-by: Jason Liu <jason.hui.liu@nxp.com>
-> > > ---
-> > >  drivers/watchdog/imx7ulp_wdt.c | 8 +++++---
-> > >  1 file changed, 5 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/watchdog/imx7ulp_wdt.c
-> > > b/drivers/watchdog/imx7ulp_wdt.c index a0f6b8cea78f..12715c248688
-> > > 100644
-> > > --- a/drivers/watchdog/imx7ulp_wdt.c
-> > > +++ b/drivers/watchdog/imx7ulp_wdt.c
-> > > @@ -39,7 +39,7 @@
-> > >  #define DEFAULT_TIMEOUT	60
-> > >  #define MAX_TIMEOUT	128
-> > >  #define WDOG_CLOCK_RATE	1000
-> > > -#define WDOG_WAIT_TIMEOUT	20
-> > > +#define WDOG_WAIT_TIMEOUT	10000
-> > >
-> > >  static bool nowayout = WATCHDOG_NOWAYOUT;
-> > module_param(nowayout,
-> > > bool, 0000); @@ -80,7 +80,7 @@ static int imx7ulp_wdt_enable(struct
-> > > watchdog_device *wdog, bool enable)
-> > >  		writel(val | WDOG_CS_EN, wdt->base + WDOG_CS);
-> > >  	else
-> > >  		writel(val & ~WDOG_CS_EN, wdt->base + WDOG_CS);
-> > > -	imx7ulp_wdt_wait(wdt->base, WDOG_CS_RCS);
-> > > +	ret = imx7ulp_wdt_wait(wdt->base, WDOG_CS_RCS);
-> > >
-> > >  enable_out:
-> > >  	local_irq_enable();
-> > > @@ -127,7 +127,9 @@ static int imx7ulp_wdt_set_timeout(struct
-> > watchdog_device *wdog,
-> > >  	if (ret)
-> > >  		goto timeout_out;
-> > >  	writel(val, wdt->base + WDOG_TOVAL);
-> > > -	imx7ulp_wdt_wait(wdt->base, WDOG_CS_RCS);
-> > > +	ret = imx7ulp_wdt_wait(wdt->base, WDOG_CS_RCS);
-> > > +	if (ret)
-> > > +		goto timeout_out;
-> > >
-> > >  	wdog->timeout = timeout;
-> > >
-> > > --
-> > > 2.17.1
-> > >
+> As written above, writel() as well as writel_relaxed() are not 16-bit
+> access functions.
+> 
+> So to me it looks as you need first to ensure that 32-bit access mode is
+> enabled. After that you can write drop the to writel_relaxed() functions
+> and instead just write:
+> 
+>    writel(UNLOCK, wdt->base + WDOG_CNT);
+> 
+> Also why do we need to unlock the watchdog during imx7ulp_wdt_init()?
+> This is handled just fine during imx7ulp_wdt_enable() and during
+> imx7ulp_wdt_set_timeout(). So just drop those relaxed writes and
+> everything should be fine.
+> 
+> Regards,
+>   Marco
