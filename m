@@ -2,58 +2,60 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DDECC6FA86
-	for <linux-watchdog@archiver.kernel.org>; Wed,  7 Sep 2022 02:01:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51500ECAAD5
+	for <linux-watchdog@archiver.kernel.org>; Thu,  8 Sep 2022 08:11:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbiIGCBG (ORCPT
+        id S231476AbiIHILd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 6 Sep 2022 22:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
+        Thu, 8 Sep 2022 04:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbiIGCBD (ORCPT
+        with ESMTP id S231481AbiIHILA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 6 Sep 2022 22:01:03 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06641844E8;
-        Tue,  6 Sep 2022 19:01:03 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id o4so13082556pjp.4;
-        Tue, 06 Sep 2022 19:01:03 -0700 (PDT)
+        Thu, 8 Sep 2022 04:11:00 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0142D9E95
+        for <linux-watchdog@vger.kernel.org>; Thu,  8 Sep 2022 01:10:42 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id r18so8978788eja.11
+        for <linux-watchdog@vger.kernel.org>; Thu, 08 Sep 2022 01:10:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=YaCijregOqOjgcZeIED7JVmldRewR4dEphbJlxDQblY=;
-        b=S9pRunUxPC7r0e1w9yj0o8783wojVpjNhKP8jsT71wWMuWPsfUFzdJz0TJMPpqTsPB
-         M+Ae8ANyYrV4Sep3x0VbDc+EnMue4OoEN8RpFTpOjPkluJnGT2cqlVh1JYNiO5h/tDGK
-         RGVJLwVuP7GISwNRAdT5OiqdenVIGFNKEJzKBNq2q1BXIKHlp8tWKx0fxbOK8GA6DZwQ
-         TZfa9JbPfMPcxWCYQlbaTpn5opve5VlejEuuBRLWTpxblG8WQDMhb5np+dyWJJ6kAEEW
-         rXWcB3V4lQHvMssIFHI0kdZjP9pomfXdXnH1i/sJC8kJC91PlHbGOcBl6u1/CPq1k3ff
-         5tAg==
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=j4bs3PwCf8LAGt65QBrJwkN23+x5pcdlnIufUSNJIIQ=;
+        b=XlFrs6f1Ru6mfmrDHSloR2yePiVJ+BuOhZJkeSnSJ/SOiEPgkH7fc5Qh53N1oKwQvH
+         +OoAiOMDe47PpbvHsnBhm6aYdjqjrlxYnSo7yiZbqsAzABr7z6IbsSFiYRJdU8C2FmM8
+         5DH3vl93eI862Lj3YGNPcem5IKwqOFLfYUBV/2qlp66cAcJz+GK/kSoE2Nn6RNzXIdZ9
+         oJUIG5tDSXTW/MSaMC7qK7mdrhaTxlGrLwOPowZ4WpaBUKmm7LiCFjVvj0ZXOF9c8KIJ
+         SNp39mJEoQxBFUzec2wJzhGoK5rRNZ4WQVIZ8FGwGa0dLMi1y1WJKYonoLdQWd7mN1KK
+         y6wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=YaCijregOqOjgcZeIED7JVmldRewR4dEphbJlxDQblY=;
-        b=WxDUq3Zq8X3Rgc4b4WifMHhrdfV384FmuJ8jN1TY9qpsynBbpON8npbKBu1EmbSBow
-         hRx7vF9EuhuALd3eriMzTB3F9jkXpXKOprButVLbX4LgKneL69guYPbWVGvB/IjE+uBk
-         hVBZPmPKjaJ2DrOgeT7bTzNTyroF0NiKXbiF1hliemI+monJP86TTYjCftE7d1d7FOm+
-         r+lyCyXZecBvF93+c/rOatz0vVxdWNVLQ1iyOqR1rhG+q5cYLPv1FfwReqxZ+KjIGSqP
-         CYb1w2B5crTaIM2jWuDTlGKR+8/go/hbm3HcuyfOuubDuJp2e0DeyPvuPz02B2rRGaxj
-         k29Q==
-X-Gm-Message-State: ACgBeo1ymCE4OcJOM8zKViDHs1TKM80vVmLyO4oYaKmb9XkOvarpPem6
-        C2Vm3DhnjAKpDX+pnlnY0iw=
-X-Google-Smtp-Source: AA6agR4W7OfcLFzEOrvTrf5AWbvTtcvq1nW6dbnnaSOnulUmzjwEL9HxLO3xrl5g0PyDmCwuPzMlMg==
-X-Received: by 2002:a17:90b:3ec7:b0:1fa:cdc1:f66 with SMTP id rm7-20020a17090b3ec700b001facdc10f66mr28531683pjb.167.1662516062292;
-        Tue, 06 Sep 2022 19:01:02 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:abc4:5d24:5a73:a96b])
-        by smtp.gmail.com with ESMTPSA id a206-20020a621ad7000000b00537d74f58cbsm2322985pfa.69.2022.09.06.19.00.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Sep 2022 19:01:01 -0700 (PDT)
-Date:   Tue, 6 Sep 2022 19:00:57 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=j4bs3PwCf8LAGt65QBrJwkN23+x5pcdlnIufUSNJIIQ=;
+        b=6zHpD2jvHfKrRm9C5Tos+MTKTO9dapX4+PAhzV6VVrrypbTFPgYnF8hMgOsMnylST0
+         LTH5jZdVZIQRz+NTelOaA6kJnGFxfB4+n94367nabOyvEMlAQIRuY1lf8Ca5O4OPwQiV
+         a5sg8+AHe8ap2K73KAR3qphOj0iF9ip3tu730bVWqEd/YuKvlO3ny2zK95B7IN3HKHl8
+         dan9SmuFhBHQ4BlRDdSUDJqHpBk27Vh7HbeZIqiUudRo2RP6/QFXAZFfQR7UgcHuO+jI
+         z1Y0Ry+rP/rUtxOJdM6/M0d7D8Y0EQxBdnZn9pnEMzPdJFdqJl1XxhSuFp21PtTED86c
+         5CxA==
+X-Gm-Message-State: ACgBeo15la6IF+x6WO178Vfnaq2bVeitRR4vVjr7KZHKI7pk5uz7J9dr
+        +RD1rC2l2Dz8LiUHKGkEue4NgtLcHgY2/RpiKzvBIg==
+X-Google-Smtp-Source: AA6agR5SiTp1RzXd7QfGvIaagW9XneozTUfgGg71dHg/7zkzwgHHmEoyMH3isqJfBMUwPz7K/i/VjO5b2+tszIQ2lUg=
+X-Received: by 2002:a17:907:1c89:b0:741:4453:75be with SMTP id
+ nb9-20020a1709071c8900b00741445375bemr5269882ejc.208.1662624640469; Thu, 08
+ Sep 2022 01:10:40 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220903-gpiod_get_from_of_node-remove-v1-0-b29adfb27a6c@gmail.com>
+ <20220903-gpiod_get_from_of_node-remove-v1-8-b29adfb27a6c@gmail.com>
+In-Reply-To: <20220903-gpiod_get_from_of_node-remove-v1-8-b29adfb27a6c@gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 8 Sep 2022 10:10:29 +0200
+Message-ID: <CACRpkdakswdcFTgEGX-+2fgOHZ+VsDsRe+yj8hnExKuugnO9xQ@mail.gmail.com>
+Subject: Re: [PATCH v1 08/11] regulator: bd71815: switch to using devm_fwnode_gpiod_get()
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Matti Vaittinen <mazziesaccount@gmail.com>,
         Lorenzo Pieralisi <lpieralisi@kernel.org>,
@@ -61,11 +63,11 @@ Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
         Liam Girdwood <lgirdwood@gmail.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
         Felipe Balbi <balbi@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Daniel Vetter <daniel@ffwll.ch>,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
@@ -80,65 +82,28 @@ Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
         Rob Herring <robh@kernel.org>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        USB <linux-usb@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        linux-tegra <linux-tegra@vger.kernel.org>,
-        "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
+        =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
+        linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v1 10/11] watchdog: bd9576_wdt: switch to using
- devm_fwnode_gpiod_get()
-Message-ID: <Yxf7WTFG7xEh2Gv6@google.com>
-References: <20220903-gpiod_get_from_of_node-remove-v1-0-b29adfb27a6c@gmail.com>
- <20220903-gpiod_get_from_of_node-remove-v1-10-b29adfb27a6c@gmail.com>
- <CAHp75Vd35EOy=mP25=9fmYfqQnbafgotHw1fxk-TdGk6Oc8g8Q@mail.gmail.com>
- <75e60144-9fa2-d6ba-bc92-edd23f7e7189@roeck-us.net>
- <CAHp75VcisCTYoRp-=713YKtwi7BQyPKGiUhF4DkpfAFtvDXCiQ@mail.gmail.com>
- <c696b9bf-d0ce-1c6a-0ee3-939b180891be@roeck-us.net>
- <YxZSUlCPEE9o/s4G@google.com>
- <73749107-35aa-0720-1a30-02a90c0540fa@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <73749107-35aa-0720-1a30-02a90c0540fa@roeck-us.net>
+        linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 05, 2022 at 03:09:05PM -0700, Guenter Roeck wrote:
-> On 9/5/22 12:47, Dmitry Torokhov wrote:
-> [ ... ]
-> > > We know that count is either 1 or 2 here, so strictly speaking
-> > > 	if (count == 1) {
-> > > 	} else {
-> > > 	}
-> > > would be sufficient. On the other side, that depends on ARRAY_SIZE() being
-> > > exactly 2, so
-> > > 	if (count == 1) {
-> > > 	} else if (count == 2) {
-> > > 	}
-> > > would also make sense. Either way is fine with me. I'll leave it up
-> > > to Dmitry to decide what he wants to do.
-> > 
-> > My goal is to drop usage of devm_gpiod_get_from_of_node(), beyond that I
-> > do not have strong preferences either way really. It is probing code, so
-> > performance is not critical, but I'm obviously satisfied with how the
-> > code looks now, or I would not have sent it.
-> > 
-> 
-> Good point.
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On Mon, Sep 5, 2022 at 8:31 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Guenter, individual patches are going through maintainer's trees, will
-you take this one?
+> I would like to stop exporting OF-specific devm_gpiod_get_from_of_node()
+> so that gpiolib can be cleaned a bit, so let's switch to the generic
+> fwnode property API.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Thanks.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
--- 
-Dmitry
+Yours,
+Linus Walleij
