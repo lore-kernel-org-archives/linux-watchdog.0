@@ -2,111 +2,142 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3D13ECAAD5
-	for <linux-watchdog@archiver.kernel.org>; Thu,  8 Sep 2022 08:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B7AC54EE9
+	for <linux-watchdog@archiver.kernel.org>; Thu,  8 Sep 2022 17:39:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbiIHIis (ORCPT
+        id S229620AbiIHRj1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 8 Sep 2022 04:38:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39376 "EHLO
+        Thu, 8 Sep 2022 13:39:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231585AbiIHIiq (ORCPT
+        with ESMTP id S229598AbiIHRiy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 8 Sep 2022 04:38:46 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 363A1149449
-        for <linux-watchdog@vger.kernel.org>; Thu,  8 Sep 2022 01:38:44 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id fy31so36397650ejc.6
-        for <linux-watchdog@vger.kernel.org>; Thu, 08 Sep 2022 01:38:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=SqPML+unsouuIp4FVHK4Uf7DFvDcdAzoCu01LQ5xtJU=;
-        b=SAoPOQWnZqu89mgLfBmiK5MrA8YCX5o9aGmYu4qqPNVoBkVnERkpNhCjHVCDQ9Zla1
-         dwqjtxWA+cJ6EDML6KOuvVZ4R6NIPdCxT8QAEB80mIcXpDf2Zf9m7S4FsFoMJ51USitH
-         Qd1pfZ4aI8HWIB9O1qt8jwZQ6YhUw0CUeBplhf899+yVwxpGxiGqmmXQn83Kl/G4s1eI
-         C+ZSChYFtQHAmgSz+vgZPMqj3wcCWnPZrWj/U9r/3gRuxpP0SGbraorsJPs29Q973tKF
-         kAzOfKhkV3IcUs1n2dwba5aeil8pWoUhDW7HjrjRLDXn9ByPmVyCvnNoBZTuKajNSFhw
-         VwcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=SqPML+unsouuIp4FVHK4Uf7DFvDcdAzoCu01LQ5xtJU=;
-        b=x/8/BN22fBkDstdeECUqupXkOsL16vY6LKQJKJVcHT8LFL8eQR1i/6bvrRPQnwzBvs
-         O/XGxSehE9F1/LC5vig4/pb8FvS6T66VRINdyc9w930n9In+6bFYe6ldnlXPA6FVIFDX
-         JeJ6oBeTUwujK6c6CsL8dvFZtwRbFA4OZA7oFlyIaFesoraKf7+LobAF+vIMvorTe3iW
-         cdEHrk7eiqVNzIH2iPSzD0L7q5Lrd32SzSdgAVltBOX9Ppi6UbupQ99zebLodvi2uyPj
-         KNXOhuL3sdxcbBmo4VrYBvFyQwGjEgs8HydHV59eoN717x3bb7M8AsRs7Z0y+cnbuwLr
-         EVEA==
-X-Gm-Message-State: ACgBeo1w3JnfDtSPlzkWPkKM2JxEShfUgwvDz7JSCVc8zI8A3jVXM3ws
-        0QJq/Qu3BpuM1GCkCotiZywN0liHK5Wc0rsoMBqh9g==
-X-Google-Smtp-Source: AA6agR5Qlu6bHigQRlsF7FnyAifGVWu07Yimovaj6W3A7lzSYgEVwFSZi08eyLAuAWp+B7C3eLgpufDg+xQ7EBPkK+Y=
-X-Received: by 2002:a17:907:a420:b0:765:70a4:c101 with SMTP id
- sg32-20020a170907a42000b0076570a4c101mr5281501ejc.526.1662626322796; Thu, 08
- Sep 2022 01:38:42 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220903-gpiod_get_from_of_node-remove-v1-0-b29adfb27a6c@gmail.com>
- <20220903-gpiod_get_from_of_node-remove-v1-10-b29adfb27a6c@gmail.com>
-In-Reply-To: <20220903-gpiod_get_from_of_node-remove-v1-10-b29adfb27a6c@gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 8 Sep 2022 10:38:31 +0200
-Message-ID: <CACRpkdaeQFP+H786D=SG4s+sQmxScUzve-uWkm-Sg7xFDK_Syw@mail.gmail.com>
-Subject: Re: [PATCH v1 10/11] watchdog: bd9576_wdt: switch to using devm_fwnode_gpiod_get()
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
+        Thu, 8 Sep 2022 13:38:54 -0400
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C262EE512;
+        Thu,  8 Sep 2022 10:38:38 -0700 (PDT)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4MNmYl66NLz9sm3;
+        Thu,  8 Sep 2022 19:38:19 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id arTPYqkDfREp; Thu,  8 Sep 2022 19:38:19 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4MNmYg1FzVz9sm1;
+        Thu,  8 Sep 2022 19:38:15 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 0911E8B763;
+        Thu,  8 Sep 2022 19:38:15 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id Hb4z-3A5s9yz; Thu,  8 Sep 2022 19:38:14 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.232.247])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id B50F58B794;
+        Thu,  8 Sep 2022 19:38:13 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 288HcChR3449193
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Thu, 8 Sep 2022 19:38:13 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 288HcCA43449192;
+        Thu, 8 Sep 2022 19:38:12 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        David Airlie <airlied@linux.ie>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Rob Herring <robh@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
-        linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v1 13/19] watchdog: booke_wdt: Replace PPC_FSL_BOOK3E by PPC_E500
+Date:   Thu,  8 Sep 2022 19:37:46 +0200
+Message-Id: <015ac5217fd0f061e98df9cf98bce515855f2bc3.1662658653.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <4e7e6259e5af0e0e171f19ee1f85ab5b2553723f.1662658653.git.christophe.leroy@csgroup.eu>
+References: <4e7e6259e5af0e0e171f19ee1f85ab5b2553723f.1662658653.git.christophe.leroy@csgroup.eu>
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1662658668; l=2391; s=20211009; h=from:subject:message-id; bh=0Xgzpn3N+NzhlW/qQXofOgnUzUV86dn573JJNprW5yM=; b=9yJqYJvAAVKydXq9+B7xsnSyVfjCOEC1QwwVXX4dqqNqNUpLq+e5g7qXP24ZcPSaYflZ4sgbUnL9 3Erc+E0vAZ/fuXhToSPmjWDOp75mSieksRhRyH2A0e4rHjSsVZ4/
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 5, 2022 at 8:31 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+CONFIG_PPC_FSL_BOOK3E is redundant with CONFIG_PPC_E500.
 
-> I would like to stop exporting OF-specific devm_gpiod_get_from_of_node()
-> so that gpiolib can be cleaned a bit, so let's switch to the generic
-> fwnode property API.
->
-> While at it switch the rest of the calls to read properties in
-> bd9576_wdt_probe() to the generic device property API as well.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Replace it so that CONFIG_PPC_FSL_BOOK3E can be removed later.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig     | 8 ++++----
+ drivers/watchdog/booke_wdt.c | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9295492d24f7..b7c03c600567 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1935,10 +1935,10 @@ config BOOKE_WDT
+ config BOOKE_WDT_DEFAULT_TIMEOUT
+ 	int "PowerPC Book-E Watchdog Timer Default Timeout"
+ 	depends on BOOKE_WDT
+-	default 38 if PPC_FSL_BOOK3E
+-	range 0 63 if PPC_FSL_BOOK3E
+-	default 3 if !PPC_FSL_BOOK3E
+-	range 0 3 if !PPC_FSL_BOOK3E
++	default 38 if PPC_E500
++	range 0 63 if PPC_E500
++	default 3 if !PPC_E500
++	range 0 3 if !PPC_E500
+ 	help
+ 	  Select the default watchdog timer period to be used by the PowerPC
+ 	  Book-E watchdog driver.  A watchdog "event" occurs when the bit
+diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
+index 75da5cd02615..932a03f4436a 100644
+--- a/drivers/watchdog/booke_wdt.c
++++ b/drivers/watchdog/booke_wdt.c
+@@ -27,7 +27,7 @@
+  */
+ 
+ 
+-#ifdef	CONFIG_PPC_FSL_BOOK3E
++#ifdef	CONFIG_PPC_E500
+ #define WDTP(x)		((((x)&0x3)<<30)|(((x)&0x3c)<<15))
+ #define WDTP_MASK	(WDTP(0x3f))
+ #else
+@@ -45,7 +45,7 @@ MODULE_PARM_DESC(nowayout,
+ 		"Watchdog cannot be stopped once started (default="
+ 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-#ifdef CONFIG_PPC_FSL_BOOK3E
++#ifdef CONFIG_PPC_E500
+ 
+ /* For the specified period, determine the number of seconds
+  * corresponding to the reset time.  There will be a watchdog
+@@ -88,7 +88,7 @@ static unsigned int sec_to_period(unsigned int secs)
+ 
+ #define MAX_WDT_TIMEOUT		period_to_sec(1)
+ 
+-#else /* CONFIG_PPC_FSL_BOOK3E */
++#else /* CONFIG_PPC_E500 */
+ 
+ static unsigned long long period_to_sec(unsigned int period)
+ {
+@@ -102,7 +102,7 @@ static unsigned int sec_to_period(unsigned int secs)
+ 
+ #define MAX_WDT_TIMEOUT		3	/* from Kconfig */
+ 
+-#endif /* !CONFIG_PPC_FSL_BOOK3E */
++#endif /* !CONFIG_PPC_E500 */
+ 
+ static void __booke_wdt_set(void *data)
+ {
+-- 
+2.37.1
+
