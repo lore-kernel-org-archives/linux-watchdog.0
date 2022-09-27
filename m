@@ -2,106 +2,164 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 577D0C07E9D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Sep 2022 10:55:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DF3EC6FA82
+	for <linux-watchdog@archiver.kernel.org>; Tue, 27 Sep 2022 11:04:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbiI0Kzj (ORCPT
+        id S231790AbiI0LEx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 27 Sep 2022 06:55:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
+        Tue, 27 Sep 2022 07:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231420AbiI0Kzi (ORCPT
+        with ESMTP id S231299AbiI0LEb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 27 Sep 2022 06:55:38 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5388D1408E;
-        Tue, 27 Sep 2022 03:55:37 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id u59-20020a17090a51c100b00205d3c44162so2023839pjh.2;
-        Tue, 27 Sep 2022 03:55:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date;
-        bh=ZmmRG6YrZ8hXcye3u5h381H4Djt0FAmwEpe9Y1+zhM0=;
-        b=U1u1CvnPZ8uVG534OU/ZOMVlJ5uXseG4UXgCMJt1zuWy4ew3W22D0mYanJ146fF/3M
-         Qw39QdCLOXr6hYtZ765c3MHzRGY0KF0fTU8bxqdOZxyVbj+TdfD6Z5YLDsU5R2mZkUpl
-         0u6koXreVCQaqFG1YQu7iE3DiwhfQxDFVLiyz0CNZru69NnK/nIB4USCGRFR0HHoW2cl
-         PuFjAwBip41LMz1BCNKQ82C35k5e90Iy6uKsz7npF8MFWGPiOaOtm+jHcJFa/dRSCV55
-         zvUn3WKP7LWkGbeeOvr+pNWdqhwNj3mAS9a+rtfBCiDpQ27wQixdX4L971GKxc1bFOuP
-         /e1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date;
-        bh=ZmmRG6YrZ8hXcye3u5h381H4Djt0FAmwEpe9Y1+zhM0=;
-        b=Q+6C0dt9bk2NsntF9czBiRlFadlwscC3CWSReMxts5zeL5CZ0mWrKKn1qqi+knj93P
-         dbhKk0wn9oSz1llZlMyhDZMISSLcUopfoCa6rDgC880SObfugWDR3PL9Qv/QSor/GEPz
-         0lcrh67NNpio1A5NYbo558jl3WWmR+tbgOrbSI7TKryG10+yfg2k5YW2Qd/AIp4G7zDJ
-         ZNEIz2HtDdBxBTR9s3gWczLRquL6Wdb4Zixvxb+MFlpZ6Nr7HJkWme3LrQcd8ea+x1AQ
-         u2CFVhJhKvR1spl4Tru2NAMEOOiTnerDzZVNKZ4pt2r9kDY82PZCnGmj3mUaXFmWMTXb
-         l0zg==
-X-Gm-Message-State: ACrzQf2szVNQlmje/R0q3NDaCicXlOUFW/86mvfSPrGOfS73b94mejzC
-        1ApNyMslj9s/WU0rcnSv7qk=
-X-Google-Smtp-Source: AMsMyM4vcP/N7bKJubPwbDWnQCwhIR+2O9kSQCkO5h1QunWWNhyPjWEbWS68EqXMAFlkgZG2Dkukgw==
-X-Received: by 2002:a17:90b:350d:b0:202:ff91:a0bd with SMTP id ls13-20020a17090b350d00b00202ff91a0bdmr3971878pjb.46.1664276136771;
-        Tue, 27 Sep 2022 03:55:36 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c10-20020a170903234a00b00177e5d83d3dsm1220916plh.170.2022.09.27.03.55.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Sep 2022 03:55:35 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <b308e474-505d-0e53-ff13-fc53f1afa46b@roeck-us.net>
-Date:   Tue, 27 Sep 2022 03:55:32 -0700
+        Tue, 27 Sep 2022 07:04:31 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2050.outbound.protection.outlook.com [40.107.92.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588C7B5A4F;
+        Tue, 27 Sep 2022 04:03:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cF4i88mVV3XXO1dBKsXHt7XK2ne0zyojaFzpVGJDO5Vdu+99cXqRRDpNncCnPzqXQePR7bbmz/GUrtnShw9BnQeYCysdYa5pZT0DD1o3buxEov0OpTQIfBrdpyaTEqrfuQrngjCNNAumOALMx3wuNwFN0WIMTINcYm2V04w0CuB1nSW9LISkFhiqJan8QI/uH9WVXQ+rhYgKnf0zvOSfxfKwLPy+G3R65NxK+fYWexyJqVJ+k2MnY/kew6QHP3Xrrt0hNqxLnmkWJHeG/zxYOwZFK/mCffV3urxrnyWQ3fRyQt+32Q8Ezz1INsWEXXei1jrJOC57vO8ERzdNrkW8Sw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=3/PUyqrjsPzbbo9gmRyx6c3ZbDlDcWnWo1dm1VyO4v0=;
+ b=LYlwNW60gwtsi8PorHOXN1bSzqippai9SRXNllw4Px3/YZLrjUJTV6KC4oYZulN06SlUJYqtH2EtxrDvzXdNrBVKHlugJun3okGHlMAhMhnI+cwrSM1u31c0jCcrZhiiOQWGuZce2FadBBdfxZmsy6OOpnhYqGmb+H23MwNtPSJIqWcSxusWXKvzeb9NlDHakuGuuEU/lm51NYQL9WJ7zz/WE8nBkaq6UPQuul2JzM80axKyb6T1z0J48I4AX04QnvGVm1iIe6anoqLBF65x2R6jjf5SCY+nh8nbUHI/SQuWiaYeQC3MnYQ+uGsVttoTYF0IZD5TAdNZVXcIrfh6NA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=linux-watchdog.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3/PUyqrjsPzbbo9gmRyx6c3ZbDlDcWnWo1dm1VyO4v0=;
+ b=dZMwV1wLUxG/6MriNkMUXXBDkcXnVRRRe9dBMUfrvkXnL8Eo/vn5esfU7RakBH7rmrhfNhXebgrrLUh5OPLpnbwG14fqMRYP+OAj1RJGk2HpEDpTr0PapfbX609fQw1C+/+64kIY9pD/pB0JBF/FIQ3uE6xTkfc1y7fVDiY4un8=
+Received: from BN0PR04CA0142.namprd04.prod.outlook.com (2603:10b6:408:ed::27)
+ by DM6PR12MB4044.namprd12.prod.outlook.com (2603:10b6:5:21d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.15; Tue, 27 Sep
+ 2022 11:03:31 +0000
+Received: from BN8NAM11FT079.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:ed:cafe::30) by BN0PR04CA0142.outlook.office365.com
+ (2603:10b6:408:ed::27) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.26 via Frontend
+ Transport; Tue, 27 Sep 2022 11:03:31 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB03.amd.com; pr=C
+Received: from SATLEXMB03.amd.com (165.204.84.17) by
+ BN8NAM11FT079.mail.protection.outlook.com (10.13.177.61) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5654.14 via Frontend Transport; Tue, 27 Sep 2022 11:03:30 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Tue, 27 Sep
+ 2022 06:03:29 -0500
+Received: from xhdsneeli40u.xilinx.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server id 15.1.2375.28 via Frontend
+ Transport; Tue, 27 Sep 2022 06:03:26 -0500
+From:   Srinivas Neeli <srinivas.neeli@amd.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <srinivas.neeli@amd.com>, <shubhrajyoti.datta@amd.com>,
+        <michal.simek@amd.com>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>
+CC:     <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <devicetree@vger.kernel.org>, <git@amd.com>
+Subject: [PATCH 1/3] dt-bindings: watchdog: xlnx,versal-wwdt: Add binding documentation for xilinx window watchdog device
+Date:   Tue, 27 Sep 2022 16:32:55 +0530
+Message-ID: <20220927110257.41963-2-srinivas.neeli@amd.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20220927110257.41963-1-srinivas.neeli@amd.com>
+References: <20220927110257.41963-1-srinivas.neeli@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 2/4] watchdog: twl4030_wdt: add missing of.h include
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lee Jones <lee@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Lars-Peter Clausen <lars@metafoo.de>,
-        Tony Lindgren <tony@atomide.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-iio@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220927052217.2784593-1-dmitry.torokhov@gmail.com>
- <20220927052217.2784593-2-dmitry.torokhov@gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220927052217.2784593-2-dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT079:EE_|DM6PR12MB4044:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0253b59e-ea48-46dd-5414-08daa077e98e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ALEuhheAwqDLQbYXtz01ThcE9x+KqIy5KkDHhnU6dLPRc5RHfwV9qCLlWgwcGlcOztIUSwK3zkpRLmybhg73yG+GPqbWPyIaMgd4kjbTU6LzHl5i2BUVPN+sx18/PY6la2RiTeCwmF2gtM9kmw8LnEDEeV0PSUtgfeWSZP4ytJ+M266/uD4V4vZndpqQjI5z2JUb8C0nVchOp8zU65VP+gItwcr6zaJS3AG5QK83EccMECy6rR6BZKDwFNdYzG89QZ62EkSQ2UNZ4MCUiUK45/SJISkUxUysxVVPWrUeYYPTu4Ceh5iZQClPs1++yozWZ3RbLxNaMsSoxpVUJNeOMoPhdkUeFZvC21UTYYP7EAvYJ2mUsHnpyw7IVr/UIq0IA45Do43jA/w6k5DHSUrXzVUpdraZ/pjpFAy6JFwXFuxrDL/oeuwvxlP3Wlf9ZDC3aFlUQBy5JQWPj5PvAxzgVQ/uWoh81W5IpHB518RDpst6WUyDQWOQaRVk+xRNhb9v6VrmbIbn6rpd59n+RjUWLkee4PeNTY1pGr+kSWHsL1pkqPOkVmX7QqWWittm5zsdtnXHLUXsy1ark5LSgm7vY0v9aBDcM+pWVICdxKbmvFVSK7DV8qkW1QhVeSCre/KGhSKzKSikZBJkZI0/U0LukWekeemwVaVEV98ShlCeARvg7FBIUW4uRTvspteOOxOoW88cEvhr+2JR7ChhOCBa5QODVDsKR89bEDquS+7vwca4tretcFHPYe4imdD+IH3M4SDX9k4g6WSmlb5l8FgMu7I0r20gZNs6u44ZRUDr/aNfS98xug9rMb63rB2a3U1ufuyePFBarRa13wI6ooQYYD7zZoaBxANqR8FuT4Liy0TbMVFOwGKzc3Jhr+1L/mhe
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(346002)(39860400002)(396003)(136003)(376002)(451199015)(46966006)(40470700004)(36840700001)(36756003)(82310400005)(356005)(2906002)(86362001)(110136005)(54906003)(26005)(6666004)(316002)(81166007)(82740400003)(44832011)(36860700001)(5660300002)(336012)(2616005)(47076005)(83380400001)(186003)(1076003)(426003)(8676002)(41300700001)(40480700001)(478600001)(8936002)(40460700003)(70206006)(70586007)(4326008)(966005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2022 11:03:30.5692
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0253b59e-ea48-46dd-5414-08daa077e98e
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT079.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4044
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 9/26/22 22:22, Dmitry Torokhov wrote:
-> The driver is using of_device_id and therefore needs to include
-> of.h header. We used to get this definition indirectly via inclusion
-> of matrix_keypad.h from twl.h, but we are cleaning up matrix_keypad.h
-> from unnecessary includes.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Add documentation for the binding of window watchdog device.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Srinivas Neeli <srinivas.neeli@amd.com>
+---
+ .../bindings/watchdog/xlnx,versal-wwdt.yaml   | 49 +++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
 
-> ---
->   drivers/watchdog/twl4030_wdt.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-> index 355e428c0b99..e715ac1369a0 100644
-> --- a/drivers/watchdog/twl4030_wdt.c
-> +++ b/drivers/watchdog/twl4030_wdt.c
-> @@ -9,6 +9,7 @@
->   #include <linux/types.h>
->   #include <linux/slab.h>
->   #include <linux/kernel.h>
-> +#include <linux/of.h>
->   #include <linux/watchdog.h>
->   #include <linux/platform_device.h>
->   #include <linux/mfd/twl.h>
+diff --git a/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml b/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
+new file mode 100644
+index 000000000000..986455efa6f4
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/xlnx,versal-wwdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Xilinx Versal window watchdog timer controller
++
++maintainers:
++  - Neeli Srinivas <srinivas.neeli@amd.com>
++
++description:
++  Versal watchdog driver uses window watchdog mode. Window watchdog
++  timer(WWDT) contains closed(first) and open(second) window with
++  32 bit width. Write to the watchdog timer within predefined window
++  periods of time. This means a period that is not too soon and a
++  period that is not too late. The WWDT has to be restarted within
++  the open window time. If software tries to restart WWDT outside of
++  the open window time period, it generates a reset.
++
++properties:
++  compatible:
++    enum:
++      - xlnx,versal-wwdt-1.0
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  timeout-sec: true
++
++required:
++  - compatible
++  - reg
++  - clocks
++
++additionalProperties: false
++
++examples:
++  - |
++        watchdog@fd4d0000 {
++           compatible = "xlnx,versal-wwdt-1.0";
++           reg = <0xfd4d0000 0x10000>;
++           clocks = <&clock25>;
++           timeout-sec = <30>;
++        };
++...
+-- 
+2.17.1
 
