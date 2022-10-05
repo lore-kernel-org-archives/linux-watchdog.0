@@ -2,37 +2,37 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83F43C433FE
-	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Oct 2022 11:40:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A218AC433F5
+	for <linux-watchdog@archiver.kernel.org>; Wed,  5 Oct 2022 11:40:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbiJELk1 (ORCPT
+        id S230229AbiJELka (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 5 Oct 2022 07:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51460 "EHLO
+        Wed, 5 Oct 2022 07:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230217AbiJELkD (ORCPT
+        with ESMTP id S230230AbiJELkE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Oct 2022 07:40:03 -0400
+        Wed, 5 Oct 2022 07:40:04 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6183C75397;
-        Wed,  5 Oct 2022 04:37:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD04DF77;
+        Wed,  5 Oct 2022 04:37:18 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id B07E666022F7;
-        Wed,  5 Oct 2022 12:35:36 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 73F2A66022F9;
+        Wed,  5 Oct 2022 12:35:38 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1664969737;
-        bh=PxitsQwCWAwAr+2+HSMcJXNyusgMJ8PPadXjCl+pj+Y=;
+        s=mail; t=1664969739;
+        bh=/7BGNVmlvPkqeDYBGkWztyuuvDVeU67h+vPFB54rXc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEheWfddh4LNq6ARzKNjiAA/5fLVUHYP8FRaitDeHkLNj/SkrvbjAFn5uJBJqD9rI
-         yxz2m0W8pzBWIAhnTOxAR3eAYgPjOFABaEfTTFNp2w++Bry2p4gu5s82O6hnT7GSkj
-         Kf6Z8EKdp8PfsuKLEeHFf/MQ/4j70/JDLKzTIHXI6CK3sys5itOL2wZ6CW1EfwRM+T
-         FXHdmRSwpCkqIX8twgKxsRjPWs3Coq+QQ0XxR/Jesg12UTLlFX/wr33O9dsu/45Iup
-         heuKdxarORmrdQtiUNUwIl2YRm6wWhnKAYFxKUv2ZA/J9g0i9Vd7D2S61F4mWnZgk2
-         FtYcUnLWEZ46A==
+        b=ct9+K1N+ae63ngLJ6uGP20dsPPJ0BTs6+78OZ+A9nGM6zkENoRXts2wBvrNwmnGUV
+         MoWW2tswP4zV77YyjzaapzVEp7VydKdQl0WgOshQuZM5tI/dCKXMNdl075b37xWa0j
+         HDH7VHU1bln2BUyi3BF9ai5iMLw9LqNwdiwM4+IihhxZppjBx1xsNBntcBTMJCINxo
+         sVO7+MQiACkHY1xF2QRga2m3AcgBrtwSz/X04uYWO6Bg6qFvFFhxTlsNw0ts7zhrla
+         dFIxgF0AuDt78oVdJxHH2BcKJY9f51i0XoNvQ6fqhWHB+LCaRuC3XjbuLyye9MLv4h
+         hm3OGiBTMpajQ==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     wim@linux-watchdog.org
@@ -43,9 +43,9 @@ Cc:     linux@roeck-us.net, robh+dt@kernel.org,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/5] arm64: dts: mediatek: mt8195: Fix watchdog compatible
-Date:   Wed,  5 Oct 2022 13:35:14 +0200
-Message-Id: <20221005113517.70628-3-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH 4/5] dt-bindings: watchdog: mediatek,mtk-wdt: Add compatible for MT6795
+Date:   Wed,  5 Oct 2022 13:35:16 +0200
+Message-Id: <20221005113517.70628-5-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20221005113517.70628-1-angelogioacchino.delregno@collabora.com>
 References: <20221005113517.70628-1-angelogioacchino.delregno@collabora.com>
@@ -55,30 +55,25 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-MT8195's watchdog embeds a reset controller and needs only the
-mediatek,mt8195-wdt compatible string as the MT6589 one is there
-for watchdogs that don't have any reset controller capability.
+Add the mediatek,mt6795-wdt compatible.
 
-Fixes: 37f2582883be ("arm64: dts: Add mediatek SoC mt8195 and evaluation board")
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- arch/arm64/boot/dts/mediatek/mt8195.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dtsi b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-index 0b85b5874a4f..58ed83d97cc3 100644
---- a/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-@@ -683,8 +683,7 @@ power-domain@MT8195_POWER_DOMAIN_AUDIO {
- 		};
- 
- 		watchdog: watchdog@10007000 {
--			compatible = "mediatek,mt8195-wdt",
--				     "mediatek,mt6589-wdt";
-+			compatible = "mediatek,mt8195-wdt";
- 			mediatek,disable-extrst;
- 			reg = <0 0x10007000 0 0x100>;
- 			#reset-cells = <1>;
+diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+index f43b5af92d40..54dfe7941d53 100644
+--- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+@@ -23,6 +23,7 @@ properties:
+           - enum:
+               - mediatek,mt2712-wdt
+               - mediatek,mt6589-wdt
++              - mediatek,mt6795-wdt
+               - mediatek,mt7986-wdt
+               - mediatek,mt8183-wdt
+               - mediatek,mt8186-wdt
 -- 
 2.37.2
 
