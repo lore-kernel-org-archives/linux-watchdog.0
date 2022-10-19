@@ -2,88 +2,116 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 665CEC433FE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 19 Oct 2022 13:16:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB181C4332F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 19 Oct 2022 13:18:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbiJSNQU (ORCPT
+        id S231708AbiJSNSH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 19 Oct 2022 09:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50246 "EHLO
+        Wed, 19 Oct 2022 09:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbiJSNPx (ORCPT
+        with ESMTP id S231793AbiJSNRl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Oct 2022 09:15:53 -0400
-Received: from cpanel.siel.si (cpanel.siel.si [46.19.9.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A965E78;
-        Wed, 19 Oct 2022 06:01:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=XOXKSdEYSGaB7TrIJqdXmUIfhtXAEMTKYNQDMHu+5+o=; b=iAftC1DlOniMYlNZSSECpiAdeK
-        LccPSIzdRYsfUO01CsO4alVE/fGnwRYwuh8yCWnIyezwJNnfoiLw0dKNibZEPkgoU07mbmtoHlk6D
-        v8nmmHEq6NPHZRQybIes4CrRSzpAzY5RERGXNFZYXgDwYO/fEz2pA+H53F/Jahf9Wr0EEGdCGqxVN
-        EhK9t8DAknnY4QX0DtgQ3cJ9AAKS3DqF95q3OFiRP66AP5SNMKSz3pDVKLdEEZHu92HTyylPMN7QH
-        fI+2Lzgv5u7mBvsVw+h7SmvW6hAakvBc7xYTQxIJvQltEk6GgkxRFjR734Ybh+4A5r58CcKpokDcO
-        IVu/kW/A==;
-Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:45936 helo=localhost.localdomain)
-        by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <andrej.picej@norik.com>)
-        id 1ol74W-007ZXa-71;
-        Wed, 19 Oct 2022 13:17:16 +0200
-From:   Andrej Picej <andrej.picej@norik.com>
-To:     linux-watchdog@vger.kernel.org
-Cc:     shawnguo@kernel.org, linux@roeck-us.net,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-imx@nxp.com, festevam@gmail.com,
-        kernel@pengutronix.de, s.hauer@pengutronix.de,
-        wim@linux-watchdog.org, robh+dt@kernel.org
-Subject: [PATCH 0/3] Suspending i.MX watchdog in WAIT mode
-Date:   Wed, 19 Oct 2022 13:17:11 +0200
-Message-Id: <20221019111714.1953262-1-andrej.picej@norik.com>
-X-Mailer: git-send-email 2.25.1
+        Wed, 19 Oct 2022 09:17:41 -0400
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F3EFFFB0;
+        Wed, 19 Oct 2022 06:03:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1666184603; x=1697720603;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=OpHeyrfs5g5Rgp1Z7VMRy13RBDkqqg8QwJgqAbh3w0E=;
+  b=NjOTsM/5IP1DgSK7sxkeLYiDNN9jEAxbJAbcjBAmcZ9Kb06pRjEpnwOP
+   48nrauicTeY6fd3U8Ax2aDTvU8I3m/jNySnDU9dyTKG248uWU+7Eq/QsX
+   YM/Qtu12fC3Gqf8YXaIkjXGEC8dHHvHxEo1duCPy11sP8aplhLE7DEdra
+   wjuzULClSkLHXmEFMJfX3Ip2SbDKIB2umhIk4+MwCIaCsOBL3MANfH+ip
+   JEGtb4FD+fFv81CcNaSg2PNKn+wWbv4zagLM0P945o4uVKj4IK46sbA6V
+   qDKTFSAuklMeXvYpPtx7lgsek8g6L4eINN08ahLSZOentHnfwO5cGmUew
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.95,196,1661810400"; 
+   d="scan'208";a="26846560"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 19 Oct 2022 15:00:42 +0200
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Wed, 19 Oct 2022 15:00:42 +0200
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Wed, 19 Oct 2022 15:00:42 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1666184442; x=1697720442;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=OpHeyrfs5g5Rgp1Z7VMRy13RBDkqqg8QwJgqAbh3w0E=;
+  b=VwgAES2gYLWF6vpZ+a6pbo7fM/qmhoQ9cdUxEw0Ia0ZphGOmko/jSADj
+   FO1U3JgYNy3g6Iw6J1vfH/Aq6AvYzAqo7EM0ye+qqJTdh4j5UIrj1YSnV
+   K9MABzo7UH89+Lp4rLxToKvjifabR2wAmBhiSBTKO3XyDeIJDSu7FRM6f
+   zDe6dpH7IPIzN0/roIKybmn1Vb04UIi0g3i/eP4qGuRODhNYe4XMwMcAI
+   F+t835MZaez8GhjyAYRPsqKf2JxlGtzCXyn/2bJrEZc4V+dOMrjTSbpk/
+   h0gYiyUSNygjubKEm7PWICNdF9yh0n4aJtv+d7HxbGuNOuXzcAjUOBtO6
+   A==;
+X-IronPort-AV: E=Sophos;i="5.95,196,1661810400"; 
+   d="scan'208";a="26846559"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 19 Oct 2022 15:00:42 +0200
+Received: from steina-w.localnet (unknown [10.123.53.21])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPSA id D5F49280056;
+        Wed, 19 Oct 2022 15:00:41 +0200 (CEST)
+From:   Alexander Stein <alexander.stein@ew.tq-group.com>
+To:     Andrej Picej <andrej.picej@norik.com>
+Cc:     linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, shawnguo@kernel.org,
+        linux@roeck-us.net, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-imx@nxp.com, festevam@gmail.com, kernel@pengutronix.de,
+        s.hauer@pengutronix.de, wim@linux-watchdog.org, robh+dt@kernel.org
+Subject: Re: [PATCH 2/3] dt-bindings: watchdog: fsl-imx: document suspend in wait mode
+Date:   Wed, 19 Oct 2022 15:00:39 +0200
+Message-ID: <7508670.GXAFRqVoOG@steina-w>
+Organization: TQ-Systems GmbH
+In-Reply-To: <20221019111714.1953262-3-andrej.picej@norik.com>
+References: <20221019111714.1953262-1-andrej.picej@norik.com> <20221019111714.1953262-3-andrej.picej@norik.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cpanel.siel.si
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - norik.com
-X-Get-Message-Sender-Via: cpanel.siel.si: authenticated_id: andrej.picej@norik.com
-X-Authenticated-Sender: cpanel.siel.si: andrej.picej@norik.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The i.MX6 watchdog can't be stopped once started. This means that
-special hardware suspend needs to be configured when the device enters
-low-power modes.
-Usually i.MX devices have two bits which deal with this:
-- WDZST bit disables the timer in "deeper" low power modes and
-- WDW bit disables the timer in "WAIT" mode which corresponds with
-Linux's "freeze" low-power mode.
+Hello Andrej,
 
-WDZST bit support is already in place since 1a9c5efa576e ("watchdog: imx2_wdt: disable watchdog timer during low power mode").
-WDW bit is not common for all imx2-wdt supported devices, therefore use
-a new device-tree property "fsl,suspend-in-wait" which suspends the
-watchdog in "WAIT" mode.
+Am Mittwoch, 19. Oktober 2022, 13:17:13 CEST schrieb Andrej Picej:
+> Signed-off-by: Andrej Picej <andrej.picej@norik.com>
+> ---
+>  Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.yaml | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.yaml
+> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.yaml index
+> fb7695515be1..01b3e04e7e65 100644
+> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.yaml
+> @@ -55,6 +55,11 @@ properties:
+>        If present, the watchdog device is configured to assert its
+>        external reset (WDOG_B) instead of issuing a software reset.
+> 
+> +  fsl,suspend-in-wait:
+> +    $ref: /schemas/types.yaml#/definitions/flag
+> +    description: |
+> +      If present, the watchdog device is suspended in WAIT mode.
+> +
+>  required:
+>    - compatible
+>    - interrupts
 
-Andrej Picej (3):
-  watchdog: imx2_wdg: suspend watchdog in WAIT mode
-  dt-bindings: watchdog: fsl-imx: document suspend in wait mode
-  ARM: dts: imx6ul/ull: suspend i.MX6UL watchdog in wait mode
+What is the condition the watchdog is suspended in WAIT mode? Is this specific 
+to SoC or platform or something else?
 
- .../devicetree/bindings/watchdog/fsl-imx-wdt.yaml          | 5 +++++
- arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi           | 4 ++++
- drivers/watchdog/imx2_wdt.c                                | 7 +++++++
- 3 files changed, 16 insertions(+)
+Best regards,
+Alexander
 
--- 
-2.25.1
+
 
