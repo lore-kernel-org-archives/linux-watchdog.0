@@ -2,37 +2,37 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF983C43217
-	for <linux-watchdog@archiver.kernel.org>; Thu,  3 Nov 2022 10:04:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B968C433FE
+	for <linux-watchdog@archiver.kernel.org>; Thu,  3 Nov 2022 10:04:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230502AbiKCKE3 (ORCPT
+        id S231299AbiKCKEc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 3 Nov 2022 06:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        Thu, 3 Nov 2022 06:04:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230098AbiKCKE2 (ORCPT
+        with ESMTP id S230500AbiKCKE2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 3 Nov 2022 06:04:28 -0400
 Received: from cpanel.siel.si (cpanel.siel.si [46.19.9.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E31B1F0;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0789394;
         Thu,  3 Nov 2022 03:04:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=HL/7H+fZFpuFCnct+yiKKIoU0SNeD7m+YyJFOGqoENc=; b=CcrPiQK4f5PZRgeY78c3T/U/WR
-        ElZnDHm8q36yYziBlYFuYjhH1soN7aL5DLt2ydiqk+Y0vpdQd5/ekKV2eCHdmNz/ysffIGUQ+P2TM
-        R6vfLLa/D82RQlB+f+u1qo7O5adHCf0tHCO3BYrlDcqdfHKOFfcGaB2udsCs6M0DqIdwrVVQQqh87
-        Iko4e3JaqbyRr4PipF0Um+KYNE/UVQu6QR/krNk8HCTq0hVPqbNrIlonq3yQdUe7IEXLX1aAt1lf9
-        CKcYncV2XZdThWpvSOMYlGKSLmeGhSb4TpJ7rla7Ld56xrgSopGyzrDFw9lllK+StO2cgZ1/QlKA7
-        ztmtG5Iw==;
+        bh=3I6cduE/0VLYX77KsgcKyS/YAJZf7qjM4jfGtEfeI/M=; b=mfql3DQCBqVXhPG5MwjUzLku6D
+        Yr8akr9e+8qulTiDKL1Gsd/rQ8+DUXTH7SnyAmd04LMW7/JHUwaQxvHm3dI+WlKOLYyfxZltMZuPK
+        NjDIEuE6mYsSF/YAPN6TSre0pM2N0XciY6yi1UOOZOO1VMbDvOiMK0wTF57aTpjPo8biBqo2rl7Fa
+        JUwIZczyWCrECSn70eok5mBEg5p319EOx1Sye6zebgq+vRGG/s3pjclIveQPKt9tHgoecsozbTBWv
+        qQ/Uv3fBYOM6TUSUW5UImHANT074A48HajbHRm7zbX2PJntJBJnIa42G75EJ7gvVZT2S2K55J132Q
+        zmd0cUYg==;
 Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:37996 helo=localhost.localdomain)
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.95)
         (envelope-from <andrej.picej@norik.com>)
-        id 1oqX52-008HsM-LI;
+        id 1oqX52-008HsM-9z;
         Thu, 03 Nov 2022 11:04:20 +0100
 From:   Andrej Picej <andrej.picej@norik.com>
 To:     linux-watchdog@vger.kernel.org
@@ -41,12 +41,10 @@ Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
         s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
         linux-imx@nxp.com, Anson.Huang@nxp.com, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 3/3] ARM: dts: imx6ul/ull: suspend i.MX6UL watchdog in wait mode
-Date:   Thu,  3 Nov 2022 11:03:58 +0100
-Message-Id: <20221103100358.176099-4-andrej.picej@norik.com>
+Subject: [PATCH v3 0/3] Suspending i.MX watchdog in WAIT mode
+Date:   Thu,  3 Nov 2022 11:03:55 +0100
+Message-Id: <20221103100358.176099-1-andrej.picej@norik.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221103100358.176099-1-andrej.picej@norik.com>
-References: <20221103100358.176099-1-andrej.picej@norik.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -63,37 +61,46 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-It was discovered that the watchdog triggers when the device is put into
-"Suspend-To-Idle"/"freeze" low-power mode. Setting WDW bit disables
-watchdog when the device is put into WAIT mode.
+The i.MX6 watchdog can't be stopped once started. Additionally, watchdog
+hardware configuration needs to be able to handle low-power modes of the
+SoC. For low-power modes, there are two configuration bits in the TRM:
+- WDZST bit disables the watchdog timer in "deeper" low power modes and
+- WDW bit disables the watchdog timer in "WAIT" mode
 
-Signed-off-by: Andrej Picej <andrej.picej@norik.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
----
-Changes in v3:
- - no changes
+WDZST bit support is already in place since 1a9c5efa576e ("watchdog: imx2_wdt: disable watchdog timer during low power mode").
+On the other hand, handling of WDZST bit was omitted so far but now
+these patch series bring support for it.
 
-Changes in v2:
- - no changes
----
- arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+SoC's "WAIT" low-power mode corresponds to Linux's freeze or
+Suspend-to-Idle (S0) mode which can be activated with:
 
-diff --git a/arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi
-index 3cddc68917a0..5168ed0ffec3 100644
---- a/arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi
-+++ b/arch/arm/boot/dts/imx6ul-phytec-phycore-som.dtsi
-@@ -102,6 +102,10 @@ &usdhc2 {
- 	status = "disabled";
- };
- 
-+&wdog1 {
-+	fsl,suspend-in-wait;
-+};
-+
- &iomuxc {
- 	pinctrl_enet1: enet1grp {
- 		fsl,pins = <
+$ echo freeze > /sys/power/state
+
+Without these patches, board would be reset by the watchdog after
+timeout of 128 seconds since watchdog would not be stopped when SoC
+entered Suspend-to-Idle mode. With patches in place, boards using
+imx2-wdt are able to stay in Suspend-to-Idle mode indefinitely.
+
+Last but not least, WDW bit is not found on all imx2-wdt supported i.MX
+devices, therefore a new device-tree property "fsl,suspend-in-wait" has
+been introduced for this.
+
+Here is v1: https://lore.kernel.org/lkml/20221019111714.1953262-1-andrej.picej@norik.com/
+
+Here is v2: https://lore.kernel.org/all/20221025072533.2980154-1-andrej.picej@norik.com/#t
+
+Change log in the corresponding patches.
+
+Andrej Picej (3):
+  watchdog: imx2_wdg: suspend watchdog in WAIT mode
+  dt-bindings: watchdog: fsl-imx: document suspend in wait mode
+  ARM: dts: imx6ul/ull: suspend i.MX6UL watchdog in wait mode
+
+ .../bindings/watchdog/fsl-imx-wdt.yaml        | 33 +++++++++++
+ .../boot/dts/imx6ul-phytec-phycore-som.dtsi   |  4 ++
+ drivers/watchdog/imx2_wdt.c                   | 55 ++++++++++++++++++-
+ 3 files changed, 89 insertions(+), 3 deletions(-)
+
 -- 
 2.25.1
 
