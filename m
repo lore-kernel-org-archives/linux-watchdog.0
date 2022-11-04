@@ -2,92 +2,143 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 899F7C43217
-	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Nov 2022 14:35:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1B83C433FE
+	for <linux-watchdog@archiver.kernel.org>; Fri,  4 Nov 2022 16:19:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231154AbiKDOfw (ORCPT
+        id S231565AbiKDQTk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 4 Nov 2022 10:35:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
+        Fri, 4 Nov 2022 12:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbiKDOeh (ORCPT
+        with ESMTP id S229539AbiKDQTi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Nov 2022 10:34:37 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86E1303F9;
-        Fri,  4 Nov 2022 07:32:25 -0700 (PDT)
-Received: from notapiano (unknown [IPv6:2600:4041:5b1a:cd00:524d:e95d:1a9c:492a])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: nfraprado)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 27C756602966;
-        Fri,  4 Nov 2022 14:32:23 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1667572344;
-        bh=E4RBBVSKwbPJ3/jKWf+eXG57O7vMDBSJ35AS7H0Ljbs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jeuVh2DVCbj48QLsyqPk0UlTG4g5jUtsZVTT7fIxGVydicFOoGlOPyrS5gnFT0nPo
-         LpBCTbhTj1LpaWTW2Ux4O65DBImV53rBsVD/RBwMtGWqx/0pzzklwZ7to9Cvpxj0Uu
-         PtypyCcUSER01jNIkvI8TsEnwJ5N5YIQPZFQg8dc7WpWlx+lS0iqBS3t5GyVzTYLIF
-         oa+sm0Mt8Up0nDQuGSQ76snc1jnKVRJZx4lX7We4Jb4eoptVOZbSR2j3o61DvZKSRR
-         e6M6xmncOl+xB5XV3/Ffe2bpqO3Yr2glsnZoRJ9jepVw+jH1uxAZ/+J6t9F+C31U1W
-         mG5rMI9OoRMGQ==
-Date:   Fri, 4 Nov 2022 10:32:19 -0400
-From:   =?utf-8?B?TsOtY29sYXMgRi4gUi4gQS4=?= Prado 
-        <nfraprado@collabora.com>
-To:     Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        Fri, 4 Nov 2022 12:19:38 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4640C20F6C;
+        Fri,  4 Nov 2022 09:19:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net; s=s31663417;
+        t=1667578744; bh=tqgQ7pawhIV4t9HvNdKf2jVTg7Dq96Y1ZvNJLJ1+csY=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=LeN39DnSIJFltd1q0GRj0/rLFNblWaRZrO5sUWBuw0Uuq2vZ1WXmaer2vkUaVO78S
+         Bp3DFTH1UHAMYM819LJEnzeY1SwNue5QXNVnBDHVQ3x0hAhzze13SBr4knJcEAFYTK
+         JiDHcmcR1Qbb/HbmsjMbWrGlRuuS4wLCOfArD6PcMzBI/cmrwmLkP6Imznr7PkV1I8
+         g6PRp/3kMEjJ0/0n6kB9r8HM2ruMMqWvxYqPwRruENG070LPeBG1YRubmaXBpvnuyw
+         KIYbqzJBgmOEbzS+5mPKcmzV/TteZGn+liRwJ/Gpi5iZ4QMi/m3I5uwEkHEWztfHZe
+         OWmHLN5gxlOQQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from probook ([95.223.44.31]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MyKHm-1pEGyy0Xkq-00ykiN; Fri, 04
+ Nov 2022 17:19:04 +0100
+From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     linux-clk@vger.kernel.org, openbmc@lists.ozlabs.org
+Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
-        angelogioacchino.delregno@collabora.com,
-        Project_Global_Chrome_Upstream_Group@mediatek.com,
-        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v4 4/7] arm64: dts: mediatek: mt8516: Fix the watchdog
- node name
-Message-ID: <20221104143219.aiwfezso7r72yg7q@notapiano>
-References: <20221104020701.24134-1-allen-kh.cheng@mediatek.com>
- <20221104020701.24134-5-allen-kh.cheng@mediatek.com>
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v5 2/6] clocksource: timer-npcm7xx: Enable timer 1 clock before use
+Date:   Fri,  4 Nov 2022 17:18:46 +0100
+Message-Id: <20221104161850.2889894-3-j.neuschaefer@gmx.net>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221104161850.2889894-1-j.neuschaefer@gmx.net>
+References: <20221104161850.2889894-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221104020701.24134-5-allen-kh.cheng@mediatek.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:AcLaAkbCO8V1wMAgSOaX3/AGdk7f/JhdypdOHpr/VMjkCavhWCj
+ DA4QJ2+U9R4Vmq4sT5ZO5NL6Yk+NdzVX5DxYzvz3qw6sM2FsvSjhicOQzbIOkEdAzO45wpo
+ bFMS6RMVfGSQSZLnUwxFGwGtpvBoMy12/GR2GJ7XuEsQclttCEj/xNyZSxyPHpb+KFC6a3L
+ EKkDwSoBcLubHKN+ZDsoA==
+UI-OutboundReport: notjunk:1;M01:P0:NVVijpYq+Pk=;5OKIg1RcUiXCS6JevaCWZe+ZBEB
+ XMH8/xamCxMyuihH3uIjXBCZIbC7gZntVPSHTooLhp/B1oS2cc91Hxz6jcwf9kZWpkHo+Qube
+ CW8hpFyTz6TZr7ABc6Orq1uSriIXt1cX88NvwASgasOIy5bfAA+jG2T3PtAay20SGDHVTG32e
+ tB8XfVU6MW41rORmsUJ7XNfo0rZv8vX/RQ4opsiRILAvbxdLTe1kMhIeMhD5fyyneKcs/mK94
+ 1cM/NYe6LvX4WRvV1eAj6lrCGABdExxsFr88pnSsjJ882ooUXld15kpa2PwxSVGkS4wqOvtiG
+ vQFTWGnLSuhUSbdvgJbBdhl699Sfb4bw7P8rVBCf4+LW/xlf1S9EZd30CNiMdd1aIE4Ty7avS
+ HXUUgfy2O/2ayCZbYwhAHUNwGY2VKLaOHvS1h42cu2q5HwKStNWDjhIyxEHN/lee3WJenwBzr
+ ARDACNLRfVpWXlvCJoqOO19vczgrXOaxOjXBB+4B/sXJJn97n1YBZ4NSfeztjEwDx+msIQ2jF
+ vJ6I3j5S8IgESY4vmPlm5RJbb75cX9cTM6ufdMLCvwqf5vipC0zk/lRG/XY08Mq3cq7aVbs9U
+ AoxYOvwhAv9KWd3tFWPxIs0OiOGi6+OxgDEc9ph1wesRTPkY0ZMqrH9wdW4eliwPl+Ju1w4X6
+ n5pSPHc28WfdE4hRDzUkFhWHdzqK0EFO4PYEKRS5Hri5PG90a9i8vdWdOKP/AiQJ8AoNjNsi+
+ JDL2k+6c64DOXWuQySRO4b9vej+SgZBsgzw+8BKRoemn9s2euovELFJhxxAZwVfg+5+vqw9dt
+ egFBAaaec0cl3vqOYXIyuRYpMnsBYi6REoiwHi1yt8d2UDAFiyld9z+kL5wPo4KKBcqFN83gq
+ XyS5VUoAZ+gsshDDl8ZSVJ+MXb7uSHbFm9CC2m2oq3/90PPb7sN02Jl0OvjiymjwaF/QjILXP
+ pNJItw==
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Nov 04, 2022 at 10:06:58AM +0800, Allen-KH Cheng wrote:
-> The proper name is 'watchdog', not 'toprgu'.
-> 
-> Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-> Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-> ---
->  arch/arm64/boot/dts/mediatek/mt8516.dtsi | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/boot/dts/mediatek/mt8516.dtsi b/arch/arm64/boot/dts/mediatek/mt8516.dtsi
-> index d1b67c82d761..fff59dc1b4d7 100644
-> --- a/arch/arm64/boot/dts/mediatek/mt8516.dtsi
-> +++ b/arch/arm64/boot/dts/mediatek/mt8516.dtsi
-> @@ -202,7 +202,7 @@
->  			#clock-cells = <1>;
->  		};
->  
-> -		toprgu: toprgu@10007000 {
-> +		toprgu: watchdog@10007000 {
+In the WPCM450 SoC, the clocks for each timer can be gated individually.
+To prevent the timer 1 clock from being gated, enable it explicitly.
 
-I think you missed my comment about renaming the label as well on the previous
-version.
+Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+=2D--
 
->  			compatible = "mediatek,mt8516-wdt",
->  				     "mediatek,mt6589-wdt";
->  			reg = <0 0x10007000 0 0x1000>;
-> -- 
-> 2.18.0
-> 
+Daniel Lezcano mentioned that he applied this patch, but I wasn't able
+to find it in linux-next, so I'm sending it again.
+
+v5:
+- no changes relative to v3
+
+v4:
+- not included
+
+v3:
+- no changes
+
+v2:
+- Provide context in pr_warn message
+
+v1:
+- https://lore.kernel.org/lkml/20220422183012.444674-3-j.neuschaefer@gmx.n=
+et/
+=2D--
+ drivers/clocksource/timer-npcm7xx.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/clocksource/timer-npcm7xx.c b/drivers/clocksource/tim=
+er-npcm7xx.c
+index a00520cbb660a..9af30af5f989a 100644
+=2D-- a/drivers/clocksource/timer-npcm7xx.c
++++ b/drivers/clocksource/timer-npcm7xx.c
+@@ -188,6 +188,7 @@ static void __init npcm7xx_clocksource_init(void)
+
+ static int __init npcm7xx_timer_init(struct device_node *np)
+ {
++	struct clk *clk;
+ 	int ret;
+
+ 	ret =3D timer_of_init(np, &npcm7xx_to);
+@@ -199,6 +200,15 @@ static int __init npcm7xx_timer_init(struct device_no=
+de *np)
+ 	npcm7xx_to.of_clk.rate =3D npcm7xx_to.of_clk.rate /
+ 		(NPCM7XX_Tx_MIN_PRESCALE + 1);
+
++	/* Enable the clock for timer1, if it exists */
++	clk =3D of_clk_get(np, 1);
++	if (clk) {
++		if (!IS_ERR(clk))
++			clk_prepare_enable(clk);
++		else
++			pr_warn("%pOF: Failed to get clock for timer1: %pe", np, clk);
++	}
++
+ 	npcm7xx_clocksource_init();
+ 	npcm7xx_clockevents_init();
+
+=2D-
+2.35.1
+
