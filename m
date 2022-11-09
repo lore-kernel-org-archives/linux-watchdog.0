@@ -2,91 +2,97 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C05AC433FE
-	for <linux-watchdog@archiver.kernel.org>; Tue,  8 Nov 2022 10:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A722AC4332F
+	for <linux-watchdog@archiver.kernel.org>; Wed,  9 Nov 2022 09:04:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233644AbiKHK7O (ORCPT
+        id S230210AbiKIJEY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 8 Nov 2022 05:59:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        Wed, 9 Nov 2022 04:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233577AbiKHK7M (ORCPT
+        with ESMTP id S230212AbiKIJES (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 8 Nov 2022 05:59:12 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A053E2FC09
-        for <linux-watchdog@vger.kernel.org>; Tue,  8 Nov 2022 02:59:11 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id j4so20765776lfk.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 08 Nov 2022 02:59:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gKq0Z1l8oyk0eTyU/o64FPBYWBNjgIJP6U1m6VFKy38=;
-        b=jq15JLHcMwjPo4ZAVev6hyodHFze50Y4xkNNcEBd3N5bTa5gPvN3mV2VtvW5wu6ow2
-         A8mYz+ncNNJPaeD8cjsxQ0on0uzB7GZNwbzPGec0nSf9nwHtpfrVRRP4u0rF8bmJ79ZT
-         vV2R/dk6RqbMfiY2mXFfkSt1XD/C7yLwAVFDWdsCDje0sYSjkh+QNA+S1uPn4H/vhq+/
-         3GMNVA/4fSCXVmmdZzIVn7K5uRRi6BWuVWamfeexUaMBYGz3hCFUtvN357DOABEiXHdF
-         xF6p280cnlJRpgCWwwesbDSenCdz4xURwFz2ShhVS5eQ8EjTskEGfhHwgk+1mE9SwEAe
-         5Kvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gKq0Z1l8oyk0eTyU/o64FPBYWBNjgIJP6U1m6VFKy38=;
-        b=0yYVeJRBUMxgyEI1a3UZScrbH93PCdSOJiOHisxkPChZgzEoW46ZEgyEf72xX3j+oU
-         7v8FGTvAbk707e7KHw6afujHBXsrQjeSh+WeXT79N5zR5nt4/u293SDYAIoytwynigeL
-         qc+b6xwKDFTZnCy6Bp1C2XnrJ2pDDYK6Rm7fmW5yKCak57dFSR1ziOU5ob7E0h1O3bfG
-         5B1yCc93wRobi+ctai/LIEgmMkb990hF/4jQJ4vu+35ggarLOI0c2M3OBUJ+uArfe6Pp
-         Q01ee/ASfLlbAuCZOcKLl8F8FFhOo9hHIdVrqK8mQFpNDp4OsSZPjQftio06hHGjPSSP
-         2WLA==
-X-Gm-Message-State: ACrzQf3+mwdR44Io5FGNvWRcgVGfVUieZIEAsFwXYQDqHbgg63m9oTUq
-        2+METRsKRHn13CF4K10D76qnFA==
-X-Google-Smtp-Source: AMsMyM6/CWgviva8Ua5H2rBPqp+shUg1VToT4XYT2Nz9j6W2D+ROm/o9KyJhfyTcFBWltkiLfbmkbA==
-X-Received: by 2002:ac2:4c8e:0:b0:4a2:4745:a63d with SMTP id d14-20020ac24c8e000000b004a24745a63dmr18436290lfl.605.1667905150054;
-        Tue, 08 Nov 2022 02:59:10 -0800 (PST)
-Received: from [192.168.0.20] (088156142199.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.199])
-        by smtp.gmail.com with ESMTPSA id t1-20020a2e9d01000000b0026fa9e19197sm1688928lji.36.2022.11.08.02.59.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Nov 2022 02:59:09 -0800 (PST)
-Message-ID: <241dfd95-8572-626a-fa9a-339c67641fd7@linaro.org>
-Date:   Tue, 8 Nov 2022 11:59:08 +0100
+        Wed, 9 Nov 2022 04:04:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C9DE19C2D;
+        Wed,  9 Nov 2022 01:04:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2607B81D46;
+        Wed,  9 Nov 2022 09:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B212C433D7;
+        Wed,  9 Nov 2022 09:04:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667984655;
+        bh=dH7Ry1CIVTZgyI9KDAD7GwQOyjSCd95V0RbPoon0Nc4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=aX27582WOVXNU1jj0FQfgLz8r3Yp9vvPY4KtxtEXh+a/GDU3sWTVgpeZfpqnW4tdk
+         KOrP4RnySArPB0V2V28mCiKe+K55D28CiZTS89Ip0pGDJRWR9wrJrJ4I1GPclPgmZa
+         JUjxjOPw+yA06lGWQcbEnstdabNQB3x0VKGsKa6wgtYWtx0EmSCeky7MKrUoHXdKq7
+         am7b1p9AnemOG9o/u96or6eQEu2BWfDnD1g3Opk8Dg+TEINLXc93XQBLBJkYVZmouO
+         CPOvHn0hi9wsPA+cd2/k3DsmbcqiDDOLRF54HAoHUjLzM1y+NzizH7lVpGV0ZvKotI
+         AgZW7YTKiy3QA==
+Message-ID: <5758c2af-c2c5-dfbe-c7d8-036bbdaf71c7@kernel.org>
+Date:   Wed, 9 Nov 2022 10:04:09 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.4.2
-Subject: Re: [PATCH v4 2/3] dt-bindings: watchdog: fsl-imx: document suspend
- in wait mode
+Subject: Re: [PATCH v5 5/7] dt-bindings: watchdog: mediatek: Convert mtk-wdt
+ to json-schema
 Content-Language: en-US
-To:     Andrej Picej <andrej.picej@norik.com>,
-        linux-watchdog@vger.kernel.org
-Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
-        linux-imx@nxp.com, Anson.Huang@nxp.com, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20221104070358.426657-1-andrej.picej@norik.com>
- <20221104070358.426657-3-andrej.picej@norik.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20221104070358.426657-3-andrej.picej@norik.com>
+To:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     nfraprado@collabora.com, angelogioacchino.delregno@collabora.com,
+        Project_Global_Chrome_Upstream_Group@mediatek.com,
+        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org
+References: <20221108033209.22751-1-allen-kh.cheng@mediatek.com>
+ <20221108033209.22751-6-allen-kh.cheng@mediatek.com>
+ <585a9cbb-4df4-1c06-ecfa-3b9442f1a5e2@gmail.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+In-Reply-To: <585a9cbb-4df4-1c06-ecfa-3b9442f1a5e2@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 04/11/2022 08:03, Andrej Picej wrote:
-> Property "fsl,suspend-in-wait" suspends watchdog in "WAIT" mode which
-> corresponds to Linux's Suspend-to-Idle S0 mode. If this property is not
-> set and the device is put into Suspend-to-Idle mode, the watchdog
-> triggers a reset after 128 seconds.
+On 08/11/2022 11:50, Matthias Brugger wrote:
 > 
-> Signed-off-by: Andrej Picej <andrej.picej@norik.com>
-> Reviewed-by: Fabio Estevam <festevam@gmail.com>
+> 
+> On 08/11/2022 04:32, Allen-KH Cheng wrote:
+>> From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+>>
+>> Convert the MediaTek watchdog bindings to schema.
+>>
+>> The original binding only had 4 without a fallback but there is a reset
+>> controller on the "mediatek,mt7986-wdt", "mediatek,mt8186-wdt",
+>> "mediatek,mt8188-wdt" and "mediatek,mt8195-wdt" Since there is no reset
+>> controller for the mt6589, we remove "mediatek,mt6589-wdt" as a
+>> fallback.
+>>
+>> Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+>> Co-developed-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+>> Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+>> Reviewed-by: Rob Herring <robh@kernel.org>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>> Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+> 
+> As I'm put as the maintainer:
+> Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
+> 
+> Shall I take that through my tree or shall it go through the watchdog tree?
+> 
 
-
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In general, bindings should go via subsystem trees (so watchdog), just
+like drivers. However this got Guenter's review tag, so usually it means
+also an ack... Dunno... :)
 
 Best regards,
 Krzysztof
