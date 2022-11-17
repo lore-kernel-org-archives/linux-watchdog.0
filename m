@@ -2,102 +2,98 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49D66C433FE
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Nov 2022 14:00:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1D4FC433FE
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Nov 2022 11:01:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233371AbiKPOAe (ORCPT
+        id S239421AbiKQLBV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 16 Nov 2022 09:00:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
+        Thu, 17 Nov 2022 06:01:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233366AbiKPN6R (ORCPT
+        with ESMTP id S239495AbiKQLAZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 16 Nov 2022 08:58:17 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322411B1E7;
-        Wed, 16 Nov 2022 05:55:02 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id m14-20020a17090a3f8e00b00212dab39bcdso2435988pjc.0;
-        Wed, 16 Nov 2022 05:55:02 -0800 (PST)
+        Thu, 17 Nov 2022 06:00:25 -0500
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC351580B
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 Nov 2022 02:58:53 -0800 (PST)
+Received: by mail-lj1-x22d.google.com with SMTP id z24so2230402ljn.4
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 Nov 2022 02:58:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nSWYalwf+bf6KkReRCTGSxhMbvjbEeV9ckPBymc027w=;
-        b=D6rz4DWIklKq67U6tVHPdzRfnfHf5nC9hwr6c1H2FNt8TZY4zkAEz6MEiXnBMGiQvI
-         wG9v39SukQ+3GzZLjNa2Yei+NQQQ5wdrTp9mf40A/hwKWTfU0/c2/fzcGy3zeaJ/qXiM
-         ks+O1Be7vk/A6qE2DzBW5+rXl2iY0W+5xAbNHENdt5jcCrboH1jFLdA7R5+YVj6NKlly
-         JsTIV4isUjUwfj2NCPSTNiRLmeNBQ1JHCmVZ8kgfO+QcpMgj2zZ8FSHKOrVKI1+AI/Oz
-         FCqAifR18yvA6+dO2b7UVPGTcdCtoNzyCvqxMYEfACR4w4x0ClUUX7jNRq2SvDlFc7hx
-         vR/w==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FZKW7Ev5+0Dpti/uSPcNCqyxUeFWx9iDTQT51fsveLg=;
+        b=quxf3BZ8jVfhc/nH7Y5CE/bla3ULvxP13BfTPHhR3AoxLQqMPtDbabE5WkoJSJVcbT
+         Cc5e80IYpH3STs5PcoIK0RvyN6Td6aGkbcH5qPaB/OQ8DRYpdDIvS2yfvMK6SqJrMXuY
+         zAWKPkUx+yEOFvHYAc7BtYnrNEQ77G+RkxHmIyPKUeL6nA3wT2yg8Np+o85KGP+YJyXn
+         O0sYxV79eU87VZ8VBLsqbnZnfYbRq/3d7uAit2Wj5Wx7wZgDXCSTNDllVWm8AkPVh14T
+         0gBkHRNSB+L+muDgNinsqszA43/BKrqUcTAlmn8+oeSa8vKUJVI/LVMM7Gq/rJqqY/QS
+         PWFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nSWYalwf+bf6KkReRCTGSxhMbvjbEeV9ckPBymc027w=;
-        b=3cCulgRExdRxl7PkCz1lDn1F08XlnMwK1/uYCfRSpLYxF5UbSUHWXVtGFUOJfYWlhK
-         uVrvIcYceQMekwpdVkrTsVt/j7Bt809hnyzJhB3W08kGaLPkvRaZycOG7h0Q5NQRL6xw
-         p7l5VOfZaKXkZvH6j5jRTbLAT7aXKgvUiS12Nwkf2U5OFQ2nRbnCsV8ntSUEEqv02yDG
-         vdaMg4S2GPe4wvJiqAEXyNRfVvI4bhKsRIGtpZx8/DwaRTQJ6WjG+/zVPEa7lAJ3wMZe
-         Kml8Xn44sGKazMjVbKozI3OqUstPf2boQEud06LkJTXNuTR7K/ZAI8WGTdQYGWkMq/8Z
-         C6lg==
-X-Gm-Message-State: ANoB5pndx2by6MkbqIJ1xB8MFmayF0baf64iqlTrE4qAQhUtHzyK0DlM
-        Mba4pYd7bMRK1q5i7eopu/8=
-X-Google-Smtp-Source: AA0mqf5nRzKr/LTwaiR9xgiihHLCehwGtyQfOKHIF9WlN9lSrWL0Z8pNcx4yZhUh4vbjVluSJ/Lo1g==
-X-Received: by 2002:a17:90a:1b61:b0:213:cfb4:719 with SMTP id q88-20020a17090a1b6100b00213cfb40719mr3808743pjq.188.1668606901702;
-        Wed, 16 Nov 2022 05:55:01 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d15-20020a170902cecf00b001871461688esm12291304plg.175.2022.11.16.05.55.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Nov 2022 05:55:01 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 16 Nov 2022 05:55:00 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     ruanjinjie <ruanjinjie@huawei.com>
-Cc:     wim@linux-watchdog.org, nicolas.ferre@microchip.com,
-        alexandre.belloni@bootlin.com, claudiu.beznea@microchip.com,
-        bbrezillon@kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: at91sam9_wdt: use devm_request_irq to avoid
- missing free_irq() in error path
-Message-ID: <20221116135500.GC3498904@roeck-us.net>
-References: <20221116094950.3141943-1-ruanjinjie@huawei.com>
+        bh=FZKW7Ev5+0Dpti/uSPcNCqyxUeFWx9iDTQT51fsveLg=;
+        b=A2FiDR/PVs/6onb4gHqSL1qMOqUIJlQsdwmWfARFEAESdqYc3ahfZbzlkCv/3LKXnT
+         ntlA/OYmZp2P7Kpri4aIhSukDgwTk3V2tQ1Fb2rubFAVUgGzzUNflTJs7gi3rOK8dGCE
+         fIxcOG/gDgxSajxy6khTt/9VxXumuJ94UDQhrD85lVLOEy5JUpXTLE47Ss4hd5+AvhF9
+         A47UGhHoCTPZNCiS7gg1PqfYJ6k+N1FMtbkelHzPNBGq5BYZGc2DorNMW/mbyI8pWJAX
+         jr1DMpwGGm3jjUuAHxMDySZVeJ9UFRLkTyx/9UQOnbP6YMwWPc7AG7kk5iJRjWAaJ9zk
+         L/sw==
+X-Gm-Message-State: ANoB5plZggnl4ItfBg4MCDlzcvtMEMyakuCzmKzTVNNgABcN1lQnSmry
+        qcW7XMVr6pFmUcBjwLOhwEy6Sg==
+X-Google-Smtp-Source: AA0mqf7W4EMRFi2OnsiKBzqOxyeuq84IcdSi96tags2STd3idC6wFnnCdxHHFXFUUX82J9aujE/fWQ==
+X-Received: by 2002:a2e:3819:0:b0:277:2217:9ee2 with SMTP id f25-20020a2e3819000000b0027722179ee2mr761928lja.183.1668682731658;
+        Thu, 17 Nov 2022 02:58:51 -0800 (PST)
+Received: from localhost.localdomain ([194.29.137.22])
+        by smtp.gmail.com with ESMTPSA id d7-20020a193847000000b00499cf3e3edcsm89123lfj.296.2022.11.17.02.58.50
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 17 Nov 2022 02:58:51 -0800 (PST)
+From:   Konrad Dybcio <konrad.dybcio@linaro.org>
+To:     linux-arm-msm@vger.kernel.org, andersson@kernel.org,
+        agross@kernel.org, krzysztof.kozlowski@linaro.org
+Cc:     patches@linaro.org, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 2/2] dt-bindings: watchdog: Add MSM8994 watchdog timer
+Date:   Thu, 17 Nov 2022 11:58:45 +0100
+Message-Id: <20221117105845.13644-2-konrad.dybcio@linaro.org>
+X-Mailer: git-send-email 2.32.0 (Apple Git-132)
+In-Reply-To: <20221117105845.13644-1-konrad.dybcio@linaro.org>
+References: <20221117105845.13644-1-konrad.dybcio@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221116094950.3141943-1-ruanjinjie@huawei.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 16, 2022 at 05:49:50PM +0800, ruanjinjie wrote:
-> free_irq() is missing in case of error in at91_wdt_init(), use
-> devm_request_irq to fix that.
-> 
-> Fixes: 5161b31dc39a ("watchdog: at91sam9_wdt: better watchdog support")
-> Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Document the MSM8994 watchdog timer which is already used in DT.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+---
+ Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+index d8ac0be36e6c..a1f17c9e02db 100644
+--- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+@@ -17,6 +17,7 @@ properties:
+     oneOf:
+       - items:
+           - enum:
++              - qcom,apss-wdt-msm8994
+               - qcom,apss-wdt-qcs404
+               - qcom,apss-wdt-sc7180
+               - qcom,apss-wdt-sc7280
+-- 
+2.38.1
 
-> ---
->  drivers/watchdog/at91sam9_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-> index 292b5a1ca831..b9e8572c707d 100644
-> --- a/drivers/watchdog/at91sam9_wdt.c
-> +++ b/drivers/watchdog/at91sam9_wdt.c
-> @@ -206,7 +206,7 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
->  			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
->  
->  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
-> -		err = request_irq(wdt->irq, wdt_interrupt,
-> +		err = devm_request_irq(dev, wdt->irq, wdt_interrupt,
->  				  IRQF_SHARED | IRQF_IRQPOLL |
->  				  IRQF_NO_SUSPEND,
->  				  pdev->name, wdt);
-> -- 
-> 2.25.1
-> 
