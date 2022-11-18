@@ -2,234 +2,111 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7769C4167B
-	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Nov 2022 18:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E99FCC4332F
+	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Nov 2022 22:07:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242724AbiKRS7A (ORCPT
+        id S230024AbiKRWHq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 18 Nov 2022 13:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51122 "EHLO
+        Fri, 18 Nov 2022 17:07:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242685AbiKRSvE (ORCPT
+        with ESMTP id S229965AbiKRWHp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 18 Nov 2022 13:51:04 -0500
-Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23D58FE4C;
-        Fri, 18 Nov 2022 10:51:02 -0800 (PST)
-Received: by mail-oi1-f169.google.com with SMTP id q186so6281450oia.9;
-        Fri, 18 Nov 2022 10:51:02 -0800 (PST)
+        Fri, 18 Nov 2022 17:07:45 -0500
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAAAA7C2A;
+        Fri, 18 Nov 2022 14:07:45 -0800 (PST)
+Received: by mail-ot1-x32a.google.com with SMTP id m7-20020a9d6447000000b0066da0504b5eso3896416otl.13;
+        Fri, 18 Nov 2022 14:07:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wgcPyzOf6Q15rxxM6fTsspp0P6UUf5LqBU3xDxpeGO0=;
+        b=e6umILm9EFnYjS3rxK0bYDa6NoWKCEOk3ARc2VDU2V1mXMNxmMxLuApUYRlL5Y2CxT
+         Byx85PFQ8acEpLADgVl90kZh7zxKGUTcc9sbWuqhz42I8k1YMiOuU/G9/IjkL1OInd/k
+         Crx4J/xSMAjW0SxUR8/rGG/EjDgWWrIEApsAb31E10RymedSrC9ZgnGnebQf1+jR4Wzf
+         Yn8xOFZMs0kDNdPKEDjHid6wTe2e167HU9KYD4feACuz7RYuHIlnVKR0Ih3V0VMe0jG0
+         fYxw++MvSVgQdeGU9SkTRaPZt7BiitFUqCLE+LdOQgYPYvf/FMj0oitSGrOWKXIwpHyX
+         K2Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=date:subject:message-id:references:in-reply-to:cc:to:from
-         :mime-version:content-transfer-encoding:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=WzS3WtV19uBm00dgl97OvXjcFQKpmz+VUthp+6QJwgA=;
-        b=sA6Xrc/nUPbbb4Y6RTlAlB2t/bnua05IK2NX+ZU3PeD1hqBc8GVpdwICR40DcaHgEX
-         9gMGv2wFHoAWOV5ff2Mgb/vPwMvzv332wS3rS7IRaRwxLaua1HozyOljY8N34w0REmZf
-         1yAlDFWReA/Z9e9E/Gy6jFqggm48rIrO0pM6MoVDR4e/kMeFE+Z+VFiANVgnf9LUJIgE
-         kI/cU4gE+tjgexHGUhlYwo57U4KKewULYiQoHSY9PHcsIC23Ib/QtJ2A0PQ0syBMUgP4
-         167vLLgntUFoEMMyKoq6nLCxhGlBpXecekrVlC1tKmfilkSph2MqFTbuXNIeRfb8boB6
-         xp0g==
-X-Gm-Message-State: ANoB5pk9YxmaIlAJqGKy2quewWngGgbhgJWIbvVuKG+ULgAiuj8D2kdI
-        ZlWSBoDnblBLriI7RdY9Iw==
-X-Google-Smtp-Source: AA0mqf6ferzv+4GGZPDebben4TW1gUVW8/OSjdRsgVgscJgO6X2ZElGsRFpjyAIn/ZlSGOWa870QDA==
-X-Received: by 2002:aca:2809:0:b0:359:eb40:a3e3 with SMTP id 9-20020aca2809000000b00359eb40a3e3mr4098140oix.199.1668797461734;
-        Fri, 18 Nov 2022 10:51:01 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id m11-20020a056808024b00b0035763a9a36csm1684492oie.44.2022.11.18.10.51.00
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wgcPyzOf6Q15rxxM6fTsspp0P6UUf5LqBU3xDxpeGO0=;
+        b=PNUFU+R/OiBIn2chUim21IiCR+OhWapimz3DS7yv+ZsOy3ozmUvUmDLaYAKmE7HwjJ
+         ZDGPnLRGtbLyxT6xudvc3V1ctpi09UVyZgPAvlgYNtophlJtAcaL86P4VSRzQFkDtBIe
+         xNqryGKJrJlV5jg/BMyCsULTQocXi41lxxhwtO4EaoQmAUN8FNU5B+nG1w6uHU2hwzSV
+         LOH/vOt6a0yYtQQTILZYLD5O2uszw+U/3XBNQ6c6P6izfnLUeCAoMIvT4fxaw9XoXx2V
+         +MsokHkbAnNxZ7FtTyrbq440KylgUAJkCySGF1ZLoZQHV7uzvVlPtrIsvvHWfPnr1Fe+
+         1BwA==
+X-Gm-Message-State: ANoB5pn5pxj/hghKb9Jj0qT7C+8C0kWJQQEO3NhzurZxWNhcSCpwMF64
+        /TZihkgIBtGAmwRuwlc5uCo=
+X-Google-Smtp-Source: AA0mqf6B2ThA3WTewjIwAtEwYhsfuCflD8wp2jc4sesZ4vw8LYj8YHCgTydiNbyy8LPDcvzEzXzIDw==
+X-Received: by 2002:a9d:2288:0:b0:66d:dff:1d9f with SMTP id y8-20020a9d2288000000b0066d0dff1d9fmr4797132ota.376.1668809264547;
+        Fri, 18 Nov 2022 14:07:44 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a9-20020a05687073c900b00142169cb977sm2700151oan.7.2022.11.18.14.07.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Nov 2022 10:51:01 -0800 (PST)
-Received: (nullmailer pid 856959 invoked by uid 1000);
-        Fri, 18 Nov 2022 18:50:54 -0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-From:   Rob Herring <robh@kernel.org>
-To:     Neil Armstrong <neil.armstrong@linaro.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        linux-rtc@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        devicetree@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Fri, 18 Nov 2022 14:07:44 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 18 Nov 2022 14:07:43 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Prabhakar <prabhakar.csengg@gmail.com>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-amlogic@lists.infradead.org, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        linux-mmc@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        linux-phy@lists.infradead.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>
-In-Reply-To: <20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org>
-References: <20221117-b4-amlogic-bindings-convert-v1-0-3f025599b968@linaro.org> 
- <20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org>
-Message-Id: <166879731144.850871.8899653807720274409.robh@kernel.org>
-Subject: Re: [PATCH 02/12] dt-bindings: nvmem: convert amlogic-efuse.txt to dt-schema
-Date:   Fri, 18 Nov 2022 12:50:54 -0600
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas,wdt: Document RZ/Five SoC
+Message-ID: <20221118220743.GB685644@roeck-us.net>
+References: <20221118133829.12855-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221118133829.12855-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-On Fri, 18 Nov 2022 15:33:28 +0100, Neil Armstrong wrote:
-> Convert the  Amlogic Meson GX eFuse bindings to dt-schema.
+On Fri, Nov 18, 2022 at 01:38:29PM +0000, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > 
-> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+> The WDT block on the RZ/Five SoC is identical to one found on the RZ/G2UL
+> SoC. "renesas,r9a07g043-wdt" compatible string will be used on the
+> RZ/Five SoC so to make this clear, update the comment to include RZ/Five
+> SoC.
+> 
+> No driver changes are required as generic compatible string
+> "renesas,rzg2l-wdt" will be used as a fallback on RZ/Five SoC.
+> 
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->  .../bindings/nvmem/amlogic,meson-gxbb-efuse.yaml   | 52 ++++++++++++++++++++++
->  .../devicetree/bindings/nvmem/amlogic-efuse.txt    | 48 --------------------
->  2 files changed, 52 insertions(+), 48 deletions(-)
+>  Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-
-Running 'make dtbs_check' with the schema in this patch gives the
-following warnings. Consider if they are expected or the schema is
-incorrect. These may not be new warnings.
-
-Note that it is not yet a requirement to have 0 warnings for dtbs_check.
-This will change in the future.
-
-Full log is available here: https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org
-
-
-efuse: compatible:0: 'amlogic,meson-gxbb-efuse' was expected
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: compatible: ['amlogic,meson-gx-efuse', 'amlogic,meson-gxbb-efuse'] is too long
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: Unevaluated properties are not allowed ('compatible' was unexpected)
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: Unevaluated properties are not allowed ('compatible', 'wifi_mac@C' were unexpected)
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
-
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> index 26b1815a6753..e2c9bf1aec38 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+> @@ -26,7 +26,7 @@ properties:
+>  
+>        - items:
+>            - enum:
+> -              - renesas,r9a07g043-wdt    # RZ/G2UL
+> +              - renesas,r9a07g043-wdt    # RZ/G2UL and RZ/Five
+>                - renesas,r9a07g044-wdt    # RZ/G2{L,LC}
+>                - renesas,r9a07g054-wdt    # RZ/V2L
+>            - const: renesas,rzg2l-wdt
+> -- 
+> 2.25.1
+> 
