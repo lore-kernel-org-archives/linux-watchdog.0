@@ -2,110 +2,168 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B440C4321E
-	for <linux-watchdog@archiver.kernel.org>; Mon,  5 Dec 2022 08:30:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45544C4167B
+	for <linux-watchdog@archiver.kernel.org>; Fri,  9 Dec 2022 12:00:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbiLEIav (ORCPT
+        id S229954AbiLIMAs (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 5 Dec 2022 03:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        Fri, 9 Dec 2022 07:00:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231765AbiLEIau (ORCPT
+        with ESMTP id S229719AbiLIMAq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Dec 2022 03:30:50 -0500
-Received: from ex01.ufhost.com (ex01.ufhost.com [61.152.239.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B8515FFE;
-        Mon,  5 Dec 2022 00:30:49 -0800 (PST)
-Received: from EXMBX166.cuchost.com (unknown [175.102.18.54])
-        (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-        (Client CN "EXMBX166", Issuer "EXMBX166" (not verified))
-        by ex01.ufhost.com (Postfix) with ESMTP id 5EF9924E254;
-        Mon,  5 Dec 2022 16:30:47 +0800 (CST)
-Received: from EXMBX161.cuchost.com (172.16.6.71) by EXMBX166.cuchost.com
- (172.16.6.76) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 5 Dec
- 2022 16:30:47 +0800
-Received: from [192.168.125.128] (113.72.146.33) by EXMBX161.cuchost.com
- (172.16.6.71) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 5 Dec
- 2022 16:30:46 +0800
-Message-ID: <8e75f250-7f1b-ba79-77c8-09ec801e9c05@starfivetech.com>
-Date:   Mon, 5 Dec 2022 16:27:31 +0800
+        Fri, 9 Dec 2022 07:00:46 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9EE303E8
+        for <linux-watchdog@vger.kernel.org>; Fri,  9 Dec 2022 04:00:38 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id n20so11063775ejh.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 Dec 2022 04:00:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CCwzWMPdgO9Dcc0FuYTNg8nT6gaYsC62geOPdirkTlQ=;
+        b=blV6eki9f/dE3yt8k9vQjmYbdmKqtjXhWL8aRDi0+PTy9DZ7PoASn6Hb4YDawt6/Pq
+         TOTWkNyJ1bQ0LXeAOKmZsgrohPEAxg4I9Vxq8Iql4MCfOpzd9bk59Kg8A1l2aCabzc1i
+         Pwb8zUD5pTagBDWz9wlqw8be8RXHOe4ntLhBEh7HXgPppKgizTPX68btz3fJ69iSfJef
+         zAFAyKFjvCY4s0mBfuw+77i/sj6ivMcyXsKkk5Q+7miuQY1uqqYMcxvazgbad3gQhSeN
+         osKwSC1CYREx2mikz7Rsbjiro/V/gVq1uBZVJYbtUMGcexuFEHFb/xJK0jJPCO1YVyoF
+         GpZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CCwzWMPdgO9Dcc0FuYTNg8nT6gaYsC62geOPdirkTlQ=;
+        b=OWdi6H6HBFnvLOKkpG148d6pV3MUoBTLL8Zkquga0xmF8NDgy9E/qEdj2Hx4a5e/F+
+         QaU/7vfjRBxRh8K7e66igHU7zJIZUMuP2WBpEUCN+rvlBjyv9E5yPiERblSpVNuBamSa
+         q0oD3rVNe5yb74xzoZQmiqHWF6ly1RS5+Ng8gV65+yTC4PpXEL6DtYBx/2YumRC9CFuj
+         cK8urCIU5kr11Cp8YFIvJZruh1Nm949WCSa3AXcM5eWKqoS+XdsnuXkw2emePLQUilwO
+         DuLs+wuBKgpVdPdojWv38616CEsAjLTBNiASmRB6hVZ5ZfDr6MhmT5/Bw1ViNm9PCIz+
+         9x3g==
+X-Gm-Message-State: ANoB5pmz0I+EyVjJraDv4zmsm8ZpnPERrddWPm/i3x7ENkxlpzPX1qP/
+        kQCgBn75qPyCpII1m39RlWzfCA==
+X-Google-Smtp-Source: AA0mqf7P1uuFrcKToZQL1Qs7OSMRUELHntqUphTx86r+y9eGx8OMntNtg5Twtz4wxSVo6DNFFYUZgg==
+X-Received: by 2002:a17:906:4907:b0:7c0:d4fa:3151 with SMTP id b7-20020a170906490700b007c0d4fa3151mr4765674ejq.17.1670587236522;
+        Fri, 09 Dec 2022 04:00:36 -0800 (PST)
+Received: from prec5560.. (freifunk-gw.bsa1-cpe1.syseleven.net. [176.74.57.43])
+        by smtp.gmail.com with ESMTPSA id o23-20020a170906861700b007c0a7286c0asm489597ejx.58.2022.12.09.04.00.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Dec 2022 04:00:35 -0800 (PST)
+From:   Robert Foss <robert.foss@linaro.org>
+To:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Grant Likely <grant.likely@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>
+Cc:     Robert Foss <robert.foss@linaro.org>,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-media@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net,
+        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-spi@vger.kernel.org, kernel@pengutronix.de,
+        Purism Kernel Team <kernel@puri.sm>,
+        linux-rpi-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
+        linux-actions@lists.infradead.org, netdev@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-staging@lists.linux.dev, chrome-platform@lists.linux.dev,
+        linux-crypto@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-amlogic@lists.infradead.org, linux-fbdev@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linuxppc-dev@lists.ozlabs.org, patches@opensource.cirrus.com,
+        linux-omap@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-pm@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: (subset) [PATCH 000/606] i2c: Complete conversion to i2c_probe_new
+Date:   Fri,  9 Dec 2022 13:00:14 +0100
+Message-Id: <167058708567.1651663.18170722235132459286.b4-ty@linaro.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH v1 3/3] riscv: dts: starfive: jh7110: Add watchdog node
-Content-Language: en-US
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-CC:     Rob Herring <robh+dt@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        <linux-watchdog@vger.kernel.org>,
-        Samin Guo <samin.guo@starfivetech.com>,
-        <linux-kernel@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
-        <devicetree@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-References: <20221202093943.149674-1-xingyu.wu@starfivetech.com>
- <20221202093943.149674-4-xingyu.wu@starfivetech.com>
- <66e66749-cc0f-f147-2648-03b52f95cca5@linaro.org>
-From:   Xingyu Wu <xingyu.wu@starfivetech.com>
-In-Reply-To: <66e66749-cc0f-f147-2648-03b52f95cca5@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [113.72.146.33]
-X-ClientProxiedBy: EXCAS066.cuchost.com (172.16.6.26) To EXMBX161.cuchost.com
- (172.16.6.71)
-X-YovoleRuleAgent: yovoleflag
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2022/12/2 18:48, Krzysztof Kozlowski wrote:
-> On 02/12/2022 10:39, xingu.wu wrote:
->> From: Xingyu Wu <xingyu.wu@starfivetech.com>
->> 
->> This adds the watchdog node for the Starfive JH7110 SoC.
+On Fri, 18 Nov 2022 23:35:34 +0100, Uwe Kleine-König wrote:
+> since commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
+> call-back type") from 2016 there is a "temporary" alternative probe
+> callback for i2c drivers.
 > 
-> Do not use "This commit/patch".
-> https://elixir.bootlin.com/linux/v5.17.1/source/Documentation/process/submitting-patches.rst#L95
-
-Will drop 'This'.
-
+> This series completes all drivers to this new callback (unless I missed
+> something). It's based on current next/master.
+> A part of the patches depend on commit 662233731d66 ("i2c: core:
+> Introduce i2c_client_get_device_id helper function"), there is a branch that
+> you can pull into your tree to get it:
 > 
->> 
->> Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
->> ---
->>  arch/riscv/boot/dts/starfive/jh7110.dtsi | 14 ++++++++++++++
->>  1 file changed, 14 insertions(+)
->> 
->> diff --git a/arch/riscv/boot/dts/starfive/jh7110.dtsi b/arch/riscv/boot/dts/starfive/jh7110.dtsi
->> index c22e8f1d2640..22f5a37d691e 100644
->> --- a/arch/riscv/boot/dts/starfive/jh7110.dtsi
->> +++ b/arch/riscv/boot/dts/starfive/jh7110.dtsi
->> @@ -433,5 +433,19 @@ uart5: serial@12020000 {
->>  			reg-shift = <2>;
->>  			status = "disabled";
->>  		};
->> +
->> +		wdog: watchdog@13070000 {
->> +			compatible = "starfive,jh7110-wdt";
->> +			reg = <0x0 0x13070000 0x0 0x10000>;
->> +			interrupts = <68>;
->> +			clocks = <&syscrg JH7110_SYSCLK_WDT_CORE>,
->> +				 <&syscrg JH7110_SYSCLK_WDT_APB>;
->> +			clock-names = "core_clk", "apb_clk";
->> +			resets = <&syscrg JH7110_SYSRST_WDT_APB>,
->> +				 <&syscrg JH7110_SYSRST_WDT_CORE>;
->> +			reset-names = "rst_apb", "rst_core";
->> +			timeout-sec = <15>;
->> +			status = "okay";
-> 
-> Why? okay is by default
-> 
+> [...]
 
-Will drop it.
+Applied all patches that build.
 
-Best regards,
-Xingyu Wu
+Patches excluded:
+ - ps8622
+ - ti-sn65dsi83
+ - adv7511
+
+Repo: https://cgit.freedesktop.org/drm/drm-misc/
+
+
+[014/606] drm/bridge: adv7511: Convert to i2c's .probe_new()
+          (no commit info)
+[015/606] drm/bridge/analogix/anx6345: Convert to i2c's .probe_new()
+          (no commit info)
+[016/606] drm/bridge/analogix/anx78xx: Convert to i2c's .probe_new()
+          (no commit info)
+[017/606] drm/bridge: anx7625: Convert to i2c's .probe_new()
+          (no commit info)
+[018/606] drm/bridge: icn6211: Convert to i2c's .probe_new()
+          (no commit info)
+[019/606] drm/bridge: chrontel-ch7033: Convert to i2c's .probe_new()
+          commit: 8dc6de280f01c0f7b8d40435736f3c975368ad70
+[020/606] drm/bridge: it6505: Convert to i2c's .probe_new()
+          (no commit info)
+[021/606] drm/bridge: it66121: Convert to i2c's .probe_new()
+          (no commit info)
+[022/606] drm/bridge: lt8912b: Convert to i2c's .probe_new()
+          (no commit info)
+[023/606] drm/bridge: lt9211: Convert to i2c's .probe_new()
+          (no commit info)
+[024/606] drm/bridge: lt9611: Convert to i2c's .probe_new()
+          (no commit info)
+[025/606] drm/bridge: lt9611uxc: Convert to i2c's .probe_new()
+          (no commit info)
+[026/606] drm/bridge: megachips: Convert to i2c's .probe_new()
+          (no commit info)
+[027/606] drm/bridge: nxp-ptn3460: Convert to i2c's .probe_new()
+          (no commit info)
+[028/606] drm/bridge: parade-ps8622: Convert to i2c's .probe_new()
+          (no commit info)
+[029/606] drm/bridge: sii902x: Convert to i2c's .probe_new()
+          (no commit info)
+[030/606] drm/bridge: sii9234: Convert to i2c's .probe_new()
+          (no commit info)
+[031/606] drm/bridge: sii8620: Convert to i2c's .probe_new()
+          (no commit info)
+[032/606] drm/bridge: tc358767: Convert to i2c's .probe_new()
+          (no commit info)
+[033/606] drm/bridge: tc358768: Convert to i2c's .probe_new()
+          (no commit info)
+[034/606] drm/bridge/tc358775: Convert to i2c's .probe_new()
+          (no commit info)
+[035/606] drm/bridge: ti-sn65dsi83: Convert to i2c's .probe_new()
+          (no commit info)
+[037/606] drm/bridge: tfp410: Convert to i2c's .probe_new()
+          (no commit info)
+
+
+
+rob
 
