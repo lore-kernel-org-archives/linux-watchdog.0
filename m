@@ -2,98 +2,124 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE084C4332F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Dec 2022 16:35:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77E05C25B04
+	for <linux-watchdog@archiver.kernel.org>; Mon, 12 Dec 2022 16:39:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbiLLQf4 (ORCPT
+        id S232770AbiLLQjH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 12 Dec 2022 11:35:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39868 "EHLO
+        Mon, 12 Dec 2022 11:39:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232516AbiLLQfv (ORCPT
+        with ESMTP id S232821AbiLLQih (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Dec 2022 11:35:51 -0500
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855BAFCD6
-        for <linux-watchdog@vger.kernel.org>; Mon, 12 Dec 2022 08:35:46 -0800 (PST)
-Received: by mail-lf1-x133.google.com with SMTP id bp15so265880lfb.13
-        for <linux-watchdog@vger.kernel.org>; Mon, 12 Dec 2022 08:35:46 -0800 (PST)
+        Mon, 12 Dec 2022 11:38:37 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C2214D0E
+        for <linux-watchdog@vger.kernel.org>; Mon, 12 Dec 2022 08:37:03 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id c66so13666955edf.5
+        for <linux-watchdog@vger.kernel.org>; Mon, 12 Dec 2022 08:37:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MrlXoiGbA/2CszX40DeD+tawQUe1JnBh5V1LSFMpA5I=;
-        b=rer1g8GORdvmzqTiedHoBbXnxcQ2UNzJeXv2VXp7om9lUZzin06+eTqRtdHT13tBrK
-         bOsYNmgzb/P06emo71WjpXinOxZyL7uOngh15mbJjUjSOtys0yQmNcd2UNwnhhuuZZij
-         vALMoh44/cA3nzTtxcRE8eCUIlUv9PUHPmZd+h1V7ggQKS9oySwnMUtafUU5UKm3CDC/
-         HQlf8IZ3VgxbEDJQkID8UHghIb2YRAo9lpZBwKT2UAIOJsGImLRetUP82Vdw7lXQ6MdB
-         siwHNphVC/3+LazQFPdLxJn8S7QInTlFoPCUYyB+Ku7rL7962gsRE0nPeFscGtQ03WR8
-         U2Dw==
+        bh=lvYON1Uq6UT3Qph7OPPr0NH47G6rUYR8O1BO9MFwJow=;
+        b=lIFXcScE+1mmzH1SBNLfPzmU2yyZ22FDa7zo6/O0Bw9aIOxDeXxYkEVfus52JWuhda
+         4ouELocZnEhmnwFppolEYq4c3c7RHYAqD4pax4M3unQDLONiM/9+ejXSM9E2FE+Z0v02
+         plxbNMhSLCExfq6g58BwEJLatQLzpt/xLWOhKWfMwSgaHbhPuPfGnoShEU2Q/8V0GhBe
+         I8mO/6POKEHTvHhiQrSmT3i/DlcfyH1o4pAMtSuNXvNoHj+mOy3GKKCsRTSQGVPFd3Z7
+         AQYI0FN6wamo3RnZf0VXDCwVvMRjPWjYDkKYXDeP5o/vQIFIn9FanCQzU/XNFNQHrfWF
+         2geA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MrlXoiGbA/2CszX40DeD+tawQUe1JnBh5V1LSFMpA5I=;
-        b=rDmLyPpyDqSInG53vceC/+l7rzTOn4JrlZAckK5KTwEG1isSP+iv5+HQ/LpMuTN15u
-         vRo96mLS2cserA6gHkx4SE0QY5EbTpU27bNqj95eHgsQNbf/Nba0VM8XEbvnvx0HsbW4
-         HPswdsEGUs2fpxcP1UMG1CXJsVGO7nZ1KjmHJgcgHenbm3/1M4UbVCRkHLWo7tqsF3HJ
-         wlbkx2CJtX0xyAnLRcVttgF+kBig0aVstFYL44JDs8jBX4Ku5TMgbaRiEZJAAOSImHYP
-         K2bKhLfCJYSSx1J9+LbJAlhbGnL0NBvzFlVa60C25nj/9fdNyo5lWrwl8xSzHLz+hakF
-         MWwA==
-X-Gm-Message-State: ANoB5pmd7TO3QEQq69/dyt2Ga+9iVH8kem6xkeTpLHf00Kl+TnNiHMuD
-        zke3ueykmRbrpxj829ImJCPQvw==
-X-Google-Smtp-Source: AA0mqf4lEiGXY/G8VPd3QBRf0uJu0eKFDZFX8MfnlMleY/jamRaoZbjZon/FxlAbdhCsTU2WEhbadQ==
-X-Received: by 2002:ac2:569e:0:b0:4b5:9e59:8ce0 with SMTP id 30-20020ac2569e000000b004b59e598ce0mr3141109lfr.40.1670862940945;
-        Mon, 12 Dec 2022 08:35:40 -0800 (PST)
-Received: from krzk-bin.NAT.warszawa.vectranet.pl (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id v16-20020ac25b10000000b004acff58a951sm29209lfn.133.2022.12.12.08.35.40
+        bh=lvYON1Uq6UT3Qph7OPPr0NH47G6rUYR8O1BO9MFwJow=;
+        b=NxgmBPTlKe1KGzXvCFKmsAG4v+K4TDFY+H6exBJz8Z4AsOlcco0l6SPq4BJRx8ufor
+         ZwSLkbpgl+MIQhjvVzr+kJKT2wAff8kVcCG/M7nWLop+GqdhmPbCW++SEmIicQJseFiT
+         y/si2Q4hm0HjLcVtt6BAvX0PiOIxBhuX+VTNcZFIEN2nAG6KG5AOGiqFKKPGENvsLK3X
+         hrjcc9gl1Crgdo2dh3aO7gB3Ys+dO+RMp2tu97zj/P8SZFvFmtrBx+zduRtqfgUZUGIi
+         jrNllzsgivGqldYg90LZB4NiALO6GR6tckTBAkCxEGziFdjOHPjfuXDvhN/B7/B7g1zI
+         1Pmg==
+X-Gm-Message-State: ANoB5pniT2zDIOU7vqYQrszSEi5S+3i2ihdv4lsq2BhQGi6dYeCDgEHe
+        qV95vR7OYaZkwtyzaf6oudKb6A==
+X-Google-Smtp-Source: AA0mqf5ppTTyM6N0bPOAfBX//eKXVRPakyRimeYdkY/8NocUbAvjnOSiYLmQOcD2W7tmhBu2XO410g==
+X-Received: by 2002:a05:6402:702:b0:46f:68d0:76 with SMTP id w2-20020a056402070200b0046f68d00076mr10093614edx.34.1670863020790;
+        Mon, 12 Dec 2022 08:37:00 -0800 (PST)
+Received: from prec5560.. ([2001:bf7:830:a7a8:ff97:7d8d:1f2e:ffaa])
+        by smtp.gmail.com with ESMTPSA id m15-20020a50930f000000b00463597d2c25sm4051979eda.74.2022.12.12.08.36.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Dec 2022 08:35:40 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 04/12] dt-bindings: watchdog: qcom-wdt: add qcom,kpss-wdt-mdm9615
-Date:   Mon, 12 Dec 2022 17:35:24 +0100
-Message-Id: <20221212163532.142533-4-krzysztof.kozlowski@linaro.org>
+        Mon, 12 Dec 2022 08:37:00 -0800 (PST)
+From:   Robert Foss <robert.foss@linaro.org>
+To:     Lee Jones <lee.jones@linaro.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Grant Likely <grant.likely@linaro.org>
+Cc:     Robert Foss <robert.foss@linaro.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-actions@lists.infradead.org,
+        linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-media@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-crypto@vger.kernel.org, chrome-platform@lists.linux.dev,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        linux-input@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-integrity@vger.kernel.org, linux-omap@vger.kernel.org,
+        linux-serial@vger.kernel.org, Purism Kernel Team <kernel@puri.sm>,
+        linux-staging@lists.linux.dev, alsa-devel@alsa-project.org,
+        linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-pm@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, patches@opensource.cirrus.com,
+        linux-mtd@lists.infradead.org, linux-renesas-soc@vger.kernel.org,
+        linux-amlogic@lists.infradead.org, linux-pwm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        kernel@pengutronix.de, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        openipmi-developer@lists.sourceforge.net,
+        linux-fbdev@vger.kernel.org
+Subject: Re: (subset) [PATCH 000/606] i2c: Complete conversion to i2c_probe_new
+Date:   Mon, 12 Dec 2022 17:36:51 +0100
+Message-Id: <167086288411.3041259.17824406556561546642.b4-ty@linaro.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221212163532.142533-1-krzysztof.kozlowski@linaro.org>
-References: <20221212163532.142533-1-krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document new MDM9615 qcom,kpss-wdt-mdm9615 watchdog/timer compatible.
+On Fri, 18 Nov 2022 23:35:34 +0100, Uwe Kleine-König wrote:
+> since commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
+> call-back type") from 2016 there is a "temporary" alternative probe
+> callback for i2c drivers.
+> 
+> This series completes all drivers to this new callback (unless I missed
+> something). It's based on current next/master.
+> A part of the patches depend on commit 662233731d66 ("i2c: core:
+> Introduce i2c_client_get_device_id helper function"), there is a branch that
+> you can pull into your tree to get it:
+> 
+> [...]
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
- 1 file changed, 1 insertion(+)
+Applied, thanks!
 
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-index 93e4381067dd..1828eaf70b3b 100644
---- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-@@ -40,6 +40,7 @@ properties:
-           - enum:
-               - qcom,kpss-wdt-apq8064
-               - qcom,kpss-wdt-ipq8064
-+              - qcom,kpss-wdt-mdm9615
-               - qcom,kpss-wdt-msm8960
-           - const: qcom,kpss-timer
-           - const: qcom,msm-timer
--- 
-2.34.1
+Repo: https://cgit.freedesktop.org/drm/drm-misc/
+
+
+[014/606] drm/bridge: adv7511: Convert to i2c's .probe_new()
+          commit: 1c546894ff82f8b7c070998c03f9b15a3499f326
+[028/606] drm/bridge: parade-ps8622: Convert to i2c's .probe_new()
+          commit: d6b522e9bbb0cca1aeae4ef6188800534794836f
+[035/606] drm/bridge: ti-sn65dsi83: Convert to i2c's .probe_new()
+          commit: 0f6548807fa77e87bbc37964c6b1ed9ba6e1155d
+
+
+
+rob
 
