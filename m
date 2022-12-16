@@ -2,55 +2,55 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D7D1C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDCAAC001B2
 	for <linux-watchdog@archiver.kernel.org>; Fri, 16 Dec 2022 16:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231424AbiLPQjK (ORCPT
+        id S231652AbiLPQjM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 16 Dec 2022 11:39:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
+        Fri, 16 Dec 2022 11:39:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231663AbiLPQia (ORCPT
+        with ESMTP id S231707AbiLPQiv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 16 Dec 2022 11:38:30 -0500
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF5F32B85
-        for <linux-watchdog@vger.kernel.org>; Fri, 16 Dec 2022 08:38:28 -0800 (PST)
-Received: by mail-lj1-x22d.google.com with SMTP id f16so2699905ljc.8
-        for <linux-watchdog@vger.kernel.org>; Fri, 16 Dec 2022 08:38:28 -0800 (PST)
+        Fri, 16 Dec 2022 11:38:51 -0500
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A32254474
+        for <linux-watchdog@vger.kernel.org>; Fri, 16 Dec 2022 08:38:32 -0800 (PST)
+Received: by mail-lj1-x234.google.com with SMTP id l8so2685907ljh.13
+        for <linux-watchdog@vger.kernel.org>; Fri, 16 Dec 2022 08:38:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DFwZA4QF0RUEn5DAevtVJr/2UmNNFERvzjQlW/OvQc8=;
-        b=kEssKfn9EhZTkvYV1W4ZREax7FjSAchKsjydD8B8pt6G6FXdcphdwHTr3w17PzgeKF
-         TmpD3EfDk1R/3yAeReSXvjmr6sS6oqef7ljfmvelksI1x5wRVOIWv8BYd6xaSiQmVooV
-         RtenJgDFIqQgkLomqffSRUxK4xZQl1OB2c7C5O4MW8s2eZoICB+gdEdOBj7novw8kXoj
-         di5soV2ogUxA/8uSDD+sYujbVFQBhghQrSryX8+YNy+HSlWl5m0W2VgKw7T4CyvMDe4A
-         nC+q3P+OuMv4X1KxOrUOOW8WvDX2M1PIXwXDuj567EQxHhdSBq4wZfisR/25zx8MBACP
-         D8uw==
+        bh=mQ8Iiok/IITmqe74xQlUR7Fx1jrdeeaq5kVTqBMwjt0=;
+        b=eeUiqWexb9xPdlUZk+7M5XG9UuIyi11WRxEhl6QudF9NQMjlEX+qYqstSMO+QPmWKR
+         28isuRX6VpSoRhWXSXFwcR5Rx0CQSk3MypC3ujmK4cnsvGNefyagKINe2Qco7OWUcfRh
+         Q69Pog9Mvl7R8W3TljCxcZZTPC57BPdZyhj0usGavhGaSrFdCCNjEJ02SDv21eCqi0FY
+         RmJW1HjC8OS5af645pFgdYHJTTGruHhUs2cIoSqhxZAVpqCHAjaSruEEFF/sV13oQ/MH
+         CQWnZNCf5wnM6ESHim6Tau6m38i59beHlGX9uayvMdgkPZ/4SrOfV5YL+asGT3Bj7Y5X
+         WELg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DFwZA4QF0RUEn5DAevtVJr/2UmNNFERvzjQlW/OvQc8=;
-        b=yWvRpHiw5HbOoDweSYIzEMJX0REdg5Urd3/S6kMRLSMhpkpCS593z0VFqi45QR2fGb
-         KQbs+hU97UWVW6rmzKNmA3uYICDAUlW0xlhMKovPGbQB+i7pwha672cSA6w4ylBKlsTt
-         b8de0uO6/XxVTynFaeTrpGo3RDXVRR8r9q16fdYy1jjBGcMFHNcvp4FlgI3Amviwzceb
-         PBnUTXipfRds2OOViulPY+7FNqms98sAYNzkM8kVc6EJdUnBTZLl08WNV9IeYnqz2pXm
-         ljc+iB4Ov1l+TFPWHM8xeFElQ+duWcG3sLZBYBjySKi/41TraL1DducZGOCxMYJUm4ll
-         6IcQ==
-X-Gm-Message-State: AFqh2krjWL1d4myIQhHKAqxisPYpnlgpLS+x9fCTgkLAV23naHW9tFT8
-        mYQ33oPhuqD/csRmf4WQ+DsnXg==
-X-Google-Smtp-Source: AMrXdXuNYAvJMjarSWOrRy7QQQGon13bEsjm//HNo808Dc77VNJ+5st3ULzhF3S2aE+9QG+l0PZmSA==
-X-Received: by 2002:a05:651c:1ca:b0:27f:6335:3ebd with SMTP id d10-20020a05651c01ca00b0027f63353ebdmr367321ljn.32.1671208708001;
-        Fri, 16 Dec 2022 08:38:28 -0800 (PST)
+        bh=mQ8Iiok/IITmqe74xQlUR7Fx1jrdeeaq5kVTqBMwjt0=;
+        b=ivHWu38CqKX7c+kjZNroQi18w1ssV3m+8fEFpLM3+/ZQtTc7cUTbVIKAZ89hmAZt4i
+         G+SXo1exm9lF/lFR0kftWK9Y5W4F33Jw/sTnJQOaL6uTQ6i4A4MpNqQcjo2Wo8mquuuE
+         gDFFtGRVsXGn8ls6mXluM3zYq07sPiLesYa9rz05T/p8ShZvOP0WVhV2KmzAkuB66DCF
+         kFc20o9Swa/uoDncNokokyS/bwtmOPCeMvIx0KKaM5zCAt90I1eMdo9OQkddVjOCBB9w
+         K9SUatGePjtFOKVV75xLAt0RM/E//cYPmwe2RGDk7JaiqWGbZwGXb/t08ROXPayxbvqp
+         iOMw==
+X-Gm-Message-State: ANoB5pkcmwrIKbJ8Xx9n2gW5mQtB7Wyz2rqx4vI9gj/OOopRWLPf47iW
+        JaM6IxSb1UYJzG3yTnxa63XTiA==
+X-Google-Smtp-Source: AA0mqf4uSqNRf6jUZDWwTpkKYDqpAQlWfHcrZg8fLiwjp/n+cezuvyyrkJPWlGVIZubzj/33LqzkCg==
+X-Received: by 2002:a2e:7007:0:b0:277:8a7f:e67c with SMTP id l7-20020a2e7007000000b002778a7fe67cmr4054173ljc.37.1671208712124;
+        Fri, 16 Dec 2022 08:38:32 -0800 (PST)
 Received: from krzk-bin.NAT.warszawa.vectranet.pl (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id p10-20020a2eba0a000000b0026fc79fd67dsm193930lja.74.2022.12.16.08.38.26
+        by smtp.gmail.com with ESMTPSA id p10-20020a2eba0a000000b0026fc79fd67dsm193930lja.74.2022.12.16.08.38.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Dec 2022 08:38:27 -0800 (PST)
+        Fri, 16 Dec 2022 08:38:31 -0800 (PST)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
@@ -60,267 +60,318 @@ Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH v3 5/9] dt-bindings: drop redundant part of title (end, part two)
-Date:   Fri, 16 Dec 2022 17:38:11 +0100
-Message-Id: <20221216163815.522628-6-krzysztof.kozlowski@linaro.org>
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH v3 8/9] dt-bindings: clock: drop redundant part of title
+Date:   Fri, 16 Dec 2022 17:38:14 +0100
+Message-Id: <20221216163815.522628-9-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221216163815.522628-1-krzysztof.kozlowski@linaro.org>
 References: <20221216163815.522628-1-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 The Devicetree bindings document does not have to say in the title that
-it is a "binding", but instead just describe the hardware.
+it is a "Devicetree binding", but instead just describe the hardware.
 
-Drop trailing "Node|Tree|Generic bindings" in various forms (also with
-trailing full stop):
-
-  find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -not -name 'trivial-devices.yaml' \
-    -exec sed -i -e 's/^title: \(.*\) [nN]ode [bB]indings\?\.\?$/title: \1/' {} \;
+Drop "Devicetree bindings" in various forms:
 
   find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -not -name 'trivial-devices.yaml' \
-    -exec sed -i -e 's/^title: \(.*\) [tT]ree [bB]indings\?\.\?$/title: \1/' {} \;
+    -exec sed -i -e 's/^title: [dD]evice[ -]\?[tT]ree [cC]lock [bB]indings\? for \([tT]he \)\?\(.*\)$/title: \u\2 Clock Controller/' {} \;
 
   find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -not -name 'trivial-devices.yaml' \
-    -exec sed -i -e 's/^title: \(.*\) [gG]eneric [bB]indings\?\.\?$/title: \1/' {} \;
-
-  find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -not -name 'trivial-devices.yaml' \
-    -exec sed -i -e 's/^title: \(.*\) [bB]indings\? description\.\?$/title: \1/' {} \;
-
-  find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -not -name 'trivial-devices.yaml' \
-    -exec sed -i -e 's/^title: \(.*\) [bB]indings\? document\.\?$/title: \1/' {} \;
+    -exec sed -i -e 's/^title: [cC]lock [bB]indings\? for \([tT]he \)\?\(.*\)$/title: \u\2 Clock Controller/' {} \;
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Acked-by: Ulf Hansson <ulf.hansson@linaro.org> # MMC
 Acked-by: Stephen Boyd <sboyd@kernel.org> # clk
-Acked-by: Vinod Koul <vkoul@kernel.org> # phy
-Acked-by: Mark Brown <broonie@kernel.org>
 ---
- Documentation/devicetree/bindings/clock/ti,sci-clk.yaml         | 2 +-
- Documentation/devicetree/bindings/cpu/idle-states.yaml          | 2 +-
- .../devicetree/bindings/net/dsa/microchip,lan937x.yaml          | 2 +-
- .../devicetree/bindings/net/wireless/mediatek,mt76.yaml         | 2 +-
- Documentation/devicetree/bindings/net/wireless/qca,ath9k.yaml   | 2 +-
- Documentation/devicetree/bindings/net/wireless/qcom,ath11k.yaml | 2 +-
- Documentation/devicetree/bindings/phy/brcm,ns2-pcie-phy.yaml    | 2 +-
- Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml      | 2 +-
- Documentation/devicetree/bindings/phy/ti,phy-gmii-sel.yaml      | 2 +-
- Documentation/devicetree/bindings/power/domain-idle-state.yaml  | 2 +-
- .../devicetree/bindings/reserved-memory/shared-dma-pool.yaml    | 2 +-
- Documentation/devicetree/bindings/reset/ti,sci-reset.yaml       | 2 +-
- Documentation/devicetree/bindings/reset/ti,tps380x-reset.yaml   | 2 +-
- Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml     | 2 +-
- Documentation/devicetree/bindings/sound/audio-graph-port.yaml   | 2 +-
- 15 files changed, 15 insertions(+), 15 deletions(-)
+ Documentation/devicetree/bindings/clock/calxeda.yaml           | 2 +-
+ Documentation/devicetree/bindings/clock/imx1-clock.yaml        | 2 +-
+ Documentation/devicetree/bindings/clock/imx21-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx23-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx25-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx27-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx28-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx31-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx35-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx5-clock.yaml        | 2 +-
+ Documentation/devicetree/bindings/clock/imx6q-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx6sl-clock.yaml      | 2 +-
+ Documentation/devicetree/bindings/clock/imx6sll-clock.yaml     | 2 +-
+ Documentation/devicetree/bindings/clock/imx6sx-clock.yaml      | 2 +-
+ Documentation/devicetree/bindings/clock/imx6ul-clock.yaml      | 2 +-
+ Documentation/devicetree/bindings/clock/imx7d-clock.yaml       | 2 +-
+ Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml | 2 +-
+ Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml | 2 +-
+ Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml   | 2 +-
+ Documentation/devicetree/bindings/clock/ti,lmk04832.yaml       | 2 +-
+ 20 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/clock/ti,sci-clk.yaml b/Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
-index 0e370289a053..63d976341696 100644
---- a/Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
-+++ b/Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
+diff --git a/Documentation/devicetree/bindings/clock/calxeda.yaml b/Documentation/devicetree/bindings/clock/calxeda.yaml
+index a34cbf3c9aaf..a88fbe20fef1 100644
+--- a/Documentation/devicetree/bindings/clock/calxeda.yaml
++++ b/Documentation/devicetree/bindings/clock/calxeda.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/ti,sci-clk.yaml#
+ $id: http://devicetree.org/schemas/clock/calxeda.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: TI-SCI clock controller node bindings
-+title: TI-SCI clock controller
+-title: Device Tree Clock bindings for Calxeda highbank platform
++title: Calxeda highbank platform Clock Controller
  
- maintainers:
-   - Nishanth Menon <nm@ti.com>
-diff --git a/Documentation/devicetree/bindings/cpu/idle-states.yaml b/Documentation/devicetree/bindings/cpu/idle-states.yaml
-index fa4d4142ac93..b8cc826c9501 100644
---- a/Documentation/devicetree/bindings/cpu/idle-states.yaml
-+++ b/Documentation/devicetree/bindings/cpu/idle-states.yaml
+ description: |
+   This binding covers the Calxeda SoC internal peripheral and bus clocks
+diff --git a/Documentation/devicetree/bindings/clock/imx1-clock.yaml b/Documentation/devicetree/bindings/clock/imx1-clock.yaml
+index 56f524780b1a..7ade4c32aff3 100644
+--- a/Documentation/devicetree/bindings/clock/imx1-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx1-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/cpu/idle-states.yaml#
+ $id: http://devicetree.org/schemas/clock/imx1-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: Idle states binding description
-+title: Idle states
+-title: Clock bindings for Freescale i.MX1 CPUs
++title: Freescale i.MX1 CPUs Clock Controller
  
  maintainers:
-   - Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-diff --git a/Documentation/devicetree/bindings/net/dsa/microchip,lan937x.yaml b/Documentation/devicetree/bindings/net/dsa/microchip,lan937x.yaml
-index 630bf0f8294b..b34de303966b 100644
---- a/Documentation/devicetree/bindings/net/dsa/microchip,lan937x.yaml
-+++ b/Documentation/devicetree/bindings/net/dsa/microchip,lan937x.yaml
+   - Alexander Shiyan <shc_work@mail.ru>
+diff --git a/Documentation/devicetree/bindings/clock/imx21-clock.yaml b/Documentation/devicetree/bindings/clock/imx21-clock.yaml
+index e2d50544700a..79cc843703ec 100644
+--- a/Documentation/devicetree/bindings/clock/imx21-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx21-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/net/dsa/microchip,lan937x.yaml#
+ $id: http://devicetree.org/schemas/clock/imx21-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: LAN937x Ethernet Switch Series Tree Bindings
-+title: LAN937x Ethernet Switch Series
+-title: Clock bindings for Freescale i.MX21
++title: Freescale i.MX21 Clock Controller
  
  maintainers:
-   - UNGLinuxDriver@microchip.com
-diff --git a/Documentation/devicetree/bindings/net/wireless/mediatek,mt76.yaml b/Documentation/devicetree/bindings/net/wireless/mediatek,mt76.yaml
-index 70e328589cfb..f0c78f994491 100644
---- a/Documentation/devicetree/bindings/net/wireless/mediatek,mt76.yaml
-+++ b/Documentation/devicetree/bindings/net/wireless/mediatek,mt76.yaml
-@@ -6,7 +6,7 @@
- $id: http://devicetree.org/schemas/net/wireless/mediatek,mt76.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: MediaTek mt76 wireless devices Generic Binding
-+title: MediaTek mt76 wireless devices
- 
- maintainers:
-   - Felix Fietkau <nbd@nbd.name>
-diff --git a/Documentation/devicetree/bindings/net/wireless/qca,ath9k.yaml b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.yaml
-index 7029cb1f38ff..0e5412cff2bc 100644
---- a/Documentation/devicetree/bindings/net/wireless/qca,ath9k.yaml
-+++ b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.yaml
+   - Alexander Shiyan <shc_work@mail.ru>
+diff --git a/Documentation/devicetree/bindings/clock/imx23-clock.yaml b/Documentation/devicetree/bindings/clock/imx23-clock.yaml
+index 7e890ab9c77d..5e71c9219500 100644
+--- a/Documentation/devicetree/bindings/clock/imx23-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx23-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/net/wireless/qca,ath9k.yaml#
+ $id: http://devicetree.org/schemas/clock/imx23-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: Qualcomm Atheros ath9k wireless devices Generic Binding
-+title: Qualcomm Atheros ath9k wireless devices
+-title: Clock bindings for Freescale i.MX23
++title: Freescale i.MX23 Clock Controller
  
  maintainers:
-   - Toke Høiland-Jørgensen <toke@toke.dk>
-diff --git a/Documentation/devicetree/bindings/net/wireless/qcom,ath11k.yaml b/Documentation/devicetree/bindings/net/wireless/qcom,ath11k.yaml
-index f7cf135aa37f..556eb523606a 100644
---- a/Documentation/devicetree/bindings/net/wireless/qcom,ath11k.yaml
-+++ b/Documentation/devicetree/bindings/net/wireless/qcom,ath11k.yaml
-@@ -6,7 +6,7 @@
- $id: http://devicetree.org/schemas/net/wireless/qcom,ath11k.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Qualcomm Technologies ath11k wireless devices Generic Binding
-+title: Qualcomm Technologies ath11k wireless devices
- 
- maintainers:
-   - Kalle Valo <kvalo@kernel.org>
-diff --git a/Documentation/devicetree/bindings/phy/brcm,ns2-pcie-phy.yaml b/Documentation/devicetree/bindings/phy/brcm,ns2-pcie-phy.yaml
-index 70eb48b391c9..527010702f5e 100644
---- a/Documentation/devicetree/bindings/phy/brcm,ns2-pcie-phy.yaml
-+++ b/Documentation/devicetree/bindings/phy/brcm,ns2-pcie-phy.yaml
+   - Shawn Guo <shawnguo@kernel.org>
+diff --git a/Documentation/devicetree/bindings/clock/imx25-clock.yaml b/Documentation/devicetree/bindings/clock/imx25-clock.yaml
+index 1792e138984b..c626a158590e 100644
+--- a/Documentation/devicetree/bindings/clock/imx25-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx25-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/phy/brcm,ns2-pcie-phy.yaml#
+ $id: http://devicetree.org/schemas/clock/imx25-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: Broadcom NS2 PCIe PHY binding document
-+title: Broadcom NS2 PCIe PHY
+-title: Clock bindings for Freescale i.MX25
++title: Freescale i.MX25 Clock Controller
  
  maintainers:
-   - Ray Jui <ray.jui@broadcom.com>
-diff --git a/Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml b/Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml
-index 0655e485b260..aa97478dd016 100644
---- a/Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml
-+++ b/Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml
+   - Sascha Hauer <s.hauer@pengutronix.de>
+diff --git a/Documentation/devicetree/bindings/clock/imx27-clock.yaml b/Documentation/devicetree/bindings/clock/imx27-clock.yaml
+index 99925aa22a4c..71d78a0b551f 100644
+--- a/Documentation/devicetree/bindings/clock/imx27-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx27-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/phy/qcom,usb-hs-phy.yaml#
+ $id: http://devicetree.org/schemas/clock/imx27-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: Qualcomm's USB HS PHY binding description
-+title: Qualcomm's USB HS PHY
+-title: Clock bindings for Freescale i.MX27
++title: Freescale i.MX27 Clock Controller
  
  maintainers:
-   - Bjorn Andersson <bjorn.andersson@linaro.org>
-diff --git a/Documentation/devicetree/bindings/phy/ti,phy-gmii-sel.yaml b/Documentation/devicetree/bindings/phy/ti,phy-gmii-sel.yaml
-index da7cac537e15..7bf5c42b2848 100644
---- a/Documentation/devicetree/bindings/phy/ti,phy-gmii-sel.yaml
-+++ b/Documentation/devicetree/bindings/phy/ti,phy-gmii-sel.yaml
-@@ -5,7 +5,7 @@
- $id: "http://devicetree.org/schemas/phy/ti,phy-gmii-sel.yaml#"
- $schema: "http://devicetree.org/meta-schemas/core.yaml#"
- 
--title: CPSW Port's Interface Mode Selection PHY Tree Bindings
-+title: CPSW Port's Interface Mode Selection PHY
- 
- maintainers:
-   - Kishon Vijay Abraham I <kishon@ti.com>
-diff --git a/Documentation/devicetree/bindings/power/domain-idle-state.yaml b/Documentation/devicetree/bindings/power/domain-idle-state.yaml
-index 4ee920a1de69..ec1f6f669e50 100644
---- a/Documentation/devicetree/bindings/power/domain-idle-state.yaml
-+++ b/Documentation/devicetree/bindings/power/domain-idle-state.yaml
+   - Fabio Estevam <festevam@gmail.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx28-clock.yaml b/Documentation/devicetree/bindings/clock/imx28-clock.yaml
+index a542d680b1ca..4aaad7b9c66e 100644
+--- a/Documentation/devicetree/bindings/clock/imx28-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx28-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/power/domain-idle-state.yaml#
+ $id: http://devicetree.org/schemas/clock/imx28-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: PM Domain Idle States binding description
-+title: PM Domain Idle States
+-title: Clock bindings for Freescale i.MX28
++title: Freescale i.MX28 Clock Controller
  
  maintainers:
-   - Ulf Hansson <ulf.hansson@linaro.org>
-diff --git a/Documentation/devicetree/bindings/reserved-memory/shared-dma-pool.yaml b/Documentation/devicetree/bindings/reserved-memory/shared-dma-pool.yaml
-index 618105f079be..47696073b665 100644
---- a/Documentation/devicetree/bindings/reserved-memory/shared-dma-pool.yaml
-+++ b/Documentation/devicetree/bindings/reserved-memory/shared-dma-pool.yaml
+   - Shawn Guo <shawnguo@kernel.org>
+diff --git a/Documentation/devicetree/bindings/clock/imx31-clock.yaml b/Documentation/devicetree/bindings/clock/imx31-clock.yaml
+index 168c8ada5e81..50a8498eef8a 100644
+--- a/Documentation/devicetree/bindings/clock/imx31-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx31-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/reserved-memory/shared-dma-pool.yaml#
+ $id: http://devicetree.org/schemas/clock/imx31-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: /reserved-memory DMA pool node bindings
-+title: /reserved-memory DMA pool
+-title: Clock bindings for Freescale i.MX31
++title: Freescale i.MX31 Clock Controller
  
  maintainers:
-   - devicetree-spec@vger.kernel.org
-diff --git a/Documentation/devicetree/bindings/reset/ti,sci-reset.yaml b/Documentation/devicetree/bindings/reset/ti,sci-reset.yaml
-index 4639d2cec557..dcf9206e12be 100644
---- a/Documentation/devicetree/bindings/reset/ti,sci-reset.yaml
-+++ b/Documentation/devicetree/bindings/reset/ti,sci-reset.yaml
+   - Fabio Estevam <festevam@gmail.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx35-clock.yaml b/Documentation/devicetree/bindings/clock/imx35-clock.yaml
+index 6415bb6a8d04..c063369de3ec 100644
+--- a/Documentation/devicetree/bindings/clock/imx35-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx35-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/reset/ti,sci-reset.yaml#
+ $id: http://devicetree.org/schemas/clock/imx35-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: TI-SCI reset controller node bindings
-+title: TI-SCI reset controller
+-title: Clock bindings for Freescale i.MX35
++title: Freescale i.MX35 Clock Controller
  
  maintainers:
-   - Nishanth Menon <nm@ti.com>
-diff --git a/Documentation/devicetree/bindings/reset/ti,tps380x-reset.yaml b/Documentation/devicetree/bindings/reset/ti,tps380x-reset.yaml
-index afc835eda0ef..f436f2cf1df7 100644
---- a/Documentation/devicetree/bindings/reset/ti,tps380x-reset.yaml
-+++ b/Documentation/devicetree/bindings/reset/ti,tps380x-reset.yaml
+   - Steffen Trumtrar <s.trumtrar@pengutronix.de>
+diff --git a/Documentation/devicetree/bindings/clock/imx5-clock.yaml b/Documentation/devicetree/bindings/clock/imx5-clock.yaml
+index c0e19ff92c76..423c0142c1d3 100644
+--- a/Documentation/devicetree/bindings/clock/imx5-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx5-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/reset/ti,tps380x-reset.yaml#
+ $id: http://devicetree.org/schemas/clock/imx5-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: TI TPS380x reset controller node bindings
-+title: TI TPS380x reset controller
+-title: Clock bindings for Freescale i.MX5
++title: Freescale i.MX5 Clock Controller
  
  maintainers:
-   - Marco Felsch <kernel@pengutronix.de>
-diff --git a/Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml b/Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
-index 9e6cb4ee9755..5df7688a1e1c 100644
---- a/Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
-+++ b/Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
+   - Fabio Estevam <festevam@gmail.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx6q-clock.yaml b/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
+index 4f4637eddb8b..bae4fcb3aacc 100644
+--- a/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/soc/ti/sci-pm-domain.yaml#
+ $id: http://devicetree.org/schemas/clock/imx6q-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: TI-SCI generic power domain node bindings
-+title: TI-SCI generic power domain
+-title: Clock bindings for Freescale i.MX6 Quad
++title: Freescale i.MX6 Quad Clock Controller
  
  maintainers:
-   - Nishanth Menon <nm@ti.com>
-diff --git a/Documentation/devicetree/bindings/sound/audio-graph-port.yaml b/Documentation/devicetree/bindings/sound/audio-graph-port.yaml
-index 64654ceef208..f5b8b6d13077 100644
---- a/Documentation/devicetree/bindings/sound/audio-graph-port.yaml
-+++ b/Documentation/devicetree/bindings/sound/audio-graph-port.yaml
+   - Anson Huang <Anson.Huang@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
+index b83c8f43d664..c85ff6ea3d24 100644
+--- a/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
 @@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/sound/audio-graph-port.yaml#
+ $id: http://devicetree.org/schemas/clock/imx6sl-clock.yaml#
  $schema: http://devicetree.org/meta-schemas/core.yaml#
  
--title: Audio Graph Card 'port' Node Bindings
-+title: Audio Graph Card 'port'
+-title: Clock bindings for Freescale i.MX6 SoloLite
++title: Freescale i.MX6 SoloLite Clock Controller
  
  maintainers:
-   - Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+   - Anson Huang <Anson.Huang@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
+index 484894a4b23f..6b549ed1493c 100644
+--- a/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx6sll-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX6 SLL
++title: Freescale i.MX6 SLL Clock Controller
+ 
+ maintainers:
+   - Anson Huang <Anson.Huang@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
+index e6c795657c24..55dcad18b7c6 100644
+--- a/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx6sx-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX6 SoloX
++title: Freescale i.MX6 SoloX Clock Controller
+ 
+ maintainers:
+   - Anson Huang <Anson.Huang@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml b/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
+index 6a51a3f51cd9..be54d4df5afa 100644
+--- a/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx6ul-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX6 UltraLite
++title: Freescale i.MX6 UltraLite Clock Controller
+ 
+ maintainers:
+   - Anson Huang <Anson.Huang@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx7d-clock.yaml b/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
+index cefb61db01a8..e7d8427e4957 100644
+--- a/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx7d-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX7 Dual
++title: Freescale i.MX7 Dual Clock Controller
+ 
+ maintainers:
+   - Frank Li <Frank.Li@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml b/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
+index 739c3378f8c8..76842038f52e 100644
+--- a/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx7ulp-pcc-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX7ULP Peripheral Clock Control (PCC) modules
++title: Freescale i.MX7ULP Peripheral Clock Control (PCC) modules Clock Controller
+ 
+ maintainers:
+   - A.s. Dong <aisheng.dong@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml b/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
+index d06344d7e34f..5e25bc6d1372 100644
+--- a/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imx7ulp-scg-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MX7ULP System Clock Generation (SCG) modules
++title: Freescale i.MX7ULP System Clock Generation (SCG) modules Clock Controller
+ 
+ maintainers:
+   - A.s. Dong <aisheng.dong@nxp.com>
+diff --git a/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml b/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
+index 03fc5c1a2939..777af4aad4b2 100644
+--- a/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
++++ b/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/imxrt1050-clock.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for Freescale i.MXRT
++title: Freescale i.MXRT Clock Controller
+ 
+ maintainers:
+   - Giulio Benetti <giulio.benetti@benettiengineering.com>
+diff --git a/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml b/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
+index bd8173848253..73d17830f165 100644
+--- a/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
++++ b/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/clock/ti,lmk04832.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Clock bindings for the Texas Instruments LMK04832
++title: Texas Instruments LMK04832 Clock Controller
+ 
+ maintainers:
+   - Liam Beguin <liambeguin@gmail.com>
 -- 
 2.34.1
 
