@@ -2,81 +2,90 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BBD0C4332F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 17 Dec 2022 14:40:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DCB1C4332F
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Dec 2022 09:42:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbiLQOka (ORCPT
+        id S231234AbiLSJmr convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 17 Dec 2022 09:40:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48802 "EHLO
+        Mon, 19 Dec 2022 04:42:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiLQOk2 (ORCPT
+        with ESMTP id S231179AbiLSJmq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 17 Dec 2022 09:40:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8951BFAEF;
-        Sat, 17 Dec 2022 06:40:27 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22AAF60B08;
-        Sat, 17 Dec 2022 14:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 84E7FC433D2;
-        Sat, 17 Dec 2022 14:40:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671288026;
-        bh=UXq0LaLV5pMMCRNf/H09NW3TVCWbmGsCCuJphrbERCk=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=YORCZD2pHW0PyAnmhJBWeL0dutiZ1iOrVPIBbaMteRu8F6Qrd2Uqxx9ZxzTWCaJZ0
-         MiYpAfR7ATaNCgfC0QZQ6vJugPeNfgeK1411HIhF8mRPuDL2NglHIu9A5QUKVoQB2h
-         AORrhr3PoY4w/IvOv+6nJSZ8495qf/ctTbQ8xu0AopkBjYLE5HSxoIKB4sOKxr7ZKt
-         YoShw8kXtSp97IwHIN/7t8AaHFoHkElVK9XCBJA+WURcjYtOb66Cxc/68AZ7n0BsJn
-         MgPX0CFIjyt8DOOazDkv5WluP3k3udiKPhLuT3zQPrbbr9l8L3VPlh4XdxDPwyAmNh
-         YdM2bRQMp/H9A==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 70897E21EFC;
-        Sat, 17 Dec 2022 14:40:26 +0000 (UTC)
-Subject: Re: [GIT PULL REQUEST] watchdog - v6.2 release cycle.
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20221216170348.GA21326@www.linux-watchdog.org>
-References: <20221216170348.GA21326@www.linux-watchdog.org>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20221216170348.GA21326@www.linux-watchdog.org>
-X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-6.2-rc1
-X-PR-Tracked-Commit-Id: 9ec0b7e06835b857f892feb2fe6121db1393425d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b611996ef270a88ebb350c82832c4d76913887e9
-Message-Id: <167128802645.28535.10374071229454968762.pr-tracker-bot@kernel.org>
-Date:   Sat, 17 Dec 2022 14:40:26 +0000
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Mon, 19 Dec 2022 04:42:46 -0500
+Received: from ex01.ufhost.com (ex01.ufhost.com [61.152.239.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A6095A2;
+        Mon, 19 Dec 2022 01:42:43 -0800 (PST)
+Received: from EXMBX166.cuchost.com (unknown [175.102.18.54])
+        (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+        (Client CN "EXMBX166", Issuer "EXMBX166" (not verified))
+        by ex01.ufhost.com (Postfix) with ESMTP id 12C2C24E0D7;
+        Mon, 19 Dec 2022 17:42:42 +0800 (CST)
+Received: from EXMBX161.cuchost.com (172.16.6.71) by EXMBX166.cuchost.com
+ (172.16.6.76) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 19 Dec
+ 2022 17:42:42 +0800
+Received: from localhost.localdomain (183.27.97.120) by EXMBX161.cuchost.com
+ (172.16.6.71) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 19 Dec
+ 2022 17:42:41 +0800
+From:   Xingyu Wu <xingyu.wu@starfivetech.com>
+To:     <linux-riscv@lists.infradead.org>, <devicetree@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Eddie James <eajames@linux.ibm.com>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Runyang Chen <runyang.chen@mediatek.com>,
-        Thomas Kastner <thomas.kastner@advantech.com>
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+CC:     Rob Herring <robh+dt@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Xingyu Wu <xingyu.wu@starfivetech.com>,
+        Samin Guo <samin.guo@starfivetech.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 3/3] riscv: dts: starfive: jh7110: Add watchdog node
+Date:   Mon, 19 Dec 2022 17:42:33 +0800
+Message-ID: <20221219094233.179153-4-xingyu.wu@starfivetech.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221219094233.179153-1-xingyu.wu@starfivetech.com>
+References: <20221219094233.179153-1-xingyu.wu@starfivetech.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [183.27.97.120]
+X-ClientProxiedBy: EXCAS064.cuchost.com (172.16.6.24) To EXMBX161.cuchost.com
+ (172.16.6.71)
+X-YovoleRuleAgent: yovoleflag
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The pull request you sent on Fri, 16 Dec 2022 18:03:48 +0100:
+Add the watchdog node for the Starfive JH7110 SoC.
 
-> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-6.2-rc1
+Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
+---
+ arch/riscv/boot/dts/starfive/jh7110.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b611996ef270a88ebb350c82832c4d76913887e9
-
-Thank you!
-
+diff --git a/arch/riscv/boot/dts/starfive/jh7110.dtsi b/arch/riscv/boot/dts/starfive/jh7110.dtsi
+index c22e8f1d2640..cf981dce5bb9 100644
+--- a/arch/riscv/boot/dts/starfive/jh7110.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7110.dtsi
+@@ -433,5 +433,16 @@ uart5: serial@12020000 {
+ 			reg-shift = <2>;
+ 			status = "disabled";
+ 		};
++
++		wdog: watchdog@13070000 {
++			compatible = "starfive,jh7110-wdt";
++			reg = <0x0 0x13070000 0x0 0x10000>;
++			clocks = <&syscrg JH7110_SYSCLK_WDT_APB>,
++				 <&syscrg JH7110_SYSCLK_WDT_CORE>;
++			clock-names = "apb", "core";
++			resets = <&syscrg JH7110_SYSRST_WDT_APB>,
++				 <&syscrg JH7110_SYSRST_WDT_CORE>;
++			reset-names = "apb", "core";
++		};
+ 	};
+ };
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.25.1
+
