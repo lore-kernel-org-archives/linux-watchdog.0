@@ -2,47 +2,48 @@ Return-Path: <linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7112C4167B
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Dec 2022 21:30:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1CC8C4332F
+	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Dec 2022 21:30:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbiLSVa6 (ORCPT
+        id S232782AbiLSVa5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 19 Dec 2022 16:30:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51562 "EHLO
+        Mon, 19 Dec 2022 16:30:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232716AbiLSVa4 (ORCPT
+        with ESMTP id S232772AbiLSVa4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 19 Dec 2022 16:30:56 -0500
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63FCA65DC;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64046BF72;
         Mon, 19 Dec 2022 13:30:53 -0800 (PST)
 From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1671485451;
-        bh=0IcN0OcF0xL6oMTvYqLoBEg3dP+mgswr0WrxRfjY0gw=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=pV+JvrVke0VLSZmn1EquemCvnQURZvEce7oeAIm3vZb01hrYHvAI00uPprb7Au27l
-         kcjAfVsLpaSt00SYz2/FY8Ef+EQoXKlQ7IX0qRgk7vMgoEH6rgUOMnqs0DA9WhHXID
-         JxlRlu4z8ox5ATmR3RpFGUvqx544MJXzB1SBQBmc=
-Date:   Mon, 19 Dec 2022 21:30:40 +0000
-Subject: [PATCH v2 2/2] watchdog: report options in sysfs
+        s=mail; t=1671485450;
+        bh=yefAqOnQbgEx61M7zaR6i9RsAQ8hT0AF7ceHjpBPcXU=;
+        h=From:Subject:Date:To:Cc:From;
+        b=HzKDeDIP2wU4OBYwDCD4KwAW6ItQkwkL6PW9946IeEf6VhTDLhPlur+Du3Ec6n36O
+         YxXHLVcKROXbFQDrQHQ5A4DN4eribbC4FdUY4HBDEs7rHro5tbdC8FSjNts5qm8b6g
+         TXwg+MezKUsX7JPRPKBNvJ8Esof+tYswW65BqSpw=
+Subject: [PATCH v2 0/2] watchdog: report all watchdog_ident information via sysfs
+Date:   Mon, 19 Dec 2022 21:30:39 +0000
+Message-Id: <20221216-watchdog-sysfs-v2-0-6189311103a9@weissschuh.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221216-watchdog-sysfs-v2-2-6189311103a9@weissschuh.net>
-References: <20221216-watchdog-sysfs-v2-0-6189311103a9@weissschuh.net>
-In-Reply-To: <20221216-watchdog-sysfs-v2-0-6189311103a9@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIAP/XoGMC/w3LSQqAMAwAwK9IzgY0FFF/0yVdQFpoXJDi3+1xD
+ tNAuCYW2IcGle8kqeQOGgewUefAmFw30EQ007zgo08bXQkor3hBQ5Y3v3qlNgM9GS2MpupsY2/5
+ Oo7v+wEaHPmVZQAAAA==
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>,
         Wim Van Sebroeck <wim@iguana.be>
 X-Mailer: b4 0.11.0-dev-e429b
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1671485447; l=2062;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671485447; l=1210;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=0IcN0OcF0xL6oMTvYqLoBEg3dP+mgswr0WrxRfjY0gw=;
- b=ylN4XsQM9WROkgQr2OO+yeRu5lAb1bc+2SnOBtHRva136jaCkqG9DXjVsNOuDb3yqb6aaz0lxw/i
- dOzMuSIdCSjA0DRmtkxhskp61P87QugqKpbxImBZ366gpreKEHzI
+ bh=yefAqOnQbgEx61M7zaR6i9RsAQ8hT0AF7ceHjpBPcXU=;
+ b=9PhPfNhBZIiSbkv2LYuf5R1E5d6pohWsQQ/4501FH4TFJxCgVtE6kkuR3ky7W8VX3Sg+EiqVuovl
+ xGEtgBV0BpKdJrW94g4PsQSIQ+bDZjO0ndbnPSQVmMUu6vlM/Xx1
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
@@ -53,57 +54,33 @@ This synchronizes the information reported by ioctl and sysfs.
 The mismatch is confusing because "wdctl" from util-linux uses the ioctl
 when used with root privileges and sysfs without.
 
+Userspace implementation: https://github.com/util-linux/util-linux/pull/1927
+
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- Documentation/ABI/testing/sysfs-class-watchdog |  6 ++++++
- drivers/watchdog/watchdog_dev.c                | 10 ++++++++++
- 2 files changed, 16 insertions(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-index 27c000238fe4..94fb74615951 100644
---- a/Documentation/ABI/testing/sysfs-class-watchdog
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -6,6 +6,12 @@ Description:
- 		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
- 		ioctl interface.
- 
-+What:		/sys/class/watchdog/watchdogn/options
-+Date:		April 2023
-+Contact:	Thomas Weißschuh
-+Description:
-+		It is a read only file. It contains options of watchdog device.
-+
- What:		/sys/class/watchdog/watchdogn/fw_version
- Date:		April 2023
- Contact:	Thomas Weißschuh
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 7feeda02a531..2b06c179f754 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -546,6 +546,15 @@ static ssize_t pretimeout_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(pretimeout);
- 
-+static ssize_t options_show(struct device *dev, struct device_attribute *attr,
-+			       char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sysfs_emit(buf, "0x%x\n", wdd->info->options);
-+}
-+static DEVICE_ATTR_RO(options);
-+
- static ssize_t fw_version_show(struct device *dev, struct device_attribute *attr,
- 			       char *buf)
- {
-@@ -626,6 +635,7 @@ static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
- }
- static struct attribute *wdt_attrs[] = {
- 	&dev_attr_state.attr,
-+	&dev_attr_options.attr,
- 	&dev_attr_fw_version.attr,
- 	&dev_attr_identity.attr,
- 	&dev_attr_timeout.attr,
+Changes in v2:
+- Report options in addition to firmware_version
+- Add documentation
+- Rename firmware_version to fw_version to avoid conflicts
+- Link to v1: https://lore.kernel.org/r/20221214-nsfs-ioctl-compat-v1-0-b169796000b2@weissschuh.net
 
+---
+Thomas Weißschuh (2):
+      watchdog: report fw_version in sysfs
+      watchdog: report options in sysfs
+
+ Documentation/ABI/testing/sysfs-class-watchdog | 13 +++++++++++++
+ drivers/watchdog/watchdog_dev.c                | 20 ++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+---
+base-commit: 6feb57c2fd7c787aecf2846a535248899e7b70fa
+change-id: 20221216-watchdog-sysfs-b2ce9f8f449b
+
+Best regards,
 -- 
-2.39.0
+Thomas Weißschuh <linux@weissschuh.net>
