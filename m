@@ -1,113 +1,99 @@
-Return-Path: <linux-watchdog-owner@kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAAE1C10F1D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 19 Dec 2022 21:30:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D2C3C4332F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 22 Dec 2022 23:43:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232798AbiLSVa7 (ORCPT
+        id S229666AbiLVXnm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 19 Dec 2022 16:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51566 "EHLO
+        Thu, 22 Dec 2022 18:43:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232758AbiLSVa4 (ORCPT
+        with ESMTP id S229704AbiLVXnl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Dec 2022 16:30:56 -0500
-Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CE3FF000;
-        Mon, 19 Dec 2022 13:30:53 -0800 (PST)
+        Thu, 22 Dec 2022 18:43:41 -0500
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B305B252B9;
+        Thu, 22 Dec 2022 15:43:39 -0800 (PST)
 From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1671485451;
-        bh=Fa2g4bN8T2fJYrUVKPR4XgCbGFZG+GXnu+qNhNRb8TY=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=fpxDsYozRYo3qwQv2CmVeB30VH6EARsb/FDKl7bpuGIxk0QdukCg9yRrE3bw2ZR4f
-         7jhvPYHHqr9C03xGUmKS5LPdTJSF449ylieKpqMwqEC5c73AuULQqzAMrdYsZSNg8p
-         /sHtgCP0PEniouX/1W5hxUDXPajEP/gtW2e9jnbE=
-Date:   Mon, 19 Dec 2022 21:30:39 +0000
-Subject: [PATCH v2 1/2] watchdog: report fw_version in sysfs
+        s=mail; t=1671752617;
+        bh=YRRtbOkriQD0uKrpVN2szj1ZKTRTVm9GYpCO/Afsh8Y=;
+        h=From:Date:Subject:To:Cc:From;
+        b=VP0YdWbZMOG03Jh/TA3q3/ODmilc4hcQMMv/h9CqKbBY4/reriRjMfLY2aeu0/tQ/
+         UgK6LD47BkV00q0b44SH56mohfAI560cMfpbJGL3uyd8aaJAVvGu45Enkuwl+J2W3V
+         3IehfX5SmwvNoEfqEXno6J6twzug4y9WlMk0t8cQ=
+Date:   Thu, 22 Dec 2022 23:43:31 +0000
+Subject: [PATCH] watchdog: wdat_wdt: Avoid unimplemented get_timeleft
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221216-watchdog-sysfs-v2-1-6189311103a9@weissschuh.net>
-References: <20221216-watchdog-sysfs-v2-0-6189311103a9@weissschuh.net>
-In-Reply-To: <20221216-watchdog-sysfs-v2-0-6189311103a9@weissschuh.net>
+Message-Id: <20221221-wdat_wdt-timeleft-v1-1-8e8a314c36cc@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIAKPrpGMC/x2NQQqDMBBFryKz7oDGjfYqUkqSmehAGksSa0G8u
+ 4PwN+/D4x1QOAsXeDYHZP5JkTUpdI8G/GLTzCikDKY1ptPhTra+d6pY5cORQ0XXD9SS60caA6jn
+ bGF02Sa/qJm2GPX8Zg7yv0PT6zwvXmsYlHgAAAA=
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-X-Mailer: b4 0.11.0-dev-e429b
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1671485447; l=2245;
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.11.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671752614; l=1576;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=Fa2g4bN8T2fJYrUVKPR4XgCbGFZG+GXnu+qNhNRb8TY=;
- b=sCZpnkOKFcDJi8tGB+H4kXRfBbuz9WDBTrHxyu3nrYHimprtleLfDr9n0lte5G7aFjVs4R7xAmFX
- fm/6zbqKB45EHzrSZjiObLpAzRr1qgCKLcN8AMMFGum6scfYht2B
+ bh=YRRtbOkriQD0uKrpVN2szj1ZKTRTVm9GYpCO/Afsh8Y=;
+ b=kvC/KSiNttft91T/0qKLG3LekEaI63wN2JlXt1gan6g7uCqBxD28XSIGvODJHCJ6LBT+5MvWK7vt
+ SgjgSpFpCYVQTvOD1IZtkbLc7/hKMHN0Lt5w2QV1rNpwv4MQ6Ywu
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This synchronizes the information reported by ioctl and sysfs.
-The mismatch is confusing because "wdctl" from util-linux uses the ioctl
-when used with root privileges and sysfs without.
-
-The file is called "fw_version" instead of "firmware_version" as
-"firmware_version" is already used as custom attribute by single drivers.
+As per the specification the action QUERY_COUNTDOWN_PERIOD is optional.
+If the action is not implemented by the physical device the driver would
+always report "0" from get_timeleft().
+Avoid confusing userspace by only providing get_timeleft() when
+implemented by the hardware.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- Documentation/ABI/testing/sysfs-class-watchdog |  7 +++++++
- drivers/watchdog/watchdog_dev.c                | 10 ++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/watchdog/wdat_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-index 585caecda3a5..27c000238fe4 100644
---- a/Documentation/ABI/testing/sysfs-class-watchdog
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -6,6 +6,13 @@ Description:
- 		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
- 		ioctl interface.
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index ce7a4a9e4b03..0ba99bed59fc 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -301,13 +301,12 @@ static const struct watchdog_info wdat_wdt_info = {
+ 	.identity = "wdat_wdt",
+ };
  
-+What:		/sys/class/watchdog/watchdogn/fw_version
-+Date:		April 2023
-+Contact:	Thomas Weißschuh
-+Description:
-+		It is a read only file. It contains firmware version of
-+		watchdog device.
-+
- What:		/sys/class/watchdog/watchdogn/identity
- Date:		August 2015
- Contact:	Wim Van Sebroeck <wim@iguana.be>
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 55574ed42504..7feeda02a531 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -546,6 +546,15 @@ static ssize_t pretimeout_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(pretimeout);
+-static const struct watchdog_ops wdat_wdt_ops = {
++static struct watchdog_ops wdat_wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = wdat_wdt_start,
+ 	.stop = wdat_wdt_stop,
+ 	.ping = wdat_wdt_ping,
+ 	.set_timeout = wdat_wdt_set_timeout,
+-	.get_timeleft = wdat_wdt_get_timeleft,
+ };
  
-+static ssize_t fw_version_show(struct device *dev, struct device_attribute *attr,
-+			       char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
+ static int wdat_wdt_probe(struct platform_device *pdev)
+@@ -436,6 +435,9 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 		list_add_tail(&instr->node, instructions);
+ 	}
+ 
++	if (wdat->instructions[ACPI_WDAT_GET_CURRENT_COUNTDOWN])
++		wdat_wdt_ops.get_timeleft = wdat_wdt_get_timeleft;
 +
-+	return sysfs_emit(buf, "%d\n", wdd->info->firmware_version);
-+}
-+static DEVICE_ATTR_RO(fw_version);
-+
- static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
- {
-@@ -617,6 +626,7 @@ static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
- }
- static struct attribute *wdt_attrs[] = {
- 	&dev_attr_state.attr,
-+	&dev_attr_fw_version.attr,
- 	&dev_attr_identity.attr,
- 	&dev_attr_timeout.attr,
- 	&dev_attr_min_timeout.attr,
+ 	wdat_wdt_boot_status(wdat);
+ 	wdat_wdt_set_running(wdat);
+ 
 
+---
+base-commit: 0a924817d2ed9396401e0557c6134276d2e26382
+change-id: 20221221-wdat_wdt-timeleft-b38d0db39d9f
+
+Best regards,
 -- 
-2.39.0
+Thomas Weißschuh <linux@weissschuh.net>
