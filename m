@@ -2,126 +2,98 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DA1EC4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 23 Dec 2022 00:55:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B30C4167B
+	for <linux-watchdog@archiver.kernel.org>; Fri, 30 Dec 2022 16:36:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229793AbiLWAzY (ORCPT
+        id S235135AbiL3Qgw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 22 Dec 2022 19:55:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55650 "EHLO
+        Fri, 30 Dec 2022 11:36:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229754AbiLWAzX (ORCPT
+        with ESMTP id S235232AbiL3QgZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Dec 2022 19:55:23 -0500
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D69C21259;
-        Thu, 22 Dec 2022 16:55:18 -0800 (PST)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-1443a16b71cso4407245fac.13;
-        Thu, 22 Dec 2022 16:55:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=jrXYNrQBTvwm5ci+yZvQJOUeh50hcJmA0AcwoEvKjqo=;
-        b=Dt2/YI7FLlGpPodOaERqxcPF5edwtNrT6F3ULIEs+86T6q6lNxHAAQvKf5jcaSghKE
-         sRdFhT8Ys8J7SxK5gdV0xOrp+H4bwbl51PTGloiH9xAubw+ta3ZgD4p0kBtBUV3P+Uqv
-         atYSK9xbh+ebysr/3zlU3GS7yjawYoddJY+hAXiUKwxWEML2JmNeYFgdxFOz7KotQaIT
-         St0qfhsviAMFVjYx46tWfCZf/ab7DvcvtuWT3r9sVsXe7bm1hHrrke0DOXkTBoxRrhbJ
-         AOKjT7+K7fLz3XiXVgziG/6LcsL+h2pV7QYW1f+CbhMVS0bgeiB1IcbM9mmk/ahI0jNM
-         +CvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jrXYNrQBTvwm5ci+yZvQJOUeh50hcJmA0AcwoEvKjqo=;
-        b=wFISvWlc2SQvodUGK4nU9nGYJsUXiExGcPgVTJnixjAh5TyXI9vMiPoVZsVGgm9OWB
-         IMY6foASDlEg7fkgyMYynDIIaSXLzW0Q08/J7l+Dw/Re8CxADX+euR4A29Oa4KwoPUe8
-         HG6lN2cfrClq7jwhpuvvsndWKgtjj+ZvRo806Qc7uQOV1fiV02gxli3MiwXVBrorzdqQ
-         Lc5A/FzZLDEMq+3c3vXz4XB18wm9qU6ZxbXIYHJZShjH9VxFqU+oA1lft1MYzgkz5vvz
-         nG8uOLsk4sqEMqVyJaX9zWAMbKOA1Y3kQvM062HxCOlHve5HwTls8lfm/sdmXtL3EmEr
-         YpBA==
-X-Gm-Message-State: AFqh2kpT2QCZbpVgkSnU8huiGiiSbB3Mlaxlol7jn6G6P9RhDOFjjYpP
-        vA0oZh3xn7efsAdBhpUe3k2ht2qc1Po=
-X-Google-Smtp-Source: AMrXdXt2liwJEGraAOCv5U06fS33bED+3NZjifWq1+qZMjCYqRTO1sx38seCHdywHIz3UNhKh7U+YA==
-X-Received: by 2002:a05:6870:9f89:b0:144:ace9:ef83 with SMTP id xm9-20020a0568709f8900b00144ace9ef83mr3752485oab.57.1671756917385;
-        Thu, 22 Dec 2022 16:55:17 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a15-20020a05687073cf00b00144bb1013e6sm957382oan.4.2022.12.22.16.55.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Dec 2022 16:55:16 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 22 Dec 2022 16:55:14 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: wdat_wdt: Avoid unimplemented get_timeleft
-Message-ID: <20221223005514.GA3188712@roeck-us.net>
-References: <20221221-wdat_wdt-timeleft-v1-1-8e8a314c36cc@weissschuh.net>
+        Fri, 30 Dec 2022 11:36:25 -0500
+X-Greylist: delayed 210 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 30 Dec 2022 08:36:23 PST
+Received: from smtp.smtpout.orange.fr (smtp-24.smtpout.orange.fr [80.12.242.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5DC2F034
+        for <linux-watchdog@vger.kernel.org>; Fri, 30 Dec 2022 08:36:23 -0800 (PST)
+Received: from pop-os.home ([86.243.100.34])
+        by smtp.orange.fr with ESMTPA
+        id BIMnp9TXhPNsNBIMnp4aaY; Fri, 30 Dec 2022 17:36:22 +0100
+X-ME-Helo: pop-os.home
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Fri, 30 Dec 2022 17:36:22 +0100
+X-ME-IP: 86.243.100.34
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: rzn1: Use devm_clk_get_enabled() helper
+Date:   Fri, 30 Dec 2022 17:36:20 +0100
+Message-Id: <b1f8b5453791035ad534bd5ed36b49798ff4d9b2.1672418166.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221221-wdat_wdt-timeleft-v1-1-8e8a314c36cc@weissschuh.net>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 11:43:31PM +0000, Thomas Weiﬂschuh wrote:
-> As per the specification the action QUERY_COUNTDOWN_PERIOD is optional.
-> If the action is not implemented by the physical device the driver would
-> always report "0" from get_timeleft().
-> Avoid confusing userspace by only providing get_timeleft() when
-> implemented by the hardware.
-> 
-> Signed-off-by: Thomas Weiﬂschuh <linux@weissschuh.net>
+The devm_clk_get_enabled() helper:
+   - calls devm_clk_get()
+   - calls clk_prepare_enable() and registers what is needed in order to
+     call clk_disable_unprepare() when needed, as a managed resource.
 
-Assuming that there can be only one of those watchdogs in the system,
+This simplifies the code and avoids the need of a dedicated function used
+with devm_add_action_or_reset().
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ drivers/watchdog/rzn1_wdt.c | 18 +-----------------
+ 1 file changed, 1 insertion(+), 17 deletions(-)
 
-Guenter
+diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
+index 55ab384b9965..980c1717adb5 100644
+--- a/drivers/watchdog/rzn1_wdt.c
++++ b/drivers/watchdog/rzn1_wdt.c
+@@ -98,11 +98,6 @@ static const struct watchdog_ops rzn1_wdt_ops = {
+ 	.ping = rzn1_wdt_ping,
+ };
+ 
+-static void rzn1_wdt_clk_disable_unprepare(void *data)
+-{
+-	clk_disable_unprepare(data);
+-}
+-
+ static int rzn1_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -132,23 +127,12 @@ static int rzn1_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	clk = devm_clk_get(dev, NULL);
++	clk = devm_clk_get_enabled(dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		dev_err(dev, "failed to get the clock\n");
+ 		return PTR_ERR(clk);
+ 	}
+ 
+-	ret = clk_prepare_enable(clk);
+-	if (ret) {
+-		dev_err(dev, "failed to prepare/enable the clock\n");
+-		return ret;
+-	}
+-
+-	ret = devm_add_action_or_reset(dev, rzn1_wdt_clk_disable_unprepare,
+-				       clk);
+-	if (ret)
+-		return ret;
+-
+ 	clk_rate = clk_get_rate(clk);
+ 	if (!clk_rate) {
+ 		dev_err(dev, "failed to get the clock rate\n");
+-- 
+2.34.1
 
-> ---
->  drivers/watchdog/wdat_wdt.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-> index ce7a4a9e4b03..0ba99bed59fc 100644
-> --- a/drivers/watchdog/wdat_wdt.c
-> +++ b/drivers/watchdog/wdat_wdt.c
-> @@ -301,13 +301,12 @@ static const struct watchdog_info wdat_wdt_info = {
->  	.identity = "wdat_wdt",
->  };
->  
-> -static const struct watchdog_ops wdat_wdt_ops = {
-> +static struct watchdog_ops wdat_wdt_ops = {
->  	.owner = THIS_MODULE,
->  	.start = wdat_wdt_start,
->  	.stop = wdat_wdt_stop,
->  	.ping = wdat_wdt_ping,
->  	.set_timeout = wdat_wdt_set_timeout,
-> -	.get_timeleft = wdat_wdt_get_timeleft,
->  };
->  
->  static int wdat_wdt_probe(struct platform_device *pdev)
-> @@ -436,6 +435,9 @@ static int wdat_wdt_probe(struct platform_device *pdev)
->  		list_add_tail(&instr->node, instructions);
->  	}
->  
-> +	if (wdat->instructions[ACPI_WDAT_GET_CURRENT_COUNTDOWN])
-> +		wdat_wdt_ops.get_timeleft = wdat_wdt_get_timeleft;
-> +
->  	wdat_wdt_boot_status(wdat);
->  	wdat_wdt_set_running(wdat);
->  
-> 
-> ---
-> base-commit: 0a924817d2ed9396401e0557c6134276d2e26382
-> change-id: 20221221-wdat_wdt-timeleft-b38d0db39d9f
-> 
-> Best regards,
-> -- 
-> Thomas Weiﬂschuh <linux@weissschuh.net>
