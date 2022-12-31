@@ -2,74 +2,74 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10231C3DA7A
-	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Dec 2022 23:09:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29D56C4332F
+	for <linux-watchdog@archiver.kernel.org>; Sat, 31 Dec 2022 23:09:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232284AbiLaXJA (ORCPT
+        id S232520AbiLaXJn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 31 Dec 2022 18:09:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
+        Sat, 31 Dec 2022 18:09:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231166AbiLaXI7 (ORCPT
+        with ESMTP id S231166AbiLaXJn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 31 Dec 2022 18:08:59 -0500
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DFDA267D;
-        Sat, 31 Dec 2022 15:08:58 -0800 (PST)
-Received: by mail-oi1-x22b.google.com with SMTP id u204so21718712oib.7;
-        Sat, 31 Dec 2022 15:08:58 -0800 (PST)
+        Sat, 31 Dec 2022 18:09:43 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77C04267D;
+        Sat, 31 Dec 2022 15:09:42 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id j130so16564441oif.4;
+        Sat, 31 Dec 2022 15:09:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=QdhFSaUyyooJRYrsLbS1pmk011oIfeEFmUexZWQ1AhU=;
-        b=pWiEK8IvBa5CGqs4FvjFuxOtzh6+vbIahEEDlJ0Kgba5HJ1J25jLsicbvSx5jql3Yy
-         iEAaXUDaDRzekHCXnDtGcRneD/RdGHvKyAzhlPc2Uvltj7iHoWj7jkPp+XeLj+U/uQZs
-         jjlJLNFHn8yIreZ8B/vyHO7W7UX0GWRL9U1FH1y1QYS2vib9ifb5hh2fLjH+0qObZT5/
-         V7vQ9pIByQlG00s0DoNb8psFz17ZxLwVbhg9UTPZf0DwwPZ4K282RHxbUMPIg1TqJIKV
-         JWex7Tm1dxebphWcwsIEk1pt1wQK5OLuuszVJ+p/JbNNx/vvDJmeQBaM7JjudUHJytgw
-         7lDg==
+        bh=z7WNsD6gyaCetehSHXPCDB9R+yMnhSn/6iTm7wa2rxg=;
+        b=H7rfb2pRenXTsAyAsNEZGbuU+5sD3mE5iGpxyGV+ZxmwcuoXMDTBnshnFcAvQhKc0F
+         GAGQ8HnE4WZ44AfjOFFMFmSlNozBDqKWN8liDr3h0eolaSnTj3ViFsUSvkwtUED+LkVd
+         IFqhHvd9F+P6vDn3Hhby+vpgAAzuiC7v4xWeLVGQOWdULHRq6D62MH8Jzt54ttFseoig
+         tpXAH94tNr/NpyZlNSCZQJTkTsdow1i1skjEDf0zPiKADPWeh1dme8myLX6K0bruLunG
+         YkEGoMvyKWX3wSKPUAUznHoYy/p2WcOtUxIMKazZmw1wB3p4YsgNu4s/XjPtPnB0R8bc
+         RGyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QdhFSaUyyooJRYrsLbS1pmk011oIfeEFmUexZWQ1AhU=;
-        b=l6uwjpD4JRpkIr2UgF2xbsAG00YCPAZND/kZiuVH5IIxkVTNHX84jOjsqQ7+frUYsK
-         bJG5NpUgaP0mRsqLNDD4hwL3eBxnjpT31Xn/Yxh8F/xmw2PE9HtEzL015cyCzJLbPJeu
-         kj2c2lto2FTC4x3fFppUvVmYH7ZvakdxnfRJFNJ4lBtf0QECv9a6Z4jF0ZV458HwRyG2
-         nV7ZQqwQO6G73yeE/B3YCI0zayqdEeDz55DJiGRUCuMvpRdRAzqqaN0GjDT9n2Dq3TMO
-         ZE63L4MDTBGDP3GAIhXiUgYjxTTc88/hVwEfnwTBRfYoxVGlaq3ZttJeAKNAhdlEGR9U
-         LaPQ==
-X-Gm-Message-State: AFqh2koHbGnTdqm0af8GkE+aQnIAt2WrwTI6RoNSpVlJvg6eNDpqiXq7
-        6bSrqIen5+DLV3wEkfbfTzY=
-X-Google-Smtp-Source: AMrXdXtawS7y2vgg5ldfvcO49lsoNYM3L/h+WugxWqXIJqTSCNVdU7Kw9p1x3K+elyrSPDTGJ25Ikw==
-X-Received: by 2002:a05:6808:5c3:b0:35e:b863:1cfc with SMTP id d3-20020a05680805c300b0035eb8631cfcmr22491146oij.26.1672528137730;
-        Sat, 31 Dec 2022 15:08:57 -0800 (PST)
+        bh=z7WNsD6gyaCetehSHXPCDB9R+yMnhSn/6iTm7wa2rxg=;
+        b=VVhiW3EUWuZwF5pzIooWBwSB44Elmv6XXYyYAPcvv7r9Wb+W31HoTO45lJlc+tqz/+
+         zRmVAinBmlyuvSkgi/6cXBq2VMSSh7LqvMK8AHWxqHtxOhw2iVfOS4KL6GQC/VzOITdp
+         BJVBeiQh7xpCz9H0vg+3p7C7YDBTvWyvTHMEuyBup+SrXMMGk8Wpo4TuUZjvkXsDN2WK
+         j+2JMxs6dCryYNzxJ/5br2UBwbFagi0Rwk4oRT6SjMzQsXFQ/6jc7kV2c4hGClbkJxXq
+         raGJfnGdCq37I7ttZxCerHOQx70tYMg0LB0ZIs3asw3RQbbkgAi6q1F0fDWCX0AczHug
+         hyyQ==
+X-Gm-Message-State: AFqh2koh1Tyf1pR75HbBACPgdAFrFJ2l4XXfnbr9bf+z7Df+GdFAz95M
+        MoOF5GPMf8NBhfRMfyzyo8xxQ4xORZo=
+X-Google-Smtp-Source: AMrXdXuGcn54EQNsR7XHwmmNsjgWlF5rRo9SvUrqgGFQCp9pJkWmyJAX32Gti8S8OAi5hqe3Y9MLqA==
+X-Received: by 2002:a05:6808:d4:b0:355:1df0:9b9c with SMTP id t20-20020a05680800d400b003551df09b9cmr14919340oic.26.1672528181795;
+        Sat, 31 Dec 2022 15:09:41 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id bk13-20020a056830368d00b00667ff6b7e9esm12275525otb.40.2022.12.31.15.08.56
+        by smtp.gmail.com with ESMTPSA id 5-20020aca0d05000000b0035c21f1a570sm10581752oin.6.2022.12.31.15.09.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Dec 2022 15:08:56 -0800 (PST)
+        Sat, 31 Dec 2022 15:09:41 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 31 Dec 2022 15:08:55 -0800
+Date:   Sat, 31 Dec 2022 15:09:40 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: davinci: Use devm_clk_get_enabled() helper
-Message-ID: <20221231230855.GA2706156@roeck-us.net>
-References: <6a4cf8e8b9d8f555c77395ba2ecadc205553774d.1672483046.git.christophe.jaillet@wanadoo.fr>
+Subject: Re: [PATCH] watchdog: imgpdc: Use devm_clk_get_enabled() helper
+Message-ID: <20221231230940.GB2706156@roeck-us.net>
+References: <1f8d1ce1e6a63c507a291aea624b1337326cc563.1672483996.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6a4cf8e8b9d8f555c77395ba2ecadc205553774d.1672483046.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <1f8d1ce1e6a63c507a291aea624b1337326cc563.1672483996.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sat, Dec 31, 2022 at 11:37:39AM +0100, Christophe JAILLET wrote:
+On Sat, Dec 31, 2022 at 11:53:34AM +0100, Christophe JAILLET wrote:
 > The devm_clk_get_enabled() helper:
 >    - calls devm_clk_get()
 >    - calls clk_prepare_enable() and registers what is needed in order to
@@ -83,51 +83,75 @@ On Sat, Dec 31, 2022 at 11:37:39AM +0100, Christophe JAILLET wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/davinci_wdt.c | 18 +-----------------
->  1 file changed, 1 insertion(+), 17 deletions(-)
+> Note that the order of operations is slightly modified by this patch. The
+> "sys" clk is now prepare_enable()'ed before clk_get("wdt").
+> ---
+>  drivers/watchdog/imgpdc_wdt.c | 31 +++----------------------------
+>  1 file changed, 3 insertions(+), 28 deletions(-)
 > 
-> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-> index 584a56893b81..5f2184bda7b2 100644
-> --- a/drivers/watchdog/davinci_wdt.c
-> +++ b/drivers/watchdog/davinci_wdt.c
-> @@ -189,14 +189,8 @@ static const struct watchdog_ops davinci_wdt_ops = {
->  	.restart	= davinci_wdt_restart,
+> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+> index b57ff3787052..a55f801895d4 100644
+> --- a/drivers/watchdog/imgpdc_wdt.c
+> +++ b/drivers/watchdog/imgpdc_wdt.c
+> @@ -175,16 +175,11 @@ static const struct watchdog_ops pdc_wdt_ops = {
+>  	.restart        = pdc_wdt_restart,
 >  };
 >  
-> -static void davinci_clk_disable_unprepare(void *data)
+> -static void pdc_clk_disable_unprepare(void *data)
 > -{
 > -	clk_disable_unprepare(data);
 > -}
 > -
->  static int davinci_wdt_probe(struct platform_device *pdev)
+>  static int pdc_wdt_probe(struct platform_device *pdev)
 >  {
-> -	int ret = 0;
 >  	struct device *dev = &pdev->dev;
->  	struct watchdog_device *wdd;
->  	struct davinci_wdt_device *davinci_wdt;
-> @@ -205,21 +199,11 @@ static int davinci_wdt_probe(struct platform_device *pdev)
->  	if (!davinci_wdt)
->  		return -ENOMEM;
+>  	u64 div;
+> -	int ret, val;
+> +	int val;
+>  	unsigned long clk_rate;
+>  	struct pdc_wdt_dev *pdc_wdt;
 >  
-> -	davinci_wdt->clk = devm_clk_get(dev, NULL);
-> +	davinci_wdt->clk = devm_clk_get_enabled(dev, NULL);
->  	if (IS_ERR(davinci_wdt->clk))
->  		return dev_err_probe(dev, PTR_ERR(davinci_wdt->clk),
->  				     "failed to get clock node\n");
+> @@ -196,38 +191,18 @@ static int pdc_wdt_probe(struct platform_device *pdev)
+>  	if (IS_ERR(pdc_wdt->base))
+>  		return PTR_ERR(pdc_wdt->base);
 >  
-> -	ret = clk_prepare_enable(davinci_wdt->clk);
+> -	pdc_wdt->sys_clk = devm_clk_get(dev, "sys");
+> +	pdc_wdt->sys_clk = devm_clk_get_enabled(dev, "sys");
+>  	if (IS_ERR(pdc_wdt->sys_clk)) {
+>  		dev_err(dev, "failed to get the sys clock\n");
+>  		return PTR_ERR(pdc_wdt->sys_clk);
+>  	}
+>  
+> -	pdc_wdt->wdt_clk = devm_clk_get(dev, "wdt");
+> +	pdc_wdt->wdt_clk = devm_clk_get_enabled(dev, "wdt");
+>  	if (IS_ERR(pdc_wdt->wdt_clk)) {
+>  		dev_err(dev, "failed to get the wdt clock\n");
+>  		return PTR_ERR(pdc_wdt->wdt_clk);
+>  	}
+>  
+> -	ret = clk_prepare_enable(pdc_wdt->sys_clk);
 > -	if (ret) {
-> -		dev_err(dev, "failed to prepare clock\n");
+> -		dev_err(dev, "could not prepare or enable sys clock\n");
 > -		return ret;
 > -	}
-> -	ret = devm_add_action_or_reset(dev, davinci_clk_disable_unprepare,
-> -				       davinci_wdt->clk);
+> -	ret = devm_add_action_or_reset(dev, pdc_clk_disable_unprepare,
+> -				       pdc_wdt->sys_clk);
 > -	if (ret)
 > -		return ret;
 > -
->  	platform_set_drvdata(pdev, davinci_wdt);
->  
->  	wdd			= &davinci_wdt->wdd;
+> -	ret = clk_prepare_enable(pdc_wdt->wdt_clk);
+> -	if (ret) {
+> -		dev_err(dev, "could not prepare or enable wdt clock\n");
+> -		return ret;
+> -	}
+> -	ret = devm_add_action_or_reset(dev, pdc_clk_disable_unprepare,
+> -				       pdc_wdt->wdt_clk);
+> -	if (ret)
+> -		return ret;
+> -
+>  	/* We use the clock rate to calculate the max timeout */
+>  	clk_rate = clk_get_rate(pdc_wdt->wdt_clk);
+>  	if (clk_rate == 0) {
 > -- 
 > 2.34.1
 > 
