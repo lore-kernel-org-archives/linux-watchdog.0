@@ -2,63 +2,63 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD349C71149
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A60C71150
 	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Jan 2023 12:54:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234765AbjAIMyQ (ORCPT
+        id S234268AbjAIMyR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40796 "EHLO
+        Mon, 9 Jan 2023 07:54:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234723AbjAIMxi (ORCPT
+        with ESMTP id S236199AbjAIMxs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Jan 2023 07:53:38 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8AB515FCD
-        for <linux-watchdog@vger.kernel.org>; Mon,  9 Jan 2023 04:53:36 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id p3-20020a05600c1d8300b003d9ee5f125bso2422574wms.4
-        for <linux-watchdog@vger.kernel.org>; Mon, 09 Jan 2023 04:53:36 -0800 (PST)
+        Mon, 9 Jan 2023 07:53:48 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FD1164B4
+        for <linux-watchdog@vger.kernel.org>; Mon,  9 Jan 2023 04:53:41 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id p1-20020a05600c1d8100b003d8c9b191e0so6618220wms.4
+        for <linux-watchdog@vger.kernel.org>; Mon, 09 Jan 2023 04:53:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=UbXe2+vnFi2o0+x3zbVNdzht9oC5iTUElnKdAfsufrk=;
-        b=DOvxPAXGiNaerq41sXouK4mUViADCtl1292C8CsCHfPiv5MHP8l+bv4o+zhXHlZeg8
-         +TOLBBSwXzBJm1HVsjkOiBczYGdPKQp7IwzQcYyg3Y67Eam+CXMHMOJvDvmICQHb3bXd
-         aWBVDWPCA0tC/c7M6s5HslAPQ8l+zUU3XxO8iDbfcIorWmCGz9Prc09mRbAx4PAm3L9n
-         Tc7L4YXgyU+ot7CO38EL43CwU/1I5dtTEqvCFO/LYgCavf5P+uT7kXv9tBlKs3jK6ZRB
-         auzkSdJwVfsPTlD668SFi3GknfOOf2onl7SHMvMuSCehaEXwhBbEySGZN3oSfJ6ABVxV
-         h3Ng==
+        bh=eHeD4/5Q26ruqFmP/If/k2xNMCXAhjZeCMYfTgUbKRU=;
+        b=ST+d6exv+eSO89qaxYEHQlIUZjwGyGwBJ4xr+vru1zfL5TKvPyAhqO8Pkx0pwPrsz+
+         jgw4926gADuQo43X4dvIXEFVEX+2jkFCW71Ibl6xlz8rEKH4KDOuwPJavaTNh6Xc5P0A
+         AjwReWC2HFTNu9qYXgDmUygMPt7ZAvBkFipkWakWAcAxMsf5vwA9wpujm+DSd3CLhQ62
+         Fm9K10aodqGSrxbo5Zu0m7mpFDY6eTc0BH5igwv8WsKfuWKKBwQ+/tSlmb8JcRvYv2nf
+         gApIKGwFDwKoKVFmWMoGxExR8BxoEEnI+UkTInipxpBoGPl/IFugqltGY0B5Ddf6azXK
+         M/8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UbXe2+vnFi2o0+x3zbVNdzht9oC5iTUElnKdAfsufrk=;
-        b=6NXt9Z4dudwATZT8kzMZiImNwLfG1M2DnxJQAm5hQn4SjgrTgvFmXMpf1xY6+8OPQo
-         kGx6UfNUqahRBZr3HoWuht+nctMDL8vLUu3JFvf3l7iq3E9DUMYIAeWi5JzkaCX6mhTw
-         EvGgpRYrFhNKkxgmnj92Pw5YFEABkRx3u9HZjO68Ka1Vs9IMLzfdVCkfGx3+2pvOXxN+
-         4BfysKztk0n1/AARNGYkBnrKwvcaBuDgvrYJXaOGVmpfVDOK0x7zHZc2Xya62sTruN2e
-         IV+lO6ZJtFw/BPysTwCl8bO9AWpx5Gl9wRSl8VSSg2/1kS9snLUYLLEfP42WkFvGjPZr
-         WA5w==
-X-Gm-Message-State: AFqh2krVcrUKXzv+1U/Gd6gYMsQGJ4izFEL2xhlRgMqaG5tHtvM5P9e5
-        tL/V4sJiO2Ls0QYf8DPlQBNK2Q==
-X-Google-Smtp-Source: AMrXdXudpqXVFbLwik7jPum30M/juG26ZBSd4Z3aISfa1VLm3maETyuA/mzYk1lep4t/A1RsQFwlcA==
-X-Received: by 2002:a05:600c:2318:b0:3c6:e63e:23e9 with SMTP id 24-20020a05600c231800b003c6e63e23e9mr49142536wmo.24.1673268815169;
-        Mon, 09 Jan 2023 04:53:35 -0800 (PST)
+        bh=eHeD4/5Q26ruqFmP/If/k2xNMCXAhjZeCMYfTgUbKRU=;
+        b=uG20XYvMmfETYrlLqbvfbK4yBzAu0wMlaLqAo4EKLyn2MTSIw5DUGJqdZTfwiIAXHy
+         YujAweAOiW0T6cfDm4LQi0qfYOGOUSph8LueTo61kXEyQ2PbgU0Joa5tlETnL5AZdl2A
+         IjNtqiaXYUUsD3EnTqYbRPOVt7HirG4snJtkRpD/xK4U+dngsP7knCPifw96Rtu5jD0h
+         cSpBW2PdWz/diYdc8UBAxas3OpgjeHkvru8aymtltvDC2LoRppW6Zs7mJ4/gUklHwtsq
+         LoqqaO+rlpWwWQoyQtIj+ql3eIM8SJNyED+aR5QbpGo4a2eIu+0mE1DW/jQv+jCGyyto
+         kwkQ==
+X-Gm-Message-State: AFqh2ko2grGDce0Enq501h/2dNkKG8FSIYUWDVZpukX37nKu/8YVnOpH
+        0MYs5aXjbGmn7/d20lw89/YOLA==
+X-Google-Smtp-Source: AMrXdXsaurQF4EtQDAHouXVvSJBqCu54hP/k4K5wC/jqtSrGfESg6vwwkM/iQm8oVMP1uuBrED7e8A==
+X-Received: by 2002:a05:600c:3d05:b0:3d3:5c21:dd94 with SMTP id bh5-20020a05600c3d0500b003d35c21dd94mr48020557wmb.9.1673268820053;
+        Mon, 09 Jan 2023 04:53:40 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.33
+        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 04:53:34 -0800 (PST)
+        Mon, 09 Jan 2023 04:53:39 -0800 (PST)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 09 Jan 2023 13:53:27 +0100
-Subject: [PATCH v2 03/11] dt-bindings: nvmem: convert
- amlogic-meson-mx-efuse.txt to dt-schema
+Date:   Mon, 09 Jan 2023 13:53:30 +0100
+Subject: [PATCH v2 06/11] dt-bindings: power: amlogic,meson-gx-pwrc: mark
+ bindings as deprecated
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v2-3-36ad050bb625@linaro.org>
+Message-Id: <20221117-b4-amlogic-bindings-convert-v2-6-36ad050bb625@linaro.org>
 References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 To:     Rob Herring <robh+dt@kernel.org>,
@@ -96,108 +96,30 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert the Amlogic Meson6 eFuse bindings to dt-schema.
+The amlogic,meson-gx-pwrc-vpu compatible isn't used anymore since [1]
+was merged in v5.8-rc1 and amlogic,meson-g12a-pwrc-vpu either since [2]
+was merged in v5.3-rc1.
+
+[1] commit 5273d6cacc06 ("arm64: dts: meson-gx: Switch to the meson-ee-pwrc bindings")
+[2] commit f4f1c8d9ace7 ("arm64: dts: meson-g12: add Everything-Else power domain controller")
 
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/nvmem/amlogic,meson6-efuse.yaml       | 60 ++++++++++++++++++++++
- .../bindings/nvmem/amlogic-meson-mx-efuse.txt      | 22 --------
- 2 files changed, 60 insertions(+), 22 deletions(-)
+ Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/nvmem/amlogic,meson6-efuse.yaml b/Documentation/devicetree/bindings/nvmem/amlogic,meson6-efuse.yaml
-new file mode 100644
-index 000000000000..11cace95d18c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/nvmem/amlogic,meson6-efuse.yaml
-@@ -0,0 +1,60 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/nvmem/amlogic,meson6-efuse.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Amlogic Meson6 eFuse
-+
-+maintainers:
-+  - Neil Armstrong <neil.armstrong@linaro.org>
-+  - Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-+
-+allOf:
-+  - $ref: nvmem.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - amlogic,meson6-efuse
-+      - amlogic,meson8-efuse
-+      - amlogic,meson8b-efuse
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-names:
-+    const: core
-+
-+  secure-monitor:
-+    description: phandle to the secure-monitor node
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - clock-names
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    efuse: efuse@0 {
-+        compatible = "amlogic,meson6-efuse";
-+        reg = <0x0 0x2000>;
-+        clocks = <&clk_efuse>;
-+        clock-names = "core";
-+        #address-cells = <1>;
-+        #size-cells = <1>;
-+
-+        ethernet_mac_address: mac@1b4 {
-+            reg = <0x1b4 0x6>;
-+        };
-+
-+        temperature_calib: calib@1f4 {
-+             reg = <0x1f4 0x4>;
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/nvmem/amlogic-meson-mx-efuse.txt b/Documentation/devicetree/bindings/nvmem/amlogic-meson-mx-efuse.txt
-deleted file mode 100644
-index a3c63954a1a4..000000000000
---- a/Documentation/devicetree/bindings/nvmem/amlogic-meson-mx-efuse.txt
-+++ /dev/null
-@@ -1,22 +0,0 @@
--Amlogic Meson6/Meson8/Meson8b efuse
--
--Required Properties:
--- compatible: depending on the SoC this should be one of:
--	- "amlogic,meson6-efuse"
--	- "amlogic,meson8-efuse"
--	- "amlogic,meson8b-efuse"
--- reg: base address and size of the efuse registers
--- clocks: a reference to the efuse core gate clock
--- clock-names: must be "core"
--
--All properties and sub-nodes as well as the consumer bindings
--defined in nvmem.txt in this directory are also supported.
--
--
--Example:
--	efuse: nvmem@0 {
--		compatible = "amlogic,meson8-efuse";
--		reg = <0x0 0x2000>;
--		clocks = <&clkc CLKID_EFUSE>;
--		clock-names = "core";
--	};
+diff --git a/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt b/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
+index 99b5b10cda31..ba5865ae6bfe 100644
+--- a/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
++++ b/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
+@@ -1,5 +1,5 @@
+-Amlogic Meson Power Controller
+-==============================
++Amlogic Meson Power Controller (deprecated)
++===========================================
+ 
+ The Amlogic Meson SoCs embeds an internal Power domain controller.
+ 
 
 -- 
 2.34.1
