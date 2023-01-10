@@ -2,64 +2,67 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C933EC63797
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Jan 2023 10:19:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF558C678D7
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Jan 2023 14:18:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231136AbjAJKTy (ORCPT
+        id S230010AbjAJORx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 10 Jan 2023 05:19:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42108 "EHLO
+        Tue, 10 Jan 2023 09:17:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237954AbjAJKTc (ORCPT
+        with ESMTP id S234472AbjAJORm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jan 2023 05:19:32 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C397F76219
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 02:18:04 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id p3-20020a05600c1d8300b003d9ee5f125bso4919840wms.4
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 02:18:04 -0800 (PST)
+        Tue, 10 Jan 2023 09:17:42 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8175688A
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 06:17:38 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id i17-20020a05600c355100b003d99434b1cfso10070930wmq.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 06:17:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PM3i+83BPLCvCkjcHeSsVRsAE5H2Nw7gtRNrJCRY2Ks=;
-        b=dCctDUIS0wC58/aHLK5o+YpcliPRN6sleu5Xkbclt/zqSjkzezo8juF4OGzlLsvyGf
-         tUK3Rkiu727qQvxILep6HVoaAKnbkXRJxXvgarWY5BU8gAhVnxynCpG6cAqFAtwFfQan
-         3pwJ3RN0AT5mFJYR+byVFD9HC1x7kN8/SimGHmYJMdTQmmPWlFJml+nBX3qwrwOyQ0L2
-         UvUktrvtRBUHh2RAj9it+AGiFB2eOiNTbZqual4iMCHAWr+CVeoF7M3ea+Zyeosp0P2O
-         Fta/A301YwGUtq0CiX/gKZAwpIxyloMcGasDLKovqyrb3C28XcQSXdlOKbYVcLBa90Gh
-         bQdg==
+        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
+         :content-language:subject:reply-to:from:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=eHZb7U5oDjEwOOYPDL1qKh2dxxJE4/1ANjgPMf5V1yY=;
+        b=fTRvcYCK+eENINzdvpT5NHT0wfYm1n3I5kSok/46mEYtVclqXC7smkLGa3XIEa74h8
+         pa7vm2MsAjsI/cBelw5bGsc9I2eqetFlYlumH4/lm4MrpkqG9t+Yo0qdg5Wnaa5ROnk+
+         jk5if7eruDCSwTvNARxIO86xgemjnjk0GsLpdYo148YKsCWzHsOmV0v7ExzDydbgMmjB
+         xBEDTBdANuYQT914B1YF5HhzI8DZFH0C2v3VudioXDxD6KAU63mcGUTJkptYXI3ghV99
+         jzEBpM1Oh0TlusLugEYK7urTdrOuYWsOoldXD7wFgQwqC6XBXhxwFnxQYHc85Xv7KEWj
+         Y/iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PM3i+83BPLCvCkjcHeSsVRsAE5H2Nw7gtRNrJCRY2Ks=;
-        b=AJ85HWqFPhDgdvQ7ewOpX6fJycn7hgFjDD/SRqCKr+beP+Oy/Pprdo0M/nFC9gshMW
-         CJXYRlw/zZpKQ+h0OCRMw4Cl3tMA01LEzFDWoy+HcL1FrukBrgetezlJ8slZNYHHUwma
-         7lk2TsiXyyljl29dy40f9rQrrVfOC/qjqoU9imEmBGTUrKpOYM7a7gA8zbNAxoy7X704
-         K4tG2kn64+W50Q8M2kP1zLu8RYoWw7kLwT7kKDF1Ssl3RuiCzZxlDElnnqAIPxDCG84h
-         ELtNDMLVY41ICeB8gTwBGGGUeFe2g3LQ0v2W+1UktFMMljA1332o5T5560MUE72eODP+
-         MvHA==
-X-Gm-Message-State: AFqh2krOQWtC7LGpeyjZsBlf8DRxQUr2pVq1rI0i+xBcKoPQfRctIgCm
-        91pnfOICgHji80y+ZoGhCFfSnA==
-X-Google-Smtp-Source: AMrXdXvxClrR4BtCis3ALpFrfvnnBH5INQXfgVxgssgGc8gS8VU+28Qjf2O0/5xOZ+1CSwryJpUEpQ==
-X-Received: by 2002:a05:600c:48a1:b0:3d1:f270:a81e with SMTP id j33-20020a05600c48a100b003d1f270a81emr48836013wmp.17.1673345883348;
-        Tue, 10 Jan 2023 02:18:03 -0800 (PST)
-Received: from [192.168.1.109] ([178.197.216.144])
-        by smtp.gmail.com with ESMTPSA id z9-20020a7bc7c9000000b003d9ef37ec1bsm8484251wmk.5.2023.01.10.02.17.53
+        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
+         :content-language:subject:reply-to:from:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=eHZb7U5oDjEwOOYPDL1qKh2dxxJE4/1ANjgPMf5V1yY=;
+        b=uP2a2RhFYy/AXjEtlv9S0Gxp6FzHOAY8pb1JsPZV6of7+zpxRgnG6CWQCcQFaTjepS
+         xUbd4sVo7C6cAYNQ3m0AJwvzDgXXYwCVYTiNprtbJguSqxiJ3OR2HFaxaFLeppxeH5uM
+         f4G0RIPko5vcc93q/VxkKHakLoFUSaGjORj3xW5hOm0ZthALk6Q/0gv3x410v+9jW1ym
+         znCQ6T2kI1qZuQltCabn+jRrFSw9lFuXmWeCaW8SrFv0b7YKQLBeuquwPyeVOtFRAbGV
+         WRzXldNYF+I+6Wo2Vlp8ZZKApGOb3xrVWdJKgripEuRMoZBqGbMyX1nvSqlmmo3Ehd5p
+         GTXA==
+X-Gm-Message-State: AFqh2krAGqe5LfLGhnJfzNfsFdTPGiMuU9MDxEygdXK2R2evfbrtbao9
+        XKXkw8RMfOVPkabNGI7Sz30rWw==
+X-Google-Smtp-Source: AMrXdXuqOXk2/au6P9zSAZ1Xnbpze8DuH91lBlkaSOKHoQSBiUFp/tny1iYv4yZOeDxUI/obplpd0Q==
+X-Received: by 2002:a05:600c:1f12:b0:3d2:267d:64bd with SMTP id bd18-20020a05600c1f1200b003d2267d64bdmr59388593wmb.3.1673360256638;
+        Tue, 10 Jan 2023 06:17:36 -0800 (PST)
+Received: from ?IPV6:2a01:e0a:982:cbb0:26cc:e5e1:3044:b226? ([2a01:e0a:982:cbb0:26cc:e5e1:3044:b226])
+        by smtp.gmail.com with ESMTPSA id t12-20020a05600c198c00b003d9de0c39fasm18780848wmq.36.2023.01.10.06.17.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jan 2023 02:18:02 -0800 (PST)
-Message-ID: <e3d32fe1-9f2b-09fb-d7e0-2c8f42e5365c@linaro.org>
-Date:   Tue, 10 Jan 2023 11:17:52 +0100
+        Tue, 10 Jan 2023 06:17:36 -0800 (PST)
+Message-ID: <2037156d-5113-4b96-8f86-c8ef1c1fdf96@linaro.org>
+Date:   Tue, 10 Jan 2023 15:17:34 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
+ Thunderbird/102.6.0
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Reply-To: neil.armstrong@linaro.org
 Subject: Re: [PATCH v2 09/11] dt-bindings: mmc: convert amlogic,meson-gx.txt
  to dt-schema
 Content-Language: en-US
-To:     Neil Armstrong <neil.armstrong@linaro.org>,
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Kevin Hilman <khilman@baylibre.com>,
@@ -91,64 +94,87 @@ Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         netdev@vger.kernel.org
 References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
  <20221117-b4-amlogic-bindings-convert-v2-9-36ad050bb625@linaro.org>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-9-36ad050bb625@linaro.org>
-Content-Type: text/plain; charset=UTF-8
+ <e3d32fe1-9f2b-09fb-d7e0-2c8f42e5365c@linaro.org>
+Organization: Linaro Developer Services
+In-Reply-To: <e3d32fe1-9f2b-09fb-d7e0-2c8f42e5365c@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 09/01/2023 13:53, Neil Armstrong wrote:
-> Convert the Amlogic SD / eMMC controller for S905/GXBB family SoCs
-> to dt-schema.
+On 10/01/2023 11:17, Krzysztof Kozlowski wrote:
+> On 09/01/2023 13:53, Neil Armstrong wrote:
+>> Convert the Amlogic SD / eMMC controller for S905/GXBB family SoCs
+>> to dt-schema.
+>>
+>> Take in account the used variant with amlogic,meson-gx-mmc.
+>>
+>> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+>> ---
+>>   .../bindings/mmc/amlogic,meson-gx-mmc.yaml         | 75 ++++++++++++++++++++++
+>>   .../devicetree/bindings/mmc/amlogic,meson-gx.txt   | 39 -----------
+>>   2 files changed, 75 insertions(+), 39 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
+>> new file mode 100644
+>> index 000000000000..30228964fd9c
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
+>> @@ -0,0 +1,75 @@
+>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>> +%YAML 1.2
+>> +---
+>> +$id: http://devicetree.org/schemas/mmc/amlogic,meson-gx-mmc.yaml#
+>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>> +
+>> +title: Amlogic SD / eMMC controller for S905/GXBB family SoCs
+>> +
+>> +description:
+>> +  The MMC 5.1 compliant host controller on Amlogic provides the
+>> +  interface for SD, eMMC and SDIO devices
+>> +
+>> +maintainers:
+>> +  - Neil Armstrong <neil.armstrong@linaro.org>
+>> +
+>> +allOf:
+>> +  - $ref: mmc-controller.yaml#
+>> +
+>> +properties:
+>> +  compatible:
+>> +    oneOf:
+>> +      - enum:
+>> +          - amlogic,meson-gx-mmc
+>> +          - amlogic,meson-axg-mmc
+>> +      - items:
+>> +          - const: amlogic,meson-gx-mmc
 > 
-> Take in account the used variant with amlogic,meson-gx-mmc.
+> This does not look correct. Either gx is alone (not compatible with
+> gxbb) or it is compatible with gxbb. Cannot be both.
+
+This ishow it's used in DT:
+
+arch/arm64/boot/dts/amlogic/meson-gx.dtsi:                              compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
+arch/arm64/boot/dts/amlogic/meson-axg.dtsi:                             compatible = "amlogic,meson-axg-mmc";
+arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:                      compatible = "amlogic,meson-axg-mmc";
+
+So I'll drop the amlogic,meson-gx-mmc in the first enum to have :
++properties:
++  compatible:
++    oneOf:
++      - const: amlogic,meson-axg-mmc
++      - items:
++          - const: amlogic,meson-gx-mmc
++          - const: amlogic,meson-gxbb-mmc
+
+It's right ?
+
+Neil
+
 > 
-> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-> ---
->  .../bindings/mmc/amlogic,meson-gx-mmc.yaml         | 75 ++++++++++++++++++++++
->  .../devicetree/bindings/mmc/amlogic,meson-gx.txt   | 39 -----------
->  2 files changed, 75 insertions(+), 39 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
-> new file mode 100644
-> index 000000000000..30228964fd9c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
-> @@ -0,0 +1,75 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mmc/amlogic,meson-gx-mmc.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Amlogic SD / eMMC controller for S905/GXBB family SoCs
-> +
-> +description:
-> +  The MMC 5.1 compliant host controller on Amlogic provides the
-> +  interface for SD, eMMC and SDIO devices
-> +
-> +maintainers:
-> +  - Neil Armstrong <neil.armstrong@linaro.org>
-> +
-> +allOf:
-> +  - $ref: mmc-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    oneOf:
-> +      - enum:
-> +          - amlogic,meson-gx-mmc
-> +          - amlogic,meson-axg-mmc
-> +      - items:
-> +          - const: amlogic,meson-gx-mmc
-
-This does not look correct. Either gx is alone (not compatible with
-gxbb) or it is compatible with gxbb. Cannot be both.
-
-
-
-Best regards,
-Krzysztof
+> 
+> Best regards,
+> Krzysztof
+> 
 
