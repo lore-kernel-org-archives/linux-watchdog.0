@@ -2,236 +2,58 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74587C5479D
-	for <linux-watchdog@archiver.kernel.org>; Mon,  9 Jan 2023 12:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FD75C678D5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Jan 2023 08:39:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236847AbjAIMzR (ORCPT
+        id S235654AbjAJIis (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:55:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
+        Tue, 10 Jan 2023 03:38:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236687AbjAIMxy (ORCPT
+        with ESMTP id S237867AbjAJIiW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Jan 2023 07:53:54 -0500
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3D2167D3
-        for <linux-watchdog@vger.kernel.org>; Mon,  9 Jan 2023 04:53:45 -0800 (PST)
-Received: by mail-wm1-x329.google.com with SMTP id g10so6190121wmo.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 09 Jan 2023 04:53:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xnGne0AIOrRCEdGHKqqNZ0QfLFzf5T0LDCMO8FL2j20=;
-        b=tdRA/XNZo1N4yOReT2anVcAvsngzTiSAw3nqQ7nz8qE+yWDxA+c4TNXZu0951C6Y3g
-         tXZ7nAQ6DThzdBdWJ+J+XgGMYKRlKudJlKv2oHnRKMSnicLhKRvdmPmR6paMvZtvQqtU
-         ofNw04nMx9CV3c0RE34fXv8TKK5+yC2TKT6dAP3bBSR57X+VZTqCc7JEzRDJPv6heHNE
-         vLW8YyrXazDN0oJ/2GlinhzM0xS30ZT6MImLX0iFv13ThJRSM3pq2tBcHtBKDOKNL7cP
-         4FF4sr35FWkGNVzUjLuPadwthZarBwzKDbwQhpWz9CynHd1WynmOKmfUUIHQnOfTuV9H
-         wgTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xnGne0AIOrRCEdGHKqqNZ0QfLFzf5T0LDCMO8FL2j20=;
-        b=sV5c+pu5NV0DKlcC/AlaRv29qpAX+AkIZ5nvc0M8XQUGQxuznZIjSxbhMa/rsawgMX
-         9bfOzyBGRAOConoBGmeVvOe3Ovx48P6zez2mnroseoUnWjTnUlvsaSbmCXbpoU/7i8MT
-         BhUWwE08nj7xfDky7iQnpz0WpJu8GjWMyl3Ml4AIzq1b/J0Oa2gU6/S/sNWUYsKtl1JX
-         kx+OSxFel+OAjrxhpv4l1vhvvM746w6jMf3EWHa0nlU0ur0aVhZFAH3xbQ3AVH6RBsW6
-         JiKKi83OZLnAuUDcSKa9KvN7kgNi6ixp78duIXEHF1K2f77xZYFfSs7LFuHzB+SzoiQn
-         s4ag==
-X-Gm-Message-State: AFqh2krsTyTUIt0TspZ2+vccMaZMP8+Jmd9OvivsjdAHOylD3zrC1Nlr
-        25UdjK9CeQstks3+vO/2rLnU4Q==
-X-Google-Smtp-Source: AMrXdXtSCFttOui0qa5LKd97wrkCdtisGa/3lKZHafkOyyzh4CULuBVHJr8agyQdCGKPyuHcPd1xDQ==
-X-Received: by 2002:a05:600c:1e8c:b0:3d6:2952:679b with SMTP id be12-20020a05600c1e8c00b003d62952679bmr46035669wmb.34.1673268824876;
-        Mon, 09 Jan 2023 04:53:44 -0800 (PST)
-Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 04:53:44 -0800 (PST)
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 09 Jan 2023 13:53:33 +0100
-Subject: [PATCH v2 09/11] dt-bindings: mmc: convert amlogic,meson-gx.txt to dt-schema
+        Tue, 10 Jan 2023 03:38:22 -0500
+Received: from mail.lokoho.com (mail.lokoho.com [217.61.105.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8CC0F02F
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 00:38:20 -0800 (PST)
+Received: by mail.lokoho.com (Postfix, from userid 1001)
+        id E8F9D83879; Tue, 10 Jan 2023 08:37:14 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lokoho.com; s=mail;
+        t=1673339898; bh=Z0N5VlX9/JlryGOL5I747Le9USomZJCRNNGRT3LbbKc=;
+        h=Date:From:To:Subject:From;
+        b=ePihmZvnlzkI6tCSoNDyWaeL7AyL9vHVHF6AkdOvDztB2MQ5Xw6SEU9JgTxo56+0X
+         0WaDszsn4zVXWRqV0GLAtztdvMOIwyLrLhMtIufgOZDdZokj+ZiDE5fMzXvEyMW6mW
+         pADwJx4obskJuO3A3jjCvQgRHfViqNuvtjSiOL9bKxCJqFL8qW87wIaUWJj1UNxL4Q
+         VR/pSbb65LiQWnRX5PMG8oMKQYC0OfHogRn3tjcJp3jBF1lU8BxhlurDm6ygk+V3gO
+         zILCQFfW0qlmA4u/0UX0x6Ino6xKdEVs1ragEIRByzFS8ZHkUTXLNHF7Fjy7touOyS
+         C5PFJs1vkMV5Q==
+Received: by mail.lokoho.com for <linux-watchdog@vger.kernel.org>; Tue, 10 Jan 2023 08:35:39 GMT
+Message-ID: <20230110074501-0.1.3b.lhb5.0.jv5s16iav8@lokoho.com>
+Date:   Tue, 10 Jan 2023 08:35:39 GMT
+From:   "Adam Charachuta" <adam.charachuta@lokoho.com>
+To:     <linux-watchdog@vger.kernel.org>
+Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
+X-Mailer: mail.lokoho.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v2-9-36ad050bb625@linaro.org>
-References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
-In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-pci@vger.kernel.org,
-        netdev@vger.kernel.org, Neil Armstrong <neil.armstrong@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.11.1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert the Amlogic SD / eMMC controller for S905/GXBB family SoCs
-to dt-schema.
+Dzie=C5=84 dobry,
 
-Take in account the used variant with amlogic,meson-gx-mmc.
+zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
+=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
+o dalszych rozm=C3=B3w.=20
 
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
----
- .../bindings/mmc/amlogic,meson-gx-mmc.yaml         | 75 ++++++++++++++++++++++
- .../devicetree/bindings/mmc/amlogic,meson-gx.txt   | 39 -----------
- 2 files changed, 75 insertions(+), 39 deletions(-)
+Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
+=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
+=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
+strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
 
-diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
-new file mode 100644
-index 000000000000..30228964fd9c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
-@@ -0,0 +1,75 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mmc/amlogic,meson-gx-mmc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Amlogic SD / eMMC controller for S905/GXBB family SoCs
-+
-+description:
-+  The MMC 5.1 compliant host controller on Amlogic provides the
-+  interface for SD, eMMC and SDIO devices
-+
-+maintainers:
-+  - Neil Armstrong <neil.armstrong@linaro.org>
-+
-+allOf:
-+  - $ref: mmc-controller.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - enum:
-+          - amlogic,meson-gx-mmc
-+          - amlogic,meson-axg-mmc
-+      - items:
-+          - const: amlogic,meson-gx-mmc
-+          - const: amlogic,meson-gxbb-mmc
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 3
-+
-+  clock-names:
-+    items:
-+      - const: core
-+      - const: clkin0
-+      - const: clkin1
-+
-+  resets:
-+    maxItems: 1
-+
-+  amlogic,dram-access-quirk:
-+    type: boolean
-+    description:
-+      set when controller's internal DMA engine cannot access the DRAM memory,
-+      like on the G12A dedicated SDIO controller.
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - clock-names
-+  - resets
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    mmc@70000 {
-+        compatible = "amlogic,meson-gx-mmc";
-+        reg = <0x70000 0x2000>;
-+        interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
-+        clocks = <&clk_mmc>, <&xtal>, <&clk_div>;
-+        clock-names = "core", "clkin0", "clkin1";
-+        pinctrl-0 = <&emm_pins>;
-+        resets = <&reset_mmc>;
-+    };
-diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt
-deleted file mode 100644
-index ccc5358db131..000000000000
---- a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt
-+++ /dev/null
-@@ -1,39 +0,0 @@
--Amlogic SD / eMMC controller for S905/GXBB family SoCs
--
--The MMC 5.1 compliant host controller on Amlogic provides the
--interface for SD, eMMC and SDIO devices.
--
--This file documents the properties in addition to those available in
--the MMC core bindings, documented by mmc.txt.
--
--Required properties:
--- compatible : contains one of:
--  - "amlogic,meson-gx-mmc"
--  - "amlogic,meson-gxbb-mmc"
--  - "amlogic,meson-gxl-mmc"
--  - "amlogic,meson-gxm-mmc"
--  - "amlogic,meson-axg-mmc"
--- clocks     : A list of phandle + clock-specifier pairs for the clocks listed in clock-names.
--- clock-names: Should contain the following:
--	"core" - Main peripheral bus clock
--	"clkin0" - Parent clock of internal mux
--	"clkin1" - Other parent clock of internal mux
--  The driver has an internal mux clock which switches between clkin0 and clkin1 depending on the
--  clock rate requested by the MMC core.
--- resets     : phandle of the internal reset line
--
--Optional properties:
--- amlogic,dram-access-quirk: set when controller's internal DMA engine cannot access the
--  DRAM memory, like on the G12A dedicated SDIO controller.
--
--Example:
--
--	sd_emmc_a: mmc@70000 {
--		compatible = "amlogic,meson-gxbb-mmc";
--		reg = <0x0 0x70000 0x0 0x2000>;
--		interrupts = < GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
--		clocks = <&clkc CLKID_SD_EMMC_A>, <&xtal>, <&clkc CLKID_FCLK_DIV2>;
--		clock-names = "core", "clkin0", "clkin1";
--		pinctrl-0 = <&emmc_pins>;
--		resets = <&reset RESET_SD_EMMC_A>;
--	};
+Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
 
--- 
-2.34.1
+
+Pozdrawiam
+Adam Charachuta
