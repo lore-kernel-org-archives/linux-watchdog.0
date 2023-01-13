@@ -2,65 +2,93 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 271A7C54EBC
-	for <linux-watchdog@archiver.kernel.org>; Thu, 12 Jan 2023 08:52:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFC13C71134
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:25:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239805AbjALIwP (ORCPT
+        id S240625AbjAMGZT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 12 Jan 2023 03:52:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
+        Fri, 13 Jan 2023 01:25:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236361AbjALIvj (ORCPT
+        with ESMTP id S236259AbjAMGYQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 Jan 2023 03:51:39 -0500
-X-Greylist: delayed 1120 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Jan 2023 00:49:56 PST
-Received: from mail.glencoeaur.com (mail.glencoeaur.com [217.61.97.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDE7FEE
-        for <linux-watchdog@vger.kernel.org>; Thu, 12 Jan 2023 00:49:56 -0800 (PST)
-Received: by mail.glencoeaur.com (Postfix, from userid 1001)
-        id 8F3818214C; Thu, 12 Jan 2023 08:31:10 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=glencoeaur.com;
-        s=mail; t=1673512275;
-        bh=2S0GQFScndXkBEK4sqdoOhOYLqsB2sEH8Q5XQfVvKpo=;
-        h=Date:From:To:Subject:From;
-        b=QQUyudvEBSj9IJARKfptstWw0FeX1L6yQw9XXlTe012OElACQ3RzyBMMw1tV4vKe3
-         8jgCfqYOc8Mi8oQhG96kAuUId5oaF9LqowPUNYPCX+sTWPndjhAsiXO/OB4sWXwvUl
-         nSkTQXJ0gL184QE6v9FIC7HzIPC+WoiJ+Ff7j0jioy+67FP9qASzGN91z/29HOOpf3
-         C6iIQtsfFEsFb5DGWR3Z32FxF7C016xmSmHRFPJekJliqkduZmOglB4zfeOufgIu1b
-         B/1aIod3g+fYkIS8QAxcrww27QuVZFCK/0TeU95oKLPeFps0Sg7fKoQhsu3aEWhoDu
-         ivWHPMwJRe4og==
-Received: by mail.glencoeaur.com for <linux-watchdog@vger.kernel.org>; Thu, 12 Jan 2023 08:31:00 GMT
-Message-ID: <20230112074500-0.1.z.3f4y.0.8yzgc2efmq@glencoeaur.com>
-Date:   Thu, 12 Jan 2023 08:31:00 GMT
-From:   "Zbynek Spacek" <zbynek.spacek@glencoeaur.com>
-To:     <linux-watchdog@vger.kernel.org>
-Subject: Silikonmischungen
-X-Mailer: mail.glencoeaur.com
+        Fri, 13 Jan 2023 01:24:16 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469BF5BA26;
+        Thu, 12 Jan 2023 22:23:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=pE5vHsweVi9sw+XFtbQOjd8ZmlFDvTP0hqXRxtOPgdI=; b=UPm4fiFNqG828TmS+12Rola8gO
+        eqHlHcKs17NiINhJVso8pQaJLXAawxXFCKuLlP7HRjKIjJN2ZXqL/cl3jIEux4plqaePmjKWoVYai
+        QlJizCpTb7yVhQxL/QJWjJ37KmX8qVxA7Rot4hYXsbm50Ukgoehbb75E6d7ZbOqa0NS55yCF1vD12
+        hTv+9XqO7HKABDyO220qXwurWxcmgcwBxl9/GRlKpDUCPyGWGMAz1KKVnajqZK+KC0juYlZ2W8UlT
+        3xv/hB5gSMNo2fI0kJb/GNm6IFqQb0S3ZTYgJMi4xbRkGq5u2ysaI8Zc1eFL7BGimSK1gVFq75foe
+        LEx3cuRw==;
+Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pGDTf-000lNa-NO; Fri, 13 Jan 2023 06:23:48 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
+        dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        netdev@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-sh@vger.kernel.org
+Subject: [PATCH 02/22] usb: remove the dead USB_OHCI_SH option
+Date:   Fri, 13 Jan 2023 07:23:19 +0100
+Message-Id: <20230113062339.1909087-3-hch@lst.de>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
+References: <20230113062339.1909087-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Good morning,
+USB_OHCI_SH is a dummy option that never builds any code, remove it.
 
-do you need intermediates for processing, plastics (e.g. rubber) or silic=
-one mixtures?
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/usb/host/Kconfig | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-We provide a wide range of silicone rubbers with various properties, sili=
-cone mixtures from renowned manufacturers such as Wacker, Elastosil LR an=
-d dyes, stabilizers, primers and anti-adhesive additives.
+diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
+index 8d799d23c476e1..ca5f657c092cf4 100644
+--- a/drivers/usb/host/Kconfig
++++ b/drivers/usb/host/Kconfig
+@@ -548,17 +548,6 @@ config USB_OHCI_HCD_SSB
+ 
+ 	  If unsure, say N.
+ 
+-config USB_OHCI_SH
+-	bool "OHCI support for SuperH USB controller (DEPRECATED)"
+-	depends on SUPERH || COMPILE_TEST
+-	select USB_OHCI_HCD_PLATFORM
+-	help
+-	  This option is deprecated now and the driver was removed, use
+-	  USB_OHCI_HCD_PLATFORM instead.
+-
+-	  Enables support for the on-chip OHCI controller on the SuperH.
+-	  If you use the PCI OHCI controller, this option is not necessary.
+-
+ config USB_OHCI_EXYNOS
+ 	tristate "OHCI support for Samsung S5P/Exynos SoC Series"
+ 	depends on ARCH_S5PV210 || ARCH_EXYNOS || COMPILE_TEST
+-- 
+2.39.0
 
-We also produce technical silicone compounds with increased resistance to=
- oils, resistant to high temperatures and water vapor, conductive and man=
-y more.
-
-We provide fast order fulfillment, timely deliveries and cost optimizatio=
-n.
-
-Can I introduce what we can offer you?
-
-
-Best regards
-Zbynek Spacek
