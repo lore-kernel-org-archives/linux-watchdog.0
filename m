@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84796C678D8
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB76C677F1
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240927AbjAMG3j (ORCPT
+        id S241261AbjAMG3q (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
+        Fri, 13 Jan 2023 01:29:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235159AbjAMGZO (ORCPT
+        with ESMTP id S240122AbjAMGZG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Jan 2023 01:25:14 -0500
+        Fri, 13 Jan 2023 01:25:06 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D161BC80;
-        Thu, 12 Jan 2023 22:24:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888386AD81;
+        Thu, 12 Jan 2023 22:24:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
-        To:From:Sender:Reply-To:Content-ID:Content-Description;
-        bh=38ZdmqJfgTuYXp252hYJNLrwx/7u8Rttfe81dskbpYQ=; b=Dj8Ylj4feHn2Q8zLgHe5rgnue4
-        +Vm4CVYWIf5GgWiuDd34sTn24Z9KS8CagJsLTrbaAGo+bdtCyIrisky7SzqaYjkbAz1c+1toHsTAk
-        zERaYr6R0NZ5nfOKzpzl38Jjh5JGvj9SvZker/eCdXizSyP8RqgfDnIniAXtmDVMH7uS77fiAX3MG
-        SMTpMiziU7noj7B6ZdgjWYQQlWq7MWw/9kEYFHlda7dz/cdjMI6+Ambw8HLkOzC8SrnJ51N2nKAWd
-        Tb3WfHSt85OhCsocw3wM+N+0KaffKoBMs+e+RifN/F5Tg3MkBHM7JzPqbG6244GTNfxiRKeL3zNBf
-        l46PQTfg==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=uYJHAXXmLLwNQhTzaxgylPcAhRmrIofyohyZoeMvH6A=; b=O9iHd8tTAdld8bSk+ZYkR0XYZy
+        2FuVzfaL8+QL6xMnlPS9ImDdfrVmrsT0bBu6ltAfdqg3tZ8KHWyQj3fcy7LsIMSUyZEf4JyF1NO/u
+        2Ts4+jOpsmzngPoutWMosurrp3mGqo1ovVKSnCoZsYAwo0uVYE6mREk0pxLXWhs9KHUyyY4RrDi1s
+        ckbuJtm4E90O4qjKhGszRSFnFx2n1e7KSOOiE2NOT+ddsS+UK8qKQjoMHxsg7UASbpmlsrI2MUcNr
+        U3LKQcwW662AanMhRCQ9l+fUskCCYGWjf3f0p00y4z00yMr4itbMdi+aRN3kbJr3aDbphSgt4Qqgh
+        s26wPgJg==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDUE-000lh7-6c; Fri, 13 Jan 2023 06:24:23 +0000
+        id 1pGDU4-000lZR-IG; Fri, 13 Jan 2023 06:24:13 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -47,14 +47,13 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 11/22] mtd/nand: remove sh_flctl
-Date:   Fri, 13 Jan 2023 07:23:28 +0100
-Message-Id: <20230113062339.1909087-12-hch@lst.de>
+Subject: [PATCH 08/22] dmaengine: remove the shdmac driver
+Date:   Fri, 13 Jan 2023 07:23:25 +0100
+Message-Id: <20230113062339.1909087-9-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
@@ -65,1471 +64,2161 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/mtd/nand/raw/Kconfig    |    8 -
- drivers/mtd/nand/raw/Makefile   |    1 -
- drivers/mtd/nand/raw/sh_flctl.c | 1234 -------------------------------
- include/linux/mtd/sh_flctl.h    |  180 -----
- 4 files changed, 1423 deletions(-)
- delete mode 100644 drivers/mtd/nand/raw/sh_flctl.c
- delete mode 100644 include/linux/mtd/sh_flctl.h
+ drivers/dma/sh/Kconfig      |   20 -
+ drivers/dma/sh/Makefile     |   13 -
+ drivers/dma/sh/shdma-base.c | 1052 -----------------------------------
+ drivers/dma/sh/shdma.h      |   61 --
+ drivers/dma/sh/shdmac.c     |  938 -------------------------------
+ include/linux/shdma-base.h  |    4 -
+ 6 files changed, 2088 deletions(-)
+ delete mode 100644 drivers/dma/sh/shdma-base.c
+ delete mode 100644 drivers/dma/sh/shdma.h
+ delete mode 100644 drivers/dma/sh/shdmac.c
 
-diff --git a/drivers/mtd/nand/raw/Kconfig b/drivers/mtd/nand/raw/Kconfig
-index 98ea1c9e65c8ef..20a4988ea418d5 100644
---- a/drivers/mtd/nand/raw/Kconfig
-+++ b/drivers/mtd/nand/raw/Kconfig
-@@ -284,14 +284,6 @@ config MTD_NAND_MXC
- 	  This enables the driver for the NAND flash controller on the
- 	  MXC processors.
+diff --git a/drivers/dma/sh/Kconfig b/drivers/dma/sh/Kconfig
+index c0b2997ab7fd93..744d4d8ff5353b 100644
+--- a/drivers/dma/sh/Kconfig
++++ b/drivers/dma/sh/Kconfig
+@@ -7,30 +7,10 @@ config RENESAS_DMA
+ 	bool
+ 	select DMA_ENGINE
  
--config MTD_NAND_SH_FLCTL
--	tristate "Renesas SuperH FLCTL NAND controller"
--	depends on SUPERH || COMPILE_TEST
--	depends on HAS_IOMEM
--	help
--	  Several Renesas SuperH CPU has FLCTL. This option enables support
--	  for NAND Flash using FLCTL.
+-#
+-# DMA Engine Helpers
+-#
 -
- config MTD_NAND_DAVINCI
- 	tristate "DaVinci/Keystone NAND controller"
- 	depends on ARCH_DAVINCI || (ARCH_KEYSTONE && TI_AEMIF) || COMPILE_TEST
-diff --git a/drivers/mtd/nand/raw/Makefile b/drivers/mtd/nand/raw/Makefile
-index fa1d0012031012..2c6eb25c9d0aae 100644
---- a/drivers/mtd/nand/raw/Makefile
-+++ b/drivers/mtd/nand/raw/Makefile
-@@ -33,7 +33,6 @@ obj-$(CONFIG_MTD_NAND_FSL_IFC)		+= fsl_ifc_nand.o
- obj-$(CONFIG_MTD_NAND_FSL_UPM)		+= fsl_upm.o
- obj-$(CONFIG_MTD_NAND_SLC_LPC32XX)      += lpc32xx_slc.o
- obj-$(CONFIG_MTD_NAND_MLC_LPC32XX)      += lpc32xx_mlc.o
--obj-$(CONFIG_MTD_NAND_SH_FLCTL)		+= sh_flctl.o
- obj-$(CONFIG_MTD_NAND_MXC)		+= mxc_nand.o
- obj-$(CONFIG_MTD_NAND_SOCRATES)		+= socrates_nand.o
- obj-$(CONFIG_MTD_NAND_TXX9NDFMC)	+= txx9ndfmc.o
-diff --git a/drivers/mtd/nand/raw/sh_flctl.c b/drivers/mtd/nand/raw/sh_flctl.c
+-config SH_DMAE_BASE
+-	bool "Renesas SuperH DMA Engine support"
+-	depends on SUPERH || COMPILE_TEST
+-	depends on !SUPERH || SH_DMA
+-	depends on !SH_DMA_API
+-	default y
+-	select RENESAS_DMA
+-	help
+-	  Enable support for the Renesas SuperH DMA controllers.
+-
+ #
+ # DMA Controllers
+ #
+ 
+-config SH_DMAE
+-	tristate "Renesas SuperH DMAC support"
+-	depends on SH_DMAE_BASE
+-	help
+-	  Enable support for the Renesas SuperH DMA controllers.
+-
+ config RCAR_DMAC
+ 	tristate "Renesas R-Car Gen{2,3} and RZ/G{1,2} DMA Controller"
+ 	depends on ARCH_RENESAS || COMPILE_TEST
+diff --git a/drivers/dma/sh/Makefile b/drivers/dma/sh/Makefile
+index 360ab6d25e769d..07178651aa7279 100644
+--- a/drivers/dma/sh/Makefile
++++ b/drivers/dma/sh/Makefile
+@@ -1,17 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0
+-#
+-# DMA Engine Helpers
+-#
+-
+-obj-$(CONFIG_SH_DMAE_BASE) += shdma-base.o
+-
+-#
+-# DMA Controllers
+-#
+-
+-shdma-y := shdmac.o
+-shdma-objs := $(shdma-y)
+-obj-$(CONFIG_SH_DMAE) += shdma.o
+ 
+ obj-$(CONFIG_RCAR_DMAC) += rcar-dmac.o
+ obj-$(CONFIG_RENESAS_USB_DMAC) += usb-dmac.o
+diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
 deleted file mode 100644
-index a278829469d610..00000000000000
---- a/drivers/mtd/nand/raw/sh_flctl.c
+index 158e5e7defaeb0..00000000000000
+--- a/drivers/dma/sh/shdma-base.c
 +++ /dev/null
-@@ -1,1234 +0,0 @@
+@@ -1,1052 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0
 -/*
-- * SuperH FLCTL nand controller
+- * Dmaengine driver base library for DMA controllers, found on SH-based SoCs
 - *
-- * Copyright (c) 2008 Renesas Solutions Corp.
-- * Copyright (c) 2008 Atom Create Engineering Co., Ltd.
+- * extracted from shdma.c
 - *
-- * Based on fsl_elbc_nand.c, Copyright (c) 2006-2007 Freescale Semiconductor
+- * Copyright (C) 2011-2012 Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+- * Copyright (C) 2009 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+- * Copyright (C) 2009 Renesas Solutions, Inc. All rights reserved.
+- * Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
 - */
 -
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/completion.h>
 -#include <linux/delay.h>
+-#include <linux/shdma-base.h>
 -#include <linux/dmaengine.h>
--#include <linux/dma-mapping.h>
+-#include <linux/init.h>
 -#include <linux/interrupt.h>
--#include <linux/io.h>
--#include <linux/of.h>
--#include <linux/of_device.h>
--#include <linux/platform_device.h>
+-#include <linux/module.h>
 -#include <linux/pm_runtime.h>
--#include <linux/sh_dma.h>
 -#include <linux/slab.h>
--#include <linux/string.h>
+-#include <linux/spinlock.h>
 -
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/rawnand.h>
--#include <linux/mtd/partitions.h>
--#include <linux/mtd/sh_flctl.h>
+-#include "../dmaengine.h"
 -
--static int flctl_4secc_ooblayout_sp_ecc(struct mtd_info *mtd, int section,
--					struct mtd_oob_region *oobregion)
--{
--	struct nand_chip *chip = mtd_to_nand(mtd);
--
--	if (section)
--		return -ERANGE;
--
--	oobregion->offset = 0;
--	oobregion->length = chip->ecc.bytes;
--
--	return 0;
--}
--
--static int flctl_4secc_ooblayout_sp_free(struct mtd_info *mtd, int section,
--					 struct mtd_oob_region *oobregion)
--{
--	if (section)
--		return -ERANGE;
--
--	oobregion->offset = 12;
--	oobregion->length = 4;
--
--	return 0;
--}
--
--static const struct mtd_ooblayout_ops flctl_4secc_oob_smallpage_ops = {
--	.ecc = flctl_4secc_ooblayout_sp_ecc,
--	.free = flctl_4secc_ooblayout_sp_free,
+-/* DMA descriptor control */
+-enum shdma_desc_status {
+-	DESC_IDLE,
+-	DESC_PREPARED,
+-	DESC_SUBMITTED,
+-	DESC_COMPLETED,	/* completed, have to call callback */
+-	DESC_WAITING,	/* callback called, waiting for ack / re-submit */
 -};
 -
--static int flctl_4secc_ooblayout_lp_ecc(struct mtd_info *mtd, int section,
--					struct mtd_oob_region *oobregion)
+-#define NR_DESCS_PER_CHANNEL 32
+-
+-#define to_shdma_chan(c) container_of(c, struct shdma_chan, dma_chan)
+-#define to_shdma_dev(d) container_of(d, struct shdma_dev, dma_dev)
+-
+-/*
+- * For slave DMA we assume, that there is a finite number of DMA slaves in the
+- * system, and that each such slave can only use a finite number of channels.
+- * We use slave channel IDs to make sure, that no such slave channel ID is
+- * allocated more than once.
+- */
+-static unsigned int slave_num = 256;
+-module_param(slave_num, uint, 0444);
+-
+-/* A bitmask with slave_num bits */
+-static unsigned long *shdma_slave_used;
+-
+-/* Called under spin_lock_irq(&schan->chan_lock") */
+-static void shdma_chan_xfer_ld_queue(struct shdma_chan *schan)
 -{
--	struct nand_chip *chip = mtd_to_nand(mtd);
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	struct shdma_desc *sdesc;
 -
--	if (section >= chip->ecc.steps)
--		return -ERANGE;
+-	/* DMA work check */
+-	if (ops->channel_busy(schan))
+-		return;
 -
--	oobregion->offset = (section * 16) + 6;
--	oobregion->length = chip->ecc.bytes;
--
--	return 0;
--}
--
--static int flctl_4secc_ooblayout_lp_free(struct mtd_info *mtd, int section,
--					 struct mtd_oob_region *oobregion)
--{
--	struct nand_chip *chip = mtd_to_nand(mtd);
--
--	if (section >= chip->ecc.steps)
--		return -ERANGE;
--
--	oobregion->offset = section * 16;
--	oobregion->length = 6;
--
--	if (!section) {
--		oobregion->offset += 2;
--		oobregion->length -= 2;
--	}
--
--	return 0;
--}
--
--static const struct mtd_ooblayout_ops flctl_4secc_oob_largepage_ops = {
--	.ecc = flctl_4secc_ooblayout_lp_ecc,
--	.free = flctl_4secc_ooblayout_lp_free,
--};
--
--static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
--
--static struct nand_bbt_descr flctl_4secc_smallpage = {
--	.offs = 11,
--	.len = 1,
--	.pattern = scan_ff_pattern,
--};
--
--static struct nand_bbt_descr flctl_4secc_largepage = {
--	.offs = 0,
--	.len = 2,
--	.pattern = scan_ff_pattern,
--};
--
--static void empty_fifo(struct sh_flctl *flctl)
--{
--	writel(flctl->flintdmacr_base | AC1CLR | AC0CLR, FLINTDMACR(flctl));
--	writel(flctl->flintdmacr_base, FLINTDMACR(flctl));
--}
--
--static void start_translation(struct sh_flctl *flctl)
--{
--	writeb(TRSTRT, FLTRCR(flctl));
--}
--
--static void timeout_error(struct sh_flctl *flctl, const char *str)
--{
--	dev_err(&flctl->pdev->dev, "Timeout occurred in %s\n", str);
--}
--
--static void wait_completion(struct sh_flctl *flctl)
--{
--	uint32_t timeout = LOOP_TIMEOUT_MAX;
--
--	while (timeout--) {
--		if (readb(FLTRCR(flctl)) & TREND) {
--			writeb(0x0, FLTRCR(flctl));
--			return;
+-	/* Find the first not transferred descriptor */
+-	list_for_each_entry(sdesc, &schan->ld_queue, node)
+-		if (sdesc->mark == DESC_SUBMITTED) {
+-			ops->start_xfer(schan, sdesc);
+-			break;
 -		}
--		udelay(1);
--	}
--
--	timeout_error(flctl, __func__);
--	writeb(0x0, FLTRCR(flctl));
 -}
 -
--static void flctl_dma_complete(void *param)
+-static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
 -{
--	struct sh_flctl *flctl = param;
+-	struct shdma_desc *chunk, *c, *desc =
+-		container_of(tx, struct shdma_desc, async_tx);
+-	struct shdma_chan *schan = to_shdma_chan(tx->chan);
+-	dma_async_tx_callback callback = tx->callback;
+-	dma_cookie_t cookie;
+-	bool power_up;
 -
--	complete(&flctl->dma_complete);
--}
+-	spin_lock_irq(&schan->chan_lock);
 -
--static void flctl_release_dma(struct sh_flctl *flctl)
--{
--	if (flctl->chan_fifo0_rx) {
--		dma_release_channel(flctl->chan_fifo0_rx);
--		flctl->chan_fifo0_rx = NULL;
--	}
--	if (flctl->chan_fifo0_tx) {
--		dma_release_channel(flctl->chan_fifo0_tx);
--		flctl->chan_fifo0_tx = NULL;
--	}
--}
+-	power_up = list_empty(&schan->ld_queue);
 -
--static void flctl_setup_dma(struct sh_flctl *flctl)
--{
--	dma_cap_mask_t mask;
--	struct dma_slave_config cfg;
--	struct platform_device *pdev = flctl->pdev;
--	struct sh_flctl_platform_data *pdata = dev_get_platdata(&pdev->dev);
--	int ret;
+-	cookie = dma_cookie_assign(tx);
 -
--	if (!pdata)
--		return;
--
--	if (pdata->slave_id_fifo0_tx <= 0 || pdata->slave_id_fifo0_rx <= 0)
--		return;
--
--	/* We can only either use DMA for both Tx and Rx or not use it at all */
--	dma_cap_zero(mask);
--	dma_cap_set(DMA_SLAVE, mask);
--
--	flctl->chan_fifo0_tx = dma_request_channel(mask, shdma_chan_filter,
--				(void *)(uintptr_t)pdata->slave_id_fifo0_tx);
--	dev_dbg(&pdev->dev, "%s: TX: got channel %p\n", __func__,
--		flctl->chan_fifo0_tx);
--
--	if (!flctl->chan_fifo0_tx)
--		return;
--
--	memset(&cfg, 0, sizeof(cfg));
--	cfg.direction = DMA_MEM_TO_DEV;
--	cfg.dst_addr = flctl->fifo;
--	cfg.src_addr = 0;
--	ret = dmaengine_slave_config(flctl->chan_fifo0_tx, &cfg);
--	if (ret < 0)
--		goto err;
--
--	flctl->chan_fifo0_rx = dma_request_channel(mask, shdma_chan_filter,
--				(void *)(uintptr_t)pdata->slave_id_fifo0_rx);
--	dev_dbg(&pdev->dev, "%s: RX: got channel %p\n", __func__,
--		flctl->chan_fifo0_rx);
--
--	if (!flctl->chan_fifo0_rx)
--		goto err;
--
--	cfg.direction = DMA_DEV_TO_MEM;
--	cfg.dst_addr = 0;
--	cfg.src_addr = flctl->fifo;
--	ret = dmaengine_slave_config(flctl->chan_fifo0_rx, &cfg);
--	if (ret < 0)
--		goto err;
--
--	init_completion(&flctl->dma_complete);
--
--	return;
--
--err:
--	flctl_release_dma(flctl);
--}
--
--static void set_addr(struct mtd_info *mtd, int column, int page_addr)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	uint32_t addr = 0;
--
--	if (column == -1) {
--		addr = page_addr;	/* ERASE1 */
--	} else if (page_addr != -1) {
--		/* SEQIN, READ0, etc.. */
--		if (flctl->chip.options & NAND_BUSWIDTH_16)
--			column >>= 1;
--		if (flctl->page_size) {
--			addr = column & 0x0FFF;
--			addr |= (page_addr & 0xff) << 16;
--			addr |= ((page_addr >> 8) & 0xff) << 24;
--			/* big than 128MB */
--			if (flctl->rw_ADRCNT == ADRCNT2_E) {
--				uint32_t 	addr2;
--				addr2 = (page_addr >> 16) & 0xff;
--				writel(addr2, FLADR2(flctl));
--			}
+-	/* Mark all chunks of this descriptor as submitted, move to the queue */
+-	list_for_each_entry_safe(chunk, c, desc->node.prev, node) {
+-		/*
+-		 * All chunks are on the global ld_free, so, we have to find
+-		 * the end of the chain ourselves
+-		 */
+-		if (chunk != desc && (chunk->mark == DESC_IDLE ||
+-				      chunk->async_tx.cookie > 0 ||
+-				      chunk->async_tx.cookie == -EBUSY ||
+-				      &chunk->node == &schan->ld_free))
+-			break;
+-		chunk->mark = DESC_SUBMITTED;
+-		if (chunk->chunks == 1) {
+-			chunk->async_tx.callback = callback;
+-			chunk->async_tx.callback_param = tx->callback_param;
 -		} else {
--			addr = column;
--			addr |= (page_addr & 0xff) << 8;
--			addr |= ((page_addr >> 8) & 0xff) << 16;
--			addr |= ((page_addr >> 16) & 0xff) << 24;
+-			/* Callback goes to the last chunk */
+-			chunk->async_tx.callback = NULL;
 -		}
+-		chunk->cookie = cookie;
+-		list_move_tail(&chunk->node, &schan->ld_queue);
+-
+-		dev_dbg(schan->dev, "submit #%d@%p on %d\n",
+-			tx->cookie, &chunk->async_tx, schan->id);
 -	}
--	writel(addr, FLADR(flctl));
+-
+-	if (power_up) {
+-		int ret;
+-		schan->pm_state = SHDMA_PM_BUSY;
+-
+-		ret = pm_runtime_get(schan->dev);
+-
+-		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0)
+-			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
+-
+-		pm_runtime_barrier(schan->dev);
+-
+-		spin_lock_irq(&schan->chan_lock);
+-
+-		/* Have we been reset, while waiting? */
+-		if (schan->pm_state != SHDMA_PM_ESTABLISHED) {
+-			struct shdma_dev *sdev =
+-				to_shdma_dev(schan->dma_chan.device);
+-			const struct shdma_ops *ops = sdev->ops;
+-			dev_dbg(schan->dev, "Bring up channel %d\n",
+-				schan->id);
+-			/*
+-			 * TODO: .xfer_setup() might fail on some platforms.
+-			 * Make it int then, on error remove chunks from the
+-			 * queue again
+-			 */
+-			ops->setup_xfer(schan, schan->slave_id);
+-
+-			if (schan->pm_state == SHDMA_PM_PENDING)
+-				shdma_chan_xfer_ld_queue(schan);
+-			schan->pm_state = SHDMA_PM_ESTABLISHED;
+-		}
+-	} else {
+-		/*
+-		 * Tell .device_issue_pending() not to run the queue, interrupts
+-		 * will do it anyway
+-		 */
+-		schan->pm_state = SHDMA_PM_PENDING;
+-	}
+-
+-	spin_unlock_irq(&schan->chan_lock);
+-
+-	return cookie;
 -}
 -
--static void wait_rfifo_ready(struct sh_flctl *flctl)
+-/* Called with desc_lock held */
+-static struct shdma_desc *shdma_get_desc(struct shdma_chan *schan)
 -{
--	uint32_t timeout = LOOP_TIMEOUT_MAX;
+-	struct shdma_desc *sdesc;
 -
--	while (timeout--) {
--		uint32_t val;
--		/* check FIFO */
--		val = readl(FLDTCNTR(flctl)) >> 16;
--		if (val & 0xFF)
--			return;
--		udelay(1);
--	}
--	timeout_error(flctl, __func__);
+-	list_for_each_entry(sdesc, &schan->ld_free, node)
+-		if (sdesc->mark != DESC_PREPARED) {
+-			BUG_ON(sdesc->mark != DESC_IDLE);
+-			list_del(&sdesc->node);
+-			return sdesc;
+-		}
+-
+-	return NULL;
 -}
 -
--static void wait_wfifo_ready(struct sh_flctl *flctl)
+-static int shdma_setup_slave(struct shdma_chan *schan, dma_addr_t slave_addr)
 -{
--	uint32_t len, timeout = LOOP_TIMEOUT_MAX;
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	int ret, match;
 -
--	while (timeout--) {
--		/* check FIFO */
--		len = (readl(FLDTCNTR(flctl)) >> 16) & 0xFF;
--		if (len >= 4)
--			return;
--		udelay(1);
+-	if (schan->dev->of_node) {
+-		match = schan->hw_req;
+-		ret = ops->set_slave(schan, match, slave_addr, true);
+-		if (ret < 0)
+-			return ret;
+-	} else {
+-		match = schan->real_slave_id;
 -	}
--	timeout_error(flctl, __func__);
+-
+-	if (schan->real_slave_id < 0 || schan->real_slave_id >= slave_num)
+-		return -EINVAL;
+-
+-	if (test_and_set_bit(schan->real_slave_id, shdma_slave_used))
+-		return -EBUSY;
+-
+-	ret = ops->set_slave(schan, match, slave_addr, false);
+-	if (ret < 0) {
+-		clear_bit(schan->real_slave_id, shdma_slave_used);
+-		return ret;
+-	}
+-
+-	schan->slave_id = schan->real_slave_id;
+-
+-	return 0;
 -}
 -
--static enum flctl_ecc_res_t wait_recfifo_ready
--		(struct sh_flctl *flctl, int sector_number)
+-static int shdma_alloc_chan_resources(struct dma_chan *chan)
 -{
--	uint32_t timeout = LOOP_TIMEOUT_MAX;
--	void __iomem *ecc_reg[4];
--	int i;
--	int state = FL_SUCCESS;
--	uint32_t data, size;
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	struct shdma_desc *desc;
+-	struct shdma_slave *slave = chan->private;
+-	int ret, i;
 -
 -	/*
--	 * First this loops checks in FLDTCNTR if we are ready to read out the
--	 * oob data. This is the case if either all went fine without errors or
--	 * if the bottom part of the loop corrected the errors or marked them as
--	 * uncorrectable and the controller is given time to push the data into
--	 * the FIFO.
+-	 * This relies on the guarantee from dmaengine that alloc_chan_resources
+-	 * never runs concurrently with itself or free_chan_resources.
 -	 */
--	while (timeout--) {
--		/* check if all is ok and we can read out the OOB */
--		size = readl(FLDTCNTR(flctl)) >> 24;
--		if ((size & 0xFF) == 4)
--			return state;
--
--		/* check if a correction code has been calculated */
--		if (!(readl(FL4ECCCR(flctl)) & _4ECCEND)) {
--			/*
--			 * either we wait for the fifo to be filled or a
--			 * correction pattern is being generated
--			 */
--			udelay(1);
--			continue;
--		}
--
--		/* check for an uncorrectable error */
--		if (readl(FL4ECCCR(flctl)) & _4ECCFA) {
--			/* check if we face a non-empty page */
--			for (i = 0; i < 512; i++) {
--				if (flctl->done_buff[i] != 0xff) {
--					state = FL_ERROR; /* can't correct */
--					break;
--				}
--			}
--
--			if (state == FL_SUCCESS)
--				dev_dbg(&flctl->pdev->dev,
--				"reading empty sector %d, ecc error ignored\n",
--				sector_number);
--
--			writel(0, FL4ECCCR(flctl));
--			continue;
--		}
--
--		/* start error correction */
--		ecc_reg[0] = FL4ECCRESULT0(flctl);
--		ecc_reg[1] = FL4ECCRESULT1(flctl);
--		ecc_reg[2] = FL4ECCRESULT2(flctl);
--		ecc_reg[3] = FL4ECCRESULT3(flctl);
--
--		for (i = 0; i < 3; i++) {
--			uint8_t org;
--			unsigned int index;
--
--			data = readl(ecc_reg[i]);
--
--			if (flctl->page_size)
--				index = (512 * sector_number) +
--					(data >> 16);
--			else
--				index = data >> 16;
--
--			org = flctl->done_buff[index];
--			flctl->done_buff[index] = org ^ (data & 0xFF);
--		}
--		state = FL_REPAIRABLE;
--		writel(0, FL4ECCCR(flctl));
--	}
--
--	timeout_error(flctl, __func__);
--	return FL_TIMEOUT;	/* timeout */
--}
--
--static void wait_wecfifo_ready(struct sh_flctl *flctl)
--{
--	uint32_t timeout = LOOP_TIMEOUT_MAX;
--	uint32_t len;
--
--	while (timeout--) {
--		/* check FLECFIFO */
--		len = (readl(FLDTCNTR(flctl)) >> 24) & 0xFF;
--		if (len >= 4)
--			return;
--		udelay(1);
--	}
--	timeout_error(flctl, __func__);
--}
--
--static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
--					int len, enum dma_data_direction dir)
--{
--	struct dma_async_tx_descriptor *desc = NULL;
--	struct dma_chan *chan;
--	enum dma_transfer_direction tr_dir;
--	dma_addr_t dma_addr;
--	dma_cookie_t cookie;
--	uint32_t reg;
--	int ret = 0;
--	unsigned long time_left;
--
--	if (dir == DMA_FROM_DEVICE) {
--		chan = flctl->chan_fifo0_rx;
--		tr_dir = DMA_DEV_TO_MEM;
+-	if (slave) {
+-		/* Legacy mode: .private is set in filter */
+-		schan->real_slave_id = slave->slave_id;
+-		ret = shdma_setup_slave(schan, 0);
+-		if (ret < 0)
+-			goto esetslave;
 -	} else {
--		chan = flctl->chan_fifo0_tx;
--		tr_dir = DMA_MEM_TO_DEV;
+-		/* Normal mode: real_slave_id was set by filter */
+-		schan->slave_id = -EINVAL;
 -	}
 -
--	dma_addr = dma_map_single(chan->device->dev, buf, len, dir);
+-	schan->desc = kcalloc(NR_DESCS_PER_CHANNEL,
+-			      sdev->desc_size, GFP_KERNEL);
+-	if (!schan->desc) {
+-		ret = -ENOMEM;
+-		goto edescalloc;
+-	}
+-	schan->desc_num = NR_DESCS_PER_CHANNEL;
 -
--	if (!dma_mapping_error(chan->device->dev, dma_addr))
--		desc = dmaengine_prep_slave_single(chan, dma_addr, len,
--			tr_dir, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+-	for (i = 0; i < NR_DESCS_PER_CHANNEL; i++) {
+-		desc = ops->embedded_desc(schan->desc, i);
+-		dma_async_tx_descriptor_init(&desc->async_tx,
+-					     &schan->dma_chan);
+-		desc->async_tx.tx_submit = shdma_tx_submit;
+-		desc->mark = DESC_IDLE;
 -
--	if (desc) {
--		reg = readl(FLINTDMACR(flctl));
--		reg |= DREQ0EN;
--		writel(reg, FLINTDMACR(flctl));
--
--		desc->callback = flctl_dma_complete;
--		desc->callback_param = flctl;
--		cookie = dmaengine_submit(desc);
--		if (dma_submit_error(cookie)) {
--			ret = dma_submit_error(cookie);
--			dev_warn(&flctl->pdev->dev,
--				 "DMA submit failed, falling back to PIO\n");
--			goto out;
--		}
--
--		dma_async_issue_pending(chan);
--	} else {
--		/* DMA failed, fall back to PIO */
--		flctl_release_dma(flctl);
--		dev_warn(&flctl->pdev->dev,
--			 "DMA failed, falling back to PIO\n");
--		ret = -EIO;
--		goto out;
+-		list_add(&desc->node, &schan->ld_free);
 -	}
 -
--	time_left =
--	wait_for_completion_timeout(&flctl->dma_complete,
--				msecs_to_jiffies(3000));
+-	return NR_DESCS_PER_CHANNEL;
 -
--	if (time_left == 0) {
--		dmaengine_terminate_all(chan);
--		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
--		ret = -ETIMEDOUT;
--	}
--
--out:
--	reg = readl(FLINTDMACR(flctl));
--	reg &= ~DREQ0EN;
--	writel(reg, FLINTDMACR(flctl));
--
--	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
--
--	/* ret == 0 is success */
+-edescalloc:
+-	if (slave)
+-esetslave:
+-		clear_bit(slave->slave_id, shdma_slave_used);
+-	chan->private = NULL;
 -	return ret;
 -}
 -
--static void read_datareg(struct sh_flctl *flctl, int offset)
+-/*
+- * This is the standard shdma filter function to be used as a replacement to the
+- * "old" method, using the .private pointer.
+- * You always have to pass a valid slave id as the argument, old drivers that
+- * pass ERR_PTR(-EINVAL) as a filter parameter and set it up in dma_slave_config
+- * need to be updated so we can remove the slave_id field from dma_slave_config.
+- * parameter. If this filter is used, the slave driver, after calling
+- * dma_request_channel(), will also have to call dmaengine_slave_config() with
+- * .direction, and either .src_addr or .dst_addr set.
+- *
+- * NOTE: this filter doesn't support multiple DMAC drivers with the DMA_SLAVE
+- * capability! If this becomes a requirement, hardware glue drivers, using this
+- * services would have to provide their own filters, which first would check
+- * the device driver, similar to how other DMAC drivers, e.g., sa11x0-dma.c, do
+- * this, and only then, in case of a match, call this common filter.
+- * NOTE 2: This filter function is also used in the DT case by shdma_of_xlate().
+- * In that case the MID-RID value is used for slave channel filtering and is
+- * passed to this function in the "arg" parameter.
+- */
+-bool shdma_chan_filter(struct dma_chan *chan, void *arg)
 -{
--	unsigned long data;
--	unsigned long *buf = (unsigned long *)&flctl->done_buff[offset];
--
--	wait_completion(flctl);
--
--	data = readl(FLDATAR(flctl));
--	*buf = le32_to_cpu(data);
--}
--
--static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
--{
--	int i, len_4align;
--	unsigned long *buf = (unsigned long *)&flctl->done_buff[offset];
--
--	len_4align = (rlen + 3) / 4;
--
--	/* initiate DMA transfer */
--	if (flctl->chan_fifo0_rx && rlen >= 32 &&
--		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
--			goto convert;	/* DMA success */
--
--	/* do polling transfer */
--	for (i = 0; i < len_4align; i++) {
--		wait_rfifo_ready(flctl);
--		buf[i] = readl(FLDTFIFO(flctl));
--	}
--
--convert:
--	for (i = 0; i < len_4align; i++)
--		buf[i] = be32_to_cpu(buf[i]);
--}
--
--static enum flctl_ecc_res_t read_ecfiforeg
--		(struct sh_flctl *flctl, uint8_t *buff, int sector)
--{
--	int i;
--	enum flctl_ecc_res_t res;
--	unsigned long *ecc_buf = (unsigned long *)buff;
--
--	res = wait_recfifo_ready(flctl , sector);
--
--	if (res != FL_ERROR) {
--		for (i = 0; i < 4; i++) {
--			ecc_buf[i] = readl(FLECFIFO(flctl));
--			ecc_buf[i] = be32_to_cpu(ecc_buf[i]);
--		}
--	}
--
--	return res;
--}
--
--static void write_fiforeg(struct sh_flctl *flctl, int rlen,
--						unsigned int offset)
--{
--	int i, len_4align;
--	unsigned long *buf = (unsigned long *)&flctl->done_buff[offset];
--
--	len_4align = (rlen + 3) / 4;
--	for (i = 0; i < len_4align; i++) {
--		wait_wfifo_ready(flctl);
--		writel(cpu_to_be32(buf[i]), FLDTFIFO(flctl));
--	}
--}
--
--static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
--						unsigned int offset)
--{
--	int i, len_4align;
--	unsigned long *buf = (unsigned long *)&flctl->done_buff[offset];
--
--	len_4align = (rlen + 3) / 4;
--
--	for (i = 0; i < len_4align; i++)
--		buf[i] = cpu_to_be32(buf[i]);
--
--	/* initiate DMA transfer */
--	if (flctl->chan_fifo0_tx && rlen >= 32 &&
--		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
--			return;	/* DMA success */
--
--	/* do polling transfer */
--	for (i = 0; i < len_4align; i++) {
--		wait_wecfifo_ready(flctl);
--		writel(buf[i], FLECFIFO(flctl));
--	}
--}
--
--static void set_cmd_regs(struct mtd_info *mtd, uint32_t cmd, uint32_t flcmcdr_val)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	uint32_t flcmncr_val = flctl->flcmncr_base & ~SEL_16BIT;
--	uint32_t flcmdcr_val, addr_len_bytes = 0;
--
--	/* Set SNAND bit if page size is 2048byte */
--	if (flctl->page_size)
--		flcmncr_val |= SNAND_E;
--	else
--		flcmncr_val &= ~SNAND_E;
--
--	/* default FLCMDCR val */
--	flcmdcr_val = DOCMD1_E | DOADR_E;
--
--	/* Set for FLCMDCR */
--	switch (cmd) {
--	case NAND_CMD_ERASE1:
--		addr_len_bytes = flctl->erase_ADRCNT;
--		flcmdcr_val |= DOCMD2_E;
--		break;
--	case NAND_CMD_READ0:
--	case NAND_CMD_READOOB:
--	case NAND_CMD_RNDOUT:
--		addr_len_bytes = flctl->rw_ADRCNT;
--		flcmdcr_val |= CDSRC_E;
--		if (flctl->chip.options & NAND_BUSWIDTH_16)
--			flcmncr_val |= SEL_16BIT;
--		break;
--	case NAND_CMD_SEQIN:
--		/* This case is that cmd is READ0 or READ1 or READ00 */
--		flcmdcr_val &= ~DOADR_E;	/* ONLY execute 1st cmd */
--		break;
--	case NAND_CMD_PAGEPROG:
--		addr_len_bytes = flctl->rw_ADRCNT;
--		flcmdcr_val |= DOCMD2_E | CDSRC_E | SELRW;
--		if (flctl->chip.options & NAND_BUSWIDTH_16)
--			flcmncr_val |= SEL_16BIT;
--		break;
--	case NAND_CMD_READID:
--		flcmncr_val &= ~SNAND_E;
--		flcmdcr_val |= CDSRC_E;
--		addr_len_bytes = ADRCNT_1;
--		break;
--	case NAND_CMD_STATUS:
--	case NAND_CMD_RESET:
--		flcmncr_val &= ~SNAND_E;
--		flcmdcr_val &= ~(DOADR_E | DOSR_E);
--		break;
--	default:
--		break;
--	}
--
--	/* Set address bytes parameter */
--	flcmdcr_val |= addr_len_bytes;
--
--	/* Now actually write */
--	writel(flcmncr_val, FLCMNCR(flctl));
--	writel(flcmdcr_val, FLCMDCR(flctl));
--	writel(flcmcdr_val, FLCMCDR(flctl));
--}
--
--static int flctl_read_page_hwecc(struct nand_chip *chip, uint8_t *buf,
--				 int oob_required, int page)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--
--	nand_read_page_op(chip, page, 0, buf, mtd->writesize);
--	if (oob_required)
--		chip->legacy.read_buf(chip, chip->oob_poi, mtd->oobsize);
--	return 0;
--}
--
--static int flctl_write_page_hwecc(struct nand_chip *chip, const uint8_t *buf,
--				  int oob_required, int page)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--
--	nand_prog_page_begin_op(chip, page, 0, buf, mtd->writesize);
--	chip->legacy.write_buf(chip, chip->oob_poi, mtd->oobsize);
--	return nand_prog_page_end_op(chip);
--}
--
--static void execmd_read_page_sector(struct mtd_info *mtd, int page_addr)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	int sector, page_sectors;
--	enum flctl_ecc_res_t ecc_result;
--
--	page_sectors = flctl->page_size ? 4 : 1;
--
--	set_cmd_regs(mtd, NAND_CMD_READ0,
--		(NAND_CMD_READSTART << 8) | NAND_CMD_READ0);
--
--	writel(readl(FLCMNCR(flctl)) | ACM_SACCES_MODE | _4ECCCORRECT,
--		 FLCMNCR(flctl));
--	writel(readl(FLCMDCR(flctl)) | page_sectors, FLCMDCR(flctl));
--	writel(page_addr << 2, FLADR(flctl));
--
--	empty_fifo(flctl);
--	start_translation(flctl);
--
--	for (sector = 0; sector < page_sectors; sector++) {
--		read_fiforeg(flctl, 512, 512 * sector);
--
--		ecc_result = read_ecfiforeg(flctl,
--			&flctl->done_buff[mtd->writesize + 16 * sector],
--			sector);
--
--		switch (ecc_result) {
--		case FL_REPAIRABLE:
--			dev_info(&flctl->pdev->dev,
--				"applied ecc on page 0x%x", page_addr);
--			mtd->ecc_stats.corrected++;
--			break;
--		case FL_ERROR:
--			dev_warn(&flctl->pdev->dev,
--				"page 0x%x contains corrupted data\n",
--				page_addr);
--			mtd->ecc_stats.failed++;
--			break;
--		default:
--			;
--		}
--	}
--
--	wait_completion(flctl);
--
--	writel(readl(FLCMNCR(flctl)) & ~(ACM_SACCES_MODE | _4ECCCORRECT),
--			FLCMNCR(flctl));
--}
--
--static void execmd_read_oob(struct mtd_info *mtd, int page_addr)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	int page_sectors = flctl->page_size ? 4 : 1;
--	int i;
--
--	set_cmd_regs(mtd, NAND_CMD_READ0,
--		(NAND_CMD_READSTART << 8) | NAND_CMD_READ0);
--
--	empty_fifo(flctl);
--
--	for (i = 0; i < page_sectors; i++) {
--		set_addr(mtd, (512 + 16) * i + 512 , page_addr);
--		writel(16, FLDTCNTR(flctl));
--
--		start_translation(flctl);
--		read_fiforeg(flctl, 16, 16 * i);
--		wait_completion(flctl);
--	}
--}
--
--static void execmd_write_page_sector(struct mtd_info *mtd)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	int page_addr = flctl->seqin_page_addr;
--	int sector, page_sectors;
--
--	page_sectors = flctl->page_size ? 4 : 1;
--
--	set_cmd_regs(mtd, NAND_CMD_PAGEPROG,
--			(NAND_CMD_PAGEPROG << 8) | NAND_CMD_SEQIN);
--
--	empty_fifo(flctl);
--	writel(readl(FLCMNCR(flctl)) | ACM_SACCES_MODE, FLCMNCR(flctl));
--	writel(readl(FLCMDCR(flctl)) | page_sectors, FLCMDCR(flctl));
--	writel(page_addr << 2, FLADR(flctl));
--	start_translation(flctl);
--
--	for (sector = 0; sector < page_sectors; sector++) {
--		write_fiforeg(flctl, 512, 512 * sector);
--		write_ec_fiforeg(flctl, 16, mtd->writesize + 16 * sector);
--	}
--
--	wait_completion(flctl);
--	writel(readl(FLCMNCR(flctl)) & ~ACM_SACCES_MODE, FLCMNCR(flctl));
--}
--
--static void execmd_write_oob(struct mtd_info *mtd)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	int page_addr = flctl->seqin_page_addr;
--	int sector, page_sectors;
--
--	page_sectors = flctl->page_size ? 4 : 1;
--
--	set_cmd_regs(mtd, NAND_CMD_PAGEPROG,
--			(NAND_CMD_PAGEPROG << 8) | NAND_CMD_SEQIN);
--
--	for (sector = 0; sector < page_sectors; sector++) {
--		empty_fifo(flctl);
--		set_addr(mtd, sector * 528 + 512, page_addr);
--		writel(16, FLDTCNTR(flctl));	/* set read size */
--
--		start_translation(flctl);
--		write_fiforeg(flctl, 16, 16 * sector);
--		wait_completion(flctl);
--	}
--}
--
--static void flctl_cmdfunc(struct nand_chip *chip, unsigned int command,
--			int column, int page_addr)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
--	uint32_t read_cmd = 0;
--
--	pm_runtime_get_sync(&flctl->pdev->dev);
--
--	flctl->read_bytes = 0;
--	if (command != NAND_CMD_PAGEPROG)
--		flctl->index = 0;
--
--	switch (command) {
--	case NAND_CMD_READ1:
--	case NAND_CMD_READ0:
--		if (flctl->hwecc) {
--			/* read page with hwecc */
--			execmd_read_page_sector(mtd, page_addr);
--			break;
--		}
--		if (flctl->page_size)
--			set_cmd_regs(mtd, command, (NAND_CMD_READSTART << 8)
--				| command);
--		else
--			set_cmd_regs(mtd, command, command);
--
--		set_addr(mtd, 0, page_addr);
--
--		flctl->read_bytes = mtd->writesize + mtd->oobsize;
--		if (flctl->chip.options & NAND_BUSWIDTH_16)
--			column >>= 1;
--		flctl->index += column;
--		goto read_normal_exit;
--
--	case NAND_CMD_READOOB:
--		if (flctl->hwecc) {
--			/* read page with hwecc */
--			execmd_read_oob(mtd, page_addr);
--			break;
--		}
--
--		if (flctl->page_size) {
--			set_cmd_regs(mtd, command, (NAND_CMD_READSTART << 8)
--				| NAND_CMD_READ0);
--			set_addr(mtd, mtd->writesize, page_addr);
--		} else {
--			set_cmd_regs(mtd, command, command);
--			set_addr(mtd, 0, page_addr);
--		}
--		flctl->read_bytes = mtd->oobsize;
--		goto read_normal_exit;
--
--	case NAND_CMD_RNDOUT:
--		if (flctl->hwecc)
--			break;
--
--		if (flctl->page_size)
--			set_cmd_regs(mtd, command, (NAND_CMD_RNDOUTSTART << 8)
--				| command);
--		else
--			set_cmd_regs(mtd, command, command);
--
--		set_addr(mtd, column, 0);
--
--		flctl->read_bytes = mtd->writesize + mtd->oobsize - column;
--		goto read_normal_exit;
--
--	case NAND_CMD_READID:
--		set_cmd_regs(mtd, command, command);
--
--		/* READID is always performed using an 8-bit bus */
--		if (flctl->chip.options & NAND_BUSWIDTH_16)
--			column <<= 1;
--		set_addr(mtd, column, 0);
--
--		flctl->read_bytes = 8;
--		writel(flctl->read_bytes, FLDTCNTR(flctl)); /* set read size */
--		empty_fifo(flctl);
--		start_translation(flctl);
--		read_fiforeg(flctl, flctl->read_bytes, 0);
--		wait_completion(flctl);
--		break;
--
--	case NAND_CMD_ERASE1:
--		flctl->erase1_page_addr = page_addr;
--		break;
--
--	case NAND_CMD_ERASE2:
--		set_cmd_regs(mtd, NAND_CMD_ERASE1,
--			(command << 8) | NAND_CMD_ERASE1);
--		set_addr(mtd, -1, flctl->erase1_page_addr);
--		start_translation(flctl);
--		wait_completion(flctl);
--		break;
--
--	case NAND_CMD_SEQIN:
--		if (!flctl->page_size) {
--			/* output read command */
--			if (column >= mtd->writesize) {
--				column -= mtd->writesize;
--				read_cmd = NAND_CMD_READOOB;
--			} else if (column < 256) {
--				read_cmd = NAND_CMD_READ0;
--			} else {
--				column -= 256;
--				read_cmd = NAND_CMD_READ1;
--			}
--		}
--		flctl->seqin_column = column;
--		flctl->seqin_page_addr = page_addr;
--		flctl->seqin_read_cmd = read_cmd;
--		break;
--
--	case NAND_CMD_PAGEPROG:
--		empty_fifo(flctl);
--		if (!flctl->page_size) {
--			set_cmd_regs(mtd, NAND_CMD_SEQIN,
--					flctl->seqin_read_cmd);
--			set_addr(mtd, -1, -1);
--			writel(0, FLDTCNTR(flctl));	/* set 0 size */
--			start_translation(flctl);
--			wait_completion(flctl);
--		}
--		if (flctl->hwecc) {
--			/* write page with hwecc */
--			if (flctl->seqin_column == mtd->writesize)
--				execmd_write_oob(mtd);
--			else if (!flctl->seqin_column)
--				execmd_write_page_sector(mtd);
--			else
--				pr_err("Invalid address !?\n");
--			break;
--		}
--		set_cmd_regs(mtd, command, (command << 8) | NAND_CMD_SEQIN);
--		set_addr(mtd, flctl->seqin_column, flctl->seqin_page_addr);
--		writel(flctl->index, FLDTCNTR(flctl));	/* set write size */
--		start_translation(flctl);
--		write_fiforeg(flctl, flctl->index, 0);
--		wait_completion(flctl);
--		break;
--
--	case NAND_CMD_STATUS:
--		set_cmd_regs(mtd, command, command);
--		set_addr(mtd, -1, -1);
--
--		flctl->read_bytes = 1;
--		writel(flctl->read_bytes, FLDTCNTR(flctl)); /* set read size */
--		start_translation(flctl);
--		read_datareg(flctl, 0); /* read and end */
--		break;
--
--	case NAND_CMD_RESET:
--		set_cmd_regs(mtd, command, command);
--		set_addr(mtd, -1, -1);
--
--		writel(0, FLDTCNTR(flctl));	/* set 0 size */
--		start_translation(flctl);
--		wait_completion(flctl);
--		break;
--
--	default:
--		break;
--	}
--	goto runtime_exit;
--
--read_normal_exit:
--	writel(flctl->read_bytes, FLDTCNTR(flctl));	/* set read size */
--	empty_fifo(flctl);
--	start_translation(flctl);
--	read_fiforeg(flctl, flctl->read_bytes, 0);
--	wait_completion(flctl);
--runtime_exit:
--	pm_runtime_put_sync(&flctl->pdev->dev);
--	return;
--}
--
--static void flctl_select_chip(struct nand_chip *chip, int chipnr)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
+-	struct shdma_chan *schan;
+-	struct shdma_dev *sdev;
+-	int slave_id = (long)arg;
 -	int ret;
 -
--	switch (chipnr) {
--	case -1:
--		flctl->flcmncr_base &= ~CE0_ENABLE;
+-	/* Only support channels handled by this driver. */
+-	if (chan->device->device_alloc_chan_resources !=
+-	    shdma_alloc_chan_resources)
+-		return false;
 -
--		pm_runtime_get_sync(&flctl->pdev->dev);
--		writel(flctl->flcmncr_base, FLCMNCR(flctl));
--
--		if (flctl->qos_request) {
--			dev_pm_qos_remove_request(&flctl->pm_qos);
--			flctl->qos_request = 0;
--		}
--
--		pm_runtime_put_sync(&flctl->pdev->dev);
--		break;
--	case 0:
--		flctl->flcmncr_base |= CE0_ENABLE;
--
--		if (!flctl->qos_request) {
--			ret = dev_pm_qos_add_request(&flctl->pdev->dev,
--							&flctl->pm_qos,
--							DEV_PM_QOS_RESUME_LATENCY,
--							100);
--			if (ret < 0)
--				dev_err(&flctl->pdev->dev,
--					"PM QoS request failed: %d\n", ret);
--			flctl->qos_request = 1;
--		}
--
--		if (flctl->holden) {
--			pm_runtime_get_sync(&flctl->pdev->dev);
--			writel(HOLDEN, FLHOLDCR(flctl));
--			pm_runtime_put_sync(&flctl->pdev->dev);
--		}
--		break;
--	default:
--		BUG();
--	}
--}
--
--static void flctl_write_buf(struct nand_chip *chip, const uint8_t *buf, int len)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
--
--	memcpy(&flctl->done_buff[flctl->index], buf, len);
--	flctl->index += len;
--}
--
--static uint8_t flctl_read_byte(struct nand_chip *chip)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
--	uint8_t data;
--
--	data = flctl->done_buff[flctl->index];
--	flctl->index++;
--	return data;
--}
--
--static void flctl_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
--{
--	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
--
--	memcpy(buf, &flctl->done_buff[flctl->index], len);
--	flctl->index += len;
--}
--
--static int flctl_chip_attach_chip(struct nand_chip *chip)
--{
--	u64 targetsize = nanddev_target_size(&chip->base);
--	struct mtd_info *mtd = nand_to_mtd(chip);
--	struct sh_flctl *flctl = mtd_to_flctl(mtd);
+-	schan = to_shdma_chan(chan);
+-	sdev = to_shdma_dev(chan->device);
 -
 -	/*
--	 * NAND_BUSWIDTH_16 may have been set by nand_scan_ident().
--	 * Add the SEL_16BIT flag in flctl->flcmncr_base.
+-	 * For DT, the schan->slave_id field is generated by the
+-	 * set_slave function from the slave ID that is passed in
+-	 * from xlate. For the non-DT case, the slave ID is
+-	 * directly passed into the filter function by the driver
 -	 */
--	if (chip->options & NAND_BUSWIDTH_16)
--		flctl->flcmncr_base |= SEL_16BIT;
+-	if (schan->dev->of_node) {
+-		ret = sdev->ops->set_slave(schan, slave_id, 0, true);
+-		if (ret < 0)
+-			return false;
 -
--	if (mtd->writesize == 512) {
--		flctl->page_size = 0;
--		if (targetsize > (32 << 20)) {
--			/* big than 32MB */
--			flctl->rw_ADRCNT = ADRCNT_4;
--			flctl->erase_ADRCNT = ADRCNT_3;
--		} else if (targetsize > (2 << 16)) {
--			/* big than 128KB */
--			flctl->rw_ADRCNT = ADRCNT_3;
--			flctl->erase_ADRCNT = ADRCNT_2;
--		} else {
--			flctl->rw_ADRCNT = ADRCNT_2;
--			flctl->erase_ADRCNT = ADRCNT_1;
+-		schan->real_slave_id = schan->slave_id;
+-		return true;
+-	}
+-
+-	if (slave_id < 0) {
+-		/* No slave requested - arbitrary channel */
+-		dev_warn(sdev->dma_dev.dev, "invalid slave ID passed to dma_request_slave\n");
+-		return true;
+-	}
+-
+-	if (slave_id >= slave_num)
+-		return false;
+-
+-	ret = sdev->ops->set_slave(schan, slave_id, 0, true);
+-	if (ret < 0)
+-		return false;
+-
+-	schan->real_slave_id = slave_id;
+-
+-	return true;
+-}
+-EXPORT_SYMBOL(shdma_chan_filter);
+-
+-static dma_async_tx_callback __ld_cleanup(struct shdma_chan *schan, bool all)
+-{
+-	struct shdma_desc *desc, *_desc;
+-	/* Is the "exposed" head of a chain acked? */
+-	bool head_acked = false;
+-	dma_cookie_t cookie = 0;
+-	dma_async_tx_callback callback = NULL;
+-	struct dmaengine_desc_callback cb;
+-	unsigned long flags;
+-	LIST_HEAD(cyclic_list);
+-
+-	memset(&cb, 0, sizeof(cb));
+-	spin_lock_irqsave(&schan->chan_lock, flags);
+-	list_for_each_entry_safe(desc, _desc, &schan->ld_queue, node) {
+-		struct dma_async_tx_descriptor *tx = &desc->async_tx;
+-
+-		BUG_ON(tx->cookie > 0 && tx->cookie != desc->cookie);
+-		BUG_ON(desc->mark != DESC_SUBMITTED &&
+-		       desc->mark != DESC_COMPLETED &&
+-		       desc->mark != DESC_WAITING);
+-
+-		/*
+-		 * queue is ordered, and we use this loop to (1) clean up all
+-		 * completed descriptors, and to (2) update descriptor flags of
+-		 * any chunks in a (partially) completed chain
+-		 */
+-		if (!all && desc->mark == DESC_SUBMITTED &&
+-		    desc->cookie != cookie)
+-			break;
+-
+-		if (tx->cookie > 0)
+-			cookie = tx->cookie;
+-
+-		if (desc->mark == DESC_COMPLETED && desc->chunks == 1) {
+-			if (schan->dma_chan.completed_cookie != desc->cookie - 1)
+-				dev_dbg(schan->dev,
+-					"Completing cookie %d, expected %d\n",
+-					desc->cookie,
+-					schan->dma_chan.completed_cookie + 1);
+-			schan->dma_chan.completed_cookie = desc->cookie;
 -		}
--	} else {
--		flctl->page_size = 1;
--		if (targetsize > (128 << 20)) {
--			/* big than 128MB */
--			flctl->rw_ADRCNT = ADRCNT2_E;
--			flctl->erase_ADRCNT = ADRCNT_3;
--		} else if (targetsize > (8 << 16)) {
--			/* big than 512KB */
--			flctl->rw_ADRCNT = ADRCNT_4;
--			flctl->erase_ADRCNT = ADRCNT_2;
+-
+-		/* Call callback on the last chunk */
+-		if (desc->mark == DESC_COMPLETED && tx->callback) {
+-			desc->mark = DESC_WAITING;
+-			dmaengine_desc_get_callback(tx, &cb);
+-			callback = tx->callback;
+-			dev_dbg(schan->dev, "descriptor #%d@%p on %d callback\n",
+-				tx->cookie, tx, schan->id);
+-			BUG_ON(desc->chunks != 1);
+-			break;
+-		}
+-
+-		if (tx->cookie > 0 || tx->cookie == -EBUSY) {
+-			if (desc->mark == DESC_COMPLETED) {
+-				BUG_ON(tx->cookie < 0);
+-				desc->mark = DESC_WAITING;
+-			}
+-			head_acked = async_tx_test_ack(tx);
 -		} else {
--			flctl->rw_ADRCNT = ADRCNT_3;
--			flctl->erase_ADRCNT = ADRCNT_1;
+-			switch (desc->mark) {
+-			case DESC_COMPLETED:
+-				desc->mark = DESC_WAITING;
+-				fallthrough;
+-			case DESC_WAITING:
+-				if (head_acked)
+-					async_tx_ack(&desc->async_tx);
+-			}
+-		}
+-
+-		dev_dbg(schan->dev, "descriptor %p #%d completed.\n",
+-			tx, tx->cookie);
+-
+-		if (((desc->mark == DESC_COMPLETED ||
+-		      desc->mark == DESC_WAITING) &&
+-		     async_tx_test_ack(&desc->async_tx)) || all) {
+-
+-			if (all || !desc->cyclic) {
+-				/* Remove from ld_queue list */
+-				desc->mark = DESC_IDLE;
+-				list_move(&desc->node, &schan->ld_free);
+-			} else {
+-				/* reuse as cyclic */
+-				desc->mark = DESC_SUBMITTED;
+-				list_move_tail(&desc->node, &cyclic_list);
+-			}
+-
+-			if (list_empty(&schan->ld_queue)) {
+-				dev_dbg(schan->dev, "Bring down channel %d\n", schan->id);
+-				pm_runtime_put(schan->dev);
+-				schan->pm_state = SHDMA_PM_ESTABLISHED;
+-			} else if (schan->pm_state == SHDMA_PM_PENDING) {
+-				shdma_chan_xfer_ld_queue(schan);
+-			}
 -		}
 -	}
 -
--	if (flctl->hwecc) {
--		if (mtd->writesize == 512) {
--			mtd_set_ooblayout(mtd, &flctl_4secc_oob_smallpage_ops);
--			chip->badblock_pattern = &flctl_4secc_smallpage;
--		} else {
--			mtd_set_ooblayout(mtd, &flctl_4secc_oob_largepage_ops);
--			chip->badblock_pattern = &flctl_4secc_largepage;
--		}
+-	if (all && !callback)
+-		/*
+-		 * Terminating and the loop completed normally: forgive
+-		 * uncompleted cookies
+-		 */
+-		schan->dma_chan.completed_cookie = schan->dma_chan.cookie;
 -
--		chip->ecc.size = 512;
--		chip->ecc.bytes = 10;
--		chip->ecc.strength = 4;
--		chip->ecc.read_page = flctl_read_page_hwecc;
--		chip->ecc.write_page = flctl_write_page_hwecc;
--		chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+-	list_splice_tail(&cyclic_list, &schan->ld_queue);
 -
--		/* 4 symbols ECC enabled */
--		flctl->flcmncr_base |= _4ECCEN;
--	} else {
--		chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
--		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+-	spin_unlock_irqrestore(&schan->chan_lock, flags);
+-
+-	dmaengine_desc_callback_invoke(&cb, NULL);
+-
+-	return callback;
+-}
+-
+-/*
+- * shdma_chan_ld_cleanup - Clean up link descriptors
+- *
+- * Clean up the ld_queue of DMA channel.
+- */
+-static void shdma_chan_ld_cleanup(struct shdma_chan *schan, bool all)
+-{
+-	while (__ld_cleanup(schan, all))
+-		;
+-}
+-
+-/*
+- * shdma_free_chan_resources - Free all resources of the channel.
+- */
+-static void shdma_free_chan_resources(struct dma_chan *chan)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct shdma_dev *sdev = to_shdma_dev(chan->device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	LIST_HEAD(list);
+-
+-	/* Protect against ISR */
+-	spin_lock_irq(&schan->chan_lock);
+-	ops->halt_channel(schan);
+-	spin_unlock_irq(&schan->chan_lock);
+-
+-	/* Now no new interrupts will occur */
+-
+-	/* Prepared and not submitted descriptors can still be on the queue */
+-	if (!list_empty(&schan->ld_queue))
+-		shdma_chan_ld_cleanup(schan, true);
+-
+-	if (schan->slave_id >= 0) {
+-		/* The caller is holding dma_list_mutex */
+-		clear_bit(schan->slave_id, shdma_slave_used);
+-		chan->private = NULL;
 -	}
+-
+-	schan->real_slave_id = 0;
+-
+-	spin_lock_irq(&schan->chan_lock);
+-
+-	list_splice_init(&schan->ld_free, &list);
+-	schan->desc_num = 0;
+-
+-	spin_unlock_irq(&schan->chan_lock);
+-
+-	kfree(schan->desc);
+-}
+-
+-/**
+- * shdma_add_desc - get, set up and return one transfer descriptor
+- * @schan:	DMA channel
+- * @flags:	DMA transfer flags
+- * @dst:	destination DMA address, incremented when direction equals
+- *		DMA_DEV_TO_MEM or DMA_MEM_TO_MEM
+- * @src:	source DMA address, incremented when direction equals
+- *		DMA_MEM_TO_DEV or DMA_MEM_TO_MEM
+- * @len:	DMA transfer length
+- * @first:	if NULL, set to the current descriptor and cookie set to -EBUSY
+- * @direction:	needed for slave DMA to decide which address to keep constant,
+- *		equals DMA_MEM_TO_MEM for MEMCPY
+- * Returns 0 or an error
+- * Locks: called with desc_lock held
+- */
+-static struct shdma_desc *shdma_add_desc(struct shdma_chan *schan,
+-	unsigned long flags, dma_addr_t *dst, dma_addr_t *src, size_t *len,
+-	struct shdma_desc **first, enum dma_transfer_direction direction)
+-{
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	struct shdma_desc *new;
+-	size_t copy_size = *len;
+-
+-	if (!copy_size)
+-		return NULL;
+-
+-	/* Allocate the link descriptor from the free list */
+-	new = shdma_get_desc(schan);
+-	if (!new) {
+-		dev_err(schan->dev, "No free link descriptor available\n");
+-		return NULL;
+-	}
+-
+-	ops->desc_setup(schan, new, *src, *dst, &copy_size);
+-
+-	if (!*first) {
+-		/* First desc */
+-		new->async_tx.cookie = -EBUSY;
+-		*first = new;
+-	} else {
+-		/* Other desc - invisible to the user */
+-		new->async_tx.cookie = -EINVAL;
+-	}
+-
+-	dev_dbg(schan->dev,
+-		"chaining (%zu/%zu)@%pad -> %pad with %p, cookie %d\n",
+-		copy_size, *len, src, dst, &new->async_tx,
+-		new->async_tx.cookie);
+-
+-	new->mark = DESC_PREPARED;
+-	new->async_tx.flags = flags;
+-	new->direction = direction;
+-	new->partial = 0;
+-
+-	*len -= copy_size;
+-	if (direction == DMA_MEM_TO_MEM || direction == DMA_MEM_TO_DEV)
+-		*src += copy_size;
+-	if (direction == DMA_MEM_TO_MEM || direction == DMA_DEV_TO_MEM)
+-		*dst += copy_size;
+-
+-	return new;
+-}
+-
+-/*
+- * shdma_prep_sg - prepare transfer descriptors from an SG list
+- *
+- * Common routine for public (MEMCPY) and slave DMA. The MEMCPY case is also
+- * converted to scatter-gather to guarantee consistent locking and a correct
+- * list manipulation. For slave DMA direction carries the usual meaning, and,
+- * logically, the SG list is RAM and the addr variable contains slave address,
+- * e.g., the FIFO I/O register. For MEMCPY direction equals DMA_MEM_TO_MEM
+- * and the SG list contains only one element and points at the source buffer.
+- */
+-static struct dma_async_tx_descriptor *shdma_prep_sg(struct shdma_chan *schan,
+-	struct scatterlist *sgl, unsigned int sg_len, dma_addr_t *addr,
+-	enum dma_transfer_direction direction, unsigned long flags, bool cyclic)
+-{
+-	struct scatterlist *sg;
+-	struct shdma_desc *first = NULL, *new = NULL /* compiler... */;
+-	LIST_HEAD(tx_list);
+-	int chunks = 0;
+-	unsigned long irq_flags;
+-	int i;
+-
+-	for_each_sg(sgl, sg, sg_len, i)
+-		chunks += DIV_ROUND_UP(sg_dma_len(sg), schan->max_xfer_len);
+-
+-	/* Have to lock the whole loop to protect against concurrent release */
+-	spin_lock_irqsave(&schan->chan_lock, irq_flags);
+-
+-	/*
+-	 * Chaining:
+-	 * first descriptor is what user is dealing with in all API calls, its
+-	 *	cookie is at first set to -EBUSY, at tx-submit to a positive
+-	 *	number
+-	 * if more than one chunk is needed further chunks have cookie = -EINVAL
+-	 * the last chunk, if not equal to the first, has cookie = -ENOSPC
+-	 * all chunks are linked onto the tx_list head with their .node heads
+-	 *	only during this function, then they are immediately spliced
+-	 *	back onto the free list in form of a chain
+-	 */
+-	for_each_sg(sgl, sg, sg_len, i) {
+-		dma_addr_t sg_addr = sg_dma_address(sg);
+-		size_t len = sg_dma_len(sg);
+-
+-		if (!len)
+-			goto err_get_desc;
+-
+-		do {
+-			dev_dbg(schan->dev, "Add SG #%d@%p[%zu], dma %pad\n",
+-				i, sg, len, &sg_addr);
+-
+-			if (direction == DMA_DEV_TO_MEM)
+-				new = shdma_add_desc(schan, flags,
+-						&sg_addr, addr, &len, &first,
+-						direction);
+-			else
+-				new = shdma_add_desc(schan, flags,
+-						addr, &sg_addr, &len, &first,
+-						direction);
+-			if (!new)
+-				goto err_get_desc;
+-
+-			new->cyclic = cyclic;
+-			if (cyclic)
+-				new->chunks = 1;
+-			else
+-				new->chunks = chunks--;
+-			list_add_tail(&new->node, &tx_list);
+-		} while (len);
+-	}
+-
+-	if (new != first)
+-		new->async_tx.cookie = -ENOSPC;
+-
+-	/* Put them back on the free list, so, they don't get lost */
+-	list_splice_tail(&tx_list, &schan->ld_free);
+-
+-	spin_unlock_irqrestore(&schan->chan_lock, irq_flags);
+-
+-	return &first->async_tx;
+-
+-err_get_desc:
+-	list_for_each_entry(new, &tx_list, node)
+-		new->mark = DESC_IDLE;
+-	list_splice(&tx_list, &schan->ld_free);
+-
+-	spin_unlock_irqrestore(&schan->chan_lock, irq_flags);
+-
+-	return NULL;
+-}
+-
+-static struct dma_async_tx_descriptor *shdma_prep_memcpy(
+-	struct dma_chan *chan, dma_addr_t dma_dest, dma_addr_t dma_src,
+-	size_t len, unsigned long flags)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct scatterlist sg;
+-
+-	if (!chan || !len)
+-		return NULL;
+-
+-	BUG_ON(!schan->desc_num);
+-
+-	sg_init_table(&sg, 1);
+-	sg_set_page(&sg, pfn_to_page(PFN_DOWN(dma_src)), len,
+-		    offset_in_page(dma_src));
+-	sg_dma_address(&sg) = dma_src;
+-	sg_dma_len(&sg) = len;
+-
+-	return shdma_prep_sg(schan, &sg, 1, &dma_dest, DMA_MEM_TO_MEM,
+-			     flags, false);
+-}
+-
+-static struct dma_async_tx_descriptor *shdma_prep_slave_sg(
+-	struct dma_chan *chan, struct scatterlist *sgl, unsigned int sg_len,
+-	enum dma_transfer_direction direction, unsigned long flags, void *context)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	int slave_id = schan->slave_id;
+-	dma_addr_t slave_addr;
+-
+-	if (!chan)
+-		return NULL;
+-
+-	BUG_ON(!schan->desc_num);
+-
+-	/* Someone calling slave DMA on a generic channel? */
+-	if (slave_id < 0 || !sg_len) {
+-		dev_warn(schan->dev, "%s: bad parameter: len=%d, id=%d\n",
+-			 __func__, sg_len, slave_id);
+-		return NULL;
+-	}
+-
+-	slave_addr = ops->slave_addr(schan);
+-
+-	return shdma_prep_sg(schan, sgl, sg_len, &slave_addr,
+-			     direction, flags, false);
+-}
+-
+-#define SHDMA_MAX_SG_LEN 32
+-
+-static struct dma_async_tx_descriptor *shdma_prep_dma_cyclic(
+-	struct dma_chan *chan, dma_addr_t buf_addr, size_t buf_len,
+-	size_t period_len, enum dma_transfer_direction direction,
+-	unsigned long flags)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct shdma_dev *sdev = to_shdma_dev(schan->dma_chan.device);
+-	struct dma_async_tx_descriptor *desc;
+-	const struct shdma_ops *ops = sdev->ops;
+-	unsigned int sg_len = buf_len / period_len;
+-	int slave_id = schan->slave_id;
+-	dma_addr_t slave_addr;
+-	struct scatterlist *sgl;
+-	int i;
+-
+-	if (!chan)
+-		return NULL;
+-
+-	BUG_ON(!schan->desc_num);
+-
+-	if (sg_len > SHDMA_MAX_SG_LEN) {
+-		dev_err(schan->dev, "sg length %d exceeds limit %d",
+-				sg_len, SHDMA_MAX_SG_LEN);
+-		return NULL;
+-	}
+-
+-	/* Someone calling slave DMA on a generic channel? */
+-	if (slave_id < 0 || (buf_len < period_len)) {
+-		dev_warn(schan->dev,
+-			"%s: bad parameter: buf_len=%zu, period_len=%zu, id=%d\n",
+-			__func__, buf_len, period_len, slave_id);
+-		return NULL;
+-	}
+-
+-	slave_addr = ops->slave_addr(schan);
+-
+-	/*
+-	 * Allocate the sg list dynamically as it would consumer too much stack
+-	 * space.
+-	 */
+-	sgl = kmalloc_array(sg_len, sizeof(*sgl), GFP_KERNEL);
+-	if (!sgl)
+-		return NULL;
+-
+-	sg_init_table(sgl, sg_len);
+-
+-	for (i = 0; i < sg_len; i++) {
+-		dma_addr_t src = buf_addr + (period_len * i);
+-
+-		sg_set_page(&sgl[i], pfn_to_page(PFN_DOWN(src)), period_len,
+-			    offset_in_page(src));
+-		sg_dma_address(&sgl[i]) = src;
+-		sg_dma_len(&sgl[i]) = period_len;
+-	}
+-
+-	desc = shdma_prep_sg(schan, sgl, sg_len, &slave_addr,
+-			     direction, flags, true);
+-
+-	kfree(sgl);
+-	return desc;
+-}
+-
+-static int shdma_terminate_all(struct dma_chan *chan)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	struct shdma_dev *sdev = to_shdma_dev(chan->device);
+-	const struct shdma_ops *ops = sdev->ops;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&schan->chan_lock, flags);
+-	ops->halt_channel(schan);
+-
+-	if (ops->get_partial && !list_empty(&schan->ld_queue)) {
+-		/* Record partial transfer */
+-		struct shdma_desc *desc = list_first_entry(&schan->ld_queue,
+-							   struct shdma_desc, node);
+-		desc->partial = ops->get_partial(schan, desc);
+-	}
+-
+-	spin_unlock_irqrestore(&schan->chan_lock, flags);
+-
+-	shdma_chan_ld_cleanup(schan, true);
 -
 -	return 0;
 -}
 -
--static const struct nand_controller_ops flctl_nand_controller_ops = {
--	.attach_chip = flctl_chip_attach_chip,
--};
--
--static irqreturn_t flctl_handle_flste(int irq, void *dev_id)
+-static int shdma_config(struct dma_chan *chan,
+-			struct dma_slave_config *config)
 -{
--	struct sh_flctl *flctl = dev_id;
+-	struct shdma_chan *schan = to_shdma_chan(chan);
 -
--	dev_err(&flctl->pdev->dev, "flste irq: %x\n", readl(FLINTDMACR(flctl)));
--	writel(flctl->flintdmacr_base, FLINTDMACR(flctl));
+-	/*
+-	 * So far only .slave_id is used, but the slave drivers are
+-	 * encouraged to also set a transfer direction and an address.
+-	 */
+-	if (!config)
+-		return -EINVAL;
+-
+-	/*
+-	 * We could lock this, but you shouldn't be configuring the
+-	 * channel, while using it...
+-	 */
+-	return shdma_setup_slave(schan,
+-				 config->direction == DMA_DEV_TO_MEM ?
+-				 config->src_addr : config->dst_addr);
+-}
+-
+-static void shdma_issue_pending(struct dma_chan *chan)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-
+-	spin_lock_irq(&schan->chan_lock);
+-	if (schan->pm_state == SHDMA_PM_ESTABLISHED)
+-		shdma_chan_xfer_ld_queue(schan);
+-	else
+-		schan->pm_state = SHDMA_PM_PENDING;
+-	spin_unlock_irq(&schan->chan_lock);
+-}
+-
+-static enum dma_status shdma_tx_status(struct dma_chan *chan,
+-					dma_cookie_t cookie,
+-					struct dma_tx_state *txstate)
+-{
+-	struct shdma_chan *schan = to_shdma_chan(chan);
+-	enum dma_status status;
+-	unsigned long flags;
+-
+-	shdma_chan_ld_cleanup(schan, false);
+-
+-	spin_lock_irqsave(&schan->chan_lock, flags);
+-
+-	status = dma_cookie_status(chan, cookie, txstate);
+-
+-	/*
+-	 * If we don't find cookie on the queue, it has been aborted and we have
+-	 * to report error
+-	 */
+-	if (status != DMA_COMPLETE) {
+-		struct shdma_desc *sdesc;
+-		status = DMA_ERROR;
+-		list_for_each_entry(sdesc, &schan->ld_queue, node)
+-			if (sdesc->cookie == cookie) {
+-				status = DMA_IN_PROGRESS;
+-				break;
+-			}
+-	}
+-
+-	spin_unlock_irqrestore(&schan->chan_lock, flags);
+-
+-	return status;
+-}
+-
+-/* Called from error IRQ or NMI */
+-bool shdma_reset(struct shdma_dev *sdev)
+-{
+-	const struct shdma_ops *ops = sdev->ops;
+-	struct shdma_chan *schan;
+-	unsigned int handled = 0;
+-	int i;
+-
+-	/* Reset all channels */
+-	shdma_for_each_chan(schan, sdev, i) {
+-		struct shdma_desc *sdesc;
+-		LIST_HEAD(dl);
+-
+-		if (!schan)
+-			continue;
+-
+-		spin_lock(&schan->chan_lock);
+-
+-		/* Stop the channel */
+-		ops->halt_channel(schan);
+-
+-		list_splice_init(&schan->ld_queue, &dl);
+-
+-		if (!list_empty(&dl)) {
+-			dev_dbg(schan->dev, "Bring down channel %d\n", schan->id);
+-			pm_runtime_put(schan->dev);
+-		}
+-		schan->pm_state = SHDMA_PM_ESTABLISHED;
+-
+-		spin_unlock(&schan->chan_lock);
+-
+-		/* Complete all  */
+-		list_for_each_entry(sdesc, &dl, node) {
+-			struct dma_async_tx_descriptor *tx = &sdesc->async_tx;
+-
+-			sdesc->mark = DESC_IDLE;
+-			dmaengine_desc_get_callback_invoke(tx, NULL);
+-		}
+-
+-		spin_lock(&schan->chan_lock);
+-		list_splice(&dl, &schan->ld_free);
+-		spin_unlock(&schan->chan_lock);
+-
+-		handled++;
+-	}
+-
+-	return !!handled;
+-}
+-EXPORT_SYMBOL(shdma_reset);
+-
+-static irqreturn_t chan_irq(int irq, void *dev)
+-{
+-	struct shdma_chan *schan = dev;
+-	const struct shdma_ops *ops =
+-		to_shdma_dev(schan->dma_chan.device)->ops;
+-	irqreturn_t ret;
+-
+-	spin_lock(&schan->chan_lock);
+-
+-	ret = ops->chan_irq(schan, irq) ? IRQ_WAKE_THREAD : IRQ_NONE;
+-
+-	spin_unlock(&schan->chan_lock);
+-
+-	return ret;
+-}
+-
+-static irqreturn_t chan_irqt(int irq, void *dev)
+-{
+-	struct shdma_chan *schan = dev;
+-	const struct shdma_ops *ops =
+-		to_shdma_dev(schan->dma_chan.device)->ops;
+-	struct shdma_desc *sdesc;
+-
+-	spin_lock_irq(&schan->chan_lock);
+-	list_for_each_entry(sdesc, &schan->ld_queue, node) {
+-		if (sdesc->mark == DESC_SUBMITTED &&
+-		    ops->desc_completed(schan, sdesc)) {
+-			dev_dbg(schan->dev, "done #%d@%p\n",
+-				sdesc->async_tx.cookie, &sdesc->async_tx);
+-			sdesc->mark = DESC_COMPLETED;
+-			break;
+-		}
+-	}
+-	/* Next desc */
+-	shdma_chan_xfer_ld_queue(schan);
+-	spin_unlock_irq(&schan->chan_lock);
+-
+-	shdma_chan_ld_cleanup(schan, false);
 -
 -	return IRQ_HANDLED;
 -}
 -
--struct flctl_soc_config {
--	unsigned long flcmncr_val;
--	unsigned has_hwecc:1;
--	unsigned use_holden:1;
--};
--
--static struct flctl_soc_config flctl_sh7372_config = {
--	.flcmncr_val = CLK_16B_12L_4H | TYPESEL_SET | SHBUSSEL,
--	.has_hwecc = 1,
--	.use_holden = 1,
--};
--
--static const struct of_device_id of_flctl_match[] = {
--	{ .compatible = "renesas,shmobile-flctl-sh7372",
--				.data = &flctl_sh7372_config },
--	{},
--};
--MODULE_DEVICE_TABLE(of, of_flctl_match);
--
--static struct sh_flctl_platform_data *flctl_parse_dt(struct device *dev)
+-int shdma_request_irq(struct shdma_chan *schan, int irq,
+-			   unsigned long flags, const char *name)
 -{
--	const struct flctl_soc_config *config;
--	struct sh_flctl_platform_data *pdata;
+-	int ret = devm_request_threaded_irq(schan->dev, irq, chan_irq,
+-					    chan_irqt, flags, name, schan);
 -
--	config = of_device_get_match_data(dev);
--	if (!config) {
--		dev_err(dev, "%s: no OF configuration attached\n", __func__);
--		return NULL;
--	}
+-	schan->irq = ret < 0 ? ret : irq;
 -
--	pdata = devm_kzalloc(dev, sizeof(struct sh_flctl_platform_data),
--								GFP_KERNEL);
--	if (!pdata)
--		return NULL;
--
--	/* set SoC specific options */
--	pdata->flcmncr_val = config->flcmncr_val;
--	pdata->has_hwecc = config->has_hwecc;
--	pdata->use_holden = config->use_holden;
--
--	return pdata;
+-	return ret;
 -}
+-EXPORT_SYMBOL(shdma_request_irq);
 -
--static int flctl_probe(struct platform_device *pdev)
+-void shdma_chan_probe(struct shdma_dev *sdev,
+-			   struct shdma_chan *schan, int id)
 -{
--	struct resource *res;
--	struct sh_flctl *flctl;
--	struct mtd_info *flctl_mtd;
--	struct nand_chip *nand;
--	struct sh_flctl_platform_data *pdata;
--	int ret;
--	int irq;
+-	schan->pm_state = SHDMA_PM_ESTABLISHED;
 -
--	flctl = devm_kzalloc(&pdev->dev, sizeof(struct sh_flctl), GFP_KERNEL);
--	if (!flctl)
+-	/* reference struct dma_device */
+-	schan->dma_chan.device = &sdev->dma_dev;
+-	dma_cookie_init(&schan->dma_chan);
+-
+-	schan->dev = sdev->dma_dev.dev;
+-	schan->id = id;
+-
+-	if (!schan->max_xfer_len)
+-		schan->max_xfer_len = PAGE_SIZE;
+-
+-	spin_lock_init(&schan->chan_lock);
+-
+-	/* Init descripter manage list */
+-	INIT_LIST_HEAD(&schan->ld_queue);
+-	INIT_LIST_HEAD(&schan->ld_free);
+-
+-	/* Add the channel to DMA device channel list */
+-	list_add_tail(&schan->dma_chan.device_node,
+-			&sdev->dma_dev.channels);
+-	sdev->schan[id] = schan;
+-}
+-EXPORT_SYMBOL(shdma_chan_probe);
+-
+-void shdma_chan_remove(struct shdma_chan *schan)
+-{
+-	list_del(&schan->dma_chan.device_node);
+-}
+-EXPORT_SYMBOL(shdma_chan_remove);
+-
+-int shdma_init(struct device *dev, struct shdma_dev *sdev,
+-		    int chan_num)
+-{
+-	struct dma_device *dma_dev = &sdev->dma_dev;
+-
+-	/*
+-	 * Require all call-backs for now, they can trivially be made optional
+-	 * later as required
+-	 */
+-	if (!sdev->ops ||
+-	    !sdev->desc_size ||
+-	    !sdev->ops->embedded_desc ||
+-	    !sdev->ops->start_xfer ||
+-	    !sdev->ops->setup_xfer ||
+-	    !sdev->ops->set_slave ||
+-	    !sdev->ops->desc_setup ||
+-	    !sdev->ops->slave_addr ||
+-	    !sdev->ops->channel_busy ||
+-	    !sdev->ops->halt_channel ||
+-	    !sdev->ops->desc_completed)
+-		return -EINVAL;
+-
+-	sdev->schan = kcalloc(chan_num, sizeof(*sdev->schan), GFP_KERNEL);
+-	if (!sdev->schan)
 -		return -ENOMEM;
 -
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	flctl->reg = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(flctl->reg))
--		return PTR_ERR(flctl->reg);
--	flctl->fifo = res->start + 0x24; /* FLDTFIFO */
+-	INIT_LIST_HEAD(&dma_dev->channels);
 -
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
--		return irq;
+-	/* Common and MEMCPY operations */
+-	dma_dev->device_alloc_chan_resources
+-		= shdma_alloc_chan_resources;
+-	dma_dev->device_free_chan_resources = shdma_free_chan_resources;
+-	dma_dev->device_prep_dma_memcpy = shdma_prep_memcpy;
+-	dma_dev->device_tx_status = shdma_tx_status;
+-	dma_dev->device_issue_pending = shdma_issue_pending;
 -
--	ret = devm_request_irq(&pdev->dev, irq, flctl_handle_flste, IRQF_SHARED,
--			       "flste", flctl);
--	if (ret) {
--		dev_err(&pdev->dev, "request interrupt failed.\n");
--		return ret;
--	}
+-	/* Compulsory for DMA_SLAVE fields */
+-	dma_dev->device_prep_slave_sg = shdma_prep_slave_sg;
+-	dma_dev->device_prep_dma_cyclic = shdma_prep_dma_cyclic;
+-	dma_dev->device_config = shdma_config;
+-	dma_dev->device_terminate_all = shdma_terminate_all;
 -
--	if (pdev->dev.of_node)
--		pdata = flctl_parse_dt(&pdev->dev);
--	else
--		pdata = dev_get_platdata(&pdev->dev);
--
--	if (!pdata) {
--		dev_err(&pdev->dev, "no setup data defined\n");
--		return -EINVAL;
--	}
--
--	platform_set_drvdata(pdev, flctl);
--	nand = &flctl->chip;
--	flctl_mtd = nand_to_mtd(nand);
--	nand_set_flash_node(nand, pdev->dev.of_node);
--	flctl_mtd->dev.parent = &pdev->dev;
--	flctl->pdev = pdev;
--	flctl->hwecc = pdata->has_hwecc;
--	flctl->holden = pdata->use_holden;
--	flctl->flcmncr_base = pdata->flcmncr_val;
--	flctl->flintdmacr_base = flctl->hwecc ? (STERINTE | ECERB) : STERINTE;
--
--	/* Set address of hardware control function */
--	/* 20 us command delay time */
--	nand->legacy.chip_delay = 20;
--
--	nand->legacy.read_byte = flctl_read_byte;
--	nand->legacy.write_buf = flctl_write_buf;
--	nand->legacy.read_buf = flctl_read_buf;
--	nand->legacy.select_chip = flctl_select_chip;
--	nand->legacy.cmdfunc = flctl_cmdfunc;
--	nand->legacy.set_features = nand_get_set_features_notsupp;
--	nand->legacy.get_features = nand_get_set_features_notsupp;
--
--	if (pdata->flcmncr_val & SEL_16BIT)
--		nand->options |= NAND_BUSWIDTH_16;
--
--	nand->options |= NAND_BBM_FIRSTPAGE | NAND_BBM_SECONDPAGE;
--
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_resume(&pdev->dev);
--
--	flctl_setup_dma(flctl);
--
--	nand->legacy.dummy_controller.ops = &flctl_nand_controller_ops;
--	ret = nand_scan(nand, 1);
--	if (ret)
--		goto err_chip;
--
--	ret = mtd_device_register(flctl_mtd, pdata->parts, pdata->nr_parts);
--	if (ret)
--		goto cleanup_nand;
+-	dma_dev->dev = dev;
 -
 -	return 0;
+-}
+-EXPORT_SYMBOL(shdma_init);
 -
--cleanup_nand:
--	nand_cleanup(nand);
--err_chip:
--	flctl_release_dma(flctl);
--	pm_runtime_disable(&pdev->dev);
+-void shdma_cleanup(struct shdma_dev *sdev)
+-{
+-	kfree(sdev->schan);
+-}
+-EXPORT_SYMBOL(shdma_cleanup);
+-
+-static int __init shdma_enter(void)
+-{
+-	shdma_slave_used = bitmap_zalloc(slave_num, GFP_KERNEL);
+-	if (!shdma_slave_used)
+-		return -ENOMEM;
+-	return 0;
+-}
+-module_init(shdma_enter);
+-
+-static void __exit shdma_exit(void)
+-{
+-	bitmap_free(shdma_slave_used);
+-}
+-module_exit(shdma_exit);
+-
+-MODULE_LICENSE("GPL v2");
+-MODULE_DESCRIPTION("SH-DMA driver base library");
+-MODULE_AUTHOR("Guennadi Liakhovetski <g.liakhovetski@gmx.de>");
+diff --git a/drivers/dma/sh/shdma.h b/drivers/dma/sh/shdma.h
+deleted file mode 100644
+index 9c121a4b33ad82..00000000000000
+--- a/drivers/dma/sh/shdma.h
++++ /dev/null
+@@ -1,61 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0+ */
+-/*
+- * Renesas SuperH DMA Engine support
+- *
+- * Copyright (C) 2009 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+- * Copyright (C) 2009 Renesas Solutions, Inc. All rights reserved.
+- *
+- */
+-#ifndef __DMA_SHDMA_H
+-#define __DMA_SHDMA_H
+-
+-#include <linux/sh_dma.h>
+-#include <linux/shdma-base.h>
+-#include <linux/dmaengine.h>
+-#include <linux/interrupt.h>
+-#include <linux/list.h>
+-
+-#define SH_DMAE_MAX_CHANNELS 20
+-#define SH_DMAE_TCR_MAX 0x00FFFFFF	/* 16MB */
+-
+-struct device;
+-
+-struct sh_dmae_chan {
+-	struct shdma_chan shdma_chan;
+-	const struct sh_dmae_slave_config *config; /* Slave DMA configuration */
+-	int xmit_shift;			/* log_2(bytes_per_xfer) */
+-	void __iomem *base;
+-	char dev_id[16];		/* unique name per DMAC of channel */
+-	int pm_error;
+-	dma_addr_t slave_addr;
+-};
+-
+-struct sh_dmae_device {
+-	struct shdma_dev shdma_dev;
+-	struct sh_dmae_chan *chan[SH_DMAE_MAX_CHANNELS];
+-	const struct sh_dmae_pdata *pdata;
+-	struct list_head node;
+-	void __iomem *chan_reg;
+-	void __iomem *dmars;
+-	unsigned int chcr_offset;
+-	u32 chcr_ie_bit;
+-};
+-
+-struct sh_dmae_regs {
+-	u32 sar; /* SAR / source address */
+-	u32 dar; /* DAR / destination address */
+-	u32 tcr; /* TCR / transfer count */
+-};
+-
+-struct sh_dmae_desc {
+-	struct sh_dmae_regs hw;
+-	struct shdma_desc shdma_desc;
+-};
+-
+-#define to_sh_chan(chan) container_of(chan, struct sh_dmae_chan, shdma_chan)
+-#define to_sh_desc(lh) container_of(lh, struct sh_desc, node)
+-#define tx_to_sh_desc(tx) container_of(tx, struct sh_desc, async_tx)
+-#define to_sh_dev(chan) container_of(chan->shdma_chan.dma_chan.device,\
+-				     struct sh_dmae_device, shdma_dev.dma_dev)
+-
+-#endif	/* __DMA_SHDMA_H */
+diff --git a/drivers/dma/sh/shdmac.c b/drivers/dma/sh/shdmac.c
+deleted file mode 100644
+index 5aafe548ca5f30..00000000000000
+--- a/drivers/dma/sh/shdmac.c
++++ /dev/null
+@@ -1,938 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Renesas SuperH DMA Engine support
+- *
+- * base is drivers/dma/flsdma.c
+- *
+- * Copyright (C) 2011-2012 Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+- * Copyright (C) 2009 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+- * Copyright (C) 2009 Renesas Solutions, Inc. All rights reserved.
+- * Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
+- *
+- * - DMA of SuperH does not have Hardware DMA chain mode.
+- * - MAX DMA size is 16MB.
+- *
+- */
+-
+-#include <linux/delay.h>
+-#include <linux/dmaengine.h>
+-#include <linux/err.h>
+-#include <linux/init.h>
+-#include <linux/interrupt.h>
+-#include <linux/kdebug.h>
+-#include <linux/module.h>
+-#include <linux/notifier.h>
+-#include <linux/of.h>
+-#include <linux/of_device.h>
+-#include <linux/platform_device.h>
+-#include <linux/pm_runtime.h>
+-#include <linux/rculist.h>
+-#include <linux/sh_dma.h>
+-#include <linux/slab.h>
+-#include <linux/spinlock.h>
+-
+-#include "../dmaengine.h"
+-#include "shdma.h"
+-
+-/* DMA registers */
+-#define SAR	0x00	/* Source Address Register */
+-#define DAR	0x04	/* Destination Address Register */
+-#define TCR	0x08	/* Transfer Count Register */
+-#define CHCR	0x0C	/* Channel Control Register */
+-#define DMAOR	0x40	/* DMA Operation Register */
+-
+-#define TEND	0x18 /* USB-DMAC */
+-
+-#define SH_DMAE_DRV_NAME "sh-dma-engine"
+-
+-/* Default MEMCPY transfer size = 2^2 = 4 bytes */
+-#define LOG2_DEFAULT_XFER_SIZE	2
+-#define SH_DMA_SLAVE_NUMBER 256
+-#define SH_DMA_TCR_MAX (16 * 1024 * 1024 - 1)
+-
+-/*
+- * Used for write-side mutual exclusion for the global device list,
+- * read-side synchronization by way of RCU, and per-controller data.
+- */
+-static DEFINE_SPINLOCK(sh_dmae_lock);
+-static LIST_HEAD(sh_dmae_devices);
+-
+-/*
+- * Different DMAC implementations provide different ways to clear DMA channels:
+- * (1) none - no CHCLR registers are available
+- * (2) one CHCLR register per channel - 0 has to be written to it to clear
+- *     channel buffers
+- * (3) one CHCLR per several channels - 1 has to be written to the bit,
+- *     corresponding to the specific channel to reset it
+- */
+-static void channel_clear(struct sh_dmae_chan *sh_dc)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_dc);
+-	const struct sh_dmae_channel *chan_pdata = shdev->pdata->channel +
+-		sh_dc->shdma_chan.id;
+-	u32 val = shdev->pdata->chclr_bitwise ? 1 << chan_pdata->chclr_bit : 0;
+-
+-	__raw_writel(val, shdev->chan_reg + chan_pdata->chclr_offset);
+-}
+-
+-static void sh_dmae_writel(struct sh_dmae_chan *sh_dc, u32 data, u32 reg)
+-{
+-	__raw_writel(data, sh_dc->base + reg);
+-}
+-
+-static u32 sh_dmae_readl(struct sh_dmae_chan *sh_dc, u32 reg)
+-{
+-	return __raw_readl(sh_dc->base + reg);
+-}
+-
+-static u16 dmaor_read(struct sh_dmae_device *shdev)
+-{
+-	void __iomem *addr = shdev->chan_reg + DMAOR;
+-
+-	if (shdev->pdata->dmaor_is_32bit)
+-		return __raw_readl(addr);
+-	else
+-		return __raw_readw(addr);
+-}
+-
+-static void dmaor_write(struct sh_dmae_device *shdev, u16 data)
+-{
+-	void __iomem *addr = shdev->chan_reg + DMAOR;
+-
+-	if (shdev->pdata->dmaor_is_32bit)
+-		__raw_writel(data, addr);
+-	else
+-		__raw_writew(data, addr);
+-}
+-
+-static void chcr_write(struct sh_dmae_chan *sh_dc, u32 data)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_dc);
+-
+-	__raw_writel(data, sh_dc->base + shdev->chcr_offset);
+-}
+-
+-static u32 chcr_read(struct sh_dmae_chan *sh_dc)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_dc);
+-
+-	return __raw_readl(sh_dc->base + shdev->chcr_offset);
+-}
+-
+-/*
+- * Reset DMA controller
+- *
+- * SH7780 has two DMAOR register
+- */
+-static void sh_dmae_ctl_stop(struct sh_dmae_device *shdev)
+-{
+-	unsigned short dmaor;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&sh_dmae_lock, flags);
+-
+-	dmaor = dmaor_read(shdev);
+-	dmaor_write(shdev, dmaor & ~(DMAOR_NMIF | DMAOR_AE | DMAOR_DME));
+-
+-	spin_unlock_irqrestore(&sh_dmae_lock, flags);
+-}
+-
+-static int sh_dmae_rst(struct sh_dmae_device *shdev)
+-{
+-	unsigned short dmaor;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&sh_dmae_lock, flags);
+-
+-	dmaor = dmaor_read(shdev) & ~(DMAOR_NMIF | DMAOR_AE | DMAOR_DME);
+-
+-	if (shdev->pdata->chclr_present) {
+-		int i;
+-		for (i = 0; i < shdev->pdata->channel_num; i++) {
+-			struct sh_dmae_chan *sh_chan = shdev->chan[i];
+-			if (sh_chan)
+-				channel_clear(sh_chan);
+-		}
+-	}
+-
+-	dmaor_write(shdev, dmaor | shdev->pdata->dmaor_init);
+-
+-	dmaor = dmaor_read(shdev);
+-
+-	spin_unlock_irqrestore(&sh_dmae_lock, flags);
+-
+-	if (dmaor & (DMAOR_AE | DMAOR_NMIF)) {
+-		dev_warn(shdev->shdma_dev.dma_dev.dev, "Can't initialize DMAOR.\n");
+-		return -EIO;
+-	}
+-	if (shdev->pdata->dmaor_init & ~dmaor)
+-		dev_warn(shdev->shdma_dev.dma_dev.dev,
+-			 "DMAOR=0x%x hasn't latched the initial value 0x%x.\n",
+-			 dmaor, shdev->pdata->dmaor_init);
+-	return 0;
+-}
+-
+-static bool dmae_is_busy(struct sh_dmae_chan *sh_chan)
+-{
+-	u32 chcr = chcr_read(sh_chan);
+-
+-	if ((chcr & (CHCR_DE | CHCR_TE)) == CHCR_DE)
+-		return true; /* working */
+-
+-	return false; /* waiting */
+-}
+-
+-static unsigned int calc_xmit_shift(struct sh_dmae_chan *sh_chan, u32 chcr)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	const struct sh_dmae_pdata *pdata = shdev->pdata;
+-	int cnt = ((chcr & pdata->ts_low_mask) >> pdata->ts_low_shift) |
+-		((chcr & pdata->ts_high_mask) >> pdata->ts_high_shift);
+-
+-	if (cnt >= pdata->ts_shift_num)
+-		cnt = 0;
+-
+-	return pdata->ts_shift[cnt];
+-}
+-
+-static u32 log2size_to_chcr(struct sh_dmae_chan *sh_chan, int l2size)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	const struct sh_dmae_pdata *pdata = shdev->pdata;
+-	int i;
+-
+-	for (i = 0; i < pdata->ts_shift_num; i++)
+-		if (pdata->ts_shift[i] == l2size)
+-			break;
+-
+-	if (i == pdata->ts_shift_num)
+-		i = 0;
+-
+-	return ((i << pdata->ts_low_shift) & pdata->ts_low_mask) |
+-		((i << pdata->ts_high_shift) & pdata->ts_high_mask);
+-}
+-
+-static void dmae_set_reg(struct sh_dmae_chan *sh_chan, struct sh_dmae_regs *hw)
+-{
+-	sh_dmae_writel(sh_chan, hw->sar, SAR);
+-	sh_dmae_writel(sh_chan, hw->dar, DAR);
+-	sh_dmae_writel(sh_chan, hw->tcr >> sh_chan->xmit_shift, TCR);
+-}
+-
+-static void dmae_start(struct sh_dmae_chan *sh_chan)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	u32 chcr = chcr_read(sh_chan);
+-
+-	if (shdev->pdata->needs_tend_set)
+-		sh_dmae_writel(sh_chan, 0xFFFFFFFF, TEND);
+-
+-	chcr |= CHCR_DE | shdev->chcr_ie_bit;
+-	chcr_write(sh_chan, chcr & ~CHCR_TE);
+-}
+-
+-static void dmae_init(struct sh_dmae_chan *sh_chan)
+-{
+-	/*
+-	 * Default configuration for dual address memory-memory transfer.
+-	 */
+-	u32 chcr = DM_INC | SM_INC | RS_AUTO | log2size_to_chcr(sh_chan,
+-						   LOG2_DEFAULT_XFER_SIZE);
+-	sh_chan->xmit_shift = calc_xmit_shift(sh_chan, chcr);
+-	chcr_write(sh_chan, chcr);
+-}
+-
+-static int dmae_set_chcr(struct sh_dmae_chan *sh_chan, u32 val)
+-{
+-	/* If DMA is active, cannot set CHCR. TODO: remove this superfluous check */
+-	if (dmae_is_busy(sh_chan))
+-		return -EBUSY;
+-
+-	sh_chan->xmit_shift = calc_xmit_shift(sh_chan, val);
+-	chcr_write(sh_chan, val);
+-
+-	return 0;
+-}
+-
+-static int dmae_set_dmars(struct sh_dmae_chan *sh_chan, u16 val)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	const struct sh_dmae_pdata *pdata = shdev->pdata;
+-	const struct sh_dmae_channel *chan_pdata = &pdata->channel[sh_chan->shdma_chan.id];
+-	void __iomem *addr = shdev->dmars;
+-	unsigned int shift = chan_pdata->dmars_bit;
+-
+-	if (dmae_is_busy(sh_chan))
+-		return -EBUSY;
+-
+-	if (pdata->no_dmars)
+-		return 0;
+-
+-	/* in the case of a missing DMARS resource use first memory window */
+-	if (!addr)
+-		addr = shdev->chan_reg;
+-	addr += chan_pdata->dmars;
+-
+-	__raw_writew((__raw_readw(addr) & (0xff00 >> shift)) | (val << shift),
+-		     addr);
+-
+-	return 0;
+-}
+-
+-static void sh_dmae_start_xfer(struct shdma_chan *schan,
+-			       struct shdma_desc *sdesc)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-	struct sh_dmae_desc *sh_desc = container_of(sdesc,
+-					struct sh_dmae_desc, shdma_desc);
+-	dev_dbg(sh_chan->shdma_chan.dev, "Queue #%d to %d: %u@%x -> %x\n",
+-		sdesc->async_tx.cookie, sh_chan->shdma_chan.id,
+-		sh_desc->hw.tcr, sh_desc->hw.sar, sh_desc->hw.dar);
+-	/* Get the ld start address from ld_queue */
+-	dmae_set_reg(sh_chan, &sh_desc->hw);
+-	dmae_start(sh_chan);
+-}
+-
+-static bool sh_dmae_channel_busy(struct shdma_chan *schan)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-	return dmae_is_busy(sh_chan);
+-}
+-
+-static void sh_dmae_setup_xfer(struct shdma_chan *schan,
+-			       int slave_id)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-
+-	if (slave_id >= 0) {
+-		const struct sh_dmae_slave_config *cfg =
+-			sh_chan->config;
+-
+-		dmae_set_dmars(sh_chan, cfg->mid_rid);
+-		dmae_set_chcr(sh_chan, cfg->chcr);
+-	} else {
+-		dmae_init(sh_chan);
+-	}
+-}
+-
+-/*
+- * Find a slave channel configuration from the contoller list by either a slave
+- * ID in the non-DT case, or by a MID/RID value in the DT case
+- */
+-static const struct sh_dmae_slave_config *dmae_find_slave(
+-	struct sh_dmae_chan *sh_chan, int match)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	const struct sh_dmae_pdata *pdata = shdev->pdata;
+-	const struct sh_dmae_slave_config *cfg;
+-	int i;
+-
+-	if (!sh_chan->shdma_chan.dev->of_node) {
+-		if (match >= SH_DMA_SLAVE_NUMBER)
+-			return NULL;
+-
+-		for (i = 0, cfg = pdata->slave; i < pdata->slave_num; i++, cfg++)
+-			if (cfg->slave_id == match)
+-				return cfg;
+-	} else {
+-		for (i = 0, cfg = pdata->slave; i < pdata->slave_num; i++, cfg++)
+-			if (cfg->mid_rid == match) {
+-				sh_chan->shdma_chan.slave_id = i;
+-				return cfg;
+-			}
+-	}
+-
+-	return NULL;
+-}
+-
+-static int sh_dmae_set_slave(struct shdma_chan *schan,
+-			     int slave_id, dma_addr_t slave_addr, bool try)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-	const struct sh_dmae_slave_config *cfg = dmae_find_slave(sh_chan, slave_id);
+-	if (!cfg)
+-		return -ENXIO;
+-
+-	if (!try) {
+-		sh_chan->config = cfg;
+-		sh_chan->slave_addr = slave_addr ? : cfg->addr;
+-	}
+-
+-	return 0;
+-}
+-
+-static void dmae_halt(struct sh_dmae_chan *sh_chan)
+-{
+-	struct sh_dmae_device *shdev = to_sh_dev(sh_chan);
+-	u32 chcr = chcr_read(sh_chan);
+-
+-	chcr &= ~(CHCR_DE | CHCR_TE | shdev->chcr_ie_bit);
+-	chcr_write(sh_chan, chcr);
+-}
+-
+-static int sh_dmae_desc_setup(struct shdma_chan *schan,
+-			      struct shdma_desc *sdesc,
+-			      dma_addr_t src, dma_addr_t dst, size_t *len)
+-{
+-	struct sh_dmae_desc *sh_desc = container_of(sdesc,
+-					struct sh_dmae_desc, shdma_desc);
+-
+-	if (*len > schan->max_xfer_len)
+-		*len = schan->max_xfer_len;
+-
+-	sh_desc->hw.sar = src;
+-	sh_desc->hw.dar = dst;
+-	sh_desc->hw.tcr = *len;
+-
+-	return 0;
+-}
+-
+-static void sh_dmae_halt(struct shdma_chan *schan)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-	dmae_halt(sh_chan);
+-}
+-
+-static bool sh_dmae_chan_irq(struct shdma_chan *schan, int irq)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-
+-	if (!(chcr_read(sh_chan) & CHCR_TE))
+-		return false;
+-
+-	/* DMA stop */
+-	dmae_halt(sh_chan);
+-
+-	return true;
+-}
+-
+-static size_t sh_dmae_get_partial(struct shdma_chan *schan,
+-				  struct shdma_desc *sdesc)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan, struct sh_dmae_chan,
+-						    shdma_chan);
+-	struct sh_dmae_desc *sh_desc = container_of(sdesc,
+-					struct sh_dmae_desc, shdma_desc);
+-	return sh_desc->hw.tcr -
+-		(sh_dmae_readl(sh_chan, TCR) << sh_chan->xmit_shift);
+-}
+-
+-/* Called from error IRQ or NMI */
+-static bool sh_dmae_reset(struct sh_dmae_device *shdev)
+-{
+-	bool ret;
+-
+-	/* halt the dma controller */
+-	sh_dmae_ctl_stop(shdev);
+-
+-	/* We cannot detect, which channel caused the error, have to reset all */
+-	ret = shdma_reset(&shdev->shdma_dev);
+-
+-	sh_dmae_rst(shdev);
+-
 -	return ret;
 -}
 -
--static int flctl_remove(struct platform_device *pdev)
+-static irqreturn_t sh_dmae_err(int irq, void *data)
 -{
--	struct sh_flctl *flctl = platform_get_drvdata(pdev);
--	struct nand_chip *chip = &flctl->chip;
--	int ret;
+-	struct sh_dmae_device *shdev = data;
 -
--	flctl_release_dma(flctl);
--	ret = mtd_device_unregister(nand_to_mtd(chip));
--	WARN_ON(ret);
--	nand_cleanup(chip);
+-	if (!(dmaor_read(shdev) & DMAOR_AE))
+-		return IRQ_NONE;
+-
+-	sh_dmae_reset(shdev);
+-	return IRQ_HANDLED;
+-}
+-
+-static bool sh_dmae_desc_completed(struct shdma_chan *schan,
+-				   struct shdma_desc *sdesc)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan,
+-					struct sh_dmae_chan, shdma_chan);
+-	struct sh_dmae_desc *sh_desc = container_of(sdesc,
+-					struct sh_dmae_desc, shdma_desc);
+-	u32 sar_buf = sh_dmae_readl(sh_chan, SAR);
+-	u32 dar_buf = sh_dmae_readl(sh_chan, DAR);
+-
+-	return	(sdesc->direction == DMA_DEV_TO_MEM &&
+-		 (sh_desc->hw.dar + sh_desc->hw.tcr) == dar_buf) ||
+-		(sdesc->direction != DMA_DEV_TO_MEM &&
+-		 (sh_desc->hw.sar + sh_desc->hw.tcr) == sar_buf);
+-}
+-
+-static bool sh_dmae_nmi_notify(struct sh_dmae_device *shdev)
+-{
+-	/* Fast path out if NMIF is not asserted for this controller */
+-	if ((dmaor_read(shdev) & DMAOR_NMIF) == 0)
+-		return false;
+-
+-	return sh_dmae_reset(shdev);
+-}
+-
+-static int sh_dmae_nmi_handler(struct notifier_block *self,
+-			       unsigned long cmd, void *data)
+-{
+-	struct sh_dmae_device *shdev;
+-	int ret = NOTIFY_DONE;
+-	bool triggered;
+-
+-	/*
+-	 * Only concern ourselves with NMI events.
+-	 *
+-	 * Normally we would check the die chain value, but as this needs
+-	 * to be architecture independent, check for NMI context instead.
+-	 */
+-	if (!in_nmi())
+-		return NOTIFY_DONE;
+-
+-	rcu_read_lock();
+-	list_for_each_entry_rcu(shdev, &sh_dmae_devices, node) {
+-		/*
+-		 * Only stop if one of the controllers has NMIF asserted,
+-		 * we do not want to interfere with regular address error
+-		 * handling or NMI events that don't concern the DMACs.
+-		 */
+-		triggered = sh_dmae_nmi_notify(shdev);
+-		if (triggered == true)
+-			ret = NOTIFY_OK;
+-	}
+-	rcu_read_unlock();
+-
+-	return ret;
+-}
+-
+-static struct notifier_block sh_dmae_nmi_notifier __read_mostly = {
+-	.notifier_call	= sh_dmae_nmi_handler,
+-
+-	/* Run before NMI debug handler and KGDB */
+-	.priority	= 1,
+-};
+-
+-static int sh_dmae_chan_probe(struct sh_dmae_device *shdev, int id,
+-					int irq, unsigned long flags)
+-{
+-	const struct sh_dmae_channel *chan_pdata = &shdev->pdata->channel[id];
+-	struct shdma_dev *sdev = &shdev->shdma_dev;
+-	struct platform_device *pdev = to_platform_device(sdev->dma_dev.dev);
+-	struct sh_dmae_chan *sh_chan;
+-	struct shdma_chan *schan;
+-	int err;
+-
+-	sh_chan = devm_kzalloc(sdev->dma_dev.dev, sizeof(struct sh_dmae_chan),
+-			       GFP_KERNEL);
+-	if (!sh_chan)
+-		return -ENOMEM;
+-
+-	schan = &sh_chan->shdma_chan;
+-	schan->max_xfer_len = SH_DMA_TCR_MAX + 1;
+-
+-	shdma_chan_probe(sdev, schan, id);
+-
+-	sh_chan->base = shdev->chan_reg + chan_pdata->offset;
+-
+-	/* set up channel irq */
+-	if (pdev->id >= 0)
+-		snprintf(sh_chan->dev_id, sizeof(sh_chan->dev_id),
+-			 "sh-dmae%d.%d", pdev->id, id);
+-	else
+-		snprintf(sh_chan->dev_id, sizeof(sh_chan->dev_id),
+-			 "sh-dma%d", id);
+-
+-	err = shdma_request_irq(schan, irq, flags, sh_chan->dev_id);
+-	if (err) {
+-		dev_err(sdev->dma_dev.dev,
+-			"DMA channel %d request_irq error %d\n",
+-			id, err);
+-		goto err_no_irq;
+-	}
+-
+-	shdev->chan[id] = sh_chan;
+-	return 0;
+-
+-err_no_irq:
+-	/* remove from dmaengine device node */
+-	shdma_chan_remove(schan);
+-	return err;
+-}
+-
+-static void sh_dmae_chan_remove(struct sh_dmae_device *shdev)
+-{
+-	struct shdma_chan *schan;
+-	int i;
+-
+-	shdma_for_each_chan(schan, &shdev->shdma_dev, i) {
+-		BUG_ON(!schan);
+-
+-		shdma_chan_remove(schan);
+-	}
+-}
+-
+-#ifdef CONFIG_PM
+-static int sh_dmae_runtime_suspend(struct device *dev)
+-{
+-	struct sh_dmae_device *shdev = dev_get_drvdata(dev);
+-
+-	sh_dmae_ctl_stop(shdev);
+-	return 0;
+-}
+-
+-static int sh_dmae_runtime_resume(struct device *dev)
+-{
+-	struct sh_dmae_device *shdev = dev_get_drvdata(dev);
+-
+-	return sh_dmae_rst(shdev);
+-}
+-#endif
+-
+-#ifdef CONFIG_PM_SLEEP
+-static int sh_dmae_suspend(struct device *dev)
+-{
+-	struct sh_dmae_device *shdev = dev_get_drvdata(dev);
+-
+-	sh_dmae_ctl_stop(shdev);
+-	return 0;
+-}
+-
+-static int sh_dmae_resume(struct device *dev)
+-{
+-	struct sh_dmae_device *shdev = dev_get_drvdata(dev);
+-	int i, ret;
+-
+-	ret = sh_dmae_rst(shdev);
+-	if (ret < 0)
+-		dev_err(dev, "Failed to reset!\n");
+-
+-	for (i = 0; i < shdev->pdata->channel_num; i++) {
+-		struct sh_dmae_chan *sh_chan = shdev->chan[i];
+-
+-		if (!sh_chan->shdma_chan.desc_num)
+-			continue;
+-
+-		if (sh_chan->shdma_chan.slave_id >= 0) {
+-			const struct sh_dmae_slave_config *cfg = sh_chan->config;
+-			dmae_set_dmars(sh_chan, cfg->mid_rid);
+-			dmae_set_chcr(sh_chan, cfg->chcr);
+-		} else {
+-			dmae_init(sh_chan);
+-		}
+-	}
+-
+-	return 0;
+-}
+-#endif
+-
+-static const struct dev_pm_ops sh_dmae_pm = {
+-	SET_SYSTEM_SLEEP_PM_OPS(sh_dmae_suspend, sh_dmae_resume)
+-	SET_RUNTIME_PM_OPS(sh_dmae_runtime_suspend, sh_dmae_runtime_resume,
+-			   NULL)
+-};
+-
+-static dma_addr_t sh_dmae_slave_addr(struct shdma_chan *schan)
+-{
+-	struct sh_dmae_chan *sh_chan = container_of(schan,
+-					struct sh_dmae_chan, shdma_chan);
+-
+-	/*
+-	 * Implicit BUG_ON(!sh_chan->config)
+-	 * This is an exclusive slave DMA operation, may only be called after a
+-	 * successful slave configuration.
+-	 */
+-	return sh_chan->slave_addr;
+-}
+-
+-static struct shdma_desc *sh_dmae_embedded_desc(void *buf, int i)
+-{
+-	return &((struct sh_dmae_desc *)buf)[i].shdma_desc;
+-}
+-
+-static const struct shdma_ops sh_dmae_shdma_ops = {
+-	.desc_completed = sh_dmae_desc_completed,
+-	.halt_channel = sh_dmae_halt,
+-	.channel_busy = sh_dmae_channel_busy,
+-	.slave_addr = sh_dmae_slave_addr,
+-	.desc_setup = sh_dmae_desc_setup,
+-	.set_slave = sh_dmae_set_slave,
+-	.setup_xfer = sh_dmae_setup_xfer,
+-	.start_xfer = sh_dmae_start_xfer,
+-	.embedded_desc = sh_dmae_embedded_desc,
+-	.chan_irq = sh_dmae_chan_irq,
+-	.get_partial = sh_dmae_get_partial,
+-};
+-
+-static int sh_dmae_probe(struct platform_device *pdev)
+-{
+-	const enum dma_slave_buswidth widths =
+-		DMA_SLAVE_BUSWIDTH_1_BYTE   | DMA_SLAVE_BUSWIDTH_2_BYTES |
+-		DMA_SLAVE_BUSWIDTH_4_BYTES  | DMA_SLAVE_BUSWIDTH_8_BYTES |
+-		DMA_SLAVE_BUSWIDTH_16_BYTES | DMA_SLAVE_BUSWIDTH_32_BYTES;
+-	const struct sh_dmae_pdata *pdata;
+-	unsigned long chan_flag[SH_DMAE_MAX_CHANNELS] = {};
+-	int chan_irq[SH_DMAE_MAX_CHANNELS];
+-	unsigned long irqflags = 0;
+-	int err, errirq, i, irq_cnt = 0, irqres = 0, irq_cap = 0;
+-	struct sh_dmae_device *shdev;
+-	struct dma_device *dma_dev;
+-	struct resource *chan, *dmars, *errirq_res, *chanirq_res;
+-
+-	if (pdev->dev.of_node)
+-		pdata = of_device_get_match_data(&pdev->dev);
+-	else
+-		pdata = dev_get_platdata(&pdev->dev);
+-
+-	/* get platform data */
+-	if (!pdata || !pdata->channel_num)
+-		return -ENODEV;
+-
+-	chan = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	/* DMARS area is optional */
+-	dmars = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	/*
+-	 * IRQ resources:
+-	 * 1. there always must be at least one IRQ IO-resource. On SH4 it is
+-	 *    the error IRQ, in which case it is the only IRQ in this resource:
+-	 *    start == end. If it is the only IRQ resource, all channels also
+-	 *    use the same IRQ.
+-	 * 2. DMA channel IRQ resources can be specified one per resource or in
+-	 *    ranges (start != end)
+-	 * 3. iff all events (channels and, optionally, error) on this
+-	 *    controller use the same IRQ, only one IRQ resource can be
+-	 *    specified, otherwise there must be one IRQ per channel, even if
+-	 *    some of them are equal
+-	 * 4. if all IRQs on this controller are equal or if some specific IRQs
+-	 *    specify IORESOURCE_IRQ_SHAREABLE in their resources, they will be
+-	 *    requested with the IRQF_SHARED flag
+-	 */
+-	errirq_res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (!chan || !errirq_res)
+-		return -ENODEV;
+-
+-	shdev = devm_kzalloc(&pdev->dev, sizeof(struct sh_dmae_device),
+-			     GFP_KERNEL);
+-	if (!shdev)
+-		return -ENOMEM;
+-
+-	dma_dev = &shdev->shdma_dev.dma_dev;
+-
+-	shdev->chan_reg = devm_ioremap_resource(&pdev->dev, chan);
+-	if (IS_ERR(shdev->chan_reg))
+-		return PTR_ERR(shdev->chan_reg);
+-	if (dmars) {
+-		shdev->dmars = devm_ioremap_resource(&pdev->dev, dmars);
+-		if (IS_ERR(shdev->dmars))
+-			return PTR_ERR(shdev->dmars);
+-	}
+-
+-	dma_dev->src_addr_widths = widths;
+-	dma_dev->dst_addr_widths = widths;
+-	dma_dev->directions = BIT(DMA_MEM_TO_DEV) | BIT(DMA_DEV_TO_MEM);
+-	dma_dev->residue_granularity = DMA_RESIDUE_GRANULARITY_DESCRIPTOR;
+-
+-	if (!pdata->slave_only)
+-		dma_cap_set(DMA_MEMCPY, dma_dev->cap_mask);
+-	if (pdata->slave && pdata->slave_num)
+-		dma_cap_set(DMA_SLAVE, dma_dev->cap_mask);
+-
+-	/* Default transfer size of 32 bytes requires 32-byte alignment */
+-	dma_dev->copy_align = LOG2_DEFAULT_XFER_SIZE;
+-
+-	shdev->shdma_dev.ops = &sh_dmae_shdma_ops;
+-	shdev->shdma_dev.desc_size = sizeof(struct sh_dmae_desc);
+-	err = shdma_init(&pdev->dev, &shdev->shdma_dev,
+-			      pdata->channel_num);
+-	if (err < 0)
+-		goto eshdma;
+-
+-	/* platform data */
+-	shdev->pdata = pdata;
+-
+-	if (pdata->chcr_offset)
+-		shdev->chcr_offset = pdata->chcr_offset;
+-	else
+-		shdev->chcr_offset = CHCR;
+-
+-	if (pdata->chcr_ie_bit)
+-		shdev->chcr_ie_bit = pdata->chcr_ie_bit;
+-	else
+-		shdev->chcr_ie_bit = CHCR_IE;
+-
+-	platform_set_drvdata(pdev, shdev);
+-
+-	pm_runtime_enable(&pdev->dev);
+-	err = pm_runtime_get_sync(&pdev->dev);
+-	if (err < 0)
+-		dev_err(&pdev->dev, "%s(): GET = %d\n", __func__, err);
+-
+-	spin_lock_irq(&sh_dmae_lock);
+-	list_add_tail_rcu(&shdev->node, &sh_dmae_devices);
+-	spin_unlock_irq(&sh_dmae_lock);
+-
+-	/* reset dma controller - only needed as a test */
+-	err = sh_dmae_rst(shdev);
+-	if (err)
+-		goto rst_err;
+-
+-	if (IS_ENABLED(CONFIG_CPU_SH4) || IS_ENABLED(CONFIG_ARCH_RENESAS)) {
+-		chanirq_res = platform_get_resource(pdev, IORESOURCE_IRQ, 1);
+-
+-		if (!chanirq_res)
+-			chanirq_res = errirq_res;
+-		else
+-			irqres++;
+-
+-		if (chanirq_res == errirq_res ||
+-		    (errirq_res->flags & IORESOURCE_BITS) == IORESOURCE_IRQ_SHAREABLE)
+-			irqflags = IRQF_SHARED;
+-
+-		errirq = errirq_res->start;
+-
+-		err = devm_request_irq(&pdev->dev, errirq, sh_dmae_err,
+-				       irqflags, "DMAC Address Error", shdev);
+-		if (err) {
+-			dev_err(&pdev->dev,
+-				"DMA failed requesting irq #%d, error %d\n",
+-				errirq, err);
+-			goto eirq_err;
+-		}
+-	} else {
+-		chanirq_res = errirq_res;
+-	}
+-
+-	if (chanirq_res->start == chanirq_res->end &&
+-	    !platform_get_resource(pdev, IORESOURCE_IRQ, 1)) {
+-		/* Special case - all multiplexed */
+-		for (; irq_cnt < pdata->channel_num; irq_cnt++) {
+-			if (irq_cnt < SH_DMAE_MAX_CHANNELS) {
+-				chan_irq[irq_cnt] = chanirq_res->start;
+-				chan_flag[irq_cnt] = IRQF_SHARED;
+-			} else {
+-				irq_cap = 1;
+-				break;
+-			}
+-		}
+-	} else {
+-		do {
+-			for (i = chanirq_res->start; i <= chanirq_res->end; i++) {
+-				if (irq_cnt >= SH_DMAE_MAX_CHANNELS) {
+-					irq_cap = 1;
+-					break;
+-				}
+-
+-				if ((errirq_res->flags & IORESOURCE_BITS) ==
+-				    IORESOURCE_IRQ_SHAREABLE)
+-					chan_flag[irq_cnt] = IRQF_SHARED;
+-				else
+-					chan_flag[irq_cnt] = 0;
+-				dev_dbg(&pdev->dev,
+-					"Found IRQ %d for channel %d\n",
+-					i, irq_cnt);
+-				chan_irq[irq_cnt++] = i;
+-			}
+-
+-			if (irq_cnt >= SH_DMAE_MAX_CHANNELS)
+-				break;
+-
+-			chanirq_res = platform_get_resource(pdev,
+-						IORESOURCE_IRQ, ++irqres);
+-		} while (irq_cnt < pdata->channel_num && chanirq_res);
+-	}
+-
+-	/* Create DMA Channel */
+-	for (i = 0; i < irq_cnt; i++) {
+-		err = sh_dmae_chan_probe(shdev, i, chan_irq[i], chan_flag[i]);
+-		if (err)
+-			goto chan_probe_err;
+-	}
+-
+-	if (irq_cap)
+-		dev_notice(&pdev->dev, "Attempting to register %d DMA "
+-			   "channels when a maximum of %d are supported.\n",
+-			   pdata->channel_num, SH_DMAE_MAX_CHANNELS);
+-
+-	pm_runtime_put(&pdev->dev);
+-
+-	err = dma_async_device_register(&shdev->shdma_dev.dma_dev);
+-	if (err < 0)
+-		goto edmadevreg;
+-
+-	return err;
+-
+-edmadevreg:
+-	pm_runtime_get(&pdev->dev);
+-
+-chan_probe_err:
+-	sh_dmae_chan_remove(shdev);
+-
+-eirq_err:
+-rst_err:
+-	spin_lock_irq(&sh_dmae_lock);
+-	list_del_rcu(&shdev->node);
+-	spin_unlock_irq(&sh_dmae_lock);
+-
+-	pm_runtime_put(&pdev->dev);
 -	pm_runtime_disable(&pdev->dev);
+-
+-	shdma_cleanup(&shdev->shdma_dev);
+-eshdma:
+-	synchronize_rcu();
+-
+-	return err;
+-}
+-
+-static int sh_dmae_remove(struct platform_device *pdev)
+-{
+-	struct sh_dmae_device *shdev = platform_get_drvdata(pdev);
+-	struct dma_device *dma_dev = &shdev->shdma_dev.dma_dev;
+-
+-	dma_async_device_unregister(dma_dev);
+-
+-	spin_lock_irq(&sh_dmae_lock);
+-	list_del_rcu(&shdev->node);
+-	spin_unlock_irq(&sh_dmae_lock);
+-
+-	pm_runtime_disable(&pdev->dev);
+-
+-	sh_dmae_chan_remove(shdev);
+-	shdma_cleanup(&shdev->shdma_dev);
+-
+-	synchronize_rcu();
 -
 -	return 0;
 -}
 -
--static struct platform_driver flctl_driver = {
--	.remove		= flctl_remove,
--	.driver = {
--		.name	= "sh_flctl",
--		.of_match_table = of_flctl_match,
+-static struct platform_driver sh_dmae_driver = {
+-	.driver		= {
+-		.pm	= &sh_dmae_pm,
+-		.name	= SH_DMAE_DRV_NAME,
 -	},
+-	.remove		= sh_dmae_remove,
 -};
 -
--module_platform_driver_probe(flctl_driver, flctl_probe);
--
--MODULE_LICENSE("GPL v2");
--MODULE_AUTHOR("Yoshihiro Shimoda");
--MODULE_DESCRIPTION("SuperH FLCTL driver");
--MODULE_ALIAS("platform:sh_flctl");
-diff --git a/include/linux/mtd/sh_flctl.h b/include/linux/mtd/sh_flctl.h
-deleted file mode 100644
-index 78fc2d4218c808..00000000000000
---- a/include/linux/mtd/sh_flctl.h
-+++ /dev/null
-@@ -1,180 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0
-- *
-- * SuperH FLCTL nand controller
-- *
-- * Copyright © 2008 Renesas Solutions Corp.
-- */
--
--#ifndef __SH_FLCTL_H__
--#define __SH_FLCTL_H__
--
--#include <linux/completion.h>
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/rawnand.h>
--#include <linux/mtd/partitions.h>
--#include <linux/pm_qos.h>
--
--/* FLCTL registers */
--#define FLCMNCR(f)		(f->reg + 0x0)
--#define FLCMDCR(f)		(f->reg + 0x4)
--#define FLCMCDR(f)		(f->reg + 0x8)
--#define FLADR(f)		(f->reg + 0xC)
--#define FLADR2(f)		(f->reg + 0x3C)
--#define FLDATAR(f)		(f->reg + 0x10)
--#define FLDTCNTR(f)		(f->reg + 0x14)
--#define FLINTDMACR(f)		(f->reg + 0x18)
--#define FLBSYTMR(f)		(f->reg + 0x1C)
--#define FLBSYCNT(f)		(f->reg + 0x20)
--#define FLDTFIFO(f)		(f->reg + 0x24)
--#define FLECFIFO(f)		(f->reg + 0x28)
--#define FLTRCR(f)		(f->reg + 0x2C)
--#define FLHOLDCR(f)		(f->reg + 0x38)
--#define	FL4ECCRESULT0(f)	(f->reg + 0x80)
--#define	FL4ECCRESULT1(f)	(f->reg + 0x84)
--#define	FL4ECCRESULT2(f)	(f->reg + 0x88)
--#define	FL4ECCRESULT3(f)	(f->reg + 0x8C)
--#define	FL4ECCCR(f)		(f->reg + 0x90)
--#define	FL4ECCCNT(f)		(f->reg + 0x94)
--#define	FLERRADR(f)		(f->reg + 0x98)
--
--/* FLCMNCR control bits */
--#define _4ECCCNTEN	(0x1 << 24)
--#define _4ECCEN		(0x1 << 23)
--#define _4ECCCORRECT	(0x1 << 22)
--#define SHBUSSEL	(0x1 << 20)
--#define SEL_16BIT	(0x1 << 19)
--#define SNAND_E		(0x1 << 18)	/* SNAND (0=512 1=2048)*/
--#define QTSEL_E		(0x1 << 17)
--#define ENDIAN		(0x1 << 16)	/* 1 = little endian */
--#define FCKSEL_E	(0x1 << 15)
--#define ACM_SACCES_MODE	(0x01 << 10)
--#define NANWF_E		(0x1 << 9)
--#define SE_D		(0x1 << 8)	/* Spare area disable */
--#define	CE1_ENABLE	(0x1 << 4)	/* Chip Enable 1 */
--#define	CE0_ENABLE	(0x1 << 3)	/* Chip Enable 0 */
--#define	TYPESEL_SET	(0x1 << 0)
--
--/*
-- * Clock settings using the PULSEx registers from FLCMNCR
-- *
-- * Some hardware uses bits called PULSEx instead of FCKSEL_E and QTSEL_E
-- * to control the clock divider used between the High-Speed Peripheral Clock
-- * and the FLCTL internal clock. If so, use CLK_8_BIT_xxx for connecting 8 bit
-- * and CLK_16_BIT_xxx for connecting 16 bit bus bandwith NAND chips. For the 16
-- * bit version the divider is seperate for the pulse width of high and low
-- * signals.
-- */
--#define PULSE3	(0x1 << 27)
--#define PULSE2	(0x1 << 17)
--#define PULSE1	(0x1 << 15)
--#define PULSE0	(0x1 << 9)
--#define CLK_8B_0_5			PULSE1
--#define CLK_8B_1			0x0
--#define CLK_8B_1_5			(PULSE1 | PULSE2)
--#define CLK_8B_2			PULSE0
--#define CLK_8B_3			(PULSE0 | PULSE1 | PULSE2)
--#define CLK_8B_4			(PULSE0 | PULSE2)
--#define CLK_16B_6L_2H			PULSE0
--#define CLK_16B_9L_3H			(PULSE0 | PULSE1 | PULSE2)
--#define CLK_16B_12L_4H			(PULSE0 | PULSE2)
--
--/* FLCMDCR control bits */
--#define ADRCNT2_E	(0x1 << 31)	/* 5byte address enable */
--#define ADRMD_E		(0x1 << 26)	/* Sector address access */
--#define CDSRC_E		(0x1 << 25)	/* Data buffer selection */
--#define DOSR_E		(0x1 << 24)	/* Status read check */
--#define SELRW		(0x1 << 21)	/*  0:read 1:write */
--#define DOADR_E		(0x1 << 20)	/* Address stage execute */
--#define ADRCNT_1	(0x00 << 18)	/* Address data bytes: 1byte */
--#define ADRCNT_2	(0x01 << 18)	/* Address data bytes: 2byte */
--#define ADRCNT_3	(0x02 << 18)	/* Address data bytes: 3byte */
--#define ADRCNT_4	(0x03 << 18)	/* Address data bytes: 4byte */
--#define DOCMD2_E	(0x1 << 17)	/* 2nd cmd stage execute */
--#define DOCMD1_E	(0x1 << 16)	/* 1st cmd stage execute */
--
--/* FLINTDMACR control bits */
--#define ESTERINTE	(0x1 << 24)	/* ECC error interrupt enable */
--#define AC1CLR		(0x1 << 19)	/* ECC FIFO clear */
--#define AC0CLR		(0x1 << 18)	/* Data FIFO clear */
--#define DREQ0EN		(0x1 << 16)	/* FLDTFIFODMA Request Enable */
--#define ECERB		(0x1 << 9)	/* ECC error */
--#define STERB		(0x1 << 8)	/* Status error */
--#define STERINTE	(0x1 << 4)	/* Status error enable */
--
--/* FLTRCR control bits */
--#define TRSTRT		(0x1 << 0)	/* translation start */
--#define TREND		(0x1 << 1)	/* translation end */
--
--/*
-- * FLHOLDCR control bits
-- *
-- * HOLDEN: Bus Occupancy Enable (inverted)
-- * Enable this bit when the external bus might be used in between transfers.
-- * If not set and the bus gets used by other modules, a deadlock occurs.
-- */
--#define HOLDEN		(0x1 << 0)
--
--/* FL4ECCCR control bits */
--#define	_4ECCFA		(0x1 << 2)	/* 4 symbols correct fault */
--#define	_4ECCEND	(0x1 << 1)	/* 4 symbols end */
--#define	_4ECCEXST	(0x1 << 0)	/* 4 symbols exist */
--
--#define LOOP_TIMEOUT_MAX	0x00010000
--
--enum flctl_ecc_res_t {
--	FL_SUCCESS,
--	FL_REPAIRABLE,
--	FL_ERROR,
--	FL_TIMEOUT
--};
--
--struct dma_chan;
--
--struct sh_flctl {
--	struct nand_chip	chip;
--	struct platform_device	*pdev;
--	struct dev_pm_qos_request pm_qos;
--	void __iomem		*reg;
--	resource_size_t		fifo;
--
--	uint8_t	done_buff[2048 + 64];	/* max size 2048 + 64 */
--	int	read_bytes;
--	unsigned int index;
--	int	seqin_column;		/* column in SEQIN cmd */
--	int	seqin_page_addr;	/* page_addr in SEQIN cmd */
--	uint32_t seqin_read_cmd;		/* read cmd in SEQIN cmd */
--	int	erase1_page_addr;	/* page_addr in ERASE1 cmd */
--	uint32_t erase_ADRCNT;		/* bits of FLCMDCR in ERASE1 cmd */
--	uint32_t rw_ADRCNT;	/* bits of FLCMDCR in READ WRITE cmd */
--	uint32_t flcmncr_base;	/* base value of FLCMNCR */
--	uint32_t flintdmacr_base;	/* irq enable bits */
--
--	unsigned page_size:1;	/* NAND page size (0 = 512, 1 = 2048) */
--	unsigned hwecc:1;	/* Hardware ECC (0 = disabled, 1 = enabled) */
--	unsigned holden:1;	/* Hardware has FLHOLDCR and HOLDEN is set */
--	unsigned qos_request:1;	/* QoS request to prevent deep power shutdown */
--
--	/* DMA related objects */
--	struct dma_chan		*chan_fifo0_rx;
--	struct dma_chan		*chan_fifo0_tx;
--	struct completion	dma_complete;
--};
--
--struct sh_flctl_platform_data {
--	struct mtd_partition	*parts;
--	int			nr_parts;
--	unsigned long		flcmncr_val;
--
--	unsigned has_hwecc:1;
--	unsigned use_holden:1;
--
--	unsigned int            slave_id_fifo0_tx;
--	unsigned int            slave_id_fifo0_rx;
--};
--
--static inline struct sh_flctl *mtd_to_flctl(struct mtd_info *mtdinfo)
+-static int __init sh_dmae_init(void)
 -{
--	return container_of(mtd_to_nand(mtdinfo), struct sh_flctl, chip);
--}
+-	/* Wire up NMI handling */
+-	int err = register_die_notifier(&sh_dmae_nmi_notifier);
+-	if (err)
+-		return err;
 -
--#endif	/* __SH_FLCTL_H__ */
+-	return platform_driver_probe(&sh_dmae_driver, sh_dmae_probe);
+-}
+-module_init(sh_dmae_init);
+-
+-static void __exit sh_dmae_exit(void)
+-{
+-	platform_driver_unregister(&sh_dmae_driver);
+-
+-	unregister_die_notifier(&sh_dmae_nmi_notifier);
+-}
+-module_exit(sh_dmae_exit);
+-
+-MODULE_AUTHOR("Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>");
+-MODULE_DESCRIPTION("Renesas SH DMA Engine driver");
+-MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:" SH_DMAE_DRV_NAME);
+diff --git a/include/linux/shdma-base.h b/include/linux/shdma-base.h
+index 6dfd05ef5c2d9f..dd32aba344757f 100644
+--- a/include/linux/shdma-base.h
++++ b/include/linux/shdma-base.h
+@@ -122,13 +122,9 @@ void shdma_chan_remove(struct shdma_chan *schan);
+ int shdma_init(struct device *dev, struct shdma_dev *sdev,
+ 		    int chan_num);
+ void shdma_cleanup(struct shdma_dev *sdev);
+-#if IS_ENABLED(CONFIG_SH_DMAE_BASE)
+-bool shdma_chan_filter(struct dma_chan *chan, void *arg);
+-#else
+ static inline bool shdma_chan_filter(struct dma_chan *chan, void *arg)
+ {
+ 	return false;
+ }
+-#endif
+ 
+ #endif
 -- 
 2.39.0
 
