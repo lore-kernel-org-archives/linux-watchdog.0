@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76091C61DB3
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:27:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CA6FC54EBE
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240794AbjAMG0x (ORCPT
+        id S241216AbjAMG3W (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:26:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33502 "EHLO
+        Fri, 13 Jan 2023 01:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236952AbjAMGYr (ORCPT
+        with ESMTP id S240696AbjAMG0G (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Jan 2023 01:24:47 -0500
+        Fri, 13 Jan 2023 01:26:06 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B766A0F5;
-        Thu, 12 Jan 2023 22:24:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681155A880;
+        Thu, 12 Jan 2023 22:24:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=mxBIoTcWoM961bskFu4vgLYA4iK6lfkfHo46ovOHhdY=; b=epactF3LWIS1c8xybu121AnX4l
-        mxQDeqmEC9J8cgMc2SIYAO9NzF3h0YlU8xbCTYRLLK24zqc8kEMH0PpbDIl1CALQ06M6j2t+DvW/2
-        52IjFzvuXiBDn229AAQmQ76IVBLDEALsaXsG/rhqbYhzaI4Hb2k5FYwBW/QtpL+GpgBj1CYNBCjoU
-        Wow0ecEypZirO8g6qBKEcpON8H7jgnTwizxUEhR74JGhqggyXfr0uC5oDRw7YO7Ldj7yKS+YzcUmZ
-        aD+BC5AU+OusXU3+GAHmRsZapXMUIGr4gkeRILIjbZ4eJzhz4I3ZIHuh91N7YMYtmI2wXUBJeRcBz
-        reMo6ZfA==;
+        bh=brkgyM1hhrmjLwT1BCvS491OM9ZvmSvWuQcY6ZdmaEQ=; b=rclg5IcyZx3hAYAW2A82gKgG/R
+        9h9Oe/wM1Koo+NmcZ4yMIJIFj+qyIun0yWyAuormOj2yAyWxmpqiP2tOTjglLnHiXw+LO8ETgIdA+
+        5Svhx7nVkyRr8shQSGKZC980O+hinT+yIkJMia9iivbaAqpxScAjdfS1ylAfFTuFfEpPajKlizKuC
+        x920Cmh9IN6hilV+vdW649ilBNPtNcRIhR92SLyVFpjckwWhuUlUQEzckeqR1pXS3MdV0ZyVfntjY
+        4ZjNun8OKq1jiBsWb6I8b5g9mXdhx5n98DESlAo/jfRw7Kht5JW4J78GkDbW2pZIH+YhQxqch531J
+        NCRDTDXw==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDTy-000lWK-J8; Fri, 13 Jan 2023 06:24:07 +0000
+        id 1pGDUT-000lua-TT; Fri, 13 Jan 2023 06:24:38 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -47,9 +47,9 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 06/22] watchdog: remove the shwdt driver
-Date:   Fri, 13 Jan 2023 07:23:23 +0100
-Message-Id: <20230113062339.1909087-7-hch@lst.de>
+Subject: [PATCH 15/22] spi: remove spi-sh
+Date:   Fri, 13 Jan 2023 07:23:32 +0100
+Message-Id: <20230113062339.1909087-16-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
@@ -64,431 +64,521 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- .../watchdog/watchdog-parameters.rst          |  12 -
- drivers/watchdog/Kconfig                      |  20 -
- drivers/watchdog/Makefile                     |   3 -
- drivers/watchdog/shwdt.c                      | 344 ------------------
- 4 files changed, 379 deletions(-)
- delete mode 100644 drivers/watchdog/shwdt.c
+ drivers/spi/Kconfig  |   6 -
+ drivers/spi/Makefile |   1 -
+ drivers/spi/spi-sh.c | 474 -------------------------------------------
+ 3 files changed, 481 deletions(-)
+ delete mode 100644 drivers/spi/spi-sh.c
 
-diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
-index 29153eed668900..553ac2f8ae23f7 100644
---- a/Documentation/watchdog/watchdog-parameters.rst
-+++ b/Documentation/watchdog/watchdog-parameters.rst
-@@ -579,18 +579,6 @@ scx200_wdt:
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 2c5226adf5e1d3..7508dcef909c78 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -882,12 +882,6 @@ config SPI_SH_MSIOF
+ 	help
+ 	  SPI driver for SuperH and SH Mobile MSIOF blocks.
  
- -------------------------------------------------
- 
--shwdt:
--    clock_division_ratio:
--	Clock division ratio. Valid ranges are from 0x5 (1.31ms)
--	to 0x7 (5.25ms). (default=7)
--    heartbeat:
--	Watchdog heartbeat in seconds. (1 <= heartbeat <= 3600, default=30
--    nowayout:
--	Watchdog cannot be stopped once started
--	(default=kernel config parameter)
--
---------------------------------------------------
--
- smsc37b787_wdt:
-     timeout:
- 	range is 1-255 units, default is 60
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 0bc40b763b0652..7db0a5e636cf65 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2015,26 +2015,6 @@ config DIAG288_WATCHDOG
- 	  To compile this driver as a module, choose M here. The module
- 	  will be called diag288_wdt.
- 
--# SUPERH (sh + sh64) Architecture
--
--config SH_WDT
--	tristate "SuperH Watchdog"
--	depends on SUPERH && (CPU_SH3 || CPU_SH4 || COMPILE_TEST)
--	select WATCHDOG_CORE
+-config SPI_SH
+-	tristate "SuperH SPI controller"
+-	depends on SUPERH || COMPILE_TEST
 -	help
--	  This driver adds watchdog support for the integrated watchdog in the
--	  SuperH processors. If you have one of these processors and wish
--	  to have watchdog support enabled, say Y, otherwise say N.
+-	  SPI driver for SuperH SPI blocks.
 -
--	  As a side note, saying Y here will automatically boost HZ to 1000
--	  so that the timer has a chance to clear the overflow counter. On
--	  slower systems (such as the SH-2 and SH-3) this will likely yield
--	  some performance issues. As such, the WDT should be avoided here
--	  unless it is absolutely necessary.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called shwdt.
--
- # SPARC Architecture
- 
- # SPARC64 Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 9cbf6580f16c9f..a852ab4d7176ac 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -195,9 +195,6 @@ obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
- # S390 Architecture
- obj-$(CONFIG_DIAG288_WATCHDOG) += diag288_wdt.o
- 
--# SUPERH (sh + sh64) Architecture
--obj-$(CONFIG_SH_WDT) += shwdt.o
--
- # SPARC Architecture
- 
- # SPARC64 Architecture
-diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+ config SPI_SH_SCI
+ 	tristate "SuperH SCI SPI controller"
+ 	depends on SUPERH
+diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
+index be9ba40ef8d03d..342a7eb5181c9b 100644
+--- a/drivers/spi/Makefile
++++ b/drivers/spi/Makefile
+@@ -116,7 +116,6 @@ obj-$(CONFIG_SPI_S3C24XX)		+= spi-s3c24xx-hw.o
+ spi-s3c24xx-hw-y			:= spi-s3c24xx.o
+ obj-$(CONFIG_SPI_S3C64XX)		+= spi-s3c64xx.o
+ obj-$(CONFIG_SPI_SC18IS602)		+= spi-sc18is602.o
+-obj-$(CONFIG_SPI_SH)			+= spi-sh.o
+ obj-$(CONFIG_SPI_SH_HSPI)		+= spi-sh-hspi.o
+ obj-$(CONFIG_SPI_SH_MSIOF)		+= spi-sh-msiof.o
+ obj-$(CONFIG_SPI_SH_SCI)		+= spi-sh-sci.o
+diff --git a/drivers/spi/spi-sh.c b/drivers/spi/spi-sh.c
 deleted file mode 100644
-index f55533e0e0454e..00000000000000
---- a/drivers/watchdog/shwdt.c
+index 3e72fad99adfd4..00000000000000
+--- a/drivers/spi/spi-sh.c
 +++ /dev/null
-@@ -1,344 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
+@@ -1,474 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
 -/*
-- * drivers/watchdog/shwdt.c
+- * SH SPI bus driver
 - *
-- * Watchdog driver for integrated watchdog in the SuperH processors.
+- * Copyright (C) 2011  Renesas Solutions Corp.
 - *
-- * Copyright (C) 2001 - 2012  Paul Mundt <lethal@linux-sh.org>
-- *
-- * 14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-- *     Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-- *
-- * 19-Apr-2002 Rob Radez <rob@osinvestor.com>
-- *     Added expect close support, made emulated timeout runtime changeable
-- *     general cleanups, add some ioctls
+- * Based on pxa2xx_spi.c:
+- * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
 - */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 -
 -#include <linux/module.h>
--#include <linux/moduleparam.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/errno.h>
+-#include <linux/timer.h>
+-#include <linux/delay.h>
+-#include <linux/list.h>
+-#include <linux/workqueue.h>
+-#include <linux/interrupt.h>
 -#include <linux/platform_device.h>
--#include <linux/init.h>
--#include <linux/types.h>
--#include <linux/spinlock.h>
--#include <linux/watchdog.h>
--#include <linux/pm_runtime.h>
--#include <linux/fs.h>
--#include <linux/mm.h>
--#include <linux/slab.h>
 -#include <linux/io.h>
--#include <linux/clk.h>
--#include <linux/err.h>
--#include <asm/watchdog.h>
+-#include <linux/spi/spi.h>
 -
--#define DRV_NAME "sh-wdt"
+-#define SPI_SH_TBR		0x00
+-#define SPI_SH_RBR		0x00
+-#define SPI_SH_CR1		0x08
+-#define SPI_SH_CR2		0x10
+-#define SPI_SH_CR3		0x18
+-#define SPI_SH_CR4		0x20
+-#define SPI_SH_CR5		0x28
 -
--/*
-- * Default clock division ratio is 5.25 msecs. For an additional table of
-- * values, consult the asm-sh/watchdog.h. Overload this at module load
-- * time.
-- *
-- * In order for this to work reliably we need to have HZ set to 1000 or
-- * something quite higher than 100 (or we need a proper high-res timer
-- * implementation that will deal with this properly), otherwise the 10ms
-- * resolution of a jiffy is enough to trigger the overflow. For things like
-- * the SH-4 and SH-5, this isn't necessarily that big of a problem, though
-- * for the SH-2 and SH-3, this isn't recommended unless the WDT is absolutely
-- * necssary.
-- *
-- * As a result of this timing problem, the only modes that are particularly
-- * feasible are the 4096 and the 2048 divisors, which yield 5.25 and 2.62ms
-- * overflow periods respectively.
-- *
-- * Also, since we can't really expect userspace to be responsive enough
-- * before the overflow happens, we maintain two separate timers .. One in
-- * the kernel for clearing out WOVF every 2ms or so (again, this depends on
-- * HZ == 1000), and another for monitoring userspace writes to the WDT device.
-- *
-- * As such, we currently use a configurable heartbeat interval which defaults
-- * to 30s. In this case, the userspace daemon is only responsible for periodic
-- * writes to the device before the next heartbeat is scheduled. If the daemon
-- * misses its deadline, the kernel timer will allow the WDT to overflow.
-- */
--static int clock_division_ratio = WTCSR_CKS_4096;
--#define next_ping_period(cks)	(jiffies + msecs_to_jiffies(cks - 4))
+-/* CR1 */
+-#define SPI_SH_TBE		0x80
+-#define SPI_SH_TBF		0x40
+-#define SPI_SH_RBE		0x20
+-#define SPI_SH_RBF		0x10
+-#define SPI_SH_PFONRD		0x08
+-#define SPI_SH_SSDB		0x04
+-#define SPI_SH_SSD		0x02
+-#define SPI_SH_SSA		0x01
 -
--#define WATCHDOG_HEARTBEAT 30			/* 30 sec default heartbeat */
--static int heartbeat = WATCHDOG_HEARTBEAT;	/* in seconds */
--static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned long next_heartbeat;
+-/* CR2 */
+-#define SPI_SH_RSTF		0x80
+-#define SPI_SH_LOOPBK		0x40
+-#define SPI_SH_CPOL		0x20
+-#define SPI_SH_CPHA		0x10
+-#define SPI_SH_L1M0		0x08
 -
--struct sh_wdt {
--	void __iomem		*base;
--	struct device		*dev;
--	struct clk		*clk;
--	spinlock_t		lock;
+-/* CR3 */
+-#define SPI_SH_MAX_BYTE		0xFF
 -
--	struct timer_list	timer;
+-/* CR4 */
+-#define SPI_SH_TBEI		0x80
+-#define SPI_SH_TBFI		0x40
+-#define SPI_SH_RBEI		0x20
+-#define SPI_SH_RBFI		0x10
+-#define SPI_SH_WPABRT		0x04
+-#define SPI_SH_SSS		0x01
+-
+-/* CR8 */
+-#define SPI_SH_P1L0		0x80
+-#define SPI_SH_PP1L0		0x40
+-#define SPI_SH_MUXI		0x20
+-#define SPI_SH_MUXIRQ		0x10
+-
+-#define SPI_SH_FIFO_SIZE	32
+-#define SPI_SH_SEND_TIMEOUT	(3 * HZ)
+-#define SPI_SH_RECEIVE_TIMEOUT	(HZ >> 3)
+-
+-#undef DEBUG
+-
+-struct spi_sh_data {
+-	void __iomem *addr;
+-	int irq;
+-	struct spi_master *master;
+-	unsigned long cr1;
+-	wait_queue_head_t wait;
+-	int width;
 -};
 -
--static int sh_wdt_start(struct watchdog_device *wdt_dev)
+-static void spi_sh_write(struct spi_sh_data *ss, unsigned long data,
+-			     unsigned long offset)
 -{
--	struct sh_wdt *wdt = watchdog_get_drvdata(wdt_dev);
--	unsigned long flags;
--	u8 csr;
+-	if (ss->width == 8)
+-		iowrite8(data, ss->addr + (offset >> 2));
+-	else if (ss->width == 32)
+-		iowrite32(data, ss->addr + offset);
+-}
 -
--	pm_runtime_get_sync(wdt->dev);
--	clk_enable(wdt->clk);
+-static unsigned long spi_sh_read(struct spi_sh_data *ss, unsigned long offset)
+-{
+-	if (ss->width == 8)
+-		return ioread8(ss->addr + (offset >> 2));
+-	else if (ss->width == 32)
+-		return ioread32(ss->addr + offset);
+-	else
+-		return 0;
+-}
 -
--	spin_lock_irqsave(&wdt->lock, flags);
+-static void spi_sh_set_bit(struct spi_sh_data *ss, unsigned long val,
+-				unsigned long offset)
+-{
+-	unsigned long tmp;
 -
--	next_heartbeat = jiffies + (heartbeat * HZ);
--	mod_timer(&wdt->timer, next_ping_period(clock_division_ratio));
+-	tmp = spi_sh_read(ss, offset);
+-	tmp |= val;
+-	spi_sh_write(ss, tmp, offset);
+-}
 -
--	csr = sh_wdt_read_csr();
--	csr |= WTCSR_WT | clock_division_ratio;
--	sh_wdt_write_csr(csr);
+-static void spi_sh_clear_bit(struct spi_sh_data *ss, unsigned long val,
+-				unsigned long offset)
+-{
+-	unsigned long tmp;
 -
--	sh_wdt_write_cnt(0);
+-	tmp = spi_sh_read(ss, offset);
+-	tmp &= ~val;
+-	spi_sh_write(ss, tmp, offset);
+-}
 -
--	/*
--	 * These processors have a bit of an inconsistent initialization
--	 * process.. starting with SH-3, RSTS was moved to WTCSR, and the
--	 * RSTCSR register was removed.
--	 *
--	 * On the SH-2 however, in addition with bits being in different
--	 * locations, we must deal with RSTCSR outright..
--	 */
--	csr = sh_wdt_read_csr();
--	csr |= WTCSR_TME;
--	csr &= ~WTCSR_RSTS;
--	sh_wdt_write_csr(csr);
+-static void clear_fifo(struct spi_sh_data *ss)
+-{
+-	spi_sh_set_bit(ss, SPI_SH_RSTF, SPI_SH_CR2);
+-	spi_sh_clear_bit(ss, SPI_SH_RSTF, SPI_SH_CR2);
+-}
 -
--#ifdef CONFIG_CPU_SH2
--	csr = sh_wdt_read_rstcsr();
--	csr &= ~RSTCSR_RSTS;
--	sh_wdt_write_rstcsr(csr);
--#endif
--	spin_unlock_irqrestore(&wdt->lock, flags);
+-static int spi_sh_wait_receive_buffer(struct spi_sh_data *ss)
+-{
+-	int timeout = 100000;
+-
+-	while (spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_RBE) {
+-		udelay(10);
+-		if (timeout-- < 0)
+-			return -ETIMEDOUT;
+-	}
+-	return 0;
+-}
+-
+-static int spi_sh_wait_write_buffer_empty(struct spi_sh_data *ss)
+-{
+-	int timeout = 100000;
+-
+-	while (!(spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_TBE)) {
+-		udelay(10);
+-		if (timeout-- < 0)
+-			return -ETIMEDOUT;
+-	}
+-	return 0;
+-}
+-
+-static int spi_sh_send(struct spi_sh_data *ss, struct spi_message *mesg,
+-			struct spi_transfer *t)
+-{
+-	int i, retval = 0;
+-	int remain = t->len;
+-	int cur_len;
+-	unsigned char *data;
+-	long ret;
+-
+-	if (t->len)
+-		spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
+-
+-	data = (unsigned char *)t->tx_buf;
+-	while (remain > 0) {
+-		cur_len = min(SPI_SH_FIFO_SIZE, remain);
+-		for (i = 0; i < cur_len &&
+-				!(spi_sh_read(ss, SPI_SH_CR4) &
+-							SPI_SH_WPABRT) &&
+-				!(spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_TBF);
+-				i++)
+-			spi_sh_write(ss, (unsigned long)data[i], SPI_SH_TBR);
+-
+-		if (spi_sh_read(ss, SPI_SH_CR4) & SPI_SH_WPABRT) {
+-			/* Abort SPI operation */
+-			spi_sh_set_bit(ss, SPI_SH_WPABRT, SPI_SH_CR4);
+-			retval = -EIO;
+-			break;
+-		}
+-
+-		cur_len = i;
+-
+-		remain -= cur_len;
+-		data += cur_len;
+-
+-		if (remain > 0) {
+-			ss->cr1 &= ~SPI_SH_TBE;
+-			spi_sh_set_bit(ss, SPI_SH_TBE, SPI_SH_CR4);
+-			ret = wait_event_interruptible_timeout(ss->wait,
+-						 ss->cr1 & SPI_SH_TBE,
+-						 SPI_SH_SEND_TIMEOUT);
+-			if (ret == 0 && !(ss->cr1 & SPI_SH_TBE)) {
+-				printk(KERN_ERR "%s: timeout\n", __func__);
+-				return -ETIMEDOUT;
+-			}
+-		}
+-	}
+-
+-	if (list_is_last(&t->transfer_list, &mesg->transfers)) {
+-		spi_sh_clear_bit(ss, SPI_SH_SSD | SPI_SH_SSDB, SPI_SH_CR1);
+-		spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
+-
+-		ss->cr1 &= ~SPI_SH_TBE;
+-		spi_sh_set_bit(ss, SPI_SH_TBE, SPI_SH_CR4);
+-		ret = wait_event_interruptible_timeout(ss->wait,
+-					 ss->cr1 & SPI_SH_TBE,
+-					 SPI_SH_SEND_TIMEOUT);
+-		if (ret == 0 && (ss->cr1 & SPI_SH_TBE)) {
+-			printk(KERN_ERR "%s: timeout\n", __func__);
+-			return -ETIMEDOUT;
+-		}
+-	}
+-
+-	return retval;
+-}
+-
+-static int spi_sh_receive(struct spi_sh_data *ss, struct spi_message *mesg,
+-			  struct spi_transfer *t)
+-{
+-	int i;
+-	int remain = t->len;
+-	int cur_len;
+-	unsigned char *data;
+-	long ret;
+-
+-	if (t->len > SPI_SH_MAX_BYTE)
+-		spi_sh_write(ss, SPI_SH_MAX_BYTE, SPI_SH_CR3);
+-	else
+-		spi_sh_write(ss, t->len, SPI_SH_CR3);
+-
+-	spi_sh_clear_bit(ss, SPI_SH_SSD | SPI_SH_SSDB, SPI_SH_CR1);
+-	spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
+-
+-	spi_sh_wait_write_buffer_empty(ss);
+-
+-	data = (unsigned char *)t->rx_buf;
+-	while (remain > 0) {
+-		if (remain >= SPI_SH_FIFO_SIZE) {
+-			ss->cr1 &= ~SPI_SH_RBF;
+-			spi_sh_set_bit(ss, SPI_SH_RBF, SPI_SH_CR4);
+-			ret = wait_event_interruptible_timeout(ss->wait,
+-						 ss->cr1 & SPI_SH_RBF,
+-						 SPI_SH_RECEIVE_TIMEOUT);
+-			if (ret == 0 &&
+-			    spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_RBE) {
+-				printk(KERN_ERR "%s: timeout\n", __func__);
+-				return -ETIMEDOUT;
+-			}
+-		}
+-
+-		cur_len = min(SPI_SH_FIFO_SIZE, remain);
+-		for (i = 0; i < cur_len; i++) {
+-			if (spi_sh_wait_receive_buffer(ss))
+-				break;
+-			data[i] = (unsigned char)spi_sh_read(ss, SPI_SH_RBR);
+-		}
+-
+-		remain -= cur_len;
+-		data += cur_len;
+-	}
+-
+-	/* deassert CS when SPI is receiving. */
+-	if (t->len > SPI_SH_MAX_BYTE) {
+-		clear_fifo(ss);
+-		spi_sh_write(ss, 1, SPI_SH_CR3);
+-	} else {
+-		spi_sh_write(ss, 0, SPI_SH_CR3);
+-	}
 -
 -	return 0;
 -}
 -
--static int sh_wdt_stop(struct watchdog_device *wdt_dev)
+-static int spi_sh_transfer_one_message(struct spi_controller *ctlr,
+-					struct spi_message *mesg)
 -{
--	struct sh_wdt *wdt = watchdog_get_drvdata(wdt_dev);
--	unsigned long flags;
--	u8 csr;
+-	struct spi_sh_data *ss = spi_controller_get_devdata(ctlr);
+-	struct spi_transfer *t;
+-	int ret;
 -
--	spin_lock_irqsave(&wdt->lock, flags);
+-	pr_debug("%s: enter\n", __func__);
 -
--	del_timer(&wdt->timer);
+-	spi_sh_clear_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
 -
--	csr = sh_wdt_read_csr();
--	csr &= ~WTCSR_TME;
--	sh_wdt_write_csr(csr);
+-	list_for_each_entry(t, &mesg->transfers, transfer_list) {
+-		pr_debug("tx_buf = %p, rx_buf = %p\n",
+-			 t->tx_buf, t->rx_buf);
+-		pr_debug("len = %d, delay.value = %d\n",
+-			 t->len, t->delay.value);
 -
--	spin_unlock_irqrestore(&wdt->lock, flags);
+-		if (t->tx_buf) {
+-			ret = spi_sh_send(ss, mesg, t);
+-			if (ret < 0)
+-				goto error;
+-		}
+-		if (t->rx_buf) {
+-			ret = spi_sh_receive(ss, mesg, t);
+-			if (ret < 0)
+-				goto error;
+-		}
+-		mesg->actual_length += t->len;
+-	}
 -
--	clk_disable(wdt->clk);
--	pm_runtime_put_sync(wdt->dev);
+-	mesg->status = 0;
+-	spi_finalize_current_message(ctlr);
+-
+-	clear_fifo(ss);
+-	spi_sh_set_bit(ss, SPI_SH_SSD, SPI_SH_CR1);
+-	udelay(100);
+-
+-	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
+-			 SPI_SH_CR1);
+-
+-	clear_fifo(ss);
+-
+-	return 0;
+-
+- error:
+-	mesg->status = ret;
+-	spi_finalize_current_message(ctlr);
+-	if (mesg->complete)
+-		mesg->complete(mesg->context);
+-
+-	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
+-			 SPI_SH_CR1);
+-	clear_fifo(ss);
+-
+-	return ret;
+-}
+-
+-static int spi_sh_setup(struct spi_device *spi)
+-{
+-	struct spi_sh_data *ss = spi_master_get_devdata(spi->master);
+-
+-	pr_debug("%s: enter\n", __func__);
+-
+-	spi_sh_write(ss, 0xfe, SPI_SH_CR1);	/* SPI sycle stop */
+-	spi_sh_write(ss, 0x00, SPI_SH_CR1);	/* CR1 init */
+-	spi_sh_write(ss, 0x00, SPI_SH_CR3);	/* CR3 init */
+-
+-	clear_fifo(ss);
+-
+-	/* 1/8 clock */
+-	spi_sh_write(ss, spi_sh_read(ss, SPI_SH_CR2) | 0x07, SPI_SH_CR2);
+-	udelay(10);
 -
 -	return 0;
 -}
 -
--static int sh_wdt_keepalive(struct watchdog_device *wdt_dev)
+-static void spi_sh_cleanup(struct spi_device *spi)
 -{
--	struct sh_wdt *wdt = watchdog_get_drvdata(wdt_dev);
--	unsigned long flags;
+-	struct spi_sh_data *ss = spi_master_get_devdata(spi->master);
 -
--	spin_lock_irqsave(&wdt->lock, flags);
--	next_heartbeat = jiffies + (heartbeat * HZ);
--	spin_unlock_irqrestore(&wdt->lock, flags);
+-	pr_debug("%s: enter\n", __func__);
+-
+-	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
+-			 SPI_SH_CR1);
+-}
+-
+-static irqreturn_t spi_sh_irq(int irq, void *_ss)
+-{
+-	struct spi_sh_data *ss = (struct spi_sh_data *)_ss;
+-	unsigned long cr1;
+-
+-	cr1 = spi_sh_read(ss, SPI_SH_CR1);
+-	if (cr1 & SPI_SH_TBE)
+-		ss->cr1 |= SPI_SH_TBE;
+-	if (cr1 & SPI_SH_TBF)
+-		ss->cr1 |= SPI_SH_TBF;
+-	if (cr1 & SPI_SH_RBE)
+-		ss->cr1 |= SPI_SH_RBE;
+-	if (cr1 & SPI_SH_RBF)
+-		ss->cr1 |= SPI_SH_RBF;
+-
+-	if (ss->cr1) {
+-		spi_sh_clear_bit(ss, ss->cr1, SPI_SH_CR4);
+-		wake_up(&ss->wait);
+-	}
+-
+-	return IRQ_HANDLED;
+-}
+-
+-static int spi_sh_remove(struct platform_device *pdev)
+-{
+-	struct spi_sh_data *ss = platform_get_drvdata(pdev);
+-
+-	spi_unregister_master(ss->master);
+-	free_irq(ss->irq, ss);
 -
 -	return 0;
 -}
 -
--static int sh_wdt_set_heartbeat(struct watchdog_device *wdt_dev, unsigned t)
+-static int spi_sh_probe(struct platform_device *pdev)
 -{
--	struct sh_wdt *wdt = watchdog_get_drvdata(wdt_dev);
--	unsigned long flags;
+-	struct resource *res;
+-	struct spi_master *master;
+-	struct spi_sh_data *ss;
+-	int ret, irq;
 -
--	if (unlikely(t < 1 || t > 3600)) /* arbitrary upper limit */
+-	/* get base addr */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (unlikely(res == NULL)) {
+-		dev_err(&pdev->dev, "invalid resource\n");
 -		return -EINVAL;
+-	}
 -
--	spin_lock_irqsave(&wdt->lock, flags);
--	heartbeat = t;
--	wdt_dev->timeout = t;
--	spin_unlock_irqrestore(&wdt->lock, flags);
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
 -
--	return 0;
--}
--
--static void sh_wdt_ping(struct timer_list *t)
--{
--	struct sh_wdt *wdt = from_timer(wdt, t, timer);
--	unsigned long flags;
--
--	spin_lock_irqsave(&wdt->lock, flags);
--	if (time_before(jiffies, next_heartbeat)) {
--		u8 csr;
--
--		csr = sh_wdt_read_csr();
--		csr &= ~WTCSR_IOVF;
--		sh_wdt_write_csr(csr);
--
--		sh_wdt_write_cnt(0);
--
--		mod_timer(&wdt->timer, next_ping_period(clock_division_ratio));
--	} else
--		dev_warn(wdt->dev, "Heartbeat lost! Will not ping "
--		         "the watchdog\n");
--	spin_unlock_irqrestore(&wdt->lock, flags);
--}
--
--static const struct watchdog_info sh_wdt_info = {
--	.options		= WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
--				  WDIOF_MAGICCLOSE,
--	.firmware_version	= 1,
--	.identity		= "SH WDT",
--};
--
--static const struct watchdog_ops sh_wdt_ops = {
--	.owner		= THIS_MODULE,
--	.start		= sh_wdt_start,
--	.stop		= sh_wdt_stop,
--	.ping		= sh_wdt_keepalive,
--	.set_timeout	= sh_wdt_set_heartbeat,
--};
--
--static struct watchdog_device sh_wdt_dev = {
--	.info	= &sh_wdt_info,
--	.ops	= &sh_wdt_ops,
--};
--
--static int sh_wdt_probe(struct platform_device *pdev)
--{
--	struct sh_wdt *wdt;
--	int rc;
--
--	/*
--	 * As this driver only covers the global watchdog case, reject
--	 * any attempts to register per-CPU watchdogs.
--	 */
--	if (pdev->id != -1)
--		return -EINVAL;
--
--	wdt = devm_kzalloc(&pdev->dev, sizeof(struct sh_wdt), GFP_KERNEL);
--	if (unlikely(!wdt))
+-	master = devm_spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
+-	if (master == NULL) {
+-		dev_err(&pdev->dev, "spi_alloc_master error.\n");
 -		return -ENOMEM;
--
--	wdt->dev = &pdev->dev;
--
--	wdt->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(wdt->clk)) {
--		/*
--		 * Clock framework support is optional, continue on
--		 * anyways if we don't find a matching clock.
--		 */
--		wdt->clk = NULL;
 -	}
 -
--	wdt->base = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(wdt->base))
--		return PTR_ERR(wdt->base);
+-	ss = spi_master_get_devdata(master);
+-	platform_set_drvdata(pdev, ss);
 -
--	watchdog_set_nowayout(&sh_wdt_dev, nowayout);
--	watchdog_set_drvdata(&sh_wdt_dev, wdt);
--	sh_wdt_dev.parent = &pdev->dev;
+-	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
+-	case IORESOURCE_MEM_8BIT:
+-		ss->width = 8;
+-		break;
+-	case IORESOURCE_MEM_32BIT:
+-		ss->width = 32;
+-		break;
+-	default:
+-		dev_err(&pdev->dev, "No support width\n");
+-		return -ENODEV;
+-	}
+-	ss->irq = irq;
+-	ss->master = master;
+-	ss->addr = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+-	if (ss->addr == NULL) {
+-		dev_err(&pdev->dev, "ioremap error.\n");
+-		return -ENOMEM;
+-	}
+-	init_waitqueue_head(&ss->wait);
 -
--	spin_lock_init(&wdt->lock);
--
--	rc = sh_wdt_set_heartbeat(&sh_wdt_dev, heartbeat);
--	if (unlikely(rc)) {
--		/* Default timeout if invalid */
--		sh_wdt_set_heartbeat(&sh_wdt_dev, WATCHDOG_HEARTBEAT);
--
--		dev_warn(&pdev->dev,
--			 "heartbeat value must be 1<=x<=3600, using %d\n",
--			 sh_wdt_dev.timeout);
+-	ret = request_irq(irq, spi_sh_irq, 0, "spi_sh", ss);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "request_irq error\n");
+-		return ret;
 -	}
 -
--	dev_info(&pdev->dev, "configured with heartbeat=%d sec (nowayout=%d)\n",
--		 sh_wdt_dev.timeout, nowayout);
+-	master->num_chipselect = 2;
+-	master->bus_num = pdev->id;
+-	master->setup = spi_sh_setup;
+-	master->transfer_one_message = spi_sh_transfer_one_message;
+-	master->cleanup = spi_sh_cleanup;
 -
--	rc = watchdog_register_device(&sh_wdt_dev);
--	if (unlikely(rc)) {
--		dev_err(&pdev->dev, "Can't register watchdog (err=%d)\n", rc);
--		return rc;
+-	ret = spi_register_master(master);
+-	if (ret < 0) {
+-		printk(KERN_ERR "spi_register_master error.\n");
+-		goto error3;
 -	}
--
--	timer_setup(&wdt->timer, sh_wdt_ping, 0);
--	wdt->timer.expires	= next_ping_period(clock_division_ratio);
--
--	dev_info(&pdev->dev, "initialized.\n");
--
--	pm_runtime_enable(&pdev->dev);
 -
 -	return 0;
+-
+- error3:
+-	free_irq(irq, ss);
+-	return ret;
 -}
 -
--static int sh_wdt_remove(struct platform_device *pdev)
--{
--	watchdog_unregister_device(&sh_wdt_dev);
--
--	pm_runtime_disable(&pdev->dev);
--
--	return 0;
--}
--
--static void sh_wdt_shutdown(struct platform_device *pdev)
--{
--	sh_wdt_stop(&sh_wdt_dev);
--}
--
--static struct platform_driver sh_wdt_driver = {
--	.driver		= {
--		.name	= DRV_NAME,
+-static struct platform_driver spi_sh_driver = {
+-	.probe = spi_sh_probe,
+-	.remove = spi_sh_remove,
+-	.driver = {
+-		.name = "sh_spi",
 -	},
--
--	.probe		= sh_wdt_probe,
--	.remove		= sh_wdt_remove,
--	.shutdown	= sh_wdt_shutdown,
 -};
+-module_platform_driver(spi_sh_driver);
 -
--static int __init sh_wdt_init(void)
--{
--	if (unlikely(clock_division_ratio < 0x5 ||
--		     clock_division_ratio > 0x7)) {
--		clock_division_ratio = WTCSR_CKS_4096;
--
--		pr_info("divisor must be 0x5<=x<=0x7, using %d\n",
--			clock_division_ratio);
--	}
--
--	return platform_driver_register(&sh_wdt_driver);
--}
--
--static void __exit sh_wdt_exit(void)
--{
--	platform_driver_unregister(&sh_wdt_driver);
--}
--module_init(sh_wdt_init);
--module_exit(sh_wdt_exit);
--
--MODULE_AUTHOR("Paul Mundt <lethal@linux-sh.org>");
--MODULE_DESCRIPTION("SuperH watchdog driver");
--MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:" DRV_NAME);
--
--module_param(clock_division_ratio, int, 0);
--MODULE_PARM_DESC(clock_division_ratio,
--	"Clock division ratio. Valid ranges are from 0x5 (1.31ms) "
--	"to 0x7 (5.25ms). (default=" __MODULE_STRING(WTCSR_CKS_4096) ")");
--
--module_param(heartbeat, int, 0);
--MODULE_PARM_DESC(heartbeat,
--	"Watchdog heartbeat in seconds. (1 <= heartbeat <= 3600, default="
--				__MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
--
--module_param(nowayout, bool, 0);
--MODULE_PARM_DESC(nowayout,
--	"Watchdog cannot be stopped once started (default="
--				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+-MODULE_DESCRIPTION("SH SPI bus driver");
+-MODULE_LICENSE("GPL v2");
+-MODULE_AUTHOR("Yoshihiro Shimoda");
+-MODULE_ALIAS("platform:sh_spi");
 -- 
 2.39.0
 
