@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCB2C678DA
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CA2EC71132
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240884AbjAMG3h (ORCPT
+        id S235159AbjAMG3l (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:29:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37566 "EHLO
+        Fri, 13 Jan 2023 01:29:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240753AbjAMG0t (ORCPT
+        with ESMTP id S240200AbjAMGZH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Jan 2023 01:26:49 -0500
+        Fri, 13 Jan 2023 01:25:07 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 873DE5BA14;
-        Thu, 12 Jan 2023 22:24:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F136ADB3;
+        Thu, 12 Jan 2023 22:24:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=iukbm4IkjfomIK3EfPQb3pM2uZtgleJjPX7CiCdGPsw=; b=bctQ26YIIgDNETWqWEH1faeoiC
-        5ktgEfTapXGrurmR9U4e7rnZhY6Cwur/HNcTFDEguI7nrrjhQMk5LJZRnXQk/Lh/SgAsj5oUR1cNC
-        6SWrceAqwQKLhXM4b9+5hQvSpMqgJj6Fi1i/TaketNXyVfW/AwoYVQnx70z7dzq4fJub9GsHbuyZ5
-        HDmhDiNuu8m8OdZDuEJyIrydgrmSdNheR0U9+6Rotsg72jUQftqVDSCn6tM1GTULxOLQT60TelhnY
-        qeYO2LcPFeCb7ZL/Bxwy4AWEhdIRBjlajWtTjxyUMXW5KzAfXsUm2V07QOaprHacrHX0gFnJIBipd
-        ZAhGSquQ==;
+        bh=JbdvnYG1GWIlI+mjR040Fz2HmYek241Q0TguaG7+sfY=; b=tzfdnSJqgAUXBCbR9jbeCtdG+k
+        Wi2+ukoLPUYfwY4oRYG2G65CrLpHfCH7IZIGEmOBzuo2AOm57p4YVKhyyUSErQ/iIGMHRToCCfdf/
+        ktArnslU9c1GvDmR4UkceU2GUGqLzdTYlWtq3WsFqI46PrezV3almirhHOY1EgLXgwetLPHLE3dz4
+        2GoK8l9g2L+uO3MM192VOrBKVPmFiTXFEqVyPchcY6p43ebcOag5FCHnp6JVdvVjlJ96YLX/45Mi9
+        BCvOZVDckZcIaWRSsQl7roLaFbisbPzI3+C2vMQZUL7wC/PjrWG2okWzz8h9wGWMS/aXQsfNTjHUX
+        1o7HZ5UA==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDUZ-000lye-Sk; Fri, 13 Jan 2023 06:24:44 +0000
+        id 1pGDUB-000leH-Ap; Fri, 13 Jan 2023 06:24:19 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -47,9 +47,9 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 17/22] spi: remove spi-jcore
-Date:   Fri, 13 Jan 2023 07:23:34 +0100
-Message-Id: <20230113062339.1909087-18-hch@lst.de>
+Subject: [PATCH 10/22] input: remove sh_keysc
+Date:   Fri, 13 Jan 2023 07:23:27 +0100
+Message-Id: <20230113062339.1909087-11-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
@@ -64,283 +64,385 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/spi/Kconfig     |   7 --
- drivers/spi/Makefile    |   1 -
- drivers/spi/spi-jcore.c | 235 ----------------------------------------
- 3 files changed, 243 deletions(-)
- delete mode 100644 drivers/spi/spi-jcore.c
+ drivers/input/keyboard/Kconfig    |  10 -
+ drivers/input/keyboard/Makefile   |   1 -
+ drivers/input/keyboard/sh_keysc.c | 334 ------------------------------
+ 3 files changed, 345 deletions(-)
+ delete mode 100644 drivers/input/keyboard/sh_keysc.c
 
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index 76f3bc6f8c81fc..17c75f5c19be75 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -483,13 +483,6 @@ config SPI_INTEL_PLATFORM
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called spi-intel-platform.
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 84490915ae4d5a..882ec5fef214ac 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -625,16 +625,6 @@ config KEYBOARD_SUNKBD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sunkbd.
  
--config SPI_JCORE
--	tristate "J-Core SPI Master"
--	depends on OF && (SUPERH || COMPILE_TEST)
+-config KEYBOARD_SH_KEYSC
+-	tristate "SuperH KEYSC keypad support"
+-	depends on ARCH_SHMOBILE || COMPILE_TEST
 -	help
--	  This enables support for the SPI master controller in the J-Core
--	  synthesizable, open source SoC.
+-	  Say Y here if you want to use a keypad attached to the KEYSC block
+-	  on SuperH processors such as sh7722 and sh7343.
 -
- config SPI_LM70_LLP
- 	tristate "Parallel port adapter for LM70 eval board (DEVELOPMENT)"
- 	depends on PARPORT
-diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
-index 27d877440c6539..2d03fcefc11ea2 100644
---- a/drivers/spi/Makefile
-+++ b/drivers/spi/Makefile
-@@ -67,7 +67,6 @@ obj-$(CONFIG_SPI_INTEL)			+= spi-intel.o
- obj-$(CONFIG_SPI_INTEL_PCI)		+= spi-intel-pci.o
- obj-$(CONFIG_SPI_INTEL_PLATFORM)	+= spi-intel-platform.o
- obj-$(CONFIG_SPI_LANTIQ_SSC)		+= spi-lantiq-ssc.o
--obj-$(CONFIG_SPI_JCORE)			+= spi-jcore.o
- obj-$(CONFIG_SPI_LM70_LLP)		+= spi-lm70llp.o
- obj-$(CONFIG_SPI_LP8841_RTC)		+= spi-lp8841-rtc.o
- obj-$(CONFIG_SPI_MESON_SPICC)		+= spi-meson-spicc.o
-diff --git a/drivers/spi/spi-jcore.c b/drivers/spi/spi-jcore.c
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called sh_keysc.
+-
+ config KEYBOARD_STMPE
+ 	tristate "STMPE keypad support"
+ 	depends on MFD_STMPE
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 5f67196bb2c1ea..8aba0b052b4504 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -60,7 +60,6 @@ obj-$(CONFIG_KEYBOARD_QT1050)           += qt1050.o
+ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+ obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+ obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+-obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+ obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)	+= snvs_pwrkey.o
+ obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
+ obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+diff --git a/drivers/input/keyboard/sh_keysc.c b/drivers/input/keyboard/sh_keysc.c
 deleted file mode 100644
-index 74c8319c29f170..00000000000000
---- a/drivers/spi/spi-jcore.c
+index 2c00320f739fc1..00000000000000
+--- a/drivers/input/keyboard/sh_keysc.c
 +++ /dev/null
-@@ -1,235 +0,0 @@
+@@ -1,334 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-only
 -/*
-- * J-Core SPI controller driver
+- * SuperH KEYSC Keypad Driver
 - *
-- * Copyright (C) 2012-2016 Smart Energy Instruments, Inc.
+- * Copyright (C) 2008 Magnus Damm
 - *
-- * Current version by Rich Felker
-- * Based loosely on initial version by Oleksandr G Zhadan
-- *
+- * Based on gpio_keys.c, Copyright 2005 Phil Blundell
 - */
--#include <linux/init.h>
--#include <linux/interrupt.h>
--#include <linux/errno.h>
+-
+-#include <linux/kernel.h>
 -#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/spi/spi.h>
--#include <linux/clk.h>
--#include <linux/err.h>
--#include <linux/io.h>
--#include <linux/of.h>
+-#include <linux/interrupt.h>
+-#include <linux/irq.h>
 -#include <linux/delay.h>
+-#include <linux/platform_device.h>
+-#include <linux/input.h>
+-#include <linux/input/sh_keysc.h>
+-#include <linux/bitmap.h>
+-#include <linux/pm_runtime.h>
+-#include <linux/io.h>
+-#include <linux/slab.h>
 -
--#define DRV_NAME	"jcore_spi"
--
--#define CTRL_REG	0x0
--#define DATA_REG	0x4
--
--#define JCORE_SPI_CTRL_XMIT		0x02
--#define JCORE_SPI_STAT_BUSY		0x02
--#define JCORE_SPI_CTRL_LOOP		0x08
--#define JCORE_SPI_CTRL_CS_BITS		0x15
--
--#define JCORE_SPI_WAIT_RDY_MAX_LOOP	2000000
--
--struct jcore_spi {
--	struct spi_master *master;
--	void __iomem *base;
--	unsigned int cs_reg;
--	unsigned int speed_reg;
--	unsigned int speed_hz;
--	unsigned int clock_freq;
+-static const struct {
+-	unsigned char kymd, keyout, keyin;
+-} sh_keysc_mode[] = {
+-	[SH_KEYSC_MODE_1] = { 0, 6, 5 },
+-	[SH_KEYSC_MODE_2] = { 1, 5, 6 },
+-	[SH_KEYSC_MODE_3] = { 2, 4, 7 },
+-	[SH_KEYSC_MODE_4] = { 3, 6, 6 },
+-	[SH_KEYSC_MODE_5] = { 4, 6, 7 },
+-	[SH_KEYSC_MODE_6] = { 5, 8, 8 },
 -};
 -
--static int jcore_spi_wait(void __iomem *ctrl_reg)
+-struct sh_keysc_priv {
+-	void __iomem *iomem_base;
+-	DECLARE_BITMAP(last_keys, SH_KEYSC_MAXKEYS);
+-	struct input_dev *input;
+-	struct sh_keysc_info pdata;
+-};
+-
+-#define KYCR1 0
+-#define KYCR2 1
+-#define KYINDR 2
+-#define KYOUTDR 3
+-
+-#define KYCR2_IRQ_LEVEL    0x10
+-#define KYCR2_IRQ_DISABLED 0x00
+-
+-static unsigned long sh_keysc_read(struct sh_keysc_priv *p, int reg_nr)
 -{
--	unsigned timeout = JCORE_SPI_WAIT_RDY_MAX_LOOP;
+-	return ioread16(p->iomem_base + (reg_nr << 2));
+-}
+-
+-static void sh_keysc_write(struct sh_keysc_priv *p, int reg_nr,
+-			   unsigned long value)
+-{
+-	iowrite16(value, p->iomem_base + (reg_nr << 2));
+-}
+-
+-static void sh_keysc_level_mode(struct sh_keysc_priv *p,
+-				unsigned long keys_set)
+-{
+-	struct sh_keysc_info *pdata = &p->pdata;
+-
+-	sh_keysc_write(p, KYOUTDR, 0);
+-	sh_keysc_write(p, KYCR2, KYCR2_IRQ_LEVEL | (keys_set << 8));
+-
+-	if (pdata->kycr2_delay)
+-		udelay(pdata->kycr2_delay);
+-}
+-
+-static void sh_keysc_map_dbg(struct device *dev, unsigned long *map,
+-			     const char *str)
+-{
+-	int k;
+-
+-	for (k = 0; k < BITS_TO_LONGS(SH_KEYSC_MAXKEYS); k++)
+-		dev_dbg(dev, "%s[%d] 0x%lx\n", str, k, map[k]);
+-}
+-
+-static irqreturn_t sh_keysc_isr(int irq, void *dev_id)
+-{
+-	struct platform_device *pdev = dev_id;
+-	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
+-	struct sh_keysc_info *pdata = &priv->pdata;
+-	int keyout_nr = sh_keysc_mode[pdata->mode].keyout;
+-	int keyin_nr = sh_keysc_mode[pdata->mode].keyin;
+-	DECLARE_BITMAP(keys, SH_KEYSC_MAXKEYS);
+-	DECLARE_BITMAP(keys0, SH_KEYSC_MAXKEYS);
+-	DECLARE_BITMAP(keys1, SH_KEYSC_MAXKEYS);
+-	unsigned char keyin_set, tmp;
+-	int i, k, n;
+-
+-	dev_dbg(&pdev->dev, "isr!\n");
+-
+-	bitmap_fill(keys1, SH_KEYSC_MAXKEYS);
+-	bitmap_zero(keys0, SH_KEYSC_MAXKEYS);
 -
 -	do {
--		if (!(readl(ctrl_reg) & JCORE_SPI_STAT_BUSY))
--			return 0;
--		cpu_relax();
--	} while (--timeout);
+-		bitmap_zero(keys, SH_KEYSC_MAXKEYS);
+-		keyin_set = 0;
 -
--	return -EBUSY;
--}
+-		sh_keysc_write(priv, KYCR2, KYCR2_IRQ_DISABLED);
 -
--static void jcore_spi_program(struct jcore_spi *hw)
--{
--	void __iomem *ctrl_reg = hw->base + CTRL_REG;
+-		for (i = 0; i < keyout_nr; i++) {
+-			n = keyin_nr * i;
 -
--	if (jcore_spi_wait(ctrl_reg))
--		dev_err(hw->master->dev.parent,
--			"timeout waiting to program ctrl reg.\n");
+-			/* drive one KEYOUT pin low, read KEYIN pins */
+-			sh_keysc_write(priv, KYOUTDR, 0xffff ^ (3 << (i * 2)));
+-			udelay(pdata->delay);
+-			tmp = sh_keysc_read(priv, KYINDR);
 -
--	writel(hw->cs_reg | hw->speed_reg, ctrl_reg);
--}
+-			/* set bit if key press has been detected */
+-			for (k = 0; k < keyin_nr; k++) {
+-				if (tmp & (1 << k))
+-					__set_bit(n + k, keys);
+-			}
 -
--static void jcore_spi_chipsel(struct spi_device *spi, bool value)
--{
--	struct jcore_spi *hw = spi_master_get_devdata(spi->master);
--	u32 csbit = 1U << (2 * spi->chip_select);
+-			/* keep track of which KEYIN bits that have been set */
+-			keyin_set |= tmp ^ ((1 << keyin_nr) - 1);
+-		}
 -
--	dev_dbg(hw->master->dev.parent, "chipselect %d\n", spi->chip_select);
+-		sh_keysc_level_mode(priv, keyin_set);
 -
--	if (value)
--		hw->cs_reg |= csbit;
--	else
--		hw->cs_reg &= ~csbit;
+-		bitmap_complement(keys, keys, SH_KEYSC_MAXKEYS);
+-		bitmap_and(keys1, keys1, keys, SH_KEYSC_MAXKEYS);
+-		bitmap_or(keys0, keys0, keys, SH_KEYSC_MAXKEYS);
 -
--	jcore_spi_program(hw);
--}
+-		sh_keysc_map_dbg(&pdev->dev, keys, "keys");
 -
--static void jcore_spi_baudrate(struct jcore_spi *hw, int speed)
--{
--	if (speed == hw->speed_hz)
--		return;
--	hw->speed_hz = speed;
--	if (speed >= hw->clock_freq / 2)
--		hw->speed_reg = 0;
--	else
--		hw->speed_reg = ((hw->clock_freq / 2 / speed) - 1) << 27;
--	jcore_spi_program(hw);
--	dev_dbg(hw->master->dev.parent, "speed=%d reg=0x%x\n",
--		speed, hw->speed_reg);
--}
+-	} while (sh_keysc_read(priv, KYCR2) & 0x01);
 -
--static int jcore_spi_txrx(struct spi_master *master, struct spi_device *spi,
--			  struct spi_transfer *t)
--{
--	struct jcore_spi *hw = spi_master_get_devdata(master);
+-	sh_keysc_map_dbg(&pdev->dev, priv->last_keys, "last_keys");
+-	sh_keysc_map_dbg(&pdev->dev, keys0, "keys0");
+-	sh_keysc_map_dbg(&pdev->dev, keys1, "keys1");
 -
--	void __iomem *ctrl_reg = hw->base + CTRL_REG;
--	void __iomem *data_reg = hw->base + DATA_REG;
--	u32 xmit;
+-	for (i = 0; i < SH_KEYSC_MAXKEYS; i++) {
+-		k = pdata->keycodes[i];
+-		if (!k)
+-			continue;
 -
--	/* data buffers */
--	const unsigned char *tx;
--	unsigned char *rx;
--	unsigned int len;
--	unsigned int count;
+-		if (test_bit(i, keys0) == test_bit(i, priv->last_keys))
+-			continue;
 -
--	jcore_spi_baudrate(hw, t->speed_hz);
+-		if (test_bit(i, keys1) || test_bit(i, keys0)) {
+-			input_event(priv->input, EV_KEY, k, 1);
+-			__set_bit(i, priv->last_keys);
+-		}
 -
--	xmit = hw->cs_reg | hw->speed_reg | JCORE_SPI_CTRL_XMIT;
--	tx = t->tx_buf;
--	rx = t->rx_buf;
--	len = t->len;
+-		if (!test_bit(i, keys1)) {
+-			input_event(priv->input, EV_KEY, k, 0);
+-			__clear_bit(i, priv->last_keys);
+-		}
 -
--	for (count = 0; count < len; count++) {
--		if (jcore_spi_wait(ctrl_reg))
--			break;
--
--		writel(tx ? *tx++ : 0, data_reg);
--		writel(xmit, ctrl_reg);
--
--		if (jcore_spi_wait(ctrl_reg))
--			break;
--
--		if (rx)
--			*rx++ = readl(data_reg);
 -	}
+-	input_sync(priv->input);
 -
--	spi_finalize_current_transfer(master);
--
--	if (count < len)
--		return -EREMOTEIO;
--
--	return 0;
+-	return IRQ_HANDLED;
 -}
 -
--static int jcore_spi_probe(struct platform_device *pdev)
+-static int sh_keysc_probe(struct platform_device *pdev)
 -{
--	struct device_node *node = pdev->dev.of_node;
--	struct jcore_spi *hw;
--	struct spi_master *master;
+-	struct sh_keysc_priv *priv;
+-	struct sh_keysc_info *pdata;
 -	struct resource *res;
--	u32 clock_freq;
--	struct clk *clk;
--	int err = -ENODEV;
+-	struct input_dev *input;
+-	int i;
+-	int irq, error;
 -
--	master = spi_alloc_master(&pdev->dev, sizeof(struct jcore_spi));
--	if (!master)
--		return err;
--
--	/* Setup the master state. */
--	master->num_chipselect = 3;
--	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
--	master->transfer_one = jcore_spi_txrx;
--	master->set_cs = jcore_spi_chipsel;
--	master->dev.of_node = node;
--	master->bus_num = pdev->id;
--
--	hw = spi_master_get_devdata(master);
--	hw->master = master;
--	platform_set_drvdata(pdev, hw);
--
--	/* Find and map our resources */
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res)
--		goto exit_busy;
--	if (!devm_request_mem_region(&pdev->dev, res->start,
--				     resource_size(res), pdev->name))
--		goto exit_busy;
--	hw->base = devm_ioremap(&pdev->dev, res->start,
--					resource_size(res));
--	if (!hw->base)
--		goto exit_busy;
--
--	/*
--	 * The SPI clock rate controlled via a configurable clock divider
--	 * which is applied to the reference clock. A 50 MHz reference is
--	 * most suitable for obtaining standard SPI clock rates, but some
--	 * designs may have a different reference clock, and the DT must
--	 * make the driver aware so that it can properly program the
--	 * requested rate. If the clock is omitted, 50 MHz is assumed.
--	 */
--	clock_freq = 50000000;
--	clk = devm_clk_get(&pdev->dev, "ref_clk");
--	if (!IS_ERR(clk)) {
--		if (clk_prepare_enable(clk) == 0) {
--			clock_freq = clk_get_rate(clk);
--			clk_disable_unprepare(clk);
--		} else
--			dev_warn(&pdev->dev, "could not enable ref_clk\n");
+-	if (!dev_get_platdata(&pdev->dev)) {
+-		dev_err(&pdev->dev, "no platform data defined\n");
+-		error = -EINVAL;
+-		goto err0;
 -	}
--	hw->clock_freq = clock_freq;
 -
--	/* Initialize all CS bits to high. */
--	hw->cs_reg = JCORE_SPI_CTRL_CS_BITS;
--	jcore_spi_baudrate(hw, 400000);
+-	error = -ENXIO;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "failed to get I/O memory\n");
+-		goto err0;
+-	}
 -
--	/* Register our spi controller */
--	err = devm_spi_register_master(&pdev->dev, master);
--	if (err)
--		goto exit;
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		goto err0;
+-
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (priv == NULL) {
+-		dev_err(&pdev->dev, "failed to allocate driver data\n");
+-		error = -ENOMEM;
+-		goto err0;
+-	}
+-
+-	platform_set_drvdata(pdev, priv);
+-	memcpy(&priv->pdata, dev_get_platdata(&pdev->dev), sizeof(priv->pdata));
+-	pdata = &priv->pdata;
+-
+-	priv->iomem_base = ioremap(res->start, resource_size(res));
+-	if (priv->iomem_base == NULL) {
+-		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+-		error = -ENXIO;
+-		goto err1;
+-	}
+-
+-	priv->input = input_allocate_device();
+-	if (!priv->input) {
+-		dev_err(&pdev->dev, "failed to allocate input device\n");
+-		error = -ENOMEM;
+-		goto err2;
+-	}
+-
+-	input = priv->input;
+-	input->evbit[0] = BIT_MASK(EV_KEY);
+-
+-	input->name = pdev->name;
+-	input->phys = "sh-keysc-keys/input0";
+-	input->dev.parent = &pdev->dev;
+-
+-	input->id.bustype = BUS_HOST;
+-	input->id.vendor = 0x0001;
+-	input->id.product = 0x0001;
+-	input->id.version = 0x0100;
+-
+-	input->keycode = pdata->keycodes;
+-	input->keycodesize = sizeof(pdata->keycodes[0]);
+-	input->keycodemax = ARRAY_SIZE(pdata->keycodes);
+-
+-	error = request_threaded_irq(irq, NULL, sh_keysc_isr, IRQF_ONESHOT,
+-				     dev_name(&pdev->dev), pdev);
+-	if (error) {
+-		dev_err(&pdev->dev, "failed to request IRQ\n");
+-		goto err3;
+-	}
+-
+-	for (i = 0; i < SH_KEYSC_MAXKEYS; i++)
+-		__set_bit(pdata->keycodes[i], input->keybit);
+-	__clear_bit(KEY_RESERVED, input->keybit);
+-
+-	error = input_register_device(input);
+-	if (error) {
+-		dev_err(&pdev->dev, "failed to register input device\n");
+-		goto err4;
+-	}
+-
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_get_sync(&pdev->dev);
+-
+-	sh_keysc_write(priv, KYCR1, (sh_keysc_mode[pdata->mode].kymd << 8) |
+-		       pdata->scan_timing);
+-	sh_keysc_level_mode(priv, 0);
+-
+-	device_init_wakeup(&pdev->dev, 1);
 -
 -	return 0;
 -
--exit_busy:
--	err = -EBUSY;
--exit:
--	spi_master_put(master);
--	return err;
+- err4:
+-	free_irq(irq, pdev);
+- err3:
+-	input_free_device(input);
+- err2:
+-	iounmap(priv->iomem_base);
+- err1:
+-	kfree(priv);
+- err0:
+-	return error;
 -}
 -
--static const struct of_device_id jcore_spi_of_match[] = {
--	{ .compatible = "jcore,spi2" },
--	{},
+-static int sh_keysc_remove(struct platform_device *pdev)
+-{
+-	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
+-
+-	sh_keysc_write(priv, KYCR2, KYCR2_IRQ_DISABLED);
+-
+-	input_unregister_device(priv->input);
+-	free_irq(platform_get_irq(pdev, 0), pdev);
+-	iounmap(priv->iomem_base);
+-
+-	pm_runtime_put_sync(&pdev->dev);
+-	pm_runtime_disable(&pdev->dev);
+-
+-	kfree(priv);
+-
+-	return 0;
+-}
+-
+-static int sh_keysc_suspend(struct device *dev)
+-{
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
+-	int irq = platform_get_irq(pdev, 0);
+-	unsigned short value;
+-
+-	value = sh_keysc_read(priv, KYCR1);
+-
+-	if (device_may_wakeup(dev)) {
+-		sh_keysc_write(priv, KYCR1, value | 0x80);
+-		enable_irq_wake(irq);
+-	} else {
+-		sh_keysc_write(priv, KYCR1, value & ~0x80);
+-		pm_runtime_put_sync(dev);
+-	}
+-
+-	return 0;
+-}
+-
+-static int sh_keysc_resume(struct device *dev)
+-{
+-	struct platform_device *pdev = to_platform_device(dev);
+-	int irq = platform_get_irq(pdev, 0);
+-
+-	if (device_may_wakeup(dev))
+-		disable_irq_wake(irq);
+-	else
+-		pm_runtime_get_sync(dev);
+-
+-	return 0;
+-}
+-
+-static DEFINE_SIMPLE_DEV_PM_OPS(sh_keysc_dev_pm_ops,
+-				sh_keysc_suspend, sh_keysc_resume);
+-
+-static struct platform_driver sh_keysc_device_driver = {
+-	.probe		= sh_keysc_probe,
+-	.remove		= sh_keysc_remove,
+-	.driver		= {
+-		.name	= "sh_keysc",
+-		.pm	= pm_sleep_ptr(&sh_keysc_dev_pm_ops),
+-	}
 -};
--MODULE_DEVICE_TABLE(of, jcore_spi_of_match);
+-module_platform_driver(sh_keysc_device_driver);
 -
--static struct platform_driver jcore_spi_driver = {
--	.probe = jcore_spi_probe,
--	.driver = {
--		.name = DRV_NAME,
--		.of_match_table = jcore_spi_of_match,
--	},
--};
--
--module_platform_driver(jcore_spi_driver);
--
--MODULE_DESCRIPTION("J-Core SPI driver");
--MODULE_AUTHOR("Rich Felker <dalias@libc.org>");
+-MODULE_AUTHOR("Magnus Damm");
+-MODULE_DESCRIPTION("SuperH KEYSC Keypad Driver");
 -MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:" DRV_NAME);
 -- 
 2.39.0
 
