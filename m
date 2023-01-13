@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7EF5C677F1
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA339C71148
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240797AbjAMG3b (ORCPT
+        id S231342AbjAMG3a (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:29:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
+        Fri, 13 Jan 2023 01:29:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239960AbjAMGZF (ORCPT
+        with ESMTP id S235576AbjAMG1H (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Jan 2023 01:25:05 -0500
+        Fri, 13 Jan 2023 01:27:07 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A72D5F;
-        Thu, 12 Jan 2023 22:24:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505765C1CD;
+        Thu, 12 Jan 2023 22:25:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=2hPC7zlGA9AoDVV3UDFLI3T20RnHyuVZW1qr++X92oI=; b=U0IxPDIbDusxYyls7GAP+XZ9hs
-        WK31Rw57DTsJeVGBg+mDkhc5spH2HTT6S2bZUnUWnMFMzjuRTQxHiqWupbwLk1M9gy0H80/2TyLAr
-        4yZAcNURNOrPm5QlFyeBEx9lyjEDdoNyEPtXoGtYw9kpeDRvlQIm1jqEylL4Lcd6JGXKqeXaBK+NJ
-        +uk9CHMdgG+2G6uVa800FbCPfygKQQtSqfcvxslcKVFQl/oOPnfpUDUTut6HA5FBLlzfI2NTovRY8
-        7+tTh7eQy6PkL+5LvQ1o6k2FC089tht54mg8KW+qjbhQzzqpgcZGx2HuDPkTk929Z5PbzaycfkZ5t
-        Zk42lm1g==;
+        bh=mVSad5lHjsb+kxcSGYOjz7Q3t7OZ/7w3LWvLI7wl90c=; b=dTK4NKZNZ24B+Iy3vetLl8In0m
+        6QyXKjhgkJrMmLcUyhOZKbm0vIupFnylr7pYV8S2hu8IL5FEJ97IN1LaPho1YjqLe7sI4/ONQJffd
+        HrN4knY96XfBH5Dg16XcB4D80tb+duR4+tun9eS3VUi93MmJDYYqXUhNRhigBMvcX6O86ZVpgYnP0
+        Oxo0qqd0c7Q9G2IGb9v1zvuuBflZwymgNPjOxWZjze2G/7PRQRiTyI0cvMRK8B8AtZNO1IocwGSOj
+        LywcuT2MFfxcH/2VNQ6voqoVr4Z3t4S8OtiyGNcDIfWd6cbKEA49ubHxa8fQ7cQSeujuP6MMQBLYI
+        oC2zjRYw==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDU8-000lc0-50; Fri, 13 Jan 2023 06:24:16 +0000
+        id 1pGDUi-000m58-BO; Fri, 13 Jan 2023 06:24:53 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -47,9 +47,9 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 09/22] i2c: remove i2c-sh7760
-Date:   Fri, 13 Jan 2023 07:23:26 +0100
-Message-Id: <20230113062339.1909087-10-hch@lst.de>
+Subject: [PATCH 20/22] media: remove sh_vou
+Date:   Fri, 13 Jan 2023 07:23:37 +0100
+Message-Id: <20230113062339.1909087-21-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
@@ -64,615 +64,1422 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/i2c/busses/Kconfig      |   9 -
- drivers/i2c/busses/Makefile     |   1 -
- drivers/i2c/busses/i2c-sh7760.c | 565 --------------------------------
- 3 files changed, 575 deletions(-)
- delete mode 100644 drivers/i2c/busses/i2c-sh7760.c
+ drivers/media/platform/renesas/Kconfig  |    9 -
+ drivers/media/platform/renesas/Makefile |    1 -
+ drivers/media/platform/renesas/sh_vou.c | 1375 -----------------------
+ 3 files changed, 1385 deletions(-)
+ delete mode 100644 drivers/media/platform/renesas/sh_vou.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 22602c512a6e50..44267a023fd19a 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1016,15 +1016,6 @@ config I2C_S3C2410
- 	  Say Y here to include support for I2C controller in the
- 	  Samsung SoCs (S3C, S5Pv210, Exynos).
+diff --git a/drivers/media/platform/renesas/Kconfig b/drivers/media/platform/renesas/Kconfig
+index 0231672a7e1c32..935b24b864380e 100644
+--- a/drivers/media/platform/renesas/Kconfig
++++ b/drivers/media/platform/renesas/Kconfig
+@@ -31,15 +31,6 @@ config VIDEO_RCAR_ISP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rcar-isp.
  
--config I2C_SH7760
--	tristate "Renesas SH7760 I2C Controller"
--	depends on CPU_SUBTYPE_SH7760
+-config VIDEO_SH_VOU
+-	tristate "SuperH VOU video output driver"
+-	depends on V4L_PLATFORM_DRIVERS
+-	depends on VIDEO_DEV && I2C
+-	depends on ARCH_SHMOBILE || COMPILE_TEST
+-	select VIDEOBUF2_DMA_CONTIG
 -	help
--	  This driver supports the 2 I2C interfaces on the Renesas SH7760.
+-	  Support for the Video Output Unit (VOU) on SuperH SoCs.
 -
--	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-sh7760.
--
- config I2C_SH_MOBILE
- 	tristate "SuperH Mobile I2C Controller"
- 	depends on ARCH_RENESAS || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index e73cdb1d2b5a85..6be213e5e4dd16 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -104,7 +104,6 @@ obj-$(CONFIG_I2C_RIIC)		+= i2c-riic.o
- obj-$(CONFIG_I2C_RK3X)		+= i2c-rk3x.o
- obj-$(CONFIG_I2C_RZV2M)		+= i2c-rzv2m.o
- obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
--obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
- obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
- obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
- obj-$(CONFIG_I2C_SPRD)		+= i2c-sprd.o
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+ source "drivers/media/platform/renesas/rcar-vin/Kconfig"
+ source "drivers/media/platform/renesas/rzg2l-cru/Kconfig"
+ 
+diff --git a/drivers/media/platform/renesas/Makefile b/drivers/media/platform/renesas/Makefile
+index 55854e8688870f..1ae7d825073df3 100644
+--- a/drivers/media/platform/renesas/Makefile
++++ b/drivers/media/platform/renesas/Makefile
+@@ -13,4 +13,3 @@ obj-$(CONFIG_VIDEO_RENESAS_CEU) += renesas-ceu.o
+ obj-$(CONFIG_VIDEO_RENESAS_FCP) += rcar-fcp.o
+ obj-$(CONFIG_VIDEO_RENESAS_FDP1) += rcar_fdp1.o
+ obj-$(CONFIG_VIDEO_RENESAS_JPU) += rcar_jpu.o
+-obj-$(CONFIG_VIDEO_SH_VOU) += sh_vou.o
+diff --git a/drivers/media/platform/renesas/sh_vou.c b/drivers/media/platform/renesas/sh_vou.c
 deleted file mode 100644
-index 319d1fa617c883..00000000000000
---- a/drivers/i2c/busses/i2c-sh7760.c
+index ca4310e26c49ee..00000000000000
+--- a/drivers/media/platform/renesas/sh_vou.c
 +++ /dev/null
-@@ -1,565 +0,0 @@
+@@ -1,1375 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
 -/*
-- * I2C bus driver for the SH7760 I2C Interfaces.
+- * SuperH Video Output Unit (VOU) driver
 - *
-- * (c) 2005-2008 MSC Vertriebsges.m.b.H, Manuel Lauss <mlau@msc-ge.com>
-- *
-- * licensed under the terms outlined in the file COPYING.
-- *
+- * Copyright (C) 2010, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 - */
 -
--#include <linux/completion.h>
+-#include <linux/dma-mapping.h>
 -#include <linux/delay.h>
--#include <linux/err.h>
+-#include <linux/errno.h>
+-#include <linux/fs.h>
 -#include <linux/i2c.h>
+-#include <linux/init.h>
 -#include <linux/interrupt.h>
--#include <linux/ioport.h>
+-#include <linux/kernel.h>
 -#include <linux/platform_device.h>
+-#include <linux/pm_runtime.h>
 -#include <linux/slab.h>
--#include <linux/io.h>
+-#include <linux/videodev2.h>
 -#include <linux/module.h>
 -
--#include <asm/clock.h>
--#include <asm/i2c-sh7760.h>
+-#include <media/drv-intf/sh_vou.h>
+-#include <media/v4l2-common.h>
+-#include <media/v4l2-device.h>
+-#include <media/v4l2-ioctl.h>
+-#include <media/v4l2-mediabus.h>
+-#include <media/videobuf2-v4l2.h>
+-#include <media/videobuf2-dma-contig.h>
 -
--/* register offsets */
--#define I2CSCR		0x0		/* slave ctrl		*/
--#define I2CMCR		0x4		/* master ctrl		*/
--#define I2CSSR		0x8		/* slave status		*/
--#define I2CMSR		0xC		/* master status	*/
--#define I2CSIER		0x10		/* slave irq enable	*/
--#define I2CMIER		0x14		/* master irq enable	*/
--#define I2CCCR		0x18		/* clock dividers	*/
--#define I2CSAR		0x1c		/* slave address	*/
--#define I2CMAR		0x20		/* master address	*/
--#define I2CRXTX		0x24		/* data port		*/
--#define I2CFCR		0x28		/* fifo control		*/
--#define I2CFSR		0x2C		/* fifo status		*/
--#define I2CFIER		0x30		/* fifo irq enable	*/
--#define I2CRFDR		0x34		/* rx fifo count	*/
--#define I2CTFDR		0x38		/* tx fifo count	*/
+-/* Mirror addresses are not available for all registers */
+-#define VOUER	0
+-#define VOUCR	4
+-#define VOUSTR	8
+-#define VOUVCR	0xc
+-#define VOUISR	0x10
+-#define VOUBCR	0x14
+-#define VOUDPR	0x18
+-#define VOUDSR	0x1c
+-#define VOUVPR	0x20
+-#define VOUIR	0x24
+-#define VOUSRR	0x28
+-#define VOUMSR	0x2c
+-#define VOUHIR	0x30
+-#define VOUDFR	0x34
+-#define VOUAD1R	0x38
+-#define VOUAD2R	0x3c
+-#define VOUAIR	0x40
+-#define VOUSWR	0x44
+-#define VOURCR	0x48
+-#define VOURPR	0x50
 -
--#define REGSIZE		0x3C
--
--#define MCR_MDBS	0x80		/* non-fifo mode switch	*/
--#define MCR_FSCL	0x40		/* override SCL pin	*/
--#define MCR_FSDA	0x20		/* override SDA pin	*/
--#define MCR_OBPC	0x10		/* override pins	*/
--#define MCR_MIE		0x08		/* master if enable	*/
--#define MCR_TSBE	0x04
--#define MCR_FSB		0x02		/* force stop bit	*/
--#define MCR_ESG		0x01		/* en startbit gen.	*/
--
--#define MSR_MNR		0x40		/* nack received	*/
--#define MSR_MAL		0x20		/* arbitration lost	*/
--#define MSR_MST		0x10		/* sent a stop		*/
--#define MSR_MDE		0x08
--#define MSR_MDT		0x04
--#define MSR_MDR		0x02
--#define MSR_MAT		0x01		/* slave addr xfer done	*/
--
--#define MIE_MNRE	0x40		/* nack irq en		*/
--#define MIE_MALE	0x20		/* arblos irq en	*/
--#define MIE_MSTE	0x10		/* stop irq en		*/
--#define MIE_MDEE	0x08
--#define MIE_MDTE	0x04
--#define MIE_MDRE	0x02
--#define MIE_MATE	0x01		/* address sent irq en	*/
--
--#define FCR_RFRST	0x02		/* reset rx fifo	*/
--#define FCR_TFRST	0x01		/* reset tx fifo	*/
--
--#define FSR_TEND	0x04		/* last byte sent	*/
--#define FSR_RDF		0x02		/* rx fifo trigger	*/
--#define FSR_TDFE	0x01		/* tx fifo empty	*/
--
--#define FIER_TEIE	0x04		/* tx fifo empty irq en	*/
--#define FIER_RXIE	0x02		/* rx fifo trig irq en	*/
--#define FIER_TXIE	0x01		/* tx fifo trig irq en	*/
--
--#define FIFO_SIZE	16
--
--struct cami2c {
--	void __iomem *iobase;
--	struct i2c_adapter adap;
--
--	/* message processing */
--	struct i2c_msg	*msg;
--#define IDF_SEND	1
--#define IDF_RECV	2
--#define IDF_STOP	4
--	int		flags;
--
--#define IDS_DONE	1
--#define IDS_ARBLOST	2
--#define IDS_NACK	4
--	int		status;
--	struct completion xfer_done;
--
--	int irq;
--	struct resource *ioarea;
+-enum sh_vou_status {
+-	SH_VOU_IDLE,
+-	SH_VOU_INITIALISING,
+-	SH_VOU_RUNNING,
 -};
 -
--static inline void OUT32(struct cami2c *cam, int reg, unsigned long val)
+-#define VOU_MIN_IMAGE_WIDTH	16
+-#define VOU_MAX_IMAGE_WIDTH	720
+-#define VOU_MIN_IMAGE_HEIGHT	16
+-
+-struct sh_vou_buffer {
+-	struct vb2_v4l2_buffer vb;
+-	struct list_head list;
+-};
+-
+-static inline struct
+-sh_vou_buffer *to_sh_vou_buffer(struct vb2_v4l2_buffer *vb2)
 -{
--	__raw_writel(val, (unsigned long)cam->iobase + reg);
+-	return container_of(vb2, struct sh_vou_buffer, vb);
 -}
 -
--static inline unsigned long IN32(struct cami2c *cam, int reg)
+-struct sh_vou_device {
+-	struct v4l2_device v4l2_dev;
+-	struct video_device vdev;
+-	struct sh_vou_pdata *pdata;
+-	spinlock_t lock;
+-	void __iomem *base;
+-	/* State information */
+-	struct v4l2_pix_format pix;
+-	struct v4l2_rect rect;
+-	struct list_head buf_list;
+-	v4l2_std_id std;
+-	int pix_idx;
+-	struct vb2_queue queue;
+-	struct sh_vou_buffer *active;
+-	enum sh_vou_status status;
+-	unsigned sequence;
+-	struct mutex fop_lock;
+-};
+-
+-/* Register access routines for sides A, B and mirror addresses */
+-static void sh_vou_reg_a_write(struct sh_vou_device *vou_dev, unsigned int reg,
+-			       u32 value)
 -{
--	return __raw_readl((unsigned long)cam->iobase + reg);
+-	__raw_writel(value, vou_dev->base + reg);
 -}
 -
--static irqreturn_t sh7760_i2c_irq(int irq, void *ptr)
+-static void sh_vou_reg_ab_write(struct sh_vou_device *vou_dev, unsigned int reg,
+-				u32 value)
 -{
--	struct cami2c *id = ptr;
--	struct i2c_msg *msg = id->msg;
--	char *data = msg->buf;
--	unsigned long msr, fsr, fier, len;
+-	__raw_writel(value, vou_dev->base + reg);
+-	__raw_writel(value, vou_dev->base + reg + 0x1000);
+-}
 -
--	msr = IN32(id, I2CMSR);
--	fsr = IN32(id, I2CFSR);
+-static void sh_vou_reg_m_write(struct sh_vou_device *vou_dev, unsigned int reg,
+-			       u32 value)
+-{
+-	__raw_writel(value, vou_dev->base + reg + 0x2000);
+-}
 -
--	/* arbitration lost */
--	if (msr & MSR_MAL) {
--		OUT32(id, I2CMCR, 0);
--		OUT32(id, I2CSCR, 0);
--		OUT32(id, I2CSAR, 0);
--		id->status |= IDS_DONE | IDS_ARBLOST;
--		goto out;
+-static u32 sh_vou_reg_a_read(struct sh_vou_device *vou_dev, unsigned int reg)
+-{
+-	return __raw_readl(vou_dev->base + reg);
+-}
+-
+-static void sh_vou_reg_a_set(struct sh_vou_device *vou_dev, unsigned int reg,
+-			     u32 value, u32 mask)
+-{
+-	u32 old = __raw_readl(vou_dev->base + reg);
+-
+-	value = (value & mask) | (old & ~mask);
+-	__raw_writel(value, vou_dev->base + reg);
+-}
+-
+-static void sh_vou_reg_b_set(struct sh_vou_device *vou_dev, unsigned int reg,
+-			     u32 value, u32 mask)
+-{
+-	sh_vou_reg_a_set(vou_dev, reg + 0x1000, value, mask);
+-}
+-
+-static void sh_vou_reg_ab_set(struct sh_vou_device *vou_dev, unsigned int reg,
+-			      u32 value, u32 mask)
+-{
+-	sh_vou_reg_a_set(vou_dev, reg, value, mask);
+-	sh_vou_reg_b_set(vou_dev, reg, value, mask);
+-}
+-
+-struct sh_vou_fmt {
+-	u32		pfmt;
+-	unsigned char	bpp;
+-	unsigned char	bpl;
+-	unsigned char	rgb;
+-	unsigned char	yf;
+-	unsigned char	pkf;
+-};
+-
+-/* Further pixel formats can be added */
+-static struct sh_vou_fmt vou_fmt[] = {
+-	{
+-		.pfmt	= V4L2_PIX_FMT_NV12,
+-		.bpp	= 12,
+-		.bpl	= 1,
+-		.yf	= 0,
+-		.rgb	= 0,
+-	},
+-	{
+-		.pfmt	= V4L2_PIX_FMT_NV16,
+-		.bpp	= 16,
+-		.bpl	= 1,
+-		.yf	= 1,
+-		.rgb	= 0,
+-	},
+-	{
+-		.pfmt	= V4L2_PIX_FMT_RGB24,
+-		.bpp	= 24,
+-		.bpl	= 3,
+-		.pkf	= 2,
+-		.rgb	= 1,
+-	},
+-	{
+-		.pfmt	= V4L2_PIX_FMT_RGB565,
+-		.bpp	= 16,
+-		.bpl	= 2,
+-		.pkf	= 3,
+-		.rgb	= 1,
+-	},
+-	{
+-		.pfmt	= V4L2_PIX_FMT_RGB565X,
+-		.bpp	= 16,
+-		.bpl	= 2,
+-		.pkf	= 3,
+-		.rgb	= 1,
+-	},
+-};
+-
+-static void sh_vou_schedule_next(struct sh_vou_device *vou_dev,
+-				 struct vb2_v4l2_buffer *vbuf)
+-{
+-	dma_addr_t addr1, addr2;
+-
+-	addr1 = vb2_dma_contig_plane_dma_addr(&vbuf->vb2_buf, 0);
+-	switch (vou_dev->pix.pixelformat) {
+-	case V4L2_PIX_FMT_NV12:
+-	case V4L2_PIX_FMT_NV16:
+-		addr2 = addr1 + vou_dev->pix.width * vou_dev->pix.height;
+-		break;
+-	default:
+-		addr2 = 0;
 -	}
 -
--	if (msr & MSR_MNR) {
--		/* NACK handling is very screwed up.  After receiving a
--		 * NAK IRQ one has to wait a bit  before writing to any
--		 * registers, or the ctl will lock up. After that delay
--		 * do a normal i2c stop. Then wait at least 1 ms before
--		 * attempting another transfer or ctl will stop working
--		 */
--		udelay(100);	/* wait or risk ctl hang */
--		OUT32(id, I2CFCR, FCR_RFRST | FCR_TFRST);
--		OUT32(id, I2CMCR, MCR_MIE | MCR_FSB);
--		OUT32(id, I2CFIER, 0);
--		OUT32(id, I2CMIER, MIE_MSTE);
--		OUT32(id, I2CSCR, 0);
--		OUT32(id, I2CSAR, 0);
--		id->status |= IDS_NACK;
--		msr &= ~MSR_MAT;
--		fsr = 0;
--		/* In some cases the MST bit is also set. */
+-	sh_vou_reg_m_write(vou_dev, VOUAD1R, addr1);
+-	sh_vou_reg_m_write(vou_dev, VOUAD2R, addr2);
+-}
+-
+-static void sh_vou_stream_config(struct sh_vou_device *vou_dev)
+-{
+-	unsigned int row_coeff;
+-#ifdef __LITTLE_ENDIAN
+-	u32 dataswap = 7;
+-#else
+-	u32 dataswap = 0;
+-#endif
+-
+-	switch (vou_dev->pix.pixelformat) {
+-	default:
+-	case V4L2_PIX_FMT_NV12:
+-	case V4L2_PIX_FMT_NV16:
+-		row_coeff = 1;
+-		break;
+-	case V4L2_PIX_FMT_RGB565:
+-		dataswap ^= 1;
+-		fallthrough;
+-	case V4L2_PIX_FMT_RGB565X:
+-		row_coeff = 2;
+-		break;
+-	case V4L2_PIX_FMT_RGB24:
+-		row_coeff = 3;
+-		break;
 -	}
 -
--	/* i2c-stop was sent */
--	if (msr & MSR_MST) {
--		id->status |= IDS_DONE;
--		goto out;
+-	sh_vou_reg_a_write(vou_dev, VOUSWR, dataswap);
+-	sh_vou_reg_ab_write(vou_dev, VOUAIR, vou_dev->pix.width * row_coeff);
+-}
+-
+-/* Locking: caller holds fop_lock mutex */
+-static int sh_vou_queue_setup(struct vb2_queue *vq,
+-		       unsigned int *nbuffers, unsigned int *nplanes,
+-		       unsigned int sizes[], struct device *alloc_devs[])
+-{
+-	struct sh_vou_device *vou_dev = vb2_get_drv_priv(vq);
+-	struct v4l2_pix_format *pix = &vou_dev->pix;
+-	int bytes_per_line = vou_fmt[vou_dev->pix_idx].bpp * pix->width / 8;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	if (*nplanes)
+-		return sizes[0] < pix->height * bytes_per_line ? -EINVAL : 0;
+-	*nplanes = 1;
+-	sizes[0] = pix->height * bytes_per_line;
+-	return 0;
+-}
+-
+-static int sh_vou_buf_prepare(struct vb2_buffer *vb)
+-{
+-	struct sh_vou_device *vou_dev = vb2_get_drv_priv(vb->vb2_queue);
+-	struct v4l2_pix_format *pix = &vou_dev->pix;
+-	unsigned bytes_per_line = vou_fmt[vou_dev->pix_idx].bpp * pix->width / 8;
+-	unsigned size = pix->height * bytes_per_line;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	if (vb2_plane_size(vb, 0) < size) {
+-		/* User buffer too small */
+-		dev_warn(vou_dev->v4l2_dev.dev, "buffer too small (%lu < %u)\n",
+-			 vb2_plane_size(vb, 0), size);
+-		return -EINVAL;
 -	}
 -
--	/* i2c slave addr was sent; set to "normal" operation */
--	if (msr & MSR_MAT)
--		OUT32(id, I2CMCR, MCR_MIE);
+-	vb2_set_plane_payload(vb, 0, size);
+-	return 0;
+-}
 -
--	fier = IN32(id, I2CFIER);
+-/* Locking: caller holds fop_lock mutex and vq->irqlock spinlock */
+-static void sh_vou_buf_queue(struct vb2_buffer *vb)
+-{
+-	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+-	struct sh_vou_device *vou_dev = vb2_get_drv_priv(vb->vb2_queue);
+-	struct sh_vou_buffer *shbuf = to_sh_vou_buffer(vbuf);
+-	unsigned long flags;
 -
--	if (fsr & FSR_RDF) {
--		len = IN32(id, I2CRFDR);
--		if (msg->len <= len) {
--			if (id->flags & IDF_STOP) {
--				OUT32(id, I2CMCR, MCR_MIE | MCR_FSB);
--				OUT32(id, I2CFIER, 0);
--				/* manual says: wait >= 0.5 SCL times */
--				udelay(5);
--				/* next int should be MST */
--			} else {
--				id->status |= IDS_DONE;
--				/* keep the RDF bit: ctrl holds SCL low
--				 * until the setup for the next i2c_msg
--				 * clears this bit.
--				 */
--				fsr &= ~FSR_RDF;
--			}
+-	spin_lock_irqsave(&vou_dev->lock, flags);
+-	list_add_tail(&shbuf->list, &vou_dev->buf_list);
+-	spin_unlock_irqrestore(&vou_dev->lock, flags);
+-}
+-
+-static int sh_vou_start_streaming(struct vb2_queue *vq, unsigned int count)
+-{
+-	struct sh_vou_device *vou_dev = vb2_get_drv_priv(vq);
+-	struct sh_vou_buffer *buf, *node;
+-	int ret;
+-
+-	vou_dev->sequence = 0;
+-	ret = v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0,
+-					 video, s_stream, 1);
+-	if (ret < 0 && ret != -ENOIOCTLCMD) {
+-		list_for_each_entry_safe(buf, node, &vou_dev->buf_list, list) {
+-			vb2_buffer_done(&buf->vb.vb2_buf,
+-					VB2_BUF_STATE_QUEUED);
+-			list_del(&buf->list);
 -		}
--		while (msg->len && len) {
--			*data++ = IN32(id, I2CRXTX);
--			msg->len--;
--			len--;
--		}
--
--		if (msg->len) {
--			len = (msg->len >= FIFO_SIZE) ? FIFO_SIZE - 1
--						      : msg->len - 1;
--
--			OUT32(id, I2CFCR, FCR_TFRST | ((len & 0xf) << 4));
--		}
--
--	} else if (id->flags & IDF_SEND) {
--		if ((fsr & FSR_TEND) && (msg->len < 1)) {
--			if (id->flags & IDF_STOP) {
--				OUT32(id, I2CMCR, MCR_MIE | MCR_FSB);
--			} else {
--				id->status |= IDS_DONE;
--				/* keep the TEND bit: ctl holds SCL low
--				 * until the setup for the next i2c_msg
--				 * clears this bit.
--				 */
--				fsr &= ~FSR_TEND;
--			}
--		}
--		if (fsr & FSR_TDFE) {
--			while (msg->len && (IN32(id, I2CTFDR) < FIFO_SIZE)) {
--				OUT32(id, I2CRXTX, *data++);
--				msg->len--;
--			}
--
--			if (msg->len < 1) {
--				fier &= ~FIER_TXIE;
--				OUT32(id, I2CFIER, fier);
--			} else {
--				len = (msg->len >= FIFO_SIZE) ? 2 : 0;
--				OUT32(id, I2CFCR,
--					  FCR_RFRST | ((len & 3) << 2));
--			}
--		}
+-		vou_dev->active = NULL;
+-		return ret;
 -	}
--out:
--	if (id->status & IDS_DONE) {
--		OUT32(id, I2CMIER, 0);
--		OUT32(id, I2CFIER, 0);
--		id->msg = NULL;
--		complete(&id->xfer_done);
+-
+-	buf = list_entry(vou_dev->buf_list.next, struct sh_vou_buffer, list);
+-
+-	vou_dev->active = buf;
+-
+-	/* Start from side A: we use mirror addresses, so, set B */
+-	sh_vou_reg_a_write(vou_dev, VOURPR, 1);
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s: first buffer status 0x%x\n",
+-		__func__, sh_vou_reg_a_read(vou_dev, VOUSTR));
+-	sh_vou_schedule_next(vou_dev, &buf->vb);
+-
+-	buf = list_entry(buf->list.next, struct sh_vou_buffer, list);
+-
+-	/* Second buffer - initialise register side B */
+-	sh_vou_reg_a_write(vou_dev, VOURPR, 0);
+-	sh_vou_schedule_next(vou_dev, &buf->vb);
+-
+-	/* Register side switching with frame VSYNC */
+-	sh_vou_reg_a_write(vou_dev, VOURCR, 5);
+-
+-	sh_vou_stream_config(vou_dev);
+-	/* Enable End-of-Frame (VSYNC) interrupts */
+-	sh_vou_reg_a_write(vou_dev, VOUIR, 0x10004);
+-
+-	/* Two buffers on the queue - activate the hardware */
+-	vou_dev->status = SH_VOU_RUNNING;
+-	sh_vou_reg_a_write(vou_dev, VOUER, 0x107);
+-	return 0;
+-}
+-
+-static void sh_vou_stop_streaming(struct vb2_queue *vq)
+-{
+-	struct sh_vou_device *vou_dev = vb2_get_drv_priv(vq);
+-	struct sh_vou_buffer *buf, *node;
+-	unsigned long flags;
+-
+-	v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0,
+-					 video, s_stream, 0);
+-	/* disable output */
+-	sh_vou_reg_a_set(vou_dev, VOUER, 0, 1);
+-	/* ...but the current frame will complete */
+-	sh_vou_reg_a_set(vou_dev, VOUIR, 0, 0x30000);
+-	msleep(50);
+-	spin_lock_irqsave(&vou_dev->lock, flags);
+-	list_for_each_entry_safe(buf, node, &vou_dev->buf_list, list) {
+-		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+-		list_del(&buf->list);
 -	}
--	/* clear status flags and ctrl resumes work */
--	OUT32(id, I2CMSR, ~msr);
--	OUT32(id, I2CFSR, ~fsr);
--	OUT32(id, I2CSSR, 0);
+-	vou_dev->active = NULL;
+-	spin_unlock_irqrestore(&vou_dev->lock, flags);
+-}
+-
+-static const struct vb2_ops sh_vou_qops = {
+-	.queue_setup		= sh_vou_queue_setup,
+-	.buf_prepare		= sh_vou_buf_prepare,
+-	.buf_queue		= sh_vou_buf_queue,
+-	.start_streaming	= sh_vou_start_streaming,
+-	.stop_streaming		= sh_vou_stop_streaming,
+-	.wait_prepare		= vb2_ops_wait_prepare,
+-	.wait_finish		= vb2_ops_wait_finish,
+-};
+-
+-/* Video IOCTLs */
+-static int sh_vou_querycap(struct file *file, void  *priv,
+-			   struct v4l2_capability *cap)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	strscpy(cap->card, "SuperH VOU", sizeof(cap->card));
+-	strscpy(cap->driver, "sh-vou", sizeof(cap->driver));
+-	strscpy(cap->bus_info, "platform:sh-vou", sizeof(cap->bus_info));
+-	return 0;
+-}
+-
+-/* Enumerate formats, that the device can accept from the user */
+-static int sh_vou_enum_fmt_vid_out(struct file *file, void  *priv,
+-				   struct v4l2_fmtdesc *fmt)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	if (fmt->index >= ARRAY_SIZE(vou_fmt))
+-		return -EINVAL;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	fmt->pixelformat = vou_fmt[fmt->index].pfmt;
+-
+-	return 0;
+-}
+-
+-static int sh_vou_g_fmt_vid_out(struct file *file, void *priv,
+-				struct v4l2_format *fmt)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	fmt->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+-	fmt->fmt.pix = vou_dev->pix;
+-
+-	return 0;
+-}
+-
+-static const unsigned char vou_scale_h_num[] = {1, 9, 2, 9, 4};
+-static const unsigned char vou_scale_h_den[] = {1, 8, 1, 4, 1};
+-static const unsigned char vou_scale_h_fld[] = {0, 2, 1, 3};
+-static const unsigned char vou_scale_v_num[] = {1, 2, 4};
+-static const unsigned char vou_scale_v_den[] = {1, 1, 1};
+-static const unsigned char vou_scale_v_fld[] = {0, 1};
+-
+-static void sh_vou_configure_geometry(struct sh_vou_device *vou_dev,
+-				      int pix_idx, int w_idx, int h_idx)
+-{
+-	struct sh_vou_fmt *fmt = vou_fmt + pix_idx;
+-	unsigned int black_left, black_top, width_max,
+-		frame_in_height, frame_out_height, frame_out_top;
+-	struct v4l2_rect *rect = &vou_dev->rect;
+-	struct v4l2_pix_format *pix = &vou_dev->pix;
+-	u32 vouvcr = 0, dsr_h, dsr_v;
+-
+-	if (vou_dev->std & V4L2_STD_525_60) {
+-		width_max = 858;
+-		/* height_max = 262; */
+-	} else {
+-		width_max = 864;
+-		/* height_max = 312; */
+-	}
+-
+-	frame_in_height = pix->height / 2;
+-	frame_out_height = rect->height / 2;
+-	frame_out_top = rect->top / 2;
+-
+-	/*
+-	 * Cropping scheme: max useful image is 720x480, and the total video
+-	 * area is 858x525 (NTSC) or 864x625 (PAL). AK8813 / 8814 starts
+-	 * sampling data beginning with fixed 276th (NTSC) / 288th (PAL) clock,
+-	 * of which the first 33 / 25 clocks HSYNC must be held active. This
+-	 * has to be configured in CR[HW]. 1 pixel equals 2 clock periods.
+-	 * This gives CR[HW] = 16 / 12, VPR[HVP] = 138 / 144, which gives
+-	 * exactly 858 - 138 = 864 - 144 = 720! We call the out-of-display area,
+-	 * beyond DSR, specified on the left and top by the VPR register "black
+-	 * pixels" and out-of-image area (DPR) "background pixels." We fix VPR
+-	 * at 138 / 144 : 20, because that's the HSYNC timing, that our first
+-	 * client requires, and that's exactly what leaves us 720 pixels for the
+-	 * image; we leave VPR[VVP] at default 20 for now, because the client
+-	 * doesn't seem to have any special requirements for it. Otherwise we
+-	 * could also set it to max - 240 = 22 / 72. Thus VPR depends only on
+-	 * the selected standard, and DPR and DSR are selected according to
+-	 * cropping. Q: how does the client detect the first valid line? Does
+-	 * HSYNC stay inactive during invalid (black) lines?
+-	 */
+-	black_left = width_max - VOU_MAX_IMAGE_WIDTH;
+-	black_top = 20;
+-
+-	dsr_h = rect->width + rect->left;
+-	dsr_v = frame_out_height + frame_out_top;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev,
+-		"image %ux%u, black %u:%u, offset %u:%u, display %ux%u\n",
+-		pix->width, frame_in_height, black_left, black_top,
+-		rect->left, frame_out_top, dsr_h, dsr_v);
+-
+-	/* VOUISR height - half of a frame height in frame mode */
+-	sh_vou_reg_ab_write(vou_dev, VOUISR, (pix->width << 16) | frame_in_height);
+-	sh_vou_reg_ab_write(vou_dev, VOUVPR, (black_left << 16) | black_top);
+-	sh_vou_reg_ab_write(vou_dev, VOUDPR, (rect->left << 16) | frame_out_top);
+-	sh_vou_reg_ab_write(vou_dev, VOUDSR, (dsr_h << 16) | dsr_v);
+-
+-	/*
+-	 * if necessary, we could set VOUHIR to
+-	 * max(black_left + dsr_h, width_max) here
+-	 */
+-
+-	if (w_idx)
+-		vouvcr |= (1 << 15) | (vou_scale_h_fld[w_idx - 1] << 4);
+-	if (h_idx)
+-		vouvcr |= (1 << 14) | vou_scale_v_fld[h_idx - 1];
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "0x%08x: scaling 0x%x\n",
+-		fmt->pfmt, vouvcr);
+-
+-	/* To produce a colour bar for testing set bit 23 of VOUVCR */
+-	sh_vou_reg_ab_write(vou_dev, VOUVCR, vouvcr);
+-	sh_vou_reg_ab_write(vou_dev, VOUDFR,
+-			    fmt->pkf | (fmt->yf << 8) | (fmt->rgb << 16));
+-}
+-
+-struct sh_vou_geometry {
+-	struct v4l2_rect output;
+-	unsigned int in_width;
+-	unsigned int in_height;
+-	int scale_idx_h;
+-	int scale_idx_v;
+-};
+-
+-/*
+- * Find input geometry, that we can use to produce output, closest to the
+- * requested rectangle, using VOU scaling
+- */
+-static void vou_adjust_input(struct sh_vou_geometry *geo, v4l2_std_id std)
+-{
+-	/* The compiler cannot know, that best and idx will indeed be set */
+-	unsigned int best_err = UINT_MAX, best = 0, img_height_max;
+-	int i, idx = 0;
+-
+-	if (std & V4L2_STD_525_60)
+-		img_height_max = 480;
+-	else
+-		img_height_max = 576;
+-
+-	/* Image width must be a multiple of 4 */
+-	v4l_bound_align_image(&geo->in_width,
+-			      VOU_MIN_IMAGE_WIDTH, VOU_MAX_IMAGE_WIDTH, 2,
+-			      &geo->in_height,
+-			      VOU_MIN_IMAGE_HEIGHT, img_height_max, 1, 0);
+-
+-	/* Select scales to come as close as possible to the output image */
+-	for (i = ARRAY_SIZE(vou_scale_h_num) - 1; i >= 0; i--) {
+-		unsigned int err;
+-		unsigned int found = geo->output.width * vou_scale_h_den[i] /
+-			vou_scale_h_num[i];
+-
+-		if (found > VOU_MAX_IMAGE_WIDTH)
+-			/* scales increase */
+-			break;
+-
+-		err = abs(found - geo->in_width);
+-		if (err < best_err) {
+-			best_err = err;
+-			idx = i;
+-			best = found;
+-		}
+-		if (!err)
+-			break;
+-	}
+-
+-	geo->in_width = best;
+-	geo->scale_idx_h = idx;
+-
+-	best_err = UINT_MAX;
+-
+-	/* This loop can be replaced with one division */
+-	for (i = ARRAY_SIZE(vou_scale_v_num) - 1; i >= 0; i--) {
+-		unsigned int err;
+-		unsigned int found = geo->output.height * vou_scale_v_den[i] /
+-			vou_scale_v_num[i];
+-
+-		if (found > img_height_max)
+-			/* scales increase */
+-			break;
+-
+-		err = abs(found - geo->in_height);
+-		if (err < best_err) {
+-			best_err = err;
+-			idx = i;
+-			best = found;
+-		}
+-		if (!err)
+-			break;
+-	}
+-
+-	geo->in_height = best;
+-	geo->scale_idx_v = idx;
+-}
+-
+-/*
+- * Find output geometry, that we can produce, using VOU scaling, closest to
+- * the requested rectangle
+- */
+-static void vou_adjust_output(struct sh_vou_geometry *geo, v4l2_std_id std)
+-{
+-	unsigned int best_err = UINT_MAX, best = geo->in_width,
+-		width_max, height_max, img_height_max;
+-	int i, idx_h = 0, idx_v = 0;
+-
+-	if (std & V4L2_STD_525_60) {
+-		width_max = 858;
+-		height_max = 262 * 2;
+-		img_height_max = 480;
+-	} else {
+-		width_max = 864;
+-		height_max = 312 * 2;
+-		img_height_max = 576;
+-	}
+-
+-	/* Select scales to come as close as possible to the output image */
+-	for (i = 0; i < ARRAY_SIZE(vou_scale_h_num); i++) {
+-		unsigned int err;
+-		unsigned int found = geo->in_width * vou_scale_h_num[i] /
+-			vou_scale_h_den[i];
+-
+-		if (found > VOU_MAX_IMAGE_WIDTH)
+-			/* scales increase */
+-			break;
+-
+-		err = abs(found - geo->output.width);
+-		if (err < best_err) {
+-			best_err = err;
+-			idx_h = i;
+-			best = found;
+-		}
+-		if (!err)
+-			break;
+-	}
+-
+-	geo->output.width = best;
+-	geo->scale_idx_h = idx_h;
+-	if (geo->output.left + best > width_max)
+-		geo->output.left = width_max - best;
+-
+-	pr_debug("%s(): W %u * %u/%u = %u\n", __func__, geo->in_width,
+-		 vou_scale_h_num[idx_h], vou_scale_h_den[idx_h], best);
+-
+-	best_err = UINT_MAX;
+-
+-	/* This loop can be replaced with one division */
+-	for (i = 0; i < ARRAY_SIZE(vou_scale_v_num); i++) {
+-		unsigned int err;
+-		unsigned int found = geo->in_height * vou_scale_v_num[i] /
+-			vou_scale_v_den[i];
+-
+-		if (found > img_height_max)
+-			/* scales increase */
+-			break;
+-
+-		err = abs(found - geo->output.height);
+-		if (err < best_err) {
+-			best_err = err;
+-			idx_v = i;
+-			best = found;
+-		}
+-		if (!err)
+-			break;
+-	}
+-
+-	geo->output.height = best;
+-	geo->scale_idx_v = idx_v;
+-	if (geo->output.top + best > height_max)
+-		geo->output.top = height_max - best;
+-
+-	pr_debug("%s(): H %u * %u/%u = %u\n", __func__, geo->in_height,
+-		 vou_scale_v_num[idx_v], vou_scale_v_den[idx_v], best);
+-}
+-
+-static int sh_vou_try_fmt_vid_out(struct file *file, void *priv,
+-				  struct v4l2_format *fmt)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	struct v4l2_pix_format *pix = &fmt->fmt.pix;
+-	unsigned int img_height_max;
+-	int pix_idx;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	pix->field = V4L2_FIELD_INTERLACED;
+-	pix->colorspace = V4L2_COLORSPACE_SMPTE170M;
+-	pix->ycbcr_enc = pix->quantization = 0;
+-
+-	for (pix_idx = 0; pix_idx < ARRAY_SIZE(vou_fmt); pix_idx++)
+-		if (vou_fmt[pix_idx].pfmt == pix->pixelformat)
+-			break;
+-
+-	if (pix_idx == ARRAY_SIZE(vou_fmt))
+-		return -EINVAL;
+-
+-	if (vou_dev->std & V4L2_STD_525_60)
+-		img_height_max = 480;
+-	else
+-		img_height_max = 576;
+-
+-	v4l_bound_align_image(&pix->width,
+-			      VOU_MIN_IMAGE_WIDTH, VOU_MAX_IMAGE_WIDTH, 2,
+-			      &pix->height,
+-			      VOU_MIN_IMAGE_HEIGHT, img_height_max, 1, 0);
+-	pix->bytesperline = pix->width * vou_fmt[pix_idx].bpl;
+-	pix->sizeimage = pix->height * ((pix->width * vou_fmt[pix_idx].bpp) >> 3);
+-
+-	return 0;
+-}
+-
+-static int sh_vou_set_fmt_vid_out(struct sh_vou_device *vou_dev,
+-				struct v4l2_pix_format *pix)
+-{
+-	unsigned int img_height_max;
+-	struct sh_vou_geometry geo;
+-	struct v4l2_subdev_format format = {
+-		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+-		/* Revisit: is this the correct code? */
+-		.format.code = MEDIA_BUS_FMT_YUYV8_2X8,
+-		.format.field = V4L2_FIELD_INTERLACED,
+-		.format.colorspace = V4L2_COLORSPACE_SMPTE170M,
+-	};
+-	struct v4l2_mbus_framefmt *mbfmt = &format.format;
+-	int pix_idx;
+-	int ret;
+-
+-	if (vb2_is_busy(&vou_dev->queue))
+-		return -EBUSY;
+-
+-	for (pix_idx = 0; pix_idx < ARRAY_SIZE(vou_fmt); pix_idx++)
+-		if (vou_fmt[pix_idx].pfmt == pix->pixelformat)
+-			break;
+-
+-	geo.in_width = pix->width;
+-	geo.in_height = pix->height;
+-	geo.output = vou_dev->rect;
+-
+-	vou_adjust_output(&geo, vou_dev->std);
+-
+-	mbfmt->width = geo.output.width;
+-	mbfmt->height = geo.output.height;
+-	ret = v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0, pad,
+-					 set_fmt, NULL, &format);
+-	/* Must be implemented, so, don't check for -ENOIOCTLCMD */
+-	if (ret < 0)
+-		return ret;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s(): %ux%u -> %ux%u\n", __func__,
+-		geo.output.width, geo.output.height, mbfmt->width, mbfmt->height);
+-
+-	if (vou_dev->std & V4L2_STD_525_60)
+-		img_height_max = 480;
+-	else
+-		img_height_max = 576;
+-
+-	/* Sanity checks */
+-	if ((unsigned)mbfmt->width > VOU_MAX_IMAGE_WIDTH ||
+-	    (unsigned)mbfmt->height > img_height_max ||
+-	    mbfmt->code != MEDIA_BUS_FMT_YUYV8_2X8)
+-		return -EIO;
+-
+-	if (mbfmt->width != geo.output.width ||
+-	    mbfmt->height != geo.output.height) {
+-		geo.output.width = mbfmt->width;
+-		geo.output.height = mbfmt->height;
+-
+-		vou_adjust_input(&geo, vou_dev->std);
+-	}
+-
+-	/* We tried to preserve output rectangle, but it could have changed */
+-	vou_dev->rect = geo.output;
+-	pix->width = geo.in_width;
+-	pix->height = geo.in_height;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s(): %ux%u\n", __func__,
+-		pix->width, pix->height);
+-
+-	vou_dev->pix_idx = pix_idx;
+-
+-	vou_dev->pix = *pix;
+-
+-	sh_vou_configure_geometry(vou_dev, pix_idx,
+-				  geo.scale_idx_h, geo.scale_idx_v);
+-
+-	return 0;
+-}
+-
+-static int sh_vou_s_fmt_vid_out(struct file *file, void *priv,
+-				struct v4l2_format *fmt)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	int ret = sh_vou_try_fmt_vid_out(file, priv, fmt);
+-
+-	if (ret)
+-		return ret;
+-	return sh_vou_set_fmt_vid_out(vou_dev, &fmt->fmt.pix);
+-}
+-
+-static int sh_vou_enum_output(struct file *file, void *fh,
+-			      struct v4l2_output *a)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	if (a->index)
+-		return -EINVAL;
+-	strscpy(a->name, "Video Out", sizeof(a->name));
+-	a->type = V4L2_OUTPUT_TYPE_ANALOG;
+-	a->std = vou_dev->vdev.tvnorms;
+-	return 0;
+-}
+-
+-static int sh_vou_g_output(struct file *file, void *fh, unsigned int *i)
+-{
+-	*i = 0;
+-	return 0;
+-}
+-
+-static int sh_vou_s_output(struct file *file, void *fh, unsigned int i)
+-{
+-	return i ? -EINVAL : 0;
+-}
+-
+-static u32 sh_vou_ntsc_mode(enum sh_vou_bus_fmt bus_fmt)
+-{
+-	switch (bus_fmt) {
+-	default:
+-		pr_warn("%s(): Invalid bus-format code %d, using default 8-bit\n",
+-			__func__, bus_fmt);
+-		fallthrough;
+-	case SH_VOU_BUS_8BIT:
+-		return 1;
+-	case SH_VOU_BUS_16BIT:
+-		return 0;
+-	case SH_VOU_BUS_BT656:
+-		return 3;
+-	}
+-}
+-
+-static int sh_vou_s_std(struct file *file, void *priv, v4l2_std_id std_id)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	int ret;
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s(): 0x%llx\n", __func__, std_id);
+-
+-	if (std_id == vou_dev->std)
+-		return 0;
+-
+-	if (vb2_is_busy(&vou_dev->queue))
+-		return -EBUSY;
+-
+-	ret = v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0, video,
+-					 s_std_output, std_id);
+-	/* Shall we continue, if the subdev doesn't support .s_std_output()? */
+-	if (ret < 0 && ret != -ENOIOCTLCMD)
+-		return ret;
+-
+-	vou_dev->rect.top = vou_dev->rect.left = 0;
+-	vou_dev->rect.width = VOU_MAX_IMAGE_WIDTH;
+-	if (std_id & V4L2_STD_525_60) {
+-		sh_vou_reg_ab_set(vou_dev, VOUCR,
+-			sh_vou_ntsc_mode(vou_dev->pdata->bus_fmt) << 29, 7 << 29);
+-		vou_dev->rect.height = 480;
+-	} else {
+-		sh_vou_reg_ab_set(vou_dev, VOUCR, 5 << 29, 7 << 29);
+-		vou_dev->rect.height = 576;
+-	}
+-
+-	vou_dev->pix.width = vou_dev->rect.width;
+-	vou_dev->pix.height = vou_dev->rect.height;
+-	vou_dev->pix.bytesperline =
+-		vou_dev->pix.width * vou_fmt[vou_dev->pix_idx].bpl;
+-	vou_dev->pix.sizeimage = vou_dev->pix.height *
+-		((vou_dev->pix.width * vou_fmt[vou_dev->pix_idx].bpp) >> 3);
+-	vou_dev->std = std_id;
+-	sh_vou_set_fmt_vid_out(vou_dev, &vou_dev->pix);
+-
+-	return 0;
+-}
+-
+-static int sh_vou_g_std(struct file *file, void *priv, v4l2_std_id *std)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
+-
+-	*std = vou_dev->std;
+-
+-	return 0;
+-}
+-
+-static int sh_vou_log_status(struct file *file, void *priv)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	pr_info("VOUER:   0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUER));
+-	pr_info("VOUCR:   0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUCR));
+-	pr_info("VOUSTR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUSTR));
+-	pr_info("VOUVCR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUVCR));
+-	pr_info("VOUISR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUISR));
+-	pr_info("VOUBCR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUBCR));
+-	pr_info("VOUDPR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUDPR));
+-	pr_info("VOUDSR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUDSR));
+-	pr_info("VOUVPR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUVPR));
+-	pr_info("VOUIR:   0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUIR));
+-	pr_info("VOUSRR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUSRR));
+-	pr_info("VOUMSR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUMSR));
+-	pr_info("VOUHIR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUHIR));
+-	pr_info("VOUDFR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUDFR));
+-	pr_info("VOUAD1R: 0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUAD1R));
+-	pr_info("VOUAD2R: 0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUAD2R));
+-	pr_info("VOUAIR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUAIR));
+-	pr_info("VOUSWR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOUSWR));
+-	pr_info("VOURCR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOURCR));
+-	pr_info("VOURPR:  0x%08x\n", sh_vou_reg_a_read(vou_dev, VOURPR));
+-	return 0;
+-}
+-
+-static int sh_vou_g_selection(struct file *file, void *fh,
+-			      struct v4l2_selection *sel)
+-{
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-
+-	if (sel->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
+-		return -EINVAL;
+-	switch (sel->target) {
+-	case V4L2_SEL_TGT_COMPOSE:
+-		sel->r = vou_dev->rect;
+-		break;
+-	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
+-	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+-		sel->r.left = 0;
+-		sel->r.top = 0;
+-		sel->r.width = VOU_MAX_IMAGE_WIDTH;
+-		if (vou_dev->std & V4L2_STD_525_60)
+-			sel->r.height = 480;
+-		else
+-			sel->r.height = 576;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-/* Assume a dull encoder, do all the work ourselves. */
+-static int sh_vou_s_selection(struct file *file, void *fh,
+-			      struct v4l2_selection *sel)
+-{
+-	struct v4l2_rect *rect = &sel->r;
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	struct v4l2_subdev_selection sd_sel = {
+-		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+-		.target = V4L2_SEL_TGT_COMPOSE,
+-	};
+-	struct v4l2_pix_format *pix = &vou_dev->pix;
+-	struct sh_vou_geometry geo;
+-	struct v4l2_subdev_format format = {
+-		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+-		/* Revisit: is this the correct code? */
+-		.format.code = MEDIA_BUS_FMT_YUYV8_2X8,
+-		.format.field = V4L2_FIELD_INTERLACED,
+-		.format.colorspace = V4L2_COLORSPACE_SMPTE170M,
+-	};
+-	unsigned int img_height_max;
+-	int ret;
+-
+-	if (sel->type != V4L2_BUF_TYPE_VIDEO_OUTPUT ||
+-	    sel->target != V4L2_SEL_TGT_COMPOSE)
+-		return -EINVAL;
+-
+-	if (vb2_is_busy(&vou_dev->queue))
+-		return -EBUSY;
+-
+-	if (vou_dev->std & V4L2_STD_525_60)
+-		img_height_max = 480;
+-	else
+-		img_height_max = 576;
+-
+-	v4l_bound_align_image(&rect->width,
+-			      VOU_MIN_IMAGE_WIDTH, VOU_MAX_IMAGE_WIDTH, 1,
+-			      &rect->height,
+-			      VOU_MIN_IMAGE_HEIGHT, img_height_max, 1, 0);
+-
+-	if (rect->width + rect->left > VOU_MAX_IMAGE_WIDTH)
+-		rect->left = VOU_MAX_IMAGE_WIDTH - rect->width;
+-
+-	if (rect->height + rect->top > img_height_max)
+-		rect->top = img_height_max - rect->height;
+-
+-	geo.output = *rect;
+-	geo.in_width = pix->width;
+-	geo.in_height = pix->height;
+-
+-	/* Configure the encoder one-to-one, position at 0, ignore errors */
+-	sd_sel.r.width = geo.output.width;
+-	sd_sel.r.height = geo.output.height;
+-	/*
+-	 * We first issue a S_SELECTION, so that the subsequent S_FMT delivers the
+-	 * final encoder configuration.
+-	 */
+-	v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0, pad,
+-				   set_selection, NULL, &sd_sel);
+-	format.format.width = geo.output.width;
+-	format.format.height = geo.output.height;
+-	ret = v4l2_device_call_until_err(&vou_dev->v4l2_dev, 0, pad,
+-					 set_fmt, NULL, &format);
+-	/* Must be implemented, so, don't check for -ENOIOCTLCMD */
+-	if (ret < 0)
+-		return ret;
+-
+-	/* Sanity checks */
+-	if ((unsigned)format.format.width > VOU_MAX_IMAGE_WIDTH ||
+-	    (unsigned)format.format.height > img_height_max ||
+-	    format.format.code != MEDIA_BUS_FMT_YUYV8_2X8)
+-		return -EIO;
+-
+-	geo.output.width = format.format.width;
+-	geo.output.height = format.format.height;
+-
+-	/*
+-	 * No down-scaling. According to the API, current call has precedence:
+-	 * https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/crop.html#cropping-structures
+-	 */
+-	vou_adjust_input(&geo, vou_dev->std);
+-
+-	/* We tried to preserve output rectangle, but it could have changed */
+-	vou_dev->rect = geo.output;
+-	pix->width = geo.in_width;
+-	pix->height = geo.in_height;
+-
+-	sh_vou_configure_geometry(vou_dev, vou_dev->pix_idx,
+-				  geo.scale_idx_h, geo.scale_idx_v);
+-
+-	return 0;
+-}
+-
+-static irqreturn_t sh_vou_isr(int irq, void *dev_id)
+-{
+-	struct sh_vou_device *vou_dev = dev_id;
+-	static unsigned long j;
+-	struct sh_vou_buffer *vb;
+-	static int cnt;
+-	u32 irq_status = sh_vou_reg_a_read(vou_dev, VOUIR), masked;
+-	u32 vou_status = sh_vou_reg_a_read(vou_dev, VOUSTR);
+-
+-	if (!(irq_status & 0x300)) {
+-		if (printk_timed_ratelimit(&j, 500))
+-			dev_warn(vou_dev->v4l2_dev.dev, "IRQ status 0x%x!\n",
+-				 irq_status);
+-		return IRQ_NONE;
+-	}
+-
+-	spin_lock(&vou_dev->lock);
+-	if (!vou_dev->active || list_empty(&vou_dev->buf_list)) {
+-		if (printk_timed_ratelimit(&j, 500))
+-			dev_warn(vou_dev->v4l2_dev.dev,
+-				 "IRQ without active buffer: %x!\n", irq_status);
+-		/* Just ack: buf_release will disable further interrupts */
+-		sh_vou_reg_a_set(vou_dev, VOUIR, 0, 0x300);
+-		spin_unlock(&vou_dev->lock);
+-		return IRQ_HANDLED;
+-	}
+-
+-	masked = ~(0x300 & irq_status) & irq_status & 0x30304;
+-	dev_dbg(vou_dev->v4l2_dev.dev,
+-		"IRQ status 0x%x -> 0x%x, VOU status 0x%x, cnt %d\n",
+-		irq_status, masked, vou_status, cnt);
+-
+-	cnt++;
+-	/* side = vou_status & 0x10000; */
+-
+-	/* Clear only set interrupts */
+-	sh_vou_reg_a_write(vou_dev, VOUIR, masked);
+-
+-	vb = vou_dev->active;
+-	if (list_is_singular(&vb->list)) {
+-		/* Keep cycling while no next buffer is available */
+-		sh_vou_schedule_next(vou_dev, &vb->vb);
+-		spin_unlock(&vou_dev->lock);
+-		return IRQ_HANDLED;
+-	}
+-
+-	list_del(&vb->list);
+-
+-	vb->vb.vb2_buf.timestamp = ktime_get_ns();
+-	vb->vb.sequence = vou_dev->sequence++;
+-	vb->vb.field = V4L2_FIELD_INTERLACED;
+-	vb2_buffer_done(&vb->vb.vb2_buf, VB2_BUF_STATE_DONE);
+-
+-	vou_dev->active = list_entry(vou_dev->buf_list.next,
+-				     struct sh_vou_buffer, list);
+-
+-	if (list_is_singular(&vou_dev->buf_list)) {
+-		/* Keep cycling while no next buffer is available */
+-		sh_vou_schedule_next(vou_dev, &vou_dev->active->vb);
+-	} else {
+-		struct sh_vou_buffer *new = list_entry(vou_dev->active->list.next,
+-						struct sh_vou_buffer, list);
+-		sh_vou_schedule_next(vou_dev, &new->vb);
+-	}
+-
+-	spin_unlock(&vou_dev->lock);
 -
 -	return IRQ_HANDLED;
 -}
 -
--
--/* prepare and start a master receive operation */
--static void sh7760_i2c_mrecv(struct cami2c *id)
+-static int sh_vou_hw_init(struct sh_vou_device *vou_dev)
 -{
--	int len;
+-	struct sh_vou_pdata *pdata = vou_dev->pdata;
+-	u32 voucr = sh_vou_ntsc_mode(pdata->bus_fmt) << 29;
+-	int i = 100;
 -
--	id->flags |= IDF_RECV;
+-	/* Disable all IRQs */
+-	sh_vou_reg_a_write(vou_dev, VOUIR, 0);
 -
--	/* set the slave addr reg; otherwise rcv wont work! */
--	OUT32(id, I2CSAR, 0xfe);
--	OUT32(id, I2CMAR, (id->msg->addr << 1) | 1);
+-	/* Reset VOU interfaces - registers unaffected */
+-	sh_vou_reg_a_write(vou_dev, VOUSRR, 0x101);
+-	while (--i && (sh_vou_reg_a_read(vou_dev, VOUSRR) & 0x101))
+-		udelay(1);
 -
--	/* adjust rx fifo trigger */
--	if (id->msg->len >= FIFO_SIZE)
--		len = FIFO_SIZE - 1;	/* trigger at fifo full */
--	else
--		len = id->msg->len - 1;	/* trigger before all received */
+-	if (!i)
+-		return -ETIMEDOUT;
 -
--	OUT32(id, I2CFCR, FCR_RFRST | FCR_TFRST);
--	OUT32(id, I2CFCR, FCR_TFRST | ((len & 0xF) << 4));
+-	dev_dbg(vou_dev->v4l2_dev.dev, "Reset took %dus\n", 100 - i);
 -
--	OUT32(id, I2CMSR, 0);
--	OUT32(id, I2CMCR, MCR_MIE | MCR_ESG);
--	OUT32(id, I2CMIER, MIE_MNRE | MIE_MALE | MIE_MSTE | MIE_MATE);
--	OUT32(id, I2CFIER, FIER_RXIE);
+-	if (pdata->flags & SH_VOU_PCLK_FALLING)
+-		voucr |= 1 << 28;
+-	if (pdata->flags & SH_VOU_HSYNC_LOW)
+-		voucr |= 1 << 27;
+-	if (pdata->flags & SH_VOU_VSYNC_LOW)
+-		voucr |= 1 << 26;
+-	sh_vou_reg_ab_set(vou_dev, VOUCR, voucr, 0xfc000000);
+-
+-	/* Manual register side switching at first */
+-	sh_vou_reg_a_write(vou_dev, VOURCR, 4);
+-	/* Default - fixed HSYNC length, can be made configurable is required */
+-	sh_vou_reg_ab_write(vou_dev, VOUMSR, 0x800000);
+-
+-	sh_vou_set_fmt_vid_out(vou_dev, &vou_dev->pix);
+-
+-	return 0;
 -}
 -
--/* prepare and start a master send operation */
--static void sh7760_i2c_msend(struct cami2c *id)
+-/* File operations */
+-static int sh_vou_open(struct file *file)
 -{
--	int len;
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	int err;
 -
--	id->flags |= IDF_SEND;
+-	if (mutex_lock_interruptible(&vou_dev->fop_lock))
+-		return -ERESTARTSYS;
 -
--	/* set the slave addr reg; otherwise xmit wont work! */
--	OUT32(id, I2CSAR, 0xfe);
--	OUT32(id, I2CMAR, (id->msg->addr << 1) | 0);
--
--	/* adjust tx fifo trigger */
--	if (id->msg->len >= FIFO_SIZE)
--		len = 2;	/* trig: 2 bytes left in TX fifo */
--	else
--		len = 0;	/* trig: 8 bytes left in TX fifo */
--
--	OUT32(id, I2CFCR, FCR_RFRST | FCR_TFRST);
--	OUT32(id, I2CFCR, FCR_RFRST | ((len & 3) << 2));
--
--	while (id->msg->len && IN32(id, I2CTFDR) < FIFO_SIZE) {
--		OUT32(id, I2CRXTX, *(id->msg->buf));
--		(id->msg->len)--;
--		(id->msg->buf)++;
--	}
--
--	OUT32(id, I2CMSR, 0);
--	OUT32(id, I2CMCR, MCR_MIE | MCR_ESG);
--	OUT32(id, I2CFSR, 0);
--	OUT32(id, I2CMIER, MIE_MNRE | MIE_MALE | MIE_MSTE | MIE_MATE);
--	OUT32(id, I2CFIER, FIER_TEIE | (id->msg->len ? FIER_TXIE : 0));
--}
--
--static inline int sh7760_i2c_busy_check(struct cami2c *id)
--{
--	return (IN32(id, I2CMCR) & MCR_FSDA);
--}
--
--static int sh7760_i2c_master_xfer(struct i2c_adapter *adap,
--				  struct i2c_msg *msgs,
--				  int num)
--{
--	struct cami2c *id = adap->algo_data;
--	int i, retr;
--
--	if (sh7760_i2c_busy_check(id)) {
--		dev_err(&adap->dev, "sh7760-i2c%d: bus busy!\n", adap->nr);
--		return -EBUSY;
--	}
--
--	i = 0;
--	while (i < num) {
--		retr = adap->retries;
--retry:
--		id->flags = ((i == (num-1)) ? IDF_STOP : 0);
--		id->status = 0;
--		id->msg = msgs;
--		init_completion(&id->xfer_done);
--
--		if (msgs->flags & I2C_M_RD)
--			sh7760_i2c_mrecv(id);
--		else
--			sh7760_i2c_msend(id);
--
--		wait_for_completion(&id->xfer_done);
--
--		if (id->status == 0) {
--			num = -EIO;
--			break;
+-	err = v4l2_fh_open(file);
+-	if (err)
+-		goto done_open;
+-	if (v4l2_fh_is_singular_file(file) &&
+-	    vou_dev->status == SH_VOU_INITIALISING) {
+-		/* First open */
+-		err = pm_runtime_resume_and_get(vou_dev->v4l2_dev.dev);
+-		if (err < 0) {
+-			v4l2_fh_release(file);
+-			goto done_open;
 -		}
--
--		if (id->status & IDS_NACK) {
--			/* wait a bit or i2c module stops working */
--			mdelay(1);
--			num = -EREMOTEIO;
--			break;
+-		err = sh_vou_hw_init(vou_dev);
+-		if (err < 0) {
+-			pm_runtime_put(vou_dev->v4l2_dev.dev);
+-			v4l2_fh_release(file);
+-		} else {
+-			vou_dev->status = SH_VOU_IDLE;
 -		}
--
--		if (id->status & IDS_ARBLOST) {
--			if (retr--) {
--				mdelay(2);
--				goto retry;
--			}
--			num = -EREMOTEIO;
--			break;
--		}
--
--		msgs++;
--		i++;
 -	}
--
--	id->msg = NULL;
--	id->flags = 0;
--	id->status = 0;
--
--	OUT32(id, I2CMCR, 0);
--	OUT32(id, I2CMSR, 0);
--	OUT32(id, I2CMIER, 0);
--	OUT32(id, I2CFIER, 0);
--
--	/* reset slave module registers too: master mode enables slave
--	 * module for receive ops (ack, data). Without this reset,
--	 * eternal bus activity might be reported after NACK / ARBLOST.
--	 */
--	OUT32(id, I2CSCR, 0);
--	OUT32(id, I2CSAR, 0);
--	OUT32(id, I2CSSR, 0);
--
--	return num;
+-done_open:
+-	mutex_unlock(&vou_dev->fop_lock);
+-	return err;
 -}
 -
--static u32 sh7760_i2c_func(struct i2c_adapter *adap)
+-static int sh_vou_release(struct file *file)
 -{
--	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+-	struct sh_vou_device *vou_dev = video_drvdata(file);
+-	bool is_last;
+-
+-	mutex_lock(&vou_dev->fop_lock);
+-	is_last = v4l2_fh_is_singular_file(file);
+-	_vb2_fop_release(file, NULL);
+-	if (is_last) {
+-		/* Last close */
+-		vou_dev->status = SH_VOU_INITIALISING;
+-		sh_vou_reg_a_set(vou_dev, VOUER, 0, 0x101);
+-		pm_runtime_put(vou_dev->v4l2_dev.dev);
+-	}
+-	mutex_unlock(&vou_dev->fop_lock);
+-	return 0;
 -}
 -
--static const struct i2c_algorithm sh7760_i2c_algo = {
--	.master_xfer	= sh7760_i2c_master_xfer,
--	.functionality	= sh7760_i2c_func,
+-/* sh_vou display ioctl operations */
+-static const struct v4l2_ioctl_ops sh_vou_ioctl_ops = {
+-	.vidioc_querycap		= sh_vou_querycap,
+-	.vidioc_enum_fmt_vid_out	= sh_vou_enum_fmt_vid_out,
+-	.vidioc_g_fmt_vid_out		= sh_vou_g_fmt_vid_out,
+-	.vidioc_s_fmt_vid_out		= sh_vou_s_fmt_vid_out,
+-	.vidioc_try_fmt_vid_out		= sh_vou_try_fmt_vid_out,
+-	.vidioc_reqbufs			= vb2_ioctl_reqbufs,
+-	.vidioc_create_bufs		= vb2_ioctl_create_bufs,
+-	.vidioc_querybuf		= vb2_ioctl_querybuf,
+-	.vidioc_qbuf			= vb2_ioctl_qbuf,
+-	.vidioc_dqbuf			= vb2_ioctl_dqbuf,
+-	.vidioc_prepare_buf		= vb2_ioctl_prepare_buf,
+-	.vidioc_streamon		= vb2_ioctl_streamon,
+-	.vidioc_streamoff		= vb2_ioctl_streamoff,
+-	.vidioc_expbuf			= vb2_ioctl_expbuf,
+-	.vidioc_g_output		= sh_vou_g_output,
+-	.vidioc_s_output		= sh_vou_s_output,
+-	.vidioc_enum_output		= sh_vou_enum_output,
+-	.vidioc_s_std			= sh_vou_s_std,
+-	.vidioc_g_std			= sh_vou_g_std,
+-	.vidioc_g_selection		= sh_vou_g_selection,
+-	.vidioc_s_selection		= sh_vou_s_selection,
+-	.vidioc_log_status		= sh_vou_log_status,
 -};
 -
--/* calculate CCR register setting for a desired scl clock.  SCL clock is
-- * derived from I2C module clock  (iclk)  which in turn is derived from
-- * peripheral module clock (mclk, usually around 33MHz):
-- * iclk = mclk/(CDF + 1).  iclk must be < 20MHz.
-- * scl = iclk/(SCGD*8 + 20).
-- */
--static int calc_CCR(unsigned long scl_hz)
+-static const struct v4l2_file_operations sh_vou_fops = {
+-	.owner		= THIS_MODULE,
+-	.open		= sh_vou_open,
+-	.release	= sh_vou_release,
+-	.unlocked_ioctl	= video_ioctl2,
+-	.mmap		= vb2_fop_mmap,
+-	.poll		= vb2_fop_poll,
+-	.write		= vb2_fop_write,
+-};
+-
+-static const struct video_device sh_vou_video_template = {
+-	.name		= "sh_vou",
+-	.fops		= &sh_vou_fops,
+-	.ioctl_ops	= &sh_vou_ioctl_ops,
+-	.tvnorms	= V4L2_STD_525_60, /* PAL only supported in 8-bit non-bt656 mode */
+-	.vfl_dir	= VFL_DIR_TX,
+-	.device_caps	= V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_READWRITE |
+-			  V4L2_CAP_STREAMING,
+-};
+-
+-static int sh_vou_probe(struct platform_device *pdev)
 -{
--	struct clk *mclk;
--	unsigned long mck, m1, dff, odff, iclk;
--	signed char cdf, cdfm;
--	int scgd, scgdm, scgds;
+-	struct sh_vou_pdata *vou_pdata = pdev->dev.platform_data;
+-	struct v4l2_rect *rect;
+-	struct v4l2_pix_format *pix;
+-	struct i2c_adapter *i2c_adap;
+-	struct video_device *vdev;
+-	struct sh_vou_device *vou_dev;
+-	struct resource *reg_res;
+-	struct v4l2_subdev *subdev;
+-	struct vb2_queue *q;
+-	int irq, ret;
 -
--	mclk = clk_get(NULL, "peripheral_clk");
--	if (IS_ERR(mclk)) {
--		return PTR_ERR(mclk);
--	} else {
--		mck = mclk->rate;
--		clk_put(mclk);
+-	reg_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	irq = platform_get_irq(pdev, 0);
+-
+-	if (!vou_pdata || !reg_res || irq <= 0) {
+-		dev_err(&pdev->dev, "Insufficient VOU platform information.\n");
+-		return -ENODEV;
 -	}
 -
--	odff = scl_hz;
--	scgdm = cdfm = m1 = 0;
--	for (cdf = 3; cdf >= 0; cdf--) {
--		iclk = mck / (1 + cdf);
--		if (iclk >= 20000000)
--			continue;
--		scgds = ((iclk / scl_hz) - 20) >> 3;
--		for (scgd = scgds; (scgd < 63) && scgd <= scgds + 1; scgd++) {
--			m1 = iclk / (20 + (scgd << 3));
--			dff = abs(scl_hz - m1);
--			if (dff < odff) {
--				odff = dff;
--				cdfm = cdf;
--				scgdm = scgd;
--			}
--		}
--	}
--	/* fail if more than 25% off of requested SCL */
--	if (odff > (scl_hz >> 2))
--		return -EINVAL;
+-	vou_dev = devm_kzalloc(&pdev->dev, sizeof(*vou_dev), GFP_KERNEL);
+-	if (!vou_dev)
+-		return -ENOMEM;
 -
--	/* create a CCR register value */
--	return ((scgdm << 2) | cdfm);
--}
+-	INIT_LIST_HEAD(&vou_dev->buf_list);
+-	spin_lock_init(&vou_dev->lock);
+-	mutex_init(&vou_dev->fop_lock);
+-	vou_dev->pdata = vou_pdata;
+-	vou_dev->status = SH_VOU_INITIALISING;
+-	vou_dev->pix_idx = 1;
 -
--static int sh7760_i2c_probe(struct platform_device *pdev)
--{
--	struct sh7760_i2c_platdata *pd;
--	struct resource *res;
--	struct cami2c *id;
--	int ret;
+-	rect = &vou_dev->rect;
+-	pix = &vou_dev->pix;
 -
--	pd = dev_get_platdata(&pdev->dev);
--	if (!pd) {
--		dev_err(&pdev->dev, "no platform_data!\n");
--		ret = -ENODEV;
--		goto out0;
--	}
+-	/* Fill in defaults */
+-	vou_dev->std		= V4L2_STD_NTSC_M;
+-	rect->left		= 0;
+-	rect->top		= 0;
+-	rect->width		= VOU_MAX_IMAGE_WIDTH;
+-	rect->height		= 480;
+-	pix->width		= VOU_MAX_IMAGE_WIDTH;
+-	pix->height		= 480;
+-	pix->pixelformat	= V4L2_PIX_FMT_NV16;
+-	pix->field		= V4L2_FIELD_INTERLACED;
+-	pix->bytesperline	= VOU_MAX_IMAGE_WIDTH;
+-	pix->sizeimage		= VOU_MAX_IMAGE_WIDTH * 2 * 480;
+-	pix->colorspace		= V4L2_COLORSPACE_SMPTE170M;
 -
--	id = kzalloc(sizeof(struct cami2c), GFP_KERNEL);
--	if (!id) {
--		dev_err(&pdev->dev, "no mem for private data\n");
--		ret = -ENOMEM;
--		goto out0;
--	}
+-	vou_dev->base = devm_ioremap_resource(&pdev->dev, reg_res);
+-	if (IS_ERR(vou_dev->base))
+-		return PTR_ERR(vou_dev->base);
 -
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res) {
--		dev_err(&pdev->dev, "no mmio resources\n");
--		ret = -ENODEV;
--		goto out1;
--	}
--
--	id->ioarea = request_mem_region(res->start, REGSIZE, pdev->name);
--	if (!id->ioarea) {
--		dev_err(&pdev->dev, "mmio already reserved\n");
--		ret = -EBUSY;
--		goto out1;
--	}
--
--	id->iobase = ioremap(res->start, REGSIZE);
--	if (!id->iobase) {
--		dev_err(&pdev->dev, "cannot ioremap\n");
--		ret = -ENODEV;
--		goto out2;
--	}
--
--	ret = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, sh_vou_isr, 0, "vou", vou_dev);
 -	if (ret < 0)
--		goto out3;
--	id->irq = ret;
+-		return ret;
 -
--	id->adap.nr = pdev->id;
--	id->adap.algo = &sh7760_i2c_algo;
--	id->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
--	id->adap.retries = 3;
--	id->adap.algo_data = id;
--	id->adap.dev.parent = &pdev->dev;
--	snprintf(id->adap.name, sizeof(id->adap.name),
--		"SH7760 I2C at %08lx", (unsigned long)res->start);
--
--	OUT32(id, I2CMCR, 0);
--	OUT32(id, I2CMSR, 0);
--	OUT32(id, I2CMIER, 0);
--	OUT32(id, I2CMAR, 0);
--	OUT32(id, I2CSIER, 0);
--	OUT32(id, I2CSAR, 0);
--	OUT32(id, I2CSCR, 0);
--	OUT32(id, I2CSSR, 0);
--	OUT32(id, I2CFIER, 0);
--	OUT32(id, I2CFCR, FCR_RFRST | FCR_TFRST);
--	OUT32(id, I2CFSR, 0);
--
--	ret = calc_CCR(pd->speed_khz * 1000);
+-	ret = v4l2_device_register(&pdev->dev, &vou_dev->v4l2_dev);
 -	if (ret < 0) {
--		dev_err(&pdev->dev, "invalid SCL clock: %dkHz\n",
--			pd->speed_khz);
--		goto out3;
--	}
--	OUT32(id, I2CCCR, ret);
--
--	if (request_irq(id->irq, sh7760_i2c_irq, 0,
--			SH7760_I2C_DEVNAME, id)) {
--		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
--		ret = -EBUSY;
--		goto out3;
+-		dev_err(&pdev->dev, "Error registering v4l2 device\n");
+-		return ret;
 -	}
 -
--	ret = i2c_add_numbered_adapter(&id->adap);
+-	vdev = &vou_dev->vdev;
+-	*vdev = sh_vou_video_template;
+-	if (vou_pdata->bus_fmt == SH_VOU_BUS_8BIT)
+-		vdev->tvnorms |= V4L2_STD_PAL;
+-	vdev->v4l2_dev = &vou_dev->v4l2_dev;
+-	vdev->release = video_device_release_empty;
+-	vdev->lock = &vou_dev->fop_lock;
+-
+-	video_set_drvdata(vdev, vou_dev);
+-
+-	/* Initialize the vb2 queue */
+-	q = &vou_dev->queue;
+-	q->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+-	q->io_modes = VB2_MMAP | VB2_DMABUF | VB2_WRITE;
+-	q->drv_priv = vou_dev;
+-	q->buf_struct_size = sizeof(struct sh_vou_buffer);
+-	q->ops = &sh_vou_qops;
+-	q->mem_ops = &vb2_dma_contig_memops;
+-	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+-	q->min_buffers_needed = 2;
+-	q->lock = &vou_dev->fop_lock;
+-	q->dev = &pdev->dev;
+-	ret = vb2_queue_init(q);
+-	if (ret)
+-		goto ei2cgadap;
+-
+-	vdev->queue = q;
+-	INIT_LIST_HEAD(&vou_dev->buf_list);
+-
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_resume(&pdev->dev);
+-
+-	i2c_adap = i2c_get_adapter(vou_pdata->i2c_adap);
+-	if (!i2c_adap) {
+-		ret = -ENODEV;
+-		goto ei2cgadap;
+-	}
+-
+-	ret = sh_vou_hw_init(vou_dev);
 -	if (ret < 0)
--		goto out4;
+-		goto ereset;
 -
--	platform_set_drvdata(pdev, id);
+-	subdev = v4l2_i2c_new_subdev_board(&vou_dev->v4l2_dev, i2c_adap,
+-			vou_pdata->board_info, NULL);
+-	if (!subdev) {
+-		ret = -ENOMEM;
+-		goto ei2cnd;
+-	}
 -
--	dev_info(&pdev->dev, "%d kHz mmio %08x irq %d\n",
--		 pd->speed_khz, res->start, id->irq);
+-	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+-	if (ret < 0)
+-		goto evregdev;
 -
 -	return 0;
 -
--out4:
--	free_irq(id->irq, id);
--out3:
--	iounmap(id->iobase);
--out2:
--	release_resource(id->ioarea);
--	kfree(id->ioarea);
--out1:
--	kfree(id);
--out0:
+-evregdev:
+-ei2cnd:
+-ereset:
+-	i2c_put_adapter(i2c_adap);
+-ei2cgadap:
+-	pm_runtime_disable(&pdev->dev);
+-	v4l2_device_unregister(&vou_dev->v4l2_dev);
 -	return ret;
 -}
 -
--static int sh7760_i2c_remove(struct platform_device *pdev)
+-static int sh_vou_remove(struct platform_device *pdev)
 -{
--	struct cami2c *id = platform_get_drvdata(pdev);
+-	struct v4l2_device *v4l2_dev = platform_get_drvdata(pdev);
+-	struct sh_vou_device *vou_dev = container_of(v4l2_dev,
+-						struct sh_vou_device, v4l2_dev);
+-	struct v4l2_subdev *sd = list_entry(v4l2_dev->subdevs.next,
+-					    struct v4l2_subdev, list);
+-	struct i2c_client *client = v4l2_get_subdevdata(sd);
 -
--	i2c_del_adapter(&id->adap);
--	free_irq(id->irq, id);
--	iounmap(id->iobase);
--	release_resource(id->ioarea);
--	kfree(id->ioarea);
--	kfree(id);
--
+-	pm_runtime_disable(&pdev->dev);
+-	video_unregister_device(&vou_dev->vdev);
+-	i2c_put_adapter(client->adapter);
+-	v4l2_device_unregister(&vou_dev->v4l2_dev);
 -	return 0;
 -}
 -
--static struct platform_driver sh7760_i2c_drv = {
--	.driver	= {
--		.name	= SH7760_I2C_DEVNAME,
+-static struct platform_driver sh_vou = {
+-	.remove  = sh_vou_remove,
+-	.driver  = {
+-		.name	= "sh-vou",
 -	},
--	.probe		= sh7760_i2c_probe,
--	.remove		= sh7760_i2c_remove,
 -};
 -
--module_platform_driver(sh7760_i2c_drv);
+-module_platform_driver_probe(sh_vou, sh_vou_probe);
 -
--MODULE_LICENSE("GPL");
--MODULE_DESCRIPTION("SH7760 I2C bus driver");
--MODULE_AUTHOR("Manuel Lauss <mano@roarinelk.homelinux.net>");
+-MODULE_DESCRIPTION("SuperH VOU driver");
+-MODULE_AUTHOR("Guennadi Liakhovetski <g.liakhovetski@gmx.de>");
+-MODULE_LICENSE("GPL v2");
+-MODULE_VERSION("0.1.0");
+-MODULE_ALIAS("platform:sh-vou");
 -- 
 2.39.0
 
