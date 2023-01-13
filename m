@@ -2,33 +2,33 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A3AFC71134
-	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAAECC7113D
+	for <linux-watchdog@archiver.kernel.org>; Fri, 13 Jan 2023 06:29:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241235AbjAMG31 (ORCPT
+        id S241247AbjAMG33 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:29:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
+        Fri, 13 Jan 2023 01:29:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240573AbjAMGZP (ORCPT
+        with ESMTP id S240712AbjAMG0N (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Jan 2023 01:25:15 -0500
+        Fri, 13 Jan 2023 01:26:13 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE1410073;
-        Thu, 12 Jan 2023 22:24:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52AF759FA7;
+        Thu, 12 Jan 2023 22:24:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=yNX/9/e3mCL8Z9/A5TRWG0UKPW9ZyWcnD51C6LTuRVI=; b=Ylt8A4HngYHMxsdrT3HnhJDlSV
-        iJ170NFOhoE5/jm4B0r2iZEgG/7ENapsBN7EG3eTyLKpN5X9ZYXjsypPqcTfmEHfo+RwMWyPpP/3+
-        mjrTudLbbjWOokwEpDHR/SYDPQjEdYu2BrhFltpnBqms3qC6BjqFpSVzUExolaX5+7GIWz7XCFYWp
-        EnNcdwUy6QpwLO2RM/m2LT0BcRLf2dwVUO5JUTWY6khIjWo2kMDSALL69dwv9d7JksbiErk0cYjJy
-        F0GEfksn110Oud3Mh6LP7zQRl0CYW85Mx25oaHsuUudRug/Y9kNkATuSeuGsCBnzF27GOv603zDC4
-        VB09RLNw==;
+        bh=4Cn32+DwniiE8Ivc8k8ZYXVlFs6gh/3Rw72W3/GZ4ag=; b=Fve8lBIQorfiJ/FhMD6e1GvYXc
+        rGSPgQTVMyq0dxlP00mFanqHXFeH9t17eVtoz/JRWr+oFTQ0ynGMwYJHt5mfB04KzdaQjOX8Iu9fs
+        nIQCq/R62BjdnWiSBeuBxN7hx5e4sYqYWJU6VIfqx17ddSCZZlu7ubY/3XF9PkfW4XzApYx2Cd9k9
+        zs2s4D1MofDj9wf4eoTSyb6ybNKwpiGOqGQt9CBguMf+78gDheVOOw6bNmSUU/Blr1SaKqbcwa66y
+        6cpVyf3vy//XvyjihCdST/c6G+qVI++1b+7abn1kff1W7YyuOYJBrAFCIknOxvbFhCUglhpOxZ9Fo
+        xk7GnO7w==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDUH-000ljq-PK; Fri, 13 Jan 2023 06:24:26 +0000
+        id 1pGDUW-000lwz-NO; Fri, 13 Jan 2023 06:24:41 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -47,9 +47,9 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 12/22] net/ethernet/8390: remove stnic
-Date:   Fri, 13 Jan 2023 07:23:29 +0100
-Message-Id: <20230113062339.1909087-13-hch@lst.de>
+Subject: [PATCH 16/22] spi: remove spi-sh-sci
+Date:   Fri, 13 Jan 2023 07:23:33 +0100
+Message-Id: <20230113062339.1909087-17-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
@@ -64,355 +64,245 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/net/ethernet/8390/Kconfig  |  12 --
- drivers/net/ethernet/8390/Makefile |   1 -
- drivers/net/ethernet/8390/stnic.c  | 302 -----------------------------
- 3 files changed, 315 deletions(-)
- delete mode 100644 drivers/net/ethernet/8390/stnic.c
+ drivers/spi/Kconfig      |   7 --
+ drivers/spi/Makefile     |   1 -
+ drivers/spi/spi-sh-sci.c | 197 ---------------------------------------
+ 3 files changed, 205 deletions(-)
+ delete mode 100644 drivers/spi/spi-sh-sci.c
 
-diff --git a/drivers/net/ethernet/8390/Kconfig b/drivers/net/ethernet/8390/Kconfig
-index eb90de04c88419..a7976743be9ee3 100644
---- a/drivers/net/ethernet/8390/Kconfig
-+++ b/drivers/net/ethernet/8390/Kconfig
-@@ -155,18 +155,6 @@ config PCMCIA_PCNET
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called pcnet_cs.  If unsure, say N.
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 7508dcef909c78..76f3bc6f8c81fc 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -882,13 +882,6 @@ config SPI_SH_MSIOF
+ 	help
+ 	  SPI driver for SuperH and SH Mobile MSIOF blocks.
  
--config STNIC
--	tristate "National DP83902AV  support"
+-config SPI_SH_SCI
+-	tristate "SuperH SCI SPI controller"
 -	depends on SUPERH
--	select CRC32
+-	select SPI_BITBANG
 -	help
--	  Support for cards based on the National Semiconductor DP83902AV
--	  ST-NIC Serial Network Interface Controller for Twisted Pair.  This
--	  is a 10Mbit/sec Ethernet controller.  Product overview and specs at
--	  <http://www.national.com/pf/DP/DP83902A.html>.
+-	  SPI driver for SuperH SCI blocks.
 -
--	  If unsure, say N.
--
- config ULTRA
- 	tristate "SMC Ultra support"
- 	depends on ISA
-diff --git a/drivers/net/ethernet/8390/Makefile b/drivers/net/ethernet/8390/Makefile
-index 85c83c566ec663..3819a3bb75a1c9 100644
---- a/drivers/net/ethernet/8390/Makefile
-+++ b/drivers/net/ethernet/8390/Makefile
-@@ -13,7 +13,6 @@ obj-$(CONFIG_NE2000) += ne.o 8390p.o
- obj-$(CONFIG_NE2K_PCI) += ne2k-pci.o 8390.o
- obj-$(CONFIG_PCMCIA_AXNET) += axnet_cs.o 8390.o
- obj-$(CONFIG_PCMCIA_PCNET) += pcnet_cs.o 8390.o
--obj-$(CONFIG_STNIC) += stnic.o 8390.o
- obj-$(CONFIG_ULTRA) += smc-ultra.o 8390.o
- obj-$(CONFIG_WD80x3) += wd.o 8390.o
- obj-$(CONFIG_XSURF100) += xsurf100.o
-diff --git a/drivers/net/ethernet/8390/stnic.c b/drivers/net/ethernet/8390/stnic.c
+ config SPI_SH_HSPI
+ 	tristate "SuperH HSPI controller"
+ 	depends on ARCH_RENESAS || COMPILE_TEST
+diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
+index 342a7eb5181c9b..27d877440c6539 100644
+--- a/drivers/spi/Makefile
++++ b/drivers/spi/Makefile
+@@ -118,7 +118,6 @@ obj-$(CONFIG_SPI_S3C64XX)		+= spi-s3c64xx.o
+ obj-$(CONFIG_SPI_SC18IS602)		+= spi-sc18is602.o
+ obj-$(CONFIG_SPI_SH_HSPI)		+= spi-sh-hspi.o
+ obj-$(CONFIG_SPI_SH_MSIOF)		+= spi-sh-msiof.o
+-obj-$(CONFIG_SPI_SH_SCI)		+= spi-sh-sci.o
+ obj-$(CONFIG_SPI_SIFIVE)		+= spi-sifive.o
+ obj-$(CONFIG_SPI_SLAVE_MT27XX)          += spi-slave-mt27xx.o
+ obj-$(CONFIG_SPI_SN_F_OSPI)		+= spi-sn-f-ospi.o
+diff --git a/drivers/spi/spi-sh-sci.c b/drivers/spi/spi-sh-sci.c
 deleted file mode 100644
-index bd89ca8a92dfbc..00000000000000
---- a/drivers/net/ethernet/8390/stnic.c
+index 8f30531e141867..00000000000000
+--- a/drivers/spi/spi-sh-sci.c
 +++ /dev/null
-@@ -1,302 +0,0 @@
--/* stnic.c : A SH7750 specific part of driver for NS DP83902A ST-NIC.
+@@ -1,197 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * SH SCI SPI interface
 - *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
+- * Copyright (c) 2008 Magnus Damm
 - *
-- * Copyright (C) 1999 kaz Kojima
+- * Based on S3C24XX GPIO based SPI driver, which is:
+- *   Copyright (c) 2006 Ben Dooks
+- *   Copyright (c) 2006 Simtec Electronics
 - */
 -
--#include <linux/module.h>
 -#include <linux/kernel.h>
--#include <linux/errno.h>
--#include <linux/interrupt.h>
--#include <linux/ioport.h>
--#include <linux/netdevice.h>
--#include <linux/etherdevice.h>
--#include <linux/init.h>
 -#include <linux/delay.h>
+-#include <linux/spinlock.h>
+-#include <linux/platform_device.h>
 -
+-#include <linux/spi/spi.h>
+-#include <linux/spi/spi_bitbang.h>
+-#include <linux/module.h>
+-
+-#include <asm/spi.h>
 -#include <asm/io.h>
--#include <mach-se/mach/se.h>
--#include <asm/machvec.h>
--#ifdef CONFIG_SH_STANDARD_BIOS
--#include <asm/sh_bios.h>
--#endif
 -
--#include "8390.h"
+-struct sh_sci_spi {
+-	struct spi_bitbang bitbang;
 -
--#define DRV_NAME "stnic"
+-	void __iomem *membase;
+-	unsigned char val;
+-	struct sh_spi_info *info;
+-	struct platform_device *dev;
+-};
 -
--#define byte	unsigned char
--#define half	unsigned short
--#define word	unsigned int
--#define vbyte	volatile unsigned char
--#define vhalf	volatile unsigned short
--#define vword	volatile unsigned int
+-#define SCSPTR(sp)	(sp->membase + 0x1c)
+-#define PIN_SCK		(1 << 2)
+-#define PIN_TXD		(1 << 0)
+-#define PIN_RXD		PIN_TXD
+-#define PIN_INIT	((1 << 1) | (1 << 3) | PIN_SCK | PIN_TXD)
 -
--#define STNIC_RUN	0x01	/* 1 == Run, 0 == reset. */
--
--#define START_PG	0	/* First page of TX buffer */
--#define STOP_PG		128	/* Last page +1 of RX ring */
--
--/* Alias */
--#define STNIC_CR	E8390_CMD
--#define PG0_RSAR0	EN0_RSARLO
--#define PG0_RSAR1	EN0_RSARHI
--#define PG0_RBCR0	EN0_RCNTLO
--#define PG0_RBCR1	EN0_RCNTHI
--
--#define CR_RRD		E8390_RREAD
--#define CR_RWR		E8390_RWRITE
--#define CR_PG0		E8390_PAGE0
--#define CR_STA		E8390_START
--#define CR_RDMA		E8390_NODMA
--
--/* FIXME! YOU MUST SET YOUR OWN ETHER ADDRESS.  */
--static byte stnic_eadr[6] =
--{0x00, 0xc0, 0x6e, 0x00, 0x00, 0x07};
--
--static struct net_device *stnic_dev;
--
--static void stnic_reset (struct net_device *dev);
--static void stnic_get_hdr (struct net_device *dev, struct e8390_pkt_hdr *hdr,
--			   int ring_page);
--static void stnic_block_input (struct net_device *dev, int count,
--			       struct sk_buff *skb , int ring_offset);
--static void stnic_block_output (struct net_device *dev, int count,
--				const unsigned char *buf, int start_page);
--
--static void stnic_init (struct net_device *dev);
--
--static u32 stnic_msg_enable;
--
--module_param_named(msg_enable, stnic_msg_enable, uint, 0444);
--MODULE_PARM_DESC(msg_enable, "Debug message level (see linux/netdevice.h for bitmap)");
--
--/* SH7750 specific read/write io. */
--static inline void
--STNIC_DELAY (void)
+-static inline void setbits(struct sh_sci_spi *sp, int bits, int on)
 -{
--  vword trash;
--  trash = *(vword *) 0xa0000000;
--  trash = *(vword *) 0xa0000000;
--  trash = *(vword *) 0xa0000000;
+-	/*
+-	 * We are the only user of SCSPTR so no locking is required.
+-	 * Reading bit 2 and 0 in SCSPTR gives pin state as input.
+-	 * Writing the same bits sets the output value.
+-	 * This makes regular read-modify-write difficult so we
+-	 * use sp->val to keep track of the latest register value.
+-	 */
+-
+-	if (on)
+-		sp->val |= bits;
+-	else
+-		sp->val &= ~bits;
+-
+-	iowrite8(sp->val, SCSPTR(sp));
 -}
 -
--static inline byte
--STNIC_READ (int reg)
+-static inline void setsck(struct spi_device *dev, int on)
 -{
--  byte val;
--
--  val = (*(vhalf *) (PA_83902 + ((reg) << 1)) >> 8) & 0xff;
--  STNIC_DELAY ();
--  return val;
+-	setbits(spi_master_get_devdata(dev->master), PIN_SCK, on);
 -}
 -
--static inline void
--STNIC_WRITE (int reg, byte val)
+-static inline void setmosi(struct spi_device *dev, int on)
 -{
--  *(vhalf *) (PA_83902 + ((reg) << 1)) = ((half) (val) << 8);
--  STNIC_DELAY ();
+-	setbits(spi_master_get_devdata(dev->master), PIN_TXD, on);
 -}
 -
--static int __init stnic_probe(void)
+-static inline u32 getmiso(struct spi_device *dev)
 -{
--  struct net_device *dev;
--  struct ei_device *ei_local;
--  int err;
+-	struct sh_sci_spi *sp = spi_master_get_devdata(dev->master);
 -
--  /* If we are not running on a SolutionEngine, give up now */
--  if (! MACH_SE)
--    return -ENODEV;
--
--  /* New style probing API */
--  dev = alloc_ei_netdev();
--  if (!dev)
--	return -ENOMEM;
--
--#ifdef CONFIG_SH_STANDARD_BIOS
--  sh_bios_get_node_addr (stnic_eadr);
--#endif
--  eth_hw_addr_set(dev, stnic_eadr);
--
--  /* Set the base address to point to the NIC, not the "real" base! */
--  dev->base_addr = 0x1000;
--  dev->irq = IRQ_STNIC;
--  dev->netdev_ops = &ei_netdev_ops;
--
--  /* Snarf the interrupt now.  There's no point in waiting since we cannot
--     share and the board will usually be enabled. */
--  err = request_irq (dev->irq, ei_interrupt, 0, DRV_NAME, dev);
--  if (err)  {
--	netdev_emerg(dev, " unable to get IRQ %d.\n", dev->irq);
--	free_netdev(dev);
--	return err;
--  }
--
--  ei_status.name = dev->name;
--  ei_status.word16 = 1;
--#ifdef __LITTLE_ENDIAN__
--  ei_status.bigendian = 0;
--#else
--  ei_status.bigendian = 1;
--#endif
--  ei_status.tx_start_page = START_PG;
--  ei_status.rx_start_page = START_PG + TX_PAGES;
--  ei_status.stop_page = STOP_PG;
--
--  ei_status.reset_8390 = &stnic_reset;
--  ei_status.get_8390_hdr = &stnic_get_hdr;
--  ei_status.block_input = &stnic_block_input;
--  ei_status.block_output = &stnic_block_output;
--
--  stnic_init (dev);
--  ei_local = netdev_priv(dev);
--  ei_local->msg_enable = stnic_msg_enable;
--
--  err = register_netdev(dev);
--  if (err) {
--    free_irq(dev->irq, dev);
--    free_netdev(dev);
--    return err;
--  }
--  stnic_dev = dev;
--
--  netdev_info(dev, "NS ST-NIC 83902A\n");
--
--  return 0;
+-	return (ioread8(SCSPTR(sp)) & PIN_RXD) ? 1 : 0;
 -}
 -
--static void
--stnic_reset (struct net_device *dev)
--{
--  struct ei_device *ei_local = netdev_priv(dev);
+-#define spidelay(x) ndelay(x)
 -
--  *(vhalf *) PA_83902_RST = 0;
--  udelay (5);
--  netif_warn(ei_local, hw, dev, "8390 reset done (%ld).\n", jiffies);
--  *(vhalf *) PA_83902_RST = ~0;
--  udelay (5);
+-#include "spi-bitbang-txrx.h"
+-
+-static u32 sh_sci_spi_txrx_mode0(struct spi_device *spi,
+-				 unsigned nsecs, u32 word, u8 bits,
+-				 unsigned flags)
+-{
+-	return bitbang_txrx_be_cpha0(spi, nsecs, 0, flags, word, bits);
 -}
 -
--static void
--stnic_get_hdr (struct net_device *dev, struct e8390_pkt_hdr *hdr,
--	       int ring_page)
+-static u32 sh_sci_spi_txrx_mode1(struct spi_device *spi,
+-				 unsigned nsecs, u32 word, u8 bits,
+-				 unsigned flags)
 -{
--  struct ei_device *ei_local = netdev_priv(dev);
--
--  half buf[2];
--
--  STNIC_WRITE (PG0_RSAR0, 0);
--  STNIC_WRITE (PG0_RSAR1, ring_page);
--  STNIC_WRITE (PG0_RBCR0, 4);
--  STNIC_WRITE (PG0_RBCR1, 0);
--  STNIC_WRITE (STNIC_CR, CR_RRD | CR_PG0 | CR_STA);
--
--  buf[0] = *(vhalf *) PA_83902_IF;
--  STNIC_DELAY ();
--  buf[1] = *(vhalf *) PA_83902_IF;
--  STNIC_DELAY ();
--  hdr->next = buf[0] >> 8;
--  hdr->status = buf[0] & 0xff;
--#ifdef __LITTLE_ENDIAN__
--  hdr->count = buf[1];
--#else
--  hdr->count = ((buf[1] >> 8) & 0xff) | (buf[1] << 8);
--#endif
--
--  netif_dbg(ei_local, probe, dev, "ring %x status %02x next %02x count %04x.\n",
--	    ring_page, hdr->status, hdr->next, hdr->count);
--
--  STNIC_WRITE (STNIC_CR, CR_RDMA | CR_PG0 | CR_STA);
+-	return bitbang_txrx_be_cpha1(spi, nsecs, 0, flags, word, bits);
 -}
 -
--/* Block input and output, similar to the Crynwr packet driver. If you are
--   porting to a new ethercard look at the packet driver source for hints.
--   The HP LAN doesn't use shared memory -- we put the packet
--   out through the "remote DMA" dataport. */
--
--static void
--stnic_block_input (struct net_device *dev, int length, struct sk_buff *skb,
--		   int offset)
+-static u32 sh_sci_spi_txrx_mode2(struct spi_device *spi,
+-				 unsigned nsecs, u32 word, u8 bits,
+-				 unsigned flags)
 -{
--  char *buf = skb->data;
--  half val;
--
--  STNIC_WRITE (PG0_RSAR0, offset & 0xff);
--  STNIC_WRITE (PG0_RSAR1, offset >> 8);
--  STNIC_WRITE (PG0_RBCR0, length & 0xff);
--  STNIC_WRITE (PG0_RBCR1, length >> 8);
--  STNIC_WRITE (STNIC_CR, CR_RRD | CR_PG0 | CR_STA);
--
--  if (length & 1)
--    length++;
--
--  while (length > 0)
--    {
--      val = *(vhalf *) PA_83902_IF;
--#ifdef __LITTLE_ENDIAN__
--      *buf++ = val & 0xff;
--      *buf++ = val >> 8;
--#else
--      *buf++ = val >> 8;
--      *buf++ = val & 0xff;
--#endif
--      STNIC_DELAY ();
--      length -= sizeof (half);
--    }
--
--  STNIC_WRITE (STNIC_CR, CR_RDMA | CR_PG0 | CR_STA);
+-	return bitbang_txrx_be_cpha0(spi, nsecs, 1, flags, word, bits);
 -}
 -
--static void
--stnic_block_output (struct net_device *dev, int length,
--		    const unsigned char *buf, int output_page)
+-static u32 sh_sci_spi_txrx_mode3(struct spi_device *spi,
+-				 unsigned nsecs, u32 word, u8 bits,
+-				 unsigned flags)
 -{
--  STNIC_WRITE (PG0_RBCR0, 1);	/* Write non-zero value */
--  STNIC_WRITE (STNIC_CR, CR_RRD | CR_PG0 | CR_STA);
--  STNIC_DELAY ();
--
--  STNIC_WRITE (PG0_RBCR0, length & 0xff);
--  STNIC_WRITE (PG0_RBCR1, length >> 8);
--  STNIC_WRITE (PG0_RSAR0, 0);
--  STNIC_WRITE (PG0_RSAR1, output_page);
--  STNIC_WRITE (STNIC_CR, CR_RWR | CR_PG0 | CR_STA);
--
--  if (length & 1)
--    length++;
--
--  while (length > 0)
--    {
--#ifdef __LITTLE_ENDIAN__
--      *(vhalf *) PA_83902_IF = ((half) buf[1] << 8) | buf[0];
--#else
--      *(vhalf *) PA_83902_IF = ((half) buf[0] << 8) | buf[1];
--#endif
--      STNIC_DELAY ();
--      buf += sizeof (half);
--      length -= sizeof (half);
--    }
--
--  STNIC_WRITE (STNIC_CR, CR_RDMA | CR_PG0 | CR_STA);
+-	return bitbang_txrx_be_cpha1(spi, nsecs, 1, flags, word, bits);
 -}
 -
--/* This function resets the STNIC if something screws up.  */
--static void
--stnic_init (struct net_device *dev)
+-static void sh_sci_spi_chipselect(struct spi_device *dev, int value)
 -{
--  stnic_reset (dev);
--  NS8390_init (dev, 0);
+-	struct sh_sci_spi *sp = spi_master_get_devdata(dev->master);
+-
+-	if (sp->info->chip_select)
+-		(sp->info->chip_select)(sp->info, dev->chip_select, value);
 -}
 -
--static void __exit stnic_cleanup(void)
+-static int sh_sci_spi_probe(struct platform_device *dev)
 -{
--	unregister_netdev(stnic_dev);
--	free_irq(stnic_dev->irq, stnic_dev);
--	free_netdev(stnic_dev);
+-	struct resource	*r;
+-	struct spi_master *master;
+-	struct sh_sci_spi *sp;
+-	int ret;
+-
+-	master = spi_alloc_master(&dev->dev, sizeof(struct sh_sci_spi));
+-	if (master == NULL) {
+-		dev_err(&dev->dev, "failed to allocate spi master\n");
+-		ret = -ENOMEM;
+-		goto err0;
+-	}
+-
+-	sp = spi_master_get_devdata(master);
+-
+-	platform_set_drvdata(dev, sp);
+-	sp->info = dev_get_platdata(&dev->dev);
+-	if (!sp->info) {
+-		dev_err(&dev->dev, "platform data is missing\n");
+-		ret = -ENOENT;
+-		goto err1;
+-	}
+-
+-	/* setup spi bitbang adaptor */
+-	sp->bitbang.master = master;
+-	sp->bitbang.master->bus_num = sp->info->bus_num;
+-	sp->bitbang.master->num_chipselect = sp->info->num_chipselect;
+-	sp->bitbang.chipselect = sh_sci_spi_chipselect;
+-
+-	sp->bitbang.txrx_word[SPI_MODE_0] = sh_sci_spi_txrx_mode0;
+-	sp->bitbang.txrx_word[SPI_MODE_1] = sh_sci_spi_txrx_mode1;
+-	sp->bitbang.txrx_word[SPI_MODE_2] = sh_sci_spi_txrx_mode2;
+-	sp->bitbang.txrx_word[SPI_MODE_3] = sh_sci_spi_txrx_mode3;
+-
+-	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (r == NULL) {
+-		ret = -ENOENT;
+-		goto err1;
+-	}
+-	sp->membase = ioremap(r->start, resource_size(r));
+-	if (!sp->membase) {
+-		ret = -ENXIO;
+-		goto err1;
+-	}
+-	sp->val = ioread8(SCSPTR(sp));
+-	setbits(sp, PIN_INIT, 1);
+-
+-	ret = spi_bitbang_start(&sp->bitbang);
+-	if (!ret)
+-		return 0;
+-
+-	setbits(sp, PIN_INIT, 0);
+-	iounmap(sp->membase);
+- err1:
+-	spi_master_put(sp->bitbang.master);
+- err0:
+-	return ret;
 -}
 -
--module_init(stnic_probe);
--module_exit(stnic_cleanup);
+-static int sh_sci_spi_remove(struct platform_device *dev)
+-{
+-	struct sh_sci_spi *sp = platform_get_drvdata(dev);
+-
+-	spi_bitbang_stop(&sp->bitbang);
+-	setbits(sp, PIN_INIT, 0);
+-	iounmap(sp->membase);
+-	spi_master_put(sp->bitbang.master);
+-	return 0;
+-}
+-
+-static struct platform_driver sh_sci_spi_drv = {
+-	.probe		= sh_sci_spi_probe,
+-	.remove		= sh_sci_spi_remove,
+-	.driver		= {
+-		.name	= "spi_sh_sci",
+-	},
+-};
+-module_platform_driver(sh_sci_spi_drv);
+-
+-MODULE_DESCRIPTION("SH SCI SPI Driver");
+-MODULE_AUTHOR("Magnus Damm <damm@opensource.se>");
 -MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:spi_sh_sci");
 -- 
 2.39.0
 
