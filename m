@@ -2,63 +2,63 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1948AC05027
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Jan 2023 10:10:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 515BDC05027
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Jan 2023 10:10:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231947AbjAWKKZ (ORCPT
+        id S231911AbjAWKKb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 23 Jan 2023 05:10:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37054 "EHLO
+        Mon, 23 Jan 2023 05:10:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231809AbjAWKKR (ORCPT
+        with ESMTP id S231877AbjAWKKU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 Jan 2023 05:10:17 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C8D16AEC
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:07 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id d2so10240115wrp.8
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:07 -0800 (PST)
+        Mon, 23 Jan 2023 05:10:20 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87EE12F35
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:08 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id f19-20020a1c6a13000000b003db0ef4dedcso10183312wmc.4
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GGsfIAFzoH7ggFb2voxRa7ZKIwz9PZMg5nKhBB1/kDo=;
-        b=Xym58FVi/DyBHzoH5aFBOh1zqQtKsbxeJoh30xeVcts5R8r+TNBO0kMt4zeXDHFr8F
-         HKIOtA5Te56KxdrZp+PwbV6jqqz4IIr6ek1oCdi1wqakg3VeTdmNYXT8AV4hA4FkpUwb
-         RJwSLPpcTSTE1iL2LmxubojKsnoVwPOkEvL8xIyrNYVmfM3eNSguXyLunrnjCOZuXIpO
-         S3cAutOmEpI4Da153O1lCX4NPzliTH4PuxQ1jUA5FCri/UXHpRrGYcXfe6FMpB/Wa7md
-         DuJBl/ASQWwUnYopd/CuLLOH9ZGT9reXwj44KOqpuMmDs2SBWu9KPLoBRNjiPuxqLJj1
-         Ewww==
+        bh=7QnuhptbipJYdHWSiiqtgEE8IRm3fj6CX7C8k1jBDlQ=;
+        b=D2y6U13jAntOiII5Aj+46tSWmTvxoLNv6sysz+VOmfozTTtUplEHw/9zJLa/WQFN4b
+         z6MDrnXxEpjFTbleI8OQga5JOVXSc5MQrAHEjm4F5lIELUOklfl2pVTVWBqYLTpAZWnq
+         +gHsMkk8a0sgdaCXNIh4/hLYh2fGtRSNjYfNBqqmHn/+PYmkBuOt7Dag3uuoruiOpF5G
+         +/6ZCncD01okOf0tQRspFteJ1WszTHPskrSwrNboikKlj0lOxNhwwWA+uZ5gJjKhebZ6
+         dKD0KuLRHj63x0REhkpGva8rSPkVla8xTKleOMeKYrIk2jgClPNA/DyLOBdsF3+ZXgIt
+         SHXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GGsfIAFzoH7ggFb2voxRa7ZKIwz9PZMg5nKhBB1/kDo=;
-        b=XJV8rIonau/da3168c0EotMh9V/Ic0pz7zUPRJYs3t3JrDmv5XfaOBBkdvtypFJz8k
-         +gR4Ynknma4ap+RcqwsmF2aIcB9BY9feE/tgzWjZNBil4CrwBClxyoPCb4yXEirIPoaW
-         kTPaVNuCgmkAaUAt9lcasiXZoOdh0WVNe7f+Qadvxp0mirtf+gndyi8EVMKeYfQIfVFS
-         xJn/M/qYy2qXsAI27rlpn1jLZ4bF0W9gHRPEVN8imf9PUAgrQp+61TA7QZvhLiaN9zuy
-         eo2kZ6QtV6GQiU9pPVKUB1/l03hwLtP4loSR63dGn7LDDXtn8Xm7H3nfsW2+zHauScHr
-         MiWg==
-X-Gm-Message-State: AFqh2koZqDOsSpD3By3QKIxz1SHA80VpaICRL3rqmYkXFpdFBjvHUGAI
-        qpNUvZ9U+eQpG6RTdB0vvVzEIw==
-X-Google-Smtp-Source: AMrXdXsuzAGVJdfpkA4r0vuPCPAnhlDTbdaJ8hZuZDAIdxluKGkX6uczQJsOtnSp0EZuPyQGa9j6xw==
-X-Received: by 2002:adf:e44d:0:b0:2bd:f31e:3460 with SMTP id t13-20020adfe44d000000b002bdf31e3460mr19527988wrm.2.1674468606016;
-        Mon, 23 Jan 2023 02:10:06 -0800 (PST)
+        bh=7QnuhptbipJYdHWSiiqtgEE8IRm3fj6CX7C8k1jBDlQ=;
+        b=2yX33ecwnp0Z+fyYtoIoEn7qFAECxmeYXcmXwD5OzQvUV3OLDpl2fVKtVI86QFniEv
+         geX+d1sQuOx++Owyd4P49hDbCE2IMqphxY7OJFmuZfPkmuwSbsP5dtTl38I8L2AaYSOB
+         G8jqgj1yugTuZ2pxdrW7NNOim1tAd3pK6NjQfdNrLQk6sRbEOLnb3BB1SYJixWAGnsx+
+         BwaKkj/+6v8jn7VckQdP16QVOMAyGyWFGbThoklmLPNfqSvMjWi+3MS0e8p3eBP3MnIK
+         rFM2TTPb+JfotNrpvqN+ZvVk/1ec8W0zaSxOsT7zTPf9zW5FD6J3homzSarmGeS7UbWf
+         wDHg==
+X-Gm-Message-State: AFqh2kq3/A0UMM9bFwNa2q+umwlu94fr6cx+KdJWf9ZIpGvJM/We0ISv
+        PTVKDT+57v4y9D2ATEnGKVzEYw==
+X-Google-Smtp-Source: AMrXdXuisOGGyFDugQEwjFlEIch7Uu3cTCmEFJEDE/gOYH0HI8ybTMIZvmf5kg2eaSJaUpWRvoxCng==
+X-Received: by 2002:a05:600c:2284:b0:3d3:5c21:dd9d with SMTP id 4-20020a05600c228400b003d35c21dd9dmr23604933wmf.19.1674468608355;
+        Mon, 23 Jan 2023 02:10:08 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id m9-20020a056000024900b002bdec340a1csm22670403wrz.110.2023.01.23.02.10.04
+        by smtp.gmail.com with ESMTPSA id m9-20020a056000024900b002bdec340a1csm22670403wrz.110.2023.01.23.02.10.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 02:10:05 -0800 (PST)
+        Mon, 23 Jan 2023 02:10:08 -0800 (PST)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 23 Jan 2023 11:10:01 +0100
-Subject: [PATCH v3 4/7] dt-bindings: media: convert meson-ir.txt to
+Date:   Mon, 23 Jan 2023 11:10:03 +0100
+Subject: [PATCH v3 6/7] dt-bindings: mmc: convert amlogic,meson-gx.txt to
  dt-schema
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v3-4-e28dd31e3bed@linaro.org>
+Message-Id: <20221117-b4-amlogic-bindings-convert-v3-6-e28dd31e3bed@linaro.org>
 References: <20221117-b4-amlogic-bindings-convert-v3-0-e28dd31e3bed@linaro.org>
 In-Reply-To: <20221117-b4-amlogic-bindings-convert-v3-0-e28dd31e3bed@linaro.org>
 To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
@@ -81,56 +81,54 @@ To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
 Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-pci@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+        linux-mmc@vger.kernel.org, linux-pci@vger.kernel.org
 X-Mailer: b4 0.12.0
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert the Amlogic Meson IR remote control receiver bindings to
-dt-schema.
+Convert the Amlogic SD / eMMC controller for S905/GXBB family SoCs
+to dt-schema.
 
-Take in account the used variant with amlogic,meson-gx-ir.
+Take in account the used variant with amlogic,meson-gx-mmc.
 
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/media/amlogic,meson6-ir.yaml          | 47 ++++++++++++++++++++++
- .../devicetree/bindings/media/meson-ir.txt         | 20 ---------
- 2 files changed, 47 insertions(+), 20 deletions(-)
+ .../bindings/mmc/amlogic,meson-gx-mmc.yaml         | 73 ++++++++++++++++++++++
+ .../devicetree/bindings/mmc/amlogic,meson-gx.txt   | 39 ------------
+ 2 files changed, 73 insertions(+), 39 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/media/amlogic,meson6-ir.yaml b/Documentation/devicetree/bindings/media/amlogic,meson6-ir.yaml
+diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
 new file mode 100644
-index 000000000000..3f9fa92703bb
+index 000000000000..46e235bf228b
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/media/amlogic,meson6-ir.yaml
-@@ -0,0 +1,47 @@
++++ b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx-mmc.yaml
+@@ -0,0 +1,73 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/media/amlogic,meson6-ir.yaml#
++$id: http://devicetree.org/schemas/mmc/amlogic,meson-gx-mmc.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Amlogic Meson IR remote control receiver
++title: Amlogic SD / eMMC controller for S905/GXBB family SoCs
++
++description:
++  The MMC 5.1 compliant host controller on Amlogic provides the
++  interface for SD, eMMC and SDIO devices
 +
 +maintainers:
 +  - Neil Armstrong <neil.armstrong@linaro.org>
 +
 +allOf:
-+  - $ref: rc.yaml#
++  - $ref: mmc-controller.yaml#
 +
 +properties:
 +  compatible:
 +    oneOf:
-+      - enum:
-+          - amlogic,meson6-ir
-+          - amlogic,meson8b-ir
-+          - amlogic,meson-gxbb-ir
++      - const: amlogic,meson-axg-mmc
 +      - items:
-+          - const: amlogic,meson-gx-ir
-+          - const: amlogic,meson-gxbb-ir
++          - const: amlogic,meson-gx-mmc
++          - const: amlogic,meson-gxbb-mmc
 +
 +  reg:
 +    maxItems: 1
@@ -138,10 +136,31 @@ index 000000000000..3f9fa92703bb
 +  interrupts:
 +    maxItems: 1
 +
++  clocks:
++    maxItems: 3
++
++  clock-names:
++    items:
++      - const: core
++      - const: clkin0
++      - const: clkin1
++
++  resets:
++    maxItems: 1
++
++  amlogic,dram-access-quirk:
++    type: boolean
++    description:
++      set when controller's internal DMA engine cannot access the DRAM memory,
++      like on the G12A dedicated SDIO controller.
++
 +required:
 +  - compatible
 +  - reg
 +  - interrupts
++  - clocks
++  - clock-names
++  - resets
 +
 +unevaluatedProperties: false
 +
@@ -149,36 +168,59 @@ index 000000000000..3f9fa92703bb
 +  - |
 +    #include <dt-bindings/interrupt-controller/irq.h>
 +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    ir-receiver@c8100480 {
-+        compatible = "amlogic,meson6-ir";
-+        reg = <0xc8100480 0x20>;
-+        interrupts = <GIC_SPI 15 IRQ_TYPE_EDGE_RISING>;
++    mmc@70000 {
++        compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
++        reg = <0x70000 0x2000>;
++        interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
++        clocks = <&clk_mmc>, <&xtal>, <&clk_div>;
++        clock-names = "core", "clkin0", "clkin1";
++        pinctrl-0 = <&emm_pins>;
++        resets = <&reset_mmc>;
 +    };
-diff --git a/Documentation/devicetree/bindings/media/meson-ir.txt b/Documentation/devicetree/bindings/media/meson-ir.txt
+diff --git a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt b/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt
 deleted file mode 100644
-index efd9d29a8f10..000000000000
---- a/Documentation/devicetree/bindings/media/meson-ir.txt
+index ccc5358db131..000000000000
+--- a/Documentation/devicetree/bindings/mmc/amlogic,meson-gx.txt
 +++ /dev/null
-@@ -1,20 +0,0 @@
--* Amlogic Meson IR remote control receiver
+@@ -1,39 +0,0 @@
+-Amlogic SD / eMMC controller for S905/GXBB family SoCs
+-
+-The MMC 5.1 compliant host controller on Amlogic provides the
+-interface for SD, eMMC and SDIO devices.
+-
+-This file documents the properties in addition to those available in
+-the MMC core bindings, documented by mmc.txt.
 -
 -Required properties:
-- - compatible	: depending on the platform this should be one of:
--		  - "amlogic,meson6-ir"
--		  - "amlogic,meson8b-ir"
--		  - "amlogic,meson-gxbb-ir"
-- - reg		: physical base address and length of the device registers
-- - interrupts	: a single specifier for the interrupt from the device
+-- compatible : contains one of:
+-  - "amlogic,meson-gx-mmc"
+-  - "amlogic,meson-gxbb-mmc"
+-  - "amlogic,meson-gxl-mmc"
+-  - "amlogic,meson-gxm-mmc"
+-  - "amlogic,meson-axg-mmc"
+-- clocks     : A list of phandle + clock-specifier pairs for the clocks listed in clock-names.
+-- clock-names: Should contain the following:
+-	"core" - Main peripheral bus clock
+-	"clkin0" - Parent clock of internal mux
+-	"clkin1" - Other parent clock of internal mux
+-  The driver has an internal mux clock which switches between clkin0 and clkin1 depending on the
+-  clock rate requested by the MMC core.
+-- resets     : phandle of the internal reset line
 -
 -Optional properties:
-- - linux,rc-map-name:	see rc.txt file in the same directory.
+-- amlogic,dram-access-quirk: set when controller's internal DMA engine cannot access the
+-  DRAM memory, like on the G12A dedicated SDIO controller.
 -
 -Example:
 -
--	ir-receiver@c8100480 {
--		compatible= "amlogic,meson6-ir";
--		reg = <0xc8100480 0x20>;
--		interrupts = <0 15 1>;
+-	sd_emmc_a: mmc@70000 {
+-		compatible = "amlogic,meson-gxbb-mmc";
+-		reg = <0x0 0x70000 0x0 0x2000>;
+-		interrupts = < GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
+-		clocks = <&clkc CLKID_SD_EMMC_A>, <&xtal>, <&clkc CLKID_FCLK_DIV2>;
+-		clock-names = "core", "clkin0", "clkin1";
+-		pinctrl-0 = <&emmc_pins>;
+-		resets = <&reset RESET_SD_EMMC_A>;
 -	};
 
 -- 
