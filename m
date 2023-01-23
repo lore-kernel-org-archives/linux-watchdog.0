@@ -2,63 +2,63 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C988C61D97
-	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Jan 2023 10:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A7DC54EED
+	for <linux-watchdog@archiver.kernel.org>; Mon, 23 Jan 2023 10:10:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231771AbjAWKKM (ORCPT
+        id S231745AbjAWKKY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 23 Jan 2023 05:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
+        Mon, 23 Jan 2023 05:10:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231648AbjAWKKK (ORCPT
+        with ESMTP id S231788AbjAWKKS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 Jan 2023 05:10:10 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D0A13504
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:06 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id t5so10278536wrq.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:06 -0800 (PST)
+        Mon, 23 Jan 2023 05:10:18 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B09F116315
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:07 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id q5so5597581wrv.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jan 2023 02:10:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qBPBzdh3eujGMqwSAewcH2FPtNMnZTECjtcDhfAnWzg=;
-        b=ymzD+yGXpHJi0tfrmqPtik9lx2Mlk/0PNwaPiH9Q9khXzZxqU5PGx0viHREBD7vxeJ
-         q1jin0Wjjzpbd7v+GCY5aZJwOhSktEsAu9W+P/PVDPtCX/4tc0d5gCTOUC+IQ6Rk3htI
-         lwD9ECIVq22K0aIpwCpQq7GEqnblHxzQ7ffWzHEwPP2XKbLI4Lt8oWOKFWeC9zxvRV7h
-         pM/ZsvDiK4JYGOUf7Cdh5JCggARPgDrV6ow/G17RRV9WVe9gtdlqkrJtrffzbT7LhE2K
-         X2F1kRP29Aw6VFF7bOCkAnPg+90D3OEItWeiOfvp63XYJ3MqX9697GTwMrD7Z1JPqwHo
-         rG6w==
+        bh=RRiMwFjCYTBiVehS5Zjzxk4QhzySk5Q8XvQ2DTwvGYo=;
+        b=I8MMPFh1TcWsNd+WWe0k3fRxXgSCZ5bzuKgp1jF0Oscrp5+wIJdNqG+oCnhILfT2C7
+         AMfhxG4J1w38PSAjeX8Ng26VvukBrp2AUraxmRu/TjlcbKRUbUk6QdKPkju8/0J3GcEg
+         EtNMesusXeLgEhK4ffFf2VEUmacT+9ALA16WCi6o6JAc4mwqlaXhIPe19L/rF24jGCb3
+         jy7uXjrKQo23Nc6dXu/RbsbVK9jJC11rWLLmYq4mJhRSUidzaCSsvEnRBoZK1+BCnKFR
+         t9KV/fGbXrmSSZNQt2Xkx6SEhxnRcmWkTxOGOWiulPtkS8LZZgPmF+8K4dMq+u/lm7y/
+         OV8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qBPBzdh3eujGMqwSAewcH2FPtNMnZTECjtcDhfAnWzg=;
-        b=xqJJRLzy5aI8j/0/e4HffqOuJNPp1g6SfKs+6nf2KQUWx4SmiyuylD+mffCgwjlqV0
-         3aHOJw1BXEKDjSHYxhF7jt+cNvmkd+6FQ9nUa8P2unz/47YggHY9GDLsQIvZMtsW+qOp
-         2yUDpBQMmAKi5x96SsObT2HZ/dPFQ4Vemf8YNnhNkPbOuAzPNyUAlUsY2ykfEBlMnn59
-         ESkrkrphnUQNJRlYtBsRxnL8kYpDZzCg4seTkbO8mbNCljV1VSK/UJHDaVfQPaH+6UyD
-         t/FGyb5P1vgZASrmA7KCXy8A3JhaZeyqygVJn6rQp40/NueQkXjH8+TdljZyNZtENNgN
-         6Ohw==
-X-Gm-Message-State: AFqh2kpKFv8+f1ifdN4I0v/vck5B5EhDa9XBNIDd3sVEMbDn33d7xgW+
-        GZek+8u8hn8Rn2LDdYjNRi93pQ==
-X-Google-Smtp-Source: AMrXdXugJ1sMcdhxjgP48Nuvn2UCKsloEQfCtKPBr4p4UBBaVywjhDB3rMRURjonU2yP79qKNZEkvQ==
-X-Received: by 2002:adf:d22c:0:b0:2bd:f95d:4457 with SMTP id k12-20020adfd22c000000b002bdf95d4457mr19441166wrh.69.1674468604815;
-        Mon, 23 Jan 2023 02:10:04 -0800 (PST)
+        bh=RRiMwFjCYTBiVehS5Zjzxk4QhzySk5Q8XvQ2DTwvGYo=;
+        b=7nD1EO3EFjatFnDAw6yOL4Co0JMNd/t8OwS5Gl10Z8Y6ocD3awFn4BQFyx5dLxXUMG
+         WBjN/AF9vJ55aPXzdGt97cRJwWXR8tTvjtpkHLmJce7e1t0BYC1eSoLlIvuzsVPe5vU1
+         2Gi8XyeqUaR84XLRo0qYTfCdVUezb4SNRgWljPZE32gV7g9YSsF+1x1XLExicnEyIuer
+         dlYnRhQP/2ihUKOqvIXzsSDYqGTKaKQXd7yj4u6ij1cq6SR5a6fKEHYzaz0aPUqaV4um
+         Dj16+ZgRXn6chwUQDPCiBYyXl1qbZgtG6w9kSDUcebSLxbJEbI9gQOGvPpjPbjBdfWiN
+         qA6g==
+X-Gm-Message-State: AFqh2konEP96Iwg5v6ZRwXTdxQGJbF4E9M/ewZTcFPruienaSnARxezd
+        DgKrfctGWI5bagucBjajjt3ehjZVgpaWYyYAkiY=
+X-Google-Smtp-Source: AMrXdXsz9ZThuuglWyEkoHYSIAJZtH6Em5vfGy2znOZDNstmWHfHemnhc3HoFov4CDVgw14dH69ABA==
+X-Received: by 2002:a5d:4f90:0:b0:2bd:d542:e01e with SMTP id d16-20020a5d4f90000000b002bdd542e01emr21607229wru.10.1674468607166;
+        Mon, 23 Jan 2023 02:10:07 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id m9-20020a056000024900b002bdec340a1csm22670403wrz.110.2023.01.23.02.10.03
+        by smtp.gmail.com with ESMTPSA id m9-20020a056000024900b002bdec340a1csm22670403wrz.110.2023.01.23.02.10.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 02:10:04 -0800 (PST)
+        Mon, 23 Jan 2023 02:10:06 -0800 (PST)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 23 Jan 2023 11:10:00 +0100
-Subject: [PATCH v3 3/7] dt-bindings: watchdog: convert meson-wdt.txt to
- dt-schema
+Date:   Mon, 23 Jan 2023 11:10:02 +0100
+Subject: [PATCH v3 5/7] dt-bindings: timer: convert
+ timer/amlogic,meson6-timer.txt to dt-schema
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v3-3-e28dd31e3bed@linaro.org>
+Message-Id: <20221117-b4-amlogic-bindings-convert-v3-5-e28dd31e3bed@linaro.org>
 References: <20221117-b4-amlogic-bindings-convert-v3-0-e28dd31e3bed@linaro.org>
 In-Reply-To: <20221117-b4-amlogic-bindings-convert-v3-0-e28dd31e3bed@linaro.org>
 To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
@@ -88,105 +88,104 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert the Amlogic Meson6 SoCs Watchdog timer bindings to dt-schema.
-
-Take in account the used interrupts property.
-
-The "amlogic,meson8-wdt" representation has been simplified
-since there's no users of this compatible used along the
-"amlogic,meson6-wdt".
+Convert the Amlogic Meson6 SoCs Timer Controller bindings to dt-schema.
 
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/watchdog/amlogic,meson6-wdt.yaml      | 50 ++++++++++++++++++++++
- .../devicetree/bindings/watchdog/meson-wdt.txt     | 21 ---------
- 2 files changed, 50 insertions(+), 21 deletions(-)
+ .../bindings/timer/amlogic,meson6-timer.txt        | 22 ---------
+ .../bindings/timer/amlogic,meson6-timer.yaml       | 54 ++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 22 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson6-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson6-wdt.yaml
+diff --git a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt
+deleted file mode 100644
+index a9da22bda912..000000000000
+--- a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt
++++ /dev/null
+@@ -1,22 +0,0 @@
+-Amlogic Meson6 SoCs Timer Controller
+-
+-Required properties:
+-
+-- compatible : should be "amlogic,meson6-timer"
+-- reg : Specifies base physical address and size of the registers.
+-- interrupts : The four interrupts, one for each timer event
+-- clocks : phandles to the pclk (system clock) and XTAL clocks
+-- clock-names : must contain "pclk" and "xtal"
+-
+-Example:
+-
+-timer@c1109940 {
+-	compatible = "amlogic,meson6-timer";
+-	reg = <0xc1109940 0x14>;
+-	interrupts = <GIC_SPI 10 IRQ_TYPE_EDGE_RISING>,
+-		     <GIC_SPI 11 IRQ_TYPE_EDGE_RISING>,
+-		     <GIC_SPI 6 IRQ_TYPE_EDGE_RISING>,
+-		     <GIC_SPI 29 IRQ_TYPE_EDGE_RISING>;
+-	clocks = <&xtal>, <&clk81>;
+-	clock-names = "xtal", "pclk";
+-};
+diff --git a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml
 new file mode 100644
-index 000000000000..84732cb58ec4
+index 000000000000..8381a5404ef7
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson6-wdt.yaml
-@@ -0,0 +1,50 @@
++++ b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml
+@@ -0,0 +1,54 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/watchdog/amlogic,meson6-wdt.yaml#
++$id: http://devicetree.org/schemas/timer/amlogic,meson6-timer.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Amlogic Meson6 SoCs Watchdog timer
++title: Amlogic Meson6 SoCs Timer Controller
 +
 +maintainers:
 +  - Neil Armstrong <neil.armstrong@linaro.org>
 +  - Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 +
-+allOf:
-+  - $ref: watchdog.yaml#
-+
 +properties:
 +  compatible:
-+    oneOf:
-+      - enum:
-+          - amlogic,meson6-wdt
-+          - amlogic,meson8-wdt
-+          - amlogic,meson8b-wdt
-+      - items:
-+          - const: amlogic,meson8m2-wdt
-+          - const: amlogic,meson8b-wdt
-+
-+  interrupts:
-+    maxItems: 1
++    const: amlogic,meson6-timer
 +
 +  reg:
 +    maxItems: 1
 +
++  interrupts:
++    maxItems: 4
++    description: per-timer event interrupts
++
++  clocks:
++    maxItems: 2
++
++  clock-names:
++    items:
++      - const: xtal
++      - const: pclk
++
 +required:
 +  - compatible
-+  - interrupts
 +  - reg
++  - interrupts
++  - clocks
++  - clock-names
 +
-+unevaluatedProperties: false
++additionalProperties: false
 +
 +examples:
 +  - |
 +    #include <dt-bindings/interrupt-controller/irq.h>
 +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+
-+    wdt: watchdog@c1109900 {
-+        compatible = "amlogic,meson6-wdt";
-+        reg = <0xc1109900 0x8>;
-+        interrupts = <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
-+        timeout-sec = <10>;
++    timer@c1109940 {
++        compatible = "amlogic,meson6-timer";
++        reg = <0xc1109940 0x14>;
++        interrupts = <GIC_SPI 10 IRQ_TYPE_EDGE_RISING>,
++                     <GIC_SPI 11 IRQ_TYPE_EDGE_RISING>,
++                     <GIC_SPI 6 IRQ_TYPE_EDGE_RISING>,
++                     <GIC_SPI 29 IRQ_TYPE_EDGE_RISING>;
++        clocks = <&xtal>, <&clk81>;
++        clock-names = "xtal", "pclk";
 +    };
-diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-deleted file mode 100644
-index 7588cc3971bf..000000000000
---- a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-+++ /dev/null
-@@ -1,21 +0,0 @@
--Meson SoCs Watchdog timer
--
--Required properties:
--
--- compatible : depending on the SoC this should be one of:
--	"amlogic,meson6-wdt" on Meson6 SoCs
--	"amlogic,meson8-wdt" and "amlogic,meson6-wdt" on Meson8 SoCs
--	"amlogic,meson8b-wdt" on Meson8b SoCs
--	"amlogic,meson8m2-wdt" and "amlogic,meson8b-wdt" on Meson8m2 SoCs
--- reg : Specifies base physical address and size of the registers.
--
--Optional properties:
--- timeout-sec: contains the watchdog timeout in seconds.
--
--Example:
--
--wdt: watchdog@c1109900 {
--	compatible = "amlogic,meson6-wdt";
--	reg = <0xc1109900 0x8>;
--	timeout-sec = <10>;
--};
 
 -- 
 2.34.1
