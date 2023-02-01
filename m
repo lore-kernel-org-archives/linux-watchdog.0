@@ -2,54 +2,55 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C870C636CD
-	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Feb 2023 15:21:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D9E0C05027
+	for <linux-watchdog@archiver.kernel.org>; Wed,  1 Feb 2023 15:21:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232320AbjBAPV0 (ORCPT
+        id S232422AbjBAPV2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 1 Feb 2023 10:21:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
+        Wed, 1 Feb 2023 10:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232071AbjBAPVX (ORCPT
+        with ESMTP id S232254AbjBAPV0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Feb 2023 10:21:23 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A5537A96
-        for <linux-watchdog@vger.kernel.org>; Wed,  1 Feb 2023 07:21:17 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id n13so5935979wmr.4
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Feb 2023 07:21:17 -0800 (PST)
+        Wed, 1 Feb 2023 10:21:26 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824D1126C3
+        for <linux-watchdog@vger.kernel.org>; Wed,  1 Feb 2023 07:21:19 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id d4-20020a05600c3ac400b003db1de2aef0so1733001wms.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Feb 2023 07:21:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=87tvueRd2jMJ3I0zmFC1ExMPpE2u2ENBfUILZoyxQTw=;
-        b=lk6Z1f/dTiXfiWKLliINNJnni4OHlyqmAvr/jR936PbaXeiCk14SDsO8QLDXIEhOUQ
-         U6nhqwrYndkpETIiYi/SHMZP+8ivpMgcL0dTsREKAXiLMXr4y/o/VLYlcsFI/tivxm+i
-         DSb53kh2mOgPf55zKCoAaAGVLkd/GgHHbiJXx2YoQPqLdYenN2zeEfO1w6j/wohQC5YB
-         EAgROM0VnDAvqB6RtmljoNqSwPKauS1dtbgDJOHpr99amWi15M/9uIzelOtByfMVtgYX
-         PNpB5KAq1I/WgFffRKZfA77sG6kH3hM5Rfch9Z0NzRiLm4xi3wCp5YmTuHC/TnnISL8A
-         NYkA==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i+CP334d41+KJ886QppDHZsX2R2ejiT+wDvQG9M3qlo=;
+        b=JX1G4TvgQVTYHlK5D+v8ldoToRv5MxB1yAZWxycVGtIGOw8joPqaBU6Y0zUPy9GV6Q
+         bD1HiOpJd0uRrOKRx0GoPGjdf2KcV49R2o2oblOwRnfQkWqtUCDWl2ir/4OMaB0rzZvM
+         ruQMwERkDoYLsAqCWb/to98Xq+6ZHR23za1cnY/k+IUU6qW9kULbtpMuN7gT38xZHETh
+         FjYhQ9TeVYuSvJpA160LVe1OaPwQtHJ+0C/uUlthsXDuHdN22/Ti+MeQHM2Xd7vIfTws
+         IgMZced7JKzgBwBV9OF9iQ3WR5/UBbQiaONngUd5xcIODHa5kz1sAd287ufkpNmJalY2
+         P7Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=87tvueRd2jMJ3I0zmFC1ExMPpE2u2ENBfUILZoyxQTw=;
-        b=OOpthTny89WQ+ILI/XHmeDHn6ujwruFFphmjDAtgusKYjy1V+8ZYGyZhFqZb88Jr+k
-         Y4dgQi6UIm++nAmtqW/0YjX03Dj1eISk+32FAagJ/evJaLf1PHwfRQlysZSBHVXCgnjW
-         Z62NKk+hyh5tvGPOcNYWtDnlFFyV7sIielhlmLpWk0bFDZcDD+4ncxiOOBLH/sAwoDoW
-         FeJSXM+MJjyHe7R4bSdlxFI9nd51jHt6CngXDpRxLPpSVmtEwMWNPQCJQaXMGEQg5Zp3
-         iE3mE4jyo/e64aNe2iGs2oGp2MvNGadZMQxyEQ481w+AhQpVi8GnCGDZWpX/j7oxvcog
-         yHMg==
-X-Gm-Message-State: AO0yUKXpMEQ7gC8RvAhLPtIFJAvyJ/z4GGHUyMk0/iCRQHBi4Cy0t92p
-        yYgmF3bvpZzMEe+uaFkfchD6qw==
-X-Google-Smtp-Source: AK7set8DA60s1ZaHq4wltMareWdZQqQaP1m3qNr/7luxj+0055vEF0R7zqjgLFyvlToBICe4bCI1Lw==
-X-Received: by 2002:a7b:ce94:0:b0:3dc:43a0:83bb with SMTP id q20-20020a7bce94000000b003dc43a083bbmr2582411wmj.3.1675264876040;
-        Wed, 01 Feb 2023 07:21:16 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=i+CP334d41+KJ886QppDHZsX2R2ejiT+wDvQG9M3qlo=;
+        b=QHVh8f7uj3VKykuMIc50L7rSD8rptMzwKK+iwA/99kG4RMGMAEeHU4FHpT66RxOYF2
+         Int5Yu31zGd7Pr6HVt+2F3xyS/zU0nAkYkQJQqU0CvRcWwGyT5LgixJLBg4m2hthCec7
+         nXBOP6d03u0/mNLhKimDlBIkHJ9eiChy4Q6H4c41uGumGQjIG7aRFcit5PftSG0N76NO
+         e98LG7IQtU3WshmDDYOl95aNwv4Uz0u6ANWtDzh1ADmNdi0jdzMBLpA+LmW7GueZ4ptQ
+         pjyHSSlNmfIAgB7jgP06iYmClHMPcSnxmG/+PncgRWQB9MIGbzR3O2ibzmp+LKIGeJZI
+         hUIA==
+X-Gm-Message-State: AO0yUKUAOQ/+dvkYuJ3rF4SwrLafajNEjovCFr+jD0EkqWtwoHz9JaAv
+        39npJwK1f4oxd8MH3ip2hoFPmg==
+X-Google-Smtp-Source: AK7set8r0f7fnOSxGtiJqbb/zo9O49k3QsOP/wxpCSVNDdJ+xtzYmg2yczjIZhzw3UpNkuKF1gkxHQ==
+X-Received: by 2002:a05:600c:4f41:b0:3dc:53da:329b with SMTP id m1-20020a05600c4f4100b003dc53da329bmr2402098wmq.17.1675264878050;
+        Wed, 01 Feb 2023 07:21:18 -0800 (PST)
 Received: from brgl-uxlite.home ([2a01:cb1d:334:ac00:d64:a4e6:40a8:8e69])
-        by smtp.gmail.com with ESMTPSA id j19-20020a05600c42d300b003dc53217e07sm1893120wme.16.2023.02.01.07.21.15
+        by smtp.gmail.com with ESMTPSA id j19-20020a05600c42d300b003dc53217e07sm1893120wme.16.2023.02.01.07.21.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Feb 2023 07:21:15 -0800 (PST)
+        Wed, 01 Feb 2023 07:21:17 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
@@ -63,10 +64,12 @@ To:     Andy Gross <agross@kernel.org>,
 Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Subject: [PATCH v3 0/5] arm64: qcom: add initial support for qcom sa8775p-ride
-Date:   Wed,  1 Feb 2023 16:20:33 +0100
-Message-Id: <20230201152038.203387-1-brgl@bgdev.pl>
+Subject: [PATCH v3 2/5] dt-bindings: mailbox: qcom-ipcc: document the sa8775p platform
+Date:   Wed,  1 Feb 2023 16:20:35 +0100
+Message-Id: <20230201152038.203387-3-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230201152038.203387-1-brgl@bgdev.pl>
+References: <20230201152038.203387-1-brgl@bgdev.pl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -75,41 +78,26 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
-This iteration contains a fixed DTS and all not already applied DT bindings
-patches (with tags collected).
+Add a compatible for the ipcc on sa8775p platforms.
 
-v2 -> v3:
-- reorder properties (reg always first, etc.)
-- tweak node names
-- remove properties filled in by the firmware
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+---
+ Documentation/devicetree/bindings/mailbox/qcom-ipcc.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-v1 -> v2:
-- lots of improvements all around the place to make the dts pass dtbs_check
-  (with some additional patches fixing bugs in existing dt bindings),
-  make dtbs W=1 and checkpatch.pl
-- move board-specific properties to the board .dts file
-- ordered top-level nodes alphabetically and sub-nodes by the reg property
-- fixed licensing
-- set #address-cells and #size-cells to <2> in the soc node and update sub-nodes
-
-Bartosz Golaszewski (5):
-  dt-bindings: firmware: qcom,scm: add qcom,scm-sa8775p compatible
-  dt-bindings: mailbox: qcom-ipcc: document the sa8775p platform
-  dt-bindings: watchdog: qcom-wdt: add qcom,apss-wdt-sa8775p compatible
-  dt-bindings: arm: qcom: add the sa8775p-ride board
-  arm64: dts: qcom: add initial support for qcom sa8775p-ride
-
- .../devicetree/bindings/arm/qcom.yaml         |   7 +
- .../bindings/firmware/qcom,scm.yaml           |   1 +
- .../bindings/mailbox/qcom-ipcc.yaml           |   1 +
- .../bindings/watchdog/qcom-wdt.yaml           |   1 +
- arch/arm64/boot/dts/qcom/Makefile             |   1 +
- arch/arm64/boot/dts/qcom/sa8775p-ride.dts     |  47 +
- arch/arm64/boot/dts/qcom/sa8775p.dtsi         | 812 ++++++++++++++++++
- 7 files changed, 870 insertions(+)
- create mode 100644 arch/arm64/boot/dts/qcom/sa8775p-ride.dts
- create mode 100644 arch/arm64/boot/dts/qcom/sa8775p.dtsi
-
+diff --git a/Documentation/devicetree/bindings/mailbox/qcom-ipcc.yaml b/Documentation/devicetree/bindings/mailbox/qcom-ipcc.yaml
+index f5c73437fef4..de56640cecca 100644
+--- a/Documentation/devicetree/bindings/mailbox/qcom-ipcc.yaml
++++ b/Documentation/devicetree/bindings/mailbox/qcom-ipcc.yaml
+@@ -24,6 +24,7 @@ properties:
+   compatible:
+     items:
+       - enum:
++          - qcom,sa8775p-ipcc
+           - qcom,sc7280-ipcc
+           - qcom,sc8280xp-ipcc
+           - qcom,sm6350-ipcc
 -- 
 2.37.2
 
