@@ -2,131 +2,99 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF955C61DA4
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Feb 2023 07:40:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F703C61DA4
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Feb 2023 08:26:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbjBCHkk (ORCPT
+        id S231868AbjBCI0r convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Feb 2023 02:40:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56738 "EHLO
+        Fri, 3 Feb 2023 03:26:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232474AbjBCHke (ORCPT
+        with ESMTP id S232435AbjBCI0W (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Feb 2023 02:40:34 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC57893AEC;
-        Thu,  2 Feb 2023 23:40:26 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3137Ecc4025439;
-        Fri, 3 Feb 2023 07:40:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=iLsMVUM9lmAtrcEhKWOz4nJ+jGFwhM8fO2Yr4tUse9Q=;
- b=WlcGlrF1rIeLe+P4CGn54QWKzlV5o6GUCAWOmg+MQguUCBSFNbcVnEvlN1bXXhUbpY74
- e34lH+lOO6vzv1gbgZ6YLJf+fNRbdEE497ZY2VnAwGuEa8z56i+xo3pLZxbxOV1kEZV0
- bnahahcyEX/cZlMZnZspvIUKSWhfbCzNSPnZmatFy0yUa2mjI/IHFdOWC/F0ZrWk1L+4
- qp4NYZkfBwjy1Rn7jmfSkbauRPWHUEiwooSEnJZeVxXhEAo/it0hGYIwWMg/YHaTtddB
- z6CTcnEUW3640z89PgjWGPRifTy8cFDPrBQniqD521BW4ztnzB/QdlUbHyO1ksBA6fyu 7A== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngwpr0j9g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Feb 2023 07:40:13 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 312G5BEM020245;
-        Fri, 3 Feb 2023 07:40:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3ndn6ucbm7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Feb 2023 07:40:11 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3137e7Qo19726670
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Feb 2023 07:40:07 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B0732141D;
-        Fri,  3 Feb 2023 07:40:07 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C57D2142E;
-        Fri,  3 Feb 2023 07:40:04 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Feb 2023 07:40:04 +0000 (GMT)
-From:   Alexander Egorenkov <egorenar@linux.ibm.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        hca@linux.ibm.com
-Subject: [PATCH 1/5] watchdog: diag288_wdt: get rid of register asm
-Date:   Fri,  3 Feb 2023 08:39:54 +0100
-Message-Id: <20230203073958.1585738-2-egorenar@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20230203073958.1585738-1-egorenar@linux.ibm.com>
-References: <20230203073958.1585738-1-egorenar@linux.ibm.com>
+        Fri, 3 Feb 2023 03:26:22 -0500
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17E395D08;
+        Fri,  3 Feb 2023 00:24:59 -0800 (PST)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1pNrNI-003Nx4-Ij; Fri, 03 Feb 2023 09:24:48 +0100
+Received: from p57bd9464.dip0.t-ipconnect.de ([87.189.148.100] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1pNrNI-0042Ei-Ac; Fri, 03 Feb 2023 09:24:48 +0100
+Message-ID: <afd056a95d21944db1dc0c9708f692dd1f7bb757.camel@physik.fu-berlin.de>
+Subject: Re: remove arch/sh
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
+        dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        netdev@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-sh@vger.kernel.org
+Date:   Fri, 03 Feb 2023 09:24:46 +0100
+In-Reply-To: <20230203071423.GA24833@lst.de>
+References: <20230113062339.1909087-1-hch@lst.de>
+         <11e2e0a8-eabe-2d8c-d612-9cdd4bcc3648@physik.fu-berlin.de>
+         <20230116071306.GA15848@lst.de>
+         <40dc1bc1-d9cd-d9be-188e-5167ebae235c@physik.fu-berlin.de>
+         <20230203071423.GA24833@lst.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.3 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: skPicpaedP-BLxb1ZtJKpslJfwh7VgyH
-X-Proofpoint-GUID: skPicpaedP-BLxb1ZtJKpslJfwh7VgyH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-03_04,2023-02-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- malwarescore=0 priorityscore=1501 suspectscore=0 bulkscore=0
- lowpriorityscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302030069
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.148.100
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Using register asm statements has been proven to be very error prone,
-especially when using code instrumentation where gcc may add function
-calls, which clobbers register contents in an unexpected way.
+Hello Christoph!
 
-Therefore, get rid of register asm statements in watchdog code, and make
-sure this bug class cannot happen.
+On Fri, 2023-02-03 at 08:14 +0100, Christoph Hellwig wrote:
+> On Mon, Jan 16, 2023 at 09:52:10AM +0100, John Paul Adrian Glaubitz wrote:
+> > We have had a discussion between multiple people invested in the SuperH port and
+> > I have decided to volunteer as a co-maintainer of the port to support Rich Felker
+> > when he isn't available.
+> 
+> So, this still isn't reflected in MAINTAINERS in linux-next.  When
+> do you plan to take over?
 
-Moreover, remove the register r1 from the clobber list because this
-register is not changed by DIAG 288.
+Since this is my very first time stepping up as a kernel maintainer, I was hoping
+to get some pointers on what to do to make this happen.
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
----
- drivers/watchdog/diag288_wdt.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+So far, we have set up a new kernel tree and I have set up a local development and
+test environment for SH kernels using my SH7785LCR board as the target platform.
 
-diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 6ca5d9515d85..07ebbb709af4 100644
---- a/drivers/watchdog/diag288_wdt.c
-+++ b/drivers/watchdog/diag288_wdt.c
-@@ -73,20 +73,19 @@ MODULE_ALIAS("vmwatchdog");
- static int __diag288(unsigned int func, unsigned int timeout,
- 		     unsigned long action, unsigned int len)
- {
--	register unsigned long __func asm("2") = func;
--	register unsigned long __timeout asm("3") = timeout;
--	register unsigned long __action asm("4") = action;
--	register unsigned long __len asm("5") = len;
-+	union register_pair r1 = { .even = func, .odd = timeout, };
-+	union register_pair r3 = { .even = action, .odd = len, };
- 	int err;
- 
- 	err = -EINVAL;
- 	asm volatile(
--		"	diag	%1, %3, 0x288\n"
--		"0:	la	%0, 0\n"
-+		"	diag	%[r1],%[r3],0x288\n"
-+		"0:	la	%[err],0\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (err) : "d"(__func), "d"(__timeout),
--		  "d"(__action), "d"(__len) : "1", "cc", "memory");
-+		: [err] "+d" (err)
-+		: [r1] "d" (r1.pair), [r3] "d" (r3.pair)
-+		: "cc", "memory");
- 	return err;
- }
- 
+Do I just need to send a patch asking to change the corresponding entry in the
+MAINTAINERS file?
+
+> What platforms will remain supported and what can we start dropping due to
+> being unused and unmaintained?
+
+This has not been sorted out yet.
+
+Adrian
+
 -- 
-2.37.2
-
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
