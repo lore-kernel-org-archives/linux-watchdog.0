@@ -2,52 +2,52 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A78C63797
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Feb 2023 07:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18FCCC64EC4
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Feb 2023 07:40:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232346AbjBCHki (ORCPT
+        id S232435AbjBCHkk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Feb 2023 02:40:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
+        Fri, 3 Feb 2023 02:40:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232463AbjBCHke (ORCPT
+        with ESMTP id S232392AbjBCHke (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 3 Feb 2023 02:40:34 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C09CE93E07;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291AF93E08;
         Thu,  2 Feb 2023 23:40:25 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3137U10W028808;
-        Fri, 3 Feb 2023 07:40:13 GMT
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31370nHu015928;
+        Fri, 3 Feb 2023 07:40:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=K0UhmP1F9ZlFA9OSI4ZHU52ngPm9Xi4QvjBfDFsjiWQ=;
- b=TKb2iDg/y8IyP7+aUuA1mTXGdpD7idcWpChbwKMaF3Zlfe/hi47R6yD8GJXfP/OfSaL9
- UdZtYVEiGYH8v39+HTUo/Mxo9GePLhw2Rgo6+cO7jpDPwUMF+sKERp1UiHnyh01y4rIY
- SxUAGDHD1X/G0p27KvBX+VfFY/86tjZvxOKu4es7+a+J3Xcn8bW1XZkAfdJrjv1Ea4ja
- t0Oy79l//9QQMu26dvVCc2dS4Xts2FZimsFcamoVrlAZfwLsus2uJT68ed7QGOYmP1Hr
- B5kFxJJAGU/r2l7lsJ1uS2JtZc2mhJ/ES/5mfokq8BCPBX/MfYNS9QSEiAaSHopHG9HV MQ== 
+ bh=tIvJlJrYU4Flf0lu2LlXiqfJqpjr0G6K3AKhGGPmAVs=;
+ b=n92bHkMC6MzB/nXIOfHWT1pcrEjXAwJyQ8KJiD9DbNUCKSnd4z9gkQ9zQJHWB99Wmjcp
+ F350SJJ1FTq7WZyPuzPhoucgZtpVY+kjG60Xd9tIzky/93bBewLWlGVjQVnJYPhPJh6z
+ PNNCh0xqgmuDq34TtJKJYq35VhzgjAXi0vMGOslaHqU3IwdHCMMk7u6yYp/YUNMy9ok5
+ Z7uOBLUwSSm3duDySAyq0NFNMMiSoefttNB5iWeHDXJVP+fzb9PdXz4X3TwQiMEBQmS/
+ yPsA5hZ4aS8m3UyJ1566DfXSckxCOq2p1R5+46zoozb8t73CaWtxsUyk4GLlFXHjPLhF 8Q== 
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngwxdg7q1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngwgeguh5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 03 Feb 2023 07:40:12 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3136xHhp014735;
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3136xHho014735;
         Fri, 3 Feb 2023 07:40:10 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3ncvtty3vg-1
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3ncvtty3vf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 03 Feb 2023 07:40:09 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3137e7SU16908882
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3137e7Qj22282850
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 3 Feb 2023 07:40:07 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B87521445;
+        by IMSVA (Postfix) with ESMTP id 2136821426;
         Fri,  3 Feb 2023 07:40:07 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B93021430;
+        by IMSVA (Postfix) with ESMTP id B75F621435;
         Fri,  3 Feb 2023 07:40:04 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -56,165 +56,142 @@ From:   Alexander Egorenkov <egorenar@linux.ibm.com>
 To:     wim@linux-watchdog.org, linux@roeck-us.net
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         hca@linux.ibm.com
-Subject: [PATCH 2/5] watchdog: diag288_wdt: remove power management
-Date:   Fri,  3 Feb 2023 08:39:55 +0100
-Message-Id: <20230203073958.1585738-3-egorenar@linux.ibm.com>
+Subject: [PATCH 5/5] watchdog: diag288_wdt: unify lpar and zvm diag288 helpers
+Date:   Fri,  3 Feb 2023 08:39:58 +0100
+Message-Id: <20230203073958.1585738-6-egorenar@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230203073958.1585738-1-egorenar@linux.ibm.com>
 References: <20230203073958.1585738-1-egorenar@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bvLEypXLprd-xXauJl0jXOPhuucVvsbG
-X-Proofpoint-ORIG-GUID: bvLEypXLprd-xXauJl0jXOPhuucVvsbG
+X-Proofpoint-ORIG-GUID: Lff_S4qLoP8GXhEN0LtVG907S7o0xdIU
+X-Proofpoint-GUID: Lff_S4qLoP8GXhEN0LtVG907S7o0xdIU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-03_04,2023-02-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
- adultscore=0 spamscore=0 mlxscore=0 clxscore=1015 phishscore=0
- mlxlogscore=999 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302030069
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=990 phishscore=0
+ spamscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302030069
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Remove power management because s390 no longer supports hibernation since
-commit 394216275c7d ("s390: remove broken hibernate / power management
-support").
+Change naming of the internal diag288 helper functions
+to improve overall readability and reduce confusion:
+* Rename __diag288() to diag288().
+* Get rid of the misnamed helper __diag288_lpar() that was used not only
+  on LPARs but also zVM and KVM systems.
+* Rename __diag288_vm() to diag288_str().
 
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
 ---
- drivers/watchdog/diag288_wdt.c | 65 ++--------------------------------
- 1 file changed, 2 insertions(+), 63 deletions(-)
+ drivers/watchdog/diag288_wdt.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 07ebbb709af4..c8d516ced6d2 100644
+index a29ad164b27a..4631d0a3866a 100644
 --- a/drivers/watchdog/diag288_wdt.c
 +++ b/drivers/watchdog/diag288_wdt.c
-@@ -27,7 +27,6 @@
- #include <linux/moduleparam.h>
- #include <linux/slab.h>
- #include <linux/watchdog.h>
--#include <linux/suspend.h>
- #include <asm/ebcdic.h>
- #include <asm/diag.h>
- #include <linux/io.h>
-@@ -103,10 +102,6 @@ static int __diag288_lpar(unsigned int func, unsigned int timeout,
- 	return __diag288(func, timeout, action, 0);
+@@ -71,8 +71,8 @@ MODULE_ALIAS("vmwatchdog");
+ 
+ static char *cmd_buf;
+ 
+-static int __diag288(unsigned int func, unsigned int timeout,
+-		     unsigned long action, unsigned int len)
++static int diag288(unsigned int func, unsigned int timeout,
++		   unsigned long action, unsigned int len)
+ {
+ 	union register_pair r1 = { .even = func, .odd = timeout, };
+ 	union register_pair r3 = { .even = action, .odd = len, };
+@@ -92,7 +92,7 @@ static int __diag288(unsigned int func, unsigned int timeout,
+ 	return err;
  }
  
--static unsigned long wdt_status;
--
--#define DIAG_WDOG_BUSY	0
--
- static int wdt_start(struct watchdog_device *dev)
+-static int __diag288_vm(unsigned int  func, unsigned int timeout, char *cmd)
++static int diag288_str(unsigned int func, unsigned int timeout, char *cmd)
  {
- 	char *ebc_cmd;
-@@ -114,15 +109,10 @@ static int wdt_start(struct watchdog_device *dev)
- 	int ret;
- 	unsigned int func;
+ 	ssize_t len;
  
--	if (test_and_set_bit(DIAG_WDOG_BUSY, &wdt_status))
--		return -EBUSY;
+@@ -102,13 +102,7 @@ static int __diag288_vm(unsigned int  func, unsigned int timeout, char *cmd)
+ 	ASCEBC(cmd_buf, MAX_CMDLEN);
+ 	EBC_TOUPPER(cmd_buf, MAX_CMDLEN);
+ 
+-	return __diag288(func, timeout, virt_to_phys(cmd_buf), len);
+-}
 -
+-static int __diag288_lpar(unsigned int func, unsigned int timeout,
+-			  unsigned long action)
+-{
+-	return __diag288(func, timeout, action, 0);
++	return diag288(func, timeout, virt_to_phys(cmd_buf), len);
+ }
+ 
+ static int wdt_start(struct watchdog_device *dev)
+@@ -119,11 +113,10 @@ static int wdt_start(struct watchdog_device *dev)
  	if (MACHINE_IS_VM) {
- 		ebc_cmd = kmalloc(MAX_CMDLEN, GFP_KERNEL);
--		if (!ebc_cmd) {
--			clear_bit(DIAG_WDOG_BUSY, &wdt_status);
-+		if (!ebc_cmd)
- 			return -ENOMEM;
--		}
- 		len = strlcpy(ebc_cmd, wdt_cmd, MAX_CMDLEN);
- 		ASCEBC(ebc_cmd, MAX_CMDLEN);
- 		EBC_TOUPPER(ebc_cmd, MAX_CMDLEN);
-@@ -139,7 +129,6 @@ static int wdt_start(struct watchdog_device *dev)
+ 		func = conceal_on ? (WDT_FUNC_INIT | WDT_FUNC_CONCEAL)
+ 			: WDT_FUNC_INIT;
+-		ret = __diag288_vm(func, dev->timeout, wdt_cmd);
++		ret = diag288_str(func, dev->timeout, wdt_cmd);
+ 		WARN_ON(ret != 0);
+ 	} else {
+-		ret = __diag288_lpar(WDT_FUNC_INIT,
+-				     dev->timeout, LPARWDT_RESTART);
++		ret = diag288(WDT_FUNC_INIT, dev->timeout, LPARWDT_RESTART, 0);
+ 	}
  
  	if (ret) {
- 		pr_err("The watchdog cannot be activated\n");
--		clear_bit(DIAG_WDOG_BUSY, &wdt_status);
- 		return ret;
- 	}
- 	return 0;
-@@ -152,8 +141,6 @@ static int wdt_stop(struct watchdog_device *dev)
- 	diag_stat_inc(DIAG_STAT_X288);
- 	ret = __diag288(WDT_FUNC_CANCEL, 0, 0, 0);
+@@ -135,7 +128,7 @@ static int wdt_start(struct watchdog_device *dev)
  
--	clear_bit(DIAG_WDOG_BUSY, &wdt_status);
--
- 	return ret;
+ static int wdt_stop(struct watchdog_device *dev)
+ {
+-	return __diag288(WDT_FUNC_CANCEL, 0, 0, 0);
++	return diag288(WDT_FUNC_CANCEL, 0, 0, 0);
  }
  
-@@ -222,45 +209,6 @@ static struct watchdog_device wdt_dev = {
- 	.max_timeout = MAX_INTERVAL,
- };
+ static int wdt_ping(struct watchdog_device *dev)
+@@ -152,10 +145,10 @@ static int wdt_ping(struct watchdog_device *dev)
+ 		func = conceal_on ? (WDT_FUNC_INIT | WDT_FUNC_CONCEAL)
+ 			: WDT_FUNC_INIT;
  
--/*
-- * It makes no sense to go into suspend while the watchdog is running.
-- * Depending on the memory size, the watchdog might trigger, while we
-- * are still saving the memory.
-- */
--static int wdt_suspend(void)
--{
--	if (test_and_set_bit(DIAG_WDOG_BUSY, &wdt_status)) {
--		pr_err("Linux cannot be suspended while the watchdog is in use\n");
--		return notifier_from_errno(-EBUSY);
--	}
--	return NOTIFY_DONE;
--}
--
--static int wdt_resume(void)
--{
--	clear_bit(DIAG_WDOG_BUSY, &wdt_status);
--	return NOTIFY_DONE;
--}
--
--static int wdt_power_event(struct notifier_block *this, unsigned long event,
--			   void *ptr)
--{
--	switch (event) {
--	case PM_POST_HIBERNATION:
--	case PM_POST_SUSPEND:
--		return wdt_resume();
--	case PM_HIBERNATION_PREPARE:
--	case PM_SUSPEND_PREPARE:
--		return wdt_suspend();
--	default:
--		return NOTIFY_DONE;
--	}
--}
--
--static struct notifier_block wdt_power_notifier = {
--	.notifier_call = wdt_power_event,
--};
--
- static int __init diag288_init(void)
- {
- 	int ret;
-@@ -297,21 +245,12 @@ static int __init diag288_init(void)
+-		ret = __diag288_vm(func, dev->timeout, wdt_cmd);
++		ret = diag288_str(func, dev->timeout, wdt_cmd);
+ 		WARN_ON(ret != 0);
+ 	} else {
+-		ret = __diag288_lpar(WDT_FUNC_CHANGE, dev->timeout, 0);
++		ret = diag288(WDT_FUNC_CHANGE, dev->timeout, 0, 0);
+ 	}
+ 
+ 	if (ret)
+@@ -206,20 +199,21 @@ static int __init diag288_init(void)
+ 			return -ENOMEM;
+ 		}
+ 
+-		ret = __diag288_vm(WDT_FUNC_INIT, MIN_INTERVAL, "BEGIN");
++		ret = diag288_str(WDT_FUNC_INIT, MIN_INTERVAL, "BEGIN");
+ 		if (ret != 0) {
+ 			pr_err("The watchdog cannot be initialized\n");
+ 			kfree(cmd_buf);
+ 			return -EINVAL;
+ 		}
+ 	} else {
+-		if (__diag288_lpar(WDT_FUNC_INIT, 30, LPARWDT_RESTART)) {
++		if (diag288(WDT_FUNC_INIT, WDT_DEFAULT_TIMEOUT,
++			    LPARWDT_RESTART, 0)) {
+ 			pr_err("The watchdog cannot be initialized\n");
+ 			return -EINVAL;
+ 		}
+ 	}
+ 
+-	if (__diag288_lpar(WDT_FUNC_CANCEL, 0, 0)) {
++	if (diag288(WDT_FUNC_CANCEL, 0, 0, 0)) {
+ 		pr_err("The watchdog cannot be deactivated\n");
  		return -EINVAL;
  	}
- 
--	ret = register_pm_notifier(&wdt_power_notifier);
--	if (ret)
--		return ret;
--
--	ret = watchdog_register_device(&wdt_dev);
--	if (ret)
--		unregister_pm_notifier(&wdt_power_notifier);
--
--	return ret;
-+	return watchdog_register_device(&wdt_dev);
- }
- 
- static void __exit diag288_exit(void)
- {
- 	watchdog_unregister_device(&wdt_dev);
--	unregister_pm_notifier(&wdt_power_notifier);
- }
- 
- module_init(diag288_init);
 -- 
 2.37.2
 
