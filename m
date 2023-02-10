@@ -2,84 +2,99 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 430A1C636D4
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Feb 2023 18:43:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CED5FC05027
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Feb 2023 18:46:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233155AbjBJSnc (ORCPT
+        id S233056AbjBJSqc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 10 Feb 2023 13:43:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
+        Fri, 10 Feb 2023 13:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233136AbjBJSnb (ORCPT
+        with ESMTP id S232748AbjBJSqb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 10 Feb 2023 13:43:31 -0500
-Received: from mx0b-002e3701.pphosted.com (mx0b-002e3701.pphosted.com [148.163.143.35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A671434333;
-        Fri, 10 Feb 2023 10:43:30 -0800 (PST)
-Received: from pps.filterd (m0134425.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31AGgOYI020724;
-        Fri, 10 Feb 2023 18:43:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pps0720;
- bh=Bz3z3ISKM+2oA16AVmogsbzTonDoO83OvdEUQxDQniw=;
- b=m0QWOAKhLluxu3TPq2/1QbKMVT/chrdj7HxGL9kJVGYUD4glHyW7IbSBwz8K8N9CVJda
- n/SStk9WCffQhw24bT/Rrg7l9SqnJQGG8rOMAEJ9PxWri4AA/WoMkVRl0+EeY0ZUNlcv
- 9PsboEVoYpfWIobl6Ym/b7FXgzy32YCQBru/xBmVk0hx4IhwSCFMxDGgTdq4g7z+KxaZ
- BKrF4bsmj4Nnlq9xGojqbniDggborwEO/UyrqK8dYt4m80taGC7H+gK0uXPew+RQve6K
- tflnNzG73mCREwfdgs4jhPNcSQTqxBhezcOLzmfUVGaEjA1hXPu0FIGSjief1IRGbbDY gA== 
-Received: from p1lg14881.it.hpe.com (p1lg14881.it.hpe.com [16.230.97.202])
-        by mx0b-002e3701.pphosted.com (PPS) with ESMTPS id 3nnsp38xp3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Feb 2023 18:43:13 +0000
-Received: from p1lg14886.dc01.its.hpecorp.net (unknown [10.119.18.237])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by p1lg14881.it.hpe.com (Postfix) with ESMTPS id 82C4E805E59;
-        Fri, 10 Feb 2023 18:43:12 +0000 (UTC)
-Received: from anatevka.americas.hpqcorp.net (unknown [16.231.227.36])
-        by p1lg14886.dc01.its.hpecorp.net (Postfix) with ESMTP id 898B5800258;
-        Fri, 10 Feb 2023 18:43:11 +0000 (UTC)
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     linux@roeck-us.net, corbet@lwn.net
-Cc:     linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 0/2] Documentation/Watchdog/hpwdt
-Date:   Fri, 10 Feb 2023 11:42:45 -0700
-Message-Id: <20230210184247.221134-1-jerry.hoemann@hpe.com>
-X-Mailer: git-send-email 2.39.1
+        Fri, 10 Feb 2023 13:46:31 -0500
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F3B7D3C9;
+        Fri, 10 Feb 2023 10:46:13 -0800 (PST)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-16dcb07b805so1273856fac.0;
+        Fri, 10 Feb 2023 10:46:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LoXffCDp9PTA0sP2ahTcQkry4k9jr9rgaxdkmj4hvlk=;
+        b=lTRNgfTtuHOm5CRFzJdBeumj5WmqbQ4G9KeJg4HR5Tufw9ZIl9yD9G4o1Sbt8kz3wH
+         BGmiwhlt53sE77s36VAwccnysrED2AQWXuMC335nSV8ebrJej4vDJBrVzyFpyoP55KzN
+         3ld0E151EBJ4o/HsoxqcZA/UvTLdzxvqEIkUaXrjFb4VmhXmWXlxpn+aY5BCee7LKFkX
+         AQTBgJ4qfG7d/hripVswNapaDsv/Tln+5uPCS9HfCpyq0y7agkiCYFjklc39Lq2DzUIQ
+         FzqqcuBQOd4kbGP5uQ4VTfil/lct9C6vm1ofy/Xd5HhBb8+OKdChkLszlG5XjnOAsvoF
+         SZDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LoXffCDp9PTA0sP2ahTcQkry4k9jr9rgaxdkmj4hvlk=;
+        b=afkuXE+wyQ7MColzbR3LILJMgv2bkDSWbONXWUs3hhFvhIwchNn2xJtwPrW1ib2pq7
+         n9mzcyfL4MRB4Hba14EnTw5WdyB3NCeqbuhU37VtGnlR7trHAOmeJOVA4xyBSoqMMtCG
+         8AiXwbURqw9yot+y3l2r/Ve0NvE0xgFUu5/OqNDZhax47hk+fqeoFfhI9vQHWO0aKOyN
+         OkOKZEOUnwT0bOiI6HmrpTsxVWWCuBMHJA5MtcbStpc8jMjsQUxPA9/EvVz+C+ERzEEG
+         yfs22suAQMonQJ4Zu0TYie6Q1IxrG8/de89IlrRJaC0Xx73ymInJUWjTwULd1ZZBUqMs
+         J0uA==
+X-Gm-Message-State: AO0yUKUJRg93hB05DZI7IKYcS8ZXxjE1dtVOOHSQjGy1CfAOPOk1hgJO
+        o1MQVKbN6BYC/60kKPel/i8=
+X-Google-Smtp-Source: AK7set9Tchm99xFd/4MiXmF+NcQ4WWJCXt58qiuFCJdZg4kRJEULSODOaqBrG8Vs6SBzvU0+iMsKWQ==
+X-Received: by 2002:a05:6871:a688:b0:16d:c113:d3c0 with SMTP id wh8-20020a056871a68800b0016dc113d3c0mr935906oab.10.1676054773120;
+        Fri, 10 Feb 2023 10:46:13 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q14-20020a4a88ce000000b005177c244f31sm2238783ooh.41.2023.02.10.10.46.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Feb 2023 10:46:12 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 10 Feb 2023 10:46:11 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc:     corbet@lwn.net, linux-watchdog@vger.kernel.org,
+        wim@linux-watchdog.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Documentation/watchdog/hpwdt: Fix Reference
+Message-ID: <20230210184611.GB3670524@roeck-us.net>
+References: <20230210184247.221134-1-jerry.hoemann@hpe.com>
+ <20230210184247.221134-2-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: yDET46Ld5TCvkT0ZShr4oSuCJOBJcrqq
-X-Proofpoint-GUID: yDET46Ld5TCvkT0ZShr4oSuCJOBJcrqq
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-10_13,2023-02-09_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- priorityscore=1501 suspectscore=0 spamscore=0 mlxscore=0 phishscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 mlxlogscore=714
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302100157
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230210184247.221134-2-jerry.hoemann@hpe.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Two small documentation fixes.
+On Fri, Feb 10, 2023 at 11:42:46AM -0700, Jerry Hoemann wrote:
+> The IPMI documentation moved to Documentation/driver-api/ipmi.rst.
+> Update reference to reflect new location.
+> 
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 
-First: Fix reference to documentation that moved.
-Second: Update List formatting.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-
-
-Jerry Hoemann (2):
-  Documentation/watchdog/hpwdt: Fix Reference
-  Documentation/watchdog/hpwdt: Fix Format
-
- Documentation/watchdog/hpwdt.rst | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
--- 
-2.39.1
-
+> ---
+>  Documentation/watchdog/hpwdt.rst | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/watchdog/hpwdt.rst b/Documentation/watchdog/hpwdt.rst
+> index c824cd7f6e32..c972fc2a3d0b 100644
+> --- a/Documentation/watchdog/hpwdt.rst
+> +++ b/Documentation/watchdog/hpwdt.rst
+> @@ -48,7 +48,7 @@ Last reviewed: 08/20/2018
+>   NOTE:
+>         More information about watchdog drivers in general, including the ioctl
+>         interface to /dev/watchdog can be found in
+> -       Documentation/watchdog/watchdog-api.rst and Documentation/IPMI.txt.
+> +       Documentation/watchdog/watchdog-api.rst and Documentation/driver-api/ipmi.rst
+>  
+>   Due to limitations in the iLO hardware, the NMI pretimeout if enabled,
+>   can only be set to 9 seconds.  Attempts to set pretimeout to other
+> -- 
+> 2.39.1
+> 
