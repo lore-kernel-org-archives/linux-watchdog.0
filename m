@@ -2,93 +2,98 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B7E6C636CD
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Feb 2023 17:47:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7691EC636D7
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Feb 2023 18:43:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbjBJRrN (ORCPT
+        id S233149AbjBJSnb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 10 Feb 2023 12:47:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52340 "EHLO
+        Fri, 10 Feb 2023 13:43:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232965AbjBJRrN (ORCPT
+        with ESMTP id S233100AbjBJSna (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 10 Feb 2023 12:47:13 -0500
-Received: from sender4-op-o14.zoho.com (sender4-op-o14.zoho.com [136.143.188.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662161CAE3;
-        Fri, 10 Feb 2023 09:47:08 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1676051205; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=UQ3aLwYRNiudVAC8MzpRBVjQwZMc9SlQabizeZewOVzjZ3WnmCWnquR6zOh+u+LRXdw7QdTVQNxfOos7pO368pgVF3GHRZYM5Sn615H1Gkqh2yJiP4sDpQfeBfHofnASvOeoa93bH1Zpjr2L7viNQx91Tpdnny5RnTGQxKo/78w=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1676051205; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=iJbOjnXEW4dyp/XUoILzsS4muhY8sjkr0h1zI2/NyAE=; 
-        b=C8bX1R6KC/+eMgf8rdL41qdiRRA4jFo7ppraM2S6ZpddmNWvTZn6oI3BY2P0Al7tgl20iD5FpvagEmfNAnIZ6ozBMH/fxIG7ziLHulPEjS/Rkyw/bDvh5u3/DM9rd1cHXaAKltlOmwcuvpSBf3oGpaxk+FlYAcKa5wNViIvl/Ls=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=arinc9.com;
-        spf=pass  smtp.mailfrom=arinc.unal@arinc9.com;
-        dmarc=pass header.from=<arinc.unal@arinc9.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1676051205;
-        s=zmail; d=arinc9.com; i=arinc.unal@arinc9.com;
-        h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-        bh=iJbOjnXEW4dyp/XUoILzsS4muhY8sjkr0h1zI2/NyAE=;
-        b=JtmY47SxtBqshYc9GF1qQcVRCvOr4Yc29InmE8vE+IPa2L+0kdGNPAssT91Ort73
-        S2/7xQbabuih3JP9Ya2rLl3D4RA7AQf2G5a/0Q+KwHcfxPZQ7k0ro0VBLM92yqA0FVG
-        bfuYVDwWZm6YUFL1hSnAxnCFnRYjwBaF5+YUbwIw=
-Received: from [10.10.10.3] (37.120.152.236 [37.120.152.236]) by mx.zohomail.com
-        with SMTPS id 1676051202563779.3472396397366; Fri, 10 Feb 2023 09:46:42 -0800 (PST)
-Message-ID: <3ca26ba2-80f5-32a2-0357-d91c87efd1c0@arinc9.com>
-Date:   Fri, 10 Feb 2023 20:46:38 +0300
+        Fri, 10 Feb 2023 13:43:30 -0500
+Received: from mx0b-002e3701.pphosted.com (mx0b-002e3701.pphosted.com [148.163.143.35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117692B603;
+        Fri, 10 Feb 2023 10:43:29 -0800 (PST)
+Received: from pps.filterd (m0134424.ppops.net [127.0.0.1])
+        by mx0b-002e3701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31AHHwtH019591;
+        Fri, 10 Feb 2023 18:43:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pps0720;
+ bh=BK3thYDmZOcyh3I2MlrHQhqotMUu4L2fLF/ekC9aDkI=;
+ b=X9wV7tvJwxZ8GLDJVJ7jeVnEfIwBGAT+IYYQl6QW+JFAng7Y/FyAK5tULAOO7k+vOzmW
+ RrUvgPJCodId2JU5V/F12/2GxbAvyjaQh/FJcy8Af7ad3NUrlZjPDmPDcuBLdW1bK4J/
+ DkxZ2flCkKAlK5Ep/RMqLnkGVmLJjnokB9UkiuZnlGceC5aJBsXRLe1/qiGDMMGSEB26
+ 5gpJz6yKWlxvO4crYsKkq6w71hzCh/CyDdcStFCfcqo1jwy8MARQEa1Ai732qvI52p7Z
+ ftpUu7wTa1glvtLXCZ+E+y/yUDHn9oO2ujNTK0lbMBjFSw6iV9fE0A5gHmo/Jbi8ZARP cw== 
+Received: from p1lg14880.it.hpe.com (p1lg14880.it.hpe.com [16.230.97.201])
+        by mx0b-002e3701.pphosted.com (PPS) with ESMTPS id 3nnt6s8m4t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Feb 2023 18:43:14 +0000
+Received: from p1lg14886.dc01.its.hpecorp.net (unknown [10.119.18.237])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by p1lg14880.it.hpe.com (Postfix) with ESMTPS id 972D4800391;
+        Fri, 10 Feb 2023 18:43:13 +0000 (UTC)
+Received: from anatevka.americas.hpqcorp.net (unknown [16.231.227.36])
+        by p1lg14886.dc01.its.hpecorp.net (Postfix) with ESMTP id 1CA0580BA2C;
+        Fri, 10 Feb 2023 18:43:13 +0000 (UTC)
+From:   Jerry Hoemann <jerry.hoemann@hpe.com>
+To:     linux@roeck-us.net, corbet@lwn.net
+Cc:     linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH 2/2] Documentation/watchdog/hpwdt: Fix Format
+Date:   Fri, 10 Feb 2023 11:42:47 -0700
+Message-Id: <20230210184247.221134-3-jerry.hoemann@hpe.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230210184247.221134-1-jerry.hoemann@hpe.com>
+References: <20230210184247.221134-1-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3 2/4] mips: dts: ralink: mt7621: add phandle to system
- controller node for watchdog
-Content-Language: en-US
-To:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        linux-watchdog@vger.kernel.org
-Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, matthias.bgg@gmail.com,
-        tsbogend@alpha.franken.de, p.zabel@pengutronix.de,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-mips@vger.kernel.org
-References: <20230210173841.705783-1-sergio.paracuellos@gmail.com>
- <20230210173841.705783-3-sergio.paracuellos@gmail.com>
-From:   =?UTF-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>
-In-Reply-To: <20230210173841.705783-3-sergio.paracuellos@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-Proofpoint-GUID: Dpt4NK4YOXSiHirF_FNATBYGvDdmS6DN
+X-Proofpoint-ORIG-GUID: Dpt4NK4YOXSiHirF_FNATBYGvDdmS6DN
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-10_13,2023-02-09_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ clxscore=1015 suspectscore=0 malwarescore=0 mlxscore=0 bulkscore=0
+ adultscore=0 mlxlogscore=999 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302100157
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Could you also change the node name to watchdog@100? make dtbs_check 
-points it out:
+Add list format so that compiled documentation looks like it was
+intended to.
 
-wdt@100: $nodename:0: 'wdt@100' does not match '^watchdog(@.*|-[0-9a-f])?$'
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+---
+ Documentation/watchdog/hpwdt.rst | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thanks.
-Arınç
+diff --git a/Documentation/watchdog/hpwdt.rst b/Documentation/watchdog/hpwdt.rst
+index c972fc2a3d0b..5eab5dfec042 100644
+--- a/Documentation/watchdog/hpwdt.rst
++++ b/Documentation/watchdog/hpwdt.rst
+@@ -63,9 +63,9 @@ Last reviewed: 08/20/2018
+  and loop forever.  This is generally not what a watchdog user wants.
+ 
+  For those wishing to learn more please see:
+-	Documentation/admin-guide/kdump/kdump.rst
+-	Documentation/admin-guide/kernel-parameters.txt (panic=)
+-	Your Linux Distribution specific documentation.
++	- Documentation/admin-guide/kdump/kdump.rst
++	- Documentation/admin-guide/kernel-parameters.txt (panic=)
++	- Your Linux Distribution specific documentation.
+ 
+  If the hpwdt does not receive the NMI associated with an expiring timer,
+  the iLO will proceed to reset the system at timeout if the timer hasn't
+-- 
+2.39.1
 
-On 10.02.2023 20:38, Sergio Paracuellos wrote:
-> To allow to access system controller registers from watchdog driver code
-> add a phandle in the watchdog 'wdt' node. This avoid using arch dependent
-> operations in driver code.
-> 
-> Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-> ---
->   arch/mips/boot/dts/ralink/mt7621.dtsi | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/mips/boot/dts/ralink/mt7621.dtsi b/arch/mips/boot/dts/ralink/mt7621.dtsi
-> index 5ca40fd21..764916eaf 100644
-> --- a/arch/mips/boot/dts/ralink/mt7621.dtsi
-> +++ b/arch/mips/boot/dts/ralink/mt7621.dtsi
-> @@ -73,6 +73,7 @@ sysc: syscon@0 {
->   		wdt: wdt@100 {
->   			compatible = "mediatek,mt7621-wdt";
->   			reg = <0x100 0x100>;
-> +			mediatek,sysctl = <&sysc>;
->   		};
->   
->   		gpio: gpio@600 {
