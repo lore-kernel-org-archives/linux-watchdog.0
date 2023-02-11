@@ -2,48 +2,47 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E743C636D7
-	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Feb 2023 09:12:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DDF0C61DA4
+	for <linux-watchdog@archiver.kernel.org>; Sat, 11 Feb 2023 09:26:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjBKJMt (ORCPT
+        id S229742AbjBKJ0L (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 11 Feb 2023 04:12:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54226 "EHLO
+        Sat, 11 Feb 2023 04:26:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbjBKJMs (ORCPT
+        with ESMTP id S229477AbjBKJ0K (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Feb 2023 04:12:48 -0500
+        Sat, 11 Feb 2023 04:26:10 -0500
 Received: from sender4-op-o14.zoho.com (sender4-op-o14.zoho.com [136.143.188.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974C01A965;
-        Sat, 11 Feb 2023 01:12:42 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1676106742; cv=none; 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98BED1E9D5
+        for <linux-watchdog@vger.kernel.org>; Sat, 11 Feb 2023 01:26:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1676106635; cv=none; 
         d=zohomail.com; s=zohoarc; 
-        b=jk65BL09iN2GERWdHs65LJxMPXaD6suwK5ozfbQ+5Mh14WSNIBUvuvNwJ4AlUDg1P07uJDSSpivmuKODyWvjiaw0fWgeSLzdQgvfeXXHL+PzQuUyrpvM8XjF0uIuD4bfQEwTLhK7t+3dECeDP+aXcq7fgB1ZKSDKLuIAypea6Ek=
+        b=XLpxwGDssbk28zpX4VqVA+NB4NYPD2zFICu8oQ3hCEpm6IHTT16uz5grkp8YpYdS7bm8njXNe3vMnF7aQD3IkstjF+fVaLZuDYm0uOdbatorbAsFmbwxBGVoGLqIeXJQrc1OwwTTFezyEHAkh6s0s5T4uFxyDF/0zzeJk8q/x2Q=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1676106742; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=MkQdwA/QXaiKt+bHFwNe8YCFs401QF7zQKhmxVVcQFI=; 
-        b=eLApP6LEYUfim8eTURf50CeZbAiBapY7BLILBiAjEK/mFi+yqCFrmrJEnxJkHaNgLFtumEkNQj1L+vbZbntJ92cDsl2bUvB1Yne178KX6a1pWQvt6DVoqBbe8Qf7k8kHJUVj3mvflJfNvWFdqeRcwX4MVKwssDF/Z2ORu5gpp/s=
+        t=1676106635; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=P4v9Y6wWmEZjwnGp73bMYV/GVcHUdzW6CDlIM+NzznU=; 
+        b=X35hodZ6oJmxo4mJqpSKPNsRly6ad8Jy6nIqVIjgJuS9PKi0DlALcVZ/7XTHwViTReBZzq6Dos17U0SFFPn1dAkWpxej5zLS7s9pErUoYuiL3Fb3+M4EKz7OMtSU9wwaSx387PJbWVfo8HZU2ZxSACTyHpD8FBTpmVIMABpaVbE=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
         dkim=pass  header.i=arinc9.com;
         spf=pass  smtp.mailfrom=arinc.unal@arinc9.com;
         dmarc=pass header.from=<arinc.unal@arinc9.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1676106742;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1676106635;
         s=zmail; d=arinc9.com; i=arinc.unal@arinc9.com;
         h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-        bh=MkQdwA/QXaiKt+bHFwNe8YCFs401QF7zQKhmxVVcQFI=;
-        b=OzjlQTbiQFNNl2ttvUlIv+kDDXEg7aF1OVRLCLb6FErUnURy2PAUTiQe/vgY5wzK
-        IQ/EkVOoyNXXnv7h8qFixFCw5JdjRDTqyy1TcpL2+4seub6teCoCQrogPqfthDTKTkd
-        zz2ET9ioblirlExYj4xlDx9SskCRqBiHfONcRPu4=
+        bh=P4v9Y6wWmEZjwnGp73bMYV/GVcHUdzW6CDlIM+NzznU=;
+        b=UIUoylujyo7F/jmVOTsKaVdKzFzxGajtOGwExXVKxaYk5913l0RdyxfpsGCUE/Pa
+        oqHUx2IpZltVT3frJb73P3xALipjVQIlplQP1/yG5Dq6nb0+YXD6Ttgx3hGtY7e2Juy
+        0GCSPN82OQdGTzopBR4Z0+Lj0KWe43Qd3Cx7Ldb0=
 Received: from [10.10.10.3] (37.120.152.236 [37.120.152.236]) by mx.zohomail.com
-        with SMTPS id 1676106739991550.5857652221796; Sat, 11 Feb 2023 01:12:19 -0800 (PST)
-Message-ID: <96fb94a0-4910-d7b9-9ae6-e97a058b0fe0@arinc9.com>
-Date:   Sat, 11 Feb 2023 12:12:16 +0300
+        with SMTPS id 1676106633895687.047830496387; Sat, 11 Feb 2023 01:10:33 -0800 (PST)
+Message-ID: <190b3135-82f3-4dfa-55ee-e048c5510e3c@arinc9.com>
+Date:   Sat, 11 Feb 2023 12:10:29 +0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.7.1
-Subject: Re: [PATCH v4 3/5] mips: dts: ralink: mt7621: rename watchdog node
- from 'wdt' into 'watchdog'
-Content-Language: en-US
+Subject: Re: [PATCH v4 1/5] dt-bindings: watchdog: mt7621-wdt: add phandle to
+ access system controller registers
 To:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
         linux-watchdog@vger.kernel.org
 Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
@@ -52,9 +51,10 @@ Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
         linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
         linux-mips@vger.kernel.org
 References: <20230211073357.755893-1-sergio.paracuellos@gmail.com>
- <20230211073357.755893-4-sergio.paracuellos@gmail.com>
+ <20230211073357.755893-2-sergio.paracuellos@gmail.com>
+Content-Language: en-US
 From:   =?UTF-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>
-In-Reply-To: <20230211073357.755893-4-sergio.paracuellos@gmail.com>
+In-Reply-To: <20230211073357.755893-2-sergio.paracuellos@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-ZohoMailClient: External
@@ -62,17 +62,41 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Is this mediatek,sysctl property required after your changes on the 
+watchdog code?
+
+Arınç
+
 On 11.02.2023 10:33, Sergio Paracuellos wrote:
-> Watchdog nodes must use 'watchdog' for node name. When a 'make dtbs_check'
-> is performed the following warning appears:
-> 
-> wdt@100: $nodename:0: 'wdt@100' does not match '^watchdog(@.*|-[0-9a-f])?$'
-> 
-> Fix this warning up properly renaming the node into 'watchdog'.
+> MT7621 SoC provides a system controller node for accessing to some registers.
+> Add a phandle in this node to avoid using MIPS related arch operations and
+> includes in watchdog driver code.
 > 
 > Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-
-Reviewed-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-
-Thanks.
-Arınç
+> ---
+>   .../devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml  | 7 +++++++
+>   1 file changed, 7 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml
+> index b2b17fdf4..a668d0c2f 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml
+> @@ -19,6 +19,12 @@ properties:
+>     reg:
+>       maxItems: 1
+>   
+> +  mediatek,sysctl:
+> +    $ref: /schemas/types.yaml#/definitions/phandle
+> +    description:
+> +      phandle to system controller 'sysc' syscon node which
+> +      controls system registers
+> +
+>   required:
+>     - compatible
+>     - reg
+> @@ -30,4 +36,5 @@ examples:
+>       watchdog@100 {
+>         compatible = "mediatek,mt7621-wdt";
+>         reg = <0x100 0x100>;
+> +      mediatek,sysctl = <&sysc>;
+>       };
