@@ -2,121 +2,163 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB0D5C636CC
-	for <linux-watchdog@archiver.kernel.org>; Sun, 12 Feb 2023 00:11:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD4C3C05027
+	for <linux-watchdog@archiver.kernel.org>; Sun, 12 Feb 2023 08:13:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbjBLALT (ORCPT
+        id S229532AbjBLINu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 11 Feb 2023 19:11:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57880 "EHLO
+        Sun, 12 Feb 2023 03:13:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbjBLALT (ORCPT
+        with ESMTP id S229449AbjBLINu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Feb 2023 19:11:19 -0500
+        Sun, 12 Feb 2023 03:13:50 -0500
 Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F9C12F1A;
-        Sat, 11 Feb 2023 16:11:18 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id bx13so7518021oib.13;
-        Sat, 11 Feb 2023 16:11:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2663BE38B;
+        Sun, 12 Feb 2023 00:13:47 -0800 (PST)
+Received: by mail-oi1-x234.google.com with SMTP id bh15so7956723oib.4;
+        Sun, 12 Feb 2023 00:13:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=1zU6Phm1FTRvseyENRr0vXRmLlXapBPUbQLCge6x8WU=;
-        b=iH2KZl5xYGeNwb/9KS23/NNaspSuJ3hfMnFva1Z5DpmIHciMwXUsvi/XGlLDZtMLs6
-         5g1y1pn/OsY0BG7UMjRNB40cgw4k1FXTbwsjE52pWf8cVmjQDVZYV8QQKE+hDyYbq81j
-         kVvegusr0Hl8o3FMHW6RDNh8jCpzjHRFUsKzyuYV0w4M72N25bdHiyk0NPfTVsbgOF3l
-         U3j+I0R7e8C3KRiUJ5N3ZZ3+4fiqWOyDxXmvp76KqBfCsFA0023lyk98gxKIxGDxwCyW
-         jwqJtQ1+0abgjctE2by3NZz9IoG02Y0tylOPegvzD5UemAwfmEtran0nAAYvRMb4JeCB
-         tEGw==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nvROq1Ysin4iKmF7L5qnmUmZE+huLZ31SHq6Mu5DVtg=;
+        b=IaRYWpQ6frsgDcsD6edPNdjfb3TkXXkD203hGwxUJrrP8YSzYq8RnvIfgXQzF9iON5
+         BLsNdc96tgMCGfADIwaqmZ95eJF85v/VnGTDQIFMvkrHDoJo81Q3sfcSRzlMBwe6Fyu+
+         P6991khDl4+CUo5euTWmh4W6XHehUs104R6KRrFuwUkzAIOJM5cy9YwwQmyQucJ6blQC
+         9VAksPKdR7Nt7OlYtFRwMoFSawY0Rwj/H9rjznMcZBdmlU5orWtgIpzIFFw6Rwaogyjf
+         x2rmyiSGZVesaeFwNUO11MYWzZWBduvP558YTbi6TJ021im6zcCxfWXaY760cX6hetEP
+         oFnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1zU6Phm1FTRvseyENRr0vXRmLlXapBPUbQLCge6x8WU=;
-        b=DAEYBI+Emm6+7htHzmSVhNjRnoo6lOOHOttIZAq4FcvJ310TzujFgPmPx3ddugZr/w
-         bA6nXLsXwg0Fkv8gL2TqzvTr8mUzI6zikXemEtRy4Dp4BjXEaLwUVtdB/XdgxixS/Gy5
-         8hz9+EPxZCZ7bU3p57NZFxzsuC6N+/AMEgS80OtAWzvUyjZWcqTKNZZlFqPJHpCp5VWM
-         P8NowOEjO6ApWoMllZgXMBHvHGn84Iud6wSRasoOC92t2vhJUIzhjnoC53wSCS3UxQ5W
-         EvR2AFHJ0qdJUtr/9E82GyLy+5C2wvPPLiRbGCl1RhXy5My3lNEs28oiIRud4tC7h1BE
-         zn8w==
-X-Gm-Message-State: AO0yUKWKwSqcQxMNX+QsA8qAJLFmMzC99wiz8vZK7vvEzV3i775McaJq
-        kFWKWUuhopHa1rl9ze39HmY=
-X-Google-Smtp-Source: AK7set9aUtIH1M58O4yyZnAd4T04QSmAv36j4bSzkLJMp/2MJZRfRgW9oS7/cRi/Tucuui3VMK/P6A==
-X-Received: by 2002:a05:6808:438f:b0:364:cef2:dfd0 with SMTP id dz15-20020a056808438f00b00364cef2dfd0mr9687274oib.29.1676160676885;
-        Sat, 11 Feb 2023 16:11:16 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id dq3-20020a056808428300b0037d8148cf04sm738636oib.46.2023.02.11.16.11.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Feb 2023 16:11:16 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <573e5ffb-cd3f-4811-972e-a1540c17820c@roeck-us.net>
-Date:   Sat, 11 Feb 2023 16:11:14 -0800
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nvROq1Ysin4iKmF7L5qnmUmZE+huLZ31SHq6Mu5DVtg=;
+        b=7EOf4MNyeHDcy7igUG5/v+s2h8APq82xa2mc+EKHelfSDx3oq+vuE6HOSTeoE6iQTi
+         cM4uk99pAGKI+cl/OlaokzdM6xCX0KTbNiClkGvPtV3GbjUqjUfBSWxr8cRePX9JzES0
+         tUX31tf24D4PXa6n8M403ViP4aid2CT89B/6OOTvCSuDvPtlrERFX6CbwMQ/Ipiqxv83
+         cLx6Z2xuOMPFb1ETtV9PFFvUdDF3ZOocui48AwvVQVDBCUkpVgmYpfYa6s3ixV7BI2YP
+         TFdOsgnoV+rQ7tKzCITXXPhutO+2ZcloyZCu3wpX10aiMXrxvhSuQpP1HVdNr8lSiH9g
+         4dgA==
+X-Gm-Message-State: AO0yUKVzAWpYfSVF362HD0Gu8pPxB6e9+exk49Mvd2/uw92eLVAaxMxo
+        OXt8njNISuZxNoyURiekhfeXx7v42Ob7jjL9ISk=
+X-Google-Smtp-Source: AK7set8TnzNOFqImJjPpCHh5tW2QRdderphK8943iNYTmjtSAMNRrq5sZirKjtzelCQLw2PZ/6HszLn+vhUv4VID4Bs=
+X-Received: by 2002:a05:6808:60d:b0:37b:7c36:4df8 with SMTP id
+ y13-20020a056808060d00b0037b7c364df8mr1570866oih.144.1676189626284; Sun, 12
+ Feb 2023 00:13:46 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 596/606] watchdog: ziirave_wdt: Convert to i2c's
- .probe_new()
-Content-Language: en-US
-To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-watchdog@vger.kernel.org,
-        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>,
-        linux-kernel@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Angel Iglesias <ang.iglesiasg@gmail.com>,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        Grant Likely <grant.likely@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
- <20221118224540.619276-597-uwe@kleine-koenig.org>
- <20221118225747.GF686528@roeck-us.net>
- <20230127103204.t3k53rqaygxdlvyl@pengutronix.de>
- <20230211230127.gsaixwtfd6squ7ce@pengutronix.de>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230211230127.gsaixwtfd6squ7ce@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20230211073357.755893-1-sergio.paracuellos@gmail.com>
+ <20230211073357.755893-2-sergio.paracuellos@gmail.com> <190b3135-82f3-4dfa-55ee-e048c5510e3c@arinc9.com>
+ <CAMhs-H8tehOWvYKmFtW_LHNb62h5mnzVGN_bfGOtLgNE9qUxqw@mail.gmail.com>
+ <d14f0065-e8d3-50ed-7ea4-ba57dbd18d51@arinc9.com> <CAMhs-H_1dtdAmeNW9arK9JxhdWaQJwcMU1Pk7TOW1f5MREzzug@mail.gmail.com>
+ <76353597-0170-e0d9-9f5d-f208a03e44e8@linaro.org>
+In-Reply-To: <76353597-0170-e0d9-9f5d-f208a03e44e8@linaro.org>
+From:   Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Date:   Sun, 12 Feb 2023 09:13:35 +0100
+Message-ID: <CAMhs-H-JGZMR6mB=USywAh4aRS9ZFOVebwLv8=N2f3uvWpcXDA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/5] dt-bindings: watchdog: mt7621-wdt: add phandle to
+ access system controller registers
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     =?UTF-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>,
+        linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
+        linux@roeck-us.net, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, matthias.bgg@gmail.com,
+        tsbogend@alpha.franken.de, p.zabel@pengutronix.de,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/11/23 15:01, Uwe Kleine-König wrote:
-> Hello,
-> 
-> On Fri, Jan 27, 2023 at 11:32:04AM +0100, Uwe Kleine-König wrote:
->> On Fri, Nov 18, 2022 at 02:57:47PM -0800, Guenter Roeck wrote:
->>> On Fri, Nov 18, 2022 at 11:45:30PM +0100, Uwe Kleine-König wrote:
->>>> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->>>>
->>>> The probe function doesn't make use of the i2c_device_id * parameter so it
->>>> can be trivially converted.
->>>>
->>>> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
->> This patch hasn't made it into next yet. Is it still on your radar?
->>
->> My plans for this series is to complete the conversion after the next
->> merge window which should include most patches from this series.
->>
->> So I ask you to either take this patch during the next merge window or
->> accept that it will be applied together with the i2c core conversion
->> that drops .probe() with the i2c_device_id parameter.
-> 
-> This got Guenter's R-b tag twice now, but the patch didn't appear yet in
-> next. I'll prepare a series for Wolfram to apply via his i2c tree based
-> on what is in next during the merge window with the idea to get the
-> change early into next with an immutable tag. If you get this patch in
-> during the merge window that would be ideal, but if not, I will take
-> care of it and as announced will send it together with the i2c change.
-> 
+On Sat, Feb 11, 2023 at 12:42 PM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+>
+> On 11/02/2023 12:01, Sergio Paracuellos wrote:
+> > On Sat, Feb 11, 2023 at 11:47 AM Ar=C4=B1n=C3=A7 =C3=9CNAL <arinc.unal@=
+arinc9.com> wrote:
+> >>
+> >> On 11.02.2023 13:41, Sergio Paracuellos wrote:
+> >>> On Sat, Feb 11, 2023 at 10:10 AM Ar=C4=B1n=C3=A7 =C3=9CNAL <arinc.una=
+l@arinc9.com> wrote:
+> >>>>
+> >>>> Is this mediatek,sysctl property required after your changes on the
+> >>>> watchdog code?
+> >>>
+> >>> I don't really understand the question :-) Yes, it is. Since we have
+> >>> introduced a new phandle in the watchdog node to be able to access th=
+e
+> >>> reset status register through the 'sysc' syscon node.
+> >>> We need the bindings to be aligned with the mt7621.dtsi file and we
+> >>> are getting the syscon regmap handler via
+> >>> 'syscon_regmap_lookup_by_phandle()'. See PATCH 5 of the series, Ar=C4=
+=B1n=C3=A7.
+> >>
+> >> I believe you need to put mediatek,sysctl under "required:".
+> >
+> > Ah, I understood your question now :-). You meant 'required' property.
+> > I need more coffee, I guess :-). I am not sure if you can add
+> > properties as required after bindings are already mainlined for
+> > compatibility issues. The problem with this SoC is that drivers become
+> > mainlined before the device tree was so if things are properly fixed
+> > now this kind of issues appear.  Let's see Krzysztof and Rob comments
+> > for this.
+>
+> If your driver fails to probe without mediatek,sysctl, you already made
+> it required (thus broke the ABI) regardless what dt-binding is saying.
+> In such case you should update dt-binding to reflect reality.
+>
+> Now ABI break is different case. Usually you should not break it without
+> valid reasons (e.g. it was never working before). Your commit msg
+> suggests that you only improve the code, thus ABI break is not really
+> justified. In such case - binding is correct, driver should be reworked
+> to accept DTS without the new property.
 
-It is in my watchdog-next tree, and we can only hope that Wim
-will pick it up from there.
+Thanks for clarification, Krzysztof. Ok, so if this is the case I need
+to add this property required (as Arinc was properly pointing out in
+previous mail) since without it the driver is going to fail on probe
+(PATCH 5 of the series). I understand the "it was never working
+before" argument reason for ABI breaks. What happens if the old driver
+code was not ideal and totally dependent on architecture specific
+operations when this could be totally avoided and properly make arch
+independent agnostic drivers? This driver was added in 2016 [0]. There
+was not a device tree file in the kernel for this SoC mainlined until
+2022 [1]. I also personally migrated this watchdog binding in 2022
+from text to YAML and maintained it without changes [2]. When this was
+mainlined not all drivers were properly reviewed and the current code
+was just maintained as it is. Most users of this SoC are in the
+openWRT community where the dtsi of the mainline is not used yet and
+they maintain their own mt7621.dtsi files. Also, when a new version of
+the openWRT selected kernel is added they also modify and align with
+its mt7621.dtsi file without maintaining previous dtb's. If "make the
+driver arch independent to be able to be compile tested" and this kind
+of arguments are not valid at all I need to know because I have
+started to review driver code for this SoC and other drivers also have
+the same arch dependency that ideally should be avoided in the same
+way. This at the end means to break the ABI again in the future for
+those drivers / bindings. So I can just let them be as it is and not
+provide any change at all and continue without being compile tested
+and other beneficial features to detect future driver breakage.
 
-Guenter
+Thanks in advance for clarification.
 
+Best regards,
+    Sergio Paracuellos
+
+[0]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/com=
+mit/drivers/watchdog/mt7621_wdt.c?id=3Dab3f09fe16d158cb4f84e558c61ec5d6d601=
+f2e0
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/com=
+mit/arch/mips/boot/dts/ralink/mt7621.dtsi?id=3D7a6ee0bbab2551d7189ce0f5e625=
+fef4d612ebea
+[2]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/com=
+mit/Documentation/devicetree/bindings/watchdog/mediatek,mt7621-wdt.yaml?id=
+=3D9023e05b7a5809593a7ea09896eee0bbb6ae1685
+
+>
+> Best regards,
+> Krzysztof
+>
