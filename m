@@ -2,103 +2,173 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D80F9C6FA9D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Feb 2023 10:39:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA29AC6FD19
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Feb 2023 10:39:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232654AbjBNKjv (ORCPT
+        id S231821AbjBNKjx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 14 Feb 2023 05:39:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        Tue, 14 Feb 2023 05:39:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232645AbjBNKjo (ORCPT
+        with ESMTP id S232670AbjBNKjr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Feb 2023 05:39:44 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0144F244B3;
-        Tue, 14 Feb 2023 02:39:42 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id g6-20020a05600c310600b003e1f6dff952so672729wmo.1;
-        Tue, 14 Feb 2023 02:39:42 -0800 (PST)
+        Tue, 14 Feb 2023 05:39:47 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C12C244B3;
+        Tue, 14 Feb 2023 02:39:46 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id a2so15134376wrd.6;
+        Tue, 14 Feb 2023 02:39:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9x1QraTZIx1mxn1ybzEQ9Nso18S7k6Ao6CArkPQDRXU=;
-        b=ELd61XLdoBzFgVcqTvGtMDXoG/8GNoIoGuLMHnedoJVRea/0zUU12mqJEmRcOoL3aZ
-         M0zl8lPOtTx1pUdXyRtU3agwb6e2b1ONZrl1RQxQmDNbYInfxg9NgpDM4MmKSynwmmFO
-         j3KkllZBM20EtIQKWLSmJ4eTpZ6adk/65gtPkV3w2c4ZctYQwvLkXGHqujqsBD9C9wul
-         l1Wt4AXOZWYzmMJpdWw+dU8zz1n4WwRbO0EFwiCKGPffKFq7XzlCFapauxx2CEwMZbpe
-         qA1fKiqfM/7co1pAmR5Ig9VMScV/1VY06c/7RTAR0H6lB0LTmjOIg/p2vWUCoWugEJcA
-         ssVw==
+        bh=CG6+guVzRQjTbRLIGLzjFnyLsgkRwGsfNNLnjnu+i0s=;
+        b=TNfbzoo0DPmK0ZpI0MZ0cwW6nGW+rhf0ZoQnJtepOR3qG1j0Qs6QCvVcEyBJ3Ysv4m
+         Sw9VZdcBhLKa11W40/Q2ZCGOsVNSxZnyK709poQQX3DFD8ztEp9OTfPdKmBiXn7yibCD
+         Y5LerYKNvhDSGFTDj677xHzBaJ0A0vGHYWgwBSjNBYtwllL3w/JHSCDrorgClwNE8XQQ
+         G2U7eOxHEMY+C2P2reIkIYwktp5nyjO+QL2Tf7VCv7vx5l0AKHpGZ+Yqdie41pqhz7YF
+         OCW6GaOlpDUCkJYY7Cndzd/e2IMf3s7YmptH9wxe3/vqx3sKNcrX2/q9uM/smaI6mBHJ
+         9r+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9x1QraTZIx1mxn1ybzEQ9Nso18S7k6Ao6CArkPQDRXU=;
-        b=4KlcEa+bpzpbXD/dgztpSz95StmGUGuT7Q8DhJerP38FDiE0d28mEL/c5mJkrM7Fow
-         jhH7rtMKTJ/HikelKcxIC2JwO4TG8jZKZmg+fQFIaCC9ZqYjurR+Wu5VHfA8cZWrO0lA
-         h4hvAotCQD81tn8fVcxeLH99szl9AB7KDdxBU3wWP7f83bEU59t/PuHf13K0bmF7niRy
-         5oGadxM7MgHeiYOGyPAEtuuJ8oek3C1rMmOXm3peeDB83D0+sXeveoYeKe18JLG8YsK7
-         FZ8fi041gop+WEKcKDW6rxfjvvun7hjKfouxpLwQZvgZXrI2XxnhHv9NifCSoMG6cXqW
-         UuPw==
-X-Gm-Message-State: AO0yUKWLJqkLLNT/w5Yf0yozAlqBB9wM7eT8aGOZ/n98f4CA9SluuJoD
-        7RQzVjaM8Lrs/ss8M1hItsy3THs72No=
-X-Google-Smtp-Source: AK7set/Qf6TB5G+MxxRm/ADJl3gFIvHnQw7N3RmvZi01c1mr2P5CX0IIMDA1lgs8Q/UtFrTbK22FvQ==
-X-Received: by 2002:a05:600c:3412:b0:3dd:b0b3:811b with SMTP id y18-20020a05600c341200b003ddb0b3811bmr1549659wmp.31.1676371181298;
-        Tue, 14 Feb 2023 02:39:41 -0800 (PST)
+        bh=CG6+guVzRQjTbRLIGLzjFnyLsgkRwGsfNNLnjnu+i0s=;
+        b=hO3ghkH+FmFc8TD8FfxwnHPMrsM+39u2md8pNOOj1FxGxJH88QeeuCnM0CCyn+msPO
+         qUQQEVTuPxZJaK8hyZqgKs28UmuQY+PNFZkcTF7A9nvGFELOCnWreBhVkQblUPuwLBvu
+         BpoHp+N0joq7dWD2kT2W2mxCjnnWWwjEzUfsQ+g/l0k614oUwOLQ/tFYdy/Bl/pZ5n9K
+         ya5KgWNDBLy+kcopBjQ14XsHRNmAIbL+tUtnEQQEYpRSYDiXMqnbYSBtYx93GVW42Wr5
+         cxN1r8avi6/SMyMOPJOS3hwEXUWG17FvNTA584F01UP07+PVw1dp4cdxRIOCD4GtZUuw
+         Hqow==
+X-Gm-Message-State: AO0yUKWQUuIibMgZG8LFg9GxGPLyho1LhouSY5v6cUePFq0gcnF+/lYV
+        0YF3sXeWsw7zcAbMwDjHNfav2BxfJSA=
+X-Google-Smtp-Source: AK7set+RJaZMNjJyW8sfMcSBInlOma1zNgii+lyMKRjaUcpAVyogYmZPSUDuX8PWn4cjmLQCBNXgoQ==
+X-Received: by 2002:a5d:4e8a:0:b0:2c5:5847:3910 with SMTP id e10-20020a5d4e8a000000b002c558473910mr1472528wru.8.1676371184809;
+        Tue, 14 Feb 2023 02:39:44 -0800 (PST)
 Received: from localhost.localdomain (23.red-88-10-60.dynamicip.rima-tde.net. [88.10.60.23])
-        by smtp.gmail.com with ESMTPSA id v2-20020a5d6102000000b002be5bdbe40csm12693241wrt.27.2023.02.14.02.39.40
+        by smtp.gmail.com with ESMTPSA id v2-20020a5d6102000000b002be5bdbe40csm12693241wrt.27.2023.02.14.02.39.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Feb 2023 02:39:40 -0800 (PST)
+        Tue, 14 Feb 2023 02:39:44 -0800 (PST)
 From:   Sergio Paracuellos <sergio.paracuellos@gmail.com>
 To:     linux-watchdog@vger.kernel.org
 Cc:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, matthias.bgg@gmail.com,
         arinc.unal@arinc9.com, tsbogend@alpha.franken.de,
         p.zabel@pengutronix.de, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-mips@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>
-Subject: [PATCH v7 2/5] mips: dts: ralink: mt7621: rename watchdog node from 'wdt' into 'watchdog'
-Date:   Tue, 14 Feb 2023 11:39:33 +0100
-Message-Id: <20230214103936.1061078-3-sergio.paracuellos@gmail.com>
+        devicetree@vger.kernel.org, linux-mips@vger.kernel.org
+Subject: [PATCH v7 5/5] watchdog: mt7621-wdt: avoid ralink architecture dependent code
+Date:   Tue, 14 Feb 2023 11:39:36 +0100
+Message-Id: <20230214103936.1061078-6-sergio.paracuellos@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230214103936.1061078-1-sergio.paracuellos@gmail.com>
 References: <20230214103936.1061078-1-sergio.paracuellos@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Watchdog nodes must use 'watchdog' for node name. When a 'make dtbs_check'
-is performed the following warning appears:
+MT7621 SoC has a system controller node. Watchdog need to access to reset
+status register. Ralink architecture and related driver are old and from
+the beggining they are using some architecture dependent operations for
+accessing this shared registers through 'asm/mach-ralink/ralink_regs.h'
+header file. However this is not ideal from a driver perspective which can
+just access to the system controller registers in an arch independent way
+using regmap syscon APIs. Update Kconfig accordingly to select new added
+dependencies and allow driver to be compile tested.
 
-wdt@100: $nodename:0: 'wdt@100' does not match '^watchdog(@.*|-[0-9a-f])?$'
-
-Fix this warning up properly renaming the node into 'watchdog'.
-
-Reviewed-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
 Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 ---
- arch/mips/boot/dts/ralink/mt7621.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/Kconfig      |  4 +++-
+ drivers/watchdog/mt7621_wdt.c | 22 +++++++++++++++++-----
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/boot/dts/ralink/mt7621.dtsi b/arch/mips/boot/dts/ralink/mt7621.dtsi
-index 5ca40fd21662..ac818fd721ae 100644
---- a/arch/mips/boot/dts/ralink/mt7621.dtsi
-+++ b/arch/mips/boot/dts/ralink/mt7621.dtsi
-@@ -70,7 +70,7 @@ sysc: syscon@0 {
- 					     "250m", "270m";
- 		};
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index b64bc49c7f30..cf752ad64392 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1865,7 +1865,9 @@ config GXP_WATCHDOG
+ config MT7621_WDT
+ 	tristate "Mediatek SoC watchdog"
+ 	select WATCHDOG_CORE
+-	depends on SOC_MT7620 || SOC_MT7621
++	select REGMAP_MMIO
++	select MFD_SYSCON
++	depends on SOC_MT7620 || SOC_MT7621 || COMPILE_TEST
+ 	help
+ 	  Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
  
--		wdt: wdt@100 {
-+		wdt: watchdog@100 {
- 			compatible = "mediatek,mt7621-wdt";
- 			reg = <0x100 0x100>;
- 		};
+diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
+index 40fb2c9ba9d9..f37d8298a480 100644
+--- a/drivers/watchdog/mt7621_wdt.c
++++ b/drivers/watchdog/mt7621_wdt.c
+@@ -15,8 +15,8 @@
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
+ #include <linux/mod_devicetable.h>
+-
+-#include <asm/mach-ralink/ralink_regs.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
+ 
+ #define SYSC_RSTSTAT			0x38
+ #define WDT_RST_CAUSE			BIT(1)
+@@ -34,6 +34,7 @@
+ struct mt7621_wdt_data {
+ 	void __iomem *base;
+ 	struct reset_control *rst;
++	struct regmap *sysc;
+ 	struct watchdog_device wdt;
+ };
+ 
+@@ -104,9 +105,12 @@ static int mt7621_wdt_stop(struct watchdog_device *w)
+ 	return 0;
+ }
+ 
+-static int mt7621_wdt_bootcause(void)
++static int mt7621_wdt_bootcause(struct mt7621_wdt_data *d)
+ {
+-	if (rt_sysc_r32(SYSC_RSTSTAT) & WDT_RST_CAUSE)
++	u32 val;
++
++	regmap_read(d->sysc, SYSC_RSTSTAT, &val);
++	if (val & WDT_RST_CAUSE)
+ 		return WDIOF_CARDRESET;
+ 
+ 	return 0;
+@@ -134,6 +138,7 @@ static const struct watchdog_ops mt7621_wdt_ops = {
+ 
+ static int mt7621_wdt_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *mt7621_wdt;
+ 	struct mt7621_wdt_data *drvdata;
+@@ -143,6 +148,13 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
+ 	if (!drvdata)
+ 		return -ENOMEM;
+ 
++	drvdata->sysc = syscon_regmap_lookup_by_phandle(np, "mediatek,sysctl");
++	if (IS_ERR(drvdata->sysc)) {
++		drvdata->sysc = syscon_regmap_lookup_by_compatible("mediatek,mt7621-sysc");
++		if (IS_ERR(drvdata->sysc))
++			return PTR_ERR(drvdata->sysc);
++	}
++
+ 	drvdata->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(drvdata->base))
+ 		return PTR_ERR(drvdata->base);
+@@ -158,7 +170,7 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
+ 	mt7621_wdt->max_timeout = 0xfffful / 1000;
+ 	mt7621_wdt->parent = dev;
+ 
+-	mt7621_wdt->bootstatus = mt7621_wdt_bootcause();
++	mt7621_wdt->bootstatus = mt7621_wdt_bootcause(drvdata);
+ 
+ 	watchdog_init_timeout(mt7621_wdt, mt7621_wdt->max_timeout, dev);
+ 	watchdog_set_nowayout(mt7621_wdt, nowayout);
 -- 
 2.25.1
 
