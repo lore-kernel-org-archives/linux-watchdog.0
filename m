@@ -2,87 +2,150 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D39AC636CC
-	for <linux-watchdog@archiver.kernel.org>; Sat, 18 Feb 2023 17:00:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B92C636CC
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Feb 2023 08:19:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbjBRRAn (ORCPT
+        id S230052AbjBTITH convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 18 Feb 2023 12:00:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37784 "EHLO
+        Mon, 20 Feb 2023 03:19:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbjBRRAn (ORCPT
+        with ESMTP id S229678AbjBTITG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 18 Feb 2023 12:00:43 -0500
-X-Greylist: delayed 594 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 18 Feb 2023 09:00:40 PST
-Received: from www.linux-watchdog.org (www.linux-watchdog.org [185.87.125.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8949217155;
-        Sat, 18 Feb 2023 09:00:40 -0800 (PST)
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 00136409E9; Sat, 18 Feb 2023 16:00:05 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 00136409E9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1676732406;
-        bh=mmrzvLbJt44h+Sq+aFCdJK1Dkf8hdq69aQcSosm2/hw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SMI46vBIMOYhEAux/gfW3FNlGhqhgsf8pQXggsAGD9CyO48K+gmfh3SVeFB3Q5POU
-         tHaEnWEqB3p2hxaeD9r8BcnTt/7zT4WeWje89J5P+NbKj6MeLdlkdBQ+RZUM7giV2q
-         fASL9HQCNXkTbB9xfyqoXM6jvRYbcBllwvDlii9Y=
-Date:   Sat, 18 Feb 2023 16:00:05 +0100
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Konrad Dybcio <konrad.dybcio@linaro.org>
-Cc:     linux-arm-msm@vger.kernel.org, andersson@kernel.org,
-        agross@kernel.org, krzysztof.kozlowski@linaro.org,
-        patches@linaro.org, Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mon, 20 Feb 2023 03:19:06 -0500
+Received: from ex01.ufhost.com (ex01.ufhost.com [61.152.239.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBA611EAC;
+        Mon, 20 Feb 2023 00:19:03 -0800 (PST)
+Received: from EXMBX166.cuchost.com (unknown [175.102.18.54])
+        (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+        (Client CN "EXMBX166", Issuer "EXMBX166" (not verified))
+        by ex01.ufhost.com (Postfix) with ESMTP id 0F1DD24E2C2;
+        Mon, 20 Feb 2023 16:19:01 +0800 (CST)
+Received: from EXMBX061.cuchost.com (172.16.6.61) by EXMBX166.cuchost.com
+ (172.16.6.76) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 20 Feb
+ 2023 16:19:01 +0800
+Received: from localhost.localdomain (183.27.98.67) by EXMBX061.cuchost.com
+ (172.16.6.61) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Mon, 20 Feb
+ 2023 16:19:00 +0800
+From:   Xingyu Wu <xingyu.wu@starfivetech.com>
+To:     <linux-riscv@lists.infradead.org>, <devicetree@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2] dt-bindings: watchdog: Add MSM8994 watchdog timer
-Message-ID: <20230218150005.GA30362@www.linux-watchdog.org>
-References: <20221117105845.13644-1-konrad.dybcio@linaro.org>
- <20221117105845.13644-2-konrad.dybcio@linaro.org>
- <07defd1c-2cbd-f25b-d1f4-824023d27135@linaro.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+CC:     Rob Herring <robh+dt@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Xingyu Wu <xingyu.wu@starfivetech.com>,
+        Samin Guo <samin.guo@starfivetech.com>,
+        <linux-kernel@vger.kernel.org>, Conor Dooley <conor@kernel.org>
+Subject: [PATCH v3 1/2] dt-bindings: watchdog: Add watchdog for StarFive JH7110
+Date:   Mon, 20 Feb 2023 16:19:25 +0800
+Message-ID: <20230220081926.267695-2-xingyu.wu@starfivetech.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230220081926.267695-1-xingyu.wu@starfivetech.com>
+References: <20230220081926.267695-1-xingyu.wu@starfivetech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <07defd1c-2cbd-f25b-d1f4-824023d27135@linaro.org>
-User-Agent: Mutt/1.5.20 (2009-12-10)
+Content-Type: text/plain
+X-Originating-IP: [183.27.98.67]
+X-ClientProxiedBy: EXCAS066.cuchost.com (172.16.6.26) To EXMBX061.cuchost.com
+ (172.16.6.61)
+X-YovoleRuleAgent: yovoleflag
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Konrad,
+Add bindings to describe the watchdog for the StarFive JH7110 SoC.
 
-> On 17.11.2022 11:58, Konrad Dybcio wrote:
-> > Document the MSM8994 watchdog timer which is already used in DT.
-> > 
-> > Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-> > ---
-> Looks like this never got applied?
+Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
+---
+ .../watchdog/starfive,jh7110-wdt.yaml         | 74 +++++++++++++++++++
+ 1 file changed, 74 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/starfive,jh7110-wdt.yaml
 
-Patience is a beautiful virtue.
-Since Guenter reviewed it and since it is in Guenter's tree, I picked it up.
-
-> Konrad
-> >  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-> > index d8ac0be36e6c..a1f17c9e02db 100644
-> > --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-> > +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-> > @@ -17,6 +17,7 @@ properties:
-> >      oneOf:
-> >        - items:
-> >            - enum:
-> > +              - qcom,apss-wdt-msm8994
-> >                - qcom,apss-wdt-qcs404
-> >                - qcom,apss-wdt-sc7180
-> >                - qcom,apss-wdt-sc7280
-
-Kind regards,
-Wim.
+diff --git a/Documentation/devicetree/bindings/watchdog/starfive,jh7110-wdt.yaml b/Documentation/devicetree/bindings/watchdog/starfive,jh7110-wdt.yaml
+new file mode 100644
+index 000000000000..05ba7069e29a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/starfive,jh7110-wdt.yaml
+@@ -0,0 +1,74 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/starfive,jh7110-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: StarFive Watchdog
++
++maintainers:
++  - Samin Guo <samin.guo@starfivetech.com>
++  - Xingyu Wu <xingyu.wu@starfivetech.com>
++
++description:
++  The watchdog is a 32 bit counter and has two timeout phases.
++  At the first phase, the signal of watchdog interrupt output(WDOGINT)
++  will rise when counter is 0. The counter will reload the timeout value.
++  And then, if counter decreases to 0 again and WDOGINT isn't cleared,
++  the watchdog will reset the system unless the watchdog reset is disabled.
++
++allOf:
++  - $ref: watchdog.yaml#
++
++properties:
++  compatible:
++    const: starfive,jh7110-wdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: APB clock
++      - description: Core clock
++
++  clock-names:
++    items:
++      - const: apb
++      - const: core
++
++  resets:
++    items:
++      - description: APB reset
++      - description: Core reset
++
++  reset-names:
++    items:
++      - const: apb
++      - const: core
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    watchdog@13070000 {
++        compatible = "starfive,jh7110-wdt";
++        reg = <0x13070000 0x10000>;
++        clocks = <&clk 122>,
++                 <&clk 123>;
++        clock-names = "apb", "core";
++        resets = <&rst 109>,
++                 <&rst 110>;
++        reset-names = "apb", "core";
++    };
+-- 
+2.25.1
 
