@@ -2,153 +2,148 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7567BC6FA8E
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Mar 2023 07:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF7BEC678D4
+	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Mar 2023 08:22:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbjCBHil (ORCPT
+        id S229679AbjCBIWV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Mar 2023 02:38:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53302 "EHLO
+        Thu, 2 Mar 2023 03:22:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbjCBHik (ORCPT
+        with ESMTP id S229566AbjCBIWU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Mar 2023 02:38:40 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F045DCA3A
-        for <linux-watchdog@vger.kernel.org>; Wed,  1 Mar 2023 23:38:37 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id u9so14481387edd.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2023 23:38:37 -0800 (PST)
+        Thu, 2 Mar 2023 03:22:20 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E264432502
+        for <linux-watchdog@vger.kernel.org>; Thu,  2 Mar 2023 00:22:18 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id eg37so64182360edb.12
+        for <linux-watchdog@vger.kernel.org>; Thu, 02 Mar 2023 00:22:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1677742716;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=linaro.org; s=google; t=1677745337;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=rXBpuovAno/5WCGDBV+AisE7CduBEJt/pA7c+lDgz+U=;
-        b=CtKIX0svb8mSkZgFLyFr9jWV5y+5hXYP7lDRB7ItN9JP+1Y2FepFoLwhA1GetDiSKW
-         1ucgVAHyAUIqfv/yzvVsAf7sMF82M5fJaQIZZYmfTvxyozPPVhqQZLlX8fl4vA4W0aIi
-         5cj2rJU4LVe7WMFMZBAUWC5xa80DX4GpniOrXlj/y+8lu5U2LlOY48rvOcjZQM3+PnyI
-         a7J75lhYwwhYMyiKf6SfDHaKuuAgB/S3T0Jfm8sFU+p6gBbLuyyhE3Z32dmo4ZgWqK33
-         8B5fmQDVDhYWaQ+IbpwQCfvir3buV9XbMTbXfAgQdSZwu7Fh6/ySm7XXzU7pRGR2/fRM
-         h8ag==
+        bh=tQkFiCGrNnQkWtgw7qzycgixCypKYWTeHdnNYRv+yvc=;
+        b=NPJ/4jZAZsaYRcdPalUd0zftkNmzx+zmNbzqj27PNtMNGhnzL0UXklYr1oasj7IgW/
+         nrzCfBiSX8htFVpMo+NejHspmjwaJXeSBYAPnYiOiianqv5hg4nze024+Y8zpel/UrPy
+         sVgi4D5IoaLvHper1k/AiRjaT/4F5HQ3qnz4TVQ9LvsuR+SqB7OADmwvKeO1zYH+prAi
+         Z8o0cTAZO/2+6CwAAKlNHnN0oX1Mv9ajutGnFMKGRa4AtFBVrwumqpYxwBqY0RmLtWKj
+         j4grcD0r5rYOZV0UNnaAH9A35wzVYYaA6wUT7MvK///iMrm8rGYaSXFeu8HDwlf/0xNd
+         S46A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677742716;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20210112; t=1677745337;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rXBpuovAno/5WCGDBV+AisE7CduBEJt/pA7c+lDgz+U=;
-        b=2ksdiSAahqo06YeVVqv9kguH10z8B9OzQGknfOdoZZnXCMscb9ZzR+sjPv6fOlrMuD
-         pSVmWCVyfplYiGI30W7rwG4F/wPi3+ub1AqeNu2UxNOqarzoYs5KPA77H6FMlhgMlB43
-         q9pNt2dTZ+d5ihHiYkh4tSKSm2BKa9xFC2lapDRf2T6JNjp1HITzEHKGHLESWqAcg9kE
-         eQMXt4fRivsTsZx4EPOvf6iyfldJwUgcndKRlXRM3l81J4mTTnVQFg+/PvP0DqW88jPY
-         u1877VWCUhWqwyEgFAjSHHqMioyua+ze53GxcA6qPbM4Jvhd98kEPArM9jF80XKudFdn
-         9kBQ==
-X-Gm-Message-State: AO0yUKUyxFhoLXb/4Xg1P6g64y/OfPk3aeAZ928P/tEp4xRl2HOkQmpf
-        I573LWRJyNbiTCt72J99MYNx4Q==
-X-Google-Smtp-Source: AK7set+XPLhKndG5E75elshInMBO12jf2Y0kWOxB2hX9mc2dJBDx5XFbqaU8SlL3kW9dxo76L4ZYMA==
-X-Received: by 2002:a17:907:7e91:b0:907:89d1:1ba9 with SMTP id qb17-20020a1709077e9100b0090789d11ba9mr2367300ejc.51.1677742716300;
-        Wed, 01 Mar 2023 23:38:36 -0800 (PST)
+        bh=tQkFiCGrNnQkWtgw7qzycgixCypKYWTeHdnNYRv+yvc=;
+        b=4+HhtzdipjFtJWKvJTosdcaYTTCf6tnxlsEeRi6EuX2WgO1c3lI6QyCk43+6PFVy+v
+         VFrIrb8+5g7rQKFo5VneT0i34W6+dnih2IcZ+hU7hKsdryJ6P7RlPIbVPFPvctVYyP9a
+         eEG4LEh/9p0CEQ5waQjZK8wLzUaFvLSw1pOZmSd7UGn11yuKcA18tEhlCdhGKJJB8WBb
+         yRVid91eC3wk8ghmAOUzbjV/Bt1aVDF35YdE5BxAozRaL8NNGFI85VmB/NXCek/ZRQ51
+         07/P1wfYM2U2O6e8xyyemx2nc20+g4tX6/5KqA22X/wZkJbWUe36WDhZfCjV5QCQ22mU
+         J4aw==
+X-Gm-Message-State: AO0yUKUmztbQgAj8djL25ipj8J5qJybR2L3cqucuNr64TDNDUBVe9zGa
+        9xc2iL0dp71cknicfNBfeIBJ5A==
+X-Google-Smtp-Source: AK7set/RI4RWdLwfaaaMIzk7fQfHWivqF+t8SrEiYFFLJicH287e5t09jelLb3TUeCEuPPiE9JJOWw==
+X-Received: by 2002:a17:906:d290:b0:8f4:86a9:748d with SMTP id ay16-20020a170906d29000b008f486a9748dmr1231069ejb.12.1677745337377;
+        Thu, 02 Mar 2023 00:22:17 -0800 (PST)
 Received: from [192.168.1.20] ([178.197.216.144])
-        by smtp.gmail.com with ESMTPSA id m29-20020a50931d000000b004c0459c20f9sm334103eda.66.2023.03.01.23.38.34
+        by smtp.gmail.com with ESMTPSA id gv28-20020a1709072bdc00b008b8ae79a72bsm6859783ejc.135.2023.03.02.00.22.16
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Mar 2023 23:38:35 -0800 (PST)
-Message-ID: <99fbc30c-7239-f63b-c76d-0b55a377eea7@linaro.org>
-Date:   Thu, 2 Mar 2023 08:38:34 +0100
+        Thu, 02 Mar 2023 00:22:16 -0800 (PST)
+Message-ID: <d6bf51f9-ef5e-910a-1b75-7c168746dd5c@linaro.org>
+Date:   Thu, 2 Mar 2023 09:22:15 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.8.0
-Subject: Re: [PATCH V2 2/4] dt-bindings: watchdog: xlnx,versal-wwdt: Add
- versal watchdog bindings
+Subject: Re: [PATCH] dt-bindings: watchdog: migrate rt2880 text bindings to
+ YAML
+To:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        devicetree@vger.kernel.org
+Cc:     linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
+        linux@roeck-us.net, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org
+References: <20230301091957.2824172-1-sergio.paracuellos@gmail.com>
 Content-Language: en-US
-To:     Srinivas Neeli <srinivas.neeli@amd.com>, linux@roeck-us.net,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        michal.simek@amd.com, neelisrinivas18@gmail.com
-Cc:     wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        git@xilinx.com, git@amd.com, devicetree@vger.kernel.org
-References: <20230301175229.342004-1-srinivas.neeli@amd.com>
- <20230301175229.342004-3-srinivas.neeli@amd.com>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230301175229.342004-3-srinivas.neeli@amd.com>
+In-Reply-To: <20230301091957.2824172-1-sergio.paracuellos@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 01/03/2023 18:52, Srinivas Neeli wrote:
-> Versal watchdog driver uses window watchdog mode. Window watchdog
-> timer(WWDT) contains closed(first) and open(second) window with
-> 32 bit width. Write to the watchdog timer within predefined window
-> periods of time. This means a period that is not too soon and
-> a period that is not too late.
+On 01/03/2023 10:19, Sergio Paracuellos wrote:
+> Ralink RT2880 Watchdog bindings used text format, so migrate them to YAML.
+> There are some additions to the binding that were not in the original
+> txt file. This binding is used in RT2880, RT3050, RT3352, RT3883, RT5350,
+> and MT7620 SoCs. To properly match all dts nodes included in openWRT git
+> trees we need to add to the schema 'reset' and 'reset-names'. 'reset-names'
+
+Sorry, but out of tree undocumented properties cannot be added just
+"because they exist". Otherwise what would be the point of
+documentation? It would be enough to add any stuff anywhere and claim -
+it's used in my xxxyyyzzz, so we must support it".
+
+> property is always string 'wdt' so maintain that as const in the schema.
 > 
-> Updated devicetree bindings for adding versal window watchdog device.
-> 
-> Signed-off-by: Srinivas Neeli <srinivas.neeli@amd.com>
+> Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 > ---
-> Changes in V2:
-> - Added watchdog ref
-> - Removed timeout-sec property
-> - Used 4 spaces for example indentation.
-> ---
->  .../bindings/watchdog/xlnx,versal-wwdt.yaml   | 58 +++++++++++++++++++
->  1 file changed, 58 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
+>  .../bindings/watchdog/ralink,rt2880-wdt.yaml  | 47 +++++++++++++++++++
+>  .../bindings/watchdog/rt2880-wdt.txt          | 18 -------
+>  2 files changed, 47 insertions(+), 18 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/ralink,rt2880-wdt.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml b/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
+> diff --git a/Documentation/devicetree/bindings/watchdog/ralink,rt2880-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ralink,rt2880-wdt.yaml
 > new file mode 100644
-> index 000000000000..733de1ac60e8
+> index 000000000000..c96bf2e61364
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/xlnx,versal-wwdt.yaml
-> @@ -0,0 +1,58 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +++ b/Documentation/devicetree/bindings/watchdog/ralink,rt2880-wdt.yaml
+> @@ -0,0 +1,47 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 > +%YAML 1.2
 > +---
-> +$id: http://devicetree.org/schemas/watchdog/xlnx,versal-wwdt.yaml#
+> +$id: http://devicetree.org/schemas/watchdog/ralink,rt2880-wdt.yaml#
 > +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +title: Xilinx Versal window watchdog timer controller
+> +title: Ralink Watchdog Timers
 > +
 > +maintainers:
-> +  - Neeli Srinivas <srinivas.neeli@amd.com>
-> +
-> +description:
-> +  Versal watchdog driver uses window watchdog mode. Window watchdog
-> +  timer(WWDT) contains closed(first) and open(second) window with
-> +  32 bit width. Write to the watchdog timer within predefined window
-> +  periods of time. This means a period that is not too soon and a
-> +  period that is not too late. The WWDT has to be restarted within
-> +  the open window time. If software tries to restart WWDT outside of
-> +  the open window time period, it generates a reset.
+> +  - Sergio Paracuellos <sergio.paracuellos@gmail.com>
 > +
 > +allOf:
-> +  - $ref: /schemas/watchdog/watchdog.yaml#
+> +  - $ref: watchdog.yaml#
 > +
 > +properties:
 > +  compatible:
-> +    enum:
-> +      - xlnx,versal-wwdt
+> +    const: ralink,rt2880-wdt
 > +
 > +  reg:
 > +    maxItems: 1
 > +
-> +  clocks:
+> +  resets:
 > +    maxItems: 1
 > +
-> +  xlnx,close_percent:
-> +    $ref: "/schemas/types.yaml#/definitions/uint32"
-> +    minimum: 1
-> +    maximum: 99
-> +    default: 50
-> +    description: closed window percentage
+> +  reset-names:
+> +    items:
+> +      - const: wdt
 
-There was no such property before and your changelog does not explain
-it. Don't add new stuff silently in new versions.
+Drop reset names.
 
-There are several issues with this - missing dscription (you just copied
-name of property!), unneeded quotes, using underscore, incorrect name
-suffix... but what's the most important - what is the justification to
-put it into DT? IOW, why this is suitable for DT?
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +
+> +additionalProperties: false
+
+unevaluatedProperties instead, because you want properties from
+watchdog.yaml.
+
 
 
 Best regards,
