@@ -2,132 +2,101 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23FD9C7EE32
-	for <linux-watchdog@archiver.kernel.org>; Thu,  2 Mar 2023 20:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D769C7EE30
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Mar 2023 21:37:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjCBUCC (ORCPT
+        id S231752AbjCCVhh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 2 Mar 2023 15:02:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
+        Fri, 3 Mar 2023 16:37:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbjCBUCA (ORCPT
+        with ESMTP id S231292AbjCCVhg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Mar 2023 15:02:00 -0500
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 147442005C
-        for <linux-watchdog@vger.kernel.org>; Thu,  2 Mar 2023 12:01:27 -0800 (PST)
-Received: by mail-il1-x129.google.com with SMTP id i4so402773ils.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 02 Mar 2023 12:01:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677787251;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=y1gtpjRpUqWMtqOkJwQw2lOGRTiBj3ZUiEXwyYi+oIA=;
-        b=L1F5uGlVEFhTWL98NcFz8aTWD7DzoHUWmz/xayFFFp2FWKJXg4nhbu+6cU0zUciU3Q
-         8uyJMae+oGtOIIb+p0KRpe8uHeyTNaIRcwx8KsUYl7bXjBBgPsQbtgEOtIA4YIh15n/V
-         tk4UPygcfgMY2LlEV2Ed1XDoCPGKUnISzpQvN8vzlMuu0hmVFigFMbP/FPie5DzmgVN4
-         M58S2QP6JxudNBzv+7NtuJq9KOya+gxL31ij6URrjkrmqA9sZA+We7ZTj6hitYz6z0hu
-         Ou2/+r0MfSWN/8TRV1ofla+l2jGOX9sny6v8KuelujB3401U5OdjJOxRLEJHKYjotk22
-         Pskw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677787251;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=y1gtpjRpUqWMtqOkJwQw2lOGRTiBj3ZUiEXwyYi+oIA=;
-        b=j6Ymt9f1gJ+g4ZjLfH7A4yG9yzD0xmexSkIQQS+LAWCkFNWkcfP6RbBK+4aNFjU+li
-         3qMN3kBEVHjEU/KT8NXsw0bFW0vydvxdn1aVYLb/hu8zfiQgcM2maVM7ZEsinEGUhZsj
-         kNQ+vJ1Sd/DGD3qUvEXSC88JJXg7d6ZsaPJ5nLg1m7Kti6g1UNTM4LxY/lkB5dTpJhWq
-         ornFitXjUIZxYUfvO0YFOxdhU9+uUnBeX2E8uAOxAx6OxmV3IwDRkdLOXol5kZN7MlPh
-         UEly2+3RMqz83TlTQDzcASXo2BYQQRLDlUqM8Bfl6shkCYT7uuRXZbJ7mQIme5hzfV5g
-         iMsQ==
-X-Gm-Message-State: AO0yUKXGKselGG9/VJVJhr1V/bzZPpvAwzZf/P37vGY0LhQOZ/iSzeAh
-        WKastvT2PEpKVbrXGcCTBiQ=
-X-Google-Smtp-Source: AK7set87NXe6y3KwAjPrW8yct0ko2/r/DIsnVCooRdvx8H2Yb7rnzaO+xJdvwfNnou+9Vj8LirQUHw==
-X-Received: by 2002:a92:c541:0:b0:318:a974:ab4a with SMTP id a1-20020a92c541000000b00318a974ab4amr2208043ilj.6.1677787251509;
-        Thu, 02 Mar 2023 12:00:51 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u10-20020a02cb8a000000b003ea1dbd00d6sm124104jap.70.2023.03.02.12.00.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Mar 2023 12:00:50 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <6ae3943d-8c2c-ad87-c27c-15ad34820b7b@roeck-us.net>
-Date:   Thu, 2 Mar 2023 12:00:48 -0800
+        Fri, 3 Mar 2023 16:37:36 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E9F62D86
+        for <linux-watchdog@vger.kernel.org>; Fri,  3 Mar 2023 13:37:35 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYD5p-0008Uw-8b; Fri, 03 Mar 2023 22:37:33 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYD5o-001eA9-Ct; Fri, 03 Mar 2023 22:37:32 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYD5n-001wxD-Ht; Fri, 03 Mar 2023 22:37:31 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 02/34] watchdog: acquirewdt: Convert to platform remove callback returning void
+Date:   Fri,  3 Mar 2023 22:36:44 +0100
+Message-Id: <20230303213716.2123717-3-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
+References: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH] watchdog: sp5100_tco: Immediately trigger upon starting.
-Content-Language: en-US
-To:     Gregory Oakes <gregory.oakes@amd.com>,
-        linux-watchdog@vger.kernel.org
-Cc:     terry.bowman@amd.com
-References: <20230301195001.26843-1-gregory.oakes@amd.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230301195001.26843-1-gregory.oakes@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1615; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=9+q6C+nj1xYa0tIZrxM2LYMQH3OvD3DGaw1eGi3kuN4=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkAmgWO7DqToqu+bNAasPZmOaF65IkE9uWq7qAA 3fKCOtBvJmJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAJoFgAKCRDB/BR4rcrs Cf1kB/9UpQxQCbZozInzUxOOWhiW4vPwx6AmFPr1lM/je1K0W8mjwM71RQ7EMLe+/NnpWOK5+Cd u9POxN1p/WbECiP6BJSxAcTVSthJXPP8SdX5gY87JU2yuN/0yVeocpneRo1xxzoGh94epN1xGhU /h6MwqeCaxcFdDP5TSHNFL3BB+zsDvJNf/ZZCdd4zD7Va8k11n6xBmD+AuuRZJ4ulKNFiY48iu6 NhbGZAk4k/QVnbMKpLoHDu3FEDqWbGyPMuMdl6Rayd+JWnkGbO3lphiEOXOqEPY4Gds0Dydzbj9 MBUIRs2PgrIEwGh3zGkc/B8Vk1wm3IEzJfRZE+MKeetU84Of
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 3/1/23 11:50, Gregory Oakes wrote:
-> The watchdog countdown is supposed to begin when the device file is
-> opened. Instead, it would begin countdown upon the first write to or
-> close of the device file. Now, the ping operation is called within the
-> start operation which ensures the countdown begins. From experimenation,
-> it does not appear possible to do this with a single write including
-> both the start bit and the trigger bit. So, it is done as two distinct
-> writes.
-> 
-> Signed-off-by: Gregory Oakes <gregory.oakes@amd.com>
-> ---
-> 
-> I tested on several AMD client devices. I verified the countdown begins
-> immediately upon the open ioctl and resets upon subsequent write ioctl's.
-> 
->   drivers/watchdog/sp5100_tco.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index fb426b7d81da..18ab0e096f99 100644
-> --- a/drivers/watchdog/sp5100_tco.c
-> +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -86,6 +86,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started."
->    * Some TCO specific functions
->    */
->   
-> +static int tco_timer_ping(struct watchdog_device *wdd);
-> +
->   static enum tco_reg_layout tco_reg_layout(struct pci_dev *dev)
->   {
->   	if (dev->vendor == PCI_VENDOR_ID_ATI &&
-> @@ -115,7 +117,7 @@ static int tco_timer_start(struct watchdog_device *wdd)
->   	val |= SP5100_WDT_START_STOP_BIT;
->   	writel(val, SP5100_WDT_CONTROL(tco->tcobase));
->   
-> -	return 0;
-> +	return tco_timer_ping(wdd);
+The .remove() callback for a platform driver returns an int which makes
+many driver authors wrongly assume it's possible to do error handling by
+returning an error code. However the value returned is (mostly) ignored
+and this typically results in resource leaks. To improve here there is a
+quest to make the remove callback return void. In the first step of this
+quest all drivers are converted to .remove_new() which already returns
+void.
 
-I think something like
+Trivially convert this driver from always returning zero in the remove
+callback to the void returning variant.
 
-	val = readl(SP5100_WDT_CONTROL(tco->tcobase));
-         val |= SP5100_WDT_START_STOP_BIT;
-         writel(val, SP5100_WDT_CONTROL(tco->tcobase));
-	val |= SP5100_WDT_TRIGGER_BIT;
-	writel(val, SP5100_WDT_CONTROL(tco->tcobase));
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/acquirewdt.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-would be better here to avoid the extra read operation.
-
-Also please add a comment into the code explaining that a single
-write operation is insufficient to avoid someone stepping in later
-and trying to "optimize" the code.
-
-Thanks,
-Guenter
-
->   }
->   
->   static int tco_timer_stop(struct watchdog_device *wdd)
+diff --git a/drivers/watchdog/acquirewdt.c b/drivers/watchdog/acquirewdt.c
+index bc6f333565d3..53b04abd55b0 100644
+--- a/drivers/watchdog/acquirewdt.c
++++ b/drivers/watchdog/acquirewdt.c
+@@ -271,14 +271,12 @@ static int __init acq_probe(struct platform_device *dev)
+ 	return ret;
+ }
+ 
+-static int acq_remove(struct platform_device *dev)
++static void acq_remove(struct platform_device *dev)
+ {
+ 	misc_deregister(&acq_miscdev);
+ 	release_region(wdt_start, 1);
+ 	if (wdt_stop != wdt_start)
+ 		release_region(wdt_stop, 1);
+-
+-	return 0;
+ }
+ 
+ static void acq_shutdown(struct platform_device *dev)
+@@ -288,7 +286,7 @@ static void acq_shutdown(struct platform_device *dev)
+ }
+ 
+ static struct platform_driver acquirewdt_driver = {
+-	.remove		= acq_remove,
++	.remove_new	= acq_remove,
+ 	.shutdown	= acq_shutdown,
+ 	.driver		= {
+ 		.name	= DRV_NAME,
+-- 
+2.39.1
 
