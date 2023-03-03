@@ -2,46 +2,46 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FEC2C8300C
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B7DC87FDD
 	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Mar 2023 21:37:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231861AbjCCVht (ORCPT
+        id S231842AbjCCVht (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Fri, 3 Mar 2023 16:37:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48590 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231842AbjCCVhm (ORCPT
+        with ESMTP id S231871AbjCCVhn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Mar 2023 16:37:42 -0500
+        Fri, 3 Mar 2023 16:37:43 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7147E62DA6
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AC162DA7
         for <linux-watchdog@vger.kernel.org>; Fri,  3 Mar 2023 13:37:41 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5u-0000Fx-Oa; Fri, 03 Mar 2023 22:37:38 +0100
+        id 1pYD5v-0000LQ-MN; Fri, 03 Mar 2023 22:37:39 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5t-001eBu-8k; Fri, 03 Mar 2023 22:37:37 +0100
+        id 1pYD5u-001eCE-7w; Fri, 03 Mar 2023 22:37:38 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5s-001wyZ-A9; Fri, 03 Mar 2023 22:37:36 +0100
+        id 1pYD5t-001wyw-G1; Fri, 03 Mar 2023 22:37:37 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 24/34] watchdog: renesas: Convert to platform remove callback returning void
-Date:   Fri,  3 Mar 2023 22:37:06 +0100
-Message-Id: <20230303213716.2123717-25-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 29/34] watchdog: sa1100: Convert to platform remove callback returning void
+Date:   Fri,  3 Mar 2023 22:37:11 +0100
+Message-Id: <20230303213716.2123717-30-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
 References: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1598; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=y1lJI0IICJXW8SluHHYFHg1hyYDIrzGh81N9PINLqMM=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkAmhjp66tQsp32Tk6Qo8KLzTxzNGoOrgFfcnGa r4mMukEZuiJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAJoYwAKCRDB/BR4rcrs CZlQB/48ioRXPTgnPh5dT09qUc2WkTf7BJTWik3n1ahyNaXYMcjQ3d0nlKFRw16w9BXXadbm0VV ZnWrmCboP/6Qx+ZKYqFc48pe4F1VivF8ts+AZyhivaiDJ7mMSVxnGYgKNUxOoIGX1/354LRHZYM +00MjpyuuwZjjS+WU9WsDm2AS5do7bSX+iXP9o96FOm/6ysHqYqAbgNAzFuZDKrcGIIKzEDeGy0 AKTFPsqv3/4/aXZSXHGHgJsQmBPaDWu2SHB+RoT7cWPn5hliaYYnPET/i8RUGPD7eRv4m47l9qO 2/Ul14bolNFlNq34IhiVX77zf/H2rUaNyt7p2w5cCDbT2qsc
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1511; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=4Hz0VcW4tHHMgapWfyP+rDds0Bu0FqD2STrYvV0j9V8=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkAmh0b12GJblzUyjriMtZJ0lZTdlpDxCWIOu/l 1XttkY5N9iJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAJodAAKCRDB/BR4rcrs CcbQB/47uNgTTb/5/71HWfNfOa1YEv5SqjvlmlYOtQ1ANYtN9sn1OlEEpc12vQwkhyylPPMDDfK 6Mx5Pigl96RWD5trhq9JKBXGO7KzjWVtcUPg4f8LVMRpTrlGL0rXOQRCKIRKx1WCqTG+OcqWQxE jZYX7yCJRT9gnTC8u0I0zd+qVgM2RXWwuae/QR1P6HeDVHhND2lu2pmwocxLXiRncWQ282oMvaA ixD03N15qlK0xZo3byEVkOjsLkvSpGcGSqzyh6LfsDh0vVPBA2/n7SRl4Vb6oVV+1YHrWKFQlEJ Kq+T1oUmyWDtGGo+gKIHYYwhXi7yXn5wH78HSKNlepqlkoFH
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -65,37 +65,34 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/watchdog/renesas_wdt.c | 6 ++----
+ drivers/watchdog/sa1100_wdt.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 41d58ea5eb2f..12c41d6e5cd6 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -292,14 +292,12 @@ static int rwdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
+index 82ac5d19f519..5d2df008b92a 100644
+--- a/drivers/watchdog/sa1100_wdt.c
++++ b/drivers/watchdog/sa1100_wdt.c
+@@ -229,19 +229,17 @@ static int sa1100dog_probe(struct platform_device *pdev)
  	return ret;
  }
  
--static int rwdt_remove(struct platform_device *pdev)
-+static void rwdt_remove(struct platform_device *pdev)
+-static int sa1100dog_remove(struct platform_device *pdev)
++static void sa1100dog_remove(struct platform_device *pdev)
  {
- 	struct rwdt_priv *priv = platform_get_drvdata(pdev);
- 
- 	watchdog_unregister_device(&priv->wdev);
- 	pm_runtime_disable(&pdev->dev);
+ 	misc_deregister(&sa1100dog_miscdev);
+ 	clk_disable_unprepare(clk);
+ 	clk_put(clk);
 -
 -	return 0;
  }
  
- static int __maybe_unused rwdt_suspend(struct device *dev)
-@@ -339,7 +337,7 @@ static struct platform_driver rwdt_driver = {
- 		.pm = &rwdt_pm_ops,
- 	},
- 	.probe = rwdt_probe,
--	.remove = rwdt_remove,
-+	.remove_new = rwdt_remove,
+ static struct platform_driver sa1100dog_driver = {
+ 	.driver.name = "sa1100_wdt",
+ 	.probe	  = sa1100dog_probe,
+-	.remove	  = sa1100dog_remove,
++	.remove_new	  = sa1100dog_remove,
  };
- module_platform_driver(rwdt_driver);
+ module_platform_driver(sa1100dog_driver);
  
 -- 
 2.39.1
