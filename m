@@ -2,46 +2,46 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7425C7EE30
-	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Mar 2023 21:37:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F11CC7EE33
+	for <linux-watchdog@archiver.kernel.org>; Fri,  3 Mar 2023 21:37:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbjCCVhu (ORCPT
+        id S231876AbjCCVhv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 3 Mar 2023 16:37:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48606 "EHLO
+        Fri, 3 Mar 2023 16:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231876AbjCCVhn (ORCPT
+        with ESMTP id S231846AbjCCVhn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 3 Mar 2023 16:37:43 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E995E62D8D
-        for <linux-watchdog@vger.kernel.org>; Fri,  3 Mar 2023 13:37:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ADFC62D8C
+        for <linux-watchdog@vger.kernel.org>; Fri,  3 Mar 2023 13:37:42 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5v-0000J5-9y; Fri, 03 Mar 2023 22:37:39 +0100
+        id 1pYD5w-0000MO-33; Fri, 03 Mar 2023 22:37:40 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5t-001eC5-OQ; Fri, 03 Mar 2023 22:37:37 +0100
+        id 1pYD5u-001eCO-Ie; Fri, 03 Mar 2023 22:37:38 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYD5t-001wyo-1Z; Fri, 03 Mar 2023 22:37:37 +0100
+        id 1pYD5t-001wz4-Sf; Fri, 03 Mar 2023 22:37:37 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 27/34] watchdog: rti: Convert to platform remove callback returning void
-Date:   Fri,  3 Mar 2023 22:37:09 +0100
-Message-Id: <20230303213716.2123717-28-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 31/34] watchdog: shwdt: Convert to platform remove callback returning void
+Date:   Fri,  3 Mar 2023 22:37:13 +0100
+Message-Id: <20230303213716.2123717-32-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
 References: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1648; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=y0ppS3/lHOfKcdZ+vVTZLvSg0Vcg/PYnmu6MvKULFV0=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkAmhtZfWgPjXdn1m8oF4nZv7Y/Vi5BvYiXvAWw OOWLdsZUbOJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAJobQAKCRDB/BR4rcrs CUdSB/46PdjFhSC3js+NW7hBkK8ZL/zjz4ZNST3hS6Uz/Drw1a+Ow6Pu/l4N1nAslMcuXfaeM53 Wb/lYZiumVDKRucfe723vyYsNtMN4tt6eEpki57DBJ1nPLjq1lnc7zq8vkNJoEOUxY/K/Fw1NIH WVcVYxv7eQ+RUxX2Tl3n3N4WxYdHYWO3c2d8/uSWTFfWsGB4ccUR1+2TiHEFYgFwBPye2EUthoD 7OOAIlaEZO4IKinw5qWZA8RGnc0hef78GIabSQPFfv5jgxp3x1oBJp4IdxZw90xAaYhumc9ca2q iVF8NKgHbSBl9WtSOILQhZLdTNRrshL1tugZNYr7D1EB0sx4
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1497; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=iVUZR7ZZG6sIBvoU4vG2GXDXD0MjRal6itztdA9q34o=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkAmh7kucYCkd5mkxJsFJ4CxnidglB5WX2HF1Hj qeuFs4moIyJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAJoewAKCRDB/BR4rcrs CYJiB/9ftbS9UYhXVnGC9XmcjhqLL82PxS33nTde+hvK1Gy7gecM4SM2ATiVIt0ukYhFfMPUBRc N2ozqOKcaoIChQu1xX8b0/KpFc6AaJnI5yuxqu063+jv83UE6pXYCe2uTRPuYiyc2S+OMnTf6FP QLoNtB+5+gIo9xj3Hoj4oFgWsq9aSKgC2lXMtwv6Doh6BTNUA2VdM77jfX+21wsMP7AUv3pfFjy gC+EwQChE76glCMRLHMAf+ucWHXhc4vQchraS1kU7CuZprdw8f4CLouf6CKRnLaPgifnL8laFu5 64Xg1FKb9eZH3mg7Tdh37JGlnpXygZTTq+b53CKO+UMyGDbk
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -65,39 +65,37 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/watchdog/rti_wdt.c | 6 ++----
+ drivers/watchdog/shwdt.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 6e9253761fc1..ce8f18e93aa9 100644
---- a/drivers/watchdog/rti_wdt.c
-+++ b/drivers/watchdog/rti_wdt.c
-@@ -304,15 +304,13 @@ static int rti_wdt_probe(struct platform_device *pdev)
- 	return ret;
+diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+index f55533e0e045..10f1fba78ec2 100644
+--- a/drivers/watchdog/shwdt.c
++++ b/drivers/watchdog/shwdt.c
+@@ -279,13 +279,11 @@ static int sh_wdt_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
--static int rti_wdt_remove(struct platform_device *pdev)
-+static void rti_wdt_remove(struct platform_device *pdev)
+-static int sh_wdt_remove(struct platform_device *pdev)
++static void sh_wdt_remove(struct platform_device *pdev)
  {
- 	struct rti_wdt_device *wdt = platform_get_drvdata(pdev);
+ 	watchdog_unregister_device(&sh_wdt_dev);
  
- 	watchdog_unregister_device(&wdt->wdd);
- 	pm_runtime_put(&pdev->dev);
  	pm_runtime_disable(&pdev->dev);
 -
 -	return 0;
  }
  
- static const struct of_device_id rti_wdt_of_match[] = {
-@@ -327,7 +325,7 @@ static struct platform_driver rti_wdt_driver = {
- 		.of_match_table = rti_wdt_of_match,
+ static void sh_wdt_shutdown(struct platform_device *pdev)
+@@ -299,7 +297,7 @@ static struct platform_driver sh_wdt_driver = {
  	},
- 	.probe = rti_wdt_probe,
--	.remove = rti_wdt_remove,
-+	.remove_new = rti_wdt_remove,
+ 
+ 	.probe		= sh_wdt_probe,
+-	.remove		= sh_wdt_remove,
++	.remove_new	= sh_wdt_remove,
+ 	.shutdown	= sh_wdt_shutdown,
  };
  
- module_platform_driver(rti_wdt_driver);
 -- 
 2.39.1
 
