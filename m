@@ -2,120 +2,159 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00C92C678D5
-	for <linux-watchdog@archiver.kernel.org>; Sat,  4 Mar 2023 16:24:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C7F1C678D5
+	for <linux-watchdog@archiver.kernel.org>; Sat,  4 Mar 2023 16:57:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbjCDQYO (ORCPT
+        id S229691AbjCDQ5A (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 4 Mar 2023 11:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56708 "EHLO
+        Sat, 4 Mar 2023 11:57:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbjCDQYL (ORCPT
+        with ESMTP id S229676AbjCDQ47 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 4 Mar 2023 11:24:11 -0500
+        Sat, 4 Mar 2023 11:56:59 -0500
 Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB9D11174;
-        Sat,  4 Mar 2023 08:24:10 -0800 (PST)
-Received: by mail-il1-x12c.google.com with SMTP id 4so3788360ilz.6;
-        Sat, 04 Mar 2023 08:24:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF5812F29;
+        Sat,  4 Mar 2023 08:56:58 -0800 (PST)
+Received: by mail-il1-x12c.google.com with SMTP id l2so3811343ilg.7;
+        Sat, 04 Mar 2023 08:56:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677947050;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=UsIe5Z5hRwOSr549xE297j36VOsUJE5/tQaq3CEC9RU=;
-        b=ICgnDvsyDrZ5zLAv8lwz6P7ATWpP7LpyBOVZiUH0JFWgBe2ONH3IVfIjCmE+XtrnS5
-         zsGNLqO3x4OmZ8n9aUaLGnWrpNBzz7XqD7xQWG1iw0/oJu98GpXrwtWotxifXoqxI+dN
-         9tL0xTopczCCkE0lVdoVp8qIbQKu4GLFb6j9GysYwC6pcDhjrg40bIU5dYwl+O0km4W1
-         TcrzpkRL7eLCaj5CYA+uF6WAy9L7lKik1P53CX7L5GbUpoH/e95mC2ZUokFE9uxAvsGY
-         YdwNJQxtd80rXasgya5+HiWHkxIgLeZVnimC+rlyH5HwbTLlVk793WBazdG0m0b0g2eD
-         vBGg==
+        d=gmail.com; s=20210112; t=1677949018;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NHhEJVEVzLbDVPR+ROK20RK4K6MlBOfgj289iHs9gU8=;
+        b=Y1aqvHe5PU4IB69r3bRAP6PbuXYJyil0hzZH2e1oumTsiO0cpIgcSwKJARNBVv+sZ+
+         wlMkTK3Hfph0qZSPdFkghXdW2uNM+y75lQilOOdUcwXRF2kRKFqrrBldQCRIx2uip2Uq
+         vGfb83a1tDsYGAfdhp18v3UE27yk6YrsceuUqKXAbbyfTvIvcR8FniaBd0vCsJPRq6kz
+         RrTEo4Pavqf6fVgWVELGg1LaskPAxolDuuLehIQY5oEHwhpX45MDHjEOmmYgBckge/Qd
+         iSpJcVVZcDrlwQfv9cJz82JlGVcHRQb7Gl14Eol89njt/HVBaQraUFPVJal3vNn1u6G/
+         1y9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677947050;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UsIe5Z5hRwOSr549xE297j36VOsUJE5/tQaq3CEC9RU=;
-        b=Ph9Cu1RuvBWK3wHVGWJ4sHo1YKvTeR3gXr41zcnI4zqT3R0+TqWGbEdulczekIGu0V
-         AAZQ42G5+2kGDDLNqtexbPvPiRMcNiSUHORPLbbSjIScudVMl1ggLONW1RJNZxFJc3X7
-         dOUj7JUhS6vSTsMyAWHzcBlN0JfuVFe7kL0/y+v6FDP+Fwy+aPp6EEkRraZrTOk3avGK
-         e84HGT4lKrB7ViHevQda5cOkh+LpoSn3AYYZlEVtNGU1FkGYzve8+0jj8hpwSuMooPCv
-         TA/QqCgcA8UjWMAx01VQz8guPA8+mEz3CueqGhgIvKAsEbJ4E9S9hab+XS1XhKxpQkEA
-         ZCIw==
-X-Gm-Message-State: AO0yUKU5ewaQlBPJ7TD1SVvhNJn9zZzEciLkyQebJHAJjD6iBc+7hsTF
-        XV7eUdJmG63dtaWZ/XDvCPM=
-X-Google-Smtp-Source: AK7set9lKjx9VdzxEhocK/D2i2awazq3VEo2G0g6puAJ73I89QlJDOpLYfl3ztBKX6Lp22pbSUuWjw==
-X-Received: by 2002:a05:6e02:2164:b0:318:aac9:3e55 with SMTP id s4-20020a056e02216400b00318aac93e55mr4577469ilv.17.1677947050051;
-        Sat, 04 Mar 2023 08:24:10 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o22-20020a02c6b6000000b003b4dc9ca57asm1735338jan.13.2023.03.04.08.24.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 04 Mar 2023 08:24:09 -0800 (PST)
+        d=1e100.net; s=20210112; t=1677949018;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=NHhEJVEVzLbDVPR+ROK20RK4K6MlBOfgj289iHs9gU8=;
+        b=DVtOGd61FX93FewmqKGrAZD2XDRz0IPFHjQOoCeXFjLA7wkNDeWtU6+axDCAYXqpas
+         4aUd5+lEM9ivOUn0S0LrtqXnjYzksP80YYxwMOazWVCI4VL31ILVB3ugu1QZakSxE7yR
+         HE/Xb3f8ShlecKqQboBtm27E3nzOyvlBk1hYDWqoPqWd29JmcNW+TrWAFyKypSiSF9MN
+         cdJVoHrS94XtzXPyanZGjtOYtfQUib39wUf76TqAXZH73/fyxLOyqipYXHAgCBlEfOS0
+         /NYx3CuDxl3txF9x3uKdJzxkdpn8G43DakRCLnVYVcm4xQB2Wwk9oFuf99rjS4taqAcA
+         ldlQ==
+X-Gm-Message-State: AO0yUKUx/3O2haBiB7CvaAPrhI9R4L6Q/e1NH0CUY+UObY8TJxJqnccP
+        5X8/EPYuAxC4hNSUtaPQVpg=
+X-Google-Smtp-Source: AK7set8HNAYpV75qv/aHc3DCVpUZt9UazbUxX9z1XkSHC4ogijZZcyZzS+4Zk0HVYuTj3IRbSOWzXA==
+X-Received: by 2002:a92:c54f:0:b0:316:dcfd:1b6e with SMTP id a15-20020a92c54f000000b00316dcfd1b6emr5001055ilj.30.1677949018184;
+        Sat, 04 Mar 2023 08:56:58 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m2-20020a056638224200b003c4f55da7easm1712349jas.45.2023.03.04.08.56.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Mar 2023 08:56:57 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <636f01fb-a795-a43a-d57d-88e8228c4bc1@roeck-us.net>
-Date:   Sat, 4 Mar 2023 08:24:08 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH -next] watchdog: sbsa: Test WDOG_HW_RUNNING bit in suspend
- and resume
-Content-Language: en-US
-To:     Wang Wensheng <wangwensheng4@huawei.com>, wim@linux-watchdog.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     xuqiang36@huawei.com
-References: <20230301113702.76437-1-wangwensheng4@huawei.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230301113702.76437-1-wangwensheng4@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Alim Akhtar <alim.akhtar@samsung.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 2/2] watchdog: s3c2410_wdt: Use devm_add_action_or_reset() to disable watchdog
+Date:   Sat,  4 Mar 2023 08:56:53 -0800
+Message-Id: <20230304165653.2179835-2-linux@roeck-us.net>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230304165653.2179835-1-linux@roeck-us.net>
+References: <20230304165653.2179835-1-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 3/1/23 03:37, Wang Wensheng wrote:
-> If the sbsa_gwdt is enabled by BIOS, the kernel set WDOG_HW_RUNNING bit
-> and keep it alive before anyone else would open it. When system suspend,
-> the sbsa_gwdt would not be disabled because WDOG_ACTIVE is not set. Then
-> the sbsa_gwdt would reach timeout since no one touch it during system
-> suspend.
-> 
-> To solve this, just test WDOG_HW_RUNNING bit in suspend and disable the
-> sbsa_gwdt if the bit is set, then reopen it accordingly in resume
-> process.
-> 
-> Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Use devm_add_action_or_reset() to disable the watchdog when the driver
+is removed to simplify the code. With this in place, we can use
+devm_watchdog_register_device() to register the watchdog, and the removal
+function is no longer necessary.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/s3c2410_wdt.c | 33 +++++++++++----------------------
+ 1 file changed, 11 insertions(+), 22 deletions(-)
 
-Prerequisite: "watchdog: core: Always set WDOG_HW_RUNNING when starting watchdog"
-
-Guenter
-
-> ---
->   drivers/watchdog/sbsa_gwdt.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
-> index 9791c74aebd4..60875a710e43 100644
-> --- a/drivers/watchdog/sbsa_gwdt.c
-> +++ b/drivers/watchdog/sbsa_gwdt.c
-> @@ -360,7 +360,7 @@ static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
->   {
->   	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
->   
-> -	if (watchdog_active(&gwdt->wdd))
-> +	if (watchdog_hw_running(&gwdt->wdd))
->   		sbsa_gwdt_stop(&gwdt->wdd);
->   
->   	return 0;
-> @@ -371,7 +371,7 @@ static int __maybe_unused sbsa_gwdt_resume(struct device *dev)
->   {
->   	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
->   
-> -	if (watchdog_active(&gwdt->wdd))
-> +	if (watchdog_hw_running(&gwdt->wdd))
->   		sbsa_gwdt_start(&gwdt->wdd);
->   
->   	return 0;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index a1fcb79b0b7c..58b262ca4e88 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -623,6 +623,11 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev)
+ 	return variant;
+ }
+ 
++static void s3c2410wdt_wdt_disable_action(void *data)
++{
++	s3c2410wdt_enable(data, false);
++}
++
+ static int s3c2410wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -724,13 +729,17 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 		s3c2410wdt_stop(&wdt->wdt_device);
+ 	}
+ 
+-	ret = watchdog_register_device(&wdt->wdt_device);
++	ret = devm_watchdog_register_device(dev, &wdt->wdt_device);
+ 	if (ret)
+ 		return ret;
+ 
+ 	ret = s3c2410wdt_enable(wdt, true);
+ 	if (ret < 0)
+-		goto err_unregister;
++		return ret;
++
++	ret = devm_add_action_or_reset(dev, s3c2410wdt_wdt_disable_action, wdt);
++	if (ret)
++		return ret;
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+@@ -744,25 +753,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 		 (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
+ 
+ 	return 0;
+-
+- err_unregister:
+-	watchdog_unregister_device(&wdt->wdt_device);
+-
+-	return ret;
+-}
+-
+-static int s3c2410wdt_remove(struct platform_device *dev)
+-{
+-	int ret;
+-	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
+-
+-	ret = s3c2410wdt_enable(wdt, false);
+-	if (ret < 0)
+-		return ret;
+-
+-	watchdog_unregister_device(&wdt->wdt_device);
+-
+-	return 0;
+ }
+ 
+ static void s3c2410wdt_shutdown(struct platform_device *dev)
+@@ -817,7 +807,6 @@ static DEFINE_SIMPLE_DEV_PM_OPS(s3c2410wdt_pm_ops,
+ 
+ static struct platform_driver s3c2410wdt_driver = {
+ 	.probe		= s3c2410wdt_probe,
+-	.remove		= s3c2410wdt_remove,
+ 	.shutdown	= s3c2410wdt_shutdown,
+ 	.id_table	= s3c2410_wdt_ids,
+ 	.driver		= {
+-- 
+2.39.1
 
