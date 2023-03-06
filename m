@@ -2,47 +2,45 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5AB1C6FA99
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Mar 2023 17:10:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86CF1C64EC4
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Mar 2023 17:10:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbjCFRKi (ORCPT
+        id S229764AbjCFRKi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Mon, 6 Mar 2023 12:10:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbjCFRKU (ORCPT
+        with ESMTP id S230297AbjCFRKU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 6 Mar 2023 12:10:20 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A8674C35
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Mar 2023 09:09:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8B02FCFD
+        for <linux-watchdog@vger.kernel.org>; Mon,  6 Mar 2023 09:09:43 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEKh-0004gY-Ob; Mon, 06 Mar 2023 18:09:07 +0100
+        id 1pZEKi-0004gX-8n; Mon, 06 Mar 2023 18:09:08 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEKh-002Ifa-3q; Mon, 06 Mar 2023 18:09:07 +0100
+        id 1pZEKh-002IfX-2T; Mon, 06 Mar 2023 18:09:07 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEKg-002l00-Cx; Mon, 06 Mar 2023 18:09:06 +0100
+        id 1pZEKg-002kzu-0t; Mon, 06 Mar 2023 18:09:06 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: [PATCH 2/3] watchdog: rn5t618: Simplify using devm_watchdog_register_device()
-Date:   Mon,  6 Mar 2023 18:09:00 +0100
-Message-Id: <20230306170901.2232323-3-u.kleine-koenig@pengutronix.de>
+        patches@opensource.cirrus.com, kernel@pengutronix.de
+Subject: [PATCH 0/3] watchdog: Simplify using devm_watchdog_register_device()
+Date:   Mon,  6 Mar 2023 18:08:58 +0100
+Message-Id: <20230306170901.2232323-1-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230306170901.2232323-1-u.kleine-koenig@pengutronix.de>
-References: <20230306170901.2232323-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1160; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=bq6NqBPM2LpQjqHH+4WiBPfT6AZw0afyjHDglX+lfrE=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkBh4kcQSPD/UEwhLVFLaxTT2V0AkW1LUmJOVjp Jsf4kObGEOJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAYeJAAKCRDB/BR4rcrs CV5nB/9rkdIe4mcbTBAj5LhKKdzS5BaKKxVCC+gyNSSR3xuNG6MBORABaZ5buKQv10Lm3jnzS0y qb64s39Rg0YbNk2jtZTgtbH+rcgO/+pPQBPa1IGIDTGXLLR4XKokj5crVQ6w93U/JeYjoszXIA9 7NXr7Evb+v1yk8ABRo+YeFpO27W4igey+FqvpxKKN4kBw155WRoUONTS3LahX37RxHGjxXRL/kJ 32rT2CcUakFk8E3orvmMof0EToPtDPz8itzcOmTb25YbBi6hNPsBTWGEfCkAac/gVuMIoCLr/wn 28023F34fYeC9MOSB0Ujb2xpPKRyZULRxpaMyAmYY4stp2hl
+X-Developer-Signature: v=1; a=openpgp-sha256; l=660; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=6EtYMqi1fiROjY+lQ+pajMbUbJLefC0foXaL6QV83mQ=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkBh4bwGrLG15FzeO0fAFcq2Ni0hVbnG+KiqcKn dRSargLaqSJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAYeGwAKCRDB/BR4rcrs CZ75B/9UVWrm3WUTgoOPxmbIxxh0MRzudotrTjOICBkSgWfJ5etf0PkEEOADba79JicslaPcXbO 4Yvo5Mzxu/Lv2llE1mZuloVoGB6tGR1mM+bbb+cabgEA2pIpgwzP2T4dNzKcCRBHEu/i38lXYxg 7pQLi3O/nZWq484anLxAwUGPA6QSysBx2IJlihX1oBbgg2tk5/eRzHnH0nalO4Hq5oQihj3d0tG N4cUnzjoeH5c7SJw/PyXSmebJ75TBEWnn54M67rco70v/cFAhGf0kYE7+fHSXMxYKjwAsc6L2+U 1at+k1XU1qdIKo1ErhM+S3A97IS2EeFhcfJj2H70Ic82ohvv
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -53,42 +51,27 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This allows to drop the .remove() function as it only exists to
-unregister the watchdog device which is now done in a callback
-registered by devm_watchdog_register_device().
+Hello,
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
+this series converts three drivers to use
+devm_watchdog_register_device(). This allows to drop their remove
+callback.
+
+Best regards
+Uwe
+
+Uwe Kleine-König (3):
+  watchdog: bcm47xx: Simplify using devm_watchdog_register_device()
+  watchdog: rn5t618: Simplify using devm_watchdog_register_device()
+  watchdog: wm8350: Simplify using devm_watchdog_register_device()
+
+ drivers/watchdog/bcm47xx_wdt.c | 12 +-----------
  drivers/watchdog/rn5t618_wdt.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/watchdog/wm8350_wdt.c  |  9 +--------
+ 3 files changed, 3 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-index 40d8ebd8c0ac..c0aee627ff3b 100644
---- a/drivers/watchdog/rn5t618_wdt.c
-+++ b/drivers/watchdog/rn5t618_wdt.c
-@@ -178,21 +178,11 @@ static int rn5t618_wdt_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, wdt);
- 
--	return watchdog_register_device(&wdt->wdt_dev);
--}
--
--static int rn5t618_wdt_remove(struct platform_device *pdev)
--{
--	struct rn5t618_wdt *wdt = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&wdt->wdt_dev);
--
--	return 0;
-+	return devm_watchdog_register_device(&wdt->wdt_dev);
- }
- 
- static struct platform_driver rn5t618_wdt_driver = {
- 	.probe = rn5t618_wdt_probe,
--	.remove = rn5t618_wdt_remove,
- 	.driver = {
- 		.name	= DRIVER_NAME,
- 	},
+
+base-commit: fe15c26ee26efa11741a7b632e9f23b01aca4cc6
 -- 
 2.39.1
 
