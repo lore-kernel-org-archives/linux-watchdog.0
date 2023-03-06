@@ -2,65 +2,49 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69A41C61DA4
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Mar 2023 17:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31D37C61DA4
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Mar 2023 17:10:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbjCFRGy (ORCPT
+        id S229702AbjCFRKh (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Mar 2023 12:06:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48556 "EHLO
+        Mon, 6 Mar 2023 12:10:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230329AbjCFRG2 (ORCPT
+        with ESMTP id S229811AbjCFRKT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Mar 2023 12:06:28 -0500
+        Mon, 6 Mar 2023 12:10:19 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB05764A8E
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Mar 2023 09:05:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD532E826
+        for <linux-watchdog@vger.kernel.org>; Mon,  6 Mar 2023 09:09:42 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEHO-0003z0-4j; Mon, 06 Mar 2023 18:05:42 +0100
+        id 1pZEKh-0004gW-Lc; Mon, 06 Mar 2023 18:09:07 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEHH-002If9-91; Mon, 06 Mar 2023 18:05:35 +0100
+        id 1pZEKh-002IfU-14; Mon, 06 Mar 2023 18:09:07 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pZEHG-002kzA-Js; Mon, 06 Mar 2023 18:05:34 +0100
-Date:   Mon, 6 Mar 2023 18:05:34 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Doug Anderson <dianders@chromium.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc:     kernel@pengutronix.de, linux-samsung-soc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, patches@opensource.cirrus.com,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        linux-rpi-kernel@lists.infradead.org,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 00/34] watchdog: Convert to platform remove callback
- returning void
-Message-ID: <20230306170534.vap4z24rbexbjj76@pengutronix.de>
-References: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
+        id 1pZEKg-002kzx-6q; Mon, 06 Mar 2023 18:09:06 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: [PATCH 1/3] watchdog: bcm47xx: Simplify using devm_watchdog_register_device()
+Date:   Mon,  6 Mar 2023 18:08:59 +0100
+Message-Id: <20230306170901.2232323-2-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230306170901.2232323-1-u.kleine-koenig@pengutronix.de>
+References: <20230306170901.2232323-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6lk6n3hldynfzkpt"
-Content-Disposition: inline
-In-Reply-To: <20230303213716.2123717-1-u.kleine-koenig@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1386; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=JOxaeQ/qlp8PNCw4eRsoKrCgQTxAkZTtmbv1GqXssTQ=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkBh4fDiTTzV3ULvk7eUHClBWcQALKE1SxTxzlm xHjedvRZNSJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAYeHwAKCRDB/BR4rcrs CV2jB/96D03Mg0dYUOOKgv8Ra1VvtupViW7kzFZNPS1pr+d0ocjF3apez4hdY/GEZ984H+io3zH EZrDpnudCfbd20WG5FnpkAsxlzKyqo2/Wt+HU8IlQnILqcWitxOF2E6mW7QEJmQrPd1aR2/Sw4+ mHy3+ad3qvnY/72Lt9dSQX5ZhLXFGeoapQCDqey9ZYyqhdLZKiRPcQKGNnwnk4QVXogOhTOpAcJ CLknVobF4mKnjfhBZ3AeN00zVTrDkEzJjeQV1+luSH4NHg7w3bLHUAvcKP9oTIS3uNtQ8XomsAI flYWK0ymYzv1UDQKN7gEKU2eVG0IsoKfVWn1dyguVmULsWcD
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
 X-SA-Exim-Mail-From: ukl@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
@@ -69,73 +53,50 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+This allows to drop the .remove() function as it only exists to
+unregister the watchdog device which is now done in a callback
+registered by devm_watchdog_register_device().
 
---6lk6n3hldynfzkpt
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/bcm47xx_wdt.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-Hello,
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index 05425c1dfd4c..8698ef94dddf 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -202,7 +202,7 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_restart_priority(&wdt->wdd, 64);
+ 	watchdog_stop_on_reboot(&wdt->wdd);
+ 
+-	ret = watchdog_register_device(&wdt->wdd);
++	ret = devm_watchdog_register_device(&wdt->wdd);
+ 	if (ret)
+ 		goto err_timer;
+ 
+@@ -218,21 +218,11 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int bcm47xx_wdt_remove(struct platform_device *pdev)
+-{
+-	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
+-
+-	watchdog_unregister_device(&wdt->wdd);
+-
+-	return 0;
+-}
+-
+ static struct platform_driver bcm47xx_wdt_driver = {
+ 	.driver		= {
+ 		.name	= "bcm47xx-wdt",
+ 	},
+ 	.probe		= bcm47xx_wdt_probe,
+-	.remove		= bcm47xx_wdt_remove,
+ };
+ 
+ module_platform_driver(bcm47xx_wdt_driver);
+-- 
+2.39.1
 
-[dropping Leela Krishna Amudala from the list of recipents as their
-email address bounces]
-
-On Fri, Mar 03, 2023 at 10:36:42PM +0100, Uwe Kleine-K=F6nig wrote:
-> this patch series adapts the platform drivers below drivers/watchdog to
-> use the .remove_new() callback. Compared to the traditional .remove()
-> callback .remove_new() returns no value. This is a good thing because
-> the driver core doesn't (and cannot) cope for errors during remove. The
-> only effect of a non-zero return value in .remove() is that the driver
-> core emits a warning. The device is removed anyhow and an early return
-> from .remove() usually yields a resource leak. One driver suffering from
-> this problem (s3c2410) is fixed by the first patch.
->=20
-> By changing the remove callback to return void driver authors cannot
-> reasonably (but wrongly) assume any more that there happens some kind of
-> cleanup later.
->=20
-> All watchdog drivers but the above mentioned one returned zero
-> unconditionally in their remove callback, so they could all be converted
-> trivially to .remove_new().
->=20
-> Note that this series depends on commit 5c5a7680e67b ("platform: Provide
-> a remove callback that returns no value") that is already in Linus' tree
-> but not yet included in a tagged version.
-
-This is fixed now, v6.3-rc1 is suitable as a base for this series.
-
-Guenter pointed out that for some drivers it is possible to make use of
-devm_watchdog_register_device() and drop the remove callback completely.
-Also there is an alternative series that gets rid of s3c2410's remove
-callback.
-
-I'll send out a series converting the three drivers to
-devm_watchdog_register_device() as Guenter suggested. To apply the
-remainder of this series you might want to do:
-
-	b4 am -l -P 2-7,9-25,27,29-33 20230303213716.2123717-1-u.kleine-koenig@pen=
-gutronix.de
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---6lk6n3hldynfzkpt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmQGHVsACgkQwfwUeK3K
-7AkjxAf/ay58zUveg62ekFfp2EWzQLcZ/rgoftXI9IlMaCupCSIn7RrN1sCI2ujw
-TDxuC3JhS4wWOpkmRc0b0cRTdYXZdMxY5YSCbDJ63J94pr5mJmh0fXstr9pEfhmP
-gLtcIM3I5Dv18X6tMBAu6KxEOgBq2ABiOpkLatLDNFsAsES2hDN1RSmFsozuIBsS
-XlP4wsQvCAxsa0zpQx+lZ58NR0ySwwaWTRNlpm0vR6aOJworSQu0PuPizK2z6dET
-L7OFiZJG82Og1Jq+nv8MZ3Wmw+6V4XupfkeCNetqQSJz1cq6fOTJmWCfBzWZPkjj
-3v78LA8gRjJblfMeJ1VBaFfkIwMuEA==
-=qlX8
------END PGP SIGNATURE-----
-
---6lk6n3hldynfzkpt--
