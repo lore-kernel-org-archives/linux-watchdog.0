@@ -2,189 +2,146 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D784C61DA4
-	for <linux-watchdog@archiver.kernel.org>; Sun,  5 Mar 2023 14:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC1DC61DA4
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Mar 2023 09:09:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229650AbjCEObN (ORCPT
+        id S229700AbjCFJJv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 5 Mar 2023 09:31:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56078 "EHLO
+        Mon, 6 Mar 2023 04:09:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229604AbjCEObN (ORCPT
+        with ESMTP id S229738AbjCFJJq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 5 Mar 2023 09:31:13 -0500
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C340510271;
-        Sun,  5 Mar 2023 06:31:11 -0800 (PST)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-172afa7bee2so8716484fac.6;
-        Sun, 05 Mar 2023 06:31:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678026671;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=iLNqvkQlPnIR/APHKTv2kM9g4sr2SoXTzXR+UI/Z6gI=;
-        b=FmdRV5PKZ//h/svqkuQi4Z3pnEO4T8hnizDPFcF1nb0jbtc1uxvEIGlX6+SDpLCx9N
-         gFRhfv1WRdUx02lj7vH5YNdjYSqRuhnV5FclN+0K00i4Kxg6SXtepLQu6GrUY50C832i
-         EiF4S+jA1g6KRw6wi3OpA93p9ceu1l+M93NgJBCsrcWAl567xgC9/s0Ff+aCOmdfRuwi
-         XzC+LXGQigsKbQZKxgJaYUwS3OnDP9Zr2NEWF57dSY3fSmHX9imWNuhsp6ZOjPIVq5X/
-         B0uRWQGZQHP+nUkujCJGH6y/clIR0QpNXqztzMXa184g+LrjlNF5louIAnNGQi3DO8IV
-         3YGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678026671;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=iLNqvkQlPnIR/APHKTv2kM9g4sr2SoXTzXR+UI/Z6gI=;
-        b=wHSrLtxI5mLsZu3P419vHyVGLCDPgQ+KmXtCIzh+RePc3SviOInCjvRiPvQtRUUqM2
-         uQ7X/a5gxhRH3ZfwCEjYdfJG+Wc7a7FUWb4hHK6U3z5F0wuD2o9zUxMu6YA/hW0f+Hnp
-         Tn9WFsptYL7PPBFTptBE1JlcOmNU3k4Yq8KQT6RIlT+YHY4HzfPu6inwv7FFpXT8eBoE
-         l2FjgvwBB6ljE0WT9jyTK6QBQoNWF2ITpq+QeFHczjfxmWOM7w23O3p12B0ZiN0CJJ5K
-         m8veODXL15Wi3jpFBglS39yiWxguGnPXDuixCnCKPEc74kVwgiTGckX0nmi92hmyuovi
-         G4hw==
-X-Gm-Message-State: AO0yUKVb+JMt9xHoP5H0+6yCXRe4d0u+mWFqUsBktm+ftX+jNb17MQpY
-        OzrmDpb9HW1LysvUP42jPsU=
-X-Google-Smtp-Source: AK7set/T3JLL8ZmcIt8S0a9GBjZH2KGWRQJeefAPX/9NhUh+844MYFCz8o3Zd4hCx0UMawdbkx79CA==
-X-Received: by 2002:a05:6870:14d5:b0:172:5a8b:b43c with SMTP id l21-20020a05687014d500b001725a8bb43cmr4834291oab.49.1678026670996;
-        Sun, 05 Mar 2023 06:31:10 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u10-20020a4ae68a000000b00524f47b4682sm2915395oot.10.2023.03.05.06.31.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Mar 2023 06:31:10 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sun, 5 Mar 2023 06:31:08 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        Mon, 6 Mar 2023 04:09:46 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFF11FD6
+        for <linux-watchdog@vger.kernel.org>; Mon,  6 Mar 2023 01:09:45 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pZ6qV-0006Z3-Ai; Mon, 06 Mar 2023 10:09:27 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pZ6qS-002D7e-Gd; Mon, 06 Mar 2023 10:09:24 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pZ6qR-002coP-R6; Mon, 06 Mar 2023 10:09:23 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     Alim Akhtar <alim.akhtar@samsung.com>,
         linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: s3c2410_wdt: Use Use
- devm_clk_get[_optional]_enabled() helpers
-Message-ID: <891023d7-9510-445e-9053-ad5c0398d350@roeck-us.net>
-References: <20230304165653.2179835-1-linux@roeck-us.net>
- <93d115a2-702d-7d68-cd88-98f1c9f03f95@wanadoo.fr>
- <431a8ae1-54a7-e71a-484d-cab618a2a1c4@roeck-us.net>
- <20230305111500.jvass6ymkity4nnd@pengutronix.de>
+        linux-samsung-soc@vger.kernel.org, kernel@pengutronix.de,
+        linux-kernel@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 3/3] watchdog: s3c2410_wdt: Simplify using dev_err_probe()
+Date:   Mon,  6 Mar 2023 10:09:19 +0100
+Message-Id: <20230306090919.2206871-4-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230306090919.2206871-1-u.kleine-koenig@pengutronix.de>
+References: <891023d7-9510-445e-9053-ad5c0398d350@roeck-us.net>
+ <20230306090919.2206871-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3168; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=X99umvAVl7VrA7sYL0/YZrxlrH/9RZb/gUEAyYgz4uU=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkBa2651XONejSdHIex1gpZ2WT2RCV+XEY+Xe+J T1AhkqiZr+JATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAWtugAKCRDB/BR4rcrs CZwTCACEC/Xx8sMzeOS/919McZTmtZCMZTSQZJF8VXu/vJkfazCTqqaJ0cRrzUpgs6oemPxQVTH 3hPG3At3UPxAOGThxdkGKE0uBit4WDpMcYJ1KyGOY6pZBTrdotzHTMj/RBjVIIVM+evpCgdj6/A t5Y7awPlj1F90mJSUUGO8Tk1LfSX+QSV8gSjFDWE0i79jGJRxohsJw214MJroqnATLvgCgsddY1 R17AsqrKGE4oq6B1aXWOiUeaVoztxtoeoEfBrMsF1vW2LXcaJD44Q30ynT0EjbO6pP+CmQQSM8C IJc0ms4m1EndJ+sn5KxC4fc9TSjb7rL22lW9H5k0KtuDvYmu
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230305111500.jvass6ymkity4nnd@pengutronix.de>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Mar 05, 2023 at 12:15:00PM +0100, Uwe Kleine-König wrote:
-> Hello Guenter,
-> 
-> On Sat, Mar 04, 2023 at 02:10:47PM -0800, Guenter Roeck wrote:
-> > On 3/4/23 13:46, Christophe JAILLET wrote:
-> > > Le 04/03/2023 à 17:56, Guenter Roeck a écrit :
-> > > > The devm_clk_get[_optional]_enabled() helpers:
-> > > >      - call devm_clk_get[_optional]()
-> > > >      - call clk_prepare_enable() and register what is needed in order to
-> > > >        call clk_disable_unprepare() when needed, as a managed resource.
-> > > > 
-> > > > This simplifies the code and avoids the calls to clk_disable_unprepare().
-> > > > 
-> > > > While at it, use dev_err_probe consistently, and use its return value
-> > > > to return the error code.
-> > > > 
-> > > > Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> > > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > > > ---
-> > > >   drivers/watchdog/s3c2410_wdt.c | 45 +++++++---------------------------
-> > > >   1 file changed, 9 insertions(+), 36 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> > > > index 200ba236a72e..a1fcb79b0b7c 100644
-> > > > --- a/drivers/watchdog/s3c2410_wdt.c
-> > > > +++ b/drivers/watchdog/s3c2410_wdt.c
-> > > > @@ -661,35 +661,17 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
-> > > >       if (IS_ERR(wdt->reg_base))
-> > > >           return PTR_ERR(wdt->reg_base);
-> > > > -    wdt->bus_clk = devm_clk_get(dev, "watchdog");
-> > > > -    if (IS_ERR(wdt->bus_clk)) {
-> > > > -        dev_err(dev, "failed to find bus clock\n");
-> > > > -        return PTR_ERR(wdt->bus_clk);
-> > > > -    }
-> > > > -
-> > > > -    ret = clk_prepare_enable(wdt->bus_clk);
-> > > > -    if (ret < 0) {
-> > > > -        dev_err(dev, "failed to enable bus clock\n");
-> > > > -        return ret;
-> > > > -    }
-> > > > +    wdt->bus_clk = devm_clk_get_enabled(dev, "watchdog");
-> > > > +    if (IS_ERR(wdt->bus_clk))
-> > > > +        return dev_err_probe(dev, PTR_ERR(wdt->bus_clk), "failed to get bus clock\n");
-> > > >       /*
-> > > >        * "watchdog_src" clock is optional; if it's not present -- just skip it
-> > > >        * and use "watchdog" clock as both bus and source clock.
-> > > >        */
-> > > > -    wdt->src_clk = devm_clk_get_optional(dev, "watchdog_src");
-> > > > -    if (IS_ERR(wdt->src_clk)) {
-> > > > -        dev_err_probe(dev, PTR_ERR(wdt->src_clk),
-> > > > -                  "failed to get source clock\n");
-> > > > -        ret = PTR_ERR(wdt->src_clk);
-> > > > -        goto err_bus_clk;
-> > > > -    }
-> > > > -
-> > > > -    ret = clk_prepare_enable(wdt->src_clk);
-> > > > -    if (ret) {
-> > > > -        dev_err(dev, "failed to enable source clock\n");
-> > > > -        goto err_bus_clk;
-> > > > -    }
-> > > > +    wdt->src_clk = devm_clk_get_optional_enabled(dev, "watchdog_src");
-> > > > +    if (IS_ERR(wdt->src_clk))
-> > > > +        return dev_err_probe(dev, PTR_ERR(wdt->src_clk), "failed to get source clock\n");
-> > > >       wdt->wdt_device.min_timeout = 1;
-> > > >       wdt->wdt_device.max_timeout = s3c2410wdt_max_timeout(wdt);
-> > > > @@ -710,7 +692,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
-> > > >                    S3C2410_WATCHDOG_DEFAULT_TIME);
-> > > >           } else {
-> > > >               dev_err(dev, "failed to use default timeout\n");
-> > > > -            goto err_src_clk;
-> > > > +            return ret;
-> > > 
-> > > Hi,
-> > > 
-> > > Nit: this also could be "return dev_err_probe()"
-> > > 
-> > > >           }
-> > > >       }
-> > > > @@ -718,7 +700,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
-> > > >                      pdev->name, pdev);
-> > > >       if (ret != 0) {
-> > > >           dev_err(dev, "failed to install irq (%d)\n", ret);
-> > > > -        goto err_src_clk;
-> > > > +        return ret;
-> > > 
-> > > Nit: this also could be "return dev_err_probe()"
-> > > 
-> > 
-> > The primary reason to call dev_err_probe() is that the error may be
-> > -EPROBE_DEFER, in which case the error message is suppressed.
-> > That is not the case for those two functions; they never return
-> > -EPROBE_DEFER. Calling dev_err_probe() would give the false impression
-> > that the functions _might_ return -EPROBE_DEFER.
-> 
-> That is subjective. In my book dev_err_probe() handling -EPROBE_DEFER is
-> only one aspect. Another is that using it allows to have return and error
-> message in a single line and also that if already other exit paths use
-> it to get a consistent style for the emitted messages. Having said that
-> *I* wouldn't assume that the previous call might return -EPROBE_DEFER
-> just because dev_err_probe() is used.
-> 
-> Having said that, I also don't think there is much harm if someone
-> thinks that a given function (here devm_request_irq()) might return
-> -EPROBE_DEFER.
-> 
+Make use of dev_err_probe() also for error paths that don't have to
+handle -EPROBE_DEFER. While the code handing -EPROBE_DEFER isn't used
+for these error paths, it still simpler as it cares for pretty printing
+the error code and usually needs on line less to use as it combines
+message emitting and error returning.
 
-I guess we'll have to agree to disagree.
+Apart from the reduction of line count, scripts/bloat-o-meter reports
+for this change (on an ARCH=arm allmodconfig build):
 
-Guenter
+	add/remove: 1/1 grow/shrink: 1/2 up/down: 32/-144 (-112)
+
+Signed-off-by: Uwe Kleine-KÃ¶nig <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/s3c2410_wdt.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 93df6ee331a0..c3b50266deab 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -616,10 +616,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 		ret = of_property_read_u32(dev->of_node,
+ 					   "samsung,cluster-index", &index);
+-		if (ret) {
+-			dev_err(dev, "error %pe: failed to get cluster index\n", ERR_PTR(-EINVAL));
+-			return -EINVAL;
+-		}
++		if (ret)
++			return dev_err_probe(dev, -EINVAL, "failed to get cluster index\n");
+ 
+ 		switch (index) {
+ 		case 0:
+@@ -631,8 +629,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 				variant = &drv_data_exynosautov9_cl1;
+ 			break;
+ 		default:
+-			dev_err(dev, "error %pe: wrong cluster index: %u\n", ERR_PTR(-EINVAL), index);
+-			return -EINVAL;
++			return dev_err_probe(dev, -EINVAL, "wrong cluster index: %u\n", index);
+ 		}
+ 	}
+ #endif
+@@ -641,10 +638,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	if (wdt->drv_data->quirks & QUIRKS_HAVE_PMUREG) {
+ 		wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
+ 						"samsung,syscon-phandle");
+-		if (IS_ERR(wdt->pmureg)) {
+-			dev_err(dev, "error %pe: syscon regmap lookup failed.\n", wdt->pmureg);
+-			return PTR_ERR(wdt->pmureg);
+-		}
++		if (IS_ERR(wdt->pmureg))
++			return dev_err_probe(dev, PTR_ERR(wdt->pmureg), "syscon regmap lookup failed.\n");
+ 	}
+ 
+ 	wdt_irq = platform_get_irq(pdev, 0);
+@@ -682,21 +677,17 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
+ 					       S3C2410_WATCHDOG_DEFAULT_TIME);
+-		if (ret == 0) {
++		if (ret == 0)
+ 			dev_warn(dev, "tmr_margin value out of range, default %d used\n",
+ 				 S3C2410_WATCHDOG_DEFAULT_TIME);
+-		} else {
+-			dev_err(dev, "error: %pe: failed to use default timeout\n", ERR_PTR(ret));
+-			return ret;
+-		}
++		else
++			return dev_err_probe(dev, ret, "failed to use default timeout\n");
+ 	}
+ 
+ 	ret = devm_request_irq(dev, wdt_irq, s3c2410wdt_irq, 0,
+ 			       pdev->name, pdev);
+-	if (ret != 0) {
+-		dev_err(dev, "error: %pe: failed to install irq\n", ERR_PTR(ret));
+-		return ret;
+-	}
++	if (ret != 0)
++		return dev_err_probe(dev, ret, "failed to install irq\n");
+ 
+ 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
+ 	watchdog_set_restart_priority(&wdt->wdt_device, 128);
+-- 
+2.39.1
+
