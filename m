@@ -2,139 +2,82 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 963E9C678D4
-	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Mar 2023 08:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06631C6FA99
+	for <linux-watchdog@archiver.kernel.org>; Tue,  7 Mar 2023 12:01:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230019AbjCGISD (ORCPT
+        id S229682AbjCGMBl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 7 Mar 2023 03:18:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53534 "EHLO
+        Tue, 7 Mar 2023 07:01:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbjCGIR4 (ORCPT
+        with ESMTP id S231187AbjCGMBi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2023 03:17:56 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8284FF34
-        for <linux-watchdog@vger.kernel.org>; Tue,  7 Mar 2023 00:17:43 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pZSVk-0003g3-F5; Tue, 07 Mar 2023 09:17:28 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pZRF5-002Q7K-GG; Tue, 07 Mar 2023 07:56:11 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pZRF4-002uCh-KT; Tue, 07 Mar 2023 07:56:10 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        Tue, 7 Mar 2023 07:01:38 -0500
+Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB9843E630
+        for <linux-watchdog@vger.kernel.org>; Tue,  7 Mar 2023 04:01:34 -0800 (PST)
+Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
+        by mx0b-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 327505E3006830;
+        Tue, 7 Mar 2023 05:32:12 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=PODMain02222019;
+ bh=jJeUdmNUyDsgd83OAuX65WN0GlkAU0ryfn1ijMYdx64=;
+ b=aDMRz0FIRHbStRzsLHEJAEDwajNGGVO3nethO1qRQGQPvTbrpugEmKH+FMQdbMBFgYdJ
+ aJNkGvnLIHgMx+4zRWR26l5WbGnHr6lmjdMiVDwfeLgEnt3l+yQnY5Zi8WRiA2HAdfo2
+ f/fnIkIt8fgmXlDm10/GziswM4IlMnEfM39V9lORQhEbouHEVxaUMqzIYjYO7iRbVI6w
+ 7OFTyVbKaVDul3M8DXnkhgHYx2H7CU74bwrTwPa3BYqpJWeYMRW8VaUERmjs/sZz4cU3
+ N3FXAbuv9Vhp4eHcreuc8nrvFBXEZDnmLFkAJ7o1gdD1Q6WMEtYMGWxVqLL1bGXmd4hS Pw== 
+Received: from ediex01.ad.cirrus.com ([84.19.233.68])
+        by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3p439tc38f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Mar 2023 05:32:11 -0600
+Received: from ediex01.ad.cirrus.com (198.61.84.80) by ediex01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.25; Tue, 7 Mar
+ 2023 05:32:10 -0600
+Received: from ediswmail.ad.cirrus.com (198.61.86.93) by ediex01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server id 15.2.1118.25 via Frontend
+ Transport; Tue, 7 Mar 2023 05:32:10 -0600
+Received: from ediswmail.ad.cirrus.com (ediswmail.ad.cirrus.com [198.61.86.93])
+        by ediswmail.ad.cirrus.com (Postfix) with ESMTP id 461B1458;
+        Tue,  7 Mar 2023 11:32:10 +0000 (UTC)
+Date:   Tue, 7 Mar 2023 11:32:10 +0000
+From:   Charles Keepax <ckeepax@opensource.cirrus.com>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     Alim Akhtar <alim.akhtar@samsung.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH v2 2/2] watchdog: s3c2410_wdt: Simplify using dev_err_probe()
-Date:   Tue,  7 Mar 2023 07:56:03 +0100
-Message-Id: <20230307065603.2253054-3-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230307065603.2253054-1-u.kleine-koenig@pengutronix.de>
-References: <20230307065603.2253054-1-u.kleine-koenig@pengutronix.de>
+CC:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        <patches@opensource.cirrus.com>, <linux-watchdog@vger.kernel.org>,
+        <kernel@pengutronix.de>
+Subject: Re: [PATCH v2 3/3] watchdog: wm8350: Simplify using
+ devm_watchdog_register_device()
+Message-ID: <20230307113210.GT68926@ediswmail.ad.cirrus.com>
+References: <20230307070404.2256308-1-u.kleine-koenig@pengutronix.de>
+ <20230307070404.2256308-4-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2952; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=SPTADogXAYTaKc+C78RKrrt7xUHnzCo6ao7xCudFxtA=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkBt/9TgrXqvneQq8BrEXsLFVQzyVJH8K0F3nGq Km8agAZpKqJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZAbf/QAKCRDB/BR4rcrs CT+rB/0akvpL8yOXpGcUlsq2sQ4ODnKHZohwUCZxgzMAFJaXYYx+LolOaUIeX6lIaLOb8UqkscH EL49wR/amDpifqzJt8EMkomj+MtPyK0G5lEoUqGQERtPAdnSUO+pZZ5+7d2jscyqHIjX0Sgt6s9 HRZtF9agfhV1MQC5ad4mliPQwVhNYSKQY0INXrdjFjfLYvJQZ11KGjc7V0CaUCofAR+lxcIJdmP DNUSWE5pC/zJa3jjythRIdvI1m5twkxV9xNv5pDa4BEJKzy62NP9aRVN5OpIIQNTjEohNHR3nIy I3bMg7o/Nu+dHB62pqIz1mkJrfgjht/aahKNB8ItncGBxvB+
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+In-Reply-To: <20230307070404.2256308-4-u.kleine-koenig@pengutronix.de>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Proofpoint-GUID: Zu_m6QNQm8CD0-eP-bALIC49vvAfsbfW
+X-Proofpoint-ORIG-GUID: Zu_m6QNQm8CD0-eP-bALIC49vvAfsbfW
+X-Proofpoint-Spam-Reason: safe
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Make use of dev_err_probe() also for error paths that don't have to
-handle -EPROBE_DEFER. While the code handing -EPROBE_DEFER isn't used
-for these error paths, it still simpler as it cares for pretty printing
-the error code and usually needs one code line less as it combines
-message emitting and error returning. This also unifies the format of
-the error messages.
+On Tue, Mar 07, 2023 at 08:04:04AM +0100, Uwe Kleine-König wrote:
+> This allows to drop the .remove() function as it only exists to
+> unregister the watchdog device which is now done in a callback
+> registered by devm_watchdog_register_device().
+> 
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> ---
 
-Signed-off-by: Uwe Kleine-KÃ¶nig <u.kleine-koenig@pengutronix.de>
----
- drivers/watchdog/s3c2410_wdt.c | 29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index f3de8ef499c3..e14d6d9050ce 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -601,10 +601,8 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
- 
- 		err = of_property_read_u32(dev->of_node,
- 					   "samsung,cluster-index", &index);
--		if (err) {
--			dev_err(dev, "failed to get cluster index\n");
--			return -EINVAL;
--		}
-+		if (err)
-+			return dev_err_probe(dev, -EINVAL, "failed to get cluster index\n");
- 
- 		switch (index) {
- 		case 0:
-@@ -615,8 +613,7 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
- 				&drv_data_exynosautov9_cl1;
- 			break;
- 		default:
--			dev_err(dev, "wrong cluster index: %u\n", index);
--			return -EINVAL;
-+			return dev_err_probe(dev, -EINVAL, "wrong cluster index: %u\n", index);
- 		}
- 	}
- #endif
-@@ -653,10 +650,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	if (wdt->drv_data->quirks & QUIRKS_HAVE_PMUREG) {
- 		wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
- 						"samsung,syscon-phandle");
--		if (IS_ERR(wdt->pmureg)) {
--			dev_err(dev, "syscon regmap lookup failed.\n");
--			return PTR_ERR(wdt->pmureg);
--		}
-+		if (IS_ERR(wdt->pmureg))
-+			return dev_err_probe(dev, PTR_ERR(wdt->pmureg), "syscon regmap lookup failed.\n");
- 	}
- 
- 	wdt_irq = platform_get_irq(pdev, 0);
-@@ -694,21 +689,17 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	if (ret) {
- 		ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
- 					       S3C2410_WATCHDOG_DEFAULT_TIME);
--		if (ret == 0) {
-+		if (ret == 0)
- 			dev_warn(dev, "tmr_margin value out of range, default %d used\n",
- 				 S3C2410_WATCHDOG_DEFAULT_TIME);
--		} else {
--			dev_err(dev, "failed to use default timeout\n");
--			return ret;
--		}
-+		else
-+			return dev_err_probe(dev, ret, "failed to use default timeout\n");
- 	}
- 
- 	ret = devm_request_irq(dev, wdt_irq, s3c2410wdt_irq, 0,
- 			       pdev->name, pdev);
--	if (ret != 0) {
--		dev_err(dev, "failed to install irq (%d)\n", ret);
--		return ret;
--	}
-+	if (ret != 0)
-+		return dev_err_probe(dev, ret, "failed to install irq (%d)\n", ret);
- 
- 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
- 	watchdog_set_restart_priority(&wdt->wdt_device, 128);
--- 
-2.39.1
-
+Thanks,
+Charles
