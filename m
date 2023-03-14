@@ -2,31 +2,31 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C5B9C7618B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7447C7618E
 	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Mar 2023 13:27:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232502AbjCNN1o convert rfc822-to-8bit (ORCPT
+        id S232503AbjCNN1o convert rfc822-to-8bit (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Tue, 14 Mar 2023 09:27:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48462 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbjCNN1X (ORCPT
+        with ESMTP id S229667AbjCNN1Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Mar 2023 09:27:23 -0400
-Received: from fd01.gateway.ufhost.com (fd01.gateway.ufhost.com [61.152.239.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2735D73AC3;
-        Tue, 14 Mar 2023 06:24:44 -0700 (PDT)
+        Tue, 14 Mar 2023 09:27:24 -0400
+Received: from ex01.ufhost.com (ex01.ufhost.com [61.152.239.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F52D32CD4;
+        Tue, 14 Mar 2023 06:24:46 -0700 (PDT)
 Received: from EXMBX165.cuchost.com (unknown [175.102.18.54])
         (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
         (Client CN "EXMBX165", Issuer "EXMBX165" (not verified))
-        by fd01.gateway.ufhost.com (Postfix) with ESMTP id 76F7124E300;
-        Tue, 14 Mar 2023 21:24:42 +0800 (CST)
+        by ex01.ufhost.com (Postfix) with ESMTP id B0EE224E208;
+        Tue, 14 Mar 2023 21:24:44 +0800 (CST)
 Received: from EXMBX061.cuchost.com (172.16.6.61) by EXMBX165.cuchost.com
  (172.16.6.75) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Tue, 14 Mar
- 2023 21:24:42 +0800
+ 2023 21:24:44 +0800
 Received: from localhost.localdomain (113.72.145.194) by EXMBX061.cuchost.com
  (172.16.6.61) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Tue, 14 Mar
- 2023 21:24:38 +0800
+ 2023 21:24:43 +0800
 From:   Xingyu Wu <xingyu.wu@starfivetech.com>
 To:     <linux-riscv@lists.infradead.org>, <devicetree@vger.kernel.org>,
         <linux-watchdog@vger.kernel.org>,
@@ -43,9 +43,9 @@ CC:     Rob Herring <robh+dt@kernel.org>,
         Xingyu Wu <xingyu.wu@starfivetech.com>,
         Samin Guo <samin.guo@starfivetech.com>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v5 1/3] dt-bindings: watchdog: Add watchdog for StarFive JH7100 and JH7110
-Date:   Tue, 14 Mar 2023 21:24:35 +0800
-Message-ID: <20230314132437.121534-2-xingyu.wu@starfivetech.com>
+Subject: [PATCH v5 3/3] riscv: dts: starfive: jh7100: Add watchdog node
+Date:   Tue, 14 Mar 2023 21:24:37 +0800
+Message-ID: <20230314132437.121534-4-xingyu.wu@starfivetech.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230314132437.121534-1-xingyu.wu@starfivetech.com>
 References: <20230314132437.121534-1-xingyu.wu@starfivetech.com>
@@ -60,93 +60,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add bindings to describe the watchdog for the StarFive JH7100/JH7110 SoC.
-And Use JH7100 as first StarFive SoC with watchdog.
+Add watchdog node for the StarFive JH7100 RISC-V SoC.
 
 Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
 ---
- .../watchdog/starfive,jh7100-wdt.yaml         | 71 +++++++++++++++++++
- 1 file changed, 71 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/starfive,jh7100-wdt.yaml
+ arch/riscv/boot/dts/starfive/jh7100.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/starfive,jh7100-wdt.yaml b/Documentation/devicetree/bindings/watchdog/starfive,jh7100-wdt.yaml
-new file mode 100644
-index 000000000000..68f3f6fd08a6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/starfive,jh7100-wdt.yaml
-@@ -0,0 +1,71 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/starfive,jh7100-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 000447482aca..4218621ea3b9 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -238,5 +238,15 @@ i2c3: i2c@12460000 {
+ 			#size-cells = <0>;
+ 			status = "disabled";
+ 		};
 +
-+title: StarFive Watchdog for JH7100 and JH7110 SoC
-+
-+maintainers:
-+  - Xingyu Wu <xingyu.wu@starfivetech.com>
-+  - Samin Guo <samin.guo@starfivetech.com>
-+
-+description:
-+  The JH7100 and JH7110 watchdog both are 32 bit counters. JH7100 watchdog
-+  has only one timeout phase and reboots. And JH7110 watchdog has two
-+  timeout phases. At the first phase, the signal of watchdog interrupt
-+  output(WDOGINT) will rise when counter is 0. The counter will reload
-+  the timeout value. And then, if counter decreases to 0 again and WDOGINT
-+  isn't cleared, the watchdog will reset the system unless the watchdog
-+  reset is disabled.
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - starfive,jh7100-wdt
-+      - starfive,jh7110-wdt
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: APB clock
-+      - description: Core clock
-+
-+  clock-names:
-+    items:
-+      - const: apb
-+      - const: core
-+
-+  resets:
-+    items:
-+      - description: APB reset
-+      - description: Core reset
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - clock-names
-+  - resets
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    watchdog@12480000 {
-+        compatible = "starfive,jh7100-wdt";
-+        reg = <0x12480000 0x10000>;
-+        clocks = <&clk 171>,
-+                 <&clk 172>;
-+        clock-names = "apb", "core";
-+        resets = <&rst 99>,
-+                 <&rst 100>;
-+    };
++		watchdog@12480000 {
++			compatible = "starfive,jh7100-wdt";
++			reg = <0x0 0x12480000 0x0 0x10000>;
++			clocks = <&clkgen JH7100_CLK_WDTIMER_APB>,
++				 <&clkgen JH7100_CLK_WDT_CORE>;
++			clock-names = "apb", "core";
++			resets = <&rstgen JH7100_RSTN_WDTIMER_APB>,
++				 <&rstgen JH7100_RSTN_WDT>;
++		};
+ 	};
+ };
 -- 
 2.25.1
 
