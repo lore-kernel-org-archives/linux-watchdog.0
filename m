@@ -2,107 +2,222 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A433C7618A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Mar 2023 10:18:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3118C761A6
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Mar 2023 10:51:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbjCTKSQ (ORCPT
+        id S229967AbjCTKvB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 20 Mar 2023 06:18:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55266 "EHLO
+        Mon, 20 Mar 2023 06:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229837AbjCTKSP (ORCPT
+        with ESMTP id S230469AbjCTKtq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2023 06:18:15 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E782F10259
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2023 03:18:12 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id o12so44500929edb.9
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2023 03:18:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1679307491;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=M9QmThArlU3j/do0x0/HOKynN3iklRKOHG46pnLsnHw=;
-        b=cfKIOkAWt2qSqihZu+iJRamjO6lMQhnDcRYEV6P8j561vRc+Apj+CESbo74m4MU+20
-         z9OBbShtAEkZXCjwdfPwxH/ywg1w5QPwP9bau6B9z4Q/oH49tCRBl8T+BkWeKhLPydnM
-         lnzyhQdu7Vb9qPzNsdiq1JFCZoZzQO4X8acut3VxbpUKfcKZuLNLV+0Z3L5DqNDZ+xsK
-         JnHhYXCM5S9UEVNvGNen4IMgdSyYhxc2QKDgIBv0N2CAk6ckjDpirwCHmctbEqCf1bmS
-         T/4zDrlak6vMHplZHupoUBnpvz8So809N2GkYn2G45EMTc8ETGSxAl64KotQ1g3KGbwp
-         8/hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679307491;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=M9QmThArlU3j/do0x0/HOKynN3iklRKOHG46pnLsnHw=;
-        b=dd32+jye3bBNVte9f8sEG9q4BIrBfeKtazGrwP5H6h+nkjCNzZgd9uLxjWikqSq3qY
-         zoOzA9Fp5D7WIjb7VmzMyztgP2go0Gs4MCLRNHBHs+RGj7JF0uLBzJWRqbJzs06Vjtz6
-         4K0CBbs1pK7pnTTNzIckpDKR0oVAlfo8ZnxCKkAJls4ZxpZlOyj0ToXIq3r9P5Bl3Civ
-         bzPt+3QCq9SlWMfTDwfhTETB0h0Dh0sxGGVD4RZ7LPpX+VWSHmWlNLsZiP0iFnbJ201O
-         3cQbF1UqrPx6bbOx467IFfE6f35+7XD1xbW+ZKj0EzGmSSihA9xqRZFjKglOJmLZmoIu
-         flcw==
-X-Gm-Message-State: AO0yUKXqnnUDo4NTZN2KW22cOaQJZkzke6hU0uS8LLr7A7RvSQolmFjR
-        7F+8XzDL0PtH0rIUOQN1GoQ3IIYKj6GQZGZOjLg=
-X-Google-Smtp-Source: AK7set+TovgWorTvh0ACBLoB6PXtYdY+uBaQ+fhbXWNdFqjwNLDcjjjMwN+Ujio9D2J6NyIVvckFig==
-X-Received: by 2002:a05:6402:12c1:b0:4ff:844a:ed4c with SMTP id k1-20020a05640212c100b004ff844aed4cmr12664996edx.0.1679307491486;
-        Mon, 20 Mar 2023 03:18:11 -0700 (PDT)
-Received: from ?IPV6:2a02:810d:15c0:828:4428:8354:afb6:2992? ([2a02:810d:15c0:828:4428:8354:afb6:2992])
-        by smtp.gmail.com with ESMTPSA id o2-20020a509b02000000b004faa1636758sm4633214edi.68.2023.03.20.03.18.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Mar 2023 03:18:11 -0700 (PDT)
-Message-ID: <713745fe-4963-6008-89b8-f0fb68c8056c@linaro.org>
-Date:   Mon, 20 Mar 2023 11:18:10 +0100
+        Mon, 20 Mar 2023 06:49:46 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7D728E50;
+        Mon, 20 Mar 2023 03:47:22 -0700 (PDT)
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32K8PGQe003066;
+        Mon, 20 Mar 2023 10:45:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=qcppdkim1;
+ bh=7ohpvS8wat8lT/Kko0MXO2b+oMzqJGE+J11bxdCgLzE=;
+ b=XbR94dlZgHb3qcW3/1tV4bIC6x7zKfdxUA8/CsVtWTwTMrarEdcShE5Y9pHsQ8YE4Gex
+ VenfkVlhJ8sF2Kv3VkaSwm4VDNb5JG7MpKV3ubMZsJNFZjEqUEtVF01MHvcbNf4KNCLx
+ rGFEdk1S2SYc4LJPpPx7vSrtzjz/z/X28YK/kJ7Z0xPNuwVPYghuhGPtVkKevlwAfC2n
+ yYkl+TldK30ar3QZ53jwQzZ1j0yGNaabkPHPHsO7n/5LabGMJQClYcc6QBuTDnSP8Pwu
+ 130JrwMdY4fy+0BEhyt/kUT8to9YzYdDaPKmqa3g6sNQxLGR2YpgEhSstI3C7jc6JsVr pw== 
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3pd4mtckkv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Mar 2023 10:45:58 +0000
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+        by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 32KAjv0t012586
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Mar 2023 10:45:57 GMT
+Received: from kathirav-linux.qualcomm.com (10.80.80.8) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.41; Mon, 20 Mar 2023 03:45:53 -0700
+From:   Kathiravan T <quic_kathirav@quicinc.com>
+To:     <agross@kernel.org>, <andersson@kernel.org>,
+        <konrad.dybcio@linaro.org>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     Kathiravan T <quic_kathirav@quicinc.com>
+Subject: [PATCH V2 2/2] arm64: dts: qcom: ipq5332: add few device nodes
+Date:   Mon, 20 Mar 2023 16:15:30 +0530
+Message-ID: <20230320104530.30411-3-quic_kathirav@quicinc.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230320104530.30411-1-quic_kathirav@quicinc.com>
+References: <20230320104530.30411-1-quic_kathirav@quicinc.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 2/2] arm64: dts: qcom: ipq5332: add few device nodes
-Content-Language: en-US
-To:     Kathiravan T <quic_kathirav@quicinc.com>, agross@kernel.org,
-        andersson@kernel.org, konrad.dybcio@linaro.org,
-        wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20230320094450.8015-1-quic_kathirav@quicinc.com>
- <20230320094450.8015-3-quic_kathirav@quicinc.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230320094450.8015-3-quic_kathirav@quicinc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: ZVx835coboO_jviTrZUKgtdQu1iyrJPB
+X-Proofpoint-ORIG-GUID: ZVx835coboO_jviTrZUKgtdQu1iyrJPB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-20_06,2023-03-20_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ mlxscore=0 spamscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 suspectscore=0 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303200090
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 20/03/2023 10:44, Kathiravan T wrote:
-> Add the nodes for QUP peripheral, PRNG and WDOG. While at it, enable the
-> I2C device for MI01.2 board.
-> 
-> Signed-off-by: Kathiravan T <quic_kathirav@quicinc.com>
-> ---
->  arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts | 14 +++++
->  arch/arm64/boot/dts/qcom/ipq5332.dtsi       | 67 +++++++++++++++++++++
->  2 files changed, 81 insertions(+)
+Add the nodes for QUP peripheral, PRNG and WDOG. While at it, enable the
+I2C device for MI01.2 board.
 
-Thank you for your patch. There is something to discuss/improve.
+Signed-off-by: Kathiravan T <quic_kathirav@quicinc.com>
+---
+Changes in V2:
+	- Moved the 'reg' property after compatible
 
-> +
->  		blsp1_uart0: serial@78af000 {
->  			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
->  			reg = <0x078af000 0x200>;
-> @@ -201,6 +218,48 @@
->  			status = "disabled";
->  		};
->  
-> +		blsp1_spi0: spi@78b5000 {
-> +			compatible = "qcom,spi-qup-v2.2.1";
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			reg = <0x078b5000 0x600>;
+ arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts | 14 +++++
+ arch/arm64/boot/dts/qcom/ipq5332.dtsi       | 67 +++++++++++++++++++++
+ 2 files changed, 81 insertions(+)
 
-Please keep the reg as second property, after compatible.
-
-
-Best regards,
-Krzysztof
+diff --git a/arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts b/arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts
+index 702013b867d7..3af1d5556950 100644
+--- a/arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts
++++ b/arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts
+@@ -28,6 +28,13 @@
+ 	status = "okay";
+ };
+ 
++&blsp1_i2c1 {
++	clock-frequency  = <400000>;
++	pinctrl-0 = <&i2c_1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
+ &sdhc {
+ 	bus-width = <4>;
+ 	max-frequency = <192000000>;
+@@ -50,6 +57,13 @@
+ /* PINCTRL */
+ 
+ &tlmm {
++	i2c_1_pins: i2c-1-state {
++		pins = "gpio29", "gpio30";
++		function = "blsp1_i2c0";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
++
+ 	sdc_default_state: sdc-default-state {
+ 		clk-pins {
+ 			pins = "gpio13";
+diff --git a/arch/arm64/boot/dts/qcom/ipq5332.dtsi b/arch/arm64/boot/dts/qcom/ipq5332.dtsi
+index 04ef80f267bf..12e0e179e139 100644
+--- a/arch/arm64/boot/dts/qcom/ipq5332.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq5332.dtsi
+@@ -134,6 +134,13 @@
+ 		#size-cells = <1>;
+ 		ranges = <0 0 0 0xffffffff>;
+ 
++		rng: rng@e3000 {
++			compatible = "qcom,prng-ee";
++			reg = <0x000e3000 0x1000>;
++			clocks = <&gcc GCC_PRNG_AHB_CLK>;
++			clock-names = "core";
++		};
++
+ 		tlmm: pinctrl@1000000 {
+ 			compatible = "qcom,ipq5332-tlmm";
+ 			reg = <0x01000000 0x300000>;
+@@ -191,6 +198,16 @@
+ 			status = "disabled";
+ 		};
+ 
++		blsp_dma: dma-controller@7884000 {
++			compatible = "qcom,bam-v1.7.0";
++			reg = <0x07884000 0x1d000>;
++			interrupts = <GIC_SPI 289 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP1_AHB_CLK>;
++			clock-names = "bam_clk";
++			#dma-cells = <1>;
++			qcom,ee = <0>;
++		};
++
+ 		blsp1_uart0: serial@78af000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0x078af000 0x200>;
+@@ -201,6 +218,48 @@
+ 			status = "disabled";
+ 		};
+ 
++		blsp1_spi0: spi@78b5000 {
++			compatible = "qcom,spi-qup-v2.2.1";
++			reg = <0x078b5000 0x600>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <GIC_SPI 292 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP1_QUP1_SPI_APPS_CLK>,
++				 <&gcc GCC_BLSP1_AHB_CLK>;
++			clock-names = "core", "iface";
++			dmas = <&blsp_dma 4>, <&blsp_dma 5>;
++			dma-names = "tx", "rx";
++			status = "disabled";
++		};
++
++		blsp1_i2c1: i2c@78b6000 {
++			compatible = "qcom,i2c-qup-v2.2.1";
++			reg = <0x078b6000 0x600>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <GIC_SPI 293 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>,
++				 <&gcc GCC_BLSP1_AHB_CLK>;
++			clock-names = "core", "iface";
++			dmas = <&blsp_dma 6>, <&blsp_dma 7>;
++			dma-names = "tx", "rx";
++			status = "disabled";
++		};
++
++		blsp1_spi2: spi@78b7000 {
++			compatible = "qcom,spi-qup-v2.2.1";
++			reg = <0x078b7000 0x600>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <GIC_SPI 294 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP1_QUP3_SPI_APPS_CLK>,
++				 <&gcc GCC_BLSP1_AHB_CLK>;
++			clock-names = "core", "iface";
++			dmas = <&blsp_dma 8>, <&blsp_dma 9>;
++			dma-names = "tx", "rx";
++			status = "disabled";
++		};
++
+ 		intc: interrupt-controller@b000000 {
+ 			compatible = "qcom,msm-qgic2";
+ 			reg = <0x0b000000 0x1000>,	/* GICD */
+@@ -233,6 +292,14 @@
+ 			};
+ 		};
+ 
++		watchdog: watchdog@b017000 {
++			compatible = "qcom,apss-wdt-ipq5332", "qcom,kpss-wdt";
++			reg = <0x0b017000 0x1000>;
++			interrupts = <GIC_SPI 3 IRQ_TYPE_EDGE_RISING>;
++			clocks = <&sleep_clk>;
++			timeout-sec = <30>;
++		};
++
+ 		apcs_glb: mailbox@b111000 {
+ 			compatible = "qcom,ipq5332-apcs-apps-global",
+ 				     "qcom,ipq6018-apcs-apps-global";
+-- 
+2.17.1
 
