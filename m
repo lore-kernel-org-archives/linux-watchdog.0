@@ -2,91 +2,100 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2BF7C7618D
-	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Mar 2023 10:59:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08CE6C76195
+	for <linux-watchdog@archiver.kernel.org>; Mon, 20 Mar 2023 14:53:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230083AbjCTK66 (ORCPT
+        id S232008AbjCTOxa (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 20 Mar 2023 06:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35628 "EHLO
+        Mon, 20 Mar 2023 10:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbjCTK6G (ORCPT
+        with ESMTP id S232024AbjCTOxI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2023 06:58:06 -0400
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1BC13D6C;
-        Mon, 20 Mar 2023 03:54:54 -0700 (PDT)
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32K8OlqD017738;
-        Mon, 20 Mar 2023 10:45:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=qcppdkim1;
- bh=wOFEbWs9Cw33LhoI4x7uWEBuX97sD4JEm+1a7zgmROw=;
- b=LvoB6rv/ZdFR0D6QdmjdVP8KS3MlnGIGq6rWURgHAKwDj2VXjPjAfwZg/TQX4355kmXO
- vkGtD385GB3JPE1XE+ySkD1LWWIbJ+VENwMgGw/Yg2X/qELMLdCV/emK+Lj0X2fPs2Ee
- clRgkd9TxQCUAJRDpc7SAw7UG0lyGzmwKqOSozdpK10F/5xvyHh0jvt8HB8M75OPie1/
- Nk4yruJayZJo7FvKWPB7AWuA5+KUjEnmj05UCu8PcHfByTTS4ESff4/XCEYdikgZDv4G
- 1c08TkNykp38jqNfdTqtZ2AkKs6UfOik5yy4mHSeTVGM6DhgveV507IC6rbowotg8/12 lQ== 
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3peg57ru01-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Mar 2023 10:45:50 +0000
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-        by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 32KAjmh5023616
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Mar 2023 10:45:48 GMT
-Received: from kathirav-linux.qualcomm.com (10.80.80.8) by
- nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.41; Mon, 20 Mar 2023 03:45:44 -0700
-From:   Kathiravan T <quic_kathirav@quicinc.com>
-To:     <agross@kernel.org>, <andersson@kernel.org>,
-        <konrad.dybcio@linaro.org>, <wim@linux-watchdog.org>,
-        <linux@roeck-us.net>, <robh+dt@kernel.org>,
-        <krzysztof.kozlowski+dt@linaro.org>,
-        <linux-arm-msm@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     Kathiravan T <quic_kathirav@quicinc.com>
-Subject: [PATCH V2 0/2] Add few device nodes for IPQ5332 SoC
-Date:   Mon, 20 Mar 2023 16:15:28 +0530
-Message-ID: <20230320104530.30411-1-quic_kathirav@quicinc.com>
-X-Mailer: git-send-email 2.17.1
+        Mon, 20 Mar 2023 10:53:08 -0400
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F18265A1;
+        Mon, 20 Mar 2023 07:51:10 -0700 (PDT)
+Received: by mail-io1-xd31.google.com with SMTP id o12so5511226iow.6;
+        Mon, 20 Mar 2023 07:51:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679323869;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8QwLsUZ/tHxijlyn66nlgkLuAYh5gQ70WR4joiAYVq8=;
+        b=B4TT2Zx3ZDUCS2kd1BV7u1aOIHoOBIUQ4aJjjgUorMVUTI5TrWPp/y2NJQPhJ1EQ6e
+         gXoqutA7sFlPwq1BvXYOumxi2CT7UpeyJW/d9a7JtDA2/SZ7DWEsAl4ZcNWhtTDrzcpe
+         70yU8joAXvYxzcSMNc21LXgzt5x0X90gazPI1bNbkYGTUO4e8YdJ1798aHp1sYL0CeDa
+         3+k6iJRLDCHmlxOMCEN4P47+0oXt3IqSacdLk5FWbCUoOJWyDRJCVX3TEzHCQdpujKXm
+         jADKXLHXxil8wd9X/wxDzeESGbA/WeOMsLjIaZq0Hkn9qkOukuPRCi6zXYXSrjnBMTJ0
+         Vqhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679323869;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8QwLsUZ/tHxijlyn66nlgkLuAYh5gQ70WR4joiAYVq8=;
+        b=lk0sIKwbuhUpdOSldurORvCufi8/ftCKDDWwZFNDlEV+ESJcw20FGou3Xv2VacY5jB
+         zc+9PLdynqMzoWkH+fGGu9ynJf7V1S3kfcBeJkWVpqvlSivB+wY0hNDE8ouPKcPEie9p
+         5X9Xm1tf1P1N9PuBCY7+Pac8+9vUuxU5x1seedQ7zx3OaldO+BDum/t+3dCm1YBBxW51
+         gcnN5iX9KtDwnx1rWVCr7Cj2234pHC0plA9lXm2Le2C3h2e+amwNg4hW7VEk6ybK0VSb
+         2B6H3XS7Cfg7sgMHHGsrUzD0kCWzwXfo1PmBRWVtsDYbCIRFxm95r2nFxGV1DNHoYx24
+         iuCw==
+X-Gm-Message-State: AO0yUKWvYt9/BsyHalrzqSIGyKck5Fam+Hdmxwd8ey50WrsU/YRdwlKv
+        J8Ie/AV8plsgBGxrbUqst1c=
+X-Google-Smtp-Source: AK7set+CiKFz9qTVoztI3MIDgx4S4HraL6l6viFld+W4rZGOoaOqo0n3RsrLal5Lb8wRN0rl74Gf5w==
+X-Received: by 2002:a5d:9ad0:0:b0:714:a25:2f91 with SMTP id x16-20020a5d9ad0000000b007140a252f91mr5290135ion.8.1679323869184;
+        Mon, 20 Mar 2023 07:51:09 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b23-20020a026f57000000b00406431d0fb5sm2964409jae.72.2023.03.20.07.51.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Mar 2023 07:51:08 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 20 Mar 2023 07:51:07 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Kathiravan T <quic_kathirav@quicinc.com>
+Cc:     agross@kernel.org, andersson@kernel.org, konrad.dybcio@linaro.org,
+        wim@linux-watchdog.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: qcom-wdt: add
+ qcom,apss-wdt-ipq5332 compatible
+Message-ID: <641a1503-4da5-431c-b037-3a46b85834a2@roeck-us.net>
+References: <20230320094450.8015-1-quic_kathirav@quicinc.com>
+ <20230320094450.8015-2-quic_kathirav@quicinc.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: 4df9pUOpMs9NWn9PQR7hz6ehNyp8yeqq
-X-Proofpoint-GUID: 4df9pUOpMs9NWn9PQR7hz6ehNyp8yeqq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-20_06,2023-03-20_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 spamscore=0 clxscore=1015 phishscore=0 mlxlogscore=644
- priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303150002 definitions=main-2303200090
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230320094450.8015-2-quic_kathirav@quicinc.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This series adds the support for QUP peripherals, PRNG, WDT for IPQ5332
-SoC.
+On Mon, Mar 20, 2023 at 03:14:49PM +0530, Kathiravan T wrote:
+> Add a compatible for the IPQ5332 platform's APSS watchdog.
+> 
+> Signed-off-by: Kathiravan T <quic_kathirav@quicinc.com>
 
-This series depends on the below patch, due to the node ordering
-https://lore.kernel.org/linux-arm-msm/20230217083308.12017-6-quic_kathirav@quicinc.com/#t
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Kathiravan T (2):
-  dt-bindings: watchdog: qcom-wdt: add qcom,apss-wdt-ipq5332 compatible
-  arm64: dts: qcom: ipq5332: add few device nodes
-
- .../bindings/watchdog/qcom-wdt.yaml           |  1 +
- arch/arm64/boot/dts/qcom/ipq5332-mi01.2.dts   | 14 ++++
- arch/arm64/boot/dts/qcom/ipq5332.dtsi         | 67 +++++++++++++++++++
- 3 files changed, 82 insertions(+)
-
--- 
-2.17.1
-
+> ---
+>  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+> index 6448b633c970..8060a87d29da 100644
+> --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
+> @@ -18,6 +18,7 @@ properties:
+>        - items:
+>            - enum:
+>                - qcom,kpss-wdt-ipq4019
+> +              - qcom,apss-wdt-ipq5332
+>                - qcom,apss-wdt-msm8994
+>                - qcom,apss-wdt-qcs404
+>                - qcom,apss-wdt-sa8775p
+> -- 
+> 2.17.1
+> 
