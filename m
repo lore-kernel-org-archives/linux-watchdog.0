@@ -2,44 +2,44 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86F61C77B70
-	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Mar 2023 13:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6B8FC77B60
+	for <linux-watchdog@archiver.kernel.org>; Wed, 29 Mar 2023 13:20:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230218AbjC2NSD (ORCPT
+        id S230258AbjC2NUN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 29 Mar 2023 09:18:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39914 "EHLO
+        Wed, 29 Mar 2023 09:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbjC2NSA (ORCPT
+        with ESMTP id S230150AbjC2NUL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 29 Mar 2023 09:18:00 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD4810D2;
-        Wed, 29 Mar 2023 06:17:57 -0700 (PDT)
+        Wed, 29 Mar 2023 09:20:11 -0400
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68030C0;
+        Wed, 29 Mar 2023 06:19:53 -0700 (PDT)
 Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id EB7EF6603173;
-        Wed, 29 Mar 2023 14:17:54 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 96CDF660316F;
+        Wed, 29 Mar 2023 14:19:36 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1680095876;
-        bh=Xa0p0IV1rYh41ZUiU4I0r4N322DWyNNQVt6PERWVrrM=;
+        s=mail; t=1680095977;
+        bh=eTY1WyqAhJmuZJ8EeS1G+kzoPFmIenmK8Sm9paFA/2E=;
         h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=ffblz76rZcLQ52B9fMQb0AltLva4aPIN+VcsFGIv7HMK/1EM9U21eQhU/D6Ekg2Zj
-         rIDYxjVL3z1/3CNHJdJQvG8QMZpT6r2ffaYEciwpyNg6oWJiW68X0E6ABYWeeGVOI2
-         4LqX9lfLD2ZyKCTjMwcSddvG14w0itLWTy6VX2v93F3k84DoklLs/OQ3mrKX3R2KkI
-         HdqTRCXdDX2pXcYVeo8I8UkKbPDhiaXhOxbEh/8sKlyuLdDcqqJpayZIs7GyPjZJxu
-         fo9jBlY1u1PGJDVsEsbJq5Uyn5zA0GspBKH+wFWX/oWol4OqbamcgEqh8lZGuPGjQf
-         0tXt9prlPTkqQ==
-Message-ID: <ba709e0d-f573-0ae9-5408-7b4f54ff2a13@collabora.com>
-Date:   Wed, 29 Mar 2023 15:17:52 +0200
+        b=JoP2eDlXh49eiOiujCSpAq79+gKb0i6t7ZaKOK6hIRax6nbxSV2X5DeyvPVP8AP7M
+         Nn6VwZFZQ0jtnU8QPO7DvKEU5BqZMivjilJS3EFp4Cn4wfs0TTaanlaqVpAuGbjihN
+         mqzyiew1JA2RhuPT4ciohgkvnOjRCThozDHRBJBX+iszXtJ8rKWx1HxrRMKniv+ZUW
+         h2dmW3qkyUd5P8JbHl0dmG2YLulVPCafZssbaxitsQMmIry9bXOHDSLdAkfJfWzGaM
+         2iV7+fWEkvLLcv7AedFxFP7eeQuvq04B6XyH5IJSljb+hqP9JzrIkpJh+LqfhSH2dU
+         BIMJqSwk/ICTw==
+Message-ID: <041248c0-ac27-4992-e824-556aadedaaf6@collabora.com>
+Date:   Wed, 29 Mar 2023 15:19:33 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.9.0
-Subject: Re: [PATCH v3 01/17] dt-bindings: watchdog: mediatek,mtk-wdt: add
- mt8365
+Subject: Re: [PATCH v3 06/17] arm64: dts: mediatek: add pwrap support to
+ mt8365 SoC
 Content-Language: en-US
 To:     Alexandre Mergnat <amergnat@baylibre.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -59,13 +59,12 @@ Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-gpio@vger.kernel.org,
         Alexandre Bailon <abailon@baylibre.com>,
         Fabien Parent <fparent@baylibre.com>,
-        Amjad Ouled-Ameur <aouledameur@baylibre.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+        Amjad Ouled-Ameur <aouledameur@baylibre.com>
 References: <20230203-evk-board-support-v3-0-0003e80e0095@baylibre.com>
- <20230203-evk-board-support-v3-1-0003e80e0095@baylibre.com>
+ <20230203-evk-board-support-v3-6-0003e80e0095@baylibre.com>
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-In-Reply-To: <20230203-evk-board-support-v3-1-0003e80e0095@baylibre.com>
+In-Reply-To: <20230203-evk-board-support-v3-6-0003e80e0095@baylibre.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -73,10 +72,40 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 Il 29/03/23 10:54, Alexandre Mergnat ha scritto:
-> Add binding description for mediatek,mt8365-wdt
+> In order to use the PMIC, the pwrap support should be added
+> to allow communication between the SoC and the PMIC.
 > 
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 > Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+> ---
+>   arch/arm64/boot/dts/mediatek/mt8365.dtsi | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/mediatek/mt8365.dtsi b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+> index e018df6844f6..687011353f69 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+> +++ b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+> @@ -186,6 +186,18 @@ apmixedsys: syscon@1000c000 {
+>   			#clock-cells = <1>;
+>   		};
+>   
+> +		pwrap: pwrap@1000d000 {
+> +			compatible = "mediatek,mt8365-pwrap";
+> +			reg = <0 0x1000d000 0 0x1000>;
+> +			reg-names = "pwrap";
+> +			interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&infracfg CLK_IFR_PWRAP_SPI>,
+> +				 <&infracfg CLK_IFR_PMIC_AP>,
+> +				 <&infracfg CLK_IFR_PWRAP_SYS>,
+> +				 <&infracfg CLK_IFR_PWRAP_TMR>;
+
+I would prefer:
+
+clocks = <&infracfg CLK_IFR_PWRAP_SPI>, <&infracfg CLK_IFR_PMIC_AP>,
+	 <&infracfg CLK_IFR_PWRAP_SYS>, <&infracfg CLK_IFR_PWRAP_TMR>;
+
+....but I'll leave this choice to you, as I don't have really strong opinions on
+this one, so, with or without the proposed change, you still get my:
 
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+
 
