@@ -2,63 +2,62 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5A90C77B61
-	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Apr 2023 12:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16848C77B6F
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Apr 2023 12:59:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240535AbjDGM7w (ORCPT
+        id S239970AbjDGM7x (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 7 Apr 2023 08:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        Fri, 7 Apr 2023 08:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240681AbjDGM7t (ORCPT
+        with ESMTP id S240508AbjDGM7p (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Apr 2023 08:59:49 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357EE76BB
-        for <linux-watchdog@vger.kernel.org>; Fri,  7 Apr 2023 05:59:48 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id v1so42248803wrv.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 07 Apr 2023 05:59:48 -0700 (PDT)
+        Fri, 7 Apr 2023 08:59:45 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9347DB3
+        for <linux-watchdog@vger.kernel.org>; Fri,  7 Apr 2023 05:59:43 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id h17so42230410wrt.8
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Apr 2023 05:59:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1680872386; x=1683464386;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1680872381; x=1683464381;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GH9QAwye48bejYcJsmUVDgnU+lbK1EZ9+5kkrqikkcY=;
-        b=dJoEXYLUUXARddvkn4UfLqbOwHRdNGJHrM1fmI8IhuUHJypyLiHAYTq41XQVd9PBtO
-         9s0tteHgDXMzDeZWtmU8sA55XqmB2LmjIfKJSsygy47Mve55843Mfijid7vtBtGi8SWl
-         +43iiIXTBw8XjKt2dcYCK3Eo2jzFD8A06NYZiPZ794aYowkL07h79g2qlb5+QkcOSNr+
-         Aa5otkaRr0ohaTPkwKk2F2gJDFj+aEx3LlS1moeXa2y9UAZoqX9r0Pw2/Fe19+19LaBQ
-         dJBTn6YsCiXxRKs6hM9CTZePLKySJQKhvi4wQTxc5o6M+QPGBPO/JEvTp290edVTNt71
-         VcGw==
+        bh=jv6uesjmZKFlcTpR6W4nlDS/ErUwCnhH53sWS64Er7Y=;
+        b=A4jWSwGhGdz3yvWFgpqe9NlDODCzwwx6DOkR9O2UY4Yrxy8/9kLzreZ3L6bbXD+Ae/
+         sFCTqVlYSMyMMTmgSI3sJRi3qrDakv9CUBLVEaTMAyr+ojkyy2JpxsKZkaS1K9NpK3mN
+         pI477JBg4osigvpTiX7ys+Jp/b/r8TzrdP2Q5AnOS1ZO3xU4KZF3j0zHC55bMY1GA4rv
+         DH0SwlR10edgD28Eh8mpLyjKVPLRLya/1w8QexMl34AgIa9FlzqWv39f8mjqgQuyvMVm
+         PNEld+aLyOlYKthMU+MhbPRJCzpaL6wDkqa1kJiWGSrp5xM0XmiL7gB3VAE92bNKKQnC
+         J3pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680872386; x=1683464386;
+        d=1e100.net; s=20210112; t=1680872381; x=1683464381;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GH9QAwye48bejYcJsmUVDgnU+lbK1EZ9+5kkrqikkcY=;
-        b=1x3+jJcOFdu6LBq9RSdVXP3YfO5cAQBQfjgGHjwOGihGoB6Z0uVk6TYQpHy/48VVGi
-         aEd1fGEmBGsGibSFxPokFv0CLeYFQiOBIApNiLx7OYxvziQwr5v4Pi2jXXa/TGu30zgq
-         qKutYnY26XOgOUpJHOgXFrYX6Q3ghZscd+8OtVkOogzqc4xt/P1Ow9NBCT4UxbxzRNXH
-         gwfdfsTd73eAzpmJl+yehu27WhoNNhTDCxJEx3fmhRJaxF4+Jr4IcZw2TpRY4UEysO/1
-         FfZTTP0HLFfQ8zz8o30MkGa8sDQar6dsfxOOBmDwC9QmFHahoF7twd+cVcslqpwShpe6
-         FaCg==
-X-Gm-Message-State: AAQBX9d/Bcv5kFYoS8t8dX77AMxdtzMXKJp/uPb4vVcRIcxb8CPdh4dP
-        GkOEIvXgJYu21FRRfcfdNd61mg==
-X-Google-Smtp-Source: AKy350btLadsciP/gSaGWtPYLwPPb9Fq1p+JbXZoIAtbDFd3nxVyKLZJhwC5EPrOuQrdfqLvex6ySg==
-X-Received: by 2002:a5d:50c1:0:b0:2ef:b5a0:35e8 with SMTP id f1-20020a5d50c1000000b002efb5a035e8mr196350wrt.20.1680872386639;
-        Fri, 07 Apr 2023 05:59:46 -0700 (PDT)
+        bh=jv6uesjmZKFlcTpR6W4nlDS/ErUwCnhH53sWS64Er7Y=;
+        b=AmtRnoVi5a3Nn81YDe16no5PGSOw/66d2bqkW3lN9skywv/3hv9DWF6mzkVb/s+XJW
+         JM1n59TUQbncIwbzxkD0AcWelbsbH0LjzfkVYShPuiHipwrYw2dKOUKNUmZpW+yPxccm
+         0pdbakfo38hxu98KrSY3q7B93LIKOtGTm6oFw/MEvzJTqpD/UNCdXj26mDLUkntVaFyc
+         QOO/kUg26lMORJKLIe8Sgzi0z3N1ObgFgN6pNSPhN6W9Yta0Wz+JDyCzr3cQGNCE88+a
+         c3VhKtAJbh2uUhj6+MwOx/nbmCvrQ4+EzMo+Q5TauVEMVkEQ63CtdBkzhB3BHYY25y61
+         J75w==
+X-Gm-Message-State: AAQBX9cgy6PYds04PsFMrxNmzSxAPi4/fSaXS+bWSYNzeiTiYeG6jIHz
+        QSwDZG457crHfYl6RHLxibHDig==
+X-Google-Smtp-Source: AKy350ZaLC8TwIDCmSoJ6SvrwuhOk/cXz0vgHxCRAEK5iSsV3euYHNdphxuidvBWfdm0bgUek9GLgQ==
+X-Received: by 2002:a5d:5383:0:b0:2d8:82f9:9dbd with SMTP id d3-20020a5d5383000000b002d882f99dbdmr1333922wrv.11.1680872381567;
+        Fri, 07 Apr 2023 05:59:41 -0700 (PDT)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id t4-20020a5d6a44000000b002e558f1c45fsm4471446wrw.69.2023.04.07.05.59.45
+        by smtp.googlemail.com with ESMTPSA id t4-20020a5d6a44000000b002e558f1c45fsm4471446wrw.69.2023.04.07.05.59.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Apr 2023 05:59:46 -0700 (PDT)
+        Fri, 07 Apr 2023 05:59:41 -0700 (PDT)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Fri, 07 Apr 2023 14:59:24 +0200
-Subject: [PATCH v5 05/12] arm64: dts: mediatek: add mt6357 PMIC support for
- mt8365-evk
+Date:   Fri, 07 Apr 2023 14:59:20 +0200
+Subject: [PATCH v5 01/12] arm64: defconfig: enable MT6357 regulator
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230203-evk-board-support-v5-5-1883c1b405ad@baylibre.com>
+Message-Id: <20230203-evk-board-support-v5-1-1883c1b405ad@baylibre.com>
 References: <20230203-evk-board-support-v5-0-1883c1b405ad@baylibre.com>
 In-Reply-To: <20230203-evk-board-support-v5-0-1883c1b405ad@baylibre.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -83,58 +82,42 @@ Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         Amjad Ouled-Ameur <aouledameur@baylibre.com>,
         Alexandre Mergnat <amergnat@baylibre.com>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=962; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=O8w7thwfT5MR8VFkiJw3MJIje+8Rl/nHai1vgZPIVV8=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkMBO6NUK3q6T+uECyCgPL65LBXrFxIh/qJ7KH4IgE
- RP3l742JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZDATugAKCRArRkmdfjHURd7rD/
- 40k2d9gb/Y/bWntaEH/+BuC7xgqfUmd0aunIoMmg56TqxmZ/f/tOKhKqAxhMyQV5gYodCPb+7YX04Y
- XEx3CX2A3b383gpA6VTUjIk5hxr6jpWaEVbJ+vo197+UlAOTcak0WiCSzKHhk8bKUIr/363rDGpGbi
- IKaphgMh/GsxsEtdAZaGol9V7r1xH+vi6RZjGZnnRqKlhVebw/JbuGKRW3ARp8SoYnG068EYxUFNQg
- 7JDX2KaQ0Qz6uYgNSGFTUm7EOWkfC5k3tzYJzYEG07PWORL6fvLHnaffo/VNRnMCwqRrONaAam9fLR
- GyjHRavUuinx4lCFJURCWo+HKGbuNB5QacT7QBOFc/g0Ncx9L4tfKjBHf0T09Jlzux8j7g0Uo6OIof
- glkd9ysMTBFAGL67XvjeEo8L0eNXy6oc5fPvcVxJnRYIMEb4ujxcZ/gfUVxHZB3WHDWm/Owps0IPNv
- ngHPLv9OMXdSv1BDw6PpvRwwvCuxxNcq6wdrFg2kBH4QO+p91Ka1yfRNXjS9jR4Xxr/USYs0Nj4Ai6
- xO7Cmvv6LAiU5hNPySOPUQl44wce6jt7wupJRhUyV30I5QKPzOmWYduHy1M+wZ+5+AsgRp9NFB4o+1
- XQ/QEF98IK6R6RFItrLo2Dfap5MS1E2il6WaeFew2OwN88SGZZXmVPNujvfQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=583; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=sS9Bqjy2f/wrV6dRVMTpSR6wSBcC15zFUiRoUmJvDA4=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkMBO60PeWsaAgjDgdQZqw9UM2aDFQwIk354Xe6wol
+ CMWufB2JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZDATugAKCRArRkmdfjHURUwiD/
+ 432JUu5PRVuk/Ky8foy11MAu6x4+2Jz5kyX0fIx8QccHaDynhPpyfkh90nbmjpkJlYhaBw4A6WREt6
+ RklRROJLK2wqYHMw4GAKXkar26H5sz8Re9qJghzBJ9VKr7r1OHolgHE6Ky0SGsIE2H+3oWjOxeTjLE
+ kUiwv5ALamsdrFm8EJKTRUAiG4mOLp44lKXI/AimkQ8OWrjfhM0KuKBPoqMxdNkiBk60a5/k1UA6v7
+ iJr2+TZw+/tVL4ZLVgq9j81hBHWdbRN7isFoQXmWfnNZ0rcrV4vxgEARZ0HHFxisWo9UemYUveMu14
+ gpc96Vk9GKqmIUsIEf74yrKV4Jnc7Cxwl0QPtQUUblsfE8noSobQOYW+JslYOslrDrMyjI6FtXM6nO
+ Q6Zm1CIqxrOTivgnNWx3jmXr59yEZ0Wd39mOooAwvO8PvOq/dpxz360q/I+/v4aGM4s+gziUXVcTt9
+ OQt+yrdSYxB4UyA1Jzit4/q/ZlCFo6Q9pN/T6N82OY/lhU6OvyugB/pTWVVyHE0iXV8i5FGECEC7Rr
+ eSwZ9GNJKzHZn2oCJSUOBx7043b84zmNUOzD38EQRyi5je6vGWxuegxhRtuzWyjF0zdDE49adCH8O9
+ +N6XoUXjCS3k8Ze1qkblfSHW1wYotVpgo1CT8HnQ7IXp38UyQkgcKs95WxJg==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This power management system chip integration helps to manage regulators
-and keys.
-
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-index dd7da86420cf..a238bd0092d2 100644
---- a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-@@ -12,6 +12,7 @@
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/pinctrl/mt8365-pinfunc.h>
- #include "mt8365.dtsi"
-+#include "mt6357.dtsi"
- 
- / {
- 	model = "MediaTek MT8365 Open Platform EVK";
-@@ -94,6 +95,12 @@ &i2c0 {
- 	status = "okay";
- };
- 
-+&mt6357_pmic {
-+	interrupts-extended = <&pio 145 IRQ_TYPE_LEVEL_HIGH>;
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+};
-+
- &pio {
- 	gpio_keys: gpio-keys-pins {
- 		pins {
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 7790ee42c68a..e4cb65889ae6 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -685,6 +685,7 @@ CONFIG_REGULATOR_MAX77620=y
+ CONFIG_REGULATOR_MAX8973=y
+ CONFIG_REGULATOR_MP8859=y
+ CONFIG_REGULATOR_MT6315=m
++CONFIG_REGULATOR_MT6357=y
+ CONFIG_REGULATOR_MT6358=y
+ CONFIG_REGULATOR_MT6359=y
+ CONFIG_REGULATOR_MT6360=y
 
 -- 
 2.25.1
