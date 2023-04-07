@@ -2,62 +2,63 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7895C77B75
-	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Apr 2023 12:59:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 406D3C77B79
+	for <linux-watchdog@archiver.kernel.org>; Fri,  7 Apr 2023 12:59:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240626AbjDGM7y (ORCPT
+        id S240550AbjDGM74 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 7 Apr 2023 08:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37884 "EHLO
+        Fri, 7 Apr 2023 08:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240523AbjDGM7p (ORCPT
+        with ESMTP id S240646AbjDGM7s (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Apr 2023 08:59:45 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D56B9EF9
-        for <linux-watchdog@vger.kernel.org>; Fri,  7 Apr 2023 05:59:44 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id n19-20020a05600c501300b003f064936c3eso4357507wmr.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 07 Apr 2023 05:59:44 -0700 (PDT)
+        Fri, 7 Apr 2023 08:59:48 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1EB7ABC
+        for <linux-watchdog@vger.kernel.org>; Fri,  7 Apr 2023 05:59:45 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id y14so42279491wrq.4
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Apr 2023 05:59:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1680872383; x=1683464383;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1680872385; x=1683464385;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CfcyjQNnjJKyfut48sN8/xADyro7NrSR3hTnCNZX/QE=;
-        b=b2giEx0I++QT94DRuN8jH9pGk7u1tl+V39YofW83rGdzvzzmPQuh/Xyfy6OqExcl/U
-         1oqYJNwW/IiFzcOUjBkHvs2IiLMUhucoWryP1tUWYhgOmmxf5pTHrsM9zmU33yc46oc6
-         ZuEt9nJO9L/OzYXjIBC1H0WIu6aRRMkREJBsq/dpYsCb5mCX4bVdcj5Ko5ie/8kNAyfD
-         LxsH2/ZFr2XLjuXiRFsUvtNvLvkSgbvq0f0/ngEb7JVx8HlQ1IODj7ORq75Oe86T2KzQ
-         LVa0PoCW9pUFWD5+UKqr6IrGcwO0Np+TESojnZBJbV6vgw/VlAlvq2GHNiSDydP0iyq9
-         brVg==
+        bh=jwase7lH/pIQ+fdUHX1Peydgp8rdPYou8E/famXpXaM=;
+        b=HZIRXZ2OO+IgFWTwX8N94qnUwwC5vld/cbyCY537t1m6tz5sUMZVV3HuDHLVWJW67/
+         OL0uvDo1OVhoksXptNVyffY6zfZEjSHHDZauLUCU20HdLoHNQ2750v3DIkC5vYJq2wL7
+         P+wCcAbq+V1b6Y7qnH2b3DiEN95pG3r27rBK4gb1O1cH/WtVYpGP3kJmzoujyB+LpYKo
+         aV5P5ZVzmryTLLNphLfeSZ0jrwlpV9TPLSxUSwDt/ouFqQHfG8w85CrlsgqZWGxhLC9D
+         26VzWdYysYz9tAzXUJQusfAj5G1DdC6iO1o56EDmNCQScwgL4ubjHe1xpAAIYYKX4M7d
+         BELw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680872383; x=1683464383;
+        d=1e100.net; s=20210112; t=1680872385; x=1683464385;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CfcyjQNnjJKyfut48sN8/xADyro7NrSR3hTnCNZX/QE=;
-        b=3udP39jKYjX/A1jblWqam2KExO+wyIUnzcq4gvsQwGZIZMo9cBCGdPvVT3dTaXY25Z
-         L5Nef+ENSNOydwHIk1etygai/d03sR+YRAzbbjmPJYctaX6Wt4COCxmDUonkkyQNy9T7
-         LCgV7JBrAYFUrl2WvWYbu5zPfbN0rRcZHMC0Ua1ETORT7iCXyR/QDNRGarlzrBT61X+G
-         F7e1G3LA0PSLUHGxiK9YZyXK0WgT7BH1o0zVhrWYmZnxUG3F1F7eFwXd7DdGohO9H9ky
-         ut/jv45+q0ET+A5VfSCkl0LJlkBrHyvhv7thXkUChme/i9yLiTkVLKjcFymKAEVkJtla
-         gpYg==
-X-Gm-Message-State: AAQBX9fVQRlUUMeqAjTMQm/DrNX3jL6tf5YBThAHwZDPhKHOBap6fNgm
-        /UbDxBGfNxFihZJtzRuOdOP/5LzI4ECH6zHshQQ=
-X-Google-Smtp-Source: AKy350a0mSzUresI8Qrw6rLqP7KVvyQ/h/qTUx2AGaI8dw6HgQWcJdZC04b2dwrui04EfmC7Mbgi+A==
-X-Received: by 2002:a05:600c:2183:b0:3eb:29fe:f911 with SMTP id e3-20020a05600c218300b003eb29fef911mr1329928wme.13.1680872382864;
-        Fri, 07 Apr 2023 05:59:42 -0700 (PDT)
+        bh=jwase7lH/pIQ+fdUHX1Peydgp8rdPYou8E/famXpXaM=;
+        b=MSDgaIAu/jApOnWgVLi/7DGgvg4IUxaUhg6npvtatKKGVMqXL52v1xlDysrmDi9t7H
+         9JKDQWT2VAQrDtoNjSva26+koneiz7udNzVtbknR6236krTvSNCHDdl2X/98llesA7kG
+         hs2qY+xKFmmBJxxF7o6vhJUU8nw1olvHucg5sjHOjYCxIARikN7qRlzZ2+UI86uI/xhV
+         M0hO1XvGjAYQX/6tKwVn9PnoZRNSyuPI6vwoC/pGpyN2DGdTusVWVdG9paiu+vD5WWNj
+         qq4s3lpPqxZt19CymgmGTaATXDbxwP91eIg4IzkotXMTRsydYsnTTvjsSECVzEym113G
+         GBQQ==
+X-Gm-Message-State: AAQBX9efOZemktXIdMtOVEvoVvPLFey1d3uNC7FFkJY7svpFXQvuUCd5
+        WBAw+YUH0N/b5Na6TBFhjPbN+J+U57VOmLErnGY=
+X-Google-Smtp-Source: AKy350bxfJ4o6nXLivlRDDZqJIOQlu2G++yNOda81ZJAup+Eaz+itOJxPYtj1Zy4xw2m8NlQLkFoRw==
+X-Received: by 2002:a5d:4f06:0:b0:2ce:9d06:58c6 with SMTP id c6-20020a5d4f06000000b002ce9d0658c6mr1510029wru.53.1680872385407;
+        Fri, 07 Apr 2023 05:59:45 -0700 (PDT)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id t4-20020a5d6a44000000b002e558f1c45fsm4471446wrw.69.2023.04.07.05.59.41
+        by smtp.googlemail.com with ESMTPSA id t4-20020a5d6a44000000b002e558f1c45fsm4471446wrw.69.2023.04.07.05.59.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Apr 2023 05:59:42 -0700 (PDT)
+        Fri, 07 Apr 2023 05:59:45 -0700 (PDT)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Fri, 07 Apr 2023 14:59:21 +0200
-Subject: [PATCH v5 02/12] arm64: defconfig: enable Mediatek PMIC key
+Date:   Fri, 07 Apr 2023 14:59:23 +0200
+Subject: [PATCH v5 04/12] arm64: dts: mediatek: add watchdog support for
+ mt8365 SoC
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230203-evk-board-support-v5-2-1883c1b405ad@baylibre.com>
+Message-Id: <20230203-evk-board-support-v5-4-1883c1b405ad@baylibre.com>
 References: <20230203-evk-board-support-v5-0-1883c1b405ad@baylibre.com>
 In-Reply-To: <20230203-evk-board-support-v5-0-1883c1b405ad@baylibre.com>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -82,46 +83,50 @@ Cc:     linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         Amjad Ouled-Ameur <aouledameur@baylibre.com>,
         Alexandre Mergnat <amergnat@baylibre.com>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=696; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=Y50nUyCeJOixDSHXG+mQZU/+URiR+SRJRINiChTJUZk=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkMBO6HFk1tMX573OLGmez/7zh7KzG4duai4jQcwJq
- iQGmSoOJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZDATugAKCRArRkmdfjHURSR3D/
- 9mS4P2gqL8iNFNUpbPB3gvJLISPFisIppUDqged+FWNbWhqOKHqXCCB4hzCQAdGmJZPKxUrF61YlUn
- 0ryu7f8FV9ww+MW54RsoIoEkG61BF6J121ZMBxbUtp9Dp4imt6n3ZaoA07PpqQV8dtBUbNqQjJERTK
- bNMY1rfljeAcxqSa9QZLkumfpZziHAa1/5Agg8fqHrRQasvpwOkP2zVW46rsU0mQeWP6XlZDXqK6CZ
- h5oGx+xVfL84uavPac65uMtIAVTJ7nbw9Ix9/EM+ahj0ckPD9bl1Ee4HrjQCJJ+oQaSGen2FKyhdRZ
- tca7dNlj+YEXIG7zD6eGCgTlIJYVpdagx+qPDBxibWPJMqEEXufu5ct7dMpzPNEfint7XldSlh5xw/
- A208sfc0mRPaUQ29Nu6J7WhUwt/alu9xDky9MSRjyN7W89BAUsM6Zu9Qm5WGvNDQwPf0mmioayZaox
- ZCcB8bi0L+vSBgezZ1PLZVfjIiAKW693h+KPsvEpd/UhdIR9VEzJcH5+Dl2ot/p0PZsvSp6qXidxG/
- ppxp4fYEg/4+4TgxjWyQpTK9n3VZdWZ+5nH+sEA6PMI3KsSExy/5YTkXEapclW1lY6LR7mmTkAxutq
- 96CuLmjz3Z/t1NGKYE89mtSV81nLV06uITftJeza4r5HZbvIFLCBT64A3EUA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=892; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=sanLlORy8ZXQl/7pqZ+xOL9pEwEsbTjvO/nq6i79rEI=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkMBO60J7EzOGKmb/4WFccYICcyIp/r1bWyW3d1Nv+
+ OsX6ofGJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZDATugAKCRArRkmdfjHURUVVEA
+ CfyE+FhgX8+cFqJ4LCg5L/DbXQRH/woKvefBnuz0E5dBhfBVS7JfAnOUVDM19i5tnxzJlGu2BdaaS0
+ E4cqPIDIMvo8GoBBGmTSQ/5MiovW0GXRSwunDn84KzocpFpQf5iZlYnGsh4Qj534wZOlbIUnftrWd1
+ Z0OyEdKsjXJ1Cw2aI1NKSRh5xWG0z+p+gs0R2kABm0K+QqJ14CcSKd5SYWAxUQYfjvYScSg0NAN9ni
+ aaxMGUGyMMVRLHqqs3uiEc/Ux40hjSBL1DXicioVdyFDCmt2IwoC0Avnl5e5lZ3HBl7Zu3KBzKzDm9
+ KzweasxI3oXqABU/W9JP503dOOMc9VX169fDLp7m1oh0GwtKWpy7sw5dV6qIaSMGcLFeuBSBXp0NFS
+ 9Ru2JrkjDQpUgaZbsQjLDhw4zVDDEbu6Pij7QAJzcR4m5MN7ZRjlJPAl4gInrc00OKyfyF6BHQdVwU
+ cfvHf4zsUHtJs0IE3jmf6JQseo3LnZDcZx04MrEpZPIlFGGYV5VbHwLhuwDZLpJpBPWEFIne+bG+dO
+ Dg9pPOsLdzWip7RR6kv/H/nmUsXBRW9YlAxkRyELaCGQJLrO2E0P/Mlq3AHvGmSKd4CODwPT1ijsPh
+ pJFWhgJT1mBNHSxjSre1HkWzTQA+7ajgWmfoCp99cMq4gd2LLDNxaPrCzgkg==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Add watchdog support.
+
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- arch/arm64/configs/defconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt8365.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index e4cb65889ae6..91fad635e565 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -406,9 +406,11 @@ CONFIG_MHI_WWAN_MBIM=m
- CONFIG_INPUT_EVDEV=y
- CONFIG_KEYBOARD_ADC=m
- CONFIG_KEYBOARD_GPIO=y
-+CONFIG_KEYBOARD_GPIO_POLLED=m
- CONFIG_KEYBOARD_SNVS_PWRKEY=m
- CONFIG_KEYBOARD_IMX_SC_KEY=m
- CONFIG_KEYBOARD_CROS_EC=y
-+CONFIG_KEYBOARD_MTK_PMIC=m
- CONFIG_MOUSE_ELAN_I2C=m
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=m
+diff --git a/arch/arm64/boot/dts/mediatek/mt8365.dtsi b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+index 1f6b48359115..bb45aab2e6a9 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8365.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+@@ -162,6 +162,12 @@ syscfg_pctl: syscfg-pctl@10005000 {
+ 			reg = <0 0x10005000 0 0x1000>;
+ 		};
+ 
++		watchdog: watchdog@10007000 {
++			compatible = "mediatek,mt8365-wdt", "mediatek,mt6589-wdt";
++			reg = <0 0x10007000 0 0x100>;
++			#reset-cells = <1>;
++		};
++
+ 		pio: pinctrl@1000b000 {
+ 			compatible = "mediatek,mt8365-pinctrl";
+ 			reg = <0 0x1000b000 0 0x1000>;
 
 -- 
 2.25.1
