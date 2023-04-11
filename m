@@ -2,112 +2,58 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F30EC76196
-	for <linux-watchdog@archiver.kernel.org>; Mon, 10 Apr 2023 16:47:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18159C7619A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 11 Apr 2023 07:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230290AbjDJQrd (ORCPT
+        id S229909AbjDKHlz (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 10 Apr 2023 12:47:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52600 "EHLO
+        Tue, 11 Apr 2023 03:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230183AbjDJQr3 (ORCPT
+        with ESMTP id S229906AbjDKHlx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Apr 2023 12:47:29 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95381FCD;
-        Mon, 10 Apr 2023 09:47:27 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id h24-20020a17090a9c1800b002404be7920aso4977904pjp.5;
-        Mon, 10 Apr 2023 09:47:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1681145247; x=1683737247;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZX6G983IOsO4LeBFZ2W8dXRHd1jWabfUcIh+Ab+jJN0=;
-        b=GgkmGFBXbEQ3apfV2tzZswmfhrnGz1zPslCIzyMysTsu0Q0aoNQKX2qDv2y7u15311
-         wUS7AYzPOdNOVvlPE4VqvIL1FSZUgwtX9oRx8I1bZ9/REQ5VPJ5znkHnmQDgWGsEuDFB
-         O2fp2p8m9jfh5iHpyFJXDhXLkwsmygxCHX0d643sE2kx27hWjDBV8cLeksVqznTLfnSd
-         QLz5pMB+gqSP8pAeoRWPS3WOccm7Vrw3il22PPjmn1jLgkI7UTkDHFgzaTF6kbNDluSw
-         g+VmKFQ2t5qkaJdx7y0vBEtDyK6Hw6TtIs/23CtKHa1XPGEIZAX5JxzUhT+oci0YbFfv
-         AWhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681145247; x=1683737247;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ZX6G983IOsO4LeBFZ2W8dXRHd1jWabfUcIh+Ab+jJN0=;
-        b=G4uZFuiyssiFOauUGiZKvNwOB4kjualLbTD5Bp5BsxEnBK1XYivK8OOVCAaeL5LdT+
-         Knx6Htnb8qNq8L51tWQfmRik824megZcnSBOZGxJWGZE9pIS+1ZtQBSECkuHDvDEh5PF
-         PCTevNBMGtXNM2UQSrd/0ph6D80BaA4/ABokAOfXcWiIh3o7f+84HDlVNkzaNiXkQNLj
-         EVHX7V7JNdr8pnSGzbV4A5aLxTvNenckr8/bQdNjrCFRCWyIZ1IKLbHG1LqoKIsMkze9
-         2ev9QgAIhEpigibZjhQBHQzGDeip277y7Tt6kqsjJdgjlSLVromfmeWxT00SJGHQzKZY
-         rpFg==
-X-Gm-Message-State: AAQBX9f+9Upqc4C19YFQGeq0Ri1G22uH7WhV2Y9U1OGnlArp7UnNi7x+
-        s/0WcVO4hFuc0ipftPrk2dU=
-X-Google-Smtp-Source: AKy350Z1qVhIudcRbsfTnkwB1F1gA7KQ7uRQcFIvA0GCr1SAxOpiiUqDA3r9onYfLVCXESoEqcL+/A==
-X-Received: by 2002:a17:902:c64b:b0:1a5:27da:538c with SMTP id s11-20020a170902c64b00b001a527da538cmr8290529pls.26.1681145247062;
-        Mon, 10 Apr 2023 09:47:27 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id jn18-20020a170903051200b001a221d1417csm7988828plb.298.2023.04.10.09.47.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Apr 2023 09:47:26 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <51d125a0-3dc3-48b7-c4af-c37e826e2736@roeck-us.net>
-Date:   Mon, 10 Apr 2023 09:47:24 -0700
+        Tue, 11 Apr 2023 03:41:53 -0400
+Received: from mail.lokoho.com (mail.lokoho.com [217.61.105.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6222728
+        for <linux-watchdog@vger.kernel.org>; Tue, 11 Apr 2023 00:41:52 -0700 (PDT)
+Received: by mail.lokoho.com (Postfix, from userid 1001)
+        id 72BCD830BB; Tue, 11 Apr 2023 08:40:51 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lokoho.com; s=mail;
+        t=1681198857; bh=Z0N5VlX9/JlryGOL5I747Le9USomZJCRNNGRT3LbbKc=;
+        h=Date:From:To:Subject:From;
+        b=XNMg4sQ49Eht15P8AG3qXnhmNZEOK3BgMPJuMjyYKbVY/B6ID44QySrQbLH+2JHj+
+         IG3S6tytyZdFgz26yXC9yx/DOXqZVv+eoKNshSzMR6R9Jhtl2oJP3BhljeQ0vypOBe
+         owIP59Or/+7nlIA9gO3EoyqP3s8H0/DUbk6DTPpOYpyo5E3OAmzIGBg2xStawCSsaT
+         UWGUMnyTmJRywZf7JxfhG+2Lf/gZ+udqR7/prYD4HwoJZNMhlBEhGJlrWGDi396+dM
+         WmAOwegyS8CBICuygGquUnihuxyDcT3X6j7H8OYHx6Zymqp0jMdlk4FUYy791InQXM
+         tk7uDpw9HPnzA==
+Received: by mail.lokoho.com for <linux-watchdog@vger.kernel.org>; Tue, 11 Apr 2023 07:40:45 GMT
+Message-ID: <20230411074501-0.1.58.1ti8t.0.y852rrmjgl@lokoho.com>
+Date:   Tue, 11 Apr 2023 07:40:45 GMT
+From:   "Adam Charachuta" <adam.charachuta@lokoho.com>
+To:     <linux-watchdog@vger.kernel.org>
+Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
+X-Mailer: mail.lokoho.com
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH v2] watchdog: ebc-c384_wdt: Mark status as orphaned
-Content-Language: en-US
-To:     William Breathitt Gray <william.gray@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Paul Demetrotion <pdemetrotion@winsystems.com>,
-        techsupport@winsystems.com,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Fred Eckert <Frede@cmslaser.com>
-References: <20230410150926.3354-1-william.gray@linaro.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230410150926.3354-1-william.gray@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/10/23 08:09, William Breathitt Gray wrote:
-> The current maintainer no longer has access to the device for testing,
-> the original user of this driver indicates that they have moved on to
-> another device, and the manufacturer WINSYSTEMS does not appear
-> interested in taking over support for this code.
-> 
-> Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Dzie=C5=84 dobry,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
+=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
+o dalszych rozm=C3=B3w.=20
 
-> ---
-> Changes in v2:
->   - Remove "M:" line
-> 
->   MAINTAINERS | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 90abe83c02f3..a1f44c4d40a9 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -22512,9 +22512,8 @@ S:	Maintained
->   F:	drivers/media/rc/winbond-cir.c
->   
->   WINSYSTEMS EBC-C384 WATCHDOG DRIVER
-> -M:	William Breathitt Gray <william.gray@linaro.org>
->   L:	linux-watchdog@vger.kernel.org
-> -S:	Maintained
-> +S:	Orphan
->   F:	drivers/watchdog/ebc-c384_wdt.c
->   
->   WINSYSTEMS WS16C48 GPIO DRIVER
-> 
-> base-commit: 09a9639e56c01c7a00d6c0ca63f4c7c41abe075d
+Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
+=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
+=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
+strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
 
+Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
+
+
+Pozdrawiam
+Adam Charachuta
