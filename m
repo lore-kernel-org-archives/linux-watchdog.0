@@ -2,201 +2,113 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB9F0C77B71
-	for <linux-watchdog@archiver.kernel.org>; Tue, 18 Apr 2023 05:16:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F04AC77B75
+	for <linux-watchdog@archiver.kernel.org>; Tue, 18 Apr 2023 06:56:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjDRFQb (ORCPT
+        id S231178AbjDRG4q (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 18 Apr 2023 01:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54380 "EHLO
+        Tue, 18 Apr 2023 02:56:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229619AbjDRFQa (ORCPT
+        with ESMTP id S231214AbjDRG4n (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 18 Apr 2023 01:16:30 -0400
-X-Greylist: delayed 86324 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 17 Apr 2023 22:16:27 PDT
-Received: from mail-40138.protonmail.ch (mail-40138.protonmail.ch [185.70.40.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C801C40EF
-        for <linux-watchdog@vger.kernel.org>; Mon, 17 Apr 2023 22:16:27 -0700 (PDT)
-Date:   Tue, 18 Apr 2023 05:16:10 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-        s=protonmail; t=1681794985; x=1682054185;
-        bh=+w7z3alPLwzNkvvn0KLBZKtp9RjVXYgSCWgZ1BS3+8I=;
-        h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-         Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-        b=Khq572Bk4K5UafoQEWcO8lCaHSfx0kzISL94FuV8E0Aei94bwWqFWAuLvy4mvQFwz
-         rfFYyeSiQy6rjFWByzMUk9bL9hjxM49uoQn3g2AqXDUf3wl0aCum9obVSijzsKT6b6
-         WhtlyERSHCW6H8AlVpOoFacuOMasSLQ1sSPyL8K7hnyAPBGz0Ro2nVpZeIGZ4TXRoX
-         48bhZDm0hTqb16D8egF2SgLjdNOE8dWV1j93TDYTY6MkpszP0kHOJO+iMeEBFu26yv
-         uVx48JVYooaRSxzVEOePMYJonc96BjkzkCsr0JL7ZxVrLbgPJjvB9tlYkB+OyvLNri
-         9X+umVSiOelAA==
-To:     hack3r-0m@proton.me
-From:   Om Parikh <hack3r-0m@proton.me>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        Tue, 18 Apr 2023 02:56:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665B45FDA
+        for <linux-watchdog@vger.kernel.org>; Mon, 17 Apr 2023 23:56:23 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pofG4-0007Yu-8t; Tue, 18 Apr 2023 08:56:08 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pofG0-00C2xk-ET; Tue, 18 Apr 2023 08:56:04 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pofFz-00E7r2-TO; Tue, 18 Apr 2023 08:56:03 +0200
+Date:   Tue, 18 Apr 2023 08:56:03 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3] dt-bindings: watchdog: alphascale-asm9260: convert to DT schema
-Message-ID: <20230418051446.24288-1-hack3r-0m@proton.me>
-Feedback-ID: 58440162:user:proton
+Subject: Re: [PATCH 1/2] watchdog: s3c2410_wdt: Use Use
+ devm_clk_get[_optional]_enabled() helpers
+Message-ID: <20230418065603.rzpiazzw4upitynt@pengutronix.de>
+References: <20230304165653.2179835-1-linux@roeck-us.net>
+ <20230306091048.mfrpexle24t6nwzy@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pq2sbtajlj7vfmbt"
+Content-Disposition: inline
+In-Reply-To: <20230306091048.mfrpexle24t6nwzy@pengutronix.de>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Makes alphascale-asm9260 dt bindings adhere to the dt json-schema
-by replacing txt file with yaml file.
 
-Signed-off-by: Om Parikh <hack3r-0m@proton.me>
----
- v1 -> v2:
-  - drop quotes in "$ref" value
-  - update compatible string from board name to node name
-  - drop "Olof Johansson" from maintainers
-  - update "compatible" property from enum to const
-  - drop generic reset description
+--pq2sbtajlj7vfmbt
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- v2 -> v3:
-  - drop timeout-sec property
-  - update description for mode property
-  - set default as "hw" for mode enum
+Hello,
 
- .../watchdog/alphascale,asm9260-wdt.yaml      | 70 +++++++++++++++++++
- .../bindings/watchdog/alphascale-asm9260.txt  | 35 ----------
- 2 files changed, 70 insertions(+), 35 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/alphascale,a=
-sm9260-wdt.yaml
- delete mode 100644 Documentation/devicetree/bindings/watchdog/alphascale-a=
-sm9260.txt
+On Mon, Mar 06, 2023 at 10:10:48AM +0100, Uwe Kleine-K=F6nig wrote:
+> On Sat, Mar 04, 2023 at 08:56:52AM -0800, Guenter Roeck wrote:
+> > The devm_clk_get[_optional]_enabled() helpers:
+> >     - call devm_clk_get[_optional]()
+> >     - call clk_prepare_enable() and register what is needed in order to
+> >       call clk_disable_unprepare() when needed, as a managed resource.
+> >=20
+> > This simplifies the code and avoids the calls to clk_disable_unprepare(=
+).
+> >=20
+> > While at it, use dev_err_probe consistently, and use its return value
+> > to return the error code.
+> >=20
+> > Cc: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>=20
+> Reviewed-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-diff --git a/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-=
-wdt.yaml b/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wd=
-t.yaml
-new file mode 100644
-index 000000000000..fea84f5b7e6d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yam=
-l
-@@ -0,0 +1,70 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/alphascale,asm9260-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Alphascale asm9260 Watchdog timer
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+maintainers:
-+  - Oleksij Rempel <linux@rempel-privat.de>
-+
-+properties:
-+  compatible:
-+    const: alphascale,asm9260-wdt
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: source clock, used for tick counter
-+      - description: ahb gate
-+
-+  clock-names:
-+    items:
-+      - const: mod
-+      - const: ahb
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  resets:
-+    maxItems: 1
-+
-+  reset-names:
-+    items:
-+      - const: wdt_rst
-+
-+  alphascale,mode:
-+    description: |
-+      Specifies the reset mode of operation. If set to sw, then reset is h=
-andled
-+      via interrupt request, if set to debug, then it does nothing and log=
-s.
-+    $ref: /schemas/types.yaml#/definitions/string
-+    enum: [hw, sw, debug]
-+    default: hw
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - clock-names
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/alphascale,asm9260.h>
-+    watchdog0: watchdog@80048000 {
-+      compatible =3D "alphascale,asm9260-wdt";
-+      reg =3D <0x80048000 0x10>;
-+      clocks =3D <&acc CLKID_SYS_WDT>, <&acc CLKID_AHB_WDT>;
-+      clock-names =3D "mod", "ahb";
-+      interrupts =3D <55>;
-+      timeout-sec =3D <30>;
-+      alphascale,mode =3D "hw";
-+    };
-diff --git a/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.=
-txt b/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
-deleted file mode 100644
-index 75b265a04047..000000000000
---- a/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
-+++ /dev/null
-@@ -1,35 +0,0 @@
--Alphascale asm9260 Watchdog timer
--
--Required properties:
--
--- compatible : should be "alphascale,asm9260-wdt".
--- reg : Specifies base physical address and size of the registers.
--- clocks : the clocks feeding the watchdog timer. See clock-bindings.txt
--- clock-names : should be set to
--=09"mod" - source for tick counter.
--=09"ahb" - ahb gate.
--- resets : phandle pointing to the system reset controller with
--=09line index for the watchdog.
--- reset-names : should be set to "wdt_rst".
--
--Optional properties:
--- timeout-sec : shall contain the default watchdog timeout in seconds,
--=09if unset, the default timeout is 30 seconds.
--- alphascale,mode : three modes are supported
--=09"hw" - hw reset (default).
--=09"sw" - sw reset.
--=09"debug" - no action is taken.
--
--Example:
--
--watchdog0: watchdog@80048000 {
--=09compatible =3D "alphascale,asm9260-wdt";
--=09reg =3D <0x80048000 0x10>;
--=09clocks =3D <&acc CLKID_SYS_WDT>, <&acc CLKID_AHB_WDT>;
--=09clock-names =3D "mod", "ahb";
--=09interrupts =3D <55>;
--=09resets =3D <&rst WDT_RESET>;
--=09reset-names =3D "wdt_rst";
--=09timeout-sec =3D <30>;
--=09alphascale,mode =3D "hw";
--};
---
-2.40.0
+This patch is in next now as b05a2e58c16c47f3d752b7db1714ef077e5b82d9.
+My name occurs twice in the tag area, once it is mangled as
 
+	Uwe Kleine-K=3DF6nig
 
+I would welcome fixing that (i.e. s/=3DF6/=F6/). When this commit is
+touched, you can also do s/Use Use/Use/ in the Subject.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--pq2sbtajlj7vfmbt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmQ+PwIACgkQj4D7WH0S
+/k5cbQf9HOO57ZgnafrxiOin35DQRKYj9Lg1Ht/m5G723CPmOxWfvTOB/HbfZ7Ka
+eIGmjJvm8owFB3ZMxlvxCp8e/b8kCi5JzFZ/htcZdMWAmCiIjNx0SYj1xmGBG3xy
+6vFeKnBGh02rbnALaTb7pY2TQSlNHyR3sWOpukGryOusXoe2xvKUdGKoq+GG1aD2
+jzxT+ehNxDK6mnfye5uPtCuPL2ub3o922lIyU85rtSRgcSgqvIqZ8o4Dc58zVj79
+IWd38kaoxHod+k/a+4iD1XSM63qn9egI+SClxk3aIRgzR48wSqRTP7h1fuppoyOy
+2I6m1bXkYI1Dtx8UcsnEZsdiqOIZAA==
+=aLSU
+-----END PGP SIGNATURE-----
+
+--pq2sbtajlj7vfmbt--
