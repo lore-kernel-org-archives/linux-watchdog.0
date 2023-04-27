@@ -2,129 +2,112 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 415C1C77B73
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 07:46:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B5F1C77B73
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 09:48:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242968AbjD0Hp4 (ORCPT
+        id S242980AbjD0JsO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Apr 2023 03:45:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
+        Thu, 27 Apr 2023 05:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243159AbjD0Hpe (ORCPT
+        with ESMTP id S243388AbjD0JsN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Apr 2023 03:45:34 -0400
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D5A2718;
-        Thu, 27 Apr 2023 00:45:31 -0700 (PDT)
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33R753WT006730;
-        Thu, 27 Apr 2023 00:14:15 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=pfpt0220;
- bh=toQ9a0YCNHyB5z4VppPWxShMMQwv8KOiv6BDbEN7628=;
- b=WqDNCvowkDGyLJPfbUKOdayl+rmHA47GvUeFCWlWXpyToPMqxqe4Qema8Au+BrJ4jMHH
- H0Oz4paIzA/3kogGNjqzetWASCwMvhYynwGsoaUGtoXu9PD7mGE/Nq125J4zgus6ARYc
- Fvgz08p7fjOszOGbqksXug02Yxk7y0TVWYmZy40/aC6SMCg699066jri32YRmdqnQg3P
- s0k0p7mDk5CK0mX6WF1YQMuOQyZ9u5lj41+jD1zEHnC1IrGXSNqlGUTe6Ogs8XTLT5At
- SeWLRtYLa/aj0dzPPn2Iu4kWsks3Zls9O36wGbr3CpU+Ic3Q9Uovan1q8yz7qx4IQBLF dw== 
-Received: from dc5-exch01.marvell.com ([199.233.59.181])
-        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3q7apa2c4e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Thu, 27 Apr 2023 00:14:15 -0700
-Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 27 Apr
- 2023 00:14:14 -0700
-Received: from bbhushan2.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
- (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
- Transport; Thu, 27 Apr 2023 00:14:11 -0700
-From:   Bharat Bhushan <bbhushan2@marvell.com>
-To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <sgoutham@marvell.com>
-CC:     Bharat Bhushan <bbhushan2@marvell.com>
-Subject: [PATCH 1/2 v4] dt-bindings: watchdog: marvell GTI system watchdog driver
-Date:   Thu, 27 Apr 2023 12:44:07 +0530
-Message-ID: <20230427071408.8493-1-bbhushan2@marvell.com>
-X-Mailer: git-send-email 2.17.1
+        Thu, 27 Apr 2023 05:48:13 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EC5219A7;
+        Thu, 27 Apr 2023 02:48:12 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id 41be03b00d2f7-51b4ef5378bso8090887a12.1;
+        Thu, 27 Apr 2023 02:48:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682588891; x=1685180891;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=QbQDNFKjRytgCf+GesubNivdLWJXmKPSqFAAYcRK3AU=;
+        b=AokQBJv1jf3ffsFZoWvwqevvIA6UtN78MIdTc1+F0ptj6kFitLPxjXUANZuG/fIgN2
+         mWUnwT8WfY4Fab346smHbQ9R0Gz2Z7IalvJz2yRHrK4TlXoZNoVnSLlogL6Af3dBtEFg
+         XFQY89ZGDKOfptCjyCPeNVJ8UqaWxeLDqrMN4HOWUPATaHiLQLPaS25U/1hyvawW6eIE
+         9ulOackMZec3qoNHrmcKhEJ87eIFvRuEVv6drhhIB3vtj3o0rP2btQH118vEAgseszWv
+         LPcrxnr/34Ns0IWiO90i4XJ5SbVmntk6MW7j42Gh7kDOuXFpvEJlu/jJTKRo9tMcW9ad
+         VjHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682588891; x=1685180891;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QbQDNFKjRytgCf+GesubNivdLWJXmKPSqFAAYcRK3AU=;
+        b=ijy+ErXbMzB7mAiB+cnQuF0M3/v4PCjNYbI1ELmQt8VdvoaaXi2qWP/pRIH0pDQWuM
+         zvrewqgFEeJFclwFoJAoXywrZ+5KPIoLOFvLtJ6CEuOun7DZHIJ4bQ3cSxy2LMHlJkZa
+         O+M2TvDCto1YG1w2xiyQTIX1c4JmOiZjyTTORPb4cKg4SISn2w6tzOmFBpkIqFXVXi2W
+         5md1K0Maxpt5UYCTffnlMT0jXjHIaV5ny4F6A1cT5au/hVtcZcz0nxEEOgHDzO0CF53H
+         hqe0hx4f213Q4HvkvcIntyrzgIzGfHP2h05QkHT/AbtWD2WDZuK3ena1A8P/hRaF73uJ
+         LP2A==
+X-Gm-Message-State: AC+VfDzVwnRWj6FNrwu20QXGuABLQDAyQNl3WTVOPThADqOKYcZnn/5o
+        j3+CVIaW6vvv5Gvj3YKnLB0PPq7wZbo=
+X-Google-Smtp-Source: ACHHUZ4GaJ07HzHqmE3PHX/g78eaeGH2Dx0oA60Ib406Jcb95vkZS13uCUS+Y+SgmQl3I7mF8gctUQ==
+X-Received: by 2002:a17:903:280e:b0:1a9:93fd:e853 with SMTP id kp14-20020a170903280e00b001a993fde853mr816565plb.19.1682588891201;
+        Thu, 27 Apr 2023 02:48:11 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w14-20020a1709029a8e00b00183c6784704sm11290958plp.291.2023.04.27.02.48.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Apr 2023 02:48:10 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <fd96b2d6-69df-01e0-9784-5dfaddd28711@roeck-us.net>
+Date:   Thu, 27 Apr 2023 02:48:08 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: 7OdkCBuycamZjWh1fEmGhYWZVj_s4oq_
-X-Proofpoint-GUID: 7OdkCBuycamZjWh1fEmGhYWZVj_s4oq_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-27_05,2023-04-26_03,2023-02-09_01
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v1] watchdog: starfive: Fix the warning of
+ starfive_wdt_match
+Content-Language: en-US
+To:     Xingyu Wu <xingyu.wu@starfivetech.com>,
+        linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Samin Guo <samin.guo@starfivetech.com>,
+        linux-kernel@vger.kernel.org
+References: <20230427074400.55380-1-xingyu.wu@starfivetech.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20230427074400.55380-1-xingyu.wu@starfivetech.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add binding documentation for the Marvell GTI system
-watchdog driver.
+On 4/27/23 00:44, Xingyu Wu wrote:
+> Drop the function of of_match_ptr() to fix the warning of unused variable
+> 'starfive_wdt_match'.
+> 
+> Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
+> Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
+> ---
 
-Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
-v4:
- - Use generic name "GTI (Global Timer)" and removed OcteonTX2 as this driver
-   is applicable for other marvell devices as well. There are no logical changes
- - Added Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
- .../bindings/watchdog/marvell,gti-wdt.yaml    | 46 +++++++++++++++++++
- 1 file changed, 46 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
-
-diff --git a/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
-new file mode 100644
-index 000000000000..4d34e9635ac1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
-@@ -0,0 +1,46 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/marvell,gti-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Marvell GTI system watchdog
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+maintainers:
-+  - Bharat Bhushan <bbhushan2@marvell.com>
-+
-+properties:
-+  compatible:
-+    const: marvell,gti-wdt
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    soc {
-+        #address-cells = <2>;
-+        #size-cells = <2>;
-+
-+        watchdog@802000040000 {
-+            compatible = "marvell,gti-wdt";
-+            reg = <0x00008020 0x00040000 0x00000000 0x00020000>;
-+            interrupts = <0 38 IRQ_TYPE_EDGE_RISING>;
-+        };
-+    };
-+
-+...
--- 
-2.17.1
+> 
+> Hi, Guenter and Wim,
+> 
+> This patch fixes the compiler warning of StarFive watchdog driver and
+> rebases on the master branch of linux-next.
+> 
+> Thanks.
+> 
+> ---
+>   drivers/watchdog/starfive-wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
+> index 1995cceca51e..64d1ad4d267a 100644
+> --- a/drivers/watchdog/starfive-wdt.c
+> +++ b/drivers/watchdog/starfive-wdt.c
+> @@ -595,7 +595,7 @@ static struct platform_driver starfive_wdt_driver = {
+>   	.driver = {
+>   		.name = "starfive-wdt",
+>   		.pm = &starfive_wdt_pm_ops,
+> -		.of_match_table = of_match_ptr(starfive_wdt_match),
+> +		.of_match_table = starfive_wdt_match,
+>   	},
+>   };
+>   module_platform_driver(starfive_wdt_driver);
 
