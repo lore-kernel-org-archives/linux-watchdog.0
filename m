@@ -2,84 +2,129 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E92C9C77B61
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 07:44:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 415C1C77B73
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 07:46:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242667AbjD0HoN convert rfc822-to-8bit (ORCPT
+        id S242968AbjD0Hp4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Apr 2023 03:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
+        Thu, 27 Apr 2023 03:45:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjD0HoM (ORCPT
+        with ESMTP id S243159AbjD0Hpe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Apr 2023 03:44:12 -0400
-Received: from ex01.ufhost.com (ex01.ufhost.com [61.152.239.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41F81FCE;
-        Thu, 27 Apr 2023 00:44:08 -0700 (PDT)
-Received: from EXMBX165.cuchost.com (unknown [175.102.18.54])
-        (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-        (Client CN "EXMBX165", Issuer "EXMBX165" (not verified))
-        by ex01.ufhost.com (Postfix) with ESMTP id 26F5724E29D;
-        Thu, 27 Apr 2023 15:44:01 +0800 (CST)
-Received: from EXMBX061.cuchost.com (172.16.6.61) by EXMBX165.cuchost.com
- (172.16.6.75) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Thu, 27 Apr
- 2023 15:44:01 +0800
-Received: from localhost.localdomain (183.27.98.45) by EXMBX061.cuchost.com
- (172.16.6.61) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Thu, 27 Apr
- 2023 15:44:00 +0800
-From:   Xingyu Wu <xingyu.wu@starfivetech.com>
-To:     <linux-watchdog@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-CC:     Xingyu Wu <xingyu.wu@starfivetech.com>,
-        Samin Guo <samin.guo@starfivetech.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v1] watchdog: starfive: Fix the warning of starfive_wdt_match
-Date:   Thu, 27 Apr 2023 15:44:00 +0800
-Message-ID: <20230427074400.55380-1-xingyu.wu@starfivetech.com>
-X-Mailer: git-send-email 2.25.1
+        Thu, 27 Apr 2023 03:45:34 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D5A2718;
+        Thu, 27 Apr 2023 00:45:31 -0700 (PDT)
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33R753WT006730;
+        Thu, 27 Apr 2023 00:14:15 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=toQ9a0YCNHyB5z4VppPWxShMMQwv8KOiv6BDbEN7628=;
+ b=WqDNCvowkDGyLJPfbUKOdayl+rmHA47GvUeFCWlWXpyToPMqxqe4Qema8Au+BrJ4jMHH
+ H0Oz4paIzA/3kogGNjqzetWASCwMvhYynwGsoaUGtoXu9PD7mGE/Nq125J4zgus6ARYc
+ Fvgz08p7fjOszOGbqksXug02Yxk7y0TVWYmZy40/aC6SMCg699066jri32YRmdqnQg3P
+ s0k0p7mDk5CK0mX6WF1YQMuOQyZ9u5lj41+jD1zEHnC1IrGXSNqlGUTe6Ogs8XTLT5At
+ SeWLRtYLa/aj0dzPPn2Iu4kWsks3Zls9O36wGbr3CpU+Ic3Q9Uovan1q8yz7qx4IQBLF dw== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3q7apa2c4e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Thu, 27 Apr 2023 00:14:15 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 27 Apr
+ 2023 00:14:14 -0700
+Received: from bbhushan2.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
+ Transport; Thu, 27 Apr 2023 00:14:11 -0700
+From:   Bharat Bhushan <bbhushan2@marvell.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <sgoutham@marvell.com>
+CC:     Bharat Bhushan <bbhushan2@marvell.com>
+Subject: [PATCH 1/2 v4] dt-bindings: watchdog: marvell GTI system watchdog driver
+Date:   Thu, 27 Apr 2023 12:44:07 +0530
+Message-ID: <20230427071408.8493-1-bbhushan2@marvell.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Originating-IP: [183.27.98.45]
-X-ClientProxiedBy: EXCAS061.cuchost.com (172.16.6.21) To EXMBX061.cuchost.com
- (172.16.6.61)
-X-YovoleRuleAgent: yovoleflag
-Content-Transfer-Encoding: 8BIT
+X-Proofpoint-ORIG-GUID: 7OdkCBuycamZjWh1fEmGhYWZVj_s4oq_
+X-Proofpoint-GUID: 7OdkCBuycamZjWh1fEmGhYWZVj_s4oq_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-27_05,2023-04-26_03,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Drop the function of of_match_ptr() to fix the warning of unused variable
-'starfive_wdt_match'.
+Add binding documentation for the Marvell GTI system
+watchdog driver.
 
-Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
-Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
+Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
+v4:
+ - Use generic name "GTI (Global Timer)" and removed OcteonTX2 as this driver
+   is applicable for other marvell devices as well. There are no logical changes
+ - Added Reviewed-by: Rob Herring <robh@kernel.org>
 
-Hi, Guenter and Wim,
+ .../bindings/watchdog/marvell,gti-wdt.yaml    | 46 +++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
 
-This patch fixes the compiler warning of StarFive watchdog driver and 
-rebases on the master branch of linux-next.
-
-Thanks.
-
----
- drivers/watchdog/starfive-wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index 1995cceca51e..64d1ad4d267a 100644
---- a/drivers/watchdog/starfive-wdt.c
-+++ b/drivers/watchdog/starfive-wdt.c
-@@ -595,7 +595,7 @@ static struct platform_driver starfive_wdt_driver = {
- 	.driver = {
- 		.name = "starfive-wdt",
- 		.pm = &starfive_wdt_pm_ops,
--		.of_match_table = of_match_ptr(starfive_wdt_match),
-+		.of_match_table = starfive_wdt_match,
- 	},
- };
- module_platform_driver(starfive_wdt_driver);
+diff --git a/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
+new file mode 100644
+index 000000000000..4d34e9635ac1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
+@@ -0,0 +1,46 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/marvell,gti-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Marvell GTI system watchdog
++
++allOf:
++  - $ref: watchdog.yaml#
++
++maintainers:
++  - Bharat Bhushan <bbhushan2@marvell.com>
++
++properties:
++  compatible:
++    const: marvell,gti-wdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    soc {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        watchdog@802000040000 {
++            compatible = "marvell,gti-wdt";
++            reg = <0x00008020 0x00040000 0x00000000 0x00020000>;
++            interrupts = <0 38 IRQ_TYPE_EDGE_RISING>;
++        };
++    };
++
++...
 -- 
-2.25.1
+2.17.1
 
