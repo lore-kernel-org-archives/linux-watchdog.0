@@ -2,52 +2,52 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A22C7EE24
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 13:34:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70863C77B61
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 13:34:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243701AbjD0NeA (ORCPT
+        id S243708AbjD0NeB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Apr 2023 09:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45478 "EHLO
+        Thu, 27 Apr 2023 09:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243468AbjD0Nd5 (ORCPT
+        with ESMTP id S243618AbjD0Nd5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 27 Apr 2023 09:33:57 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF261B6;
-        Thu, 27 Apr 2023 06:33:55 -0700 (PDT)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0F7E48;
+        Thu, 27 Apr 2023 06:33:56 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9CDDC1FE30;
-        Thu, 27 Apr 2023 13:33:54 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 4CB0521B40;
+        Thu, 27 Apr 2023 13:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1682602434; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1682602435; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=XRTL1UYeG/HJ79maMI4g+9suosfMF/LSWnK6uB4WtfE=;
-        b=d/3a0Oukan4rztYhRdqMyyGVTNpRNILrs1urUQIbNYvRpQuwN+C/OELKIISyYEJONEpobn
-        4mbLLOePgMOH735dCfuAS5I/DAMfiAATTAIsIhswe1/l/6LlfDPM016gqYaLkwghuGTgaT
-        XAdRbXOVk36XN2GFZp3YDmLaDUECmtQ=
+        bh=/rGz1l1uLq4Eq57pl2TyE1vJ2RUc3Gpmtm+3jwEAOK8=;
+        b=uruuRKW4koGd2EIxG245KlByD6Z0p4TOVjH06eIK/3BFSDlMs3qxZN4henqSYK1V1ZWSLw
+        PIKqzimQrPYWRnJHsY4z0PPAm3ASCqYxm5uktpUfu8poVS/FUULiBdCjazz9s8umGD3nIJ
+        oc3iVuYN7KWsyBZlMcvwzqUQ/QRPTJo=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 533AC138F9;
-        Thu, 27 Apr 2023 13:33:54 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 09E93138F9;
+        Thu, 27 Apr 2023 13:33:55 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id IK4BEsJ5SmSVeQAAMHmgww
-        (envelope-from <oneukum@suse.com>); Thu, 27 Apr 2023 13:33:54 +0000
+        id yCO+AMN5SmSVeQAAMHmgww
+        (envelope-from <oneukum@suse.com>); Thu, 27 Apr 2023 13:33:55 +0000
 From:   Oliver Neukum <oneukum@suse.com>
 To:     wim@linux-watchdog.org, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 3/8] pcwd_usb: usb_pcwd_open handle and return errors
-Date:   Thu, 27 Apr 2023 15:33:45 +0200
-Message-Id: <20230427133350.31064-4-oneukum@suse.com>
+Subject: [PATCH 5/8] pcwd_usb: usb_pcwd_ioctl: return IO errors
+Date:   Thu, 27 Apr 2023 15:33:47 +0200
+Message-Id: <20230427133350.31064-6-oneukum@suse.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230427133350.31064-1-oneukum@suse.com>
 References: <20230427133350.31064-1-oneukum@suse.com>
@@ -57,54 +57,57 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Operations on the bus can suffer an IO error.
-Handle it undoing partial operations and return
-it to user space
+Reporting back to user space that a watchdog
+is disabled although it is not due to an IO error
+is evil. Pass through errors.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
 ---
- drivers/watchdog/pcwd_usb.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/watchdog/pcwd_usb.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
-index d5d68a529620..ed3be8926a15 100644
+index fe58ec84ce8c..b99b8fee2873 100644
 --- a/drivers/watchdog/pcwd_usb.c
 +++ b/drivers/watchdog/pcwd_usb.c
-@@ -273,7 +273,7 @@ static int usb_pcwd_start(struct usb_pcwd_private *usb_pcwd)
+@@ -420,22 +420,30 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
  
- 	if ((retval == 0) || (lsb == 0)) {
- 		pr_err("Card did not acknowledge enable attempt\n");
--		return -1;
-+		return -EIO;
+ 	case WDIOC_SETOPTIONS:
+ 	{
+-		int new_options, retval = -EINVAL;
++		int new_options, retval = 0;
++		int r;
++		bool specified_something = false;
+ 
+ 		if (get_user(new_options, p))
+ 			return -EFAULT;
+ 
+ 		if (new_options & WDIOS_DISABLECARD) {
+-			usb_pcwd_stop(usb_pcwd_device);
+-			retval = 0;
++			r = usb_pcwd_stop(usb_pcwd_device);
++			retval = r < 0 ? -EIO : 0;
++			specified_something = true;
+ 		}
+ 
++		/*
++		 * technically both options are combinable
++		 * that makes error reporting tricky
++		 */
+ 		if (new_options & WDIOS_ENABLECARD) {
+-			usb_pcwd_start(usb_pcwd_device);
+-			retval = 0;
++			r = usb_pcwd_start(usb_pcwd_device);
++			retval = retval < 0 ? retval : (r < 0 ? -EIO : 0);
++			specified_something = true;
+ 		}
+ 
+-		return retval;
++		return specified_something ? retval : -EINVAL;
  	}
  
- 	return 0;
-@@ -484,10 +484,22 @@ static int usb_pcwd_open(struct inode *inode, struct file *file)
- 		goto error;
- 
- 	/* Activate */
--	usb_pcwd_start(usb_pcwd_device);
--	usb_pcwd_keepalive(usb_pcwd_device);
-+	retval = usb_pcwd_start(usb_pcwd_device);
-+	if (retval < 0)
-+		goto err_bail;
-+	retval = usb_pcwd_keepalive(usb_pcwd_device);
-+	if (retval < 0)
-+		goto err_bail_and_stop;
- 	retval = stream_open(inode, file);
-+	if (retval < 0)
-+		goto err_bail_and_stop;
-+	mutex_unlock(&disconnect_mutex);
-+	return retval;
- 
-+err_bail_and_stop:
-+	usb_pcwd_stop(usb_pcwd_device);
-+err_bail:
-+	clear_bit(0, &is_active);
- error:
- 	mutex_unlock(&disconnect_mutex);
- 	return retval;
+ 	case WDIOC_KEEPALIVE:
 -- 
 2.40.0
 
