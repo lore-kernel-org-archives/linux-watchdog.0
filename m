@@ -2,366 +2,393 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E7A5C77B61
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 05:37:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAE76C77B61
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 07:41:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242821AbjD0FhS (ORCPT
+        id S243052AbjD0Hlo (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Apr 2023 01:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51078 "EHLO
+        Thu, 27 Apr 2023 03:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232094AbjD0FhR (ORCPT
+        with ESMTP id S242667AbjD0Hln (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Apr 2023 01:37:17 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648921A4;
-        Wed, 26 Apr 2023 22:37:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1682573835; x=1714109835;
-  h=date:from:to:cc:subject:message-id;
-  bh=0zmSFm72B70qH6+SvJN8flTFFQSMt/vIt0/G0ZTd3fk=;
-  b=Y+IcEx7M9nqk/KqkAnJbweSDXdJ6ZBeSQq7tqJ3PAllUVikZoIEFDWSQ
-   pv7OVOWKQRRy0iPZMKbUm8fz6gFE7zrW5PyRq4Co9jJMkvryt6FCV/sus
-   cEOzOvlizi9VXd7VXpzfUgOpX9l8vMQxRDgsBqnyYp80g/N8/3prCbKHl
-   xoq9zduR9mYveN7hCBc2lQL+70V9drYlUZJVn1eioVb5qyQnm2wq+qAXj
-   kJhkuioN32uxkIaH/178BVeThUbXf/SyrHDLpPt6LHvfnDHfyNah5bnj3
-   hJ7UvKGVhReoo+qOaF2V8jZPWwMVxg49Pfe8oX2EKmPKYgSqaO5dD2JI9
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="346094785"
-X-IronPort-AV: E=Sophos;i="5.99,230,1677571200"; 
-   d="scan'208";a="346094785"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2023 22:37:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="758936933"
-X-IronPort-AV: E=Sophos;i="5.99,230,1677571200"; 
-   d="scan'208";a="758936933"
-Received: from lkp-server01.sh.intel.com (HELO 1e0e07564161) ([10.239.97.150])
-  by fmsmga008.fm.intel.com with ESMTP; 26 Apr 2023 22:37:12 -0700
-Received: from kbuild by 1e0e07564161 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pruJb-00001h-1n;
-        Thu, 27 Apr 2023 05:37:11 +0000
-Date:   Thu, 27 Apr 2023 13:36:54 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Linux Memory Management List <linux-mm@kvack.org>,
-        amd-gfx@lists.freedesktop.org, linux-acpi@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, linux-ext4@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, qat-linux@intel.com,
-        Mark Brown <broonie@kernel.org>
-Subject: [linux-next:master] BUILD SUCCESS WITH WARNING
- b7455b10da762f2d447678c88e37cc1eb6cb45ee
-Message-ID: <20230427053654.lVx1R%lkp@intel.com>
-User-Agent: s-nail v14.9.24
+        Thu, 27 Apr 2023 03:41:43 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0764C1FD4;
+        Thu, 27 Apr 2023 00:41:42 -0700 (PDT)
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33R7CHl8006786;
+        Thu, 27 Apr 2023 00:14:19 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=pfpt0220; bh=jNamH3IUPTvVLJQrKIQKVTwok/+yKL3JteXdR78KPok=;
+ b=Br3n2H+8UWb4BDHT5BhlIcW3LiyuBS1C8wH50B0auLnHSEIpZxd6WLEy8tSGh3opEyYZ
+ sjIsXn0PnBzJGS2eJxtSQBJdV3iRZeU89m0mT+WTEhWz9FDa5ZcL1x8qK3QXy2VTSi3k
+ rB0OWZqR4Q94qASEd7CDS2Gfx3gtpFP8v5FQMANtn2O7odydvIiKG8NX6r057DDdmuD1
+ 44wueUKFDOA1/YqeMJYCxNMRIcJMAbwheIlMdSMAYRzxz4C/4P2KNIKQSkpKZ9jkSrix
+ UGmC1/nqJgQUsh2QlzjOUpelBeXDAMNuLng82fVnDoTaemets4VXclAonukc29kbVfP+ hg== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3q7apa2c5h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Thu, 27 Apr 2023 00:14:19 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 27 Apr
+ 2023 00:14:17 -0700
+Received: from bbhushan2.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
+ Transport; Thu, 27 Apr 2023 00:14:15 -0700
+From:   Bharat Bhushan <bbhushan2@marvell.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <sgoutham@marvell.com>
+CC:     Bharat Bhushan <bbhushan2@marvell.com>
+Subject: [PATCH 2/2 v4] Watchdog: Add marvell GTI watchdog driver
+Date:   Thu, 27 Apr 2023 12:44:08 +0530
+Message-ID: <20230427071408.8493-2-bbhushan2@marvell.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230427071408.8493-1-bbhushan2@marvell.com>
+References: <20230427071408.8493-1-bbhushan2@marvell.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: QwyukqyB6RlR0UMB_E6OF900zNU7-wtr
+X-Proofpoint-GUID: QwyukqyB6RlR0UMB_E6OF900zNU7-wtr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-27_05,2023-04-26_03,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: b7455b10da762f2d447678c88e37cc1eb6cb45ee  Add linux-next specific files for 20230426
+This patch add support for Marvell GTI watchdog.  Global timer
+unit (GTI) support hardware watchdog timer. Software programs
+watchdog timer to generate interrupt on first timeout, second
+timeout is configured to be ignored and system reboots on
+third timeout.
 
-Warning reports:
+Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+---
+v4:
+ - Use generic name "GTI (Global Timer)" and removed OcteonTX2 as this driver
+   is applicable for other marvell devices as well.
 
-https://lore.kernel.org/oe-kbuild-all/202304210303.nlMI0sRQ-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202304210349.DykCi88S-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202304220119.94Pw6YsD-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202304270438.mwnBZp1A-lkp@intel.com
+ drivers/watchdog/Kconfig           |  11 ++
+ drivers/watchdog/Makefile          |   1 +
+ drivers/watchdog/marvell_gti_wdt.c | 271 +++++++++++++++++++++++++++++
+ 3 files changed, 283 insertions(+)
+ create mode 100644 drivers/watchdog/marvell_gti_wdt.c
 
-Warning: (recently discovered and may have been fixed)
-
-drivers/base/regmap/regcache-maple.c:113:23: warning: 'lower_index' is used uninitialized [-Wuninitialized]
-drivers/base/regmap/regcache-maple.c:113:36: warning: 'lower_last' is used uninitialized [-Wuninitialized]
-drivers/bluetooth/btnxpuart.c:1332:34: warning: unused variable 'nxpuart_of_match_table' [-Wunused-const-variable]
-drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amdgpu_dm.c:6339:6: warning: no previous prototype for 'amdgpu_dm_connector_funcs_force' [-Wmissing-prototypes]
-drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amdgpu_dm.c:6395:21: warning: variable 'count' set but not used [-Wunused-but-set-variable]
-drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c:458:16: warning: variable 'j' set but not used [-Wunused-but-set-variable]
-drivers/gpu/drm/amd/amdgpu/gfx_v9_4_3.c:1078:6: warning: no previous prototype for 'gfx_v9_4_3_disable_gpa_mode' [-Wmissing-prototypes]
-drivers/watchdog/starfive-wdt.c:584:34: warning: unused variable 'starfive_wdt_match' [-Wunused-const-variable]
-fs/ext4/super.c:1262:13: warning: unused variable 'i' [-Wunused-variable]
-fs/ext4/super.c:1262:6: warning: unused variable 'i' [-Wunused-variable]
-
-Unverified Warning (likely false positive, please contact us if interested):
-
-drivers/acpi/property.c:985 acpi_data_prop_read_single() error: potentially dereferencing uninitialized 'obj'.
-drivers/crypto/intel/qat/qat_common/adf_cfg.c:262 adf_cfg_add_key_value_param() warn: argument 4 to %lx specifier is cast from pointer
-
-Warning ids grouped by kconfigs:
-
-gcc_recent_errors
-|-- alpha-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- arc-allyesconfig
-|   |-- drivers-base-regmap-regcache-maple.c:warning:lower_index-is-used-uninitialized
-|   |-- drivers-base-regmap-regcache-maple.c:warning:lower_last-is-used-uninitialized
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- arc-randconfig-r012-20230426
-|   |-- drivers-base-regmap-regcache-maple.c:warning:lower_index-is-used-uninitialized
-|   `-- drivers-base-regmap-regcache-maple.c:warning:lower_last-is-used-uninitialized
-|-- arc-randconfig-r021-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- arc-randconfig-r043-20230426
-|   |-- drivers-base-regmap-regcache-maple.c:warning:lower_index-is-used-uninitialized
-|   `-- drivers-base-regmap-regcache-maple.c:warning:lower_last-is-used-uninitialized
-|-- arc-randconfig-s053-20230426
-|   |-- drivers-base-regmap-regcache-maple.c:warning:lower_index-is-used-uninitialized
-|   `-- drivers-base-regmap-regcache-maple.c:warning:lower_last-is-used-uninitialized
-|-- arm-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- arm-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- arm64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- i386-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- i386-randconfig-a003
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-|-- i386-randconfig-a014
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-|-- i386-randconfig-a016
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-|-- i386-randconfig-c021
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-|-- i386-randconfig-m021
-|   |-- drivers-acpi-property.c-acpi_data_prop_read_single()-error:potentially-dereferencing-uninitialized-obj-.
-|   `-- drivers-crypto-intel-qat-qat_common-adf_cfg.c-adf_cfg_add_key_value_param()-warn:argument-to-lx-specifier-is-cast-from-pointer
-|-- ia64-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- ia64-randconfig-c041-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- ia64-randconfig-r006-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- loongarch-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- loongarch-defconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- mips-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- mips-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- powerpc-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- riscv-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- riscv-randconfig-r042-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- s390-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- s390-randconfig-r011-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- s390-randconfig-r044-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- sparc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- sparc-randconfig-c44-20230426
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- x86_64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:no-previous-prototype-for-amdgpu_dm_connector_funcs_force
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-amdgpu_dm-amdgpu_dm.c:warning:variable-count-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_gfx.c:warning:variable-j-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-gfx_v9_4_3.c:warning:no-previous-prototype-for-gfx_v9_4_3_disable_gpa_mode
-|-- x86_64-randconfig-a002
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-`-- x86_64-randconfig-m001
-    `-- drivers-acpi-property.c-acpi_data_prop_read_single()-error:potentially-dereferencing-uninitialized-obj-.
-clang_recent_errors
-|-- hexagon-randconfig-r035-20230426
-|   |-- drivers-bluetooth-btnxpuart.c:warning:unused-variable-nxpuart_of_match_table
-|   `-- drivers-watchdog-starfive-wdt.c:warning:unused-variable-starfive_wdt_match
-|-- i386-randconfig-a002
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-|-- x86_64-randconfig-a012
-|   `-- fs-ext4-super.c:warning:unused-variable-i
-`-- x86_64-randconfig-a014
-    `-- fs-ext4-super.c:warning:unused-variable-i
-
-elapsed time: 734m
-
-configs tested: 121
-configs skipped: 8
-
-tested configs:
-alpha                            allyesconfig   gcc  
-alpha                               defconfig   gcc  
-arc                              alldefconfig   gcc  
-arc                              allyesconfig   gcc  
-arc                                 defconfig   gcc  
-arc                  randconfig-r002-20230426   gcc  
-arc                  randconfig-r012-20230426   gcc  
-arc                  randconfig-r013-20230426   gcc  
-arc                  randconfig-r021-20230426   gcc  
-arc                  randconfig-r043-20230426   gcc  
-arm                              allmodconfig   gcc  
-arm                              allyesconfig   gcc  
-arm                         bcm2835_defconfig   clang
-arm                                 defconfig   gcc  
-arm                  randconfig-r046-20230426   clang
-arm                           stm32_defconfig   gcc  
-arm                       versatile_defconfig   clang
-arm64                            allyesconfig   gcc  
-arm64                               defconfig   gcc  
-csky                                defconfig   gcc  
-csky                 randconfig-r032-20230426   gcc  
-hexagon              randconfig-r035-20230426   clang
-hexagon              randconfig-r041-20230426   clang
-hexagon              randconfig-r045-20230426   clang
-i386                             allyesconfig   gcc  
-i386                              debian-10.3   gcc  
-i386                                defconfig   gcc  
-i386                          randconfig-a001   gcc  
-i386                          randconfig-a002   clang
-i386                          randconfig-a003   gcc  
-i386                          randconfig-a004   clang
-i386                          randconfig-a005   gcc  
-i386                          randconfig-a006   clang
-i386                          randconfig-a011   clang
-i386                          randconfig-a012   gcc  
-i386                          randconfig-a013   clang
-i386                          randconfig-a014   gcc  
-i386                          randconfig-a015   clang
-i386                          randconfig-a016   gcc  
-ia64                             allmodconfig   gcc  
-ia64                                defconfig   gcc  
-ia64                 randconfig-r006-20230426   gcc  
-loongarch                        allmodconfig   gcc  
-loongarch                         allnoconfig   gcc  
-loongarch                           defconfig   gcc  
-loongarch            randconfig-r022-20230426   gcc  
-loongarch            randconfig-r036-20230426   gcc  
-m68k                             allmodconfig   gcc  
-m68k                                defconfig   gcc  
-m68k                 randconfig-r015-20230426   gcc  
-microblaze           randconfig-r024-20230426   gcc  
-mips                             allmodconfig   gcc  
-mips                             allyesconfig   gcc  
-mips         buildonly-randconfig-r006-20230426   gcc  
-mips                  cavium_octeon_defconfig   clang
-mips                      pic32mzda_defconfig   clang
-mips                 randconfig-r031-20230426   gcc  
-mips                 randconfig-r033-20230426   gcc  
-nios2        buildonly-randconfig-r001-20230426   gcc  
-nios2                               defconfig   gcc  
-openrisc     buildonly-randconfig-r002-20230426   gcc  
-openrisc                    or1ksim_defconfig   gcc  
-openrisc             randconfig-r001-20230426   gcc  
-openrisc             randconfig-r025-20230426   gcc  
-openrisc             randconfig-r034-20230426   gcc  
-parisc                              defconfig   gcc  
-parisc               randconfig-r005-20230426   gcc  
-parisc64                            defconfig   gcc  
-powerpc                      acadia_defconfig   clang
-powerpc                          allmodconfig   gcc  
-powerpc                           allnoconfig   gcc  
-powerpc                       ebony_defconfig   clang
-powerpc                 linkstation_defconfig   gcc  
-powerpc                 mpc837x_rdb_defconfig   gcc  
-powerpc                  mpc885_ads_defconfig   clang
-powerpc              randconfig-r004-20230426   clang
-powerpc              randconfig-r023-20230426   gcc  
-riscv                            allmodconfig   gcc  
-riscv                             allnoconfig   gcc  
-riscv                               defconfig   gcc  
-riscv             nommu_k210_sdcard_defconfig   gcc  
-riscv                randconfig-r042-20230426   gcc  
-riscv                          rv32_defconfig   gcc  
-s390                             allmodconfig   gcc  
-s390                             allyesconfig   gcc  
-s390                                defconfig   gcc  
-s390                 randconfig-r011-20230426   gcc  
-s390                 randconfig-r044-20230426   gcc  
-s390                       zfcpdump_defconfig   gcc  
-sh                               allmodconfig   gcc  
-sh           buildonly-randconfig-r004-20230426   gcc  
-sh                                  defconfig   gcc  
-sh                        edosk7760_defconfig   gcc  
-sh                          sdk7786_defconfig   gcc  
-sh                           se7206_defconfig   gcc  
-sh                           se7705_defconfig   gcc  
-sh                           se7721_defconfig   gcc  
-sh                           se7780_defconfig   gcc  
-sparc                               defconfig   gcc  
-sparc64              randconfig-r003-20230426   gcc  
-um                             i386_defconfig   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                            allnoconfig   gcc  
-x86_64                           allyesconfig   gcc  
-x86_64                              defconfig   gcc  
-x86_64                                  kexec   gcc  
-x86_64                        randconfig-a001   clang
-x86_64                        randconfig-a002   gcc  
-x86_64                        randconfig-a003   clang
-x86_64                        randconfig-a004   gcc  
-x86_64                        randconfig-a005   clang
-x86_64                        randconfig-a006   gcc  
-x86_64                        randconfig-a011   gcc  
-x86_64                        randconfig-a012   clang
-x86_64                        randconfig-a013   gcc  
-x86_64                        randconfig-a014   clang
-x86_64                        randconfig-a015   gcc  
-x86_64                        randconfig-a016   clang
-x86_64                               rhel-8.3   gcc  
-xtensa               randconfig-r016-20230426   gcc  
-xtensa                    smp_lx200_defconfig   gcc  
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index f0872970daf9..a96e7d7c0ad2 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1779,6 +1779,17 @@ config OCTEON_WDT
+ 	  from the first interrupt, it is then only poked when the
+ 	  device is written.
+ 
++config MARVELL_GTI_WDT
++	tristate "Marvell GTI Watchdog driver"
++	depends on ARCH_THUNDER || COMPILE_TEST
++	help
++	 Marvell GTI hardware supports watchdog timer. First timeout
++	 works as watchdog pretimeout and installed interrupt handler
++	 will be called on first timeout. Hardware can generate interrupt
++	 to SCP on second timeout but it is not enabled, So second
++	 timeout is ignored. If device poke does not happen then system
++	 will reboot on third timeout.
++
+ config BCM2835_WDT
+ 	tristate "Broadcom BCM2835 hardware watchdog"
+ 	depends on ARCH_BCM2835 || (OF && COMPILE_TEST)
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 9cbf6580f16c..bd425408fcaa 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -98,6 +98,7 @@ obj-$(CONFIG_VISCONTI_WATCHDOG) += visconti_wdt.o
+ obj-$(CONFIG_MSC313E_WATCHDOG) += msc313e_wdt.o
+ obj-$(CONFIG_APPLE_WATCHDOG) += apple_wdt.o
+ obj-$(CONFIG_SUNPLUS_WATCHDOG) += sunplus_wdt.o
++obj-$(CONFIG_MARVELL_GTI_WDT) += marvell_gti_wdt.o
+ 
+ # X86 (i386 + ia64 + x86_64) Architecture
+ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+diff --git a/drivers/watchdog/marvell_gti_wdt.c b/drivers/watchdog/marvell_gti_wdt.c
+new file mode 100644
+index 000000000000..a3f0740dedca
+--- /dev/null
++++ b/drivers/watchdog/marvell_gti_wdt.c
+@@ -0,0 +1,271 @@
++// SPDX-License-Identifier: GPL-2.0
++/* Marvell GTI Watchdog driver
++ *
++ * Copyright (C) 2023 Marvell.
++ */
++
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/of_platform.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++
++#include <asm/arch_timer.h>
++
++/*
++ * Hardware supports following mode of operation:
++ * 1) Interrupt Only:
++ *    This will generate the interrupt to arm core whenever timeout happens.
++ *
++ * 2) Interrupt + del3t (Interrupt to firmware (SCP processor)).
++ *    This will generate interrupt to arm core on 1st timeout happens
++ *    This will generate interrupt to SCP processor on 2nd timeout happens
++ *
++ * 3) Interrupt + Interrupt to SCP processor (called delt3t) + reboot.
++ *    This will generate interrupt to arm core on 1st timeout happens
++ *    Will generate interrupt to SCP processor on 2nd timeout happens,
++ *    if interrupt is configured.
++ *    Reboot on 3rd timeout.
++ *
++ * Driver will use hardware in mode-3 above so that system can reboot in case
++ * a hardware hang. Also h/w is configured not to generate SCP interrupt, so
++ * effectively 2nd timeout is ignored within hardware.
++ */
++
++
++/* GTI CWD Watchdog Registers */
++#define GTI_CWD_GLOBAL_WDOG_IDX		63
++#define GTI_CWD_WDOG			(0x8 * GTI_CWD_GLOBAL_WDOG_IDX)
++#define GTI_CWD_WDOG_MODE_INT_DEL3T_RST	0x3
++#define GTI_CWD_WDOG_MODE_MASK		0x3
++#define GTI_CWD_WDOG_LEN_SHIFT		4
++#define GTI_CWD_WDOG_CNT_SHIFT		20
++
++/* GTI Per-core Watchdog Interrupt Register */
++#define GTI_CWD_INT			0x200
++#define GTI_CWD_INT_PENDING_STATUS	(1ULL << GTI_CWD_GLOBAL_WDOG_IDX)
++
++/* GTI Per-core Watchdog Interrupt Enable Clear Register */
++#define GTI_CWD_INT_ENA_CLR		0x210
++#define GTI_CWD_INT_ENA_CLR_VAL		(1ULL << GTI_CWD_GLOBAL_WDOG_IDX)
++
++/* GTI Per-core Watchdog Interrupt Enable Set Register */
++#define GTI_CWD_INT_ENA_SET		0x218
++#define GTI_CWD_INT_ENA_SET_VAL		(1ULL << GTI_CWD_GLOBAL_WDOG_IDX)
++
++/* GTI Per-core Watchdog Poke Registers */
++#define GTI_CWD_POKE		(0x10000 + 0x8 * GTI_CWD_GLOBAL_WDOG_IDX)
++#define GTI_CWD_POKE_VAL	(1ULL << GTI_CWD_GLOBAL_WDOG_IDX)
++
++struct gti_wdt_priv {
++	struct watchdog_device wdev;
++	void __iomem *base;
++	u64 clock_freq;
++	int irq;
++};
++
++static irqreturn_t gti_wdt_interrupt(int irq, void *data)
++{
++	struct watchdog_device *wdev = data;
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	/* Clear Interrupt Pending Status */
++	writeq(GTI_CWD_INT_PENDING_STATUS, priv->base + GTI_CWD_INT);
++
++	watchdog_notify_pretimeout(wdev);
++
++	return IRQ_HANDLED;
++}
++
++static int gti_wdt_ping(struct watchdog_device *wdev)
++{
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	writeq(GTI_CWD_POKE_VAL, priv->base + GTI_CWD_POKE);
++
++	return 0;
++}
++
++static int gti_wdt_start(struct watchdog_device *wdev)
++{
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++	u64 regval;
++
++	if (!wdev->pretimeout)
++		return -EINVAL;
++
++	set_bit(WDOG_HW_RUNNING, &wdev->status);
++
++	/* Clear any pending interrupt */
++	writeq(GTI_CWD_INT_PENDING_STATUS, priv->base + GTI_CWD_INT);
++
++	/* Enable Interrupt */
++	writeq(GTI_CWD_INT_ENA_SET_VAL, priv->base + GTI_CWD_INT_ENA_SET);
++
++	/* Set (Interrupt + SCP interrupt (DEL3T) + core domain reset) Mode */
++	regval = readq(priv->base + GTI_CWD_WDOG);
++	regval |= GTI_CWD_WDOG_MODE_INT_DEL3T_RST;
++	writeq(regval, priv->base + GTI_CWD_WDOG);
++
++	return 0;
++}
++
++static int gti_wdt_stop(struct watchdog_device *wdev)
++{
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++	u64 regval;
++
++	/* Disable Interrupt */
++	writeq(GTI_CWD_INT_ENA_CLR_VAL, priv->base + GTI_CWD_INT_ENA_CLR);
++
++	/* Set GTI_CWD_WDOG.Mode = 0 to stop the timer */
++	regval = readq(priv->base + GTI_CWD_WDOG);
++	regval &= ~GTI_CWD_WDOG_MODE_MASK;
++	writeq(regval, priv->base + GTI_CWD_WDOG);
++
++	return 0;
++}
++
++static int gti_wdt_settimeout(struct watchdog_device *wdev,
++					unsigned int timeout)
++{
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++	u64 timeout_wdog, regval;
++
++	/* Update new timeout */
++	wdev->timeout = timeout;
++
++	/* Pretimeout is 1/3 of timeout */
++	wdev->pretimeout = timeout / 3;
++	if (!wdev->pretimeout)
++		return -EINVAL;
++
++	/* Get clock cycles from timeout in second */
++	timeout_wdog = wdev->pretimeout * priv->clock_freq;
++
++	/* Watchdog counts in 1024 cycle steps */
++	timeout_wdog = timeout_wdog >> 10;
++
++	timeout_wdog = (timeout_wdog + 0xff) >> 8;
++	if (timeout_wdog >= 0x10000)
++		timeout_wdog = 0xffff;
++
++	/*
++	 * GTI_CWD_WDOG.LEN have only upper 16-bits of 24-bits
++	 * GTI_CWD_WDOG.CNT, need addition shift of 8.
++	 */
++	regval = readq(priv->base + GTI_CWD_WDOG);
++	regval &= GTI_CWD_WDOG_MODE_MASK;
++	regval |= (timeout_wdog << (GTI_CWD_WDOG_CNT_SHIFT + 8)) |
++		   (timeout_wdog << GTI_CWD_WDOG_LEN_SHIFT);
++	writeq(regval, priv->base + GTI_CWD_WDOG);
++
++	return 0;
++}
++
++static int gti_wdt_set_pretimeout(struct watchdog_device *wdev,
++					unsigned int timeout)
++{
++	struct gti_wdt_priv *priv = watchdog_get_drvdata(wdev);
++	struct watchdog_device *wdog_dev = &priv->wdev;
++
++	/* pretimeout should 1/3 of max_timeout */
++	if ((timeout * 3) <= wdog_dev->max_timeout)
++		return gti_wdt_settimeout(wdev, timeout * 3);
++
++	return -EINVAL;
++}
++
++static const struct watchdog_info gti_wdt_ident = {
++	.identity = "Marvell GTI watchdog",
++	.options = WDIOF_SETTIMEOUT | WDIOF_PRETIMEOUT | WDIOF_KEEPALIVEPING |
++		   WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
++};
++
++static const struct watchdog_ops gti_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = gti_wdt_start,
++	.stop = gti_wdt_stop,
++	.ping = gti_wdt_ping,
++	.set_timeout = gti_wdt_settimeout,
++	.set_pretimeout = gti_wdt_set_pretimeout,
++};
++
++static int gti_wdt_probe(struct platform_device *pdev)
++{
++	struct gti_wdt_priv *priv;
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdog_dev;
++	int irq;
++	int err;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(priv->base))
++		return dev_err_probe(&pdev->dev, PTR_ERR(priv->base),
++			      "reg property not valid/found\n");
++
++	priv->clock_freq = arch_timer_get_cntfrq();
++
++	wdog_dev = &priv->wdev;
++	wdog_dev->info = &gti_wdt_ident,
++	wdog_dev->ops = &gti_wdt_ops,
++	wdog_dev->parent = dev;
++	/*
++	 * Watchdog counter is 24 bit where lower 8 bits are zeros, so maximum
++	 * value that can be programmed in hardware is 0xffff00. This counter
++	 * decrements every one microsec.
++	 * Hardware will generate interrupt on first timeout (pretimeout)
++	 * reset the system on 3rd timeout.
++	 * Max watchdog pretimeout can be 16 sec, so max timeout is 48 sec.
++	 * Let's have min pretimeout to 1sec, so min timeout is 3sec.
++	 */
++	wdog_dev->max_timeout = 48;
++	wdog_dev->min_timeout = 3;
++	wdog_dev->timeout = 30;
++	wdog_dev->pretimeout = wdog_dev->timeout / 3;
++
++	priv->irq = irq;
++	watchdog_set_drvdata(wdog_dev, priv);
++	platform_set_drvdata(pdev, priv);
++	gti_wdt_settimeout(wdog_dev, wdog_dev->timeout);
++	watchdog_stop_on_reboot(wdog_dev);
++	watchdog_stop_on_unregister(wdog_dev);
++
++	err = devm_watchdog_register_device(dev, wdog_dev);
++	if (err)
++		return err;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return dev_err_probe(&pdev->dev, irq, "IRQ resource not found\n");
++
++	err = devm_request_irq(dev, irq, gti_wdt_interrupt, 0,
++			       pdev->name, &priv->wdev);
++	if (err)
++		return dev_err_probe(dev, err, "Failed to register interrupt handler\n");
++
++	dev_info(dev, "Watchdog enabled (timeout=%d sec)\n", wdog_dev->timeout);
++	return 0;
++}
++
++static const struct of_device_id gti_wdt_of_match[] = {
++	{ .compatible = "marvell,gti-wdt", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, gti_wdt_of_match);
++
++static struct platform_driver gti_wdt_driver = {
++	.driver = {
++		.name = "gti-wdt",
++		.of_match_table = gti_wdt_of_match,
++	},
++	.probe = gti_wdt_probe,
++};
++module_platform_driver(gti_wdt_driver);
++
++MODULE_AUTHOR("Bharat Bhushan <bbhushan2@marvell.com>");
++MODULE_DESCRIPTION("Marvell GTI watchdog driver");
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.17.1
+
