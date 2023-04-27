@@ -2,112 +2,177 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B5F1C77B73
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 09:48:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC98C77B61
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Apr 2023 13:33:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242980AbjD0JsO (ORCPT
+        id S243661AbjD0Nd6 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Apr 2023 05:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34380 "EHLO
+        Thu, 27 Apr 2023 09:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243388AbjD0JsN (ORCPT
+        with ESMTP id S243373AbjD0Nd4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Apr 2023 05:48:13 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EC5219A7;
-        Thu, 27 Apr 2023 02:48:12 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id 41be03b00d2f7-51b4ef5378bso8090887a12.1;
-        Thu, 27 Apr 2023 02:48:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682588891; x=1685180891;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=QbQDNFKjRytgCf+GesubNivdLWJXmKPSqFAAYcRK3AU=;
-        b=AokQBJv1jf3ffsFZoWvwqevvIA6UtN78MIdTc1+F0ptj6kFitLPxjXUANZuG/fIgN2
-         mWUnwT8WfY4Fab346smHbQ9R0Gz2Z7IalvJz2yRHrK4TlXoZNoVnSLlogL6Af3dBtEFg
-         XFQY89ZGDKOfptCjyCPeNVJ8UqaWxeLDqrMN4HOWUPATaHiLQLPaS25U/1hyvawW6eIE
-         9ulOackMZec3qoNHrmcKhEJ87eIFvRuEVv6drhhIB3vtj3o0rP2btQH118vEAgseszWv
-         LPcrxnr/34Ns0IWiO90i4XJ5SbVmntk6MW7j42Gh7kDOuXFpvEJlu/jJTKRo9tMcW9ad
-         VjHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682588891; x=1685180891;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QbQDNFKjRytgCf+GesubNivdLWJXmKPSqFAAYcRK3AU=;
-        b=ijy+ErXbMzB7mAiB+cnQuF0M3/v4PCjNYbI1ELmQt8VdvoaaXi2qWP/pRIH0pDQWuM
-         zvrewqgFEeJFclwFoJAoXywrZ+5KPIoLOFvLtJ6CEuOun7DZHIJ4bQ3cSxy2LMHlJkZa
-         O+M2TvDCto1YG1w2xiyQTIX1c4JmOiZjyTTORPb4cKg4SISn2w6tzOmFBpkIqFXVXi2W
-         5md1K0Maxpt5UYCTffnlMT0jXjHIaV5ny4F6A1cT5au/hVtcZcz0nxEEOgHDzO0CF53H
-         hqe0hx4f213Q4HvkvcIntyrzgIzGfHP2h05QkHT/AbtWD2WDZuK3ena1A8P/hRaF73uJ
-         LP2A==
-X-Gm-Message-State: AC+VfDzVwnRWj6FNrwu20QXGuABLQDAyQNl3WTVOPThADqOKYcZnn/5o
-        j3+CVIaW6vvv5Gvj3YKnLB0PPq7wZbo=
-X-Google-Smtp-Source: ACHHUZ4GaJ07HzHqmE3PHX/g78eaeGH2Dx0oA60Ib406Jcb95vkZS13uCUS+Y+SgmQl3I7mF8gctUQ==
-X-Received: by 2002:a17:903:280e:b0:1a9:93fd:e853 with SMTP id kp14-20020a170903280e00b001a993fde853mr816565plb.19.1682588891201;
-        Thu, 27 Apr 2023 02:48:11 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w14-20020a1709029a8e00b00183c6784704sm11290958plp.291.2023.04.27.02.48.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Apr 2023 02:48:10 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <fd96b2d6-69df-01e0-9784-5dfaddd28711@roeck-us.net>
-Date:   Thu, 27 Apr 2023 02:48:08 -0700
+        Thu, 27 Apr 2023 09:33:56 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43889F9;
+        Thu, 27 Apr 2023 06:33:55 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id E51651FE17;
+        Thu, 27 Apr 2023 13:33:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1682602433; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sSlsn2rCSqBYTsqLNFs5IVZVQwI9t4hKlG0XoLdqEbM=;
+        b=cG8jEYqUL5wSr017j5BbELR8ltGqffADlEjIabymVtICVywJkgWtsEBYQWpQ/rrvQuKDTA
+        GEJGd/dm3/uIihq+NwFFJFCs6NKhjfj1TiHOLcFU1KQbWJP4I/ye88GYnDqV+5boEavFr9
+        8OfNUrQqIOY3Nd/JsHsxAgHNfiHCg7M=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A0B8E138F9;
+        Thu, 27 Apr 2023 13:33:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id iBdFJcF5SmSVeQAAMHmgww
+        (envelope-from <oneukum@suse.com>); Thu, 27 Apr 2023 13:33:53 +0000
+From:   Oliver Neukum <oneukum@suse.com>
+To:     wim@linux-watchdog.org, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 1/8] pwcd_usb: fix error handling in probe
+Date:   Thu, 27 Apr 2023 15:33:43 +0200
+Message-Id: <20230427133350.31064-2-oneukum@suse.com>
+X-Mailer: git-send-email 2.40.0
+In-Reply-To: <20230427133350.31064-1-oneukum@suse.com>
+References: <20230427133350.31064-1-oneukum@suse.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v1] watchdog: starfive: Fix the warning of
- starfive_wdt_match
-Content-Language: en-US
-To:     Xingyu Wu <xingyu.wu@starfivetech.com>,
-        linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Samin Guo <samin.guo@starfivetech.com>,
-        linux-kernel@vger.kernel.org
-References: <20230427074400.55380-1-xingyu.wu@starfivetech.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230427074400.55380-1-xingyu.wu@starfivetech.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 4/27/23 00:44, Xingyu Wu wrote:
-> Drop the function of of_match_ptr() to fix the warning of unused variable
-> 'starfive_wdt_match'.
-> 
-> Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
-> Signed-off-by: Xingyu Wu <xingyu.wu@starfivetech.com>
-> ---
+If you support only one device, you need to roll back
+back your counter in all cases if probe() fails.
+That cannot be left to usb_pcwd_delete() because
+that must be called conditionally.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+---
+ drivers/watchdog/pcwd_usb.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-> 
-> Hi, Guenter and Wim,
-> 
-> This patch fixes the compiler warning of StarFive watchdog driver and
-> rebases on the master branch of linux-next.
-> 
-> Thanks.
-> 
-> ---
->   drivers/watchdog/starfive-wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-> index 1995cceca51e..64d1ad4d267a 100644
-> --- a/drivers/watchdog/starfive-wdt.c
-> +++ b/drivers/watchdog/starfive-wdt.c
-> @@ -595,7 +595,7 @@ static struct platform_driver starfive_wdt_driver = {
->   	.driver = {
->   		.name = "starfive-wdt",
->   		.pm = &starfive_wdt_pm_ops,
-> -		.of_match_table = of_match_ptr(starfive_wdt_match),
-> +		.of_match_table = starfive_wdt_match,
->   	},
->   };
->   module_platform_driver(starfive_wdt_driver);
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 8202f0a6b093..3a22291d633b 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -606,7 +606,7 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	struct usb_pcwd_private *usb_pcwd = NULL;
+ 	int pipe;
+-	int retval = -ENOMEM;
++	int retval = -ENODEV;
+ 	int got_fw_rev;
+ 	unsigned char fw_rev_major, fw_rev_minor;
+ 	char fw_ver_str[20];
+@@ -615,7 +615,7 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	cards_found++;
+ 	if (cards_found > 1) {
+ 		pr_err("This driver only supports 1 device\n");
+-		return -ENODEV;
++		goto error_count;
+ 	}
+ 
+ 	/* get the active interface descriptor */
+@@ -624,11 +624,12 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	/* check out that we have a HID device */
+ 	if (!(iface_desc->desc.bInterfaceClass == USB_CLASS_HID)) {
+ 		pr_err("The device isn't a Human Interface Device\n");
+-		return -ENODEV;
++		goto error_count;
+ 	}
+ 
+ 	if (iface_desc->desc.bNumEndpoints < 1)
+-		return -ENODEV;
++		goto error_count;
++	
+ 
+ 	/* check out the endpoint: it has to be Interrupt & IN */
+ 	endpoint = &iface_desc->endpoint[0].desc;
+@@ -636,16 +637,17 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	if (!usb_endpoint_is_int_in(endpoint)) {
+ 		/* we didn't find a Interrupt endpoint with direction IN */
+ 		pr_err("Couldn't find an INTR & IN endpoint\n");
+-		return -ENODEV;
++		goto error_count;
+ 	}
+ 
+ 	/* get a handle to the interrupt data pipe */
+ 	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
+ 
+ 	/* allocate memory for our device and initialize it */
++	retval = -ENOMEM;
+ 	usb_pcwd = kzalloc(sizeof(struct usb_pcwd_private), GFP_KERNEL);
+ 	if (usb_pcwd == NULL)
+-		goto error;
++		goto error_count;
+ 
+ 	usb_pcwd_device = usb_pcwd;
+ 
+@@ -661,13 +663,13 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 					GFP_KERNEL, &usb_pcwd->intr_dma);
+ 	if (!usb_pcwd->intr_buffer) {
+ 		pr_err("Out of memory\n");
+-		goto error;
++		goto error_delete;
+ 	}
+ 
+ 	/* allocate the urb's */
+ 	usb_pcwd->intr_urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!usb_pcwd->intr_urb)
+-		goto error;
++		goto error_delete;
+ 
+ 	/* initialise the intr urb's */
+ 	usb_fill_int_urb(usb_pcwd->intr_urb, udev, pipe,
+@@ -680,7 +682,7 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	if (usb_submit_urb(usb_pcwd->intr_urb, GFP_KERNEL)) {
+ 		pr_err("Problem registering interrupt URB\n");
+ 		retval = -EIO; /* failure */
+-		goto error;
++		goto error_delete;
+ 	}
+ 
+ 	/* The device exists and can be communicated with */
+@@ -723,7 +725,7 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	retval = register_reboot_notifier(&usb_pcwd_notifier);
+ 	if (retval != 0) {
+ 		pr_err("cannot register reboot notifier (err=%d)\n", retval);
+-		goto error;
++		goto error_delete;
+ 	}
+ 
+ 	retval = misc_register(&usb_pcwd_temperature_miscdev);
+@@ -752,10 +754,12 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	misc_deregister(&usb_pcwd_temperature_miscdev);
+ err_out_unregister_reboot:
+ 	unregister_reboot_notifier(&usb_pcwd_notifier);
+-error:
++error_delete:
+ 	if (usb_pcwd)
+ 		usb_pcwd_delete(usb_pcwd);
+ 	usb_pcwd_device = NULL;
++error_count:
++	cards_found--;
+ 	return retval;
+ }
+ 
+-- 
+2.40.0
 
