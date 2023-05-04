@@ -2,300 +2,150 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05BD0C77B7C
-	for <linux-watchdog@archiver.kernel.org>; Thu,  4 May 2023 10:29:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B11C7EE21
+	for <linux-watchdog@archiver.kernel.org>; Thu,  4 May 2023 10:55:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbjEDK3R (ORCPT
+        id S229818AbjEDKzD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 4 May 2023 06:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51624 "EHLO
+        Thu, 4 May 2023 06:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbjEDK3P (ORCPT
+        with ESMTP id S229622AbjEDKzD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 4 May 2023 06:29:15 -0400
-Received: from www.linux-watchdog.org (www.linux-watchdog.org [185.87.125.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1AB8E49E3;
-        Thu,  4 May 2023 03:29:12 -0700 (PDT)
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 667D7409F8; Thu,  4 May 2023 10:34:22 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 667D7409F8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1683189262;
-        bh=7zvKsdkiKpXD/6DxlLJuYjcIVF1essDTgeioRSNH75c=;
-        h=Date:From:To:Cc:Subject:From;
-        b=DRYuxkDBeaIEB5EKxZ90/Gv9KUxKU5jE5CP6pat3ZvOqizObfV7m56Q58zL1tA9eB
-         YAOM2Hz54o0jnmM0mDJ0YpMdke3rg5Ro/SJ/Y8YvvrS3kLRPoEE6caRtGroUOKAXOR
-         ChY3QNiZoSi3r1qSvVbBiKGQeuxQQly8UbyW9GrY=
-Date:   Thu, 4 May 2023 10:34:22 +0200
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Alexandre Mergnat <amergnat@baylibre.com>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Gregory Oakes <gregory.oakes@amd.com>,
-        Jakob Koschel <jkl820.git@gmail.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Kathiravan T <quic_kathirav@quicinc.com>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Om Parikh <hack3r-0m@proton.me>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        Srinivas Neeli <srinivas.neeli@amd.com>,
-        Tom Rix <trix@redhat.com>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        William Breathitt Gray <william.gray@linaro.org>,
-        Xingyu Wu <xingyu.wu@starfivetech.com>,
-        Yassine Oudjana <y.oudjana@protonmail.com>
-Subject: [GIT PULL REQUEST] watchdog - v6.4 release cycle.
-Message-ID: <20230504083422.GA2308@www.linux-watchdog.org>
+        Thu, 4 May 2023 06:55:03 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A879849F7;
+        Thu,  4 May 2023 03:55:01 -0700 (PDT)
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 344AFZoo012197;
+        Thu, 4 May 2023 03:54:46 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=FicxFOXx/ZNXgdKgM/53wR2awYihyWEb1GhlZoo8sbc=;
+ b=hhN6tTmtTheyjTEmhKakVTdZokvzt0VZXPPDmDadaSGfNHoAChi4HfnQWEjM48G1AHwY
+ ngHwRnqLAGXM8mcKFNMGfA/MtZBcMTcHtcQIkZIwSqtGCZce2fqy+sgVeXaLkaVuUW3N
+ L8bbqN+1jmEH6y/AIJo+6eDK+3eyLtpXXQOuyzCCnuFvcUf8mTQlnCsq3Au7nLyY+OSh
+ 0jlvv5EJR8Y53tXx5Ych6UZS+sQz0jW+USITwiTV9tTEFdiYUwoxzuej9iFtbqfSTBf3
+ Akin1IWVIhi47IeNYFaOBK4dFCLFqx5i8/d1YNetxNCOAYvoe1wW7K76eBybEEkMoA+c 6A== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3qc0pqa24r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Thu, 04 May 2023 03:54:46 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 4 May
+ 2023 03:54:44 -0700
+Received: from bbhushan2.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
+ Transport; Thu, 4 May 2023 03:54:41 -0700
+From:   Bharat Bhushan <bbhushan2@marvell.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <sgoutham@marvell.com>
+CC:     Bharat Bhushan <bbhushan2@marvell.com>
+Subject: [PATCH 1/2 v6] dt-bindings: watchdog: marvell GTI system watchdog driver
+Date:   Thu, 4 May 2023 16:24:38 +0530
+Message-ID: <20230504105439.18261-1-bbhushan2@marvell.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.20 (2009-12-10)
+Content-Type: text/plain
+X-Proofpoint-GUID: TTpFRtokYI7-A1R225NJtltpHWESbfxw
+X-Proofpoint-ORIG-GUID: TTpFRtokYI7-A1R225NJtltpHWESbfxw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-04_07,2023-05-04_01,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+Add binding documentation for the Marvell GTI system
+watchdog driver.
 
-Please pull following watchdog changes for the v6.4 release cycle.
+Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+---
+v6:
+ - Added missed clocks/clock-name device tree property
+ - wdt-timer-index changed to marvell,wdt-timer-index, added "type"
+   and added more detail to discription
 
-This series contains:
-* Add watchdog driver for StarFive JH7100 and JH7110 Soc
-* Add Rockchip RK3588 devices
-* Add Qualcom IPQ5332 APSS, QCM2290 KPSS and SM6115 SoC devices
-* Add Mediatke MT8365 and MT6735 devices
-* Watchdog-core: Always set WDOG_HW_RUNNING when starting watchdog
-* Convert watchdog platform drivers to return void on the remove callback
-* Convert to devm_clk_get_enabled() helpers
-* And other small fixes and improvements
+ .../bindings/watchdog/marvell,gti-wdt.yaml    | 68 +++++++++++++++++++
+ 1 file changed, 68 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
 
-The output from git request-pull:
-----------------------------------------------------------------
-The following changes since commit 09a9639e56c01c7a00d6c0ca63f4c7c41abe075d:
-
-  Linux 6.3-rc6 (2023-04-09 11:15:57 -0700)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-6.4-rc1
-
-for you to fetch changes up to 10f67d1fd275528e62109de2ece26371833638e5:
-
-  watchdog: dw_wdt: Simplify clk management (2023-04-29 08:08:41 +0200)
-
-----------------------------------------------------------------
-linux-watchdog 6.4-rc1 tag
-
-----------------------------------------------------------------
-Alexandre Mergnat (1):
-      dt-bindings: watchdog: mediatek,mtk-wdt: add mt8365
-
-Bhupesh Sharma (1):
-      dt-bindings: watchdog: Document Qualcomm SM6115 watchdog
-
-Christophe JAILLET (4):
-      watchdog: ixp4xx: Use devm_clk_get_enabled() helper
-      watchdog: loongson1: Use devm_clk_get_enabled() helper
-      watchdog: dw_wdt: Fix the error handling path of dw_wdt_drv_probe()
-      watchdog: dw_wdt: Simplify clk management
-
-Gregory Oakes (1):
-      watchdog: sp5100_tco: Immediately trigger upon starting.
-
-Guenter Roeck (4):
-      watchdog: imx2_wdg: Declare local symbols static
-      watchdog: core: Always set WDOG_HW_RUNNING when starting watchdog
-      watchdog: s3c2410_wdt: Use devm_clk_get[_optional]_enabled() helpers
-      watchdog: s3c2410_wdt: Use devm_add_action_or_reset() to disable watchdog
-
-Jakob Koschel (1):
-      watchdog: avoid usage of iterator after loop
-
-Johannes Thumshirn (2):
-      watchdog: menz069_wdt: fix watchdog initialisation
-      watchdog: menz069_wdt: fix timeout setting
-
-Kathiravan T (1):
-      dt-bindings: watchdog: qcom-wdt: add qcom,apss-wdt-ipq5332 compatible
-
-Keguang Zhang (1):
-      watchdog: loongson1_wdt: Implement restart handler
-
-Konrad Dybcio (1):
-      dt-bindings: watchdog: qcom-wdt: add QCM2290
-
-Krzysztof Kozlowski (7):
-      watchdog: aspeed: Drop of_match_ptr for ID table
-      dt-bindings: watchdog: indentation, quotes and white-space cleanup
-      dt-bindings: watchdog: drop duplicated GPIO watchdog bindings
-      dt-bindings: watchdog: arm,sp805: drop unneeded minItems
-      dt-bindings: watchdog: fsl-imx7ulp-wdt: simplify with unevaluatedProperties
-      dt-bindings: watchdog: toshiba,visconti-wdt: simplify with unevaluatedProperties
-      dt-bindings: watchdog: realtek,otto-wdt: simplify requiring interrupt-names
-
-Om Parikh (1):
-      dt-bindings: watchdog: alphascale-asm9260: convert to DT schema
-
-Sergio Paracuellos (3):
-      watchdog: rt2880-wdt: avoid static global declarations
-      watchdog: rt2880-wdt: prefer unsigned int over unsigned
-      dt-bindings: watchdog: migrate rt2880 text bindings to YAML
-
-Shreeya Patel (1):
-      dt-bindings: watchdog: rockchip: Add rockchip,rk3588-wdt string
-
-Srinivas Neeli (1):
-      MAINTAINERS: Add fragment for Xilinx watchdog driver
-
-Tom Rix (1):
-      watchdog: s3c2410: remove unused freq_to_wdt and s3c2410wdt_is_running functions
-
-Uwe Kleine-König (34):
-      watchdog: acquirewdt: Convert to platform remove callback returning void
-      watchdog: advantechwdt: Convert to platform remove callback returning void
-      watchdog: ar7: Convert to platform remove callback returning void
-      watchdog: at91rm9200: Convert to platform remove callback returning void
-      watchdog: ath79: Convert to platform remove callback returning void
-      watchdog: bcm2835: Convert to platform remove callback returning void
-      watchdog: bcm_kona: Convert to platform remove callback returning void
-      watchdog: cpwd: Convert to platform remove callback returning void
-      watchdog: dw: Convert to platform remove callback returning void
-      watchdog: gef: Convert to platform remove callback returning void
-      watchdog: geodewdt: Convert to platform remove callback returning void
-      watchdog: ib700wdt: Convert to platform remove callback returning void
-      watchdog: ie6xx: Convert to platform remove callback returning void
-      watchdog: lpc18xx: Convert to platform remove callback returning void
-      watchdog: mtx-1: Convert to platform remove callback returning void
-      watchdog: nic7018: Convert to platform remove callback returning void
-      watchdog: nv_tco: Convert to platform remove callback returning void
-      watchdog: omap: Convert to platform remove callback returning void
-      watchdog: orion: Convert to platform remove callback returning void
-      watchdog: rc32434: Convert to platform remove callback returning void
-      watchdog: rdc321x: Convert to platform remove callback returning void
-      watchdog: renesas: Convert to platform remove callback returning void
-      watchdog: riowd: Convert to platform remove callback returning void
-      watchdog: rti: Convert to platform remove callback returning void
-      watchdog: sa1100: Convert to platform remove callback returning void
-      watchdog: sch311x: Convert to platform remove callback returning void
-      watchdog: shwdt: Convert to platform remove callback returning void
-      watchdog: st_lpc: Convert to platform remove callback returning void
-      watchdog: stmp3xxx_rtc: Convert to platform remove callback returning void
-      watchdog: bcm47xx: Simplify using devm_watchdog_register_device()
-      watchdog: rn5t618: Simplify using devm_watchdog_register_device()
-      watchdog: wm8350: Simplify using devm_watchdog_register_device()
-      watchdog: s3c2410: Make s3c2410_get_wdt_drv_data() return an int
-      watchdog: s3c2410_wdt: Simplify using dev_err_probe()
-
-Wang Wensheng (1):
-      watchdog: sbsa: Test WDOG_HW_RUNNING bit in suspend and resume
-
-William Breathitt Gray (1):
-      watchdog: ebc-c384_wdt: Mark status as orphaned
-
-Xingyu Wu (4):
-      dt-bindings: watchdog: Add watchdog for StarFive JH7100 and JH7110
-      drivers: watchdog: Add StarFive Watchdog driver
-      watchdog: starfive: Fix the probe return error if PM and early_enable are both disabled
-      watchdog: starfive: Fix the warning of starfive_wdt_match
-
-Yassine Oudjana (1):
-      dt-bindings: reset: Add binding for MediaTek MT6735 TOPRGU/WDT
-
- .../bindings/watchdog/alphascale,asm9260-wdt.yaml  |  70 +++
- .../bindings/watchdog/alphascale-asm9260.txt       |  35 --
- .../bindings/watchdog/amlogic,meson-gxbb-wdt.yaml  |  10 +-
- .../bindings/watchdog/arm,sbsa-gwdt.yaml           |   1 -
- .../devicetree/bindings/watchdog/arm,sp805.yaml    |   1 -
- .../devicetree/bindings/watchdog/arm,twd-wdt.yaml  |   6 +-
- .../devicetree/bindings/watchdog/arm-smc-wdt.yaml  |   7 +-
- .../bindings/watchdog/atmel,sama5d4-wdt.yaml       |  14 +-
- .../bindings/watchdog/brcm,bcm7038-wdt.yaml        |   6 +-
- .../bindings/watchdog/faraday,ftwdt010.yaml        |  16 +-
- .../bindings/watchdog/fsl-imx7ulp-wdt.yaml         |   4 +-
- .../devicetree/bindings/watchdog/gpio-wdt.yaml     |  55 --
- .../bindings/watchdog/linux,wdt-gpio.yaml          |  17 +-
- .../bindings/watchdog/mediatek,mt7621-wdt.yaml     |   6 +-
- .../bindings/watchdog/mediatek,mtk-wdt.yaml        |   2 +
- .../devicetree/bindings/watchdog/qcom-wdt.yaml     |  36 +-
- .../bindings/watchdog/ralink,rt2880-wdt.yaml       |  46 ++
- .../bindings/watchdog/realtek,otto-wdt.yaml        |   4 +-
- .../devicetree/bindings/watchdog/renesas,wdt.yaml  |  14 +-
- .../devicetree/bindings/watchdog/rt2880-wdt.txt    |  18 -
- .../devicetree/bindings/watchdog/snps,dw-wdt.yaml  |  33 +-
- .../bindings/watchdog/st,stm32-iwdg.yaml           |  10 +-
- .../bindings/watchdog/starfive,jh7100-wdt.yaml     |  71 +++
- .../bindings/watchdog/toshiba,visconti-wdt.yaml    |   4 +-
- .../bindings/watchdog/xlnx,xps-timebase-wdt.yaml   |  12 +-
- MAINTAINERS                                        |  18 +-
- drivers/watchdog/Kconfig                           |  11 +
- drivers/watchdog/Makefile                          |   3 +
- drivers/watchdog/acquirewdt.c                      |   6 +-
- drivers/watchdog/advantechwdt.c                    |   6 +-
- drivers/watchdog/ar7_wdt.c                         |   5 +-
- drivers/watchdog/aspeed_wdt.c                      |   2 +-
- drivers/watchdog/at91rm9200_wdt.c                  |   6 +-
- drivers/watchdog/ath79_wdt.c                       |   5 +-
- drivers/watchdog/bcm2835_wdt.c                     |   6 +-
- drivers/watchdog/bcm47xx_wdt.c                     |  12 +-
- drivers/watchdog/bcm_kona_wdt.c                    |   6 +-
- drivers/watchdog/cpwd.c                            |   6 +-
- drivers/watchdog/dw_wdt.c                          |  55 +-
- drivers/watchdog/gef_wdt.c                         |   6 +-
- drivers/watchdog/geodewdt.c                        |   5 +-
- drivers/watchdog/ib700wdt.c                        |   5 +-
- drivers/watchdog/ie6xx_wdt.c                       |   6 +-
- drivers/watchdog/imx2_wdt.c                        |   4 +-
- drivers/watchdog/ixp4xx_wdt.c                      |  18 +-
- drivers/watchdog/loongson1_wdt.c                   |  36 +-
- drivers/watchdog/lpc18xx_wdt.c                     |   6 +-
- drivers/watchdog/menz69_wdt.c                      |  18 +-
- drivers/watchdog/mtx-1_wdt.c                       |   5 +-
- drivers/watchdog/nic7018_wdt.c                     |   6 +-
- drivers/watchdog/nv_tco.c                          |   6 +-
- drivers/watchdog/omap_wdt.c                        |   6 +-
- drivers/watchdog/orion_wdt.c                       |   5 +-
- drivers/watchdog/rc32434_wdt.c                     |   5 +-
- drivers/watchdog/rdc321x_wdt.c                     |   6 +-
- drivers/watchdog/renesas_wdt.c                     |   6 +-
- drivers/watchdog/riowd.c                           |   6 +-
- drivers/watchdog/rn5t618_wdt.c                     |  12 +-
- drivers/watchdog/rt2880_wdt.c                      |  89 +--
- drivers/watchdog/rti_wdt.c                         |   6 +-
- drivers/watchdog/s3c2410_wdt.c                     | 132 ++---
- drivers/watchdog/sa1100_wdt.c                      |   6 +-
- drivers/watchdog/sbsa_gwdt.c                       |   4 +-
- drivers/watchdog/sch311x_wdt.c                     |   5 +-
- drivers/watchdog/shwdt.c                           |   6 +-
- drivers/watchdog/sp5100_tco.c                      |   4 +
- drivers/watchdog/st_lpc_wdt.c                      |   6 +-
- drivers/watchdog/starfive-wdt.c                    | 606 +++++++++++++++++++++
- drivers/watchdog/stmp3xxx_rtc_wdt.c                |   5 +-
- drivers/watchdog/watchdog_core.c                   |   2 +-
- drivers/watchdog/watchdog_dev.c                    |   3 +-
- drivers/watchdog/watchdog_pretimeout.c             |   3 +-
- drivers/watchdog/wm8350_wdt.c                      |   9 +-
- include/dt-bindings/reset/mediatek,mt6735-wdt.h    |  17 +
- 74 files changed, 1155 insertions(+), 560 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yaml
- delete mode 100644 Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
- delete mode 100644 Documentation/devicetree/bindings/watchdog/gpio-wdt.yaml
- create mode 100644 Documentation/devicetree/bindings/watchdog/ralink,rt2880-wdt.yaml
- delete mode 100644 Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/starfive,jh7100-wdt.yaml
- create mode 100644 drivers/watchdog/starfive-wdt.c
- create mode 100644 include/dt-bindings/reset/mediatek,mt6735-wdt.h
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
+diff --git a/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
+new file mode 100644
+index 000000000000..a89c0d377dae
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/marvell,gti-wdt.yaml
+@@ -0,0 +1,68 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/marvell,gti-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Marvell Global Timer (GTI) system watchdog
++
++allOf:
++  - $ref: watchdog.yaml#
++
++maintainers:
++  - Bharat Bhushan <bbhushan2@marvell.com>
++
++properties:
++  compatible:
++    const: marvell,gti-wdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    minItems: 1
++
++  clock-names:
++    minItems: 1
++
++  marvell,wdt-timer-index:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 63
++    description:
++      Different platform have different number of GTI timers. For example
++      some platforms have total 64 timers and other have less than 64 timers.
++      This property will define GTI timer to be used for watchdog on given
++      platform.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++  - marvell,wdt-timer-index
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    soc {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        watchdog@802000040000 {
++            compatible = "marvell,gti-wdt";
++            reg = <0x00008020 0x00040000 0x00000000 0x00020000>;
++            interrupts = <GIC_SPI 38 IRQ_TYPE_EDGE_RISING>;
++            clocks = <&sclk>;
++            clock-names = "ref_clk";
++            marvell,wdt-timer-index = <63>;
++        };
++    };
++
++...
+-- 
+2.17.1
 
