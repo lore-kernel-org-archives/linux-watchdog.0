@@ -2,46 +2,46 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D100C77B7F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 19:43:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7C8DC77B7F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 19:44:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239353AbjEKTny (ORCPT
+        id S239497AbjEKToB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 May 2023 15:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58218 "EHLO
+        Thu, 11 May 2023 15:44:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239332AbjEKTnb (ORCPT
+        with ESMTP id S239508AbjEKTno (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 May 2023 15:43:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241D0D070;
-        Thu, 11 May 2023 12:42:55 -0700 (PDT)
+        Thu, 11 May 2023 15:43:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFAADDA8;
+        Thu, 11 May 2023 12:42:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F386165118;
-        Thu, 11 May 2023 19:41:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44394C4339B;
-        Thu, 11 May 2023 19:41:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FCEB65142;
+        Thu, 11 May 2023 19:41:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D1B1C43443;
+        Thu, 11 May 2023 19:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1683834087;
+        s=k20201202; t=1683834109;
         bh=yKGcdrssA11YUCE5AUIKpueGETZlG7QwlPbKBiFbRT4=;
         h=From:To:Cc:Subject:Date:From;
-        b=lOsA/pGpuHAZwrnGD8YNmyCocQxPprAHG1VOX3KYWpuSG7+gONXbi9A7OJeL3Mk/W
-         ubFKu7hEkvQhTW4PcWKKgHgB9JBv9FpzNp/fBHZHUxOTdFaLqlDCvqJTp7DADnr9l8
-         HSEmwdBrJkICfoGV/4HMKycpF4dacbnF0g/YdDKhoSjGNu04WV0FwCtk11McU8Sj2q
-         SEY35HCGhoPBQMIM96XcMkfJdUMY/jgXByYqdXGWqDHxt2HX/ootz/AR0UYewK90/L
-         JsIO/GccZKdOw0eHx5evwtMG/INnGbgT6Fg8XK7HlHhgKU/EZaz3QON3KY8fXau4EA
-         DxCK8pCskfOdw==
+        b=tOtxC9gjTRtyx2gLKlkwzUWNSx6KTcJweUH4MbZm4mirVsVDHyTX9fTxW13rs4pNM
+         AVX9zQN/9bYUDCPY2VN2JCNxU7XJhRlnNpkxkyX/oEOrQVPJ34hWOyvxNkKz9758Z6
+         JLecnu92BbJFXuYv+YeRjJtHuMnCaR9jRsFhIBnEK27WjH3iEdlWMjxvRNgiY6NCcm
+         Het5UBU+ivNdPFCs/OQO/re9uQXMP2+AhLODb6tpZk1dTzJKjBGLqDZ+/mXqxqDwR1
+         3fRoD+lQfQX8vHucg+VxMBA5EyT5c9JxZgYLCeig5VcJAkuYMPhrZZxPe+Q1rOM98s
+         DvkXOCFU4G9YA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johannes Thumshirn <jth@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/2] watchdog: menz069_wdt: fix watchdog initialisation
-Date:   Thu, 11 May 2023 15:41:15 -0400
-Message-Id: <20230511194116.623747-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 1/2] watchdog: menz069_wdt: fix watchdog initialisation
+Date:   Thu, 11 May 2023 15:41:27 -0400
+Message-Id: <20230511194128.623783-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 X-stable: review
