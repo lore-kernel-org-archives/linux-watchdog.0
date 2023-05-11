@@ -2,190 +2,120 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 601E1C77B7F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 16:30:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D88AAC77B7C
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 19:38:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238841AbjEKQak (ORCPT
+        id S238397AbjEKTiR (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 May 2023 12:30:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
+        Thu, 11 May 2023 15:38:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238889AbjEKQaN (ORCPT
+        with ESMTP id S237639AbjEKTiQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 May 2023 12:30:13 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C87C7ED6
-        for <linux-watchdog@vger.kernel.org>; Thu, 11 May 2023 09:30:09 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-969f90d71d4so577436966b.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 11 May 2023 09:30:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20221208.gappssmtp.com; s=20221208; t=1683822607; x=1686414607;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=C7/CYIBH/pHsTfzDssN9nwq/nPPFsyiz7BrFyXp1Ut8=;
-        b=GhJKDtTHvxfZLhn8dTuoKKjYYnoggNINpc4vG7TVWfidbQ67nB8eWT99wBAxKkwcfz
-         VS2OvoFRypOCuKQz1x9o4+t2p1BxZV9RqL0we5aVvSzjkdtCiQmfO/NwiP5vyKUAY9rV
-         67dzyTNT6eBAqB0+LAaK7uVmuLTDSdYpZPUWmZ3g/SPwuhWDNxir6dLtiQzAxxmDJnDC
-         d/AGLwdOhJejRpgtTvevv0yQ4HdVefB5jcen7RNlgUPtnLIcOPJ0IiJt8pKHtFoj1EVI
-         Y06TBx46Dv7zwLBnJbSBYvZiwTRiYTgbIEOuOKhU9KgFfa7+amT6uqHshOnOADsUUzAZ
-         uw9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683822607; x=1686414607;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C7/CYIBH/pHsTfzDssN9nwq/nPPFsyiz7BrFyXp1Ut8=;
-        b=FQhW4hguJU6ZxsHN6U9RgIDWw5futo1W+jlrQRoZRRIwTwnneNRfg+R+ypD3QBCCio
-         H4kwDjNDUpZhVSmZUeMtgK8aEn2MwZb1vyYvjCCnwPaM5ID4vJvH7rCXhbFf2JU69Ctw
-         bxIn67WgUaURWce9DzVrSG+ajUmvmBvVGJZxkW3TjZfijkEoEIEJh6VHhgQ+Ozy4PGtS
-         V+suXnLyMhC6gkOG6OFDBAZ9ccDtgAWAkftARjMc5t77MR8mYKJZrYvXSlhWhbhYFi96
-         jCd7g6yLracKXF+8Nrmqp5aLEWcWiwfiMo2P9uwBDD5HOw5rm/Ki2yuiKb0WhZtdR6Xw
-         NDOw==
-X-Gm-Message-State: AC+VfDzBBfEhvh6VQK7Vxe793mbwrOtjfLckGqs2kXYVvyUHVFicGk+A
-        Hs375jGI3vsPiPClK3lZTggJRQ==
-X-Google-Smtp-Source: ACHHUZ48kDKdegEZk8cV/FApfJ0AGakPGUCGESAhYk6jGxd451PT3jIuODPVv9AXlPcva/FrRKXs/Q==
-X-Received: by 2002:a17:906:da88:b0:93a:353d:e38b with SMTP id xh8-20020a170906da8800b0093a353de38bmr20433926ejb.37.1683822607591;
-        Thu, 11 May 2023 09:30:07 -0700 (PDT)
-Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id v9-20020a170906338900b0094ee99eeb01sm4209935eja.150.2023.05.11.09.30.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 May 2023 09:30:07 -0700 (PDT)
-From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Thu, 11 May 2023 18:29:28 +0200
-Subject: [PATCH v7 08/11] arm64: dts: mediatek: add ethernet support for
- mt8365-evk
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230203-evk-board-support-v7-8-98cbdfac656e@baylibre.com>
-References: <20230203-evk-board-support-v7-0-98cbdfac656e@baylibre.com>
-In-Reply-To: <20230203-evk-board-support-v7-0-98cbdfac656e@baylibre.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Thu, 11 May 2023 15:38:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2A85276;
+        Thu, 11 May 2023 12:38:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBF9265110;
+        Thu, 11 May 2023 19:38:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AFFAC433EF;
+        Thu, 11 May 2023 19:38:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1683833894;
+        bh=eUyy4o0ZFlQgxEmoGpUGIqucDH7lEIHYip0rJcopiEI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=itXZc73UGAAEuYbMk71C7LfY5FY3fj0FpbNdZd12VpX1OWfce4DC14FjIPW9Attp/
+         tDDu/ktAh5DyCAvfY4UaAv/WUoCFmFEU2o4YGmW8MLEq8PAhaCR1Wi7MazAfQ35HcY
+         lvFKADYR5tc+k0b0Dz70fkCmk0VayQ3ht8qqMKhzT2ITvWYI7VcrTI1nzIu/ee+BPV
+         ch+jQ5HHdXmtMaFm75EScvzOdsoy70QxcqWQ6XCkQH81C4SeiAFAUH3LT5xEBhrEUO
+         b8M5i9/MF1ONSpHlYZkZkZ+cej6hRXE7i+kJa3OZ4VBKuyMsFXaduhcXpWdtZuGV8G
+         SaMdIoSW53mKQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Johannes Thumshirn <jth@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Conor Dooley <conor+dt@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Alexandre Mergnat <amergnat@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>
-X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2481; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=DjSelAdOZMPlRnOCXsPOw3j7Znol7iZuqfSQhuv0e3s=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkXRgEuL8tv3XPLNCTsvVZGVz70gDf4DdWTusQ0f+3
- BOJz1S2JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZF0YBAAKCRArRkmdfjHUReCTEA
- CVmdX4q5lT6YXJzs7Qovo3u+IuaMF0ggKWFjpMDAFkBMXStBzEHV/8fBa3nnqVa7pgBHUiBC/3QbVi
- VV293B6g1r7bwPzN8mWb8R1YoBGz07J/rqY11LN4ERJ3UOBixaluzeMm7m6Y16uQowwl6/zCo3Uwrj
- kXomWO6tBUhZf20vFizrvtCfyhwZV26FANwI4P24Euk7AVFMHnjEosrwuOonrnZbbwx7O2oeKJJ+w1
- XGH9HMvNXZRbIdhGQvNHuCDTlvd3pmS/uteI+dSKLki7K4wO5Gj2oOCHKN0vSRn4TCNzMQEckuHaZE
- jknzCGG2D98waFluNfPRw2EY+yMFLgFXmp7UCWKzjOdrVOWAcqEm0XM8SZqBgQZ7RI0T8PHwTjf+iu
- 8LTrJlLYmN+SShm70bGm21ElMzRete1jFfu33/JGE3S9yWzO8MedI5GMdB0bfVilPoQ40sk8NwlILs
- Q41DeTb2YIm0ocLdj3+eiIj2RJRFJlfuS9kOdn8jBbT7UQQYF5nSZwqWFbc6XVZz5Y1l3WsxEI3ycm
- zsbiABuo/3Fc2v+nuSiDJNYV+E886U9tvBLYdGHFXWisVkLPKSZMzmXrNHhbZd7bblD/AkXNwPPtFH
- 9D3/i8xpOWb5GLcaqs53ryDDye4bIwk2Hf9/uNANKshVaNDy5O5jjTdpvM9Q==
-X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
- fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.3 02/11] watchdog: menz069_wdt: fix watchdog initialisation
+Date:   Thu, 11 May 2023 15:37:45 -0400
+Message-Id: <20230511193757.623114-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230511193757.623114-1-sashal@kernel.org>
+References: <20230511193757.623114-1-sashal@kernel.org>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-- Enable "vibr" and "vsim2" regulators to power the ethernet chip.
+From: Johannes Thumshirn <jth@kernel.org>
 
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+[ Upstream commit 87b22656ca6a896d0378e9e60ffccb0c82f48b08 ]
+
+Doing a 'cat /dev/watchdog0' with menz069_wdt as watchdog0 will result in
+a NULL pointer dereference.
+
+This happens because we're passing the wrong pointer to
+watchdog_register_device(). Fix this by getting rid of the static
+watchdog_device structure and use the one embedded into the driver's
+per-instance private data.
+
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20230418172531.177349-2-jth@kernel.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 57 +++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ drivers/watchdog/menz69_wdt.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-index 3a472f620ac0..cf81dace466a 100644
---- a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
-@@ -88,6 +88,28 @@ optee_reserved: optee@43200000 {
- 	};
+diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
+index 8973f98bc6a56..bca0938f3429f 100644
+--- a/drivers/watchdog/menz69_wdt.c
++++ b/drivers/watchdog/menz69_wdt.c
+@@ -98,14 +98,6 @@ static const struct watchdog_ops men_z069_ops = {
+ 	.set_timeout = men_z069_wdt_set_timeout,
  };
  
-+&ethernet {
-+	pinctrl-0 = <&ethernet_pins>;
-+	pinctrl-names = "default";
-+	phy-handle = <&eth_phy>;
-+	phy-mode = "rmii";
-+	/*
-+	 * Ethernet and HDMI (DSI0) are sharing pins.
-+	 * Only one can be enabled at a time and require the physical switch
-+	 * SW2101 to be set on LAN position
-+	 */
-+	status = "disabled";
-+
-+	mdio {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		eth_phy: ethernet-phy@0 {
-+			reg = <0>;
-+		};
-+	};
-+};
-+
- &i2c0 {
- 	clock-frequency = <100000>;
- 	pinctrl-0 = <&i2c0_pins>;
-@@ -137,12 +159,47 @@ &mt6357_pmic {
- 	#interrupt-cells = <2>;
- };
+-static struct watchdog_device men_z069_wdt = {
+-	.info = &men_z069_info,
+-	.ops = &men_z069_ops,
+-	.timeout = MEN_Z069_DEFAULT_TIMEOUT,
+-	.min_timeout = 1,
+-	.max_timeout = MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ,
+-};
+-
+ static int men_z069_probe(struct mcb_device *dev,
+ 			  const struct mcb_device_id *id)
+ {
+@@ -125,15 +117,19 @@ static int men_z069_probe(struct mcb_device *dev,
+ 		goto release_mem;
  
-+/* Needed by analog switch (multiplexer), HDMI and ethernet */
-+&mt6357_vibr_reg {
-+	regulator-always-on;
-+};
-+
- /* Needed by MSDC IP */
- &mt6357_vmc_reg {
- 	regulator-always-on;
- };
+ 	drv->mem = mem;
++	drv->wdt.info = &men_z069_info;
++	drv->wdt.ops = &men_z069_ops;
++	drv->wdt.timeout = MEN_Z069_DEFAULT_TIMEOUT;
++	drv->wdt.min_timeout = 1;
++	drv->wdt.max_timeout = MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ;
  
-+/* Needed by ethernet */
-+&mt6357_vsim2_reg {
-+	regulator-always-on;
-+};
-+
- &pio {
-+	ethernet_pins: ethernet-pins {
-+		phy_reset_pins {
-+			pinmux = <MT8365_PIN_133_TDM_TX_DATA1__FUNC_GPIO133>;
-+		};
-+
-+		rmii_pins {
-+			pinmux = <MT8365_PIN_0_GPIO0__FUNC_EXT_TXD0>,
-+				 <MT8365_PIN_1_GPIO1__FUNC_EXT_TXD1>,
-+				 <MT8365_PIN_2_GPIO2__FUNC_EXT_TXD2>,
-+				 <MT8365_PIN_3_GPIO3__FUNC_EXT_TXD3>,
-+				 <MT8365_PIN_4_GPIO4__FUNC_EXT_TXC>,
-+				 <MT8365_PIN_5_GPIO5__FUNC_EXT_RXER>,
-+				 <MT8365_PIN_6_GPIO6__FUNC_EXT_RXC>,
-+				 <MT8365_PIN_7_GPIO7__FUNC_EXT_RXDV>,
-+				 <MT8365_PIN_8_GPIO8__FUNC_EXT_RXD0>,
-+				 <MT8365_PIN_9_GPIO9__FUNC_EXT_RXD1>,
-+				 <MT8365_PIN_10_GPIO10__FUNC_EXT_RXD2>,
-+				 <MT8365_PIN_11_GPIO11__FUNC_EXT_RXD3>,
-+				 <MT8365_PIN_12_GPIO12__FUNC_EXT_TXEN>,
-+				 <MT8365_PIN_13_GPIO13__FUNC_EXT_COL>,
-+				 <MT8365_PIN_14_GPIO14__FUNC_EXT_MDIO>,
-+				 <MT8365_PIN_15_GPIO15__FUNC_EXT_MDC>;
-+		};
-+	};
-+
- 	gpio_keys: gpio-keys-pins {
- 		pins {
- 			pinmux = <MT8365_PIN_24_KPCOL0__FUNC_KPCOL0>;
-
+-	drv->wdt = men_z069_wdt;
+ 	watchdog_init_timeout(&drv->wdt, 0, &dev->dev);
+ 	watchdog_set_nowayout(&drv->wdt, nowayout);
+ 	watchdog_set_drvdata(&drv->wdt, drv);
+ 	drv->wdt.parent = &dev->dev;
+ 	mcb_set_drvdata(dev, drv);
+ 
+-	return watchdog_register_device(&men_z069_wdt);
++	return watchdog_register_device(&drv->wdt);
+ 
+ release_mem:
+ 	mcb_release_mem(mem);
 -- 
-2.25.1
+2.39.2
 
