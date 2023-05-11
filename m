@@ -2,66 +2,57 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5618C7EE26
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 13:36:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9514CC77B7F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 14:25:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238167AbjEKNgA (ORCPT
+        id S238462AbjEKOZi (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 11 May 2023 09:36:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
+        Thu, 11 May 2023 10:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238119AbjEKNfj (ORCPT
+        with ESMTP id S238470AbjEKOZW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 11 May 2023 09:35:39 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D7911552;
-        Thu, 11 May 2023 06:34:21 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id d2e1a72fcca58-643aad3bc41so7690816b3a.0;
-        Thu, 11 May 2023 06:34:21 -0700 (PDT)
+        Thu, 11 May 2023 10:25:22 -0400
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on2101.outbound.protection.outlook.com [40.107.96.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC05611575;
+        Thu, 11 May 2023 07:24:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eNEZR1V9cicsPIicS3u3akllebJseEm0z6EEGUCSAaE9LCr23X4wrU5xmq1rv3YoqovC+pEfgh22IxL3yOB0ui3osv25aepnAw2ZYdPjhfBk0HR6Fk1gcIm/wTfzy1H0WAhtvuoHfVnXYnKbmLSh7dyMk3Kqsx0cf3S2sMc14kyKC6/aB4baT9v2NAGTUKng0t+qoJfFGDt94Bhth75JfKvQABP1hM2+Kn8yLQcAs6GpIGxpRI+Yx4nHychUSPuuAp7qzOLcJhdpLy8RbHQ74DPg4h1Fhdbn3HlxgWgX7kdajPYFVvsGLr+ZoADiicxV8SL548hYkcf4S5UcYWyGVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7RYmxkQ/ji41+jhyUAH9q4OQql59eG1Qtdit4nAaHJ0=;
+ b=AcEpL3EcPvnepJTN1YSHawQ05MV6ULxAbbXycoavMjIAw/AMOSh0ZfMtSuDS0PipAojo24bU9WW9lTCiZjvTzXG+dOdiWNKTVPlyiccNK4rBeYP0nKPx60WYcybo63/IXodgM9hz9Z3K4SkylMCiMGJRg+atK12buejwWJkzf5YPl0wYhGFqXNJPeXFa+LhD1lov/Y5tfi22nIDEGnbKCcVKtBGpEn5ciqgOQWAiqGbeLVXyL92Wifmh6Ef50qnjHhUYHdU6sofHWOC3zKGpsONOpP9HlhGtZRQRpFp2mJZIpjWP3p870mXrOARpYD+/sS87rzThipmPjPbRny4w7A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683812060; x=1686404060;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=asp/vJbfcfKZ1KP4iU5Ob02D7CKXrgn30P/YE4w9l30=;
-        b=Ofro+aKEh9auyIE8HAKilO/Zp/oidJhNsM6hmJt92myPp1QZGjwMTLINfV/un/FG0Q
-         80+n7G+kj/JcXbuGIx6EeVmK8+siwekMXkynLeos22fTkv1OrvyFxJ+Z2CfbZcQfqUg8
-         PvmXScoOiu1ogAt8IDoM+e9kclxy/hpWFPk+C9iABhOxlsP9Mf/RKF/DypypQzvKRt6K
-         Cj/FDJi27Y+dvzxK7XHfKcshBghaAD7CGso0rcP6sfOM6rSRAqDB2jlXHzUmcCsI5coe
-         O6hSYcxnKJcykjfOow5HwxXEYb2s65igmajisqhNBTMcq154WfA87cEBGQa5GIVOrdKB
-         xvow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683812060; x=1686404060;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=asp/vJbfcfKZ1KP4iU5Ob02D7CKXrgn30P/YE4w9l30=;
-        b=cZvAUchI5XSzrHLzIhUL+MdujHRqTRu3ZtNQiTf3bUx1aCmj7AtLi6S5LHiiFW232c
-         PsmClYso3FFCkfivYYZAFGvoaaOd1duiUgYoqfJ/8yIVz1TC9u9IlFQEyGFHI01bJyN1
-         Nh/MfROqFvmgcyekEtZsvg8oElQBvIauuPvJt3/8mFLCOJtfaRwNXD5Q7H00Xp8e72cl
-         hCKDSR1lpekA2zbAQdQEzhild3xqOMb7ficHZfDrHulRORhGwoZ/AvO4dzZKMCa6UPpS
-         U6OT/ecut8IfIGo7v7zIyZKtT3XnTPCaRSVw9dD23hfobrU16lxFmMaPAY5kM5zzHOn1
-         PZJg==
-X-Gm-Message-State: AC+VfDy3kqSqwRDmSxKDmRqf6OXWmbAY+115bRKaky28vy3xh1x3aWve
-        j3qmV+dj4QOBXZZkrBOTb2M=
-X-Google-Smtp-Source: ACHHUZ4uoj9J2IRQ34CmZMgCP6Y2+pCOERjo8R56YDhSIPA+rrUAAAQ6AHNT1OwHCd/Za6P23vIfeQ==
-X-Received: by 2002:a05:6a21:6d8e:b0:100:916:d111 with SMTP id wl14-20020a056a216d8e00b001000916d111mr21359146pzb.24.1683812060252;
-        Thu, 11 May 2023 06:34:20 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-92.three.co.id. [180.214.232.92])
-        by smtp.gmail.com with ESMTPSA id x15-20020a056a00270f00b0063f1a27f2c9sm5312910pfv.70.2023.05.11.06.34.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 May 2023 06:34:19 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id B02501067DB; Thu, 11 May 2023 20:34:10 +0700 (WIB)
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Linux DRI Development <dri-devel@lists.freedesktop.org>,
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7RYmxkQ/ji41+jhyUAH9q4OQql59eG1Qtdit4nAaHJ0=;
+ b=amgmYNBn6odxr/Ufgxx53TbqXMQcjOWtwwLIkIlJGvsvVqg+k/0524ZsE84OR5CI7lQB+xiKV7clVfTzMppBR653B+++eqnwnqBwH2gcsh9Y/ycZ81Zz268QjNQNjKQWnCsamtJ630TA8jR5x+MhBhz6k3MMX3kKn3jW8f6CptY=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by SJ2PR13MB6522.namprd13.prod.outlook.com (2603:10b6:a03:561::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.18; Thu, 11 May
+ 2023 14:24:48 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::f416:544d:18b7:bb34]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::f416:544d:18b7:bb34%5]) with mapi id 15.20.6387.020; Thu, 11 May 2023
+ 14:24:48 +0000
+Date:   Thu, 11 May 2023 16:24:35 +0200
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     Linux DRI Development <dri-devel@lists.freedesktop.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Linux Networking <netdev@vger.kernel.org>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         Linux Staging Drivers <linux-staging@lists.linux.dev>,
         Linux Watchdog Devices <linux-watchdog@vger.kernel.org>,
-        Linux Kernel Actions <linux-actions@lists.infradead.org>
-Cc:     Diederik de Haas <didi.debian@cknow.org>,
+        Linux Kernel Actions <linux-actions@lists.infradead.org>,
+        Diederik de Haas <didi.debian@cknow.org>,
         Kate Stewart <kstewart@linuxfoundation.org>,
         David Airlie <airlied@redhat.com>,
         Karsten Keil <isdn@linux-pingi.de>,
@@ -78,17 +69,15 @@ Cc:     Diederik de Haas <didi.debian@cknow.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>, Jan Kara <jack@suse.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
         Manivannan Sadhasivam <mani@kernel.org>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
         Tom Rix <trix@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Pavel Machek <pavel@ucw.cz>,
         Minghao Chi <chi.minghao@zte.com.cn>,
         Kalle Valo <kvalo@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Arnd Bergmann <arnd@arndb.de>, Deepak R Varma <drv@mailo.com>,
@@ -97,614 +86,79 @@ Cc:     Diederik de Haas <didi.debian@cknow.org>,
         Jacob Keller <jacob.e.keller@intel.com>,
         Gaosheng Cui <cuigaosheng1@huawei.com>,
         Dan Carpenter <error27@gmail.com>,
-        Archana <craechal@gmail.com>, Maxime Bizon <mbizon@freebox.fr>,
+        Archana <craechal@gmail.com>,
         "David A . Hinds" <dahinds@users.sourceforge.net>,
-        "John G . Dorsey" <john+@cs.cmu.edu>
-Subject: [PATCH 06/10] pcmcia: Add SPDX identifier
-Date:   Thu, 11 May 2023 20:34:02 +0700
-Message-Id: <20230511133406.78155-7-bagasdotme@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230511133406.78155-1-bagasdotme@gmail.com>
+        Donald Becker <becker@scyld.com>,
+        Peter De Schrijver <p2@mind.be>,
+        Greg Ungerer <gerg@linux-m68k.org>
+Subject: Re: [PATCH 04/10] net: ethernet: 8390: Replace GPL boilerplate with
+ SPDX identifier
+Message-ID: <ZFz6o4NerIKW/db9@corigine.com>
 References: <20230511133406.78155-1-bagasdotme@gmail.com>
+ <20230511133406.78155-5-bagasdotme@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230511133406.78155-5-bagasdotme@gmail.com>
+X-ClientProxiedBy: AM4PR0202CA0012.eurprd02.prod.outlook.com
+ (2603:10a6:200:89::22) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=28380; i=bagasdotme@gmail.com; h=from:subject; bh=Q0c6EIp02T5R/jcXdb0xGm7OvcmkESzHeVT6HavlIy8=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDCkx744rvnpvf7stR7H1sxWjvHoi+4MnaU3N65/1XRG6y tVqx97cUcrCIMbFICumyDIpka/p9C4jkQvtax1h5rAygQxh4OIUgIm8EGFkuP9HcfHUl/ZL2uvV ZOT2zalbbWW5adcsn0pvHm8Xi5zTCxgZnm5asWbFL/2NolIh2s+37dr3bsYxfoFLL20iBPYLZut qsgAA
-X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|SJ2PR13MB6522:EE_
+X-MS-Office365-Filtering-Correlation-Id: 079f9e82-b533-41d1-0fed-08db522b79a8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: HrO3qMY54g7s+R0TY4gShgDySFw43IfO6KpRR+xtG/HFFRTYZOW4LihUwTk+XVMvcHVeEFdReuuaKKCP/KyLEBPk1Knw22J0e8XMeRyt77azpb0D4MD4LWC7jRiXFXHIoOstAZV3xesKrD2gEWQHzFYNUEhocVhEk6YFV2WR5Sz6/k7/xbpN2WvepaAUvJ4VQI+B54Ux1EIM+iMvQE7tK6e/M79j2ThBLAW/bt2gBmY6p/F5Pq7x+XGTleGZTi0TN5z1Bh1xTaW7GwEgXdSFKhKxhp7yNrvVxxjJVqNDwHgDyTGayf+0KlWDndYlNH/+csh8sjK/ogsLGBGQW3f+VYx+DFnzBY31mlEgpkOMqFBYS/m2jaSBecCPJQ68k+hZYbxudBncvrNowNKKaXINGJ3PMQW812NEUC9tlxBj7UtiY3IjhUAsIQgt+QBXUMOGXac05CnW7QLPRErkq3ptO1fbiPY5fippTwIwWdjQqXCLuoWTDVpnLc7WzaM6IHBorIk4IYgq+Wok2pdRg2iHxe9eB+uQx7dRF7yir0SG8og0f0KTZYbZcJb8c8vbY7G/EmU45ldOZw51cbi2HUukZ4wkyDQZ53m2sU1a4Mr0WP2siQ104ucuoCTd9i7uBQuK
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(136003)(396003)(39840400004)(376002)(346002)(451199021)(186003)(6506007)(2906002)(41300700001)(4326008)(6512007)(6916009)(66556008)(66476007)(316002)(558084003)(38100700002)(83380400001)(7406005)(7416002)(2616005)(8676002)(86362001)(44832011)(8936002)(36756003)(5660300002)(54906003)(478600001)(6666004)(6486002)(66946007)(41080700001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1IW8BJyNoU4F6B3Cw5ECWGrwPpkI7fzqw+DqvlkAdzMXhNp82XKG24BzhXe4?=
+ =?us-ascii?Q?HE699Uj5M2/NNyPRonVMg5B0NBivACNj7PY2hNlbNU8eUzgmBcKt81xvvMz4?=
+ =?us-ascii?Q?WjA7BNVWZ+78c+g8jsy0bjPrrZf1NDOn8yv48JZfHzznVca3AopY4SxMpEvo?=
+ =?us-ascii?Q?Y+HqngUJ3uhCdp5rX8IV4kVLqpQlLkK7P1tQ9fzkk5uMfrv2lbX5SP929+ud?=
+ =?us-ascii?Q?ToCK7+85eWizKEsWddR3nkLd6N6TN/rfGHL+b2i21lrSBG5aXEtGOQwXV8uS?=
+ =?us-ascii?Q?3SUAe7YZljodex9ntwNQskXCnA+P1+NUTXSGz7VgFtJDeYdXaMg8OdimTDvx?=
+ =?us-ascii?Q?vtZ4xUSUe5p4/kZ1WKwuo8RbaMRJ59snhWUwHiybgt8NRrihnl+OfVzsJ4wB?=
+ =?us-ascii?Q?zRGRtZMpaq9h4zGXCsYjKcxlGTiPFTstdKFkiT8ZHj1NCqLLCzwO0GZIrvIi?=
+ =?us-ascii?Q?aSo1TJujNZj5P/M1APR6i6dwmHMBtq75tOXsBrRou5YY8MEK54EzAcePv28U?=
+ =?us-ascii?Q?Y7rxCekp8UGMURQB7uWTGaa9En6EcuwANyVr9C2LvohgrBTcxheUZWxMvFda?=
+ =?us-ascii?Q?IrQ2x409VAsMiYWDy8Erw7glaZFNEhbMIQnFin2cC5wZJgX11s8uWfdUwMgA?=
+ =?us-ascii?Q?oKV9me7NjhSBbv2cLb+k1+Nn8+Y3isiuO3bFtm4ViipBgr9quMTwrfJCfv0c?=
+ =?us-ascii?Q?fsj2T0lyLylElGI/9KjJN3Cgy/Z5o8YhyEUIlN/1ANeDlm3KfetluJu0ryei?=
+ =?us-ascii?Q?5I7GXJkz3bNlsmXuru8lvEsF53t66DFFpZh+2NyANXohmwn387ut0u/13zMi?=
+ =?us-ascii?Q?aEcJErVziXTSyw+hYRwnracOhqbBmrpZunwMnSBY7zMzdqwHbLISN9W9N6hr?=
+ =?us-ascii?Q?U+58OrRs1xMCgdsk8dqkPbGHXITaRx9sGqLmwUMY0RItcPntlxEcYilZ3eP4?=
+ =?us-ascii?Q?j+umMdTFpJKo/X6wALnIUdZx1OrNGZMyvU0UtIgEvVF8UTD5cEOu1Vl5CHIl?=
+ =?us-ascii?Q?E4tz0SoLmiXEP3/yPzMJmbpYEW8JPR/m5pdOt6oeIaSZcGMBHNQ2CkROpNs0?=
+ =?us-ascii?Q?0f7W2QiOzECYO/bQmsl0gLRvEuxnMX8yahd9nGlGMcriCIblWiio2BLpNiec?=
+ =?us-ascii?Q?0bSoY9m8q+4NPND6RsxAKwE3GVvG3HuR52FjHuP8tHjITT1+BE1GQGAXXMUJ?=
+ =?us-ascii?Q?yUnyFlENLpR6DNGTcYhIE2GGafTN0o5nOPPqt61vIA5e2eRLKrZhDJHEaSU0?=
+ =?us-ascii?Q?EBlSy/Zv/9YcWyYc61/D7lcjfBAfOlGw1pwQcjS2B/NEFuAmTD0q8iorovn8?=
+ =?us-ascii?Q?TZRhXZ97P/GxIqVG9riroJcqKd3WfxhS3o1Odk9xyLoNkdixw73HOWdP6cU0?=
+ =?us-ascii?Q?9GFIA5FpZH2bJx5J08v+hOPq13NVH+MA5njcfN+3UKw9YpLADXTf9WjeTk4+?=
+ =?us-ascii?Q?XWAe0nnSFVL9TGjZAOzbyz3dNK9yteJuOmP6KBKc5GlN8ShXGczioxSFSvAz?=
+ =?us-ascii?Q?n6ja/7lKL8+77iCRc0IlnLAt1yE8rRthRCHSLfHjTfuoAnr1w4hiJYjg48E3?=
+ =?us-ascii?Q?FWSwMsAl5uZoshw82UmDyaoUH7iplGdZOu3GbXyGana0+7QTT7+4EQBq60js?=
+ =?us-ascii?Q?aEQgScSLGfbz1dR/4dNz5WgjwRPeJNOd+nj1WCZsEeAvjoC7H+PIOlqWZain?=
+ =?us-ascii?Q?IXJlqA=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 079f9e82-b533-41d1-0fed-08db522b79a8
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 May 2023 14:24:48.4821
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: eBYa4i0225d+FWEhZcGlcrSsF4Rw6q8PM3lEkU6283qEywrGDDidvQtc3+5Xnfb2Oua5HZuJYc46tFhAXujJMZqJDxVGnJCURPBtYL0Pa/8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR13MB6522
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add SPDX identifier on remaining files untouched during previous
-rounds of SPDX conversion while replacing boilerplate notice if any.
+On Thu, May 11, 2023 at 08:34:00PM +0700, Bagas Sanjaya wrote:
+> Replace GPL boilerplate notice on remaining files with appropriate SPDX
+> tag. For files mentioning COPYING, use GPL 2.0; otherwise GPL 1.0+.
 
-Cc: Maxime Bizon <mbizon@freebox.fr>
-Cc: David A. Hinds <dahinds@users.sourceforge.net>
-Cc: John G. Dorsey <john+@cs.cmu.edu>
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
----
- drivers/pcmcia/bcm63xx_pcmcia.c |  5 +----
- drivers/pcmcia/cirrus.h         | 21 +--------------------
- drivers/pcmcia/i82365.c         | 22 +---------------------
- drivers/pcmcia/i82365.h         | 21 +--------------------
- drivers/pcmcia/o2micro.h        | 21 +--------------------
- drivers/pcmcia/pd6729.c         |  3 +--
- drivers/pcmcia/pxa2xx_base.h    |  1 +
- drivers/pcmcia/ricoh.h          | 21 +--------------------
- drivers/pcmcia/sa1100_generic.c | 22 +---------------------
- drivers/pcmcia/sa11xx_base.c    | 22 +---------------------
- drivers/pcmcia/sa11xx_base.h    | 22 +---------------------
- drivers/pcmcia/soc_common.c     | 22 +---------------------
- drivers/pcmcia/tcic.c           | 22 +---------------------
- drivers/pcmcia/tcic.h           | 21 +--------------------
- drivers/pcmcia/ti113x.h         | 21 +--------------------
- drivers/pcmcia/topic.h          | 23 +----------------------
- drivers/pcmcia/vg468.h          | 21 +--------------------
- 17 files changed, 17 insertions(+), 294 deletions(-)
-
-diff --git a/drivers/pcmcia/bcm63xx_pcmcia.c b/drivers/pcmcia/bcm63xx_pcmcia.c
-index dd3c2609904877..a2808548d55088 100644
---- a/drivers/pcmcia/bcm63xx_pcmcia.c
-+++ b/drivers/pcmcia/bcm63xx_pcmcia.c
-@@ -1,8 +1,5 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
-- *
-  * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
-  */
- 
-diff --git a/drivers/pcmcia/cirrus.h b/drivers/pcmcia/cirrus.h
-index 446a4576e73e6c..b43689337c4b34 100644
---- a/drivers/pcmcia/cirrus.h
-+++ b/drivers/pcmcia/cirrus.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL 1.1 */
- /*
-  * cirrus.h 1.4 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_CIRRUS_H
-diff --git a/drivers/pcmcia/i82365.c b/drivers/pcmcia/i82365.c
-index 891ccea2cccb0a..c244734c91d227 100644
---- a/drivers/pcmcia/i82365.c
-+++ b/drivers/pcmcia/i82365.c
-@@ -1,34 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Device driver for Intel 82365 and compatible PC Card controllers.
- 
-     i82365.c 1.265 1999/11/10 18:36:21
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is David A. Hinds
-     <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-     are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU General Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--    
- ======================================================================*/
- 
- #include <linux/module.h>
-diff --git a/drivers/pcmcia/i82365.h b/drivers/pcmcia/i82365.h
-index 3f84d7a2dc84fa..5501001c7dd8ab 100644
---- a/drivers/pcmcia/i82365.h
-+++ b/drivers/pcmcia/i82365.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * i82365.h 1.15 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_I82365_H
-diff --git a/drivers/pcmcia/o2micro.h b/drivers/pcmcia/o2micro.h
-index 5096e92c7a4cfb..8b828c0932950c 100644
---- a/drivers/pcmcia/o2micro.h
-+++ b/drivers/pcmcia/o2micro.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * o2micro.h 1.13 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_O2MICRO_H
-diff --git a/drivers/pcmcia/pd6729.c b/drivers/pcmcia/pd6729.c
-index a0a2e7f18356c5..88be64cc9f5dde 100644
---- a/drivers/pcmcia/pd6729.c
-+++ b/drivers/pcmcia/pd6729.c
-@@ -1,10 +1,9 @@
-+/* SPDX-License-Identifier: GPL-1.0-or-later */
- /*
-  * Driver for the Cirrus PD6729 PCI-PCMCIA bridge.
-  *
-  * Based on the i82092.c driver.
-  *
-- * This software may be used and distributed according to the terms of
-- * the GNU General Public License, incorporated herein by reference.
-  */
- 
- #include <linux/kernel.h>
-diff --git a/drivers/pcmcia/pxa2xx_base.h b/drivers/pcmcia/pxa2xx_base.h
-index e58c7a41541880..9583d08983f5cd 100644
---- a/drivers/pcmcia/pxa2xx_base.h
-+++ b/drivers/pcmcia/pxa2xx_base.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- int pxa2xx_drv_pcmcia_add_one(struct soc_pcmcia_socket *skt);
- void pxa2xx_drv_pcmcia_ops(struct pcmcia_low_level *ops);
- void pxa2xx_configure_sockets(struct device *dev, struct pcmcia_low_level *ops);
-diff --git a/drivers/pcmcia/ricoh.h b/drivers/pcmcia/ricoh.h
-index 8ac7b138c09486..f037169f6108f7 100644
---- a/drivers/pcmcia/ricoh.h
-+++ b/drivers/pcmcia/ricoh.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * ricoh.h 1.9 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_RICOH_H
-diff --git a/drivers/pcmcia/sa1100_generic.c b/drivers/pcmcia/sa1100_generic.c
-index 89d4ba58c89135..5f3cf7229505dd 100644
---- a/drivers/pcmcia/sa1100_generic.c
-+++ b/drivers/pcmcia/sa1100_generic.c
-@@ -1,33 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Device driver for the PCMCIA control functionality of StrongARM
-     SA-1100 microprocessors.
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is John G. Dorsey
-     <john+@cs.cmu.edu>.  Portions created by John G. Dorsey are
-     Copyright (C) 1999 John G. Dorsey.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--    
- ======================================================================*/
- 
- #include <linux/module.h>
-diff --git a/drivers/pcmcia/sa11xx_base.c b/drivers/pcmcia/sa11xx_base.c
-index 48140ac73ed632..eb52de8a153df5 100644
---- a/drivers/pcmcia/sa11xx_base.c
-+++ b/drivers/pcmcia/sa11xx_base.c
-@@ -1,33 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Device driver for the PCMCIA control functionality of StrongARM
-     SA-1100 microprocessors.
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is John G. Dorsey
-     <john+@cs.cmu.edu>.  Portions created by John G. Dorsey are
-     Copyright (C) 1999 John G. Dorsey.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--
- ======================================================================*/
- 
- #include <linux/module.h>
-diff --git a/drivers/pcmcia/sa11xx_base.h b/drivers/pcmcia/sa11xx_base.h
-index 3d76d720f463de..c2dbdc5495f78e 100644
---- a/drivers/pcmcia/sa11xx_base.h
-+++ b/drivers/pcmcia/sa11xx_base.h
-@@ -1,33 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Device driver for the PCMCIA control functionality of StrongARM
-     SA-1100 microprocessors.
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is John G. Dorsey
-     <john+@cs.cmu.edu>.  Portions created by John G. Dorsey are
-     Copyright (C) 1999 John G. Dorsey.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--
- ======================================================================*/
- 
- #if !defined(_PCMCIA_SA1100_H)
-diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
-index 61b0c8952bb5e0..00363df3e41602 100644
---- a/drivers/pcmcia/soc_common.c
-+++ b/drivers/pcmcia/soc_common.c
-@@ -1,33 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Common support code for the PCMCIA control functionality of
-     integrated SOCs like the SA-11x0 and PXA2xx microprocessors.
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is John G. Dorsey
-     <john+@cs.cmu.edu>.  Portions created by John G. Dorsey are
-     Copyright (C) 1999 John G. Dorsey.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--
- ======================================================================*/
- 
- 
-diff --git a/drivers/pcmcia/tcic.c b/drivers/pcmcia/tcic.c
-index 1a0e3f0987599d..d93848e0b6e30e 100644
---- a/drivers/pcmcia/tcic.c
-+++ b/drivers/pcmcia/tcic.c
-@@ -1,34 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*======================================================================
- 
-     Device driver for Databook TCIC-2 PCMCIA controller
- 
-     tcic.c 1.111 2000/02/15 04:13:12
- 
--    The contents of this file are subject to the Mozilla Public
--    License Version 1.1 (the "License"); you may not use this file
--    except in compliance with the License. You may obtain a copy of
--    the License at http://www.mozilla.org/MPL/
--
--    Software distributed under the License is distributed on an "AS
--    IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
--    implied. See the License for the specific language governing
--    rights and limitations under the License.
--
-     The initial developer of the original code is David A. Hinds
-     <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-     are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
- 
--    Alternatively, the contents of this file may be used under the
--    terms of the GNU General Public License version 2 (the "GPL"), in which
--    case the provisions of the GPL are applicable instead of the
--    above.  If you wish to allow the use of your version of this file
--    only under the terms of the GPL and not to allow others to use
--    your version of this file under the MPL, indicate your decision
--    by deleting the provisions above and replace them with the notice
--    and other provisions required by the GPL.  If you do not delete
--    the provisions above, a recipient may use your version of this
--    file under either the MPL or the GPL.
--    
- ======================================================================*/
- 
- #include <linux/module.h>
-diff --git a/drivers/pcmcia/tcic.h b/drivers/pcmcia/tcic.h
-index 2c0b8f65ad6c6f..aff1e65fc69032 100644
---- a/drivers/pcmcia/tcic.h
-+++ b/drivers/pcmcia/tcic.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * tcic.h 1.13 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_TCIC_H
-diff --git a/drivers/pcmcia/ti113x.h b/drivers/pcmcia/ti113x.h
-index 5cb670e037a0c6..a65ab56551ee93 100644
---- a/drivers/pcmcia/ti113x.h
-+++ b/drivers/pcmcia/ti113x.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * ti113x.h 1.16 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_TI113X_H
-diff --git a/drivers/pcmcia/topic.h b/drivers/pcmcia/topic.h
-index 582688fe750540..d1ad01abab13f4 100644
---- a/drivers/pcmcia/topic.h
-+++ b/drivers/pcmcia/topic.h
-@@ -1,31 +1,10 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * topic.h 1.8 1999/08/28 04:01:47
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-- *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-- * topic.h $Release$ 1999/08/28 04:01:47
-  */
- 
- #ifndef _LINUX_TOPIC_H
-diff --git a/drivers/pcmcia/vg468.h b/drivers/pcmcia/vg468.h
-index 88c2b487f675fc..c582fc8086c26d 100644
---- a/drivers/pcmcia/vg468.h
-+++ b/drivers/pcmcia/vg468.h
-@@ -1,30 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR MPL-1.1 */
- /*
-  * vg468.h 1.11 1999/10/25 20:03:34
-  *
-- * The contents of this file are subject to the Mozilla Public License
-- * Version 1.1 (the "License"); you may not use this file except in
-- * compliance with the License. You may obtain a copy of the License
-- * at http://www.mozilla.org/MPL/
-- *
-- * Software distributed under the License is distributed on an "AS IS"
-- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
-- * the License for the specific language governing rights and
-- * limitations under the License. 
-- *
-  * The initial developer of the original code is David A. Hinds
-  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-  *
-- * Alternatively, the contents of this file may be used under the
-- * terms of the GNU General Public License version 2 (the "GPL"), in which
-- * case the provisions of the GPL are applicable instead of the
-- * above.  If you wish to allow the use of your version of this file
-- * only under the terms of the GPL and not to allow others to use
-- * your version of this file under the MPL, indicate your decision by
-- * deleting the provisions above and replace them with the notice and
-- * other provisions required by the GPL.  If you do not delete the
-- * provisions above, a recipient may use your version of this file
-- * under either the MPL or the GPL.
-  */
- 
- #ifndef _LINUX_VG468_H
--- 
-An old man doll... just what I always wanted! - Clara
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
 
