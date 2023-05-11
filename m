@@ -2,36 +2,36 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EDB3C77B7D
-	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 00:20:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C043C7EE2A
+	for <linux-watchdog@archiver.kernel.org>; Thu, 11 May 2023 00:20:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236236AbjEKAUO (ORCPT
+        id S236906AbjEKAUP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 10 May 2023 20:20:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
+        Wed, 10 May 2023 20:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232414AbjEKAUN (ORCPT
+        with ESMTP id S235583AbjEKAUO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 May 2023 20:20:13 -0400
+        Wed, 10 May 2023 20:20:14 -0400
 Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B365266;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC765276;
         Wed, 10 May 2023 17:20:11 -0700 (PDT)
 Received: from tr.lan (ip-86-49-120-218.bb.vodafone.cz [86.49.120.218])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
         (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 3584D860B0;
-        Thu, 11 May 2023 02:20:08 +0200 (CEST)
+        by phobos.denx.de (Postfix) with ESMTPSA id C6EF1860B5;
+        Thu, 11 May 2023 02:20:09 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1683764409;
-        bh=eo6OjRKTPtw7KrsHnlEmccaV42o2lfWM/x3sgpUKhVk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pL0gKYmEV4vryPnjk0Sj49GSSnvPfBjKOwG/+E1nL6l6LINjbHI96hMKL/HsXFgsn
-         GpopeUKSuWiqGZrOunET/EWq45ZKvx/z0iwq+DmNvD6E7QAYihpAn/fSIYOvdc3Kd3
-         /leAFVAElIp2Jup1RJ4zdrpUuB2kv/1FrVW6yRw6rqeEYYOYX0uPiJwUyd3ZK3e6D2
-         3kgSKWO9wgng4W13r/9/ueqmKesXDN+zbalKIPiXCp5ZYyC8TywOuoV2t1kqbotcYd
-         RWBiC1Ki5veDdyH7N2zaV26+Q4fQZ+qT3em0BT2/c3mfa6Saipr3e+cX6I8TWF2FWB
-         E+H5r4VU1cJ6g==
+        s=phobos-20191101; t=1683764410;
+        bh=cMWsdqqR/k7zantlDh1d1yj4kxNqX+XUZVoR17bWKo8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ch+8Y/AjeEeKXxuF3ahse8H8zIlH4LQJJUSTLe4Y/vZusBqGliN/ODbZhRN0WCNj6
+         WsEQ1l1h00UlJWwqlEumSx4LSgetYoDmJT2kylxtI0baZYtUy5M6LrbXEQiZM5iM/w
+         s0ACHA9TVZzk4/3lUjKH1Xub1KJAPV0mGfJwUAFRevJwUsb64TWN5S5SdmJInwjKZY
+         9QXd6jyYWM5J7+yNHFd6m7lodcIAjWVhQlhJpU7rwR9v2GT5YS8Yjb2jHPqVrmD920
+         tphfAg1IeN12JsW3MMfrLaLJDFuLWzeWjQ+XcLO9tf+FXnDlR9fHMvgEy1CfMudjqt
+         NVgAGNBLfGduA==
 From:   Marek Vasut <marex@denx.de>
 To:     linux-arm-kernel@lists.infradead.org
 Cc:     Marek Vasut <marex@denx.de>,
@@ -47,10 +47,12 @@ Cc:     Marek Vasut <marex@denx.de>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-stm32@st-md-mailman.stormreply.com,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH 1/3] irqchip/stm32-exti: Add STM32MP15xx IWDG2 EXTI to GIC map
-Date:   Thu, 11 May 2023 02:19:47 +0200
-Message-Id: <20230511001949.179521-1-marex@denx.de>
+Subject: [PATCH 3/3] ARM: dts: stm32: Add IWDG2 EXTI interrupt mapping and mark as wakeup source
+Date:   Thu, 11 May 2023 02:19:49 +0200
+Message-Id: <20230511001949.179521-3-marex@denx.de>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230511001949.179521-1-marex@denx.de>
+References: <20230511001949.179521-1-marex@denx.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
@@ -59,9 +61,9 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The EXTI interrupt 46 is mapped to GIC interrupt 151. Add the
-missing mapping, which is used for IWDG2 pretimeout interrupt
-and wake up source.
+The IWDG2 is capable of generating pre-timeout interrupt, which can be used
+to wake the system up from suspend to mem. Add the EXTI interrupt mapping
+and mark the IWDG2 as wake up source.
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 ---
@@ -80,21 +82,22 @@ Cc: linux-kernel@vger.kernel.org
 Cc: linux-stm32@st-md-mailman.stormreply.com
 Cc: linux-watchdog@vger.kernel.org
 ---
- drivers/irqchip/irq-stm32-exti.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/stm32mp151.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/irqchip/irq-stm32-exti.c b/drivers/irqchip/irq-stm32-exti.c
-index 6a3f7498ea8ea..f684be77ba378 100644
---- a/drivers/irqchip/irq-stm32-exti.c
-+++ b/drivers/irqchip/irq-stm32-exti.c
-@@ -208,6 +208,7 @@ static const u8 stm32mp1_desc_irq[] = {
- 	[31] = 53,
- 	[32] = 82,
- 	[33] = 83,
-+	[46] = 151,
- 	[47] = 93,
- 	[48] = 138,
- 	[50] = 139,
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index 63f4c78fcc1dc..792324b6f9b6a 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -1541,6 +1541,8 @@ iwdg2: watchdog@5a002000 {
+ 			reg = <0x5a002000 0x400>;
+ 			clocks = <&rcc IWDG2>, <&rcc CK_LSI>;
+ 			clock-names = "pclk", "lsi";
++			interrupts-extended = <&exti 46 IRQ_TYPE_LEVEL_HIGH>;
++			wakeup-source;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.39.2
 
