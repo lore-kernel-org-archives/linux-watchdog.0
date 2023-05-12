@@ -2,57 +2,57 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB2E6C7EE2D
-	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4034C7EE2F
+	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240484AbjELKHN (ORCPT
+        id S240485AbjELKHO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 12 May 2023 06:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60666 "EHLO
+        Fri, 12 May 2023 06:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240398AbjELKHC (ORCPT
+        with ESMTP id S240401AbjELKHC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 12 May 2023 06:07:02 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6952106D3;
-        Fri, 12 May 2023 03:07:00 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-1aad55244b7so74826015ad.2;
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DB61162B;
+        Fri, 12 May 2023 03:07:01 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id d2e1a72fcca58-64ab2a37812so3590097b3a.1;
         Fri, 12 May 2023 03:07:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20221208; t=1683886020; x=1686478020;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BxUq3YLztp4DNVv6U1fiGgpx+oeOVzDyxQ2q0biTG8I=;
-        b=iokr5EotZR7X6156ihWRt57IvPCSp1+PYgZ6QJm7abWEB0uyQEKcBneJ3R2VgLW9Ol
-         DMJMsqNqMsBNwxbYvQxBbwXAlvcSAj7qXEJa3KPn8a2bqpWy+AhJ9rHouHWWqa1Zxr2z
-         7Fl34c5wTk18pR+a+vtjfj9gevV/cxNSz/iZ0bW17BZ9IW+SVCS4J+KmLFtH4MkboRwp
-         ECRUxYVvGrEZTXXVgPRa7FD3imTANH1SzyMz/NXkIf6eMRT9IMf7inJ984Pz/6nX5GCL
-         5ddD8Gj9STUa5sz5A7pPEMRo404J3JVlVl/ta31FERe+QKlKrGOcvVBG4SebNlpPHung
-         GOeA==
+        bh=NkLNdeDn6hMP5F0r+T8wUttQQ19WSpWtWoPCipbjjYk=;
+        b=C2+j8v8rPTIb6HnSvnFUQwRZ66d3mXZZSmgIfsh6FVupo5JbwYPTQxueQITyQhUyTE
+         XwDGChK3UNv+U1yJxKtNWgdNH59S1wnnb41F5rM5S4lZGFGbL2Vk0EgF+rzxZJydj74u
+         d6Jk4j0yuBZn+Ia57JZxzq1D7JXICpZG03MRJhZD+dcsewY1jruPow6YZRNSFRaCJFsv
+         6x+yo/3iVJhPuv/fvu2hMT0F4OrD+DWMCuLCPqt0Fzygq/E9VfhsedqCVUDYddgRWsw9
+         vV8dxqqeq9tItBeaKZfHNLW9omhOjhh1aTduDjMAKPQv2LssIWhToyNxoodHXrI/tdwF
+         BbgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20221208; t=1683886020; x=1686478020;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BxUq3YLztp4DNVv6U1fiGgpx+oeOVzDyxQ2q0biTG8I=;
-        b=QF0WhfwNr++N2fBfggoLb4Kcjjs/tWkkMqH83hFGo0PWqG6GG8XOulCDvfAvYlM1aR
-         XGamvxmqcSEsrSeyz3AaZPj3b7igK06sRg+2zN/tnipTuh2e/7PHByHE+dxqQI5HeLrn
-         5cpk9roYgJP0Ml3wGVYFtfE2OFcWd2YNRm5lHP0n7ZxgkFCvbkNTwroHwNVzsxOi00AQ
-         2vqz7B6I7SU/VGYQsLgcblOF3Ew0P+9xOgefDn0vGpFozGYWA3/DNXxW4J7veUH5y4AK
-         WZcvki0vhltAzBVkXhqJsekETP0FnfAd71xQt1eEHwqMQNCrYbNQf2AeFhmsMvOxOD51
-         7zQQ==
-X-Gm-Message-State: AC+VfDy2L2hXw4fcUReA70Pyogz9w9jU98ujiF1bba0PSIUIFI4om5Rr
-        lP3GShmgsPSI3JMg8IcfuAc=
-X-Google-Smtp-Source: ACHHUZ5nuYpORXz/tLJ7HmMn2eHynj5Vltbgetp2+KQtQQOg6FDcgPx4N0/5dvslRAVwDR20eMRnTw==
-X-Received: by 2002:a17:903:1205:b0:1ac:6d4c:c26a with SMTP id l5-20020a170903120500b001ac6d4cc26amr22313546plh.14.1683886020200;
+        bh=NkLNdeDn6hMP5F0r+T8wUttQQ19WSpWtWoPCipbjjYk=;
+        b=iqSANpzDXTeAZ1MDPb501P8YEar+BJ3IcvVQqjV1LYsltqhorG5Be1Ej3oHP4afAYM
+         e9G4ECBn00Lwf+okcRi94zw1SSKgXnnOnD5Wx9pb9EsZhF4DPoUgd5pDdLegvFJhK71Q
+         LyJeTe4uJPUZb7NOfkyWmDLROcJ6uwv4MH8ITBR7FForEz07qZFdT0PTHgNh1lBo3ky4
+         6qG8FxG0wxd/J1uDRhiNIzBs3UR1VSIoQ/ZpxRij3FWldVTd7EeXdA9KHN+8axynCbn1
+         oFSqVtDsXt5NDVs4R4v0kyj0b77K8LUwANRxU8Cf7DsGSsuKM6QWKbebzvRi1OB7Qm+H
+         oNqA==
+X-Gm-Message-State: AC+VfDzlzWCtjQOwiK7ThNKUawYwfC548Kwn+MWKmNLY5ELa9KT8SgiR
+        cgtFXLoSqERlCIzN2yYC1yw=
+X-Google-Smtp-Source: ACHHUZ6aNdgEG2xNAjNjCSF7H8MeFm2CvViH4BalJUiUcf1A7xoIMDscaLxs+Ef+R6vxs1eys44OGw==
+X-Received: by 2002:a17:902:da92:b0:1ac:94b3:3ab4 with SMTP id j18-20020a170902da9200b001ac94b33ab4mr15640725plx.27.1683886020395;
         Fri, 12 May 2023 03:07:00 -0700 (PDT)
 Received: from debian.me (subs28-116-206-12-58.three.co.id. [116.206.12.58])
-        by smtp.gmail.com with ESMTPSA id l9-20020a170903244900b001ac94b33ab1sm7532231pls.304.2023.05.12.03.06.59
+        by smtp.gmail.com with ESMTPSA id k25-20020a63ba19000000b0050f93a3586fsm6141726pgf.37.2023.05.12.03.06.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 12 May 2023 03:06:59 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 2C9D8106B33; Fri, 12 May 2023 17:06:54 +0700 (WIB)
+        id 762BF106B36; Fri, 12 May 2023 17:06:54 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     Linux SPDX Licenses <linux-spdx@vger.kernel.org>,
         Linux DRI Development <dri-devel@lists.freedesktop.org>,
@@ -84,92 +84,44 @@ Cc:     Diederik de Haas <didi.debian@cknow.org>,
         =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
         Manivannan Sadhasivam <mani@kernel.org>,
         Bagas Sanjaya <bagasdotme@gmail.com>,
-        Thomas Davis <tadavis@lbl.gov>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Stephen Hemminger <stephen@networkplumber.org>,
         Simon Horman <simon.horman@corigine.com>
-Subject: [PATCH v2 03/10] net: bonding: Add SPDX identifier to remaining files
-Date:   Fri, 12 May 2023 17:06:14 +0700
-Message-Id: <20230512100620.36807-4-bagasdotme@gmail.com>
+Subject: [PATCH v2 01/10] agp/amd64: Remove GPL distribution notice
+Date:   Fri, 12 May 2023 17:06:12 +0700
+Message-Id: <20230512100620.36807-2-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230512100620.36807-1-bagasdotme@gmail.com>
 References: <20230512100620.36807-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2509; i=bagasdotme@gmail.com; h=from:subject; bh=JdLGTV+zXI78x437QouL/kFbLmtamk90mD7K+ie5nOI=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/NPDL6jtPbSzO6X4WNVdToVPYa2PdRSmbJC6//w2+ 5byoIu2HaUsDGJcDLJiiiyTEvmaTu8yErnQvtYRZg4rE8gQBi5OAZjIm8sM//R+zjG+xSk69VVW Y/Yk3UtLEksMDOLOnmVtWn5tL5uJ+lSG/zn/wmNaI86zz5uoXZDXHSkar9OScOoRw6+Xr2r/CSt c5AcA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=865; i=bagasdotme@gmail.com; h=from:subject; bh=BnhAyHqAAXZPpElC1S7AamhQL42pHpYqVocWHPx47Os=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/NO3Lfyz29rtyKsS8//3lktmcG+LcrlZPfXRzne6r BeWG8sf7ihlYRDjYpAVU2SZlMjXdHqXkciF9rWOMHNYmUCGMHBxCsBEpksz/E+ZHn/97Pa1mcsX SRe79U8LfWr+1jyuJsSJ9dwmz6+TtfUY/ilqCr+WT7wnuHO1tmnp0jLPvboarTN8C/QeXSxye3Z oLw8A
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Previous batches of SPDX conversion missed bond_main.c and bonding_priv.h
-because these files doesn't mention intended GPL version. Add SPDX identifier
-to these files, assuming GPL 1.0+.
+There is already SPDX tag which does the job, so remove the redundant
+notice.
 
-Cc: Thomas Davis <tadavis@lbl.gov>
 Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/net/bonding/bond_main.c    | 3 ++-
- drivers/net/bonding/bonding_priv.h | 4 +---
- include/net/bonding.h              | 4 +---
- 3 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/char/agp/amd64-agp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 3fed888629f7b5..73059bff425729 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1,8 +1,9 @@
-+// SPDX-License-Identifier: GPL-1.0+
+diff --git a/drivers/char/agp/amd64-agp.c b/drivers/char/agp/amd64-agp.c
+index ce8651436609fc..b93b0f836e52ba 100644
+--- a/drivers/char/agp/amd64-agp.c
++++ b/drivers/char/agp/amd64-agp.c
+@@ -1,7 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
  /*
-  * originally based on the dummy device.
+  * Copyright 2001-2003 SuSE Labs.
+- * Distributed under the GNU public license, v2.
   *
-  * Copyright 1999, Thomas Davis, tadavis@lbl.gov.
-- * Licensed under the GPL. Based on dummy.c, and eql.c devices.
-+ * Based on dummy.c, and eql.c devices.
-  *
-  * bonding.c: an Ethernet Bonding driver
-  *
-diff --git a/drivers/net/bonding/bonding_priv.h b/drivers/net/bonding/bonding_priv.h
-index 48cdf3a49a7d74..fef6288c6944fb 100644
---- a/drivers/net/bonding/bonding_priv.h
-+++ b/drivers/net/bonding/bonding_priv.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-1.0+ */
- /*
-  * Bond several ethernet interfaces into a Cisco, running 'Etherchannel'.
-  *
-@@ -7,9 +8,6 @@
-  * BUT, I'm the one who modified it for ethernet, so:
-  * (c) Copyright 1999, Thomas Davis, tadavis@lbl.gov
-  *
-- *	This software may be used and distributed according to the terms
-- *	of the GNU Public License, incorporated herein by reference.
-- *
-  */
- 
- #ifndef _BONDING_PRIV_H
-diff --git a/include/net/bonding.h b/include/net/bonding.h
-index a60a24923b5599..50dfc9b939ecb7 100644
---- a/include/net/bonding.h
-+++ b/include/net/bonding.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-1.0+ */
- /*
-  * Bond several ethernet interfaces into a Cisco, running 'Etherchannel'.
-  *
-@@ -7,9 +8,6 @@
-  * BUT, I'm the one who modified it for ethernet, so:
-  * (c) Copyright 1999, Thomas Davis, tadavis@lbl.gov
-  *
-- *	This software may be used and distributed according to the terms
-- *	of the GNU Public License, incorporated herein by reference.
-- *
-  */
- 
- #ifndef _NET_BONDING_H
+  * This is a GART driver for the AMD Opteron/Athlon64 on-CPU northbridge.
+  * It also includes support for the AMD 8151 AGP bridge,
 -- 
 An old man doll... just what I always wanted! - Clara
 
