@@ -2,57 +2,57 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D81EDC7EE32
-	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E474C7EE2A
+	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240013AbjELKHP (ORCPT
+        id S240230AbjELKHQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 12 May 2023 06:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59512 "EHLO
+        Fri, 12 May 2023 06:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240437AbjELKHE (ORCPT
+        with ESMTP id S240451AbjELKHG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 12 May 2023 06:07:04 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339D119BE;
-        Fri, 12 May 2023 03:07:02 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d2e1a72fcca58-64a9335a8e7so4469399b3a.0;
-        Fri, 12 May 2023 03:07:02 -0700 (PDT)
+        Fri, 12 May 2023 06:07:06 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97AFA4488;
+        Fri, 12 May 2023 03:07:03 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id d2e1a72fcca58-64ab2a37812so3590333b3a.1;
+        Fri, 12 May 2023 03:07:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683886021; x=1686478021;
+        d=gmail.com; s=20221208; t=1683886023; x=1686478023;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4KIpv4WltxOX2Z/4nLCGiCrEW99+slO6rQFVOFj9jCM=;
-        b=puurPWhhvbxp0nMkmfMrx/ZJHuGf+p4ENUA03qKwcBIg21G62RM+E50o8mmxp4Dtcp
-         rwZnfW5sQsZM6Aa7m2ikwNxuOTuI0pdOyhq/34Xwxg8u8qMaudveTvPYJOqShCgA9WoR
-         WS2XWB9fhgomedNGGzPhy8hZTQMbHUQVliNDqM17J3pzq/g9EAnLgEnw76cg0TfCJnAF
-         L9gPf6m8KlLdzFEb4fyVngC139y4KIPF2x5Gf3iMN3rGanH99lXvA5HIh83AlmWkSQtD
-         9haDzk3X+d2SEiwX0Uz+Xx7TDdIr8fs2+vdSXnS/WvXgv50dHpn25tYgJXhem2rkcRbH
-         xJag==
+        bh=AL9Il3xQ6CcOjY3ofxhaiTscJ0l+n9RW4KfV/woDTZA=;
+        b=DMMvY/OlryULJ1BsRWv608YtTpBMnrSEYIq8dTSmOlNMuGp1FaLFrNqLsPDVAlZngQ
+         cLHN/7v1d14ia0i0e21UYajgLgiqnpssvLjXYb7sh/yVm38rkBfOnX1jx2IkvXfGIw3L
+         bkwrXHw8mm45kPOy7hTGRpyBWETHoSnj+Mc3xNUfvxm0pQQu4gBvBQqx28prqLVMQ5KS
+         z41T2YidLtroQll0sqgiDoyQ3ArFlMie+6xTgcYmrz16PAAne2HuAEsumeq9tiCBgNRl
+         GOs1hg5elb4aWrY+w8sZoNEWshk0uPWp9mgnSJHhHsncCuP0JT08hNDVPFyrelHbmwtk
+         sVNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683886021; x=1686478021;
+        d=1e100.net; s=20221208; t=1683886023; x=1686478023;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4KIpv4WltxOX2Z/4nLCGiCrEW99+slO6rQFVOFj9jCM=;
-        b=e5tZAWxZmUNhVN3696oHWpTwqUSyXUz0DPHWi4OjG7lBZDsOe8fEFNYBslk0W3cswc
-         LlQMF4FddeLqOIVcnbS1BhZbecb7R+MqQxTO7hwQElwwoHMmkH2Wdf4RKIpAscwpzwyC
-         gTv/Ph2v26HPPZBti9AptZlJzCgHzfWVWKpJDImct6AsEStT1R45L2QcUPrZq0C6mvNS
-         98vWhrrn5Q0VVSWX6MJn+oaQEvZF2xil56nDMzDiJUNasUy1Vkk0uPAtpovsrb37whft
-         fqviIXI1pmkuyyhpWgHLU6QIPQb6dRtz/Qkv+MqePQgCcHdqMT4Urzr/p6krWaKKrf/K
-         ds5g==
-X-Gm-Message-State: AC+VfDxP197UiyTLoH9Nr5lib6BAmkx0CGUmsP14OkUj8aK3AFrEtvfa
-        urKTvsD9CyVXasQhEGVvY+E=
-X-Google-Smtp-Source: ACHHUZ4J/D/M6jg7AiPgJwjC+cB0O+qBsGQ6CE1m/1OAOemMhNrXsreGHuFd+auJae3YGNdT9NjvnQ==
-X-Received: by 2002:a05:6a00:3318:b0:63d:368c:97c2 with SMTP id cq24-20020a056a00331800b0063d368c97c2mr34175864pfb.8.1683886021097;
-        Fri, 12 May 2023 03:07:01 -0700 (PDT)
+        bh=AL9Il3xQ6CcOjY3ofxhaiTscJ0l+n9RW4KfV/woDTZA=;
+        b=em/yAw/HJpzT++28aotkW4yqKKz1shUqNggQS+NkdFqVR/r8zay7B8mdzhNEqDkDcL
+         qm9ifaCQ1CBOYk8JE1ZOnpRE9Zw7ai8wFWC4eaULhcqxpPCUQTwGYTy9PZ6Xc20bOLd9
+         rU2p2Men3ZIDve7qrSDpzMYUOrvZwH9YTxCavZ+RAhzud5VaZPU/SWTWkTqW7ujTozpW
+         iwCU5CHY7cIJKkX8Kg8mq0IbTWb+GtFp+Fk9EeQABJdBcsoGWoWVf3FCupygNvR91BAO
+         YWz/ifIu5SgNOMx2mQ9vUVl6pHRjtBraCwqTWDQVhBZAqOQ8H2ipMWfyEnecjE2VQUTo
+         ujTg==
+X-Gm-Message-State: AC+VfDxqcXwcbq5cD7iWwRCtepianqM+aPE9RA5pu42dfXE9XF2rSWDA
+        oKr+u2dh19UlmuL/mghbFNQ=
+X-Google-Smtp-Source: ACHHUZ58pt5RKTW1jgFFUUuwPBm8Sk/5pjjh3cUIE7+kVGxXJ3m21l4VtQSwLtJNG70EwPCR8dMLbQ==
+X-Received: by 2002:a17:90a:744c:b0:246:9c75:351a with SMTP id o12-20020a17090a744c00b002469c75351amr27695257pjk.12.1683886023117;
+        Fri, 12 May 2023 03:07:03 -0700 (PDT)
 Received: from debian.me (subs28-116-206-12-58.three.co.id. [116.206.12.58])
-        by smtp.gmail.com with ESMTPSA id u19-20020aa78393000000b006242f4a8945sm6703481pfm.182.2023.05.12.03.06.59
+        by smtp.gmail.com with ESMTPSA id o65-20020a634144000000b00502fd70b0bdsm6442447pga.52.2023.05.12.03.07.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 May 2023 03:06:59 -0700 (PDT)
+        Fri, 12 May 2023 03:07:02 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 52FF2106B34; Fri, 12 May 2023 17:06:54 +0700 (WIB)
+        id 9C638106B31; Fri, 12 May 2023 17:06:55 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     Linux SPDX Licenses <linux-spdx@vger.kernel.org>,
         Linux DRI Development <dri-devel@lists.freedesktop.org>,
@@ -84,322 +84,286 @@ Cc:     Diederik de Haas <didi.debian@cknow.org>,
         =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
         Manivannan Sadhasivam <mani@kernel.org>,
         Bagas Sanjaya <bagasdotme@gmail.com>,
-        "David A . Hinds" <dahinds@users.sourceforge.net>,
-        Donald Becker <becker@scyld.com>,
-        Peter De Schrijver <p2@mind.be>,
-        Topi Kanerva <topi@susanna.oulu.fi>,
-        Alain Malek <Alain.Malek@cryogen.com>,
-        Bruce Abbott <bhabbott@inhb.co.nz>,
+        Ray Lehtiniemi <rayl@mail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Andrey Panin <pazke@donpac.ru>, Oleg Drokin <green@crimea.edu>,
+        Marc Zyngier <maz@kernel.org>,
+        Jonas Jensen <jonas.jensen@gmail.com>,
+        Sylver Bruneau <sylver.bruneau@googlemail.com>,
+        Andrew Sharp <andy.sharp@lsi.com>,
+        Denis Turischev <denis@compulab.co.il>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Alan Cox <alan@linux.intel.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
         Simon Horman <simon.horman@corigine.com>
-Subject: [PATCH v2 04/10] net: ethernet: 8390: Replace GPL boilerplate with SPDX identifier
-Date:   Fri, 12 May 2023 17:06:15 +0700
-Message-Id: <20230512100620.36807-5-bagasdotme@gmail.com>
+Subject: [PATCH v2 08/10] drivers: watchdog: Replace GPL license notice with SPDX identifier
+Date:   Fri, 12 May 2023 17:06:19 +0700
+Message-Id: <20230512100620.36807-9-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230512100620.36807-1-bagasdotme@gmail.com>
 References: <20230512100620.36807-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=12269; i=bagasdotme@gmail.com; h=from:subject; bh=InmDovYJY2agWe7gpR1Z4FTdo82Q9Yqm+WaEZzImljM=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/NNtf7/4wPm06oxprKRPgf+K4gjFL6nv9aZHNHpzv Fyhr3aoo5SFQYyLQVZMkWVSIl/T6V1GIhfa1zrCzGFlAhnCwMUpABPJesvI8PTEQiMG1m2W2+zP nne/KGBTcSxeaN5n8Ssbz0wVm3tu7gJGhml9UWwTy868WMF96fP8H8kvi6bMOxDiNdlHhbXlcIP QJn4A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=9335; i=bagasdotme@gmail.com; h=from:subject; bh=FKOXnccXkoNiIUxF9t4WxHzAEPq3ACwfo6jq+ieu+hM=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/DOZ2Hvet/74xLl6S+fz3AlXFrG8ttydv7Qiv4drY lxdWNDGjlIWBjEuBlkxRZZJiXxNp3cZiVxoX+sIM4eVCWQIAxenAEwk6xfDf4+WLV7PPBO5mOba v3i4SqpqT4rYvPU7z266XcDe+5pPRJ2R4VNeiWbssQsbNNJkZQVtWH/yH//yX2ldy47WZTbPN21 0YAMA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Replace GPL boilerplate notice on remaining files with appropriate SPDX
-tag. For files mentioning COPYING, use GPL 2.0; otherwise GPL 1.0+.
+Many watchdog drivers's source files has already SPDX license
+identifier, while some remaining doesn't.
 
-Cc: David A. Hinds <dahinds@users.sourceforge.net>
-Cc: Donald Becker <becker@scyld.com>
-Cc: Peter De Schrijver <p2@mind.be>
-Cc: Topi Kanerva <topi@susanna.oulu.fi>
-Cc: Alain Malek <Alain.Malek@cryogen.com>
-Cc: Bruce Abbott <bhabbott@inhb.co.nz>
+Convert notices on remaining files to SPDX identifier. While at it,
+also move SPDX identifier for drivers/watchdog/rtd119x_wdt.c to the
+top of file (as in other files).
+
+Cc: Ray Lehtiniemi <rayl@mail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Andrey Panin <pazke@donpac.ru>
+Cc: Oleg Drokin <green@crimea.edu>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Cc: Sylver Bruneau <sylver.bruneau@googlemail.com>
+Cc: Andrew Sharp <andy.sharp@lsi.com>
+Cc: Denis Turischev <denis@compulab.co.il>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Alan Cox <alan@linux.intel.com>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/net/ethernet/8390/8390.h      | 2 ++
- drivers/net/ethernet/8390/apne.c      | 7 +------
- drivers/net/ethernet/8390/axnet_cs.c  | 6 +++---
- drivers/net/ethernet/8390/hydra.c     | 6 ++----
- drivers/net/ethernet/8390/lib8390.c   | 5 ++---
- drivers/net/ethernet/8390/mac8390.c   | 6 ++----
- drivers/net/ethernet/8390/mcf8390.c   | 4 +---
- drivers/net/ethernet/8390/ne.c        | 4 +---
- drivers/net/ethernet/8390/ne2k-pci.c  | 8 +-------
- drivers/net/ethernet/8390/pcnet_cs.c  | 5 ++---
- drivers/net/ethernet/8390/smc-ultra.c | 4 +---
- drivers/net/ethernet/8390/stnic.c     | 5 +----
- drivers/net/ethernet/8390/wd.c        | 4 +---
- drivers/net/ethernet/8390/zorro8390.c | 7 +------
- 14 files changed, 21 insertions(+), 52 deletions(-)
+ drivers/watchdog/ep93xx_wdt.c     | 5 +----
+ drivers/watchdog/ibmasr.c         | 3 +--
+ drivers/watchdog/m54xx_wdt.c      | 4 +---
+ drivers/watchdog/max63xx_wdt.c    | 5 +----
+ drivers/watchdog/moxart_wdt.c     | 4 +---
+ drivers/watchdog/octeon-wdt-nmi.S | 5 +----
+ drivers/watchdog/orion_wdt.c      | 4 +---
+ drivers/watchdog/rtd119x_wdt.c    | 2 +-
+ drivers/watchdog/sb_wdog.c        | 5 +----
+ drivers/watchdog/sbc_fitpc2_wdt.c | 4 +---
+ drivers/watchdog/ts4800_wdt.c     | 4 +---
+ drivers/watchdog/ts72xx_wdt.c     | 4 +---
+ 12 files changed, 12 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/net/ethernet/8390/8390.h b/drivers/net/ethernet/8390/8390.h
-index e5226446599884..f784a6e2ab0ed3 100644
---- a/drivers/net/ethernet/8390/8390.h
-+++ b/drivers/net/ethernet/8390/8390.h
-@@ -1,3 +1,5 @@
-+/* SPDX-License-Identifier: GPL-1.0+ */
-+
- /* Generic NS8390 register definitions. */
- 
- /* This file is part of Donald Becker's 8390 drivers, and is distributed
-diff --git a/drivers/net/ethernet/8390/apne.c b/drivers/net/ethernet/8390/apne.c
-index 991ad953aa7906..bf9a95875b0b20 100644
---- a/drivers/net/ethernet/8390/apne.c
-+++ b/drivers/net/ethernet/8390/apne.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /*
-  * Amiga Linux/68k 8390 based PCMCIA Ethernet Driver for the Amiga 1200
-  *
-@@ -19,12 +20,6 @@
-  *
-  * ----------------------------------------------------------------------------
-  *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file COPYING in the main directory of the Linux
-- * distribution for more details.
-- *
-- * ----------------------------------------------------------------------------
-- *
-  */
- 
- 
-diff --git a/drivers/net/ethernet/8390/axnet_cs.c b/drivers/net/ethernet/8390/axnet_cs.c
-index 78f985885547ea..fea489af72fb0b 100644
---- a/drivers/net/ethernet/8390/axnet_cs.c
-+++ b/drivers/net/ethernet/8390/axnet_cs.c
-@@ -1,3 +1,5 @@
-+// SPDX-License-Identifier: GPL-1.0+
-+
- /*======================================================================
- 
-     A PCMCIA ethernet driver for Asix AX88190-based cards
-@@ -17,9 +19,7 @@
- 
-     Written 1992,1993 by Donald Becker.
-     Copyright 1993 United States Government as represented by the
--    Director, National Security Agency.  This software may be used and
--    distributed according to the terms of the GNU General Public License,
--    incorporated herein by reference.
-+    Director, National Security Agency.
-     Donald Becker may be reached at becker@scyld.com
- 
- ======================================================================*/
-diff --git a/drivers/net/ethernet/8390/hydra.c b/drivers/net/ethernet/8390/hydra.c
-index 1df7601af86a40..1c3dd9a2847543 100644
---- a/drivers/net/ethernet/8390/hydra.c
-+++ b/drivers/net/ethernet/8390/hydra.c
-@@ -1,10 +1,8 @@
-+// SPDX-License-Identifier: GPL-1.0+
-+
- /* New Hydra driver using generic 8390 core */
- /* Based on old hydra driver by Topi Kanerva (topi@susanna.oulu.fi) */
- 
--/* This file is subject to the terms and conditions of the GNU General      */
--/* Public License.  See the file COPYING in the main directory of the       */
--/* Linux distribution for more details.                                     */
--
- /* Peter De Schrijver (p2@mind.be) */
- /* Oldenburg 2000 */
- 
-diff --git a/drivers/net/ethernet/8390/lib8390.c b/drivers/net/ethernet/8390/lib8390.c
-index e84021282edf30..84aeb8054304f9 100644
---- a/drivers/net/ethernet/8390/lib8390.c
-+++ b/drivers/net/ethernet/8390/lib8390.c
-@@ -1,3 +1,5 @@
-+// SPDX-License-Identifier: GPL-1.0+
-+
- /* 8390.c: A general NS8390 ethernet driver core for linux. */
- /*
- 	Written 1992-94 by Donald Becker.
-@@ -5,9 +7,6 @@
- 	Copyright 1993 United States Government as represented by the
- 	Director, National Security Agency.
- 
--	This software may be used and distributed according to the terms
--	of the GNU General Public License, incorporated herein by reference.
--
- 	The author may be reached as becker@scyld.com, or C/O
- 	Scyld Computing Corporation
- 	410 Severn Ave., Suite 210
-diff --git a/drivers/net/ethernet/8390/mac8390.c b/drivers/net/ethernet/8390/mac8390.c
-index 7fb819b9b89a5b..4a0a095a1a8a0a 100644
---- a/drivers/net/ethernet/8390/mac8390.c
-+++ b/drivers/net/ethernet/8390/mac8390.c
-@@ -1,11 +1,9 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /* mac8390.c: New driver for 8390-based Nubus (or Nubus-alike)
-    Ethernet cards on Linux */
- /* Based on the former daynaport.c driver, by Alan Cox.  Some code
-    taken from or inspired by skeleton.c by Donald Becker, acenic.c by
--   Jes Sorensen, and ne2k-pci.c by Donald Becker and Paul Gortmaker.
--
--   This software may be used and distributed according to the terms of
--   the GNU Public License, incorporated herein by reference.  */
-+   Jes Sorensen, and ne2k-pci.c by Donald Becker and Paul Gortmaker. */
- 
- /* 2000-02-28: support added for Dayna and Kinetics cards by
-    A.G.deWijn@phys.uu.nl */
-diff --git a/drivers/net/ethernet/8390/mcf8390.c b/drivers/net/ethernet/8390/mcf8390.c
-index 8a7918d3341965..217838b2822025 100644
---- a/drivers/net/ethernet/8390/mcf8390.c
-+++ b/drivers/net/ethernet/8390/mcf8390.c
+diff --git a/drivers/watchdog/ep93xx_wdt.c b/drivers/watchdog/ep93xx_wdt.c
+index 38e26f160b9a57..59dfd7f6bf0ba1 100644
+--- a/drivers/watchdog/ep93xx_wdt.c
++++ b/drivers/watchdog/ep93xx_wdt.c
 @@ -1,3 +1,4 @@
 +// SPDX-License-Identifier: GPL-2.0-only
  /*
-  *  Support for ColdFire CPU based boards using a NS8390 Ethernet device.
+  * Watchdog driver for Cirrus Logic EP93xx family of devices.
   *
-@@ -5,9 +6,6 @@
+@@ -11,10 +12,6 @@
+  * Copyright (c) 2012 H Hartley Sweeten <hsweeten@visionengravers.com>
+  *	Convert to a platform device and use the watchdog framework API
   *
-  *  (C) Copyright 2012,  Greg Ungerer <gerg@uclinux.org>
+- * This file is licensed under the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+- *
+  * This watchdog fires after 250msec, which is a too short interval
+  * for us to rely on the user space daemon alone. So we ping the
+  * wdt each ~200msec and eventually stop doing it if the user space
+diff --git a/drivers/watchdog/ibmasr.c b/drivers/watchdog/ibmasr.c
+index 4a22fe15208630..6955c693b5fd00 100644
+--- a/drivers/watchdog/ibmasr.c
++++ b/drivers/watchdog/ibmasr.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-1.0+
+ /*
+  * IBM Automatic Server Restart driver.
   *
-- *  This file is subject to the terms and conditions of the GNU General Public
-- *  License.  See the file COPYING in the main directory of the Linux
-- *  distribution for more details.
+@@ -6,8 +7,6 @@
+  * Based on driver written by Pete Reynolds.
+  * Copyright (c) IBM Corporation, 1998-2004.
+  *
+- * This software may be used and distributed according to the terms
+- * of the GNU Public License, incorporated herein by reference.
   */
  
- #include <linux/module.h>
-diff --git a/drivers/net/ethernet/8390/ne.c b/drivers/net/ethernet/8390/ne.c
-index 0a9118b8be0c64..cb04a3071f92d4 100644
---- a/drivers/net/ethernet/8390/ne.c
-+++ b/drivers/net/ethernet/8390/ne.c
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/watchdog/m54xx_wdt.c b/drivers/watchdog/m54xx_wdt.c
+index f388a769dbd33d..062ea3e6497e52 100644
+--- a/drivers/watchdog/m54xx_wdt.c
++++ b/drivers/watchdog/m54xx_wdt.c
 @@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /* ne.c: A general non-shared-memory NS8390 ethernet driver for linux. */
++// SPDX-License-Identifier: GPL-2.0-only
  /*
-     Written 1992-94 by Donald Becker.
-@@ -5,9 +6,6 @@
-     Copyright 1993 United States Government as represented by the
-     Director, National Security Agency.
+  * drivers/watchdog/m54xx_wdt.c
+  *
+@@ -11,9 +12,6 @@
+  *  Copyright 2004 (c) MontaVista, Software, Inc.
+  *  Based on sa1100 driver, Copyright (C) 2000 Oleg Drokin <green@crimea.edu>
+  *
+- * This file is licensed under  the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+  */
  
--    This software may be used and distributed according to the terms
--    of the GNU General Public License, incorporated herein by reference.
--
-     The author may be reached as becker@scyld.com, or C/O
-     Scyld Computing Corporation, 410 Severn Ave., Suite 210, Annapolis MD 21403
- 
-diff --git a/drivers/net/ethernet/8390/ne2k-pci.c b/drivers/net/ethernet/8390/ne2k-pci.c
-index 6a0a2039600a0a..ea3488e81c5f3c 100644
---- a/drivers/net/ethernet/8390/ne2k-pci.c
-+++ b/drivers/net/ethernet/8390/ne2k-pci.c
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
+index 9e1541cfae0d89..21935f9620e463 100644
+--- a/drivers/watchdog/max63xx_wdt.c
++++ b/drivers/watchdog/max63xx_wdt.c
 @@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /* A Linux device driver for PCI NE2000 clones.
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * drivers/char/watchdog/max63xx_wdt.c
   *
-  * Authors and other copyright holders:
-@@ -6,13 +7,6 @@
-  * Copyright 1993 assigned to the United States Government as represented
-  * by the Director, National Security Agency.
+@@ -5,10 +6,6 @@
   *
-- * This software may be used and distributed according to the terms of
-- * the GNU General Public License (GPL), incorporated herein by reference.
-- * Drivers based on or derived from this code fall under the GPL and must
-- * retain the authorship, copyright and license notice.  This file is not
-- * a complete program and may only be used when the entire operating
-- * system is licensed under the GPL.
+  * Copyright (C) 2009 Marc Zyngier <maz@misterjones.org>
+  *
+- * This file is licensed under the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
 - *
-  * The author may be reached as becker@scyld.com, or C/O
-  * Scyld Computing Corporation
-  * 410 Severn Ave., Suite 210
-diff --git a/drivers/net/ethernet/8390/pcnet_cs.c b/drivers/net/ethernet/8390/pcnet_cs.c
-index 0f07fe03da98c8..9bd5e991f1e52b 100644
---- a/drivers/net/ethernet/8390/pcnet_cs.c
-+++ b/drivers/net/ethernet/8390/pcnet_cs.c
+  * This driver assumes the watchdog pins are memory mapped (as it is
+  * the case for the Arcom Zeus). Should it be connected over GPIOs or
+  * another interface, some abstraction will have to be introduced.
+diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+index 6340a1f5f471b2..b7b1da3c932ded 100644
+--- a/drivers/watchdog/moxart_wdt.c
++++ b/drivers/watchdog/moxart_wdt.c
 @@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /*======================================================================
- 
-     A PCMCIA ethernet driver for NS8390-based cards
-@@ -17,9 +18,7 @@
- 
-     Written 1992,1993 by Donald Becker.
-     Copyright 1993 United States Government as represented by the
--    Director, National Security Agency.  This software may be used and
--    distributed according to the terms of the GNU General Public License,
--    incorporated herein by reference.
-+    Director, National Security Agency.
-     Donald Becker may be reached at becker@scyld.com
- 
-     Based also on Keith Moore's changes to Don Becker's code, for IBM
-diff --git a/drivers/net/ethernet/8390/smc-ultra.c b/drivers/net/ethernet/8390/smc-ultra.c
-index 6e62c37c940056..ae10b7de41e8f1 100644
---- a/drivers/net/ethernet/8390/smc-ultra.c
-+++ b/drivers/net/ethernet/8390/smc-ultra.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /* smc-ultra.c: A SMC Ultra ethernet driver for linux. */
++// SPDX-License-Identifier: GPL-2.0-only
  /*
- 	This is a driver for the SMC Ultra and SMC EtherEZ ISA ethercards.
-@@ -7,9 +8,6 @@
- 	Copyright 1993 United States Government as represented by the
- 	Director, National Security Agency.
+  * MOXA ART SoCs watchdog driver.
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Jonas Jensen <jonas.jensen@gmail.com>
+  *
+- * This file is licensed under the terms of the GNU General Public
+- * License version 2.  This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+  */
  
--	This software may be used and distributed according to the terms
--	of the GNU General Public License, incorporated herein by reference.
--
- 	The author may be reached as becker@scyld.com, or C/O
- 	Scyld Computing Corporation
- 	410 Severn Ave., Suite 210
-diff --git a/drivers/net/ethernet/8390/stnic.c b/drivers/net/ethernet/8390/stnic.c
-index bd89ca8a92dfbc..265976e3b64ab2 100644
---- a/drivers/net/ethernet/8390/stnic.c
-+++ b/drivers/net/ethernet/8390/stnic.c
+ #include <linux/clk.h>
+diff --git a/drivers/watchdog/octeon-wdt-nmi.S b/drivers/watchdog/octeon-wdt-nmi.S
+index 97f6eb7b5a8e04..57bb0845de477d 100644
+--- a/drivers/watchdog/octeon-wdt-nmi.S
++++ b/drivers/watchdog/octeon-wdt-nmi.S
 @@ -1,8 +1,5 @@
-+// SPDX-License-Identifier: GPL-2.0-only
- /* stnic.c : A SH7750 specific part of driver for NS DP83902A ST-NIC.
-- *
++/* SPDX-License-Identifier: GPL-1.0+ */
+ /*
 - * This file is subject to the terms and conditions of the GNU General Public
 - * License.  See the file "COPYING" in the main directory of this archive
 - * for more details.
-  *
-  * Copyright (C) 1999 kaz Kojima
+- *
+  * Copyright (C) 2007-2017 Cavium, Inc.
   */
-diff --git a/drivers/net/ethernet/8390/wd.c b/drivers/net/ethernet/8390/wd.c
-index 5b00c452bede64..9a36667d00b65c 100644
---- a/drivers/net/ethernet/8390/wd.c
-+++ b/drivers/net/ethernet/8390/wd.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-1.0+
- /* wd.c: A WD80x3 ethernet driver for linux. */
- /*
- 	Written 1993-94 by Donald Becker.
-@@ -5,9 +6,6 @@
- 	Copyright 1993 United States Government as represented by the
- 	Director, National Security Agency.
- 
--	This software may be used and distributed according to the terms
--	of the GNU General Public License, incorporated herein by reference.
--
- 	The author may be reached as becker@scyld.com, or C/O
- 	Scyld Computing Corporation
- 	410 Severn Ave., Suite 210
-diff --git a/drivers/net/ethernet/8390/zorro8390.c b/drivers/net/ethernet/8390/zorro8390.c
-index e8b4fe813a0828..d70390e9d03d9b 100644
---- a/drivers/net/ethernet/8390/zorro8390.c
-+++ b/drivers/net/ethernet/8390/zorro8390.c
+ #include <asm/asm.h>
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+index 5ec2dd8fd5fa3d..1fe583e8a95b2e 100644
+--- a/drivers/watchdog/orion_wdt.c
++++ b/drivers/watchdog/orion_wdt.c
 @@ -1,3 +1,4 @@
 +// SPDX-License-Identifier: GPL-2.0-only
  /*
-  *  Amiga Linux/m68k and Linux/PPC Zorro NS8390 Ethernet Driver
+  * drivers/watchdog/orion_wdt.c
   *
-@@ -9,12 +10,6 @@
+@@ -5,9 +6,6 @@
   *
-  *  ---------------------------------------------------------------------------
+  * Author: Sylver Bruneau <sylver.bruneau@googlemail.com>
   *
-- *  This file is subject to the terms and conditions of the GNU General Public
-- *  License.  See the file COPYING in the main directory of the Linux
-- *  distribution for more details.
-- *
-- *  ---------------------------------------------------------------------------
-- *
-  *  The Ariadne II and X-Surf are Zorro-II boards containing Realtek RTL8019AS
-  *  Ethernet Controllers.
+- * This file is licensed under  the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
   */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/watchdog/rtd119x_wdt.c b/drivers/watchdog/rtd119x_wdt.c
+index 95c8d7abce42e6..984905695dde51 100644
+--- a/drivers/watchdog/rtd119x_wdt.c
++++ b/drivers/watchdog/rtd119x_wdt.c
+@@ -1,9 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0+
+ /*
+  * Realtek RTD129x watchdog
+  *
+  * Copyright (c) 2017 Andreas Färber
+  *
+- * SPDX-License-Identifier: GPL-2.0+
+  */
+ 
+ #include <linux/bitops.h>
+diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
+index 504be461f992a9..822bf8905bf3ce 100644
+--- a/drivers/watchdog/sb_wdog.c
++++ b/drivers/watchdog/sb_wdog.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-1.0+
+ /*
+  * Watchdog driver for SiByte SB1 SoCs
+  *
+@@ -38,10 +39,6 @@
+  *	(c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>,
+  *						All Rights Reserved.
+  *
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License
+- *	version 1 or 2 as published by the Free Software Foundation.
+- *
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/watchdog/sbc_fitpc2_wdt.c b/drivers/watchdog/sbc_fitpc2_wdt.c
+index 13db71e165836e..b8eb8d5ca1af0c 100644
+--- a/drivers/watchdog/sbc_fitpc2_wdt.c
++++ b/drivers/watchdog/sbc_fitpc2_wdt.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * Watchdog driver for SBC-FITPC2 board
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Adapted from the IXP2000 watchdog driver by Deepak Saxena.
+  *
+- * This file is licensed under  the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME " WATCHDOG: " fmt
+diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
+index 0ea554c7cda579..0099403f49922f 100644
+--- a/drivers/watchdog/ts4800_wdt.c
++++ b/drivers/watchdog/ts4800_wdt.c
+@@ -1,11 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * Watchdog driver for TS-4800 based boards
+  *
+  * Copyright (c) 2015 - Savoir-faire Linux
+  *
+- * This file is licensed under the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+  */
+ 
+ #include <linux/kernel.h>
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index bf918f5fa13175..3d57670befe1ce 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * Watchdog driver for Technologic Systems TS-72xx based SBCs
+  * (TS-7200, TS-7250 and TS-7260). These boards have external
+@@ -8,9 +9,6 @@
+  *
+  * This driver is based on ep93xx_wdt and wm831x_wdt drivers.
+  *
+- * This file is licensed under the terms of the GNU General Public
+- * License version 2. This program is licensed "as is" without any
+- * warranty of any kind, whether express or implied.
+  */
+ 
+ #include <linux/platform_device.h>
 -- 
 An old man doll... just what I always wanted! - Clara
 
