@@ -2,57 +2,57 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3C9CC7EE24
-	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BA29C7EE31
+	for <linux-watchdog@archiver.kernel.org>; Fri, 12 May 2023 10:07:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240653AbjELKHU (ORCPT
+        id S240673AbjELKHW (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 12 May 2023 06:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
+        Fri, 12 May 2023 06:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240514AbjELKHI (ORCPT
+        with ESMTP id S230443AbjELKHI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 12 May 2023 06:07:08 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C13BE55;
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93DA1E58;
         Fri, 12 May 2023 03:07:04 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id 41be03b00d2f7-52079a12451so6962099a12.3;
+Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-1aad6f2be8eso90212535ad.3;
         Fri, 12 May 2023 03:07:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20221208; t=1683886024; x=1686478024;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AEkf8gWG96+9b1qBPiSXz5T2EndzrX4ufiHLwT0g7bA=;
-        b=NtT2Weul5m/pMpgN7JMgRZwAS7itAs93/P0LzS4vUShEcK4Wgq6OBo6+Iatwn9wpVD
-         gjwOOVQF9lpQUpgZtCaIQd72ZQugKVSyWb/PZE3vbwTwZfVQOVRMM5yFDD9yOMR8F8v9
-         Q6mqq6T2rl9lqGnp0ASIgno/r7T1raas8x36CbHSlmTglCyt796jfNmZNms+AHHWvurY
-         bpdR4yzAgfnxl9sTBuFoAQ83WYpg4uDnVq+BVTki6Qok27DFkNkCpOj+hRAet1+egzhD
-         pOlOJRvO3bBmkfuIVwyM2IrmdnbNpKYJ1dCyJSgwjBaFgR6C5YpCvelGbphwVnKpkpl7
-         XTUA==
+        bh=Tj5pvaj+seJWIFkPLpPbpI3AoWtV11yrHHOkjZ8TRTs=;
+        b=CPlFWwVzgvH09bCD5772CzEgDVuK9gZFTHaiM6PQz7et0YoNQptXIZaC3mDK6qPZKP
+         ZAZAq1x5VREGypxgGq4mny/Ron8FyX/l4nDYDBASWpLxMWZwl0Y54RorXBLm8LOqAfFo
+         gLDXfOpSL3MBbOI49R28WSFB6iW2f71z0YzQyniYGJsERgb6qNsGwsw4NQ9nQyBtdRt5
+         GzTORH9onjhLH+rD/FtfRgUjcoCuXxpmmHdLuvrM2JMA6SuD3sKzMqYR3dqIFcnf0SAT
+         RoGOLWcX3R7Jo+EzNTLcw1uJ0VEvunSel2N7HBXEW4/6Mk13FZfJpPoYRMPHlLejxhao
+         5Inw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20221208; t=1683886024; x=1686478024;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AEkf8gWG96+9b1qBPiSXz5T2EndzrX4ufiHLwT0g7bA=;
-        b=gesSp8UOjlWGm2zdMhLJAIvCpMrIkfSNthQCQ6nsPEgUTbTyJKslHca7PK6X4meJjd
-         lNQtsEO4PUIbLtRDkJceaUzZ0MW3O5r0ReJhyfy7o1mZxykha/C6TVC/MU5R6SkHmpgy
-         HPLgnv+GUb8BMCkA6OO2EulGQ1PzeZtUStCjQBg668i0RM1lYExnAzhWjoXWivfyWzun
-         4KQ41XdDShsWhQ3EsQTquOeL8ta6tI0CwagmWJ5OBRg66O5TiL0VihiDcN0ngo45woMM
-         rK/tWhgSTqNzkQzlRQpBjkAs63Wtn56OsfgCiISDGgG799Sh9hK2wbVHM6jlqgcLSIFj
-         G2bQ==
-X-Gm-Message-State: AC+VfDx4G/Xesf3bJx5kFOzJtEmkl2m63Vi3dpRl0/608iBHPwOg5Awf
-        0y99EL8I7852raN1dFpvUls=
-X-Google-Smtp-Source: ACHHUZ7imq7bgHR/sJmRlazsESDion5s8yIT3WhCK3D8T5obXOuXCzu+YMDtulbCky0jUvuEXkpPNA==
-X-Received: by 2002:a17:902:a609:b0:1ac:946e:4690 with SMTP id u9-20020a170902a60900b001ac946e4690mr12908005plq.49.1683886023679;
+        bh=Tj5pvaj+seJWIFkPLpPbpI3AoWtV11yrHHOkjZ8TRTs=;
+        b=If7VhUER9Nve8Rt2N8dMOl1UghfFOOYPvpOwt7gjPzglUj5454Oo1CpRqMMB+7vaDj
+         Uev2an4OAP+Nc0zu8/geXTdFTmWOa2nYjZ/XcWmzqpYt8UBdWTtzruVNQXF795093EDu
+         Jw3VcYpc1Gp4UoIsmG6RkPTK1xXS/p5GVlzX8LkFn1eRSTpIWc1Z0oN1haH9TVIK4n3s
+         j/ypDI6DCetF3NnfTAQeHjjW/8dbtQU3aVbgPyp9IwLJ4REIM0U8rv8k2h1pe4CP6q/c
+         UA64jvPJCfvOuuCFS4tMW3fuX2Q/xCwKq9F1XS7I7/47HhGfMatM65/HCKIDkOkW/Gp8
+         g3Sg==
+X-Gm-Message-State: AC+VfDyIR6mLuPYln/7dAKXv45HDP3pRLttymI6B7vc3So0rdItpEix6
+        gXM8XwBcrhkjC4B/43vMgcU=
+X-Google-Smtp-Source: ACHHUZ5ijikUeX5GwZUYlw3Q/RZIQz5YL14h8fHBe+rFuJgp07FdlF342StUR5NutJfWnEJUxb3Rxw==
+X-Received: by 2002:a17:902:724b:b0:1ad:e758:867d with SMTP id c11-20020a170902724b00b001ade758867dmr1112221pll.39.1683886023853;
         Fri, 12 May 2023 03:07:03 -0700 (PDT)
 Received: from debian.me (subs28-116-206-12-58.three.co.id. [116.206.12.58])
-        by smtp.gmail.com with ESMTPSA id n21-20020a170902969500b001a634e79af0sm7528924plp.283.2023.05.12.03.07.02
+        by smtp.gmail.com with ESMTPSA id p10-20020a1709026b8a00b001acaf7e22bdsm5626813plk.14.2023.05.12.03.07.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 12 May 2023 03:07:03 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 49702106B43; Fri, 12 May 2023 17:06:56 +0700 (WIB)
+        id 0C62D106B3F; Fri, 12 May 2023 17:06:55 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     Linux SPDX Licenses <linux-spdx@vger.kernel.org>,
         Linux DRI Development <dri-devel@lists.freedesktop.org>,
@@ -84,48 +84,136 @@ Cc:     Diederik de Haas <didi.debian@cknow.org>,
         =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
         Manivannan Sadhasivam <mani@kernel.org>,
         Bagas Sanjaya <bagasdotme@gmail.com>,
+        Donald Becker <becker@scyld.com>,
+        Michael Hipp <hippm@informatik.uni-tuebingen.de>,
+        Richard Hirst <richard@sleepie.demon.co.uk>,
         Simon Horman <simon.horman@corigine.com>
-Subject: [PATCH v2 10/10] include: synclink: Replace GPL license notice with SPDX identifier
-Date:   Fri, 12 May 2023 17:06:21 +0700
-Message-Id: <20230512100620.36807-11-bagasdotme@gmail.com>
+Subject: [PATCH v2 05/10] net: ethernet: i825xx: Replace GPL boilerplate with SPDX identifier
+Date:   Fri, 12 May 2023 17:06:16 +0700
+Message-Id: <20230512100620.36807-6-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230512100620.36807-1-bagasdotme@gmail.com>
 References: <20230512100620.36807-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=881; i=bagasdotme@gmail.com; h=from:subject; bh=PkQY9HnKXIwg0IaXpF33XHuRDzB1ZRiNQ1FLD5oV4q4=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/DNlZ3lanJT7p1ayYymLq+t2lUf7xU5xTbIv2zq/P c1cwzS3o5SFQYyLQVZMkWVSIl/T6V1GIhfa1zrCzGFlAhnCwMUpABPZwsnI0DSB1bvrwoZSud8H 0ne/3frdnuH0pjxjmXVPMvvE5m9y3cPwP/SEaKC5kN1FhVtfGU8aFdcIxYbGRS4xOZrN1MAp9PA sNwA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4950; i=bagasdotme@gmail.com; h=from:subject; bh=eaiYhx2iYyl2JvyXlLz+A/gr8AwbyYRGGW56d/Gf174=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDClx/DMeV5ic3teQduL03i+NJhM1qheYMuSev/3kGEOLg 0/65ObtHaUsDGJcDLJiiiyTEvmaTu8yErnQvtYRZg4rE8gQBi5OAZhIz0KGvyKPS5pqt9ss5115 8WrmoiV/bJReizw7wnpQY2+nhUiD4zZGhuXau2bY29+OkV2b/mZlq+Bjz5+TmY9pdkipPxWo6Bc JZQcA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Replace unversioned GPL license notice with appropriate SPDX
-identifier, which is GPL 1.0+.
+Replace unversioned GPL boilerplate notice on remaining i825xx files
+with appropriate SPDX identifier. For files that contains "extension to
+Linux kernel", use GPL 2.0, otherwise GPL 1.0+.
 
+Cc: Donald Becker <becker@scyld.com>
+Cc: Michael Hipp <hippm@informatik.uni-tuebingen.de>
+Cc: Richard Hirst <richard@sleepie.demon.co.uk>
+Cc: Sam Creasey <sammy@sammy.net>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- include/linux/synclink.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/i825xx/82596.c      | 5 ++---
+ drivers/net/ethernet/i825xx/lasi_82596.c | 5 ++---
+ drivers/net/ethernet/i825xx/lib82596.c   | 5 ++---
+ drivers/net/ethernet/i825xx/sun3_82586.c | 4 +---
+ drivers/net/ethernet/i825xx/sun3_82586.h | 4 +---
+ 5 files changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/include/linux/synclink.h b/include/linux/synclink.h
-index f1405b1c71ba15..85195634c81dfa 100644
---- a/include/linux/synclink.h
-+++ b/include/linux/synclink.h
+diff --git a/drivers/net/ethernet/i825xx/82596.c b/drivers/net/ethernet/i825xx/82596.c
+index 3ee89ae496d0ca..773d7aa29ef5fc 100644
+--- a/drivers/net/ethernet/i825xx/82596.c
++++ b/drivers/net/ethernet/i825xx/82596.c
 @@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-1.0+ */
++// SPDX-License-Identifier: GPL-1.0+
+ /* 82596.c: A generic 82596 ethernet driver for linux. */
  /*
-  * SyncLink Multiprotocol Serial Adapter Driver
+    Based on Apricot.c
+@@ -31,9 +32,7 @@
+    Driver skeleton
+    Written 1993 by Donald Becker.
+    Copyright 1993 United States Government as represented by the Director,
+-   National Security Agency. This software may only be used and distributed
+-   according to the terms of the GNU General Public License as modified by SRC,
+-   incorporated herein by reference.
++   National Security Agency.
+ 
+    The author may be reached as becker@scyld.com, or C/O
+    Scyld Computing Corporation, 410 Severn Ave., Suite 210, Annapolis MD 21403
+diff --git a/drivers/net/ethernet/i825xx/lasi_82596.c b/drivers/net/ethernet/i825xx/lasi_82596.c
+index 0af70094aba341..3e53e0c243ba04 100644
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-1.0+
+ /* lasi_82596.c -- driver for the intel 82596 ethernet controller, as
+    munged into HPPA boxen .
+ 
+@@ -59,9 +60,7 @@
+    Driver skeleton
+    Written 1993 by Donald Becker.
+    Copyright 1993 United States Government as represented by the Director,
+-   National Security Agency. This software may only be used and distributed
+-   according to the terms of the GNU General Public License as modified by SRC,
+-   incorporated herein by reference.
++   National Security Agency.
+ 
+    The author may be reached as becker@scyld.com, or C/O
+    Scyld Computing Corporation, 410 Severn Ave., Suite 210, Annapolis MD 21403
+diff --git a/drivers/net/ethernet/i825xx/lib82596.c b/drivers/net/ethernet/i825xx/lib82596.c
+index ca2fb303fcc6f6..67d248a7a6f49e 100644
+--- a/drivers/net/ethernet/i825xx/lib82596.c
++++ b/drivers/net/ethernet/i825xx/lib82596.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-1.0+
+ /* lasi_82596.c -- driver for the intel 82596 ethernet controller, as
+    munged into HPPA boxen .
+ 
+@@ -59,9 +60,7 @@
+    Driver skeleton
+    Written 1993 by Donald Becker.
+    Copyright 1993 United States Government as represented by the Director,
+-   National Security Agency. This software may only be used and distributed
+-   according to the terms of the GNU General Public License as modified by SRC,
+-   incorporated herein by reference.
++   National Security Agency.
+ 
+    The author may be reached as becker@scyld.com, or C/O
+    Scyld Computing Corporation, 410 Severn Ave., Suite 210, Annapolis MD 21403
+diff --git a/drivers/net/ethernet/i825xx/sun3_82586.c b/drivers/net/ethernet/i825xx/sun3_82586.c
+index 3909c6a0af89f9..f05f016cb3b0ea 100644
+--- a/drivers/net/ethernet/i825xx/sun3_82586.c
++++ b/drivers/net/ethernet/i825xx/sun3_82586.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * Sun3 i82586 Ethernet driver
   *
-@@ -5,8 +6,6 @@
+@@ -8,9 +9,6 @@
   *
-  * Copyright (C) 1998-2000 by Microgate Corporation
+  * net-3-driver for the NI5210 card (i82586 Ethernet chip)
   *
-- * Redistribution of this file is permitted under
-- * the terms of the GNU Public License (GPL)
-  */
- #ifndef _SYNCLINK_H_
- #define _SYNCLINK_H_
+- * This is an extension to the Linux operating system, and is covered by the
+- * same Gnu Public License that covers that work.
+- *
+  * Alphacode 0.82 (96/09/29) for Linux 2.0.0 (or later)
+  * Copyrights (c) 1994,1995,1996 by M.Hipp (hippm@informatik.uni-tuebingen.de)
+  * --------------------------
+diff --git a/drivers/net/ethernet/i825xx/sun3_82586.h b/drivers/net/ethernet/i825xx/sun3_82586.h
+index d82eca563266a1..82702b32c61fec 100644
+--- a/drivers/net/ethernet/i825xx/sun3_82586.h
++++ b/drivers/net/ethernet/i825xx/sun3_82586.h
+@@ -1,9 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Intel i82586 Ethernet definitions
+  *
+- * This is an extension to the Linux operating system, and is covered by the
+- * same Gnu Public License that covers that work.
+- *
+  * copyrights (c) 1994 by Michael Hipp (hippm@informatik.uni-tuebingen.de)
+  *
+  * I have done a look in the following sources:
 -- 
 An old man doll... just what I always wanted! - Clara
 
