@@ -2,105 +2,74 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB7BC7EE31
-	for <linux-watchdog@archiver.kernel.org>; Fri, 26 May 2023 16:55:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F02DDC77B7C
+	for <linux-watchdog@archiver.kernel.org>; Fri, 26 May 2023 19:35:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237572AbjEZQz0 (ORCPT
+        id S243945AbjEZTfH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 26 May 2023 12:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51056 "EHLO
+        Fri, 26 May 2023 15:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233521AbjEZQzY (ORCPT
+        with ESMTP id S243668AbjEZTfB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 May 2023 12:55:24 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E289A3
-        for <linux-watchdog@vger.kernel.org>; Fri, 26 May 2023 09:55:23 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-64d3fdcadb8so889109b3a.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 26 May 2023 09:55:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685120123; x=1687712123;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7uonXW/UcZs9tQNTmmJxWHm9viTyN5jx7aNJnBKs03c=;
-        b=gcJ0QzaAj5ZABxzFx0RfW6DZ24rDLF9B9PPbu7XJYk3AjmupZB+/Q+BrK4KZ8tHkyO
-         ohidm9qi5YGd0FkZPfFYI9Vc9UoffuEc9m7QY2ECW1Zirwe7GueLKj3rtMX4uCSNPR0f
-         DKD647n3jd+JAAnhya66UPlSnCuGwjwdBiEXf14HzsKSNpFlD6WNuKLh1Ws/ou/mUYae
-         7uhH/r1YZozXcZbK4VvYwUSSU7leDB9S1Ho3RkfbtkamG2XOHKCXNp6cMqfdvb1zFN2Y
-         ZcFKnqyampWDoJT8pGBwkbeHFWU9hxXAeh6wl3J7APYm0CQ6IL1wFK+aNx8fw7MCs8v6
-         8bkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685120123; x=1687712123;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7uonXW/UcZs9tQNTmmJxWHm9viTyN5jx7aNJnBKs03c=;
-        b=A9LoUI74U7tdQvM4J0mN31bMNKgdVOvF2jjCF/1QzBdGGzDUy7cPZa6/E6ZOJbsoP4
-         11KmyyDuMHeRpo0XgFnz4/sYdSQcBO725EJdNSl5pNc6fN8KSolYi177Xly85AZyn3iO
-         c9kRLMjY/9xaSTnsWYBgaE5VgOB5tP2izrPnN2SlLgWTRnUrfj5+TouhMrf5wwXCS1UP
-         6vAzGtZ7dkrPVVpwnGojkcG0+Jxx/Obj2oO5Jf4wvgcd/wtLN7PU5eE0oPVfEMs4BEVR
-         WGJYhDf3HreKDHGhNKInRC4Y4PeCFFnKjAuCrLtQHiIVtyxs+/7OajeW2PffAr0hMkcu
-         MolA==
-X-Gm-Message-State: AC+VfDyBoQ4NITue8khDdL61z0+IbevCXPdRfx3lo89LM/LckMH6Eiyu
-        ZKi7k2i4voqKETm6ikwzARCJAc4FhNc=
-X-Google-Smtp-Source: ACHHUZ46RfwiYVoC3heCba437w+r8PetTpUcMAzUMGElGLgVP79qLnlGyGY6/4swhDC8W5w1A7BNYQ==
-X-Received: by 2002:a05:6a00:23c4:b0:644:d775:60bb with SMTP id g4-20020a056a0023c400b00644d77560bbmr4494329pfc.20.1685120122452;
-        Fri, 26 May 2023 09:55:22 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p24-20020a62ab18000000b0063b7b811ce8sm2889951pff.205.2023.05.26.09.55.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 May 2023 09:55:22 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 26 May 2023 09:55:20 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH] watchdog: ziirave_wdt: Switch i2c driver back to use
- .probe()
-Message-ID: <1a2f452a-14f4-4b29-b1c2-8e69d5d86814@roeck-us.net>
-References: <20230525210837.735447-1-u.kleine-koenig@pengutronix.de>
+        Fri, 26 May 2023 15:35:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE7E19A;
+        Fri, 26 May 2023 12:35:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C15E86530B;
+        Fri, 26 May 2023 19:34:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21C3DC4339E;
+        Fri, 26 May 2023 19:34:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685129698;
+        bh=QC/gLQrIWF9SsSIBK579yYw1z9IgxvBWc5x6hhQBn04=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=a22nk2VlvKG7gmt2/QXazV8GVFIaAk72DMrTBwzN96Wf2sf1CWYUWs29j8Bh2Wk3s
+         Wy/ZO/6YC0YOHe9ewaLy00J6izsLgU3wEnQMmOX3mjNVr2JpCLdi+0k3qVKvCZKyeY
+         8BTf3hkTms0qcQhW0/OriWPTTN4TTL3vv1itluEVvqglfyM1XLMdcSu9Pj1JmdW5Ac
+         JxY//zjBHjoKKcUnd1AGH0Xfovx8xdQA77aEE3OTKPkf3ZA6+jlkd9WUNpElTwWGwV
+         67BVRopSCSZrg6chUSCAcPCv+bcDHrgNN/ZBCtxv1D28XVErJ8gYXgLh1dMZuXtqug
+         EqTFByVDVaHFQ==
+From:   Bjorn Andersson <andersson@kernel.org>
+To:     Kathiravan T <quic_kathirav@quicinc.com>, agross@kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        konrad.dybcio@linaro.org, linux-watchdog@vger.kernel.org,
+        wim@linux-watchdog.org, robh+dt@kernel.org, linux@roeck-us.net,
+        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org
+Subject: Re: (subset) [PATCH 0/2] Add few device nodes for IPQ9574 SoC
+Date:   Fri, 26 May 2023 12:38:37 -0700
+Message-Id: <168512991478.248818.9749939495960565023.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230329053726.14860-1-quic_kathirav@quicinc.com>
+References: <20230329053726.14860-1-quic_kathirav@quicinc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230525210837.735447-1-u.kleine-koenig@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, May 25, 2023 at 11:08:37PM +0200, Uwe Kleine-König wrote:
-> After commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
-> call-back type"), all drivers being converted to .probe_new() and then
-> 03c835f498b5 ("i2c: Switch .probe() to not take an id parameter")
-> convert back to (the new) .probe() to be able to eventually drop
-> .probe_new() from struct i2c_driver.
+On Wed, 29 Mar 2023 11:07:24 +0530, Kathiravan T wrote:
+> This series adds the support for QUP peripherals, PRNG, WDT for IPQ9574
+> SoC.
 > 
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> This series depends on the below one
+> https://lore.kernel.org/linux-arm-msm/20230328102013.21361-2-quic_poovendh@quicinc.com/
+> 
+> Kathiravan T (2):
+>   dt-bindings: watchdog: qcom-wdt: add qcom,apss-wdt-ipq9574 compatible
+>   arm64: dts: qcom: ipq9574: add few device nodes
+> 
+> [...]
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Applied, thanks!
 
-> ---
->  drivers/watchdog/ziirave_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-> index 21ca08a694ee..5ed33df68e9a 100644
-> --- a/drivers/watchdog/ziirave_wdt.c
-> +++ b/drivers/watchdog/ziirave_wdt.c
-> @@ -731,7 +731,7 @@ static struct i2c_driver ziirave_wdt_driver = {
->  		.name = "ziirave_wdt",
->  		.of_match_table = zrv_wdt_of_match,
->  	},
-> -	.probe_new = ziirave_wdt_probe,
-> +	.probe = ziirave_wdt_probe,
->  	.remove = ziirave_wdt_remove,
->  	.id_table = ziirave_wdt_id,
->  };
-> 
-> base-commit: ac9a78681b921877518763ba0e89202254349d1b
-> -- 
-> 2.39.2
-> 
+[2/2] arm64: dts: qcom: ipq9574: add few device nodes
+      commit: 9ef42640504e09ecc79530b6e532ebf48305516b
+
+Best regards,
+-- 
+Bjorn Andersson <andersson@kernel.org>
