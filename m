@@ -2,147 +2,133 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BE78C7EE2F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 May 2023 12:34:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87E5EC77B7E
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 May 2023 12:50:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbjE2Mej (ORCPT
+        id S229615AbjE2MuQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 29 May 2023 08:34:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
+        Mon, 29 May 2023 08:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbjE2Mei (ORCPT
+        with ESMTP id S229453AbjE2MuP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 May 2023 08:34:38 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BB7B1;
-        Mon, 29 May 2023 05:34:37 -0700 (PDT)
+        Mon, 29 May 2023 08:50:15 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A115188;
+        Mon, 29 May 2023 05:49:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1685363677; x=1716899677;
+  t=1685364573; x=1716900573;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=4pmOlNa7lnhyf/SMcDgOZ3LHEEg6eRD1aYLUUYNr8Ek=;
-  b=hExlsBTgdId86OHOizx6I8PcF+OfgoQg7fgIkMJfFqwZwlVrBr6SmgPK
-   qdzSNV2n+otNxvHII0H7ezXPg04ym15WXhK/+eluFxKFYMUCDucigeUSm
-   7N12zB5AX1J+o+WzadOW1jTAc6RVz4gvF7QKglKZ1AX4oKxJHy2Hoj/nY
-   YW0qRnYUgPwYMAgAD7IXsUklioFSnqeIFuaA5EQM993NmkuX/5W1nIFrB
-   AFP0qyn+lpKqaPiBiRazEq45/A9dfXa1Eq0aoJjZX5NMs0r/RA2/3HdCJ
-   ETk2x6AU9Ce9LsQ4TTt3O+rmQkrBL9DxraZaWwmKUoM/EtXDnOybuDZPR
-   A==;
+  bh=sihrqxGXOegLfJu5K0vAKoVsedsMzHotWvqPkMnnUEw=;
+  b=uDO2Z0sMLsXYOmn1XkSLjoYsvw17laPvRLlTof4rL2JjtyTbblKp9Mze
+   wOWWYqnjJeO+q00HWDAUTBzog5p/71Epn9o85LVr8Hg14kF2mpT4IkqxR
+   1k7GUNmH1qRvGRw0TFTLSY5PiYS6iTKkLItJUHWk1otmY219kEIrQp/6n
+   JkO/WBIug1mUmzs9GkL4L5TUvdU7uintceEFY0rQDNca3vPBvKJTUIO2L
+   feiRoE9r+yH//H8YPF+hyET20SOC2ltDNXNKv39sCxfSc0DzOUq/59//w
+   s9p+k5KDkIQfu/B4hZiy6JcGHzN1VV915IiWLrSUIHMG/TuakwYAT15o4
+   g==;
 X-IronPort-AV: E=Sophos;i="6.00,201,1681196400"; 
-   d="asc'?scan'208";a="227438102"
+   d="asc'?scan'208";a="154432424"
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 29 May 2023 05:34:27 -0700
+  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 29 May 2023 05:49:01 -0700
 Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
  chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Mon, 29 May 2023 05:34:27 -0700
+ 15.1.2507.21; Mon, 29 May 2023 05:49:01 -0700
 Received: from wendy (10.10.115.15) by chn-vm-ex01.mchp-main.com
  (10.10.85.143) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
- Transport; Mon, 29 May 2023 05:34:25 -0700
-Date:   Mon, 29 May 2023 13:34:02 +0100
+ Transport; Mon, 29 May 2023 05:48:58 -0700
+Date:   Mon, 29 May 2023 13:48:36 +0100
 From:   Conor Dooley <conor.dooley@microchip.com>
-To:     Bharat Bhushan <bbhushan2@marvell.com>
-CC:     Conor Dooley <conor@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "krzysztof.kozlowski+dt@linaro.org" 
-        <krzysztof.kozlowski+dt@linaro.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Subject: Re: [EXT] Re: [PATCH 1/2 v8] dt-bindings: watchdog: marvell GTI
- system watchdog driver
-Message-ID: <20230529-unwanted-chewer-b3f6ab8bcb86@wendy>
-References: <20230526062626.1180-1-bbhushan2@marvell.com>
- <20230526-bondless-slather-5de0a5659353@spud>
- <DM5PR1801MB188350DD9CFDBB3E240AC838E3449@DM5PR1801MB1883.namprd18.prod.outlook.com>
- <20230527-wiring-coping-88eba4d91f3f@spud>
- <DM5PR1801MB1883D475F396D2CBA02B6D91E34A9@DM5PR1801MB1883.namprd18.prod.outlook.com>
+To:     <Claudiu.Beznea@microchip.com>
+CC:     <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <Nicolas.Ferre@microchip.com>,
+        <alexandre.belloni@bootlin.com>, <daniel.lezcano@linaro.org>,
+        <tglx@linutronix.de>, <wim@linux-watchdog.org>,
+        <linux@roeck-us.net>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 2/4] dt-bindings: timer: atmel,at91sam9260-pit:
+ convert to yaml
+Message-ID: <20230529-schematic-abrasion-a06a29481ace@wendy>
+References: <20230529062604.1498052-1-claudiu.beznea@microchip.com>
+ <20230529062604.1498052-3-claudiu.beznea@microchip.com>
+ <20230529-chuck-turbofan-a8aabbdd9341@wendy>
+ <f4c04190-c90e-bf5f-f666-c979a7aee8ce@microchip.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ywTPy+AUgC8z/xRs"
+        protocol="application/pgp-signature"; boundary="QnBF0FcDx3VBpqKu"
 Content-Disposition: inline
-In-Reply-To: <DM5PR1801MB1883D475F396D2CBA02B6D91E34A9@DM5PR1801MB1883.namprd18.prod.outlook.com>
+In-Reply-To: <f4c04190-c90e-bf5f-f666-c979a7aee8ce@microchip.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
---ywTPy+AUgC8z/xRs
+--QnBF0FcDx3VBpqKu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hey Bharat,
-
-On Mon, May 29, 2023 at 06:14:07AM +0000, Bharat Bhushan wrote:
-
-> Fallback you mentioned make code look simple. Is below representation cor=
-rect for above mentioned fallback?=20
+On Mon, May 29, 2023 at 12:32:49PM +0000, Claudiu.Beznea@microchip.com wrot=
+e:
+> On 29.05.2023 15:17, Conor Dooley wrote:
+> > On Mon, May 29, 2023 at 09:26:02AM +0300, Claudiu Beznea wrote:
+> >> +        interrupts:
+> >> +          description:
+> >> +            Contain interrupt for the PIT which is the IRQ line share=
+d across all
+> >> +            System Controller members.
+> >=20
+> > I think you should drop this & the corresponding section below, since
+> > both PIT and PIT64 have a single interrupt.
 >=20
-> properties:
->   compatible:
->     oneOf:
->       - const: marvell,cn9670-wdt
->       - items:
->           - enum:
->               - marvell,cn9880-wdt
->               - marvell,cnf9535-wdt
->           - const: marvell,cn9670-wdt
->       - const: marvell,cn10624-wdt
->       - items:
->           - enum:
->               - marvell,cn10308-wdt
->               - marvell,cnf10518-wdt
->           - const: marvell,cn10624-wdt
+> OK. Just wanted to emphasize with this that in case of PIT the interrupt
+> may be shared with other IPs.
 
-Instead of having const: bits for each of the single-compatible ones, if
-you are not going to add descriptions, I'd probably do:
-properties:
-  compatible:
-    oneOf:
-      - enum:
-          - marvell,cn9670-wdt
-          - marvell,cn10624-wdt
+Hmm. Perhaps for the other patch, keep the description then, and for this
+one remove the description from the else branch & add explain what "all
+system controller members" actually means here? It probably made sense in
+the txt binding, but "system controller" has lost its context here.
+Maybe something like:
+"Shared interrupt between the PIT and other functions of the system
+controller, for example, the watchdog, trumpet and airhorn"?
 
-      - items:
-          - enum:
-              - marvell,cn9880-wdt
-              - marvell,cnf9535-wdt
-          - const: marvell,cn9670-wdt
-
-      - items:
-          - enum:
-              - marvell,cn10308-wdt
-              - marvell,cnf10518-wdt
-          - const: marvell,cn10624-wdt
-
-> And driver will have
->         { .compatible =3D "marvell,cn9670-wdt", .data =3D &match_data_oct=
-eontx2},
->         { .compatible =3D "marvell,cn10624-wdt", .data =3D &match_data_cn=
-10k},
-
-Otherwise, looks good to me. You should probably also rename the file to
-match one of the compatibles contained in it.
-
-Thanks,
+Cheers,
 Conor.
 
---ywTPy+AUgC8z/xRs
+> >> +        clocks:
+> >> +          maxItems: 1
+> >> +
+> >> +    else:
+> >> +      properties:
+> >> +        interrupts:
+> >> +          description:
+> >> +            PIT64B peripheral interrupt identifier.
+> >> +        clocks:
+> >> +          minItems: 2
+> >> +        clock-names:
+> >> +          items:
+> >> +            - const: pclk
+> >> +            - const: gclk
+> >> +      required:
+> >> +        - clock-names
+> >=20
+>=20
+
+--QnBF0FcDx3VBpqKu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZHSbugAKCRB4tDGHoIJi
-0jZ9AP9dKKl1qfQuhXx6zf7LJ/oKTPhJB0Iymd+M3n5+3MyDMAD9HryFUB8C5p7A
-zZ1uKMaseMn/g5aNILTTqA5PwMwQdQ4=
-=6E/Q
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZHSfIwAKCRB4tDGHoIJi
+0jihAP9RPI9uRTfWz1IZRSiam+UQ+nEDIQA6miPvid++71X53gD/WqPNahZzotuJ
+FT+ZEVVKizduAnFCebdolxza7JIw6Ac=
+=16Ml
 -----END PGP SIGNATURE-----
 
---ywTPy+AUgC8z/xRs--
+--QnBF0FcDx3VBpqKu--
