@@ -2,45 +2,45 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC132C7EE23
-	for <linux-watchdog@archiver.kernel.org>; Mon, 29 May 2023 06:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F057C7EE29
+	for <linux-watchdog@archiver.kernel.org>; Mon, 29 May 2023 06:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbjE2G2s (ORCPT
+        id S231516AbjE2G2w (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 29 May 2023 02:28:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54836 "EHLO
+        Mon, 29 May 2023 02:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231682AbjE2G2i (ORCPT
+        with ESMTP id S231735AbjE2G1q (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 May 2023 02:28:38 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520911BC;
-        Sun, 28 May 2023 23:28:08 -0700 (PDT)
+        Mon, 29 May 2023 02:27:46 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B21D120;
+        Sun, 28 May 2023 23:27:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1685341689; x=1716877689;
+  t=1685341637; x=1716877637;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=dh0EL4hNH/yV6+3G0mpHZLbVKP4ILEfFeFyXC+i3GrQ=;
-  b=2NmnZp6HaVGmrA1AEITvTv7CHjLplUFnxV2vJ07Uz/CNJZt6bKSPZNMc
-   QrBxFPndnvvnwko9++CuagztkyIwGIrcPdg67aozo5Ue2VPxSaTzxEwwb
-   6BJERPcCJsvZZEFW3gu7FoK7DNfb1OOGWoQajTTgpb5glPJaH9iORJ6s0
-   hfohjILa/pyL62kUlML4ENDpuFG/IeUHktcPtY1m59lx4AtXAMij/668H
-   v2lg7H/l6kgvcZTG/1NSOqLsEjA0Y9iYsIdxG9W4BmBT16tRVYg+Rakw5
-   EdHg/sNLwr2O4JM0m+JvUqUGw2siqaOLgu+hjC8iVGAQnEU4PUMf+FZKy
-   Q==;
+  bh=pZDeHAwx+WHaBXQtS6jEEcIeL2CywxswjLJT4bjmOYA=;
+  b=U+3jvR9wdtPqf9oawf4bQvhu3aPokHAkklFH2rB23/FLZjfuYt7Z020A
+   ZuzbFecwEtdkKqoPGjMqvwWS2iceyq4IvNaJI4G8qRG0lOnFHWdoyYhCX
+   9+Cb0UKVUawqMLot5o7mVihwa7sTbwhxD2GFgeKs+Mmf5ag3KEQby3uKc
+   j+xMVwVZb2gwCqNz9QXYL5vkOCNBmDhUV1UCOWQofgr2YqIHVq5xOWXZ0
+   ++K5zOXdcfuogpJehVMQBtIyBYuAPbHPRcyZT4jRV//9+mnXzjSFmamL2
+   w4oMv1InB1Lt2NFNaudW+hYBYajKR9st8ZZT0WKWsN3XHmr9lBU3CgxOP
+   g==;
 X-IronPort-AV: E=Sophos;i="6.00,200,1681196400"; 
-   d="scan'208";a="215861693"
+   d="scan'208";a="213501744"
 X-Amp-Result: SKIPPED(no attachment in message)
 Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 May 2023 23:26:44 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 May 2023 23:26:33 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
  chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Sun, 28 May 2023 23:26:42 -0700
+ 15.1.2507.21; Sun, 28 May 2023 23:26:31 -0700
 Received: from m18063-ThinkPad-T460p.mchp-main.com (10.10.115.15) by
  chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
- 15.1.2507.21 via Frontend Transport; Sun, 28 May 2023 23:26:37 -0700
+ 15.1.2507.21 via Frontend Transport; Sun, 28 May 2023 23:26:27 -0700
 From:   Claudiu Beznea <claudiu.beznea@microchip.com>
 To:     <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
         <conor+dt@kernel.org>, <nicolas.ferre@microchip.com>,
@@ -51,9 +51,9 @@ CC:     <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
         "Claudiu Beznea" <claudiu.beznea@microchip.com>
-Subject: [PATCH v2 4/4] dt-bindings: timer: atmel,at91rm9200-st: convert to yaml
-Date:   Mon, 29 May 2023 09:26:04 +0300
-Message-ID: <20230529062604.1498052-5-claudiu.beznea@microchip.com>
+Subject: [PATCH v2 2/4] dt-bindings: timer: atmel,at91sam9260-pit: convert to yaml
+Date:   Mon, 29 May 2023 09:26:02 +0300
+Message-ID: <20230529062604.1498052-3-claudiu.beznea@microchip.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230529062604.1498052-1-claudiu.beznea@microchip.com>
 References: <20230529062604.1498052-1-claudiu.beznea@microchip.com>
@@ -64,81 +64,77 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Convert Microchip AT91 system timer to YAML.
+Convert Microchip AT91 PIT bindings to YAML. Along with it clocks and
+clock-names bindings were added as the drivers needs it to ensure proper
+hardware functionality.
 
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 ---
- .../devicetree/bindings/arm/atmel-sysregs.txt |  9 ---
- .../bindings/timer/atmel,at91rm9200-st.yaml   | 65 +++++++++++++++++++
- 2 files changed, 65 insertions(+), 9 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/timer/atmel,at91rm9200-st.yaml
+ .../devicetree/bindings/arm/atmel-sysregs.txt | 12 ---
+ .../bindings/timer/atmel,at91sam9260-pit.yaml | 96 +++++++++++++++++++
+ 2 files changed, 96 insertions(+), 12 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/timer/atmel,at91sam9260-pit.yaml
 
 diff --git a/Documentation/devicetree/bindings/arm/atmel-sysregs.txt b/Documentation/devicetree/bindings/arm/atmel-sysregs.txt
-index 54d3f586403e..68c0eacb01ac 100644
+index 67a66bf74895..54d3f586403e 100644
 --- a/Documentation/devicetree/bindings/arm/atmel-sysregs.txt
 +++ b/Documentation/devicetree/bindings/arm/atmel-sysregs.txt
-@@ -4,15 +4,6 @@ Chipid required properties:
+@@ -4,18 +4,6 @@ Chipid required properties:
  - compatible: Should be "atmel,sama5d2-chipid" or "microchip,sama7g5-chipid"
  - reg : Should contain registers location and length
  
--System Timer (ST) required properties:
--- compatible: Should be "atmel,at91rm9200-st", "syscon", "simple-mfd"
+-PIT Timer required properties:
+-- compatible: Should be "atmel,at91sam9260-pit"
 -- reg: Should contain registers location and length
--- interrupts: Should contain interrupt for the ST which is the IRQ line
+-- interrupts: Should contain interrupt for the PIT which is the IRQ line
 -  shared across all System Controller members.
--- clocks: phandle to input clock.
--Its subnodes can be:
--- watchdog: compatible should be "atmel,at91rm9200-wdt"
 -
- RAMC SDRAM/DDR Controller required properties:
- - compatible: Should be "atmel,at91rm9200-sdramc", "syscon"
- 			"atmel,at91sam9260-sdramc",
-diff --git a/Documentation/devicetree/bindings/timer/atmel,at91rm9200-st.yaml b/Documentation/devicetree/bindings/timer/atmel,at91rm9200-st.yaml
+-PIT64B Timer required properties:
+-- compatible: Should be "microchip,sam9x60-pit64b"
+-- reg: Should contain registers location and length
+-- interrupts: Should contain interrupt for PIT64B timer
+-- clocks: Should contain the available clock sources for PIT64B timer.
+-
+ System Timer (ST) required properties:
+ - compatible: Should be "atmel,at91rm9200-st", "syscon", "simple-mfd"
+ - reg: Should contain registers location and length
+diff --git a/Documentation/devicetree/bindings/timer/atmel,at91sam9260-pit.yaml b/Documentation/devicetree/bindings/timer/atmel,at91sam9260-pit.yaml
 new file mode 100644
-index 000000000000..a75644e1a2fe
+index 000000000000..1cc7b7494e4b
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/timer/atmel,at91rm9200-st.yaml
-@@ -0,0 +1,65 @@
++++ b/Documentation/devicetree/bindings/timer/atmel,at91sam9260-pit.yaml
+@@ -0,0 +1,96 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/timer/atmel,at91rm9200-st.yaml#
++$id: http://devicetree.org/schemas/timer/atmel,at91sam9260-pit.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Microchip AT91 System Timer (ST)
++title: Microchip AT91 Periodic Interval Timer (PIT)
 +
 +maintainers:
-+  - Nicolas Ferre <nicolas.ferre@microchip.com>
-+  - Alexandre Belloni <alexandre.belloni@microchip.com>
 +  - Claudiu Beznea <claudiu.beznea@microchip.com>
 +
 +description:
-+  Microchip AT91 system timer integrates a period interval timer, a watchdog
-+  timer and a real-time timer.
++  Microchip AT91 periodic interval timer provides the operating system scheduler
++  interrupt. It is designed to offer maximum accuracy and efficient management,
++  even for systems with long response time.
 +
 +properties:
 +  compatible:
-+    items:
-+      - const: atmel,at91rm9200-st
-+      - const: syscon
-+      - const: simple-mfd
++    enum:
++      - atmel,at91sam9260-pit
++      - microchip,sam9x60-pit64b
 +
 +  reg:
 +    maxItems: 1
 +
 +  interrupts:
-+    description:
-+      Contain interrupt for the ST which is the IRQ line shared across all
-+      system controller members.
 +    maxItems: 1
 +
 +  clocks:
-+    maxItems: 1
-+
-+  watchdog:
-+    $ref: ../watchdog/atmel,at91rm9200-wdt.yaml
-+    description:
-+      Child node describing watchdog.
++    minItems: 1
++    maxItems: 2
 +
 +required:
 +  - compatible
@@ -146,21 +142,61 @@ index 000000000000..a75644e1a2fe
 +  - interrupts
 +  - clocks
 +
-+additionalProperties: false
++allOf:
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: atmel,at91sam9260-pit
++    then:
++      properties:
++        interrupts:
++          description:
++            Contain interrupt for the PIT which is the IRQ line shared across all
++            System Controller members.
++        clocks:
++          maxItems: 1
++
++    else:
++      properties:
++        interrupts:
++          description:
++            PIT64B peripheral interrupt identifier.
++        clocks:
++          minItems: 2
++        clock-names:
++          items:
++            - const: pclk
++            - const: gclk
++      required:
++        - clock-names
++
++unevaluatedProperties: false
 +
 +examples:
 +  - |
++    /* AT91RM9200 */
++    #include <dt-bindings/clock/at91.h>
 +    #include <dt-bindings/interrupt-controller/irq.h>
 +
-+    st: timer@fffffd00 {
-+        compatible = "atmel,at91rm9200-st", "syscon", "simple-mfd";
-+        reg = <0xfffffd00 0x100>;
++    pit: timer@fffffe40 {
++        compatible = "atmel,at91sam9260-pit";
++        reg = <0xfffffe40 0x10>;
 +        interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-+        clocks = <&slow_xtal>;
++        clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
++    };
 +
-+        watchdog {
-+            compatible = "atmel,at91rm9200-wdt";
-+        };
++  - |
++    /* SAM9X60 */
++    #include <dt-bindings/clock/at91.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    pit64b: timer@f0028000 {
++        compatible = "microchip,sam9x60-pit64b";
++        reg = <0xf0028000 0x100>;
++        interrupts = <37 IRQ_TYPE_LEVEL_HIGH 7>;
++        clocks = <&pmc PMC_TYPE_PERIPHERAL 37>, <&pmc PMC_TYPE_GCK 37>;
++        clock-names = "pclk", "gclk";
 +    };
 +
 +...
