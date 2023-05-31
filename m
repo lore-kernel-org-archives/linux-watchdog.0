@@ -2,24 +2,24 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD2ACC7EE32
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 May 2023 04:27:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E254FC7EE32
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 May 2023 04:28:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234454AbjEaE1Y (ORCPT
+        id S234446AbjEaE17 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 31 May 2023 00:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35190 "EHLO
+        Wed, 31 May 2023 00:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234364AbjEaE0r (ORCPT
+        with ESMTP id S234394AbjEaE1d (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 May 2023 00:26:47 -0400
+        Wed, 31 May 2023 00:27:33 -0400
 Received: from muru.com (muru.com [72.249.23.125])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D20C9198;
-        Tue, 30 May 2023 21:26:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 082B4193;
+        Tue, 30 May 2023 21:26:52 -0700 (PDT)
 Received: from localhost (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id B8AD78167;
-        Wed, 31 May 2023 04:26:35 +0000 (UTC)
-Date:   Wed, 31 May 2023 07:26:34 +0300
+        by muru.com (Postfix) with ESMTPS id 2A1808167;
+        Wed, 31 May 2023 04:26:51 +0000 (UTC)
+Date:   Wed, 31 May 2023 07:26:49 +0300
 From:   Tony Lindgren <tony@atomide.com>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Cc:     Vinod Koul <vkoul@kernel.org>,
@@ -44,14 +44,14 @@ Cc:     Vinod Koul <vkoul@kernel.org>,
         linux-spi@vger.kernel.org, timestamp@lists.linux.dev,
         linux-watchdog@vger.kernel.org, Rob Herring <robh@kernel.org>,
         Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH 6/7] dt-bindings: timestamp: restrict node name suffixes
-Message-ID: <20230531042634.GM14287@atomide.com>
+Subject: Re: [PATCH 7/7] dt-bindings: watchdog: restrict node name suffixes
+Message-ID: <20230531042649.GN14287@atomide.com>
 References: <20230530144851.92059-1-krzysztof.kozlowski@linaro.org>
- <20230530144851.92059-7-krzysztof.kozlowski@linaro.org>
+ <20230530144851.92059-8-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230530144851.92059-7-krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230530144851.92059-8-krzysztof.kozlowski@linaro.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
