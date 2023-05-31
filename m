@@ -2,120 +2,63 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54714C77B73
-	for <linux-watchdog@archiver.kernel.org>; Wed, 31 May 2023 08:58:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B633BC77B73
+	for <linux-watchdog@archiver.kernel.org>; Wed, 31 May 2023 09:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235234AbjEaI60 (ORCPT
+        id S235378AbjEaJL4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 31 May 2023 04:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
+        Wed, 31 May 2023 05:11:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235241AbjEaI6X (ORCPT
+        with ESMTP id S235399AbjEaJLx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 May 2023 04:58:23 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE4DF125
-        for <linux-watchdog@vger.kernel.org>; Wed, 31 May 2023 01:58:15 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-96f5d651170so147274166b.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 31 May 2023 01:58:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1685523494; x=1688115494;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FZOJX+i4TLfiEsCn8YaTCEUp1T6TkIMRzoXYTVTKTwE=;
-        b=tf7l8uvbRO82F7iOCNa67n/0NsNgq9oitardSkfe9ypo0dEYwbGk6qReU9MsmccPeW
-         oMll0Z6SZSR80HtgGrmcGw/EWNSQH1VTX+k2Q+zvAtBVJEdSoE0D4ngt60hD4aevLc86
-         g+smoyRWh3KhyW6/PZ/owcmoF1f9DD7eIDVxg/XrlPlX0/KQyQUxXKp6idgE5bYCeB2+
-         8LPSLUtShHbO82tI8L3gA3beGaN8Ts2AfwMhw5WPWKnedUWkXEP5/ggqfEGWAe+68WPM
-         IvYNdPagIEAl2vpyAO7iIB0u2fuux4Pa6yHWyRuGzC44zPtNG/KXplTwG8mVFRkALeO3
-         D4zQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685523494; x=1688115494;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FZOJX+i4TLfiEsCn8YaTCEUp1T6TkIMRzoXYTVTKTwE=;
-        b=ioxE4PFJlOuFeJlwc8zlYtI3tYBVewanU0rbmNT25dGPrwCLBH9Fer2c7Xfp9m/0TO
-         zt0S1pL9wrw9ljSl5+iWhYKsgPcYXgZ1JsN4MCQu8xYM/YbSmPVrC2sobO6Xwq48iOfY
-         gc+gMQ5RwiGhHGOQZyhyIeePuApEjvcGwYGBMulYhG2zRQ/WPiMjFBsLoXGVOYadjXEd
-         g0lzv0vTQ79TdTZMheYeFwN5IRFxHUT7bwXr5bEtlioUKHMsijOWe2VQgRQCHsvdgfvM
-         0f+uUEbQoPSwEZzeXkE1LVAodWxsAkDlfBdnpJ40hY3vLKoXoV4oY+JGHWih06msRZ9L
-         uniw==
-X-Gm-Message-State: AC+VfDyD1hCMjt2WM2Y0G0AUvVWWKkmbw8wcMIV05WlxWLr8UlYr8jG/
-        n2KL2iwuRfrdVHo9e3Db1w6nCw==
-X-Google-Smtp-Source: ACHHUZ7D0DFhOH7Mv7mobfMdQDueNhD3A5z1ZYhEtoZ+dyoJUJ4Wgbq7+pTLJlNSi5YJw7+le/Xpnw==
-X-Received: by 2002:a17:906:ee88:b0:96f:aed9:2520 with SMTP id wt8-20020a170906ee8800b0096faed92520mr4250579ejb.21.1685523494145;
-        Wed, 31 May 2023 01:58:14 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.199.204])
-        by smtp.gmail.com with ESMTPSA id br7-20020a170906d14700b00965b5540ad7sm8738335ejb.17.2023.05.31.01.58.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 May 2023 01:58:13 -0700 (PDT)
-Message-ID: <5908a6d6-e93f-d6b3-ee8e-d923663a80ed@linaro.org>
-Date:   Wed, 31 May 2023 10:58:11 +0200
+        Wed, 31 May 2023 05:11:53 -0400
+X-Greylist: delayed 2874 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 02:11:37 PDT
+Received: from mail.ettrick.pl (mail.ettrick.pl [141.94.21.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62BDBE
+        for <linux-watchdog@vger.kernel.org>; Wed, 31 May 2023 02:11:37 -0700 (PDT)
+Received: by mail.ettrick.pl (Postfix, from userid 1002)
+        id 5EDA9A99A3; Wed, 31 May 2023 08:16:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ettrick.pl; s=mail;
+        t=1685521020; bh=ZOVeXw1jXE9TbyZP9aLdRwM96AORcRfum8b+rry5JMw=;
+        h=Date:From:To:Subject:From;
+        b=OlakoRiN2A3f/vwr7uQXCBDdQB26faR4f1ATZdDu84ohy3TypwrHjkAoXO0E7CQGM
+         sug5PLaB3JyiszTlm5Fj/hEQDsLWYYQT3PTjosGaLxbo9NHkBDmBHrXQNP4Bixystq
+         4PaBVUBfNQJx62wiz7MRdFBSSmZkFDVBtPoJfN8EFMTsCfIHtHytP4O5D97m1i0u1d
+         12InGNbwA/nhZ22i2C+Rs6nr7p8aeHzqnMzeZI4lOPlzS+OhINK1xkprmQ6kLSJsfI
+         w5ffWwbiKyzPwTJG1ak1G4aGiGGCvmdZgzro60Dea+Zr03i1LjLIEwNHg/KDlQBGHR
+         hwzfiVaPnqXlg==
+Received: by mail.ettrick.pl for <linux-watchdog@vger.kernel.org>; Wed, 31 May 2023 08:15:40 GMT
+Message-ID: <20230531064500-0.1.ax.4bm88.0.vgcvq9qy5m@ettrick.pl>
+Date:   Wed, 31 May 2023 08:15:40 GMT
+From:   "Norbert Karecki" <norbert.karecki@ettrick.pl>
+To:     <linux-watchdog@vger.kernel.org>
+Subject: Fotowoltaika- propozycja instalacji
+X-Mailer: mail.ettrick.pl
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v3 3/3] dt-bindings: timer: atmel,at91rm9200-st: convert
- to yaml
-Content-Language: en-US
-To:     Claudiu Beznea <claudiu.beznea@microchip.com>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
-        nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com,
-        daniel.lezcano@linaro.org, tglx@linutronix.de,
-        wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Conor Dooley <conor.dooley@microchip.com>
-References: <20230530090758.1652329-1-claudiu.beznea@microchip.com>
- <20230530090758.1652329-4-claudiu.beznea@microchip.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230530090758.1652329-4-claudiu.beznea@microchip.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 30/05/2023 11:07, Claudiu Beznea wrote:
-> Convert Microchip AT91 system timer to YAML.
-> 
-> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-> Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
-
-Thank you for your patch. There is something to discuss/improve.
-
-> +properties:
-> +  compatible:
-> +    items:
-> +      - const: atmel,at91rm9200-st
-> +      - const: syscon
-> +      - const: simple-mfd
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    description:
-> +      Contain interrupt for the ST which is the IRQ line shared across all
-> +      system controller members (memory controller, debug unit, system timer,
-> +      real-time clock, power management controller).
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  watchdog:
-> +    $ref: ../watchdog/atmel,at91rm9200-wdt.yaml
-
-Full path, so /schemas/watchdog/atmel....
-
-> +    description:
-> +      Child node describing watchdog.
-> +
+Dzie=C5=84 dobry,
+=20
+Czy rozwa=C5=BCali Pa=C5=84stwo monta=C5=BC systemu fotowoltaicznego?
+=20
+Instalacja fotowoltaiczna jest najlepszym sposobem na obni=C5=BCenie wyso=
+ko=C5=9Bci rachunk=C3=B3w za pr=C4=85d (pozostaj=C4=85 tylko op=C5=82aty =
+sta=C5=82e) i zabezpieczenie si=C4=99 przed rosn=C4=85cymi cenami energii=
+ elektrycznej. Jest to w pe=C5=82ni odnawialne i bezemisyjne =C5=BAr=C3=B3=
+d=C5=82o energii, dzi=C4=99ki czemu przyczyniamy si=C4=99 do ochrony =C5=9B=
+rodowiska naturalnego.
+=20
+Dzia=C5=82amy od wielu lat na rynku energetycznym. Przygotujemy projekt, =
+wycen=C4=99 oraz kompleksowo wykonamy i zg=C5=82osimy realizacj=C4=99 do =
+zak=C5=82adu energetycznego.=20
+=20
+Czy chc=C4=85 Pa=C5=84stwo pozna=C4=87 nasz=C4=85 propozycj=C4=99? =20
 
 
-Best regards,
-Krzysztof
-
+Pozdrawiam,
+Norbert Karecki
