@@ -2,180 +2,65 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75E94C77B7A
-	for <linux-watchdog@archiver.kernel.org>; Sat,  3 Jun 2023 09:59:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A223CC7EE2E
+	for <linux-watchdog@archiver.kernel.org>; Sat,  3 Jun 2023 10:41:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229673AbjFCJ7f (ORCPT
+        id S236923AbjFCKlC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 3 Jun 2023 05:59:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44886 "EHLO
+        Sat, 3 Jun 2023 06:41:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbjFCJ7e (ORCPT
+        with ESMTP id S232096AbjFCKkz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 3 Jun 2023 05:59:34 -0400
-X-Greylist: delayed 450 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 02:59:33 PDT
-Received: from smtp.smtpout.orange.fr (smtp-16.smtpout.orange.fr [80.12.242.16])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8881819A
-        for <linux-watchdog@vger.kernel.org>; Sat,  3 Jun 2023 02:59:33 -0700 (PDT)
-Received: from [192.168.1.18] ([86.243.2.178])
-        by smtp.orange.fr with ESMTPA
-        id 5NvTqcwg0lhpt5NvUq1Ymt; Sat, 03 Jun 2023 11:52:01 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-        s=t20230301; t=1685785921;
-        bh=sEkP4ZBCfBtKE6wbBKT/e+RFD7qcjLBvxrynGg1sMbg=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=Wnc+8hl0woXXEG7VOf6t6mLnvH6CnaRngUzo2mY6v8KlwbU938X7zOwebYSXMoVcS
-         QQ0c2MfWTLU6IBLI/tdjRQcUOYSanAx6lt8Slgu8R/VzoUT4aSGygbZgmJG0UgmfsD
-         lMaSdd/tzd/qipIDoaol96akAuiNiMK8Nlc1EsG0HSFW52OG5/7vJf/sCwvHHBC9aE
-         r27PJ41kyv30Yzu2PZEgqnNiYVP1I30gRbnSsGejHSa5qRd6FtpqwTNWQEZyWdpGsB
-         JsHIjSK0gqm8mOe41+hb/uBDr8V0BQhraE0sleDdb3dOzKtxsSjnbEXEh6FeRBOI3C
-         04tglSdZ7fvIA==
-X-ME-Helo: [192.168.1.18]
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Sat, 03 Jun 2023 11:52:01 +0200
-X-ME-IP: 86.243.2.178
-Message-ID: <70eaa9d9-4f0f-20b8-fcac-24b7074a084b@wanadoo.fr>
-Date:   Sat, 3 Jun 2023 11:51:59 +0200
+        Sat, 3 Jun 2023 06:40:55 -0400
+X-Greylist: delayed 4231 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 03:40:27 PDT
+Received: from mail.webtopbits.pl (mail.webtopbits.pl [195.231.64.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97E310E3
+        for <linux-watchdog@vger.kernel.org>; Sat,  3 Jun 2023 03:40:27 -0700 (PDT)
+Received: by mail.webtopbits.pl (Postfix, from userid 1001)
+        id 23000A394E; Fri,  2 Jun 2023 09:51:03 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=webtopbits.pl;
+        s=mail; t=1685695870;
+        bh=Eh8ECMiYd4baGAwPAzhz8mhJACXX7NSRkYjh+plaY18=;
+        h=Date:From:To:Subject:From;
+        b=AhnBaxjSMOG/AvjAnxP2iZelWhDJOtuIOxdowaqgk6kLx7Z74VZbjz2mjcydmMnQa
+         3tLBxzLWHtqZQnj0xCmtadg6iskjmoJXuf8BNEA7mQau2PA1IlCwCbp59yQNIJC3th
+         zyKqVvdY1pKnase/iqn2JG0/4gT4DicaorcjQIUpcylmBUNxQ0tNbKKQMFq5l4IID6
+         32ZBj2Ul02PzTqmDjKcJFCya2u5+V/v6skNHDEbA4uCicxcVE1LZm1PP7v6HveIuTi
+         uXqR6EpsEpYgwHGw8AUjhdUpKiz15mvMIRtwC43GMlSoiakXAzklrTI9fFiorYRnN/
+         pcGX0T9aBzjog==
+Received: by mail.webtopbits.pl for <linux-watchdog@vger.kernel.org>; Fri,  2 Jun 2023 08:50:56 GMT
+Message-ID: <20230602085530-0.1.8w.5ku7.0.d10p5yj5jm@webtopbits.pl>
+Date:   Fri,  2 Jun 2023 08:50:56 GMT
+From:   "Kamil Durjasz" <kamil.durjasz@webtopbits.pl>
+To:     <linux-watchdog@vger.kernel.org>
+Subject: =?UTF-8?Q?Wy=C5=BCsza_konwersja_w_e-sklepie_?=
+X-Mailer: mail.webtopbits.pl
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH] New module to add NCT6692D watchdog funtionality
-To:     dober6023@gmail.com
-Cc:     dober@lenovo.com, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux@roeck-us.net,
-        mpearson@lenovo.com, wim@linux-watchdog.org
-References: <20230602163045.605774-1-dober6023@gmail.com>
-Content-Language: fr
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-In-Reply-To: <20230602163045.605774-1-dober6023@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Le 02/06/2023 à 18:30, David Ober a écrit :
-> The new module adds in the basic functionality of the NCT6692D
-> watchdog driver. This functionality is added to support the
-> Lenovo SE30 device
-> 
-> Signed-off-by: David Ober <dober6023-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/watchdog/Kconfig       |  12 +
->   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/nct6692_wdt.c | 690 +++++++++++++++++++++++++++++++++
->   3 files changed, 703 insertions(+)
->   create mode 100644 drivers/watchdog/nct6692_wdt.c
-> 
+Dzie=C5=84 dobry,
 
-[...]
+w jaki spos=C3=B3b docieraj=C4=85 Pa=C5=84stwo do odbiorc=C3=B3w?
 
-> +static int nct6692_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct nct6692_data_t *data = NULL;
-> +	struct nct6692_sio_data *sio_data = dev->platform_data;
-> +	struct resource *res;
-> +
-> +	pr_info("Probe NCT6692 called\n");
-> +	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> +
-> +	data = kzalloc(sizeof(struct nct6692_data_t), GFP_KERNEL);
+Tworzymy pot=C4=99=C5=BCne narz=C4=99dzia sprzeda=C5=BCy, kt=C3=B3re pozw=
+alaj=C4=85 kompleksowo rozwi=C4=85za=C4=87 problemy potencjalnych klient=C3=
+=B3w i skutecznie wp=C5=82yn=C4=85=C4=87 na ich decyzje zakupowe.=20
 
-Is it released somewhere?
-Should this be devm_kzalloc()?
+Skupiamy si=C4=99 na Pa=C5=84stwa potrzebach zwi=C4=85zanych z obs=C5=82u=
+g=C4=85 sklepu, oczekiwaniach i planach sprzeda=C5=BCowych. Szczeg=C3=B3=C5=
+=82owo dopasowujemy grafik=C4=99, funkcjonalno=C5=9Bci, struktur=C4=99 i =
+mikrointerakcje do Pa=C5=84stwa grupy docelowej, co przek=C5=82ada si=C4=99=
+ na oczekiwane rezultaty.
 
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	// init value
-> +	data->shm.base_addr = 0;
-> +	data->shm.report_addr = 0;
+Ch=C4=99tnie przedstawi=C4=99 dotychczasowe realizacje, aby mogli Pa=C5=84=
+stwo przekona=C4=87 si=C4=99 o naszych mo=C5=BCliwo=C5=9Bciach. Mog=C4=99=
+ si=C4=99 skontaktowa=C4=87?
 
-Harmless, but useless (kzalloc() above)
 
-> +
-> +	data->shm.base_phys = sio_data->base_phys;
-> +	data->shm.base_addr = (u_char *)ioremap_cache(data->shm.base_phys, 256);
-> +
-> +	data->shm.offset_mod = SHM_WIN_MOD_OFFSET;
-> +	data->shm.offset_cmd = SHM_WIN_CMD_OFFSET;
-> +	data->shm.offset_sel = SHM_WIN_SEL_OFFSET;
-> +	data->shm.offset_ctl = SHM_WIN_CTL_OFFSET;
-> +	data->shm.offset_id = SHM_WIN_ID_OFFSET;
-> +	data->shm.offset_dat = SHM_WIN_DAT_OFFSET;
-> +
-> +	// Base for REPORT Channel
-> +	data->shm.report_phys = sio_data->report_phys;
-> +	data->shm.report_addr = (u_char *)ioremap_cache(data->shm.report_phys, 256);
-> +
-> +	data->cfg.channel = NCT6692_CHANNEL_DEFAULT;
-> +	data->cfg.mod = 0x10;
-> +	data->cfg.cmd = 0;
-> +	data->cfg.sel = 0;
-> +	data->cfg.idx = 0x15;
-> +	data->cnt.channel = NCT6692_CHANNEL_DEFAULT;
-> +	data->cnt.mod = 0x10;
-> +	data->cnt.cmd = 0;
-> +	data->cnt.sel = 0;
-> +	data->cnt.idx = 0x16;
-
-All these "= 0" are harmless, but useless (kzalloc() above). Maybe it 
-makes sense to keep them.
-
-> +
-> +	data->wdt.ops = &nct6692_wdt_ops;
-> +	data->wdt.info = &nct6692_wdt_info;
-> +
-> +	data->wdt.timeout = WATCHDOG_TIMEOUT; /* Set default timeout */
-> +	data->wdt.min_timeout = MIN_TIMEOUT;
-> +	data->wdt.max_timeout = MAX_TIMEOUT;
-> +	data->wdt.parent = &pdev->dev;
-> +
-> +	watchdog_init_timeout(&data->wdt, timeout, &pdev->dev);
-> +	watchdog_set_nowayout(&data->wdt, nowayout);
-> +	watchdog_set_drvdata(&data->wdt, data);
-> +
-> +	watchdog_stop_on_unregister(&data->wdt);
-> +
-> +	return devm_watchdog_register_device(dev, &data->wdt);
-> +}
-
-[...]
-
-> +static int __init nct6692_init(void)
-> +{
-> +	struct nct6692_sio_data sio_data;
-> +	int sioaddr[2] = { 0x2e, 0x4e };
-> +	struct resource res;
-> +	int err;
-> +	int address;
-> +	bool found = false;
-> +	u_long base_phys = 0;
-> +	u_long report_phys = 0;
-> +
-> +	platform_driver_register(&nct6692_driver);
-> +
-> +	/*
-> +	 * initialize sio_data->kind and sio_data->sioreg.
-> +	 *
-> +	 * when Super-I/O functions move to a separate file, the Super-I/O
-> +	 * driver will probe 0x2e and 0x4e and auto-detect the presence of a
-> +	 * nct6692 hardware monitor, and call probe()
-> +	 */
-> +	err = nct6692_find(sioaddr[0], &base_phys, &report_phys);
-> +	if (err) {
-> +		err = nct6692_find(sioaddr[1], &base_phys, &report_phys);
-> +		if (err)
-> +			return -ENODEV;
-
-goto exit_unregister; ?
-
-> +	}
-> +	found = true;
-> +	sio_data.base_phys = base_phys;
-> +	sio_data.report_phys = report_phys;
-> +
-
-[...]
-
+Pozdrawiam
+Kamil Durjasz
