@@ -2,169 +2,110 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C8C7C83003
-	for <linux-watchdog@archiver.kernel.org>; Wed,  7 Jun 2023 07:44:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50376C7EE25
+	for <linux-watchdog@archiver.kernel.org>; Thu,  8 Jun 2023 20:17:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239267AbjFGHoF (ORCPT
+        id S233422AbjFHURn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 7 Jun 2023 03:44:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39132 "EHLO
+        Thu, 8 Jun 2023 16:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234478AbjFGHnh (ORCPT
+        with ESMTP id S229459AbjFHURm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Jun 2023 03:43:37 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54E0421F
-        for <linux-watchdog@vger.kernel.org>; Wed,  7 Jun 2023 00:40:41 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-973f78329e3so1138273066b.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 07 Jun 2023 00:40:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1686123640; x=1688715640;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QzNzUxBgctT5U3+gB3td/wPDXx9tt+J9TkByw444vb4=;
-        b=dpiv/lAao6jUqNRWIwDa/t6LO1tyPxkPWni1OUv3MwCcaBvBG9TZJWlQAsTwrpJG8z
-         WiSLr3KTYWPNapPhFe4g/UQTjDvdv2Kh5m3vUHx2Uvn0qhMaWW7936pz4POvuJM/IQsq
-         Nj5IuPvfSkJvvk2/lgKSqanZnlPWCLIWckttk5fd61hIvF0Cv5Sw1t5kE8iZvriviEW+
-         In+gf5HZQY8yoXdiDm/zttqRTvXjVTxgNdcYNhuap4h3KffjSa1/I4wWvgR5nzhKYxNl
-         ilEXGjb2B7MxuIK+KjltPks5gdQ0IXXIg2nLLmfmXMao4M6uuWPsgMMFy1+JhqAIHqER
-         v4DA==
+        Thu, 8 Jun 2023 16:17:42 -0400
+Received: from mail-io1-f48.google.com (mail-io1-f48.google.com [209.85.166.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AC330FE;
+        Thu,  8 Jun 2023 13:17:11 -0700 (PDT)
+Received: by mail-io1-f48.google.com with SMTP id ca18e2360f4ac-777a9d7efabso50907939f.0;
+        Thu, 08 Jun 2023 13:17:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686123640; x=1688715640;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20221208; t=1686255430; x=1688847430;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QzNzUxBgctT5U3+gB3td/wPDXx9tt+J9TkByw444vb4=;
-        b=DozZUq84XmYccANywAtdqukYps1H6pipsWRTnavwru/ZADD/Zi4/ndGTe+WHMz8/k7
-         Khrlm86R4cfTCm5GvrylMsqjS5bVqmuhtqZ9UFArqwtODkWPrg7UnQ+eqXej/g9vaJH3
-         s6VuIf0vkCQbRoX8wAxgTk+8nxpv5rwmJ2U5yaHBSTfX6sElFdaqduSQn6DH9s/No3ht
-         dQVisGw9ZILXSHCaWI49uytj/pbrpb2WrHHf8Yu6O+NC0GSrb2kZFtxOwET8w23y910y
-         dFpri36y35TQVM1W/OVy/49gLgTv39suJJcFBIXNgKgcj/EU/qmVW0KLbpFQxbycmt3q
-         pCiw==
-X-Gm-Message-State: AC+VfDx1iTthWNeVdqz7uCggKx2pMVFM4akh4WHArju0W+iSOHBDY0qo
-        udFu3Ig8KCBbWXI9bgqcvAFgOg==
-X-Google-Smtp-Source: ACHHUZ6nIjpeIRlx7fPahFZ5gzxmNl29452UMvG6AuY1y9w+PrjwLC4zGKqXZHhvW+xhYzrUW9v6Ug==
-X-Received: by 2002:a17:907:9403:b0:965:cc76:7716 with SMTP id dk3-20020a170907940300b00965cc767716mr4912526ejc.76.1686123640173;
-        Wed, 07 Jun 2023 00:40:40 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id k16-20020a1709065fd000b00977db7d08cbsm3376124ejv.74.2023.06.07.00.40.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Jun 2023 00:40:39 -0700 (PDT)
-Message-ID: <f141a538-23b8-d10e-227c-5f0ad191c3a6@linaro.org>
-Date:   Wed, 7 Jun 2023 09:40:37 +0200
+        bh=s2bzye3qdHnsdMOOpdJS17HW2XawEXF4P/SDFSPJSSg=;
+        b=iJQPKcH3qIdjrAexZDedFvQ8XMuGh4w2rPC6vb804f7EZi1RbQOPI5T+bNtLjTSx+m
+         61k49I5AYGCnwrpP5cncNzXJwqaLoZXCQmsxoj6nSVjX3E/FDN4d0h0KF8Jc3pnUyKK+
+         O0/6uVXnW9NaqOvBOhUyj3AZJWvgFG2ZQ7n1b/LOPys9g24m5kNRJ3NuznS5bdITZ/Xl
+         +qfpNDju/MPcSkJfreEK3Gq1XpDIcwqsKmg3ah8BeZ6izlYsV+437GftMaS1rVT94eUd
+         jQ7b5rM1mD4xAKV/IR7Mknmr946GE8d4t0XRgIb69P4plovtxjR50CM0Z/gXYgW5lVFT
+         6B4Q==
+X-Gm-Message-State: AC+VfDx9vJsCWR6Py/AmM9F9Y1eI2MNkBg9eJIVSp7DCLxy2+yWeMLIX
+        pWhFnD+0f8OlVo59qTJsGg==
+X-Google-Smtp-Source: ACHHUZ7lAstS+N8P/f6NVeo18fgD2XEUFYRJ7Q6a0iUpECaeA9h4PL28CMYx1jrmgNwCjR5rWjUmpw==
+X-Received: by 2002:a5d:8b42:0:b0:77a:c800:5161 with SMTP id c2-20020a5d8b42000000b0077ac8005161mr4512036iot.4.1686255430520;
+        Thu, 08 Jun 2023 13:17:10 -0700 (PDT)
+Received: from robh_at_kernel.org ([64.188.179.250])
+        by smtp.gmail.com with ESMTPSA id g3-20020a02c543000000b0040f91a65669sm293961jaj.21.2023.06.08.13.17.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Jun 2023 13:17:09 -0700 (PDT)
+Received: (nullmailer pid 3391292 invoked by uid 1000);
+        Thu, 08 Jun 2023 20:17:07 -0000
+Date:   Thu, 8 Jun 2023 14:17:07 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Conor Dooley <conor.dooley@microchip.com>
+Cc:     Claudiu.Beznea@microchip.com, devicetree@vger.kernel.org,
+        alexandre.belloni@bootlin.com, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, daniel.lezcano@linaro.org,
+        conor+dt@kernel.org, conor@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        krzysztof.kozlowski+dt@linaro.org, tglx@linutronix.de,
+        wim@linux-watchdog.org, sebastian.reichel@collabora.com,
+        linux@roeck-us.net
+Subject: Re: [PATCH 3/5] dt-bindings: timer: microchip,sam9x60-pit64b:
+ convert to yaml
+Message-ID: <20230608201707.GA3359628-robh@kernel.org>
+References: <20230525125602.640855-1-claudiu.beznea@microchip.com>
+ <20230525125602.640855-4-claudiu.beznea@microchip.com>
+ <20230525-straw-fidgeting-4c1099aa16fe@spud>
+ <5edf3d3b-6f59-0af3-6414-940a278962bf@microchip.com>
+ <20230526-knickers-aim-e01220e6a7cd@wendy>
+ <5a5d25a2-e6b5-fd69-f615-cd3d6ed33b9f@microchip.com>
+ <20230526-unsubtle-chowtime-ce329d7e5627@wendy>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Subject: Re: [PATCH 2/7] dt-bindings: pwm: restrict node name suffixes
-Content-Language: en-US
-To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Dipen Patel <dipenp@nvidia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Dilip Kota <eswara.kota@linux.intel.com>,
-        linux-phy@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-spi@vger.kernel.org, timestamp@lists.linux.dev,
-        linux-watchdog@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>
-References: <20230530144851.92059-1-krzysztof.kozlowski@linaro.org>
- <20230530144851.92059-3-krzysztof.kozlowski@linaro.org>
- <20230607073652.hoyrernfcuoryrqs@pengutronix.de>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230607073652.hoyrernfcuoryrqs@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230526-unsubtle-chowtime-ce329d7e5627@wendy>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 07/06/2023 09:36, Uwe Kleine-König wrote:
-> On Tue, May 30, 2023 at 04:48:46PM +0200, Krzysztof Kozlowski wrote:
->> Make the pattern matching node names a bit stricter to improve DTS
->> consistency.  The pattern is restricted to:
->> 1. Only one unit address or one -N suffix,
->> 2. -N suffixes to decimal numbers.
->>
->> Suggested-by: Rob Herring <robh@kernel.org>
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+On Fri, May 26, 2023 at 08:55:39AM +0100, Conor Dooley wrote:
+> On Fri, May 26, 2023 at 06:41:39AM +0000, Claudiu.Beznea@microchip.com wrote:
+> > On 26.05.2023 09:23, Conor Dooley wrote:
+> > > On Fri, May 26, 2023 at 04:47:28AM +0000, Claudiu.Beznea@microchip.com wrote:
+> > >> On 25.05.2023 20:14, Conor Dooley wrote:
+> > >>>> Convert Microchip PIT64B to YAML. Along with it clock-names binding has
+> > >>>> been added as the driver needs it to get PIT64B clocks.
+> > >>> I don't think both of these PIT things need to have different binding
+> > >>> files. 90% of it is the same, just the clock-names/number - so you can
+> > >>
+> > >> But these are different hardware blocks with different functionalities and
+> > >> different drivers.
+> > > 
+> > > Having different drivers doesn't preclude having them in the same
+> > > binding provided the function/description etc are more or less
+> > > identical. I was confused by:
+> > > 
+> > > +description:
+> > > +  The 64-bit periodic interval timer provides the operating system scheduler
+> > > +  interrupt. It is designed to offer maximum accuracy and efficient management,
+> > > +  even for systems with long response times.
+> > > 
+> > > +description:
+> > > +  Atmel periodic interval timer provides the operating system’s scheduler
+> > > +  interrupt. It is designed to offer maximum accuracy and efficient management,
+> > > +  even for systems with long response time.
+> > > 
+> > > Those seemed like they do the same thing to me!
+> > 
+> > They do the same thing, they are timers... But the way they do it (from
+> > hardware perspective) is totally different. With this would you still
+> > prefer to have them merged?
 > 
->>
->> ---
->>
->> Cc: Tony Lindgren <tony@atomide.com>
->> Cc: Oleksij Rempel <o.rempel@pengutronix.de>
->> ---
->>  Documentation/devicetree/bindings/pwm/pwm.yaml | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/Documentation/devicetree/bindings/pwm/pwm.yaml b/Documentation/devicetree/bindings/pwm/pwm.yaml
->> index 3c01f85029e5..abd9fa873354 100644
->> --- a/Documentation/devicetree/bindings/pwm/pwm.yaml
->> +++ b/Documentation/devicetree/bindings/pwm/pwm.yaml
->> @@ -13,7 +13,7 @@ select: false
->>  
->>  properties:
->>    $nodename:
->> -    pattern: "^pwm(@.*|-[0-9a-f])*$"
->> +    pattern: "^pwm(@.*|-([0-9]|[1-9][0-9]+))?$"
-> 
-> With this patch we forbid now the following patterns:
-> 
-> 	pwm-[0-9a-f][@-].*
-> 	pwm-0[0-9a-f]+
-> 	pwm-[a-f]([@-].*)?
+> Yeah, one binding would be my preference.
 
-Yes, this was discussed last time:
-https://lore.kernel.org/all/20221127182232.GA128974-robh@kernel.org/
+I'd probably just leave them separate if they're pretty much unrelated.
 
-> 
-> Checking for such names:
-> 
-> 	$ git grep -oP '\bpwm-([0-9a-f][@-].*|0[0-9a-f]+|[0-9]*[a-f][0-9a-f]*)(*pla:\s*\{)' arch/*/boot/dts
-> 	arch/arm/boot/dts/meson8.dtsi:pwm-f-ao
-> 	arch/arm/boot/dts/meson8.dtsi:pwm-e
-> 	arch/arm/boot/dts/meson8b.dtsi:pwm-d
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-a
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-b-x7
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-b-x19
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-c-c
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-c-x5
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-c-x8
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-d-x3
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-d-x6
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-e
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-f-z
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-f-a
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-f-x
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-f-h
-> 	arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi:pwm-a-e
-
-Are you sure these are pwms, not pins?
-
-> 
-> These are all pinmux-settings and no pwm nodes, so the change is fine.
-> (But arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi isn't properly
-> sorted alphabetically.)
-
-Exactly...
-
-> 
-> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-
-
-Best regards,
-Krzysztof
-
+Rob
