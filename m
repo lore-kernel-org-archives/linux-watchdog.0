@@ -2,62 +2,88 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A32B4EB64DD
-	for <linux-watchdog@archiver.kernel.org>; Tue, 11 Jul 2023 08:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E646EEB64DD
+	for <linux-watchdog@archiver.kernel.org>; Tue, 11 Jul 2023 09:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbjGKIOj (ORCPT
+        id S229963AbjGKJVV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 11 Jul 2023 04:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
+        Tue, 11 Jul 2023 05:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231330AbjGKIOi (ORCPT
+        with ESMTP id S229479AbjGKJUz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 11 Jul 2023 04:14:38 -0400
-Received: from mail.ettrick.pl (mail.ettrick.pl [141.94.21.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68231E51
-        for <linux-watchdog@vger.kernel.org>; Tue, 11 Jul 2023 01:14:37 -0700 (PDT)
-Received: by mail.ettrick.pl (Postfix, from userid 1002)
-        id A0D3F28286; Tue, 11 Jul 2023 08:11:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ettrick.pl; s=mail;
-        t=1689063134; bh=V4qwQGqC7KpJoyielzRpnopuINFIOvKXsSgJ3ZENIXU=;
-        h=Date:From:To:Subject:From;
-        b=EF366es+YKLCwrf24nIBlW+Or8O6jMb/9OTnlEMzRXgC/CjC8+FhEQ5ir1nWVBw1Z
-         mQ0MJ11V0GL3WHy0jyDCIN2uZ9pyvjTer0VVQZdiETtK6gL5BzLCKdTvMBtOjwxeCs
-         h53r+qOTDlwA7N0pRbHwingFYlHCY6401bqZoFiNoeo57yQKsYDUJOzDgIYX99T/9W
-         IXd1DSpcj4lWhYnmJ0BaDkcwUty41CR4U23kbNHsn37cMyxvd5uxn4MbT9IoKLsw5n
-         0k00ft96OudjVSWqjFy0UZ5xFv/ZKnNOwfBCSJd2S8u524pC2JIPdVth8FdykD0cXK
-         tcQC0LuLvqRTw==
-Received: by mail.ettrick.pl for <linux-watchdog@vger.kernel.org>; Tue, 11 Jul 2023 08:11:02 GMT
-Message-ID: <20230711064500-0.1.8.1x33.0.b0m869alkh@ettrick.pl>
-Date:   Tue, 11 Jul 2023 08:11:02 GMT
-From:   "Norbert Karecki" <norbert.karecki@ettrick.pl>
-To:     <linux-watchdog@vger.kernel.org>
-Subject: Fotowoltaika - propozycja instalacji
-X-Mailer: mail.ettrick.pl
+        Tue, 11 Jul 2023 05:20:55 -0400
+Received: from mta-64-226.siemens.flowmailer.net (mta-64-226.siemens.flowmailer.net [185.136.64.226])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21D7172D
+        for <linux-watchdog@vger.kernel.org>; Tue, 11 Jul 2023 02:17:42 -0700 (PDT)
+Received: by mta-64-226.siemens.flowmailer.net with ESMTPSA id 20230711091739bca3c4114a407ec6be
+        for <linux-watchdog@vger.kernel.org>;
+        Tue, 11 Jul 2023 11:17:40 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
+ d=siemens.com; i=huaqian.li@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=wE+SEueNbEbwnhCHFDEWPtQJzySe4EclgZMfWR8En/4=;
+ b=gt8hEd6JCG6zwuqr5chB1NtzWxJ910wZPCDgmK9GLi8dwDMo+u+xPW84URA2v2SRvoXxx1
+ mhwOAdnPpAmEsIYY3ppntPYh6S9DJSqF+lAkkQn6NznpdinLn6Js9cLWAJCe3KmzsGmWKDpo
+ 6WbeQKTgGX2EFv9tgbyv4OmWsHg/A=;
+From:   huaqian.li@siemens.com
+To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
+Cc:     huaqianlee@gmail.com, nm@ti.com, vigneshr@ti.com,
+        kristo@kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, jan.kiszka@siemens.com,
+        baocheng.su@siemens.com, Li Hua Qian <huaqian.li@siemens.com>
+Subject: [PATCH v2 1/3] dt-bindings: watchdog: ti,rti-wdt: Add support for WDIOF_CARDRESET
+Date:   Tue, 11 Jul 2023 17:17:11 +0800
+Message-Id: <20230711091713.1113010-2-huaqian.li@siemens.com>
+In-Reply-To: <20230711091713.1113010-1-huaqian.li@siemens.com>
+References: <20230711091713.1113010-1-huaqian.li@siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-959203:519-21489:flowmailer
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Dzie=C5=84 dobry,
-=20
-Czy rozwa=C5=BCali Pa=C5=84stwo monta=C5=BC systemu fotowoltaicznego?
-=20
-Instalacja fotowoltaiczna jest najlepszym sposobem na obni=C5=BCenie wyso=
-ko=C5=9Bci rachunk=C3=B3w za pr=C4=85d (pozostaj=C4=85 tylko op=C5=82aty =
-sta=C5=82e) i zabezpieczenie si=C4=99 przed rosn=C4=85cymi cenami energii=
- elektrycznej. Jest to w pe=C5=82ni odnawialne i bezemisyjne =C5=BAr=C3=B3=
-d=C5=82o energii, dzi=C4=99ki czemu przyczyniamy si=C4=99 do ochrony =C5=9B=
-rodowiska naturalnego.
-=20
-Dzia=C5=82amy od wielu lat na rynku energetycznym. Przygotujemy projekt, =
-wycen=C4=99 oraz kompleksowo wykonamy i zg=C5=82osimy realizacj=C4=99 do =
-zak=C5=82adu energetycznego.=20
-=20
-Czy chc=C4=85 Pa=C5=84stwo pozna=C4=87 nasz=C4=85 propozycj=C4=99? =20
+From: Li Hua Qian <huaqian.li@siemens.com>
 
+TI RTI (Real Time Interrupt) Watchdog doesn't support to record the
+watchdog cause. Add a reserved memory to know the last reboot was caused
+by the watchdog card. In the reserved memory, some specific info will be
+saved to indicate whether the watchdog reset was triggered in last
+boot.
 
-Pozdrawiam
-Norbert Karecki
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../devicetree/bindings/watchdog/ti,rti-wdt.yaml    | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+index fc553211e42d..f227db08dc70 100644
+--- a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+@@ -26,7 +26,18 @@ properties:
+       - ti,j7-rti-wdt
+ 
+   reg:
+-    maxItems: 1
++    maxItems: 2
++      description:
++	- Contains the address and the size of MCU RTI register.
++	- Contains the address and the size of reserved memory, which
++	  has the pre-stored watchdog reset cause as power-on reason. The
++	  second item is optional.
++	  In the reserved memory, the following values are needed at the
++	  first 12 bytes to tell that last boot was caused by watchdog
++	  reset.
++	  - PON_REASON_SOF_NUM:   0xBBBBCCCC
++	  - PON_REASON_MAGIC_NUM: 0xDDDDDDDD
++	  - PON_REASON_EOF_NUM:   0xCCCCBBBB
+ 
+   clocks:
+     maxItems: 1
+-- 
+2.34.1
+
