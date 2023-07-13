@@ -2,83 +2,121 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A86ACC001DC
-	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jul 2023 09:54:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE794EB64DD
+	for <linux-watchdog@archiver.kernel.org>; Thu, 13 Jul 2023 10:00:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232263AbjGMJxb (ORCPT
+        id S234321AbjGMJ76 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 13 Jul 2023 05:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37624 "EHLO
+        Thu, 13 Jul 2023 05:59:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234663AbjGMJwz (ORCPT
+        with ESMTP id S234320AbjGMJ7g (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Jul 2023 05:52:55 -0400
-X-Greylist: delayed 61 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 13 Jul 2023 02:52:53 PDT
-Received: from mta-64-225.siemens.flowmailer.net (mta-64-225.siemens.flowmailer.net [185.136.64.225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7E9268A
-        for <linux-watchdog@vger.kernel.org>; Thu, 13 Jul 2023 02:52:53 -0700 (PDT)
-Received: by mta-64-225.siemens.flowmailer.net with ESMTPSA id 20230713095148e61a32ba31c6c9aed6
-        for <linux-watchdog@vger.kernel.org>;
-        Thu, 13 Jul 2023 11:51:49 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
- d=siemens.com; i=huaqian.li@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
- bh=FmUGUn49WETz1Fw3mb6/eNP9ivK6zo0mmq3YHUWYtzA=;
- b=NKojwrGakjk/94cLrq3SsM9YQMLnobsnR9QuFWb7dq4VRHt71ndg7EMaq8m5aJBF64oSIC
- lZS1FOOkGnbU+JMgcPh7oaJ2OuTT8yu7lzYMWRTv//gj7lV7lOTMi37ypn9o0Ecy47L9JOyb
- 29kTUgaDi/dQE6+odkIHk0RaMeXdc=;
-From:   huaqian.li@siemens.com
-To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
+        Thu, 13 Jul 2023 05:59:36 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B51B826B3
+        for <linux-watchdog@vger.kernel.org>; Thu, 13 Jul 2023 02:59:18 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3fbc1218262so4270805e9.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 13 Jul 2023 02:59:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1689242357; x=1691834357;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EfGF94MMBcItJ6e1QKfjFxJbCT5K/y3Yw5zZ80cqzUo=;
+        b=RX/2R95emqRU0/kqzZOeren1e7sASJz5H3Q+9BX1GCwE9RxNhiPGJgRRnCRXzBkEnF
+         gPERfgVzy2c2BsMA8TvxffL0BRX2q6nAk8BwzqPW6uEVOSMX5InaZ0oWIqG2ti1ofIjG
+         PUpftrLqcd6pswZKvH4qm6DhP3KeBc+RSy82e4xsn1ci4U5iSnAL/nRJ268WVQCjDnpn
+         96qCJFJ57ykJSUcCpqVmJGXORNrxy8Ke0KPXGWcCg1g8ueM/UkDx5nsIxjSSBFFul7tJ
+         SFJRw1ozRDUmp7wOYmdVTvB6cBXxOo0CltAvSdqZ0bmHwVrSKwNY+68QYqCr2Qabsk++
+         cwyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689242357; x=1691834357;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EfGF94MMBcItJ6e1QKfjFxJbCT5K/y3Yw5zZ80cqzUo=;
+        b=BAC0clVD4HkwHkNPnIWd4Medtaxn/v81IHKuzf9VwOKp5zZiusrbYA3SWWkHOFe63x
+         1jCzWMx+L9diqBzYf32KKzZKu6x57LLphsTpXW2gDX7rDbYNluallF0Okjn0ozwma8zH
+         Gm8JsUeePxxFdWXoVx3Eop760JsTe9QIaEsjrgflsDW9r/RWFVD1YRkjUoUa0lf5VciX
+         jQNQdtLpzKtBII/aIgeG3scuIoi3ho48n3b+/2o9Nht45lIcqhj+W5vq5MtLXbO0ArEH
+         6vbBGh7ANe/RE3J3GIZQLmCFSu4Tm0oc63hSEqUc8xcPnPhHJ6HXOtAq8LQUT9PlrXw8
+         fe1A==
+X-Gm-Message-State: ABy/qLabGcbv0DIfAq0K2CWLjqMIOn7PTVHTAvxZMzcYZF+6OJZaaRfN
+        cDR+rYgyO+h8AFxz2QwRGHLppesfA/QcjXgUnvW11w==
+X-Google-Smtp-Source: APBJJlE1vSef8lYrRI74FNpcCNSo3OMLYJY9thlLZ6Vno1ZNvXLJk23M3Ev81CwvC3qVpAPSm/SGww==
+X-Received: by 2002:a05:6000:1189:b0:314:521:ce0a with SMTP id g9-20020a056000118900b003140521ce0amr1072111wrx.40.1689242357177;
+        Thu, 13 Jul 2023 02:59:17 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.223.104])
+        by smtp.gmail.com with ESMTPSA id k10-20020a5d66ca000000b00313f9085119sm7482114wrw.113.2023.07.13.02.59.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Jul 2023 02:59:16 -0700 (PDT)
+Message-ID: <1de2a372-e167-515d-0a0d-6fcad4a1e051@linaro.org>
+Date:   Thu, 13 Jul 2023 11:59:13 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v3 1/3] dt-bindings: watchdog: ti,rti-wdt: Add support for
+ WDIOF_CARDRESET
+Content-Language: en-US
+To:     huaqian.li@siemens.com, wim@linux-watchdog.org, linux@roeck-us.net,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org
 Cc:     huaqianlee@gmail.com, nm@ti.com, vigneshr@ti.com,
         kristo@kernel.org, linux-watchdog@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, jan.kiszka@siemens.com,
-        baocheng.su@siemens.com, Li Hua Qian <huaqian.li@siemens.com>
-Subject: [PATCH v3 0/3] Add support for WDIOF_CARDRESET on TI AM65x
-Date:   Thu, 13 Jul 2023 17:51:24 +0800
-Message-Id: <20230713095127.1230109-1-huaqian.li@siemens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-959203:519-21489:flowmailer
+        baocheng.su@siemens.com
+References: <20230713095127.1230109-1-huaqian.li@siemens.com>
+ <20230713095127.1230109-2-huaqian.li@siemens.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230713095127.1230109-2-huaqian.li@siemens.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-From: Li Hua Qian <huaqian.li@siemens.com>
+On 13/07/2023 11:51, huaqian.li@siemens.com wrote:
+> From: Li Hua Qian <huaqian.li@siemens.com>
+> 
+> TI RTI (Real Time Interrupt) Watchdog doesn't support to record the
+> watchdog cause. Add a reserved memory to know the last reboot was caused
+> by the watchdog card. In the reserved memory, some specific info will be
+> saved to indicate whether the watchdog reset was triggered in last
+> boot.
+> 
+> Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+> ---
+>  .../devicetree/bindings/watchdog/ti,rti-wdt.yaml     | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> index fc553211e42d..8c16fd3929ec 100644
+> --- a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+> @@ -34,6 +34,18 @@ properties:
+>    power-domains:
+>      maxItems: 1
+>  
+> +  memory-region:
+> +    maxItems: 1
+> +    description:
+> +      Contains the watchdog reserved memory. It is optional.
+> +      In the reserved memory, the specified values, which are
+> +      PON_REASON_SOF_NUM(0xBBBBCCCC), PON_REASON_MAGIC_NUM(0xDDDDDDDD),
+> +      and PON_REASON_EOF_NUM(0xCCCCBBBB), are pre-stored at the first
+> +      3 * 4 bytes to tell that last boot was caused by watchdog reset.
+> +      Once the PON reason is captured by driver(rti_wdt.c), the driver
+> +      is supposed to wipe the whole memory region.
+> +
+> +
 
-The watchdog hardware of TI AM65X platform does not support
-WDIOF_CARDRESET feature, add a reserved memory to save the watchdog
-reset cause, to know if the board reboot is due to a watchdog reset.
+If there is going to be new version, only one blank line, not two.
 
-Changes in v3:
-- Add memory-region back for the reserved memory, and remove reserved
-  memory from the watchdog IO address space.
-- Add changelog.
-- Link to v2:
-  https://lore.kernel.org/linux-watchdog/20230711091713.1113010-1-huaqian.li@siemens.com
+In any case:
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-Changes in v2:
-- Remove memory-region and memory-size properties, and bind the reserved
-  memory to watchdog IO address space.
-- Remove the unnecessary rti_wdt_ioctl.
-- Fix the mail list
-- Link to v1:
-  https://lore.kernel.org/all/3137d87e56ef75ba0b8a923d407b2fecace6ccbd.camel@siemens.com/
-  v1 had a wrong mail list at the beginning, and the mail thread was
-  messed up.
-
-Li Hua Qian (3):
-  dt-bindings: watchdog: ti,rti-wdt: Add support for WDIOF_CARDRESET
-  arm64: dts: ti: Add reserved memory for watchdog
-  watchdog:rit_wdt: Add support for WDIOF_CARDRESET
-
- .../bindings/watchdog/ti,rti-wdt.yaml         | 12 +++++
- .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 10 ++++
- drivers/watchdog/rti_wdt.c                    | 51 +++++++++++++++++++
- 3 files changed, 73 insertions(+)
-
--- 
-2.34.1
+Best regards,
+Krzysztof
 
