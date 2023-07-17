@@ -2,93 +2,125 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE98BC001B0
-	for <linux-watchdog@archiver.kernel.org>; Sat, 15 Jul 2023 05:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A0B1EB64DC
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 Jul 2023 04:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbjGOFZr (ORCPT
+        id S230313AbjGQEHw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 15 Jul 2023 01:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50356 "EHLO
+        Mon, 17 Jul 2023 00:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbjGOFZq (ORCPT
+        with ESMTP id S230261AbjGQEHv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 15 Jul 2023 01:25:46 -0400
-Received: from fllv0015.ext.ti.com (fllv0015.ext.ti.com [198.47.19.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11D53A9D;
-        Fri, 14 Jul 2023 22:25:44 -0700 (PDT)
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 36F5PIhO013304;
-        Sat, 15 Jul 2023 00:25:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1689398718;
-        bh=3S2X2tz6GMb/LEBYroRqxU/r/eV423Lk4Fh4pKxefnw=;
-        h=Date:From:To:CC:Subject:References:In-Reply-To;
-        b=tc4+KoWdoUtVFHL9N+ZC03JGG8QCcQ8aF2njTe9lq4puv5HL7ZYKSRbFp7xVFKWy1
-         XnI3pG68uwyauRrfCIitqLDuu1IlCXx9AIxbzBbOzdXPsEPzx6uBoYgX6hpo3l0FPy
-         cfy188fzWuOOtX2FUgBzoiRsgyG+3eXq3Sqlg9Nw=
-Received: from DFLE111.ent.ti.com (dfle111.ent.ti.com [10.64.6.32])
-        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 36F5PISJ024632
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 15 Jul 2023 00:25:18 -0500
-Received: from DFLE109.ent.ti.com (10.64.6.30) by DFLE111.ent.ti.com
- (10.64.6.32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Sat, 15
- Jul 2023 00:25:17 -0500
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE109.ent.ti.com
- (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
- Frontend Transport; Sat, 15 Jul 2023 00:25:17 -0500
-Received: from localhost (ileaxei01-snat.itg.ti.com [10.180.69.5])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 36F5PHiI012539;
-        Sat, 15 Jul 2023 00:25:17 -0500
-Date:   Sat, 15 Jul 2023 00:25:17 -0500
-From:   Nishanth Menon <nm@ti.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-CC:     <huaqian.li@siemens.com>, <wim@linux-watchdog.org>,
-        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
-        <conor+dt@kernel.org>, <huaqianlee@gmail.com>, <vigneshr@ti.com>,
-        <kristo@kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <jan.kiszka@siemens.com>,
-        <baocheng.su@siemens.com>
-Subject: Re: [PATCH v3 2/3] arm64: dts: ti: Add reserved memory for watchdog
-Message-ID: <20230715052517.dinbn25ivsg4ocx2@subtitle>
-References: <20230713095127.1230109-1-huaqian.li@siemens.com>
- <20230713095127.1230109-3-huaqian.li@siemens.com>
- <20230714225240.dvlwqaodp2l3cczm@disfigure>
- <0b0e6961-1211-4765-2a63-4b69789dbbb3@roeck-us.net>
+        Mon, 17 Jul 2023 00:07:51 -0400
+Received: from mta-65-227.siemens.flowmailer.net (mta-65-227.siemens.flowmailer.net [185.136.65.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F7BA107
+        for <linux-watchdog@vger.kernel.org>; Sun, 16 Jul 2023 21:07:50 -0700 (PDT)
+Received: by mta-65-227.siemens.flowmailer.net with ESMTPSA id 20230717040750b3b1d78ff08c3c81a0
+        for <linux-watchdog@vger.kernel.org>;
+        Mon, 17 Jul 2023 06:07:50 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
+ d=siemens.com; i=huaqian.li@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=Nj21lCdl8nb8wOaJjf94cou6OITTnAi/oVfGe4ko348=;
+ b=eoZV0bRPzryisQa4vKAPfKQvEID9x2QvXYRc8XBGVtHruXc7Uq7All8KaSBDcNj+cPpUfn
+ kMA7oQe4XRThHLUOU742XfDWuLRnQfvqeZNrfqCSR74e9oLnlvsnifXl0nrOzY3kwMGA0gED
+ 1FhezfXzv8C962zXJlcKyPKTmnc1A=;
+From:   huaqian.li@siemens.com
+To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
+Cc:     huaqianlee@gmail.com, nm@ti.com, vigneshr@ti.com,
+        kristo@kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, jan.kiszka@siemens.com,
+        baocheng.su@siemens.com, Li Hua Qian <huaqian.li@siemens.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Conor Dooley <conor@kernel.org>, Rob Herring <robh@kernel.org>
+Subject: [PATCH v4 1/3] dt-bindings: watchdog: ti,rti-wdt: Add support for WDIOF_CARDRESET
+Date:   Mon, 17 Jul 2023 12:07:21 +0800
+Message-Id: <20230717040723.1306374-2-huaqian.li@siemens.com>
+In-Reply-To: <20230717040723.1306374-1-huaqian.li@siemens.com>
+References: <20230717040723.1306374-1-huaqian.li@siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <0b0e6961-1211-4765-2a63-4b69789dbbb3@roeck-us.net>
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-959203:519-21489:flowmailer
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 16:27-20230714, Guenter Roeck wrote:
-> On 7/14/23 15:52, Nishanth Menon wrote:
-> > On 17:51-20230713, huaqian.li@siemens.com wrote:
-> > > From: Li Hua Qian <huaqian.li@siemens.com>
-> > 
-> > I guess I should be explicit about this: Lets keep this dts patch as
-> > "DONOTMERGE" in subject line for driver subsystem maintainer (I don't
-> > want a repeat of cpufreq maintainers picking up dts and associated
-> > warnings that are now pending fixes), resubmit at next rc1 and I can
-> > queue up the dts once the maintainers pick up the driver and bindings.
-> > 
-> 
-> FWIW, I never pick up patches outside drivers/hwmon without explicit Ack
-> from responsible maintainers (and most definitely not dts patches unless
-> a maintainer responsible for the file(s) specifically asks me to do it
-> (which I think never happened).
+From: Li Hua Qian <huaqian.li@siemens.com>
 
-Oops Guenter, didn't mean to indicate your tree :( -> just wanted
-to ensure that developers are clearly aware of what happens with
-cross posting series involving multiple maintainers and level set
-their expectations. Saves a bunch of private pings later on :)
+TI RTI (Real Time Interrupt) Watchdog doesn't support to record the
+watchdog cause. Add a reserved memory to know the last reboot was caused
+by the watchdog card. In the reserved memory, some specific info will be
+saved to indicate whether the watchdog reset was triggered in last
+boot.
 
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Conor Dooley <conor@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../bindings/watchdog/ti,rti-wdt.yaml         | 41 +++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+index fc553211e42d..4b66c4fcdf35 100644
+--- a/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/ti,rti-wdt.yaml
+@@ -34,6 +34,20 @@ properties:
+   power-domains:
+     maxItems: 1
+ 
++  memory-region:
++    maxItems: 1
++    description:
++      Contains the watchdog reserved memory. It is optional.
++      In the reserved memory, the specified values, which are
++      PON_REASON_SOF_NUM(0xBBBBCCCC), PON_REASON_MAGIC_NUM(0xDDDDDDDD),
++      and PON_REASON_EOF_NUM(0xCCCCBBBB), are pre-stored at the first
++      3 * 4 bytes to tell that last boot was caused by watchdog reset.
++      Once the PON reason is captured by driver(rti_wdt.c), the driver
++      is supposed to wipe the whole memory region. Surely, if this
++      property is set, at least 12 bytes reserved memory starting from
++      specific memory address(0xa220000) should be set. More please
++      refer to Example 2.
++
+ required:
+   - compatible
+   - reg
+@@ -59,3 +73,30 @@ examples:
+         assigned-clocks = <&k3_clks 252 1>;
+         assigned-clock-parents = <&k3_clks 252 5>;
+     };
++
++  - |
++    // Example 2 (Add reserved memory for watchdog reset cause):
++    /*
++     * RTI WDT in main domain on J721e SoC. Assigned clocks are used to
++     * select the source clock for the watchdog, forcing it to tick with
++     * a 32kHz clock in this case. Add a reserved memory to keep the
++     * watchdog reset cause persistent, which was be written in 12 bytes
++     * starting from 0xa2200000 by RTI Watchdog Firmware.
++     *
++     * Reserved memory should be defined as follows:
++     * reserved-memory {
++     *     wdt_reset_memory_region: wdt-memory@a2200000 {
++     *         reg = <0x00 0xa2200000 0x00 0x1000>;
++     *         no-map;
++     *     };
++     * }
++     */
++    watchdog@40610000 {
++        compatible = "ti,j7-rti-wdt";
++        reg = <0x40610000 0x100>;
++        clocks = <&k3_clks 135 1>;
++        power-domains = <&k3_pds 135 TI_SCI_PD_EXCLUSIVE>;
++        assigned-clocks = <&k3_clks 135 0>;
++        assigned-clock-parents = <&k3_clks 135 4>;
++        memory-region = <&wdt_reset_memory_region>;
++    };
 -- 
-Regards,
-Nishanth Menon
-Key (0xDDB5849D1736249D) / Fingerprint: F8A2 8693 54EB 8232 17A3  1A34 DDB5 849D 1736 249D
+2.34.1
+
