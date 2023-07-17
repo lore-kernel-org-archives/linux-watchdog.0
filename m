@@ -2,31 +2,30 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0D59C001DC
-	for <linux-watchdog@archiver.kernel.org>; Mon, 17 Jul 2023 04:09:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77D4AC001DF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 17 Jul 2023 04:09:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230338AbjGQEJB (ORCPT
+        id S230350AbjGQEJB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
         Mon, 17 Jul 2023 00:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54340 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbjGQEI7 (ORCPT
+        with ESMTP id S230006AbjGQEJA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Jul 2023 00:08:59 -0400
-X-Greylist: delayed 72 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 16 Jul 2023 21:08:58 PDT
+        Mon, 17 Jul 2023 00:09:00 -0400
 Received: from mta-65-225.siemens.flowmailer.net (mta-65-225.siemens.flowmailer.net [185.136.65.225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C421B0
-        for <linux-watchdog@vger.kernel.org>; Sun, 16 Jul 2023 21:08:58 -0700 (PDT)
-Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 20230717040743bf8ab7b8905a53b6fc
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD4F1B1
+        for <linux-watchdog@vger.kernel.org>; Sun, 16 Jul 2023 21:08:59 -0700 (PDT)
+Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 2023071704075516e709fa13db1f3d40
         for <linux-watchdog@vger.kernel.org>;
-        Mon, 17 Jul 2023 06:07:44 +0200
+        Mon, 17 Jul 2023 06:07:55 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
  d=siemens.com; i=huaqian.li@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
- bh=2amEu1G12NZIgjsL6jNeeisGyannGfGoc2STnkTzbqA=;
- b=D18pT6YiMNcSeR9UCwbsLr+w5HCnYhuDWh0Y/kBtWuuMxIDeLmRebcB9+fAdvDR5Nfi7oA
- wf16rsXR39/6+bmCIHH8GOs+S1j8b8MSY1zwtYiRhfxvfdFi7b9ueZ15Vw91AElxLAYXS1Nk
- IjoNw1FYfYzVp2tdl5z/6p7gyH4mo=;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=l4ktlrcu4GUa4V9vRJv+/UGGmR9aCehF0jFIKJuers8=;
+ b=I533ubOHe26F2Ci7FuX4+gwX/WdGYvl3rl0bv2dowZFJqtbKcfAqOdvjOtmp9bngE5TyN3
+ UcBAlRBLJTLNOuy2KCMb690jbOAaBDWqPfrk092AONLvi9q6i0NalzKTRulzCF1vcsytz7u1
+ Oggl198eRUu+q/psu1hVSVxAIhRns=;
 From:   huaqian.li@siemens.com
 To:     wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
@@ -34,10 +33,13 @@ Cc:     huaqianlee@gmail.com, nm@ti.com, vigneshr@ti.com,
         kristo@kernel.org, linux-watchdog@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, jan.kiszka@siemens.com,
-        baocheng.su@siemens.com, Li Hua Qian <huaqian.li@siemens.com>
-Subject: [PATCH v4 0/3] Add support for WDIOF_CARDRESET on TI AM65x
-Date:   Mon, 17 Jul 2023 12:07:20 +0800
-Message-Id: <20230717040723.1306374-1-huaqian.li@siemens.com>
+        baocheng.su@siemens.com, Li Hua Qian <huaqian.li@siemens.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [DONOTMERGE PATCH v4 2/3] arm64: dts: ti: Add reserved memory for watchdog
+Date:   Mon, 17 Jul 2023 12:07:22 +0800
+Message-Id: <20230717040723.1306374-3-huaqian.li@siemens.com>
+In-Reply-To: <20230717040723.1306374-1-huaqian.li@siemens.com>
+References: <20230717040723.1306374-1-huaqian.li@siemens.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Flowmailer-Platform: Siemens
@@ -48,45 +50,41 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Li Hua Qian <huaqian.li@siemens.com>
 
-The watchdog hardware of TI AM65X platform does not support
-WDIOF_CARDRESET feature, add a reserved memory to save the watchdog
-reset cause, to know if the board reboot is due to a watchdog reset.
+This patch adds a reserved memory for the TI AM65X platform watchdog to
+reserve the specific info, triggering the watchdog reset in last boot,
+to know if the board reboot is due to a watchdog reset.
 
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
-Changes in v4:
-- Fix the coding style.
-- Add usage note for the reserved memory.
-- Link to v3:
-  https://lore.kernel.org/linux-watchdog/20230713095127.1230109-1-huaqian.li@siemens.com
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Changes in v3:
-- Add memory-region back for the reserved memory, and remove reserved
-  memory from the watchdog IO address space.
-- Add changelog.
-- Link to v2:
-  https://lore.kernel.org/linux-watchdog/20230711091713.1113010-1-huaqian.li@siemens.com
-
-Changes in v2:
-- Remove memory-region and memory-size properties, and bind the reserved
-  memory to watchdog IO address space.
-- Remove the unnecessary rti_wdt_ioctl.
-- Fix the mail list
-- Link to v1:
-  https://lore.kernel.org/all/3137d87e56ef75ba0b8a923d407b2fecace6ccbd.camel@siemens.com
-  v1 had a wrong mail list at the beginning, and the mail thread was
-  messed up.
-
-Li Hua Qian (3):
-  dt-bindings: watchdog: ti,rti-wdt: Add support for WDIOF_CARDRESET
-  arm64: dts: ti: Add reserved memory for watchdog
-  watchdog:rit_wdt: Add support for WDIOF_CARDRESET
-
- .../bindings/watchdog/ti,rti-wdt.yaml         | 41 ++++++++++++++++
- .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 10 ++++
- drivers/watchdog/rti_wdt.c                    | 48 +++++++++++++++++++
- 3 files changed, 99 insertions(+)
-
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index e26bd988e522..4bb20d493651 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -63,6 +63,12 @@ rtos_ipc_memory_region: ipc-memories@a2000000 {
+ 			alignment = <0x1000>;
+ 			no-map;
+ 		};
++
++		/* To reserve the power-on(PON) reason for watchdog reset */
++		wdt_reset_memory_region: wdt-memory@a2200000 {
++			reg = <0x00 0xa2200000 0x00 0x1000>;
++			no-map;
++		};
+ 	};
+ 
+ 	leds {
+@@ -718,3 +724,7 @@ &mcu_r5fss0_core1 {
+ 			<&mcu_r5fss0_core1_memory_region>;
+ 	mboxes = <&mailbox0_cluster1>, <&mbox_mcu_r5fss0_core1>;
+ };
++
++&mcu_rti1 {
++	memory-region = <&wdt_reset_memory_region>;
++};
 -- 
 2.34.1
 
