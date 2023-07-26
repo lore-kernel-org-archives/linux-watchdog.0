@@ -2,23 +2,23 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98F2FC001B0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 26 Jul 2023 11:23:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DDB2C001B0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 26 Jul 2023 11:23:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233131AbjGZLXS (ORCPT
+        id S233273AbjGZLXZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 26 Jul 2023 07:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52464 "EHLO
+        Wed, 26 Jul 2023 07:23:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbjGZLXQ (ORCPT
+        with ESMTP id S233222AbjGZLXW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 26 Jul 2023 07:23:16 -0400
+        Wed, 26 Jul 2023 07:23:22 -0400
 Received: from mail-sh.amlogic.com (mail-sh.amlogic.com [58.32.228.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194A4FD;
-        Wed, 26 Jul 2023 04:22:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377A3131;
+        Wed, 26 Jul 2023 04:22:34 -0700 (PDT)
 Received: from rd02-sz.amlogic.software (10.28.11.83) by mail-sh.amlogic.com
  (10.18.11.5) with Microsoft SMTP Server id 15.1.2507.13; Wed, 26 Jul 2023
- 19:22:07 +0800
+ 19:22:09 +0800
 From:   Huqiang Qin <huqiang.qin@amlogic.com>
 To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
         <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
@@ -30,9 +30,9 @@ CC:     <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-amlogic@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         Huqiang Qin <huqiang.qin@amlogic.com>
-Subject: [PATCH 1/4] dt-bindings: watchdog: Add support for Amlogic-T7 SoCs
-Date:   Wed, 26 Jul 2023 19:21:43 +0800
-Message-ID: <20230726112146.1127145-2-huqiang.qin@amlogic.com>
+Subject: [PATCH 3/4] watchdog: Add support for Amlogic-T7 SoCs
+Date:   Wed, 26 Jul 2023 19:21:45 +0800
+Message-ID: <20230726112146.1127145-4-huqiang.qin@amlogic.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20230726112146.1127145-1-huqiang.qin@amlogic.com>
 References: <20230726112146.1127145-1-huqiang.qin@amlogic.com>
@@ -44,25 +44,32 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Update dt-binding document for watchdog of Amlogic-T7 SoCs.
+Compared with the previous Amlogic-GXBB, the watchdog of Amlogic-T7
+has a different reset enable bit.
 
 Signed-off-by: Huqiang Qin <huqiang.qin@amlogic.com>
 ---
- .../devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml     | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/meson_gxbb_wdt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-index f5cc7aa1b93b..443e2e7ab467 100644
---- a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-@@ -17,6 +17,7 @@ properties:
-   compatible:
-     enum:
-       - amlogic,meson-gxbb-wdt
-+      - amlogic,t7-wdt
+diff --git a/drivers/watchdog/meson_gxbb_wdt.c b/drivers/watchdog/meson_gxbb_wdt.c
+index a6c0d743b607..dc48b0a332c3 100644
+--- a/drivers/watchdog/meson_gxbb_wdt.c
++++ b/drivers/watchdog/meson_gxbb_wdt.c
+@@ -147,8 +147,13 @@ static const struct wdt_params gxbb_params = {
+ 	.rst_shift = 21,
+ };
  
-   reg:
-     maxItems: 1
++static const struct wdt_params t7_params = {
++	.rst_shift = 22,
++};
++
+ static const struct of_device_id meson_gxbb_wdt_dt_ids[] = {
+ 	 { .compatible = "amlogic,meson-gxbb-wdt", .data = &gxbb_params, },
++	 { .compatible = "amlogic,t7-wdt", .data = &t7_params, },
+ 	 { /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, meson_gxbb_wdt_dt_ids);
 -- 
 2.37.1
 
