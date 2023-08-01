@@ -2,354 +2,176 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 172F3C001DE
-	for <linux-watchdog@archiver.kernel.org>; Mon, 31 Jul 2023 10:48:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 658B1EB64DD
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Aug 2023 04:46:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230212AbjGaKrw (ORCPT
+        id S229665AbjHAEqv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 31 Jul 2023 06:47:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38124 "EHLO
+        Tue, 1 Aug 2023 00:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229940AbjGaKrt (ORCPT
+        with ESMTP id S229660AbjHAEqt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 31 Jul 2023 06:47:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF890E53
-        for <linux-watchdog@vger.kernel.org>; Mon, 31 Jul 2023 03:47:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690800421;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mI5wUOEnZT5MMbC9DqxmGyKMLKWx0FpMXmr9pHBPoMo=;
-        b=KmAGYQda84Zc/Am/FdwQQTs7BZDf/d4nHAMlbw/SoDSR/b2WFXaMCCuafG/bo5+71mA9du
-        4gwRXfnZooghB1T5F40OYUnb3S541E/pXSWp060kQfwGImQ+rXqJLtBLdbhaPh2LKbA+uC
-        8Z1MoMkmldf11vOL620uvGhBzXRuRVQ=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-58-rR8tUHyMNdCcJlaF4NsMVw-1; Mon, 31 Jul 2023 06:46:59 -0400
-X-MC-Unique: rR8tUHyMNdCcJlaF4NsMVw-1
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2b8405aace3so38632581fa.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 31 Jul 2023 03:46:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690800417; x=1691405217;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mI5wUOEnZT5MMbC9DqxmGyKMLKWx0FpMXmr9pHBPoMo=;
-        b=Iw9ycq7c//nY7Wp6iltfw1PWgKHYsjpXsTT2LphQngfrBoyC9yKqY3uCINYsSyA9mn
-         QNTceQmeuIaLRScYKPvDAXQfG00SU6bhsHiWTMInGDv7SIYHaSxvMUe+ml6OWIP10S5c
-         yw9NDNAkumopB88o4DMTEymJxv2Db0nqsElbMXgCBDuTjOTIYg6wTKd49pQh4GBwK9dG
-         vTeKy2sg98NUmggfnyU/fhM918eaVPEJA2mgACS2DUG21HZCT/9niJZ5i6hG8RFjmYuv
-         iv8qe5KJ4pKt0fqG09Vp4d1QuRlup6msoHkSi0StR39gU9geDJShPBCvkgEcpU3EO4Wd
-         /TXA==
-X-Gm-Message-State: ABy/qLa0ON1vd9fRBxNiwy0AAQkShfhGYCiCVYgvapoTti0AYgU1LWld
-        YR4EWLHd4iSlxFO8UchO5++0YZwHVbx3LSf3+cKu3WPLvsvGBESIEMlb3SwAKScTKuYU0k2hOb6
-        e+FewyFQu5Rq/1cXbRjOdVa4YzrE=
-X-Received: by 2002:a2e:80c5:0:b0:2b9:ee3e:240b with SMTP id r5-20020a2e80c5000000b002b9ee3e240bmr1129328ljg.41.1690800417701;
-        Mon, 31 Jul 2023 03:46:57 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHcXUe3wE+uQC1mdFXAZd/fTs7afCX1RT6gv70TGoakC/qgwTeUPzG9yZlbaQEaKty2GNFOnw==
-X-Received: by 2002:a2e:80c5:0:b0:2b9:ee3e:240b with SMTP id r5-20020a2e80c5000000b002b9ee3e240bmr1129302ljg.41.1690800417231;
-        Mon, 31 Jul 2023 03:46:57 -0700 (PDT)
-Received: from [10.40.98.142] ([78.108.130.194])
-        by smtp.gmail.com with ESMTPSA id t26-20020a1709064f1a00b0099bd86f9248sm5983673eju.63.2023.07.31.03.46.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Jul 2023 03:46:56 -0700 (PDT)
-Message-ID: <befb4205-2457-1e9f-1722-c583642a6607@redhat.com>
-Date:   Mon, 31 Jul 2023 12:46:56 +0200
+        Tue, 1 Aug 2023 00:46:49 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69DF210C7;
+        Mon, 31 Jul 2023 21:46:48 -0700 (PDT)
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3712XAD7021689;
+        Mon, 31 Jul 2023 21:46:31 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=ewKtmKa73JfXtQvdkvNowev2HAcGMB8AogjqYSMc2io=;
+ b=hKzYQSAMmIYeo6HHr6RTO4aFzkqups18oAvv+FMfdS4j3EX82EJ4nkgY937U7D+aHGza
+ dWfLWpVUlXk8kdfk92OJp5gORAsrjukSUOM/cy24qNylUIuMW2Mto5TpS+Ini3ygvDdO
+ t4B7j5yUZOZaWGMbzr0XslDLBHrXPhywtJAFi1jO+HNlsLvzvXdh0edINzGMJnckisAu
+ f9HMh3rPixZTfHmZ9MjM/BaN2mV0WyuprlLOFM/fyP1gX+tkX7+fBObUkdFt+//+JNX0
+ TOl7/2YDqc4iz8mYzmRLbuWkzq284pLrEQrY7BJ2m6UgQ715nx5ZpHDFrBG9zgii0ekP ag== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3s6du0aw1s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jul 2023 21:46:31 -0700
+Received: from DC5-EXCH01.marvell.com (10.69.176.38) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Mon, 31 Jul
+ 2023 21:46:29 -0700
+Received: from bbhushan2.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
+ Transport; Mon, 31 Jul 2023 21:46:26 -0700
+From:   Bharat Bhushan <bbhushan2@marvell.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <sgoutham@marvell.com>
+CC:     Bharat Bhushan <bbhushan2@marvell.com>
+Subject: [PATCH 1/2 v10] dt-bindings: watchdog: marvell GTI system watchdog driver
+Date:   Tue, 1 Aug 2023 10:16:22 +0530
+Message-ID: <20230801044623.9275-1-bbhushan2@marvell.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH v2 3/3] platform/x86: Move all simatic ipc drivers to the
- subdirectory siemens
-Content-Language: en-US
-To:     Henning Schild <henning.schild@siemens.com>,
-        Lee Jones <lee@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc:     Pavel Machek <pavel@ucw.cz>, Mark Gross <markgross@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tobias Schaffner <tobias.schaffner@siemens.com>
-References: <20230719153518.13073-1-henning.schild@siemens.com>
- <20230719153518.13073-4-henning.schild@siemens.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20230719153518.13073-4-henning.schild@siemens.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Proofpoint-GUID: hkVvKA2_BIyXE3tI1uxqPjy9BMgOGvfs
+X-Proofpoint-ORIG-GUID: hkVvKA2_BIyXE3tI1uxqPjy9BMgOGvfs
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-01_02,2023-07-31_02,2023-05-22_02
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+Add binding documentation for the Marvell GTI system
+watchdog driver.
 
-On 7/19/23 17:35, Henning Schild wrote:
-> With more files around move everything to a subdirectory. Users will
-> only see the several options once they enable the main one.
-> 
-> Suggested-by: Hans de Goede <hdegoede@redhat.com>
-> Signed-off-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+v10:
+ - Added Reviewed by Krzysztof Kozlowski
 
-Thank you, I have merged this entire series into
-the platform-drivers-x86-simatic-ipc branch now:
+v9:
+ - Rename binding file name from marvell,octeontx2-wdt.yaml to
+   marvell,cn10624-wdt.yaml
+ - "allOf: - $ref: watchdog.yaml#" moved after maintainers
+ - clocks have maxItems rather than minItems
+ - Added "clock-names" name defination
+ - Added Fallback to compatible
 
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=platform-drivers-x86-simatic-ipc
+v8:
+  - Compatible name as per soc name
 
-I did make 2 small changes to patch 3/3 while merging:
+ .../watchdog/marvell,cn10624-wdt.yaml         | 83 +++++++++++++++++++
+ 1 file changed, 83 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/marvell,cn10624-wdt.yaml
 
-1. Only decend into the siemens subdir if CONFIG_SIEMENS_SIMATIC_IPC is set:
-
---- a/drivers/platform/x86/Makefile
-+++ b/drivers/platform/x86/Makefile
-@@ -131,7 +131,7 @@ obj-$(CONFIG_INTEL_SCU_IPC_UTIL)	+= intel_scu_ipcutil.o
- obj-$(CONFIG_X86_INTEL_LPSS)		+= pmc_atom.o
- 
- # Siemens Simatic Industrial PCs
--obj-y					+= siemens/
-+obj-$(CONFIG_SIEMENS_SIMATIC_IPC)	+= siemens/
- 
- # Winmate
- obj-$(CONFIG_WINMATE_FM07_KEYS)		+= winmate-fm07-keys.o
-
-2. Move the "default SIEMENS_SIMATIC_IPC*" lines to directly under
-the "tristate ..." lines as suggested by Andy.
-
-Note it will show up there once I've pushed my
-local branch there, which might take a while.
-
-Once I've run some tests on this branch the patches there will be
-merged into the platform-drivers-x86/for-next branch and eventually
-will be included in the pdx86 pull-request to Linus for the next
-merge-window.
-
-Regards,
-
-Hans
-
-
-
-
-
-
-> ---
->  drivers/platform/x86/Kconfig                  | 59 +----------------
->  drivers/platform/x86/Makefile                 |  6 +-
->  drivers/platform/x86/siemens/Kconfig          | 63 +++++++++++++++++++
->  drivers/platform/x86/siemens/Makefile         | 11 ++++
->  .../simatic-ipc-batt-apollolake.c             |  0
->  .../simatic-ipc-batt-elkhartlake.c            |  0
->  .../{ => siemens}/simatic-ipc-batt-f7188x.c   |  0
->  .../x86/{ => siemens}/simatic-ipc-batt.c      |  0
->  .../x86/{ => siemens}/simatic-ipc-batt.h      |  0
->  .../platform/x86/{ => siemens}/simatic-ipc.c  |  0
->  10 files changed, 76 insertions(+), 63 deletions(-)
->  create mode 100644 drivers/platform/x86/siemens/Kconfig
->  create mode 100644 drivers/platform/x86/siemens/Makefile
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc-batt-apollolake.c (100%)
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc-batt-elkhartlake.c (100%)
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc-batt-f7188x.c (100%)
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc-batt.c (100%)
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc-batt.h (100%)
->  rename drivers/platform/x86/{ => siemens}/simatic-ipc.c (100%)
-> 
-> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-> index 487d3d8f4da9..f5fcb1ca1b63 100644
-> --- a/drivers/platform/x86/Kconfig
-> +++ b/drivers/platform/x86/Kconfig
-> @@ -1074,64 +1074,7 @@ config INTEL_SCU_IPC_UTIL
->  	  low level access for debug work and updating the firmware. Say
->  	  N unless you will be doing this on an Intel MID platform.
->  
-> -config SIEMENS_SIMATIC_IPC
-> -	tristate "Siemens Simatic IPC Class driver"
-> -	help
-> -	  This Simatic IPC class driver is the central of several drivers. It
-> -	  is mainly used for system identification, after which drivers in other
-> -	  classes will take care of driving specifics of those machines.
-> -	  i.e. LEDs and watchdog.
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called simatic-ipc.
-> -
-> -config SIEMENS_SIMATIC_IPC_BATT
-> -	tristate "CMOS battery driver for Siemens Simatic IPCs"
-> -	depends on HWMON
-> -	depends on SIEMENS_SIMATIC_IPC
-> -	default SIEMENS_SIMATIC_IPC
-> -	help
-> -	  This option enables support for monitoring the voltage of the CMOS
-> -	  batteries of several Industrial PCs from Siemens.
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called simatic-ipc-batt.
-> -
-> -config SIEMENS_SIMATIC_IPC_BATT_APOLLOLAKE
-> -	tristate "CMOS Battery monitoring for Simatic IPCs based on Apollo Lake GPIO"
-> -	depends on PINCTRL_BROXTON
-> -	depends on SIEMENS_SIMATIC_IPC_BATT
-> -	default SIEMENS_SIMATIC_IPC_BATT
-> -	help
-> -	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> -	  from Siemens based on Apollo Lake GPIO.
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called simatic-ipc-batt-apollolake.
-> -
-> -config SIEMENS_SIMATIC_IPC_BATT_ELKHARTLAKE
-> -	tristate "CMOS Battery monitoring for Simatic IPCs based on Elkhart Lake GPIO"
-> -	depends on PINCTRL_ELKHARTLAKE
-> -	depends on SIEMENS_SIMATIC_IPC_BATT
-> -	default SIEMENS_SIMATIC_IPC_BATT
-> -	help
-> -	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> -	  from Siemens based on Elkhart Lake GPIO.
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called simatic-ipc-batt-elkhartlake.
-> -
-> -config SIEMENS_SIMATIC_IPC_BATT_F7188X
-> -	tristate "CMOS Battery monitoring for Simatic IPCs based on Nuvoton GPIO"
-> -	depends on GPIO_F7188X
-> -	depends on SIEMENS_SIMATIC_IPC_BATT
-> -	default SIEMENS_SIMATIC_IPC_BATT
-> -	help
-> -	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> -	  from Siemens based on Nuvoton GPIO.
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called simatic-ipc-batt-elkhartlake.
-> +source "drivers/platform/x86/siemens/Kconfig"
->  
->  config WINMATE_FM07_KEYS
->  	tristate "Winmate FM07/FM07P front-panel keys driver"
-> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-> index 522da0d1584d..d4a6c18d0dde 100644
-> --- a/drivers/platform/x86/Makefile
-> +++ b/drivers/platform/x86/Makefile
-> @@ -131,11 +131,7 @@ obj-$(CONFIG_INTEL_SCU_IPC_UTIL)	+= intel_scu_ipcutil.o
->  obj-$(CONFIG_X86_INTEL_LPSS)		+= pmc_atom.o
->  
->  # Siemens Simatic Industrial PCs
-> -obj-$(CONFIG_SIEMENS_SIMATIC_IPC)			+= simatic-ipc.o
-> -obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT)			+= simatic-ipc-batt.o
-> -obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_APOLLOLAKE)	+= simatic-ipc-batt-apollolake.o
-> -obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_ELKHARTLAKE)	+= simatic-ipc-batt-elkhartlake.o
-> -obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_F7188X)		+= simatic-ipc-batt-f7188x.o
-> +obj-y					+= siemens/
->  
->  # Winmate
->  obj-$(CONFIG_WINMATE_FM07_KEYS)		+= winmate-fm07-keys.o
-> diff --git a/drivers/platform/x86/siemens/Kconfig b/drivers/platform/x86/siemens/Kconfig
-> new file mode 100644
-> index 000000000000..8e78dc609a38
-> --- /dev/null
-> +++ b/drivers/platform/x86/siemens/Kconfig
-> @@ -0,0 +1,63 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> +#
-> +# Siemens X86 Platform Specific Drivers
-> +#
-> +
-> +config SIEMENS_SIMATIC_IPC
-> +	tristate "Siemens Simatic IPC Class driver"
-> +	help
-> +	  This Simatic IPC class driver is the central of several drivers. It
-> +	  is mainly used for system identification, after which drivers in other
-> +	  classes will take care of driving specifics of those machines.
-> +	  i.e. LEDs and watchdog.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called simatic-ipc.
-> +
-> +config SIEMENS_SIMATIC_IPC_BATT
-> +	tristate "CMOS battery driver for Siemens Simatic IPCs"
-> +	depends on HWMON
-> +	depends on SIEMENS_SIMATIC_IPC
-> +	default SIEMENS_SIMATIC_IPC
-> +	help
-> +	  This option enables support for monitoring the voltage of the CMOS
-> +	  batteries of several Industrial PCs from Siemens.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called simatic-ipc-batt.
-> +
-> +config SIEMENS_SIMATIC_IPC_BATT_APOLLOLAKE
-> +	tristate "CMOS Battery monitoring for Simatic IPCs based on Apollo Lake GPIO"
-> +	depends on PINCTRL_BROXTON
-> +	depends on SIEMENS_SIMATIC_IPC_BATT
-> +	default SIEMENS_SIMATIC_IPC_BATT
-> +	help
-> +	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> +	  from Siemens based on Apollo Lake GPIO.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called simatic-ipc-batt-apollolake.
-> +
-> +config SIEMENS_SIMATIC_IPC_BATT_ELKHARTLAKE
-> +	tristate "CMOS Battery monitoring for Simatic IPCs based on Elkhart Lake GPIO"
-> +	depends on PINCTRL_ELKHARTLAKE
-> +	depends on SIEMENS_SIMATIC_IPC_BATT
-> +	default SIEMENS_SIMATIC_IPC_BATT
-> +	help
-> +	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> +	  from Siemens based on Elkhart Lake GPIO.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called simatic-ipc-batt-elkhartlake.
-> +
-> +config SIEMENS_SIMATIC_IPC_BATT_F7188X
-> +	tristate "CMOS Battery monitoring for Simatic IPCs based on Nuvoton GPIO"
-> +	depends on GPIO_F7188X
-> +	depends on SIEMENS_SIMATIC_IPC_BATT
-> +	default SIEMENS_SIMATIC_IPC_BATT
-> +	help
-> +	  This option enables CMOS battery monitoring for Simatic Industrial PCs
-> +	  from Siemens based on Nuvoton GPIO.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called simatic-ipc-batt-elkhartlake.
-> diff --git a/drivers/platform/x86/siemens/Makefile b/drivers/platform/x86/siemens/Makefile
-> new file mode 100644
-> index 000000000000..2b384b4cb8ba
-> --- /dev/null
-> +++ b/drivers/platform/x86/siemens/Makefile
-> @@ -0,0 +1,11 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +#
-> +# Makefile for linux/drivers/platform/x86/siemens
-> +# Siemens x86 Platform-Specific Drivers
-> +#
-> +
-> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC)			+= simatic-ipc.o
-> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT)			+= simatic-ipc-batt.o
-> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_APOLLOLAKE)	+= simatic-ipc-batt-apollolake.o
-> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_ELKHARTLAKE)	+= simatic-ipc-batt-elkhartlake.o
-> +obj-$(CONFIG_SIEMENS_SIMATIC_IPC_BATT_F7188X)		+= simatic-ipc-batt-f7188x.o
-> diff --git a/drivers/platform/x86/simatic-ipc-batt-apollolake.c b/drivers/platform/x86/siemens/simatic-ipc-batt-apollolake.c
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc-batt-apollolake.c
-> rename to drivers/platform/x86/siemens/simatic-ipc-batt-apollolake.c
-> diff --git a/drivers/platform/x86/simatic-ipc-batt-elkhartlake.c b/drivers/platform/x86/siemens/simatic-ipc-batt-elkhartlake.c
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc-batt-elkhartlake.c
-> rename to drivers/platform/x86/siemens/simatic-ipc-batt-elkhartlake.c
-> diff --git a/drivers/platform/x86/simatic-ipc-batt-f7188x.c b/drivers/platform/x86/siemens/simatic-ipc-batt-f7188x.c
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc-batt-f7188x.c
-> rename to drivers/platform/x86/siemens/simatic-ipc-batt-f7188x.c
-> diff --git a/drivers/platform/x86/simatic-ipc-batt.c b/drivers/platform/x86/siemens/simatic-ipc-batt.c
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc-batt.c
-> rename to drivers/platform/x86/siemens/simatic-ipc-batt.c
-> diff --git a/drivers/platform/x86/simatic-ipc-batt.h b/drivers/platform/x86/siemens/simatic-ipc-batt.h
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc-batt.h
-> rename to drivers/platform/x86/siemens/simatic-ipc-batt.h
-> diff --git a/drivers/platform/x86/simatic-ipc.c b/drivers/platform/x86/siemens/simatic-ipc.c
-> similarity index 100%
-> rename from drivers/platform/x86/simatic-ipc.c
-> rename to drivers/platform/x86/siemens/simatic-ipc.c
+diff --git a/Documentation/devicetree/bindings/watchdog/marvell,cn10624-wdt.yaml b/Documentation/devicetree/bindings/watchdog/marvell,cn10624-wdt.yaml
+new file mode 100644
+index 000000000000..1b583f232e53
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/marvell,cn10624-wdt.yaml
+@@ -0,0 +1,83 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/marvell,cn10624-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Marvell Global Timer (GTI) system watchdog
++
++maintainers:
++  - Bharat Bhushan <bbhushan2@marvell.com>
++
++allOf:
++  - $ref: watchdog.yaml#
++
++properties:
++  compatible:
++    oneOf:
++      - enum:
++          - marvell,cn9670-wdt
++          - marvell,cn10624-wdt
++
++      - items:
++          - enum:
++              - marvell,cn9880-wdt
++              - marvell,cnf9535-wdt
++          - const: marvell,cn9670-wdt
++
++      - items:
++          - enum:
++              - marvell,cn10308-wdt
++              - marvell,cnf10518-wdt
++          - const: marvell,cn10624-wdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: refclk
++
++  marvell,wdt-timer-index:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 63
++    description:
++      An SoC have many timers (up to 64), firmware can reserve one or more timer
++      for some other use case and configures one of the global timer as watchdog
++      timer. Firmware will update this field with the timer number configured
++      as watchdog timer.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    soc {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        watchdog@802000040000 {
++            compatible = "marvell,cn9670-wdt";
++            reg = <0x00008020 0x00040000 0x00000000 0x00020000>;
++            interrupts = <GIC_SPI 38 IRQ_TYPE_EDGE_RISING>;
++            clocks = <&sclk>;
++            clock-names = "refclk";
++            marvell,wdt-timer-index = <63>;
++        };
++    };
++
++...
+-- 
+2.17.1
 
