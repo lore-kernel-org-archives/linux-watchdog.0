@@ -2,100 +2,72 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E7AC04A94
-	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Aug 2023 19:14:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 206DEC001DF
+	for <linux-watchdog@archiver.kernel.org>; Wed,  2 Aug 2023 03:33:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232321AbjHATOx (ORCPT
+        id S232019AbjHBDdB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Aug 2023 15:14:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48060 "EHLO
+        Tue, 1 Aug 2023 23:33:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231143AbjHATOw (ORCPT
+        with ESMTP id S229928AbjHBDct (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Aug 2023 15:14:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9191F1BF0;
-        Tue,  1 Aug 2023 12:14:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F965616A7;
-        Tue,  1 Aug 2023 19:14:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 824A8C433C7;
-        Tue,  1 Aug 2023 19:14:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690917290;
-        bh=RricL0NBD2SlXPu5D6K3MkV2NfI2Fl9g7qhLIB9lKzs=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=ZmhBbI6q1rH8SwBWw7Bxp58j12JA0u4tagm4I1spQ4hymiK8n+VSfZn4bnDxGQ5eZ
-         zRTn75Ez47dqoWaZAC/USrqMPfbutYJpA39CcU3FzTLBDCEPbHVCDfqNZ5fHPNyVxi
-         F8p1YiI9Q3oxsyXvYMH07aFZjDm0ZBXeOqRDiHtNkE4yBNMT12zQQypoQw/I2MS8CT
-         9iVPIC5awUS2tzXak5s1SBNF9fSL0887T4zOFPmsLfd7I13Vvi5Ya20JsFXa6JB2fj
-         XC6b1TtXp+N/aGb6yueKNPuXaAKetcrrl1D/WntkFG00YSO5xydBVrzQ6jyiDJaa1k
-         EpxBXA8mJ1DRg==
-Message-ID: <54b4d761e5b16ffb798a89c1cea99714.sboyd@kernel.org>
-Content-Type: text/plain; charset="utf-8"
+        Tue, 1 Aug 2023 23:32:49 -0400
+Received: from mail-sh.amlogic.com (mail-sh.amlogic.com [58.32.228.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB1B12B;
+        Tue,  1 Aug 2023 20:32:47 -0700 (PDT)
+Received: from rd02-sz.amlogic.software (10.28.11.83) by mail-sh.amlogic.com
+ (10.18.11.5) with Microsoft SMTP Server id 15.1.2507.13; Wed, 2 Aug 2023
+ 11:32:28 +0800
+From:   Huqiang Qin <huqiang.qin@amlogic.com>
+To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <neil.armstrong@linaro.org>,
+        <khilman@baylibre.com>, <jbrunet@baylibre.com>,
+        <martin.blumenstingl@googlemail.com>
+CC:     <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-amlogic@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Huqiang Qin <huqiang.qin@amlogic.com>,
+        "Conor Dooley" <conor.dooley@microchip.com>
+Subject: [PATCH V2 1/4] dt-bindings: watchdog: Add support for Amlogic-T7 SoCs
+Date:   Wed, 2 Aug 2023 11:32:19 +0800
+Message-ID: <20230802033222.4024946-2-huqiang.qin@amlogic.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20230802033222.4024946-1-huqiang.qin@amlogic.com>
+References: <20230802033222.4024946-1-huqiang.qin@amlogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <ZLvyn0xq3Msk+lxF@probook>
-References: <20230428190226.1304326-1-j.neuschaefer@gmx.net> <20230428190226.1304326-3-j.neuschaefer@gmx.net> <4e0a5db18ed7d37038e67be0f1ddcb08.sboyd@kernel.org> <ZLvyn0xq3Msk+lxF@probook>
-Subject: Re: [PATCH v8 2/2] clk: wpcm450: Add Nuvoton WPCM450 clock/reset controller driver
-From:   Stephen Boyd <sboyd@kernel.org>
-Cc:     Jonathan =?utf-8?q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        linux-clk@vger.kernel.org, openbmc@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Tali Perry <tali.perry1@gmail.com>,
-        Patrick Venture <venture@google.com>,
-        Nancy Yuen <yuenn@google.com>,
-        Benjamin Fair <benjaminfair@google.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Joel Stanley <joel@jms.id.au>
-To:     Jonathan =?utf-8?q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
-Date:   Tue, 01 Aug 2023 12:14:48 -0700
-User-Agent: alot/0.10
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.28.11.83]
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Jonathan Neusch=C3=A4fer (2023-07-22 08:15:43)
-> On Thu, Jul 20, 2023 at 05:02:15PM -0700, Stephen Boyd wrote:
-> > Quoting Jonathan Neusch=C3=A4fer (2023-04-28 12:02:26)
-> > > diff --git a/drivers/clk/clk-wpcm450.c b/drivers/clk/clk-wpcm450.c
-> [...]
-> > > +static unsigned long wpcm450_clk_pll_recalc_rate(struct clk_hw *hw,
-> > > +                                                unsigned long parent=
-_rate)
-> > > +{
-> > > +       struct wpcm450_clk_pll *pll =3D to_wpcm450_clk_pll(hw);
-[...]
->=20
-> > > +static const struct wpcm450_pll_data pll_data[] =3D {
-> > > +       { "pll0", { .name =3D "ref" }, REG_PLLCON0, 0 },
-> >=20
-> > This is new code, please don't use .name. Instead use .fw_name or .inde=
-x with preference to
-> > .index first and .hw if the pointer is available in this driver.
->=20
-> As far as I can see, .fw_name and .index depend on a struct device*
-> being passed to clk_hw_register, which won't be available unless I
-> actually convert the driver to a platform driver.
+Update dt-binding document for watchdog of Amlogic-T7 SoCs.
 
-You can call of_clk_hw_register(), but a conversion to a platform driver
-is preferred.
+Signed-off-by: Huqiang Qin <huqiang.qin@amlogic.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+---
 
->=20
-> Not relying on .name would indeed be nice.
+V1 -> V2: Unchanged.
 
-Cool.
+ .../devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml     | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
+index f5cc7aa1b93b..443e2e7ab467 100644
+--- a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
+@@ -17,6 +17,7 @@ properties:
+   compatible:
+     enum:
+       - amlogic,meson-gxbb-wdt
++      - amlogic,t7-wdt
+ 
+   reg:
+     maxItems: 1
+-- 
+2.37.1
+
