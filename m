@@ -2,23 +2,23 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 206DEC001DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D11C1C04A6A
 	for <linux-watchdog@archiver.kernel.org>; Wed,  2 Aug 2023 03:33:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232019AbjHBDdB (ORCPT
+        id S231340AbjHBDdC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 1 Aug 2023 23:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59718 "EHLO
+        Tue, 1 Aug 2023 23:33:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229928AbjHBDct (ORCPT
+        with ESMTP id S229606AbjHBDcx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Aug 2023 23:32:49 -0400
+        Tue, 1 Aug 2023 23:32:53 -0400
 Received: from mail-sh.amlogic.com (mail-sh.amlogic.com [58.32.228.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB1B12B;
-        Tue,  1 Aug 2023 20:32:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94956E4D;
+        Tue,  1 Aug 2023 20:32:52 -0700 (PDT)
 Received: from rd02-sz.amlogic.software (10.28.11.83) by mail-sh.amlogic.com
  (10.18.11.5) with Microsoft SMTP Server id 15.1.2507.13; Wed, 2 Aug 2023
- 11:32:28 +0800
+ 11:32:30 +0800
 From:   Huqiang Qin <huqiang.qin@amlogic.com>
 To:     <wim@linux-watchdog.org>, <linux@roeck-us.net>,
         <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
@@ -30,10 +30,10 @@ CC:     <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-amlogic@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         Huqiang Qin <huqiang.qin@amlogic.com>,
-        "Conor Dooley" <conor.dooley@microchip.com>
-Subject: [PATCH V2 1/4] dt-bindings: watchdog: Add support for Amlogic-T7 SoCs
-Date:   Wed, 2 Aug 2023 11:32:19 +0800
-Message-ID: <20230802033222.4024946-2-huqiang.qin@amlogic.com>
+        "Dmitry Rokosov" <ddrokosov@sberdevices.ru>
+Subject: [PATCH V2 4/4] arm64: dts: Add watchdog node for Amlogic-T7 SoCs
+Date:   Wed, 2 Aug 2023 11:32:22 +0800
+Message-ID: <20230802033222.4024946-5-huqiang.qin@amlogic.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20230802033222.4024946-1-huqiang.qin@amlogic.com>
 References: <20230802033222.4024946-1-huqiang.qin@amlogic.com>
@@ -45,29 +45,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Update dt-binding document for watchdog of Amlogic-T7 SoCs.
+Add watchdog device.
 
 Signed-off-by: Huqiang Qin <huqiang.qin@amlogic.com>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
 ---
 
 V1 -> V2: Unchanged.
 
- .../devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml     | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-index f5cc7aa1b93b..443e2e7ab467 100644
---- a/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/amlogic,meson-gxbb-wdt.yaml
-@@ -17,6 +17,7 @@ properties:
-   compatible:
-     enum:
-       - amlogic,meson-gxbb-wdt
-+      - amlogic,t7-wdt
+diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi b/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
+index 1423d4a79156..6e34d11214b7 100644
+--- a/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
++++ b/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
+@@ -143,6 +143,12 @@ apb4: bus@fe000000 {
+ 			#size-cells = <2>;
+ 			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x480000>;
  
-   reg:
-     maxItems: 1
++			watchdog@2100 {
++				compatible = "amlogic,t7-wdt";
++				reg = <0x0 0x2100 0x0 0x10>;
++				clocks = <&xtal>;
++			};
++
+ 			uart_a: serial@78000 {
+ 				compatible = "amlogic,t7-uart", "amlogic,meson-s4-uart";
+ 				reg = <0x0 0x78000 0x0 0x18>;
 -- 
 2.37.1
 
