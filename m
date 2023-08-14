@@ -2,164 +2,126 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98A29C41513
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Aug 2023 08:50:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAEE1C04A94
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Aug 2023 08:52:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233497AbjHNItw (ORCPT
+        id S232910AbjHNIwD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 14 Aug 2023 04:49:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
+        Mon, 14 Aug 2023 04:52:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235340AbjHNItM (ORCPT
+        with ESMTP id S233147AbjHNIvp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2023 04:49:12 -0400
+        Mon, 14 Aug 2023 04:51:45 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E251737
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2023 01:48:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15BA10D
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2023 01:51:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1692002890;
+        s=mimecast20190719; t=1692003061;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PcuucrLtVYwCl1xaIpqj9xzz1ALk8SHx+jhC/+VTuqc=;
-        b=VYK4Pl4m/rldbJK9bssJMZR8M0Ct7sDwxrF12JcksPzmhAVQbnZf8DvjHOxbs6ey7iyUMm
-        OxWq1Iw+1bEG+umOAEimTVf1l0FQarFieCndHg0WHj03zOWk3u/KumBhfKmefGDPCHFAc3
-        aR6sHuBXViq8cISY7rJJh7jiAYkjRXk=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=a3gcnZKLEd0/sP/frTnZUie+RYs1JML9llgGix/2OeI=;
+        b=EL4quM3aUN0Ae1b/YQQ/s7e8le3yVJn3CUA8ZbEdmLH5mdfoxUaDmMjX4d5VY7CuQ1td5S
+        0pNCpTRtlMaXPazlNnJaFTetQ+pFsHPjYeh3MHHuBOc7hiBuyQQt1W7kAOcsFSpA4VjA4m
+        NFROWoP97OblMGgoIw/rF1fKYdVr8y8=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-440-Tcskr775MEWwKpMIv15TwQ-1; Mon, 14 Aug 2023 04:48:08 -0400
-X-MC-Unique: Tcskr775MEWwKpMIv15TwQ-1
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-5230741478cso2890218a12.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2023 01:48:08 -0700 (PDT)
+ us-mta-92-HNcaTAnPM3-NX6zTcbGhrg-1; Mon, 14 Aug 2023 04:51:00 -0400
+X-MC-Unique: HNcaTAnPM3-NX6zTcbGhrg-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-94a35b0d4ceso250707866b.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2023 01:51:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692002887; x=1692607687;
+        d=1e100.net; s=20221208; t=1692003059; x=1692607859;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PcuucrLtVYwCl1xaIpqj9xzz1ALk8SHx+jhC/+VTuqc=;
-        b=RanrAmzClkX1sMzcmxyJ/iH0wwMCZWGJYW7OVyI1ZC+zTdyrjF+NBD1dierL/LS1N6
-         CXzXeqoSOyyEZY9utjU5sRafTHjIuDKL1r81LD32FhZvcYpyLVGJvA/kYeAwYE+iKNfr
-         W6eEA8FNOdgTtIRqnlI/GNJgbcNRZw6uQThGmMrfBXLoND40ywhIhLh9Dcz98m0OLqNd
-         lh7uqfK253A52yggfOvjGMg0braPu5Go45FnOfs+M525mkmh7Yah5SRdKM1wTffcDOm+
-         8F/9NQqHv4cALMlrVJlqpa2rRVGBoKBvq2caK2/SyWkqtj9Xcr5AlmckcyS7oLfsRqns
-         oIsQ==
-X-Gm-Message-State: AOJu0YyCSThQIxDF57zgrsZkjOr4EZ6DYXX9xqugMX3kLGj4yeUu6xBT
-        SUuX7PW56eNhK/imfFsW2UBYpPK6kj7nOxdFOY9cPVjisSRUIcZzBmDQV+mBGjE8ArKFJI9AJf/
-        PIxMWQq/XpAT1H2lcrl03VXHIozk=
-X-Received: by 2002:a05:6402:160b:b0:525:6d74:7122 with SMTP id f11-20020a056402160b00b005256d747122mr385130edv.30.1692002887752;
-        Mon, 14 Aug 2023 01:48:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGZRIwcPXSfrqMZ/gV3wzmV4M3r0vG1YLEZjQHVuV/zDdrzfuNWF37yGexep3BV9kyar7AHnQ==
-X-Received: by 2002:a05:6402:160b:b0:525:6d74:7122 with SMTP id f11-20020a056402160b00b005256d747122mr385116edv.30.1692002887413;
-        Mon, 14 Aug 2023 01:48:07 -0700 (PDT)
+        bh=a3gcnZKLEd0/sP/frTnZUie+RYs1JML9llgGix/2OeI=;
+        b=gjX85psvXd8iy4YgPVbHBIuKiEEO8N2M/w6bLULJzV9gI1ycuKqi6C0ao0gthNB7OY
+         yxzJH04dVxdUOwk2kYCde6Byg17P8fms/f8TkzSedvoVdJMtLCNyx3WZLcv9UPVa5w8Y
+         5GlSs1hTqkbWm0pDnyxYzXeDKRxElYlwx0soKidbRoZtgoPegyQAcQrJvMvqH5dhgjnj
+         qqv8uxT6W8ZOCcT68dSy+bIi7wmErO34sPxnZJW718Cie2i8OMEP+7NRTAWW12sHneva
+         SEu3P/RJ/DdTDkPhuPp/G6pu7XO0wLjVvvT0SXZ/4IizSBYYJJt7Crm0pl1kXUBuR312
+         oGFQ==
+X-Gm-Message-State: AOJu0YyzjBTt+fZvKMLIL5Sqw+Gl/oWEMRDR4jAuSwrdbEzr6UKzY/AE
+        hXQqM44k3QQxq5DRSbJOElZ0W4F3bkqv4j/EE8MI36D/2dkZqPTt0z81sNPLq8PtDtlZky/qdZU
+        uAR4a8AoJFr0VPkz+12FronRO4mY=
+X-Received: by 2002:a17:906:1daa:b0:988:a986:b11c with SMTP id u10-20020a1709061daa00b00988a986b11cmr6559171ejh.29.1692003059413;
+        Mon, 14 Aug 2023 01:50:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IETTCjSXNj0S0mhYm5hz+lr/D6808KX57i2K5b+YUbNVOxibyLYE1n7UQOJHnQKm4MQyNw7Rg==
+X-Received: by 2002:a17:906:1daa:b0:988:a986:b11c with SMTP id u10-20020a1709061daa00b00988a986b11cmr6559162ejh.29.1692003059152;
+        Mon, 14 Aug 2023 01:50:59 -0700 (PDT)
 Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id d9-20020aa7d689000000b0052237dfa82fsm5238425edr.64.2023.08.14.01.48.06
+        by smtp.gmail.com with ESMTPSA id os5-20020a170906af6500b00993a37aebc5sm5399887ejb.50.2023.08.14.01.50.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Aug 2023 01:48:06 -0700 (PDT)
-Message-ID: <b510b97d-f613-66a6-711f-2b6dde72f884@redhat.com>
-Date:   Mon, 14 Aug 2023 10:48:06 +0200
+        Mon, 14 Aug 2023 01:50:58 -0700 (PDT)
+Message-ID: <672725bc-6ebf-0a35-96ab-8862be7de193@redhat.com>
+Date:   Mon, 14 Aug 2023 10:50:58 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
 Subject: Re: [PATCH] watchdog: simatic: add PCI dependency
 Content-Language: en-US, nl
-To:     "xingtong.wu" <xingtong_wu@163.com>,
+To:     Arnd Bergmann <arnd@arndb.de>, "xingtong.wu" <xingtong_wu@163.com>,
         Arnd Bergmann <arnd@kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andy Shevchenko <andy@kernel.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Haeussler, Gerd" <gerd.haeussler.ext@siemens.com>,
         "Schaffner, Tobias" <tobias.schaffner@siemens.com>,
-        "Wu, Xing Tong" <XingTong.Wu@siemens.com>
+        "xingtong.wu" <XingTong.Wu@siemens.com>
 References: <20230814073924.1066390-1-arnd@kernel.org>
  <a6c2f193-ef7c-54a0-dfbb-13915be259a1@163.com>
+ <1834eee9-3fbd-4bea-9e22-960ca993303c@app.fastmail.com>
 From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <a6c2f193-ef7c-54a0-dfbb-13915be259a1@163.com>
+In-Reply-To: <1834eee9-3fbd-4bea-9e22-960ca993303c@app.fastmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Xing Tong,
+Hi,
 
-On 8/14/23 10:27, xingtong.wu wrote:
-> Hi
+On 8/14/23 10:48, Arnd Bergmann wrote:
+> On Mon, Aug 14, 2023, at 10:27, xingtong.wu wrote:
 > 
-> On 2023/8/14 15:38, Arnd Bergmann wrote:
->> From: Arnd Bergmann <arnd@arndb.de>
+>>>  
+>>>  config SIEMENS_SIMATIC_IPC_WDT
+>>>  	tristate "Siemens Simatic IPC Watchdog"
+>>> -	depends on SIEMENS_SIMATIC_IPC
+>>> +	depends on SIEMENS_SIMATIC_IPC && PCI
 >>
->> The simatic-ipc driver no longer depends on PCI, but its watchdog portion
->> still needs it, otherwise P2SB runs into a build  failure:
+>> The SIEMENS_SIMATIC_IPC_WDT does not depends on PCI directly,
+>> it should depends on P2SB, then P2SB depends on PCI
+>>
+>>>  	default y
+>>>  	select WATCHDOG_CORE
+>>>  	select P2SB
+>>
+>> You can replace the "select" to "depends on" instead.
 > 
-> If the simatic-ipc driver no longer depends on PCI, you can
-> delete the dependency here:
-> https://elixir.bootlin.com/linux/v6.5-rc6/source/drivers/platform/x86/Kconfig#L1079
+> That would also work, but it's generally best not to mix
+> 'depends on' and 'select' for the same symbol. Changing
+> all three 'select P2SB' to 'depends on P2SB', or removing
+> the prompt to turn P2SB itself into a hidden symbol is
+> probably a good follow-up patch, but I'd keep that separate
+> from the regression fix.
 
-That has already been done, the latest code of the
-simatic-ipc support lives here:
+Right P2SB would benefit from being changed into a hidden
+symbol.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=platform-drivers-x86-simatic-ipc
-
-and there that depends on has been dropped, which is actually what is causing the issue this patch addresses.
-
->> WARNING: unmet direct dependencies detected for P2SB
->>   Depends on [n]: PCI [=n] && X86 [=y]
->>   Selected by [m]:
->>   - SIEMENS_SIMATIC_IPC_WDT [=m] && WATCHDOG [=y] && SIEMENS_SIMATIC_IPC [=y]
->>
->> drivers/platform/x86/p2sb.c:121:3: error: call to undeclared function 'pci_bus_write_config_dword'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
->>                 pci_bus_write_config_dword(bus, devfn_p2sb, P2SBC, 0);
->>
->> Add back the minimum dependendency to make it build in random configurations
->> again.
->>
->> Fixes: b72da71ce24b0 ("platform/x86: simatic-ipc: drop PCI runtime depends and header")
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> ---
->>  drivers/watchdog/Kconfig | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 04e9b40cf7d53..09452384221a4 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -1680,7 +1680,7 @@ config NIC7018_WDT
->>  
->>  config SIEMENS_SIMATIC_IPC_WDT
->>  	tristate "Siemens Simatic IPC Watchdog"
->> -	depends on SIEMENS_SIMATIC_IPC
->> +	depends on SIEMENS_SIMATIC_IPC && PCI
-> 
-> The SIEMENS_SIMATIC_IPC_WDT does not depends on PCI directly,
-> it should depends on P2SB, then P2SB depends on PCI
-
-P2SB is a helper library and as such it is selected by all code
-which needs it and when selecting the Kconfig entry doing
-the selecting Kconfig must either depend on or select all
-the Kconfig dependencies of the Kconfig entry it is selecting.
-
-> 
->>  	default y
->>  	select WATCHDOG_CORE
->>  	select P2SB
-> 
-> You can replace the "select" to "depends on" instead.
-
-No that would mean that we start mixing select and depends on
-for P2SB, where as currently all users use select.
-
-Mixing select and depends on is know to cause dependency
-cycle issues and thus should be avoided.
-
-Arnd's patch is correct as is (and I have merged it
-this morning).
+Andy, any comments on making P2SB a hidden symbol ?
 
 Regards,
 
 Hans
 
 
+> 
+>      Arnd
+> 
 
