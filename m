@@ -2,90 +2,83 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E50EEC001B0
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Aug 2023 14:20:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A386EC41513
+	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Aug 2023 14:35:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237540AbjHOOTd (ORCPT
+        id S237626AbjHOOeg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Aug 2023 10:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36656 "EHLO
+        Tue, 15 Aug 2023 10:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237565AbjHOOTO (ORCPT
+        with ESMTP id S237671AbjHOOeP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Aug 2023 10:19:14 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAA5173F;
-        Tue, 15 Aug 2023 07:19:13 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-99bfcf4c814so728419466b.0;
-        Tue, 15 Aug 2023 07:19:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692109151; x=1692713951;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=nhmVvg06wbI8jqCZG20CjBaE/opAQ91Hl7ndYxBDBhQ=;
-        b=f37BCx5cn3Ke5BGSr8QDfFO5rmMbMw7eoJnI2c6Y9SMyGZBTlXxnupL/hM4G34rHEZ
-         nT4XrOZA0GX6F9kUArQLnPYgT3rN5vY4cZyg6T6odxf0y9byEfo4l9fbTkaNLXgKqybh
-         EJBOKAHtbIyhRu7kjv395V5VWchcZSAm78kJ5SenkuUv57B5pr+5XgrQvLHxb9Awg6cH
-         feUBew6pe4AdEDkPBBVAlKOJ3PjP8Tb3InAVXCCYonucmzIW4Rf7OQ/Ei4+7lLAFo64j
-         ckiOG1H1lRf5vTHLiQZ5b4biVB+QcnWAB81H7mQnulIZ2ovIb5iQYIBYPuQRW2J81bv6
-         YGXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692109151; x=1692713951;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nhmVvg06wbI8jqCZG20CjBaE/opAQ91Hl7ndYxBDBhQ=;
-        b=fsIRaPy1xZOPE9Uq+JSUsL2CkssKylx3gEQVBxsuERTnRtZjAPTcGVAWc5rFoEc6H8
-         uzXq2oBuBUCN+R0XKwfMgFZOqGG75rGG3ylK510Cl+zAziUXuSW3ihCqJGq/fjLJxcny
-         7pgqFp0IYYO2aEj5IRnYXiofujPafKUQbXsaM4LAt59W2VmgXWmPAPnIS1+UgE9e08Hc
-         IDF09jPCPRnG7jSElM1u5GXoM1NZK3EPhiMLP/rUXXrpZsrF4cHeYr4cQZ7i+u+gHCN/
-         UHlMx7WanEAiOBg68/cl86s8razhj18Z9NZZvNbFVDO7ue4wjmRbwzFvmBJpNyjwyFj6
-         LbgA==
-X-Gm-Message-State: AOJu0Yyq3P516n7Lm7mk1tq5xxCO41dVqV0/Ozu73cYUJ+5k4/0ZLq+B
-        4L77GmitD2dHzseLpuRtf1g=
-X-Google-Smtp-Source: AGHT+IFhEEj+3Bu5Z3UwjEfEbtPfZLCwxJ1ns6kTyOOhp+h1AhvwBTnbkEkbhItRwiu18ULe5xTOTQ==
-X-Received: by 2002:a17:907:b1a:b0:99c:e38d:a824 with SMTP id h26-20020a1709070b1a00b0099ce38da824mr10170567ejl.37.1692109151491;
-        Tue, 15 Aug 2023 07:19:11 -0700 (PDT)
-Received: from fedora.. (dh207-96-14.xnet.hr. [88.207.96.14])
-        by smtp.googlemail.com with ESMTPSA id j15-20020a170906278f00b009926928d486sm7078743ejc.35.2023.08.15.07.19.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Aug 2023 07:19:10 -0700 (PDT)
-From:   Robert Marko <robimarko@gmail.com>
-To:     agross@kernel.org, andersson@kernel.org, konrad.dybcio@linaro.org,
+        Tue, 15 Aug 2023 10:34:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB9219A5;
+        Tue, 15 Aug 2023 07:34:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6148265A9F;
+        Tue, 15 Aug 2023 14:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 384A6C433C9;
+        Tue, 15 Aug 2023 14:34:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1692110052;
+        bh=W9vo2PdKtXrSJIynEYiJzeZB5KJmlvAg65mlSKyR8NQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bpAl/ltP69x0JYk2CLb8u4kszn41M6v8AebQP96E/u4Bgp26yBxFvU2B72djZ0b1K
+         vjv/cWivTCberHkE2SAvHll6MLaQi7UJI5hl+x4AzNhvWmGdW/3v3G+FFJPjW7Oqcu
+         ZPR0EwuFonDpNWbX6ILBrF5d40HSh5gaKsz9BS4yelQM+NNvF3pt9mu7xxUSNS+S+9
+         4wdMN+L94sPEMCMyxhGqCekpn7mbQzcWFiP3cadeu9J//qHgOSZbiH8J+z29DgIV88
+         hJyH1wQVqxmQLC1tXWVvqPV5nLNxrVRERRB7k80AWHUQ6VjhyFM7BW/Q2Qx5CdKZYT
+         +qTla5IFnGyXw==
+Date:   Tue, 15 Aug 2023 15:34:07 +0100
+From:   Conor Dooley <conor@kernel.org>
+To:     Robert Marko <robimarko@gmail.com>
+Cc:     agross@kernel.org, andersson@kernel.org, konrad.dybcio@linaro.org,
         wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
         quic_saipraka@quicinc.com, linux-arm-msm@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Robert Marko <robimarko@gmail.com>
-Subject: [PATCH 1/2] dt-bindings: watchdog: qcom-wdt: document IPQ5018
-Date:   Tue, 15 Aug 2023 16:17:50 +0200
-Message-ID: <20230815141908.1084893-1-robimarko@gmail.com>
-X-Mailer: git-send-email 2.41.0
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: qcom-wdt: document IPQ5018
+Message-ID: <20230815-lake-unleveled-6715563761c1@spud>
+References: <20230815141908.1084893-1-robimarko@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xtPWfmG6Uqc0nMuT"
+Content-Disposition: inline
+In-Reply-To: <20230815141908.1084893-1-robimarko@gmail.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document the IPQ5018 watchdog compatible.
 
-Signed-off-by: Robert Marko <robimarko@gmail.com>
----
- Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
- 1 file changed, 1 insertion(+)
+--xtPWfmG6Uqc0nMuT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-index 6d0fe6abd06a..5046dfa55f13 100644
---- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-@@ -18,6 +18,7 @@ properties:
-       - items:
-           - enum:
-               - qcom,kpss-wdt-ipq4019
-+              - qcom,apss-wdt-ipq5018
-               - qcom,apss-wdt-ipq5332
-               - qcom,apss-wdt-ipq9574
-               - qcom,apss-wdt-msm8994
--- 
-2.41.0
+On Tue, Aug 15, 2023 at 04:17:50PM +0200, Robert Marko wrote:
+> Document the IPQ5018 watchdog compatible.
+>=20
+> Signed-off-by: Robert Marko <robimarko@gmail.com>
 
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+
+Thanks,
+Conor.
+
+--xtPWfmG6Uqc0nMuT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZNuM3wAKCRB4tDGHoIJi
+0rHHAQDFnuSRyD1jZw9+1zcpM7FpByA+AkEzvv3ZTJBGOE4rUAEAzpRA90db0ME8
+GnyAUzQjdt5aDfS5BTFOFUakj7ggSgA=
+=1WeS
+-----END PGP SIGNATURE-----
+
+--xtPWfmG6Uqc0nMuT--
