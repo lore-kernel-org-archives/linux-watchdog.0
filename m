@@ -2,91 +2,104 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73EB7E7D0C2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Sep 2023 04:26:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 039F1E7D0C9
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Sep 2023 04:33:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbjIVE00 (ORCPT
+        id S229931AbjIVEdN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Sep 2023 00:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
+        Fri, 22 Sep 2023 00:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbjIVE00 (ORCPT
+        with ESMTP id S230167AbjIVEdL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Sep 2023 00:26:26 -0400
-X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Sep 2023 21:26:18 PDT
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C56F1;
-        Thu, 21 Sep 2023 21:26:18 -0700 (PDT)
-Received: from [192.168.68.112] (ppp14-2-88-115.adl-apt-pir-bras31.tpg.internode.on.net [14.2.88.115])
-        by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 12076201B9;
-        Fri, 22 Sep 2023 12:16:51 +0800 (AWST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=codeconstruct.com.au; s=2022a; t=1695356217;
-        bh=Qb0gRj6pnqlTclpvVQaaCBr09PUiG9zueH5w8ndfnhk=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References;
-        b=Hg/jnYstvcPUnQYL7gXd43PHO+Cy5vuOCBxTd3C/au0t02Z1QLZB+yiTYoG2IkuU4
-         9JIDRFmpJFTDDJbnKB0iO9xFWyWSq2WHirAma7WtkuA+6Io3MT/IbRHkmuvyvxScR8
-         RO4T/44rfsOv7adGIcwkYeFZmfdGTSn2rUJxOW4AfDTlVOuqIkS8/AGFFaahnfUUb9
-         /gyrPVeacfZahfQjrvco1R1ztvzSD/4kyBAmsl+mm2+rCoeRnFn+8oTiRoGR0uCI6C
-         7gD5p0XannjiyPhnwVJCE0TLzPQ2GT466QgZZRhzuyo5WTV31Z5g8RZc7inBxDDLJ9
-         H7/7om750V2PQ==
-Message-ID: <91be26169ebbddf3c05cd19626478246cb72a72a.camel@codeconstruct.com.au>
-Subject: Re: [PATCH] watchdog: aspeed: Add sysfs attributes for reset mask
- bits
-From:   Andrew Jeffery <andrew@codeconstruct.com.au>
-To:     Zev Weiss <zev@bewilderbeest.net>,
+        Fri, 22 Sep 2023 00:33:11 -0400
+X-Greylist: delayed 10626 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Sep 2023 21:33:05 PDT
+Received: from thorn.bewilderbeest.net (thorn.bewilderbeest.net [71.19.156.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B714F1;
+        Thu, 21 Sep 2023 21:33:04 -0700 (PDT)
+Received: from hatter.bewilderbeest.net (unknown [IPv6:2602:61:7e5d:5300::2])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: zev)
+        by thorn.bewilderbeest.net (Postfix) with ESMTPSA id 7504A71B;
+        Thu, 21 Sep 2023 21:33:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bewilderbeest.net;
+        s=thorn; t=1695357184;
+        bh=8YhJXVZbP6dpiyW7g8fmW82LVz5b6CyHIGSx77XYF/o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=R+K7lrPyYUJBRH6oCed7c7Uh3zR6NY2mxFM8Jzu3HDl0p58goA/QDt3biPMGB5JtD
+         Uh7UbkX66lCSsd3zUVDwcRhpuXJ/LLTlXKEoLMMwBJ00M0u1CqngDB+Vz1PpDjEbTY
+         Hd+28RTTMeDZkSeVpVLJc+mYhfZYLQjF5ifG+FEY=
+Date:   Thu, 21 Sep 2023 21:33:03 -0700
+From:   Zev Weiss <zev@bewilderbeest.net>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Andrew Jeffery <andrew@codeconstruct.com.au>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
-Cc:     linux-watchdog@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        linux-watchdog@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         openbmc@lists.ozlabs.org,
-        Thomas =?ISO-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
+        Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
         Eddie James <eajames@linux.ibm.com>,
         Ivan Mikhaylov <i.mikhaylov@yadro.com>
-Date:   Fri, 22 Sep 2023 13:46:50 +0930
-In-Reply-To: <20230922013542.29136-2-zev@bewilderbeest.net>
+Subject: Re: [PATCH] watchdog: aspeed: Add sysfs attributes for reset mask
+ bits
+Message-ID: <06a2428d-e1f3-4ecd-bd42-f3e25ffdbced@hatter.bewilderbeest.net>
 References: <20230922013542.29136-2-zev@bewilderbeest.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-2 
+ <91be26169ebbddf3c05cd19626478246cb72a72a.camel@codeconstruct.com.au>
+ <85ddf493-934f-75c4-7a3a-728289c1ee09@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <85ddf493-934f-75c4-7a3a-728289c1ee09@roeck-us.net>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, 2023-09-21 at 18:35 -0700, Zev Weiss wrote:
-> The AST2500 and AST2600 watchdog timers provide the ability to control
-> which devices are reset by the watchdog timer via a reset mask
-> resgister.  Previously the driver ignored that register, leaving
-> whatever configuration it found at boot and offering no way of
-> altering its settings.  Add a 'reset_ctrl' sysfs subdirectory with a
-> file per bit so that userspace can determine which devices the reset
-> is applied to.
->=20
-> Note that not all bits in the hardware register are exposed -- in
-> particular, the ARM CPU and SOC/misc reset bits are left hidden since
-> clearing them can render the system unable to reboot.
->=20
-> Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-> ---
->=20
-> I'm porting OpenBMC to a platform that requires that the LPC controller r=
-emain
-> un-reset by a BMC reboot.  With this patch userspace can control the rese=
-t
-> mask of the Aspeed watchdog timer, with a few bits remaining unexposed so=
- as
-> to prevent some almost-certainly undesirable situations.  If there are ot=
-her
-> bits that people feel shouldn't be exposed (or conversely if someone feel=
-s
-> strongly that the "dangerous" bits _should_ be exposed) I can adjust
-> accordingly.
+On Thu, Sep 21, 2023 at 09:24:40PM PDT, Guenter Roeck wrote:
+>On 9/21/23 21:16, Andrew Jeffery wrote:
+>>On Thu, 2023-09-21 at 18:35 -0700, Zev Weiss wrote:
+>>>The AST2500 and AST2600 watchdog timers provide the ability to control
+>>>which devices are reset by the watchdog timer via a reset mask
+>>>resgister.  Previously the driver ignored that register, leaving
+>>>whatever configuration it found at boot and offering no way of
+>>>altering its settings.  Add a 'reset_ctrl' sysfs subdirectory with a
+>>>file per bit so that userspace can determine which devices the reset
+>>>is applied to.
+>>>
+>>>Note that not all bits in the hardware register are exposed -- in
+>>>particular, the ARM CPU and SOC/misc reset bits are left hidden since
+>>>clearing them can render the system unable to reboot.
+>>>
+>>>Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+>>>---
+>>>
+>>>I'm porting OpenBMC to a platform that requires that the LPC controller remain
+>>>un-reset by a BMC reboot.  With this patch userspace can control the reset
+>>>mask of the Aspeed watchdog timer, with a few bits remaining unexposed so as
+>>>to prevent some almost-certainly undesirable situations.  If there are other
+>>>bits that people feel shouldn't be exposed (or conversely if someone feels
+>>>strongly that the "dangerous" bits _should_ be exposed) I can adjust
+>>>accordingly.
+>>
+>>
+>>Is there a reason this has to be managed by userspace? It sounds a lot
+>>like a property of platform design, in which case exposing this feature
+>>in the devicetree might be a better approach.
+>>
+>
+>Same sentiment here.
+>
+>Guenter
+>
+>
 
+Yes, and indeed the same thing occurred to me, too, though unfortunately 
+not until just *after* I sent the patch...I'll rework it as a DT thing 
+instead.
 
-Is there a reason this has to be managed by userspace? It sounds a lot
-like a property of platform design, in which case exposing this feature
-in the devicetree might be a better approach.
+Thanks,
+Zev
 
-Andrew
