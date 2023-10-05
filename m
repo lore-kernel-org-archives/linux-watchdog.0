@@ -2,55 +2,55 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BFB6E75451
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6CD5E7AD44
 	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:05:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237142AbjJEQFI (ORCPT
+        id S237198AbjJEQFH (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59120 "EHLO
+        Thu, 5 Oct 2023 12:05:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236903AbjJEQDh (ORCPT
+        with ESMTP id S237142AbjJEQDy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:03:37 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFA786804
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:26 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id ffacd0b85a97d-3248aa5cf4eso1163927f8f.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:26 -0700 (PDT)
+        Thu, 5 Oct 2023 12:03:54 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2CF75254
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:37 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-32483535e51so1174802f8f.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696521445; x=1697126245; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1696521455; x=1697126255; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UJY5YzgjF6JlKZ8w8bEEVJWVaD5OM94gHSjpC6e/tYU=;
-        b=NZJtyAUmqCnPHXpOwrhYGZpGfzxJOiYvHXFpRUCEHQdWEjCLogFfV9F7v7NcT2RlkU
-         u9ozCQxwMSmOoMygxK5UwogrRjtBfQQa5pVq6LASjv3fqT3XRQ1ojOVLtifl4w1HhEgO
-         kvQvFWgOnGei3Wqb0xrZU+keHscXL9w3wjS+P5lPiq93/eurG1sCep8/jijzH+lS6Xmz
-         flhRovigTT8duxbceUvFiq2aOpq3Cr2OocveK5AJm/QEtciOWHo/Ms0tzziJD+0Han46
-         ZaoNRbgPTyVoIEKPY0b/yWpLf8jEG3erJJdjUbFbDXE9TfGXXruupDjATFHM7/YxqZcW
-         Uq/g==
+        bh=sCRvx18FXBZUIE55KgKCOULc2WUqPQQy1aHNXgrW/y8=;
+        b=Mi3d0w2olglNDWnNu8Yu+exguXEdJJXXYh/tY4f1lyxJLlxBQ6iHRxjhXkxoseGfwU
+         iixAD+/OsQwxtbTTiR/5ha+ecW1STPSDQE0iUYHYOu7uvl0UXB/S7Q3k5ajXyngAVMRB
+         5IJ7ocpcTXH+1V5udWDoTTcJhvtrO0gtRm4c3nHwrnR05soUEQ/fm8TK+HmLODFnDG3W
+         xd8H6fYMOtrmSRNOlfOHAlcrKr2g/m9QLrG9MRI15DsCGmSjnBzeFRqJ4Q2yZ3ni0WIq
+         t9eilC8PsGzY0dmJZgZ5t+7kIDMgkJA4aa5NqT/nvyCVsXYBgV2BFMdKXoVVad9uswKv
+         0Jnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696521445; x=1697126245;
+        d=1e100.net; s=20230601; t=1696521455; x=1697126255;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UJY5YzgjF6JlKZ8w8bEEVJWVaD5OM94gHSjpC6e/tYU=;
-        b=hqCjpHFSqZfoxNUkfwnp8aASSnh3i+cf1A/8CEipTfPePFWbHwbK3kfo126oH/e5MS
-         TSOLn2uWm8Vjm5XpemlP7cDW5MC5OLuORaw5r1ldjfobNyYxNn48LexMWJ/h8cun5zUC
-         S1QSGEe4F8aeTk1Lp6x0ervV7ZlDLXR89eC0vOUcFSyTWIIwPYpllWRm4d9SDREWQPib
-         WG8QywxBu8cZ3fv2x1z5QXcTnuL+cNC9mBKwKREFR51x/VxQp4l7pP0V887s1XZJLC9R
-         zeVO6a+GKuOpHWKnFcMx0cIvxNtGIGHcKw9hh3eTsn9CQjuOk4qTNhrV9jgaP3EdXYU0
-         JWvw==
-X-Gm-Message-State: AOJu0Ywn+4H8nvfn44APH88KKTOiIHoYhpoDCT7uyVD9pE6CioSuJQwi
-        hBY6g1ZKH6cbS7SyFEo9oCA8Mw==
-X-Google-Smtp-Source: AGHT+IGiE4LAahvWXJtk7tI8KG5YKIIkGsBVrQ6crOBhLdNhWbs7O377srtrTm+hbZwXS/xfBg4ukg==
-X-Received: by 2002:a5d:5912:0:b0:31f:f11b:8b68 with SMTP id v18-20020a5d5912000000b0031ff11b8b68mr4581645wrd.71.1696521445200;
-        Thu, 05 Oct 2023 08:57:25 -0700 (PDT)
+        bh=sCRvx18FXBZUIE55KgKCOULc2WUqPQQy1aHNXgrW/y8=;
+        b=jDQCbOf2pFRm8wKXbudTehc42TxpjFllb+15VrdSWqXs9ptLRK2OhE8vlvNQI38q2M
+         vLaSQhY/+xUqNiB3hQrXmV0qNVhJ/v9iqVkkKtjkewUjiHs9nrnqNFUHprV9uJWztfqA
+         72ls7TC3piMumPCdpKuGWdAuhbrOP9INpujNA6Gwpt06VAUbsf1oxhvf1zhsnsnchP0t
+         Ps7RJvwRwbG3masWzgRJO0zRzejIynYlsZnPH1q9v+9wW3iBT25xyZEWhrXEqPTnMLvw
+         DhGd+Agq49D+MBSPHjCCym7wOy3l+Hs227HSvW7hjIGWZaXOVZG7IECcT05nhpyOzqad
+         mgyg==
+X-Gm-Message-State: AOJu0YxEXOwN5gpCGj8J0V54Z9XHSVUMAyVypNvXd7JW5UASSc54JKYG
+        Q9ORKR76ZMGC3DEmggBcmqe4OA==
+X-Google-Smtp-Source: AGHT+IGXl1CoGjZQDrIr/dGSwn1zWY2LS9ksQvXQhCz9d02zBxSqzFembYLOfI32ScvmkDqICjuDCQ==
+X-Received: by 2002:adf:ec48:0:b0:31f:f99c:600a with SMTP id w8-20020adfec48000000b0031ff99c600amr5234563wrn.46.1696521455682;
+        Thu, 05 Oct 2023 08:57:35 -0700 (PDT)
 Received: from gpeter-l.lan (host-92-12-225-146.as13285.net. [92.12.225.146])
-        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.23
+        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Oct 2023 08:57:24 -0700 (PDT)
+        Thu, 05 Oct 2023 08:57:35 -0700 (PDT)
 From:   Peter Griffin <peter.griffin@linaro.org>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
@@ -64,9 +64,9 @@ Cc:     peter.griffin@linaro.org, tudor.ambarus@linaro.org,
         linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH 04/21] dt-bindings: soc: google: exynos-sysreg: add dedicated SYSREG compatibles to GS101
-Date:   Thu,  5 Oct 2023 16:56:01 +0100
-Message-ID: <20231005155618.700312-5-peter.griffin@linaro.org>
+Subject: [PATCH 11/21] dt-bindings: clock: gs101: Add cmu_misc clock indices
+Date:   Thu,  5 Oct 2023 16:56:08 +0100
+Message-ID: <20231005155618.700312-12-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.42.0.582.g8ccd20d70d-goog
 In-Reply-To: <20231005155618.700312-1-peter.griffin@linaro.org>
 References: <20231005155618.700312-1-peter.griffin@linaro.org>
@@ -76,32 +76,35 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-GS101 has three different SYSREG controllers, add dedicated
-compatibles for them to the documentation.
+CMU_MISC generates clocks for IPs such as Watchdog. Add
+clock indices for the PLLs, Muxes, dividers and gates
+in this clock management unit.
 
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- .../bindings/soc/samsung/samsung,exynos-sysreg.yaml        | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/dt-bindings/clock/gs101.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml b/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
-index 163e912e9cad..02f580d6489b 100644
---- a/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
-+++ b/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
-@@ -50,6 +50,13 @@ properties:
-               - samsung,exynosautov9-peric1-sysreg
-           - const: samsung,exynosautov9-sysreg
-           - const: syscon
-+      - items:
-+          - enum:
-+              - google,gs101-peric0-sysreg
-+              - google,gs101-peric1-sysreg
-+              - google,gs101-apm-sysreg
-+          - const: google,gs101-sysreg
-+          - const: syscon
+diff --git a/include/dt-bindings/clock/gs101.h b/include/dt-bindings/clock/gs101.h
+index d9b8299fcc0b..7765ba68f734 100644
+--- a/include/dt-bindings/clock/gs101.h
++++ b/include/dt-bindings/clock/gs101.h
+@@ -218,4 +218,15 @@
+ #define CLK_APM_PLL_DIV4_APM					13
+ #define CLK_APM_PLL_DIV16_APM					14
  
-   reg:
-     maxItems: 1
++/* CMU_MISC */
++
++#define CLK_MOUT_MISC_BUS_USER					1
++#define CLK_MOUT_MISC_SSS_USER					2
++#define CLK_DOUT_MISC_BUSP					3
++#define CLK_DOUT_MISC_GIC					4
++#define CLK_GOUT_MISC_PCLK					5
++#define CLK_GOUT_MISC_SYSREG_PCLK				6
++#define CLK_GOUT_MISC_WDT_CLUSTER0				7
++#define CLK_GOUT_MISC_WDT_CLUSTER1				8
++
+ #endif /* _DT_BINDINGS_CLOCK_GOOGLE_GS101_H */
 -- 
 2.42.0.582.g8ccd20d70d-goog
 
