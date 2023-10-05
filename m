@@ -2,61 +2,61 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E06E92717
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:40:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33812E9270D
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:41:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231628AbjJEQjn (ORCPT
+        id S233053AbjJEQke (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
+        Thu, 5 Oct 2023 12:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234236AbjJEQig (ORCPT
+        with ESMTP id S234742AbjJEQjV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:38:36 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B63F1FD8
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 09:10:40 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-5344d996bedso2083493a12.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 09:10:40 -0700 (PDT)
+        Thu, 5 Oct 2023 12:39:21 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFEF3879
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 09:12:03 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-5363227cc80so1928078a12.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 09:12:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696522239; x=1697127039; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1696522322; x=1697127122; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=rbASzbIUc3xaFW2/mk6fLZQLTe1Mo/0p0hvLfVcSKGs=;
-        b=ac6pa+00jw+2hZYPCxFaSBeivFKYDhjjlvrHWLdH+H10gJAG7gspHZlkSUNz7vFwxa
-         oZVPq1q72MwoSASAneTkyVVw1yeXoAmhgKA7nbSHnEPvGmnqctS9NUSRUgxKV9SJrbAr
-         oWP7d20aVKbFt9SyR7RRYyr1WcOsbBDAake5kDwtP0yB32+ceaQ2MNZVSlhmKgti3XBo
-         qcjOARTCLm3gJP7w6EFqWPdcYUUD8D9R8T1vzOyC2cfdc35mYyCkuZBVH7AswDhRes77
-         gF4RhWayLzGQSFI91m0l69HYjYK/dAXPrUhF5pu0kj10ipwknZ52lBdjELeuAPDzzyVV
-         1QQw==
+        bh=9lxM4OiGaB4e3uq2pWffPreokXzaYO67D0mgzpzgon8=;
+        b=a/r53c5IAuWC7liI9ugDKYX8rtsQBZrFvQ2vgS0sHLUs6vr3VhtksZrkO/O1T0xmkV
+         lpM0bbL7PkP6GuQv5wwhCUYFz2uSjkIgUEvmS0fvn0rftiXm6d5n7DF72iBr/D89E5ML
+         R9Qw7jDyA9xeszpSxIURxYkwjGywo/6jSNIAKPrPYroGeAtZOSn5MJqMbx7OtfZZVeUT
+         v7OvFgWsaTs+k9qgrqYQCI33PAHfncG3jAYzXBZk9ITUhdOYwIuC8rw2rSOLQou0DUGa
+         VhVRTDJpFk0F1WuXXVMiSlntZf7k9w0foOtLdTQ2HFL0S0tcXSS9ogmdjI4/Q1S9mFgq
+         xpOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696522239; x=1697127039;
+        d=1e100.net; s=20230601; t=1696522322; x=1697127122;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rbASzbIUc3xaFW2/mk6fLZQLTe1Mo/0p0hvLfVcSKGs=;
-        b=UUCkJ54QPc2/eW0LpyCgkmWgsDUUIE8mbPPtlMTCQvnmh0uOoLRLsNEC0SUFDkO6HF
-         29xk0C4cKeWejeHrkZmmGTnQwRbT1eSGh3ZrUV3w8+VJX8GhcXJaernjTKZhzUE67Ttz
-         YoxZqh/Gw7HG+8a5EX+2Mym5/0y6eOQDvldUU7b2scVbymUNeNuFwQ3dp+LDB2SQEJcQ
-         pig0H1CWsdDhJ4jGoPgwicftXQOErqhybokLrVltbuYYwgoWsTp8Ql4+T3Hxo7siEPvd
-         /R7Rjbv30r+sQNEvmFlkg+d6ZGyfoFI9GfvRO1wIbrJgfcz7jJyyR+8bzv1OFq4XWIPl
-         R/Fg==
-X-Gm-Message-State: AOJu0YyD8B/DRTNKxV3j9DRt+/48rz3QiP56n6ipSK2rTYLlnx/SFT+2
-        6D4ReE3aUWiV5eF0xRDt9hXfYw==
-X-Google-Smtp-Source: AGHT+IEs0tHPBrA0lAKMdCX/q8h4M7MDStu/0ujSqjkFqqVquKT+YTpOQ/EGm+6VNyv3hPqyVcaRkA==
-X-Received: by 2002:a50:fa99:0:b0:523:bfec:4913 with SMTP id w25-20020a50fa99000000b00523bfec4913mr4794286edr.0.1696522239300;
-        Thu, 05 Oct 2023 09:10:39 -0700 (PDT)
+        bh=9lxM4OiGaB4e3uq2pWffPreokXzaYO67D0mgzpzgon8=;
+        b=YQlYsKNl9gfn5CsO9uwePKdlNUvB90fzeYDOvmBpqHJrhO88AWbDihucC8cU5HeJkE
+         7jC+WdEkzVkzZplWXDModY8hMtPm7AGRzgcZXgvG2XDqpRebFCgXVBZunijDQCuEvHU7
+         n3rpNHgAsr5rRIabN7xWSKyl4zYZrRkYeX6y9/W4CdEfEbtzJiuBFg0R2KZQKQd5xY4q
+         GAsCp7IbvKl1c5dyhVgfx/TGVSVs4upUcn1BdpSU/1aNQ1QbPadPU1aN6UCUFJIBEDpN
+         arohFDiENZAFsf5ExHLP6ErwjCMW3tk6Fq2jz2mN2uP6EbctJmXswgQZZ62clAe8HvD3
+         bm8Q==
+X-Gm-Message-State: AOJu0Ywqs8v5uA51I1JHpLDbFyuiDDSXasD1KnDGxdsf9jf36/gSmvfr
+        CQMYHnZz9b8Zg/wrJQyzB6EJ/w==
+X-Google-Smtp-Source: AGHT+IFZJthaVaTYewEeZJtni3cSipAL+gy8tpIe3TbQsRdvHNdhR212iy3ddLH56ot/orPcub/dwg==
+X-Received: by 2002:aa7:db45:0:b0:533:520:a5a8 with SMTP id n5-20020aa7db45000000b005330520a5a8mr5184779edt.29.1696522322395;
+        Thu, 05 Oct 2023 09:12:02 -0700 (PDT)
 Received: from [192.168.1.197] (5-157-101-10.dyn.eolo.it. [5.157.101.10])
-        by smtp.gmail.com with ESMTPSA id u1-20020a05640207c100b005311e934765sm1278866edy.27.2023.10.05.09.10.36
+        by smtp.gmail.com with ESMTPSA id u1-20020a05640207c100b005311e934765sm1278866edy.27.2023.10.05.09.11.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Oct 2023 09:10:38 -0700 (PDT)
-Message-ID: <816700a9-0c81-4ef5-8ca3-6d5147e2dd0d@linaro.org>
-Date:   Thu, 5 Oct 2023 18:10:36 +0200
+        Thu, 05 Oct 2023 09:12:01 -0700 (PDT)
+Message-ID: <103c7112-d469-48bf-bdbe-fb6608b97a64@linaro.org>
+Date:   Thu, 5 Oct 2023 18:11:59 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/21] dt-bindings: pinctrl: samsung: add
- gs101-wakeup-eint compatible
+Subject: Re: [PATCH 10/21] dt-bindings: clock: gs101: Add cmu_apm clock
+ indices
 Content-Language: en-US
 To:     Peter Griffin <peter.griffin@linaro.org>, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, mturquette@baylibre.com,
@@ -71,7 +71,7 @@ Cc:     tudor.ambarus@linaro.org, andre.draszik@linaro.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
 References: <20231005155618.700312-1-peter.griffin@linaro.org>
- <20231005155618.700312-9-peter.griffin@linaro.org>
+ <20231005155618.700312-11-peter.griffin@linaro.org>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
@@ -117,7 +117,7 @@ Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  KQ06ztUMRrj8eVtpImjsWCd0bDWRaaR4vqhCHvAG9iWXZu4qh3ipie2Y0oSJygcZT7H3UZxq
  fyYKiqEmRuqsvv6dcbblD8ZLkz1EVZL6djImH5zc5x8qpVxlA0A0i23v5QvN00m6G9NFF0Le
  D2GYIS41Kv4Isx2dEFh+/Q==
-In-Reply-To: <20231005155618.700312-9-peter.griffin@linaro.org>
+In-Reply-To: <20231005155618.700312-11-peter.griffin@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -125,26 +125,16 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On 05/10/2023 17:56, Peter Griffin wrote:
-> gs101 is similar to newer Exynos SoCs like Exynos850 and ExynosAutov9
-> where more than one pin controller can do external wake-up interrupt.
-> So add a dedicated compatible for it.
+> CMU_APM generates clocks for the Active Power Management
+> controller. Add clock indices for those muxs, dividers and
+> gates.
 > 
 > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 > ---
->  .../bindings/pinctrl/samsung,pinctrl-wakeup-interrupt.yaml      | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/pinctrl/samsung,pinctrl-wakeup-interrupt.yaml b/Documentation/devicetree/bindings/pinctrl/samsung,pinctrl-wakeup-interrupt.yaml
-> index 1de91a51234d..668fd903d06f 100644
-> --- a/Documentation/devicetree/bindings/pinctrl/samsung,pinctrl-wakeup-interrupt.yaml
-> +++ b/Documentation/devicetree/bindings/pinctrl/samsung,pinctrl-wakeup-interrupt.yaml
-> @@ -37,6 +37,7 @@ properties:
->        - samsung,exynos7-wakeup-eint
->        - samsung,exynos850-wakeup-eint
->        - samsung,exynosautov9-wakeup-eint
-> +      - google,gs101-wakeup-eint
+>  include/dt-bindings/clock/gs101.h | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 
-Alphanumerical order, if possible.
+Please squash it with previous patch.
 
 Best regards,
 Krzysztof
