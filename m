@@ -2,61 +2,60 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33812E9270D
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:41:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D5A1E9270D
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:42:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbjJEQke (ORCPT
+        id S232514AbjJEQlj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:40:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53120 "EHLO
+        Thu, 5 Oct 2023 12:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234742AbjJEQjV (ORCPT
+        with ESMTP id S231563AbjJEQkJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:39:21 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFEF3879
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 09:12:03 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-5363227cc80so1928078a12.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 09:12:03 -0700 (PDT)
+        Thu, 5 Oct 2023 12:40:09 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DBA526AC
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 09:33:45 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id 4fb4d7f45d1cf-536071e79deso2704653a12.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 09:33:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696522322; x=1697127122; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1696523624; x=1697128424; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=9lxM4OiGaB4e3uq2pWffPreokXzaYO67D0mgzpzgon8=;
-        b=a/r53c5IAuWC7liI9ugDKYX8rtsQBZrFvQ2vgS0sHLUs6vr3VhtksZrkO/O1T0xmkV
-         lpM0bbL7PkP6GuQv5wwhCUYFz2uSjkIgUEvmS0fvn0rftiXm6d5n7DF72iBr/D89E5ML
-         R9Qw7jDyA9xeszpSxIURxYkwjGywo/6jSNIAKPrPYroGeAtZOSn5MJqMbx7OtfZZVeUT
-         v7OvFgWsaTs+k9qgrqYQCI33PAHfncG3jAYzXBZk9ITUhdOYwIuC8rw2rSOLQou0DUGa
-         VhVRTDJpFk0F1WuXXVMiSlntZf7k9w0foOtLdTQ2HFL0S0tcXSS9ogmdjI4/Q1S9mFgq
-         xpOQ==
+        bh=8c40JhfrTc8etKT/g7b53nFSNQXzN0Fl4j0k9i1c50c=;
+        b=uvgr1ExE52F6AvpHwAgp0A3esS28/Y6S/SirxPWveUVZhyM31cSxJk8nRl2gqX/D3v
+         dijaxuTu8ikXNlbYIFeOUqphfV6x/QFakyoE1FXYeX39KqOKAidSYKdD1DyUHmE/YExX
+         lGAdQFFcVaAZFVlxcuQhtaphcVcmoh4EB8A4gGr7ROlEF8HmMM237cSBjkUhF4woaAnX
+         nmIC8gT+dhoq7yghwo45K5zWy+2te9AbxfVHhHDbeYXf/7gSHCSMRjmRDgPpuNsJKk3o
+         xYbdOQfiK+dgmA6ydg7c7G63UrRsQjt4wM05+R+nnwJQT4zGiBqp0//ruzGgNrN2Dgon
+         ZcPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696522322; x=1697127122;
+        d=1e100.net; s=20230601; t=1696523624; x=1697128424;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9lxM4OiGaB4e3uq2pWffPreokXzaYO67D0mgzpzgon8=;
-        b=YQlYsKNl9gfn5CsO9uwePKdlNUvB90fzeYDOvmBpqHJrhO88AWbDihucC8cU5HeJkE
-         7jC+WdEkzVkzZplWXDModY8hMtPm7AGRzgcZXgvG2XDqpRebFCgXVBZunijDQCuEvHU7
-         n3rpNHgAsr5rRIabN7xWSKyl4zYZrRkYeX6y9/W4CdEfEbtzJiuBFg0R2KZQKQd5xY4q
-         GAsCp7IbvKl1c5dyhVgfx/TGVSVs4upUcn1BdpSU/1aNQ1QbPadPU1aN6UCUFJIBEDpN
-         arohFDiENZAFsf5ExHLP6ErwjCMW3tk6Fq2jz2mN2uP6EbctJmXswgQZZ62clAe8HvD3
-         bm8Q==
-X-Gm-Message-State: AOJu0Ywqs8v5uA51I1JHpLDbFyuiDDSXasD1KnDGxdsf9jf36/gSmvfr
-        CQMYHnZz9b8Zg/wrJQyzB6EJ/w==
-X-Google-Smtp-Source: AGHT+IFZJthaVaTYewEeZJtni3cSipAL+gy8tpIe3TbQsRdvHNdhR212iy3ddLH56ot/orPcub/dwg==
-X-Received: by 2002:aa7:db45:0:b0:533:520:a5a8 with SMTP id n5-20020aa7db45000000b005330520a5a8mr5184779edt.29.1696522322395;
-        Thu, 05 Oct 2023 09:12:02 -0700 (PDT)
+        bh=8c40JhfrTc8etKT/g7b53nFSNQXzN0Fl4j0k9i1c50c=;
+        b=bi013b0e1VFoK8nVTbLgJjTOOpu/2rhqJhfQ8pejr5KvzGTzIEWg7qlHc8y0hmiTtS
+         rWVynfzJDcrIv5FHh+ghEpBWnos+kvPiCbvP7GcK1mOFdx8b1BXIaMqq7Sz8tV+iXXbu
+         ceMaCjjhTXkgIe91SfD6FpzUg13AP7cku1rMcbHFNepoZ3ktDPHpxWML9wnBljmv6UM1
+         hhORA237QXzVQu6INf317TzJXNJbZK5qdOo5nY6rFGzXwVytg94naEsbt13tusWX0yND
+         20GgDQ0quHruqZoeHtYKtsIXqeQ42f63WdkvvCy5VdQni9W/CTpkVpC19xJOypHbbTvv
+         zJzg==
+X-Gm-Message-State: AOJu0YySiHJXxigiFapNyWHTHHAR1Xbq7iw1HNlGqky4fvTlUNWVJf6/
+        LLdShQ+2P9RkDf6YSd3rkCdY9g==
+X-Google-Smtp-Source: AGHT+IETn24FX7/1T/kDc4QOjDrxp9ZvFLhxbbmIfgTYNc/2p2nKVIlvw0uHwZKgefemP2ctnYPI+Q==
+X-Received: by 2002:a05:6402:12d8:b0:523:b37e:b83b with SMTP id k24-20020a05640212d800b00523b37eb83bmr2762146edx.13.1696523623941;
+        Thu, 05 Oct 2023 09:33:43 -0700 (PDT)
 Received: from [192.168.1.197] (5-157-101-10.dyn.eolo.it. [5.157.101.10])
-        by smtp.gmail.com with ESMTPSA id u1-20020a05640207c100b005311e934765sm1278866edy.27.2023.10.05.09.11.59
+        by smtp.gmail.com with ESMTPSA id b6-20020a056402138600b00536031525e5sm1277462edv.91.2023.10.05.09.33.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Oct 2023 09:12:01 -0700 (PDT)
-Message-ID: <103c7112-d469-48bf-bdbe-fb6608b97a64@linaro.org>
-Date:   Thu, 5 Oct 2023 18:11:59 +0200
+        Thu, 05 Oct 2023 09:33:43 -0700 (PDT)
+Message-ID: <7f2032c2-812a-46b5-8914-056cd53c37cb@linaro.org>
+Date:   Thu, 5 Oct 2023 18:33:41 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 10/21] dt-bindings: clock: gs101: Add cmu_apm clock
- indices
+Subject: Re: [PATCH 19/21] google/gs101: Add dt overlay for oriole board
 Content-Language: en-US
 To:     Peter Griffin <peter.griffin@linaro.org>, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, mturquette@baylibre.com,
@@ -71,7 +70,7 @@ Cc:     tudor.ambarus@linaro.org, andre.draszik@linaro.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
 References: <20231005155618.700312-1-peter.griffin@linaro.org>
- <20231005155618.700312-11-peter.griffin@linaro.org>
+ <20231005155618.700312-20-peter.griffin@linaro.org>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
@@ -117,7 +116,7 @@ Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  KQ06ztUMRrj8eVtpImjsWCd0bDWRaaR4vqhCHvAG9iWXZu4qh3ipie2Y0oSJygcZT7H3UZxq
  fyYKiqEmRuqsvv6dcbblD8ZLkz1EVZL6djImH5zc5x8qpVxlA0A0i23v5QvN00m6G9NFF0Le
  D2GYIS41Kv4Isx2dEFh+/Q==
-In-Reply-To: <20231005155618.700312-11-peter.griffin@linaro.org>
+In-Reply-To: <20231005155618.700312-20-peter.griffin@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -125,16 +124,68 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On 05/10/2023 17:56, Peter Griffin wrote:
-> CMU_APM generates clocks for the Active Power Management
-> controller. Add clock indices for those muxs, dividers and
-> gates.
+> The LK bootloader on Pixel6 searches for a dt overlay in the
+> dtbo partition with a board_id and board_rev that matches
+> what is baked into the device. If this overlay is not present
+> then the phone will bootloop in fastboot and you can't boot
+> the upstream kernel.
+> 
+> This commit adds a dtbo for the production oriole variant.
+> The other pre-production board overlays are not included
+> at this time.
+> 
+> Adding the dtbo here allows for a better experience when
+> building/booting the upstream kernel on Pixel devices
+> as all the DT required to boot the device will be created
+> as part of the kernel build process. Rather than having to
+> fetch the dtbo from some other repo.
 > 
 > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 > ---
->  include/dt-bindings/clock/gs101.h | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
+>  arch/arm64/boot/dts/google/Makefile          |  1 +
+>  arch/arm64/boot/dts/google/gs101-oriole.dtso | 21 ++++++++++++++++++++
+>  2 files changed, 22 insertions(+)
+>  create mode 100644 arch/arm64/boot/dts/google/gs101-oriole.dtso
+> 
+> diff --git a/arch/arm64/boot/dts/google/Makefile b/arch/arm64/boot/dts/google/Makefile
+> index 6d2026a767d4..3f1761f8daa9 100644
+> --- a/arch/arm64/boot/dts/google/Makefile
+> +++ b/arch/arm64/boot/dts/google/Makefile
+> @@ -2,5 +2,6 @@
+>  
+>  dtb-$(CONFIG_ARCH_GOOGLE_TENSOR) += \
+>  	gs101-oriole.dtb \
+> +	gs101-oriole.dtbo
+>  
+>  
+> diff --git a/arch/arm64/boot/dts/google/gs101-oriole.dtso b/arch/arm64/boot/dts/google/gs101-oriole.dtso
+> new file mode 100644
+> index 000000000000..50832fd94204
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/google/gs101-oriole.dtso
+> @@ -0,0 +1,21 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Oriole DVT Device Tree
+> + *
+> + * Copyright 2021-2023 Google,LLC
+> + */
+> +
+> +/dts-v1/;
+> +/plugin/;
+> +
+> +/ {
+> +	board_id = <0x20304>;
+> +	board_rev = <0x10000>;
 
-Please squash it with previous patch.
+Undocumented properties. Please propose bindings... Also, underscores
+are not allowed, so in this form it is a no-go... although I understand
+the pain of not being able to change the bootloader.
+
+For reference:
+https://lore.kernel.org/all/20220605150747.GA3465286-robh@kernel.org/
+https://lore.kernel.org/all/20220610163343.GA1787330-robh@kernel.org/
+
 
 Best regards,
 Krzysztof
