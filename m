@@ -2,154 +2,165 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C6DEE92718
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:42:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97EF0E92719
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 17:40:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231991AbjJEQmM (ORCPT
+        id S230281AbjJERj7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:42:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
+        Thu, 5 Oct 2023 13:39:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232823AbjJEQk0 (ORCPT
+        with ESMTP id S229578AbjJERjy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:40:26 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B851FD9
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 09:32:40 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-533c4d20b33so2753280a12.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 09:32:40 -0700 (PDT)
+        Thu, 5 Oct 2023 13:39:54 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655AE9B
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 10:39:49 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-1c6193d6bb4so16625ad.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 10:39:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696523558; x=1697128358; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Ys4Rn9sDoKGLwbwHx69SQsJVl2W8HKJketH4+P2llm4=;
-        b=s7tv75jd+0inYLVeAoANn1ZqVBVkU9qGAxHIihZEBqqCx73/1pUYdCec6CWPV2Uk9+
-         LgoKwMeGHva/rTH6V7ZtJHPpBSnK/oua0mFrI1Wyxcqnp40EDEl/skd2jJ99QyIkVsnR
-         0Jfx+3o9SQorO7gRPFFfrCc2Dda1RwDcFSfFaYV8wDdG8zXfPwtazP7afINUYCmluDqB
-         SiJXa87HWRB1N7FNMOVl4WpOCgo8AGr1UDF2/G+c09gf3xpow6yZt1CqklF711RmKVoE
-         sm34M5/O0fhFHNwk8h021JNh4xaO4IW4IaqZhzSYgYc1x2cQ7JtO/P1YgDrLz8SsQ9aD
-         46ZQ==
+        d=google.com; s=20230601; t=1696527589; x=1697132389; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=IXODrEGswDBHgZt3EC36Idp+LKyU6nTpAzOo1uX2Tbo=;
+        b=cvpAYGbp30c0Q9flMLgxUpDsjTg3LMfeWkl8mAJ+UjYblZUZbG4AHF3pQu8KK5e6nn
+         WF2MqzPQ2/TplzXSz8axz/XmxzdsqIPTTyZG2boReLy7qR4Ryzs6lyJjCE6jxYZFJF9g
+         csnIc7QpU/OLhI9OVS4V3yptopGOnkner2hZRviR9iboUgRseGrZrnPyfx7FvcO0WS+j
+         edUy9MCfUmpn78J401oOGAD6+iw2OF3F3WnIT+ZUZGilY9HJ0BGDNpqXL6uwt0QKfOEP
+         XmLyQYanXINmSdAMKwZhqfGvgURLcC7HcWlGlwaV+GwmsPpcQSpfkMDpDWAvQB2svv/g
+         tSyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696523558; x=1697128358;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ys4Rn9sDoKGLwbwHx69SQsJVl2W8HKJketH4+P2llm4=;
-        b=iLWHTNqGmh2osauKjErL3WnQbDJedK1P6yAD1sCm26aM4cwkmwC7n79f57DClrQVty
-         zlC2Z31I1KlQW1r3BmQb0IOwQfqD9WiXVKDL7mEA0AcDYEO1iNBQ9SNUuWGZwWujt9Gs
-         qXuR5TLiO6e079GpX0hxGanym4xABSIa+Lj8H+kRW/xEXsB8WIMevrKAqvNxxKdQwwKq
-         k48oFn2CFrd7e/T38vCkuKhK3EggYEjAuSqrJbG/nGcQvmr6InDLidrjLqiv0f3P/f5i
-         wdvi4gh+Sz4SvNL+8/lknFD1XP90AdRpdD4zvpN+mA+cJ3g3YbrBnUjxUiGn2DS1ANwO
-         aqnw==
-X-Gm-Message-State: AOJu0YzaqIAZDmP67EoTG6c272XPJ9MFfXSpcj9H5BAUuo02BBkh1U9a
-        vY6S9M06UO+fCnvg+Iu1NdSXPg==
-X-Google-Smtp-Source: AGHT+IHkIVXrSP+A9S4CtovH+/G5fq5stJEIfgvDH0uUnlUH6PBq543HITeATGsKpGI38se8HqfNNw==
-X-Received: by 2002:aa7:d44d:0:b0:523:2e23:a0bf with SMTP id q13-20020aa7d44d000000b005232e23a0bfmr3029730edr.11.1696523558539;
-        Thu, 05 Oct 2023 09:32:38 -0700 (PDT)
-Received: from [192.168.1.197] (5-157-101-10.dyn.eolo.it. [5.157.101.10])
-        by smtp.gmail.com with ESMTPSA id b6-20020a056402138600b00536031525e5sm1277462edv.91.2023.10.05.09.32.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Oct 2023 09:32:37 -0700 (PDT)
-Message-ID: <b1598405-b01f-426a-aaba-89f2d2dc9c2e@linaro.org>
-Date:   Thu, 5 Oct 2023 18:32:35 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/21] Add minimal Tensor/GS101 SoC support and
- Oriole/Pixel6 board
-Content-Language: en-US
-To:     Peter Griffin <peter.griffin@linaro.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, mturquette@baylibre.com,
-        conor+dt@kernel.org, sboyd@kernel.org, tomasz.figa@gmail.com,
-        s.nawrocki@samsung.com, linus.walleij@linaro.org,
-        wim@linux-watchdog.org, linux@roeck-us.net,
-        catalin.marinas@arm.com, will@kernel.org, arnd@arndb.de,
-        olof@lixom.net, cw00.choi@samsung.com
-Cc:     tudor.ambarus@linaro.org, andre.draszik@linaro.org,
+        d=1e100.net; s=20230601; t=1696527589; x=1697132389;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IXODrEGswDBHgZt3EC36Idp+LKyU6nTpAzOo1uX2Tbo=;
+        b=cjIiu5IupD0LmDGhNqMwkLO2qF2iHVGMVHoKIsL9xa7JMLw6PRyDqy6v95XVaJBTHK
+         2vy6pvCwbHzQxJ23qOQNt6QaqsMMvvCaITvh8A1DsdOJ0XZF2oaOFBhwDaNN4Q+553XG
+         gd6O9vLV4EeAaO1nUvVvTnRRY7mmGV0yGWv4wIE5Gny+8uNLDxp7ZJeFwJSBJ6s4o+30
+         cvJCW/2gVqMqTsvMjKOqo2uPIVpYpio1RzvsEbw66RexMgKtO+FGU0VeBtkzjMELqUOr
+         vitrv7ORczba96oSV5n3ISAlXANGSZI4gNYvUxBHHNXupDZSOwFla1hNxHv/AKVLIy1r
+         dDbA==
+X-Gm-Message-State: AOJu0Yw5/Zwiy65htptx2STLI3uXubrZcxS25ZfJS59Dd0x85L1jvTW4
+        5kD+vdzniyawyiBFQYIuIPAOTg==
+X-Google-Smtp-Source: AGHT+IFvigfflXUA9HwY9N7eYv+zsvKrsN9xemzqOgeiVvG2YkDU2e3seNYkty+sv2qmvZvZeQ4iYQ==
+X-Received: by 2002:a17:902:d4c8:b0:1c3:5df4:a778 with SMTP id o8-20020a170902d4c800b001c35df4a778mr161516plg.13.1696527588397;
+        Thu, 05 Oct 2023 10:39:48 -0700 (PDT)
+Received: from google.com (13.65.82.34.bc.googleusercontent.com. [34.82.65.13])
+        by smtp.gmail.com with ESMTPSA id 19-20020a170902c11300b001b896686c78sm2005265pli.66.2023.10.05.10.39.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Oct 2023 10:39:47 -0700 (PDT)
+Date:   Thu, 5 Oct 2023 10:39:44 -0700
+From:   William McVicker <willmcvicker@google.com>
+To:     Peter Griffin <peter.griffin@linaro.org>
+Cc:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
+        tomasz.figa@gmail.com, s.nawrocki@samsung.com,
+        linus.walleij@linaro.org, wim@linux-watchdog.org,
+        linux@roeck-us.net, catalin.marinas@arm.com, will@kernel.org,
+        arnd@arndb.de, olof@lixom.net, cw00.choi@samsung.com,
+        tudor.ambarus@linaro.org, andre.draszik@linaro.org,
         semen.protsenko@linaro.org, soc@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
+        linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel-team@android.com
+Subject: Re: [PATCH 12/21] clk: samsung: clk-pll: Add support for
+ pll_{0516,0517,518}
+Message-ID: <ZR704FEUwYpq5sFJ@google.com>
 References: <20231005155618.700312-1-peter.griffin@linaro.org>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
- 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
- D2GYIS41Kv4Isx2dEFh+/Q==
-In-Reply-To: <20231005155618.700312-1-peter.griffin@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <20231005155618.700312-13-peter.griffin@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231005155618.700312-13-peter.griffin@linaro.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 05/10/2023 17:55, Peter Griffin wrote:
-> Hi folks,
+On 10/05/2023, Peter Griffin wrote:
+> Thesee plls are found in the Tensor gs101 SoC found in the Pixel 6.
+
+nit: Thesee -> These
+
 > 
-> This series adds initial SoC support for the GS101 SoC and also initial board
-> support for Pixel 6 phone (Oriole).
+> pll0516x: Integrer PLL with high frequency
+> pll0517x: Integrer PLL with middle frequency
+> pll0518x: Integrer PLL with low frequency
+
+nit: Integrer -> Integer?
+
+Regards,
+Will
+
 > 
-> The gs101 / Tensor SoC is also used in Pixel6a (bluejay) and Pixel 6 Pro (raven).
-> Currently DT is just added for the gs101 SoC and Oriole.
-
-Thanks for submitting the patches. Nice work!
-
-This is basically a custom-made variant of Exynos made by Samsung for
-Google. Something similar what is with Tesla FSD (and Axis Artpec-8
-which was not upstreamed, AFAIR). Many, many drivers and bindings will
-be re-used. I want to be sure that GS101 fits into existing Samsung
-Exynos support, re-uses it as much as possible and extend when necessary
-without breaking anything. Therefore, when the patches are ready, I
-would like to be the one applying entire set and future submissions
-through Samsung SoC tree, just like I am doing it with Tesla FSD, so I
-keep entire Samsung-ecosystem in shape.
-
-This also means that you are lucky to be selected to:
-https://elixir.bootlin.com/linux/v6.6-rc4/source/Documentation/process/maintainer-soc-clean-dts.rst
-joining there Tesla FSD and entire Samsung Exynos family :)
-
-I hope that's ok.
-
-Best regards,
-Krzysztof
-
+> PLL0516x
+> FOUT = (MDIV * 2 * FIN)/PDIV * 2^SDIV)
+> 
+> PLL0517x and PLL0518x
+> FOUT = (MDIV * FIN)/PDIV*2^SDIV)
+> 
+> The PLLs are similar enough to pll_0822x that the same code can handle
+> both. The main difference is the change in the fout formula for the
+> high frequency 0516 pll.
+> 
+> Locktime for 516,517 & 518 is 150 the same as the pll_0822x lock factor.
+> MDIV, SDIV PDIV masks and bit shifts are also the same as 0822x.
+> 
+> When defining the PLL the "con" parameter should be set to CON3
+> register, like this
+> 
+> PLL(pll_0517x, CLK_FOUT_SHARED0_PLL, "fout_shared0_pll", "oscclk",
+>     PLL_LOCKTIME_PLL_SHARED0, PLL_CON3_PLL_SHARED0,
+>     NULL),
+> 
+> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+> ---
+>  drivers/clk/samsung/clk-pll.c | 9 ++++++++-
+>  drivers/clk/samsung/clk-pll.h | 3 +++
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/clk/samsung/clk-pll.c b/drivers/clk/samsung/clk-pll.c
+> index 74934c6182ce..4ef9fea2a425 100644
+> --- a/drivers/clk/samsung/clk-pll.c
+> +++ b/drivers/clk/samsung/clk-pll.c
+> @@ -442,7 +442,11 @@ static unsigned long samsung_pll0822x_recalc_rate(struct clk_hw *hw,
+>  	pdiv = (pll_con3 >> PLL0822X_PDIV_SHIFT) & PLL0822X_PDIV_MASK;
+>  	sdiv = (pll_con3 >> PLL0822X_SDIV_SHIFT) & PLL0822X_SDIV_MASK;
+>  
+> -	fvco *= mdiv;
+> +	if (pll->type == pll_0516x)
+> +		fvco = fvco * 2 * mdiv;
+> +	else
+> +		fvco *= mdiv;
+> +
+>  	do_div(fvco, (pdiv << sdiv));
+>  
+>  	return (unsigned long)fvco;
+> @@ -1316,6 +1320,9 @@ static void __init _samsung_clk_register_pll(struct samsung_clk_provider *ctx,
+>  	case pll_1417x:
+>  	case pll_0818x:
+>  	case pll_0822x:
+> +	case pll_0516x:
+> +	case pll_0517x:
+> +	case pll_0518x:
+>  		pll->enable_offs = PLL0822X_ENABLE_SHIFT;
+>  		pll->lock_offs = PLL0822X_LOCK_STAT_SHIFT;
+>  		if (!pll->rate_table)
+> diff --git a/drivers/clk/samsung/clk-pll.h b/drivers/clk/samsung/clk-pll.h
+> index 0725d485c6ee..ffd3d52c0dec 100644
+> --- a/drivers/clk/samsung/clk-pll.h
+> +++ b/drivers/clk/samsung/clk-pll.h
+> @@ -38,6 +38,9 @@ enum samsung_pll_type {
+>  	pll_0822x,
+>  	pll_0831x,
+>  	pll_142xx,
+> +	pll_0516x,
+> +	pll_0517x,
+> +	pll_0518x,
+>  };
+>  
+>  #define PLL_RATE(_fin, _m, _p, _s, _k, _ks) \
+> -- 
+> 2.42.0.582.g8ccd20d70d-goog
+> 
