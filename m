@@ -2,54 +2,55 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80CA1E9273A
-	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:05:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BFB6E75451
+	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:05:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236301AbjJEQFE (ORCPT
+        id S237142AbjJEQFI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57600 "EHLO
+        Thu, 5 Oct 2023 12:05:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236272AbjJEQD1 (ORCPT
+        with ESMTP id S236903AbjJEQDh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:03:27 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EB838A3D
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:20 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-40675f06f1fso14039025e9.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:19 -0700 (PDT)
+        Thu, 5 Oct 2023 12:03:37 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFA786804
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:26 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id ffacd0b85a97d-3248aa5cf4eso1163927f8f.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696521438; x=1697126238; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=SqhZbDetpDSPGH9tcjVMG0XAAmJGH9VuKuWc007JldY=;
-        b=C2C+Q+Z+zRdZDwHDeapXdo/tr43RPhNwc7tIFqGMZxVVjiUfKuH4F6O49xAZmJdg8i
-         4TmDjveEeb6WNz65G8aS0jWgIWzYlZuZ76KlcXhuU91gdXjj925mhndozhRFewv9d1Cy
-         VW/NuGSmi1Dmu6/+sKhpxbvNkWTZwtg9BgP+tgUfN92IwukyO/O10tgy4iv5OToeAgbo
-         gRUFlLgaJQ6dN+7lP1YwCzwWVMfFqY28E1IJpV2qqd3mAIIjGpeve1EqDxSgK0X7eUJN
-         kxSgHua2JAV88cYCLGbJJo6mbSSXy9YfKhuWSbQXgunILom0slO5enDePor61gBbAyW3
-         R6RA==
+        d=linaro.org; s=google; t=1696521445; x=1697126245; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UJY5YzgjF6JlKZ8w8bEEVJWVaD5OM94gHSjpC6e/tYU=;
+        b=NZJtyAUmqCnPHXpOwrhYGZpGfzxJOiYvHXFpRUCEHQdWEjCLogFfV9F7v7NcT2RlkU
+         u9ozCQxwMSmOoMygxK5UwogrRjtBfQQa5pVq6LASjv3fqT3XRQ1ojOVLtifl4w1HhEgO
+         kvQvFWgOnGei3Wqb0xrZU+keHscXL9w3wjS+P5lPiq93/eurG1sCep8/jijzH+lS6Xmz
+         flhRovigTT8duxbceUvFiq2aOpq3Cr2OocveK5AJm/QEtciOWHo/Ms0tzziJD+0Han46
+         ZaoNRbgPTyVoIEKPY0b/yWpLf8jEG3erJJdjUbFbDXE9TfGXXruupDjATFHM7/YxqZcW
+         Uq/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696521438; x=1697126238;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=SqhZbDetpDSPGH9tcjVMG0XAAmJGH9VuKuWc007JldY=;
-        b=o8SoE8kfposwj7zd3p3XN0WqCQPpRMLcF6NltHlh6K0GNMSi6IXtSBAw4hhYiU1s4e
-         XvUP7bK914Tf9qdn1xyt4lZ6qcKS9TnU6O5UUZIBxmzx4RhURnanWVDFf9Dh5wdk2ELR
-         Uo6Go9bdwtBYl/d1rDaaAtNXThkRhAsubbGx5aTyNDWM63mmSBBeiMU2CCC7pzc3P2ix
-         UfPXhkDxc3RpcrxA1yHE04vQjRMtDBBvzB0iLZMEQ0zKCHaLcq9EGvOJtlbHatB8qstE
-         X6DyB2d3ZJjhqCI7MIjv/SO+ze8VVV1EqgR1jLdrCv/y6s5afPz1kwg1cP0WWnkfYV6c
-         sW4w==
-X-Gm-Message-State: AOJu0YwELZ47OD2dBy4DruyrZ4YDUmQbj/qWMBYMnHKd+2dhGGIurdj0
-        D8n0hdnDhULOatGJ9Z4PwJfr7Q==
-X-Google-Smtp-Source: AGHT+IG/GeJb2r19mj4jeu5ZFEFUp7ngzuC6ozd49h0DMFGWzzEf3HPXrcm2cFOkZ8TfC72H5BArow==
-X-Received: by 2002:a5d:668c:0:b0:317:6579:2b9f with SMTP id l12-20020a5d668c000000b0031765792b9fmr2534206wru.30.1696521438335;
-        Thu, 05 Oct 2023 08:57:18 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1696521445; x=1697126245;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UJY5YzgjF6JlKZ8w8bEEVJWVaD5OM94gHSjpC6e/tYU=;
+        b=hqCjpHFSqZfoxNUkfwnp8aASSnh3i+cf1A/8CEipTfPePFWbHwbK3kfo126oH/e5MS
+         TSOLn2uWm8Vjm5XpemlP7cDW5MC5OLuORaw5r1ldjfobNyYxNn48LexMWJ/h8cun5zUC
+         S1QSGEe4F8aeTk1Lp6x0ervV7ZlDLXR89eC0vOUcFSyTWIIwPYpllWRm4d9SDREWQPib
+         WG8QywxBu8cZ3fv2x1z5QXcTnuL+cNC9mBKwKREFR51x/VxQp4l7pP0V887s1XZJLC9R
+         zeVO6a+GKuOpHWKnFcMx0cIvxNtGIGHcKw9hh3eTsn9CQjuOk4qTNhrV9jgaP3EdXYU0
+         JWvw==
+X-Gm-Message-State: AOJu0Ywn+4H8nvfn44APH88KKTOiIHoYhpoDCT7uyVD9pE6CioSuJQwi
+        hBY6g1ZKH6cbS7SyFEo9oCA8Mw==
+X-Google-Smtp-Source: AGHT+IGiE4LAahvWXJtk7tI8KG5YKIIkGsBVrQ6crOBhLdNhWbs7O377srtrTm+hbZwXS/xfBg4ukg==
+X-Received: by 2002:a5d:5912:0:b0:31f:f11b:8b68 with SMTP id v18-20020a5d5912000000b0031ff11b8b68mr4581645wrd.71.1696521445200;
+        Thu, 05 Oct 2023 08:57:25 -0700 (PDT)
 Received: from gpeter-l.lan (host-92-12-225-146.as13285.net. [92.12.225.146])
-        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.16
+        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Oct 2023 08:57:17 -0700 (PDT)
+        Thu, 05 Oct 2023 08:57:24 -0700 (PDT)
 From:   Peter Griffin <peter.griffin@linaro.org>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
@@ -63,121 +64,44 @@ Cc:     peter.griffin@linaro.org, tudor.ambarus@linaro.org,
         linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH 00/21] Add minimal Tensor/GS101 SoC support and Oriole/Pixel6 board
-Date:   Thu,  5 Oct 2023 16:55:57 +0100
-Message-ID: <20231005155618.700312-1-peter.griffin@linaro.org>
+Subject: [PATCH 04/21] dt-bindings: soc: google: exynos-sysreg: add dedicated SYSREG compatibles to GS101
+Date:   Thu,  5 Oct 2023 16:56:01 +0100
+Message-ID: <20231005155618.700312-5-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.42.0.582.g8ccd20d70d-goog
+In-Reply-To: <20231005155618.700312-1-peter.griffin@linaro.org>
+References: <20231005155618.700312-1-peter.griffin@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi folks,
+GS101 has three different SYSREG controllers, add dedicated
+compatibles for them to the documentation.
 
-This series adds initial SoC support for the GS101 SoC and also initial board
-support for Pixel 6 phone (Oriole).
+Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+---
+ .../bindings/soc/samsung/samsung,exynos-sysreg.yaml        | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-The gs101 / Tensor SoC is also used in Pixel6a (bluejay) and Pixel 6 Pro (raven).
-Currently DT is just added for the gs101 SoC and Oriole.
-
-The support added in this series consists of:
-* cpus
-* pinctrl
-* some CCF clock implementation
-* watchdog
-* uart
-* gpio
-
-This is enough to boot through to a busybox initramfs and shell using an upstream
-kernel though :) More platform support will be added over the following weeks
-and months. Currently we boot with clk_ignore_unused parameter but this will be
-updated as more clocks and platform support lands.
-
-For further information on how to build and flash the upstream kernel on your
-Pixel 6, with a prebuilt busybox initramfs please refer to the script and
-README.md here:
-
-https://git.codelinaro.org/linaro/googlelt/pixelscripts
-
-I've also included the dtbo overlay containing board_id and board_rev in this
-series as otherwise the LK bootloader will bootloop if this is not present in
-the dtbo partition. It seems like it would be nicer for the upstream kernel to
-build all the DT required to boot upstream kernel on a production phone rather
-than having to obtain this dtbo from some other place, but if it is a pain point
-then I can remove it.
-
-Many thanks,
-
-Peter.
-
-Peter Griffin (21):
-  dt-bindings: interrupt-controller: Add gs101 interrupt controller
-  dt-bindings: soc: samsung: exynos-pmu: Add gs101 compatible
-  dt-bindings: clock: Add Google gs101 clock management unit bindings
-  dt-bindings: soc: google: exynos-sysreg: add dedicated SYSREG
-    compatibles to GS101
-  dt-bindings: watchdog: Document Google gs101 & gs201 watchdog bindings
-  dt-bindings: arm: google: Add bindings for Google ARM platforms
-  dt-bindings: pinctrl: samsung: add google,gs101-pinctrl compatible
-  dt-bindings: pinctrl: samsung: add gs101-wakeup-eint compatible
-  dt-bindings: clock: gs101: Add cmu_top clock indices
-  dt-bindings: clock: gs101: Add cmu_apm clock indices
-  dt-bindings: clock: gs101: Add cmu_misc clock indices
-  clk: samsung: clk-pll: Add support for pll_{0516,0517,518}
-  clk: samsung: clk-gs101: Add cmu_top registers, plls, mux and gates
-  clk: samsung: clk-gs101: add CMU_APM support
-  clk: google: gs101: Add support for CMU_MISC clock unit
-  pinctrl: samsung: Add gs101 SoC pinctrl configuration
-  watchdog: s3c2410_wdt: Add support for Google tensor SoCs
-  arm64: dts: google: Add initial Google gs101 SoC support
-  google/gs101: Add dt overlay for oriole board
-  arm64: defconfig: Enable Google Tensor SoC
-  MAINTAINERS: add entry for Google Tensor SoC
-
- .../devicetree/bindings/arm/google.yaml       |   46 +
- .../bindings/clock/google,gs101-clock.yaml    |  109 +
- .../samsung,pinctrl-wakeup-interrupt.yaml     |    2 +
- .../bindings/pinctrl/samsung,pinctrl.yaml     |    4 +-
- .../bindings/soc/samsung/exynos-pmu.yaml      |    2 +
- .../soc/samsung/samsung,exynos-sysreg.yaml    |    7 +
- .../bindings/watchdog/samsung-wdt.yaml        |   10 +-
- MAINTAINERS                                   |   11 +
- arch/arm64/Kconfig.platforms                  |    6 +
- arch/arm64/boot/dts/Makefile                  |    1 +
- arch/arm64/boot/dts/google/Makefile           |    7 +
- arch/arm64/boot/dts/google/gs101-oriole.dts   |   68 +
- arch/arm64/boot/dts/google/gs101-oriole.dtso  |   21 +
- arch/arm64/boot/dts/google/gs101-pinctrl.dtsi | 1134 +++++++++
- arch/arm64/boot/dts/google/gs101-pinctrl.h    |   17 +
- arch/arm64/boot/dts/google/gs101.dtsi         |  501 ++++
- arch/arm64/configs/defconfig                  |    1 +
- drivers/clk/samsung/Kconfig                   |    9 +
- drivers/clk/samsung/Makefile                  |    1 +
- drivers/clk/samsung/clk-gs101.c               | 2171 +++++++++++++++++
- drivers/clk/samsung/clk-pll.c                 |    9 +-
- drivers/clk/samsung/clk-pll.h                 |    3 +
- .../pinctrl/samsung/pinctrl-exynos-arm64.c    |  163 ++
- drivers/pinctrl/samsung/pinctrl-exynos.c      |   68 +-
- drivers/pinctrl/samsung/pinctrl-exynos.h      |   44 +
- drivers/pinctrl/samsung/pinctrl-samsung.c     |    4 +
- drivers/pinctrl/samsung/pinctrl-samsung.h     |   24 +
- drivers/watchdog/s3c2410_wdt.c                |  116 +-
- include/dt-bindings/clock/gs101.h             |  232 ++
- .../dt-bindings/interrupt-controller/gs101.h  |  758 ++++++
- 30 files changed, 5533 insertions(+), 16 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/arm/google.yaml
- create mode 100644 Documentation/devicetree/bindings/clock/google,gs101-clock.yaml
- create mode 100644 arch/arm64/boot/dts/google/Makefile
- create mode 100644 arch/arm64/boot/dts/google/gs101-oriole.dts
- create mode 100644 arch/arm64/boot/dts/google/gs101-oriole.dtso
- create mode 100644 arch/arm64/boot/dts/google/gs101-pinctrl.dtsi
- create mode 100644 arch/arm64/boot/dts/google/gs101-pinctrl.h
- create mode 100644 arch/arm64/boot/dts/google/gs101.dtsi
- create mode 100644 drivers/clk/samsung/clk-gs101.c
- create mode 100644 include/dt-bindings/clock/gs101.h
- create mode 100644 include/dt-bindings/interrupt-controller/gs101.h
-
+diff --git a/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml b/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
+index 163e912e9cad..02f580d6489b 100644
+--- a/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
++++ b/Documentation/devicetree/bindings/soc/samsung/samsung,exynos-sysreg.yaml
+@@ -50,6 +50,13 @@ properties:
+               - samsung,exynosautov9-peric1-sysreg
+           - const: samsung,exynosautov9-sysreg
+           - const: syscon
++      - items:
++          - enum:
++              - google,gs101-peric0-sysreg
++              - google,gs101-peric1-sysreg
++              - google,gs101-apm-sysreg
++          - const: google,gs101-sysreg
++          - const: syscon
+ 
+   reg:
+     maxItems: 1
 -- 
 2.42.0.582.g8ccd20d70d-goog
 
