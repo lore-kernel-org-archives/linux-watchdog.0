@@ -2,55 +2,55 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DD5BE772A6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3BBDE772A9
 	for <linux-watchdog@archiver.kernel.org>; Thu,  5 Oct 2023 16:11:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240672AbjJEQKr (ORCPT
+        id S236560AbjJEQKt (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 5 Oct 2023 12:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33312 "EHLO
+        Thu, 5 Oct 2023 12:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238269AbjJEQJv (ORCPT
+        with ESMTP id S238722AbjJEQKA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Oct 2023 12:09:51 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D004C87221
-        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:38 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id ffacd0b85a97d-3248aa5cf4eso1164143f8f.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:38 -0700 (PDT)
+        Thu, 5 Oct 2023 12:10:00 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B023E85DAA
+        for <linux-watchdog@vger.kernel.org>; Thu,  5 Oct 2023 08:57:29 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id 5b1f17b1804b1-405361bb9f7so9955315e9.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Oct 2023 08:57:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696521457; x=1697126257; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1696521448; x=1697126248; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yQQEqZ6dgoMIiE150E7fSsiHYzKXaQCMbIzJ/S4ZYh0=;
-        b=gCDzUgoGnRiM+ARNjj+9qPWYmacwg5ohZ1fKUdPb3L23S2fECFE2E8xQfrBHr7axwo
-         gIz1yemXGLgorCSLbenlSYrPIZwnxJuFQzVOpu/U7LX5CHm8TOgxRHhSp0tkrJEHNskU
-         9d8zdPVd8LU21Bmg+pcACSDqPoi9LjitbwkOMHtBYCmjRURDpFgZdTWVPCvIfRM8UVXu
-         CK6sUtXI4xY+HYiC90CyPOAG+AFZ0qLVVvvndSSI4rxITtc0dfnJvKj1Y/5NT2YLoKSp
-         ykp99j9jwtHqynQ2dpRy9YvWIVeI2EIdcbG1JGpRoK4049iH+foaAojurpSEviQId2YW
-         ovDg==
+        bh=yMWnJU8MsW38YqwezPXC42C6b/YrhBHi3/ZxSDJgFAQ=;
+        b=EuT6SeXl8O87yIT6gGd/t4GMSiDJVxyJV0+GlwI+qknSf22O+r1szlTGz3AsB6S727
+         piWP5sVc4scD39t2JxilQdHg5uA8/ti+LM4TKhgAdxPqlvEhMkQBFk+AXrx7nU7L0mrZ
+         vZzl/umboZSChsG1CxmzOhOVzkMQVZ460bcftFrBYlggKtswZf9e4ahNUoc7W1CFvodw
+         mOtolivfM/UXBmJXp/V83p8JxVix3YmFg2qWH+2yb3ensMKCfXT4xJ+DNRkqSqP9ESiL
+         etqaxW5yjBxilnX7g8aS6/ge+KrNChoMSZbx+GE00I+dTXSeVWZUMGExfB/KjHOGCKeO
+         LkVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696521457; x=1697126257;
+        d=1e100.net; s=20230601; t=1696521448; x=1697126248;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yQQEqZ6dgoMIiE150E7fSsiHYzKXaQCMbIzJ/S4ZYh0=;
-        b=l7/MOiPXaJOx3wfgzjF2fHPDTM4FW7z1HeYhQNBTdQ/mEY/FO4ieNwoOQSWdMCWpmT
-         YzT2CwmmFGIkU0dg02WDTQT8kg5lt/f6+r1NI+omR6iGI96uP9y4j0g/Dz8pna18Lk92
-         7aB39hAvc8lv/u/vvwh+wv1nPTyMXWYcpRAgleusxb6tf0l3eRXCldSs3l9oQsleEh/f
-         MWKvVtNEQCwaHLUuRf2rtcYmfazCrRo5VgYLQbuiy3SRg1Kl9FF9nUdg2gd1JgS2Frpc
-         U7vNQE/wj0+FzhTs38SLGwsZKbq6V8LlO6q0rzjwCn9XKFQ+uXEtH5MxVcAgyGfclU5M
-         TeSg==
-X-Gm-Message-State: AOJu0Yx+r8i7Lx5R4B2PpWH5k58jaUn0GgG+zpa2+ufdqu0pLyPK/KKj
-        x+Oi33BgD8FK1vS2nfYDRmQ/tA==
-X-Google-Smtp-Source: AGHT+IF/lcHc9XUltM5UGXmSAYqRcd/8VSrf26P8R3iLwmpTL9VeuYYzrZE6bmpvvFoO8WJJ0m9ktQ==
-X-Received: by 2002:a5d:6909:0:b0:314:dc0:2fca with SMTP id t9-20020a5d6909000000b003140dc02fcamr5280803wru.29.1696521457202;
-        Thu, 05 Oct 2023 08:57:37 -0700 (PDT)
+        bh=yMWnJU8MsW38YqwezPXC42C6b/YrhBHi3/ZxSDJgFAQ=;
+        b=P2nf0aYttbe09hE195Sh6gWdozqmzLQjFz/UHi+ncYhteuWKE9GiPDLxxTO7viDozL
+         4Zt4Pqzco2EdlMCfw0bixkKaUU8w5vXy6eu+6zPzT2sLedXvqJoacqeetAS9D7VP/7FW
+         s6Uw6Hv3z5poRDemk0CHRG7lyjObEmpwkzyRD8zlt/OmRqqfQJbbzMCvhKYFhCDlavZm
+         747e7rglyk5Yjvu/THXXGbPC6vaqO3NLs1aKD+DDbOhOsDc+I+NQvcCeaA/x8gqLWszG
+         sP3JljZD1ZZkxenSdacDaKIWVTppekBiqTjlkNocq4zMSzt9f+CQS08tv/+xAO4H6wT5
+         J7JQ==
+X-Gm-Message-State: AOJu0YwpjSdPf2TY3gDair1zAJfHKUquwSedFlhUx+xM26Gj5mq8bjWR
+        VSWUdWBubfckVnAS9ZtYIs4BO+YRSuWzilGziL0=
+X-Google-Smtp-Source: AGHT+IElw6k3YNkDW9u8nFOA5PsXxz5xE+xMGpuB2fgKZPK0gtuloOqBwjzaNH/QHLmyKFBNlfOM0g==
+X-Received: by 2002:a5d:4286:0:b0:321:651b:4651 with SMTP id k6-20020a5d4286000000b00321651b4651mr5358186wrq.29.1696521448129;
+        Thu, 05 Oct 2023 08:57:28 -0700 (PDT)
 Received: from gpeter-l.lan (host-92-12-225-146.as13285.net. [92.12.225.146])
-        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.35
+        by smtp.gmail.com with ESMTPSA id t9-20020a5d4609000000b0031f8a59dbeasm2084336wrq.62.2023.10.05.08.57.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Oct 2023 08:57:36 -0700 (PDT)
+        Thu, 05 Oct 2023 08:57:27 -0700 (PDT)
 From:   Peter Griffin <peter.griffin@linaro.org>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
@@ -64,9 +64,9 @@ Cc:     peter.griffin@linaro.org, tudor.ambarus@linaro.org,
         linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH 12/21] clk: samsung: clk-pll: Add support for pll_{0516,0517,518}
-Date:   Thu,  5 Oct 2023 16:56:09 +0100
-Message-ID: <20231005155618.700312-13-peter.griffin@linaro.org>
+Subject: [PATCH 06/21] dt-bindings: arm: google: Add bindings for Google ARM platforms
+Date:   Thu,  5 Oct 2023 16:56:03 +0100
+Message-ID: <20231005155618.700312-7-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.42.0.582.g8ccd20d70d-goog
 In-Reply-To: <20231005155618.700312-1-peter.griffin@linaro.org>
 References: <20231005155618.700312-1-peter.griffin@linaro.org>
@@ -76,79 +76,67 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Thesee plls are found in the Tensor gs101 SoC found in the Pixel 6.
-
-pll0516x: Integrer PLL with high frequency
-pll0517x: Integrer PLL with middle frequency
-pll0518x: Integrer PLL with low frequency
-
-PLL0516x
-FOUT = (MDIV * 2 * FIN)/PDIV * 2^SDIV)
-
-PLL0517x and PLL0518x
-FOUT = (MDIV * FIN)/PDIV*2^SDIV)
-
-The PLLs are similar enough to pll_0822x that the same code can handle
-both. The main difference is the change in the fout formula for the
-high frequency 0516 pll.
-
-Locktime for 516,517 & 518 is 150 the same as the pll_0822x lock factor.
-MDIV, SDIV PDIV masks and bit shifts are also the same as 0822x.
-
-When defining the PLL the "con" parameter should be set to CON3
-register, like this
-
-PLL(pll_0517x, CLK_FOUT_SHARED0_PLL, "fout_shared0_pll", "oscclk",
-    PLL_LOCKTIME_PLL_SHARED0, PLL_CON3_PLL_SHARED0,
-    NULL),
+This introduces bindings and dt-schema for the Google tensor SoCs.
+Currently just gs101 and pixel 6 are supported.
 
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- drivers/clk/samsung/clk-pll.c | 9 ++++++++-
- drivers/clk/samsung/clk-pll.h | 3 +++
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/arm/google.yaml       | 46 +++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/arm/google.yaml
 
-diff --git a/drivers/clk/samsung/clk-pll.c b/drivers/clk/samsung/clk-pll.c
-index 74934c6182ce..4ef9fea2a425 100644
---- a/drivers/clk/samsung/clk-pll.c
-+++ b/drivers/clk/samsung/clk-pll.c
-@@ -442,7 +442,11 @@ static unsigned long samsung_pll0822x_recalc_rate(struct clk_hw *hw,
- 	pdiv = (pll_con3 >> PLL0822X_PDIV_SHIFT) & PLL0822X_PDIV_MASK;
- 	sdiv = (pll_con3 >> PLL0822X_SDIV_SHIFT) & PLL0822X_SDIV_MASK;
- 
--	fvco *= mdiv;
-+	if (pll->type == pll_0516x)
-+		fvco = fvco * 2 * mdiv;
-+	else
-+		fvco *= mdiv;
+diff --git a/Documentation/devicetree/bindings/arm/google.yaml b/Documentation/devicetree/bindings/arm/google.yaml
+new file mode 100644
+index 000000000000..3759d423d9cb
+--- /dev/null
++++ b/Documentation/devicetree/bindings/arm/google.yaml
+@@ -0,0 +1,46 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/arm/google.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- 	do_div(fvco, (pdiv << sdiv));
- 
- 	return (unsigned long)fvco;
-@@ -1316,6 +1320,9 @@ static void __init _samsung_clk_register_pll(struct samsung_clk_provider *ctx,
- 	case pll_1417x:
- 	case pll_0818x:
- 	case pll_0822x:
-+	case pll_0516x:
-+	case pll_0517x:
-+	case pll_0518x:
- 		pll->enable_offs = PLL0822X_ENABLE_SHIFT;
- 		pll->lock_offs = PLL0822X_LOCK_STAT_SHIFT;
- 		if (!pll->rate_table)
-diff --git a/drivers/clk/samsung/clk-pll.h b/drivers/clk/samsung/clk-pll.h
-index 0725d485c6ee..ffd3d52c0dec 100644
---- a/drivers/clk/samsung/clk-pll.h
-+++ b/drivers/clk/samsung/clk-pll.h
-@@ -38,6 +38,9 @@ enum samsung_pll_type {
- 	pll_0822x,
- 	pll_0831x,
- 	pll_142xx,
-+	pll_0516x,
-+	pll_0517x,
-+	pll_0518x,
- };
- 
- #define PLL_RATE(_fin, _m, _p, _s, _k, _ks) \
++title: Google Tensor platforms
++
++maintainers:
++  - Peter Griffin <peter.griffin@linaro.org>
++
++description: |
++  ARM platforms using SoCs designed by Google branded "Tensor"
++  used in Pixel devices.
++
++  Currently upstream this is devices using "gs101" SoC which
++  is found in Pixel 6, Pixel 6 Pro and Pixel 6a.
++
++  Google have a few different names for the SoC.
++  - Marketing name ("Tensor")
++  - Codename ("Whitechapel")
++  - SoC ID ("gs101")
++  - Die ID ("S5P9845");
++
++  Likewise there are a couple of names for the actual device
++  - Marketing name ("Pixel 6")
++  - Codename ("Oriole")
++
++  Devicetrees should use the lowercased SoC ID and lowercased
++  board codename. e.g. gs101 and gs101-oriole
++
++properties:
++  $nodename:
++    const: '/'
++  compatible:
++    oneOf:
++
++      - description: Google Pixel 6 / Oriole
++        items:
++          - enum:
++              - google,gs101-oriole
++          - const: google,gs101
++
++additionalProperties: true
++
++...
 -- 
 2.42.0.582.g8ccd20d70d-goog
 
