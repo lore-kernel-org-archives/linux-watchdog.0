@@ -2,131 +2,130 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD935CD68ED
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Oct 2023 06:29:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 039AFCD68FB
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Oct 2023 06:58:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442256AbjJJG3j (ORCPT
+        id S1442401AbjJJG6D (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 10 Oct 2023 02:29:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35416 "EHLO
+        Tue, 10 Oct 2023 02:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442233AbjJJG3i (ORCPT
+        with ESMTP id S1442363AbjJJG6B (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Oct 2023 02:29:38 -0400
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5EA9F;
-        Mon,  9 Oct 2023 23:29:37 -0700 (PDT)
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39A0OEOY030835;
-        Tue, 10 Oct 2023 08:29:12 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-        message-id:date:mime-version:subject:to:cc:references:from
-        :in-reply-to:content-type:content-transfer-encoding; s=
-        selector1; bh=nXW3qRlXx4bi+QU4+EuXILrIzXmfut+QZKeJU9II6o0=; b=eV
-        Ks8hBCCJE6gA0oirU31QLcG1Pg9JvSZsrDI/ZetyZQw0wrHCWzA1IIlIlAVO4YCL
-        ZCUDnJU9bFA0mDszRmKxTZNm84d0wdTN6HJzccj/Yh4jonH0LMV7oeCcphn3ra+E
-        y5U9jAZSwuH2LrZN+EVaaS/UKfWucb1X9kWbf9P/d1mr06DLfB9F9DfJUmeop/cw
-        7LLjyF5wGR3aNA6XWuyIsNl0667BqUNxHnmgJkVAlpsVS7MkdNp860MpzkfiCauU
-        vxKKdvmeOskyvo7OoX5zMFvawnh+vKUjkxhVMSidLzCh0onn12ZHWS8hW3YvrviA
-        G2Ropo4st8gW+XAmCdFg==
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3tkhfe0bu5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Oct 2023 08:29:12 +0200 (MEST)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 59736100058;
-        Tue, 10 Oct 2023 08:29:11 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 529002128AA;
-        Tue, 10 Oct 2023 08:29:11 +0200 (CEST)
-Received: from [10.201.20.38] (10.201.20.38) by SHFDAG1NODE1.st.com
- (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Tue, 10 Oct
- 2023 08:29:10 +0200
-Message-ID: <f7b1dfe5-5efd-54d8-b651-b1fd5c2ab291@foss.st.com>
-Date:   Tue, 10 Oct 2023 08:29:10 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH] watchdog: st_lpc: Use device_get_match_data()
-Content-Language: en-US
-To:     Rob Herring <robh@kernel.org>,
+        Tue, 10 Oct 2023 02:58:01 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697D59F;
+        Mon,  9 Oct 2023 23:57:59 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42CCC433C8;
+        Tue, 10 Oct 2023 06:57:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1696921079;
+        bh=EYuUNIt6jJRwYBy0E3p0Vk5Y1cHFfh6ehg6kHTfAyUU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zzQU1pwcQ/CneY+FW5FxMonJkZiI86OeSlFhEhdRj/hvvySkkTG2K8Sk51p8M1RuX
+         NA8xXufVqn3K4h0T1GP7rVOn7ryC3K4n6YeVOhjVhWQYEIJa6ayQXO2ZChu8j2BCF+
+         i7dawBqEH7KL0R9NbBls/UV6Yg3YejnrOELbQ5Mk=
+Date:   Tue, 10 Oct 2023 08:57:55 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Max Kellermann <max.kellermann@ionos.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jens Axboe <axboe@kernel.dk>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        James Clark <james.clark@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Pavel Machek <pavel@ucw.cz>, Lee Jones <lee@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-CC:     <linux-arm-kernel@lists.infradead.org>,
-        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20231009211356.3242037-18-robh@kernel.org>
-From:   Patrice CHOTARD <patrice.chotard@foss.st.com>
-In-Reply-To: <20231009211356.3242037-18-robh@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.201.20.38]
-X-ClientProxiedBy: SHFCAS1NODE1.st.com (10.75.129.72) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-10_04,2023-10-09_01,2023-05-22_02
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
+        nvdimm@lists.linux.dev, linux-nvme@lists.infradead.org,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
+        coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
+        linux-leds@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 6/7] fs/sysfs/group: make attribute_group pointers const
+Message-ID: <2023101041-giggle-refried-5b8c@gregkh>
+References: <20231009165741.746184-1-max.kellermann@ionos.com>
+ <20231009165741.746184-6-max.kellermann@ionos.com>
+ <264fa39d-aed6-4a54-a085-107997078f8d@roeck-us.net>
+ <CAKPOu+8k2x1CucWSzoouts0AfMJk+srJXWWf3iWVOeY+fWkOpQ@mail.gmail.com>
+ <f511170fe61d7e7214a3a062661cf4103980dad6.camel@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f511170fe61d7e7214a3a062661cf4103980dad6.camel@perches.com>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-
-On 10/9/23 23:13, Rob Herring wrote:
-> Use preferred device_get_match_data() instead of of_match_device() to
-> get the driver match data. With this, adjust the includes to explicitly
-> include the correct headers.
+On Mon, Oct 09, 2023 at 11:48:10PM -0700, Joe Perches wrote:
+> On Mon, 2023-10-09 at 22:05 +0200, Max Kellermann wrote:
+> > On Mon, Oct 9, 2023 at 7:24 PM Guenter Roeck <linux@roeck-us.net> wrote:
+> > > Also, I don't know why checkpatch is happy with all the
+> > > 
+> > >         const struct attribute_group *const*groups;
+> > > 
+> > > instead of
+> > > 
+> > >         const struct attribute_group *const *groups;
+> > 
+> > I found out that checkpatch has no check for this at all; it does
+> > complain about such lines, but only for local variables. But that
+> > warning is actually a bug, because this is a check for unary
+> > operators: it thinks the asterisk is a dereference operator, not a
+> > pointer declaration, and complains that the unary operator must be
+> > preceded by a space. Thus warnings on local variable are only correct
+> > by coincidence, not by design.
+> > 
+> > Inside structs or parameters (where my coding style violations can be
+> > found), it's a different context and thus checkpatch doesn't apply the
+> > rules for unary operators.
 > 
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> ---
->  drivers/watchdog/st_lpc_wdt.c | 11 ++---------
->  1 file changed, 2 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-> index d2aa43c00221..4c5b8d98a4f3 100644
-> --- a/drivers/watchdog/st_lpc_wdt.c
-> +++ b/drivers/watchdog/st_lpc_wdt.c
-> @@ -15,7 +15,6 @@
->  #include <linux/mfd/syscon.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
-> -#include <linux/of_platform.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
->  #include <linux/watchdog.h>
-> @@ -42,7 +41,7 @@ struct st_wdog {
->  	void __iomem *base;
->  	struct device *dev;
->  	struct regmap *regmap;
-> -	struct st_wdog_syscfg *syscfg;
-> +	const struct st_wdog_syscfg *syscfg;
->  	struct clk *clk;
->  	unsigned long clkrate;
->  	bool warm_reset;
-> @@ -150,7 +149,6 @@ static void st_clk_disable_unprepare(void *data)
->  static int st_wdog_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> -	const struct of_device_id *match;
->  	struct device_node *np = dev->of_node;
->  	struct st_wdog *st_wdog;
->  	struct regmap *regmap;
-> @@ -173,12 +171,7 @@ static int st_wdog_probe(struct platform_device *pdev)
->  	if (!st_wdog)
->  		return -ENOMEM;
->  
-> -	match = of_match_device(st_wdog_match, dev);
-> -	if (!match) {
-> -		dev_err(dev, "Couldn't match device\n");
-> -		return -ENODEV;
-> -	}
-> -	st_wdog->syscfg	= (struct st_wdog_syscfg *)match->data;
-> +	st_wdog->syscfg	= (struct st_wdog_syscfg *)device_get_match_data(dev);
->  
->  	base = devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(base))
+> My opinion is that const use in the kernel should almost
+> always have whitespace before and after it except when
+> preceded by a open parenthesis or a newline.
 
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-
-Thanks
-Patrice
+I totally agree.
