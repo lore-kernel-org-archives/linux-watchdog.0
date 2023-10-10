@@ -2,55 +2,55 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E6CCD98D0
-	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Oct 2023 22:50:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 582F9CD98D2
+	for <linux-watchdog@archiver.kernel.org>; Tue, 10 Oct 2023 22:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344401AbjJJWuj (ORCPT
+        id S1344448AbjJJWus (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 10 Oct 2023 18:50:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37290 "EHLO
+        Tue, 10 Oct 2023 18:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344178AbjJJWuX (ORCPT
+        with ESMTP id S1344185AbjJJWuY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Oct 2023 18:50:23 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9206134
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Oct 2023 15:50:07 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-406618d080eso59750745e9.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Oct 2023 15:50:07 -0700 (PDT)
+        Tue, 10 Oct 2023 18:50:24 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70258E6
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Oct 2023 15:50:10 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id ffacd0b85a97d-31fa15f4cc6so5991620f8f.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Oct 2023 15:50:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696978205; x=1697583005; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1696978208; x=1697583008; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FT8OjQPOzp4EIGR+2ybdNhEXHoKR6fLefE/6jlWk8mY=;
-        b=atS67DLXvo6ib50Tq7eIk0LM/2blxoVjRFumzYMK7sJNc3xXjHM0B5D/1J1PVou6q8
-         TiFORHqSZdkOFcgqqIl1K4PsvfLePDYqfLPYTXqp07VVPTL/nZAs5kjtag0Bi7NUN0QD
-         mJ4iJQcecQPHSzFmG5V304/AboN/5Cwu9R75Y+fc8F1BgeoxRWEnrwWjX/RVMpUMnPSg
-         tOYkkQZIqsPiOoztwKIiyjSJVqhEYc2En1yY5AzvKW5g0BlZV3WSZudSiqu3dP+wQgTB
-         lHFu0SvcJR92HECSexFOgwLSl6BoxWANcEY6sKmGts4H/MQOTUA7/i8+TkflzGgdNZWk
-         t9Nw==
+        bh=9Yz4b7BED9jsghCGjgLwMYVCtDwHU07Y49FyrJSbNT8=;
+        b=IKLgTVum2ttPvimQZq8eBFzl8J4D8KbP58oDUVHgcdqmPMTE5GBC1C8xZpA3ztD65z
+         +1vnv5McoEYJmuj5gf34TnqSAEcyZDSLYQoRrQU8y+xrzQuz5F5MZ/TEuqUebJt0E0un
+         9OOKNe+LJrEujgmnv6BsMNrMA9lzuLkW2hGIgECtUgJ+B4vz3lK1pIWjs7jEde+1dE/l
+         OCThPVrEA/aWDCPF7kBouBQmfYuFY1s8XAUegVOgHR4NCUXR3XJzP1jrl0TZUgoTBxxo
+         xbpYcwWiqaVpyRtUHNX9ddusH3+3aKO78XB2ajO7e8teERao8VrvW61n9ucY9k1JynMD
+         kT6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696978205; x=1697583005;
+        d=1e100.net; s=20230601; t=1696978208; x=1697583008;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FT8OjQPOzp4EIGR+2ybdNhEXHoKR6fLefE/6jlWk8mY=;
-        b=ddBDs693EEpmzaFYimRqdgMo1+81NfhwPdzFSk3RJxmU0zNodLRD0vOZ2B6yG+JsEi
-         LkrWTaR/4gxJqVARTxQncig1mS8w3M+JOQop1Poc/8MSJ8oIRo/Flv1VbAvPeRecIwJu
-         0CLsMjGpZKkUJpCHAxbMRxP+lJG37t7hNZs0fdQyRQBR5BrGTMY11i4upmm8105hE8ZU
-         uRUfQLGdB0+TIXbxHKZ31WIGwWoONzLVKqqcFGc7IgC4nVEQ06/jsZo0czRaR/pvWlbR
-         G38K7+3mGiTF4pIM7N7zrzbFVNKUDvOq10XKjm18z3xoT4zV8wbmx3fk1WZmnEHve70J
-         sTzw==
-X-Gm-Message-State: AOJu0YwHQDcSChhMP0frD/ynk8ZJa813zG4PgRIvhV2rJLNbS4FMnzrF
-        rD2WzRfBIQNq3KWFrgun0yUuCQ==
-X-Google-Smtp-Source: AGHT+IHD9BUnvEHEyiILISkPTfEFNuKIEdNxYEqW/pFe+0/Eerhgkse7LPZjwPJauiadvFNDSo4k6A==
-X-Received: by 2002:a05:600c:11cf:b0:405:7400:1e42 with SMTP id b15-20020a05600c11cf00b0040574001e42mr17668465wmi.41.1696978205333;
-        Tue, 10 Oct 2023 15:50:05 -0700 (PDT)
+        bh=9Yz4b7BED9jsghCGjgLwMYVCtDwHU07Y49FyrJSbNT8=;
+        b=gbzep8IvqvbxY2qIF7pZFt01H3O17ArJpR68IbFD05LXpYMtmLNNA6BPrN/PZhzkpr
+         0JNVdfO+si+6bjNIOmi59Vimuq8/t7fCTCk96VQmnv/+eYzX12Pq6A+73pPfqjHVEq7Q
+         lGwrMKXUJG0rSiB9QaPNkS3rVeJTZmjUiarbVMHS0UfEg5JCZWrzoaQtvnJMoIWewSgw
+         5IZfXe1ah2uFNGqnPfOD0ekk1k3+wzDBPaORIpgnsooerM/ySKLSVyfK2X1zvzbGeSbR
+         IzYIxOGYBmrsl3BxMiu8wpzelMzrY9yA2yDzFyZKa94xCh7T8sOA7R1lpUWLDML0ic8K
+         eVnQ==
+X-Gm-Message-State: AOJu0YxXeIlrRp8Sz55fJvtzI77inCU61vsMA+/KxDpMxSkbVAeMIpRm
+        rpvxC78DS9dI09hPlmj8/v74Vg==
+X-Google-Smtp-Source: AGHT+IFNG3Qwaia/Qp5LslJC4XL4+/xLKXhHt71kJ8NYLHVL9Auls2DQpn5ckGNsA3FzbkhegrJYCg==
+X-Received: by 2002:a5d:4f85:0:b0:31a:ea9a:b602 with SMTP id d5-20020a5d4f85000000b0031aea9ab602mr19104135wru.1.1696978208076;
+        Tue, 10 Oct 2023 15:50:08 -0700 (PDT)
 Received: from gpeter-l.lan (host-92-12-225-146.as13285.net. [92.12.225.146])
-        by smtp.gmail.com with ESMTPSA id j13-20020adfe50d000000b003196b1bb528sm13689547wrm.64.2023.10.10.15.50.04
+        by smtp.gmail.com with ESMTPSA id j13-20020adfe50d000000b003196b1bb528sm13689547wrm.64.2023.10.10.15.50.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Oct 2023 15:50:04 -0700 (PDT)
+        Tue, 10 Oct 2023 15:50:07 -0700 (PDT)
 From:   Peter Griffin <peter.griffin@linaro.org>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
@@ -65,9 +65,9 @@ Cc:     peter.griffin@linaro.org, tudor.ambarus@linaro.org,
         linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org,
         kernel-team@android.com, linux-serial@vger.kernel.org
-Subject: [PATCH v2 13/20] pinctrl: samsung: Add filter selection support for alive banks
-Date:   Tue, 10 Oct 2023 23:49:21 +0100
-Message-ID: <20231010224928.2296997-14-peter.griffin@linaro.org>
+Subject: [PATCH v2 15/20] watchdog: s3c2410_wdt: Add support for Google tensor SoCs
+Date:   Tue, 10 Oct 2023 23:49:23 +0100
+Message-ID: <20231010224928.2296997-16-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.42.0.609.gbb76f46606-goog
 In-Reply-To: <20231010224928.2296997-1-peter.griffin@linaro.org>
 References: <20231010224928.2296997-1-peter.griffin@linaro.org>
@@ -77,247 +77,204 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Newer Exynos SoCs have a filter selection register on alive bank pins.
-This allows the selection of a digital or delay filter for each pin. If
-the filter selection register is not available then the default filter
-(digital) is applied.
+This patch adds the compatibles and drvdata for the Google
+gs101 & gs201 SoCs found in Pixel 6 and Pixel 7 phones. Similar
+to Exynos850 it has two watchdog instances, one for each cluster
+and has some control bits in PMU registers.
 
-On suspend we apply the analog filter to all pins in the bank, and on
-resume the digital filter is reapplied to all pins in the bank.
+The watchdog IP found in gs101 SoCs also supports a few
+additional bits/features in the WTCON register which we add
+support for and an additional register detailed below.
+
+dbgack-mask - Enables masking WDT interrupt and reset request
+according to asserted DBGACK input
+
+windowed-mode - Enabled Windowed watchdog mode
+
+Windowed watchdog mode also has an additional register WTMINCNT.
+If windowed watchdog is enabled and you reload WTCNT when the
+value is greater than WTMINCNT, it prompts interrupt or reset
+request as if the watchdog time has expired.
 
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- drivers/pinctrl/samsung/pinctrl-exynos.c  | 82 ++++++++++++++++++++++-
- drivers/pinctrl/samsung/pinctrl-exynos.h  |  7 ++
- drivers/pinctrl/samsung/pinctrl-samsung.c |  2 +
- drivers/pinctrl/samsung/pinctrl-samsung.h | 23 +++++++
- 4 files changed, 113 insertions(+), 1 deletion(-)
+ drivers/watchdog/s3c2410_wdt.c | 104 ++++++++++++++++++++++++++++++---
+ 1 file changed, 95 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
-index a8212fc126bf..800831aa8357 100644
---- a/drivers/pinctrl/samsung/pinctrl-exynos.c
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -269,6 +269,68 @@ struct exynos_eint_gpio_save {
- 	u32 eint_mask;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 0b4bd883ff28..08a775c01c57 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -31,12 +31,14 @@
+ #define S3C2410_WTDAT		0x04
+ #define S3C2410_WTCNT		0x08
+ #define S3C2410_WTCLRINT	0x0c
+-
++#define S3C2410_WTMINCNT	0x10
+ #define S3C2410_WTCNT_MAXCNT	0xffff
+ 
+-#define S3C2410_WTCON_RSTEN	(1 << 0)
+-#define S3C2410_WTCON_INTEN	(1 << 2)
+-#define S3C2410_WTCON_ENABLE	(1 << 5)
++#define S3C2410_WTCON_RSTEN		(1 << 0)
++#define S3C2410_WTCON_INTEN		(1 << 2)
++#define S3C2410_WTCON_ENABLE		(1 << 5)
++#define S3C2410_WTCON_DBGACK_MASK	(1 << 16)
++#define S3C2410_WTCON_WINDOWED_WD	(1 << 20)
+ 
+ #define S3C2410_WTCON_DIV16	(0 << 3)
+ #define S3C2410_WTCON_DIV32	(1 << 3)
+@@ -67,6 +69,12 @@
+ #define EXYNOSAUTOV9_CLUSTER0_WDTRESET_BIT	25
+ #define EXYNOSAUTOV9_CLUSTER1_WDTRESET_BIT	24
+ 
++#define GS_CLUSTER0_NONCPU_OUT			0x1220
++#define GS_CLUSTER1_NONCPU_OUT			0x1420
++#define GS_CLUSTER0_NONCPU_INT_EN		0x1244
++#define GS_CLUSTER1_NONCPU_INT_EN		0x1444
++#define GS_CLUSTER2_NONCPU_INT_EN		0x1644
++#define GS_RST_STAT_REG_OFFSET			0x3B44
+ /**
+  * DOC: Quirk flags for different Samsung watchdog IP-cores
+  *
+@@ -106,6 +114,8 @@
+ #define QUIRK_HAS_PMU_RST_STAT			(1 << 2)
+ #define QUIRK_HAS_PMU_AUTO_DISABLE		(1 << 3)
+ #define QUIRK_HAS_PMU_CNT_EN			(1 << 4)
++#define QUIRK_HAS_DBGACK_BIT			(1 << 5)
++#define QUIRK_HAS_WTMINCNT_REG			(1 << 6)
+ 
+ /* These quirks require that we have a PMU register map */
+ #define QUIRKS_HAVE_PMUREG \
+@@ -263,6 +273,54 @@ static const struct s3c2410_wdt_variant drv_data_exynosautov9_cl1 = {
+ 		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN,
  };
  
-+static void exynos_eint_flt_config(struct samsung_pinctrl_drv_data *d,
-+				   struct samsung_pin_bank *bank, int filter)
-+{
-+	unsigned int flt_reg, flt_con = 0;
-+	unsigned int val, shift;
-+	int i;
-+	int loop_cnt;
-+
-+	/*
-+	 * This function sets the desired filter (digital or delay) to
-+	 * every pin in the bank. Note the filter selection bitfield is
-+	 * only found on alive banks. The FLTCON register has the
-+	 * following layout
-+	 *
-+	 * BitfieldName[PinNum][Bit:Bit]
-+	 *
-+	 * FLT_EN[3][31] FLT_SEL[3][30] FLT_WIDTH[3][29:24]
-+	 * FLT_EN[2][23] FLT_SEL[2][22] FLT_WIDTH[2][21:16]
-+	 * FLT_EN[1][15] FLT_SEL[1][14] FLT_WIDTH[1][13:8]
-+	 * FLT_EN[0][7]  FLT_SEL[0][6]  FLT_WIDTH[0][5:0]
-+	 */
-+
-+	flt_con |= EXYNOS9_FLTCON_EN;
-+
-+	if (filter)
-+		flt_con |= EXYNOS9_FLTCON_SEL_DIGITAL;
-+
-+	flt_reg = EXYNOS_GPIO_EFLTCON_OFFSET + bank->fltcon_offset;
-+
-+	if (bank->nr_pins > EXYNOS9_FLTCON_NR_PIN)
-+		/*
-+		 * if nr_pins > 4, we should set FLTCON0 register fully.
-+		 * (pin0 ~ 3). So loop 4 times in case of FLTCON0.
-+		 */
-+		loop_cnt = EXYNOS9_FLTCON_NR_PIN;
-+	else
-+		loop_cnt = bank->nr_pins;
-+
-+	val = readl(d->virt_base + flt_reg);
-+
-+	for (i = 0; i < loop_cnt; i++) {
-+		shift = i * EXYNOS9_FLTCON_LEN;
-+		val &= ~(EXYNOS9_FLTCON_MASK << shift);
-+		val |= (flt_con << shift);
-+	}
-+
-+	writel(val, d->virt_base + flt_reg);
-+
-+	/* loop for FLTCON1 pin 4 ~ 7 */
-+	if (bank->nr_pins > EXYNOS9_FLTCON_NR_PIN) {
-+		val = readl(d->virt_base + flt_reg + 0x4);
-+		loop_cnt = (bank->nr_pins - EXYNOS9_FLTCON_NR_PIN);
-+
-+		for (i = 0; i < loop_cnt; i++) {
-+			shift = i * EXYNOS9_FLTCON_LEN;
-+			val &= ~(EXYNOS9_FLTCON_MASK << shift);
-+			val |= (flt_con << shift);
-+		}
-+		writel(val, d->virt_base + flt_reg + 0x4);
-+	}
-+}
-+
- /*
-  * exynos_eint_gpio_init() - setup handling of external gpio interrupts.
-  * @d: driver data of samsung pinctrl driver.
-@@ -321,6 +383,9 @@ __init int exynos_eint_gpio_init(struct samsung_pinctrl_drv_data *d)
- 			goto err_domains;
- 		}
- 
-+		/* Set Delay Analog Filter */
-+		if (bank->fltcon_type != FLT_DEFAULT)
-+			exynos_eint_flt_config(d, bank, EXYNOS9_FLTCON_SEL_DELAY);
- 	}
- 
- 	return 0;
-@@ -555,6 +620,10 @@ __init int exynos_eint_wkup_init(struct samsung_pinctrl_drv_data *d)
- 		if (bank->eint_type != EINT_TYPE_WKUP)
- 			continue;
- 
-+		/* Set Digital Filter */
-+		if (bank->fltcon_type != FLT_DEFAULT)
-+			exynos_eint_flt_config(d, bank, EXYNOS9_FLTCON_SEL_DIGITAL);
-+
- 		bank->irq_chip = devm_kmemdup(dev, irq_chip, sizeof(*irq_chip),
- 					      GFP_KERNEL);
- 		if (!bank->irq_chip) {
-@@ -658,6 +727,7 @@ static void exynos_pinctrl_suspend_bank(
- void exynos_pinctrl_suspend(struct samsung_pinctrl_drv_data *drvdata)
- {
- 	struct samsung_pin_bank *bank = drvdata->pin_banks;
-+	struct samsung_pinctrl_drv_data *d = bank->drvdata;
- 	struct exynos_irq_chip *irq_chip = NULL;
- 	int i;
- 
-@@ -665,6 +735,9 @@ void exynos_pinctrl_suspend(struct samsung_pinctrl_drv_data *drvdata)
- 		if (bank->eint_type == EINT_TYPE_GPIO)
- 			exynos_pinctrl_suspend_bank(drvdata, bank);
- 		else if (bank->eint_type == EINT_TYPE_WKUP) {
-+			/* Setting Delay (Analog) Filter */
-+			if (bank->fltcon_type != FLT_DEFAULT)
-+				exynos_eint_flt_config(d, bank, EXYNOS9_FLTCON_SEL_DELAY);
- 			if (!irq_chip) {
- 				irq_chip = bank->irq_chip;
- 				irq_chip->set_eint_wakeup_mask(drvdata,
-@@ -707,11 +780,18 @@ static void exynos_pinctrl_resume_bank(
- void exynos_pinctrl_resume(struct samsung_pinctrl_drv_data *drvdata)
- {
- 	struct samsung_pin_bank *bank = drvdata->pin_banks;
-+	struct samsung_pinctrl_drv_data *d = bank->drvdata;
- 	int i;
- 
- 	for (i = 0; i < drvdata->nr_banks; ++i, ++bank)
--		if (bank->eint_type == EINT_TYPE_GPIO)
-+		if (bank->eint_type == EINT_TYPE_GPIO) {
- 			exynos_pinctrl_resume_bank(drvdata, bank);
-+		} else if (bank->eint_type == EINT_TYPE_WKUP ||
-+			bank->eint_type == EINT_TYPE_WKUP_MUX) {
-+			/* Set Digital Filter */
-+			if (bank->fltcon_type != FLT_DEFAULT)
-+				exynos_eint_flt_config(d, bank, EXYNOS9_FLTCON_SEL_DIGITAL);
-+		}
- }
- 
- static void exynos_retention_enable(struct samsung_pinctrl_drv_data *drvdata)
-diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.h b/drivers/pinctrl/samsung/pinctrl-exynos.h
-index 7bd6d82c9f36..63b2426ad5d6 100644
---- a/drivers/pinctrl/samsung/pinctrl-exynos.h
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.h
-@@ -50,6 +50,13 @@
- 
- #define EXYNOS_EINT_MAX_PER_BANK	8
- #define EXYNOS_EINT_NR_WKUP_EINT
-+/* EINT filter configuration */
-+#define EXYNOS9_FLTCON_EN		BIT(7)
-+#define EXYNOS9_FLTCON_SEL_DIGITAL	BIT(6)
-+#define EXYNOS9_FLTCON_SEL_DELAY	0
-+#define EXYNOS9_FLTCON_MASK		0xff
-+#define EXYNOS9_FLTCON_LEN		8
-+#define EXYNOS9_FLTCON_NR_PIN		4
- 
- #define EXYNOS_PIN_BANK_EINTN(pins, reg, id)		\
- 	{						\
-diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
-index e54847040b4a..449f8109d8b5 100644
---- a/drivers/pinctrl/samsung/pinctrl-samsung.c
-+++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-@@ -1104,6 +1104,8 @@ samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
- 		bank->eint_func = bdata->eint_func;
- 		bank->eint_type = bdata->eint_type;
- 		bank->eint_mask = bdata->eint_mask;
-+		bank->fltcon_type = bdata->fltcon_type;
-+		bank->fltcon_offset = bdata->fltcon_offset;
- 		bank->eint_offset = bdata->eint_offset;
- 		bank->name = bdata->name;
- 
-diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.h b/drivers/pinctrl/samsung/pinctrl-samsung.h
-index 9af93e3d8d9f..de2ca8e8b378 100644
---- a/drivers/pinctrl/samsung/pinctrl-samsung.h
-+++ b/drivers/pinctrl/samsung/pinctrl-samsung.h
-@@ -82,6 +82,21 @@ enum eint_type {
- 	EINT_TYPE_WKUP_MUX,
- };
- 
-+/**
-+ * enum fltcon_type - filter selection
-+ * @FLT_DEFAULT: filter not selectable, default digital filter
-+ * @FLT_SELECT: filter selectable (digital or delay)
-+ *
-+ * Some banks on some SoCs (gs101 and possibly others) have a selectable
-+ * filter on alive banks of 'delay/analog' or 'digital'. If the filter
-+ * selection is not available then the default filter is used (digital).
-+ */
-+
-+enum fltcon_type {
-+	FLT_DEFAULT,
-+	FLT_SELECTABLE,
++static const struct s3c2410_wdt_variant drv_data_gs101_cl0 = {
++	.mask_reset_reg = GS_CLUSTER0_NONCPU_INT_EN,
++	.mask_bit = 2,
++	.mask_reset_inv = true,
++	.rst_stat_reg = GS_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 0,
++	.cnt_en_reg = GS_CLUSTER0_NONCPU_OUT,
++	.cnt_en_bit = 8,
++	.quirks = QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_MASK_RESET | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
 +};
 +
- /* maximum length of a pin in pin descriptor (example: "gpa0-0") */
- #define PIN_NAME_LENGTH	10
- 
-@@ -122,6 +137,8 @@ struct samsung_pin_bank_type {
-  * @eint_type: type of the external interrupt supported by the bank.
-  * @eint_mask: bit mask of pins which support EINT function.
-  * @eint_offset: SoC-specific EINT register or interrupt offset of bank.
-+ * @fltcon_type: whether the filter (delay/digital) is selectable
-+ * @fltcon_offset: SoC-specific EINT filter control register offset of bank.
-  * @name: name to be prefixed for each pin in this pin bank.
-  */
- struct samsung_pin_bank_data {
-@@ -133,6 +150,8 @@ struct samsung_pin_bank_data {
- 	enum eint_type	eint_type;
- 	u32		eint_mask;
- 	u32		eint_offset;
-+	enum fltcon_type fltcon_type;
-+	u32		fltcon_offset;
- 	const char	*name;
++static const struct s3c2410_wdt_variant drv_data_gs101_cl1 = {
++	.mask_reset_reg = GS_CLUSTER1_NONCPU_INT_EN,
++	.mask_bit = 2,
++	.mask_reset_inv = true,
++	.rst_stat_reg = GS_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 1,
++	.cnt_en_reg = GS_CLUSTER1_NONCPU_OUT,
++	.cnt_en_bit = 7,
++	.quirks = QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_MASK_RESET | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
++};
++
++static const struct s3c2410_wdt_variant drv_data_gs201_cl0 = {
++	.mask_reset_reg = GS_CLUSTER0_NONCPU_INT_EN,
++	.mask_bit = 2,
++	.mask_reset_inv = true,
++	.rst_stat_reg = GS_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 0,
++	.cnt_en_reg = GS_CLUSTER0_NONCPU_OUT,
++	.cnt_en_bit = 8,
++	.quirks = QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_MASK_RESET | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
++};
++
++static const struct s3c2410_wdt_variant drv_data_gs201_cl1 = {
++	.mask_reset_reg = GS_CLUSTER1_NONCPU_INT_EN,
++	.mask_bit = 2,
++	.mask_reset_inv = true,
++	.rst_stat_reg = GS_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 1,
++	.cnt_en_reg = GS_CLUSTER1_NONCPU_OUT,
++	.cnt_en_bit = 7,
++	.quirks = QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_MASK_RESET | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
++};
++
+ static const struct of_device_id s3c2410_wdt_match[] = {
+ 	{ .compatible = "samsung,s3c2410-wdt",
+ 	  .data = &drv_data_s3c2410 },
+@@ -278,6 +336,10 @@ static const struct of_device_id s3c2410_wdt_match[] = {
+ 	  .data = &drv_data_exynos850_cl0 },
+ 	{ .compatible = "samsung,exynosautov9-wdt",
+ 	  .data = &drv_data_exynosautov9_cl0 },
++	{ .compatible = "google,gs101-wdt",
++	  .data = &drv_data_gs101_cl0 },
++	{ .compatible = "google,gs201-wdt",
++	  .data = &drv_data_gs201_cl0 },
+ 	{},
  };
+ MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
+@@ -375,6 +437,21 @@ static int s3c2410wdt_enable(struct s3c2410_wdt *wdt, bool en)
+ 	return 0;
+ }
  
-@@ -147,6 +166,8 @@ struct samsung_pin_bank_data {
-  * @eint_type: type of the external interrupt supported by the bank.
-  * @eint_mask: bit mask of pins which support EINT function.
-  * @eint_offset: SoC-specific EINT register or interrupt offset of bank.
-+ * @fltcon_type: whether the filter (delay/digital) is selectable
-+ * @fltcon_offset: SoC-specific EINT filter control register offset of bank.
-  * @name: name to be prefixed for each pin in this pin bank.
-  * @pin_base: starting pin number of the bank.
-  * @soc_priv: per-bank private data for SoC-specific code.
-@@ -169,6 +190,8 @@ struct samsung_pin_bank {
- 	enum eint_type	eint_type;
- 	u32		eint_mask;
- 	u32		eint_offset;
-+	enum fltcon_type fltcon_type;
-+	u32		fltcon_offset;
- 	const char	*name;
++static void s3c2410wdt_mask_dbgack(struct s3c2410_wdt *wdt, bool mask)
++{
++	unsigned long wtcon;
++
++	if (!(wdt->drv_data->quirks & QUIRK_HAS_DBGACK_BIT))
++		return;
++
++	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
++	if (mask)
++		wtcon |= S3C2410_WTCON_DBGACK_MASK;
++	else
++		wtcon &= ~S3C2410_WTCON_DBGACK_MASK;
++	writel(wtcon, wdt->reg_base + S3C2410_WTCON);
++}
++
+ static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
+ {
+ 	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
+@@ -585,9 +662,11 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
+ 	}
  
- 	u32		pin_base;
+ #ifdef CONFIG_OF
+-	/* Choose Exynos850/ExynosAutov9 driver data w.r.t. cluster index */
++	/* Choose Exynos850/ExynosAutov9/gsx01 driver data w.r.t. cluster index */
+ 	if (variant == &drv_data_exynos850_cl0 ||
+-	    variant == &drv_data_exynosautov9_cl0) {
++	    variant == &drv_data_exynosautov9_cl0 ||
++	    variant == &drv_data_gs101_cl0 ||
++	    variant == &drv_data_gs201_cl0) {
+ 		u32 index;
+ 		int err;
+ 
+@@ -600,9 +679,14 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
+ 		case 0:
+ 			break;
+ 		case 1:
+-			variant = (variant == &drv_data_exynos850_cl0) ?
+-				&drv_data_exynos850_cl1 :
+-				&drv_data_exynosautov9_cl1;
++			if (variant == &drv_data_exynos850_cl0)
++				variant = &drv_data_exynos850_cl1;
++			else if (variant == &drv_data_exynosautov9_cl0)
++				variant = &drv_data_exynosautov9_cl1;
++			else if (variant == &drv_data_gs101_cl0)
++				variant = &drv_data_gs101_cl1;
++			else if (variant == &drv_data_gs201_cl0)
++				variant = &drv_data_gs201_cl1;
+ 			break;
+ 		default:
+ 			return dev_err_probe(dev, -EINVAL, "wrong cluster index: %u\n", index);
+@@ -700,6 +784,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
+ 	wdt->wdt_device.parent = dev;
+ 
++	s3c2410wdt_mask_dbgack(wdt, true);
++
+ 	/*
+ 	 * If "tmr_atboot" param is non-zero, start the watchdog right now. Also
+ 	 * set WDOG_HW_RUNNING bit, so that watchdog core can kick the watchdog.
 -- 
 2.42.0.609.gbb76f46606-goog
 
