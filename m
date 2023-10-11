@@ -2,95 +2,115 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1164BCD6E46
-	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Oct 2023 09:03:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E951ACD6E54
+	for <linux-watchdog@archiver.kernel.org>; Wed, 11 Oct 2023 09:06:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345920AbjJKJDX (ORCPT
+        id S233584AbjJKJGf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 11 Oct 2023 05:03:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
+        Wed, 11 Oct 2023 05:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234690AbjJKJDE (ORCPT
+        with ESMTP id S232397AbjJKJGe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Oct 2023 05:03:04 -0400
-Received: from m12.mail.163.com (m12.mail.163.com [220.181.12.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A30E318D;
-        Wed, 11 Oct 2023 02:02:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=Message-ID:Date:MIME-Version:From:Subject:
-        Content-Type; bh=0jNi8U0mUQ8Jvj+6Kfzg0hciRKTuXgh9miGP26ylKdQ=;
-        b=NL6QxtAg8IEDwOnZRYQPZqx9JoA5nHPvBuWllx7/hAmSgA5Fl1X618AwRdj90o
-        YDfiDZq2SK4y9p0zpyLfbautqnZnPQQyHE64VvJRo4v+T+tr4QMgTIe28FvWQX60
-        JOhn679chyvwe5uhHqGVsJFhuv3dNmrQjsX2CfAJG1HYs=
-Received: from [172.20.10.2] (unknown [39.144.139.13])
-        by zwqz-smtp-mta-g3-3 (Coremail) with SMTP id _____wDnT+4vYSZlsnwHAQ--.40491S3;
-        Wed, 11 Oct 2023 16:47:44 +0800 (CST)
-Message-ID: <bdcf5da0-6618-b01c-40cd-a8be3181c322@163.com>
-Date:   Wed, 11 Oct 2023 16:47:42 +0800
+        Wed, 11 Oct 2023 05:06:34 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F90CC
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Oct 2023 02:06:31 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id 6a1803df08f44-66d093265dfso1467256d6.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Oct 2023 02:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1697015190; x=1697619990; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=eoGJqBpx4DnJ8f9sTHuaCwd+hLOrI3etlSVQtwSYzRo=;
+        b=BOKPZ+92jlDkwOGpZUCml0hqlK+8bzGobPX/zyffxErQUHLd+bzx8wkJ2c5uxSt8QD
+         mXtJIdd1MsP7OWj4oDUjmlV8BaY3XcK73YRZs5HtmQxvQRSI3XvAvOBXpm8mUHdhEiNq
+         WgDAXe07z03M1j28X/SiXb2Oz7UeQFFv4y22xNm0srTXGHgQ94bOBqT/ds44bfxaxosH
+         neEtT116ShVM9Dpy0PjM2guK8Lf4IU/o54JG+7bZbLUg5khTviT3jbDQE43VP2To0Cj/
+         nxDROaFcIb9MdQWrsgccLYFdugc/RtnDswopMzHXClVckJm7WwjCi1Ct6OSeLMND7Oqt
+         UHhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697015190; x=1697619990;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=eoGJqBpx4DnJ8f9sTHuaCwd+hLOrI3etlSVQtwSYzRo=;
+        b=PjV2gKw18JOSc7kmvYsn0m8v1fc/g5OfEL5dsYapDEmYlx5P/FLCVoEMkH5AWiuNv0
+         q84n5Ri8TD6fUU42kximqgoB8Fe7mSAcYGOlVTeyeET9KYf7DE2ndzAn7eEmt0q8zMe0
+         nqhDoD5Yh4AJvtJs0wFYtn/orD8UTFmJLuLCDvhR8J5RxyoVBWPIteSr5gyiP5sM0Wis
+         rNundTyjw95XRAdeaQwZrqj40+wFn6ugmxolvCknoXIHI8N+96d7CDIrAyWsKWBkUcCg
+         5XLI2hPeWHqEWubSHqferuhTgnslWylIWdbE1rCrlP4LknciZAiDQB9/zCfjVsTjfURm
+         QK/g==
+X-Gm-Message-State: AOJu0YyasYjm6BvJ8jyr7BQ7Yv0DYbQD29LGODvM7pr3OULyRzTtP3c7
+        3W+0i9WtLZwscSufNRBpOjZd/ps2/VU34ra7z8LkIg==
+X-Google-Smtp-Source: AGHT+IFdQ8tqBV1dqi5xaG7XGfWgTgWoFJqlw9bQU9nodG2NXg1+wmQjaus0dItmXwH0cAGNry/TzU0ByWLIxJoNkmQ=
+X-Received: by 2002:a05:6214:3d06:b0:656:5441:a13f with SMTP id
+ ol6-20020a0562143d0600b006565441a13fmr23058441qvb.45.1697015190275; Wed, 11
+ Oct 2023 02:06:30 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Content-Language: en-US
-To:     linux-watchdog@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     "Wu, Xing Tong" <XingTong.Wu@siemens.com>, jan.kiszka@siemens.com,
-        tobias.schaffner@siemens.com, cedric.hombourger@siemens.com,
-        gerd.haeussler.ext@siemens.com
-From:   "xingtong.wu" <xingtong_wu@163.com>
-Subject: [v2] wdat_wdt: Problem with WDAT using shared registers
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: _____wDnT+4vYSZlsnwHAQ--.40491S3
-X-Coremail-Antispam: 1Uf129KBjvJXoW7ZF47Zry5Gr4DXw4DArW7CFg_yoW8WFWxpa
-        y5CrWjkrWvgr48uF4UXw1UCayruFW7JFW5Ar4xAw1Y9FWYkFWF9F9IyF1Fqa4DJr97WF1Y
-        9F90qr1rA3yDAaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jYsjUUUUUU=
-X-Originating-IP: [39.144.139.13]
-X-CM-SenderInfo: p0lqw35rqjs4rx6rljoofrz/1tbiTBMG0GI0bdQingAAsa
+References: <20231010224928.2296997-1-peter.griffin@linaro.org> <2023101101-mauve-underarm-1b48@gregkh>
+In-Reply-To: <2023101101-mauve-underarm-1b48@gregkh>
+From:   Peter Griffin <peter.griffin@linaro.org>
+Date:   Wed, 11 Oct 2023 10:06:18 +0100
+Message-ID: <CADrjBPr2UAfpuuw6M8T5UaiTmCYz0e3jabfDCcUJtH+35mwBKw@mail.gmail.com>
+Subject: Re: [PATCH v2 00/20] Add minimal Tensor/GS101 SoC support and
+ Oriole/Pixel6 board
+To:     Greg KH <greg@kroah.com>
+Cc:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        mturquette@baylibre.com, conor+dt@kernel.org, sboyd@kernel.org,
+        tomasz.figa@gmail.com, s.nawrocki@samsung.com,
+        linus.walleij@linaro.org, wim@linux-watchdog.org,
+        linux@roeck-us.net, catalin.marinas@arm.com, will@kernel.org,
+        arnd@arndb.de, olof@lixom.net, cw00.choi@samsung.com,
+        tudor.ambarus@linaro.org, andre.draszik@linaro.org,
+        semen.protsenko@linaro.org, saravanak@google.com,
+        willmcvicker@google.com, soc@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel-team@android.com, linux-serial@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-change since v1:
- The time of the last email was wrong, correct the time in v2.
+Hi Greg,
 
-Hi
+Thanks for your reply!
 
-I want to use the wdat_wdt to support a watchdog of SIONCT (a multi-function device
-(mfd)), and I register instructions for wdat_wdt in BIOS, it need registers 0x2e-0x2f
-to access the watchdog, then register 0x2e-0x2f will be forever occupied by platform
-device wdat_wdt, see the code: https://elixir.bootlin.com/linux/v6.6-rc5/source/drivers/acpi/acpi_watchdog.c#L180
+On Wed, 11 Oct 2023 at 08:44, Greg KH <greg@kroah.com> wrote:
+>
+> On Tue, Oct 10, 2023 at 11:49:08PM +0100, Peter Griffin wrote:
+> > Hi folks,
+> >
+> > Firstly, thanks to everyone who reviewed the v1 series! V2 incorporates all
+> > the review feedback received so far.
+> >
+> > This series adds initial SoC support for the GS101 SoC and also initial board
+> > support for Pixel 6 phone (Oriole).
+> >
+> > The gs101 / Tensor SoC is also used in Pixel6a (bluejay) and Pixel 6 Pro
+> > (raven) phones. Currently DT is added for the gs101 SoC and Oriole.
+> > As you can see from the patches the SoC is based on a Samsung Exynos SoC,
+> > and therefore lots of the low level Exynos drivers can be re-used.
+> >
+> > The support added in this series consists of:
+> > * cpus
+> > * pinctrl
+> > * some CCF implementation
+> > * watchdog
+> > * uart
+> > * gpio
+>
+> So you have sent a patch series that crosses multiple subsystems, who is
+> supposed to be taking these patches?  Or do you not want them actually
+> merged?
 
-but the 0x2e-0x2f are special, they are used for a multi-function device --SIONCT, the
-device have many pins can not only support features for watchdog, but also other
-features like leds, fans, temperature monitor... there are drivers for these pins, e.g.
-gpio-f7188x, nct6775, w83627hf... these driver use the shared register 0x2e-0x2f. 
+Krzysztof indicated here:
+https://lore.kernel.org/all/b1598405-b01f-426a-aaba-89f2d2dc9c2e@linaro.org/
+that he would like to be the one applying the entire series through the Samsung
+SoC tree. If that's fine with everyone (it's OK with me).
 
-So the issue happened, the wdat_wdt occupied the shared register 0x2e-0x2f, then
-the other driver can not load.
+kind regards,
 
-Here is the msg I collected from my device:
-
-root@ipc-SIMATIC-IPC-BX-21A:/home/ipc# cat /proc/ioports 
-0000-0cf7 : PCI Bus 0000:00
-  0000-001f : dma1
-  0020-0021 : pic1
-  002e-002e : wdat_wdt
-  002f-002f : wdat_wdt
-
-It will cause other SIONCT drivers can not load, e.g.
-root@ipc-SIMATIC-IPC-BX-21A:/home/ipc# modprobe gpio-f7188x
-modprobe: ERROR: could not insert 'gpio_f7188x': No such device
-
-And dmesg info is:
-[  213.559168] gpio-f7188xI/O address 0x002e already in use
-
-Same reason for other drivers:
-root@ipc-SIMATIC-IPC-BX-21A:/home/ipc# modprobe nct6775
-modprobe: ERROR: could not insert 'nct6775': No such device
-
-Do you have any idea for the wdat_wdt to add support for multi-function device?
-
-BRS
-Xing Tong Wu
-
+Peter.
