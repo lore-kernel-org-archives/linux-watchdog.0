@@ -2,58 +2,66 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBEF7C4332F
-	for <linux-watchdog@archiver.kernel.org>; Sun,  5 Nov 2023 18:42:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6801AC4332F
+	for <linux-watchdog@archiver.kernel.org>; Sun,  5 Nov 2023 19:04:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229451AbjKESmK (ORCPT
+        id S229475AbjKETEx (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 5 Nov 2023 13:42:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56390 "EHLO
+        Sun, 5 Nov 2023 14:04:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbjKESmH (ORCPT
+        with ESMTP id S229451AbjKETEw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 5 Nov 2023 13:42:07 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9F9C0
-        for <linux-watchdog@vger.kernel.org>; Sun,  5 Nov 2023 10:42:04 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id 5b1f17b1804b1-4084de32db5so33606875e9.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 05 Nov 2023 10:42:04 -0800 (PST)
+        Sun, 5 Nov 2023 14:04:52 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7314CDD;
+        Sun,  5 Nov 2023 11:04:49 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1cc1ee2d8dfso33937815ad.3;
+        Sun, 05 Nov 2023 11:04:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1699209722; x=1699814522; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5p4QFuKK4zDjK7JmREfNGLdO3brtt0j7Hb6QAgVUrUA=;
-        b=OIhvOYboV1EiTNo823HwkLD07VFpY/fKWC2In1TCyLOts0+BKCKCnlHdYm2sR62XRl
-         pxzx46OdYvL/Zel35k6R14gX6j8EAgk+mhhUFm5WW28W5hDlYe/HWeYohaPqosWYxxDa
-         iyXzhD/LOT75vbi/7z24LMOsJA5WwdK2i6qj2GAEiU5EweqEqa2NalZrbuP2buf6euYH
-         riVUfUUwZL3y3NQ2PIc1aeFeKqBzaPmazBXJl3ApPo2mdtn1PzirY9SSrAXt05jA6yd5
-         04x1l6F3hGYJYOpP3I4ZI8OjP2pH4hb8nuGf0KOZnoE4l35ai8UpNy05T3nwCGz8DiE7
-         Z6Vw==
+        d=gmail.com; s=20230601; t=1699211089; x=1699815889; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=aO8B5quC/11QSm14MuwPeLJeguSut/5d3FqyrObYeMM=;
+        b=A69TziRaY2dG6ID5E/3VDOwQOEAVIniIu0RRNpxbvcl9tdMqbkOrThhrmUniWnlWSd
+         dMgA0Ecjs5Z18l9C20ZfTLZThGVivyB108K2QPwMoCmRqu9B2AaZfd8RrmP4pK/aW1vR
+         Q2j5bd3UERIDLJBIJTkq3PjRhSEn3aM0PfBeaAfrdGW8FTjxSwZ3HKhFkrjK7i3XBiv/
+         RGGmHy3kOaLHVUUEz/4qVCfTA1XARJie4MOx0EdPQFVzuD8hDwuOwgcWAET9vJDGu1Em
+         /G3IhEKXpVqBNnlPir4HZxrDrNw2EKIuiGBgTq26fYOkARCa9BolF/KqIw5LWOx1OcvD
+         VNYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699209722; x=1699814522;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5p4QFuKK4zDjK7JmREfNGLdO3brtt0j7Hb6QAgVUrUA=;
-        b=h5zreI7wbSO7f0vJ5RIKg33pAQe3X+cqKWrxcYCpo9sRrrlXQB+o4jCf7JULYma3+c
-         t1f+ihJu1hwInvHapHhT2laxizBkmeTs+mqkwlPoKegscVkVquh3SSGxqBe3erA5STEP
-         sm/1IMZz9wgogV2Ylet+2reQclnrQ62lIdhzdykJ6AF99BUWcfKjydl9P0fspnwfpsi2
-         H1gTKncWFcxgDaDyfv0O0tfzzgT+ITtTiN22EhVU73NGOh9FeMPeJoLKijfjbLRQSH9m
-         +O8CuPcWeIghqWnHjEbf/a0/we5A3d4+2X/In1540fRQpECjO7zkjs/BeDtipQQsiR33
-         HqPA==
-X-Gm-Message-State: AOJu0YzUkpMlqly8N6FhTMeC2m28kldV9FlDMiWVlwSRpVruymusSfGd
-        MTZiBVwjrtgMrtnRA6U3reuBOw==
-X-Google-Smtp-Source: AGHT+IFSpmafwOZq0U7CWe+nXmQRtHQOLcDbi+JWbFPNcxG5YLhYbhIL0Wd8ASmATcTAoMtu5NK/OQ==
-X-Received: by 2002:a05:6000:18a9:b0:32f:a5af:99ca with SMTP id b9-20020a05600018a900b0032fa5af99camr11998596wri.69.1699209722530;
-        Sun, 05 Nov 2023 10:42:02 -0800 (PST)
-Received: from krzk-bin.. ([178.197.218.126])
-        by smtp.gmail.com with ESMTPSA id z17-20020a5d44d1000000b00326b8a0e817sm7370111wrr.84.2023.11.05.10.42.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Nov 2023 10:42:02 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        d=1e100.net; s=20230601; t=1699211089; x=1699815889;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aO8B5quC/11QSm14MuwPeLJeguSut/5d3FqyrObYeMM=;
+        b=aYRNzsXIljkC19dZPi3SNyW0gnHn4xjUzZnM72t8UpY/liYk0PsaAx5ayksPubM0t3
+         2aWdVNlQ741c+OyU3xGJORycAAM/40N8u2D92p7jRrcS8vPUl8hfKMLI3b3/4eyDhcE4
+         JXIwrRLYYOP20Bk9Xss6CnZ3Nuu9c+FYuxwKseaEFDStxDd7C5T7SgBtlvl6rJ7Rq56s
+         1j6FcFrfjqC9/VQocenE3L2WrLK/4VJMD1VACUgL5mnzAV2xLjihYvY/fe1ZHIFFYj2A
+         11HZqE8NpwYuBPN4m7ugA17g6yDLC5kxb8wkv833/gfB09avTTDLu8SjY46fOlV8MU7T
+         wHLg==
+X-Gm-Message-State: AOJu0Yz5QlLM+tkpcwC2cdeB5kJysMWsKNkT8/vtX2k5RwGYLpCoTFUv
+        7FapKsPbivjGZcS0Cu1/24w=
+X-Google-Smtp-Source: AGHT+IFoPm0Mv0Ciyr9HDZnFczApZU31y8PP80japS05XzH0EgDa7iuXk+2mZ+qAQG3pjJ7WjmBEPA==
+X-Received: by 2002:a17:902:ec84:b0:1cc:4cb0:d273 with SMTP id x4-20020a170902ec8400b001cc4cb0d273mr24468221plg.56.1699211088814;
+        Sun, 05 Nov 2023 11:04:48 -0800 (PST)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s4-20020a170902ea0400b001c61bde04a7sm4457615plg.276.2023.11.05.11.04.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 05 Nov 2023 11:04:48 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <b73c2fa3-0366-4f7f-ae27-a8b5dab1a28f@roeck-us.net>
+Date:   Sun, 5 Nov 2023 11:04:45 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: re-order entries to match
+ coding convention
+Content-Language: en-US
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
@@ -71,7 +79,7 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Maxime Ripard <mripard@kernel.org>,
         Oleksij Rempel <linux@rempel-privat.de>,
         Justin Chen <justinpopo6@gmail.com>,
-        =?UTF-8?q?=82ecki?= <rafal@milecki.pl>,
+        =?UTF-8?B?77+9ZWNraQ==?= <rafal@milecki.pl>,
         Baruch Siach <baruch@tkos.co.il>,
         Ahmad Zainie <wan.ahmad.zainie.wan.mohamad@intel.com>,
         Marc Zyngier <maz@kernel.org>,
@@ -80,50 +88,280 @@ To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
         linux-kernel@vger.kernel.org, asahi@lists.linux.dev
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 2/2] dt-bindings: watchdog: intel,keembay: reference common watchdog schema
-Date:   Sun,  5 Nov 2023 19:41:54 +0100
-Message-Id: <20231105184154.43700-2-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20231105184154.43700-1-krzysztof.kozlowski@linaro.org>
 References: <20231105184154.43700-1-krzysztof.kozlowski@linaro.org>
-MIME-Version: 1.0
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <20231105184154.43700-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Reference common watchdog.yaml schema to allow "timeout-sec" property
-and enforce proper device node name.
+On 11/5/23 10:41, Krzysztof Kozlowski wrote:
+> The Devicetree bindings coding convention, as used in most of the files
+> and expressed in Documentation/devicetree/bindings/example-schema.yaml,
+> expects:
+> 1. "allOf:" block just before "properties:" (or after "required:" for
+>     more complex cases),
+> 2. additionalProperties/unevaluatedProperties at the end of the file,
+>     just before the examples section.
+> 
+> Re-order few schemas to match the convention to avoid repeating review
+> comments for new patches using existing code as template.  No functional
+> changes.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- .../devicetree/bindings/watchdog/intel,keembay-wdt.yaml      | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/Documentation/devicetree/bindings/watchdog/intel,keembay-wdt.yaml b/Documentation/devicetree/bindings/watchdog/intel,keembay-wdt.yaml
-index 1437ff8a122f..8231dde2bfa6 100644
---- a/Documentation/devicetree/bindings/watchdog/intel,keembay-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/intel,keembay-wdt.yaml
-@@ -9,6 +9,9 @@ title: Intel Keem Bay SoC non-secure Watchdog Timer
- maintainers:
-   - Wan Ahmad Zainie <wan.ahmad.zainie.wan.mohamad@intel.com>
- 
-+allOf:
-+  - $ref: watchdog.yaml#
-+
- properties:
-   compatible:
-     enum:
-@@ -37,7 +40,7 @@ required:
-   - interrupt-names
-   - clocks
- 
--additionalProperties: false
-+unevaluatedProperties: false
- 
- examples:
-   - |
--- 
-2.34.1
+> ---
+>   .../bindings/watchdog/allwinner,sun4i-a10-wdt.yaml     |  6 +++---
+>   .../bindings/watchdog/alphascale,asm9260-wdt.yaml      |  6 +++---
+>   .../devicetree/bindings/watchdog/apple,wdt.yaml        |  6 +++---
+>   .../devicetree/bindings/watchdog/arm-smc-wdt.yaml      |  6 +++---
+>   .../devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml | 10 +++++-----
+>   .../devicetree/bindings/watchdog/cnxt,cx92755-wdt.yaml |  6 +++---
+>   .../devicetree/bindings/watchdog/maxim,max63xx.yaml    |  8 ++++----
+>   .../devicetree/bindings/watchdog/snps,dw-wdt.yaml      | 10 +++++-----
+>   8 files changed, 29 insertions(+), 29 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> index 274519fc24fd..64c8f7393809 100644
+> --- a/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/allwinner,sun4i-a10-wdt.yaml
+> @@ -6,13 +6,13 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: Allwinner A10 Watchdog
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Chen-Yu Tsai <wens@csie.org>
+>     - Maxime Ripard <mripard@kernel.org>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       oneOf:
+> diff --git a/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yaml b/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yaml
+> index fea84f5b7e6d..6425fe51d20c 100644
+> --- a/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/alphascale,asm9260-wdt.yaml
+> @@ -6,12 +6,12 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: Alphascale asm9260 Watchdog timer
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Oleksij Rempel <linux@rempel-privat.de>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       const: alphascale,asm9260-wdt
+> diff --git a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> index 929681127df0..21872e15916c 100644
+> --- a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> @@ -6,12 +6,12 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: Apple SoC Watchdog
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Sven Peter <sven@svenpeter.dev>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       items:
+> diff --git a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> index b5573852ef5a..8e9d0b7e8244 100644
+> --- a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> @@ -6,12 +6,12 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: ARM Secure Monitor Call based watchdog
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Julius Werner <jwerner@chromium.org>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       enum:
+> diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+> index 526ff908d134..e898167ef628 100644
+> --- a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.yaml
+> @@ -6,14 +6,14 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: BCM63xx and BCM7038 watchdog timer
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Florian Fainelli <f.fainelli@gmail.com>
+>     - Justin Chen <justinpopo6@gmail.com>
+>     - Rafał Miłecki <rafal@milecki.pl>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       enum:
+> @@ -29,11 +29,11 @@ properties:
+>         The clock running the watchdog. If no clock is found the driver will
+>         default to 27000000 Hz.
+>   
+> -unevaluatedProperties: false
+> -
+>   required:
+>     - reg
+>   
+> +unevaluatedProperties: false
+> +
+>   examples:
+>     - |
+>       watchdog@f040a7e8 {
+> diff --git a/Documentation/devicetree/bindings/watchdog/cnxt,cx92755-wdt.yaml b/Documentation/devicetree/bindings/watchdog/cnxt,cx92755-wdt.yaml
+> index 1844d7e026fe..13236ee61f6f 100644
+> --- a/Documentation/devicetree/bindings/watchdog/cnxt,cx92755-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/cnxt,cx92755-wdt.yaml
+> @@ -12,12 +12,12 @@ description: |
+>     timer counters. The first timer (called "Timer A") is the only one that can be
+>     used as watchdog.
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Baruch Siach <baruch@tkos.co.il>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       const: cnxt,cx92755-wdt
+> diff --git a/Documentation/devicetree/bindings/watchdog/maxim,max63xx.yaml b/Documentation/devicetree/bindings/watchdog/maxim,max63xx.yaml
+> index 1a6490c43d89..442c21f12a3b 100644
+> --- a/Documentation/devicetree/bindings/watchdog/maxim,max63xx.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/maxim,max63xx.yaml
+> @@ -6,14 +6,14 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: Maxim 63xx Watchdog Timers
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -  - $ref: /schemas/memory-controllers/mc-peripheral-props.yaml#
+> -
+>   maintainers:
+>     - Marc Zyngier <maz@kernel.org>
+>     - Linus Walleij <linus.walleij@linaro.org>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +  - $ref: /schemas/memory-controllers/mc-peripheral-props.yaml#
+> +
+>   properties:
+>     compatible:
+>       enum:
+> diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> index 76eceeddd150..c7aab0418a32 100644
+> --- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
+> @@ -6,12 +6,12 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>   
+>   title: Synopsys Designware Watchdog Timer
+>   
+> -allOf:
+> -  - $ref: watchdog.yaml#
+> -
+>   maintainers:
+>     - Jamie Iles <jamie@jamieiles.com>
+>   
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+>   properties:
+>     compatible:
+>       oneOf:
+> @@ -73,13 +73,13 @@ properties:
+>       minItems: 16
+>       maxItems: 16
+>   
+> -unevaluatedProperties: false
+> -
+>   required:
+>     - compatible
+>     - reg
+>     - clocks
+>   
+> +unevaluatedProperties: false
+> +
+>   examples:
+>     - |
+>       watchdog@ffd02000 {
 
