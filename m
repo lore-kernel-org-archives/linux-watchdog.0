@@ -2,49 +2,52 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EC37C4332F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 15:49:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D590C4167D
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 15:49:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbjKFPtN (ORCPT
+        id S232064AbjKFPtS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Nov 2023 10:49:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36702 "EHLO
+        Mon, 6 Nov 2023 10:49:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjKFPtM (ORCPT
+        with ESMTP id S230146AbjKFPtS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Nov 2023 10:49:12 -0500
+        Mon, 6 Nov 2023 10:49:18 -0500
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB06C9
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Nov 2023 07:49:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704E4C9
+        for <linux-watchdog@vger.kernel.org>; Mon,  6 Nov 2023 07:49:15 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1r01qD-0007hB-4V; Mon, 06 Nov 2023 16:48:41 +0100
+        id 1r01qD-0007h7-4a; Mon, 06 Nov 2023 16:48:41 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1r01qB-0074pU-8R; Mon, 06 Nov 2023 16:48:39 +0100
+        id 1r01qA-0074pI-CD; Mon, 06 Nov 2023 16:48:38 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1r01qA-00Dn80-VD; Mon, 06 Nov 2023 16:48:38 +0100
+        id 1r01qA-00Dn7l-2k; Mon, 06 Nov 2023 16:48:38 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Cc:     Xingyu Wu <xingyu.wu@starfivetech.com>,
+Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+        Xingyu Wu <xingyu.wu@starfivetech.com>,
         Samin Guo <samin.guo@starfivetech.com>,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 4/5] watchdog: starfive-wdt: Convert to platform remove callback returning void
-Date:   Mon,  6 Nov 2023 16:48:12 +0100
-Message-ID: <20231106154807.3866712-5-u.kleine-koenig@pengutronix.de>
+        linux-kbuild@vger.kernel.org
+Subject: [PATCH 0/5] watchdog: Drop platform_driver_probe() and convert to platform remove callback returning void (part II)
+Date:   Mon,  6 Nov 2023 16:48:08 +0100
+Message-ID: <20231106154807.3866712-1-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.42.0.586.gbc5204569f7d.dirty
-In-Reply-To: <20231106154807.3866712-1-u.kleine-koenig@pengutronix.de>
-References: <20231106154807.3866712-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1916; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=IWsge4pWEmraTjNs4H8MWqhiFMh0+iEDsY6CQF+OpCs=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlSQq8u4xRZ377Ik7MUa4G3P63cSZYfQ3qdQB7h CR3kyqmMmaJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZUkKvAAKCRCPgPtYfRL+ ToZ0B/0eXogruJGjFriMGcr36AUn+Kn/rj0PfZbY6QlQmEA9w3o6rIqpaYYPJ7BQKAp9eZq0sfS 7KBSmEukG9yLRVus1fO+G3ityAOanv0iroi8OOx03Yi6bic0S5OTcRR3AU1kjXKlunyLGTbYaEb p5j99rk6E3X3YDOelYQe8j+Gsox0arFqyug1/xaODXJfjlrK85TKMRci0RWrvzJWd7t+IuBWqXQ 8JwY7oPDdCIRC/iOFLO5FQIk3vWuJQufCZIHXgY6tstARSyQkStGy6rBkJb3z2OPJjU+zM5lmTt yyGqYGdswdT8QkSo4ReIK+O4somBCJAwnahAyGfP7nCi0GTA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2092; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=CsAAXZNfJagYUNn9G20OK8DcPy3GbXjNMDl1T3VSBYQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlSQq3aUszaj3irVk4cMap4zE+bCpxad780bIG4 3QZVmi9wpyJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZUkKtwAKCRCPgPtYfRL+ TgRfB/oDmIgi03zoEKPaCUBxzxR+pVxsVJEghmbFYqG6Gksf8sRf0Ya7nwonZJP5VL3BEUbubr7 f8gZ0LP9tOFtCI95/WCJqvFNRpj/gGUsL8XgFgTcHi1d25NBzaJ9BP6J+uDavCMt4jSFg+FINyt rbVtjF2uG/1sG0Gkoja/wCpGH1NTxb/x0tFFJ2bgl+pZGfzL+FXMFcRWr+1lNVCzI1j90qR7+zl CKjm70zCOlPcDLu9RPTCey2LgMJqSQZApTijn4Q8tN5+nVELVn71AYD1OiY3n6ov28jnUPIzck8 qMd9TKQQLgYnR5YQs3cIcskmI4kIfM2AFZYM082YxXQRS2bY
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -55,55 +58,50 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The .remove() callback for a platform driver returns an int which makes
-many driver authors wrongly assume it's possible to do error handling by
-returning an error code. However the value returned is ignored (apart
-from emitting a warning) and this typically results in resource leaks.
+Hello,
 
-To improve here there is a quest to make the remove callback return
-void. In the first step of this quest all drivers are converted to
-.remove_new(), which already returns void. Eventually after all drivers
-are converted, .remove_new() will be renamed to .remove().
+there are two different types of patches here that would justify to
+different series. But as the patches are not independent I chose to put
+them in a single series.
 
-Trivially convert this driver from always returning zero in the remove
-callback to the void returning variant.
+The first two patches drop usage of platform_driver_probe(). This is a
+concept that isn't so relevant any more today. I didn't check, but it
+saves typically only a few 100k and there are thoughts to deprecate it
+to simplify the core. Getting the usage right is not trivial though the
+drivers here got it nearly right. The alternative to these patches is to
+add __refdata to the driver struct ideally with a comment describing the
+need like is e.g. done in commit 5b44abbc39ca ("platform/x86: hp-wmi::
+Mark driver struct with __refdata to prevent section mismatch warning").
+Note that the warning only happens starting with commit f177cd0c15fc
+("modpost: Don't let "driver"s reference .exit.*") that is expected to
+be part of v6.7-rc1.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/watchdog/starfive-wdt.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+The remaining three patches convert the platform drivers to
+.remove_new(), see commit 5c5a7680e67b ("platform: Provide a remove
+callback that returns no value") for an extended explanation and the
+eventual goal. Some time ago I already did this to watchdog drivers, but
+I missed the at91sam9_wdt and txx9wdt driver, because my coccinelle
+patch failed to detect these as patch opportunities (because of the
+__exit_p annotation). the starfive-wdt driver is new since then.
 
-diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index 5f501b41faf9..16df92837c5d 100644
---- a/drivers/watchdog/starfive-wdt.c
-+++ b/drivers/watchdog/starfive-wdt.c
-@@ -504,7 +504,7 @@ static int starfive_wdt_probe(struct platform_device *pdev)
- 	return ret;
- }
- 
--static int starfive_wdt_remove(struct platform_device *pdev)
-+static void starfive_wdt_remove(struct platform_device *pdev)
- {
- 	struct starfive_wdt *wdt = platform_get_drvdata(pdev);
- 
-@@ -516,8 +516,6 @@ static int starfive_wdt_remove(struct platform_device *pdev)
- 	else
- 		/* disable clock without PM */
- 		starfive_wdt_disable_clock(wdt);
--
--	return 0;
- }
- 
- static void starfive_wdt_shutdown(struct platform_device *pdev)
-@@ -587,7 +585,7 @@ MODULE_DEVICE_TABLE(of, starfive_wdt_match);
- 
- static struct platform_driver starfive_wdt_driver = {
- 	.probe = starfive_wdt_probe,
--	.remove = starfive_wdt_remove,
-+	.remove_new = starfive_wdt_remove,
- 	.shutdown = starfive_wdt_shutdown,
- 	.driver = {
- 		.name = "starfive-wdt",
+Best regards
+Uwe
+
+Uwe Kleine-König (5):
+  watchdog: at91sam9: Stop using module_platform_driver_probe()
+  watchdog: txx9: Stop using module_platform_driver_probe()
+  watchdog: at91sam9_wdt: Convert to platform remove callback returning
+    void
+  watchdog: starfive-wdt: Convert to platform remove callback returning
+    void
+  watchdog: txx9wdt: Convert to platform remove callback returning void
+
+ drivers/watchdog/at91sam9_wdt.c | 12 +++++-------
+ drivers/watchdog/starfive-wdt.c |  6 ++----
+ drivers/watchdog/txx9wdt.c      | 11 +++++------
+ 3 files changed, 12 insertions(+), 17 deletions(-)
+
+base-commit: 3ff7a5781ceee3befb9224d29cef6e6a4766c5fe
 -- 
 2.42.0
 
