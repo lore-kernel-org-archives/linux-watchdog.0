@@ -2,61 +2,61 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EAD2C41535
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 21:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1E99C4332F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 21:53:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233058AbjKFVwc (ORCPT
+        id S233192AbjKFVxM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Nov 2023 16:52:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        Mon, 6 Nov 2023 16:53:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233182AbjKFVwb (ORCPT
+        with ESMTP id S233161AbjKFVxM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Nov 2023 16:52:31 -0500
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F2AED7F
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Nov 2023 13:52:28 -0800 (PST)
-Received: by mail-lj1-x22d.google.com with SMTP id 38308e7fff4ca-2c503dbe50dso68536411fa.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Nov 2023 13:52:27 -0800 (PST)
+        Mon, 6 Nov 2023 16:53:12 -0500
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E881BD71
+        for <linux-watchdog@vger.kernel.org>; Mon,  6 Nov 2023 13:53:08 -0800 (PST)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2c5720a321aso66201351fa.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Nov 2023 13:53:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1699307546; x=1699912346; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1699307587; x=1699912387; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:user-agent:from:references
          :in-reply-to:mime-version:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=pcLpYQwHOJBs1+bgx/XyMohSbAkHSHoZFZS+/mc6OhY=;
-        b=XtMWDFxT2X2LyBM2vs1jV9nlKOgjtd2jyewQwPe04aYkMuJkygwJaIUzZ1X48YTKV9
-         j9VPZbB0Y9REGxL8AJgkjoDbc3AvLy3ZJ1ii8rsRdrUN/cCR8Rg618bh950smNYHsk1S
-         jWVSolYCW9eDRjUwsUu8gNZL0aLmCNDsQuobc=
+        bh=7HkpT9CEuO4oeNZA+gSVgeEf0FhGOZvNqxNd+YET8As=;
+        b=Y4LFiymOWRC2pu3q2VSajhW0uMEzKAIBDRJ2iDwBT/HkuZtKfOZs0r4RiaaldqQCNu
+         o38LrxcMxL4w54KJ70mFQCgq71IZLpYHRShs0RbYEYlmrA8d9ybUHKUBgk1eMhBssPpW
+         zaxEW6ijxLPNjFAIEHesjqSXq6WKSsa+TsnpM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699307546; x=1699912346;
+        d=1e100.net; s=20230601; t=1699307587; x=1699912387;
         h=cc:to:subject:message-id:date:user-agent:from:references
          :in-reply-to:mime-version:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pcLpYQwHOJBs1+bgx/XyMohSbAkHSHoZFZS+/mc6OhY=;
-        b=a5ikDAwYQeueM+Vfa+qQjoYNKvY3vHLaSDYscnoxQCRthJneJNFE9rPC69YPtzJYoD
-         jGsZfn2C/1rHR8dc77amEogC0/Q7DTHEoZ/M0+t+bMVf3+nsI490p3UNJ74t3vbd3cWD
-         w72HljNr7bRyc5n1En40NHE5muf+kRZ6hLaPdHofypVwY+tCzkK51epOAx8mB1sVuSaQ
-         N6aGDBXNGezNphbCzAku52CVlEwlc7Th1V+PHm7IQKsVrHZyTPiRMZf48pk75HF8uz+X
-         X3eowMe46U4+AzM+8VpLEeT67nbWWsLW1u2w7v0QhpR9Va2ah+VJQyoaRfohY2VFTwEb
-         eU4A==
-X-Gm-Message-State: AOJu0Yzy2htyAnpHnBCXvmb9F5DXyNnPSfGEkBvEEtn3k+V2WDBXlAlF
-        QUotBT/xQ5+cT5y1HGQVaRutx+a17yqMFqigi1f8gg==
-X-Google-Smtp-Source: AGHT+IHwaWHjOprXL57hNf2rFZSX55S5GAUN1q/qHfDTTNIOltSUt0SKeimJVCNC7yGPADzZ4lTXV9ddU9TVuiCpVKE=
-X-Received: by 2002:a2e:a98c:0:b0:2c5:4a5:9560 with SMTP id
- x12-20020a2ea98c000000b002c504a59560mr32234027ljq.41.1699307546288; Mon, 06
- Nov 2023 13:52:26 -0800 (PST)
+        bh=7HkpT9CEuO4oeNZA+gSVgeEf0FhGOZvNqxNd+YET8As=;
+        b=DjGXEk/av4TKiaXpAlV4OTSCq8PC3y6QY/vN3BSgoRu9r5xeJ4foE4ZWf9BtisVLes
+         50Sg7B6Qx0uNhjdGsaYccDPjy7dcx3dOVAVa1Cqr+4pD7M8fLJ/SJYpa6WTuRh194MyF
+         4QkdRX80xVj89w2lPnjqf1Kl8BCd9E4eulafpEUHKArvlRtfoXCVnouWsi4hNRwe1uxR
+         w+CrFSLmVvk4aK/Znpj6gkdMm4K6pmkVGJlZiK/K1dAslbslf9AhSdEWWfdbzg2Gw7Z+
+         LHP/uD63fr+FOVGym05xPTw9juNlNlsXoSC9dYmwobfc0zadwPyPlxUchyGHJSgPuoRU
+         c8IQ==
+X-Gm-Message-State: AOJu0YxsGR1FEOmB4I8MgEQ0OMd65jSqbxrYKd8Gcc+2MrqfboikAS3F
+        Fol21sVdwvbfRxKzM6qlPCPQNBEZYEGRj2ksk5/avg==
+X-Google-Smtp-Source: AGHT+IGEYZHpN00c0KgUsD5iQRhHvicn/ICGk0KN/ggpV7HrCoK86ByDRWhJrLAgBNTSz+IcwgxmJBHJeL02KHkN+M8=
+X-Received: by 2002:a2e:9bd8:0:b0:2c0:1bf9:3c94 with SMTP id
+ w24-20020a2e9bd8000000b002c01bf93c94mr22279646ljj.50.1699307587215; Mon, 06
+ Nov 2023 13:53:07 -0800 (PST)
 Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 6 Nov 2023 13:52:25 -0800
+ HTTPREST; Mon, 6 Nov 2023 13:53:06 -0800
 MIME-Version: 1.0
-In-Reply-To: <20231103163434.8.Ic1d4402e99c70354d501ccd98105e908a902f671@changeid>
+In-Reply-To: <20231103163434.9.Ie30c1d3f780666f6906fd2fd7c437632c229d987@changeid>
 References: <20231103163434.1.Ic7577567baff921347d423b722de8b857602efb1@changeid>
- <20231103163434.8.Ic1d4402e99c70354d501ccd98105e908a902f671@changeid>
+ <20231103163434.9.Ie30c1d3f780666f6906fd2fd7c437632c229d987@changeid>
 From:   Stephen Boyd <swboyd@chromium.org>
 User-Agent: alot/0.10
-Date:   Mon, 6 Nov 2023 13:52:25 -0800
-Message-ID: <CAE-0n5152eMZ_muL3rBOc6gyRQOXA0U8=vXp6GkkuvOo3Mp+mw@mail.gmail.com>
-Subject: Re: [PATCH 8/9] arm64: dts: qcom: sm6350: Make watchdog bark
- interrupt edge triggered
+Date:   Mon, 6 Nov 2023 13:53:06 -0800
+Message-ID: <CAE-0n50cJZO3945tuLg+KrraBdp6zSzfnhSNpjju-ZPsBrooKQ@mail.gmail.com>
+Subject: Re: [PATCH 9/9] dt-bindings: watchdog: qcom-wdt: Make the interrupt
+ example edge triggered
 To:     Bjorn Andersson <andersson@kernel.org>,
         Conor Dooley <conor+dt@kernel.org>,
         Douglas Anderson <dianders@chromium.org>,
@@ -66,19 +66,22 @@ To:     Bjorn Andersson <andersson@kernel.org>,
 Cc:     linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         Rob Herring <robh+dt@kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Andy Gross <agross@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        Andy Gross <agross@kernel.org>,
+        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Douglas Anderson (2023-11-03 16:34:34)
+Quoting Douglas Anderson (2023-11-03 16:34:35)
 > As described in the patch ("arm64: dts: qcom: sc7180: Make watchdog
 > bark interrupt edge triggered"), the Qualcomm watchdog timer's bark
-> interrupt should be configured as edge triggered. Make the change.
+> interrupt should be configured as edge triggered.
 >
-> Fixes: 5f82b9cda61e ("arm64: dts: qcom: Add SM6350 device tree")
+> Update the example in the bindings.
+>
+> Fixes: 7c631cdff391 ("dt-bindings: watchdog: qcom-wdt: allow interrupts")
 > Signed-off-by: Douglas Anderson <dianders@chromium.org>
 > ---
 
