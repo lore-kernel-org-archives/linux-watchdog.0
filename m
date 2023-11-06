@@ -2,75 +2,54 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45FF0C4167D
-	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 21:53:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A54B2C4332F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  6 Nov 2023 22:37:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbjKFVxX (ORCPT
+        id S233137AbjKFWh3 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 6 Nov 2023 16:53:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46522 "EHLO
+        Mon, 6 Nov 2023 17:37:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbjKFVxW (ORCPT
+        with ESMTP id S232478AbjKFWh2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Nov 2023 16:53:22 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4BBD7F
-        for <linux-watchdog@vger.kernel.org>; Mon,  6 Nov 2023 13:53:19 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id 4fb4d7f45d1cf-5431614d90eso8268067a12.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Nov 2023 13:53:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1699307596; x=1699912396; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wNAdiaf7CFJFGR+XgzzaLNcE9ebdwuse14Opfb1nM5c=;
-        b=JXkEYDEugqKvyhezruwgFaSx7gSW2M+7AAC6hKFcPA1SvASIWqYrjpnB9sIoQTSdyM
-         xP+hR+45THPwDfmnPguSlSHOGmhq4q/Ob4AgcsL8S9SWxEBfpd7RXU+Ey4BTAWYQ2f9W
-         AwNG9Qzhpt+0XSxgKGgdJTvuJ0rXKjoN4xXIY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699307596; x=1699912396;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wNAdiaf7CFJFGR+XgzzaLNcE9ebdwuse14Opfb1nM5c=;
-        b=NiHt+Q12+Y3jEB4i941n4gGvJ0BdZO6pWtK4UKK8RWmAZFsjM/fX+x39QRlwDMgA94
-         6hxxYPEDDjlw+kgSsKaYHiZjloswJI79M7/4HB8wRtl5UH7epOPPIZ+OLHdHvbAiC4Ib
-         L9Vse+uh64LyEBQVRYMujDm6lurqMMLDYacK3s5bHG3zLYYBBjVE1L2PdzrehvU0+rfm
-         5sfzG5N2aWzSbBAZol91tP6P4G1hZwdP8aNXEVqrlgpfE6Xnb6pbQUN1kmDRS9p14Do9
-         jMiYxPUgWM3ObQ5eSGi3BgaSAm+SDrogI8XK2pssS+eyuauo5YhZRuADcn78G6oidGlB
-         fGRw==
-X-Gm-Message-State: AOJu0Yzau8t2qKZ85Se+FmsS9kmqJvytyU7g6cc1CGxR6G5QPfy2bTZF
-        FEBqjrB5U/zJvQWWrcWzyQcm4y8whKEumKTq5oiCnJ3K
-X-Google-Smtp-Source: AGHT+IFUWIAvhj3kA3v0FipjV3QJQSalKIYUynpN1xpU1WmpRQ6ZJPxY+id0oiFTuvkIFYEnCFzZXw==
-X-Received: by 2002:a17:907:268a:b0:9e0:4910:1651 with SMTP id bn10-20020a170907268a00b009e049101651mr3364781ejc.41.1699307596061;
-        Mon, 06 Nov 2023 13:53:16 -0800 (PST)
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com. [209.85.128.46])
-        by smtp.gmail.com with ESMTPSA id n21-20020a170906089500b00997e99a662bsm293038eje.20.2023.11.06.13.53.15
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Nov 2023 13:53:15 -0800 (PST)
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-40853f2e93eso26155e9.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Nov 2023 13:53:15 -0800 (PST)
-X-Received: by 2002:a05:600c:a005:b0:408:3727:92c5 with SMTP id
- jg5-20020a05600ca00500b00408372792c5mr40609wmb.2.1699307595154; Mon, 06 Nov
- 2023 13:53:15 -0800 (PST)
-MIME-Version: 1.0
-References: <20231103163434.1.Ic7577567baff921347d423b722de8b857602efb1@changeid>
- <CAE-0n50vtad5hkkAuV-hvsnm+tTevd_4OSr3iGofBa5L8A0RQw@mail.gmail.com>
-In-Reply-To: <CAE-0n50vtad5hkkAuV-hvsnm+tTevd_4OSr3iGofBa5L8A0RQw@mail.gmail.com>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Mon, 6 Nov 2023 13:52:58 -0800
-X-Gmail-Original-Message-ID: <CAD=FV=UJE6VKrjFJ2g=4qRHLdnqymossWSAFeKyUykxm1sTCtQ@mail.gmail.com>
-Message-ID: <CAD=FV=UJE6VKrjFJ2g=4qRHLdnqymossWSAFeKyUykxm1sTCtQ@mail.gmail.com>
-Subject: Re: [PATCH 1/9] arm64: dts: qcom: sc7180: Make watchdog bark
- interrupt edge triggered
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     Bjorn Andersson <andersson@kernel.org>,
+        Mon, 6 Nov 2023 17:37:28 -0500
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1379BD51;
+        Mon,  6 Nov 2023 14:37:25 -0800 (PST)
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6LocKp012416;
+        Mon, 6 Nov 2023 22:36:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=date : from : to :
+ cc : subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=qcppdkim1;
+ bh=Axhqdj44LXREwOcAc3+OGJljF+Zqtf7gkAFBPL7WTUQ=;
+ b=PBNQTth6HskJM9OEKmq6DBb4K6cmfJtFjWFuUDHoQLcTvbVS8Jx2ZEycAu7tgI82jjaG
+ 6Z3qW4LFh957x7BEHlplYGUcLtM3Ci+XimsrgD1Zq9QxYEZWMXtJyFF2XRdTarq0FlyP
+ WcJUU2xwhTnv+IAQx/HXPmNVHnA+EDIs2ymqkrRG4fSTsW3l+caAbCKy+ZGqgGrEYhnp
+ YEDcPDum0ar2wRtbpx0zrBEY0jEo63ivGRhaSShiva0vKK+tKIM0OkDovSQXRQGewlwj
+ 44K8kYA8dl0ZdM3S/JxYI7zX2jPxwoUzNIFH60yy5MaAE3sQpDIHFHZWsb14KADEeO8x YQ== 
+Received: from nasanppmta01.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3u72bth11c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Nov 2023 22:36:54 +0000
+Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
+        by NASANPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 3A6MarqS024021
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 6 Nov 2023 22:36:53 GMT
+Received: from hu-bjorande-lv.qualcomm.com (10.49.16.6) by
+ nasanex01c.na.qualcomm.com (10.45.79.139) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.39; Mon, 6 Nov 2023 14:36:52 -0800
+Date:   Mon, 6 Nov 2023 14:36:51 -0800
+From:   Bjorn Andersson <quic_bjorande@quicinc.com>
+To:     Doug Anderson <dianders@chromium.org>
+CC:     Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Conor Dooley <conor+dt@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        <linux-watchdog@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Andy Gross <agross@kernel.org>,
@@ -78,59 +57,90 @@ Cc:     Bjorn Andersson <andersson@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
         Tony Luck <tony.luck@intel.com>,
-        cros-qcom-dts-watchers@chromium.org, devicetree@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        <cros-qcom-dts-watchers@chromium.org>,
+        <devicetree@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/9] arm64: dts: qcom: sc7180: Make watchdog bark
+ interrupt edge triggered
+Message-ID: <20231106223651.GZ3553829@hu-bjorande-lv.qualcomm.com>
+References: <20231103163434.1.Ic7577567baff921347d423b722de8b857602efb1@changeid>
+ <CAE-0n50vtad5hkkAuV-hvsnm+tTevd_4OSr3iGofBa5L8A0RQw@mail.gmail.com>
+ <CAD=FV=UJE6VKrjFJ2g=4qRHLdnqymossWSAFeKyUykxm1sTCtQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAD=FV=UJE6VKrjFJ2g=4qRHLdnqymossWSAFeKyUykxm1sTCtQ@mail.gmail.com>
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nasanex01c.na.qualcomm.com (10.45.79.139)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: O6ZoRgqUeWM1cDED-Pa0nTdiJj8O354e
+X-Proofpoint-GUID: O6ZoRgqUeWM1cDED-Pa0nTdiJj8O354e
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-06_15,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ bulkscore=0 phishscore=0 impostorscore=0 adultscore=0 suspectscore=0
+ clxscore=1011 priorityscore=1501 spamscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311060185
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
-
-On Mon, Nov 6, 2023 at 1:49=E2=80=AFPM Stephen Boyd <swboyd@chromium.org> w=
-rote:
->
-> Quoting Douglas Anderson (2023-11-03 16:34:27)
-> > On sc7180 when the watchdog timer fires your logs get filled with:
-> >   watchdog0: pretimeout event
-> >   watchdog0: pretimeout event
-> >   watchdog0: pretimeout event
-> >   ...
-> >   watchdog0: pretimeout event
+On Mon, Nov 06, 2023 at 01:52:58PM -0800, Doug Anderson wrote:
+> Hi,
+> 
+> On Mon, Nov 6, 2023 at 1:49 PM Stephen Boyd <swboyd@chromium.org> wrote:
 > >
-> > If you're using console-ramoops to debug crashes the above gets quite
-> > annoying since it blows away any other log messages that might have
-> > been there.
+> > Quoting Douglas Anderson (2023-11-03 16:34:27)
+> > > On sc7180 when the watchdog timer fires your logs get filled with:
+> > >   watchdog0: pretimeout event
+> > >   watchdog0: pretimeout event
+> > >   watchdog0: pretimeout event
+> > >   ...
+> > >   watchdog0: pretimeout event
+> > >
+> > > If you're using console-ramoops to debug crashes the above gets quite
+> > > annoying since it blows away any other log messages that might have
+> > > been there.
+> > >
+> > > The issue is that the "bark" interrupt (AKA the "pretimeout"
+> > > interrupt) remains high until the watchdog is pet. Since we've got
+> > > things configured as "level" triggered we'll keep getting interrupted
+> > > over and over.
+> > >
+> > > Let's switch to edge triggered. Now we'll get one interrupt when the
+> > > "bark" interrupt goes off we'll get one interrupt and won't get
 > >
-> > The issue is that the "bark" interrupt (AKA the "pretimeout"
-> > interrupt) remains high until the watchdog is pet. Since we've got
-> > things configured as "level" triggered we'll keep getting interrupted
-> > over and over.
+> > "We'll get one" twice?
+> 
+> I like to make like to make typos. If you hadn't hadn't noticed.
+> 
+> I'll wait another few days and send a version with the typo fixed
+> unless Bjorn tells me not to (because he didn't care and applied it
+> anyway or because he fixed it himself while applying).
+> 
+
+I'd be happy to pick your resubmitted series. Thanks for cleaning this
+up across the platforms.
+
+Regards,
+Bjorn
+
+> 
+> > > another one until the "bark" interrupt is cleared and asserts again.
+> > >
+> > > This matches how many older Qualcomm SoCs have things configured.
+> > >
+> > > Fixes: 28cc13e4060c ("arm64: dts: qcom: sc7180: Add watchdog bark interrupt")
+> > > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> > > ---
 > >
-> > Let's switch to edge triggered. Now we'll get one interrupt when the
-> > "bark" interrupt goes off we'll get one interrupt and won't get
->
-> "We'll get one" twice?
-
-I like to make like to make typos. If you hadn't hadn't noticed.
-
-I'll wait another few days and send a version with the typo fixed
-unless Bjorn tells me not to (because he didn't care and applied it
-anyway or because he fixed it himself while applying).
-
-
-> > another one until the "bark" interrupt is cleared and asserts again.
-> >
-> > This matches how many older Qualcomm SoCs have things configured.
-> >
-> > Fixes: 28cc13e4060c ("arm64: dts: qcom: sc7180: Add watchdog bark inter=
-rupt")
-> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > ---
->
-> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-
-Thanks!
-
--Doug
+> > Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> 
+> Thanks!
+> 
+> -Doug
