@@ -2,106 +2,79 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9469C4167B
-	for <linux-watchdog@archiver.kernel.org>; Mon, 13 Nov 2023 19:54:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88989C4332F
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Nov 2023 01:04:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbjKMTyF (ORCPT
+        id S229703AbjKNBE1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 13 Nov 2023 14:54:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36430 "EHLO
+        Mon, 13 Nov 2023 20:04:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231924AbjKMTxv (ORCPT
+        with ESMTP id S229511AbjKNBE1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 13 Nov 2023 14:53:51 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5620A10CE;
-        Mon, 13 Nov 2023 11:53:30 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C2AC433C8;
-        Mon, 13 Nov 2023 19:53:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699905210;
-        bh=emrTx/dM/O1+auWw5mA0LhsDE35tCu8mEN5lB2h0qcU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qWcoHXchhVS/XJD8JwE8HDZGXI97JEStuv5rRHgPgI46bK3IoWhKDgnf2Fm2yZuBr
-         dQ9Uakb9CFFsHtD9Scq9/zMEhRWGeX8WSMLPxfJb3jSMy8oHb9G/xyjjmZDh59UsqC
-         yiAxHKqduNwiKNx14yP6LGnvOXP/UcUJVTLPA/ltWoHU//mb43m5O3jnrnHSqrb4Iy
-         6PkY6FQJ91kEzI8hi4ItyDZU4B2N1z5NzjX5m74VQLp6BdTcUoEdcvDv9OtExQamCt
-         AvQG0LHFTydEaCR6GBJVbjplNBfdwvn0ST0R2Pzp4dt3Y7/QRV8QV+EHuwSLJzNqSP
-         EJyanll7JbEOw==
-Date:   Mon, 13 Nov 2023 19:53:26 +0000
-From:   Conor Dooley <conor@kernel.org>
-To:     Daniel Golle <daniel@makrotopia.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: mediatek,mtk-wdt: add
- MT7988 watchdog and toprgu
-Message-ID: <20231113-pug-treading-630646dc7ff6@squawk>
-References: <e26a98fd0b7b7b431922405732275bac01eaf220.1699890006.git.daniel@makrotopia.org>
+        Mon, 13 Nov 2023 20:04:27 -0500
+X-Greylist: delayed 109432 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Nov 2023 17:04:24 PST
+Received: from ns3154000.ip-51-89-173.eu (ns3154000.ip-51-89-173.eu [51.89.173.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A585D51
+        for <linux-watchdog@vger.kernel.org>; Mon, 13 Nov 2023 17:04:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=corptia.com
+        ; s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID
+        :Date:Subject:To:From:Reply-To:Sender:Cc:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=AuFOzWEY1p4B/ao4HYur+KTak9IfXFRGw/OWFKPeT54=; b=LJZUPvNgDW4AkA/ONWbgXf35wQ
+        UD7b1kWL6zPBhpnFmPKYFiFQLfMyFCSE6bjYTgfyL243QkSNPA1/XmFRwPabpDHYQ0waOcThdf/2z
+        ZN5Pm+J8FzvOtx7J/991SVnnD475eTZ7valmPX76ScqyCHbDyYaJ/1PL2kZUo8YE9qBUQpip2n58I
+        tdk5aIMo0QOjmF87+jzDERIa9nBZ9gUeQIYI1uEWxyw3mZWxF8gJXIHOgg9/JYO2RFR7c5E6uD5AM
+        QJeGkE0B9ZOVEQqzrJgdUXE6HAZAlBlUPmJIsLq/5Jll5J3qBRLN13TrP9AgWMTv83Teftgp5EgiM
+        IXgzU4NA==;
+Received: from [46.183.223.78] (port=53721 helo=corptia.com)
+        by ns3154000.ip-51-89-173.eu with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.96.2)
+        (envelope-from <jobs@corptia.com>)
+        id 1r1Cjv-0005nM-2d
+        for linux-watchdog@vger.kernel.org;
+        Thu, 09 Nov 2023 21:39:02 +0000
+Reply-To: projects@adnoc-suppplier.com
+From:   Abu Dhabi National Oil Company <jobs@corptia.com>
+To:     linux-watchdog@vger.kernel.org
+Subject: VENDORS EOI
+Date:   09 Nov 2023 23:39:01 +0200
+Message-ID: <20231109233901.C624FD5D64527F41@corptia.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="v+4d4Ab1VeqFRJZg"
-Content-Disposition: inline
-In-Reply-To: <e26a98fd0b7b7b431922405732275bac01eaf220.1699890006.git.daniel@makrotopia.org>
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns3154000.ip-51-89-173.eu
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - corptia.com
+X-Get-Message-Sender-Via: ns3154000.ip-51-89-173.eu: authenticated_id: jobs@corptia.com
+X-Authenticated-Sender: ns3154000.ip-51-89-173.eu: jobs@corptia.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
---v+4d4Ab1VeqFRJZg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Greetings of the day,
 
-On Mon, Nov 13, 2023 at 03:43:24PM +0000, Daniel Golle wrote:
-> Add compatible mediatek,mt7988-wdt.
->=20
-> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+We are inviting your esteemed company for vendor registration and=20
+intending partners for Abu Dhabi National Oil Company (ADNOC)
+2023/2024 projects.
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Thanks,
-Conor.
+These projects are open for all companies around the world, if=20
+you have intention to participate in the process, please confirm=20
+your interest by asking for Vendor Questionnaire and EOI.
 
-> ---
-> v2: Drop adding include/dt-binding/mt7988-resets.h as that header is not
->     actually a binding header.
->=20
->  Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.=
-yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> index cc502838bc398..8d2520241e37f 100644
-> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> @@ -25,6 +25,7 @@ properties:
->            - mediatek,mt6735-wdt
->            - mediatek,mt6795-wdt
->            - mediatek,mt7986-wdt
-> +          - mediatek,mt7988-wdt
->            - mediatek,mt8183-wdt
->            - mediatek,mt8186-wdt
->            - mediatek,mt8188-wdt
-> --=20
-> 2.42.1
+We appreciate your interest in this invitation, and look forward=20
+to your early response.
 
---v+4d4Ab1VeqFRJZg
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZVJ+swAKCRB4tDGHoIJi
-0ipjAQC7wiCmdGPVV4FvUrbXgyRDZl0xBkSLB9OgdHHHNbRTkQD/XmNHtljnCSiv
-Mbh6563hwEBuk9L2hgIJcHQY6wvKiw0=
-=oAgM
------END PGP SIGNATURE-----
-
---v+4d4Ab1VeqFRJZg--
+Kind Regards,
+Mr. Mohamed Ghazi B.
+Senior Project Manager
+projects@adnoc-suppplier.com
