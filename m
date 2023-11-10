@@ -2,31 +2,45 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 055A0C4167D
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 18:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 134E8C4167D
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 18:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234985AbjKJSaI (ORCPT
+        id S1344908AbjKJSha (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 10 Nov 2023 13:30:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
+        Fri, 10 Nov 2023 13:37:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346091AbjKJS2H (ORCPT
+        with ESMTP id S229602AbjKJSfJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 10 Nov 2023 13:28:07 -0500
-Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6B539CEB;
-        Fri, 10 Nov 2023 06:51:13 -0800 (PST)
-Received: from local
-        by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
-         (Exim 4.96.2)
-        (envelope-from <daniel@makrotopia.org>)
-        id 1r1Sqf-0006vh-2c;
-        Fri, 10 Nov 2023 14:51:05 +0000
-Date:   Fri, 10 Nov 2023 14:51:00 +0000
-From:   Daniel Golle <daniel@makrotopia.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+        Fri, 10 Nov 2023 13:35:09 -0500
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C0431E6F;
+        Fri, 10 Nov 2023 03:56:20 -0800 (PST)
+Received: from [100.107.97.3] (cola.collaboradmins.com [195.201.22.229])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: kholk11)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id D695C66073D6;
+        Fri, 10 Nov 2023 11:56:18 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1699617379;
+        bh=UsQJMA84in9eZ7+pQRAtSLereQcK1RKiGbtcXNhScsA=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=FJTlm3kNTqQ3pO2+5YHTzqCb8s8ldGouiZu4T63SdwavS+QLS5SsHFJdB/yNlGf1S
+         nxMHvl+igevcE4fY4CiG3H0YzxgWGaEwkiNbT/ohG1r3ldjNLUN+0eqPP2rGNaAUCb
+         28U+cGmi4aOb5X9uVBTxOBAf2vZus6lLr/tWDP4BKR4qXz1ffRfc+9hidXPEDhTlXi
+         xrCGkQn2SluEzmMm/fzHTZebOcVG4V5MHcJuPt14CpYS6VGZpi85qMB2AHL9oPnICp
+         LqlU3keZjXBu0IQyHL1t52E1uK5ixbh7tAcf1hMjyPcZJCtCTkVKgJh3mG6ePfzGYg
+         7tAiNfCVnmRSg==
+Message-ID: <2678cb48-1d2b-47bc-9272-06d9aa140c58@collabora.com>
+Date:   Fri, 10 Nov 2023 12:56:18 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: mediatek,mtk-wdt: add MT7988
+ watchdog and toprgu
+Content-Language: en-US
+To:     Daniel Golle <daniel@makrotopia.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
@@ -37,109 +51,63 @@ Cc:     AngeloGioacchino Del Regno
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH 1/2] dt-bindings: watchdog: mediatek,mtk-wdt: add MT7988
- watchdog and toprgu
-Message-ID: <ZU5DVNOmtyFwUTdC@makrotopia.org>
 References: <6912f6f406bc45674020681184f3eeca2f2cb63f.1699576174.git.daniel@makrotopia.org>
- <2678cb48-1d2b-47bc-9272-06d9aa140c58@collabora.com>
- <ZU47hV1i66WN8nZJ@makrotopia.org>
- <d7b72b3e-c8f4-4675-ae62-26f5ae576f0a@linaro.org>
- <ZU5A59KO8Y_Q97IG@makrotopia.org>
- <a56cfe76-ab03-4187-b6f1-04a5c3414e64@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a56cfe76-ab03-4187-b6f1-04a5c3414e64@linaro.org>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <6912f6f406bc45674020681184f3eeca2f2cb63f.1699576174.git.daniel@makrotopia.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Nov 10, 2023 at 03:46:14PM +0100, Krzysztof Kozlowski wrote:
-> On 10/11/2023 15:40, Daniel Golle wrote:
-> > On Fri, Nov 10, 2023 at 03:20:53PM +0100, Krzysztof Kozlowski wrote:
-> >> On 10/11/2023 15:17, Daniel Golle wrote:
-> >>> On Fri, Nov 10, 2023 at 12:56:18PM +0100, AngeloGioacchino Del Regno wrote:
-> >>>> Il 10/11/23 01:30, Daniel Golle ha scritto:
-> >>>>> Add binding description for mediatek,mt7988-wdt.
-> >>>>>
-> >>>>> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-> >>>>> ---
-> >>>>>   .../bindings/watchdog/mediatek,mtk-wdt.yaml          |  1 +
-> >>>>>   include/dt-bindings/reset/mediatek,mt7988-resets.h   | 12 ++++++++++++
-> >>>>>   2 files changed, 13 insertions(+)
-> >>>>>   create mode 100644 include/dt-bindings/reset/mediatek,mt7988-resets.h
-> >>>>>
-> >>>>> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> >>>>> index cc502838bc398..8d2520241e37f 100644
-> >>>>> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> >>>>> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> >>>>> @@ -25,6 +25,7 @@ properties:
-> >>>>>             - mediatek,mt6735-wdt
-> >>>>>             - mediatek,mt6795-wdt
-> >>>>>             - mediatek,mt7986-wdt
-> >>>>> +          - mediatek,mt7988-wdt
-> >>>>>             - mediatek,mt8183-wdt
-> >>>>>             - mediatek,mt8186-wdt
-> >>>>>             - mediatek,mt8188-wdt
-> >>>>> diff --git a/include/dt-bindings/reset/mediatek,mt7988-resets.h b/include/dt-bindings/reset/mediatek,mt7988-resets.h
-> >>>>> new file mode 100644
-> >>>>> index 0000000000000..fa7c937505e08
-> >>>>> --- /dev/null
-> >>>>> +++ b/include/dt-bindings/reset/mediatek,mt7988-resets.h
-> >>>>> @@ -0,0 +1,12 @@
-> >>>>> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-> >>>>> +
-> >>>>> +/* TOPRGU resets */
-> >>>>
-> >>>> The first reset is zero, the second reset is one.
-> >>>>
-> >>>> Where's the zero'th reset? :-)
-> >>>
-> >>> Currently the reset numbers represent the corresponding bit positions in
-> >>> the toprgu register, as this is how the mtk-wdt driver is organized.
-> >>>
-> >>> So there is probably something at bit 0, and also at bit 3~11 and
-> >>> maybe also 17~23, but it's unknown and may be added later once known
-> >>> and/or needed.
-> >>
-> >> There is no need to put register bits, which are not used by the driver,
-> >> in the bindings.
-> > 
-> > There aren't. That's why there isn't a zero'th reset (and also not 3~11, 17~24).
-> > 
-> > Or should the driver be reorganized to provide a mapping of logical to
-> > physical resets, and then have only the needed once present and start
-> > counting logical resets from 0? This is doable, of course, but it's a
-> > bit of effort just for the aesthetical goal of starting to count from
-> > zero and continous in header file.
-> > 
-> > And, of course, chances are that other currently still unused bits
-> > will be needed at a later point which then would mean having to add
-> > them in at least 2 places (header file and mapping logical<->physical)
-> > where as currently it would just mean adding a line defining it in the
-> > header file.
+Il 10/11/23 01:30, Daniel Golle ha scritto:
+> Add binding description for mediatek,mt7988-wdt.
 > 
-> You can do it, but it's not what I wrote here. So bear with me:
+> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+> ---
+>   .../bindings/watchdog/mediatek,mtk-wdt.yaml          |  1 +
+>   include/dt-bindings/reset/mediatek,mt7988-resets.h   | 12 ++++++++++++
+>   2 files changed, 13 insertions(+)
+>   create mode 100644 include/dt-bindings/reset/mediatek,mt7988-resets.h
 > 
-> "There is no need to put register bits in the bindings."
-> 
-> You replied "There aren't", which I don't understand in this context. I
-> can be clearer:
-> Drop this hunk.
+> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> index cc502838bc398..8d2520241e37f 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> @@ -25,6 +25,7 @@ properties:
+>             - mediatek,mt6735-wdt
+>             - mediatek,mt6795-wdt
+>             - mediatek,mt7986-wdt
+> +          - mediatek,mt7988-wdt
+>             - mediatek,mt8183-wdt
+>             - mediatek,mt8186-wdt
+>             - mediatek,mt8188-wdt
+> diff --git a/include/dt-bindings/reset/mediatek,mt7988-resets.h b/include/dt-bindings/reset/mediatek,mt7988-resets.h
+> new file mode 100644
+> index 0000000000000..fa7c937505e08
+> --- /dev/null
+> +++ b/include/dt-bindings/reset/mediatek,mt7988-resets.h
+> @@ -0,0 +1,12 @@
+> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+> +
+> +/* TOPRGU resets */
 
-So adding the file to include/dt-bindings/reset/ should go into a
-seperate patch? Because including it with the driver itself gave me
-a checkpath warning telling me that dt-bindings should go seperate,
-which is why I included it with the binding docs.
+The first reset is zero, the second reset is one.
 
-> 
-> > 
-> > A quick looks at all the other headers in
-> > include/dt-binding/reset/mt*-resets.h also shows that currently all of
-> > them have unused bits and e.g. infracfg on MT7986 starts counting from
-> > 6.
-> 
-> Best regards,
-> Krzysztof
-> 
-> 
+Where's the zero'th reset? :-)
+
+Regards,
+Angelo
+
+> +#define MT7988_TOPRGU_SGMII0_GRST		1
+> +#define MT7988_TOPRGU_SGMII1_GRST		2
+> +#define MT7988_TOPRGU_XFI0_GRST			12
+> +#define MT7988_TOPRGU_XFI1_GRST			13
+> +#define MT7988_TOPRGU_XFI_PEXTP0_GRST		14
+> +#define MT7988_TOPRGU_XFI_PEXTP1_GRST		15
+> +#define MT7988_TOPRGU_XFI_PLL_GRST		16
+> +
+> +#define MT7988_TOPRGU_SW_RST_NUM		24
+
+
