@@ -2,204 +2,154 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8A12C4332F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 00:30:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4FDCC4332F
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 17:41:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233763AbjKJAav (ORCPT
+        id S234912AbjKJRli (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 9 Nov 2023 19:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40714 "EHLO
+        Fri, 10 Nov 2023 12:41:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229581AbjKJAau (ORCPT
+        with ESMTP id S229838AbjKJRlg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 9 Nov 2023 19:30:50 -0500
+        Fri, 10 Nov 2023 12:41:36 -0500
 Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3921F2590;
-        Thu,  9 Nov 2023 16:30:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EFBF3A22A;
+        Fri, 10 Nov 2023 07:13:03 -0800 (PST)
 Received: from local
         by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
          (Exim 4.96.2)
         (envelope-from <daniel@makrotopia.org>)
-        id 1r1FPz-00041m-2U;
-        Fri, 10 Nov 2023 00:30:39 +0000
-Date:   Fri, 10 Nov 2023 00:30:36 +0000
+        id 1r1TBm-000707-2r;
+        Fri, 10 Nov 2023 15:12:54 +0000
+Date:   Fri, 10 Nov 2023 15:12:50 +0000
 From:   Daniel Golle <daniel@makrotopia.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
         Philipp Zabel <p.zabel@pengutronix.de>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: [PATCH 2/2] watchdog: mediatek: mt7988: add wdt support
-Message-ID: <ddb5b6ca88165aa69f73fe2804eedd0231d8d9e7.1699576174.git.daniel@makrotopia.org>
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: mediatek,mtk-wdt: add MT7988
+ watchdog and toprgu
+Message-ID: <ZU5IcrjqQpwMopJC@makrotopia.org>
 References: <6912f6f406bc45674020681184f3eeca2f2cb63f.1699576174.git.daniel@makrotopia.org>
+ <2678cb48-1d2b-47bc-9272-06d9aa140c58@collabora.com>
+ <ZU47hV1i66WN8nZJ@makrotopia.org>
+ <d7b72b3e-c8f4-4675-ae62-26f5ae576f0a@linaro.org>
+ <ZU5A59KO8Y_Q97IG@makrotopia.org>
+ <a56cfe76-ab03-4187-b6f1-04a5c3414e64@linaro.org>
+ <ZU5DVNOmtyFwUTdC@makrotopia.org>
+ <708046ae-a821-420c-959a-ab5cb712aa9e@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6912f6f406bc45674020681184f3eeca2f2cb63f.1699576174.git.daniel@makrotopia.org>
+In-Reply-To: <708046ae-a821-420c-959a-ab5cb712aa9e@linaro.org>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for watchdog and reset generator unit of the MediaTek
-MT7988 SoC.
+On Fri, Nov 10, 2023 at 04:07:51PM +0100, Krzysztof Kozlowski wrote:
+> On 10/11/2023 15:51, Daniel Golle wrote:
+> > On Fri, Nov 10, 2023 at 03:46:14PM +0100, Krzysztof Kozlowski wrote:
+> >> On 10/11/2023 15:40, Daniel Golle wrote:
+> >>> On Fri, Nov 10, 2023 at 03:20:53PM +0100, Krzysztof Kozlowski wrote:
+> >>>> On 10/11/2023 15:17, Daniel Golle wrote:
+> >>>>> On Fri, Nov 10, 2023 at 12:56:18PM +0100, AngeloGioacchino Del Regno wrote:
+> >>>>>> Il 10/11/23 01:30, Daniel Golle ha scritto:
+> >>>>>>> Add binding description for mediatek,mt7988-wdt.
+> >>>>>>>
+> >>>>>>> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+> >>>>>>> ---
+> >>>>>>>   .../bindings/watchdog/mediatek,mtk-wdt.yaml          |  1 +
+> >>>>>>>   include/dt-bindings/reset/mediatek,mt7988-resets.h   | 12 ++++++++++++
+> >>>>>>>   2 files changed, 13 insertions(+)
+> >>>>>>>   create mode 100644 include/dt-bindings/reset/mediatek,mt7988-resets.h
+> >>>>>>>
+> >>>>>>> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> >>>>>>> index cc502838bc398..8d2520241e37f 100644
+> >>>>>>> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> >>>>>>> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> >>>>>>> @@ -25,6 +25,7 @@ properties:
+> >>>>>>>             - mediatek,mt6735-wdt
+> >>>>>>>             - mediatek,mt6795-wdt
+> >>>>>>>             - mediatek,mt7986-wdt
+> >>>>>>> +          - mediatek,mt7988-wdt
+> >>>>>>>             - mediatek,mt8183-wdt
+> >>>>>>>             - mediatek,mt8186-wdt
+> >>>>>>>             - mediatek,mt8188-wdt
+> >>>>>>> diff --git a/include/dt-bindings/reset/mediatek,mt7988-resets.h b/include/dt-bindings/reset/mediatek,mt7988-resets.h
+> >>>>>>> new file mode 100644
+> >>>>>>> index 0000000000000..fa7c937505e08
+> >>>>>>> --- /dev/null
+> >>>>>>> +++ b/include/dt-bindings/reset/mediatek,mt7988-resets.h
+> >>>>>>> @@ -0,0 +1,12 @@
+> >>>>>>> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+> >>>>>>> +
+> >>>>>>> +/* TOPRGU resets */
+> >>>>>>
+> >>>>>> The first reset is zero, the second reset is one.
+> >>>>>>
+> >>>>>> Where's the zero'th reset? :-)
+> >>>>>
+> >>>>> Currently the reset numbers represent the corresponding bit positions in
+> >>>>> the toprgu register, as this is how the mtk-wdt driver is organized.
+> >>>>>
+> >>>>> So there is probably something at bit 0, and also at bit 3~11 and
+> >>>>> maybe also 17~23, but it's unknown and may be added later once known
+> >>>>> and/or needed.
+> >>>>
+> >>>> There is no need to put register bits, which are not used by the driver,
+> >>>> in the bindings.
+> >>>
+> >>> There aren't. That's why there isn't a zero'th reset (and also not 3~11, 17~24).
+> >>>
+> >>> Or should the driver be reorganized to provide a mapping of logical to
+> >>> physical resets, and then have only the needed once present and start
+> >>> counting logical resets from 0? This is doable, of course, but it's a
+> >>> bit of effort just for the aesthetical goal of starting to count from
+> >>> zero and continous in header file.
+> >>>
+> >>> And, of course, chances are that other currently still unused bits
+> >>> will be needed at a later point which then would mean having to add
+> >>> them in at least 2 places (header file and mapping logical<->physical)
+> >>> where as currently it would just mean adding a line defining it in the
+> >>> header file.
+> >>
+> >> You can do it, but it's not what I wrote here. So bear with me:
+> >>
+> >> "There is no need to put register bits in the bindings."
+> 
+> No comments here, so I assume you agree with this.
+> 
+> >>
+> >> You replied "There aren't", which I don't understand in this context. I
+> >> can be clearer:
+> >> Drop this hunk.
+> > 
+> > So adding the file to include/dt-bindings/reset/ should go into a
+> > seperate patch? Because including it with the driver itself gave me
+> > a checkpath warning telling me that dt-bindings should go seperate,
+> > which is why I included it with the binding docs.
+> 
+> No, I said the hunk should be dropped. Removed.
 
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
----
- drivers/watchdog/mtk_wdt.c | 56 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+I guess we are somehow misunderstanding each other.
+Lets go with an example. I can put the header into a commit of its own,
+just like commit
+5794dda109fc8 dt-bindings: reset: mt7986: Add reset-controller header file
+https://lore.kernel.org/r/20220105100456.7126-2-sam.shih@mediatek.com
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index b2330b16b497a..b98b8c29735aa 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -12,6 +12,7 @@
- #include <dt-bindings/reset/mt2712-resets.h>
- #include <dt-bindings/reset/mediatek,mt6795-resets.h>
- #include <dt-bindings/reset/mt7986-resets.h>
-+#include <dt-bindings/reset/mediatek,mt7988-resets.h>
- #include <dt-bindings/reset/mt8183-resets.h>
- #include <dt-bindings/reset/mt8186-resets.h>
- #include <dt-bindings/reset/mt8188-resets.h>
-@@ -58,6 +59,8 @@
- #define WDT_SWSYSRST		0x18U
- #define WDT_SWSYS_RST_KEY	0x88000000
- 
-+#define WDT_SWSYSRST_EN		0xfc
-+
- #define DRV_NAME		"mtk-wdt"
- #define DRV_VERSION		"1.0"
- 
-@@ -71,44 +74,85 @@ struct mtk_wdt_dev {
- 	struct reset_controller_dev rcdev;
- 	bool disable_wdt_extrst;
- 	bool reset_by_toprgu;
-+	bool has_swsysrst_en;
- };
- 
- struct mtk_wdt_data {
- 	int toprgu_sw_rst_num;
-+	bool has_swsysrst_en;
- };
- 
- static const struct mtk_wdt_data mt2712_data = {
- 	.toprgu_sw_rst_num = MT2712_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt6795_data = {
- 	.toprgu_sw_rst_num = MT6795_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt7986_data = {
- 	.toprgu_sw_rst_num = MT7986_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
-+};
-+
-+static const struct mtk_wdt_data mt7988_data = {
-+	.toprgu_sw_rst_num = MT7988_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = true,
- };
- 
- static const struct mtk_wdt_data mt8183_data = {
- 	.toprgu_sw_rst_num = MT8183_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt8186_data = {
- 	.toprgu_sw_rst_num = MT8186_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt8188_data = {
- 	.toprgu_sw_rst_num = MT8188_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt8192_data = {
- 	.toprgu_sw_rst_num = MT8192_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
- static const struct mtk_wdt_data mt8195_data = {
- 	.toprgu_sw_rst_num = MT8195_TOPRGU_SW_RST_NUM,
-+	.has_swsysrst_en = false,
- };
- 
-+static int toprgu_reset_sw_enable(struct reset_controller_dev *rcdev,
-+				  unsigned long id, bool enable)
-+{
-+	unsigned int tmp;
-+	unsigned long flags;
-+	struct mtk_wdt_dev *data =
-+		 container_of(rcdev, struct mtk_wdt_dev, rcdev);
-+
-+	if (!data->has_swsysrst_en)
-+		return 0;
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+
-+	tmp = readl(data->wdt_base + WDT_SWSYSRST_EN);
-+	if (enable)
-+		tmp |= BIT(id);
-+	else
-+		tmp &= ~BIT(id);
-+
-+	writel(tmp, data->wdt_base + WDT_SWSYSRST_EN);
-+
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	return 0;
-+}
-+
- static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 			       unsigned long id, bool assert)
- {
-@@ -135,13 +179,20 @@ static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- static int toprgu_reset_assert(struct reset_controller_dev *rcdev,
- 			       unsigned long id)
- {
-+	int ret;
-+
-+	ret = toprgu_reset_sw_enable(rcdev, id, true);
-+	if (ret)
-+		return ret;
-+
- 	return toprgu_reset_update(rcdev, id, true);
- }
- 
- static int toprgu_reset_deassert(struct reset_controller_dev *rcdev,
- 				 unsigned long id)
- {
--	return toprgu_reset_update(rcdev, id, false);
-+	toprgu_reset_update(rcdev, id, false);
-+	return toprgu_reset_sw_enable(rcdev, id, false);
- }
- 
- static int toprgu_reset(struct reset_controller_dev *rcdev,
-@@ -406,6 +457,8 @@ static int mtk_wdt_probe(struct platform_device *pdev)
- 						       wdt_data->toprgu_sw_rst_num);
- 		if (err)
- 			return err;
-+
-+		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
- 	}
- 
- 	mtk_wdt->disable_wdt_extrst =
-@@ -444,6 +497,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
- 	{ .compatible = "mediatek,mt6589-wdt" },
- 	{ .compatible = "mediatek,mt6795-wdt", .data = &mt6795_data },
- 	{ .compatible = "mediatek,mt7986-wdt", .data = &mt7986_data },
-+	{ .compatible = "mediatek,mt7988-wdt", .data = &mt7988_data },
- 	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
- 	{ .compatible = "mediatek,mt8186-wdt", .data = &mt8186_data },
- 	{ .compatible = "mediatek,mt8188-wdt", .data = &mt8188_data },
--- 
-2.42.1
+Would that be acceptable? And if not, why?
+
+> 
+> Best regards,
+> Krzysztof
+> 
