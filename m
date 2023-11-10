@@ -2,70 +2,77 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA7D0C05022
-	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 18:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB51C4167B
+	for <linux-watchdog@archiver.kernel.org>; Fri, 10 Nov 2023 18:27:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345549AbjKJS1M (ORCPT
+        id S1345953AbjKJS1j (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 10 Nov 2023 13:27:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
+        Fri, 10 Nov 2023 13:27:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346156AbjKJS0R (ORCPT
+        with ESMTP id S1346547AbjKJS06 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 10 Nov 2023 13:26:17 -0500
-Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6AB23A21E;
-        Fri, 10 Nov 2023 07:05:21 -0800 (PST)
-Received: by mail-qk1-x729.google.com with SMTP id af79cd13be357-778a92c06d6so133833885a.2;
-        Fri, 10 Nov 2023 07:05:21 -0800 (PST)
+        Fri, 10 Nov 2023 13:26:58 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35926F80;
+        Thu,  9 Nov 2023 22:23:41 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-5b99bfca064so1298246a12.3;
+        Thu, 09 Nov 2023 22:23:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699628721; x=1700233521; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
+        d=gmail.com; s=20230601; t=1699597421; x=1700202221; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=849p/NvESRZpFnJpVgwoxJCcpHggaarAP4BXMtHW02A=;
-        b=DF9HvdXtJtVa9t7pssm6x9AVhY0dqpE4wLJ5FlK+QH693f3JhLkY0ioXEizOA/fiRP
-         tQaRgoJUWknuuOZ25HNrHHErXKvaX6TEaXEGl/xIX+WbqSQmDrZmx/qgrEeP7S3AMPMX
-         ZJeaAuECQMr+LJ7o60cmTjOvJRRgwzVh36nwoNndHRnte7tqF649w0emFt5wEzP1wzyH
-         eHQWZ/vEjW69WopVeXygCWS8SLaNzo0HJNRGhRkHf9NbJ7JBGEmPNr+oUY05NOx0GT36
-         5Hh4v+21lWTGGmUXT0TLTZHbFSVIwtNXVxnvJlrKva7X4NClSmcvv/jYA7JzoxtfMSCg
-         tqlw==
+        bh=mCKfbSvlYu8MIDRjj/6bXZIu0Ksy5ItSqRuSmrChwQw=;
+        b=IpaP8P48bzQuLHCz72lnjnrIhQhNYuiPeo9rPIHbiROcm9WJ2rYjB9qPnsGQ5djFno
+         6Rr+ad3tRbrLq874MILkL7lyjQw1b3gxkmiD82aU0qMstom2kryfkuboeqOHEVlpnvCG
+         Y5qMC92kMccDInSk2oYlIfc70yDqe6loZY5BgncRBmQPLqW0AZ/tYPu/an1yIcXsIl+B
+         Jt0Pqm5gsIxOPIH2lWRTv2mGFsaJVkqLDqtCyNk8JXU7gUDfeUPQOcpwLGNy6emoEJ9A
+         Sj+lpURIBS06ZY2NwYcsszhpvk8H+V/GyEePd6/NBs/y5tSHplouiEZhtPQfhejsfpSo
+         9cCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699628721; x=1700233521;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1699597421; x=1700202221;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :sender:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=849p/NvESRZpFnJpVgwoxJCcpHggaarAP4BXMtHW02A=;
-        b=CFFzIMbo5PlfS+qKd+nC1PiPWcHWxuB99dU5DamN+MQ/mqrH9NQ8oEUwwkt/Ef8F9F
-         Qu7aqDlAm4OnY+9BC6/SoLtT9FUmQUzKE6x3oTxTLvcyvXHIpLeX3o738e/ZD9yF4ojj
-         Cl3hm+/2j64tzeCumhBhSNwEQlqF+66XBhFgJVtnNW/HkCWPOaC5iAK3LRMzCzYcLPqu
-         ZGu8xBkfjkuGWNPKycO9G/GidqyEcPG1fgm6WLQyBzE8i5We7AWmxmWcBYZpjJtawj/k
-         us+YjGwhCMIzrnYXu0xgtQ0+YbKIZjVBo/cYAzOe1PbKq71qP4paHbpNw07xDKJBR6w0
-         +Xkg==
-X-Gm-Message-State: AOJu0Ywiahkg+x5U3JF0Jii8E85cfnPe8DweZdVFfJUunttooua965l6
-        xbnK1SE6qo+PCwoLtXj7lSXWbQpKVss=
-X-Google-Smtp-Source: AGHT+IGw02d1MIdMKxErKFoRT7igXRRoMVXqDq9TQ62bNdgZ8Xu1GktHunr2X7YCJrfStFkvF2C2nQ==
-X-Received: by 2002:a05:620a:29c6:b0:779:ebe0:b662 with SMTP id s6-20020a05620a29c600b00779ebe0b662mr7435660qkp.4.1699628720865;
-        Fri, 10 Nov 2023 07:05:20 -0800 (PST)
+        bh=mCKfbSvlYu8MIDRjj/6bXZIu0Ksy5ItSqRuSmrChwQw=;
+        b=kKTfgP26iKeHyW4t8lA+iwsWK9FfoopqCTyLtgAmNJEFaxNj4ZQ1KFlAAP8h8NTsFx
+         kwtE4D7i3zBJLS+wSlZrRLLsMpFiFXeDMIJqhAdmqAlJPa5yb1uWcfqx5WtL9X4KgvGS
+         kNeqkwpMBiVDjH5uzyeq8YHJOTxeF5CY4yAXt4L4ZtTyPerc0a44qqUqPkQQnvu4C3Mh
+         Wx/G7+iDi9FYfQGy+joxAdhK4vIVzG2c3VfKuHidwzlzLmxxMRpWD/sM8JJdqFtx3DdH
+         2BOXmrTPfRApaU4c8n+4eCb8UdzjsarGOvMKHtTKXZZsOgmI7x0Ql0OnztncIll0uIBQ
+         bqXg==
+X-Gm-Message-State: AOJu0YxECkjdCP637IwHkaYqUru+/BOAoUfSaI1Y5fXdWKAWX25k73ov
+        73JKF8tFXvyn04I821QZsGhVqIx2r7g=
+X-Google-Smtp-Source: AGHT+IFauVgDiouRipgVdWoz98bMXytBbMr+34vLbJN5sYPYwzFWR3WMGJIa6HZ5yiYJxhxs+Dj/UA==
+X-Received: by 2002:a17:902:cec1:b0:1cc:345b:c7e1 with SMTP id d1-20020a170902cec100b001cc345bc7e1mr7175223plg.60.1699593875207;
+        Thu, 09 Nov 2023 21:24:35 -0800 (PST)
 Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id ua13-20020a05620a698d00b00774652483b7sm748992qkn.33.2023.11.10.07.05.19
+        by smtp.gmail.com with ESMTPSA id ix22-20020a170902f81600b001c735421215sm4424645plb.216.2023.11.09.21.24.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Nov 2023 07:05:20 -0800 (PST)
+        Thu, 09 Nov 2023 21:24:34 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <846cc6e5-1db0-4399-9525-917328e535c3@roeck-us.net>
-Date:   Fri, 10 Nov 2023 07:05:18 -0800
+Message-ID: <c516412b-01bc-4a38-8045-94188aedd543@roeck-us.net>
+Date:   Thu, 9 Nov 2023 21:24:32 -0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] watchdog: rti_wdt: Drop RPM watchdog when unused
+Subject: Re: [PATCH 2/2] watchdog: mediatek: mt7988: add wdt support
 Content-Language: en-US
-To:     Vignesh Raghavendra <vigneshr@ti.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Tero Kristo <t-kristo@kernel.org>, linux-watchdog@vger.kernel.org,
+To:     Daniel Golle <daniel@makrotopia.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        afd@ti.com, n-francis@ti.com
-References: <20231110100726.2930218-1-vigneshr@ti.com>
- <20231110100726.2930218-3-vigneshr@ti.com>
+        linux-mediatek@lists.infradead.org
+References: <6912f6f406bc45674020681184f3eeca2f2cb63f.1699576174.git.daniel@makrotopia.org>
+ <ddb5b6ca88165aa69f73fe2804eedd0231d8d9e7.1699576174.git.daniel@makrotopia.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -110,68 +117,210 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <20231110100726.2930218-3-vigneshr@ti.com>
+In-Reply-To: <ddb5b6ca88165aa69f73fe2804eedd0231d8d9e7.1699576174.git.daniel@makrotopia.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 11/10/23 02:07, Vignesh Raghavendra wrote:
-> Do a RPM put if watchdog is not already started during probe and re
-> enable it in watchdog start.
+On 11/9/23 16:30, Daniel Golle wrote:
+> Add support for watchdog and reset generator unit of the MediaTek
+> MT7988 SoC.
 > 
-> On K3 SoCs, watchdogs and their corresponding CPUs are under same PD, so
-> if the reference count of unused watchdogs aren't dropped, it will lead
-> to CPU hotplug failures as Device Management firmware won't allow to
-> turn off the PD due to dangling reference count.
-> 
-> Fixes: 2d63908bdbfb ("watchdog: Add K3 RTI watchdog support")
-> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 > ---
->   drivers/watchdog/rti_wdt.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
+>   drivers/watchdog/mtk_wdt.c | 56 +++++++++++++++++++++++++++++++++++++-
+>   1 file changed, 55 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-> index 163bdeb6929a..87f2c333a41d 100644
-> --- a/drivers/watchdog/rti_wdt.c
-> +++ b/drivers/watchdog/rti_wdt.c
-> @@ -78,6 +78,9 @@ static int rti_wdt_start(struct watchdog_device *wdd)
->   	u32 timer_margin;
->   	struct rti_wdt_device *wdt = watchdog_get_drvdata(wdd);
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index b2330b16b497a..b98b8c29735aa 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -12,6 +12,7 @@
+>   #include <dt-bindings/reset/mt2712-resets.h>
+>   #include <dt-bindings/reset/mediatek,mt6795-resets.h>
+>   #include <dt-bindings/reset/mt7986-resets.h>
+> +#include <dt-bindings/reset/mediatek,mt7988-resets.h>
+>   #include <dt-bindings/reset/mt8183-resets.h>
+>   #include <dt-bindings/reset/mt8186-resets.h>
+>   #include <dt-bindings/reset/mt8188-resets.h>
+> @@ -58,6 +59,8 @@
+>   #define WDT_SWSYSRST		0x18U
+>   #define WDT_SWSYS_RST_KEY	0x88000000
 >   
-> +	if (pm_runtime_suspended(wdd->parent))
-> +		pm_runtime_get_sync(wdd->parent);
+> +#define WDT_SWSYSRST_EN		0xfc
 > +
->   	/* set timeout period */
->   	timer_margin = (u64)wdd->timeout * wdt->freq;
->   	timer_margin >>= WDT_PRELOAD_SHIFT;
-> @@ -337,6 +340,9 @@ static int rti_wdt_probe(struct platform_device *pdev)
->   	if (last_ping)
->   		watchdog_set_last_hw_keepalive(wdd, last_ping);
+>   #define DRV_NAME		"mtk-wdt"
+>   #define DRV_VERSION		"1.0"
 >   
-> +	if (!watchdog_hw_running(wdd))
-> +		pm_runtime_put_sync(&pdev->dev);
+> @@ -71,44 +74,85 @@ struct mtk_wdt_dev {
+>   	struct reset_controller_dev rcdev;
+>   	bool disable_wdt_extrst;
+>   	bool reset_by_toprgu;
+> +	bool has_swsysrst_en;
+>   };
+>   
+>   struct mtk_wdt_data {
+>   	int toprgu_sw_rst_num;
+> +	bool has_swsysrst_en;
+>   };
+>   
+>   static const struct mtk_wdt_data mt2712_data = {
+>   	.toprgu_sw_rst_num = MT2712_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+
+Those assignments to false, just like assignments to 0, are unnecessary
+for static variables.
+
+>   };
+>   
+>   static const struct mtk_wdt_data mt6795_data = {
+>   	.toprgu_sw_rst_num = MT6795_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+>   static const struct mtk_wdt_data mt7986_data = {
+>   	.toprgu_sw_rst_num = MT7986_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+> +};
+> +
+> +static const struct mtk_wdt_data mt7988_data = {
+> +	.toprgu_sw_rst_num = MT7988_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = true,
+>   };
+>   
+>   static const struct mtk_wdt_data mt8183_data = {
+>   	.toprgu_sw_rst_num = MT8183_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+>   static const struct mtk_wdt_data mt8186_data = {
+>   	.toprgu_sw_rst_num = MT8186_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+>   static const struct mtk_wdt_data mt8188_data = {
+>   	.toprgu_sw_rst_num = MT8188_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+>   static const struct mtk_wdt_data mt8192_data = {
+>   	.toprgu_sw_rst_num = MT8192_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+>   static const struct mtk_wdt_data mt8195_data = {
+>   	.toprgu_sw_rst_num = MT8195_TOPRGU_SW_RST_NUM,
+> +	.has_swsysrst_en = false,
+>   };
+>   
+> +static int toprgu_reset_sw_enable(struct reset_controller_dev *rcdev,
+> +				  unsigned long id, bool enable)
+
+This function name is a bit misleading. It doesn't always
+_enable_ something, it updates it based on the enable parameter.
+
+> +{
+> +	unsigned int tmp;
+> +	unsigned long flags;
+> +	struct mtk_wdt_dev *data =
+> +		 container_of(rcdev, struct mtk_wdt_dev, rcdev);
+> +
+> +	if (!data->has_swsysrst_en)
+> +		return 0;
+> +
+> +	spin_lock_irqsave(&data->lock, flags);
+> +
+> +	tmp = readl(data->wdt_base + WDT_SWSYSRST_EN);
+> +	if (enable)
+> +		tmp |= BIT(id);
+> +	else
+> +		tmp &= ~BIT(id);
+> +
+> +	writel(tmp, data->wdt_base + WDT_SWSYSRST_EN);
+> +
+> +	spin_unlock_irqrestore(&data->lock, flags);
 > +
 
-You will have to explain why this is needed here, but not as error handling,
-and why it is added in this patch after the changes in patch 1 of the series
-which essentially declared that no error cleanup would be needed under
-any circumstances.
+I find this code quite confusing. If it is really necessary to set both
+WDT_SWSYSRST_EN and WDT_SWSYSRST together, what is the point of locking twice ?
+Why not just handle this in toprgu_reset_update() while the lock is
+alread held ? There is a lot of code duplication and inefficiency between
+toprgu_reset_sw_enable() and toprgu_reset_update(), and I really don't
+see the value of it if  WDT_SWSYSRST_EN and WDT_SWSYSRST have to be
+written together anyway.
 
-Guenter
+> +	return 0;
 
->   	return 0;
+This function always returns 0. That does not add any value.
+
+> +}
+> +
+>   static int toprgu_reset_update(struct reset_controller_dev *rcdev,
+>   			       unsigned long id, bool assert)
+>   {
+> @@ -135,13 +179,20 @@ static int toprgu_reset_update(struct reset_controller_dev *rcdev,
+>   static int toprgu_reset_assert(struct reset_controller_dev *rcdev,
+>   			       unsigned long id)
+>   {
+> +	int ret;
+> +
+> +	ret = toprgu_reset_sw_enable(rcdev, id, true);
+> +	if (ret)
+> +		return ret;
+> +
+
+I am kind of missing the point of this return value check. I guess it is in line
+with the other unnecessary return values / return value checks in this code,
+but this really gets a bit out of control. It kind of creates the wrong
+assumption or expectation that the called code _may_ return an error,
+but in reality it doesn't.
+
+>   	return toprgu_reset_update(rcdev, id, true);
 >   }
 >   
-> @@ -345,6 +351,9 @@ static void rti_wdt_remove(struct platform_device *pdev)
->   	struct rti_wdt_device *wdt = platform_get_drvdata(pdev);
->   
->   	watchdog_unregister_device(&wdt->wdd);
-> +
-> +	if (!pm_runtime_suspended(&pdev->dev))
-> +		pm_runtime_put_sync(&pdev->dev);
+>   static int toprgu_reset_deassert(struct reset_controller_dev *rcdev,
+>   				 unsigned long id)
+>   {
+> -	return toprgu_reset_update(rcdev, id, false);
+> +	toprgu_reset_update(rcdev, id, false);
+
+In a way it is commendable that the unnecessary return value handling was dropped,
+but that makes the code inconsistent with the reset_assert() function. Also, it is
+inconsistent to have the unnecessary return value check in toprgu_reset_assert()
+but not here.
+
+> +	return toprgu_reset_sw_enable(rcdev, id, false);
 >   }
 >   
->   static const struct of_device_id rti_wdt_of_match[] = {
+>   static int toprgu_reset(struct reset_controller_dev *rcdev,
+> @@ -406,6 +457,8 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+>   						       wdt_data->toprgu_sw_rst_num);
+>   		if (err)
+>   			return err;
+> +
+> +		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
+
+This is too late. The reset controller is already registered here,
+and the reset controller functions may already have been called.
+
+>   	}
+>   
+>   	mtk_wdt->disable_wdt_extrst =
+
+Oh well, this and the next property are also called too late because they
+affect watchdog operation and the watchdog device has already been registered,
+but that is a different bug and not a reason to add even more race conditions
+to the driver.
+
+
+> @@ -444,6 +497,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
+>   	{ .compatible = "mediatek,mt6589-wdt" },
+>   	{ .compatible = "mediatek,mt6795-wdt", .data = &mt6795_data },
+>   	{ .compatible = "mediatek,mt7986-wdt", .data = &mt7986_data },
+> +	{ .compatible = "mediatek,mt7988-wdt", .data = &mt7988_data },
+>   	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
+>   	{ .compatible = "mediatek,mt8186-wdt", .data = &mt8186_data },
+>   	{ .compatible = "mediatek,mt8188-wdt", .data = &mt8188_data },
 
