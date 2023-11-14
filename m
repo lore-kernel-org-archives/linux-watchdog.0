@@ -2,78 +2,73 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 120AAC4332F
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Nov 2023 11:48:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67557C4167B
+	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Nov 2023 17:04:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbjKNLsV (ORCPT
+        id S232242AbjKNRE7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 14 Nov 2023 06:48:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35476 "EHLO
+        Tue, 14 Nov 2023 12:04:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbjKNLsV (ORCPT
+        with ESMTP id S232235AbjKNRE6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Nov 2023 06:48:21 -0500
-Received: from ns3154000.ip-51-89-173.eu (ns3154000.ip-51-89-173.eu [51.89.173.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05935ED
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Nov 2023 03:48:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=corptia.com
-        ; s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID
-        :Date:Subject:To:From:Reply-To:Sender:Cc:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=AuFOzWEY1p4B/ao4HYur+KTak9IfXFRGw/OWFKPeT54=; b=ae77werXWMdKXNKSR1Vw3mdL/9
-        F5s6RkwzAjOaAXFKASy2qjPTZqJI024tGRLSrQacCo4SbTOBrIV+yQA6R7oSsXFMy6Og55iodgIc5
-        tdSbUmXsvXRZ408moQ9myM45IwZ0xsTplXFbyttc5zNwCS7GS9uQ0QY+zYjUM+oXmiXGzlUAKDPxC
-        VH0BNXWtsEqqRSPwp/wLmlxfpEZdXOrzsv35nGHigJaV1uudmuMbdRUvfxaKNLAKzA2fs9a+7ysgn
-        iQJ/VzpLPBI0n7BnUeoIhFCCUJCMEhMx0+OQX8HF44Pw2Yg6rpanIVKbYIxK8gBiqF4dpHXU45/T4
-        F0N+Csrw==;
-Received: from [46.183.223.78] (port=58943 helo=corptia.com)
-        by ns3154000.ip-51-89-173.eu with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.96.2)
-        (envelope-from <jobs@corptia.com>)
-        id 1r1QbK-0004VL-0P
-        for linux-watchdog@vger.kernel.org;
-        Fri, 10 Nov 2023 12:27:01 +0000
-Reply-To: projects@adnoc-suppplier.com
-From:   Abu Dhabi National Oil Company <jobs@corptia.com>
-To:     linux-watchdog@vger.kernel.org
-Subject: VENDORS EOI
-Date:   10 Nov 2023 14:26:59 +0200
-Message-ID: <20231110142659.303674B793E94A44@corptia.com>
+        Tue, 14 Nov 2023 12:04:58 -0500
+Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1ECB8;
+        Tue, 14 Nov 2023 09:04:54 -0800 (PST)
+Received: from local
+        by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
+         (Exim 4.96.2)
+        (envelope-from <daniel@makrotopia.org>)
+        id 1r2wq5-0000hS-39;
+        Tue, 14 Nov 2023 17:04:38 +0000
+Date:   Tue, 14 Nov 2023 17:04:30 +0000
+From:   Daniel Golle <daniel@makrotopia.org>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH v3 1/2] dt-bindings: watchdog: mediatek,mtk-wdt: add MT7988
+ watchdog and toprgu
+Message-ID: <4d7db8786dce35273db516f3d41228bc27a08fe9.1699980962.git.daniel@makrotopia.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns3154000.ip-51-89-173.eu
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - corptia.com
-X-Get-Message-Sender-Via: ns3154000.ip-51-89-173.eu: authenticated_id: jobs@corptia.com
-X-Authenticated-Sender: ns3154000.ip-51-89-173.eu: jobs@corptia.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Add compatible mediatek,mt7988-wdt.
 
-Greetings of the day,
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+---
+v3: no changes
+v2: Drop adding include/dt-binding/mt7988-resets.h as that header is not
+    actually a binding header.
 
-We are inviting your esteemed company for vendor registration and=20
-intending partners for Abu Dhabi National Oil Company (ADNOC)
-2023/2024 projects.
 
-These projects are open for all companies around the world, if=20
-you have intention to participate in the process, please confirm=20
-your interest by asking for Vendor Questionnaire and EOI.
+ Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-We appreciate your interest in this invitation, and look forward=20
-to your early response.
-
-Kind Regards,
-Mr. Mohamed Ghazi B.
-Senior Project Manager
-projects@adnoc-suppplier.com
+diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+index cc502838bc398..8d2520241e37f 100644
+--- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+@@ -25,6 +25,7 @@ properties:
+           - mediatek,mt6735-wdt
+           - mediatek,mt6795-wdt
+           - mediatek,mt7986-wdt
++          - mediatek,mt7988-wdt
+           - mediatek,mt8183-wdt
+           - mediatek,mt8186-wdt
+           - mediatek,mt8188-wdt
+-- 
+2.42.1
