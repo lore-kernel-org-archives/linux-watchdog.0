@@ -2,165 +2,70 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F20D9C4167D
-	for <linux-watchdog@archiver.kernel.org>; Tue, 14 Nov 2023 17:04:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1879C197A0
+	for <linux-watchdog@archiver.kernel.org>; Thu, 16 Nov 2023 08:22:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbjKNRFA (ORCPT
+        id S229997AbjKPIW7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 14 Nov 2023 12:05:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42498 "EHLO
+        Thu, 16 Nov 2023 03:22:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233510AbjKNRE7 (ORCPT
+        with ESMTP id S229919AbjKPIWr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Nov 2023 12:04:59 -0500
-Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6862711D;
-        Tue, 14 Nov 2023 09:04:56 -0800 (PST)
-Received: from local
-        by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
-         (Exim 4.96.2)
-        (envelope-from <daniel@makrotopia.org>)
-        id 1r2wqH-0000hY-1n;
-        Tue, 14 Nov 2023 17:04:49 +0000
-Date:   Tue, 14 Nov 2023 17:04:46 +0000
-From:   Daniel Golle <daniel@makrotopia.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
+        Thu, 16 Nov 2023 03:22:47 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A87C1A1;
+        Thu, 16 Nov 2023 00:22:44 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF7DC433C7;
+        Thu, 16 Nov 2023 08:22:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1700122964;
+        bh=gS8VWlvt+EbxksnEGUZohKLfR580uh60rnAxbfZfgCk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eLCiHuXitSNnOHynfl1TikO2n4fkPy1lTMuHAQsagac+05mF8d5tNMFcu0UN7xVEJ
+         JHlIO674lBqfSNQtS/rO4JXeby5LkkY1wyAAtDQnjYxiS25w/lLLKG2GCQ3vECHvMr
+         Kl993lcBKNpDTfEc4D6HLyS4ekQjRS5jrr/BLBaE5xsogf/D35JgRyW6AIVl/AFfiu
+         vjm0vx5pve1M+sjANGQvUVnWnRLfjW7ASxsvQ3PEBemZYJtta7IDztI0gtJLzFbXuA
+         U5n4T17vORItBU3X8uKk4Xo8r4SPiJjQJtGuH5puvFsmw/GqynOqkiGInzICJotYdf
+         zP5o0FhFHdc7A==
+Received: from johan by xi.lan with local (Exim 4.96.2)
+        (envelope-from <johan@kernel.org>)
+        id 1r3Xe7-0008Ls-1z;
+        Thu, 16 Nov 2023 09:22:43 +0100
+Date:   Thu, 16 Nov 2023 09:22:43 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Douglas Anderson <dianders@chromium.org>
+Cc:     Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH v3 2/2] watchdog: mediatek: mt7988: add wdt support
-Message-ID: <3f5ed9656ea66637d259e9771ed852511369ba9b.1699980962.git.daniel@makrotopia.org>
-References: <4d7db8786dce35273db516f3d41228bc27a08fe9.1699980962.git.daniel@makrotopia.org>
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, swboyd@chromium.org,
+        linux-watchdog@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 7/9] arm64: dts: qcom: sc8280xp: Make watchdog bark
+ interrupt edge triggered
+Message-ID: <ZVXRUzoTpZ3JNvDT@hovoldconsulting.com>
+References: <20231106144335.v2.1.Ic7577567baff921347d423b722de8b857602efb1@changeid>
+ <20231106144335.v2.7.I1c8ab71570f6906fd020decb80675f05fbe1fe74@changeid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d7db8786dce35273db516f3d41228bc27a08fe9.1699980962.git.daniel@makrotopia.org>
+In-Reply-To: <20231106144335.v2.7.I1c8ab71570f6906fd020decb80675f05fbe1fe74@changeid>
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add support for watchdog and reset generator unit of the MediaTek
-MT7988 SoC.
+On Mon, Nov 06, 2023 at 02:43:34PM -0800, Douglas Anderson wrote:
+> As described in the patch ("arm64: dts: qcom: sc7180: Make watchdog
+> bark interrupt edge triggered"), the Qualcomm watchdog timer's bark
+> interrupt should be configured as edge triggered. Make the change.
 
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
----
-v3: fix wrong function parameter name in kernel-doc comment
-v2: call new toprgu_reset_sw_en_unlocked from toprgu_reset_update while
-    holding lock.
+Please always make sure that the commit message is self-contained, and
+especially when you're referring to patch which has not yet been applied
+(e.g. consider someone doing git blame on this line some time down the
+road).
 
- drivers/watchdog/mtk_wdt.c | 40 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
-
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index b2330b16b497a..3b4ee7185feed 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -58,6 +58,8 @@
- #define WDT_SWSYSRST		0x18U
- #define WDT_SWSYS_RST_KEY	0x88000000
- 
-+#define WDT_SWSYSRST_EN		0xfc
-+
- #define DRV_NAME		"mtk-wdt"
- #define DRV_VERSION		"1.0"
- 
-@@ -71,10 +73,12 @@ struct mtk_wdt_dev {
- 	struct reset_controller_dev rcdev;
- 	bool disable_wdt_extrst;
- 	bool reset_by_toprgu;
-+	bool has_swsysrst_en;
- };
- 
- struct mtk_wdt_data {
- 	int toprgu_sw_rst_num;
-+	bool has_swsysrst_en;
- };
- 
- static const struct mtk_wdt_data mt2712_data = {
-@@ -89,6 +93,11 @@ static const struct mtk_wdt_data mt7986_data = {
- 	.toprgu_sw_rst_num = MT7986_TOPRGU_SW_RST_NUM,
- };
- 
-+static const struct mtk_wdt_data mt7988_data = {
-+	.toprgu_sw_rst_num = 24,
-+	.has_swsysrst_en = true,
-+};
-+
- static const struct mtk_wdt_data mt8183_data = {
- 	.toprgu_sw_rst_num = MT8183_TOPRGU_SW_RST_NUM,
- };
-@@ -109,6 +118,28 @@ static const struct mtk_wdt_data mt8195_data = {
- 	.toprgu_sw_rst_num = MT8195_TOPRGU_SW_RST_NUM,
- };
- 
-+/**
-+ * toprgu_reset_sw_en_unlocked() - enable/disable software control for reset bit
-+ * @data: Pointer to instance of driver data.
-+ * @id: Bit number identifying the reset to be enabled or disabled.
-+ * @enable: If true, enable software control for that bit, disable otherwise.
-+ *
-+ * Context: The caller must hold lock of struct mtk_wdt_dev.
-+ */
-+static void toprgu_reset_sw_en_unlocked(struct mtk_wdt_dev *data,
-+					unsigned long id, bool enable)
-+{
-+	u32 tmp;
-+
-+	tmp = readl(data->wdt_base + WDT_SWSYSRST_EN);
-+	if (enable)
-+		tmp |= BIT(id);
-+	else
-+		tmp &= ~BIT(id);
-+
-+	writel(tmp, data->wdt_base + WDT_SWSYSRST_EN);
-+}
-+
- static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 			       unsigned long id, bool assert)
- {
-@@ -119,6 +150,9 @@ static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 
- 	spin_lock_irqsave(&data->lock, flags);
- 
-+	if (assert && data->has_swsysrst_en)
-+		toprgu_reset_sw_en_unlocked(data, id, true);
-+
- 	tmp = readl(data->wdt_base + WDT_SWSYSRST);
- 	if (assert)
- 		tmp |= BIT(id);
-@@ -127,6 +161,9 @@ static int toprgu_reset_update(struct reset_controller_dev *rcdev,
- 	tmp |= WDT_SWSYS_RST_KEY;
- 	writel(tmp, data->wdt_base + WDT_SWSYSRST);
- 
-+	if (!assert && data->has_swsysrst_en)
-+		toprgu_reset_sw_en_unlocked(data, id, false);
-+
- 	spin_unlock_irqrestore(&data->lock, flags);
- 
- 	return 0;
-@@ -406,6 +443,8 @@ static int mtk_wdt_probe(struct platform_device *pdev)
- 						       wdt_data->toprgu_sw_rst_num);
- 		if (err)
- 			return err;
-+
-+		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
- 	}
- 
- 	mtk_wdt->disable_wdt_extrst =
-@@ -444,6 +483,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
- 	{ .compatible = "mediatek,mt6589-wdt" },
- 	{ .compatible = "mediatek,mt6795-wdt", .data = &mt6795_data },
- 	{ .compatible = "mediatek,mt7986-wdt", .data = &mt7986_data },
-+	{ .compatible = "mediatek,mt7988-wdt", .data = &mt7988_data },
- 	{ .compatible = "mediatek,mt8183-wdt", .data = &mt8183_data },
- 	{ .compatible = "mediatek,mt8186-wdt", .data = &mt8186_data },
- 	{ .compatible = "mediatek,mt8188-wdt", .data = &mt8188_data },
--- 
-2.42.1
+Johan
