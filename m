@@ -1,19 +1,19 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8394934197;
-	Fri, 24 Nov 2023 18:21:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46F3381DE;
+	Fri, 24 Nov 2023 18:43:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="NpTYWCQc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3CF0C433C7;
-	Fri, 24 Nov 2023 18:21:31 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Ve48GbvA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D27C433C7;
+	Fri, 24 Nov 2023 18:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1700850092;
-	bh=xi/B/K1H8OvKVsxH1/1c5JnIHvryKND5dQUNfJeOLY4=;
+	s=korg; t=1700851401;
+	bh=qPFgpIJdtbbBvCFIcN5xlfCkNLi7b8AG0LUsO/Jp8sg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NpTYWCQc4kFWOXmHMtKEgLlY5wKgKU/cEBbyuCxBj9/K/0UdB7z+8FyartXTlRDSI
-	 BJFcK41qX6KcyJ5WbXvJ8fh5fCCfWZaRedPNzPuYe1X9Y4PkDX0fslGDsm2e0rVhZI
-	 pJYLVn9ppfaQFzUK/+uIJsKd1ET/4YXlw6doSFes=
+	b=Ve48GbvAmt0DkFDD2kuqIL/3lQ7UgF4v9wZY15h0zzxOzQb7eOUKs2V/9rRfZw0/C
+	 71lvk4fLid/+mOnn7OxScV8tizhGUWzyL5H4kW3cd8Pxq3CLu2Reqy+kUGXsSBDexg
+	 M0AnkQFyz/X3cyCfxIuVpU0MEB1ga6PAKbvQAmW8=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -25,12 +25,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 6.6 442/530] sbsa_gwdt: Calculate timeout with 64-bit math
-Date: Fri, 24 Nov 2023 17:50:08 +0000
-Message-ID: <20231124172041.551376645@linuxfoundation.org>
+Subject: [PATCH 6.5 409/491] sbsa_gwdt: Calculate timeout with 64-bit math
+Date: Fri, 24 Nov 2023 17:50:45 +0000
+Message-ID: <20231124172036.895936071@linuxfoundation.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231124172028.107505484@linuxfoundation.org>
-References: <20231124172028.107505484@linuxfoundation.org>
+In-Reply-To: <20231124172024.664207345@linuxfoundation.org>
+References: <20231124172024.664207345@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -42,7 +42,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.6-stable review patch.  If anyone has any objections, please let me know.
+6.5-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/watchdog/sbsa_gwdt.c
 +++ b/drivers/watchdog/sbsa_gwdt.c
-@@ -152,14 +152,14 @@ static int sbsa_gwdt_set_timeout(struct
+@@ -153,14 +153,14 @@ static int sbsa_gwdt_set_timeout(struct
  	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
  
  	if (action)
