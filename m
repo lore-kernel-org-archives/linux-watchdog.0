@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="tNeMHw/D"
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333761980
-	for <linux-watchdog@vger.kernel.org>; Fri,  1 Dec 2023 08:11:17 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id ffacd0b85a97d-332c46d5988so1431543f8f.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 01 Dec 2023 08:11:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wQ5yYzsu"
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A68341984
+	for <linux-watchdog@vger.kernel.org>; Fri,  1 Dec 2023 08:11:22 -0800 (PST)
+Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-40a4848c6e1so19944145e9.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 01 Dec 2023 08:11:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1701447075; x=1702051875; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1701447081; x=1702051881; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=N6X5vVAlls/XtdCFtdQoEfrejT5TccvyQro4u4ajLPE=;
-        b=tNeMHw/D05NQXQJhExp4MAeWGYPE1eaArr7GuiiVIK5QnkQTzQtXbbxuO6FCoNn6Hr
-         xnHL4D4ybyV+gtadDtuBlhMD3rHiuTq7aWMxaMD6/H17PwmnBYwkPZQBJq4XqHn5Qt+J
-         C+p3Z++P74qo5NSohGD10X6SaY/ihUK4PUawxXoRgflq9ox+3bao3tg7aeVMbdkp1G6B
-         IMUenK2uCSxGsg+n2f4PAYYt20xQRLZ7Gn3QhH8skyG3F2FhO8vG+PUgoNqI3WM2D4ER
-         eyCDbRmfcXOdpDj5dh43S0U1WxHp6l1dkqV/mZxCpF5EPrgEWS+xgJ688aDj/GxtniB9
-         QdIQ==
+        bh=NW19mxe4mqyEScY6tYe0GRvxeq4h2O2gsGPGYkrMyss=;
+        b=wQ5yYzsuY34CGLshiJUSEMmCIOQpepP6X7nM4cbw3//Pr8v7YZXW876Jrc3uvIKo9H
+         lE4xEi2ckW+6gbsFHJb+U72bam1o3Xlkk8zth7s7gYdc5JylypzAiVNiKOhAL54yRFGp
+         jcJIcibCcpfL9arg7VzzhZX4vOqDTp7aFJ10hQ4wcQzWt+XBZZBYi9Ig1PaB7QB/8FyO
+         Ml8A8zbX/k5hXOCFVjUIjAP5hHI73WVPU9KL8G/ItPaVPasj8E3FIRwJdXanGbB4zhzv
+         DB+Q1mGl0L14AbybzPBeWF6noGaKL4FtXOA2v/r3IaYD5fguB13pVeHeRKP1z25N77k6
+         MCcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701447075; x=1702051875;
+        d=1e100.net; s=20230601; t=1701447081; x=1702051881;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=N6X5vVAlls/XtdCFtdQoEfrejT5TccvyQro4u4ajLPE=;
-        b=X7iUdloSbD8jN3MxBPQP3Fft9GEakIhxA4RFzHGzy5yTsQ7UDLGfI5EP625yJWGdCL
-         dIUo0yYFLzFWVOBpQAHVf7cEQlnQ9opU3GyDYEv+dAk7KpHbj5r+Dlaxrn85Qzw1UUkz
-         nbG/XAs6jkCoI3qM+J1kp3O8uGHtfpshLYxS0W9CEkYN0jUaqEvaKfOQROtthIfOZq53
-         fDNwQzdsXrmqgbyy13eqd6ZzNfLX/LXzENuHbix5BkuInEXD+fF72TNgxUjnxFcUJ+OM
-         lcdtdDvJB29cY8n/yQryCz5J0fZBXsQJVIsCa3eumCBj0huBerTp8NaCJVn3mr8mQ75D
-         SBUw==
-X-Gm-Message-State: AOJu0Yyl+pB7M3OC8+ySo3sW0zk3Bx2rTaBhLfngmoysetJhqt4yZJeo
-	JUeFU/pMTN7I7ZlM59dTH8nTjw==
-X-Google-Smtp-Source: AGHT+IGDALCDuLFU1YQ+h+wr7UohRR0OcUFUK/djXShHghoJYpXFb8S89wEYypH79BAexl0QUCJeDw==
-X-Received: by 2002:adf:cf06:0:b0:333:2fd2:5d16 with SMTP id o6-20020adfcf06000000b003332fd25d16mr892081wrj.72.1701447075706;
-        Fri, 01 Dec 2023 08:11:15 -0800 (PST)
+        bh=NW19mxe4mqyEScY6tYe0GRvxeq4h2O2gsGPGYkrMyss=;
+        b=QzGyjXT4dQgyjyNAThOLDvLGqOAEzhqmXorsoMpz72kcdehIa3T2ORRGg0LNQ7X3yc
+         XdCr9mDb6WQOoWovXkas5ILVQ9ukRN//3s5/c+kWt3rW+KQylK9XfZYo9vPvFxAgA58a
+         /xkWaHBNaUo9rNx63U8//kBv+k5oncv3mjEviqaxcXva6pIbHuhe3jtAqHHsPWkjl2bF
+         GyRs3rRS5wI5+CMYZPsQfWND2BEWpYl2WGBjAZMtlxlVk58kQFXPqlhRP/ALNmaAALyY
+         VwWFS4CyKv6napBp3V0kutoynRsSMlmr9nwikCuk0uFZ/TJKo3Z78Sspg2ckz7c9YwGx
+         jjGA==
+X-Gm-Message-State: AOJu0YytzDALS5OZGa/TP7r8LZltSpseyH9EFgNCcUmCEL5lyPXWEfVz
+	+HU0iJi1KtvQQEaEMMRUgzIDsg==
+X-Google-Smtp-Source: AGHT+IEAInbF0fkztmGpsgy6V1cv3bcIiQ/CkWEoRX4j4aDC0mNAEkPg+rKi6QFg/uuZCcRUUH4s0A==
+X-Received: by 2002:a05:600c:230c:b0:40b:5e21:bde1 with SMTP id 12-20020a05600c230c00b0040b5e21bde1mr406099wmo.112.1701447081131;
+        Fri, 01 Dec 2023 08:11:21 -0800 (PST)
 Received: from gpeter-l.lan (host-92-29-24-243.as13285.net. [92.29.24.243])
-        by smtp.gmail.com with ESMTPSA id cg16-20020a5d5cd0000000b003332656cd73sm3907386wrb.105.2023.12.01.08.11.14
+        by smtp.gmail.com with ESMTPSA id cg16-20020a5d5cd0000000b003332656cd73sm3907386wrb.105.2023.12.01.08.11.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Dec 2023 08:11:15 -0800 (PST)
+        Fri, 01 Dec 2023 08:11:20 -0800 (PST)
 From: Peter Griffin <peter.griffin@linaro.org>
 To: robh+dt@kernel.org,
 	krzysztof.kozlowski+dt@linaro.org,
@@ -72,9 +72,9 @@ Cc: peter.griffin@linaro.org,
 	linux-watchdog@vger.kernel.org,
 	kernel-team@android.com,
 	linux-serial@vger.kernel.org
-Subject: [PATCH v5 17/20] tty: serial: samsung: Add gs101 compatible and common fifoszdt_serial_drv_data
-Date: Fri,  1 Dec 2023 16:09:22 +0000
-Message-ID: <20231201160925.3136868-18-peter.griffin@linaro.org>
+Subject: [PATCH v5 20/20] MAINTAINERS: add entry for Google Tensor SoC
+Date: Fri,  1 Dec 2023 16:09:25 +0000
+Message-ID: <20231201160925.3136868-21-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.43.0.rc2.451.g8631bc7472-goog
 In-Reply-To: <20231201160925.3136868-1-peter.griffin@linaro.org>
 References: <20231201160925.3136868-1-peter.griffin@linaro.org>
@@ -86,70 +86,36 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add serial driver data for Google Tensor gs101 SoC and a common
-fifoszdt_serial_drv_data that can be used by platforms that specify the
-samsung,uart-fifosize DT property.
+Add maintainers entry for the Google tensor SoC based
+platforms.
 
-A corresponding dt-bindings patch updates the yaml to ensure
-samsung,uart-fifosize is a required property.
-
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- drivers/tty/serial/samsung_tty.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ MAINTAINERS | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
-index 1b0c2b467a30..f8d98f1006de 100644
---- a/drivers/tty/serial/samsung_tty.c
-+++ b/drivers/tty/serial/samsung_tty.c
-@@ -2490,14 +2490,25 @@ static const struct s3c24xx_serial_drv_data exynos850_serial_drv_data = {
- 	.fifosize = { 256, 64, 64, 64 },
- };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 36f6e76170e6..a3bd682c9e32 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9032,6 +9032,16 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git
+ F:	drivers/firmware/google/
  
-+/*
-+ * Common drv_data struct for platforms that specify uart,fifosize in
-+ * device tree.
-+ */
-+static const struct s3c24xx_serial_drv_data exynos_fifoszdt_serial_drv_data = {
-+	EXYNOS_COMMON_SERIAL_DRV_DATA(),
-+	.fifosize = { 0 },
-+};
++GOOGLE TENSOR SoC SUPPORT
++M:	Peter Griffin <peter.griffin@linaro.org>
++L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
++L:	linux-samsung-soc@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/clock/google,gs101-clock.yaml
++F:	arch/arm64/boot/dts/exynos/google/
++F:	drivers/clk/samsung/clk-gs101.c
++F:	include/dt-bindings/clock/google,clk-gs101.h
 +
- #define EXYNOS4210_SERIAL_DRV_DATA (&exynos4210_serial_drv_data)
- #define EXYNOS5433_SERIAL_DRV_DATA (&exynos5433_serial_drv_data)
- #define EXYNOS850_SERIAL_DRV_DATA (&exynos850_serial_drv_data)
-+#define EXYNOS_FIFOSZDT_DRV_DATA (&exynos_fifoszdt_serial_drv_data)
- 
- #else
- #define EXYNOS4210_SERIAL_DRV_DATA NULL
- #define EXYNOS5433_SERIAL_DRV_DATA NULL
- #define EXYNOS850_SERIAL_DRV_DATA NULL
-+#define EXYNOS_FIFOSZDT_DRV_DATA NULL
- #endif
- 
- #ifdef CONFIG_ARCH_APPLE
-@@ -2581,6 +2592,9 @@ static const struct platform_device_id s3c24xx_serial_driver_ids[] = {
- 	}, {
- 		.name		= "artpec8-uart",
- 		.driver_data	= (kernel_ulong_t)ARTPEC8_SERIAL_DRV_DATA,
-+	}, {
-+		.name		= "gs101-uart",
-+		.driver_data	= (kernel_ulong_t)EXYNOS_FIFOSZDT_DRV_DATA,
- 	},
- 	{ },
- };
-@@ -2602,6 +2616,8 @@ static const struct of_device_id s3c24xx_uart_dt_match[] = {
- 		.data = EXYNOS850_SERIAL_DRV_DATA },
- 	{ .compatible = "axis,artpec8-uart",
- 		.data = ARTPEC8_SERIAL_DRV_DATA },
-+	{ .compatible = "google,gs101-uart",
-+		.data = EXYNOS_FIFOSZDT_DRV_DATA },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, s3c24xx_uart_dt_match);
+ GPD POCKET FAN DRIVER
+ M:	Hans de Goede <hdegoede@redhat.com>
+ L:	platform-driver-x86@vger.kernel.org
 -- 
 2.43.0.rc2.451.g8631bc7472-goog
 
