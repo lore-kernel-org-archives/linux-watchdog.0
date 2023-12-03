@@ -1,23 +1,23 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB419465;
-	Sun,  3 Dec 2023 11:34:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8D99465;
+	Sun,  3 Dec 2023 11:34:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IXQooySW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105BEC433C9;
-	Sun,  3 Dec 2023 11:34:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PtgysUrq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52556C433C9;
+	Sun,  3 Dec 2023 11:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1701603249;
-	bh=FF27Gtp85RvVSUKvKpquUEpWiWzCYxX4BL9akxy0TXI=;
+	s=k20201202; t=1701603275;
+	bh=FltZQp0GYx1XXErHTqgkhFKHiW376XPvXT9+/SyhAJs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=IXQooySWxHaxhDzmFHHRvr5I50wJKbvoYZiyObUSaaFtM9SooNsE57wh++e4oLBbX
-	 Xb26I9xtSJmaSENareq1gA8vAS1rnBIeG0T1Kj/G/5Tivob0/KePJo2HkEjYARwU9b
-	 n3RucS9V5mOYpCBR/lUCFZXnn9v8F6QlRik/mWdSHXm55/IV+h/t4d4EAXPd3IcTsl
-	 Qu6D5vZP46Ia+e8eXU0Hh/iuXm1cSoQ+TazUYG78zQwC55WOzYr0atc9yAPKFFPIza
-	 myrn0AOHfbWyZ4yYMdGayt9Qaky+/lPi9XSKRitaBmi8kuFE3Z9QFji70mOAwuaEdW
-	 16GY5jq3WueWg==
-Date: Sun, 3 Dec 2023 11:34:04 +0000
+	b=PtgysUrqDZCuNZEx/gNvnlKvoJMujoHBkQHXCZdwdFHS+3aL6I7ijlph7T7aigsJd
+	 col2V2t2gIN8+j03YoVRwjuySdqnevNwaX/gxRedx8ihabLQxWmYCvU3GOYIZRBD+b
+	 OS7FUIXkpaTTEFtcC+5v1oyYiOHcHOzzaqWrfQLiCa3wo9d/4VXTfVT/r8UiRQw5lP
+	 aASSBIX/hVTbFBAfEs0+HgHxwVz4Ru6bicOeO9AK8qA5rMgK3GL1G3wlTbFbrXB4KM
+	 nf8AALemQM4Eh+6D67l/wsr03aV5QEXCrX1obVtTI6ey1velyfDBOprmRWOFcq56IZ
+	 wM7b3SqF+7iow==
+Date: Sun, 3 Dec 2023 11:34:31 +0000
 From: Conor Dooley <conor@kernel.org>
 To: Biju Das <biju.das.jz@bp.renesas.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -30,11 +30,11 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
 	Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
 	Biju Das <biju.das.au@gmail.com>, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2 01/11] dt-bindings: watchdog: dlg,da9062-watchdog: Add
- fallback for DA9061 watchdog
-Message-ID: <20231203-daisy-palm-9e97126eaf3f@spud>
+Subject: Re: [PATCH v2 02/11] dt-bindings: watchdog: dlg,da9062-watchdog:
+ Document DA9063 watchdog
+Message-ID: <20231203-sectional-gently-6764b5be0f1f@spud>
 References: <20231202192536.266885-1-biju.das.jz@bp.renesas.com>
- <20231202192536.266885-2-biju.das.jz@bp.renesas.com>
+ <20231202192536.266885-3-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -42,67 +42,60 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="HSa8T4Sqr1mf0skW"
+	protocol="application/pgp-signature"; boundary="oxbTtcCuShQKuhdp"
 Content-Disposition: inline
-In-Reply-To: <20231202192536.266885-2-biju.das.jz@bp.renesas.com>
+In-Reply-To: <20231202192536.266885-3-biju.das.jz@bp.renesas.com>
 
 
---HSa8T4Sqr1mf0skW
+--oxbTtcCuShQKuhdp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 02, 2023 at 07:25:25PM +0000, Biju Das wrote:
-> The DA9061 watchdog is identical to DA9062 watchdog, so no driver changes
-> are required. The fallback compatible string "dlg,da9062-watchdog" will be
-> used on DA9061 watchdog.
+On Sat, Dec 02, 2023 at 07:25:26PM +0000, Biju Das wrote:
+> Document DA9063 watchdog device as it is similar to DA9062 watchdog.
 >=20
 > Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+
+Cheers,
+Conor.
+
 > ---
 > v2:
 >  * New patch
 > ---
->  .../bindings/watchdog/dlg,da9062-watchdog.yaml        | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
+>  .../devicetree/bindings/watchdog/dlg,da9062-watchdog.yaml        | 1 +
+>  1 file changed, 1 insertion(+)
 >=20
 > diff --git a/Documentation/devicetree/bindings/watchdog/dlg,da9062-watchd=
 og.yaml b/Documentation/devicetree/bindings/watchdog/dlg,da9062-watchdog.ya=
 ml
-> index f058628bb632..2b71fdb9251c 100644
+> index 2b71fdb9251c..ccec4d3e62f5 100644
 > --- a/Documentation/devicetree/bindings/watchdog/dlg,da9062-watchdog.yaml
 > +++ b/Documentation/devicetree/bindings/watchdog/dlg,da9062-watchdog.yaml
-> @@ -14,9 +14,14 @@ allOf:
-> =20
->  properties:
->    compatible:
-> -    enum:=20
-> -      - dlg,da9061-watchdog
-> -      - dlg,da9062-watchdog
-> +    oneOf:
-> +      - items:
-> +          - enum:
-> +              - dlg,da9062-watchdog
-> +      - items:
-> +          - enum:
-> +              - dlg,da9061-watchdog
+> @@ -18,6 +18,7 @@ properties:
+>        - items:
+>            - enum:
+>                - dlg,da9062-watchdog
+> +              - dlg,da9063-watchdog
+>        - items:
+>            - enum:
+>                - dlg,da9061-watchdog
+> --=20
+> 2.39.2
+>=20
 
-If there is no da9064 on the horizon, I'd just make this const.
-
-> +          - const: dlg,da9062-watchdog # da9062-watchdog fallback
-
-The comment here is just noise IMO.
-
-Otherwise, LGTM.
-
---HSa8T4Sqr1mf0skW
+--oxbTtcCuShQKuhdp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZWxnrAAKCRB4tDGHoIJi
-0lwJAP47+tcfuwaa6VGm0TUXRPCymbnNbwE2VATxk4klxwSSWAD+KeuN+uh7L3DV
-zKMu0xWgAq+rKuz4TiHaAeCgbKR8MQg=
-=c0+e
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZWxnxgAKCRB4tDGHoIJi
+0ubvAQDq5PbA0A36DNiggMjXbd8LWTWdFR9fzzOlrdVvhGiYsAD+NHYFne4gunjS
+OtVdyaSkaGIhIpaMpaUFq3vxyFbiuAA=
+=60XZ
 -----END PGP SIGNATURE-----
 
---HSa8T4Sqr1mf0skW--
+--oxbTtcCuShQKuhdp--
