@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="EpsbpIw6"
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95CB1BB
-	for <linux-watchdog@vger.kernel.org>; Sat,  9 Dec 2023 15:31:31 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-40c3fe6c08fso7899435e9.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 09 Dec 2023 15:31:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Y98xTg5Q"
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D917610E7
+	for <linux-watchdog@vger.kernel.org>; Sat,  9 Dec 2023 15:31:37 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-40c2308faedso35685575e9.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 09 Dec 2023 15:31:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1702164690; x=1702769490; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1702164696; x=1702769496; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2xJMMkIi7gHwqFFRiNxJNl8E4vObJQqSH/0uTp/Sg+Q=;
-        b=EpsbpIw6n8AKvkOYSmNjllZfcMjQa0vegbJyPXEakNDVUbVRxJC3x+Ap5L7qkfbjuz
-         rFllnDcY7R/rZZCJWzicKn1ihObFT2FrqDtSqqtZ/nAJawlhEPXHsychyLzvg6QNTAps
-         gSPB7PPfNIbW41dtR6i0SRsUqz/XUtJ16FLv3biuL5erxoj24hUK/RxjOc0JlXSHC/ds
-         MNI2mQrG38z4sSsk7l2zbT4q1eLOBE7UH3uPWYy4vb9AIyeYYjBNpXapTWBNmU5E/Fi9
-         MuUUEVI1K4aEU9Aa3H8V4Yu73fV+Jhx894S47tkvlXpq2kRFNZxpuIWXWUdAOGu4f12g
-         UwnA==
+        bh=OY3NZW1VVkhHi97yDb7wuKAvdZxLolGu7v09v2ECEzA=;
+        b=Y98xTg5QVyARyasvgaBkw5qmaseWQmY3bX7nyzlM3MEnmT/lecrutNkfTBs17WjVjD
+         HLJy3/RE0OmaT5cMI5qLMqzWuFjKsC33u5ND60r7BVOexxN1ch8en8hPlMwIqwBZSRUV
+         D+ds47sXqJlc3OoDNunfr5cVWOmxoiahR1RCxRs/PGyG5Q4eRckkhIGCYfkOvDF2kkp/
+         m4FyewmXo4MvKOYvky2PdnaGVGeXIp+RKX/ql029VOWQwSdSZRbL7C5xHlNxweHyCGrq
+         wOtQRMlDhZEEmA3oAgBwK/99QYaMTX5M6+GRDS1IoQf//bLnyAj05yQDBBvR4XPHnfLw
+         lTVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702164690; x=1702769490;
+        d=1e100.net; s=20230601; t=1702164696; x=1702769496;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2xJMMkIi7gHwqFFRiNxJNl8E4vObJQqSH/0uTp/Sg+Q=;
-        b=wSQKJRBIAwyb97v37ffq37B/vrElxLeqfxE0Gq89YRHiuoRJjSV29pVW6dVgwlaiJ/
-         6hwdai7n6sBPnLrmX9P0YWb9NeWlR5tojn2yAT3wl+kkf2oR0OeNTWSQ35yHucCOIYAH
-         OnraLxGGTcOFqPyGTB67hdAWBPHuh0i5AHFNpsnP0H/EL1/a+KCp3Gn3GXxkD81YZOWB
-         ctQe4X958fRK+Y5p6gUoSoFz/mO472jm8LOhNzMXbOYyk7Nb5nozgXWWxLSMHE1Vb2VG
-         mDc8gLYeJfHM6Rmod/YWJVCG3HlOUfyB6BDzrC8xknunQhhjWzjQZyEIN7N8/RQ/fp8a
-         ExZw==
-X-Gm-Message-State: AOJu0YxFhOQrhIwK1iN2x2nbssjwOYo8NrppzKvGxtfkwaSHzEn3sNkk
-	X6wZVu7NY4JpX4XJk2bPgBGSgg==
-X-Google-Smtp-Source: AGHT+IFzcDIQzUfZRPbTkMhtVL/A5vnbyjnWALM6VMaCSNOIf0ll9TyONx6g9zFQADGgXl8vbrrY9w==
-X-Received: by 2002:a05:600c:3212:b0:40b:5e21:c598 with SMTP id r18-20020a05600c321200b0040b5e21c598mr749759wmp.102.1702164690518;
-        Sat, 09 Dec 2023 15:31:30 -0800 (PST)
+        bh=OY3NZW1VVkhHi97yDb7wuKAvdZxLolGu7v09v2ECEzA=;
+        b=wiKq99rmjJOPq8Gvn1D5LXG79B1+BYVg6yjV58GlH8Qn4YD7ZypNN0YVoigJIwikTs
+         9BLnbWSoKB5vQo4JJ64sMDiFwdAQm+ZDuZ4zCPCqvhvK3ODcH5mXIoBDdSavQPN6CZNl
+         09dMttOP6lAk9WCjFSNj7oG44jCNjXqwReIQPi08bzvtUrTq7bKRO6Tgwor5feMtPZ7p
+         OKz6Rh2bGt+G5GI98sO6ksUgaGmeUVLyPmqvNw2SgoSb01RQ5s7IG3jwD1oL0/I8fIKW
+         rPnn5nc78G+o1YHyO94dkjKnhuYpO7c8Y6v1P2c6pcZNQeDMLhF7iDo1ThD166PElHsL
+         seMw==
+X-Gm-Message-State: AOJu0YzM/vA12+5sR7v7mQ3QL7KojXvXtuDc5a4nHB4+KrdkKBNDj/i3
+	r/Yi6kmrWEic5JHrnNfZXGrDXA==
+X-Google-Smtp-Source: AGHT+IFpxiBnjxiNR92R4x5iC6HtJiyfHvaodh3vNRVQdNujCiOwBYwPF2MXq71Ww9sAvMF66Hl4Ng==
+X-Received: by 2002:a1c:6a16:0:b0:40c:25f6:4585 with SMTP id f22-20020a1c6a16000000b0040c25f64585mr997465wmc.73.1702164696220;
+        Sat, 09 Dec 2023 15:31:36 -0800 (PST)
 Received: from gpeter-l.lan (host-92-23-61-173.as13285.net. [92.23.61.173])
-        by smtp.gmail.com with ESMTPSA id n9-20020a05600c4f8900b0040c41846923sm1875277wmq.26.2023.12.09.15.31.28
+        by smtp.gmail.com with ESMTPSA id n9-20020a05600c4f8900b0040c41846923sm1875277wmq.26.2023.12.09.15.31.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Dec 2023 15:31:30 -0800 (PST)
+        Sat, 09 Dec 2023 15:31:35 -0800 (PST)
 From: Peter Griffin <peter.griffin@linaro.org>
 To: robh+dt@kernel.org,
 	krzysztof.kozlowski+dt@linaro.org,
@@ -72,9 +72,9 @@ Cc: peter.griffin@linaro.org,
 	linux-watchdog@vger.kernel.org,
 	kernel-team@android.com,
 	linux-serial@vger.kernel.org
-Subject: [PATCH v6 11/20] clk: samsung: clk-pll: Add support for pll_{0516,0517,518}
-Date: Sat,  9 Dec 2023 23:30:57 +0000
-Message-ID: <20231209233106.147416-12-peter.griffin@linaro.org>
+Subject: [PATCH v6 14/20] watchdog: s3c2410_wdt: Add support for WTCON register DBGACK_MASK bit
+Date: Sat,  9 Dec 2023 23:31:00 +0000
+Message-ID: <20231209233106.147416-15-peter.griffin@linaro.org>
 X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
 In-Reply-To: <20231209233106.147416-1-peter.griffin@linaro.org>
 References: <20231209233106.147416-1-peter.griffin@linaro.org>
@@ -86,79 +86,95 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-These plls are found in the Tensor gs101 SoC found in the Pixel 6.
+The WDT uses the CPU core signal DBGACK to determine whether the SoC
+is running in debug mode or not. If the DBGACK signal is asserted and
+DBGACK_MASK bit is enabled, then WDT output and interrupt is masked
+(disabled).
 
-pll0516x: Integer PLL with high frequency
-pll0517x: Integer PLL with middle frequency
-pll0518x: Integer PLL with low frequency
+Presence of the DBGACK_MASK bit is determined by adding a new
+QUIRK_HAS_DBGACK_BIT quirk. Also update to use BIT macro to avoid
+checkpatch --strict warnings.
 
-PLL0516x
-FOUT = (MDIV * 2 * FIN)/PDIV * 2^SDIV)
-
-PLL0517x and PLL0518x
-FOUT = (MDIV * FIN)/PDIV*2^SDIV)
-
-The PLLs are similar enough to pll_0822x that the same code can handle
-both. The main difference is the change in the fout formula for the
-high frequency 0516 pll.
-
-Locktime for 516,517 & 518 is 150 the same as the pll_0822x lock factor.
-MDIV, SDIV PDIV masks and bit shifts are also the same as 0822x.
-
-When defining the PLL the "con" parameter should be set to CON3
-register, like this
-
-PLL(pll_0517x, CLK_FOUT_SHARED0_PLL, "fout_shared0_pll", "oscclk",
-    PLL_LOCKTIME_PLL_SHARED0, PLL_CON3_PLL_SHARED0,
-    NULL),
-
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 Tested-by: Will McVicker <willmcvicker@google.com>
 Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- drivers/clk/samsung/clk-pll.c | 6 ++++++
- drivers/clk/samsung/clk-pll.h | 3 +++
- 2 files changed, 9 insertions(+)
+ drivers/watchdog/s3c2410_wdt.c | 28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-pll.c b/drivers/clk/samsung/clk-pll.c
-index 74934c6182ce..4bbdf5e91650 100644
---- a/drivers/clk/samsung/clk-pll.c
-+++ b/drivers/clk/samsung/clk-pll.c
-@@ -443,6 +443,9 @@ static unsigned long samsung_pll0822x_recalc_rate(struct clk_hw *hw,
- 	sdiv = (pll_con3 >> PLL0822X_SDIV_SHIFT) & PLL0822X_SDIV_MASK;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 0b4bd883ff28..7ecb762a371d 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -9,6 +9,7 @@
+  *     (c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>
+  */
  
- 	fvco *= mdiv;
-+	if (pll->type == pll_0516x)
-+		fvco *= 2;
++#include <linux/bits.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
+@@ -34,9 +35,10 @@
+ 
+ #define S3C2410_WTCNT_MAXCNT	0xffff
+ 
+-#define S3C2410_WTCON_RSTEN	(1 << 0)
+-#define S3C2410_WTCON_INTEN	(1 << 2)
+-#define S3C2410_WTCON_ENABLE	(1 << 5)
++#define S3C2410_WTCON_RSTEN		BIT(0)
++#define S3C2410_WTCON_INTEN		BIT(2)
++#define S3C2410_WTCON_ENABLE		BIT(5)
++#define S3C2410_WTCON_DBGACK_MASK	BIT(16)
+ 
+ #define S3C2410_WTCON_DIV16	(0 << 3)
+ #define S3C2410_WTCON_DIV32	(1 << 3)
+@@ -100,12 +102,17 @@
+  * %QUIRK_HAS_PMU_CNT_EN: PMU block has some register (e.g. CLUSTERx_NONCPU_OUT)
+  * with "watchdog counter enable" bit. That bit should be set to make watchdog
+  * counter running.
++ *
++ * %QUIRK_HAS_DBGACK_BIT: WTCON register has DBGACK_MASK bit. Setting the
++ * DBGACK_MASK bit disables the watchdog outputs when the SoC is in debug mode.
++ * Debug mode is determined by the DBGACK CPU signal.
+  */
+ #define QUIRK_HAS_WTCLRINT_REG			(1 << 0)
+ #define QUIRK_HAS_PMU_MASK_RESET		(1 << 1)
+ #define QUIRK_HAS_PMU_RST_STAT			(1 << 2)
+ #define QUIRK_HAS_PMU_AUTO_DISABLE		(1 << 3)
+ #define QUIRK_HAS_PMU_CNT_EN			(1 << 4)
++#define QUIRK_HAS_DBGACK_BIT			BIT(5)
+ 
+ /* These quirks require that we have a PMU register map */
+ #define QUIRKS_HAVE_PMUREG \
+@@ -375,6 +382,19 @@ static int s3c2410wdt_enable(struct s3c2410_wdt *wdt, bool en)
+ 	return 0;
+ }
+ 
++/* Disable watchdog outputs if CPU is in debug mode */
++static void s3c2410wdt_mask_dbgack(struct s3c2410_wdt *wdt)
++{
++	unsigned long wtcon;
 +
- 	do_div(fvco, (pdiv << sdiv));
++	if (!(wdt->drv_data->quirks & QUIRK_HAS_DBGACK_BIT))
++		return;
++
++	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
++	wtcon |= S3C2410_WTCON_DBGACK_MASK;
++	writel(wtcon, wdt->reg_base + S3C2410_WTCON);
++}
++
+ static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
+ {
+ 	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
+@@ -700,6 +720,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
+ 	wdt->wdt_device.parent = dev;
  
- 	return (unsigned long)fvco;
-@@ -1316,6 +1319,9 @@ static void __init _samsung_clk_register_pll(struct samsung_clk_provider *ctx,
- 	case pll_1417x:
- 	case pll_0818x:
- 	case pll_0822x:
-+	case pll_0516x:
-+	case pll_0517x:
-+	case pll_0518x:
- 		pll->enable_offs = PLL0822X_ENABLE_SHIFT;
- 		pll->lock_offs = PLL0822X_LOCK_STAT_SHIFT;
- 		if (!pll->rate_table)
-diff --git a/drivers/clk/samsung/clk-pll.h b/drivers/clk/samsung/clk-pll.h
-index 0725d485c6ee..ffd3d52c0dec 100644
---- a/drivers/clk/samsung/clk-pll.h
-+++ b/drivers/clk/samsung/clk-pll.h
-@@ -38,6 +38,9 @@ enum samsung_pll_type {
- 	pll_0822x,
- 	pll_0831x,
- 	pll_142xx,
-+	pll_0516x,
-+	pll_0517x,
-+	pll_0518x,
- };
- 
- #define PLL_RATE(_fin, _m, _p, _s, _k, _ks) \
++	s3c2410wdt_mask_dbgack(wdt);
++
+ 	/*
+ 	 * If "tmr_atboot" param is non-zero, start the watchdog right now. Also
+ 	 * set WDOG_HW_RUNNING bit, so that watchdog core can kick the watchdog.
 -- 
 2.43.0.472.g3155946c3a-goog
 
