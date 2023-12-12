@@ -1,29 +1,29 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9601A261;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F14BC1946A;
 	Tue, 12 Dec 2023 08:22:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d1Nnda6V"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 21814C4167E;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QEMN4c1b"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CFBB4C433C9;
 	Tue, 12 Dec 2023 08:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1702369325;
-	bh=7ExsGWYEQIIInuR7uJ4VrJxxLfA/5YuhSMVK8oL9Zmk=;
+	bh=7TFUgVNx7MFF4hDvyRsv3aD+KpcwokTV6SI9MQ15bhg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=d1Nnda6VhkKmfYMJfecIjMksEIX+vj8wGpnQS5QJ/9a1Nyxi4zK5Ex8e4Z+4no0Qi
-	 WRCcqNnqlR+bmlMxGsju/1QsH3qEY60t+cZVt0wUUfj6CfxFNm48vQexqN+r+7EWXv
-	 Fxtx5dzS/dswBQr2HT17KMGyQTP3KybBbdianbg9zlYaMS7SSo2TJwDofp4dlHciNs
-	 T72d2Jp+pmYZEElRRboQxDmRv2Dq+jG6xVU1Y3NbzKkcTz6MT+u9uDlRKmLDEwnNwn
-	 lkRWx1XlXFl2fkuDIMbB2EB9YnX8UIZUs47g9AfeRoRLcnlibbuuXGmx2FXCXd0u/U
-	 QCELNbofAKhrw==
+	b=QEMN4c1bP5pqebaPqAI+uWPJib1MJ8qkpn8joR95N8enCjOOvZe4hi8wzS1FnDjyh
+	 hytxe4qBwbf1szdJ0QiuImNv8/rlCJPKhJDo18bUTtCiv/dhZJPbyS922Ojb1noA0e
+	 m68GTlHXf57a0OQpbOkshBVQh28UlftDfhTTg9jHjtnaigLDCkeV0QjDddHzgbSeHu
+	 wY6UuNxH4baxzOBN+RxIjCvlfqgRrRahYWI/8Z8vLYumT/l5y/yAyzjZX+/KUu2qJv
+	 3ySqBAVH5voz/U+y0OS/d3ub9a0xJiIzoaftZPsooRPrXbIqwnB1RooUsvoKOnK66K
+	 DUCTXARPhdQIA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F354C4332F;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF7E7C4332F;
 	Tue, 12 Dec 2023 08:22:05 +0000 (UTC)
 From:
  Nikita Shubin via B4 Relay <devnull+nikita.shubin.maquefel.me@kernel.org>
-Date: Tue, 12 Dec 2023 11:20:28 +0300
-Subject: [PATCH v6 11/40] dt-bindings: watchdog: Add Cirrus EP93x
+Date: Tue, 12 Dec 2023 11:20:42 +0300
+Subject: [PATCH v6 25/40] dt-bindings: wdt: Add ts72xx
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -32,24 +32,23 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20231212-ep93xx-v6-11-c307b8ac9aa8@maquefel.me>
+Message-Id: <20231212-ep93xx-v6-25-c307b8ac9aa8@maquefel.me>
 References: <20231212-ep93xx-v6-0-c307b8ac9aa8@maquefel.me>
 In-Reply-To: <20231212-ep93xx-v6-0-c307b8ac9aa8@maquefel.me>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
  Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>, 
  Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
- Nikita Shubin <nikita.shubin@maquefel.me>, 
- Alexander Sverdlin <alexander.sverdlin@gmail.com>
+ Nikita Shubin <nikita.shubin@maquefel.me>
 Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
  Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 X-Mailer: b4 0.13-dev-e3e53
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1702369322; l=1622;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1702369322; l=1685;
  i=nikita.shubin@maquefel.me; s=20230718; h=from:subject:message-id;
- bh=oi1524pxijJgURrfk58fykAJeXaA1N46ukZR7iTBG5Q=; =?utf-8?q?b=3D1wvmNqEe4dJ6?=
- =?utf-8?q?m1vZAkH2IIRofHEZn1td8hyqdvJqtBQl6YeUFbCcYiIV3gR6k/3CTq6CFs0eCUa2?=
- aGyZzxmcDA6S8Hvg/zpwuLnKZq0IJlfws6DTYOIv8fVYN/G6FCNS
+ bh=UEcnhy7lgZdkEHI42LebAodW/RXUiLm6RBsiPTQtgHE=; =?utf-8?q?b=3DJqp6BnSMmAxE?=
+ =?utf-8?q?/p4SnX+PIXI8oQSnEJha+JblEsUwJs0Nrrlh2l9VH2yaXkA2Gl6eyr9DHVlfJ0x4?=
+ 8+UUzNFmAnUlbzqontuhoLTZahikpdLPzPOlIXcOVzyuHryjbLPM
 X-Developer-Key: i=nikita.shubin@maquefel.me; a=ed25519;
  pk=vqf5YIUJ7BJv3EJFaNNxWZgGuMgDH6rwufTLflwU9ac=
 X-Endpoint-Received:
@@ -59,32 +58,30 @@ Reply-To: <nikita.shubin@maquefel.me>
 
 From: Nikita Shubin <nikita.shubin@maquefel.me>
 
-Add device tree bindings for the Cirrus Logic EP93xx watchdog block
-used in these SoCs.
+Add DT binding for Technologic Systems TS-72xx watchdog.
 
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
 ---
- .../bindings/watchdog/cirrus,ep9301-wdt.yaml       | 42 ++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ .../bindings/watchdog/technologic,ts7200-wdt.yaml  | 45 ++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml b/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml
+diff --git a/Documentation/devicetree/bindings/watchdog/technologic,ts7200-wdt.yaml b/Documentation/devicetree/bindings/watchdog/technologic,ts7200-wdt.yaml
 new file mode 100644
-index 000000000000..5dbe891c70c6
+index 000000000000..7e4bfef152f8
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml
-@@ -0,0 +1,42 @@
++++ b/Documentation/devicetree/bindings/watchdog/technologic,ts7200-wdt.yaml
+@@ -0,0 +1,45 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/watchdog/cirrus,ep9301-wdt.yaml#
++$id: http://devicetree.org/schemas/watchdog/technologic,ts7200-wdt.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Cirrus Logic EP93xx Watchdog Timer
++title: Technologic Systems TS-72xx based SBCs watchdog
 +
 +maintainers:
 +  - Nikita Shubin <nikita.shubin@maquefel.me>
-+  - Alexander Sverdlin <alexander.sverdlin@gmail.com>
 +
 +allOf:
 +  - $ref: watchdog.yaml#
@@ -92,17 +89,18 @@ index 000000000000..5dbe891c70c6
 +properties:
 +  compatible:
 +    oneOf:
-+      - const: cirrus,ep9301-wdt
++      - const: technologic,ts7200-wdt
 +      - items:
 +          - enum:
-+              - cirrus,ep9302-wdt
-+              - cirrus,ep9307-wdt
-+              - cirrus,ep9312-wdt
-+              - cirrus,ep9315-wdt
-+          - const: cirrus,ep9301-wdt
++              - technologic,ts7300-wdt
++              - technologic,ts7260-wdt
++              - technologic,ts7250-wdt
++          - const: technologic,ts7200-wdt
 +
 +  reg:
-+    maxItems: 1
++    items:
++      - description: control register
++      - description: feed register
 +
 +required:
 +  - compatible
@@ -112,10 +110,13 @@ index 000000000000..5dbe891c70c6
 +
 +examples:
 +  - |
-+    watchdog@80940000 {
-+        compatible = "cirrus,ep9301-wdt";
-+        reg = <0x80940000 0x08>;
++    watchdog@23800000 {
++      compatible = "technologic,ts7200-wdt";
++      reg = <0x23800000 0x01>, <0x23c00000 0x01>;
++      timeout-sec = <30>;
 +    };
++
++...
 
 -- 
 2.41.0
