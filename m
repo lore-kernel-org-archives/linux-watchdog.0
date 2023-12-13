@@ -1,66 +1,93 @@
-Received: from srv.wefi.net (srv.wefi.net [80.66.63.20])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTP id EB9A2DB
-	for <linux-watchdog@vger.kernel.org>; Wed, 13 Dec 2023 01:45:34 -0800 (PST)
-Received: from x390.thomas-krenn.com (unknown [91.223.201.37])
-	by srv.wefi.net (Postfix) with ESMTPA id 824415A358D;
-	Wed, 13 Dec 2023 10:45:33 +0100 (CET)
-From: Werner Fischer <devlists@wefi.net>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	Werner Fischer <devlists@wefi.net>
-Subject: [PATCH 2/4] watchdog: it87_wdt: Remove redundant max_units setting
-Date: Wed, 13 Dec 2023 10:45:23 +0100
-Message-Id: <20231213094525.11849-2-devlists@wefi.net>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231213094525.11849-1-devlists@wefi.net>
-References: <20231213094525.11849-1-devlists@wefi.net>
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="R8h3Qy/l"
+Received: from lelv0142.ext.ti.com (lelv0142.ext.ti.com [198.47.23.249])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000B7E4;
+	Wed, 13 Dec 2023 04:23:01 -0800 (PST)
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+	by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 3BDCMc4o007280;
+	Wed, 13 Dec 2023 06:22:38 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+	s=ti-com-17Q1; t=1702470158;
+	bh=UJ5ge6ggjYltoh6aHN5Qr8NuSnhDvuFCmhxZ1zOvfu8=;
+	h=Date:Subject:To:CC:References:From:In-Reply-To;
+	b=R8h3Qy/lzE55xVZiHRs5GhQchOOMZBCwL0x66Z3nXT68Xgxhl8YD20GyopJc4LYtg
+	 wZ5YnD/3znquK3Pcv8mE03KiiYHsnbE+hEGbko6Sq8isUmtrdnGwVUEOxXmprerGkU
+	 tWh2UTov/iACLhjUeI1RxuC3sZhN2PpXZf9dC+pM=
+Received: from DLEE114.ent.ti.com (dlee114.ent.ti.com [157.170.170.25])
+	by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 3BDCMcKm054153
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+	Wed, 13 Dec 2023 06:22:38 -0600
+Received: from DLEE106.ent.ti.com (157.170.170.36) by DLEE114.ent.ti.com
+ (157.170.170.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Wed, 13
+ Dec 2023 06:22:38 -0600
+Received: from lelvsmtp5.itg.ti.com (10.180.75.250) by DLEE106.ent.ti.com
+ (157.170.170.36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
+ Frontend Transport; Wed, 13 Dec 2023 06:22:38 -0600
+Received: from [172.24.227.94] (uda0132425.dhcp.ti.com [172.24.227.94])
+	by lelvsmtp5.itg.ti.com (8.15.2/8.15.2) with ESMTP id 3BDCMZGD061772;
+	Wed, 13 Dec 2023 06:22:36 -0600
+Message-ID: <62762227-04e5-475e-aab7-ac594f99e317@ti.com>
+Date: Wed, 13 Dec 2023 17:52:34 +0530
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] watchdog: rti_wdt: Drop RPM count when unused
+Content-Language: en-US
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck
+	<wim@linux-watchdog.org>
+CC: Tero Kristo <kristo@kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <afd@ti.com>
+References: <20231122041642.2015936-1-vigneshr@ti.com>
+ <98c12c55-1f9f-4529-ae34-cb9f22471dbe@roeck-us.net>
+From: Vignesh Raghavendra <vigneshr@ti.com>
+In-Reply-To: <98c12c55-1f9f-4529-ae34-cb9f22471dbe@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 
-Commit 893dc8b5c978 ("watchdog: it87: Drop support for resetting watchdog
-though CIR and Game port") removed the try_gameport variable, and left
-max_units setting redundant.
 
-To clean up the code, this patch removes this redundant setting.
 
-Signed-off-by: Werner Fischer <devlists@wefi.net>
----
- drivers/watchdog/it87_wdt.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+On 12/12/23 20:57, Guenter Roeck wrote:
+> On 11/21/23 20:16, Vignesh Raghavendra wrote:
+>> Do a RPM put if watchdog is not already started during probe and re
+>> enable it in watchdog start.
+>>
+>> On K3 SoCs, watchdogs and their corresponding CPUs are under same PD, so
+>> if the reference count of unused watchdogs aren't dropped, it will lead
+>> to CPU hotplug failures as Device Management firmware won't allow to
+>> turn off the PD due to dangling reference count.
+>>
+>> Fixes: 2d63908bdbfb ("watchdog: Add K3 RTI watchdog support")
+>> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+> 
+> I always find it amazing that people think everyone would understand the
+> TLAs
+> (three-letter-acronyms) they use. While those who don't might find it
+> confusing
+> why a watchdog driver would need or want to drop rotation-per-minute
+> counts,
+> and what that has to do with police departments, that isn't worth
+> arguing about
+> 
 
-diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-index 6b7f7ec03633..ca377096bdd7 100644
---- a/drivers/watchdog/it87_wdt.c
-+++ b/drivers/watchdog/it87_wdt.c
-@@ -274,10 +274,6 @@ static int __init it87_wdt_init(void)
- 	case IT8712_ID:
- 		max_units = (chip_rev < 8) ? 255 : 65535;
- 		break;
--	case IT8716_ID:
--	case IT8726_ID:
--		max_units = 65535;
--		break;
- 	case IT8607_ID:
- 	case IT8613_ID:
- 	case IT8620_ID:
-@@ -287,9 +283,11 @@ static int __init it87_wdt_init(void)
- 	case IT8655_ID:
- 	case IT8665_ID:
- 	case IT8686_ID:
-+	case IT8716_ID:
- 	case IT8718_ID:
- 	case IT8720_ID:
- 	case IT8721_ID:
-+	case IT8726_ID:
- 	case IT8728_ID:
- 	case IT8772_ID:
- 	case IT8783_ID:
+Oops, my apologies. I will respin with TLAs expanded
+
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> 
+
+Thanks!
+
+> Guenter
+> 
+
 -- 
-2.39.2
-
+Regards
+Vignesh
