@@ -1,17 +1,17 @@
 Received: from srv.wefi.net (srv.wefi.net [80.66.63.20])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTP id EBB32E8
+	by lindbergh.monkeyblade.net (Postfix) with ESMTP id EB932D5
 	for <linux-watchdog@vger.kernel.org>; Wed, 13 Dec 2023 01:45:34 -0800 (PST)
 Received: from x390.thomas-krenn.com (unknown [91.223.201.37])
-	by srv.wefi.net (Postfix) with ESMTPA id 00EE55A3591;
+	by srv.wefi.net (Postfix) with ESMTPA id C0D455A3590;
 	Wed, 13 Dec 2023 10:45:33 +0100 (CET)
 From: Werner Fischer <devlists@wefi.net>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org,
 	Werner Fischer <devlists@wefi.net>
-Subject: [PATCH 4/4] watchdog: it87_wdt: Keep WDTCTRL bit 3 unmodified for IT8784/IT8786
-Date: Wed, 13 Dec 2023 10:45:25 +0100
-Message-Id: <20231213094525.11849-4-devlists@wefi.net>
+Subject: [PATCH 3/4] watchdog: it87_wdt: Add IT8659 ID
+Date: Wed, 13 Dec 2023 10:45:24 +0100
+Message-Id: <20231213094525.11849-3-devlists@wefi.net>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231213094525.11849-1-devlists@wefi.net>
 References: <20231213094525.11849-1-devlists@wefi.net>
@@ -23,60 +23,60 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-WDTCTRL bit 3 sets the mode choice for the clock input of IT8784/IT8786.
-Some motherboards require this bit to be set to 1 (= PCICLK mode),
-otherwise the watchdog functionality gets broken. The BIOS of those
-motherboards sets WDTCTRL bit 3 already to 1.
+This patch adds watchdog support for the ITE IT8659 watchdog.
+IT8659 watchdog works in the same way as the other watchdogs supported
+by it87_wdt.
 
-Instead of setting all bits of WDTCTRL to 0 by writing 0x00 to it, keep
-bit 3 of it unchanged for IT8784/IT8786 chips. In this way, bit 3 keeps
-the status as set by the BIOS of the motherboard.
+Before this patch, IT8659 watchdog is not supported. After a modprobe,
+dmesg reports:
+  it87_wdt: Unknown Chip found, Chip 8659 Revision 0007
 
-Watchdog tests have been successful with this patch with the following
-systems:
-  IT8784: Thomas-Krenn LES plus v2 (YANLING YL-KBRL2 V2)
-  IT8786: Thomas-Krenn LES plus v3 (YANLING YL-CLU L2)
-  IT8786: Thomas-Krenn LES network 6L v2 (YANLING YL-CLU6L)
+With this patch, modprobe it87_wdt recognizes the watchdog as the dmesg
+output shows:
+  it87_wdt: Chip IT8659 revision 7 initialized. timeout=60 sec (nowayout=0
+  testmode=0)
 
-Link: https://lore.kernel.org/all/140b264d-341f-465b-8715-dacfe84b3f71@roeck-us.net/
+Watchdog tests on a YANLING YL-ALP3L2C-1235U system have been successful,
+the watchdog works as expected with this patch.
 
 Signed-off-by: Werner Fischer <devlists@wefi.net>
 ---
- drivers/watchdog/it87_wdt.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/watchdog/it87_wdt.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-index f6a344c002af..9297a5891912 100644
+index ca377096bdd7..f6a344c002af 100644
 --- a/drivers/watchdog/it87_wdt.c
 +++ b/drivers/watchdog/it87_wdt.c
-@@ -258,6 +258,7 @@ static struct watchdog_device wdt_dev = {
- static int __init it87_wdt_init(void)
- {
- 	u8  chip_rev;
-+	u8 ctrl;
- 	int rc;
+@@ -13,9 +13,9 @@
+  *		    http://www.ite.com.tw/
+  *
+  *	Support of the watchdog timers, which are available on
+- *	IT8607, IT8613, IT8620, IT8622, IT8625, IT8628, IT8655, IT8665,
+- *	IT8686, IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
+- *	IT8728, IT8772, IT8783 and IT8784.
++ *	IT8607, IT8613, IT8620, IT8622, IT8625, IT8628, IT8655, IT8659,
++ *	IT8665, IT8686, IT8702, IT8712, IT8716, IT8718, IT8720, IT8721,
++ *	IT8726,	IT8728, IT8772, IT8783, IT8784 and IT8786.
+  */
  
- 	rc = superio_enter();
-@@ -316,7 +317,18 @@ static int __init it87_wdt_init(void)
- 
- 	superio_select(GPIO);
- 	superio_outb(WDT_TOV1, WDTCFG);
--	superio_outb(0x00, WDTCTRL);
-+
-+	switch (chip_type) {
-+	case IT8784_ID:
-+	case IT8786_ID:
-+		ctrl = superio_inb(WDTCTRL);
-+		ctrl &= 0x08;
-+		superio_outb(ctrl, WDTCTRL);
-+		break;
-+	default:
-+		superio_outb(0x00, WDTCTRL);
-+	}
-+
- 	superio_exit();
- 
- 	if (timeout < 1 || timeout > max_units * 60) {
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -56,6 +56,7 @@
+ #define IT8625_ID	0x8625
+ #define IT8628_ID	0x8628
+ #define IT8655_ID	0x8655
++#define IT8659_ID	0x8659
+ #define IT8665_ID	0x8665
+ #define IT8686_ID	0x8686
+ #define IT8702_ID	0x8702
+@@ -281,6 +282,7 @@ static int __init it87_wdt_init(void)
+ 	case IT8625_ID:
+ 	case IT8628_ID:
+ 	case IT8655_ID:
++	case IT8659_ID:
+ 	case IT8665_ID:
+ 	case IT8686_ID:
+ 	case IT8716_ID:
 -- 
 2.39.2
 
