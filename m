@@ -1,54 +1,36 @@
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACA14ED8;
-	Sun, 17 Dec 2023 03:09:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Received: from www.linux-watchdog.org (www.linux-watchdog.org [185.87.125.42])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A5FE545BE4
+	for <linux-watchdog@vger.kernel.org>; Sun, 17 Dec 2023 15:43:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=linux-watchdog.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux-watchdog.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="O11lIz29"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1702782560; x=1734318560;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ldclQnPKIK3R6DIjY7MVhmWZyFLDghhGP8FiLsTQals=;
-  b=O11lIz29c0oc6S6n5WRGfz4jvfuGvjSdFE2n2/Jo4yKHhvb69dL+VUuE
-   4DN5lQPNDp+Wmeg+Uqab9w1ZBgzwqyDIQwaQX+C+udHcORcT0sMwcpkC2
-   clSj320jTKxKgncSDpCRsxKD0rNEU9oAmbcPVpJUw1Mac34VVmxXRD/1w
-   OvV0q1uv95CUMsMg4/iQCa5XaH+mEUSQy8jBRIS6P/LXE2LWq3W+DVqb4
-   QgsmeeiIflepQ1yYAvqd8yWVxuNv8oGcjIF5UUhqhPhmjqTze/Jom58ny
-   ts7RW+ErX4gz0YQoniVUE8FQT6Xq6D8awaVwjube2HPtWnHFGhhlR0fzH
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10926"; a="398184643"
-X-IronPort-AV: E=Sophos;i="6.04,282,1695711600"; 
-   d="scan'208";a="398184643"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2023 19:09:20 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10926"; a="1022376189"
-X-IronPort-AV: E=Sophos;i="6.04,282,1695711600"; 
-   d="scan'208";a="1022376189"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga006.fm.intel.com with ESMTP; 16 Dec 2023 19:09:15 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rEhWj-0002YT-1I;
-	Sun, 17 Dec 2023 03:09:13 +0000
-Date: Sun, 17 Dec 2023 11:08:18 +0800
-From: kernel test robot <lkp@intel.com>
-To: Elad Nachman <enachman@marvell.com>, wim@linux-watchdog.org,
-	linux@roeck-us.net, robh+dt@kernel.org,
-	krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
-	gregory.clement@bootlin.com, chris.packham@alliedtelesis.co.nz,
-	andrew@lunn.ch, fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
-	al.stone@linaro.org, timur@codeaurora.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, enachman@marvell.com, cyuval@marvell.com
-Subject: Re: [PATCH 3/3] watchdog: sbsa_gwdt: add support for Marvell ac5
-Message-ID: <202312171047.mHNijCmt-lkp@intel.com>
-References: <20231214150414.1849058-4-enachman@marvell.com>
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="c65JLxqb"
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+	id 2C40740A42; Sun, 17 Dec 2023 16:34:48 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 2C40740A42
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+	s=odk20180602; t=1702827288;
+	bh=f8FMduk32J5mDv1FWQOJ4O+W0eVJwGdxtVr779KbgCA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=c65JLxqbBryj5L5Cjk6qXkAeeqZjYi1ctWs52vEW93G7yXBnEqRDnH3fVRFjIlJZr
+	 Rb7TYDjopF/iOVsxq85TLogiFR/KRPUjaCb+PyzNUCZLHdtfc8kKJO0f/fDfAMUS9Z
+	 8X7405lWqJEazTU+m1WPu9Xd2dLgNgxC5KYd65eY=
+Date: Sun, 17 Dec 2023 16:34:48 +0100
+From: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Stefan Wahren <wahrenst@gmx.net>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	bcm-kernel-feedback-list@broadcom.com,
+	Phil Elwell <phil@raspberrypi.com>, Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] watchdog: bcm2835_wdt: Fix WDIOC_SETTIMEOUT handling
+Message-ID: <20231217153448.GB6196@www.linux-watchdog.org>
+References: <20231112173251.4827-1-wahrenst@gmx.net>
+ <cce852fd-618c-44f5-aa86-1cd33bd97351@roeck-us.net>
+ <f0354dc4-e6f1-41c5-9a99-9847c96a15c2@gmx.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -57,43 +39,34 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231214150414.1849058-4-enachman@marvell.com>
+In-Reply-To: <f0354dc4-e6f1-41c5-9a99-9847c96a15c2@gmx.net>
+User-Agent: Mutt/1.5.20 (2009-12-10)
 
-Hi Elad,
+Hi Stefan,
 
-kernel test robot noticed the following build warnings:
+> Hi,
+> 
+> Am 13.11.23 um 15:31 schrieb Guenter Roeck:
+> >On Sun, Nov 12, 2023 at 06:32:51PM +0100, Stefan Wahren wrote:
+> >>Users report about the unexpected behavior for setting timeouts above
+> >>15 sec on Raspberry Pi. According to watchdog-api.rst the ioctl
+> >>WDIOC_SETTIMEOUT shouldn't fail because of hardware limitations.
+> >>But looking at the code shows that max_timeout based on the
+> >>register value PM_WDOG_TIME_SET, which is the maximum.
+> >>
+> >>Since 664a39236e71 ("watchdog: Introduce hardware maximum heartbeat
+> >>in watchdog core") the watchdog core is able to handle this problem.
+> >>
+> >>This fix has been tested with watchdog-test from selftests.
+> >>
+> >>Link: https://bugzilla.kernel.org/show_bug.cgi?id=217374
+> >>Fixes: 664a39236e71 ("watchdog: Introduce hardware maximum heartbeat in watchdog core")
+> >>Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+> >Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> who takes care of this patch?
 
-[auto build test WARNING on robh/for-next]
-[also build test WARNING on groeck-staging/hwmon-next linus/master v6.7-rc5 next-20231215]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+I did.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Elad-Nachman/dt-bindings-watchdog-add-Marvell-AC5-watchdog/20231214-230812
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git for-next
-patch link:    https://lore.kernel.org/r/20231214150414.1849058-4-enachman%40marvell.com
-patch subject: [PATCH 3/3] watchdog: sbsa_gwdt: add support for Marvell ac5
-config: arm64-defconfig (https://download.01.org/0day-ci/archive/20231217/202312171047.mHNijCmt-lkp@intel.com/config)
-compiler: aarch64-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231217/202312171047.mHNijCmt-lkp@intel.com/reproduce)
+Kind regards,
+Wim.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312171047.mHNijCmt-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Function parameter or struct member 'reg_read32' not described in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Function parameter or struct member 'reg_read64' not described in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Function parameter or struct member 'reg_write32' not described in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Function parameter or struct member 'reg_write64' not described in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Excess struct member 'reg_read' description in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Excess struct member 'read_write' description in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Excess struct member 'read_write' description in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:141: warning: Excess struct member 'reg_read' description in 'sbsa_gwdt_regs_ops'
->> scripts/kernel-doc: drivers/watchdog/sbsa_gwdt.c:158: warning: Function parameter or struct member 'soc_reg_ops' not described in 'sbsa_gwdt'
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
