@@ -1,87 +1,83 @@
-Received: from www.linux-watchdog.org (www.linux-watchdog.org [185.87.125.42])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BFF4844C88;
-	Sun, 17 Dec 2023 15:50:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=linux-watchdog.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux-watchdog.org
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D89EEC8F3;
+	Mon, 18 Dec 2023 06:27:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="A5nmn24K"
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-	id AE07240A00; Sun, 17 Dec 2023 16:33:18 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org AE07240A00
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-	s=odk20180602; t=1702827198;
-	bh=+l0EOLKa0Bl3ZTWz3jGKaliU0ki9maj1BDrJAnID99w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=A5nmn24KcJNSDhVfY9QidGiyMapfWTt138hl4+Oj//u0GhFO0wjHMJ3zVi0sUypae
-	 w7RC7V1Xl+ZjfbhpSVFKJdbQ3yfmIXDjEiH+W7ugZvdBMqRMvqtqZeYsvlT3u8fsA0
-	 JmnVrAAgFogL1Jj9qDNW6hJhRh2kFdRO7x3Oat7M=
-Date: Sun, 17 Dec 2023 16:33:18 +0100
-From: Wim Van Sebroeck <wim@linux-watchdog.org>
-To: Doug Anderson <dianders@chromium.org>
-Cc: Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="5AOlFKkU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=yd59uGEg1d9Q50uiK6BFpTRDUTndrVdBp8wWSlMKviQ=; b=5AOlFKkUY8zEhGiMEqCk5zyVrm
+	r3BRHXeoTHeGuUqiY/9fn1/ofA4PB7aaMiJD1lDdoTtZA4sRZZDv3RnK9l97Ale3paO2uJhW7PmK7
+	dK1UXiKyaCiOaJSK3SP1aslqPZU6RKTpanulUKu0Ib6Vs6beQSdN4QgPpT5GZUr4v5AfgTfqDgcTT
+	j59jUnKfw/B/VCda1hLjKd8nxoOR/Q0gSzJrZ+JWdTXsfBKhZpnL+TnK6hKcMqmHdpsjS38BZDLZe
+	cDrzB02JiSSHOw+xGEHrp1mJDKBs2pmi/lzkLapvQMbK7qRJB2LnA7uqijm+O7SSVkT/gbwoSpo6N
+	xrdVOZ0w==;
+Received: from [50.53.46.231] (helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+	id 1rF75g-009DcO-0k;
+	Mon, 18 Dec 2023 06:27:00 +0000
+From: Randy Dunlap <rdunlap@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: Randy Dunlap <rdunlap@infradead.org>,
+	kernel test robot <lkp@intel.com>,
+	Michael Shych <michaelsh@nvidia.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, swboyd@chromium.org,
-	linux-watchdog@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	linux-arm-msm@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Andy Gross <agross@kernel.org>,
-	Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 9/9] dt-bindings: watchdog: qcom-wdt: Make the
- interrupt example edge triggered
-Message-ID: <20231217153318.GA6196@www.linux-watchdog.org>
-References: <20231106144335.v2.1.Ic7577567baff921347d423b722de8b857602efb1@changeid>
- <20231106144335.v2.9.Ie30c1d3f780666f6906fd2fd7c437632c229d987@changeid>
- <CAD=FV=XsPGvNggpJPCpF=xhkm3dOHsStycZvuVttA=ZH6=EUmw@mail.gmail.com>
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: mlx_wdt: fix all kernel-doc warnings
+Date: Sun, 17 Dec 2023 22:26:59 -0800
+Message-ID: <20231218062659.26916-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAD=FV=XsPGvNggpJPCpF=xhkm3dOHsStycZvuVttA=ZH6=EUmw@mail.gmail.com>
-User-Agent: Mutt/1.5.20 (2009-12-10)
 
-Hi Doug,
+Correct kernel-doc warnings as reported by kernel test robot:
 
-> Hi,
-> 
-> On Mon, Nov 6, 2023 at 2:44 PM Douglas Anderson <dianders@chromium.org> wrote:
-> >
-> > As described in the patch ("arm64: dts: qcom: sc7180: Make watchdog
-> > bark interrupt edge triggered"), the Qualcomm watchdog timer's bark
-> > interrupt should be configured as edge triggered.
-> >
-> > Update the example in the bindings.
-> >
-> > Fixes: 7c631cdff391 ("dt-bindings: watchdog: qcom-wdt: allow interrupts")
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> > Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > ---
-> >
-> > (no changes since v1)
-> >
-> >  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> I saw Bjorn landed all of the dts patches from this series but it
-> looks like the bindings patch got left behind. Anyone want to claim it
-> for their tree, or Ack it saying that you'd prefer for it to go
-> through someone else's tree? I assume Krzysztof's Ack means he's not
-> intending for it to go through the DT tree and Bjorn doesn't seem to
-> intend for it to go through the Qualcomm tree. Guenter/Wim: it feels
-> like this could go in the watchdog tree?
+mlx_wdt.c:56: warning: Function parameter or member 'wdt_type' not described in 'mlxreg_wdt'
+mlx_wdt.c:56: warning: Excess struct member 'device' description in 'mlxreg_wdt'
+mlx_wdt.c:56: warning: Excess struct member 'timeout' description in 'mlxreg_wdt'
+mlx_wdt.c:56: warning: Excess struct member 'wd_type' description in 'mlxreg_wdt'
 
-I picked it up in the watchdog tree.
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202312171701.xNkzdgdi-lkp@intel.com/
+Cc: Michael Shych <michaelsh@nvidia.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/mlx_wdt.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Kind regards,
-Wim.
-
+diff -- a/drivers/watchdog/mlx_wdt.c b/drivers/watchdog/mlx_wdt.c
+--- a/drivers/watchdog/mlx_wdt.c
++++ b/drivers/watchdog/mlx_wdt.c
+@@ -30,17 +30,15 @@
+  * struct mlxreg_wdt - wd private data:
+  *
+  * @wdd:	watchdog device;
+- * @device:	basic device;
+  * @pdata:	data received from platform driver;
+  * @regmap:	register map of parent device;
+- * @timeout:	defined timeout in sec.;
+  * @action_idx:	index for direct access to action register;
+  * @timeout_idx:index for direct access to TO register;
+  * @tleft_idx:	index for direct access to time left register;
+  * @ping_idx:	index for direct access to ping register;
+  * @reset_idx:	index for direct access to reset cause register;
+  * @regmap_val_sz: size of value in register map;
+- * @wd_type:	watchdog HW type;
++ * @wdt_type:	watchdog HW type;
+  */
+ struct mlxreg_wdt {
+ 	struct watchdog_device wdd;
