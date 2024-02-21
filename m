@@ -1,122 +1,114 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E307A446DE
-	for <linux-watchdog@vger.kernel.org>; Wed, 21 Feb 2024 11:49:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF5D482D8;
+	Wed, 21 Feb 2024 11:56:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708516145; cv=none; b=isJRougVzo/bSI0s8BUjNRszdXAf9osCye+mCU3ANXaIVt0GgmQdhxP+izAVUpJmt1K1ZIjbvUH3Fhpqg0wWQOahLTgFvc+m929Me7VkfaJv+IsF/0OV/csgEPL+gkeDxMcrUkD1P5QB5AgsJQbOXR88jsenOb/OKlKP30X6/NE=
+	t=1708516606; cv=none; b=kW0zCu03q404/nFLkSVUabgFtIpCXAQ88g7t5NWQ0Q3QXe/pwOGziVimtiWGo+hT/IwTRrY65K4pqiz7vSEGDeJSR0PNDUT8wq7bW8vxCjQZyt3h5WUtSLhNhZS5dmHOhumi7lby35zF/mn1jHx8iugdVJbXTByibEmNlLqZ6SY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708516145; c=relaxed/simple;
-	bh=MqAtX4r3evQnuc0+Z+SGH7wwaQmeoU0VpHKlY7UeihQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=e/qZGUpsJ9GJIZVReECNo+5AkQrQlZhO/SyYlgjRngNcT2574EdFEOnzJxu5JBZ7aFET9qS2vH3HtjJeaUnqxagKoqPFCZcxhcYEThiwVbHiX8G4kMUWPcmi3TRxt7uIRnAXs/4EpYjnFN7ZitR6nP7oXs8uPuxJfY5LIjzAhn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1rcl5k-0003zo-5c; Wed, 21 Feb 2024 12:48:48 +0100
-Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1rcl5i-0021w0-CM; Wed, 21 Feb 2024 12:48:46 +0100
-Received: from pza by lupine with local (Exim 4.96)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1rcl5i-0006MR-10;
-	Wed, 21 Feb 2024 12:48:46 +0100
-Message-ID: <7c3246e94de0fdad3f9bed50d46f70327ef30ef9.camel@pengutronix.de>
-Subject: Re: [PATCH v2 1/2] watchdog: sp805_wdt: deassert the reset if
+	s=arc-20240116; t=1708516606; c=relaxed/simple;
+	bh=Dr9OQrUqQG/6MBjESHU6+3PVn2jjS861J9aFbtcZVq4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=bcAlSJAMdrRclCQTi11AA16ZkVFY8iw91qrWvarTf/lFcxBSfzXpGqwEDywh6LIbteweWWgkInKk+FcZb4uyx45r1bSnlQ+Yhkh7/L440m2XgmZJ9HM0vp1cTxzEWsKlHxIToE3mdm8Q6meJmm1ehre2X+uo7KDv2MtJcK+f/bw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gQpT880s; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gQpT880s"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CEB79C433F1;
+	Wed, 21 Feb 2024 11:56:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708516605;
+	bh=Dr9OQrUqQG/6MBjESHU6+3PVn2jjS861J9aFbtcZVq4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=gQpT880sjW3T+moOLdRPm4D/qZbYsY0ogJJyEKz2C2nNCuaEt5tJr48ZLqoPqTaEp
+	 CZBVoiKt9MkSe3dlNewYw2ku1kdgBk1xKJvU3z6dM9k7SwNtEpNjCDhRv64YQ1lOOy
+	 IfCRH+ZkaIigSizzaBsw9SN/92ES4abREtIndl+8lrePmG5JUmKD7D/GPjeXkMOfBh
+	 +HC3+aRPnAiJmphhCK2OW8frk3fvgKmdcLhJwZ4vFM1jSnr/yMzsh2OJrqKglbGOgZ
+	 TgK2O4X77zXMeGoz+xX3veUkBVu3RjlDm5zj5FqAJcgigozQV53y+IQGvs25PeWdac
+	 ppUgUz01ERzug==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A37F0C48BF6;
+	Wed, 21 Feb 2024 11:56:45 +0000 (UTC)
+From: Yang Xiwen via B4 Relay <devnull+forbidden405.outlook.com@kernel.org>
+Date: Wed, 21 Feb 2024 19:56:41 +0800
+Subject: [PATCH v3 1/2] watchdog: sp805_wdt: deassert the reset if
  available
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: forbidden405@outlook.com, Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>,
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley
- <conor+dt@kernel.org>,  Viresh Kumar <vireshk@kernel.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org
-Date: Wed, 21 Feb 2024 12:48:46 +0100
-In-Reply-To: <20240220-hisi-wdt-v2-1-63edc4965b4c@outlook.com>
-References: <20240220-hisi-wdt-v2-0-63edc4965b4c@outlook.com>
-	 <20240220-hisi-wdt-v2-1-63edc4965b4c@outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-2 
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240221-hisi-wdt-v3-1-9642613dc2e6@outlook.com>
+References: <20240221-hisi-wdt-v3-0-9642613dc2e6@outlook.com>
+In-Reply-To: <20240221-hisi-wdt-v3-0-9642613dc2e6@outlook.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Philipp Zabel <p.zabel@pengutronix.de>, 
+ Rob Herring <robh+dt@kernel.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Viresh Kumar <vireshk@kernel.org>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, Yang Xiwen <forbidden405@outlook.com>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1708516604; l=1308;
+ i=forbidden405@outlook.com; s=20230724; h=from:subject:message-id;
+ bh=Yulf71GztXVGablEgkhT6BHnqYqWblq9L42vUSDAg9k=;
+ b=+BBcG1xmGtzehN6g+Xwdx1UJPNgY6Spl76NJKL/19umtdnMNqtXf/NjvXINZy1aot1GKR3UgT
+ 5vXzcsBnhRuCceep7KHoaoAakAuReSP6/t0rNrqDPmpqBKs3CU+rMjj
+X-Developer-Key: i=forbidden405@outlook.com; a=ed25519;
+ pk=qOD5jhp891/Xzc+H/PZ8LWVSWE3O/XCQnAg+5vdU2IU=
+X-Endpoint-Received:
+ by B4 Relay for forbidden405@outlook.com/20230724 with auth_id=67
+X-Original-From: Yang Xiwen <forbidden405@outlook.com>
+Reply-To: <forbidden405@outlook.com>
 
-On Di, 2024-02-20 at 02:14 +0800, Yang Xiwen via B4 Relay wrote:
-> From: Yang Xiwen <forbidden405@outlook.com>
->=20
-> According to the datasheet, the core has an WDOGRESn input signal that
-> needs to be deasserted before being operational. Implement it in the
-> driver.
->=20
-> Signed-off-by: Yang Xiwen <forbidden405@outlook.com>
-> ---
->  drivers/watchdog/sp805_wdt.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->=20
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 2756ed54ca3d..b4bcfdeb39e6 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -25,6 +25,7 @@
->  #include <linux/moduleparam.h>
->  #include <linux/pm.h>
->  #include <linux/property.h>
-> +#include <linux/reset.h>
->  #include <linux/slab.h>
->  #include <linux/spinlock.h>
->  #include <linux/types.h>
-> @@ -59,6 +60,7 @@
->   * @lock: spin lock protecting dev structure and io access
->   * @base: base address of wdt
->   * @clk: (optional) clock structure of wdt
-> + * @rst: (optional) reset control signal of wdt
->   * @rate: (optional) clock rate when provided via properties
->   * @adev: amba device structure of wdt
->   * @status: current status of wdt
-> @@ -69,6 +71,7 @@ struct sp805_wdt {
->  	spinlock_t			lock;
->  	void __iomem			*base;
->  	struct clk			*clk;
-> +	struct reset_control		*rst;
+From: Yang Xiwen <forbidden405@outlook.com>
 
-This can be a local variable in sp805_wdt_probe().
+According to the datasheet, the core has an WDOGRESn input signal that
+needs to be deasserted before being operational. Implement it in the
+driver.
 
->  	u64				rate;
->  	struct amba_device		*adev;
->  	unsigned int			load_val;
-> @@ -264,6 +267,12 @@ sp805_wdt_probe(struct amba_device *adev, const stru=
-ct amba_id *id)
->  		return -ENODEV;
->  	}
-> =20
-> +	wdt->rst =3D devm_reset_control_get_optional(&adev->dev, NULL);
+Signed-off-by: Yang Xiwen <forbidden405@outlook.com>
+---
+ drivers/watchdog/sp805_wdt.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Please use devm_reset_control_get_optional_exclusive() directly.
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 2756ed54ca3d..109e2e37e8f0 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -25,6 +25,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/pm.h>
+ #include <linux/property.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+@@ -232,6 +233,7 @@ static int
+ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	struct sp805_wdt *wdt;
++	struct reset_control *rst;
+ 	u64 rate = 0;
+ 	int ret = 0;
+ 
+@@ -264,6 +266,12 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 		return -ENODEV;
+ 	}
+ 
++	rst = devm_reset_control_get_optional_exclusive(&adev->dev, NULL);
++	if (IS_ERR(rst))
++		return dev_err_probe(&adev->dev, PTR_ERR(rst), "Can not get reset\n");
++
++	reset_control_deassert(rst);
++
+ 	wdt->adev = adev;
+ 	wdt->wdd.info = &wdt_info;
+ 	wdt->wdd.ops = &wdt_ops;
 
-> +	if (IS_ERR(wdt->rst))
-> +		return dev_err_probe(&adev->dev, PTR_ERR(wdt->rst), "Can not get reset=
-\n");
-> +
-> +	reset_control_deassert(wdt->rst);
-> +
->  	wdt->adev =3D adev;
->  	wdt->wdd.info =3D &wdt_info;
->  	wdt->wdd.ops =3D &wdt_ops;
+-- 
+2.43.0
 
-regards
-Philipp
