@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF0E482C1;
-	Wed, 21 Feb 2024 11:56:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF94482DD;
+	Wed, 21 Feb 2024 11:56:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708516606; cv=none; b=BxQwdomUoVJjn4cgheNp0ayvt83ODclqcINRA3tebXoiUEqiyd1IIoXpZ+3+iNgD5871sJtjppopwgfmhT/aAAw6zGvnBxSK5hmwZrAOP8jYvSqE8/kBPssIv7pqi+uRuoE3CI6C3gmONpATdywOh4Uhc59FwYExw/tXjKdf7B8=
+	t=1708516606; cv=none; b=VHwl7SOScaBKaXohww2S22jX8suIAgWzijrjjtrHwMJykrdVCQ1FY3Psis5Z/6GnQuTUULz2UQXnthVjAlDwpZpDm5EaE7KjLF4uWwcYsOlOMXzmIPXDQXE8GK8lqrIAThcmPFHwFxHHLqqN/Qmlg7+QIhgxzbRtb86KwiAuXdQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1708516606; c=relaxed/simple;
-	bh=cVP9oDcFqMe3HIWN3U9hzMH6sEfnqnfkj+cc6SDEDc4=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=uiiOKS59NBDLk4HA1m7qI6uRGHb+JiyhAxWFQB89uDI5x0ez+ivJDxLHT75QerWKuD2B/1KFkKiLiuAz2ayse/dVjmiigPjxpAsgSV885CznFjXGToXA2yAJcAOQisD1pVvlmLBPJu3zh4eY8LADooomhIMkMOdxc1orVFLPIno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VX2NLF7N; arc=none smtp.client-ip=10.30.226.201
+	bh=lI9ZJUjL9ybYuRVZPP8gR27T34yW1aM09ufVi90sVcU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Ymx/Zqo9rJOyYZt8BTbLMQOD49fiT6yfi7Ey5j2ZRzwCuqWZFoWruPIRc4INNTmCpl7ervt8waELdB5CLYAoJTeODpUlcaxdXALbNVmToSpGPryBNbecqduRHVZHJQwm5M3xZWRYhAaiKHrCTXjh3sgCa1DTPo3CFiiGwDTV6kc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GfrpCFkX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VX2NLF7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B71A7C433C7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GfrpCFkX"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D58D1C433A6;
 	Wed, 21 Feb 2024 11:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1708516605;
-	bh=cVP9oDcFqMe3HIWN3U9hzMH6sEfnqnfkj+cc6SDEDc4=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=VX2NLF7NT/k0riswUv+ozEtEs5Tmuz0vQTBtwd3VL0Y4dtoenK8m5dEo0nPy/Fr1b
-	 U5fL1nL4EpxaMZWzRv3TiYqeJks8tJD9XnyJJFI52glsOqrvYMdbj39h2n8fl3Yb4d
-	 LwkMdjNtq4QPZ1bj/yfZ5R7JmYIt4eKKYdtgwCijIqBJGC3FAhMzshRSXGtbZ/HQFZ
-	 CqX3e11lEIFSu86HUuQ8mxvHn8fIRfOMfc6w1IowPyVEI8surusfZ0xb72EC7wtkM2
-	 S9d9TY1JTwRanWhCR1XjB4HLgoPrLmJbCzZGDspfNJc4USluujcpNdmV18p0D2n63u
-	 AyNuK7D/xtCog==
+	bh=lI9ZJUjL9ybYuRVZPP8gR27T34yW1aM09ufVi90sVcU=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=GfrpCFkXjvJbbaQFtNLQKBttgHU/P76DXvBvf1pO8g0nOYIYMBLzze+NL4h6bhqdj
+	 2H0w5MFQXyHn5SDQ+K+ysKlpI2APE+VlbBGROXTcd/hqFnviOOI+kAc5EvBzTLWWMo
+	 66vb8dOf9JhcWJPg0uIpluu8f7V9vL//IazSdv1Iwu5ImOCHoN7O2FMqqilK759Mfd
+	 9XJqDnvoMpSpvwT1ggXrsSni4aMnyO2zqMJZ0hyTNRj4SqRvmnzGMeXKBKkO1pUHVh
+	 p8b0Zofc+0oEw9UyvvFk6iXBuJDiEZkzYLUn06CEHWUstbIaFRh3wheuLqemXA36sx
+	 /9b459/Ifv3hQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90848C48BC3;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1270C54787;
 	Wed, 21 Feb 2024 11:56:45 +0000 (UTC)
 From: Yang Xiwen via B4 Relay <devnull+forbidden405.outlook.com@kernel.org>
-Subject: [PATCH v3 0/2] watchdog: sp805: add reset control support
-Date: Wed, 21 Feb 2024 19:56:40 +0800
-Message-Id: <20240221-hisi-wdt-v3-0-9642613dc2e6@outlook.com>
+Date: Wed, 21 Feb 2024 19:56:42 +0800
+Subject: [PATCH v3 2/2] dt-bindings: watchdog: arm,sp805: document the
+ reset signal
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -40,10 +41,9 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAPjk1WUC/22Myw6CMBBFf4XM2pp2gGJd+R/GBX0ojUpNwaoh/
- XcHVpi4PDf3nAkGF70bYF9MEF3ygw89QbkpwHRtf3HMW2JAjhVH0bCOLuxlR1bqGlUjWlkrAXR
- /RHf27yV1PBHTcQzxs5STmNc/kSQYZ8ZqZa1ptZK7Q3iOtxCuWxPuMGcSrlTkKxVJlaWzplKy1
- pX5VXPOX5MVvqLdAAAA
+Message-Id: <20240221-hisi-wdt-v3-2-9642613dc2e6@outlook.com>
+References: <20240221-hisi-wdt-v3-0-9642613dc2e6@outlook.com>
+In-Reply-To: <20240221-hisi-wdt-v3-0-9642613dc2e6@outlook.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
  Guenter Roeck <linux@roeck-us.net>, Philipp Zabel <p.zabel@pengutronix.de>, 
  Rob Herring <robh+dt@kernel.org>, 
@@ -53,11 +53,11 @@ Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org, Yang Xiwen <forbidden405@outlook.com>, 
  Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 X-Mailer: b4 0.12.4
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1708516604; l=1002;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1708516604; l=1096;
  i=forbidden405@outlook.com; s=20230724; h=from:subject:message-id;
- bh=cVP9oDcFqMe3HIWN3U9hzMH6sEfnqnfkj+cc6SDEDc4=;
- b=OF1L8JvpFPNieb8IzziAiUU/l2TgBSIHHY+WX5+VPGsxwuQ2zJ3cXaqgEPm4geb0nX4u3ynVi
- fvcIG6wx3DsBTZvCcsahf5yDbT2cOVcM3vy/2s2uhVx+JEZZbpepCnb
+ bh=Y/0S+rlwzPt8yQv5SlX93rhiayW10MfuG7cp9vIgSlo=;
+ b=WAnlEEfrbRpjG0jx4dwCj49jhQD2lZrFbD3WokV1xI133SJv8xB8yB1Uuj9KnDAItIC1doRVQ
+ 9vHJ8rPx4xxCsm/Luh0VWWK67UJNNnBQt3vx7aQ200E8AxkIRcXKH1Q
 X-Developer-Key: i=forbidden405@outlook.com; a=ed25519;
  pk=qOD5jhp891/Xzc+H/PZ8LWVSWE3O/XCQnAg+5vdU2IU=
 X-Endpoint-Received:
@@ -65,32 +65,39 @@ X-Endpoint-Received:
 X-Original-From: Yang Xiwen <forbidden405@outlook.com>
 Reply-To: <forbidden405@outlook.com>
 
-Deassert the reset if it's available.
+From: Yang Xiwen <forbidden405@outlook.com>
 
+The reset signal needs to be deasserted before operation of sp805
+module. Document in the binding.
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Yang Xiwen <forbidden405@outlook.com>
 ---
-Changes in v3:
-- move reset to local variable, get reset exclusively (Philipp Zabel)
-- Link to v2: https://lore.kernel.org/r/20240220-hisi-wdt-v2-0-63edc4965b4c@outlook.com
-
-Changes in v2:
-- commit log: dt-binding->dt-bindings (Krzysztof Kozlowski)
-- binding: remove "|", join two lines. (Krzysztof Kozlowski)
-- Link to v1: https://lore.kernel.org/r/20240217-hisi-wdt-v1-0-cdb9ddcab968@outlook.com
-
----
-Yang Xiwen (2):
-      watchdog: sp805_wdt: deassert the reset if available
-      dt-bindings: watchdog: arm,sp805: document the reset signal
-
  Documentation/devicetree/bindings/watchdog/arm,sp805.yaml | 5 +++++
- drivers/watchdog/sp805_wdt.c                              | 8 ++++++++
- 2 files changed, 13 insertions(+)
----
-base-commit: 8d3dea210042f54b952b481838c1e7dfc4ec751d
-change-id: 20240217-hisi-wdt-3b52971a6591
+ 1 file changed, 5 insertions(+)
 
-Best regards,
+diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+index 7aea255b301b..bd7c09ed1938 100644
+--- a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
++++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+@@ -50,6 +50,10 @@ properties:
+       - const: wdog_clk
+       - const: apb_pclk
+ 
++  resets:
++    maxItems: 1
++    description: WDOGRESn input reset signal for sp805 module.
++
+ required:
+   - compatible
+   - reg
+@@ -67,4 +71,5 @@ examples:
+         interrupts = <GIC_SPI 406 IRQ_TYPE_LEVEL_HIGH>;
+         clocks = <&wdt_clk>, <&apb_pclk>;
+         clock-names = "wdog_clk", "apb_pclk";
++        resets = <&wdt_rst>;
+     };
+
 -- 
-Yang Xiwen <forbidden405@outlook.com>
+2.43.0
 
