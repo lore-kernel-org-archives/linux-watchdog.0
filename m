@@ -1,59 +1,56 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D962FD2E6;
-	Tue,  5 Mar 2024 16:53:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77C6DDDA1;
+	Tue,  5 Mar 2024 16:53:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709657594; cv=none; b=WnskS5xtbgNJ5rgLfJw9d/3YkG5Sr/1Wx7kYbIZ7HPMgvn5DT8wmNoaYJLejAEe5271oPGdnwV3B6CwQyrlrmekglWHpaZpFuUh7npnBhnfbtLc52JRt4RP99ykKmp0McwtDe4RrmOX9rmjTLKwgg3MhBrVIlGpndxLG3Ym+xNE=
+	t=1709657595; cv=none; b=LD/TqJp1Go9XSsaXF+YzIOVjtywiXysTiohwM2mxKNk3PSvRIV7JB9W/NjIwst9DgGGk147xhx6SVu6M/bdADdG9BsHOeNyQIR7boSozZyNtHxYTRzTBI5/IJMzZNDAQDVNhc0xLe9xtZaR9RVO3+edTcaVW/7GFOdeElUZnOyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709657594; c=relaxed/simple;
-	bh=LebP59pVzvf6mGQ4wjdC68Z5qKPE1ig+GgCUG7F6czs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i7KIt7NgX+8dZY9SB2g/ZjWXvYWbe4Sr+UohdeianY7CFcp+hifZPIhT9DWJU4bOcSbN+ccl1bRM/hOJBF+s2cKwaJz4u2wnyAxoeB2UQiQcfd8FusIo4yVK9f9S1U1zFBJBgQBKGCP42MZ+ft7vp75ZmLK+wD/mymZ5FqrI5D4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HGS3aQFb; arc=none smtp.client-ip=192.198.163.12
+	s=arc-20240116; t=1709657595; c=relaxed/simple;
+	bh=hLKYxNXf66Yo5bSdnZap/TeucSUeZz8DTJtzZ7PHN3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tkah7hgvq9sksbArYs9Lvr7uez2ZXE1wIJgPkO2kK19V5Vf6hZGqI/pw3bjJpLW5bfOz3n0JKswN4sox0NCUDliSYZG8fNeVw/06feIY55KKzNESpXV1Hmb5K52qtyimbTlMeziRh3Ww2HkBoQE1SOPUGUaZructGLsAMjYFAWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FWKMHhQ0; arc=none smtp.client-ip=192.198.163.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HGS3aQFb"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FWKMHhQ0"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1709657593; x=1741193593;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=LebP59pVzvf6mGQ4wjdC68Z5qKPE1ig+GgCUG7F6czs=;
-  b=HGS3aQFbzrOB4weP0YojUUcgDRACCWrQ+ViQVXMe5hNoWj6G6J8SOyC3
-   qvi5tIvufqcBKD8H5ORQfxaDJnxb7J1iaHKZkRnwaJe2NIg3s3RYKpQLN
-   XewwTewRsC1u2w4buA5hDeayaLVrgmciNmPPFaGzySKZW+ufHLDfKPnrU
-   rm5Dut5+uuxsaB23eSzq75KoLnQOYUPhCm0G1lkg5eCoIDxy+iquEAGC1
-   u2n6NIksmndFoQKtxzWhzyIJ0F3mAEL+vdR47mzyr4pQIWMxbQ4Lzmjrx
-   D0vBpnM2yetfo4G1DSxfalpr6Rx7QLMB6hC2cU62ljsXFHLRoMmNzPba3
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11003"; a="7992138"
+  t=1709657594; x=1741193594;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=hLKYxNXf66Yo5bSdnZap/TeucSUeZz8DTJtzZ7PHN3g=;
+  b=FWKMHhQ04TnV6ICcuvvKTHOtka6fzppdEmJBBG33ObeTDgwktkSml5lE
+   QM8V6OQ3fd6Kr72I4o+0RdQRjpW4t9rfKxip0LY5kfgb18OV388rIY1u7
+   L7o5o0QfXJhQrV2KIx6mnbiC+i3XoiFUOGKb8QFE1TvSEwS3gHQy/sDC4
+   ZngatQjQ5VRRtTAJXJX67EBO91UUurGb8zff4UJWMsG5qNa9SU0AM9dwV
+   +xbHcdmyLXd1QdxOa1NQaKZ5XCylK5kL4kQur6K10miSCJ+IuCS1DREne
+   +GQUtERU/HUCL9swmWWKjZJ2Q+QJ6fR/DfNVhnMYfRA49IfG6RvCu112b
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11003"; a="7992142"
 X-IronPort-AV: E=Sophos;i="6.06,205,1705392000"; 
-   d="scan'208";a="7992138"
+   d="scan'208";a="7992142"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
   by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2024 08:53:10 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,11003"; a="937042726"
+X-IronPort-AV: E=McAfee;i="6600,9927,11003"; a="937042727"
 X-IronPort-AV: E=Sophos;i="6.06,205,1705392000"; 
-   d="scan'208";a="937042726"
+   d="scan'208";a="937042727"
 Received: from black.fi.intel.com ([10.237.72.28])
   by fmsmga001.fm.intel.com with ESMTP; 05 Mar 2024 08:53:08 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id B16023F1; Tue,  5 Mar 2024 18:53:07 +0200 (EET)
+	id 991911A6; Tue,  5 Mar 2024 18:53:07 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v1 2/3] watchdog: intel-mid_wdt: Don't use "proxy" headers
-Date: Tue,  5 Mar 2024 18:52:19 +0200
-Message-ID: <20240305165306.1366823-3-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 0/3] watchdog: intel-mid_wdt: header and code cleanups
+Date: Tue,  5 Mar 2024 18:52:17 +0200
+Message-ID: <20240305165306.1366823-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
-In-Reply-To: <20240305165306.1366823-1-andriy.shevchenko@linux.intel.com>
-References: <20240305165306.1366823-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -62,37 +59,17 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Update header inclusions to follow IWYU (Include What You Use)
-principle.
+A few cleanups against the driver, mostly making an order in the header
+inclusions.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/watchdog/intel-mid_wdt.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Andy Shevchenko (3):
+  watchdog: intel-mid_wdt: Remove unused intel-mid.h
+  watchdog: intel-mid_wdt: Don't use "proxy" headers
+  watchdog: intel-mid_wdt: Get platform data via dev_get_platdata()
 
-diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-index b41c45582aa4..06d5d207a065 100644
---- a/drivers/watchdog/intel-mid_wdt.c
-+++ b/drivers/watchdog/intel-mid_wdt.c
-@@ -9,11 +9,17 @@
-  *      Contact: David Cohen <david.a.cohen@linux.intel.com>
-  */
- 
-+#include <linux/bitops.h>
-+#include <linux/device.h>
-+#include <linux/errno.h>
- #include <linux/interrupt.h>
-+#include <linux/math.h>
- #include <linux/module.h>
--#include <linux/nmi.h>
-+#include <linux/panic.h>
- #include <linux/platform_device.h>
-+#include <linux/types.h>
- #include <linux/watchdog.h>
-+
- #include <linux/platform_data/intel-mid_wdt.h>
- 
- #include <asm/intel_scu_ipc.h>
+ drivers/watchdog/intel-mid_wdt.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
 -- 
 2.43.0.rc1.1.gbec44491f096
 
