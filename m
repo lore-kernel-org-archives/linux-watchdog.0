@@ -1,48 +1,48 @@
 Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82A7A2260B;
-	Tue,  2 Apr 2024 23:11:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3FC2260B;
+	Tue,  2 Apr 2024 23:39:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.29.241.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712099467; cv=none; b=c2kNgKwWcjwLuvZKeoRJtMdC/Tu+C7BnF4NhRj3M6rSCt8QbgZXuXlg3eqmGfQg+WiHGF1/IhGpwbiZppJ6AYnQxv1L6rDD9A1r53aafrKPRu7OC1Iw1QFUpkQoY0lJan30D6EiZ980VTKZFxJNSIkiaaSysHUJZx5xYgtNhJVQ=
+	t=1712101185; cv=none; b=rMM2mExWqF0IwlBXEKq+Ip5CNp73DdNwJRFhB9jaCkOTOA1yfd4kFU9J3EZ4qroBS586Pv6lKDxbXC/zgEdaWVR3QQkQXBWhWeKq87N26QYE4PR0YBo7XeRjq0Ilj2422vg//RgrMZICXbtcqqb1ciKzTpWteZllKZvHBpPo8lw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712099467; c=relaxed/simple;
-	bh=iQbFPcT5bkTvOiaw3Ar/bC14ESOW5Lt2GUZ6v5VV1JU=;
+	s=arc-20240116; t=1712101185; c=relaxed/simple;
+	bh=ac3kZ5j3Emu12FGS8I9RXckwDThegE5k/mdyDspS2CY=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=MzmKIr9UMh0vpFdieelafSTBHAsZIXe92ioPpVJYxm+Uh9Vvy1rqXTsMtamEHd2qaYW96umjv1njomN5nGePFJNOLe3/dGEZmlof/deKmY/P4UYl5Htg0lFCCJIaEf0SuC0gf5hjIqjfYKBjHnzEvD5ZNT/G0IxQFo86djK/pr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=FrXBUrga; arc=none smtp.client-ip=203.29.241.158
+	 Content-Type:MIME-Version; b=WL8wyUtL4Kd5/+GABsShYxAaBizFpGfgv98C1zOO4++GyXBmeWLmYvKYibI5oOWX7eg+Ia418mDhn9ZDb7rTtEO0fVYXBMjSq74D14bG1PCb72KFGbN8WLddFI8vRaNH2+RNCaaEsYFMLM3Qu4I4vz8nJOu3P5g7qLQUyPa7F4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=ZXHLJUfK; arc=none smtp.client-ip=203.29.241.158
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="FrXBUrga"
+	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="ZXHLJUfK"
 Received: from [192.168.68.112] (ppp118-210-182-70.adl-adc-lon-bras34.tpg.internode.on.net [118.210.182.70])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 63CEE20075;
-	Wed,  3 Apr 2024 07:10:55 +0800 (AWST)
+	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 806F420075;
+	Wed,  3 Apr 2024 07:39:38 +0800 (AWST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1712099458;
-	bh=iuif0x0Ofo31gqORgNXcOWh8jcQ5qL5zLNFZaEZcCdA=;
+	d=codeconstruct.com.au; s=2022a; t=1712101179;
+	bh=TYTY5ED6B4EfxtLOSSjN5VvpvocVSJ4sFiS7mfpMhBs=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=FrXBUrgaQtHbvcweWF1VlRsmsh73gLQR6AFdBBQ3+/OiLS99ACu3Wj168ZYdQybWT
-	 kQYb/CzlAfThARZupumQ241w5uK9vS1dKRQVFPUEjZwNZnGNvnGhH00lfrGGyknXgs
-	 JhUZjADkr9Oil7R3kbLh5PwvY07AVibaunk6wsBMJiZ5MLYD4XVhFY03iib9BZ9U3p
-	 3B87bBrATIe8zuzC+Q2bvFQL9fgUun3wL4Kw2j8dzk7eGyR5eSoXFV4sNi4F1DIhYs
-	 wkaNqqYy+RvYqxSGnexrLNlXrOXheFrRuBHb5IAnJIoINAD25yFY+5QnbAnA5cY0zr
-	 5e1o39nMutU7Q==
-Message-ID: <37d2cc0d19cc4ace869eace13c8452525bad8609.camel@codeconstruct.com.au>
+	b=ZXHLJUfKEfTPo/L5jQPCZ2RoFiql/3S//f0byjixfY7jvhq3TUlwuUCEv504O1Pnz
+	 GU3oWpyf9rtcRApqMsANR9qfcPAHakXe233AWncmTBYt1rCNzgBFw6jWlFf30CHwKI
+	 U2HTxNYc9mVrs30mOx1fI9xcm/NAxlJ9+dXwTRr5/8mr5zliRxw6wp++iUTFwnuq06
+	 Qi8Gc5XjjzBKjMeX+9iuE9Ozn/CoV1x1TXlFyowx6iJNby/0ng74NBlMkLQvyF9n0w
+	 ZzWop2iZlpYwO4f8U2Vk1nnJr20/9DT03gq0hD0l2K++SexJY2T4jlocIiZwgUtYs8
+	 P/ZJCSDEyICkA==
+Message-ID: <99fa05be32787c88150c6df2f882e31582aebf90.camel@codeconstruct.com.au>
 Subject: Re: [PATCH] dt-bindings: watchdog: Convert Aspeed binding to DT
  schema
 From: Andrew Jeffery <andrew@codeconstruct.com.au>
-To: Rob Herring <robh@kernel.org>
-Cc: wim@linux-watchdog.org, linux@roeck-us.net, 
+To: Zev Weiss <zev@bewilderbeest.net>
+Cc: wim@linux-watchdog.org, linux@roeck-us.net, robh@kernel.org, 
 	krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org, joel@jms.id.au, 
-	zev@bewilderbeest.net, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Date: Wed, 03 Apr 2024 09:40:51 +1030
-In-Reply-To: <20240402180718.GA358505-robh@kernel.org>
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org
+Date: Wed, 03 Apr 2024 10:09:37 +1030
+In-Reply-To: <65722a59-2e94-4616-81e1-835615b0e600@hatter.bewilderbeest.net>
 References: <20240402120118.282035-1-andrew@codeconstruct.com.au>
-	 <20240402180718.GA358505-robh@kernel.org>
+	 <65722a59-2e94-4616-81e1-835615b0e600@hatter.bewilderbeest.net>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.46.4-2 
@@ -53,8 +53,8 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 
-On Tue, 2024-04-02 at 13:07 -0500, Rob Herring wrote:
-> On Tue, Apr 02, 2024 at 10:31:18PM +1030, Andrew Jeffery wrote:
+On Tue, 2024-04-02 at 16:30 -0700, Zev Weiss wrote:
+> On Tue, Apr 02, 2024 at 05:01:18AM PDT, Andrew Jeffery wrote:
 > > Squash warnings such as:
 > >=20
 > > ```
@@ -65,13 +65,13 @@ eed,ast2400-wdt']
 > >=20
 > > Signed-off-by: Andrew Jeffery <andrew@codeconstruct.com.au>
 > > ---
-> >  .../bindings/watchdog/aspeed,ast2400-wdt.yaml | 130 ++++++++++++++++++
-> >  .../bindings/watchdog/aspeed-wdt.txt          |  73 ----------
-> >  2 files changed, 130 insertions(+), 73 deletions(-)
-> >  create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed,a=
-st2400-wdt.yaml
-> >  delete mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-w=
-dt.txt
+> > .../bindings/watchdog/aspeed,ast2400-wdt.yaml | 130 ++++++++++++++++++
+> > .../bindings/watchdog/aspeed-wdt.txt          |  73 ----------
+> > 2 files changed, 130 insertions(+), 73 deletions(-)
+> > create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed,as=
+t2400-wdt.yaml
+> > delete mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wd=
+t.txt
 > >=20
 > > diff --git a/Documentation/devicetree/bindings/watchdog/aspeed,ast2400-=
 wdt.yaml b/Documentation/devicetree/bindings/watchdog/aspeed,ast2400-wdt.ya=
@@ -104,18 +104,6 @@ l
 > > +    maxItems: 1
 > > +
 > > +  clocks: true
->=20
-> # and order/function if more than 1 must be defined.
-
-Ack.
-
->=20
-> Please note it was missing from the original binding in the commit=20
-> message.
-
-Ack.
-
->=20
 > > +
 > > +  aspeed,reset-type:
 > > +    enum:
@@ -133,6 +121,13 @@ t.
 > > +
 > > +      Specifying 'soc' will reset a configurable subset of the SoC's c=
 ontrollers
+>=20
+> Might be worth clarifying that it's configurable only on ast2500 &=20
+> ast2600, and which property (aspeed,reset-mask) configures it?
+
+Good point, will do.
+
+>=20
 > > +      on a timeout event. Controllers critical to the SoC's operation =
 may remain untouched.
 > > +
@@ -140,28 +135,22 @@ may remain untouched.
 t, as if EXTRST had been asserted.
 > > +      Specifying "none" will cause the timeout event to have no reset =
 effect.
+>=20
+> Tiny nit: quoting (single vs. double) is slightly inconsistent between=
+=20
+> values here.
+
+Ack.
+
+>=20
 > > +      Another watchdog engine on the chip must be used for chip reset =
 operations.
 > > +
 > > +      The default reset type is "system"
->=20
-> Express as schema:
->=20
-> default: system
-
-Ack.
-
->=20
 > > +
 > > +  aspeed,alt-boot:
 > > +    $ref: /schemas/types.yaml#/definitions/flag
 > > +    description: |
->=20
-> Don't need '|' if no formatting to preserve.
-
-Ack.
-
->=20
 > > +      Direct the watchdog to configure the SoC to boot from the altern=
 ative boot
 > > +      region if a timeout occurs.
@@ -179,12 +168,6 @@ y.
 > > +    description: |
 > > +      The duration, in microseconds, of the pulse emitted on the exter=
 nal signal pin
->=20
-> Wrap at <80. Period at end needed.
-
-Ack for both.
-
->=20
 > > +
 > > +  aspeed,ext-push-pull:
 > > +    $ref: /schemas/types.yaml#/definitions/flag
@@ -211,51 +194,11 @@ ctive-high
 > > +    description: |
 > > +      A bitmaks indicating which peripherals will be reset if the watc=
 hdog
-> > +      timer expires. On AST2500 SoCs this should be a single word defi=
-ned using
-> > +      the AST2500_WDT_RESET_* macros; on AST2600 SoCs this should be a=
- two-word
-> > +      array with the first word defined using the AST2600_WDT_RESET1_*=
- macros,
-> > +      and the second word defined using the AST2600_WDT_RESET2_* macro=
-s.
-> > +
-> > +required:
-> > +  - compatible
-> > +  - reg
-> > +
-> > +allOf:
-> > +  - if:
-> > +      anyOf:
-> > +        - required:
-> > +            - aspeed,ext-push-pull
-> > +        - required:
-> > +            - aspeed,ext-active-high
-> > +        - required:
-> > +            - aspeed,reset-mask
-> > +    then:
-> > +      properties:
-> > +        compatible:
-> > +          enum:
-> > +            - aspeed,ast2500-wdt
-> > +            - aspeed,ast2600-wdt
-> > +  - if:
-> > +      required:
-> > +        - aspeed,ext-active-high
-> > +    then:
-> > +      required:
-> > +        - aspeed,ext-push-pull
-> > +
-> > +additionalProperties: false
-> > +
-> > +examples:
-> > +  - |
-> > +    wdt1: watchdog@1e785000 {
 >=20
-> Drop unused labels.
+> Typo: "bitmask"
 
-Ack.
+Good catch.
 
-Thanks for the feedback.
+Thanks,
 
 Andrew
