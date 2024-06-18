@@ -1,99 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3BC414F13E;
-	Tue, 18 Jun 2024 18:08:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6157E17B41B;
+	Tue, 18 Jun 2024 22:24:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718734093; cv=none; b=iYbKpTCcC2w2ScW0+6eTksiJPEejCpZ7e92Q3QbId8gxn6P+h5wzTvWzM/VM/KktTWxWSNTVUq/CovRIfyeSvs4RE8uohcLljQ/H/5fmr9/HWxxsWT8zWAPxIG/e/IFSKB2ehPsMQDHZNZsxSngeMt4GR3hGgALwH14YZldXkew=
+	t=1718749467; cv=none; b=oy+FzHbJPhClsrVwzlz9ua4sSyRWfcMJ9Fv9N3e4IBA8fACiuoLWmhEXdYBAbm6L8gRUWo3wHf3tepLJQkWICKLjz2EKnXktliCyW7FOWTnDhEuseI3Z4JuUFz1rUf82ocBcjr6iK2ug1QSS9Azcr5ZLfr/utqcTdvV2xYH2enA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718734093; c=relaxed/simple;
-	bh=DIWXHzFM9LsRVNoscUsRZE3SjmaDFUBGMVeyHHcwIVM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IH5sKXsTjNvKFXtLoLG6zUMgN303xXA6y50ihBncmnhASDC326x2lXWDXQVIH1lfKv527tVlPTg7phMv/YweAsEk82b7yEvewrPPIMN5Eioc9xTFr5IalH57E2bFOLHbxB1ZUNmqiFntMnFR+wrex7JKvh9SPhvVaU88CFEgpzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=reM0BcBU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718749467; c=relaxed/simple;
+	bh=hFXvzMI8OVt2ppOfjexRUVnlgjMzstuZsOht5zQaGPU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=k4WWsbp2Y0QvCLnO35N9zTaqh8rZz2XV6s+4ZQa6aFRoEeWNV7rvyiVIoc8k5yROKINjuzkydL/sDUngb+AnB+9/RS+m64sz9vqy+akFp24lGD75BMdC06UNXoMy/6L9ya/I4FNs4qnYzSnQLiOfb2vitk1beO0fMxuQsNpGKn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GSGQlEAd; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="reM0BcBU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7DEC3277B;
-	Tue, 18 Jun 2024 18:08:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718734092;
-	bh=DIWXHzFM9LsRVNoscUsRZE3SjmaDFUBGMVeyHHcwIVM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=reM0BcBULhL6vYCBFsQHRbgWG5t1mnQuBX+OxOLkwHYD+348b48Pop5sdU56arf7R
-	 5ZUKPyMW2OeJ4YWwFCVqziOF8Dvt/0qf4QJ9BGGLpPdXhhPwtO2QwbnqLDNLCBkb3C
-	 d3ye1WHVxcV5T2Khjv6w5GVrPKRK4R6bsu38ajXcO2fyb0PJrcFC+8/5tQlNph6Mqp
-	 Ts/78Nny3XKmqU8zGR6pWzZri2i2DfZ0j45IsZzgIdBJTAw88ywiABpYlyIGycAFhG
-	 2iVl2TLzmtH5vNbKEQfW8UqChqsI4M8sPv9NNrjj58eo5AMnzITc48yooNFNJsiC9n
-	 LlRU+twT52wOA==
-Date: Tue, 18 Jun 2024 11:08:08 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Nikita Shubin <nikita.shubin@maquefel.me>
-Cc: Nikita Shubin via B4 Relay 
- <devnull+nikita.shubin.maquefel.me@kernel.org>, Arnd Bergmann
- <arnd@arndb.de>, Hartley Sweeten <hsweeten@visionengravers.com>, Alexander
- Sverdlin <alexander.sverdlin@gmail.com>, Russell King
- <linux@armlinux.org.uk>, Lukasz Majewski <lukma@denx.de>, Linus Walleij
- <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Andy
- Shevchenko <andy@kernel.org>, Michael Turquette <mturquette@baylibre.com>,
- Stephen Boyd <sboyd@kernel.org>, Sebastian Reichel <sre@kernel.org>, Rob
- Herring <robh+dt@kernel.org>, Krzysztof Kozlowski
- <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley <conor+dt@kernel.org>,
- Vinod Koul <vkoul@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Thierry Reding
- <thierry.reding@gmail.com>, Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?=
- <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Damien Le Moal <dlemoal@kernel.org>, Sergey Shtylyov <s.shtylyov@omp.ru>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood
- <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai
- <tiwai@suse.com>, Ralf Baechle <ralf@linux-mips.org>, "Wu, Aaron"
- <Aaron.Wu@analog.com>, Lee Jones <lee@kernel.org>, Olof Johansson
- <olof@lixom.net>, Niklas Cassel <cassel@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-pwm@vger.kernel.org, linux-spi@vger.kernel.org,
- netdev@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
- linux-sound@vger.kernel.org, Bartosz Golaszewski
- <bartosz.golaszewski@linaro.org>, Krzysztof Kozlowski
- <krzysztof.kozlowski@linaro.org>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Andy Shevchenko
- <andy.shevchenko@gmail.com>, Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v10 00/38] ep93xx device tree conversion
-Message-ID: <20240618110808.7829d214@kernel.org>
-In-Reply-To: <eb3e6c0b883f408fed68e725a23b54854701ce9e.camel@maquefel.me>
-References: <20240617-ep93xx-v10-0-662e640ed811@maquefel.me>
-	<20240618073339.499a7fd2@kernel.org>
-	<eb3e6c0b883f408fed68e725a23b54854701ce9e.camel@maquefel.me>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GSGQlEAd"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-424720e73e0so9644635e9.0;
+        Tue, 18 Jun 2024 15:24:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718749463; x=1719354263; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tbnIZSvSRv5tdZDkiMYcRb8apw+5UyYOBl70Ommm6V4=;
+        b=GSGQlEAdfKHnm1PhxHoNpTPStHP9mJGFkn5OSEh8Np2/2VU0E3BPHOe8NW9xqacJa9
+         HagdTI32hYYndBwo0zks+B4OvFBgvVVkRlgBDMKa/jYejJZvesbAuvITFycNpEl+Jj90
+         zI7HfxiygeWdrrzu4Xj1T4ahuzZWbJnapf1LYtAI0ERVIU1MVjZWsHHV781EW9Qf40e3
+         pa2iaJznOW3R/o4xSb77OyBLkjwqxuMa1+Els+Zu8a5qdAAmzmxu5mtwylI65vX4hdYN
+         /rRwda4PJba/lCRCE+hNKTaQbTehlSJ3t0PHrzXSy4/03pz7UfH2qO6A19T5+DjTB4LQ
+         a3Fg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718749463; x=1719354263;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tbnIZSvSRv5tdZDkiMYcRb8apw+5UyYOBl70Ommm6V4=;
+        b=iYm1dNbv45CXbFk+PK11Co6voYA4BGovCzTVl4yWUi4NHTF/QDgAVor05wPUBAn47a
+         SE8mE2guslqRmXp62ZgMoDuIhHYBvx1dg9l/EITljoRFKtTapCry9s4hq1GvpKOZ32s0
+         A8mJDMbXMsxzFCbwht/7ZG3otSWwfN6bqNx0//UmOJwR9RRTrtLRpL2brEEezTbNnBra
+         STNYX7dUEGNZXZO+ZAWJwOTxZ2T0pmCPYNUyyewGwkgXAZm9qf6+JKqKLX2HvS+7KjrP
+         20/LKz12IhVjIU+EiVr4KxXE89dSEGP4FCzqMWpMhinwLd4PCW6psBnG8zP044g3dDHF
+         9Hug==
+X-Forwarded-Encrypted: i=1; AJvYcCVIGsMtaPl9hfIXz+VvCVifkDKeS30eFZAeSDtXOMlzH3PcHUsbq1lgL4yFCRVLw3SUgLivwLmSiHs3YYNh5pjsVskkRiYEw78txF/Glq2vwmjwKyyx8DZtY8lDQQJEWkBu7wGi4tqOOZ8Ex9DwH++3+tpQu0KHNLG5jxNmBsvIbcxCaEYWE2gVhc0j
+X-Gm-Message-State: AOJu0YywNXgN3lLO9JRp1Ty70nyJdIBeR6pEEXA2Iiu0Rw13uPvpH5jD
+	z8VJkrwfEBHm6XUL7PlS4P3UIfDhIKYDwnrf7i/fBScXtWuZDVSk
+X-Google-Smtp-Source: AGHT+IE5mQEl5RCG4EFBodAAycFd5LoVA9ZRcGvM2HSziIofzP94yt6K6eZnUdIG+a9LOiOjyTGHOA==
+X-Received: by 2002:adf:ed47:0:b0:35f:1bb2:4354 with SMTP id ffacd0b85a97d-36317b7909bmr679068f8f.35.1718749463313;
+        Tue, 18 Jun 2024 15:24:23 -0700 (PDT)
+Received: from prasmi.home ([2a00:23c8:2500:a01:d6f0:b448:a40c:81a7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-36075104b74sm15189697f8f.107.2024.06.18.15.24.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jun 2024 15:24:22 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Prabhakar <prabhakar.csengg@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 1/2] dt-bindings: watchdog: renesas,wdt: Document RZ/V2H(P) SoC
+Date: Tue, 18 Jun 2024 23:24:02 +0100
+Message-Id: <20240618222403.464872-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240618222403.464872-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20240618222403.464872-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 18 Jun 2024 19:33:49 +0300 Nikita Shubin wrote:
-> On Tue, 2024-06-18 at 07:33 -0700, Jakub Kicinski wrote:
-> > On Mon, 17 Jun 2024 12:36:34 +0300 Nikita Shubin via B4 Relay wrote:  
-> > > The goal is to recieve ACKs for all patches in series to merge it
-> > > via Arnd branch.  
-> > 
-> > Why? The usual process is for every subsystem to accept the relevant
-> > patches, and then they converge during the merge window.  
-> 
-> It was decided from the very beginning of these series, mostly because
-> it's a full conversion of platform code to DT and it seemed not
-> convenient to maintain compatibility with both platform and DT.
-> 
-> Generally i think it's too late to ask such a question, when just a few
-> patches left.
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Put the relevant information in the cover letter. Justification why you
-can't follow normal merging rules is very relevant.
+Add support for the Watchdog Timer (WDT) hardware found in the Renesas
+RZ/V2H(P) SoC to the `renesas,wdt` device tree bindings. The RZ/V2H(P)
+SoC features a WDT that is compatible with existing Renesas watchdog
+drivers.
+
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+---
+ .../bindings/watchdog/renesas,wdt.yaml          | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+index ffb17add491a..21ddde8f70b7 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/renesas,wdt.yaml
+@@ -74,6 +74,8 @@ properties:
+               - renesas,r8a779h0-wdt     # R-Car V4M
+           - const: renesas,rcar-gen4-wdt # R-Car Gen4
+ 
++      - const: renesas,r9a09g057-wdt       # RZ/V2H(P)
++
+   reg:
+     maxItems: 1
+ 
+@@ -112,7 +114,6 @@ properties:
+ required:
+   - compatible
+   - reg
+-  - interrupts
+   - clocks
+ 
+ allOf:
+@@ -136,6 +137,7 @@ allOf:
+         compatible:
+           contains:
+             enum:
++              - renesas,r9a09g057-wdt
+               - renesas,rzg2l-wdt
+               - renesas,rzv2m-wdt
+     then:
+@@ -170,6 +172,19 @@ allOf:
+         interrupts:
+           maxItems: 1
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: renesas,r9a09g057-wdt
++    then:
++      properties:
++        interrupts: false
++        interrupt-names: false
++    else:
++      required:
++        - interrupts
++
+ additionalProperties: false
+ 
+ examples:
+-- 
+2.34.1
+
