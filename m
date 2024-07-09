@@ -1,37 +1,35 @@
 Received: from mxout1.routing.net (mxout1.routing.net [134.0.28.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE91F156863;
-	Tue,  9 Jul 2024 10:13:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30270155C8C;
+	Tue,  9 Jul 2024 10:22:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=134.0.28.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720520030; cv=none; b=W0WWe0VHZwjh+w6uK69p2u6B0m3I9fzxp6IvT8wKGTY/8SX5bTrsq5CD35+HMYbtpLJQb6esr3znm4o1KcknhWK9iDnNCevxmC8SU1hTSdp2OABEjtZnQWHuAPO2Zl6UhktuWCnTI5Z7SNz+pk7tJbV9G/3UkOvOxwxKf7lqljQ=
+	t=1720520529; cv=none; b=E6aEm+/E/kY2fcBJ2jNvE2lYCQkT5JlBeGhxFVcCwEilTn7icy5bzbQY1ehQXaedC0zT3IdwsJzjpyUpnsbHcppAUv+cCXWQND6lK4xIqb3Kvoz174pKROruBrxw02DF+ZPBsQ/mVmLPJMlDw/B7Dj9IABkWZkWdo/fOo0+AlyE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720520030; c=relaxed/simple;
-	bh=D+41rSntOtrWaCDgDpOU9msElMlPyKTfEYT0iDtDNZ8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TXnjuDFvJ6YYfxDZiv1vceaAlB63iIUbBC8BPnQedBcWrmRYm8o/ZeYu3uSgeIEJnSYYVyIq8q9lxh3w/kzIxmQP+i+w7R1PK5f0aBpzJZvk4rmPvDH7DWlXxS8jD04kvtuctkgA746h2I5/uHl0om198Gh8sLPdLC6tCe12u2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de; spf=pass smtp.mailfrom=fw-web.de; dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b=A6ZRVjgq; arc=none smtp.client-ip=134.0.28.11
+	s=arc-20240116; t=1720520529; c=relaxed/simple;
+	bh=FE2YpU2h+P0unr9RpDRYX7VYNxOd75G0LeTzW0dGPiw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MyVJwUCh4PJVfE2CG5KK9vTWx5eq8ulN9Yeg5llVUNsNji1D+LUeCxY4FyISkW15t02WydTv5AbT3eck9RDHxLr7YwKmqtv3eKVV47/YnabYuZCvlv/p20bzW8KbXX3n0JylFN2UzNNtff1x4nWSp2kAKKEEzBV1c7MuSV90Rt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de; spf=pass smtp.mailfrom=fw-web.de; dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b=gM37yGtm; arc=none smtp.client-ip=134.0.28.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fw-web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b="A6ZRVjgq"
+	dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b="gM37yGtm"
 Received: from mxbox2.masterlogin.de (unknown [192.168.10.89])
-	by mxout1.routing.net (Postfix) with ESMTP id 3068941A4E;
-	Tue,  9 Jul 2024 10:13:39 +0000 (UTC)
+	by mxout1.routing.net (Postfix) with ESMTP id C76C6419EB;
+	Tue,  9 Jul 2024 10:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
-	s=20200217; t=1720520019;
+	s=20200217; t=1720520014;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yClmM7FbG+STkiGlvMKHgaKsALit4BWDuDxsq4NcyT4=;
-	b=A6ZRVjgq+lUCXTIvq4zWCVXaAZ9zBGsOK+rd5onPZSJHomzYjSZX3BXDWCeIVWam/Cilhi
-	0XsRS810PkUcOM3ytWAJ5D3dXECmZcFb181ayp0HpvV0jfx1x0PrV70klhin6gA3QW0BJV
-	xWQXHRosK4XK0jiyR/sfQrImp24LoYM=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=F8LbkaZZ5T6LHWP6MpgVpaTLNOg4FoESQlLvyA41iYg=;
+	b=gM37yGtmYrRd0oPE/NhgKI4bYc+KF1mXFND4kfNJVpcN0S7smJX7LP1WSBoE6IprfVmK5g
+	PYBrvDkJErbQjnwqrsuGoAfi4Tz2wZosxR3h1HWSgmmc8KtdWQcDYuuKVxJoo9Fy8jBdo6
+	uAW1nH4xaj+/F1/BKtR2vyqo0tiTgQs=
 Received: from frank-u24.. (fttx-pool-217.61.149.221.bambit.de [217.61.149.221])
-	by mxbox2.masterlogin.de (Postfix) with ESMTPSA id EABB9100756;
-	Tue,  9 Jul 2024 10:13:37 +0000 (UTC)
+	by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 90D21100756;
+	Tue,  9 Jul 2024 10:13:33 +0000 (UTC)
 From: Frank Wunderlich <linux@fw-web.de>
 To: Michael Turquette <mturquette@baylibre.com>,
 	Stephen Boyd <sboyd@kernel.org>,
@@ -50,12 +48,10 @@ Cc: Frank Wunderlich <frank-w@public-files.de>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH v1 4/4] arm64: dts: mediatek: mt7988: add syscon for watchdog, xfi-pll and ethwarp
-Date: Tue,  9 Jul 2024 12:13:26 +0200
-Message-ID: <20240709101328.102969-5-linux@fw-web.de>
+Subject: [PATCH v1 0/4] add syscon requirement for mt7988
+Date: Tue,  9 Jul 2024 12:13:22 +0200
+Message-ID: <20240709101328.102969-1-linux@fw-web.de>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240709101328.102969-1-linux@fw-web.de>
-References: <20240709101328.102969-1-linux@fw-web.de>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -63,48 +59,31 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Mail-ID: a9a804e3-baad-4dc7-95ce-a21e05282f94
+X-Mail-ID: cc04bfa3-18a0-4142-97ac-21d0a30ec603
 
 From: Frank Wunderlich <frank-w@public-files.de>
 
-This is needed by u-boot-driver when using OF_UPSTREAM.
+Some nodes require the syscon fallback at least in u-boot when using
+OF_UPSTREAM.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
----
- arch/arm64/boot/dts/mediatek/mt7988a.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+This is because uboot driver uses syscon_node_to_regmap in mtk_eth.c for
+"mediatek,toprgu", "mediatek,xfi_pll" and reset pointing to watchdog-node.
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt7988a.dtsi b/arch/arm64/boot/dts/mediatek/mt7988a.dtsi
-index 9ced005b1595..abde2719c34d 100644
---- a/arch/arm64/boot/dts/mediatek/mt7988a.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt7988a.dtsi
-@@ -93,7 +93,7 @@ topckgen: clock-controller@1001b000 {
- 		};
- 
- 		watchdog: watchdog@1001c000 {
--			compatible = "mediatek,mt7988-wdt";
-+			compatible = "mediatek,mt7988-wdt", "syscon";
- 			reg = <0 0x1001c000 0 0x1000>;
- 			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
- 			#reset-cells = <1>;
-@@ -192,7 +192,7 @@ ssusb1: usb@11200000 {
- 		};
- 
- 		xfi_pll: clock-controller@11f40000 {
--			compatible = "mediatek,mt7988-xfi-pll";
-+			compatible = "mediatek,mt7988-xfi-pll", "syscon";
- 			reg = <0 0x11f40000 0 0x1000>;
- 			resets = <&watchdog 16>;
- 			#clock-cells = <1>;
-@@ -206,7 +206,7 @@ ethsys: clock-controller@15000000 {
- 		};
- 
- 		ethwarp: clock-controller@15031000 {
--			compatible = "mediatek,mt7988-ethwarp";
-+			compatible = "mediatek,mt7988-ethwarp", "syscon";
- 			reg = <0 0x15031000 0 0x1000>;
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
+Frank Wunderlich (4):
+  dt-bindings: watchdog: mediatek,mtk-wdt: add MT7988 syscon requirement
+  dt-bindings: clock: mediatek: add syscon requirement for mt7988
+    xfi-pll
+  dt-bindings: clock: mediatek: add syscon requirement for mt7988
+    ethwarp
+  arm64: dts: mediatek: mt7988: add syscon for watchdog, xfi-pll and
+    ethwarp
+
+ .../devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml | 6 ++++--
+ .../devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml | 7 +++++--
+ .../devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml     | 5 ++++-
+ arch/arm64/boot/dts/mediatek/mt7988a.dtsi                  | 6 +++---
+ 4 files changed, 16 insertions(+), 8 deletions(-)
+
 -- 
 2.43.0
 
