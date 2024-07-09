@@ -1,37 +1,37 @@
 Received: from mxout1.routing.net (mxout1.routing.net [134.0.28.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EEFF149C79;
-	Tue,  9 Jul 2024 10:13:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25AA512CDB6;
+	Tue,  9 Jul 2024 10:13:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=134.0.28.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720520027; cv=none; b=E/yMxTcHuE7vVDDnVJRJzt80DpSkaW95svz3DV8Naz4061iqjlVC/bQPacqUpsOI3MThr6AVVG7JyxeAGMKoGbhilYMaJqyRYHbnJLhx+IUrA+yW6o/ftpRno4NC91LsbzZlPPhjWtvm3pPEBIckUVd2vVUcP/R8rCoyRIqFq1k=
+	t=1720520028; cv=none; b=e/nyAU6HwKpV66md/W0QX9Uhm1LyJTcVL83nLpqQo9WlJxXwH7hXBcKl76mbYWVkLLz71b+SIrSt8AYZ1E+4Mh4NKzHvFUhCbjK1VhATrCEPwnQyFx6DWnUnVUz5hkiqmUMZgfpBZzaSl+cIvcBYb059N/o4n5vzcvN/TI7z7i0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720520027; c=relaxed/simple;
-	bh=W+w4fMoRQXGlcBhBEdRifVTyFouOrWTky/aR8bda8Ds=;
+	s=arc-20240116; t=1720520028; c=relaxed/simple;
+	bh=A4ETTqt1Mu21+iiAl8O8sZzbV34ytQ8RJYiEdXC0H6c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=POMDdWBdYFynG61ezx7apjKcd7REvrebTy3r8nWKNtYbdXpQLZZd6X/9ugu1JXNW9/dw4kaWEZHHUSQ1I49kPR64okvPELFJ+vgp0zfmgwA2VoRfgwRSlyP9nx9fKj+7NxvWr83Ktckxn281V6LchwkbwHrQsWq5R0Idg1OgyG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de; spf=pass smtp.mailfrom=fw-web.de; dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b=pQyfAGKL; arc=none smtp.client-ip=134.0.28.11
+	 MIME-Version; b=A7GWCM08QpP22zmrfcXJ9dVR4ZDk1gWsbwOgBNpluL34VT9r2O8frlLSAsT23ie89vVGJlR/0wehlgNMJMpUzemDaDUd5kQhzZvFUKBXQUOMzI0kchw4eRmv0ptghMUIaa8jG8NcWfOxDOnZJLM2IzkXjyHmWZECCPxpZRQC4gQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de; spf=pass smtp.mailfrom=fw-web.de; dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b=RloNW+Y/; arc=none smtp.client-ip=134.0.28.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fw-web.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fw-web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b="pQyfAGKL"
+	dkim=pass (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b="RloNW+Y/"
 Received: from mxbox2.masterlogin.de (unknown [192.168.10.89])
-	by mxout1.routing.net (Postfix) with ESMTP id 0B2B541A4D;
-	Tue,  9 Jul 2024 10:13:38 +0000 (UTC)
+	by mxout1.routing.net (Postfix) with ESMTP id EE4AA41A4A;
+	Tue,  9 Jul 2024 10:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
-	s=20200217; t=1720520018;
+	s=20200217; t=1720520017;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6Cz+tcKOoLj5PHmzKXgFnpnZXQbpoa1J8fX2KzN0JB0=;
-	b=pQyfAGKLWsucu2KTiPOeG4tD8bX/99jx/zCXtk7YVjoyljQW2r6XHAGmfSwYS1oAwbKyGC
-	JaJUWTSX63WSh33ETPGj808x02lgYIuG+loM4NwBemXgirs24hpZp1Jhw7x0AespEd/Jbr
-	9ix4IXZTTxvL7OM+IFDgKSeRGrVfHuQ=
+	bh=z4cX1DCeKrW/X4IO3UhVEF3ikjjO45cZPJayAiaU02Q=;
+	b=RloNW+Y/inqFUfV9np27yttZrQpJsm+ipZrlEC0rcEe/R8qGC+xHcqasecIGg6p0XtmBJz
+	X9mZV0G/uFYp5W02UwvKJij1pRWMlDDOM1dGlgQOZRwoKU9Q49j8LxRJ9ZWjs6k6EEqx8x
+	K+y8rhNN3sahRJMVTPcf9mr0L5A+ssw=
 Received: from frank-u24.. (fttx-pool-217.61.149.221.bambit.de [217.61.149.221])
-	by mxbox2.masterlogin.de (Postfix) with ESMTPSA id D03A8100758;
-	Tue,  9 Jul 2024 10:13:36 +0000 (UTC)
+	by mxbox2.masterlogin.de (Postfix) with ESMTPSA id BFC7D100628;
+	Tue,  9 Jul 2024 10:13:35 +0000 (UTC)
 From: Frank Wunderlich <linux@fw-web.de>
 To: Michael Turquette <mturquette@baylibre.com>,
 	Stephen Boyd <sboyd@kernel.org>,
@@ -50,9 +50,9 @@ Cc: Frank Wunderlich <frank-w@public-files.de>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH v1 3/4] dt-bindings: clock: mediatek: add syscon requirement for mt7988 ethwarp
-Date: Tue,  9 Jul 2024 12:13:25 +0200
-Message-ID: <20240709101328.102969-4-linux@fw-web.de>
+Subject: [PATCH v1 2/4] dt-bindings: clock: mediatek: add syscon requirement for mt7988 xfi-pll
+Date: Tue,  9 Jul 2024 12:13:24 +0200
+Message-ID: <20240709101328.102969-3-linux@fw-web.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240709101328.102969-1-linux@fw-web.de>
 References: <20240709101328.102969-1-linux@fw-web.de>
@@ -63,7 +63,7 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Mail-ID: 211e5e16-6cca-4117-b4fa-ed6227b76485
+X-Mail-ID: 81349dc7-a37f-460e-ab98-b22b9184569c
 
 From: Frank Wunderlich <frank-w@public-files.de>
 
@@ -71,33 +71,34 @@ This is needed by u-boot-driver when using OF_UPSTREAM.
 
 Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 ---
- .../devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml  | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml b/Documentation/devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml
-index e32a0251ff6a..b460a0de8503 100644
---- a/Documentation/devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml
-+++ b/Documentation/devicetree/bindings/clock/mediatek,mt7988-ethwarp.yaml
-@@ -17,7 +17,9 @@ description:
+diff --git a/Documentation/devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml b/Documentation/devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml
+index 192f1451f0af..c3686712505a 100644
+--- a/Documentation/devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml
++++ b/Documentation/devicetree/bindings/clock/mediatek,mt7988-xfi-pll.yaml
+@@ -15,7 +15,10 @@ description:
+ 
  properties:
    compatible:
-     items:
--      - const: mediatek,mt7988-ethwarp
+-    const: mediatek,mt7988-xfi-pll
++    items:
 +      - enum:
-+          - mediatek,mt7988-ethwarp
++          - mediatek,mt7988-xfi-pll
 +      - const: syscon
  
    reg:
      maxItems: 1
-@@ -44,7 +46,7 @@ examples:
+@@ -40,7 +43,7 @@ examples:
+         #address-cells = <2>;
          #size-cells = <2>;
- 
-         clock-controller@15031000 {
--            compatible = "mediatek,mt7988-ethwarp";
-+            compatible = "mediatek,mt7988-ethwarp", "syscon";
-             reg = <0 0x15031000 0 0x1000>;
+         clock-controller@11f40000 {
+-            compatible = "mediatek,mt7988-xfi-pll";
++            compatible = "mediatek,mt7988-xfi-pll", "syscon";
+             reg = <0 0x11f40000 0 0x1000>;
+             resets = <&watchdog 16>;
              #clock-cells = <1>;
-             #reset-cells = <1>;
 -- 
 2.43.0
 
