@@ -1,39 +1,48 @@
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDD8F19D09B
-	for <linux-watchdog@vger.kernel.org>; Thu,  5 Sep 2024 13:41:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE5819DF68;
+	Thu,  5 Sep 2024 14:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725543694; cv=none; b=k3R0yu4MHF+VL4bKaA67BB+JgUSuD1ZigguT/WMhGGeFR7kEj0Aa3Ds6cJ9mf74yoCWXtIZ80KzysbTUw+MjUXiu0buhszRQPpIvQHUNk86DWU9/bqyRK2fLq+C/Wr8TxwMG0pJpvl3bmhQmifBTUhNJVg5EzGrfXYIUUlTLMuA=
+	t=1725545074; cv=none; b=UsnUjrdPmrmGzKRZWH6It85NDvRCcSqZrknujlK192QqkjXNsCmZTQW8LzIK+MTWYvB0deGcxI54Kmt1QjomI9x0TtqevQX+qCquWYS8bbZE1yY4Nfo9+32JazVhZRoTGn7NKhbgkdoiIiywX3gFsSy64WRC9rFmbiSuvKBMg6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725543694; c=relaxed/simple;
-	bh=V/Lt7QDJyPGvRo0/Jz6FAgImTDCFHOVOjeMmXatM71k=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=CRsR+mgwZ7aaPzPB7Pj8Y5J7WxWRGR7PLlnSvMwecbMW+eSqXPh9XwbX+jW6H+OZ0QbTGeyArU94dUrBA2BBtQhtz0soCgBV/kLh2AiXKL9gFcYX6IcBKLKjsajhmNOXyUPgdRPZvNTI8cXw6QPRWS4wESRDzM0yExDluvuLR6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=ZAQCHdNn; arc=none smtp.client-ip=85.214.62.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
+	s=arc-20240116; t=1725545074; c=relaxed/simple;
+	bh=BAJ9VYyEmanS+PFfwXykRirtRNrrIcKiKS3ue6Ie4zk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=l54jJFVMTZvCGf4o3LbHqUQVLuW90CpA1DsXR/C46H8K/BivGK0oi/NpvVmj2gxQutuZxWv/eNCVg7CdpXmYSPtzemgyXOxrcRxqN4s5yplu9SKAiBlZWnAGV1Elovn0EWZhTbsrzqllrNBWjceUJMz8HAQoUFs575OiW9E3aZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=mf9j8cWM; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="ZAQCHdNn"
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id 938C988BF2;
-	Thu,  5 Sep 2024 15:41:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-	s=phobos-20191101; t=1725543691;
-	bh=pswdXcqPStl0HoZQrt/FxfgDt4teRCM2NhpZPLEY5rc=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=ZAQCHdNnEwIQcjtofN1rEt3GQEmMSXTSz2pdfO5r/STfUzh56l1xIoEAfEwkxM2Yi
-	 Hgkslb9S8R71lh/sLVxVtD4nFJTql2/6ku56g5OTA7pHB7YUDrIwUU5a7CnW8neJ9l
-	 pyYyCaUmEIfB0NS1RieX0WmcBpBZWkj4tLV3XRu2/obnezsQW/toSoaRlLll8+zVqC
-	 VV6OGKBtThxuK3U8mfgXn1agy/iu37fKtAoq9P5pFu0Nd6wCj04hce2FGs6J6pc3p8
-	 7m9bT8WK5bqKj+JdYtVQtQdlrNAdASDYaOEimGkwNkYbMNQpZYWoy+Xeqs2cw8k9e3
-	 0KgzZJOq6FMjA==
-Message-ID: <4386a9c2-bf9e-4612-a928-dddb1adb9571@denx.de>
-Date: Thu, 5 Sep 2024 15:12:20 +0200
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="mf9j8cWM"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 485973fZ025924;
+	Thu, 5 Sep 2024 14:03:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	BAJ9VYyEmanS+PFfwXykRirtRNrrIcKiKS3ue6Ie4zk=; b=mf9j8cWMLIJg7Vzi
+	P/QGp0SO0uvpdkTf7R+8JCimi6sSEwJ4sRkcq971+j6cL+IxNOoVavaepeuNjt/R
+	dbyHKYw1FNfutJ3QdBqzfjtPiThziBjxR+BV5yKsKdX1oOs7+d8SXzZPHsnmAFl2
+	qaMYdx7/yo0RR5qMi5M6NKqq+sojkbeNaR1IIlFw0Ugj56kV2PffM8m4goOw1JSJ
+	dCGXB1bcIuKENWstC3jRYMzo2sO31kSBOzFjvExpIqCnCoAYiBMH4vJjqt2ttkQ8
+	rEtiWQszqEDBI+/mLXHJA8jDj6k9f1XKf/y6Vnrgj9GZNZ0NA0zP+3FVXa2sE3+i
+	FuEnRg==
+Received: from nasanppmta04.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41drqe8g2m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Sep 2024 14:03:52 +0000 (GMT)
+Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
+	by NASANPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 485E3pZa014887
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 5 Sep 2024 14:03:51 GMT
+Received: from [10.110.102.234] (10.80.80.8) by nasanex01b.na.qualcomm.com
+ (10.46.141.250) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Thu, 5 Sep 2024
+ 07:03:47 -0700
+Message-ID: <75768451-4c85-41fa-82b0-8847a118ea0a@quicinc.com>
+Date: Thu, 5 Sep 2024 07:03:46 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,59 +50,83 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] watchdog: stm32_iwdg: Add pretimeout support
-From: Marek Vasut <marex@denx.de>
-To: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: =?UTF-8?Q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- linux-arm-kernel@lists.infradead.org,
- linux-stm32@st-md-mailman.stormreply.com
-References: <20240415134903.8084-1-marex@denx.de>
- <f93b5a80-33fb-4708-ab86-6b28f626a186@denx.de>
+Subject: Re: [PATCH v2 16/21] dt-bindings: spi: document support for SA8255p
+To: Krzysztof Kozlowski <krzk@kernel.org>, Andrew Lunn <andrew@lunn.ch>
+CC: <andersson@kernel.org>, <konradybcio@kernel.org>, <robh@kernel.org>,
+        <krzk+dt@kernel.org>, <conor+dt@kernel.org>, <rafael@kernel.org>,
+        <viresh.kumar@linaro.org>, <herbert@gondor.apana.org.au>,
+        <davem@davemloft.net>, <sudeep.holla@arm.com>, <andi.shyti@kernel.org>,
+        <tglx@linutronix.de>, <will@kernel.org>, <robin.murphy@arm.com>,
+        <joro@8bytes.org>, <jassisinghbrar@gmail.com>, <lee@kernel.org>,
+        <linus.walleij@linaro.org>, <amitk@kernel.org>,
+        <thara.gopinath@gmail.com>, <broonie@kernel.org>,
+        <cristian.marussi@arm.com>, <rui.zhang@intel.com>,
+        <lukasz.luba@arm.com>, <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+        <linux-arm-msm@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-crypto@vger.kernel.org>, <arm-scmi@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+        <iommu@lists.linux.dev>, <linux-gpio@vger.kernel.org>,
+        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>, <kernel@quicinc.com>,
+        <quic_psodagud@quicinc.com>, Praveen Talari <quic_ptalari@quicinc.com>
+References: <20240828203721.2751904-1-quic_nkela@quicinc.com>
+ <20240903220240.2594102-1-quic_nkela@quicinc.com>
+ <20240903220240.2594102-17-quic_nkela@quicinc.com>
+ <sdxhnqvdbcpmbp3l7hcnsrducpa5zrgbmkykwfluhrthqhznxi@6i4xiqrre3qg>
+ <b369bd73-ce2f-4373-8172-82c0cca53793@quicinc.com>
+ <9a655c1c-97f6-4606-8400-b3ce1ed3c8bf@kernel.org>
+ <516f17e6-b4b4-4f88-a39f-cc47a507716a@quicinc.com>
+ <2f11f622-1a00-4558-bde9-4871cdc3d1a6@lunn.ch>
+ <204f5cfe-d1ed-40dc-9175-d45f72395361@quicinc.com>
+ <70c75241-b6f1-4e61-8451-26839ec71317@kernel.org>
 Content-Language: en-US
-In-Reply-To: <f93b5a80-33fb-4708-ab86-6b28f626a186@denx.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
-X-Virus-Status: Clean
+From: Nikunj Kela <quic_nkela@quicinc.com>
+In-Reply-To: <70c75241-b6f1-4e61-8451-26839ec71317@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nasanex01b.na.qualcomm.com (10.46.141.250)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: mfOtKa7pytGj7RGF-VZlk3L-_P3fsu10
+X-Proofpoint-ORIG-GUID: mfOtKa7pytGj7RGF-VZlk3L-_P3fsu10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-05_09,2024-09-04_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ phishscore=0 adultscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
+ impostorscore=0 spamscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2409050104
 
-On 6/23/24 8:18 PM, Marek Vasut wrote:
-> On 4/15/24 3:48 PM, Marek Vasut wrote:
->> The STM32MP15xx IWDG adds registers which permit this IP to generate
->> pretimeout interrupt. This interrupt can also be used to wake the CPU
->> from suspend. Implement support for generating this interrupt and let
->> userspace configure the pretimeout. In case the pretimeout is not
->> configured by user, set pretimeout to 3/4 of the WDT timeout cycle.
->>
->> Reviewed-by: Clément Le Goffic <clement.legoffic@foss.st.com>
->> Tested-by: Clément Le Goffic <clement.legoffic@foss.st.com>
->> Signed-off-by: Marek Vasut <marex@denx.de>
->> ---
->> Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
->> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: linux-stm32@st-md-mailman.stormreply.com
->> Cc: linux-watchdog@vger.kernel.org
->> ---
->> V2: - Subtract the pretimeout value from timeout value before writing it
->>        into the IWDG pretimeout register, because the watchdog counter
->>        register is counting down, and the pretimeout interrupt triggers
->>        when watchdog counter register matches the pretimeout register
->>        content.
->>      - Set default pretimeout to 3/4 of timeout .
->> V3: - Use dev instead of pdev->dev
->>      - Swap order of ret/return 0
->>      - Split this from the DT changes, which are orthogonal
->>      - Uh, this patch got stuck in upstreaming queue, sorry
->> V4: - Update commit message to match V2 default pretimeout to 3/4
->>      - Add RB/TB from Clément
-> 
-> Hi,
-> 
-> Are there still any open topics with this patch ?
 
-Anything ?
+On 9/5/2024 1:04 AM, Krzysztof Kozlowski wrote:
+> On 04/09/2024 23:06, Nikunj Kela wrote:
+>> On 9/4/2024 9:58 AM, Andrew Lunn wrote:
+>>>> Sorry, didn't realize SPI uses different subject format than other
+>>>> subsystems. Will fix in v3. Thanks
+>>> Each subsystem is free to use its own form. e.g for netdev you will
+>>> want the prefix [PATCH net-next v42] net: stmmac: dwmac-qcom-ethqos:
+>> of course they are! No one is disputing that.
+>>> This is another reason why you should be splitting these patches per
+>>> subsystem, and submitting both the DT bindings and the code changes as
+>>> a two patch patchset. You can then learn how each subsystem names its
+>>> patches.
+>> Qualcomm QUPs chips have serial engines that can be configured as
+>> UART/I2C/SPI so QUPs changes require to be pushed in one series for all
+>> 3 subsystems as they all are dependent.
+> No, they are not dependent. They have never been. Look how all other
+> upstreaming process worked in the past.
+
+Top level QUP node(patch#18) includes i2c,spi,uart nodes.
+soc/qcom/qcom,geni-se.yaml validate those subnodes against respective
+yaml. The example that is added in YAML file for QUP node will not find
+sa8255p compatibles if all 4 yaml(qup, i2c, spi, serial nodes) are not
+included in the same series.
+
+
+>
+> Best regards,
+> Krzysztof
+>
