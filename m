@@ -1,50 +1,49 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F37271AD9EA;
-	Mon,  9 Sep 2024 12:50:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60CDF1B86D3;
+	Mon,  9 Sep 2024 12:50:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725886223; cv=none; b=lmgx0FKkw9nr9BqR2lNwsjPdPE/P4HZZOSfiRhvoCLPj5BnS23X02Urexijr0ZkFDmHkJVINdWJQ1zF9WQ9/qPH0xrcjkXMiOGwPOp3o/r6MkPTfc+a5icv8t2Gf2NRh30x7vEBj3V2RbCGe80m+0bB65TA8pr6cIT+zWNKknGQ=
+	t=1725886224; cv=none; b=LxDNZwwH/KTp93qwOimuk9PuGwfuTT2pPjqCkpBRk7nm6ej+oB8bE90xPPk57CQB/v1IiZpp02fIM7VdjgGAND9s7BmvvDBl3PaPtAlAYKb4PqlVCi+6+HtSvg3P/vRE01W7XDqnWrjRtC5vdhwuKe/G6FIFf5W/eZRTPoqIiAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725886223; c=relaxed/simple;
-	bh=1RukBZw68MThfKPTePNTcy9HFsZa+40HD7vkknVQzVI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Z/qon3JpseGAqVf7r5DguhmN604vEyeoK6SwCYtV8QPr/BQSW6udn/AWQ6JQdJh81ft/odPUfJVIsiR/s7PxLDlGEKsJ028Cpo4yyJj1+fqRRardVEChhiUVKH6rsT9zI/fiBNqcBtUsLWklpLIoqKXPPQwaH8A9UwbiTUao4ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EMCybx6d; arc=none smtp.client-ip=192.198.163.18
+	s=arc-20240116; t=1725886224; c=relaxed/simple;
+	bh=KWYespF+mcQwqISVVXzv9T2zQplfsj431bxXbvKt39o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GEaWhTatHMPTXQBls71j8afFJN6EiStVgYH5wG8sczFOG4CtJJ+qaLFXT6MQ2WaQBEXu6idjWV+8eqSnySPZFyKpm5xO8mxtPUFLBgE4vLqX1Of5GJS+Q6VOVJ8eEcLfFBnZi0kciaEPiwlheQM0Pyzut3qOq7dry4lWvXlqtGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZafzdWSQ; arc=none smtp.client-ip=192.198.163.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EMCybx6d"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZafzdWSQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1725886222; x=1757422222;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=1RukBZw68MThfKPTePNTcy9HFsZa+40HD7vkknVQzVI=;
-  b=EMCybx6dE0q/nFKJqDoDalvWXA0iv6JNIfGhy5VzahMtKFLPkxvk6348
-   RnUZcKJnaMLEORCe3Q26Gt5WpZbdP2796MzSszHzPBtQ/v1DtakYuuaKW
-   zjzPJ5Eaj/2NZ6cRc3qP3QoJ7ymMw59R5o5VWmG0wT2Ls4j2kLKpXSuTv
-   WxHVOTdzupzmHSY3x/FI6JYz24M1y0qtZLiXkOzxEe6QakrvoNcusGxAW
-   DpP5PlCQX2cNu5fG+4gQn2yeduVoeHipwR9mVCqviapNJmeEomvyqFJ1f
-   GyKbP2T3GNUwPKqzkB4/D035oRoITYb+LhYkp70nuvqY5rFrm+pMqcUY2
-   Q==;
-X-CSE-ConnectionGUID: Iw5QU/XgTUC/IvV/2vnTLw==
-X-CSE-MsgGUID: HVv4liRoSqq7ntO+2cAezw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="24079079"
+  t=1725886223; x=1757422223;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=KWYespF+mcQwqISVVXzv9T2zQplfsj431bxXbvKt39o=;
+  b=ZafzdWSQF+zEWjDUDmTmf85z5kkdw+s1pKV2/FBJP/n0Nn/K2KY5sA1Z
+   IEUXCM68FYRrJ+KU7HrexCx/vZBmM30+sSvp0OwDdLhOtJv+8Pzv/mEtq
+   ugGyyVnZ9YptSWlfRu3+fQjF+3PJUVFFxOnYtGMyS5WtB55AkltaGnrko
+   MDgdRBMor33D7g3yrizD2HrjscZqIJxHIezAODFs0A1cc5ik6Y5e9EvZu
+   3wBwSSLJjDQOK8p7hEWzcMXHBXO1UOMxuLJTsXY7Ik5mn5w4ebqLrAzAM
+   1QxgveusaG7XtORXu5hlRuPq3iGs4w8WSUk+JUJSKhzxh5lLLZ0ELNj/t
+   g==;
+X-CSE-ConnectionGUID: 1BMZ9U31SPm44MxQXT3x6A==
+X-CSE-MsgGUID: ZWVytuzpSPuuaQws/4WGmQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="24079104"
 X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
-   d="scan'208";a="24079079"
+   d="scan'208";a="24079104"
 Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 05:50:04 -0700
-X-CSE-ConnectionGUID: bJSvXvWtQiCd1zHPjHCsPw==
-X-CSE-MsgGUID: nl08P0dvRTmAUvmS+fulLA==
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 05:50:05 -0700
+X-CSE-ConnectionGUID: vx5aSnBRQneWiQsSzpk30A==
+X-CSE-MsgGUID: Hc3TVcRKRKK+K5Fxc3MKGA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
-   d="scan'208";a="97470234"
+   d="scan'208";a="97470243"
 Received: from black.fi.intel.com ([10.237.72.28])
   by fmviesa001.fm.intel.com with ESMTP; 09 Sep 2024 05:49:59 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 1E0183FC; Mon, 09 Sep 2024 15:49:57 +0300 (EEST)
+	id E351C321; Mon, 09 Sep 2024 15:49:56 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -71,12 +70,10 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
 	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH v2 3/3] platform/x86: intel_scu_wdt: Move intel_scu_wdt.h to x86 subfolder
-Date: Mon,  9 Sep 2024 15:41:06 +0300
-Message-ID: <20240909124952.1152017-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 0/3] platform/x86: intel_scu: Move headers to x86 subfolder
+Date: Mon,  9 Sep 2024 15:41:03 +0300
+Message-ID: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
-In-Reply-To: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
-References: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -85,77 +82,48 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is a platform/x86 library that can only be used on x86 devices.
-so it makes sense that it lives under the platform_data/x86/ directory
-instead.
+Add the record to the MAINTAINERS to follow what is going on with the
+Intel MID platform related code and drivers.
 
-No functional changes intented.
+With that, clean up a bit a couple of headers, i.e. move them to x86
+subfolder of include/linux/platform_data where they belong to.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/platform/x86/intel_scu_wdt.c                  | 3 ++-
- drivers/watchdog/intel-mid_wdt.c                      | 2 +-
- include/linux/platform_data/{ => x86}/intel-mid_wdt.h | 6 +++---
- 3 files changed, 6 insertions(+), 5 deletions(-)
+No functional changes intended.
+
+Taking into account nature of this change it's supposed to go via PDx86
+tree, please Ack.
+
+v2:
+- Maintained --> Supported (Dave)
+- added two cleanup patches (Mika and me)
+
+Andy Shevchenko (2):
+  MAINTAINERS: Add Intel MID section
+  platform/x86: intel_scu_wdt: Move intel_scu_wdt.h to x86 subfolder
+
+Mika Westerberg (1):
+  platform/x86: intel_scu_ipc: Move intel_scu_ipc.h out of
+    arch/x86/include/asm
+
+ MAINTAINERS                                   | 20 ++++++++++++++++++-
+ arch/x86/include/asm/intel_telemetry.h        |  2 +-
+ arch/x86/platform/intel-mid/intel-mid.c       |  3 ++-
+ drivers/mfd/intel_pmc_bxt.c                   |  3 +--
+ drivers/mfd/intel_soc_pmic_bxtwc.c            |  3 +--
+ drivers/mfd/intel_soc_pmic_mrfld.c            |  3 +--
+ drivers/platform/x86/intel_scu_ipc.c          |  2 +-
+ drivers/platform/x86/intel_scu_ipcutil.c      |  2 +-
+ drivers/platform/x86/intel_scu_pcidrv.c       |  2 +-
+ drivers/platform/x86/intel_scu_pltdrv.c       |  2 +-
+ drivers/platform/x86/intel_scu_wdt.c          |  3 ++-
+ drivers/usb/typec/mux/intel_pmc_mux.c         |  3 +--
+ drivers/watchdog/intel-mid_wdt.c              |  5 ++---
+ .../platform_data/{ => x86}/intel-mid_wdt.h   |  6 +++---
+ .../linux/platform_data/x86}/intel_scu_ipc.h  |  4 ++--
+ 15 files changed, 39 insertions(+), 24 deletions(-)
  rename include/linux/platform_data/{ => x86}/intel-mid_wdt.h (74%)
+ rename {arch/x86/include/asm => include/linux/platform_data/x86}/intel_scu_ipc.h (96%)
 
-diff --git a/drivers/platform/x86/intel_scu_wdt.c b/drivers/platform/x86/intel_scu_wdt.c
-index d0b6637861d3..746d47d33406 100644
---- a/drivers/platform/x86/intel_scu_wdt.c
-+++ b/drivers/platform/x86/intel_scu_wdt.c
-@@ -9,13 +9,14 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
--#include <linux/platform_data/intel-mid_wdt.h>
- 
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- #include <asm/io_apic.h>
- #include <asm/hw_irq.h>
- 
-+#include <linux/platform_data/x86/intel-mid_wdt.h>
-+
- #define TANGIER_EXT_TIMER0_MSI 12
- 
- static struct platform_device wdt_dev = {
-diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-index 91c9c3950e44..756d262dc580 100644
---- a/drivers/watchdog/intel-mid_wdt.c
-+++ b/drivers/watchdog/intel-mid_wdt.c
-@@ -20,7 +20,7 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
--#include <linux/platform_data/intel-mid_wdt.h>
-+#include <linux/platform_data/x86/intel-mid_wdt.h>
- #include <linux/platform_data/x86/intel_scu_ipc.h>
- 
- #define IPC_WATCHDOG 0xf8
-diff --git a/include/linux/platform_data/intel-mid_wdt.h b/include/linux/platform_data/x86/intel-mid_wdt.h
-similarity index 74%
-rename from include/linux/platform_data/intel-mid_wdt.h
-rename to include/linux/platform_data/x86/intel-mid_wdt.h
-index 8dba70b4b020..e5c0210d0fec 100644
---- a/include/linux/platform_data/intel-mid_wdt.h
-+++ b/include/linux/platform_data/x86/intel-mid_wdt.h
-@@ -6,8 +6,8 @@
-  *      Contact: David Cohen <david.a.cohen@linux.intel.com>
-  */
- 
--#ifndef __INTEL_MID_WDT_H__
--#define __INTEL_MID_WDT_H__
-+#ifndef __PLATFORM_X86_INTEL_MID_WDT_H_
-+#define __PLATFORM_X86_INTEL_MID_WDT_H_
- 
- #include <linux/platform_device.h>
- 
-@@ -16,4 +16,4 @@ struct intel_mid_wdt_pdata {
- 	int (*probe)(struct platform_device *pdev);
- };
- 
--#endif /*__INTEL_MID_WDT_H__*/
-+#endif	/* __PLATFORM_X86_INTEL_MID_WDT_H_ */
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 
