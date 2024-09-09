@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5005E1B1D45;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF2B1B2533;
 	Mon,  9 Sep 2024 08:12:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725869536; cv=none; b=J1N/zHe8a+6C4doDIm/I28PSuyOX0RGSSK0+/OFLbeYEHGTZizWdJm4aGdFQjaRTBHz9RK5j2DGmNBkwljO/1arWM2ilsCOozhiaYkRhVXjEpG4wSlwTu2qoFsHMKdKshCvafvzwlUk5LWH3GvRoCr74qv3IjHbfa4TinzFqIpo=
+	t=1725869536; cv=none; b=b5cYQmHlTrRZR5QC3KN1Zypj6QhbK190gu9aS8xTynrgHTJ+sTznUTkXqd7tb9GjX/BVOtWvF5jVozq9pZyAIaD6ND0S54YOl1wBo/HJ2IaFbMZ5xNHPDmO00gFDJIbaMerYL5ynHrRbRhQqIcSmWWWjqOvWKo0eQApmC94v4IM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725869536; c=relaxed/simple;
-	bh=890W8DPr35N6/m48gE2Wn2MHyqWMitXLF0Yh04CJFj8=;
+	bh=yDo8y/bWB2Ix5i8ziLWZf8GkSgIQIq80Sv6eejpr5RA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=RoUQ3suHFYjceJZZtwy8cNrgVYacB7BoAqp0VOZz+bRCR1/LMOfZ7lYQcxFhbDynd28bsBkFj1aLNEm3Nrp/TEjBgkKPrBcGedL3JZ5s4OKYUEaEhYwo79thAnr1AZQYVxH8VNPYcjIyXow2UJVPY2bovvUdmzGOzPHkhXz5iys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dtdv4/+Z; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=OtVpybT0aJxlzODRHLmOCuJUOyXrFKx3tsDoUzwXDBvv59rXRILkXywk3Xg8OZhHHrWKMn19tVPwlq0ZDBdjkBTjmMCuwBs5RBvU8s+cp0lhbn3cyFXQRcOTclvIS2wzHV2GuvNKsvm+Y5g3wRwPb36dH/PgbrgjRSzj3jHJ1go=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UOnyxAAR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dtdv4/+Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D0F71C4CEDF;
-	Mon,  9 Sep 2024 08:12:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UOnyxAAR"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B0026C4DDFD;
+	Mon,  9 Sep 2024 08:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725869535;
-	bh=890W8DPr35N6/m48gE2Wn2MHyqWMitXLF0Yh04CJFj8=;
+	s=k20201202; t=1725869536;
+	bh=yDo8y/bWB2Ix5i8ziLWZf8GkSgIQIq80Sv6eejpr5RA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=dtdv4/+ZYuxfXlBo/zqLgLSnydjelSuTYmB3iCj3PVKzvRbZras3+293GK0qgNIqh
-	 1zMud+gqN1UXBH7fHuhdFciN4owAGHmzzCoG3TZBisqpXuAFRKIoDpnTbjqoFgMPSo
-	 9dFkuWMziSAW2C/i0LNsN9UKqVnKKHISi96bhl4rQcHwJuE3RMdhlOpR9EhQkQxGTM
-	 d3YZm/SGaHbVnB5tRTw1U4sj+Qy4Pu7/PryyCNxhew85pRSSkDZPcPOe8TBnx76Bx1
-	 5AplmCCrurZRwYKbFKYueL97bMvZcgj1VbQdZz3DpMvqVuuDIvrqHm8P2CdwESVywF
-	 A6+N/y+MZph5Q==
+	b=UOnyxAARxcv4p9ZBTthPeKAbgQuLlRAGejhFuexSizN1toc+90yN1qNP54m1AwT6f
+	 UCFh0I7x4blc1uwGafx7fudb77j1+jrw3kIkK3/cuVK3smRfTYC1w9crfGqJy0bJig
+	 GR+2rTBKN9zgLyxr1FUsCgMBLZcodIL3IC79WThsRU9RIW6dpnaxY5vtkHbIhJ3Qy7
+	 EiklAHJNlHeqiSi9ibTlO2yJXkXE+VXO+6P9zkgdb9Le/6Y18wdXH0vBUZzN++erOX
+	 1nC1KMyXr1GAcTbxhyGaRH9j8Xqx5R7ossaUtaREwg8pQOR2he9Bl9a6S24v1imIc9
+	 VGT6T1D94MZjA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB4B4E6FE49;
-	Mon,  9 Sep 2024 08:12:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAED8ECE57B;
+	Mon,  9 Sep 2024 08:12:16 +0000 (UTC)
 From: Nikita Shubin via B4 Relay <devnull+nikita.shubin.maquefel.me@kernel.org>
-Date: Mon, 09 Sep 2024 11:10:35 +0300
-Subject: [PATCH v12 10/38] dt-bindings: watchdog: Add Cirrus EP93x
+Date: Mon, 09 Sep 2024 11:10:49 +0300
+Subject: [PATCH v12 24/38] wdt: ts72xx: add DT support for ts72xx
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -40,24 +40,19 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240909-ep93xx-v12-10-e86ab2423d4b@maquefel.me>
+Message-Id: <20240909-ep93xx-v12-24-e86ab2423d4b@maquefel.me>
 References: <20240909-ep93xx-v12-0-e86ab2423d4b@maquefel.me>
 In-Reply-To: <20240909-ep93xx-v12-0-e86ab2423d4b@maquefel.me>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Nikita Shubin <nikita.shubin@maquefel.me>, 
- Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+ Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 X-Mailer: b4 0.13-dev-e3e53
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1725869532; l=1622;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1725869532; l=1140;
  i=nikita.shubin@maquefel.me; s=20230718; h=from:subject:message-id;
- bh=ms3IjWYaELf8kHC/xQEvZjvjU7YonAObO6Tdf+8gNec=;
- b=dkko9fZ7b11MrfHd/ZRAC7LX0DHhLr2g544p0wCg6+p0FG1XXe/KjChhqErE1NUTgQWwxiV2Cqkm
- g72yhIwvBxgFG0iWh9m8G+qExpVVBw6gLEBg6lVL69CJuFSoeWV/
+ bh=Ne4hKUjSrewY0X5/1itI3t80vycBGPqa1pd1cn0B3+Y=;
+ b=7p2nC5LQXwqhp7SWBek+VwMIcOLOkHWgNVWmAoY+astAup7espZkFVombcjojcI2iFbB2255dbyu
+ RL8lYBUaAn9H2aKiE8VrLudtf+7ZOZkaHMzGB8dmArBJS9fWCtLd
 X-Developer-Key: i=nikita.shubin@maquefel.me; a=ed25519;
  pk=vqf5YIUJ7BJv3EJFaNNxWZgGuMgDH6rwufTLflwU9ac=
 X-Endpoint-Received: by B4 Relay for nikita.shubin@maquefel.me/20230718
@@ -67,63 +62,45 @@ Reply-To: nikita.shubin@maquefel.me
 
 From: Nikita Shubin <nikita.shubin@maquefel.me>
 
-Add device tree bindings for the Cirrus Logic EP93xx watchdog block
-used in these SoCs.
+Add OF ID match table.
 
 Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- .../bindings/watchdog/cirrus,ep9301-wdt.yaml       | 42 ++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ drivers/watchdog/ts72xx_wdt.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml b/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml
-new file mode 100644
-index 000000000000..5dbe891c70c6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/cirrus,ep9301-wdt.yaml
-@@ -0,0 +1,42 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/watchdog/cirrus,ep9301-wdt.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index 3d57670befe1..ac709dc31a65 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/watchdog.h>
+ #include <linux/io.h>
+@@ -160,10 +161,17 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id ts72xx_wdt_of_ids[] = {
++	{ .compatible = "technologic,ts7200-wdt" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, ts72xx_wdt_of_ids);
 +
-+title: Cirrus Logic EP93xx Watchdog Timer
-+
-+maintainers:
-+  - Nikita Shubin <nikita.shubin@maquefel.me>
-+  - Alexander Sverdlin <alexander.sverdlin@gmail.com>
-+
-+allOf:
-+  - $ref: watchdog.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - const: cirrus,ep9301-wdt
-+      - items:
-+          - enum:
-+              - cirrus,ep9302-wdt
-+              - cirrus,ep9307-wdt
-+              - cirrus,ep9312-wdt
-+              - cirrus,ep9315-wdt
-+          - const: cirrus,ep9301-wdt
-+
-+  reg:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    watchdog@80940000 {
-+        compatible = "cirrus,ep9301-wdt";
-+        reg = <0x80940000 0x08>;
-+    };
+ static struct platform_driver ts72xx_wdt_driver = {
+ 	.probe		= ts72xx_wdt_probe,
+ 	.driver		= {
+ 		.name	= "ts72xx-wdt",
++		.of_match_table = ts72xx_wdt_of_ids,
+ 	},
+ };
+ 
 
 -- 
 2.43.2
