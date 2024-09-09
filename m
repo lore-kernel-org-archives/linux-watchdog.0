@@ -1,129 +1,72 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60CDF1B86D3;
-	Mon,  9 Sep 2024 12:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DE0416EB55;
+	Mon,  9 Sep 2024 19:29:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725886224; cv=none; b=LxDNZwwH/KTp93qwOimuk9PuGwfuTT2pPjqCkpBRk7nm6ej+oB8bE90xPPk57CQB/v1IiZpp02fIM7VdjgGAND9s7BmvvDBl3PaPtAlAYKb4PqlVCi+6+HtSvg3P/vRE01W7XDqnWrjRtC5vdhwuKe/G6FIFf5W/eZRTPoqIiAI=
+	t=1725910192; cv=none; b=GWUAqd5ROamKjrrB3ZWbaEwf8n58s9Zd3qjhSQhtpBhiMVpQMUT/LxwDxO0D74z4lwpc1wM3v89HHdhwLlJ4a7ZNMpfOsVaO7YbV3BQbdfTl8K6OE4EG4PXcXy2D6k02ypVioAQUWX6iINrH+qBsNN8Sk5XEychfyJpNFS72tqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725886224; c=relaxed/simple;
-	bh=KWYespF+mcQwqISVVXzv9T2zQplfsj431bxXbvKt39o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GEaWhTatHMPTXQBls71j8afFJN6EiStVgYH5wG8sczFOG4CtJJ+qaLFXT6MQ2WaQBEXu6idjWV+8eqSnySPZFyKpm5xO8mxtPUFLBgE4vLqX1Of5GJS+Q6VOVJ8eEcLfFBnZi0kciaEPiwlheQM0Pyzut3qOq7dry4lWvXlqtGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZafzdWSQ; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1725910192; c=relaxed/simple;
+	bh=Ib6AQueuQcZUhoIakXOBxVKftve4r/ZybOV9bPitUCc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VVdqrodSeQYiwGiSA0a4VjniSXbnOJPoNF4aexbu+tGwy7cKzy/M1H4qqCBbbhmlCucbUJEfrzDuxRzpvRa+nhSSBvVyZIJ/OV1K5KTq/VHHq62WF3fnHd8gYDXqtkg8wcSoLeJSpuLi8znQkX2+vjnRjdEiw6dm4BxE3dzFQes=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hu91BxxR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZafzdWSQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1725886223; x=1757422223;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=KWYespF+mcQwqISVVXzv9T2zQplfsj431bxXbvKt39o=;
-  b=ZafzdWSQF+zEWjDUDmTmf85z5kkdw+s1pKV2/FBJP/n0Nn/K2KY5sA1Z
-   IEUXCM68FYRrJ+KU7HrexCx/vZBmM30+sSvp0OwDdLhOtJv+8Pzv/mEtq
-   ugGyyVnZ9YptSWlfRu3+fQjF+3PJUVFFxOnYtGMyS5WtB55AkltaGnrko
-   MDgdRBMor33D7g3yrizD2HrjscZqIJxHIezAODFs0A1cc5ik6Y5e9EvZu
-   3wBwSSLJjDQOK8p7hEWzcMXHBXO1UOMxuLJTsXY7Ik5mn5w4ebqLrAzAM
-   1QxgveusaG7XtORXu5hlRuPq3iGs4w8WSUk+JUJSKhzxh5lLLZ0ELNj/t
-   g==;
-X-CSE-ConnectionGUID: 1BMZ9U31SPm44MxQXT3x6A==
-X-CSE-MsgGUID: ZWVytuzpSPuuaQws/4WGmQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="24079104"
-X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
-   d="scan'208";a="24079104"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 05:50:05 -0700
-X-CSE-ConnectionGUID: vx5aSnBRQneWiQsSzpk30A==
-X-CSE-MsgGUID: Hc3TVcRKRKK+K5Fxc3MKGA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
-   d="scan'208";a="97470243"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa001.fm.intel.com with ESMTP; 09 Sep 2024 05:49:59 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id E351C321; Mon, 09 Sep 2024 15:49:56 +0300 (EEST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Utkarsh Patel <utkarsh.h.patel@intel.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-kernel@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-	"David E. Box" <david.e.box@linux.intel.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Zha Qipeng <qipeng.zha@intel.com>,
-	Lee Jones <lee@kernel.org>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH v2 0/3] platform/x86: intel_scu: Move headers to x86 subfolder
-Date: Mon,  9 Sep 2024 15:41:03 +0300
-Message-ID: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hu91BxxR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1225DC4CEC5;
+	Mon,  9 Sep 2024 19:29:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1725910191;
+	bh=Ib6AQueuQcZUhoIakXOBxVKftve4r/ZybOV9bPitUCc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hu91BxxRyYL4r/kpDJkkicoPDdD3jhlv5PvOFpaC2drY0WxIC+Dlrd54Wta4dRLcy
+	 d1IMIjHAJO/XNklK7s2vwSMWAbIUw6T0sY3I8ZsNF43sJZBQ9UntxmjxBXW9wLxI2Z
+	 gYGU8Gt1mTzYP9yCLml3VP/cYtNoie14Z8C0MNgCJwyMXsnMeVP9crPhyBiI+f+ux+
+	 nPRgzpSxx2vvN0X125hnxGus3mG7ujJ5G4DOJAtPzVYWaNfgpsN4gxmGkN3wjuN0Fq
+	 KHltQOFwYv7tyyP/Ifm5AU+L9ZEHAJTQ9bJs7205tgGsExJ5hHXJfMzh3y42Lv4XAS
+	 3XuYrEGTmRQWA==
+Date: Mon, 9 Sep 2024 21:29:48 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Thomas Richard <thomas.richard@bootlin.com>
+Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, 
+	Bartosz Golaszewski <brgl@bgdev.pl>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, thomas.petazzoni@bootlin.com, 
+	blake.vermeer@keysight.com
+Subject: Re: [PATCH 3/5] i2c: Congatec Board Controller i2c bus driver
+Message-ID: <ehobtvxpi4zjzt6wenxklqg4fcili3mugb2nqhwnvtsldqyzid@ayk2cuqn4k7s>
+References: <20240503-congatec-board-controller-v1-0-fec5236270e7@bootlin.com>
+ <20240503-congatec-board-controller-v1-3-fec5236270e7@bootlin.com>
+ <tv6v7g3nkoedbu4olu2xi76qtfueebnfz7c2zx7t2wmpthqdt6@wmbo2lwv5qnf>
+ <cbbd52bf-8758-42e9-8b35-48750137f2fd@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cbbd52bf-8758-42e9-8b35-48750137f2fd@bootlin.com>
 
-Add the record to the MAINTAINERS to follow what is going on with the
-Intel MID platform related code and drivers.
+Hi Thomas,
 
-With that, clean up a bit a couple of headers, i.e. move them to x86
-subfolder of include/linux/platform_data where they belong to.
+> >> +	if (bus_frequency > CGBC_I2C_FREQ_MAX_HZ ||
+> >> +	    bus_frequency < CGBC_I2C_FREQ_MIN_HZ) {
+> >> +		dev_warn(i2c->dev, "invalid frequency %u, using default\n", bus_frequency);
+> > 
+> > should this rather be a dev_info()? (supernit: please start with
+> > capital leter).
+> 
+> The driver i2c-xlp9xx has a similar message [1] and it uses a dev_warn().
+> So I don't know.
+> If you think dev_info() is more relevant in this case, I'll change it.
+> Supernit will be fixed in next iteration.
 
-No functional changes intended.
+Not a binding comment, it looks to me more a dev_info(), if you
+prefer you can use dev_warn(). In any case, at this stage, I
+don't see this printed anywhere :-)
 
-Taking into account nature of this change it's supposed to go via PDx86
-tree, please Ack.
-
-v2:
-- Maintained --> Supported (Dave)
-- added two cleanup patches (Mika and me)
-
-Andy Shevchenko (2):
-  MAINTAINERS: Add Intel MID section
-  platform/x86: intel_scu_wdt: Move intel_scu_wdt.h to x86 subfolder
-
-Mika Westerberg (1):
-  platform/x86: intel_scu_ipc: Move intel_scu_ipc.h out of
-    arch/x86/include/asm
-
- MAINTAINERS                                   | 20 ++++++++++++++++++-
- arch/x86/include/asm/intel_telemetry.h        |  2 +-
- arch/x86/platform/intel-mid/intel-mid.c       |  3 ++-
- drivers/mfd/intel_pmc_bxt.c                   |  3 +--
- drivers/mfd/intel_soc_pmic_bxtwc.c            |  3 +--
- drivers/mfd/intel_soc_pmic_mrfld.c            |  3 +--
- drivers/platform/x86/intel_scu_ipc.c          |  2 +-
- drivers/platform/x86/intel_scu_ipcutil.c      |  2 +-
- drivers/platform/x86/intel_scu_pcidrv.c       |  2 +-
- drivers/platform/x86/intel_scu_pltdrv.c       |  2 +-
- drivers/platform/x86/intel_scu_wdt.c          |  3 ++-
- drivers/usb/typec/mux/intel_pmc_mux.c         |  3 +--
- drivers/watchdog/intel-mid_wdt.c              |  5 ++---
- .../platform_data/{ => x86}/intel-mid_wdt.h   |  6 +++---
- .../linux/platform_data/x86}/intel_scu_ipc.h  |  4 ++--
- 15 files changed, 39 insertions(+), 24 deletions(-)
- rename include/linux/platform_data/{ => x86}/intel-mid_wdt.h (74%)
- rename {arch/x86/include/asm => include/linux/platform_data/x86}/intel_scu_ipc.h (96%)
-
--- 
-2.43.0.rc1.1336.g36b5255a03ac
-
+Thanks,
+Andi
