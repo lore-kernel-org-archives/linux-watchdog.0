@@ -1,120 +1,326 @@
-Received: from forward501a.mail.yandex.net (forward501a.mail.yandex.net [178.154.239.81])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF90113635E;
-	Mon,  9 Sep 2024 09:02:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8216F1B7904;
+	Mon,  9 Sep 2024 12:50:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725872578; cv=none; b=fJVTyCkrH6fYJ62XW84FrVUmYMZ6ULZAbuKimWs3DTqrLaAaHN2yigN8C5q98ro35Z6QEhGV/niB+vHBwF2J7ld7noABvguVcmje9ETtydI+bY4929K5AKMhwXwXq8VhmJxKc+CDMvzoWO837qVbQwtDLo9J0IrOhlgUfDeidbk=
+	t=1725886207; cv=none; b=tw3X+DOiYNqtDpvlL7Qb71LL+gv5kCwxhXCj8nyA1zVxkGwCGhAJY1Xq2qj0MRa6BK8Dlhf5+FgsTfeon8uMEabznM/xhTnkAQsKGcyTPpu0vX1AfNSG2c16AlCBOBOFkpiWENkq6B0RN75MqsmgWUJZ8xq3x1QWWdgaNYkqhu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725872578; c=relaxed/simple;
-	bh=Qut1EyCSXF5XKk8lrf1jldw5ylJErkj1/nQaI3URoaw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=eoPfp7uIqQ6qTYo/9DP+LVLc75HHL+IXQ1bVe/76iO2k/R+8uI/cht9VYFVEOOtDni+JkNqsKmxi7rTlGKbBSkdI76+q6tSIaaCnuVmqUXlGxuNbJ6mh2A1HR5HRHHkkQtjoMrvWEw2JTZhw9htM2CCyWciwJdVn8x+SqS023Sw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maquefel.me; spf=pass smtp.mailfrom=maquefel.me; dkim=pass (1024-bit key) header.d=maquefel.me header.i=@maquefel.me header.b=UCKyBw0t; arc=none smtp.client-ip=178.154.239.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maquefel.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=maquefel.me
+	s=arc-20240116; t=1725886207; c=relaxed/simple;
+	bh=fKTrnohR/mjX7bAoHp4TDCKpYppytH7G5Ads0f3+w8E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=WpQCNjQ2b+aU+c9KSq2nYiMxRuyiG7In1bTKm5hrc23Ek4eT4kXRim+NIxvNRFYBLYJojMNq39huZPpAa4VbacwRX6v4f+TAi4GKlOqek8wXz4k6YlMqp87DkzvX4MTge1v/Wy1oPMS3emi7yBSv62FbpVh2T7fVSoKywMrisVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RAxJOFtY; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=maquefel.me header.i=@maquefel.me header.b="UCKyBw0t"
-Received: from mail-nwsmtp-smtp-production-main-49.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-49.vla.yp-c.yandex.net [IPv6:2a02:6b8:c1f:5e9c:0:640:b3f4:0])
-	by forward501a.mail.yandex.net (Yandex) with ESMTPS id 36D27613B6;
-	Mon,  9 Sep 2024 12:02:44 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-49.vla.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id a2dHS5JKaSw0-Uuowlycf;
-	Mon, 09 Sep 2024 12:02:42 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail;
-	t=1725872562; bh=Qut1EyCSXF5XKk8lrf1jldw5ylJErkj1/nQaI3URoaw=;
-	h=References:Date:In-Reply-To:Cc:To:From:Subject:Message-ID;
-	b=UCKyBw0t6OLNpveKLHRyVdH4SZAFS1aM3i5JVQ8KQ5rIHiHlKcQKgkqrfFC6c8Kek
-	 R9zZ3ZAROjskp9kB0OrvKFjT8aa1lyzn42GuLR0RT8850GDMyebxN0ZKhcvu8dixES
-	 a/SqIJj456K3YYiyyxC8j7ouVj9XUUEG0040u5qg=
-Authentication-Results: mail-nwsmtp-smtp-production-main-49.vla.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
-Message-ID: <0e3902c9a42b05b0227e767b227624c6fe8fd2bb.camel@maquefel.me>
-Subject: Re: [PATCH v12 00/38] ep93xx device tree conversion
-From: Nikita Shubin <nikita.shubin@maquefel.me>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Hartley Sweeten
- <hsweeten@visionengravers.com>, Alexander Sverdlin
- <alexander.sverdlin@gmail.com>, Russell King <linux@armlinux.org.uk>,
- Lukasz Majewski <lukma@denx.de>, Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy@kernel.org>,
- Michael Turquette <mturquette@baylibre.com>, Stephen Boyd
- <sboyd@kernel.org>, Sebastian Reichel <sre@kernel.org>, Rob Herring
- <robh+dt@kernel.org>, Krzysztof Kozlowski
- <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley <conor+dt@kernel.org>, 
- Vinod Koul <vkoul@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Thierry Reding
- <thierry.reding@gmail.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
- <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Miquel Raynal
- <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh
- Raghavendra <vigneshr@ti.com>, Damien Le Moal <dlemoal@kernel.org>, Sergey
- Shtylyov <s.shtylyov@omp.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Liam Girdwood <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, Ralf Baechle <ralf@linux-mips.org>,  "Wu,
- Aaron" <Aaron.Wu@analog.com>, Lee Jones <lee@kernel.org>, Olof Johansson
- <olof@lixom.net>, Niklas Cassel <cassel@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-pm@vger.kernel.org,  devicetree@vger.kernel.org,
- dmaengine@vger.kernel.org,  linux-watchdog@vger.kernel.org,
- linux-pwm@vger.kernel.org,  linux-spi@vger.kernel.org,
- netdev@vger.kernel.org, linux-mtd@lists.infradead.org, 
- linux-ide@vger.kernel.org, linux-input@vger.kernel.org, 
- linux-sound@vger.kernel.org, Bartosz Golaszewski
- <bartosz.golaszewski@linaro.org>,  Krzysztof Kozlowski
- <krzysztof.kozlowski@linaro.org>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>
-Date: Mon, 09 Sep 2024 12:02:37 +0300
-In-Reply-To: <CAHp75Veusv=f6Xf9-gL3ctoO5Njn7wiWMw-aMN45KbZ=YB=mQw@mail.gmail.com>
-References: <20240909-ep93xx-v12-0-e86ab2423d4b@maquefel.me>
-	 <CAHp75Veusv=f6Xf9-gL3ctoO5Njn7wiWMw-aMN45KbZ=YB=mQw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RAxJOFtY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725886205; x=1757422205;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=fKTrnohR/mjX7bAoHp4TDCKpYppytH7G5Ads0f3+w8E=;
+  b=RAxJOFtYtAm2o+HADNHIuZBhIQwV9LjF+nfH/VAq6DEdrWFlwl6zNXzJ
+   PKUcgcV7CZfnneFdiXUqzBrcrgXxnKsbbqrThqpBMXJ1wv8pwy7rXuSkW
+   t2ClJTbnLVsR6mRdIljjUfuwXIfkACX403ajlo+7BvNkjFXCVGEafuB+l
+   PTAp6V2JcD1JB9KrRsWA4JX8g3zSzRsFuw92ko5StH0g9OiufVczQvUcK
+   t1KY0X1cXnjY18i6AImcNafdS9UoGjGSsycXtEWecdAfouJfxpm227Rl/
+   lVPkirtGfl/omAkNgqLw0IiKhzPoGH5H2oWRQcnVPAKShh3JKVuVI1SfS
+   g==;
+X-CSE-ConnectionGUID: VXjx8s4ITwa9a6RLvCwMNg==
+X-CSE-MsgGUID: RS7tBpNxRdekheqMcBKMJA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11190"; a="35171806"
+X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
+   d="scan'208";a="35171806"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2024 05:50:04 -0700
+X-CSE-ConnectionGUID: r8Pkll/7RNKrRPRjNcDtfg==
+X-CSE-MsgGUID: 6OUsNXUaQVeSjlPlM6iILQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
+   d="scan'208";a="67392015"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orviesa008.jf.intel.com with ESMTP; 09 Sep 2024 05:49:58 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+	id 127E03DE; Mon, 09 Sep 2024 15:49:57 +0300 (EEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Utkarsh Patel <utkarsh.h.patel@intel.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+	"David E. Box" <david.e.box@linux.intel.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Zha Qipeng <qipeng.zha@intel.com>,
+	Lee Jones <lee@kernel.org>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH v2 2/3] platform/x86: intel_scu_ipc: Move intel_scu_ipc.h out of arch/x86/include/asm
+Date: Mon,  9 Sep 2024 15:41:05 +0300
+Message-ID: <20240909124952.1152017-3-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+In-Reply-To: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
+References: <20240909124952.1152017-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi Andy!
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Mon, 2024-09-09 at 11:49 +0300, Andy Shevchenko wrote:
-> On Mon, Sep 9, 2024 at 11:12=E2=80=AFAM Nikita Shubin via B4 Relay
-> <devnull+nikita.shubin.maquefel.me@kernel.org> wrote:
-> >=20
-> > The goal is to recieve ACKs for all patches in series to merge it
-> > via Arnd branch.
-> >=20
-> > It was decided from the very beginning of these series, mostly
-> > because
-> > it's a full conversion of platform code to DT and it seemed not
-> > convenient to maintain compatibility with both platform and DT.
-> >=20
-> > Following patches require attention from Stephen Boyd or clk
-> > subsystem:
->=20
-> Does it mean you still have a few patches without tags?
-> What are their respective numbers?
+This is a platform/x86 library that is mostly being used by other
+drivers not directly under arch/x86 anyway (with the exception of the
+Intel MID setup code) so it makes sense that it lives under the
+platform_data/x86/ directory instead.
 
-The clk is the last one as i think, all others can be ACKed by
-Alexander or by Arnd himself.
+No functional changes intented.
 
->=20
-> > - clk: ep93xx: add DT support for Cirrus EP93xx:
-> > =C2=A0 - tristate
-> > =C2=A0 - drop MFD_SYSCON/REGMAP
-> > =C2=A0 - add AUXILIARY_BUS/REGMAP_MMIO
-> > =C2=A0 - prefixed all static with ep9xx_
-> > =C2=A0 - s/clk_hw_register_ddiv()/ep93xx_clk_register_ddiv()/
-> > =C2=A0 - s/clk_register_div()/ep93xx_clk_register_div()/
-> > =C2=A0 - dropped devm_ep93xx_clk_hw_register_fixed_rate_parent_data
-> > macro
-> > =C2=A0 -
-> > s/devm_ep93xx_clk_hw_register_fixed_rate_parent_data()/devm_clk_hw_
-> > register_fixed_rate_parent_data()/
->=20
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ MAINTAINERS                                                   | 4 ++--
+ arch/x86/include/asm/intel_telemetry.h                        | 2 +-
+ arch/x86/platform/intel-mid/intel-mid.c                       | 3 ++-
+ drivers/mfd/intel_pmc_bxt.c                                   | 3 +--
+ drivers/mfd/intel_soc_pmic_bxtwc.c                            | 3 +--
+ drivers/mfd/intel_soc_pmic_mrfld.c                            | 3 +--
+ drivers/platform/x86/intel_scu_ipc.c                          | 2 +-
+ drivers/platform/x86/intel_scu_ipcutil.c                      | 2 +-
+ drivers/platform/x86/intel_scu_pcidrv.c                       | 2 +-
+ drivers/platform/x86/intel_scu_pltdrv.c                       | 2 +-
+ drivers/usb/typec/mux/intel_pmc_mux.c                         | 3 +--
+ drivers/watchdog/intel-mid_wdt.c                              | 3 +--
+ .../asm => include/linux/platform_data/x86}/intel_scu_ipc.h   | 4 ++--
+ 13 files changed, 16 insertions(+), 20 deletions(-)
+ rename {arch/x86/include/asm => include/linux/platform_data/x86}/intel_scu_ipc.h (96%)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 61c74ae39961..802e6c957154 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11482,7 +11482,6 @@ M:	Andy Shevchenko <andy@kernel.org>
+ L:	linux-kernel@vger.kernel.org
+ S:	Supported
+ F:	arch/x86/include/asm/intel-mid.h
+-F:	arch/x86/include/asm/intel_scu_ipc.h
+ F:	arch/x86/pci/intel_mid_pci.c
+ F:	arch/x86/platform/intel-mid/
+ F:	drivers/extcon/extcon-intel-mrfld.c
+@@ -11494,6 +11493,7 @@ F:	drivers/staging/media/atomisp/
+ F:	drivers/watchdog/intel-mid_wdt.c
+ F:	include/linux/mfd/intel_soc_pmic_mrfld.h
+ F:	include/linux/platform_data/intel-mid_wdt.h
++F:	include/linux/platform_data/x86/intel_scu_ipc.h
+ 
+ INTEL P-Unit IPC DRIVER
+ M:	Zha Qipeng <qipeng.zha@intel.com>
+@@ -11557,8 +11557,8 @@ F:	drivers/counter/intel-qep.c
+ INTEL SCU DRIVERS
+ M:	Mika Westerberg <mika.westerberg@linux.intel.com>
+ S:	Maintained
+-F:	arch/x86/include/asm/intel_scu_ipc.h
+ F:	drivers/platform/x86/intel_scu_*
++F:	include/linux/platform_data/x86/intel_scu_ipc.h
+ 
+ INTEL SDSI DRIVER
+ M:	David E. Box <david.e.box@linux.intel.com>
+diff --git a/arch/x86/include/asm/intel_telemetry.h b/arch/x86/include/asm/intel_telemetry.h
+index 8046e70dfd7c..43b7657febca 100644
+--- a/arch/x86/include/asm/intel_telemetry.h
++++ b/arch/x86/include/asm/intel_telemetry.h
+@@ -10,7 +10,7 @@
+ #define TELEM_MAX_EVENTS_SRAM		28
+ #define TELEM_MAX_OS_ALLOCATED_EVENTS	20
+ 
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ enum telemetry_unit {
+ 	TELEM_PSS = 0,
+diff --git a/arch/x86/platform/intel-mid/intel-mid.c b/arch/x86/platform/intel-mid/intel-mid.c
+index f83bbe0acd4a..a8e75f8c14fd 100644
+--- a/arch/x86/platform/intel-mid/intel-mid.c
++++ b/arch/x86/platform/intel-mid/intel-mid.c
+@@ -27,9 +27,10 @@
+ #include <asm/intel-mid.h>
+ #include <asm/io.h>
+ #include <asm/i8259.h>
+-#include <asm/intel_scu_ipc.h>
+ #include <asm/reboot.h>
+ 
++#include <linux/platform_data/x86/intel_scu_ipc.h>
++
+ #define IPCMSG_COLD_OFF		0x80	/* Only for Tangier */
+ #define IPCMSG_COLD_RESET	0xF1
+ 
+diff --git a/drivers/mfd/intel_pmc_bxt.c b/drivers/mfd/intel_pmc_bxt.c
+index 9f01d38acc7f..e405d7513ca1 100644
+--- a/drivers/mfd/intel_pmc_bxt.c
++++ b/drivers/mfd/intel_pmc_bxt.c
+@@ -23,8 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <linux/platform_data/itco_wdt.h>
+-
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ /* Residency with clock rate at 19.2MHz to usecs */
+ #define S0IX_RESIDENCY_IN_USECS(d, s)		\
+diff --git a/drivers/mfd/intel_soc_pmic_bxtwc.c b/drivers/mfd/intel_soc_pmic_bxtwc.c
+index ba32cacfc499..ab3c94224dd1 100644
+--- a/drivers/mfd/intel_soc_pmic_bxtwc.c
++++ b/drivers/mfd/intel_soc_pmic_bxtwc.c
+@@ -15,8 +15,7 @@
+ #include <linux/mfd/intel_soc_pmic.h>
+ #include <linux/mfd/intel_soc_pmic_bxtwc.h>
+ #include <linux/module.h>
+-
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ /* PMIC device registers */
+ #define REG_ADDR_MASK		GENMASK(15, 8)
+diff --git a/drivers/mfd/intel_soc_pmic_mrfld.c b/drivers/mfd/intel_soc_pmic_mrfld.c
+index 71da861e8c27..77121775c1a3 100644
+--- a/drivers/mfd/intel_soc_pmic_mrfld.c
++++ b/drivers/mfd/intel_soc_pmic_mrfld.c
+@@ -12,11 +12,10 @@
+ #include <linux/mfd/intel_soc_pmic.h>
+ #include <linux/mfd/intel_soc_pmic_mrfld.h>
+ #include <linux/module.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ 
+-#include <asm/intel_scu_ipc.h>
+-
+ /*
+  * Level 2 IRQs
+  *
+diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
+index a68df4133403..5b16d29c93d7 100644
+--- a/drivers/platform/x86/intel_scu_ipc.c
++++ b/drivers/platform/x86/intel_scu_ipc.c
+@@ -23,7 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ 
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ /* IPC defines the following message types */
+ #define IPCMSG_PCNTRL         0xff /* Power controller unit read/write */
+diff --git a/drivers/platform/x86/intel_scu_ipcutil.c b/drivers/platform/x86/intel_scu_ipcutil.c
+index 7d87cbd4b9c6..69b36ce41fa2 100644
+--- a/drivers/platform/x86/intel_scu_ipcutil.c
++++ b/drivers/platform/x86/intel_scu_ipcutil.c
+@@ -18,7 +18,7 @@
+ #include <linux/types.h>
+ #include <linux/uaccess.h>
+ 
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ static int major;
+ 
+diff --git a/drivers/platform/x86/intel_scu_pcidrv.c b/drivers/platform/x86/intel_scu_pcidrv.c
+index dbf0310448da..d7f72d6deb44 100644
+--- a/drivers/platform/x86/intel_scu_pcidrv.c
++++ b/drivers/platform/x86/intel_scu_pcidrv.c
+@@ -11,7 +11,7 @@
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ 
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ static int intel_scu_pci_probe(struct pci_dev *pdev,
+ 			       const struct pci_device_id *id)
+diff --git a/drivers/platform/x86/intel_scu_pltdrv.c b/drivers/platform/x86/intel_scu_pltdrv.c
+index 56ec6ae4c824..0892362acd7b 100644
+--- a/drivers/platform/x86/intel_scu_pltdrv.c
++++ b/drivers/platform/x86/intel_scu_pltdrv.c
+@@ -15,7 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ static int intel_scu_platform_probe(struct platform_device *pdev)
+ {
+diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
+index 56989a0d0f43..46b4c5c3a6be 100644
+--- a/drivers/usb/typec/mux/intel_pmc_mux.c
++++ b/drivers/usb/typec/mux/intel_pmc_mux.c
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/acpi.h>
+ #include <linux/module.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ #include <linux/platform_device.h>
+ #include <linux/property.h>
+ #include <linux/usb/pd.h>
+@@ -18,8 +19,6 @@
+ #include <linux/debugfs.h>
+ #include <linux/usb.h>
+ 
+-#include <asm/intel_scu_ipc.h>
+-
+ #define PMC_USBC_CMD		0xa7
+ 
+ /* Response status bits */
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+index 8d71f6a2236b..91c9c3950e44 100644
+--- a/drivers/watchdog/intel-mid_wdt.c
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -21,8 +21,7 @@
+ #include <linux/watchdog.h>
+ 
+ #include <linux/platform_data/intel-mid_wdt.h>
+-
+-#include <asm/intel_scu_ipc.h>
++#include <linux/platform_data/x86/intel_scu_ipc.h>
+ 
+ #define IPC_WATCHDOG 0xf8
+ 
+diff --git a/arch/x86/include/asm/intel_scu_ipc.h b/include/linux/platform_data/x86/intel_scu_ipc.h
+similarity index 96%
+rename from arch/x86/include/asm/intel_scu_ipc.h
+rename to include/linux/platform_data/x86/intel_scu_ipc.h
+index 8537f597d20a..0ca9962e97f2 100644
+--- a/arch/x86/include/asm/intel_scu_ipc.h
++++ b/include/linux/platform_data/x86/intel_scu_ipc.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _ASM_X86_INTEL_SCU_IPC_H_
+-#define  _ASM_X86_INTEL_SCU_IPC_H_
++#ifndef __PLATFORM_X86_INTEL_SCU_IPC_H_
++#define __PLATFORM_X86_INTEL_SCU_IPC_H_
+ 
+ #include <linux/ioport.h>
+ 
+-- 
+2.43.0.rc1.1336.g36b5255a03ac
 
