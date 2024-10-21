@@ -1,216 +1,197 @@
-Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72FB31CF291
-	for <linux-watchdog@vger.kernel.org>; Mon, 21 Oct 2024 06:39:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDDB51E884E;
+	Mon, 21 Oct 2024 12:35:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729492785; cv=none; b=TOhmhs9lQeAI5XBpmO6CanS/b2gcgThyzWhx4KUPmr9k6U6FKY4GzpCpOJhJK8Nn2U+PD6O4xrhs8q3l2FecJkQvt5tbn7wvKIPm3lFawk10rcCGauqrqMxIyT5532Rd5kgiyEWXudcUya31iRTWMoN+/5rMIfe/4j21KhL6Db4=
+	t=1729514136; cv=none; b=qsesQyyFBXR6DlIFYkjWIn2Zo/ttIjDgl/U8ns6Qb/Xlal9fOokngXiV4hYPkWlJA7gCVIG2VSq9YK+6aXaBQ5deurkYl/+52COfU6j90/DdXdUi/1n3PuKUQhRDbSo/W6fz7ZDhe0vb4ydSezoivWZqHHprPWaTwxqvlkhEOtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729492785; c=relaxed/simple;
-	bh=yP63p3olM6y48xBFe7ix+AC1xOfxPYOA0crl2Zz54lM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=R1csPJw1nP+gNm0AU/BYWqxFRlYmfPK8ozZVNvmrQH19BSOk3QS5dLnHFncx0d9cfwd2hBINNYzcCdn6A6bAcJJlMTgp/mNjNdl1XdCf+CBHQd2Hra2AJ0kIiYb/pyMygKC1+Mc9SWAn1mdKju4gL21+B30l7oZtGGJD2k5kv5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=fdMzb7Z/; arc=none smtp.client-ip=203.254.224.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1729514136; c=relaxed/simple;
+	bh=6yTBTh60Y/KjEm4ulMUsaCtpVhZo6wmYVFZWdN+BQcI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=I7slEiPv44UTotLz4cKIQhF1WyaRmbVbdreCk8eXhWx/odUNytjtONHr8kk5FGGUWLJsHA/gUUQyvaTPabdobL6vF0lylNh9CsisMhd9LGeQIlruR0N1yz/YEkgIPvMAbcMy5e1ddcfCNXEGo3K6B9Qj/yFxgfayJzA1ez76Emc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=n3Da1lY5; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="fdMzb7Z/"
-Received: from epcas2p2.samsung.com (unknown [182.195.41.54])
-	by mailout3.samsung.com (KnoxPortal) with ESMTP id 20241021063939epoutp03ccb53bbc83a31b513dcf8624728b622b~AZIUWOrr_0797307973epoutp03E
-	for <linux-watchdog@vger.kernel.org>; Mon, 21 Oct 2024 06:39:39 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20241021063939epoutp03ccb53bbc83a31b513dcf8624728b622b~AZIUWOrr_0797307973epoutp03E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1729492779;
-	bh=y1rVAAUbL4XZfrYkt5r90v9JFxYMUZqPCTcgm/yJbCM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=fdMzb7Z/l70wqGdlAjIsM/uBh/g7TMZMhzVCsycqFwfgKZR2aNf/FpX2jJrvjZsz4
-	 T8OHdZJhaPBEu6hRaMc1g/MSKyuQoZYym8T8TvebrZ6IQGYQt/X/zyJiuaZqk2BpDD
-	 GpcUCc4IDAVSl1gM+A9IewXV4CBR8nK3pBty5vFI=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
-	epcas2p2.samsung.com (KnoxPortal) with ESMTP id
-	20241021063939epcas2p253d4fd6e3af9b6310857b0d4cb72570a~AZIT3Hiyh2063720637epcas2p29;
-	Mon, 21 Oct 2024 06:39:39 +0000 (GMT)
-Received: from epsmges2p2.samsung.com (unknown [182.195.36.68]) by
-	epsnrtp2.localdomain (Postfix) with ESMTP id 4XX5JV3X2Tz4x9QD; Mon, 21 Oct
-	2024 06:39:38 +0000 (GMT)
-Received: from epcas2p3.samsung.com ( [182.195.41.55]) by
-	epsmges2p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-	DC.57.09770.A27F5176; Mon, 21 Oct 2024 15:39:38 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-	epcas2p2.samsung.com (KnoxPortal) with ESMTPA id
-	20241021063938epcas2p22e0a9f4f869237ceadf4f2035778bfc7~AZIS4FlqH2063720637epcas2p24;
-	Mon, 21 Oct 2024 06:39:38 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20241021063938epsmtrp1eaa5da4c43b8b32e0b92f7a621cf634a~AZIS3NkOs1158811588epsmtrp1T;
-	Mon, 21 Oct 2024 06:39:38 +0000 (GMT)
-X-AuditID: b6c32a46-00dfa7000000262a-11-6715f72a8699
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	28.99.08229.927F5176; Mon, 21 Oct 2024 15:39:37 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.229.9.55]) by
-	epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20241021063937epsmtip261c9eb531f2414339874f3626022d22d~AZISoWHWN1927319273epsmtip2V;
-	Mon, 21 Oct 2024 06:39:37 +0000 (GMT)
-From: Taewan Kim <trunixs.kim@samsung.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
-	<linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
-	<krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Alim Akhtar
-	<alim.akhtar@samsung.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, Byoungtae Cho <bt.cho@samsung.com>,
-	Taewan Kim <trunixs.kim@samsung.com>, Krzysztof Kozlowski
-	<krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v3 2/3] watchdog: s3c2410_wdt: add support for
- exynosautov920 SoC
-Date: Mon, 21 Oct 2024 15:39:02 +0900
-Message-ID: <20241021063903.793166-3-trunixs.kim@samsung.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241021063903.793166-1-trunixs.kim@samsung.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="n3Da1lY5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1729514132;
+	bh=6yTBTh60Y/KjEm4ulMUsaCtpVhZo6wmYVFZWdN+BQcI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=n3Da1lY5ifIG0HIbIKLOXX7fWP+pRg1BWcZRZRBA0JD6YqK5hFdoSwyFpOWOVAckG
+	 Ym+ihkaThzCMfde6Uf795gS2HTNIUdg13wapr1dEi4km/60cbEMuTg58xuEavUX8mv
+	 nBzv0/CzXTBgqb81DWbLatv69qj6pp/DtRnpTRTfLX+OpClGiuze1aW2sKwpWLnSv1
+	 hTNRtiehLk9VhnTjawpFDL4wop9H2wo71NLDVYuxosiep/0d/WTbFeZsCA1WGoP1lo
+	 TwCikOihlGQzZvg6rRgTk+hvi9SjNeFnHRrES8Bm/dzK/0UUVBggssjmgFovEFin3B
+	 KaMZkyLWFnCxQ==
+Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 7E17D17E3601;
+	Mon, 21 Oct 2024 14:35:31 +0200 (CEST)
+Message-ID: <daacbe14-b6f8-4de2-8bb1-b3db62245a66@collabora.com>
+Date: Mon, 21 Oct 2024 14:35:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] watchdog: mtk_wdt: Add support for MT6735 WDT
+To: Guenter Roeck <linux@roeck-us.net>, yassine.oudjana@gmail.com
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Rob Herring <robh+dt@kernel.org>,
+ Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Yassine Oudjana <y.oudjana@protonmail.com>, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+References: <20230302124015.75546-1-y.oudjana@protonmail.com>
+ <20230302124015.75546-3-y.oudjana@protonmail.com>
+ <0398e95e-dbb8-2e41-7b36-12e36b8729f0@collabora.com>
+ <f9b09f59-a222-4b75-a6ef-c7fb7c2cff9e@gmail.com>
+ <9bd327fb-5f67-453d-947d-4742134b32b1@collabora.com>
+ <WOMHLS.HLNVQWWVER5T1@gmail.com>
+ <4e3545ce-5740-48b6-8c10-666548d31908@roeck-us.net>
+ <ccacc376-8494-4941-a4b8-dbb4d09914ee@collabora.com>
+ <14eb9404-a71c-4f8f-a808-8d3c1cf50c49@roeck-us.net>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <14eb9404-a71c-4f8f-a808-8d3c1cf50c49@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrBJsWRmVeSWpSXmKPExsWy7bCmua7Wd9F0g/W7pS0ezNvGZnH/Ux+T
-	xZq955gs5h85x2rxctY9Nou9r7eyW2x6fI3V4vKuOWwWM87vY7K4sW4fu8WThWeYLP7v2cFu
-	MWnxeSaLxy//MTvweWxa1cnmcefaHjaPlWvWsHpsXlLvsfN7A7tH35ZVjB6fN8kFsEdl22Sk
-	JqakFimk5iXnp2TmpdsqeQfHO8ebmhkY6hpaWpgrKeQl5qbaKrn4BOi6ZeYAnaykUJaYUwoU
-	CkgsLlbSt7Mpyi8tSVXIyC8usVVKLUjJKTAv0CtOzC0uzUvXy0stsTI0MDAyBSpMyM7onfSB
-	teCJbMXdw9eZGhjnSXYxcnJICJhInDn1gbmLkYtDSGAHo0Tn+ttsEM4nRol5vxcygVQJCXxj
-	lFizIBum4/WevVBFexkl/v/fxg7hfGSU+PqylxGkik1AS2Lb4VdMIAkRgdeMEk2978CWMAus
-	ZZKY86MNrEpYIFii6cJqsB0sAqoST/ftBrN5BWwldp+fxQqxT17i/Jv/bCA2p4CdxONjT1kg
-	agQlTs58AmYzA9U0b50NtkBCYCWHREvre6hmF4kt+9axQdjCEq+Ob2GHsKUkXva3Qdn5EitX
-	nmCCsGsk7rXtYoGw7SUWnfkJVMMBtEBTYv0ufRBTQkBZ4sgtqLV8Eh2H/7JDhHklOtqEIExV
-	ienLAiBmSEtMnLEWar+HxI3fO1ggYTWRUWL7tQ9MExgVZiF5ZhaSZ2Yh7F3AyLyKUSy1oDg3
-	PbXYqMAIHsPJ+bmbGMFJWMttB+OUtx/0DjEycTAeYpTgYFYS4VUqEU0X4k1JrKxKLcqPLyrN
-	SS0+xGgKDOqJzFKiyfnAPJBXEm9oYmlgYmZmaG5kamCuJM57r3VuipBAemJJanZqakFqEUwf
-	EwenVAOT596z28rsX5lcrAkXuSMX7rt8x+RZb64dinph0x9Wt+OK49LpC3/fKnn91fY475qu
-	Bes1L3Dt8yk8dOrm9Kxt51+c3Nzi/Mknxf/m5mt/Vumek36ooXzgwC3+lEN8XerMH1YpXxP9
-	WDzhzrSDv9J8VJc6S009Ps/x3etFEx4802xdfpOxdpK6zNmU/ob9bPPKzC46xs+ULrxsELFc
-	Wv1jsh7/nbc9t/+ekVFVE5wj58/P2WcwKe+l8eySus9u959nHQxdZ9fCcODgXw2eKW7Mryrl
-	Jk8X8T//POqFzqJzn3tmf//n/ejGuimP9gSnP5dYu0HwwLEK2c554QcK+K6ucOcW5S8IWmjz
-	cnJc8KSHT78rsRRnJBpqMRcVJwIAK2IRaEsEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrCLMWRmVeSWpSXmKPExsWy7bCSvK7md9F0g1fHbCwezNvGZnH/Ux+T
-	xZq955gs5h85x2rxctY9Nou9r7eyW2x6fI3V4vKuOWwWM87vY7K4sW4fu8WThWeYLP7v2cFu
-	MWnxeSaLxy//MTvweWxa1cnmcefaHjaPlWvWsHpsXlLvsfN7A7tH35ZVjB6fN8kFsEdx2aSk
-	5mSWpRbp2yVwZfRO+sBa8ES24u7h60wNjPMkuxg5OSQETCRe79nL1sXIxSEksJtRYk3XRWaI
-	hLTEkd8v2CBsYYn7LUdYIYreM0pMXX8MLMEmoCWx7fArJpCECEji7JdfjCAJZoHNTBJXpimB
-	2MICgRKvN70Gi7MIqEo83bebCcTmFbCV2H1+FivEBnmJ82/+gw3lFLCTeHzsKQuILQRUc+Uq
-	xBW8AoISJ2c+YYGYLy/RvHU28wRGgVlIUrOQpBYwMq1ilEwtKM5Nzy02LDDMSy3XK07MLS7N
-	S9dLzs/dxAiOGC3NHYzbV33QO8TIxMF4iFGCg1lJhFepRDRdiDclsbIqtSg/vqg0J7X4EKM0
-	B4uSOK/4i94UIYH0xJLU7NTUgtQimCwTB6dUA5PkdY4rx3PKViac50ri388XWVDNbmww1WV2
-	9rQ/L678ibi18oDI0s0/tu+MeeXL+v+f58cHbfXrWZhjLj2Z/Nra6lre+mV2uwu8nJy/HN57
-	ykhpx+9J7/z7zng/Vle3Fzm/edO7KTE53Xw8B82vzJ7A/6HJqmifwMTcTfZyU9fN+tS14dnK
-	AONDbK8l2KT3erQU3ry0xPOUdM2zK9+XfPIV/dWTaLd2Y+pNZ0drH3l9VpUTb884NoSrVl5/
-	MNN/1vVzb+dd3HCDP/SkZqa5hlTNhIfm+3faMR3UF6lvT5g9f3nQkj3Ox986mQUrvXlzRlH0
-	F1sqp+WONbf9b4a4aD5XX9w74dTs73nt+mYy7+wElFiKMxINtZiLihMBSIxYWgcDAAA=
-X-CMS-MailID: 20241021063938epcas2p22e0a9f4f869237ceadf4f2035778bfc7
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: AUTO_CONFIDENTIAL
-CMS-TYPE: 102P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20241021063938epcas2p22e0a9f4f869237ceadf4f2035778bfc7
-References: <20241021063903.793166-1-trunixs.kim@samsung.com>
-	<CGME20241021063938epcas2p22e0a9f4f869237ceadf4f2035778bfc7@epcas2p2.samsung.com>
 
-From: Byoungtae Cho <bt.cho@samsung.com>
+Il 17/10/24 17:39, Guenter Roeck ha scritto:
+> On 10/17/24 08:16, AngeloGioacchino Del Regno wrote:
+>> Il 17/10/24 16:09, Guenter Roeck ha scritto:
+>>> On 10/16/24 23:43, yassine.oudjana@gmail.com wrote:
+>>> ...
+>>>>>>
+>>>>>> Say I don't want to use the watchdog (which I don't, all I need from TOPRGU 
+>>>>>> is the resets, I don't care about the watchdog). Not starting the watchdog 
+>>>>>> means I can't reset the system because all mtk_wdt_restart will do is make 
+>>>>>> TOPRGU send me an IRQ that I have no use for.
+>>>>>
+>>>>> If you don't want to use the watchdog, then you don't need to care about bark
+>>>>> interrupts and you don't need any mtk_wdt_restart() functionality at all :-)
+>>>>
+>>>> I need mtk_wdt_restart to restart my system. I shouldn't need to take off my 
+>>>> phone's back cover and remove the battery every time :)
+>>>>
+>>>>>
+>>>> I think what Guenter said makes sense. We should make sure the watchdog is 
+>>>> started when calling mtk_wdt_restart or at least configured in such a way that 
+>>>> we are sure it will issue a system reset.
+>>>>
+>>>
+>>> It is more than that. There is no limitation in the watchdog API that says
+>>> "you must only use the watchdog kernel driver to reset the system if the
+>>> watchdog has been activated from userspace". Such a limitation would be
+>>> completely arbitrary and not make any sense. It is perfectly fine to enable
+>>> the watchdog from the restart callback if needed. Actually, all restart
+>>> handlers in watchdog drivers have to do that if they indeed use a watchdog
+>>> to reset the system.
+>>>
+>>> Actually, I am not entirely sure I understand what we are arguing about.
+>>>
+>>
+>> Guenter:
+>> We're arguing about bad configuration and lots of misunderstanding.
+>>
+>> Regarding WDT_MODE_EXRST_EN: when enabled, it enables an external output
+>> reset signal - meaning that it's going to flip the state of a GPIO to active
+>> (high in Yassine's case - as that's configured through WDT_MODE BIT(1) and
+>> his 0x5c means that it's flipped on), signaling to another chip (usually,
+>> the PMIC...!) that we want to reset the system.
+>>
+>> Explaining what Yassine is doing with this commit: he is flipping the IRQ_EN
+>> bit [BIT(5)] in WDT_MODE.
+>>
+>> When bit 5 *is set*, the watchdog bark event will only raise an interrupt and
+>> will not reset the system (that's left to be done to an interrupt handler in
+>> the driver).
+>>
+>> When bit 5 *is NOT set*, the watchdog bark event will trigger a CPU reset.
+>>
+>> Now, my confusion came from the fact that he's trying to fix a watchdog bark
+>> event so that it triggers system reset, but I didn't understand the actual
+>> reason why he wants to do that - which is powering off the system!
+>>
+>>
+>> Yassine:
+>>
+>> You don't *have to* rely on the watchdog to reset the system, and if you use
+>> only that - especially on a smartphone - I'm mostly sure that you'll get
+>> power leakage.
+>>
+>> Before you read the following - please note that this is platform dependent
+>> so, take this with a grain of salt: it is the PMIC that should get configured
+>> to take your system down! I have a hunch that this works for you only because
+>> the platform will reboot, and then the bootloader will decide to turn off the
+>> system for you by default (that, unless you send a warm reboot indication).
+>>
+>> That flow looks more like a hack than a solution for an actual problem.
+>>
+>>
+>> Now - whether you want to fix your platform or not, this is out of the scope
+>> of this commit, which is - in the end - still fixing something that is wrong.
+>>
+>> Effectively, as Guenter said, if the watchdog is never started, the restart
+>> function is not going to reboot the system, so yes this problem needs to be
+>> fixed.
+>>
+>> There are two problems in this driver that can be solved with:
+>>   1. Disable IRQ generation when *no irq* is found in DT; and
+>>   2. Implement support for reboot in mtk_wdt_isr() by reading the WDT_STA
+>>      register and by then taking appropriate actions.
+>>
+> 
+> That won't work because interrupts are likely disabled when the reset callback
+> executes. The reset handler must not depend on an interrupt. It has to be
+> self-contained: It has to configure the hardware to issue a reset.
+> On some systems, that is done by setting the watchdog timeout to a really low value
+> and enabling it. Others have a special configuration in the watchdog register set
+> which triggers a reset immediately. If the hardware supports pretimeout, that would
+> have to be disabled because the idea is to trigger a reset signal, not an interrupt.
+> 
+> To repeat, setting up the system and then waiting for an interrupt to do something
+> defeats the purpose of the reset handler, which is to issue a reset signal.
+> Somehow. If that can be done from an interrupt handler, it can and should be done
+> immediately instead.
+> 
+>> Of course my preference would be N.2 because:
+>>   - The pretimeout way is already supported in the driver, and if you specify
+>>     a pretimeout, then the watchdog will never trigger SYSRST->XRST: this
+>>     is actually a bug (IMO!!), as declaring an IRQ in DT means losing reset (!);
+>>   - The WDT_STA register tells you more than just "SW/HW watchdog reset asserted"
+>>     and that can be extended in the future to support more than that.
+>>
+>> However, I recognize that this may be too much work for you, so, if there's no
+>> way for you to properly add support for N.2 - I can chime in.
+>>
+>> As for N.1, the solution is simple: check if platform_get_irq_optional fails
+>> and - if it does - force unsetting (WDT_MODE_IRQ_EN | WDT_MODE_DUAL_EN) in
+>> WDT_MODE, if and only if WDT_EN is not set.. but that, in the probe function!
+>>
+> 
+> All that should be configured in the reset handler. It has to disable interrupts
+> even if there is interrupt support because that is not what is wanted at this point.
+> 
 
-Adds the compatibles and drvdata for the ExynosAuto V920 SoC. This SoC
-is almost similar to ExynosAutoV9, but some CPU configurations are quite
-different, so it should be added. Plus it also support DBGACK like as
-GS101 SoC.
+Ack.
+After re-reading this and thinking about it for a bit - you're definitely right.
 
-Signed-off-by: Byoungtae Cho <bt.cho@samsung.com>
-Signed-off-by: Taewan Kim <trunixs.kim@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/s3c2410_wdt.c | 37 +++++++++++++++++++++++++++++++++-
- 1 file changed, 36 insertions(+), 1 deletion(-)
+Let's go for the setup in the reset handler then.
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 686cf544d0ae..aa128099c47d 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -63,6 +63,10 @@
- #define EXYNOS850_CLUSTER1_NONCPU_INT_EN	0x1644
- #define EXYNOSAUTOV9_CLUSTER1_NONCPU_OUT	0x1520
- #define EXYNOSAUTOV9_CLUSTER1_NONCPU_INT_EN	0x1544
-+#define EXYNOSAUTOV920_CLUSTER0_NONCPU_OUT	0x1420
-+#define EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN	0x1444
-+#define EXYNOSAUTOV920_CLUSTER1_NONCPU_OUT	0x1720
-+#define EXYNOSAUTOV920_CLUSTER1_NONCPU_INT_EN	0x1744
- 
- #define EXYNOS850_CLUSTER0_WDTRESET_BIT		24
- #define EXYNOS850_CLUSTER1_WDTRESET_BIT		23
-@@ -303,6 +307,32 @@ static const struct s3c2410_wdt_variant drv_data_gs101_cl1 = {
- 		  QUIRK_HAS_DBGACK_BIT,
- };
- 
-+static const struct s3c2410_wdt_variant drv_data_exynosautov920_cl0 = {
-+	.mask_reset_reg = EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
-+	.mask_bit = 2,
-+	.mask_reset_inv = true,
-+	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
-+	.rst_stat_bit = EXYNOSAUTOV9_CLUSTER0_WDTRESET_BIT,
-+	.cnt_en_reg = EXYNOSAUTOV920_CLUSTER0_NONCPU_OUT,
-+	.cnt_en_bit = 7,
-+	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET |
-+		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN |
-+		  QUIRK_HAS_DBGACK_BIT,
-+};
-+
-+static const struct s3c2410_wdt_variant drv_data_exynosautov920_cl1 = {
-+	.mask_reset_reg = EXYNOSAUTOV920_CLUSTER1_NONCPU_INT_EN,
-+	.mask_bit = 2,
-+	.mask_reset_inv = true,
-+	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
-+	.rst_stat_bit = EXYNOSAUTOV9_CLUSTER1_WDTRESET_BIT,
-+	.cnt_en_reg = EXYNOSAUTOV920_CLUSTER1_NONCPU_OUT,
-+	.cnt_en_bit = 7,
-+	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET |
-+		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN |
-+		  QUIRK_HAS_DBGACK_BIT,
-+};
-+
- static const struct of_device_id s3c2410_wdt_match[] = {
- 	{ .compatible = "google,gs101-wdt",
- 	  .data = &drv_data_gs101_cl0 },
-@@ -320,6 +350,8 @@ static const struct of_device_id s3c2410_wdt_match[] = {
- 	  .data = &drv_data_exynos850_cl0 },
- 	{ .compatible = "samsung,exynosautov9-wdt",
- 	  .data = &drv_data_exynosautov9_cl0 },
-+	{ .compatible = "samsung,exynosautov920-wdt",
-+	  .data = &drv_data_exynosautov920_cl0 },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
-@@ -643,7 +675,8 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
- 	/* Choose Exynos850/ExynosAutov9 driver data w.r.t. cluster index */
- 	if (variant == &drv_data_exynos850_cl0 ||
- 	    variant == &drv_data_exynosautov9_cl0 ||
--	    variant == &drv_data_gs101_cl0) {
-+	    variant == &drv_data_gs101_cl0 ||
-+	    variant == &drv_data_exynosautov920_cl0) {
- 		u32 index;
- 		int err;
- 
-@@ -662,6 +695,8 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev, struct s3c2410_wdt *wdt)
- 				variant = &drv_data_exynosautov9_cl1;
- 			else if (variant == &drv_data_gs101_cl0)
- 				variant = &drv_data_gs101_cl1;
-+			else if (variant == &drv_data_exynosautov920_cl0)
-+				variant = &drv_data_exynosautov920_cl1;
- 			break;
- 		default:
- 			return dev_err_probe(dev, -EINVAL, "wrong cluster index: %u\n", index);
--- 
-2.47.0
+Though, I think that a v2 is still needed here - one patch to fix the reset handler
+(at this point, with a Fixes tag for backporting..!), and one to add support for
+the MT6735 resets.
 
+Cheers,
+Angelo
