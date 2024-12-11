@@ -1,166 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx.denx.de (mx.denx.de [89.58.32.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 593FB25615D;
-	Wed, 11 Dec 2024 18:54:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F77243B7D
+	for <linux-watchdog@vger.kernel.org>; Wed, 11 Dec 2024 18:57:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.58.32.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733943262; cv=none; b=IA2h0JaTkFQZ118t0hujAFYBithJcBA8oh9luzJXyLWkEqRA4qqS7ocR3FvUCVWyAY9qfTgRBLirN5FzV1WkOa6XFOhd5MjFdAN88c7m7bfs+eaLD5NYYkF8u9lIOfhD3zQX6lyy4YrPA75FvF1a0LGk3fJre2rn9RybBJ58Jv0=
+	t=1733943483; cv=none; b=L0AuDkyAMJsMIfJNXKF4qhtA9Nwz+NRQL4JpXvrfPFki7i0H4L+AOe9l2qTNhzkOYJWuIgNUpgxb0P9A7+HETaGIwaiBUn9f0JWRqK/oNqj9JE3+/2x20dlEEIHl8tYIWakDksk/ZbJpbs8y23/DX5ph6yaxii3BKQ8AvkG7FTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733943262; c=relaxed/simple;
-	bh=9E/Isbo+FXM6DvwET1ygPqHe/OysEciXdK9fB1gfCps=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qSKodPvqhzxhoJULlRxJjKdBPaWvOHk55a8+9t5qjju5Fc7HKUUXo3eVQOsdVaet877IQxTLw1VlmYzjfPM5DLpNJQ0gA5CLMS7IRTKJrSgdeICt2w6K5EgGn61ZiV5ZpWxvyuNQwPCD5cBmS82Og0eWCzQ+NB9ffmXTefWPVYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JWDhM7e7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733943483; c=relaxed/simple;
+	bh=0lT8pOSzsTfLSLeDK8jffdSSYhZh0SvUCiOtP8vkv+8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UOf1GFNLXXWKgfMxtF+jQRq9POpiOw0kI7BCY+EzxhxbC1bYkdFj/SkkhnUz0rwVALsIe+SV6Lk1zQ37VtolykhaHjRVARxJPr60HnfnIJIf8sNmTj5vdQJlVqnkIXhWGSSZjpwtbbplxEKDROzGf9m/WgGAYJRuNaDDykGckcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=hAQqBamG; arc=none smtp.client-ip=89.58.32.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JWDhM7e7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F07DFC4CED2;
-	Wed, 11 Dec 2024 18:54:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733943261;
-	bh=9E/Isbo+FXM6DvwET1ygPqHe/OysEciXdK9fB1gfCps=;
-	h=From:To:Cc:Subject:Date:From;
-	b=JWDhM7e7oD0nMo3hFWPr8+aoc+17woX2ZUQxr9VjsYk1+3bWsyY5cYple5xfBaXnD
-	 BtuQv/sw8ZxAKjj/Np0tiB4Gc5hcQ44+hGHEK1YsYHb7IKsioc7BwOfP3+q0PhvoaY
-	 kbPOeJ0pGC1utxgPPpTNficC3iAiicGwy3xxpsh9voAfqjbcUJo8LyqJJ/tUbRGKdw
-	 C/8/q3wtU//xBJfl8Q7yM38kPwYAPGH9mXrNK6jeFX1qsA0fnyPxWG+XgCmocsDt72
-	 T7Bm8ySMhisUH9uucv0cBjlD7k2Z64lDTARQuRBNEDLeUyt44eSiEoRyHyLSRCYU5e
-	 rJcPV4+seF63g==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: James Hilliard <james.hilliard1@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Sasha Levin <sashal@kernel.org>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/10] watchdog: it87_wdt: add PWRGD enable quirk for Qotom QCML04
-Date: Wed, 11 Dec 2024 13:54:07 -0500
-Message-ID: <20241211185419.3843138-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="hAQqBamG"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 98E85104858A3;
+	Wed, 11 Dec 2024 19:49:20 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de; s=mx-20241105;
+	t=1733942965;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9mka/6c02zAmTI1ZuaE51LtWLUrXwWytHmmGzjhbNio=;
+	b=hAQqBamG3pG/60OscjZ3vfrjvNpj8m2HS9Zx7PKHxstCe0cPTn1Kz88hdPZOjjJXnyMXvY
+	MyGNptqZYZqEi5F4DE3oHVQcLFeyfti/6HozoSH3JxhY8unkYCNQJ0x6XeVo3BLiGFU0Rl
+	hdMdymft3iQw4qqb9Fln6SRL9AFz7dR9BZXchMNErvo6t3j93Gvy50dBFbxSqBIr7NOC0f
+	M8B+Xrk2Hav1kYt05ETxgTFfRdvHyz8qfEanldZffnWaXKZPO9/IS5262On9RwKR0KgBHM
+	bisr4YXq01XNNtPoi6FvbUjR4WJ+lsCe5OXUrf91kIy0+6ohxZfSXsJfWIzyfg==
+Message-ID: <656838f1-40e5-44de-aaba-d8f5ba496af7@denx.de>
+Date: Wed, 11 Dec 2024 19:31:12 +0100
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.230
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] watchdog: stm32_iwdg: Add pretimeout support
+To: Clement LE GOFFIC <clement.legoffic@foss.st.com>,
+ linux-watchdog@vger.kernel.org
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Guenter Roeck <linux@roeck-us.net>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ linux-arm-kernel@lists.infradead.org,
+ linux-stm32@st-md-mailman.stormreply.com
+References: <20240415134903.8084-1-marex@denx.de>
+ <49ccec07-4d4c-4582-814b-d4a60adbbfe1@foss.st.com>
+Content-Language: en-US
+From: Marek Vasut <marex@denx.de>
+In-Reply-To: <49ccec07-4d4c-4582-814b-d4a60adbbfe1@foss.st.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-From: James Hilliard <james.hilliard1@gmail.com>
+On 12/11/24 10:02 AM, Clement LE GOFFIC wrote:
+> On 4/15/24 15:48, Marek Vasut wrote:
+>> The STM32MP15xx IWDG adds registers which permit this IP to generate
+>> pretimeout interrupt. This interrupt can also be used to wake the CPU
+>> from suspend. Implement support for generating this interrupt and let
+>> userspace configure the pretimeout. In case the pretimeout is not
+>> configured by user, set pretimeout to 3/4 of the WDT timeout cycle.
+>>
+>> Reviewed-by: Clément Le Goffic <clement.legoffic@foss.st.com>
+>> Tested-by: Clément Le Goffic <clement.legoffic@foss.st.com>
+>> Signed-off-by: Marek Vasut <marex@denx.de>
+>> ---
+>> Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+>> Cc: Guenter Roeck <linux@roeck-us.net>
+>> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+>> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linux-stm32@st-md-mailman.stormreply.com
+>> Cc: linux-watchdog@vger.kernel.org
+>> ---
+>> V2: - Subtract the pretimeout value from timeout value before writing it
+>>        into the IWDG pretimeout register, because the watchdog counter
+>>        register is counting down, and the pretimeout interrupt triggers
+>>        when watchdog counter register matches the pretimeout register
+>>        content.
+>>      - Set default pretimeout to 3/4 of timeout .
+>> V3: - Use dev instead of pdev->dev
+>>      - Swap order of ret/return 0
+>>      - Split this from the DT changes, which are orthogonal
+>>      - Uh, this patch got stuck in upstreaming queue, sorry
+>> V4: - Update commit message to match V2 default pretimeout to 3/4
+>>      - Add RB/TB from Clément
+>> ---
+>>   drivers/watchdog/stm32_iwdg.c | 95 ++++++++++++++++++++++++++++++++++-
+>>   1 file changed, 94 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/ 
+>> stm32_iwdg.c
+>> index 5404e03876202..d700e0d49bb95 100644
+>> --- a/drivers/watchdog/stm32_iwdg.c
+>> +++ b/drivers/watchdog/stm32_iwdg.c
+>>
+>>  [.....]
+>>
+>> +
+>> +    irq = platform_get_irq(pdev, 0);
+>> +    if (irq <= 0)
+>> +        return 0;
+> 
+> Hi Marek,
+> 
+> After re-evaluating this patch, it seems it lacks of a dt-bindings 
+> update that tackles the 'interrupts' property you are adding.
+> 
+> That said, the interrupt line should not be mandatory for the driver to 
+> probe. For backward compatibility with existing DT, I recommend to use 
+> the 'platform_get_irq_optional()' API to not fail during the probe of 
+> the driver.
+I saw the fix
+[PATCH] watchdog: stm32_iwdg: fix DT backward compatibility
+Thank you for that. I'll wait for V2 with updated commit message .
 
-[ Upstream commit 43439076383a7611300334d1357c0f8883f40816 ]
-
-For the watchdog timer to work properly on the QCML04 board we need to
-set PWRGD enable in the Environment Controller Configuration Registers
-Special Configuration Register 1 when it is not already set, this may
-be the case when the watchdog is not enabled from within the BIOS.
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20241025063441.3494837-1-james.hilliard1@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/watchdog/it87_wdt.c | 39 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
-
-diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-index 6340ca058f890..da9e24e4a8b60 100644
---- a/drivers/watchdog/it87_wdt.c
-+++ b/drivers/watchdog/it87_wdt.c
-@@ -20,6 +20,8 @@
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
-+#include <linux/bits.h>
-+#include <linux/dmi.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
-@@ -40,6 +42,7 @@
- #define VAL		0x2f
- 
- /* Logical device Numbers LDN */
-+#define EC		0x04
- #define GPIO		0x07
- 
- /* Configuration Registers and Functions */
-@@ -71,6 +74,12 @@
- #define IT8784_ID	0x8784
- #define IT8786_ID	0x8786
- 
-+/* Environment Controller Configuration Registers LDN=0x04 */
-+#define SCR1		0xfa
-+
-+/* Environment Controller Bits SCR1 */
-+#define WDT_PWRGD	0x20
-+
- /* GPIO Configuration Registers LDN=0x07 */
- #define WDTCTRL		0x71
- #define WDTCFG		0x72
-@@ -241,6 +250,21 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
- 	return ret;
- }
- 
-+enum {
-+	IT87_WDT_OUTPUT_THROUGH_PWRGD	= BIT(0),
-+};
-+
-+static const struct dmi_system_id it87_quirks[] = {
-+	{
-+		/* Qotom Q30900P (IT8786) */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "QCML04"),
-+		},
-+		.driver_data = (void *)IT87_WDT_OUTPUT_THROUGH_PWRGD,
-+	},
-+	{}
-+};
-+
- static const struct watchdog_info ident = {
- 	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
- 	.firmware_version = 1,
-@@ -262,8 +286,10 @@ static struct watchdog_device wdt_dev = {
- 
- static int __init it87_wdt_init(void)
- {
-+	const struct dmi_system_id *dmi_id;
- 	u8  chip_rev;
- 	u8 ctrl;
-+	int quirks = 0;
- 	int rc;
- 
- 	rc = superio_enter();
-@@ -274,6 +300,10 @@ static int __init it87_wdt_init(void)
- 	chip_rev  = superio_inb(CHIPREV) & 0x0f;
- 	superio_exit();
- 
-+	dmi_id = dmi_first_match(it87_quirks);
-+	if (dmi_id)
-+		quirks = (long)dmi_id->driver_data;
-+
- 	switch (chip_type) {
- 	case IT8702_ID:
- 		max_units = 255;
-@@ -334,6 +364,15 @@ static int __init it87_wdt_init(void)
- 		superio_outb(0x00, WDTCTRL);
- 	}
- 
-+	if (quirks & IT87_WDT_OUTPUT_THROUGH_PWRGD) {
-+		superio_select(EC);
-+		ctrl = superio_inb(SCR1);
-+		if (!(ctrl & WDT_PWRGD)) {
-+			ctrl |= WDT_PWRGD;
-+			superio_outb(ctrl, SCR1);
-+		}
-+	}
-+
- 	superio_exit();
- 
- 	if (timeout < 1 || timeout > max_units * 60) {
--- 
-2.43.0
-
+As far as I understood the problem, the goal is to remove error message 
+printed by the platform_get_irq() in case the DT interrupt property is 
+missing, but this is only an esthetic fix, not a functional one, because 
+the driver probes even if the interrupts DT property is missing, it only 
+prints the error message while at it, correct ?
