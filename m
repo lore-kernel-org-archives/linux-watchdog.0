@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B871A22A81D;
-	Wed, 11 Dec 2024 18:53:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FBEA253D02;
+	Wed, 11 Dec 2024 18:53:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733943198; cv=none; b=O953pL6aC/OeNhzoEiVk84QGFXSFtPb45HKa91O0uOQ9Ff+C9d9k/u3lS553u+Pbr5YEXQr8GtakdGenmvzbW7ZHFOu3I/MQ95dbq9kqwB7AYpXPs20fFVJGcPutw9SP1DF1qU8ieBhLXyms/ryTrE5N50PkG5aXNEP+/QMz5RI=
+	t=1733943237; cv=none; b=QbzEycrZUfD4u3f1heJJ2YEMixuMRGeMJBlNMwcgescQbpHpS4C0YTUNIo2weU4n5tFe+cwnB0xL2tuZVuZEpQACqQ1ZBJ/ZL6KN+7ijNJunvykMpHFL3w4t2j2DDes3ercm6wuLIbSLEJ8QTI6Jvc1euJ99JtGkuHmgf1IVpas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733943198; c=relaxed/simple;
+	s=arc-20240116; t=1733943237; c=relaxed/simple;
 	bh=cMHujGTwR/Y+8zeiO+d9MOKlVyHMMOTiGn/MHw7K/Kg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Zn8KIQzMuUwwOO450REZ+pyKYV0wcgBVuF/h9Op4xCo3F9MG/6un5utaXFGyJBb6j/p6FYjIL7bq69Zt1VaUZ6wMJjvGnkXAxzXmMU9hqB7yfnBZUptPqmqv9yRez91cuw4caK3IU25VoPvkSCEPZuroIWTUqEVMw58rJ0kZKVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QCFvC7Yk; arc=none smtp.client-ip=10.30.226.201
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KoAGqu2ztN6rknOTtc4DJZAl1cbQ6TGVboJNrGrqLQ869HTaHQ73uRkOwBniAAzGzkxJaWpcl1phjE0jtOtrbvj1DfJ+khW/bjpyA24Hq+FnrZ1GtkqXLgEk5jNnvrWIpr5QFWangelwWYpr3ieDVib8f1NW/YQqud23CRqW7Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZZufNAOI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QCFvC7Yk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CD7C4CED2;
-	Wed, 11 Dec 2024 18:53:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZZufNAOI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85452C4CED2;
+	Wed, 11 Dec 2024 18:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733943198;
+	s=k20201202; t=1733943237;
 	bh=cMHujGTwR/Y+8zeiO+d9MOKlVyHMMOTiGn/MHw7K/Kg=;
 	h=From:To:Cc:Subject:Date:From;
-	b=QCFvC7YkKQipZ69FAEPcFBf6hPilxU4gWYXmByfHXEeueZ/aC+gOgkxzp02eH7lXw
-	 2j7KqJqp1dJkS2zAlaiRTZ8NpjjK0R9/2WF1zXvKFVnN1OqOwbwc18nB49a0yBEHqC
-	 /0btyKfV+NkZNzpgO8/OVyfXU4jGdo8F9xnRy+txtBwxl9/EKeDpz07BLbccQEdnTH
-	 +1PP5W2BbxewCGLdRk2d1hftVQ2N4o2Ya77tWh5Feyh4zGUt3BKXVovN8PmsXPu0/x
-	 hIKGozB+1ouOYZx7Zz5UOaYxFuPlgF2A7DTKxu3n0JlEE7sSPMbqAioQ1cKqPbKHAB
-	 VG4j6FLaEW5dA==
+	b=ZZufNAOI0Zc+hbZ27Hr7VtnT8eejc1nzh6B/jR64d6QMi1ui/rot05ls1FKCMB3ve
+	 mMrsSx4iSlVYuMAT5IeHLR1OZZK/ela4o8/khj0ciVpBiZhVqyT3N1BPOsh/BpOrNl
+	 MFWWeT4sKmw6jBu8A9iifkGzDZuTT4YLjxibGaHmxrjjruAD4feTTwYhi3LEZkkKzT
+	 +L6EAEjRkeXwukGubwCLaV/MW/4pWpZbuOycNPB/9CKpftBv4BxMTyvVr5ulN6YGBA
+	 kN5eMx/4BB+2KZl8UFKLN87EFmNIOjy7u0WwkL7HmSUks5/9QGKmgiV3NaehgIrUui
+	 5+f6Np2bwG+yA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -33,9 +33,9 @@ Cc: James Hilliard <james.hilliard1@gmail.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Sasha Levin <sashal@kernel.org>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 01/15] watchdog: it87_wdt: add PWRGD enable quirk for Qotom QCML04
-Date: Wed, 11 Dec 2024 13:52:53 -0500
-Message-ID: <20241211185316.3842543-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 01/10] watchdog: it87_wdt: add PWRGD enable quirk for Qotom QCML04
+Date: Wed, 11 Dec 2024 13:53:42 -0500
+Message-ID: <20241211185355.3842902-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -45,7 +45,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.119
+X-stable-base: Linux 5.15.173
 Content-Transfer-Encoding: 8bit
 
 From: James Hilliard <james.hilliard1@gmail.com>
