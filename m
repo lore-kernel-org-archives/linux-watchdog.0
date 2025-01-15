@@ -1,39 +1,42 @@
 Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 61EC5241684;
-	Wed, 15 Jan 2025 10:39:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 18C761E98F8;
+	Wed, 15 Jan 2025 10:44:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.160.252.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736937576; cv=none; b=R0uw9FxUgzYHqMt3jwojB6yzktKpH2TCoc9hxn1yoWzYwxpSkvkGGiWE1AIGtLtc7W67cZTKIKefLU3a+5M5Abk4e2qKsbSCgOAOc6d+A1d15uR5e2nfSqt52/jfUDjwV67ihjKiz/tVce26GamIqFCOgqeGKGRahDtJSX2+qn8=
+	t=1736937857; cv=none; b=Y8ZPHcpUjqar3UJOs0lWxTke3CT57rvyXhiZOIaCX5yA25Ttzg3aTRpT1OZ9mrT+m1YSpHzJfu0LABpvLln0H3M5tV8Ku56iqLj6Ms8gdZ9awCaK6fTY8g8ZNau/aK3ZJX86HEwymt2h/tc3E9XmFptwptmSY0r7u4ALFeAt2tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736937576; c=relaxed/simple;
-	bh=DIdC8JmRX398dfENcqSIXkvY+Tkv7BlV11AYZ4Doo8s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qXuV1RWzrbqTgvBVQmY/BlwiSTopngKBUtOi/0/A7vmxp27wLQGkkHHtruwpVW+Wn1odjSA4t5D5JwCJMvP5Z6/jdK1sH/8NNqNeqs/wtt0k0QGaaEoqzEqnq5b3cunh9n9j2gAZlNuqt78JPiMVJjU3+k9SCalfWqgOhhCcdtA=
+	s=arc-20240116; t=1736937857; c=relaxed/simple;
+	bh=YreGTaxToDhQTEYAOnwnnG5rnM3YMzUqjJ3eF3dQMAI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=c9TWDHdAZyRzVYgDBGC7qtiVozmaN9vqzpHFrND49Rw1VLkAB+q3JnzNmcfrMggb0KhH7y830LLcGm7tBEQjiIcDE/HM9OSC671RQY/d2xZSnxfWOVwKj7+XuANeZbKFMdSOZZlKBDuiFnxLTg59eB7PaBzM+a7cgw/WjivCOSo=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com; spf=pass smtp.mailfrom=bp.renesas.com; arc=none smtp.client-ip=210.160.252.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bp.renesas.com
-X-CSE-ConnectionGUID: L7g5iA6MSEmyVqeMIYeFkw==
-X-CSE-MsgGUID: sAyVCU6WQsaMx2bjIi0ghw==
+X-CSE-ConnectionGUID: 7b5Glj5nSg2tW4vtWLWFtQ==
+X-CSE-MsgGUID: XJL4LDtGSgSnFQRTDv51hQ==
 Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie5.idc.renesas.com with ESMTP; 15 Jan 2025 19:39:25 +0900
+  by relmlie5.idc.renesas.com with ESMTP; 15 Jan 2025 19:39:05 +0900
 Received: from localhost.localdomain (unknown [10.226.93.251])
-	by relmlir6.idc.renesas.com (Postfix) with ESMTP id 6CB13422D9D2;
-	Wed, 15 Jan 2025 19:39:13 +0900 (JST)
+	by relmlir6.idc.renesas.com (Postfix) with ESMTP id 1E681422D9AD;
+	Wed, 15 Jan 2025 19:39:00 +0900 (JST)
 From: Biju Das <biju.das.jz@bp.renesas.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
 Cc: Biju Das <biju.das.jz@bp.renesas.com>,
-	linux-watchdog@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
 	Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	Biju Das <biju.das.au@gmail.com>,
-	linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 3/5] watchdog: Make RZV2HWDT driver depend on ARCH_R9A09G47
-Date: Wed, 15 Jan 2025 10:38:52 +0000
-Message-ID: <20250115103858.104709-4-biju.das.jz@bp.renesas.com>
+	Biju Das <biju.das.au@gmail.com>
+Subject: [PATCH 0/5] Add support for RZ/G3E WDT
+Date: Wed, 15 Jan 2025 10:38:49 +0000
+Message-ID: <20250115103858.104709-1-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250115103858.104709-1-biju.das.jz@bp.renesas.com>
-References: <20250115103858.104709-1-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -42,37 +45,25 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RZ/G3E watchdog timer IP is similar to the one found on RZ/V2H.
-Add Kconfig dependency for RZV2HWDT driver with ARCH_R9A09G47 and
-update the help description.
+The RZ/G3E WDT IP is similar to RZ/V2H WDT. WDT0 can be used for CM33 cold
+reset, system reset and asserting WDTUDFCM pin where as WDT1 can be used
+for CA55 cold reset, system reset and asserting WDTUDFCA pin. Other 2
+watchdogs can be used for system reset. So define WDT{1..3} in SoC dtsi.
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
----
- drivers/watchdog/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Biju Das (5):
+  dt-bindings: watchdog: renesas,wdt: Document RZ/G3E support
+  clk: renesas: r9a09g047: Add WDT clocks/resets
+  watchdog: Make RZV2HWDT driver depend on ARCH_R9A09G47
+  arm64: dts: renesas: r9a09g047: Add WDT1-WDT3 nodes
+  arm64: dts: renesas: r9a09g047e57-smarc: Enable watchdog
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f81705f8539a..646a84cc03e3 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -963,13 +963,14 @@ config RENESAS_RZG2LWDT
- 	  Renesas RZ/G2L SoCs. These watchdogs can be used to reset a system.
- 
- config RENESAS_RZV2HWDT
--	tristate "Renesas RZ/V2H(P) WDT Watchdog"
--	depends on ARCH_R9A09G057 || COMPILE_TEST
-+	tristate "Renesas RZ/{G3E,V2H(P)} WDT Watchdog"
-+	depends on ARCH_R9A09G047 || ARCH_R9A09G057 || COMPILE_TEST
- 	depends on PM || COMPILE_TEST
- 	select WATCHDOG_CORE
- 	help
- 	  This driver adds watchdog support for the integrated watchdogs in the
--	  Renesas RZ/V2H(P) SoCs. These watchdogs can be used to reset a system.
-+	  Renesas RZ/{G3E,V2H(P)} SoCs. These watchdogs can be used to reset a
-+	  system.
- 
- config ASPEED_WATCHDOG
- 	tristate "Aspeed BMC watchdog support"
+ .../bindings/watchdog/renesas,wdt.yaml        |  4 +++
+ arch/arm64/boot/dts/renesas/r9a09g047.dtsi    | 30 +++++++++++++++++++
+ .../boot/dts/renesas/r9a09g047e57-smarc.dts   |  4 +++
+ drivers/clk/renesas/r9a09g047-cpg.c           | 15 ++++++++++
+ drivers/watchdog/Kconfig                      |  7 +++--
+ 5 files changed, 57 insertions(+), 3 deletions(-)
+
 -- 
 2.43.0
 
