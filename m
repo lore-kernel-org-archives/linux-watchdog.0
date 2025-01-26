@@ -1,42 +1,39 @@
 Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8C330EEDE;
-	Sun, 26 Jan 2025 13:26:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9CE85EEDE;
+	Sun, 26 Jan 2025 13:27:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.160.252.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737898023; cv=none; b=T4VMWQmK9zXhHfjrgDNhzLIrwEmtOX+We2EP4fE7+hm/FUDk1SyQkdvMVJszAngNXdXQ40+TBjergC9HoAe8ZXmTMlSmg22y8UqjtMoI2CchAfGiSREfoBpN3AYJYl/kqi5WQawRht10TFEVDGz8NkkXSB75WPNFqmc25qpr2J8=
+	t=1737898026; cv=none; b=QJuGQ+JHOJtbiIGZvUsFOUIvubHXl5rQiEIS0Y5ohUl4iEkWuoicM310Hm7YF5Y2Q5q2nDHUXrY6UoVb91CcFKfeBNDGw0wtfW1oL9VmyZHPDRhm/p0PF+2ayJ7mbk/jO0ZGs9FneW1Tmvg1ZjVIONBq0A+qHxNyj9pZXEEwPp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737898023; c=relaxed/simple;
-	bh=eb3bkPKmLo+3SX217IeGx8usT///U6RM9vLoNEEHSY8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=U2GoizEbX+r6oRk0oxAQ6wuiAodHKzR5Yu68v+oNvMeToNmUoHmmNBRZPYJztM6Ty+1T+7xXg3OcCj0QIPae1QHSbB6fTxUbUv1Z9VmoeqvXm7I/VfzrcA64DOkFdnAYNLYcM7AyjVIWeLIi3p3eb38vKDQ0OawTbV/dyFoWEoA=
+	s=arc-20240116; t=1737898026; c=relaxed/simple;
+	bh=A49auCRqa4hmokxzU6pxxyRoGK3JDcCQz2icPYRYYs0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=r2sWpVXBz7lB5akpV5xm7lj+lCukcSo71o9RTTB3pC5I6fee2BSbalybmLwv1n+7qXW618vDYp9EoYRFUPkJhmSC6xOJjGOgpo/GqED/i2+4wBIQHIPXhfBEVhW4D2T7Jm/Aq2n8RqbEsoAgl/Xn5y6zZUSHfCoIVkBsbHb4830=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com; spf=pass smtp.mailfrom=bp.renesas.com; arc=none smtp.client-ip=210.160.252.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bp.renesas.com
-X-CSE-ConnectionGUID: qCdURsCNQTSYFzop/N6gHA==
-X-CSE-MsgGUID: hojqy+r/RQ6ImM/yB1b0eg==
+X-CSE-ConnectionGUID: wxKeMQd7Tr6rBcykgCqeXg==
+X-CSE-MsgGUID: IHSIOgwNRveCg/ahDP5QEA==
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 26 Jan 2025 22:26:53 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 26 Jan 2025 22:26:58 +0900
 Received: from localhost.localdomain (unknown [10.226.92.41])
-	by relmlir5.idc.renesas.com (Postfix) with ESMTP id 3286240062A0;
-	Sun, 26 Jan 2025 22:26:36 +0900 (JST)
+	by relmlir5.idc.renesas.com (Postfix) with ESMTP id E661E40065A4;
+	Sun, 26 Jan 2025 22:26:46 +0900 (JST)
 From: Biju Das <biju.das.jz@bp.renesas.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
+	Guenter Roeck <linux@roeck-us.net>
 Cc: Biju Das <biju.das.jz@bp.renesas.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
 	Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	Biju Das <biju.das.au@gmail.com>
-Subject: [PATCH v2 0/2] Add support for RZ/G3E WDT
-Date: Sun, 26 Jan 2025 13:26:29 +0000
-Message-ID: <20250126132633.31956-1-biju.das.jz@bp.renesas.com>
+	Biju Das <biju.das.au@gmail.com>,
+	linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v2 2/2] watchdog: Enable RZV2HWDT driver depend on ARCH_RENESAS
+Date: Sun, 26 Jan 2025 13:26:31 +0000
+Message-ID: <20250126132633.31956-3-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250126132633.31956-1-biju.das.jz@bp.renesas.com>
+References: <20250126132633.31956-1-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -45,27 +42,42 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The RZ/G3E WDT IP is similar to RZ/V2H WDT. WDT0 can be used for CM33 cold
-reset, system reset and asserting WDTUDFCM pin where as WDT1 can be used
-for CA55 cold reset, system reset and asserting WDTUDFCA pin. Other 2
-watchdogs can be used for system reset. So define WDT{1..3} in SoC dtsi.
+RZ/G3E watchdog timer IP is similar to the one found on RZ/V2H. Both these
+SoCs belong to the ARCH_RENESAS family. So, it makes sense to use
+ARCH_RENESAS rather than ARCH_R9A09G057 to enable the RZV2HWDT driver.
 
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+---
 v1->v2:
- * Dropped patch#2, #4 and #5 as it is queued for renesas_clk and
-   renesas_devel.
- * Collected tags for patch#1.
- * Updated commit header and description for patch#2.
+ * Updated commit header and description.
  * Replaced ARCH_R9A09G047->ARCH_RENESAS as both RZ/V2H and RZ/G3E belongs
    to ARCH_RENESAS family.
+---
+ drivers/watchdog/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Biju Das (2):
-  dt-bindings: watchdog: renesas,wdt: Document RZ/G3E support
-  watchdog: Enable RZV2HWDT driver depend on ARCH_RENESAS
-
- .../devicetree/bindings/watchdog/renesas,wdt.yaml          | 4 ++++
- drivers/watchdog/Kconfig                                   | 7 ++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index f81705f8539a..b9d23f98a436 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -963,13 +963,14 @@ config RENESAS_RZG2LWDT
+ 	  Renesas RZ/G2L SoCs. These watchdogs can be used to reset a system.
+ 
+ config RENESAS_RZV2HWDT
+-	tristate "Renesas RZ/V2H(P) WDT Watchdog"
+-	depends on ARCH_R9A09G057 || COMPILE_TEST
++	tristate "Renesas RZ/{G3E,V2H(P)} WDT Watchdog"
++	depends on ARCH_RENESAS || COMPILE_TEST
+ 	depends on PM || COMPILE_TEST
+ 	select WATCHDOG_CORE
+ 	help
+ 	  This driver adds watchdog support for the integrated watchdogs in the
+-	  Renesas RZ/V2H(P) SoCs. These watchdogs can be used to reset a system.
++	  Renesas RZ/{G3E,V2H(P)} SoCs. These watchdogs can be used to reset a
++	  system.
+ 
+ config ASPEED_WATCHDOG
+ 	tristate "Aspeed BMC watchdog support"
 -- 
 2.43.0
 
