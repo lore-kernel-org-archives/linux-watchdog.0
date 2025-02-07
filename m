@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C9A51DE2B5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BB4E1DE2DE;
 	Fri,  7 Feb 2025 21:30:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738963837; cv=none; b=iivGuvTk89NgEw2mQX1CqFIg02FtozmMyzK8I+DCuIlbxo2t8Nt30p0sKQ58Kii42tmyak17nuoB9Mt+UulvJe4051ixFNRJY6lO5K+YvYROsVb+SG/TpBOVCXG5mM0yktjVV/EzuBSgCnr/9thErmgDWVySM6bA5Fwuq9G0KYI=
+	t=1738963837; cv=none; b=CXC7HNPPs7Wt35dYCYYvn8D4HIE4Y+DH4hy321v6jCeKfBIu0FF3Ky2fC7hCEnmzNjJZYP/DtmslJtOCRm1tPuU7cVUUnwvZUTn2sLr1CNXgXpWKRztmVIcTy356n7Cm7W8+/dOoddFjdWeyXT76GnnQhBy+bIhoKPxxpCZ237k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1738963837; c=relaxed/simple;
-	bh=9PfartHueaGr5g/oiEQ4N02BOdiK1bkzjtmyOp5ecwc=;
+	bh=uOFNITETD0zmKbVY1tEqvtZtw4tS0MsDYtMYgBvpQUI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nxde4EZtpkrE29nyWiJtRCzuxBOgKWj6hOxd69Xefm9cnEYtcZqvKMksCkuofu4F7QPYey53H2HC2BEBjMed3NbkZ5RxIpLeqjRfSt63USpacb4G+4MhA9Rp8cPXou6Cw69sgZyAjATTf43Y4KMZHDZ/UoLYn8i75pWyOj8hFMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XSQHX1P/; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=fSwHDN5ZarxulgaBDlagkE0VCX8OuRsx3ZNb8k8nGIRo2rIFpy/4Fv1O8g8SbJmNdwIYP+P1WlJ7SV18Uav8r2Oqwdx18piwk4yJMaMk7C4YoEoP8Or7uBd9w2y2C/kKmdNpoJ3PdQYWg/9JIotjQkaxhXT+4HbNik7kNDzVPpQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r+KMeRO2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XSQHX1P/"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D0E9BC2BCAF;
-	Fri,  7 Feb 2025 21:30:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r+KMeRO2"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 09E34C4CEEA;
+	Fri,  7 Feb 2025 21:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738963835;
-	bh=9PfartHueaGr5g/oiEQ4N02BOdiK1bkzjtmyOp5ecwc=;
+	s=k20201202; t=1738963836;
+	bh=uOFNITETD0zmKbVY1tEqvtZtw4tS0MsDYtMYgBvpQUI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=XSQHX1P/S2G1qfpQ/lXzX+rfcRzNCc7YQw1t5fQx/FBgV+6eHzOT1kZEdBWqpqcly
-	 73zaH8p3WSTU8UjGDULSrGjSDdK/Rf+GGnTH4uFRAD7/j70M6M2AankYYiGMYbBSMM
-	 cgr4PIqZniKAB6xga3cp41m4GXZxSwIibQDUGj5+kfDLg2rf30/ItfSa8vcj7chlmC
-	 2StvUoQuTlhv8p7j595JyvCQvdqOAvjNkLKrSx2gm+76GA2Rv97LRFxqUXo8CCiNGE
-	 blO3mYTf427SgHgvEjwxnLwC1wLoEq/6Gfq98VlpqbWunDNMJT7FxQwud840BYV2ds
-	 1SfseSF+JAEJw==
+	b=r+KMeRO2mp7UCfQSusosLhxHCSP+Tl3hUN9W3iA8e9tj6AGD/uh406w27y/RZtUgW
+	 TSYXqdZ1wlnbl90h4vccBxrn2C7ukl0jb5rt171KsBCR+w1VUDOpUmd+RlC6Tbj/Zf
+	 MK/+U9drEsC3lmBZI+cs+sOOFaOUmOWlTeNcgNollVPxXsiKPkHIkealv3uppnhE4B
+	 ed2NDll2NWvRP+E+bpLvlPTzoQ0dnUpwqVqOR/Vxy5yddwuL6C+bxTgaMlJ09u91WE
+	 B1FBIFuMM1W0dpESr1uC0XIqKGrAeLMCKBcYJYd6J5RpWJJL3X5plHU+TW0rAzUObc
+	 u4uNS/ZK4cePA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4E86C021A0;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0799C021A1;
 	Fri,  7 Feb 2025 21:30:35 +0000 (UTC)
 From: =?utf-8?q?J=2E_Neusch=C3=A4fer_via_B4_Relay?= <devnull+j.ne.posteo.net@kernel.org>
-Date: Fri, 07 Feb 2025 22:30:24 +0100
-Subject: [PATCH v2 07/12] dt-bindings: watchdog: Convert mpc8xxx-wdt to
- YAML
+Date: Fri, 07 Feb 2025 22:30:26 +0100
+Subject: [PATCH v2 09/12] dt-bindings: memory-controllers: Convert fsl,elbc
+ to YAML
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250207-ppcyaml-v2-7-8137b0c42526@posteo.net>
+Message-Id: <20250207-ppcyaml-v2-9-8137b0c42526@posteo.net>
 References: <20250207-ppcyaml-v2-0-8137b0c42526@posteo.net>
 In-Reply-To: <20250207-ppcyaml-v2-0-8137b0c42526@posteo.net>
 To: devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
@@ -70,11 +70,11 @@ Cc: imx@lists.linux.dev, Scott Wood <oss@buserror.net>,
  linux-spi@vger.kernel.org, linux-mtd@lists.infradead.org, 
  =?utf-8?q?J=2E_Neusch=C3=A4fer?= <j.ne@posteo.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1738963832; l=3875;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1738963832; l=7248;
  i=j.ne@posteo.net; s=20240329; h=from:subject:message-id;
- bh=IzmYTjKFSaMe8r78V7lDGgTUX3OYdgsgRQLqgb3+W5E=;
- b=TIcbvGAq3Pd5vRP/+yayQPTA4eKxHfJJoBevDPlnNqk/TGLY/RAUlfbrPChXuI2XTMp9PTJ3j
- xT5C+X1jArUDzNFPHWmc4Z83M+LYPrzacfBFMNuxejNmMMtEVUUSfdW
+ bh=UUsPMHm57Ephaap7z89xxGncDuJKzZ/SrR51ew2Wo8o=;
+ b=SP2SoPnz7sX/Ya1QOpwDOxcWXA9zlfkG3idCuh890JQ1uqSz5OQPdFMGR1bPqTypBqXcMSx9W
+ eDM3n7akTwBCAgd66gXAPW1YbO0mMaJRhsL+QqAzboWDsQEFpsVWhMa
 X-Developer-Key: i=j.ne@posteo.net; a=ed25519;
  pk=NIe0bK42wNaX/C4bi6ezm7NJK0IQE+8MKBm7igFMIS4=
 X-Endpoint-Received: by B4 Relay for j.ne@posteo.net/20240329 with
@@ -84,121 +84,234 @@ Reply-To: j.ne@posteo.net
 
 From: "J. Neuschäfer" <j.ne@posteo.net>
 
-Convert mpc83xx-wdt.txt to YAML to enable automatic schema validation.
+Convert the Freescale localbus controller bindings from text form to
+YAML. The updated list of compatible strings reflects current usage
+in arch/powerpc/boot/dts/, except that many existing device trees
+erroneously specify "simple-bus" in addition to fsl,*elbc.
 
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Changes compared to the txt version:
+ - removed the board-control (fsl,mpc8272ads-bcsr) node because it only
+   appears in this example and nowhere else
+ - added a new example with NAND flash
+ - updated list of compatible strings
+
 Signed-off-by: J. Neuschäfer <j.ne@posteo.net>
 ---
 
 V2:
+- fix order of properties in examples, according to dts coding style
+- move to Documentation/devicetree/bindings/memory-controllers
+- clarify the commit message a tiny bit
+- remove unnecessary multiline markers (|)
+- define address format in patternProperties
 - trim subject line (remove "binding")
-- fix property order to comply with dts coding style
+- remove use of "simple-bus", because it's technically incorrect
 ---
- .../devicetree/bindings/watchdog/mpc8xxx-wdt.txt   | 25 ---------
- .../devicetree/bindings/watchdog/mpc8xxx-wdt.yaml  | 64 ++++++++++++++++++++++
- 2 files changed, 64 insertions(+), 25 deletions(-)
+ .../bindings/memory-controllers/fsl,elbc.yaml      | 146 +++++++++++++++++++++
+ .../devicetree/bindings/powerpc/fsl/lbc.txt        |  43 ------
+ 2 files changed, 146 insertions(+), 43 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
-deleted file mode 100644
-index a384ff5b3ce8c62d813fc23d72f74e2158ff543e..0000000000000000000000000000000000000000
---- a/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
-+++ /dev/null
-@@ -1,25 +0,0 @@
--* Freescale mpc8xxx watchdog driver (For 83xx, 86xx and 8xx)
--
--Required properties:
--- compatible: Shall contain one of the following:
--	"mpc83xx_wdt" for an mpc83xx
--	"fsl,mpc8610-wdt" for an mpc86xx
--	"fsl,mpc823-wdt" for an mpc8xx
--- reg: base physical address and length of the area hosting the
--       watchdog registers.
--		On the 83xx, "Watchdog Timer Registers" area:	<0x200 0x100>
--		On the 86xx, "Watchdog Timer Registers" area:	<0xe4000 0x100>
--		On the 8xx, "General System Interface Unit" area: <0x0 0x10>
--
--Optional properties:
--- reg: additional physical address and length (4) of location of the
--       Reset Status Register (called RSTRSCR on the mpc86xx)
--		On the 83xx, it is located at offset 0x910
--		On the 86xx, it is located at offset 0xe0094
--		On the 8xx, it is located at offset 0x288
--
--Example:
--		WDT: watchdog@0 {
--		    compatible = "fsl,mpc823-wdt";
--		    reg = <0x0 0x10 0x288 0x4>;
--		};
-diff --git a/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.yaml
+diff --git a/Documentation/devicetree/bindings/memory-controllers/fsl,elbc.yaml b/Documentation/devicetree/bindings/memory-controllers/fsl,elbc.yaml
 new file mode 100644
-index 0000000000000000000000000000000000000000..09e6dcf5bf186e4d15ee84f03ce64dd53155198d
+index 0000000000000000000000000000000000000000..7bc05e3b9ac74125e5786748df57f6cc1255a62d
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.yaml
-@@ -0,0 +1,64 @@
++++ b/Documentation/devicetree/bindings/memory-controllers/fsl,elbc.yaml
+@@ -0,0 +1,146 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/watchdog/mpc8xxx-wdt.yaml#
++$id: http://devicetree.org/schemas/memory-controllers/fsl,elbc.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Freescale MPC8xxx watchdog timer (For 83xx, 86xx and 8xx)
++title: Freescale Enhanced Local Bus Controller
 +
 +maintainers:
 +  - J. Neuschäfer <j.ne@posteo.net>
 +
 +properties:
-+  compatible:
-+    enum:
-+      - mpc83xx_wdt       # for an mpc83xx
-+      - fsl,mpc8610-wdt   # for an mpc86xx
-+      - fsl,mpc823-wdt    # for an mpc8xx
++  $nodename:
++    pattern: "^localbus@[0-9a-f]+$"
 +
-+  device_type:
-+    const: watchdog
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - fsl,mpc8313-elbc
++              - fsl,mpc8315-elbc
++              - fsl,mpc8377-elbc
++              - fsl,mpc8378-elbc
++              - fsl,mpc8379-elbc
++              - fsl,mpc8536-elbc
++              - fsl,mpc8569-elbc
++              - fsl,mpc8572-elbc
++              - fsl,p1020-elbc
++              - fsl,p1021-elbc
++              - fsl,p1023-elbc
++              - fsl,p2020-elbc
++              - fsl,p2041-elbc
++              - fsl,p3041-elbc
++              - fsl,p4080-elbc
++              - fsl,p5020-elbc
++              - fsl,p5040-elbc
++          - const: fsl,elbc
++
++      - items:
++          - const: fsl,mpc8272-localbus
++          - const: fsl,pq2-localbus
++
++      - items:
++          - enum:
++              - fsl,mpc8247-localbus
++              - fsl,mpc8248-localbus
++              - fsl,mpc8360-localbus
++          - const: fsl,pq2pro-localbus
++
++      - items:
++          - enum:
++              - fsl,mpc8540-localbus
++              - fsl,mpc8544-lbc
++              - fsl,mpc8544-localbus
++              - fsl,mpc8548-lbc
++              - fsl,mpc8548-localbus
++              - fsl,mpc8560-localbus
++              - fsl,mpc8568-localbus
++          - const: fsl,pq3-localbus
 +
 +  reg:
-+    minItems: 1
-+    items:
-+      - description: |
-+          Base physical address and length of the area hosting the watchdog
-+          registers.
++    maxItems: 1
 +
-+          On the 83xx, "Watchdog Timer Registers" area:     <0x200 0x100>
-+          On the 86xx, "Watchdog Timer Registers" area:     <0xe4000 0x100>
-+          On the 8xx, "General System Interface Unit" area: <0x0 0x10>
++  interrupts:
++    maxItems: 1
 +
-+      - description: |
-+          Additional optional physical address and length (4) of location of
-+          the Reset Status Register (called RSTRSCR on the mpc86xx)
++  "#address-cells":
++    enum: [2, 3]
++    description:
++      The first cell is the chipselect number, and the remaining cells are the
++      offset into the chipselect.
 +
-+          On the 83xx, it is located at offset 0x910
-+          On the 86xx, it is located at offset 0xe0094
-+          On the 8xx, it is located at offset 0x288
++  "#size-cells":
++    enum: [1, 2]
++    description:
++      Either one or two, depending on how large each chipselect can be.
 +
-+required:
-+  - compatible
-+  - reg
++  ranges:
++    description:
++      Each range corresponds to a single chipselect, and covers the entire
++      access window as configured.
 +
-+allOf:
-+  - $ref: watchdog.yaml#
++patternProperties:
++  # format: name@chipselect,address
++  "^.*@[0-9a-f]+,[0-9a-f]+$":
++    type: object
 +
 +additionalProperties: false
 +
 +examples:
 +  - |
-+    WDT: watchdog@0 {
-+        compatible = "fsl,mpc823-wdt";
-+        reg = <0x0 0x10 0x288 0x4>;
++    localbus@f0010100 {
++        compatible = "fsl,mpc8272-localbus",
++                     "fsl,pq2-localbus";
++        reg = <0xf0010100 0x40>;
++        ranges = <0x0 0x0 0xfe000000 0x02000000
++                  0x1 0x0 0xf4500000 0x00008000
++                  0x2 0x0 0xfd810000 0x00010000>;
++        #address-cells = <2>;
++        #size-cells = <1>;
++
++        flash@0,0 {
++            compatible = "jedec-flash";
++            reg = <0x0 0x0 0x2000000>;
++            bank-width = <4>;
++            device-width = <1>;
++        };
++
++        simple-periph@2,0 {
++            compatible = "fsl,elbc-gpcm-uio";
++            reg = <0x2 0x0 0x10000>;
++            elbc-gpcm-br = <0xfd810800>;
++            elbc-gpcm-or = <0xffff09f7>;
++        };
 +    };
 +
 +  - |
-+    wdt: watchdog@200 {
-+        compatible = "mpc83xx_wdt";
-+        reg = <0x200 0x100>;
-+        device_type = "watchdog";
-+    };
++    localbus@e0005000 {
++        compatible = "fsl,mpc8315-elbc", "fsl,elbc";
++        reg = <0xe0005000 0x1000>;
++        ranges = <0x0 0x0 0xfe000000 0x00800000
++                  0x1 0x0 0xe0600000 0x00002000
++                  0x2 0x0 0xf0000000 0x00020000
++                  0x3 0x0 0xfa000000 0x00008000>;
++        #address-cells = <2>;
++        #size-cells = <1>;
++        interrupts = <77 0x8>;
++        interrupt-parent = <&ipic>;
 +
-+...
++        flash@0,0 {
++            compatible = "cfi-flash";
++            reg = <0x0 0x0 0x800000>;
++            #address-cells = <1>;
++            #size-cells = <1>;
++            bank-width = <2>;
++            device-width = <1>;
++        };
++
++        nand@1,0 {
++            compatible = "fsl,mpc8315-fcm-nand",
++                         "fsl,elbc-fcm-nand";
++            reg = <0x1 0x0 0x2000>;
++            #address-cells = <1>;
++            #size-cells = <1>;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/powerpc/fsl/lbc.txt b/Documentation/devicetree/bindings/powerpc/fsl/lbc.txt
+deleted file mode 100644
+index 1c80fcedebb52049721fbd61c4dd4c57133bd47c..0000000000000000000000000000000000000000
+--- a/Documentation/devicetree/bindings/powerpc/fsl/lbc.txt
++++ /dev/null
+@@ -1,43 +0,0 @@
+-* Chipselect/Local Bus
+-
+-Properties:
+-- name : Should be localbus
+-- #address-cells : Should be either two or three.  The first cell is the
+-                   chipselect number, and the remaining cells are the
+-                   offset into the chipselect.
+-- #size-cells : Either one or two, depending on how large each chipselect
+-                can be.
+-- ranges : Each range corresponds to a single chipselect, and cover
+-           the entire access window as configured.
+-
+-Example:
+-	localbus@f0010100 {
+-		compatible = "fsl,mpc8272-localbus",
+-			   "fsl,pq2-localbus";
+-		#address-cells = <2>;
+-		#size-cells = <1>;
+-		reg = <0xf0010100 0x40>;
+-
+-		ranges = <0x0 0x0 0xfe000000 0x02000000
+-			  0x1 0x0 0xf4500000 0x00008000
+-			  0x2 0x0 0xfd810000 0x00010000>;
+-
+-		flash@0,0 {
+-			compatible = "jedec-flash";
+-			reg = <0x0 0x0 0x2000000>;
+-			bank-width = <4>;
+-			device-width = <1>;
+-		};
+-
+-		board-control@1,0 {
+-			reg = <0x1 0x0 0x20>;
+-			compatible = "fsl,mpc8272ads-bcsr";
+-		};
+-
+-		simple-periph@2,0 {
+-			compatible = "fsl,elbc-gpcm-uio";
+-			reg = <0x2 0x0 0x10000>;
+-			elbc-gpcm-br = <0xfd810800>;
+-			elbc-gpcm-or = <0xffff09f7>;
+-		};
+-	};
 
 -- 
 2.48.0.rc1.219.gb6b6757d772
