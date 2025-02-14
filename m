@@ -1,41 +1,41 @@
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACCEA269823;
-	Fri, 14 Feb 2025 18:08:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ACD22698A3;
+	Fri, 14 Feb 2025 18:08:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739556529; cv=none; b=L9ahoBCbsKBTkbK99XsEo7InhU3iW3dcYUkAHWw4O/NnpXkuzHlJJ94UZJcNSoSMapqQatGBcivueaFQsxbuufQxHiqWjlyFWZSmcLfWk8b6u/+9oF5R0f6Pd6n+Z+jU6SdnDRajHvxblzS5ZRFvbRJYK8cv2PA+vCOiDTYXw2E=
+	t=1739556530; cv=none; b=ar4PaIWQOXJJrfCaHVeJ8b+4AtdGOWMROCS3XUD48Qw+Gp6hnnkgXlTHufd/mVJVk3r1YwsJPYzcuky7U+PdujkXcSo8jZnWiuHsVds2nOU+wx8D5GTeb8soGSgqwhu1T8sTzwUoWc88xk3i6GNjoN0U5E9MXgmvlxrelouhamg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739556529; c=relaxed/simple;
-	bh=qPQso1ZYtWTmJIC7QhndAu/PixzdR+a209Sd11Fb4Ig=;
+	s=arc-20240116; t=1739556530; c=relaxed/simple;
+	bh=K6+jsMBEPeG5a4vof3OQyYuJjApw91RkV7RMLdW/B2Q=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=k1kaepOCjm06JV1m+d9LayNO/B65UViEtwv+KGlogdkqsdGANLQNWB1ddkmOgPvlhYGDJTzbLL4rFy+oOvVJCVV5HL88A40Lt92/pR41UzeWZP2DeTYafUrfYAcKL/och6ZVYfi690rQpoE7BMTowwW0IjAcvfFlrSs08ig6sAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=eAZNQbAC; arc=none smtp.client-ip=68.232.153.233
+	 MIME-Version:Content-Type; b=nA4k5UWypXTh8e9GKOHJeK1L+02bDYC2jc8ZC5Ozcsr8chlV3QwC9ZfpUudPi5BPRPM6miV3ns4irxXV9H7tboOkzAZcfLMRyiKNKyyBecigkiW9MkF0FLZ8KTbbOzvoO7aVQWr/AQEEAhYo7lLybZ1gH6nEbSKoHS22DrmhEs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=x0pEMlnI; arc=none smtp.client-ip=68.232.153.233
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="eAZNQbAC"
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="x0pEMlnI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1739556528; x=1771092528;
+  t=1739556529; x=1771092529;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=qPQso1ZYtWTmJIC7QhndAu/PixzdR+a209Sd11Fb4Ig=;
-  b=eAZNQbACy9cgmUCtRy7N1QBSSUYAKl03AkIoSeGTnczkdAP/ml8ACDbE
-   T4pB3r5EVAQd4Ufcj08bJEgryGWJvAnyPDdrKD1WGZGgO7pZdOSM9LJQG
-   R/SRgMcZvwcWuMaXH7skFrCBi7NjsuGKtVWH4Q+824WFwBwcghsqJk345
-   Pj3N9446kYtBgr2HWZFz+DPNtu3aivBeGSqzEeXBZcptkXkIcMywBbPa9
-   LtaxkNa1G/tEm9Tv4xES6Uodr/GcS7BnWZNOnFGVlq5Bz2cRWNb3GVBtr
-   j1E4ZfdYIq9sFpnXNpwmxQRRBmce7FBh6pozIlSIFxpO/+Z27E9yeKbyh
-   w==;
+  bh=K6+jsMBEPeG5a4vof3OQyYuJjApw91RkV7RMLdW/B2Q=;
+  b=x0pEMlnIE9LQBWoZ5sSDSrlFOh++9AcQX0fpkhcoZBlQDtlrg40keNkJ
+   /VrItGDavoQMaeWKBpKcQhnOk8wPKG+A6ewkQCihmED4I9cEjCoRhn8n/
+   293whzNlGrFof4wYNkmrZRzXuHYqHSdS/Hko9KHO1xkqqhWFgGnaxa6jm
+   m9+jgaQ4uFiP/jA22fzZJqwjXsWxKOFrVKzRsbkW2BhBkuCYocli8iiyH
+   bzbaUv72gTy9ru/aJhxmcCFF+cYKpMfXy3ZIn3FF+f5Nd4ntAqTLGL2kZ
+   t8oA6WrkfTDsDuToV/TGYAxgBS55RtdKED9/BH/rjjaJS33AT1fK1/p6Y
+   g==;
 X-CSE-ConnectionGUID: afEECSQvQkGMMmDvtHvTFg==
-X-CSE-MsgGUID: 2IsM7achQlmES/jyjdqu2w==
+X-CSE-MsgGUID: Vy7NjoOqR+iWKMmSPvhT5w==
 X-IronPort-AV: E=Sophos;i="6.13,286,1732604400"; 
-   d="scan'208";a="37700928"
+   d="scan'208";a="37700931"
 X-Amp-Result: SKIPPED(no attachment in message)
 Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Feb 2025 11:08:39 -0700
+  by esa3.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Feb 2025 11:08:40 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
  chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
@@ -51,9 +51,9 @@ To: <robh@kernel.org>, <krzk+dt@kernel.org>, <conor+dt@kernel.org>,
 CC: <devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
 	<linux-kernel@vger.kernel.org>, <dmaengine@vger.kernel.org>,
 	<linux-watchdog@vger.kernel.org>, Ryan Wanner <Ryan.Wanner@microchip.com>
-Subject: [PATCH 4/8] ARM: at91: Add Support in SoC driver for SAMA7D65
-Date: Fri, 14 Feb 2025 11:08:17 -0700
-Message-ID: <84b4a7ec0025741bc3ab647671fd4e880b2ed1d5.1739555984.git.Ryan.Wanner@microchip.com>
+Subject: [PATCH 6/8] ARM: dts: microchip: sama7d65: Add watchdog for sama7d65
+Date: Fri, 14 Feb 2025 11:08:19 -0700
+Message-ID: <05431cf86beb742a9a53336c4ec792be8bde14e2.1739555984.git.Ryan.Wanner@microchip.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1739555984.git.Ryan.Wanner@microchip.com>
 References: <cover.1739555984.git.Ryan.Wanner@microchip.com>
@@ -68,65 +68,31 @@ Content-Type: text/plain
 
 From: Ryan Wanner <Ryan.Wanner@microchip.com>
 
-Add support for SAMA7D65 SoC in the SoC driver.
+Add watchdog timer support for SAMA7D65 SoC.
 
 Signed-off-by: Ryan Wanner <Ryan.Wanner@microchip.com>
 ---
- drivers/soc/atmel/soc.c | 5 +++++
- drivers/soc/atmel/soc.h | 3 +++
- 2 files changed, 8 insertions(+)
+ arch/arm/boot/dts/microchip/sama7d65.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/soc/atmel/soc.c b/drivers/soc/atmel/soc.c
-index 298b542dd1c06..68f20024dcebb 100644
---- a/drivers/soc/atmel/soc.c
-+++ b/drivers/soc/atmel/soc.c
-@@ -246,6 +246,9 @@ static const struct at91_soc socs[] __initconst = {
- 		 "samv70q19", "samv7"),
- #endif
- #ifdef CONFIG_SOC_SAMA7
-+	AT91_SOC(SAMA7D65_CIDR_MATCH, AT91_CIDR_MASK_SAMA7G5,
-+		 AT91_CIDR_VERSION_MASK_SAMA7G5, SAMA7D65_EXID_MATCH,
-+		 "sama7d65", "sama7d6"),
- 	AT91_SOC(SAMA7G5_CIDR_MATCH, AT91_CIDR_MATCH_MASK,
- 		 AT91_CIDR_VERSION_MASK_SAMA7G5, SAMA7G51_EXID_MATCH,
- 		 "sama7g51", "sama7g5"),
-@@ -305,6 +308,7 @@ static int __init at91_get_cidr_exid_from_chipid(u32 *cidr, u32 *exid)
- 	void __iomem *regs;
- 	static const struct of_device_id chipids[] = {
- 		{ .compatible = "atmel,sama5d2-chipid" },
-+		{ .compatible = "microchip,sama7d65-chipid"},
- 		{ .compatible = "microchip,sama7g5-chipid" },
- 		{ },
- 	};
-@@ -393,6 +397,7 @@ static const struct of_device_id at91_soc_allowed_list[] __initconst = {
- 	{ .compatible = "atmel,at91sam9", },
- 	{ .compatible = "atmel,sama5", },
- 	{ .compatible = "atmel,samv7", },
-+	{ .compatible = "microchip,sama7d65",},
- 	{ .compatible = "microchip,sama7g5", },
- 	{ }
- };
-diff --git a/drivers/soc/atmel/soc.h b/drivers/soc/atmel/soc.h
-index 2c78e54255f7f..66a74017d9a3e 100644
---- a/drivers/soc/atmel/soc.h
-+++ b/drivers/soc/atmel/soc.h
-@@ -45,6 +45,7 @@ at91_soc_init(const struct at91_soc *socs);
- #define AT91SAM9N12_CIDR_MATCH		0x019a07a0
- #define SAM9X60_CIDR_MATCH		0x019b35a0
- #define SAM9X7_CIDR_MATCH		0x09750020
-+#define SAMA7D65_CIDR_MATCH		0x00262100
- #define SAMA7G5_CIDR_MATCH		0x00162100
+diff --git a/arch/arm/boot/dts/microchip/sama7d65.dtsi b/arch/arm/boot/dts/microchip/sama7d65.dtsi
+index b1b236e1f6e38..d06a51972d363 100644
+--- a/arch/arm/boot/dts/microchip/sama7d65.dtsi
++++ b/arch/arm/boot/dts/microchip/sama7d65.dtsi
+@@ -83,6 +83,13 @@ clk32k: clock-controller@e001d500 {
+ 			#clock-cells = <1>;
+ 		};
  
- #define AT91SAM9M11_EXID_MATCH		0x00000001
-@@ -75,6 +76,8 @@ at91_soc_init(const struct at91_soc *socs);
- #define SAM9X75_D5M_EXID_MATCH		0x00000010
- #define SAM9X75_EXID_MATCH		0x00000000
- 
-+#define SAMA7D65_EXID_MATCH		0x00000080
++		ps_wdt: watchdog@e001d180 {
++			compatible = "microchip,sama7d65-wdt", "microchip,sama7g5-wdt";
++			reg = <0xe001d000 0x30>;
++			interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk32k 0>;
++		};
 +
- #define SAMA7G51_EXID_MATCH		0x3
- #define SAMA7G52_EXID_MATCH		0x2
- #define SAMA7G53_EXID_MATCH		0x1
+ 		chipid@e0020000 {
+ 			compatible = "microchip,sama7d65-chipid";
+ 			reg = <0xe0020000 0x8>;
 -- 
 2.43.0
 
