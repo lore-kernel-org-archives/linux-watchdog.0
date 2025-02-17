@@ -1,117 +1,76 @@
 Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC063235368
-	for <linux-watchdog@vger.kernel.org>; Mon, 17 Feb 2025 19:06:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A526423716F
+	for <linux-watchdog@vger.kernel.org>; Mon, 17 Feb 2025 19:42:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739819178; cv=none; b=LJkbHvPVD17ibnedi0hZbnOwcx5Kc7rzJpp8y0L8FqmVJslmPwu0xLWXmSkW9EoIkvaKQjRzFt7mXPhGgKnbT5Gwg1mR3C3IKYcYI1STKyiHMUScWx3TpWP7TGBDhFrTBWqk6XU8MTR3k76acxa9H9FFTecNozx/VWM2GPquHfg=
+	t=1739821326; cv=none; b=Bi59f5rVmcUKfb/LVfszEz5rJdW3YVZHhg9yvn0JxUPwx2EULGpF7kA1WzatD0P5OSqKZqktLDQ2MM+Grt/QlVaiMBQ+hg06HZNtFV4IRUqLd8l5MV9RrNGT4gz7fRI3QFfk6e6hqJU8n9D6Zb+lSEeL19ctW9hWj2GyatDEans=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739819178; c=relaxed/simple;
-	bh=ExVaCUBzcNC+wkHRkApsOynmUd07dvbz0C9qAwKk5Qg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=CqJh2z8j43kFtPR4Mq6xueax9JLSiYmQzbp8EWONzKe/fRv6qp4s0o9v10aiEghVCQuuQZEtGjRbFXFEFtzGudAkK0L0SlBzCyWV2aZk9H3bYPg3H1ZP+2ml4BK4HhGbegYZCb6nTvKvt1csp35Gxg2A9E5oU7iTIMNoDidTFas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mentallysanemainliners.org; spf=pass smtp.mailfrom=mentallysanemainliners.org; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=gEabBLK4; arc=none smtp.client-ip=34.202.193.197
+	s=arc-20240116; t=1739821326; c=relaxed/simple;
+	bh=yYX/SR79Dqqvmyu22HwNz7TvqcDwF99ty5EMBfajVJ8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=na1cW0mG48N2zBNh8wy27wZXOFdBcem7WdyYUBWvFEdHuRwN6tLe7jbFzZ7iR/VkcPZJ/TzxBgKSFcOCdn7BPJKWqBIYLVbkwUeL+SY5Z6n71hm3V8Qz83VJ29YOde3vbWC9lTejliQr20XBrWlZOb6ABt9iiSLD4Q7vkM3ffRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mentallysanemainliners.org; spf=pass smtp.mailfrom=mentallysanemainliners.org; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=lV84h0Em; arc=none smtp.client-ip=34.202.193.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mentallysanemainliners.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mentallysanemainliners.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="gEabBLK4"
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="lV84h0Em"
 Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=gEabBLK4/OW9lEl+1Pr1HTKx6Hj3IzZhsCCbDu3V6Y6hfw9uvxvbexfvobOgE8xgDizX9/PfVRefb5BN5HCS7P5u9eHT/zFz3JMpCVm1MLOg1xjWqvFROWo4wjM7fXeFJd+9VW39qF6DCqeovJrcA4FHdXqYvG8hIbcvy3oPnZR4K3LmXA75xw4o4V6ts5aGp/FjhiHCLQQF5vmmrZjc78Zzy6JT+hC9tU+bu8LJY2y7Zww5uvVJHY0UnnyWBCNTGo/G4aLWRDMSFbCLMfXs78evUtYpzREZo8Um0Z+htB8xxix4CFqMQS54pCHFa2z2a4cQLbksX+STb8V3d+hM+w==; s=purelymail3; d=purelymail.com; v=1; bh=ExVaCUBzcNC+wkHRkApsOynmUd07dvbz0C9qAwKk5Qg=; h=Feedback-ID:Received:From:Date:Subject:To;
+DKIM-Signature: a=rsa-sha256; b=lV84h0Em5ss0x1cbUHkV9HfjfNbc7ITWw815Cn+d5bkyDMCBn1w8amYBUCiORLxa/A3A7DKFELl9AjTM2c56k8sRH0lTWKWVvPamC3tNTp4hN85EAzjX/X0Ljr3o0P6N6A1mQ8L/vqp6klsd57+6q4zo0dVvK5cJAxxG7PNyAJPsBPaNQMiTx/zeeEHWrMOzoCm1Ql30ALtXwiC0enryFJh6a8YVGHKL1iXeUbHTMXb1V3i4IBmEiJFvPiXe5WHDnpSFTwVgARsgcRjjcn1z7Nj0K8aK4ssNenRZntLdeJnhiPQSfT7JM34rBw6rRpZS0AQ3rUikmPAHlBvNL7jDMQ==; s=purelymail3; d=purelymail.com; v=1; bh=yYX/SR79Dqqvmyu22HwNz7TvqcDwF99ty5EMBfajVJ8=; h=Feedback-ID:Received:Date:Subject:From:To;
 Feedback-ID: 68247:10037:null:purelymail
 X-Pm-Original-To: linux-watchdog@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -1350358103;
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -1182872981;
           (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Mon, 17 Feb 2025 19:05:53 +0000 (UTC)
-From: Igor Belwon <igor.belwon@mentallysanemainliners.org>
-Date: Mon, 17 Feb 2025 20:05:19 +0100
-Subject: [PATCH 1/2] dt-bindings: watchdog: samsung-wdt: Add exynos990-wdt
- compatible
+          Mon, 17 Feb 2025 19:41:34 +0000 (UTC)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250217-exynos990-wdt-v1-1-9b49df5256b0@mentallysanemainliners.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 17 Feb 2025 20:41:32 +0100
+Message-Id: <D7UZ6BSEU6DD.2QRKZBTKMPD9F@mentallysanemainliners.org>
+Cc: "Krzysztof Kozlowski" <krzk@kernel.org>,
+ <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+ <linux-samsung-soc@vger.kernel.org>
+Subject: Re: [PATCH 0/2] watchdog: Exynos990 WDT enablement
+From: "Igor Belwon" <igor.belwon@mentallysanemainliners.org>
+To: "Igor Belwon" <igor.belwon@mentallysanemainliners.org>, "Wim Van
+ Sebroeck" <wim@linux-watchdog.org>, "Guenter Roeck" <linux@roeck-us.net>,
+ "Rob Herring" <robh@kernel.org>, "Krzysztof Kozlowski"
+ <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>, "Alim Akhtar"
+ <alim.akhtar@samsung.com>
+X-Mailer: aerc 0.20.0
 References: <20250217-exynos990-wdt-v1-0-9b49df5256b0@mentallysanemainliners.org>
 In-Reply-To: <20250217-exynos990-wdt-v1-0-9b49df5256b0@mentallysanemainliners.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-watchdog@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
- Igor Belwon <igor.belwon@mentallysanemainliners.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1739819149; l=2481;
- i=igor.belwon@mentallysanemainliners.org; s=20241206;
- h=from:subject:message-id; bh=ExVaCUBzcNC+wkHRkApsOynmUd07dvbz0C9qAwKk5Qg=;
- b=mRkJpujMaWtYA215YBhSum3Q3+AFasnoTKmdWZixH/WWoYNb5mwvZeJo5hqxbqv0/xSMMiEtf
- M+WhVBsl/ZqDEKKLNTpStdiPv6c9fwSWBzXeGvHQ1sQaSV2zg9nPTvY
-X-Developer-Key: i=igor.belwon@mentallysanemainliners.org; a=ed25519;
- pk=qKAuSTWKTaGQM0vwBxV0p6hPKMN4vh0CwZ+bozrG5lY=
 
-Add a dt-binding compatible for the Exynos990 Watchdog timer.
-This watchdog is compatible with the GS101/Exynos850 design, as
-such it requires the cluster-index and syscon-phandle properties
-to be present.
+On Mon Feb 17, 2025 at 8:05 PM CET, Igor Belwon wrote:
+> Hi all!
+> This series enables the two clusters of the Exynos990 watchdog timer
+> to be used. Weirdly enough, this SoC is missing the cl1 cluster, it has
+> the cl0 cluster and then jumps over to cl2. As such, new cluster index
+> code has been added to accomodate this oddity.
+>
+> Signed-off-by: Igor Belwon <igor.belwon@mentallysanemainliners.org>
+> ---
+> Igor Belwon (2):
+>       dt-bindings: watchdog: samsung-wdt: Add exynos990-wdt compatible
+>       watchdog: s3c2410_wdt: Add exynos990-wdt compatible data
+>
+>  .../devicetree/bindings/watchdog/samsung-wdt.yaml  |  9 +++--
+>  drivers/watchdog/s3c2410_wdt.c                     | 39 ++++++++++++++++=
++++++-
+>  2 files changed, 44 insertions(+), 4 deletions(-)
+> ---
+> base-commit: 253c82b3a2cec22bf9db65645f934fbe095899a3
+> change-id: 20250217-exynos990-wdt-0e9100ec5f99
+>
+> Best regards,
 
-Signed-off-by: Igor Belwon <igor.belwon@mentallysanemainliners.org>
----
- Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-index d175ae9683366d33b1f9d9d820501d1e7c5964bd..e36f87830ea8a185a1543e62fdeebd97fb9a8abb 100644
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-@@ -25,6 +25,7 @@ properties:
-           - samsung,exynos5420-wdt                # for Exynos5420
-           - samsung,exynos7-wdt                   # for Exynos7
-           - samsung,exynos850-wdt                 # for Exynos850
-+          - samsung,exynos990-wdt                 # for Exynos990
-           - samsung,exynosautov9-wdt              # for Exynosautov9
-           - samsung,exynosautov920-wdt            # for Exynosautov920
-       - items:
-@@ -49,14 +50,14 @@ properties:
-   samsung,cluster-index:
-     $ref: /schemas/types.yaml#/definitions/uint32
-     description:
--      Index of CPU cluster on which watchdog is running (in case of Exynos850
--      or Google gs101).
-+      Index of CPU cluster on which watchdog is running (in case of Exynos850,
-+      Exynos990 or Google gs101).
- 
-   samsung,syscon-phandle:
-     $ref: /schemas/types.yaml#/definitions/phandle
-     description:
-       Phandle to the PMU system controller node (in case of Exynos5250,
--      Exynos5420, Exynos7, Exynos850 and gs101).
-+      Exynos5420, Exynos7, Exynos850, Exynos990 and gs101).
- 
- required:
-   - compatible
-@@ -77,6 +78,7 @@ allOf:
-               - samsung,exynos5420-wdt
-               - samsung,exynos7-wdt
-               - samsung,exynos850-wdt
-+              - samsung,exynos990-wdt
-               - samsung,exynosautov9-wdt
-               - samsung,exynosautov920-wdt
-     then:
-@@ -89,6 +91,7 @@ allOf:
-             enum:
-               - google,gs101-wdt
-               - samsung,exynos850-wdt
-+              - samsung,exynos990-wdt
-               - samsung,exynosautov9-wdt
-               - samsung,exynosautov920-wdt
-     then:
-
--- 
-2.47.2
-
+Please ignore this patchset. I did not test the bindings with my device
+tree changes - as such, I did not account for the cluster-index being
+more than 1. I will send a fixed v2 shortly. My apologies.
