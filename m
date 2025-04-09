@@ -1,245 +1,110 @@
-Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9188B1DE2A7;
-	Wed,  9 Apr 2025 05:35:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C732144DB;
+	Wed,  9 Apr 2025 06:58:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744176927; cv=none; b=lZDcGeh3D+qkZTSaam7jE5sn8LYJuYF027cJE5uBgz/vnXn33m3m5223HJGXeoIGFXvGqmuGduN1veujhhT+ciFef2ugBa9oZAAiRgIx3CWv1R3mCnbubIAWmziptQWOkU4VfCbY0Gh3nF684BOKcOLcy0wwadg8ddwOXwrYzDg=
+	t=1744181937; cv=none; b=MH0gEb73StgwdfxgCAOGCbe+Ltz7f0816b/8iLgV9Sx07ICFS6RMy/NmKXod84pp2O4iJ61pnlhVzGP450xg0id9frEDZC9+sUqnQ5AeZPq2SiXedLrb7nwBXuafi5Hq+Xl5ergLCkSPm2gImwARZyBOfO/qmEZjc8SfCRwKweQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744176927; c=relaxed/simple;
-	bh=KvRLMsa4ZS4vGJe2Ejl3rV/a/uy73YQhW3DMOISV2Jo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dfjzztTauqozBlNPdWHj6FI+pxPCKtiRzfjC/gwaAInAmDyaHx1QBrLsBU92XQOgoc+GYrZbN1o8cUqmCZA2gIUEFURt+NDHNU9AgiIrKLxMDnBJ4JbkB3kSzlzhYBjhlGGDBoLBjxtInERa87/TKcIgmXhPZj8SYYTDEFxQpJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=FVkp8uHG; arc=none smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1744181937; c=relaxed/simple;
+	bh=Nt84t6m6mhPkjjvZ7EsC4vTJVqfWi3j4nIQ3mgOiw6A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dv33lUd9vtMV9Xwj1KP6Lwla/JmIRXANnKo8MR5JDFJtYcASuC03AiaMij8a6W/6JjRTqNd1FV1vDVgFRV3yZ19b+3leLdAMU5OW8b7ZfrgHlM+77zltkK8xEtHMJJKZU3SW8rT5O7GoSqesTx7DIA4pmyc5MGKcvf36czDtEbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nmyw/bgF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="FVkp8uHG"
-Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 538K8hSf028449;
-	Tue, 8 Apr 2025 22:34:59 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=Q
-	RbogAxa6wY5MlJKGbXArgC8WnLT5+lPy4Ur6edgAW0=; b=FVkp8uHGWarymtJjp
-	0IJuhSQ9b3nztyyfIYjmRHDSSVK+ddKtuTsVwHJJ2rRG+G3+zQo6OiVbY1KV3e3i
-	5DKB0JCL1kElEvGBCS0RqNoB2uAo/D//FHnN6YRqoLb5k6uo3Rfs/WoFzY4zsO1o
-	VwA9JWHX//tprwTGPJz9L8JxIgxy4T2YgxeWfaMjZZoBge5PiBk8YkovT7X4FHkg
-	iGAqgCRaBwS5z3L/0/8qeBHpO5hygSmCSGVGIFfyq7VFAHQWGZL2LhIzQM+YpfHY
-	qy1hRAIQEh8vkBLf+3t4yBLCMhA+sZeTyuSmunr423zZpE/9WoA09ukRHaSqyBEP
-	0+bYA==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 45ursc736j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 22:34:59 -0700 (PDT)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Tue, 8 Apr 2025 22:34:58 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Tue, 8 Apr 2025 22:34:58 -0700
-Received: from tx2-sever.caveonetworks.com (unknown [10.110.141.15])
-	by maili.marvell.com (Postfix) with ESMTP id 20C303F7085;
-	Tue,  8 Apr 2025 22:34:58 -0700 (PDT)
-From: George Cherian <george.cherian@marvell.com>
-To: <linux@roeck-us.net>, <wim@linux-watchdog.org>, <a.fatoum@pengutronix.de>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        "George
- Cherian" <george.cherian@marvell.com>
-Subject: [PATCH v5 1/2] drivers: watchdog: Introduce watchdog reset timeout on panic
-Date: Wed, 9 Apr 2025 05:34:51 +0000
-Message-ID: <20250409053452.3173447-2-george.cherian@marvell.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250409053452.3173447-1-george.cherian@marvell.com>
-References: <20250409053452.3173447-1-george.cherian@marvell.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nmyw/bgF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9537DC4CEE3;
+	Wed,  9 Apr 2025 06:58:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744181936;
+	bh=Nt84t6m6mhPkjjvZ7EsC4vTJVqfWi3j4nIQ3mgOiw6A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Nmyw/bgF7jM8ApGX0fKPQRw/4Er05KUaPn17pghbctKVJZS2ooTUt1LKZKRZJZ0Vq
+	 SH6uzOk/VPZCU9rAlBq17ZIm4n4lIm5+dnf+bKwyoT/CjcTfbFdHESaXQjNLdkY0xy
+	 QT5CBeyVE4tLL0l2cDE4lYHZBVpE6KjR3HZlKuE7WKrPM/XrfPI4GpLnzRsWqJhMbq
+	 ACjfstOtJa25HbOwTK2AIXg2GlZsJOnBZNMz1DqCXegh5DE8gz1TUYqXDCa50JHReo
+	 0Nuv1YSvebLQsFt2XMiEztF7gjKoL8uGpVp8uiRoM37lxCSWGRaFlfK6VTG2/EaMTS
+	 1EUkZMTwNpi2g==
+Message-ID: <43dd7191-c797-4d8c-af58-03fc0eaaa95b@kernel.org>
+Date: Wed, 9 Apr 2025 08:58:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: ds-uy9gpYhdaS1Kb6S9vMWA9Bha_9XkA
-X-Authority-Analysis: v=2.4 cv=M85NKzws c=1 sm=1 tr=0 ts=67f60703 cx=c_pps a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17 a=XR8D0OoHHMoA:10 a=M5GUcnROAAAA:8 a=1XQDrr_peQNd6h_5ez0A:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-ORIG-GUID: ds-uy9gpYhdaS1Kb6S9vMWA9Bha_9XkA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-09_02,2025-04-08_04,2024-11-22_01
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 1/6] dt-bindings: sram: qcom,imem: Document IPQ5424
+ compatible
+To: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <20250408-wdt_reset_reason-v1-0-e6ec30c2c926@oss.qualcomm.com>
+ <20250408-wdt_reset_reason-v1-1-e6ec30c2c926@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 fv0=
+In-Reply-To: <20250408-wdt_reset_reason-v1-1-e6ec30c2c926@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In a kernel panic situation followed by loading of kdump kernel, it can
-so happen that watchdog reset can happen while booting the kdump kernel.
-Add a provision to configure/update the watchdog timeout in case of
-panic.
-This is acheived by:
-1. Provide a sysfs entry to configure the timeout (reset_on_panic) in
-   case of kernel panic.
-2. reset_on_panic  takes time in seconds. If set to 0 then the watchdog
-   is disarmed completely.
-3. Register a panic notifer and update the watchdog timeout in case of
-   panic.
-4. Introduce a new flag to watchdog drivers to set whether ops are
-   atmoic.
-The above feature cannot be supported to watchdog drivers which sleeps
-during set_timeout or stop.
+On 08/04/2025 10:49, Kathiravan Thirumoorthy wrote:
+> Add compatible for Qualcomm's IPQ5424 IMEM.
+> 
+> Signed-off-by: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+> ---
+>  Documentation/devicetree/bindings/sram/qcom,imem.yaml | 1 +
+>  1 file changed, 1 insertion(+)
 
-Signed-off-by: George Cherian <george.cherian@marvell.com>
----
- drivers/watchdog/watchdog_core.c | 33 ++++++++++++++++++++++++++++++++
- drivers/watchdog/watchdog_dev.c  | 28 +++++++++++++++++++++++++++
- include/linux/watchdog.h         |  3 +++
- include/uapi/linux/watchdog.h    |  1 +
- 4 files changed, 65 insertions(+)
+Why is this RFC? What is not finished here? I could not find explanation
+in cover letter.
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 6152dba4b52c..7ec46dfe9888 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -35,6 +35,7 @@
- #include <linux/err.h>		/* For IS_ERR macros */
- #include <linux/of.h>		/* For of_alias_get_id */
- #include <linux/property.h>	/* For device_property_read_u32 */
-+#include <linux/panic_notifier.h> /* For panic handler */
- #include <linux/suspend.h>
- 
- #include "watchdog_core.h"	/* For watchdog_dev_register/... */
-@@ -155,6 +156,28 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- }
- EXPORT_SYMBOL_GPL(watchdog_init_timeout);
- 
-+static int watchdog_panic_notify(struct notifier_block *nb,
-+				 unsigned long action, void *data)
-+{
-+	int ret;
-+	struct watchdog_device *wdd;
-+
-+	wdd = container_of(nb, struct watchdog_device, panic_nb);
-+	if (watchdog_active(wdd)) {
-+		if (!wdd->reset_on_panic) {
-+			ret = wdd->ops->stop(wdd);
-+			if (ret)
-+				return NOTIFY_BAD;
-+		} else {
-+			ret = wdd->ops->set_timeout(wdd, wdd->reset_on_panic);
-+			if (ret)
-+				return NOTIFY_BAD;
-+		}
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- static int watchdog_reboot_notifier(struct notifier_block *nb,
- 				    unsigned long code, void *data)
- {
-@@ -334,6 +357,13 @@ static int ___watchdog_register_device(struct watchdog_device *wdd)
- 				wdd->id, ret);
- 	}
- 
-+	if (wdd->info->options & WDIOF_OPS_ATOMIC) {
-+		wdd->panic_nb.notifier_call = watchdog_panic_notify;
-+		atomic_notifier_chain_register(&panic_notifier_list,
-+					       &wdd->panic_nb);
-+		set_bit(WDOG_RESET_ON_PANIC, &wdd->status);
-+	}
-+
- 	return 0;
- }
- 
-@@ -390,6 +420,9 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
- 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
- 		unregister_reboot_notifier(&wdd->reboot_nb);
- 
-+	if (test_bit(WDOG_RESET_ON_PANIC, &wdd->status))
-+		atomic_notifier_chain_unregister(&panic_notifier_list,
-+						 &wdd->panic_nb);
- 	watchdog_dev_unregister(wdd);
- 	ida_free(&watchdog_ida, wdd->id);
- }
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 8369fd94fc1a..89cc9b681992 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -617,6 +617,33 @@ static ssize_t pretimeout_governor_store(struct device *dev,
- }
- static DEVICE_ATTR_RW(pretimeout_governor);
- 
-+static ssize_t reset_on_panic_show(struct device *dev,
-+				   struct device_attribute *attr,
-+				   char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sysfs_emit(buf, "%u\n", wdd->reset_on_panic);
-+}
-+
-+static ssize_t reset_on_panic_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	unsigned int value;
-+	int ret;
-+
-+	ret = kstrtouint(buf, 0, &value);
-+	if (ret)
-+		return ret;
-+
-+	wdd->reset_on_panic = value;
-+
-+	return count;
-+}
-+static DEVICE_ATTR_RW(reset_on_panic);
-+
- static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
- 				int n)
- {
-@@ -648,6 +675,7 @@ static struct attribute *wdt_attrs[] = {
- 	&dev_attr_bootstatus.attr,
- 	&dev_attr_status.attr,
- 	&dev_attr_nowayout.attr,
-+	&dev_attr_reset_on_panic.attr,
- 	&dev_attr_pretimeout_governor.attr,
- 	&dev_attr_pretimeout_available_governors.attr,
- 	NULL,
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 99660197a36c..8783edf93bab 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -105,9 +105,11 @@ struct watchdog_device {
- 	unsigned int max_timeout;
- 	unsigned int min_hw_heartbeat_ms;
- 	unsigned int max_hw_heartbeat_ms;
-+	unsigned int reset_on_panic;
- 	struct notifier_block reboot_nb;
- 	struct notifier_block restart_nb;
- 	struct notifier_block pm_nb;
-+	struct notifier_block panic_nb;
- 	void *driver_data;
- 	struct watchdog_core_data *wd_data;
- 	unsigned long status;
-@@ -118,6 +120,7 @@ struct watchdog_device {
- #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
- #define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
- #define WDOG_NO_PING_ON_SUSPEND	5	/* Ping worker should be stopped on suspend */
-+#define WDOG_RESET_ON_PANIC	6	/* Reset the watchdog on panic for loading kdump kernels */
- 	struct list_head deferred;
- };
- 
-diff --git a/include/uapi/linux/watchdog.h b/include/uapi/linux/watchdog.h
-index b15cde5c9054..4e19cc653a72 100644
---- a/include/uapi/linux/watchdog.h
-+++ b/include/uapi/linux/watchdog.h
-@@ -48,6 +48,7 @@ struct watchdog_info {
- #define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
- #define	WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
- 					   other external alarm not a reboot */
-+#define WDIOF_OPS_ATOMIC	0x0800  /* Indicate whether watchdog ops will sleep or not */
- #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
- 
- #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
--- 
-2.34.1
-
+Best regards,
+Krzysztof
