@@ -1,44 +1,44 @@
-Received: from clean103.mxserver.ro (clean103.mxserver.ro [176.223.125.170])
+Received: from clean305.mxserver.ro (clean305.mxserver.ro [89.46.7.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F7042949F9;
-	Thu, 15 May 2025 08:52:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=176.223.125.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8FA28DF03;
+	Thu, 15 May 2025 08:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.46.7.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747299133; cv=none; b=CdLvXfC7jLBVM3xPnmw86pAhzDWDdk1ftxcm3U4Pd6cz7FaR7UP8OZFKXaTdtBrZe+NoPdr1weAFw8/Y1c5c9vLrW8t+JeiLWRm0f+wKs7Iq3g3iKBarB3IupxuUu4bNGsMUUlJqlOSBhxMEjjJPZxNwbfRZ4+FCuA0h0MuBHi8=
+	t=1747299182; cv=none; b=P03KyL6xEiIWk62jQESapQaSddUDETkTaUW3p5JVK11BGbH1Rv6z5t7Q1JBOqiYLoNLnbNpzwNIulWJo6/IUt2TTf/RfwNOfhzye5p56Cp4xpBzl7hOfClXYv4mou3a9QFruVu5iEIjXsxMEruzGzp0BBjW+F6d7sf4eqjI92S0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747299133; c=relaxed/simple;
-	bh=q/hTLxGkevrKMP4/fm1sZBbPK6IIoosv/EPhSqzLYSo=;
+	s=arc-20240116; t=1747299182; c=relaxed/simple;
+	bh=cUhXfE0teahU2ww6EIn0nqXfWhkzFFEyzjETfkiZ7W4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bnhyiIM/5nOJqKCztLqClJVyaCmFjxhDKdaEGV2k5pQ1WBxRz1aDdC6wlXKjQCh3Yv0YShTwqKS2M3zx8XiJV5ZXqmt5kwEEcuI+mHyvNX2e4E2E7IB4bPufOepJ/1wd5bcJ+VeyakpiozjaT+bDQ53n6Md8l2t0y14kwDk8WFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=I5GISWNL; arc=none smtp.client-ip=176.223.125.170
+	 MIME-Version; b=MgvZFMfybdOp/DqebM5ZtP7a87YofEajm43iR4rmOUh2gUVUymdOvz6e948nwXOILzLEhwyis0P41UlbxXrnrCvriYXKTALOGqBVVtTEcBOTcbv22Vyw9of56QuLV9vvfeMex72QGceZa2hamejawXc5KhmPkdpU59mdZFFBUK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=uvuNDQts; arc=none smtp.client-ip=89.46.7.186
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="I5GISWNL"
+	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="uvuNDQts"
 Received: from cloud347.c-f.ro ([185.236.86.218])
-	by cleanserver1.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+	by cleanserver3.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTm5-00H1Ro-65; Thu, 15 May 2025 04:17:12 -0400
+	id 1uFTm3-00CMcl-2s; Thu, 15 May 2025 04:17:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=taladin.ro;
 	s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=koakyKDUeUIeXFkt5kHFcp8R9b8v4EKGe5vzuuktP7U=; b=I5GISWNLK58PKla/LyJdEMylzb
-	pnP5NkUlRT1ZxS0cdp67LfIcRRV9pkS2JRrg1B9np0hpEU90qPExPVJck7HACbC0P21pKzfn95JvD
-	iiJmRVa6Qtj/X2PP24tJr/JcXtaicxxKbfQW1Nw6I7gCL66WHBdX9k2Q9GDv915sM4WAqXdxumagh
-	vzBUTzS8oNgaY9awb/miMx2SX8+Kn3W/43KA1KPzOfS+05huC60U0Gs6fvnkEaBmO2zB+/6Csi3xW
-	fLBhE29dkoUzDBtALBhlQe6WauOdpgVtc6Vp0Jdzek5ai4JrYNjUQGeEa9ILM+PaYABztHTb/HHOe
-	HsT64JgA==;
-Received: from [109.166.137.172] (port=39050 helo=localhost)
+	bh=TfYvbooBJpGFwd30gpTbaChn3Y/B5jOh5zocpZWBp90=; b=uvuNDQtsUu0l5/gDrSrjcmTwy8
+	7cuiYtU+wtm1CUfY/wL1sz0/cXFuAd8o7RSi9ZzPGJDZ3WKW4pm1G+LM2Mnj/Gyz5JwNswjTzLVqC
+	9tr/xIACDoU+s0wgWrjg/z14eOjAQDfv2msapiqQdd7qEM8rco4VJ19HOAhFHGDLsccNzIVBK6YlM
+	cVbprVgE5kbI5IAx1L1TnnLZ+Fmpv30Uad64iXa7qG48ZHBwENWkE3XlNUXSlnvfOV4vJr8xFPGjH
+	auqrBBEQAeuTEUK8qKPIevLbDmUVfGvxKk3ycJ0yAmCYhtdfa792vEiah0AItUwrWmyHdBKBS5+PM
+	ae5PZWSw==;
+Received: from [109.166.137.172] (port=39012 helo=localhost)
 	by cloud347.c-f.ro with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.98.1)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTlv-00000006qIN-0WJA;
-	Thu, 15 May 2025 11:17:04 +0300
+	id 1uFTls-00000006qBK-0uWI;
+	Thu, 15 May 2025 11:17:01 +0300
 From: Alexandru Soponar <asoponar@taladin.ro>
 To: linux-kernel@vger.kernel.org,
 	linux-hwmon@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc: jdelvare@suse.com,
 	aardelean@baylibre.com,
 	contact@sopy.one,
 	Alexandru Soponar <asoponar@taladin.ro>
-Subject: [PATCH 12/16] iio: max44009: Fix type incompatibility with non-macro find_closest
-Date: Thu, 15 May 2025 11:13:28 +0300
-Message-ID: <20250515081332.151250-13-asoponar@taladin.ro>
+Subject: [PATCH 09/16] hwmon: max20740: Fix type incompatibility with non-macro find_closest
+Date: Thu, 15 May 2025 11:13:25 +0300
+Message-ID: <20250515081332.151250-10-asoponar@taladin.ro>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515081332.151250-1-asoponar@taladin.ro>
 References: <20250515081332.151250-1-asoponar@taladin.ro>
@@ -76,9 +76,9 @@ X-SpamExperts-Domain: cloud347.c-f.ro
 X-SpamExperts-Username: 185.236.86.218
 Authentication-Results: mxserver.ro; auth=pass smtp.auth=185.236.86.218@cloud347.c-f.ro
 X-SpamExperts-Outgoing-Class: ham
-X-SpamExperts-Outgoing-Evidence: SB/global_tokens (0.00920917721819)
+X-SpamExperts-Outgoing-Evidence: SB/global_tokens (0.00126298370281)
 X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9LmVb6q1/FaccTvM3orKErPUtbdvnXkggZ
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9HrjyttcYZsZ1qAKfxRRdrPUtbdvnXkggZ
  3YnVId/Y5jcf0yeVQAvfjHznO7+bT5w1OL79HMxE022P+rQy8YAdcSeERs4TOTnIH1kc1IWc5TSx
  S75yz9IFZiY7BarU/NrpK8SEOwGmfn6ucAKqn/OHRh3BqzFaEnAEj4UixLJBjVNiLZt/QXQnOBRD
  +jq1HsIBmHTFdhqXZEtguZY7iGKpkcJnJKaJfT+dw1udmv00tbIRNtoyOobb3xnDyRRylAVTYi2b
@@ -88,47 +88,56 @@ X-Filter-ID: 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
- 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
+ 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
- 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
+ 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
 X-Report-Abuse-To: spam@cleanserver1.mxserver.ro
 X-Complaints-To: abuse@cleanserver1.mxserver.ro
 
-The max44009_int_time_ns_array array was previously declared as u32 but
-used with find_closest(). With find_closest() now implemented as a
-function taking signed int parameters instead of a macro, passing unsigned
-arrays causes type incompatibility errors. This patch changes the arrays
-type from u32 to int to ensure compatibility with the function signature
-and prevent compilation errors.
+The max_current array was previously declared as u32 but used with
+find_closest(). With find_closest() now implemented as a function taking
+signed int parameters instead of a macro, passing unsigned arrays causes
+type incompatibility errors. This patch changes the array type from u32
+to int to ensure compatibility with the function signature and prevent
+compilation errors.
 
 Signed-off-by: Alexandru Soponar <asoponar@taladin.ro>
 ---
- drivers/iio/light/max44009.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/max20730.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/light/max44009.c b/drivers/iio/light/max44009.c
-index 8cd7f5664e5b..d274224fc210 100644
---- a/drivers/iio/light/max44009.c
-+++ b/drivers/iio/light/max44009.c
-@@ -55,7 +55,7 @@
- /* The fixed-point fractional multiplier for de-scaling threshold values */
- #define MAX44009_FRACT_MULT 1000000
+diff --git a/drivers/hwmon/pmbus/max20730.c b/drivers/hwmon/pmbus/max20730.c
+index 95869d198ecf..0e8d292e9ff4 100644
+--- a/drivers/hwmon/pmbus/max20730.c
++++ b/drivers/hwmon/pmbus/max20730.c
+@@ -436,7 +436,7 @@ static long direct_to_val(u16 w, enum pmbus_sensor_classes class,
+ 	return d;
+ }
  
--static const u32 max44009_int_time_ns_array[] = {
-+static const int max44009_int_time_ns_array[] = {
- 	800000000,
- 	400000000,
- 	200000000,
+-static u32 max_current[][5] = {
++static int max_current[][5] = {
+ 	[max20710] = { 6200, 8000, 9700, 11600 },
+ 	[max20730] = { 13000, 16600, 20100, 23600 },
+ 	[max20734] = { 21000, 27000, 32000, 38000 },
+@@ -449,7 +449,7 @@ static int max20730_read_word_data(struct i2c_client *client, int page,
+ 	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
+ 	const struct max20730_data *data = to_max20730_data(info);
+ 	int ret = 0;
+-	u32 max_c;
++	int max_c;
+ 
+ 	switch (reg) {
+ 	case PMBUS_OT_FAULT_LIMIT:
 -- 
 2.49.0
 
