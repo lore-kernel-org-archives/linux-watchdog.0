@@ -1,44 +1,44 @@
-Received: from clean305.mxserver.ro (clean305.mxserver.ro [89.46.7.186])
+Received: from clean202.mxserver.ro (clean202.mxserver.ro [89.46.7.114])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8FA28DF03;
-	Thu, 15 May 2025 08:53:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.46.7.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 082EF1ADFFE;
+	Thu, 15 May 2025 08:53:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.46.7.114
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747299182; cv=none; b=P03KyL6xEiIWk62jQESapQaSddUDETkTaUW3p5JVK11BGbH1Rv6z5t7Q1JBOqiYLoNLnbNpzwNIulWJo6/IUt2TTf/RfwNOfhzye5p56Cp4xpBzl7hOfClXYv4mou3a9QFruVu5iEIjXsxMEruzGzp0BBjW+F6d7sf4eqjI92S0=
+	t=1747299230; cv=none; b=VZdl+Y++jahwozZtIXgh9mBVoD7+K9ZNIGXOrP+7v+ALT59WD2vobQkaGNbUMLdaBwn9cK7Zaj9e0N+kAo4AwqeKUMARpomW7ZUbgdQqyBxG1oJ8hT4uTzSfZ+vwEsu5WgvZYnIA7DT857Q4UFuMrTBmRrDr6Xg3IeehEcM4FX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747299182; c=relaxed/simple;
-	bh=cUhXfE0teahU2ww6EIn0nqXfWhkzFFEyzjETfkiZ7W4=;
+	s=arc-20240116; t=1747299230; c=relaxed/simple;
+	bh=qaN3sNCyLFEQxYt6b3T2rChPKqYchJ51Y/kaeDzdX7s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MgvZFMfybdOp/DqebM5ZtP7a87YofEajm43iR4rmOUh2gUVUymdOvz6e948nwXOILzLEhwyis0P41UlbxXrnrCvriYXKTALOGqBVVtTEcBOTcbv22Vyw9of56QuLV9vvfeMex72QGceZa2hamejawXc5KhmPkdpU59mdZFFBUK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=uvuNDQts; arc=none smtp.client-ip=89.46.7.186
+	 MIME-Version; b=HmX3InJc6Ll7WLiY0CZMbifjkxVViHtjraMNAXbMfXCpgtJBH0TIZS3cD5D6smtPYpK6RmS03/+a67onhtiRv0uxWOSdQP5pHv92VG14oHUAQmR6Z1sfXAiuZbtqvxII7MDa6maYPkL5KXU0Bmt58+ke0/2TUkwrUTQJSNw1RPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=HCTxtc1U; arc=none smtp.client-ip=89.46.7.114
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="uvuNDQts"
+	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="HCTxtc1U"
 Received: from cloud347.c-f.ro ([185.236.86.218])
-	by cleanserver3.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+	by cleanserver2.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTm3-00CMcl-2s; Thu, 15 May 2025 04:17:11 -0400
+	id 1uFTmD-001W8f-9v; Thu, 15 May 2025 04:17:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=taladin.ro;
 	s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=TfYvbooBJpGFwd30gpTbaChn3Y/B5jOh5zocpZWBp90=; b=uvuNDQtsUu0l5/gDrSrjcmTwy8
-	7cuiYtU+wtm1CUfY/wL1sz0/cXFuAd8o7RSi9ZzPGJDZ3WKW4pm1G+LM2Mnj/Gyz5JwNswjTzLVqC
-	9tr/xIACDoU+s0wgWrjg/z14eOjAQDfv2msapiqQdd7qEM8rco4VJ19HOAhFHGDLsccNzIVBK6YlM
-	cVbprVgE5kbI5IAx1L1TnnLZ+Fmpv30Uad64iXa7qG48ZHBwENWkE3XlNUXSlnvfOV4vJr8xFPGjH
-	auqrBBEQAeuTEUK8qKPIevLbDmUVfGvxKk3ycJ0yAmCYhtdfa792vEiah0AItUwrWmyHdBKBS5+PM
-	ae5PZWSw==;
-Received: from [109.166.137.172] (port=39012 helo=localhost)
+	bh=Tf84gVqj0tGGaREDsyyKj4PxnmF+1JNB072X3oHVgkA=; b=HCTxtc1U1gQ0c+BKWNG3vGyjBW
+	awwWM0fmrlmfTEKtVjTy9Hczk+h8PBIOPwkBowqxpHSz24ye/lIXddJcMgkfKreGXCZhkadBWF9DK
+	2xVFLjAAmLSLp6B5e4GcLwffRYVDC8QBR20DpoO1qHuX9ImkMTVW783wEo2vMjKpo/K1cvuxB7uc5
+	f5euZWIjV+EU4/cIIvfvWzSi8QPlnUZF/7dt0uMMvHCR5RV4hJUdXoN00KyhwRh87YJD4vV+f7AVp
+	zt1lVlIEFjlVhHeRBBlvGrqt+Ar3sBJej6chfvbNbziSfAA86hIwq/v8w0qvq5TZuejdQz1am5+/F
+	TuH6hxrA==;
+Received: from [109.166.137.172] (port=55928 helo=localhost)
 	by cloud347.c-f.ro with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.98.1)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTls-00000006qBK-0uWI;
-	Thu, 15 May 2025 11:17:01 +0300
+	id 1uFTm1-00000006qLV-1PG1;
+	Thu, 15 May 2025 11:17:10 +0300
 From: Alexandru Soponar <asoponar@taladin.ro>
 To: linux-kernel@vger.kernel.org,
 	linux-hwmon@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc: jdelvare@suse.com,
 	aardelean@baylibre.com,
 	contact@sopy.one,
 	Alexandru Soponar <asoponar@taladin.ro>
-Subject: [PATCH 09/16] hwmon: max20740: Fix type incompatibility with non-macro find_closest
-Date: Thu, 15 May 2025 11:13:25 +0300
-Message-ID: <20250515081332.151250-10-asoponar@taladin.ro>
+Subject: [PATCH 15/16] watchdog: simatic-ipc-wdt: Fix type incompatibility with find_closest()
+Date: Thu, 15 May 2025 11:13:31 +0300
+Message-ID: <20250515081332.151250-16-asoponar@taladin.ro>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515081332.151250-1-asoponar@taladin.ro>
 References: <20250515081332.151250-1-asoponar@taladin.ro>
@@ -76,9 +76,9 @@ X-SpamExperts-Domain: cloud347.c-f.ro
 X-SpamExperts-Username: 185.236.86.218
 Authentication-Results: mxserver.ro; auth=pass smtp.auth=185.236.86.218@cloud347.c-f.ro
 X-SpamExperts-Outgoing-Class: ham
-X-SpamExperts-Outgoing-Evidence: SB/global_tokens (0.00126298370281)
+X-SpamExperts-Outgoing-Evidence: Combined (0.01)
 X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9HrjyttcYZsZ1qAKfxRRdrPUtbdvnXkggZ
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9JEhNQgksodpkE3SFzsKIFPUtbdvnXkggZ
  3YnVId/Y5jcf0yeVQAvfjHznO7+bT5w1OL79HMxE022P+rQy8YAdcSeERs4TOTnIH1kc1IWc5TSx
  S75yz9IFZiY7BarU/NrpK8SEOwGmfn6ucAKqn/OHRh3BqzFaEnAEj4UixLJBjVNiLZt/QXQnOBRD
  +jq1HsIBmHTFdhqXZEtguZY7iGKpkcJnJKaJfT+dw1udmv00tbIRNtoyOobb3xnDyRRylAVTYi2b
@@ -88,56 +88,45 @@ X-Filter-ID: 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
- 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
+ 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
- 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
+ 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
+ 0N7182QNMEbAtB23JpYTnB2HqfPoGtp9xnk=
 X-Report-Abuse-To: spam@cleanserver1.mxserver.ro
 X-Complaints-To: abuse@cleanserver1.mxserver.ro
 
-The max_current array was previously declared as u32 but used with
-find_closest(). With find_closest() now implemented as a function taking
-signed int parameters instead of a macro, passing unsigned arrays causes
-type incompatibility errors. This patch changes the array type from u32
-to int to ensure compatibility with the function signature and prevent
-compilation errors.
+The wd_timeout_table array was previously declared as unsigned int
+but used with find_closest(), which takes signed int parameters. Change
+this array from unsigned int to int to maintain type compatibility with
+the find_closest() function signature and prevent compilation errors.
 
 Signed-off-by: Alexandru Soponar <asoponar@taladin.ro>
 ---
- drivers/hwmon/pmbus/max20730.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/simatic-ipc-wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/max20730.c b/drivers/hwmon/pmbus/max20730.c
-index 95869d198ecf..0e8d292e9ff4 100644
---- a/drivers/hwmon/pmbus/max20730.c
-+++ b/drivers/hwmon/pmbus/max20730.c
-@@ -436,7 +436,7 @@ static long direct_to_val(u16 w, enum pmbus_sensor_classes class,
- 	return d;
- }
+diff --git a/drivers/watchdog/simatic-ipc-wdt.c b/drivers/watchdog/simatic-ipc-wdt.c
+index 1e91f0a560ff..36c68d2ed409 100644
+--- a/drivers/watchdog/simatic-ipc-wdt.c
++++ b/drivers/watchdog/simatic-ipc-wdt.c
+@@ -59,7 +59,7 @@ static struct resource io_resource_trigger =
+ static struct resource mem_resource =
+ 	DEFINE_RES_MEM_NAMED(0, 0, "WD_RESET_BASE_ADR");
  
--static u32 max_current[][5] = {
-+static int max_current[][5] = {
- 	[max20710] = { 6200, 8000, 9700, 11600 },
- 	[max20730] = { 13000, 16600, 20100, 23600 },
- 	[max20734] = { 21000, 27000, 32000, 38000 },
-@@ -449,7 +449,7 @@ static int max20730_read_word_data(struct i2c_client *client, int page,
- 	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
- 	const struct max20730_data *data = to_max20730_data(info);
- 	int ret = 0;
--	u32 max_c;
-+	int max_c;
+-static u32 wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
++static int wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
+ static void __iomem *wd_reset_base_addr;
  
- 	switch (reg) {
- 	case PMBUS_OT_FAULT_LIMIT:
+ static int wd_start(struct watchdog_device *wdd)
 -- 
 2.49.0
 
