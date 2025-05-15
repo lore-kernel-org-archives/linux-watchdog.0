@@ -1,44 +1,44 @@
-Received: from clean202.mxserver.ro (clean202.mxserver.ro [89.46.7.114])
+Received: from clean105.mxserver.ro (clean105.mxserver.ro [92.114.95.230])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 082EF1ADFFE;
-	Thu, 15 May 2025 08:53:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.46.7.114
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B3A292938;
+	Thu, 15 May 2025 08:56:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.114.95.230
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747299230; cv=none; b=VZdl+Y++jahwozZtIXgh9mBVoD7+K9ZNIGXOrP+7v+ALT59WD2vobQkaGNbUMLdaBwn9cK7Zaj9e0N+kAo4AwqeKUMARpomW7ZUbgdQqyBxG1oJ8hT4uTzSfZ+vwEsu5WgvZYnIA7DT857Q4UFuMrTBmRrDr6Xg3IeehEcM4FX8=
+	t=1747299367; cv=none; b=jvnd1WD5MgGyOoujY91ZDB4lBUmqVfEnDv586ut61VRfPAirCK4iJmNlyU+hKyYYDf5r20DHK5akLu8vpgAOPKrQVGeG3L5y5c5h9tY/7t89gJvE8xtvkHiwNTsiRhD8HSyBDFm36d4GhUzYRX9zhSeElmxoDEqIf1aC9k1Pumk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747299230; c=relaxed/simple;
-	bh=qaN3sNCyLFEQxYt6b3T2rChPKqYchJ51Y/kaeDzdX7s=;
+	s=arc-20240116; t=1747299367; c=relaxed/simple;
+	bh=Xta5vcw4KkmzpWriNGlKcNZL5QsXdN8++O/8iPTi9yc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HmX3InJc6Ll7WLiY0CZMbifjkxVViHtjraMNAXbMfXCpgtJBH0TIZS3cD5D6smtPYpK6RmS03/+a67onhtiRv0uxWOSdQP5pHv92VG14oHUAQmR6Z1sfXAiuZbtqvxII7MDa6maYPkL5KXU0Bmt58+ke0/2TUkwrUTQJSNw1RPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=HCTxtc1U; arc=none smtp.client-ip=89.46.7.114
+	 MIME-Version; b=eYK86UpsvrmKpUtO+NQtgh+GP4qs+St7yMYBhTAVjzrYGlMTbkFENh2coYmTbcAZ+Jg/IDUU6TNp7zLDWNpjAfG8Cd5sIZQBoyLAkHgnxorG9P4QPBybgZu540mUwAeYIX7ZuXWhjDAg1jt3aLUrR9qAwvf4/3BNDWfo/Ms6o9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro; spf=pass smtp.mailfrom=taladin.ro; dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b=fc5xdrN/; arc=none smtp.client-ip=92.114.95.230
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=taladin.ro
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="HCTxtc1U"
+	dkim=pass (2048-bit key) header.d=taladin.ro header.i=@taladin.ro header.b="fc5xdrN/"
 Received: from cloud347.c-f.ro ([185.236.86.218])
-	by cleanserver2.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+	by cleanserver1.mxserver.ro with esmtps (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTmD-001W8f-9v; Thu, 15 May 2025 04:17:19 -0400
+	id 1uFTm0-00H1KA-At; Thu, 15 May 2025 04:17:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=taladin.ro;
 	s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=Tf84gVqj0tGGaREDsyyKj4PxnmF+1JNB072X3oHVgkA=; b=HCTxtc1U1gQ0c+BKWNG3vGyjBW
-	awwWM0fmrlmfTEKtVjTy9Hczk+h8PBIOPwkBowqxpHSz24ye/lIXddJcMgkfKreGXCZhkadBWF9DK
-	2xVFLjAAmLSLp6B5e4GcLwffRYVDC8QBR20DpoO1qHuX9ImkMTVW783wEo2vMjKpo/K1cvuxB7uc5
-	f5euZWIjV+EU4/cIIvfvWzSi8QPlnUZF/7dt0uMMvHCR5RV4hJUdXoN00KyhwRh87YJD4vV+f7AVp
-	zt1lVlIEFjlVhHeRBBlvGrqt+Ar3sBJej6chfvbNbziSfAA86hIwq/v8w0qvq5TZuejdQz1am5+/F
-	TuH6hxrA==;
-Received: from [109.166.137.172] (port=55928 helo=localhost)
+	bh=xkeLCaU/1+RII/gYEEzfRuhF0PH8h1Fme+aEOtr3w4c=; b=fc5xdrN/aHIgDLVyLNWcS3Q1ye
+	knmPHqwhGe39WTmWOpDau2kNRjMB5WmJlSyE/2wHWP8Logl2EwV564S/qliwFXTnT7ntDD470pEX+
+	zYEWcd1a77nSRSdtB2fHJgP2fxjctp9yV/5n9DkaND1wMDYq58rw5gw/e9tp1yzZWb8+Dcik+2p59
+	x1KOtfkXIri9sc6tJ7inR/shhIOzhwkqohm0lttOY13qTiS5vkU3pgqsNtx85em7zmwVb9PoMx3Y8
+	gInxGGyRnfolsMkHdNd1m33wQTxbPeAUvlGv/+OmzC0PZtHWVCBlXWoV3ol//QYUaj+Skgcmi2hXU
+	yT+K09Nw==;
+Received: from [109.166.137.172] (port=38988 helo=localhost)
 	by cloud347.c-f.ro with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.98.1)
 	(envelope-from <asoponar@taladin.ro>)
-	id 1uFTm1-00000006qLV-1PG1;
-	Thu, 15 May 2025 11:17:10 +0300
+	id 1uFTlq-00000006qAM-1kw1;
+	Thu, 15 May 2025 11:16:59 +0300
 From: Alexandru Soponar <asoponar@taladin.ro>
 To: linux-kernel@vger.kernel.org,
 	linux-hwmon@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc: jdelvare@suse.com,
 	aardelean@baylibre.com,
 	contact@sopy.one,
 	Alexandru Soponar <asoponar@taladin.ro>
-Subject: [PATCH 15/16] watchdog: simatic-ipc-wdt: Fix type incompatibility with find_closest()
-Date: Thu, 15 May 2025 11:13:31 +0300
-Message-ID: <20250515081332.151250-16-asoponar@taladin.ro>
+Subject: [PATCH 07/16] hwmon: ltc4282: Fix type incompatibility with non-macro find_closest
+Date: Thu, 15 May 2025 11:13:23 +0300
+Message-ID: <20250515081332.151250-8-asoponar@taladin.ro>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515081332.151250-1-asoponar@taladin.ro>
 References: <20250515081332.151250-1-asoponar@taladin.ro>
@@ -78,7 +78,7 @@ Authentication-Results: mxserver.ro; auth=pass smtp.auth=185.236.86.218@cloud347
 X-SpamExperts-Outgoing-Class: ham
 X-SpamExperts-Outgoing-Evidence: Combined (0.01)
 X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9JEhNQgksodpkE3SFzsKIFPUtbdvnXkggZ
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT+kbbgtt6YqFbUOBNVEWJXWPUtbdvnXkggZ
  3YnVId/Y5jcf0yeVQAvfjHznO7+bT5w1OL79HMxE022P+rQy8YAdcSeERs4TOTnIH1kc1IWc5TSx
  S75yz9IFZiY7BarU/NrpK8SEOwGmfn6ucAKqn/OHRh3BqzFaEnAEj4UixLJBjVNiLZt/QXQnOBRD
  +jq1HsIBmHTFdhqXZEtguZY7iGKpkcJnJKaJfT+dw1udmv00tbIRNtoyOobb3xnDyRRylAVTYi2b
@@ -88,45 +88,47 @@ X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9JEhNQgksodpkE3SFzsKIFPUt
  UvbvCQmh9x4kn6NeQcRkc6G+OgAcq5x+BzhRyg9rYO6I0H7Q2OEpckvWJAOmdJd77Z9vwc+QHB+X
  +u7aTqYHtT2CBuxNPBc9JM2jck1NnIBf0tvflhq7Xjhll72AYgnW/6M0ftSpvLIx+X1vKami8KF6
  jWQ71uVNIY/EFPWeDmcZuFRQy1vmjjPiYw8fUCp0/qY6cmSW9oUDdvKuTRfTGZ6f8nTXoYFaQ71l
- mMti8uxA0gKVmIzBXtbLDVvAQ/KVNcVK5WbIioCrtPoxxxhtKEKSAN5VcIfsMVILjVAz6RZsCHxD
+ mMti8uxA0gKVmIzBXtbLDVvAQ/KVNXa0zN3wkTScLqeN/X1xpXiSAN5VcIfsMVILjVAz6RZsCHxD
  lgOJwEwCFaF+62b2lf1UUDu9jECN1V/lwmsioRLmNJoHOZOE/9e5UD715p61XAQw85DCXa0iAPEd
- fYyrF5wMRSLGyY+i0m2IxQLxQUzTb3Mji+CrO1+NTWs5OBXbSDBPqdRoFsq0hfzdx0oxkgNI/jhY
+ fYyrF5wMRSLGyY+i0m2IxQLxQUxLMkCVXN63lz38Up+2UgeFSDBPqdRoFsq0hfzdx0oxkgNI/jhY
  WFhu7VV+HdWjdZLlmQ5z83qEVVG/6RJ+BW7FmGcwL889DSW2cZWGkIYVQAbHnYkWUz1gRIjAiMvi
  vM7um7t0SVa5NVZ2g1u6DnOpQHYV3TsOFMmdrwGhqQDw/U3WHzWVE9linvPYkk5EbvNSKMKZZKIm
  pSRiVj3Z6FeYyEA/4qyBWyM8TTC6Mg9RWQhL+FDRQ14qhQ8eQiedscRlw3yFXNuLqAW9V7zLFic5
- yLycIETNRAvUQf+piJ7sPxqZR3KVQgqF/fPYYAfEfsjj4DVdduR90H5McQ+8O8hgib5B6Ms3Nsv9
- mI56gYdHsmk4pgeqpG1btt8vQ86IDdbb7qTcIFz1nk+0s72r53zOJqmiissvM9owPzYAr89vN4Ty
- 64Hw6o+zALSa0P9i1hWLBDMrD7q/cJogwbqzsuokqiEHDvNJ9dv4vz04yOn51wregXgdeECyTJU5
- oHafInZjQGBU7N8R6REbba8k1Qc6J2k7yh+XwGnYB3p7GBr7wAlbv5uSE8iz9IIumhIhFIfECWQj
- OJcjm5IBgwnLvYxWZUtT1DfHQ/HkqSkOfQ8NAR4hBppwR1r+Bof9KZqCMQkyL2PwO4ub1qMH++eM
- jnOnV9LO1ghGh/DUNuB/g2OV987SVK+CeGpRwqUJT500pacqW637mIaQpIIazbKBmghZMypFVNg9
- 0N7182QNMEbAtB23JpYTnB2HqfPoGtp9xnk=
+ yLycIETNRAvUQf+piJ7sPxqZR3KVQgqF/fPYYAfEfsiDGp7i4K9gmqREIfOEHv/AIZm2yoKIH61n
+ a1iNI9sJnrdnfez/EoAkHCogqF44Avfl9XC1Cx34YL7X+JLwYAm5ypSliZ75kJ0rTza8+YFWM4S1
+ 7lffY/fLNHsH8DeB1ciz42LgJIaeGQmuwKFVmHrkHiEGmnBHWv4Gh/0pmoIxCd7Wl7bcZf/Yjlgk
+ C5/TshWi/jhyVxmU68POz+7IAL/WcTQDm0YvDLW6j0ztAyPgv56IZdRxyG8ZeWMbNPZiNWdBqyRc
+ AYMRiF/tTJMpgiPRIHs6CS/Wfz+lGlAmDqpSODMqRVTYPdDe9fNkDTBGwLS7dfE8OG6V00DpgPHh
+ UdfSfqIJ3VUm2y3pNa2dBD3F+DFlJQxAtZlYB2ywONOJP1ekyl6c7Cq2HuJSCRWhvBtVdoCRStPj
+ NlKN8tqRiXqTYOVbu7qFs1k1cwrc0cM1w7Y=
 X-Report-Abuse-To: spam@cleanserver1.mxserver.ro
 X-Complaints-To: abuse@cleanserver1.mxserver.ro
 
-The wd_timeout_table array was previously declared as unsigned int
-but used with find_closest(), which takes signed int parameters. Change
-this array from unsigned int to int to maintain type compatibility with
-the find_closest() function signature and prevent compilation errors.
+The ltc4282_out_rates array was previously declared as unsigned int but
+used with find_closest(). With find_closest() now implemented as a function
+taking signed int parameters instead of a macro, passing unsigned arrays
+causes type incompatibility errors. This patch changes the array type from
+unsigned int to int to ensure compatibility with the function signature and
+prevent compilation errors.
 
 Signed-off-by: Alexandru Soponar <asoponar@taladin.ro>
 ---
- drivers/watchdog/simatic-ipc-wdt.c | 2 +-
+ drivers/hwmon/ltc4282.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/simatic-ipc-wdt.c b/drivers/watchdog/simatic-ipc-wdt.c
-index 1e91f0a560ff..36c68d2ed409 100644
---- a/drivers/watchdog/simatic-ipc-wdt.c
-+++ b/drivers/watchdog/simatic-ipc-wdt.c
-@@ -59,7 +59,7 @@ static struct resource io_resource_trigger =
- static struct resource mem_resource =
- 	DEFINE_RES_MEM_NAMED(0, 0, "WD_RESET_BASE_ADR");
+diff --git a/drivers/hwmon/ltc4282.c b/drivers/hwmon/ltc4282.c
+index 4f608a3790fb..1908a998feb1 100644
+--- a/drivers/hwmon/ltc4282.c
++++ b/drivers/hwmon/ltc4282.c
+@@ -173,7 +173,7 @@ static int ltc4282_set_rate(struct clk_hw *hw,
+  * Note the 15HZ conversion rate assumes 12bit ADC which is what we are
+  * supporting for now.
+  */
+-static const unsigned int ltc4282_out_rates[] = {
++static const int ltc4282_out_rates[] = {
+ 	LTC4282_CLKOUT_CNV, LTC4282_CLKOUT_SYSTEM
+ };
  
--static u32 wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
-+static int wd_timeout_table[] = {2, 4, 6, 8, 16, 32, 48, 64 };
- static void __iomem *wd_reset_base_addr;
- 
- static int wd_start(struct watchdog_device *wdd)
 -- 
 2.49.0
 
