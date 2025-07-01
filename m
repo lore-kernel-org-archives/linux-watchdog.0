@@ -1,125 +1,102 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54F28285CBA;
-	Mon, 30 Jun 2025 13:30:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA3A02459FD;
+	Tue,  1 Jul 2025 06:06:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751290219; cv=none; b=W9g8K8FIt991oxpff/QM6FOX6dy5Fq9v+F2LMOE3qoC+7K/QoRdwGK8MJCpUJV21z6oY768tCL/HvCTySdnVXuTT2AXC5Pza7R6az0jGCwDOAAeDxSA+36n54n3OoG0t24DvXVr/vwiMdHlRBB2jkECtQKSdcStxHKUill91Q5E=
+	t=1751350018; cv=none; b=IOP0Ecs1DkJ8/cRI3XP6hDStFA2e0g7xoLIDyU+qBuOsOvrn+6wOK+5RDeTxUTAA1VT32GBduXOyusJaFh5gYfKg3zvDBsVCYZ9Xuj4XTpSRh512dDbFGtUUrcTc5myJscscjzl5yhKLLuTRZjmd6LdQ/JRIqLNHNUw4A2+vd7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751290219; c=relaxed/simple;
-	bh=k/F7wzi/Oivivw2NvLIoEktel4OXBWBf1njcoWD3Dbk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A1ENwTTUijHaFLlAjyHUMlINvvpArns/mLafB702OxUnEsy1yWNthhK5HgBrYIfPPBMVPuhPqS0JKQIIQQfm4Vt7z+JbXDc5tBnFn8wOvMcDAqdtdFhk1X/qsdVKQme9qAUIT3SMVnrXI42M52CYQyT73lV3s0CMOjHFEPcjU6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ain0cqz7; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751350018; c=relaxed/simple;
+	bh=NtHVQV9EcFCMDX7k9Ycx1Wl9rCSucK710Cd1fER6oPM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=q7ap2CO2Z9oWM8LTGHhMn6bCYOkOW5d1Ns4dQKhAKQiyQuPzcl3yPuNIti0z7EWXXAKbWnYg4/6TVEX/R6XWXaof5gQ62cDF1LmQwiAhSdP4v0DsBbloL+tnc4TBBUxxNlp+0+ETfEFyz7/0MwKSqWbgTpHM0Ym2u1Fc4/Jbs20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qzbyfJ+5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ain0cqz7"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-748e81d37a7so3169806b3a.1;
-        Mon, 30 Jun 2025 06:30:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751290217; x=1751895017; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vqz5wu4a9+fyxIcUMARw02jDw0fFs9t8Ss/9EgTuY8g=;
-        b=Ain0cqz7AzWP/YEgejlwFZ1Fq4kHMKHKkhfGuO9loCElgYoFqg24rzbxzmkrRhDqg8
-         Rt6SLbY+/LiTsVfa7Rj5LLKqHeXYSvSZ3mB8e3PYU+MIqawZf1KintQt46sBmqCLZISs
-         CTP82KL+oKhHBMJIVXo+2At/e4KYEFEJfF2MrW8asxpcMBM1Qm103oK5UgmH55nUCJpb
-         +MNrJt4p6QSZYOZqVhzZgOn6l/JrLrVOKlmcmiASQkuGtnM9RNSYRAUgaBmpeUC/DjkH
-         XX0jzzb8/5RS86iq+kebu5tgLzIXIUXSGParYI2ganJ/pktffCfTAjnrGd9HpvBWQHwb
-         8VXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751290217; x=1751895017;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vqz5wu4a9+fyxIcUMARw02jDw0fFs9t8Ss/9EgTuY8g=;
-        b=sG3Xgtu590GV/ed776BSjv3QpO5NOJviQNYm6NVsHZ8KuOZrLWzYKpvetd7v4KH2mP
-         n/TKZ1z1rQA98+yeOPwhCQ3mphMRHVdyuHZR8NF5JTIMROaxTSGNB0FpzbtGnUKw8rwc
-         hVLmWxdPGyCjfAgcDF/a6Us850+KtBli0RIdV8fTico+1sS9DkFMHf/EBOkjtrMmfmfd
-         qtK32Mn8gmhpYKYAre0rmlAMR5a4746wuMy+UvppLh6WF/dL9fiPoZAn5QdQSb3M/XzM
-         fT7V+zEn9xFvWV+PGt2+CWRy3MfMruc8FoCnDhyfQk5ki4LaPw/BiN7ieoaXRK7l9jPV
-         tdPA==
-X-Forwarded-Encrypted: i=1; AJvYcCU4cRiNw5k3axz8WMBSzRXXP7Mq/GXCuMQXnCMoST8vzc86/3A/sX+B4rp+9MNmUP1YsWZk7cIF5MY7CriS@vger.kernel.org, AJvYcCWKCHYPPol70EKpfU85J1dUpAvls4+f5PD+OzO1lYosbriAx9Ga6PmYeU5fvQ16VNOio02KB3i34leHxas9@vger.kernel.org, AJvYcCXCN9jqCbNkKttJVmSAfr7oDShOyAIxMtFfGZop2Y9Ml1i4w8BwJSbwEfpQTcE9C4E6+27xvNVfTKhD8Zab6Sk=@vger.kernel.org, AJvYcCXafwvTsaHGOHUtM9NZ/x6YRwHOMpAmA5rhVEKnpFyYrndzQ31Ua4lQOqArfuPF+vl4EqzBw5oZ27FX@vger.kernel.org
-X-Gm-Message-State: AOJu0YzVcgnv9iiKtDfwjFYjdEuhf0ZqJt/ACMvHYvKPxvTBORZ3Ldmw
-	q9kivacinp/uRIyG4TjnkWpTjgcrLVbRRN6fruSXoLkumSjbBoZcHZlT
-X-Gm-Gg: ASbGncvpo2+znEfScT244iy5o472D5lVp98lUN6iffuQtN8WlGxD9TyWj7Y/5w8Zlqb
-	f3p9myKFMuVQlOsHk2B7eRFuv2jd5lQqfNlfPoly7T8kui/0x+AowlbC7YtibQhIQb6YuuGH4B6
-	a0I/+wIoF2mHEGRFAWzeXi15pPjNZchG9GiDgosCMDSdDzSBbVF2gTkr/YF5nXLDiUkAxFWQ0/5
-	aeUpY5B/E+MMCMpcq64Fn9xJs7Jhkntzr2CggCSesyaQzBC5pTTCYwtN1Tkj5yAkkiHg7dDh7c1
-	lYJCZ1LlAc7fMXQ9fb5UkfcSc+jYIuRApRENGMoXnLMdkFJjuI/7wTwtiuMUp74fbKyPv/2ut65
-	P+FIpnHFbMg==
-X-Google-Smtp-Source: AGHT+IHsEfXOWrT8Uf27lIFmnKIwzXoqP5mPWVdDMXddwdbdnzqfqiqgg5d8T6nDpFccz1puGjbcBw==
-X-Received: by 2002:a05:6a20:c90e:b0:21f:53e4:1925 with SMTP id adf61e73a8af0-220a12dbff0mr19639755637.10.1751290217517;
-        Mon, 30 Jun 2025 06:30:17 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b350d81f0ecsm2964147a12.27.2025.06.30.06.30.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 06:30:15 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Mon, 30 Jun 2025 06:30:15 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: wctrl@proton.me
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org,
-	linux-serial@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 05/11] dt-bindings: vendor-prefixes: add JTY
-Message-ID: <4c48a544-1252-40fe-8dd7-17ec848f6957@roeck-us.net>
-References: <20250626-mt6572-v2-0-f7f842196986@proton.me>
- <20250626-mt6572-v2-5-f7f842196986@proton.me>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qzbyfJ+5"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9512EC4CEED;
+	Tue,  1 Jul 2025 06:06:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751350018;
+	bh=NtHVQV9EcFCMDX7k9Ycx1Wl9rCSucK710Cd1fER6oPM=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=qzbyfJ+5zOAXdWpYHaez1II0t5HJ93Gp2NRZ6NiDQPb/GItLmam6CXiUUvyz6XYQe
+	 GRRakZBogsQUaeSZaBRA1sGpgsd5sQdItoLOEAoF1JFaC5IomazyPeB3Nj4bm2VyVf
+	 E6GJxJshF0+SO4EYZwAWsAoVpN2x5c4j8HuyTFhLjzn4Sw0HQ7CuZN7q4OMHZX2qqc
+	 C44XvX6UgxuM8JLsrmuETPXpcnXpXQ5lw+fjzlMIFK0IUpT5y5Ln4vfo6BHxYxv9Na
+	 WKpkgdOKB/7JN6NrwST5ULg/J2lO4iacVqItOEFwFxUkE4IhVqTz0K5ux6tyElmr9q
+	 hz+MXj4GrCvog==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8524FC7EE30;
+	Tue,  1 Jul 2025 06:06:58 +0000 (UTC)
+From: Max Shevchenko via B4 Relay <devnull+wctrl.proton.me@kernel.org>
+Date: Tue, 01 Jul 2025 09:06:55 +0300
+Subject: [PATCH v3 01/11] dt-bindings: serial: mediatek,uart: add MT6572
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250626-mt6572-v2-5-f7f842196986@proton.me>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250701-mt6572-v3-1-8937cfa33f95@proton.me>
+References: <20250701-mt6572-v3-0-8937cfa33f95@proton.me>
+In-Reply-To: <20250701-mt6572-v3-0-8937cfa33f95@proton.me>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Thomas Gleixner <tglx@linutronix.de>, 
+ Daniel Lezcano <daniel.lezcano@linaro.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Sean Wang <sean.wang@mediatek.com>, 
+ Russell King <linux@armlinux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+ Max Shevchenko <wctrl@proton.me>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751350015; l=1028;
+ i=wctrl@proton.me; s=20250603; h=from:subject:message-id;
+ bh=DJTTfnpTHaaUzlVzY+8JNLh/4at1AR4THWvuXGzVm7Y=;
+ b=jY7dQ+VmxolwWDt2wWLs6DJKybVtWuVif4gOjkoP62pOWKSamxbv9qGqC87ymozsEZWxGYIXV
+ c93MdjqbOHeA5KjpONDv9xTXLgci0Mz4POuidVFWzznzKG+MdZJCU6E
+X-Developer-Key: i=wctrl@proton.me; a=ed25519;
+ pk=JXUx3mL/OrnRvbK57HXgugBjEBKq4QgDKJqp7BALm74=
+X-Endpoint-Received: by B4 Relay for wctrl@proton.me/20250603 with
+ auth_id=421
+X-Original-From: Max Shevchenko <wctrl@proton.me>
+Reply-To: wctrl@proton.me
 
-On Thu, Jun 26, 2025 at 11:53:58AM +0300, Max Shevchenko via B4 Relay wrote:
-> From: Max Shevchenko <wctrl@proton.me>
-> 
-> JTY produced low-cost Android tablets based on various
-> MediaTek MT65xx SoCs.
-> 
-> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-> Signed-off-by: Max Shevchenko <wctrl@proton.me>
+From: Max Shevchenko <wctrl@proton.me>
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Add a compatible string for serial on the MT6572 SoC.
 
-> ---
->  Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> index 86f6a19b28ae217643bf7a63a471f74819d18238..517bd129288c96483ffe358127ce8e16f60d902b 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> @@ -782,6 +782,8 @@ patternProperties:
->      description: Jide Tech
->    "^joz,.*":
->      description: JOZ BV
-> +  "^jty,.*":
-> +    description: JTY
->    "^kam,.*":
->      description: Kamstrup A/S
->    "^karo,.*":
-> 
-> -- 
-> 2.50.0
-> 
-> 
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Max Shevchenko <wctrl@proton.me>
+---
+ Documentation/devicetree/bindings/serial/mediatek,uart.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/serial/mediatek,uart.yaml b/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
+index 1b02f0b197ff46e3530372d1d9303210cca9c2d5..fe283494188dea64bdfdd34a781bf54c8cbc1f05 100644
+--- a/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
++++ b/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
+@@ -25,6 +25,7 @@ properties:
+           - enum:
+               - mediatek,mt2701-uart
+               - mediatek,mt2712-uart
++              - mediatek,mt6572-uart
+               - mediatek,mt6580-uart
+               - mediatek,mt6582-uart
+               - mediatek,mt6589-uart
+
+-- 
+2.50.0
+
+
