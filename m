@@ -1,57 +1,82 @@
-Received: from lelvem-ot02.ext.ti.com (lelvem-ot02.ext.ti.com [198.47.23.235])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36BFA1ACECE;
-	Mon,  7 Jul 2025 18:00:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.23.235
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 271AD1EF091;
+	Mon,  7 Jul 2025 20:01:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751911226; cv=none; b=qcedhUo7x56wy9c5GzkANF2HpxbN4JfMsBkxhZcFC5s5DOYfgaXxEazvxACK034epLMMYPLG2zphn8T6RZCUsEck0+s/vDR3KC12RLzcrj5kYUZ3v1I4/Kxjtu09Z+eg0yDdoXEldLDVeUeTf6iqWWnVMea/7AYfHTAbd8HXAJ4=
+	t=1751918480; cv=none; b=NmmXKWP4Nk0dX8o+urON6y5izgRAROQCIyKWkWopSyUImumn/T4gYswElmck6nlB8aA1qNzbrbQ2WVyJfx3WWM4uEUekFT32+At9x6I8uFNIeonQ0X3bBxJ4WldarWk4ACw9ncbiuL1LddCLTrqOlWpNCTxTLsm7fcynj6EWwMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751911226; c=relaxed/simple;
-	bh=r6NZBrffWzNw7dte2+xmTPvu0PfUvX4a7JkEhaiWhLk=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VdlgSPQUB19+EqbCPFP7vaWECq5R/DZ7vYv3mLBzj5AZWRQUwLhHy3hzihjd06GUlRADRDkrVYut4dB0U4BVuYRE2WsMzkNxCsKxSdMoYIvj7nibi6Gok+O36IUpsHxq9U23Ca4PeWbnpvBFImOdRpuOxG80ECYsyhS/AI03pcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=njgJvhn+; arc=none smtp.client-ip=198.47.23.235
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	s=arc-20240116; t=1751918480; c=relaxed/simple;
+	bh=nw7m6zoFmIhZe7hAFS8+ViPrXToms/pNtA6bvWfVdN0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SrG4A0CvMOEXk/NnayAy5oeGTQydenmAkRGF3WnMRn470x2rvde6mst/Xvgttot9Fdv8EWBVW7z/2gN/y9XFse9dzubNSiO+7zZoW8Am0uMokyLtOekl1b1FJpkZ26nI1zPokKDNtjSLqWOQg8YIsagPVMb6eYJdcCAPEswRW14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qhwwcmbl; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="njgJvhn+"
-Received: from lelvem-sh02.itg.ti.com ([10.180.78.226])
-	by lelvem-ot02.ext.ti.com (8.15.2/8.15.2) with ESMTP id 567I041n929153;
-	Mon, 7 Jul 2025 13:00:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1751911204;
-	bh=jO9NDpDqasebT3fzKzOHXV7PwCeXf/Izih3UInLmNzQ=;
-	h=From:To:CC:Subject:Date;
-	b=njgJvhn+e72Egv+TaF+cymQrjgNP0QztjvQkfnySlLWww39bWZnDMJ4DFsoaMdgVr
-	 V/EM5EiMA0FECIOIEaOqEXjctxHyEROy8ixWscDbM/3Tn6iTRBLFQw8OX8VufL9CAq
-	 KKV4l139PMgW6DapELUKyT/IatIIAks1tWUsCCx4=
-Received: from DFLE114.ent.ti.com (dfle114.ent.ti.com [10.64.6.35])
-	by lelvem-sh02.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 567I04Eq1620340
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA256 bits=128 verify=FAIL);
-	Mon, 7 Jul 2025 13:00:04 -0500
-Received: from DFLE115.ent.ti.com (10.64.6.36) by DFLE114.ent.ti.com
- (10.64.6.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55; Mon, 7
- Jul 2025 13:00:02 -0500
-Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DFLE115.ent.ti.com
- (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55 via
- Frontend Transport; Mon, 7 Jul 2025 13:00:02 -0500
-Received: from judy-hp.dhcp.ti.com (judy-hp.dhcp.ti.com [128.247.81.105])
-	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 567I02QL345700;
-	Mon, 7 Jul 2025 13:00:02 -0500
-From: Judith Mendez <jm@ti.com>
-To: Judith Mendez <jm@ti.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
-        Krzysztof
- Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>
-CC: Vignesh Raghavendra <vigneshr@ti.com>, Tero Kristo <kristo@kernel.org>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Andrew Davis <afd@ti.com>
-Subject: [PATCH v3 0/2] Add reaction control in rti
-Date: Mon, 7 Jul 2025 13:00:00 -0500
-Message-ID: <20250707180002.3918865-1-jm@ti.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qhwwcmbl"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4538a2fc7ffso32847095e9.0;
+        Mon, 07 Jul 2025 13:01:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751918477; x=1752523277; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rNJURKK5niSy6MyMTsQlWsFXNTBiKdE+15SJ5H8B2q4=;
+        b=Qhwwcmblh1meoEO3Duz6QMPRBOhMlaDZ2pf3CQ3H4gwutr3+wYqg5J5rj5pgbyWPhN
+         Xh9QLHEqV7TPsb+/OhvElrNVmnooRCYcPh1hz4mZEr2i2yjSeapOOg5QQ1uQUd659X53
+         GgV+UbzNaB9OjRuDke+EnizgHYKkNqzL6CKiBZJuxZd1GH2MXfLFMlCrpqBwb0tWR60H
+         yxRC1IMTjW5bqjJ2BVhviGbl5X/mMNF7dYI17BN+R2CkNFx4X9Scvr7ZXwQkMSZe6u8I
+         AvK+Zb6JjncWJDo+RElr38ZMb2+LUYqmk48QPXifCcJ7E040J0JKSJunJZK4Rqub47g/
+         tWAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751918477; x=1752523277;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rNJURKK5niSy6MyMTsQlWsFXNTBiKdE+15SJ5H8B2q4=;
+        b=xHaOn2LnqVhAQNNpQ0ySQtu0yOx0mhnzJghVW6uoy4NTu2xY5Pj7Q9qsCgnqj8EGGN
+         d7GXExNQ66gXe2bU60uGbVfqdLocyYgydvpa8ErWBCh1cuu4uRVtjZXAk4eP3HyPtAxd
+         69zThOA1OJRJEk7fM25+xXNriQQeP5pOphde1Qq5kPwiPbb8+McNJozqY5T/zEw9XqiU
+         rg7O9EWQ6H41a9P8Jo3aUb5rJIw1s9LVSzsJKXJb1D+VL0fz4JDZmULBA0swbWKxeH8J
+         iJOok6oTHMhUfam6+G+K/UmAKUQNUGgfJ5NXx5PcIwRovU2VRg+0Vv0vAYjdyWF4XwrW
+         kpLQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV6XeFLR5r3S7nBBYNx76hSx5eTbf5Vjz6NyAnbu+7PbfqyqnUn4Uv730ZgVA9Erp3hhZbJD+zCJ3CFvCI=@vger.kernel.org, AJvYcCVCqBJd9eq2Q4mn+Yoq/0T+Z1DcgUI357pApJsE2EIvEvqndJ4ZNmyyxMTz+aDHWhFcswZXPgCYNrn+ZdCvqrM=@vger.kernel.org, AJvYcCVrXTuMwbDxx6qNi2mNc/drmKRYsdN4q3O0vHU9TeB4rv6sSPKouTfh7CG2lS/VhgM5f6+iQeHqTiLb4YxniT11kdM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxGRxniBsUvQTUwIC7kOa6QeLNWvjRkvk6OAG8LteUsfRoKrJdL
+	XbDTeXxqObTEEmrohe3P7UwYdGyFMocPfvwPgKoRw1pQpk9+pQ6M4yqy
+X-Gm-Gg: ASbGnctWkRzbCPqrDueoIDlyAn8gqN27D/ccyHmDcpXjLMlKQKfSMoByhhB39d3Vvbn
+	jBDg+dc5IydSZTwz3QeqhP2Rw3V1MkYpwpAli+cbiyc7w8yTfdmpTCFTWzpKcCxyCFQf07WbJJM
+	qYqMj50WZ4fP8PrKs+iyMgJGorzQb1TBdpjdk8XCPv149LQ4THQUoee/sSI8h2qiAYQobzSMNVi
+	H5zZJIBjk61Eaab9BQt5ZENSLVuj9emakovoM7oVIBpwGWIG+ePEHflX5fXMkfKPZ3OhUKpTfq0
+	50jaBm9aXScHYDtSVr5zshJo6Amkmx3D6hlhN58WkYYVl/W9y3TNPi5jPxSDqpLFPndkSOoB+mL
+	jyKSkIhNMIc77fFcJTz0=
+X-Google-Smtp-Source: AGHT+IE7kw9fcOu6dAAWkp44exlUHg0CGXYoF7gPm5U4E1uoGUt3VH5ULC89IZUtRiKitZEqzaIZlg==
+X-Received: by 2002:a05:600c:8718:b0:442:f904:1305 with SMTP id 5b1f17b1804b1-454cd60c241mr631935e9.6.1751918476780;
+        Mon, 07 Jul 2025 13:01:16 -0700 (PDT)
+Received: from iku.example.org ([2a06:5906:61b:2d00:d418:e5eb:1bc:30dd])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b471b97376sm11268995f8f.61.2025.07.07.13.01.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Jul 2025 13:01:16 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-watchdog@vger.kernel.org
+Cc: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Prabhakar <prabhakar.csengg@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 0/9] Add watchdog driver support for RZ/T2H and RZ/N2H SoCs
+Date: Mon,  7 Jul 2025 21:01:02 +0100
+Message-ID: <20250707200111.329663-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -60,37 +85,32 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
 
-This allows for reaction control in rti driver. Since AM62L SoC [0]
-does not have WWD reset output routed to a ESM module like all other
-K3 SoC's and has a reset signal routed to the reset HW block, add a new
-compatible for AM62L and configure reset reaction for AM62L SoC instead
-of NMI.
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-This patch has been tested on AM62L EVM [1].
+Hi All,
 
-Changes since v2:
-- Pick Krzysztof's tag
-- Take Andrew's sugestions from v2 for patch 2/2
- -> switch to device_get_match_data
- -> fix comment and assignment of reaction variable logic in rti_wdt_start
+This patch series adds watchdog driver support for the Renesas RZ/T2H
+(R9A09G077) and RZ/N2H (R9A09G087) SoCs. The necessary device tree
+bindings and driver modifications are included.
 
-v2: https://lore.kernel.org/linux-devicetree/20250625143338.2381726-1-jm@ti.com/
-v1-resend: https://lore.kernel.org/linux-devicetree/20250624202605.1333645-1-jm@ti.com/
-v1: https://lore.kernel.org/linux-devicetree/20250624194509.1314095-1-jm@ti.com/
+Cheers,
+Prabhakar
 
-[0] https://www.ti.com/product/AM62L
-[1] https://www.ti.com/tool/TMDS62LEVM
+Lad Prabhakar (9):
+  dt-bindings: watchdog: renesas,wdt: Add support for RZ/T2H and RZ/N2H
+  watchdog: rzv2h_wdt: Obtain clock-divider ranges from OF match data
+  watchdog: rzv2h_wdt: Obtain CKS divider via OF data
+  watchdog: rzv2h_wdt: Make "oscclk" an optional clock
+  watchdog: rzv2h_wdt: Add support for configurable count clock source
+  watchdog: rzv2h_wdt: Make reset controller optional
+  watchdog: rzv2h: Set min_timeout based on max_hw_heartbeat_ms
+  watchdog: rzv2h: Add support for RZ/T2H
+  watchdog: rzv2h_wdt: Improve error strings and add newlines
 
-Judith Mendez (2):
-  dt-bindings: watchdog: ti,rti-wdt: Add ti,am62l-rti-wdt compatible
-  watchdog: rti_wdt: Add reaction control
-
- .../bindings/watchdog/ti,rti-wdt.yaml         |  1 +
- drivers/watchdog/rti_wdt.c                    | 32 ++++++++++++++++---
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ .../bindings/watchdog/renesas,wdt.yaml        |  37 ++++-
+ drivers/watchdog/rzv2h_wdt.c                  | 137 ++++++++++++++++--
+ 2 files changed, 155 insertions(+), 19 deletions(-)
 
 -- 
 2.49.0
