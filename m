@@ -1,44 +1,45 @@
 Received: from lelvem-ot02.ext.ti.com (lelvem-ot02.ext.ti.com [198.47.23.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BAD4219A6B;
-	Mon, 21 Jul 2025 23:57:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A8742459D5;
+	Mon, 21 Jul 2025 23:57:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.23.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753142246; cv=none; b=qtpNM55Y/sxeKNcTaFAtLHweVio2ndHV13s+ozrRvvHlcx8J6EDtIGh3/ducg5LlUCBMtblnf1nHFD1SCcBIM0qRVbsvQA7xsOZPWAR6sMShcpZgohH35d4jVlXRlSIXT8dCJAC9TxLOnq52vCrrTHI3NH77jP3a5qdvqgzx50k=
+	t=1753142247; cv=none; b=rEc1/gzJnvRs79PZ7rVMw8nunYPYcsD0Fnl4lShlK/t65Gr4lUnsIHrVwBxu7GEwsO/1K5Z2fXvdQOXqN7Ip+k9prIQoL4piTzSZgF5wZnCIThdMP6x0jvY/loccGmJjYeI9dy/XZYXyzZflSBSUl8sCJZZw3tnN8dX6P6BnhjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753142246; c=relaxed/simple;
-	bh=arbzkV2E0no0mFDIvbnkNLTIFGMu4xFEU0aY3gLFC60=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Qr69b1QnSD1R4ZMCzjpXTdsM2dH5fNmnoReHbqHU7VmSjSeX5v5SOS3uooDZpcc3cML2owmPUAQFRS0f+tlz6Pnt99j5fhoEto94iXXklnRgu0PbbscKtlSc2B+e3W+WFh9OCD1AAgw54NLqDMgELim5+qMySJZog5C0MphCsGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=RtTTu9l4; arc=none smtp.client-ip=198.47.23.235
+	s=arc-20240116; t=1753142247; c=relaxed/simple;
+	bh=M1DHbBI2A5Kehjwx3oY+PQa2erfWj1DUefOOJmzXC0A=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=KfT1za44b3WjnB6cU5LTHqUcIdOGoyCybjevu+dpj4PyhLhUh10cEeqP8SVEZAdhyXKVHDevfdzOstE16XEtpflOtQAr765sxQwKlvZV+j6nhLcOCttgfGXbqfKEYdOT6dCQMgSUx6DZlyEALL8XVsjRNyc+GyzRYH0kSDcm6ew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=lfU0ndhF; arc=none smtp.client-ip=198.47.23.235
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="RtTTu9l4"
-Received: from fllvem-sh03.itg.ti.com ([10.64.41.86])
-	by lelvem-ot02.ext.ti.com (8.15.2/8.15.2) with ESMTP id 56LNv5T21379791;
-	Mon, 21 Jul 2025 18:57:05 -0500
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="lfU0ndhF"
+Received: from lelvem-sh01.itg.ti.com ([10.180.77.71])
+	by lelvem-ot02.ext.ti.com (8.15.2/8.15.2) with ESMTP id 56LNv6fu1379795;
+	Mon, 21 Jul 2025 18:57:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
 	s=ti-com-17Q1; t=1753142226;
-	bh=Ha51BmO3BFnOaMX9XHX6JPjZdZK9xhxWuq3w4PS1ik4=;
-	h=From:To:CC:Subject:Date;
-	b=RtTTu9l4Q5V2aaMBc4Irz8hKLy3JJYC1fCj/NopcUn5sCM8yUN5vtV2nvnGGcWt+3
-	 aZ40uyFQZGP79ct4vLmcmRca003pRefLw0B+y2V2oO10ag5redLRmEHD1G4AxOj38h
-	 PhHWz7mwy42d2LJaMk4uvtOeyY3Y71Uhl/c51I4U=
-Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
-	by fllvem-sh03.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 56LNv57D623743
+	bh=+PIFVG00aZCIkbW543S4nBS5+BFO6ngSanFzNooT3aI=;
+	h=From:To:CC:Subject:Date:In-Reply-To:References;
+	b=lfU0ndhFbpJwQR6ISAB6kMcL+aVS5s9SKvtW9HnYNy0xvV4N8Rb5H1TjcgiEOxlbL
+	 wf+ujp6EiuRkO3Vosavf3Wqyu3aI3ZJk2gJoPM66J0Nazu8GFUS/NQif43F27Si6Vs
+	 e8vRLp1Xh+pFWg1AP7KCmYSochEs/d0ocFqtsMTY=
+Received: from DLEE109.ent.ti.com (dlee109.ent.ti.com [157.170.170.41])
+	by lelvem-sh01.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 56LNv66v3668802
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA256 bits=128 verify=FAIL);
-	Mon, 21 Jul 2025 18:57:05 -0500
-Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE112.ent.ti.com
- (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+	Mon, 21 Jul 2025 18:57:06 -0500
+Received: from DLEE106.ent.ti.com (157.170.170.36) by DLEE109.ent.ti.com
+ (157.170.170.41) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55; Mon, 21
  Jul 2025 18:57:05 -0500
-Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DLEE102.ent.ti.com
- (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DLEE106.ent.ti.com
+ (157.170.170.36) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55 via
  Frontend Transport; Mon, 21 Jul 2025 18:57:05 -0500
 Received: from judy-hp.dhcp.ti.com (judy-hp.dhcp.ti.com [128.247.81.105])
-	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 56LNv5e0422426;
+	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 56LNv5e2422426;
 	Mon, 21 Jul 2025 18:57:05 -0500
 From: Judith Mendez <jm@ti.com>
 To: Judith Mendez <jm@ti.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -49,10 +50,12 @@ To: Judith Mendez <jm@ti.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
 CC: Vignesh Raghavendra <vigneshr@ti.com>, Tero Kristo <kristo@kernel.org>,
         <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, Andrew Davis <afd@ti.com>
-Subject: [PATCH v4 0/2] Add reaction control in rti
-Date: Mon, 21 Jul 2025 18:57:03 -0500
-Message-ID: <20250721235705.1160972-1-jm@ti.com>
+Subject: [PATCH v4 2/2] watchdog: rti_wdt: Add reaction control
+Date: Mon, 21 Jul 2025 18:57:05 -0500
+Message-ID: <20250721235705.1160972-3-jm@ti.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250721235705.1160972-1-jm@ti.com>
+References: <20250721235705.1160972-1-jm@ti.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -63,34 +66,108 @@ Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
 
-This allows for reaction control in rti driver. Since AM62L SoC [0]
-does not have WWD reset output routed to a ESM module like all other
-K3 SoC's and has the reset output signal routed to the reset HW block,
-add a new compatible for AM62L and configure reset reaction for AM62L
-SoC instead of NMI.
+This allows to configure reaction between NMI and reset for WWD.
 
-This patch has been tested on AM62L EVM [1].
-
-Changes since v3:
-- Expected default reaction for watchdog is HW reset line, so check for NMI
-  and set reaction to NMI if exists, else default to HW reset.
-
-v3: https://lore.kernel.org/linux-devicetree/20250707180002.3918865-1-jm@ti.com/
-v2: https://lore.kernel.org/linux-devicetree/20250625143338.2381726-1-jm@ti.com/
-v1-resend: https://lore.kernel.org/linux-devicetree/20250624202605.1333645-1-jm@ti.com/
-v1: https://lore.kernel.org/linux-devicetree/20250624194509.1314095-1-jm@ti.com/
+On K3 SoC's other than AM62L SoC [0], watchdog reset output is routed
+to the ESM module which can subsequently route the signal to safety
+master or SoC reset. On AM62L, the watchdog reset output is routed
+to the SoC HW reset block. So, add a new compatible for AM62l to add
+SoC data and configure reaction to reset instead of NMI.
 
 [0] https://www.ti.com/product/AM62L
-[1] https://www.ti.com/tool/TMDS62LEVM
+Signed-off-by: Judith Mendez <jm@ti.com>
+---
+ drivers/watchdog/rti_wdt.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-Judith Mendez (2):
-  dt-bindings: watchdog: ti,rti-wdt: Add ti,am62l-rti-wdt compatible
-  watchdog: rti_wdt: Add reaction control
-
- .../bindings/watchdog/ti,rti-wdt.yaml         |  1 +
- drivers/watchdog/rti_wdt.c                    | 32 ++++++++++++++++---
- 2 files changed, 29 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index d1f9ce4100a8..0c01e7e46100 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -35,7 +35,8 @@
+ #define RTIWWDRXCTRL	0xa4
+ #define RTIWWDSIZECTRL	0xa8
+ 
+-#define RTIWWDRX_NMI	0xa
++#define RTIWWDRXN_RST	0x5
++#define RTIWWDRXN_NMI	0xa
+ 
+ #define RTIWWDSIZE_50P		0x50
+ #define RTIWWDSIZE_25P		0x500
+@@ -63,22 +64,29 @@
+ 
+ static int heartbeat;
+ 
++struct rti_wdt_data {
++	bool nmi;
++};
++
+ /*
+  * struct to hold data for each WDT device
+  * @base - base io address of WD device
+  * @freq - source clock frequency of WDT
+  * @wdd  - hold watchdog device as is in WDT core
++ * @data - hold configuration data
+  */
+ struct rti_wdt_device {
+ 	void __iomem		*base;
+ 	unsigned long		freq;
+ 	struct watchdog_device	wdd;
++	const struct rti_wdt_data *data;
+ };
+ 
+ static int rti_wdt_start(struct watchdog_device *wdd)
+ {
+ 	u32 timer_margin;
+ 	struct rti_wdt_device *wdt = watchdog_get_drvdata(wdd);
++	u8 reaction;
+ 	int ret;
+ 
+ 	ret = pm_runtime_resume_and_get(wdd->parent);
+@@ -101,8 +109,13 @@ static int rti_wdt_start(struct watchdog_device *wdd)
+ 	 */
+ 	wdd->min_hw_heartbeat_ms = 520 * wdd->timeout + MAX_HW_ERROR;
+ 
+-	/* Generate NMI when wdt expires */
+-	writel_relaxed(RTIWWDRX_NMI, wdt->base + RTIWWDRXCTRL);
++	/* Reset device if wdt serviced outside of window or generate NMI if available */
++	if (wdt->data->nmi)
++		reaction = RTIWWDRXN_NMI;
++	else
++		reaction = RTIWWDRXN_RST;
++
++	writel_relaxed(reaction, wdt->base + RTIWWDRXCTRL);
+ 
+ 	/* Open window size 50%; this is the largest window size available */
+ 	writel_relaxed(RTIWWDSIZE_50P, wdt->base + RTIWWDSIZECTRL);
+@@ -255,6 +268,8 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 	wdd->timeout = DEFAULT_HEARTBEAT;
+ 	wdd->parent = dev;
+ 
++	wdt->data = device_get_match_data(dev);
++
+ 	watchdog_set_drvdata(wdd, wdt);
+ 	watchdog_set_nowayout(wdd, 1);
+ 	watchdog_set_restart_priority(wdd, 128);
+@@ -369,8 +384,17 @@ static void rti_wdt_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(&pdev->dev);
+ }
+ 
++static struct rti_wdt_data j7_wdt = {
++	.nmi = true,
++};
++
++static struct rti_wdt_data am62l_wdt = {
++	.nmi = false,
++};
++
+ static const struct of_device_id rti_wdt_of_match[] = {
+-	{ .compatible = "ti,j7-rti-wdt", },
++	{ .compatible = "ti,j7-rti-wdt", .data = &j7_wdt },
++	{ .compatible = "ti,am62l-rti-wdt", .data = &am62l_wdt },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rti_wdt_of_match);
 -- 
 2.49.0
 
