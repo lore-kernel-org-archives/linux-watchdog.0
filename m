@@ -1,143 +1,112 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19EA038DEC
-	for <linux-watchdog@vger.kernel.org>; Sun, 17 Aug 2025 14:48:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41BD825392A
+	for <linux-watchdog@vger.kernel.org>; Mon, 18 Aug 2025 02:24:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755442107; cv=none; b=bA+xsrUF5wl1UoKvCazeDagIUuTF9vB+MGdu5gRT1ZlGl/QlvD6vtk8LxAqWD8s9lRsbLcZkkfA9y1tIXaMTwkliBQu9qvwxPFBtiHWonGg8f8iYOZkOu+i0XEdvbn+b8Kan6aDn4rUgjNoqD3gQZr5FgcD47GRoflfKolQqRks=
+	t=1755483879; cv=none; b=EwzETP4UIXptnCBJsFEwFftPUHbwnxWjaefGy35i2B1HjvFaNT4afHUwjRQ1wvcLSHvXkeTkqHtW7X2xGiqGzWbXl09FsTh+Z0Ywxcz7EwJXM7Cuek3PC2FD9q5xu7XhrHxSXbfYHuOnWk7eaJ19rK+Dn6/QX1KS4WucUh91LzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755442107; c=relaxed/simple;
-	bh=YfP01C1j6YvIynRZr0OBvEqt9YLQolhlhrMgEuoeA9o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=e5tNoHu75nQTAQrdqennfzKgJurbMUaRQBevu+8Dznan1Va0tZJ2nssO7bshDBw6ZLbJbsA6oOh0WSCIxWhMw+sgnxPIVgjo9BNttJowBUTxmiXPS+0F1UAqmUZntjfpSSWw780jgrg/WoparIrqk791TIDWx2+QWT24qPVucVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CacjOo/F; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755483879; c=relaxed/simple;
+	bh=IjSu0FqxtK8qVNVlBAVyRBAm9ZI3BxjjnWb4CJZra1g=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=jE+2x+zLbBNbjCPROg22N+IScG6ctHyp4N0HtfuG5dGSDJ23W8N2Ml7FpxzXhLzPz1ho40j06A/5wyPB3ecYfixrCxczrRKjk67IubSrAgVqCvR0Fyjral1spbNBWB3W5TBOPVjmfAR/HIXsVwxEfoMSP6kpqd6iVK+K5zTblSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=BoT1UgP4; arc=none smtp.client-ip=203.254.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CacjOo/F"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b47052620a6so3479875a12.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 17 Aug 2025 07:48:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755442104; x=1756046904; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=AFww3TD0DV6xBkSrDIAc5oWQQBscq4IlQK7zrXJUccc=;
-        b=CacjOo/FNiYGrr2VKiZvG3BnHZVO0RZPcprqSf1eMvTcCKVjqFiLcnAd7vCqzBsv7U
-         m9H+/75ev+lkunKqmMoC1XBBFdJb5t7xEE44/Gr9+R8X0yjcmbVzSHx9ZDI0cN2PrEWY
-         n4J0UaKsDPbSZ4HMrVDIPub30l8OfWzaSPJQlZkX+TusaCvong6bIwyBfzkSTn+LvJrH
-         yUg1TTHoV9LD4dXESw6q5YND4vjsPon2Wxl753ulyEAdx2u52QL+C6BZNLRim+y6vOaz
-         yGJiCtUcvjYXqqycRvpJc30Ump7LVCamVDC6tIq0MDxSmi+CuYtfKTCwy6Ad44NDQXlX
-         PYig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755442104; x=1756046904;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AFww3TD0DV6xBkSrDIAc5oWQQBscq4IlQK7zrXJUccc=;
-        b=YPXBMvsxOnrXDaHFDR0hEHB2JD716Nx0mJjW3VBFkLfg5IggRwF1UwANI4GaVHswf2
-         yfAJE1SdgyZ8ZhCYekORzVjFTHxHDCnpSiKHBMCCWvKJWebamhj44so1jWDd11jvZrU3
-         P01K6t9TBe7I0exLBXq236at5AnO9z7FpGzdr+ogdhiRFSn75KUwSbw7PuDw6meCJkr3
-         9SHHQwhiTipa38AplvkumOmSERJywLXCLMRaYr0/5TUdi+Z4XzdbEQbNn/FLEPtzEQ72
-         DJCb2K23w37p1nIj/0udvgvXQqYpVBrc6WOg1eAerSiSssUyGtquDhEamXccO9kVVPFf
-         AGCQ==
-X-Gm-Message-State: AOJu0Yz+OaWYTTqkfu+fJn9b5Prr4iSMx9hCdSq8r7Sb1vfMmrk8eTlA
-	DKg5gvY/4ej3J5kqv6/4qzjALGKNgbR98DKOwie/OkuwLdVOXycM8HywEl8EIw==
-X-Gm-Gg: ASbGncuGbTKDcq/3jGDyNkEnaaoG0lz7DH9iOuC+kKh+pOucOAXDNM1SJS8sQ1JgLO+
-	GeoWlREeDiAAs00p8MqN4z2EyCfpHITmugCnmQDJgJwquMDhJW2cbrogZ6oKhbDMT864v94JXdz
-	GhLaTzEkWnCHW3qBuV7+iSMYkxB9hFZudyTZL6Kutrl/0ffOjD7Kngrr5crZrjUoSsFK93euMTz
-	vaS4ZqrBRqsb0JiYMu45rWdA3DoKwX2iwdeS2hbLlfR8OHm64S8zU/uahiKcHG5D1qUn5MJeh9j
-	fvUhpy50Q4VvUtyTIUIvofbMntjqdCBj2XUkQR66s6kiXsJrOS0bBYDGOcgAJqXaEGHQXwoWo0E
-	ns+CaAeLSApZvtHTq2n2zxeitmXX+6O0p1YBUL0snDPxM0g==
-X-Google-Smtp-Source: AGHT+IEKzMTsSikxSwneGudUhfXJ5O4BKMyzYRZw7/ndCST6ZPW7Sp3O28oGONHe+dxL6MrFTY7mzA==
-X-Received: by 2002:a17:903:2d2:b0:23f:75d1:3691 with SMTP id d9443c01a7336-2446bdafa24mr129920325ad.15.1755442104037;
-        Sun, 17 Aug 2025 07:48:24 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2446cb0a5cfsm57127995ad.64.2025.08.17.07.48.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Aug 2025 07:48:23 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	=?UTF-8?q?Petar=20Kuli=C4=87?= <cooleech@gmail.com>,
-	Diogo Ivo <diogo.ivo@siemens.com>
-Subject: [PATCH] watchdog: intel_oc_wdt: Do not try to write into const memory
-Date: Sun, 17 Aug 2025 07:48:17 -0700
-Message-ID: <20250817144817.1451377-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="BoT1UgP4"
+Received: from epcas2p1.samsung.com (unknown [182.195.41.53])
+	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250818022435epoutp04849479e7f898883da920874d713affe3~cu0ide5RM2738327383epoutp04Y
+	for <linux-watchdog@vger.kernel.org>; Mon, 18 Aug 2025 02:24:35 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250818022435epoutp04849479e7f898883da920874d713affe3~cu0ide5RM2738327383epoutp04Y
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1755483875;
+	bh=qQuJQ6PIs6ycumh8Z3M1kZRXSBJcfL6xMyJNTAbCb/o=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=BoT1UgP47ZwIXTCFwuQdwElDFoY/QurjgpamzYm1Y8mKlIE1806FmKUz2EpoLFkJU
+	 IhrILd0sTPNAgLebhXfpd89a9U9oQP8TSZiQpVJQdmCCUZiuqm/1I5AEIsw47an1By
+	 ZSHFLghSZztGn8FwJO3u2o2Lw2O+nvgVQptfZOxk=
+Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
+	epcas2p4.samsung.com (KnoxPortal) with ESMTPS id
+	20250818022434epcas2p48a2039081745d48c81ae1d2525ed196d~cu0iHWMsa2945329453epcas2p4W;
+	Mon, 18 Aug 2025 02:24:34 +0000 (GMT)
+Received: from epcas2p1.samsung.com (unknown [182.195.36.99]) by
+	epsnrtp02.localdomain (Postfix) with ESMTP id 4c4xPG2rCFz2SSKt; Mon, 18 Aug
+	2025 02:24:34 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas2p1.samsung.com (KnoxPortal) with ESMTPA id
+	20250818022433epcas2p15ec2e45f26f6ff5fb69f0b1e377616f4~cu0hB1wga1646616466epcas2p1s;
+	Mon, 18 Aug 2025 02:24:33 +0000 (GMT)
+Received: from localhost.localdomain (unknown [10.229.9.126]) by
+	epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250818022433epsmtip1417e39541ef8e8ca54bf08bf507fcf7a~cu0g96fme2020320203epsmtip1P;
+	Mon, 18 Aug 2025 02:24:33 +0000 (GMT)
+From: Sangwook Shin <sw617.shin@samsung.com>
+To: krzk@kernel.org, alim.akhtar@samsung.com, wim@linux-watchdog.org,
+	linux@roeck-us.net, semen.protsenko@linaro.org, dongil01.park@samsung.com,
+	khwan.seo@samsung.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, Sangwook Shin
+	<sw617.shin@samsung.com>
+Subject: [PATCH v6 5/5] watchdog: s3c2410_wdt: exynosautov9: Enable
+ supported features
+Date: Mon, 18 Aug 2025 11:18:26 +0900
+Message-Id: <20250818021826.623830-6-sw617.shin@samsung.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20250818021826.623830-1-sw617.shin@samsung.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250818022433epcas2p15ec2e45f26f6ff5fb69f0b1e377616f4
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: AUTO_CONFIDENTIAL
+CMS-TYPE: 102P
+cpgsPolicy: CPGSC10-234,N
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250818022433epcas2p15ec2e45f26f6ff5fb69f0b1e377616f4
+References: <20250818021826.623830-1-sw617.shin@samsung.com>
+	<CGME20250818022433epcas2p15ec2e45f26f6ff5fb69f0b1e377616f4@epcas2p1.samsung.com>
 
-The code tries to update the intel_oc_wdt_info data structure if the
-watchdog is locked. That data structure is marked as const and can not
-be written into. Copy it into struct intel_oc_wdt and modify it there
-to fix the problem.
+Enable supported features for ExynosAutov9 SoC.
+- QUIRK_HAS_DBGACK_BIT
+- QUIRK_HAS_32BIT_CNT
 
-Reported-by: Petar Kulić <cooleech@gmail.com>
-Cc: Diogo Ivo <diogo.ivo@siemens.com>
-Fixes: 535d1784d8a9 ("watchdog: Add driver for Intel OC WDT")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Signed-off-by: Sangwook Shin <sw617.shin@samsung.com>
 ---
-I don't know if this fixes the reported problem, so no Closes:
-tag, but the code is wrong either way and needs to be fixed.
+ drivers/watchdog/s3c2410_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
- drivers/watchdog/intel_oc_wdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/watchdog/intel_oc_wdt.c b/drivers/watchdog/intel_oc_wdt.c
-index 7c0551106981..a39892c10770 100644
---- a/drivers/watchdog/intel_oc_wdt.c
-+++ b/drivers/watchdog/intel_oc_wdt.c
-@@ -41,6 +41,7 @@
- struct intel_oc_wdt {
- 	struct watchdog_device wdd;
- 	struct resource *ctrl_res;
-+	struct watchdog_info info;
- 	bool locked;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 915d3c88565a..b774477190b6 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -306,7 +306,8 @@ static const struct s3c2410_wdt_variant drv_data_exynosautov9_cl0 = {
+ 	.cnt_en_reg = EXYNOS850_CLUSTER0_NONCPU_OUT,
+ 	.cnt_en_bit = 7,
+ 	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET |
+-		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN,
++		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_32BIT_CNT,
  };
  
-@@ -115,7 +116,6 @@ static const struct watchdog_ops intel_oc_wdt_ops = {
+ static const struct s3c2410_wdt_variant drv_data_exynosautov9_cl1 = {
+@@ -318,7 +319,8 @@ static const struct s3c2410_wdt_variant drv_data_exynosautov9_cl1 = {
+ 	.cnt_en_reg = EXYNOSAUTOV9_CLUSTER1_NONCPU_OUT,
+ 	.cnt_en_bit = 7,
+ 	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET |
+-		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN,
++		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_CNT_EN |
++		  QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_32BIT_CNT,
+ };
  
- static int intel_oc_wdt_setup(struct intel_oc_wdt *oc_wdt)
- {
--	struct watchdog_info *info;
- 	unsigned long val;
- 
- 	val = inl(INTEL_OC_WDT_CTRL_REG(oc_wdt));
-@@ -134,7 +134,6 @@ static int intel_oc_wdt_setup(struct intel_oc_wdt *oc_wdt)
- 		set_bit(WDOG_HW_RUNNING, &oc_wdt->wdd.status);
- 
- 		if (oc_wdt->locked) {
--			info = (struct watchdog_info *)&intel_oc_wdt_info;
- 			/*
- 			 * Set nowayout unconditionally as we cannot stop
- 			 * the watchdog.
-@@ -145,7 +144,7 @@ static int intel_oc_wdt_setup(struct intel_oc_wdt *oc_wdt)
- 			 * and inform the core we can't change it.
- 			 */
- 			oc_wdt->wdd.timeout = (val & INTEL_OC_WDT_TOV) + 1;
--			info->options &= ~WDIOF_SETTIMEOUT;
-+			oc_wdt->info.options &= ~WDIOF_SETTIMEOUT;
- 
- 			dev_info(oc_wdt->wdd.parent,
- 				 "Register access locked, heartbeat fixed at: %u s\n",
-@@ -193,7 +192,8 @@ static int intel_oc_wdt_probe(struct platform_device *pdev)
- 	wdd->min_timeout = INTEL_OC_WDT_MIN_TOV;
- 	wdd->max_timeout = INTEL_OC_WDT_MAX_TOV;
- 	wdd->timeout = INTEL_OC_WDT_DEF_TOV;
--	wdd->info = &intel_oc_wdt_info;
-+	oc_wdt->info = intel_oc_wdt_info;
-+	wdd->info = &oc_wdt->info;
- 	wdd->ops = &intel_oc_wdt_ops;
- 	wdd->parent = dev;
- 
+ static const struct s3c2410_wdt_variant drv_data_gs101_cl0 = {
 -- 
-2.45.2
+2.25.1
 
