@@ -1,79 +1,181 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AFF33002D9
-	for <linux-watchdog@vger.kernel.org>; Wed, 17 Sep 2025 18:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E21122F546D;
+	Wed, 17 Sep 2025 19:16:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758135426; cv=none; b=AlFccJgx/FgV0cyJ0Xq47CNE7JaHrHvj1XXCin6p2qe99pJNOFXTQraJQWgaSd6GLu3/fUy3L7h6IaikjWY02sepaDG7Zuvs7mG8iSI/pB9yuUMcXGwIzewptRInKEs6BTr3MO/PgIwgfUlEh+aHUTP0NO/XBeWEyq9U2DN0NM8=
+	t=1758136603; cv=none; b=HEcI8D+xbqyrjstU4tIFgrlIueW49mne329P0itdHqVvmJ7e5RtJpaljSsAgxK68QQ1rSnkMraWKkfPSZrajnSgDRlqzDujrc+qUuYqYrGWoEaZo+bCKS1FxY9hpIrN2d8G6vOOk14P3NE5A/g+briVgrot7GJE39R7n5EG97/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758135426; c=relaxed/simple;
-	bh=rGHIg49NqT/vw8VGSZsrsfHcMRmvB0DOxfh5E1K8G3E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fipZt6//2XFIy3qHUR2/HqQpAbMNNwspYoxFSUPvwKWqxHBa2fu/Xky5MSMj1tNJS4AarfI9hq1u6VX4193rMFRJ/tCkaDv+IYeBmgJJbbFuyR4+zjPx8Cirohllrwo8iA3fDuiKwdzC8l0IxBThXbxObZ+AS3x2eR/4PNM7ALQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mJ0+g/gb; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1758136603; c=relaxed/simple;
+	bh=zsuXfz2l0ieBKasfVRzilSBA3J4YCqEenQZxHbAGcm0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nV4gHWfmTDmght23dZR7/in+ABrvpVFhP7nkVpc4DrjVFuFu1AZNWqtpmsBVlr01LDzhLJyIiOAqAUKZSsR5db5/FcDIHsINZgK0j+AKLOlnr7puAcHICc+L3Nw/YoUGu5MDJVMcnFAh+NhptFkxxYH+XsUXJrgYFNyyhL2U+64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GvtF6AOD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mJ0+g/gb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=YW/nOjUofYiXh8
-	O/soaQF4m/L42j3TGPSSIIRZmVY/A=; b=mJ0+g/gbf/0ZIq7utou8o46LYxvPsW
-	3kR6OAZunOOke44zZOi7J9vB6BgnqCqMkaolWhLUTVHEO8HmVBQRqRrrTalnskIA
-	tpra8bYaopFrFJZbMOeGlG78GYyHB7+i2mx445hib9NsvCJf1MjmEe+UOP0LqQ5r
-	1Z/kOrm/iP3rOSXT1i+1+bNWZ1Hm4OhlbX5RSR9ArvurKQIKuhyNPfKutZJnbpxR
-	v65iGkkmGGnLtnoq43KWp3MmqlpyR827SIL2gdiPfw2PyrHbWdbiH0sYJPqHbg0P
-	YTyk36HcmmFf2BiUleaTnqEvd9eyI1fueqnu5PueP7KQdr6ZWPUStqSg==
-Received: (qmail 3238961 invoked from network); 17 Sep 2025 20:56:59 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Sep 2025 20:56:59 +0200
-X-UD-Smtp-Session: l3s3148p1@qDAazQM/ZMUujnvK
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Guenter Roeck <linux@roeck-us.net>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GvtF6AOD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8DAC4CEE7;
+	Wed, 17 Sep 2025 19:16:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758136602;
+	bh=zsuXfz2l0ieBKasfVRzilSBA3J4YCqEenQZxHbAGcm0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GvtF6AODoW8+siPMZz2eBXBEAVgnbmITngd5FXgTvBrdNZbney+L/Q3QNS+cgv7W9
+	 RlJdti7Da6s33em0MsiuVP3MN0Hi9k03AQD5hDb+5Hi2vD0QOuFxlddZcaZdSGScB4
+	 TmoIjRSp6jVfeFC/5nMbU5qCaR00wT5+THA+1+9oBSHnTmzkbmLNBX4ubmhZcJHPDD
+	 +FgLe2lFq7w4++b36SDyD3msKSrZ9E8OzJTj/+aolO6NntJv8k7Pu3cjZKhD09+jxl
+	 2xehZVSKzklXn0Mj698SOQmaZUQPwHe911Y+dssp+TTAfamBxQbWmnr3v7udqku9Ea
+	 z47m/EbgWd+yg==
+Date: Wed, 17 Sep 2025 20:16:38 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 0/2] watchdog: add Renesas Window Watchdog support
-Date: Wed, 17 Sep 2025 20:56:47 +0200
-Message-ID: <20250917185651.12428-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.47.2
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: Add Renesas WWDT
+Message-ID: <20250917-village-oversized-e532df10644a@spud>
+References: <20250917185651.12428-1-wsa+renesas@sang-engineering.com>
+ <20250917185651.12428-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-
-This Window Watchdog is a little peculiar because it can only be setup
-once but we cannot find out if this write already happened. So,
-configuration is delegated to the firmware/bootloader and the driver
-will adapt to whatever is configured. The driver handles all bits
-described in the datasheets. This is really all there is.
-
-Tested on a SparrowHawk board (Renesas R-Car V4H).
-
-Looking forward to comments!
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="lzxG3ZAHF/leqDVv"
+Content-Disposition: inline
+In-Reply-To: <20250917185651.12428-2-wsa+renesas@sang-engineering.com>
 
 
-Wolfram Sang (2):
-  dt-bindings: watchdog: Add Renesas WWDT
-  watchdog: renesas_wwdt: add driver
+--lzxG3ZAHF/leqDVv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- .../bindings/watchdog/renesas,wwdt.yaml       |  78 +++++++++
- drivers/watchdog/Kconfig                      |   8 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/renesas_wwdt.c               | 156 ++++++++++++++++++
- 4 files changed, 243 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/renesas,wwdt.yaml
- create mode 100644 drivers/watchdog/renesas_wwdt.c
+On Wed, Sep 17, 2025 at 08:56:48PM +0200, Wolfram Sang wrote:
+> Describe the Window Watchdog Timer found on Renesas R-Car SoCs from late
+> Gen3 onwards.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>=20
+> Passes the binding check here.
+>=20
+>  .../bindings/watchdog/renesas,wwdt.yaml       | 78 +++++++++++++++++++
+>  1 file changed, 78 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/renesas,ww=
+dt.yaml
+>=20
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas,wwdt.yaml=
+ b/Documentation/devicetree/bindings/watchdog/renesas,wwdt.yaml
+> new file mode 100644
+> index 000000000000..921713dd40fa
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas,wwdt.yaml
 
--- 
-2.47.2
+filename matching the base compatible please
 
+> @@ -0,0 +1,78 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/watchdog/renesas,wwdt.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Renesas Window Watchdog Timer (WWDT) Controller
+> +
+> +maintainers:
+> +  - Wolfram Sang <wsa+renesas@sang-engineering.com>
+> +
+> +properties:
+> +  compatible:
+> +    items:
+> +      - const: renesas,r8a779g0-wwdt  # V4H
+> +      - const: renesas,rcar-gen4-wwdt
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    items:
+> +      - description: Pretimeout, 75% of overflow reached
+> +      - description: Error occurred
+> +
+> +  interrupt-names:
+> +    items:
+> +      - const: pretimeout
+> +      - const: error
+> +
+> +  clocks:
+> +    items:
+> +      - description: Bus clock
+> +      - description: Counting clock
+> +
+> +  clock-names:
+> +    items:
+> +      - const: bus
+> +      - const: cnt
+> +
+> +  power-domains:
+> +    maxItems: 1
+> +
+> +  resets:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - clocks
+> +  - clock-names
+> +  - resets
+> +  - power-domains
+> +
+> +allOf:
+> +  - $ref: watchdog.yaml#
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/clock/r8a779g0-cpg-mssr.h>
+> +    #include <dt-bindings/power/r8a779g0-sysc.h>
+> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +
+> +    wwdt0: watchdog@ffc90000 {
+
+and remove the wwwdt0 label here as it has no users.
+
+> +            compatible =3D "renesas,r8a779g0-wwdt",
+> +                         "renesas,rcar-gen4-wwdt";
+> +            reg =3D <0xffc90000 0x10>;
+> +            interrupts =3D <GIC_SPI 310 IRQ_TYPE_LEVEL_HIGH>,
+> +                         <GIC_SPI 311 IRQ_TYPE_LEVEL_HIGH>;
+> +            interrupt-names =3D "pretimeout", "error";
+> +            clocks =3D <&cpg CPG_CORE R8A779G0_CLK_SASYNCRT>,
+> +                     <&cpg CPG_CORE R8A779G0_CLK_R>;
+> +            clock-names =3D "bus", "cnt";
+> +            power-domains =3D <&sysc R8A779G0_PD_ALWAYS_ON>;
+> +            resets =3D <&cpg 1200>;
+> +    };
+> --=20
+> 2.47.2
+>=20
+
+--lzxG3ZAHF/leqDVv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaMsJFQAKCRB4tDGHoIJi
+0nCIAP4hKbgAUxP75XKV3H4rO1XJVQ27Ml8zsP82vfiTogMyzwD+LRMdq38bqVfO
+q9NATpzidRl+FhTEL5jV5kgYuioH0AM=
+=Utge
+-----END PGP SIGNATURE-----
+
+--lzxG3ZAHF/leqDVv--
