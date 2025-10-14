@@ -1,87 +1,202 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50D8527F01E
-	for <linux-watchdog@vger.kernel.org>; Tue, 14 Oct 2025 11:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CE282FE055
+	for <linux-watchdog@vger.kernel.org>; Tue, 14 Oct 2025 11:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760440909; cv=none; b=Vz5A9kODNEL+3J+BAsthLNx9fSljcOMzn8PMDy7Kfj+5z6M5+hSkkU1WUul8oUMu1TnVoXTBfZFkPR0DgJ9bE+bSpxcRzG+dSCL2G/1h2Z6cwDCzsvvDB4kLd0Ol55ryacKlqcZZnAHmdeQJFqfa+zng266uFtsKHlxmTujt0RI=
+	t=1760441430; cv=none; b=OXt05sHGE8brspz2LiffsnO7FNSFjv97/C9A3S9plUbMmyjIGSD0cIL5Gc12bgPXMsjZOAFntAZmMbH5B8rVMSj1WIw8sKpEQp42QT80ZQ7aoaay+IjvlpTQul6+7dYKuzYRuxw1zF6WDjQYA9HM3OCqTESvQpUSMeZnKVsU9QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760440909; c=relaxed/simple;
-	bh=V4UgnndEAoWQMafS9XcNTv+WD0kmsre4aEbjXNj09+o=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pkYkZBsebziHznHPcJfqkoi/FMS1XTi5PAdhZOBHSq18NWvNehvP9z0bUwaqVDnf39eGniGDwrkb4RhjACucN4VmBHETX/XpahyFss3SgGTpHmx8KaW+ZUlYcq0qcy1zanuffG1vfJclaOnjoeMXazrIPjE8uDW8P+FJAtRQK3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TNN9mtc+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1760441430; c=relaxed/simple;
+	bh=xKTYsXPMGOMKMV/jt+4Z9kaeJjZ4nbFhnUfdLzk38tM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jabo4D8K+/aecxWfEddi4uaWI2UZVVwddZW9Jlv+79khTpLz9vwT1gJfWXyCqSnFxJYgRpd5McVXWTqu25e6M4HgZ9EJzdLiVwxpEI0s1GE7ub954Qrik6vuQluzMHzIe/PYTT26ANCGYPf0GBOIT937/md4fof19tuR5ucsET4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=dZ9ek50b; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TNN9mtc+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0224AC113D0
-	for <linux-watchdog@vger.kernel.org>; Tue, 14 Oct 2025 11:21:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760440909;
-	bh=V4UgnndEAoWQMafS9XcNTv+WD0kmsre4aEbjXNj09+o=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=TNN9mtc+QRnDLANSjpG9663zPSFvjC3XF1ENfW50Ch35RKjGcI3Dvrz05e3Dnc3hx
-	 eC+uQz6Xf5Fmf4nLE02fn/DAkukF4PKU3YI37x6gaA1cysfUQO+iiKpWnBuQP9hdSw
-	 U/7YCobiGp18Pt5UDtyBqkeFLYVMMB0Kw9zi7m0mHUr7Yu+cQ3FVD9XKi11CYijc9l
-	 vv5PRzYO6QUaEQj3DMiLRQWLvaB3GJwApeo6yKnCDXHJGcNnfFZCvikwAjzAA9NvcA
-	 XpfGYr4+YHavuxo/ZJUsxtSJgrXHNFdDO4QvXrlawhaSToWA1Qe5KYO/kL0N9npkuF
-	 D6NYbmeNOVLeA==
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b4f323cf89bso922760766b.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Oct 2025 04:21:48 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUidNVOivO/Af+k1iXBIGdkUWGPylXDReMCG7xUTEPIuP9gnBIch3CEYhgUfBQALpBbcaMNYAJY7hz6LqxDcw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzdjC87qebDXYU5/jpT8k7c9yLi+J8JnAHDNjy2z66CyERTM8bV
-	xGzrwj5Z4oz1rfP+fjf7nqTM8EVnM5CUtHYBUPFDC1vQN1Dit2Hog+fo/z3+BKQS5tWxQzS/qlv
-	6eOUOO/DpqqvBozxf4GVGd1GLkb8KZg==
-X-Google-Smtp-Source: AGHT+IFQFJ2Np+NG3ugMzaDWe+GkZ+aXi/o0Iy+DIcYOZ+94ba34jZSea0/ZcpuxrkqL2Ggtv7/lOiuhvy94dFF/8mg=
-X-Received: by 2002:a17:907:9617:b0:b3f:f207:b754 with SMTP id
- a640c23a62f3a-b50abaaf85emr2613953166b.30.1760440907550; Tue, 14 Oct 2025
- 04:21:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="dZ9ek50b"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=m2Ce9z697ssvL8uDRJI2+5HkTIC8S6bwRAdA0cAsyWg=; b=dZ9ek5
+	0brAbd80iuMBUeh0ftOxJgK2OsXYBeX7Mv+do0fVcvEcG7KaT+RTiyrGhMg4PgJW
+	o4Ga+M92oOSWkHGXsoNcUTwpXq1eYJu+ZTF1b+YXTv8joNuHXZ/NGQphLlupitLE
+	ivipDgVj15IgP1Oz/PlHmHFapR3tPBYwnFkXsuziOnFmo5dTnEeIfxonbioiZT0N
+	aQKyIOMUaPHm4WT9I4k97jXjI1YEqEh0LoWvhKVHqvJzY/ua0oiOy9211MXFW2eq
+	feBxC6zRRLJPLDAUwtEi9WFKO7+rjKkxOKWVdNzjhV7OXaZAkPLLfRdjzEbWu1YP
+	GELhXyAkA42NJW7Q==
+Received: (qmail 2943660 invoked from network); 14 Oct 2025 13:30:18 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Oct 2025 13:30:18 +0200
+X-UD-Smtp-Session: l3s3148p1@6CphtRxByN4gAwDPXwQHAL/S9V79e5yL
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [PATCH v2 1/2] dt-bindings: watchdog: Add Renesas WWDT
+Date: Tue, 14 Oct 2025 13:29:53 +0200
+Message-ID: <20251014112953.25712-5-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.47.2
+In-Reply-To: <20251014112953.25712-4-wsa+renesas@sang-engineering.com>
+References: <20251014112953.25712-4-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251013213146.695195-1-robh@kernel.org> <87o6q9g6kc.fsf@BLaptop.bootlin.com>
-In-Reply-To: <87o6q9g6kc.fsf@BLaptop.bootlin.com>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 14 Oct 2025 06:21:34 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqJO-Fir5DLhZGsSWN2ZXNH+ynsqFXKKqAbePi30jf5EhA@mail.gmail.com>
-X-Gm-Features: AS18NWBdAUGK-f76c1EhXtUibmLtvgimLClxI7ztjqjNLZoXweIuRJuyUJy_Ims
-Message-ID: <CAL_JsqJO-Fir5DLhZGsSWN2ZXNH+ynsqFXKKqAbePi30jf5EhA@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: watchdog: Convert marvell,orion-wdt to DT schema
-To: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Andrew Lunn <andrew@lunn.ch>, 
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 14, 2025 at 4:45=E2=80=AFAM Gregory CLEMENT
-<gregory.clement@bootlin.com> wrote:
->
-> Hello Rob,
->
-> Thank you for your work. I have one question:
->
-> > +  reg:
-> > +    minItems: 2
->
-> Should we also include this constraint here?
->
->     maxItems: 3
+Describe the Window Watchdog Timer found on Renesas R-Car SoCs from late
+Gen3 onwards.
 
-No, that is implicit with the length of 'items'. (For json-schema,
-it's not though. The tools add it automatically.)
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
->
-> This would further restrict the binding.
->
-> Gregory
->
-> > +    items:
-> > +      - description: Timer control register address.
-> > +      - description: RSTOUT enable register address.
-> > +      - description: Shared mask/unmask RSTOUT register address.
-> > +
+Note: Despite the name, V3U is considered to be a Gen4 SoC.
+
+Changes since v1:
+
+* support not only V4H but all Gen3/4 SoCs having this WWDT
+* handle the two-resets exception for V3U and S4
+* switch order of clocks, so it is the same as for the resets
+  (for resets, "cnt" is always present and "bus" is optional)
+* rename the file to match the base compatible
+* require interrupts and resets
+* drop unneeded label from the example
+
+ .../watchdog/renesas,rcar-gen3-wwdt.yaml      | 114 ++++++++++++++++++
+ 1 file changed, 114 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml
+
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml
+new file mode 100644
+index 000000000000..ffafe9a6d3f5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml
+@@ -0,0 +1,114 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/renesas,rcar-gen3-wwdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Renesas Window Watchdog Timer (WWDT) Controller
++
++maintainers:
++  - Wolfram Sang <wsa+renesas@sang-engineering.com>
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - renesas,r8a77970-wwdt  # R-Car V3M
++              - renesas,r8a77980-wwdt  # R-Car V3H
++          - const: renesas,rcar-gen3-wwdt
++
++      - items:
++          - enum:
++              - renesas,r8a779a0-wwdt  # R-Car V3U
++              - renesas,r8a779f0-wwdt  # R-Car S4
++              - renesas,r8a779g0-wwdt  # R-Car V4H
++              - renesas,r8a779h0-wwdt  # R-Car V4M
++          - const: renesas,rcar-gen4-wwdt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    items:
++      - description: Pretimeout, 75% of overflow reached
++      - description: Error occurred
++
++  interrupt-names:
++    items:
++      - const: pretimeout
++      - const: error
++
++  clocks:
++    items:
++      - description: Counting clock
++      - description: Bus clock
++
++  clock-names:
++    items:
++      - const: cnt
++      - const: bus
++
++  resets:
++    minItems: 1
++    maxItems: 2
++
++  reset-names:
++    minItems: 1
++    items:
++      - const: cnt
++      - const: bus
++
++  power-domains:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-names
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - power-domains
++
++allOf:
++  - $ref: watchdog.yaml#
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - renesas,r8a779a0-wwdt
++              - renesas,r8a779f0-wwdt
++    then:
++      properties:
++        resets:
++          minItems: 2
++        reset-names:
++          minItems: 2
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/clock/r8a779g0-cpg-mssr.h>
++    #include <dt-bindings/power/r8a779g0-sysc.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    watchdog@ffc90000 {
++            compatible = "renesas,r8a779g0-wwdt",
++                         "renesas,rcar-gen4-wwdt";
++            reg = <0xffc90000 0x10>;
++            interrupts = <GIC_SPI 310 IRQ_TYPE_LEVEL_HIGH>,
++                         <GIC_SPI 311 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-names = "pretimeout", "error";
++            clocks = <&cpg CPG_CORE R8A779G0_CLK_R>,
++                     <&cpg CPG_CORE R8A779G0_CLK_SASYNCRT>;
++            clock-names = "cnt", "bus";
++            power-domains = <&sysc R8A779G0_PD_ALWAYS_ON>;
++            resets = <&cpg 1200>;
++            reset-names = "cnt";
++    };
+-- 
+2.47.2
+
