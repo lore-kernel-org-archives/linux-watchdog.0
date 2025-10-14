@@ -1,85 +1,103 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2573F2FDC29
-	for <linux-watchdog@vger.kernel.org>; Tue, 14 Oct 2025 11:30:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8776B314A9B;
+	Tue, 14 Oct 2025 12:40:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760441430; cv=none; b=K9XbJwBfUeHPq8Dlop0ZUex1CVaCHxZrtfwgZmV8hEU7bBxj9tV61etOgKLVAA7q8zBO+wog4Z0NyIbScyoJMCKTxDUEoSIT0SvYdQr5jftAgbTeRVwz47ZbcfME0Rg3SdCtkXg2m6Y0V2wTBYm++GbzAmq//enIhhe7Z33HDag=
+	t=1760445605; cv=none; b=U+v6gQs7QZ7DGhA/C44aU0UkveIhHuPrf1zoJZyZ5xdoEYXP6oa4UOHyyj82L2TphZEUfDKgKt7rq2zMu3fXWFgD2fchPR+qwA8dtODoU+RnNfjjCgTcDh/jzxlsVqZupyfeEqH/HR/E1p3Yc32z3AJrtXe590cd7gaA88tMvjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760441430; c=relaxed/simple;
-	bh=DW6Soa+EyZrGsAq6scGAnX4sB2XdUmO//NkjOugJRck=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XQVbduaY7FQdicRyKI8gvWedhRlkDdQ0ijFWwXq0IrV4hyVTj9cS59Xvlj/D1crwjUMJtsEjWfeg4ttlX2uuBU0TSzuOLGHvzh5OjfaRxUTEn4rw17hqj67/GFNBq/gcrxLwRHFDIEJ/zMKVZlxQyg19YqIChUZYud3ML4Bcc40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JtVXGpOZ; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1760445605; c=relaxed/simple;
+	bh=DRhmHRgT/le2KFserQHBusRx67PjyobFTm0/DGsI4b0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=RXuor2jCLRRC3pb7H6AXv7diZKqp5qItbDfzUmpv66oQF3uCw8DBO4NMXIwg9T6Sn31eZtimDpXXvAuzZpMrMhu1T2qAC/nKJ2cpc+IUB0auXnnfrCNKzLsPpKpshSye0EiZ9Tty/tn4iZ1sj7OdIq9zUuKc9veOXkCfpdRvdf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=nXjYcVAf; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JtVXGpOZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=O3Ns10gBhYghn7
-	46iVy+H+W/ZDdIGY8P59pG+5DvZik=; b=JtVXGpOZrRd/5xKTzFZCG0ud0Thqnb
-	EK7m+j3PQwtxO96z0gLiHM+bz/c3qNF8PCf0Q7rXLA9n1Hpjmv0/TxwgqGlM4Nrr
-	Pq09FLLk9bAcHYeP3i31cRIqzceLykJYInFpG/B0q8YIjHn0wKJJ6fALq1pZN8ji
-	tPubEpzS+bK6fQGSiwQ4pWdMIgpNPsaGKGr2pi5lEjeLROeAGMFTtDDsnZ1HbtCD
-	Gj6Ewm4GmyN7i+jmSf8EnuwuTG7iYpxM/mZ/JXa6v0hKzP3qLqWQ1wBmMDT+z+E2
-	+AE4sBufvo7A7MLKZpAPC+POBtGqUvQstEdrKwleaSLFApbTVwMng+Dg==
-Received: (qmail 2943606 invoked from network); 14 Oct 2025 13:30:17 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Oct 2025 13:30:17 +0200
-X-UD-Smtp-Session: l3s3148p1@pVFRtRxBuN4gAwDPXwQHAL/S9V79e5yL
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH v2 0/2] watchdog: add Renesas Window Watchdog support
-Date: Tue, 14 Oct 2025 13:29:52 +0200
-Message-ID: <20251014112953.25712-4-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="nXjYcVAf"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id E2E0BC09F8C;
+	Tue, 14 Oct 2025 12:39:35 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id E23BB606EC;
+	Tue, 14 Oct 2025 12:39:54 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B3576102F2259;
+	Tue, 14 Oct 2025 14:39:50 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1760445594; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=O4tcipbPC2HHYlMaJKaUuOAv9lqowVzpEH7IATfw+yU=;
+	b=nXjYcVAfgH3BO4xp2vWGR7034d2dX9xSrhM1MME8bOUErSzq5CWI1cL4fSQ4VHxE68pARz
+	ngIK1el073vvINjm45En7XD08UQnETY7HgrX2uRObSUY8MOUlELo/2stYHk/mq4q3aXP/r
+	j8Cvmu503+CPhATKURildyWFTljcz1VyoIMN1L0AaWWMEs2S6obJ89dLSTcj/TZ/wcsHOO
+	gqK9LI/+WNslXfMpF+FSwvHnvZnnCLXx7t5j846G2Z7qf/Me8HUe1DXPu0lZGyzYvty0+r
+	3yKYHBfK5QSkItH6+SD0Oat8ERm/xKXlQP3MwXp364+zbojSbO8di1tGX65lwg==
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor
+ Dooley <conor+dt@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: watchdog: Convert marvell,orion-wdt to DT
+ schema
+In-Reply-To: <CAL_JsqJO-Fir5DLhZGsSWN2ZXNH+ynsqFXKKqAbePi30jf5EhA@mail.gmail.com>
+References: <20251013213146.695195-1-robh@kernel.org>
+ <87o6q9g6kc.fsf@BLaptop.bootlin.com>
+ <CAL_JsqJO-Fir5DLhZGsSWN2ZXNH+ynsqFXKKqAbePi30jf5EhA@mail.gmail.com>
+Date: Tue, 14 Oct 2025 14:39:50 +0200
+Message-ID: <87ldldfyi1.fsf@BLaptop.bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Last-TLS-Session-Version: TLSv1.3
 
-This Window Watchdog is a little peculiar because it can only be setup
-once but we cannot find out if this write already happened. So,
-configuration is delegated to the firmware/bootloader and the driver
-will adapt to whatever is configured. The driver handles all bits
-described in the datasheets. This is really all there is.
+Rob Herring <robh@kernel.org> writes:
 
-Tested on a SparrowHawk board (Renesas R-Car V4H). Based on v6.18-rc1
-and build bot is already happy. Passes also binding checks and dtb
-checks here.
+> On Tue, Oct 14, 2025 at 4:45=E2=80=AFAM Gregory CLEMENT
+> <gregory.clement@bootlin.com> wrote:
+>>
+>> Hello Rob,
+>>
+>> Thank you for your work. I have one question:
+>>
+>> > +  reg:
+>> > +    minItems: 2
+>>
+>> Should we also include this constraint here?
+>>
+>>     maxItems: 3
+>
+> No, that is implicit with the length of 'items'. (For json-schema,
+> it's not though. The tools add it automatically.)
 
-Big picture change since v1 (details mentioned per patch):
+Thanks for the explanation!
 
-* support not only V4H but all Gen3/4 SoCs having this WWDT
+then for this patch:
 
-Looking forward to comments!
+Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 
+Gregory
 
-Wolfram Sang (2):
-  dt-bindings: watchdog: Add Renesas WWDT
-  watchdog: renesas_wwdt: add driver
+>
+>>
+>> This would further restrict the binding.
+>>
+>> Gregory
+>>
+>> > +    items:
+>> > +      - description: Timer control register address.
+>> > +      - description: RSTOUT enable register address.
+>> > +      - description: Shared mask/unmask RSTOUT register address.
+>> > +
 
- .../watchdog/renesas,rcar-gen3-wwdt.yaml      | 114 ++++++++++++
- drivers/watchdog/Kconfig                      |   8 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/renesas_wwdt.c               | 163 ++++++++++++++++++
- 4 files changed, 286 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml
- create mode 100644 drivers/watchdog/renesas_wwdt.c
-
--- 
-2.47.2
-
+--=20
+Gr=C3=A9gory CLEMENT, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
