@@ -1,85 +1,81 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C99F311592
-	for <linux-watchdog@vger.kernel.org>; Fri, 17 Oct 2025 10:16:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28235330B06;
+	Fri, 17 Oct 2025 15:54:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760696172; cv=none; b=gu3K/3n5k6q3mkGpQbjRVugaznGrto29OXjwiX1XrZ6Ar++Ipk3vdIFuPUJQ0ptvR6iz8q4B3VGEqBpnvxGfkfqAAIgOsyjDzGkRZmkH/EkqPNsx1NDq4lszc+FlGkMvwqPeMTV+HbTkhGiYaHIRnvZXBbEsTdFXe3gRCO+kqTY=
+	t=1760716483; cv=none; b=JkDp0ioiyYkn1Fh0Q54oABURFf/c4PL1dQCBCm6uuyeVPnBz6eMg/gVTcRvqAwyWsZnttQCh/SE8xYCyAwuN86MgZlg6QR2i/ISv7ATN2UTLvHdTTnsdMaNt3/8cVJVFLxxUPvxy2TG5Zdiox1l70LMEv3uj6VVu/wDBv4QjfUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760696172; c=relaxed/simple;
-	bh=2FTuHNjSGvJZAf1LWMC8NRugqg6c8LK0Hzr2Dv7fpYQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qaXHhJXxwhSwKVmQhvKE1ICD9vh4+P9qF23kf5kRR5KHLqjzPx+DWop6eso6k+WQGK0fhZtsVBYx6+Lm5VGwQubIShmruAc8qDiscr4sueS3A8A4sB2Ez9H3Ps950r2jLxbfEWtM5zo8qHU0E12rh4jVOPsPMLVofDxImoWmB5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DoQ2qivf; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1760716483; c=relaxed/simple;
+	bh=AiV13sI/z7rTZFGBbKda8vpX6E/TPvqmyKvZQ4w2ySg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E5ikAr+PSDcvicz7vQe5+J3raIzESpt4G2IgAcS8zyfJQ60qHu5TpS1BlIX84JpEWFpuEHKX7+vb7jR+IrvJqLMrLTcqK34WJQ0W/ysil1Y15KPt05puaDiIX8nuHV98QZp6u5iPBf96wOPR22Z9I87/FW+Vp+juaJHmF9tQKXY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kssCRM2C; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DoQ2qivf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=iNrPd0l4fyyEjN
-	jK3c/izEfD+LBndDM/O9UHeCvxIlE=; b=DoQ2qivfVrqYQmVZ4hLZ3himhq+kSS
-	uSElWEt3laeqCWd6e/dU/oNH9wTvuqO/KF+UhP7+2uQKgmyDP2ZyyGvIhfT8JgBV
-	QZ8Xyh6UK7lGwURO95PnBFSW0OkpIgftrJJExwAbjt0tR3sekSL1cJH5FLhg/UlX
-	Uceyd4er/ltk+LW7kf81gJZqqV9zeigvGwuMO4DEez4u+v91Okkl4MTv7rxLln18
-	A6GUDUm0YX02q7wfouzCJ+xJcwFtaTsUnvJ8GrAhhO6SXRHNdfdgfUJGm64n5SfX
-	/yLe0otgaeWEJG8fb7pTPdrGChW6kQ1PIUUTFDSVQKfTFmg+wlBB+MCw==
-Received: (qmail 4183245 invoked from network); 17 Oct 2025 12:16:05 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Oct 2025 12:16:05 +0200
-X-UD-Smtp-Session: l3s3148p1@snR2BVhBYMQgAwDPXwQHAL/S9V79e5yL
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Guenter Roeck <linux@roeck-us.net>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kssCRM2C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1491C113D0;
+	Fri, 17 Oct 2025 15:54:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1760716483;
+	bh=AiV13sI/z7rTZFGBbKda8vpX6E/TPvqmyKvZQ4w2ySg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kssCRM2CRhnIkyD5tkHf7nZcAcAnql+ZWlQcfpcey06CQbBf6tmHP6rmf+q44B4lz
+	 PbN5R8i2cpE9GoHXjUHs2DBVJ1Q2ccX93WtW4fOunY8g1bIgI3gb2UD8nuIglZTwft
+	 b0+06Zv4lVrJWB0Npnh45xbdiipXKp2LPrKZZdwUTVcblCLeuGjQoQ7j1UFrzpr0xI
+	 BTsLDKK8uUw2nQLE9yoxge9w3dz5hXMgRCzSyTiD1FbHXO1Ufx1hbxStvc9IvUmRil
+	 EuYS1bn567cBIj92jKS/REvA7233ms5hbi8Je0y/Kz7UW+j0Hayr8VWiygbVnfdsA9
+	 hhJCmQpitQ3SA==
+Date: Fri, 17 Oct 2025 16:54:38 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH v3 0/2] watchdog: add Renesas Window Watchdog support
-Date: Fri, 17 Oct 2025 12:15:47 +0200
-Message-ID: <20251017101549.4275-4-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.47.2
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] dt-bindings: watchdog: Add Renesas WWDT
+Message-ID: <20251017-elm-fiftieth-36b499ef7f0c@spud>
+References: <20251017101549.4275-4-wsa+renesas@sang-engineering.com>
+ <20251017101549.4275-5-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-
-This Window Watchdog is a little peculiar because it can only be setup
-once but we cannot find out if this write already happened. So,
-configuration is delegated to the firmware/bootloader and the driver
-will adapt to whatever is configured. The driver handles all bits
-described in the datasheets. This is really all there is.
-
-Tested on a SparrowHawk board (Renesas R-Car V4H). Based on v6.18-rc1
-and build bot is already happy. Passes also binding checks and dtb
-checks here.
-
-Big picture change since v2 (details mentioned per patch):
-
-* minor improvements to patch 2
-
-Looking forward to comments!
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="XWPXDyUJPBcJRtQj"
+Content-Disposition: inline
+In-Reply-To: <20251017101549.4275-5-wsa+renesas@sang-engineering.com>
 
 
-Wolfram Sang (2):
-  dt-bindings: watchdog: Add Renesas WWDT
-  watchdog: renesas_wwdt: add driver
+--XWPXDyUJPBcJRtQj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- .../watchdog/renesas,rcar-gen3-wwdt.yaml      | 114 ++++++++++++
- drivers/watchdog/Kconfig                      |   8 +
- drivers/watchdog/Makefile                     |   1 +
- drivers/watchdog/renesas_wwdt.c               | 163 ++++++++++++++++++
- 4 files changed, 286 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/renesas,rcar-gen3-wwdt.yaml
- create mode 100644 drivers/watchdog/renesas_wwdt.c
+On Fri, Oct 17, 2025 at 12:15:48PM +0200, Wolfram Sang wrote:
+> Describe the Window Watchdog Timer found on Renesas R-Car SoCs from late
+> Gen3 onwards.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
--- 
-2.47.2
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
+--XWPXDyUJPBcJRtQj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaPJmvgAKCRB4tDGHoIJi
+0sI0AQCw0eUTkLITQozCtsaJrzVYPhDf0VmjID3br1vCMsucvgEA8UKpR2ucWYOB
+TiqZj/npc5Ya7scoyUZj3f0yvASBAw4=
+=z0tT
+-----END PGP SIGNATURE-----
+
+--XWPXDyUJPBcJRtQj--
