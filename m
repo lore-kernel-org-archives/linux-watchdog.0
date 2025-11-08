@@ -1,163 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E45337106;
-	Fri,  7 Nov 2025 17:55:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D267134AB;
+	Sat,  8 Nov 2025 09:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762538128; cv=none; b=uLlWBYq/1OhqjyIGczkVj2KYlXpTjo0xLP60H1n1WEuQpE7m3anUr7k/pNSPZ8RQZjKyIx78Wzp0WZB3RWUDmbAxqjKtsRs5KKEC95pK+T83gVdCRZpgsUMOBAuNC7aW4oTvVAd0aNHNaRtX5Jc5LWqCr5dMjBeXyPYtHxf07NE=
+	t=1762595438; cv=none; b=npo0S8kCGAMUJvdsmMAQmlYiOnyO1dg61ubILzRgwF1RSGZX7Mm6SQ0Rmid0dX+ttSc8WvLvEeTD8AW+8yX24kYqfD+HDgJOODOYbadsosl32sNvvJ6b9zfvFtSwMGYGO5f7w7YyV7H7jA0saGh6NrTPxN65AwiLVDo5VJhzqNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762538128; c=relaxed/simple;
-	bh=irBDt/butjyDuHG4qRvZ05GQs+prHce/GrErrf9b2iw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ED9+uQYazDxffnBiYNSGsiJS7pITp/j4ohA3K5162CDNTB0iUcJmnB5oNXueteG7jFEeF9CUMZK39aHS/ZmaodeYpJuoDn2m2smvTfteC6PdjoCc+T/2EirRvZI3z8fcz+MhcOcaHt4m+j4rpagIDiP/202+cjonbnnDSckBLLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=USYmA86c; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762595438; c=relaxed/simple;
+	bh=VYp6JlktlNtSBhhVtta20m+Ma5lCPncZPlU8aCP3RDw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IPkDgqelv/AK4RsSnSC5qviH6T7BJ6qwaPvYZNj+dZPZkum1+2urRGp9Gn6r3vA0s+lGXOzL+JH9sLoj97gAeac69FlATzji4KGEuH+pSc1CtDtA3SoSBl9dWd+08kDlDt7AotB6jh6qWlYLoKi1oD4RA9OlmoF3T8gHRSXPt/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nVlWxY5Q; arc=none smtp.client-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="USYmA86c"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4A885C4CEF5;
-	Fri,  7 Nov 2025 17:55:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762538128;
-	bh=irBDt/butjyDuHG4qRvZ05GQs+prHce/GrErrf9b2iw=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=USYmA86c/soJHu+fRChJewkEPPBStrv8eI9pyhSD20wLsee4440QwpGiWh+bW15kE
-	 QU+Y/b6d5RdNFcjTCuHc6nxcbeQytPsg5QRYP3MenosKez3bkPyFrlsgavd2/jBgle
-	 kzEOQLK/2/PtG8kivEwXZXFhN/Ro1KHvI478BSFAyU9meNP/dRjk9xwoeTxZ/zxqKX
-	 aOXaGYJ1oCJaBs39i/PKNhDJgVJw6QssN2CeztP5SPNKU4K/fPB8gpAdOfad6Ttk+Y
-	 wdOj3Wm2raf4ca5tOUagS4VDO5bPlPK4UPg6h4S1M8krEua0MjeZp8/QpuwHivpAFD
-	 iCLNq49NNOmQw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AEBFCCFA05;
-	Fri,  7 Nov 2025 17:55:28 +0000 (UTC)
-From: Hrishabh Rajput via B4 Relay <devnull+hrishabh.rajput.oss.qualcomm.com@kernel.org>
-Date: Fri, 07 Nov 2025 17:53:08 +0000
-Subject: [PATCH v5 1/2] firmware: qcom: scm: Register gunyah watchdog
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nVlWxY5Q"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1762595438; x=1794131438;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=VYp6JlktlNtSBhhVtta20m+Ma5lCPncZPlU8aCP3RDw=;
+  b=nVlWxY5QhscQzoaYWQE1Mw4QGO09F0/7IBcbXc3Kq+alE8OYdzRBhv7J
+   rhjEpvmtD67cCvR9bApj2nhcdkbF/WogfXzPxZ6fX/Hv/QvpBEFRw1xpn
+   gg5Os1ET4fD6OLZpXkTLq+fagZprfh4wcgQhgVqVvAoCW1kojNhqQ7a0h
+   D6JVz4PTXOP5BcV8qGBnACYyRr8CH/7/MMnflmNoZ2N8nsaDw0x9RUR04
+   dkHH1xKmizPbA6OepDHVidTVYJNOtxT7DmnwBvfomtPs60vujeq7Q6+QY
+   mTLv6JhMK3dSka3wM1MNj2buTesNPdzvmM6sScDOy41xnVXTzZy0h5kF/
+   A==;
+X-CSE-ConnectionGUID: 4mcIaIReT0Sujoqi3O75VQ==
+X-CSE-MsgGUID: YQL4UxceTseJYDtPBwVyVA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11606"; a="64429181"
+X-IronPort-AV: E=Sophos;i="6.19,289,1754982000"; 
+   d="scan'208";a="64429181"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2025 01:50:37 -0800
+X-CSE-ConnectionGUID: uzSkh+E1QHW4nIWcYnNOAA==
+X-CSE-MsgGUID: yfE0iGB0TnO6fUV87FWs0Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,289,1754982000"; 
+   d="scan'208";a="193274361"
+Received: from lkp-server01.sh.intel.com (HELO 6ef82f2de774) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 08 Nov 2025 01:50:33 -0800
+Received: from kbuild by 6ef82f2de774 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1vHfaZ-0000sZ-0W;
+	Sat, 08 Nov 2025 09:50:31 +0000
+Date: Sat, 8 Nov 2025 17:49:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: Hrishabh Rajput via B4 Relay <devnull+hrishabh.rajput.oss.qualcomm.com@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pavan Kondeti <pavan.kondeti@oss.qualcomm.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Dmitry Baryshkov <lumag@kernel.org>,
+	Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
+Subject: Re: [PATCH v5 1/2] firmware: qcom: scm: Register gunyah watchdog
  device
+Message-ID: <202511081706.0sVDjTBC-lkp@intel.com>
+References: <20251107-gunyah_watchdog-v5-1-4c6e3fb6eb17@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251107-gunyah_watchdog-v5-1-4c6e3fb6eb17@oss.qualcomm.com>
-References: <20251107-gunyah_watchdog-v5-0-4c6e3fb6eb17@oss.qualcomm.com>
-In-Reply-To: <20251107-gunyah_watchdog-v5-0-4c6e3fb6eb17@oss.qualcomm.com>
-To: Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Pavan Kondeti <pavan.kondeti@oss.qualcomm.com>, 
- Neil Armstrong <neil.armstrong@linaro.org>, 
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
- Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1762538126; l=2893;
- i=hrishabh.rajput@oss.qualcomm.com; s=20250903; h=from:subject:message-id;
- bh=OYio7ePuF7bexipr2dub+KGV3Y4ePYnSIMFShkeEOjo=;
- b=6xL/aZMUQY3sM3z+pNWQpG9m+1hM5qk5f+fVqZdm2VIrnCKKGDUswvJbjb6hJZW3UO6bjB0Hc
- mMggNfA7XAICt0mpUMj7RdfP7y2eZoTqDc+d3ulDF18Ps1ss2bNDws9
-X-Developer-Key: i=hrishabh.rajput@oss.qualcomm.com; a=ed25519;
- pk=syafMitrjr3b/OYAtA2Im06AUb3fxZY2vJ/t4iCPmgw=
-X-Endpoint-Received: by B4 Relay for
- hrishabh.rajput@oss.qualcomm.com/20250903 with auth_id=509
-X-Original-From: Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
-Reply-To: hrishabh.rajput@oss.qualcomm.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251107-gunyah_watchdog-v5-1-4c6e3fb6eb17@oss.qualcomm.com>
 
-From: Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
+Hi Hrishabh,
 
-To restrict Gunyah watchdog initialization to Qualcomm platforms running
-under the Gunyah Hypervisor, register the watchdog device in the QCOM
-SCM driver.
+kernel test robot noticed the following build errors:
 
-When Gunyah is not present or Gunyah emulates MMIO-based watchdog, we
-expect Qualcomm watchdog or ARM SBSA watchdog device to be present in
-the devicetree. First, we make sure we're running under the Gunyah
-Hypervisor. Then we move to check if any of the above mentioned
-watchdog device nodes are present, if not then we proceed to register
-the SMC-based Gunyah watchdog device.
+[auto build test ERROR on 6146a0f1dfae5d37442a9ddcba012add260bceb0]
 
-Signed-off-by: Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
----
- drivers/firmware/qcom/qcom_scm.c | 51 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+url:    https://github.com/intel-lab-lkp/linux/commits/Hrishabh-Rajput-via-B4-Relay/firmware-qcom-scm-Register-gunyah-watchdog-device/20251108-015559
+base:   6146a0f1dfae5d37442a9ddcba012add260bceb0
+patch link:    https://lore.kernel.org/r/20251107-gunyah_watchdog-v5-1-4c6e3fb6eb17%40oss.qualcomm.com
+patch subject: [PATCH v5 1/2] firmware: qcom: scm: Register gunyah watchdog device
+config: powerpc-randconfig-001-20251108 (https://download.01.org/0day-ci/archive/20251108/202511081706.0sVDjTBC-lkp@intel.com/config)
+compiler: powerpc-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251108/202511081706.0sVDjTBC-lkp@intel.com/reproduce)
 
-diff --git a/drivers/firmware/qcom/qcom_scm.c b/drivers/firmware/qcom/qcom_scm.c
-index e777b7cb9b12..71b79c0229da 100644
---- a/drivers/firmware/qcom/qcom_scm.c
-+++ b/drivers/firmware/qcom/qcom_scm.c
-@@ -2182,6 +2182,54 @@ int qcom_scm_qtee_callback_response(phys_addr_t buf, size_t buf_size,
- }
- EXPORT_SYMBOL(qcom_scm_qtee_callback_response);
- 
-+static void qcom_scm_gunyah_wdt_free(void *data)
-+{
-+	struct platform_device *gunyah_wdt_dev = data;
-+
-+	platform_device_unregister(gunyah_wdt_dev);
-+}
-+
-+static void qcom_scm_gunyah_wdt_init(struct qcom_scm *scm)
-+{
-+	struct platform_device *gunyah_wdt_dev;
-+	struct device_node *np;
-+	bool of_wdt_available;
-+	int i;
-+	uuid_t gunyah_uuid = UUID_INIT(0xc1d58fcd, 0xa453, 0x5fdb, 0x92, 0x65,
-+				       0xce, 0x36, 0x67, 0x3d, 0x5f, 0x14);
-+	static const char * const of_wdt_compatible[] = {
-+		"qcom,kpss-wdt",
-+		"arm,sbsa-gwdt",
-+	};
-+
-+	/* Bail out if we are not running under Gunyah */
-+	if (!arm_smccc_hypervisor_has_uuid(&gunyah_uuid))
-+		return;
-+
-+	/*
-+	 * Gunyah emulates either of Qualcomm watchdog or ARM SBSA watchdog on
-+	 * newer platforms. Bail out if we find them in the devicetree.
-+	 */
-+	for (i = 0; i < ARRAY_SIZE(of_wdt_compatible); i++) {
-+		np = of_find_compatible_node(NULL, NULL, of_wdt_compatible[i]);
-+		of_wdt_available = of_device_is_available(np);
-+		of_node_put(np);
-+		if (of_wdt_available)
-+			return;
-+	}
-+
-+	gunyah_wdt_dev = platform_device_register_simple("gunyah-wdt", -1,
-+							 NULL, 0);
-+	if (IS_ERR(gunyah_wdt_dev)) {
-+		dev_err(scm->dev, "Failed to register Gunyah watchdog device: %ld\n",
-+			PTR_ERR(gunyah_wdt_dev));
-+		return;
-+	}
-+
-+	devm_add_action_or_reset(scm->dev, qcom_scm_gunyah_wdt_free,
-+				 gunyah_wdt_dev);
-+}
-+
- static void qcom_scm_qtee_free(void *data)
- {
- 	struct platform_device *qtee_dev = data;
-@@ -2448,6 +2496,9 @@ static int qcom_scm_probe(struct platform_device *pdev)
- 	/* Initialize the QTEE object interface. */
- 	qcom_scm_qtee_init(scm);
- 
-+	/* Initialize the Gunyah watchdog platform device. */
-+	qcom_scm_gunyah_wdt_init(scm);
-+
- 	return 0;
- }
- 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202511081706.0sVDjTBC-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   powerpc-linux-ld: powerpc-linux-ld: DWARF error: could not find abbrev number 44
+   drivers/firmware/qcom/qcom_scm.o: in function `qcom_scm_probe':
+>> qcom_scm.c:(.text+0x349c): undefined reference to `arm_smccc_hypervisor_has_uuid'
 
 -- 
-2.43.0
-
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
