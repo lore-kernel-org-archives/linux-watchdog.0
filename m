@@ -1,162 +1,116 @@
-Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC04325716;
-	Wed, 19 Nov 2025 08:33:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3087333B6D5;
+	Wed, 19 Nov 2025 10:22:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763541235; cv=none; b=G58Mj4JnESbE4rnu9klNeWb+vGZz09uY4A+8A2/7yNBVOe3vexcADz8NZ4Qtodu9a4POHIzCZX8/dgDGXSbytUQHiz8NOiD/pX5+wXGiLNr+Iw1rN2BIm3OcgOTDw8YhkAcQrwd9CwM1FEdX0boiJuaQTAoD04Isjh2ByRxtBtU=
+	t=1763547760; cv=none; b=d6WKCAIHyu/Gsl6uwrnOuXF6GBzGjjMoOX7yjPsVlhZQdTEnS0hpM/YaOktn/UyjEFYn6k+z1y2ruwLKcX6A6u26WtrJNxYLD5Lckzva/W/WFvse/jZfhtgiyv4lVsX7evABokkcNSqAlKwa/a8YkWTAH4Sqg1MTJa+UkBp/qNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763541235; c=relaxed/simple;
-	bh=jjRQloTU8vYVqzmoMJwFow0TAzVQiCRRuZIEL6qxqoI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Gf5C6PvmtboAnTfkD6IoRH1XYLytjyDojtInZcPXB0+WFtIRVUjflhlcElTKjlVsuxTh2G5tj+L6F/bcoTC3sa7SfLpe1gRoZr28pdPg2oELfLXa0oUrJi0k72Lj0Cu0MkPn43b6ReoHkgNoW1S38aJjoY5JZBECRrHbqdYL4KA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 585A5202A10;
-	Wed, 19 Nov 2025 09:33:45 +0100 (CET)
-Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 23741202A11;
-	Wed, 19 Nov 2025 09:33:45 +0100 (CET)
-Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id D42B01800086;
-	Wed, 19 Nov 2025 16:33:43 +0800 (+08)
-From: Lakshay Piplani <lakshay.piplani@nxp.com>
-To: alexandre.belloni@bootlin.com,
-	linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org
-Cc: vikash.bansal@nxp.com,
-	priyanka.jain@nxp.com,
-	shashank.rebbapragada@nxp.com,
-	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [PATCH v3 4/5] rtc: pcf85363: add oscillator offset calibration support
-Date: Wed, 19 Nov 2025 14:03:35 +0530
-Message-Id: <20251119083336.2241142-4-lakshay.piplani@nxp.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
-References: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
+	s=arc-20240116; t=1763547760; c=relaxed/simple;
+	bh=xsDmh1KmPE0GWCwQgonRlIsX6hOt3bEDl95nhIzSCKo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DqI2H3/RN4NEDBcMd6j0n9Ko1lhKH3NkKVditLbXj21df59gluhzgJyqZ+vvNUAsVVaDzY02AHdoMVCz4Z5vNMhBVXMb7mDC7B9B50pde6p42yVyALMKCNXQr+0u8qaUdeWv0JpX2sYdklZCxlQVe/k6hBA3ER8Ylm4IL97nmG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qJIBlwjf; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qJIBlwjf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF17EC116D0;
+	Wed, 19 Nov 2025 10:22:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1763547759;
+	bh=xsDmh1KmPE0GWCwQgonRlIsX6hOt3bEDl95nhIzSCKo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=qJIBlwjfW5HU85V9WMc+Wva+vlLmCrk+T2pNLreoA41AbruPR2LZIGgtCysfRpqGz
+	 l7nSsRH5G67Q9uP8oK+aL0AbXnjKIbN5Q8Dto6f7yFN65HMuG3GYG3qshtJ7S9MatL
+	 WM+TnOQEEfMKYMZeHjllouBC9amYR4ACyxEHY4ZkOcPKJYGt0O8wI/2ugrDB/Yzdmf
+	 7OUoKhbJWeXEL1Simb5tamTyVXV0i9s1+6ADnpWBiXzbLIyvGoe7g69EbUO4pkZ+87
+	 1ioDKsUj/BZs1cEH4YEH62VAPAUy3w19N7Vqtr1N5cen1eJSgLs7hTuwTAcjfBE6kI
+	 qLM5kw1yZnK5Q==
+Message-ID: <0bc4d069-29bf-4d22-9a38-f9f6222fc07d@kernel.org>
+Date: Wed, 19 Nov 2025 11:22:33 +0100
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode
+ config
+To: Lakshay Piplani <lakshay.piplani@nxp.com>, alexandre.belloni@bootlin.com,
+ linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, robh@kernel.org,
+ krzk+dt@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org,
+ wim@linux-watchdog.org, linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Cc: vikash.bansal@nxp.com, priyanka.jain@nxp.com,
+ shashank.rebbapragada@nxp.com
+References: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Expose the oscillator offset register of PCF85263/PCF85363 through the
-rtc_class_ops read_offset and set_offset callbacks, allowing userspace
-to apply frequency correction for drift compensation.
+On 19/11/2025 09:33, Lakshay Piplani wrote:
+> NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
+> which latch the current time when a selected event occurs. Add a
+> vendor specific property, nxp,timestamp-mode, to select the event
+> source for each register.
+> 
+> Also introduce a new header 'pcf85363-tsr.h' to expose
+> macros for timestamp mode fields, improving readability
+> of device tree file.
+> 
+> Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+> ---
+> V2 -> V3:
+> - No changes in v3
+> - Added Reviewed-by: Rob Herring <robh@kernel.org>
 
-The correction mode defaults to normal mode (OFFM = 0), where each step
-introduces an offset of approximately 2.170 ppm and corrections occur
-every 4 hours.
+I don't see it. Please start using b4, so such trivialities won't affect
+the process.
 
-Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
----
-V2 -> V3:
-- Split into separate patches as suggested:
-  - Battery switch-over detection.
-  - Timestamp recording for TS pin and battery switch-over events.
-  - Offset calibration.
-  - Watchdog timer (to be reviewed by watchdog maintainers).
-- Dropped Alarm2 support
-- Switched to rtc_add_group() for sysfs attributes
-- Removed failure paths after RTC device registration as per subsystem guidelines.
-V1 -> V2:
-- Watchdog related changes due to removal of vendor specific properties
-  from device tree
-  * remove vendor DT knobs (enable/timeout/stepsize/repeat)
-  * use watchdog_init_timeout (with 10s default)
-  * derive clock_sel from final timeout
-  * default, repeat=true (repeat mode)
-- Fixed uninitalised warning on 'ret' (reported by kernel test robot)
-- Use dev_dbg instead of dev_info for debug related print messages
-- Minor cleanup and comments
-
- drivers/rtc/rtc-pcf85363.c | 46 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
-
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index a8b4f48d9894..3d733375187b 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -122,6 +122,11 @@
- #define TSR2_SHIFT      2
- #define TSR3_SHIFT      6
- 
-+#define OFFSET_SIGN_BIT 7
-+#define OFFSET_MINIMUM  -128
-+#define OFFSET_MAXIMUM  127
-+#define OFFSET_MASK     0xFF
-+
- struct pcf85363 {
- 	struct rtc_device	*rtc;
- 	struct regmap		*regmap;
-@@ -358,6 +363,45 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-+/*
-+ * Read the current RTC offset from the CTRL_OFFSET
-+ * register. This value is an 8-bit signed 2's complement
-+ * value that corrects osciallator drift.
-+ */
-+static int pcf85363_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-+
-+	if (ret)
-+		return ret;
-+
-+	*offset = sign_extend32(val & OFFSET_MASK, OFFSET_SIGN_BIT);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Write an oscillator offset correction value to
-+ * the CTRL_OFFSET register. The valid range is
-+ * -128 to 127 (8-bit signed), typically used to fine
-+ * tune accuracy.
-+ */
-+static int pcf85363_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+
-+	if (offset < OFFSET_MINIMUM || offset > OFFSET_MAXIMUM) {
-+		dev_warn(dev, "Offset out of range: %ld\n", offset);
-+		return -ERANGE;
-+	}
-+
-+	return regmap_write(pcf85363->regmap, CTRL_OFFSET, offset & OFFSET_MASK);
-+}
-+
- static int pcf85363_rtc_ioctl(struct device *dev,
- 			      unsigned int cmd, unsigned long arg)
- {
-@@ -395,6 +439,8 @@ static const struct rtc_class_ops rtc_ops = {
- 	.read_alarm	= pcf85363_rtc_read_alarm,
- 	.set_alarm	= pcf85363_rtc_set_alarm,
- 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
-+	.read_offset = pcf85363_read_offset,
-+	.set_offset = pcf85363_set_offset,
- };
- 
- static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
--- 
-2.25.1
-
+Best regards,
+Krzysztof
