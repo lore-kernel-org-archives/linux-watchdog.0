@@ -1,93 +1,101 @@
-Received: from mail-244122.protonmail.ch (mail-244122.protonmail.ch [109.224.244.122])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F347326D63
-	for <linux-watchdog@vger.kernel.org>; Mon, 22 Dec 2025 19:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1861A34217C;
+	Mon, 22 Dec 2025 20:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766430195; cv=none; b=kVTOPt09nMWmsMtaJKXvW/cWT9kBTGWyII82WjDU/bq5N8gIbbdm9c7+IBfDsaLg8jzvoVrqT/L0a507YQuADUYI3jZVfNipysWvnM8ixssjZEz6GJVxpe+EujDKwOv9WKnBo93uNqXdlxJrZem33cQzBSTRijpYisuXAIyLP2U=
+	t=1766435871; cv=none; b=jYSOiEyC/3GTWR0LP49lENVqJc3azwSu2cf88VCxDbxozAngmh50u0cedZIl+SYFW+YqJsu/iYECSmFd1SRwe4v8139V9t0azG/a4yBxWESNfVsJUsPTH9kJjdEPt6f2Iir1AGYRgGvTpQpVN9C8ky1yTTvIGd5DNjYlHAg//KE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766430195; c=relaxed/simple;
-	bh=PaF7GyI4rezprjUtIYvkxxp0xmLg4R6QoreSIahZw+A=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=QItDlu9lMX6seGKL1nORC/RWBD7pnTe17D6sEhq2OkToK/Byh7oxHBnMnUOhargEsyCdxP4pp2KbcHhAyOPniCY1T//BpxwaepwliZcI97k/T4PRDXPxbYzIw8mRTxKGWVaDDQIDJDc9n5yzKwk4qG3FpojUHY4E76+/Op0crGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=lJ6IpMax; arc=none smtp.client-ip=109.224.244.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
+	s=arc-20240116; t=1766435871; c=relaxed/simple;
+	bh=dIVwkRqszkrtobADCV4HvCOD1D2symsz0wPe25EtYZE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UzR/+X/xQ3r8z9djt1OulCMSyyyyudTK5o2k1lypzHf2tEPwj/wTDprcG9n8oaR8mTOkKPeNsVEQl8ncQPiyjDNY0bVki4Pqh8CQzEj1d5Y0Ez9+35DjxhRkB370paVaqJobFDOVQyT+cWHhuo3Du4WsH6QghqVG4Rw55fGKHZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cs+8tfcx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="lJ6IpMax"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-	s=protonmail3; t=1766430183; x=1766689383;
-	bh=PaF7GyI4rezprjUtIYvkxxp0xmLg4R6QoreSIahZw+A=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=lJ6IpMaxuhkaRcR6shvwPCYk2EmxuWU1PfrRm1BmVc3ef+H1r5Gxm2D6uJNnbuUez
-	 NQjF3UY1fiRQun6SRo6oL8wGPggnMDgMPo51G38s8rY59FQxv/pN47JMBkUYnl3mLl
-	 EAKM5nRwtDi1i7jYQt9WF7d1S79tUQZbAgB1y7QggC8buPQDDLG9LaOFfp6FSwcqc4
-	 QxXLe9bTshiIzLPF5bgKW5v5jhB2sSVe7KzHmpM36ydkdWFaygCCbHWPIV+xJLjpqS
-	 tJxWuQgbwkHdvEYD21JHj0tzUuFta1AD5MoIeA5cnR2S/BLV/ekakFY1UvV2HVvKbb
-	 Du/FvRI8u3KCw==
-Date: Mon, 22 Dec 2025 19:02:58 +0000
-To: Pavan Kondeti <pavan.kondeti@oss.qualcomm.com>, Bjorn Andersson <andersson@kernel.org>
-From: Alexander Koskovich <AKoskovich@pm.me>
-Cc: Neil Armstrong <neil.armstrong@linaro.org>, hrishabh.rajput@oss.qualcomm.com, Konrad Dybcio <konradybcio@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] Add support for Gunyah Watchdog
-Message-ID: <b105810a-63a8-4d81-9ad8-b0788e2e1431@pm.me>
-Feedback-ID: 37836894:user:proton
-X-Pm-Message-ID: ac44ac6cdc9c89879847125c5270ee70225b687f
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cs+8tfcx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C003C4CEF1;
+	Mon, 22 Dec 2025 20:37:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1766435870;
+	bh=dIVwkRqszkrtobADCV4HvCOD1D2symsz0wPe25EtYZE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=Cs+8tfcxY3o1jw+pL957kVPnoEy7rGNDjtJY+bBM/EMbaa7WzOsO3bsEyESt+GoRc
+	 MUHf/vncS8mJX79JRhHOmx8Rw9kRyINt+DNRwpnezAw9NPo0oOQqiXSzr7Mu/U8+Sd
+	 038N1aABraXgdFA43N/LidV1HCULw/DQJjBak8Seg6ky2uSRbnauY7y8tTw8kO1+6f
+	 l/zR3R0C+TuIXUMMm30gTQf7s4vCsRd7uDuj97h0qdi8syNYvVWc/LHuzWZljZsJh7
+	 aSIu8VxXoV0XiisuRPabe3eCsMJ34yO1uvTSWMBfX6X0Ih9jduyt5bFPdw6tpWq2Gu
+	 Ty7oBB71X6D1Q==
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+To: Linux PM <linux-pm@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>,
+ Brian Norris <briannorris@chromium.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+Subject:
+ [PATCH v1 09/23] watchdog: rzv2h_wdt: Discard pm_runtime_put() return value
+Date: Mon, 22 Dec 2025 21:09:22 +0100
+Message-ID: <1867890.VLH7GnMWUR@rafael.j.wysocki>
+Organization: Linux Kernel Development
+In-Reply-To: <6245770.lOV4Wx5bFT@rafael.j.wysocki>
+References: <6245770.lOV4Wx5bFT@rafael.j.wysocki>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
 
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-On 9/4/25 1:05 PM, Pavan Kondeti wrote:
-> Thanks for asking this question. I believe the overlay part needs some
-> discussion here.
->
-> I have tried this series on 8550 MTP. The overlay failed, so watchdog
-> device did not probe. same is the case with 8750 too. It works only
-> after applying this patch. I will test and report my observation on 8650
-> later.
+Failing device probe due to pm_runtime_put() returning an error is not
+particularly useful.
 
-Hi Pavan, was linked this thread after seeing what I think to be the=20
-same issue on another platform,
-but issue is a bit more serious here since bootloader fails to find a=20
-DTB at all, not just overlay fails.
-When the "arch_timer" label is missing from the base DTB on Milos,=20
-ufdt_apply_overlay in bootloader
-will fail and it looks like the DTB memory gets corrupted. If you are=20
-booting without a dtbo image,
-then you don't see the issue. Couple logs from bootloader when it happens:
+Returning an error code from pm_runtime_put() merely means that it has
+not queued up a work item to check whether or not the device can be
+suspended and there are many perfectly valid situations in which that
+can happen, like after writing "on" to the devices' runtime PM "control"
+attribute in sysfs for one example.  It also happens when the kernel is
+configured with CONFIG_PM unset.
 
- =C2=A0 =C2=A0 ApplyOverlay: ufdt apply overlay failed
- =C2=A0 =C2=A0 Error: Dtb overlay failed
+Accordingly, update rzt2h_wdt_wdtdcr_init() to simply discard the return
+value of pm_runtime_put() and return success to the caller after
+invoking that function.
 
-After this happens, the DTB memory seems to get corrupted:
+This will facilitate a planned change of the pm_runtime_put() return
+type to void in the future.
 
- =C2=A0 =C2=A0 ERROR: Invalid device tree header ...
- =C2=A0 =C2=A0 Device Tree update failed Status:Not Found
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
 
-But it doesn't seem to have anything to do with the DTBO image itself=20
-(despite only happening with one),
-as it happens even the dtbo is effectively empty with the exception of a=20
-dummy fixups so the old version
-of libufdt in bootloader doesn't fail.
+This patch is part of a series, but it doesn't depend on anything else
+in that series.  The last patch in the series depends on it.
 
-This seems to have only started happening on recent versions of the=20
-proprietary hypervisor (don't see any
-dtb handling in https://github.com/quic/gunyah-hypervisor), since I=20
-don't see the same issue on Blair but I
-do on Milos.
+It can be applied by itself and if you decide to do so, please let me
+know.
 
-Should the label be applied to all QCOM platforms that have a timer node=20
-to prevent the issue from appearing
-elsewhere? It looks like it's already applied to lemans & sm6150.
+Otherwise, an ACK or equivalent will be appreciated, but also the lack
+of specific criticism will be eventually regarded as consent.
 
-Thanks,
-Alex
+---
+ drivers/watchdog/rzv2h_wdt.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/watchdog/rzv2h_wdt.c
++++ b/drivers/watchdog/rzv2h_wdt.c
+@@ -268,9 +268,7 @@ static int rzt2h_wdt_wdtdcr_init(struct
+ 
+ 	rzt2h_wdt_wdtdcr_count_stop(priv);
+ 
+-	ret = pm_runtime_put(&pdev->dev);
+-	if (ret < 0)
+-		return ret;
++	pm_runtime_put(&pdev->dev);
+ 
+ 	return 0;
+ }
+
 
 
