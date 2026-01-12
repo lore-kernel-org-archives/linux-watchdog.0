@@ -1,28 +1,28 @@
-Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11010016.outbound.protection.outlook.com [52.101.61.16])
+Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11010040.outbound.protection.outlook.com [52.101.61.40])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA61D358D00;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A78443587DE;
 	Mon, 12 Jan 2026 13:09:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.61.16
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.61.40
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768223345; cv=fail; b=FPJEifniI4BYOCinofeQvUKBwjFFF3jxj5IIUGdR1xs1P9SgZtK4LubeCeoQJV5jnxiSObTJKW/PS+aDpIvhrK53WfZxBpMRYbbVYu1DUCWLvObK+Us6dCaoUabX4Pb/LN/iRKg+rfmh+9KdSRq2JclS2XGCU77Z3aYeX80xBX4=
+	t=1768223346; cv=fail; b=G4MGQbQiSd09DRGcvwe63uXoaCoQhqjUyO43f1uHiGl20EGVLA4DWjz8pNgGSyN/RqlpQgHHENvD0K9xTUs311V8eKm1fgjuBsLYhfsDHA2gM5ZsLEVcswEbu4EGXkTLsjAj3Q5TME8DWqLVC0gvcp35YFq18ogluod7zHm2r8E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768223345; c=relaxed/simple;
-	bh=nVrm846pIWwu8ZPCG4QtnUTwFjvIdj1VkmJsmdjTGKY=;
+	s=arc-20240116; t=1768223346; c=relaxed/simple;
+	bh=6ilqO8WzrwxgcSRRgxQibGOOKms6pZyXJ/QYcExUim4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PQivvA3pdveu7HI3huDUfi9CAAH4MIOCnZYOp5O7HapJGkyC2paDyZADg+whqn/nL9AOcuWfeXGNbEAjzqE34GBMvOBSUPbbCLbUCwhjMnfSFKAtoaZ1cm/EaoyqHh4H2xerVkd9a4aB2JFDGXErJQ79knD3t4ilv/mEPdX0rpY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com; spf=pass smtp.mailfrom=gehealthcare.com; dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b=H0YIwPNC; arc=fail smtp.client-ip=52.101.61.16
+	 MIME-Version:Content-Type; b=NC5KYHV0IvWfe437IQswrOKnHWN2STQ/p8YCiwckXEdSlyLa8vVnXXteGi+7Pval5BLLPKIRlkAv/ysJk8EQdvOTLULhRd/0xCueXy677omrOGVq9PiKXa7TiwDZq+W21Qt1SJFCzO266Dtq94zXovLJiXeqAlNNv+R6TcYFWvw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com; spf=pass smtp.mailfrom=gehealthcare.com; dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b=Pl78TWWt; arc=fail smtp.client-ip=52.101.61.40
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gehealthcare.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b="H0YIwPNC"
+	dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b="Pl78TWWt"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WaJJP+tad1StwSp3H6KllR8ehTYjejtaFufHFmVeK5gQIVFkIIJe0e1XIcQKrGr0Z/N/wlYldA2Kg5sRRJQK3O6LfsXYaewMlfJY3fLwZL0IfzkC9pdkud5LVIvnHWyS/DV1HSvlG4wxGJjXuOfVk3YuotEoZ9sToYzC6fKu4jedLqCBFw6W9aMozXgV12UVuqNpkqSnavLk815YwkhYcjM3RMG2cAJQlfpXcKDoc8z5LIk8euLP8oL04LU/nV2xzQAbwkDwwcSaYRlNd/gX9F5ViaqBKUsgeGuZ7eT/aEOIcj7CsoPos99VebwkVmw68rwCcg32v73Zd8fVl6xGAA==
+ b=lYeyh8U8Bwa4jV64Kd1kwqXsLPeLTJjAKm4rydEE1EmMEPG2dssXSXowRCcuN/XOtJWTbVNcrvdt3y3MhEghOj3+grJO7YTjqTUK7qL+zo3YUMoWZGps6lBf7JNyqzvCJF7sCKey67DwTsrMQkSBvqCkEUJ1NPnTAKrB7qVk75M7kEo2QsGBbkiiGt+9fy2GmawXY308h8rX69Ho+G72sWWipSxQaxxqxe3VmQP6qq5LPUs7H+ijryLB7rAOkLcPvY27e6ur0Xb5gx+zLvKASTY8OfG7AI4f2TF5eGQpAr2B9gAOU/w2QWqYHhXYVNpV/fZRJqF9Oay+aM6uhcqRpw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=puThyK3zA4CcndHOvIZCGH6RxjnQrNKfmjAmzy5CtnA=;
- b=A7v8N6VCfdta1U8yH87IYFvHWkVWWNjBLVhepIdaB2zin6L83iCLRj7mlH5GJOGKnL41Z9/IMdqIa1F72ln13FF4+C5QV8/Wfo+vLBJXxURsftsK9mQf78taCL6wqVT579upOZcB/KIJMlB9Jeib2FvimpyUbFOM1HlQbLeAOuPcvswOk7QbOcLitoQKbFpI9ItmFMymCNcMT4N8+wQdrU/qEj+6M/9iUN8oKtDj+3IA11IrYxl6hKZnHj/2DU7DFzC1ST0t/UP/ocNeq7pCSLYd++YEl7gYvEcfgUzvEgszxo3G2JrCigz37hPEh9qidcsxkMn7mdEBAsO/RcZQ9A==
+ bh=gdJNVNKqgoywKxX+caU2tb93BEWDj+Xp0sbPXmc1yQk=;
+ b=AKLYRjxAtccZcAPOBjsKJno4O+Ds1r05fXcRkKxG01g/WPiLQyGWI3x1nBvpi8pG1oTbFpL3LhmKirqyv4yweUQ5R5NdNzteLtttTa4fF7peb5WK3Ct7xyqybGGq2X4COt8Ff7PhuWnHhLJ9cEdTxztdtnZ0x/vJGVJnBjmKZ0TCWg1qNNbFMw513Vk5qGJY4pfwAx2robOIGe32ffiPAjVCiyg6riPWlPxO+0EmI1S+TzCu63McDuoRTMKUNUmHLeKvc+Xn6UKpB+uBT74fbZGRGqXwhnU3W8yjDQkKKjc6vje6ysyg0yGq2H9qMWJJMNhc3uqL6uUrNFAnXw56Og==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
  165.85.157.49) smtp.rcpttodomain=vger.kernel.org
  smtp.mailfrom=gehealthcare.com; dmarc=fail (p=quarantine sp=quarantine
@@ -31,31 +31,31 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gehealthcare.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=puThyK3zA4CcndHOvIZCGH6RxjnQrNKfmjAmzy5CtnA=;
- b=H0YIwPNCYbfIfBFJxNBOXqoq8rW6zdReA0a7Sdi+YA9BrHAm2Uk3GZ2xj6/iBn83iv8tNDkbt4ZlPw/pC5komv9lVUMHJDMfmxLkQmZDC9QX0Gt3/tZU7vMAjve32BPrem1B5pDzSSWhChvFQk+6RMemTaM26bsJtaLDkb6WYYVGyqWCIpgaHoN3RJn0JD2mizYMZYgbOR14tCN9AWG6vZ2/chdeLGh/bBNNy41lfTu7c8dbwp6LwyceY6XeibNuEfZ3EQyUl6l16eV/yMnoLf9IoLayn0ssdZ4BclQsk9tpjgYFm2Q8GTCVnpMDbLh8J60cvWsBrasDwo6gKCHoAQ==
-Received: from BN9P220CA0028.NAMP220.PROD.OUTLOOK.COM (2603:10b6:408:13e::33)
- by BY1PR22MB5489.namprd22.prod.outlook.com (2603:10b6:a03:4b3::9) with
+ bh=gdJNVNKqgoywKxX+caU2tb93BEWDj+Xp0sbPXmc1yQk=;
+ b=Pl78TWWtpJvrhKT682dBGI6uF6ueTgSK/+13O0MfKe+ZhAoMReMyrwoerZiCLW3/sWDg9G03UnKkt78wdzLnEjS53wixI5ezb6cUXUC1GJOR7GqoJ+Nh7a82hxB2lyeIm5urPCswwqTprJ0zabmprNp0D69IeTxZ2vyDiM2IxUCBmTrVwbZz0H/oBxK9LujQv4AaEV81QnjrWIzJ1xT0NzFsXJLBStQEjLCusIqXedPF4gT/H9VxdLVMtkEPo8bOctv91H8A5TMy+c9OOKFtUalYrHv+iZh/T2OOXVkGchIt1X2X1ovUIppLoveLjMzyBDXLNS4M3xlaXaQ+/efUDQ==
+Received: from CY8PR12CA0030.namprd12.prod.outlook.com (2603:10b6:930:49::8)
+ by PH3PPF880B0D3DF.namprd22.prod.outlook.com (2603:10b6:518:1::6bb) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.7; Mon, 12 Jan
  2026 13:08:58 +0000
-Received: from BN2PEPF00004FBA.namprd04.prod.outlook.com
- (2603:10b6:408:13e:cafe::71) by BN9P220CA0028.outlook.office365.com
- (2603:10b6:408:13e::33) with Microsoft SMTP Server (version=TLS1_3,
+Received: from CY4PEPF0000FCBE.namprd03.prod.outlook.com
+ (2603:10b6:930:49:cafe::f2) by CY8PR12CA0030.outlook.office365.com
+ (2603:10b6:930:49::8) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.20.9499.7 via Frontend Transport; Mon,
- 12 Jan 2026 13:08:49 +0000
+ 12 Jan 2026 13:08:57 +0000
 X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 165.85.157.49)
  smtp.mailfrom=gehealthcare.com; dkim=none (message not signed)
  header.d=none;dmarc=fail action=quarantine header.from=gehealthcare.com;
 Received-SPF: Fail (protection.outlook.com: domain of gehealthcare.com does
  not designate 165.85.157.49 as permitted sender)
  receiver=protection.outlook.com; client-ip=165.85.157.49;
- helo=mkerelay1.compute.ge-healthcare.net;
-Received: from mkerelay1.compute.ge-healthcare.net (165.85.157.49) by
- BN2PEPF00004FBA.mail.protection.outlook.com (10.167.243.180) with Microsoft
+ helo=atlrelay1.compute.ge-healthcare.net;
+Received: from atlrelay1.compute.ge-healthcare.net (165.85.157.49) by
+ CY4PEPF0000FCBE.mail.protection.outlook.com (10.167.242.100) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9520.1 via Frontend Transport; Mon, 12 Jan 2026 13:08:57 +0000
+ 15.20.9520.1 via Frontend Transport; Mon, 12 Jan 2026 13:08:58 +0000
 Received: from podman-dev.fihel.lab.ge-healthcare.net (zoo10.fihel.lab.ge-healthcare.net [10.168.174.92])
-	by builder1.fihel.lab.ge-healthcare.net (Postfix) with ESMTP id D4AC9F2E71;
+	by builder1.fihel.lab.ge-healthcare.net (Postfix) with ESMTP id C8BD3F2E6C;
 	Mon, 12 Jan 2026 15:08:52 +0200 (EET)
 From: Nandor Han <nandor.han@gehealthcare.com>
 To: wim@linux-watchdog.org,
@@ -73,9 +73,9 @@ Cc: kernel@pengutronix.de,
 	imx@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/2] watchdog: imx2_wdt: Allow to continue in low power mode
-Date: Mon, 12 Jan 2026 15:08:49 +0200
-Message-Id: <20260112130849.3748465-3-nandor.han@gehealthcare.com>
+Subject: [PATCH v2 0/2] watchdog: imx2_wdt: Allow to run in low power mode
+Date: Mon, 12 Jan 2026 15:08:47 +0200
+Message-Id: <20260112130849.3748465-1-nandor.han@gehealthcare.com>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20251230-pastoral-enigmatic-chamois-b65343@quoll>
 References: <20251230-pastoral-enigmatic-chamois-b65343@quoll>
@@ -88,104 +88,79 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN2PEPF00004FBA:EE_|BY1PR22MB5489:EE_
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000FCBE:EE_|PH3PPF880B0D3DF:EE_
 Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 69e709d3-e779-44d3-2e76-08de51dbbf4f
+X-MS-Office365-Filtering-Correlation-Id: 12ff7b70-fda4-46ec-bf48-08de51dbbf69
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|376014;
+	BCL:0;ARA:13230040|376014|36860700013|1800799024|82310400026;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?gNWG5TofsqO8v1O+d6xc+lFLbUfkBWZxmzdgpjA5FL0E4HoR3qE4fqE4+AO8?=
- =?us-ascii?Q?U7nRmHSPRbuTR6J+A5VYNRVLt88JKVq7+229uPePIpUc3n+1jgTxvYce823r?=
- =?us-ascii?Q?ezSiQBYpkhyNaaqCBdnohxbumXT5gpMAKYwfXSKzlIbNlJwfTFqFCgSNOG3U?=
- =?us-ascii?Q?/VKt2e/fDhhaY9u7WYz7zEPszCe//zo6/xnNbasrRDWGCp3nVm8T6AXwd0Yz?=
- =?us-ascii?Q?xzzFCj/AcM3NXu8u8QYy1fA5Pmc0BMXeOoCFCmxHK2ddFdXK3RQcO+fyKd9O?=
- =?us-ascii?Q?FfHXRqqZV14DewdvUg5sURQrWUKVr3bNqSbIkDPrsRlv96QqYssHyGjtRzLG?=
- =?us-ascii?Q?2NJQsV7CTHLo17c46lrMY8141bIookrfWVelUb9o4w6e9oBLTzN9eSw85GSc?=
- =?us-ascii?Q?tIUp50qLZY/TvamCKV358HI8dP3gDkFTGp7upiXz36ozZo3BKn5LBaYVUUHG?=
- =?us-ascii?Q?sTQg2ovCgrxJLq8HzlKstugYnG4vM8wIc6s8xU5hEDTa/s6uH+5FNWOlN4ec?=
- =?us-ascii?Q?VzZHyqcSUE9rqbqN2DBGHaruNvAt97jomrxl4Z3gwOV4saHzlAPE+8i/IKYa?=
- =?us-ascii?Q?D4FPTmMOpMObb/WEWFNzw2rTyH5JdUm6vPzEetr5efeRZTPr6pZnbrHxUabI?=
- =?us-ascii?Q?v7yMdtBvnfymD2rOzVOG0xhdvJKKKwkuCXj92h5KzLRJOYvQTytjjlVMkY7Z?=
- =?us-ascii?Q?/AF7oA9r9NjuuAfZ6/l0ktIMZihD269UCVZQghGWhtMRQ5Na2fjpo5BziltI?=
- =?us-ascii?Q?blaRUnVEmsIovODd662DIGOFXNKZkQPb1b+mSsPcP5OpyUpajgy9VdZ52FDB?=
- =?us-ascii?Q?WmbpCx4vcFsTj+G9VfKmZlx+SFMBQHseevVZYusoAiLrsW2sxHap4gVojxsY?=
- =?us-ascii?Q?I5N5fQT3skwNZfm5iLYxWLcRb+9v4iwf41pnc1RLFk+cOKs6F+aYrkOAaTcs?=
- =?us-ascii?Q?2FvpC7RXXo9HXWOxjXJX2QqPWiu42+7z5f8n1sv0FUfj0G5c0b103jrKXnYa?=
- =?us-ascii?Q?4XwAbWwXt3SXU6f1Qi8giXjIxYgeFJtFRHpl1TBxuZ165adk1a0YWAzsPs0p?=
- =?us-ascii?Q?S8j8iv9cMb/S+YIm1aOSM83j2hANqTtbVz75djtsHsknBv6aDRBx4m7ke+bI?=
- =?us-ascii?Q?e+ZuCr+ux6wGE1Ay8jyHazTmWMq+EzWfFenVsArEbSJdx5pBeWu3+T+HDL5q?=
- =?us-ascii?Q?94VfoXVn9sw1dv5M6K8AfRy7aoBySz5JnToUqyovHBsX2rh4MnQ8PvlpnR2h?=
- =?us-ascii?Q?q9HHXj8fBY80H1YmEcOVlFcNuoTHzV81TTBuF4Zp/awo+7EuMS73y7lT8bLG?=
- =?us-ascii?Q?C81SnTxBkUoLd3SzRsdf4M8bmBtnCn/LR3v6kQFh+AIBLBbHjlZzMK5yInoO?=
- =?us-ascii?Q?NHdOyFNrVp4o50nlWJI+fsP8O96vgjehmBCq6Y+N5AtjMZBVZWTER+lLV1FH?=
- =?us-ascii?Q?dw0CHl+0wH5U4IlQ0ijCIHTREN78331fsYPum7/QwULeOyHZ8OBeILo7vf8c?=
- =?us-ascii?Q?MJu+ImYfLv60mXN2NacumieVyHEEF77D7bjrUeVCLKueODSLWusUbRlofDJt?=
- =?us-ascii?Q?x6aufTDXfZ7RPhIEwJg=3D?=
+	=?us-ascii?Q?IgQK+2s7i0JnKbTCjKSSv1D0DnYJ5nGiexo8QumUnSxE9XtekbIgwHBKROjG?=
+ =?us-ascii?Q?XCQCSJz78PkPh4FCgE5t8ynTxmzGXLT47XgpIr1mU2NehcIurPauGDBNHobu?=
+ =?us-ascii?Q?0bezGDSUp64AWSB1mNr4SsGki3e5VGfmibzKuUuZ1lDgQEIWrZoD0rmmNN+n?=
+ =?us-ascii?Q?OUPvfIpereC7kxE7wsXgMgH6yHfE/DciE4ZvbxfCF+5E3gA7A2WWIHFJnQeX?=
+ =?us-ascii?Q?cf9h/9znC8ETBs0xt4BT1JUV5XpcwIneeqKV98c40a08VVaGOdnYcMqcHtjD?=
+ =?us-ascii?Q?QUx2BOZ1hDVvVOb9SerstrsEV1ef7WmX4mNCslOlnt110moiyUUpqobZVRVD?=
+ =?us-ascii?Q?oPe15k5WEIUf3yJ4ToQQKEXVoRUo1LtgmV9QN7uSWwRn1Opjjb2Bp3RZN2cB?=
+ =?us-ascii?Q?V5REO4F/Lo4WDpSmrO5FzVPGpPHk/bviX0i6VpV5TZirEnePGL80jGqya2IH?=
+ =?us-ascii?Q?7Bhpm7jyi8A45XN9yUlYx3UB8MhK52zzuHX+yWBR3gScILiG7pXitDx8oDUR?=
+ =?us-ascii?Q?szLn8gcKm2jol7+BCVlypULfTXCDVh+QZcsmbT249XEuOPT5saVxO51sscqi?=
+ =?us-ascii?Q?jRnc+u6hOJC7xqXOL2S5UY/Ww4jvGo/U7ronMhZBJzqTAdfj2/JdG3Hk7Kg4?=
+ =?us-ascii?Q?KF046d/9aFMWZJwY4ypJkVM/BbAL+ztDdg37k/IhoXCQiRC/NwiDkWXITjJR?=
+ =?us-ascii?Q?CYyzWbUG458NmMdtFhL6r7t2DbBQiHdsf9hVU2Fw1DePJ0CN21U5vPNziqUr?=
+ =?us-ascii?Q?VEyjCLsmh0C3NJUgEMok512N6clhdi/85Ea+rV+Zm6JtB6/SRix5XQsc6Qi6?=
+ =?us-ascii?Q?GLxKc67TrziyIhhPXrWs26917EwFyw4NTZKNkE38WZpCEUbRYFUwmHL6FixV?=
+ =?us-ascii?Q?CJSVqjl/ywdDkvQGpM64oqm41mmZQDArB8C5FSyPPZbR99nsG7GHYhGWUjpW?=
+ =?us-ascii?Q?UdgHLi+yTWNaot6o2Ubv8a2jUkvKtZI6OiOMgl81XMewzVX+tbGgogIqVscu?=
+ =?us-ascii?Q?PX28GhjpVcEvOW31tAfcD3hNJX/hVz3hiFT1UWPBmAVaFEFUwjSOZKJSpwqM?=
+ =?us-ascii?Q?vbZnbjJvyWmLUTA2QKVt9wvSn4Mt/CgBZyhP8U7/JWmbI6iJvsvPphK/i0Ly?=
+ =?us-ascii?Q?UXogotDhm9ljkA43XXTbcAyLHsWnDA46QJrOzhV2VIV4eOuNhsZLTeVsFcT+?=
+ =?us-ascii?Q?Ok22eNkstrGiMOQ3tqNbFbBLurX/jm+BbTgAMkeiAYU8lYYMMgV92rFoivRa?=
+ =?us-ascii?Q?GJPPSJejCfZJXKyLLpBpMae2DeUEbOxTx4Z43EtvqtBAHTX9NFks45NsPNbP?=
+ =?us-ascii?Q?wec49RpTHsVMbhKzKFLNY5kk5J74i8cugZvZvyYd79WEad0fb5mkwzkyy+5u?=
+ =?us-ascii?Q?r9VmThLgB+LlhVJz0VmZvJSZFq0Q/sK+mQAHUqZkWAJPpIbcBdEI3wpSAjRg?=
+ =?us-ascii?Q?vle4dWSceqa6XIbuJDQOimsQMRjWcgM5iSpbPx6473pFaRNq5vnnbzfmuNTN?=
+ =?us-ascii?Q?F0j/pqprktzQJR3lbpYqyafFA98mga/g2ytjGCdI4CXvQgirUHVkj1R+zuFi?=
+ =?us-ascii?Q?ChshfKm98soFaskW9FA=3D?=
 X-Forefront-Antispam-Report:
-	CIP:165.85.157.49;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mkerelay1.compute.ge-healthcare.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(376014);DIR:OUT;SFP:1101;
+	CIP:165.85.157.49;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:atlrelay1.compute.ge-healthcare.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(376014)(36860700013)(1800799024)(82310400026);DIR:OUT;SFP:1101;
 X-OriginatorOrg: gehealthcare.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2026 13:08:57.9583
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2026 13:08:58.1304
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 69e709d3-e779-44d3-2e76-08de51dbbf4f
+X-MS-Exchange-CrossTenant-Network-Message-Id: 12ff7b70-fda4-46ec-bf48-08de51dbbf69
 X-MS-Exchange-CrossTenant-Id: 9a309606-d6ec-4188-a28a-298812b4bbbf
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=9a309606-d6ec-4188-a28a-298812b4bbbf;Ip=[165.85.157.49];Helo=[mkerelay1.compute.ge-healthcare.net]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=9a309606-d6ec-4188-a28a-298812b4bbbf;Ip=[165.85.157.49];Helo=[atlrelay1.compute.ge-healthcare.net]
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-BN2PEPF00004FBA.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-CY4PEPF0000FCBE.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR22MB5489
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH3PPF880B0D3DF
 
-By default, the driver suspends the watchdog in low power modes (STOP
-and DOZE). In some situations this is not desired.
+Description
+-----------
+Add the possibility for the user to allow the configuration of watchdog
+in low power mode.
 
-Add the possibility to configure the continuation of the watchdog timer
-in the above mentioned low power modes.
+Testing
+-------
+It was verified on a i.MX7D based system that once enabled the watchdog
+will reset the device when the system enter in low power mode.
 
-Note:
-Please be advised that the difference between the variable name and the
-device tree option has been intentionally selected to uphold the
-prevailing driver functionality. This ensures that the watchdog remains
-suspended by default in low power mode, while also facilitating a clear
-and intelligible device tree option name.
 
-Signed-off-by: Nandor Han <nandor.han@gehealthcare.com>
----
- drivers/watchdog/imx2_wdt.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Changes in V2:
+-------------
+- Order the dt-bindings commit before using it.
+- Small documentation update.
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 4b3a192ee3e8..6e837cfc3c5a 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -71,6 +71,7 @@ struct imx2_wdt_device {
- 	struct watchdog_device wdog;
- 	const struct imx2_wdt_data *data;
- 	bool ext_reset;
-+	bool wdt_suspend_in_low_power;
- 	bool clk_is_on;
- 	bool no_ping;
- 	bool sleep_wait;
-@@ -135,7 +136,8 @@ static inline void imx2_wdt_setup(struct watchdog_device *wdog)
- 	regmap_read(wdev->regmap, IMX2_WDT_WCR, &val);
- 
- 	/* Suspend timer in low power mode, write once-only */
--	val |= IMX2_WDT_WCR_WDZST;
-+	if (wdev->wdt_suspend_in_low_power)
-+		val |= IMX2_WDT_WCR_WDZST;
- 	/* Suspend timer in low power WAIT mode, write once-only */
- 	if (wdev->sleep_wait)
- 		val |= IMX2_WDT_WCR_WDW;
-@@ -326,6 +328,9 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	wdev->ext_reset = of_property_read_bool(dev->of_node,
- 						"fsl,ext-reset-output");
- 
-+	wdev->wdt_suspend_in_low_power = !of_property_read_bool(dev->of_node,
-+						"fsl,wdt-continue-in-low-power");
-+
- 	if (of_property_read_bool(dev->of_node, "fsl,suspend-in-wait")) {
- 		if (!wdev->data->wdw_supported) {
- 			dev_err(dev, "suspend-in-wait not supported\n");
+
+Nandor Han (2):
+  dt-bindings: watchdog: fsl-imx: document continue in low power mode
+  watchdog: imx2_wdt: Allow to continue in low power mode
+
+ .../devicetree/bindings/watchdog/fsl-imx-wdt.yaml          | 6 ++++++
+ drivers/watchdog/imx2_wdt.c                                | 7 ++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
 -- 
 2.39.5
 
