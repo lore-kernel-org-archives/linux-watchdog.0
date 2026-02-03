@@ -1,69 +1,70 @@
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010033.outbound.protection.outlook.com [52.101.56.33])
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010001.outbound.protection.outlook.com [52.101.201.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD10C145355;
-	Tue,  3 Feb 2026 01:19:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BDED145355;
+	Tue,  3 Feb 2026 01:19:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.1
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770081586; cv=fail; b=a1N3drW9w3paaWRZASMOdZ3xxLEWnmzD++JoTEBRlM7/SKhmJBSpnha4h0sioT36qMM8Td974VZ6ao7eS0ZefAg69+tLlfobHs6KTy6x7Y6PdfOfhR2jD/r798sCZDmLAwYWtVKvrUBL8pk03Tycp0QgR21QJupAI/Byrkv3tpA=
+	t=1770081597; cv=fail; b=hG+o3NlzbCbueDbDxHe8MfA9QaxZPo4JNa7FbA3jqmwlWJ+43qslil3hI9HJgo8X9prX7CfSuJPcQBWlkwS4OKHP7IRP/WqweVTPI+8qEJ6aNRPBXEDD3JjbHuk+8Bv29v9PmpU3XfBTrovqIXFpBMJecnbztxOkjjK57Swsi0U=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770081586; c=relaxed/simple;
-	bh=MrttmtaK4kKqlOY52Ff9XPpCTed6Rk5jJH3MNP65ysU=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mWJlpStYdsDZKRWTR9vLzH7Mh5Z/370NdwsmAClYC6bNM5bEAkHAK6FX+C2DPUKnziVr+9/YRQwbS48BBurlVp2peg7ULUoGtxeLOocbUjD3e4Yn4S6POIgDfCMUpt2v9xuwDz/HU/tEPBT+BINEKYf8JYu8B7OmW76alZPYHSM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=RS1lhzf7; arc=fail smtp.client-ip=52.101.56.33
+	s=arc-20240116; t=1770081597; c=relaxed/simple;
+	bh=arRkYurkgPZKp/bRaPSFK+lapSx812227NVzYeG0kDI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JtdZEMalW9xb4N9cTkmAOAuAb4L1cwsezKLAeowd1X9tiHOpMFH7z0WghOwgNUes7JsDRpTCOMOQRTVIlGUXQLPoO6p8Tz8HCT04Wvg7mdAQtpObtuFMhRJvCul0v+ivpSOvrGnauAwXuMb0AZYhacLZgdDzx/DdTHj95Momnn8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=Q2+SeVCA; arc=fail smtp.client-ip=52.101.201.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="RS1lhzf7"
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="Q2+SeVCA"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=s7ANH5TSvitKX/wEGME3C1kzesviKn3vUU/aLzUWJYPmEVppauzVazebE8QkXRexVq73xWQ8BXSAsMOMP9va8iN1fAH5Cp2IM3WazfyGwI5djKy7uLVZNSzoSgXYhcfCiYaDtAVhpGUdZ9RIRaeSYF2z0ZutEhau4FUyCFzv/1fnA9lUNJjmLDZYjwpsBHnHjymRYcFlaESsFBoHmt6IvXvP0tVgQ6kIfruHQbpAefk6w76SShkAt8EQvdA9GRKQScTGLozOwDl01d2rd19jPjFCWhx8MoRNFU+B3eSfo1pfeaK1ejFMFDO6qujBodfRQlkHfTjZci6rvYZ3NvK/Pw==
+ b=DxVj8+gicgrjouHZoMdr2odiDpov19apAETed5dXA7RlRbf1Ya8TfiiP6+RxlUn7RaRBfMcDpHXgVwwD32IbG3lKPk6/X5YOhf2YDlIWzER+ujR4EjNPppeUa/XckJMtB71B+ctUxkRRUL9VFOXE8KJT3zcmdoJHy5Ec3nk+yYeKTbe1lzjQNgx6Kxz+s2h5+3etdJOAxWE/YUV5WbYJjuWpjzPicp6sZ564wF/TC0vSH3jT7NhrHIKoPIpMQI5UqLqp1cjIqYLDmPA8R/NqxPOOHIFosh6UX5jJj0wITJ6I5e04n2nHR1n01OxT3leExxN7ko+QJKmTA/YeETmYDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QZoVph3nFZTfx4BX3NSrMRqQDerLXdiBUjfp3Vitbwg=;
- b=XXnT8mAlgpucsB4cFX+9gdTz9zB5yqZw3QPmF20NnECm0ZgwckKX98XIh5XoXX/Qmg/MKZqEqDCw8fbrGFBOj+UWmJRYFyLPRSx3LeFqrtOPB2o2qi6NDVS/FMtY4aclkHf/D7bsfnbASxFopdvnJSthiXfFyZuUAXOcZHtLD7wrdAU4piN8sELdjeqcYO4fW/ZL6OMEwqqh/DBJlLmpkIX55mA3BekSrn0sMSxFzI2x7wL47kBaVU2o3SpJZwVjMIwr2j5X7/RnAr8GCCR/ASqoyeCFefqmPuyGP4pcGJADZLXW9TmM06erht0+6SDCLxDSEjv0Z7OSsObv9CH5Hw==
+ bh=RIbWt5+zfjjJnaZUjNdVGACbOC1ymsTb66FKJtBwiiA=;
+ b=vIN4EMV3tfVxEAZRtNIzZlnPGkIDZ94veZccBI3oxuIrB5nBM+GD9Ey9ZcesIn333rlIqlNyb44KWEIl2w8qR9EcxiL0qcsa5RX95Baj7ShPoxmVn3s48q6j78bd4Klhtbncy/M8OpHu6BtF+eMIE2T3JDVr/Hk+Sl0TWQXtHyY9v2SKryt1yy6U/1QxA3Q1lHn5Y+7wtX8XmZdYQ00JvrwCwbD/+jJqFyHMkl//Kl7wsLo9SYS1M7kN1vney0C7G1yjufSeXOKDLZWbMrJeGwD86TKZuKlR4gwCoe1gXvkr3iK4yRJ5FW6i+LyLVeJwndHypciZM9OYaop2g+WTcA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 198.47.23.195) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
+ 198.47.21.194) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
  dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QZoVph3nFZTfx4BX3NSrMRqQDerLXdiBUjfp3Vitbwg=;
- b=RS1lhzf76ovYl5MqO+zk3J266JCHwzifNgMyYFrUqBOIC8eUzvEdPnXOv2TfWo7QWcgCHOJLmvu8P1n40ElQewyK7RPWvjo9GIALNhS/u2FGBeSjAVv8Msr/WHZ6z53mhOsi0aOZsAANJ/7f/rNDGTIzL9byUtr0zqlvO4gMAmY=
-Received: from SJ0PR13CA0115.namprd13.prod.outlook.com (2603:10b6:a03:2c5::30)
- by DS0PR10MB7953.namprd10.prod.outlook.com (2603:10b6:8:1a1::22) with
+ bh=RIbWt5+zfjjJnaZUjNdVGACbOC1ymsTb66FKJtBwiiA=;
+ b=Q2+SeVCACdx30UXVfL7ze4i5HsOdMWKH0Fl/zOnb900kK5u2xqTOmaGatwrLWI1Ds20vialZsEaYwS4sjhCPdaOry8RrQov/EsDnJoexsvlxTcPhUqsukySgmIFIuwOu5k/q9i7ouHrIlfPtMe+NQ2GBtdfP2QV4H8CmZOVmMLY=
+Received: from SJ0PR03CA0227.namprd03.prod.outlook.com (2603:10b6:a03:39f::22)
+ by DS3PR10MB997749.namprd10.prod.outlook.com (2603:10b6:8:345::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Tue, 3 Feb
- 2026 01:19:41 +0000
-Received: from SJ1PEPF0000231C.namprd03.prod.outlook.com
- (2603:10b6:a03:2c5:cafe::63) by SJ0PR13CA0115.outlook.office365.com
- (2603:10b6:a03:2c5::30) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9587.12 via Frontend Transport; Tue,
- 3 Feb 2026 01:19:40 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.23.195)
+ 2026 01:19:53 +0000
+Received: from SJ5PEPF000001EA.namprd05.prod.outlook.com
+ (2603:10b6:a03:39f:cafe::fa) by SJ0PR03CA0227.outlook.office365.com
+ (2603:10b6:a03:39f::22) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9564.16 via Frontend Transport; Tue,
+ 3 Feb 2026 01:19:51 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.21.194)
  smtp.mailfrom=ti.com; dkim=none (message not signed) header.d=none;dmarc=pass
  action=none header.from=ti.com;
 Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
- 198.47.23.195 as permitted sender) receiver=protection.outlook.com;
- client-ip=198.47.23.195; helo=lewvzet201.ext.ti.com; pr=C
-Received: from lewvzet201.ext.ti.com (198.47.23.195) by
- SJ1PEPF0000231C.mail.protection.outlook.com (10.167.242.233) with Microsoft
+ 198.47.21.194 as permitted sender) receiver=protection.outlook.com;
+ client-ip=198.47.21.194; helo=flwvzet200.ext.ti.com; pr=C
+Received: from flwvzet200.ext.ti.com (198.47.21.194) by
+ SJ5PEPF000001EA.mail.protection.outlook.com (10.167.242.198) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9587.10 via Frontend Transport; Tue, 3 Feb 2026 01:19:40 +0000
-Received: from DLEE201.ent.ti.com (157.170.170.76) by lewvzet201.ext.ti.com
- (10.4.14.104) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.9587.10 via Frontend Transport; Tue, 3 Feb 2026 01:19:52 +0000
+Received: from DFLE201.ent.ti.com (10.64.6.59) by flwvzet200.ext.ti.com
+ (10.248.192.31) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 2 Feb
  2026 19:19:40 -0600
-Received: from DLEE205.ent.ti.com (157.170.170.85) by DLEE201.ent.ti.com
- (157.170.170.76) with Microsoft SMTP Server (version=TLS1_2,
+Received: from DFLE213.ent.ti.com (10.64.6.71) by DFLE201.ent.ti.com
+ (10.64.6.59) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 2 Feb
  2026 19:19:39 -0600
-Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DLEE205.ent.ti.com
- (157.170.170.85) with Microsoft SMTP Server (version=TLS1_2,
+Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DFLE213.ent.ti.com
+ (10.64.6.71) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
  Transport; Mon, 2 Feb 2026 19:19:39 -0600
 Received: from judy-hp.dhcp.ti.com (judy-hp.dhcp.ti.com [128.247.81.105])
-	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 6131JdZP3094273;
+	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 6131JdZR3094273;
 	Mon, 2 Feb 2026 19:19:39 -0600
 From: Judith Mendez <jm@ti.com>
 To: Judith Mendez <jm@ti.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -71,10 +72,12 @@ To: Judith Mendez <jm@ti.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
  Kozlowski" <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
 CC: Tero Kristo <kristo@kernel.org>, <linux-watchdog@vger.kernel.org>,
 	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/2] Add reaction control to RTI watchdog
-Date: Mon, 2 Feb 2026 19:19:37 -0600
-Message-ID: <20260203011939.1013322-1-jm@ti.com>
+Subject: [PATCH 2/2] watchdog: rti_wdt: Add reaction control to rti
+Date: Mon, 2 Feb 2026 19:19:39 -0600
+Message-ID: <20260203011939.1013322-3-jm@ti.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260203011939.1013322-1-jm@ti.com>
+References: <20260203011939.1013322-1-jm@ti.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -86,78 +89,160 @@ Content-Type: text/plain
 X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF0000231C:EE_|DS0PR10MB7953:EE_
-X-MS-Office365-Filtering-Correlation-Id: f6069658-1dc9-4617-f23a-08de62c24e14
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001EA:EE_|DS3PR10MB997749:EE_
+X-MS-Office365-Filtering-Correlation-Id: 340ef421-e1f4-4640-6e6a-08de62c254f9
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
+	BCL:0;ARA:13230040|376014|1800799024|82310400026|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?WpO4zhuF7KsUhHSy0/C3yT/b7swOhSx/spsgbdjXn2iNdntK6bMZRyJDPH4D?=
- =?us-ascii?Q?YWN26dUA3INeHigEKBAb5BoVtE/0Bo+RcrgPRKhwajyIqnjUshOeR3ZnHLwB?=
- =?us-ascii?Q?ZiFVasizWPxjFYg3mg7O5FQv1uvFLudvsyHiEdiDB500cS4lxopoyTZXrylA?=
- =?us-ascii?Q?5+H+M0vzCXy5x0EpkNoGVkjGx7zdmqvP/4nfRFXsv5eRBX6IeNEdBpwD0kV2?=
- =?us-ascii?Q?fbn8Nyq/Rd4ar4220ivwW3kDJGfX12/ZVbmd9TZmFw9WoI2u4MkMQ00N2mzD?=
- =?us-ascii?Q?BmGTZ0FUG5Z5PCDEtq25H8g1RgrZ/6kYyA2neksbm66ZEV9uR14z5Uw5qDEo?=
- =?us-ascii?Q?uB3h08a4CIY5xrX4y95KiwFxx/eisy/DXAeCJgDe1j6fHVrSsnWRwnPavG56?=
- =?us-ascii?Q?wnukO+mlS4QK5+0EphLBOM/qe3OwTtdsXrIi1Rg/iGtumxHm2XO/KyY30Qvp?=
- =?us-ascii?Q?KfpxWGNBPRu1vkj2CpCR6mvvSaB97GX0LX1gg/bkVJeD+GybXndQMuHdTG9h?=
- =?us-ascii?Q?9Zxv9s36BANEpjAP/IDuGQ1UpU9K1mTthAcdk2H+HIprwwlFFGHrvRd+AWOQ?=
- =?us-ascii?Q?uYIu7vrpxZU+8g30a81d6Y0rhdgXgEEBQ8btKmBUORkRnL2tkkHKyqyYq5g7?=
- =?us-ascii?Q?mMZamDdgqJ297YS3h7eIqIu8tczMPWBVGCicT6Oupp27Huu2sq58+PgDlcdt?=
- =?us-ascii?Q?JpYUjbH3qx/+5iQmw87QXPaeMlHYWbMdCg+WZn4Ua6juyzMiaWpDjk2+rFvV?=
- =?us-ascii?Q?/WCZdBBtoPuAR+aVfvgi29kgCg6B2lUvr3TnRzDNuoCPJZEC5ZXYS14QPlzl?=
- =?us-ascii?Q?hzR8Vjxw7DUe/0lktyDYa/ys2qay5jfKtiDHOlTDiHT3vnqpXjT3SDXBq25I?=
- =?us-ascii?Q?YkMiggG9GcuBP46fqQYhmv4fqtKII8JBT/ItYVOzz/UkCNkf4cwqpUVFPOvo?=
- =?us-ascii?Q?vy2eipVk7xp13Nswd3hzlJfAEPxIwFwCj648BXybNaxMnX6fZE9fNVY9pbxF?=
- =?us-ascii?Q?U18Lyvp1wA7IbpBFZWCA4ogMTDm5bwe6ODST3tX2XjD0rW4H/gRg7yDk8+Ic?=
- =?us-ascii?Q?8Lns6stwnHUOfwATqGdw4wDj7Cf7deC7Cs5U6WY2HAxYxofoxb2nOnaK7DXr?=
- =?us-ascii?Q?z9oWDyN1G3ZZ/r2hz8o+gGgGI1wBllLKpHeSeO+0QbEKZDL0ErNVdw0USQhS?=
- =?us-ascii?Q?vczfXw/ixiHe/LvctoWR3kBjhnjN2xvN53c5JQhwBrmJS10AkfUx399tIZOm?=
- =?us-ascii?Q?ahHHGFfzvrHrrG6O3lOCl29J/kNlErh+w8kF6UBx7N3apLLg9n/aG6KDChJC?=
- =?us-ascii?Q?0mUmah7fzmOvErhI9+V7etPgP7zbE+JF82uZvvmWOIynRduhKxMdUhr+fuOE?=
- =?us-ascii?Q?R7YqIyyahwzVvX8uZxyD/QGEZmmERTUIeXHk0V8810tvfFed83rxMMGQi/E4?=
- =?us-ascii?Q?57CFBmi0/IF7OsvdiQmvUVtxHc6cHMQU/0/+3jBJHkEi7r1XgwJHq5j3Ym4q?=
- =?us-ascii?Q?Pcjhx1Cwsp81x4P+PJ1bBS28JzOOSrhOqVgVu0jF/KH0ed/pTCt56PXwI2mJ?=
- =?us-ascii?Q?Bb/l1F23mVKn9w+rnnrXE/DQ8Eorj3EzSIydYZT8beQJbyigY93qctxun5D4?=
- =?us-ascii?Q?n+2gEb0hCMsbAQpeS1usYSadPzbuqHG5aW/QGktECI7H+t1y6JoE6Qi4AP4K?=
- =?us-ascii?Q?cwxaag=3D=3D?=
+	=?us-ascii?Q?vhKNUJS4s3rlhHFLFjmHTtokjcIQGkwoU+jeKIkz5IfgnQAXOlOx3CPMnFrK?=
+ =?us-ascii?Q?i7aUWqRhTDbHnCT8hRyIxshjTUZI1qDn7N4Fcd4DlrFVrCt42Uyy8F97tCsI?=
+ =?us-ascii?Q?Mb9he4rckLKAcBo/MVirZiKuuPwG3h5L1WOe3H2Pytvq++yYDu1ZPSjO3Dli?=
+ =?us-ascii?Q?dgTOLMlH/outeQhe7czBuGFNg/3ya6JO9/tZiAY0fPJckYwV9r7EsEL/64kz?=
+ =?us-ascii?Q?PrIl3oOX5EtekLBpIB2OeA8301R5+ZR/bZu3tkT4z+8NPxwH5eoVDMcrka/U?=
+ =?us-ascii?Q?MiVt4O6RNFPRHTu8L2djxPELAnU0+Ery1HvjQh++bt/eLdYb7FUxJGBINcSE?=
+ =?us-ascii?Q?etybFaxf+bBgATgzUHnilz439HL9BlBThM/py3c+IFwQcZ4PigMQ9ZAMRnV2?=
+ =?us-ascii?Q?h0rJrcf2yWZWs2zibZ6bLbZuClfD+lZLSTSwDjIIfN2+My/39IiLx2hNRpOk?=
+ =?us-ascii?Q?Jzglt6kn3mfjBNK/ShZj5YbNt5zKIY+jTbgZteyvQK8pEuQFd8w3bT+ImW3B?=
+ =?us-ascii?Q?7CJO2TCLJqduoZ6ipSnP8jxo1vf+lJwwOGdLt2EPIfxrOd8XthcIOdunynE4?=
+ =?us-ascii?Q?kwjb8CvVUDUisURadi5h7pQJTI2iMEmCIqJ0iWPxCBvrZMtbLi3bWuR19NTB?=
+ =?us-ascii?Q?9BVGM7ZU+JbMQIVJCjnMCaP1Ws6jKevSBedkdPUsbIgxDCJwl3IGTzZSbq4n?=
+ =?us-ascii?Q?HnaNdY/vzoueLiDujGgMAEbRtisRJSkCNF6XhRWE7RKuTrjg8vp8iVn8DBDn?=
+ =?us-ascii?Q?2EKucQsxzIWHeSfTktuMEKPp5rH/8fTdXMdGP9E8Fq0ifa4KTWueMU/jETWn?=
+ =?us-ascii?Q?5yk3TJMPBMlSYFf/QvvfD3XTL1aYfFb5QPOCizj3QOtHovsTDpOIwOKwNRBV?=
+ =?us-ascii?Q?40v+TQb1Zs8eEzW38ChLAnuR+rfc3Vuim9cRdBZkGbcRueJjYOj0yrWuvwge?=
+ =?us-ascii?Q?bjTX/XQInuUYRjTj6/vRrHVpNPKXRniraSJUxXMGS/r7Dg6GZW8J0qn6j87r?=
+ =?us-ascii?Q?68SZtKe+GvUS/Mv2cMU6dnxVYb/r8P8pOUxvRmmlYHi650okkGDyIdiUOPGx?=
+ =?us-ascii?Q?084W+6R/0LbdbTPudflIvl7BI4llNS3Wq6u0M6gr6ME3ySdW6t024rTRljAt?=
+ =?us-ascii?Q?N6JGvXSOrX+SNDB9b3aBzv/R3i+RrJNqOD03UjnGWTW3dP25rditmkILsiCN?=
+ =?us-ascii?Q?4xIHwTDcR+9Tf8Ct9IUtVnq5L+mSvjmyweT4lY02d71y8NH2TsHwPvDdIG42?=
+ =?us-ascii?Q?QeK/016q+DmFCssF7ZDEZLv46MLohU46uckDKZKmOlM/hUMDx6BRRihGVWco?=
+ =?us-ascii?Q?jQIzCaiTczxWqPjvZhktaAVbHeFArEnLKIt9z7QAGLv39Bd3vEAMeUquinw6?=
+ =?us-ascii?Q?V+P8lrzO5wkLmqDOqQA8YFzjVeM1zFjmrKqY15Y830KBaO4BNRhud9mtzAcw?=
+ =?us-ascii?Q?kBnD/ZyAXm3+TbFBdQcgdfZ3orcbpnJVa36c841eOlDa9zMoch2m7M09TOYM?=
+ =?us-ascii?Q?h9HTMn8fz8IjDlVZYw5g6oLlE6waerAVEDzk0r0ifW9j12Pjgy04cM/bV+1i?=
+ =?us-ascii?Q?YixnnwM8ZiLeAZ7nfsPQJ1mjX7Kx+bmcWWFsSgx2AYA5hClJSwqSAcOb6C+z?=
+ =?us-ascii?Q?4ZVX2Wfe3VmqF4/Rw6OaxXYQeqkURHvmN197WsH2nnvSpiThWzh+JQh4JDY7?=
+ =?us-ascii?Q?RQ0kRA=3D=3D?=
 X-Forefront-Antispam-Report:
-	CIP:198.47.23.195;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:lewvzet201.ext.ti.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+	CIP:198.47.21.194;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:flwvzet200.ext.ti.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(376014)(1800799024)(82310400026)(36860700013);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	xK0ARI7hOfFnKt3f8Lr2k+nxsX3zTMTXYHKDy0BTBPPeNXywwWZt2pywSRS5YjdwnpZyBD4qe+joEF7BZzRcZKXShTFJQCef66OHGpb+JdWPDrTwJBEH51ZgTwvxo3AMsN+xKf0fnKh6amFVtD6sdhW9wvqek3fM9kBzUgvwnKiyL5vfdZDTRTpzBAYKYQrH6t0cKJW6xi2CP0/0smN1tP8Ff825OphJWe5B+FysHCPIqdj+Y7P5rMCPgBsY/6YwIKraGutoZM2wmnEs/Og/rsqLRNXFjZ/dc+aLq6RCvoliS0t3GCZKKv0PKZ6FhRU00QbDhN3aaj5qlR/IUUgKedzEN5eOxQUqe7S9c6+IgJT7Q5lT/0LK0kdfFCj/eSMihz6YL3wgn3XfHo3z43vQGmKpFkl4UarpLfSSP5MSajx+Z00RDgEsZ9XPG/ZaZrTd
+	XQr2W/NM60DMJ1TVOwEpb7BCHga7+MR11cDEpAO4ia+JkHG2fSLezUsWKodmhwNjZDZOfpLvMZmcY0T/7KE9OBpN+ukcanceIhludpeJV1b4m6XQPt+bA+kKZfwttQEuSopyOQot/efyZi3yyYP/gCGPf7VRK/8e/twtzvSUmWyVk39e4QDOLcRuNnyLls8Y9+FKq0CvMIItwdx5ChdIcvuXwI26jWy7r1IjWmjuvNFfGIanqgCz+aK8I4otT2M4zSprQPHSVpKRfqksXZNSyG6nCj95DTbjmUoMFFsuBvdbHzi8vCZlP4sZxr+HzxqXIZpLcCe2HwRJOdG8lzu7cJf0VB+hm53RIY0vG+1LYXW9wzhAUxyOIX8Nok5XcghUCOf/QGTqvbt93QwfyOO7bl7nXZbasgLaoadw3KE7Pc4+QJZNR9gz3z9qULtXAE1X
 X-OriginatorOrg: ti.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2026 01:19:40.4885
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2026 01:19:52.0630
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f6069658-1dc9-4617-f23a-08de62c24e14
+X-MS-Exchange-CrossTenant-Network-Message-Id: 340ef421-e1f4-4640-6e6a-08de62c254f9
 X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.23.195];Helo=[lewvzet201.ext.ti.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.21.194];Helo=[flwvzet200.ext.ti.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	SJ1PEPF0000231C.namprd03.prod.outlook.com
+	SJ5PEPF000001EA.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR10MB7953
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS3PR10MB997749
 
-On most K3 SoC's, watchdog reset output is routed to an ESM module
-which can subsequently route the signal to safety master or SoC reset.
-On AM62L [0], the watchdog reset output is routed to the SoC HW reset
-block.
+This allows to configure reaction between NMI and reset for WWD.
 
-This series adds the reacton control to RTI, configures reset reaction
-for am62l_wdt and adds a new ti,am62l-rti-wdt compatible to be used for
-AM62L SoC [0].
+On K3 SoC's other than AM62l, watchdog reset output is routed to
+the ESM module which can subsequently route the signal to safety
+master or SoC reset. On AM62l [0], the watchdog reset output is routed
+to the SoC HW reset block. So, add a new compatible for AM62l to
+add SoC data and configure reaction to reset instead of NMI.
 
-[0] https://www.ti.com/product/AM62L
+[0] https://www.ti.com/lit/pdf/sprujb4
+Signed-off-by: Judith Mendez <jm@ti.com>
+---
+ drivers/watchdog/rti_wdt.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-Judith Mendez (2):
-  dt-bindings: watchdog: ti,rti-wdt: Add ti,am62l-rti-wdt compatible
-  watchdog: rti_wdt: Add reaction control to rti
-
- .../bindings/watchdog/ti,rti-wdt.yaml         |  1 +
- drivers/watchdog/rti_wdt.c                    | 31 ++++++++++++++++---
- 2 files changed, 28 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index be7d7db475911..9b8d2ea2606c3 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -35,7 +35,8 @@
+ #define RTIWWDRXCTRL	0xa4
+ #define RTIWWDSIZECTRL	0xa8
+ 
+-#define RTIWWDRX_NMI	0xa
++#define RTIWWDRXN_RST	0x5
++#define RTIWWDRXN_NMI	0xa
+ 
+ #define RTIWWDSIZE_50P		0x50
+ #define RTIWWDSIZE_25P		0x500
+@@ -63,22 +64,29 @@
+ 
+ static int heartbeat;
+ 
++struct rti_wdt_data {
++	bool reset;
++};
++
+ /*
+  * struct to hold data for each WDT device
+  * @base - base io address of WD device
+  * @freq - source clock frequency of WDT
+  * @wdd  - hold watchdog device as is in WDT core
++ * @data - hold configuration data
+  */
+ struct rti_wdt_device {
+ 	void __iomem		*base;
+ 	unsigned long		freq;
+ 	struct watchdog_device	wdd;
++	const struct rti_wdt_data *data;
+ };
+ 
+ static int rti_wdt_start(struct watchdog_device *wdd)
+ {
+ 	u32 timer_margin;
+ 	struct rti_wdt_device *wdt = watchdog_get_drvdata(wdd);
++	u8 reaction;
+ 	int ret;
+ 
+ 	ret = pm_runtime_resume_and_get(wdd->parent);
+@@ -101,8 +109,12 @@ static int rti_wdt_start(struct watchdog_device *wdd)
+ 	 */
+ 	wdd->min_hw_heartbeat_ms = 520 * wdd->timeout + MAX_HW_ERROR;
+ 
+-	/* Generate NMI when wdt expires */
+-	writel_relaxed(RTIWWDRX_NMI, wdt->base + RTIWWDRXCTRL);
++	/* Generate reset or NMI when timer expires/serviced outside of window */
++	reaction = RTIWWDRXN_NMI;
++	if (wdt->data->reset)
++		reaction = RTIWWDRXN_RST;
++
++	writel_relaxed(reaction, wdt->base + RTIWWDRXCTRL);
+ 
+ 	/* Open window size 50%; this is the largest window size available */
+ 	writel_relaxed(RTIWWDSIZE_50P, wdt->base + RTIWWDSIZECTRL);
+@@ -254,6 +266,8 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 	wdd->timeout = DEFAULT_HEARTBEAT;
+ 	wdd->parent = dev;
+ 
++	wdt->data = of_device_get_match_data(dev);
++
+ 	watchdog_set_drvdata(wdd, wdt);
+ 	watchdog_set_nowayout(wdd, 1);
+ 	watchdog_set_restart_priority(wdd, 128);
+@@ -361,8 +375,17 @@ static void rti_wdt_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(&pdev->dev);
+ }
+ 
++static struct rti_wdt_data j7_wdt = {
++	.reset = false,
++};
++
++static struct rti_wdt_data am62l_wdt = {
++	.reset = true,
++};
++
+ static const struct of_device_id rti_wdt_of_match[] = {
+-	{ .compatible = "ti,j7-rti-wdt", },
++	{ .compatible = "ti,j7-rti-wdt", .data = &j7_wdt },
++	{ .compatible = "ti,am62l-rti-wdt", .data = &am62l_wdt },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rti_wdt_of_match);
 -- 
 2.52.0
 
