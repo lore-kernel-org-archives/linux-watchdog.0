@@ -1,73 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF183290AC;
-	Fri, 27 Feb 2026 07:30:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34EE03290BE;
+	Fri, 27 Feb 2026 07:31:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.154.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772177413; cv=none; b=Yhs/xCkKfdWdWo7z4N6J2Z1656R29MIZgU8KPhb+MaXVpu3agBBArpY/0MO9W9S8XtnIkPrV5vAc3E17TM01ELGnvR6gvQYrQjOT4qEeWYLjJ+Et37/j3AmYOQQ0fIURBJL8px03nf8jhPM96DMHPv509tWR6VZJcwQfQ4+/o7w=
+	t=1772177498; cv=none; b=E4TSVd4cFhinw5+EcG1o6AYvqP0gR2oYGC8fBmgvK2+Ht2zU5/YPKlBNkGyp41JZcHG0/Vcw1MChR1obr9Z4vJHvRc2EcktRNG2lhcxptjPfjlkekV3FwzgvjHoWD2AHIidgZ6doZYdc/MnqhUPbgDB7UNzy25HcHA4o975OwzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772177413; c=relaxed/simple;
-	bh=WbseMljo/rkQ1e2rnUj2iSBuJ+yjrP6vtPmOk7gk+WE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N7wb8ijgeSPp7cRR8u5rT6uLLRiK75REoTEoSTgtUG+6uMbFqbBaE8aOjcRcsQgANt3AgkwnhcO3KaAvt400kAsSRL0N8TikIaCrM8oWQ0djLFwR3UWDUkrrRcTlmTH2ed3G4l6cbgdUCMqQJihWZTHI3/tatyKiQPQ3XjbQ67E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PWrQ6qaD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772177498; c=relaxed/simple;
+	bh=dDaFwFVDAxlGWqUqbdgTb/VkU5CFjGwdHAfU4ODBCtg=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pUh26aLdD23EbGjgUmCgyQ0Ixg311hpeuzMVh8nNB8U/to8CxgII0IF9P2V8LawLK+bPmMSonMwJ4DC1fy67ois4jUkqff/67EB1wLC9FTLo9KAYpDNZv80LNBYzqWpWJj8tTWZHR54kBseGHt4gKylVwohdsXT8aZulMwaxPJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=AXN8xjFn; arc=none smtp.client-ip=68.232.154.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PWrQ6qaD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C39C116C6;
-	Fri, 27 Feb 2026 07:30:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772177413;
-	bh=WbseMljo/rkQ1e2rnUj2iSBuJ+yjrP6vtPmOk7gk+WE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PWrQ6qaD5MIguuYtoFb1yYNSpBnJAu1efNHeVZ5lLmAOvMmb4DEFOTmJg2nIkC4f0
-	 kToVgZZPfwBB0nGDGs4wMswg4XJnokNSWOZIVld51cZKfLBj1Sd1zwxCzcG2NGm6qz
-	 ZCOFyJ3mamI0OwHBN5oa8vNlhNf0q599Z/tOQKHj0WNR8UMzbpdywftApTfMQj6Vhj
-	 sLagUgQbItP8v/B3TRQg0fCJQn50Ov2lbD1kN8pQ3xLonNwzpGbDlqAz1PTqjw9zLk
-	 wgqGyPW2lyN3J5o4wDgViEkivkKVSsadU8fN2uRQHzItXey0pmLAG7+cHnPhZ+ekYa
-	 n/Tdqil2z/iHA==
-Date: Fri, 27 Feb 2026 08:30:10 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rajendra Nayak <quic_rjendra@quicinc.com>, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v8 1/5] dt-bindings: sram: describe the IPQ5424 IMEM as
- mmio-sram
-Message-ID: <20260227-sexy-aquamarine-agama-0d2feb@quoll>
-References: <20260226-wdt_reset_reason-v8-0-011c3a8cb6ff@oss.qualcomm.com>
- <20260226-wdt_reset_reason-v8-1-011c3a8cb6ff@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="AXN8xjFn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1772177497; x=1803713497;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=dDaFwFVDAxlGWqUqbdgTb/VkU5CFjGwdHAfU4ODBCtg=;
+  b=AXN8xjFnMDR9Z8fbUgXHS3xFBHFUuNeX7DZDrK1kBz6yrMCeVW4deT+M
+   pIo8TFqUiqPV4iACTFKUS+Krb/Icl2SRqQPhQ0hio+gWbCClZNbboWWCx
+   pvBHGU7nN/zq8AndF0ldclwT/pjYpn/WdceTKsY9otqvtAKEbzvcH4wcv
+   0KFqbCnfMtiUsiSY3PDiaNzKrUrD9r2od8AwaTGguxQLVjqXxKKjqXBg1
+   2M9uqhtOFsMmVjpUnsCHkK+zEwsA70pyHGpczCfLm+Hqxh+A/bSVpiTB+
+   KxRtHIoMzYvg98yHvcwoZFy5/LkHBUXQJIQ9xBi7nwsKGzA/+CCfJnNvY
+   g==;
+X-CSE-ConnectionGUID: vpDQk4TsSECHsMOlyQZBaw==
+X-CSE-MsgGUID: fgIAV63zSnubCMpkLe64ng==
+X-IronPort-AV: E=Sophos;i="6.21,313,1763449200"; 
+   d="scan'208";a="221239577"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa6.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 27 Feb 2026 00:31:36 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.58; Fri, 27 Feb 2026 00:31:21 -0700
+Received: from che-ll-i71840.microchip.com (10.10.85.11) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
+ 15.1.2507.58 via Frontend Transport; Fri, 27 Feb 2026 00:31:17 -0700
+From: Balakrishnan Sambath <balakrishnan.s@microchip.com>
+To: <wim@linux-watchdog.org>, <linux@roeck-us.net>
+CC: <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
+	<claudiu.beznea@tuxon.dev>, <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	Balakrishnan Sambath <balakrishnan.s@microchip.com>
+Subject: [PATCH 0/3] watchdog: at91/sama5d4: header cleanup and driver refactor
+Date: Fri, 27 Feb 2026 13:01:13 +0530
+Message-ID: <20260227073116.30447-1-balakrishnan.s@microchip.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260226-wdt_reset_reason-v8-1-011c3a8cb6ff@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-On Thu, Feb 26, 2026 at 10:29:36PM +0530, Kathiravan Thirumoorthy wrote:
-> IMEM shouldn=E2=80=99t be treated as a syscon or simple-mfd because it=E2=
-=80=99s really
-> just on=E2=80=91chip SRAM, not a block of control registers or a device w=
-ith
-> multiple hardware functions.
->=20
-> Describing it as generic mmio=E2=80=91sram keeps the model simple and clo=
-ser to
-> what the hardware actually is.
->=20
-> Signed-off-by: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualc=
-omm.com>
-> ---
+This series cleans up the AT91 watchdog header and refactors the
+sama5d4 watchdog driver.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+The header reorganization introduces consistent register naming and
+makes the WDDIS bit handling explicit for modern (SAM9X60, SAMA7G5,
+SAM9X7) and legacy (SAMA5, AT91SAM9261) SoCs. The driver refactor
+improves readability and fixes the reset regression introduced by
+commit 266da53c35fc ("watchdog: sama5d4: readout initial state").
 
-Best regards,
-Krzysztof
+Andrei Simion (2):
+  watchdog: at91sam9_wdt.h: Cleanup the header file
+  watchdog: sama5d4_wdt: Refactor the driver
+
+Balakrishnan Sambath (1):
+  watchdog: at91sam9_wdt: Rename AT91_WDT_WDDIS to AT91_WDT_WDDIS_LEGACY
+
+ drivers/watchdog/at91sam9_wdt.c |   8 +-
+ drivers/watchdog/at91sam9_wdt.h |  65 +++++++------
+ drivers/watchdog/sama5d4_wdt.c  | 156 ++++++++++++++++----------------
+ 3 files changed, 113 insertions(+), 116 deletions(-)
+
+-- 
+2.34.1
 
