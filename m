@@ -1,35 +1,35 @@
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE932D839B;
-	Sat, 28 Feb 2026 01:04:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 056242D73BD;
+	Sat, 28 Feb 2026 01:04:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772240649; cv=none; b=cnk0csbpdODQUUXb/TLKfCeoOfGnR6V+ctJdr8Ra2Yt8UGR2kA7nz2Uv8yA3gxckmufdRelS23dAW5IfHTs9L1v8WY4PSPzwQt0YGvY1lLI4CKu+1nHL9VurngDyj6J/hijM934Tcht+CWeHFOh25CcImSFl75kPYzPXqaC0DOg=
+	t=1772240650; cv=none; b=MsNsFbHRVel8Z0rD20B/pRtBr8XoagENZZLZwkxpl8R0frLZkFO/4BqBiG6ZNg3wd7H6biTmdpXfxstWAuB9H0Vk9OVv7e6+f2UimSle7HSxrqJoZ9JguLJj9o1iCqj5Xvud7grSU2w+95yxnfnr3IVJR1IR+iqexX9RqMCB6eQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772240649; c=relaxed/simple;
-	bh=rY4IlC/9+j7O1q//Be/27tic1bY/AHdhYFEJ2X/S5UI=;
+	s=arc-20240116; t=1772240650; c=relaxed/simple;
+	bh=iUtvJwJkLpvlzpAMej+Iu5UtThelJl1DSiHdb8NGr8U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CYTYxHW+j/2yovBVm+fT2QJAfBPRYtHZ797Kc4BBNm/79onwUtj/POPEaol2XE2TztFG4xMebVRsoeMyNHtA3dUz8lzgt7P2uAcUJtsTWHINLFgW7r7xgbypPipFNH23M/T9u/myzydA7vIdcyyPhmccqQGU3BcobwUqELYGre4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MC49xDum; arc=none smtp.client-ip=198.137.202.133
+	 MIME-Version; b=V4BGyWG2JVlhKIQ4d0hnwpfoMrfHwoMr1/9aMlQBbbYVpydgUViyIye79a2X+q5MIbhg4md6W+0181UmIJS/CqhsXkQJG5g2tBPvBpbOrJPGTcSmllBHIGXI7D850TMxCkp5rheU/sOi4+3JDGnACq6mZuXpv56Kr6Ghl3vHlBw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DxsuLAhp; arc=none smtp.client-ip=198.137.202.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MC49xDum"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DxsuLAhp"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=Ncg1Cg97cuYjXJjxmO2TWQjS13k8RVZHQbLYYSs/J+4=; b=MC49xDumiGwUs5ozIxAvQqHW9e
-	GzEnUa/w/LRwF2LVPvzF+KLStY3sCztMiNFAZxjMAV0IeUJ8JyibpNWfFe5OfoEwkWG+9f4sG7SLL
-	v10Q/LU2gzTyxbddBN8Y0mHjoIRcvoCT9cuDKHBJFPL+eqEA4ABh+vjQ4ZtMYM9EkwTd8Ibvjj3Wg
-	JIY/FhxwklxjsWN3eHnEZVZGZ9wmCNIqmE5JOte3q8ZYT+E5L4ACnkTbVnrzxUNTlrc6Jl/Vwc9E+
-	l4km+Ma71I5pxOV/8dXNkW8dVWWrCckeuG9R1fuJpLKzxtukxkk1JuZhmhwvZW5kldbKhbU6qIv58
-	wxxxLopA==;
+	bh=9OW/nFvTXOKCQg+GiHw9GXlXZyUXAnFEY2zE5a54aGU=; b=DxsuLAhpWJGOk8DgyMAuClUZ33
+	nFTLxXhxO3xDGqmrdaQz6qDPBLU31YlXW5FGiLF//BT9HaNZoF5sYJCpqi7iKlr3M1KUn8+S+oXuA
+	otRgQti2RioirjgVvipvkZ0FAVvC1Uf9Vf2ZeyaqvQwtFGIGggu8xEd6MP9y0CzEJy0N3ZMsjKY7P
+	vH2Qb3e15SCQu8B1UdboryLF2vRPoIzG/0xWQpdkTlbYyej2jz02JvZ2XyRPMV1d6vL2n6mJC0ZVP
+	unRwZYqi4e+yp130I+WV1LCoWQi4qOSpJq2qQXbFTsa78aw1x1H+f0xTUVh+7EuVz+j43WQgsJlLI
+	K4ux/+nA==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vw8kX-00000009Mfc-2BMW;
-	Sat, 28 Feb 2026 01:04:05 +0000
+	id 1vw8kW-00000009Mfc-2TZL;
+	Sat, 28 Feb 2026 01:04:04 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: Randy Dunlap <rdunlap@infradead.org>,
@@ -39,9 +39,9 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-doc@vger.kernel.org
-Subject: [PATCH 3/5] docs: watchdog-api: general cleaning
-Date: Fri, 27 Feb 2026 17:04:00 -0800
-Message-ID: <20260228010402.2389343-4-rdunlap@infradead.org>
+Subject: [PATCH 1/5] docs: watchdog: mlx-wdt: small fixes
+Date: Fri, 27 Feb 2026 17:03:58 -0800
+Message-ID: <20260228010402.2389343-2-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260228010402.2389343-1-rdunlap@infradead.org>
 References: <20260228010402.2389343-1-rdunlap@infradead.org>
@@ -53,9 +53,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Correct some grammar, punctuation, and capitalization mistakes.
-
-Drop extra words in printf() calls [likely a copy-paste error].
+Correct some grammar and spelling mistakes in mlx-wdt.rst.
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 ---
@@ -66,155 +64,26 @@ Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-doc@vger.kernel.org
 
- Documentation/watchdog/watchdog-api.rst |   38 +++++++++++-----------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ Documentation/watchdog/mlx-wdt.rst |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-next-20260226.orig/Documentation/watchdog/watchdog-api.rst
-+++ linux-next-20260226/Documentation/watchdog/watchdog-api.rst
-@@ -39,12 +39,12 @@ The simplest API
+--- linux-next-20260226.orig/Documentation/watchdog/mlx-wdt.rst
++++ linux-next-20260226/Documentation/watchdog/mlx-wdt.rst
+@@ -28,7 +28,7 @@ Type 3:
+   Same as Type 2 with extended maximum timeout period.
+   Maximum timeout is 65535 sec.
  
- All drivers support the basic mode of operation, where the watchdog
- activates as soon as /dev/watchdog is opened and will reboot unless
--the watchdog is pinged within a certain time, this time is called the
-+the watchdog is pinged within a certain time; this time is called the
- timeout or margin.  The simplest way to ping the watchdog is to write
- some data to the device.  So a very simple watchdog daemon would look
- like this source file:  see samples/watchdog/watchdog-simple.c
+-Type 1 HW watchdog implementation exist in old systems and
++Type 1 HW watchdog implementation exists in old systems and
+ all new systems have type 2 HW watchdog.
+ Two types of HW implementation have also different register map.
  
--A more advanced driver could for example check that a HTTP server is
-+A more advanced driver could for example check that an HTTP server is
- still responding before doing the write call to ping the watchdog.
+@@ -48,7 +48,7 @@ which is optional.
+ Watchdog can be started during a probe, in this case it will be
+ pinged by watchdog core before watchdog device will be opened by
+ user space application.
+-Watchdog can be initialised in nowayout way, i.e. oncse started
++Watchdog can be initialised in nowayout mode, i.e. once started
+ it can't be stopped.
  
- When the device is closed, the watchdog is disabled, unless the "Magic
-@@ -87,13 +87,13 @@ replaced with::
- 		sleep(10);
- 	}
- 
--the argument to the ioctl is ignored.
-+The argument to the ioctl is ignored.
- 
- Setting and getting the timeout
- ===============================
- 
- For some drivers it is possible to modify the watchdog timeout on the
--fly with the SETTIMEOUT ioctl, those drivers have the WDIOF_SETTIMEOUT
-+fly with the SETTIMEOUT ioctl; those drivers have the WDIOF_SETTIMEOUT
- flag set in their option field.  The argument is an integer
- representing the timeout in seconds.  The driver returns the real
- timeout used in the same variable, and this timeout might differ from
-@@ -110,7 +110,7 @@ Starting with the Linux 2.4.18 kernel, i
- current timeout using the GETTIMEOUT ioctl::
- 
-     ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
--    printf("The timeout was is %d seconds\n", timeout);
-+    printf("The timeout is %d seconds\n", timeout);
- 
- Pretimeouts
- ===========
-@@ -133,7 +133,7 @@ seconds.  Setting a pretimeout to zero d
- There is also a get function for getting the pretimeout::
- 
-     ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout);
--    printf("The pretimeout was is %d seconds\n", timeout);
-+    printf("The pretimeout is %d seconds\n", timeout);
- 
- Not all watchdog drivers will support a pretimeout.
- 
-@@ -145,13 +145,13 @@ before the system will reboot. The WDIOC
- that returns the number of seconds before reboot::
- 
-     ioctl(fd, WDIOC_GETTIMELEFT, &timeleft);
--    printf("The timeout was is %d seconds\n", timeleft);
-+    printf("The timeout is %d seconds\n", timeleft);
- 
- Environmental monitoring
- ========================
- 
--All watchdog drivers are required return more information about the system,
--some do temperature, fan and power level monitoring, some can tell you
-+All watchdog drivers are required to return more information about the system.
-+Some do temperature, fan and power level monitoring; some can tell you
- the reason for the last reboot of the system.  The GETSUPPORT ioctl is
- available to ask what the device can do::
- 
-@@ -166,7 +166,7 @@ the fields returned in the ident struct
- 	options			a flags describing what the device supports
- 	================	=============================================
- 
--the options field can have the following bits set, and describes what
-+The options field can have the following bits set, and describes what
- kind of information that the GET_STATUS and GET_BOOT_STATUS ioctls can
- return.
- 
-@@ -175,13 +175,13 @@ return.
- 	================	=========================
- 
- The machine was last rebooted by the watchdog because the thermal limit was
--exceeded:
-+exceeded.
- 
- 	==============		==========
- 	WDIOF_FANFAULT		Fan failed
- 	==============		==========
- 
--A system fan monitored by the watchdog card has failed
-+A system fan monitored by the watchdog card has failed.
- 
- 	=============		================
- 	WDIOF_EXTERN1		External relay 1
-@@ -195,26 +195,26 @@ a reset.
- 	WDIOF_EXTERN2		External relay 2
- 	=============		================
- 
--External monitoring relay/source 2 was triggered
-+External monitoring relay/source 2 was triggered.
- 
- 	================	=====================
- 	WDIOF_POWERUNDER	Power bad/power fault
- 	================	=====================
- 
--The machine is showing an undervoltage status
-+The machine is showing an undervoltage status.
- 
- 	===============		=============================
- 	WDIOF_CARDRESET		Card previously reset the CPU
- 	===============		=============================
- 
--The last reboot was caused by the watchdog card
-+The last reboot was caused by the watchdog card.
- 
- 	================	=====================
- 	WDIOF_POWEROVER		Power over voltage
- 	================	=====================
- 
- The machine is showing an overvoltage status. Note that if one level is
--under and one over both bits will be set - this may seem odd but makes
-+under and one over, both bits will be set - this may seem odd but makes
- sense.
- 
- 	===================	=====================
-@@ -227,12 +227,14 @@ The watchdog saw a keepalive ping since
- 	WDIOF_SETTIMEOUT	Can set/get the timeout
- 	================	=======================
- 
--The watchdog can do pretimeouts.
-+The watchdog can get/set the timeout.
- 
- 	================	================================
- 	WDIOF_PRETIMEOUT	Pretimeout (in seconds), get/set
- 	================	================================
- 
-+The watchdog can do pretimeouts.
-+
- 
- For those drivers that return any bits set in the option field, the
- GETSTATUS and GETBOOTSTATUS ioctls can be used to ask for the current
-@@ -255,7 +257,7 @@ returned value is the temperature in deg
-     ioctl(fd, WDIOC_GETTEMP, &temperature);
- 
- Finally the SETOPTIONS ioctl can be used to control some aspects of
--the cards operation::
-+the card's operation::
- 
-     int options = 0;
-     ioctl(fd, WDIOC_SETOPTIONS, &options);
+ This mlx-wdt driver supports both HW watchdog implementations.
