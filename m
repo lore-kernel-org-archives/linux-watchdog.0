@@ -1,34 +1,35 @@
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1899A2D7DE2;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 121EC2D7DC4;
 	Sat, 28 Feb 2026 01:04:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772240648; cv=none; b=IyJj1G9b35MzdgONhiTfCOOf11Cbd4eNRKFREcS0jjnbhKZwrGUMVW3DgsBllqoFudbuEcFELiDYgf/KU84cymVoEVVTXwDU1wMg17lyY7Wcvr90yROj5C6QXuSY+yLlws57Hj+MIG5I+mz9jtFgURXWdRC/AXYlkYMaXUlpCqs=
+	t=1772240649; cv=none; b=GxTRSJXW3/7DIQvYtzNhkWBAh3vJchtK59oA2ntQIi7NAiUC3hLvnovW4WzFgNNvuAe7ttWLwc2P8clFc3ECW91a/O53VfKlhQErNP/DKNZHOj6bbMCtj7RWz/kKa5wNfT+EE64KxppBkUUAGdw8EYZEQPwmhK4Is2mtGwjzFyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772240648; c=relaxed/simple;
-	bh=pW7X3JCUSNB0uMRiqnXHeNK7AlBhL0qaQUSs2Be7/Ak=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BETcEhJZ8B/+Kj/MxpgBXM1pleYVQkAgZhJld7Z69pJwzomoRU4jJ9XVamMIEU1QD68IqIanLkcvX6czzc4W9bzLdcXRVTndjw5Ry0DZXhesRmFDsYbn9NJGieRgGY2+Z25iWIWkqdpAAuvseyFxeWxtZiJQPc5PIqEuW7/u7lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=LGxMDNJD; arc=none smtp.client-ip=198.137.202.133
+	s=arc-20240116; t=1772240649; c=relaxed/simple;
+	bh=00gRV/8Tlfk0hyLVN6Lg8+CGZQ7yA/JnPgGu9Mh5PLs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Zd7+6CU0mV8VTzpeOejaJU8nt/YSvm64CbFUP7Ler1WX+QBFaWS77FC6soUsTuqUqrFEJcn5fp7rDdnoaoSF7NYCebZiL7QnxYjdCHjOvtChE2WcfrasPBSE7kC+J3dzTqIly5aMAFKAkO59gpQhLOhv6RrKQMvP82OohTga1+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=At/+89gi; arc=none smtp.client-ip=198.137.202.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="LGxMDNJD"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="At/+89gi"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=op2TlNUursJCsJ2wf8GFZbci6I+s4vOSg2qO5Mu3PCg=; b=LGxMDNJDNUQhAwZ1DZPWz9m2To
-	E819j6WU4byKUn/oGUSQQoyLjUfGegAK4RMlS6cTICinF9g1Cf9em8cjWMRjEp/IqwJpd69K5Tm3X
-	5fHLuIEbn4o1QiTB0+zR2C51PFeIDSEupdm3zZnlTgmHwSSkJr2BN+9Xjjx/82GeFY+bKdeQ/ObL1
-	NGh5JIB97dZKlwP8F7cZp+PT0evHH2J50Br+npgsWcQ0/k0zAr7GH8YyJEsuOjiV+bkis9EbnDxmU
-	aJPinPFWMeyjDpIuSqnn/H7eF/Gak21d75WT9wZktQXcmd8kpm3KQHWbv5SIfB3597T/dyxWewg5t
-	HBWDCOPQ==;
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=SNyF0aeqLbp83Ydce9E3N1h+z2UhPlrjyB1V6Oa1nNY=; b=At/+89giSc+y74I6qqfyOC6aut
+	eCa8Q4LEBXGGkDWMgvWt6a85YO3SE0ewI6N44s1gz6vqIWrTzN+JpYtskjwCAgxO9eBq4qgCOxtEn
+	W0+56cn9/BCUg3CT/UBTn4ezplrF7ixX8Wd9kSCzAM41vhxxbhLDxmBQTiXT62jhacJ2oWC6yZHqy
+	RkCDRAAsUzk++6wuopjQWCMz2Yv4dpPvzGZ0BpgqamPiJMYFTbFv3qR77CeU+3/K2mpI4Ga9BQPiP
+	Q40YAdD/0dmrOH3zJjUvWJquiHuhYQOxO4PW8wXelBxqPDTJ+zSa5oEpescrvkDID4doNETglZol9
+	qNJn46ig==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vw8kV-00000009Mfc-38J3;
-	Sat, 28 Feb 2026 01:04:04 +0000
+	id 1vw8kX-00000009Mfc-0CZ1;
+	Sat, 28 Feb 2026 01:04:05 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: Randy Dunlap <rdunlap@infradead.org>,
@@ -38,10 +39,12 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-doc@vger.kernel.org
-Subject: [PATCH 0/5] docs: watchdog: general cleaning and corrections
-Date: Fri, 27 Feb 2026 17:03:57 -0800
-Message-ID: <20260228010402.2389343-1-rdunlap@infradead.org>
+Subject: [PATCH 2/5] docs: watchdog: pcwd: fix typo and driver info.
+Date: Fri, 27 Feb 2026 17:03:59 -0800
+Message-ID: <20260228010402.2389343-3-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260228010402.2389343-1-rdunlap@infradead.org>
+References: <20260228010402.2389343-1-rdunlap@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -50,25 +53,65 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fix some obvious issues in the watchdog documentation files.
-I didn't try to fix every little niggling mistake.
+Correct a typo and some technical info for the pcwd driver.
 
- [PATCH 1/5] docs: watchdog: mlx-wdt: small fixes
- [PATCH 2/5] docs: watchdog: pcwd: fix typo and driver info.
- [PATCH 3/5] docs: watchdog-api: general cleaning
- [PATCH 4/5] docs: watchdog-kernel-api: general cleanups
- [PATCH 5/5] docs: watchdog-parameters: add missing watchdog_core parameters
-
- Documentation/watchdog/mlx-wdt.rst             |    4 -
- Documentation/watchdog/pcwd-watchdog.rst       |   19 +++++--
- Documentation/watchdog/watchdog-api.rst        |   38 +++++++--------
- Documentation/watchdog/watchdog-kernel-api.rst |   20 +++++--
- Documentation/watchdog/watchdog-parameters.rst |   11 +++-
- 5 files changed, 58 insertions(+), 34 deletions(-)
-
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+---
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: Shuah Khan <skhan@linuxfoundation.org>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-doc@vger.kernel.org
+
+ Documentation/watchdog/pcwd-watchdog.rst |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+--- linux-next-20260226.orig/Documentation/watchdog/pcwd-watchdog.rst
++++ linux-next-20260226/Documentation/watchdog/pcwd-watchdog.rst
+@@ -29,7 +29,7 @@ Documentation and Driver by Ken Hollis <
+  to run the program with an "&" to run it in the background!)
+ 
+  If you want to write a program to be compatible with the PC Watchdog
+- driver, simply use of modify the watchdog test program:
++ driver, simply use or modify the watchdog test program:
+  tools/testing/selftests/watchdog/watchdog-test.c
+ 
+ 
+@@ -37,16 +37,23 @@ Documentation and Driver by Ken Hollis <
+ 
+ 	WDIOC_GETSUPPORT
+ 		This returns the support of the card itself.  This
+-		returns in structure "PCWDS" which returns:
++		returns in structure watchdog_info:
++
++                        identity = "PCWD"
++
++			options = list of supported options::
++                                  WDIOF_OVERHEAT
++                                  WDIOF_CARDRESET
++                                  WDIOF_KEEPALIVEPING
++                                  WDIOF_SETTIMEOUT
++                                  WDIOF_MAGICCLOSE
+ 
+-			options = WDIOS_TEMPPANIC
+-				  (This card supports temperature)
+ 			firmware_version = xxxx
+ 				  (Firmware version of the card)
+ 
+ 	WDIOC_GETSTATUS
+ 		This returns the status of the card, with the bits of
+-		WDIOF_* bitwise-anded into the value.  (The comments
++		WDIOF_* bitwise-ored into the value.  (The comments
+ 		are in include/uapi/linux/watchdog.h)
+ 
+ 	WDIOC_GETBOOTSTATUS
+@@ -55,7 +62,7 @@ Documentation and Driver by Ken Hollis <
+ 
+ 	WDIOC_GETTEMP
+ 		This returns the temperature of the card.  (You can also
+-		read /dev/watchdog, which gives a temperature update
++		read /dev/temperature, which gives a temperature update
+ 		every second.)
+ 
+ 	WDIOC_SETOPTIONS
