@@ -1,316 +1,103 @@
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48803624A5;
-	Mon,  2 Mar 2026 11:33:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 273593A784B;
+	Mon,  2 Mar 2026 12:25:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772451229; cv=none; b=FSxDeBT3c2AvnhUErrzlNd7fVK+/JEsBL3GRCOWMwpT3QGC1i73U+F3qATVQeNTZTDvkxLVWZcNC+WNa1qBpNRV45FwRNIUVwzpL0J+LKRku4RNNFTLvCAlSssPY7jMgeGYe1T7xflK6Jphh9QDVBVcIR/f3L5r7WNKrtMHr0Cg=
+	t=1772454358; cv=none; b=kWlqOOFH2YeidzXEs2obvsc25SkDVeuiVUUc2z0ZPejzhGfopo9YfB5PWc+qBE9llCWVMZP/Qm0pt6uzCBr9qjBRNuI0LQmMAQLluEy+mvxLUeuZvgnVWaKKAfLY+kOoCNnie/oHRgoJevxLecDQTCmGQmyTXyttKUz6QOW2PeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772451229; c=relaxed/simple;
-	bh=Qi6mDeLUYAi34DWMvp/7dxXLg8jcp1nz+M4Ea+q5TZo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NtvT76SNMNQ/DjV6qu+Np5uevKjDw8hIuBcUFUn1wKvxm2FVyvCObGWfdx0/LvZMEE9ENkr/We6EGmR0pvEXfLy5dgSBTo6ri5xKc18hM/dC7mvHN6nKLs3sxMruTYrE8jDa/sTnb38eqiaEeUikchMRAZ6n8TSQphA0YIV3x7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=HjlmunFN; arc=none smtp.client-ip=68.232.153.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
+	s=arc-20240116; t=1772454358; c=relaxed/simple;
+	bh=EJr2Mq3lKojirQvqkCZGmLtZh7IobNepi+pjmnv8tD8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IqRDVm6HHRl6JvbyGKs2T1xLOHwE8792hJOPzuvLzO+iP9L+4olphVXjaA8GXQ/9aIxnjnQJQ44JlIcaWOkUI+5siYKr2w6mWYUtPVVrm4TnFZJe6SyKFVTJhz02D8PMEo2HlRDmTR/TQGXJfMLvc6V69dtdTANRUPjqd9JXUs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GhSANKRD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="HjlmunFN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1772451227; x=1803987227;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Qi6mDeLUYAi34DWMvp/7dxXLg8jcp1nz+M4Ea+q5TZo=;
-  b=HjlmunFNoNCh+AoVK5AGRet6e3Bkr+z+mmw8eaCS67Ed5jKSR3OVDPAy
-   DvsSphLm1MoZSQ2ovBhp1NXomlGDdfE++0Y9GNwEfOv3mJFDXfepUKf2s
-   EtSgjpm3F0lh7kiMa/3ExkkxEX31waR/LQZBYPwEFmJfQXxa0HmSpdVJC
-   rmOpSgtrYTEWC6NX1pvDrV+Z5QDzseODprU0QZ5kP6cZL3mr/dRmDR6U5
-   KJ+wH1fpex2i/LvYevwETp/SlOhzDwRykMlTu1V9/ClAV9xuCz13LTo9R
-   i3dJv9uYruXeIVY2Tq/9PC7q6i1ITPA/nC/fhWk3+xje4xdzsRenzUpio
-   Q==;
-X-CSE-ConnectionGUID: R6kAG1m/QI27bcgiSIY67w==
-X-CSE-MsgGUID: fBBBJlpLRx+h9sHU7QGuEw==
-X-IronPort-AV: E=Sophos;i="6.21,319,1763449200"; 
-   d="scan'208";a="61522905"
-X-Amp-Result: SKIPPED(no attachment in message)
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 02 Mar 2026 04:33:46 -0700
-Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.58; Mon, 2 Mar 2026 04:33:19 -0700
-Received: from che-ll-i71840.microchip.com (10.10.85.11) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
- 15.1.2507.58 via Frontend Transport; Mon, 2 Mar 2026 04:33:15 -0700
-From: Balakrishnan Sambath <balakrishnan.s@microchip.com>
-To: <linux-watchdog@vger.kernel.org>
-CC: <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-	<alexandre.belloni@bootlin.com>, <andrei.simion@microchip.com>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>, Claudiu Beznea
-	<claudiu.beznea@tuxon.dev>, Mathieu Othacehe <othacehe@gnu.org>
-Subject: [PATCH 1/2] watchdog: sama5d4_wdt: Fix WDDIS detection on SAM9X60 and SAMA7G5
-Date: Mon, 2 Mar 2026 17:03:09 +0530
-Message-ID: <20260302113310.133989-2-balakrishnan.s@microchip.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260302113310.133989-1-balakrishnan.s@microchip.com>
-References: <20260302113310.133989-1-balakrishnan.s@microchip.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GhSANKRD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8546C2BCB1;
+	Mon,  2 Mar 2026 12:25:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772454357;
+	bh=EJr2Mq3lKojirQvqkCZGmLtZh7IobNepi+pjmnv8tD8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=GhSANKRDBvuspzgx+8jGlOgR4kTQBYjLlQmESWiyEqr7otJV9+z55JUwcB4kAJJul
+	 gUcXYad8pHjh4kd34QkTpNQAkpHHngA1LiQKnklMtIS1yyw9q0/ZWft3HJjnX1yT6k
+	 wqjlL4r88EJIxlTd5ycfpppZ9ju5mc5QVPehi6S7rRKt+v2S5dGhy5m0Qf9uCEWh/Y
+	 dHYxQJnHmGOhnxv1mHwbxg93YfeyB5x/a9fJkvUUwG451sWeW0QQXIiyiU21xDg6Wl
+	 q38sanNbqro8/GcxD3XkO0eguZInS/5Tarujo8Sg+4KiKqV6G7SlP6POieY77d4BUL
+	 UO1iFt0SvGKxw==
+From: Michael Walle <mwalle@kernel.org>
+To: Nishanth Menon <nm@ti.com>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Tero Kristo <kristo@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	Michael Walle <mwalle@kernel.org>
+Subject: [PATCH v2 0/7] Remove the Kontron SMARC-sAM67 board
+Date: Mon,  2 Mar 2026 13:24:45 +0100
+Message-ID: <20260302122540.1377444-1-mwalle@kernel.org>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 
-The driver hardcoded AT91_WDT_WDDIS (bit 15) in wdt_enabled and the
-probe initial state readout. SAM9X60 and SAMA7G5 use bit 12
-(AT91_SAM9X60_WDDIS), causing incorrect WDDIS detection.
+I was informed two weeks ago that this product is discontinued
+(without being ever released to the market). Unfortunately, this
+collided with the merge window and I had to wait two more weeks.
 
-Introduce a per-device wddis_mask field to select the correct WDDIS
-bit based on the compatible string.
+Pull the plug and let's not waste any more maintainers time.
 
-Fixes: 266da53c35fc ("watchdog: sama5d4: readout initial state")
-Co-developed-by: Andrei Simion <andrei.simion@microchip.com>
-Signed-off-by: Andrei Simion <andrei.simion@microchip.com>
-Signed-off-by: Balakrishnan Sambath <balakrishnan.s@microchip.com>
----
- drivers/watchdog/sama5d4_wdt.c | 48 +++++++++++++++-------------------
- 1 file changed, 21 insertions(+), 27 deletions(-)
+On the bright side, the board upstreaming brought some driver fixes,
+too. I'm really sorry for any wasted time.
 
-diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 13e72918338a..704b786cc2ec 100644
---- a/drivers/watchdog/sama5d4_wdt.c
-+++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -24,37 +24,41 @@
- #define WDT_DEFAULT_TIMEOUT	MAX_WDT_TIMEOUT
- 
- #define WDT_SEC2TICKS(s)	((s) ? (((s) << 8) - 1) : 0)
- 
- struct sama5d4_wdt {
- 	struct watchdog_device	wdd;
- 	void __iomem		*reg_base;
- 	u32			mr;
- 	u32			ir;
-+	u32			wddis_mask;
- 	unsigned long		last_ping;
- 	bool			need_irq;
- 	bool			sam9x60_support;
- };
- 
- static int wdt_timeout;
- static bool nowayout = WATCHDOG_NOWAYOUT;
- 
- module_param(wdt_timeout, int, 0);
- MODULE_PARM_DESC(wdt_timeout,
- 	"Watchdog timeout in seconds. (default = "
- 	__MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
- 
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout,
- 	"Watchdog cannot be stopped once started (default="
- 	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
--#define wdt_enabled (!(wdt->mr & AT91_WDT_WDDIS))
-+static inline bool wdt_enabled(struct sama5d4_wdt *wdt)
-+{
-+	return !(wdt->mr & wdt->wddis_mask);
-+}
- 
- #define wdt_read(wdt, field) \
- 	readl_relaxed((wdt)->reg_base + (field))
- 
- /* 4 slow clock periods is 4/32768 = 122.07µs*/
- #define WDT_DELAY	usecs_to_jiffies(123)
- 
- static void wdt_write(struct sama5d4_wdt *wdt, u32 field, u32 val)
- {
-@@ -75,55 +79,49 @@ static void wdt_write_nosleep(struct sama5d4_wdt *wdt, u32 field, u32 val)
- 		udelay(123);
- 	writel_relaxed(val, wdt->reg_base + field);
- 	wdt->last_ping = jiffies;
- }
- 
- static int sama5d4_wdt_start(struct watchdog_device *wdd)
- {
- 	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
- 
--	if (wdt->sam9x60_support) {
-+	if (wdt->sam9x60_support)
- 		writel_relaxed(wdt->ir, wdt->reg_base + AT91_SAM9X60_IER);
--		wdt->mr &= ~AT91_SAM9X60_WDDIS;
--	} else {
--		wdt->mr &= ~AT91_WDT_WDDIS;
--	}
-+	wdt->mr &= ~wdt->wddis_mask;
- 	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
- 
- 	return 0;
- }
- 
- static int sama5d4_wdt_stop(struct watchdog_device *wdd)
- {
- 	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
- 
--	if (wdt->sam9x60_support) {
-+	if (wdt->sam9x60_support)
- 		writel_relaxed(wdt->ir, wdt->reg_base + AT91_SAM9X60_IDR);
--		wdt->mr |= AT91_SAM9X60_WDDIS;
--	} else {
--		wdt->mr |= AT91_WDT_WDDIS;
--	}
-+	wdt->mr |= wdt->wddis_mask;
- 	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
- 
- 	return 0;
- }
- 
- static int sama5d4_wdt_ping(struct watchdog_device *wdd)
- {
- 	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
- 
- 	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
- 
- 	return 0;
- }
- 
- static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
--				 unsigned int timeout)
-+				    unsigned int timeout)
- {
- 	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
- 	u32 value = WDT_SEC2TICKS(timeout);
- 
- 	if (wdt->sam9x60_support) {
- 		wdt_write(wdt, AT91_SAM9X60_WLR,
- 			  AT91_SAM9X60_SET_COUNTER(value));
- 
- 		wdd->timeout = timeout;
-@@ -134,20 +132,20 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
- 	wdt->mr |= AT91_WDT_SET_WDV(value);
- 
- 	/*
- 	 * WDDIS has to be 0 when updating WDD/WDV. The datasheet states: When
- 	 * setting the WDDIS bit, and while it is set, the fields WDV and WDD
- 	 * must not be modified.
- 	 * If the watchdog is enabled, then the timeout can be updated. Else,
- 	 * wait that the user enables it.
- 	 */
--	if (wdt_enabled)
--		wdt_write(wdt, AT91_WDT_MR, wdt->mr & ~AT91_WDT_WDDIS);
-+	if (wdt_enabled(wdt))
-+		wdt_write(wdt, AT91_WDT_MR, wdt->mr & ~wdt->wddis_mask);
- 
- 	wdd->timeout = timeout;
- 
- 	return 0;
- }
- 
- static const struct watchdog_info sama5d4_wdt_info = {
- 	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
- 	.identity = "Atmel SAMA5D4 Watchdog",
-@@ -178,22 +176,19 @@ static irqreturn_t sama5d4_wdt_irq_handler(int irq, void *dev_id)
- 	}
- 
- 	return IRQ_HANDLED;
- }
- 
- static int of_sama5d4_wdt_init(struct device_node *np, struct sama5d4_wdt *wdt)
- {
- 	const char *tmp;
- 
--	if (wdt->sam9x60_support)
--		wdt->mr = AT91_SAM9X60_WDDIS;
--	else
--		wdt->mr = AT91_WDT_WDDIS;
-+	wdt->mr = wdt->wddis_mask;
- 
- 	if (!of_property_read_string(np, "atmel,watchdog-type", &tmp) &&
- 	    !strcmp(tmp, "software"))
- 		wdt->need_irq = true;
- 
- 	if (of_property_read_bool(np, "atmel,idle-halt"))
- 		wdt->mr |= AT91_WDT_WDIDLEHLT;
- 
- 	if (of_property_read_bool(np, "atmel,dbg-halt"))
-@@ -207,27 +202,23 @@ static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
- 	u32 reg, val;
- 
- 	val = WDT_SEC2TICKS(WDT_DEFAULT_TIMEOUT);
- 	/*
- 	 * When booting and resuming, the bootloader may have changed the
- 	 * watchdog configuration.
- 	 * If the watchdog is already running, we can safely update it.
- 	 * Else, we have to disable it properly.
- 	 */
--	if (!wdt_enabled) {
-+	if (!wdt_enabled(wdt)) {
- 		reg = wdt_read(wdt, AT91_WDT_MR);
--		if (wdt->sam9x60_support && (!(reg & AT91_SAM9X60_WDDIS)))
--			wdt_write_nosleep(wdt, AT91_WDT_MR,
--					  reg | AT91_SAM9X60_WDDIS);
--		else if (!wdt->sam9x60_support &&
--			 (!(reg & AT91_WDT_WDDIS)))
-+		if (!(reg & wdt->wddis_mask))
- 			wdt_write_nosleep(wdt, AT91_WDT_MR,
--					  reg | AT91_WDT_WDDIS);
-+					  reg | wdt->wddis_mask);
- 	}
- 
- 	if (wdt->sam9x60_support) {
- 		if (wdt->need_irq)
- 			wdt->ir = AT91_SAM9X60_PERINT;
- 		else
- 			wdt->mr |= AT91_SAM9X60_PERIODRST;
- 
- 		wdt_write(wdt, AT91_SAM9X60_IER, wdt->ir);
-@@ -267,18 +258,21 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
- 	wdd->ops = &sama5d4_wdt_ops;
- 	wdd->min_timeout = MIN_WDT_TIMEOUT;
- 	wdd->max_timeout = MAX_WDT_TIMEOUT;
- 	wdt->last_ping = jiffies;
- 
- 	if (of_device_is_compatible(dev->of_node, "microchip,sam9x60-wdt") ||
- 	    of_device_is_compatible(dev->of_node, "microchip,sama7g5-wdt"))
- 		wdt->sam9x60_support = true;
- 
-+	wdt->wddis_mask = wdt->sam9x60_support ? AT91_SAM9X60_WDDIS
-+						: AT91_WDT_WDDIS;
-+
- 	watchdog_set_drvdata(wdd, wdt);
- 
- 	regs = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(regs))
- 		return PTR_ERR(regs);
- 
- 	wdt->reg_base = regs;
- 
- 	ret = of_sama5d4_wdt_init(dev->of_node, wdt);
-@@ -300,20 +294,20 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_err(dev, "cannot register interrupt handler\n");
- 			return ret;
- 		}
- 	}
- 
- 	watchdog_init_timeout(wdd, wdt_timeout, dev);
- 
- 	reg = wdt_read(wdt, AT91_WDT_MR);
--	if (!(reg & AT91_WDT_WDDIS)) {
--		wdt->mr &= ~AT91_WDT_WDDIS;
-+	if (!(reg & wdt->wddis_mask)) {
-+		wdt->mr &= ~wdt->wddis_mask;
- 		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 	}
- 
- 	ret = sama5d4_wdt_init(wdt);
- 	if (ret)
- 		return ret;
- 
- 	watchdog_set_nowayout(wdd, nowayout);
- 
+v2:
+ - drop hwmon patch, that was already picked up by Guenter Roeck
+ - reword commit message and don't use the default "git revert"
+   template as suggested by Krzysztof Kozlowski.
+
+Michael Walle (7):
+  arm64: dts: ti: remove the Kontron SMARC-sAM67
+  arm64: defconfig: remove SENSORS_SA67MCU
+  dt-bindings: mfd: sl28cpld: Drop sa67mcu compatible
+  dt-bindings: arm: ti: Drop Kontron SMARC-sAM67 module
+  dt-bindings: nvmem: sl28cpld: Drop sa67mcu compatible
+  dt-bindings: watchdog: Drop SMARC-sAM67 support
+  dt-bindings: hwmon: sl28cpld: Drop sa67mcu compatible
+
+ .../devicetree/bindings/arm/ti/k3.yaml        |    1 -
+ .../embedded-controller/kontron,sl28cpld.yaml |    7 +-
+ .../hwmon/kontron,sl28cpld-hwmon.yaml         |    1 -
+ .../nvmem/layouts/kontron,sl28-vpd.yaml       |    7 +-
+ .../watchdog/kontron,sl28cpld-wdt.yaml        |    7 +-
+ arch/arm64/boot/dts/ti/Makefile               |   13 -
+ .../dts/ti/k3-am67a-kontron-sa67-ads2.dtso    |  146 ---
+ .../dts/ti/k3-am67a-kontron-sa67-base.dts     | 1091 -----------------
+ .../dts/ti/k3-am67a-kontron-sa67-gbe1.dtso    |   26 -
+ .../dts/ti/k3-am67a-kontron-sa67-gpios.dtso   |   61 -
+ .../ti/k3-am67a-kontron-sa67-rtc-rv8263.dtso  |   31 -
+ arch/arm64/configs/defconfig                  |    1 -
+ 12 files changed, 3 insertions(+), 1389 deletions(-)
+ delete mode 100644 arch/arm64/boot/dts/ti/k3-am67a-kontron-sa67-ads2.dtso
+ delete mode 100644 arch/arm64/boot/dts/ti/k3-am67a-kontron-sa67-base.dts
+ delete mode 100644 arch/arm64/boot/dts/ti/k3-am67a-kontron-sa67-gbe1.dtso
+ delete mode 100644 arch/arm64/boot/dts/ti/k3-am67a-kontron-sa67-gpios.dtso
+ delete mode 100644 arch/arm64/boot/dts/ti/k3-am67a-kontron-sa67-rtc-rv8263.dtso
+
 -- 
-2.34.1
+2.47.3
 
