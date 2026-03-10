@@ -1,38 +1,38 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBC13D47C7;
-	Tue, 10 Mar 2026 17:33:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82E503D6685;
+	Tue, 10 Mar 2026 17:33:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773163999; cv=none; b=mT7FW0t/+Ss0ZyjJDiRMuH7r0ZG/LbCL/02heTKVqDynTzCRABKMrE1C6x0ki4tClmr5pc6HlpONMJLAsah0l5Rw/Z6wmARrAPq+l1xDxDAg5+U1o3N79RGoE9ycpqlEf2tEvSTaKGa66DbIs3g00KxyWYZGwiTBPzz2FNNnSpE=
+	t=1773164001; cv=none; b=OYFoaeTa32DDS3w/q8Y15LKi5/yMs+RSYHSQcIYZQ5p6mv8wnTsNuHPIZ2Pcnmmih1XLUUbBeo+rZOcVBGvGzxMwaDgEeTiL7ISwVZbTdRr8C8j6xnz0WxXbP2A/FIAelTXRlp6Ea+Gre4PYHFSE/X5Isk/aqkG2/7rcztX7nfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773163999; c=relaxed/simple;
-	bh=rw5CNRLMFys610e++cev4bsw0a7rDV7XO3NZVgUWgWw=;
+	s=arc-20240116; t=1773164001; c=relaxed/simple;
+	bh=uTxcEX9dtGW13fmgVaUG0TJvPmOSE3Up0iusG94HGDg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Fvy0eVvrd/SvUx0hX6Jl5HiIoQZdAf5jf8KQw8UiZYun4qAwrnJa9eUITL3M+b7r1BCl7vGbYus8mjfh1LzrxzmW6TukVc7h6RIYOjQvgdwJ6f1Vfi/1l8VQ/YsODee/r90eUyZgPnfDcVsKxakMra+wMXbZtpkGXMOw2W9WFyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Bn3la5Pf; arc=none smtp.client-ip=185.246.85.4
+	 MIME-Version; b=bQY7IBq8wbK5vC0aeqMujssQqOJZCBhqrIrtZ5OvKLNPYiWF1Zz0+ZDXZutqN71Dvjzi7tUj4RnayuG2SqAapLXW+tDv3gVt3hmwYoEhV92YGxlb0igZDDy0nqT+6Th8BGvnoOY0u7c3GfwWr6wAA42aAGdJV753zo9zxG5zdPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kVKvo+Zm; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Bn3la5Pf"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kVKvo+Zm"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id BCAB94E425F2;
-	Tue, 10 Mar 2026 17:33:16 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 52BE21A242D;
+	Tue, 10 Mar 2026 17:33:19 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 929F060002;
-	Tue, 10 Mar 2026 17:33:16 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 403AE103695CB;
-	Tue, 10 Mar 2026 18:33:13 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 2848D60002;
+	Tue, 10 Mar 2026 17:33:19 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EE2C61036987B;
+	Tue, 10 Mar 2026 18:33:15 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1773163995; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1773163997; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=feEz3+qO75OIwcAuVbGFyb0mGQaBJCrWpdr0PhToImM=;
-	b=Bn3la5PfE6o3tJHQ1hGEyUQpPSAc3ByQsVmOdAEgF72hukTli+LkUi2j8gPLKe08z7T8CK
-	j/RbyaX2Ms2omTEcNsXpO5j4AbHO/QBqx/osiAkYUHnbMYKttGM/W3zBMy74sDjB/fZ7JH
-	JD9OFk/uwQ/HkY4GFV2cjdSHAhKgH9qPyIkAzFCiUq2BZh2ilHBYRObSF0MFm1obCMtMMz
-	IJffiIa6WuQ81BuOuD8tg0r5QIPR3kzNrDfZ3aE+2448/YclQLWoCSclFKHFjlIoR1sogG
-	33tz4phwdUpYIZb2j9+NelWDBzYD1NpR+j5CTzfACpnD6nsl+dmp5T+YrlDZsQ==
+	bh=QMk4xKL7rwkuDzgFTLggs6bTGets20VvaMmysYufXCE=;
+	b=kVKvo+ZmV7YIFp+k4mo4GdYzH11QVgENz5yaPJhCW6d1hvMyvr7pvybDtMT2eGfWY2+aQu
+	YJbwZs1Ro/7nShbvmvqB0h69b07vzVHxNgQtusxPxLNDYytA1PJbH06GcLkqbgzStTfIYe
+	vPOPXjc9S70LSYK/dTB/OmX9lgesrcXOmePFF2Iu2gRehDgNuIzB15qqoBClvolIZkMLF3
+	FyNDSzWPyYm07cQp4pNJOzMfUeKV/fEq7vj1JS8Cdvo4nOagL7HGA9uwDM+lS4HPk+2zbG
+	kQYdOOL9hs9+j4nHWsrOFqFOsNpZYU3AHCWSwJ3fs9vo6oB5Wq+UentaTjN+xA==
 From: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>,
@@ -53,9 +53,9 @@ Cc: linux-watchdog@vger.kernel.org,
 	Miquel Raynal <miquel.raynal@bootlin.com>,
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	"Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
-Subject: [PATCH 3/5] dt-bindings: watchdog: renesas,rzn1-wdt: Document the reset line
-Date: Tue, 10 Mar 2026 18:32:44 +0100
-Message-ID: <20260310173249.161354-4-herve.codina@bootlin.com>
+Subject: [PATCH 4/5] clk: renesas: r9a06g032: Introduce a helper to set rsten register
+Date: Tue, 10 Mar 2026 18:32:45 +0100
+Message-ID: <20260310173249.161354-5-herve.codina@bootlin.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260310173249.161354-1-herve.codina@bootlin.com>
 References: <20260310173249.161354-1-herve.codina@bootlin.com>
@@ -68,86 +68,89 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-Watchdogs available in the RZ/N1 SoC can use their specific hardware
-reset line to reset the system on watchdog timeout.
+The rsten register is part of the system controller address range.
 
-This line is not documented in the current binding.
+This register controls the reset sources allowed to reset the system.
+Among them, watchdogs can be configured to be able to perform this
+reset.
 
-Fill this lack and describe this per watchdog reset line.
+Introduce a new helper r9a06g032_sysctrl_enable_rst() in order to set
+specific sources in the rsten register from the watchdog driver.
 
 Signed-off-by: Herve Codina (Schneider Electric) <herve.codina@bootlin.com>
 ---
- .../bindings/watchdog/renesas,rzn1-wdt.yaml   | 22 +++++++++++++++++++
- .../dt-bindings/watchdog/renesas,rzn1-wdt.h   | 16 ++++++++++++++
- 2 files changed, 38 insertions(+)
- create mode 100644 include/dt-bindings/watchdog/renesas,rzn1-wdt.h
+ drivers/clk/renesas/r9a06g032-clocks.c        | 32 +++++++++++++++++++
+ include/linux/soc/renesas/r9a06g032-sysctrl.h | 12 +++++++
+ 2 files changed, 44 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
-index 7e3ee533cd56..40a9a4ebc716 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
-@@ -26,6 +26,26 @@ properties:
+diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
+index 7407a4183a6c..517d46ff150e 100644
+--- a/drivers/clk/renesas/r9a06g032-clocks.c
++++ b/drivers/clk/renesas/r9a06g032-clocks.c
+@@ -705,6 +705,38 @@ int r9a06g032_sysctrl_set_dmamux(u32 mask, u32 val)
+ }
+ EXPORT_SYMBOL_GPL(r9a06g032_sysctrl_set_dmamux);
  
-   timeout-sec: true
++int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
++{
++	unsigned long flags;
++	u32 rsten;
++	u32 val;
++
++	switch (rst_src) {
++	case R9A06G032_RST_WATCHDOG_CA7_0:
++		val = R9A06G032_SYSCTRL_WDA7RST_0;
++		break;
++
++	case R9A06G032_RST_WATCHDOG_CA7_1:
++		val = R9A06G032_SYSCTRL_WDA7RST_1;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (!sysctrl_priv)
++		return -EPROBE_DEFER;
++
++	spin_lock_irqsave(&sysctrl_priv->lock, flags);
++
++	rsten = readl(sysctrl_priv->reg + R9A06G032_SYSCTRL_RSTEN);
++	writel(rsten | val, sysctrl_priv->reg + R9A06G032_SYSCTRL_RSTEN);
++
++	spin_unlock_irqrestore(&sysctrl_priv->lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(r9a06g032_sysctrl_enable_rst);
++
+ static void clk_rdesc_set(struct r9a06g032_priv *clocks,
+ 			  struct regbit rb, unsigned int on)
+ {
+diff --git a/include/linux/soc/renesas/r9a06g032-sysctrl.h b/include/linux/soc/renesas/r9a06g032-sysctrl.h
+index 066dfb15cbdd..25542b49eb55 100644
+--- a/include/linux/soc/renesas/r9a06g032-sysctrl.h
++++ b/include/linux/soc/renesas/r9a06g032-sysctrl.h
+@@ -4,8 +4,20 @@
  
-+  renesas,reset-line:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [0, 1]
-+    description: |
-+      The watchdog reset line (dt-bindings/watchdog/renesas,rzn1-wdt.h defines
-+      these values). A wachdog timeout asserts this reset line to perform a
-+      hardware system reset. Two watchdogs are present in the RZ/N1 SoC and
-+      each of them has a dedicated reset line.
+ #ifdef CONFIG_CLK_R9A06G032
+ int r9a06g032_sysctrl_set_dmamux(u32 mask, u32 val);
 +
-+        - 0: RZN1_WDT_A7_0
-+          This reset line can be asserted only by the A7 0 watchdog. This
-+          watchdog is the one mapped at 0x40008000 on RZ/N1 SoCs.
++enum r9a06g032_sysctrl_rst_src {
++	R9A06G032_RST_WATCHDOG_CA7_0,
++	R9A06G032_RST_WATCHDOG_CA7_1,
++};
 +
-+        - 1: RZN1_WDT_A7_1
-+          This reset line can be asserted only by the A7 1 watchdog. This
-+          watchdog is the one mapped at 0x40009000 on RZ/N1 SoCs.
++int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src);
 +
-+      If the renesas,reset-line property is not present, the watchdog timeout
-+      only triggers an interrupt.
-+
- required:
-   - compatible
-   - reg
-@@ -41,10 +61,12 @@ examples:
-   - |
-     #include <dt-bindings/clock/r9a06g032-sysctrl.h>
-     #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    #include <dt-bindings/watchdog/renesas,rzn1-wdt.h>
+ #else
+ static inline int r9a06g032_sysctrl_set_dmamux(u32 mask, u32 val) { return -ENODEV; }
++static inline int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
++{
++	return -ENODEV;
++}
+ #endif
  
-     watchdog@40008000 {
-             compatible = "renesas,r9a06g032-wdt", "renesas,rzn1-wdt";
-             reg = <0x40008000 0x1000>;
-             interrupts = <GIC_SPI 73 IRQ_TYPE_EDGE_RISING>;
-             clocks = <&sysctrl R9A06G032_CLK_WATCHDOG>;
-+            renesas,reset-line = <RZN1_WDT_A7_0>;
-     };
-diff --git a/include/dt-bindings/watchdog/renesas,rzn1-wdt.h b/include/dt-bindings/watchdog/renesas,rzn1-wdt.h
-new file mode 100644
-index 000000000000..fe534aff0609
---- /dev/null
-+++ b/include/dt-bindings/watchdog/renesas,rzn1-wdt.h
-@@ -0,0 +1,16 @@
-+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-+/*
-+ * RZ/N1 watchdog reset lines
-+ *
-+ * Copyright (C) 2026 Bootlin
-+ *
-+ * Herve Codina <herve.codina@bootlin.com>
-+ */
-+
-+#ifndef __DT_BINDINGS_RZN1_WDT_H__
-+#define __DT_BINDINGS_RZN1_WDT_H__
-+
-+#define RZN1_WDT_A7_0		0
-+#define RZN1_WDT_A7_1		1
-+
-+#endif /* __DT_BINDINGS_RZN1_WDT_H__ */
+ #endif /* __LINUX_SOC_RENESAS_R9A06G032_SYSCTRL_H__ */
 -- 
 2.53.0
 
