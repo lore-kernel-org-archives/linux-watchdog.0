@@ -1,241 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E1163164DF;
-	Tue, 10 Mar 2026 20:14:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 568F33F20FD
+	for <linux-watchdog@vger.kernel.org>; Tue, 10 Mar 2026 21:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773173683; cv=none; b=bnNF8TKC17jy+UOqxbqlae0ybm7Mh2G89LG+Dyq05SNbMR6DmL6WE3ppk0BTk4hQhdClBURixapqWLvAaw034okhCittMY2jQV9UwZPu/wTYIpslThqtJcroUaWMuAQO7CV33ngL/HhTikPIxvmpYAouG37LICrtHbhx4XpKUpw=
+	t=1773179990; cv=none; b=bYPSqSdKtyMwbXbaJ0qdH1vglyuKPYHgyWxDk9EUAwzo7ZXTOWRUGdsgFMAkQEzYVnyKqoRommHcuDKvtob/kumksozbokkQ2Bn9uAdDX/klQzUT40/Vog+O/SzMqnhV5qOmZjd1J7tZtWLUaf46DmxlochjPhli3/Q7HxB71AY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773173683; c=relaxed/simple;
-	bh=a+cXUQrLuN7vTg0TXCXJzP5oovLSl9XiOXS5kzr53zQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IfuuY2me2EnMAuHuLO2Aip34QaMMk+1UBt2Uq7rsFuDt4Y/nJRpjOj2ZN9ZB7Mw3iWuuU0nk9h4spIknuMjTX2eIji+nJ0o5lnfeKnBYYquxlUR91feYoMAMcX0rAK0J+Hoosv0yk0iqwwUmgaRNAQZzYOO4sfBv2vhzYqdUhVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bfHn+2Nd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773179990; c=relaxed/simple;
+	bh=/YeGWB9oc7O8AA1akAsfiN+5RGMmexVob0+4KmRyzxo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lpSvgPpevVfDu3LONkhab+vmCgnVtjaj2RtRCqcEg4Tjcckdax9/64F1LbOQfw1qoDi6XmkiUzCYICwgf5VOEZDEgUEZZXCnpGbEknAy6Vnzp0UKQN5x1ENslavhpFgXq4PUsuk1dHUdccLlin86mZvSKAiFKyQbSz9GLElpJf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mQjQs8H0; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bfHn+2Nd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B935C19423;
-	Tue, 10 Mar 2026 20:14:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773173683;
-	bh=a+cXUQrLuN7vTg0TXCXJzP5oovLSl9XiOXS5kzr53zQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=bfHn+2Nd7wQ+KkWqGnDdhKHVGVUYFShv3GALdK3b3PCNejdCB4Re/wk3KKzOqMDO2
-	 noKZV5VUYjet++Acp50M8Mdo0yFjNcz3OmqNfGUeg1PHvVR8NbXbCBgCkXOOtiyCwo
-	 qSQ6BZySbBN1GP5YX6sE6ygyltJ4R97No0VTLuKgK57NDmKafBPEsAha7DFFbCJl9I
-	 TJZjN3ZxXlRHcXpYJLgR+s5sV4Vsodmirfu3BjrCX1e+pLVk2mTBdd2GgBFuo/etSi
-	 65PCP4FuxQ3TrUKqDYjy01kBH4a8+Vo6YO68hlCjcWrTH7C+u6VQuPvZkXlFJiN+6/
-	 dTcPg0vLTBrfw==
-Message-ID: <d237ef86-17d2-4e86-9e74-2d988714c602@kernel.org>
-Date: Tue, 10 Mar 2026 21:14:37 +0100
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mQjQs8H0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=6O0p
+	tGpA6us9oqpqFz8mGRim2bmGuDcoP2CRwTmZzpE=; b=mQjQs8H0tX7w5SncIAki
+	dNw7X9PlmsNIBtTcqyqI3nWQClN/XQfB3vYCx/Y+skFChTqYZ/7cpgbgz1GHu/RR
+	tUIDIruXFrcjRW7EJwrOUlSRDZalRo2hersel96Y6AZNrcpQ0HOgqU16q2+e3Npw
+	rssryH919aWgXoOtQHpNCWqN9Qx0Bn2oToolE/7+w1Za+F8qj6DSS8oszoPowoKf
+	3L3AgDpXSkkOFL0z9pZLhOo5eYxe5NaSvoPiAQDAfQ3xpVPar4jLJTI6T+b+rsbQ
+	+uWTc38hSDpltF4oAkudG1bp75EqOeaAYojXIMiJGwNvi2ubno/lkMJ9rwJgdu0q
+	hw==
+Received: (qmail 3383014 invoked from network); 10 Mar 2026 22:53:03 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Mar 2026 22:53:03 +0100
+X-UD-Smtp-Session: l3s3148p1@a2Qri7JMJu4ujntP
+Date: Tue, 10 Mar 2026 22:53:01 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+	Pascal Eberhard <pascal.eberhard@se.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH 0/5] watchdog: rzn1: Add support for direct hardware reset
+Message-ID: <abCSvdToaQG20uWT@shikoro>
+References: <20260310173249.161354-1-herve.codina@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/5] dt-bindings: watchdog: renesas,rzn1-wdt: Document the
- reset line
-To: Herve Codina <herve.codina@bootlin.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>,
- Michael Turquette <mturquette@baylibre.com>, Stephen Boyd
- <sboyd@kernel.org>, Magnus Damm <magnus.damm@gmail.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-clk@vger.kernel.org, Pascal Eberhard <pascal.eberhard@se.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-References: <20260310173249.161354-1-herve.codina@bootlin.com>
- <20260310173249.161354-4-herve.codina@bootlin.com>
- <392ededd-ee73-4afa-88b4-b15fe1dc3457@kernel.org>
- <20260310191220.52ed546c@bootlin.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260310191220.52ed546c@bootlin.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-On 10/03/2026 19:12, Herve Codina wrote:
-> Hi Krzysztof,
-> 
-> On Tue, 10 Mar 2026 18:38:50 +0100
-> Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> 
->> On 10/03/2026 18:32, Herve Codina (Schneider Electric) wrote:
->>> Watchdogs available in the RZ/N1 SoC can use their specific hardware
->>> reset line to reset the system on watchdog timeout.
->>>
->>> This line is not documented in the current binding.
->>>
->>> Fill this lack and describe this per watchdog reset line.
->>>
->>> Signed-off-by: Herve Codina (Schneider Electric) <herve.codina@bootlin.com>
->>> ---
->>>  .../bindings/watchdog/renesas,rzn1-wdt.yaml   | 22 +++++++++++++++++++
->>>  .../dt-bindings/watchdog/renesas,rzn1-wdt.h   | 16 ++++++++++++++
->>>  2 files changed, 38 insertions(+)
->>>  create mode 100644 include/dt-bindings/watchdog/renesas,rzn1-wdt.h
->>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
->>> index 7e3ee533cd56..40a9a4ebc716 100644
->>> --- a/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
->>> +++ b/Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml
->>> @@ -26,6 +26,26 @@ properties:
->>>  
->>>    timeout-sec: true
->>>  
->>> +  renesas,reset-line:
->>> +    $ref: /schemas/types.yaml#/definitions/uint32
->>> +    enum: [0, 1]
->>> +    description: |
->>> +      The watchdog reset line (dt-bindings/watchdog/renesas,rzn1-wdt.h defines
->>> +      these values). A wachdog timeout asserts this reset line to perform a
->>> +      hardware system reset. Two watchdogs are present in the RZ/N1 SoC and
->>> +      each of them has a dedicated reset line.
->>> +
->>> +        - 0: RZN1_WDT_A7_0
->>> +          This reset line can be asserted only by the A7 0 watchdog. This
->>> +          watchdog is the one mapped at 0x40008000 on RZ/N1 SoCs.
->>> +
->>> +        - 1: RZN1_WDT_A7_1
->>> +          This reset line can be asserted only by the A7 1 watchdog. This
->>> +          watchdog is the one mapped at 0x40009000 on RZ/N1 SoCs.
->>> +
->>> +      If the renesas,reset-line property is not present, the watchdog timeout
->>> +      only triggers an interrupt.  
->>
->> I don't understand. You have two watchdogs (0x40008000 and 0x40009000)
->> so why you would tell each of them that they can reset line associated
->> with them? Can a watchdog reset other watchdog's line? No, thus code like:
->>
->> watchdog@40008000 {
->> 	renesas,reset-line = <RZN1_WDT_A7_1>;
->> };
->>
->> makes no sense and thus is pointless to specify in DT.
->>
->> What's more, if reset line is always wired (and how could it be since it
->> is fully within the soc), why would this be board-level property?
-> 
-> This is the exact same for interrupts and clocks.
-> 
-> Interrupts dedicated to IPs and hardwired, as well as clocks. Those resources
-> are described in DT.
-> 
-> Why not this reset line?
-
-How is it the same? clocks and interrupts represent wiring between
-modules, so that other module (provider) will be properly configured. So
-where is here phandle to point to the other module which you are
-configuring? How single number <0, 1> can be a phandle?
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="slnxGfaK/KqUypIu"
+Content-Disposition: inline
+In-Reply-To: <20260310173249.161354-1-herve.codina@bootlin.com>
 
 
-> 
->>
->>
->>
->>> +
->>>  required:
->>>    - compatible
->>>    - reg
->>> @@ -41,10 +61,12 @@ examples:
->>>    - |
->>>      #include <dt-bindings/clock/r9a06g032-sysctrl.h>
->>>      #include <dt-bindings/interrupt-controller/arm-gic.h>
->>> +    #include <dt-bindings/watchdog/renesas,rzn1-wdt.h>
->>>  
->>>      watchdog@40008000 {
->>>              compatible = "renesas,r9a06g032-wdt", "renesas,rzn1-wdt";
->>>              reg = <0x40008000 0x1000>;
->>>              interrupts = <GIC_SPI 73 IRQ_TYPE_EDGE_RISING>;
->>>              clocks = <&sysctrl R9A06G032_CLK_WATCHDOG>;
->>> +            renesas,reset-line = <RZN1_WDT_A7_0>;
->>>      };
->>> diff --git a/include/dt-bindings/watchdog/renesas,rzn1-wdt.h b/include/dt-bindings/watchdog/renesas,rzn1-wdt.h
->>> new file mode 100644
->>> index 000000000000..fe534aff0609
->>> --- /dev/null
->>> +++ b/include/dt-bindings/watchdog/renesas,rzn1-wdt.h
->>> @@ -0,0 +1,16 @@
->>> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
->>> +/*
->>> + * RZ/N1 watchdog reset lines
->>> + *
->>> + * Copyright (C) 2026 Bootlin
->>> + *
->>> + * Herve Codina <herve.codina@bootlin.com>
->>> + */
->>> +
->>> +#ifndef __DT_BINDINGS_RZN1_WDT_H__
->>> +#define __DT_BINDINGS_RZN1_WDT_H__
->>> +
->>> +#define RZN1_WDT_A7_0		0
->>> +#define RZN1_WDT_A7_1		1  
->>
->> I also see little value of the binding, but probably because I don't
->> understand the point of this patch.
-> 
-> I mentioned 0 and 1 for those lines in the binding and referred to this
-> header. What's wrong with that ?
-> 
-> Clocks use the same kind of description.
-> A bunch of defines in header file to avoid a direct number.
+--slnxGfaK/KqUypIu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So instead of answering my questions why you are doing this, why do you
-need it, you use arguments "I saw some code looking like that, so I can
-do that". No, you can not do that.
+Hi Herve,
 
-We don't copy blindly some code just because it looks similar. And we
-avoid answering "I saw it somewhere" when someone asks you why you are
-doing this.
+> On timeout, the watchdog also asserts its dedicated reset line. This
+> reset line is connected to the reset controller (part of sysctrl) and,
+> if this line is enabled as a possible reset source at the reset
+> controller level, it initiates a system reset.
 
-Best regards,
-Krzysztof
+Okay, this seems similar to R-Car SoCs, so multiple things to add from
+my side:
+
+* I agree with Krzysztof that the renesas-vendor-binding is not the way
+  to go. The information could be either deduced from the register range
+  or you could have a link to the syscon describing somehow which reset
+  to allow.
+
+But:
+
+* On R-Car, we require the firmware to correctly setup which resets are
+  allowed. Only in cases of broken firmware, we override it in the
+  system controller driver. The latter could probably be argued here.
+  The firmware is old and will probably be not updated anymore.
+
+* If the watchdog driver kind of unconditionally allows its own reset,
+  we could keep it very simple and just unconditionally allow watchdog
+  resets when probing the sysctrl driver?
+
+* If you don't like this, you could also parse the DT for enabled
+  watchdogs when probing the sysctrl driver and act upon findings?
+
+Happy hacking,
+
+   Wolfram
+
+
+--slnxGfaK/KqUypIu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmwkroACgkQFA3kzBSg
+KbbmLg/+OeUZerBrTF1ZxtcrfFFw8YZX5GHblMhKK9GGpfWCnCgk0Py+8Yzfz3hn
+F6rQ81eD2T3X7+4MVWw+fXP/c0MhFdXS61cqAW7gqCpqrwk8k11pvMJisJFUV71W
+8zyVR8iOGxQX9D6ngf8loTjewE/9zPOqz06XzynDm6zcg/e6kiUW5ApFEH0RgF34
+BiM6DOYADem/e0E3s0/Ger77sNxC8vdp+8l7DqytBX1+ovuhbuEHBD0Ll8f2Ll/F
+LHvok84w4k6cIEv25a817tnmLePXQxzMW+yVRyrI/49ya/1DQRci9ez2U+vpZZh9
+TJb+GgKCjqpE1kjq+ku+T2B2KlhsN/T2HWH8zCNoLHTlG32ZoWezPtkmqCPnILNb
+665I9MpYjMeQemqvRxyROm1kQe5whoqMO8pqxZf4Ae7ju1449TyGBYZPU/ik/t68
+K3vRpK9HN78VehOx+yVbKHCL2LZz7tIr0BP2eN7aR+qNBvw3RGt3xTcbiaCpMlag
+vJrAta1CAi7+h/S1w3odiSX4m/WR2pKQ9rmlPuT1/KRv8L/OzgNs8B6rauAgB4Fu
+oQVxdR2YZ4rAU6N7qrQVamh/tHnVDqU7gSD6XI5CJcHpGvojHWtK3lp7XtI21iA2
+YwFEWezHmGeGzctie8G1b58JPj9HnMs8u0TUi5nr3SPU2ukGpAE=
+=YPCo
+-----END PGP SIGNATURE-----
+
+--slnxGfaK/KqUypIu--
