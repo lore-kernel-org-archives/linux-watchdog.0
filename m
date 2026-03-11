@@ -1,75 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DD453B47FB;
-	Wed, 11 Mar 2026 11:33:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D641E3DC4A0
+	for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2026 12:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773228812; cv=none; b=CDsCxA/zPQfvVwnUoJJRHiW3ibuK5k87aJqsCsqS6L6be3JztUEI2DYPb0IYqe91qkEAzR0+6LEiXjveDK7bMW26cEDYxlMpmY9OCqHY52rk6kpS67HKY5QZ6x+a3p9h10DQ6rSI7YoIGxPgwymBl9xiEOjrTioZEysGYKkcoDs=
+	t=1773231402; cv=none; b=ZSynIn9y+eX8yegCHVduGlpYIDLzLkpzdIiQyXB84ixqpGf69sw8R7MIC3Z+KY9lfK/mQWJRxBQ+aIQHEYjH5JdL1DEkMmMjY787xYmHDoHAulOH9Dplq+uvomAckUaHaLD6ZOnB8vZbPh+YMcJd5GCr3zwNpCTjgKii/LlVpdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773228812; c=relaxed/simple;
-	bh=7ax8f8Z2suiY/ClnmYcNqzxiW1dr6PEtqi/ot5nvoOo=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=kCHx5Vnhk/Au/pQQFKeYLClI2adRPQ87wrITwppJJxFrpT/rvXxNwMdyJ4vg577K8hhgh2soDl5ISLB234VcJQTTfQZ3QQ+iXEY8L3pWqWq4RnKQjQcgcW0/3WH62dLNf3rxkcaHR0lRFkPFcvxMWmmemAiAczG1JrlbNGCtI/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GPXgoORF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773231402; c=relaxed/simple;
+	bh=vIIr03THJBYTb/DG4le386ANTxRBzJD/TkuNIFzBbbA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o1KlIy0p1GgJ+tCBIWThHrwxFNldG2OV/4LkDlq4PQ+Wti7nnUVVgJ+2SssF8v9Y8LjjKMibsM1pTYdyssU2BkwNIrx7fYOhuT4FJYSLTOeSiW/SF3eWXVFHcTNOl6eQqP9B0UG9ybfqHh6dJwGBPbDb1Zp2QarrVi0NXrFghMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YSf4PrMr; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GPXgoORF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18B8EC116C6;
-	Wed, 11 Mar 2026 11:33:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773228811;
-	bh=7ax8f8Z2suiY/ClnmYcNqzxiW1dr6PEtqi/ot5nvoOo=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=GPXgoORFGrta/iwANuGICTrla35yAQ1ga0gDJllpRjNU4SsJDhgj0ZQUlJKdaFKSG
-	 sxZsIg7qLtEx6QH/gdVk7mfsIwCSVcY/gmLqkHE1h6c7mdl5WYFOANsx21Nk0K31bY
-	 GgdSoV6nl8fgV5pz+1cm4WIiVoeUVoKH9PUNJtrOqCXQwpGR01JIahBAhnrBHZjS6w
-	 RIi9ZL6i4b7TJYMjCujXLxjPzoDP8Mh0BfRGpkBtcLRGoQGGv0PN45g9u6oRykW8GE
-	 TDoSHY4KQEXPfUI1ZarqtsXY/0u1h9TCSPuFVON6Mee6/N0yrOjMNK+f9pv532od90
-	 ESlo6scDTsnCw==
-From: Srinivas Kandagatla <srini@kernel.org>
-To: Nishanth Menon <nm@ti.com>, Vignesh Raghavendra <vigneshr@ti.com>, 
- Tero Kristo <kristo@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, Michael Walle <mwalle@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org, 
- linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-In-Reply-To: <20260302122540.1377444-1-mwalle@kernel.org>
-References: <20260302122540.1377444-1-mwalle@kernel.org>
-Subject: Re: (subset) [PATCH v2 0/7] Remove the Kontron SMARC-sAM67 board
-Message-Id: <177322880885.2191403.16034538452371689446.b4-ty@kernel.org>
-Date: Wed, 11 Mar 2026 11:33:28 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YSf4PrMr"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82989744ee0so5659125b3a.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2026 05:16:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773231398; x=1773836198; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=w8b3+dFQJmOFN0qdzKY9BzCR9rFLTY9mbUUY2CWBUCc=;
+        b=YSf4PrMrUQEGHgSTYa+Dlj/T8fA4Dran15+CON0mWkPYZvh5OgsQChoIw+ypvIAtzS
+         4st7YIy5/k8/TRdCwIOeg838gJIbIt/el1Z8AkNpFl9R7fLR6ud0idZMCu7k7UNR1Q5S
+         BK3IpBnz+m20KovtuMI3MInvbi9EU2BOCJ0OvYYc8ChWGxNay2x6fH+TZGyr5oCsm3m2
+         KTJ0J8x9YpfFREw2qpR1bfIIO0e2yVqiU5O/BKUM1OhD7dyn1ZTbokLHgPFf16kXJXHK
+         v9/ZwtPpkzZFLRN0dKxLSmGxNJS9Ztp6fr+oT2Sw9ZYst40V/+wnZj7rQqzfuJSe9Lua
+         hf5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773231398; x=1773836198;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=w8b3+dFQJmOFN0qdzKY9BzCR9rFLTY9mbUUY2CWBUCc=;
+        b=GtrzZ/rjGFZ4UBrKfw49NR+VoFUILdYYvFsm/MH4Iqm8ZzmTHPmQKnnfid4HHik/qm
+         L9iVp8XKJj4K/C83o3FKjz2sXiSiKcbgHO7PE1fDRL4b8jS6cDIHlOJVvicxCbTaqXQm
+         NTOEzok6ZNk20FMT1MYa2MgjgR8um91OO93x0h6udV3uU8Md+kwl5k+50D1U8vG7vIak
+         OIlxIPX2N04lbSJ72TGQn5SoGXL63/mg8Tr83AQ0Telq+ymRaPm1vpSVtGHKfUPsjF0Q
+         3h6RkuWIjkWX4kjHGwzZL8XLBz5RYhb5HbrQP0qNjS3W3k6LYp5Zl742nsHdPHBbzoXM
+         CLpw==
+X-Forwarded-Encrypted: i=1; AJvYcCVrYN342DjcvIWbKVju4+KgQ340oB9yT6JevgOwUKYMVfPfyyMR4H53CryZ4FBS5zCyZ+r6fNNYTuWKZZGpQw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuYn9i5TBzH1rgE4tkv1sgKbJm4l+el0M2DTrooCbOH7BYj7MQ
+	/S2gxmy7Ev7JfnzS/BM3aWA6ECw/iayWJjf6VOftx7DP5ZLI9zCCS2/y
+X-Gm-Gg: ATEYQzzr4SYdJrJBs3AxlvETn8tviI2/akHwZhk/DXEn6PqE9D5vmmzQnBKj3I67nTG
+	Gk/02u0oF1LrlnIG/DXV8ssLhyMDsR7Uy6Knfr4m98qP2bNWaOU9xoHQh3BbPO3IR+SqeTxR0K6
+	26oT3xcr8HxSfWPQV+QsPAsEWVIkPCbYWLvSwBGmO7inFZ7pKPvtgFr1e1lg40gdwOQPtTgHCB5
+	3WSQKbZkU51DMEB/OJT8KC6jKkvrdGf/L13ZaZgsp45syywoPB+vsopZziHABOB82X7v48ykcA/
+	tHUR1dIRrzRuR16GmTcjvg4Eg1HmdhubnzDgWF+b2I6lzJFCCc22xkZB/S24ZTe8KFt+vWTU+pJ
+	FT9IRoO/yoX5JzjoQdzsRrkKvSZpwbxBUYJOA5Rv5K2diF+8p52T72RoE6YfK6Yjjl4OFhZpe+t
+	bPkb6Sy3NcXJfQRmr22oXAkWO5OD+TIv9mNDNP
+X-Received: by 2002:a05:6a00:3e11:b0:829:883c:1d53 with SMTP id d2e1a72fcca58-829f7089e1amr2181760b3a.31.1773231397977;
+        Wed, 11 Mar 2026 05:16:37 -0700 (PDT)
+Received: from fedora ([2409:40e5:1170:3c82:c36b:4f46:fd0b:d91e])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829f6eecc6asm2286294b3a.42.2026.03.11.05.16.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2026 05:16:31 -0700 (PDT)
+From: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
+Subject: [PATCH] docs: watchdog: explain watchdog API options
+Date: Wed, 11 Mar 2026 17:46:01 +0530
+Message-ID: <20260311121602.139967-1-chakrabortyshubham66@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
 
+Replace FIXME comment with proper documentation for
+WDIOS_DISABLECARD, WDIOS_ENABLECARD, and WDIOS_TEMPPANIC
+options.
 
-On Mon, 02 Mar 2026 13:24:45 +0100, Michael Walle wrote:
-> I was informed two weeks ago that this product is discontinued
-> (without being ever released to the market). Unfortunately, this
-> collided with the merge window and I had to wait two more weeks.
-> 
-> Pull the plug and let's not waste any more maintainers time.
-> 
-> On the bright side, the board upstreaming brought some driver fixes,
-> too. I'm really sorry for any wasted time.
-> 
-> [...]
+Signed-off-by: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
+---
+ Documentation/watchdog/watchdog-api.rst | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Applied, thanks!
-
-[5/7] dt-bindings: nvmem: sl28cpld: Drop sa67mcu compatible
-      commit: b7ad72258857a3afa0e116b26d0d3ff6ef42ba94
-
-Best regards,
+diff --git a/Documentation/watchdog/watchdog-api.rst b/Documentation/watchdog/watchdog-api.rst
+index 78e228c272cf..984f7362d5fb 100644
+--- a/Documentation/watchdog/watchdog-api.rst
++++ b/Documentation/watchdog/watchdog-api.rst
+@@ -268,4 +268,13 @@ The following options are available:
+ 	WDIOS_TEMPPANIC		Kernel panic on temperature trip
+ 	=================	================================
+ 
+-[FIXME -- better explanations]
++The WDIOS_DISABLECARD option allows you to stop the watchdog timer via
++software. Note that this will only work if the "nowayout" module parameter
++(or CONFIG_WATCHDOG_NOWAYOUT) is not set.
++
++The WDIOS_ENABLECARD option turns on the watchdog timer.
++
++The WDIOS_TEMPPANIC option is used by some drivers (like the pcwd driver)
++to trigger a system halt (typically a kernel panic or power off) when the
++temperature trip point is reached. This ensures that the system is halted
++immediately in case of an overheat condition.
 -- 
-Srinivas Kandagatla <srini@kernel.org>
+2.53.0
 
