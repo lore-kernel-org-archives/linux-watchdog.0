@@ -1,489 +1,146 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 982193451D5
-	for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2026 05:46:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C89FC29B795;
+	Wed, 11 Mar 2026 06:07:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773208013; cv=none; b=Vg+oM9L9yIG6mkWVy++AKze/wSnDUbj5avOx9XsVWUgGzGX8ilQ9a/GFXjHrO0Jxt2qCSqMXbR7fAfxEf5brFkwgwS+nICAaNH9CeGwMZd9JDA00G3g2KLfxN43FFqI+dKoWe5coUxOsK6CvqMwXIVzkm/ksSAXLJOCuPPLEmh0=
+	t=1773209278; cv=none; b=deyq2hlpt95o4RPk+1EMBHYuu9NDEo0jPZWO+DROWDbEOh7h8RsDObuw6s0+mtffQL8vMVb6O1RLcxSFvNUQT4N979F48cfeEXdTDKcg33Qz74nUZZu7RJC4kU91/8haxqCnr1upM/nmHY+1K18JXB7gEO7np8OP46FZx6AOHCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773208013; c=relaxed/simple;
-	bh=HXTzUVUWHHI9t+jZnXs1tFKVOZiz2FaIEWHfeEPLanw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YctQWLewSAKCbN7LzRGh0op9rbFsp+DEFNhs+wOn49aOxWKeKqNBuUSHKP2hRFJfU49wbdHQP1BJhQwHQDnaZoqq9PTBwQOO/gQpiaZGtw7rUUUPRpK+wGkMrQqFz6vk07SN0QF+OonIKV4Yq4Z+jJSr4JCR/NIXx1JyQ2llIIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=C5gG9g2j; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Ee7eoyPp; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1773209278; c=relaxed/simple;
+	bh=69qFIYtyDr9znxfjTU2cf/MvY/d5dOWbtA3vFY5B9f4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E7MLvJW5rRjylhLIALxQzVzSEDo/FOBRgv0vnnnUmWD5mhub8e/78SwCEc3rRSeTFN5lV0YvXth6K85QgnY5QggrgiKIURUeqpH/0pBOkBWfipReMfauX07oJaRc3MYSagqcW+Hb1wYHBfM68keCw0zjRrhn05QthZU2F6YkT4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q1zcR9ON; arc=none smtp.client-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="C5gG9g2j";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Ee7eoyPp"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62B3e1Pl2179276
-	for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2026 05:46:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	E1Q4XFB39ddq7htOB8iFfiUhkv9bnXZHIaXV0U9eiRE=; b=C5gG9g2jdG8T+HOI
-	CpCPHp686o3hEUs43od/E/z0Dfh6xp9PVCq0D4oBjX2rstjGCYMttsdY1xoxYbAZ
-	S3EgAnhEcD1brKFnoWRUD5thUuvY44xMTr44Ol83/SOvv4xBI6vX3y1spjf/QIsu
-	+2DVzNLc9RU2mtORSOFujefZrhL6YJVLrEdsUXmp4qMGtyZo9ZEKB3WGnBcZr3U+
-	KOZGTWLVm3jxhlDQRD/Ib4jk3V2VKGm512g6GVzInasjbADezxwRv1eMt/U+QYFF
-	Wi4eT2weApPIVT3sxp01c1RKRQAQt2cZX48j8vSQt26hLV5tznlBr3rCqiHXpIaE
-	M9Z5Lg==
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ctqvst2ju-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 11 Mar 2026 05:46:50 +0000 (GMT)
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-354c44bf176so13184061a91.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Mar 2026 22:46:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1773208009; x=1773812809; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=E1Q4XFB39ddq7htOB8iFfiUhkv9bnXZHIaXV0U9eiRE=;
-        b=Ee7eoyPpaGrEI+rXjxIK/de2P4Jpe+0ONUrNXPLxhWBsVWnI7gG2PBcjDbMhYG0Ohz
-         9osSfozrtcPbneszj/ff/pWrnL8huKfZDF9fXV9X1uOBb7OXrtrDnYchFJsU0stQlP/5
-         GVqeV/4xz+JY4XCT44t6DfumPf7VVgnMjWlKaX75GbVZwb45UjFmG/aJNskcxHMO74bC
-         rOzM0elJ9vhC95f0traeqIFjn7VyGCqtIjBs9PNx2gjMA2fbCW2qq/DN5Z01jL7tc3Dg
-         nIrJ2KJqaNaf6g1lIuWgwDKJhqJkweNF/mKgIRP7RdzTqO+S5/cAX0mCjTbpUtRQiNmF
-         i5Yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773208009; x=1773812809;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=E1Q4XFB39ddq7htOB8iFfiUhkv9bnXZHIaXV0U9eiRE=;
-        b=rNLENhy7UZ3TBx2LigUq9PVLYWM9sJruwAzhTW2y1IF55YPiepPqBc5JlHTDr64Bc5
-         EkChCAISVKB8qEuR4zRbrVSvzYLFTc7cD7mWybXbdzYersqIVJ0yI74bNq5p5VmlDDMk
-         FWdHSXWDTYjSjT3d6xvZUr+YfcZilDYyDpJMcNHf7o/YS2Qi4XsVwrTBCvd6fKjZKPnL
-         90OG5vJZvUqj7J+gxqyH/2hACfRlqu1qNInvoC808abK9i3nARQTtlBH7RXgfrgsRYh6
-         3Nx14Ea8599z+CJq1WI0lcwb1OLKX/amLyYdO+6YMpk8mAEGKiQEd+4Q1A8uHW3ujXo/
-         Ecmw==
-X-Forwarded-Encrypted: i=1; AJvYcCWbHm6hQZ7omPCfFunLEHKav1t3o5Nd+5hqUCDipF9GFEk7FhzT7vgtJRTAr3iRC0LaCATNq/ccJzgM0S5KLw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUjOmyvqB2yRuaKM+ROivTH909L2OiL9vqI0xrwKWX2eVf8bwF
-	UarjVondmEnXB10E1sNaUoceiaW+2YzviW8Q+hrgbqRq04vy3NSTN3NSonZmmGL84z0PpKN30BF
-	eEiQPZ6xLBJt/gMLWvFxjHAyJa7h0o1Ub//+ZTKB10SSlc2ouIKGJEszpKsuZfdUgtHnwBg==
-X-Gm-Gg: ATEYQzw3GCTk7yHGF/3H2tC+BGUcRYQBk0V+uzBIiPUNDwR/0XGzgcBVnKZTGFzliKj
-	CzrUw5BiZsQ/4pUBo4a9vwyr/sCUAvYqKfvhIX2y6/n0rO7fRuyB1QM4qvOVD1QpB9lhMnncn+3
-	5dpcznZwVP8XKGvWg3aWxGjOXvPR4KfgFN73iihTVNbfA8Nbv6jlO8/28uCIdiEGy8zby0nZ1We
-	58Xnrv3cgt5WTq5K683NpZXptChABq7zr4VPErOgA9dbEYJdteOmA2pRcywQxWT3gG49k3fYK84
-	qFZFOCrI4H+Nn2Hmks+z/nGmenLcjI7RCicEeVcMDPdZg2/Eagw+NYst4TUHR0JPSP7yQtx1WaB
-	9I36QFHG0s/uZ5IKFcn6PVpiV9QUujIxa12eRgjMzklT0coh/zwCbtkk=
-X-Received: by 2002:a05:6a21:700e:b0:398:71b6:33aa with SMTP id adf61e73a8af0-398c61698b3mr1065918637.64.1773208009301;
-        Tue, 10 Mar 2026 22:46:49 -0700 (PDT)
-X-Received: by 2002:a05:6a21:700e:b0:398:71b6:33aa with SMTP id adf61e73a8af0-398c61698b3mr1065883637.64.1773208008746;
-        Tue, 10 Mar 2026 22:46:48 -0700 (PDT)
-Received: from hu-pkondeti-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829f6eebf43sm1114108b3a.39.2026.03.10.22.46.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 22:46:48 -0700 (PDT)
-From: Pavankumar Kondeti <pavan.kondeti@oss.qualcomm.com>
-Date: Wed, 11 Mar 2026 11:16:31 +0530
-Subject: [PATCH RESEND v8 2/2] watchdog: Add driver for Gunyah Watchdog
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q1zcR9ON"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773209276; x=1804745276;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=69qFIYtyDr9znxfjTU2cf/MvY/d5dOWbtA3vFY5B9f4=;
+  b=Q1zcR9ON6pJRl7ibNLcL61NcOTlXUTspS5ZWsWqrAAz16KP4hZklUJ/s
+   Z3GDAnO+zFm91d7F/H37Py/uocfB83jnN0ahXtpDBwlAyfrZzIQR7AVK0
+   8bvPJH5Siz2vJatmj/6ENUpY4GDil2s19gCUVNVQZ6EVHxbgsVNT7oBTo
+   GwoNzWXA1ogUe2YTySg3XMuZjFzR4Zf+Bd6NIvyKzT+QKN+NfeWWoKdM1
+   KrULDOpzmuM7OrZsqo26UgswgoOzd0TbF4e95cgC1hSeKPvFUKBhvilmI
+   avp5C0OBsnozmqs2MiSFHuzgwxUKualxL2wBd4qB/RXmzhPW+OZURohEn
+   A==;
+X-CSE-ConnectionGUID: ua5w7RbMQ1uIKfSM6jNB8Q==
+X-CSE-MsgGUID: 90B5BJdgRiCThNmz81mB1A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11725"; a="84975135"
+X-IronPort-AV: E=Sophos;i="6.23,113,1770624000"; 
+   d="scan'208";a="84975135"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 23:07:55 -0700
+X-CSE-ConnectionGUID: Xmc022qnT6WtfTEcvw9BXA==
+X-CSE-MsgGUID: p4Bvvj27TQ+YgBR+E2RUsA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,113,1770624000"; 
+   d="scan'208";a="250861493"
+Received: from lkp-server01.sh.intel.com (HELO 418530b1a366) ([10.239.97.150])
+  by orviesa002.jf.intel.com with ESMTP; 10 Mar 2026 23:07:50 -0700
+Received: from kbuild by 418530b1a366 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w0CjS-000000000mj-1txg;
+	Wed, 11 Mar 2026 06:07:46 +0000
+Date: Wed, 11 Mar 2026 14:07:40 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa-dev@sang-engineering.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org, Pascal Eberhard <pascal.eberhard@se.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	"Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
+Subject: Re: [PATCH 5/5] watchdog: rzn1: Add support for direct hardware reset
+Message-ID: <202603111437.eGpzXcOB-lkp@intel.com>
+References: <20260310173249.161354-6-herve.codina@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260311-gunyah_watchdog-v8-2-4c1c0689de22@oss.qualcomm.com>
-References: <20260311-gunyah_watchdog-v8-0-4c1c0689de22@oss.qualcomm.com>
-In-Reply-To: <20260311-gunyah_watchdog-v8-0-4c1c0689de22@oss.qualcomm.com>
-To: Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>,
-        Pavankumar Kondeti <pavan.kondeti@oss.qualcomm.com>,
-        Shivendra Pratap <shivendra.pratap@oss.qualcomm.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Mukesh Ojha <mukesh.ojha@oss.qualcomm.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-X-Mailer: b4 0.15-dev-dd521
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1773207995; l=10652;
- i=pavan.kondeti@oss.qualcomm.com; s=20260311; h=from:subject:message-id;
- bh=AkD6Bx3QmX4ZCXK1sI5kNwmAIUv8jyMHiiakfJwVVFE=;
- b=FtAr0y2zCMhnE4sE7CCC8Ex1SyPEmd0r0yJeT1aYilu1SurYGDiUcNvss/UNcEDrvuF4+eO/N
- GPwax495BuUCkVRGWEwRu/qyHLvG13uVaITv11NFetuTr3Bi0Z1dnXt
-X-Developer-Key: i=pavan.kondeti@oss.qualcomm.com; a=ed25519;
- pk=Pdl9NnQpMlqbYaAGGkgBGpURTnZFe2de5LRZSGHkbHY=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDA0NiBTYWx0ZWRfXwg3KzClElhcR
- 2V2C2vquXY6RgyHzS407ZIXYT0+YCC6yKSDqy/q7CJjt9NZ5f0309yQTKsrjbtQvA71wf1+K5fg
- DGgOj0UJsAQBfCK/Ng04xu/AqswEOX30xX8bkBU9zhP/b3KHzIBfx7lKSINaljloq7OUsMbIjvs
- p/HI7rV5oVD+5gFMEwz8NmPzynHhmUnieMBBvVTZupBd/aFNUIBlZ+yhMhPQloRPYWnbxpMsa2G
- b7wqzg4zfeA/nTRmsb/x8Q1S5eCoS24rMYBprFQP12cz9JsD8tUV8Cg/KShy5+bFdE6tMbM2v2j
- wKiMAdtoJnfTNEcDPFklHE6Qi1A9nweM3tLg3jo8Isn8Ss4FKiBlakgKrzaGp33rrYBYus88/gc
- sD6Ofk8cx8EjKCnbXiEmOYX3zowmOxKS/QbfteRa4s+Hr0c95WVvuqgr3SSLbOZyDXxbe66FNeY
- EgRCLshAxeaUP+nYxZg==
-X-Proofpoint-ORIG-GUID: 5PuvXXqd_26avwwDeQ9oT5Lujrn4wWw2
-X-Authority-Analysis: v=2.4 cv=Lo2fC3dc c=1 sm=1 tr=0 ts=69b101ca cx=c_pps
- a=UNFcQwm+pnOIJct1K4W+Mw==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=KKAkSRfTAAAA:8 a=_jlGtV7tAAAA:8 a=uHUF2ZwmFKjH5m5PrtYA:9
- a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10 a=uKXjsCUrEbL0IQVhDsJ9:22
- a=cvBusfyB2V15izCimMoJ:22 a=nlm17XC03S6CtCLSeiRr:22
-X-Proofpoint-GUID: 5PuvXXqd_26avwwDeQ9oT5Lujrn4wWw2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-10_05,2026-03-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 clxscore=1015 impostorscore=0 bulkscore=0 malwarescore=0
- phishscore=0 lowpriorityscore=0 adultscore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603110046
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260310173249.161354-6-herve.codina@bootlin.com>
 
-From: Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
+Hi Herve,
 
-On Qualcomm SoCs running under the Gunyah hypervisor, access to watchdog
-through MMIO is not available on all platforms. Depending on the
-hypervisor configuration, the watchdog is either fully emulated or
-exposed via ARM's SMC Calling Conventions (SMCCC) through the Vendor
-Specific Hypervisor Service Calls space.
+kernel test robot noticed the following build errors:
 
-Add driver to support the SMC-based watchdog provided by the Gunyah
-Hypervisor. Device registration is done in the QCOM SCM driver after
-checks to restrict the watchdog initialization to Qualcomm devices
-running under Gunyah.
+[auto build test ERROR on robh/for-next]
+[also build test ERROR on geert-renesas-drivers/renesas-clk geert-renesas-devel/next groeck-staging/hwmon-next linus/master v7.0-rc3 next-20260310]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Gunyah watchdog is not a hardware but an SMC-based vendor-specific
-hypervisor interface provided by the Gunyah hypervisor. The design
-involving QCOM SCM driver for registering the platform device has been
-devised to avoid adding non-hardware nodes to devicetree.
+url:    https://github.com/intel-lab-lkp/linux/commits/Herve-Codina-Schneider-Electric/watchdog-rzn1-Fix-reverse-xmas-tree-declaration/20260311-015157
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git for-next
+patch link:    https://lore.kernel.org/r/20260310173249.161354-6-herve.codina%40bootlin.com
+patch subject: [PATCH 5/5] watchdog: rzn1: Add support for direct hardware reset
+config: x86_64-buildonly-randconfig-003-20260311 (https://download.01.org/0day-ci/archive/20260311/202603111437.eGpzXcOB-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260311/202603111437.eGpzXcOB-lkp@intel.com/reproduce)
 
-Tested-by: Shivendra Pratap <shivendra.pratap@oss.qualcomm.com>
-Tested-by: Neil Armstrong <neil.armstrong@linaro.org>
-Tested-by: Mukesh Ojha <mukesh.ojha@oss.qualcomm.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Signed-off-by: Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>
-Signed-off-by: Pavankumar Kondeti <pavan.kondeti@oss.qualcomm.com>
----
- MAINTAINERS                   |   1 +
- drivers/watchdog/Kconfig      |  13 +++
- drivers/watchdog/Makefile     |   1 +
- drivers/watchdog/gunyah_wdt.c | 261 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 276 insertions(+)
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603111437.eGpzXcOB-lkp@intel.com/
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 77fdfcb55f06..842306623b1d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3325,6 +3325,7 @@ F:	arch/arm64/boot/dts/qcom/
- F:	drivers/bus/qcom*
- F:	drivers/firmware/qcom/
- F:	drivers/soc/qcom/
-+F:	drivers/watchdog/gunyah_wdt.c
- F:	include/dt-bindings/arm/qcom,ids.h
- F:	include/dt-bindings/firmware/qcom,scm.h
- F:	include/dt-bindings/soc/qcom*
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index dc78729ba2a5..5f1dfb6ac41b 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2354,4 +2354,17 @@ config KEEMBAY_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called keembay_wdt.
- 
-+config GUNYAH_WATCHDOG
-+	tristate "Qualcomm Gunyah Watchdog"
-+	depends on ARCH_QCOM || COMPILE_TEST
-+	depends on HAVE_ARM_SMCCC
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for watchdog timer provided by the
-+	  Gunyah hypervisor. The driver uses ARM SMC Calling Convention (SMCCC)
-+	  to interact with Gunyah Watchdog.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gunyah_wdt.
-+
- endif # WATCHDOG
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index d2fb16b9f9ce..4d1547702ef0 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -103,6 +103,7 @@ obj-$(CONFIG_MSC313E_WATCHDOG) += msc313e_wdt.o
- obj-$(CONFIG_APPLE_WATCHDOG) += apple_wdt.o
- obj-$(CONFIG_SUNPLUS_WATCHDOG) += sunplus_wdt.o
- obj-$(CONFIG_MARVELL_GTI_WDT) += marvell_gti_wdt.o
-+obj-$(CONFIG_GUNYAH_WATCHDOG) += gunyah_wdt.o
- 
- # X86 (i386 + ia64 + x86_64) Architecture
- obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
-diff --git a/drivers/watchdog/gunyah_wdt.c b/drivers/watchdog/gunyah_wdt.c
-new file mode 100644
-index 000000000000..49dfef459e84
---- /dev/null
-+++ b/drivers/watchdog/gunyah_wdt.c
-@@ -0,0 +1,261 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+#include <linux/arm-smccc.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+
-+#define GUNYAH_WDT_SMCCC_CALL_VAL(func_id) \
-+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL, ARM_SMCCC_SMC_32,\
-+			   ARM_SMCCC_OWNER_VENDOR_HYP, func_id)
-+
-+/* SMCCC function IDs for watchdog operations */
-+#define GUNYAH_WDT_CONTROL   GUNYAH_WDT_SMCCC_CALL_VAL(0x0005)
-+#define GUNYAH_WDT_STATUS    GUNYAH_WDT_SMCCC_CALL_VAL(0x0006)
-+#define GUNYAH_WDT_PING      GUNYAH_WDT_SMCCC_CALL_VAL(0x0007)
-+#define GUNYAH_WDT_SET_TIME  GUNYAH_WDT_SMCCC_CALL_VAL(0x0008)
-+
-+/*
-+ * Control values for GUNYAH_WDT_CONTROL.
-+ * Bit 0 is used to enable or disable the watchdog. If this bit is set,
-+ * then the watchdog is enabled and vice versa.
-+ * Bit 1 should always be set to 1 as this bit is reserved in Gunyah and
-+ * it's expected to be 1.
-+ */
-+#define WDT_CTRL_ENABLE  (BIT(1) | BIT(0))
-+#define WDT_CTRL_DISABLE BIT(1)
-+
-+enum gunyah_error {
-+	GUNYAH_ERROR_OK				= 0,
-+	GUNYAH_ERROR_UNIMPLEMENTED		= -1,
-+	GUNYAH_ERROR_ARG_INVAL			= 1,
-+};
-+
-+/**
-+ * gunyah_error_remap() - Remap Gunyah hypervisor errors into a Linux error code
-+ * @gunyah_error: Gunyah hypercall return value
-+ */
-+static inline int gunyah_error_remap(enum gunyah_error gunyah_error)
-+{
-+	switch (gunyah_error) {
-+	case GUNYAH_ERROR_OK:
-+		return 0;
-+	case GUNYAH_ERROR_UNIMPLEMENTED:
-+		return -EOPNOTSUPP;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static int gunyah_wdt_call(unsigned long func_id, unsigned long arg1,
-+			   unsigned long arg2)
-+{
-+	struct arm_smccc_res res;
-+
-+	arm_smccc_1_1_smc(func_id, arg1, arg2, &res);
-+	return gunyah_error_remap(res.a0);
-+}
-+
-+static int gunyah_wdt_start(struct watchdog_device *wdd)
-+{
-+	unsigned int timeout_ms;
-+	struct device *dev = wdd->parent;
-+	int ret;
-+
-+	ret = gunyah_wdt_call(GUNYAH_WDT_CONTROL, WDT_CTRL_DISABLE, 0);
-+	if (ret && watchdog_active(wdd)) {
-+		dev_err(dev, "%s: Failed to stop gunyah wdt %d\n", __func__, ret);
-+		return ret;
-+	}
-+
-+	timeout_ms = wdd->timeout * 1000;
-+	ret = gunyah_wdt_call(GUNYAH_WDT_SET_TIME, timeout_ms, timeout_ms);
-+	if (ret) {
-+		dev_err(dev, "%s: Failed to set timeout for gunyah wdt %d\n",
-+			__func__, ret);
-+		return ret;
-+	}
-+
-+	ret = gunyah_wdt_call(GUNYAH_WDT_CONTROL, WDT_CTRL_ENABLE, 0);
-+	if (ret)
-+		dev_err(dev, "%s: Failed to start gunyah wdt %d\n", __func__, ret);
-+
-+	return ret;
-+}
-+
-+static int gunyah_wdt_stop(struct watchdog_device *wdd)
-+{
-+	return gunyah_wdt_call(GUNYAH_WDT_CONTROL, WDT_CTRL_DISABLE, 0);
-+}
-+
-+static int gunyah_wdt_ping(struct watchdog_device *wdd)
-+{
-+	return gunyah_wdt_call(GUNYAH_WDT_PING, 0, 0);
-+}
-+
-+static int gunyah_wdt_set_timeout(struct watchdog_device *wdd,
-+				  unsigned int timeout_sec)
-+{
-+	wdd->timeout = timeout_sec;
-+
-+	if (watchdog_active(wdd))
-+		return gunyah_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static int gunyah_wdt_get_time_since_last_ping(void)
-+{
-+	struct arm_smccc_res res;
-+
-+	arm_smccc_1_1_smc(GUNYAH_WDT_STATUS, 0, 0, &res);
-+	if (res.a0)
-+		return gunyah_error_remap(res.a0);
-+
-+	return res.a2 / 1000;
-+}
-+
-+static unsigned int gunyah_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	int seconds_since_last_ping;
-+
-+	seconds_since_last_ping = gunyah_wdt_get_time_since_last_ping();
-+	if (seconds_since_last_ping < 0 ||
-+	    seconds_since_last_ping > wdd->timeout)
-+		return 0;
-+
-+	return wdd->timeout - seconds_since_last_ping;
-+}
-+
-+static int gunyah_wdt_restart(struct watchdog_device *wdd,
-+			      unsigned long action, void *data)
-+{
-+	/* Set timeout to 1ms and send a ping */
-+	gunyah_wdt_call(GUNYAH_WDT_CONTROL, WDT_CTRL_DISABLE, 0);
-+	gunyah_wdt_call(GUNYAH_WDT_SET_TIME, 1, 1);
-+	gunyah_wdt_call(GUNYAH_WDT_CONTROL, WDT_CTRL_ENABLE, 0);
-+	gunyah_wdt_call(GUNYAH_WDT_PING, 0, 0);
-+
-+	/* Wait to make sure reset occurs */
-+	mdelay(100);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info gunyah_wdt_info = {
-+	.identity = "Gunyah Watchdog",
-+	.options = WDIOF_SETTIMEOUT
-+		 | WDIOF_KEEPALIVEPING
-+		 | WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops gunyah_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = gunyah_wdt_start,
-+	.stop = gunyah_wdt_stop,
-+	.ping = gunyah_wdt_ping,
-+	.set_timeout = gunyah_wdt_set_timeout,
-+	.get_timeleft = gunyah_wdt_get_timeleft,
-+	.restart = gunyah_wdt_restart
-+};
-+
-+static int gunyah_wdt_probe(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdd;
-+	struct device *dev = &pdev->dev;
-+	int ret;
-+
-+	ret = gunyah_wdt_call(GUNYAH_WDT_STATUS, 0, 0);
-+	if (ret == -EOPNOTSUPP)
-+		return -ENODEV;
-+
-+	if (ret)
-+		return dev_err_probe(dev, ret, "status check failed\n");
-+
-+	wdd = devm_kzalloc(dev, sizeof(*wdd), GFP_KERNEL);
-+	if (!wdd)
-+		return -ENOMEM;
-+
-+	wdd->info = &gunyah_wdt_info;
-+	wdd->ops = &gunyah_wdt_ops;
-+	wdd->parent = dev;
-+
-+	/*
-+	 * Although Gunyah expects 16-bit unsigned int values as timeout values
-+	 * in milliseconds, values above 0x8000 are reserved. This limits the
-+	 * max timeout value to 32 seconds.
-+	 */
-+	wdd->max_timeout = 32; /* seconds */
-+	wdd->min_timeout = 1; /* seconds */
-+	wdd->timeout = wdd->max_timeout;
-+
-+	gunyah_wdt_stop(wdd);
-+	platform_set_drvdata(pdev, wdd);
-+	watchdog_set_restart_priority(wdd, 0);
-+
-+	return devm_watchdog_register_device(dev, wdd);
-+}
-+
-+static void gunyah_wdt_remove(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-+
-+	gunyah_wdt_stop(wdd);
-+}
-+
-+static int gunyah_wdt_suspend(struct device *dev)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		gunyah_wdt_stop(wdd);
-+
-+	return 0;
-+}
-+
-+static int gunyah_wdt_resume(struct device *dev)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		gunyah_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(gunyah_wdt_pm_ops, gunyah_wdt_suspend, gunyah_wdt_resume);
-+
-+/*
-+ * Gunyah watchdog is a vendor-specific hypervisor interface provided by the
-+ * Gunyah hypervisor. Using QCOM SCM driver to detect Gunyah watchdog SMCCC
-+ * hypervisor service and register platform device when the service is available
-+ * allows this driver to operate independently of the devicetree and avoids
-+ * adding the non-hardware nodes to the devicetree.
-+ */
-+static const struct platform_device_id gunyah_wdt_id[] = {
-+	{ .name = "gunyah-wdt" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(platform, gunyah_wdt_id);
-+
-+static struct platform_driver gunyah_wdt_driver = {
-+	.driver = {
-+		.name = "gunyah-wdt",
-+		.pm = pm_sleep_ptr(&gunyah_wdt_pm_ops),
-+	},
-+	.id_table = gunyah_wdt_id,
-+	.probe = gunyah_wdt_probe,
-+	.remove = gunyah_wdt_remove,
-+};
-+
-+module_platform_driver(gunyah_wdt_driver);
-+
-+MODULE_DESCRIPTION("Gunyah Watchdog Driver");
-+MODULE_LICENSE("GPL");
+All error/warnings (new ones prefixed by >>):
+
+   In file included from drivers/watchdog/rzn1_wdt.c:20:
+>> include/linux/soc/renesas/r9a06g032-sysctrl.h:17:53: warning: declaration of 'enum r9a06g032_sysctrl_rst_src' will not be visible outside of this function [-Wvisibility]
+      17 | static inline int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
+         |                                                     ^
+>> include/linux/soc/renesas/r9a06g032-sysctrl.h:17:79: error: variable has incomplete type 'enum r9a06g032_sysctrl_rst_src'
+      17 | static inline int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
+         |                                                                               ^
+   include/linux/soc/renesas/r9a06g032-sysctrl.h:17:53: note: forward declaration of 'enum r9a06g032_sysctrl_rst_src'
+      17 | static inline int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
+         |                                                     ^
+>> drivers/watchdog/rzn1_wdt.c:105:33: error: variable has incomplete type 'enum r9a06g032_sysctrl_rst_src'
+     105 |         enum r9a06g032_sysctrl_rst_src rst_src;
+         |                                        ^
+   drivers/watchdog/rzn1_wdt.c:105:7: note: forward declaration of 'enum r9a06g032_sysctrl_rst_src'
+     105 |         enum r9a06g032_sysctrl_rst_src rst_src;
+         |              ^
+>> drivers/watchdog/rzn1_wdt.c:119:13: error: use of undeclared identifier 'R9A06G032_RST_WATCHDOG_CA7_0'
+     119 |                 rst_src = R9A06G032_RST_WATCHDOG_CA7_0;
+         |                           ^
+>> drivers/watchdog/rzn1_wdt.c:122:13: error: use of undeclared identifier 'R9A06G032_RST_WATCHDOG_CA7_1'
+     122 |                 rst_src = R9A06G032_RST_WATCHDOG_CA7_1;
+         |                           ^
+   1 warning and 4 errors generated.
+
+
+vim +17 include/linux/soc/renesas/r9a06g032-sysctrl.h
+
+21c34edbcc67b0 Herve Codina (Schneider Electric  2026-03-10  14) 
+885525c1e7e27e Miquel Raynal                     2022-04-27  15  #else
+885525c1e7e27e Miquel Raynal                     2022-04-27  16  static inline int r9a06g032_sysctrl_set_dmamux(u32 mask, u32 val) { return -ENODEV; }
+21c34edbcc67b0 Herve Codina (Schneider Electric  2026-03-10 @17) static inline int r9a06g032_sysctrl_enable_rst(enum r9a06g032_sysctrl_rst_src rst_src)
+21c34edbcc67b0 Herve Codina (Schneider Electric  2026-03-10  18) {
+21c34edbcc67b0 Herve Codina (Schneider Electric  2026-03-10  19) 	return -ENODEV;
+21c34edbcc67b0 Herve Codina (Schneider Electric  2026-03-10  20) }
+885525c1e7e27e Miquel Raynal                     2022-04-27  21  #endif
+885525c1e7e27e Miquel Raynal                     2022-04-27  22  
 
 -- 
-2.34.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
