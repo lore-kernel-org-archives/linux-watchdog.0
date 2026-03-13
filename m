@@ -1,152 +1,165 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010020.outbound.protection.outlook.com [52.101.56.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B41593B8932
-	for <linux-watchdog@vger.kernel.org>; Thu, 12 Mar 2026 22:03:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773352984; cv=none; b=rDVDrfk2VPjvq7Hvud3vp62ifsEdrVgeAoyRWtTtDuqF7eZhMYZfIkvjJfy+Ir99cQhgOqMS7Zfz9jxLX3zAyFVwalMzLdTWkUveA4hbZaY1oXNzhIRScSXL8QzalQckDhhvoljBNpoNAvVbt/cBlacrv6wDr3uCVoIHu0D6PQA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773352984; c=relaxed/simple;
-	bh=6q1I7GWkgFvz45j6Au781r+RYdyLrpn/D3EoL8dn2yo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QF60OyEcJ76+kRjSEaCIg/NSde1JPpxZBHFWBipnV9+GnRj8kOWZJ6i1c9WT9R08SUUOXDc1j3RuhkLcdyJhQ/nTz7QoIJKRAa+TjGLgkuupgkJV8mMB//4h+C194Rg7klr7PpekadC6UWxLGlNuTWO8Hk0X17vZvuuLZW9iJXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SprKnPmf; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EEA21DF75B;
+	Fri, 13 Mar 2026 06:07:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.20
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773382038; cv=fail; b=VT4e0I2XOk2trRMrUqIEw7fFjagiVpm2+jczXKORLIV80tRpsF0/UOaGz58lvSlNzig4N8DtT9qF4yki9e6vPcr+QNLBmY8EaoV/B6rlSLj1W9imZQVxyrNDlIAOtG1gmTN7qongpOYMIrMMblGnqJ2r1K9NBjuMljJDvXyC0eM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773382038; c=relaxed/simple;
+	bh=UapO0FouQ1f5sdgCWUBn/ZoGp0GwV6jgqqmr3kYhKtE=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HuQ2ZnuYqz2IgKDmxZ9elMeoJY8oUxwWEm+YwXoOQK8dnCf5g0ghcyf3lCfDItyRD15FqfNCuFp6Swl5fnka83Ipf27cxcRLA9zxyJaTcuJvic2nceu3z9GIOZ41SXUVd51dMz7uFZ+I5awj7bEL67lDORnmGbAlGt8YQUsZP/M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=u0x8bo8k; arc=fail smtp.client-ip=52.101.56.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SprKnPmf"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2ae527552acso6700645ad.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 12 Mar 2026 15:03:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773352982; x=1773957782; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=x+8SB7B4vmhyiX4LIxugd9ysQFK0LgnTArE5FURLdrE=;
-        b=SprKnPmf2ELfciDioGh7KvtIIqme+Fanknr/FkUnDkC46SiISO8qo7V+Rj6pHh3zbE
-         68FxO/GSjaq0zmHcu/+ngACudHbw2eEs3GKzImxCjyBTRXW1b92nb75nvsIplXmDa14T
-         EnH6J9W1nqGZPZ4A/QumXi4uu1+lViR7MUc87He3sFNk5nZB/H5SRhpqKwdDwR6MrI3Y
-         GiTBbYYSj1A+mciPYej14EoDsMjpcyCIKbdzDniGE3z4AdAa1Zy1+I3hQA5EZFtY+pEO
-         iWMd/o+F10KUk8TVSvwEO0FAZUQ27FDC39lAXLzg85/1WILFRC2Z+Z9oSNOwxoVyyeTl
-         hwfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773352982; x=1773957782;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=x+8SB7B4vmhyiX4LIxugd9ysQFK0LgnTArE5FURLdrE=;
-        b=KOlmMts1+rVOOudk8NoVHcJZgAOMdbdJ20XrOZ6o5BKabfUU+qOhlU4Ow5fMxX20Mt
-         MsXYhz8x1L7tYb1PK2e9QnZqJDJvQ7vb4OB4AZKhi0nUmUow7R8XgRQop0uiThpSU5Of
-         xPLkim6PgPKzc1TUddZp55cVqqbUZIfo53O4pm/eDQxlRLELaNuwsJ6bazcPGWlPSoyB
-         qNTMcIsplB2yxnMT6EOr6jlRsgBZn9fjNzkJIFLDBDTyZBI5UPXZZqnZiChHp4OIU3ac
-         jGndWde6znrIqUq6uFtVoHuogV9NhTEVRNzczVPZTYKQKyc3bDo3aPkXdkAnuHtHtlUH
-         sEYg==
-X-Gm-Message-State: AOJu0YzjCf4dxV1b5btj3jfXPaS5q4WqwmQR/8dQEHfN2RJo3ogp6f7A
-	G5ell8FZoCbC+iG47sDpInv/rfXYpc63nTvrBwCkiIFN1wfp2EjSvrv+
-X-Gm-Gg: ATEYQzyzLRXWXC74TCpXk39TjWUSfXOMyUiZ3zTkuxSv5Zn8FnaOmfN35xJ0mPBEAdv
-	olLCvUunITXTV3MyO8E23oyyzEzGfx7cDwHWYcnDIh4mz2ifUga+oSgIbPo06Fv/2yAEEmFI1sp
-	NfFGl4aRotYWU9A/Tc6kDRA4/I4cxwanCNLzMhlVYEZ637m6WiZgvB5w4loxp69yBv/tABT6lC/
-	lEIETK9c/QyEmj/tjBJAuLgVjqXKkqnWAFWbGD05P1nDUiDlkVlOMGyrKKyMxmfeTCxlq+x2TR8
-	KuGtK22NrHX93NBItlE7ISLUgV7BJh/1FWMF0Z3F9HsbGZExYS6zsKD0HMCXbsgsPrRSZAFepQ1
-	eLF6lDul+jFza1hPHcy0KmYuo4wBnmn7PK16nyqvCs/ad5ejQ3TxYJ03ejqK0DJaCO//pivP+CL
-	y6eg7OwZOVFIjKN4hDUzZYoOa127ps7NZQpp1ziQpg/+Lfn322wbYlvdfq767tUfG738NTtXk8o
-	P/I6yW2b8k=
-X-Received: by 2002:a17:902:c950:b0:2ae:80b8:df16 with SMTP id d9443c01a7336-2aecac7f9e1mr8858055ad.49.1773352981910;
-        Thu, 12 Mar 2026 15:03:01 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aebacfc71fsm50515815ad.21.2026.03.12.15.03.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Mar 2026 15:03:01 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <2fda8e21-ac59-42d1-af17-292f68d14ec2@roeck-us.net>
-Date: Thu, 12 Mar 2026 15:02:59 -0700
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="u0x8bo8k"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wPrNYc2/X7Gl0Dwx1dqP8hnEqROCTrHb7ZlZ4fAnQxVyW0tjnHeNjDAt5chRvRPa2Jrd9AXYIxjUnchvWj7X5LC4tIBcfXyfGJ3Qpzi2nuGv85foCGESPDakK6YradEYelGMnG2tMU0hJENZ+dpuUEgwcEi+30/or4ylkPRzdU568oyqgphBBo1+8yo4Fw4UBXMRr0cBMSJh6p+IMAg25i5p3eZN+o643GEhlQm1ywz/0JNplW6i5YKIiOhjIidlAMQlfYrPRx7uweiDfxRLkhgPBX0wbEnflDNci75GpjYDu7E1kJrs42ZEoeqRngDfnuTVVn/dUP23mg5VrxJe0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=sXD2JRDr5V9JWlg2JzephIkXYDzuEQjtdPwGj7BTQho=;
+ b=sa0lNbBoVzQsO69GVJHqjE3nw6etJPP0X3Zos6aDoVnlnC4/yt1CxPfUksu8/fDxXR7AIedVjb7j1WZ1tUILUkd+Gi/8ctTu97SypBAL3Nm5isxSLs8WAA6t3CT9BANJKr40n+ba7T8yb9xxZEHNIuc8EY8lC9LxmtOmJ8VY7tA2+vfej1TnvP4Dt8RMm49dpPwma9qA/gvLIpXxScpfYKwbx6jVn09rLG55rggfVJLv1QuThmizfbOUj+AMOjJ9L0FXGyniR8BThHmbEQmgUg8yIkTdwWW1ybyLgHnkzOH9TySZN1JViBrIp8YWDiGGUQPWuT3dMU3TYlkWp8WJsA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 198.47.23.194) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=sXD2JRDr5V9JWlg2JzephIkXYDzuEQjtdPwGj7BTQho=;
+ b=u0x8bo8k39cZLUzlk8kAV6Qx73btlszDcIt+OXMiFBgIbPYP5slARQxOznHhYwqEJxv3/e64SdXdEJw1S6jpLNgfYjjZH0VFC5xeef2ydvlbgSFaImxg1PJhtVgEUHkU1g2okqJK21ATkF5MzqCxAV3aa7XqSBcImogdABdAPM0=
+Received: from PH7PR13CA0009.namprd13.prod.outlook.com (2603:10b6:510:174::12)
+ by PH3PPFAE1A1621A.namprd10.prod.outlook.com (2603:10b6:518:1::7bd) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.16; Fri, 13 Mar
+ 2026 06:07:14 +0000
+Received: from SA2PEPF000015CB.namprd03.prod.outlook.com
+ (2603:10b6:510:174:cafe::14) by PH7PR13CA0009.outlook.office365.com
+ (2603:10b6:510:174::12) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9700.16 via Frontend Transport; Fri,
+ 13 Mar 2026 06:07:10 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.23.194)
+ smtp.mailfrom=ti.com; dkim=none (message not signed) header.d=none;dmarc=pass
+ action=none header.from=ti.com;
+Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
+ 198.47.23.194 as permitted sender) receiver=protection.outlook.com;
+ client-ip=198.47.23.194; helo=lewvzet200.ext.ti.com; pr=C
+Received: from lewvzet200.ext.ti.com (198.47.23.194) by
+ SA2PEPF000015CB.mail.protection.outlook.com (10.167.241.201) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9700.17 via Frontend Transport; Fri, 13 Mar 2026 06:07:14 +0000
+Received: from DLEE214.ent.ti.com (157.170.170.117) by lewvzet200.ext.ti.com
+ (10.4.14.103) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Fri, 13 Mar
+ 2026 01:07:12 -0500
+Received: from DLEE212.ent.ti.com (157.170.170.114) by DLEE214.ent.ti.com
+ (157.170.170.117) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Fri, 13 Mar
+ 2026 01:07:12 -0500
+Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DLEE212.ent.ti.com
+ (157.170.170.114) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
+ Transport; Fri, 13 Mar 2026 01:07:12 -0500
+Received: from uda0132425.dhcp.ti.com (uda0132425.dhcp.ti.com [172.24.233.103])
+	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 62D677Vg028074;
+	Fri, 13 Mar 2026 01:07:07 -0500
+From: Vignesh Raghavendra <vigneshr@ti.com>
+To: Nishanth Menon <nm@ti.com>, Tero Kristo <kristo@kernel.org>, Rob Herring
+	<robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+	<conor+dt@kernel.org>, Guenter Roeck <linux@roeck-us.net>, "Srinivas
+ Kandagatla" <srini@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
+	Michael Walle <mwalle@kernel.org>
+CC: Vignesh Raghavendra <vigneshr@ti.com>,
+	<linux-arm-kernel@lists.infradead.org>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-hwmon@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>
+Subject: Re: (subset) [PATCH v2 0/7] Remove the Kontron SMARC-sAM67 board
+Date: Fri, 13 Mar 2026 11:37:02 +0530
+Message-ID: <177338196940.240421.4339975635292028486.b4-ty@ti.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20260302122540.1377444-1-mwalle@kernel.org>
+References: <20260302122540.1377444-1-mwalle@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: mtx-1_wdt: synchronize timer teardown in remove
-To: aviv.daum@gmail.com, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260312210645.10613-1-aviv.daum@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260312210645.10613-1-aviv.daum@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PEPF000015CB:EE_|PH3PPFAE1A1621A:EE_
+X-MS-Office365-Filtering-Correlation-Id: 86400f32-ed97-40df-8340-08de80c6c5e1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|82310400026|36860700016|376014|7416014|22082099003|56012099003|18002099003|921020;
+X-Microsoft-Antispam-Message-Info:
+	NkDswy5GgstntDhDwZ83UoTN9A2HFgLSaQW+ZeJzo2jl4qHvitlPSE5vdBeLSDRILxjaEVqQ32HHsibjOLzf1fLFkNGnyFeivJpLhIKfWp+S0EquSywXeEu55teBMczNt1355rwjaccYEo+D9ZNY9l3zsUKrB2muR+Fejtu0T+zP+4Mjv8hxoqKr3oW7KXmtp9gsRvPxQnOygKVPzyMfmzHQ6snJPb4zPdPfHvcsYY60T/9NER2gRkDEcmdT1irIz+uIxPC+VzDQWrO9WXao/BqONyIeA7GFcGF7ibyCyl4rK9rM40kd2jzSguPN6yWkypMhqNBhqdYQYdloIs6E2SCCNePewElt1TTsggdcBFIc2IfOQjpDjry+UlLgBk1D1JgMzol+mTLCJ5QKy45KwKAXOAXo9MXKyk08dhzObSgKQULcoWWl2z/9Z0iRWmwhFnd6IhPIxN/BmJD98GRWCV1iaMNXyMJi2TjR5OScoy8R/MvusF+yMqMCPyfuwr3n/mFUxczNlID42U5rFFawCgxmyDdnmJ4OTdx/aJKkh1JRH24RYSGgQJrdRZwbFKIvZ9gA2YAW5dMz0BIFOBGAd5XRT31wVrfat2Mjd+EQZ5CCEK8tbBvT29DtpWookw9yENzIFcEEpI7pX/StnxbSEx+Yxg37BWJfoMs2hKOp7F/SAjHPx2Ey+mjDgXwUuAhYHKUXmSFmDiSaZJaJj8bBlf2UO0cpLfoje3cWqpyOwsQa+ZsmWQFxSv8780TDBQ080qCb3w7jhqjRgBofpHxP4w==
+X-Forefront-Antispam-Report:
+	CIP:198.47.23.194;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:lewvzet200.ext.ti.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700016)(376014)(7416014)(22082099003)(56012099003)(18002099003)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	7PG2IBt0KX+BWJ2wAn8RiSzxzOdXJjxsvebVFXpzQv7ngVnEzFkxMlM1jM6anDFarSD6/cSfecFwnKb5ha1AzIso8xBoIm8c8r8VcMyOpUCNzquJ+zM8e6e7ZRaQ2wYHbZOp+J/yK8CKb+sSm7oSCLAblSSlTLrw24/LkBixtmmnZLsYcHAtBNSMGo3LqNfyXuansrnyL9QxPtQfRmKUfmx6S4Ugb53mZorj9zzHeBrBgasX4tEH/XIr24UcvYsvJ/fl09bevzfIhEvMK8AJWY2fSy4PnACvJLfAOHvqeeClG53XKCV0FDfBUkGy+BvsXGPu7ZqF4aaXV5z7j9XLKNnEb21hsAciC5VKEjBtG4/TQ3j6uS1UcojjuQ4zQIQCurVxeGazpNxe5KV++YVfEAWiLOMsC+3gw+mvqktjoqjoCW1JgxOEqLmAh/Bv8vZA
+X-OriginatorOrg: ti.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Mar 2026 06:07:14.4643
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 86400f32-ed97-40df-8340-08de80c6c5e1
+X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.23.194];Helo=[lewvzet200.ext.ti.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SA2PEPF000015CB.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH3PPFAE1A1621A
 
-On 3/12/26 14:06, aviv.daum@gmail.com wrote:
-> From: avivdaum <aviv.daum@gmail.com>
-> 
-> Replace the ad-hoc completion based teardown path with a proper
-> timer synchronization call in remove.
-> 
-> Stop the watchdog and delete the timer synchronously using
-> timer_delete_sync(), then deregister the misc device.
-> 
-> This removes the open FIXME about locking/testing of queue teardown
-> and makes the driver follow the current timer API pattern used in
-> watchdog drivers.
-> 
-> Compile-tested: ARCH=mips CROSS_COMPILE=mips-linux-gnu-
->    32r2el_defconfig (drivers/watchdog/mtx-1_wdt.o, W=1/W=2)
-> Compile-tested: ARCH=mips CROSS_COMPILE=mips-linux-gnu-
->    mtx1_defconfig (drivers/watchdog/mtx-1_wdt.o, W=1/W=2)
-> Compile-tested: ARCH=mips CROSS_COMPILE=mips-linux-gnu-
->    malta_defconfig + WATCHDOG=y + COMPILE_TEST=y + WDT_MTX1=m
->    (drivers/watchdog/mtx-1_wdt.o, W=1/W=2)
-> Signed-off-by: avivdaum <aviv.daum@gmail.com>
+Hi Michael Walle,
 
-NACK, sorry. If you want to do anything with this driver, consider converting
-it to use the watchdog subsystem (which would take care care of the timer
-functionality).
+On Mon, 02 Mar 2026 13:24:45 +0100, Michael Walle wrote:
+> I was informed two weeks ago that this product is discontinued
+> (without being ever released to the market). Unfortunately, this
+> collided with the merge window and I had to wait two more weeks.
+> 
+> Pull the plug and let's not waste any more maintainers time.
+> 
+> On the bright side, the board upstreaming brought some driver fixes,
+> too. I'm really sorry for any wasted time.
+> 
+> [...]
 
-Guenter
+I have applied the following to branch ti-k3-dts-next on [1].
+Thank you!
+
+[1/7] arm64: dts: ti: remove the Kontron SMARC-sAM67
+      commit: 852d2c0cc231806b9a3e9cd9e965c08342a27d66
+[3/7] dt-bindings: mfd: sl28cpld: Drop sa67mcu compatible
+      commit: 8b0260457b0bced7e782f000c1d4c10668bf7cb2
+[4/7] dt-bindings: arm: ti: Drop Kontron SMARC-sAM67 module
+      commit: 41a7b57152ffbf3ab8ab1110f831b1f53c2f9b88
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent up the chain during
+the next merge window (or sooner if it is a relevant bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/ti/linux.git
+--
+Vignesh
 
