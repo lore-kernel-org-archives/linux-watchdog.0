@@ -1,118 +1,156 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F10B43CBE72
-	for <linux-watchdog@vger.kernel.org>; Fri, 13 Mar 2026 17:19:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA569258EE0;
+	Sat, 14 Mar 2026 11:53:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773422356; cv=none; b=s3cMJFntOk8UaWzaSlZOgK/txF4gZsJ/EaXWpBAI/A3AwLn22EJPmKReObthIcrgVtJmPFYt4YceNQDxYmxJcTgRpDDvXBPsx42QLzTkCerZy2nKdXKvwyITXa3CvJRRM7PA4Jrmw0m20aGwqNa7vRQEEBncoC0fQjFX8Uyg++Q=
+	t=1773489187; cv=none; b=fuT1RXLzRMMAfAOzGJd4w4TgMNrwNM+AP+URvMGMJGGykjyIw59xne3BfCPJzoWnYKzN7MihpMP2D2lF2270iDSH9dy4FQNj1THZa1kn+x0bLTJcSrWFYIH9BQsmXhnWBFQyetvscT6nb0SnxIuhuHrAjEAjzKHK5WrLTd5GL+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773422356; c=relaxed/simple;
-	bh=dWlzpIRpWhs//KGkXhRaKZ5Oy2VekU+zobFeCi2zWjg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u5RPEPLyZ4pvWpAuMVVsv0iWoqtO5WdMvyBLRxlbuaHw2SsjqknukfSJup9/a7kC3SWWlaKXD7XFYXc0GvJoW6UQm4+lDuARU34LbuV3gplIkAodnKV2UI6ixMr00W8k8eot9N3NG6GA4+Dj13IzFMEs+u+FKhL2Zgy/+YXZWTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GYi8Tijs; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1773489187; c=relaxed/simple;
+	bh=lyGbHpgdvoj/84R2wKCywhu1s+TBW0sYyEGzYTp4UV4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OGfrVIPcMLvEQ14mXcO8jGOYzWHWK7m/o1qriMBurz6181/M+xgk8fUsWMMSXm0vQF7+Eunx/YM96uNf3QdCRVoBgLX8Rm6/3dt/h198fHjdD4HB+HmLRs/4Z3GOjUHRuU1DwGVZDGnTpDr8W/n5ABLgs4EDTtIJFwGdCXHVAkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H9GUOW7G; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GYi8Tijs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=d1IfdCdIdQyJxZ
-	ZoIlmhwvV8tc1Lvx3UnGZzC6QnBI8=; b=GYi8TijsZpLel+79c9SJGwivZJtQIJ
-	0/TgGNItio3hO7a1sGgWNH1MPOOaUz8Vtuc1k7jSLUaUQXxfBYLG/UyH7LFzPuoO
-	7MANHznyKUFuFyyTYSyOIsdOTrZVkTV3SwMqmjGrC8rXlE31nl+5xlEICBu2zvEC
-	Mbf4hmqXdjcjP5VJLltQ9a9/cFWHKeKs/reIvdMQ7zxLmrON2D25ykZ+zopPjngH
-	1G7pD4Sw+KRtp8exr9d2QPmr8ISsg6H+qV9vOoGy2Byd0icnCNJmMF0o11ggwW2b
-	fXl9kI+ZRV9Qzb30VLs/8wogOfkR7Tv/8S1nOslAEejqgdcImi/qnPSQ==
-Received: (qmail 390599 invoked from network); 13 Mar 2026 18:19:13 +0100
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 Mar 2026 18:19:13 +0100
-X-UD-Smtp-Session: l3s3148p1@7kZhEetMrrIujnuR
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Subject: [RFC PATCH] watchdog: rzn1: remove now obsolete interrupt support
-Date: Fri, 13 Mar 2026 18:16:42 +0100
-Message-ID: <20260313171858.8317-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H9GUOW7G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47983C116C6;
+	Sat, 14 Mar 2026 11:53:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773489187;
+	bh=lyGbHpgdvoj/84R2wKCywhu1s+TBW0sYyEGzYTp4UV4=;
+	h=From:To:Cc:Subject:Date:From;
+	b=H9GUOW7GdncUZZx0oiTbOSdgixxTCNVK0JD3TrMw7mfNQAtpwnn7zvnQ+yyikdWLq
+	 buDD4hUexRaFiWYoeimZve5TBk0bNdsMTGChqXxlMOpqV9brqnKlEjDEzgTHN2KhJ8
+	 30kclckYfKEbYI09WTSk5u1gkudYkBe+2qJfTucVkYaNYBPYtg4hk+p1Ei842aFt9E
+	 rJvrrkxLTUyTSsHfrc1KyE36Bnl3YsNvIaXb+V5taS9QtsDr1YttntA+VFbsuO24yn
+	 LeoNcFKhA7w0ILStDlNOoDGqRf3nLocUHhfVDAH51mlMgxH6WoCQfvozhl1WaVAhwx
+	 FuVk4Z7Dqu9+w==
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+To: linux-watchdog@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ Linux ACPI <linux-acpi@vger.kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v1] watchdog: ni903x_wdt: Convert to a platform driver
+Date: Sat, 14 Mar 2026 12:53:01 +0100
+Message-ID: <13996583.uLZWGnKmhe@rafael.j.wysocki>
+Organization: Linux Kernel Development
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
 
-Previously, it was overlooked that the watchdog could reset the system
-directly. So, a workaround using the interrupt which called
-emergency_restart() was implemented. We now configure the controller
-when booting properly to allow watchdog resets directly. Thus, remove
-the interrupt workaround.
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+In all cases in which a struct acpi_driver is used for binding a driver
+to an ACPI device object, a corresponding platform device is created by
+the ACPI core and that device is regarded as a proper representation of
+underlying hardware.  Accordingly, a struct platform_driver should be
+used by driver code to bind to that device.  There are multiple reasons
+why drivers should not bind directly to ACPI device objects [1].
+
+In particular, registering a watchdog device under a struct acpi_device
+is questionable because it causes the watchdog to be hidden in the ACPI
+bus sysfs hierarchy and it goes against the general rule that a struct
+acpi_device can only be a parent of another struct acpi_device.
+
+Overall, it is better to bind drivers to platform devices than to their
+ACPI companions, so convert the ni903x_wdt watchdog ACPI driver to a
+platform one.
+
+While this is not expected to alter functionality, it changes sysfs
+layout and so it will be visible to user space.
+
+Note that after this change it actually makes sense to look for
+the "timeout-sec" property via device_property_read_u32() under the
+device passed to watchdog_init_timeout() because it has an fwnode
+handle (unlike a struct acpi_device which is an fwnode itself).
+
+Link: https://lore.kernel.org/all/2396510.ElGaqSPkdT@rafael.j.wysocki/ [1]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
+ drivers/watchdog/ni903x_wdt.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-Depends on Herve's series[1]. I'll resend it once his changes are
-upstream. But maybe people want to discuss it already?
-
-[1] https://lore.kernel.org/r/20260313092417.294356-1-herve.codina@bootlin.com
-
-"[PATCH v2 0/3] watchdog: rzn1: Add support for direct hardware reset"
-
- drivers/watchdog/rzn1_wdt.c | 19 -------------------
- 1 file changed, 19 deletions(-)
-
-diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
-index 98978b5cc5b4..0494a817b20a 100644
---- a/drivers/watchdog/rzn1_wdt.c
-+++ b/drivers/watchdog/rzn1_wdt.c
-@@ -79,14 +79,6 @@ static int rzn1_wdt_start(struct watchdog_device *w)
+diff --git a/drivers/watchdog/ni903x_wdt.c b/drivers/watchdog/ni903x_wdt.c
+index 045bb72d9a43..8b1b9baa914e 100644
+--- a/drivers/watchdog/ni903x_wdt.c
++++ b/drivers/watchdog/ni903x_wdt.c
+@@ -8,6 +8,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
++#include <linux/platform_device.h>
+ #include <linux/watchdog.h>
+ 
+ #define NIWD_CONTROL	0x01
+@@ -177,9 +178,9 @@ static const struct watchdog_ops ni903x_wdd_ops = {
+ 	.get_timeleft = ni903x_wdd_get_timeleft,
+ };
+ 
+-static int ni903x_acpi_add(struct acpi_device *device)
++static int ni903x_acpi_probe(struct platform_device *pdev)
+ {
+-	struct device *dev = &device->dev;
++	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
+ 	struct ni903x_wdt *wdt;
+ 	acpi_status status;
+@@ -189,10 +190,10 @@ static int ni903x_acpi_add(struct acpi_device *device)
+ 	if (!wdt)
+ 		return -ENOMEM;
+ 
+-	device->driver_data = wdt;
++	platform_set_drvdata(pdev, wdt);
+ 	wdt->dev = dev;
+ 
+-	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
++	status = acpi_walk_resources(ACPI_HANDLE(dev), METHOD_NAME__CRS,
+ 				     ni903x_resources, wdt);
+ 	if (ACPI_FAILURE(status) || wdt->io_base == 0) {
+ 		dev_err(dev, "failed to get resources\n");
+@@ -224,9 +225,9 @@ static int ni903x_acpi_add(struct acpi_device *device)
  	return 0;
  }
  
--static irqreturn_t rzn1_wdt_irq(int irq, void *_wdt)
--{
--	pr_crit("RZN1 Watchdog. Initiating system reboot\n");
--	emergency_restart();
--
--	return IRQ_HANDLED;
--}
--
- static struct watchdog_info rzn1_wdt_info = {
- 	.identity = "RZ/N1 Watchdog",
- 	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-@@ -101,12 +93,10 @@ static const struct watchdog_ops rzn1_wdt_ops = {
- static int rzn1_wdt_probe(struct platform_device *pdev)
+-static void ni903x_acpi_remove(struct acpi_device *device)
++static void ni903x_acpi_remove(struct platform_device *pdev)
  {
- 	struct device *dev = &pdev->dev;
--	struct device_node *np = dev->of_node;
- 	struct rzn1_watchdog *wdt;
- 	unsigned long clk_rate;
- 	struct clk *clk;
- 	int ret;
--	int irq;
+-	struct ni903x_wdt *wdt = acpi_driver_data(device);
++	struct ni903x_wdt *wdt = platform_get_drvdata(pdev);
  
- 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
- 	if (!wdt)
-@@ -116,15 +106,6 @@ static int rzn1_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
+ 	ni903x_wdd_stop(&wdt->wdd);
+ 	watchdog_unregister_device(&wdt->wdd);
+@@ -238,16 +239,16 @@ static const struct acpi_device_id ni903x_device_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(acpi, ni903x_device_ids);
  
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
--		return irq;
--
--	ret = devm_request_irq(dev, irq, rzn1_wdt_irq, 0,
--			       np->name, wdt);
--	if (ret)
--		return dev_err_probe(dev, ret, "failed to request irq %d\n", irq);
--
- 	clk = devm_clk_get_enabled(dev, NULL);
- 	if (IS_ERR(clk))
- 		return dev_err_probe(dev, PTR_ERR(clk), "failed to get the clock\n");
+-static struct acpi_driver ni903x_acpi_driver = {
+-	.name = NIWD_NAME,
+-	.ids = ni903x_device_ids,
+-	.ops = {
+-		.add = ni903x_acpi_add,
+-		.remove = ni903x_acpi_remove,
++static struct platform_driver ni903x_acpi_driver = {
++	.probe = ni903x_acpi_probe,
++	.remove = ni903x_acpi_remove,
++	.driver = {
++		.name = NIWD_NAME,
++		.acpi_match_table = ni903x_device_ids,
+ 	},
+ };
+ 
+-module_acpi_driver(ni903x_acpi_driver);
++module_platform_driver(ni903x_acpi_driver);
+ 
+ MODULE_DESCRIPTION("NI 903x Watchdog");
+ MODULE_AUTHOR("Jeff Westfahl <jeff.westfahl@ni.com>");
 -- 
-2.47.3
+2.51.0
+
+
+
 
