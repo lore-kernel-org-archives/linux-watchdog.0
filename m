@@ -1,68 +1,67 @@
-Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DC6D1D61B7
-	for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 15:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC4632DCF61
+	for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 18:38:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773760386; cv=none; b=E6vdNooxR4vdLHNLntgF4DymH9Av6QzG6KZmkIJXfcwKQQaQs39LNGvcIHsw1xjHB3Kv13wRKh7u/+jfEtec/ZHCCGPuU9Byrh2Rqn/NeE+GUURR1TLjCTCJohh1iHUkYvA9+qeLPy0H2aHG/GxPT3TKzI+fJjzu1jM0YYDn2w8=
+	t=1773772699; cv=none; b=dGWnMa8BWxzjAlsRY0a8yjQH239i15E2w4N04YpOeB/L9ahCYg9zpKVBrkHtF8SogNRM3cI9e8OtJ0GK+e9DTw25j3NTEMmhAfGBtLOb+VfnbB/vuxjYadhZQ2PFbVFCiPYuNRbmnmeHsav3Ba+pOJXO6eeqYLCn57XKMHJAY8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773760386; c=relaxed/simple;
-	bh=VGRJAgcHYFUT842aOltJumuFGMsP3ePD1gLSvxiESKU=;
+	s=arc-20240116; t=1773772699; c=relaxed/simple;
+	bh=fCc+/rsSp/VkyFLy/9pwes/b6WB2uRZ9EBC2AF/fc/M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I8L0odtONO02XWxayZTO+U/OuuB6qjyJUjCeY8uk5hi9D9QB4y5J5UzODCfGayL7l3MDo1poe0V8AZ90iM5OLDiOAu6BFLEfWlYPUO0n9PBovCMRll2r0zHs+TslM1EzgqAzQcgI76cwEAUxfPp71I3jJ7XRHnun/DP58YR0muw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bOHruMEA; arc=none smtp.client-ip=74.125.82.54
+	 In-Reply-To:Content-Type; b=W+VmgNBoMQaSx4QM6XIuurMYLcVOSM0eefDsqDmHQ+2GnwTsAc64JW5Di2rj8d6LiGbr4NRWP2Hak8sf/d5zfTh/LBIMdbq2kYaCH9wboppQARJRsGSQTTY2oQAn6+ELvr+6PgsAY0Zph+o6WXEn1ZrerkbHCuC9A5tYO+gjBgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UfLjjanD; arc=none smtp.client-ip=74.125.82.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bOHruMEA"
-Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-128ebee22caso3755682c88.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 08:13:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UfLjjanD"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2ba895adfeaso5991914eec.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 11:38:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773760384; x=1774365184; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773772697; x=1774377497; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=DTUIDlVZgG+FukAGH8YDShJmvechRFPdqthLgNdv2m8=;
-        b=bOHruMEAfWmBc6P+JJEyd/oWIYWIpVxe69S5+qEZj7nv/KngiWD19crPfjTHGSepFr
-         ofJPDV5GcANFuPt++RFETWDwGmpvLJc0ithNXoozbBMiC/LcpwccfBg/+X/QVMIonGjM
-         rj6VcmtIyeXCCZFjiSJIBymYhiDyCTE4+STTKzj5at0fz7pTEtr6UYNtZvU40LCy5PRX
-         tA9ZWkYN0jfQKzeoSW/eQCEPQnczbwdhijiOfI1zGwx3f3CYbUrlE8FqR85EVvrDoCI9
-         ZXpvVbh2B2x1gDMOP6bxmFd1HcxZkJKChe54+KLHcL2m1I4cohr4DB9xZWf+VO/eNFtN
-         k9+Q==
+        bh=AMvE6OeOB7ElZ5FyrrBCilpB37FxtaktW1efZEZjiY0=;
+        b=UfLjjanD2MDI2Jd+2//G4EN6d15WBPy+/Cxnw6m649yfTeqWcGtkpKXhU616Nre9K6
+         Vx7qcQm0tctZ2kgKGLvq+esqAQriPWYBLoq17TXXLQNJhV1q3Two82MmiuCZyZ8v37bZ
+         opghOtxw2+JpSSRzHttxB9t4O/n83BCjV4PYxDrFA3zlDudTttoSy9oRyHIVUbTqMUJS
+         fszwVdAc+Tn4IN6KdKKmtXdXXasY7ZzsKOL28/IXwZmddHyWLKPVg9GVa0VV3Hz4ENXU
+         6JX2ajygcs5HLvFYq1iwrbI4hJ+hLCBHymUflVS9PEHQIfG3xsVVzUbdj+Ta5fIhXjTi
+         AHNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773760384; x=1774365184;
+        d=1e100.net; s=20251104; t=1773772697; x=1774377497;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DTUIDlVZgG+FukAGH8YDShJmvechRFPdqthLgNdv2m8=;
-        b=E74KqO5mE6cV8F319898oS09xTRfZEjpnW2ZvPsubg5o2rIOHze9TMBI/kVdWQH/EI
-         1HpZePw1dmWvF7KFr5moxLdXXZJDJzwGSc2rS/3k0wP1kxQ3OsUvYwXpExsG3h20WhBd
-         9TYTztLJipToZoDVkKH2d3lYR+NNpGSShX0xeedwPH77GJuRGgej+8X1vgBpW8yqsZq7
-         h+4sEGh17NAtO7N2IeBammbah4//yqp/+o/1P1bMK/oEPuTc6nWK852Aee1FihvXBqRU
-         33dViMXJBT2MkoRE7P0KWNteN8kFRHEJNrkzrdmTuNm/01HS/YFpyG+VJWf9phpUXtdg
-         3soQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUkoGMJOfm6MalTUIi0o6jzUh42S/3XH41Cz4pvABUL19uOgT/rkH16GOiYYWqp5fQCwQBeqFHYwTKmbwNkKA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzhVqJMoWaW9x/VGg39MFs3Uj9Ft6aR9rxDxHNJFI8MQAveHcFq
-	YtjXu68GT5AYp9w/30kAzlH3GROkzz2EQu9dzYJm8hzmsHAiviQS9HTS
-X-Gm-Gg: ATEYQzzJxkre+ivYZMfBa86PvWumFzIf4poQ/Av21S+WHgKBbjDYMf5JtBl9tf1AKx6
-	VRx1+vYiIp8jTqpjPCIZdFCdKbyT4yUb6P60JLmKtpfTkOfdiXbSOy643PW27t0kHqV5YcteMLn
-	vf6gPWiTr0EX9S2MjbKL266ov1/InpFm3TkronmwOouJ5RYnHEs7JYRRwIfPP9ZvCB0ZAOWEUeB
-	FssQmTw1JQCDRazOVRXnGcNGejwBcsXUfHDfnnt5eQMfe9l4b8eIEAYDfjThmSMudCk0+733vRA
-	atOaQx+wVNh0u23aqit49PQrcVyBO591+y+7nrq8XgSUCliySXUH2KaXUdrn9OTHjcsbB2W755r
-	NAggVXZQdFr5LjaMLxjHEmGtW5j+ONygvp9c6Q6aI1eh4CQb7j0YtIhfRPgnfVcByCGqUIowwGp
-	bLv6+A0fFfpQHuO33utloeXB0wca8bhjCz5LBrZX2KgY/rJeG7dNhUcrVAKbBj0+BkbZOuthfwA
-	NX0JRfC+uk=
-X-Received: by 2002:a05:7022:3a04:b0:129:ea3:8d64 with SMTP id a92af1059eb24-1290ea3b091mr3629025c88.41.1773760383971;
-        Tue, 17 Mar 2026 08:13:03 -0700 (PDT)
+        bh=AMvE6OeOB7ElZ5FyrrBCilpB37FxtaktW1efZEZjiY0=;
+        b=iw0g6GRbC2kg/d7b3fst8Pug4ljdBicUrO0GvhuSeqlrcbQwsoe0PMY8APQwJj0tiG
+         9UzOi2rIJNRhzVIc/i93Ggox+wDUo4tKKzl1HoASb7rF6DO7qZ4mTlQGToOdx9AzbnqL
+         NQkdEB88U+vL7HpnLCnxnQBcQgm1LaOlsGlOwmVbQUJlVV5wNNvUeLr1lpHMjDQ5GSFA
+         LSXlzTo1yznLMcl/x/qD2bV59uAjGbdQajCWSPz/p/P7WwepxMfrL6p2EYVn95ZrLpFO
+         HELfXxeFk3RLnBYxemtoQbWf7ZfNkutXUH6Su6ZQCCMZBWyNe0UuHff7DvGwK5fsJ5iu
+         qtYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWmgMAmikGWfQUXN+Mt0itAlPKaGPh8HIzawA8QPfQXMtftTAs6PGQuc2zqmt2TPv9N7fptpdT+Orhv4OXIBQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyaM5zb0lLCyNjPFfwCe9u+i0KAuKlyGGmatGSHdpKZOweu8Wv7
+	s9OSD9CszmyT2LlGLxIbnDamBsAre0/9OOyCDijw9Xlfp8+hL8pjhRfJ
+X-Gm-Gg: ATEYQzx4pLvnJ3sbAg35/+kuk7RyYejepVz3ccKCvb11CsOEsxB/geq/aUSCz74aUg8
+	j8ev2rDg+RP0O/u+QMi4Av80wgYlac5np+6+JsgWIe0XUjk+Fz/SrjK10/isXvJbdeqy/+Rw1mc
+	4KIR0pz07OFGwXHaNVieZuRbUewArAjbk0oGI5R7qBDn6QnT4/adxzaqDJ/In/hmYgZLBxdfX5c
+	5crgp3GYMtoofXiN9xRvQIL2QSdAm3kIKOv0FlF3ZOQTMkkJ0PgzBh9ZA4a3ZnBSYkljtVHMRLD
+	m42Y+kA0TDYxJKVBp8jAyC1yzjNi338s3+OSzr4LIeMDO1t4LJ/lhu10huQ3SUl4wRj4YybRF4l
+	yzndKdfbVfYI/6h2dUneczq1DMd2eyxKdneKIOMV3xr/3wkYBK4jO8CSgm64PmZeXo6VOIpceXW
+	fm/kHG/PnWcSct1PDw3b4J7xSX6Dp0qmlNjhCmeJ6ywvwZGQuUhYymYh385tqpzjvVOzjCz1xS
+X-Received: by 2002:a05:7301:1285:b0:2be:2043:614b with SMTP id 5a478bee46e88-2c0e50dd6f7mr195794eec.18.1773772696746;
+        Tue, 17 Mar 2026 11:38:16 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-128f62b2100sm15333034c88.8.2026.03.17.08.13.03
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c0e55834a0sm366430eec.14.2026.03.17.11.38.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Mar 2026 08:13:03 -0700 (PDT)
+        Tue, 17 Mar 2026 11:38:16 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <b8c1319a-4920-42b8-b98d-248e419cb87f@roeck-us.net>
-Date: Tue, 17 Mar 2026 08:13:02 -0700
+Message-ID: <9182740e-35b4-422a-b614-5fc57e6d2831@roeck-us.net>
+Date: Tue, 17 Mar 2026 11:38:13 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,12 +69,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] watchdog: ni903x_wdt: Convert to a platform driver
-To: "Rafael J. Wysocki" <rafael@kernel.org>, linux-watchdog@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
- Linux ACPI <linux-acpi@vger.kernel.org>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-References: <13996583.uLZWGnKmhe@rafael.j.wysocki>
+Subject: Re: [PATCH] Refine hpwdt message for UV platform
+To: Steve Wahl <steve.wahl@hpe.com>, Craig Lamparter
+ <craig.lamparter@hpe.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Russ Anderson <rja@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>,
+ Kyle Meyer <kyle.meyer@hpe.com>, Keng-Yu Lin <keng-yu.lin@hpe.com>,
+ Collins@owl.eag.rdlabs.hpecorp.net, Steve <s.collins@hpe.com>
+References: <20260316214530.104344-1-steve.wahl@hpe.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,117 +122,104 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <13996583.uLZWGnKmhe@rafael.j.wysocki>
+In-Reply-To: <20260316214530.104344-1-steve.wahl@hpe.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/14/26 04:53, Rafael J. Wysocki wrote:
-> From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+On 3/16/26 14:45, Steve Wahl wrote:
+> The watchdog hardware the hpwdt driver uses was added to the UV
+> platform for UV5, but the logging mentioned by this driver was not
+> added to the BIOS.  When the watchdog fires, the printed message had
+> the administrators and developers looking for non-existent log files,
+> and confused about whether a watchdog actually tripped.
 > 
-> In all cases in which a struct acpi_driver is used for binding a driver
-> to an ACPI device object, a corresponding platform device is created by
-> the ACPI core and that device is regarded as a proper representation of
-> underlying hardware.  Accordingly, a struct platform_driver should be
-> used by driver code to bind to that device.  There are multiple reasons
-> why drivers should not bind directly to ACPI device objects [1].
+> Change the message that prints on UV platforms so it doesn't send the
+> user looking for non-existent logs.
 > 
-> In particular, registering a watchdog device under a struct acpi_device
-> is questionable because it causes the watchdog to be hidden in the ACPI
-> bus sysfs hierarchy and it goes against the general rule that a struct
-> acpi_device can only be a parent of another struct acpi_device.
+> To aid in any future debugging, include all 8 bits of the NMISTAT
+> register in the output, not just the two bits being used to determine
+> this was "mynmi".  And provide names to the bits in NMISTAT so the
+> code is easier to understand.
 > 
-> Overall, it is better to bind drivers to platform devices than to their
-> ACPI companions, so convert the ni903x_wdt watchdog ACPI driver to a
-> platform one.
-> 
-> While this is not expected to alter functionality, it changes sysfs
-> layout and so it will be visible to user space.
-> 
-> Note that after this change it actually makes sense to look for
-> the "timeout-sec" property via device_property_read_u32() under the
-> device passed to watchdog_init_timeout() because it has an fwnode
-> handle (unlike a struct acpi_device which is an fwnode itself).
-> 
-> Link: https://lore.kernel.org/all/2396510.ElGaqSPkdT@rafael.j.wysocki/ [1]
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
 > ---
->   drivers/watchdog/ni903x_wdt.c | 27 ++++++++++++++-------------
->   1 file changed, 14 insertions(+), 13 deletions(-)
+>   drivers/watchdog/hpwdt.c | 27 ++++++++++++++++++++++-----
+>   1 file changed, 22 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/watchdog/ni903x_wdt.c b/drivers/watchdog/ni903x_wdt.c
-> index 045bb72d9a43..8b1b9baa914e 100644
-> --- a/drivers/watchdog/ni903x_wdt.c
-> +++ b/drivers/watchdog/ni903x_wdt.c
-> @@ -8,6 +8,7 @@
->   #include <linux/interrupt.h>
->   #include <linux/io.h>
->   #include <linux/module.h>
-> +#include <linux/platform_device.h>
->   #include <linux/watchdog.h>
+> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+> index ae30e394d176..be5d8cbd0818 100644
+> --- a/drivers/watchdog/hpwdt.c
+> +++ b/drivers/watchdog/hpwdt.c
+> @@ -24,6 +24,7 @@
+>   #include <asm/nmi.h>
+>   #endif
+>   #include <linux/crash_dump.h>
+> +#include <asm/uv/uv.h>
 >   
->   #define NIWD_CONTROL	0x01
-> @@ -177,9 +178,9 @@ static const struct watchdog_ops ni903x_wdd_ops = {
->   	.get_timeleft = ni903x_wdd_get_timeleft,
->   };
->   
-> -static int ni903x_acpi_add(struct acpi_device *device)
-> +static int ni903x_acpi_probe(struct platform_device *pdev)
->   {
-> -	struct device *dev = &device->dev;
-> +	struct device *dev = &pdev->dev;
->   	struct watchdog_device *wdd;
->   	struct ni903x_wdt *wdt;
->   	acpi_status status;
-> @@ -189,10 +190,10 @@ static int ni903x_acpi_add(struct acpi_device *device)
->   	if (!wdt)
->   		return -ENOMEM;
->   
-> -	device->driver_data = wdt;
-> +	platform_set_drvdata(pdev, wdt);
->   	wdt->dev = dev;
->   
-> -	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
-> +	status = acpi_walk_resources(ACPI_HANDLE(dev), METHOD_NAME__CRS,
->   				     ni903x_resources, wdt);
->   	if (ACPI_FAILURE(status) || wdt->io_base == 0) {
->   		dev_err(dev, "failed to get resources\n");
-> @@ -224,9 +225,9 @@ static int ni903x_acpi_add(struct acpi_device *device)
+>   #define HPWDT_VERSION			"2.0.4"
+>   #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+> @@ -158,9 +159,21 @@ static int hpwdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
 >   	return 0;
 >   }
 >   
-> -static void ni903x_acpi_remove(struct acpi_device *device)
-> +static void ni903x_acpi_remove(struct platform_device *pdev)
+> -static int hpwdt_my_nmi(void)
+> +#define NMISTAT_EASR	BIT(0)
+> +#define NMISTAT_EWDOG	BIT(1)
+> +#define NMISTAT_RTRAP	BIT(2)
+> +#define NMISTAT_DBELL	BIT(3)
+> +#define NMISTAT_EMSWDG	BIT(4)
+> +#define NMISTAT_GPI	BIT(5)
+> +#define NMISTAT_NMIOUT	BIT(7)
+> +
+> +static bool hpwdt_my_nmi(u8 *nmistat)
 >   {
-> -	struct ni903x_wdt *wdt = acpi_driver_data(device);
-> +	struct ni903x_wdt *wdt = platform_get_drvdata(pdev);
+> -	return ioread8(hpwdt_nmistat) & 0x6;
+> +	u8 val = ioread8(hpwdt_nmistat);
+> +
+> +	if (nmistat)
+> +		*nmistat = val;
+
+What is the point of this NULL check ? The parameter is never NULL.
+
+> +	return (val & (NMISTAT_EWDOG | NMISTAT_RTRAP)) != 0;
+
+I am not sure if it adds any value to do this check here instead of just
+returning nmistat and checking in the calling code. Seems to me this just
+adds unnecessary complexity to the code.
+
+Guenter
+
+>   }
 >   
->   	ni903x_wdd_stop(&wdt->wdd);
->   	watchdog_unregister_device(&wdt->wdd);
-> @@ -238,16 +239,16 @@ static const struct acpi_device_id ni903x_device_ids[] = {
->   };
->   MODULE_DEVICE_TABLE(acpi, ni903x_device_ids);
+>   /*
+> @@ -168,14 +181,18 @@ static int hpwdt_my_nmi(void)
+>    */
+>   static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+>   {
+> -	unsigned int mynmi = hpwdt_my_nmi();
+> -	static char panic_msg[] =
+> +	u8 nmistat;
+> +	bool mynmi = hpwdt_my_nmi(&nmistat);
+> +	static char panic_msg_default[] =
+>   		"00: An NMI occurred. Depending on your system the reason "
+>   		"for the NMI is logged in any one of the following resources:\n"
+>   		"1. Integrated Management Log (IML)\n"
+>   		"2. OA Syslog\n"
+>   		"3. OA Forward Progress Log\n"
+>   		"4. iLO Event Log";
+> +	static char panic_msg_uv[] =
+> +		"00: A watchdog NMI occurred.";
+> +	char *panic_msg = is_uv_system() ? panic_msg_uv : panic_msg_default;
 >   
-> -static struct acpi_driver ni903x_acpi_driver = {
-> -	.name = NIWD_NAME,
-> -	.ids = ni903x_device_ids,
-> -	.ops = {
-> -		.add = ni903x_acpi_add,
-> -		.remove = ni903x_acpi_remove,
-> +static struct platform_driver ni903x_acpi_driver = {
-> +	.probe = ni903x_acpi_probe,
-> +	.remove = ni903x_acpi_remove,
-> +	.driver = {
-> +		.name = NIWD_NAME,
-> +		.acpi_match_table = ni903x_device_ids,
->   	},
->   };
+>   	if (ulReason == NMI_UNKNOWN && !mynmi)
+>   		return NMI_DONE;
+> @@ -189,7 +206,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+>   		hpwdt_ping_ticks(SECS_TO_TICKS(val));
+>   	}
 >   
-> -module_acpi_driver(ni903x_acpi_driver);
-> +module_platform_driver(ni903x_acpi_driver);
+> -	hex_byte_pack(panic_msg, mynmi);
+> +	hex_byte_pack(panic_msg, nmistat);
+>   	nmi_panic(regs, panic_msg);
 >   
->   MODULE_DESCRIPTION("NI 903x Watchdog");
->   MODULE_AUTHOR("Jeff Westfahl <jeff.westfahl@ni.com>");
+>   	return NMI_HANDLED;
 
