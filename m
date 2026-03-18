@@ -1,149 +1,177 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-002e3701.pphosted.com (mx0a-002e3701.pphosted.com [148.163.147.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E27E37C902
-	for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 18:39:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3368F3B27DB;
+	Wed, 18 Mar 2026 15:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.147.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773772768; cv=none; b=B7wMgbspuWafGA/dWLooSEbrC5tnZ/vkPxmAXvjlJx1dQaEIvRG2nriSgtcq1o8DobPgNUqSvPy17ovhG/amX7AJpwrKBX21kRiPwzbL8q30A5WAUjh61gC0GH+rBg5ePeiRUXRsOYnPCkGjsF9qf7hVZvUQMvA1YI67V5VT90w=
+	t=1773849027; cv=none; b=Aqa5fF1Uip37WuIjKd5X2tIGJbSus/NecyZfPlSotjrh69PuEqSsLs9YK1mh0JU2kt+aw955hnPjf0vQ3csk3/6ys8xCsLAn0L/HsJTKq9iEA95o8qCW57Gn1VZTrFG+5AVVof9reGBbM++L8N/ecmpC2a8sHDfSoyJ9hYnBd1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773772768; c=relaxed/simple;
-	bh=3eWgsTeMNm/Ls+iLELS51O2oj79Tx3xVTJyCNM3Uksc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dMVbIk5+3h113hhxbJ2fmXjCFz+HrfqajFelz4cXUVuw0QMMe5aO15UrCM1ctBNCJXLMzbX6F9JL7qLq5x+SG++IuSC7lbDS3wOHVA/HxgjMWjsRVZdDgWDDhzgTjDl6mBiz7ivMZ6p61a0W/ixpHjsGHl086uSOE/POn1DImBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ntDHtyTp; arc=none smtp.client-ip=74.125.82.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773849027; c=relaxed/simple;
+	bh=g9T63RueJMtifxJC6JA8xO9pL5onjGCiY86evAhx4pw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S4HFEEvR3OEGmTwEhzSWwAuJ4lZuEXich1tL+x4gq/CcFN6EQ4o1Bcw4mzvToTVzm/Y+MDRlJ3yuxV4UFwQOVnI7wl7rk6nFmZzUrft9QnicsTOnJSVYAzAxjuS0p7c47ROmqFXYXOHg2/VPhi0Xb2g2S6PjjqmFZ347euo2d5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hpe.com; spf=pass smtp.mailfrom=hpe.com; dkim=pass (2048-bit key) header.d=hpe.com header.i=@hpe.com header.b=P4D3Wdi/; arc=none smtp.client-ip=148.163.147.86
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hpe.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hpe.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ntDHtyTp"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-2c0c955a481so467260eec.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 17 Mar 2026 11:39:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773772765; x=1774377565; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=o57u90xFo+1xnHZkrNtm2PUXRZYXoIRXqLWYmrNPe3E=;
-        b=ntDHtyTpywTXICas4xko7jwtAbcWBTO4Mo8IoZs5k8bboTbm3wgri9I3uftiwnd3Yj
-         LFYVuLxYstSOs9xuvnkPWUnNGrt+CYb0ekErLI0vaF5s16nlXYYOd7Rht8cCgA1ArPd0
-         cLC/ytOLLg/u4oRPtKL0S8A8r2sYfi6qQHJziXAFg/Y7lp9trFRx/Et00VDkwB2Zjk/J
-         CsTePY3bRR1c+u/ZjbIIHS5SvIwe2eJ0WK1YeC+YtQTXqsu8nyrUdfECDIsi9Oe2RE8O
-         Qfy3NxJYAXPJZ4B2VUcgYuBn8bd6fQiLNbb5+JrF/Zo6gaPUH8V5otI4d4agarK8Hz5w
-         KiSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773772765; x=1774377565;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=o57u90xFo+1xnHZkrNtm2PUXRZYXoIRXqLWYmrNPe3E=;
-        b=LsEcKWcOIUp7gL7Q/TdrF+7l9ezUbMBCVkAd8eEh/sQ+yT6fIlFm8ar70PsJRbjMsI
-         DcJgw3Oyof+O33EcLo9bDhVsn+c2MKB2tRJjVghhCsraZRsLjcq7FyJae+BdisnnQCcD
-         wdMCg5IegVkcqV+JN3aEXwYpoyRu3DABSC9cgh86ZaVTdI/EXDCXRCVOwIdKJhRQFutO
-         /f4iSgrmXnK+72t9HL2UHuflSQieSYlFLGW6Z4pJf0VKJ1+B2R1Aiyn6hIEg9grG8Dzs
-         qblzp5i9ric7LQ5e3ZhmmUQT5JLG3DhpPFSZLIvzVaTfTGOJC0wAfwBgaFWMWzwFFhRr
-         GAmw==
-X-Forwarded-Encrypted: i=1; AJvYcCVb07czv0qt+TlguEWgmeukxlc6Xtap6/duBlQwadw/e70fcVhNTVztTnga7OgXCkr3bCRw6ZcMFpwuVFHcew==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxIGE7+dTD6SNhBi/EgxSD6+Hqr/x5lwFhn2AlbQRASEB7i7dR
-	IRiExGlH/fb4d638dgttWIHiV0poJTpr5G0Fh/RVCRDaOLmbh16H0eaS
-X-Gm-Gg: ATEYQzwzl712j4x4MrS2Jw+mjWFa6MLWy+0MIQLSNBYvrJcxbV+yRlHB08mU0PAYgFm
-	bCcY2BSDldfletIykZMo3rUqgvcT2NCM5dpZMnPeP92hE2TAPe3SnC9htbkffyjiqYM6RE2f3+i
-	aPWNZeY+bm05BXZXBV3+hXU1OxTK93Vw36usiQVk8v/DgLgkaVX3huML6/BwmwgCb/L0VwbmEsZ
-	lMkPGpvVI4S9w5E6EOCu9Mn6sKOmn9tSh4nJ+8CwujgV1qffpli5HKEyyVe8i+VQokI/vYSDdOS
-	ZXpOEGrEEgITPi5kW0PyfQulW/p7uIt2FcQs5QQnlGh7JI4tFZENHpwx1yvm+DOzMNQCqgwRt/Z
-	EPCiYPYLdMzS4BGOR5eTFuzMdtFwl5z02pgJxSUYBFQtn4wEp3IRl67CRU+Gu4sG0HWGBSVpkAG
-	bEdHqq+vDf79ufrPHtrc1Hsq7dR4Vs8BSncN+GFcn3KM2NeBvsoKBDldk5TGMAUbFqUU1aBkpl
-X-Received: by 2002:a05:693c:2c06:b0:2be:833c:14a6 with SMTP id 5a478bee46e88-2c0e5044091mr324733eec.15.1773772765197;
-        Tue, 17 Mar 2026 11:39:25 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c0e55ee672sm422387eec.28.2026.03.17.11.39.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Mar 2026 11:39:24 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <90d4f6fd-bc84-4ecb-b5c5-6c0a2a40fadb@roeck-us.net>
-Date: Tue, 17 Mar 2026 11:39:23 -0700
+	dkim=pass (2048-bit key) header.d=hpe.com header.i=@hpe.com header.b="P4D3Wdi/"
+Received: from pps.filterd (m0148663.ppops.net [127.0.0.1])
+	by mx0a-002e3701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62ICB1WE2605362;
+	Wed, 18 Mar 2026 15:50:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pps0720; bh=JyG9FK0RWFUTISUE7baEiaUuq60CioyhLNNb8
+	yloctg=; b=P4D3Wdi/8jxVHJ0g2NN1G+JId6E9pNcoq//JbS5aLXJOir6+TZIJk
+	yIXLlYOOO7ZcO9NwUpUUwnitjlEkbRCABjHvqyGHgyTqdSjiyNFasSYIIALHZiJO
+	HvigRPRHcprbzQOqxHv5F1YA6gNqpTQyNttHZIQVhq1xsye9eh62m3nwQYSjhx3r
+	CAx9EwEJJ5vch4ZUu0ELsp+GCr/qozweCz3H93DxmkyAjQ5KJDLGNRDnuu++rVwk
+	22XAwZAw1frMiiu6n7R/vRP+A6hL3Afs7BZsQJfyqHoQPT61WceHksU5I62z9aXm
+	PztnOLqZhbqlA83t6qnRdrXqPSlzlNvuA==
+Received: from p1lg14881.it.hpe.com (p1lg14881.it.hpe.com [16.230.97.202])
+	by mx0a-002e3701.pphosted.com (PPS) with ESMTPS id 4cyufu3126-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 18 Mar 2026 15:50:07 +0000 (GMT)
+Received: from p1lg14886.dc01.its.hpecorp.net (unknown [10.119.18.237])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by p1lg14881.it.hpe.com (Postfix) with ESMTPS id 03966802B97;
+	Wed, 18 Mar 2026 15:50:06 +0000 (UTC)
+Received: from owl.eag.rdlabs.hpecorp.net (unknown [16.231.227.39])
+	by p1lg14886.dc01.its.hpecorp.net (Postfix) with ESMTP id 3007E805E66;
+	Wed, 18 Mar 2026 15:50:06 +0000 (UTC)
+Received: by owl.eag.rdlabs.hpecorp.net (Postfix, from userid 200934)
+	id 6EBEC27BFFA; Wed, 18 Mar 2026 10:50:05 -0500 (CDT)
+From: Steve Wahl <steve.wahl@hpe.com>
+To: Steve Wahl <steve.wahl@hpe.com>, Craig Lamparter <craig.lamparter@hpe.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Russ Anderson <rja@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>,
+        Kyle Meyer <kyle.meyer@hpe.com>, Keng-Yu Lin <keng-yu.lin@hpe.com>,
+        Steve Collins <s.collins@hpe.com>
+Subject: [PATCH v2] watchdog/hpwdt: Refine hpwdt message for UV platform
+Date: Wed, 18 Mar 2026 10:50:05 -0500
+Message-ID: <20260318155005.90271-1-steve.wahl@hpe.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Refine hpwdt message for UV platform
-To: Steve Wahl <steve.wahl@hpe.com>, Craig Lamparter
- <craig.lamparter@hpe.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Russ Anderson <rja@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>,
- Kyle Meyer <kyle.meyer@hpe.com>, Keng-Yu Lin <keng-yu.lin@hpe.com>,
- Collins@owl.eag.rdlabs.hpecorp.net, Steve <s.collins@hpe.com>
-References: <20260316214530.104344-1-steve.wahl@hpe.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260316214530.104344-1-steve.wahl@hpe.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: R2iSKvZ7spDC7e-uGTQoHvIXfUKw_oUN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDEzNSBTYWx0ZWRfX9kVDNjTxgdXF
+ oBOw744tdTHM37CItVtIx6lVy9NOR9nr+6D5XTxjxu5+VtGmJSYW4708EklyNcMpdoq75lRkIn8
+ IAThmqBCAf4A+MXVKMkpK28hOcuQJlrFT8HELap800JI1EF0INQOC2lhsMHkQBglglC+qyhbs3g
+ 2hfqpIGwZAdKSOOEU94ZvTePvqbIiwTXSpQyMRsqIW2ohxCBh30BX978rCiA4G66nogLG7Rk4hJ
+ hr79GrlgKWs5Jk8yJLmVv/MNjvvxr5+MoR/6C3NX2L56PiQvh6BABZ5ugeWYcxy4b84tax3aLMs
+ mXiRBIlQUEoshPlW94zx5S0Jnontpyw7nWNb/Q4Ahh9Ith6V57zzIkeXuxaga2jU8V0qJvakgn2
+ 1LeCXtABxu0wgNULAYOetKH6ZrC0ghWKrzP2VlC2j6PB/S27OJSDdWDSvS/s1B0fshY+pb5Hs8H
+ NtbnZqb7sueINN/82dw==
+X-Proofpoint-GUID: R2iSKvZ7spDC7e-uGTQoHvIXfUKw_oUN
+X-Authority-Analysis: v=2.4 cv=dZyNHHXe c=1 sm=1 tr=0 ts=69bac9af cx=c_pps
+ a=FAnPgvRYq/vnBSvlTDCQOQ==:117 a=FAnPgvRYq/vnBSvlTDCQOQ==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=gQcMVamqm3wCPoSYhaRC:22
+ a=6_mrDcixewTG61oOsKN3:22 a=VwQbUJbxAAAA:8 a=MvuuwTCpAAAA:8
+ a=kcek-6kI0j_o-rl4mPEA:9
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-18_01,2026-03-17_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 bulkscore=0 impostorscore=0 spamscore=0 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 adultscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603180135
 
-On 3/16/26 14:45, Steve Wahl wrote:
-> The watchdog hardware the hpwdt driver uses was added to the UV
-> platform for UV5, but the logging mentioned by this driver was not
-> added to the BIOS.  When the watchdog fires, the printed message had
-> the administrators and developers looking for non-existent log files,
-> and confused about whether a watchdog actually tripped.
-> 
-> Change the message that prints on UV platforms so it doesn't send the
-> user looking for non-existent logs.
-> 
-> To aid in any future debugging, include all 8 bits of the NMISTAT
-> register in the output, not just the two bits being used to determine
-> this was "mynmi".  And provide names to the bits in NMISTAT so the
-> code is easier to understand.
-> 
-> Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+The watchdog hardware the hpwdt driver uses was added to the UV
+platform for UV_5, but the logging mentioned by this driver was not
+added to the BIOS.  When the watchdog fires, the printed message had
+the administrators and developers looking for non-existent log files,
+and confused about whether a watchdog actually tripped.
 
-The subject should start with "watchdog:". I almost missed this patch.
+Change the message that prints on UV platforms so it doesn't send the
+user looking for non-existent logs.
 
-Guenter
+To aid in any future debugging, include all 8 bits of the NMISTAT
+register in the output, not just the two bits being used to determine
+this was "mynmi".  And provide names to the bits in NMISTAT so the
+code is easier to understand.
+
+Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+---
+
+v1 disucsion: https://lore.kernel.org/all/20260316214530.104344-1-steve.wahl@hpe.com
+
+v2: Fix subject line; remove hpwdt_my_nmi function, and inline what it
+formerly did, reducing complexity. This addresses comments from
+Guenter Roeck.
+
+ drivers/watchdog/hpwdt.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index ae30e394d176..ba08189937ec 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -22,6 +22,7 @@
+ #include <linux/watchdog.h>
+ #ifdef CONFIG_HPWDT_NMI_DECODING
+ #include <asm/nmi.h>
++#include <asm/uv/uv.h>
+ #endif
+ #include <linux/crash_dump.h>
+ 
+@@ -158,24 +159,31 @@ static int hpwdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
+ 	return 0;
+ }
+ 
+-static int hpwdt_my_nmi(void)
+-{
+-	return ioread8(hpwdt_nmistat) & 0x6;
+-}
++#define NMISTAT_EASR	BIT(0)
++#define NMISTAT_EWDOG	BIT(1)
++#define NMISTAT_RTRAP	BIT(2)
++#define NMISTAT_DBELL	BIT(3)
++#define NMISTAT_EMSWDG	BIT(4)
++#define NMISTAT_GPI	BIT(5)
++#define NMISTAT_NMIOUT	BIT(7)
+ 
+ /*
+  *	NMI Handler
+  */
+ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ {
+-	unsigned int mynmi = hpwdt_my_nmi();
+-	static char panic_msg[] =
++	u8 nmistat = ioread8(hpwdt_nmistat);
++	bool mynmi = (nmistat & (NMISTAT_EWDOG | NMISTAT_RTRAP)) != 0;
++	static char panic_msg_default[] =
+ 		"00: An NMI occurred. Depending on your system the reason "
+ 		"for the NMI is logged in any one of the following resources:\n"
+ 		"1. Integrated Management Log (IML)\n"
+ 		"2. OA Syslog\n"
+ 		"3. OA Forward Progress Log\n"
+ 		"4. iLO Event Log";
++	static char panic_msg_uv[] =
++		"00: A watchdog NMI occurred.";
++	char *panic_msg = is_uv_system() ? panic_msg_uv : panic_msg_default;
+ 
+ 	if (ulReason == NMI_UNKNOWN && !mynmi)
+ 		return NMI_DONE;
+@@ -189,7 +197,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ 		hpwdt_ping_ticks(SECS_TO_TICKS(val));
+ 	}
+ 
+-	hex_byte_pack(panic_msg, mynmi);
++	hex_byte_pack(panic_msg, nmistat);
+ 	nmi_panic(regs, panic_msg);
+ 
+ 	return NMI_HANDLED;
+-- 
+2.43.0
 
