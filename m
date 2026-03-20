@@ -1,61 +1,63 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 804543BB9EB
-	for <linux-watchdog@vger.kernel.org>; Fri, 20 Mar 2026 13:56:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F94B3BB9FE
+	for <linux-watchdog@vger.kernel.org>; Fri, 20 Mar 2026 13:56:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774014995; cv=none; b=WuiJrSmOhvFzYyRwVk1sYV6KmhoXxv1ZfXYlsi1rQWPuN9mUQCHju+++LxXY3PFwGJMGnMSgjysZKkSzH7TwPdEOGFyHETg+0ZmLPt+Vifky1gYupoZOxdvkQx9k5+QfDL5nlsP9/Xib9Ylm6GvCCSomJ0APmmxCpdYV7IyyZpg=
+	t=1774014997; cv=none; b=UHm2XNONGFxiYzI9kvu1CA5A0KLHZVArRlpMFXjcAJPPMmiNeOY+/1X+v5LZEOfvgmdQgS+mNi5noI7E5YeCbO6PuPNT+oTfblkjwy2wXABaMMvY97lxDCsF6eWsYfLC+dX2ccIKW/xiSIsHRqu53+QQVTCwl7wRDWe5IoegT4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774014995; c=relaxed/simple;
-	bh=+S1Vd+Wiky9zozGZMyOZgbhyNAkQ0Mjs18hVqVoehXw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k2DK4oeQPX7TuPA3Bd/AZRdEUznzAn+HIkiSb1huag9OG1Xpda+LQfpEtNhhNwoa7mpvOxUHxoo4Z4Rv1zWJMz2nLj5NJ9pgyi1YngM1cqZ/LuMtvX8qjHDNGtQYQWay4wLLjsFX+esRslnEFcbbxZ/tsFeLHyX2PhVQXTxYTa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ddhYt03Z; arc=none smtp.client-ip=209.85.208.177
+	s=arc-20240116; t=1774014997; c=relaxed/simple;
+	bh=XYh4dlLxQVFS+YE8tsSLsU4eF6IB91lUwXiLc2lxFiI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LKDgAjXeHCmyLxkK7wG1XHljFUlSr+WNxc5yAk6A17E+sLSIKoUOHOI9uKadXpXiFfFNdhpuOtZkIVPc83+Tf8RvNfHzmQhwb0K26J+vaipc4H4ALBovcncNA1+NeRUw2jKPI/E6ZGuZeUdXMXzLesnEqdYlu5dujI4jmq3xHRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HLLByoTo; arc=none smtp.client-ip=209.85.208.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ddhYt03Z"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-38a2f196cbaso12797671fa.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 Mar 2026 06:56:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HLLByoTo"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-38a76ba6a78so12566711fa.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 20 Mar 2026 06:56:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774014987; x=1774619787; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=WfaiFd54zX0OS7ereEPa4IVfrUh095RBwWvtbLEAEXE=;
-        b=ddhYt03Zbdexknbh+5KwXHOlOqB3YPveiG5WP+2odvus+UpvK8eIjG81R4AKf4uT1u
-         Lcl8DoEPS8s9IX6pAEuQQj/8LM/tGX4A3YRhenEZnnsjctQ8pRKqJxPzcSBRa3OpSoSG
-         IL7zKvndnEqpoNpWiACUIoAONDgtc2KyCfyt5/DwGaePD9S8JsiHtXOhte/onKIOPEGn
-         skWgxhzvH/KrrKpZM+b34bypvwf21sefAi4hgwnJPg9sAqQed4TE5wvoq5Ufq6MnVjpN
-         40wtVB7Q6FQd2UdrQbcXJKemd40tew4R1seFKz27GhJY3IQ4/mcviRqF2uY2trVa5DDq
-         l3rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774014987; x=1774619787;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1774014989; x=1774619789; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WfaiFd54zX0OS7ereEPa4IVfrUh095RBwWvtbLEAEXE=;
-        b=W1fDR8KbRD6bX6kLmxnaOtl+lN6ThM+gKX+57tv5bRk2wQ2WgcCJNF8SVS5i6KLjI9
-         XDVwgGMiXurD54MzCvoPyWDNaJdXik0hHrlAUr2J7N4o62z5ZIQbGI+qfAk+9izRgvZf
-         FKUadkwOLw+Ug6xS6VbuWkByNKu22BqZam9PkQ2BskXlSjiwjVW2tM17B9rlOeGFRl+C
-         4laUislrgGVI3ajIppOkA1FXXLW/fJfeUw2IkuPt79PhO25kq0L8n32f2kiVwly2i2EU
-         whZjJUtqzlAMEc5zglJMEZExVpJ7UOtGDQPF40zpsPLUFGsY9n8y71rlmYmqks2CycCl
-         aHVA==
-X-Forwarded-Encrypted: i=1; AJvYcCVXtq1tLAEAGR5VE9+WSs4LOco1gTngvk6KvoBHPHrzJ3wT6pkJM4/SHDBsZuESyINKe9F3JU2iuTVytqlz5g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxPQ00/RufTxDZSgoTSJLMkq1EfOyTwBgSJJJLaNeQWN/llSu8W
-	Tru7Na7iRDI8QCVb0+ganMozyT7GRSht+sQJcZWyE6+XB96s/MuYS0Ar
-X-Gm-Gg: ATEYQzy0TTnnK73Zb6NNGPVpmvKSfCH4z6MdHcjrrXFqbsO2+pkTRd/HAdMgmHiL3Vj
-	prj9txLEMmW/BxZ6iYGWENMN7xPe9tKCoo3gv6ppWx9Rj6mHYrVaDyrB7kQwN7048DvFfS1PPTH
-	vyQ5/JGnIcsjEagN2FOwg92XIYHYwQFoHW3+11U6Vy5XyIgqw4fkUSBSn318X+KwxYCM8HdFP4Z
-	CkRC9qAES2k8i6Tl7Ry6AOg5AwEIkPr+LE2nZ0mUa/CSZ5SkQd13psEDCk24sZ5MetcBaKech2y
-	/3WhcHnOj19ULrzAMhOpkvwwYj8wigeOhsOhlfbOT0EgqpoN6falfo+xmpQDBEEeX8HIuu7xo6W
-	bRkJlLRnpcHgo4hr3hwwxor3P1AvALl2U6jTrZ7xLiZrb6zCpx0By7CQ2jQTxmGxAV/UMbtXCb4
-	DPAfn2fGAr03Yz5j8zwp7aXnRAJWqqoniWDxIGDYJpjcznIzxNBxNw
-X-Received: by 2002:a05:651c:199e:b0:38b:dd7a:52aa with SMTP id 38308e7fff4ca-38bf96476e3mr12146471fa.7.1774014987047;
-        Fri, 20 Mar 2026 06:56:27 -0700 (PDT)
+        bh=cHz5MtC3crd2T2peCpyj9PSNU06Ml4bYxwyLtxD0kys=;
+        b=HLLByoToGiS0YUCU3nmKNVre3p/RMwY9o+SssmWAdLULrFUsCWMgmOyAXfSZzvpMfy
+         zLa8FGezX0QV9X9AVpIjnCIcEYWZpERg/XuRssr76OHJPoB3T2m4uk7uOnJhTv0uX8BL
+         0V+Qrq+gvVEWcDevjl2xXhfQhdI8Av5ReNNQdfseX4hNSSzgyM++PMgG72oBXueZLFYV
+         UcumFlzA9oGdu25C6RmtTkmPfuBqaRhRmMezOFkFSGTD4+xrg6m1MBXCAq+OuDSGKw5b
+         86OymOiydeW7oamDUpM79kUewPuGTAu3neOJdJgHN34HgarEzYzc8dvwzkV0bHll2lTA
+         M9vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774014989; x=1774619789;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=cHz5MtC3crd2T2peCpyj9PSNU06Ml4bYxwyLtxD0kys=;
+        b=m0ubb+iA6yxgWiqH2YRHDdP0Lc+6VBHv4Uf1fMvsRggiT0KgMSc1bBuMbpAMKXyAL7
+         U+QjkniFTL7/harpmGTZlugCbEKpcTEDmInssuYmMtzfxOHR1eX4UHE+smwaNPbrm/ca
+         pAdzBg2CdZrr8/PvmwN/cVuswCMyG2kO0rhHfBAn9rKbdZliJxt+6Gau9oFzDJh3J9q6
+         cNNs3/pAgyL0c/N9LVG0sBmbr+o8SVrC0aUs9jq8OrQymHx2ISKfhOZzw4oVUd26SNGI
+         yOKXIYEP/va3+W0q4zgYhYhIN5tKXz5Lt7HOXMP6+91QhD70amJZ3FMMw0ISn2j5aSj9
+         sBKw==
+X-Forwarded-Encrypted: i=1; AJvYcCVYIW7qIdCcmOgK92Z0sRKszKJN4h0MH32NKCUXL+x4E6BM/bCYfRAZ1o0sx21EmVS7I7iEuwWInJdHmvnyVA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwAFChvwsWWHP5oy9Hqz1Nt1k9vrwKN2T2IL3YvFSMFKbDar7uB
+	zyZLWspLjlr7JWuMCtXDyu9o8boX0VaM2tdF8MNvdmafuNV5jieqIFHe
+X-Gm-Gg: ATEYQzyNPWoVX4K67tPbojGW1430xB26x7SwkP3zFwmRk5UcXfpjYV/JTOo8hf25H1S
+	Ty5MbLyUfgCgydP05AaeO624ezHIrptAprXw2KA4XQEKoDeMoWFj/ntdRp+BB32WNWwFDCgAqxR
+	cOZ6W9UgWL0S6vOhPncPKAAC6VIkjZDeoZmRQpwaqpm14et67RjMejA3JTPGsj6+Xh8bKs80Wfr
+	HVk0FwD+AlQWGuktX4vIXh+dyEOnWNAiZT1SSD8pg1v+9n63hvUz3Pf3I23xLT6G1r08YEM3x3B
+	H1F9jLDh/P2Qcfb+IIyYw+jI/q2dXDsLl+ZnwwFMmVeIS3lSlzxC7Y5x/zvFcXdwYelhIvorcl7
+	3vvlKDa/YbHPO8JfyGw7VkOOwF2a10nJC5hs+T+rRI/rhT3zpLnZKKOEDLEOYH6An8gQzFmevq6
+	22S9fAJiLCq5zou7c6n8V3xvvri2ts8Ccc/vMUC1aLwg==
+X-Received: by 2002:a05:651c:401b:b0:38a:4de2:85d7 with SMTP id 38308e7fff4ca-38bf96477b9mr7236551fa.3.1774014988449;
+        Fri, 20 Mar 2026 06:56:28 -0700 (PDT)
 Received: from NB-6746.corp.yadro.com ([188.243.183.148])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38bf97709d9sm5468761fa.18.2026.03.20.06.56.26
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38bf97709d9sm5468761fa.18.2026.03.20.06.56.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Mar 2026 06:56:26 -0700 (PDT)
+        Fri, 20 Mar 2026 06:56:28 -0700 (PDT)
 From: Artem Shimko <a.shimko.dev@gmail.com>
 To: wim@linux-watchdog.org,
 	linux@roeck-us.net,
@@ -66,10 +68,12 @@ To: wim@linux-watchdog.org,
 Cc: Artem Shimko <a.shimko.dev@gmail.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] watchdog: dw_wdt: reset clean up and pm
-Date: Fri, 20 Mar 2026 16:56:17 +0300
-Message-ID: <20260320135624.223863-1-a.shimko.dev@gmail.com>
+Subject: [PATCH 1/5] watchdog: dw_wdt: move reset control deassertion before register access
+Date: Fri, 20 Mar 2026 16:56:18 +0300
+Message-ID: <20260320135624.223863-2-a.shimko.dev@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260320135624.223863-1-a.shimko.dev@gmail.com>
+References: <20260320135624.223863-1-a.shimko.dev@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -78,43 +82,45 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hello maintainers and reviewers,
+The watchdog controller must be taken out of reset before any register
+access is attempted. Currently reset_control_deassert() is called after
+dw_wdt_update_mode() which performs register read/write operations. If
+the reset line is asserted, accessing registers may result in undefined
+behavior or bus hangs.
 
-Patch 1 moves reset_control_deassert() before any register access to
-ensure the watchdog controller is properly taken out of reset before
-configuration, fixing a potential hardware access issue.
+Move reset_control_deassert() before dw_wdt_update_mode() to ensure the
+controller is properly deasserted before the first register access. The
+reset_control_assert() in the error path remains to properly revert the
+reset state on probe failure.
 
-Patch 2 adds proper error handling for reset_control_deassert() to
-prevent probe from continuing when reset deassertion fails, improving
-diagnostics and reliability.
+Fixes: 46a1946314bf ("watchdog: dw_wdt: Add pre-timeouts support")
+Signed-off-by: Artem Shimko <a.shimko.dev@gmail.com>
+---
+ drivers/watchdog/dw_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Patch 3 replaces manual reset control management with the
-devm_reset_control_get_optional_shared_deasserted() helper, eliminating
-explicit reset_control_assert() calls in error paths and remove.
-
-Patch 4 adds reset line management during system suspend and resume,
-asserting the reset before clocks are disabled and deasserting after
-clocks are re-enabled to maintain consistent hardware state.
-
-Patch 5 is a final cleanup of the resume function error handling.
-
-Thank you!
---
-Best regards,
-Artem Shimko
-
-Artem Shimko (5):
-  watchdog: dw_wdt: move reset control deassertion before register
-    access
-  watchdog: dw_wdt: add error handling for reset control deassertion
-  watchdog: dw_wdt: Use
-    devm_reset_control_get_optional_shared_deasserted
-  watchdog: dw_wdt: manage reset line during system suspend/resume
-  watchdog: dw_wdt: clean up error paths in resume function
-
- drivers/watchdog/dw_wdt.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
-
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index c3fbb6068c52..3450402b7707 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -592,6 +592,8 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dw_wdt->rst))
+ 		return PTR_ERR(dw_wdt->rst);
+ 
++	reset_control_deassert(dw_wdt->rst);
++
+ 	/* Enable normal reset without pre-timeout by default. */
+ 	dw_wdt_update_mode(dw_wdt, DW_WDT_RMOD_RESET);
+ 
+@@ -617,8 +619,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 		dw_wdt->wdd.info = &dw_wdt_ident;
+ 	}
+ 
+-	reset_control_deassert(dw_wdt->rst);
+-
+ 	ret = dw_wdt_init_timeouts(dw_wdt, dev);
+ 	if (ret)
+ 		goto out_assert_rst;
 -- 
 2.43.0
 
