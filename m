@@ -1,218 +1,169 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a6-smtp.messagingengine.com (flow-a6-smtp.messagingengine.com [103.168.172.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7695233121E
-	for <linux-watchdog@vger.kernel.org>; Wed, 18 Mar 2026 17:42:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D125C397E87;
+	Fri, 20 Mar 2026 12:23:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773855733; cv=none; b=JVYDO9qW/oFnikHqD/oplBYA4TEiU6Sy2OqHEQx6NlX0QUoWDjWvJaxkn+jEUaBfApa9rp39MpT5j4g87D2F69CthvtjDpRFFdDuOC/invi7ioJzOoAbB7J5a559OsFQlDn7yCQ7FEhvq0Q519Ik1eiHPzfAkLYVslmL8KMb9vA=
+	t=1774009422; cv=none; b=N8yP1wgDcFrqoJgYEysVsUqH1TlCeMOuGLTb8AzmzYGD1ma8rpG+R4US+ZdEDJMncC4sR0mhju92cyHpI9K7gyUGKE7+8DMOdvWWWm4SrcYR+jRN5kWdEoElINmQtXKfmpHbYuj6DKJETGI9njmliUsthwyFiAS0OH9/dVykqqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773855733; c=relaxed/simple;
-	bh=qv+baRZR0Omqd5j1n6O3ERGa5Zh1w8scDVoM/YfP3bc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=huNhgjHdxmZw/Lixy/ClPK66CcZVjy9xYu4HnuwOI21wQS31ktTaZ7uSwxzZT8nW/rlF7eOlHZgiwPPFcM6ihiBHSnbm+Fxgv0jcSwaH6Zl0M6daDG3rGjrqZDnFRVfE7S0HhftbriK/CNXs7IsphBBbbIrZ5Bw4hz9htxkmfVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i9PWXmUi; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774009422; c=relaxed/simple;
+	bh=JxhD5pyU9TlybIWgDe9thdmFXajEwZfzNZlK9i5a+8A=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZaDsRiMHIbOR0Awqk8DZrhG4oHIt9Co3yDrIXlM/jJ64URBi3kk0Yu5XMTVWV5oHYm6yQEnAq09xLK0WM59nl6B/1UNwdZhbycxNx1AJLcl8PY6+vXjgOoII2Ca1A/Afg6pIb9lRK0QgNJKN31C4un8avv6Khf25X9Gx6D+4joo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=OfIMbLHC; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HnXeVY3Z; arc=none smtp.client-ip=103.168.172.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i9PWXmUi"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3567e2b4159so146537a91.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 18 Mar 2026 10:42:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773855732; x=1774460532; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zh1Qn7cKorGxUfkHdc+69X0eAoAMyDqvHflkwvi0a9k=;
-        b=i9PWXmUi2aBxTTvdXD0NtWkyNfeVK8u1fkSJmYddznIQoVLdXlMKoenASTazO/bRZy
-         x8pDJLJL9/iouoJKYkna0pRIVYIhuH2k0zO2YX2Mpu+xX3iVflvCl2wnCvjQMyRHqY4Y
-         GzgDqiWQ2GkJPbvyB75lbLzm2SDrA6JVjCsCzKT0PHY9FbOnGXd5ESgpPgYybfn6cYxB
-         NCLI8Z3rL1HhcSGnLUC5Ban0s1btngvby5sHxurrPz7ACMgXhRNkuE1NYIMaNchd3ct4
-         fpjWJTG1KhUe8bi284qEgeQH4j1MR2q2mbfVPDtNW6WH+UzqWZq+6DmP3qCWpb3SXYez
-         NktQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773855732; x=1774460532;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Zh1Qn7cKorGxUfkHdc+69X0eAoAMyDqvHflkwvi0a9k=;
-        b=aFjXyhuW0YJ81WNjMktoq68yqlFQyUhS6X4f9/l8tzMB1xmEJbaqY3dngUZ7sGxzL5
-         XOSksselq8EJgJgt3OWzRaK+OBA5Bmnbzhz1yvsBihpyZKm0HlXWt6wfoD74fLhTzBys
-         dj58EMxjw2kpzqXCC2aH7ZP0DoxTDc9y42zezTeiGOcMqzlx6L2RRLv9Byb+N8DFJPKC
-         6MXUCz/Z/wC2ti7+4/u3b1ywwTsJJxIfyXi4JIPEhvrZBCMVd8F4oLh3vPS5xuaodHoE
-         yg+2grwEpx8wgqFttD2tvA3Potk7CSSqiwYGNHBivDI8AoLtQLQnlv1NZos+L5TWUSzP
-         ljUg==
-X-Forwarded-Encrypted: i=1; AJvYcCWx4ZuhqG3igWUrTq2igOEkBu2lQI0neQqoSXptkNsZndtyaDmtEJIIb0co47i8asA/lGLe27JvQtFu5MkG3A==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1Xk7gLlAFPtjuhs/wmSHq+V7nTEgPs2u7twlss2gUTLuo4Llu
-	sTfy+G0oen5mWkyyKa6RrzqfBZjy+oEvUfkHDhZZxNK28R8e6fWg4xr0
-X-Gm-Gg: ATEYQzxf7WAuFbuXMlXp/0bu1gvueMZ3wCZpDrJXPnXba2KfOvUXcGDuMlSOuRBm1mh
-	yxb17k/0igY7sqONtTF/JMWm/tafzyYMrvWmJwwRDfgsYQf/EDByp9m/otZDfY21UXup5WA5cOi
-	jIoTZH7IPcSEXeUJWq+qjLm1KRzGxqAa6JzjLRLz0MFknX9ck4PcPbn01AFWFmlunG0ugl9MNZc
-	tvj2W7FJGBPtSdHhgqK/sTlGq67ouh114n1i02FmysXMd8EGwua0hQV9AoCRukWXM3S35waRLZk
-	93v93nNBcNPc+2dKstIg/m5oXCRgOUMeaDN5eeK2xBo3KCcB6/U/nja8YJIrDiYNb/hNYFF5yjL
-	BIejKudVMImItBGr0H1ArKBN4WexWp7/gkKsnwGWSF6+DwBeOdEERoTw3KPW6LHyuOhlSYc/yUR
-	Y+1u8ZTsZ/XVWEKiOjoBdqTzmFa00Xq3M0ltAqvvgFQ4b3yeS1iIkmrUGLPPpOfrnGEP/NEfsA
-X-Received: by 2002:a17:902:ea05:b0:2ae:56bd:5318 with SMTP id d9443c01a7336-2b06e357259mr39334515ad.22.1773855731660;
-        Wed, 18 Mar 2026 10:42:11 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b06e627132sm34298235ad.74.2026.03.18.10.42.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Mar 2026 10:42:11 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <f7cc1132-390f-4f2a-8884-5e3d90b8be8c@roeck-us.net>
-Date: Wed, 18 Mar 2026 10:42:09 -0700
+	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="OfIMbLHC";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HnXeVY3Z"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailflow.phl.internal (Postfix) with ESMTP id E4AC813800D7;
+	Fri, 20 Mar 2026 08:23:38 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Fri, 20 Mar 2026 08:23:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm3; t=1774009418; x=1774016618; bh=vp
+	5vpsrgGynCEXTWY7d25hwmYtHsPR9BeSeV6eOnFM4=; b=OfIMbLHCeYetfjS2QD
+	iaIyk7LGNtMja47diILroL4QAuTGt0XSKK296m0pGA1z+Vs+MDodV6aeY5+Y6Bna
+	d9o/s3tMQopb1NLuZ4Clb5HSDPQ5GBevrNnPC8PZYWvhID9KGpHsXGpaNSUjgLP5
+	a1HfP1gDaS9rvQHuDzQ4lBy7ukEBT0rKvog6f4crHXrXdlFyHYro+A5oy9ladteH
+	UmHP1LIWFQJBct4HBN77WsSz1BHzuWGMX/JjlKlak+s5Zj3qIrSEW9gglXXsWH9n
+	WznRZWxSmEqlHQLz66GDquLkyka0xIIQULRjcpLsKkHLzxab98eoSRGBBgUlqToQ
+	6sWg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1774009418; x=1774016618; bh=vp5vpsrgGynCEXTWY7d25hwmYtHs
+	PR9BeSeV6eOnFM4=; b=HnXeVY3ZckUVA58JrrQLhRJeTnxfBNryuCqC7Lt/Qn6E
+	lwFgqwIgG+Xq0ETzyJXn8d1OYkPdya3Sdc+qXecKmCtLnUMWhkiR5XYxF0cVYgjG
+	5Kg1RdtDIPDLDO1ZwmOXcxw3SlPuKVJ/vjVLEOmXZL19tkRGwufODdmaOzc+vCDt
+	JriQQrq2Nj2pzvVDKHLUIJ9UsystbeVnvyL0qJte9WYBgjdYzvCeVuQFaQWAoTDw
+	aWX+HpzYlPkmA7u7QBvJygqIMHt0Mql5XsijHUVfsi1Iueqhoiw4Oq1YsaUZJM63
+	vTnYiNTJEQXh60zDDO1zxMDY5d2z1kvY3gszkXyt1A==
+X-ME-Sender: <xms:Sjy9ad1ItbEf2PWzpeW_p5wGjSRI-YCLDDw7_j3xGrYLSPL94ZumWA>
+    <xme:Sjy9afGkPs2hA3yZGrRVbykayZRVBj8-CulTzs7tY2_x4bXn0gytA4mjPa9U73DeP
+    YqjuSyMW35ZeTfWojqwk9oXO7cGvrm2URtq95v6s2MChxd3Me34jg>
+X-ME-Received: <xmr:Sjy9aUgT0YZGkX4cCoBxxxvVc7A95sflkkZS9beMAGMldv2bsKKVDGhG4mdxQqXB2coRCTphXogpZjF6MP1a2VgOCxHkLJvdPVJNGw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdeftdelkeelucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephffufffkgggtgffvvefosehtjeertdertdejnecuhfhrohhmpeflrghnnhgvucfi
+    rhhunhgruhcuoehjsehjrghnnhgruhdrnhgvtheqnecuggftrfgrthhtvghrnhepueelgf
+    fhfedvgeelfeduuefhfefhjeeihfffueefjeeihffhheeuteeuvdeuhffhnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehjsehjrghnnhgruhdrnhgvthdpnhgspghrtghpthhtohepvdef
+    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehmihgthhgrvghlrdhrvggvvhgvsh
+    dtjeejsehgmhgrihhlrdgtohhmpdhrtghpthhtoheplhhinhhushifsehkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehnvggrlhesghhomhhprgdruggvvhdprhgtphhtthhopegtoh
+    hnohhrodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepuggvvhhitggvthhrvggv
+    sehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqrghrmhdqkh
+    gvrhhnvghlsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoheplhhi
+    nhhugidqghhpihhosehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhgvth
+    htvghnihhssehophgvnhgsshgurdhorhhgpdhrtghpthhtoheplhhinhhugidqihdvtges
+    vhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:Sjy9aYf3AHRaW_UpygGmBVjs_4bpPiGUSCh6gZ3wcKgxDHTpcZXbLw>
+    <xmx:Sjy9aazUMdXiXgf1Rw30tXR7WnWIbbtQGkdpDZacZrMetgNDQYDcIg>
+    <xmx:Sjy9aSZEfBrcEf6tsUV6b2wIqatNN_8cmT5s8XQ6gwE1VvnlHtWPbQ>
+    <xmx:Sjy9aYJ0ddtXxBSF1vv3LX9-wnOFAgWq6Fai_vVQwnlzyqxAz3G1Yw>
+    <xmx:Sjy9aSZU8XUOM3grg6K5NBA8Uoyahp-UUIimdgVCtrFzskBMfYuaYDCs>
+Feedback-ID: i47b949f6:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 20 Mar 2026 08:23:37 -0400 (EDT)
+From: Janne Grunau <j@jannau.net>
+Subject: [PATCH 0/9] Initial Apple silicon M3 device trees and dt-bindings
+Date: Fri, 20 Mar 2026 13:23:18 +0100
+Message-Id: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] watchdog/hpwdt: Refine hpwdt message for UV platform
-To: Steve Wahl <steve.wahl@hpe.com>, Craig Lamparter
- <craig.lamparter@hpe.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Russ Anderson <rja@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>,
- Kyle Meyer <kyle.meyer@hpe.com>, Keng-Yu Lin <keng-yu.lin@hpe.com>,
- Steve Collins <s.collins@hpe.com>
-References: <20260318155005.90271-1-steve.wahl@hpe.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260318155005.90271-1-steve.wahl@hpe.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADY8vWkC/x3MSwqEMBBF0a1IjbtA4w97K42DInlqgaZDIiKIe
+ zc4PIN7L0qIikTf4qKIQ5P+fUb1Kcgu4mewumwypenKuhpYQljBW83qdVdZ2eXKYo9A4ta2TSd
+ u6HsxlBchYtLz3f/G+34AHnfH8G4AAAA=
+X-Change-ID: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Lorenzo Pieralisi <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>, 
+ Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
+ Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Sasha Finkelstein <fnkl.kernel@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ Janne Grunau <j@jannau.net>, Michael Reeves <michael.reeves077@gmail.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2705; i=j@jannau.net;
+ s=yk2025; h=from:subject:message-id;
+ bh=JxhD5pyU9TlybIWgDe9thdmFXajEwZfzNZlK9i5a+8A=;
+ b=owGbwMvMwCW2UNrmdq9+ahrjabUkhsy9Nu6rPrWZBjtWxbX0vq5Q7L754tARZ53PcUICVrUqm
+ u4pP1Z0lLIwiHExyIopsiRpv+xgWF2jGFP7IAxmDisTyBAGLk4BmMjTX4wMTYU/n1QZ/s7OO6Xz
+ ymSv4kSnp5O2LVVQmTmj3u2v2+FbBxj+O9dPjIl8ZWn2pFxz+71ONYfr0g9to1fGFsxan1Yk9+A
+ yKwA=
+X-Developer-Key: i=j@jannau.net; a=openpgp;
+ fpr=8B336A6BE4E5695E89B8532B81E806F586338419
 
-On 3/18/26 08:50, Steve Wahl wrote:
-> The watchdog hardware the hpwdt driver uses was added to the UV
-> platform for UV_5, but the logging mentioned by this driver was not
-> added to the BIOS.  When the watchdog fires, the printed message had
-> the administrators and developers looking for non-existent log files,
-> and confused about whether a watchdog actually tripped.
-> 
-> Change the message that prints on UV platforms so it doesn't send the
-> user looking for non-existent logs.
-> 
-> To aid in any future debugging, include all 8 bits of the NMISTAT
-> register in the output, not just the two bits being used to determine
-> this was "mynmi".  And provide names to the bits in NMISTAT so the
-> code is easier to understand.
-> 
-> Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+Hej,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+This series adds initial device trees for M3 Apple silicon devices. The
+device trees contain only a minimal set of hardware not going much
+beyond the minimum required for booting kernel and initramfs and
+verify via serial console that the hardware and drivers work.
+The hardware with the exception of the interrupt controller is
+compatible with the M1 and M2 SoCs and the existing drivers.
+Changes for the interrupt controller were sent separately in [1] and are
+picked up and in linux-next. The device trees pass make dtbs_check with
+the apple,aic2 dt-bindings change from that series.
 
-> ---
-> 
-> v1 disucsion: https://lore.kernel.org/all/20260316214530.104344-1-steve.wahl@hpe.com
-> 
-> v2: Fix subject line; remove hpwdt_my_nmi function, and inline what it
-> formerly did, reducing complexity. This addresses comments from
-> Guenter Roeck.
-> 
->   drivers/watchdog/hpwdt.c | 22 +++++++++++++++-------
->   1 file changed, 15 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index ae30e394d176..ba08189937ec 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -22,6 +22,7 @@
->   #include <linux/watchdog.h>
->   #ifdef CONFIG_HPWDT_NMI_DECODING
->   #include <asm/nmi.h>
-> +#include <asm/uv/uv.h>
->   #endif
->   #include <linux/crash_dump.h>
->   
-> @@ -158,24 +159,31 @@ static int hpwdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
->   	return 0;
->   }
->   
-> -static int hpwdt_my_nmi(void)
-> -{
-> -	return ioread8(hpwdt_nmistat) & 0x6;
-> -}
-> +#define NMISTAT_EASR	BIT(0)
-> +#define NMISTAT_EWDOG	BIT(1)
-> +#define NMISTAT_RTRAP	BIT(2)
-> +#define NMISTAT_DBELL	BIT(3)
-> +#define NMISTAT_EMSWDG	BIT(4)
-> +#define NMISTAT_GPI	BIT(5)
-> +#define NMISTAT_NMIOUT	BIT(7)
->   
->   /*
->    *	NMI Handler
->    */
->   static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->   {
-> -	unsigned int mynmi = hpwdt_my_nmi();
-> -	static char panic_msg[] =
-> +	u8 nmistat = ioread8(hpwdt_nmistat);
-> +	bool mynmi = (nmistat & (NMISTAT_EWDOG | NMISTAT_RTRAP)) != 0;
-> +	static char panic_msg_default[] =
->   		"00: An NMI occurred. Depending on your system the reason "
->   		"for the NMI is logged in any one of the following resources:\n"
->   		"1. Integrated Management Log (IML)\n"
->   		"2. OA Syslog\n"
->   		"3. OA Forward Progress Log\n"
->   		"4. iLO Event Log";
-> +	static char panic_msg_uv[] =
-> +		"00: A watchdog NMI occurred.";
-> +	char *panic_msg = is_uv_system() ? panic_msg_uv : panic_msg_default;
->   
->   	if (ulReason == NMI_UNKNOWN && !mynmi)
->   		return NMI_DONE;
-> @@ -189,7 +197,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->   		hpwdt_ping_ticks(SECS_TO_TICKS(val));
->   	}
->   
-> -	hex_byte_pack(panic_msg, mynmi);
-> +	hex_byte_pack(panic_msg, nmistat);
->   	nmi_panic(regs, panic_msg);
->   
->   	return NMI_HANDLED;
+Link: https://lore.kernel.org/asahi/20260223-irq-apple-aic3-v3-0-2b7328076b8d@jannau.net/ [1]
+
+Signed-off-by: Janne Grunau <j@jannau.net>
+---
+Janne Grunau (9):
+      dt-bindings: arm: cpus: Add Apple M3 CPU core compatibles
+      dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible
+      dt-bindings: power: apple,pmgr-pwrstate: Add t8122 compatible
+      dt-bindings: watchdog: apple,wdt: Add t8122 compatible
+      dt-bindings: pinctrl: apple,pinctrl: Add t8122 compatible
+      dt-bindings: i2c: apple,i2c: Add t8122 compatible
+      dt-bindings: pwm: apple,s5l-fpwm: Add t8122 compatible
+      dt-bindings: arm: apple: Add M3 based devices
+      arm64: dts: apple: Initial t8122 (M3) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   18 +
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    4 +-
+ Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |    4 +-
+ .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    4 +-
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    4 +-
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    4 +-
+ arch/arm64/boot/dts/apple/Makefile                 |    5 +
+ arch/arm64/boot/dts/apple/t8122-j433.dts           |   19 +
+ arch/arm64/boot/dts/apple/t8122-j434.dts           |   19 +
+ arch/arm64/boot/dts/apple/t8122-j504.dts           |   37 +
+ arch/arm64/boot/dts/apple/t8122-j613.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8122-j615.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8122-jxxx.dtsi          |   48 +
+ arch/arm64/boot/dts/apple/t8122-pmgr.dtsi          | 1149 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8122-usbpd-i2c.dtsi     |   32 +
+ arch/arm64/boot/dts/apple/t8122.dtsi               |  444 ++++++++
+ 18 files changed, 1859 insertions(+), 5 deletions(-)
+---
+base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+change-id: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
+
+Best regards,
+-- 
+Janne Grunau <j@jannau.net>
 
