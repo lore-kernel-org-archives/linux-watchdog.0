@@ -1,34 +1,33 @@
 Received: from e3i439.smtp2go.com (e3i439.smtp2go.com [158.120.85.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962EA1E2614
-	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 13:09:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C41E1DED63
+	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 13:09:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.85.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774271348; cv=none; b=Cnr39FcAlKg56ch3i3dyqP8vrWm02gUAMFATxMI3sHICTAgulW4tzdcwtr0qsbJJg7t+xCkPlWrzjZwPeGtMsFeW1xwUPpO0y5FLcNeRfvFXFoIN2NPwc2LKjpsz5KbKioji/Uff9+5qd75d7VIaIhmevxEaE6xAO8Y2CrRecg0=
+	t=1774271348; cv=none; b=oTS4NtX9G+ubcYn0cn7+lnZauT+r6dYLvUeYQR34I/snC8bsydZy4PnGewgwaUlgqE81kfh35V7Fdl1Jh/01iYxdUyiS/UIItlr0qlQz6WSTyJjj0bfmwSJymUs+BLyw10rGG6tLYl4+k5KvN0wwQkGS3Zwi1HxUSBlSIst4+s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1774271348; c=relaxed/simple;
-	bh=KV72GsbRh9JFDpo+i9INOsu4ipzJdew53jV+HCgNrM0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dzTL7J4wM5ESyixQ6XVobraxxwKOdTRTy+1BVQSHvzDFN91CeQNHlY9vsdSwoFbbhXkVtnunzzifeH3MZiLStHy9p5ZXVVzmY7r4DM/76nM6woChz7CqeEkIKCQsApzt4IIVbaClq0g8gjC8CwVQ8D5PVuddw6AY9wDCLYQyNc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=asem.it; spf=pass smtp.mailfrom=em1174574.asem.it; dkim=pass (2048-bit key) header.d=asem.it header.i=@asem.it header.b=Uhqv1EYX; arc=none smtp.client-ip=158.120.85.183
+	bh=P/lu/Ao5pU/yoSpmWhO7NakoxdVgf01ByR2wObgWmnI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jEuTlwNwx9diPJfZqek2uu1JuUCTzpaopayZqMDXAtMqB6yXn9I24NuxnHIDBlFTUzmfxmW7Q8lvx9wc82Ev8zz2eMvaL9LlLrixDIQCZf9oD+rE1mSZHL81nBkx4Un8s/uVms2D/I0SqYWZ7XtOlsAYou5oeTd5tVx20AN7Y2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=asem.it; spf=pass smtp.mailfrom=em1174574.asem.it; dkim=pass (2048-bit key) header.d=asem.it header.i=@asem.it header.b=IdoWn30o; arc=none smtp.client-ip=158.120.85.183
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=asem.it
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em1174574.asem.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asem.it header.i=@asem.it header.b="Uhqv1EYX"
+	dkim=pass (2048-bit key) header.d=asem.it header.i=@asem.it header.b="IdoWn30o"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=asem.it;
- i=@asem.it; q=dns/txt; s=s1174574; t=1774270438; h=from : subject : to
- : message-id : date; bh=sAiIE3fA7CMpWLBOFUmCaq8hbg3E4RnoFmWIdk9aVLw=;
- b=Uhqv1EYXOVTJ0rimUkItdcSGgKK/LyhMnvxIz2x6QcxWLNVVyHUW8ndQmHv+fnHnKJlmO
- SWjqqfFEkxfdItEnZcdelVu0WzoLpm/W4tlFn2ijB1AJQvlp13MVeqXlKJ0oByjaKDAlgYh
- 0K+tRE0Ti9lwvgNpTkrKq1W7MKpa2yghXh3a2No5S2dQ/OMnkYjQM+FTV1IyFX4xs5uY/0D
- 3C4JF5zJ61wlgFqbDeuIaQmbogsH5ARV1PBHChtGhflAzY8+sbvlR5rTAQlLEDxZ+E2rx5T
- UJW9sKwScD++/8u4kUDuxJk+IaW9nx6EVg4wT5tR+oWpyoq8ICoWkctOcILQ==
+ i=@asem.it; q=dns/txt; s=s1174574; t=1774270436; h=from : subject : to
+ : message-id : date; bh=D8btCQ3WkBaZ6rjODEATncJOSVjO+dt1eF0zVp8Z20E=;
+ b=IdoWn30o2h087GMuvpFvgKBawml6JIwxgr/WpZDVV0b+K1G83YGgpKDKkN2UYmL41Kxi6
+ K/hpN2e5AZNckkAd5GpxkwCNOE/pR7X5mK1RlQAaeuCbuZtjNm4R9OyfUaSu+0ZtDVGmQNk
+ npZ4paoHSoaxnSuSCuQ8+SmNV9fjbDUQNiIo3kzp2rYZYA7PrRYp3f0NSvHuuhpIdLXBO8f
+ N6oJ9FJjunOubLZsGUgzEwBh5xephPen2R9dXPQK76VmtnV2dLywsHmt8gitfc3BK/wadY1
+ 1aX2ugAv9Ck7GjclqrT+5BWXStYvj41b8rLPR09Jy8EmE38t0AD2ZspPQhkw==
 Received: from [10.86.249.198] (helo=asas054.asem.intra)
 	by smtpcorp.com with esmtpa (Exim 4.99.1-S2G)
 	(envelope-from <f.suligoi@asem.it>)
-	id 1w4en4-AIkwcC8uYhl-0PLM;
-	Mon, 23 Mar 2026 12:53:54 +0000
+	id 1w4en2-AIkwcC8uYhl-2HS0;
+	Mon, 23 Mar 2026 12:53:52 +0000
 Received: from flavio-x.asem.intra ([172.16.23.77]) by asas054.asem.intra with Microsoft SMTPSVC(10.0.14393.4169);
 	 Mon, 23 Mar 2026 13:52:29 +0100
 From: Flavio Suligoi <f.suligoi@asem.it>
@@ -37,12 +36,10 @@ To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Flavio Suligoi <f.suligoi@asem.it>
-Subject: [PATCH 1/1] watchdog: gpio_wdt: add ACPI support
-Date: Mon, 23 Mar 2026 13:52:04 +0100
-Message-ID: <20260323125204.164785-2-f.suligoi@asem.it>
+Subject: [PATCH 0/1] watchdog: gpio_wdt: add ACPI support
+Date: Mon, 23 Mar 2026 13:52:03 +0100
+Message-ID: <20260323125204.164785-1-f.suligoi@asem.it>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260323125204.164785-1-f.suligoi@asem.it>
-References: <20260323125204.164785-1-f.suligoi@asem.it>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -50,18 +47,34 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 23 Mar 2026 12:52:29.0482 (UTC) FILETIME=[E86870A0:01DCBAC3]
+X-OriginalArrivalTime: 23 Mar 2026 12:52:29.0467 (UTC) FILETIME=[E86626B0:01DCBAC3]
 X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 1174574m:1174574aXfMg4B:1174574stADfvfCBj
-X-smtpcorp-track: nyQt6IMSHDVx.GWLD22Ox7w_N.kKhB_w_h-qh
+Feedback-ID: 1174574m:1174574aXfMg4B:1174574saggEFJmIW
+X-smtpcorp-track: cNvGpnEFYq95.G59DT5ybT8DM.4_Tqtgwlamw
 
-The gpio_wdt device driver uses the device property APIs, so it is
-firmware agnostic. For this reason we can now add the ACPI support in
-Kconfig.
-In this way it can be used seamlessly in ACPI and DT systems.
+The gpio_wdt driver was already converted to be property provider agnostic
+in the following commit:
 
-For example, a typical GPIO watchdog device configuration, in an ACPI
-SSDT table, could be:
+'7e5bca6e5561 (watchdog: gpio_wdt: Make use of device properties)'
+
+So it can be used on both OF and non-OF platform (ACPI).
+The problem is that this driver, to be enabled, require the Device Tree,
+as we can see in Kconfig:
+
+config GPIO_WATCHDOG
+	tristate "Watchdog device controlled through GPIO-line"
+	depends on OF_GPIO
+	select WATCHDOG_CORE
+	help
+	  If you say yes here you get support for watchdog device
+	  controlled through GPIO-line.
+
+This dependency prevents its use in other environments, such as ACPI.
+To be able to use it with ACPI as well, and therefore with x86
+architectures, we have to add the dependency from ACPI and GPIOLIB.
+
+After this change, I tested the driver in one of our x88 boards, adding in
+the SSDT the following device:
 
 Device (WDOG) {
     Name (_HID, "WDOG0001")
@@ -88,24 +101,14 @@ Device (WDOG) {
     })
 }
 
-Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
----
+So, in this way, the gpio_wdt driver can be also used in x86 boards.
+
+Flavio Suligoi (1):
+  watchdog: gpio_wdt: add ACPI support
+
  drivers/watchdog/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index dc78729ba2a5..966489fe8c8d 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -250,7 +250,7 @@ config DA9062_WATCHDOG
- 
- config GPIO_WATCHDOG
- 	tristate "Watchdog device controlled through GPIO-line"
--	depends on OF_GPIO
-+	depends on (ACPI && GPIOLIB) || OF_GPIO
- 	select WATCHDOG_CORE
- 	help
- 	  If you say yes here you get support for watchdog device
 -- 
 2.43.0
 
