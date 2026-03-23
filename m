@@ -1,66 +1,67 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21B5C3B0AF1
-	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 14:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01834239E6C
+	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 14:45:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774276860; cv=none; b=mBcXKxVzFbesen9n2j6LSJvjYw1B0lU1bHP7DhdCK0GNioKsm5j9yK+fCERI58GWcyoE8zfQB/rJOXXefbkQyMFbURAdRkZ3U0nGMdVPgCDKwUTOauBo0jREsI1hG96jrX2So/7bBv7iOFxS770W0QZDM5k2zFegNS/fNv250Rk=
+	t=1774277142; cv=none; b=smXkYi2D3FoC/8OUkjYSDfow2AetydU2F1qg9PiKHEd5zpiIvahwSffXtyskNoTTZGVKdsSB606/3Q2xxpLRHjpHKHNRQLWX/dwG/eelTC9TobHRMLS88pGUArBakcIEPfqHOiFihF6Zjx+onDGaEfCZ0cKYsTsHAhb1C7h5hoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774276860; c=relaxed/simple;
-	bh=2HYTb0v46JJReVzWRZ8ta4mLH4Pcnp13cEeRyFBwIVg=;
+	s=arc-20240116; t=1774277142; c=relaxed/simple;
+	bh=Btw1c2HBNOjynBg9HMKRXHEjIeWm2xGVPfJB65Us2d8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FMdjjgs/z7n6b5kV/Xm/C5jxbH10TbsRecA8WtUxizBHi9WbKhPt5Tj1yPUiFhUFapHDkXASLIh3PDDGkdSzMtiSitWZVx4VmrViMVa+Bh4sRQqyEAIc5FaOOhK9YovgykD8PrcUqWOGP9vN/7kJMqWN7XVjhjMNilJQ+ucnR3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kj8jpwBH; arc=none smtp.client-ip=74.125.82.169
+	 In-Reply-To:Content-Type; b=qmUnVdqk0w5TArHHind1z+AfM1fFjAnLBHt6hN2orHjQ9f4Ys+6m6lENo0c6YSk2SwA84Fc3N1XFrbuyAbiaao5aw0QGDEgtQeioypOuAwJ+8oHwYxMnOC4MVih7PvDbZFqDDVM0UdI4JrxR1/UtdhcOUX8eMQuZgby9oEyyR8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fqfN0Rh7; arc=none smtp.client-ip=74.125.82.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kj8jpwBH"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2ba895adfeaso261423eec.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 07:40:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fqfN0Rh7"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2c0c955a481so3007643eec.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 07:45:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774276857; x=1774881657; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1774277140; x=1774881940; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=RF/ASTXorC1Yfhc6nVN80YYeNSMrW6Qe7YXBp1CjIco=;
-        b=Kj8jpwBHfbzyqIVFU7LZlM4E/7iQHS6yCox/Pw0tkx7/6W/JtiisKQ7rp9dlAJQZI/
-         DNdBGnDd0SdvSvcGBkP0zyxNU1O2rTw8v+tmR6394DIGhKyBnKVcfij654fNEcNY2p6f
-         Cy5ApipOFMFfIjSgXTv87r7dDwW2eMeNKA7oHLhWirW4x/FA7+82YxkP9NmbclX7s/0n
-         xAh3vaS1ZQMYTAgN0zAuY5Ws6+KLaKNB93ysqfC+bIEHSQ6RWh30vGW7J02t+63ke13f
-         WqprdQK4u/1Bj+aHKSQTrkoPHQP8BG5FEFSO1rIYdGYYGocbvHUg+8IfDI0VZI0PwjQp
-         rsGA==
+        bh=I+oWMSCKxMSzMwfiT72a6Og/7ntIqLA0/09brtyvtUs=;
+        b=fqfN0Rh7Tb/VxDt08+L2oHEOl/thL5w89e5GssIa/BvSQEZFSWTeXng/1MZUy4pkBi
+         G5RlLDQRSX0OUzfuM8KvBgnFsQB80I6O6F6LS1ppIDkngvsF1UiKZYmpT3SmeXHnBNCm
+         PEPiNKj08J9PTEFlMIx4MiUtO93Ct+QyRmiaTWrxhKglxiH7TS01M+b64nzY2M6LW7CX
+         pQ9Hhq4kMyrv0F/tSVCzYZ8voA0Cgp1KybD1nXgz55FNCwLDDJ6a/6Y7JMqvpsBrnkfS
+         /LBHQrbUOWJozrHUQo1VMIFurfzKGEwvIbfDeO9ywedwhkDDRs0O6/Fou7GsJfmGPZu1
+         fY2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774276857; x=1774881657;
+        d=1e100.net; s=20251104; t=1774277140; x=1774881940;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RF/ASTXorC1Yfhc6nVN80YYeNSMrW6Qe7YXBp1CjIco=;
-        b=W6CNn5FddebGicJzo39qtE7Pa5Dso9PzRnhB9ywuDUGcS8CEdjAQvWrnWgu2B5nXU8
-         lj1qGUP5Xpx8bl5ny6KrS29ulGFRMrWPqRfRoYAED7Pt9533lPdlMu7aUaewPL0GIo0c
-         ZjpwCDjjHDNVdc7uOzWPxGDjuvkhxw0zzX6n+I807MXlfHg4Fw4hVuUo74zhtZlO6y4D
-         333WWhFCaUlF2Zr7BubUgih1ZcrG0CxuI/VZRCvngGI0pG6Z1IVCriFPA7n3tJPPOcnw
-         +QQ1EUsJGraweLgPuLurLUyinCDuUlMgGqJ8UfyqXBAjA9zWPkDS47vAeFHqqcwjUP7A
-         VsSQ==
-X-Gm-Message-State: AOJu0YyBTTj0Fvc9PxZA5H9x20+1TZww1KPPsj2GpTAjtnszk7nXEZHh
-	m9oiZNRBWoNfDaGMx2PvemxdfwxW3+InkOLzhqsMqZeUacycGOiI++ME
-X-Gm-Gg: ATEYQzywHf1SXjqIZzcP8teSA8h6sMb6gKTXl9+8QB7+eqkZzZ4qRrLPOgLmpQ7CzKB
-	bar71Gc3FN3enk9DrD5okiyxe4ltaj1Ya8CYsOlrAa8QhPbYM+v5vdEP8Mm7+yKi6AXb4CUfUB4
-	+K09cNP5Ljl/3rX1g1YwvAVct7fAH+9Qk95pvJyM5l8J2uunLqCQi4ttfS8TlI5Bga4moYiEGv/
-	jMcGmp8lYny46D04Wkmn1UPEF8yDFJJpT5PW8KoqUwG1HuWfg4bYo4dPWBEhgWBMEWW1zHDqzRG
-	iacaI7G3TGj47ojgwTCLSiY2hvi6EjB6kV1xqh+EXkYzBT6HR2FbhexUwtbxB4zRww+LJVgKpdC
-	vp/ONQVJjx/UEpiW2//2fllGj/BZTJkZdLvfYEfoOjQ9W0x8TeluHSJRj9su422pg9RbkSgoFsf
-	IsDJqqHkUVQ+h4+91vDEnMY//VN8g1oguJKsnNcEk7qEOv9967TWB0TrQUOI/atp0hG3lUl8//
-X-Received: by 2002:a05:7301:6794:b0:2be:723:a9b0 with SMTP id 5a478bee46e88-2c1095a5b8cmr6038980eec.5.1774276857139;
-        Mon, 23 Mar 2026 07:40:57 -0700 (PDT)
+        bh=I+oWMSCKxMSzMwfiT72a6Og/7ntIqLA0/09brtyvtUs=;
+        b=dwVoDss0PrbyzF7WHeKD9pEk5NLepGqB/9jJ/sSLePY8R50s8RzP19mPKpHccR9ON+
+         yQhFsGydBE8OrzVN2iScu1RVOoA44jnXqtraBj3QEtWnQhMmDIx5be3oa0raiiLvaGez
+         int9ZlLyshBmR/ZHVaPkN1uPqEuA/kZtIKa/Ma87koUPwkVE0DgP628E6DEWlWckWWPM
+         5LkIRgET5X2rXot6mBpyoVuFhgWfyzeErpQ+0k+OBYFaGbUKZ+6m2mjuhYbcPuk1nSeK
+         /2x45/n/9JWzN1Wncs/DfOcBaTeRGk2deyC06Zg0kexl73/5zAlP2wlImCUnjd6gsbgv
+         OQag==
+X-Forwarded-Encrypted: i=1; AJvYcCUbVQI40wcgILL9agKoyVi8QXY8lnzeyLj8X5q/2VgcozpEc6E5gnMSTfAyz+xeavAOaWPAOiHS5b3ifjCWUQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyW4kuxX88kaFQOykOcJM31mg9evxnGhzKxRWkeQ7PB8IOoP5z0
+	mwRZDUjZU15DOuYwa15BaZpC2CTxrkzo5NAfz/3YsoEjeTFc2wq4pYG3
+X-Gm-Gg: ATEYQzxtM2tEyIMy50YziRd9XfLO01hHNcbKZt0+IfOQXqXMn3tAIgnivA2GMPYUiuQ
+	M/1L21R2LNn8jgP+3vGR5k5HsOk2zEg7STRHnR+PDsvAK/wmNp1ic3zkvZD2uDJ81PWm6YoN6Qg
+	ppw4FQWvlTCKgabpDcJLQ18jb5+/7fvI2SiKawfqADWFUKCNUGzl/cNYNEpZePvot2VjHoNZF4R
+	KkIq+HudE/vEHtRS5d/wh9OuRGBs5sOpa9LZFC0A1np6bprKvSgnLedxrA7GNqi5q1weEVvZEyJ
+	ZMCYTsi4EQdU8IZs4F+9zWw+rz8i9Z+0+Dhs4EIulF5VKxBhmf4SGrAuKZnUk/3dOym/JKC7Og9
+	6X6dEyqb//EG/uN2EA35pAxH4KFRbbhxGV2Hcue1s4gY8CpU+UPrrPE/M6nIaejxeIBIcagioa7
+	R0Oa87PKsOsvp12IssQHf9MAmPHRPBOGwDgI5foTzQQ0NhXhhotbuid4icFuFDtHsiHm2Zm4uU
+X-Received: by 2002:a05:7300:a883:b0:2c0:fec3:fcff with SMTP id 5a478bee46e88-2c109712ae0mr5271934eec.17.1774277140029;
+        Mon, 23 Mar 2026 07:45:40 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b14caf3sm16899917eec.5.2026.03.23.07.40.56
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b29d28csm15457195eec.19.2026.03.23.07.45.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Mar 2026 07:40:56 -0700 (PDT)
+        Mon, 23 Mar 2026 07:45:39 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <5f723be8-1a9b-471f-9921-bcb498578e43@roeck-us.net>
-Date: Mon, 23 Mar 2026 07:40:55 -0700
+Message-ID: <696f0e32-5deb-401c-9b98-830c6bfdeca6@roeck-us.net>
+Date: Mon, 23 Mar 2026 07:45:38 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -68,14 +69,21 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND v2 1/1] watchdog: menz069_wdt: drop unneeded
- MODULE_ALIAS
-To: Jose Javier Rodriguez Barbarin <dev-josejavier.rodriguez@duagon.com>,
- jth@kernel.org, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
- Jorge Sanjuan Garcia <dev-jorge.sanjuangarcia@duagon.com>
-References: <20260323112413.21923-1-dev-josejavier.rodriguez@duagon.com>
- <20260323112413.21923-2-dev-josejavier.rodriguez@duagon.com>
+Subject: Re: [PATCH v2 6/7] dt-bindings: watchdog: Drop SMARC-sAM67 support
+To: Michael Walle <mwalle@kernel.org>, Nishanth Menon <nm@ti.com>,
+ Vignesh Raghavendra <vigneshr@ti.com>, Tero Kristo <kristo@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+ Conor Dooley <conor.dooley@microchip.com>
+References: <20260302122540.1377444-1-mwalle@kernel.org>
+ <20260302122540.1377444-7-mwalle@kernel.org>
+ <f124b200-09e3-4e73-a100-f47007732e8f@roeck-us.net>
+ <DHA13HM1GIJW.1E7XCMY349JX7@kernel.org>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,36 +129,34 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260323112413.21923-2-dev-josejavier.rodriguez@duagon.com>
+In-Reply-To: <DHA13HM1GIJW.1E7XCMY349JX7@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/23/26 04:24, Jose Javier Rodriguez Barbarin wrote:
-> Since commit 1f4ea4838b13 ("mcb: Add missing modpost build support")
-> the MODULE_ALIAS() is redundant as the module alias is now
-> automatically generated from the MODULE_DEVICE_TABLE().
+On 3/23/26 01:45, Michael Walle wrote:
+> Hi,
 > 
-> Remove the explicit alias.
+> On Mon Mar 2, 2026 at 4:01 PM CET, Guenter Roeck wrote:
+>> On 3/2/26 04:24, Michael Walle wrote:
+>>> I was just informed that this product is discontinued (without being
+>>> ever released to the market). Pull the plug and let's not waste any more
+>>> maintainers time and revert commit 354f31e9d2a3 ("dt-bindings: watchdog:
+>>> Add SMARC-sAM67 support").
+>>>
+>>> Acked-by: Conor Dooley <conor.dooley@microchip.com>
+>>> Signed-off-by: Michael Walle <mwalle@kernel.org>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > 
-> No functional change intended.
+> Everything expect this patch was picked up. Guenter, do you want to
+> take it, or should it go through the TI SoC queue?
 > 
-> Reviewed-by: Jorge Sanjuan Garcia <dev-jorge.sanjuangarcia@duagon.com>
-> Signed-off-by: Jose Javier Rodriguez Barbarin <dev-josejavier.rodriguez@duagon.com>
+> Thanks,
+> -michael
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+I am fine with either approach. Wim handles all watchdog subsystem pull requests,
+so we'll need his feedback.
 
-> ---
->   drivers/watchdog/menz69_wdt.c | 1 -
->   1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
-> index 6e5e4e5c0b56..3fe23451135d 100644
-> --- a/drivers/watchdog/menz69_wdt.c
-> +++ b/drivers/watchdog/menz69_wdt.c
-> @@ -163,5 +163,4 @@ module_mcb_driver(men_z069_driver);
->   MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
->   MODULE_DESCRIPTION("Watchdog driver for the MEN z069 IP-Core");
->   MODULE_LICENSE("GPL v2");
-> -MODULE_ALIAS("mcb:16z069");
->   MODULE_IMPORT_NS("MCB");
+Thanks,
+Guenter
 
