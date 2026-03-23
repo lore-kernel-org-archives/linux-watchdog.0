@@ -1,124 +1,85 @@
-Received: from smtp.forwardemail.net (smtp.forwardemail.net [149.28.215.223])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7031643B
-	for <linux-watchdog@vger.kernel.org>; Fri, 20 Mar 2026 16:26:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=149.28.215.223
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A43F79DA;
+	Mon, 23 Mar 2026 00:54:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774023990; cv=none; b=mlCt3GqAM4+h+CaiDzuabKGbo7z5W15ji5dCAUO6pZoXsGqfUvsh+RYuJLixXEpwFEqinOYjvCLQbtLM0P/xXMnVkWqiwZJxKeA3YFdbvhfy5AupgCVd80uu6Lt2uGeCkHy9/4KO6haw2NUVtnLO5+BhHdodDsD+9G0kTQq8ZGA=
+	t=1774227268; cv=none; b=Ep2I/vuLCyK2U8iBmnjnyHMGexXVGs25tWV4U+QkerHfEL/xJ4QH6H5vDqjl82MB4mysDKARxLHa64GOOmcTwm3HVLE+WvdWhJhpU8+2ZHQJ5bw5ucarPSYog9p5RBvgoxE6NEb4Z+AjaTCoiN4knhRoWyuBRiIDzC9jQBfQ7WY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774023990; c=relaxed/simple;
-	bh=fMyFSszCJXOXIv+DX7+R6wPDH9WSrMIYlywm/2fLRog=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=mOn8IyJ2b73V+pFOKm/FC81AR14LvWA/W7IJzLV5rtfAU98q8IK4vsdJXd2bBmr8hf1+BGTIPBgnSy37FOyeBx3a7lKD3+VNj110rE9SBLZ2tbLi/28JPbTZlLoO6j/CrGg4FFQtirpESbBYqaPGLsbPJ7APVFOx+HlNDpwWhg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com; dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b=f0nKMIYD; arc=none smtp.client-ip=149.28.215.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com
+	s=arc-20240116; t=1774227268; c=relaxed/simple;
+	bh=xPO/6bhmiA7gIWQYx6HkqJrKJGQ9iHDbpkPgyQJOz5M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eTPkPmaA6pOcKJg5OELXpU+FF8ov4GhhQgOQisVaPs8eFVh9Ij8XkX62hM+Yceaqi/uG+boG0vmhG+n0T1wjUEFUSnQuTb21qVk6j5A+yZc/2A7kgqqXhmPIXpn9FPqQKur4ocvx+X5Bf6wBCNU+04GRjEydu+8lpdFwCZwFYS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=z39ouZfK; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b="f0nKMIYD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ubuntu.com;
- h=In-Reply-To: References: Subject: Cc: To: From: Message-Id: Date:
- Content-Type: Content-Transfer-Encoding: Mime-Version; q=dns/txt;
- s=fe-953a8a3ca9; t=1774023982;
- bh=ft21UeP4z579XSbja1g9AqWPvCF44UV/oZHoOxBnDIs=;
- b=f0nKMIYDRphYCijUdznF3+0Jiv0q/sG8581AIXOISR2BKIYNpQ1OL8gRvyHm1w8hfFHCJAp1d
- 06OEbO5j4VMmsj2HJyQ3PvWnjwKlgsAIBZcZTQpl/Dk6J/8yZUrEdi2u22Yv5/9F6fffXlhUdrF
- M/+yDmgshYAKGlLrYrIeHBtjrSMKnHATX2/+GFjAiGDKEaqaBcQNXPd7/dgjugkxHu4WNO0UQsv
- nu0jr8AgFb5JwIKSe31cOEC8+uAWfn6AQTtqoJo/nZNbevE6QNM0D9CLnXUVL1FcldyYj6knJpn
- EI8OzlK0NcXZ4Saom0ylCOZoLVkqDbIJZeks85gJTIiw==
-X-Forward-Email-ID: 69bd60d63c81f5afefaa2dca
-X-Forward-Email-Sender: rfc822; jpeisach@ubuntu.com, smtp.forwardemail.net,
- 149.28.215.223
-X-Forward-Email-Version: 2.6.53
-X-Forward-Email-Website: https://forwardemail.net
-X-Complaints-To: abuse@forwardemail.net
-X-Report-Abuse: abuse@forwardemail.net
-X-Report-Abuse-To: abuse@forwardemail.net
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="z39ouZfK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=KbF/EUcuG7n05dH08Ijk3cZz7X2uy0K29wMkIptsrKw=; b=z39ouZfKT2QkzPI0uyEbwmv9xf
+	G9sTOvXU4JVSgCNahIHj/hnzCp2s9RYUhfwzrUbr1G1BoZmDI+qMwxmGo8vNaD5S/Y921hqZtpIlT
+	2A03+YBYF8SaWxEFixZw3ZTMBui39nvOERCn4Gu9NqHVFCI+ylXjqBNI76mxC4Q/CQZiqG0jkE9U2
+	F/wzCNTraoBGqHL7SW2bx8uFlpeFPgcKbeg5ga1/5sEilByU85XXAn5G9jPDUgHAq9sH2gnRzMyMX
+	B3t1LB1FMVnYG7b21rdAWfk/B+Mea/Ghrdf/j7S1K3yzsEQGSKkgNQTatS/NIJrAHbWUr824VfR9B
+	vasYfNEA==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1w4TYj-0000000FnjE-3vPB;
+	Mon, 23 Mar 2026 00:54:21 +0000
+Message-ID: <3de4c724-39bf-47f9-bf43-49552bc60a3a@infradead.org>
+Date: Sun, 22 Mar 2026 17:54:20 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8; format=Flowed
-Date: Fri, 20 Mar 2026 10:59:32 -0400
-Message-Id: <DH7P658BN6Y6.2NN4PAO1KAEEQ@ubuntu.com>
-From: "Joshua Peisach" <jpeisach@ubuntu.com>
-To: "Janne Grunau" <j@jannau.net>, "Rob Herring" <robh@kernel.org>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley"
- <conor+dt@kernel.org>, "Lorenzo Pieralisi" <lpieralisi@kernel.org>, "Sven
- Peter" <sven@kernel.org>, "Neal Gompa" <neal@gompa.dev>, "Wim Van Sebroeck"
- <wim@linux-watchdog.org>, "Guenter Roeck" <linux@roeck-us.net>, "Linus
- Walleij" <linusw@kernel.org>, "Mark Kettenis" <kettenis@openbsd.org>, "Andi
- Shyti" <andi.shyti@kernel.org>, =?utf-8?q?Uwe_Kleine-K=C3=B6nig?=
- <ukleinek@kernel.org>, "Sasha Finkelstein" <fnkl.kernel@gmail.com>
-Cc: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <asahi@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
- <linux-watchdog@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
- <linux-i2c@vger.kernel.org>, <linux-pwm@vger.kernel.org>, "Michael Reeves"
- <michael.reeves077@gmail.com>
-Subject: Re: [PATCH 0/9] Initial Apple silicon M3 device trees and
- dt-bindings
-X-Mailer: aerc 0.20.0
-References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
-In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/5] docs: watchdog: general cleaning and corrections
+To: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Cc: Shuah Khan <skhan@linuxfoundation.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+ linux-doc@vger.kernel.org
+References: <20260228010402.2389343-1-rdunlap@infradead.org>
+ <875x7cddye.fsf@trenco.lwn.net>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <875x7cddye.fsf@trenco.lwn.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri Mar 20, 2026 at 8:23 AM EDT, Janne Grunau wrote:
-> Hej,
->
-> This series adds initial device trees for M3 Apple silicon devices. The
-> device trees contain only a minimal set of hardware not going much
-> beyond the minimum required for booting kernel and initramfs and
-> verify via serial console that the hardware and drivers work.
-> The hardware with the exception of the interrupt controller is
-> compatible with the M1 and M2 SoCs and the existing drivers.
-> Changes for the interrupt controller were sent separately in [1] and are
-> picked up and in linux-next. The device trees pass make dtbs_check with
-> the apple,aic2 dt-bindings change from that series.
->
-> Link: https://lore.kernel.org/asahi/20260223-irq-apple-aic3-v3-0-2b732807=
-6b8d@jannau.net/ [1]
->
-> Signed-off-by: Janne Grunau <j@jannau.net>
-> ---
-> Janne Grunau (9):
->       dt-bindings: arm: cpus: Add Apple M3 CPU core compatibles
->       dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible
->       dt-bindings: power: apple,pmgr-pwrstate: Add t8122 compatible
->       dt-bindings: watchdog: apple,wdt: Add t8122 compatible
->       dt-bindings: pinctrl: apple,pinctrl: Add t8122 compatible
->       dt-bindings: i2c: apple,i2c: Add t8122 compatible
->       dt-bindings: pwm: apple,s5l-fpwm: Add t8122 compatible
->       dt-bindings: arm: apple: Add M3 based devices
->       arm64: dts: apple: Initial t8122 (M3) device trees
->
->  Documentation/devicetree/bindings/arm/apple.yaml   |   18 +
->  .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    4 +-
->  Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
->  .../devicetree/bindings/i2c/apple,i2c.yaml         |    4 +-
->  .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    4 +-
->  .../bindings/power/apple,pmgr-pwrstate.yaml        |    4 +-
->  .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
->  .../devicetree/bindings/watchdog/apple,wdt.yaml    |    4 +-
->  arch/arm64/boot/dts/apple/Makefile                 |    5 +
->  arch/arm64/boot/dts/apple/t8122-j433.dts           |   19 +
->  arch/arm64/boot/dts/apple/t8122-j434.dts           |   19 +
->  arch/arm64/boot/dts/apple/t8122-j504.dts           |   37 +
->  arch/arm64/boot/dts/apple/t8122-j613.dts           |   35 +
->  arch/arm64/boot/dts/apple/t8122-j615.dts           |   35 +
->  arch/arm64/boot/dts/apple/t8122-jxxx.dtsi          |   48 +
->  arch/arm64/boot/dts/apple/t8122-pmgr.dtsi          | 1149 ++++++++++++++=
-++++++
->  arch/arm64/boot/dts/apple/t8122-usbpd-i2c.dtsi     |   32 +
->  arch/arm64/boot/dts/apple/t8122.dtsi               |  444 ++++++++
->  18 files changed, 1859 insertions(+), 5 deletions(-)
-> ---
-> base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
-> change-id: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
->
-> Best regards,
 
-Seems fine, well done!
 
-Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>
+On 3/3/26 9:23 AM, Jonathan Corbet wrote:
+> Randy Dunlap <rdunlap@infradead.org> writes:
+> 
+>> Fix some obvious issues in the watchdog documentation files.
+>> I didn't try to fix every little niggling mistake.
+>>
+>>  [PATCH 1/5] docs: watchdog: mlx-wdt: small fixes
+>>  [PATCH 2/5] docs: watchdog: pcwd: fix typo and driver info.
+>>  [PATCH 3/5] docs: watchdog-api: general cleaning
+>>  [PATCH 4/5] docs: watchdog-kernel-api: general cleanups
+>>  [PATCH 5/5] docs: watchdog-parameters: add missing watchdog_core parameters
+>>
+>>  Documentation/watchdog/mlx-wdt.rst             |    4 -
+>>  Documentation/watchdog/pcwd-watchdog.rst       |   19 +++++--
+>>  Documentation/watchdog/watchdog-api.rst        |   38 +++++++--------
+>>  Documentation/watchdog/watchdog-kernel-api.rst |   20 +++++--
+>>  Documentation/watchdog/watchdog-parameters.rst |   11 +++-
+>>  5 files changed, 58 insertions(+), 34 deletions(-)
+> 
+> Wim, do you want to pick these up, or should I take them through the
+> docs tree?
+
+Wim, are you active?  Can you reply and/or merge these?
+
+thanks.
+-- 
+~Randy
+
