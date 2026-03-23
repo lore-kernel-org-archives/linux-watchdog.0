@@ -1,66 +1,66 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AD953B2FEB
-	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 14:40:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21B5C3B0AF1
+	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 14:40:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774276801; cv=none; b=KWRjINHZMLNLlVvRXaYomyWm9UAAlbO4J5mGcF5XDOmWSx1kiQzWRcYeuJikWIz83wXC2nzG7MZIfMHf+rUAo2h+WGpyQWuTDqPEAJ7e1nHPYDYgpAljnpdnB8i2AoZlUfmUTMv+gG+QaYWJOBvIZsujdBmttu3XKwFgM2C2xQw=
+	t=1774276860; cv=none; b=mBcXKxVzFbesen9n2j6LSJvjYw1B0lU1bHP7DhdCK0GNioKsm5j9yK+fCERI58GWcyoE8zfQB/rJOXXefbkQyMFbURAdRkZ3U0nGMdVPgCDKwUTOauBo0jREsI1hG96jrX2So/7bBv7iOFxS770W0QZDM5k2zFegNS/fNv250Rk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774276801; c=relaxed/simple;
-	bh=EAwm+c1X7ZW/YNOmEbkj0Wp7Rn/37OgDD2SHac629fk=;
+	s=arc-20240116; t=1774276860; c=relaxed/simple;
+	bh=2HYTb0v46JJReVzWRZ8ta4mLH4Pcnp13cEeRyFBwIVg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P4UNKnP2M6TlQnmKnYN+Pe7PvmF/aGL0TAzPLqQbrtUJe3ypknqv2U2MFik/xg5AzB07QR3ZrjqijGxttru1CBuChxJ92rd+Jjb9vvaME1FI7BmiRXqfnuP/xzuvi8uJlD4WnwyFnXM6jUfFgtSrG8vllu6HjvFpFz9WDNTIEoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F+VUPX0z; arc=none smtp.client-ip=74.125.82.175
+	 In-Reply-To:Content-Type; b=FMdjjgs/z7n6b5kV/Xm/C5jxbH10TbsRecA8WtUxizBHi9WbKhPt5Tj1yPUiFhUFapHDkXASLIh3PDDGkdSzMtiSitWZVx4VmrViMVa+Bh4sRQqyEAIc5FaOOhK9YovgykD8PrcUqWOGP9vN/7kJMqWN7XVjhjMNilJQ+ucnR3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kj8jpwBH; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F+VUPX0z"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-2c10a2e2cd1so2605517eec.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 07:40:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kj8jpwBH"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2ba895adfeaso261423eec.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 07:40:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774276799; x=1774881599; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1774276857; x=1774881657; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=EhW+sTQ5uMV9NtstQcULn/1RJKb4QfjPVj8KfV9dWtI=;
-        b=F+VUPX0zIWES0e03km0EE5DPeIzAAh6TRVW4MFdyqfZdtH7REuUOghWiloGP2HtZoE
-         Fdee+LZC8VBsQmMCrWcIuyXw40UJNRMAkMnGJaJ1jlXaAbZSrVCBOIg1/iR2MUCbAlrJ
-         g6ZO933wEUXe/5CVR3KURWterOFwVjWoxmZImL7ZdgKgHMoO5urYfF7B38vvj+2zryzP
-         t/oGfJMjjLlE+BgojaS5rlqCBmjdU1vGpLVAZ0MdZN0hrf2MA1tlsifH/sLha6Y/vQkB
-         60PzdfYEyeMKxKX4V+1XfE4bxlS5ilDDaqTklr6/vy2/IsjPaJlYk/rqwdUYj58XgxLO
-         UE+g==
+        bh=RF/ASTXorC1Yfhc6nVN80YYeNSMrW6Qe7YXBp1CjIco=;
+        b=Kj8jpwBHfbzyqIVFU7LZlM4E/7iQHS6yCox/Pw0tkx7/6W/JtiisKQ7rp9dlAJQZI/
+         DNdBGnDd0SdvSvcGBkP0zyxNU1O2rTw8v+tmR6394DIGhKyBnKVcfij654fNEcNY2p6f
+         Cy5ApipOFMFfIjSgXTv87r7dDwW2eMeNKA7oHLhWirW4x/FA7+82YxkP9NmbclX7s/0n
+         xAh3vaS1ZQMYTAgN0zAuY5Ws6+KLaKNB93ysqfC+bIEHSQ6RWh30vGW7J02t+63ke13f
+         WqprdQK4u/1Bj+aHKSQTrkoPHQP8BG5FEFSO1rIYdGYYGocbvHUg+8IfDI0VZI0PwjQp
+         rsGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774276799; x=1774881599;
+        d=1e100.net; s=20251104; t=1774276857; x=1774881657;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EhW+sTQ5uMV9NtstQcULn/1RJKb4QfjPVj8KfV9dWtI=;
-        b=d74IzuiDPSLehTMxs4ES7J8j+WmxfrEXh7YdlTBZHKh9VxkFfzWfWpchke4ORG+w8U
-         Q9KyXhUNttUSHQ79nbbTUYQCn89nFy6HAsH0OFpU0fg5faHz+UmAPI3VUO7l2/79TCn0
-         PEb+ArTAL4U4WIKAZnILR+i9jqJvG8GaUE1OvQRm+MI1bd1f3Q/lGVoXSnFOYYWPEx6q
-         CWYosm11xc2SVZaLJbaLHyx62KfRiDqPNPJaVKFwKOO30Qh0UrjkFhm2jxqXzVwrPqTA
-         YjUmTiLGBFDxBjPjOap9ugeXRXJZQ/PfKzLMcGoznsq5DOiCZWPyCp3lnB+QQlR82pUD
-         1+gA==
-X-Gm-Message-State: AOJu0Yw4tHmDhwVC2dcXYqv1in37yZAL0ln97NUo4U0TxSV4g23hQeC8
-	vJaBjlG5/yFUmnK1qM/Z2Pi7TkeI1ZmQZUKwqUUxdFi5dMg9IY18Xwv7
-X-Gm-Gg: ATEYQzxHIEe8QwAblVQwksva1sn+vPlOVESWnymKynwMGe3O5ayEyB9aMF5PA68dqxw
-	IJnLgGxq4naaTt7ncT5sDtgT5AkJ5Cz2aM+gXtWKCHCtAiQ456UA2fIoG+9/MbeQSatye3ep1DS
-	t2V/M0Q3Xglb/aVrkfIc76T41DkWWKfMbm/3sEyMCzOcfPx16v4kQU1rBD58jxAH6SgHTJZT/CO
-	gQLaBzUzrn4un1EFPX82ki94kY55XHIKzBbp5kaNNkTZxuG8LAmpZ87QBb+GANkFMlnZBLAQpf/
-	dQPNtFxtPag4nYZuGmw89aEG75GLXvp4NZ9DVg8/GrYYkGDdaHjMFsMvmAf9ed7yKDS5+XL/ikR
-	HxH2GmPZcffHVPTnaSoDfS+ZI6wu7+Nnwe9rPGONMRv5mhlf1qHMruPgufJiWLQn+u8jTGMbEfO
-	gpwoN26cCbnKGumpv4UZn07xcKQSQY/5LDhN0W39kSXWrxQvYrF13wnxH0LqR/wMOwhqcLPYW2
-X-Received: by 2002:a05:7300:724f:b0:2c1:7ca:ceba with SMTP id 5a478bee46e88-2c10975e943mr5928025eec.23.1774276799305;
-        Mon, 23 Mar 2026 07:39:59 -0700 (PDT)
+        bh=RF/ASTXorC1Yfhc6nVN80YYeNSMrW6Qe7YXBp1CjIco=;
+        b=W6CNn5FddebGicJzo39qtE7Pa5Dso9PzRnhB9ywuDUGcS8CEdjAQvWrnWgu2B5nXU8
+         lj1qGUP5Xpx8bl5ny6KrS29ulGFRMrWPqRfRoYAED7Pt9533lPdlMu7aUaewPL0GIo0c
+         ZjpwCDjjHDNVdc7uOzWPxGDjuvkhxw0zzX6n+I807MXlfHg4Fw4hVuUo74zhtZlO6y4D
+         333WWhFCaUlF2Zr7BubUgih1ZcrG0CxuI/VZRCvngGI0pG6Z1IVCriFPA7n3tJPPOcnw
+         +QQ1EUsJGraweLgPuLurLUyinCDuUlMgGqJ8UfyqXBAjA9zWPkDS47vAeFHqqcwjUP7A
+         VsSQ==
+X-Gm-Message-State: AOJu0YyBTTj0Fvc9PxZA5H9x20+1TZww1KPPsj2GpTAjtnszk7nXEZHh
+	m9oiZNRBWoNfDaGMx2PvemxdfwxW3+InkOLzhqsMqZeUacycGOiI++ME
+X-Gm-Gg: ATEYQzywHf1SXjqIZzcP8teSA8h6sMb6gKTXl9+8QB7+eqkZzZ4qRrLPOgLmpQ7CzKB
+	bar71Gc3FN3enk9DrD5okiyxe4ltaj1Ya8CYsOlrAa8QhPbYM+v5vdEP8Mm7+yKi6AXb4CUfUB4
+	+K09cNP5Ljl/3rX1g1YwvAVct7fAH+9Qk95pvJyM5l8J2uunLqCQi4ttfS8TlI5Bga4moYiEGv/
+	jMcGmp8lYny46D04Wkmn1UPEF8yDFJJpT5PW8KoqUwG1HuWfg4bYo4dPWBEhgWBMEWW1zHDqzRG
+	iacaI7G3TGj47ojgwTCLSiY2hvi6EjB6kV1xqh+EXkYzBT6HR2FbhexUwtbxB4zRww+LJVgKpdC
+	vp/ONQVJjx/UEpiW2//2fllGj/BZTJkZdLvfYEfoOjQ9W0x8TeluHSJRj9su422pg9RbkSgoFsf
+	IsDJqqHkUVQ+h4+91vDEnMY//VN8g1oguJKsnNcEk7qEOv9967TWB0TrQUOI/atp0hG3lUl8//
+X-Received: by 2002:a05:7301:6794:b0:2be:723:a9b0 with SMTP id 5a478bee46e88-2c1095a5b8cmr6038980eec.5.1774276857139;
+        Mon, 23 Mar 2026 07:40:57 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b2e6c30sm12159488eec.25.2026.03.23.07.39.58
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b14caf3sm16899917eec.5.2026.03.23.07.40.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Mar 2026 07:39:58 -0700 (PDT)
+        Mon, 23 Mar 2026 07:40:56 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <dae4644d-ab3b-4b67-9a80-921a9c915dd9@roeck-us.net>
-Date: Mon, 23 Mar 2026 07:39:57 -0700
+Message-ID: <5f723be8-1a9b-471f-9921-bcb498578e43@roeck-us.net>
+Date: Mon, 23 Mar 2026 07:40:55 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -68,12 +68,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] watchdog: gpio_wdt: add ACPI support
-To: Flavio Suligoi <f.suligoi@asem.it>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260323125204.164785-1-f.suligoi@asem.it>
- <20260323125204.164785-2-f.suligoi@asem.it>
+Subject: Re: [PATCH RESEND v2 1/1] watchdog: menz069_wdt: drop unneeded
+ MODULE_ALIAS
+To: Jose Javier Rodriguez Barbarin <dev-josejavier.rodriguez@duagon.com>,
+ jth@kernel.org, wim@linux-watchdog.org
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jorge Sanjuan Garcia <dev-jorge.sanjuangarcia@duagon.com>
+References: <20260323112413.21923-1-dev-josejavier.rodriguez@duagon.com>
+ <20260323112413.21923-2-dev-josejavier.rodriguez@duagon.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -119,63 +121,36 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260323125204.164785-2-f.suligoi@asem.it>
+In-Reply-To: <20260323112413.21923-2-dev-josejavier.rodriguez@duagon.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/23/26 05:52, Flavio Suligoi wrote:
-> The gpio_wdt device driver uses the device property APIs, so it is
-> firmware agnostic. For this reason we can now add the ACPI support in
-> Kconfig.
-> In this way it can be used seamlessly in ACPI and DT systems.
+On 3/23/26 04:24, Jose Javier Rodriguez Barbarin wrote:
+> Since commit 1f4ea4838b13 ("mcb: Add missing modpost build support")
+> the MODULE_ALIAS() is redundant as the module alias is now
+> automatically generated from the MODULE_DEVICE_TABLE().
 > 
-> For example, a typical GPIO watchdog device configuration, in an ACPI
-> SSDT table, could be:
+> Remove the explicit alias.
 > 
-> Device (WDOG) {
->      Name (_HID, "WDOG0001")
->      Name (_CID, "PRP0001")
->      Name (_UID, One)
->      Name (_CRS, ResourceTemplate () {
->          GpioIo (Exclusive, PullNone, 0, 0, IoRestrictionOutputOnly,
->                  "\\_SB.GPI0", 0, ResourceConsumer, ,) { 3 }
->      })
->      Method (_STA, 0, NotSerialized) {
->          Return (0x0F)
->      }
->      Name (_DSD, Package (2)
->      {
->          ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->          Package (5)
->          {
->              Package () { "compatible", Package() { "linux,wdt-gpio" } },
->              Package () { "hw_algo", "toggle" },
->              Package () { "gpios", Package () { ^WDOG, 0, 0, 0 } },
->              Package () { "hw_margin_ms", 2000 },
->              Package () { "always-running", 1 },
->          },
->      })
-> }
+> No functional change intended.
 > 
-> Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+> Reviewed-by: Jorge Sanjuan Garcia <dev-jorge.sanjuangarcia@duagon.com>
+> Signed-off-by: Jose Javier Rodriguez Barbarin <dev-josejavier.rodriguez@duagon.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>   drivers/watchdog/menz69_wdt.c | 1 -
+>   1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index dc78729ba2a5..966489fe8c8d 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -250,7 +250,7 @@ config DA9062_WATCHDOG
->   
->   config GPIO_WATCHDOG
->   	tristate "Watchdog device controlled through GPIO-line"
-> -	depends on OF_GPIO
-> +	depends on (ACPI && GPIOLIB) || OF_GPIO
->   	select WATCHDOG_CORE
->   	help
->   	  If you say yes here you get support for watchdog device
+> diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
+> index 6e5e4e5c0b56..3fe23451135d 100644
+> --- a/drivers/watchdog/menz69_wdt.c
+> +++ b/drivers/watchdog/menz69_wdt.c
+> @@ -163,5 +163,4 @@ module_mcb_driver(men_z069_driver);
+>   MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
+>   MODULE_DESCRIPTION("Watchdog driver for the MEN z069 IP-Core");
+>   MODULE_LICENSE("GPL v2");
+> -MODULE_ALIAS("mcb:16z069");
+>   MODULE_IMPORT_NS("MCB");
 
