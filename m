@@ -1,68 +1,67 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1BA33F210C
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 12:12:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C14503ED12D
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 12:13:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774354375; cv=none; b=p1MtkTUizw77MGNptPwBHQMSFRiZ/cIVXgKXmUIJcV1oRDjqfde5vsgwXO9mchd736hV/X0HzytHhkP76CsmNKcIQUGCf+DNmVWwD0A/3FPtsVY3ockTOEdAYifexyFs5dsR4BzYIG393No4lYuQPinnIhR5yORmS/duNs8SJrs=
+	t=1774354407; cv=none; b=LT6XGR+ZsaQcVGGvi+aLYipTXY40GHj6m7bTJhuv1QvllTiBKiNdMBQ8E8AYl7kpncDprmwMYwOK+XV/rg0I9TdyAGXRnoXbaYevzUtsgERSywukouRSl8ULuHMxwxHY3cMi/5XKSA4s29Ib5MVMZKFcQyHzUrtub2slw5KyTg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774354375; c=relaxed/simple;
-	bh=sCtex8QLEBQd1Iaa4RTPc5h8fhMUPxFyELPd8IKBgYE=;
+	s=arc-20240116; t=1774354407; c=relaxed/simple;
+	bh=6JL7si245mXkq5nnm78Qo+nx3gF/lncyNQ+73R1QH54=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A6QaI1Vyo46SviBiwfe5LFa/joDqBxg2nY/KiSBLkuEGjoIT68s025s9LizI945Z//TqSlMw1paJVlaVd78cuj6eMVKPn4oni/oitazAVECt88bfLhV1QDWWdoNoZcVC0Eke40w5cszUka8SNP/6dWJ16+gavYNHyz0pkLycLak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VXKk0Y2h; arc=none smtp.client-ip=74.125.82.179
+	 In-Reply-To:Content-Type; b=e/IfbGt8EK8O5GHaBuCC4sVUpPgPc2S/C4uyVfmeH6YaI0qMY0XLGMj8+4/g9WR9HuNS3+cbyUIBYLqsIpUBijw7+rOHD1JUKYR9VceYmzfjdem5Y6dDGSMdb0PeI+Z+QT90h3JwaPlMTdm8RZd2mx7COZJCfDQPiObbsZS3bTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DbtisNoh; arc=none smtp.client-ip=74.125.82.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VXKk0Y2h"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2c11c43aca0so1906755eec.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 05:12:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DbtisNoh"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1271195d2a7so2542731c88.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 05:13:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774354371; x=1774959171; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1774354405; x=1774959205; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=dd7ld8QgGMmhxeSAt+yc27mRDHtyBCuQTPG9sSAJi90=;
-        b=VXKk0Y2hgOESFLRjAMVgeVD5Z5zcg7pM2ez6Nsl7A+b4pQXHhWSiQ34ydNOXTIIlrC
-         xgD/1O0nEVTpgarMp3wEK0z7QEREYCxqQnPWvQFtoEZkpRpiq61trXU7PxxvAIxcgylu
-         p9XRtDrAi8fRBkiXa6YNjnkd1dEhcWqaMKMYsqQ9mgNsSazBjEIhvBiZGESwiGL9mJbl
-         qUDbabmQx0JA1bk8/rlfmoFcTwSeIlweEMSlVtuLLLcgKLA70wZj3SdnBToK2WuPU3nf
-         7oGG0W5EFISu7Gj/cMNs7UYUcYwInPgcrfSwROgA3i5PyBdR7E2iphq9sSifWvlrPpaW
-         Um+Q==
+        bh=0szi+mILes8LVs2crfk+WLdxZPpH87uSZvRpbW20inE=;
+        b=DbtisNohUG2jmBLXHBLvboVeWqhcyak9cm8PUfuoFgPLBZHYAKciQWifp8yZl1Y9W0
+         t0kUvDUU+xcSk+FucDWQDYL9RVd9A5PQ/lvq/jYQeq1txSXZNyvCWNwAj3+zl6Y50Bro
+         89yQ0bR85ppeBQlvm2E8fSERAJZKQkw2/hsMKX6gpiDCyw1Xs/WG7Rt32FS25pQYn0v9
+         3hIhx+v5CWRJ3hjv8qRDCyhb2qYxNJDzvGWXq/bzaRjT52jFaVcVXrByVNqJCzETW5Dg
+         oqinryUwLdR+CcF/eGJ+8HOZJliwyRDa/IXG0uh6Fa9VYI94LfUtfQGaLQX5NpFxqdmL
+         DCdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774354371; x=1774959171;
+        d=1e100.net; s=20251104; t=1774354405; x=1774959205;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=dd7ld8QgGMmhxeSAt+yc27mRDHtyBCuQTPG9sSAJi90=;
-        b=aepfFYewPweCOSJjHG+OmDEdf1yB864Aa4reD7Xvg+9ZX+nzxdNs+lNoD1eJpJTa5g
-         cbn5ZTV2hRL5Wr9l1EjfkMqN7VYbA+CK02E+v4/HjbIkUfaI6/Rg65hL4t7dRiiyHs47
-         PtK16/xKfB3e/ezWuk5HpnEIMrm+DdTta2ypIGqaB2JMSAlWtkBk9EV3ic2PMrn+csdz
-         5vQsM3aAL9MAK54iWbJ/v2vaywUJHSgSIW0TQe64xEwQiKN2aPRdHNZ/naYcd0DLh5CN
-         Rx/eJi3LEBgR2/5uKGGhrnuJ6flHDGzIuFTBOJwgk+qF3Ya1HrTH0GuI+PVatk2I5TS+
-         6Mew==
-X-Forwarded-Encrypted: i=1; AJvYcCUeBtJh7h6tEltL5kDR4NnKrxQC/b9PA6LNlD/YOTEe/VZSbG3dgRIWy8Ilrr0/1Yen/BLEOdpH+QdxO1FQzQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJNY43SpX5BPaK52LpcryiEsEmWmp1RCu48Vhp66PYQP87a9I5
-	bfqb+mty0TB2XeBTZokvksAeCEIo3Vo3wjZVg/+OX4jpuo+7QKjM/dSdp5M24w==
-X-Gm-Gg: ATEYQzyXo8C+BzlKZEZk49CS8blHpzPgro0mo8C1dXGAZfevIQapzlp2jAmxzaBDYnR
-	mBYaDjSxaRqoGVfUpV7SfFIacajHE8OM35jI1MRT57LPf/h0dx5QwYeLQ5p+U+tBg96d/pM00bf
-	rfB+IEjqOdCoCzU/gDsCxBcEj1SAXDSb98URFGLzb+1tO+NLabST0vkp806wfwQxGnTHp4sGgDb
-	062Icc8LxVFb805xmCRfE2yT8y5fksUjcFtO9TXIdBlP9cHTH7rWDpdI/qdalUtFLOK0G5ch13w
-	ldHA4Pir1m7KEf3nQjig9gZf8SA2uafrTvl1OXolQ4mOU/GNPPLyNmRQtWPXDr4UxUBX2t/SBvT
-	QOPA5uSM+oVpxAkGENpYLMOqtfv8vnIoQef8crMFc1EzFSyV7aAmzdSZlqjhAfEYKTI0tk5psuy
-	q00I2eFnOLFHnSTJjSt8d/Mwri1O1pUR1ducEkjrbgzfVsgUqMlVMuo3j0cv6hyakhXZTpSlFlw
-	Xc4BRzx2NQ=
-X-Received: by 2002:a05:7301:4195:b0:2be:1f56:ed2a with SMTP id 5a478bee46e88-2c14b554283mr1610081eec.16.1774354370883;
-        Tue, 24 Mar 2026 05:12:50 -0700 (PDT)
+        bh=0szi+mILes8LVs2crfk+WLdxZPpH87uSZvRpbW20inE=;
+        b=pkDurtNgCqKEVkX1rRGM3tR/7uT+98S7gWxMRwJUbR1PAwmr/7jV/IS44yF9v/ENTR
+         WptTHiKfthQVhz8D/J9TIoEYeTZK6w7Wm+sWU53fqidyfuWz5LYM6zE/bfZiDpZ0NjTr
+         jdJe60QKeONWHfvcho8zhmIW5Eej50exCcMtew44+mp5ux4fWe55EjpAdxN19DN1riIq
+         FwQVWLYEYYZRmNDkqqnP4rT+5NhqdZk9td6Cegc5+27k4Z78tUO081m3q4JrKmCFb8TJ
+         tIWVPysWi78cXweHYCccqB1aAIfsNsYvbS3RZCEIkzZ2m5DC4gX0GOuuCFgN8l4Z+pf1
+         taTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX7j/D8clXQMBJHuz/3PpHu8b+cph6WYxjk8PfFTIfa6kUEblwHBTJbaVBtQP33CmsvBfCVW0cWeNLLei9kKA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLZ+PE9T8stG59ScmKpOtwSSvSp+DE8wNaHejWIUvv5WLr1oOx
+	cCTIwacoBcxVyhS02M8EfEGK8uPP/Zzs/k5ieQkrIdLjvCLcfJ3XuO+a
+X-Gm-Gg: ATEYQzzE5fkjaaic6vGsD+tJLHVkiSK4ZL1GejVdbw+LDKrh/VeHcZ0CRiGyuFIKzrK
+	TpT1d8+xR1QH2ikcUAFMjs1KehLo420+1IUriRCfsNOn3+eDtQsVsH7RtJBOXojKsIZJgGj/qh8
+	fQVaLuUp8gRmDHWjIL8lHgQhfuZJy78IuaoSCe7Ta0oS4tlCFrvR/fLNJcyykPWGJF1yvGylIgg
+	kLX921Qj0WfTD0YCGeU0+sTilbxEZqYbpaAr2ru3U8tJwrO9nGZiWmoANbUov+PCmmQ4T9JzDQl
+	GwgzzPKi9pZjLfmRu5IEw42pUK/FuruYkrE3drPxKZFJpNW9KLYBIuWshI+h+fV6gVzVdpjrDur
+	cTflwwO0n77X3eW167dfBysU3Hg1gPIO5sHVUYKkZAthqEhv3viCVCl5FwshPyQ/dwDgU+DlEM9
+	Pa9W4doKAIZnc7uxni+Rd58JqbmA8wk0aTnqZI6oWal4W+fMKxkgfVdcize37Yxw2Oh4mtUydh
+X-Received: by 2002:a05:7022:6883:b0:128:dbbf:fd35 with SMTP id a92af1059eb24-12a726c2485mr8652405c88.28.1774354404508;
+        Tue, 24 Mar 2026 05:13:24 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b3253d0sm15177748eec.29.2026.03.24.05.12.49
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12a733b4a99sm11162278c88.1.2026.03.24.05.13.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Mar 2026 05:12:49 -0700 (PDT)
+        Tue, 24 Mar 2026 05:13:23 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <ca9f8846-9560-473d-b5f1-542950c7cf71@roeck-us.net>
-Date: Tue, 24 Mar 2026 05:12:48 -0700
+Message-ID: <bba20fb7-a244-4ec2-9860-f88353072691@roeck-us.net>
+Date: Tue, 24 Mar 2026 05:13:21 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,7 +69,7 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] watchdog: rzn1: Fix reverse xmas tree declaration
+Subject: Re: [PATCH v3 2/2] watchdog: rzn1: Use dev_err_probe()
 To: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>,
  Wolfram Sang <wsa+renesas@sang-engineering.com>,
  Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -80,7 +79,7 @@ Cc: linux-renesas-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
  Miquel Raynal <miquel.raynal@bootlin.com>,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 References: <20260324114849.242755-1-herve.codina@bootlin.com>
- <20260324114849.242755-2-herve.codina@bootlin.com>
+ <20260324114849.242755-3-herve.codina@bootlin.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -126,15 +125,18 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260324114849.242755-2-herve.codina@bootlin.com>
+In-Reply-To: <20260324114849.242755-3-herve.codina@bootlin.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 3/24/26 04:48, Herve Codina (Schneider Electric) wrote:
-> Variables declared in probe() don't follow the reverse xmas
-> tree convention.
+> In the probe() function the following pattern is present several times:
+> 	if (err) {
+> 		dev_err(dev, ...);
+> 		return err;
+> 	}
 > 
-> Fix the declaration in order to follow the convention.
+> Replace them by dev_err_probe() calls.
 > 
 > Signed-off-by: Herve Codina (Schneider Electric) <herve.codina@bootlin.com>
 > Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -143,24 +145,40 @@ On 3/24/26 04:48, Herve Codina (Schneider Electric) wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/rzn1_wdt.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
+>   drivers/watchdog/rzn1_wdt.c | 18 ++++++------------
+>   1 file changed, 6 insertions(+), 12 deletions(-)
 > 
 > diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
-> index 96fd04fbc2a2..b7034eac91d0 100644
+> index b7034eac91d0..48d5afef62a5 100644
 > --- a/drivers/watchdog/rzn1_wdt.c
 > +++ b/drivers/watchdog/rzn1_wdt.c
-> @@ -101,10 +101,10 @@ static const struct watchdog_ops rzn1_wdt_ops = {
->   static int rzn1_wdt_probe(struct platform_device *pdev)
->   {
->   	struct device *dev = &pdev->dev;
-> -	struct rzn1_watchdog *wdt;
->   	struct device_node *np = dev->of_node;
-> -	struct clk *clk;
-> +	struct rzn1_watchdog *wdt;
->   	unsigned long clk_rate;
-> +	struct clk *clk;
->   	int ret;
->   	int irq;
+> @@ -122,22 +122,16 @@ static int rzn1_wdt_probe(struct platform_device *pdev)
 >   
+>   	ret = devm_request_irq(dev, irq, rzn1_wdt_irq, 0,
+>   			       np->name, wdt);
+> -	if (ret) {
+> -		dev_err(dev, "failed to request irq %d\n", irq);
+> -		return ret;
+> -	}
+> +	if (ret)
+> +		return dev_err_probe(dev, ret, "failed to request irq %d\n", irq);
+>   
+>   	clk = devm_clk_get_enabled(dev, NULL);
+> -	if (IS_ERR(clk)) {
+> -		dev_err(dev, "failed to get the clock\n");
+> -		return PTR_ERR(clk);
+> -	}
+> +	if (IS_ERR(clk))
+> +		return dev_err_probe(dev, PTR_ERR(clk), "failed to get the clock\n");
+>   
+>   	clk_rate = clk_get_rate(clk);
+> -	if (!clk_rate) {
+> -		dev_err(dev, "failed to get the clock rate\n");
+> -		return -EINVAL;
+> -	}
+> +	if (!clk_rate)
+> +		return dev_err_probe(dev, -EINVAL, "failed to get the clock rate\n");
+>   
+>   	wdt->clk_rate_khz = clk_rate / 1000;
+>   	wdt->wdtdev.info = &rzn1_wdt_info;
 
