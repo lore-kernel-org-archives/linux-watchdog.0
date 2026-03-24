@@ -1,159 +1,193 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013059.outbound.protection.outlook.com [40.107.162.59])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 126C93E3146
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 12:41:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774356071; cv=none; b=ukLXfEql9IWDA556uUNZl1dpBMNLal1Hgzk5/nvx7uHOCu7eqxwucK940dZQngLvkIEAhTpAHQD1jErAzzOZJePryXQkAQo7g+zZ9Fp5LxgIke5znEBfNulTUqwLUKkbkp+5jlIDp7E/h5Z+WF7/8nNdAx5S3eSght31jJEdeic=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774356071; c=relaxed/simple;
-	bh=bHsqkffR9nN5dimOIdRFPxaUCA87shbFhhQWaEGYRxI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=VjvA5SwVQV1qhE81dlKvV0RqpN8L3IjNG4IUmtsNJybkLZm0Kyo8BAaZGyI2OV9aA8TBBHtusHk2GjAGkBbIBrwzFrZuYx05dFge9mhI1bAijHjsA0awqabb6lfsQbwN3j8bz96ymVQrQo+Kep9a4xb4kvDrwaqPuoRBEBhMa7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IzcLBl/Q; arc=none smtp.client-ip=74.125.82.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75B65406263;
+	Tue, 24 Mar 2026 15:26:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.59
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774365995; cv=fail; b=gOkJtXJ06h1fU9Sw1ECQTKkF503H/nKHKedfd+agnPdd2/panNVClGexWF2l2JCL3uz095Lj3Dgmdjb5SdQrJiVOy4NCLkwxXHGDOwnK3o75s5Mg0riEcoMOn7fuh08jLjdUkAaUsYGhpce5M9jUhT29DrlhFD6L+yFWHjKUlnM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774365995; c=relaxed/simple;
+	bh=aOIgdpzO1Gkfl+H6jqO9XstFjZVbGdGgvNj1ucVpTDo=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=nSwGUM6Y+Sb0LMgP29ny8+n7oc9EAwNmS24GsgYu6Jbn42zhNYTIeT6RWgXDfUcJpfoMYyb5iQbGvWysRnuI0XaKDLL+Pmdl0bPZiDOJHtNzk+QfAyk+W80b0Hz5UWXLgjDES3ePgxNOHw55RQKwVluCplt4T0Vt/yZYOMBCfcI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=S+7FCgzk; arc=fail smtp.client-ip=40.107.162.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IzcLBl/Q"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2c1092cc08cso290066eec.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 05:41:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774356068; x=1774960868; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=OJeNQnZA7CoGP/YHWM8mHyQRW5SiQkbtHGkl1A3bBSQ=;
-        b=IzcLBl/Q8ZAiUAS1JS8/KHSYRJ87p5DjLDyK09JnQISL8V95j4kKRMTARZ375gk4DX
-         kT+89YWEjXt24Fd2iIGTTGy/MbIT84eLFDvTpPVCpdKnmHHO2sjVz7Ssk70otxbtGV7A
-         mC3HCOdUPPni5kpxjT/sd0X4TDhAWT558ZyWTMnF0XPQTfmKSFtFnOqSFVv7O4oo4vxA
-         P6qrY6BaXL9FQSLyoSFKX7miJ4Q6ZxPkqtDkEQHEXkLZir7sdsHIEau58aZBBhe/Xtut
-         t3as9LAtBIybAfq9Iz9OZ8FmZ2+7Ju5bW0FBVxO4c8d8tYVvOHUtmwley9xve8w9xeGE
-         F0rQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774356068; x=1774960868;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=OJeNQnZA7CoGP/YHWM8mHyQRW5SiQkbtHGkl1A3bBSQ=;
-        b=UQH6S1EvtGb+WwzssX03rSWrBXkA2NujzVzfi/nm3hH64e8U0k2fxrJEi9ZCYSG7/X
-         C1G/XriR6HymCG7wAF3FFpeTKf84C/YW/9EVIvleMlPGN1ykaSyoCcowwhw/k/BVj7ej
-         uuThpydHI3ZTT1XVVOO3kz6By4EMGWcIyiTCeXD2uaeeS/ekZgdyOphmfLzzOPn8AW3a
-         b2iizc84YJzoKeGynRPOdEBr2ACD4nHb/gu8HN7zCu3cqO4PExCUjuLmjykz8FGikM5y
-         F+XvjlKRDRHVG7bftfEBkR+eR4+CBUfjZzloTyfeMshh+fGKM2weZHcEwyrlGlf9KHN2
-         7osA==
-X-Forwarded-Encrypted: i=1; AJvYcCVTSl8fIttmEtOOv4Vq5eRVCdtS26zN7jBPOvVfj2HfvXCqPxlGdFYzshu2ExzjN9hWz2O2BR9RxltrE+pWwg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywa/ZIgipiUbsMxyvWoYpnc6TE01TIgfclIuoGZkuvHfEDKSbFS
-	PjUZVnPfUvdi8xkwKo3shrmHWw7gJIHcfm/0Rv8zHZ/lJM3IYtZNXv8W
-X-Gm-Gg: ATEYQzwXGRExshzHtFLXWrEMdCgnMaJEY5A2tD43K29zGJQN2Nhj6ZnFiFmycC7axHF
-	UU4B/UwqalQr5+aqoRIzS96KWMKjIWZ+PkBeNo9UUnaD7RV0cCCmCHmQZdJaEnqT+9v0NEfkDsI
-	zmPvaABrO3oESRZH21+QxoUEpkn1bAV/lFnHyDwni1GwcrwrY5dLL7YB2oXn0j/FS8RVxLs8aoq
-	5xdWGCQYEkH7trBTiASYaE6OgDGbLmtXW4Ug6GgDhPyYVs5quElr6E66L7EoTvcNu17cUw8LPlr
-	mYbAvfdclw4CDU+ifLY4ewKNTXVATStIfq5b9HkQgDOe79CUY2Sx1ntbmf5T9HPC42TAGsOqEgp
-	tO17+5Yyipx3bku8+3UIdWj8aHFsmry/OXknQt9deoQ6jRU1ePrCjwmTVueZ5Gpfv6EWogKLpEj
-	S+EnjXGrqrxTpAtrWUHuGdcb8tFPGRw0IFpBHw85QelXSh8YtzUNzY4EcbApdCCYwFZNEl+kOv
-X-Received: by 2002:a05:7300:8ca6:b0:2c1:778:d897 with SMTP id 5a478bee46e88-2c109752f8dmr7772833eec.21.1774356068254;
-        Tue, 24 Mar 2026 05:41:08 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b31bef1sm19110428eec.26.2026.03.24.05.41.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Mar 2026 05:41:07 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <6245c03f-6321-491c-8e9f-be66945ed1c5@roeck-us.net>
-Date: Tue, 24 Mar 2026 05:41:05 -0700
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="S+7FCgzk"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WEJztNiA1JPtGDXEbTnvXeZuLsJV3pN2n0B0CQMZATOcYP+LfXomsZrpYvlDGEOoxaK8IU9PjYltc0ONXvNaLpLCNO2ezImq1Evymvz1zp3+wnZ/4gjs9ub4HdTqGbcMcDnEQIC0gECp0zDxgD4u37QkrGV2yRqsjQL4M3V+186skeU/YEDdxVfOFREFLNBIM2ZY7gQQJHokMhIZeTCSF8kXtJBfj0dFE9HUcxiHzfaUOUEY2NhLqUkfj2Tw3zmHwBE4ZikTwhgVhAq0kr/HAsjkq/8C33x9iW3sDAxJUGbKWH4FnMFJ/JHUI9IGq0fvq0gcRYVpBSW2G71DzKOrpw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Ge2/jlpb8eTskJ0sXnAQkb3whHXyg0xtFIymILGwcX4=;
+ b=Dp38sfAWrq9Wtyp68xkZLVMVVu31iiVdB/QtnBU3XsSrZtjCDQ1mJ2cqozb0CnE2pSozfCOX1OvlEvpE7MnLTnwPMyDUPiv5cD7iLS5PVOgZNF6ZIkEZlkW+qLkwt6ZYLYqOuVUz33FdMAD8Ir6EnSDftIb00yyc1abC5uO0M93R1/nTaN8pBqOnpH2btAZEe9VY50GVNcA6NaRoAs7j2ZEY/G4njPliujsyHHoLGyh7gK5rbSXvq1o7LxhxcNTJ6FeCtldgBVH0Gxc6edNyBi3LgIkCtXU6Yuh6yWXpmC4JxyR9t9icBaiXvn5yLETMeNC+UXWxYrz5ZqDv/X6D/A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ge2/jlpb8eTskJ0sXnAQkb3whHXyg0xtFIymILGwcX4=;
+ b=S+7FCgzkvjmiLPi4TfrkX5uew3PcHlIeYCGpYnbpCms3eTl45V1tXvgd/GWsnMpUoZG4qKo4+NR3WOA/0XZEKvCkKRS+qziKY8ns58WpnsaHiqJX1N+eVYsp27gFdA9YA3rwK85/wJYAKpVKrEmVEa4SobSHm4207JVmfXUy2wTYLCLBtYuuimQYmOXcX9ombF77mFRz6SaUqc+xfaPUSHKDeodHmyjUuLPX3LWbh3OfJ4A7MsoVOyHWbWDHF5yuNtQWaGhMjvbJY7GJYB5zesrFV1pQWbBz5BR0VQe/K/8MGiZMiX/7nbiklwTSYo2E84+QK8bJuoP0ZDCApoIkJA==
+Received: from AS4PR04MB9362.eurprd04.prod.outlook.com (2603:10a6:20b:4e7::9)
+ by PAXPR04MB9325.eurprd04.prod.outlook.com (2603:10a6:102:2b9::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9723.25; Tue, 24 Mar
+ 2026 15:26:15 +0000
+Received: from AS4PR04MB9362.eurprd04.prod.outlook.com
+ ([fe80::abe7:4a6e:a51:baf0]) by AS4PR04MB9362.eurprd04.prod.outlook.com
+ ([fe80::abe7:4a6e:a51:baf0%6]) with mapi id 15.20.9723.022; Tue, 24 Mar 2026
+ 15:26:18 +0000
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+	"linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"robh@kernel.org" <robh@kernel.org>, "krzk+dt@kernel.org"
+	<krzk+dt@kernel.org>, "conor+dt@kernel.org" <conor+dt@kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net"
+	<linux@roeck-us.net>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>
+CC: Vikash Bansal <vikash.bansal@nxp.com>, Priyanka Jain
+	<priyanka.jain@nxp.com>
+Subject: RE: [PATCH v4 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode
+ config
+Thread-Topic: [PATCH v4 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp
+ mode config
+Thread-Index: AQHcWuAAR8BPN5MBkUWbSOAo/I/sE7W+jxgw
+Date: Tue, 24 Mar 2026 15:26:18 +0000
+Message-ID:
+ <AS4PR04MB93627848DDA9C7D80B3ABC23FB48A@AS4PR04MB9362.eurprd04.prod.outlook.com>
+References: <20251121121137.3043764-1-lakshay.piplani@nxp.com>
+In-Reply-To: <20251121121137.3043764-1-lakshay.piplani@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS4PR04MB9362:EE_|PAXPR04MB9325:EE_
+x-ms-office365-filtering-correlation-id: 38695eae-0787-4851-c8de-08de89b9b22d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|7416014|376014|19092799006|366016|921020|38070700021|22082099003|56012099003|18002099003;
+x-microsoft-antispam-message-info:
+ GvyPSOC2Cx1tSQ8Lu7kM8RUovCzClUkccz1diPhY9AvEOm89OH1W1ZRoNfw4yUAeABrqCQ32YLfotvE2QpUWz3xgd36xIMqXuIDC364/XqICfWTkGFGYZhSeiAEUniR045+WBsxiId2Y1MYywuu42rR/Y2UzirtorzLlyFJ5GAww9Ge+Z/f7L+aQ4CFiqng98XBeheSU84lLjZ1ZO9yXo2Bmk8AECWHOJkL8Mg42hRM2XIm6IXaZlJx6gO+fDeQA5og26bfG1V0CEOegLdem/iuco6npzR61CKEpQPBQE8aUscF6/3RaILnTwAcmB41F+ChYF0V0dqLWzAVl9u5QtYBuHxt3dPvKMEEJ0Ah6QfrE3JiD075q9ni95KJsYDCB/p4/xEBQuEqAOsEybuNm17C+9mkvqg9wzpyWqSAC5COkmNG5SiQ3qSGAY6vgVc+upVUAG2+fum2B8A9g8dz2gFLVR0GEKR7Nm0dNrKynu8o+2aHVo5E5QJPUHu3fmgfDmda5O92RASTEkum4kcQFLLjPRFEkCNRBIoR6Jq+NR/iv3m54LH2FtDklJSxOdCMgn7tb11QMT4XftSCZrRQOwwMAqgL5kHLaVw1T8r6DOdq2dUkTzVCraP8/M68FMAsMhp/39aVnZ/F99ab3SHrmxeX725pm36lfbqhEuruGNYQ+kGxX4emsh+bqOYhDubq9Z2AVg5cuVLKFbAg7cvWiDYnXDgp0qGhgVwzu9VYlgGKtRPaRdg85LfE9UKvcrb3pFgB43ZJgR/aEO0ZUJSLOBabNcFy7Xc8bQc7qzPkvTXC19jO+/YGRi3yu+KVrJ2nr
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS4PR04MB9362.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(19092799006)(366016)(921020)(38070700021)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?MXrFgZUZfCfHgK8y3ioxQb+XmLg7gsPvVYv8qkHdaBqc5ppMkC0Pht92loSq?=
+ =?us-ascii?Q?cQm1TvQn4AD6UTr2xK0EkpoVzsuLiCWzo9c7ab8P0XKlUJ6oaSdvCnln8yJl?=
+ =?us-ascii?Q?Gss7d5bhz5mrbn8BpcEg/h8GZ3YNS8ny2N7qvkKyiJuzvD6VBF4R0r+4Z/Gt?=
+ =?us-ascii?Q?jaZdw8nr0OyqfnpHKZeomqX/CQvZ5rKZPNmMWbProMOK2PUVf71JUipzz3c3?=
+ =?us-ascii?Q?vHvGtzlsIDqHcRt5Kr1EPdw9bo9i9otybR16vTb2sxdevvoom3SaS8xP5ViL?=
+ =?us-ascii?Q?ta2LAzy2rbWSvuT5vXF1W7knGHRpG6OD4DvbNIWToxhf9pvPm1wGuB9/ARa4?=
+ =?us-ascii?Q?sjgvirH92oL9jugPmDjs4q6WeQzmcAkScyWUJlQv/6b7E7ld2J1nJx6k0DeF?=
+ =?us-ascii?Q?mLj3v3wo0RJmBRp6FWGQyILmahxgqvJk4rvYnS1bAMzxfxfCw3yCdCS3i89B?=
+ =?us-ascii?Q?Qc/5lHdoDhI16A2pSmOrI6PLUkWmlPZip6t4dTH4mox2DV3lf9BhEkOLjqm7?=
+ =?us-ascii?Q?imSUjVXsXKRyc4asriP6ND/vHyUZJvAAXhhZ4zL0LTZiXhco/Y/vxWYStoiE?=
+ =?us-ascii?Q?JIiSaNSsGvAt5AU3+tTdWsk/pnrQ0XMHOZQrtEiARwfB4Np0ZVZYULze2fue?=
+ =?us-ascii?Q?l0GuaL6tx8OLIPJLANB7AIBfzpMzo5z9cHi/nUNJtR/jX8cV1/eOQ9D1ZSIB?=
+ =?us-ascii?Q?5fV/3vkrBsmBpK8i/T5vTJMkOm7O6Ym1EvspVMP9ggeviQLEThOAXDtfsO8t?=
+ =?us-ascii?Q?K5uYnCBt8XedZjxJbvJD1N3tNv2ON8NBybCLHtDnPSKydaAWN7R6xZz/qwUB?=
+ =?us-ascii?Q?eYsjdtAYVjhvWeZe3ewPneB/pHqTQ7G0lXdrd7veZHJdz4//ZjfIRsG5HFYB?=
+ =?us-ascii?Q?Wi1mpflnkXXA+9LpQH1SY9Sov051QiVfksqpvCcyqf9CSHrep6lZ0RkvO3RE?=
+ =?us-ascii?Q?URxygnM4qjNifrCUJF799Sw1XT/wfbPv9D9hUOUD5xuMT8zyIay/5kHdmTnK?=
+ =?us-ascii?Q?ZnUMdu/u8H7w5YyQdcHT8Si7t8YqsILlImeFBtaKqe96ZJceDuyeRmZup6sp?=
+ =?us-ascii?Q?H+nPImolupRRxeYXu4GRPVVDOCh3PXY7ZkM81cwZTCcJ3z1cP22ruDvLke3q?=
+ =?us-ascii?Q?kkRuCo5kgSZa2wX26Kt7466ghWXx8AGDGt9B7a0t9Ma88StjnW9TkwDxGvz7?=
+ =?us-ascii?Q?5ILJYZE5kYxq8rsoXMDIv7y/5hg3kVzMx37czQ65lvglFF5L8M7S25AWVx29?=
+ =?us-ascii?Q?KF7ASdRfO3lTswbdxPxbAamSti04CTEDcschSMM69ExXniYhEyZPZst53kp6?=
+ =?us-ascii?Q?YhedDhDqtge1Ixb3XIrOUPskjQNPNFeZa2cNsWpffFKJ3mXjYyStZPne8iV5?=
+ =?us-ascii?Q?k/HlI91AsQwYHMldPhwR18xGFJOnjJ1q88ZKwRhPehCamuAdT5pBycLagCkc?=
+ =?us-ascii?Q?YdpeMWlsynCGn58/vO9mBHILUNGYjc0FaOs7MoNna1zZUyvBylsPHSxd38i3?=
+ =?us-ascii?Q?iJc4xx9p3cLVISxuBF3qj8GzkQfte18fWJwNpzx3ZcVzEvKep+yokgWtjOMt?=
+ =?us-ascii?Q?46eya3GDzQhzL+W5SJH2vYLq3HfMxQPsAgec9Wxf+6NxixQTY5JYqwy1dFSi?=
+ =?us-ascii?Q?fyoWldIgoLn8pcPsuxSB8KFAA2IoNo+sgxm+AJHV5d6O88aFqhtlUkKIwpaq?=
+ =?us-ascii?Q?Olr+m3GPna1D25/TzpWwAVecCKlevK6SPN4AfshCTeqDF4rzwbOCuZw0S+sU?=
+ =?us-ascii?Q?9j9GTZtLww=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] docs: watchdog: explain watchdog API options
-To: Shubham Chakraborty <chakrabortyshubham66@gmail.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Jonathan Corbet <corbet@lwn.net>,
- Shuah Khan <skhan@linuxfoundation.org>, linux-watchdog@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260311121602.139967-1-chakrabortyshubham66@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260311121602.139967-1-chakrabortyshubham66@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS4PR04MB9362.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 38695eae-0787-4851-c8de-08de89b9b22d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Mar 2026 15:26:18.3936
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9acHl+tkA2t74N4464hI2RH/0Ixy5v6i+MjThxIPr+otvcg6nUVn/fHC6AK+Hg5Pr9XULt93h5i0vJz6KY2l3w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB9325
 
-On 3/11/26 05:16, Shubham Chakraborty wrote:
-> Replace FIXME comment with proper documentation for
-> WDIOS_DISABLECARD, WDIOS_ENABLECARD, and WDIOS_TEMPPANIC
-> options.
-> 
-> Signed-off-by: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->   Documentation/watchdog/watchdog-api.rst | 11 ++++++++++-
->   1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/watchdog/watchdog-api.rst b/Documentation/watchdog/watchdog-api.rst
-> index 78e228c272cf..984f7362d5fb 100644
-> --- a/Documentation/watchdog/watchdog-api.rst
-> +++ b/Documentation/watchdog/watchdog-api.rst
-> @@ -268,4 +268,13 @@ The following options are available:
->   	WDIOS_TEMPPANIC		Kernel panic on temperature trip
->   	=================	================================
->   
-> -[FIXME -- better explanations]
-> +The WDIOS_DISABLECARD option allows you to stop the watchdog timer via
-> +software. Note that this will only work if the "nowayout" module parameter
-> +(or CONFIG_WATCHDOG_NOWAYOUT) is not set.
+> +    #include <dt-bindings/rtc/pcf85363-tsr.h>
+>      i2c {
+>          #address-cells =3D <1>;
+>          #size-cells =3D <0>;
+> @@ -56,5 +75,7 @@ examples:
+>              reg =3D <0x51>;
+>              #clock-cells =3D <0>;
+>              quartz-load-femtofarads =3D <12500>;
+> +            wakeup-source;
+> +            nxp,timestamp-mode =3D <PCF85363_TSR1_FE PCF85363_TSR2_LB
+> + PCF85363_TSR3_LV>;
+>          };
+>      };
+> diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-
+> bindings/rtc/pcf85363-tsr.h
+> new file mode 100644
+> index 000000000000..1fb5b9b3601e
+> --- /dev/null
+> +++ b/include/dt-bindings/rtc/pcf85363-tsr.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
+> +/*
+> + * Copyright 2025 NXP
+> + */
 > +
-> +The WDIOS_ENABLECARD option turns on the watchdog timer.
+> +#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H #define
+> +_DT_BINDINGS_RTC_PCF85363_TSR_H
 > +
-> +The WDIOS_TEMPPANIC option is used by some drivers (like the pcwd driver)
-> +to trigger a system halt (typically a kernel panic or power off) when the
-> +temperature trip point is reached. This ensures that the system is halted
-> +immediately in case of an overheat condition.
+> +/* TSR1 modes */
+> +#define PCF85363_TSR1_NONE 0x00
+> +#define PCF85363_TSR1_FE 0x01
+> +#define PCF85363_TSR1_LE 0x02
+> +
+> +/* TSR2 modes */
+> +#define PCF85363_TSR2_NONE 0x00
+> +#define PCF85363_TSR2_FB 0x01
+> +#define PCF85363_TSR2_LB 0x02
+> +#define PCF85363_TSR2_LV 0x03
+> +#define PCF85363_TSR2_FE 0x04
+> +#define PCF85363_TSR2_LE 0x05
+> +
+> +/* TSR3 modes */
+> +#define PCF85363_TSR3_NONE 0x00
+> +#define PCF85363_TSR3_FB 0x01
+> +#define PCF85363_TSR3_LB 0x02
+> +#define PCF85363_TSR3_LV 0x03
+> +
+> +#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
+> --
+> 2.25.1
 
+
+Hi,
+
+This is a gentle reminder regarding the patches I submitted in November.=20
+I haven't seen any review feedback yet, so I'd appreciate it if you could t=
+ake a=20
+look whenever time permits.
+
+Best regards,
+Lakshay
