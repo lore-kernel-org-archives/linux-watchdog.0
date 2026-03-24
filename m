@@ -1,38 +1,36 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBDB03F7AAC
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 11:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9940F3F7AB2;
+	Tue, 24 Mar 2026 11:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774352954; cv=none; b=b7VPf6z7LZk5v/UoEMvOH1GsisI3/AeA0JBvKbN6/rA2X8hJuiaPErEK7C/v9hUOENdcAu2VdTzjG7Aat+NSknDfnL24xqNYRLQnK1m+5ZQQo88nMci3U3y15t+jXwcG6XqVQnxCMsZ2uEVV8pNvtccvUX42ZfmAyG2ePvVvcFw=
+	t=1774352957; cv=none; b=Mi9jS9w5HYxXdbcgxc361oFYCLIK0B6tCA1P3cgJfg+kbll2QVzcQzYxh1fbuwuO9LC+O4g9RayW+lxlMck+2vS+4x6UlftbRnpDccpgUek/6n7n7IBUPLYBowxirwydt6IgekSM2k1xiVllmHI7foMm21E+G5rF54HnXeD7XVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774352954; c=relaxed/simple;
-	bh=cnlyyAE0hKJh44VrBo3wLRg1/bJ/z8lV9SX/IznzyPk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TUa044zd+qyJLEzGckvQSRnrZH7BDxs07avymclZmNR0GJL1iRSU42xnbsFRh6BfbG5hXpIbzpdFzjq6Zg9lIn4BBw4H1ciaGDejQrTIe7H8c3/Q9QKmquz0YS/347YmLJI4zLWgY8S/CorBPxcroHvoNVc9rn4hQT1GmRM0Z14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=EH60VlCb; arc=none smtp.client-ip=185.246.84.56
+	s=arc-20240116; t=1774352957; c=relaxed/simple;
+	bh=snLLRbym4+ew9/elKCySb+mytpFwTEnmeFcssDn1HYE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fZm3ayInx2IBXqfPTk8dZg78eJx9T6O7FXE1Zc5oCChSUlM9MpVWSdnDGUsYsztiscU2J9Hrw24UZbIj2Yb1XbewYzYQqhBGfbtBI6z/tH861oL5RGAFJ9oTyXI2higQwn4UtL3Wm7EkKsqfFu84xVhEF2Z1G3zqqBmO1Hy3b54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=CnWRH/Rz; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="EH60VlCb"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="CnWRH/Rz"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 4BAB81A2FC5;
-	Tue, 24 Mar 2026 11:49:09 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 29E544E427C6;
+	Tue, 24 Mar 2026 11:49:06 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 2161B6011D;
-	Tue, 24 Mar 2026 11:49:09 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 71CC810451126;
-	Tue, 24 Mar 2026 12:49:07 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id E73C86011D;
+	Tue, 24 Mar 2026 11:49:05 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A6A7B1045034C;
+	Tue, 24 Mar 2026 12:49:02 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1774352948; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=+ZO+ja/wZQnveqYe42ml5vWLXL8y3cUnpi0huNlQkmM=;
-	b=EH60VlCb7Awj/fLHNoFZlhIL0+MOuFLtQ7ZCiRx0A2THUYQnAmK978bwzQF3GDLLFmB+5G
-	b5H2zbyMgWQynXXLN4slzgAiXUYWYb5cEHmTRz3vGMaJVp/JVq0VKu3ZZlgBRzDjx1W1oa
-	0srkEPZgDe9FuiJmGY2E69Faevidnj1zyTTtqxN+H1Cdwg6wgfU7u/HpFAmTVhkpJEVDTQ
-	zm427idnbTPjDE6I3hIQ5RpBrY0kjzmGq0sviFl48HskA7Qk9k5L2WgZwlp8gNc8p9Hizr
-	LWuCBwmh7qi0c5FvPJxy+XvtT5J+U5MmmJk3Dyp0CG/PB0ZfrcP6q6R7i4WQwQ==
+	t=1774352945; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=OU9cevG5tQB9wG4AjTQEsfdGFIMRAmgws6xJlzfZFVs=;
+	b=CnWRH/Rzy8SWfCwEX5g80heTJmaXvBjGfF12AhdEONe1iFbnNXYqk+sLGOlD2tlwzmrYcY
+	7JbXYC+FOR7a54f2jupWJEjxejzz65yZJz3t2iwXWBw1qiq23eGrcFN1ehzMbEE8k7ufAJ
+	Jh3ovbEiENPx1h5YCq8XhuTHw9mrdlLHP/dKL9A1bkEPqnKavM9Tt62K7EfEgx/Sol59H2
+	onmiji+hcmI8PFikYTyAi7LcGtmRdYZ4MnW4EPB226NyHql0UXEfd+vbE322zI/iY1KEv8
+	Aa+qqcXRrKcOjtMtOdfSWH+KGpqaJygQq/tK8fTVug1kBehI4nlzjgMbaTQ4Kg==
 From: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -45,69 +43,60 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Miquel Raynal <miquel.raynal@bootlin.com>,
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	"Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
-Subject: [PATCH v3 2/2] watchdog: rzn1: Use dev_err_probe()
-Date: Tue, 24 Mar 2026 12:48:45 +0100
-Message-ID: <20260324114849.242755-3-herve.codina@bootlin.com>
+Subject: [PATCH v3 0/2] watchdog: rzn1: Minor improvements
+Date: Tue, 24 Mar 2026 12:48:43 +0100
+Message-ID: <20260324114849.242755-1-herve.codina@bootlin.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260324114849.242755-1-herve.codina@bootlin.com>
-References: <20260324114849.242755-1-herve.codina@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-In the probe() function the following pattern is present several times:
-	if (err) {
-		dev_err(dev, ...);
-		return err;
-	}
+Hi,
 
-Replace them by dev_err_probe() calls.
+Patches present in this series are minor improvements of the RZ/N1
+watchdog driver.
 
-Signed-off-by: Herve Codina (Schneider Electric) <herve.codina@bootlin.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/watchdog/rzn1_wdt.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+They were originally part of the series adding support for direct
+hardware reset [0] but due to recent modification in this original
+series, it no longer needs to have them part of it.
 
-diff --git a/drivers/watchdog/rzn1_wdt.c b/drivers/watchdog/rzn1_wdt.c
-index b7034eac91d0..48d5afef62a5 100644
---- a/drivers/watchdog/rzn1_wdt.c
-+++ b/drivers/watchdog/rzn1_wdt.c
-@@ -122,22 +122,16 @@ static int rzn1_wdt_probe(struct platform_device *pdev)
- 
- 	ret = devm_request_irq(dev, irq, rzn1_wdt_irq, 0,
- 			       np->name, wdt);
--	if (ret) {
--		dev_err(dev, "failed to request irq %d\n", irq);
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(dev, ret, "failed to request irq %d\n", irq);
- 
- 	clk = devm_clk_get_enabled(dev, NULL);
--	if (IS_ERR(clk)) {
--		dev_err(dev, "failed to get the clock\n");
--		return PTR_ERR(clk);
--	}
-+	if (IS_ERR(clk))
-+		return dev_err_probe(dev, PTR_ERR(clk), "failed to get the clock\n");
- 
- 	clk_rate = clk_get_rate(clk);
--	if (!clk_rate) {
--		dev_err(dev, "failed to get the clock rate\n");
--		return -EINVAL;
--	}
-+	if (!clk_rate)
-+		return dev_err_probe(dev, -EINVAL, "failed to get the clock rate\n");
- 
- 	wdt->clk_rate_khz = clk_rate / 1000;
- 	wdt->wdtdev.info = &rzn1_wdt_info;
+Extract them from the original series and leave them alone in this
+current minor improvement series.
+
+Consider this series a v3 iteration to keep consistency with the
+original series where, in v2 iteration, some changes have been requested
+on patch 2 and tags have been received. Those changes are handled here.
+
+[0] https://lore.kernel.org/all/20260313092417.294356-1-herve.codina@bootlin.com/
+
+Best regards,
+Hervé
+
+Changes v2 -> v3:
+  v2: https://lore.kernel.org/all/20260313092417.294356-1-herve.codina@bootlin.com/
+
+  - Patch 1
+    Add 'Reviewed-by: Wolfram Sang'
+    Add 'Tested-by: Wolfram Sang'
+
+  - Patch 2
+    Fix dev_err_probe() message.
+    Add 'Reviewed-by: Wolfram Sang'
+    Add 'Tested-by: Wolfram Sang'
+
+Herve Codina (Schneider Electric) (2):
+  watchdog: rzn1: Fix reverse xmas tree declaration
+  watchdog: rzn1: Use dev_err_probe()
+
+ drivers/watchdog/rzn1_wdt.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
+
 -- 
 2.53.0
 
