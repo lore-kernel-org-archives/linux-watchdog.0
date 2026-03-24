@@ -1,240 +1,159 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA90D3DDDBF
-	for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 19:52:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73DBA3DB63A
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 09:04:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774295527; cv=none; b=JrPz5L3ffeDam2OLr/3E+cPa6iTE6yqpz3paXSlMYZIL/zfsLbbNVzk/tp194JAn3K4pin7Gbibvo9AlSiC6juPH9gF5TYfm9/+om7Txu8hrfSm6FB4fDScDtgrrEiRsqTH1g2eNMiQlO7M8txH0hFkF6u3kxN4IgAVvVySXJnk=
+	t=1774343075; cv=none; b=gzsZ+ydIynxdkeHJzu4cogLIKvg49QevBefv2F5PeJ1So86JdnElUpIY7V/T7vNA5Ox+HE+nT01oFYdakwuvlnjZs0olMknjDyZ6wYovB0fmH6YdWvoCUH+eAc/zuic4VLeoQhBCFPSnHTmgDhzLjZUJLG/CqUlrrJKRMKNZ3AM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774295527; c=relaxed/simple;
-	bh=6lHvRBJVTFISgQuhcMFypyadWLPXF+SYk/dEigk1U3U=;
+	s=arc-20240116; t=1774343075; c=relaxed/simple;
+	bh=jsWgh1Ti4adaFW3/HADaqw2MCIKnBpjGviAHd/Q/Jb4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PnP0zsZnHsJw4czeLvOdYzPqwUlrTWML9XVM4Kp13/+ea84xysq5cywpoKEMyqmsMr3v7EbVkKCVul8e2CbNSnDjt2Ia4/seNCPUQruOGRZNLX6vAZ8btc2ZBuGSsgvfNuYvnJ5YE/VclTLPw+qcRfvqIVi4gkyBgqUZ8H4lgRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JxaGkrXG; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 MIME-Version:Content-Type; b=kjSnZvp/J05cUi1b7Js5wDfD8lxf8JnKJ4/1R2V7OzCKnJDupuXZ7+PldgpPFVSMLY+7hvWNhr0tnJHbqc+giT+jPvRHj2fNdzBq3FR7ZP4TCkmIxx8okzwv8v6rCCliLU2wC2MbTiqzeKllOEQomRXa1JflVT2DJ3VjY9tFu0o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=eobWxcRq; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Pdcz4TQ2; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JxaGkrXG"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-59e4989dacdso4630293e87.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Mar 2026 12:52:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="eobWxcRq";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Pdcz4TQ2"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62O3VTBb4056974
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 09:04:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	WPfigo46/ROFQ4N/tJ88i4ZYjoNiquVe9blKzLVTqFw=; b=eobWxcRqzLnx6L7E
+	Sf1sa9GOx1ymukjiv7nmvyorMZyFEEEIWs5RIwb9MhQ6f2z/otzZBsq8jJkDb1uN
+	rVybLrcZFmWgBaVQEKfGaGdmCjqIkTL/rfzcAy60xjCyyad/DpMXyVq6ZdoG+0Ia
+	wEQMp0mCSpTNigow6FiwQ4SnRpux5RaoBsg3nhVrZjRIxswYoMCF30A9N/gR2UrV
+	nNnicvThy2P2BYx3zvbu6YRcY63WHOOlQBb48RRhCsPT5JbQaRR0lW1OF6ZzCZE5
+	rnqUWAbSs+lrAlApu0Io40IGtc6+u0BehQY9LiRi21gOw2zrXLE0Ym/0KUY5enIi
+	Bxz+2Q==
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4d3jsks3r5-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 09:04:28 +0000 (GMT)
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-5091327215dso245659231cf.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 24 Mar 2026 02:04:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774295523; x=1774900323; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1774343068; x=1774947868; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=V5L/uO+Cwo0tKAvA8esxWTY+PEV+J2o8TPXsnbML/a8=;
-        b=JxaGkrXGWbiaDEpLGgDy2BtoiH8lIUGwuKlaNFuFPGaIu8aaXrQHOURBlJ/lTSotZL
-         h1CrhJMZzIrvZrOrXqw6pDXJfG32Um19gJn3K7ZJtQQ4Ss5IdgUZtT7Ze2KFaRIli1K5
-         /emIyP/g81bqeVbY4TyouKfwTWHUFefAisGkS1tkekjN/G1MdHM8ZieHA96xeBUsLNOK
-         /zrXXhWiYStQQncA0rEgVm6cDJrYXvopgauLfNuhXnkti5CGq+lrGNVPzgZPfTizmnLP
-         +zvIoUi49vuYG/bEPI0Zv1cLuyyB4soNcJHsC2zRcA0O+4u4UaUhYgrAgfLSSpI2OSrc
-         OKyQ==
+        bh=WPfigo46/ROFQ4N/tJ88i4ZYjoNiquVe9blKzLVTqFw=;
+        b=Pdcz4TQ2A8JQo+sQADgNLJlPzAqPdNE1x5+fvHArq4z4q3KEqF8naQR+hesVMHlhqg
+         9XU7GmhdSBLMg4ISD7t1slg3D6kGELGeUpoHfC7mGjCEsh72ICQ8u/TGJ7l2gv/MWeLL
+         pTACFBAAZztElujiZIwbztD0phsFJ680zXxULpg9u0xpazpokwbIOusQidvRo3Gj+9GX
+         GMaXJZgDMA7jIHNTx6yJ8U4sufoaYeLhi1GOMegbgq+1MF6evk5e5kQsYw3uJwesmiGd
+         rOjyeMCUn3A2TLPcNR+xqpGNL3qepEXtJrgw9uoQ7wtQp+/mYuzwvJnZnhmrFqiJSidn
+         ovbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774295523; x=1774900323;
+        d=1e100.net; s=20251104; t=1774343068; x=1774947868;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=V5L/uO+Cwo0tKAvA8esxWTY+PEV+J2o8TPXsnbML/a8=;
-        b=J6+Ya2qiO900Io+TGInT4WYVexWN8XuXsiDTbBt7fu8V7qjPAwFZ+XrpDIvfoNA1nr
-         DrAnIYpK7UP3+mY3nB1n2swePx5g6Pdvf0epUKOVNFJYOUK5MyMcn0sPtiV4r/H9Kn1u
-         20xc0JuwnE8Ou9ipa2vAYap+fmppIEVF1C2OclnsHe6fUj5MGcKQvrW/S7GNXSz7q4Yc
-         1PJoXmuk5/jJfpr9G/T2dRF+qnSNDY1oIwQwHM19IWBz5H5Zg50sAXeRc+gI8Qi5/DoX
-         mLLYgYF5Sr+4lT0o9C1HGRyQKaAJGvqDlXpMKnsUbgg4sPZ+1Vh4O6zL0JTtqiqsXneJ
-         aEZQ==
-X-Gm-Message-State: AOJu0YwbAjFIgpQO5f3lW+G0p6mJkX6bSEuiJfoSigYjowgsmCXZjRfw
-	AcqmsJNxahY5lm4yrgMjv6ttNNkYN64RKFPqeZWoGRoRbQ1cfd7QY0mNEl1skd/o
-X-Gm-Gg: ATEYQzy+aESIC1NrkzIPLcIkf3/hlAKHDPq20KqUu/lK7d6EC4NRsy/osJrfXVMYjhN
-	HzOymyZ6JBAOaUfZ0iOcIVPyTchIFah2bl10i5XRDOQcPJpv8aU9/tKqd/byu8K+oYJsoRMxkU2
-	Vdj+DR5k6KLwx3pghZAqCPXHJMjs+FJkMy1Clbpvix1cGSP8aQD3lJ40QypznwtIATpzPE4KKxD
-	7kN2+EDtL1Ttcmyma03yuB6rJ2e9ZQjUaLTE1sAMRJjLhdombBcW8q1O8NArV1sMfvborRDNJG4
-	w/X4N3jfcYhet/YLT6xKvnEl/H8yazKzalUlL4403+5+H4KKIBIbXyxn91cth2XyY5FzrDYt1hd
-	gM5mVsFL53iV5BTiE8PzaXECc2W2mDwF3GJ/Q3MFN5DTzriGbR47m+/6v5x4yn1vFSy8L0oKChD
-	y+wQNlDVbVRIGOTBvny9P465uCYMAu9NrrKi+dxcbYphPEpWrwOWu6r/fVe948g8y3WsJIFZMQk
-	XKyPBv443dJ0Lquh/K4Je+xdRyd
-X-Received: by 2002:a05:6512:32c6:b0:5a1:44ba:c96e with SMTP id 2adb3069b0e04-5a285b6db31mr4256387e87.38.1774295522694;
-        Mon, 23 Mar 2026 12:52:02 -0700 (PDT)
-Received: from localhost.localdomain (46-138-191-69.dynamic.spd-mgts.ru. [46.138.191.69])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a28520734csm2753527e87.53.2026.03.23.12.52.01
+        bh=WPfigo46/ROFQ4N/tJ88i4ZYjoNiquVe9blKzLVTqFw=;
+        b=qLo/MZ6AQcbSl/FAxgQbwz7ZTIClr4ztnFC4qdvbpJ1VZnp7FDW3O4NOKapwqGR+U4
+         S5VzRuwkTcNBizMpQ/YgpB8CLnD/4Xi5sbgKtLS3qaxy2KUZile23VA1GVy5ItoohHWe
+         LK7Ub6dKyWlAlIoa62Una0m0vrekQVhgphIoAxZgd5oZrX2L+oh+lO1/UAYjhgXX4dGS
+         9Hbaz6TQVpJ07WL6G/ENHnpOAHpdeZet3kSCZ6RFbjnpEKkbe22BvhMgxIq3V1YsAAge
+         /+NnGaNJQubE3TaRLFBd4uq1/t3j2ll1r+fOwWDeLTiJEj3bWrXJhwijufbsSGMQKMAz
+         OwPA==
+X-Forwarded-Encrypted: i=1; AJvYcCVEkvyLx0hGgqfKqD6FEqGLqJ9y3ebt5nfmu5GtS1joMq7FXjBqujjfVhf3nFj9hiqL/VpaxBUs4czS3rAMAA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzhy46M5KqMWqYHslwFo1gp4+R1ENBobRKUfQdVyfva+C8a6KOj
+	2WLcYtI/sYe5T3c5/cI8+gkg3gjnzSLhloio0abvt/zrp1SgTBsaQJcWWUlnOVqlEhtafy+Po6P
+	4q0xsYFcP/SzRP2IHF1QFvG5u0Xy+IRLTYKFjPnbFFWtEpwg580N+Fq2GZALdLnUCN81euA==
+X-Gm-Gg: ATEYQzxZ1q7h3P8fN29mddnLToPv6bfPKVouC4Q/Ki6o5/W9MV5p+EKSNMauB/5oc/Z
+	GtNco4AG9yiWdpdpLtERcRADKLnK43WVs4/xNXC1CZEpZz6NscxehNXkR++SayYrIL7BCvuu8WT
+	nsPSlZVuXocb81dJ4LeiKxQFSjS9avJewqRKuSktkHBtBnzEAmjgGqKL6y/uBuajLO/A9pnKJvL
+	70MT47SjXi3fK13zsu3diClGPKSynhrXLkj348htSWSx0U6ZsDsGzBWprOzozt7M+X+u/3k6621
+	TDmmcXkm9sja037ESwso8sLU6Ou26A/oEUhz+6Znt633se6OSaQAx4bxIPJzclGTlN8YWlM8fLc
+	tVeBGvGxNdqJKyZtHWa9ndkmWVNM8tLcIDv3RYEprfxGJSwHeUFs=
+X-Received: by 2002:a05:622a:154:b0:50b:51e9:2e8b with SMTP id d75a77b69052e-50b51e9310emr133853321cf.11.1774343067836;
+        Tue, 24 Mar 2026 02:04:27 -0700 (PDT)
+X-Received: by 2002:a05:622a:154:b0:50b:51e9:2e8b with SMTP id d75a77b69052e-50b51e9310emr133852721cf.11.1774343067138;
+        Tue, 24 Mar 2026 02:04:27 -0700 (PDT)
+Received: from brgl-qcom.home ([2a01:cb1d:dc:7e00:99ae:5c2c:ddf7:d77a])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-487116c086dsm40007565e9.8.2026.03.24.02.04.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Mar 2026 12:52:02 -0700 (PDT)
-From: Artem Lytkin <iprintercanon@gmail.com>
-To: linux-watchdog@vger.kernel.org,
-	rust-for-linux@vger.kernel.org
-Cc: wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	ojeda@kernel.org,
-	dakr@kernel.org,
-	aliceryhl@google.com,
-	a.hindborg@kernel.org,
-	lossin@kernel.org
-Subject: [PATCH 2/2] watchdog: softdog_rs: add Rust software watchdog driver
-Date: Mon, 23 Mar 2026 22:51:38 +0300
-Message-ID: <20260323195138.5541-2-iprintercanon@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260323195138.5541-1-iprintercanon@gmail.com>
-References: <20260323195138.5541-1-iprintercanon@gmail.com>
+        Tue, 24 Mar 2026 02:04:26 -0700 (PDT)
+From: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Linus Walleij <linusw@kernel.org>,
+        Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Cc: brgl@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-staging@lists.linux.dev, linux-pm@vger.kernel.org
+Subject: Re: (subset) [PATCH v2 0/9] gpio: remove uneeded Kconfig dependencies on OF_GPIO
+Date: Tue, 24 Mar 2026 10:04:24 +0100
+Message-ID: <177434305814.8385.4412622204610388581.b4-ty@oss.qualcomm.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260316-gpio-of-kconfig-v2-0-de2f4b00a0e4@oss.qualcomm.com>
+References: <20260316-gpio-of-kconfig-v2-0-de2f4b00a0e4@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDA3MSBTYWx0ZWRfX+wqaZ+hKkBy2
+ y28lgEyyFFcHjeZpMfJCJEvBbBn6o3s+A6dFz23yQ7l1+coo17uP6tAWT/K+ZcQL5TNZZyCeDoK
+ TYrBO4hDMMOl9GJtfkaeI35zvMP1d67iEOHHHhbTx7Vpc8H45rqHNdSNzHiFx7wG1q6JhsYTABh
+ j7lYT8fTCOn4zSDwWCDxCjNbQYYmv6JeaJ1NAOFXhu0cNsxYpEgxTRXi7NQ/kdtVJApqPvkNV+b
+ oVc7GDhsNa8nz+Olj0Lljny4yeJMYsJGn7N1NvNsFwxnkhllfOWvTmZjyXWME6Q4r+rAEkIGVC6
+ WV6t3QBIV2uK4nzHZu/K5oZ1vySF9UyVLl3oUcCS/DLPdpAKt5KRGZ2SbtndfHC/Ll9iUCblBMc
+ pRTm5+C8LOJBb1P4cWaFtRmp4sJ62vDZm1JBYXbarrU4q5AKWfQnf3sft5093Wssn9ttyw54+zP
+ JrES684mEG/o82ICqBg==
+X-Proofpoint-GUID: 17MZ8VMSomkadbeDMpqX8rG56KTQWzDw
+X-Proofpoint-ORIG-GUID: 17MZ8VMSomkadbeDMpqX8rG56KTQWzDw
+X-Authority-Analysis: v=2.4 cv=I+pohdgg c=1 sm=1 tr=0 ts=69c2539c cx=c_pps
+ a=JbAStetqSzwMeJznSMzCyw==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
+ a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22 a=VwQbUJbxAAAA:8
+ a=EUspDBNiAAAA:8 a=_HlkyUIfcI8kue4dcD0A:9 a=QEXdDO2ut3YA:10
+ a=uxP6HrT_eTzRwkO_Te1X:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-24_02,2026-03-23_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ phishscore=0 spamscore=0 priorityscore=1501 malwarescore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240071
 
-Add a Rust software watchdog driver that uses the new Rust watchdog
-abstraction. This demonstrates that the abstraction is functional and
-can be used to write real watchdog drivers.
 
-The driver implements start and stop operations. Unlike the C softdog,
-this simplified version does not use hrtimers for the actual countdown
--- the watchdog core handles the timeout expiry and keepalive
-management. This makes it suitable as a proof-of-concept driver for the
-Rust watchdog abstraction.
+On Mon, 16 Mar 2026 10:45:20 +0100, Bartosz Golaszewski wrote:
+> NOTE: Each patch in this series can be picked up independently into
+> maintainer trees.
+> 
+> CONFIG_OF_GPIO is a switch that enables the compilation of the gpiolib-of
+> module. The module itself handles GPIO lookup via the OF-node tree and
+> is automatically enabled on all OF systems. It does not export any
+> public symbols to drivers. There is no reason for them to select or
+> depend on it in Kconfig.
+> 
+> [...]
 
-The driver registers as "Rust Software Watchdog" with a default timeout
-of 60 seconds, matching the C softdog's defaults.
+Applied, thanks!
 
-The Kconfig option SOFT_WATCHDOG_RS depends on !SOFT_WATCHDOG to
-prevent both drivers from being enabled simultaneously.
+[3/9] gpio: drop unneeded Kconfig dependencies on OF_GPIO
+      https://git.kernel.org/brgl/c/7803501e5754dc4b295ab22b20562e2b965358ba
 
-Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
----
- drivers/watchdog/Kconfig       | 12 +++++
- drivers/watchdog/Makefile      |  1 +
- drivers/watchdog/softdog_rs.rs | 88 ++++++++++++++++++++++++++++++++++
- 3 files changed, 101 insertions(+)
- create mode 100644 drivers/watchdog/softdog_rs.rs
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d3b9df7d466b0..b7aad39f0de01 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -160,6 +160,18 @@ config SOFT_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called softdog.
- 
-+config SOFT_WATCHDOG_RS
-+	tristate "Rust software watchdog"
-+	depends on RUST && !SOFT_WATCHDOG
-+	select WATCHDOG_CORE
-+	help
-+	  A software watchdog driver written in Rust using the Rust watchdog
-+	  device abstraction. This is a simplified Rust equivalent of the
-+	  C softdog driver.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called softdog_rs.
-+
- config SOFT_WATCHDOG_PRETIMEOUT
- 	bool "Software watchdog pretimeout governor support"
- 	depends on SOFT_WATCHDOG && WATCHDOG_PRETIMEOUT_GOV
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index ba52099b12539..3039e5068f835 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -239,6 +239,7 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
- obj-$(CONFIG_NCT6694_WATCHDOG) += nct6694_wdt.o
- obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
- obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
-+obj-$(CONFIG_SOFT_WATCHDOG_RS) += softdog_rs.o
- obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-diff --git a/drivers/watchdog/softdog_rs.rs b/drivers/watchdog/softdog_rs.rs
-new file mode 100644
-index 0000000000000..c8ff125e817bc
---- /dev/null
-+++ b/drivers/watchdog/softdog_rs.rs
-@@ -0,0 +1,88 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+//! Rust software watchdog driver.
-+//!
-+//! A simplified Rust implementation of the software watchdog, demonstrating
-+//! the Rust watchdog device abstraction.
-+
-+use kernel::prelude::*;
-+use kernel::watchdog;
-+
-+const DEFAULT_MARGIN: u32 = 60;
-+const MAX_MARGIN: u32 = 65535;
-+
-+module! {
-+    type: SoftdogModule,
-+    name: "softdog_rs",
-+    authors: ["Artem Lytkin"],
-+    description: "Rust Software Watchdog Device Driver",
-+    license: "GPL",
-+}
-+
-+struct SoftdogOps;
-+
-+#[vtable]
-+impl watchdog::WatchdogOps for SoftdogOps {
-+    fn start(dev: &mut watchdog::Device) -> Result {
-+        pr_info!("watchdog started (timeout={}s)\n", dev.timeout());
-+        Ok(())
-+    }
-+
-+    fn stop(_dev: &mut watchdog::Device) -> Result {
-+        pr_info!("watchdog stopped\n");
-+        Ok(())
-+    }
-+}
-+
-+static SOFTDOG_INFO: bindings::watchdog_info = bindings::watchdog_info {
-+    options: bindings::WDIOF_SETTIMEOUT
-+        | bindings::WDIOF_KEEPALIVEPING
-+        | bindings::WDIOF_MAGICCLOSE,
-+    firmware_version: 0,
-+    identity: {
-+        let mut id = [0u8; 32];
-+        let s = b"Rust Software Watchdog";
-+        let mut i = 0;
-+        while i < s.len() {
-+            id[i] = s[i];
-+            i += 1;
-+        }
-+        id
-+    },
-+};
-+
-+static mut SOFTDOG_OPS: bindings::watchdog_ops =
-+    watchdog::create_watchdog_ops::<SoftdogOps>();
-+
-+struct SoftdogModule {
-+    _reg: watchdog::Registration,
-+}
-+
-+impl kernel::Module for SoftdogModule {
-+    fn init(module: &'static ThisModule) -> Result<Self> {
-+        // SAFETY: SOFTDOG_OPS is only mutated here, before registration,
-+        // and this function is called exactly once during module init.
-+        let ops = unsafe { &mut *core::ptr::addr_of_mut!(SOFTDOG_OPS) };
-+
-+        let reg = watchdog::Registration::register(
-+            module,
-+            None,
-+            &SOFTDOG_INFO,
-+            ops,
-+            DEFAULT_MARGIN,
-+            1,
-+            MAX_MARGIN,
-+            false,
-+        )?;
-+
-+        pr_info!("initialized (timeout={}s)\n", DEFAULT_MARGIN);
-+
-+        Ok(SoftdogModule { _reg: reg })
-+    }
-+}
-+
-+impl Drop for SoftdogModule {
-+    fn drop(&mut self) {
-+        pr_info!("exit\n");
-+    }
-+}
+Best regards,
 -- 
-2.43.0
-
+Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
