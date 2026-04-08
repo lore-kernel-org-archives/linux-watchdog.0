@@ -1,62 +1,63 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C2D1A6817
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Apr 2026 05:30:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D83035CB6D
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Apr 2026 05:30:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775626257; cv=none; b=YyrNBeZot6pDCoq9ZFIah8EB8c98kYj0wUcs9N0iGQg4pMo1IhUV3/W6GGOerMT+bsoET/p4JC9BbB24jVvsUikf08EiSS4T4HKg7evqudbrkqfmoL751nPUltTolV5Tzx3POdTGQeCF1Su6Ga1gvhF2YfYL0EBNb017DzRFzuA=
+	t=1775626261; cv=none; b=j+PCkAX5mjgqAqSPvt3d0A5+vpR0KOzeoJNmHfUNxdYDanhTwLD+SI69pMqipnXKKDQxXyRB4nBKIdNQ+kENPLwL3HUiNiDekKp8R/VCgLzNt96bYROEKPPw2nWJzP7VzXotZ7RtSX7gmTlA0BzIWGQMinL0+QAkFr9uepxBIkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775626257; c=relaxed/simple;
-	bh=2bvutzs7rtzWgmeamR13PJ6ItU9+5Cs+DqdG83Mabhw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bv3Z57GdrzFlTmVhWMCvz8XZvptaN7buLxP5jG8y83Y+O0m1NJcqvHExagEN1om7+J45fzbCXYfP6I3oNgML0jZUPrXRBTlK4ukWEn9UGVwnPRQx/CNWi5FMDusGzfKoQbxxKhmtMx6VZgwldm/Mt23o4d3/bcSMp6lbf7dvEnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V8ZWPWMq; arc=none smtp.client-ip=209.85.214.181
+	s=arc-20240116; t=1775626261; c=relaxed/simple;
+	bh=lbgRgN14X3CUpEJv6dKvS7/nLgyBUL/xeX7e54cB3vs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=dJV0zRrjCRfZpD/sRYFt35KgZxTx1/VhDT4GyBq2TNMYZ2XpeZ/K28Kg1LyiiPQNUIcOONsZ8SoIMD3sF8MHuER9/cTV5K8pdESfqk3EKKRCZ+XhuSSCQ7a5iGcejSgTvcY5CIV9yuhrE7tXgOsrShxB0P3D6DYOIo+XcIlpBt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X9XuKVVQ; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V8ZWPWMq"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ab077e3f32so24405495ad.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Apr 2026 22:30:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X9XuKVVQ"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-35c1a131946so321846a91.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Apr 2026 22:30:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775626255; x=1776231055; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=G261iPgwxdDm9fBlFNsCEO8KxZODyeiwStlQ3uz07JM=;
-        b=V8ZWPWMqIM0a1pIwCeYyr7S7yp7Dco1DstdcGm8g9rxA29Efde1Roj1i5rcE4iBJPn
-         fsHLZhnXE8c5cggjmHM42eT3uoMXlTw9pZqUvlB3J4qUmJGuMa8PihJgxOtHA7TJKbWq
-         iczR2H/A2QgWbT1TY4Px2AKvigew9sNEWySTDTHoYPFVuKUmjdfKRNzOoAee4afwiNHW
-         p2NCoIgnkBIC9MQKNROYRzF+hy7M35Rt4B4StKYoRWTerL4bCioqceGnedGlFVb1zLiy
-         RA1vi4luuCyS44b25VMz0M6Q1tLapccjDStg10ebjYnZvPar3u5zqJ6xshcsqGpBIk6e
-         8Lzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775626255; x=1776231055;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1775626259; x=1776231059; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=G261iPgwxdDm9fBlFNsCEO8KxZODyeiwStlQ3uz07JM=;
-        b=hhUWMNHmZD9RqEn5Y8RGfH5DEUXMimerTb0DgpbsNXtDWDHyZjS4O4YLbwp9468gBV
-         d8KVpTC0IuP7/RcUlQhtef01sm9g1n7OQw3ttgAuARNrTwkZRTDQImf4+UT1NabpwKd9
-         SKH0KxYHTHREVfGu4ARixfCjrhxTSVJrdK5CB+YSpcVEmKmF+ADsE98zJ+BzDFAx7fBs
-         mTtafxUWhdDKJCctQaJ+XCkL2ARhOvNG2y/yJbaZrpDJvGEaL0BplXXjbTaw+FaT6ip8
-         qYvQoR+Mn5GRV9wm22EDhv0lpNFoVX5YN/oFS5eLTNS+yMIw1x+TsZoCX2J01GeLUu94
-         MZUg==
-X-Forwarded-Encrypted: i=1; AJvYcCXMjCoo3EAQZ/pYugey1MPVYVzMHWwlevSd5llKGCXdpnZPiHHHZI/eTEUthM/sgx5weq2O9YNSx1n0AR3K3w==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyf9CWgXsvY+ipr8vUmsntgWJvs4aQz58vt0ECWl0sN6POS8jDk
-	XK+ZUsaKr7jjVlhoLQadUP3U+c7ShV0TCofZyif+hanhohypzwEuJ/6r
-X-Gm-Gg: AeBDiesl+NAIXQnxQbu7WmSmvwo3c2H8IQLfxhNKxmOcQ1TWvNT7lJYxpavAT6EZxpP
-	UTb7rXrx0UnoLlC2vFYck+dyBNvtx8Wb7rIjckinN5GhIWjYKpM6+kpUt8phgZAmuqTrtq4LlAC
-	Cd/Fa4YCzsJaxuS1w8XK+t49JyxQ4Ye38N3qRzg12mTP0jdByE3F2pUAVoogpr+p0ZCyR7KMu88
-	M28VX7sxjDN4focy06ojCfF6nrKtDMFia63kPmt6Y847oaJoadDNIdDY+LElRe3jYGKdeXuAz0I
-	gRkpfRnmoE4NzkBkt6Q8yJKWauPnO2dkfMxogq5aj3LKU+X+bwv76o63rtf1Y0QP+sf/UCQr/SV
-	Nv+ALLRSEoOYWYiOY9nzgzsJm9jVbQi5O/zQZFPunXJEGvZRrZg0gERKw1M5CkxlgOiJZn4hUqR
-	r3yQnyc33PTy6ZRxwFDss1lH5trp3kGXOvQ8xMuKBptCdOhB2y1zrc3cwdob7tFAaA2aY6qbquB
-	r4h
-X-Received: by 2002:a17:902:e78b:b0:2b2:57df:264d with SMTP id d9443c01a7336-2b28178c3b7mr208603985ad.33.1775626255168;
-        Tue, 07 Apr 2026 22:30:55 -0700 (PDT)
+        bh=urUQup7dc3mN1NcxY7RoIdIVM9FIVTCa2CM6teh2xWs=;
+        b=X9XuKVVQzyf1uNrAsZv2JeOT3Eimmq9bJZhqQHk/XiEAngwYi0mqWQEao2jhGGUtQa
+         42Nmxt5nUWbDz6jDMPZmY3OIDPIk+qIJHdT1u4YuDbjLmd06TT4fQ7FB8Y9lN2ZhPfNj
+         0SdCg+aK5MVzoRXF2eStfhPPdepi5rDJ0aAiZWiDtkHYtJOSQ9gn7b80AWspHk+R0+4S
+         aQAME9aUX8mtg2c4P/lK4S/Ch5nNk/olwHOctQzKq+IEzS4YSkk3X/1e9U97n360USsk
+         8157UQIMkj6ky1H3/BmDq05JSPoOjoGhau7jPYZLvmiUSYKcHJ3U+qGImOfQhxBY3xi+
+         yvKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775626259; x=1776231059;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=urUQup7dc3mN1NcxY7RoIdIVM9FIVTCa2CM6teh2xWs=;
+        b=bgPAg5NYv6J3sIGk+McRWQKAkRwWxgluhDNSkak3CKdGjpDZwTRdBB69soBR8zw1mu
+         2kY21yfV+GmQ/WMXWwGehOO/jDVGTgaFLRnU9++4MAB26HQPkz7k/R3LMPqwmICa6duG
+         pl35ZEq1vr8iVSiJCeh+OH6RGw+9ZmCLJk9Om5pL+H3E5NJc7a21zdhA0Um6yJu4e0sB
+         JDa0aK1mWlRuTFnE3lP9+g4cBxQdbcyio94ruya5XLZwMCIIJTNsAxk7LIA2mu8R+6RR
+         H6Ztwv9eJQbQfDB3ti1u6FtUC3rwNCTCw7YdU+wYJLs/GzuuhdgG4lO6b0VUkghsjJ2D
+         xnyg==
+X-Forwarded-Encrypted: i=1; AJvYcCUnioh3i8tj7MLXGBhkksFoYs8bSvfjMI6hTbGXRNOEd4NbhUHHBMN7162LdJWwxs5lsguYwoj9UtU9kRImKA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YydeUWx/bmOYQD3B8SOkHfti1LhDcVY3eoiCaUL1hGj9CrIsP29
+	JVfHFljZK8NZfd2rj4gVJZjTlji5NKuGQei0ZdZZHW7iRrDx/KMcsbiw
+X-Gm-Gg: AeBDievnmr26wIJtKiux3SSxBlV3I/2SiBHVZNTWx7kW3h1+Mx+DBbmgHkhbUpfHa22
+	/vW37URFgJ8NAjki12c45SHoAad6qA+iJAiZ0KRcY0BgN+4MVIqC7BlUKaqLmVXnrMDpRbaauI2
+	EtO5s5lXETcBfbzBt/CxIgNpp8DJ0IUuyF380e63Lvk1mYWRxZzamO0v1Cv570lZ+mTZQmRh4Xt
+	/vCS1Vtb+5eEZPqDckLcYq4xdtAB18y+5zwop20utunyhpnvyivxxa8iTSr8WkaUyaeCqiizVPp
+	tAX2abl7bhzZYaH/20ZRh/3R5pHaGYyBDtoWO8uEGS2xoNH/tKce+UYe6HEhG0WQTFFypZo8JW3
+	FaehJaR/IU57AS6dr8amdGgIXvnkEHEqJg80d2hcB5sO89hZq3GlmsPPPO4zE1vltZI+mhF5iOb
+	ga8zAWwt0Kx7/zFyK9L5VGy7TuQCpAEyG6EBoCBFvkiGBjcBDV/ksmd07SD+N0q8Fjtw==
+X-Received: by 2002:a17:902:e94d:b0:2b0:6365:217e with SMTP id d9443c01a7336-2b28206efdfmr182824215ad.15.1775626258494;
+        Tue, 07 Apr 2026 22:30:58 -0700 (PDT)
 Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b27472d098sm181673475ad.13.2026.04.07.22.30.51
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b27472d098sm181673475ad.13.2026.04.07.22.30.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2026 22:30:54 -0700 (PDT)
+        Tue, 07 Apr 2026 22:30:58 -0700 (PDT)
 From: a0282524688@gmail.com
 To: tmyu0@nuvoton.com,
 	linusw@kernel.org,
@@ -78,10 +79,12 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
 	linux-usb@vger.kernel.org,
 	Ming Yu <a0282524688@gmail.com>
-Subject: [PATCH v2 0/2] mfd: nct6694: Refactor transport layer and add HIF (eSPI) support
-Date: Wed,  8 Apr 2026 13:30:35 +0800
-Message-Id: <20260408053037.1867092-1-a0282524688@gmail.com>
+Subject: [PATCH v2 1/2] mfd: nct6694: Switch to devm_mfd_add_devices() and drop IDA
+Date: Wed,  8 Apr 2026 13:30:36 +0800
+Message-Id: <20260408053037.1867092-2-a0282524688@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260408053037.1867092-1-a0282524688@gmail.com>
+References: <20260408053037.1867092-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -92,36 +95,387 @@ Content-Transfer-Encoding: 8bit
 
 From: Ming Yu <a0282524688@gmail.com>
 
-The Nuvoton NCT6694 is a peripheral expander that provides GPIO, I2C,
-CAN-FD, Watchdog, HWMON, PWM, and RTC sub-devices. Currently, the
-driver only supports USB as the host transport interface.
+Currently, the nct6694 core driver uses mfd_add_hotplug_devices()
+and an IDA to manage subdevice IDs.
 
-This series refactors the NCT6694 MFD core to support multiple transport
-backends and adds a new Host Interface (HIF) transport driver that
-communicates over eSPI using Super-I/O shared memory.
+Switch the core implementation to use the managed
+devm_mfd_add_devices() API, which simplifies the error handling and
+device lifecycle management. Concurrently, drop the custom IDA
+implementation and transition to using pdev->id.
 
-Changes since version 1:
-- Reworked the Super-I/O access helpers.
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+ drivers/gpio/gpio-nct6694.c         | 19 +------
+ drivers/i2c/busses/i2c-nct6694.c    | 19 +------
+ drivers/mfd/nct6694.c               | 83 ++++++++++++-----------------
+ drivers/net/can/usb/nct6694_canfd.c | 12 +----
+ drivers/watchdog/nct6694_wdt.c      | 20 +------
+ include/linux/mfd/nct6694.h         |  8 +--
+ 6 files changed, 43 insertions(+), 118 deletions(-)
 
-Ming Yu (2):
-  mfd: nct6694: Switch to devm_mfd_add_devices() and drop IDA
-  mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
-
- MAINTAINERS                         |   1 +
- drivers/gpio/gpio-nct6694.c         |  26 +-
- drivers/hwmon/nct6694-hwmon.c       |  21 -
- drivers/i2c/busses/i2c-nct6694.c    |  26 +-
- drivers/mfd/Kconfig                 |  47 ++-
- drivers/mfd/Makefile                |   3 +-
- drivers/mfd/nct6694-hif.c           | 634 ++++++++++++++++++++++++++++
- drivers/mfd/nct6694.c               | 180 ++++----
- drivers/net/can/usb/nct6694_canfd.c |  18 +-
- drivers/rtc/rtc-nct6694.c           |   7 -
- drivers/watchdog/nct6694_wdt.c      |  27 +-
- include/linux/mfd/nct6694.h         |  57 ++-
- 12 files changed, 814 insertions(+), 233 deletions(-)
- create mode 100644 drivers/mfd/nct6694-hif.c
-
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a8607f0d9915..3703a61209e6 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -7,7 +7,6 @@
+ 
+ #include <linux/bits.h>
+ #include <linux/gpio/driver.h>
+-#include <linux/idr.h>
+ #include <linux/interrupt.h>
+ #include <linux/mfd/nct6694.h>
+ #include <linux/module.h>
+@@ -381,14 +380,6 @@ static void nct6694_irq_dispose_mapping(void *d)
+ 	irq_dispose_mapping(data->irq);
+ }
+ 
+-static void nct6694_gpio_ida_free(void *d)
+-{
+-	struct nct6694_gpio_data *data = d;
+-	struct nct6694 *nct6694 = data->nct6694;
+-
+-	ida_free(&nct6694->gpio_ida, data->group);
+-}
+-
+ static int nct6694_gpio_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -403,15 +394,7 @@ static int nct6694_gpio_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	data->nct6694 = nct6694;
+-
+-	ret = ida_alloc(&nct6694->gpio_ida, GFP_KERNEL);
+-	if (ret < 0)
+-		return ret;
+-	data->group = ret;
+-
+-	ret = devm_add_action_or_reset(dev, nct6694_gpio_ida_free, data);
+-	if (ret)
+-		return ret;
++	data->group = pdev->id;
+ 
+ 	names = devm_kcalloc(dev, NCT6694_NR_GPIO, sizeof(char *),
+ 			     GFP_KERNEL);
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..7d8ad997f6d2 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -6,7 +6,6 @@
+  */
+ 
+ #include <linux/i2c.h>
+-#include <linux/idr.h>
+ #include <linux/kernel.h>
+ #include <linux/mfd/nct6694.h>
+ #include <linux/module.h>
+@@ -134,14 +133,6 @@ static int nct6694_i2c_set_baudrate(struct nct6694_i2c_data *data)
+ 	return 0;
+ }
+ 
+-static void nct6694_i2c_ida_free(void *d)
+-{
+-	struct nct6694_i2c_data *data = d;
+-	struct nct6694 *nct6694 = data->nct6694;
+-
+-	ida_free(&nct6694->i2c_ida, data->port);
+-}
+-
+ static int nct6694_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -155,15 +146,7 @@ static int nct6694_i2c_probe(struct platform_device *pdev)
+ 
+ 	data->dev = dev;
+ 	data->nct6694 = nct6694;
+-
+-	ret = ida_alloc(&nct6694->i2c_ida, GFP_KERNEL);
+-	if (ret < 0)
+-		return ret;
+-	data->port = ret;
+-
+-	ret = devm_add_action_or_reset(dev, nct6694_i2c_ida_free, data);
+-	if (ret)
+-		return ret;
++	data->port = pdev->id;
+ 
+ 	ret = nct6694_i2c_set_baudrate(data);
+ 	if (ret)
+diff --git a/drivers/mfd/nct6694.c b/drivers/mfd/nct6694.c
+index 308b2fda3055..8ce2c4985aab 100644
+--- a/drivers/mfd/nct6694.c
++++ b/drivers/mfd/nct6694.c
+@@ -11,7 +11,6 @@
+ 
+ #include <linux/bits.h>
+ #include <linux/interrupt.h>
+-#include <linux/idr.h>
+ #include <linux/irq.h>
+ #include <linux/irqdomain.h>
+ #include <linux/kernel.h>
+@@ -23,35 +22,35 @@
+ #include <linux/usb.h>
+ 
+ static const struct mfd_cell nct6694_devs[] = {
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-	MFD_CELL_NAME("nct6694-gpio"),
+-
+-	MFD_CELL_NAME("nct6694-i2c"),
+-	MFD_CELL_NAME("nct6694-i2c"),
+-	MFD_CELL_NAME("nct6694-i2c"),
+-	MFD_CELL_NAME("nct6694-i2c"),
+-	MFD_CELL_NAME("nct6694-i2c"),
+-	MFD_CELL_NAME("nct6694-i2c"),
+-
+-	MFD_CELL_NAME("nct6694-canfd"),
+-	MFD_CELL_NAME("nct6694-canfd"),
+-
+-	MFD_CELL_NAME("nct6694-wdt"),
+-	MFD_CELL_NAME("nct6694-wdt"),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 0),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 1),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 2),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 3),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 4),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 5),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 6),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 7),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 8),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 9),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 10),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 11),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 12),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 13),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 14),
++	MFD_CELL_BASIC("nct6694-gpio", NULL, NULL, 0, 15),
++
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 0),
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 1),
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 2),
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 3),
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 4),
++	MFD_CELL_BASIC("nct6694-i2c", NULL, NULL, 0, 5),
++
++	MFD_CELL_BASIC("nct6694-canfd", NULL, NULL, 0, 0),
++	MFD_CELL_BASIC("nct6694-canfd", NULL, NULL, 0, 1),
++
++	MFD_CELL_BASIC("nct6694-wdt", NULL, NULL, 0, 0),
++	MFD_CELL_BASIC("nct6694-wdt", NULL, NULL, 0, 1),
+ 
+ 	MFD_CELL_NAME("nct6694-hwmon"),
+ 
+@@ -307,23 +306,18 @@ static int nct6694_usb_probe(struct usb_interface *iface,
+ 	nct6694->dev = dev;
+ 	nct6694->udev = udev;
+ 
+-	ida_init(&nct6694->gpio_ida);
+-	ida_init(&nct6694->i2c_ida);
+-	ida_init(&nct6694->canfd_ida);
+-	ida_init(&nct6694->wdt_ida);
+-
+ 	spin_lock_init(&nct6694->irq_lock);
+ 
+ 	ret = devm_mutex_init(dev, &nct6694->access_lock);
+ 	if (ret)
+-		goto err_ida;
++		goto err_irq_domain;
+ 
+ 	interface = iface->cur_altsetting;
+ 
+ 	int_endpoint = &interface->endpoint[0].desc;
+ 	if (!usb_endpoint_is_int_in(int_endpoint)) {
+ 		ret = -ENODEV;
+-		goto err_ida;
++		goto err_irq_domain;
+ 	}
+ 
+ 	usb_fill_int_urb(nct6694->int_in_urb, udev, usb_rcvintpipe(udev, NCT6694_INT_IN_EP),
+@@ -332,11 +326,11 @@ static int nct6694_usb_probe(struct usb_interface *iface,
+ 
+ 	ret = usb_submit_urb(nct6694->int_in_urb, GFP_KERNEL);
+ 	if (ret)
+-		goto err_ida;
++		goto err_irq_domain;
+ 
+ 	usb_set_intfdata(iface, nct6694);
+ 
+-	ret = mfd_add_hotplug_devices(dev, nct6694_devs, ARRAY_SIZE(nct6694_devs));
++	ret = devm_mfd_add_devices(dev, 0, nct6694_devs, ARRAY_SIZE(nct6694_devs), NULL, 0, NULL);
+ 	if (ret)
+ 		goto err_mfd;
+ 
+@@ -344,11 +338,7 @@ static int nct6694_usb_probe(struct usb_interface *iface,
+ 
+ err_mfd:
+ 	usb_kill_urb(nct6694->int_in_urb);
+-err_ida:
+-	ida_destroy(&nct6694->wdt_ida);
+-	ida_destroy(&nct6694->canfd_ida);
+-	ida_destroy(&nct6694->i2c_ida);
+-	ida_destroy(&nct6694->gpio_ida);
++err_irq_domain:
+ 	irq_domain_remove(nct6694->domain);
+ err_urb:
+ 	usb_free_urb(nct6694->int_in_urb);
+@@ -359,12 +349,7 @@ static void nct6694_usb_disconnect(struct usb_interface *iface)
+ {
+ 	struct nct6694 *nct6694 = usb_get_intfdata(iface);
+ 
+-	mfd_remove_devices(nct6694->dev);
+ 	usb_kill_urb(nct6694->int_in_urb);
+-	ida_destroy(&nct6694->wdt_ida);
+-	ida_destroy(&nct6694->canfd_ida);
+-	ida_destroy(&nct6694->i2c_ida);
+-	ida_destroy(&nct6694->gpio_ida);
+ 	irq_domain_remove(nct6694->domain);
+ 	usb_free_urb(nct6694->int_in_urb);
+ }
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..29282c56430f 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -8,7 +8,6 @@
+ #include <linux/can/dev.h>
+ #include <linux/can/rx-offload.h>
+ #include <linux/ethtool.h>
+-#include <linux/idr.h>
+ #include <linux/irqdomain.h>
+ #include <linux/kernel.h>
+ #include <linux/mfd/nct6694.h>
+@@ -725,15 +724,13 @@ static int nct6694_canfd_probe(struct platform_device *pdev)
+ 	struct net_device *ndev;
+ 	int port, irq, ret, can_clk;
+ 
+-	port = ida_alloc(&nct6694->canfd_ida, GFP_KERNEL);
+-	if (port < 0)
+-		return port;
++	port = pdev->id;
+ 
+ 	irq = irq_create_mapping(nct6694->domain,
+ 				 NCT6694_IRQ_CAN0 + port);
+ 	if (!irq) {
+ 		ret = -EINVAL;
+-		goto free_ida;
++		return ret;
+ 	}
+ 
+ 	ndev = alloc_candev(sizeof(struct nct6694_canfd_priv), 1);
+@@ -796,24 +793,19 @@ static int nct6694_canfd_probe(struct platform_device *pdev)
+ 	free_candev(ndev);
+ dispose_irq:
+ 	irq_dispose_mapping(irq);
+-free_ida:
+-	ida_free(&nct6694->canfd_ida, port);
+ 	return ret;
+ }
+ 
+ static void nct6694_canfd_remove(struct platform_device *pdev)
+ {
+ 	struct nct6694_canfd_priv *priv = platform_get_drvdata(pdev);
+-	struct nct6694 *nct6694 = priv->nct6694;
+ 	struct net_device *ndev = priv->ndev;
+-	int port = ndev->dev_port;
+ 	int irq = ndev->irq;
+ 
+ 	unregister_candev(ndev);
+ 	can_rx_offload_del(&priv->offload);
+ 	free_candev(ndev);
+ 	irq_dispose_mapping(irq);
+-	ida_free(&nct6694->canfd_ida, port);
+ }
+ 
+ static struct platform_driver nct6694_canfd_driver = {
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..2b4b804a1739 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -5,7 +5,6 @@
+  * Copyright (C) 2025 Nuvoton Technology Corp.
+  */
+ 
+-#include <linux/idr.h>
+ #include <linux/kernel.h>
+ #include <linux/mfd/nct6694.h>
+ #include <linux/module.h>
+@@ -233,21 +232,12 @@ static const struct watchdog_ops nct6694_wdt_ops = {
+ 	.ping = nct6694_wdt_ping,
+ };
+ 
+-static void nct6694_wdt_ida_free(void *d)
+-{
+-	struct nct6694_wdt_data *data = d;
+-	struct nct6694 *nct6694 = data->nct6694;
+-
+-	ida_free(&nct6694->wdt_ida, data->wdev_idx);
+-}
+-
+ static int nct6694_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct nct6694 *nct6694 = dev_get_drvdata(dev->parent);
+ 	struct nct6694_wdt_data *data;
+ 	struct watchdog_device *wdev;
+-	int ret;
+ 
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+@@ -260,15 +250,7 @@ static int nct6694_wdt_probe(struct platform_device *pdev)
+ 
+ 	data->dev = dev;
+ 	data->nct6694 = nct6694;
+-
+-	ret = ida_alloc(&nct6694->wdt_ida, GFP_KERNEL);
+-	if (ret < 0)
+-		return ret;
+-	data->wdev_idx = ret;
+-
+-	ret = devm_add_action_or_reset(dev, nct6694_wdt_ida_free, data);
+-	if (ret)
+-		return ret;
++	data->wdev_idx = pdev->id;
+ 
+ 	wdev = &data->wdev;
+ 	wdev->info = &nct6694_wdt_info;
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 6eb9be2cd4a0..496da72949d9 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,10 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#include <linux/mutex.h>
++#include <linux/spinlock.h>
++#include <linux/types.h>
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x81
+@@ -82,10 +86,6 @@ union __packed nct6694_usb_msg {
+ 
+ struct nct6694 {
+ 	struct device *dev;
+-	struct ida gpio_ida;
+-	struct ida i2c_ida;
+-	struct ida canfd_ida;
+-	struct ida wdt_ida;
+ 	struct irq_domain *domain;
+ 	struct mutex access_lock;
+ 	spinlock_t irq_lock;
 -- 
 2.34.1
 
