@@ -1,115 +1,173 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB0238AC95
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Apr 2026 10:28:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775644108; cv=pass; b=i5Kdf7bc9mxZe63q7erSwHJGErewtBWZhxozdg+xOImdNTnMFcmx2u9Z7WzOWjWioN42k86fNK0q0q3RT1tn6eZI37zgjiswzgmHI6Hsy+zujuhCLgIwL2JcPxYRhPnKe2AOMqcySUzYdw3gZCdBkMg86+loGAwfzevutJsmV3g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775644108; c=relaxed/simple;
-	bh=YY4c3fuxkLuFGf6aCJIhwRJsbabPmDF632rTozVCubo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hI7uRdiDAvwoW1E0lBYLqAhmbS4fcMBc0GQW2nRoaR9yHXhilJUDvXoQdRZDH4JPRnihw11RfOePYXgIGuSkrCbo8lRgYG15IzRI1qBI6b3fia7TQfA063AFCbAqJpnQd9LZrlt7x7BuLjY46RT6e5f/NSsO4MySPUfKHavNgnw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UE4Jbtaf; arc=pass smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88B8B34DCEB
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Apr 2026 17:22:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775668943; cv=none; b=o24nJ61ubZUKJcWqguIzsq2uOmc2KhpTK8VazzEA+G9tQRpvMOepuSw4uJBhMs5xS6zT+Cw0lJ2pToTErhU/4aYwIpkt8m0LcURJpyakSxUQPjsx0ZBBuMuKVrQOh8hGyYknHu5c9pl+jxldzBaOE8N/WgD2KC0z8zz5wn0EJbg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775668943; c=relaxed/simple;
+	bh=ays/7jNwW83CF93SHZVFHVvuLfD/wIAAwD4jrcSavkE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=p9oeBKMUKVrEL87JG/2aQf/xb9J3IMJjoDZXhYjEtlcmoMhpE9hcypteeLJu800Dke6yFJuI1Iee4SO4ujzkosFfExh/X/VERufiyJkGPF7zz0qaQEOXbMj9yKTzuzDxxPibwZb6maOyu/dvRlJc2Ky+RSeJLWXgIqoy3Z2NUYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=vcE6F9Bm; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UE4Jbtaf"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5a2bb0fe3bbso5288942e87.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 08 Apr 2026 03:28:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775644103; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JK+mEKWWjbciOftjxil1RBr4BdyyvL2jvY4GwpXtB9pYF7miF+jFUPSgORdDEXCk4W
-         oXgeWiaHwRQj7vEzOAho23liFw7TkqJ9JW7XN/m9RKCnyDPHCju0bK5+Pz8LrVvwQDm5
-         BKGzu3+rixrXbNS8bNogjSXTcZZPhn32TxY/j6W20nBUv3QEeudXUemMZmKMbYMttUxS
-         SowP4n3KqAAf6Sp097DotfCQsMeYxc2eNsVG915Zc7pnrP/xDsSqH1hlEA5DnPpHQVPX
-         kcboTqnkSQcUDGMxjAz1uMBDW/gx4aqPuqo37dihJrvnjpVDLYG+wPNVL3tmb2C/sKCK
-         4rRQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=YY4c3fuxkLuFGf6aCJIhwRJsbabPmDF632rTozVCubo=;
-        fh=AfV5tB6s1vlmWG6HkIpRGZ7R94z1hzhX2I7Xbhooz2I=;
-        b=VhusU5dB4RY4CoZuwfhfboMIoR8pcVAUWP2hMv5/eZQbsYjrWow+wACQD09vRgHfk4
-         yTGEbNMuWkZrygsqI+O0rR0U2kbBhyUmyXNxEQuhR3nnoWjrMdhYEbh15Qx5j0ceQwqD
-         5Dcg3p9/ja8pX5fToBmfkG6UtpPgWrFKy8qOHj7T6TB7kqpuAi1eSBC7l8soNZP5NS8f
-         W0ZCEYh6VrCbER/TJnEpOc1duJ07pj/GApKYPr/tNukqi3JlHBns3+DZ2GEJV/jdLSIh
-         B3Uxecig+4be/k0KBvvsV8DXu+iMTSU/C9pzBLklCD6ughtVNjmXQTIy1W7fnYrpPYl4
-         wAkA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775644103; x=1776248903; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YY4c3fuxkLuFGf6aCJIhwRJsbabPmDF632rTozVCubo=;
-        b=UE4JbtafbAyGKQmN65pp5tdqxhn9aiXEJyipSPDmLfDC86LRIuj49oqni8ZqJNdeGK
-         G8OAXGnS5GIGjTeSilXD5I0omT2g/jraHJ/PUar9auox1GT55dS6OXlce5K3CzfXmeOE
-         wIIjawz6Kyhq6LiSeov8JOb4WKQoj0J1P1gGZ3sqp+xkNKIZ7dEU8KZjaU8m6Sxgq00S
-         7+pBoiAgogKMm6nNRhOlD6Q9bs0tCuGig8EZDs/Bd8nEyVMKnvmOwAA/DVwg+TGxAtdy
-         g2ndwJ1u33blga9e+ysU26xRn9wPmaLyIbNePhLfIeT0kpW1IsVkmLE9LiExibeqQYUu
-         NkbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775644103; x=1776248903;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=YY4c3fuxkLuFGf6aCJIhwRJsbabPmDF632rTozVCubo=;
-        b=YhRg3fjleJeJGA6NO/w5MqF8AALpwpDCGSVLLgSmRblhyLCECbJdI3NeACV48C8ohZ
-         pNWb28lVuGGAsAPIS2ZqwRRpIT+Upo6Ibl9lU30jiqWDkvvNfROOZ6O1YRTK3NYrgJMk
-         KP6o8wSROtDKaVTFDp0fvqQNUGQb5Yo2P+/C9TYP6Dvvgi9umMt2AY4kfE1DUQ5u8pB9
-         25C+0ib5jktZUpnY/CxDA1+BZ3SOuL2Kqc412hTz1sQoTiIPIVFlvdeuS2UPXpp59D4B
-         kqIKCsNOrxg7dMVChHZfZmSSz6/WokrGxEizKgziVAL4nZ9V57OojY9ZFbcgApeFF+GZ
-         /FkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU9afnrrs/8ke+sejzxcKzratmXbLOIROsr+EuEN3cAwrT9opImanFOa2Tpme6pktcYB7PREY13iK3tMo+Drg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5bYaTsawo+3FHgb1FyYxNGvBnfEylxJN6LgHnddAKnY4hTglw
-	LFAs/IGjIY1oK80Cc00zSAzOq0gk6cic9eVaTixhSj7vWv5h+xjy8iP5j263m+XOOVE6KQIrjvD
-	8nCN6GgPwCNvMeHY5QXs+ISQTB9j4YfQ=
-X-Gm-Gg: AeBDies6cn4ZdM/SE83+YZ92+LHubCv/+9K+HVnNd9ezUFV1CxraivCwVr2ECR8UU2O
-	bizkgCJmCOUei1c4EHbqwSXkAUjZ9yBch/utSQkgr8ob3mxUcdf0esSQupvxkOLnbxNtLsEL3H4
-	C5Z4+KlMvVHw7PEtdAOBsgQ73x4704wmHqJ/COX1+aiRMqQtox9y3HmbApL+/3O+MwvaEhrLuL5
-	auRI03aVK/F65u8kMEi+bTlN13SIL0GdHJKlNiYovtBs8RdupA1N2qMAbRVm/G44pdIltfASB7J
-	cewuOkIXA+Mk2yC/8LgNBtDLygsrh3SflqIQUaPNTRBwF/+3GJjKM6SMofYUScExSUdP6g==
-X-Received: by 2002:a05:6512:3b8f:b0:5a2:a13e:9082 with SMTP id
- 2adb3069b0e04-5a33758cb31mr7239647e87.35.1775644103036; Wed, 08 Apr 2026
- 03:28:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="vcE6F9Bm"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 456FCC5AA9B;
+	Wed,  8 Apr 2026 17:22:54 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B83EE603CE;
+	Wed,  8 Apr 2026 17:22:19 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1D9A0104500F3;
+	Wed,  8 Apr 2026 19:22:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1775668937; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=+Wz7EWR6PFtBNGIpnKG6zlh6pWOtrnWRejKbkJ7zGIY=;
+	b=vcE6F9Bm0xLbMFqR4xIAs+2HhyfGZTh0nQ6D037ZgVz1u7nNb8yF1TAaZN33ANBEfkW6Ba
+	P2doGxy3nCV/hxau4OL92CQcSNWoTKHWPrx95EhONQO0bTGPAGOkySAnxqsgkRYK1MIwbr
+	IsGUuCY/zZ6uUOJ4cCalg5CBqZLEIwdUqtNPRVclzZ6jzH+IFcoTRNN1b+CfoQHJgfFTiQ
+	oyrNiDChEJB6Yf7pM06krJIQuVxI6V2EEWJdjhCEyomF3Q0Iuy0fVVquwyjlcLvOgnZzS6
+	8shZsf2HkgPfDlWQPGqdOmQoMAeuLaHgb7P4DykRwvaA3wsQaec9E8kXADexqg==
+From: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
+Subject: [PATCH v5 0/5] Add support for AAEON SRG-IMX8P MCU
+Date: Wed, 08 Apr 2026 19:21:53 +0200
+Message-Id: <20260408-dev-b4-aaeon-mcu-driver-v5-0-ad98bd481668@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310002040.417424-1-festevam@gmail.com> <85660b25-a936-44f0-95b2-3c90d559efc3@roeck-us.net>
-In-Reply-To: <85660b25-a936-44f0-95b2-3c90d559efc3@roeck-us.net>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Wed, 8 Apr 2026 07:28:10 -0300
-X-Gm-Features: AQROBzCFLMKdn6_DPxMBZZudNOsitB-tdvZTVJRufurYW4e2dSJ5lAU_ylDmUrc
-Message-ID: <CAOMZO5DFWYUPN9sPzBr-W7fy8ZbrXP7u1sx=HrmUAQVCLrsdjQ@mail.gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: watchdog: rockchip: Add RV1103B compatible
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@linux-watchdog.org, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, heiko@sntech.de, 
-	Fabio Estevam <festevam@nabladev.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XQwWoDIRAG4FcJnmtxRt3EnvoeoQdHx0Zo1uKmk
+ hL23euGlhBC0uM/MN8/zElMXDNP4mV1EpVbnnIZe7BPKxF2fnxnmWPPAhVaQAAZuUky0nsuo9y
+ HLxlrblwlK944pmR8ItG3PyunfDzL27eed3k6lPp9LmqwTP83G0glraPkgXzQSb9SKYePPD6Hs
+ l9KfgV8LAwUB0thwwnwSljuavh3y6AA9X0Ju+SSCUpRIhvoVtIXCdUDSXdJeXBGo1oPPtxK5iJ
+ pNPcl06X+bwUQk1k7cy3N8/wDZHlEAuABAAA=
+X-Change-ID: 20251211-dev-b4-aaeon-mcu-driver-e0e89ebf4afb
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, 
+ =?utf-8?q?J=C3=A9r=C3=A9mie_Dautheribes?= <jeremie.dautheribes@bootlin.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Miquel Raynal <miquel.raynal@bootlin.com>, 
+ "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+ Conor Dooley <conor.dooley@microchip.com>, 
+ Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4278;
+ i=thomas.perrot@bootlin.com; h=from:subject:message-id;
+ bh=ays/7jNwW83CF93SHZVFHVvuLfD/wIAAwD4jrcSavkE=;
+ b=owEB7QES/pANAwAKAZ/ACwVx/grtAcsmYgBp1o7Dcs3pGUCJVgH0wv4fifMTQ43eT7+gmyEq0
+ GBStzGjCJiJAbMEAAEKAB0WIQSHQHfGpqMKIwOoEiGfwAsFcf4K7QUCadaOwwAKCRCfwAsFcf4K
+ 7X3/DACUMsrlamPpXwrcTDRZAlqDJTA3mvxlKDttCd4kyVBnt2mOkeicVC7GHSaC18Ng3kSmDe8
+ Gzlcv6JPWdLit91T/pO4cs5+8wUWpeZTA+6bTEfxHYCUFfUZsKO7cnvKoV45hE7wxRcYkJbshk4
+ cehXRpVYtj+RzWEN7UwucBpvxAoJmhTD9lntAugndNIqM+hPPvD2IORRdUDNuE4Y/Xq9V+sjK2r
+ uP157fvYGxkOPsRtd4iQuFo6/aJiFSvPrSf9FErodYvOO6nXMTAT/hN6rbbubtItFhKU8Qx2OA1
+ yHMTUkBNxYfMsEyw5czyyqr6zlxnUpGEICeM2cfUl4x9fHAlTQyFQODqaRRLGsoMe+eqxR4d0wp
+ eI/VOYtboYNZVbhSNkIMd6qiirnwV0QxTAGySTJ6xkDbEx3+0bubDWq5nuF66WuZaZ5HSe2c9zi
+ D1U4J3HHA21BopSPjfATaQiFahDUPmx/VWOU8YHgQI27ZOsFm0U3QozGc2s4u+8UPLJZY=
+X-Developer-Key: i=thomas.perrot@bootlin.com; a=openpgp;
+ fpr=874077C6A6A30A2303A812219FC00B0571FE0AED
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Guenter,
+This patch series introduces support for the AAEON SRG-IMX8P embedded
+controller (MCU). The MCU is connected via I2C and provides GPIO and
+watchdog functionality for the SRG-IMX8P board.
 
-On Mon, Mar 16, 2026 at 11:14=E2=80=AFAM Guenter Roeck <linux@roeck-us.net>=
- wrote:
->
-> On 3/9/26 17:20, Fabio Estevam wrote:
-> > From: Fabio Estevam <festevam@nabladev.com>
-> >
-> > The RV1103B watchdog is compatible with the existing DesignWare Watchdo=
-g
-> > binding. Add the rockchip,rv1103b-wdt compatible string.
-> >
-> > Signed-off-by: Fabio Estevam <festevam@nabladev.com>
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The series includes:
+- Device tree binding for the MFD driver
+- MFD driver that serves as the core driver for the MCU
+- GPIO driver implementing the GPIO functionality
+- Watchdog driver for system monitoring
+- MAINTAINERS entry for the new drivers
 
-Could you please apply this one?
+The drivers follow the standard Linux kernel subsystem patterns, with
+the MFD driver registering the sub-devices (GPIO and watchdog) which
+are then handled by their respective subsystem drivers.
+
+Signed-off-by: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
+---
+Changes in v5:
+- mfd: use heap-allocated DMA-safe buffers for I2C transfers, replacing
+  stack-allocated buffers in the regmap bus callbacks
+- mfd: switch from REGCACHE_NONE to REGCACHE_MAPLE; add volatile_reg
+  callback marking GPIO input read registers (opcode 0x72) as volatile;
+  add max_register
+- mfd: use PLATFORM_DEVID_AUTO instead of PLATFORM_DEVID_NONE
+- mfd: use MFD_CELL_BASIC() macro for cell definitions
+- mfd: use dev_err_probe() for regmap initialization error
+- Link to v4: https://lore.kernel.org/r/20260324-dev-b4-aaeon-mcu-driver-v4-0-afb011df4794@bootlin.com
+
+Changes in v4:
+- mfd: switch to a custom regmap bus; remove aaeon_mcu_i2c_xfer() and the aaeon_mcu_dev struct
+- mfd: locking delegated to regmap's built-in mutex; drop explicit mutex
+- mfd: remove firmware version reading at probe time
+- gpio, watchdog: use regmap_read()/regmap_write() via dev_get_regmap()
+- include: replace aaeon_mcu_i2c_xfer() declaration with AAEON_MCU_REG() macro
+- dt-bindings: remove unused label from example node
+- Link to v3: https://lore.kernel.org/r/20260203-dev-b4-aaeon-mcu-driver-v3-0-0a19432076ac@bootlin.com
+
+Changes in v3:
+- Renamed SRG-IMX8PL to SRG-IMX8P
+- dt-bindings: add gpio-controller properties as required
+- mfd: move struct aaeon_mcu_dev from header to .c file (private)
+- mfd: use guard(mutex) and devm_mutex_init() for cleanup
+- mfd: firmware version log changed to dev_dbg()
+- mfd: add select MFD_CORE to Kconfig
+- Kconfig: add || COMPILE_TEST to all three drivers
+- watchdog: add comments explaining hardware timeout and WDOG_HW_RUNNING
+- watchdog: remove unused platform_set_drvdata()
+- watchdog: add a function to query the status
+- Link to v2: https://lore.kernel.org/r/20260123-dev-b4-aaeon-mcu-driver-v2-0-9f4c00bfb5cb@bootlin.com
+
+Changes in v2:
+- Fold GPIO and watchdog bindings into MFD binding
+- Drop OF_GPIO dependency in GPIO Kconfig
+- Use __set_bit/__clear_bit/__assign_bit instead of atomic variants
+- Various driver cleanups and improvements
+- Link to v1: https://lore.kernel.org/r/20251212-dev-b4-aaeon-mcu-driver-v1-0-6bd65bc8ef12@bootlin.com
+
+---
+Thomas Perrot (Schneider Electric) (5):
+      dt-bindings: vendor-prefixes: Add AAEON vendor prefix
+      dt-bindings: mfd: Add AAEON embedded controller
+      mfd: aaeon: Add SRG-IMX8P MCU driver
+      gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
+      watchdog: aaeon: Add watchdog driver for SRG-IMX8P MCU
+
+ .../bindings/mfd/aaeon,srg-imx8p-mcu.yaml          |  67 ++++++
+ .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
+ MAINTAINERS                                        |  10 +
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-aaeon-mcu.c                      | 229 +++++++++++++++++++++
+ drivers/mfd/Kconfig                                |  10 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/aaeon-mcu.c                            | 204 ++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/aaeon_mcu_wdt.c                   | 132 ++++++++++++
+ include/linux/mfd/aaeon-mcu.h                      |  40 ++++
+ 13 files changed, 716 insertions(+)
+---
+base-commit: d358e5254674b70f34c847715ca509e46eb81e6f
+change-id: 20251211-dev-b4-aaeon-mcu-driver-e0e89ebf4afb
+
+Best regards,
+-- 
+Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
+
