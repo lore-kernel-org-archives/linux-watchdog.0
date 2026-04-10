@@ -1,67 +1,67 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8F3D308F3E
-	for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 15:49:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7D963DA5D1
+	for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 16:08:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775836198; cv=none; b=EC3IzsU9IUFPJ0bQk2b4FvLd/ypacI/h1D+SD3tzxm3RjbuBCKn/FIxIzHfQu4aVWZRwl1TERQislFLJMzrEy7Ylj9ykoQ0sP8zpl2TSLfkvXcYy9/xLL2U1q+awqVgoddXFSwzl+PyhqDKE+JTDE7KdTFSKaRI1Dm9QEWGL2EE=
+	t=1775837303; cv=none; b=YsEIjxICWVHb7Zt/l4UyvB+8rwimDH34lalWfw493pIGgs40u9VBCcb0qMua5LM0pmuVYN8tN88YycA7z49wEsZbNaaEDJynvF27LN3yWFyv6+dqUCKuxm+Fo52j6UxjkPJcWz73QEJMf7/4Dyp7vtIE7rZ3CnhIMnVWQRnPsk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775836198; c=relaxed/simple;
-	bh=LXEWknMNIRTQZ35VggO+ovaT+Seu0+zSa9TUJoAEm00=;
+	s=arc-20240116; t=1775837303; c=relaxed/simple;
+	bh=GVukrtkLhsJP+dAEdJoIS35mlh6OyWpfKZ0T+5RTBk4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CFYCM+GBATnWTHKqYs2hVvxRBAD7y6c4KuIa/pRb3CXfwpEt+rBxrj5d/3iXKCqNepZ0v1YRVqgu9yjFcdv1EXAgNLbUhATt3GWTH7guuQDki4Wiuef0+XxYox6ufuAliKQ+E4PIQ4CVK4ele5z59nJw1A8HTm0cVh0MxgMbmaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qiPyXiLE; arc=none smtp.client-ip=74.125.82.51
+	 In-Reply-To:Content-Type; b=ER/B5MXYz18hj1hzHYIzacB7dILVoAeTmfWgKzdV1prjhD9L7ko+/DGBlSPZRCHenIkm80bxaEfIDZWveLQCU6P4FEysglpMM5mCyfVOBvceZowvmGgSIHf9dv0UTlIw8kCwMUOLA6bcadsfHB6BBl/RsJbSWpFMIvxCnOboZec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gEazk/0b; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qiPyXiLE"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-12c33bad4bbso172267c88.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 08:49:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gEazk/0b"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2bdd40d3c61so1888454eec.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 09:08:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775836197; x=1776440997; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775837301; x=1776442101; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=D6zv2l6mrLxLxCJpvpr6z14FuYS5dUuaVMuugMJG/po=;
-        b=qiPyXiLEVME3VuSMfWcW28NV742meOh8TimztJvyqXkNdetoecl/DsNPwIj5PAoNX4
-         0pC7DuKZ7yVYuR0JJ1UokgAgSOCW5cy4UavTz5KlEMHMIVJNOe7HgJQdJVUhN9c61DtA
-         vAGTw/RXveVgzx/yBwpV2dEixpZU2XYARtO2bPZfaIBIZ0v8bmgjjeTZWubt33i+75OD
-         FNxSVIlYqSnBLsMcgMnvu+G6MYeKE3+QKqt/Y3yfVIul1TttJ8MB2fUIFXQca8rOF77X
-         KFEcMwlZFbjAAaVV97HDLn/W3Q7261IkSgW/suC05q/mhc8/J6RfBfD/brF3o9LHs5YE
-         O2tg==
+        bh=E/mppZDgSCNHAeq+ub9wfQA7kQLGgmIwsgBif974LNY=;
+        b=gEazk/0bFeC7DqpkhkYygP7KXSxULyGTayiSBPR/ayApY+lDhnGPn/VpIHrFrjNG+S
+         JEIV0WF0pVlVT7Hb7x4hpDReAqU6YynZfX3DAkmH7SPZgQh3mfIzlF5jHdQ2Epz3etOV
+         7qQaYT1uR5uF21COzhYce5lW+9X6mk0f1W+4tfIfXRDs66YUERXrne6IlXv896D+COwh
+         okUzxlg93+j71ry+zMnf54ir7pY7P0VDQQ5DomBFmozWnPs3iTHUwIgjtWkCHQqqVI8c
+         y9dwpldm5Fa4mvKAyGaL6l/uZSvT8pfLuNmwoShmmSjsxUUEwc3GYFwaQZjqS53GzWab
+         5RVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775836197; x=1776440997;
+        d=1e100.net; s=20251104; t=1775837301; x=1776442101;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=D6zv2l6mrLxLxCJpvpr6z14FuYS5dUuaVMuugMJG/po=;
-        b=ou1d4/ni+oI5kvdq/Olb0mTt57jtNl/h7dD5+/7jWeqOryBfmhHCKqyCOJX8+36gM9
-         cLyFJ1jmUQlULTNNXuoxP+XgZld2lfyE8Aj69IoR4LUKof9ySsYYo+1JrnuZymXXnAO+
-         n1GCTG7aZahd8KS1uOIJwjOmGPU/SwVUbNsTuUs0STEc0ymiCYZImDATWn5AELPpF3em
-         tNPP9fyqkQWw0C6Le3TDcsOcqkDppUxCINcv82eAguM561DQC0XTuFGd2JrtdOOet5R+
-         B4wCLzWKgsZwcPlq6OZqY+CQXUHLP1bXCqm7xEGIxAUAqR4nH5BfUOkCz3bFFmqECNmG
-         Rz7w==
-X-Forwarded-Encrypted: i=1; AJvYcCVU7Pw3t/FeMVhNV9LwcfKpgPpzcHyfqV0C8TZl6hi58BbX6L6D4Ct+UP59w6opvo2T3ooHBkZUgj9HMp8k7Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3WRjAkr/Ih6S4b4GeGWLUZOs58Zj7Sf6Eaa58dGPUgbvRjhT+
-	Apr6ps7avgzwY6XMsHqYi619IGq1BTcd72mFQn/KdYTl483/Jm4FQ0b9
-X-Gm-Gg: AeBDietWMaWD5qofiMInxEZlQWozpZI6yM6ujAyB3fIOyPhmvmMrT/29xL4XsR6kT9p
-	FMXCVd2vnaa7Gibc+mcnQ3jUbBoM2kt48Gsc66hNImHVlQZcsxurw1OTJ+dF4GM0NKCHqTLYqhW
-	qi0telHrmv9YHtuRUiB84v1AzlDPWmEaopXwijaxft5/CHVbBwz15eQH/8GanW2PHtPE9TE5fiG
-	eVAm69vRVdp/luP1cclC3O1BDXRrl9NxL7mEPnt3tgO+bLaXx5cO12VMgKeuZTuhXkNYo0t9/0z
-	rnGcavogD0MZiVqlAKBxkWzYRP5lstCkgtLHRh/K6NZ7CFL1fr2b8ptF1s20eQ+n/CyM4/1Y+D1
-	k9DEBPfu+M9rGZgjLofEAxWniFQ94ep2fqzD+JNSW/XG0sjBvmzOJ8t4Z8NsF058r/UGln5gJ0n
-	9yK2nbU6NiyR9+90NNsyZq/8XehpWEyEKeRL1Puyanz7GozlcDQcgEGDVrnqMG0YDo3lHx7j2v
-X-Received: by 2002:a05:7022:418e:b0:11b:82b8:40ae with SMTP id a92af1059eb24-12c34ededf2mr2067083c88.18.1775836196689;
-        Fri, 10 Apr 2026 08:49:56 -0700 (PDT)
+        bh=E/mppZDgSCNHAeq+ub9wfQA7kQLGgmIwsgBif974LNY=;
+        b=q9rvY5tilqnIuyWBckU3cjXLdD0R/5x3rayBh2Jz0hfLyfNGd27b/5YmQhb4K6+9JT
+         IEw/eNF2kut4yW54nF0b4Je/98iM4kdre6QjMTgVXjQPuKJC2DR26L8LaHZsSxlXszxC
+         d2TGTm4UDVt2/70CvqRPa60kKZtQpCfgXe//GUQcDfMzcMowHiLONxgcLKGuAOR3zZqA
+         aiQw6+L+w0PNW1KBaVXRfZbfsj3Ce6LsCLsap0co1MS058VXLA95SMhn13yIQ6Gr4t5J
+         D1tm0/cCqKtiDEx90NubrorASaGrqfRNuaahGSW8ol2iXIDZNEGa1iSBD5jiibil5pf7
+         8sXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWMrHFwEFVlBTWAYKrFJTMqFTpmMeyF/jtV0D7nEywbHlAed4YNdepUoi8UG/sM2yc17neoM6OCmBQmQD83Uw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwkQNbAPHi/gJLFW4HNy3i6h9IenKu7lP7dwP39aCHC5Cp6NxaC
+	f5+NPI62Y1kVhf06G6O/q9nWnxsoNr/kdC+MY0AoPSl3mhEY+FbWRMuI4Ev0mw==
+X-Gm-Gg: AeBDiet71ct6T9F1EiGsk8bFS3nMySGUCoCY7nBRYWdDlkg4eI1cImHkqSshN7XDCT5
+	6Fyhzs1SaY9ZBhvVSD0RBNxnXT/AaJONPHjtO6ozLOWBETtnStnm4X0gINUK1BziPNf7UPW+f8E
+	fFqmIdVVniDN8JyTyupyE33tnKm+wui+zOr0gu3haOMvLEMipz3x8NT75ek9JC+8ZJjzz+NMpSw
+	ZrMll2jzFGFLo/rEyDKYyhdSO4kb6aGjrsoEvce/NcPWRQlekomULMWv004LBR/4Zd6QwUBGyRr
+	+yBuxZxE1ier9Oh5DqLYwUNLQra0OWARn1UgbN288PB7BWGJoLMBjfJl9UkhPpATtqjuF8lalU5
+	5HM/O8S+Bqu2A9G7CzUiEihBGF1p+xW6BVpYBebve53N5fapJRsbnVRE+d25PJ0TSdG5Q26aLvS
+	rZyAIo0PmeMflNuxj2KC/GW0AGexpKpHZpRymf/3vOKyh+0oQ+Pi3v5jCxNouJKWcj4C5nFHNR
+X-Received: by 2002:a05:7300:e2cc:b0:2c1:7793:7bbb with SMTP id 5a478bee46e88-2d5898a59fdmr2382600eec.27.1775837300784;
+        Fri, 10 Apr 2026 09:08:20 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12c34acb077sm3516774c88.6.2026.04.10.08.49.55
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2d561cd2c09sm5933501eec.18.2026.04.10.09.08.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Apr 2026 08:49:56 -0700 (PDT)
+        Fri, 10 Apr 2026 09:08:20 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <066e3058-5ba8-4695-9f45-523c7d43ab76@roeck-us.net>
-Date: Fri, 10 Apr 2026 08:49:55 -0700
+Message-ID: <041d8784-ab6a-4bcf-8377-cfc9038be2f9@roeck-us.net>
+Date: Fri, 10 Apr 2026 09:08:19 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,16 +69,13 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] dt-bindings: watchdog: rockchip: Add RV1103B
- compatible
-To: Fabio Estevam <festevam@gmail.com>
-Cc: wim@linux-watchdog.org, robh@kernel.org, krzk+dt@kernel.org,
- conor+dt@kernel.org, linux-watchdog@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, heiko@sntech.de,
- Fabio Estevam <festevam@nabladev.com>
-References: <20260310002040.417424-1-festevam@gmail.com>
- <85660b25-a936-44f0-95b2-3c90d559efc3@roeck-us.net>
- <CAOMZO5DFWYUPN9sPzBr-W7fy8ZbrXP7u1sx=HrmUAQVCLrsdjQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] watchdog: sp5100_tco: Use EFCH MMIO for newer Hygon
+ FCH
+To: Yingjie Gao <gaoyingjie@uniontech.com>, wim@linux-watchdog.org
+Cc: yuechao.zhao@advantech.com.cn, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260402071617.634563-1-gaoyingjie@uniontech.com>
+ <20260402071617.634563-2-gaoyingjie@uniontech.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -124,28 +121,46 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <CAOMZO5DFWYUPN9sPzBr-W7fy8ZbrXP7u1sx=HrmUAQVCLrsdjQ@mail.gmail.com>
+In-Reply-To: <20260402071617.634563-2-gaoyingjie@uniontech.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 4/8/26 03:28, Fabio Estevam wrote:
-> Hi Guenter,
+On 4/2/26 00:16, Yingjie Gao wrote:
+> Commit 009637de1f65 ("watchdog: sp5100_tco: support Hygon FCH/SCH
+> (Server Controller Hub)") added Hygon vendor matching to the efch
+> layout selection, but newer Hygon 0x790b SMBus devices still need the
+> efch_mmio path.
 > 
-> On Mon, Mar 16, 2026 at 11:14 AM Guenter Roeck <linux@roeck-us.net> wrote:
->>
->> On 3/9/26 17:20, Fabio Estevam wrote:
->>> From: Fabio Estevam <festevam@nabladev.com>
->>>
->>> The RV1103B watchdog is compatible with the existing DesignWare Watchdog
->>> binding. Add the rockchip,rv1103b-wdt compatible string.
->>>
->>> Signed-off-by: Fabio Estevam <festevam@nabladev.com>
->>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> The efch_mmio path enables EFCH_PM_DECODEEN_WDT_TMREN before probing the
+> watchdog MMIO block. If firmware leaves that bit clear and the driver
+> picks the legacy efch path instead, probe falls back to the alternate
+> window and fails with "Watchdog hardware is disabled".
 > 
-> Could you please apply this one?
+> Select efch_mmio for Hygon 0x790b devices with revision 0x51 or later,
+> matching the equivalent AMD behavior and allowing the watchdog to
+> initialize on those systems.
+> 
+> Fixes: 009637de1f65 ("watchdog: sp5100_tco: support Hygon FCH/SCH (Server Controller Hub)")
+> Signed-off-by: Yingjie Gao <gaoyingjie@uniontech.com>
 
-Wim applies watchdog subsystem patches.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Guenter
+> ---
+>   drivers/watchdog/sp5100_tco.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+> index 2bd3dc25cb03..7e99c3b1f367 100644
+> --- a/drivers/watchdog/sp5100_tco.c
+> +++ b/drivers/watchdog/sp5100_tco.c
+> @@ -92,7 +92,8 @@ static enum tco_reg_layout tco_reg_layout(struct pci_dev *dev)
+>   	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+>   	    dev->revision < 0x40) {
+>   		return sp5100;
+> -	} else if (dev->vendor == PCI_VENDOR_ID_AMD &&
+> +	} else if ((dev->vendor == PCI_VENDOR_ID_AMD ||
+> +		    dev->vendor == PCI_VENDOR_ID_HYGON) &&
+>   	    sp5100_tco_pci->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
+>   	    sp5100_tco_pci->revision >= AMD_ZEN_SMBUS_PCI_REV) {
+>   		return efch_mmio;
 
