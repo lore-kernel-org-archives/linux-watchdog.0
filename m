@@ -1,230 +1,156 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D70A93191CA
-	for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 07:28:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775806115; cv=none; b=RjhQ2VgkNucmw4eV3pPn9lUq3JdRo8npS+6HtlrRo0WPLNbShvgZIsK9wAXQEIkBju6G1yByT7F5+EEsJk22aqZ7dujAGaOZ6pEeNgyvl7tQ6X5M+YOqsmSoQvDhHGll4a1E7inlOu1r5urVnJzEjWIXyuss/oKPJiWrndrDma4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775806115; c=relaxed/simple;
-	bh=ua1/GjFq5UBIw4chHlHvFZCaOtW3aUXSxAj6LfiyLnw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GoanLjza5FkWO+lZQHluq5fgy1qxTUOegcW5QPuxLYNHqisSUSX0NTSPT6iGVqyDkIRiAo/2oXyY8oqs76uxt2StVWWVXp+ogn2GVEZIFk+vmj9gK+GujpM3VJV23t0O1xRwUMJOPS1y9f/fujOA1YTVkCiN831tTS9ryyS6WoI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fjo7hpSU; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ACA13AA4E1
+	for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 09:59:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775815175; cv=pass; b=Lj/VSi2N64F4gn1+ivJRWKRR5ABBIwBVKq9+w5gwuo31aR0Y/KreTsCTnsozK2r6Bq0zEI0MN3MYuHKOe/g3SwBrdBSOl1rjybfJ42NsXRQ0mSSkxJyJgKLvHq45IhZRBCOWnjSM7z8tNFVrawyumvxs2P9nPro/UPek8CrQIC4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775815175; c=relaxed/simple;
+	bh=N2Ytf4PmH2myigvUKMqYUbjaDrOTgHCXnYH7NNPpZ9Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=n+Xnu9SBFwS5xUJ4smqvjGKWUfHUCGisUg9tK4cl6iCPfPjsqseEVEmsg0+7P3mBm5oNull7p2ugO3can+5Mg4k2d3inq0o4ulh8AYrV3C9T7l+2yO+dNAahAAfdZ0vZFlVUf0a/DSWlf3ObMlgH6OWy0maRfsOyTPDFNcpBElY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rErJRG4Z; arc=pass smtp.client-ip=209.85.128.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fjo7hpSU"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-824c9da9928so1582370b3a.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 00:28:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rErJRG4Z"
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-79ab5fd969aso20382077b3.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 10 Apr 2026 02:59:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775815173; cv=none;
+        d=google.com; s=arc-20240605;
+        b=W5T0raoyVh8hIW9Y/NKXBSLAXFDiWrTh3JhCNpxuJdIbKCsLma5iN8yL7MhMDc+DMd
+         M3h0rqK21jrvpTeubkMlL9pE07xn1BXr9PWgpoJjYpirhGfRzaf+tR8LaOBpxrPYGzVw
+         GzeicH6VAF+qCoDUlaVXXm+Aa/bIl+6DAogdUe7QOTDZcMElKgC3GLK1N+LT+j5TDsWE
+         3M1ji+oQcRqGsoHnK6cT/zhFzAojfexJUXQgMdV+zkR3aH/hKNHby1p3ipnhmrwrdN4R
+         GfHQ3sNFGWuH5Qft2beorQb3BuKj7fTN80zBIqTNWtEZHCzyvsIshBmcZ4cpXJbIcgML
+         hC3g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=N2Ytf4PmH2myigvUKMqYUbjaDrOTgHCXnYH7NNPpZ9Q=;
+        fh=RRGTVL3MtV0Yn/mY8punaLzvvBftV7XRypLPNGvxBHM=;
+        b=Rk4r/1TgPhkCtLgfKzohqHMsfDFh5iCdiZCLx6pbVIOOXzzKxEeJGu9kwft30bjTzN
+         3PTh383xFHbrB9b5fczXu0ibCZX8w1K6u8Fcq7U66TkReQMjRVLoaC/8UkZnOu2F22O9
+         6lg8vU9AmbMgDPrAiyzSYoCpXHJKOA7Fn+U+U0bmZcl7LVD+0BqHnl7vqxqsdSvEBgMT
+         n6syNDNV4I2tlIjntEaC3lG6FGwD2xK0RlaEiltGHwx0Fylydvr7duYRxcaqt8tfEmmi
+         nTG+r1T6pF2Tmc8Swuq7prlJ+w7KwZFFbmLiUF+Z9rUzQcVZ155mqU2rDZ2giVVbQWHG
+         0H2g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775806113; x=1776410913; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1775815173; x=1776419973; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KGRPycyP0bYCi0FYmQRd0IwF9nhHr5uM+DqBSnm5Sws=;
-        b=Fjo7hpSUYTyPzHwGCV4Z98vGsOChF5IZu3U+fTfeCZ+Zqy2n6RFdYfwkf3YAlvH4ei
-         OdeTI3HMrln1kQaDBccoijALUemNy2iE5XecdW/IhrZjR8P3U7eQx0Ltmtcof8+q2j7M
-         UOMSu8WS0V/lzx1hEfJw46sa7+9BMoMEl8Iiz8f/MQpOFMnd+kcJgjbmsSyWIG6d/tb1
-         mkel3GSGfjq3H/KpWKCDMEJz+wG2VSZ/War3okHy0KCEj3EFkdnoaFzPLErOLixvDS88
-         V813wbj8Z0PJtGltmTu2hf+UBUJj/9mmeQnPsuEn6zf+oLcO30Km6p1obE39koXziQNW
-         Ej8w==
+        bh=N2Ytf4PmH2myigvUKMqYUbjaDrOTgHCXnYH7NNPpZ9Q=;
+        b=rErJRG4ZXVbUQMFbRFnmhepxOtcXBpodg5RLaOgBH+BoRSymMMJ7ImR40QJedCzbyW
+         tMf1Kw0G48yG1WZj+bNeo4MywgSjIiHC6+mdUiWs/1trlCFn5wz1/AAEssiw7iJpV45I
+         HfNU8cXmReN8Nsez829lTb/TBvUrr77OsqHawEgFSQ6vY1oOAVLWJ0U/Z4+fMTe/VFCg
+         IR23/Yp54EUoq9dhxidWHZuyoQIaTlIzdzfge5/sD4+zoIksk5Yd0vqptdZ4fGSwlDMf
+         y/S/uZCe8K9ouwDdws1zrrxjoze6PKxwMOQ8PgDitKmFK8vgUphQisVdc+pg/trHdpwt
+         wTJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775806113; x=1776410913;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1775815173; x=1776419973;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=KGRPycyP0bYCi0FYmQRd0IwF9nhHr5uM+DqBSnm5Sws=;
-        b=g4Hw4A9F/+umXUr5He0HvkYuT+WrLpCw/t9820BFv/89nUgKA7GaXKvF0pD3W/r6Tm
-         tXQRZi+0AynRZHsKjHCPSCoFe1V60W2Z/rQoByASEC52aNzKc2C+VyLlv5yqQkWckaw/
-         nJ0zd9oTotgu2WsOMPCcFhzGCevBx9HYYpsGaFbVfjPlwubVlQrs4+H2fHOP7tZAixz5
-         dZU+08mH+j7TR1GdETaDY+BmA9nfooppkQL48aGFWu2hjwWUIdJ6OaKh2lJVxYLWvbNp
-         ENLyrhcIOYX8dd8LRw6UNAewWLGlf81DjQsPC7rCylQa7X9+MiYHe244So0v1Z6kjIoD
-         UyXw==
-X-Forwarded-Encrypted: i=1; AJvYcCX1jCDHvdixVRz7qVODI7eEYeHB+g2xAy1zP++/bmJJtoqLOhvqJBR+R6KmfcLcFvNWMbD7WSzQg/g1h4xmiA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz90V353nPgQD/z09pCXkIPa5I/uYlEe/sZWUVuerLrOCA4tBwA
-	iFsjkEeBS4+6U3VsgkdC8H193Gq3yY7d71dVB//5W9uSlVo5x2E9mI5a
-X-Gm-Gg: AeBDiet5WjJqSxbSwd1PqIXSUaGxE7L9Re9qCnU2l1pwB2iUZ/mrHVhm2JREsWeZ+W/
-	idwntD6JY/kbItpRgqsfcmxC2tPekF1rAOYzQ9KuiI7MHf83Ai1lPD5JtFxX8JJSuWICFjznHI8
-	kbJ6W9vN4g+1DFJCSv6DxSzNj5PaRZNgsOnl/lhKXz28FCEl/IjYPAqNXUHp0J7tQMW4h3KmH94
-	V2H++rwddixLEpbkOE5Ngid1coq+NcaLVd3YnXxVvm0bI6mVikvswoCRtDgvQLTm3WOdtw8XDXW
-	1NBG8+/VS2r8LG/j1K24TF4SV/Y+UyFOV6hIB4Oqmyvc+HbGOhguu9mec8ChfK+P5uBISOHSjgz
-	tyUzmX/YGi2FewaKjEHVRCvQwVur4/lttkHyICa6jMO1WMMil4l+Kj8zFN2WXRInrJYJYDWNNxG
-	eSWIjrJMTX8lYY2XCpJiqmdSBvcqdwgN9Gxk5Fla23cGu4
-X-Received: by 2002:a05:6a20:1588:b0:39b:989e:6d34 with SMTP id adf61e73a8af0-39fe3c1c2d6mr2534138637.4.1775806113302;
-        Fri, 10 Apr 2026 00:28:33 -0700 (PDT)
-Received: from tech-Alienware-m15-R6.. ([122.171.16.65])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c79216fd6edsm1796906a12.3.2026.04.10.00.28.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Apr 2026 00:28:32 -0700 (PDT)
-From: Sunny Patel <nueralspacetech@gmail.com>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Sunny Patel <nueralspacetech@gmail.com>
-Subject: [PATCH v2] Documentation: Refactored watchdog old doc
-Date: Fri, 10 Apr 2026 12:58:11 +0530
-Message-ID: <20260410072825.19114-1-nueralspacetech@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <132f7e64-4fc6-4274-a04e-e53f0b957665@roeck-us.net>
-References: <132f7e64-4fc6-4274-a04e-e53f0b957665@roeck-us.net>
+        bh=N2Ytf4PmH2myigvUKMqYUbjaDrOTgHCXnYH7NNPpZ9Q=;
+        b=N87nve5oAG0f0kd2Ve5ipp13fuZhtBGKX1rDbStpEZeIA/e6U/edJ7wyMLLjuwRWDN
+         sS4Jm0uuTDkp0vQPKB8xeqW6Y3wJ5unY0VCpHu7sAISiob/AWKPdCAqQmD02hrpHuJMg
+         66cuQcHDAP94nrIGYnV5Wdb2U8umHT7DXWRS56DpmUw24v8ceC6KXVplu9hc1iPcfLnX
+         PcDx3JoGC+ofctNzc1+QxzlUXeoedfTSAahoh3Doj5qnugSiyHkDVwiOLCupOxmpXkVp
+         ooJtleBQ1eoA12lTCbam9Sr59z75zWx0eGhHpnqWwnuqiTuNJHEDGK53vnZvInhwD8KV
+         XPmA==
+X-Forwarded-Encrypted: i=1; AJvYcCWLtiOlVEtURvJIM84ifsmgnumQ7NR0hXFRuF0VlaQHkNRk/XVXoaZeSGnwgKpnD3u9baiTU2sN5rl1CgpeiA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw60OYVSzTVqekY6iiy2j7R3CH9GAcnl4LOj73kHel/XnJD4igw
+	gpJv9GFgq6mkXHsRsemN/sAYhiO/wJ19+K2FXGVAe23T+sN9P4US9FzxihIQZLvW3Dg6cgC6NU5
+	WQeCYsQXBP2/2BuT/Q8n5nePLz8U+NPs=
+X-Gm-Gg: AeBDiesBF44VU9lxJ4M2Nq9fHYX2GRvGEEUfMKOMnUMphwiPt2NiaUgYEv/6IrqDSAy
+	19EF3ynX1TatBvFsBVfCdzt00ML6EeC+s9BZtDJZivbCwhsWQDqsg/0mEBgu5YpBp7LiRVpW0mw
+	rAdw383E8eP1JUsA6RiX3In6qsElwQF2JQ1BUXRzX3CNgmD++ynZUzc6e+lkrhg49GNsqmowGM/
+	1cPc2NlGLhSrjotThRohZxQoFVwP4A/i+6TSZLDNXwt6gTu+tUENz9U7g9JOXcINnV2/4bK046Y
+	0Iido5USNtaCpRAJ/QrywP2VvWqwHCfRUstcgbgA1A==
+X-Received: by 2002:a05:690c:83:b0:79f:3715:1980 with SMTP id
+ 00721157ae682-7af6f907f77mr24281587b3.12.1775815173216; Fri, 10 Apr 2026
+ 02:59:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260408053037.1867092-1-a0282524688@gmail.com>
+ <20260408053037.1867092-2-a0282524688@gmail.com> <CAMRc=MeJL_po8HuBa4btVowR-e0i2FyzbDgNVo2u54iPKyuvWw@mail.gmail.com>
+In-Reply-To: <CAMRc=MeJL_po8HuBa4btVowR-e0i2FyzbDgNVo2u54iPKyuvWw@mail.gmail.com>
+From: Ming Yu <a0282524688@gmail.com>
+Date: Fri, 10 Apr 2026 17:59:22 +0800
+X-Gm-Features: AQROBzChhaENjKRgm1eiXEkKC5Ek3HBghHXiZXP2Ngye9h9-wWZ61ho7Hz-V2Tw
+Message-ID: <CAOoeyxXqUbdd3Y0VorzVVOARVpoEkx033sYrv5Hs4tRfst2tOA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] mfd: nct6694: Switch to devm_mfd_add_devices() and
+ drop IDA
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: tmyu0@nuvoton.com, linusw@kernel.org, linux@roeck-us.net, 
+	andi.shyti@kernel.org, lee@kernel.org, mkl@pengutronix.de, mailhol@kernel.org, 
+	alexandre.belloni@bootlin.com, wim@linux-watchdog.org, 
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Good Point. So again revisited the watchdog core
-api and list out the deprecated one and marked
-as deprecated in doc and also mentioned it just
-for legacy driver and not for newer one.
+Hi Bart, all,
 
-As someof the legacy driver still have reference 
-to old api so just marked as deprecated in doc.
+Thanks for the review.
 
-Also checked with other watchdog related api
-which are deprecated in driver but still present 
-in doc but didn't find any.
+Bartosz Golaszewski <brgl@kernel.org> =E6=96=BC 2026=E5=B9=B44=E6=9C=888=E6=
+=97=A5=E9=80=B1=E4=B8=89 =E4=B8=8B=E5=8D=883:25=E5=AF=AB=E9=81=93=EF=BC=9A
+>
+> On Wed, Apr 8, 2026 at 7:31=E2=80=AFAM <a0282524688@gmail.com> wrote:
+> >
+> > From: Ming Yu <a0282524688@gmail.com>
+> >
+> > Currently, the nct6694 core driver uses mfd_add_hotplug_devices()
+> > and an IDA to manage subdevice IDs.
+> >
+> > Switch the core implementation to use the managed
+> > devm_mfd_add_devices() API, which simplifies the error handling and
+> > device lifecycle management. Concurrently, drop the custom IDA
+> > implementation and transition to using pdev->id.
+> >
+> > Signed-off-by: Ming Yu <a0282524688@gmail.com>
+> > ---
+>
+> This does result in a nice code shrink but I'd split this commit into
+> two: one switching to using MFD_CELL_BASIC() with hard-coded devices
+> IDs and one completing the transition to devres.
+>
 
----
 
-Revisited old doc of watchdog and did some cleanup.
-Also added support for new api in doc. Which is
-WDIOF_MAGICCLOSE and WDIOF_PRETIMEOUT.
+You are right that this change is trying to do too much at once, and
+splitting it as you suggested would make the series much cleaner.
 
-Reierate the core api and Mark WDIOC_GETTEMP and
-WDIO_TEMPPANIC as deprecated.Both are absent from
-the watchdog core and only present in legacy driver.
+After looking more closely at the ID handling and hotplug
+implications, I realized that switching to devm_mfd_add_devices() and
+dropping the IDA is not a good fit for this driver. The current
+mfd_add_hotplug_devices() path uses PLATFORM_DEVID_AUTO, which gives
+globally unique device IDs and avoids sysfs name collisions. If we
+switch to devm_mfd_add_devices() with fixed IDs, multiple identical
+NCT6694 devices can end up registering subdevices with the same
+platform device names, which would break hotplug support when more
+than one device is present.
 
-Signed-off-by: Sunny Patel <nueralspacetech@gmail.com>
----
- Documentation/watchdog/watchdog-api.rst | 59 +++++++++++++++++++++----
- 1 file changed, 51 insertions(+), 8 deletions(-)
+So I think it is better not to pursue this direction further.
 
-diff --git a/Documentation/watchdog/watchdog-api.rst b/Documentation/watchdog/watchdog-api.rst
-index 78e228c272cf..e11575db93e6 100644
---- a/Documentation/watchdog/watchdog-api.rst
-+++ b/Documentation/watchdog/watchdog-api.rst
-@@ -2,7 +2,7 @@
- The Linux Watchdog driver API
- =============================
- 
--Last reviewed: 10/05/2007
-+Last reviewed: 04/08/2026
- 
- 
- 
-@@ -106,11 +106,10 @@ the requested one due to limitation of the hardware::
- This example might actually print "The timeout was set to 60 seconds"
- if the device has a granularity of minutes for its timeout.
- 
--Starting with the Linux 2.4.18 kernel, it is possible to query the
--current timeout using the GETTIMEOUT ioctl::
-+It is also possible to get the current timeout with the GETTIMEOUT ioctl::
- 
-     ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
--    printf("The timeout was is %d seconds\n", timeout);
-+    printf("The timeout is %d seconds\n", timeout);
- 
- Pretimeouts
- ===========
-@@ -133,7 +132,7 @@ seconds.  Setting a pretimeout to zero disables it.
- There is also a get function for getting the pretimeout::
- 
-     ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout);
--    printf("The pretimeout was is %d seconds\n", timeout);
-+    printf("The pretimeout is %d seconds\n", timeout);
- 
- Not all watchdog drivers will support a pretimeout.
- 
-@@ -145,7 +144,7 @@ before the system will reboot. The WDIOC_GETTIMELEFT is the ioctl
- that returns the number of seconds before reboot::
- 
-     ioctl(fd, WDIOC_GETTIMELEFT, &timeleft);
--    printf("The timeout was is %d seconds\n", timeleft);
-+    printf("The timeout is %d seconds\n", timeleft);
- 
- Environmental monitoring
- ========================
-@@ -227,12 +226,33 @@ The watchdog saw a keepalive ping since it was last queried.
- 	WDIOF_SETTIMEOUT	Can set/get the timeout
- 	================	=======================
- 
--The watchdog can do pretimeouts.
-+The watchdog supports  timeout set/get via the WDIOC_SETTIMEOUT and
-+WDIOC_GETTIMEOUT ioctls.
- 
- 	================	================================
- 	WDIOF_PRETIMEOUT	Pretimeout (in seconds), get/set
- 	================	================================
- 
-+The watchdog supports a pretimeout, a warning interrupt that fires before
-+the actual reboot tiemout. USE WDIOC_SETPRETIMEOUT and WDIOC_GETPRETIMEOUT
-+to set/get the pretimeout.
-+
-+	================	================================
-+	WDIOF_MAGICCLOSE	Supports magic close char
-+	================	================================
-+
-+The driver supports the Magic Close feature, The watchdog is only disabled
-+if the characted 'V' is written to /dev/watchdog before the file descriptor
-+is closed. Without this, closing the device disables the watchdog
-+unconditionally.
-+
-+	================	================================
-+	WDIOF_ALARMONLY	    Not a reboot watchdog
-+	================	================================
-+
-+The watchdog will not reboot the system when it expires. Instead it
-+triggers a management or other external alarm. Userspace should not
-+rely on a system reboot occurring.
- 
- For those drivers that return any bits set in the option field, the
- GETSTATUS and GETBOOTSTATUS ioctls can be used to ask for the current
-@@ -254,6 +274,11 @@ returned value is the temperature in degrees Fahrenheit::
-     int temperature;
-     ioctl(fd, WDIOC_GETTEMP, &temperature);
- 
-+.. deprecated::
-+	``WDIOC_GETTEMP`` is not implemented by the watchdog core. It is only
-+	supported by a small number of legacy drivers. New Drivers should not
-+	implement it.
-+
- Finally the SETOPTIONS ioctl can be used to control some aspects of
- the cards operation::
- 
-@@ -268,4 +293,22 @@ The following options are available:
- 	WDIOS_TEMPPANIC		Kernel panic on temperature trip
- 	=================	================================
- 
--[FIXME -- better explanations]
-+``WDIOS_DISABLECARD`` stops the watchdog timer. The driver will cease
-+pinging the hardware watchdog, allowing a controlled shutdown without
-+a forced reboot. This is equivalent to the watchdog being disarmed.
-+
-+``WDIOS_ENABLECARD`` starts the watchdog timer. if the watchdog was
-+previously stopped via ``WDIOS_DISABLECARD``,this will re-enable it. The
-+hardware watchdog will begin counting down from the configured timeout.
-+
-+``WDIOS_TEMPPANIC`` enables temperature-based kernel panic. When set,
-+the driver will call ``panic()`` (or ``kernel_power_off()`` on some
-+drivers) if the hardware temperature sensor exceeds its threshold,
-+rather than only setting the ``WDIOF_OVERHEAT`` status bit. Support
-+for this option  is driver-specific, not all watchdog drivers implement
-+temperature monitoring.
-+
-+.. deprecated::
-+	``WDIOS_TEMPPANIC`` is not implemented by the watchdog core and is only
-+	present in a small number if legacy drivers. New Drivers should not
-+	implement it.
-\ No newline at end of file
--- 
-2.43.0
+For the next revision, I will drop this part of the change and keep
+the existing MFD core logic, including the IDA usage. The series will
+focus on adding the nct6694-hif MFD driver only, and I will add the
+IDA initialization there as needed.
 
+Thanks again for the suggestion and review.
+
+
+Best regards,
+Ming
