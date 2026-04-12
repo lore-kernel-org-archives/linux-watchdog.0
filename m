@@ -1,62 +1,60 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6877B212548
-	for <linux-watchdog@vger.kernel.org>; Sun, 12 Apr 2026 08:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 082AF35F5E0
+	for <linux-watchdog@vger.kernel.org>; Sun, 12 Apr 2026 09:53:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775982142; cv=none; b=GWdclfxUKYA8itqMpVVO0RLTcxvpJICbWs87irguEZXHqg2hotbiMC2HuX9I7qaQvb1pzi++TXvyb7+g17FXiItra8iM6AZwzfA940jsflL1E2t6ZuBznj9Tj5hDFOOQ/jv1CWwqN/FEilk7FG4Y6ymf11m8FGz9xZVS6J4YZ8g=
+	t=1775987628; cv=none; b=u2hOkd9TW7hjPBSdsF0chcywobav4+io4hHviG8xkV9gMagMa0jFl6bu+hLWLv4wOnuKdg29wPyYFsC6Pf7sZqHWuoa+yZQEq1cjd/Z2yDjJ2fS7dRzRkHFMCJCibAqEjwmnXVd39aKBhRK3K2HdUKNYUr2dg5dI6AaijUe7Dyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775982142; c=relaxed/simple;
-	bh=07CBgzXeAUWv4NrmNUnsSFnmCkQR2o04FGbGs92uPQ4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rxFhk+0RQM2i4qJpiS3AEcgK4mo0+8fwWGWI7UkqLigVqLK0znl0OSdGA3b2jutGIwzMwTUR9Cpm3rCAlyBJwv8enWJ5PPaj4SpdktGFR85kPertpKuB/9CLGGatuCt0DoNCyUOtq5YPcIXbQKxZoCVGzCpuH8/rqU3FANc4tNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aQLfiFB9; arc=none smtp.client-ip=209.85.216.48
+	s=arc-20240116; t=1775987628; c=relaxed/simple;
+	bh=jZnww7sTjKwI8L3j9J7l3AfTgTXSm3kSCXq0cC+3GCY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oQ5cjHezB1TiNpmxPopFKUJj6tpLRYcsxefu9CdcXQmJLcSztBp52Rri2iGTUtUTTuIpYJmm9nQv2uSBlxuesaX/en1gtlcNtRGHvgm/nhnLEHuM5cD4MSVn0MNdlcbkXbY6/CrOxJK9NHXIZqBXZR3GDOBOlMxsqXPJ3pYGw+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g5wbfxET; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aQLfiFB9"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35da9c0c007so3257888a91.2
-        for <linux-watchdog@vger.kernel.org>; Sun, 12 Apr 2026 01:22:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g5wbfxET"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2adbfab4501so14061245ad.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 12 Apr 2026 02:53:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775982139; x=1776586939; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NIdNWDTJB8MnCsFnYSBxZ8TNMLf27pK1qRPFQutjdXY=;
-        b=aQLfiFB91mXJE7xmdEgsnoQ3zJWvpbSFYG4vhs0XdpL0gdwH90WLM+P5PQUlPPz/LF
-         pQSG9M+C2JpPXyf7rFr3NpobOs7rsGE1/aavAfv7Yml56XK5lPhom43Yw+OUyc9YkQhe
-         fymHieeFwSZhXlsvkwnpe70Nu/LWLtjJtI6r/Ah+XKKX+ltE3OKpc12rGknh3umzCUV6
-         cPL/xvSfst4tjwEGk0hxDyPZ0G47MPrVDst2JG2ZcZvW7N2eKEnEWqvVfRjl8Ny1hSvH
-         BxzkkfuhEGCDmoJLFhd4BWIvfBHd1BMFREkWfjJKHAFuDGUnD1s1W8zH2+y/OInGf+0N
-         zatg==
+        d=gmail.com; s=20251104; t=1775987626; x=1776592426; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BbD+flsfonZZoNyS69lUCHnSInbIfPoXujp36zcL6wg=;
+        b=g5wbfxETAjHJCUa2DZTN6+h+qHFV1d6qztpwTl3YQa047aQXh9chTHzfQRooTyWFty
+         7jhrnCeNhMEDTYk1omjaxUv2J3Tx+IIw7sFhCi7WDKIn5uHxnCBdOyAUxLvUxKD6cZWL
+         arpUMiNqXbjeXG4EYozDNjX83/LL1uwXP3+S4NuFOlCL+cANdp8RU+bZcaviLuAoxUc8
+         tur9JYBPtqWOXqN+JYrJSC/ggzy4ATfyQIyCT3APMvGsRBQyXF62g5kr1j4RC67BVnkR
+         E20mCysBNRt6af0xOKp+zAK0NjnoFDXN+Ex5dIpHcm8BEFHgkRQEzAaUARytKuZ0aDH+
+         Qe7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775982139; x=1776586939;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NIdNWDTJB8MnCsFnYSBxZ8TNMLf27pK1qRPFQutjdXY=;
-        b=Ix7uvmZvW3UClePV6UyO5FGK+B0xQ3N5dUDmOxfWpcSjdtxAjt2+NvDD1TNAN4sZ0/
-         szw58VoO5O9E8ZEMtYJoWjMPTvCLwncl5drd8ILOas6f+8E6/dTgiWbsogpMKYoFz1Qp
-         kpNKBb3Kc0/joX6tXCBJMx1xN+2K2nrRnM53fBxXkNICBNOBeWMj+XgOFKcx+SJOHboC
-         t83TlzxXYT0KKkc9RMhu8m3lTz2HvrnRkAMnjCAaK2dyvaN1mBBCBbaMk8WMjWrhEw3t
-         gAgCWAfsRjUsbPBuq+509JfjFayC/rX9Ettp+SjJSGQ/jQ0KhpNSnbMj1p2/iIueZz4p
-         0Wbg==
-X-Gm-Message-State: AOJu0YwIvuwqe+XDb9Ye4+cOXdHAdjCiRBhtLuIwqOuvLc3J9DWBFVw9
-	gzJY4uEVxksyN1JUC5y1/VBgUw9HqIX/DpZ3e4UUZuTWm3cNl+7V7IIG
-X-Gm-Gg: AeBDiesPCw8TAMwLzoHjGBd3kkv0bvOehttVvaUBcKwWBe5xe8d/Ssrib74ABhDEq5K
-	BQ0tF4ZGZN7IJ6ujZmdRegRH/Jok5TPNcMpPQTMkWyvIqmjhLb30mXBYpfrzD/QHBC4Io6oAMVe
-	GpPDYwrubroAYhlQzJkFKt2SG2yb17bYmtjR1XflF+XUQlVoYO63zNbVaPoMjRZS4DWKm56rm2o
-	rFDz2B3iTKnYjOF7FZgJHUVP7RqydGAUF9SbtcpTGq+tnsi28yAmmmkb0TEn/25gNVXMXhBfr09
-	HsYXKA7Evg8rrYogHAMH+5p3BO+/0iX2PXar5rnzVtVG7FE+uhFT4s1NDSSOKVFRxGBGiK02H+V
-	NirP1aUwRvewmoqBmiwmp6duxRgeAy0ocspbP8DZQNAU/Z9E88rqGQYRrMsCo+WqLLB7vyS9g0C
-	cZvtWGw0hN+d6v1Amf7r+FSL1c+z0LviNC2UWMvqw3NU+FCQOnx4qf2pY=
-X-Received: by 2002:a17:90b:390d:b0:35b:929f:7e92 with SMTP id 98e67ed59e1d1-35e42827fbbmr9779773a91.18.1775982138636;
-        Sun, 12 Apr 2026 01:22:18 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775987626; x=1776592426;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BbD+flsfonZZoNyS69lUCHnSInbIfPoXujp36zcL6wg=;
+        b=QKU7EEBP6t0CL/g8nkleO+JBO9/iaaGHdxJgDZc9X3I+GPND6+MvmiZV6qPWVT9VYy
+         sdn1xlmhAqtpr+EEiW7n2LMQDuD45QjbR8iMqBVB/uSFyqzUYQ6P+2vwXfzJwJvIGSRZ
+         fl86AVtcK9/6CNfGDBIV1e+f1gF1OM5Sf7V0jkw2pg56+oZ7Y5lhYD+yxTnlhr/lYyd6
+         GZ5IxjARsgmtAnvW4juprU+Ru2benFMAeFkIHUEnotcVuA8dN2dxPyFjS4C8858xR6Hb
+         dyIreIHizQh0L+NtslDF3ndPbog4/ckD6VFSvoYyDiZOoX9jKEn+zb33kpN9gYd2nCPR
+         5FOw==
+X-Gm-Message-State: AOJu0YwTr659EhULiv6OuOuf4Jl6wJ1ietA+joBmZ/a5bl8A3pOSgJ8m
+	D2hALrZpLCcv/EDfp5WLI57HyEFKpVDu6AzIZHNx078hDovy0I1giV/h
+X-Gm-Gg: AeBDiety/mJYKo3TgQsqGue041yuRoXuSCEQ9G/FXpyYyWlN45yIptQYTFlIxM6Yn0e
+	bePX+S+0EZ4q6virNYHXamsN0KQ2u2pjHfh+RMcjJf4hN0gI6gg5yXSihwEoV84R0hza6rADdHf
+	KtuLT19CQrT3Veajfl/C0QAQUoCwk/401+i0tJTuCGZxix2SgsI99seiOvERDoRluBESg0ESo0K
+	8tygMyUSH0HDTAn86I2np9qFq7/EK5adaJlIfFuXdv4trBJrLXAPLF9WXAQwBVJjTLLsbU2W2A/
+	v9/hIVRWWHxpIi2se0z3aLRJL52RCUe2QTyg+zCxjnJ9GJNj7+yz5WLJ0+5lR43H5uNuX5rEFep
+	jwOYRawkPj70BCwwMeZYCCoQfWgxTDebavjNz/QlgWRBe5vRdHQe05r7Vs68avk5U1g5sNT7/t6
+	Zza1tylVa4dnWhjgnACaLol5trKU8iYTTu6o5So+LifjBg
+X-Received: by 2002:a17:903:acb:b0:2b0:5cb4:d89d with SMTP id d9443c01a7336-2b2d5a698e9mr102220615ad.29.1775987626300;
+        Sun, 12 Apr 2026 02:53:46 -0700 (PDT)
 Received: from tech-Alienware-m15-R6.. ([122.171.18.84])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35e4131d1desm8593167a91.9.2026.04.12.01.22.15
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b2d4f099d6sm100360175ad.50.2026.04.12.02.53.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Apr 2026 01:22:18 -0700 (PDT)
+        Sun, 12 Apr 2026 02:53:45 -0700 (PDT)
 From: Sunny Patel <nueralspacetech@gmail.com>
 To: linux-doc@vger.kernel.org
 Cc: linux-watchdog@vger.kernel.org,
@@ -66,12 +64,10 @@ Cc: linux-watchdog@vger.kernel.org,
 	linux@roeck-us.net,
 	rdunlap@infradead.org,
 	Sunny Patel <nueralspacetech@gmail.com>
-Subject: [PATCH v3] Documentation: Refactored watchdog old doc
-Date: Sun, 12 Apr 2026 13:52:05 +0530
-Message-ID: <20260412082210.31352-1-nueralspacetech@gmail.com>
+Subject: [PATCH v4] Documentation: Refactored watchdog old doc
+Date: Sun, 12 Apr 2026 15:23:20 +0530
+Message-ID: <20260412095338.52271-1-nueralspacetech@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260411150922.20536-1-nueralspacetech@gmail.com>
-References: <20260411150922.20536-1-nueralspacetech@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -101,29 +97,19 @@ Fix the following issues in existing documentation:
 Signed-off-by: Sunny Patel <nueralspacetech@gmail.com>
 ---
 
-Changes in v3:
-  - Replaced .. deprecated:: with .. note:: to avoid Sphinx
-    build warning due to missing version argument
-  - Fixed WDIOF_MAGICCLOSE description: corrected inverted
-    behaviour — without 'V', watchdog remains active and
-    reboots, it does not disable unconditionally
-  - Fixed comma splice: "Magic Close feature, The" ->
-    "Magic Close feature. The"
-  - Fixed WDIOF_ALARMONLY table alignment (malformed table)
-  - Fixed "driver-specific," -> "driver-specific;" (semicolon)
-  - Fixed identity row indentation in watchdog_info table
+Changes in v4:
+  - Fixed WDIOS_DISABLECARD description: corrected inverted logic —
+    the ioctl disables the hardware timer entirely rather than
+    stopping pings. Clarified that userspace, not the kernel driver,
+    is primarily responsible for pinging under normal operation.
 
-Note: This is sent as v3 and not v4. The previous submission
-was v2 and this directly addresses the review comments on it.
-The version was not bumped to v4 to keep the revision history
-consistent with the actual number of review cycles this patch
-has gone through.
+Apologies for the broken mail threading on v2 and v3 as well.
 
- Documentation/watchdog/watchdog-api.rst | 63 +++++++++++++++++++++----
- 1 file changed, 53 insertions(+), 10 deletions(-)
+ Documentation/watchdog/watchdog-api.rst | 65 +++++++++++++++++++++----
+ 1 file changed, 55 insertions(+), 10 deletions(-)
 
 diff --git a/Documentation/watchdog/watchdog-api.rst b/Documentation/watchdog/watchdog-api.rst
-index 78e228c272cf..83848d02959d 100644
+index 78e228c272cf..43ca6b2bbeff 100644
 --- a/Documentation/watchdog/watchdog-api.rst
 +++ b/Documentation/watchdog/watchdog-api.rst
 @@ -2,7 +2,7 @@
@@ -229,14 +215,16 @@ index 78e228c272cf..83848d02959d 100644
  Finally the SETOPTIONS ioctl can be used to control some aspects of
  the cards operation::
  
-@@ -268,4 +293,22 @@ The following options are available:
+@@ -268,4 +293,24 @@ The following options are available:
  	WDIOS_TEMPPANIC		Kernel panic on temperature trip
  	=================	================================
  
 -[FIXME -- better explanations]
-+``WDIOS_DISABLECARD`` stops the watchdog timer. The driver will cease
-+pinging the hardware watchdog, allowing a controlled shutdown without
-+a forced reboot. This is equivalent to the watchdog being disarmed.
++``WDIOS_DISABLECARD`` disables the hardware watchdog timer entirely,
++allowing a controlled system shutdown without triggering a reboot.
++Userspace is responsible for pinging the watchdog under normal
++operation; this ioctl stops the underlying hardware timer so that
++the absence of pings no longer causes a system reset.
 +
 +``WDIOS_ENABLECARD`` starts the watchdog timer. If the watchdog was
 +previously stopped via ``WDIOS_DISABLECARD``, this will re-enable it. The
