@@ -1,176 +1,173 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3800D370D5D
-	for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 08:27:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C39C3CAE8C
+	for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 11:31:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776846465; cv=none; b=AO2YldHTJW0u59zTlKeWK9J9UweSYeOssiw00Gnn7yEeh1pTaGfKM/sUpVikWvdrcutY+4a3iHs91psastQkkLBAigciN2aqQXJbql4DsKwaMBTGbhEov1zt/bauQmw08Bxah3TcoQxMdSEaRS0ZmEMXosOgXpvp8Iqdh3owYbQ=
+	t=1776857502; cv=none; b=UT9BL/GRh/ewfICma5x1rV7Z89uM7OPbl0Icwe4U/fE5j6Au4yh1e+/7JbwnnKrGiihvrwk87W7L8eIcSAFUJ1PjsWtqr29kp59iX4rAxj6paVabpcayW3IejtC/ba8y7ClB69hAdQ0pz8twTAQIm7YBjl13ychRf6pwt9ISsZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776846465; c=relaxed/simple;
-	bh=EyETeqefAqKuSOaN9zNOb4iPI5JACd8mo53FiagzC3k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gOn2I0fiKB11fWIAwyQs2vs+NSQQZ7hwBFMGzJHu+QJexX9jddRL5XHWT+cSGx9Sd/ZmdO2C2kcjhktv2hRRiaLD4Zc/3CzQZ82SH9Y4gpaIT4hAHh8jEy3Ym7vmNYIDS9Z58WcSyn0OCjT5bfNDVtbHQB0l7/8J/Hbi1ZGVxts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=W812tacv; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MpQKpPEH; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1776857502; c=relaxed/simple;
+	bh=dxWL0oIs2O0hHphSdyrBQaIDlz0zLBnPvixdL6cnuzY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=hAy95HBgSsCiilQMAdtPr+fRKij01EBLEtqCF7Y9u00r8ZrArURdYQWxl/iPtkqArAq729KVUkTYREiLsKEXq9LUcR+lkxXRYpStCqi9OhnKpS6CUYw4sjM96NfDfvb9fgOjl68NcdYWTyveJP1iBdgTwsRdrGCJHMH1sIRuP/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FIudcK6R; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="W812tacv";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MpQKpPEH"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63M59GPU3377466
-	for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 08:27:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=WedYATfTHNtKBqWtI1UXxcIB5o0xBek16Rh
-	s5kmzr0M=; b=W812tacvi3tg7p6jyFU92TZ1Lkj9rnU3SfaZUCrk6akwbR2OmVL
-	I4tkL8Ex3ag1UN3oflatYpZK041u+IsnNvfzw6W2Ayd4pfnEQT3kVdpha21OIWpB
-	sbSNlLXqPW8u4EoIOsPqMJS1hLzz+T5NfXDwiGgm/+r63dNL220/1j34fvNeFb15
-	MQZ2avEd5A/d/71103Ba1kn3DJYR8+zPuxXaLIEAIoKmkbE7hZtRGeL2BiE5owEB
-	EZsp8wnCnIyAh5lq9U69v8Cg3+f/G4n38xIgok1Jb1rhUdTQ2r5q+fQ5rjrDvvO2
-	5JPYcrS3qT4s/ilmNeSd8TuyLhtMRqZWXvA==
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4dpeng2jnc-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 08:27:43 +0000 (GMT)
-Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-50e592e833aso36347511cf.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 01:27:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FIudcK6R"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2b2d3a9e149so29582245ad.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 22 Apr 2026 04:31:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1776846462; x=1777451262; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=WedYATfTHNtKBqWtI1UXxcIB5o0xBek16Rhs5kmzr0M=;
-        b=MpQKpPEHkqLvJGEYhM6VzBkdhYYcF44IQwgZ5IGJ94f9+/0ZNVxCgxx2ZCruhRxEF7
-         JbbTCpqbWvaodpls7/0V6XETTwEicnTfCWATA/4nUk1cn+wvG+pZ2TnwUHMdEop+zOdJ
-         obpAK0bVvNv6JAyy4LLY4rwXzsd7+igueAeNfAOKUwGZQOTGOeOlgI9FaZce8SfO6UEj
-         d4uf0ZQpJ/JBHB/uveZIECFHAwO2q8b1RYKRFJ6IHti4yf1NWEKf+gmu5AttIN1uDDfO
-         GVKrO912TQ5HuaUIRGLsn/9yGDCYni7DrIYyivNXJsH8DikIdP5VYI/xSbhLo/CUxDRO
-         0+Yg==
+        d=gmail.com; s=20251104; t=1776857500; x=1777462300; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=hkcKKzHXhDt0QojfD9JNtY27MSNR66ERsxzTA9kHdc4=;
+        b=FIudcK6RP22Muizhjizeoor4rQtfoPiK5WjaCxZa5aO4VWD6TkWSPRbgMbziByP8Qs
+         m59jgqvqJJ8rOsd6huHGRxATXiorGCSNTVwFvVmKr29OrcmwbeIvcCkWMrZLzp6KkLx2
+         8gNB4qu0rwfyLlWVfRnr+DkKnPhZRVWrZcQ1Zhn5UjRQyegViujY3Wrdw+h+yCqTmByq
+         q78EUdwl6HArnrq+2lj30ysZhCBUJd/aw53JHdKSeyRqUINiLFHMbpGToiUUitEgiJyl
+         NVlnT2aK7jTVcFCeKC6+L+LEKfLxsctbit0iJyMJxqAs5gY3tNtj6hp6EXNp2/OR8dGE
+         zM5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776846462; x=1777451262;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WedYATfTHNtKBqWtI1UXxcIB5o0xBek16Rhs5kmzr0M=;
-        b=fRygm87deADsqNMyvyEqMKf6YeG2plTXtSbp0k3Ajue2A+JUFOC4n+U/RTg1VIwXkV
-         hIwggvtI9I7oKAR04vKqS+C2snWEtNWtYmJ8964ANSas3YuH+bQRCWmDBhd3LQHVFSzx
-         PMdY6uvznWGIPP9XssYRB+13ThTjNbMMmfH/yXGRrV6avL2sq2B+61qHOHxu5j0BnD4T
-         U/A3+Dc3C3PjxVxDAAz5QEiyjU3AGlxfKiY2Fxo6k1xTtVLvZ5OhgzNAQBe2k8EBdlAf
-         t8uMu+C4Fe4tRs0ieqWh6C0nut+8ng6MImgyeEFQvtSserVXpzb9ITjjCwbKJVNo/d2K
-         b4aw==
-X-Forwarded-Encrypted: i=1; AFNElJ+mFFWWLqZ71iFEt04AOspuVX4+gXRjGgtz36pS0943DqU6W09E9M5z13TLkGO/5aSuj+iPEduOHPgdgT/taw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwADrBkCYJJejfpFVuxy3uae/beUZETKUbC2FmTQYXxAYYqleSV
-	FsOFsMA7zrdAG5oQMX0ScF3/1hyx1BTroGZ/Bwe07sj4LwSD2dKP+NYNEkR0DAzkCkoO6lMth68
-	pNO/om/k7mfOvOZa+0eRQZQsRTJALtmol2pu2zOSLxSiLiiORqWgcrb1v/mBqXR6WsSK9Jg==
-X-Gm-Gg: AeBDietL54iChonclssTHMdus6KpdKRgXvJrk9EIrdvcLSNe4H0LPTddJL+V2s+ETMK
-	qxMOtgZ38Tk3YT0QF0kRpSPcBRFWbot6JNMC/QauR4M4mhYtdAxvTI84ie2aRFI9rpEfDi76wMW
-	FkKtEBDi43mypf5zFKPr+k21q29PjSa6qet0Q7y+4B5MUmSb3TemK5+budM+a/gH4X/A4xYKadQ
-	kfkHgX4FYy/jbUnkC5cHqZxyLzB49KKx8W5tzXN2LKg7aC1QguNwPbSagC0oe82WQToFpQhcZJi
-	0aD1ZIqqb74n+yh8lOt6xppCddo3XFi5waMX03raaXmHACVejWF46ypXe7FXELW4in9qWvlo6Lv
-	MGDXxTz63agvUAZodFD/E0z16GfRKST6r19gTMrt0BKWqe2g=
-X-Received: by 2002:ac8:58cf:0:b0:50f:be4f:465d with SMTP id d75a77b69052e-50fbe4f4930mr44344621cf.46.1776846462603;
-        Wed, 22 Apr 2026 01:27:42 -0700 (PDT)
-X-Received: by 2002:ac8:58cf:0:b0:50f:be4f:465d with SMTP id d75a77b69052e-50fbe4f4930mr44344451cf.46.1776846462204;
-        Wed, 22 Apr 2026 01:27:42 -0700 (PDT)
-Received: from quoll ([178.197.219.94])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ffc558f2sm289231885e9.1.2026.04.22.01.27.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2026 01:27:41 -0700 (PDT)
-From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH] watchdog: qcom: Unify user-visible "Qualcomm" name
-Date: Wed, 22 Apr 2026 10:27:37 +0200
-Message-ID: <20260422082736.81981-2-krzysztof.kozlowski@oss.qualcomm.com>
-X-Mailer: git-send-email 2.51.0
+        d=1e100.net; s=20251104; t=1776857500; x=1777462300;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hkcKKzHXhDt0QojfD9JNtY27MSNR66ERsxzTA9kHdc4=;
+        b=p0qWW1Z8I7BvC4NcaKOIvoi0fLcGnN2zuuydWJ4eZcMR7nyAkbS8NCIXkIBPjx9C2n
+         UvpI/F2Vql1R1nbE/dhG5vhVCl73r+bbw/jqr22ipt7ganFxcxyqfJRy4oXeBo0Uqs2v
+         FORUaFGciZ8ZaY1j/jBnIE0SzP/2zDHSNTobYQ5RAci4F6flvRns0DyvP3lv643oX71V
+         n4WAHMUYX7eF/bcwmf4Op3sZCoiMgyCkMIkRrDBYu8GjwpA02MxWOF/Ny/afWyrig0vE
+         xsGaXq/j+c9FKT53Mwt+sorNYaJJq/IEOgxaBQm4r8YddrMQUicrB3+c+I0Sj411HNIM
+         01cA==
+X-Forwarded-Encrypted: i=1; AFNElJ9d9ah33cUZDPA7Rzj1vayUGxwbJLkeNnyPIxuf6QM4c+2aLoaL3pQ5BqO3Vfgt8fMrnbpKzjQES9TGU8Lp+w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxcnzIasq2acjkDzza+voJKHz8h84JQvwU+Nx1g99g34nUb74D7
+	q40gsZOwcPTgSaxNFUCaeA+5ta6nrQxqZ2/yUODX4Y4WcoNoBn5ayUJB
+X-Gm-Gg: AeBDietD6VSjP8N6otYxRAvtSBwt3FwMMRq3zvLkIANmixuTQdrGqo99kEegzlquAy9
+	TG/gEoW0APUBhXkQKoUhBcd2BG19QDZSwYTBLgZ6roCEgCYvUCcIuOK4lf8H4r5AILEOwxYY3Ct
+	8cibNhSmHPuu9hqOKbRdi9cgQUElpPt4cOAa2dECg2YOqpHPpw0rzT9RTifEpZBpiB0ImCAb2uz
+	hAGh7GQ+8urFYZTripetWdLjdRx8CqH418MfH3gePQMJ5QHkNwgVPvAQVqJKLzKLjPYnW0BtNlk
+	TZC37HP4bZARSd+t2f+wHZ7ZsGO6Zfo+np3e83Y19LvwOD7pWq6WuyIYP8EsdGD/o3+uQuROkj0
+	5cge1GYjYfOV6T+2yez5oyRWSrgFGaCIrSuNJIVa4k2awnTGwbElgOagPxAXwQJnkRqO/3G7h5K
+	gRX8/Ha3meneekKAck1WfEV6KPOLFP9CrtC57fcUs90Z/3saqhTKI/ZT1MCQes/HSaxtjjVMy1J
+	gTIrzvLNGgO1CZtW1uGhw==
+X-Received: by 2002:a17:902:c94d:b0:2b4:6597:44d9 with SMTP id d9443c01a7336-2b5f9df28fcmr197558055ad.8.1776857499746;
+        Wed, 22 Apr 2026 04:31:39 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5faa494e1sm158588085ad.35.2026.04.22.04.31.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Apr 2026 04:31:39 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <1ec664e3-ecc4-4773-90f6-36b0c07ee7dd@roeck-us.net>
+Date: Wed, 22 Apr 2026 04:31:38 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1373; i=krzysztof.kozlowski@oss.qualcomm.com;
- h=from:subject; bh=EyETeqefAqKuSOaN9zNOb4iPI5JACd8mo53FiagzC3k=;
- b=owEBbQKS/ZANAwAKAcE3ZuaGi4PXAcsmYgBp6IZ4QymeOv5gIcl5vB+K0tSAr8qyHiNbPOY7b
- f4RYYnK9wOJAjMEAAEKAB0WIQTd0mIoPREbIztuuKjBN2bmhouD1wUCaeiGeAAKCRDBN2bmhouD
- 199yD/9pkMhXj5EQOGENnL3be9bAZmm35xYe8alclqrEk1NVZBu9E86AcLz5zs62cavKyuwwl/f
- 8cZlOY3nmIgFAKZA9xRHBtx6qy1Gn/XzodgybYOHtu0JQeQ+8GyFdDEm8r9PE6NJzHtXpM5qyCj
- 6AdR7WtLLxeoP55Mncnzk9aGZnT1MA8A+xajv5lZEwC9f9AcJBXlruVfFwZ8Azdrwb61H3tR91Q
- Gev5/pMAgeFGViSh2X5GSBYrijPW96MfCghlqYJQc4+ol9Ud6LJRWszmt6LN0tyKtGKel43nhk/
- uiTtPD6H8LXp0e+PhuMwWJY5bdd1SyXQrlKre5s2XRdJoKD8hXdNGsYPRiPs7lTgWdrp/1AsbJs
- tEQ1ppIIavpsLQSvA+42ouiIIereMGzYMyK5L/75x70RMjZCgXDWgSABgygPCJBRzYZfMBsPmpt
- Tzal6NBvrQfXq5D+luFu90xxVlYoFjxuwxMMU0mblqYFbqI05ZN8zUYGkmw7xIc58uSQ4adUjM1
- fMKYYMrupHM2e7fn/fI+DPQ1lx8bXVy0pD3MZGk/jx6dCuXPCU7kD05loQY8KGY/2hxv/diYwmF
- TTbVRG08aEO7kCjbmcVZGteI94qPDdwyAwXouwDcr822M+8nWh7CVneeQnDDELl3Pj3w8DBvYD6 tkdsl3HQCqrsFZw==
-X-Developer-Key: i=krzysztof.kozlowski@oss.qualcomm.com; a=openpgp; fpr=9BD07E0E0C51F8D59677B7541B93437D3B41629B
-Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=CNUamxrD c=1 sm=1 tr=0 ts=69e8867f cx=c_pps
- a=JbAStetqSzwMeJznSMzCyw==:117 a=gOEeR9iKwsj33Yj5oN/cWg==:17
- a=A5OVakUREuEA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=iFGoPWVg5XqNsShY59gA:9 a=uxP6HrT_eTzRwkO_Te1X:22
-X-Proofpoint-GUID: EAUnNPaqQ8-srfT4TL7SVXv5mOjToenm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDA3OSBTYWx0ZWRfX1T4UJLQ6I1k8
- 4yvdVKq5G2t+gZAsGuARcOXCgWoLM8LwcGxQKU0PtdQzOkJ6Aod7EYyQZnV4efjGryXK2KsTFs5
- 2Zfw7/1kbWSQ3FePZkupR+bBc5+IqMbfHwYReNbQoUUe2wP1xuRWl2Mxri7FQKsU8MtYUxG/63M
- kBeIRSN0JoYW0FKNNL1gQf3OpyH9HKk6yaZyRlO9V4+T6hrZO5c+e1abRtZMRPYAg8aSCC1fPxl
- 2zB+KyK0adlNuyX1g6bEhvm27DLq5dV5BJiH3lblUxKWtxM5xOIqffE9LdnbA46TXRscwmczYxu
- YaJ30HEWF2p4b8pAR82/wJLOap/Qm7d2cyAgTm7oI0u2lkEpMs1XLHW/2yZLvDzIAOFCmvnOvs2
- bfW31D5CJcfJ1wUmek0uposJmxOCBQFz0S8kEXY72JfxQ3cLR0Jh8eA1Wdsv4Ftn6U7+HvfbGh9
- vFA3s3WbBvF7vBmJKwg==
-X-Proofpoint-ORIG-GUID: EAUnNPaqQ8-srfT4TL7SVXv5mOjToenm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 bulkscore=0
- suspectscore=0 clxscore=1015 spamscore=0 priorityscore=1501 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604220079
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] watchdog: qcom: Unify user-visible "Qualcomm" name
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260422082736.81981-2-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <20260422082736.81981-2-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Various names for Qualcomm as a company are used in user-visible config
-options: QCOM, Qualcomm and Qualcomm Technologies.  Switch to unified
-"Qualcomm" so it will be easier for users to identify the options when
-for example running menuconfig.
+On 4/22/26 01:27, Krzysztof Kozlowski wrote:
+> Various names for Qualcomm as a company are used in user-visible config
+> options: QCOM, Qualcomm and Qualcomm Technologies.  Switch to unified
+> "Qualcomm" so it will be easier for users to identify the options when
+> for example running menuconfig.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
----
-
-And "Qualcomm Technologies" has even variations over the tree:
-Qualcomm Technologies
-Qualcomm Technologies Inc.
-Qualcomm Technologies, Inc.
-
-I am doing this tree wide:
-https://lore.kernel.org/all/?q=f%3Akrzysztof+s%3A%22Unify+user-visible%22+s%3AQualcomm
----
- drivers/watchdog/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index dc78729ba2a5..2d3b404aee7f 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -882,7 +882,7 @@ config TEGRA_WATCHDOG
- 	  module will be called tegra_wdt.
- 
- config QCOM_WDT
--	tristate "QCOM watchdog"
-+	tristate "Qualcomm watchdog"
- 	depends on HAS_IOMEM
- 	depends on ARCH_QCOM || COMPILE_TEST
- 	select WATCHDOG_CORE
-@@ -1093,7 +1093,7 @@ config SPRD_WATCHDOG
- 	  by Spreadtrum system.
- 
- config PM8916_WATCHDOG
--	tristate "QCOM PM8916 pmic watchdog"
-+	tristate "Qualcomm PM8916 pmic watchdog"
- 	depends on OF && MFD_SPMI_PMIC
- 	select WATCHDOG_CORE
- 	help
--- 
-2.51.0
+> 
+> ---
+> 
+> And "Qualcomm Technologies" has even variations over the tree:
+> Qualcomm Technologies
+> Qualcomm Technologies Inc.
+> Qualcomm Technologies, Inc.
+> 
+> I am doing this tree wide:
+> https://lore.kernel.org/all/?q=f%3Akrzysztof+s%3A%22Unify+user-visible%22+s%3AQualcomm
+> ---
+>   drivers/watchdog/Kconfig | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index dc78729ba2a5..2d3b404aee7f 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -882,7 +882,7 @@ config TEGRA_WATCHDOG
+>   	  module will be called tegra_wdt.
+>   
+>   config QCOM_WDT
+> -	tristate "QCOM watchdog"
+> +	tristate "Qualcomm watchdog"
+>   	depends on HAS_IOMEM
+>   	depends on ARCH_QCOM || COMPILE_TEST
+>   	select WATCHDOG_CORE
+> @@ -1093,7 +1093,7 @@ config SPRD_WATCHDOG
+>   	  by Spreadtrum system.
+>   
+>   config PM8916_WATCHDOG
+> -	tristate "QCOM PM8916 pmic watchdog"
+> +	tristate "Qualcomm PM8916 pmic watchdog"
+>   	depends on OF && MFD_SPMI_PMIC
+>   	select WATCHDOG_CORE
+>   	help
 
