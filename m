@@ -1,32 +1,37 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 770B744D6A1;
-	Thu, 30 Apr 2026 15:57:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29BBA398918;
+	Thu, 30 Apr 2026 22:14:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777564631; cv=none; b=U9yDaUKceDRx/22brMFVl0pHxkjB1JP5scXdPiYaQf//WVV8Buf945N/Mn+ceSHVKmTtv0hyAHFgFPu+CLYd2acEEy49H9pB0R8v/pOHVLDH0aVaNJLHGiQeRxOyvw9YupuYsSzGjEVtBcq06LGiFNDahDT68Kdhrohz9RnNmsA=
+	t=1777587297; cv=none; b=dka9CwghK7ygH+y51fgp9lnh8SrbJhYjS7Fg5E3qwXfKhJLy0nt1IMfp9nFlizdT8mHPNAxWvgWwvUd3LnJdfz4BpkGEHg8HQwvjjrxwLul3BuRMmfGoUy2mI/wenvo++OTcVmR3a20kHmb6vxd8I4+Ec2oqfoDc4+zri5Cg4xM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777564631; c=relaxed/simple;
-	bh=ML/Gq/hV5A/wPlg9KbFCF8Ep867OfEOsOc5tVSgimb0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=c3dMgyRSiH5ZPd7Qc4i0JpbTeqhxSzMMqKy+P/Q04Ok60r/cTKIDB7faQJdiC28Tdy9Jpt7DW0jRCLVdSf32+vStRaScnpVdoAdzkRVA4ECtb7klmzn0LKsxRf/a9JFugdS4FsP9gImzVfrEYXJxX88PBvpiPeUU9hA7/PReUjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=d1AamU68; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1777587297; c=relaxed/simple;
+	bh=L29u1QOIp8Xo/BMx2jAT7c7JuZDmOuLhk5BWSi2c2/E=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=EQjvb8Qow2jiAh1ywjra1/UXMcVLoGuipGcjGRvJGTCDdFiXvqMyJlAPQEeg8E5TZI3WdQjGIqs+Dqo/TAoqJZadeIPmm2ZueecbiIdQDISeAMcUziFPNPH7iQIPp1WvgdrYXNYEn87PuZjM8EMW6EJpNJ4co0NxlqaKlSFsbOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=OkUCczH6; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="d1AamU68"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=vkY8wUCq6SWwVGjoiQuvIPR6DclDJ+7jBKT2vzC4o3U=;
-	b=d1AamU68XGemWjVM+dR5s8t+ogQmRhMitjko59eJ3Op5mVzWiiexdAm9ViEjRE
-	N9pt86rwh6/2otJ1LpjDC+jezxDkQrRpcnvH3gofhHk55ubIxiUkTeZlXv5a19cX
-	tcp6akJpHcu+1KHXxxRshk+ea2sYL1pdJZit4X9eCsB7s=
-Received: from [IPV6:240e:b8f:927e:5900:c497:d540:b00d:97f4] (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgB3X_+qe_Nppx1fBw--.175S2;
-	Thu, 30 Apr 2026 23:56:28 +0800 (CST)
-Message-ID: <52340c25-3e6d-4cf8-ab92-b01db5fac802@163.com>
-Date: Thu, 30 Apr 2026 23:56:26 +0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="OkUCczH6"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:References:Cc:To:From:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=ILpjA6mJsXY1VCB+jqECM6nEqSBRFDa47SnzT/DXMlM=; b=OkUCczH6TdVKItluZCBMb1t3DZ
+	gQ+X5fg7SI278JC0er9+Hlr9lK83SfyCzmMfP1KvebACpY42xetgIdGRqiHaMKlIMOLalOrNYEzJI
+	Ln48jNaM+0ZXIN54ubljq2BU5dOi2dWtLu2Mc+silx5u1pWI8M7Nf2WlNKQkuFRPzKuJ+S4/9gR8C
+	i6VbBbAuvszp8gdABKxqT3ni2oOFlUi4viV9kJrISeoe2AgSIziglTEfQFySlTxgn5TibLYw4OWxk
+	U3WS9EgXNpDrB8WqsKmW7zLwdPW7/XbM8Er0cJ96U51858W1jy4h1fXrtvhtw7zhuf5S/CFi8KEBN
+	Bw2+qk7g==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1wIZel-000000061lF-1Qmk;
+	Thu, 30 Apr 2026 22:14:51 +0000
+Message-ID: <8161ef45-be1a-41e2-a22b-a12d6b9df666@infradead.org>
+Date: Thu, 30 Apr 2026 15:14:49 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -34,74 +39,53 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: realtek_otto: Use FIELD_MODIFY()
-To: Guenter Roeck <linux@roeck-us.net>, sander@svanheule.net,
- wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260430154230.34218-1-18255117159@163.com>
- <2ca08749-f1b6-49c5-9281-c4f5b37e890e@roeck-us.net>
+Subject: Re: [PATCH 0/5] docs: watchdog: general cleaning and corrections
+From: Randy Dunlap <rdunlap@infradead.org>
+To: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Cc: Shuah Khan <skhan@linuxfoundation.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+ linux-doc@vger.kernel.org
+References: <20260228010402.2389343-1-rdunlap@infradead.org>
+ <875x7cddye.fsf@trenco.lwn.net>
+ <3de4c724-39bf-47f9-bf43-49552bc60a3a@infradead.org>
 Content-Language: en-US
-From: Hans Zhang <18255117159@163.com>
-In-Reply-To: <2ca08749-f1b6-49c5-9281-c4f5b37e890e@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PigvCgB3X_+qe_Nppx1fBw--.175S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7WFy7WFWfAryrZw1xWFyDWrg_yoW8ZrWrpr
-	4DAFs7Wa1UtF1j9Fy7ZFsrZ3W0y3yvqF10gr1UG3s5uFnIyrn0qFWrKr95KFs7AFyxWFWj
-	9F1UJa4kCay5Aw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zR-B_UUUUUU=
-X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/xtbCwwxhBWnze6xk6wAA3p
+In-Reply-To: <3de4c724-39bf-47f9-bf43-49552bc60a3a@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Hi Wim,
 
-
-On 4/30/26 23:53, Guenter Roeck wrote:
-> On 4/30/26 08:42, Hans Zhang wrote:
->> Use FIELD_MODIFY() to remove open-coded bit manipulation.
->> No functional change intended.
->>
->> Signed-off-by: Hans Zhang <18255117159@163.com>
+On 3/22/26 5:54 PM, Randy Dunlap wrote:
 > 
-> Please refrain from making non-functional changes such as this one.
 > 
-
-OK, maybe everyone has different preferences. Please ignore it.
-
-Hans
-
-> Guenter
+> On 3/3/26 9:23 AM, Jonathan Corbet wrote:
+>> Randy Dunlap <rdunlap@infradead.org> writes:
+>>
+>>> Fix some obvious issues in the watchdog documentation files.
+>>> I didn't try to fix every little niggling mistake.
+>>>
+>>>  [PATCH 1/5] docs: watchdog: mlx-wdt: small fixes
+>>>  [PATCH 2/5] docs: watchdog: pcwd: fix typo and driver info.
+>>>  [PATCH 3/5] docs: watchdog-api: general cleaning
+>>>  [PATCH 4/5] docs: watchdog-kernel-api: general cleanups
+>>>  [PATCH 5/5] docs: watchdog-parameters: add missing watchdog_core parameters
+>>>
+>>>  Documentation/watchdog/mlx-wdt.rst             |    4 -
+>>>  Documentation/watchdog/pcwd-watchdog.rst       |   19 +++++--
+>>>  Documentation/watchdog/watchdog-api.rst        |   38 +++++++--------
+>>>  Documentation/watchdog/watchdog-kernel-api.rst |   20 +++++--
+>>>  Documentation/watchdog/watchdog-parameters.rst |   11 +++-
+>>>  5 files changed, 58 insertions(+), 34 deletions(-)
+>>
+>> Wim, do you want to pick these up, or should I take them through the
+>> docs tree?
 > 
->> ---
->>   drivers/watchdog/realtek_otto_wdt.c | 11 ++++-------
->>   1 file changed, 4 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/watchdog/realtek_otto_wdt.c b/drivers/watchdog/ 
->> realtek_otto_wdt.c
->> index 2c30ddd574c5..cf4841583721 100644
->> --- a/drivers/watchdog/realtek_otto_wdt.c
->> +++ b/drivers/watchdog/realtek_otto_wdt.c
->> @@ -149,11 +149,9 @@ static int otto_wdt_determine_timeouts(struct 
->> watchdog_device *wdev, unsigned in
->>           || phase2_ticks > OTTO_WDT_PHASE_TICKS_MAX);
->>       v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
->> -
->> -    v &= ~(OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | 
->> OTTO_WDT_CTRL_PHASE2);
->> -    v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
->> -    v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
->> -    v |= FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
->> +    FIELD_MODIFY(OTTO_WDT_CTRL_PHASE1, &v, phase1_ticks - 1);
->> +    FIELD_MODIFY(OTTO_WDT_CTRL_PHASE2, &v, phase2_ticks - 1);
->> +    FIELD_MODIFY(OTTO_WDT_CTRL_PRESCALE, &v, prescale);
->>       iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->> @@ -279,8 +277,7 @@ static int otto_wdt_probe_reset_mode(struct 
->> otto_wdt_ctrl *ctrl)
->>           return -EINVAL;
->>       v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
->> -    v &= ~OTTO_WDT_CTRL_RST_MODE;
->> -    v |= FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, mode);
->> +    FIELD_MODIFY(OTTO_WDT_CTRL_RST_MODE, &v, mode);
->>       iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->>       return 0;
->>
->> base-commit: 3b3bea6d4b9c162f9e555905d96b8c1da67ecd5b
+> Wim, are you active?  Can you reply and/or merge these?
+
+What's happening with these 5 patches?
+
+thanks.
+-- 
+~Randy
 
