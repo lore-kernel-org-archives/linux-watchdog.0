@@ -1,728 +1,113 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13CAB3A7827
-	for <linux-watchdog@vger.kernel.org>; Sun,  3 May 2026 21:18:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4D93502A7
+	for <linux-watchdog@vger.kernel.org>; Sun,  3 May 2026 21:19:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777843125; cv=none; b=B/xgpUsDV48qkvmAdvHcjhgukhBOhdPVaBobQEPI44QH2YrqYKezAiQhjhUYktOyjNusmJajjvsANM5BC/s5Td8fdem9q5UI1WQdJyocbWv5bPwcrrgVqeX0iEIcGri0jpLiPj7Yzq2bAmsEBV1MCraThyP7lT7qy4Sq+Fo1GlU=
+	t=1777843183; cv=none; b=L0g2ismeCZoncdeHpceO4f/bT1Nsr65e9XPGEzru7oX/rKXOASduqQfk9f4NouUtnGC5v0v8ygZbRJpaMzT/mioTXa3zpznmn1kHcV7RdxijmTYCqZEQutmwqUWJgP/CNqEbTmbl/D0HIS1moxnvjhCXcrbFtAGaywxK+jjUYcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777843125; c=relaxed/simple;
-	bh=pSeOS5fC2vPSDMkXZQOYD/mW/jQuuVHPS8O8GOPFcGk=;
+	s=arc-20240116; t=1777843183; c=relaxed/simple;
+	bh=feNkQA/WNMJM98MZaQ+RDT0qpn4QbLWjzuTh/F+bh/c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BNsY049Om0Z/8qpjW+Lla9rLeRFLfQWw05DxDzQbeShDuwWPvEexR+qOTZx74dN0O/7k6H2NRrswpbb+FiB0BhHnUCJYV1x8DR2qFY0TgE4YeUsJKpPfbHEcRfwF5Fpkr5kLdLlWFnKP8fyKOYKwqjs9ihBikWu8GVBYCDG9NzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aA8SsJMs; arc=none smtp.client-ip=74.125.82.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=WlOcSpw7PIjcotcLsxaASwzkX4jDfh10y9hCqfIUNVPgmV5I5tlBwf2dMKohO2d/Aw6Lgqn2iEtZU8IRAxd7sDspPSy3MnVtbdm6eSLSx5YZyFUXY1NnFbXTMfQuZ8m8PSglU5pXdu9ffP6Km+8FBxhsSVNpCZ8CIcFxguKLBLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SepNr15C; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aA8SsJMs"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2f03d6cf77bso1154181eec.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 03 May 2026 14:18:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SepNr15C"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2f03d6cf77bso1154712eec.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 03 May 2026 14:19:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777843122; x=1778447922; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Py+NOKKz4wjmgADTca+jPw3roIUqEFZWWfa7xxa2Zw4=;
-        b=aA8SsJMsL+GJ95TVN713M8MQIPuGAPI39QvQikt45Aoh+u6iMqguYbA8w3tuCHBtqP
-         /svpMGlyZAw16/ZrhSKbE3EmwRMa9ZvoMUhnNwE5O72mCJHZCJLyGxz4cqSeCJ08XtBN
-         yM95GeZ2s24ZISQvaWSwz1lHEXQMWTbHNBcvZoZV9x1xkWs4ZOgAtaXPJAMTtYCXM4Dz
-         4ChE84ivYGXNlo+MRW+KvPL+fm784df2Sm6QzbPUlcHiOcu1iU1wjZempqui+aA0L0rD
-         j2ogv+8+JBRGVoBpC/vCoCiMi5vn7PL81Q5oA554kFwii9LakwgDiz2YgEdzNmQpUZJM
-         tS/w==
+        d=gmail.com; s=20251104; t=1777843182; x=1778447982; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rLgYvdpEC3Jx8JbxFUMvysrL+yedm7i0WZ9Ynxwtl68=;
+        b=SepNr15CjJPwTiTgvAKk2f2mN8u39NrivcP/LiV+lOXCC6c1vgEYCHJS8cKe/86UBO
+         GxADhEgZXO5813JKPFR4S81o3nrG/fqQqgu1PhBmi8nUS+4CQfrJgvOIxbvqlQ5WWCxE
+         627EaQ+Iny6BPOOFS3axB+MKmfBGEvSaQDafBm7ZAgWfPwtUDjdx8mvZxhd9IxZKzObM
+         vVyizuNXxas+CMNnK6tXMn/h0tsk1HFd5ITN3Rte/0e5aAIiwCHEhZkifDUiv3DrLV23
+         bD+A2pO+Yss0gBgoVk5ZZ+5OTNP3TnOH5+4rarrmW7ZG/PbGQTvCS6u1rK8cZ9BaURLd
+         5aGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777843122; x=1778447922;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Py+NOKKz4wjmgADTca+jPw3roIUqEFZWWfa7xxa2Zw4=;
-        b=XutnkFssamBZFwTjm2M8uo9Fk76zGKeTrGLN8rebkGCE2SBnwWRZpfae0JbcFNsK/K
-         1hLwH55u+U8VcmjS9P7192N8NC5uNXdgIphz5mvx+xC84aQX2j6xGdZ/xKRAqqZpXSzq
-         dLyazoEk3EvOnNWoKb1i5a0vQWuhgkMT5M+YgKXrz5NogKsC5DyXPeJwgluuJEMmDbGe
-         bQuAfTDsdLnSwm6VrRAmRaF4jViTMsnXXhSakFcd0tdbtk8Y+OKm3ucNNIlB8ekZE/sA
-         3iPD42PLAl+zFFBcfPofBrJYLLZa6jARh84mmQ6jlvSja7Cnl+ee63CE8a9oH5JOQupI
-         Nt6A==
-X-Forwarded-Encrypted: i=1; AFNElJ9YBg0gPcAMsgCDBBDSkQPRA2dPqFLNvUGbQXYIfV59qUIg3TH+jj61yun1YJoRlQjB/xKI+64xS15xT6MaLQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx1YpLtrCeB0GGLIqdpwa9yov0zkPZHzsvS3X17udpFwlJsuzj8
-	8R3jRrNuTvhxj4eSKQJSvT4C+xtEBs3fIGFDNiCk/b+u+6QTpXAYeZJx
-X-Gm-Gg: AeBDiev5JQkPccSrEDOkaANw9gQIYql25UzO3Cn9YUz/BRj3Ybs43VMozpRyUVAA5D8
-	6gJWvIh8IJAR8TcC9U2igWNdU9deBuUMj8fFcaHnMj2aPGrjjCM0+tGs8KDNQdyknYu6WsJPe3f
-	ZEjjAKaKbEF7nkhs8vHfFe7AQDYs41A1uUG9aBH/DRTWLRCmNfL1TnmkUXsH+XmGf3TOsWIYkRm
-	aMtX6LJIKoapIeH4rt1BD91IibmrnA4v/iX19I6je+3dXdojaojN6LP0U8T+xCtFwiKDu43kUw3
-	7vnEpMzFAylFIXjd5TZVAw+aRQIsSzzF+WnU7unZR+nCldEFqM2ch8eWthWwOY1ES89YtVnSkTM
-	3d9pdxcbfpxOnMf9EIt8lrfxRV++wfamm8+lizfSQEtESR8kue+NXL7bSR4kgkx6vB4DXHg5pYw
-	V9pVLVCOv2s71cKlA22s2PsPkygEpfZik7NyAOOIQfpziV1OI=
-X-Received: by 2002:a05:693c:3001:b0:2da:2ec2:64e5 with SMTP id 5a478bee46e88-2efbac9a7famr3043482eec.18.1777843122020;
-        Sun, 03 May 2026 14:18:42 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1777843182; x=1778447982;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rLgYvdpEC3Jx8JbxFUMvysrL+yedm7i0WZ9Ynxwtl68=;
+        b=DMe3888z4906jFYzo/f28A5cEi0KEa67J6m9DfM/ixJhzkUSeygqTof5mHBbQt3bu9
+         XZaQXuhGJ9PJo8YERvi0hIw1u4uLcF187Urbp04GK/rtKkc79zw2H+ZRZXwPjtF/emH3
+         1+jrAx6Nqio9mhAEpndB5amdACL5ute5UNdxwM2to3jRtptPFx0w3U/7DFaveJlQa4jU
+         cydvSDD/O2EXUAF+e6Bn2S+SfzbqbKNJACKocR/AxMo5K7M8SYvC7lGR6INL98ddr+jA
+         AzjHn2W4hSfrhSb+/ji3g4h8gvJXB3vgrzmgfOqUK8igIm/vpjbmxvIVW6r3gMn/DYTT
+         9eSw==
+X-Forwarded-Encrypted: i=1; AFNElJ9Dtr7p/y5Xj4PkBuQg2ZrW6iAtSvsBp31YxY4OAnmfvP3vlaHTzNonPBvyr5DT87U5G5GQYTH9zM2z6beRqQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzoyj4COtn5tuEuxkTymLwlRQybgI5kS5OV9LMgMlWwnGsQGnn4
+	lhbOiCBWpmxXXdWyZVL1R7ICf1vl4endYYaWJC47zrucm/VnKXa2WjPA
+X-Gm-Gg: AeBDiesM2pd+O2XVRnT6veT/wvpA3Sgcaeg3PRvk6y/ew/DkWUEFh+4QaMqV1o/dqb1
+	mjHwXffuep3amDaKXiQawQ8T+tyTsRmr2HdAPkbKB9qldDyTxUS1P6zTi+FBojtLzql9ja5QTTl
+	ysM4yRV06HAWKmaLqKaL9/Q3QS/xRukbgMNPlTIYcavCbnhLAKpaHrW/MMjPG/M3emH5jOxTyET
+	ejFFfbssaTZUsrsGtE1CcwkTzZIJzOnKuzFH2F9jPReAhkb2eBSyzt/70m/E/6oKy/8YlVS3lv7
+	CvqgatVJUr1qxrQ32SP+O5rsm+fVNQhorai+X02Mo1Ev2gS80MVzWXwiObsWTFGFz7eJ3gGK1ns
+	GyCaxRQAaPeNctRsldD1XF8iJ7B0ZJyJ6faiHl/fxEqPXBgmQzc/rnxxhwEKu7OhbiT8Fs0xgAs
+	CBrcDorY+ZB5PdceLm07GqC7IUGBh228modbBHtC7abHdXZnc=
+X-Received: by 2002:a05:7300:7fa7:b0:2e1:e5c0:7992 with SMTP id 5a478bee46e88-2efb91b4ce3mr2926137eec.8.1777843181672;
+        Sun, 03 May 2026 14:19:41 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f194556795sm3195209eec.2.2026.05.03.14.18.40
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3c24e738sm13058644eec.31.2026.05.03.14.19.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 May 2026 14:18:41 -0700 (PDT)
+        Sun, 03 May 2026 14:19:40 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Sun, 3 May 2026 14:18:40 -0700
+Date: Sun, 3 May 2026 14:19:39 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: CL Wang <cl634@andestech.com>
 Cc: wim@linux-watchdog.org, robh@kernel.org, krzk+dt@kernel.org,
 	conor+dt@kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	tim609@andestech.com
-Subject: Re: [PATCH V2 2/3] watchdog: atcwdt200: Add driver for Andes
- ATCWDT200
-Message-ID: <6429e68a-d215-4118-b4b7-b491cd01b129@roeck-us.net>
+Subject: Re: [PATCH V2 3/3] MAINTAINERS: Add entry for Andes ATCWDT200
+Message-ID: <68db1ae4-c95a-4512-891a-1da7452cdc1b@roeck-us.net>
 References: <20260115081444.2452357-1-cl634@andestech.com>
- <20260115081444.2452357-3-cl634@andestech.com>
+ <20260115081444.2452357-4-cl634@andestech.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260115081444.2452357-3-cl634@andestech.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260115081444.2452357-4-cl634@andestech.com>
 
-On Thu, Jan 15, 2026 at 04:14:43PM +0800, CL Wang wrote:
-> Add support for the Andes ATCWDT200 watchdog timer. The driver implements
-> programmable reset and interrupt timers, and includes automatic detection
-> of the supported IntTime bit-width.
-> 
-> Integrated with the Linux watchdog framework, it supports basic operations
-> including start, stop, ping, timeout configuration, and system reset via the
-> restart handler.
+On Thu, Jan 15, 2026 at 04:14:44PM +0800, CL Wang wrote:
+> Add a MAINTAINERS entry for the Andes ATCWDT200 watchdog driver and its
+> associated Device Tree bindings.
 > 
 > Signed-off-by: CL Wang <cl634@andestech.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
-> Changes in v2:
->   - Use devm_clk_get_enabled() instead of devm_clk_get() and
->     clk_prepare_enable()
->   - Drop unnecessary "andestech,qilai-wdt" compatible
->   - Remove .owner assignment from platform_driver
->   - Simplify resume error handling
-> ---
->  drivers/watchdog/Kconfig         |   9 +
->  drivers/watchdog/Makefile        |   1 +
->  drivers/watchdog/atcwdt200_wdt.c | 580 +++++++++++++++++++++++++++++++
->  3 files changed, 590 insertions(+)
->  create mode 100644 drivers/watchdog/atcwdt200_wdt.c
+>  MAINTAINERS | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index d3b9df7d466b..f5d3c1227385 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -2140,6 +2140,15 @@ config WATCHDOG_RTAS
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 12f49de7fe03..1a1c2b68252a 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -1817,6 +1817,12 @@ S:	Supported
+>  F:	drivers/clk/analogbits/*
+>  F:	include/linux/clk/analogbits*
 >  
->  # RISC-V Architecture
->  
-> +config ATCWDT200_WATCHDOG
-> +	tristate "Andes ATCWDT200 Watchdog support"
-> +	depends on ARCH_ANDES || COMPILE_TEST
-> +	help
-> +	  Driver for the Andes ATCWDT200 watchdog timer. It provides access to
-> +	  programmable reset and interrupt counters with clock-source dependent
-> +	  timing. The driver automatically detects the supported IntTime bit-width
-> +	  and is fully integrated with the Linux Watchdog Framework.
-> +
->  config STARFIVE_WATCHDOG
->  	tristate "StarFive Watchdog support"
->  	depends on ARCH_STARFIVE || COMPILE_TEST
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index ba52099b1253..aaecf7899380 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -201,6 +201,7 @@ obj-$(CONFIG_PSERIES_WDT) += pseries-wdt.o
->  obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
->  
->  # RISC-V Architecture
-> +obj-$(CONFIG_ATCWDT200_WATCHDOG) += atcwdt200_wdt.o
->  obj-$(CONFIG_STARFIVE_WATCHDOG) += starfive-wdt.o
->  
->  # S390 Architecture
-> diff --git a/drivers/watchdog/atcwdt200_wdt.c b/drivers/watchdog/atcwdt200_wdt.c
-> new file mode 100644
-> index 000000000000..8e3b18aea368
-> --- /dev/null
-> +++ b/drivers/watchdog/atcwdt200_wdt.c
-> @@ -0,0 +1,580 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Andes ATCWDT200 watchdog timer driver.
-> + *
-> + * Copyright (C) 2025 Andes Technology Corporation
-> + */
-> +
-> +#include <linux/bitfield.h>
-> +#include <linux/clk.h>
-> +#include <linux/device.h>
-> +#include <linux/dev_printk.h>
-> +#include <linux/math64.h>
-> +#include <linux/minmax.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/pm.h>
-> +#include <linux/pm_runtime.h>
-> +#include <linux/regmap.h>
-> +#include <linux/watchdog.h>
-> +
-> +/* Register definitions */
-> +#define REG_CTRL		0x10
-> +#define REG_RESTART		0x14
-> +#define REG_WRITE_EN		0x18
-> +#define REG_STATUS		0x1C
-> +
-> +/* Control Register */
-> +#define CTRL_RST_TIME_MSK	GENMASK(10, 8)
-> +#define CTRL_RST_TIME_SET(x)	FIELD_PREP(CTRL_RST_TIME_MSK, x)
-> +#define CTRL_INT_TIME_MSK	GENMASK(7, 4)
-> +#define CTRL_INT_TIME_SET(x)	FIELD_PREP(CTRL_INT_TIME_MSK, x)
-> +#define CTRL_INT_TIME_GET(x)	FIELD_GET(CTRL_INT_TIME_MSK, x)
-> +#define CTRL_RST_EN		BIT(3)
-> +#define CTRL_CLK_SEL		BIT(1)
-> +#define CTRL_CLK_SEL_PCLK	1
-> +#define CTRL_CLK_SEL_SET(x)	FIELD_PREP(CTRL_CLK_SEL, x)
-> +#define CTRL_WDT_EN		BIT(0)
-> +
-> +/* Restart Register */
-> +#define RESTART_MAGIC		0xCAFE
-> +
-> +/* Write Enable Register */
-> +#define WRITE_EN_MAGIC		0x5AA5
-> +
-> +/* Status Register */
-> +#define STATUS_INT_EXPIRED	BIT(1)
-> +
-> +/* The default timeout value in seconds */
-> +#define ATCWDT_TIMEOUT		4
-> +
-> +/* Define the array size for each timer type */
-> +#define TMR_SZ_RST		8
-> +#define TMR_SZ_INT_16		8
-> +#define TMR_SZ_INT_32		16
-> +
-> +#define DRV_NAME		"atcwdt200"
-> +/**
-> + * enum timer_type - Supported timer types for ATCWDT200 watchdog driver
-> + * @TMR_RST:      Reset timer (non-interrupt).
-> + * @TMR_INT_16:   16-bit interrupt timer supported by hardware.
-> + * @TMR_INT_32:   32-bit interrupt timer supported by hardware.
-> + * @TMR_UNKNOWN:  Timer type cannot be determined.
-> + */
-> +enum timer_type {
-> +	TMR_RST,
-> +	TMR_INT_16,
-> +	TMR_INT_32,
-> +	TMR_UNKNOWN
-> +};
-> +
-> +static unsigned int timeout = ATCWDT_TIMEOUT;
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +
-> +/**
-> + * struct atcwdt_drv - ATCWDT200 watchdog driver private data
-> + * @wdt_dev:        Watchdog device used by the watchdog framework.
-> + * @regmap:         Register map for accessing hardware registers.
-> + * @clk:            Hardware clock used by the watchdog timer.
-> + * @lock:           Spinlock protecting register accesses and driver state.
-> + * @clk_freq:       Input clock frequency of the ATCWDT200.
-> + * @clk_src:        Selected clock source for the watchdog timer.
-> + * @int_timer_type: Detected interrupt timer type (16-bit, 32-bit, or unknown).
-> + */
-> +struct atcwdt_drv {
-> +	struct watchdog_device	wdt_dev;
-> +	struct regmap		*regmap;
-> +	struct clk		*clk;
-> +	spinlock_t		lock;
-> +	unsigned int		clk_freq;
-> +	unsigned char		clk_src;
-> +	unsigned char		int_timer_type;
-> +};
-> +
-> +static const struct watchdog_info atcwdt_info = {
-> +	.identity = DRV_NAME,
-> +	.options = WDIOF_SETTIMEOUT |
-> +		   WDIOF_KEEPALIVEPING |
-> +		   WDIOF_MAGICCLOSE,
-> +};
-> +
-> +/**
-> + * atcwdt_get_index - Get the interval value for the specified timer type
-> + * @index: The index of the interval in the array
-> + * @timer_type: The type of timer, which can be TMR_RST, TMR_INT_16, or
-> + *              TMR_INT_32.
-> + *
-> + * This function retrieves the interval value based on the timer type and
-> + * ensures the index stays within the valid range for the given timer type.
-> + * For TMR_RST:
-> + *  - The maximum array size is 8 (index range: 0-7).
-> + * For TMR_INT_16:
-> + *  - The maximum array size is 8 (index range: 0-7).
-> + * For TMR_INT_32:
-> + *  - The maximum array size is 16 (index range: 0-15).
-> + *
-> + * If the index exceeds the maximum array size, the function will return
-> + * the last element of the respective array.
-> + */
-> +static inline unsigned char atcwdt_get_index(unsigned char index,
-> +					     enum timer_type timer_type)
-> +{
-> +	static const unsigned char rst_timer_interval[TMR_SZ_RST] = {
-> +		7, 8, 9, 10, 11, 12, 13, 14};
-> +	static const unsigned char int_timer_interval[TMR_SZ_INT_32] = {
-> +		6, 8, 10, 11, 12, 13, 14, 15, 17, 19, 21, 23, 25, 27, 29, 31};
-> +	unsigned char array_index;
-> +
-> +	if (timer_type == TMR_RST) {
-> +		array_index = min(index, TMR_SZ_RST - 1);
-> +		return rst_timer_interval[array_index];
-> +	}
-> +
-> +	if (timer_type == TMR_INT_32)
-> +		array_index = min(index, TMR_SZ_INT_32 - 1);
-> +	else
-> +		array_index = min(index, TMR_SZ_INT_16 - 1);
-> +
-> +	return int_timer_interval[array_index];
-> +}
-> +
-> +/**
-> + * atcwdt_get_clock_period - Calculate the closest clock period based on a
-> + *                           given tick count
-> + * @tick: The target tick count to match
-> + * @timer_type: The type of timer, which can be TMR_RST, TMR_INT_16, or
-> + *              TMR_INT_32.
-> + * @index: Pointer to store the index of the selected parameter
-> + *
-> + * This function calculates the closest clock period to the given tick count
-> + * by iterating through the timer parameters and selecting the one that
-> + * minimizes the difference between the target tick count and the calculated
-> + * clock period. The function determines the index of the closest parameter
-> + * and returns the difference between the target tick count and the selected
-> + * clock period.
-> + *
-> + * Return: The difference between the target tick count and the selected
-> + * clock period.
-> + */
-> +static long long atcwdt_get_clock_period(long long tick,
-> +					 enum timer_type timer_type,
-> +					 unsigned char *index)
-> +{
-> +	long long result;
-> +	unsigned char size;
-> +	char i;
-> +
-> +	if (timer_type == TMR_RST)
-> +		size = TMR_SZ_RST;
-> +	else if (timer_type == TMR_INT_32)
-> +		size = TMR_SZ_INT_32;
-> +	else
-> +		size = TMR_SZ_INT_16;
-> +
-> +	*index = size - 1;
-> +	for (i = 0; i < size; i++) {
-> +		result = tick - (1LL << atcwdt_get_index(i, timer_type));
-> +
-> +		if (result <= 1) {
-> +			*index = i;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return result;
-> +}
-> +
-> +/**
-> + * atcwdt_get_timeout_params - Calculate optimal parameters for Watchdog Timer
-> + * @drv_data: Pointer to the Watchdog driver data structure
-> + * @timeout: Desired timeout value (in seconds)
-> + * @int_timer_params: Pointer to store the calculated interrupt timer
-> + *                    parameter index
-> + * @rst_timer_params: Pointer to store the calculated reset timer parameter
-> + *                    index
-> + *
-> + * This function calculates the optimal parameter combination for the
-> + * interrupt timer and reset timer of the Watchdog Timer to achieve a
-> + * timeout value closest to, but not less than the specified timeout.
-> + *
-> + * Algorithm:
-> + * 1. The parameters for both the interrupt timer and reset timer are
-> + *    predefined as a series of options represented as powers of 2.
-> + * 2. The function first determines the interrupt timer's parameter index
-> + *    that provides a time closest to and not exceeding the desired timeout.
-> + * 3. Based on the selected interrupt timer, it calculates the required
-> + *    reset timer parameter to ensure the total timeout matches the target.
-> + *
-> + * Return: The calculated parameter indices are stored in the provided
-> + *         pointers.
-> + */
-> +static void atcwdt_get_timeout_params(struct atcwdt_drv *drv_data,
-> +				      unsigned int timeout,
-> +				      unsigned char *int_timer_params,
-> +				      unsigned char *rst_timer_params)
-> +{
-> +	long long rest_time_ms;
-> +	long long result;
-> +	long long tick;
-> +	unsigned char rst_index;
-> +	unsigned char int_index;
-> +	unsigned char above;
-> +	unsigned char below;
-> +
-> +	tick = (long long)timeout * drv_data->clk_freq;
-> +	result = atcwdt_get_clock_period(tick,
-> +					 drv_data->int_timer_type,
-> +					 &above);
-> +	if (result == 0 || above == 0) {
-> +		*int_timer_params = above;
-> +		*rst_timer_params = 0;
-> +		return;
-> +	}
-> +	below = above - 1;
-> +
-> +	int_index = atcwdt_get_index(below, drv_data->int_timer_type);
-> +	rest_time_ms = timeout * 1000LL
-> +		       - div64_s64(1000LL << int_index, drv_data->clk_freq);
-> +
-> +	result = atcwdt_get_clock_period(rest_time_ms * drv_data->clk_freq,
-> +					 TMR_RST,
-> +					 &rst_index);
-> +
-> +	if (result > 1) {
-> +		*int_timer_params = above;
-> +		*rst_timer_params = 0;
-> +	} else {
-> +		*int_timer_params = below;
-> +		*rst_timer_params = rst_index;
-> +	}
-> +}
-> +
-> +/**
-> + * atcwdt_get_int_timer_type - Get the supported interrupt timer type.
-> + * @drv_data: Pointer to the watchdog driver data structure.
-> + *
-> + * This function tests the writable bits in the IntTime field of the control
-> + * register to determine the interrupt timer type supported by the hardware.
-> + *
-> + * Note: This function must only be called when the ATCWDT200 watchdog is
-> + * disabled. If the watchdog is enabled, this function returns TMR_UNKNOWN.
-> + *
-> + * Returns: The interrupt timer type supported by the hardware.
-> + */
-> +static int atcwdt_get_int_timer_type(struct atcwdt_drv *drv_data)
-> +{
-> +	struct device *dev = drv_data->wdt_dev.parent;
-> +	unsigned int val;
-> +	int ret  = 0;
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_read(drv_data->regmap, REG_CTRL, &val);
-> +	if (val & CTRL_WDT_EN) {
-> +		spin_unlock(&drv_data->lock);
-> +		return TMR_UNKNOWN;
-> +	}
-> +
-> +	/*
-> +	 * Configures the IntTime field with the maximum mask value
-> +	 * (CTRL_INT_TIME_MSK), reads its value from the control register
-> +	 * to identify the maximum writable bits.
-> +	 */
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +	regmap_write(drv_data->regmap, REG_CTRL, CTRL_INT_TIME_MSK);
-> +	regmap_read(drv_data->regmap, REG_CTRL, &val);
-> +	spin_unlock(&drv_data->lock);
-> +
-> +	val = CTRL_INT_TIME_GET(val);
-> +	switch (val) {
-> +	case 7:
-> +		drv_data->int_timer_type = TMR_INT_16;
-> +		break;
-> +	case 15:
-> +		drv_data->int_timer_type = TMR_INT_32;
-> +		break;
-> +	default:
-> +		drv_data->int_timer_type = TMR_UNKNOWN;
-> +		ret = dev_err_probe(dev, -ENODEV,
-> +				    "Failed to detect interrupt timer type\n");
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int atcwdt_ping(struct watchdog_device *wdt_dev)
-> +{
-> +	struct atcwdt_drv *drv_data = watchdog_get_drvdata(wdt_dev);
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +	regmap_write(drv_data->regmap, REG_RESTART, RESTART_MAGIC);
-> +	regmap_update_bits(drv_data->regmap, REG_STATUS, STATUS_INT_EXPIRED,
-> +			   STATUS_INT_EXPIRED);
-> +	spin_unlock(&drv_data->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_set_timeout(struct watchdog_device *wdt_dev,
-> +			      unsigned int timeout)
-> +{
-> +	struct atcwdt_drv *drv_data = watchdog_get_drvdata(wdt_dev);
-> +	unsigned int value;
-> +	unsigned char  rst_val;
-> +	unsigned char  int_val;
-> +
-> +	wdt_dev->timeout = timeout;
-> +	atcwdt_get_timeout_params(drv_data, timeout, &int_val, &rst_val);
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +
-> +	value = CTRL_RST_TIME_SET(rst_val) |
-> +		CTRL_INT_TIME_SET(int_val) |
-> +		CTRL_CLK_SEL_SET(drv_data->clk_src);
-> +	regmap_update_bits(drv_data->regmap,
-> +			   REG_CTRL,
-> +			   CTRL_RST_TIME_MSK |
-> +			   CTRL_INT_TIME_MSK |
-> +			   CTRL_CLK_SEL,
-> +			   value);
-> +
-> +	spin_unlock(&drv_data->lock);
-> +	atcwdt_ping(wdt_dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_start(struct watchdog_device *wdt_dev)
-> +{
-> +	struct atcwdt_drv *drv_data = watchdog_get_drvdata(wdt_dev);
-> +
-> +	atcwdt_set_timeout(wdt_dev, wdt_dev->timeout);
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +	regmap_update_bits(drv_data->regmap,
-> +			   REG_CTRL,
-> +			   CTRL_RST_EN | CTRL_WDT_EN,
-> +			   CTRL_RST_EN | CTRL_WDT_EN);
-> +
-> +	spin_unlock(&drv_data->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_stop(struct watchdog_device *wdt_dev)
-> +{
-> +	struct atcwdt_drv *drv_data = watchdog_get_drvdata(wdt_dev);
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +	regmap_update_bits(drv_data->regmap,
-> +			   REG_CTRL,
-> +			   CTRL_RST_EN | CTRL_WDT_EN,
-> +			   0);
-> +	spin_unlock(&drv_data->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_restart(struct watchdog_device *wdt_dev,
-> +			  unsigned long action, void *data)
-> +{
-> +	struct atcwdt_drv *drv_data = watchdog_get_drvdata(wdt_dev);
-> +
-> +	atcwdt_set_timeout(wdt_dev, 0);
-> +
-> +	spin_lock(&drv_data->lock);
-> +	regmap_write(drv_data->regmap, REG_WRITE_EN, WRITE_EN_MAGIC);
-> +	regmap_update_bits(drv_data->regmap,
-> +			   REG_CTRL,
-> +			   CTRL_RST_EN | CTRL_WDT_EN,
-> +			   CTRL_RST_EN | CTRL_WDT_EN);
-> +	spin_unlock(&drv_data->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_ops atcwdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = atcwdt_start,
-> +	.stop = atcwdt_stop,
-> +	.ping = atcwdt_ping,
-> +	.set_timeout = atcwdt_set_timeout,
-> +	.restart = atcwdt_restart,
-> +};
-> +
-> +static int atcwdt_init_resource(struct platform_device *pdev,
-> +				struct atcwdt_drv *drv_data)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	void __iomem *base;
-> +	const struct regmap_config cfg = {
-> +		.name = "atcwdt",
-> +		.reg_bits = 32,
-> +		.val_bits = 32,
-> +		.cache_type = REGCACHE_NONE,
-> +		.reg_stride = 4,
-> +		.max_register = REG_STATUS,
-> +	};
-> +
-> +	base = devm_platform_ioremap_resource(pdev, 0);
-> +	if (IS_ERR(base))
-> +		return dev_err_probe(dev, PTR_ERR(base),
-> +				     "Failed to ioremap I/O resource\n");
-> +
-> +	drv_data->regmap = devm_regmap_init_mmio(dev, base, &cfg);
-> +	if (IS_ERR(drv_data->regmap))
-> +		return dev_err_probe(dev, PTR_ERR(drv_data->regmap),
-> +				     "Failed to create regmap\n");
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_enable_clk(struct atcwdt_drv *drv_data)
-> +{
-> +	struct device *dev = drv_data->wdt_dev.parent;
-> +	unsigned int val;
-> +	int clk_src;
-> +
-> +	drv_data->clk = devm_clk_get_enabled(dev, NULL);
-> +	if (IS_ERR(drv_data->clk))
-> +		return dev_err_probe(dev, PTR_ERR(drv_data->clk),
-> +				     "Failed to get watchdog clock\n");
-> +
-> +	drv_data->clk_freq = clk_get_rate(drv_data->clk);
-> +	if (!drv_data->clk_freq)
-> +		return dev_err_probe(dev, -EINVAL,
-> +				     "Failed to get clock rate\n");
-> +
-> +	clk_src = device_property_read_u32(dev, "andestech,clock-source", &val);
-> +	drv_data->clk_src = (!clk_src && val != 0) ? CTRL_CLK_SEL_PCLK : 0;
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_init_wdt_device(struct device *dev,
-> +				  struct atcwdt_drv *drv_data)
-> +{
-> +	struct watchdog_device *wdd = &drv_data->wdt_dev;
-> +
-> +	wdd->parent = dev;
-> +	wdd->info = &atcwdt_info;
-> +	wdd->ops = &atcwdt_ops;
-> +	wdd->timeout = ATCWDT_TIMEOUT;
-> +	wdd->min_timeout = 1;
-> +
-> +	watchdog_set_nowayout(wdd, nowayout);
-> +	watchdog_set_drvdata(wdd, drv_data);
-> +
-> +	return 0;
-> +}
-> +
-> +static void atcwdt_calc_max_timeout(struct atcwdt_drv *drv_data)
-> +{
-> +	unsigned char rst_idx = atcwdt_get_index(0xFF, TMR_RST);
-> +	unsigned char int_idx = atcwdt_get_index(0xFF,
-> +						 drv_data->int_timer_type);
-> +
-> +	drv_data->wdt_dev.max_timeout =
-> +		((1U << rst_idx) + (1U << int_idx)) / drv_data->clk_freq;
-> +}
-> +
-> +static int atcwdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct atcwdt_drv *drv_data;
-> +	int ret;
-> +
-> +	drv_data = devm_kzalloc(dev, sizeof(*drv_data), GFP_KERNEL);
-> +	if (!drv_data)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, drv_data);
-> +	spin_lock_init(&drv_data->lock);
-> +
-> +	ret = atcwdt_init_wdt_device(dev, drv_data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = atcwdt_init_resource(pdev, drv_data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = atcwdt_enable_clk(drv_data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = atcwdt_get_int_timer_type(drv_data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	atcwdt_calc_max_timeout(drv_data);
-> +
-> +	ret = devm_watchdog_register_device(dev, &drv_data->wdt_dev);
-> +
-> +	return ret;
-> +}
-> +
-> +static int atcwdt_suspend(struct device *dev)
-> +{
-> +	struct atcwdt_drv *drv_data = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(&drv_data->wdt_dev)) {
-> +		atcwdt_stop(&drv_data->wdt_dev);
-> +		clk_disable_unprepare(drv_data->clk);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int atcwdt_resume(struct device *dev)
-> +{
-> +	struct atcwdt_drv *drv_data = dev_get_drvdata(dev);
-> +	int ret = 0;
-> +
-> +	if (watchdog_active(&drv_data->wdt_dev)) {
-> +		ret = clk_prepare_enable(drv_data->clk);
-> +		if (ret)
-> +			return ret;
-> +		atcwdt_start(&drv_data->wdt_dev);
-> +		atcwdt_ping(&drv_data->wdt_dev);
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct of_device_id atcwdt_match[] = {
-> +	{ .compatible = "andestech,ae350-wdt" },
-> +	{ /* sentinel */ },
-> +};
-> +MODULE_DEVICE_TABLE(of, atcwdt_match);
-> +
-> +static DEFINE_SIMPLE_DEV_PM_OPS(atcwdt_pm_ops, atcwdt_suspend, atcwdt_resume);
-> +
-> +static struct platform_driver atcwdt_driver = {
-> +	.probe = atcwdt_probe,
-> +	.driver = {
-> +		.name = DRV_NAME,
-> +		.of_match_table = atcwdt_match,
-> +		.pm = pm_sleep_ptr(&atcwdt_pm_ops),
-> +	},
-> +};
-> +
-> +module_platform_driver(atcwdt_driver);
-> +
-> +module_param(timeout, uint, 0);
-> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-> +		 __MODULE_STRING(ATCWDT_TIMEOUT) ")");
-> +
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("CL Wang <cl634@andestech.com>");
-> +MODULE_DESCRIPTION("Andes ATCWDT200 Watchdog timer driver");
+> +ANDES ATCWDT200 WATCHDOG DRIVER
+> +M:	CL Wang <cl634@andestech.com>
+> +S:	Supported
+> +F:	Documentation/devicetree/bindings/watchdog/andestech,ae350-wdt.yaml
+> +F:	drivers/watchdog/atcwdt200_wdt.c
+> +
+>  ANDROID DRIVERS
+>  M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>  M:	Arve Hjønnevåg <arve@android.com>
