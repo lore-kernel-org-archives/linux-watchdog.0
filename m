@@ -1,67 +1,66 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B0A628725F
-	for <linux-watchdog@vger.kernel.org>; Sun,  3 May 2026 16:23:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587873AD507
+	for <linux-watchdog@vger.kernel.org>; Sun,  3 May 2026 16:40:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777825409; cv=none; b=aVXQKjlsVSJMMog9YU2CFjbebRIP/0IYl7R8b3lF4kvy6E3YQ9xFqS+uSZZrt1mE62sd0GOPwTWSplpjiCtjQ/Z2BpbplUbsvqRQneZ+Rt3Kd62lIZvCDc2cnioZJ8tUqJwD3hWzfw+C3OWm6K+VpZBjClb4YkNlK19VgIzBQc4=
+	t=1777826433; cv=none; b=gke/4QVeELX03RRHGqNvmU+wJHUE4VMo7w3IFGQlrS9sfh//5iiytsSuvpmcQD5DMAVQLXEl09Gw4CZnTjMa4fWy2rvUxg9tx7ddrsOa4Ig02vzHTBte2A5fXJZs7mVNim+3vv/c+KMb/j8q7zwDkw/dqnITa8lUZkdGOCb2LBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777825409; c=relaxed/simple;
-	bh=AU8uX/9QIZh+nkXVC8vazf5SRa8LZmsjPkn0h7pKYG8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XKUz5DhNisk/DGpunaUhR31P8Jx4H4AgN2w7ghMiZElU0v9BEHikrKZCPc1tsvymZs9vhLIxSAyUUnWeUWxBNwLo4eabi6ld0WZDhhLPXxlBlDrODb+nQGVDKNeA5VLIAdxANpzylROAPwezP7V93nKDLVl3QGpK1TxIkjV7ILE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hj/Wb9IV; arc=none smtp.client-ip=209.85.214.182
+	s=arc-20240116; t=1777826433; c=relaxed/simple;
+	bh=5bqxIaO9vNBFwkNDR/oPf8CtAo2ukQtitjgkmrWX73s=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=dMHqSnsIkeKylepKVffGuPjFMNn7YJDCECXN8YAYC+fM2BSqXezwqS7OLAKiwdc6LL2DgusmLiDwyup0pSb9+pDZZBm2Pyk7VrClcpI/FKGBvTCk2R1SwK+YXoe7Wdg0kXotgJOBP9LAZG+P5Dy0ZcKsbMJZY4R03qZtdBd8O3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c17P+dFI; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hj/Wb9IV"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ad4d639db3so13886405ad.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 03 May 2026 09:23:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c17P+dFI"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ba17c8cfacso4810905ad.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 03 May 2026 09:40:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777825407; x=1778430207; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=5xiDZPBkQgeFtdiERgaxOn/EIewBOTyO0UzdhSq+3D4=;
-        b=Hj/Wb9IVemBNJIa3qgDWGAHImmznuqKEHlqWxvUslVkNaWc1bSaFGUVIemroR3Ipum
-         yc+MC4F4Ble8uTsMAdiael9coQe/leJ9LUvbjt3X3JzQN1OVv/5km6mzJZIXKq1dwmfJ
-         JanKVXaMPUAuMbrlbmCl5LiGcfL5Azzj6toR0tqPEum8st5j9a4N0jEZuQkscutKCyIE
-         UOVpYmHiap9AnvgfNX5VzaJQo7cB8OfCf7e1kpA4qWD1zDmTkwwtc7/24Z3hab8b/KEU
-         HVpRNaZF9lcHWFFspcPG8G4JjO8akwUCqEuv8eqdaZsUfB2qMw2bMxrt6qh6mpJIQF4Y
-         fOUw==
+        d=gmail.com; s=20251104; t=1777826431; x=1778431231; darn=vger.kernel.org;
+        h=content-transfer-encoding:autocrypt:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5bqxIaO9vNBFwkNDR/oPf8CtAo2ukQtitjgkmrWX73s=;
+        b=c17P+dFIxY2mK82ZLwyZS8Dr52HLK3i95If1CEY5RWaCFayGWimUj9E9Qo6E1iK5pN
+         jW5EwbC59SiVdX0t4FM/n4ovsmlOPYJhmLVW+mWM+bAm6rlDiCsWiaRpZaNl+iDuVINb
+         +wHVCsFoBiJv4KyYtEI/o+wchpCC7+hijZ6AWh8JnwWJI9/e2KcCacDwFrP/m2iAg5Fy
+         E77O5071E1ThpTOrCjBjV08D0l0d+cbg3ixPTe1vJtIWg9zdNn9hqYb3063vzYtYwrzJ
+         bYI2kTnRMc9dc7iG52xrRZ0EksVKyUsFi/KC0QRvaxFOY2a99IyumLpxzI/7wqD0oFsh
+         TKUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777825407; x=1778430207;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5xiDZPBkQgeFtdiERgaxOn/EIewBOTyO0UzdhSq+3D4=;
-        b=RFeNCXyO1e9o9zMju4hEjiYSyyI03zXwlFwEChuLH1bm0wohoKIFJ+UmpgTSiOKsYE
-         3OIqtaQEwX3D34Rnj993SoI+reqkyCj1E9KbWQaZ2NcR1MobYGH8ub917TfFaZE/VRg8
-         bDZsDzQ1Z08tA9CUFPQrzUZvtojOByWNmjPhtMZUxjGlIMpNK39YTMbm2nW/2Jfs2Pjs
-         1lxc0r8pzcgAd//96/hpu0tL7cew9jXUq6zzOw7Vi0OHKW3bY5ZIgd3nadbz1xEXpoRw
-         eTPoKok6afK656Yq00rINu7B+JtTvTGViwlOy/Lxt4VX3btsC55wwRY2Qo8/ywgIv9sX
-         +Q8w==
-X-Gm-Message-State: AOJu0YwBRAU3Sviz1T48Lv07FH3jTMYlq6pnjyplVeghCphds2jpjXqx
-	nKDr0CjhmNtmZ+ZBHAMcsYrgAyNWSHYktF5O22TjM5zAVnVkE/Tlux5/
-X-Gm-Gg: AeBDietwXmjPOu88gIQs8jn4SPL+OK4n/yYuAh2it+X7X8MlNEGrVRiwuym5xtUA684
-	efrNoyK0aYlrVuiV2umHHXw35kvlwfGhcGkrOtKcQtBRbie0cjkjmkqJYWHesum6R90eOsyYCF+
-	NBYVdCTo/hSSEFsv/9qi6PcKM2jmYbrr60Z2G82ojeWm/DhwghyqahQ7Wt7G4hhwhAGtnE5ejaS
-	iDm9wY3gXfHupca18bQ/jAco8Mjnx7xEj5cVxPG6GM4u5/8gFC6edAfmKoUdiZ1gRSEW57xyR6q
-	NWPa0CxXArY8DhEdMAd03CbJp+AEbvuCy6hqEHJGuiBXkvsBJPjGEh3rXr/49NRrTOMUa75GDng
-	Ge3AxHz1u2n4+V8bvplh/7jsPhzd5vlq41fTSSfwvp32g2du80uFe1/7sb/CZjyFQF25GyUwkV+
-	Wh0A5f45nzlI1Uw3lhz0JIsktC/YcVSufMibiEmkDqvFk9W9HgCCsxhD68mft6QGcNnHmCZZ0Zz
-	ttYKK8lmxg=
-X-Received: by 2002:a17:902:7086:b0:2b2:497e:3f60 with SMTP id d9443c01a7336-2b9f2618a69mr43689305ad.33.1777825407477;
-        Sun, 03 May 2026 09:23:27 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1777826431; x=1778431231;
+        h=content-transfer-encoding:autocrypt:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id:sender
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5bqxIaO9vNBFwkNDR/oPf8CtAo2ukQtitjgkmrWX73s=;
+        b=MDqGNoOMQs7JYtf51ulZIP2iiow2iMNKd/BtAOjSnBdPmO8Xn0Yv+xMEY2liWsCqTM
+         tOo2SM+TkDhgJ+b8OLppber0lPlT/ccrDoY778E5RU0MGVfd2bL9qE7NQcwdvuy/i/BK
+         Msxu0BjdIBvt8LtrcXM9r3ciGzI6++Ro9lEdFgKT8/crizYGW1yLiTHNdNr8EhVtitbu
+         +hIydZGML3MH7RLYDGtB3cGeF7oEJwhrCmKtfysJFENWrEj3D3VTPi2Ln/rvkoMKIqh6
+         07TnefvWJOD+HD0lfWbnZslvYOLtF4VJw77F7wPc0uDi/hFwD3V0uagt/4oj+xQYaOH8
+         tWyg==
+X-Gm-Message-State: AOJu0YwIfjWCID8txvW3CpeNiZitRIvxSIHhX0AfwY1BUl9da0xSzC9d
+	09TMM/cBI/MNXqBgblw8T7NTaMedLZS7kOG1E9iBQrcalrejB4xfr8dB5/cYsg==
+X-Gm-Gg: AeBDietoi8VYONzF7vq+TEQ6UD7hfIOYnXwA5xNYSrr7sD+kP6+XmTPZq4Q4HwNqqGh
+	5Zoc9qbEU5j3lsqJur+Ow1EvCYSkpJd0xZKd77cvfnZzZBuoaY7Hk+kzNmC+/9k2m+tFs+7yp0E
+	b919Rvh3KOJYHeC/0C9TUiX+GMSgkcvyw7njqBBCWERF7DJg0IoqFfMstBvDTFiMR3lk0jXVlXL
+	HPAoIgVIDzJytdZ7vdSyBK78/6BtWkV5XFK5E/uPoK4ZHh55SwFEFNdwdQ73NoCUIG9bDoo5s3f
+	fFLsCl31F798ZlkJdvyRvyc9xXYnKmGvIE1dEviJ8akfNsJyYe3dEngLyeX/M8C6qIZnXDnzYCQ
+	84U+pEmcX/0d8MREMGenDP0SHMJy2CNvi3EoWUZ72g1RCj5Sj+bBN8n6L9s+E7qvwr8l3XwJT/m
+	chf0bL9ZPOLCSLl0htJP4qaoNtEmYdcLVJYo+DtFwnNIV/WRf4eBHfZEqRTKfi39u3Y0FzEgAiM
+	8CeQZWDTKM=
+X-Received: by 2002:a17:903:2408:b0:2b0:c90f:44b2 with SMTP id d9443c01a7336-2b9f25657afmr68615205ad.12.1777826431357;
+        Sun, 03 May 2026 09:40:31 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9cae6ac32sm80739445ad.83.2026.05.03.09.23.26
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9caad2459sm76538925ad.33.2026.05.03.09.40.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 03 May 2026 09:23:26 -0700 (PDT)
+        Sun, 03 May 2026 09:40:30 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <25916fdf-22e2-4884-a78f-a7926a99b63e@roeck-us.net>
-Date: Sun, 3 May 2026 09:23:24 -0700
+Message-ID: <2ca2a562-f9b6-4a68-a3a6-1fe4c03e7b40@roeck-us.net>
+Date: Sun, 3 May 2026 09:40:29 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,14 +68,13 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/5] watchdog: dw_wdt: reset clean up and pm
-To: Artem Shimko <a.shimko.dev@gmail.com>, wim@linux-watchdog.org,
- p.zabel@pengutronix.de, Sergey.Semin@baikalelectronics.ru,
- mika.westerberg@linux.intel.com, andi.shyti@kernel.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260320135624.223863-1-a.shimko.dev@gmail.com>
 Content-Language: en-US
+To: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 From: Guenter Roeck <linux@roeck-us.net>
+Subject: Picking up watchdog pull requests starting with the 7.2 commit window
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -120,40 +118,17 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260320135624.223863-1-a.shimko.dev@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi,
+Hi all,
 
-On 3/20/26 06:56, Artem Shimko wrote:
-> Hello maintainers and reviewers,
-> 
-> Patch 1 moves reset_control_deassert() before any register access to
-> ensure the watchdog controller is properly taken out of reset before
-> configuration, fixing a potential hardware access issue.
-> 
-> Patch 2 adds proper error handling for reset_control_deassert() to
-> prevent probe from continuing when reset deassertion fails, improving
-> diagnostics and reliability.
-> 
-> Patch 3 replaces manual reset control management with the
-> devm_reset_control_get_optional_shared_deasserted() helper, eliminating
-> explicit reset_control_assert() calls in error paths and remove.
-> 
-> Patch 4 adds reset line management during system suspend and resume,
-> asserting the reset before clocks are disabled and deasserting after
-> clocks are re-enabled to maintain consistent hardware state.
-> 
-> Patch 5 is a final cleanup of the resume function error handling.
-> 
-> Thank you!
+I have not heard from Wim recently, and he did not send a watchdog
+pull request for the 7.1 commit window.
 
-Please check the AI review feedback at
-
-https://sashiko.dev/#/patchset/20260320135624.223863-1-a.shimko.dev%40gmail.com
-
-and address the concerns.
+Unless Wim informs me that this was an exception and that he will
+continue sending pull requests going forward, I'll handle watchdog
+subsystem pull requests starting with the 7.2 commit window.
 
 Thanks,
 Guenter
