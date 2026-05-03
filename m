@@ -1,52 +1,48 @@
 Received: from ms.lwn.net (ms.lwn.net [45.79.88.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56EEB294A10;
-	Sun,  3 May 2026 15:20:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BE1D294A10;
+	Sun,  3 May 2026 15:21:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.79.88.28
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777821609; cv=none; b=FcJgWFaBOhoJA92Vn81f0owHneCiQb6f3AinLZE6mWzTqt4efmwkSINCPBbv0n85Y6FvezdDUwCqOTmxeKrDslmrfrQguce7RddYRob3gZr1x417ECr+AemtZqJUlYuFwmzCkvWvwZ0pjrvpdrmLmrSN47TNNfOmYN7HrAyaIZg=
+	t=1777821666; cv=none; b=Ds3TZeMT6NhKe61u1H/Te9VNk969gJ0OdxwA44Ri674nm7Tsd/9UjSUpGqVsSzhnunc4BBGxnUaRxIbYHet7mEKEeuXr0YwufQRjK0KKN3eZTZgIxA5rCPy5BWn5l4J6JdjNyuLAOodOTTRDJPst1SJiMc6i6rQh69a7Vvr6ndo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777821609; c=relaxed/simple;
-	bh=9ZQLZrpN6NElVWbLzuO0+GvkcQGqZk0/OsuHr2gFPS8=;
+	s=arc-20240116; t=1777821666; c=relaxed/simple;
+	bh=oRzSBmvaC0wDFlpC1BmnAf1wkzWW3YM+yLa46mPJhe4=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=cMNZUevaeQbp0iFF17AOZDa/XJ/Ov6emlgmB18Oa7hwwoKpnNMdZnRiJwOfye6UY2KnOZZ7v2p1E+A9vLiPKH5GvaxYaGmOE/yvCpmG9f287911kVwiv1YOvjq7QqBLXcavb/M65QmWBEsSnT8+OKJ0HKQClQQac/pXmwoktA8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net; spf=pass smtp.mailfrom=lwn.net; dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b=OtrTiV6d; arc=none smtp.client-ip=45.79.88.28
+	 MIME-Version:Content-Type; b=r44lHsHKFKttWVMy/P/L8HDE0impxzq7gm/8y7reBvVObzuwkJxJWvP65MZHMDLBjTy+V2CQP3oglSyK+63hR/sL3cbAUgoD/RH9ZNvrOtbuv1seKWuSOr301cCvYBTvW228hZRw4NAuX2vjs8aB45Qlqv13AAsxkO3MdV5wQ3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net; spf=pass smtp.mailfrom=lwn.net; dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b=PgPDhotf; arc=none smtp.client-ip=45.79.88.28
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lwn.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b="OtrTiV6d"
-DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net 5631341202
+	dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b="PgPDhotf"
+DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net A3B1741202
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lwn.net; s=20201203;
-	t=1777821607; bh=hyfQhY3k7z88MNS6iDnDpL/YX26gYfj5GP8756dXVhM=;
+	t=1777821665; bh=CKwv6HzDtRDzQd3GF544mljP79vzRuJnefhhL5BGSR4=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=OtrTiV6dkVylcA+7ksi20vpk/wA/C644ENcRHpzt2R35cZvRxYyvfLCDuEaLjM7UZ
-	 8gBp8DUouskYUu9Juj8ojbF2hGvON0k0m0dfPrOlYmUL7uFUy1BwncVsKkJ0FfB7il
-	 QNnKLt00YsC21HmWKwedU3txcHUhdo88bpuAPK66862ZnM85kqU2MMwliboYkDrOGC
-	 fJHkcfUKYI/kFAMGdomN8QDy7UgIOoOrZIr/JbQlLd8QhUGqzZoFsnOPKrvAQWPdcO
-	 i88sGE4Y08vHGBPrnFJRDDj5fP0FMWV65G1o+xybzQluch9W6+5LUoZk+dXBAjA2t7
-	 lFhKE907ZI9zg==
+	b=PgPDhotfB8RC4NYluBPHq3TKLUgca5Z2sfYTm/mV5oig2KTS0dDFsgun5OH0DnBwc
+	 6NPzxD7m2KKdntO3t1ed+ZRvTtKRmm1R6CN/i2Uy2UVKgwRvQc1P2KYVrJUdLVtxLg
+	 tdVBBGK882R/2PW38vZdN63tRvtlVCKeaokpA/kWjfPrMAohGx7Sxkbeg+XUBFM53a
+	 FX4YV8bSNhW4QyR6qwasGuRpv6l3OBCWg/KUeodUxhrMXCYhbp7eLh5FnIC3qZo0Y/
+	 z/urAEd6xAjl7MNlQd1PvAwHPFDBeyXCrWkN0ps/FRDNIp8QjHxwMwVBsp1JhBGbkK
+	 EmEcSkDRE+9Rw==
 Received: from localhost (mdns.lwn.net [45.79.72.68])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by ms.lwn.net (Postfix) with ESMTPSA id 5631341202;
-	Sun,  3 May 2026 15:20:07 +0000 (UTC)
+	by ms.lwn.net (Postfix) with ESMTPSA id A3B1741202;
+	Sun,  3 May 2026 15:21:04 +0000 (UTC)
 From: Jonathan Corbet <corbet@lwn.net>
-To: Guenter Roeck <linux@roeck-us.net>, Randy Dunlap
- <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
-Cc: Shuah Khan <skhan@linuxfoundation.org>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
- linux-doc@vger.kernel.org
-Subject: Re: [PATCH 0/5] docs: watchdog: general cleaning and corrections
-In-Reply-To: <7a5971b2-e067-40cb-8d15-aaf1926af3c3@roeck-us.net>
-References: <20260228010402.2389343-1-rdunlap@infradead.org>
- <875x7cddye.fsf@trenco.lwn.net>
- <3de4c724-39bf-47f9-bf43-49552bc60a3a@infradead.org>
- <8161ef45-be1a-41e2-a22b-a12d6b9df666@infradead.org>
- <7a5971b2-e067-40cb-8d15-aaf1926af3c3@roeck-us.net>
-Date: Sun, 03 May 2026 09:20:05 -0600
-Message-ID: <87tssobjve.fsf@trenco.lwn.net>
+To: Randy Dunlap <rdunlap@infradead.org>, Wang Zihan <3772548978@qq.com>,
+ linux-watchdog@vger.kernel.org
+Cc: wim@linux-watchdog.org, linux@roeck-us.net, skhan@linuxfoundation.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documentation: watchdog: Fix typo "oncse" -> "once"
+In-Reply-To: <9a6393f4-6aec-4f64-b3ef-9566206c4ac7@infradead.org>
+References: <tencent_61E8FB326F4582DB0074952B9FE4A239CE05@qq.com>
+ <9a6393f4-6aec-4f64-b3ef-9566206c4ac7@infradead.org>
+Date: Sun, 03 May 2026 09:21:02 -0600
+Message-ID: <87pl3cbjtt.fsf@trenco.lwn.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -55,46 +51,33 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 
-Guenter Roeck <linux@roeck-us.net> writes:
+Randy Dunlap <rdunlap@infradead.org> writes:
 
-> On 4/30/26 15:14, Randy Dunlap wrote:
->> Hi Wim,
+> On 5/2/26 4:19 AM, Wang Zihan wrote:
+>> Fix a typo in mlx-wdt.rst documentation.
 >> 
->> On 3/22/26 5:54 PM, Randy Dunlap wrote:
->>>
->>>
->>> On 3/3/26 9:23 AM, Jonathan Corbet wrote:
->>>> Randy Dunlap <rdunlap@infradead.org> writes:
->>>>
->>>>> Fix some obvious issues in the watchdog documentation files.
->>>>> I didn't try to fix every little niggling mistake.
->>>>>
->>>>>   [PATCH 1/5] docs: watchdog: mlx-wdt: small fixes
->>>>>   [PATCH 2/5] docs: watchdog: pcwd: fix typo and driver info.
->>>>>   [PATCH 3/5] docs: watchdog-api: general cleaning
->>>>>   [PATCH 4/5] docs: watchdog-kernel-api: general cleanups
->>>>>   [PATCH 5/5] docs: watchdog-parameters: add missing watchdog_core parameters
->>>>>
->>>>>   Documentation/watchdog/mlx-wdt.rst             |    4 -
->>>>>   Documentation/watchdog/pcwd-watchdog.rst       |   19 +++++--
->>>>>   Documentation/watchdog/watchdog-api.rst        |   38 +++++++--------
->>>>>   Documentation/watchdog/watchdog-kernel-api.rst |   20 +++++--
->>>>>   Documentation/watchdog/watchdog-parameters.rst |   11 +++-
->>>>>   5 files changed, 58 insertions(+), 34 deletions(-)
->>>>
->>>> Wim, do you want to pick these up, or should I take them through the
->>>> docs tree?
->>>
->>> Wim, are you active?  Can you reply and/or merge these?
+>> Signed-off-by: Wang Zihan <3772548978@qq.com>
+>> ---
+>>  Documentation/watchdog/mlx-wdt.rst | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
 >> 
->> What's happening with these 5 patches?
->> 
+>> diff --git a/Documentation/watchdog/mlx-wdt.rst b/Documentation/watchdog/mlx-wdt.rst
+>> index 35e690dea..3778f85d1 100644
+>> --- a/Documentation/watchdog/mlx-wdt.rst
+>> +++ b/Documentation/watchdog/mlx-wdt.rst
+>> @@ -48,7 +48,7 @@ which is optional.
+>>  Watchdog can be started during a probe, in this case it will be
+>>  pinged by watchdog core before watchdog device will be opened by
+>>  user space application.
+>> -Watchdog can be initialised in nowayout way, i.e. oncse started
+>> +Watchdog can be initialised in nowayout way, i.e. once started
+>>  it can't be stopped.
+>>  
+>>  This mlx-wdt driver supports both HW watchdog implementations.
 >
-> It looks like Wim did not send a pull request for watchdog this time around/
-> Wim, are you still active, or should I send pull requests going forward ?
+> This typo is also fixed in my 5-patch series (pending).
 
-OK, rather than let these languish further, I've just applied them.
-
-Thanks,
+...which I just applied, so this patch here is no longer relevant.
+Thank you, though, for working to make our documentation better!
 
 jon
