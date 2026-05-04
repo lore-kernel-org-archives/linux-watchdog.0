@@ -1,68 +1,67 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FF233D903B
-	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:00:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EE0F3DE43E
+	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:07:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777903242; cv=none; b=qMsKhpLtW2NeSOBeOqt8W2JZ4t+jESXKS9UnADCqEa0yzHTgYXyM47pvwJB2FS+haj2iE5KxKxZhT50TBhscRdPdXHvWR0fBFkYnj8BVEUgwMLyGMvY4O/smiuI9L1e6psj7HSWAVQKMh1Z9KyQlnlYZA+39A3fQp5CHVL6Wbbk=
+	t=1777903626; cv=none; b=Ax2WDqkVZfXftgcXK8NtoIjvf8byvqJzH1527FOcYM2RlhkITMBpu8w1Uui2E+3VtKbhPV4ZfiQh6GGefjtyqUoJYh23WlnV7cpXkxN7cpZLhx76D4zI1VfeQYEHhCxFMuZ9zRes56Sxalb78V4OdMUYidoDg6z/KUf5+ZkxRTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777903242; c=relaxed/simple;
-	bh=iHaftcTqitqfEL8aKeac2JITawARGyqIIZiSUd8g2zg=;
+	s=arc-20240116; t=1777903626; c=relaxed/simple;
+	bh=p4TNWXFzxSZPs+w/zTaBL/06Fie+A/+SzSybmOLSStU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Go3QZajtyPH+7YcIisgff+JfppSHn+YjG2uOdun7F7GBAlQ2O/rkADBnXjYBUCkz/VElgSRDLdpZgItFF1Y2u5uK+wiAaSRZY9SapDM1XTFxeZh06MYtHvXt1CkVETRtroWIji9nn0VjeCm/PlWJiqZBYf22sIuyyKv+Mkkgj8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DEP5FsOp; arc=none smtp.client-ip=74.125.82.182
+	 In-Reply-To:Content-Type; b=DVxeesxEtEwpOt9/rsBEM6HTmbktwOovyXewYvilOej0IKw0ryMcdg/vETFc7/IYxg38AAWE2TDKJOLmsiEp1HPnvKja5/6fnmLM0/HLYOjyPjVxuig6vvSPtmw8E/q/nzD5G3wtIsFE05hQWegW3CGCwOih14oiU2oglOxFs+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SPTtcrGr; arc=none smtp.client-ip=74.125.82.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DEP5FsOp"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2ef84d016d9so5754513eec.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:00:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SPTtcrGr"
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12c88e5f4aeso2365332c88.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:07:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777903240; x=1778508040; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777903625; x=1778508425; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=/YTk2nDKYd7OY/nacfXAHyEI+eJLH72/J35x49WHgEM=;
-        b=DEP5FsOpaheoxXcvoNBbDrHeIGbJ1X8Ca6aegsVR/FxPLQ0SAxVYQBEtZwobNxMogL
-         ftJ/FvMpBwxpmSh8THnYpmiZIeY6r0iZapyK9Ss2zi3AAy0yUyg3P4/XC+gfw79b7jt6
-         3hnr4XBcKqieDR0L8743gI1fnGkDXx6kBmd+o9iGmTnc2Yet20cAY63+hD+FLy5pCAlk
-         kOLLoqfUgsNbYx/CsFMetAbn0kzwBVVRrNQC/1f3KPxcpRGet03XGZTb2qPVn+nrQpQj
-         tA3eWIpNgjzXsHvNZyVc1NlR+Ivw3PLP32Whns0tJvdyQrReN0OdAcAr3FoNQvBjeCvE
-         FTKw==
+        bh=5SodUFa5OKjCfXMMyR31CKP2Q/lfXpF4gL//OT3nY2c=;
+        b=SPTtcrGroGEU73ZsQ6kyPeV35+zMj72/O+FJTPzsx62zSoGqyat5zhR/9RPWgSLi6A
+         EuVKwCNncJhbrQ57p+Eolv2loT8Gs+S7a41UfXnsxdHl/Mxclp1ncrQQ8DCbA4B+2Gn0
+         5TpFePo0dGgJR9bGrBnNQgjdQV8C2vbq0mIC0W+N8pUuVTX3YWacOar3Ka0kx/2jIbCY
+         eSkJ+wVjBLv6AQQ0Bt427Jvro3mG+I5kYeRwHTEEA58THEErAgQrj0SPRCcqzJkrv7iE
+         CgmtYi4GCmbdoHO3lDTXmSHuLgD/AjB5USutrek9nb2mb6bpil3fNCcuF3SSHYJNPKY/
+         TK/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777903240; x=1778508040;
+        d=1e100.net; s=20251104; t=1777903625; x=1778508425;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/YTk2nDKYd7OY/nacfXAHyEI+eJLH72/J35x49WHgEM=;
-        b=kLc2fmNCPKWYdJbcBWjLyBtbeFjVK3WNKREPd6wmZL+c6ULhELx2ovFZLb7hTEy6fW
-         UpllZqDxGxzcQmYSsSf0pGJl4uDdn1cOagl8+veNnYzlF15SaYoroZyqlpBJmfqRyZp7
-         RHdjki6J+F6grCg/Sc4AlbvRkQw8HuL/QIhmDpVCFE50is5sVyCdZ5h1frPDb+z7LUOk
-         PcYWJIflZY0nrEQIwBq0yQWYAI1SLpBH5auLTOWt0KtVSLzmHjqxeLN+zHZ9L1eYTqHc
-         3W6cSmkWsEP+r30JEPvNzu1xaV1OYsouIILsvuKiQhIvA75mLJX3su0Rd4GKKe9YhHHZ
-         nOiA==
-X-Forwarded-Encrypted: i=1; AFNElJ/ywp42N17cZYJOV7JDrkJx68L2tqNp+n9Q/NZMzG3NV6Syl25SzKPXpcn5gkfXiN0zn9LZwlNIKaq6mHuauA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx9NZOwfD8McsJGWIT7XLY2WFPtHSaO+i3D5ChcOBqu+xlA+kqg
-	JLbOn8VOyffRhEH22lqiq/56qu+d+059J2f+UTYpGG1pbkSYurRm5pcCoYHPtg==
-X-Gm-Gg: AeBDiet33IBozZ5KqihwptWacEBuS2jIYoZYO2U0qcN8rYlCbbie/RMQKiGEQ8wSdi5
-	nfs9C4vl/YLQ7PO3TGQuhevcIdYz7NEWx2msD4GFH3HUY04L1BJ4FDnYfJbvj9faHaSrEi6EUui
-	hMcyKP8rSaCRZWATb3/EEa2yf/5RDlGYmdjBe6HGhmpH/EaRIhaTzHlKD2xxVeyxKgCTHdFTick
-	vw66C23vPIPAaGV3Zk0/UmLweTvDe/wBIAGEdOo0K+LYqpOXn9/AlctLIpNIGgxw8Gzy4mRCBpw
-	arMrKs78mnWFw1x+CQVLKIri7tCh8mgpr/XJNshS1CxCkzDhTFnS7LxHM+4TEHdCN07r1hPe10U
-	/mBWS5Z9ATcDtu7yvunW59GhRu4f7iuU7ndb3qejfzz6WDfeVf+z1GDZ+ADz/lHb6R903N3joHE
-	KH67Z+qP1y/NYYk860uRlUjStmD9aZFcDoSDgLcBgewf/ib7NataL/v8zlk0vkeK0XPOoe/QUCj
-	GiMhvFospc=
-X-Received: by 2002:a05:693c:3111:b0:2ef:9961:27fa with SMTP id 5a478bee46e88-2efb999a952mr4556878eec.18.1777903238837;
-        Mon, 04 May 2026 07:00:38 -0700 (PDT)
+        bh=5SodUFa5OKjCfXMMyR31CKP2Q/lfXpF4gL//OT3nY2c=;
+        b=pmH4k+sYzbTqOfDgBa4Aow7iMh586Vf0Hoq15QnZYYyWC7pH/incHB56ofQixkfgsT
+         IULMxUXhuPMZa/tQ45wxDWcVItRNXUDExpmgtBWBz2fPd8cqSRStwSiVaZGBKz7AU7R7
+         dDTx2h7KXSsA0x+ZnTQWzut4nizGXUew/EW9GR1Qua8mCA+vjIdxaFiCkPy6SFyWo9xS
+         5SnBJaFF/6AWjR2Qp5jm7gCwtVxUrl/4FMJ03d+IGjnKPC2dqX+BxckiQq6GK85QcJr1
+         uh7b1UqcixO8ch0zaBfrexD7Uj95+K15ZeXiuFInwZk/wnzVKIj8SR0CSaGD6Ld2z5I8
+         YVww==
+X-Gm-Message-State: AOJu0YyJvxA3bFHbMkJnE1d1E/LjZqsLTS2LDfCba47MHeRaR91io9v6
+	C/sppn/Dh9Q+sJyJjrHe+BPt4m1eZ/xT3+5ICa11ddgqKenELF3rgArZOGmlOA==
+X-Gm-Gg: AeBDievQhUlWud24dd0kWEE50UqNpKERVIGnsYnAMwpfqVNd9M7TB+2Q91+/TP2vGTl
+	db5gK/o8o5u+KaUSH+YFY0WGLmavvSsyW5xJm9t3jcwuBVHxYWeX67vdT4CgTctlPyLD5/2rhZS
+	CxjXCvCrQfmmCaFaHZRha/6dmGp71P9fe3r9hQ4/d4r+eekB5y4WlYKwARLfmgCCOKgndU8OUZC
+	q2uAqyukN4Ze/sxseouHyKjYf/fKbuZF0yeOzIS8le1EaX6nl4isgCx02og092aYs6APYl0e52f
+	8vm8MzfoMY6HiAE1kAcK5nfWNnqjNkn7fTz8SruH5T6zfnOCDq+7eAvlPHfJSgCXT8dZJ5i1Rhy
+	+vDUaKPK8hk8u43OFF6L4LKownUxAtoSOnhFeDz9QtB0yDzBFlnOMS3fi+shotSo417jjtDa7oT
+	LflwTZIHYAjGiSd64fci4922SDLTRNexlvOlZDPVOhrp36zYfi13y1D7u3AoxfCkMm9NwbhMr2u
+	fJ9dbL8La8=
+X-Received: by 2002:a05:7022:60b:b0:12c:9037:5115 with SMTP id a92af1059eb24-12dfd596e21mr3853981c88.13.1777903624413;
+        Mon, 04 May 2026 07:07:04 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3c24e738sm15688941eec.31.2026.05.04.07.00.37
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12df8424ef1sm20329083c88.9.2026.05.04.07.07.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 May 2026 07:00:38 -0700 (PDT)
+        Mon, 04 May 2026 07:07:03 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <4bebbb8f-ee24-4aa2-8ab2-a46dac145f06@roeck-us.net>
-Date: Mon, 4 May 2026 07:00:36 -0700
+Message-ID: <fa76f946-f943-418b-a06a-b36b001c14a0@roeck-us.net>
+Date: Mon, 4 May 2026 07:07:02 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,12 +69,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6/6] watchdog: Prefix WDT with ICS for clarity
-To: Philipp Hahn <p.hahn@avm.de>, Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: Philipp Hahn <phahn-oss@avm.de>, linux-watchdog@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <cover.1777892508.git.phahn-oss@avm.de>
- <a0a05dca5531c6a5ce0cc772dfa0c0522538e23f.1777892508.git.phahn-oss@avm.de>
+Subject: Re: AW: [PATCH 1/6] watchdog: Fix wrong SPDX license identifier
+To: Philipp Hahn <p.hahn@fritz.com>,
+ "sashiko@lists.linux.dev" <sashiko@lists.linux.dev>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+References: <5557c8ab4a62750c95631f6f78be7d2b11e091fc.1777892508.git.phahn-oss@avm.de>
+ <20260504111735.3D387C2BCB8@smtp.kernel.org>
+ <232833f9-5542-4f4c-9bdd-92f72b0597d3@roeck-us.net>
+ <FR3P281MB22523AF9022B4059696D33BF97312@FR3P281MB2252.DEUP281.PROD.OUTLOOK.COM>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,75 +122,30 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <a0a05dca5531c6a5ce0cc772dfa0c0522538e23f.1777892508.git.phahn-oss@avm.de>
+In-Reply-To: <FR3P281MB22523AF9022B4059696D33BF97312@FR3P281MB2252.DEUP281.PROD.OUTLOOK.COM>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 5/4/26 04:02, Philipp Hahn wrote:
-> From: Philipp Hahn <phahn-oss@avm.de>
+On 5/4/26 06:52, Philipp Hahn wrote:
+> Hello Guenher,
 > 
-> `wdt.rst` is only about the Watchdog timer from "Industrial Computer
-> Source" (ICS). Change the title to better express this.
+>> linux-next$ scripts/checkpatch.pl --strict -f Documentation/watchdog/index.rst
+>> total: 0 errors, 0 warnings, 0 checks, 18 lines checked
+>>
+>> Documentation/watchdog/index.rst has no obvious style problems and is ready for submission.
+> 
+> Sorry for the wrong file, but it was …/wdt.rst which `checkpatch` complained about.
+> 
+>> Please refrain from unnecessary churn, and from making false statements
+>> ("to silence checkpatch").
+> 
+> Sorry for that, v2 is on its way.
+> 
+> Thank you for your mail and sorry for the extra work.
 > 
 
-Please also explain "ICS" into the documentation file.
+By sending v2 without giving me a chance to finish reviewing v1 you did create
+even more extra work :-(
 
-We can not rename the Kconfig symbol, but I'd also suggest to rename
-the documentation to icswdt.rst or maybe better watchdog-ics.rst.
-
-Additional comment below.
-
-Thanks,
 Guenter
-
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
-> ---
->   Documentation/watchdog/wdt.rst | 6 +++---
->   drivers/watchdog/Kconfig       | 6 +++---
->   2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/Documentation/watchdog/wdt.rst b/Documentation/watchdog/wdt.rst
-> index d97b0361535b0..be8cc0b9f31e1 100644
-> --- a/Documentation/watchdog/wdt.rst
-> +++ b/Documentation/watchdog/wdt.rst
-> @@ -1,6 +1,6 @@
-> -============================================================
-> -WDT Watchdog Timer Interfaces For The Linux Operating System
-> -============================================================
-> +================================================================
-> +ICS WDT Watchdog Timer Interfaces For The Linux Operating System
-> +================================================================
->   
->   Last Reviewed: 10/05/2007
->   
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index dc78729ba2a5d..2cbf0391a065a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -2270,10 +2270,10 @@ config MIXCOMWD
->   	  Most people will say N.
->   
->   config WDT
-> -	tristate "WDT Watchdog timer"
-> +	tristate "ICS WDT Watchdog timer"
-
-WDT is now redundant. Maybe "ICS WDT500P/WDT501P Watchdog timer" to
-match the PCI variant.
-
->   	depends on ISA
->   	help
-> -	  If you have a WDT500P or WDT501P watchdog board, say Y here,
-> +	  If you have an ICS WDT500P or WDT501P watchdog board, say Y here,
->   	  otherwise N. It is not possible to probe for this board, which means
->   	  that you have to inform the kernel about the IO port and IRQ that
->   	  is needed (you can do this via the io and irq parameters)
-> @@ -2304,7 +2304,7 @@ config PCIPCWATCHDOG
->   	  Most people will say N.
->   
->   config WDTPCI
-> -	tristate "PCI-WDT500/501 Watchdog timer"
-> +	tristate "ICS PCI-WDT500/501 Watchdog timer"
->   	depends on PCI && HAS_IOPORT
->   	help
->   	  If you have a PCI-WDT500/501 watchdog board, say Y here, otherwise N.
 
