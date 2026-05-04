@@ -1,68 +1,68 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A87C735A3AD
-	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:11:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76D4A3DE443
+	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777903889; cv=none; b=nLbtOUjyoNInJXh+uh307zUFfB4/fgSe5m141zVnC7ehC0lCZYzflvlXa9CUc4lzOacZtlPhkgk/LpSsNXThjOe+IOuB/UIegNjCuuRktnYozPL4J8D7tZ8FNhoH4G8j07vpusLxeE/9IyWYR8F1gjh34SUy834iQ6SKRlBtyTs=
+	t=1777904202; cv=none; b=L6BafOOAd4f9lEgM9kh0yfK+vJyKbM+gxoQcVrlviKXGTTa8lhmtoZP+UovyVmgR+C4dx+8wuPu/xeTDpEGvj5EESbZ1lZQ8brng2vhqArEnWhmsRDNteqrcqj0BylZwB7Gvx3Ahn1yl0k0exZvesZC4zls6dfXniL3flL9dAhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777903889; c=relaxed/simple;
-	bh=wXXpEQc9x30X0qg5Z6HGj0zyIUFo72oFGCUTCaDm7g4=;
+	s=arc-20240116; t=1777904202; c=relaxed/simple;
+	bh=8NpFRk5qaRCO0QWiYuYd00LdSkCVjtBob+PJLV4SjKQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FfEIDIWcGFX5vmrPdpHa+4jEMbe1FaOqaMx4tEHq0jAzf2NWWFDs/BK+z0cyHppVEufd50NPtrRzncem0KZxPFjjB9tXVzkoG7MnmFsRYoa/Y/2IBqoczMQG4/fiZwhkYoSR+kCGlAu/irsPl6LKmepXkuiVjv2W9oyaVUNqt24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LkwrJ/SV; arc=none smtp.client-ip=74.125.82.178
+	 In-Reply-To:Content-Type; b=GqQOzQfkgMG+xSzYmCmuc80rnq2YFHnJ2mrjuSnnGJExhIeAAqLG0UOv52HnJ/uC1lNlNBk4UjQe6+KR1ACKUo1UYF5ApFtHMtl8Q6eAUiWxdr4FPg95fAf+ZNdhflxHIRzRFY+NpOHUcqbkVVvM9+Lh3ZYwx0l6vRYr5o3z/wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A2BHYhaJ; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LkwrJ/SV"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2c156c4a9efso6887574eec.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:11:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A2BHYhaJ"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2ee1054627bso2678482eec.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:16:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777903888; x=1778508688; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777904200; x=1778509000; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=L+DIvmTgHmOKPTVnBRAWjfnew4V3iUKxG9iUGvSM7d0=;
-        b=LkwrJ/SVai+GGyp0BOr/fH03gMHhlRfQnx7CGWCgWis+QADU8Z0KQi7myck4I/JwWY
-         20kwfth3erhu7x82YYIY2DPGBBWze4Zy8Vn10yPP1kZD+T6+Evcw7XqHwGRwVh7TlelA
-         gzh8gb08bVstJsKB8UwIs4A+LJkMnvpPLSG9AyX0xZCstpuJgoQLpH9rLLU99mhSZmkk
-         aoC5Xx5Dm+vhOEhoCiteUop7LJhnNOwu9sEIqPDmOLstDd3j89docqc/1AHYvv8L3kdR
-         PtwdBpL+5PQSmgHsrOSk6NcFK4g4z4h3BddXDjd3hipySe1bCYw9vFG/8RSHem9dhDrD
-         mCpw==
+        bh=3ARTaXEgvtjMhd/qQb8EhGE66tnkubR0b6AJQjnyMQo=;
+        b=A2BHYhaJ792plBzRRYh0R9zTqlI7T5DumxRKbZxOkuAkpkTAQj669C/nsHo1fakZRZ
+         qbExDfWz90sYsWrJ8pvOvigcRUKeML4ByXMDNvBhhTIH0lN8TVk2jqIV8JgX9Jg68G/O
+         okxLL5N4P6bQCt5TXGC0DcbqopZ2NCzb7/+n/8p3glShcNKFsUORY+Lj2U7x8xuRWiop
+         Opy1geAlTCC2Wo6e/zxynd/WBhQJFOmlAKv1srt58KbPm2GMlPcA2pYYLGlZNxmSXaXM
+         4kgkxb+SQZf3uvzxAc01FX4+y0Tb0MzZL2VwOPcvvaFzE9zi2VDwW7IOabb8fb7xPjdf
+         EGGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777903888; x=1778508688;
+        d=1e100.net; s=20251104; t=1777904200; x=1778509000;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=L+DIvmTgHmOKPTVnBRAWjfnew4V3iUKxG9iUGvSM7d0=;
-        b=XYoYnXQTLMTXCvHoXG45Xrlj6qxaK4dUHRTlSl1gMr+E/w4Is0zuSrQBo0UKluGFRD
-         EazyFNtHTnYASBwtMAlMAh5toeoGA7cXFaAzxmu4T6CkglOYCbUufeuyKD7N37ckqef9
-         s5XNSH1a3wkdwpp7S9Ke2xvoD861vB/fY2MJ+u1N1LJjep+o3sDm0tNfaNSeMhYJxUR+
-         /FoUH1D4Pf3snalBE4aCPkT99+L/14MCaQGaO5UK2Qj2dYZPMHKqK0/CRikYXFGF5L/U
-         OZfxfK3Wl/xcmCPJX5tc5eY/c1OkMNGvxTcGd4O3ywmfRN4bHdx8syq1lBVkQuThK6sY
-         ovvQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8lwxFCJkCmjsCECFt8vguls9X7Ix2sN1F1Dhv9uTlIifYQWz0LFhnD22QN2AQjI1KEhiMKa5/6cs9tQfVJCQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXuCxZ9SSJoJonfcjISX00JaLyXHH8zrkCJjOYQ5cBBhdW1RWM
-	WUDFRwz95ZbgPINFxl03kTfws2I0Yz+P2XATWWRU9MAPPyaC37VbcvM9
-X-Gm-Gg: AeBDiet1n/gs10wJBaBaUGNMzUgB2UX8tU9YuCyKqMz6mLP+XYki1Tzf8T7uo8z0E1N
-	pcqLW8eYU6xtwRJl71ERusH7YyjS7WKC03nxGIReyKt6xd3OUlJm5X9PV8VqYj2GOI1T5Lm6W5i
-	was2whP20ey/OPPuislacNXY3YtJb4pwmHgOWPYdJNO11BS3PbuteKN5WfZ5N7oNmigj3lcUTwE
-	OvEMqKYSWSQfIphoZpuksz/Kb2KkDVUfDab1GDyxIKa5hITv5KYwSwBgkiTC6MbrBdlpWm5sk2e
-	+2v4YE6XH3XMP/on6Qyntuk1A2cTs7lunfNk6P6yZr1IWtrMTNS/6x71g2NubUR7fOmPdwjuKpt
-	0gFFY0c8O4el+QsDwcxgy87XIGGgUlMOoiIfWo6DPpfHDxeMLYK/S9A/2Rse+bQLVpgWN9RT4aL
-	N1ZEEh7KbhR9fOjLE22j0Upqlw628sA5rUoPZvbO6TgzNvrszV9poVhLd3mmUW5XhN3gFf32nqT
-	/ArHFBSHDA=
-X-Received: by 2002:a05:7300:7490:b0:2e0:909a:b9c with SMTP id 5a478bee46e88-2efb87a8d28mr3924903eec.15.1777903887557;
-        Mon, 04 May 2026 07:11:27 -0700 (PDT)
+        bh=3ARTaXEgvtjMhd/qQb8EhGE66tnkubR0b6AJQjnyMQo=;
+        b=HyzoFgY94g9gUj/k5SJO5cHVMxzG60yoNYcldQqAQxDOICnkMVolia/RM+2BiyHhxs
+         TYJu6T0mg1o1eqIumTSIYsbR0Y8mJI0O5kiNvYKmdZxDSEhBPBuoiyfJMoS8j42YiklI
+         /9Bovxgg0D0xobjmerAD8QfilT2SBQzpDGXRiqeL8MmzbVifHpW7KKY4/rJR17mHaupx
+         QPnPai0R0Su4OSbA2bbPI2DbrCzc2hUDt6mJUNraMZQhxkY3a9Oo/Sm5yEV7klLNTnJm
+         SVz82G+u7hv4FBzj3CAQ7DTT7+7veUbClIHFcLHPyT/Wr06ngs7D9qGAI50TbGq7S/fF
+         v2MQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/LT47BSpyvi4PE1zbNpwz6UOtXaHz/wmqIisA00j5MR19G82ovGlCrP6nRjcpEIqobvw7emZirmoUxAJoSFw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyhADZqNPyYWpkojtvPB9CG//UkdTq1X/A10c7eTso384it3fCK
+	Mb62sjP2uQMTqV+WvHsOnbimhjT8x8vpF5v/3XkrdX0ieC5O4vhARoqz
+X-Gm-Gg: AeBDievecRvWbHcOUWDnihigIJD2GRW1KbYY7rQkm8iZVKb6YJ3wVyh05f5P8qpekLA
+	fZU6EeCR+XLmiEyi7PaLie/od3Zc09VX7IaExd4WUBDwCMcpR/7GVvzYu2pVSdSlLZwRVT0tfHt
+	vZQqO+zwMLNibm5sojvTNsIXvvXwhr+u9aR8mWo01Hrrb250PJ2wycvFicr4w3hOL9M5DOqxlMt
+	hAPRRc9uK/RUr6Esonp0ZeCsLXhh5Hm2XkZEhotxq0BmOHRQ3CU3SNc/aNRD8LLVJeabVzItZYw
+	MxPdCSP4bB9QEHPjVSLdZ8df2rUc2fXq1w7eKc4te4BVmBuI7+IrwgaLPttPqpES/RepbdjBYiJ
+	KFGvCCQKOsN7r6GPvbmInGbaeEGQut2bpX8K+aFzgBxCpD5IeR5XNuhkpvOYHXZdM87dF8324pl
+	/tyZEqC0isz7ViZZRR/ktQZUXUQJ3zBy5bm+7v/VbsjZMLGEkkBZx/UWnKONtmOpuMgVO9BHnCf
+	lZQA25CYWM=
+X-Received: by 2002:a05:7301:9f03:b0:2ca:bd22:6102 with SMTP id 5a478bee46e88-2ed4f6d8911mr8121748eec.14.1777904200272;
+        Mon, 04 May 2026 07:16:40 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3537d300sm19477618eec.0.2026.05.04.07.11.26
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3bb60811sm15836284eec.24.2026.05.04.07.16.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 May 2026 07:11:26 -0700 (PDT)
+        Mon, 04 May 2026 07:16:39 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <2f3ed933-042e-4797-9baf-0f22eeedc632@roeck-us.net>
-Date: Mon, 4 May 2026 07:11:25 -0700
+Message-ID: <86e12259-002b-457c-bb5f-c180a452c736@roeck-us.net>
+Date: Mon, 4 May 2026 07:16:38 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,12 +70,15 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/5] Cleanup Linux Watchdog documentation
-To: Philipp Hahn <p.hahn@avm.de>, Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: Philipp Hahn <phahn-oss@avm.de>, linux-watchdog@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <cover.1777892508.git.phahn-oss@avm.de>
- <cover.1777902230.git.phahn-oss@avm.de>
+Subject: Re: [PATCH] watchdog: lenovo_se10_wdt: Add support for SE10 Gen 2
+ platform
+To: Mark Pearson <mpearson-lenovo@squebb.ca>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <mpearson-lenovo@squebb.ca>
+ <20260428124954.1193450-1-mpearson-lenovo@squebb.ca>
+ <d9beb8ff-0ffe-42ff-8249-e12f1a4c2e2c@roeck-us.net>
+ <51993cb1-f032-488e-92a2-2b2e65af767c@app.fastmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,41 +124,47 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <cover.1777902230.git.phahn-oss@avm.de>
+In-Reply-To: <51993cb1-f032-488e-92a2-2b2e65af767c@app.fastmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 5/4/26 06:49, Philipp Hahn wrote:
-> From: Philipp Hahn <phahn-oss@avm.de>
+On 5/4/26 06:13, Mark Pearson wrote:
+> Hi Guenter,
 > 
-> Hello,
+> On Sun, May 3, 2026, at 5:53 PM, Guenter Roeck wrote:
+>> On 4/28/26 05:49, Mark Pearson wrote:
+>>> The Lenovo SE10 Gen 2 platform uses a watchdog chip from the same family.
+>>> Watchdog functionality is the same, so update the driver with the new chip
+>>> ID.
+>>>
+>>> Add the Gen 2 MTM's to enable support on the platform.
+>>>
+>>> Tested on SE10 G2.
+>>>
+>>> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> ... but you might want to have a look at the AI review.
+>> It appears that the driver has some issues.
+>>
+>> https://sashiko.dev/#/patchset/20260428124954.1193450-1-mpearson-lenovo%40squebb.ca
+>>
+>> Patches welcome ...
+>>
+> Thanks for the review.
 > 
-> while reading the documentation on the Linux kernel watchdog
-> subsystem[1] I noticed some strange looking formatting: `struct`s are
-> detected automatically by Sphinx and the word **after** it is considered
-> the name of the structure, but the watchdog documentation puts the name
-> **before** the word `struct`; this leads to the wrong word being
-> emphasized.
+> Ack on the AI review patch - thanks for flagging that as I was unaware of those (I'd heard about sashiko.dev - but hadn't thought to check it for results).
+> It looks like a valid/good thing to fix. I assume it's OK if I push that as a separate patch rather than combining it with this?
 > 
-> Also reorganize the index page to better separate the documentation on
-> generic infrastructure from specific drivers – which are mostly obsolete
-> and relevant for historic documentation only.
-> 
-> Please apply; thank you for all your work.
-> 
-> Philipp
-> 
-> [1]: https://docs.kernel.org/watchdog/convert_drivers_to_kernel_api.html
 
- From Documentation/process/submitting-patches.rst:
+Yes, please.
 
-   However, for a multi-patch series, it is generally
-   best to avoid using In-Reply-To: to link to older versions of the
-   series.  This way multiple versions of the patch don't become an
-   unmanageable forest of references in email clients.
+I updated Sashiko's configuration to reply directly to the author
+and to the mailing list for watchdog patches, so going forward you
+(and everyone on the list) will get its feedback on watchdog patches
+by e-mail.
 
-... but you did that anyway. It also almost guarantees that new
-versions of a patch series get lost.
-
+Thanks,
 Guenter
 
