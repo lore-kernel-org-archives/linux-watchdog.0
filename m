@@ -1,62 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.avm.de (mail.avm.de [212.42.244.119])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EE2F3A6F05;
-	Mon,  4 May 2026 11:06:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D2773C2E;
+	Mon,  4 May 2026 11:08:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.42.244.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777892809; cv=none; b=eLtjlpT8wZuJCZ+vYE7xfB2ptk6RoPG/5kV6d/0CmKrLdaeAh1d3uUNmv7AlQgiCJLHwoFLOtMyboES1+U6CK01/gKi7iaqIH82Zn1iGlEThjpe6t7sPbBfIg7xuOQm7f2OVab7QUJGoTr2Dm0OubSO7V0ckf0rz1fKHpGltflk=
+	t=1777892934; cv=none; b=imkNydIakK4k+X0xbCDWKuCoTfcLOYzjmjAicqknkd5qskDBt+roNQxqJzXmx1fjre/H9lfLi+V98/CSMeTj/1yQp1Jgs9G8y6vMR3MiyO0PO9QImabmPTG+gUkk5FPoahPbvywpylfGfejE/H95K1IFsBmI+oMpZMAIT6EvLcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777892809; c=relaxed/simple;
-	bh=P1JeksGnJfalnkW9fgltX5A7BnbUQ6Ca8G4brnUnAXc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FTyMC01DVgjgMjry5mpSavKhkC2LRXrGdLqglBGqR3SDw8stS3hUueARJL143viF9Qu4kEY1i74tYZGpuE1CoJdFs5xhx28LytAqkHiWiqpUsilbv+4qBobHMnUW+IlMSZwe1eZJheUveWMCj3RD5DqfBdI6qBeiZMgsYYsADEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f99U7KUs; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f99U7KUs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E654C2BCB9;
-	Mon,  4 May 2026 11:06:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777892809;
-	bh=P1JeksGnJfalnkW9fgltX5A7BnbUQ6Ca8G4brnUnAXc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=f99U7KUsS3Y2FYkIy67stJX/PwvCJXaSsxycKtAcbCl4nxSyIweca4yNaK0EDb/7J
-	 dOCCJkRxoHWSa5OnHO0ZsiPeZdao4YeQue2Q+zxHLJIfYqTG2u3/zKpT82DF6IOjfZ
-	 MIis6Pxy4CuCAcNKSUo5/6xl7gSyinzB75vR9aT1xjd6lfT8Mi9GVVJgARHnWEiXSm
-	 iyGP5QLzfSxOfee7T617Vdcf65FfcszZ3vsxXtQlwTab1yyiDRMaKGZeetRLLoF1Id
-	 y01nd3gzC2RF58Gh59C7FkpcKOrfykCTwA6yUJLuvcB5C79VinW8bXiQ4pxy1RUM5q
-	 1uYR5RF2vbDSg==
-Date: Mon, 4 May 2026 13:06:46 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Komal Bajaj <komal.bajaj@oss.qualcomm.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Rajendra Nayak <quic_rjendra@quicinc.com>, linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: watchdog: qcom-wdt: Document Shikra watchdog
-Message-ID: <20260504-accurate-potoo-of-efficiency-dfccad@quoll>
-References: <20260501-shikra-wdog-binding-v1-1-fd8c14bc2d20@oss.qualcomm.com>
+	s=arc-20240116; t=1777892934; c=relaxed/simple;
+	bh=mdG9spAtI5o5r5xXfv5TTUnmkfy1AKgGU4u+Puqhd5g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GZ5WwZw/oWWRCSGaOTamTYDWI13iq3He6BLb0gkGBNGgt7nPO70na14c6SnV1Aoq1WaV+b+y32FIjHJwetWoNe0Pa/2jff2gx3fVyAUTf6jG9u9o1M7V2kCKpCQD5BHGeSxD3RjKigr4O0fJKiTcFb9VNUkDs2fjJbUvDCtPvUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass smtp.mailfrom=avm.de; arc=none smtp.client-ip=212.42.244.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=avm.de
+Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
+	by mail.avm.de with ESMTP (eXpurgate 4.56.1)
+	(envelope-from <p.hahn@avm.de>)
+	id 69f87ce9-88c8-7f0000032729-7f0000018666-1
+	for <multiple-recipients>; Mon, 04 May 2026 13:03:05 +0200
+Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
+	by mail.avm.de (Postfix) with ESMTPS;
+	Mon,  4 May 2026 13:03:05 +0200 (CEST)
+From: Philipp Hahn <p.hahn@avm.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Philipp Hahn <phahn-oss@avm.de>,
+	linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/6] Cleanup Linux Watchdog documentation
+Date: Mon,  4 May 2026 13:02:35 +0200
+Message-ID: <cover.1777892508.git.phahn-oss@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260501-shikra-wdog-binding-v1-1-fd8c14bc2d20@oss.qualcomm.com>
+Organization: FRITZ! Technology GmbH, Berlin, Germany
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-purgate-ID: 149429::1777892585-4BE05582-3CB47AEC/0/0
+X-purgate-type: clean
+X-purgate-size: 1482
+X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
+X-purgate: clean
 
-On Fri, May 01, 2026 at 11:35:49PM +0530, Komal Bajaj wrote:
-> Add devicetree binding for watchdog present on Qualcomm's Shikra SoC
-> 
-> Signed-off-by: Komal Bajaj <komal.bajaj@oss.qualcomm.com>
-> ---
->  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+From: Philipp Hahn <phahn-oss@avm.de>
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Hello,
 
-Best regards,
-Krzysztof
+while reading the documentation on the Linux kernel watchdog
+subsystem[1] I noticed some strange looking formatting: `struct`s are
+detected automatically by Sphinx and the word **after** it is considered
+the name of the structure, but the watchdog documentation puts the name
+**before** the word `struct`; this leads to the wrong word being
+emphasized.
+
+Also reorganize the index page to better separate the documentation on
+generic infrastructure from specific drivers – which are mostly obsolete
+and relevant for historic documentation only.
+
+Please apply; thank you for all your work.
+
+Philipp
+
+[1]: https://docs.kernel.org/watchdog/convert_drivers_to_kernel_api.html
+
+Philipp Hahn (6):
+  watchdog: Fix wrong SPDX license identifier
+  watchdog: Change suffix .txt to .rst in references
+  watchdog: Move `struct` before name
+  watchdog: Replace intermixed tab/space indent
+  watchdog: Separate kind of documentation
+  watchdog: Prefix WDT with ICS for clarity
+
+ .../convert_drivers_to_kernel_api.rst         | 28 +++++++++----------
+ Documentation/watchdog/index.rst              | 22 +++++++++++----
+ Documentation/watchdog/watchdog-api.rst       |  4 +--
+ .../watchdog/watchdog-kernel-api.rst          |  2 +-
+ Documentation/watchdog/wdt.rst                |  6 ++--
+ drivers/watchdog/Kconfig                      |  6 ++--
+ 6 files changed, 39 insertions(+), 29 deletions(-)
+
+-- 
+2.43.0
 
