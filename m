@@ -1,31 +1,31 @@
-Received: from mail.avm.de (mail.avm.de [212.42.244.119])
+Received: from mail.avm.de (mail.avm.de [212.42.244.94])
 	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755CF3DB642;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B023DA7EE;
 	Mon,  4 May 2026 13:52:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.42.244.119
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.42.244.94
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777902754; cv=none; b=lqjW01gUs+jtcE1cWe2xXXqQ/0mZZSHGEHIsiGW8nxsngq1L0addKbcxSmId9DEVvZH1EN38xQZfRFLQB77CDgWz28VJnVx1LPw0CifCRIBHhbPBs2AxELHEynep9OA8n1cE0n1N6LisWIgTGEJe3FqXj6slyaXvmOAPZ3WSdMk=
+	t=1777902754; cv=none; b=F0Pe75JZgA7d09wu5PUtlzwHvSUhxTPuJVVHewR4RTyCTfS6Es1FH7so+aTspj1wdFN21U7KAxofi0HBXwBajP98lZLSaYak437tlILF3lwrKTEZGbQzCEfG16zBgDFwEFvFnN0rhtsgJV+YchBc1f/EjxDreLS7FniM+Y8U/5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1777902754; c=relaxed/simple;
-	bh=yfHhvGmjTMJPUcSrWCoGBx/HYBtZ7hrAGcW9br8CDbs=;
+	bh=R/q6aYtyjcn/R9tkiLEtiY8Wq2ifImCddQQVrHnTSgw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=r+CuAMgJ623SoTTZa84VKT82dYPNAlD6nIVIbjE5I21MJQL4QBj2rD0tsXmTqh7bheyNarHOI5Axevv8ETFCb5+P1vX01yz89bXmlf+bh603TOKH6MMS6gxL9G7nQWbT5VNNhOcS9l/UdfokX0aRVF8HXJKIhnIq1MhGLRG+ReU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass smtp.mailfrom=avm.de; dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b=RitrhTI1; arc=none smtp.client-ip=212.42.244.119
+	 MIME-Version; b=gyo4cnZYIWeyR36e/iqaFuo66AZ3be3t/Rr4hLszlpWxReugFM7yW0a2K0nO7ZeFJ4SzqHHNmHcn7hzUItnrxaVwkm1QUhEgmhrXWADiUdibwbhoFISgQNy9lyrXsaS+mTD3cyWr3okDiwOdUS+oR++qVpP6wv8mlRNdyczQU/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass smtp.mailfrom=avm.de; dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b=Wmuk4gPD; arc=none smtp.client-ip=212.42.244.94
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=avm.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b="RitrhTI1"
+	dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b="Wmuk4gPD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1777902749; bh=yfHhvGmjTMJPUcSrWCoGBx/HYBtZ7hrAGcW9br8CDbs=;
+	t=1777902749; bh=R/q6aYtyjcn/R9tkiLEtiY8Wq2ifImCddQQVrHnTSgw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=RitrhTI1zgpi5hi758diD1Io3rQ9NBxPgedWS0qhWe+ycg/Fh9RF4eBxumQTrfJDN
-	 hZeu6GQKD+aGG6FB2Dd3X2NgbXAgyGAv6AlKTq3VvT3TOoG9z3JJiBAbrg66uDOg5Y
-	 J77TXTiUwHgZ72W20qVMN9tHcE/M7Et5ZAJBeWPQ=
+	b=Wmuk4gPDgp94JILpidCIi9Og3uXXh6fsFCg13oSYu17ldqfM7nFb3Wi/eS+YYoKuz
+	 eBgdao/gbfTioqwj6lWguGxFxP0673tBWn+H+mzDBcWGVOUeB3aPAxGZ2lORZuykeK
+	 8Q6tDW3Z1wvdnfr+qreMEDOITomnw/jxoM5D7VNE=
 Received: from [212.42.244.71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.56.1)
 	(envelope-from <p.hahn@avm.de>)
-	id 69f8a49d-88c8-7f0000032729-7f000001e3b2-1
+	id 69f8a49d-23fc-7f0000032729-7f000001a2f0-1
 	for <multiple-recipients>; Mon, 04 May 2026 15:52:29 +0200
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
 	by mail.avm.de (Postfix) with ESMTPS;
@@ -37,9 +37,9 @@ Cc: Philipp Hahn <phahn-oss@avm.de>,
 	linux-watchdog@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 5/5] watchdog: Prefix WDT with ICS for clarity
-Date: Mon,  4 May 2026 15:50:03 +0200
-Message-ID: <25e65a138f70239b6263bdfbed801f1acbb06688.1777902230.git.phahn-oss@avm.de>
+Subject: [PATCH v2 1/5] watchdog: Change suffix .txt to .rst in references
+Date: Mon,  4 May 2026 15:49:59 +0200
+Message-ID: <bb1aa3129d5e52bc4c8e1ec3340b88f80f726fef.1777902230.git.phahn-oss@avm.de>
 In-Reply-To: <cover.1777902230.git.phahn-oss@avm.de>
 References: <cover.1777902230.git.phahn-oss@avm.de>
 Precedence: bulk
@@ -50,68 +50,44 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Organization: FRITZ! Technology GmbH, Berlin, Germany
 Content-Transfer-Encoding: 8bit
-X-purgate-ID: 149429::1777902749-4DE19582-8F7E9DBD/0/0
+X-purgate-ID: 149429::1777902749-B0404EEC-CB73EDC4/0/0
 X-purgate-type: clean
-X-purgate-size: 2165
+X-purgate-size: 1767
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
 
 From: Philipp Hahn <phahn-oss@avm.de>
 
-`wdt.rst` is only about the Watchdog timer from "Industrial Computer
-Source" (ICS). Change the title to better express this.
-
-Add missing SPDX license identifier `GPL-2.0-or-later` same as code to
-silence `checkpatch`.
+Fix link to documentation, which has already been converted to reST.
+Also remove apostrophes which are no longer needed.
 
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- Documentation/watchdog/wdt.rst | 8 +++++---
- drivers/watchdog/Kconfig       | 6 +++---
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ Documentation/watchdog/convert_drivers_to_kernel_api.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/watchdog/wdt.rst b/Documentation/watchdog/wdt.rst
-index d97b0361535b0..5be200e08d02c 100644
---- a/Documentation/watchdog/wdt.rst
-+++ b/Documentation/watchdog/wdt.rst
-@@ -1,6 +1,8 @@
--============================================================
--WDT Watchdog Timer Interfaces For The Linux Operating System
--============================================================
-+.. SPDX-License-Identifier: GPL-2.0-or-later
-+
-+================================================================
-+ICS WDT Watchdog Timer Interfaces For The Linux Operating System
-+================================================================
+diff --git a/Documentation/watchdog/convert_drivers_to_kernel_api.rst b/Documentation/watchdog/convert_drivers_to_kernel_api.rst
+index e83609a5d0071..9eddb962f8e4c 100644
+--- a/Documentation/watchdog/convert_drivers_to_kernel_api.rst
++++ b/Documentation/watchdog/convert_drivers_to_kernel_api.rst
+@@ -114,7 +114,7 @@ Add the watchdog operations
+ ---------------------------
  
- Last Reviewed: 10/05/2007
+ All possible callbacks are defined in 'struct watchdog_ops'. You can find it
+-explained in 'watchdog-kernel-api.txt' in this directory. start() and
++explained in watchdog-kernel-api.rst in this directory. start() and
+ owner must be set, the rest are optional. You will easily find corresponding
+ functions in the old driver. Note that you will now get a pointer to the
+ watchdog_device as a parameter to these functions, so you probably have to
+@@ -153,7 +153,7 @@ Add the watchdog device
  
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index dc78729ba2a5d..2cbf0391a065a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2270,10 +2270,10 @@ config MIXCOMWD
- 	  Most people will say N.
- 
- config WDT
--	tristate "WDT Watchdog timer"
-+	tristate "ICS WDT Watchdog timer"
- 	depends on ISA
- 	help
--	  If you have a WDT500P or WDT501P watchdog board, say Y here,
-+	  If you have an ICS WDT500P or WDT501P watchdog board, say Y here,
- 	  otherwise N. It is not possible to probe for this board, which means
- 	  that you have to inform the kernel about the IO port and IRQ that
- 	  is needed (you can do this via the io and irq parameters)
-@@ -2304,7 +2304,7 @@ config PCIPCWATCHDOG
- 	  Most people will say N.
- 
- config WDTPCI
--	tristate "PCI-WDT500/501 Watchdog timer"
-+	tristate "ICS PCI-WDT500/501 Watchdog timer"
- 	depends on PCI && HAS_IOPORT
- 	help
- 	  If you have a PCI-WDT500/501 watchdog board, say Y here, otherwise N.
+ Now we need to create a 'struct watchdog_device' and populate it with the
+ necessary information for the framework. The struct is also explained in detail
+-in 'watchdog-kernel-api.txt' in this directory. We pass it the mandatory
++in watchdog-kernel-api.rst in this directory. We pass it the mandatory
+ watchdog_info struct and the newly created watchdog_ops. Often, old drivers
+ have their own record-keeping for things like bootstatus and timeout using
+ static variables. Those have to be converted to use the members in
 -- 
 2.43.0
 
