@@ -1,68 +1,88 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76D4A3DE443
-	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:16:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF4123DE43C
+	for <linux-watchdog@vger.kernel.org>; Mon,  4 May 2026 14:29:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777904202; cv=none; b=L6BafOOAd4f9lEgM9kh0yfK+vJyKbM+gxoQcVrlviKXGTTa8lhmtoZP+UovyVmgR+C4dx+8wuPu/xeTDpEGvj5EESbZ1lZQ8brng2vhqArEnWhmsRDNteqrcqj0BylZwB7Gvx3Ahn1yl0k0exZvesZC4zls6dfXniL3flL9dAhg=
+	t=1777904971; cv=none; b=m6olMsZoSUOQue7Kro6C8za42dA7Pfl+zowH96yMUf33RYBn/tbnauzdYBc0xpbiZeEPolMXx8fb1FQtJQSSdSNo8EoQfemNVC36czD8RITM7k7HBMdYcKBbT/49PHS9RNUoT2s06G5YUerYMWpW7uQry8NHE79Rn3gt81QjIj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777904202; c=relaxed/simple;
-	bh=8NpFRk5qaRCO0QWiYuYd00LdSkCVjtBob+PJLV4SjKQ=;
+	s=arc-20240116; t=1777904971; c=relaxed/simple;
+	bh=dWQ+7g3S1vkKi5exFH5eRfGqKEbzwCAAwUQnQ6WQXj8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GqQOzQfkgMG+xSzYmCmuc80rnq2YFHnJ2mrjuSnnGJExhIeAAqLG0UOv52HnJ/uC1lNlNBk4UjQe6+KR1ACKUo1UYF5ApFtHMtl8Q6eAUiWxdr4FPg95fAf+ZNdhflxHIRzRFY+NpOHUcqbkVVvM9+Lh3ZYwx0l6vRYr5o3z/wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A2BHYhaJ; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=juETA+2y0BEuHbQLVpeBtFzUvc1iPjW/Bf3UwXtOp+Deoz7eCBEy5LQVqtUwkodmSrhHBL8IBUKzTy+WTa1B78DssttrlRYb4a0QQGYZVYg7gjM0tnN4kTxWScthwNvXpu0cdEs99+AP9FFpEqUST6p9AaronEiCuAC5Br51iUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=XxQjOYo1; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=GxtheN6z; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A2BHYhaJ"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2ee1054627bso2678482eec.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:16:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="XxQjOYo1";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="GxtheN6z"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 644B479Z749094
+	for <linux-watchdog@vger.kernel.org>; Mon, 4 May 2026 14:29:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	SIZcF0jLrnQngCTAarVexF6PhV4RPMhWxFIRRYZbq/8=; b=XxQjOYo1irc8hXeO
+	SfO/1LDZbmq7/R2SNtNb6AzTpHzBZPtJ+9iuzVmSH2x3FT/sTdA99xAzJsnlXeE0
+	sMTRt3o8UtclkpHgAPLNdCqe5vUbG9XaDNSTK0OMLmYwa0Fyhbjoszk1PW2bNOvp
+	+OkoV8KQ8Sq8kRk3UPEL//HZ7ok4TsomQ+mmIEiAN7poMAaWW8Ot2Oa483YK1UAT
+	J0UNtRL+OU4xNgssXR2EgFNf4y3hGMvRAgOny/36/ZSk7ZKwRPjo1p9kyTMUkOtg
+	6a7P6HzUIpprsQfkwcFkmgIw/FHF7NAnhJi8NjODEHKewXJocW2yypDExviff/gc
+	7/FcZw==
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4dxscf0srw-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 14:29:28 +0000 (GMT)
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-c70f19f0f37so1928027a12.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 04 May 2026 07:29:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777904200; x=1778509000; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=3ARTaXEgvtjMhd/qQb8EhGE66tnkubR0b6AJQjnyMQo=;
-        b=A2BHYhaJ792plBzRRYh0R9zTqlI7T5DumxRKbZxOkuAkpkTAQj669C/nsHo1fakZRZ
-         qbExDfWz90sYsWrJ8pvOvigcRUKeML4ByXMDNvBhhTIH0lN8TVk2jqIV8JgX9Jg68G/O
-         okxLL5N4P6bQCt5TXGC0DcbqopZ2NCzb7/+n/8p3glShcNKFsUORY+Lj2U7x8xuRWiop
-         Opy1geAlTCC2Wo6e/zxynd/WBhQJFOmlAKv1srt58KbPm2GMlPcA2pYYLGlZNxmSXaXM
-         4kgkxb+SQZf3uvzxAc01FX4+y0Tb0MzZL2VwOPcvvaFzE9zi2VDwW7IOabb8fb7xPjdf
-         EGGw==
+        d=oss.qualcomm.com; s=google; t=1777904967; x=1778509767; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SIZcF0jLrnQngCTAarVexF6PhV4RPMhWxFIRRYZbq/8=;
+        b=GxtheN6zJbgV7i68uYlG+j7X2wBZbiWgkm/SdBpHsRpvbc5FInPW3/yMZIf+JMMamT
+         rZUvpljaSP+z2iqLbG/jz8r5/DYKy2v+fpC73/ha6pWdb1nFVmS1iuOoZVU5uWUwz2U9
+         Bd7AIptDmFF/JzerA5O5yfLGs6++bgspU5q8uqvS4enSL/CUebCaG1IRX6B29Wp4eJfY
+         qbrEdQX5IL2Sr3rfJicO5oiHSgpVxGi6YOgipYo5zb4BvoSPSfRuT4eJI3qyHqRLpTM5
+         U0o3jiFaFHq08mYznXRtmBuK3biOQbsRlwCRlrI1jkQC5EnpDcC/Q89Adh+z57+cySJk
+         CS6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777904200; x=1778509000;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3ARTaXEgvtjMhd/qQb8EhGE66tnkubR0b6AJQjnyMQo=;
-        b=HyzoFgY94g9gUj/k5SJO5cHVMxzG60yoNYcldQqAQxDOICnkMVolia/RM+2BiyHhxs
-         TYJu6T0mg1o1eqIumTSIYsbR0Y8mJI0O5kiNvYKmdZxDSEhBPBuoiyfJMoS8j42YiklI
-         /9Bovxgg0D0xobjmerAD8QfilT2SBQzpDGXRiqeL8MmzbVifHpW7KKY4/rJR17mHaupx
-         QPnPai0R0Su4OSbA2bbPI2DbrCzc2hUDt6mJUNraMZQhxkY3a9Oo/Sm5yEV7klLNTnJm
-         SVz82G+u7hv4FBzj3CAQ7DTT7+7veUbClIHFcLHPyT/Wr06ngs7D9qGAI50TbGq7S/fF
-         v2MQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/LT47BSpyvi4PE1zbNpwz6UOtXaHz/wmqIisA00j5MR19G82ovGlCrP6nRjcpEIqobvw7emZirmoUxAJoSFw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyhADZqNPyYWpkojtvPB9CG//UkdTq1X/A10c7eTso384it3fCK
-	Mb62sjP2uQMTqV+WvHsOnbimhjT8x8vpF5v/3XkrdX0ieC5O4vhARoqz
-X-Gm-Gg: AeBDievecRvWbHcOUWDnihigIJD2GRW1KbYY7rQkm8iZVKb6YJ3wVyh05f5P8qpekLA
-	fZU6EeCR+XLmiEyi7PaLie/od3Zc09VX7IaExd4WUBDwCMcpR/7GVvzYu2pVSdSlLZwRVT0tfHt
-	vZQqO+zwMLNibm5sojvTNsIXvvXwhr+u9aR8mWo01Hrrb250PJ2wycvFicr4w3hOL9M5DOqxlMt
-	hAPRRc9uK/RUr6Esonp0ZeCsLXhh5Hm2XkZEhotxq0BmOHRQ3CU3SNc/aNRD8LLVJeabVzItZYw
-	MxPdCSP4bB9QEHPjVSLdZ8df2rUc2fXq1w7eKc4te4BVmBuI7+IrwgaLPttPqpES/RepbdjBYiJ
-	KFGvCCQKOsN7r6GPvbmInGbaeEGQut2bpX8K+aFzgBxCpD5IeR5XNuhkpvOYHXZdM87dF8324pl
-	/tyZEqC0isz7ViZZRR/ktQZUXUQJ3zBy5bm+7v/VbsjZMLGEkkBZx/UWnKONtmOpuMgVO9BHnCf
-	lZQA25CYWM=
-X-Received: by 2002:a05:7301:9f03:b0:2ca:bd22:6102 with SMTP id 5a478bee46e88-2ed4f6d8911mr8121748eec.14.1777904200272;
-        Mon, 04 May 2026 07:16:40 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3bb60811sm15836284eec.24.2026.05.04.07.16.39
+        d=1e100.net; s=20251104; t=1777904967; x=1778509767;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=SIZcF0jLrnQngCTAarVexF6PhV4RPMhWxFIRRYZbq/8=;
+        b=eT5dzsliyZaXwTCyaZll7/J2dIj7NR9VUEGz8bf4BWl0ZWaQO/owp2ukwv7GehTspm
+         dyXgMzPNT1OrdJT+r1R7uR4W59m/9P9L+XeREyITBCTUYo09YFispFc/nPBq9GB6nBBS
+         +w+bF+RYbfZdqQYCquiGMg3nVO9OomWb33zgUYjybOiinFEkSn8riOlkSItfFpp4t8Y9
+         be8dDGLsF5akMsRQyzBuZqe9wM+bneLG3URRQ8kd7u/O9sXp9dcATPXl/qUlauL8rJeX
+         EGCA09Qr2OS4HvjLhjO1zIT5NpzJ8FWjMtu5g5lffNeM9NxbSnnkIFmXbCKXCl4dwaUx
+         qSVw==
+X-Forwarded-Encrypted: i=1; AFNElJ+4Y12L7rDmgIOY9Ju0xcXReAB4ya2L2To9gfUA7wbOo4vb5S0FTg1mNcBZ9O0Cwm9zyv8f1bsT6EW69BQniA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz2JhdXEc66mcI2At9sCRdQZEElXQZqRvE5breo/bDlNImsVzUM
+	OeL7R9qsE/FgtESgUO7GTK4oXR6TKujd3DVYiaJG6FtbJ4A8E52r+r46XQa4niTeqHY8NvSB4ZV
+	vwdNUrDDAPoFgACAdLRvGcGHPBUb9X4RARQLpEeF4rhAaLlfZRxAVXzjE+hbAuK1rMHcLIKib87
+	5L7Q==
+X-Gm-Gg: AeBDietA7xJ5mCcg9zb+xnes5G5hrQyi2tm+O5EJpf67CVITxerpcwOgdzuW4qt+zzE
+	V0o7QYdg1hk+J9nAIj6T8cA82kCR/B2cdC/KnxQu1EWeeGTUZ9NaNTfey+xx1yw1JYiPS002TPA
+	7E3gbsIJzeUgY+Hc+wXZpMQMD1b58TxWUXCK5GPi4JCKcBIEyTFwfgenUMR+IamuKPWqPXgGYWT
+	MuQE0v2GNGilaYhqtWsqvRpk2bnQKBydAQ3vo4zkStxQaxkgY8LOJ/uUTrhUDOxoDF+O5GUlIhy
+	9kbPs+YJzVvNJkplEGqO+tKxr3AtEFbZqs19e5c4lK2+vJwNFHgcu1sPsQMoe2Uj2kyUa8F9Kjo
+	ara+s8YoeB5KfEL8anCLqzwppISjTHQII+zil+gi5fuZaL+H7kIu5nQwPSf/eAu5kUniuXJb1Ln
+	ZR
+X-Received: by 2002:a05:6a20:3d05:b0:38e:92f6:9ab1 with SMTP id adf61e73a8af0-3a7f03c6f0emr8313250637.22.1777904967382;
+        Mon, 04 May 2026 07:29:27 -0700 (PDT)
+X-Received: by 2002:a05:6a20:3d05:b0:38e:92f6:9ab1 with SMTP id adf61e73a8af0-3a7f03c6f0emr8313206637.22.1777904966680;
+        Mon, 04 May 2026 07:29:26 -0700 (PDT)
+Received: from [192.168.1.6] ([122.164.84.249])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c7ffbbbf298sm10054114a12.13.2026.05.04.07.29.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 May 2026 07:16:39 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <86e12259-002b-457c-bb5f-c180a452c736@roeck-us.net>
-Date: Mon, 4 May 2026 07:16:38 -0700
+        Mon, 04 May 2026 07:29:26 -0700 (PDT)
+Message-ID: <cc68acee-484b-4fa5-a3f3-6add81d63d22@oss.qualcomm.com>
+Date: Mon, 4 May 2026 19:59:22 +0530
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,101 +90,70 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: lenovo_se10_wdt: Add support for SE10 Gen 2
- platform
-To: Mark Pearson <mpearson-lenovo@squebb.ca>
+Subject: Re: Picking up watchdog pull requests starting with the 7.2 commit
+ window
+To: Guenter Roeck <linux@roeck-us.net>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <mpearson-lenovo@squebb.ca>
- <20260428124954.1193450-1-mpearson-lenovo@squebb.ca>
- <d9beb8ff-0ffe-42ff-8249-e12f1a4c2e2c@roeck-us.net>
- <51993cb1-f032-488e-92a2-2b2e65af767c@app.fastmail.com>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <2ca2a562-f9b6-4a68-a3a6-1fe4c03e7b40@roeck-us.net>
+ <b1309b89-ffe6-4b6b-b257-bf7d7b8f5885@oss.qualcomm.com>
+ <1fc146d7-04e4-4dff-92b5-e6dcb81eabeb@roeck-us.net>
 Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <51993cb1-f032-488e-92a2-2b2e65af767c@app.fastmail.com>
+From: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+In-Reply-To: <1fc146d7-04e4-4dff-92b5-e6dcb81eabeb@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=BcvoFLt2 c=1 sm=1 tr=0 ts=69f8ad48 cx=c_pps
+ a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=/mHg5lR1HfVRp+Rzqux+Iw==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=VwQbUJbxAAAA:8 a=ris02UWNMwmQM3wLqugA:9 a=QEXdDO2ut3YA:10
+ a=3WC7DwWrALyhR5TkjVHa:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA0MDE1MCBTYWx0ZWRfX6tXsckX01yYB
+ xMCB2Gjm97C8jI2M4jTZIm1fFqsCVwVX5ihLLiJNAW2eu2b2rttsGhkpsj1dPBBrVm93eClFWB9
+ JGgp1dDScDqMEJWkNJMYI5ctQD43gcg8LVb46X1GT8lcb1v2OAw5uOLdLi8IYZb0lIwlNjssSkO
+ 1Xp+lQ4QAAtgIQ5/CDnct2IsYhq/GkBWsSGpgdK6MaKQZjOvm5Ln6nptO8oTem86uRJ+klorSK6
+ pnagoWqNK4dDWyuxwsyyZxDJmXfBfLIxqGL+dxY0Qzfz/nIskat2BgrMCccT1gVRa/RUV5mg53U
+ NSlqPXK3U1MIK8fiUs7gBmIwdq6Jrzn73nxyOa1SJVanh1XtSnVxOH7YK7zfpmu2wAor5Rz1pbp
+ KCW2JdN41K2HuVJ+ZW21wFJBt3CaWiOzBAwVi7LWec4pUQY2F+vUA7g5lzQ5LjqvICRoU34lCoa
+ BdVbtWUnkiq16IEfp+g==
+X-Proofpoint-ORIG-GUID: FcDQg7ZdgsFn3WePzxYTy7f4DV8FkV1a
+X-Proofpoint-GUID: FcDQg7ZdgsFn3WePzxYTy7f4DV8FkV1a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-04_04,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 spamscore=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605040150
 
-On 5/4/26 06:13, Mark Pearson wrote:
-> Hi Guenter,
-> 
-> On Sun, May 3, 2026, at 5:53 PM, Guenter Roeck wrote:
->> On 4/28/26 05:49, Mark Pearson wrote:
->>> The Lenovo SE10 Gen 2 platform uses a watchdog chip from the same family.
->>> Watchdog functionality is the same, so update the driver with the new chip
->>> ID.
+
+On 5/4/2026 7:06 PM, Guenter Roeck wrote:
+> On 5/4/26 02:58, Kathiravan Thirumoorthy wrote:
+>>
+>> On 5/3/2026 10:10 PM, Guenter Roeck wrote:
+>>> Hi all,
 >>>
->>> Add the Gen 2 MTM's to enable support on the platform.
+>>> I have not heard from Wim recently, and he did not send a watchdog
+>>> pull request for the 7.1 commit window.
 >>>
->>> Tested on SE10 G2.
->>>
->>> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+>>> Unless Wim informs me that this was an exception and that he will
+>>> continue sending pull requests going forward, I'll handle watchdog
+>>> subsystem pull requests starting with the 7.2 commit window.
 >>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>> Thanks Guenter. Curious to know - will your branch[1] be integrated 
+>> into the linux-next as well?
 >>
->> ... but you might want to have a look at the AI review.
->> It appears that the driver has some issues.
+>> [1] 
+>> https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git/log/?h=watchdog-next
 >>
->> https://sashiko.dev/#/patchset/20260428124954.1193450-1-mpearson-lenovo%40squebb.ca
->>
->> Patches welcome ...
->>
-> Thanks for the review.
-> 
-> Ack on the AI review patch - thanks for flagging that as I was unaware of those (I'd heard about sashiko.dev - but hadn't thought to check it for results).
-> It looks like a valid/good thing to fix. I assume it's OK if I push that as a separate patch rather than combining it with this?
-> 
+> Yes, if I don't hear from Wim in a week or so.
+>
+Thanks for the information, Guenter!.
 
-Yes, please.
-
-I updated Sashiko's configuration to reply directly to the author
-and to the mailing list for watchdog patches, so going forward you
-(and everyone on the list) will get its feedback on watchdog patches
-by e-mail.
-
-Thanks,
-Guenter
-
+> Guenter
+>
