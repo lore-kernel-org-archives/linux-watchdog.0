@@ -1,82 +1,74 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3833840FDA8
-	for <linux-watchdog@vger.kernel.org>; Tue,  5 May 2026 13:07:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB4B31F9A0
+	for <linux-watchdog@vger.kernel.org>; Tue,  5 May 2026 13:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777986444; cv=none; b=B9kfOCtuKNspS1TZqxW53cEYWr9VgP+/5KSmW74Q75YIhw61AczTzqDXPXKUx97hrF0neXMFY/YY87ywzSmdhPuW791Vz3qNDxIxn8EBdo5Qwsz15HdI7K0Zef0NTwxoKyCLPbBKWjrWwxdADc/+x47DbAf79AVYBXDy9EK/ULc=
+	t=1777986521; cv=none; b=onbDJA/WP7XWVv0lO5BTDJEuqHJYzaxVPX4GbWiQhA7FUXkzQVHZNLIRInd2v6fAPPxvz4RFG0vJ5TtxGJYs9glFg1/AlSillnllATd2cYV4HwcdNDbTQ7uUPKXGyJZ8ZkDIMqzCi8CwdXRc8jk2HYXKFSLH920EfaTNjOJvJBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777986444; c=relaxed/simple;
-	bh=k522zUuMn9sacMhN42z+H89jqUmO9HqplfLaFSv/g/M=;
+	s=arc-20240116; t=1777986521; c=relaxed/simple;
+	bh=7gYcfnNtAhe4lnRIsm+c0Bt9B1ZgRgZTPX6Ou1RlEJY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c3LHCwxbSYj2eHVqsont5BdGuyHyFQAlVz+Ys0b34nHKz4ipdDI1lZG4FdZdQx5HTx1AJQ17RCwhHi7KR31JK6UOTKuqRuH7mzS/5GeyECTFqfYpg5Di9S9o/R+W43dPhkkX6Sn7IIP8urZGV1RWqR0VhZ7aX13tL3iE1qJm1tw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HSVwNXQb; arc=none smtp.client-ip=74.125.82.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ie5wcGELefPU6MhUMuYVYrmVMs/sjAy/m/JWgFEKXZBLfrmE3Lm+QY4ypLFUoc6mVDWKUPDA89HYCFXl+7gw+9lIG0FtT4Dk8ymJ7moOMEj7W1703tRTwgQjdauD3fmWg12INlMsYXg0AfIak9pbCniuw401WaWlXAi0HEnvvxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DkgPUsp/; arc=none smtp.client-ip=74.125.82.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HSVwNXQb"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2c15849aa2cso7009548eec.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 05 May 2026 06:07:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DkgPUsp/"
+Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-12c8c9c4cd8so3470267c88.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 05 May 2026 06:08:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777986442; x=1778591242; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777986519; x=1778591319; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=3w3nNiNCoJv2dXKyaye8yTSfZ1rSI+EK1/c2kHTWpRw=;
-        b=HSVwNXQbfkG3QrOYRi1kKA3RT3ONCNNCGDODPlQPrcxJ7C1ftdAkLNkhDNqYBLkazF
-         iKWmqd6TLjqa8ecqnlNTpcMzKORA6DZOJ5EpJN+ev+whLhtDdM+LE8xdQmD3p/zXPps+
-         Za5m9qGbIIvsPejNix0NGJ/XnfTbnXaWhfI4/zfJRIyWWq5IHwEy6oRr97x3i6CjZMZ9
-         6vS81HgAQitvlzj0j1Gf2L14AavCX8dB3hlTJBxxuReruBVKs1AdwEZ/dxd4hbPuEzkL
-         8RzRwT9+d1nluISsgHFWlORyebzP8VgtDMCvrM8e38kFc4j2ABKsXcYpnnlH3iCuurfF
-         v/Tg==
+        bh=L6eoolunM8+Qnu8GKjHPLpBUZh/8jvI3CyH2eEbHLBQ=;
+        b=DkgPUsp/2fcTgeZ4ir2VQ0CaxFGtQzKwo2hlDaaYpQUYJzdXPxZ1d4RG9jpKt+aCbA
+         zgc/sDaOacURsKLDLYAwX1yJ7Kc09gy5EHBgdUEkKH7urf/H8dE2fUSTqf8JlYMFNXkw
+         EEDfrcX241rZvyvdkO5tZTypztf75nw6MvgzUv25TWgoRWISzxM7mDH+RD7jjfHLNHzZ
+         +lEoDu0gooOTVQ6ubxJzutRlNPpJwrBeOE28lxHP+X+IStHZbyPRg8cARQtKtR+c6OvQ
+         BUkKI5o5LeWSnbLu+vOBksSXcAeRGrLOE8ECg54FqW4jT+jxORVl8nbLbhM60VtGAsbx
+         2KtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777986442; x=1778591242;
+        d=1e100.net; s=20251104; t=1777986519; x=1778591319;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=3w3nNiNCoJv2dXKyaye8yTSfZ1rSI+EK1/c2kHTWpRw=;
-        b=HE0SZWlIMql+NdHDLLg+0+fyw03LuABjRmTF8nB6Pc2KDKOwyY39J/TyOloS1FYMxF
-         fkFNvT3l2V9+6zknOyH05/78iAxBM3EsPcMgyT/4RFqbnZDrmwLUXHK8gmIecZ3DIu+R
-         RK7hzYB7Abcbs+f4bbHuxjQIKnT9l4ywk1M+dENsqGkA6nW48Np9nRL+gkchN/KzbSQC
-         EUcNc2OYHCMUy7B2Eunw+fBBjAjjDTffKJmVmFsRIrYk99BKXlHiTpRNeL03x6M7QwMO
-         xDvxrC+ojUECgCKkt8ZIiCeEjtnkuH6r5GCe5LhJ5Co53onautGOkRoxAs+/kHYcPI+o
-         20TA==
-X-Forwarded-Encrypted: i=1; AFNElJ97+S+KVj2WyAM4zt5/rH7VhQqJq4M4enTWylxkqaeaW1dQyVwiZ042vrNV99ZccJDndr1bkGXJUFDQ2KguQQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw08QSutvvgKXpz+lIs2ZNT+vAcMNBIBd9SwI2rtZ6t9NpGbVxX
-	f7mFWHDVmNb0cjw9svbLWl5JPr/kMUVmcbmdy0az6N+WTXu7biudLZAN
-X-Gm-Gg: AeBDietr8a46SlIqvvNpB7682WoByYE80ViuUItWVhaW82PmvhxjIlPRVtKcxrlgGHf
-	dGPb+OPBc/HIe1MaYhnaMHxTedPv5TD94hQc1vcEwHiA1DeWKRC4x2oM8fXA190BCfSUf8WaTGP
-	OdbPKdNtjXax/obFvT27+tXUxeDL3SlDR7trxQ+7w3Dcn6MPteQo7NERCOFWP0D9fYupA2fSRlw
-	ETIA5CvWagnJ66w9omAK+ko50flNbDlBX7hwet1Cqo6/bFHBRTP4O47sWsy4FPsAzJr+TKDCosx
-	QL44HOY650eWYBbSFK1/DWIzue5CLPa45KbEdxfsq9c+q+rERRAxcSBKKjZcnfMk0NfRSOjSKBN
-	5KyOSe4ZnyQkBPSFO5qaGVBdIIyZb0ui68UUGvQYcthtcsqKxZZIt4ZXzdDg5tXkRE1Y5j/0azb
-	7ahvMt2Ue/sU//dzbHJu8/hayeV5cBf/lrFGsZdglC45C8KsM=
-X-Received: by 2002:a05:7300:b54b:b0:2ee:be86:7b90 with SMTP id 5a478bee46e88-2f40a18f9d4mr1458206eec.29.1777986442074;
-        Tue, 05 May 2026 06:07:22 -0700 (PDT)
+        bh=L6eoolunM8+Qnu8GKjHPLpBUZh/8jvI3CyH2eEbHLBQ=;
+        b=Ve+hGpZ2xA0SPlOYGBafL5TMkyBMEEusPTvRPqSfNRVNDQbDUlRpLm7xhxv31XtKwn
+         StrC1vLsvP1hg1rFqBMh0ApnVNwHpT7+OJ9AFV++Q04UvCDm/Fijwgvkp9DEHNxsBMiM
+         hRf1R4Y4BjUs3YJktq5ypAHNIfLtwE4SpuQtWfc1FIz0tCg/WmWdgUaLMuRTjd4gtsvL
+         B7MT9y/Dl0fJly7NmhejYfIw+3nc+2xRcfeK02j4umSE7SH2mxzOH/3Ts9mf9ZC7m48o
+         6cTq8N3vTYGVRSbGS+XyEAk8yzC+RUnV7dDKIQYPGFifjol54vCSi6vQDNGEIZrJtAl7
+         9tCg==
+X-Forwarded-Encrypted: i=1; AFNElJ98MqLzVf9PrtGPWDm7yeqaqm/qamRWxrGHBjBc6rfOhwBg9lmr3Q7Qi5ahPIhcWbmv+//WucKT1nuovxXIXg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQdj5MDyK6UcVMbbMRjQBN1+xWNBQ7HIJSGWQbI2X4edXRkVwy
+	uoq0AaDzAmlepC5uRgTjJkJFLeO6ag6EroyblZQjATuPg0qCW56EecAY
+X-Gm-Gg: AeBDievb4nrK1s3whyA0sP74nk62J98b2b0zJ8VP7gSetenZf3Y8/Kh1OmIkygcq/Ia
+	owXdqzbnb1/miDlQ/axffg2rwGG6MPNj2+gmLdCH4SVpOJPm0GXwlYORfK+oFMFGKSXk14OSOzs
+	fO/0zO6/EDjgZd9Cp8r299IEYgInYZRgosZ+W1gkr2ShoQCJoz5ZU0DPTxuaa5aC3ojzTxGWz31
+	f0ybk/vB5V1Dn7Uyr6+HW3qCg+HSMIziMjDwmsJFH/Viuii77hDVxipBlvreUb0ygFl6Y1OMrAv
+	WyHaOE5IZSE44YyLEloWpCLjsRkOguWT3gzoQ3cexNSQQYKpRNQ0FG7/CF+KJDDShEx1bNwkXmg
+	kBe2GSzw+VxNH1H9DZM+0Ce/6roaPOm8TEa3ubG/x/SlicRnR6dm4R7zj85RUv97YZcif9TGCkU
+	ghgGpnwSt73neU2nG+mQ9S2mq3kcpgz+UlBLPSa4gGqC7hukNHckS1sDNkuw==
+X-Received: by 2002:a05:701b:2507:b0:12d:de3e:86b2 with SMTP id a92af1059eb24-130a9ffb6e3mr925456c88.21.1777986519483;
+        Tue, 05 May 2026 06:08:39 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3889d634sm24278078eec.3.2026.05.05.06.07.21
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12df84252c0sm23229783c88.10.2026.05.05.06.08.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 06:07:21 -0700 (PDT)
+        Tue, 05 May 2026 06:08:38 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Tue, 5 May 2026 06:07:20 -0700
+Date: Tue, 5 May 2026 06:08:37 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Shawn Guo <shengchao.guo@oss.qualcomm.com>
+To: Philipp Hahn <p.hahn@avm.de>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Rajendra Nayak <quic_rjendra@quicinc.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Deepti Jaggi <deepti.jaggi@oss.qualcomm.com>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] dt-bindings: watchdog: qcom-wdt: Add compatible for
- Nord watchdog
-Message-ID: <e0faf165-123d-4a1a-82dc-23693cf09963@roeck-us.net>
-References: <20260504081643.826038-1-shengchao.guo@oss.qualcomm.com>
+	Philipp Hahn <phahn-oss@avm.de>, linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/5] watchdog: Change suffix .txt to .rst in references
+Message-ID: <955dcb87-5a78-47c4-99ad-23e77d7f599a@roeck-us.net>
+References: <cover.1777972790.git.phahn-oss@avm.de>
+ <bb1aa3129d5e52bc4c8e1ec3340b88f80f726fef.1777972790.git.phahn-oss@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -85,17 +77,17 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260504081643.826038-1-shengchao.guo@oss.qualcomm.com>
+In-Reply-To: <bb1aa3129d5e52bc4c8e1ec3340b88f80f726fef.1777972790.git.phahn-oss@avm.de>
 
-On Mon, May 04, 2026 at 04:16:43PM +0800, Shawn Guo wrote:
-> From: Deepti Jaggi <deepti.jaggi@oss.qualcomm.com>
+On Tue, May 05, 2026 at 11:26:12AM +0200, Philipp Hahn wrote:
+> From: Philipp Hahn <phahn-oss@avm.de>
 > 
-> Document Krait Processor Sub-system (KPSS) Watchdog timer on Nord SoC.
+> Fix link to documentation, which has already been converted to reST.
+> Also remove apostrophes which are no longer needed.
 > 
-> Signed-off-by: Deepti Jaggi <deepti.jaggi@oss.qualcomm.com>
-> Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 
 Applied to my watchdog-next branch.
 
+Thanks,
 Guenter
