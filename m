@@ -1,73 +1,84 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A4CE30170F
-	for <linux-watchdog@vger.kernel.org>; Tue,  5 May 2026 13:16:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F6CD2F3622
+	for <linux-watchdog@vger.kernel.org>; Tue,  5 May 2026 13:17:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777986990; cv=none; b=jqdXPbQYhv9ID2zlg94dKXjJkU1+w7B4+Zv+4/br51cW9Mu51puwrMufJ1KVe3CZe8+pr+IXRuLD/ymK+ziAJzLs3WzoGYVw0AmJlDj/LEcr/9Oh3ikcNUvQUsraCyvMQJ6S9ZPHvLVOwd+seF5JAoqoGEKCIquxcvsQfKbyizU=
+	t=1777987068; cv=none; b=u/6iaXN8k98iaum6Vh9i13RQBiqZsUq4p8jUkX0DGdKBDoyD9inPWCMWvAIonxq0/Jna15Qd3tCdjQFtCroujTRFi2g16u3eZhGjo2KVj67iOTiwwJkFvknYxgenUqDmvacLYmF2lzdSustK5+1BxOcz6bPCmlmE9jFy0NFNJ9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777986990; c=relaxed/simple;
-	bh=HHBBf63C55MZMSnlcu9etJXthxILRS+gIzX/cWZC9t8=;
+	s=arc-20240116; t=1777987068; c=relaxed/simple;
+	bh=yZlednh9nVTM+xIY3GdlLz29I02HRrnjp3HlVqr0/w8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pdPj/6TWoVbzU/RbZWLfiXsJze/HYX51ikjJwibvlHZgLMwidXa6M1r0KqSBv8dhOuikqwABDlw4W1o+YqqGfheht/CeY+J/s+YemH0DrdKk+ogXHM66TL0hbaTixFxcDQjiLrKZdMV74veF2tH8N0fgMSzW5IfjHKMPBU9jiUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T4HQqU3a; arc=none smtp.client-ip=74.125.82.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=UHK2QEuUSUsuNXM+1qgJM9xTe2yf/mBy2czO59uszgL9bDDZpDaKY44RpsoN0OA1s3rEhrcGpP0SZOnMLBiM/WEPeVCtwM90p1dZJwCeCKVwiGbfgRkTl+pYgjBSJUnNERKCdXutdLEJu21950BiKrQ12jaAcjO/Mhf0HZKb3Oc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W2914lqM; arc=none smtp.client-ip=74.125.82.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T4HQqU3a"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2f3c623322bso2028945eec.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 05 May 2026 06:16:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W2914lqM"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-12c45281a06so8167057c88.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 05 May 2026 06:17:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777986988; x=1778591788; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777987067; x=1778591867; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=9c4M1Sxe8XfnwUoevaoL/2OztS3a3daovY1Nhqp4yXk=;
-        b=T4HQqU3aeu9rTntyow+TeZcIgtfHktNYfdyfTuaIbUskk3Fg7tYNp5qgs+b9qUPrrY
-         hVmK1GDRXbHmdFo2DQsS4prpcRpSM+lrJnzkOgvuqP5JXGl0VA6/+Z3N1BDaZH8iRqM8
-         y+k+0uItveVpIVgmAYzPDgUsCPerJG54yahYquso9gG9YPONmJ8cA3g/ocRK1f0EZTut
-         Mjhk9kQ64lnrL+tavqwpLnFiUkF8N842cM9FAeEqNVL+YtPdbmNfs5sWt8fN3Qc7n+dk
-         koMD/i0EAQY7PmZUzX5wrf10uKeP4elrmu1fb56ML6c7iMPk7fGAO252w2MYYZ2PCX3+
-         hkpQ==
+        bh=+7Uwvr8MeFsSApFn56xtx5NITAqS9F0rWz+pR67Hm0s=;
+        b=W2914lqMxdn6jzV2p/uMJhBAYPeoJte1DKvNPnqhHKZoGPv0HLoubgHF7GucKQgETq
+         +ogT6hUG8mEw0XitLYxWn2Cp7Ee0hHbXwwPYEIqXKBbYMFxigach3S0imqSDH6zGoAo6
+         /FSY7k2EDEX3zBrnweN9hccT1AuG88OZnyBGiCoCKFIpfNBH9N17ZKnNjfVb4hfKy6Os
+         M1+k5DSa+BMF9ngXeZYPYH0b6sjoPD04Ob8ayyiYdkwtTwhqdPue0K5rt3O2Wi+/87FS
+         /OJMp1tyvOR4mUchXt4NgNWPHRpboA+96I/o61rJaaR89gdYz6xv0JcD/aHs5aLtK30s
+         mRpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777986988; x=1778591788;
+        d=1e100.net; s=20251104; t=1777987067; x=1778591867;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=9c4M1Sxe8XfnwUoevaoL/2OztS3a3daovY1Nhqp4yXk=;
-        b=gUXVQs82XXfmlCF7Ik+LCuEDJkzf2cc1Ni2fCfwqZbs5M52Xmj3RFZOYq3+5Zl/jzD
-         Fl/DRfkLrm7dxSbrjCyi8FDhxLjLeoIrmgLuwG6HzUHbqPKRZSokncokiHwUXIWrOUQe
-         1Z2nTqWMCRBcwvyayX7mvfJ2NhmcHUe7s/FiwtpHIlmHhq/ZmJELKwJevtCS/9ikD2Xp
-         57IGFwcYav/do1tLX8KdosBXLjQNpHVyeR5gEw9y7gmBzqgIiXrBVY/ima61uAG4cRc0
-         RGK7S8QDUb8aCkC3Qa5FQLilVvxHGhn4KbtxjeTvAM+DK0vue58yUURIfxP3dB9WmBtI
-         pChw==
-X-Gm-Message-State: AOJu0YxU7ZP7sTO94rpehqHCVZMooVcs7ui0sQ5YK5mNZx9rWv8WYcve
-	cMGs0ANi4A98LBI5gMTCvFibkwNqah3ZeiLkDvwpD3WfkoX5ZVGBKqnP
-X-Gm-Gg: AeBDievqqzKtknjgJLdH121gD6pe2BqhQHwkTzdhQZYRacC0iv7hbyKLxYNyHfkJZKZ
-	4bobTRr8zzqtFA9eWt1pGWScYBxeERRHUjia1Qwd0slsnmii6jwGDtx9iZnjizbyay9uWlftiIV
-	xBvCov2sjqSmtKt8g20NZXowEIymPYEEqm17hd7j7l7P3xOJzvoR+UPmzpk+L3P1OuCCn0CS2zL
-	4+P7c1M1tD3ip5eAPIXQmR7ufrIxIUhDnU5KthPjhSSuR8ZUawZd0MSajLWKpcdaWc59FIxprJb
-	QWvWJai5CfKGS5MnsAcyM9zhvcXZpJByh2DJMTLt81/tGii1aQ9VVUhVoyZDjDBE6r+Qqo4ckXC
-	pe9yQS8CoZNIFPxT2pUIKYDblrmzsKo/kwCcNFt6N+vHOtaNK/lfMOHK3gUP0glmght91R2DJ+y
-	x3gr9aB7puRDyLCyNsWMCBf+IoozsMQ7z0EgyDde0mGddr7D+/1du5I/wwXQ==
-X-Received: by 2002:a05:7300:e68b:b0:2e6:e868:4f38 with SMTP id 5a478bee46e88-2efb7ad902emr7357996eec.3.1777986988349;
-        Tue, 05 May 2026 06:16:28 -0700 (PDT)
+        bh=+7Uwvr8MeFsSApFn56xtx5NITAqS9F0rWz+pR67Hm0s=;
+        b=kSOjkQEnww4Bqhg6dS/dqDZ3cX0fwD7yLpsDb36cZFlSP31lYg4UZ0oeQR1JqOqJqh
+         cay2pO4UGYx0s9a7PQe4ngIXbqWNKZ9tfuWKkR5z1CXwFb3M1s/v6LgtqxoWrgN/1SlH
+         kHZKQUKGb8IP0eeYCNqAADE1CL/1blzeXWVDukmuJnLxktK5QtJ40++/Frw0m/RFDaIG
+         Nhpfz3wFuP1x+8JyMr2N5D4Y5H0DZ5MClvURG6ytAIIHgGAFXzWZGqsbAHbv1zVdNiDh
+         kiVOWV9UQDlhVk2TYdOqL6kdjf0JKkZ2+MUG/w4BpRHlV6at1d/PB5bY8GJtdshXTRhM
+         Hvkg==
+X-Forwarded-Encrypted: i=1; AFNElJ+2FwLKiEWjrLprBF6eNAnVFq4fu4k5tSUhRb2M5nWVxq7QzPfU9fK6VdXD1K9LAyp433Ct0y35eV50NFWFMQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwoMOxREAkAjibzqogSk6n83CYY8hglmorQ3XV7UcqeqlE8Xb/s
+	ndCyGhiCL7Z62Wr+Ysj5MbBKWX+5k5jM6dHmOkArBd721waJWsSLgsB2
+X-Gm-Gg: AeBDiesPYVSbc/OIF9pvdmaBC8Rnod4T3SkCINTJ8IUfSisAF+4O6QXx9lTUYBlwy53
+	3Z8UjJczx39gCdWTB/oiB6mjAG+cL3ujUSGzNiFUyqousavs84XTv+uXk7PuOUcaQTovi7JDYY9
+	ecAu9Jrk4v0xmkpwY6oG0tUdA4O+PzEHTNsqVkDx6TzdqEO97YSL83fzAP5hGwvWOmzddH/fTRb
+	Zk2CzZCLZectsW9tQQg/j+ju/Fg56TlLpA6tBAJdmPQivkFBimrfdkwCQPKIG0uerO45CFydD8O
+	Gu2hCc6JYX0a9uukYiCtAlCW1Xkrf56fPRgpZDs8lRaZMQ74PgiGpi4hiEH5adno7M6OeB2v9m0
+	K2dk9o/uxi4wZ6lcnNswnbl5nPjR1d8Sul7w2n0ax20UcEFJ26LlwWDItAEuxQ6JaqgJv06C5a8
+	45ajQDFeJFHHzmygYNMDGn5BvAw/xfWW+ZPsHn2GcUTwEPt2M=
+X-Received: by 2002:a05:7022:238e:b0:128:d352:bf8a with SMTP id a92af1059eb24-130b1c72299mr1458737c88.33.1777987066539;
+        Tue, 05 May 2026 06:17:46 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee393578f1sm20977783eec.13.2026.05.05.06.16.27
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12df827a73fsm18173052c88.1.2026.05.05.06.17.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 06:16:27 -0700 (PDT)
+        Tue, 05 May 2026 06:17:46 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Tue, 5 May 2026 06:16:26 -0700
+Date: Tue, 5 May 2026 06:17:45 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, stable@vger.kernel.org,
+To: Janne Grunau <j@jannau.net>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>
-Subject: Re: [PATCH] watchdog: s32g_wdt: remove incorrect options in
- watchdog_info struct
-Message-ID: <e1950f20-3b1f-4989-a360-d330949757f5@roeck-us.net>
-References: <20260505024409.60301-1-enelsonmoore@gmail.com>
+	Mark Kettenis <kettenis@openbsd.org>,
+	Sasha Finkelstein <k@chaosmail.tech>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org,
+	Joshua Peisach <jpeisach@ubuntu.com>
+Subject: Re: [PATCH v2 3/6] dt-bindings: watchdog: apple,wdt: Add t8122
+ compatible
+Message-ID: <5856030a-4d3e-4d1a-928b-f9aa0b21f1a7@roeck-us.net>
+References: <20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net>
+ <20260505-apple-m3-initial-devicetrees-v2-3-b0c2f3519e0e@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -76,23 +87,19 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260505024409.60301-1-enelsonmoore@gmail.com>
+In-Reply-To: <20260505-apple-m3-initial-devicetrees-v2-3-b0c2f3519e0e@jannau.net>
 
-On Mon, May 04, 2026 at 07:44:09PM -0700, Ethan Nelson-Moore wrote:
-> The s32g_wdt driver uses two incorrect constants in the options field
-> of its watchdog_info struct. This bit mask should contain WDIOF_*
-> constants, but the driver uses two WDIOC_* ioctl constants (in addition
-> to correct WDIOF_* constants). This causes many incorrect bits to be
-> set in the bit mask. The functionality indicated by these ioctl
-> constants is supported by all drivers using the watchdog framework, so
-> this patch simply removes them.
+On Tue, May 05, 2026 at 01:02:41PM +0200, Janne Grunau wrote:
+> The watchdog on the Apple silicon t8122 (M3) SoC is compatible with the
+> existing driver. Add "apple,t8122-wdt" as SoC specific compatible under
+> "apple,t8103-wdt" used by the driver.
 > 
-> Fixes: bd3f54ec559b ("watchdog: Add the Watchdog Timer for the NXP S32 platform")
-> Cc: stable@vger.kernel.org # 6.18+
-> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-> Acked-by: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com>
+> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>
+> Reviewed-by: Neal Gompa <neal@gompa.dev>
+> Signed-off-by: Janne Grunau <j@jannau.net>
 
-Applied to my watchdog branch.
+Applied to my watchdog-next branch.
 
 Thanks,
 Guenter
