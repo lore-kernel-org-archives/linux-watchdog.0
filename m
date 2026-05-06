@@ -1,575 +1,138 @@
-Received: from extorris.mess.org (extorris.mess.org [92.243.27.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14CB6481672;
-	Wed,  6 May 2026 14:43:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.243.27.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483D3481ABB
+	for <linux-watchdog@vger.kernel.org>; Wed,  6 May 2026 14:51:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778078611; cv=none; b=TFXDPHlwbIs/0iAkD+Ali1nsylNai2S5BcaSpjl9bqE4zhgbqKCd1EDEky4UMOwX/Od2q+xAF/L9m6ljVejtg9pLpp8cnzS1TtCHaMOvXvtebw/OIvAPkdtSqDFWUJplt+faZ0AZov+yFQbNJaWo5NuHkWz2aHlzrifEAwFF3f0=
+	t=1778079115; cv=none; b=PtpB0kCWeENmDHuPjq0HMVP0ReAq/ZpxETnIOPkaN/sJKORVp4nIrO571N5nu796XV7xRIx5TATVSwTdk6tp343GhM8UsZR7W1TNRh62VppGj2VxYmQZVXbt3/cp1Cy0qB0gCQC0YanjMyqUZams0Cu0lNHoCgJsPoBnKgPQdBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778078611; c=relaxed/simple;
-	bh=6d9F+pJci21rx/PgvsDV0n4eVOiHg0n3rX/welKGutg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=SRGt3Lo0CB6kZfl0yZ7TkLw1XQjONSkdsXoBEyMajkWQ78seziRaFlAz+Ipur9mnSibfeS/EF8bYW/BAnFkJM8pfOKkMBEaTCKyPrSBNSJMDU5/4suTb+NU1mU18M71vvcX1zk/uUYszps45BqnNlkmPDEHA0nT+XKkVYGqniJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mess.org; spf=pass smtp.mailfrom=mess.org; dkim=pass (2048-bit key) header.d=mess.org header.i=@mess.org header.b=c+WEFXxj; dkim=pass (2048-bit key) header.d=mess.org header.i=@mess.org header.b=HQrfukeb; arc=none smtp.client-ip=92.243.27.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mess.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mess.org
+	s=arc-20240116; t=1778079115; c=relaxed/simple;
+	bh=2TB7Jypyp5licsObZy5PK8j7KJDLPRWEgm50vcjLiwQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c0Lnp4NYIuhn7EFlYWonCgsC20GmfqR/vdyG1UaijTgjhJgjnCM5CnDgPPHg3CDW+zicMKF4FBWXOouVadMLG5he0qRZwK3wHK79Ttlx0AyFpuYiPtH1XTQRsF//wV1YYiXvNDzHLhSrkBllmjETbDA+Q+9H2BO3QA0lH/1PxLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQalFFwU; arc=none smtp.client-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mess.org header.i=@mess.org header.b="c+WEFXxj";
-	dkim=pass (2048-bit key) header.d=mess.org header.i=@mess.org header.b="HQrfukeb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mess.org; s=2020;
-	t=1778078607; bh=6d9F+pJci21rx/PgvsDV0n4eVOiHg0n3rX/welKGutg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=c+WEFXxjFy1t52H+xSgoZKl8Ry4UzrjgXnVtXD0z+8VAmPi+QSchclZzuJWPvt74h
-	 2tGG8KI9/I2o4NzhB607MV9B3RNpxz/nggMVT2wqoupOAPBUaN3eLRcr0Qz+3Hdjqr
-	 RLpC7TKakItV34DgST8gWZKW/zAyJ6Q0RzkC8qCEM8hi829vQbUegpJ9O1vUP1jMIO
-	 IIp0TULsxUZEvPeP9jRv98aapmqB0vS2roI5qL1bziRMKSZeRqF/uFGYTi7U8C1I9g
-	 6Ox+YVCYg3uHyW4qRW/aVIrZArVENBqdZ2s0Z4iANT7K10i5z7vhSJmBh72Xo7Uyql
-	 Ka1xOEYnmOYvQ==
-Received: by extorris.mess.org (Postfix, from userid 1004)
-	id EAD6A41CDE; Wed, 06 May 2026 15:43:27 +0100 (BST)
-X-Spam-Level: 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mess.org; s=2020;
-	t=1778078591; bh=6d9F+pJci21rx/PgvsDV0n4eVOiHg0n3rX/welKGutg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HQrfukeb0e+hloXa9AS8KjoT8CbZANeOZzDvoTBnBObeKuOznToRgR9mnHdam2dzi
-	 IoRIsKLuVIHwwQdQbJj5MbZGE/9YMGHpJnYP4MRVhxT5Ka+1Cgv21r4WpJ2gXpJRU9
-	 VXXgufKSE+rLGpcYVaqzpMFVLVyLvIUb2wnQtRQeyOOIjU+8bY5vKXZOPCI5NZqpVx
-	 Q0RYouIirhqwAy2jUiuagL//AviXvFnF3UZpB+8Jr8QHNpjRz2ag1O3Kw9W4aRITqW
-	 FtswzzQiCy0zmXTHioUmbhZkUT46uQYPQ2tdvCgNMgkcIlzSpmPvpPa2t0ZGwid4dk
-	 NoS4018ioNyOw==
-Received: from maru.local (unknown [140.228.74.55])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by extorris.mess.org (Postfix) with ESMTPSA id A1BE040154;
-	Wed, 06 May 2026 15:43:11 +0100 (BST)
-From: Sean Young <sean@mess.org>
-To: linux-kernel@vger.kernel.org,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-doc@vger.kernel.org
-Subject: [PATCH 6/8] watchdog: sc520: Drop AMD Elan SC520 support
-Date: Wed,  6 May 2026 15:42:51 +0100
-Message-ID: <59c97749c14a4ad1039bb9cc920cf32babb9d6f7.1778071745.git.sean@mess.org>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <cover.1778071745.git.sean@mess.org>
-References: <cover.1778071745.git.sean@mess.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQalFFwU"
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12c19d23b19so9731106c88.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 06 May 2026 07:51:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778079110; x=1778683910; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=dZrJsMWkV7MFT1waoAtWnsYSX2SEoFvqCgpIXtIXV+M=;
+        b=LQalFFwUtyI02pUvuej0jE5o6sSdVM325b7JqP089SevDC1v5L+36nmOYIvMia+sxx
+         z37xmd2srsikhCrTcqtydYsepofIxgBNwCkPzeVGh//kzHzFRhVcMOOeR+rPI5TZWs7G
+         omj94DNDxLd3JfDt9cY3/2vG5DrN0pqH53GoVwpDfGYfDbvVJvQiIYV56yXbPG366knh
+         neJNTInIiTIFjILdGyZnnpXw83iyUxmZq/03nHHaDj3XfHe6YS0oGZU2vN/FDXyvnCvI
+         EjeEULS9SztEkIos2OF3MbnXCB2X4Ve3BGif3SXrgUAn14vEchiPtPF8zjF7yUCT7ynw
+         FROw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778079110; x=1778683910;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dZrJsMWkV7MFT1waoAtWnsYSX2SEoFvqCgpIXtIXV+M=;
+        b=EQpuX4yx/D6DCwYXeiLVDFKvPeAuLkRA66uiT/plQLZekZdYNPMSQ4LgPFBAtDiOcc
+         ncnDOSi0nlV0iK9/uXZKqh42x1T7UgFnGcqqBDiIxb2q5+I1NsVi6AjWTeX69LuWfahU
+         de4FKye1OpZ/m9uU5Mg0ERwd67ACPMKmSYG5zNQDCgdd+1N0XcU5EaTNzuDKXLbCvBrw
+         kYet/mf7wediEFdXduUrUAGFWOHzO0hhBS75AG9+roGBchsyqpu+XM7fnV0xEifxPYH4
+         IxvDUwYg8snfdYIchClRxO7KgqqgxrRRz8fiiTAYNBz51108Bu9pIxulOplcq1aOOHz2
+         C8GQ==
+X-Gm-Message-State: AOJu0YwajF435B3zDmbOPLFzjUCtMNennRSj1Si5nnitraQMrpquf8r/
+	lwSNsVkTDToZl05oo+18AGethrk4ZriGxRaLjTVIf3070yeBLDsqGGyf
+X-Gm-Gg: AeBDiesnAD5ThOAevwX+f+ui0lpo9HmCjHRLCzByeLuKVhJDUdqZqxnGM9lOQlvNXZR
+	Yf+KJ9ozK0dbJOTiUJdcmwzjFXi+IRBr0m4dihZk2NU/s9mzxYNd3toquEy1x57LTFAYB3QKlDv
+	5TK1LBIVqSzgUNjoCx0D3TFZ3TxFqlAZm5drJG1A1XMU7jsfPD/k0kPAWuSJhOAXJ8HHyehIKaG
+	qhxHBsa7ixMjLddlDNw9LFOP58czGZRcW6FIovUpsGe+/eup70NN/aQqucOUUdxgdOijk5nj72Q
+	jt6McyV5u4LgMN+Z2yK7p+fUbxTca84sioDXNkeZW1E/q7GJN4b08nfdDDwNkCmkA/uaIjaHJwu
+	A71N7k+GyzSTNXuQwMadq5F7dZ5cvBrm1qvO6ZWqK/edKhpVoPNbLvXL9WsRnZds36FxDSsv5Nd
+	i2K8GDF1VBPytOyz4y2lHjmiKMcfqPKnVzVjt6gLzXaCtdHu8a31s7EaMAKCQ2QIRPkIXc6So18
+	eBMgA1Jv15jSr/eS/fRmA==
+X-Received: by 2002:a05:7022:2511:b0:130:6904:8c17 with SMTP id a92af1059eb24-1319cc2a479mr2020510c88.18.1778079108812;
+        Wed, 06 May 2026 07:51:48 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13202db1914sm4022451c88.11.2026.05.06.07.51.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 06 May 2026 07:51:48 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <0c1edaa7-ad96-438a-9a0a-00c922069d83@roeck-us.net>
+Date: Wed, 6 May 2026 07:51:47 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 6/8] watchdog: sc520: Drop AMD Elan SC520 support
+To: Sean Young <sean@mess.org>, linux-kernel@vger.kernel.org,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
+References: <cover.1778071745.git.sean@mess.org>
+ <59c97749c14a4ad1039bb9cc920cf32babb9d6f7.1778071745.git.sean@mess.org>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <59c97749c14a4ad1039bb9cc920cf32babb9d6f7.1778071745.git.sean@mess.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Since commit 8b793a92d862 ("x86/cpu: Remove M486/M486SX/ELAN support"),
-this board is no longer supported. Remove the watchdog too.
+On 5/6/26 07:42, Sean Young wrote:
+> Since commit 8b793a92d862 ("x86/cpu: Remove M486/M486SX/ELAN support"),
+> this board is no longer supported. Remove the watchdog too.
+> 
+> Signed-off-by: Sean Young <sean@mess.org>
 
-Signed-off-by: Sean Young <sean@mess.org>
----
- .../watchdog/watchdog-parameters.rst          |   9 -
- drivers/watchdog/Kconfig                      |  13 -
- drivers/watchdog/Makefile                     |   1 -
- drivers/watchdog/sc520_wdt.c                  | 430 ------------------
- 4 files changed, 453 deletions(-)
- delete mode 100644 drivers/watchdog/sc520_wdt.c
+I already submitted the same patch yesterday and applied it to my
+watchdog-next branch.
 
-diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
-index 773241ed9986..638b972e0b16 100644
---- a/Documentation/watchdog/watchdog-parameters.rst
-+++ b/Documentation/watchdog/watchdog-parameters.rst
-@@ -532,15 +532,6 @@ sc1200wdt:
- 
- -------------------------------------------------
- 
--sc520_wdt:
--    timeout:
--	Watchdog timeout in seconds. (1 <= timeout <= 3600, default=30)
--    nowayout:
--	Watchdog cannot be stopped once started
--	(default=kernel config parameter)
--
---------------------------------------------------
--
- sch311x_wdt:
-     force_id:
- 	Override the detected device ID
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index dc78729ba2a5..4e36e4b5bf39 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1270,19 +1270,6 @@ config GEODE_WDT
- 	  You can compile this driver directly into the kernel, or use
- 	  it as a module.  The module will be called geodewdt.
- 
--config SC520_WDT
--	tristate "AMD Elan SC520 processor Watchdog"
--	depends on MELAN || COMPILE_TEST
--	help
--	  This is the driver for the hardware watchdog built in to the
--	  AMD "Elan" SC520 microcomputer commonly used in embedded systems.
--	  This watchdog simply watches your kernel to make sure it doesn't
--	  freeze, and if it does, it reboots your computer after a certain
--	  amount of time.
--
--	  You can compile this driver directly into the kernel, or use
--	  it as a module.  The module will be called sc520_wdt.
--
- config SBC_FITPC2_WATCHDOG
- 	tristate "Compulab SBC-FITPC2 watchdog"
- 	depends on (X86 || COMPILE_TEST) && HAS_IOPORT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index d2fb16b9f9ce..1daeab5b2473 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -116,7 +116,6 @@ obj-$(CONFIG_EXAR_WDT) += exar_wdt.o
- obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
- obj-$(CONFIG_SP5100_TCO) += sp5100_tco.o
- obj-$(CONFIG_GEODE_WDT) += geodewdt.o
--obj-$(CONFIG_SC520_WDT) += sc520_wdt.o
- obj-$(CONFIG_SBC_FITPC2_WATCHDOG) += sbc_fitpc2_wdt.o
- obj-$(CONFIG_EUROTECH_WDT) += eurotechwdt.o
- obj-$(CONFIG_IB700_WDT) += ib700wdt.o
-diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
-deleted file mode 100644
-index 005f62e4a4fb..000000000000
---- a/drivers/watchdog/sc520_wdt.c
-+++ /dev/null
-@@ -1,430 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
--/*
-- *	AMD Elan SC520 processor Watchdog Timer driver
-- *
-- *	Based on acquirewdt.c by Alan Cox,
-- *	     and sbc60xxwdt.c by Jakob Oestergaard <jakob@unthought.net>
-- *
-- *	The authors do NOT admit liability nor provide warranty for
-- *	any of this software. This material is provided "AS-IS" in
-- *	the hope that it may be useful for others.
-- *
-- *	(c) Copyright 2001    Scott Jennings <linuxdrivers@oro.net>
-- *           9/27 - 2001      [Initial release]
-- *
-- *	Additional fixes Alan Cox
-- *	-	Fixed formatting
-- *	-	Removed debug printks
-- *	-	Fixed SMP built kernel deadlock
-- *	-	Switched to private locks not lock_kernel
-- *	-	Used ioremap/writew/readw
-- *	-	Added NOWAYOUT support
-- *	4/12 - 2002 Changes by Rob Radez <rob@osinvestor.com>
-- *	-	Change comments
-- *	-	Eliminate fop_llseek
-- *	-	Change CONFIG_WATCHDOG_NOWAYOUT semantics
-- *	-	Add KERN_* tags to printks
-- *	-	fix possible wdt_is_open race
-- *	-	Report proper capabilities in watchdog_info
-- *	-	Add WDIOC_{GETSTATUS, GETBOOTSTATUS, SETTIMEOUT,
-- *		GETTIMEOUT, SETOPTIONS} ioctls
-- *	09/8 - 2003 Changes by Wim Van Sebroeck <wim@iguana.be>
-- *	-	cleanup of trailing spaces
-- *	-	added extra printk's for startup problems
-- *	-	use module_param
-- *	-	made timeout (the emulated heartbeat) a module_param
-- *	-	made the keepalive ping an internal subroutine
-- *	3/27 - 2004 Changes by Sean Young <sean@mess.org>
-- *	-	set MMCR_BASE to 0xfffef000
-- *	-	CBAR does not need to be read
-- *	-	removed debugging printks
-- *
-- *  This WDT driver is different from most other Linux WDT
-- *  drivers in that the driver will ping the watchdog by itself,
-- *  because this particular WDT has a very short timeout (1.6
-- *  seconds) and it would be insane to count on any userspace
-- *  daemon always getting scheduled within that time frame.
-- *
-- *  This driver uses memory mapped IO, and spinlock.
-- */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/module.h>
--#include <linux/moduleparam.h>
--#include <linux/types.h>
--#include <linux/timer.h>
--#include <linux/miscdevice.h>
--#include <linux/watchdog.h>
--#include <linux/fs.h>
--#include <linux/ioport.h>
--#include <linux/notifier.h>
--#include <linux/reboot.h>
--#include <linux/init.h>
--#include <linux/jiffies.h>
--#include <linux/io.h>
--#include <linux/uaccess.h>
--
--
--/*
-- * The AMD Elan SC520 timeout value is 492us times a power of 2 (0-7)
-- *
-- *   0: 492us    2: 1.01s    4: 4.03s   6: 16.22s
-- *   1: 503ms    3: 2.01s    5: 8.05s   7: 32.21s
-- *
-- * We will program the SC520 watchdog for a timeout of 2.01s.
-- * If we reset the watchdog every ~250ms we should be safe.
-- */
--
--#define WDT_INTERVAL (HZ/4+1)
--
--/*
-- * We must not require too good response from the userspace daemon.
-- * Here we require the userspace daemon to send us a heartbeat
-- * char to /dev/watchdog every 30 seconds.
-- */
--
--#define WATCHDOG_TIMEOUT 30		/* 30 sec default timeout */
--/* in seconds, will be multiplied by HZ to get seconds to wait for a ping */
--static int timeout = WATCHDOG_TIMEOUT;
--module_param(timeout, int, 0);
--MODULE_PARM_DESC(timeout,
--	"Watchdog timeout in seconds. (1 <= timeout <= 3600, default="
--				__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
--
--static bool nowayout = WATCHDOG_NOWAYOUT;
--module_param(nowayout, bool, 0);
--MODULE_PARM_DESC(nowayout,
--		"Watchdog cannot be stopped once started (default="
--				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
--
--/*
-- * AMD Elan SC520 - Watchdog Timer Registers
-- */
--#define MMCR_BASE	0xfffef000	/* The default base address */
--#define OFFS_WDTMRCTL	0xCB0	/* Watchdog Timer Control Register */
--
--/* WDT Control Register bit definitions */
--#define WDT_EXP_SEL_01	0x0001	/* [01] Time-out = 496 us (with 33 Mhz clk). */
--#define WDT_EXP_SEL_02	0x0002	/* [02] Time-out = 508 ms (with 33 Mhz clk). */
--#define WDT_EXP_SEL_03	0x0004	/* [03] Time-out = 1.02 s (with 33 Mhz clk). */
--#define WDT_EXP_SEL_04	0x0008	/* [04] Time-out = 2.03 s (with 33 Mhz clk). */
--#define WDT_EXP_SEL_05	0x0010	/* [05] Time-out = 4.07 s (with 33 Mhz clk). */
--#define WDT_EXP_SEL_06	0x0020	/* [06] Time-out = 8.13 s (with 33 Mhz clk). */
--#define WDT_EXP_SEL_07	0x0040	/* [07] Time-out = 16.27s (with 33 Mhz clk). */
--#define WDT_EXP_SEL_08	0x0080	/* [08] Time-out = 32.54s (with 33 Mhz clk). */
--#define WDT_IRQ_FLG	0x1000	/* [12] Interrupt Request Flag */
--#define WDT_WRST_ENB	0x4000	/* [14] Watchdog Timer Reset Enable */
--#define WDT_ENB		0x8000	/* [15] Watchdog Timer Enable */
--
--static __u16 __iomem *wdtmrctl;
--
--static void wdt_timer_ping(struct timer_list *);
--static DEFINE_TIMER(timer, wdt_timer_ping);
--static unsigned long next_heartbeat;
--static unsigned long wdt_is_open;
--static char wdt_expect_close;
--static DEFINE_SPINLOCK(wdt_spinlock);
--
--/*
-- *	Whack the dog
-- */
--
--static void wdt_timer_ping(struct timer_list *unused)
--{
--	/* If we got a heartbeat pulse within the WDT_US_INTERVAL
--	 * we agree to ping the WDT
--	 */
--	if (time_before(jiffies, next_heartbeat)) {
--		/* Ping the WDT */
--		spin_lock(&wdt_spinlock);
--		writew(0xAAAA, wdtmrctl);
--		writew(0x5555, wdtmrctl);
--		spin_unlock(&wdt_spinlock);
--
--		/* Re-set the timer interval */
--		mod_timer(&timer, jiffies + WDT_INTERVAL);
--	} else
--		pr_warn("Heartbeat lost! Will not ping the watchdog\n");
--}
--
--/*
-- *	Utility routines
-- */
--
--static void wdt_config(int writeval)
--{
--	unsigned long flags;
--
--	/* buy some time (ping) */
--	spin_lock_irqsave(&wdt_spinlock, flags);
--	readw(wdtmrctl);	/* ensure write synchronization */
--	writew(0xAAAA, wdtmrctl);
--	writew(0x5555, wdtmrctl);
--	/* unlock WDT = make WDT configuration register writable one time */
--	writew(0x3333, wdtmrctl);
--	writew(0xCCCC, wdtmrctl);
--	/* write WDT configuration register */
--	writew(writeval, wdtmrctl);
--	spin_unlock_irqrestore(&wdt_spinlock, flags);
--}
--
--static int wdt_startup(void)
--{
--	next_heartbeat = jiffies + (timeout * HZ);
--
--	/* Start the timer */
--	mod_timer(&timer, jiffies + WDT_INTERVAL);
--
--	/* Start the watchdog */
--	wdt_config(WDT_ENB | WDT_WRST_ENB | WDT_EXP_SEL_04);
--
--	pr_info("Watchdog timer is now enabled\n");
--	return 0;
--}
--
--static int wdt_turnoff(void)
--{
--	/* Stop the timer */
--	timer_delete_sync(&timer);
--
--	/* Stop the watchdog */
--	wdt_config(0);
--
--	pr_info("Watchdog timer is now disabled...\n");
--	return 0;
--}
--
--static int wdt_keepalive(void)
--{
--	/* user land ping */
--	next_heartbeat = jiffies + (timeout * HZ);
--	return 0;
--}
--
--static int wdt_set_heartbeat(int t)
--{
--	if ((t < 1) || (t > 3600))	/* arbitrary upper limit */
--		return -EINVAL;
--
--	timeout = t;
--	return 0;
--}
--
--/*
-- *	/dev/watchdog handling
-- */
--
--static ssize_t fop_write(struct file *file, const char __user *buf,
--						size_t count, loff_t *ppos)
--{
--	/* See if we got the magic character 'V' and reload the timer */
--	if (count) {
--		if (!nowayout) {
--			size_t ofs;
--
--			/* note: just in case someone wrote the magic character
--			 * five months ago... */
--			wdt_expect_close = 0;
--
--			/* now scan */
--			for (ofs = 0; ofs != count; ofs++) {
--				char c;
--				if (get_user(c, buf + ofs))
--					return -EFAULT;
--				if (c == 'V')
--					wdt_expect_close = 42;
--			}
--		}
--
--		/* Well, anyhow someone wrote to us, we should
--		   return that favour */
--		wdt_keepalive();
--	}
--	return count;
--}
--
--static int fop_open(struct inode *inode, struct file *file)
--{
--	/* Just in case we're already talking to someone... */
--	if (test_and_set_bit(0, &wdt_is_open))
--		return -EBUSY;
--	if (nowayout)
--		__module_get(THIS_MODULE);
--
--	/* Good, fire up the show */
--	wdt_startup();
--	return stream_open(inode, file);
--}
--
--static int fop_close(struct inode *inode, struct file *file)
--{
--	if (wdt_expect_close == 42)
--		wdt_turnoff();
--	else {
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--		wdt_keepalive();
--	}
--	clear_bit(0, &wdt_is_open);
--	wdt_expect_close = 0;
--	return 0;
--}
--
--static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	static const struct watchdog_info ident = {
--		.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT
--							| WDIOF_MAGICCLOSE,
--		.firmware_version = 1,
--		.identity = "SC520",
--	};
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--	case WDIOC_SETOPTIONS:
--	{
--		int new_options, retval = -EINVAL;
--
--		if (get_user(new_options, p))
--			return -EFAULT;
--
--		if (new_options & WDIOS_DISABLECARD) {
--			wdt_turnoff();
--			retval = 0;
--		}
--
--		if (new_options & WDIOS_ENABLECARD) {
--			wdt_startup();
--			retval = 0;
--		}
--
--		return retval;
--	}
--	case WDIOC_KEEPALIVE:
--		wdt_keepalive();
--		return 0;
--	case WDIOC_SETTIMEOUT:
--	{
--		int new_timeout;
--
--		if (get_user(new_timeout, p))
--			return -EFAULT;
--
--		if (wdt_set_heartbeat(new_timeout))
--			return -EINVAL;
--
--		wdt_keepalive();
--	}
--		fallthrough;
--	case WDIOC_GETTIMEOUT:
--		return put_user(timeout, p);
--	default:
--		return -ENOTTY;
--	}
--}
--
--static const struct file_operations wdt_fops = {
--	.owner		= THIS_MODULE,
--	.write		= fop_write,
--	.open		= fop_open,
--	.release	= fop_close,
--	.unlocked_ioctl	= fop_ioctl,
--	.compat_ioctl	= compat_ptr_ioctl,
--};
--
--static struct miscdevice wdt_miscdev = {
--	.minor	= WATCHDOG_MINOR,
--	.name	= "watchdog",
--	.fops	= &wdt_fops,
--};
--
--/*
-- *	Notifier for system down
-- */
--
--static int wdt_notify_sys(struct notifier_block *this, unsigned long code,
--	void *unused)
--{
--	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt_turnoff();
--	return NOTIFY_DONE;
--}
--
--/*
-- *	The WDT needs to learn about soft shutdowns in order to
-- *	turn the timebomb registers off.
-- */
--
--static struct notifier_block wdt_notifier = {
--	.notifier_call = wdt_notify_sys,
--};
--
--static void __exit sc520_wdt_unload(void)
--{
--	if (!nowayout)
--		wdt_turnoff();
--
--	/* Deregister */
--	misc_deregister(&wdt_miscdev);
--	unregister_reboot_notifier(&wdt_notifier);
--	iounmap(wdtmrctl);
--}
--
--static int __init sc520_wdt_init(void)
--{
--	int rc = -EBUSY;
--
--	/* Check that the timeout value is within it's range ;
--	   if not reset to the default */
--	if (wdt_set_heartbeat(timeout)) {
--		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
--		pr_info("timeout value must be 1 <= timeout <= 3600, using %d\n",
--			WATCHDOG_TIMEOUT);
--	}
--
--	wdtmrctl = ioremap(MMCR_BASE + OFFS_WDTMRCTL, 2);
--	if (!wdtmrctl) {
--		pr_err("Unable to remap memory\n");
--		rc = -ENOMEM;
--		goto err_out_region2;
--	}
--
--	rc = register_reboot_notifier(&wdt_notifier);
--	if (rc) {
--		pr_err("cannot register reboot notifier (err=%d)\n", rc);
--		goto err_out_ioremap;
--	}
--
--	rc = misc_register(&wdt_miscdev);
--	if (rc) {
--		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
--		       WATCHDOG_MINOR, rc);
--		goto err_out_notifier;
--	}
--
--	pr_info("WDT driver for SC520 initialised. timeout=%d sec (nowayout=%d)\n",
--		timeout, nowayout);
--
--	return 0;
--
--err_out_notifier:
--	unregister_reboot_notifier(&wdt_notifier);
--err_out_ioremap:
--	iounmap(wdtmrctl);
--err_out_region2:
--	return rc;
--}
--
--module_init(sc520_wdt_init);
--module_exit(sc520_wdt_unload);
--
--MODULE_AUTHOR("Scott and Bill Jennings");
--MODULE_DESCRIPTION(
--	"Driver for watchdog timer in AMD \"Elan\" SC520 uProcessor");
--MODULE_LICENSE("GPL");
--- 
-2.54.0
+Guenter
 
