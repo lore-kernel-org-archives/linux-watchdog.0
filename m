@@ -1,50 +1,53 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329863C3BF5
-	for <linux-watchdog@vger.kernel.org>; Thu,  7 May 2026 11:21:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 942003ACF14
+	for <linux-watchdog@vger.kernel.org>; Thu,  7 May 2026 11:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778152868; cv=none; b=Rzq2lG19kG8TXE4rPKjHNBq43h1WxvumEqgjS/Sik0SbsBfSKhR3TQ9Q2iRXiZHj4n+z9Eq25d2JvThMEZvz/vNsSJXHGR3lXlI/dgketjNf2Re9ddphPv43R4CkwSisNZ0tkbAkRfUAQjoPOTT8W8937IFQSUiG3rNMg/x/XKU=
+	t=1778152933; cv=none; b=gCYkf/m5GwxDD6HwjRV1MTtk955Cayb6EJvBOXuXRwKkXSMPB1MCxT2J8SMP5a9oFfc1WBQQaVVhTEH6CgYEy6F4hNgrfAt4h3E/l9ZDUK92loa+4G22fKGiv89yKgNYmpFZpJH07I4SJdwQxb5U2YjD+FgTkJtanA1GnA62vvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778152868; c=relaxed/simple;
-	bh=k3w3Wg4hhYKzm2ajlCQugTngqghBsE21BpT/F90KZr0=;
+	s=arc-20240116; t=1778152933; c=relaxed/simple;
+	bh=6wrZY9IziN8qWO7M7Go6gONMebXh2ZZ6cInaOrkBUH8=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OYJxokkIsY0DMMQSRfVOhXVPL9UELMZ+B08OVpjWMQWUV0BrHlQl27yrRNWCsImIjpMaumDW9h1n+E6h8T0AJgu8k1B6Kr0o3LgwyLmDwtGN6KnMhsA8DnBSzuUyUAyrGhr8wsBch93i/CDZ8yPhPWf3tSFyWhiMhRJgTKf14p8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Gx0edOfG; arc=none smtp.client-ip=185.171.202.116
+	 MIME-Version:Content-Type; b=OKpt/UZZcEun2Gnx1bsxC19cAJ9zmyx9Np9rUQTY5YrDndZkB2Zvo5gM2TnPtelRcCU43jPCemU94OJqzwPtI+9AWXfbSpvKrxuLLvr6NMgPNNV0HJDrMXlsNiM15NnBYtj0UAHizVOBY2lV1ds5xsoiOsEDmES781YGR5LgJnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=mHJDjue1; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Gx0edOfG"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="mHJDjue1"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id A9314C5DC60;
-	Thu,  7 May 2026 11:21:48 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 3775A1A355E;
+	Thu,  7 May 2026 11:22:11 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id DB85B60495;
-	Thu,  7 May 2026 11:21:00 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C96EC107F2329;
-	Thu,  7 May 2026 13:20:58 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 0B47860495;
+	Thu,  7 May 2026 11:22:11 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C54A9102F24D0;
+	Thu,  7 May 2026 13:22:07 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1778152860; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1778152930; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=aOLysT8Z8y7OfYfpXXoyJQ4LwrS6dTwQ8oR1aY1rOIE=;
-	b=Gx0edOfGF5ZRmePWCrjxbAa5P8sGxCQ2//lD3uDdvikDF+Nkw2RCNaBZax4skIsYCx4qSd
-	iqmezGwKRr8i+Q5ctJ2Q/olOLRPQCXYG4gVDIhlxePs+cdMORUnHVyMQo2RjCKBDI81khT
-	N1QzKLQKpoU0zsHM+wdu6EoL1gTv7C2gs+21O+IQpsfeOKohdniYZdMQXPf0dUf4ReKyUL
-	9fSs0qpic/TV3hKPaK7rUrQq8wFwGwykgvOFWFsAszhw2s1XgHaPP47oFwZBiV0PP7QDR3
-	4kAEc4/ir0WMBwcIG/u0i0d/nFTJfQ9F6KhqGYfI5g469Io8h6WYyY0w2WGLJQ==
-Date: Thu, 7 May 2026 13:20:57 +0200
+	bh=TyVFfMB+bFVtMdTeDS+Mg+c4RXdxV+nVPBtIth66O7o=;
+	b=mHJDjue13Ny6zxx3NkuAPI1Ol93kpDHpMSkO2coIizzlkFaydoNBAtF1/THfkEtWM4sMN9
+	0uRK2LxMcT0E1Q3kTGQyVSSy3BneWuRRh9oPcy7WPeVVaRHPGjKJcaixLclJ2LW/5q1QbQ
+	u5tWNUdFA71BI//Sk3ED4eiA4v4SqZ7ez3aVOy0EpNPW1jUs+O/PGa7LJtFcPV1pZYIWPD
+	YOIZGWz3f49yOAwiGO5Ag7lYLbsZmomehby/F9i8uAmS3oSEj9K1+bjWhMZuGPAa6JiGLh
+	zVqr3p2SYns2whVqjGOw7lGsI+M/EEt1ShO3RlrAhOgE2My2ow/H7Pk25HQ5gw==
+Date: Thu, 7 May 2026 13:22:07 +0200
 From: Herve Codina <herve.codina@bootlin.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-renesas-soc@vger.kernel.org, Wim Van Sebroeck
- <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
- linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4 3/4] watchdog: rzn1: remove now obsolete interrupt
- support
-Message-ID: <20260507132057.19e86962@bootlin.com>
-In-Reply-To: <20260507102410.43384-4-wsa+renesas@sang-engineering.com>
+ <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Magnus
+ Damm <magnus.damm@gmail.com>, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org
+Subject: Re: [PATCH v4 4/4] dt-bindings: watchdog: renesas,rzn1-wdt:
+ interrupts are not required
+Message-ID: <20260507132207.5f2fdb7a@bootlin.com>
+In-Reply-To: <20260507102410.43384-5-wsa+renesas@sang-engineering.com>
 References: <20260507102410.43384-1-wsa+renesas@sang-engineering.com>
-	<20260507102410.43384-4-wsa+renesas@sang-engineering.com>
+	<20260507102410.43384-5-wsa+renesas@sang-engineering.com>
 Organization: Bootlin
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -59,19 +62,17 @@ X-Last-TLS-Session-Version: TLSv1.3
 
 Hi Wolfram,
 
-On Thu,  7 May 2026 12:24:08 +0200
+On Thu,  7 May 2026 12:24:09 +0200
 Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-> Previously, it was overlooked that the watchdog could reset the system
-> directly. So, a workaround using the interrupt which called
-> emergency_restart() was implemented. We now configure the controller
-> when booting properly to allow watchdog resets directly. Thus, remove
-> the interrupt workaround.
+> It is now understood how the watchdog can do its job without the need of
+> an interrupt. So, it is not required anymore but optional.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  drivers/watchdog/rzn1_wdt.c | 19 -------------------
->  1 file changed, 19 deletions(-)
+>  Documentation/devicetree/bindings/watchdog/renesas,rzn1-wdt.yaml | 1 -
+>  1 file changed, 1 deletion(-)
+> 
 
 Reviewed-by: Herve Codina <herve.codina@bootlin.com>
 
