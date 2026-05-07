@@ -1,153 +1,187 @@
 Received: from fhigh-a4-smtp.messagingengine.com (fhigh-a4-smtp.messagingengine.com [103.168.172.155])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC38D30EF7B;
-	Thu,  7 May 2026 07:21:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B706030AD00;
+	Thu,  7 May 2026 07:33:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778138470; cv=none; b=ibKOIzmGJNy+m4XKPjNurDOBmm8gXPyoJET42O+Tzat6S5yyUUzXLknSorx+rB7Fp1kwiLh+BRUsCYGq8sOnfqoZ+Lz/3jym/4PsU70zmHTA7Yi0CaeVCkUxMxV58LPiVYXIMoQMSbtEPXMgbNnVu7gik1WH7QFPdzXk+q7JS7Q=
+	t=1778139204; cv=none; b=i477oA8dcfgtjrZkLgvJR93TcYgutKG428OVUMIgp5xehdtIXFO0adnsLwYKVpot5mt9zM0OsVENRLFf/u5JT3M7e+ISo0Y3lnsEidm9Z3ljNIqq4oAobzbfs7BqjAr9NQlbVX+5gPO+Uu2DkagAYbgTCvbFefOR93u0tzBMrn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778138470; c=relaxed/simple;
-	bh=j/HLbSe/M7OJEyVnieMqLBCTMPLCxU7JiJj98F/nu4g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iAjLLimT2xEtesrD24gRUb4fBgKg8QeUyEyDx8whLENIQfcUIQ7YJj9sIW7gIyGDdc4zZ3iulOL/0OPojBw31JJQ/TayaqOfRDZ+tRVYSDYflsznnx6XDv0+WAlsdxcN6k7lxy4OMwXsaBKr8lxW+8bhYN+GaQ+mAlExILU8s6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=QxAPkw0h; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=MQ29OrEB; arc=none smtp.client-ip=103.168.172.155
+	s=arc-20240116; t=1778139204; c=relaxed/simple;
+	bh=oNNEw9bLdFvVnMGexbn1rELFpbY8zSMmrT7OEjZH3no=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=eViZTFyK1t/icV+waFcFS06NkpdWK28znWka7cHQdC610cjaTjOu1ygZDM/D2c22dq5bVWwATgPzmrYKdg2Xl2LUi4Sbt/eEe9zmXl75XbyBxUiCx9tTZ8vsplpNsljw+tN4YT3ro+tLrnLui/nN5gjDC5+inboFPdbqAlhWuiw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=BFoTC7sA; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=QKxinEHS; arc=none smtp.client-ip=103.168.172.155
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="QxAPkw0h";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="MQ29OrEB"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 3DDFC140010E;
-	Thu,  7 May 2026 03:21:07 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Thu, 07 May 2026 03:21:07 -0400
+	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="BFoTC7sA";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="QKxinEHS"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 1BD8014000A9;
+	Thu,  7 May 2026 03:33:22 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-02.internal (MEProxy); Thu, 07 May 2026 03:33:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1778138467; x=1778224867; bh=SoBxBKXCi0
-	56PB68P6GNZ6Iahdos94p14LAJP/9ievM=; b=QxAPkw0h++mYhy2+YLFrtZgCut
-	Nkaz40jnNPtG8pA90ihyoa3ZTSzGvZFbvml34nscuNKaH//uZqQeyEQ0txYEpYin
-	VItjRfrmyii+VomWSRZmOP/gpAQto+5vd9uSpSlqMyd806McVfWJaMGesYK92a52
-	XDmGqu7nuImoDUQ4vmltuUB36v+VKtbHL34bQWijKenaPr4NmWjvJwcvyb5bepIB
-	CyEBzB3P2LRi14/tVBt7/HF25am4yfSUgO8NfHVAj2CcVGUKvZ5FniIscW0OG8qf
-	vamdhsvMC3bbnPof3SFanuBStcV3O2tHSeq3yl+dPzxAjI/fG3ij7eZ+N20w==
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm1; t=1778139202; x=1778225602; bh=ob
+	aRYY9JzXNdH88KlhAeQWbZmg1Lx4Y8Y1HPVUVLH7s=; b=BFoTC7sApuZKlWxBx5
+	+usWZD/Gro5rpeB2DD/9LUtgW+KwsZxfaQ0/hEeM5/JkStz37Fl2zbS23Le1aaJp
+	Zz1+HG1t5HVneTcYLtkhmuM3xDMMWuo13VXYwXsEHXOgLqLWGSHtck7JdjWBlmYt
+	sYhtNuyHlk2AcXIzf3Ts7THuqMPNyqwtF1qSg10iza/HhvQ3Ab0dJ9yPdeOcX2lf
+	vdNf/jf7kuihd0T4WO5x6PldWkuiwNhmhoSjh3l9bEbtxCieXhzGOwPW4CB7dCcs
+	pjl7a/0DWKBL2GSvV0IX1Zn03u8s7HNkqaC75UluD/Nuk7RhPr7XvNxrRywHKnQ8
+	hvTw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1778138467; x=1778224867; bh=SoBxBKXCi056PB68P6GNZ6Iahdos94p14LA
-	JP/9ievM=; b=MQ29OrEBgigekbfNIYslatl8MwXhczGGbmEojXkSfHHQJIZn2yh
-	plSXNVf5zZRddzdxKcIniZK5mumXY8halJYPJXReb3xrfsmFMEul6vkFcpdMdSRK
-	nqdBzkrKbLj/Pl1qojAcKjLpT/rNRZP2x7d2VX/CsYauAKgCIUHX/MCHifvDNon7
-	N3qbMv/LJsMQSMNPVZl5l4egLqUGeAorBN9mgjp0LcZF9A6jgs8gtUw25JpPT/H4
-	F5HwIUoTAfYrG53fhRfKEe8hlYSfFQ08tGYdPrKFyA3tFokEQWVoQwstQbHVm/4r
-	jJGkG3wNVGEj0weP9Cx4KzTvui9x11RornQ==
-X-ME-Sender: <xms:YT38aYOx-6lMdDmB6ewMZYuQzT80opuM7cj6K7L--i0_xDHAZMXK8g>
-    <xme:YT38aVfm1yW1OYTQjneztoVtbybtwW_uQSqqCWjx5DJfh1jY2b7k7RP9UlHfvBVR3
-    QVKj3-DPs1XY3iZQRcBybGIJDegKKTKAV-3N2dmLZ0OpUAjHr7bIwKi>
-X-ME-Received: <xmr:YT38adRH_Xgr6LJeV6nFRur-PW_MOxqvNVUmJ5JApBBOcb9zCL71FH0DefmjZVF9krNemUcW3W8OzZcJWIaueMdGZVCqI0wf_7A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddutdeikeehucetufdoteggodetrf
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm3; t=1778139202; x=1778225602; bh=obaRYY9JzXNdH88KlhAeQWbZmg1L
+	x4Y8Y1HPVUVLH7s=; b=QKxinEHSN6lIpgBWAmIp9TYQR0x6LOW/sXj0FjG2F4Qr
+	cZ5QLNPTG53trqofjNvrcbxeaeLJnGRHbuzr36S0KLSariBNc7oCIKzcMHi7+jhd
+	2OJdaL26SQFNExvk3Y3CiSrTk8VigH5TYILrzNDj0u1cFzKAjPVca1oP7lUYDvxb
+	YPdJT+Lop6MYDKDRejtq24QgCu+iXWv7/jryc6oFNvRFneacKBqPLzIr28kme1KZ
+	W3HZO3asghankiOOsILa7kF2GnEvQ7aLcHGXdYBp08Y1g2jsyxFGf3uy2LKcdzzi
+	OwByPvNEgGnnBw4at27P0qiciRlnO3zd0V8uskF92Q==
+X-ME-Sender: <xms:QUD8aXvoqNaInCsWo4L-piFTFezYVujEfLIGf0M3QmXT_sWrnGzE8w>
+    <xme:QUD8afgUieJkm_l4y4t2SwlxpXBl41EQ1HMdDBo_q48niDr3yLfBq5bkg7_bQTNww
+    UI3XEf9w1KGxk54KFeBlPsDKINMClaXTOlnfaz8uD3qXKPOCFsmVMo>
+X-ME-Received: <xmr:QUD8aSffngvcYKyw-3RfI17UGDESGUI88OM7wcR1_yJNfInLigetknz_r1fVh6W0sdTK7pp4nTTT5fSj8TKdZLb1I2_8JmBvByqmsw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddutdeikeekucetufdoteggodetrf
     dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
     rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomheplfgrnhhnvgcu
-    ifhruhhnrghuuceojhesjhgrnhhnrghurdhnvghtqeenucggtffrrghtthgvrhhnpefgud
-    euffelfeekgeeukedtheekjeettdfftddujefhvdehtefgiefgledtueefjeenucffohhm
-    rghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
-    hmpehmrghilhhfrhhomhepjhesjhgrnhhnrghurdhnvghtpdhnsggprhgtphhtthhopedu
-    vddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheplhhinhhugiesrhhovggtkhdquh
-    hsrdhnvghtpdhrtghpthhtohepshhvvghnsehkvghrnhgvlhdrohhrghdprhgtphhtthho
-    pehnvggrlhesghhomhhprgdruggvvhdprhgtphhtthhopeifihhmsehlihhnuhigqdifrg
-    httghhughoghdrohhrghdprhgtphhtthhopegrshgrhhhisehlihhsthhsrdhlihhnuhig
-    rdguvghvpdhrtghpthhtoheplhhinhhugidqrghrmhdqkhgvrhhnvghlsehlihhsthhsrd
-    hinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoheplhhinhhugidqfigrthgthhguohhg
-    sehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvg
-    hlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgv
-    rhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:YT38aTdZei8qYOWwTp0-HeyiPPmMTq-TbnNsvgZp5kfwloXsoBWrJw>
-    <xmx:YT38aWtJ4Y2_B0ZbeVvIAkUjNJ9Kq3kno4yua8Ni1VSg9xXWKNlGDQ>
-    <xmx:YT38afJXTOfU07DAbpsPh7oecQZqN4D9dm8hF91aQX0j7Bovq2ciKA>
-    <xmx:YT38aaYrFMkjru0GQPFCS4xKZfK_VYpMavrm4b2h79AWDRya-0zM3g>
-    <xmx:Yz38aejUONk53dOFNZO8hBLUkZ4EOx-4CLPexYMT7_SHFpfurOHo8lcm>
+    gurhephffufffkgggtgffvvefosehtjeertdertdejnecuhfhrohhmpeflrghnnhgvucfi
+    rhhunhgruhcuoehjsehjrghnnhgruhdrnhgvtheqnecuggftrfgrthhtvghrnhepueelgf
+    fhfedvgeelfeduuefhfefhjeeihfffueefjeeihffhheeuteeuvdeuhffhnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehjsehjrghnnhgruhdrnhgvthdpnhgspghrtghpthhtohepvddt
+    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehkrhiikhdoughtsehkvghrnhgvlh
+    drohhrghdprhgtphhtthhopehlihhnuhigqdifrghttghhughoghesvhhgvghrrdhkvghr
+    nhgvlhdrohhrghdprhgtphhtthhopehsvhgvnheskhgvrhhnvghlrdhorhhgpdhrtghpth
+    htohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthht
+    oheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
+    htoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehnvggrlhesghhomhhp
+    rgdruggvvhdprhgtphhtthhopehukhhlvghinhgvkheskhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheprghsrghhiheslhhishhtshdrlhhinhhugidruggvvh
+X-ME-Proxy: <xmx:QUD8acnBJAO8PYUMFX4rJwgoLKq3KdUfZbl_iPgz6ErxjHsmcYIMNQ>
+    <xmx:QUD8aUomx87W9ppOpkibHg40btOx2hZ6deDS7rShW6wqnR6Q4pTaCg>
+    <xmx:QUD8ab96Ow2VzIj2QbZvz3Ya25TobhNgac2rqSgzTlOjL8qBryOcFA>
+    <xmx:QUD8ad3h3XdB9bmr6j0Q3T0xrTzlRF6dA64pbwjPEQvAWjEIYRd5CA>
+    <xmx:QkD8aX85hs3TiruHTUdJOIhBjwBKGdqih7I50og5PORDdgOEqUJPJ3wv>
 Feedback-ID: i47b949f6:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 7 May 2026 03:21:05 -0400 (EDT)
-Date: Thu, 7 May 2026 09:21:03 +0200
+ 7 May 2026 03:33:20 -0400 (EDT)
 From: Janne Grunau <j@jannau.net>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Subject: Re: [PATCH] watchdog: apple: Add "apple,t8103-wdt" compatible
-Message-ID: <20260507072103.GA514139@robin.jannau.net>
-References: <20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net>
- <68e8bd60-85b1-4b4a-8a82-f47640ad0ad9@roeck-us.net>
+Subject: [PATCH v3 0/5] Initial Apple silicon M3 device trees and
+ dt-bindings
+Date: Thu, 07 May 2026 09:33:06 +0200
+Message-Id: <20260507-apple-m3-initial-devicetrees-v3-0-ca07c81b5dc7@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <68e8bd60-85b1-4b4a-8a82-f47640ad0ad9@roeck-us.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XQyw6CMBAF0F8hXVvTB+Xhyv8wLioMOgYLtqXRE
+ P7dgiTGjS7vJHPmZkbiwCI4sktGYiGgw87EIDcJqS7anIFiHTMRTGRM8pLqvm+B3iRFgx51S+u
+ 4VYG3AI6qSqWZrss814JEorfQ4GPhD8eYL+h8Z5/LtcDn6QoL9hsOnDKqilQAB1lKXeyv2hg9b
+ A14MstBfDTF1B9NRO3EKtFIxUtg8KVN7+IW7kN8h1/bT9MLCtbuYSwBAAA=
+X-Change-ID: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Lorenzo Pieralisi <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>, 
+ Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Mark Kettenis <kettenis@openbsd.org>, 
+ Sasha Finkelstein <k@chaosmail.tech>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ Janne Grunau <j@jannau.net>, Joshua Peisach <jpeisach@ubuntu.com>, 
+ Michael Reeves <michael.reeves077@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3514; i=j@jannau.net;
+ s=yk2025; h=from:subject:message-id;
+ bh=oNNEw9bLdFvVnMGexbn1rELFpbY8zSMmrT7OEjZH3no=;
+ b=owGbwMvMwCW2UNrmdq9+ahrjabUkhsw/DnYzjtukxMfXB8zd96D21HxNiyL3sqRNdZnLJ2c6b
+ vHlY1zWUcrCIMbFICumyJKk/bKDYXWNYkztgzCYOaxMIEMYuDgFYCLu5owMp3pbr06rOVzYrv+b
+ KdNdauXefeIKrZXnOiVXyF1cOk1+L8M/8yMfBdV3Wr3aLHzQv9a9cXdE0pr3LwWc7M+UTLui938
+ tDwA=
+X-Developer-Key: i=j@jannau.net; a=openpgp;
+ fpr=8B336A6BE4E5695E89B8532B81E806F586338419
 
-On Wed, Dec 31, 2025 at 06:28:17AM -0800, Guenter Roeck wrote:
-> On Wed, Dec 31, 2025 at 01:07:21PM +0100, Janne Grunau wrote:
-> > After discussion with the devicetree maintainers we agreed to not extend
-> > lists with the generic compatible "apple,wdt" anymore [1]. Use
-> > "apple,t8103-wdt" as base compatible as it is the SoC the driver and
-> > bindings were written for.
-> > 
-> > [1]: https://lore.kernel.org/asahi/12ab93b7-1fc2-4ce0-926e-c8141cfe81bf@kernel.org/
-> > 
-> I don't understand the rationake from the reference. This patch will need
-> an Ack from a DT maintainer.
+Hej,
 
-Sorry for the late reply, I forgot about this. The corresponding change
-to the dt-bindings in commit 5410df1a5a4b ("dt-bindings: watchdog:
-apple,wdt: Add t6020-wdt compatible") was acked by Rob and is merged.
+This series adds initial device trees for M3 Apple silicon devices. The
+device trees contain only a minimal set of hardware not going much
+beyond the minimum required for booting kernel and initramfs and
+verify via serial console that the hardware and drivers work.
+The hardware with the exception of the interrupt controller is
+compatible with the M1 and M2 SoCs and the existing drivers.
+`make dtbs_check` depends on the already applied and dropped apple,i2c
+and apple,pmgr dt-binding changes.
+The watchdog load depends on stalled and forgotten addition of the
+"apple,t8103-wdt" compatible posted in [1]. I've replied to the thread
+to get the change merged.
 
-Cc-ing DT maintainers, patch still applies unchanged.
+Merge strategy:
+Apply whole series via apple-soc / arm-soc to keep `make dtbs_check`
+errors minimal. Otherwise no dependencies between the patches.
+I might want to send another series which depends on this later in this
+cycle.
 
-Janne
+Link: https://lore.kernel.org/linux-watchdog/20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net/ [1]
+Signed-off-by: Janne Grunau <j@jannau.net>
+---
+Changes in v3:
+- adjust reg size of pmgr node to fit all its childrens' regs. Improper
+  size was caused by a bug in the script used to convert Apple's
+  power-states into DT nodes
+- drop picked up changes from v2:
+  - [PATCH v2 1/6] dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible" (for v7.2-rc1)
+- Link to v2: https://lore.kernel.org/r/20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net
 
-> > Fixes: 4ed224aeaf66 ("watchdog: Add Apple SoC watchdog driver")
-> > Cc: stable@vger.kernel.org
-> > Reviewed-by: Neal Gompa <neal@gompa.dev>
-> > Signed-off-by: Janne Grunau <j@jannau.net>
-> > ---
-> > This is split off from the v1 series adding Apple M2 Pro/Max/Ultra
-> > device trees in [2].
-> > 
-> > 2: https://lore.kernel.org/r/20250828-dt-apple-t6020-v1-0-507ba4c4b98e@jannau.net
-> > ---
-> >  drivers/watchdog/apple_wdt.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/watchdog/apple_wdt.c b/drivers/watchdog/apple_wdt.c
-> > index 66a158f67a712bbed394d660071e02140e66c2e5..6b9b0f9b05cedfd7fc5d0d79ba19ab356dc2a080 100644
-> > --- a/drivers/watchdog/apple_wdt.c
-> > +++ b/drivers/watchdog/apple_wdt.c
-> > @@ -218,6 +218,7 @@ static int apple_wdt_suspend(struct device *dev)
-> >  static DEFINE_SIMPLE_DEV_PM_OPS(apple_wdt_pm_ops, apple_wdt_suspend, apple_wdt_resume);
-> >  
-> >  static const struct of_device_id apple_wdt_of_match[] = {
-> > +	{ .compatible = "apple,t8103-wdt" },
-> >  	{ .compatible = "apple,wdt" },
-> >  	{},
-> >  };
-> > 
-> > ---
-> > base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
-> > change-id: 20251231-watchdog-apple-t8103-base-compat-8a623e9831b6
-> > 
-> > Best regards,
-> > -- 
-> > Janne Grunau <j@jannau.net>
-> > 
+Changes in v2:
+- specify merge strategy
+- rebased onto v7.1-rc1 and thus dropping the aic3 comment
+- collect Acked-by and Reviewed-by: tags
+- drop already picked up changes:
+  - [PATCH 1/9] dt-bindings: arm: cpus: Add Apple M3 CPU core compatibles (in v7.1-rc1)
+  - [PATCH 5/9] dt-bindings: pinctrl: apple,pinctrl: Add t8122 compatible (in v7.1-rc1)
+  - [PATCH 6/9] dt-bindings: i2c: apple,i2c: Add t8122 compatible (for v7.2-rc1)
+- Link to v1: https://lore.kernel.org/r/20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net
+
+---
+Janne Grunau (5):
+      dt-bindings: power: apple,pmgr-pwrstate: Add t8122 compatible
+      dt-bindings: watchdog: apple,wdt: Add t8122 compatible
+      dt-bindings: pwm: apple,s5l-fpwm: Add t8122 compatible
+      dt-bindings: arm: apple: Add M3 based devices
+      arm64: dts: apple: Initial t8122 (M3) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   18 +
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    4 +-
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    4 +-
+ arch/arm64/boot/dts/apple/Makefile                 |    5 +
+ arch/arm64/boot/dts/apple/t8122-j433.dts           |   19 +
+ arch/arm64/boot/dts/apple/t8122-j434.dts           |   19 +
+ arch/arm64/boot/dts/apple/t8122-j504.dts           |   37 +
+ arch/arm64/boot/dts/apple/t8122-j613.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8122-j615.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8122-jxxx.dtsi          |   48 +
+ arch/arm64/boot/dts/apple/t8122-pmgr.dtsi          | 1149 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8122-usbpd-i2c.dtsi     |   32 +
+ arch/arm64/boot/dts/apple/t8122.dtsi               |  444 ++++++++
+ 14 files changed, 1848 insertions(+), 2 deletions(-)
+---
+base-commit: 37a578184d32b2e8110aa88c1c1fd10a23419e01
+change-id: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
+
+Best regards,
+-- 
+Janne Grunau <j@jannau.net>
+
