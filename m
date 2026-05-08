@@ -1,141 +1,181 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1602733B6F9
-	for <linux-watchdog@vger.kernel.org>; Thu,  7 May 2026 23:38:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 850C61917FB
+	for <linux-watchdog@vger.kernel.org>; Fri,  8 May 2026 00:23:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778197119; cv=none; b=FB59QwJrg6hLZ9JvfiPB/pjZ3+T0rk0vTApnsriWSDQ9MW5MT6dQ/YveFxCLUkT2FAL4+Ma1Ogh6pvycUgYDm5e+h5bTS1UVG4QWQri81K07SLS9D9t0fg1N2A9ziArfqxoWdrs9vudcQMXJoouB3E3ltmeJ8V7gBbsSuDe6gz0=
+	t=1778199822; cv=none; b=IALc5ynBDNly5nMEZWAfSvb1D/lHrOuqlWf/6LbyNsDs+48xgIqxqjnIx56ErW+fMlKxeNkFvfs3Lnwr7Kt18K/3VdlwUj7cHahnwaN+9kzDxYiFlq2Qp+Dxmar5IeHb49WspZuPsWNFVGo44R6foggROSIzwm8sy7D+dAupRDs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778197119; c=relaxed/simple;
-	bh=o4rA0L1GhtJHJ9UkMs7QRbGwjx1tXhDVmUCF9E3ttsk=;
+	s=arc-20240116; t=1778199822; c=relaxed/simple;
+	bh=JOqQFhThiPdcFXux46ZyB4XajBPwC1x1LMGjkaqPSsE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gBfd4p9sKaKGP7KjP41rQt77sdZSkAIRL6mDXlSHm9UlsMDANxV8NJZIOV4cmtxr1KTJC5YXuI1YGySkTwj+51VepEuWINzOy8fLJlzsmG36/yucOy0G9sU/1O0rmve1n2Bit/wWZY6qivXwtZNAJz6LDdULEsqd3L38bf0hCxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mnB7LJ1w; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=Y6dWwoxAyOzrYZ5l0P4GFV5aqJNceJtclP1Se5HaB5pJAbK0d+wqDaBC+3rMNgJ1o5WPgXIkhEn9bV/bcNgqlNrHPOYLDIyq+Dq4ZuWu7uB5YmpghUG94uWkb82XpX24bBD1vjalnShmKdBMBMg+3vdtsMbmuE23ZwxGwh8Sz94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E0Ac/yqe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mnB7LJ1w"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9669CC2BCB2;
-	Thu,  7 May 2026 23:38:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E0Ac/yqe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED38AC2BCB2;
+	Fri,  8 May 2026 00:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778197118;
-	bh=o4rA0L1GhtJHJ9UkMs7QRbGwjx1tXhDVmUCF9E3ttsk=;
+	s=k20201202; t=1778199822;
+	bh=JOqQFhThiPdcFXux46ZyB4XajBPwC1x1LMGjkaqPSsE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=mnB7LJ1wMoJ2eoFdGkbyH3gfTJUVMJrWtSvxhjQJkZDSrzUYM2GyVDpdR8C0IONJE
-	 HYSksidxCEsgULGICIFMFPRn2TMfTw1KRXKn68ZPDvdyyuAIMt1ozjMoOCQ5rpiZlh
-	 tevLbgq0sr35zlzgMTMVdyJw0HzkY2EiWGWSCPF3bO5q8yfql76d+KphVOo1T6RRX0
-	 WNAGic/An8AOPa2wc4E3OFeVpBWkO3onXNs3COncKVIyNF1ExRSdf1y7/TZLIbOyVQ
-	 uzslyPraWi5BOi9TOeL3w7wEzyR+mq631Ea1AcmC9OHD9yi6ZYZ79VxYeehDJQYEwy
-	 /Vori2HmcHcMQ==
+	b=E0Ac/yqeL5EyW0N8l0uA22xFMw/Z9fMUSZVU5Ygg2LoAko7KBhYnKtbVnx2a4/qUj
+	 2WRgXSM3H3wtYHmB1xKoTXKwVGYYXSW/05KjCJgaqlPLA3Xav2xAWW6pcd8ut0D86s
+	 HO5DwEDfRJVGiSPdy5BMP+NoJj+mnbd5R8RRusoZ4q75aODMfcCjeg4TgScQabGSLS
+	 rg6MQPre1Cqx1Q/8OFAxxuWOVDdvXTaJLguulyaJft7RN3t9JQZCArZTgaKIHXfcW0
+	 7AfsWEX4FrT4loiesKx2oBgVVzGyklnTExMnev8vjFXdaDBUySogHbdzYUQ7M9I1rZ
+	 zT+mg2tRW7s9Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] clocksource/drivers/timer-tegra186: Register all
- accessible watchdog timers
+Subject: Re: [PATCH 4/4] clocksource/drivers/timer-tegra186: Reserve and
+ service a kernel watchdog
 Reply-To: sashiko@lists.linux.dev
 To: "Kartik Rajput" <kkartik@nvidia.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260507154557.2082697-4-kkartik@nvidia.com>
-References: <20260507154557.2082697-4-kkartik@nvidia.com>
+In-Reply-To: <20260507154557.2082697-5-kkartik@nvidia.com>
+References: <20260507154557.2082697-5-kkartik@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 07 May 2026 23:38:38 +0000
-Message-Id: <20260507233838.9669CC2BCB2@smtp.kernel.org>
+Date: Fri, 08 May 2026 00:23:41 +0000
+Message-Id: <20260508002341.ED38AC2BCB2@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Data race on the shared TKEIE register during watchdog enable.
-- [High] Hardware timer collision allows multiple watchdogs to clobber the =
-same physical timer registers.
-- [High] Missing bounds check on the timer source index allows out-of-bound=
-s MMIO accesses.
+- [Critical] The interrupt handler fails to clear shared interrupts from us=
+erspace watchdogs, causing an infinite IRQ storm.
+- [High] Pinging the kernel watchdog from a hardware interrupt handler defe=
+ats the purpose of detecting software hangs.
+- [High] Missing teardown of the kernel watchdog on driver unbind causes an=
+ unintended system reset.
+- [High] Race condition between system suspend and the watchdog IRQ handler=
+ can leave the watchdog incorrectly armed during sleep.
 --
 
-commit 173c64a9e63a9e27e2f2b9544cfaa4b12f9d5f9c
+commit 8065750aadbeb77247fd706790ed9368ba7e0064
 Author: Kartik Rajput <kkartik@nvidia.com>
 
-clocksource/drivers/timer-tegra186: Register all accessible watchdog timers
+clocksource/drivers/timer-tegra186: Reserve and service a kernel watchdog
 
-Tegra186+ SoCs expose multiple watchdog timers, but the driver only
-registers WDT(0). Iterate over num_wdts and, for each WDT, check the SCR
-(firewall) registers in the TKE block to determine whether Linux has read
-and write access. Register the watchdogs that are accessible.
+Tegra SoCs supports multiple watchdog timers. Reserve first available watch=
+dog
+as a kernel-only watchdog for Tegra186 and Tegra234. Arm it during probe (1=
+20s
+timeout) and keep it alive in the driver IRQ handler.
 
 > diff --git a/drivers/clocksource/timer-tegra186.c b/drivers/clocksource/t=
 imer-tegra186.c
-> index fd82a73ab2d27..dd1d1a0dd63eb 100644
+> index dd1d1a0dd63eb..78600ddeb1c61 100644
 > --- a/drivers/clocksource/timer-tegra186.c
 > +++ b/drivers/clocksource/timer-tegra186.c
+[ ... ]
+> @@ -219,6 +226,16 @@ static int tegra186_wdt_ping(struct watchdog_device =
+*wdd)
+>  	return 0;
+>  }
+> =20
+> +static irqreturn_t tegra186_wdt_irq(int irq, void *data)
+> +{
+> +	struct tegra186_wdt *wdt =3D data;
+> +
+> +	tegra186_wdt_disable(wdt);
+> +	tegra186_wdt_enable(wdt);
+> +
+> +	return IRQ_HANDLED;
+> +}
+
+The commit message states the kernel watchdog is intended to recover the sy=
+stem
+if "the kernel crashes or hangs before userspace enables a watchdog" and
+handles cases where "userspace never starts".
+
+Because this handler runs as a hardirq, won't it continue to execute and fe=
+ed
+the watchdog even if the kernel deadlocks in task context, enters an infini=
+te
+loop, or userspace completely freezes? As long as local interrupts are enab=
+led,
+it seems the watchdog will silently ping itself indefinitely without resett=
+ing
+the system.
+
+Also, if userspace enables a different watchdog on the system, will this
+handler cause an infinite IRQ storm?
+
+Looking at tegra186_timer_probe(), the single shared hardware interrupt is
+requested but only passed the kernel_wdt as data:
+
+	err =3D platform_get_irq(pdev, 0);
+	irq =3D err;
+	...
+	err =3D devm_request_irq(dev, irq, tegra186_wdt_irq, 0,
+			       dev_name(dev), kernel_wdt);
+
+When a userspace watchdog is enabled, its interrupt is unmasked. If it expi=
+res
+and asserts the shared IRQ line, this handler will only clear the interrupt
+status for kernel_wdt. Since the userspace watchdog's interrupt remains
+asserted, won't the CPU immediately re-enter this handler after it returns
+IRQ_HANDLED?
 
 [ ... ]
-
-> @@ -442,12 +467,20 @@ static int tegra186_timer_probe(struct platform_dev=
-ice *pdev)
->  	if (err < 0)
->  		return err;
+> @@ -501,8 +529,22 @@ static int tegra186_timer_probe(struct platform_devi=
+ce *pdev)
+>  		goto unregister_osc;
+>  	}
 > =20
-> -	/* create a watchdog using a preconfigured timer */
-> -	tegra->wdt =3D tegra186_wdt_create(tegra, 0);
-> -	if (IS_ERR(tegra->wdt)) {
-> -		err =3D PTR_ERR(tegra->wdt);
-> -		dev_err(dev, "failed to create WDT: %d\n", err);
-> -		return err;
-> +	tegra->wdts =3D devm_kcalloc(dev, tegra->soc->num_wdts, sizeof(*tegra->=
-wdts), GFP_KERNEL);
-> +	if (!tegra->wdts)
-> +		return -ENOMEM;
-> +
-> +	for (i =3D 0; i < tegra->soc->num_wdts; i++) {
-> +		if (!tegra186_wdt_is_accessible(tegra, i)) {
-> +			dev_warn(dev, "WDT%u is not accessible\n", i);
-> +			continue;
+> +	if (kernel_wdt) {
+> +		err =3D devm_request_irq(dev, irq, tegra186_wdt_irq, 0,
+> +				       dev_name(dev), kernel_wdt);
+> +		if (err < 0) {
+> +			dev_err(dev, "failed to request kernel WDT IRQ: %d\n", err);
+> +			goto unregister_usec;
 > +		}
 > +
-> +		tegra->wdts[i] =3D tegra186_wdt_create(tegra, i);
+> +		tegra186_wdt_set_timeout(&kernel_wdt->base, TEGRA186_KERNEL_WDT_TIMEOU=
+T);
+> +		tegra186_wdt_enable(kernel_wdt);
+> +	}
+> +
 
-If the bootloader hasn't configured the watchdogs, could multiple watchdogs
-extract the exact same source index and clobber each other's timer register=
-s?
+When the driver is unbound (e.g., via sysfs or module unloading), devres
+automatically frees the IRQ handler, but there doesn't appear to be any
+teardown of the hardware timer itself.
 
-Looking at tegra186_wdt_create():
+Will the hardware timer continue to tick unserviced and forcefully hard-res=
+et
+the system within 120 seconds of driver removal?
 
-    value =3D wdt_readl(wdt, WDTCR);
-    ...
-    source =3D value & WDTCR_TIMER_SOURCE_MASK;
-    wdt->tmr =3D tegra186_tmr_create(tegra, source);
-
-If WDTCR contains its default reset value, multiple watchdogs could be
-assigned the identical physical timer MMIO region, allowing userspace to
-concurrently overwrite the same TMRCR and TMRCSSR registers.
-
-Is a bounds check needed to prevent out-of-bounds MMIO accesses?
-The WDTCR_TIMER_SOURCE_MASK allows values up to 15, but
-tegra->soc->num_timers is only 10 for Tegra186. If a value like 14 or 15
-is provided, the computed MMIO offset in tegra186_tmr_create() could fall
-entirely outside the valid mapped memory region.
-
-Finally, can concurrent watchdog operations race on the shared TKEIE regist=
-er?
-
-Looking at tegra186_wdt_enable():
-
-    value =3D readl(tegra->regs + TKEIE(wdt->tmr->hwirq));
-    value |=3D TKEIE_WDT_MASK(wdt->index, 1);
-    writel(value, tegra->regs + TKEIE(wdt->tmr->hwirq));
-
-Since hwirq is 0, all watchdogs access the exact same physical register. The
-watchdog core's wdd->lock mutex only serializes operations on a per-device
-basis. Concurrent start or ping operations to different watchdog devices
-could cause one CPU's read-modify-write sequence to overwrite another's,
-losing interrupt unmasks.
-
-> +		if (IS_ERR(tegra->wdts[i]))
-> +			return dev_err_probe(dev, PTR_ERR(tegra->wdts[i]),
-> +					     "failed to create WDT%u\n", i);
+[ ... ]
+> @@ -525,8 +567,10 @@ static int __maybe_unused tegra186_timer_suspend(str=
+uct device *dev)
+>  	unsigned int i;
+> =20
+>  	for (i =3D 0; i < tegra->soc->num_wdts; i++) {
+> -		if (tegra->wdts[i] && watchdog_active(&tegra->wdts[i]->base))
+> -			tegra186_wdt_disable(tegra->wdts[i]);
+> +		struct tegra186_wdt *wdt =3D tegra->wdts[i];
+> +
+> +		if (wdt && (wdt->is_kernel_wdt || watchdog_active(&wdt->base)))
+> +			tegra186_wdt_disable(wdt);
 >  	}
+> =20
+>  	return 0;
+
+If the watchdog's timer expires concurrently with suspend, can the
+tegra186_wdt_irq handler execute on another CPU or immediately after suspend
+unmasks interrupts?
+
+Since the IRQ handler unconditionally calls tegra186_wdt_enable() without
+checking any suspend state flags, it seems it could re-arm the watchdog aft=
+er
+this suspend callback has paused it, leading to a spurious hardware reset
+during suspend.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260507154557.2082=
-697-1-kkartik@nvidia.com?part=3D3
+697-1-kkartik@nvidia.com?part=3D4
