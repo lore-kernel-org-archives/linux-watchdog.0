@@ -1,181 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 850C61917FB
-	for <linux-watchdog@vger.kernel.org>; Fri,  8 May 2026 00:23:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 472623F54B7
+	for <linux-watchdog@vger.kernel.org>; Fri,  8 May 2026 16:29:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778199822; cv=none; b=IALc5ynBDNly5nMEZWAfSvb1D/lHrOuqlWf/6LbyNsDs+48xgIqxqjnIx56ErW+fMlKxeNkFvfs3Lnwr7Kt18K/3VdlwUj7cHahnwaN+9kzDxYiFlq2Qp+Dxmar5IeHb49WspZuPsWNFVGo44R6foggROSIzwm8sy7D+dAupRDs=
+	t=1778257769; cv=none; b=pTIoUchJtjWPxdfCJRqtjf9wM5zW/WIOYljn5HJ06O8BoTbg+kpKK7NTNl07Tl2DMTg4cEqQ1lDE71cFLI9XiQeVIpuxgecOdJS3tc9GwY90O2YPstzIegoqQ+6fsF1ZJ2uou18RTVrIQvPSqY7DCunQpn/fIurI8nVrjfXVsrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778199822; c=relaxed/simple;
-	bh=JOqQFhThiPdcFXux46ZyB4XajBPwC1x1LMGjkaqPSsE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Y6dWwoxAyOzrYZ5l0P4GFV5aqJNceJtclP1Se5HaB5pJAbK0d+wqDaBC+3rMNgJ1o5WPgXIkhEn9bV/bcNgqlNrHPOYLDIyq+Dq4ZuWu7uB5YmpghUG94uWkb82XpX24bBD1vjalnShmKdBMBMg+3vdtsMbmuE23ZwxGwh8Sz94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E0Ac/yqe; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778257769; c=relaxed/simple;
+	bh=bMyP9BaD/PCksUzPZtT4YtBtuXzutXem8/hGbSSDiXc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=owVJER2m0NzzbJKJFWyWcADcXjav/Hw/+F4vI0F1JtkQe1Eq9DHfCHIqWCjp6hcLvaaEQQFvxQ0cJNQSp/D3EfqsNnVReHM9+lY3xV5NbA8Ok/MBEYRysyzTzQNjKkVgQItn6P9O87JvNU3i9h7a+S0JnxB+mM0QCbGdUZELir4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EMPQQ4l9; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E0Ac/yqe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED38AC2BCB2;
-	Fri,  8 May 2026 00:23:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778199822;
-	bh=JOqQFhThiPdcFXux46ZyB4XajBPwC1x1LMGjkaqPSsE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=E0Ac/yqeL5EyW0N8l0uA22xFMw/Z9fMUSZVU5Ygg2LoAko7KBhYnKtbVnx2a4/qUj
-	 2WRgXSM3H3wtYHmB1xKoTXKwVGYYXSW/05KjCJgaqlPLA3Xav2xAWW6pcd8ut0D86s
-	 HO5DwEDfRJVGiSPdy5BMP+NoJj+mnbd5R8RRusoZ4q75aODMfcCjeg4TgScQabGSLS
-	 rg6MQPre1Cqx1Q/8OFAxxuWOVDdvXTaJLguulyaJft7RN3t9JQZCArZTgaKIHXfcW0
-	 7AfsWEX4FrT4loiesKx2oBgVVzGyklnTExMnev8vjFXdaDBUySogHbdzYUQ7M9I1rZ
-	 zT+mg2tRW7s9Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] clocksource/drivers/timer-tegra186: Reserve and
- service a kernel watchdog
-Reply-To: sashiko@lists.linux.dev
-To: "Kartik Rajput" <kkartik@nvidia.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260507154557.2082697-5-kkartik@nvidia.com>
-References: <20260507154557.2082697-5-kkartik@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 08 May 2026 00:23:41 +0000
-Message-Id: <20260508002341.ED38AC2BCB2@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EMPQQ4l9"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-366375c43c2so1087491a91.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 08 May 2026 09:29:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778257767; x=1778862567; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2NiOOX/BlUiU/VwTTl1u77ZEF4f4t+Er+IIs4D1x6jo=;
+        b=EMPQQ4l9mL2cBqOHw9IS0l9xb57xIa5saM9EFcjOR5NFH3gfRTpK5cN0tgrnRr3ylE
+         BfRbDDfHp+XVFhxw+Aph8PYvPPiiGbTTSQEfYkASzZUPYjMSSPMjwXuT/LbFopiYHeQe
+         mMixD2bzfFQpIrd6Mkk+z0I9uhi+FffqGdPtakRWcmTpnyHZd4n58FcQdPL6kmS3T8Dl
+         sablR0asUl+5CZJ66qdRAZvFI0vmK7d/PkF1b7PkYhMlJ4vd7L3nFJugq3E5ndkOjo2n
+         +cdGLsLpAjSvmt+ut6mAmrp84wO1Dnk8cGWBGERwjy9QOS6o5jWDepLcjboEiRaoo0TV
+         HBlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778257767; x=1778862567;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=2NiOOX/BlUiU/VwTTl1u77ZEF4f4t+Er+IIs4D1x6jo=;
+        b=Z+5tuBQhb2BVPkoJAs+5MSzEJL3sIqcdI1et9yPC/7gEQ2VgzRCO2Fg6U6Mqi0AKmx
+         p6F2bl9q4GZNGNK+2SAFChO76uqcF1aXNyW8ExPjDiCuZuGCExJL0Sjd7b0oZ6LR2lox
+         SB3C6XSHbS854or1exxBCPjNaNJKqAiDBsrnpGeBKyoJxrRvKab5s6sjC2Ox49/snfFY
+         hIeidVuOT/VKw4rVLhOY/G5Wpt7pVC3GwT9r40Jsr749Nz/2gvIPMkXZCS7vrarmeTUt
+         +N6nNYT4ifWJ/WGv63YG1dvHkvc9GSITUW9PfZyV3sQQUdyVzlxV3BfiDSfIZRX+K1pU
+         ntXw==
+X-Forwarded-Encrypted: i=1; AFNElJ/1U1ADxGloNlgZwrDiqR6O3Xdp999bPJtz8uTYN6XZV1Qu6au9AIjODStbyPqaDkujH6gespMJsERRRIqb4A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwScs3sK1FRa47IE+piv6KO0WcOxPbNBoHc4VAV03bG9jtOh1rv
+	INMiwKsRvhYiGvSilsc0P7cAxNjQsMKyqGnpHBFtbBDaqMFxCsd1RZLP
+X-Gm-Gg: Acq92OF+oQ6ig7IoZjEO0DHTDvIX0WTMKxuOCem7UwI1CRvpg9qLBS4s7gynFn9mgdZ
+	Pgml4mTIjXnt0XNTsVbg+ScZUmpNOPxJuPdW7JasRgp+IrR+bJIbWnkOAYczVhwey0RGBcjVkqJ
+	ulTNxZUvmUnCjTg+h2XNGcOUmTv1Ok5AIhFJBDIpVwvb38QP9bIeA7i4uD9u25XIlr1yVlcXeGn
+	VulN3UvBtP+tqYDeKXixRy84Iw+AW6yVFJAds0YfEx0/V9yMSGer6hEogM0vS/nf95SgjISsp6y
+	KtekXUmJrJ3kfkyjRcjsJUzUJ9LuhFdLtkEMyBOig8wj9b27u9TTn0DK9hhiSRnNmQeoBiwIwH0
+	DgH6ws7ge1DRly8BDeG7NXmXsmCoaW7RowoAjl3FmL5aPlprxvLrNpKsjHn6e0qt6lD8sT4NGco
+	SBXHYG4n4dFSyEKSAIqN4x1m+bmAQitarS+5TgRbENBz7KRs8=
+X-Received: by 2002:a17:90b:4b8f:b0:35a:189b:43db with SMTP id 98e67ed59e1d1-3664c8dc391mr3471558a91.4.1778257767538;
+        Fri, 08 May 2026 09:29:27 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-367c119fdb6sm267213a91.3.2026.05.08.09.29.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 May 2026 09:29:27 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Fri, 8 May 2026 09:29:26 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org,
+	"Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v4 1/4] watchdog: rzn1: Fix reverse xmas tree declaration
+Message-ID: <dc7b42b1-65c7-4fa8-a001-931df263cb96@roeck-us.net>
+References: <20260507102410.43384-1-wsa+renesas@sang-engineering.com>
+ <20260507102410.43384-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260507102410.43384-2-wsa+renesas@sang-engineering.com>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Critical] The interrupt handler fails to clear shared interrupts from us=
-erspace watchdogs, causing an infinite IRQ storm.
-- [High] Pinging the kernel watchdog from a hardware interrupt handler defe=
-ats the purpose of detecting software hangs.
-- [High] Missing teardown of the kernel watchdog on driver unbind causes an=
- unintended system reset.
-- [High] Race condition between system suspend and the watchdog IRQ handler=
- can leave the watchdog incorrectly armed during sleep.
---
+On Thu, May 07, 2026 at 12:24:06PM +0200, Wolfram Sang wrote:
+> From: "Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>
+> 
+> Variables declared in probe() don't follow the reverse xmas
+> tree convention.
+> 
+> Fix the declaration in order to follow the convention.
+> 
+> Signed-off-by: Herve Codina (Schneider Electric) <herve.codina@bootlin.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 8065750aadbeb77247fd706790ed9368ba7e0064
-Author: Kartik Rajput <kkartik@nvidia.com>
+Applied.
 
-clocksource/drivers/timer-tegra186: Reserve and service a kernel watchdog
-
-Tegra SoCs supports multiple watchdog timers. Reserve first available watch=
-dog
-as a kernel-only watchdog for Tegra186 and Tegra234. Arm it during probe (1=
-20s
-timeout) and keep it alive in the driver IRQ handler.
-
-> diff --git a/drivers/clocksource/timer-tegra186.c b/drivers/clocksource/t=
-imer-tegra186.c
-> index dd1d1a0dd63eb..78600ddeb1c61 100644
-> --- a/drivers/clocksource/timer-tegra186.c
-> +++ b/drivers/clocksource/timer-tegra186.c
-[ ... ]
-> @@ -219,6 +226,16 @@ static int tegra186_wdt_ping(struct watchdog_device =
-*wdd)
->  	return 0;
->  }
-> =20
-> +static irqreturn_t tegra186_wdt_irq(int irq, void *data)
-> +{
-> +	struct tegra186_wdt *wdt =3D data;
-> +
-> +	tegra186_wdt_disable(wdt);
-> +	tegra186_wdt_enable(wdt);
-> +
-> +	return IRQ_HANDLED;
-> +}
-
-The commit message states the kernel watchdog is intended to recover the sy=
-stem
-if "the kernel crashes or hangs before userspace enables a watchdog" and
-handles cases where "userspace never starts".
-
-Because this handler runs as a hardirq, won't it continue to execute and fe=
-ed
-the watchdog even if the kernel deadlocks in task context, enters an infini=
-te
-loop, or userspace completely freezes? As long as local interrupts are enab=
-led,
-it seems the watchdog will silently ping itself indefinitely without resett=
-ing
-the system.
-
-Also, if userspace enables a different watchdog on the system, will this
-handler cause an infinite IRQ storm?
-
-Looking at tegra186_timer_probe(), the single shared hardware interrupt is
-requested but only passed the kernel_wdt as data:
-
-	err =3D platform_get_irq(pdev, 0);
-	irq =3D err;
-	...
-	err =3D devm_request_irq(dev, irq, tegra186_wdt_irq, 0,
-			       dev_name(dev), kernel_wdt);
-
-When a userspace watchdog is enabled, its interrupt is unmasked. If it expi=
-res
-and asserts the shared IRQ line, this handler will only clear the interrupt
-status for kernel_wdt. Since the userspace watchdog's interrupt remains
-asserted, won't the CPU immediately re-enter this handler after it returns
-IRQ_HANDLED?
-
-[ ... ]
-> @@ -501,8 +529,22 @@ static int tegra186_timer_probe(struct platform_devi=
-ce *pdev)
->  		goto unregister_osc;
->  	}
-> =20
-> +	if (kernel_wdt) {
-> +		err =3D devm_request_irq(dev, irq, tegra186_wdt_irq, 0,
-> +				       dev_name(dev), kernel_wdt);
-> +		if (err < 0) {
-> +			dev_err(dev, "failed to request kernel WDT IRQ: %d\n", err);
-> +			goto unregister_usec;
-> +		}
-> +
-> +		tegra186_wdt_set_timeout(&kernel_wdt->base, TEGRA186_KERNEL_WDT_TIMEOU=
-T);
-> +		tegra186_wdt_enable(kernel_wdt);
-> +	}
-> +
-
-When the driver is unbound (e.g., via sysfs or module unloading), devres
-automatically frees the IRQ handler, but there doesn't appear to be any
-teardown of the hardware timer itself.
-
-Will the hardware timer continue to tick unserviced and forcefully hard-res=
-et
-the system within 120 seconds of driver removal?
-
-[ ... ]
-> @@ -525,8 +567,10 @@ static int __maybe_unused tegra186_timer_suspend(str=
-uct device *dev)
->  	unsigned int i;
-> =20
->  	for (i =3D 0; i < tegra->soc->num_wdts; i++) {
-> -		if (tegra->wdts[i] && watchdog_active(&tegra->wdts[i]->base))
-> -			tegra186_wdt_disable(tegra->wdts[i]);
-> +		struct tegra186_wdt *wdt =3D tegra->wdts[i];
-> +
-> +		if (wdt && (wdt->is_kernel_wdt || watchdog_active(&wdt->base)))
-> +			tegra186_wdt_disable(wdt);
->  	}
-> =20
->  	return 0;
-
-If the watchdog's timer expires concurrently with suspend, can the
-tegra186_wdt_irq handler execute on another CPU or immediately after suspend
-unmasks interrupts?
-
-Since the IRQ handler unconditionally calls tegra186_wdt_enable() without
-checking any suspend state flags, it seems it could re-arm the watchdog aft=
-er
-this suspend callback has paused it, leading to a spurious hardware reset
-during suspend.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260507154557.2082=
-697-1-kkartik@nvidia.com?part=3D4
+Thanks,
+Guenter
