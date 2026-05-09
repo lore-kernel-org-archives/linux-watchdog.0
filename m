@@ -1,95 +1,100 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E7A31F98F
-	for <linux-watchdog@vger.kernel.org>; Fri,  8 May 2026 20:05:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90F31F4C96;
+	Sat,  9 May 2026 12:17:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778270742; cv=none; b=okXi4gx951DtTckuacyn04vnUJo/E0JtlgUXp1kYkbYG9Z7Hpj99ej37b8ADUmx29zIpJb7A/jclX2UqzXRdILVSOB3mLr69atsa26gDGo/XaME1XZAL2/ceTDdAT8rPl3JljrfCCtjSYyGhKtPiQGgj1TrWKdjU/1J7acOfVHQ=
+	t=1778329069; cv=none; b=hyLF1z5uhTxTKP1olB8v+2q9xRIBIgSFGV40xMyo1hWJNVMxMo/wVVwvWeBzYlyiG/DYzhR7HdGW6dYcXrxIe8cXrowwUBVuo1xbskk9LtOs37/CrJ4CJ5ES20XWoq12r05ihvIyT7+E81TtuBfVBc43kNnqKDMmTeZw69vVVcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778270742; c=relaxed/simple;
-	bh=r4416AwSwAlXUvbYN9/pdEv2Sgs4/cvKtROm5nF5qm4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kzImCvDOOxIg7E6z7oVMZnGg7Ct6fWbi4FWQj6LN1PSn9j8933swP82gDsZSNR58/WiO9lI/CMVozyBZd2CIxZzom/GeYYBjDppHdAIwOflv5YMslVOXmJrFqfWfWmbSkPXG+6g8lmLW+shO+Ht4jDXBwPX9bfr5VTYHB3YYbv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JHXVJTH/; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1778329069; c=relaxed/simple;
+	bh=aDPkwUp4pYWvUND8tW1IfaLH2ItaEiRIZ1lGDFKsO7o=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RvGp5ISKDTwcUhebUUMVjJsg3CA9+h/XfuRMnfLk1TPxeUjqGBBv4KYM4en8Mopot8mVnbeVvMOjTII2pWy6bKrlLif5MKv/lX9KZC64RZNUnEWkteyM96GYEdKzVi6QfPjSr5AucUXNPk8qxwkPYgv5vDR2OaVVBzdE1ZMaGHQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LSvrDWvm; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JHXVJTH/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=r441
-	6AwSwAlXUvbYN9/pdEv2Sgs4/cvKtROm5nF5qm4=; b=JHXVJTH/aEchqgXjIvxA
-	dvJxfdWenCZWqCuU/XOaTraCn5ipTIAB6p8/r1tvB0cSIK9Rze1olhM0ZTcNJV58
-	qEW/2nZoHLlqzeiu9gxi2xmpNvGkXoaT6twrk30Zq0/DFXQ/+wS34uCdF7d8xCl/
-	lx8YEm3fOVjL3PXLtYBCNs1cE91N8qvI9wFikL6BLYFtTJOCSZhMIXFi65KvfxIg
-	U2Tm7Z89L6/KDP8pgi0I01w7mYdKTBYJi1MjBvTa4XBW7DCXKZPpFx8F6G9r/y6e
-	JCmxDaLkzPkBvM3gsgjIr3qejpyGJv4BQpSRn8tCY362Bx0K4jh7yzo+4EnBeecC
-	mg==
-Received: (qmail 1639903 invoked from network); 8 May 2026 22:05:29 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 May 2026 22:05:29 +0200
-X-UD-Smtp-Session: l3s3148p1@bFco61NR0rcujntg
-Date: Fri, 8 May 2026 22:05:29 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-renesas-soc@vger.kernel.org,
-	"Herve Codina (Schneider Electric)" <herve.codina@bootlin.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4 3/4] watchdog: rzn1: remove now obsolete interrupt
- support
-Message-ID: <af5CCdbNlCYt90SN@shikoro>
-References: <20260507102410.43384-1-wsa+renesas@sang-engineering.com>
- <20260507102410.43384-4-wsa+renesas@sang-engineering.com>
- <6958a9c5-8ba7-49a1-bd49-1dc6e2f7b9f0@roeck-us.net>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LSvrDWvm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=S9
+	EEv97wazfBbBhdHVjiBEW1+/VV0NUuK2gicyUD6Jc=; b=LSvrDWvmvtd1x7aguc
+	ZZRrSy2ROaOerip4pYohY43vEZwko33FX1kZcgd4iz/Ox94WT/WqDxHF7/ChB8U9
+	NpksSOni2EaTfi0AhNAES9O/4T64rsnSuDrhioy3ebPn5YqeGhEVZm932VFmlxKO
+	WDOKPptZw3RKCftAnWTuBODCQ=
+Received: from wmy.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wAH+4u5Jf9p6KORAQ--.12465S2;
+	Sat, 09 May 2026 20:17:09 +0800 (CST)
+From: w15303746062@163.com
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mingyu Wang <25181214217@stu.xidian.edu.cn>
+Subject: [PATCH] watchdog: wdt_pci: Fix shared IRQ storm and complete system lockup
+Date: Sat,  9 May 2026 20:16:55 +0800
+Message-Id: <20260509121655.275311-1-w15303746062@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nfOk955Hsib93T1X"
-Content-Disposition: inline
-In-Reply-To: <6958a9c5-8ba7-49a1-bd49-1dc6e2f7b9f0@roeck-us.net>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wAH+4u5Jf9p6KORAQ--.12465S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7uFyDZryUuryxKrWkur18uFg_yoW8CF45pa
+	yUKayav3Z8tFW8Kw17u3Z2vrWrCw4fXrW3Cryvyws5Aw15t34Fvr4SkFyjgry5CrZxJa1Y
+	yF1Uta48uay5ZFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jryCJUUUUU=
+X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC-wXUuGn-JcWYnQAA3l
 
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 
---nfOk955Hsib93T1X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The wdt_pci driver registers its interrupt handler with the IRQF_SHARED
+flag. However, the interrupt handler wdtpci_interrupt() fails to check
+whether the interrupt actually originated from the watchdog device.
 
+If another device on the same shared IRQ line (e.g., an I2C controller)
+triggers an interrupt, wdtpci_interrupt() will erroneously process it,
+blindly log hardware status (e.g., "Reset in 5ms") to the console, and
+unconditionally return IRQ_HANDLED.
 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > Reviewed-by: Herve Codina <herve.codina@bootlin.com>
->=20
-> I don't think Sashiko's concern is warranted. Applied.
+This behavior defeats the kernel's spurious interrupt detector. Under
+heavy load from other devices sharing the IRQ, it causes a severe printk
+storm and keeps the CPU trapped in hard IRQ context. This eventually
+leads to a complete system lockup and RCU/Hung Task panics.
 
-Sashiko missed that it is not the bootloader but Linux which sets the
-syscon bits correctly. As this code is already upstream, there is no
-more dependency.
+Fix this by checking the WDC_SR_IRQ bit (which is active low) in the
+status register. If the bit is high, the interrupt is not ours, and we
+must release the lock and return IRQ_NONE immediately.
 
-Thanks for applying!
+Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+---
+ drivers/watchdog/wdt_pci.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
+diff --git a/drivers/watchdog/wdt_pci.c b/drivers/watchdog/wdt_pci.c
+index 3918a600f2a0..a35ac064b690 100644
+--- a/drivers/watchdog/wdt_pci.c
++++ b/drivers/watchdog/wdt_pci.c
+@@ -304,6 +304,17 @@ static irqreturn_t wdtpci_interrupt(int irq, void *dev_id)
+ 	spin_lock(&wdtpci_lock);
+ 
+ 	status = inb(WDT_SR);
++	/*
++	 * The WDT500/501 supports shared interrupts (IRQF_SHARED).
++	 * We must check if the interrupt was generated by this device.
++	 * WDC_SR_IRQ is active low, so if it is set (1), the interrupt
++	 * belongs to another device on the shared line.
++	 */
++	if (status & WDC_SR_IRQ) {
++		spin_unlock(&wdtpci_lock);
++		return IRQ_NONE;
++	}
++
+ 	udelay(8);
+ 
+ 	pr_crit("status %d\n", status);
+-- 
+2.34.1
 
---nfOk955Hsib93T1X
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn+QgUACgkQFA3kzBSg
-KbbKiQ/9EgKsfzL7q27Qn7L48uGWvMAUq9MBmxts1jR+0TM3Irfiq1CY/KYwhQxy
-V39EM638dRJuUEMfnyhy+IanFWBVRZ+n2Edxx4h9bkuku5HaSZoizar0MKTKiz3U
-zc6pU2Hg2MgMMrrQ+vgD8ueOQODl23MTAp6jGFKc7DNcswYv7+ViwgCinfo7uwSW
-jpOE222Z3Rw8ku3ehrF3D4z+7V2XLyH43qlM3npVHqEF27U3U4yGgy1GfeP2MP0m
-YDn9Raz6njxANwSoSdYtYbjQ+mFQavNgyfM0vKTzJE194Q7LedUT7mOJLWeDlGtW
-oSRNQ1aLGcCmNbYzNhZwDglxeSY6GPFj55aYKO1lp6agBzfs11Z50gqQd9aKKct6
-JcNuY4HyIKhhmeP1B4qCCR8z7L/4CdBrH3V2lckLdAp2tSMk5cGzBN7uM8vfWg6p
-yN7K2WlCzE/doDY/nHQ0Fmk1gciTPt+CozRMGXZiCQyoSxuNQnqIFs6fvF+Hs4Ka
-IInYlVo8WlxBWSDHgjSzniNseVuOkW85z39CbPWgDprnP/iahA+VEd3T4yNKHkn2
-oA+t1JdyWmkGS5x2QlAhF0rIqKTQMBGVdJPpZ5HulNP6DL/276yxgD68we0LSYtQ
-bhz3KWtuB3Q93MywhK86G7Vwc8wnYPejoYexX8nb+6D+jlWd+60=
-=d0I8
------END PGP SIGNATURE-----
-
---nfOk955Hsib93T1X--
