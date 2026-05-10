@@ -1,100 +1,106 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B33E256C6C
-	for <linux-watchdog@vger.kernel.org>; Sun, 10 May 2026 19:19:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096FF2FFF90
+	for <linux-watchdog@vger.kernel.org>; Sun, 10 May 2026 19:23:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778440748; cv=none; b=GXsp39EjE2hIce4rAQpldC6iPgj962QFPvrBpbylbKexuzxwAgwRIWoHm+Q1p+60/poVBoPMIz9KXC2xCCNvt3aiKjSrOrbOUNSlTOQLzKW8clT9vo4uFEVMWT8ODmIaLfV5s1XvvzmtBACSamXN6eN7AuVBNqbJlq20aDbzwdI=
+	t=1778441007; cv=none; b=ivQ0SLY3PWJ5biVE9FskhdUZuKVDmTuN4y5YxglSw6byxQ519elnPiQLbPkoVArFTinfJB3XZvP6f9jKe3xjEPAgivtMY8MWFOoqvgcH5ZlF+E58M5LThw3AoyWaRUZKUutqkVAPlNeqKYCMd10k38f0YFL95ciAPja7YqdHOps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778440748; c=relaxed/simple;
-	bh=3agGI2WGaOiYr5q4GByDIn4KbJ8CZMnBx7VEdVfZqrI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Ys5aidfgANvNnRapxpnWddT/fWmpVCWA5SnRSakKK8TynkyuddePDASuSIPM4ndKOMMhKA4GoTcXAOR6ayphhJjLXME4a66XKLOYtk5xiIvgY6qjpi99x9TmZiJrVPmPYMpwW6RV3I4xwPukR1C/847pTIhCjXaQHVvNTHzHC7E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MiS6muzY; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778441007; c=relaxed/simple;
+	bh=7h7VEb1IQalYk3uf8LvceW/ggx/Bm2wE13XAeEQw3aU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=HIaD67OTVGg2CFhmXt9o09ZeqBl16WVRh2FUhSMKF2CeoT+HPsdKW1NotdrZBvQOcgJ/EzIVhvgTpU3QEwczOrPAGl9j0hVTehfXeXlmAop1FhGsCnKlOJDFy0mZCQpR5H5x+8xovELNoQehBAJEN3miPJWcKD0bpCBOF6kzZHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=8NpTHEeY; arc=none smtp.client-ip=84.16.241.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MiS6muzY"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c80227c9572so1539288a12.2
-        for <linux-watchdog@vger.kernel.org>; Sun, 10 May 2026 12:19:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778440745; x=1779045545; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QwwobxH4k9ePXnEoEZzRJmu0wB3sHAjdo5EH1/to2wQ=;
-        b=MiS6muzYQp4aYz8Ha6Ycrf60btmcDmPYw5m5t9BoF75j32P1JyDmoBhP7UNrpo0wFo
-         IEVQ7bNizrYibnKS/FdHju14SrDeCzPuSGLgdXmEsq7gnTdBAYJJ3ZGDukiVTcHnhv/D
-         SUNSQ2JRfGiWM9WJlg8CZf8NIe/nTZyVbkP4tPZXq7EfICG7PKbSQ2p4LKpIcr4T9jB3
-         1lRXTq4Qy5V0nGERYhQCpGn0lfM07gU35Sba4IIISsRHRmp6Exftb971p6jFeASng3iZ
-         DwW9nl3LefpOtCeOOmI/OA/4nWv7+0ms+zIAXtN0kEppfodkFwmmfP0GFo7Sx8TFLYH6
-         ff4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778440745; x=1779045545;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QwwobxH4k9ePXnEoEZzRJmu0wB3sHAjdo5EH1/to2wQ=;
-        b=YtDjHHB+mrR2UjD8Rtb0imIDQJtj8Fqqfo/qlJT4je7z7dc4uhE3aSwSNxw0s1IE5a
-         zRCGKbE/Psnckvih59OfiOI/m2azwCJ9Va7gN8YfWrkByj4SEnnMDLExLL2RfLSh7KLt
-         yJfOFKKsA/EHoQqw53igqW3mCECDTbF6tnk6ZMnIK93gWvtsqIKG83bAMf8eBSYzCPSR
-         bOJhAGrXZROKaMeeGNDhpqdWoqT8VmP8DQK2xLVJQvU3KkfLXpivA8qNgN9PknbgHhOA
-         EAyxIwy55SF6MnPn+gJWozitpCTynrgsbEXJ0ncTK1hEmcjJwFOS3WLjFOo8K5nBt3bD
-         FXPA==
-X-Gm-Message-State: AOJu0Ywh6ukp8HJCGVs5s8yVIBNgGsSs/I/PcnjBcxiXoOJMwBWYrEVS
-	A8eq/KOAtsk0O/4q1pIwiALJF7FXXg4nOna4WTNAA5WESCvbWmwzJP0NjwwuKscQftNKTg==
-X-Gm-Gg: Acq92OHgutLy/tKXjIElmn+5JKjgxGH2Wr2Gy5RiVzRCMaj2o8cGBWvkvrmQuTUIlyJ
-	N7AFkzcFID/f5tRdiGWE50POPCB2SaL7gyyZRljF0u6ZAIaFZjqgw62H3+6ZkmyoatrIJa6yNCv
-	5Nh+nfWRTQYMl2hCwxMxb5BhsFp3Ke9MtFejXZ8D3TqehdPYQZ9t25qZpFBpT7ZXngXAkRr5F68
-	4Zl74i75ydWZU0XoxDgLzWs00zNUkA9OmA7xiW+VGnedsRBouJ6ky8/kkDO9+3sfwSH4X+frhOY
-	3F0R5g7o1VkksN/NWZAH0hrIAZHQlsaTSyY9fR5BMd1CGF/BarnyfHc3A77us19K/DOS21M/CpM
-	vhdMbRfH++0M6aWiBYVX8EXDN0QAQrzhlS54P5v/wrNkT64eRAD/DraFmrfs6cTcxwecvcjv8+v
-	NKYyN064CRang7cE2BODymQBuhapl1jQ3wQKSDmFXCSLzYh4M=
-X-Received: by 2002:a05:6a00:ad09:b0:82d:62ed:b01d with SMTP id d2e1a72fcca58-83a5e344711mr21942826b3a.45.1778440745378;
-        Sun, 10 May 2026 12:19:05 -0700 (PDT)
-Received: from Strong10mede.domain.name ([122.161.50.8])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83967dbcf16sm20866026b3a.40.2026.05.10.12.19.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 May 2026 12:19:04 -0700 (PDT)
-From: Mayur Kumar <kmayur809@gmail.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mayur Kumar <kmayur809@gmail.com>
-Subject: [PATCH] watchdog: sb_wdog: add missing SPDX license identifier
-Date: Mon, 11 May 2026 00:48:47 +0530
-Message-Id: <20260510191847.50499-1-kmayur809@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="8NpTHEeY"
+Received: from [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42] (2a02-1812-162d-3d00-649f-659d-f6c1-d42.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: sander@svanheule.net)
+	by polaris.svanheule.net (Postfix) with ESMTPSA id 3DA5F77CC34;
+	Sun, 10 May 2026 21:23:24 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
+	s=mail1707; t=1778441004;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7h7VEb1IQalYk3uf8LvceW/ggx/Bm2wE13XAeEQw3aU=;
+	b=8NpTHEeY2o4dBpEVcqUq8ICJgutuH6yyoDsCIy7TzOgZZv4AfISsxBrao5+7qh80XOljiz
+	vqWjXgy/udziPzgiAtYpnmC8A+W8fMp2NhZXmSM85pl0BPt9ss7c8sbb/nXM/hopzQQ1mQ
+	IlWPFj//DI/zlQBNCrqIc64mS9Qzof6DRaJH/z1zwghqW8xpYWuWlrNLtFK6XWhn2TsBDw
+	kuBr8AQnDmV8v3cUvJ3+xyJBo8MrPvWyC1GMVTlUgfZq79fY2mt/D2iqzmrX7Bag63UKiy
+	sNusMvDQHDSBu6PqTdkKIVV0Ejm7t4xosruriYkltWc8584kQkCt+S5ozGlS/A==
+Message-ID: <a6d6f58a09aa3e787f3f24406b76aa5a5b6f8200.camel@svanheule.net>
+Subject: Re: [PATCH 2/3] dt-bindings: watchdog: realtek,otto-wdt: add
+ compatible for RTL9607C
+From: Sander Vanheule <sander@svanheule.net>
+To: Conor Dooley <conor@kernel.org>, Rustam Adilov <adilov@disroot.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+	 <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+	 <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Date: Sun, 10 May 2026 21:23:23 +0200
+In-Reply-To: <20260509-rebuild-snowboard-e82a3adc5a27@spud>
+References: <20260509163101.722793-1-adilov@disroot.org>
+	 <20260509163101.722793-3-adilov@disroot.org>
+	 <20260509-rebuild-snowboard-e82a3adc5a27@spud>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-checkpatch.pl reports the following warning:
+Hi,
 
-WARNING: Missing or malformed SPDX-License-Identifier tag in line 1
+On Sat, 2026-05-09 at 19:13 +0100, Conor Dooley wrote:
+> On Sat, May 09, 2026 at 09:31:00PM +0500, Rustam Adilov wrote:
+> > Add the realtek,rtl9607-wdt compatible to the Realtek Otto watchdog
+> > binding.
+> >=20
+> > Signed-off-by: Rustam Adilov <adilov@disroot.org>
+> > ---
+> > =C2=A0Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml =
+| 1 +
+> > =C2=A01 file changed, 1 insertion(+)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/watchdog/realtek,otto-
+> > wdt.yaml b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.=
+yaml
+> > index 1f5390a67cdb..ac9db40b12dc 100644
+> > --- a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
+> > +++ b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
+> > @@ -30,6 +30,7 @@ properties:
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl8390-wdt
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9300-wdt
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9310-wdt
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9607-wdt
+>=20
+> Please explain in your commit message why this new device is not
+> compatible with the existing ones, particularly given the driver patch
+> implies that it would be.
+> pw-bot: changes-requested
 
-Per Documentation/process/license-rules.rst, add the appropriate SPDX
-license identifier to the first line of the C source file using the
-'//' style comment. Default to GPL-2.0-only.
+Back when I originally wrote this driver, device-specific compatibles were
+encouraged "just in case" the hardware would turn out to behave differently=
+.
+Has this changed to minimizing the number of compatibles?
 
-Signed-off-by: Mayur Kumar <kmayur809@gmail.com>
----
- drivers/watchdog/sb_wdog.c | 1 +
- 1 file changed, 1 insertion(+)
+FWIW this platform's GPIO driver does have both SoC-specific compatibles an=
+d a
+fallback, but for reasons lost to time this binding has no fallback. I'll s=
+ubmit
+a patch to add a fallback for this binding too.
 
-diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
-index eaa68b54cf5..03db71a43d6 100644
---- a/drivers/watchdog/sb_wdog.c
-+++ b/drivers/watchdog/sb_wdog.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0-only
- /*
-  * Watchdog driver for SiByte SB1 SoCs
-  *
--- 
-2.34.1
 
+Best,
+Sander
