@@ -1,182 +1,93 @@
-Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9E03FA5CC
-	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 14:22:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78D8D3FD14F
+	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 14:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778509366; cv=none; b=JLYY/r5ks9AssIMln4N+MX3tgNK4ZZvmbWnsMKLDO15mz6ZAPpwYd0U5NclcIW21FgocGPrZ8+J8Q/XJcKFb1Jkar1OSdmHT9kn+YfkHoBTHatdoK1xkRbY2saDozCwzrY4YTt/oGEMhXT2WNlkjG+NPdOdOU/Fo+aRqQ+OKcqA=
+	t=1778509468; cv=none; b=YwmME8dZgVvpf5SUkyzUWaicAQARVx7h3sUb2iGRklrGJFSb3vYQ+Or6+gvnr0me0Zekc1AK8QeS3rsKWn5R+4LtkPPrOawCb5Pyd3Hnb/4ywWyfVXrhPLKhj1vxoKJ6y+Tu890mNTiWzLqj93qWd6ALX1FaR5q2jhhsH43Tk7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778509366; c=relaxed/simple;
-	bh=0FlTIhTMu2DTDeACCQiODrRFMSlCXPDergcLpIG34qY=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=uOrGP/9QCoFI+5Cu0et/c6Ue4YTKCiBcuUcdjydRQKtbcjE/c6ypcrcoFABaBI/8ojZnYcPLy2+CabiwOn4vPiio+oQBVeEcP8GdHeWXIHON8ZuRtYEvVxoC7/Y2RnZCHgYwTLgiKxLJW4s/mgfCzkjmhR9Jhf54Xh+Ogt3d3rU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jwf/L8cM; arc=none smtp.client-ip=74.125.82.49
+	s=arc-20240116; t=1778509468; c=relaxed/simple;
+	bh=wR0x33SVQ5MnRVA7Na6Rw+N1CJkGug8Uedf1WAspY34=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EZZS4gzyZzG/574/YdwowPxZCe0FXopm8LQWFzcjY6M7Xt9XBGY8/JmgCinA59XfLo+2vJv15FfVgG0CG2yl6+wPqsC2KAOiklquUDeQ5wVV2/yq+yi/yXwnvgdYq9qcoi9hApj1pAsNtiKzyfMCwttejwtx9Qhmuouru0icJr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r7TtgZD9; arc=none smtp.client-ip=74.125.82.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jwf/L8cM"
-Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1332772f6b3so627804c88.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 07:22:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r7TtgZD9"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2f0ad52830cso6295562eec.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 07:24:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778509364; x=1779114164; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=aO7P1AELULNXLt9xs0Z+M6/B6olysO/VTpw1VPmDiTA=;
-        b=jwf/L8cMYSncG9QxZA+rKRE9+XyZ/iNmld/pYvGsmF0QtrCg4zSf+54w8UTqaHIYaa
-         Ju2dpYDriyFxRbJEoSIkgG9t2S+RkSGXAGEbKD1YzywYuJYd1DQyWx9pxSVmMW7seSQ9
-         K3J6KZOY8ghwZTaAKPIrTj8R2sX61Pe+GFQhj4ovhKkx+fjVwUq6kW/jGj4OI6DJpvse
-         0pqdER/8ICozLODJe9IFDZTmc+J9JRMx+cqeMICsfu11Iq7uqYpH47m0xb3cReruzZSC
-         moxfZtjfArqTGwftoIRRVNiuzTOqdqOPTHfmWUvb5KSkJFQ9sGufpFH6j5t0sxKeUblz
-         6KnQ==
+        d=gmail.com; s=20251104; t=1778509466; x=1779114266; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0oyNTa4CCAyWVD8VYRFqrbci8ZzpfoEAZbtMoWKbpvY=;
+        b=r7TtgZD90sRxrNbT3tEVJunfEtI8eW8O4A5DlKEyBZxIp8qmcfRQ1o8w7d9bkZr9RV
+         LwXWFOTH223zjVRE1AU9VgiL0uFmgrBlJHeeArUIUcY0E2VRU7TMSr5qjGq8q0YeAR/T
+         nVna/UiU90sUjPh0Q+YT0lI5snmDaQ+QDH3/OOL/wfI2tmjtkIz8/t8Qrf0QtSXET/Yn
+         aDpEE80ri87w8r1mjLH+2STIJzUx4hbFLb2xgpfOHf1rR73OuhocnecQlvHmrOAcRni1
+         UAn4PT5XtzNsLkPF/ZLaq8Ah9ihTb3ZUCFdXd53m9EjzV8wAscapIGLrLLXUnTmnRG3s
+         kD7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778509364; x=1779114164;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=aO7P1AELULNXLt9xs0Z+M6/B6olysO/VTpw1VPmDiTA=;
-        b=KhkZr5+3TEqXBUA0G5eMk3NGzffm7V0f2IWi2DgGgjqmYeCe72ODGs+/3yiRUZM/+3
-         G6LPB9vOdTo4rhFWh/IT2UynqqDuTrW0b+x03+QWXzMZbjWK7QWb8QIQWKJ4EkJsTs58
-         kkbt5MUFJdMQdT6Zdy0d8vXOkbH4xBrWDlokmxkGYcKqwT1cB5F4qzeNiulZLGAqEEFv
-         HJCDGuSJgokYrLAJjM1TjXFbWlAXXfne1+X514y6kViSk66zuV/KrkGlUqfSPMrT9qzb
-         gLOv1U3uqDiMesfUkaTXiO+Ci4w1mj7lDUHj94uJo0IWapcOYBY1jZXkGMS+Qvd6K2FT
-         GTpw==
-X-Forwarded-Encrypted: i=1; AFNElJ9IR5kuCIWyXVxY1H5GJUFs3vH1ATb6+whAwkFJ1qbs+k7TPQVUfeuqv5H7T3osOkMPiYUHrRImbFi3IRATjA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwP06qyK65xqGqNApz75xQ4HaAplKBK1a8oF/Eiers+vGppC+0P
-	/KOaX8kaSV3PMQ4Nlstcaplht3n65+Tav4rmTObhsidsX5HJRj+0Guu8
-X-Gm-Gg: Acq92OGavTPYp0zlx615ttSUJvbS8Runyr1oj0M7PuKayDy0fEwXW8lJ4lzT2O9TPXA
-	1eJBR74y32bbfwd8qGym4nYNGi9RvBOeQStTCfQPS/KmonV9BWVICdpWSNn9BAHFgC5ZDENojX1
-	yMhwvkvLE3jNCY34FW1rkGWhdl7VgL6kBqIKNxFgokWDa4FpwXUsdcOYPMC4txkec6LxaBG2neL
-	kkmJ+H/BgaCMVWG0dV/bIkvxlwE63BQDgNKRedqo27UB99dABqmIV3olr4Dq781alsSZfJVqRyK
-	ycf+SaAt3ck2nn8cj+4+nvoglLbHcv8vBNYXpr2e1X6K4qbXq9gTyMuaQ6uRiNxCXYwvGBmKm6M
-	HL7M3aItErt/H0nBRdaC+nZVzNsyu9+TWrqSB/HO/5F1zkNhrPO41A2bTGgXCe+vA6FuPqFWvm9
-	kMFIgjUtQBCKTCBxBhOehnXzzDMIAx8Dz9vZVpa+dnreos8F7dccUMfyyEX60/TXwyMYlqLwcK
-X-Received: by 2002:a05:7022:6184:b0:130:ac5d:8f69 with SMTP id a92af1059eb24-1318ea1fdd6mr9903404c88.30.1778509362916;
-        Mon, 11 May 2026 07:22:42 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1327821fd00sm17932591c88.8.2026.05.11.07.22.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 May 2026 07:22:42 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778509466; x=1779114266;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=0oyNTa4CCAyWVD8VYRFqrbci8ZzpfoEAZbtMoWKbpvY=;
+        b=l+MyMDZjGT3NNlcJpjVzaYSoF5tLr/aVzGTWzoMypuIlkZmVTNZLdEbifn5UI426Rm
+         ICf4V5l70HuodrwBoXwyzB4q0sqiEVEFu5oMiwl7oHF3SXp7jtHyKGMygHj9mKv836Zi
+         FbekeMZIdW6oIsjep/ftux+eKCkISgcbsBlkqu6CgHZtpM4V1z6A6AkbPTrWZo84Z+8g
+         3GwkN9g/AjqAoYhIwebrIh/by/f0/GCQkZwJFaz60Dn1I3tPCxj4rIim/SAl7J0+A9Bk
+         SZ4EepoLzbwVZAA9jdTsk1WnuGPCMW6eliURZ8Sa1SC3ghpbuaHKvglIwRUyn9g7oojg
+         7uDw==
+X-Forwarded-Encrypted: i=1; AFNElJ92i3cgWWc0Txe2CAgn7ihGEYBzmHEnlMTxMahJh5FPLB4Z0l5XuzSLMV43VRC5zadcgqa2qtqiWP6aUa+d7A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxAsOfFk0AHUKVFyT/vNChIxGH8T9noxY34L1Ul/7ys8POp9UyW
+	WX4vBlYk0+xfkDeogEZoAV8WyQU9yNir/fGrrvsIF67xDRYFAlHhUgM+jlXm6w==
+X-Gm-Gg: Acq92OEY9U47gRlTJJPTUexq2fMgBsHNgubFpXiDHBHNfidSCkKz8ZbI6Uu5ktSvUV/
+	qKaopABYKUZyOrrafqPwqfk3WmJ/fPaH8NuWr1KG5053sprDe+XcQX2+TUA6GWGLqtgb34Xf7Ko
+	OpU1vXZwG/n4bEbY5LrkTbGDLAOJ1c3A3WsWf5NfWxULqDbuDlSK3TOWy86Ghf/xmHjxLC3Ipf9
+	RJJXAMknvQekv4BqZhVx9DcXz3zR9zki3LGit7zoS5+b++8s+aq0Su7Av+QdYQE1yEXmPww+OZ/
+	8AW95C8e2cWUoDDoThUSuKvnpRTixwWUqtYmqa0gWZS/7FdMX4Ub3C86sBNn5Xo6CZY0ODz/XCW
+	KgIL62vpSwhPnw+F9Yhw76UUn/5FQrYCIvzD2p6IQvHg6WEXGzLlisP2eDD6ledn5+o5Q2+kG67
+	9/IKWiu6ZpDTaEOX/OrNpx+yMWwRchasiqMwQN
+X-Received: by 2002:a05:7300:148a:b0:2ed:a64:a457 with SMTP id 5a478bee46e88-2fb4d68fa17mr4796973eec.20.1778509466413;
+        Mon, 11 May 2026 07:24:26 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8862d429asm13716691eec.12.2026.05.11.07.24.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 07:24:25 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <50b904dd-3c36-4f1c-b2e7-8727e7923475@roeck-us.net>
-Date: Mon, 11 May 2026 07:22:40 -0700
+Date: Mon, 11 May 2026 07:24:24 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Mayur Kumar <kmayur809@gmail.com>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: sb_wdog: add missing SPDX license identifier
+Message-ID: <4ec2bce9-98d5-4602-8bdc-2326907e2114@roeck-us.net>
+References: <20260510191847.50499-1-kmayur809@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: apple: Add "apple,t8103-wdt" compatible
-From: Guenter Roeck <linux@roeck-us.net>
-To: Janne Grunau <j@jannau.net>
-Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net>
- <87766879-ca5e-44cc-a341-87b2afa70910@roeck-us.net>
-Content-Language: en-US
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <87766879-ca5e-44cc-a341-87b2afa70910@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260510191847.50499-1-kmayur809@gmail.com>
 
-On 5/11/26 07:04, Guenter Roeck wrote:
-> On Wed, Dec 31, 2025 at 01:07:21PM +0100, Janne Grunau wrote:
->> After discussion with the devicetree maintainers we agreed to not extend
->> lists with the generic compatible "apple,wdt" anymore [1]. Use
->> "apple,t8103-wdt" as base compatible as it is the SoC the driver and
->> bindings were written for.
->>
->> [1]: https://lore.kernel.org/asahi/12ab93b7-1fc2-4ce0-926e-c8141cfe81bf@kernel.org/
->>
->> Fixes: 4ed224aeaf66 ("watchdog: Add Apple SoC watchdog driver")
->> Cc: stable@vger.kernel.org
->> Reviewed-by: Neal Gompa <neal@gompa.dev>
->> Signed-off-by: Janne Grunau <j@jannau.net>
+On Mon, May 11, 2026 at 12:48:47AM +0530, Mayur Kumar wrote:
+> checkpatch.pl reports the following warning:
 > 
-> Applied to my hwmon-next branch.
+> WARNING: Missing or malformed SPDX-License-Identifier tag in line 1
 > 
+> Per Documentation/process/license-rules.rst, add the appropriate SPDX
+> license identifier to the first line of the C source file using the
+> '//' style comment. Default to GPL-2.0-only.
+> 
+> Signed-off-by: Mayur Kumar <kmayur809@gmail.com>
 
-watchdog-next. Sorry for the confusion.
+Applied.
 
 Guenter
-
-> Thanks,
-> Guenter
-> 
->> ---
->> This is split off from the v1 series adding Apple M2 Pro/Max/Ultra
->> device trees in [2].
->>
->> 2: https://lore.kernel.org/r/20250828-dt-apple-t6020-v1-0-507ba4c4b98e@jannau.net
->> ---
->>   drivers/watchdog/apple_wdt.c | 1 +
->>   1 file changed, 1 insertion(+)
->>
->>
->> ---
->> base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
->> change-id: 20251231-watchdog-apple-t8103-base-compat-8a623e9831b6
->>
->> Best regards,
->>
->> diff --git a/drivers/watchdog/apple_wdt.c b/drivers/watchdog/apple_wdt.c
->> index 66a158f67a712bbed394d660071e02140e66c2e5..6b9b0f9b05cedfd7fc5d0d79ba19ab356dc2a080 100644
->> --- a/drivers/watchdog/apple_wdt.c
->> +++ b/drivers/watchdog/apple_wdt.c
->> @@ -218,6 +218,7 @@ static int apple_wdt_suspend(struct device *dev)
->>   static DEFINE_SIMPLE_DEV_PM_OPS(apple_wdt_pm_ops, apple_wdt_suspend, apple_wdt_resume);
->>   
->>   static const struct of_device_id apple_wdt_of_match[] = {
->> +	{ .compatible = "apple,t8103-wdt" },
->>   	{ .compatible = "apple,wdt" },
->>   	{},
->>   };
-> 
-
