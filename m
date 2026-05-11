@@ -1,142 +1,172 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A9C0347DD;
-	Mon, 11 May 2026 01:27:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D9C36EA8E
+	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 03:00:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778462877; cv=none; b=c5wpZ12ciiLZ1a2SeMVgeZeTTyk30BNUNkFaxK+eaDggYVDj2d8dltr5iBBFMjdMmXxUlMZXtgydQzw1BSwtkOJ+Ej5hRJOtydcNxygBANMJX2LcVnJdR6Xf+2uOqnKS+oje0KBKBUMz6bfbqoz2nkG1SqMTDUg4aDZem50vXpE=
+	t=1778468452; cv=none; b=CHgjUpMO97WXfi3xqK+gyEacLnEWlrEYSFJtpgiOnmOgoSbh2ud5dxaRVNVNgD756G4Coz1bZlH0oEhvrhSI7Fi1jJlAs6zYcXuj7yi6kIrt78dre4CAn5lDBGmP0b6Wvlxxty9zdfQyf8ywQsLfxa8h+eWGL6h8daD5hN3qftU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778462877; c=relaxed/simple;
-	bh=gN+iq8KsNmgSxSjhwL0OvpJKnjrY89gNjTv9gjUzp0o=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=sa8mjvOGAiC5m9y5qzU1NvSPQE3zHiTI7rip4POt9UEwVQQNoy1+78QzHgepMhXXFNiBFXn3oGRMsm8lovbaYo6hDq7z0G9paBQPh86cgcVtdjuxizRIoXVAQ0eQIensb+EZICzC/K8668swLdQV8hmTSTxanuoqRq81yV4AUtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=US0oL4jn; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1778468452; c=relaxed/simple;
+	bh=XbnnznwI5KDVLKriLYb0ojByf+BCa07+G4rzDa1f1/k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=S7L+wRqbonVSh//O/QWdNyjokfE5enOPerigQVGjl6/wVc+MVUKe+W6pITTkOl2iqqhoB/LZ3GwwnqriOhyjxZ+YW/2Fo+7+1z1W4ugsfbInsYoSzjYC+vDOXddQRsOMzry+kPvvqX0t6zU7ojm6vUd1j7FOW0RVpzKHMomOETY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=py8jpa5C; arc=none smtp.client-ip=74.125.82.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="US0oL4jn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=gN+iq8KsNmgSxSjhwL0OvpJKnjrY89gNjTv9gjUzp0o=; b=U
-	S0oL4jnF0YfFwb8PBjqu89h7NyLr6aucYnnvvv0W8hVbkFD1nVcuqSAIuk2E1mn9
-	MV0K6SF/eyiew/euM5Gb867D8G16MohjPWnEHugRpB7QBzLPOgs6MjRQIXXqkIKL
-	RLMwBdhHm1CItZrNr/riYRe9pc0rjuLmm3TcjtEYQ8=
-Received: from w15303746062$163.com ( [113.200.174.80] ) by
- ajax-webmail-wmsvr-40-112 (Coremail) ; Mon, 11 May 2026 09:27:16 +0800
- (CST)
-Date: Mon, 11 May 2026 09:27:16 +0800 (CST)
-From: w15303746062  <w15303746062@163.com>
-To: "Guenter Roeck" <linux@roeck-us.net>
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Mingyu Wang" <25181214217@stu.xidian.edu.cn>
-Subject: Re:Re: [PATCH] watchdog: wdt_pci: Fix shared IRQ storm and complete
- system lockup
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
-References: <20260509121655.275311-1-w15303746062@163.com>
- <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
-X-NTES-SC: AL_Qu2cCvidvUAo4CmfYekfmU0Qguw9Xcq5uPkj34FWN5t8jDnp4R4jRF1kG13r1uy9ByShnCqafgd/9OtBZLhKfYkVRiMlL6VYPWgXpG/tYU4nng==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="py8jpa5C"
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-12e332315a8so8417184c88.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 10 May 2026 20:00:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778468450; x=1779073250; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=/zYjOSAF0onUsf49R8b+dy+d3B9HKkEVhdV1Fac1Pis=;
+        b=py8jpa5Ck97omhjXirA2PwEEHRIijl8skDv2uuX3m5qJd5izwIW9UU9gj7RSPZ2IqK
+         StzE+rx2Niv3ns7LeR7J7QW/TuGDHeTe7LGEsQbmB7ytBNlVKZLRIYis4jHFpLrVSAfe
+         og06kJf5LkM4zwYGkIRvSViiF8NmZZFd5XkVUapJt5Tze9EbWElyCoqcgmRsVkt6Os1P
+         60rcIMlUOsUpC6n/md73I/Yw+CuJp094MgwCJQS1e4Sqn8o2p+iUWg2cuUjWV2a1H7RD
+         lcdWNOV1s4GNUtLy6JLQdm6YRPk/lMOCgo1UWQWPxFaotefaD1vcV9yNnYhGQ5fIwghO
+         ozNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778468450; x=1779073250;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/zYjOSAF0onUsf49R8b+dy+d3B9HKkEVhdV1Fac1Pis=;
+        b=R3y+fBNJ1rJgOr8V2h5W8x1zk4BiP9z+DsubwzkfgWCs50fuKSr2UeN32W74SPMcEU
+         JouCSnMcWcaHEM9YDMZjzi2pv3+K3m8LfefVeEpMMN/T9boMUHHyKffGftCA46dJrr+m
+         MuszHgZAF+4+CERTFBVPV6wVTcwt8co9eGs042xoLF1FkCGBBdePRpV2sOS/tvFZVnsl
+         wobUN8HcUgrPkVn2m45M+LvNiqnpMkdfaQ3tyyxuRRX+PpRkIrXloFx0HYFJ7mV80kE5
+         TRXef7VNLUpJB/YssNs8VsI0WbAGgQCD/V81ZK4N3bORv9Ob+zmrdfnI15v71ZZcaLkR
+         fEVA==
+X-Forwarded-Encrypted: i=1; AFNElJ+HzW9sL4b2oAFe6ec//na0RwihKKRw9l1XDV3jSyL74BGMnYzhgHSYEyXmVd5R5t9ao3asXlRlJ+J65iw53g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzEBrJnKHg7POoqwUrK4YzT8PsD0d4Y3JGaiFxjFF4E9On3eimM
+	Y6bZGkwv9SjtzSD1/XKe4eRFvcn40WrMR2dIYLQVDPZtvCH2V6QncZ1NBrEHvg==
+X-Gm-Gg: Acq92OHwdLvKion1QrekhroXQBBV+GsCfNzurdvD6X0w96QzmkFnHvwcdewUVgId5cb
+	3qgJuftWMZ++skmahf1W7uA29VYUgNn+VDOJOLfQyaioBCHjM8QDZQiQ5WQ+9bYGZ1j5Ua9azHe
+	8sOIp7+U3uZJeAthgSoDU94tZkt5oPbpCa997uo26ywkim7tY28Hn0eaOndu6DmU02kRaszAfxT
+	4P2tDAR3Or38STPkgD9KVH8jVxBL8VYSy/4CpxisZ4gwmy8WlNpsRZZUguqDTBWpBSp2ZY6HP4P
+	YwPFr4TQgefgrQtAvDBAqLZaLzo/8EEe2WCTUVd4ciCNFmMlup4mlHUa9doU5FxSUXAOuQJNy48
+	j2gBJjKkCTXZ7QTdsGxLUY+2piYlbVYXUwJiM017KCOMWWp4UA8sNF+FxZurhCFa9gIrImGO0vW
+	TuSP6x2qZ6Qcg4keS88wauVwjjBE2jcJhcljH1ebq+bwG8xiKJhZYqe01MqpwFK/VpsT5MR2rZ
+X-Received: by 2002:a05:7022:6629:b0:128:cf5c:5362 with SMTP id a92af1059eb24-132a79ef2c6mr4367220c88.12.1778468449972;
+        Sun, 10 May 2026 20:00:49 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1327821fc59sm14029834c88.7.2026.05.10.20.00.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 10 May 2026 20:00:48 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <5acea672-0550-478e-8f49-e5e43c72d7e2@roeck-us.net>
+Date: Sun, 10 May 2026 20:00:47 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <1fc8bb5a.1346.19e14a548fb.Coremail.w15303746062@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:cCgvCgB3QAZ1MAFqtVKgAA--.5507W
-X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC5BUE52oBMHVU+AAA3Q
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] watchdog: wdt_pci: Fix shared IRQ storm and complete
+ system lockup
+To: w15303746062 <w15303746062@163.com>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Mingyu Wang <25181214217@stu.xidian.edu.cn>
+References: <20260509121655.275311-1-w15303746062@163.com>
+ <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
+ <1fc8bb5a.1346.19e14a548fb.Coremail.w15303746062@163.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <1fc8bb5a.1346.19e14a548fb.Coremail.w15303746062@163.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-CgoKRnJvbTogTWluZ3l1IFdhbmcgPDI1MTgxMjE0MjE3QHN0dS54aWRpYW4uZWR1LmNuPgoKSGkg
-R3VlbnRlciwKClRoYW5rIHlvdSBmb3IgeW91ciBwcm9tcHQgcmVzcG9uc2UgYW5kIHJldmlldy4K
-ClRvIGFuc3dlciB5b3VyIHF1ZXN0aW9ucyBkaXJlY3RseSBhbmQgdHJhbnNwYXJlbnRseTogCgox
-LiBJcyB0aGlzIGFuIGFjdHVhbCBvYnNlcnZlZCBwcm9ibGVtPwpZZXMsIGl0IGlzIGEgcmVhbCwg
-b2JzZXJ2ZWQgcHJvYmxlbS4gSG93ZXZlciwgaXQgd2FzIG9ic2VydmVkIGluIGEgdmlydHVhbGl6
-ZWQgZnV6emluZyBlbnZpcm9ubWVudCAoUUVNVSArIFN5emthbGxlcikgcmF0aGVyIHRoYW4gb24g
-cGh5c2ljYWwgbGVnYWN5IGhhcmR3YXJlLiAKCjIuIEhvdyB3YXMgaXQgdHJpZ2dlcmVkPwpJbiBv
-dXIgUUVNVSBzZXR1cCwgUENJIElSUSBsaW5lcyBhcmUgaGVhdmlseSBzaGFyZWQuIFRoZSBmdXp6
-ZXIgbG9hZGVkIHRoZSBgd2R0X3BjaWAgZHJpdmVyIHdoaWxlIHNpbXVsdGFuZW91c2x5IGZ1enpp
-bmcgb3RoZXIgZGV2aWNlcyBvbiB0aGUgc2FtZSBzaGFyZWQgSVJRIGxpbmUgKGUuZy4sIHRoZSBp
-MmMtaTgwMSBjb250cm9sbGVyKS4gV2hlbiB0aGUgb3RoZXIgZGV2aWNlIHRyaWdnZXJlZCBhIGhl
-YXZ5IGludGVycnVwdCBsb2FkLCBgd2R0cGNpX2ludGVycnVwdCgpYCBjYXVnaHQgdGhlbS4gU2lu
-Y2UgaXQgYnlwYXNzZWQgdGhlIElSUSBvd25lcnNoaXAgY2hlY2ssIGl0IGJsaW5kbHkgY2xhaW1l
-ZCB0aGUgaW50ZXJydXB0cyBhbmQgY2F1c2VkIGEgbWFzc2l2ZSBwcmludGsgc3Rvcm0gKHNwYW1t
-aW5nICJ3ZHRfcGNpOiBSZXNldCBpbiA1bXMiIGFuZCAic3RhdHVzIDExNCIpLiAKClRoaXMgb3Zl
-cndoZWxtZWQgdGhlIENQVSBpbiBoYXJkIElSUSBjb250ZXh0LCBkZWZlYXRlZCB0aGUgc3B1cmlv
-dXMgSVJRIGRldGVjdG9yLCBhbmQgcmVzdWx0ZWQgaW4gYSAxNDUtc2Vjb25kIEh1bmcgVGFzayBw
-YW5pYy4gSGVyZSBpcyBhIGJyaWVmIHNuaXBwZXQgb2YgdGhlIG9ic2VydmVkIGxvZzoKClsgIDM3
-NS40ODU0OTFdIHdkdF9wY2k6IFJlc2V0IGluIDVtcwpbICAzNzUuNDg3NDY3XSB3ZHRfcGNpOiBz
-dGF0dXMgMTE0ClsgIDM3NS40ODkxNzFdIHdkdF9wY2k6IFJlc2V0IGluIDVtcwouLi4KWyAgMzc1
-LjQ4NDI0NF0gc3lzdGVtZC1qb3VybmFsZFs0NzcxXTogL2Rldi9rbXNnIGJ1ZmZlciBvdmVycnVu
-LCBzb21lIG1lc3NhZ2VzIGxvc3QuClsgIDUxOS4xODk1MjhdIElORk86IHRhc2sgc3l6LjIuNTA3
-IGJsb2NrZWQgZm9yIG1vcmUgdGhhbiAxNDUgc2Vjb25kcy4KCjMuIERpZCBJIGNvbmZpcm0gdGhl
-IHJlZ2lzdGVyIGJpdD8KWWVzLCB0aGUgYXNzZXJ0aW9uIHRoYXQgYFdEQ19TUl9JUlFgIGlzIGFj
-dGl2ZSBsb3cgcmVsaWVzIGRpcmVjdGx5IG9uIHRoZSBoYXJkd2FyZSBkZWZpbml0aW9uIGRvY3Vt
-ZW50ZWQgaW4gdGhlIGRyaXZlcidzIG93biBzb3VyY2UgY29kZSBhdCBsaW5lIDY2OgpgI2RlZmlu
-ZSBXRENfU1JfSVJRICAgICAgMTI4IC8qIEFjdGl2ZSBsb3cgKi8gLyogWCAgIFggICBYICAqL2AK
-CkkgY29tcGxldGVseSB1bmRlcnN0YW5kIHlvdXIgcGVyc3BlY3RpdmUuIFRoaXMgaXMgbGVnYWN5
-IGhhcmR3YXJlIGZyb20gdGhlIDE5OTBzLCBhbmQgaXQgaXMgZXh0cmVtZWx5IHVubGlrZWx5IHRv
-IGJlIHVzZWQgaW4gcHJvZHVjdGlvbiB0b2RheS4gTXkgaW50ZW50aW9uIHdhcyBzb2xlbHkgdG8g
-cmVwb3J0IGEgcmVwcm9kdWNpYmxlIExvY2FsIERvUyB2ZWN0b3IgZm91bmQgYnkgdGhlIGZ1enpl
-ciwgYXMgYElSUUZfU0hBUkVEYCBoYW5kbGVycyBhcmUgc3RyaWN0bHkgcmVxdWlyZWQgdG8gdmVy
-aWZ5IHRoZWlyIGludGVycnVwdCBzb3VyY2UuCgpJZiB5b3UgZmVlbCB0aGF0IHBhdGNoaW5nIHRo
-aXMgb3V0ZGF0ZWQgZHJpdmVyIGFkZHMgdW5uZWNlc3NhcnkgY2h1cm4gYW5kIGNvbnN1bWVzIG1h
-aW50YWluZXJzJyB0aW1lLCBwbGVhc2UgZmVlbCBmcmVlIHRvIGRyb3AgdGhpcyBwYXRjaC4gQWx0
-ZXJuYXRpdmVseSwgaWYgdGhlIGhhcmR3YXJlIGlzIHRydWx5IG9ic29sZXRlLCBwZXJoYXBzIHRo
-ZSBkcml2ZXIgc2hvdWxkIGJlIG1hcmtlZCBhcyBCUk9LRU4gb3IgcmVtb3ZlZCBlbnRpcmVseS4g
-SSBsZWF2ZSB0aGF0IGVudGlyZWx5IHRvIHlvdXIgZXhwZXJ0IGp1ZGdtZW50LgoKVGhhbmtzIGFn
-YWluIGZvciB5b3VyIHRpbWUhCgpCZXN0IHJlZ2FyZHMsCk1pbmd5dSBXYW5nCgoKCgoKCgoKCgoK
-QXQgMjAyNi0wNS0wOSAyMTo1MjoxNywgIkd1ZW50ZXIgUm9lY2siIDxsaW51eEByb2Vjay11cy5u
-ZXQ+IHdyb3RlOgo+T24gNS85LzI2IDA1OjE2LCB3MTUzMDM3NDYwNjJAMTYzLmNvbSB3cm90ZToK
-Pj4gRnJvbTogTWluZ3l1IFdhbmcgPDI1MTgxMjE0MjE3QHN0dS54aWRpYW4uZWR1LmNuPgo+PiAK
-Pj4gVGhlIHdkdF9wY2kgZHJpdmVyIHJlZ2lzdGVycyBpdHMgaW50ZXJydXB0IGhhbmRsZXIgd2l0
-aCB0aGUgSVJRRl9TSEFSRUQKPj4gZmxhZy4gSG93ZXZlciwgdGhlIGludGVycnVwdCBoYW5kbGVy
-IHdkdHBjaV9pbnRlcnJ1cHQoKSBmYWlscyB0byBjaGVjawo+PiB3aGV0aGVyIHRoZSBpbnRlcnJ1
-cHQgYWN0dWFsbHkgb3JpZ2luYXRlZCBmcm9tIHRoZSB3YXRjaGRvZyBkZXZpY2UuCj4+IAo+PiBJ
-ZiBhbm90aGVyIGRldmljZSBvbiB0aGUgc2FtZSBzaGFyZWQgSVJRIGxpbmUgKGUuZy4sIGFuIEky
-QyBjb250cm9sbGVyKQo+PiB0cmlnZ2VycyBhbiBpbnRlcnJ1cHQsIHdkdHBjaV9pbnRlcnJ1cHQo
-KSB3aWxsIGVycm9uZW91c2x5IHByb2Nlc3MgaXQsCj4+IGJsaW5kbHkgbG9nIGhhcmR3YXJlIHN0
-YXR1cyAoZS5nLiwgIlJlc2V0IGluIDVtcyIpIHRvIHRoZSBjb25zb2xlLCBhbmQKPj4gdW5jb25k
-aXRpb25hbGx5IHJldHVybiBJUlFfSEFORExFRC4KPj4gCj4+IFRoaXMgYmVoYXZpb3IgZGVmZWF0
-cyB0aGUga2VybmVsJ3Mgc3B1cmlvdXMgaW50ZXJydXB0IGRldGVjdG9yLiBVbmRlcgo+PiBoZWF2
-eSBsb2FkIGZyb20gb3RoZXIgZGV2aWNlcyBzaGFyaW5nIHRoZSBJUlEsIGl0IGNhdXNlcyBhIHNl
-dmVyZSBwcmludGsKPj4gc3Rvcm0gYW5kIGtlZXBzIHRoZSBDUFUgdHJhcHBlZCBpbiBoYXJkIElS
-USBjb250ZXh0LiBUaGlzIGV2ZW50dWFsbHkKPj4gbGVhZHMgdG8gYSBjb21wbGV0ZSBzeXN0ZW0g
-bG9ja3VwIGFuZCBSQ1UvSHVuZyBUYXNrIHBhbmljcy4KPj4gCj4+IEZpeCB0aGlzIGJ5IGNoZWNr
-aW5nIHRoZSBXRENfU1JfSVJRIGJpdCAod2hpY2ggaXMgYWN0aXZlIGxvdykgaW4gdGhlCj4+IHN0
-YXR1cyByZWdpc3Rlci4gSWYgdGhlIGJpdCBpcyBoaWdoLCB0aGUgaW50ZXJydXB0IGlzIG5vdCBv
-dXJzLCBhbmQgd2UKPj4gbXVzdCByZWxlYXNlIHRoZSBsb2NrIGFuZCByZXR1cm4gSVJRX05PTkUg
-aW1tZWRpYXRlbHkuCj4+IAo+PiBTaWduZWQtb2ZmLWJ5OiBNaW5neXUgV2FuZyA8MjUxODEyMTQy
-MTdAc3R1LnhpZGlhbi5lZHUuY24+Cj4KPklzIHRoaXMgYW4gYWN0dWFsIG9ic2VydmVkIHByb2Js
-ZW0gPyBBcmUgeW91IHVzaW5nIHRoaXMgZHJpdmVyID8KPkRpZCB5b3UgY29uZmlybSB0aGF0IHRo
-ZSBjaGFuZ2Ugc29sdmVzIHRoZSBwcm9ibGVtLCBhbmQgdGhhdCB0aGUKPm5ld2x5IGNoZWNrZWQg
-cmVnaXN0ZXIgYml0IGlzIGluZGVlZCBhY3RpdmUgbG93IGFzIGNsYWltZWQgPwo+Cj5JZiBzbywg
-cGxlYXNlIHByb3ZpZGUgZXZpZGVuY2UgdGhhdCB0aGUgcHJvYmxlbSBpcyBvYnNlcnZlZC4KPklm
-IG5vdCwgcGxlYXNlIHJlZnJhaW4gZnJvbSBtYWtpbmcgc3VjaCBjaGFuZ2VzLiBUaGlzIGRyaXZl
-ciwKPnNwZWNpZmljYWxseSwgaXMgY29tcGxldGVseSBvdXRkYXRlZCwgdGhlIGhhcmR3YXJlIGl0
-IHN1cHBvcnRzCj5pcyB2ZXJ5IHVubGlrZWx5IHRvIHN0aWxsIGJlIHVzZWQsIGFuZCBtYWtpbmcg
-c3VjaCBjaGFuZ2VzIHdpdGhvdXQKPmFjdHVhbCBuZWVkIHNlcnZlcyBubyBwcmFjdGljYWwgcHVy
-cG9zZSBidXQgdG8ga2VlcCBtYWludGFpbmVycyBidXN5Lgo+Cj5UaGFua3MsCj5HdWVudGVyCj4K
-Pj4gLS0tCj4+ICAgZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMgfCAxMSArKysrKysrKysrKwo+
-PiAgIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspCj4+IAo+PiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMgYi9kcml2ZXJzL3dhdGNoZG9nL3dkdF9wY2kuYwo+
-PiBpbmRleCAzOTE4YTYwMGYyYTAuLmEzNWFjMDY0YjY5MCAxMDA2NDQKPj4gLS0tIGEvZHJpdmVy
-cy93YXRjaGRvZy93ZHRfcGNpLmMKPj4gKysrIGIvZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMK
-Pj4gQEAgLTMwNCw2ICszMDQsMTcgQEAgc3RhdGljIGlycXJldHVybl90IHdkdHBjaV9pbnRlcnJ1
-cHQoaW50IGlycSwgdm9pZCAqZGV2X2lkKQo+PiAgIAlzcGluX2xvY2soJndkdHBjaV9sb2NrKTsK
-Pj4gICAKPj4gICAJc3RhdHVzID0gaW5iKFdEVF9TUik7Cj4+ICsJLyoKPj4gKwkgKiBUaGUgV0RU
-NTAwLzUwMSBzdXBwb3J0cyBzaGFyZWQgaW50ZXJydXB0cyAoSVJRRl9TSEFSRUQpLgo+PiArCSAq
-IFdlIG11c3QgY2hlY2sgaWYgdGhlIGludGVycnVwdCB3YXMgZ2VuZXJhdGVkIGJ5IHRoaXMgZGV2
-aWNlLgo+PiArCSAqIFdEQ19TUl9JUlEgaXMgYWN0aXZlIGxvdywgc28gaWYgaXQgaXMgc2V0ICgx
-KSwgdGhlIGludGVycnVwdAo+PiArCSAqIGJlbG9uZ3MgdG8gYW5vdGhlciBkZXZpY2Ugb24gdGhl
-IHNoYXJlZCBsaW5lLgo+PiArCSAqLwo+PiArCWlmIChzdGF0dXMgJiBXRENfU1JfSVJRKSB7Cj4+
-ICsJCXNwaW5fdW5sb2NrKCZ3ZHRwY2lfbG9jayk7Cj4+ICsJCXJldHVybiBJUlFfTk9ORTsKPj4g
-Kwl9Cj4+ICsKPj4gICAJdWRlbGF5KDgpOwo+PiAgIAo+PiAgIAlwcl9jcml0KCJzdGF0dXMgJWRc
-biIsIHN0YXR1cyk7Cg==
+Hi,
+
+On 5/10/26 18:27, w15303746062 wrote:
+> 
+> 
+> 
+> From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+> 
+> Hi Guenter,
+> 
+> Thank you for your prompt response and review.
+> 
+> To answer your questions directly and transparently:
+> 
+> 1. Is this an actual observed problem?
+> Yes, it is a real, observed problem. However, it was observed in a virtualized fuzzing environment (QEMU + Syzkaller) rather than on physical legacy hardware.
+> 
+> 2. How was it triggered?
+> In our QEMU setup, PCI IRQ lines are heavily shared. The fuzzer loaded the `wdt_pci` driver while simultaneously fuzzing other devices on the same shared IRQ line (e.g., the i2c-i801 controller). When the other device triggered a heavy interrupt load, `wdtpci_interrupt()` caught them. Since it bypassed the IRQ ownership check, it blindly claimed the interrupts and caused a massive printk storm (spamming "wdt_pci: Reset in 5ms" and "status 114").
+> 
+> This overwhelmed the CPU in hard IRQ context, defeated the spurious IRQ detector, and resulted in a 145-second Hung Task panic. Here is a brief snippet of the observed log:
+> 
+> [  375.485491] wdt_pci: Reset in 5ms
+> [  375.487467] wdt_pci: status 114
+> [  375.489171] wdt_pci: Reset in 5ms
+> ...
+> [  375.484244] systemd-journald[4771]: /dev/kmsg buffer overrun, some messages lost.
+> [  519.189528] INFO: task syz.2.507 blocked for more than 145 seconds.
+> 
+> 3. Did I confirm the register bit?
+> Yes, the assertion that `WDC_SR_IRQ` is active low relies directly on the hardware definition documented in the driver's own source code at line 66:
+> `#define WDC_SR_IRQ      128 /* Active low */ /* X   X   X  */`
+> 
+> I completely understand your perspective. This is legacy hardware from the 1990s, and it is extremely unlikely to be used in production today. My intention was solely to report a reproducible Local DoS vector found by the fuzzer, as `IRQF_SHARED` handlers are strictly required to verify their interrupt source.
+> 
+> If you feel that patching this outdated driver adds unnecessary churn and consumes maintainers' time, please feel free to drop this patch. Alternatively, if the hardware is truly obsolete, perhaps the driver should be marked as BROKEN or removed entirely. I leave that entirely to your expert judgment.
+> 
+
+I don't see that watchdog supported in qemu. Is this a downstream version
+of qemu, or am I missing something ?
+
+Thanks,
+Guenter
+
