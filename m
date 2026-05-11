@@ -1,120 +1,168 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4592DF13F;
-	Mon, 11 May 2026 15:52:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8039E4C0428
+	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 18:51:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778514753; cv=none; b=kyFcvTkXQ5N7VKxDmWv7EP2Lj73KwUYmaragM572pxaoOlXC391HaNKEDQJMbce9cRG4qxnKbVwBNrgTP+EoCR6uF2Zrye53brx19Wzs8XcE5eezF0EGhTg5emlaHQmrYlzDTD5gB8qIgck5CqsNpwVCtZYOt2pTMvKarLmYTZ8=
+	t=1778525468; cv=none; b=AG5rKEsBegp7Xurb9uNPPS/QUVQ2RXEtoOiQ+XgeZdmaE1sJ3uX6q2rLh83iVt2CdDymt7kTM7pjp7YF5lrbFElujimpg3RgX0fo+x8brFQmHYbe1cH3GnHG0cnIKwQgrQvnILvTLLu0snpCQL2CVAz4lJHciyMuejrUVU01i9I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778514753; c=relaxed/simple;
-	bh=CuZWZE/CqP/FQMtts7oBbK4vUvv9Sw3KWWjnKZ6EY5U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MuBSAdirRMoqcn1Pucf2y7AuPM/ksUENUJDeCeTWSqeWCU6YqYsGGnBifAwIC+x7MI5xtzjYze8/yWwiSnJGCNRDmxtOWm2ZsRrn+dHGJzz7nRqDccKg2lt0jPsBf8Scea5Bdh8q8uokTlCFGCSz95aT5+K03bjcHu6t3eMbrF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iVqorgbZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778525468; c=relaxed/simple;
+	bh=DT00nk2LP9Il6r5Jw/XCnU4nDevdgeglfjX5CCyi9ms=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CiqSxHLIpzNCTduvcKWtOXAv8n6DbBZgvU8S9HFSdcHpgVmjnYp3rWr5b1sB5BPUdWeXg2bp7fY7BSwwSvjOR8RHx/Ho92IWchtcrSDJMGrLfC1BBJ4Wfe7tuPaYbfNEaE+x6jvtHqrX1qYCInyvgCxVMgAk/F65xtVUj25czMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CoN7uiUm; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iVqorgbZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 900A2C2BCC9;
-	Mon, 11 May 2026 15:52:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778514753;
-	bh=CuZWZE/CqP/FQMtts7oBbK4vUvv9Sw3KWWjnKZ6EY5U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iVqorgbZILQ13dDiUOlrOi1t31Xr5yp+dvOo8xi82o/olLv1/90BOU60ySGhhc3SB
-	 i/2kb1KF7L6HTrWGUzUDuVbJti8/qE8yEkldLKHa8SxDRDF7zPHin/xm92leGDRIc6
-	 FTaIPDj94rHhEvE7lhN0+KcNgORVqx4YSCpNFyPmMZeJ9T8FZ8CKQaYnPop/o0ZTyS
-	 QGNKleRo24EQp+aQMDRoKQY7UjIgCDCkNymN+kwiN+GbULEfWA/wQA5dpVxaUR0HlB
-	 ubQu4ELpYu39sSBVeM7ekqFo1GkPrC7ChkhTZt5SFTlnicqwXoQrtb1PtlwnOtnhQU
-	 dkaLsB6Nyi5CA==
-Date: Mon, 11 May 2026 16:52:29 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Rustam Adilov <adilov@disroot.org>
-Cc: Sander Vanheule <sander@svanheule.net>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CoN7uiUm"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-488ba840146so41672045e9.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 11:51:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778525465; x=1779130265; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=789XEeQ4I50MnaW2OnqahHH0vEgS0bTPRF2lefmkIno=;
+        b=CoN7uiUmhC1IwDUitqX6Df+HS49PlSE7ASxWpNFZu/2e/ATuZPC06AWqKRZ23FLOGG
+         Q+HD86ULr3lWgTdrTTElPjO/3L/7pafYMgBFFaWngwXK0UNwdqA2HspRAAycGgth06qz
+         +4g4rJAYwRJq/YtLKjX80jK2dFVZIXTE6ICncM4vnjIn4YoJhn3sWdA0ejCnvLuUO/58
+         pd/JfgQmcw07GUGrND3vEkjMrM6xiJ5W8FiAc9fBpYOxstDwQrpcXa6a6+Dm6+L1Dywu
+         5+aT98Yku0lQ7BV66PhYXtpxS5eqjdFZMVIANmQZp1bJX2zhNaOKBcMQPYhl0PM8GgHw
+         ZgOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778525465; x=1779130265;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=789XEeQ4I50MnaW2OnqahHH0vEgS0bTPRF2lefmkIno=;
+        b=D4ZW/44lOD0grZJLTepvXRj1hMs8S1vo5ODr7DwimUMx5vQdx/Vv2gdBnBKTP0AwiI
+         MjLjvYUdSZ4bKX4vAo6MHjYq+1fFwPuEdT4JkfhSOsIzBQxdLV5KOrOLgmzM/SpxHbQc
+         KrQ4gCu+mcW6MejO9CI5kXiJ7AwrbfW8krYlus6YxeGTQ3rFMbjorZEPK+Wi5FoFRYMw
+         VOpe0FG5vtwJ+IebqKcC9HA0vdfe2kT/NfSy/JTZbF0q5eUfeXvCD/ZPyTmtYMFIdQB/
+         pRr06zTeAHk4BPJ+y1rBGUMQhB0otV7zKRZO6kizpF/9te2VTnFXLlLR7LaMnyU5nUq6
+         /AdQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9aXaLQkREiTbcFCZHnKmTwY2PqKsB5DR3tIJQSInBEtu7AUAHEby8Qx/U/By3Tf+4wru7SVeWB80S9NH/Zdw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzpCTccQiHuWLxZ3gXs+WbvMXF24/y4AWv6R39c1q19EqewRZN9
+	90YwhytZDkYk7h+OlOWoXQK+1AUd44n3gwyl8hx2KKuuJ2yoG3XlAUtw
+X-Gm-Gg: Acq92OE7D16ZlQ5wJ92v3px89gFm9Jr56Vm7utWBkZJWfuGsYsibMgu9sjyxmK7lelr
+	ZdA18ltxnGz7CDZqzAqI3DP5ILPpLs0NeVCh4KqUiLS+RMYYb4T5tPnCVjKBTbFIS03xo4xS+GN
+	aOayFIrn8bNvhCS0D9SFwiv9VyKqhWNPPQr2JBMyQ5uAQhFXJotwSNsmXpdNlZwO92w8uJgnr6W
+	dQ5TXcvaRO7JDuYAkAu4pP/4BgrxcVjjYnizXuw/Q6NZmMOVYIknchJ+Sa8fxI6ryy8shrtwclf
+	inciO5+X1+xVvABIasWBdtQkCOQuMzPSa8mXaajYvwCfNYy5Nl06ZsNPnjGPGPwNY/WgWJWT/HW
+	Kpt6ZL13946aK29ij+gqE8hVgLLFHMJ0j55drSBAGWqiGvZQLvVhxSHBpH5pTaccM7vYUYP2LBE
+	aGcIZ/h46sSf7z2VqW27QpQQgUGf26Nc3u2vANbwQrURJKiywAk3jj4I1KAxsNWLD+7Ml0WCGDW
+	7nQe5/3l+6TXEC8Fm+s6ZWb657nyS7UY4rM1A==
+X-Received: by 2002:a05:600c:c166:b0:48e:6f39:f7be with SMTP id 5b1f17b1804b1-48e6f39f7d2mr194207385e9.10.1778525464608;
+        Mon, 11 May 2026 11:51:04 -0700 (PDT)
+Received: from iku.Home ([2a06:5906:61b:2d00:e687:6094:b849:9886])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8f3cf0cdsm854775e9.2.2026.05.11.11.51.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 11:51:04 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney@redhat.com>,
+	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] dt-bindings: watchdog: realtek,otto-wdt: add
- compatible for RTL9607C
-Message-ID: <20260511-alienate-guidable-d503194e6a93@spud>
-References: <20260509163101.722793-1-adilov@disroot.org>
- <20260509163101.722793-3-adilov@disroot.org>
- <20260509-rebuild-snowboard-e82a3adc5a27@spud>
- <94a75930847c2b7a221736c41a1da67d@disroot.org>
+	Conor Dooley <conor+dt@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-renesas-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Prabhakar <prabhakar.csengg@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [RFC PATCH 0/9] Add System Controller support for RZ/T2H and RZ/N2H SoCs
+Date: Mon, 11 May 2026 19:50:49 +0100
+Message-ID: <20260511185058.1926869-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="CjOOWizSNEAiRWCk"
-Content-Disposition: inline
-In-Reply-To: <94a75930847c2b7a221736c41a1da67d@disroot.org>
+Content-Transfer-Encoding: 8bit
 
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
---CjOOWizSNEAiRWCk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi All,
 
-On Sun, May 10, 2026 at 08:19:09AM +0000, Rustam Adilov wrote:
-> Hello,
-> On 2026-05-09 18:13, Conor Dooley wrote:
-> > On Sat, May 09, 2026 at 09:31:00PM +0500, Rustam Adilov wrote:
-> >> Add the realtek,rtl9607-wdt compatible to the Realtek Otto watchdog
-> >> binding.
-> >>=20
-> >> Signed-off-by: Rustam Adilov <adilov@disroot.org>
-> >> ---
-> >>  Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml | 1 +
-> >>  1 file changed, 1 insertion(+)
-> >>=20
-> >> diff --git a/Documentation/devicetree/bindings/watchdog/realtek,otto-w=
-dt.yaml b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
-> >> index 1f5390a67cdb..ac9db40b12dc 100644
-> >> --- a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
-> >> +++ b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
-> >> @@ -30,6 +30,7 @@ properties:
-> >>        - realtek,rtl8390-wdt
-> >>        - realtek,rtl9300-wdt
-> >>        - realtek,rtl9310-wdt
-> >> +      - realtek,rtl9607-wdt
-> >=20
-> > Please explain in your commit message why this new device is not
-> > compatible with the existing ones, particularly given the driver patch
-> > implies that it would be.
-> > pw-bot: changes-requested
->=20
-> Is the fact "RTL9607C is different SoC compared to the others in the list=
-" not
-> enough of a reason to include even though the all of them have an identic=
-al watchdog
-> timer device? But yes, i can use any other compatible just as fine.
+This series adds support for the System Controller (SYSC) blocks found on
+the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical low-power
+management and access control functions.
 
-No. And to be clear, I'm not asking you to use one of the other
-compatibles. I'm asking you to use one of the existing ones as a
-fallback.
+Hardware Architecture & Dependency Challenges:
+----------------------------------------------
+The SYSC in these SoCs is a multi-functional block responsible for:
+    - Clock & Reset Control
+    - Low Power Management
+    - Clock Monitor (CLMA)
+    - Access Control
 
-> Maybe its just difference in maintainers because the RTL9310 [1] was acce=
-pted and
-> had the identical case to this one.
->=20
-> [1]- https://lore.kernel.org/linux-watchdog/84d873d7dd375cd2392f89fa6bd9e=
-0fe5dda4e1c.1656356377.git.sander@svanheule.net/
+A key architectural detail is that these SYSC blocks are physically located
+within the CPG/MSSR (Clock Pulse Generator / Module Standby Software Reset)
+address space. While the CPG/MSSR driver is already implemented and
+functional for these SoCs, the integration of SYSC adds a layer of
+complexity due to a cyclic dependency:
+    - SYSC requires CPG: The system controller needs a clock to operate.
+    - CPG requires SYSC: Access control registers within the SYSC contain
+      bits necessary to control the PLLs managed by the CPG.
 
-Probably the same feedback should have been provided there.
+If implemented as a completely separate top-level system controller node, we
+would face a cyclic dependency between the CPG and SYSC drivers during the
+boot process.
 
---CjOOWizSNEAiRWCk
-Content-Type: application/pgp-signature; name="signature.asc"
+Proposed Implementation
+----------------------------
+To resolve this, the SYSC blocks are represented as child nodes of the
+CPG/MSSR controller in the device tree. The SYSC regmap is registered
+directly against the CPG device node. This hierarchy correctly models the
+hardware address space while allowing the drivers to share resources
+without deadlock.
 
------BEGIN PGP SIGNATURE-----
+I am sending this as an RFC specifically to get feedback on the
+implementation of the SYSC as child nodes of the CPG to resolve the
+dependency cycle.
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCagH7OQAKCRB4tDGHoIJi
-0rumAQDI3U5CjDsU+2tNAsXkZxZi07nfUWWUfEb4Q9dY5UYuNgD/XMJyHoQdZeDu
-+aMMn9Boq0jMooO1OUG/nruJyx8UbAE=
-=l2xp
------END PGP SIGNATURE-----
+I have also included patches which updates the WDT driver to use
+the SYS syscon for register access.
 
---CjOOWizSNEAiRWCk--
+Cheers,
+Prabhakar
+
+Lad Prabhakar (9):
+  dt-bindings: clock: renesas,cpg-mssr: Support RZ/T2H system
+    controllers
+  clk: renesas: r9a09g077: Add SYSC regmap support
+  arm64: dts: renesas: r9a09g077: Add system controller child nodes
+  arm64: dts: renesas: r9a09g087: Add system controller child nodes
+  dt-bindings: watchdog: renesas,r9a09g057-wdt: Add SYS syscon support
+  watchdog: rzv2h: Refactor WDTDCR start/stop handling
+  watchdog: rzv2h: Add syscon support for RZ/T2H and RZ/N2H WDT control
+    register
+  arm64: dts: renesas: r9a09g077: Use SYS syscon for WDTDCR access
+  arm64: dts: renesas: r9a09g087: Use SYS syscon for WDTDCR access
+
+ .../bindings/clock/renesas,cpg-mssr.yaml      |  39 ++++
+ .../watchdog/renesas,r9a09g057-wdt.yaml       |  29 ++-
+ arch/arm64/boot/dts/renesas/r9a09g077.dtsi    |  38 ++--
+ arch/arm64/boot/dts/renesas/r9a09g087.dtsi    |  38 ++--
+ drivers/clk/renesas/Kconfig                   |   2 +
+ drivers/clk/renesas/r9a09g077-cpg.c           | 180 ++++++++++++++++++
+ drivers/clk/renesas/renesas-cpg-mssr.c        |   6 +
+ drivers/clk/renesas/renesas-cpg-mssr.h        |   1 +
+ drivers/watchdog/Kconfig                      |   1 +
+ drivers/watchdog/rzv2h_wdt.c                  | 104 ++++++++--
+ 10 files changed, 394 insertions(+), 44 deletions(-)
+
+-- 
+2.54.0
+
