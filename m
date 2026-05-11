@@ -1,112 +1,155 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from fhigh-b4-smtp.messagingengine.com (fhigh-b4-smtp.messagingengine.com [202.12.124.155])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97C5781ACA;
-	Mon, 11 May 2026 04:53:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A97F2D9ECA;
+	Mon, 11 May 2026 08:50:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778475191; cv=none; b=HRSVBoFxmb/j2xwqUoj1vvGO0j2uecoaTzp3zU2W1/R5DD/KLW3UWiUBwJlsgz+YNHcxYXoe5cAv9HN0W+Iz+Vr3nRVKZo72318WlH5mX6AmJz10fixdZVQ0fSjVL2d0/a2vuVOYIHXrr9jjYDUICBDuW//92qVBbbVmlEpla2c=
+	t=1778489436; cv=none; b=LD0wzNnYyXTlItAgYqaSK+WIi/uxymxVo72OAGaYz7qCLyuJyztc6DFu+hN88gzXod4JMYD/ly3ikL34ZJfUMOUfkprHrq1JLLl+Ixc/xucpwzudjlblg/hbtwMivL/ql655rz0xIlkhHFSqoR51QWNDtzUhy2eDS0Fmx8oTRiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778475191; c=relaxed/simple;
-	bh=nRKUAY6KOcFsKplKY6bzxzpkaP8ZfDba6uWk+Kd1qqQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=H9DaLVP/IcLbNHX1uAspRU9qSXWxgDkadWRSJAnvCobHjAsm4pI7f3JyEWFv59sKWt4O98cDzIzKsXNV9sX3vv3BrvQs1YntulyIA/dxTXpJmRJQNrmzRZUU5Q9EytXn82OU1vWxU0TpOBPNNPkQTyGRow96YYSZ/DH/I16Oglg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AmUCsxKS; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1778489436; c=relaxed/simple;
+	bh=cRNS8O4aEUgVLd0JWYbG1HN1/tndkrWGyE6fOjt21b0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EADM257oK3UesFwewvncPPscvOcgwReXoNmI0BFS5CbcGWQ3nemmvjws/ZjLVaIAamQR2ZCzGlFsn04piKXUjaKS7PWTZX+vtfpciNG8UEqkUlOp1hp1vFvNiWVGvjps54DNfZAY+lMbwagzAZsriY2ssecJk6oAQh0ABPhhy7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=LOsTO+eQ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=pDcOPxMi; arc=none smtp.client-ip=202.12.124.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AmUCsxKS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=nRKUAY6KOcFsKplKY6bzxzpkaP8ZfDba6uWk+Kd1qqQ=; b=A
-	mUCsxKS98+VhtiVALfpmVgibhqTuoffds8SmOI5yJACNMO2QXKqFSnivwiRfVX3o
-	/8/5v+EthwA6B7BZqH1LZpq7ZpWkWVYnuvtCTJXj7rqbqlnP/uGzrzUx4ccmLw5R
-	La8J1Y0mtGhqQcwFNSgQbkDRT/ztB1HXAFSO4VGIRw=
-Received: from w15303746062$163.com ( [113.200.174.80] ) by
- ajax-webmail-wmsvr-40-112 (Coremail) ; Mon, 11 May 2026 12:52:35 +0800
- (CST)
-Date: Mon, 11 May 2026 12:52:35 +0800 (CST)
-From: w15303746062  <w15303746062@163.com>
-To: "Guenter Roeck" <linux@roeck-us.net>
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Mingyu Wang" <25181214217@stu.xidian.edu.cn>
-Subject: Re:Re: [PATCH] watchdog: wdt_pci: Fix shared IRQ storm and complete
- system lockup
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <a32f5c51-1e72-4208-92db-c5a000f3d43d@roeck-us.net>
-References: <20260509121655.275311-1-w15303746062@163.com>
- <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
- <1fc8bb5a.1346.19e14a548fb.Coremail.w15303746062@163.com>
- <5acea672-0550-478e-8f49-e5e43c72d7e2@roeck-us.net>
- <15f8c180.3519.19e1501ebbc.Coremail.w15303746062@163.com>
- <a32f5c51-1e72-4208-92db-c5a000f3d43d@roeck-us.net>
-X-NTES-SC: AL_Qu2cCvicukku4yCeY+kfmU0Qguw9Xcq5uPkj34FWN5t8jDnp4R4jRF1kG13r1uy9ByShnCqafgd/9OtBZLhKfYkVjjTDdufw97xTV6HKHNPfgQ==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="LOsTO+eQ";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="pDcOPxMi"
+Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 430FA7A00CE;
+	Mon, 11 May 2026 04:50:32 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-10.internal (MEProxy); Mon, 11 May 2026 04:50:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1778489432; x=1778575832; bh=jt9ibOwOB5
+	ZgDpl28+OU1PXCAn8QfJTRE4dkW9Vb3BA=; b=LOsTO+eQtpe3r741xaLkVQzRQd
+	qFVi7ShFZm3E9V4HVFTs2engBB1peCRCTkcsD0yraXQwlRMRKu4s6BvVSBH3pnAo
+	lpXTkMOxwHc++Yu1ePbtlTaWQXmYPLe4znOEnY1PBhwhQ107noiprFPjxFsjWwzs
+	MatNSiXRgMR0sSQVyPkamJdYyaSMl5YxRSPXYuXvfCWNEEHbROVwO3vTaReMABXJ
+	X0gYjzJxzEi+1dlZuovbWAhXEiA0D2oxudPXC40mWUm4b19e7+iFx/40Fa3l3YvC
+	yl57CbxbGqinwINz7roMlvZuOtsEWa0cVFu7NmeeTojctnKREDXtVBIWIR9A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1778489432; x=1778575832; bh=jt9ibOwOB5ZgDpl28+OU1PXCAn8QfJTRE4d
+	kW9Vb3BA=; b=pDcOPxMiiP5ruo2XWMZgzDesICesNWrkVL88okIX5UV3Kt+RM2Y
+	z5zSlB27DO1Mj8/6VZGL81Y2QIPQs+78SPS+aQg/rJTvgIGEsr8Q0iGkGQyvugKp
+	2v5jYFBuAp6dkiTUy7bmJjN4L4jyXWQjMN3QJuAlfIxvMVKc+67e+QqXWaEeFnVl
+	56dY+NJL2BJKGZF2i3Kmr7jk+yXva6vD9F1qmtubeWpLtCroJrtR2T8E3ZRIs7if
+	PdiXC6DUIIjx97YhuQxrs3eb4N2l51zKPSxYN2/FrzkNoKxWLFRObaGXAWa8Icut
+	gTPns1BTdlFdxPEwa35mnsqKYwalSxsPwRw==
+X-ME-Sender: <xms:VpgBanUU0ztE6Rg-LnfF-nLj1cnzfS7IVx_pJfHwnrFunw2lLxjcVA>
+    <xme:VpgBaniKE3NTpGwNZJ7FrgQTac17ZUp80KiEjJu-T9yLVtwm5PK87KWrfCVGw1aDE
+    JeLWDinbwjVeGkuqSLAN8Ddva10mmyA4V5rcZf1j4boMlSC6OHV5Lst>
+X-ME-Received: <xmr:VpgBaqnO_1mo6YLpCVnG5FVMhaiuWArMrQjGIVkhgDObhcOFK40MwaajL9o0Rf1jMVMgp-RV8DjBsvZTmUi22EQFtzOKq8Iwi7k>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduudekhedvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomheplfgrnhhnvgcu
+    ifhruhhnrghuuceojhesjhgrnhhnrghurdhnvghtqeenucggtffrrghtthgvrhhnpefgud
+    euffelfeekgeeukedtheekjeettdfftddujefhvdehtefgiefgledtueefjeenucffohhm
+    rghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomhepjhesjhgrnhhnrghurdhnvghtpdhnsggprhgtphhtthhopedu
+    kedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheplhhinhhugiesrhhovggtkhdquh
+    hsrdhnvghtpdhrtghpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthho
+    pehkrhiikhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegtohhnohhrodguth
+    eskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhpihgvrhgrlhhishhisehkvghrnhgv
+    lhdrohhrghdprhgtphhtthhopehsvhgvnheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
+    epnhgvrghlsehgohhmphgrrdguvghvpdhrtghpthhtohepfihimheslhhinhhugidqfigr
+    thgthhguohhgrdhorhhgpdhrtghpthhtohepkhgvthhtvghnihhssehophgvnhgsshgurd
+    horhhg
+X-ME-Proxy: <xmx:VpgBaowxRkzlJZKgC0vwY4hQTbKM6iO9ervrzIr7KLryQ_5A28NGLg>
+    <xmx:VpgBatsyZlEk804I0LAQVVS7ia5EDKHFyp4-Pwjhw_6Lll0JE7F-MQ>
+    <xmx:VpgBaluhzmo_aN5ikDHnpeRe43hbMSuaKNGZGj4O_BkZY4gVVXhBJA>
+    <xmx:VpgBajlqNeNxTrn4oktYtSPno1O2oZ3jnjrBdX7XdqiF7qzUmQk8hA>
+    <xmx:WJgBavb1dT_Lmt3FGxmTxuK4B-v82xNwO1Npg8Xu56yNR40CrKn5tpUQ>
+Feedback-ID: i47b949f6:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 11 May 2026 04:50:30 -0400 (EDT)
+Date: Mon, 11 May 2026 10:50:28 +0200
+From: Janne Grunau <j@jannau.net>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Mark Kettenis <kettenis@openbsd.org>,
+	Sasha Finkelstein <k@chaosmail.tech>,
+	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org,
+	Joshua Peisach <jpeisach@ubuntu.com>
+Subject: Re: [PATCH v3 2/5] dt-bindings: watchdog: apple,wdt: Add t8122
+ compatible
+Message-ID: <20260511085028.GA192358@robin.jannau.net>
+References: <20260507-apple-m3-initial-devicetrees-v3-0-ca07c81b5dc7@jannau.net>
+ <20260507-apple-m3-initial-devicetrees-v3-2-ca07c81b5dc7@jannau.net>
+ <85ea46a7-1136-4ea0-9eec-7dfa465df20b@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <403be50f.4887.19e15613e85.Coremail.w15303746062@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:cCgvCgDnanyTYAFqmpygAA--.6373W
-X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbDABMX+moBYJNuMwAA37
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <85ea46a7-1136-4ea0-9eec-7dfa465df20b@roeck-us.net>
 
-CgoKCkZyb206IE1pbmd5dSBXYW5nIDwyNTE4MTIxNDIxN0BzdHUueGlkaWFuLmVkdS5jbj4KCkhp
-IEd1ZW50ZXIsCgpQb2ludCB0YWtlbi4gWW91IGFyZSBhYnNvbHV0ZWx5IHJpZ2h0IHRoYXQgcmVs
-eWluZyBvbiBhbiB1bnZlcmlmaWVkIG1hY3JvIHRvIHN5bnRoZXNpemUgaGFyZHdhcmUgYmVoYXZp
-b3IgaXMgZmxhd2VkLiBJIGFwb2xvZ2l6ZSBmb3Igbm90IG1ha2luZyB0aGUgdmlydHVhbGl6ZWQg
-YW5kIHN5bnRoZXNpemVkIG5hdHVyZSBvZiB0aGlzIHRlc3Qgc2V0dXAgY2xlYXIgaW4gdGhlIGlu
-aXRpYWwgcGF0Y2ggZGVzY3JpcHRpb24uIAoKU2luY2UgdGhlIHRydWUgcGh5c2ljYWwgaGFyZHdh
-cmUgYmVoYXZpb3IgY2Fubm90IGJlIHZlcmlmaWVkLCBhbmQgdGhlIGRyaXZlciBkb2VzIG5vdCBh
-Y3RpdmVseSBldmFsdWF0ZSB0aGF0IGJpdCwgd2UgYWdyZWUgdGhhdCBhcHBseWluZyBhIHBhdGNo
-IGJhc2VkIG9uIHRoaXMgYXNzdW1wdGlvbiBpcyBpbmFwcHJvcHJpYXRlLiAKCkkgd2lsbCBkcm9w
-IHRoaXMgcGF0Y2guIFRoYW5rIHlvdSBmb3IgdGhlIHJpZ29yb3VzIHJldmlldyBhbmQgZm9yIHBv
-aW50aW5nIG91dCB0aGlzIGxpbWl0YXRpb24gaW4gb3VyIHRlc3RpbmcgbWV0aG9kb2xvZ3kuCgpC
-ZXN0IHJlZ2FyZHMsCk1pbmd5dQoKCgoKCgoKCgoKQXQgMjAyNi0wNS0xMSAxMjozOToyNiwgIkd1
-ZW50ZXIgUm9lY2siIDxsaW51eEByb2Vjay11cy5uZXQ+IHdyb3RlOgo+SGksCj4KPk9uIDUvMTAv
-MjYgMjA6MDgsIHcxNTMwMzc0NjA2MiB3cm90ZToKPj4gCj4+IAo+PiBGcm9tOiBNaW5neXUgV2Fu
-ZyA8MjUxODEyMTQyMTdAc3R1LnhpZGlhbi5lZHUuY24+Cj4+IAo+PiBIaSBHdWVudGVyLAo+PiAK
-Pj4gWW91IGFyZSBjb3JyZWN0OyBzdGFuZGFyZCBRRU1VIGRvZXMgbm90IHN1cHBvcnQgdGhlIFdE
-VDUwMC81MDEuCj4+IAo+PiBXZSBvYnNlcnZlZCB0aGlzIGlzc3VlIHVzaW5nIERldkdlbiwgYW4g
-YXV0b21hdGVkIGZyYW1ld29yayB3ZSBhcmUgZGV2ZWxvcGluZy4gSXQgc3ludGhlc2l6ZXMgUUVN
-VSB2aXJ0dWFsIGRldmljZSBtb2RlbHMgZGlyZWN0bHkgZnJvbSBMaW51eCBkcml2ZXIgc291cmNl
-IGNvZGUgdXNpbmcgTExNIGd1aWRhbmNlLCBhbGxvd2luZyB1cyB0byBmdXp6IGxlZ2FjeSBvciBv
-YnNjdXJlIGRyaXZlcnMgdGhhdCBsYWNrIHBoeXNpY2FsIGhhcmR3YXJlIG9yIG9mZmljaWFsIGVt
-dWxhdG9ycy4KPj4gCj4+IEJlY2F1c2UgdGhlIHN5bnRoZXNpemVkIGRldmljZSBpcyBhbiBpbXBl
-cmZlY3QgbW9kZWwsIGl0IGdlbmVyYXRlZCB1bmV4cGVjdGVkIGludGVycnVwdCBsb2FkcyBvbiBh
-IGhlYXZpbHkgc2hhcmVkIFBDSSBJUlEgbGluZSAoc2hhcmVkIHdpdGggdGhlIGkyYy1pODAxIGNv
-bnRyb2xsZXIgaW4gb3VyIHNldHVwKS4gSG93ZXZlciwgdGhpcyBzdWNjZXNzZnVsbHkgZXhwb3Nl
-ZCBhIHJlYWwgbG9naWMgZmxhdzogdGhlIGB3ZHRfcGNpYCBkcml2ZXIgcmVnaXN0ZXJzIGFuIGBJ
-UlFGX1NIQVJFRGAgaGFuZGxlciBidXQgZmFpbHMgdG8gdmVyaWZ5IHRoZSBgV0RDX1NSX0lSUWAg
-Yml0LiBJdCBlcnJvbmVvdXNseSBjbGFpbWVkIHRoZSBpbnRlcnJ1cHRzLCBieXBhc3NlZCB0aGUg
-a2VybmVsJ3Mgc3B1cmlvdXMgSVJRIGRlZmVuc2VzLCBhbmQgY2F1c2VkIGEgbGl2ZWxvY2suCj4+
-IAo+PiBJIHVuZGVyc3RhbmQgdGhpcyBoYXJkd2FyZSBpcyBlc3NlbnRpYWxseSBvYnNvbGV0ZS4g
-VGhlIHBhdGNoIHByb3ZpZGVzIGEgcHVyZWx5IGRlZmVuc2l2ZSBmaXggZm9yIGEgbGVnaXRpbWF0
-ZSBBUEkgdmlvbGF0aW9uICh1bnZlcmlmaWVkIHNoYXJlZCBJUlEpLgo+PiAKPj4gSWYgYXBwbHlp
-bmcgdGhpcyBhZGRzIHVubmVjZXNzYXJ5IGNodXJuLCBwbGVhc2UgZmVlbCBmcmVlIHRvIGRyb3Ag
-aXQsIG9yIHBlcmhhcHMgY29uc2lkZXIgbWFya2luZyB0aGUgZHJpdmVyIGFzIEJST0tFTi4gSSBs
-ZWF2ZSBpdCBlbnRpcmVseSB0byB5b3VyIGp1ZGdtZW50Lgo+PiAKPgo+VGhhdCBpcyBlbnRpcmVs
-eSBub3QgdGhlIHByb2JsZW0uIFRoZSBwcm9ibGVtIGlzIHRoYXQgeW91ciBBSSBpbXBsZW1lbnRl
-ZAo+YSBRRU1VIGVtdWxhdGlvbiB3aXRob3V0IHJlYWxseSBrbm93aW5nIHdoYXQgdGhlIGhhcmR3
-YXJlIGlzIGRvaW5nIHdoaWxlCj5ndWVzc2luZyB3aGF0IHN0YXR1cyBiaXRzIHVudXNlZCBieSB0
-aGUgZHJpdmVyIG1lYW4gZm9yIHRoZSByZWFsIGhhcmR3YXJlLgo+V2UgKGFuZCB0aGUgQUkpIGFj
-dHVhbGx5IGRvbid0IGtub3cgd2hhdCB0aGUgV0RDX1NSX0lSUSBkb2VzLCBvciBpZiBpdAo+aXMg
-aW5kZWVkIGxvdyBhY3RpdmUuIFRoYXQgaXMganVzdCBhIGd1ZXNzLiBJIGNhbiBub3QgYWNjZXB0
-IGEgcGF0Y2gKPmJhc2VkIG9uIGEgZ3Vlc3MsIG11Y2ggbGVzcyBvbmUgbWFraW5nIHVuY29uZmly
-bWVkIGNsYWltcy4KPgo+SWYgdGhlIGRyaXZlciBpcyBpbmRlZWQgdW51c2VkIG9yIG9ic29sZXRl
-IGlzIGEgY29tcGxldGVseSBkaWZmZXJlbnQKPnF1ZXN0aW9uLiBNYXJraW5nIGl0IGFzIEJST0tF
-TiB3aXRob3V0IHJlYWwgZXZpZGVuY2UgdGhhdCBpdCBpcyBpbmRlZWQKPmJyb2tlbiwganVzdCBi
-ZWNhdXNlIHNvbWUgQUkgYmVsaWV2ZXMgdGhhdCBpdCBpcyBicm9rZW4sIHdvdWxkIGJlCj5pbmFw
-cHJvcHJpYXRlLgo+Cj5QbGVhc2Ugbm90ZSB0aGF0IEkgYWxzbyBmaW5kIHRoZSBwYXRjaCBkZXNj
-cmlwdGlvbiBpbmFwcHJvcHJpYXRlIGFuZAo+bWlzbGVhZGluZy4gSXQgc3VnZ2VzdHMgdGhhdCB0
-aGUgcHJvYmxlbSB3YXMgb2JzZXJ2ZWQgb24gcmVhbCBoYXJkd2FyZSwKPndoaWxlIGl0IHdhcyBh
-Y3R1YWxseSBvYnNlcnZlZCB3aXRoIGEgcWVtdSBpbXBsZW1lbnRhdGlvbiBpbXBsZW1lbnRlZCBi
-eSBBSQo+YmFzZWQgb24gdGhlIGRyaXZlciBpdHNlbGYsIGluY2x1ZGluZyBndWVzc3dvcmsgYWJv
-dXQgc3RhdHVzIGJpdHMgdW51c2VkCj5ieSB0aGUgZHJpdmVyLgo+Cj5HdWVudGVyCg==
+On Sun, May 10, 2026 at 08:29:39AM -0700, Guenter Roeck wrote:
+> On Thu, May 07, 2026 at 09:33:08AM +0200, Janne Grunau wrote:
+> > The watchdog on the Apple silicon t8122 (M3) SoC is compatible with the
+> > existing driver. Add "apple,t8122-wdt" as SoC specific compatible under
+> > "apple,t8103-wdt" used by the driver.
+> 
+> '"apple,t8103-wdt" used by the driver' is not true. The watchdog driver
+> only supports "apple,wdt".
+
+It slipped my mind that
+https://lore.kernel.org/linux-watchdog/20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net/
+wasn't picked up yet.
+
+> 
+> > 
+> > Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> > Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>
+> > Reviewed-by: Neal Gompa <neal@gompa.dev>
+> > Signed-off-by: Janne Grunau <j@jannau.net>
+> > ---
+> >  Documentation/devicetree/bindings/watchdog/apple,wdt.yaml | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> > index 05602678c070..845b5e8b5abc 100644
+> > --- a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> > +++ b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+> > @@ -16,7 +16,9 @@ properties:
+> >    compatible:
+> >      oneOf:
+> >        - items:
+> > -          - const: apple,t6020-wdt
+> > +          - enum:
+> > +              - apple,t6020-wdt
+> > +              - apple,t8122-wdt
+> >            - const: apple,t8103-wdt
+> >        - items:
+> >            - enum:
+> 
+> I second Sashiko's findings that the driver will fail to bind because it
+> only supports "apple,wdt". I would not mind and apply the patch anyway,
+> but the statement in the description is just plain wrong and thus
+> misleading. Please fix.
+
+I would prefer if the addition of the "apple,t8103-wdt" to the driver is
+picked.
+
+Thanks,
+
+Janne
