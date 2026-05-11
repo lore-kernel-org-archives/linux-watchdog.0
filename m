@@ -1,106 +1,142 @@
-Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096FF2FFF90
-	for <linux-watchdog@vger.kernel.org>; Sun, 10 May 2026 19:23:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A9C0347DD;
+	Mon, 11 May 2026 01:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778441007; cv=none; b=ivQ0SLY3PWJ5biVE9FskhdUZuKVDmTuN4y5YxglSw6byxQ519elnPiQLbPkoVArFTinfJB3XZvP6f9jKe3xjEPAgivtMY8MWFOoqvgcH5ZlF+E58M5LThw3AoyWaRUZKUutqkVAPlNeqKYCMd10k38f0YFL95ciAPja7YqdHOps=
+	t=1778462877; cv=none; b=c5wpZ12ciiLZ1a2SeMVgeZeTTyk30BNUNkFaxK+eaDggYVDj2d8dltr5iBBFMjdMmXxUlMZXtgydQzw1BSwtkOJ+Ej5hRJOtydcNxygBANMJX2LcVnJdR6Xf+2uOqnKS+oje0KBKBUMz6bfbqoz2nkG1SqMTDUg4aDZem50vXpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778441007; c=relaxed/simple;
-	bh=7h7VEb1IQalYk3uf8LvceW/ggx/Bm2wE13XAeEQw3aU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=HIaD67OTVGg2CFhmXt9o09ZeqBl16WVRh2FUhSMKF2CeoT+HPsdKW1NotdrZBvQOcgJ/EzIVhvgTpU3QEwczOrPAGl9j0hVTehfXeXlmAop1FhGsCnKlOJDFy0mZCQpR5H5x+8xovELNoQehBAJEN3miPJWcKD0bpCBOF6kzZHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=8NpTHEeY; arc=none smtp.client-ip=84.16.241.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
+	s=arc-20240116; t=1778462877; c=relaxed/simple;
+	bh=gN+iq8KsNmgSxSjhwL0OvpJKnjrY89gNjTv9gjUzp0o=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=sa8mjvOGAiC5m9y5qzU1NvSPQE3zHiTI7rip4POt9UEwVQQNoy1+78QzHgepMhXXFNiBFXn3oGRMsm8lovbaYo6hDq7z0G9paBQPh86cgcVtdjuxizRIoXVAQ0eQIensb+EZICzC/K8668swLdQV8hmTSTxanuoqRq81yV4AUtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=US0oL4jn; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="8NpTHEeY"
-Received: from [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42] (2a02-1812-162d-3d00-649f-659d-f6c1-d42.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sander@svanheule.net)
-	by polaris.svanheule.net (Postfix) with ESMTPSA id 3DA5F77CC34;
-	Sun, 10 May 2026 21:23:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
-	s=mail1707; t=1778441004;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7h7VEb1IQalYk3uf8LvceW/ggx/Bm2wE13XAeEQw3aU=;
-	b=8NpTHEeY2o4dBpEVcqUq8ICJgutuH6yyoDsCIy7TzOgZZv4AfISsxBrao5+7qh80XOljiz
-	vqWjXgy/udziPzgiAtYpnmC8A+W8fMp2NhZXmSM85pl0BPt9ss7c8sbb/nXM/hopzQQ1mQ
-	IlWPFj//DI/zlQBNCrqIc64mS9Qzof6DRaJH/z1zwghqW8xpYWuWlrNLtFK6XWhn2TsBDw
-	kuBr8AQnDmV8v3cUvJ3+xyJBo8MrPvWyC1GMVTlUgfZq79fY2mt/D2iqzmrX7Bag63UKiy
-	sNusMvDQHDSBu6PqTdkKIVV0Ejm7t4xosruriYkltWc8584kQkCt+S5ozGlS/A==
-Message-ID: <a6d6f58a09aa3e787f3f24406b76aa5a5b6f8200.camel@svanheule.net>
-Subject: Re: [PATCH 2/3] dt-bindings: watchdog: realtek,otto-wdt: add
- compatible for RTL9607C
-From: Sander Vanheule <sander@svanheule.net>
-To: Conor Dooley <conor@kernel.org>, Rustam Adilov <adilov@disroot.org>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
-	 <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
-	 <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Date: Sun, 10 May 2026 21:23:23 +0200
-In-Reply-To: <20260509-rebuild-snowboard-e82a3adc5a27@spud>
-References: <20260509163101.722793-1-adilov@disroot.org>
-	 <20260509163101.722793-3-adilov@disroot.org>
-	 <20260509-rebuild-snowboard-e82a3adc5a27@spud>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="US0oL4jn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=gN+iq8KsNmgSxSjhwL0OvpJKnjrY89gNjTv9gjUzp0o=; b=U
+	S0oL4jnF0YfFwb8PBjqu89h7NyLr6aucYnnvvv0W8hVbkFD1nVcuqSAIuk2E1mn9
+	MV0K6SF/eyiew/euM5Gb867D8G16MohjPWnEHugRpB7QBzLPOgs6MjRQIXXqkIKL
+	RLMwBdhHm1CItZrNr/riYRe9pc0rjuLmm3TcjtEYQ8=
+Received: from w15303746062$163.com ( [113.200.174.80] ) by
+ ajax-webmail-wmsvr-40-112 (Coremail) ; Mon, 11 May 2026 09:27:16 +0800
+ (CST)
+Date: Mon, 11 May 2026 09:27:16 +0800 (CST)
+From: w15303746062  <w15303746062@163.com>
+To: "Guenter Roeck" <linux@roeck-us.net>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"Mingyu Wang" <25181214217@stu.xidian.edu.cn>
+Subject: Re:Re: [PATCH] watchdog: wdt_pci: Fix shared IRQ storm and complete
+ system lockup
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
+In-Reply-To: <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
+References: <20260509121655.275311-1-w15303746062@163.com>
+ <f182256d-0623-4c9b-a18a-acca8457bb08@roeck-us.net>
+X-NTES-SC: AL_Qu2cCvidvUAo4CmfYekfmU0Qguw9Xcq5uPkj34FWN5t8jDnp4R4jRF1kG13r1uy9ByShnCqafgd/9OtBZLhKfYkVRiMlL6VYPWgXpG/tYU4nng==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Message-ID: <1fc8bb5a.1346.19e14a548fb.Coremail.w15303746062@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:cCgvCgB3QAZ1MAFqtVKgAA--.5507W
+X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC5BUE52oBMHVU+AAA3Q
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-Hi,
-
-On Sat, 2026-05-09 at 19:13 +0100, Conor Dooley wrote:
-> On Sat, May 09, 2026 at 09:31:00PM +0500, Rustam Adilov wrote:
-> > Add the realtek,rtl9607-wdt compatible to the Realtek Otto watchdog
-> > binding.
-> >=20
-> > Signed-off-by: Rustam Adilov <adilov@disroot.org>
-> > ---
-> > =C2=A0Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml =
-| 1 +
-> > =C2=A01 file changed, 1 insertion(+)
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/watchdog/realtek,otto-
-> > wdt.yaml b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.=
-yaml
-> > index 1f5390a67cdb..ac9db40b12dc 100644
-> > --- a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
-> > +++ b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
-> > @@ -30,6 +30,7 @@ properties:
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl8390-wdt
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9300-wdt
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9310-wdt
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - realtek,rtl9607-wdt
->=20
-> Please explain in your commit message why this new device is not
-> compatible with the existing ones, particularly given the driver patch
-> implies that it would be.
-> pw-bot: changes-requested
-
-Back when I originally wrote this driver, device-specific compatibles were
-encouraged "just in case" the hardware would turn out to behave differently=
-.
-Has this changed to minimizing the number of compatibles?
-
-FWIW this platform's GPIO driver does have both SoC-specific compatibles an=
-d a
-fallback, but for reasons lost to time this binding has no fallback. I'll s=
-ubmit
-a patch to add a fallback for this binding too.
-
-
-Best,
-Sander
+CgoKRnJvbTogTWluZ3l1IFdhbmcgPDI1MTgxMjE0MjE3QHN0dS54aWRpYW4uZWR1LmNuPgoKSGkg
+R3VlbnRlciwKClRoYW5rIHlvdSBmb3IgeW91ciBwcm9tcHQgcmVzcG9uc2UgYW5kIHJldmlldy4K
+ClRvIGFuc3dlciB5b3VyIHF1ZXN0aW9ucyBkaXJlY3RseSBhbmQgdHJhbnNwYXJlbnRseTogCgox
+LiBJcyB0aGlzIGFuIGFjdHVhbCBvYnNlcnZlZCBwcm9ibGVtPwpZZXMsIGl0IGlzIGEgcmVhbCwg
+b2JzZXJ2ZWQgcHJvYmxlbS4gSG93ZXZlciwgaXQgd2FzIG9ic2VydmVkIGluIGEgdmlydHVhbGl6
+ZWQgZnV6emluZyBlbnZpcm9ubWVudCAoUUVNVSArIFN5emthbGxlcikgcmF0aGVyIHRoYW4gb24g
+cGh5c2ljYWwgbGVnYWN5IGhhcmR3YXJlLiAKCjIuIEhvdyB3YXMgaXQgdHJpZ2dlcmVkPwpJbiBv
+dXIgUUVNVSBzZXR1cCwgUENJIElSUSBsaW5lcyBhcmUgaGVhdmlseSBzaGFyZWQuIFRoZSBmdXp6
+ZXIgbG9hZGVkIHRoZSBgd2R0X3BjaWAgZHJpdmVyIHdoaWxlIHNpbXVsdGFuZW91c2x5IGZ1enpp
+bmcgb3RoZXIgZGV2aWNlcyBvbiB0aGUgc2FtZSBzaGFyZWQgSVJRIGxpbmUgKGUuZy4sIHRoZSBp
+MmMtaTgwMSBjb250cm9sbGVyKS4gV2hlbiB0aGUgb3RoZXIgZGV2aWNlIHRyaWdnZXJlZCBhIGhl
+YXZ5IGludGVycnVwdCBsb2FkLCBgd2R0cGNpX2ludGVycnVwdCgpYCBjYXVnaHQgdGhlbS4gU2lu
+Y2UgaXQgYnlwYXNzZWQgdGhlIElSUSBvd25lcnNoaXAgY2hlY2ssIGl0IGJsaW5kbHkgY2xhaW1l
+ZCB0aGUgaW50ZXJydXB0cyBhbmQgY2F1c2VkIGEgbWFzc2l2ZSBwcmludGsgc3Rvcm0gKHNwYW1t
+aW5nICJ3ZHRfcGNpOiBSZXNldCBpbiA1bXMiIGFuZCAic3RhdHVzIDExNCIpLiAKClRoaXMgb3Zl
+cndoZWxtZWQgdGhlIENQVSBpbiBoYXJkIElSUSBjb250ZXh0LCBkZWZlYXRlZCB0aGUgc3B1cmlv
+dXMgSVJRIGRldGVjdG9yLCBhbmQgcmVzdWx0ZWQgaW4gYSAxNDUtc2Vjb25kIEh1bmcgVGFzayBw
+YW5pYy4gSGVyZSBpcyBhIGJyaWVmIHNuaXBwZXQgb2YgdGhlIG9ic2VydmVkIGxvZzoKClsgIDM3
+NS40ODU0OTFdIHdkdF9wY2k6IFJlc2V0IGluIDVtcwpbICAzNzUuNDg3NDY3XSB3ZHRfcGNpOiBz
+dGF0dXMgMTE0ClsgIDM3NS40ODkxNzFdIHdkdF9wY2k6IFJlc2V0IGluIDVtcwouLi4KWyAgMzc1
+LjQ4NDI0NF0gc3lzdGVtZC1qb3VybmFsZFs0NzcxXTogL2Rldi9rbXNnIGJ1ZmZlciBvdmVycnVu
+LCBzb21lIG1lc3NhZ2VzIGxvc3QuClsgIDUxOS4xODk1MjhdIElORk86IHRhc2sgc3l6LjIuNTA3
+IGJsb2NrZWQgZm9yIG1vcmUgdGhhbiAxNDUgc2Vjb25kcy4KCjMuIERpZCBJIGNvbmZpcm0gdGhl
+IHJlZ2lzdGVyIGJpdD8KWWVzLCB0aGUgYXNzZXJ0aW9uIHRoYXQgYFdEQ19TUl9JUlFgIGlzIGFj
+dGl2ZSBsb3cgcmVsaWVzIGRpcmVjdGx5IG9uIHRoZSBoYXJkd2FyZSBkZWZpbml0aW9uIGRvY3Vt
+ZW50ZWQgaW4gdGhlIGRyaXZlcidzIG93biBzb3VyY2UgY29kZSBhdCBsaW5lIDY2OgpgI2RlZmlu
+ZSBXRENfU1JfSVJRICAgICAgMTI4IC8qIEFjdGl2ZSBsb3cgKi8gLyogWCAgIFggICBYICAqL2AK
+CkkgY29tcGxldGVseSB1bmRlcnN0YW5kIHlvdXIgcGVyc3BlY3RpdmUuIFRoaXMgaXMgbGVnYWN5
+IGhhcmR3YXJlIGZyb20gdGhlIDE5OTBzLCBhbmQgaXQgaXMgZXh0cmVtZWx5IHVubGlrZWx5IHRv
+IGJlIHVzZWQgaW4gcHJvZHVjdGlvbiB0b2RheS4gTXkgaW50ZW50aW9uIHdhcyBzb2xlbHkgdG8g
+cmVwb3J0IGEgcmVwcm9kdWNpYmxlIExvY2FsIERvUyB2ZWN0b3IgZm91bmQgYnkgdGhlIGZ1enpl
+ciwgYXMgYElSUUZfU0hBUkVEYCBoYW5kbGVycyBhcmUgc3RyaWN0bHkgcmVxdWlyZWQgdG8gdmVy
+aWZ5IHRoZWlyIGludGVycnVwdCBzb3VyY2UuCgpJZiB5b3UgZmVlbCB0aGF0IHBhdGNoaW5nIHRo
+aXMgb3V0ZGF0ZWQgZHJpdmVyIGFkZHMgdW5uZWNlc3NhcnkgY2h1cm4gYW5kIGNvbnN1bWVzIG1h
+aW50YWluZXJzJyB0aW1lLCBwbGVhc2UgZmVlbCBmcmVlIHRvIGRyb3AgdGhpcyBwYXRjaC4gQWx0
+ZXJuYXRpdmVseSwgaWYgdGhlIGhhcmR3YXJlIGlzIHRydWx5IG9ic29sZXRlLCBwZXJoYXBzIHRo
+ZSBkcml2ZXIgc2hvdWxkIGJlIG1hcmtlZCBhcyBCUk9LRU4gb3IgcmVtb3ZlZCBlbnRpcmVseS4g
+SSBsZWF2ZSB0aGF0IGVudGlyZWx5IHRvIHlvdXIgZXhwZXJ0IGp1ZGdtZW50LgoKVGhhbmtzIGFn
+YWluIGZvciB5b3VyIHRpbWUhCgpCZXN0IHJlZ2FyZHMsCk1pbmd5dSBXYW5nCgoKCgoKCgoKCgoK
+QXQgMjAyNi0wNS0wOSAyMTo1MjoxNywgIkd1ZW50ZXIgUm9lY2siIDxsaW51eEByb2Vjay11cy5u
+ZXQ+IHdyb3RlOgo+T24gNS85LzI2IDA1OjE2LCB3MTUzMDM3NDYwNjJAMTYzLmNvbSB3cm90ZToK
+Pj4gRnJvbTogTWluZ3l1IFdhbmcgPDI1MTgxMjE0MjE3QHN0dS54aWRpYW4uZWR1LmNuPgo+PiAK
+Pj4gVGhlIHdkdF9wY2kgZHJpdmVyIHJlZ2lzdGVycyBpdHMgaW50ZXJydXB0IGhhbmRsZXIgd2l0
+aCB0aGUgSVJRRl9TSEFSRUQKPj4gZmxhZy4gSG93ZXZlciwgdGhlIGludGVycnVwdCBoYW5kbGVy
+IHdkdHBjaV9pbnRlcnJ1cHQoKSBmYWlscyB0byBjaGVjawo+PiB3aGV0aGVyIHRoZSBpbnRlcnJ1
+cHQgYWN0dWFsbHkgb3JpZ2luYXRlZCBmcm9tIHRoZSB3YXRjaGRvZyBkZXZpY2UuCj4+IAo+PiBJ
+ZiBhbm90aGVyIGRldmljZSBvbiB0aGUgc2FtZSBzaGFyZWQgSVJRIGxpbmUgKGUuZy4sIGFuIEky
+QyBjb250cm9sbGVyKQo+PiB0cmlnZ2VycyBhbiBpbnRlcnJ1cHQsIHdkdHBjaV9pbnRlcnJ1cHQo
+KSB3aWxsIGVycm9uZW91c2x5IHByb2Nlc3MgaXQsCj4+IGJsaW5kbHkgbG9nIGhhcmR3YXJlIHN0
+YXR1cyAoZS5nLiwgIlJlc2V0IGluIDVtcyIpIHRvIHRoZSBjb25zb2xlLCBhbmQKPj4gdW5jb25k
+aXRpb25hbGx5IHJldHVybiBJUlFfSEFORExFRC4KPj4gCj4+IFRoaXMgYmVoYXZpb3IgZGVmZWF0
+cyB0aGUga2VybmVsJ3Mgc3B1cmlvdXMgaW50ZXJydXB0IGRldGVjdG9yLiBVbmRlcgo+PiBoZWF2
+eSBsb2FkIGZyb20gb3RoZXIgZGV2aWNlcyBzaGFyaW5nIHRoZSBJUlEsIGl0IGNhdXNlcyBhIHNl
+dmVyZSBwcmludGsKPj4gc3Rvcm0gYW5kIGtlZXBzIHRoZSBDUFUgdHJhcHBlZCBpbiBoYXJkIElS
+USBjb250ZXh0LiBUaGlzIGV2ZW50dWFsbHkKPj4gbGVhZHMgdG8gYSBjb21wbGV0ZSBzeXN0ZW0g
+bG9ja3VwIGFuZCBSQ1UvSHVuZyBUYXNrIHBhbmljcy4KPj4gCj4+IEZpeCB0aGlzIGJ5IGNoZWNr
+aW5nIHRoZSBXRENfU1JfSVJRIGJpdCAod2hpY2ggaXMgYWN0aXZlIGxvdykgaW4gdGhlCj4+IHN0
+YXR1cyByZWdpc3Rlci4gSWYgdGhlIGJpdCBpcyBoaWdoLCB0aGUgaW50ZXJydXB0IGlzIG5vdCBv
+dXJzLCBhbmQgd2UKPj4gbXVzdCByZWxlYXNlIHRoZSBsb2NrIGFuZCByZXR1cm4gSVJRX05PTkUg
+aW1tZWRpYXRlbHkuCj4+IAo+PiBTaWduZWQtb2ZmLWJ5OiBNaW5neXUgV2FuZyA8MjUxODEyMTQy
+MTdAc3R1LnhpZGlhbi5lZHUuY24+Cj4KPklzIHRoaXMgYW4gYWN0dWFsIG9ic2VydmVkIHByb2Js
+ZW0gPyBBcmUgeW91IHVzaW5nIHRoaXMgZHJpdmVyID8KPkRpZCB5b3UgY29uZmlybSB0aGF0IHRo
+ZSBjaGFuZ2Ugc29sdmVzIHRoZSBwcm9ibGVtLCBhbmQgdGhhdCB0aGUKPm5ld2x5IGNoZWNrZWQg
+cmVnaXN0ZXIgYml0IGlzIGluZGVlZCBhY3RpdmUgbG93IGFzIGNsYWltZWQgPwo+Cj5JZiBzbywg
+cGxlYXNlIHByb3ZpZGUgZXZpZGVuY2UgdGhhdCB0aGUgcHJvYmxlbSBpcyBvYnNlcnZlZC4KPklm
+IG5vdCwgcGxlYXNlIHJlZnJhaW4gZnJvbSBtYWtpbmcgc3VjaCBjaGFuZ2VzLiBUaGlzIGRyaXZl
+ciwKPnNwZWNpZmljYWxseSwgaXMgY29tcGxldGVseSBvdXRkYXRlZCwgdGhlIGhhcmR3YXJlIGl0
+IHN1cHBvcnRzCj5pcyB2ZXJ5IHVubGlrZWx5IHRvIHN0aWxsIGJlIHVzZWQsIGFuZCBtYWtpbmcg
+c3VjaCBjaGFuZ2VzIHdpdGhvdXQKPmFjdHVhbCBuZWVkIHNlcnZlcyBubyBwcmFjdGljYWwgcHVy
+cG9zZSBidXQgdG8ga2VlcCBtYWludGFpbmVycyBidXN5Lgo+Cj5UaGFua3MsCj5HdWVudGVyCj4K
+Pj4gLS0tCj4+ICAgZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMgfCAxMSArKysrKysrKysrKwo+
+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspCj4+IAo+PiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMgYi9kcml2ZXJzL3dhdGNoZG9nL3dkdF9wY2kuYwo+
+PiBpbmRleCAzOTE4YTYwMGYyYTAuLmEzNWFjMDY0YjY5MCAxMDA2NDQKPj4gLS0tIGEvZHJpdmVy
+cy93YXRjaGRvZy93ZHRfcGNpLmMKPj4gKysrIGIvZHJpdmVycy93YXRjaGRvZy93ZHRfcGNpLmMK
+Pj4gQEAgLTMwNCw2ICszMDQsMTcgQEAgc3RhdGljIGlycXJldHVybl90IHdkdHBjaV9pbnRlcnJ1
+cHQoaW50IGlycSwgdm9pZCAqZGV2X2lkKQo+PiAgIAlzcGluX2xvY2soJndkdHBjaV9sb2NrKTsK
+Pj4gICAKPj4gICAJc3RhdHVzID0gaW5iKFdEVF9TUik7Cj4+ICsJLyoKPj4gKwkgKiBUaGUgV0RU
+NTAwLzUwMSBzdXBwb3J0cyBzaGFyZWQgaW50ZXJydXB0cyAoSVJRRl9TSEFSRUQpLgo+PiArCSAq
+IFdlIG11c3QgY2hlY2sgaWYgdGhlIGludGVycnVwdCB3YXMgZ2VuZXJhdGVkIGJ5IHRoaXMgZGV2
+aWNlLgo+PiArCSAqIFdEQ19TUl9JUlEgaXMgYWN0aXZlIGxvdywgc28gaWYgaXQgaXMgc2V0ICgx
+KSwgdGhlIGludGVycnVwdAo+PiArCSAqIGJlbG9uZ3MgdG8gYW5vdGhlciBkZXZpY2Ugb24gdGhl
+IHNoYXJlZCBsaW5lLgo+PiArCSAqLwo+PiArCWlmIChzdGF0dXMgJiBXRENfU1JfSVJRKSB7Cj4+
+ICsJCXNwaW5fdW5sb2NrKCZ3ZHRwY2lfbG9jayk7Cj4+ICsJCXJldHVybiBJUlFfTk9ORTsKPj4g
+Kwl9Cj4+ICsKPj4gICAJdWRlbGF5KDgpOwo+PiAgIAo+PiAgIAlwcl9jcml0KCJzdGF0dXMgJWRc
+biIsIHN0YXR1cyk7Cg==
