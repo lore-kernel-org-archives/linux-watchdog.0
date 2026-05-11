@@ -1,67 +1,67 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366203A1D05
-	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 14:07:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9E03FA5CC
+	for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 14:22:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778508427; cv=none; b=W/oA7dpOEdfQlVAtXW6VnqHe9J+u5Q8YV7NFDUr4JXIS4d24mMQPBgkM89hrD799ztoHDmWBHG65IeH2hj8uUgdKfL69k/paVBtKt235f1c/FWApss//SAJNbsKC2DHgxkJJX207aCSQhp3ysxk4uiCAu8ax64KOLDhCPonz4Vg=
+	t=1778509366; cv=none; b=JLYY/r5ks9AssIMln4N+MX3tgNK4ZZvmbWnsMKLDO15mz6ZAPpwYd0U5NclcIW21FgocGPrZ8+J8Q/XJcKFb1Jkar1OSdmHT9kn+YfkHoBTHatdoK1xkRbY2saDozCwzrY4YTt/oGEMhXT2WNlkjG+NPdOdOU/Fo+aRqQ+OKcqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778508427; c=relaxed/simple;
-	bh=c00x+tDayDK3Kt1FSHj2HYahT1APb/2S+xJqWZhIrn4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YKkNHyqmPXhxxrYJFYZzTsFpkH9PxnT8mdAhtMYKJp4MuT8XWGYy0r5weu5SQ+Q5OcYfJCp73CSUqZYDY+8eWqTXfE51zO92twJqLgH+V9dStnLxqJmiu2S9ei+NpMuOQW827PkB1YP8MZEZMvQovnXew8g1ZNqP+2pYK9ykXms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jvCT8tLT; arc=none smtp.client-ip=74.125.82.173
+	s=arc-20240116; t=1778509366; c=relaxed/simple;
+	bh=0FlTIhTMu2DTDeACCQiODrRFMSlCXPDergcLpIG34qY=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=uOrGP/9QCoFI+5Cu0et/c6Ue4YTKCiBcuUcdjydRQKtbcjE/c6ypcrcoFABaBI/8ojZnYcPLy2+CabiwOn4vPiio+oQBVeEcP8GdHeWXIHON8ZuRtYEvVxoC7/Y2RnZCHgYwTLgiKxLJW4s/mgfCzkjmhR9Jhf54Xh+Ogt3d3rU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jwf/L8cM; arc=none smtp.client-ip=74.125.82.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jvCT8tLT"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2ef8d6ba48bso2525320eec.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 07:07:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jwf/L8cM"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1332772f6b3so627804c88.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2026 07:22:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778508425; x=1779113225; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=IIRmX8yvWOE0keIC88cl37prTEp8JFShOTj497UPSeU=;
-        b=jvCT8tLTyufySXE3Kp2dHWKI8dRA2aiGt8WmikoLKpm9u0jDe9iBRWhvqC2gmoDjIj
-         DxXh2U5zaPE3vmGYvIIBiFiTI03H/sTKZmx1wKXuIab4NAQROLOQH9DYYaXzvGcIW0jB
-         rnMkmluC5mEo/8MpZ7bnS1nRR4JgaCaD8m+a1JF18I7pSMcBUmxLe4KPDikC3c4BKshC
-         2QRQKMrICpRWaNORkhxuuA2PTJgkD0TKoe1hYgUIdjy4DWMI0lofw/qskjSG8oFeoVYm
-         KuKFV1ozVcSMBpNlYTcIkaEPyEtVvmk1NBRUQyOOM82V5dEVmKnYW0vLMhLSnL5oOANR
-         k17A==
+        d=gmail.com; s=20251104; t=1778509364; x=1779114164; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:cc:to:from:subject:user-agent:mime-version:date
+         :message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=aO7P1AELULNXLt9xs0Z+M6/B6olysO/VTpw1VPmDiTA=;
+        b=jwf/L8cMYSncG9QxZA+rKRE9+XyZ/iNmld/pYvGsmF0QtrCg4zSf+54w8UTqaHIYaa
+         Ju2dpYDriyFxRbJEoSIkgG9t2S+RkSGXAGEbKD1YzywYuJYd1DQyWx9pxSVmMW7seSQ9
+         K3J6KZOY8ghwZTaAKPIrTj8R2sX61Pe+GFQhj4ovhKkx+fjVwUq6kW/jGj4OI6DJpvse
+         0pqdER/8ICozLODJe9IFDZTmc+J9JRMx+cqeMICsfu11Iq7uqYpH47m0xb3cReruzZSC
+         moxfZtjfArqTGwftoIRRVNiuzTOqdqOPTHfmWUvb5KSkJFQ9sGufpFH6j5t0sxKeUblz
+         6KnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778508425; x=1779113225;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IIRmX8yvWOE0keIC88cl37prTEp8JFShOTj497UPSeU=;
-        b=GEg9WCJaUM+m4z74ylK1ybiCCMrpVw+YX4nQn1wMw93w8lUNUIxzSffu+6wIuGmlzu
-         3yUUq11ccR6d/PTwaS2u7xjcX576dzgJEJ0DvHIOVbMBXir+naPKifnUq1XGPfTsybEx
-         KgB8fpraWKWQpf5mgsAm9f+Y4584xMnoltn57nC/lRHtyz4tBlv+Dse122G9Ek3WtJGl
-         aTuC4nk6e6qhRM0qVnkG65i7yl1AO3lFj6v2jy81wnVjlXus0IoYyCrPj+y5z41p7qPo
-         kV20sNTVmGAiLJkaaC6P/wBTRWYGSWUl8plgwpEhkzoCIO12AKu7K5Yu+4ZU+eN1cVKw
-         SNTw==
-X-Forwarded-Encrypted: i=1; AFNElJ+d6oPorYrrCLniYEOVWRf1gIpNnkT1RucXOjubGkBO+c9yDlFh/cVYaucsp95j1Qm3TNSjHQmeJ9bptjnS2Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyhdgz4qGqNYdm26opH/CuX+XVPSEwU+ahTGr/BpUyOQxtVWMZc
-	84RpBAuzNVEEHjYP7lCzxzegu/UlMLBfkfc6nj5vKydQORR2bhbDny6t
-X-Gm-Gg: Acq92OF2CIBClRDi7uwx7PY+1cAj30SsSdrSCI26CCtMMJvp1IL/3PkJvIEAmHnqTUL
-	lUy8BaFPZp+/xGIDNeibqlYfqPhXCYsEXYk3asAEgE0RTFurQRi/aTKgVbUQByFlneWJ6PiP7Bp
-	6KJSNyYvQmIDc4WBgbcDJsIqFMdd6FAwdjN7KZgos35VbRQsbqNPYd/T5i9FKidvW/XaV2Tpn9t
-	UZPN1L/83P26iIvDHwOk7kKFrPq/TqDoa+HuNPIxdVFWfJrtHInp8puaJ61AAxCCHl15AOJDhPo
-	CJzbUp8EvcbYcWZt5rIyFpu5Qcur2E5+JAsJhLel5fk0X8VQBwLTkYz17yk6QQogFZMGK1Fe3LQ
-	dxJdKtIsi2dHGGJRMRKGoq0Tgy46fYwP5UWpHoxrwprfH/Pk8boItlgTaIFQQ4pNBuDledOXfmv
-	RWgLOmjrF0W0wHkuMaIrXuKOKDRg2zzbBqdJehJOKbkwKqtUsZ8dTu7cp82ip8BmmN3NDDFl0Z
-X-Received: by 2002:a05:7301:4593:b0:2df:498e:811b with SMTP id 5a478bee46e88-2f6e25fb074mr8270299eec.7.1778508425153;
-        Mon, 11 May 2026 07:07:05 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778509364; x=1779114164;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:cc:to:from:subject:user-agent:mime-version:date
+         :message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=aO7P1AELULNXLt9xs0Z+M6/B6olysO/VTpw1VPmDiTA=;
+        b=KhkZr5+3TEqXBUA0G5eMk3NGzffm7V0f2IWi2DgGgjqmYeCe72ODGs+/3yiRUZM/+3
+         G6LPB9vOdTo4rhFWh/IT2UynqqDuTrW0b+x03+QWXzMZbjWK7QWb8QIQWKJ4EkJsTs58
+         kkbt5MUFJdMQdT6Zdy0d8vXOkbH4xBrWDlokmxkGYcKqwT1cB5F4qzeNiulZLGAqEEFv
+         HJCDGuSJgokYrLAJjM1TjXFbWlAXXfne1+X514y6kViSk66zuV/KrkGlUqfSPMrT9qzb
+         gLOv1U3uqDiMesfUkaTXiO+Ci4w1mj7lDUHj94uJo0IWapcOYBY1jZXkGMS+Qvd6K2FT
+         GTpw==
+X-Forwarded-Encrypted: i=1; AFNElJ9IR5kuCIWyXVxY1H5GJUFs3vH1ATb6+whAwkFJ1qbs+k7TPQVUfeuqv5H7T3osOkMPiYUHrRImbFi3IRATjA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwP06qyK65xqGqNApz75xQ4HaAplKBK1a8oF/Eiers+vGppC+0P
+	/KOaX8kaSV3PMQ4Nlstcaplht3n65+Tav4rmTObhsidsX5HJRj+0Guu8
+X-Gm-Gg: Acq92OGavTPYp0zlx615ttSUJvbS8Runyr1oj0M7PuKayDy0fEwXW8lJ4lzT2O9TPXA
+	1eJBR74y32bbfwd8qGym4nYNGi9RvBOeQStTCfQPS/KmonV9BWVICdpWSNn9BAHFgC5ZDENojX1
+	yMhwvkvLE3jNCY34FW1rkGWhdl7VgL6kBqIKNxFgokWDa4FpwXUsdcOYPMC4txkec6LxaBG2neL
+	kkmJ+H/BgaCMVWG0dV/bIkvxlwE63BQDgNKRedqo27UB99dABqmIV3olr4Dq781alsSZfJVqRyK
+	ycf+SaAt3ck2nn8cj+4+nvoglLbHcv8vBNYXpr2e1X6K4qbXq9gTyMuaQ6uRiNxCXYwvGBmKm6M
+	HL7M3aItErt/H0nBRdaC+nZVzNsyu9+TWrqSB/HO/5F1zkNhrPO41A2bTGgXCe+vA6FuPqFWvm9
+	kMFIgjUtQBCKTCBxBhOehnXzzDMIAx8Dz9vZVpa+dnreos8F7dccUMfyyEX60/TXwyMYlqLwcK
+X-Received: by 2002:a05:7022:6184:b0:130:ac5d:8f69 with SMTP id a92af1059eb24-1318ea1fdd6mr9903404c88.30.1778509362916;
+        Mon, 11 May 2026 07:22:42 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8859eb4b7sm13979264eec.2.2026.05.11.07.07.03
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1327821fd00sm17932591c88.8.2026.05.11.07.22.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 May 2026 07:07:04 -0700 (PDT)
+        Mon, 11 May 2026 07:22:42 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <2b53f8ed-bfd5-47c0-a7da-146726fba593@roeck-us.net>
-Date: Mon, 11 May 2026 07:07:03 -0700
+Message-ID: <50b904dd-3c36-4f1c-b2e7-8727e7923475@roeck-us.net>
+Date: Mon, 11 May 2026 07:22:40 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,25 +69,16 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/5] dt-bindings: watchdog: apple,wdt: Add t8122
- compatible
-To: Janne Grunau <j@jannau.net>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi
- <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>,
- Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Mark Kettenis <kettenis@openbsd.org>, Sasha Finkelstein <k@chaosmail.tech>,
- =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org,
- Joshua Peisach <jpeisach@ubuntu.com>
-References: <20260507-apple-m3-initial-devicetrees-v3-0-ca07c81b5dc7@jannau.net>
- <20260507-apple-m3-initial-devicetrees-v3-2-ca07c81b5dc7@jannau.net>
- <85ea46a7-1136-4ea0-9eec-7dfa465df20b@roeck-us.net>
- <20260511085028.GA192358@robin.jannau.net>
-Content-Language: en-US
+Subject: Re: [PATCH] watchdog: apple: Add "apple,t8103-wdt" compatible
 From: Guenter Roeck <linux@roeck-us.net>
+To: Janne Grunau <j@jannau.net>
+Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net>
+ <87766879-ca5e-44cc-a341-87b2afa70910@roeck-us.net>
+Content-Language: en-US
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -131,67 +122,61 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260511085028.GA192358@robin.jannau.net>
+In-Reply-To: <87766879-ca5e-44cc-a341-87b2afa70910@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 5/11/26 01:50, Janne Grunau wrote:
-> On Sun, May 10, 2026 at 08:29:39AM -0700, Guenter Roeck wrote:
->> On Thu, May 07, 2026 at 09:33:08AM +0200, Janne Grunau wrote:
->>> The watchdog on the Apple silicon t8122 (M3) SoC is compatible with the
->>> existing driver. Add "apple,t8122-wdt" as SoC specific compatible under
->>> "apple,t8103-wdt" used by the driver.
+On 5/11/26 07:04, Guenter Roeck wrote:
+> On Wed, Dec 31, 2025 at 01:07:21PM +0100, Janne Grunau wrote:
+>> After discussion with the devicetree maintainers we agreed to not extend
+>> lists with the generic compatible "apple,wdt" anymore [1]. Use
+>> "apple,t8103-wdt" as base compatible as it is the SoC the driver and
+>> bindings were written for.
 >>
->> '"apple,t8103-wdt" used by the driver' is not true. The watchdog driver
->> only supports "apple,wdt".
+>> [1]: https://lore.kernel.org/asahi/12ab93b7-1fc2-4ce0-926e-c8141cfe81bf@kernel.org/
+>>
+>> Fixes: 4ed224aeaf66 ("watchdog: Add Apple SoC watchdog driver")
+>> Cc: stable@vger.kernel.org
+>> Reviewed-by: Neal Gompa <neal@gompa.dev>
+>> Signed-off-by: Janne Grunau <j@jannau.net>
 > 
-> It slipped my mind that
-> https://lore.kernel.org/linux-watchdog/20251231-watchdog-apple-t8103-base-compat-v1-1-1702a02e0c45@jannau.net/
-> wasn't picked up yet.
+> Applied to my hwmon-next branch.
 > 
 
-Me too. Applied both.
+watchdog-next. Sorry for the confusion.
 
-Thanks,
 Guenter
 
-
->>
->>>
->>> Acked-by: Rob Herring (Arm) <robh@kernel.org>
->>> Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>
->>> Reviewed-by: Neal Gompa <neal@gompa.dev>
->>> Signed-off-by: Janne Grunau <j@jannau.net>
->>> ---
->>>   Documentation/devicetree/bindings/watchdog/apple,wdt.yaml | 4 +++-
->>>   1 file changed, 3 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
->>> index 05602678c070..845b5e8b5abc 100644
->>> --- a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
->>> +++ b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
->>> @@ -16,7 +16,9 @@ properties:
->>>     compatible:
->>>       oneOf:
->>>         - items:
->>> -          - const: apple,t6020-wdt
->>> +          - enum:
->>> +              - apple,t6020-wdt
->>> +              - apple,t8122-wdt
->>>             - const: apple,t8103-wdt
->>>         - items:
->>>             - enum:
->>
->> I second Sashiko's findings that the driver will fail to bind because it
->> only supports "apple,wdt". I would not mind and apply the patch anyway,
->> but the statement in the description is just plain wrong and thus
->> misleading. Please fix.
-> 
-> I would prefer if the addition of the "apple,t8103-wdt" to the driver is
-> picked.
-> 
 > Thanks,
+> Guenter
 > 
-> Janne
+>> ---
+>> This is split off from the v1 series adding Apple M2 Pro/Max/Ultra
+>> device trees in [2].
+>>
+>> 2: https://lore.kernel.org/r/20250828-dt-apple-t6020-v1-0-507ba4c4b98e@jannau.net
+>> ---
+>>   drivers/watchdog/apple_wdt.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>>
+>> ---
+>> base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+>> change-id: 20251231-watchdog-apple-t8103-base-compat-8a623e9831b6
+>>
+>> Best regards,
+>>
+>> diff --git a/drivers/watchdog/apple_wdt.c b/drivers/watchdog/apple_wdt.c
+>> index 66a158f67a712bbed394d660071e02140e66c2e5..6b9b0f9b05cedfd7fc5d0d79ba19ab356dc2a080 100644
+>> --- a/drivers/watchdog/apple_wdt.c
+>> +++ b/drivers/watchdog/apple_wdt.c
+>> @@ -218,6 +218,7 @@ static int apple_wdt_suspend(struct device *dev)
+>>   static DEFINE_SIMPLE_DEV_PM_OPS(apple_wdt_pm_ops, apple_wdt_suspend, apple_wdt_resume);
+>>   
+>>   static const struct of_device_id apple_wdt_of_match[] = {
+>> +	{ .compatible = "apple,t8103-wdt" },
+>>   	{ .compatible = "apple,wdt" },
+>>   	{},
+>>   };
 > 
 
