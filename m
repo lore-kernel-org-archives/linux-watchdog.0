@@ -1,102 +1,81 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD17425B083
-	for <linux-watchdog@vger.kernel.org>; Tue, 12 May 2026 18:31:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3192D3C3449
+	for <linux-watchdog@vger.kernel.org>; Tue, 12 May 2026 20:49:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778610675; cv=none; b=a0QZUoRhWTgvDD6XVTzEZ6y23DEWXKSdlywgfpgugtEWZTOiNgoedAhqF/vAW9NXqm3VBMZgxefG1084vpmSgovCmUeEXrNkpibCL+lyw2BWV8lUjAPJ5Yo8zoS0Weqvww2NdN0fg3IH0UCwG7eEghvERVFU2ZeFz8zMSILhf9U=
+	t=1778618946; cv=none; b=eZ4Cu6EGcY9l2guPCxhQT4ReMPIhfzkKT7HIfnlPc2g4BmsT8/Hw5FabssL47QDJzXXM3vBL5htuAokEasRKtUdkDlsA/O5XJd3QDiIrKeNpHJthi6jLzdJmGzoPYjXqCNt3GPPmbtQ9d5pAx9xKipLmswa6JuUW2tuZYwjGvmQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778610675; c=relaxed/simple;
-	bh=5zuVOAfpBrN8nUV5rRh7DAd01oonyphvre94jBBXL/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c7eyehzpJCKAjodvRIkERihw6lI4/92otl+K+MV7gqV2+UkPMyJ1y2n4IaWS/PDpAu4PPzH9lHPkaVxKcPeOlLA1OsLFoMrLzdFYIZKkVj4jHK63xMKJ0iTE+V9ReuS5vXQupW8gvY49+8oWiiVEtAej0OrYmli5gNgkJwoVUTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aiXVSWL8; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778618946; c=relaxed/simple;
+	bh=3LMjTRWuOnWvbfPLhKPzRA7CSWwGzz+QVRDH2NYutUo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a+RJ3fgBW6e8VXQctgeSACsK3RztW1IXz0fpLUk6auUR4ZE2TclGVnqOBn8fIFgK+X1Zf1K4J07v5lPnT2Ese2jhOzLaUKl/MynayzZCcIqo8N0NgyyhfujbfXh6Slbu264OLZJ5EvKDeJBujor3BCAhHgsFvRBAHq2rkA7YssE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=2h0GQixN; arc=none smtp.client-ip=84.16.241.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aiXVSWL8"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1329fc4bf77so1783956c88.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 12 May 2026 11:31:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778610673; x=1779215473; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Lbpfqp9eZFaWLOn99BFCizyb8FixFL821MVG82h4o7Q=;
-        b=aiXVSWL8VSyEVUm0Zb84PvP/T+73LDnEJkhuQyjGUdgsaK244mKXlQ2TDsW6hibw+W
-         c1pPyokadxQlkWsRuS/Wf1RWvJND5EWWfLUZWaeLq4eSq3+twsOh2oKEoKSp06YNv2t3
-         L81Hvs09Uo6sKonod6T5FyBsRa6vDWEOGITHciCa4zLfNMj4RdGKdF7KYMAtjf0kEUVK
-         u6lJg2JhbWnNPz4+Y6abFXfIk8EO2kPJjVi5iE0zImsZNGLEXqJmB2cga2RJFRedISGb
-         /ail0EEESsuMbsCh0UO0CzsUdCdsLG+n3jeEQD5VUBcaEcRrge43tdo1TDyj0CvuuXBe
-         1Xfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778610673; x=1779215473;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Lbpfqp9eZFaWLOn99BFCizyb8FixFL821MVG82h4o7Q=;
-        b=r4tI2CiL1IGZnfXq8o+ghZ/zd+QyWNGvkQSWbDtVBA55ZSPh8VZPyW4w0cKOZMXleZ
-         ZMUBmLJBJ5728jcRlxquTs9ZKs5H10tm2+d8nwpIQ3wt9aatmGj6zZK6wmsxM8IWRE/v
-         eM4CSf17siKUtQVQhfpYtPIZlhkXOcMp+5ZC7Y403Lhl+lXw22ScaGlL0XIGs1pe4VIM
-         kUlCeaySdyrJ2hxvBXQvc+Nlg9/XVaIZqjHfSabIgXP7EIjhfZmAeumIIYydOOHiXttS
-         GFBLxapQ3wRTSfhWMuvqw+9dnbsv3x5axTtdr3tz+9l/b5bT823N5BcajKYrMiFrj2hb
-         /CxQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+vFahZBh9L0mW6aYGzb7MrE/Q00LXSwX2gM8Zw6KmXKhqH/xFDHVniNPocI+NcqdtetXumBiTfD59Kz+ow8Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz3BlIPxvTIUruWqJuWMnx5kqx6aKN2uMcIFjGUxIsIQwUToBdw
-	4ATkXM8bs3pmfnfn+YbGfD1g8AsLIE/rgg2CgNNd01qjEZDv6RTB1gq29GQCuA==
-X-Gm-Gg: Acq92OHxIwsqmlJW7JJ8dKlsm1viiCH/WY6+iAn+Em/zP4O4KGpc7l58gvPXRUIl2yd
-	E3nEMuD0jHOwswLQ1tYP7fM846DULVnoAkHLiPDQEwZakjKk0kmiRgRwYwM0GaiCWCuJNCs+Cql
-	f5Fq4xU1MCYrZ0DRN2liWH2wigEdORkJeG3d8ECun77Bf8FrjvAYWGtLqwsokSZkeLuyYz7PF6p
-	p+OQr3uc2Q9rSso4TFWjHrCn0iYsOynVPClFWYT06RArmZ6Fb+4kLSUP3Y5x0dp3K7TvE3qCwld
-	ZF4giZnQRVq8Y0ZKPpr5tuarsPOafiSNxmHlfkwb9AFrJGfkBsOxTSr4gZVJTPbW5du58LV7n9h
-	qHqexPBm7DCl/YZJGWYs3aeyFvArJMahC/dV8078bhcSUl84oZDLIq/wSpWDIxH2XyrADPq/MDX
-	rNR89RpWia99bzDbdTHXGaNL9AxsX6B1ZSmP46
-X-Received: by 2002:a05:7022:1e04:b0:12d:f7a6:e641 with SMTP id a92af1059eb24-13436990c90mr60514c88.25.1778610672620;
-        Tue, 12 May 2026 11:31:12 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13278765984sm19827539c88.14.2026.05.12.11.31.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 11:31:12 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Tue, 12 May 2026 11:31:11 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="2h0GQixN"
+Received: from terra.vega.svanheule.net (2a02-1812-162d-3d00-c381-7255-a866-916d.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: sander@svanheule.net)
+	by polaris.svanheule.net (Postfix) with ESMTPSA id F28E977E463;
+	Tue, 12 May 2026 22:49:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
+	s=mail1707; t=1778618942;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7/NTSVZOhes4gOqm3j4WrCMMEBVXuwI5o+q+SaVyVPk=;
+	b=2h0GQixNHv/xirLEpYEmDnMcAECsubdQpXY78LhBQwOPVTIme2SOpqnXIS6osnpYKCEvnc
+	mM4vo7nUZegVe59EzZ9O14xHSacmjsUJ9RxfZwniREbPDgZ9vA78KRXti5zdAD/Uvvg334
+	craJ0QcsONj1PMrTNQgqA6Tkb2N9no6rKmZ9Dm5AyYypZcWGA3F01bcJ1j+UhyBYfOoTdQ
+	Tld1b3tB8De3CBcGCtB3VP2sxx9jCG8l5lXYjD4EBIpzlSNDqu1UraO1qMtFRxCLKmmY0O
+	MY+5BCoNvTeBfXLuanEo8TNxaptWG6Ev9rs4ePOayRT0YjoEcT7LAC1CAEnd3w==
+From: Sander Vanheule <sander@svanheule.net>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: Rustam Adilov <adilov@disroot.org>,
 	linux-watchdog@vger.kernel.org,
-	Linux ACPI <linux-acpi@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1] watchdog: ni903x_wdt: Check ACPI_COMPANION() against
- NULL
-Message-ID: <a61ad93f-bfde-4b53-9681-83dc1a895943@roeck-us.net>
-References: <2280455.irdbgypaU6@rafael.j.wysocki>
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Sander Vanheule <sander@svanheule.net>
+Subject: [PATCH v2 0/2]  watchdog: realtek-otto: add fallback compatible
+Date: Tue, 12 May 2026 22:48:52 +0200
+Message-ID: <20260512204854.8931-1-sander@svanheule.net>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2280455.irdbgypaU6@rafael.j.wysocki>
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 12, 2026 at 06:22:57PM +0200, Rafael J. Wysocki wrote:
-> From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-> 
-> Every platform driver can be forced to match a device that doesn't match
-> its list of device IDs because of device_match_driver_override(), so
-> platform drivers that rely on the existence of a device's ACPI companion
-> object need to verify its presence.
-> 
-> Accordingly, add a requisite ACPI_COMPANION() check against NULL to the
-> ni903x_wdt watchdog driver.
-> 
-> Fixes: d37ec2fbab55 ("watchdog: ni903x_wdt: Convert to a platform driver")
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Like for the GPIO hardware of the Realtek Otto platform, add a fallback
+compatible for the watchdog hardware.
 
-Applied.
+For backward compatibility, the binding will still allow current
+single-compatible devicetrees to work, but new devicetrees, including
+new compatibles, should use a two-component compatible.
 
-Thanks,
-Guenter
+This series serves to address comments regarding the device compatibles
+for the patches adding RTL9607C watchdog support [1].
+
+[1] https://lore.kernel.org/lkml/20260509163101.722793-1-adilov@disroot.org/
+
+Sander Vanheule (2):
+  dt-bindings: watchdog: realtek,otto-wdt: Add fallback compatible
+  watchdog: realtek-otto: add fallback compatible
+
+ .../bindings/watchdog/realtek,otto-wdt.yaml   | 22 ++++++++++++++-----
+ drivers/watchdog/realtek_otto_wdt.c           |  2 ++
+ 2 files changed, 18 insertions(+), 6 deletions(-)
+
+-- 
+2.54.0
+
