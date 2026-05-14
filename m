@@ -1,130 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 939E23876DF
-	for <linux-watchdog@vger.kernel.org>; Wed, 13 May 2026 23:22:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8BB21638D
+	for <linux-watchdog@vger.kernel.org>; Thu, 14 May 2026 00:21:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778714561; cv=none; b=UvihXR3c8wL8cApp+sBRp855+FDtFp40Zv5QRep9jkOb71N4anqMu1RDxPoKs+OL81wTyL8wKfrM9voAq9EQYqVR4qajMkf6DUdVpYVFcqKHP/o1SlEjopki1ial1uBWNX++oKElEYKU2cclRgsc+4fJePNk6w6kE0bjegFIWH4=
+	t=1778718064; cv=none; b=a69pFJKLgPEddJhBWVdBTxOR3vySBvmqNq1IsUZ/EFsQJSeINA78Y0hW/vUDgoAmYAF3au0eUFiqxQt84/psImxqOtO92FQxCiYg35uCh8JD8+DTKJsbTEhPBJeFXG/WOBtb+hTN7maHOj3J5ZmbdWa7VyZ52foWFUezsoUKTcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778714561; c=relaxed/simple;
-	bh=x5MCr4cqtMn3oD9e8XUqbJzO2VEIKXTtudxi6Q5Ut30=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eZ17XotOPNdHF+OwJG/JJz2GN6bNhx/RIXm8OnJ/XmY3UTwMzovBpXi/cYfGKPNXfS9JGn9yIpGRPquYJqtxUP1m14iIcqEX+S5q4fbfUsvfTSekxMNDIfUfzv/W9ZxIUVbMwtCICF6lR3wNvGTPuvUYwXnitUolSHvMm1wDKOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nEc3AAFT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778718064; c=relaxed/simple;
+	bh=WMYUE0CDI5Pvg7WlUNgdNNFgjC4PutXg54yMOphaCAA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NDsf1TDAv8xDzjhkDDXinTKA0HQUUc1jwoPtci4Y5Qm4FoZ0DxEOQn1iSUV4VIh5ABVUuNivzbxZ5uLmZ5PIA7OjEi0ARV8qGYc5Cu2kUjdM7gS7AMnPmT33Ajq9ijRzClrj/jWQfw/z1hWctKBuNua23z0bnNorFOvH/kJV0ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BpGwaZmX; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nEc3AAFT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED050C19425;
-	Wed, 13 May 2026 23:22:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778714561;
-	bh=x5MCr4cqtMn3oD9e8XUqbJzO2VEIKXTtudxi6Q5Ut30=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=nEc3AAFTVRlpBLkAryXCc7VfVpFfZlqYhq1D9siin39I5FBn7aabZn3YXqOiBR4JG
-	 wdXoLTmXW01Mvly/5lyx6n21GfbgRiCvIX3QSD8CFFSYkJgwluPHVOa9YltON61Hkr
-	 SeNy2Lj46fc9OOJ0/KyHO2F8aGMtgpG4JQoO7Xybb4fCe5kL0uOa64hSEKh1H8IbPd
-	 pjgEmCVa5WNjAFLiQmeG1qAYC+fS7PjTTSb3arrEfc1Sa3GKzssPXlA+6nOoC7IKs6
-	 9PWT5twNUwjZqQS3NknAyLhj04OLHgRua4AVPq5xdFU5r1rBWsF9LR+emYymOQIjHG
-	 N9UBWt8LQa9Hg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] watchdog: ni903x_wdt: Check ACPI_COMPANION() against
- NULL
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <2280455.irdbgypaU6@rafael.j.wysocki>
-References: <2280455.irdbgypaU6@rafael.j.wysocki>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 13 May 2026 23:22:40 +0000
-Message-Id: <20260513232240.ED050C19425@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BpGwaZmX"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-836ed29d1e5so3319159b3a.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 May 2026 17:21:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778718061; x=1779322861; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1r2QZRuhZs/F6LR1h7UYVWvCz6VsrmPc9c5QbTNQ560=;
+        b=BpGwaZmX9qaqY0ge1SjVTlXr9UuOLABFRGr/gwNAVGIysj5Y4SGMMf7d/LaSbgFvxX
+         ON/rDz0zJhWISM7OWqK7kkaRuXw5qgqvC64wEALxQkhn+INNmJ3QTzBoPPxMD18Ah7q0
+         jX4LwqiyrGkKp+/uJhdMUr8Wuy8vRxlzbzTXcXayHulg9/p8XXVIzimobqGLhHYhd9ti
+         4uKIvM0gFPPb16HLV8Axtg9Cf2aD5ZFXcgJejUmeQiPfjHANCG0pilKqQiV3wjF4iiF7
+         l1JGGLMBoUNnOWgcIq0iPqv/HHTlei+8BOOYzZnnxcTeKMT7LZlulqHlVtz6zmjg0RAZ
+         C97Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778718061; x=1779322861;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=1r2QZRuhZs/F6LR1h7UYVWvCz6VsrmPc9c5QbTNQ560=;
+        b=mgOg2k/p62ta2s2I0cI9XJ1vIJK2IYk+i5bgE2FK63XqJaVsi+7VXYazUiLtGC8cHy
+         orVXgkLsY4meBOSWZmSAgteYJNNeuzqejiQtbhzewzH/y5Zm6TOYLbAuWO+BespaNWip
+         2IVDzBpsna2Lhd9x7V9tanUXmspPZvHY68sUKUlm9nf13kAV28ejl7xsbd52cz2EhjXn
+         2sTC6UsYf0aGhAN1QQYFEtJsLtfEwuHgEvyebaY6RFMtNoKDTABsfpizYNlGiEraK20s
+         lYyVbXPeBNu4srbNVf1eGZeYN2UrHV8C+RNASalCtxvJymb3+8x0Fw9bhoPCnmSvwhzn
+         We7A==
+X-Forwarded-Encrypted: i=1; AFNElJ/BYLclIYTP5VZRHhYhPFVQzYE6LiK3YzboMvgdcK1o7CiW+/CNMYlpGY3hVBPNWymfvaGFWtYtDkHl2TElgw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YytO2waQ+OiC6BsS9Wf8rXnlYoJL2yzwIHT7q4GOsx9o0nWsJmz
+	D6Ec25vjt5Z/uLXZEFxRl5CCZ5fdxenpxpUw1+1goqXNPOSS/8hyCAZK
+X-Gm-Gg: Acq92OFKTt3me9h/Z95fUQUgzw1hvyI7cwXyBPwVKYfpQg+8yWXNAmzBW7kTFPwNycs
+	AzO5UEa2IIVEds2I5YLyKW3Ly93aFdJdVDn8ccLQU9hQ+8Bk/y+3qmoE5AyckCsDj7Yxcurx6S2
+	iQrsEl8Hz+ALBKrTp5kSQ4FjdGcrSGdnlx61P1JGbJgv9n6ohzwkgzdIei/CC+J65f3O+TLCyyU
+	pCnMZdNleJ8ula4iLjRMndjLnXj5AMOo76mobxKJim35287dZigpvjGAjjgQM7Wt9T4AXdzd+b5
+	r1UCj4UsTZe9b9qeDkImCo+Cc3EBWrvOhUms53796BImblDQ0EWnKbptb/WkRwKyp427n34loX1
+	UMvlIH8mLFnXgZ6xNjFhtAJUKlgCRtLhf1rfBvstM0YzsRUZV7dWj1YFs65a6VzoJrP3Z+DCqEe
+	s1mh3tpzddNDCiiFMPWJA1QQZUEw6erIbj1HrDE5bnV3Xl06c=
+X-Received: by 2002:a05:6a00:2195:b0:835:6bdf:c888 with SMTP id d2e1a72fcca58-83f03e94f92mr5702219b3a.2.1778718060763;
+        Wed, 13 May 2026 17:21:00 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f19778c87sm660537b3a.19.2026.05.13.17.20.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 17:21:00 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Wed, 13 May 2026 17:20:59 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Sander Vanheule <sander@svanheule.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Rustam Adilov <adilov@disroot.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: realtek,otto-wdt: Add
+ fallback compatible
+Message-ID: <1be8c11b-a020-44d6-86ef-109418e1d968@roeck-us.net>
+References: <20260512204854.8931-1-sander@svanheule.net>
+ <20260512204854.8931-2-sander@svanheule.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260512204854.8931-2-sander@svanheule.net>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] The watchdog device is exposed to userspace before its hardware in=
-itialization is fully complete in `ni903x_acpi_probe`.
-- [High] The driver's removal function races with the watchdog core worker =
-and userspace, potentially leaving the hardware running after driver unload.
---
+On Tue, May 12, 2026 at 10:48:53PM +0200, Sander Vanheule wrote:
+> As all known hardware instantiations of this watchdog behave the same, a
+> fallback compatible can be added.
+> 
+> To remain compatible with existing single-compatible bindings, the
+> current compatibles are duplicated. New compatibles should only be added
+> to the list with fallback.
+> 
+> Signed-off-by: Sander Vanheule <sander@svanheule.net>
+> ---
+> Changes since v1:
+> - Fix indendations
+> - Add deprecated property to old compatible
+> - Use two-part compatible in example
+> ---
+>  .../bindings/watchdog/realtek,otto-wdt.yaml   | 22 ++++++++++++++-----
+>  1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
+> index 1f5390a67cdb..e470e0fcbb2a 100644
+> --- a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml
+> @@ -25,11 +25,21 @@ allOf:
+>  
+>  properties:
+>    compatible:
+> -    enum:
+> -      - realtek,rtl8380-wdt
+> -      - realtek,rtl8390-wdt
+> -      - realtek,rtl9300-wdt
+> -      - realtek,rtl9310-wdt
+> +    oneOf:
+> +      - items:
+> +          - enum:
+> +              - realtek,rtl8380-wdt
+> +              - realtek,rtl8390-wdt
+> +              - realtek,rtl9300-wdt
+> +              - realtek,rtl9310-wdt
+> +          - const: realtek,otto-wdt
 
-commit 6254d703c5994e457b8ddb7846a5094ab95cecda
-Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+For the Apple watchdog driver, the generic property "apple,wdt" is
+considered to be bad and is not supposed to be used for newer chips.
+For this watchdog driver, a generic property is introduced.
 
-watchdog: ni903x_wdt: Check ACPI_COMPANION() against NULL
+What is the overall logic ? Is there some rule when a generic property
+such as "realtek,otto-wdt" is appropriate and preferred, and when it isn't
+(as in "apple,wdt") ?
 
-This commit adds a check to ensure the ACPI companion object exists
-before proceeding with the ni903x_wdt watchdog driver probe.
-
-> diff --git a/drivers/watchdog/ni903x_wdt.c b/drivers/watchdog/ni903x_wdt.c
-> --- a/drivers/watchdog/ni903x_wdt.c
-> +++ b/drivers/watchdog/ni903x_wdt.c
-> @@ -183,9 +183,14 @@ static int ni903x_acpi_probe(struct platform_device =
-*pdev)
->  	struct device *dev =3D &pdev->dev;
->  	struct watchdog_device *wdd;
->  	struct ni903x_wdt *wdt;
-> +	acpi_handle handle;
->  	acpi_status status;
->  	int ret;
-> =20
-> +	handle =3D ACPI_HANDLE(dev);
-> +	if (!handle)
-> +		return -ENODEV;
-> +
-
-This isn't a regression introduced by this commit, but while reviewing the
-probe function modified here, I noticed a potential race condition.
-
-In ni903x_acpi_probe(), the watchdog device is registered before the
-hardware initialization is fully complete:
-
-ni903x_acpi_probe() {
-    ...
-    ret =3D watchdog_register_device(wdd);
-    if (ret)
-        return ret;
-
-    outb(NIWD_CONTROL_RESET | NIWD_CONTROL_MODE,
-         wdt->io_base + NIWD_CONTROL);
-    ...
-}
-
-Since the character device becomes visible to userspace immediately upon
-registration, could a fast userspace process open the device and trigger
-ni903x_wdd_start() before the hardware is initialized?
-
-If ni903x_wdd_start() configures the watchdog by writing to the control
-register, wouldn't the subsequent outb() in the probe thread clobber this
-configuration without preserving the bits set by userspace?
-
-This might leave the watchdog in an unpredictable state and prevent recovery
-on a freeze.
-
-There is also a similar pre-existing issue in the removal path.
-
-If ni903x_acpi_remove() calls ni903x_wdd_stop() before
-watchdog_unregister_device(), the device remains registered with the
-watchdog core while stopping.
-
-Could userspace or the watchdog core worker concurrently execute
-ni903x_wdd_ping() during this time?
-
-If ni903x_wdd_ping() performs a read-modify-write on the control register,
-and ni903x_wdd_stop() writes a stop command to the same register, is it
-possible for the ping operation to write back the active state and re-enable
-the watchdog if the stop operation executes between the read and write?
-
-If the driver then unloads while the hardware watchdog continues running
-with no driver to pet it, will the system spuriously reboot?
-
-Would it be safer to call watchdog_unregister_device() before stopping the
-hardware, or perhaps use watchdog_stop_on_unregister()?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/2280455.irdbgypaU6@=
-rafael.j.wysocki?part=3D1
+Thanks,
+Guenter
