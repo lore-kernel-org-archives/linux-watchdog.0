@@ -1,130 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318B93CB2C7
-	for <linux-watchdog@vger.kernel.org>; Thu, 14 May 2026 20:57:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A48443290AD
+	for <linux-watchdog@vger.kernel.org>; Fri, 15 May 2026 01:36:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778792264; cv=none; b=qOp1adx6UxXgkSbsJQpyKjNwMJf5hW/1rqV9Y2p38KL6czXPD34KRI5LBn3AzYUESqhtwikPc6JMvDdHHUui4giOuXrVg+ZaFKTaJVGI9el1bxsuFO+dpYjlDsjx5sX56UrHs1KziGUECGhTQIgAQoeaFFhM2SxCRBv98THm/S0=
+	t=1778808964; cv=none; b=RSXNQNg4sf1+LaTQWhgXb1pmr/OCTQL2mZDsjhmdgbNFoUeBvM46bWbAGSZmKHj9gpUDmXFNdXv0+f3/OjH82MfJ6Mknq09zkOZZ0vBcfU71p71mMnBtO142HHCx1NVP/aRWnIc9ih3uTpQ4S8efmsCtRs1ZIsPDn8i/5eOO9F8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778792264; c=relaxed/simple;
-	bh=gQIErgakaBWc4eVx+wtAABqZtOgiDpGIK+PeBBCMD7I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TEKg3RnRtoMYIdPdIGTlqSISjQPJ5rpxf29TNQNhFumdQ5k862giOahPA92kEyMDoLWzE0RjUxDz9j4A39qnh3F+CcQz/7r9MJOMPLiYT4q5Kmw52UUgHwPnimH1tB5JEoQYH7mGmkfR6yS6cNE+jDMh7+ovXKc1AbXtrCPb1EU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sceNOdkA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778808964; c=relaxed/simple;
+	bh=qyG+SWsCYJzW6ePta0HqJQ0JlnEc88TZlimHgFAjJAQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PHFDsfnH7Gyl/DdTIcxuVmfshvZagHxqkH2L+F697m30cXBC5HCVrpcCumT+TOypAweJrv6DCwWht9xu9xNQEGk5DK/32UON6igj6FQA1hUQdGRml9aJwdMsEQGcwoxaUmxGYN7/KKxLQPsn2CIw39eszDJVAZ1nDciKVqLZzjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a7vS/yh/; arc=none smtp.client-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sceNOdkA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E336DC4AF09
-	for <linux-watchdog@vger.kernel.org>; Thu, 14 May 2026 20:57:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778792263;
-	bh=gQIErgakaBWc4eVx+wtAABqZtOgiDpGIK+PeBBCMD7I=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=sceNOdkAhUcnAfYQdvShfH7vQIXJW0beVULzf20rk0QviYtjJNUNu7a7sHTDkYP+B
-	 xpn03N7fLxTy9AzmC8ormHyGSMOMGOJ22hflhEvZ32MNH9ckG5a80mEMv1N2It/Mvc
-	 E+Uf+657Jtx/XJYo1sMobeObDrPoxSu2gwCBMJ04YU+Pw1/77HJqiNGXQedfcEXP6G
-	 z7F2rs1m0aIKiHwhdLTCxveJe0AYHjq39zN2Mmzs2OBJBGcRdFa9PaLs6Vl1MyBAkJ
-	 lgaGKPnNTvjyiwg4RI5YhkRnLyU0aVRKaRyAdnruXYtDopmDmW5vTcnw8lVd6uylvP
-	 Ssov4F4z/oJjQ==
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-bd21ffaca79so44475366b.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 14 May 2026 13:57:43 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ+qeUMEDKZAsLli0X3HCHZHd9gTNoJeTBHkM42sCg2SzqOP2DCI7XsZ9jvRHWGyqQg+sRDOqeGtXxDuZ7eQIw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzb30/64HoFuIW40lLG5YrQHVGu4KBvqLsTk+HZ1HozQgi+os5E
-	ROH5J1wSYS6v7XegSAZzpdxCxm0H840hQlws1lV8qSjYV70CpSxJUbm5Rfo/tzW9whbbKBc2LH2
-	YIRXoaIN/XN9x69g4ve/reM+6nnLNOQ==
-X-Received: by 2002:a17:907:c708:b0:bd4:aafb:def8 with SMTP id
- a640c23a62f3a-bd51553a0c9mr62509566b.21.1778792262550; Thu, 14 May 2026
- 13:57:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a7vS/yh/"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2c15849aa2cso11817458eec.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 14 May 2026 18:36:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778808963; x=1779413763; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=krEBTTXiK5mCDN2/ksztHps+97IcSWBntWKsCM99zy4=;
+        b=a7vS/yh/+bXHSvfjhxxRKShavtNDHg3JqYLQFNg+fynr101ELtBp1OePyLnelfpk0p
+         T/AGq9b+3n/KkmVYgOP+26qgiT/K7+Rbsg/HFlqG6hDVcLg0LDXcBzsRJtaD5yxafomq
+         9dfzWLEzVqcIHnZtpnTpR0ckANM4KeNVFOWlhqRK00ZsuuhHSNBsgRoGQwjjUh6CNeAQ
+         6CqCJQpjjn1rLkTe18Uu4miqgmYbn2FxoyTDrjLg2qwb5zOwpaORs5H81C4beXeR+C2P
+         Flfusr8cgkKKT7PZFZuRA7SzlB/mRDAcB0uehU/VCapqPMjrLiKpoTswkrzY5fndsUVm
+         2Q9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778808963; x=1779413763;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=krEBTTXiK5mCDN2/ksztHps+97IcSWBntWKsCM99zy4=;
+        b=FhcuBBz+MXgRoGDjIVOe5L1gGpHCSOonbtc0Vi1Cdxh2s/WFZKWsBk2Uu0cDKWR4M/
+         yvADC6oxEH2oCp4dnsstzwDjLf9AzvCuOvEhm9kJditEQiQPpeCJjm7Hjw0x/xH+o3L9
+         JsAFutssloleYAYM283elMhcZihF4jk2z1CLGMB6oprf1kDehhGiFKmCEWTQfb3zBudx
+         AAuIP5FO3FZUZleeHj3XogTWU5UtgLH50FU5MfDG0Sd4SqPXDV2VdtW0xV72GfnPSLgs
+         Fnw1cU6fXUoA4bWydbu5umAHSA1TIPXQBsxR3NcpPGagxV28W8lB81VoF/3UpjD4/JSP
+         Ekhg==
+X-Forwarded-Encrypted: i=1; AFNElJ/6MG3n5v+/hcvM0guW/wJq2pc2tOIzg73e0RsulxdZSeMPrQFr9+tloHbfepqyqMlw8/9VfW/jzSwRCJeMRg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwDA3SUb3mV7YLST003XLjop6ATYBynQDkJhOWIKfEKFkQH1i87
+	NHdNYupZe67fA0xFFhxD6hXk06Fi3quztqEldSxNFXHv5HCv+A9XFHvp
+X-Gm-Gg: Acq92OEWdawydvRJ3UlIbeYhRx5pzeOpMXrtnsLCA+lajGaTNmze8C5ezal0gfUAwN/
+	ipNxMwoydwwrUrf1WU5F0wKETVR4cAeCjpoBQicdXTKmvukR0OnJonyPyNqgdid/Bk9mcmNZlGr
+	1iNdDCzDWBrsFA8nBJAMf4mFsWFQZ2AWY6pCbl8g0f0VirjqGfo/s4o9uiD/y5O2MQyM5hSYx2V
+	SUXoN8bfTYy84WaAHdrfUvxgvOC6SovnPDUzhzptCJIw8a6bgLL6dgG8B5P+Tm8/DUuIQkQk1Yh
+	ADwEvmQnKFlFKiJ8bh6KgKTelGfMvFkFTHaeJAGjVXhcTriDTh+lTUEbtlc0edE/WuRkpR9Iz5g
+	HBSXn1yHHxyTCLvL64bm6rJXygfXWX6qg3Ra1yRvAUynZ1iopaKs9fXNSTEo8/kTngV/4BxZNqd
+	tJjjgYuxsWoHeUjxv/jH4JZFsBMmlvg74h/y7z
+X-Received: by 2002:a05:7301:600c:b0:2dd:6937:79d5 with SMTP id 5a478bee46e88-303982b788dmr969693eec.8.1778808962665;
+        Thu, 14 May 2026 18:36:02 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-302973bcd0csm5316673eec.24.2026.05.14.18.36.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 18:36:02 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Thu, 14 May 2026 18:36:01 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Rajendra Nayak <quic_rjendra@quicinc.com>,
+	linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] dt-bindings: watchdog: qcom-wdt: Document IPQ9650
+ watchdog
+Message-ID: <d06d3948-acea-4f92-b032-5149735733a2@roeck-us.net>
+References: <20260511-ipq9650_wdt_binding-v2-1-dca22892d3d3@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260512204854.8931-1-sander@svanheule.net> <20260514161008.GB841147-robh@kernel.org>
- <9f81a947b65cafd44b293e05080b1fd2820cea06.camel@svanheule.net>
-In-Reply-To: <9f81a947b65cafd44b293e05080b1fd2820cea06.camel@svanheule.net>
-From: Rob Herring <robh@kernel.org>
-Date: Thu, 14 May 2026 15:57:31 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqLM4JQmbYCEz3-vpS+qiz8nXSk758CP_nFwWR2ihG-AFw@mail.gmail.com>
-X-Gm-Features: AVHnY4IiJt6YbJsjlhqBI3XPpUZMihiqOxN7QxDpJD3UYTXwNIgbFa92uKr18_M
-Message-ID: <CAL_JsqLM4JQmbYCEz3-vpS+qiz8nXSk758CP_nFwWR2ihG-AFw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] watchdog: realtek-otto: add fallback compatible
-To: Sander Vanheule <sander@svanheule.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Rustam Adilov <adilov@disroot.org>, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260511-ipq9650_wdt_binding-v2-1-dca22892d3d3@oss.qualcomm.com>
 
-On Thu, May 14, 2026 at 11:25=E2=80=AFAM Sander Vanheule <sander@svanheule.=
-net> wrote:
->
-> On Thu, 2026-05-14 at 11:10 -0500, Rob Herring wrote:
-> > On Tue, May 12, 2026 at 10:48:52PM +0200, Sander Vanheule wrote:
-> > > Like for the GPIO hardware of the Realtek Otto platform, add a fallba=
-ck
-> > > compatible for the watchdog hardware.
-> > >
-> > > For backward compatibility, the binding will still allow current
-> > > single-compatible devicetrees to work, but new devicetrees, including
-> > > new compatibles, should use a two-component compatible.
-> > >
-> > > This series serves to address comments regarding the device compatibl=
-es
-> > > for the patches adding RTL9607C watchdog support [1].
-> > >
-> > > [1] https://lore.kernel.org/lkml/20260509163101.722793-1-adilov@disro=
-ot.org/
-> >
-> > You misunderstood the discussion (though some came after this). The
-> > fallback should be one of the existing compatibles (the oldest one), so
-> > there are no driver changes needed for the OS. Creating a new fallback
-> > completely misses that point.
->
-> Using a SoC-specific compatible would mean we should go for something lik=
-e:
->         compatible =3D "realtek,rtl9706c-wdt", "realtek,rtl8380-wdt";
->
-> Then that means we can never change our interpretation of how the rtl8380
-> behaves (we don't have datasheets), because it would also impact the beha=
-vior of
-> the rtl9706c.
+On Mon, May 11, 2026 at 08:10:23PM +0530, Kathiravan Thirumoorthy wrote:
+> Document the watchdog device found on the Qualcomm IPQ9650 SoC.
+> 
+> Signed-off-by: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-No, at that point you would add the rtl9706c compatible to the driver
-to distinguish.
+Applied.
 
-You have the same constraint with your generic compatible.
-
-> I also think "apple,wdt" is a bad example to compare with "realtek,otto-w=
-dt".
-> The former only specifies the vendor, while the latter refers to the line=
- of
-> SoCs this IP block is used for. Although I see the docs also discourage f=
-amily
-> compatibles.
-
-Is M1, M2, M3 not a family? Maybe A series is included too, but if
-there's anyone that maintains some consistency across SoCs, it is
-Apple.
-
-The docs are based on experience and regret...
-
->
-> If I may ask, what is the rationale for preferring the "older implementat=
-ion"
-> approach over a "family compatible" to match the common subset of support=
-ed
-> features?
-
-If you create bindings as the SoCs are created, then you don't really
-know what's in a family, only does it work with the existing driver .
-You only know what's in a family after the fact. Things are never that
-clean either.
-
-I just picked the oldest as that's probably the most well known, least
-likely to need some future change, and would have the oldest OS
-version support.
-
-Rob
+Thanks,
+Guenter
