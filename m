@@ -1,150 +1,136 @@
-Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D00CA327BEC
-	for <linux-watchdog@vger.kernel.org>; Fri, 15 May 2026 08:47:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 848B24266BC
+	for <linux-watchdog@vger.kernel.org>; Fri, 15 May 2026 08:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778834853; cv=none; b=pvuYZvnTSHweSrHMBrkWKWyoNkrWNdUSTgKA4ExDUFyJfBeoMVisQ4CYw9kFxTpj7j4aSc3r5eN5ioTDDfFbwrafDTrFNBdZS8M6PXs58ChG10tXDC8iWgS0/AHEIKbrBsDnN6hB6wLxu4xEhF3F/MHsKo8sdNkqS2iNQZ4v5tE=
+	t=1778835485; cv=none; b=fCqc/l1adghKSMErzMA952DmBSTSwkQW2ZuXbP4fSJw+SSS+aye6JTfglWOuy2eLeBAGCe64n4BB8Ze6N9S7wuDzQiD3sqPyrTfAOR6GzFmhC1S8Mhga8vyN1M+bRmlOHVQMzwF3Y4AnCq3laVSuZcdIE0HMufqRzJDq+tL11lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778834853; c=relaxed/simple;
-	bh=tcsWhvBYfHAaZ0xx4d95uTJpmff+GK5/N7wi/KGLKks=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=tv89q/olEN0yyp/S0CUIWyWsv/GpaHQ5yYzFAWAZ0krTa8nYsWsXzvKyLT8qGErBSZ/lnu86XMCNt7v2Y4qKpinutOYB1HBNc1TGnV4wndRfz/xMD4jV723do7m4Qj58PGh6M3Dd+HKNIIYJCRZ7llRJPxTk7gCvzxoemtPJGlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=veuSbATF; arc=none smtp.client-ip=84.16.241.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
+	s=arc-20240116; t=1778835485; c=relaxed/simple;
+	bh=dyP4n9uPfOXLtZxIOJmI/uU/nI5UYjP6DCnh6DbN2Hc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XC8qy5UeiehWCfCWFXdu3KDKEOzl5sUP0GvLxRI6IFuLoTXnJVZjosVY1ic+yjaAa2muGVGrMxMnVzefD2Vi7hI3uSbBUjHNDo6oQYw4lbxF1GymAcEn8tUORc+Drms1xUAY5RSNOjsE+MiKU6r99cyZkBc25jn2X8nRlLgVaTo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IwdJwuu3; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="veuSbATF"
-Received: from [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d] (2a02-1812-162d-3d00-c381-7255-a866-916d.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sander@svanheule.net)
-	by polaris.svanheule.net (Postfix) with ESMTPSA id 3F1287802DC;
-	Fri, 15 May 2026 10:47:29 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
-	s=mail1707; t=1778834849;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tcsWhvBYfHAaZ0xx4d95uTJpmff+GK5/N7wi/KGLKks=;
-	b=veuSbATFW3Pg3jWRq0VNZehZ+fz6FeS5mEEHJAMmQIYJBcQjQgpmC//1UPVccdmHEgIw/C
-	HummouTQSc7yqbuMfPoIuhnpQRBYYDO5QZEYOkcEbsp29uo2LpXYyF5EwuQPEF5NEiAZfP
-	D3dHahdgrK7lBPpt51lUxmOqMV1LEu0tOWa1Kfv4bLvyO6YLk1OoaO3ZbTcLRuA0xOxXVV
-	BEUnqGjV3Lre/lq7V5wiQMB6xx/o4i62+h+37P7JiBi8RDxSs8yHGZwP33/9WQb1hvm1/e
-	C7mCuUVcS3Qmqh9M4JHQTg4DbHPAVVGt8lqJTa5QcxNL/uKTNueDszbsUI9sMQ==
-Message-ID: <55abfd54cc6f01cee65d54ec74754549e30e4a94.camel@svanheule.net>
-Subject: Re: [PATCH v2 0/2] watchdog: realtek-otto: add fallback compatible
-From: Sander Vanheule <sander@svanheule.net>
-To: Rob Herring <robh@kernel.org>, Rustam Adilov <adilov@disroot.org>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck	
- <linux@roeck-us.net>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor
- Dooley	 <conor+dt@kernel.org>, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Fri, 15 May 2026 10:47:28 +0200
-In-Reply-To: <CAL_JsqLM4JQmbYCEz3-vpS+qiz8nXSk758CP_nFwWR2ihG-AFw@mail.gmail.com>
-References: <20260512204854.8931-1-sander@svanheule.net>
-	 <20260514161008.GB841147-robh@kernel.org>
-	 <9f81a947b65cafd44b293e05080b1fd2820cea06.camel@svanheule.net>
-	 <CAL_JsqLM4JQmbYCEz3-vpS+qiz8nXSk758CP_nFwWR2ihG-AFw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IwdJwuu3"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2babfd18435so45276765ad.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 15 May 2026 01:58:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778835483; x=1779440283; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JI5rbOuDA7OsqPK6rS6KZm2RpgqeyURJ5czLB7dxhv4=;
+        b=IwdJwuu3fbspKY4M46qwfE07A8WvFOSz4mMgl34oOxhRdGNhwzqBAkAzgmDJONgcWO
+         /rfrYcNtRiGEnyAdrmqYH84LLCQeREjdpE0zwj5994JUXOoj/DAkMppV2j5NZuXIPy/Z
+         CAFd7/E9sd+mjo+k5Nh9NvOcNjYIuF/OZ+Fisj83doFwXoSObViUphY97xLhYncQSPUL
+         VVtx2JdUsemqY9xKlxSj8mwZz7fPIlHoJFxZea9sY4qW5mhQiYPX7IhVOIB7DpFKo0sY
+         igrikZblRT7S9fnn8mpMayBfG/pL35ZYWfBObHkmDZ5RJKXklCdxeH9Bg0OAftjaCVKH
+         F+lA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778835483; x=1779440283;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JI5rbOuDA7OsqPK6rS6KZm2RpgqeyURJ5czLB7dxhv4=;
+        b=AIbw/HMZlC1oeNXtAMfed146gKjUdAhk3YU3zYAw0I4+uoyOnUmwxUm27xZRZ3uH15
+         m6U5vqzWGZ4NO0AoEtR2Tv6Z2eS2qfZ74kv4vBjBsq7C6c+naBmJh/1PWeKfZWfc5XGb
+         98SDFEWc8qHoHA31Bgy2BZTEJpPYfLYUy+fcqy3C+d3IQSiXKLAMMQC0ZIGuS5itI+Sl
+         liz68yFXXS2F7te6wohAN/EKyX28+9OYijqx2DOStx3jL08M2GLpubyo5UydDXmknN4Y
+         tgGTC1P26YasX0pnYqOwsoUOBjpAYg/6lP+LV9I3luQ7YWb3BSmsu3i14ZPLAxDNlARG
+         5kQA==
+X-Forwarded-Encrypted: i=1; AFNElJ+f+8Cw4rm/r1NYhaawrY97dnXG0QwasxYcmEvKL5g+iz3ixeLvMno2v9uCEhCkt5wgAFX6OaCJ86pv4Vw1IQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyoKFd3kIfLOqHFSBJAafz4ZzJla8U/eoD6JB9KRCNGzJ3Oj00x
+	i69EZwnvPybKmAY2leeIKzJYRQH51SNcTdCXYc2rdCxOixWSeyJ8Nrcr
+X-Gm-Gg: Acq92OES4cuJbaPITaFS+6EDC/U36WuRAgG40uTKuKmcX0YHiIr/kNL2Q1AMPajlWWh
+	9pDm3vijqvj9UBggsGqsKuVHmwiiBdCniTKoBoEZkrJARX7A+jIOirIMqP4fgpw0YeDra55RPAG
+	BYHz0A7xVt/To/gbQI6GJr0tEPzp/klIFwvV30j133g18J85bdzc+9XB/JoQs08lLde2vKirPit
+	Fqk0EKNYqZjwvadRp7sD3/n8QSMC7i+fDJbLjslyi++meJZ3QC3rjCK2YEtIV2vrrCl6mNMaycY
+	IJjCEFb0nhla/r2lygazw1PDQ0umni5Ys1zoEsMqfH5LCXDznneqtAFtL3EEaOShQPZnrB6tPHz
+	3jblXqw6rHdkJ9JqxOo8BOmb694RUElukcEh0PhJTDiMjxCef01R+5bTu5wp1K345VYSqj6iNnM
+	s7uGPLGH2H9VIZOdbf7F+MuqUuoOVCqGRD2aOgM2+jaoYP3LWORL9DRtJlpWS6BTCt2g==
+X-Received: by 2002:a17:903:390b:b0:2bd:1903:6ced with SMTP id d9443c01a7336-2bd7e93cf74mr34268585ad.41.1778835482629;
+        Fri, 15 May 2026 01:58:02 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5cfe6512sm52249325ad.52.2026.05.15.01.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 01:58:02 -0700 (PDT)
+From: a0282524688@gmail.com
+To: tmyu0@nuvoton.com,
+	linusw@kernel.org,
+	brgl@kernel.org,
+	linux@roeck-us.net,
+	andi.shyti@kernel.org,
+	lee@kernel.org,
+	mkl@pengutronix.de,
+	mailhol@kernel.org,
+	alexandre.belloni@bootlin.com,
+	wim@linux-watchdog.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>
+Subject: [PATCH v4 0/1] mfd: nct6694: Refactor transport layer and add HIF (eSPI) support
+Date: Fri, 15 May 2026 16:57:45 +0800
+Message-Id: <20260515085746.114361-1-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi Rob,
+From: Ming Yu <a0282524688@gmail.com>
 
-On Thu, 2026-05-14 at 15:57 -0500, Rob Herring wrote:
-> On Thu, May 14, 2026 at 11:25=E2=80=AFAM Sander Vanheule <sander@svanheul=
-e.net> wrote:
-> >=20
-> > On Thu, 2026-05-14 at 11:10 -0500, Rob Herring wrote:
-> > > On Tue, May 12, 2026 at 10:48:52PM +0200, Sander Vanheule wrote:
-> > > > Like for the GPIO hardware of the Realtek Otto platform, add a fall=
-back
-> > > > compatible for the watchdog hardware.
-> > > >=20
-> > > > For backward compatibility, the binding will still allow current
-> > > > single-compatible devicetrees to work, but new devicetrees, includi=
-ng
-> > > > new compatibles, should use a two-component compatible.
-> > > >=20
-> > > > This series serves to address comments regarding the device compati=
-bles
-> > > > for the patches adding RTL9607C watchdog support [1].
-> > > >=20
-> > > > [1]
-> > > > https://lore.kernel.org/lkml/20260509163101.722793-1-adilov@disroot=
-.org/
-> > >=20
-> > > You misunderstood the discussion (though some came after this). The
-> > > fallback should be one of the existing compatibles (the oldest one), =
-so
-> > > there are no driver changes needed for the OS. Creating a new fallbac=
-k
-> > > completely misses that point.
-> >=20
-> > Using a SoC-specific compatible would mean we should go for something l=
-ike:
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 compatible =3D "realtek,rtl9=
-706c-wdt", "realtek,rtl8380-wdt";
-> >=20
-> > Then that means we can never change our interpretation of how the rtl83=
-80
-> > behaves (we don't have datasheets), because it would also impact the
-> > behavior of
-> > the rtl9706c.
->=20
-> No, at that point you would add the rtl9706c compatible to the driver
-> to distinguish.
->=20
-> You have the same constraint with your generic compatible.
->=20
-> > I also think "apple,wdt" is a bad example to compare with "realtek,otto=
--
-> > wdt".
-> > The former only specifies the vendor, while the latter refers to the li=
-ne of
-> > SoCs this IP block is used for. Although I see the docs also discourage
-> > family
-> > compatibles.
->=20
-> Is M1, M2, M3 not a family? Maybe A series is included too, but if
-> there's anyone that maintains some consistency across SoCs, it is
-> Apple.
->=20
-> The docs are based on experience and regret...
->=20
-> >=20
-> > If I may ask, what is the rationale for preferring the "older
-> > implementation"
-> > approach over a "family compatible" to match the common subset of suppo=
-rted
-> > features?
->=20
-> If you create bindings as the SoCs are created, then you don't really
-> know what's in a family, only does it work with the existing driver .
-> You only know what's in a family after the fact. Things are never that
-> clean either.
->=20
-> I just picked the oldest as that's probably the most well known, least
-> likely to need some future change, and would have the oldest OS
-> version support.
+The Nuvoton NCT6694 is a peripheral expander that provides GPIO, I2C,
+CAN-FD, Watchdog, HWMON, PWM, and RTC sub-devices. Currently, the
+driver only supports USB as the host transport interface.
 
-Thanks for the extra context.
+This series refactors the NCT6694 MFD core to support multiple transport
+backends and adds a new Host Interface (HIF) transport driver that
+communicates over eSPI using Super-I/O shared memory.
 
-Rustam, will you take it from here to add the two-part compatible for the
-RTL9706C? Since you won't need update the driver, I guess a single patch wo=
-uld
-do.
+Changes since version 3:
+- Remove redundant module type macro definitions from sub-device drivers
+  that are now provided by the shared header <linux/mfd/nct6694.h>,
+  fixing -Wmacro-redefined warnings.
 
+Changes since version 2:
+- Restore per-device IDA and mfd_add_hotplug_devices()/PLATFORM_DEVID_AUTO
+  to avoid child device ID conflicts with multiple NCT6694 chips.
+- Validate irq_find_mapping() return value before dispatching IRQs.
+- Check superio_enter() return value in nct6694_irq_init().
 
-Best,
-Sander
+Changes since version 1:
+- Reworked the Super-I/O access helpers.
+
+Ming Yu (1):
+  mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
+
+ MAINTAINERS                         |   1 +
+ drivers/gpio/gpio-nct6694.c         |   7 -
+ drivers/hwmon/nct6694-hwmon.c       |  21 -
+ drivers/i2c/busses/i2c-nct6694.c    |   7 -
+ drivers/mfd/Kconfig                 |  47 +-
+ drivers/mfd/Makefile                |   3 +-
+ drivers/mfd/nct6694-hif.c           | 663 ++++++++++++++++++++++++++++
+ drivers/mfd/nct6694.c               | 111 +++--
+ drivers/net/can/usb/nct6694_canfd.c |   6 -
+ drivers/rtc/rtc-nct6694.c           |   7 -
+ drivers/watchdog/nct6694_wdt.c      |   7 -
+ include/linux/mfd/nct6694.h         |  54 ++-
+ 12 files changed, 813 insertions(+), 121 deletions(-)
+ create mode 100644 drivers/mfd/nct6694-hif.c
+
+-- 
+2.34.1
+
