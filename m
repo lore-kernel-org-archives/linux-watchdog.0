@@ -1,203 +1,344 @@
-Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
+Received: from mail-dy1-f193.google.com (mail-dy1-f193.google.com [74.125.82.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C895233723
-	for <linux-watchdog@vger.kernel.org>; Sat, 16 May 2026 18:33:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 948232D617
+	for <linux-watchdog@vger.kernel.org>; Sun, 17 May 2026 04:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778956392; cv=none; b=YGWgk2P1bgYKDOWkW73A4Dswlkhj+UaB09La/i3HR6hZt8TUJIrAv4z5pbbX3y7mDXDgUfHiQfbIPP8hNZf/KqClEbA+r6OTnoPe35OrjB2qXsUZPA80N1qd8zjWxvn/7zLf9nQJszG99dpgiFSEeOWxXEcldK/ncQGXCGWIJS8=
+	t=1778993934; cv=none; b=tRbryXIiashEL6WmtzaDTNiEeYl8vMRoGAVo8K7PDZPGGIA6LPr1CWrZg6UutPw9KXjpCMMci0hUhe//7d7dJylLwNV7uLFFNUAhcdq1fAENGagP7N2ldTOadHcJn08q4rLx/hX9OffuNk0tBfjj4k09u5k2m8pMqKCGL1gGGFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778956392; c=relaxed/simple;
-	bh=hXHIWKI6wgxzSeQ2rxIsqxw4r79nivnOIlr62ncCho4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hK01Mg2Guq32l4SUyLn/SwcBTw9HUe2oyB/GUUnms6ZVEGtdBAL0F7Qaq48PZglSLrYf58ABFNe39Kk4jA3atICU4OI4o/0YrjVO4vLh7nxFEpFD+t2L2xmpnjZa7zsrAtkwMLlDx1pYHRA+yjOgplAGPQNK3wZQv980gbzsgLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ED8fhov4; arc=none smtp.client-ip=74.125.82.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1778993934; c=relaxed/simple;
+	bh=3Y/ExQHmpM874sXJzRTs7GT3T+TDmiYeO3BxiHRitrM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NYI1gqYIkVT4NnWUysYpPORVHpJVahnK8pOWJAjByTu2sXnhY3vMs7JuHi3d+9ofuwv/wbWgBgXKwPRzsebDeiStM1jexS0D3BfWeVYeAqFhgc0NGnZE3x1me2VsZK8Exi5/OrJMDxIVa9gEc1PhgX6XCQV6on7UT2GEQ83PySM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Og1+yK8Z; arc=none smtp.client-ip=74.125.82.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ED8fhov4"
-Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-12db2e415a7so353964c88.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 16 May 2026 11:33:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Og1+yK8Z"
+Received: by mail-dy1-f193.google.com with SMTP id 5a478bee46e88-2ef8d6ba48bso533003eec.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 16 May 2026 21:58:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778956387; x=1779561187; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=XUoL8IfXmhr3FEtdbxmowuhFwjumOfiDBF5o0m3Q710=;
-        b=ED8fhov4gm+uqw4LiMcqJxiPqrnDxx9JsCF0UWf2x58SAHxtZJ+J6JcZPVQcLQvS8d
-         6VgTSAh9KY/1gsko/2+VSfChbFdHeKPHSnYQz2ggy29H+F0bloJlA6xr52TEaN20VaXn
-         jpFLvb2LbBF3AnMCcoW9jm/3TvmQlfEP4rdXx7KiTlpGZ0QWebtCsKxuEJnzSHx4ps8x
-         JFhMGverxpzfy1sVHBxISQyyKjaiIA5dUUSkF0B9VYC6IX4lWEehJ+KpxyqRLvKRXn4g
-         evMXyC3i/EgNkwLujvT8ly0ByVb42Wewg6qZTUqTSFx9FSMxSVgI/yGRsI4NYXyJ0m1D
-         4GWg==
+        d=gmail.com; s=20251104; t=1778993932; x=1779598732; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=68fzEAsJ3Cm+QlWLkcdWbs0tKgQSxg21Abj5S1Q5CD4=;
+        b=Og1+yK8ZkxOWWF00ctxFNMpCThS3KEBKsNV22iCVuBZH02Sb8R2Zqyxi4Bj8L0s8OJ
+         5sXkJ6gRYfYYet/ljJcmY9839/Sosi0FIjW7ZTlnef62wofdAxeuVXQqwh7x9QQL3bgJ
+         /T6axN5SRWh9pkylTJeN+TI+uqzd+iyx4pPFmPv0lleSTzZIFrFJeRE7GQDm44P+OZX0
+         kjkI1OXkLVB1pySGNw6WfSy7f6/Yc1FLM+aEbTU75svEqGtQFNCY21KjVW56djqpn+ep
+         Et2J9pQbQGMD/zYw2AO/1cjeTahyQ1oEkBDhdpUCglGxXMilFKlitH52qtXPRHYxH9+O
+         W/Zw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778956387; x=1779561187;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XUoL8IfXmhr3FEtdbxmowuhFwjumOfiDBF5o0m3Q710=;
-        b=JsvGCZRvtgYAP77FEYK2qKA0pxCYsOLPfgjMqJqzJrsc0Cj8CkHJKA40ZC+jqWNFgl
-         oVGHRQet7ejHDwHtDwqLW3xqP7IrayDfVyhrz+herPRC3z3ChH2fYkVdhzaHAwb1by33
-         WVlnfYg1ly9P27jkHK7uz8tB6qU9cBJuH1wGCU45pfuUmTZqn2Yf6JAj7EGfu0aSAJVf
-         2PKYePqP8s9tLUosoSpifZHZ6ZGfFELAtUTHICT672KWeyX0ENxshAKq34cgmMsvYRAy
-         C0fpQv8K+jaGtQgV0UOYCJMCwpW/8+DWr0NPINLPGLUKbsdCtn4dtjASKjAZjjogGdGP
-         TyyQ==
-X-Gm-Message-State: AOJu0YwQoTv/UEc2EPlowMJ8g3idvLsGfvV/dpoQmLWqSJ/zCAdR90vQ
-	ZdMWmWzjZgEqSAgftWxdFQjMyO2jCgkIkVtByIWfuvOButOfr+F8zkpDLYgJftLh
-X-Gm-Gg: Acq92OHnIG87s2NNpZwfpdXoZc+hsEmRgBLxYuoEUcXoH+eJ+0m8AUapoB4w+oh6oRq
-	S1npanYNQ2IHHYA3/oXpsllQIJoB7fUGwjUp4abome5df2uOE/ZqhyTo5l9y7sTrdUcUPBMykai
-	WhX24pgT8IjuxxuPKPKiM3ZwqNx/eqShrgOLAHmh47vFKR7JLp4ahGrQmP1R2QsYiaIXNeDKRVG
-	BvkYlBfpm+IallcPeq2MPpQ3n/wBoSJlOzPQYqaUkO08lyuRIKTY1Ga1ZGxaSM2XLUvuHF8evpq
-	8RPrsLjyU4SwVLdlnlqOiJq4MKC0vJk7ofrl9Hu3oZJVuxVpQBvm9Tc5paClQFJkVpyynCr5n2g
-	EqE7hNX5xVbkh0e2meCvLAZ1J95HeaRReNB+pSo5lTvmeQsj27oMWKoaeGEMWhQnp4tMy3h775e
-	uO6wSjwv7qSSkwlzF8BagucD7t+QeAYmh8Tm5xksq/42shvMIr72/TVW1L0DiOJvn5klgR6ZAME
-	d4nuYJjyx1om4AUQ6WyZQ==
-X-Received: by 2002:a05:7022:438a:b0:128:cf5c:5356 with SMTP id a92af1059eb24-1350440ab6dmr3721112c88.5.1778956386620;
-        Sat, 16 May 2026 11:33:06 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cc33aac9sm11334943c88.14.2026.05.16.11.33.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 16 May 2026 11:33:06 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <3dfcec0e-3ce9-440b-9377-deba8fa9f2eb@roeck-us.net>
-Date: Sat, 16 May 2026 11:33:05 -0700
+        d=1e100.net; s=20251104; t=1778993932; x=1779598732;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=68fzEAsJ3Cm+QlWLkcdWbs0tKgQSxg21Abj5S1Q5CD4=;
+        b=SlU9XhtSHL2kT30YsNdbZQ1n7VOijh38EVlhLOB+Axvs/qU3FHcsZzSiwwbqFHrD4K
+         sAdtoNROcoXgOxvIjyVD11qgSReah16LdwJSXkEeBjRFh00DcBySRU6xmrrasuG5EOmK
+         riMG6Op91+JkQjAWgbWFj55ISXN0FM5TxxfNcx0ab/QlTo9pJuN1kaCO/3zM9Igi1nrv
+         OTyBi8AXxAadVSjO2Ye/N6BUAI3xgNwthp41MBlFwI7j26x168j8QLNrUjI5eCPAgZ/R
+         d4lCazclmImX7MDp2sFzPAOcLUqOHTzt0jHIwNhpP4MEKxHVaCC9W2b7pAOdlBnS4jpA
+         KINw==
+X-Forwarded-Encrypted: i=1; AFNElJ9ADgPTBlToRiFEqet9DWCsVXxCgo8CFFDPJX47e8FR9m12FGIGkWKQRegual2bHt6kBfr8RKCKKLcaADKmPw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2l1Z03HonUMf8jmcCZaImid3Tvix+c6d616T9lTSysNFZmmtY
+	kh10KRD0IQ5gRwH+x5sf8kHYJ0Zg3nLjxXbstw/z/pFHqW4NlZiYptxndqJOgJnOPdE=
+X-Gm-Gg: Acq92OGoYaoG5/j/JplykN3lyJ5uB/FhL8vWAFovPnMKxbeJ9HZUxe61aZHHjhouE/c
+	/CsWrk9A1SNWtnWzNDQOfTp3oRQfzYQpm6N791Gh7QaMlZndQe7q1o50yWcgT4WYRqm5bUYtezM
+	jCeS21z/gegWfskBPGDAGFYwjuLBRJvcFl3E31tKlVRlcyPY2kr6+vAFM18brH0UMAINF+82iln
+	twI1TQ5aX9uJ5eNfFbPs1uZEniETx41mOWgcgvwuzDntQ9X6jlvfx90IXAGqSSKBGXwsG8lNlpb
+	kzySdQLCw3yol4WOwIqTvFBRCJyHinbirbkytqjihq5Hb2BXr0wTiiIIfkcl+pyNPVKOwR5ckoB
+	LWsXaA8bxPfCNyKsAsJR82h+KN09GcdaH/MDA2K3Tp4Wfan/vjuN3EygZ8rodGfQPmhbtQJxeIf
+	3lf4IL1ecqeaYtMRomQ0bqU6R3nrF0Orp+qiO7MbB/6i85DD010yZ+Jyn7R7sakbsfI90/GlcLt
+	KrdQFobRGaabaBgNGBtcmWMNf7HiOT2hVG9OSlci4bvnT7FzgLyJLehAbmGmhGSiV4ADsKDJ6a3
+	ZAfP32pPa3ibck1SqMXg5XRP8krb
+X-Received: by 2002:a05:7300:a888:b0:2f0:ee2:f6c6 with SMTP id 5a478bee46e88-30262b43a2bmr5609138eec.19.1778993931514;
+        Sat, 16 May 2026 21:58:51 -0700 (PDT)
+Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30293e2e6a9sm10931848eec.2.2026.05.16.21.58.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 16 May 2026 21:58:51 -0700 (PDT)
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] ARM: Move Footbridge-specific header into mach-footbridge
+Date: Sat, 16 May 2026 21:57:39 -0700
+Message-ID: <20260517045804.345657-1-enelsonmoore@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] watchdog: realtek-otto: Change to use regmap API
-To: Sander Vanheule <sander@svanheule.net>, Rustam Adilov
- <adilov@disroot.org>, sashiko@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org, conor+dt@kernel.org,
- devicetree@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-References: <20260509163101.722793-2-adilov@disroot.org>
- <20260509171602.6B74FC2BCB2@smtp.kernel.org>
- <1d8a4fa99fa1af9e41f255ec147a7571@disroot.org>
- <173f0f7d804d3b0f33b6584b8a592d2079c593e9.camel@svanheule.net>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <173f0f7d804d3b0f33b6584b8a592d2079c593e9.camel@svanheule.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 5/15/26 14:10, Sander Vanheule wrote:
-> Adding back Guenter (and Wim) in Cc
-> 
-> On Fri, 2026-05-15 at 20:48 +0000, Rustam Adilov wrote:
->> On 2026-05-09 17:16, sashiko-bot@kernel.org wrote:
->>> Thank you for your contribution! Sashiko AI review found 1 potential
->>> issue(s) to consider:
->>> - [High] Deadlock risk in the atomic restart handler due to regmap's
->>> internal spinlock.
->>> --
->>>
->>> commit a520c8e2203154ba331a6ae28f00daec074e62ee
->>> Author: Rustam Adilov <adilov@disroot.org>
->>>
->>> watchdog: realtek-otto: Change to use regmap API
->>>
->>> This commit converts the realtek-otto watchdog driver to use the regmap API
->>> instead of direct mmio accesses. It replaces direct read/modify/write
->>> sequences with regmap functions and selects REGMAP_MMIO.
->>>
->>>> diff --git a/drivers/watchdog/realtek_otto_wdt.c
->>>> b/drivers/watchdog/realtek_otto_wdt.c
->>>> index 2c30ddd574c59..e5e9cb480f4f9 100644
->>>> --- a/drivers/watchdog/realtek_otto_wdt.c
->>>> +++ b/drivers/watchdog/realtek_otto_wdt.c
->>> [ ... ]
->>>> @@ -199,7 +189,7 @@ static int otto_wdt_restart(struct watchdog_device
->>>> *wdev, unsigned long reboot_m
->>>>   
->>>>   	/* Configure for shortest timeout and wait for reset to occur */
->>>>   	v = FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, reset_mode) |
->>>> OTTO_WDT_CTRL_ENABLE;
->>>> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->>>> +	regmap_write(ctrl->regmap, OTTO_WDT_REG_CTRL, v);
->>>
->>> Could this regmap_write() cause a deadlock during system restart?
->>>
->>> The restart handler is often called during system shutdown or kernel panic
->>> in an atomic context with local interrupts disabled. Since
->>> devm_regmap_init_mmio() configures the regmap to use a spinlock by default,
->>> if a panic occurs while another cpu holds the regmap lock (e.g., during
->>> a ping or timeout update) and that cpu is halted by smp_send_stop(), this
->>> regmap_write() could spin endlessly and prevent the system from rebooting.
->>>
->>> Additionally, on preempt-rt kernels, the regmap spinlock becomes a sleepable
->>> rt_mutex, which could cause a sleeping in atomic context bug when acquired
->>> with interrupts disabled.
->>>
->>>>   	mdelay(3 * otto_wdt_tick_ms(ctrl, 0));
->>>>
->>
->> Hi Sander,
->>
->> I hope it is alright if i CCd you for this as i am not an expert on watchdog
->> stuff.
->> Wonna make sure this issue applies here before i proceed with the suggested
->> solution
->> to add .disable_locking to regmap_config without understanding the
->> consequences of it.
-> 
-> I'm no expert either, but AFAICT using .disable_locking would essentially mean
-> all accesses are only protected by the watchdog subsystem. Which is also the
-> case now, so that would mean feature parity.
-> 
-> I'll leave it up to Guenter to decide if this refactor is worthwhile or not.
-> 
+arch/arm/include/asm/hardware/dec21285.h is specific to the DC21285
+Footbridge chip and should not be in the global ARM include directory.
+Move it into mach-footbridge where it belongs. It was included twice in
+arch/arm/mach-footbridge/common.c; remove one of the includes.
+Also remove the file path from the header (it is bad style and would
+become outdated) and add missing include guards.
 
-I don't mind the refactor, but it must not introduce a regression.
-As Sashiko points out, either regmap needs to be configured with
-.disable_locking set, or regmap can not be used in the restart handler.
+Tested by compiling footbridge_defconfig and netwinder_defconfig,
+modified to additionally enable CONFIG_MTD_DC21285 and
+CONFIG_DEBUG_FOOTBRIDGE_COM1 or CONFIG_DEBUG_DC21285_PORT, respectively
+(these are the only Footbridge-related options not enabled by the
+defconfigs).
 
-Guenter
+Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+---
+This patch depends on my previous patch "ARM: clean up machine-specific
+PCI code and move it into mach-footbridge" because it touches the same
+area of arch/arm/mach-footbridge/dc21285.c.
+
+ MAINTAINERS                                               | 1 -
+ arch/arm/include/debug/dc21285.S                          | 2 +-
+ arch/arm/mach-footbridge/common.c                         | 3 +--
+ arch/arm/mach-footbridge/dc21285-timer.c                  | 2 +-
+ arch/arm/mach-footbridge/dc21285.c                        | 2 +-
+ arch/arm/mach-footbridge/dma-isa.c                        | 2 +-
+ arch/arm/mach-footbridge/ebsa285.c                        | 2 +-
+ .../hardware => mach-footbridge/include/mach}/dec21285.h  | 8 +++++---
+ arch/arm/mach-footbridge/isa-irq.c                        | 2 +-
+ arch/arm/mach-footbridge/isa.c                            | 2 +-
+ arch/arm/mach-footbridge/netwinder-hw.c                   | 2 +-
+ drivers/char/nwflash.c                                    | 2 +-
+ drivers/mtd/maps/dc21285.c                                | 2 +-
+ drivers/tty/serial/21285.c                                | 2 +-
+ drivers/watchdog/wdt285.c                                 | 2 +-
+ 15 files changed, 18 insertions(+), 18 deletions(-)
+ rename arch/arm/{include/asm/hardware => mach-footbridge/include/mach}/dec21285.h (98%)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c2c6d79275c6..37ecfe4bc4e4 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2811,7 +2811,6 @@ M:	Russell King <linux@armlinux.org.uk>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
+ W:	http://www.armlinux.org.uk/
+-F:	arch/arm/include/asm/hardware/dec21285.h
+ F:	arch/arm/mach-footbridge/
+ 
+ ARM/FREESCALE IMX / MXC ARM ARCHITECTURE
+diff --git a/arch/arm/include/debug/dc21285.S b/arch/arm/include/debug/dc21285.S
+index 4ec0e5e31704..c0eb58ba7d7e 100644
+--- a/arch/arm/include/debug/dc21285.S
++++ b/arch/arm/include/debug/dc21285.S
+@@ -7,7 +7,7 @@
+  *  Moved from linux/arch/arm/kernel/debug.S by Ben Dooks
+ */
+ 
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ #include <mach/hardware.h>
+ 	/* For EBSA285 debugging */
+diff --git a/arch/arm/mach-footbridge/common.c b/arch/arm/mach-footbridge/common.c
+index 85c598708c10..d3076bf03875 100644
+--- a/arch/arm/mach-footbridge/common.c
++++ b/arch/arm/mach-footbridge/common.c
+@@ -20,7 +20,6 @@
+ #include <asm/mach-types.h>
+ #include <asm/setup.h>
+ #include <asm/system_misc.h>
+-#include <asm/hardware/dec21285.h>
+ 
+ #include <asm/mach/irq.h>
+ #include <asm/mach/map.h>
+@@ -30,7 +29,7 @@
+ 
+ #include <mach/hardware.h>
+ #include <mach/irqs.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ static int dc21285_get_irq(void)
+ {
+diff --git a/arch/arm/mach-footbridge/dc21285-timer.c b/arch/arm/mach-footbridge/dc21285-timer.c
+index 2908c9ef3c9b..f5d0024783e3 100644
+--- a/arch/arm/mach-footbridge/dc21285-timer.c
++++ b/arch/arm/mach-footbridge/dc21285-timer.c
+@@ -14,7 +14,7 @@
+ 
+ #include <asm/irq.h>
+ 
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/mach/time.h>
+ #include <asm/system_info.h>
+ 
+diff --git a/arch/arm/mach-footbridge/dc21285.c b/arch/arm/mach-footbridge/dc21285.c
+index 5a68b6739ecf..923c808e8ba1 100644
+--- a/arch/arm/mach-footbridge/dc21285.c
++++ b/arch/arm/mach-footbridge/dc21285.c
+@@ -19,7 +19,7 @@
+ 
+ #include <asm/irq.h>
+ #include <asm/mach/pci.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ #include "pci.h"
+ 
+diff --git a/arch/arm/mach-footbridge/dma-isa.c b/arch/arm/mach-footbridge/dma-isa.c
+index 937f5376d5e7..300cdf6ef223 100644
+--- a/arch/arm/mach-footbridge/dma-isa.c
++++ b/arch/arm/mach-footbridge/dma-isa.c
+@@ -19,7 +19,7 @@
+ 
+ #include <asm/dma.h>
+ #include <asm/mach/dma.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ #define ISA_DMA_MASK		0
+ #define ISA_DMA_MODE		1
+diff --git a/arch/arm/mach-footbridge/ebsa285.c b/arch/arm/mach-footbridge/ebsa285.c
+index 1cb7d674bc81..93ab333e3027 100644
+--- a/arch/arm/mach-footbridge/ebsa285.c
++++ b/arch/arm/mach-footbridge/ebsa285.c
+@@ -10,7 +10,7 @@
+ #include <linux/slab.h>
+ #include <linux/leds.h>
+ 
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/mach-types.h>
+ 
+ #include <asm/mach/arch.h>
+diff --git a/arch/arm/include/asm/hardware/dec21285.h b/arch/arm/mach-footbridge/include/mach/dec21285.h
+similarity index 98%
+rename from arch/arm/include/asm/hardware/dec21285.h
+rename to arch/arm/mach-footbridge/include/mach/dec21285.h
+index 894f2a635cbb..35d10e2dcade 100644
+--- a/arch/arm/include/asm/hardware/dec21285.h
++++ b/arch/arm/mach-footbridge/include/mach/dec21285.h
+@@ -1,11 +1,13 @@
+ /* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+- *  arch/arm/include/asm/hardware/dec21285.h
+- *
+  *  Copyright (C) 1998 Russell King
+  *
+  *  DC21285 registers
+  */
++
++#ifndef __MACH_DEC21285_H
++#define __MACH_DEC21285_H
++
+ #define DC21285_PCI_IACK		0x79000000
+ #define DC21285_ARMCSR_BASE		0x42000000
+ #define DC21285_PCI_TYPE_0_CONFIG	0x7b000000
+@@ -135,4 +137,4 @@
+ #define TIMER_CNTL_DIV256	(2 << 2)
+ #define TIMER_CNTL_CNTEXT	(3 << 2)
+ 
+-
++#endif /* __MACH_DEC21285_H */
+diff --git a/arch/arm/mach-footbridge/isa-irq.c b/arch/arm/mach-footbridge/isa-irq.c
+index 842ddb4121ef..f9231e84028d 100644
+--- a/arch/arm/mach-footbridge/isa-irq.c
++++ b/arch/arm/mach-footbridge/isa-irq.c
+@@ -21,7 +21,7 @@
+ #include <asm/mach/irq.h>
+ 
+ #include <mach/hardware.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/irq.h>
+ #include <asm/mach-types.h>
+ 
+diff --git a/arch/arm/mach-footbridge/isa.c b/arch/arm/mach-footbridge/isa.c
+index 84caccddce44..a028920e8f12 100644
+--- a/arch/arm/mach-footbridge/isa.c
++++ b/arch/arm/mach-footbridge/isa.c
+@@ -8,7 +8,7 @@
+ #include <linux/serial_8250.h>
+ 
+ #include <asm/irq.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ #include "common.h"
+ 
+diff --git a/arch/arm/mach-footbridge/netwinder-hw.c b/arch/arm/mach-footbridge/netwinder-hw.c
+index c024eefd4978..bd21c455a495 100644
+--- a/arch/arm/mach-footbridge/netwinder-hw.c
++++ b/arch/arm/mach-footbridge/netwinder-hw.c
+@@ -16,7 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/leds.h>
+ 
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/mach-types.h>
+ #include <asm/setup.h>
+ #include <asm/system_misc.h>
+diff --git a/drivers/char/nwflash.c b/drivers/char/nwflash.c
+index 9f52f0306ef7..21ac9b2df42e 100644
+--- a/drivers/char/nwflash.c
++++ b/drivers/char/nwflash.c
+@@ -29,7 +29,7 @@
+ #include <linux/mutex.h>
+ #include <linux/jiffies.h>
+ 
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/io.h>
+ #include <asm/mach-types.h>
+ #include <linux/uaccess.h>
+diff --git a/drivers/mtd/maps/dc21285.c b/drivers/mtd/maps/dc21285.c
+index 70a3db3ab856..8bcb40489f4f 100644
+--- a/drivers/mtd/maps/dc21285.c
++++ b/drivers/mtd/maps/dc21285.c
+@@ -17,7 +17,7 @@
+ #include <linux/mtd/partitions.h>
+ 
+ #include <asm/io.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <asm/mach-types.h>
+ 
+ 
+diff --git a/drivers/tty/serial/21285.c b/drivers/tty/serial/21285.c
+index 4de0c975ebdc..f20c2092e4a5 100644
+--- a/drivers/tty/serial/21285.c
++++ b/drivers/tty/serial/21285.c
+@@ -18,7 +18,7 @@
+ #include <asm/irq.h>
+ #include <asm/mach-types.h>
+ #include <asm/system_info.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ #include <mach/hardware.h>
+ 
+ #define BAUD_BASE		(mem_fclk_21285/64)
+diff --git a/drivers/watchdog/wdt285.c b/drivers/watchdog/wdt285.c
+index 78681d9f7d53..347cb2892833 100644
+--- a/drivers/watchdog/wdt285.c
++++ b/drivers/watchdog/wdt285.c
+@@ -30,7 +30,7 @@
+ 
+ #include <asm/mach-types.h>
+ #include <asm/system_info.h>
+-#include <asm/hardware/dec21285.h>
++#include <mach/dec21285.h>
+ 
+ /*
+  * Define this to stop the watchdog actually rebooting the machine.
+-- 
+2.43.0
 
