@@ -1,94 +1,102 @@
-Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B8E35BDB2
-	for <linux-watchdog@vger.kernel.org>; Sun, 17 May 2026 10:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D08A3D3482
+	for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 08:00:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779014407; cv=none; b=BOfOKBHSNEehyBf/9A1f5RILqFe0i39wtQozB+2QKimDBWme3T+SMAnSX1IDraJD2i3C9nNU8rPVwQOyYcqMLHFi0CaWhpJzZ4dRD4wtE30QV194kEFOX/WRXgpkEOKjFfNKeznTNLKfYJsCQeCO6MmMlroIr7Yz+HKV9RBlT0w=
+	t=1779091227; cv=none; b=b23GRFnzpHA+OZ7blnz1QGaFRePLty4htN44xI25oxtKfU3yyTUiDC0z0VOYpGKcfgwLi6vypHOT42VLa8/jbDR6YIibzE8lMpuVNNLoJkK10eSsDcON2mkhE86tXrkYEHW3rQPgCipeteNyOBNkqizN9qSYFdpHC12inhsw/A8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779014407; c=relaxed/simple;
-	bh=QVDFICNKk8kg6qirWsiEWP/qhZZeBOs4t3uNbH6t0KM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bBxP/bwud7136m4wQI7JPT4xB/9jmzlKPns7q79hZT48Sc6lA3I6uJLLxPUNIMMBHtV9WB9rz8EoFNt6UUPPNdVj8F/r+hp/IswZFkjmKBYFZSXQRLVFJe3lE2M8lxsRPWqi6AW4C9JliRIy5+7rnZpZ+uOmFlLSwQCOVPr1/SY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=bOglyjIh; arc=none smtp.client-ip=84.16.241.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
+	s=arc-20240116; t=1779091227; c=relaxed/simple;
+	bh=RNiwmJ1TK0PnXYEOtD4RKMW7QVbr2T6DLPPl1qaAN9Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qESs+1EZnqkfTXDFc/ezVRXcufcwpXurJaMVm7hwKBwLSIA0gnl8WX5xuIF+NZktZEQbRd5izKAEsycZzfDhlZ/kkpqDFhL79vTCEYBMzuuupaiG7sPh9gZXmzIrPE99viD47fnzAbTyXFbVdN1sn5fxYu60rsF6+w+OuAbE54Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N4tMEBXQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="bOglyjIh"
-Received: from [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d] (2a02-1812-162d-3d00-c381-7255-a866-916d.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sander@svanheule.net)
-	by polaris.svanheule.net (Postfix) with ESMTPSA id EE06078365D;
-	Sun, 17 May 2026 12:39:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
-	s=mail1707; t=1779014394;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BEYr5XX2z69OBAzGa57bCeR3hxABq7SAzUw126Kb08k=;
-	b=bOglyjIh5JuKZRWMRYcO2D4+Uw7+GWMiLC0bGEG6y6WspgNibTVg/ua5f0bVFl2VLVP8Ko
-	LrZo7k5GqUThsDMKiawWj7PFHPr+IXzSO3mtNrIOFNSkTkxEjWqMujfN5rLF4IV9vGd2EN
-	aivVddLVaeXy1GGZ7xsYvvFY6qMoDN4PRir+VIRMxO8RaNVcdrlSwCjSdxa/DYpH7osAYd
-	7ktBi7g1rvRTrLFvxywSjMoIsrMnjBWuNAsA2Vx/3GprRdf5Do4ozasmijytGPDPCWXp9Q
-	9IgI429UlTDA3zKCIUo8CeHaE98TBy0Icp4lb8JtpJdROVf63R6D08HDKCwONQ==
-Message-ID: <d0b159eefa6bc5abf0d1531acde568396f480500.camel@svanheule.net>
-Subject: Re: [PATCH 3/3] watchdog: realtek-otto: add RTL9607C support
-From: Sander Vanheule <sander@svanheule.net>
-To: sashiko@lists.linux.dev, Rustam Adilov <adilov@disroot.org>, Guenter
- Roeck	 <linux@roeck-us.net>
-Cc: krzk+dt@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, 
-	robh@kernel.org, linux-watchdog@vger.kernel.org
-Date: Sun, 17 May 2026 12:39:52 +0200
-In-Reply-To: <20260509172748.54B33C2BCB2@smtp.kernel.org>
-References: <20260509163101.722793-4-adilov@disroot.org>
-	 <20260509172748.54B33C2BCB2@smtp.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N4tMEBXQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEFF4C2BCB7;
+	Mon, 18 May 2026 08:00:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779091226;
+	bh=RNiwmJ1TK0PnXYEOtD4RKMW7QVbr2T6DLPPl1qaAN9Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=N4tMEBXQci/6LCM3wztN7MW5qz+UYt11CwK/RaVhJJyWHpN9B6WIghQkU79QtxbPS
+	 NbL9knsbtCwrFNAo0II8IjEziG6vBjRFXXItFytd3iMT8kPSKdDOJHgcOZkQLb9XyN
+	 Y99jst/GDNAIaT+nJU/K1J8O5ZFTxb/q/B45Sh8aEf7urtq/fxy5AR7icMq8F8dwvF
+	 GIoda0w7u54oyc6CsZd9M+mle/7e4dfW7aeE6lnRv9zhpoVAnusznJdE0A2Uhk/L/b
+	 0+pn8fwI6X+eLzyJBtcUCR8OiKChajp/5YPHnVd0u5+g7SDdxXqgPLX/egKMFAoejK
+	 WgZ84HRJih5vA==
+Date: Mon, 18 May 2026 09:00:22 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Thierry Reding <treding@nvidia.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	"wim@iguana.be" <wim@iguana.be>
+Subject: Re: Please update watchdog and watchdog-next branch references
+Message-ID: <b229c4dc-7d23-471e-87e5-1bb822f97237@sirena.org.uk>
+References: <d6b1c417-1e3b-4d5f-ad3a-6de1ec23a8f2@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="F8c+oxCvLgPPXQ+o"
+Content-Disposition: inline
+In-Reply-To: <d6b1c417-1e3b-4d5f-ad3a-6de1ec23a8f2@roeck-us.net>
+X-Cookie: She sells cshs by the cshore.
 
-On Sat, 2026-05-09 at 17:27 +0000, sashiko-bot@kernel.org wrote:
-> Also, does the system restart handler sleep in an atomic context?
+
+--F8c+oxCvLgPPXQ+o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, May 10, 2026 at 08:49:25AM -0700, Guenter Roeck wrote:
+
+> watchdog (fixes):
+> 	https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
+> 		branch "watchdog"
 >=20
-> otto_wdt_restart() {
-> [ ... ]
-> 	disable_irq(ctrl->irq_phase1);
-> [ ... ]
-> }
->=20
-> The otto_wdt_restart() function is a system restart handler executed in a=
-n
-> atomic context with local interrupts disabled. Since disable_irq() intern=
-ally
-> invokes synchronize_irq(), which uses wait_event() to wait for executing
-> interrupt handlers to finish, it can sleep.
->=20
-> Calling a sleeping function with local interrupts disabled triggers a ker=
-nel
-> panic, and waiting for an IRQ handler to complete while other CPUs are st=
-opped
-> during a machine restart can result in a hard deadlock. Should this use
-> disable_irq_nosync() instead?
+> watchdog (commit window pull requests):
+> 	https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
+> 		branch "watchdog-next"
 
-I figured if local interrupts are disabled, then we don't need to disable t=
-he
-pretimeout interrupt, since it won't get called (and give confusing warning=
-s).
-However, doing so results in the output of the pretimeout interrupt handler
-being printed when rebooting the system (single-core CPU, both with SMP and
-without), so the interrupt is still getting through.
+I have updated the watchdog tree and added the watchdog-fixes tree from
+today, both with you replacing Wim as the contact.
 
-Am I missing something here? Or is this a false positive?
+Thanks for adding your subsystem tree as a participant of linux-next.  As
+you may know, this is not a judgement of your code.  The purpose of
+linux-next is for integration testing and to lower the impact of
+conflicts between subsystems in the next merge window.
 
+You will need to ensure that the patches/commits in your tree/series have
+been:
+     * submitted under GPL v2 (or later) and include the Contributor's
+        Signed-off-by,
+     * posted to the relevant mailing list,
+     * reviewed by you (or another maintainer of your subsystem tree),
+     * successfully unit tested, and
+     * destined for the current or next Linux merge window.
 
-Best,
-Sander
+Basically, this should be just what you would send to Linus (or ask him
+to fetch).  It is allowed to be rebased if you deem it necessary.
+
+--F8c+oxCvLgPPXQ+o
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmoKxxYACgkQJNaLcl1U
+h9DYtQf/WZM6MgqIiL9JTcqNL4wtNuelrWzTe8+8uj5kCrrcLW0gwYtSomE2mqYv
+2W+f9udJgKiylU0y/F+UpVuF6S8r27yAShtx/lISmZG6Wk+963El5TV2iqFKCd6W
+2Z/7qeM/rFptG2rFsajCBaRKi5Zi3OVbTkl5VvT0lXwZxG3z6ObPJ7bu4D2M7/xp
+pwXs5mgrTQbQtopOeKFgTN4J5YDkVO3HawqQTEtuNxNhNbktaOmdXggB6LhStqtu
+ZXen6WsXk+L3WCV0fbZm6jDzRUp+UlbcqOJXCPEhWW5HiXO1TcFyXNmj+B46o13K
+gVQ25IYFe40oYZvKoWiwGT5nWTvLfA==
+=u0k3
+-----END PGP SIGNATURE-----
+
+--F8c+oxCvLgPPXQ+o--
