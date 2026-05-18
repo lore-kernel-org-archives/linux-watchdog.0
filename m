@@ -1,175 +1,162 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD6F37BE8B
-	for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 21:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779140336; cv=pass; b=Ml1nT2RRqfmQLPZp83cZ2fpsK5rxi2+2EVsoJ+EViKiv7YB9SU4hriCZRM+xxOyQkDi5b+49h/cNMZW76kjjeZuyHczBuDWhkLYqiz5vcQsrJccPzhjuO4Llplfv7LBMvnFzIVqzPFoxshiQw4FPbG+l/hKtqU4oXhCZWtBclFM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779140336; c=relaxed/simple;
-	bh=pNW/aYejClTHOe/GUM7OBh5zmikOgfplrUaLnAuzvrg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fCTQ2LYecEicDf1fpOH2B0D83sdphXEM83pHz3QlFZJLwj5cpDrv9s0NujAmUnZo1m5PE01e+UEmK8/mN3SzVcFVzeXvPoir9OGbeZrEgtn6fgE6thoBxTdeWypa1qVdwH5lH4Hn+xYT/LyuWCCPAcoQsKJ9htDblOFDK/knmRk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r0lP8yRR; arc=pass smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27A323A1A38
+	for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 22:08:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779142114; cv=none; b=GluvGdzmg0AQxBiumecJnzjpuO/HE377c6FQf1lgmEeQ7H06OBB2Qz5bFzZEx8IHZG3fpTFSlQvaOQ+E13ndrzLR91gTu15F+fbjZu5cRGwmOy1qZwLA7k7AEKlclSI1ytehmLdCtOKLZf1Ld6NuiB+fJpB8PVFS32YUOPFsEj8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779142114; c=relaxed/simple;
+	bh=bkTV5Xb/gL3gk0EY/K4D082Y+Ihbg+tpXmPP2JoF8hA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sUgWjpI918BMknLkTKhUEMH7b0MtTQ9bjkZAHRn7hSIv1f50ojreknI9X+8e7CkEy/eyCslSnF0c+fhDwqs0bBk/yHYnzncXBp1i22GtfZT17NI7qkanmZdMATLwIqMv4vhNfJLLjRHEKGTzvHSU5ObkFuMvXuGv8w6z1kNVnEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EuCBM9M4; arc=none smtp.client-ip=74.125.82.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r0lP8yRR"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5a8dc2606a0so3206765e87.2
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 14:38:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779140333; cv=none;
-        d=google.com; s=arc-20240605;
-        b=EyWj2POYf1UtVRItc7E6uK3zueGts2nTdpFMZDFpZtMNKdNO+Q8nAYToGGh1Q1ivxT
-         HL5kuD7jZ4mcihQS42UCqyxVs2rCYayQlOX18RAQauR/tjKddqncpgA8qaSlIhRD0U2A
-         NcwG5SmbWsQdfULkbzewiXPlzUeqSIHOybAHjnIz8V7IW3qAk2JRaGcPQrkZWtwVxBL+
-         H1KnufPSAW/SbwgPGctKn/qqXVRvYNdMNV7pBpSPUat/Dd6b0BQYX3Lwqb0iQ7YkiJl8
-         4p1rLNJuf6Yhhj39HDA5FZYFlXMdjzZRuo7wADBGSUiO2lAW2EYDLeuWI97rbhRqc4jP
-         Q93Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=euGMTDy6+FwGD5XxUGxxeqRVdpXKKopqQh8ghrZGdtc=;
-        fh=zt2hjtFWVrBSbexOnXx/digRN2O0tNSOK4/ceCsrIlE=;
-        b=hp6WosDnA0OW0YB2WKMVcQI1aMl/hUm9vO2/f4zV/Wj5K4NuQf+xzKQEFEPxJQXBnp
-         9BrM55QW5YDZktoQnsuHzFHC9uZBS6trrGZFW/kVXao8SZH3RmaDkNKFrawZvZiDRzHS
-         K8NQ956EasukPaZI7wF7U+DmluKUVrI4S867ZHupVaWMT7TLny7dmgCO3EnUx20qMkRP
-         JJWukDXXtIzMXSuJT/5thpI6GbJQsCbhhhTXsdsu7wa3NskqPGXcWuW54+c2YfqlTXhm
-         M89nZOB4RAgEJWBCepDy970t9UTcQJTWz0Rs7wZiRtBQsAri/6DkC/JlilDmn//76TdH
-         HRDg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EuCBM9M4"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2f7ca62a3c4so2722535eec.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 15:08:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779140333; x=1779745133; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=euGMTDy6+FwGD5XxUGxxeqRVdpXKKopqQh8ghrZGdtc=;
-        b=r0lP8yRRi3bMCZCzR3M8toGzRjAaHSBORRh1CIyfKQIxyPLK7owzVEvHdBL5JRqqVk
-         o9MPM+k4g3jG+yVRbAxq7D+EhZK/j4ByMPFiF5hhA0hsJ4pDZUbcLgjjfCBEpkFRs4Lo
-         UU1X77Kzx9RSPbWk1FfNOVkZlQKhdtrdiBROpFceSCHonJc24FZ8hS72Xb4lKRjfChQQ
-         lBhM48dr6AWDO2W+EBsQuq659RvLtZktZJrRqB4+KJwqAgcmXKR18H1TWg6OiCPXBWha
-         5iLKzATQ1Ww4tdwU4vWxJAV0+hoI1mmEyrf6Fxb5MtG8olchTNA0UWfwCTFfL7C/ntcS
-         DbBA==
+        d=gmail.com; s=20251104; t=1779142112; x=1779746912; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=DmfUMvPkI43A3UKC7Mf/+0fidnRkZYl9Sq9EgnB7HM0=;
+        b=EuCBM9M4goN7Lq7Z3/x4J5oe+yf9zoJZtkS64CVVCwdA2WwGAtymILKfYVb63tHs2J
+         0FlXpIeN4sEuW5JXVuEM7428wDT/X+BgWHeQz3ZFJTdAlVuQGvPJKvDdQdxQqdCA07nm
+         9Cw0xvgMGL89AFp92qUThHATiH9IIs9ZynG7UEsIiRlpbcaHmKDnYsZDKywrQfwfm7yU
+         EDmKRJHfhCSuWcmnGsSsPMlxBmxZsUnSbBi2Q93T6dYx4DDYmS6qtW88UgjOqXed3auA
+         M5TOViKyKQFFj6Ue0Hj8tTgxNqsbhEIuZmF4+poC+v6b6ofzRit1jZR0fTw7lEJVDEqO
+         8l/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779140333; x=1779745133;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=euGMTDy6+FwGD5XxUGxxeqRVdpXKKopqQh8ghrZGdtc=;
-        b=hwr0Eq2+okJQAb2xnQTDoJS4d/l4Dm7G3BfKWLJQNO214L7gDfZ6HiP5H7HYaeicZI
-         SZyf1cZ1p6QOO9heWUX771kcvE974TJLi66GzZbEFN152XViUTwFCw9gFOC8bfdEq9Zr
-         g0yOewtzoCzaO/ylbiuSJDlVT9BY6xHXWYaO8eBstWGbCZnv1CugKqpitoBWQj68GNth
-         2vYmph4QE3mvXKu2lzq2OaIWkvcCb9Ut5mScQyhpa5IwfulSfMjmhX3CjMnzCmMMXuDY
-         ap2g6QdPRO50W2YAiYy9DVljCUw2reSzhgXGAqZD8ux1J7C0cZxH538VEbwchsKuhWl2
-         QFEQ==
-X-Gm-Message-State: AOJu0YwCmMQvC7DjM1ieu6cjQg/2Ij6qN+04IXSqGHHRE1Cx88Q9cjq5
-	WynnBtZmX9fcYDs6WE5kZlhLTgZhfVTbia505/zLarRyq6mga5WQHokSwk6M/xTaIbZb63LqQUe
-	3nz8TMSiiW5iI9UWOoIaT3Y/hyMtt5St9ynlksLs=
-X-Gm-Gg: Acq92OFuK23SNUdtzFbh/I9HELhcqRhPuuegebk2QAYIS3dLuyq1pdEqAw8MXk3SRzO
-	Ndy+JSagzML3KOsoXCFjt7j/CW2PgQ4NLj3x6uDiLYkEZHUAxM5jzOWaamD/33zK1Sz+wZvOrps
-	1Qcz177gzJVgH8E3KMw2x+iCCfIgXWTeluVvgWH6OCafniPxdIAZ/tl+KFNG8gF8TPeOjV2HkHy
-	2bqpBBu7ARkG1tMJGMr3pFF0Ty2TuBQnoUaOLYoEzlaJzwBa5nvBf5zjOcTmRfSKOr6tcs5PYIW
-	A+KduKOdovp59h06u9/bmQ5CZg5nGjywhB/6++F9NmG/3lJNvQims/TdGCdc7gYtT2Nkq1BtFhH
-	N1IidYzidpEg+SWXvOLbuK/i+GQhZP0kLgthYOL65st48Sj7jYe8/1Wb66w==
-X-Received: by 2002:a05:6512:159f:b0:5a8:891f:388 with SMTP id
- 2adb3069b0e04-5aa0e73e985mr4841694e87.29.1779140332773; Mon, 18 May 2026
- 14:38:52 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779142112; x=1779746912;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DmfUMvPkI43A3UKC7Mf/+0fidnRkZYl9Sq9EgnB7HM0=;
+        b=rqCPlsMJY3hxd3rdPws/K2Njp2DJteEHi2oGFCbcEZi3ZJdzQi+agd4OTSWEi+Sck4
+         E2s6ASkjK1Nv/bhBDx9BEm2eN5zZoNfp927/6cBGK2CcZiudgu1it+/s646mgLsD+InB
+         rG8dcMANheABH9OYSQuuzW9B12Aks7F82zxUuvTgQknDoLjPlHma5gcswPfNkpVEH7Rl
+         YHDf4VknUTzx7qgcdE1sZ/Qr0vbHn420Pu3Xm8wc37J6zcLttX6ZpXLv6j60tH1KS9rf
+         3ib8QtQzDpYTUHvtHtYQz1JE8aZVkcH8X5Gfql55ClMa2k/NrQMwSpsUgHNqeKJeL85E
+         keZw==
+X-Forwarded-Encrypted: i=1; AFNElJ9tFtx9l0IpVDCfa1Bdr2jB5iMoWDIlxt+kGyVYmG3zRrMYMO4Vxy1/bXRPl/J7v0kc3K8Zi8fqikrBj1Wr7A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQ0Vg00RZtPSTGmedD3RUXwi5GD/gDGj2QCc6xvSGrixeqwxFV
+	SYqcfnyt8OTUpN7JHblc9dVFSqY7C+neyugKLrMEu4os+fQqRRS69r1w
+X-Gm-Gg: Acq92OFyhFSBZQJ3olFGTY3uBWvHrd7LdImWsMU99FM4oP9hE1qveSiduVE7vd8ycMp
+	twlemWnmegrxqeBYWMPSiHvTyndlTGjNZI1nd6/4MKjdfqn82ks+UKBBOQc5+ZM0EFMCCj0/Ppf
+	mh6JyXyEmZ6HPNCrXNzDRPw3sHG0vsz9J3SxxehcFsBAYTb6px1b1hA1k7Z36tLDI/bLG7nCN7v
+	EaR7/dT3pX+8jadmELH8916FAwc3dKGM72od9dC9JO9BJexQltHNzXjMxi2FG1IqRvvJIrW6jGs
+	rx3nMktcxdxizIPTmco/kZw8R7T4vcVE26AFDS47S+5mc/KaREYGKBLcmJsFHQk9h+fOVidcCwR
+	ZyUcLFvfe03wIfcLV9tLVHMkfBLGHhywwmfLYeMoweTNBhAZxE7x+Ife0EJjm7qgHCRQhcdRIFm
+	7oTDCFZ6XhBgtPfW8hyxyVvC3/JgMdfBjddKeXpYL41ADLb8a4b/4QgCliSpVMHgXEt+tFWCls
+X-Received: by 2002:a05:7301:7c12:b0:2ed:e14:7f57 with SMTP id 5a478bee46e88-303986c651cmr8587486eec.33.1779142112232;
+        Mon, 18 May 2026 15:08:32 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30294adddaasm14705751eec.13.2026.05.18.15.08.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 May 2026 15:08:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <b53c175d-04d1-420e-b9f9-e191851b4950@roeck-us.net>
+Date: Mon, 18 May 2026 15:08:30 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518210957.10545-1-rosenp@gmail.com> <20260518211925.A24FDC2BCB7@smtp.kernel.org>
-In-Reply-To: <20260518211925.A24FDC2BCB7@smtp.kernel.org>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Mon, 18 May 2026 14:38:40 -0700
-X-Gm-Features: AVHnY4JxHyvIhyT3-GXyQNQ7qtL3R-Vt6nEkpFJolQTPixllWzj9q7mU0PPN1UU
-Message-ID: <CAKxU2N_ErLkFgvpCCexcvaGbzozdSV4y5w3ER+DaEgFLC-hPsw@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: ath79_wdt: select OF and COMPILE_TEST
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: Please update watchdog and watchdog-next branch references
+To: Mark Brown <broonie@kernel.org>
+Cc: Thierry Reding <treding@nvidia.com>,
+ "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, "wim@iguana.be" <wim@iguana.be>
+References: <d6b1c417-1e3b-4d5f-ad3a-6de1ec23a8f2@roeck-us.net>
+ <b229c4dc-7d23-471e-87e5-1bb822f97237@sirena.org.uk>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <b229c4dc-7d23-471e-87e5-1bb822f97237@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 18, 2026 at 2:19=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 2 potential issu=
-e(s) to consider:
-> - [High] Permanent failure of deferred probing and device re-binding due =
-to uncleared global `wdt_base` pointer on error paths.
-> - [Medium] Mismatch between Kconfig changes and commit message regarding =
-OF dependency.
-> --
->
-> commit 279311df3b831cb8a967974beeea1a51baecd0ac
-> Author: Rosen Penev <rosenp@gmail.com>
->
-> watchdog: ath79_wdt: select OF and COMPILE_TEST
->
-> This has always been an OF driver. Select OF in Kconfig.
->
-> Add COMPILE_TEST for all platforms, not just ARM.
->
-> > watchdog: ath79_wdt: select OF and COMPILE_TEST
-> >
-> > This has always been an OF driver. Select OF in Kconfig.
->
-> There is a discrepancy between the commit message and the implemented cod=
-e.
-> The commit message states it will "select OF", but the patch implements
-> "depends on OF". Could the commit message be updated to match the
-> implementation?
-Yeah probably.
->
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index dc78729ba2a5d..1590f82941ba8 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> > @@ -1811,7 +1811,8 @@ config M54xx_WATCHDOG
-> >
-> >  config ATH79_WDT
-> >       tristate "Atheros AR71XX/AR724X/AR913X hardware watchdog"
-> > -     depends on ATH79 || (ARM && COMPILE_TEST)
-> > +     depends on ATH79 || COMPILE_TEST
-> > +     depends on OF
->
-> [ ... ]
->
-> While reviewing this patch, I noticed an existing issue in the probe
-> function's error handling. The driver uses a global pointer to enforce a
-> singleton instance:
-Yes, this is an ancient driver that needs to be migrated to
-watchdog_device. This is not relevant to COMPILE_TEST though.
->
-> drivers/watchdog/ath79_wdt.c:ath79_wdt_probe() {
->     ...
->         if (wdt_base)
->                 return -EBUSY;
->
->         wdt_base =3D devm_platform_ioremap_resource(pdev, 0);
->         if (IS_ERR(wdt_base))
->                 return PTR_ERR(wdt_base);
->
->         wdt_clk =3D devm_clk_get_enabled(&pdev->dev, "wdt");
->         if (IS_ERR(wdt_clk))
->                 return PTR_ERR(wdt_clk);
->     ...
-> }
->
-> If devm_platform_ioremap_resource() returns an error pointer, or if a
-> later step like devm_clk_get_enabled() returns -EPROBE_DEFER, the global
-> wdt_base pointer is never cleared.
->
-> Does this permanently break deferred probing and device re-binding? On a
-> second probe attempt, the uncleared wdt_base pointer would still evaluate
-> to true, causing the probe to immediately fail with -EBUSY.
->
-> Similarly, since ath79_wdt_remove() does not clear wdt_base, will unloadi=
-ng
-> and reloading the driver also fail?
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518210957.10=
-545-1-rosenp@gmail.com?part=3D1
+On 5/18/26 01:00, Mark Brown wrote:
+> On Sun, May 10, 2026 at 08:49:25AM -0700, Guenter Roeck wrote:
+> 
+>> watchdog (fixes):
+>> 	https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
+>> 		branch "watchdog"
+>>
+>> watchdog (commit window pull requests):
+>> 	https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
+>> 		branch "watchdog-next"
+> 
+> I have updated the watchdog tree and added the watchdog-fixes tree from
+> today, both with you replacing Wim as the contact.
+> 
+> Thanks for adding your subsystem tree as a participant of linux-next.  As
+> you may know, this is not a judgement of your code.  The purpose of
+> linux-next is for integration testing and to lower the impact of
+> conflicts between subsystems in the next merge window.
+> 
+> You will need to ensure that the patches/commits in your tree/series have
+> been:
+>       * submitted under GPL v2 (or later) and include the Contributor's
+>          Signed-off-by,
+>       * posted to the relevant mailing list,
+>       * reviewed by you (or another maintainer of your subsystem tree),
+>       * successfully unit tested, and
+>       * destined for the current or next Linux merge window.
+> 
+> Basically, this should be just what you would send to Linus (or ask him
+> to fetch).  It is allowed to be rebased if you deem it necessary.
+
+Thanks a lot!
+
+Guenter
+
