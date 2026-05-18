@@ -1,125 +1,129 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EC3B383C86
-	for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 17:19:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C701C38B7C4
+	for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 21:10:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779124752; cv=none; b=GWEG0ynn47tKTJNbMUbRk+pISysHniu66i0zbCaGHAT/tWSYvjxhrOdgQcuqMzbZSrEheHjq4r9PuKr4CwTM8DkOM/yQwkRJ6ntPS/Zwj41yAaBMeDdoxhNXruNWmP4mVlBGRjNhfoA2ZgXZOQOk6nqQaF83Psz08eGoYDq33jY=
+	t=1779138616; cv=none; b=S/ilWjCaXqiM5lyy0ZqseMtlZFslvTZQZbuckJ8IZX1atsmb4q1dPMVgTFnTcLB2u++DgyWMCzJxaOXp3tgn/fDhQCDTXAcbLp0NjaMFIPJ4yGl2AIp79jcjk0Vxv9YxRfPL0ehUMa4/3rqHQtjfl9T0z0gJWPzbbBFdYEgO2io=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779124752; c=relaxed/simple;
-	bh=hithE2VT3aXR7oGnU1Emj2CEQElJ9Gbcfa45yUo+Rac=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WRFh7FK4XtBFQurH5cFOnBfQ6R5bxm6ltXizhN7+Smcr603rJ94Y1FjLjFAts4Apo8wiQF18lfHIZBCFPD0iza082m++CuPqE+eELYDo53xQEkTsxblnnyl/edVIoWDnJLUtXKbMP5BpSftcgR2VGDi17E8/tCnQikWt3mu2HM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=lRRwCqTr; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779138616; c=relaxed/simple;
+	bh=b7hZEdF9gGm5SUGjirtVoYQHtnJkko9xW3itleM/3Xc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qGAJF1nQ/uf6g3XyRnwDYo+GzqxE4Obvppmf7wpS9Ztg2r284cGFwhIT3G/1Ey8wmdMlfz6RmswzIQD/lDrLTdwXrwswQkFxEeh+TR+HszJ6fpgAxTrPsKXpQq49fJPuyAN8y6/k38MBUYkzpI8YA3TSTLfrp8bE+72sjVx1s14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r99czIOy; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="lRRwCqTr"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-45e7c636e74so948683f8f.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 10:19:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r99czIOy"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c801b30188dso1270928a12.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2026 14:10:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1779124749; x=1779729549; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779138615; x=1779743415; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=oJujmn9EEMC6CITis34UWwsyeBlzEQxUFfAce8SId3g=;
-        b=lRRwCqTr53o5aYsUf7PBshO4LX2Gv71lK+8wxPNDma1U2s+t+4e7E8QJ6qhb1D7Ien
-         xTTW3VU+LkXhEsiDRoA614ojmioc/brgdesJZQnnHW5lhr1Rqc3jRgdmo8pB/ESJTccZ
-         KQEyHCo9yQxa1VTlIPbcJBo/nX9MgfwJ3vAb8VxFZ0k0CGHtG7wEK8tOMNdQnkuCQRjc
-         6K/ysK1R/OfX/tMU+twuZsY2XtMzee+AXlPAsrzetpFrhbd9TwaECHywPnLKyzjCBCCX
-         70Xkfc9XOSRaNHysR9uoxdWBviHFiY7Jl04jqXC0rLg8eqb1KzPM22No6ouuAB2jZR+x
-         G6Cw==
+        bh=yLbBePjPrv6qNDD1/f9ZKyQ/SjpAXnBSe6vKkphP87A=;
+        b=r99czIOyve+HCGzT2HB1fxk3DnfPSZ919GMq+sdx7NGXBhaRPqDaLFEyX+w9CqYr1K
+         HO9tCSV5IHT3M4IMIxccPOxdxMSs7dnSL0TUtqATDgZlRYMxFVEN82RpkPk0h64/qkmX
+         0Oszo9WnmZgX7ATVe4k1rDL4ewx0c8t9EugfbkPGg+rwVMaRwnyFaUFeenDslKD1JXCy
+         x21FTHi2QpLtDpckVQgIhk5p+nLJ4sYKuwLQkrpMc4Slpa0zOzNLIPpYU2l/qUGJPF1V
+         u6SHXsZ7rlf3ra6bnZlFjWTbuhvuft5i6yx4Zarc0RSVsakKdJcNeF9eLAZt7RCq9H+x
+         11Zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779124749; x=1779729549;
+        d=1e100.net; s=20251104; t=1779138615; x=1779743415;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oJujmn9EEMC6CITis34UWwsyeBlzEQxUFfAce8SId3g=;
-        b=SOaQuINvI/lz3URSeTwWvdaW3N4Gl8UfCg6E+BpcKKooWETcF27uRBjncPgnKgb5SH
-         WSam+Rp6oM9NQbr71JREBCoozb50lUNJE/uL0108fRxml9KN4D4QoDz2k/ZJL/xC4yo3
-         kfLLaTBKB0C7U3AROfjevwe+qMq4yfkqOqdMsY00Xkr/GUfxF//JzocC5QMEXKj7WLAV
-         2KaOFBym2jiObysbDIcq8molzgJ83r5QHMGQX7AlU7I42hZWrtp494iTBjROeyoQ3GJ8
-         35F0A8BE8EvB3zFzUtMZZ5UDrGwmpTHDuwbPXhMzCapaoM7pmOUlfyq2fZWwL64uwUUl
-         /NYg==
-X-Gm-Message-State: AOJu0YxP/Lq0Rck51SKFh//vme9iSbD1Za73PjG5y+bwIfKExctKYiT/
-	LxIbZXLqK0DjJwfi0ePArgabFJ6JeMNrlwEYEK9cXemE16HvxqS4TA85hJxeaG94mTk=
-X-Gm-Gg: Acq92OG3ZI/ZZBjL+IgXbZMp4OXLFcIRZfvT+eLsdyCP6uSEWFRw1q0IQrebpnnZBwr
-	dXf5hDgk+BbpPpBWb7JL7bJLWl1PYBHr3L22igalqIsFSpziZ7KiNQ1l3Z3Lisgwv7uqb9IHp7E
-	rpYm1+A5vwCLxDZ/IXKk7jSadx1uG6l0h3ipnvBCVVOnFK5hBvaZHxkmSX/Fqz9mEs20979tCO5
-	p17lFBMJ3Hg73Ubo/W0e+7So3nBKt7eOhnlvCWRt3MLu2pwHsA9Am4k/9RjToEZ/i+IGrFRi6Wm
-	BorcpWCbJu390s9Yi+UAqYDNfDxdwv4ynIBki5GDKqzaes5UUVwMJ6Gkok60iuQ41V4WP63TMft
-	9/SzGL3FITSsLQmy6ZjqQOA3ImDHeiJF4pUqKNvuqS9HHbAORfZjuMEGuRgtBUg2fzCJp6BIHbn
-	fslby7HaxeZi6X1sEEVBvexW+kh/B0TBe+s90y+N5OK6tex6uVGAGQUIlEsj1f+l6bNk/TrXoOm
-	rjhkxpuuOB75g==
-X-Received: by 2002:a05:6000:2503:b0:452:65d:e108 with SMTP id ffacd0b85a97d-45e5c5a5e99mr25479869f8f.3.1779124749553;
-        Mon, 18 May 2026 10:19:09 -0700 (PDT)
-Received: from localhost (p200300f65f47db041bee4d0e08e9609b.dip0.t-ipconnect.de. [2003:f6:5f47:db04:1bee:4d0e:8e9:609b])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45da0a17ec2sm35933378f8f.24.2026.05.18.10.19.08
+        bh=yLbBePjPrv6qNDD1/f9ZKyQ/SjpAXnBSe6vKkphP87A=;
+        b=CQN6bfzgbZyyjnexmaDz5Gjhajk7DE8K/4JnZ25rHkmrsjJb+8IN90nK3f12xAztHe
+         TdeXwqcXM1DmTGPLaFtREB9FgCqsoJiSHRWRYtJ/Ilj6vG8xqfnMKw5x6d6YW3zSYFyl
+         R2m7mz5AiIgKUjHzvsb/eM4X+idhAeGVRYrnml7OFo081tETlIQp3d47WOl8NuBldAFx
+         SWybL76qEcY4b2agJcWRxUoEWWsS/x5vjfdK7qklpSAb9r13zuSz1trxGTF+wBiPpi28
+         GHJtCtty4ZtulKcPjzZ0AWxYfHwZBa31x6us5qzICTP93hCwQWiVh0nh6s8H4VQbf8ez
+         NEKg==
+X-Gm-Message-State: AOJu0Yxx2o2Uxp0ab9WHkq3LYP+sKhozd5aeTkPTcb944j6H2Q3PsqMh
+	xtKJkYaZTvQ0BaMosUyxmjTbStGbmAsblDsZq0fkQk0VluJwhxrFHn05t1W6GUnq
+X-Gm-Gg: Acq92OGwomebI+3kwiyMo2BkMIp7QzEbqSs6LqlaLFSghiuD7OFjj9/mol7BnRAefqO
+	blvkfbiX5ZNYqtrjsuIDD33/XIcnD18kR2apghw+rIbQfAEv5VuQdIZSokmnC83q//I8w62sr5A
+	XpsoTR38qwS60HS2I+AN/kBERR5PGYgGN+oN1hkSYazoAA0lfKQttmASpA4TS9RU3HWD9RXbCzN
+	8NbKGLTGX6jGsCtqH9EMOkk5yOAs14raIxNnjFqX5ADA0syWhfY2DHFn1///gU5177dRvLreMbf
+	Kj7ejTZtrL/mFXSLq3+EitUjYwXjOzj00UMtOUsfwJU6+miA2X4qSI57aK56rAQwWqWop0dvGM2
+	QNK+fisAkrIrxdoLqVFKr4xcZRwqoF8OMbhNrMN/qV4rxqnI0Avdb6ELWlFo9cB5+lrcG2T3HxM
+	/BOIclqk1/2T8+OkXUDj7EqdLq7rgr/zxZP2NfBKYQ2fEaD+oZKgdxlbLy8YS5S12wU7Tgrjj30
+	Dof5j5ZfC1vHQgRHZ7X4pLbHjkMr6F+Fj0=
+X-Received: by 2002:a17:902:da90:b0:2ba:6ebe:4897 with SMTP id d9443c01a7336-2bd7e8ae0afmr194708835ad.3.1779138614785;
+        Mon, 18 May 2026 14:10:14 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5d0f8efesm165637945ad.55.2026.05.18.14.10.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 10:19:09 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1] watchdog: ziirave_wdt: Use named initializers for struct i2c_device_id
-Date: Mon, 18 May 2026 19:19:01 +0200
-Message-ID: <20260518171901.904094-2-u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
+        Mon, 18 May 2026 14:10:14 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] watchdog: ath79_wdt: select OF and COMPILE_TEST
+Date: Mon, 18 May 2026 14:09:57 -0700
+Message-ID: <20260518210957.10545-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1577; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=hithE2VT3aXR7oGnU1Emj2CEQElJ9Gbcfa45yUo+Rac=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqC0oGFCcOEqGhTwbURFpQ5azjYrjUKr9PxchPX Xk7UmEvKV6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCagtKBgAKCRCPgPtYfRL+ TpGPCACKWF8ij7cl5Olma9IG7EasNru2kks++HbnCsAboqrxTueNkdHQobN0U0y62IO4fN6bcv9 SaoS8wNGGJOr9BNnT8XkbzlcR9cV4P5YmrE525FMRmT41wjK6pBDdnXGeGU5oci4AtoV4aXqzJW nEfjqYY/glI2MzwnZUlZzeMPHRUP2CG4mOn1Yagsa026X75Dyq0dTcbSvbFWwp5J+s60ghaUdxk Uy0Ug1Nbz4u7eu1zIyy8atp/iLYLjQDIoSQjTWauWwUxWkwr7jJA3KgVRUEcI/3VoH/QpIywEJ+ 76aL63G1pvAAnFAEDSGWV6RKun7QK+0C1/EMeJRTJNOzmiqt
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 
-While being less compact, using named initializers allows to more easily
-see which members of the structs are assigned which value without having
-to lookup the declaration of the struct. And it's also more robust
-against changes to the struct definition.
+This has always been an OF driver. Select OF in Kconfig.
 
-This patch doesn't modify the compiled arrays, only their representation
-in source form benefits. The former was confirmed with x86 and arm64
-builds.
+Add COMPILE_TEST for all platforms, not just ARM.
 
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
 ---
-Hello,
+ drivers/watchdog/Kconfig     | 3 ++-
+ drivers/watchdog/ath79_wdt.c | 4 +---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-this patch is part of a bigger quest to use named initializers for
-mainly struct i2c_device_id::driver_data to be able to modify
-i2c_device_id. See e.g.
-https://lore.kernel.org/all/20260518111203.639603-2-u.kleine-koenig@baylibre.com/
-for the details.
-
-This patch here isn't critical for this quest, as no driver makes use of
-.driver_data, so apart from the better readability this is only about
-consistency with other subsystems.
-
-Best regards
-Uwe
-
- drivers/watchdog/ziirave_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-index 5c6e3fa001d8..f3bb935c08c2 100644
---- a/drivers/watchdog/ziirave_wdt.c
-+++ b/drivers/watchdog/ziirave_wdt.c
-@@ -718,7 +718,7 @@ static void ziirave_wdt_remove(struct i2c_client *client)
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 08cb8612d41f..8319c503319a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1785,7 +1785,8 @@ config M54xx_WATCHDOG
+ 
+ config ATH79_WDT
+ 	tristate "Atheros AR71XX/AR724X/AR913X hardware watchdog"
+-	depends on ATH79 || (ARM && COMPILE_TEST)
++	depends on ATH79 || COMPILE_TEST
++	depends on OF
+ 	help
+ 	  Hardware driver for the built-in watchdog timer on the Atheros
+ 	  AR71XX/AR724X/AR913X SoCs.
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index 7df703e9852a..409a40b14901 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -295,13 +295,11 @@ static void ath79_wdt_shutdown(struct platform_device *pdev)
+ 	ath79_wdt_disable();
  }
  
- static const struct i2c_device_id ziirave_wdt_id[] = {
--	{ "rave-wdt" },
-+	{ .name = "rave-wdt" },
- 	{ }
+-#ifdef CONFIG_OF
+ static const struct of_device_id ath79_wdt_match[] = {
+ 	{ .compatible = "qca,ar7130-wdt" },
+ 	{},
  };
- MODULE_DEVICE_TABLE(i2c, ziirave_wdt_id);
-
-base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+ MODULE_DEVICE_TABLE(of, ath79_wdt_match);
+-#endif
+ 
+ static struct platform_driver ath79_wdt_driver = {
+ 	.probe		= ath79_wdt_probe,
+@@ -309,7 +307,7 @@ static struct platform_driver ath79_wdt_driver = {
+ 	.shutdown	= ath79_wdt_shutdown,
+ 	.driver		= {
+ 		.name	= DRIVER_NAME,
+-		.of_match_table = of_match_ptr(ath79_wdt_match),
++		.of_match_table = ath79_wdt_match,
+ 	},
+ };
+ 
 -- 
-2.47.3
+2.54.0
 
