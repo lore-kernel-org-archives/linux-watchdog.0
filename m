@@ -1,199 +1,73 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B592B31B100;
-	Tue, 19 May 2026 18:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D80D3009D6;
+	Tue, 19 May 2026 18:24:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779214325; cv=none; b=HXH8rKIxx3Pj7t9MgMErwVC6COyimG/Q1XuQXPztO+C2r+bTjIAMedXiqf7YrJkeJFuLExVueV8F7PJSVs9UEkAThO41oPKNHRC5OyrIjzBjmn6bw2/2fELHYUv8ZxioWeAE4P0hrlh7gRY2FMvr64CsV3I+1xJJGRUgQYvJntw=
+	t=1779215066; cv=none; b=sW2NVi6og2QD5u7klZ1+TW/obOSWQxRiNa6/1gxl7Gkt4CGyDKS1JPaTb5EPnYZ2ExzJU7XEps+iTycYBJpy0J9cbzpZzqDTs8lvNFCPmNXnSv80VmpIMZVS9b6479pJj8ZQ38Uni18C0/kNEukyqkHn10YdfxZRnI49zRBjVkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779214325; c=relaxed/simple;
-	bh=sKezS3aMyFa7kMp1RR5iRKhMM+cLGVkG6KjGoWHS15k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ayvXocy9h5Ohf7dMEY+wYVhwMBO3EbVpBmCfVIWr2TSKjKTdoA1Ho6QiwOXjJ/Eh984gjqH75WSDDt5euSzHw+lYInYxpc0OoUZJljShHtQu5FmAPuBfJ/h+kr1jJi3xgz9XlXyVBR0P1Z0XyQDx8DWdoYEPvWyn/G/3HViZfOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LOFdRqKR; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1779215066; c=relaxed/simple;
+	bh=c/O+6xmDdzXC5tKkDhyfsSmom/E5OyM2XwhkahPR0MU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GebR2wtbH9DxaFFS1/bWj2hUanONj0yViy8rebPE+aAIKkcUqOwUM/jdqXqxPG2KmC8RbNgChhjEzkAWjQKYXuff+ozbsQDjcm7qxDIsiYqz1EbyVTh1meqO4LPEX3WGogXR2CsGl9GvyQe4KJ9+QwV5G6ywhqFBHrI7KgjlFzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=JmoC6SKi; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LOFdRqKR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779214323; x=1810750323;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=sKezS3aMyFa7kMp1RR5iRKhMM+cLGVkG6KjGoWHS15k=;
-  b=LOFdRqKROFPmNZNVnXDyPQ8tuvi2uHQLgHgW6cSKPtEL0FCqy90nK0nm
-   UNHbMYXFmc1uXv7nQTWchMoGgw6JYL94bTGwk5t3i5d2LtRPhBJJLHkcm
-   fo6ohjgxUTtYLzQ5OMm0n3g3mdFnR9fbXATAEWZOioTajWbIKe8TfaxzS
-   pX8KvQMtkS9z3lggThnPl6TSirksm1tswkX2BRilaYfbclZV+f/09iNRg
-   hByplE5oZaRJMuLn53KWodDiqHw/Fj4R59g+KnGGXvw3aUIoFMzUOYHzO
-   kkrZ/3BKSERX2oo2nRDSVeO+2K0xgaPYDi9W6kd5mzJ6pqhIpky/XlujM
-   g==;
-X-CSE-ConnectionGUID: K8GudIqqTISfZuV7JEi9AA==
-X-CSE-MsgGUID: wm/PGplcSheLaF1NtWs1PA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11791"; a="90403645"
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="90403645"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2026 11:12:03 -0700
-X-CSE-ConnectionGUID: 4eauY5zCRcu+2uMVCr3Z+g==
-X-CSE-MsgGUID: Kv5eaKL/TdGL6j+sKDb7xw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="241682443"
-Received: from lkp-server02.sh.intel.com (HELO 30e86e9c1927) ([10.239.97.151])
-  by fmviesa004.fm.intel.com with ESMTP; 19 May 2026 11:12:01 -0700
-Received: from kbuild by 30e86e9c1927 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wPOuk-000000001e7-0iu3;
-	Tue, 19 May 2026 18:11:39 +0000
-Date: Wed, 20 May 2026 02:08:12 +0800
-From: kernel test robot <lkp@intel.com>
-To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: ath79_wdt: select OF and COMPILE_TEST
-Message-ID: <202605200244.R8jDfTUk-lkp@intel.com>
-References: <20260518210957.10545-1-rosenp@gmail.com>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="JmoC6SKi"
+Received: from mail01.disroot.lan (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id 312EC2720D;
+	Tue, 19 May 2026 20:24:22 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id X7rN0qgcdktE; Tue, 19 May 2026 20:24:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1779215061; bh=c/O+6xmDdzXC5tKkDhyfsSmom/E5OyM2XwhkahPR0MU=;
+	h=From:To:Cc:Subject:Date;
+	b=JmoC6SKixicXE8JjGjKKapkXjecdMoqSXIQwapyOVKXe4aSFFqMCCV+t/t3454eJW
+	 h4TUUBGTZ6RDmcLmgWTEnmEA/F5JwQa25yrVZj0Qayyul5HEogsIRLiiEmALuSEk+R
+	 TohNYeDBsK0v3yxl7VIS3FZNuuUE3gG7vREzY0kjppkoBopY4dMRt3AMFmIKzmL98x
+	 oTzfvCdjfZ5xdBM7RNwhYXEV4HmIXzEesKDI4dWy7W+WbRGilOc+XzNsW7CJlqz/9g
+	 hyOLKsBe4bJH/TmKnC7FL+sfezkosen0MNPCZcU4zVjiR1W6G/QrycO/fo0+69f1E8
+	 iGRf1Sn5Ix2Nw==
+From: Rustam Adilov <adilov@disroot.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sander Vanheule <sander@svanheule.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Rustam Adilov <adilov@disroot.org>
+Subject: [PATCH v2 0/1] watchdog: realtek-otto: Make use of regmap API
+Date: Tue, 19 May 2026 23:23:28 +0500
+Message-ID: <20260519182329.24472-1-adilov@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260518210957.10545-1-rosenp@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Rosen,
+This patch series changes the driver to use regmap API for all of the
+register access stuff instead of the ioread32 and iowrite32 with __iomem.
 
-kernel test robot noticed the following build warnings:
+---
+Changelog in v2:
+- removed patches 2 and 3 that add rtl9607c device.
+- included driver changes made by Sander in [1].
+- added disable_locking to regmap_config and set it to true.
+- Link to v1: https://lore.kernel.org/all/20260509163101.722793-1-adilov@disroot.org/
 
-[auto build test WARNING on groeck-staging/hwmon]
-[also build test WARNING on groeck-staging/hwmon-next groeck-staging/watchdog groeck-staging/watchdog-next linus/master v7.1-rc4 next-20260518]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+[1] - https://lore.kernel.org/all/20260515212351.752054-1-sander@svanheule.net/
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Rosen-Penev/watchdog-ath79_wdt-select-OF-and-COMPILE_TEST/20260519-051137
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon
-patch link:    https://lore.kernel.org/r/20260518210957.10545-1-rosenp%40gmail.com
-patch subject: [PATCH] watchdog: ath79_wdt: select OF and COMPILE_TEST
-config: riscv-randconfig-r122-20260519 (https://download.01.org/0day-ci/archive/20260520/202605200244.R8jDfTUk-lkp@intel.com/config)
-compiler: riscv64-linux-gcc (GCC) 8.5.0
-sparse: v0.6.5-rc1
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260520/202605200244.R8jDfTUk-lkp@intel.com/reproduce)
+Rustam Adilov (1):
+  watchdog: realtek-otto: Change to use regmap API
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605200244.R8jDfTUk-lkp@intel.com/
+ drivers/watchdog/Kconfig            |  1 +
+ drivers/watchdog/realtek_otto_wdt.c | 74 +++++++++++++++--------------
+ 2 files changed, 39 insertions(+), 36 deletions(-)
 
-sparse warnings: (new ones prefixed by >>)
->> drivers/watchdog/ath79_wdt.c:161:37: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char const [noderef] __user *__p @@     got char const * @@
-   drivers/watchdog/ath79_wdt.c:161:37: sparse:     expected char const [noderef] __user *__p
-   drivers/watchdog/ath79_wdt.c:161:37: sparse:     got char const *
->> drivers/watchdog/ath79_wdt.c:234:27: sparse: sparse: incorrect type in initializer (incompatible argument 2 (different address spaces)) @@     expected long ( *write )( ... ) @@     got long ( * )( ... ) @@
-   drivers/watchdog/ath79_wdt.c:234:27: sparse:     expected long ( *write )( ... )
-   drivers/watchdog/ath79_wdt.c:234:27: sparse:     got long ( * )( ... )
+-- 
+2.54.0
 
-vim +161 drivers/watchdog/ath79_wdt.c
-
-f8394f61c66f48 Gabor Juhos         2011-01-04  148  
-f8394f61c66f48 Gabor Juhos         2011-01-04  149  static ssize_t ath79_wdt_write(struct file *file, const char *data,
-f8394f61c66f48 Gabor Juhos         2011-01-04  150  				size_t len, loff_t *ppos)
-f8394f61c66f48 Gabor Juhos         2011-01-04  151  {
-f8394f61c66f48 Gabor Juhos         2011-01-04  152  	if (len) {
-f8394f61c66f48 Gabor Juhos         2011-01-04  153  		if (!nowayout) {
-f8394f61c66f48 Gabor Juhos         2011-01-04  154  			size_t i;
-f8394f61c66f48 Gabor Juhos         2011-01-04  155  
-f8394f61c66f48 Gabor Juhos         2011-01-04  156  			clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
-f8394f61c66f48 Gabor Juhos         2011-01-04  157  
-f8394f61c66f48 Gabor Juhos         2011-01-04  158  			for (i = 0; i != len; i++) {
-f8394f61c66f48 Gabor Juhos         2011-01-04  159  				char c;
-f8394f61c66f48 Gabor Juhos         2011-01-04  160  
-f8394f61c66f48 Gabor Juhos         2011-01-04 @161  				if (get_user(c, data + i))
-f8394f61c66f48 Gabor Juhos         2011-01-04  162  					return -EFAULT;
-f8394f61c66f48 Gabor Juhos         2011-01-04  163  
-f8394f61c66f48 Gabor Juhos         2011-01-04  164  				if (c == 'V')
-f8394f61c66f48 Gabor Juhos         2011-01-04  165  					set_bit(WDT_FLAGS_EXPECT_CLOSE,
-f8394f61c66f48 Gabor Juhos         2011-01-04  166  						&wdt_flags);
-f8394f61c66f48 Gabor Juhos         2011-01-04  167  			}
-f8394f61c66f48 Gabor Juhos         2011-01-04  168  		}
-f8394f61c66f48 Gabor Juhos         2011-01-04  169  
-f8394f61c66f48 Gabor Juhos         2011-01-04  170  		ath79_wdt_keepalive();
-f8394f61c66f48 Gabor Juhos         2011-01-04  171  	}
-f8394f61c66f48 Gabor Juhos         2011-01-04  172  
-f8394f61c66f48 Gabor Juhos         2011-01-04  173  	return len;
-f8394f61c66f48 Gabor Juhos         2011-01-04  174  }
-f8394f61c66f48 Gabor Juhos         2011-01-04  175  
-f8394f61c66f48 Gabor Juhos         2011-01-04  176  static const struct watchdog_info ath79_wdt_info = {
-f8394f61c66f48 Gabor Juhos         2011-01-04  177  	.options		= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-f8394f61c66f48 Gabor Juhos         2011-01-04  178  				  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-f8394f61c66f48 Gabor Juhos         2011-01-04  179  	.firmware_version	= 0,
-f8394f61c66f48 Gabor Juhos         2011-01-04  180  	.identity		= "ATH79 watchdog",
-f8394f61c66f48 Gabor Juhos         2011-01-04  181  };
-f8394f61c66f48 Gabor Juhos         2011-01-04  182  
-f8394f61c66f48 Gabor Juhos         2011-01-04  183  static long ath79_wdt_ioctl(struct file *file, unsigned int cmd,
-f8394f61c66f48 Gabor Juhos         2011-01-04  184  			    unsigned long arg)
-f8394f61c66f48 Gabor Juhos         2011-01-04  185  {
-f8394f61c66f48 Gabor Juhos         2011-01-04  186  	void __user *argp = (void __user *)arg;
-f8394f61c66f48 Gabor Juhos         2011-01-04  187  	int __user *p = argp;
-f8394f61c66f48 Gabor Juhos         2011-01-04  188  	int err;
-f8394f61c66f48 Gabor Juhos         2011-01-04  189  	int t;
-f8394f61c66f48 Gabor Juhos         2011-01-04  190  
-f8394f61c66f48 Gabor Juhos         2011-01-04  191  	switch (cmd) {
-f8394f61c66f48 Gabor Juhos         2011-01-04  192  	case WDIOC_GETSUPPORT:
-f8394f61c66f48 Gabor Juhos         2011-01-04  193  		err = copy_to_user(argp, &ath79_wdt_info,
-f8394f61c66f48 Gabor Juhos         2011-01-04  194  				   sizeof(ath79_wdt_info)) ? -EFAULT : 0;
-f8394f61c66f48 Gabor Juhos         2011-01-04  195  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  196  
-f8394f61c66f48 Gabor Juhos         2011-01-04  197  	case WDIOC_GETSTATUS:
-f8394f61c66f48 Gabor Juhos         2011-01-04  198  		err = put_user(0, p);
-f8394f61c66f48 Gabor Juhos         2011-01-04  199  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  200  
-f8394f61c66f48 Gabor Juhos         2011-01-04  201  	case WDIOC_GETBOOTSTATUS:
-f8394f61c66f48 Gabor Juhos         2011-01-04  202  		err = put_user(boot_status, p);
-f8394f61c66f48 Gabor Juhos         2011-01-04  203  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  204  
-f8394f61c66f48 Gabor Juhos         2011-01-04  205  	case WDIOC_KEEPALIVE:
-f8394f61c66f48 Gabor Juhos         2011-01-04  206  		ath79_wdt_keepalive();
-f8394f61c66f48 Gabor Juhos         2011-01-04  207  		err = 0;
-f8394f61c66f48 Gabor Juhos         2011-01-04  208  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  209  
-f8394f61c66f48 Gabor Juhos         2011-01-04  210  	case WDIOC_SETTIMEOUT:
-f8394f61c66f48 Gabor Juhos         2011-01-04  211  		err = get_user(t, p);
-f8394f61c66f48 Gabor Juhos         2011-01-04  212  		if (err)
-f8394f61c66f48 Gabor Juhos         2011-01-04  213  			break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  214  
-f8394f61c66f48 Gabor Juhos         2011-01-04  215  		err = ath79_wdt_set_timeout(t);
-f8394f61c66f48 Gabor Juhos         2011-01-04  216  		if (err)
-f8394f61c66f48 Gabor Juhos         2011-01-04  217  			break;
-bd490f8222510d Gustavo A. R. Silva 2020-07-07  218  		fallthrough;
-f8394f61c66f48 Gabor Juhos         2011-01-04  219  
-f8394f61c66f48 Gabor Juhos         2011-01-04  220  	case WDIOC_GETTIMEOUT:
-f8394f61c66f48 Gabor Juhos         2011-01-04  221  		err = put_user(timeout, p);
-f8394f61c66f48 Gabor Juhos         2011-01-04  222  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  223  
-f8394f61c66f48 Gabor Juhos         2011-01-04  224  	default:
-f8394f61c66f48 Gabor Juhos         2011-01-04  225  		err = -ENOTTY;
-f8394f61c66f48 Gabor Juhos         2011-01-04  226  		break;
-f8394f61c66f48 Gabor Juhos         2011-01-04  227  	}
-f8394f61c66f48 Gabor Juhos         2011-01-04  228  
-f8394f61c66f48 Gabor Juhos         2011-01-04  229  	return err;
-f8394f61c66f48 Gabor Juhos         2011-01-04  230  }
-f8394f61c66f48 Gabor Juhos         2011-01-04  231  
-f8394f61c66f48 Gabor Juhos         2011-01-04  232  static const struct file_operations ath79_wdt_fops = {
-f8394f61c66f48 Gabor Juhos         2011-01-04  233  	.owner		= THIS_MODULE,
-f8394f61c66f48 Gabor Juhos         2011-01-04 @234  	.write		= ath79_wdt_write,
-f8394f61c66f48 Gabor Juhos         2011-01-04  235  	.unlocked_ioctl	= ath79_wdt_ioctl,
-b6dfb2477fb0bf Arnd Bergmann       2019-06-03  236  	.compat_ioctl	= compat_ptr_ioctl,
-f8394f61c66f48 Gabor Juhos         2011-01-04  237  	.open		= ath79_wdt_open,
-f8394f61c66f48 Gabor Juhos         2011-01-04  238  	.release	= ath79_wdt_release,
-f8394f61c66f48 Gabor Juhos         2011-01-04  239  };
-f8394f61c66f48 Gabor Juhos         2011-01-04  240  
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
