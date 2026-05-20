@@ -1,199 +1,132 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCA6D13A3F7
-	for <linux-watchdog@vger.kernel.org>; Wed, 20 May 2026 00:39:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F06F2F8EAE;
+	Wed, 20 May 2026 05:11:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779237544; cv=none; b=ltIQFViOnRPGJoT5f5oNpRlNKcuddrz6rWv2N0ve8lXJxUqOFHvWmzTmjO7v0p/s9EF540HNnGU2RFvy40JnP/kaGz0nT+YyZVhSem6BRtTwj62MiiBvOraExxNqvwCfK8osthn2rLiCCSrqUp1r/VNyiqG1tFbUj0paSjQ825k=
+	t=1779253911; cv=none; b=Kb3z1JSkj//UgPpcwmRc1nfjbsHybX0Ex5+g4U3S5+5AbmKuX1j9C12daxp5+7a5TMDoq3KTNSb4YARocVnCRdrncphS6hjoT4JTe44USWV85O+AztfdFvp9BgamMr/gH/0mio5xY9RecfhiwreFZBzlPcdFA9rq1f2nx0IXoqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779237544; c=relaxed/simple;
-	bh=mYyNVOWtbjD/sSCBJJ2pB/k0OYShG9aJ75JZn/GrWSU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F8Yq+oEpRA4sk0SsVPDjuz7g2lsUN8n4pF7tJcd+/pEVb1lOOplaFAmi6jFNID2M+uU0a1nYytpi8R+eKUKbEnvUI38hVdsFdY32RotVuzxLfSwir1BMp/sarhRxL8gHuxdgWnI9afpoZ0zmGlYMtVCOjkdf6YWD9q74Ry40uoU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nSO2T2st; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779253911; c=relaxed/simple;
+	bh=dYqJGHd/M/vWTTidWc0sD1R4Tee/pwkCRdXdlBEi2RE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZCzQEDfHO4Y1wPPviUzyPRv4MIIwLByP/phc2SKW/n2OjfLxAIEJChePAlt+3epb+n/2O2nGlA2KeFZVHQMzT39W/seEX6XStMpMMsS16C4Lio9zPh6f8Nwlymz2WXA4u7jX/HO0u6dZAIClbzRy0Og+k5m45BM8KyphdjGyDeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hCIE1WXT; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nSO2T2st"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-82f8893bff3so1942614b3a.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 19 May 2026 17:39:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779237542; x=1779842342; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=mevsGGnqPIhP4Y/7CpaBdXAIE1/wiBFR9v9vGz9YGiQ=;
-        b=nSO2T2stLu5EXlaE0BwP/4SzMs0t615pcNDiKQwriaMURyipnHYBh8aTfhrRk11IOm
-         aE7I7D+vfxCAXo7PVp0D8QfhtDHLvNn+NK8ZirlN8FIBFPh6ovaH1+BoyNyLJB6adz2D
-         n2MvnWii37Z55hrTdN10NiKgUVJEngIz76xT8bTaMWM/+jn4+qi5cfR+XakZ+iOEAB+H
-         ze2QntFlQMHUHMl6WHrvALFD9Dd6RyXnzh+LzW8VXQ8XJF1ZtFAQpLvgfPMvjJPpjMXs
-         Zm2ju2mqViNiELjWIBB/nGoGZ7/UoabfQ+zlfMnYnaZOLOrmNItXkNWdhSMV9/NJVr/e
-         3RxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779237542; x=1779842342;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mevsGGnqPIhP4Y/7CpaBdXAIE1/wiBFR9v9vGz9YGiQ=;
-        b=VtLfwEGWNAsA9D2/hmFg6/hv/AmA1Z1GlIE8xn0RAqFpcELYJpdoI1Ts5soSONN8bt
-         nF90nzPpU+C1FNxTxDVHlickL5YyuOoqWP+BlhkMhH/Tx0uoX4MM4InMS81O4bSJQEfv
-         7xmSHE4TKr077BgVX0ABj+rRYaLoj3IOgeutZheJoEij37G02Yi/YllcLVq0uIoal7IP
-         A5plEg5c+yRXG0leylqnHhKu9L5vIkuA5IPfy65+WRxBHgIs+3bcLV/0IQ1REPpekfcV
-         RvZR5wn5XRxEH8DmnaezGp8otrOynVFzsco4lCnbsIpcEabaXappIsBLGAdn+og7ThMN
-         UlgQ==
-X-Gm-Message-State: AOJu0YyV3PVznf2BzKY+7DJz/Gzl91rKbZ4q1UtO+pPqlw7IzQLMLxZB
-	1397R74RtpZslc08COc54zxq8DmLO4dRqd8dX1EUhzbW1xP2ICkMQQaZ
-X-Gm-Gg: Acq92OFAd6pW9UViK3JCeWp5YygGUdQxNMwl8XwGnU5lFvvQSQCd3JAli1V/PUxKa8T
-	Wyc1FLqjz0iItQun/pbXJW4FlobH/8HVwBHnFyNrNKdDtdP3SYCFW60g/a3EeF/edAOsvgTrwVV
-	Vo3sDEI4BOW8JDGElGgWNlMQv504gvqiUtm5dPlgr0QHQB/ofjd/+nFEzt7/WXYCH50hMF8wy5J
-	vNB3BADssxiqHjpITanIwxZneFYrOX2avcKByd0Ouv7n+XsfGXvBTbyMbBjpCSzW7MNzOSTu8Oi
-	6ePZIwlptwe5YfqARCrKtlqb0LMJBq1POXlPyWX9K2QNPr5mXnFUTvhtcvFxin+SMX3okAVH8TQ
-	LYzv6YwswI0BI/TcyqC/MBJP9lXYcf8TLatCbBG0K/nflw40U/OE4w7+4ILrttPGZH8Do07TVPu
-	03SCP5DUfd/ftSYvgONyRshhw/bjE4CO+K10fp6kXvFjfZwMTI8CDjiCiFKq9fjxt2VfRUKZln7
-	7G/XAfqPkLYE/xBRrtdyA==
-X-Received: by 2002:a05:6a00:1ca4:b0:82c:6b1b:7ad4 with SMTP id d2e1a72fcca58-83f33bc808emr19652315b3a.3.1779237542172;
-        Tue, 19 May 2026 17:39:02 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f19c7ed3fsm18977149b3a.45.2026.05.19.17.39.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2026 17:39:01 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <ad3215f7-e4d5-413e-982f-efd859be1580@roeck-us.net>
-Date: Tue, 19 May 2026 17:39:00 -0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hCIE1WXT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779253909; x=1810789909;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=dYqJGHd/M/vWTTidWc0sD1R4Tee/pwkCRdXdlBEi2RE=;
+  b=hCIE1WXThoGvPiNR8QTxTnH4AqvFD3dVdTboxf8Qk6jF6CtHKsW/a+83
+   bDpDlnNF/fggmFza3VWje1jyZbZhqjNjCmsy+t4NezwtZAdlU5h1CoNc6
+   JiceNdHqcFHVMJPuWWVIKUXTbQrM7K7wkftky/IeFVgee7zTunZ1coViH
+   8C6v22vUTGr8ioJDeUBIHmMgDlYPU36iafopfvgSOMFPsLxfYjMATQebg
+   APBeyh0IDIPy4RkpqY4irQWXmaXPxkQQEB+UZHN6uRFCF+YYoVNspUvHK
+   6nEruYs0jHI5PCMKjHXi8Wy+LLKbJ75ScVv7962IEYuCTLfRdfJmOI1DF
+   A==;
+X-CSE-ConnectionGUID: GKuVTdwiSkuv2bFPkzS4Xw==
+X-CSE-MsgGUID: MXJDpPGkQQaRfVsfHoi+pQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11791"; a="79992584"
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="79992584"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2026 22:11:48 -0700
+X-CSE-ConnectionGUID: vqc7lRqzShuGVTCK+Y27hQ==
+X-CSE-MsgGUID: nAH6ab3YTSe0TraKMbYM1w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="239026230"
+Received: from lkp-server02.sh.intel.com (HELO 30e86e9c1927) ([10.239.97.151])
+  by orviesa006.jf.intel.com with ESMTP; 19 May 2026 22:11:46 -0700
+Received: from kbuild by 30e86e9c1927 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wPZDE-000000002V3-2l6D;
+	Wed, 20 May 2026 05:11:30 +0000
+Date: Wed, 20 May 2026 13:10:15 +0800
+From: kernel test robot <lkp@intel.com>
+To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: orion_wdt: Use devm APIs for clock and
+ watchdog management
+Message-ID: <202605201246.gIDxpcj6-lkp@intel.com>
+References: <20260519214229.16656-1-rosenp@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: orion_wdt: Use devm APIs for clock and watchdog
- management
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck
- <wim@linux-watchdog.org>, open list <linux-kernel@vger.kernel.org>
-References: <20260519214229.16656-1-rosenp@gmail.com>
- <61a24e1e-2490-4791-811a-3c1c85fda05b@roeck-us.net>
- <CAKxU2N8pzaWow-pQ=gTkyvD=4JpZF77SN7F9pF9Ty78vkj65xQ@mail.gmail.com>
- <a74ce1b6-06ce-4a30-a53d-79070a272a2a@roeck-us.net>
- <CAKxU2N-2rA7GQZGoBQdkJLvWeSZNbfUqzNvEOoBskzc1FjcH=A@mail.gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <CAKxU2N-2rA7GQZGoBQdkJLvWeSZNbfUqzNvEOoBskzc1FjcH=A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260519214229.16656-1-rosenp@gmail.com>
 
-On 5/19/26 16:19, Rosen Penev wrote:
-> On Tue, May 19, 2026 at 4:10 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>
->> On 5/19/26 15:44, Rosen Penev wrote:
->>> On Tue, May 19, 2026 at 3:34 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>>>
->>>> On Tue, May 19, 2026 at 02:42:29PM -0700, Rosen Penev wrote:
->>>>> Replace clk_get/clk_prepare_enable/clk_put with devm_clk_get_enabled
->>>>> and devm_clk_get_optional_enabled so the clock lifecycle is managed
->>>>> automatically. Switch to devm_watchdog_register_device to eliminate
->>>>> the manual remove callback and the disable_clk error path.
->>>>>
->>>>> Switching to devm in these functions is fine as the proper
->>>>> platform_device is passed in.
->>>>>
->>>>> Assisted-by: Claude:Sonnet-4.6
->>>>> Signed-off-by: Rosen Penev <rosenp@gmail.com>
->>>>
->>>> drivers/watchdog/orion_wdt.c: In function 'orion_wdt_clock_init':
->>>> drivers/watchdog/orion_wdt.c:82:13: error: unused variable 'ret' [-Werror=unused-variable]
->>>>      82 |         int ret;
->>>>         |             ^~~
->>>> drivers/watchdog/orion_wdt.c: In function 'armada370_wdt_clock_init':
->>>> drivers/watchdog/orion_wdt.c:95:13: error: unused variable 'ret' [-Werror=unused-variable]
->>>>      95 |         int ret;
->>>>         |             ^~~
->>>> drivers/watchdog/orion_wdt.c: In function 'armada375_wdt_clock_init':
->>>> drivers/watchdog/orion_wdt.c:113:13: error: unused variable 'ret' [-Werror=unused-variable]
->>>>     113 |         int ret;
->>>>         |             ^~~
->>>> drivers/watchdog/orion_wdt.c: In function 'armadaxp_wdt_clock_init':
->>>> drivers/watchdog/orion_wdt.c:144:13: error: unused variable 'ret' [-Werror=unused-variable]
->>>>     144 |         int ret;
->>>>
->>>> On top of that, the APIs are not 1:1 replaceable.
->>>>
->>>> I am so tired of this. Please stop. I am no longer going to accept any "cleanup"
->>>> patches.
->>> If I don't, the bot yells at me. If I do, you yell at me. It seems I
->>> am at an impasse.
->>
->> The above is the compiler yelling at you.
-> No I mean my watchdog: orion: Use of_device_get_match_data() patch
-> resulted in the AI complaining about clock code that I didn't touch.
-> 
+Hi Rosen,
 
-Problems with your patch:
-- It was not identified as bug fix
-- It explains what was changed, but not the underlying reason.
-   "so the clock lifecycle is managed automatically" is not an
-   explanation and does not explain _why_ the change is necessary.
-- It has no Reported-by: tag
-- It does not compile
-- The APIs are not 1:1 replaceable. At the very least, replacing
-   of_clk_get_by_name with devm_clk_get_optional_enabled() in one
-   function and with devm_clk_get_enabled() in another is very suspicious
-   and asks for a detailed explanation.
-- Given that you tried to compile it on ppc very much suggests that it
-   wasn't tested, and the limited test status was not mentioned in the
-   patch (not that testing would be easy, given the different means
-   used to get the clock).
+kernel test robot noticed the following build warnings:
 
-In such a situation it is much better to respond to the agent e-mail
-and tell it (and me) that you understand that there is an unrelated
-problem, but that you don't have the knowledge/understanding of the
-driver and its requirements to submit a fix.
+[auto build test WARNING on groeck-staging/hwmon]
+[also build test WARNING on groeck-staging/hwmon-next groeck-staging/watchdog groeck-staging/watchdog-next linus/master v7.1-rc4 next-20260519]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Guenter
+url:    https://github.com/intel-lab-lkp/linux/commits/Rosen-Penev/watchdog-orion_wdt-Use-devm-APIs-for-clock-and-watchdog-management/20260520-054408
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon
+patch link:    https://lore.kernel.org/r/20260519214229.16656-1-rosenp%40gmail.com
+patch subject: [PATCH] watchdog: orion_wdt: Use devm APIs for clock and watchdog management
+config: arm-dove_defconfig (https://download.01.org/0day-ci/archive/20260520/202605201246.gIDxpcj6-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260520/202605201246.gIDxpcj6-lkp@intel.com/reproduce)
 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605201246.gIDxpcj6-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   drivers/watchdog/orion_wdt.c: In function 'orion_wdt_clock_init':
+>> drivers/watchdog/orion_wdt.c:82:13: warning: unused variable 'ret' [-Wunused-variable]
+      82 |         int ret;
+         |             ^~~
+   drivers/watchdog/orion_wdt.c: In function 'armada370_wdt_clock_init':
+   drivers/watchdog/orion_wdt.c:95:13: warning: unused variable 'ret' [-Wunused-variable]
+      95 |         int ret;
+         |             ^~~
+   drivers/watchdog/orion_wdt.c: In function 'armada375_wdt_clock_init':
+   drivers/watchdog/orion_wdt.c:113:13: warning: unused variable 'ret' [-Wunused-variable]
+     113 |         int ret;
+         |             ^~~
+   drivers/watchdog/orion_wdt.c: In function 'armadaxp_wdt_clock_init':
+   drivers/watchdog/orion_wdt.c:144:13: warning: unused variable 'ret' [-Wunused-variable]
+     144 |         int ret;
+         |             ^~~
+
+
+vim +/ret +82 drivers/watchdog/orion_wdt.c
+
+22ac92322c83334 drivers/watchdog/orion5x_wdt.c Sylver Bruneau  2008-06-26  78  
+1924227bcda1d18 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10  79  static int orion_wdt_clock_init(struct platform_device *pdev,
+1924227bcda1d18 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10  80  				struct orion_watchdog *dev)
+df6707b21904950 drivers/watchdog/orion5x_wdt.c Thomas Reitmayr 2009-02-20  81  {
+1924227bcda1d18 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10 @82  	int ret;
+df6707b21904950 drivers/watchdog/orion5x_wdt.c Thomas Reitmayr 2009-02-20  83  
+df5a672cef35a9e drivers/watchdog/orion_wdt.c   Rosen Penev     2026-05-19  84  	dev->clk = devm_clk_get_enabled(&pdev->dev, NULL);
+1924227bcda1d18 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10  85  	if (IS_ERR(dev->clk))
+1924227bcda1d18 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10  86  		return PTR_ERR(dev->clk);
+df6707b21904950 drivers/watchdog/orion5x_wdt.c Thomas Reitmayr 2009-02-20  87  
+463f96e0cdacce5 drivers/watchdog/orion_wdt.c   Ezequiel Garcia 2014-02-10  88  	dev->clk_rate = clk_get_rate(dev->clk);
+0dd6e4847ed8a42 drivers/watchdog/orion_wdt.c   Axel Lin        2012-03-26  89  	return 0;
+df6707b21904950 drivers/watchdog/orion5x_wdt.c Thomas Reitmayr 2009-02-20  90  }
+df6707b21904950 drivers/watchdog/orion5x_wdt.c Thomas Reitmayr 2009-02-20  91  
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
