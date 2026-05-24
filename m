@@ -1,66 +1,67 @@
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B5623019DC
-	for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 13:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 704A4397B1D
+	for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 14:00:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779630066; cv=none; b=kOyQamWSCLspbvzl1uEty/hafHoj51J+MtZeFBWql1ZmWA9FS4OYHRTN4FTx2t60BJ5uL34fVQsjN3AmVKBvbmiF6yVtbs+5LqjDxe5dhjtE3NkviVpb1qDNcHNYFh5VtgOZvVtGQ38xWxqorpSNi7UpTfnhJH5FQXx+zCE43Jc=
+	t=1779631205; cv=none; b=QjzO06GgVVxtMa4ijehrRS7cZbuoj8mlxHBH15yYlaK7bPPNvbGxAsCt1QEJodD94ODeWp+o1o+sazj44puVTJrRjZzmOxi20gr4Lg8mUuRrCTUOWUz47rruZoxM6CTKR/Xs2wX8syJZzT2AAgU4XOHM7JwNvmU4JIQKVuX62vw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779630066; c=relaxed/simple;
-	bh=YE2D6Yx62HegRB7eePV6cqqeBT2hshb8Xv6lGQTskJQ=;
+	s=arc-20240116; t=1779631205; c=relaxed/simple;
+	bh=O3pZI9WiYCNWVCZqNJiA/bx/FMbtTcu9/0CsrmN0U4k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MuTn6Y1QjJ7Al27P3jwCSXXx03MGWnWC0ufmJVWSYdPZ74t+9CHYsaSJiVN8myNkbz8gYhW5QxwcftUI0/RH/uly2XySyvK7eRlQaVP7Aqsg9Yqc3zB1xcJTbjFW8dkJQJntxBJoPP38xRRHnnLkU9LNYyyTC+BVEWpqwlq4vQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WwQpmRhr; arc=none smtp.client-ip=74.125.82.41
+	 In-Reply-To:Content-Type; b=gAqn8IHEPYrahypTIQinnpvnbHbwtJ90keNbY0iA8bpf5Tts6H0aCzDEeX97oCJO7HdNH82Hywh1WIIp6sluX5wim32A0ViZAWhf8ZernrkT1VQRBrw6m91tep1R2X3vGKCR83WSG0ohVVrIcxKG5M5mxjBt5bAUGeXrMEPp6BI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ooJZGQMx; arc=none smtp.client-ip=74.125.82.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WwQpmRhr"
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-136b46c3540so582327c88.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 06:41:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ooJZGQMx"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-3044857f09aso3726230eec.1
+        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 07:00:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779630064; x=1780234864; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779631204; x=1780236004; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=tM8HwzBz3kh3Ztc0WAojlw6GmamMdNrpGEIg2fiOLS4=;
-        b=WwQpmRhr4CbgpSAc5N9eed3uGi0W/jvqqzrxX0yxkeUAtUq9XINYgKVXD1GUZtzbXv
-         3KG/R8gTSxgUZtZB5uHfSAjbui7KHMRyF6/Vn0JovE5oEdAU5D1THPj43LBzl3sF1/YL
-         WAbO7ro9UgPjzItBsUXYd4O0EIVdIy1iqveSvDv1g22F7Y/Xvnk+e2hcqgD1wGRYTnkQ
-         FBIA98lNMOuHCceMNBKIBK7Iq90KyQMQCG7eEymEOygQ1zG9VmK7nH3r4cNVo5WQJbin
-         LA4ht00uz8uS40G5Cdg9wcgDyLzTr38nbOw/aYlqQtwiI35tyCvSPNZqUsGZRXtCbtuh
-         P3BQ==
+        bh=jdFBhvV4nAlKzH3X/7AVNjX1nuSw2ET8G9iaj7FJx7s=;
+        b=ooJZGQMx8OVqyA9exSe58T9xm3EEIEFZTQbovj+wCfb5kvep/FEcxuqxN20PFohYzu
+         GQEC+iv8niGH8KQXGH4HJip0rQr9+J0glUiY9iGnplKQhF1ujlWAx/XbTbZ93RrDdIPR
+         IPZoKQz+jykd+fwf/NjyFZ65N8P3INPZUI3qJ3JRcDyX9o1KOMFZ6qx+w2fskfKlPHb6
+         1o1NDCHZspsPfOmIQhdbuPtIcqM6xXtaJAOsOHeXMT1anGPiuLU/jWGOttKaDhSm3CsX
+         UzQi/L2uLIinSF1m6nJuA4icR9yccLcFVIJj+ECot104igu7Ys8ppjozzpdZAJm1165D
+         HTRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779630064; x=1780234864;
+        d=1e100.net; s=20251104; t=1779631204; x=1780236004;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tM8HwzBz3kh3Ztc0WAojlw6GmamMdNrpGEIg2fiOLS4=;
-        b=NX1E+w/WiZLr2pa8oNe2Hvt3O7INWTIjnmGWCnPaVkbxv49O03qGm2mj+U1MoxpiSa
-         m3PxABNzWXos73nkNxsKX+cZrI2ncUO83K2OLvhLkoXo1suoiqcgI+14TF0Vek6JmXY9
-         hkK7Zn7XQ2FjezoL3cDIMPNegasfkrl+YHsYO92Pwv5yPHK/3xyks8X30mT64yHi+dfH
-         dZmDcfhltCqVjzmIDXVuYkJZSTqiBiGoy38jD02peqP++qV5+iSRVs2wyqy9NAq/1dwf
-         PcFdsoctFCKE7AntUGnUQ7zCRiFSe2JYzywh5Pv81ubAMLHuXJln6P5H9gVd+ElQwgXv
-         uYkA==
-X-Gm-Message-State: AOJu0Yyz166jKq6WkB46SLAmijcG7jTBoh3UEDqO9Kt8NdDl5eL7uPwq
-	4xTKMPCvNpH0zHtwHGzBeIJdOedQyBjAcUUrSp5VMCdSozFEPLG6hLdn35vj23TA
-X-Gm-Gg: Acq92OG0zKdVsgaXZRf37NoCGGY+T9v2T7hgzH9jVBGmH+rr74c8zkhDJf32yet3nJO
-	9jCDRkRxyW3bBiuhbH62fNqC7KzFpTiTF7EyimvXjTcgLPO7bx3QfmSu8ONvZxPx5qAV3Lphm7c
-	V/8EnYZhmaWH6aX/RXjJWeBSBy5+2P5/zFx4kvBjcsL2CY8Idf0DhHrcNHehWNXDRZhZDKl8e88
-	2FNWlmy2p8OQP1iCfOhamZ6l3DAkkz3LYhrrSYRa9iXmpJ/AG6HuNsSCr2SblnjAooa/X2lnUWj
-	IX+TnLXspUTu4hw8wbu6jGIdR2np7omjB7S3CwP4L3R6m9GxJj1PNIGl87R9zHfPBwYlOFthcii
-	IA4xMUN0i8IHtK5grprMXIOJeCPbLMsjJFb2MVrZmIymxHYF8GssFEi37a0jXkClb4mK5detuEr
-	PKt/ppYfnhDc33TecEj9fHV4EPHDGMeVZ7y/oLql2UdsgqmKhhFNoYP8/O/2mAgC3UgVdPdb8g
-X-Received: by 2002:a05:7022:2528:b0:135:a6a:fcb9 with SMTP id a92af1059eb24-1365fb5a001mr3618351c88.28.1779630063581;
-        Sun, 24 May 2026 06:41:03 -0700 (PDT)
+        bh=jdFBhvV4nAlKzH3X/7AVNjX1nuSw2ET8G9iaj7FJx7s=;
+        b=fLs3gtY1dQH7CtJ+JusD73NxXuzCNIqbvrLN43BmUiUW0lSh6T3lMftMP63FkhId4J
+         JkvxR/ezEmbPNkT9Yw9F5EK+oJfw5YsApIwNBqJuQBFHgQaWeN98fKprdfHFrqim2olN
+         0b5uRDILQDLi3RsQZ3EQxXmMR9l5aFNV8rxahkoynp4zp27tgCbOld6hsHseBAOax6zM
+         2B0vEFHrMb+FBfA0ryz2WpXuDdtHhO/cgDZAJ0Zfxz+K3r1q0q492Gm7sJOXUJnTJZdN
+         W3kUxh7f0N5NHkKV+MForx9ZSxhfFUDH3K08DHJIMT2C1DfY/sHAfUc5ltc8meY2ATKB
+         51Jw==
+X-Forwarded-Encrypted: i=1; AFNElJ+fR/a8ouk5hkrZUTUkk37PTANURfY6kAqaiIhXgXKFOLS+yXntnmminpYsHCCiAk3kt5WD+gk2lEyg6j07Cw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyP9bRSEbaMdIFSJAA71t/g7UCh2PTSRO4FzFQUtIfgNejSVPnN
+	YfxeRWog5AyFgUlfDBJk7hxhXNNnFCYInR1Du10b9QvwRwQ7MROpS74I+gDQ1Ipr
+X-Gm-Gg: Acq92OEouCi0zj0BzIFkpFCtjY3cHJyywAdRhlf7OIj29F3B/T/LEl0HCG2RVXlhKyZ
+	CaV9A1BUiiH5YZp7WGsXJL/09NM6ouLG8CNLUOfdCcOhtXwfmr/ei7pea8LYrfkRQ69sg1EfBaU
+	Ilw2aLUV985G591Tr3tOpDbH6RTWEtjoGE3/MSpPZ/qOd1lsCGllXPM2DwAZPtY7ZgOXgOofxwi
+	oRSjRk7LPC3kElnFa3DIy7CBBMG6nWLOLG4wgqZiNbcqoHD5AFZXU/W8lOXRTUBcTdHHgzCxWNv
+	q77PBhlc5dFOXs51h812WaX9PZXV6SJPTcArZEaPms9ifCRCT8ykErGDjcTTPkcl1gnHRGTTRFh
+	ZrYP16PnosW4S9gaGjroraohAyWpUEXG3sp2rBVKP3peDtglyx4dBMzUa+0Nra9sWjki+mNv+8V
+	ZzBep+HAW3KRf4zhm+OrLorKnugvdK4nS4Co/mFUD+52qpe6POya3pZekCOkQifn5GmgznLrYS
+X-Received: by 2002:a05:7301:198a:b0:2d8:7302:d3d with SMTP id 5a478bee46e88-30448f4b600mr5297889eec.8.1779631203454;
+        Sun, 24 May 2026 07:00:03 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1366a4011d9sm4570047c88.6.2026.05.24.06.41.02
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30451f3feadsm7240569eec.13.2026.05.24.07.00.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 24 May 2026 06:41:02 -0700 (PDT)
+        Sun, 24 May 2026 07:00:02 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <b3e2188c-064f-4c43-bb9c-cfabd8be1380@roeck-us.net>
-Date: Sun, 24 May 2026 06:41:01 -0700
+Message-ID: <c619ebd2-c9ad-49d7-a9be-7b3290605b88@roeck-us.net>
+Date: Sun, 24 May 2026 07:00:00 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -68,12 +69,15 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCHv2 1/2] watchdog: ath79_wdt: select OF and COMPILE_TEST
-To: Rosen Penev <rosenp@gmail.com>, sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
-References: <20260524015042.175271-2-rosenp@gmail.com>
- <20260524021121.7236F1F000E9@smtp.kernel.org>
- <CAKxU2N_jsxv0Zre0FJUGFc=YRyB3Ww8bWxvgwYp0RFaM+Hn3mg@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: sprd_wdt: Remove redundant sprd_wdt_disable()
+ on register failure
+To: Felix Gu <ustc.gu@gmail.com>, Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Orson Zhai <orsonzhai@gmail.com>, Chunyan Zhang <zhang.lyra@gmail.com>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260223-sprd_wdt-v1-1-2e71f9a76ecb@gmail.com>
+ <5ec9bd47-4c58-485a-bc20-1a74cbdef40b@linux.alibaba.com>
+ <CAN4SLj09_mAPxR+k-qnOc6LWwh3je4-DJ9-BrfGR_FoEefjfVg@mail.gmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -119,37 +123,19 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <CAKxU2N_jsxv0Zre0FJUGFc=YRyB3Ww8bWxvgwYp0RFaM+Hn3mg@mail.gmail.com>
+In-Reply-To: <CAN4SLj09_mAPxR+k-qnOc6LWwh3je4-DJ9-BrfGR_FoEefjfVg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 5/23/26 19:19, Rosen Penev wrote:
-> On Sat, May 23, 2026 at 7:11 PM <sashiko-bot@kernel.org> wrote:
->>
->> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
->>
->> Pre-existing issues:
->> - [High] The global pointer `wdt_base` is assigned during probe but is never cleared on error paths or during driver removal, breaking deferred probing and driver rebinding.
->> - [High] The driver fails to prevent concurrent access from open miscdevice file descriptors after the device is unbound, leading to a use-after-free or page fault.
->> - [High] The watchdog hardware is not disabled during driver removal before its clock is disabled, potentially leading to uncontrolled system resets or hardware locks.
-> I am getting fed up with this garbage.
+On 5/23/26 23:04, Felix Gu wrote:
+> Hi Guenter,
+> Gentle ping.
+> Is it good to merge?
+> 
+> Best Felix
 
-I appear to be missing something. Which one of the three reported issues
-is garbage ?
-
-If you are really concerned about garbage, I would suggest to
-- Only submit patches which fix real issues.
-- Do not submit minor patch fixes for a driver to fix one minor issue
-   while leaving all the major problems in place, even though they are
-   known.
-- If the AI feedback really produces false positives, help doing something
-   about it instead of declaring it all garbage because some of its findings
-   are wrong. After all, you don't declare a human review as garbage because
-   it also contains false positives, or because it doesn't find all problems
-   in the code, or do you ?
-
-I am not going to apply this patch. It has little if any value and does not
-fix major problems in the code.
+I checked. The patch is queued in my watchdog-next, and I just confirmed
+that it is in linux-next (next-20260522). What else are you looking for ?
 
 Guenter
 
