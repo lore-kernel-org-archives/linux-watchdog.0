@@ -1,160 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 869EC1862
-	for <linux-watchdog@vger.kernel.org>; Sat, 23 May 2026 00:02:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7526018DB2A
+	for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 01:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779494532; cv=none; b=XwpOPDljZbAV03G9beq0GySwKDmBr6bZzFXmkBEbhlHpImrPjImul7WKZsLSZkCZDCyaWtDvvv+0HXv87C3y62zK1gUJi8FWM0MCugKcdbFVyM756zDpPvHLb99BTnO48bjEGndbMIYPOflAOr/Eq/OGu7O3PHY7C961jN+wNZE=
+	t=1779587462; cv=none; b=pbLyz1/3YooETqjHR83Th298pDqnyrKPJiGRMNuRGCiIcItage6fmOWztdZd3aazVXp9iVepL4V32t6bzpeNFdf1UbFK6Ef1NiTE67h80rOAFDm9gdoGv0a6PF7ZIESpeqL0RZ5cnQSgSTH0I1zCSN/gXp5JisDTos8NWEj4Lzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779494532; c=relaxed/simple;
-	bh=ugMbOfcHOw0LscCwYPICdCq3OvREyAS96PJDDOs08yY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XrX6vApzmPQQ8D5aYvwLcS8wYKCuo1a+itBJzVqith+bDE7TI9G+xIBz130QuQxXSWMs2/svMztQQ123L8nRuImAPN3Aq8D0QQx54VBmD6H9GVk2UFRTJw9lRBFZBgj7ycroD92k2KBHba5LMuMkX6PdytWjnyVLWt7XTXyzxp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O5TQXA84; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779587462; c=relaxed/simple;
+	bh=juyzX2H8t2ufgHgTPfab81qQZscnhnKWA/A3n1MQ5YM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aa2PXQP5GHZQp3yKbM5oMukinWasLsImra9tJXFWwXRfKzcqjB93Kj0AHHeiDUvu08NNxBmSc7TbO/lFPI1zqnLmI3UvRzKXrcL/Fogyag+Ex9sAhS7l+gM5paDgNSjuD/+cSXuvQAiCe/IBeREp2j8NncH/8T/LrZtgOShoOBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WYoCSRn2; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O5TQXA84"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B531F000E9;
-	Sat, 23 May 2026 00:02:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779494531;
-	bh=xq+KO7cfYLY8t0VGlyEW8Md77VCO/EEk2TVhOQFjTN4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=O5TQXA84Utr0QVjuYgWbxPulsCJvjuGNvTP5uqrKpdSlt39WMBVFYDy6e/YFnKFbs
-	 0a+fevXmK7uBb64Tu/F5GwEiJrwByUAUxlNXhyzds4YVJ0u7oaRdVNvSEUZrkjXK9e
-	 /eApC8uF2OmUWr8wK5/kmiat/GRgMMt5xSVKfaaa2VLjQnEqqkhxrLD+6jFdfE1NtD
-	 MccqUHspTFvXBafI8HJrokLdeL80r6Av/OV5AqoRe4lxl+vZFgOUzWjMeSXfYgml38
-	 03e6L3Ay+QAnvsLKA1Q1mOu3zHP8gsF1L+VDOwdocwdHA/qejQivP73pWtp6QxmRlA
-	 C68eMqL8nuPiQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] watchdog: ath79: convert to watchdog_device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260522232553.44748-3-rosenp@gmail.com>
-References: <20260522232553.44748-3-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 23 May 2026 00:02:10 +0000
-Message-Id: <20260523000211.08B531F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WYoCSRn2"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2b9ea536877so55965795ad.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 May 2026 18:51:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779587460; x=1780192260; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=T026Y8h5llVovJD076CzCoq0TucuAqiOWCUtKpQ8sTo=;
+        b=WYoCSRn2A0QLUIuZQtJNfdwqx06mkH2/lAOP9pP136xDfZVNrh2blSadKj4dJxQQ8u
+         S3Ot0A9NcUlMG/TllfQmeVTspXg9VT7U2W/+GDEjEVDIx0xV+mnxwfjJb9HCs/fMy8qX
+         5ZobTKUuWd0p/7fvR2yWsZHhdqFUgX8E7i5brUtln+hTXn7XzmqCPnQGyNXUr/lBAilj
+         p8ATtivEwXOQJZOI6lnO/11nft5efoNGbPmOzdqc4fyGNWdRdG/fRlKFn4e8v5WKh3aL
+         bIKwIIltZJW43zSYYCH4retjeEV/UpnvLjBylIna3s7TpjjG9r9Jo7QjnvZYMe/MqwND
+         Jg3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779587460; x=1780192260;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=T026Y8h5llVovJD076CzCoq0TucuAqiOWCUtKpQ8sTo=;
+        b=rzvEgT6lZ7txud0of5QK3kfhGBpsM1dIntabztX3neiUlYfVL/mm4CMotmxkIS6okj
+         9grJzi3GXnrWIAYPFr7dZbN18a03UII/98buzhMkopPJmWHsoQuTO8NssNg6T1RfWlq/
+         rErLtDVBFXa3xDjes6VgDvCTprwVeOHCYdb3kpDRzSVg/j9gVmQHPXW0cMmjnkSIS6pa
+         J02oCgRe96fWhobHVTQDPTsW8Vdb7Lmnly+vmEy9ynz3DVhqmsucsjEoOGs3J7v6Hvdq
+         D541tJXjvybAePbvHVQIhpsbr6vhSTI3PnZ4yYKbKw51JuseWuMYNUPmK6flJPXnwHHM
+         UPjg==
+X-Gm-Message-State: AOJu0YyrAcKyfM1iNyh7fUag8eaoGQgCqUTF4VKglhtZbYwVNmVZbsjo
+	zEU+2W7+sHXnU1S4jAz6wlD1P2v8/i/MR85B5TUSHADzRHY1z1iTCQwOKOi7nA==
+X-Gm-Gg: Acq92OERQbugg+lJ3TNGteGswS6IaLuZ/Lrn68C5D9XBiW63QO1Ap0YWVzRdCtO8Eye
+	efePc6wb0InkPdxHR6OTTiFtD9sWhqXDpnASytOWA5Yf+NtGOeBznP4FEO1mmLZP+WVt/RI8r9U
+	K9peWymKIH/80ZNMAuXms2c3oLbpiYuLvf72BFdhZG7n+/FsDJJWtD5vGEUJjqeQ17CYdguidVg
+	U6QQTCamCzxj9Atlnefk4cxOUYU/WPUXwmL3bBi1wx9Io7SCrp1Du7BeEpNZhpAiyTQfdZIRQl/
+	Vs3s/l9ulTGR9wSEUyYFnIwLkpevH2BbLB9twllYB83bq2k4Mhzt9yHa0W6B4h/1GH0HjxUZOd9
+	CKHQvv6R9I2CVm4Qd7JuYvgSOCzc3KgrmP7HdMH1tdRCGk81BXnLU60GFTG2N3Y6pBpv1xVMsh0
+	dkv6mhvFmZMgXpc1x8ma0s91k9XBNtHjUoErdFutV5hWBQV1z5fI9cthtvz3LTMlwnhl6YNlMLr
+	Ojqob2U8Ny5zEEDvgdzn6SEIsdFakYEPV4=
+X-Received: by 2002:a17:902:f546:b0:2bc:8e7d:3dce with SMTP id d9443c01a7336-2bea23e2057mr117698645ad.27.1779587460375;
+        Sat, 23 May 2026 18:51:00 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58c3168sm54822965ad.58.2026.05.23.18.50.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 May 2026 18:50:59 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCHv2 0/2] watchdog: ath79: modernize and broaden build coverage
+Date: Sat, 23 May 2026 18:50:40 -0700
+Message-ID: <20260524015042.175271-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] The timeout value is no longer properly clamped to the hardware ma=
-ximum, which can cause an integer overflow when computing timer ticks and l=
-ead to premature system resets.
-- [High] The `WDIOF_MAGICCLOSE` flag was incorrectly removed from the `watc=
-hdog_info` options, silently disabling the magic close safety mechanism.
-- [Medium] The `parent` field of the `watchdog_device` structure is not ini=
-tialized, breaking sysfs topology and device tree alias resolution.
+Patch 1 splits OF out as a hard dependency (the driver has always been
+OF-only) and broadens COMPILE_TEST coverage from ARM to all
+architectures, so the driver can be built on non-MIPS targets.
+
+Patch 2 moves the driver off the legacy miscdevice/file_operations
+interface to the watchdog_device framework.  This drops ~100 lines of
+hand-rolled ioctl, open/release, and busy/expect-close bookkeeping in
+favor of framework callbacks, fixes get_timeleft() to return seconds
+instead of raw clock ticks, and properly propagates -EPROBE_DEFER from
+clk_get().  nowayout, the timeout module parameter, and module .owner
+are wired through the standard helpers.
+
+Tested on an Archer C7v2; sysupgrade watchdog handoff still works.
+
+v2: addressed review comments
+
+Rosen Penev (2):
+  watchdog: ath79_wdt: select OF and COMPILE_TEST
+  watchdog: ath79: convert to watchdog_device
+
+ drivers/watchdog/Kconfig     |   3 +-
+ drivers/watchdog/ath79_wdt.c | 250 +++++++++++------------------------
+ 2 files changed, 77 insertions(+), 176 deletions(-)
+
 --
+2.54.0
 
-commit dcea60e57fc7eacb788b783d8fe1cc986ea83bb1
-Author: Rosen Penev <rosenp@gmail.com>
-
-watchdog: ath79: convert to watchdog_device
-
-Converts from the legacy miscdevice/file_operations interface to the
-watchdog_device framework, simplifying the driver and properly handling
-EPROBE_DEFER.
-
-> diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
-> --- a/drivers/watchdog/ath79_wdt.c
-> +++ b/drivers/watchdog/ath79_wdt.c
-
-[ ... ]
-
->  static const struct watchdog_info ath79_wdt_info =3D {
-> -	.options		=3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> -				  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-> -	.firmware_version	=3D 0,
-> -	.identity		=3D "ATH79 watchdog",
-> +	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_CARDRESET,
-> +	.firmware_version =3D 0,
-> +	.identity =3D "ATH79 watchdog",
->  };
-
-[Severity: High]
-Does the removal of WDIOF_MAGICCLOSE silently disable the magic close safety
-mechanism?
-
-The legacy driver explicitly supported magic close. Without this flag, the
-watchdog core might assume magic close is unsupported and unconditionally s=
-top
-the watchdog when the file descriptor is closed.
-
-If a userspace watchdog daemon crashes unexpectedly, the watchdog would be
-disabled instead of resetting the system.
-
-[ ... ]
-
->  static int ath79_wdt_probe(struct platform_device *pdev)
->  {
-
-[ ... ]
-
-> -	max_timeout =3D (0xfffffffful / wdt_freq);
-> -	if (timeout < 1 || timeout > max_timeout) {
-> -		timeout =3D max_timeout;
-> -		dev_info(&pdev->dev,
-> -			"timeout value must be 0 < timeout < %d, using %d\n",
-> -			max_timeout, timeout);
-> -	}
-> -
-> -	ctrl =3D ath79_wdt_rr(WDOG_REG_CTRL);
-> -	boot_status =3D (ctrl & WDOG_CTRL_LAST_RESET) ? WDIOF_CARDRESET : 0;
-> +	wdt->wdd.max_timeout =3D U32_MAX / wdt->freq;
-> =20
-> -	err =3D misc_register(&ath79_wdt_miscdev);
-> -	if (err) {
-> -		dev_err(&pdev->dev,
-> -			"unable to register misc device, err=3D%d\n", err);
-> -		return err;
-> -	}
-> +	ctrl =3D ath79_wdt_rr(wdt, WDOG_REG_CTRL);
-> +	wdt->wdd.bootstatus =3D (ctrl & WDOG_CTRL_LAST_RESET) ? WDIOF_CARDRESET=
- : 0;
-> =20
-> -	return 0;
-> -}
-> +	wdt->wdd.info =3D &ath79_wdt_info;
-> +	wdt->wdd.ops =3D &ath79_wdt_ops;
-
-[Severity: Medium]
-Is the parent field of the watchdog_device structure missing initialization?
-
-Without setting wdt->wdd.parent =3D &pdev->dev, the sysfs class device migh=
-t be
-created at the root of sysfs instead of correctly nesting under the physical
-platform device. This could break sysfs topology and device tree alias
-resolution.
-
-> +	wdt->wdd.min_timeout =3D 1;
-> +	wdt->wdd.timeout =3D WDT_TIMEOUT;
-> +	watchdog_init_timeout(&wdt->wdd, timeout, &pdev->dev);
-> +	watchdog_set_nowayout(&wdt->wdd, nowayout);
-> +	watchdog_stop_on_reboot(&wdt->wdd);
-
-[Severity: High]
-Can the timeout value overflow when computing timer ticks if max_timeout is
-less than WDT_TIMEOUT?
-
-The legacy driver explicitly clamped the timeout variable to max_timeout. In
-this patch, if the system's WDT clock frequency is fast enough that
-max_timeout is less than 15 seconds, watchdog_init_timeout() will fall back
-to WDT_TIMEOUT (15) without clamping it.
-
-Since the watchdog core doesn't validate the initial fallback timeout again=
-st
-max_timeout, starting the watchdog will execute wdt->freq * 15. This could
-overflow a 32-bit integer and program the hardware timer with a small
-residual value, causing premature system resets.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522232553.4474=
-8-1-rosenp@gmail.com?part=3D2
