@@ -1,64 +1,96 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C3A3CFF6A;
-	Mon, 25 May 2026 08:25:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A1D3E5A32;
+	Mon, 25 May 2026 09:26:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779697513; cv=none; b=FwfKN9U36eAzzVyy/3BvSHEnv0R7AsQKnE6LJy2YqvECPWKyEng7tGSIPny3O0/Y3DF7OGJbv5QL/fkv/b3ic7vi2htFMMONkvfQeduhRXxD/AVK1VABawthdosf8ZFh1qhGKc4VqmiTnAbI8IEdsgJqpzIKA9Ayr+1SLPDX7Wg=
+	t=1779701167; cv=none; b=G1cVuzqSPuw3H071PtPEDv1+9TaDMELcy6Vrz6EnqAUnCanJKdrNGWqPD1WvBGx65Q5Q94xrnjJOdQlOMBbELOP2Z/Rhfz26zblbnyVWcWsjN+HmbxI0pSG23ld+zrVvvceR9yQwJ25C893MIVpyNnkLPBzHrouY4YjVAByOsY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779697513; c=relaxed/simple;
-	bh=qK02sUtQCrBIbwZTzE/imEPtQVrAmD3WRrd6V3LryuQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nHsqA9UfsVgxWZB9/n/mSfrscwMNkI1NucfBe5WmGW7+foD+sM2D8Frgr9WZqblKV3V/WIm16S1vtobO32o0iquNPhf0G75WibQicVol37x8PQ4Y2Mg260f8TC8Y3pEGI7yoTruk2gmR3ptByeGBw/J7kw3pjBrd3mWeOindzeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rrhr4FHc; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779701167; c=relaxed/simple;
+	bh=jmYi9k8kfIYDV6PSc0blAw2ZCe6obcAFkc4TkEVBsD0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Z104y+NCD/uTTfSCAHgIEO3k1gw+qNdD2zDJiNweiNflheIZzJfmOzfSf6yrxwXzLupGiGAQyhfRwDms+MyY9i0Ic5YaIrOWk9/Q7+Ayg+v/ZVYUJkvzmhnc9vGyj2vJup1jcnY9Fi936Fs223/d50RA8P0vXhcGnHez7I+Dsfg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H7H8MfXD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rrhr4FHc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F61F1F000E9;
-	Mon, 25 May 2026 08:25:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H7H8MfXD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A02E1F000E9;
+	Mon, 25 May 2026 09:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779697512;
-	bh=NVJkDmmbZtEPk+Kqj4uE12KrfyY9Vb1oAXv6AbMWW1o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Rrhr4FHcA8DM5W9misj6s18CLnIev4M/mZVmBWmd69HVtoABmtEzEGjmm1BsfRH6H
-	 dL81ujhGgs582+q2EapxrG6MY5gnKdsAaen+lv6fsQ9hHJApn8hOCOEbQrAhCg7g//
-	 kRZYFJ88Yx9rTKYWVNoJlBqZT3dkLqvnBslpphByxAgrJ0zB0ocdqijXrwbFzr5Vkc
-	 X3QGeq1Ag6kp/JlqNS9ItMtrV67MwQdtfNv28IC4pixTerJRsEI2I/ShgjUCzPRweB
-	 9F6/QovZ3qH98MSOltXVTHPRh9lEtkoesqfKRxZ8wkQ+8COJF0V6DPjxNU4YxW9bXb
-	 IOFEZ2w+rvrTg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/7] mfd: nct6694: Move module type macros to shared
- header
-Reply-To: sashiko-reviews@lists.linux.dev
-To: a0282524688@gmail.com
-Cc: linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org
-In-Reply-To: <20260525081736.2904310-2-a0282524688@gmail.com>
-References: <20260525081736.2904310-2-a0282524688@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 25 May 2026 08:25:12 +0000
-Message-Id: <20260525082512.9F61F1F000E9@smtp.kernel.org>
+	s=k20260515; t=1779701166;
+	bh=skzTssuwru7jF3TpsgIsQPJu8IbIuLMfcBBNvTemjVE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=H7H8MfXDgcg2czwLwQhZFCL2kqMjRCt9tXoVzp4zeEDmKAYkQrEXUVc2JEUW2iIjK
+	 Vuzy3H5k3Lla3w9XIbEjkEw8EIAEUxPr9Ik+YywZqcE3XvMlv0kK6kyA9tTXjno7ax
+	 YZGG6k95KRRS3MHsk0avHWKKMJA+wHrlHeDeeYtuBWyv+l8X9+TDVPr8HJxWx+TXLZ
+	 DzQ4fKJC3n1V0kfuXrlqZ9kmDUuSBoEywRGAyrWlR1QAL/PvGbajSvlG5VuW6KgYe8
+	 Pg9qRoSl+NV2ibriujglyE7gRvcEXZwZx+fG2cs5PIfYpf+TQ44LxUg/jTMrE4RZvv
+	 Sdbjhi2TLVoxQ==
+From: Sven Peter <sven@kernel.org>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Neal Gompa <neal@gompa.dev>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Mark Kettenis <kettenis@openbsd.org>,
+	Sasha Finkelstein <k@chaosmail.tech>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
+	Janne Grunau <j@jannau.net>
+Cc: Sven Peter <sven@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	linux-pwm@vger.kernel.org,
+	Joshua Peisach <jpeisach@ubuntu.com>,
+	Michael Reeves <michael.reeves077@gmail.com>
+Subject: Re: (subset) [PATCH v3 0/5] Initial Apple silicon M3 device trees and dt-bindings
+Date: Mon, 25 May 2026 11:25:48 +0200
+Message-ID: <177970089799.4336.5106410094266979561.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260507-apple-m3-initial-devicetrees-v3-0-ca07c81b5dc7@jannau.net>
+References: <20260507-apple-m3-initial-devicetrees-v3-0-ca07c81b5dc7@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-> From: Ming Yu <a0282524688@gmail.com>
->=20
-> Move NCT6694_XXX_MOD  macro definitions from individual sub-device
-> drivers into the shared header include/linux/mfd/nct6694.h.
->=20
-> This is a prerequisite for supporting multiple transport interfaces
-> (USB, HIF) without duplicating these definitions.
->=20
-> No functional change.
->=20
-> Signed-off-by: Ming Yu <a0282524688@gmail.com>
+On Thu, 07 May 2026 09:33:06 +0200, Janne Grunau wrote:
+> Hej,
+> 
+> This series adds initial device trees for M3 Apple silicon devices. The
+> device trees contain only a minimal set of hardware not going much
+> beyond the minimum required for booting kernel and initramfs and
+> verify via serial console that the hardware and drivers work.
+> The hardware with the exception of the interrupt controller is
+> compatible with the M1 and M2 SoCs and the existing drivers.
+> `make dtbs_check` depends on the already applied and dropped apple,i2c
+> and apple,pmgr dt-binding changes.
+> The watchdog load depends on stalled and forgotten addition of the
+> "apple,t8103-wdt" compatible posted in [1]. I've replied to the thread
+> to get the change merged.
+> 
+> [...]
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Applied to local tree (apple-soc/dt-7.2), thanks!
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260525081736.2904=
-310-1-a0282524688@gmail.com?part=3D1
+[1/5] dt-bindings: power: apple,pmgr-pwrstate: Add t8122 compatible
+      https://github.com/AsahiLinux/linux/commit/4d28a9a428f6
+[3/5] dt-bindings: pwm: apple,s5l-fpwm: Add t8122 compatible
+      https://github.com/AsahiLinux/linux/commit/d0960529afbd
+[4/5] dt-bindings: arm: apple: Add M3 based devices
+      https://github.com/AsahiLinux/linux/commit/5701af106b03
+[5/5] arm64: dts: apple: Initial t8122 (M3) device trees
+      https://github.com/AsahiLinux/linux/commit/1dfa78533534
+
+Best regards,
+-- 
+Sven Peter <sven@kernel.org>
 
