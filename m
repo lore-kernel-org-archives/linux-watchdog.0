@@ -1,164 +1,276 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E56A313532
-	for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2026 06:36:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DEF73AC0D9
+	for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2026 08:18:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779691014; cv=none; b=CHwcMeQuOym3Hc+z1ICSep5s7CkzcbcXF1+DvQEai+658e8SasPYfoWrDn3Xp/xlkJ1ll67vNzSCDWn9NecFeN+0k7WZxpEeQLecN+UnKps8QdNydZqV4MiYI+/7giFYYAeEFYTLd2LyaXitmMB+Yv1wOMIKspwnJmYWZ6nnE4s=
+	t=1779697085; cv=none; b=pGJzK2wva3PSAZWfUyhZzyqb96Hy06GaazIs0tXKvIcnr+PTE+Tm8H9p90r0R0beQ97advRlE5HSwOGa2netmpzpDgvrTIQhDM8j0svjia/r8leL4WtYRQJBG0DfnxsAMQneuxV7W/dXgFgDpCN2hAskzRi54SFM3dm+i11yOvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779691014; c=relaxed/simple;
-	bh=DVo2xi7RyBHNKdZAZ8GSGGWIbM7R2VtURBEfwF6e5DE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=mDy7qEImqzSnOB+w2YmG2hoXTwom0rMTnax4BBcuT5Vc9OIiqx7vO+tKmgrFa5xwuXs5Q6ZPrAouOnDqJxecAPIaRrPnjA0J6B36RHZWH+esFbdcZ0PjkowovaVE3wUZi9bczY+ekBRWD7NfrMay4Y4s9xhus5hZ9k+V4Jl5xfM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mGczDeV1; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=IaTXbkc2; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1779697085; c=relaxed/simple;
+	bh=2EmRJVOu9kxZujWs9EHUsfBKTk0WixSaolqBsSe+3cw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=MkoyIeLFI3m0w/V559X8URrLaw9ywVUqeaoJAHjtDb+WrHaEXnqdfvAtqoZghABjtjqTZ69vys9/YTAoMoCG8nD6QeNwCOvAcXhGQn0000RRAnMr3IGzZd7lSkMa7+JbhxvvnqQuMbfy5379wTOz+T/x0YWHcFAuKWFjEyDhhjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i2D5s7BR; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mGczDeV1";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="IaTXbkc2"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64P5URHT335207
-	for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2026 06:36:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=NOkeK1lAOdXCk7zOceGzmI
-	a2wijOY9THVdbXy2AekNo=; b=mGczDeV15w8SQuG4qOOrciZtGIfJM1SUUI9CYn
-	10Y+B8IDUPq8MhUyU+WAETrNSGIF77CY+waXxubH4vMvS/0yu0oUYEb96vbG51pg
-	RUparnSoSlch9OaQafb22n6JPWfPqims8SiqeW8yaFwM/9wByXd33vZ7o8ZR93y8
-	VGk9Aw53lfUjfL3ZOk280CvzQuJh9CsI78PcwCG4QjY0MbWUz8WlhE4yisnYaIWD
-	T5Yns3sMXiIRiOCpeLpO/QWfnwElqJ8PVRJjgMNo75rRnRVTwaeJAjDmc1XN+Sgr
-	D/jjmm81UIJRAaFOHPz04Ptg6qm6uurB8TRu+8aCamyks5Hw==
-Received: from mail-dy1-f197.google.com (mail-dy1-f197.google.com [74.125.82.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4eb88w4u3a-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2026 06:36:52 +0000 (GMT)
-Received: by mail-dy1-f197.google.com with SMTP id 5a478bee46e88-2f3eb8f3419so738064eec.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2026 23:36:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i2D5s7BR"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3664df32e91so10827544a91.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2026 01:18:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1779691012; x=1780295812; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=NOkeK1lAOdXCk7zOceGzmIa2wijOY9THVdbXy2AekNo=;
-        b=IaTXbkc25AEF2uPh2d6OID9ENv0Um5jRVd+iKBdl4eJmfeQLWmzUlSUoMEWmwAfm8n
-         JGgKftPxi0eyw5HK72eHEVgfjJn/wcsTLJrjLalgAYYscM8lFQdjXtozdQkWRfErB04E
-         7fZxkgJnJ3qiz/036shvoziOTKeO13LQj9o0uUl7MgXFyXNGE7hH0ufzpxHC1ysC+UTM
-         RWEawmZ0jNdzrrO3DNdCSAfhXLMoEPqyf+b1U3T+uC6EcvijcpSxfNaGBagf3AC4BLMH
-         /f6PuWK7swVaikMDm0Xpo//GUr0rrWK0uXz78AI65L7bi6Ps7dBqiG1FgEHxdTSx0diK
-         V4dQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779691012; x=1780295812;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1779697083; x=1780301883; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NOkeK1lAOdXCk7zOceGzmIa2wijOY9THVdbXy2AekNo=;
-        b=Loy7++LsugATs6iajUQNLF1aq/Sp+O33bJN5jygyQwoyk7B82MkOOH5o9Uf6rDOkPL
-         98HpbPc/gYXhis25Kxo9y1keevsl9Ax4k7w7AmZ7CfRgJvdIn8jKUtUdr1OjDzIyY7jX
-         ImfQJE7SKMPhBsHw/xB3s+32BmWonZrV24a9CQr5f0qAEo3zQ1Fe5eSmRiiQ/vFFE5re
-         mq7uJnuhKPW4ZAFZOAYbm9s/XKHbhPys0epUIZmjnMvkCJYx5Qy8wp48Kf/Qla00JY9L
-         5ZGIgny0jD1Vitk8Z+BameefdJRiI0IV1dLToKVuox2WhCim40f70JJs41tHVxY1nkyA
-         8Brw==
-X-Forwarded-Encrypted: i=1; AFNElJ8ZzJC7IVkugkjUDNOVZP83EurziytfaGJ36ZlA3rR6TndO0MI35dpbkdgn09PXsHtOOLTV/uPXXDS26bx1VA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwBOJ+F98SV5cJ+7PTUx/ob7iW8vK1RzCNF4OubCs0UkuFNKUQ1
-	1yCCNdXtioNGwADc0+L6Suxv63SgoGiK/HprKyaazOcLOVerIVf43UWzZojENguJIoAJv9jb6IV
-	lTGYe4XsOhA0BxBDZ+yTEmwJEWHCJAATZy/m/u8JkMu06BwyCivR1HSOayKcC3o9GAqs+Yw==
-X-Gm-Gg: Acq92OFEzhN7Y054RzjZQb8yJWFwOZnBMzbXTzzzjrN1QjfcQs4nXkxiFXXmcP8fnYu
-	Mr4wr3uKEi8xswKsXRa0HPUyakXBsqjT1C9euWrseTDHyL+nYd0fZUfPvXIqmKiR05y1vgWiRXy
-	+BSL8zdgtWTjBMTxqP0XUxvImoV2+kKj8mk3XS7RcEBxDj22d8Axw9FIszZj6LiEmkoEn5QFHY3
-	+nVMG+GoAo8tvnFDuaDcCBfDik14MPdEAQfITLiGs8UWDYAXczMwwlpvKmCf09mr3Vyt45pFUKd
-	j6KkyA55t1lAKYw5/+F0nJrv3CWOXiYXDE+9ibLZlMdjlWRbboDwB6CKJ9wMNE0KTwSVVhKjCYs
-	nB/wrRC3dYVBMaFKMKFLoABr6ZCyBrJFrTVCwkWBzO1voG7XtIwkSNoEMOJFupJD/kfs3f9fg
-X-Received: by 2002:a05:7300:4305:b0:2ef:1d11:18ae with SMTP id 5a478bee46e88-3044912c25amr6303194eec.28.1779691011576;
-        Sun, 24 May 2026 23:36:51 -0700 (PDT)
-X-Received: by 2002:a05:7300:4305:b0:2ef:1d11:18ae with SMTP id 5a478bee46e88-3044912c25amr6303171eec.28.1779691011032;
-        Sun, 24 May 2026 23:36:51 -0700 (PDT)
-Received: from hu-jingyw-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30452255234sm8860713eec.20.2026.05.24.23.36.50
+        bh=Dc4O5/kSgHyWkY3Qo5dJGWH4VWfSLL8bPtdDsIJFGxs=;
+        b=i2D5s7BRJpcTb8H4a2tfRzC1PkmLFikC/gQNEOWlJMtpBNxSBiyUstqNqEmoVCC1Rl
+         7bRFbG5vXwxY7+5Ec2TTfYAP2uEm1Swf1kXCoixwkmJjlOBCcRNYQgr740yENfKUEcdh
+         c8VlBxDJbBjThI8SPAh5mDIegj+VHtdrPqer9xqSL3rQLWeTSOMInK7NYcwcuwCvTHLA
+         H+AVxQW/eNLwyR6KJMANVRiuJB7LPiFC9l+7w/gDy6+0asfUNwvXVlWKob2pFBUgv98L
+         4qyfu6R86SVSi2x19VnXw+0nJr9TXspQ2z8XJm63mxMi1AD5cZWKkNuhqWtAQAy5lq7/
+         Es9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779697083; x=1780301883;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Dc4O5/kSgHyWkY3Qo5dJGWH4VWfSLL8bPtdDsIJFGxs=;
+        b=VB9KK7PoWe2cnu5hw1QUwj0ub/gLdac1x4sTG5CYoiuA6/fC6FBusnmI7KpwWqJLcH
+         u+wOLrqDmicWl0ZI0FXo5zJKi2wLdOToaLE4LF+Gevh5Jqcz1NtOJ5jLpdrBSP3JRVk5
+         Lbop417V5jVN7izY6fV4fw4ttYpHKadfwYUgY6wKQAWf6rHwLveulwx6JbborHmkeqo/
+         Gw0ABO5itdA2mQONf7w3H/LcwjhYfVFu0DJmvpfP/O2g8gP83EereXi6Swb8FuH3jKAc
+         uz0GtMhtQsy5mJHZlj0YIoeyTuy6LZIalf8haDoVjMiohewAycy6lpLV8D3qkzUeiwfK
+         eAzg==
+X-Forwarded-Encrypted: i=1; AFNElJ80eJIpQk6rz/tnZ8FHyLzgpsLZs0uCBb020ts8erTYgXICX1xCTsOxUelSvUg2SQ7k+rVi4DOVH1nK7SCNOA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwwAJwKVACzfBFga9BmOgHRimRYLrkzqZiM3LgjR56JHcQiTILE
+	73vqYYvAKPNg02KE3LwAH0dzefJNtQgnMJA78Q4ro9OmcCU+rTPn7Jg4
+X-Gm-Gg: Acq92OGMsGxt1MaCLrvyjY/ZN3JqUdtjbYyqYRtrP4TNAjqszkxe79O5wLC5rTIoxpq
+	eu6daH843g4LXGaAlWjR+ISBVZfsvWsHKap2MI/72JWwDfkhL/4mwsq6L5Vvg3DFk9BCo/keuNS
+	nqk9WmLgl8lFXWFHlgrjhhSq1vENo6U8PF2OJoAvvVCs23OdfBZcDJcjvZ82JKRebiDkaZy4orf
+	+wSqKJTIlKt2BOHJ8onNZQeSxuMZQRxK7sgvaFVF8H5HT1mY/ZbwZb3FzD9pQ4bXCiqxFrVYezU
+	QbmeeBed4fLDCFbR+5ecLgcDZSry2yYx0jHptciXeS2cuvlWTc71uWlzOIREtJT3j7EdsuWKGht
+	C9dTfN9LqllyQeYaB6qR5BgGazEPMU6F3q8LXVAabRJHW8d42jvMjOjtsoNC7J6ADW6uRnkb8Om
+	PueTtF6jr/Je0NpPo6YznAbpVjH7EZVuMQF2rCXV5gSpzOKakNHLHMr1aliLPSWWgeHtqVIEf4F
+	iFg
+X-Received: by 2002:a17:90b:3a10:b0:369:a359:b192 with SMTP id 98e67ed59e1d1-36a67475b45mr12807202a91.10.1779697082704;
+        Mon, 25 May 2026 01:18:02 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36a721c7cf9sm8964102a91.10.2026.05.25.01.17.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 May 2026 23:36:50 -0700 (PDT)
-From: Jingyi Wang <jingyi.wang@oss.qualcomm.com>
-Date: Sun, 24 May 2026 23:36:41 -0700
-Subject: [PATCH] dt-bindings: watchdog: Document Qualcomm Maili watchdog
+        Mon, 25 May 2026 01:18:02 -0700 (PDT)
+From: a0282524688@gmail.com
+To: Ming Yu <tmyu0@nuvoton.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Lee Jones <lee@kernel.org>
+Cc: Ming Yu <a0282524688@gmail.com>,
+	linux-gpio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v5 1/7] mfd: nct6694: Move module type macros to shared header
+Date: Mon, 25 May 2026 16:17:30 +0800
+Message-Id: <20260525081736.2904310-2-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260525081736.2904310-1-a0282524688@gmail.com>
+References: <20260525081736.2904310-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260524-maili-watchdog-v1-1-f7efef781701@oss.qualcomm.com>
-X-B4-Tracking: v=1; b=H4sIAPjtE2oC/x3MTQqDQAxA4atI1g048RevUrqIY3QC7SgzUgvi3
- Zt2+S3eOyFLUskwFCckeWvWNRrcrQAfOC6COpmBSmrLhmp8sT4VD959mNYFua9c3fZMc+fAoi3
- JrJ//8P4wj5wFx8TRh9/GFgTX9QU5CgDjdwAAAA==
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Rajendra Nayak <quic_rjendra@quicinc.com>
-Cc: aiqun.yu@oss.qualcomm.com, tingwei.zhang@oss.qualcomm.com,
-        trilok.soni@oss.qualcomm.com, yijie.yang@oss.qualcomm.com,
-        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jingyi Wang <jingyi.wang@oss.qualcomm.com>
-X-Mailer: b4 0.15-dev-3d134
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1779691010; l=1021;
- i=jingyi.wang@oss.qualcomm.com; s=20250911; h=from:subject:message-id;
- bh=DVo2xi7RyBHNKdZAZ8GSGGWIbM7R2VtURBEfwF6e5DE=;
- b=AOMlDdCYWLzUVN8VflDsm6CdAGPoXN7FFOxupsnJCEmrJXYSd5um+XYQ6lH1WSLBTPsnyhdBZ
- YYd58qUdCplAtIHIhN24PztfmaNcD13CRcuByqx1fAtCd8zU5XurIQq
-X-Developer-Key: i=jingyi.wang@oss.qualcomm.com; a=ed25519;
- pk=PSoHZ6KbUss3IW8FPRVMHMK0Jkkr/jV347mBYJO3iLo=
-X-Authority-Analysis: v=2.4 cv=S/jpBosP c=1 sm=1 tr=0 ts=6a13ee04 cx=c_pps
- a=Uww141gWH0fZj/3QKPojxA==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
- a=EUspDBNiAAAA:8 a=GWLaZa68QPV-koml5E0A:9 a=QEXdDO2ut3YA:10
- a=PxkB5W3o20Ba91AHUih5:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI1MDA2NCBTYWx0ZWRfX+X9nT3cyVigK
- FwItcY7X8it4g/bEEUa8ICXBI1nMjhbqcb5hM+1EiuRlYvExynENiFrQkyb/gAcmk7DUONPhqFx
- uQNuT0dbTU1dtt99+mEX6ISDWSZK7lmjocQyxyNidEFXmJr+tDj6x1k7hh1qBx6xDfkD2mUfno3
- jwd+qIo2EImF88HVLr/ytNzQXS1q2yadUsa3sj6V7AUIQ86Z9VNMWD0CyBQTbrICnjUXwFenxk1
- YTYni6OFJcXn4iR6f6B0H9rHcetvy4tBwA8fAWeG8QDKsw4umiaTJW0QYNMyzbIJu202cfK9Yvy
- tRCEv5vLkrpI7bZsaGvDFncZPzM6phncun8+Z4XFThkKMAxFQB33WLZTPjEgzPhX7/z2B/ChCp5
- axnfy2PiixqLcI8Vgvpa+QAWljxEtpMLcN132MMJS+6qGEO0mOEhq3aDiUjytEIrJRUbUWVclSN
- gWoPYu27gHFpgNgQd5A==
-X-Proofpoint-ORIG-GUID: b9kw_RTx0lj_ciAtjT6Yz22UTcIF_43d
-X-Proofpoint-GUID: b9kw_RTx0lj_ciAtjT6Yz22UTcIF_43d
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-25_02,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1011
- priorityscore=1501 impostorscore=0 adultscore=0 phishscore=0 spamscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605250064
+Content-Transfer-Encoding: 8bit
 
-Add devicetree binding for watchdog present on Qualcomm Maili SoC.
+From: Ming Yu <a0282524688@gmail.com>
 
-Signed-off-by: Jingyi Wang <jingyi.wang@oss.qualcomm.com>
+Move NCT6694_XXX_MOD  macro definitions from individual sub-device
+drivers into the shared header include/linux/mfd/nct6694.h.
+
+This is a prerequisite for supporting multiple transport interfaces
+(USB, HIF) without duplicating these definitions.
+
+No functional change.
+
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
- 1 file changed, 1 insertion(+)
+Changes in v5:
+- Split from the monolithic v4 patch to follow the single logical change principle.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-index d647bf5f19a4..074b98802adf 100644
---- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml
-@@ -26,6 +26,7 @@ properties:
-               - qcom,apss-wdt-ipq9574
-               - qcom,apss-wdt-ipq9650
-               - qcom,apss-wdt-kaanapali
-+              - qcom,apss-wdt-maili
-               - qcom,apss-wdt-msm8226
-               - qcom,apss-wdt-msm8974
-               - qcom,apss-wdt-msm8994
+ drivers/gpio/gpio-nct6694.c         |  7 -------
+ drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
+ drivers/i2c/busses/i2c-nct6694.c    |  7 -------
+ drivers/net/can/usb/nct6694_canfd.c |  6 ------
+ drivers/rtc/rtc-nct6694.c           |  7 -------
+ drivers/watchdog/nct6694_wdt.c      |  7 -------
+ include/linux/mfd/nct6694.h         |  9 +++++++++
+ 7 files changed, 9 insertions(+), 55 deletions(-)
 
----
-base-commit: c1ecb239fa3456529a32255359fc78b69eb9d847
-change-id: 20260524-maili-watchdog-a831468a2f71
-
-Best regards,
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a8607f0d9915..53bfc5983648 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -13,13 +13,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 GPIO controller.
+- * This defines the module type used for communication with the NCT6694
+- * GPIO controller over the USB interface.
+- */
+-#define NCT6694_GPIO_MOD	0xFF
+-
+ #define NCT6694_GPIO_VER	0x90
+ #define NCT6694_GPIO_VALID	0x110
+ #define NCT6694_GPI_DATA	0x120
+diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+index 6dcf22ca5018..581451875f2c 100644
+--- a/drivers/hwmon/nct6694-hwmon.c
++++ b/drivers/hwmon/nct6694-hwmon.c
+@@ -15,13 +15,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 report channel
+- * This defines the module type used for communication with the NCT6694
+- * report channel over the USB interface.
+- */
+-#define NCT6694_RPT_MOD			0xFF
+-
+ /* Report channel */
+ /*
+  * The report channel is used to report the status of the hardware monitor
+@@ -38,13 +31,6 @@
+ #define NCT6694_TIN_STS(x)		(0x6A + (x))
+ #define NCT6694_FIN_STS(x)		(0x6E + (x))
+ 
+-/*
+- * USB command module type for NCT6694 HWMON controller.
+- * This defines the module type used for communication with the NCT6694
+- * HWMON controller over the USB interface.
+- */
+-#define NCT6694_HWMON_MOD		0x00
+-
+ /* Command 00h - Hardware Monitor Control */
+ #define NCT6694_HWMON_CONTROL		0x00
+ #define NCT6694_HWMON_CONTROL_SEL	0x00
+@@ -53,13 +39,6 @@
+ #define NCT6694_HWMON_ALARM		0x02
+ #define NCT6694_HWMON_ALARM_SEL		0x00
+ 
+-/*
+- * USB command module type for NCT6694 PWM controller.
+- * This defines the module type used for communication with the NCT6694
+- * PWM controller over the USB interface.
+- */
+-#define NCT6694_PWM_MOD			0x01
+-
+ /* PWM Command - Manual Control */
+ #define NCT6694_PWM_CONTROL		0x01
+ #define NCT6694_PWM_CONTROL_SEL		0x00
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..ef3329f34246 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -12,13 +12,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 I2C controller.
+- * This defines the module type used for communication with the NCT6694
+- * I2C controller over the USB interface.
+- */
+-#define NCT6694_I2C_MOD			0x03
+-
+ /* Command 00h - I2C Deliver */
+ #define NCT6694_I2C_DELIVER		0x00
+ #define NCT6694_I2C_DELIVER_SEL		0x00
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..262b4c26c9d4 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -18,12 +18,6 @@
+ 
+ #define DEVICE_NAME "nct6694-canfd"
+ 
+-/* USB command module type for NCT6694 CANfd controller.
+- * This defines the module type used for communication with the NCT6694
+- * CANfd controller over the USB interface.
+- */
+-#define NCT6694_CANFD_MOD			0x05
+-
+ /* Command 00h - CAN Setting and Initialization */
+ #define NCT6694_CANFD_SETTING			0x00
+ #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
+diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
+index 35401a0d9cf5..c06902f150c9 100644
+--- a/drivers/rtc/rtc-nct6694.c
++++ b/drivers/rtc/rtc-nct6694.c
+@@ -14,13 +14,6 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 RTC controller.
+- * This defines the module type used for communication with the NCT6694
+- * RTC controller over the USB interface.
+- */
+-#define NCT6694_RTC_MOD		0x08
+-
+ /* Command 00h - RTC Time */
+ #define NCT6694_RTC_TIME	0x0000
+ #define NCT6694_RTC_TIME_SEL	0x00
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..4c06ac105562 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -20,13 +20,6 @@
+ 
+ #define NCT6694_WDT_MAX_DEVS		2
+ 
+-/*
+- * USB command module type for NCT6694 WDT controller.
+- * This defines the module type used for communication with the NCT6694
+- * WDT controller over the USB interface.
+- */
+-#define NCT6694_WDT_MOD			0x07
+-
+ /* Command 00h - WDT Setup */
+ #define NCT6694_WDT_SETUP		0x00
+ #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 6eb9be2cd4a0..3c683e317aa3 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,15 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#define NCT6694_HWMON_MOD	0x00
++#define NCT6694_PWM_MOD		0x01
++#define NCT6694_I2C_MOD		0x03
++#define NCT6694_CANFD_MOD	0x05
++#define NCT6694_WDT_MOD		0x07
++#define NCT6694_RTC_MOD		0x08
++#define NCT6694_RPT_MOD		0xFF
++#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x81
 -- 
-Jingyi Wang <jingyi.wang@oss.qualcomm.com>
+2.34.1
 
