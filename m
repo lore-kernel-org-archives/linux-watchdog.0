@@ -1,171 +1,155 @@
-Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011065.outbound.protection.outlook.com [40.93.194.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63F733B8D40;
-	Tue, 26 May 2026 20:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779827038; cv=none; b=YOG2XJJcWYiscqh80AXZM+i6JSECfAdUcPJbT0LYHCL53Jy998Fz9pskiOHIf/wS442jftLEQt/DbqHLCeHiuKf7qkzMD9pjOBkOpGWmKrxf7J/3BjoSuSwiCtJy8H1VFcvuARe2LvB9Mevex8kC/y4kfpEOBWjUXcR0G26IvE4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779827038; c=relaxed/simple;
-	bh=K4WUr4jRjQjauMqgKe7OsAR7DtnPe9kBvJbGsr0uYV4=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=M1dqmKaVvrLW44ySonr7rC6nF+X4yAKe2GCXiL/Hs8ApoEI2lXFIte3r06JZNJFSiB19MgG0bvxG1sR/psfMSJeh0H+GePp8wWSZycWyLGCm4kqBizhZ6gfKgHmwh41yoEI81ma1RyQIfagYJNS9XoiYjUAjbgr2T3S3rrgkjgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=DfyIdIC+; arc=none smtp.client-ip=178.21.23.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C32B0408000;
+	Wed, 27 May 2026 13:04:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.65
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779887097; cv=fail; b=e+uxXcxoRGQNi2ZvtFA/8ilbYlyblHtOwqJYYSN4uK1QKGiExlWtp9B0bu1d8nKL/HztSpZNti4VP7Klxc6kPxOUMqVdXddRGEIjUmDOcD++4RDqsNYy2k6xCGnNkqAYTvdBZ24Ws0zOdPYTRMY3Y7DrzKyzYSEwvOjqJkWxVpU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779887097; c=relaxed/simple;
+	bh=oXGs9OhHmO2H5hcUflkjht9pknJny/TqBznFEg8L0+Q=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Lz6uZtzmEit1VOgieXiw4LnPzb3Ni62uGFdHIARMtI89r6HjLSOCJA3FeizkLWgjfJq0aC18BPUFWuREg+LP/LNOLUui+GaPnzbvzQqgZlJafjhHrwX0KJ23UHdMZubvuBhhb8BLlgkILEe6l+piFtqQrWo1CKe9DxKV6Fi+ggE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=6L78Jrlm; arc=fail smtp.client-ip=40.93.194.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="DfyIdIC+"
-Received: from mail01.disroot.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 04FB8262BE;
-	Tue, 26 May 2026 22:23:54 +0200 (CEST)
-X-Virus-Scanned: SPAM Filter at disroot.org
-Received: from layka.disroot.org ([127.0.0.1])
- by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 44sUwlrjCxEb; Tue, 26 May 2026 22:23:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1779827033; bh=K4WUr4jRjQjauMqgKe7OsAR7DtnPe9kBvJbGsr0uYV4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=DfyIdIC+de6dUMqbDFzVwf26eSzsO7EOi6oxsnZ0Rx972eH1CTBNW+ROoDTabgLci
-	 LcUvY2BXhdNmDgJEGRTCDEXzWed1yQJhyz1Sx33CuOTD7QHZ6Efx7xJ2l4QbTHDNfA
-	 6n97JO7sYNtKEGPA+CYqnzokMHN87fUfz8NQaNb8WxZBCfFsF71iZVTtT294RupvCg
-	 3ecrnlorlFZDPd3AVc1FmGeG6j70PjTMs+kwszcJuyowaDbOmo1+vT6e89VNoBkKP8
-	 oDBqttXRxoqqXCNFNfH8B5V4lrZ5y/dDtUexgRs7N71FgQ3cFdX/TtJ8oJhXzMeYnf
-	 H5MZQoKEHXX4Q==
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="6L78Jrlm"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=hkglV+WGYm42SeVRVlHClpn9GzM6hbZjbv5fp6aAwVDpuOdHMyq1pdAzlsOHnZvz8seHJFFwYtHALwRbNdbxGss0udZB0deoCr0HmzGH6BGPiOrCUOtoTDjUdLn2dsXFRqJAL0kcbbRIqAwKRNVcShEm+qJA0GO1yIi7kd+cEtn2cn/5DUcKhKFC5t8bBPxgfs+oe7q/dkH0g4AXDinvxFUdd6etz2z8jOK/86XHIkUKYAUv56FmKyiJJkmv8h4OYFQGRPBJCFUcQ2LWpfw/09v8tmt6zr4BE8L82YZLoC+hq40iDKV8s0S/xxt85o6rT/Qbi5WHfCwGHWN81cV7/w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oXGs9OhHmO2H5hcUflkjht9pknJny/TqBznFEg8L0+Q=;
+ b=xxibCSoKqX8ME4jzt7mg73/4n51I0Ituz7dzDJ0n+Azwfpsx2OT+G7LrkDtWHdUDpc2NqB732rw3mH5C1uPxQjf94+W3wmt0PiAcO1BBLU/hm21uN0hZAv91zElYm0k57oNRsQB8Hu6K17mBOSxhoUYDc01ljiNLZcfPAM5sskrshbheV3fv8He1iDAejSSy9iM5AdmHQF9nEGHd5RNvYNeQXU8szl50uRTiMSvaEBes7OF87HIRmJvs/MHc5LFecBpEQTm+YXqzzw4Sffnr6L4LqAafE9p+s/TGSygE1FQBTVdfq3nVfcINOpj00EUGcQCR8twKr8lXEnaYrrcP0Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microchip.com; dmarc=pass action=none
+ header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microchip.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oXGs9OhHmO2H5hcUflkjht9pknJny/TqBznFEg8L0+Q=;
+ b=6L78Jrlm3Op3oxemO4zZoeCbqmf2znrWM8Mf9gz7cHeBc+GKiXrC63bYcdTlyBXx8DZhpoSnVeR8OeQusQ2QTH3s83KZBUk7wQSihLRFL+TqQ+8wK5UsI4wuQPVAcglyWFLuqUhPgSwurS0QI0C/8O3Ux9YafiLKXkBccOk/vpsJyY0uA8qZopIGYFLvC7WSwGGKQTam4jS0AnwdQaS83LOouZ2+9e7sbyryCnJbX6b6kCSxOjK5tiWnZTHNE/0GjZJSaKZqCivQOqaM2SBp0VtvCFC2vW4KQdweFhkZuF0pQ4/EWnSIfdvZ/kIBXkqlJqS4gUAcb+3oFboLgWpr6g==
+Received: from SA2PR11MB4905.namprd11.prod.outlook.com (2603:10b6:806:117::7)
+ by DS4PPF6CF7B12C6.namprd11.prod.outlook.com (2603:10b6:f:fc02::2c) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.13; Wed, 27 May
+ 2026 13:04:52 +0000
+Received: from SA2PR11MB4905.namprd11.prod.outlook.com
+ ([fe80::5062:2:b851:5337]) by SA2PR11MB4905.namprd11.prod.outlook.com
+ ([fe80::5062:2:b851:5337%6]) with mapi id 15.21.0071.011; Wed, 27 May 2026
+ 13:04:52 +0000
+From: <Balakrishnan.S@microchip.com>
+To: <linux-watchdog@vger.kernel.org>
+CC: <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+	<alexandre.belloni@bootlin.com>, <andrei.simion@microchip.com>,
+	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 0/2] watchdog: sama5d4_wdt: Fix WDDIS handling for
+ SAM9X60 and SAMA7G5
+Thread-Topic: [PATCH v2 0/2] watchdog: sama5d4_wdt: Fix WDDIS handling for
+ SAM9X60 and SAMA7G5
+Thread-Index: AQHcqjhX6UKbz9317kO7ow3/dTG40rYiXl2A
+Date: Wed, 27 May 2026 13:04:52 +0000
+Message-ID: <322c623a-0da8-4821-b0d9-ba2c96bf62ca@microchip.com>
+References: <20260302113310.133989-1-balakrishnan.s@microchip.com>
+In-Reply-To: <20260302113310.133989-1-balakrishnan.s@microchip.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-GB
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microchip.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SA2PR11MB4905:EE_|DS4PPF6CF7B12C6:EE_
+x-ms-office365-filtering-correlation-id: f3b18984-6bd7-430f-981d-08debbf08a81
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|376014|1800799024|366016|38070700021|22082099003|18002099003|11063799006|56012099006;
+x-microsoft-antispam-message-info:
+ ku7vWtlEnGP+rt0Pd4aUgY9oQoH9XAVHP8WVVYqJ3dKHE7JuKP2Z6Te6wAlPnxnFk+KfTyrqCLjcAw8h8m1ZhqHhl1bFIkhIV5+cSTlZrrNWdUCriGww0FlEFNSvwhDLkQH3vNoo43Dr2y/fZqV1zdSOsWkjoLJkBJAZ3lUiZazdmyfNFk52/cPkkmsRfc7GmaAu8RdRXF/RbR5NAk3cBFGMP0PbArSKeXOfzxDKYCVS39r3kksNayJlED7sNervIE+cg8Bw3AZdmAImJ80KKEADeJDQgIc1jER3dtrxJe4iaSnY9yLNwjjswzsZVFavjqZCjEzu2ERuBhpc9oEIUmtov6N9ELfl9V6MfjN2Zbs2mJa/q0r5G+C5BILA3/kptsz7U7KaR106Ay7RjciLEl8tPDj3pMBrdJt/9yVxQB/njseVjjAIcwsJIUvLhkcnQOKK1L/ZjyvUPgGzN+yUXGIxSjpNeIccjHBCuKd9sUajexuhgI5eUAxdMdcrwHrBTKDG6kQPOpid1FQrZ+gtIkCT74VDhPMBVRH6YkJnK4+GTE9I+a64gxuMWD3w41fvhOJeb2nqNgSTx8mvM3dKJpy47xUFPTtv1tBgy5sGlolKIZT6u1YtTErnm5gPmTd9s+3hwi3tIBzVHFRecD9dqPpZGZBAj1nQfm/+w5Z67Qgyeh3nA5UajZSzEAPjSKOF947bfhaYThINECGQQ0kBD5oJWhfyZcpx0AwPO7hjWX8WMjTe3qlmHJ3rSco/FnDA
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR11MB4905.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700021)(22082099003)(18002099003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?THUrTHAxOCtacG5CVjVCWFRZaEFMT3l1emZDaVhoZTl5RWJBZVlDck85aXBo?=
+ =?utf-8?B?cThOeWtXSWp6MEhPZlhseXZidUp6RDVYZXNvbXpDVlgyNC8xQTkyUnVaQkYw?=
+ =?utf-8?B?ejYva1RFTFZLcDNqYkU1Q2FBN0NqVk1lbS81UDVTdWhhS2d3RkM4b1RENkRE?=
+ =?utf-8?B?UU5mK281N1UwVEdlS0NBUllkc0Rndm9UNmQya2lkV1AwS3NwamlpNjdYS2xN?=
+ =?utf-8?B?b1ZKaXNIRVNYczRleUc1bGllTk1GSDZuZ0I5cnhGWjJvdm1yRWhrZFJpSWtL?=
+ =?utf-8?B?NjBibHAvQk10OWNETlRYckxCUW5ZY1JnSXNuYnZyUEQrTzhmeEJtMkRLc05y?=
+ =?utf-8?B?OTRzY29aUWZUaytDUFJ1ekgwbnlIQ1JsYWQ0d2R4R1RlZ0h6RWs1V201bmZy?=
+ =?utf-8?B?ODc4VnllTGRlbkF1b0MrNXVCanZ2ajdrRzNaMk1TalBzbmo5Skd5cGZjNjZp?=
+ =?utf-8?B?Q3pPbys0VVp4cWJGMjJjRG1leFhrQzBTYm1wMXZHZXVuY1l1NEVNWjlZUG1B?=
+ =?utf-8?B?OGVWOHJaM2ovbWx4b0ljTzNHTzRJSWhsNG9uNERsNDcxelgwOC84V2p3dDdv?=
+ =?utf-8?B?aGJCZnUxRGxkZDZwam9tcFNEdlBZY2RCUVRUS0x5WmRvZTk0QkFVMXRSSWsw?=
+ =?utf-8?B?Z2ZBV3JqcmdNVTNGSGY2Y1dNaVlha280TmYwVEdmM3lMcnVJOFNJWDhRNnVL?=
+ =?utf-8?B?a0RsK3g2aVdEN3I0M3FLUDRvaDZhdjlqYW93TVA4NENFdlpqN2lUYVh1SEgz?=
+ =?utf-8?B?NWJsd1pnQjF2Z0pmd1R2b2gyQkdvamJjVGMwYTd1TzV0Zy92NjFuVDUydmlH?=
+ =?utf-8?B?T1k2d3hCZGE4ZGFFbTFrNVpzN2xkUDNVN3VTVGFPKzM0bFE2MlM3VXlwMTQ5?=
+ =?utf-8?B?VmpmYU5aWllzMndDOW9KMGhkN3V4RitrYlZHYVI2dk4rMVIzQjVIWm8rQXRx?=
+ =?utf-8?B?ZHlBYmk3VnY1WFUwREJpUFR2WmNORXExNHhEbncxV0dPY3dyM1JEWXI3UHRu?=
+ =?utf-8?B?SGt4TWFCbmtlRG0wVGU2U1lWdmtrdU9CRnR5MkMvS3pnR0sxWmZGMXJUNUFm?=
+ =?utf-8?B?VmhaSlhYZE9FMmVMM0UvZERwQk0wcUd0YnFlTEpWVkt1Y25WemtuNkY1dmFH?=
+ =?utf-8?B?cVpTVmRSOEhyYmkzaS9aWW9vZWNORmpacE9wSldBT1FUYkRqcTBRanpWZWIx?=
+ =?utf-8?B?Q05nblVrMXBoT2ZoKzFydEdtYkhJT3FhVVp6SGc1V0ZmQ0xjZGkyY0FuN3BN?=
+ =?utf-8?B?MEhKQXdrTTI4NG1lcnNDTXFwRlh5MndaL09OZ3lTYkhRQk1hMWpEQlFwMTFi?=
+ =?utf-8?B?Z0RLQUwzSldUYVc1RUVoMUpmQXJkbE10a29pZWVHK0dFbVhtbXZZT1R0aWM0?=
+ =?utf-8?B?Rmt6WnFnL04zakQ5UXNDcTJxUDVKVlc5VlZVSVBPVTJzSkUxb3RSZE1qRnJz?=
+ =?utf-8?B?QTFNY2QxcHhvNnc2dHpwN3JxTVdqNGJUMkdpQmdpSG5ITjdnakhSTlFQUUd2?=
+ =?utf-8?B?MG9Ld3NSNGd2aVgyM0JQUHE3ekxCc3pPWU15ZGlMOXIva0d3c2xsMXdKVFVm?=
+ =?utf-8?B?b29JRW9SR0pqUFlGL0JsbkdjZmZlcHcvUmVBMWNQY3pJTHZnZ2x5UXBVUjh2?=
+ =?utf-8?B?bTR1bGI5SC9uTmZKK3o0NjlLbHV5aHBpVVlFSnk2cndva3hBdm0vZ2taVWhF?=
+ =?utf-8?B?NC9lamhSQVI3RnBhUXFqazRvOUdaQy9KUVZBZEZ4TVh1Y1BpMUhYTzRvTmtJ?=
+ =?utf-8?B?VnRpR0ZiVytLRTNOSEVjNU45TVhDVEVwMHI0V2hMQjdxY2FxOU5kWExBK1FP?=
+ =?utf-8?B?Qzg1NUkvZWY2UVB4bjRIMjlIRCswaFhtZ0UzMzJDT0lIc1d0VTJsL3ZZNlhr?=
+ =?utf-8?B?OU9KTVB2MW05UmxNVVcvNy9jVXhycDRkaXZpR1l1UW5WTjMxNkFoenpBdmd5?=
+ =?utf-8?B?bWRBQytsTGRWcFVvQTBqcG1qdHdDc0VsQlVaellXQXZxUU9aYU9ONkc3ODdB?=
+ =?utf-8?B?R1lWL2RUd3RmdGw1K0Ezc1lOSjFQVEkwUmJ5MjdQUnNoNTBYNEpFWE9nZ3RT?=
+ =?utf-8?B?MDk0cFNOdHVhVm9ib2c2bzREaDlPbzBTN2xTbEU1OVR0VndLci9iL3V6dUJ2?=
+ =?utf-8?B?RHorNW0yK28xSm5VRStXT3JibFh6Rzg2alNPS1JkYU4vWjhGLzl4SEVHaEs4?=
+ =?utf-8?B?TmdwdFhkbnRMS0NzcmRZZHNaUFdWcUpCMi9qSlJGMHp2Y0NVUTNCNGN4TVVO?=
+ =?utf-8?B?QlJWZkNqOCttMjhnWjRJY29SSTMwQzMyQ1NnRUpqRjNWUC9mTzVhR2NNTnBW?=
+ =?utf-8?B?VEtJdkhCOENmSFNGc29DTDc4WHBVWTY2cExJWVVqTlBLVzRmMG0vZz09?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <434A083F3757C742B0C86741106933DE@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 26 May 2026 20:23:53 +0000
-From: Rustam Adilov <adilov@disroot.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Sander Vanheule <sander@svanheule.net>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/1] watchdog: realtek-otto: Change to use regmap API
-In-Reply-To: <1d5091ff-e497-4b5a-a906-7cc02c31c4c0@roeck-us.net>
-References: <20260519182329.24472-1-adilov@disroot.org>
- <20260519182329.24472-2-adilov@disroot.org>
- <6ff773c9cf93167fbfcf5d9a40106121f9ac8238.camel@svanheule.net>
- <1d5091ff-e497-4b5a-a906-7cc02c31c4c0@roeck-us.net>
-Message-ID: <b4b09be5ff456a23d15a5af3237b9b46@disroot.org>
-X-Sender: adilov@disroot.org
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: microchip.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA2PR11MB4905.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3b18984-6bd7-430f-981d-08debbf08a81
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 May 2026 13:04:52.3060
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: K1BwTGeuAXjwHNVyu9OMvAnWnQweGqSX7wXshyYKucenNV9OhOlu06qKGRbDx90jq03wdiPcaKoU3REHF7wa6BcbqnkCvg8nJmOEpFxDRtE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PPF6CF7B12C6
 
-On 2026-05-19 19:25, Guenter Roeck wrote:
-> On 5/19/26 12:00, Sander Vanheule wrote:
->> Hi Rustam,
->> 
->> On Tue, 2026-05-19 at 23:23 +0500, Rustam Adilov wrote:
->> [...]
->>> @@ -74,24 +75,17 @@ struct otto_wdt_ctrl {
->>>   static int otto_wdt_start(struct watchdog_device *wdev)
->>>   {
->>>   	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
->>> -	u32 v;
->>> -
->>> -	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
->>> -	v |= OTTO_WDT_CTRL_ENABLE;
->>> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->>>   +	regmap_set_bits(ctrl->regmap, OTTO_WDT_REG_CTRL,
->>> OTTO_WDT_CTRL_ENABLE);
->>>   	return 0;
->> 
->> iowrite32() doesn't return anything, but regmap_set_bits() does.
->> 
->> You can turn this into
->>      return regmap_set_bits(...);
->> 
->>>   }
->>>     static int otto_wdt_stop(struct watchdog_device *wdev)
->>>   {
->>>   	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
->>> -	u32 v;
->>> -
->>> -	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
->>> -	v &= ~OTTO_WDT_CTRL_ENABLE;
->>> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->>>   +	regmap_clear_bits(ctrl->regmap, OTTO_WDT_REG_CTRL,
->>> +			  OTTO_WDT_CTRL_ENABLE);
->>>   	return 0;
->> 
->> Same as above.
->> This is probably short enough to keep is on one line? (< 100 characters)
->> 
->>>   }
->>>   @@ -99,8 +93,7 @@ static int otto_wdt_ping(struct watchdog_device *wdev)
->>>   {
->>>   	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
->>>   -	iowrite32(OTTO_WDT_CNTR_PING, ctrl->base + OTTO_WDT_REG_CNTR);
->>> -
->>> +	regmap_write(ctrl->regmap, OTTO_WDT_REG_CNTR, OTTO_WDT_CNTR_PING);
->>>   	return 0;
->> 
->> Same as above.
->> 
->>>   }
->>>   @@ -126,7 +119,7 @@ static int otto_wdt_determine_timeouts(struct
->>> watchdog_device *wdev, unsigned in
->>>   	unsigned int total_ticks;
->>>   	unsigned int prescale;
->>>   	unsigned int tick_ms;
->>> -	u32 v;
->>> +	u32 mask, val;
->>>     	do {
->>>   		prescale = prescale_next;
->>> @@ -142,14 +135,11 @@ static int otto_wdt_determine_timeouts(struct
->>> watchdog_device *wdev, unsigned in
->>>   	} while (phase1_ticks > OTTO_WDT_PHASE_TICKS_MAX
->>>   		|| phase2_ticks > OTTO_WDT_PHASE_TICKS_MAX);
->>>   -	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
->>> -
->>> -	v &= ~(OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 |
->>> OTTO_WDT_CTRL_PHASE2);
->>> -	v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
->>> -	v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
->>> -	v |= FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
->>> -
->>> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
->>> +	mask = OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 |
->>> OTTO_WDT_CTRL_PHASE2;
->>> +	val = FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
->>> +	val |= FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
->>> +	val |= FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
->>> +	regmap_update_bits(ctrl->regmap, OTTO_WDT_REG_CTRL, mask, val);
->> 
->> To be consistent, you would also need to propagate the result of
->> regmap_update_bits() if it's an error. Same for the other regmap_*() calls.
->> 
-> 
-> I am now inclined to reject this patch. regmap mmio never returns errors
-> unless it is associated with clocks, and now useless error handling is
-> requested. That defeats the idea of simplifying the code. Instead, its
-> complexity is increased by adding unnecessary error handling.
-> 
-> So this is now a NACK if unnecessary error handling is indeed added,
-> unless someone convinces me that this would add some benefits that I
-> am unable to see.
-> 
-> Guenter
-
-Hello,
-Sorry for taking so long to reply.
-
-Just to be clear, i didn't have a chance to do anything about the requested
-error handling. Looking at the existing watchdog drivers that use regmap, some
-implement the error handling and some don't and that's a bit confusing to me.
-I would like to see if Sander has something more to say here.
-
-While i am here, this whole patch is not specifically for simplifying the code.
-It is also about fixing an issue where the CONFIG_SWAP_IO_SPACE is enabled. It
-makes it so that ioread32 and iowrite32 perform byte swap and since this driver
-expects them not to byte swap, things break. RTL9607C is expected to have it for
-USB support.
-Alternatively i could have used __raw_readl and __raw_writel instead of regmap but
-i felt like regmap would be more accepted.
-
-Best,
-Rustam
+SGkgV2ltLA0KDQpHZW50bGUgcGluZyDigJQgYm90aCBwYXRjaGVzIGhhdmUgYmVlbiByZXZpZXdl
+ZC4gQ291bGQgdGhpcyBiZSBxdWV1ZWQgZm9yIA0KdGhlIG5leHQgY3ljbGU/DQoNClRoYW5rcywN
+CkJhbGFrcmlzaG5hbg0KDQpPbiAwMi8wMy8yNiA1OjAzIHBtLCBCYWxha3Jpc2huYW4gU2FtYmF0
+aCB3cm90ZToNCj4gVGhlIHNhbWE1ZDRfd2R0IGRyaXZlciBoYXJkY29kZXMgQVQ5MV9XRFRfV0RE
+SVMgKGJpdCAxNSkgZm9yIFdERElTDQo+IGRldGVjdGlvbiwgd2hpY2ggaXMgaW5jb3JyZWN0IGZv
+ciBTQU05WDYwIGFuZCBTQU1BN0c1IHRoYXQgdXNlIGJpdCAxMg0KPiAoQVQ5MV9TQU05WDYwX1dE
+RElTKS4gVGhpcyBzZXJpZXMgZml4ZXMgdGhlIGRldGVjdGlvbiBieSBpbnRyb2R1Y2luZw0KPiBh
+IHBlci1kZXZpY2Ugd2RkaXNfbWFzayBhbmQgZG9jdW1lbnRzIHRoZSBiaXQgcG9zaXRpb24gZGlm
+ZmVyZW5jZSBpbg0KPiB0aGUgaGVhZGVyLg0KPiANCj4gQ2hhbmdlcyBpbiB2MjoNCj4gLSBSZW9y
+ZGVyIHBhdGNoZXM6IGZpeCBmaXJzdCwgZG9jdW1lbnRhdGlvbiBzZWNvbmQNCj4gLSBEcm9wIHBh
+dGNoIDMvMywgbm90IG5lZWRlZCB3aXRoIHdkZGlzX21hc2sgYXBwcm9hY2gNCj4gLSBLZWVwIEFU
+OTFfU0FNOVg2MF8qIHJlZ2lzdGVyIG5hbWVzLCBkcm9wIF9MRUdBQ1kvX01PREVSTiBuYW1pbmcN
+Cj4gLSBMaW1pdCBoZWFkZXIgY2hhbmdlcyB0byBXRERJUyBjb21tZW50cyBhbmQgZGF0YXNoZWV0
+IHJlZmVyZW5jZXMNCj4gDQo+IEJhbGFrcmlzaG5hbiBTYW1iYXRoICgyKToNCj4gICAgd2F0Y2hk
+b2c6IHNhbWE1ZDRfd2R0OiBGaXggV0RESVMgZGV0ZWN0aW9uIG9uIFNBTTlYNjAgYW5kIFNBTUE3
+RzUNCj4gICAgd2F0Y2hkb2c6IGF0OTFzYW05X3dkdC5oOiBEb2N1bWVudCBXRERJUyBiaXQgcG9z
+aXRpb24gcGVyIFNvQyBmYW1pbHkNCj4gDQo+ICAgZHJpdmVycy93YXRjaGRvZy9hdDkxc2FtOV93
+ZHQuaCB8ICA2ICsrKy0tDQo+ICAgZHJpdmVycy93YXRjaGRvZy9zYW1hNWQ0X3dkdC5jICB8IDQ4
+ICsrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLQ0KPiAgIDIgZmlsZXMgY2hhbmdlZCwg
+MjUgaW5zZXJ0aW9ucygrKSwgMjkgZGVsZXRpb25zKC0pDQo+IA0KDQo=
