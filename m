@@ -1,35 +1,35 @@
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AB34376A08;
-	Fri, 29 May 2026 21:20:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E5573812CD;
+	Fri, 29 May 2026 21:20:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780089630; cv=none; b=pzh4Gw4NeZMCQ2EVXgVEG+z8X3Qz1AR2sBAYxEoBDITrxwIqihqINMUGoqm2K0J9HcjN+CT+/0jlhbKPOwVPxDenirKzZuWBheGJYX1NmpRNNuDC+MiAs3AdSQ3lVK84yOq9nHLVhU0DLDeb7Bum7Tss+Kkpb4G8/GueF8BNzJE=
+	t=1780089631; cv=none; b=NVbFTALPp/e7CgWc1ldBmHFlKWj//gHbK7QgkfpKxOql5gWiRDaQeNHU2aEHpHXQOCvL4QTWCT5lbtDArxGWjDOWMciZ7+fKIysFkNiCGHONaYCAd83RHDHhoux7a145dttZ0AD8JQ6MZNS4xwWv5Dcg6tYzMuirN6nfN3Jq8Qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780089630; c=relaxed/simple;
-	bh=CqSv9cmPJO/PxD6q49Z67NKiZbXS5jDlvbMSTGZIxCU=;
+	s=arc-20240116; t=1780089631; c=relaxed/simple;
+	bh=Tf0qU8LB8uYD1kHFNSO8MCcwtZ5dg+gLpqoCHJKo/r0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bf5Vpox7KDjo55WXAF5ooKaR1US9jLew00IWksueRYm/ViEMetVwQrQDi6I0mUJuKN5EDMJLV5mFLwLedGjLvOAKITXDcyWtw3Xx5QGtvbZ54WX4RJ5HhSjLMEMvtVdShPjo+FtljawcILUriVIDJlTUk6sULqRZLclEf/uIsLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=boqY+kMg; arc=none smtp.client-ip=198.137.202.133
+	 MIME-Version; b=dZ9zyBPyWfgPIcZS7gkaAjhSjjOmELIZJVccPHUdQRLLch3ZKcERGMSZVjNFBDX++cBklXwSJvmhDbWKjuiHj7Fa9/S9wKYWp3AKk5Jz4FHCmiHXAtUdJLDZSNuEMlf9k0Tt8csgVuGMAVPJd0HHmZtXRZk9aXHMidIak1Gv9f0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oLAjWzBN; arc=none smtp.client-ip=198.137.202.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="boqY+kMg"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oLAjWzBN"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=saVoIXt3/fcxXLiwGsf1nAuW7aBnL6Qy+Cl1HCXemIs=; b=boqY+kMgkTOmSL+TlAq39Zm7I3
-	8v1VFy5wyhP7HbLuNQefIq3uL7Cs5dy7WtkqadWQytOXwwINtuetYO1599bMbZUKtnBtuiguRrpP6
-	0gA582ZscO4lQvCv+/clVAPtfX09OiojlGlTjmuWWqQOOiYJlEyq8PYfQ8TSLqcijhnIHXvaKTiXM
-	4p42+C6GL4R2jQy4yPBC7xgWuep3L9atLo480MDQbQ7FH2pSGycPY7Q9VtkkiRWK3Oq3Ty31VfWHc
-	YKCPZpZfILTqHJUx0aSpnsaUAq8JfNutVetC1c4Rg+zVbeb2OrQIDhmc2EPcka8HGllph60zmHhNo
-	sAUBrQyw==;
+	bh=2wa/8Egzxo2dDMSvue2WkdpmvgoFhsomLNolAW13Grs=; b=oLAjWzBNZscOW1KuUyKbuIyS99
+	wXoMriz96y6RQFsk9ihC5jGW+lSQ4PqFL19UjqTcy3OOPYZ+BACiBVL06MB3sx3xYtjH0OF+IKwsM
+	25hMlCoj8urzrXLkibTLLNUxRWhmVz3YG3APMMEA2qyWlqtNjcQDw3gwWta2BOPTlNL18qttv8Rn6
+	9l/ugDwgPVhRrGLyXJWNtzFEYU7tuYSb//9oMVMHhnQ30h+V1imXJ3xoaFoOSL2Wp9Ucj99TzzGCz
+	vQN9LXleOIv/MfUzD50jioVdY/4QAi1aggtoeMOBo/BANp1llTTPmz1JxVGcGDo/1FETV6bgsK3qO
+	f1CDntaQ==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wT4d1-00000008F6L-0YMi;
-	Fri, 29 May 2026 21:20:27 +0000
+	id 1wT4d2-00000008F6L-0QwB;
+	Fri, 29 May 2026 21:20:28 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: Randy Dunlap <rdunlap@infradead.org>,
@@ -39,9 +39,9 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Shuah Khan <skhan@linuxfoundation.org>,
 	linux-doc@vger.kernel.org
-Subject: [PATCH v2 2/5] watchdog: linux/watchdog.h: repair kernel-doc comments
-Date: Fri, 29 May 2026 14:20:21 -0700
-Message-ID: <20260529212024.2119204-3-rdunlap@infradead.org>
+Subject: [PATCH v2 5/5] watchdog: dev: convert to kernel-doc comments
+Date: Fri, 29 May 2026 14:20:24 -0700
+Message-ID: <20260529212024.2119204-6-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260529212024.2119204-1-rdunlap@infradead.org>
 References: <20260529212024.2119204-1-rdunlap@infradead.org>
@@ -53,8 +53,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert struct comments to correct kernel-doc format and
-add one missing struct member description.
+Convert multiple functions to kernel-doc format.
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 ---
@@ -64,37 +63,143 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org
 
- include/linux/watchdog.h |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/watchdog/watchdog_dev.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- linux-next-20260525.orig/include/linux/watchdog.h
-+++ linux-next-20260525/include/linux/watchdog.h
-@@ -26,7 +26,8 @@ struct watchdog_device;
- struct watchdog_core_data;
- struct watchdog_governor;
+--- linux-next-20260525.orig/drivers/watchdog/watchdog_dev.c
++++ linux-next-20260525/drivers/watchdog/watchdog_dev.c
+@@ -176,7 +176,7 @@ static int __watchdog_ping(struct watchd
+ 	return err;
+ }
  
--/** struct watchdog_ops - The watchdog-devices operations
+-/*
 +/**
-+ * struct watchdog_ops - The watchdog-devices operations
+  * watchdog_ping - ping the watchdog
+  * @wdd: The watchdog device to ping
   *
-  * @owner:	The module owner.
-  * @start:	The routine for starting the watchdog device.
-@@ -59,7 +60,8 @@ struct watchdog_ops {
- 	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+@@ -236,7 +236,7 @@ static enum hrtimer_restart watchdog_tim
+ 	return HRTIMER_NORESTART;
+ }
+ 
+-/*
++/**
+  * watchdog_start - wrapper to start the watchdog
+  * @wdd: The watchdog device to start
+  *
+@@ -279,7 +279,7 @@ static int watchdog_start(struct watchdo
+ 	return err;
+ }
+ 
+-/*
++/**
+  * watchdog_stop - wrapper to stop the watchdog
+  * @wdd: The watchdog device to stop
+  *
+@@ -319,7 +319,7 @@ static int watchdog_stop(struct watchdog
+ 	return err;
+ }
+ 
+-/*
++/**
+  * watchdog_get_status - wrapper to get the watchdog status
+  * @wdd: The watchdog device to get the status from
+  *
+@@ -356,7 +356,7 @@ static unsigned int watchdog_get_status(
+ 	return status;
+ }
+ 
+-/*
++/**
+  * watchdog_set_timeout - set the watchdog timer timeout
+  * @wdd:	The watchdog device to set the timeout for
+  * @timeout:	Timeout to set in seconds
+@@ -391,7 +391,7 @@ static int watchdog_set_timeout(struct w
+ 	return err;
+ }
+ 
+-/*
++/**
+  * watchdog_set_pretimeout - set the watchdog timer pretimeout
+  * @wdd:	The watchdog device to set the timeout for
+  * @timeout:	pretimeout to set in seconds
+@@ -417,7 +417,7 @@ static int watchdog_set_pretimeout(struc
+ 	return err;
+ }
+ 
+-/*
++/**
+  * watchdog_get_timeleft - wrapper to get the time left before a reboot
+  * @wdd:	The watchdog device to get the remaining time from
+  * @timeleft:	The time that's left
+@@ -659,7 +659,7 @@ __ATTRIBUTE_GROUPS(wdt);
+ #define wdt_groups	NULL
+ #endif
+ 
+-/*
++/**
+  * watchdog_ioctl_op - call the watchdog drivers ioctl op if defined
+  * @wdd: The watchdog device to do the ioctl on
+  * @cmd: Watchdog command
+@@ -678,7 +678,7 @@ static int watchdog_ioctl_op(struct watc
+ 	return wdd->ops->ioctl(wdd, cmd, arg);
+ }
+ 
+-/*
++/**
+  * watchdog_write - writes to the watchdog
+  * @file:	File from VFS
+  * @data:	User address of data
+@@ -732,7 +732,7 @@ static ssize_t watchdog_write(struct fil
+ 	return len;
+ }
+ 
+-/*
++/**
+  * watchdog_ioctl - handle the different ioctl's for the watchdog device
+  * @file:	File handle to the device
+  * @cmd:	Watchdog command
+@@ -845,7 +845,7 @@ out_ioctl:
+ 	return err;
+ }
+ 
+-/*
++/**
+  * watchdog_open - open the /dev/watchdog* devices
+  * @inode:	Inode of device
+  * @file:	File handle to device
+@@ -923,7 +923,7 @@ static void watchdog_core_data_release(s
+ 	kfree(wd_data);
+ }
+ 
+-/*
++/**
+  * watchdog_release - release the watchdog device
+  * @inode:	Inode of device
+  * @file:	File handle to device
+@@ -932,7 +932,7 @@ static void watchdog_core_data_release(s
+  * stop the watchdog when we have received the magic char (and nowayout
+  * was not set), else the watchdog will keep running.
+  *
+- * Always returns 0.
++ * Returns: Always 0.
+  */
+ static int watchdog_release(struct inode *inode, struct file *file)
+ {
+@@ -1004,7 +1004,7 @@ static const struct class watchdog_class
+ 	.dev_groups =	wdt_groups,
  };
  
--/** struct watchdog_device - The structure that defines a watchdog device
+-/*
 +/**
-+ * struct watchdog_device - The structure that defines a watchdog device
+  * watchdog_cdev_register - register watchdog character device
+  * @wdd: Watchdog device
   *
-  * @id:		The watchdog's ID. (Allocated by watchdog_register_device)
-  * @parent:	The parent bus device
-@@ -83,6 +85,8 @@ struct watchdog_ops {
-  *		Replaces max_timeout if specified.
-  * @reboot_nb:	The notifier block to stop watchdog on reboot.
-  * @restart_nb:	The notifier block to register a restart function.
-+ * @pm_nb:	The notifier block to stop watchdog on suspend and restart it
-+ *		on resume.
-  * @driver_data:Pointer to the drivers private data.
-  * @wd_data:	Pointer to watchdog core internal data.
-  * @status:	Field that contains the devices internal status bits.
+@@ -1105,7 +1105,7 @@ static int watchdog_cdev_register(struct
+ 	return 0;
+ }
+ 
+-/*
++/**
+  * watchdog_cdev_unregister - unregister watchdog character device
+  * @wdd: Watchdog device
+  *
