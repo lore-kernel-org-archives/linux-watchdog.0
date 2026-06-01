@@ -1,109 +1,90 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56542F8E8A
-	for <linux-watchdog@vger.kernel.org>; Mon,  1 Jun 2026 19:20:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C81D360EDE;
+	Mon,  1 Jun 2026 19:28:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780341617; cv=none; b=tNjI0Rt+xmG/MPR41ce1o3I6+7DME+BLNyjcuWTnTfEydiaBjUjcmdk2DJHWZc2XmJudwJSNCjzZUye3HzriJhY0PbWrOLD0xN2ds9B/17Gfue42TniKGNKdcIl88K1ZQGeJ1WV4YHfBgVVY1wI/o+Cop/ny2/ntjDaBO9jObhY=
+	t=1780342091; cv=none; b=WIXCBGTyoGshjjJAyLabR94QkHh+xi6RDF0CFjaJIEGz/g+8nZy9qzuQERJ2lyjPsbRw3AYBDXzd4EDNSfalhfmjx4ktO6JUQ1+L232T5xy2qB2a87vRLDwCZyHhq31528Giwsi4TY7Q+Urz9jGRQXagekmlfYiSDlDxzEOxZBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780341617; c=relaxed/simple;
-	bh=jOgJ83c10vyqCNtY2iWTtz9+bIiFdLMtkTch3qJ39ks=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DtjR2au9q365LcLfdW3B7+Bfn0FfByFL9RCgIkXQCDuq06uAJvXizEqdUlMkyPc6f+ZFJGj4yjJ7sQcGGXlMgJZadnRqGgdFgBo84dxA14qFgkchPERf5r8neDluYLsvsfaL22p0LivZAd53yIF3uTl1YLEkb+PgtWSeubqhbMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VVXW9syO; arc=none smtp.client-ip=209.85.222.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780342091; c=relaxed/simple;
+	bh=oJvVtxM1xLc2HjJ1CGbHcAeaHfyfE1pqqFuTdIpKjvc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YWoo9gBxZh3WMGBB+V3wJzm4T4z9Fsuso1bSKdWh696exhftG/BnkMSokF/eGKu52MwWtLJu5mCEMQWlYrwYGI74V94ZEFwRVQpr84PjZzSnCRnwKC7xoRmD1eCIdOdzDdzBxXfbxugGJbTNMr+Ns3B5ijzinpJKJr8parNRcSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7HvLvVO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VVXW9syO"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-9155126daaaso206162085a.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 01 Jun 2026 12:20:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780341614; x=1780946414; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=DZKHLboCk6OHxzer0uEgo6LCbcjNpnRvCpbKSl1TcxM=;
-        b=VVXW9syOzwOqiBxoPMeNNSR9FKZbZopuQ47V9jROrICA+V1GIbjyY4dlWn/JKMew6S
-         dp1P2oltEc/nR0y404vpq6dk2nUlKEwQkmcPGlJU5A7nvZcc0ZFDjrbBBlqFPxET6l/u
-         aF0VcR39uz2mGGmksRZuoTK7mXAtSxtHBXrjX3pHbeD0sGMQae5qjMsLQjvKom8lVRfR
-         vZAYiAUnOSF6fQnU4pbb7SskW9YIamsAcMb6S+2T1DAHb+pdkzX4dUz5qxTsfPIEkWQi
-         qFxsGJPIJlXlYNMSaf8U0nLlpmhhkv94z0OFuLUxT2lYP1t2IzSpoHxIOF6z0EsxQ3pd
-         1C8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780341614; x=1780946414;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DZKHLboCk6OHxzer0uEgo6LCbcjNpnRvCpbKSl1TcxM=;
-        b=QnsF0CPPaJQMBTmrwiVMNsQ71uizRAEoLUyp8jFjaGv6HFG1+/A7eTrM++Xtxr9UC2
-         tlSdF6WKb3MNI/i7tPbnAixlrfV3aF1ETDJGCotEQs3DHP+8rGgSjenvzNK4IKrn1v2i
-         b4/EpJvdspiINP2C5TLEUQqX/gM/3uLg46+56+OeJyApxCUtXJklvE1ctrEmW+izfXyj
-         Nbwi4GCdBkdC3fyxQeA+Xa7D0vkcfCAUqpJ6nq5qg6Cnli8jQ0rCf+J8ASOdYCcCaUuU
-         iyf/RL+l0R+3glUUah8YJxPcV33E9Xj0eu82mDSnODtjrk/7k9KKTMrnF+ixJa6Wakkw
-         PPzQ==
-X-Gm-Message-State: AOJu0Yy7adRHCi/PhIMZ8HYPZuph3lSRVNMZGt4/OSvF9rYpLGGGIRTs
-	LqSwZ0lZ73qJGvx6LDE01P+H6UWeESufs9Xd66Q8v/EwRjGuWV7MbvFz
-X-Gm-Gg: Acq92OFncn1Eg+og9ueVP5Q3w36ljJiH5QVfi3Ss01G3awM2ddFHWUhXpgSbgFKxmMm
-	GT1Sl5hgdYZz26+WtTHWH6C3/kLFvLFSaNFYvUZwCHJNJiYI61vJgcBR6n/Ckm0g506VYS+ppU/
-	SSWQTlEJAmVqAoa669F1HytxkI+e/wMCkprr7xa3M/pyt1wlzDI/1fkH6ltRvoc4RrfT6eSyPUn
-	STNvpudaX9wgkbYvsPiSyUqYKOJOFuoxV9rPCoCkcVHxGPgvoc6+VYqKdEgA0CueI8ubUKrwTlp
-	kCv9AnrDHpvdAKBEvTEPcuEBVqVGGu2oj+UvH9XCEoNfQge3nvFUVnzFS6QbFXqbAso+ZR4oDl+
-	FHSddGjWryqI2GTs39aKCkjMt4gwdxJQnkJhd2RsAcVaxH4H65Fk5D82Z5fa9SrSPS9gzY40Rah
-	U1PI6Ti6Nz01xz02mX67TlfZeBAb/9sNQi3hRm+R4jJUpFU0741Lg=
-X-Received: by 2002:a05:620a:c4b:b0:914:bf8a:ba81 with SMTP id af79cd13be357-9153d9cc4c5mr2002069185a.27.1780341613562;
-        Mon, 01 Jun 2026 12:20:13 -0700 (PDT)
-Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-915325fd899sm1079168485a.30.2026.06.01.12.20.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2026 12:20:12 -0700 (PDT)
-From: Yuho Choi <dbgh9129@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7HvLvVO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32EEE1F00893;
+	Mon,  1 Jun 2026 19:28:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780342090;
+	bh=tq9hC/3pSjCU1zQh1hrpFiGfKgYq/LkIGM+ulqsQyiA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=T7HvLvVOibi7qLus6vM4bZcU/nYKtFxRDkObZU4Ht6bjnAvszWEQaWIE7f3lghyIN
+	 JJy7Nkxjyh196lRU2i44LmfFaBu4j75sVgtwkQFtOKctxO9UWvnC0wJjMkpziwbBhE
+	 RL78lH7nm5ttrkft3JDArP2TxydubsfCNRQXstUb8LvJ+ItghrBrYCGbPz1/iJuFZE
+	 884xhIC7/yhZvkL21KoTwua5HEf8//gMzUsFtJ5FF7HjGM5Dia1nhmsbsnrR08g/Ql
+	 smWOIDdem/8ePu6Ik1FYG9j+QhoaHU5VzByUaJa/GFgY1N+yYnAHic48Jhnsa6iQRZ
+	 TtzbXfCrhBeBQ==
+From: Sven Peter <sven@kernel.org>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Neal Gompa <neal@gompa.dev>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Mark Kettenis <kettenis@openbsd.org>,
+	Sasha Finkelstein <k@chaosmail.tech>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
+	Janne Grunau <j@jannau.net>
+Cc: Sven Peter <sven@kernel.org>,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Yuho Choi <dbgh9129@gmail.com>
-Subject: [PATCH v1] watchdog: unregister PM notifier on watchdog unregister
-Date: Mon,  1 Jun 2026 15:20:05 -0400
-Message-ID: <20260601192005.1970805-1-dbgh9129@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	linux-pwm@vger.kernel.org,
+	Joshua Peisach <jpeisach@ubuntu.com>,
+	Michael Reeves <michael.reeves077@gmail.com>
+Subject: Re: (subset) [PATCH v2 0/6] Initial Apple silicon M3 device trees and dt-bindings
+Date: Mon,  1 Jun 2026 21:27:52 +0200
+Message-ID: <178034193517.3711.18153194478204531400.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net>
+References: <20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-watchdog_register_device() registers wdd->pm_nb when
-WDOG_NO_PING_ON_SUSPEND is set, but watchdog_unregister_device() does not
-remove it. This leaves an embedded notifier block on the PM notifier chain
-after the watchdog device has been unregistered.
+On Tue, 05 May 2026 13:02:38 +0200, Janne Grunau wrote:
+> Hej,
+> 
+> This series adds initial device trees for M3 Apple silicon devices. The
+> device trees contain only a minimal set of hardware not going much
+> beyond the minimum required for booting kernel and initramfs and
+> verify via serial console that the hardware and drivers work.
+> The hardware with the exception of the interrupt controller is
+> compatible with the M1 and M2 SoCs and the existing drivers.
+> `make dtbs_check` fails due to already applied and dropped apple,i2c
+> dt-bindings change (commit c5f25f5800f5 ("dt-bindings: i2c: apple,i2c:
+> Add t8122 compatible") in
+> https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+> i2c/for-next).
+> 
+> [...]
 
-A later suspend/resume notification can then call watchdog_pm_notifier()
-with a stale watchdog_device pointer, or at minimum after wdd->wd_data has
-been cleared by watchdog_dev_unregister().
+Applied to local tree (apple-soc/dt-7.2), thanks!
 
-Unregister the PM notifier before tearing down the watchdog device.
+[1/6] dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible
+      https://github.com/AsahiLinux/linux/commit/0407ad56fbbf
 
-Fixes: 60bcd91aafd2 ("watchdog: introduce watchdog_dev_suspend/resume")
-Signed-off-by: Yuho Choi <dbgh9129@gmail.com>
----
- drivers/watchdog/watchdog_core.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 8300520688d0..6c087b4ef5dd 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -391,6 +391,9 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
- 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
- 		unregister_reboot_notifier(&wdd->reboot_nb);
- 
-+	if (test_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status))
-+		unregister_pm_notifier(&wdd->pm_nb);
-+
- 	watchdog_dev_unregister(wdd);
- 	ida_free(&watchdog_ida, wdd->id);
- }
+Best regards,
 -- 
-2.43.0
+Sven Peter <sven@kernel.org>
 
