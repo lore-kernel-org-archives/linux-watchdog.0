@@ -1,90 +1,186 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C81D360EDE;
-	Mon,  1 Jun 2026 19:28:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F72235C1BD
+	for <linux-watchdog@vger.kernel.org>; Mon,  1 Jun 2026 19:32:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780342091; cv=none; b=WIXCBGTyoGshjjJAyLabR94QkHh+xi6RDF0CFjaJIEGz/g+8nZy9qzuQERJ2lyjPsbRw3AYBDXzd4EDNSfalhfmjx4ktO6JUQ1+L232T5xy2qB2a87vRLDwCZyHhq31528Giwsi4TY7Q+Urz9jGRQXagekmlfYiSDlDxzEOxZBI=
+	t=1780342356; cv=none; b=Eo56B7Ey/E7SAtKJfeOSmy7b6m52ToPQyePc2jGY2HaHQYM4wYVAzSS7OdP91hwd6zX1aFSwkN93HPIiSCQod69jPD9WEirtsF0SutnmvC6WSZTkBy/XdZaWW5yzIa3SVRJtCebQT8a7g7lzs4E4zYWACBfJ6UloV//p0BuV9j0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780342091; c=relaxed/simple;
-	bh=oJvVtxM1xLc2HjJ1CGbHcAeaHfyfE1pqqFuTdIpKjvc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YWoo9gBxZh3WMGBB+V3wJzm4T4z9Fsuso1bSKdWh696exhftG/BnkMSokF/eGKu52MwWtLJu5mCEMQWlYrwYGI74V94ZEFwRVQpr84PjZzSnCRnwKC7xoRmD1eCIdOdzDdzBxXfbxugGJbTNMr+Ns3B5ijzinpJKJr8parNRcSg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7HvLvVO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780342356; c=relaxed/simple;
+	bh=YSoiQolpgzE3kbpA5FO7+B/GGJZQ+AUpD420iCnCOh8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hnGApLH9yOJXM7jG+fg/YbfujVBVg4TzhCd9/U7XgNEKRRkGnBQGx9FnJhkyjgzfPXFPBqNdUFZyUlgcsVkI41Jix0JeLhJvBttXYY/VQDZESUgZr6ifQSYI4+ZmTMjTH/TPIPWj7XwbSLW0ooDrvAaCaI6a+BsMfA127peenu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cyigKeys; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7HvLvVO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32EEE1F00893;
-	Mon,  1 Jun 2026 19:28:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cyigKeys"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01F81F00893;
+	Mon,  1 Jun 2026 19:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780342090;
-	bh=tq9hC/3pSjCU1zQh1hrpFiGfKgYq/LkIGM+ulqsQyiA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=T7HvLvVOibi7qLus6vM4bZcU/nYKtFxRDkObZU4Ht6bjnAvszWEQaWIE7f3lghyIN
-	 JJy7Nkxjyh196lRU2i44LmfFaBu4j75sVgtwkQFtOKctxO9UWvnC0wJjMkpziwbBhE
-	 RL78lH7nm5ttrkft3JDArP2TxydubsfCNRQXstUb8LvJ+ItghrBrYCGbPz1/iJuFZE
-	 884xhIC7/yhZvkL21KoTwua5HEf8//gMzUsFtJ5FF7HjGM5Dia1nhmsbsnrR08g/Ql
-	 smWOIDdem/8ePu6Ik1FYG9j+QhoaHU5VzByUaJa/GFgY1N+yYnAHic48Jhnsa6iQRZ
-	 TtzbXfCrhBeBQ==
-From: Sven Peter <sven@kernel.org>
-To: Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Neal Gompa <neal@gompa.dev>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Sasha Finkelstein <k@chaosmail.tech>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
-	Janne Grunau <j@jannau.net>
-Cc: Sven Peter <sven@kernel.org>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	linux-pwm@vger.kernel.org,
-	Joshua Peisach <jpeisach@ubuntu.com>,
-	Michael Reeves <michael.reeves077@gmail.com>
-Subject: Re: (subset) [PATCH v2 0/6] Initial Apple silicon M3 device trees and dt-bindings
-Date: Mon,  1 Jun 2026 21:27:52 +0200
-Message-ID: <178034193517.3711.18153194478204531400.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net>
-References: <20260505-apple-m3-initial-devicetrees-v2-0-b0c2f3519e0e@jannau.net>
+	s=k20260515; t=1780342354;
+	bh=DlQWQBqJ0kFjOOFCcFPHE8dQN8rw4erXmc9dMYJA03M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=cyigKeysfa/dtW1EGFncdeamzm70itXr+OWiJoa4iKEj22uAKxqvCl0/oYkybtAfM
+	 RW81+FVoTdwnSEixAA2QW5dPmnm04UnufV0/x4cqdZ6WWaRoD4sTdnERPe1TkY2ZpF
+	 ISlCcPvsFnv/HqIcFb7Rd3nA4SUrMU/dE36ShZxJNhDAuJYUZOvtusF6/7E6HsF941
+	 NHy2f0pptX5rY4E5C28lRHCO/8pKYP9WRhaM1r/2H4VvrAiNSWrpZKmi0Z8v3ciS/h
+	 rV15a70z5ZeaYzmEquOPnLaJwke3LhcbcsGf0yARwvjTGpkFHffMozR4iFiugd8OzY
+	 o110Lfy+qSv0Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1] watchdog: unregister PM notifier on watchdog
+ unregister
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yuho Choi" <dbgh9129@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260601192005.1970805-1-dbgh9129@gmail.com>
+References: <20260601192005.1970805-1-dbgh9129@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 01 Jun 2026 19:32:34 +0000
+Message-Id: <20260601193234.A01F81F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
 
-On Tue, 05 May 2026 13:02:38 +0200, Janne Grunau wrote:
-> Hej,
-> 
-> This series adds initial device trees for M3 Apple silicon devices. The
-> device trees contain only a minimal set of hardware not going much
-> beyond the minimum required for booting kernel and initramfs and
-> verify via serial console that the hardware and drivers work.
-> The hardware with the exception of the interrupt controller is
-> compatible with the M1 and M2 SoCs and the existing drivers.
-> `make dtbs_check` fails due to already applied and dropped apple,i2c
-> dt-bindings change (commit c5f25f5800f5 ("dt-bindings: i2c: apple,i2c:
-> Add t8122 compatible") in
-> https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
-> i2c/for-next).
-> 
-> [...]
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Applied to local tree (apple-soc/dt-7.2), thanks!
+Pre-existing issues:
+- [High] Ignored errors during deferred watchdog registration and unhandled=
+ failure paths lead to Use-After-Free and NULL pointer dereferences upon un=
+registration.
+- [High] Lockless access to `wd_data->wdd` in `watchdog_open()` leads to a =
+Use-After-Free and violates the `watchdog_start()` locking contract.
+--
 
-[1/6] dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible
-      https://github.com/AsahiLinux/linux/commit/0407ad56fbbf
+commit 7739691e12f24218c1001ecfc408a279156feca5
+Author: Yuho Choi <dbgh9129@gmail.com>
 
-Best regards,
--- 
-Sven Peter <sven@kernel.org>
+watchdog: unregister PM notifier on watchdog unregister
 
+This commit ensures the PM notifier is unregistered before tearing down the
+watchdog device. Previously, if WDOG_NO_PING_ON_SUSPEND was set, the embedd=
+ed
+notifier block would be left on the PM notifier chain after unregistration,
+potentially leading to calls with a stale watchdog_device pointer.
+
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog=
+_core.c
+> index 8300520688d07..6c087b4ef5dd5 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -391,6 +391,9 @@ static void __watchdog_unregister_device(struct watch=
+dog_device *wdd)
+>  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+>  		unregister_reboot_notifier(&wdd->reboot_nb);
+> =20
+> +	if (test_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status))
+> +		unregister_pm_notifier(&wdd->pm_nb);
+> +
+>  	watchdog_dev_unregister(wdd);
+
+[Severity: High]
+This is a pre-existing issue, but I noticed that ignored errors during
+deferred watchdog registration and unhandled failure paths can lead to a
+Use-After-Free and NULL pointer dereferences upon unregistration.
+
+When a watchdog driver registers early, watchdog_register_device() adds it =
+to
+wtd_deferred_reg_list and returns 0. Later, watchdog_deferred_registration()
+processes the list:
+
+drivers/watchdog/watchdog_core.c:watchdog_deferred_registration() {
+    ...
+		list_del(&wdd->deferred);
+		__watchdog_register_device(wdd);
+	}
+	mutex_unlock(&wtd_deferred_reg_mutex);
+}
+
+The return value of __watchdog_register_device() is ignored here, concealing
+fatal failures from drivers. If watchdog_cdev_register() fails, the error
+paths free wd_data via put_device() but fail to clear wdd->wd_data:
+
+drivers/watchdog/watchdog_dev.c:watchdog_cdev_register() {
+    ...
+	if (err) {
+		pr_err("watchdog%d unable to add device %d:%d\n",
+			wdd->id,  MAJOR(watchdog_devt), wdd->id);
+		...
+		put_device(&wd_data->dev);
+		return err;
+	}
+    ...
+}
+
+When the driver is later unbound, it calls watchdog_unregister_device(), wh=
+ich
+invokes watchdog_cdev_unregister(). This function unconditionally dereferen=
+ces
+wdd->wd_data:
+
+drivers/watchdog/watchdog_dev.c:watchdog_cdev_unregister() {
+    ...
+	struct watchdog_core_data *wd_data =3D wdd->wd_data;
+
+	cdev_device_del(&wd_data->cdev, &wd_data->dev);
+    ...
+}
+
+Could this lead to a NULL pointer dereference or a Use-After-Free if deferr=
+ed
+registration fails, since wdd->wd_data was not cleared?
+
+[Severity: High]
+This is a pre-existing issue, but lockless access to wd_data->wdd in
+watchdog_open() appears to lead to a Use-After-Free and violates the
+watchdog_start() locking contract.
+
+watchdog_open() fetches wdd =3D wd_data->wdd locklessly, failing to acquire
+wd_data->lock to synchronize with concurrent teardown operations:
+
+drivers/watchdog/watchdog_dev.c:watchdog_open() {
+    ...
+	wdd =3D wd_data->wdd;
+
+	/*
+	 * If the /dev/watchdog device is open, we don't want the module
+	 * to be unloaded.
+	 */
+	hw_running =3D watchdog_hw_running(wdd);
+	if (!hw_running && !try_module_get(wdd->ops->owner)) {
+		err =3D -EBUSY;
+		goto out_clear;
+	}
+
+	err =3D watchdog_start(wdd);
+    ...
+}
+
+If a device unbind or hot-unplug occurs concurrently,
+watchdog_cdev_unregister() acquires wd_data->lock, sets wd_data->wdd =3D NU=
+LL,
+and unlocks:
+
+drivers/watchdog/watchdog_dev.c:watchdog_cdev_unregister() {
+    ...
+	mutex_lock(&wd_data->lock);
+	wd_data->wdd =3D NULL;
+	wdd->wd_data =3D NULL;
+	mutex_unlock(&wd_data->lock);
+    ...
+}
+
+Does this allow watchdog_open() to dereference a freed wdd pointer if the
+hardware driver finishes its remove() callback and frees wdd? Additionally,
+is the locking contract for watchdog_start() violated since wd_data->lock
+is not held?
+
+>  	ida_free(&watchdog_ida, wdd->id);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601192005.1970=
+805-1-dbgh9129@gmail.com?part=3D1
