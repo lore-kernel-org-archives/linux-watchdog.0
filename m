@@ -1,138 +1,151 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234BD37CD39
-	for <linux-watchdog@vger.kernel.org>; Tue,  2 Jun 2026 03:56:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272E338D6B8
+	for <linux-watchdog@vger.kernel.org>; Tue,  2 Jun 2026 04:10:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780372599; cv=none; b=t3/vVRgIwrckT5f2APOooVlGMyotO2TqvuwNrg/6IBWc5zOfKEDwDC+zRJSLp/u6A3AT3nVhPd5c9lsQh64NIxqyhgSmOBbi/Q649MOjjgloQjtWX8QPhasGLjkCthheebvD4brrDJbuyPsuM/R8GlzPQigqcvOUw/Z0Mj3rS60=
+	t=1780373439; cv=none; b=oEyXhSvoMyBcZUrRtJdxwQbO965BmJvFdgCLFUqi9m7c8W4KOg47LCv/w/lf/yflT3i2pTFPcbs5s/uXDap4x43lf0bCBBNesjkMM3FJ0hPssCWHS5q/V2O2zONz6i8pNrB+pC5zSuLlNsRydz22rf/AWVRZel10wJJ9u6Drueo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780372599; c=relaxed/simple;
-	bh=b8dClMO3fqopElGLyFWvnTYXFYmyQYf0jHbLbgu4/zc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uDcyRnXqBmSF+xpYHLBwmg7UvVvDG9Rpxg9qGARd2SI9m5/KbrQbEaH2Ii3ro3B84qPIleqDACn0r0/i0x1UG/jl0AMMSjpZvPAslYrTaXyQs6ZDAAbdIzdawImV8KMnbqsvbBDcH300ripOgO0w9IA/wurKaYectODAyAWBiGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M5v31RcO; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780373439; c=relaxed/simple;
+	bh=5dp1kowQepaLrd1ltqfnHWJkiePnD5GMMGlmEePhoQY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=YWXK/FjhHzdxFnbuLb6Qo3gZJXHzKQIgeaLm3EOleCvCw4/gDclKXRawdBGyNyoM5zcdMgyRWA1eelXjNe0ZGVo82KYimtA93CKJmT8leXBd+KEKbjfRlV18AM35h44O/DGh/+Rq9aEnYcaWc38tuD/1G87jJeJCPfmEq9v4/Os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XbpS2c72; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M5v31RcO"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c858961a8efso885371a12.2
-        for <linux-watchdog@vger.kernel.org>; Mon, 01 Jun 2026 20:56:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780372597; x=1780977397; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=d817NOr3momH70wIRQ5A6GydO8RK9hEIFT/iNULbrzs=;
-        b=M5v31RcOkxtlv6kaY3Uam3O5Ku2huXO/M1BRljRmp6fs0S5SbiXPDAIo6muT6ua9A9
-         BK14rJojcQyImF+JPD3U8iNVpbZmCYdjUU4pvNtx8SEEMjuR1g9OWKc18XsYDSpyge+f
-         cJ6RP6DjQBntn7JxIyMRZReBgyuCCQLrCYjATC86bh8woPWo6UK9Zc3jD9QuEdkpwp37
-         VsZdD6/rmOhDrvcPgaN71rlcTwtJ3ejv7ynAj1dWX832REDmi2g1r0A5tFsi7NDavRGu
-         hb5eL/LH+qj6X1tc17qWNLkq5be1pWCAPjkIJPEWx0oPHOn3wDoWBfIwSLz4y0obwTuh
-         LZWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780372597; x=1780977397;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=d817NOr3momH70wIRQ5A6GydO8RK9hEIFT/iNULbrzs=;
-        b=ALli62O2WSztLSoWQhieHLzDrva5POimOQPFG/Dr13kfguLFzmEcCgxqTvBNmyz4Ku
-         E6MiMfkfEOMoe8gEHMmUwEVpYE/Z4enPsmv5MahEC6YmoD8ZdxXkD9lpxdNnteqE3ovO
-         PjL9SO7tXvYaH7WaIPDNf0mSjMg2gUB6HVV/Y0eYEbMwO6CYM2eJ78JbjIBxdQsElBKM
-         tZ/h+rnaoI+RR2lRKZXVgErYVt0CB4G/wk1AsmQqesxbDPTo/eqJZxH91H4YSW0O+ZM3
-         XLyg1Oq/VTQAO6S58r35KQfWooqUx0XooMQbgukbb0hb+/6k4jfVJlkmNSX/Jdsxvsw8
-         7sFw==
-X-Gm-Message-State: AOJu0YxOxkYs5k5b74stHnriqY0qRnmq3rNzSFht1zzaUXGtEqw6CCvp
-	5oIvY51rv7J5kOycKXle1TW/xqg/Xt4LwfkJSCym5xDDOC3eoNXIv2qN6Pir8Q==
-X-Gm-Gg: Acq92OH36d2FZxcx6OPfmjr3vHOuTBRvlnZXHFdo+BGgjPJmzdY0ocvmD3zZLLEd5PB
-	k8TxHS3l30cshsvQHjprLmwiJzMTc6NKd9F/DfdkBn1wxZLbLqhYYxhjwiKsSoeiWHRR1/i7Mbn
-	+OA2+5j50PMEtpILzR/RgiXFOzFhV3vUyRiPN3/gIYilAiZ7VwWr77VyHM/AH/9UnkoJmqBggIx
-	+FzQkR7QsDjNzXcP0tUw67AZm3r7HCzTX2+bW8Ll1SBz6mTo17sAHgMLtV8F0pQeWdqzrW4p1fU
-	VvmrocrOZemKY+niWAPRiDyCM9+tQBw7gK4pW+1ySDBn2+arAUs/9kizYuC+1zRtZhU+2ubIQow
-	FuI08bQlSJvG/wfkEGf8subm7BPT0+Jd9Zkm31FDP8xtfHM1YfUCgW9fK8dRTThHOy9ljeoZdmx
-	ZxTVvV8CSMdhkZi41QFOTlwPUNMNJlYWDRcHwSuyZqz11LJwJkFFo7NJhjYKGcLCyemDyZZp/fw
-	5OkhC53hh1pncUxd/R9SXbbdgXG/8zToYf374NRBZ1zOg==
-X-Received: by 2002:a05:6a21:4e03:b0:3b4:cd6:88b with SMTP id adf61e73a8af0-3b427fe5b05mr15201820637.46.1780372597306;
-        Mon, 01 Jun 2026 20:56:37 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8583333e80sm8927633a12.18.2026.06.01.20.56.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2026 20:56:36 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	chleroy@kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] watchdog: pika_wdt: replace in_be32/out_be32 with ioread32be/iowrite32be
-Date: Mon,  1 Jun 2026 20:56:20 -0700
-Message-ID: <20260602035620.623085-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XbpS2c72"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5EA61F00893;
+	Tue,  2 Jun 2026 04:10:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780373437;
+	bh=Y+6CrsqqxJnpnq46Bs4iZigbhC7WGZaqEeErx/ex0RE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XbpS2c72u3oytwGwiYh2iLCOUOoEhp9LmVzH2an6z3+BBzY+vornPj/Jlb/038NOt
+	 po5D+90DmrWe4FwJu62ERhUxVnaqg0CLsKyaxe+FfF7nFcA3CTlzEu27umitIImpjr
+	 OpL5tI2qIPmZ8M3xfbak5ZMLkf9H1lyvDxS5M5vO6Vt/CqiS0ecs1GvwAEK93YRTxz
+	 qdTMrv1zLu4JEoWVD/BTECFjA44Dp2JnVf+iZXd53z/CBz2Kn01xBnB7k4WIlK174v
+	 sE99eVmUl0fwftjqk3k17uB9k+8RGxs/WH22EClG9I1RNI73HcnJpXf1F9ilj7Swcb
+	 g+1ZVoOdAKAyQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: pika_wdt: replace in_be32/out_be32 with
+ ioread32be/iowrite32be
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rosen Penev" <rosenp@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260602035620.623085-1-rosenp@gmail.com>
+References: <20260602035620.623085-1-rosenp@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 02 Jun 2026 04:10:37 +0000
+Message-Id: <20260602041037.B5EA61F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+
+New issues:
+- [Low] Relaxing Kconfig dependency allows compilation on unsupported archi=
+tectures, causing build failures.
+
+Pre-existing issues:
+- [High] The module fails to delete its background timer on exit, leading t=
+o a use-after-free and kernel panic.
+- [High] A race condition during an unexpected close allows the watchdog ti=
+mer to re-arm indefinitely, failing to reset the machine.
+--
+
+commit 432026085d9a8c09851b8a2cd20ef5d62df73ad1
+Author: Rosen Penev <rosenp@gmail.com>
+
+watchdog: pika_wdt: replace in_be32/out_be32 with ioread32be/iowrite32be
 
 Convert the ppc4xx-specific in_be32/out_be32 to the portable
 ioread32be/iowrite32be. Also relax the Kconfig dependency from
 (PPC64 && COMPILE_TEST) to just COMPILE_TEST to get build coverage.
 
-Assisted-by: opencode:big-pickle
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- drivers/watchdog/Kconfig    | 2 +-
- drivers/watchdog/pika_wdt.c | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index dc78729ba2a5d..a7e53091f27c5 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -2065,7 +2065,7 @@ config 8xxx_WDT
+> =20
+>  config PIKA_WDT
+>  	tristate "PIKA FPGA Watchdog"
+> -	depends on WARP || (PPC64 && COMPILE_TEST)
+> +	depends on WARP || COMPILE_TEST
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 8319c503319a..7c5d6f642a96 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2040,7 +2040,7 @@ config 8xxx_WDT
- 
- config PIKA_WDT
- 	tristate "PIKA FPGA Watchdog"
--	depends on WARP || (PPC64 && COMPILE_TEST)
-+	depends on WARP || COMPILE_TEST
- 	default WARP
- 	help
- 	  This enables the watchdog in the PIKA FPGA. Currently used on
-diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-index 87b8988d2520..2d3c201540a9 100644
---- a/drivers/watchdog/pika_wdt.c
-+++ b/drivers/watchdog/pika_wdt.c
-@@ -77,10 +77,10 @@ static inline void pikawdt_reset(void)
- 	 *           seconds. Valid ranges are 1 to 15 seconds. The value can
- 	 *           be modified dynamically.
- 	 */
--	unsigned reset = in_be32(pikawdt_private.fpga + 0x14);
-+	unsigned reset = ioread32be(pikawdt_private.fpga + 0x14);
- 	/* enable with max timeout - 15 seconds */
- 	reset |= (1 << 7) + (WDT_HW_TIMEOUT << 8);
--	out_be32(pikawdt_private.fpga + 0x14, reset);
-+	iowrite32be(reset, pikawdt_private.fpga + 0x14);
- }
- 
- /*
-@@ -242,7 +242,7 @@ static int __init pikawdt_init(void)
- 		return -ENOMEM;
- 	}
- 
--	ident.firmware_version = in_be32(pikawdt_private.fpga + 0x1c) & 0xffff;
-+	ident.firmware_version = ioread32be(pikawdt_private.fpga + 0x1c) & 0xffff;
- 
- 	/* POST information is in the sd area. */
- 	np = of_find_compatible_node(NULL, NULL, "pika,fpga-sd");
-@@ -264,7 +264,7 @@ static int __init pikawdt_init(void)
- 	 * Bit 31,   WDOG: Set to 1 when the last reset was caused by a watchdog
- 	 *           timeout.
- 	 */
--	post1 = in_be32(fpga + 0x40);
-+	post1 = ioread32be(fpga + 0x40);
- 	if (post1 & 0x80000000)
- 		pikawdt_private.bootstatus = WDIOF_CARDRESET;
- 
--- 
-2.54.0
+[Severity: Low]
+Will relaxing this dependency cause build failures on architectures without
+I/O memory support?
 
+Because the driver utilizes memory-mapped I/O functions like ioread32be()
+and iowrite32be(), removing the implicit requirement for HAS_IOMEM (which
+PPC64 previously satisfied) might allow it to be compiled on architectures
+that lack I/O memory (such as S390 without PCI).
+
+Should this include a dependency on HAS_IOMEM?
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does pikawdt_exit() leak a running timer?
+
+If the watchdog device is closed properly via the magic close character,
+the driver leaves the timer running in the background. If the module is
+then unloaded, the exit function doesn't stop the timer:
+
+drivers/watchdog/pika_wdt.c:pikawdt_exit() {
+        misc_deregister(&pikawdt_miscdev);
+        iounmap(pikawdt_private.fpga);
+}
+
+When the kernel timer wheel expires and attempts to execute pikawdt_ping()
+in unmapped memory, will this result in a use-after-free and a kernel
+panic?
+
+Could a call to timer_delete_sync() be added here to prevent this?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is there a race condition
+during an unexpected close that defeats the watchdog reset?
+
+In pikawdt_release(), an unexpected close attempts to stop the ping timer:
+
+drivers/watchdog/pika_wdt.c:pikawdt_release() {
+        ...
+        if (!pikawdt_private.expect_close)
+                timer_delete(&pikawdt_private.timer);
+
+        clear_bit(0, &pikawdt_private.open);
+        ...
+}
+
+Because timer_delete() does not synchronize with concurrently running
+handlers, if pikawdt_ping() is executing on another CPU, it can evaluate
+its condition as true and call mod_timer(), re-arming the timer after it
+was deleted:
+
+drivers/watchdog/pika_wdt.c:pikawdt_ping() {
+        ...
+        if (time_before(jiffies, pikawdt_private.next_heartbeat) ||
+                        (!nowayout && !pikawdt_private.open)) {
+                pikawdt_reset();
+                mod_timer(&pikawdt_private.timer, jiffies + WDT_TIMEOUT);
+        }
+        ...
+}
+
+Since pikawdt_release() clears the open bit immediately after, the
+improperly re-armed timer will evaluate its fallback condition
+(!nowayout && !pikawdt_private.open) as true on subsequent ticks.
+
+Won't this cause it to pat the watchdog forever, completely preventing a
+system reset during an unexpected daemon termination?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260602035620.6230=
+85-1-rosenp@gmail.com?part=3D1
