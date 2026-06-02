@@ -1,186 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F72235C1BD
-	for <linux-watchdog@vger.kernel.org>; Mon,  1 Jun 2026 19:32:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234BD37CD39
+	for <linux-watchdog@vger.kernel.org>; Tue,  2 Jun 2026 03:56:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780342356; cv=none; b=Eo56B7Ey/E7SAtKJfeOSmy7b6m52ToPQyePc2jGY2HaHQYM4wYVAzSS7OdP91hwd6zX1aFSwkN93HPIiSCQod69jPD9WEirtsF0SutnmvC6WSZTkBy/XdZaWW5yzIa3SVRJtCebQT8a7g7lzs4E4zYWACBfJ6UloV//p0BuV9j0=
+	t=1780372599; cv=none; b=t3/vVRgIwrckT5f2APOooVlGMyotO2TqvuwNrg/6IBWc5zOfKEDwDC+zRJSLp/u6A3AT3nVhPd5c9lsQh64NIxqyhgSmOBbi/Q649MOjjgloQjtWX8QPhasGLjkCthheebvD4brrDJbuyPsuM/R8GlzPQigqcvOUw/Z0Mj3rS60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780342356; c=relaxed/simple;
-	bh=YSoiQolpgzE3kbpA5FO7+B/GGJZQ+AUpD420iCnCOh8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hnGApLH9yOJXM7jG+fg/YbfujVBVg4TzhCd9/U7XgNEKRRkGnBQGx9FnJhkyjgzfPXFPBqNdUFZyUlgcsVkI41Jix0JeLhJvBttXYY/VQDZESUgZr6ifQSYI4+ZmTMjTH/TPIPWj7XwbSLW0ooDrvAaCaI6a+BsMfA127peenu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cyigKeys; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780372599; c=relaxed/simple;
+	bh=b8dClMO3fqopElGLyFWvnTYXFYmyQYf0jHbLbgu4/zc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uDcyRnXqBmSF+xpYHLBwmg7UvVvDG9Rpxg9qGARd2SI9m5/KbrQbEaH2Ii3ro3B84qPIleqDACn0r0/i0x1UG/jl0AMMSjpZvPAslYrTaXyQs6ZDAAbdIzdawImV8KMnbqsvbBDcH300ripOgO0w9IA/wurKaYectODAyAWBiGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M5v31RcO; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cyigKeys"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01F81F00893;
-	Mon,  1 Jun 2026 19:32:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780342354;
-	bh=DlQWQBqJ0kFjOOFCcFPHE8dQN8rw4erXmc9dMYJA03M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cyigKeysfa/dtW1EGFncdeamzm70itXr+OWiJoa4iKEj22uAKxqvCl0/oYkybtAfM
-	 RW81+FVoTdwnSEixAA2QW5dPmnm04UnufV0/x4cqdZ6WWaRoD4sTdnERPe1TkY2ZpF
-	 ISlCcPvsFnv/HqIcFb7Rd3nA4SUrMU/dE36ShZxJNhDAuJYUZOvtusF6/7E6HsF941
-	 NHy2f0pptX5rY4E5C28lRHCO/8pKYP9WRhaM1r/2H4VvrAiNSWrpZKmi0Z8v3ciS/h
-	 rV15a70z5ZeaYzmEquOPnLaJwke3LhcbcsGf0yARwvjTGpkFHffMozR4iFiugd8OzY
-	 o110Lfy+qSv0Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] watchdog: unregister PM notifier on watchdog
- unregister
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <dbgh9129@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260601192005.1970805-1-dbgh9129@gmail.com>
-References: <20260601192005.1970805-1-dbgh9129@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 01 Jun 2026 19:32:34 +0000
-Message-Id: <20260601193234.A01F81F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M5v31RcO"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c858961a8efso885371a12.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 01 Jun 2026 20:56:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780372597; x=1780977397; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=d817NOr3momH70wIRQ5A6GydO8RK9hEIFT/iNULbrzs=;
+        b=M5v31RcOkxtlv6kaY3Uam3O5Ku2huXO/M1BRljRmp6fs0S5SbiXPDAIo6muT6ua9A9
+         BK14rJojcQyImF+JPD3U8iNVpbZmCYdjUU4pvNtx8SEEMjuR1g9OWKc18XsYDSpyge+f
+         cJ6RP6DjQBntn7JxIyMRZReBgyuCCQLrCYjATC86bh8woPWo6UK9Zc3jD9QuEdkpwp37
+         VsZdD6/rmOhDrvcPgaN71rlcTwtJ3ejv7ynAj1dWX832REDmi2g1r0A5tFsi7NDavRGu
+         hb5eL/LH+qj6X1tc17qWNLkq5be1pWCAPjkIJPEWx0oPHOn3wDoWBfIwSLz4y0obwTuh
+         LZWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780372597; x=1780977397;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=d817NOr3momH70wIRQ5A6GydO8RK9hEIFT/iNULbrzs=;
+        b=ALli62O2WSztLSoWQhieHLzDrva5POimOQPFG/Dr13kfguLFzmEcCgxqTvBNmyz4Ku
+         E6MiMfkfEOMoe8gEHMmUwEVpYE/Z4enPsmv5MahEC6YmoD8ZdxXkD9lpxdNnteqE3ovO
+         PjL9SO7tXvYaH7WaIPDNf0mSjMg2gUB6HVV/Y0eYEbMwO6CYM2eJ78JbjIBxdQsElBKM
+         tZ/h+rnaoI+RR2lRKZXVgErYVt0CB4G/wk1AsmQqesxbDPTo/eqJZxH91H4YSW0O+ZM3
+         XLyg1Oq/VTQAO6S58r35KQfWooqUx0XooMQbgukbb0hb+/6k4jfVJlkmNSX/Jdsxvsw8
+         7sFw==
+X-Gm-Message-State: AOJu0YxOxkYs5k5b74stHnriqY0qRnmq3rNzSFht1zzaUXGtEqw6CCvp
+	5oIvY51rv7J5kOycKXle1TW/xqg/Xt4LwfkJSCym5xDDOC3eoNXIv2qN6Pir8Q==
+X-Gm-Gg: Acq92OH36d2FZxcx6OPfmjr3vHOuTBRvlnZXHFdo+BGgjPJmzdY0ocvmD3zZLLEd5PB
+	k8TxHS3l30cshsvQHjprLmwiJzMTc6NKd9F/DfdkBn1wxZLbLqhYYxhjwiKsSoeiWHRR1/i7Mbn
+	+OA2+5j50PMEtpILzR/RgiXFOzFhV3vUyRiPN3/gIYilAiZ7VwWr77VyHM/AH/9UnkoJmqBggIx
+	+FzQkR7QsDjNzXcP0tUw67AZm3r7HCzTX2+bW8Ll1SBz6mTo17sAHgMLtV8F0pQeWdqzrW4p1fU
+	VvmrocrOZemKY+niWAPRiDyCM9+tQBw7gK4pW+1ySDBn2+arAUs/9kizYuC+1zRtZhU+2ubIQow
+	FuI08bQlSJvG/wfkEGf8subm7BPT0+Jd9Zkm31FDP8xtfHM1YfUCgW9fK8dRTThHOy9ljeoZdmx
+	ZxTVvV8CSMdhkZi41QFOTlwPUNMNJlYWDRcHwSuyZqz11LJwJkFFo7NJhjYKGcLCyemDyZZp/fw
+	5OkhC53hh1pncUxd/R9SXbbdgXG/8zToYf374NRBZ1zOg==
+X-Received: by 2002:a05:6a21:4e03:b0:3b4:cd6:88b with SMTP id adf61e73a8af0-3b427fe5b05mr15201820637.46.1780372597306;
+        Mon, 01 Jun 2026 20:56:37 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8583333e80sm8927633a12.18.2026.06.01.20.56.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 20:56:36 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	chleroy@kernel.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] watchdog: pika_wdt: replace in_be32/out_be32 with ioread32be/iowrite32be
+Date: Mon,  1 Jun 2026 20:56:20 -0700
+Message-ID: <20260602035620.623085-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Convert the ppc4xx-specific in_be32/out_be32 to the portable
+ioread32be/iowrite32be. Also relax the Kconfig dependency from
+(PPC64 && COMPILE_TEST) to just COMPILE_TEST to get build coverage.
 
-Pre-existing issues:
-- [High] Ignored errors during deferred watchdog registration and unhandled=
- failure paths lead to Use-After-Free and NULL pointer dereferences upon un=
-registration.
-- [High] Lockless access to `wd_data->wdd` in `watchdog_open()` leads to a =
-Use-After-Free and violates the `watchdog_start()` locking contract.
---
+Assisted-by: opencode:big-pickle
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/watchdog/Kconfig    | 2 +-
+ drivers/watchdog/pika_wdt.c | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-commit 7739691e12f24218c1001ecfc408a279156feca5
-Author: Yuho Choi <dbgh9129@gmail.com>
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8319c503319a..7c5d6f642a96 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -2040,7 +2040,7 @@ config 8xxx_WDT
+ 
+ config PIKA_WDT
+ 	tristate "PIKA FPGA Watchdog"
+-	depends on WARP || (PPC64 && COMPILE_TEST)
++	depends on WARP || COMPILE_TEST
+ 	default WARP
+ 	help
+ 	  This enables the watchdog in the PIKA FPGA. Currently used on
+diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
+index 87b8988d2520..2d3c201540a9 100644
+--- a/drivers/watchdog/pika_wdt.c
++++ b/drivers/watchdog/pika_wdt.c
+@@ -77,10 +77,10 @@ static inline void pikawdt_reset(void)
+ 	 *           seconds. Valid ranges are 1 to 15 seconds. The value can
+ 	 *           be modified dynamically.
+ 	 */
+-	unsigned reset = in_be32(pikawdt_private.fpga + 0x14);
++	unsigned reset = ioread32be(pikawdt_private.fpga + 0x14);
+ 	/* enable with max timeout - 15 seconds */
+ 	reset |= (1 << 7) + (WDT_HW_TIMEOUT << 8);
+-	out_be32(pikawdt_private.fpga + 0x14, reset);
++	iowrite32be(reset, pikawdt_private.fpga + 0x14);
+ }
+ 
+ /*
+@@ -242,7 +242,7 @@ static int __init pikawdt_init(void)
+ 		return -ENOMEM;
+ 	}
+ 
+-	ident.firmware_version = in_be32(pikawdt_private.fpga + 0x1c) & 0xffff;
++	ident.firmware_version = ioread32be(pikawdt_private.fpga + 0x1c) & 0xffff;
+ 
+ 	/* POST information is in the sd area. */
+ 	np = of_find_compatible_node(NULL, NULL, "pika,fpga-sd");
+@@ -264,7 +264,7 @@ static int __init pikawdt_init(void)
+ 	 * Bit 31,   WDOG: Set to 1 when the last reset was caused by a watchdog
+ 	 *           timeout.
+ 	 */
+-	post1 = in_be32(fpga + 0x40);
++	post1 = ioread32be(fpga + 0x40);
+ 	if (post1 & 0x80000000)
+ 		pikawdt_private.bootstatus = WDIOF_CARDRESET;
+ 
+-- 
+2.54.0
 
-watchdog: unregister PM notifier on watchdog unregister
-
-This commit ensures the PM notifier is unregistered before tearing down the
-watchdog device. Previously, if WDOG_NO_PING_ON_SUSPEND was set, the embedd=
-ed
-notifier block would be left on the PM notifier chain after unregistration,
-potentially leading to calls with a stale watchdog_device pointer.
-
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog=
-_core.c
-> index 8300520688d07..6c087b4ef5dd5 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -391,6 +391,9 @@ static void __watchdog_unregister_device(struct watch=
-dog_device *wdd)
->  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
->  		unregister_reboot_notifier(&wdd->reboot_nb);
-> =20
-> +	if (test_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status))
-> +		unregister_pm_notifier(&wdd->pm_nb);
-> +
->  	watchdog_dev_unregister(wdd);
-
-[Severity: High]
-This is a pre-existing issue, but I noticed that ignored errors during
-deferred watchdog registration and unhandled failure paths can lead to a
-Use-After-Free and NULL pointer dereferences upon unregistration.
-
-When a watchdog driver registers early, watchdog_register_device() adds it =
-to
-wtd_deferred_reg_list and returns 0. Later, watchdog_deferred_registration()
-processes the list:
-
-drivers/watchdog/watchdog_core.c:watchdog_deferred_registration() {
-    ...
-		list_del(&wdd->deferred);
-		__watchdog_register_device(wdd);
-	}
-	mutex_unlock(&wtd_deferred_reg_mutex);
-}
-
-The return value of __watchdog_register_device() is ignored here, concealing
-fatal failures from drivers. If watchdog_cdev_register() fails, the error
-paths free wd_data via put_device() but fail to clear wdd->wd_data:
-
-drivers/watchdog/watchdog_dev.c:watchdog_cdev_register() {
-    ...
-	if (err) {
-		pr_err("watchdog%d unable to add device %d:%d\n",
-			wdd->id,  MAJOR(watchdog_devt), wdd->id);
-		...
-		put_device(&wd_data->dev);
-		return err;
-	}
-    ...
-}
-
-When the driver is later unbound, it calls watchdog_unregister_device(), wh=
-ich
-invokes watchdog_cdev_unregister(). This function unconditionally dereferen=
-ces
-wdd->wd_data:
-
-drivers/watchdog/watchdog_dev.c:watchdog_cdev_unregister() {
-    ...
-	struct watchdog_core_data *wd_data =3D wdd->wd_data;
-
-	cdev_device_del(&wd_data->cdev, &wd_data->dev);
-    ...
-}
-
-Could this lead to a NULL pointer dereference or a Use-After-Free if deferr=
-ed
-registration fails, since wdd->wd_data was not cleared?
-
-[Severity: High]
-This is a pre-existing issue, but lockless access to wd_data->wdd in
-watchdog_open() appears to lead to a Use-After-Free and violates the
-watchdog_start() locking contract.
-
-watchdog_open() fetches wdd =3D wd_data->wdd locklessly, failing to acquire
-wd_data->lock to synchronize with concurrent teardown operations:
-
-drivers/watchdog/watchdog_dev.c:watchdog_open() {
-    ...
-	wdd =3D wd_data->wdd;
-
-	/*
-	 * If the /dev/watchdog device is open, we don't want the module
-	 * to be unloaded.
-	 */
-	hw_running =3D watchdog_hw_running(wdd);
-	if (!hw_running && !try_module_get(wdd->ops->owner)) {
-		err =3D -EBUSY;
-		goto out_clear;
-	}
-
-	err =3D watchdog_start(wdd);
-    ...
-}
-
-If a device unbind or hot-unplug occurs concurrently,
-watchdog_cdev_unregister() acquires wd_data->lock, sets wd_data->wdd =3D NU=
-LL,
-and unlocks:
-
-drivers/watchdog/watchdog_dev.c:watchdog_cdev_unregister() {
-    ...
-	mutex_lock(&wd_data->lock);
-	wd_data->wdd =3D NULL;
-	wdd->wd_data =3D NULL;
-	mutex_unlock(&wd_data->lock);
-    ...
-}
-
-Does this allow watchdog_open() to dereference a freed wdd pointer if the
-hardware driver finishes its remove() callback and frees wdd? Additionally,
-is the locking contract for watchdog_start() violated since wd_data->lock
-is not held?
-
->  	ida_free(&watchdog_ida, wdd->id);
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601192005.1970=
-805-1-dbgh9129@gmail.com?part=3D1
