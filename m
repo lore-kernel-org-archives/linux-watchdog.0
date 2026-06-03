@@ -1,141 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F7A242D65
-	for <linux-watchdog@vger.kernel.org>; Wed,  3 Jun 2026 01:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD4F72D94A0
+	for <linux-watchdog@vger.kernel.org>; Wed,  3 Jun 2026 01:07:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780448465; cv=none; b=RjLLnrlmpHZDP/t13cbsrtIDdFJI026UMoueUzs8NdyebaXxCiK2rZkvuzsvbRGrBTYw4shsZUMenobk6wE0LjfZJQGTsMp5B0u0nhABvbjvQeAND9Psk13CO8chem3n5cn7a7j+VVhC1CjsnzT37GNFgWfG/i+LInr4R4is/HI=
+	t=1780448872; cv=none; b=CuCPhoZoSUtmOK6BLlCZiOBGSSnIB0Kb50GUWHrIIW9pWP3UX9LETvN2PlruPL/00Tfv83e0ut8WmT4vmPLCutO9QiO73Y7WwnmZze3qKPgPy5oNk1YsLOLPOvOCh+kYopiJMQM3Cc0KVxwbXk8sNPZ5QbvHw02BKdxapH7VBUY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780448465; c=relaxed/simple;
-	bh=ghE9Z0wUokYQtgWV8KGJ1SDcltfA0fHrIO0rJkV/86c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tMtRn0rIIe5yFPOyGgJWPZDNd8cxOBh5vYpSXI9erhI2rvDrnZTG9TpqiDYV+qHAuDBY/uTlvW//AdfMrNZYihC9DJqiDVmnQVCYMi0lN2EK8TfH1CS4r4jUIjc95aDbe81VhCBaOjYi8nLASguwhWYZ/UlTojES0zuWvUglS8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MKXF9b0p; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780448872; c=relaxed/simple;
+	bh=jDrNY7qqpefAynj+fbrrtFDytYZBB9Nln9W+goFTlQ8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uN5tUQ3RV1BL6iJHQofZ/o4AQx28U/yctafo+bi1dS9GwQxBkgjylNisrDKBImtIOJnYKuBAh4fMkq/K2/BElgznHv1/mAqB3p9nQHqIPhbTejRb6gwUERrzAhK/vQOYYTx5v3dSy6dtKxBTwboM01lUuCHh0RFJi5urExvd490=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ECm/tfwu; arc=none smtp.client-ip=209.85.160.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MKXF9b0p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56C0C1F00893;
-	Wed,  3 Jun 2026 01:01:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780448464;
-	bh=Nl5EsrwOMpdJj1Z0AGi8yHNOd/Or53oFZ51LGnF/Ng0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MKXF9b0pEMRz4+5+TkRJD20JvDYqLBynILsQQCCw8SMsAh3cmFeRgHYNLUJCZfdKL
-	 gmyQIxofAkRVWEUHmibsB0SggJzYh0ZZls+EsOSwH/fzEk6dfoGCRoZCW/R1qWEPut
-	 txDLZMuvW5tGp+GwHMvwzIr3DubPy3gM1DHWVRBLyq+E87p9YERMFxzEDVxgCP0xfe
-	 y9bUjAvqkZzY6EtYJMfChNbEEU2lGms105aoUtakJZxf7UND+1bC0b4pOIhZdj1PkU
-	 /dks0geZ7XbJWib2l+8/D24a+tAenTp56upAKvIolkEnahL7qXxbRSu9CvCbXo9ADb
-	 m3z4Z9WHTArSw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: sama5d4_wdt: use platform_get_irq()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260603005409.226774-1-rosenp@gmail.com>
-References: <20260603005409.226774-1-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 03 Jun 2026 01:01:03 +0000
-Message-Id: <20260603010104.56C0C1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ECm/tfwu"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-5177b9a02bdso2203451cf.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 02 Jun 2026 18:07:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780448870; x=1781053670; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=PMCZ3kwt54+wBckEugkgYH3+Oq9j8RKzLnXGdNOFnIY=;
+        b=ECm/tfwuS+00T0YZRg8/sX4rA1kY9pTodpawKKNgDbLG+TSAgFGp5ot8yhEK6A0XuM
+         kXbZD9yLumJQn8P2dHTgRKhYXOuImC8j9dmPPnNzOFnp9T4/9ukfs1eY1rZ9r/KpHV2t
+         q7PyFUw5t+NrjdvQFWVfsjGpJZNv4CXuDHSdIcni1u3drD385FceIku7RjejWQPDZsTp
+         tvmFGOl11Awkad/qmEIp0wS+yyPZi1aA/upQQEKvpP3FkhGySD7F4HRCadCJRfprU2f9
+         wg3Vi5gy9Q4CFVcIDUL5vAS6zLEjfyy9ah2vuW9t4LGbQrwzx1z6peSLxJrkr9JwWrHo
+         INOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780448870; x=1781053670;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PMCZ3kwt54+wBckEugkgYH3+Oq9j8RKzLnXGdNOFnIY=;
+        b=XZc5Oqp7i9UB+ywTZp8pzvXNXhG4ekURW2LAg/kWK+XejvtZIPX/MCvsoOpF52UUA1
+         eplnzPnrLRTsARv5YfZYMTn7QCg2p3UX+RhM3zaU4c4yW2IhghNTO4qh1r4+Os7rRijy
+         UEKmPh3ffDxwexjFNtMGiQiYO+P1B9cyXGTbna+NAzoLN1hdzWSi+3Zm59edwIFaK+SR
+         rieicSCqqRnGxzHclAt97NJ3xSF7oLjJUXmsSw870mEJdqlLqEUz+2yJf2X7oht5liOs
+         aavLcCzFueeXAmbxGBomoCNF8nmmcy1ylpg1PGCwpJB8/0245hoyVuS6HHc6IqXywUAl
+         yBwg==
+X-Gm-Message-State: AOJu0Ywl7B8x4GPsFlgmeCPomiw1R04OJBmQAXEZVEKVtEHWKwJtHrBu
+	HjR61C5gqyayuyOi1CSrawO4cDvpNmVlgLStdtNb2wgrF+Ua+66pFvPDtKDvdodX
+X-Gm-Gg: Acq92OG+b7VkJQOw6gEqHcAgR258VA8bhF8hLfjQkNDE0baI2l9jhFXNxS3T3SpsUHo
+	Gq+tTd5j6R6pSpHWT31nB22B/pnkuj2dd7VmfZtKjb3Um67v7gFlrSdV74PGxT9w0L1f9oc02wb
+	KqWU/5yIGdkn5jYbGCLc+SLVmC1tHqRK25KEbgnj1xp6oOvvkOPaV/HIZwJCVVjRX8qOCRPbHoa
+	91CU9/wj0GLsJOXRpm9Rk49BKiNM+VXpjg9cNw8JfcFAQgGvmkl4a2/2Fco1Nzg6eQ99EQKb4M7
+	oHit8KiVrfqAdeMBwmscRz2uvzcVaP4dGdQx/OUoD323ZUrQneLUkjmcWMjMxcZKSTwEvdXG2ZN
+	e8cqjo/4PM0hqfQSYrExrvHuaRoeLwt+4iUaq2I252/KSNYSeAG2RnMfcZeIebARbFx0/eYgRMr
+	NCPEAlD7t04zksjz+evnDk2W5G22dtWZWSfLmFlfvzj1dbM/aYdIXuRfvs54kstuEaRBJhJUaCP
+	3qtCBIfa1ZpyqJSZqCVr3vPsDqaxlXAl/0WipCYvUsuhPZ7R0jCbQ8o
+X-Received: by 2002:ac8:5dd0:0:b0:517:6665:2a9a with SMTP id d75a77b69052e-517787bf3d1mr23491841cf.50.1780448869820;
+        Tue, 02 Jun 2026 18:07:49 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd26b9d5sm7037416d6.44.2026.06.02.18.07.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2026 18:07:49 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Microchip (AT91) SoC support),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] watchdog/sama5d4: set platform driver data before requesting IRQ
+Date: Tue,  2 Jun 2026 18:07:31 -0700
+Message-ID: <20260603010731.230581-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+sama5d4_wdt_probe() requests a shared IRQ before calling
+platform_set_drvdata().  Because the IRQ is shared, the handler
+(sama5d4_wdt_irq_handler) can fire immediately, at which point
+platform_get_drvdata() returns NULL and the subsequent dereference
+of wdt->sam9x60_support causes a NULL pointer crash.
 
-New issues:
-- [High] Assigning the signed result of `platform_get_irq()` to an unsigned=
- `u32` variable causes the `irq < 0` error check to always evaluate to fals=
-e, breaking the driver's fallback mechanism.
-- [Medium] Using `platform_get_irq()` instead of `platform_get_irq_optional=
-()` for an optional IRQ causes spurious error messages to be logged.
+Move platform_set_drvdata() to the beginning of probe, right after
+watchdog_set_drvdata(), so the handler always sees valid driver data.
 
-Pre-existing issues:
-- [High] The driver registers a shared interrupt handler (`IRQF_SHARED`) be=
-fore setting the platform driver data, creating a race condition that can l=
-ead to a NULL pointer dereference.
---
+Assisted-by: opencode:big-pickle
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/watchdog/sama5d4_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-commit 7ff7f2de154616b7a42f6e5710f322b20ff6152e
-Author: Rosen Penev <rosenp@gmail.com>
+diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+index e82b91513fa8..024300299b57 100644
+--- a/drivers/watchdog/sama5d4_wdt.c
++++ b/drivers/watchdog/sama5d4_wdt.c
+@@ -267,6 +267,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 						: AT91_WDT_WDDIS;
+ 
+ 	watchdog_set_drvdata(wdd, wdt);
++	platform_set_drvdata(pdev, wdt);
+ 
+ 	regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(regs))
+@@ -315,8 +316,6 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	platform_set_drvdata(pdev, wdt);
+-
+ 	dev_info(dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+ 		 wdd->timeout, nowayout);
+ 
+-- 
+2.54.0
 
-watchdog: sama5d4_wdt: use platform_get_irq()
-
-irq_of_parse_and_map() requires irq_dispose_mapping() on failure. Don't
-bother with it as platform_get_irq doesn't need it.
-
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wd=
-t.c
-> index 13e72918338a2..d9b212557ce36 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -286,8 +286,8 @@ static int sama5d4_wdt_probe(struct platform_device *=
-pdev)
->  		return ret;
-> =20
->  	if (wdt->need_irq) {
-> -		irq =3D irq_of_parse_and_map(dev->of_node, 0);
-> -		if (!irq) {
-> +		irq =3D platform_get_irq(pdev, 0);
-> +		if (irq < 0) {
-
-[Severity: High]
-Since irq is declared as an unsigned u32 earlier in sama5d4_wdt_probe(), wo=
-n't
-this irq < 0 check always evaluate to false?
-
-platform_get_irq() returns a negative error code (like -ENXIO) on failure,
-which will be implicitly cast to a large positive integer. Instead of
-gracefully falling back by setting wdt->need_irq =3D false, won't the driver
-proceed to call devm_request_irq() with an invalid IRQ number and fail the
-probe?
-
-[Severity: Medium]
-Will this log spurious error messages when the IRQ is genuinely absent?
-
-The driver treats the IRQ as optional and handles its absence gracefully.
-However, platform_get_irq() internally calls dev_err_probe(), printing a
-core-level error message to the kernel log when an IRQ is not found. Should
-this use platform_get_irq_optional() instead to avoid confusing user-visible
-error logs during boot?
-
->  			dev_warn(dev, "failed to get IRQ from DT\n");
->  			wdt->need_irq =3D false;
->  		}
-
-[Severity: High]
-This is a pre-existing issue, but does requesting a shared IRQ before setti=
-ng
-the platform driver data create a race condition?
-
-A few lines later in sama5d4_wdt_probe(), the driver requests the IRQ:
-
-	if (wdt->need_irq) {
-		ret =3D devm_request_irq(dev, irq, sama5d4_wdt_irq_handler,
-				       IRQF_SHARED | IRQF_IRQPOLL |
-				       IRQF_NO_SUSPEND, pdev->name, pdev);
-
-Because the IRQ is requested with IRQF_SHARED, another device sharing the l=
-ine
-or a spurious interrupt could cause sama5d4_wdt_irq_handler() to execute
-immediately.
-
-The interrupt handler calls platform_get_drvdata() and dereferences it:
-
-drivers/watchdog/sama5d4_wdt.c:sama5d4_wdt_irq_handler() {
-	struct sama5d4_wdt *wdt =3D platform_get_drvdata(dev_id);
-	...
-	if (wdt->sam9x60_support)
-	...
-}
-
-However, platform_set_drvdata(pdev, wdt) is only called at the very end of
-sama5d4_wdt_probe(). If the interrupt fires within this window, won't
-platform_get_drvdata() return NULL and cause a NULL pointer dereference?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260603005409.2267=
-74-1-rosenp@gmail.com?part=3D1
