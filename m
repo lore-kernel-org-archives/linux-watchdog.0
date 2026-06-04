@@ -1,63 +1,63 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1DF223DCE
-	for <linux-watchdog@vger.kernel.org>; Thu,  4 Jun 2026 01:06:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81BCA239085
+	for <linux-watchdog@vger.kernel.org>; Thu,  4 Jun 2026 01:06:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780535164; cv=none; b=HPlSmKNOqnlKTXw/lOQBKLAI2PoIXWhe6vbfbsPvWOa823kosi1cQGaKdOTV9+eloBuOTaP6mUmlQluASP2y0uMmc6h8osq5l11tStFQB8CK6o09GUXc/3nIJRUQXUzqPTbtSUt2DFqsrnWhKTEAymVJz1UGtARG7ludW+asvXo=
+	t=1780535165; cv=none; b=HbPdbRpSkgM9dm9KWCmEvayGa8bH2YU0vowl/c+8fsc7p1x4PoELHUsM8IJHqgQpAp2KXG7So4X9rbX4LJSIQIP9xfHA5a3TVYLjJHaBkzrCIIuZ3UP0lO/RG+sSRjO8c8sAFL0VqGC602qMnLJ/nnzduTjdE687FQWT58LZNfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780535164; c=relaxed/simple;
-	bh=vcT4NW81m8XsoLMhxNoDk1/yerEMrmMNVMicm6D6waA=;
+	s=arc-20240116; t=1780535165; c=relaxed/simple;
+	bh=1BVO5B6F+e++fyfcPkmh/wUWvp5N0OWIqOa+1VW5ETE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YSz7qLvx+v4rZaTKKeFapJZEk0YsEKmfi6FAYYFgHqL8PQJduOe/DhYNY8sA6EM/hkbWOVax8akqjGfRpSWWplI6R5it1z96QUAIN6A7lsRBgZuz/5VN/rhV0fSEorMM8KNBScmLgXAaElA7lA/MD0nqwMByD/I9AUdiJLUG/7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZGHSEUNv; arc=none smtp.client-ip=209.85.216.51
+	 MIME-Version; b=Vj4cepS/Nmqfy/spoDRBqJcOnWT12iJPDbrMRL7y3HDdCOpMDUOeMP34uEtwz944HaSC9aFjCR04e2WJqeQsIYD8URSCClJpuwDsZVX4oy2KJYNt/3f9VnwXzttpnrB9P7krv2KXbPkd81kTfgiGMXU4W6pAu4ZDfYzFr4hQxJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LPArYICa; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZGHSEUNv"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36d6bb38b44so90631a91.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Jun 2026 18:06:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LPArYICa"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-36ba3ea5c46so64574a91.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Jun 2026 18:06:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780535162; x=1781139962; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780535164; x=1781139964; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=y/BQtNunbqSxrovheX7WXW6K0SrGGYRahvXKwiLXth4=;
-        b=ZGHSEUNv3xHRKro0yNcdjES2kdnVSW5/KGXvwx0N5sKWEUaycUtpA/XuC+ZJsCp9q0
-         HYT0TGmEPPVkznVm/ylvKpQrv/7d9+xp4A1PXfuYTTKeAlmlqo4lhq99JlA97WS9lIXN
-         qtccJUy+/khI+1IbwFhH9SLUi+kWQChwpRBpmKs7hREPbbZGvbhmff8nxKV2Pjvwt11u
-         J2rL6KRVdixwDfQA2pftFFH7zbLVjA6AhwZ7xI8MivI1efol8vrwisbvTj9QQGT/P9q3
-         dg2sFbQRygZVthpBo+jKkKhbh1DIGmHO5Y5gSh/mwPZ0RDBULmZsgYUZjXDDH7j01au3
-         226w==
+        bh=n9gEJWImTswB6lvU2PvICsMgm37R+YYrTrc943vxPQA=;
+        b=LPArYICa3memQ4pC5GLZvFvEkmZe/fWt3+hZ9rFVUsxQ1Sag1MFoc+zMN11hxJ49QR
+         zUEm0UjBc94Wp/Ra4CA6xn2JbzBetr7D9hbMDL9kzZlCm1pKLwZkPr6xlSD2p4GDp8t3
+         YpNRodnrNvZofdjiihP1+/42bAKjPmWdKkKf+1jAPY+IPgcRsPsYghc0h3dzvgY4ZGwO
+         ZF4a7Tix2E3P135SqsyACzXMTvrVQ/8cfOXn+hkvJxWibg1WOu0WsZmzQbYUSOFM8701
+         kNi4QCI8Z/zSwp34dlmBGAMGJOtQXqES9+QD02xykx7sbLiZSGrujg7VYQ/VWNMlq8Py
+         4tNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780535162; x=1781139962;
+        d=1e100.net; s=20251104; t=1780535164; x=1781139964;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=y/BQtNunbqSxrovheX7WXW6K0SrGGYRahvXKwiLXth4=;
-        b=pEyUk9YkS15Bno+ECqothZh+m8XGo1Tqa7lR9VQ9o16pshvzI1rAwM880fhls6GEkz
-         O5rmA9TJsycQdZSQ94RNdErveOab5uAlIg3g6x9Q8hvzFqnyv3TLCH8ejihh+VFJ18Yw
-         75a0Z2o8TI0Hcqjq/ZPAxYDAu0sPpJyZVkFyXX4MR49Au4nrAbcPHv8gg3v23jl2WWWk
-         WLJOFKnxsd9XcOheoaloqTO7HaJp6FRyXtSfawwVBDvQ5mi/DVeef/GCZnG1EPwnI1ry
-         +F743CcW0b/SKM8NIkZ7fhbOYVTa40XpZebq7TKrMUQLLstRq2QEbRWW5QkPJJJqpym1
-         5EVw==
-X-Gm-Message-State: AOJu0YxTzUe+c2uCOqeM1gqtMeQp8RbIh2OfiVNpfm1ag4B6Yp+IqueV
-	RlVG2DIiGw5Jot2uY62Mv8u4m1Oi691/jh9FbwePSaddtScEzYrbejKa4EFsdGX8
-X-Gm-Gg: Acq92OHkPrv+taef+dCissUG7/kit2nZy74r6QciXQRezhEZFojHsM9n7IONpF5G1w5
-	aRH68qvU3t1EU8iLW0KB+xL/y4IknrEHliaNk0SndzcWKBSVFHrIiQCAKfm9O3rCYQ850sfXL+x
-	3HPKektejYL3bTY/VO8glTMXf82/srN3k40FjSimVwNm+ZmYx1kebblY8YfRclxvC5EBaC9T+q4
-	vAfUtsIi7bZDBQ3WMh+5zZ120ZYYUV+/qjomvLK75z6DK8UXi6r6PHLEhX3O+MUPWiheYWCRSYK
-	nYrGWw9gkPTEVPe3Yr4BKpn/rrSMC+I1D7oK/sBIU97MTCkUYW/8yEF+dE8Tta3tk48pUDtYbcr
-	v5xFxuLBadNER0wiulp2GcMVGTCxaUtRS/i87zkVBxKAB51iN+MlBa+H6Ya3mVMGSfMqqI4qPXc
-	2JS9poelZv9s8bP6TtnWQhIurHzRQkP9lw3zbaVDksMuczoDPxoPklmETuLJOOVOXHa93Sbp194
-	PSerg+StbalhnU2p2bCcRikbc/qYuyBP1/j/EbIpopmtw==
-X-Received: by 2002:a17:90b:4fcf:b0:36d:ae6a:22ed with SMTP id 98e67ed59e1d1-36e310ff0bdmr6115504a91.22.1780535162396;
-        Wed, 03 Jun 2026 18:06:02 -0700 (PDT)
+        bh=n9gEJWImTswB6lvU2PvICsMgm37R+YYrTrc943vxPQA=;
+        b=Sagvv6gz/rrJDkhBaL7Z6scNRrrQeCBtArA5MUqh62b/PAU15BJH9nanxWq7tHzeZc
+         1E91i1jSPdcVJ/DQDdgZcmXoSpfMCUbHazI5kRS8eEoCypnfrsDef10uoU4B9sXfbH9f
+         1oF7S6yYUl/Rw6HPpLfqJ+VQX5Oti11Nhr+WdPWUmBUbFW3hPrBRIg8kqZcViQJCiah8
+         0MVk9Tn83keYDMhi3Oan867csUgBFju2cb5TeV8el8FNYnnvblYtAJT5LYiUe5Eqrx8y
+         z5eIyixJBtl5AxKTpVhUpeeQ/iBbUXnkFPuv2q6sAEvACvh8saRloEtXwTyNUTeMMlfF
+         G/dQ==
+X-Gm-Message-State: AOJu0YyhF6TzNEwHRbUILHfQQddXjVLvFjh+7GD0Rt5XWyXGh08WfYE5
+	93j0Na0duHMczP048AjMHG7udj2GJOdJl947cNrTvn4nbHR60yt6aGfQFQquRyFr
+X-Gm-Gg: Acq92OGnLyJEyHEtwgvDq0zcAacSEgjy+VxLM8XRxEbSd6W7istY28sOeIsm9EEPXr/
+	7IER2Neop+ZAUZh75bAQ/HhuEAJpk3OQ7niHLOmjUdVVlTjvytpi//RNwWNCI530S8mPR+FAa1x
+	VnR4xIlgllqfbuvX3OrmLOjaNNCPgztO6QqeVNBnafDwNo5BJO6BZ9o4/icV802X8jdB+I2hnyc
+	zxU5YI0XMzt9zpl3G3tmMvHUF6mUt8yd4ca2FReJ7R8GVDrtaE5S60RIi560aQZDkLH6WsZUvmV
+	cSIur/U9hK51ApUBtkTD786/2h/WQlovqp8TKib9twIDQVIT2KuRZ//X7GcpDwf10Z5i8Co0/Ex
+	sD3FB3bheeGQnEltjxskHObZH8m8WsrBYPi+s6V4+wMImkep9NMdJZn4A+4Opiq1tF8n7a1qxq2
+	SGDgvrLgBJku3LyGaFoLStjQJeYMVzD26BHRpTk1GpQSP2+B/0+kxU1x1GqYXcSNZd822vBdxSg
+	hjg62Kaz3tzU3m4EObdOu3vws1zOgQAFNCXIEDW6JtDIg==
+X-Received: by 2002:a17:90b:3b49:b0:35b:9894:f6f9 with SMTP id 98e67ed59e1d1-36e3228676emr5020525a91.18.1780535163699;
+        Wed, 03 Jun 2026 18:06:03 -0700 (PDT)
 Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36e6d169abdsm2366747a91.0.2026.06.03.18.06.01
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36e6d169abdsm2366747a91.0.2026.06.03.18.06.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jun 2026 18:06:01 -0700 (PDT)
+        Wed, 03 Jun 2026 18:06:03 -0700 (PDT)
 From: Rosen Penev <rosenp@gmail.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
@@ -67,9 +67,9 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Microchip (AT91) SoC support),
 	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 1/2] watchdog: sama5d4: fix shared IRQ and hardcoded timeout issues
-Date: Wed,  3 Jun 2026 18:05:41 -0700
-Message-ID: <20260604010542.23177-2-rosenp@gmail.com>
+Subject: [PATCH 2/2] watchdog: sama5d4: use platform_get_irq_optional()
+Date: Wed,  3 Jun 2026 18:05:42 -0700
+Message-ID: <20260604010542.23177-3-rosenp@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260604010542.23177-1-rosenp@gmail.com>
 References: <20260604010542.23177-1-rosenp@gmail.com>
@@ -81,96 +81,51 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fix three pre-existing issues in the sama5d4 watchdog driver:
+irq_of_parse_and_map() requires irq_dispose_mapping() on failure. Don't
+bother with it as platform_get_irq_optional() doesn't need it.
 
-1. Unsafe IRQF_SHARED | IRQF_NO_SUSPEND combination: The watchdog
-   interrupt is a dedicated peripheral line, not shared with other
-   devices.  Drop IRQF_SHARED to avoid the documented unsafe interaction
-   where IRQF_NO_SUSPEND keeps the line enabled during suspend while
-   other sharing devices may be powered down.
+Also handle EPROBE_DEFER.
 
-2. Unconditional IRQ_HANDLED on shared line: The handler returned
-   IRQ_HANDLED even when the status register indicated no watchdog
-   interrupt was pending.  Return IRQ_NONE in that case so the kernel
-   can properly detect spurious interrupts on the line.
-
-3. Hardcoded 16-second timeout: sama5d4_wdt_init() unconditionally
-   used WDT_DEFAULT_TIMEOUT (16s) for the hardware timeout, ignoring
-   any timeout configured via device tree (watchdog_init_timeout) or
-   userspace.  Pass wdd->timeout to sama5d4_wdt_init() so the
-   configured timeout is honored during probe and resume.
-
-Assisted-by: opencode:big-pickle
 Signed-off-by: Rosen Penev <rosenp@gmail.com>
 ---
- drivers/watchdog/sama5d4_wdt.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/watchdog/sama5d4_wdt.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 704b786cc2ec..b7a8cfed335d 100644
+index b7a8cfed335d..030029d50257 100644
 --- a/drivers/watchdog/sama5d4_wdt.c
 +++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -169,11 +169,12 @@ static irqreturn_t sama5d4_wdt_irq_handler(int irq, void *dev_id)
- 	else
- 		reg = wdt_read(wdt, AT91_WDT_SR);
+@@ -11,7 +11,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+-#include <linux/of_irq.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/watchdog.h>
+@@ -245,7 +244,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 	struct watchdog_device *wdd;
+ 	struct sama5d4_wdt *wdt;
+ 	void __iomem *regs;
+-	u32 irq = 0;
++	int irq = 0;
+ 	u32 reg;
+ 	int ret;
  
--	if (reg) {
--		pr_crit("Atmel Watchdog Software Reset\n");
--		emergency_restart();
--		pr_crit("Reboot didn't succeed\n");
--	}
-+	if (!reg)
-+		return IRQ_NONE;
-+
-+	pr_crit("Atmel Watchdog Software Reset\n");
-+	emergency_restart();
-+	pr_crit("Reboot didn't succeed\n");
- 
- 	return IRQ_HANDLED;
- }
-@@ -197,11 +198,11 @@ static int of_sama5d4_wdt_init(struct device_node *np, struct sama5d4_wdt *wdt)
- 	return 0;
- }
- 
--static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
-+static int sama5d4_wdt_init(struct sama5d4_wdt *wdt, unsigned int timeout)
- {
- 	u32 reg, val;
- 
--	val = WDT_SEC2TICKS(WDT_DEFAULT_TIMEOUT);
-+	val = WDT_SEC2TICKS(timeout);
- 	/*
- 	 * When booting and resuming, the bootloader may have changed the
- 	 * watchdog configuration.
-@@ -289,8 +290,8 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
- 
- 	if (wdt->need_irq) {
- 		ret = devm_request_irq(dev, irq, sama5d4_wdt_irq_handler,
--				       IRQF_SHARED | IRQF_IRQPOLL |
--				       IRQF_NO_SUSPEND, pdev->name, pdev);
-+				       IRQF_IRQPOLL | IRQF_NO_SUSPEND,
-+				       pdev->name, pdev);
- 		if (ret) {
- 			dev_err(dev, "cannot register interrupt handler\n");
- 			return ret;
-@@ -305,7 +306,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &wdd->status);
- 	}
- 
--	ret = sama5d4_wdt_init(wdt);
-+	ret = sama5d4_wdt_init(wdt, wdd->timeout);
- 	if (ret)
+@@ -281,8 +280,11 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
  		return ret;
  
-@@ -358,7 +359,7 @@ static int sama5d4_wdt_resume_early(struct device *dev)
- 	 * This should only be done when the registers are lost on suspend but
- 	 * there is no way to get this information right now.
- 	 */
--	sama5d4_wdt_init(wdt);
-+	sama5d4_wdt_init(wdt, wdt->wdd.timeout);
- 
- 	if (watchdog_active(&wdt->wdd))
- 		sama5d4_wdt_start(&wdt->wdd);
+ 	if (wdt->need_irq) {
+-		irq = irq_of_parse_and_map(dev->of_node, 0);
+-		if (!irq) {
++		irq = platform_get_irq_optional(pdev, 0);
++		if (irq == -EPROBE_DEFER)
++			return irq;
++
++		if (irq < 0) {
+ 			dev_warn(dev, "failed to get IRQ from DT\n");
+ 			wdt->need_irq = false;
+ 		}
 -- 
 2.54.0
 
