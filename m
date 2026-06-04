@@ -1,122 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D352825A2A2
-	for <linux-watchdog@vger.kernel.org>; Wed,  3 Jun 2026 04:10:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CACFF21771B
+	for <linux-watchdog@vger.kernel.org>; Thu,  4 Jun 2026 01:06:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780459851; cv=none; b=RyfvdGzgeRvGqU61LPKUVf9BrPGOHa+20fhNie1opQZSFQP6ik6d7zCVEMnwRmDY0Orb6DDARAwPTlpjjGejZyduo2rBmPR+EQrJgVNGLBq6dKlln0dKlOdT8c3VPOyZ/H3Ym1rF8NlTs2WXisWQxLPEBSGHkyA6ZspfQer3zNU=
+	t=1780535162; cv=none; b=ctUCDInxiSzvR+Dk8t6ned22FbPPs29qAZIzvMpHaxjKSDjDr0x+eh3VJbcwdm2b6QLe7wizeUNRdfm29fXdTo1+v4Q3k7tqux3b4NtAnP6nUKEw7HMKQG1Ygm7g1Li1leSh47S8NWPjHe18ZQzJigEQvwR4vQLyGiAXaqkP8Ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780459851; c=relaxed/simple;
-	bh=PBtqhXof4uE0LDtp6XyhYr0g5QvQCrhiHyqpb+U2T9M=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MB7YPIkPCaDgjcPh1/wHxtgfy2WZ2VL7R8oXH0P4/Vx9QL+zRGGbqpZlupNy5g++jLt40/LWGtDZvW3vT422G5CpUi8uXlA4VFpWjRiK+9divC/3wVggqrY5k4bj0RwNGW2QX+LjAoBh5c82hwILzWG4RA9kh11yb4+jTVBafqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fxbO1s9L; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780535162; c=relaxed/simple;
+	bh=eGDi2DJXnKBItl8+HRy9q9JtdCckzBBR/iF39quN9Gc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G40aoejZ4srrLnzs7noc84n2R5G7XAuGjx5+jgRrVt0blC3Z2/4Ur5VCo0HfP9KeGx94ouaMObyfrRTJNS3+eDqoqvBXYqPjvywm7RDB5yc+IedP6atHT8ttuVYH5V+i/o4Kl5aFgiAblnwJoVNdS+Wx1gwB72eYbdAxU3c8EXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dfDdSS4K; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fxbO1s9L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54CFD1F00893;
-	Wed,  3 Jun 2026 04:10:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780459850;
-	bh=uPWJ7UbMnWqCa/hgGbN87Iz0oHud4QTw7q29/T5+y6o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fxbO1s9LyVCS8Lie6SX10ET8j9pxakWhUCmuowTHamvcZQ3MEYQAhqYh84EgAwLNX
-	 UddoAYtI4zSJnOgCgr07qCbKo4hzFQ6VeeoFW7zmPZbiWPgQIwmg0gFgKi1O5m8RI2
-	 PkzkV1iL7FNWYNBN2rsZrFERn1ytS7J8Dw2mHNHUXYfF/5BpN0NqVwv3cD+CXbdpMP
-	 1T3vm4E+DamctBwQTY7Pvbq/PxSepprTcKZbf67/mk68207yK0Kl7kuzEfVuR4qgz1
-	 M28qFUNHeVFHJRti60wTprjO97cX2X1ird83kXEEUZdxwpKGtsiTgiM+J63j6AaRFp
-	 +yJPuwNJGOitQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] watchdog: pika_wdt: fix timer leak and close
- race
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260603040230.318998-2-rosenp@gmail.com>
-References: <20260603040230.318998-2-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 03 Jun 2026 04:10:49 +0000
-Message-Id: <20260603041050.54CFD1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dfDdSS4K"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-36bd175fdbaso69309a91.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Jun 2026 18:06:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780535161; x=1781139961; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=AyvbjefoxWefiry2TdXlq5HSZ0FcJuLz0Lra0pLvUAU=;
+        b=dfDdSS4Ka4oyOYlhCZMaHqM7IA8W3VMPdxgsciNaVuxK/ZK8H9bgfR4cbcSFJFkjil
+         S4XsRiOA3s6a+oNtpWEEZGbggBJS2jCXF31eqZ2kuWEsPVV7X1DIW5zAYJJKGEAYDi1n
+         rjsvWkrD4+3Auf80JLH5DdI4sEULE8SvLF4X5WSlnSJIf0wt5HgjDreP7KJPBylkIB6n
+         ndyW38+qdOa8+R10sZflCjnMBScxbhQw3KsZLnlYcx3ak7euIrueenXC6ub3Finv3nyq
+         sCU07EWSgGDmYdopJ/N3bH0V7VUmQgBfQt45tY06BCWkGvlSrkoqYDRM1bgXb0rzVxTt
+         1erw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780535161; x=1781139961;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AyvbjefoxWefiry2TdXlq5HSZ0FcJuLz0Lra0pLvUAU=;
+        b=lYEu4Av89sOQ1fhj6IhoN6z4DIF5mGZ0YrVLFif+CPpja64una8lOVPa3X067VED7d
+         gFDNXyMNGAhBNjGemi3H+tc+oET6FcK9x/DwSEAOYmQeDLjlE09Ld+w/yHfQufb+FISh
+         2oUtJ3T5mh13tYZHBQ4Ngj5m/mMHyuJtT+S8uKXdQMldQXlgGIgKlTJzdh6HRpgzCCVy
+         63NzSLiWE0uJ92xh3itmSAiDHEJ4F9NhcK5hmr8dukAl/TlpxBh6nyZh58+dNXCpFQQm
+         jvFlahIATnJ/Rid587DGdCJhZ9AtupUgiVQ7u6Repe3H7aUmuq82IK2a6d2uB++WPxSx
+         ISpA==
+X-Gm-Message-State: AOJu0YxQtpHNppcQz5qnUQLI7p/oz15il/qH0pg+yI3XPbe2sPVtyt6T
+	1aJcQ4LT8u8WAz2ql4CIf6ItX9F6KQN9r7P4k7XytIkXORh2srQ6MuSgS6lEFlUR
+X-Gm-Gg: Acq92OF4kiFURYb8yJAMvSgvbYaX+Ucnx0LNBezTBNwck2qCIfURHex2PJ2pXd0TMcA
+	B8mI/PC4lHauM4hZVK3mUo+o29SBEb7vE7Qz9jci2J1/jxDO4wz5XN+umE7g5csp+c59b/uC8AE
+	bA5OWgukarnfXU3OG+C0jXbsSWlg8qlwvuzG6fl89vY4/6IwBXY8Yj34p41l4lxfcqqebbv90zn
+	J8JIoVFXFCmursvLKMcHrfTWXgIta81hi0Ze92DS96CzgyjYcXVB2OKiSFwNsLOfG+MgGG1POOX
+	1wo0sppr/n/9ci5mP6XNJMldwnmyRR+wjDVRcsuhv7GP8YIH2S7QS7XLHYRacU8BGzCKHRyhicl
+	rIdtValvZ3xatMGFKQjkNCOsyQF/9PpwkOOuei9jTiT9NmuhqUeXEqJPTiHDlsfEtpmxfA5wOsQ
+	JXhKrtTGMvhiWoVpv4J17nPy8JkCIGzJWxRTeQzmZAdp4Grp6d8cIVwrWidXIaRVjA96pepb76d
+	UpH1MzdN+H6PMUYwpiwLp7MjZjX4QaJnX8wrwwt3kpcAz0mNf/b1w4n
+X-Received: by 2002:a17:90b:540c:b0:36d:ee3b:fcae with SMTP id 98e67ed59e1d1-36e3083798fmr5960595a91.6.1780535161109;
+        Wed, 03 Jun 2026 18:06:01 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36e6d169abdsm2366747a91.0.2026.06.03.18.05.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2026 18:06:00 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Microchip (AT91) SoC support),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 0/2] watchdog: sama5d4: fix IRQ and timeout bugs, use platform_get_irq_optional
+Date: Wed,  3 Jun 2026 18:05:40 -0700
+Message-ID: <20260604010542.23177-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Moving `clear_bit()` before `timer_delete_sync()` in `pikawdt_rele=
-ase()` introduces a race condition with concurrent `open()` calls, leading =
-to the deletion of a newly-armed timer and a spurious system reset.
-- [Medium] Module teardown in `pikawdt_exit()` uses `timer_delete_sync()` i=
-nstead of the mandatory `timer_shutdown_sync()` API.
---
+This series fixes three pre-existing issues in the sama5d4 watchdog
+driver (unsafe IRQF_SHARED, incorrect IRQ_HANDLED return, ignored
+device-tree timeout), then simplifies interrupt acquisition by
+switching from irq_of_parse_and_map() to platform_get_irq_optional().
 
-commit a45c8a04ae522cdde52c3ffa747d60e630a011a9
-Author: Rosen Penev <rosenp@gmail.com>
+Rosen Penev (2):
+  watchdog: sama5d4: fix shared IRQ and hardcoded timeout issues
+  watchdog: sama5d4: use platform_get_irq_optional()
 
-watchdog: pika_wdt: fix timer leak and close race
+ drivers/watchdog/sama5d4_wdt.c | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
 
-This commit fixes two timer lifecycle bugs in the PIKA watchdog driver. It
-adds timer_delete_sync() in pikawdt_exit() to stop the ping timer before
-unmapping the FPGA IO memory, and replaces timer_delete() with
-timer_delete_sync() in pikawdt_release() while clearing the open bit
-earlier to avoid a race.
+-- 
+2.54.0
 
-> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-> index 87b8988d25206..60a846cb36011 100644
-> --- a/drivers/watchdog/pika_wdt.c
-> +++ b/drivers/watchdog/pika_wdt.c
-> @@ -127,11 +127,12 @@ static int pikawdt_open(struct inode *inode, struct=
- file *file)
->   */
->  static int pikawdt_release(struct inode *inode, struct file *file)
->  {
-> +	clear_bit(0, &pikawdt_private.open);
-> +
->  	/* stop internal ping */
->  	if (!pikawdt_private.expect_close)
-> -		timer_delete(&pikawdt_private.timer);
-> +		timer_delete_sync(&pikawdt_private.timer);
-
-[Severity: High]
-Does moving clear_bit() before timer_delete_sync() in pikawdt_release()
-introduce a race condition with concurrent open() calls?
-
-If process A closes the device unexpectedly, it clears the open bit early.
-Process B on another CPU could then successfully open the device and arm
-the internal ping timer.
-
-Process A would then resume and execute timer_delete_sync(), which deletes
-the timer that process B just started.
-
-Process B would believe it successfully acquired the watchdog, but the
-internal ping timer is stopped, and the hardware watchdog could eventually
-reset the system.
-
-> =20
-> -	clear_bit(0, &pikawdt_private.open);
->  	pikawdt_private.expect_close =3D 0;
->  	return 0;
->  }
-> @@ -291,6 +292,7 @@ static void __exit pikawdt_exit(void)
->  {
->  	misc_deregister(&pikawdt_miscdev);
-> =20
-> +	timer_delete_sync(&pikawdt_private.timer);
-
-[Severity: Medium]
-Should pikawdt_exit() be using timer_shutdown_sync() instead?
-
-Since this is the module teardown path right before unmapping the device
-memory, timer_shutdown_sync() is strictly required to permanently prevent
-the timer from being re-armed.
-
->  	iounmap(pikawdt_private.fpga);
->  }
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260603040230.3189=
-98-1-rosenp@gmail.com?part=3D1
