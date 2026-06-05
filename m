@@ -1,33 +1,33 @@
-Received: from mail-43170.protonmail.ch (mail-43170.protonmail.ch [185.70.43.170])
+Received: from mail-244108.protonmail.ch (mail-244108.protonmail.ch [109.224.244.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6375532E757
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7468D3845A6
 	for <linux-watchdog@vger.kernel.org>; Fri,  5 Jun 2026 17:20:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780680008; cv=none; b=Toqnml5W4nJkWPqG7Ej9l5/Fbyg/dXanI45uqA+yMDMj9G95CG/2vfXzwRetYAwfPjo6oog9qaiRbLnUETdAQsCmv7waWrbvR+PY+eWJw4scUCjjoPk2NpEn+rabhZY/ZatGvrsYzB6ZQdqfCP7DJklrHFmzMPcg1gB2cD+6jKQ=
+	t=1780680008; cv=none; b=IA0/LrXBZde/OewcfybUeVfIirJfbazvpMQeOpY2h8ltC+gWHEWUPFq5UZf2Ki+oFH9v+CW4L1Ml4LBotX1M9gTrs+4w60pXzPamL1jqqjbroHRMSeRMFRBQNImWMHvwoUKpj5b0MhMOYB4pghW72z+gPH2MGB0I5xvOKOJD4N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780680008; c=relaxed/simple;
-	bh=PqgK0cYWrHnGTwh5lFEXBxUzY1qNaTyQRbMI+o9rCX0=;
+	bh=/v+yP0ivLjzr+EfkSnCQP+66rJZUsfB/jdnnERhaeKA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lmYViEXloduR9MZGUq+uQ5bOyKtBelRIEIqdiDBqL6h5xpmlmRgSCoNlEEZ9SfTLYMpJTLMPkDMQmDQ7Sm2hDH9X/1+Qtd8uqpDnHmDURg38ExZT3U25el6l+DTqhwbEyxLiAW+ACg3zUVZYYosVCUjh20AqsVnLuc8eWB1JlJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=V8gO0Xl4 reason="key not found in DNS"; arc=none smtp.client-ip=185.70.43.170
+	 MIME-Version; b=E+Y8CBOe3ZiV9onTQFNri6E8L22IPkxu91aVdG5Pp5ddnPS246yf+6BxeCNb6TfVgsB99+nceR8AJ6lgu4Vb/y4bwOZKJRCLT5KrZzJbgdU+83qASZgb09ZzsEFt2R5ms1TsncuL98GgAxGAkNRWjTn8YKHtAmI3EooLnLVMhn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=10q2aav7 reason="key not found in DNS"; arc=none smtp.client-ip=109.224.244.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="V8gO0Xl4"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="10q2aav7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=theesfeld.net;
-	s=protonmail2; t=1780680000; x=1780939200;
-	bh=XTUAzXgAtMCDdvg+7OgksKUkAdhwoiglQ/p5dcwkckc=;
+	s=protonmail2; t=1780679994; x=1780939194;
+	bh=y+AkXVLiX4yk/y/C0+/Mp3RGJYbGlRAkuJKjAOT4gWg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:From:To:
 	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=V8gO0Xl41/AKYrVm2GPbrPu9NxCg0WOU6/xCmwe+LczVNJnjPNnDJHNJFeyuNcHA3
-	 0CIR650rOmYBrYjz3LM9qK6BQdVxqqLbPyTVJoaIgfIkvY+mxvl0NAQww50g3jeDla
-	 yfU7hPLTFCGxOY1o+X11pgi+/6Nw8XcRZ6xLmDQTacSB8d+1BaSihWQs17CD6Q6RNw
-	 jJD/3+3uxIhR+DsuGx63KRahKXt+cvtXv50B9jlsYR5E/RV5MSc6RKXXqe3o+zjqxa
-	 NhNdAQvKrIhA2yIlVKCUX3udqk5d9AWtUdBReN6GtrKbwCPJ1tZ/a17/3dr/s5DWaj
-	 dcIjv8t48+fsQ==
-X-Pm-Submission-Id: 4gX7V573skz1DDXY
+	b=10q2aav76oa1bw2VsSQ/rBV42AsFkrzcLKJlJXUIpTovSrYQKirylKzprWqGiAp5v
+	 yvar/xSI2dGb1DE11ULvd3bI5rqY1Ff4mdrcIBlkXCzQy7QRKowdnfl38Br9HtSsNj
+	 79PXkM3utYCHUteChJWZBJTpxOHB5rBD0PKXKVI+Q5f7MIOXL1Y0lvnXgLoFXDCR6p
+	 Tr9nug+LrVxqu1FIUlRP6J69hfcaK8t2etvKhAOMcki9tm5pbmMeBbVZxEfOB8TIRj
+	 LO5TMMGmA5v/T3uDacwFjA7fGBhCedgomcSwbDPmAD7VyGR+GqF91vfFpJWBJsI7AE
+	 Djg57cr3eRLNw==
+X-Pm-Submission-Id: 4gX7V10BkQz1DDXg
 From: William Theesfeld <william@theesfeld.net>
 To: Xingyu Wu <xingyu.wu@starfivetech.com>
 Cc: Ziv Xu <ziv.xu@starfivetech.com>,
@@ -35,9 +35,9 @@ Cc: Ziv Xu <ziv.xu@starfivetech.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 6/6] watchdog: starfive: release early_enable PM refcount on remove
-Date: Fri,  5 Jun 2026 13:19:42 -0400
-Message-ID: <5e900cfc2e6441207930b3bda3ec0bc818c2087c.1780666366.git.william@theesfeld.net>
+Subject: [PATCH v3 4/6] watchdog: starfive: guard system suspend/resume hardware access
+Date: Fri,  5 Jun 2026 13:19:40 -0400
+Message-ID: <790637054268689cf06f47cac161118864edab8f.1780666366.git.william@theesfeld.net>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <cover.1780666366.git.william@theesfeld.net>
 References: <cover.1780664848.git.william@theesfeld.net> <cover.1780666366.git.william@theesfeld.net>
@@ -49,51 +49,91 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When early_enable starts the hardware at probe time, the runtime PM
-reference taken by pm_runtime_resume_and_get() is intentionally kept
-to hold the device runtime-resumed.  In the normal (userspace-opened)
-case the watchdog framework unwinds that reference via pm_stop() on
-close, and again via stop_on_unregister() during
-watchdog_unregister_device().
+starfive_wdt_suspend() reads from STARFIVE_WDT_VALUE and writes to
+WDOGCONTROL via starfive_wdt_get_count() and starfive_wdt_stop()
+before calling pm_runtime_force_suspend().  If the device was already
+runtime-suspended when system suspend began, the apb and core clocks
+are gated and those register accesses produce a synchronous external
+abort.
 
-But watchdog_unregister_device() only runs the stop path when
-WDOG_ACTIVE is set (see drivers/watchdog/watchdog_dev.c).  If
-early_enable started the hardware and userspace never opened it,
-WDOG_HW_RUNNING is set without WDOG_ACTIVE: unregister returns
-without touching pm_stop, and the probe-time PM reference is leaked.
+starfive_wdt_resume() has the mirror problem: it unconditionally
+restores the WDOGLOAD value after pm_runtime_force_resume() returns,
+but pm_runtime_force_resume() leaves the device in whichever runtime
+PM state it was in pre-suspend.  If the device stays suspended, the
+restore writes race with gated clocks.
 
-Drop that reference in starfive_wdt_remove() before
-pm_runtime_disable() runs, when WDOG_HW_RUNNING is still asserted.
+Gate both halves with pm_runtime_status_suspended() so the hardware
+is only touched when it is actually active.  When the watchdog was
+suspended at runtime PM level there is no state to save or restore.
+
+Additionally, restart the hardware on resume for the early_enable
+case (WDOG_HW_RUNNING set without WDOG_ACTIVE).  Without this, a
+system suspend stops the early-enabled hardware via the suspend
+callback above, but the resume callback only restarts when
+watchdog_active() is true, leaving the watchdog permanently stopped
+after the suspend/resume cycle.
 
 Signed-off-by: William Theesfeld <william@theesfeld.net>
 ---
- drivers/watchdog/starfive-wdt.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/watchdog/starfive-wdt.c | 34 ++++++++++++++++++++++++++-------
+ 1 file changed, 27 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index 6137e98f1..ad5bb67d4 100644
+index 856e55f04..e3a47c0c3 100644
 --- a/drivers/watchdog/starfive-wdt.c
 +++ b/drivers/watchdog/starfive-wdt.c
-@@ -546,6 +546,19 @@ static void starfive_wdt_remove(struct platform_device *pdev)
- 	starfive_wdt_stop(wdt);
- 	watchdog_unregister_device(&wdt->wdd);
+@@ -564,11 +564,16 @@ static int starfive_wdt_suspend(struct device *dev)
+ {
+ 	struct starfive_wdt *wdt = dev_get_drvdata(dev);
+ 
+-	/* Save watchdog state, and turn it off. */
+-	wdt->reload = starfive_wdt_get_count(wdt);
+-
+-	/* Note that WTCNT doesn't need to be saved. */
+-	starfive_wdt_stop(wdt);
++	/*
++	 * Only access the hardware while the device is runtime-resumed; if
++	 * runtime PM has already suspended the device, its clocks are gated
++	 * and a register read/write would trigger a synchronous external
++	 * abort.  WTCNT does not need to be saved.
++	 */
++	if (!pm_runtime_status_suspended(dev)) {
++		wdt->reload = starfive_wdt_get_count(wdt);
++		starfive_wdt_stop(wdt);
++	}
+ 
+ 	return pm_runtime_force_suspend(dev);
+ }
+@@ -582,12 +587,27 @@ static int starfive_wdt_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
 +	/*
-+	 * watchdog_unregister_device() only calls our pm_stop op when
-+	 * WDOG_ACTIVE is set.  When early_enable started the hardware at
-+	 * probe time and userspace never opened the watchdog, the framework
-+	 * state is WDOG_HW_RUNNING without WDOG_ACTIVE: the unregister path
-+	 * leaves the runtime PM reference taken at probe outstanding.  Drop
-+	 * it here before disabling runtime PM so the usage counter does not
-+	 * leak.
++	 * pm_runtime_force_resume() leaves the device in whichever runtime
++	 * PM state it was in before system suspend.  Only restore hardware
++	 * state when the device is actually resumed; otherwise the register
++	 * writes below would race with gated clocks.
 +	 */
-+	if (test_bit(WDOG_HW_RUNNING, &wdt->wdd.status) &&
-+	    pm_runtime_enabled(&pdev->dev))
-+		pm_runtime_put_sync(&pdev->dev);
++	if (pm_runtime_status_suspended(dev))
++		return 0;
 +
- 	if (pm_runtime_enabled(&pdev->dev))
- 		pm_runtime_disable(&pdev->dev);
- 	else
+ 	starfive_wdt_unlock(wdt);
+-	/* Restore watchdog state. */
+ 	starfive_wdt_set_reload_count(wdt, wdt->reload);
+ 	starfive_wdt_lock(wdt);
+ 
+-	if (watchdog_active(&wdt->wdd))
++	/*
++	 * Restart the hardware on resume for both userspace-opened
++	 * watchdogs (WDOG_ACTIVE) and watchdogs started via early_enable
++	 * (WDOG_HW_RUNNING).  Checking only WDOG_ACTIVE leaves the
++	 * early_enable case stopped after a suspend/resume cycle even
++	 * though the framework still considers the hardware running.
++	 */
++	if (watchdog_active(&wdt->wdd) || watchdog_hw_running(&wdt->wdd))
+ 		return starfive_wdt_start(wdt);
+ 
+ 	return 0;
 -- 
 2.54.0
 
