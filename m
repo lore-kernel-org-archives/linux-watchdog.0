@@ -1,33 +1,33 @@
-Received: from mail-244108.protonmail.ch (mail-244108.protonmail.ch [109.224.244.108])
+Received: from mail-244106.protonmail.ch (mail-244106.protonmail.ch [109.224.244.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F634390209
-	for <linux-watchdog@vger.kernel.org>; Fri,  5 Jun 2026 17:20:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C93390233;
+	Fri,  5 Jun 2026 17:20:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780680009; cv=none; b=OGPu8RuCvFMI3Jhaq7REJMHHRv8/Xifr80GyndkCdwiQQvVmscL4YLVmvHRg3/uPRl3eh7TdP188XmX13oZ3RYsGABTqW6wAdtLjFS/sEh+bg3ixYB2s2V1XROCW+w+bmmUdjAKuHkprNWWQfRTrAfAEa4AnC1PLgLUE8KowNok=
+	t=1780680010; cv=none; b=j3m/aPYmLrtCWK77WC1LOO41DUsBiGk+KRely0tqm6uQjkLu6//ZCLzzgJ9cnnngGuBwhoUrOSUczLGyc5I0CFCuehzdu38h8PRG+lc3tUlhzzdTxLg3ccddz/Gvhl05jNChXRlJOQBkByQeiGBs4rT1BekA3NSS/jAfSFBLD2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780680009; c=relaxed/simple;
-	bh=uX2OO8VIAJ98ooonTDAk3VBWuXWuFIjpzdpbBmNEyEs=;
+	s=arc-20240116; t=1780680010; c=relaxed/simple;
+	bh=TFR2ZDOLwSO8KpMOXTu/BFfjmT3o4oODxCQYDa4Xidk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p9lj7r32Ld2jGXIPMFpEECor8NBlXqm1+IgI6XeGfv2GiTzkAWulzmA3sgpBuHYHujxEws+tg71uFZT9yk3OyPWKHs9mlyYQ4a+v7a44XQtu4XFsZpV8O+y54uTFQf5dN6ZYPLERKdz39oijsbIc/ypLdNK5r/fw9CMPaAH4LqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=E/Q8XoPu reason="key not found in DNS"; arc=none smtp.client-ip=109.224.244.108
+	 MIME-Version; b=X+W8UnzOJApaJ6IczICQ1XDXwniYS08578rZXLP/LF9y4U6eMsOfgpNIyvQt2OCpGS5ZKz0t7CA4rtvDTfI1CEbLvpu1UC04Mkxy91vg5fEu5+M/ypflucgDJ4+aqKl7a7BDyxcoKTrYlmNbRsby95EbVn00jOg2qoH4bmEYdwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=c52++xfr reason="key not found in DNS"; arc=none smtp.client-ip=109.224.244.106
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="E/Q8XoPu"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="c52++xfr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=theesfeld.net;
-	s=protonmail2; t=1780679998; x=1780939198;
-	bh=LGOXpfMPxFoQZg423hlG08nWuFFWTpOwynBjJFDYYww=;
+	s=protonmail2; t=1780679992; x=1780939192;
+	bh=j9kCO9GTcIPjil62JnvoovkenD2UMj5ouvi3yiRJ8x4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:From:To:
 	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=E/Q8XoPuaQXUrpNupbT8YcSJzN+wW+7SGf8jPXx2NVWLVYHlcHpIyiv1zZFFeB57p
-	 SsKWC6ankURqaFWErXLYndtnR1dc5b5f1z9FuV0NXk9FylNKAIZl7aYFyV0wByhXox
-	 xIPvFAGFNGJsz/ObS4FVNDE4mJCPoqoZTp+EeFOE7nsA8XnVRPcJnwy7z2LI1sUFvf
-	 Q89ZfdAhieZ0TEvfLcmcbuYjO9u7lcqOZ3i1dLWd+BqFWBUGAgxNT2nvlQ/tngG3sa
-	 3roY6p0HFlaCnca90Ikv6wI5fssDl/dh5Fid+N9tqHWRGmNaP9fXVMW8OrJ5cgUQMM
-	 Ksew4un1mpnyg==
-X-Pm-Submission-Id: 4gX7V25lvLz1DDXj
+	b=c52++xfrChGEpiB99Z8fZsUYnH1+kRZTkRNx39NMnWvxSN3438p3n5cWFPPlXTjcD
+	 fYUFSjvtypIJaTfvCSIkuXfyiCjrsLdZXLqBbM+WUISTs67abueGCF+SXQ2aJGM6hk
+	 +7wA54Tv+2On4DVlMXpZc1Nwx4x0oWcOmdgt+t6qdDeRuz0uaYxKc7uZUlnXLot3gY
+	 5gHQ5xJydlUd79JhyKD0416BEjvvzrhvM+uKRQBnnDXjMMozjZRMAUarrsgPhdp03C
+	 lnT0+F/Yy9kPeQgmz2ru9J3rEq4xhpxUus5DaNTrfMQR8DA/gTdsY5d56yBmNFGiO2
+	 7Ca80gULPNvLg==
+X-Pm-Submission-Id: 4gX7Tw6GTVz1DDXp
 From: William Theesfeld <william@theesfeld.net>
 To: Xingyu Wu <xingyu.wu@starfivetech.com>
 Cc: Ziv Xu <ziv.xu@starfivetech.com>,
@@ -35,9 +35,9 @@ Cc: Ziv Xu <ziv.xu@starfivetech.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 5/6] watchdog: starfive: avoid PM refcount underflow in shutdown
-Date: Fri,  5 Jun 2026 13:19:41 -0400
-Message-ID: <294a324adc8007768829613b03d0415a44b2af35.1780666366.git.william@theesfeld.net>
+Subject: [PATCH v3 2/6] watchdog: starfive: treat pm_runtime_put_sync() positive return as success
+Date: Fri,  5 Jun 2026 13:19:38 -0400
+Message-ID: <d3940b490ca9ba7e23bf90b4b2aefc23ca2facf9.1780666366.git.william@theesfeld.net>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <cover.1780666366.git.william@theesfeld.net>
 References: <cover.1780664848.git.william@theesfeld.net> <cover.1780666366.git.william@theesfeld.net>
@@ -49,49 +49,56 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-starfive_wdt_shutdown() unconditionally calls starfive_wdt_pm_stop(),
-which drops a runtime PM reference via pm_runtime_put_sync().  If the
-device was never opened (so there was no matching pm_start()), and
-early_enable is also off (so probe already balanced its own get/put),
-the counter is at zero and put_sync() drives it negative.
+pm_runtime_put_sync() can return a positive value to signal a
+non-error condition (for example, the device was already in the
+requested state); only negative return values are real errors.
 
-Only call pm_stop() when WDOG_ACTIVE is set (meaning a paired
-pm_start() happened on open).  For the early_enable-and-never-opened
-case, the framework state is WDOG_HW_RUNNING without WDOG_ACTIVE; in
-that case stop just the hardware so the watchdog does not keep
-ticking through shutdown, while leaving the PM refcount for the
-remove path to release.
+Both starfive_wdt_pm_stop() and starfive_wdt_probe() currently treat
+any non-zero return as failure: pm_stop returns the value verbatim,
+which the watchdog framework propagates as an error, and probe takes
+the err_unregister_wdt path even on a successful but non-zero return.
+
+Mask off the positive return value in pm_stop and tighten the probe
+check to "< 0" so the legitimate positive return is no longer
+mishandled.
 
 Signed-off-by: William Theesfeld <william@theesfeld.net>
 ---
- drivers/watchdog/starfive-wdt.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/watchdog/starfive-wdt.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index e3a47c0c3..6137e98f1 100644
+index ed8c5711a..e047f52b0 100644
 --- a/drivers/watchdog/starfive-wdt.c
 +++ b/drivers/watchdog/starfive-wdt.c
-@@ -557,7 +557,19 @@ static void starfive_wdt_shutdown(struct platform_device *pdev)
+@@ -386,9 +386,17 @@ static int starfive_wdt_pm_start(struct watchdog_device *wdd)
+ static int starfive_wdt_pm_stop(struct watchdog_device *wdd)
  {
- 	struct starfive_wdt *wdt = platform_get_drvdata(pdev);
+ 	struct starfive_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
  
--	starfive_wdt_pm_stop(&wdt->wdd);
+ 	starfive_wdt_stop(wdt);
+-	return pm_runtime_put_sync(wdd->parent);
++	ret = pm_runtime_put_sync(wdd->parent);
 +	/*
-+	 * Only drop a runtime PM reference when we actually hold one.  The
-+	 * watchdog framework increments it via pm_start() on open; when
-+	 * early_enable started the hardware without an open, the reference
-+	 * was taken at probe time and the framework state reads as
-+	 * WDOG_HW_RUNNING without WDOG_ACTIVE.  In the inactive-and-not-
-+	 * running case there is nothing for us to do and dropping the
-+	 * counter unconditionally would underflow it.
++	 * pm_runtime_put_sync() can return a positive value to signal a
++	 * non-error condition (for example, the device was already in the
++	 * requested state and no suspend callback was needed).  Only
++	 * propagate negative return values as failures.
 +	 */
-+	if (watchdog_active(&wdt->wdd))
-+		starfive_wdt_pm_stop(&wdt->wdd);
-+	else if (test_bit(WDOG_HW_RUNNING, &wdt->wdd.status))
-+		starfive_wdt_stop(wdt);
++	return ret < 0 ? ret : 0;
  }
  
- static int starfive_wdt_suspend(struct device *dev)
+ static int starfive_wdt_set_timeout(struct watchdog_device *wdd,
+@@ -503,7 +511,7 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+ 	if (!early_enable) {
+ 		if (pm_runtime_enabled(&pdev->dev)) {
+ 			ret = pm_runtime_put_sync(&pdev->dev);
+-			if (ret)
++			if (ret < 0)
+ 				goto err_unregister_wdt;
+ 		}
+ 	}
 -- 
 2.54.0
 
