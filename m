@@ -1,33 +1,33 @@
-Received: from mail-43170.protonmail.ch (mail-43170.protonmail.ch [185.70.43.170])
+Received: from mail-106111.protonmail.ch (mail-106111.protonmail.ch [79.135.106.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AE3F2777F3
-	for <linux-watchdog@vger.kernel.org>; Fri,  5 Jun 2026 13:12:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8720F30C147
+	for <linux-watchdog@vger.kernel.org>; Fri,  5 Jun 2026 13:12:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780665126; cv=none; b=bAcGnHH6j8YHQB434xquD9kRNKN8wDv37AVIwKc8PmvB9WwYqt4QaKC5zKVtKBU7I3hLRZRKo5/x7hF+5EG5GSck0D064fSbsSA7CZBdGUB8bdwKEG5i5jizW3oDWPkedDb391Qvq2M3sznRcBBSlxy6k47CkbQu2k+QoOfUkFo=
+	t=1780665127; cv=none; b=CUQOtxyyWpk+f14jDAVvE4e/oCp87RHZLQ21eNbNwnN75zxrFG+PUe4IRJw2EknNHcDVDQiZNICQXL/XuMq2kpFP2QeFXtYoLhKcoZ9de82IGVvL4lQWyjWF3v8FU/boNCL8rIJm+BuQOQHQh6wSHK1njFY7Gz2Bw8dCw+SdU5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780665126; c=relaxed/simple;
-	bh=xQRbhjlzCJ5KRFEHUnvw+ZTyoJXAVoqR5yT89mXtIWM=;
+	s=arc-20240116; t=1780665127; c=relaxed/simple;
+	bh=okmxrgBCvufTcX32FIBoSLwcDGUzqtcDdCzFnkaOA7U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pLGqTyJ7GlShkwiFj7cWmKjJkElxcoY3V5jIfaOKRcijjXfPyShT5LC6gEil4St/NFt88kZFfM4u+eB/EoA5PLpn6jgW9pSAmQRibuiSt4FG/qLektFNbP0C+mQZaG7qbGHyx4XaDmyyM9PqhCqNGaVaHajAr/zf8HGxZVdr4FM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=4dp4GmKj reason="key not found in DNS"; arc=none smtp.client-ip=185.70.43.170
+	 MIME-Version; b=UPncaGEOvH2nKe5DPBFjshZcWEg08+Jvxj2qnt+8i6pVwIZozN4C0UjC+GP2lB/hQB0PgVR6mcCl9tUiKrXufhhSRNPqAN+T+gIi5QpCsEDC8f1de9hBXUAhOsKuUcqHElH3i2bot0Xe+WzwI1gCYfJuqwMf+aJc8luRLi8w84M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net; spf=fail smtp.mailfrom=theesfeld.net; dkim=fail (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b=bYCRFG/H reason="key not found in DNS"; arc=none smtp.client-ip=79.135.106.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=theesfeld.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="4dp4GmKj"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=theesfeld.net header.i=@theesfeld.net header.b="bYCRFG/H"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=theesfeld.net;
 	s=protonmail2; t=1780665122; x=1780924322;
-	bh=pwIBjxAgsa9c8+74zjoKOZBEUnMSSb1CI3oeJGdoDhI=;
+	bh=s2Tq9L+mxJV1LF+CSfNq0nEeRrlDQozObfED+HQhBNU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:From:To:
 	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=4dp4GmKj8Sn7t2BpvuvXcbjwEAS8/phpu9FTKQlkEa6IlOhgi+GcNZTjvaXVgSgT+
-	 25NUOppO/Z5eG2ObxdEhrddVPYJ+gWgW/3qWgbkcv6K/OGotW3G7fR2wDQ5q+6yAk/
-	 WAECyYDROtD/zAiYnwefay5f7ayhnBUHyBxeItbbNWNqpvMQ9xinrkB7CyV7Yl87ow
-	 qFd8OrTcddqPyMYff+AVTNdf81jBGS28ybHeCcXF6j1duFzxM/i63qShF4vbrORdDn
-	 xVudsJAxQBjgYfKvb1EdvFi1k36Cko2ibpHvaMC9gV6nL1GRTZzzXWTsmS1XH8DdNB
-	 6vaVBvsQQlfVA==
-X-Pm-Submission-Id: 4gX1zw6ryBz1DFSn
+	b=bYCRFG/HZfWvoIZNfUQTJoOV+UW28LEywD5mDdFTERrW811mG8Wq2eYo6+4R9dlvf
+	 wvASNzsqKfPOvYu0jdPKnHJ2LQ9b5bJ/gZwThwzDM3DEX4ZeOYqulhpTuF9fcEfGMD
+	 kk/eWaha1MgRiekGsZsMmtUXKDiK1Oq7T+1gl/3kjJWfnhQeUpEi7t/SOpfEs9Ks+7
+	 NQqIZyR/ABA/72zQDUEVNrnXUhthISu55rsF4laFpQSHn97ERjjrwoN4jWaHyLnuNB
+	 IGvtsbulZUvBSDmlBnhlCNrUB1IekgZ3J6oBc5ew0xczZUW40Sail1yjKYvGJ3dxzR
+	 zdBcPzkb4F9dA==
+X-Pm-Submission-Id: 4gX1zz1Gq6z1DFSh
 From: William Theesfeld <william@theesfeld.net>
 To: Xingyu Wu <xingyu.wu@starfivetech.com>
 Cc: Ziv Xu <ziv.xu@starfivetech.com>,
@@ -35,12 +35,12 @@ Cc: Ziv Xu <ziv.xu@starfivetech.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/6] watchdog: starfive: runtime PM cleanup
-Date: Fri,  5 Jun 2026 09:11:49 -0400
-Message-ID: <cover.1780664848.git.william@theesfeld.net>
+Subject: [PATCH v2 1/6] watchdog: starfive: balance PM refcount when start operation fails
+Date: Fri,  5 Jun 2026 09:11:50 -0400
+Message-ID: <ea696db2019b0548b3956fbb84104b12eacc94eb.1780664848.git.william@theesfeld.net>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260605122336.159546-1-william@theesfeld.net>
-References: <20260605122336.159546-1-william@theesfeld.net>
+In-Reply-To: <cover.1780664848.git.william@theesfeld.net>
+References: <20260605122336.159546-1-william@theesfeld.net> <cover.1780664848.git.william@theesfeld.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -49,71 +49,47 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The v1 patch was a one-line conversion of pm_runtime_get_sync() to
-pm_runtime_resume_and_get() in starfive_wdt_pm_start().  On review,
-the StarFive maintainers pointed out one edge case the v1 fix had
-missed, plus five pre-existing issues in the surrounding runtime PM
-handling that all need to be addressed before the original fix is
-useful in practice.
+After pm_runtime_resume_and_get() succeeds in starfive_wdt_pm_start(),
+the runtime PM usage counter is incremented.  If starfive_wdt_start()
+subsequently fails, the function returns the error without releasing
+that reference, leaking the usage counter.
 
-This v2 turns the single fix into a six-patch series.  Each patch
-addresses one independent issue and can be reviewed in isolation;
-they are ordered roughly from the simplest correctness fix to the
-ones requiring a small amount of restructuring.
+Call pm_runtime_put_sync() on the start failure path so the counter
+is balanced.
 
-The series:
+This also folds in the v1 conversion of pm_runtime_get_sync() to
+pm_runtime_resume_and_get(), which was the original purpose of this
+patch; both fixes together close the refcount-leak window in this
+function as flagged by the maintainer on the v1 thread.
 
-  1/6  Expand the original v1 fix so the runtime PM reference is also
-       released when starfive_wdt_start() fails after a successful
-       pm_runtime_resume_and_get().
+Signed-off-by: William Theesfeld <william@theesfeld.net>
+---
+ drivers/watchdog/starfive-wdt.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-  2/6  Treat a return value of 1 from pm_runtime_put_sync() as success
-       in both starfive_wdt_pm_stop() and the probe path; the watchdog
-       framework currently propagates the value verbatim and the probe
-       takes the err_unregister_wdt path on a non-error return.
-
-  3/6  Restructure starfive_wdt_probe() error handling into three
-       labels (err_pm_disable / err_put_pm / err_unregister_wdt) so
-       every failure path balances exactly the resources it has
-       acquired.  Previously two early failure paths returned without
-       calling pm_runtime_disable() and several later paths leaked the
-       runtime PM reference.
-
-  4/6  Gate the system suspend / resume callbacks with
-       pm_runtime_status_suspended() so the WDOGLOAD / WDOGCONTROL
-       accesses run only when the device is actually clocked.  When
-       the device was already runtime-suspended the previous code
-       triggered a synchronous external abort.
-
-  5/6  Make starfive_wdt_shutdown() only drop the PM refcount when
-       WDOG_ACTIVE is set, and stop just the hardware (no PM touch)
-       when only WDOG_HW_RUNNING is set.  This avoids the refcount
-       underflow that the previous unconditional pm_stop() produced.
-
-  6/6  Release the early_enable PM refcount in starfive_wdt_remove()
-       when WDOG_HW_RUNNING is still asserted at unregister time.  The
-       watchdog framework's stop-on-unregister path only runs the
-       stop op when WDOG_ACTIVE is set, so the early-enable +
-       never-opened combination otherwise leaks the probe-time
-       reference.
-
-The whole series builds cleanly with CONFIG_STARFIVE_WATCHDOG=m on
-x86_64 defconfig.  Runtime testing would require StarFive JH7100 /
-JH7110 hardware and has not been performed.
-
-William Theesfeld (6):
-  watchdog: starfive: balance PM refcount when start operation fails
-  watchdog: starfive: treat pm_runtime_put_sync() positive return as
-    success
-  watchdog: starfive: balance PM refcount and disable in probe error
-    paths
-  watchdog: starfive: guard system suspend/resume hardware access
-  watchdog: starfive: avoid PM refcount underflow in shutdown
-  watchdog: starfive: release early_enable PM refcount on remove
-
- drivers/watchdog/starfive-wdt.c | 92 ++++++++++++++++++++++++++-------
- 1 file changed, 73 insertions(+), 19 deletions(-)
-
+diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
+index af55adc4a..ed8c5711a 100644
+--- a/drivers/watchdog/starfive-wdt.c
++++ b/drivers/watchdog/starfive-wdt.c
+@@ -371,12 +371,16 @@ static void starfive_wdt_stop(struct starfive_wdt *wdt)
+ static int starfive_wdt_pm_start(struct watchdog_device *wdd)
+ {
+ 	struct starfive_wdt *wdt = watchdog_get_drvdata(wdd);
+-	int ret = pm_runtime_get_sync(wdd->parent);
++	int ret = pm_runtime_resume_and_get(wdd->parent);
+ 
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return starfive_wdt_start(wdt);
++	ret = starfive_wdt_start(wdt);
++	if (ret)
++		pm_runtime_put_sync(wdd->parent);
++
++	return ret;
+ }
+ 
+ static int starfive_wdt_pm_stop(struct watchdog_device *wdd)
 -- 
 2.54.0
 
