@@ -1,43 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5A938C2D8
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 20:16:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0221384244
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 20:20:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780949769; cv=none; b=hJ2+nw5KH330m0c0QvvN+7QpZl74ez+s0zor8WVAIzhlL39K1DyCgaRx7EQeWHgxBvNwevmTy7l4d7mmhUOkUJDjYUrzLma9/27ENVDCEg2sU7MsEg48YfgEKIBZV4uJOxE5xRcEr8IqfpMF25XCO3/b4cVZM8101pmbyg/vnOU=
+	t=1780950060; cv=none; b=kvdWKfz9joSF4D3mi8Wl3nTCa0VwSv6rlPTebiDxAdelRvAubX1Ii1kU5SdI4X35GQISDsD8nu1LRzbWgctZzXU3XR19xvX82o4i3drRtmP1ZEMBVDndr7ZTrHDhbUmtjL4LH49vwAnLKRP/mCL1PDwDy6Fp6II3V+pLdPQ1WWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780949769; c=relaxed/simple;
-	bh=b6PGJV8dh7GjcweQqfFFWInm6NO1son4sIUh3h+4sKg=;
+	s=arc-20240116; t=1780950060; c=relaxed/simple;
+	bh=ib/wf9BH+Hatku435cfeMS/lPbWfAuC6/tbdBGb3Hfs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iNAxyFlnRy9nsUCsKOJW+VGJYPRQx5r1FjchWHiIXsMCwrsv5l+oGNsUAWkz5fVWkkKfzDL7ufvvubFAAXb9V+KgCLYWV4hzorNJhVg4jbbF/P8BOVo9g79koWZdhFez0lkvqfbv2xf9nGJyWPiDmCkhL0cfzfXXky+qeaYZVEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m7bx5D7N; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=GfdPwHOc49jwo5Ep2/mTJEO5WB3HzCUXwpoSMlXcJ2Muf/zq92W2JyRJ4iukVhk0ybMLYfXaR13mDfN989ylxHd47xzXjwla0o4t0+0t0wX/gsw0qFRikBn8SXnAm+3qhIjgGKfuMPOHiL93TqtcKhJVT9Y9DpCxU4MvNJXXmUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LrxWPDs3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m7bx5D7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE3E1F00899;
-	Mon,  8 Jun 2026 20:16:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LrxWPDs3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E651F00893;
+	Mon,  8 Jun 2026 20:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780949768;
-	bh=mYtYV+LDOxBn/d7nl9jK6qGD6IUzKU6T0NWvpW/sjfc=;
+	s=k20260515; t=1780950059;
+	bh=i4ilGjkM4T9QlvklH/OhSJr8jlb7wSHqfw3IxxFBA88=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m7bx5D7NilG7NNpizkggDRp92W1hRCXxfMS7RwxtfI2UabOwSjf1sOW93YlB+2JOD
-	 YvblbKYnHIo+zlz6JCJGJTcfF8I1eTqFp96+3I5LOmTBgKHvDmGdNsqn9fqHreTb1s
-	 DccuNELa9l78OltnBpdo24U8MtfFw5IIKAcvhCcXwbLd8eBVzb9Sv8iO+w/dA0kXdZ
-	 Eo6nX1tiLr83aONTCjKFMl+YlmAHaorGHwmRfxPMT3LB3tq6+aQR/+T8wTHUsGoD4y
-	 /p9lxU4wKkLv3feKXnjwxYWDGgZbK5P6151pSErlLctibo0RQLStimRypcMqE7Thc1
-	 zqKMTix1xQPmQ==
+	b=LrxWPDs349u46oQ8YI9rYnsy8ixZ126/Uh1galnU9YB4aILTBvJ8ZvNZdGsHBernN
+	 jah/C5KJNpqVfEu0ylRB82vrIoCzHxy2FZv/ptndeYKAk2I2FJU4Rln+zVv/nhfWJR
+	 kfprltFTRl4479MeCxF00C2eNldiQyvQ/kDbagkRSldQts1VqiCh9ucfVXB21F+uzy
+	 dCNrw1ZiRvRhUnh27xAOgFiM2ilcrdkSd38IK2vOmgd0LfkTSlPyA65VN/DBnPgvvO
+	 DsGUtw4m0X/GEwS2zUwfHn6FUpRLzPblPUd4WYg1pg2Wbx1UEyBkDDQ+ZHkPYd5saK
+	 k6Zyxeo58O5rg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCHv2 2/3] watchdog: sama5d4: use
- platform_get_irq_optional()
+Subject: Re: [PATCHv2 3/3] watchdog: sama5d4: fix NULL deref in irq handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Rosen Penev" <rosenp@gmail.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260608200933.18669-3-rosenp@gmail.com>
-References: <20260608200933.18669-3-rosenp@gmail.com>
+In-Reply-To: <20260608200933.18669-4-rosenp@gmail.com>
+References: <20260608200933.18669-4-rosenp@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 08 Jun 2026 20:16:08 +0000
-Message-Id: <20260608201608.AAE3E1F00899@smtp.kernel.org>
+Date: Mon, 08 Jun 2026 20:20:59 +0000
+Message-Id: <20260608202059.B2E651F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -48,70 +47,64 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The interrupt handler relies on platform drvdata but is registered=
- before drvdata is set, which can lead to a NULL pointer dereference.
+- [High] The shared interrupt handler `sama5d4_wdt_irq_handler` uncondition=
+ally returns `IRQ_HANDLED`, defeating the generic IRQ subsystem's spurious =
+interrupt detection and potentially leading to a system lockup.
 --
 
-commit 6a0bceec2bdd17bb8ca5d9b9518a193041169703
+commit b6b6fa431a5a5f7d84f57281a56bc7bf32bb62cb
 Author: Rosen Penev <rosenp@gmail.com>
 
-watchdog: sama5d4: use platform_get_irq_optional()
+watchdog: sama5d4: fix NULL deref in irq handler
 
-This commit replaces irq_of_parse_and_map() with platform_get_irq_optional()
-to avoid needing irq_dispose_mapping() on failure. It also adds handling for
--EPROBE_DEFER.
+This commit moves platform_set_drvdata() before devm_request_irq() to ensure
+the interrupt handler can safely dereference the driver data. This prevents=
+ a
+possible NULL dereference if an interrupt on the shared System IRQ line fir=
+es
+early.
 
 > diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wd=
 t.c
-> index 13e72918338a2..e12499547d735 100644
+> index 704b786cc2ec6..dcf5b8ac9e0d2 100644
 > --- a/drivers/watchdog/sama5d4_wdt.c
 > +++ b/drivers/watchdog/sama5d4_wdt.c
+> @@ -268,6 +268,7 @@ static int sama5d4_wdt_probe(struct platform_device *=
+pdev)
+>  						: AT91_WDT_WDDIS;
+> =20
+>  	watchdog_set_drvdata(wdd, wdt);
+> +	platform_set_drvdata(pdev, wdt);
+
+[Severity: High]
+This is a pre-existing issue, but does sama5d4_wdt_irq_handler() defeat the
+generic IRQ subsystem's spurious interrupt detection by unconditionally
+returning IRQ_HANDLED?
+
+The driver requests a shared interrupt line using the IRQF_SHARED flag. If
+the status register check indicates the watchdog did not generate the
+interrupt, the handler bypasses the emergency restart logic but still
+returns IRQ_HANDLED:
+
+drivers/watchdog/sama5d4_wdt.c:sama5d4_wdt_irq_handler() {
+	...
+	if (reg) {
+		pr_crit("Atmel Watchdog Software Reset\n");
+		emergency_restart();
+		pr_crit("Reboot didn't succeed\n");
+	}
+
+	return IRQ_HANDLED;
+}
+
+Should this return IRQ_NONE when it did not service the interrupt to avoid
+falsely claiming unhandled interrupts?
+
+> =20
+>  	regs =3D devm_platform_ioremap_resource(pdev, 0);
 
 [ ... ]
 
-> @@ -286,8 +285,11 @@ static int sama5d4_wdt_probe(struct platform_device =
-*pdev)
->  		return ret;
-> =20
->  	if (wdt->need_irq) {
-> -		irq =3D irq_of_parse_and_map(dev->of_node, 0);
-> -		if (!irq) {
-> +		irq =3D platform_get_irq_optional(pdev, 0);
-> +		if (irq =3D=3D -EPROBE_DEFER)
-> +			return irq;
-> +
-> +		if (irq < 0) {
->  			dev_warn(dev, "failed to get IRQ from DT\n");
->  			wdt->need_irq =3D false;
->  		}
-
-[Severity: High]
-This is a pre-existing issue, but since the interrupt is registered
-with IRQF_SHARED shortly after this, could the handler fire before
-platform_set_drvdata() is called?
-
-In sama5d4_wdt_probe(), the interrupt is registered like this:
-
-	ret =3D devm_request_irq(dev, irq, sama5d4_wdt_irq_handler,
-			       IRQF_SHARED | IRQF_IRQPOLL |
-			       IRQF_NO_SUSPEND, pdev->name, pdev);
-
-Because it is shared, another device on the same IRQ line could trigger
-an interrupt immediately. The handler then retrieves the wdt pointer
-using platform_get_drvdata():
-
-drivers/watchdog/sama5d4_wdt.c:sama5d4_wdt_irq_handler() {
-	struct sama5d4_wdt *wdt =3D platform_get_drvdata(dev_id);
-	...
-	if (wdt->sam9x60_support)
-		...
-}
-
-However, platform_set_drvdata() is only called at the very end of
-sama5d4_wdt_probe(). Would this result in a NULL pointer dereference
-if the interrupt triggers early? Should platform_set_drvdata() be
-moved before the interrupt is requested?
-
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260608200933.1866=
-9-3-rosenp@gmail.com?part=3D1
+9-4-rosenp@gmail.com?part=3D1
