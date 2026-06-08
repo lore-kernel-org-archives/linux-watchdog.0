@@ -1,68 +1,68 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 575D0369D7C
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 22:44:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03ED9F9E8
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 22:52:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780958679; cv=none; b=Oqepw51lE9fp6IZ9CK/ve1sFHYVjcZiOYBpUdH1AgKGr75QgBMQw/XCUfkZ1Rt5wzjIj4EBdAvuBsplE7kqzu54FO+n7Fyhb9Y7x1ZXHKyM5YlfxJ8A262C7wc4CREfZ8PiGmVL7d0iFBfVEdYasX9jiDwYcNaHm47i/jvShPt8=
+	t=1780959163; cv=none; b=BPFxlWRWJXALRM3lfsYV+NIBQKswjz5hOGIJtMMZsj9iN1x5F55+d8pSZkabZ79HRdncrgOYn9DBRRt+JYyxgterccV9GG/YEx9EJND4qWltUrJxYad+gU6Fb1ynsdymBwYCObZ0AD6cR8e/RafGXo6uofcLT7rVvZtevuLUvqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780958679; c=relaxed/simple;
-	bh=SY3ZDi7rqYk0SDGx+YG6HBvYvM6fgMrPZitm3e1lvFo=;
+	s=arc-20240116; t=1780959163; c=relaxed/simple;
+	bh=UR94XfZGe4SN0tK+q/lzFr5zoyRdgF+h9/R2DPk8MdI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=l3qPTF+n76l+xTeU7FB7jChQi4CnhE22W/uxHA9kdhLkEeAO+9B77SS2wiDokknuLC16eZo88HqWcaccvAnQW7FXQdqiTTfXjN72RyQrhNrmeOqr2xnxbk6jNHj1bLcnfBQJSAGgIgkhxOeZxMYFjxm1HAD4yDDYnIDw/C2lKU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q7T9MMda; arc=none smtp.client-ip=209.85.215.179
+	 In-Reply-To:Content-Type; b=H8opHbO2veCoS3DAR6o7zIvrJURy3mpInaBBUMsejRPjW0Dfxhalzo4lxW3sEiMlp/jc3tuTBBrFMRM0sx8t2lYzxmY4VPdL795JkEOpgzDFgaaVgt+tH/TJCwObjP3ZHyYOXSZ03KXnUOJ9+aIxUcoh7NinI1Mh9kx2UB9GKa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qqQpIQy9; arc=none smtp.client-ip=209.85.210.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q7T9MMda"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c855599a77aso2362407a12.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 15:44:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qqQpIQy9"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8422524cb38so1590633b3a.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 15:52:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780958678; x=1781563478; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780959161; x=1781563961; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=8162lNHsWpqaubi3mJjKtZ4gQWpHDXaDerX/XR2Loaw=;
-        b=q7T9MMdaybzTnm63ITlyQJQgIv+f+XV0B1zX5JFnWUFmXq4IJpXxx4Dbxc8gZaYo+V
-         +75SpptDZQSclqgdnosGyHu2IZ3p9DbqruZ+vJePoeGpnZr4zGrSbDAk3SE/N+1JLi2M
-         /pDRkktjzJGXwdOUE00S1VkGZKZfpw7KlNVz4yNa2iH7g69LDC92Rg66tb6GYRpn+B6c
-         NAbem/jmo4FZ8HVKroHP/tIQ8HbRER+WgIKT0VH9ls7iuyd8aoJhpuThKLiSuXOmCPWe
-         lGC7njaSs4tQxZvZ9BbLRGRz8o59bMGOXexqgX1GOl+LDFpF8Gqy9ZfC3YwSSvIu/HES
-         p4Dw==
+        bh=Jt2Eo3v53IUPQ4iRdHxED2L6IQZeVQo07iv+ksWhxxo=;
+        b=qqQpIQy9IHiHwCLD0IEKXXpIfjRD2hpx4FNZIHJTpdrAYeithULkfHjbw5FiasAijh
+         uaIff21eMZ9db/EBERVEdvdx42oi1FdcD5+maZsmugXe0f9GL2ByfiHNCd8TAk2Nu8YH
+         YBXDxFmyrGnNrO9ZKBayLtbbdiO7LZAjKVMvTKaw64vm3a5ytaUObNcgCO9EOiTKtfk5
+         5ihXhGOM8kCST6VetheKPLi5FsjZHpvfcdjTEBZHurpbQoq0UNAgJCoVpH6IrSuqTw89
+         1B54jPxLaLGkSPeOC6AFamFRz57S5FfSyF/I0KSBn+Woyq+C5Ao3fKdBs9dOlBOzMm2B
+         bkGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780958678; x=1781563478;
+        d=1e100.net; s=20251104; t=1780959161; x=1781563961;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8162lNHsWpqaubi3mJjKtZ4gQWpHDXaDerX/XR2Loaw=;
-        b=r+X3AuJRI6GyisUdpRSJjzEIpUkaYS4htZ0fQgJv/N5nQQumj2quxzss1EjhUsLOGP
-         JdqD/olnb+AmRnFHEqDRUv0pCJLZrXk3QUJSHGgSZr7Y1kzvky8ELdGKqGsGyN7UVm8a
-         uGn6hNGrDP5HT9sCv9ZuKsGJflQFgdkLj3igVwMjbh04qKH3tuf9CsDEn9AnUgEc6Rz2
-         Sf7QOI4NCpDH6wYB3jb8KhHyWclSbbiIbfsNh0GPcbrF99VUeGJqV6ekBig0+07IF84C
-         bfoLmdbw2v2YWAqe/F0BzgFsemQ/9LPWt4wAUf24iEA6HtkNTF/TK0prQpDIwdqgw0Qn
-         OnpQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+nD8eLXrYyrHshfgT8wLXQVlidMX3iwRhpCuhYjYGfGlAnoo1P6nxB1xgF4J7ylxQmVHIlAObDSCCEpfF7Uw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwSftR99e8sAHHZf7YkbrZEKZFcYkD7LbchZjIX4vLC8BvWKQRR
-	UqtaDQoJquFyTMSq9s1ssxuYkbfn4OjwG+BrZK3LjgFlRFSjG6efX0Zu
-X-Gm-Gg: Acq92OEPaxzpR9dc28DwibFRFS2fryJh13UUp8lQQnkL14EQjlRGD1NWdanr+cQ/oXX
-	gM2Kp/sy29YikEV6WzcpkuOUl2A9cc3Z9CqxoRmyqLzhrhK7ISALUDfZwB6DM8jJNEy1Ezqxexu
-	CbCco+yD8plHpmpIYQuGIOzKXOd304zcxqXEqsoA8ppa0mSOTfqWAZjZEq4pm0vp29dsQeRkZ5o
-	jV6PezYVjz+VtvKrgeT8QSilVqdLskalP9lKN6Ys5joFxsj44iAaNmEFc4Chl67WXUhxhEKvMaB
-	i/sm/PIivdclN6t9TJQEknLBMvIYNj+rwxATPFeROS5wBGsjRWiUfpt9CCTaaIOIRqK1abVzT3o
-	dRoaSkLQZSaPBrs6TAoEivVc18OzpUP0/ArkNORV/kXNTLnebcSoeSAFedPkxBgj75mft2H/NYk
-	/CdsWALIA5UkDcJzugRSYG5m5ARYMTIb3Jyukr6MfCNhdFHiD9K53AQgGQ6xWQOz+cw/4147mUa
-	usGg9u+PMQ=
-X-Received: by 2002:a05:6a00:8006:b0:842:5bf3:c53c with SMTP id d2e1a72fcca58-842b0e1dd7fmr19184385b3a.2.1780958677698;
-        Mon, 08 Jun 2026 15:44:37 -0700 (PDT)
+        bh=Jt2Eo3v53IUPQ4iRdHxED2L6IQZeVQo07iv+ksWhxxo=;
+        b=KWdkBVEppP6TQBCbc1ej2ukmYy5PoilVg25Drr0o5eJ/00eSt9vF6l0IC/fsEFMz7w
+         +6axH07QdGNSqfr+kBESsQa1grx3pmwwONzFNhWiXDHyUv4T3TQAzJYfZmaJ5lE+Difj
+         IPZf26Hasq5b0lu/AyCxFaP4XKsyl0EcT0h/6dYhJFEeiNDM0IRID3e9vgu2nszulTdx
+         ItEp86OOGsVl9aO5otKFM1imxlYlme6kyKQ/J2uXMh2/sQ5rU+JM7ZU6ynMrLKHx4rO4
+         XsN6DYtkjNePKdxwVXmrhb9QSs8d2MYkyv3V4GeQG1N3kdEEJ9R+xnZotSyxaXZnqzqx
+         ctBg==
+X-Forwarded-Encrypted: i=1; AFNElJ/nmtpVHmMLDJsQaEBg0sFuRppfPy3W7Kkcyu0trfK3yAdqVkxJIq1w5H3pSB7+MIzZVmQQGoBiTIZyBILfNQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzB55PuJJWcFmLKNBDDREetiH1tQkMBfMy1x26xfwFJofR3yol
+	nAw8mZ8ieEAk+MY+uuiSl3iwk1OXaf1xxPZ9+sogTH2Er5ov/HiQ/dTU
+X-Gm-Gg: Acq92OEK4TQCnpiK0BLjesFA4ewsxxUrLzPHtQQc+daXrC5zRYMI/cpDMnxARPdCsE+
+	F0RPimV/3AV1d3LdtNyAmEreWxn7uX+ZEAWMv9FbMDZOT4qhNKwLYY2ykFfJedAGnha9wuEeF9c
+	ClCmLVVUTKEyuUuKbhc3aYkIsy0LfDkfu14VdwugD6vUg1W+Jy6Rc6ZkVL9i1xsT87VWqnnlb8r
+	lihAxn9sieN1USuTBR8FIaePSd09v4w+swukltg1T4Gyk2j4mK2vVe0oFgfkmUR01lz3gYnA3QS
+	kO9yWJshF8oBnmXWpMMVEyrpJI5rJmKwFMjYiW0SMVco1nCC5QYhOT94WIShhis/BFka6hUiyGL
+	rPzDjqUJW8ddOwCSS/Kd5CLdY2CXGkGBq83rREfVE3mdXr1Ha8dXyvRJ7lI0X429Weu/8nE26yD
+	YoMVDR7mrR7v6+RtNnH8tm2XinzhAQUIj6G47bUxKwvnrekzMixzojHDoCsyOsM+PLI48pwd7kz
+	2eDvipbwEhJhsz9kN+hdg==
+X-Received: by 2002:a05:6a00:1d9e:b0:837:f79d:909 with SMTP id d2e1a72fcca58-842b0fbc2efmr16431184b3a.39.1780959161319;
+        Mon, 08 Jun 2026 15:52:41 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8428221cc3dsm19099500b3a.1.2026.06.08.15.44.36
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8428221d1absm22868140b3a.9.2026.06.08.15.52.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2026 15:44:37 -0700 (PDT)
+        Mon, 08 Jun 2026 15:52:40 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <8f5d6e37-2334-4eac-90a0-8dedf90d7890@roeck-us.net>
-Date: Mon, 8 Jun 2026 15:44:36 -0700
+Message-ID: <7d51a340-281f-40bd-9574-1f0ab0849ebe@roeck-us.net>
+Date: Mon, 8 Jun 2026 15:52:40 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,17 +70,12 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCHv2 2/3] watchdog: sama5d4: use platform_get_irq_optional()
+Subject: Re: [PATCHv3 1/2] watchdog: pika_wdt: fix timer lifecycle bugs
 To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Claudiu Beznea <claudiu.beznea@tuxon.dev>,
- Wim Van Sebroeck <wim@linux-watchdog.org>,
- "moderated list:ARM/Microchip (AT91) SoC support"
- <linux-arm-kernel@lists.infradead.org>,
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
  open list <linux-kernel@vger.kernel.org>
-References: <20260608200933.18669-1-rosenp@gmail.com>
- <20260608200933.18669-3-rosenp@gmail.com>
+References: <20260608210402.31545-1-rosenp@gmail.com>
+ <20260608210402.31545-2-rosenp@gmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -126,27 +121,74 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260608200933.18669-3-rosenp@gmail.com>
+In-Reply-To: <20260608210402.31545-2-rosenp@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 6/8/26 13:09, Rosen Penev wrote:
-> irq_of_parse_and_map() requires irq_dispose_mapping() on failure. Don't
-> bother with it as platform_get_irq_optional() doesn't need it.
+On 6/8/26 14:04, Rosen Penev wrote:
+> Two timer lifecycle bugs in the PIKA watchdog driver:
 > 
-> Also handle EPROBE_DEFER.
+> 1. pikawdt_release() clears the open bit before stopping the timer,
+>     allowing a concurrent pikawdt_open() to start a new timer that
+>     is then immediately deleted.  Move clear_bit after the timer
+>     stop.  Use timer_shutdown_sync() so the handler cannot re-arm
+>     after the call returns.  Add timer_setup() in pikawdt_open()
+>     to re-initialize the timer for the next open.
+
+The clear bit is not moved, and the approach is wrong. More on that below.
+
 > 
+> 2. pikawdt_exit() unmaps FPGA IO memory without first stopping the
+>     ping timer.  If the timer handler fires after iounmap(), it
+>     executes pikawdt_ping() on freed memory.  Use timer_shutdown_sync()
+>     which permanently prevents re-arming.
+> 
+> Assisted-by: opencode:big-pickle
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> ---
+>   drivers/watchdog/pika_wdt.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
+> index 87b8988d2520..d567103ec5e4 100644
+> --- a/drivers/watchdog/pika_wdt.c
+> +++ b/drivers/watchdog/pika_wdt.c
+> @@ -117,6 +117,7 @@ static int pikawdt_open(struct inode *inode, struct file *file)
+>   	if (test_and_set_bit(0, &pikawdt_private.open))
+>   		return -EBUSY;
+> 
+> +	timer_setup(&pikawdt_private.timer, pikawdt_ping, 0);
 
-That is misleading. irq_of_parse_and_map() did not return errors,
-so this is not an "also" but made necessary by the use of
-platform_get_irq_optional(). That means that replacing the
-call with platform_get_irq_optional() is not a 1:1 replacement,
-making its use risky without extensive testing.
+Calling timer_setup() in the open function is wrong because the
+timer may already be running.
 
-A much safer solution is to add a call to devm_add_action_or_reset()
-after successful irq_of_parse_and_map() and to call irq_dispose_mapping()
-from its callback function.
+>   	pikawdt_start();
+> 
+>   	return stream_open(inode, file);
+> @@ -129,7 +130,7 @@ static int pikawdt_release(struct inode *inode, struct file *file)
+>   {
+>   	/* stop internal ping */
+>   	if (!pikawdt_private.expect_close)
+> -		timer_delete(&pikawdt_private.timer);
+> +		timer_shutdown_sync(&pikawdt_private.timer);
 
-Thanks,
-Guenter
+This is wrong here. timer_shutdown_sync() is only supposed to be
+called if the timer will not be re-enabled. Anything else would be
+an API violation.
+
+> 
+>   	clear_bit(0, &pikawdt_private.open);
+>   	pikawdt_private.expect_close = 0;
+> @@ -291,6 +292,7 @@ static void __exit pikawdt_exit(void)
+>   {
+>   	misc_deregister(&pikawdt_miscdev);
+> 
+> +	timer_shutdown_sync(&pikawdt_private.timer);
+>   	iounmap(pikawdt_private.fpga);
+>   }
+> 
+> --
+> 2.54.0
+> 
+> 
 
