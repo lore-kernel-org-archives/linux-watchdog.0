@@ -1,135 +1,105 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A0C3E6DDB
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 19:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B49B3E51DB
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 20:09:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780947587; cv=none; b=DhuqlVN+KRhrmdykYxV1KKIERgrJVzr3x2S4MxunFdzXsDxO5CzHkyfXhM/A1GhGWZzGUw8ssUNFcRA+nUix0Ur/PHaU00o6TELJYpy79HhOtH3XoZDrseJFOwOEEUJbzxA8F6LP4SDLsaiVSsX0iDX5G9TgeyQxnVm8qbcptBw=
+	t=1780949393; cv=none; b=EFTw9LMYMivA8+EWH315JWQ0JurtSlqaJldWyi5BOryMYSZ3XJUjedwnev11LhYK83ssafe3HXoe8zI69MckiE9nE2xIuFpctZIR7uVxa4Dr9FRO8/IHcEQstzu2iNASE0Mxb1qdUwY31VHqaf8r8Re1mDrecFFgPGOfLJSRvYw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780947587; c=relaxed/simple;
-	bh=3j8dNNSJeoF7jcZhQTeeTh2t4eVcLuzkLRDOwhU9gG8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KqNjcu3cG0/ZCxMcm2Oj5fFDmPd+xMaS+IS5fRO7HF+CSdnpTloICJhu2i6j75NHPTIFDEKKlbkmEFuoJFTfc+T077ks5VFOL/xMDn+JZwG4GFKW2yK6AWRyXHzWuLHknlnKLIoLiyZSIdbUJcRUINKPSpJZ3XigolRGo1SE2Fs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lHKioarK; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1780949393; c=relaxed/simple;
+	bh=Vfxy0xR4+o7qW+hcGItiYMUsgjgNxpRK4qYdYOUTlCI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ArYDhI7DGBCJGisXpnwtToYHqYyoI/RXReksnrukUO29lo5Lm4ZWAyFJLZLxZzxcUcezsI746r5b/AhRpvHR/p8uoK/qpg0wYYhsio05VZDfO/Md8epeHjtDR4l84CKIR3zSBZfaZwev1lgw7nqpnl3YHftR0U6WdHLZjjnvB9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bD6ibNVT; arc=none smtp.client-ip=209.85.128.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lHKioarK"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-842338c18e0so3308514b3a.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 12:39:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bD6ibNVT"
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-7e1916922b9so53132637b3.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 13:09:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780947585; x=1781552385; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hmQl7nKoLuGAiX+6QzzNqkp9oEPlCQzeoRFYAPNXRs0=;
-        b=lHKioarKsBDj4AtEUiNKMkHQxUgcpA4xkJgv/HUYiUhkxth8K4cJ9swPYRzRC5MqCh
-         eM2/rg81Mq1N+QaQoeG26Vj75ZsHcihM8zyqNL7UmHyo3p7gtxpt7UywW4wgD84DLFz2
-         HvD55pfFUd6ZxaRSRXlvr09UM5CxH4HHRmMG6lxEptnqKpzuToCS4VBnxYbFA1EVx1mY
-         4X6gGsq25hzZDw46+KUnYtbwE40zbYbS85fQVnJzabdmQHXsWlJoHl9rsSitICpyvmfV
-         YByNY8BTm603TpyRLvbkrWlV0s58sjHHyagN0b4YdaBmnssf2h9JDbp4RkTCJBj7bn7e
-         0A8w==
+        d=gmail.com; s=20251104; t=1780949391; x=1781554191; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=i69UPaPeukOXG1EGWuJPIr1RJ331Tq2Fgh3Di6Gql8A=;
+        b=bD6ibNVTs3e2J2/mTMqTDerwiezeZKJPNnB/n2SlmMF95rgAl1fpBYCAymWJaolzCa
+         HQS4pk745nK84E0DlX4mweLQWgJujee5/mQnJlwuaVdoMmnVhjWrEuCuTKW7olvvRGTc
+         YdoEeYZy+bRNCLwizWzZ6OzvvqKMpwFhGd9mvQ5fZ9DunGijgFO1xHN5Gj5z+YVBlGKa
+         63YItm+e24Anv78oZRZMbkWRePDVPVdYOs10H6KXxVUuLWzzObuZH7gSajitol43sysV
+         n7HBeQejDLPCfgf+xHbHMy2xhQx/tam5z/wTyj3C4eB6AQRhpUefSFBJgtXhmmORPTJZ
+         237w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780947585; x=1781552385;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=hmQl7nKoLuGAiX+6QzzNqkp9oEPlCQzeoRFYAPNXRs0=;
-        b=haGA9flhQFP9rpkgxpJS83F8kbgRz6MnQ3Vzq1Pj9tKJQQLMIMfDkLjtw4Zhf+11K1
-         0CbqdH5leIlDlAxUCEhrHuvCeI+40ku3CS5q0M2p9EvHkAAGG+SilunktbTU8de2gs4f
-         1HnHmvG29ICgoHJvCcQ7qP/WDYEHalHsuIe30EzWYgopWKgSwOF2kSPyxVzEcB3TQ4zO
-         SyPV19/dYf/c4LfXDoJxUubgASH6sGNfviHNbPvSqyLk4I24bmXvLqh2ifi+3i6iX9HW
-         ycefnVYFxw+ekguJk1/xCahfhANpu1/uylAY62/Nl6AtewlCchQw1e3TkZBIdrYJrhK2
-         VJew==
-X-Forwarded-Encrypted: i=1; AFNElJ/VQbbSE58ToaJUR8rMcLwSCFhcmsHSi4nuI6+G5SavXrPGD2eW0RI/YNatMe5LCvEOnwPn716IlC5X3pwLsQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJHysTR95m8I5CF6k3D+Zn3qVuQnDuCkNg9T3I1g5E67gsM4bq
-	dhJXpTHI146+Khv6nU1r/OmNHYsxPa9ym6keOpUuedlxgdcQ7Xccx8mRaXM25eHZ
-X-Gm-Gg: Acq92OErz8O24jYeqo5uAiN9suXf6DwyOzbz4QiKwpYlq6+MztLvzxWASILn9mgLOvw
-	QLtYaeCYI0IIOiND9uZHj0SpRfwJkS/6S3yNJwQf4LMR9ApUvbTSP0GNpLJjue1iURb6XJhy+lS
-	eQf+dt08CmpsUT//rZiH2xEMSfsTyQ6l91ubgOTXqXBVDF1CP6pIvZbvhkitOtCYBcjYz3x6Jj0
-	ri1nRkLwDFR/F3Ig1UzkxUP0g+HP+dPKjApwHv1nz1F7KkLvJIFEZp017xUAQvUWqlKptktvCJd
-	f3S/k5wpSfdslBCrwe83Flg1+uS0TP5MMKn+M1UWBGkji0Pvp+IErBEP6jMERByre9levFw6b3d
-	3M/7/yNCdRYMIEGdkPlUhxZAAOUCuhTZQSqrdNcSaU3w5ca0E/LwiLxutp7D5Rnk02dOz7bi7BY
-	wwk+pzv7BKdit8KNpnrygAa0XefFhnZ8zuEn1homw+tPD0oJI=
-X-Received: by 2002:a05:6a00:1302:b0:82c:9897:70e6 with SMTP id d2e1a72fcca58-842b0f9c4abmr17330232b3a.34.1780947584928;
-        Mon, 08 Jun 2026 12:39:44 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8428222263dsm21158772b3a.2.2026.06.08.12.39.44
+        d=1e100.net; s=20251104; t=1780949391; x=1781554191;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i69UPaPeukOXG1EGWuJPIr1RJ331Tq2Fgh3Di6Gql8A=;
+        b=mpKIQPqVWzQ9FDIVOR9x8VoDqYxQocIRQZKA1orF3p+fiAFRerQaND9TAEDLFFRxIv
+         N6inaSiVGA6bbHC38zKoL9xFz2R27ATHhqDN0FnyhY7tOAsMnGuXfGWQyLdMV/RsUwLo
+         3sXmCqmuYyWGxPpw7b7wrcwvdeRwdS16NxaahNIP4rR781mtmjuST0uRBIGPGQJUdn9o
+         e59Da8z1rgS9d/vC87Lvuw3vl3v1/ctzg6jaKESxNBgYO8sZcoP8D0GKoCpf2SuHLGtn
+         JcMG3mCpzHzr2fRPZOkfG4OT1jUQfxvr/O1rXO5v8jiivyRblIoSaNY3LuVsga9whf7m
+         4BKg==
+X-Gm-Message-State: AOJu0Ywj6HsSDG2rgG3dOBeKqprXi28ctWFej8IUUd9cnj2lBN4J60kQ
+	8fHG9EU2YYE2L8gpF7Q2fjb4kkQ8a2zTlMGX3k+8fTxL1CLXZXtYh4/viQMgIs4F
+X-Gm-Gg: Acq92OHnP4NvNrpmLkLSXTQOixlj508dIFFKrSJ2G7gi1b21GsqgZpRn0qizsBvd/iL
+	5asiM8aG2v0TY+Q4dfjLMeNBNGvFgLh9/IQORM0V0uPR9QlTLoVJOv1Stl6PYCWRzDconHQeL3c
+	zYHtKR03Kr6WiNnhp8pVePonXZMKWn8ehaKomx9Ru/NBVHy4gbr3ZTvKwb8Q098xZdY0n2CyH/V
+	mFxigSwYn04ajSPDnTPIFbgd5dCO2XYt+0dx6LGdwfz9sdwZR6O3QPEWREN+KIKTWgmHv6Xxjny
+	tryrtk61SbqUWeLBm6wFYwUz1dd6+Dtnpsumv1kBwYqZ/5rHUIY1ArVvkE9GcuOP2dkwr7lvMe7
+	vTimTDznYUEEgo286NEcluRyZmVB/t6Rr/gD/gWKUX2PXnL4NFbl5n0xJTDg6G7dteSL2gxMxyM
+	RIIZvnolQfl8qsQZOXdSKKMH0MbX5hu8+/f3QcEefTjdcbhfG3V7TeUq90xZnubP04uAxynmIBW
+	dxkCvvLdnpHeNzsaVg0ZSlu2dN84ZXM5XHxpwK8hK4CTg==
+X-Received: by 2002:a05:690c:e003:20b0:7ef:c894:2101 with SMTP id 00721157ae682-7efc89429admr69439157b3.37.1780949390968;
+        Mon, 08 Jun 2026 13:09:50 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7ea20ea986bsm88688987b3.9.2026.06.08.13.09.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 12:39:44 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Mon, 8 Jun 2026 12:39:43 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: William Theesfeld <william@theesfeld.net>
-Cc: Xingyu Wu <xingyu.wu@starfivetech.com>,
-	Ziv Xu <ziv.xu@starfivetech.com>,
+        Mon, 08 Jun 2026 13:09:50 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/6] watchdog: starfive: balance PM refcount when
- start operation fails
-Message-ID: <271cd3d3-eed4-4ed1-bbe4-ffa65434182f@roeck-us.net>
-References: <cover.1780664848.git.william@theesfeld.net>
- <cover.1780666366.git.william@theesfeld.net>
- <3a2ba59a0ed3e5ee121a49e04c5bed0c452af238.1780666366.git.william@theesfeld.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Microchip (AT91) SoC support),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCHv2 0/3] watchdog: sama5d4: fix IRQ and timeout bugs, use platform_get_irq_optional
+Date: Mon,  8 Jun 2026 13:09:30 -0700
+Message-ID: <20260608200933.18669-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a2ba59a0ed3e5ee121a49e04c5bed0c452af238.1780666366.git.william@theesfeld.net>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jun 05, 2026 at 01:19:37PM -0400, William Theesfeld wrote:
-> After pm_runtime_resume_and_get() succeeds in starfive_wdt_pm_start(),
-> the runtime PM usage counter is incremented.  If starfive_wdt_start()
-> subsequently fails, the function returns the error without releasing
-> that reference, leaking the usage counter.
-> 
-> Call pm_runtime_put_sync() on the start failure path so the counter
-> is balanced.
-> 
-> This also folds in the v1 conversion of pm_runtime_get_sync() to
-> pm_runtime_resume_and_get(), which was the original purpose of this
-> patch; both fixes together close the refcount-leak window in this
-> function as flagged by the maintainer on the v1 thread.
+This series fixes three issues in the sama5d4 watchdog driver:
 
-That description doesn't really match the code. The purpose of this patch
-is to fix a refcount leak in the upstream code, not to fix the refcount
-leak introduced by the first version of this patch. That the first version
-of the patch introduced a new refcount leak is irrelevant (and actually
-confusing).
+Patch 1: Return IRQ_NONE when the status register indicates no watchdog
+interrupt is pending, and pass the configured timeout (not the hardcoded
+default) to sama5d4_wdt_init().
 
-Guenter
+Patch 2: Replace irq_of_parse_and_map() with platform_get_irq_optional()
+for simpler error handling and EPROBE_DEFER support.
 
-> 
-> Signed-off-by: William Theesfeld <william@theesfeld.net>
-> ---
->  drivers/watchdog/starfive-wdt.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-> index af55adc4a..ed8c5711a 100644
-> --- a/drivers/watchdog/starfive-wdt.c
-> +++ b/drivers/watchdog/starfive-wdt.c
-> @@ -371,12 +371,16 @@ static void starfive_wdt_stop(struct starfive_wdt *wdt)
->  static int starfive_wdt_pm_start(struct watchdog_device *wdd)
->  {
->  	struct starfive_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	int ret = pm_runtime_get_sync(wdd->parent);
-> +	int ret = pm_runtime_resume_and_get(wdd->parent);
->  
->  	if (ret < 0)
->  		return ret;
->  
-> -	return starfive_wdt_start(wdt);
-> +	ret = starfive_wdt_start(wdt);
-> +	if (ret)
-> +		pm_runtime_put_sync(wdd->parent);
-> +
-> +	return ret;
->  }
->  
->  static int starfive_wdt_pm_stop(struct watchdog_device *wdd)
+Patch 3: Move platform_set_drvdata() before devm_request_irq() to prevent
+a NULL pointer dereference in the interrupt handler if the shared System
+IRQ fires immediately after registration.
+
+v2: address sashiko review
+
+Rosen Penev (3):
+  watchdog: sama5d4: fix shared IRQ and hardcoded timeout issues
+  watchdog: sama5d4: use platform_get_irq_optional()
+  watchdog: sama5d4: fix NULL deref in irq handler
+
+ drivers/watchdog/sama5d4_wdt.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
+
+--
+2.54.0
+
