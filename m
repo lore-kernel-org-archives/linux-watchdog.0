@@ -1,71 +1,71 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B5BE385D7E
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 21:04:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02D14399890
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 21:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780952665; cv=none; b=TRRxOTeo6N09gBm1JcssKjJveGPMwaDRiRqgYudRLISgao+74ZFNaDo4pOD00UhVi1oYgsIDskHNFhdfm7mvuE5RBmKo+OryIDoSzqea4b3N8nH1lPcj7YyHGAklMHR/5LaLuhU9nIaT9nYOM+P0Qj90t4WGMkvxe1lvT1cBQs8=
+	t=1780952666; cv=none; b=Xe7d1/2yXBghE+eFYVgWED5WOpGHjB6JnoXkjyCSZH9/Ddj+P1JxWwjdkqTLFqggSKbps/8AGRnDf9BTGQEszIHRnuTViqbkWe2tNuVJR2yhnGuCqD4oIjxTpD9HgINjCeGWmJ3je9FBUpo0rfsJh1fK35hKmqKgki4m+GrOP5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780952665; c=relaxed/simple;
-	bh=eQVQngmAj6T5Ofq5iPClVJszXRnjeijZdxVbnGzfx+k=;
+	s=arc-20240116; t=1780952666; c=relaxed/simple;
+	bh=bFta00Twt/E/RTqGANbDtk89KNmVRe6fyKVi3Knj4aM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gR0v/YWZt+4RW63MFZl4WPxg1wD2dYragCsOCx34CuEIZPlJnpQHn7wadp9kRfUSfhlwKBoUT74uWJ3ERj+hHVgArEW8CaePC2hUAvMEp8m4F2QN36BU+YTLKNLTKif09Fk90ykPTzMsXrstLQ1uWOWQe0BMzg1LF+VmCnCx9I4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NwRK4CeU; arc=none smtp.client-ip=209.85.128.174
+	 MIME-Version; b=dX28Y+qINOBfYZavT7aljPHlulxRaXSPcfq2RQOQgpp4ILlAOkvOtIvkGbECBG4BS/FWCf2n5NuW87Q7Ve+yYMA07p1bjyk+FjV5dZwrx8Ft92NpQcnOz9HjID/4dGknMbjGjvaMKACOWUDVDNQt046M1dIJHbRamQKaykb5ZKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H0pnuAVB; arc=none smtp.client-ip=209.85.128.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NwRK4CeU"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7dc2b658544so43507857b3.2
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 14:04:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H0pnuAVB"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-7e053987001so47084977b3.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 14:04:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780952662; x=1781557462; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780952664; x=1781557464; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BNaBAmDTN0BUWsmF0Hwzk9UyiSH6I83sWyPJfmaJMDU=;
-        b=NwRK4CeUgv6x9PNyXDO63t8AqQ51Vv7Pz5Mom7tHg4cIW3c69G75WAI/06gfhPgBav
-         0wRb9mL14Q14HBcB4wpKvS7q8wFpXMD/hyhPjn+4ys5UDTXQo6lrTGXDfL03e8waxqvS
-         0HrIfnS1Tzfi5FKRO5xTHFFFrrnGAoE6nihUAADtYIcD32vrc4ZB8/VpAUKApCWKKLZ2
-         uTHpYJCFXEACyO639D8c9u1jWAchg0uThyFjTOJuTTjmcD+QLpzNpV+Z+8jDSCz9Qpnn
-         /JTU/6AnXGgtpQPg0Hyk2XzmMO8SecuSXPSejSUmWqrjeFFueWH2gL1AhGj1XlfWFAbo
-         9FJA==
+        bh=BYTDwqz4z09i7KEktqEP/nOWuMoIM8Ls9CTv9jln1cM=;
+        b=H0pnuAVBebyn5ZqZFCft73WZC38VZVbYepx5gYVhJdPuQy23risPPe83ciQLiynUDz
+         k0nnsYe10iMiP26JGgtqg342IgnMevIV7EnlSPR77bo9HftD45upoBMlc00iCC+8196A
+         ESPHbSVn+ET7RVYOJ6i6ZvCcrwo5jfFZOYLYEKzPP5GmWp8EVPqsdlw4CpMDo6M2JfjD
+         dHE4sy1Hv+LrcQavwnIfTQPKU0pajYDW4i3F4swM92Nso+RAOufiMPxGsN1ZCCWbvRw0
+         dljOoW8SxZ1tyTO1JA538lSjXZHUlnoBuneQ0LXIRAXyYhKBfL/TrA07CY+eKddnvHAW
+         f1UQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780952662; x=1781557462;
+        d=1e100.net; s=20251104; t=1780952664; x=1781557464;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=BNaBAmDTN0BUWsmF0Hwzk9UyiSH6I83sWyPJfmaJMDU=;
-        b=J83NDrxp1LRuqdsYeY2F9Q77rcDBN+CpwLMh/FqkIl/3KcF7eQzSImSWjENzOzSjFL
-         u3H17i8wR0NTStc1029pV+yZDFtGKW7/aL5TO7t+k1i71rJyk91pvgW09kA9Ogl4stDa
-         7FVwO+q1L8H3MCKW0LUX/0R+KK9dmg2EHoC/nOvNwbLcAX2EFUclgesxRLYfptT4Htq0
-         1uxSv4NFAMIlOhS4zbO59jeVwjbRzwmSuWCMcFCDJZD0ol7KYndSGqexRrnM3rHPFwzb
-         ZmjAhwtDEiFAO+n3Rep11pRoE9qQSfS1sIiKt6oLB0bL7PcIxG/pUBAqoigmniWGkiYh
-         2pzQ==
-X-Gm-Message-State: AOJu0YxvV8mrF8wI5znykBXytADPDquuglfX3dSTn4MdJ/QWpkzz4hmq
-	aXUldow27+kqsmfRh8A+w+rYHLiWGZTyb9VoCoXKey5bcgIN2c1UYu/BwWXyHhhx
-X-Gm-Gg: Acq92OF22avA8dmP5WZQDdyyq+WRDIsXTOuCDAOf2mZMC+KI1v1+2oe5uFwlfzpbUEO
-	mGRqCnStcyuh0XoAU/AwX36396eOuLXd94fMfnoQSJodT0GlHKGIutUBkxIx7x3TkeausGGjllI
-	NrafWOXOjFKTvAWgOB5SmxbrrFlxEmWHf8D9swUbOoTvK98nXn+a242fAZcq3zCJdoI7zjtPXfu
-	/ZhEtbo7O3oqOL6MahwKt+FiY1MOWOPUdocCnFc0rK11jXvDmV46QZLBNKbB1nIdKi1im5p/J1T
-	a8aHd0Vlu4e7Xqww0HmixSjdhFRVqePHx/G3ZeFwVmUUIzwjuFCrM8kBmzRsuf8pNh2rKJ8JuSr
-	hUwkxgH0SrmGguaPuRqK1a2VR7P+w5EcOxb08W8xqq5fdrWauYhwR8htlD7qI5zlfa5qFOuTyXy
-	hTGnpfJCjLNUlYOhbA6juYjsd/yzn6J+eSTBzjzHjwsmHj4/3OBNGcmUf9fS+8dICOyEwx98ynC
-	VH3O7AQhOUZTxuVE2u/f8/xxrf/JnUDp0VmiuPGIIZAPQ==
-X-Received: by 2002:a05:690c:4512:b0:7e2:b35a:adba with SMTP id 00721157ae682-7ed0f630379mr167776767b3.21.1780952662058;
-        Mon, 08 Jun 2026 14:04:22 -0700 (PDT)
+        bh=BYTDwqz4z09i7KEktqEP/nOWuMoIM8Ls9CTv9jln1cM=;
+        b=hLiHMmHN705s2B6MGDXe43l6HOPXC2HBxSUeCA5SdMWhQN0P67WH/fEWZE+Qnew4b6
+         LxEfuTeW/0NIWCXvWqy6obgooYrxUEva3/08ApnKBpKqzbhHcNXVv1mK/RxanL3XaUUX
+         rKy9YK+PdU+w2uRs8CbzW0IKjOxxlx3q3qRH/i1sWbqeSM5hMV8FgYM0akHdgMt6UvvK
+         Xum89fN9xHvG30Wuyral/RPzpf1L1wggOnEf+kF4Nvb1oICZYLosp6GjNghUS0zsMBFC
+         VdtNfKpPIupjmbi4Y+9PU1qeubskewbmjB9HPFSzYy9vb1dI5Jf26fN3spAM3QGy2vtI
+         bgEA==
+X-Gm-Message-State: AOJu0YxMc1ScfwK003Hi0/a82xOkxN/d2ldhkp9UFqtxPGiG2gyIBu3n
+	OT/CTEypBCExzfC77hqtPz9+K0e9g4PrWXOkeIHhCcJ7OoLdX38YRzTo71o9/1nM
+X-Gm-Gg: Acq92OHKiOcSCUnmLdvJdbOeF8rUFZsjVYP7M2ZJB94dYnrrjkXVB83sfZyw4xjFH3v
+	+4UI2R9VU6DGyv8noW1oeXPNl1VItI8vVQ71hkHBBav6V7DVG5lAG7+P8CBUolsqky+ny5Xqqrg
+	dCqgys6JTN9X/iJ6D5A220BSefZaXKfMYKrpd1wziTai2co8yMFxvHWgsMQ0wEQYmqW+Eo17EmK
+	wM7ZLiZCMZhgZ+CHhUjRiPv3QYkrC7LotND046/mJvUtMOM/+XN1zkpC+/4VFiNVn2zuOKv4S1k
+	qzP7Pe+O6YISlJAGeAATDLD2YN8e+pd8ZytW2KdyIMuWwbxK1hv4Q/N7LQZnkZ9gKqUZQE5+s0b
+	RQcOO4dkxdazSu7IjBhAryExJLXBC8aIqd9IT0rnWE97JJp4i/+vROyu+BFhJb6HC3q9S3yWIPW
+	Cv02/XSC9FZ92sW7/ISVurrLiqFJEHr6SgTjUNtWQ3lKScrVpk6LzFMIwewLdPvUKnhd1eJ3wzG
+	F8B/qDicTreJKOKHRwvtI22YdivTB2KxgWDIfutnY9QbQ==
+X-Received: by 2002:a05:690c:650c:b0:7b9:f136:56d8 with SMTP id 00721157ae682-7ed53996c90mr133275957b3.30.1780952664090;
+        Mon, 08 Jun 2026 14:04:24 -0700 (PDT)
 Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7ea2399ab1fsm89468367b3.33.2026.06.08.14.04.20
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7ea2399ab1fsm89468367b3.33.2026.06.08.14.04.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 14:04:21 -0700 (PDT)
+        Mon, 08 Jun 2026 14:04:22 -0700 (PDT)
 From: Rosen Penev <rosenp@gmail.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv3 1/2] watchdog: pika_wdt: fix timer lifecycle bugs
-Date: Mon,  8 Jun 2026 14:04:01 -0700
-Message-ID: <20260608210402.31545-2-rosenp@gmail.com>
+Subject: [PATCHv3 2/2] watchdog: pika_wdt: enable COMPILE_TEST builds
+Date: Mon,  8 Jun 2026 14:04:02 -0700
+Message-ID: <20260608210402.31545-3-rosenp@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260608210402.31545-1-rosenp@gmail.com>
 References: <20260608210402.31545-1-rosenp@gmail.com>
@@ -77,54 +77,66 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Two timer lifecycle bugs in the PIKA watchdog driver:
-
-1. pikawdt_release() clears the open bit before stopping the timer,
-   allowing a concurrent pikawdt_open() to start a new timer that
-   is then immediately deleted.  Move clear_bit after the timer
-   stop.  Use timer_shutdown_sync() so the handler cannot re-arm
-   after the call returns.  Add timer_setup() in pikawdt_open()
-   to re-initialize the timer for the next open.
-
-2. pikawdt_exit() unmaps FPGA IO memory without first stopping the
-   ping timer.  If the timer handler fires after iounmap(), it
-   executes pikawdt_ping() on freed memory.  Use timer_shutdown_sync()
-   which permanently prevents re-arming.
+Replace powerpc-specific I/O accessors (in_be32/out_be32) with
+generic ones (ioread32be/iowrite32be) so the driver can be
+compile-tested on other architectures.  Relax the Kconfig
+dependency accordingly and add the required HAS_IOMEM.
 
 Assisted-by: opencode:big-pickle
 Signed-off-by: Rosen Penev <rosenp@gmail.com>
 ---
- drivers/watchdog/pika_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/Kconfig    | 3 ++-
+ drivers/watchdog/pika_wdt.c | 8 ++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8319c503319a..855736eaca2c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -2040,7 +2040,8 @@ config 8xxx_WDT
+
+ config PIKA_WDT
+ 	tristate "PIKA FPGA Watchdog"
+-	depends on WARP || (PPC64 && COMPILE_TEST)
++	depends on WARP || COMPILE_TEST
++	depends on HAS_IOMEM
+ 	default WARP
+ 	help
+ 	  This enables the watchdog in the PIKA FPGA. Currently used on
 diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-index 87b8988d2520..d567103ec5e4 100644
+index d567103ec5e4..e599aff8329b 100644
 --- a/drivers/watchdog/pika_wdt.c
 +++ b/drivers/watchdog/pika_wdt.c
-@@ -117,6 +117,7 @@ static int pikawdt_open(struct inode *inode, struct file *file)
- 	if (test_and_set_bit(0, &pikawdt_private.open))
- 		return -EBUSY;
-
-+	timer_setup(&pikawdt_private.timer, pikawdt_ping, 0);
- 	pikawdt_start();
-
- 	return stream_open(inode, file);
-@@ -129,7 +130,7 @@ static int pikawdt_release(struct inode *inode, struct file *file)
- {
- 	/* stop internal ping */
- 	if (!pikawdt_private.expect_close)
--		timer_delete(&pikawdt_private.timer);
-+		timer_shutdown_sync(&pikawdt_private.timer);
-
- 	clear_bit(0, &pikawdt_private.open);
- 	pikawdt_private.expect_close = 0;
-@@ -291,6 +292,7 @@ static void __exit pikawdt_exit(void)
- {
- 	misc_deregister(&pikawdt_miscdev);
-
-+	timer_shutdown_sync(&pikawdt_private.timer);
- 	iounmap(pikawdt_private.fpga);
+@@ -77,10 +77,10 @@ static inline void pikawdt_reset(void)
+ 	 *           seconds. Valid ranges are 1 to 15 seconds. The value can
+ 	 *           be modified dynamically.
+ 	 */
+-	unsigned reset = in_be32(pikawdt_private.fpga + 0x14);
++	unsigned reset = ioread32be(pikawdt_private.fpga + 0x14);
+ 	/* enable with max timeout - 15 seconds */
+ 	reset |= (1 << 7) + (WDT_HW_TIMEOUT << 8);
+-	out_be32(pikawdt_private.fpga + 0x14, reset);
++	iowrite32be(reset, pikawdt_private.fpga + 0x14);
  }
+
+ /*
+@@ -243,7 +243,7 @@ static int __init pikawdt_init(void)
+ 		return -ENOMEM;
+ 	}
+
+-	ident.firmware_version = in_be32(pikawdt_private.fpga + 0x1c) & 0xffff;
++	ident.firmware_version = ioread32be(pikawdt_private.fpga + 0x1c) & 0xffff;
+
+ 	/* POST information is in the sd area. */
+ 	np = of_find_compatible_node(NULL, NULL, "pika,fpga-sd");
+@@ -265,7 +265,7 @@ static int __init pikawdt_init(void)
+ 	 * Bit 31,   WDOG: Set to 1 when the last reset was caused by a watchdog
+ 	 *           timeout.
+ 	 */
+-	post1 = in_be32(fpga + 0x40);
++	post1 = ioread32be(fpga + 0x40);
+ 	if (post1 & 0x80000000)
+ 		pikawdt_private.bootstatus = WDIOF_CARDRESET;
 
 --
 2.54.0
