@@ -1,68 +1,68 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B096395AD1
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 20:46:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 283D42D5925
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 20:53:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780951617; cv=none; b=ej9fdKavQBY/BlZk6ijD2+67E8My89NONCTJdR/3SnWysvr7q/TRBHX7hH3ushuSBiuZ7PIxA0U7DmSBUTIWjHkSUC9YpRq5zSRi1Rzj9PIJWYXD1uxerNw17iotR9ntCaiucf4SJZ391Af0YvHVYBDQ4ifm2X41nAZpRjzf5mA=
+	t=1780952026; cv=none; b=pe7d/pwuwQhBRFiOs1oHDy5IcNgiEIoAWB6cLLt9FsAuIR3hXpkAtBlbP5utkM0VF9Hy9hDKmXet2IbssiE6UhitudHYc1RALhSSuqNliLs5FMb53gHi/jyeA8KeHyAcv1Xeel7t3lRu0/zR+L6egQmPp6stNqn85Uaq4MJJYTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780951617; c=relaxed/simple;
-	bh=bEaf8aULI2NAP1qJYjYDPWPraHqc26x3oOAbFZC6PlM=;
+	s=arc-20240116; t=1780952026; c=relaxed/simple;
+	bh=uWhdQhxUb0ixKXQ5yf+uJ2fAkJuETjA+Vy0T9O7nh4s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VhDbFJgzWrX23+usYvuqeesXTm7ETvhyI+HEObf6c+58Rq0YD/wTZqqTymExIIjAhGVxpXoC7Z1fptOQkHNpPEhdceJemtHNMVjkpWcd1aWQOpc2G4RXrCH3imfqdzMXvyC6Zwx7pNRef8vU6/jLldBNf54Kw5UORe/zI/MMnsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TpCy22CK; arc=none smtp.client-ip=209.85.214.182
+	 In-Reply-To:Content-Type; b=cuQSw2p8Eyy6NLRHNsf4ooNlO+dx0M5PjGaCg/M1KY3WfnIfNvSY3+St/Emetokzu/vedBsYxt88t6bk8mYRJxRdOlYs34bTRCzHUS6TEcJmawBg7qMi4uGKFY0uU1sHoU+2IUCSQIs6oU9Pd7QkliS8kwm4+nFivXDcds2ajfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f5g5eTY3; arc=none smtp.client-ip=209.85.210.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TpCy22CK"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2c0bb4a94b8so39596165ad.2
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 13:46:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f5g5eTY3"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-842307473b5so3184596b3a.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 13:53:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780951616; x=1781556416; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780952024; x=1781556824; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=CTHYF0gXwpZZGXcMBjy0ufqeX+RO5e+JUGgSSbuMdLs=;
-        b=TpCy22CKvgGDLPdQAvowV6gsvQdEgCT6zRpVlvZwwXal4PQJO3rpATMZ2yWPdB7iB/
-         dyMr92XPAKSS+9sE0yszpO/cFXfqdS/8Ig6seYXe/R7JXGv3t5RrefMCUekNt97K0nIT
-         EAY1hUe1yFLWR39YNaV097d2EtTtInufvsfoEI+euwpmr+91rU+PBlxYhWaJ6t1UE85A
-         xFfmF9ngzOl/AlUYbEvE5kNjUTyi5YQkXy/6RSwDr/KCtJF1O6t5YbbWOV0E3yTfDbJn
-         M6rZLhBVnSLjoUGFdzxiu7kDFIHU+efwkwZVNONREzXTWD836jIA9lqIExzUtGrwP+Tf
-         JsMg==
+        bh=9F45RQtgrxadjt5ZYNUGBRSHL4GrTavmF6k6G6dNnjY=;
+        b=f5g5eTY3dkkd/nXjVv+pWljNUwTIBheXPHs8C1Impj1zD4J0GLjoeiXpD6zDcvJqtX
+         x3k0Zd23Pak6uxRnq/xwjkO/AzipzSpQGgl2Cl8OT4vGQvTv7juIuYIUxHg2w801RGjr
+         9tFQxFvJ/SAX7KneRuqY0eL0RQNFnjPDyYa0Amnvz0h/vcHqrobQhs4XMkFsLlWenRlP
+         2U2lT0uxKtcB+C6CCrux70J7GLlEPY0xqqiCshy6riYTFH7d6S/Wi20WAMs4UavsRXAR
+         rAhA2HMN8+6fAjih2NymPiNiRIrytCycoz9toG2nXX0DjBOrN4Sb0deCHvh5JzBpNr4l
+         RXEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780951616; x=1781556416;
+        d=1e100.net; s=20251104; t=1780952024; x=1781556824;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CTHYF0gXwpZZGXcMBjy0ufqeX+RO5e+JUGgSSbuMdLs=;
-        b=jF+6Qmq6Hn71jq1u4Ub1jSRSaiGO70ANho6g9Q39hLGcZP96SkEjfTBE2V/IXLWXfp
-         cQNWXxtnZkTU3hqhlhOym2hDpPyCYljNgjcUJ219Ln+JqlEhH2JMOJ/Ckbu8j5P5mFc9
-         Ao1xXv0HBCOtL38XeU3KrN2hfC0P68zy6wvpf1A8pC5CEsYVPuDDMLdOSA/5FHiQxayz
-         tKYoehMFz3OflTeh8MYgg0XvfWHsa4yCbsQhHgVWjsssCInoK2pDsICRiX6Hsw3TPw9F
-         O5Mv16PKKSspb1kA+DC3EBK1QTYa6tGuyyB90/sfojlPbpQtZRXGdHchq4ZCXdl7yZjU
-         xn6w==
-X-Forwarded-Encrypted: i=1; AFNElJ9WOdggM4+RPI2FjKmZbSGwzNRefGxfIrkS3eaJynXjT9Rt55RuUZxxVCLzsosFtaN6GHIZohZNJnTR55DVrg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yws5LzAPdeK+juWjuJ8bWpf3/C18bavp6Hinx/rLBHfKpfcIJ/X
-	qtuMpJZIUGMx7I8aGViNXu3LxdWaAUJ3N5dTZwlMeEYslx4y+EFAwiiV
-X-Gm-Gg: Acq92OHptYIU7ff0bfcORwGhiPDEHFN7IIPfBbWUDH1dShnxNSIyDOB1+85pgkKJIks
-	xY7GCyF9JW02AOrSYp5m1Ig1pTB/Jvv6xeoADXlEk0xooyxS4/e9tcVGBggaIf2HjuKpuAb3GiS
-	lYBw2hluo9UZJ+1nW3SyOGqOTU0ycgLKlixJMVJBD50Nl5TNpU0TiJMkt1HAnlDoMPHRkNZweMY
-	ky99o+osJeuVaSGOgiD4ZOzcd1it022HcJDqNjro8EaGuDIiWTbFnnSKp/g8y8+VybVKDhiSnsZ
-	DthZHTt5HBJyrgs4oj+R0UjNXLs6Ooguxjl8sS/gJJmxKaenklS33GRI4NaEFWIbIy7W+d8zkpB
-	vsu31TbqqK7G+myU4NA8ntWPJyH8MzS/UbNuHyBRIOuf7K8lXR4F+VuKSeF5jQiJQLNoqMCK0fw
-	CFsPH9W4RUUHdSpyWiPFNKWJqduDGNWSc1z2Kn8C06kEiMK3QcsyPzB3qJXQSY3DziH93MPD/Vj
-	1zJWKEAc1MFZF3hqCeM0w==
-X-Received: by 2002:a17:903:1b0e:b0:2bf:dd8b:7cd with SMTP id d9443c01a7336-2c1e7e4bbacmr186796455ad.10.1780951615779;
-        Mon, 08 Jun 2026 13:46:55 -0700 (PDT)
+        bh=9F45RQtgrxadjt5ZYNUGBRSHL4GrTavmF6k6G6dNnjY=;
+        b=l9YL3S4VXtxby9IcXrCA3xO/6prAzgJb+TwH7fY33CP+2jIqSitdsmL+JtC04+A+8f
+         TQHHhxaoWO4eOEZy7T9YQsQvPKVWQX1fyxSpKbd8HFc3aV4F4PXDVRQJim8j2xvOQRnt
+         z6FitNYjt4+RwWFhRJEb0f/w6256cw8a4o8m6VIlBoVI7N66eJ/1EC4l0tjxxSUycKy+
+         dob6ZoUKmRsFeZn1iHviTaG4GPKEIvbFUPgAZ4GDf8YMeeV5dpnAqx266oE3TsWZzVzS
+         gGvQ/1s7Nxkdp1ykL08rM1mXa3oJD3wRnc2Cd/Yo2ntuUENFlDRsSmnm9odNonlCkxTn
+         gXqA==
+X-Forwarded-Encrypted: i=1; AFNElJ9Xr0gkStSBQMWIv5O8wSOD6r5aQhjtiYWkBdH7EYgFEE/MAoTItCYBkJ0nLegR1POhEEQwa/DStLc037s8WA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzN4HCw1hr8rWSv7/pR3UgDQ157f6uvc8cFPSAcjVSmEwNQbJz8
+	PcwOT7bx7O0JYvi62M6OQ08UpeG0FhvEo8QgpygcWdZ0jmzWrIcGKfN3
+X-Gm-Gg: Acq92OH4RmZN5kKC6ykn4THmCMXlfrYErfKaqClQk3jHE4Z+5mZJiURuYJTvirEdBva
+	WqdXGMHF9wjZatrCyS9PlvoZNJaiN786PvWvWn9hCq3w97xtESnRusAWwLfd/7N/XK2G2h9v2Jx
+	UzLdK5LWpUmDKng/gUuDxV2pKomfwLNy/JVIGsxWEIsMCOWYm+TYby4SNsUjMKTBd2Dd1xY3w+w
+	udnz8tsBFRBBX1IlfzVw/5TriV7lBsiWQWHH59WGE+ujkzPgX0j6vmTg29XjypjGfVostsX9ZSW
+	B1nGkaObPfPt0NJZh2DnpdHGD/6E6XznGJOYD6+qT6OJzDmEF7rjaRzUthYPM/Q8SsL/0IIwpXd
+	7izU+RGKhv8ze0E2OkRR+880LlsKxY0kJgb7gCuKOYu5YL4kPKtFySqxAVqNXHYitANK2PMACM7
+	4ztS/1K1DTtGsZTSwHec/waTRNMIOI3cP7H+N1vAZTnWDHl3AL69nFvAfoAk4FV1GmKtvORV984
+	jsrr//pRxY=
+X-Received: by 2002:a05:6a00:1c8f:b0:842:4af7:ab11 with SMTP id d2e1a72fcca58-842b0d5ee61mr18147987b3a.13.1780952024522;
+        Mon, 08 Jun 2026 13:53:44 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f875casm193147965ad.22.2026.06.08.13.46.55
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-842828cf783sm19543499b3a.40.2026.06.08.13.53.43
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2026 13:46:55 -0700 (PDT)
+        Mon, 08 Jun 2026 13:53:43 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <16765f92-e6f6-455d-8341-f6eecbe3529e@roeck-us.net>
-Date: Mon, 8 Jun 2026 13:46:54 -0700
+Message-ID: <fc997f81-b7fc-4b8d-923e-0b2fe0e609e9@roeck-us.net>
+Date: Mon, 8 Jun 2026 13:53:42 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,14 +70,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/6] watchdog: starfive: runtime PM cleanup
-To: William Theesfeld <william@theesfeld.net>,
- Xingyu Wu <xingyu.wu@starfivetech.com>
-Cc: Ziv Xu <ziv.xu@starfivetech.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <cover.1780664848.git.william@theesfeld.net>
- <cover.1780666366.git.william@theesfeld.net>
+Subject: Re: [PATCH v2 0/2] watchdog: sama5d4_wdt: Fix WDDIS handling for
+ SAM9X60 and SAMA7G5
+To: Balakrishnan.S@microchip.com, linux-watchdog@vger.kernel.org
+Cc: wim@linux-watchdog.org, alexandre.belloni@bootlin.com,
+ andrei.simion@microchip.com, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org
+References: <20260302113310.133989-1-balakrishnan.s@microchip.com>
+ <322c623a-0da8-4821-b0d9-ba2c96bf62ca@microchip.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -123,75 +123,48 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <cover.1780666366.git.william@theesfeld.net>
+In-Reply-To: <322c623a-0da8-4821-b0d9-ba2c96bf62ca@microchip.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 6/5/26 10:19, William Theesfeld wrote:
-> This series addresses runtime PM correctness issues in the StarFive
-> watchdog driver.  v3 fixes three issues that were raised against v2:
+Hi,
+
+On 5/27/26 06:04, Balakrishnan.S@microchip.com wrote:
+> Hi Wim,
+> 
+> Gentle ping — both patches have been reviewed. Could this be queued for
+> the next cycle?
 > 
 
-I just realized that you are sending new versions of this series
-as reply to previous versions. No surprise that I am having trouble
-finding them. Please follow the guidance for submitting patches
-and stop doing that.
+Please check linux-next to determine if patches are queued for the next
+commit window.
 
 Thanks,
 Guenter
 
-> Changes in v3:
-> - 2/6 (pm_runtime_put_sync positive return): the v2 commit message
->    and code comment described the semantics of a "1" return as "the
->    device is still in use", which is wrong — that case is signalled
->    by -EAGAIN.  A positive return indicates a non-error condition such
->    as the device already being in the requested state.  Reword both
->    the commit message and the in-function comment to describe this
->    correctly.  No code change beyond that.
+> Thanks,
+> Balakrishnan
 > 
-> - 3/6 (probe error path restructure): the v2 patch left a path that
->    put the runtime PM usage counter twice.  When the success-path
->    pm_runtime_put_sync() (line ~513) returns an error, the function
->    jumps to err_unregister_wdt.  In v2 that label fell through to
->    err_put_pm, which called pm_runtime_put_sync() a second time on a
->    counter that had already been decremented by the first put.
->    Insert an explicit "goto err_pm_disable;" after the unregister so
->    the post-register error path skips the second put.
-> 
-> - 4/6 (system suspend/resume guard): the v2 patch added a
->    pm_runtime_status_suspended() check on the resume path but kept
->    the final restart predicate as watchdog_active().  For watchdogs
->    started via early_enable, the framework state is WDOG_HW_RUNNING
->    without WDOG_ACTIVE, so the existing predicate left the hardware
->    permanently stopped after a system suspend/resume cycle (the
->    matching suspend path had already stopped it).  Extend the
->    predicate to also accept watchdog_hw_running().
-> 
-> Patches 1, 5, and 6 are unchanged from v2.
-> 
-> Several pre-existing issues in adjacent code paths were flagged
-> during v2 review (hardware access during driver unbind, possible
-> races between device_shutdown() and the watchdog reboot notifier,
-> SETTIMEOUT/GETTIMELEFT ioctls touching gated registers).  They are
-> not addressed in this series; each is a separate logical change
-> that deserves its own patch and its own justification.  Happy to
-> follow up on any the maintainers want addressed first.
-> 
-> The whole series builds cleanly with CONFIG_STARFIVE_WATCHDOG=m on
-> x86_64 defconfig.  Runtime testing would require StarFive JH7100 /
-> JH7110 hardware and has not been performed.
-> 
-> William Theesfeld (6):
->    watchdog: starfive: balance PM refcount when start operation fails
->    watchdog: starfive: treat pm_runtime_put_sync() positive return as
->      success
->    watchdog: starfive: balance PM refcount and disable in probe error
->      paths
->    watchdog: starfive: guard system suspend/resume hardware access
->    watchdog: starfive: avoid PM refcount underflow in shutdown
->    watchdog: starfive: release early_enable PM refcount on remove
-> 
->   drivers/watchdog/starfive-wdt.c | 109 ++++++++++++++++++++++++++------
->   1 file changed, 89 insertions(+), 20 deletions(-)
+> On 02/03/26 5:03 pm, Balakrishnan Sambath wrote:
+>> The sama5d4_wdt driver hardcodes AT91_WDT_WDDIS (bit 15) for WDDIS
+>> detection, which is incorrect for SAM9X60 and SAMA7G5 that use bit 12
+>> (AT91_SAM9X60_WDDIS). This series fixes the detection by introducing
+>> a per-device wddis_mask and documents the bit position difference in
+>> the header.
+>>
+>> Changes in v2:
+>> - Reorder patches: fix first, documentation second
+>> - Drop patch 3/3, not needed with wddis_mask approach
+>> - Keep AT91_SAM9X60_* register names, drop _LEGACY/_MODERN naming
+>> - Limit header changes to WDDIS comments and datasheet references
+>>
+>> Balakrishnan Sambath (2):
+>>     watchdog: sama5d4_wdt: Fix WDDIS detection on SAM9X60 and SAMA7G5
+>>     watchdog: at91sam9_wdt.h: Document WDDIS bit position per SoC family
+>>
+>>    drivers/watchdog/at91sam9_wdt.h |  6 +++--
+>>    drivers/watchdog/sama5d4_wdt.c  | 48 +++++++++++++++------------------
+>>    2 files changed, 25 insertions(+), 29 deletions(-)
+>>
 > 
 
