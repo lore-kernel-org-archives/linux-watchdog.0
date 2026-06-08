@@ -1,143 +1,108 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02D14399890
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 21:04:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66251313E29
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 21:10:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780952666; cv=none; b=Xe7d1/2yXBghE+eFYVgWED5WOpGHjB6JnoXkjyCSZH9/Ddj+P1JxWwjdkqTLFqggSKbps/8AGRnDf9BTGQEszIHRnuTViqbkWe2tNuVJR2yhnGuCqD4oIjxTpD9HgINjCeGWmJ3je9FBUpo0rfsJh1fK35hKmqKgki4m+GrOP5Q=
+	t=1780953046; cv=none; b=dbJSOQt0M9V3LAtC+4MzYDNwfMnC61MbYFd7VRHn4KIYZXQQxHWTlXr1x/MeglxMfBSKKEbRWnv78SQIrQ8EH4s5+k+fEOY1Qco89Iw9oZIWa8bPfMcWRZuMZc6bbIJ6filOBwrourAMtEq3rQQjTqXZqj+sMUJGdM6fPUbXCik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780952666; c=relaxed/simple;
-	bh=bFta00Twt/E/RTqGANbDtk89KNmVRe6fyKVi3Knj4aM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dX28Y+qINOBfYZavT7aljPHlulxRaXSPcfq2RQOQgpp4ILlAOkvOtIvkGbECBG4BS/FWCf2n5NuW87Q7Ve+yYMA07p1bjyk+FjV5dZwrx8Ft92NpQcnOz9HjID/4dGknMbjGjvaMKACOWUDVDNQt046M1dIJHbRamQKaykb5ZKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H0pnuAVB; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780953046; c=relaxed/simple;
+	bh=xAa4HnmQgfnozoYWy8lfZ7uBYnsjDWnttfkXKp1xtiU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dUofmvOuh1igX0VLFO3jGWR4VEnaS04FvmXqpNBTNywf8EDTKyWyZyV3Chj8r4ItaPciO8ua3dypfxNqnhVuRKRqfir5WXVrU5RZHcVsv3Z08fjBqJwrbhaE6/iwGwxYPm2kvZi0AKmq9k7l4Opuoq5lFqkyrDOcuL7Vt3nHCdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YO/5k4po; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H0pnuAVB"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-7e053987001so47084977b3.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 14:04:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780952664; x=1781557464; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BYTDwqz4z09i7KEktqEP/nOWuMoIM8Ls9CTv9jln1cM=;
-        b=H0pnuAVBebyn5ZqZFCft73WZC38VZVbYepx5gYVhJdPuQy23risPPe83ciQLiynUDz
-         k0nnsYe10iMiP26JGgtqg342IgnMevIV7EnlSPR77bo9HftD45upoBMlc00iCC+8196A
-         ESPHbSVn+ET7RVYOJ6i6ZvCcrwo5jfFZOYLYEKzPP5GmWp8EVPqsdlw4CpMDo6M2JfjD
-         dHE4sy1Hv+LrcQavwnIfTQPKU0pajYDW4i3F4swM92Nso+RAOufiMPxGsN1ZCCWbvRw0
-         dljOoW8SxZ1tyTO1JA538lSjXZHUlnoBuneQ0LXIRAXyYhKBfL/TrA07CY+eKddnvHAW
-         f1UQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780952664; x=1781557464;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=BYTDwqz4z09i7KEktqEP/nOWuMoIM8Ls9CTv9jln1cM=;
-        b=hLiHMmHN705s2B6MGDXe43l6HOPXC2HBxSUeCA5SdMWhQN0P67WH/fEWZE+Qnew4b6
-         LxEfuTeW/0NIWCXvWqy6obgooYrxUEva3/08ApnKBpKqzbhHcNXVv1mK/RxanL3XaUUX
-         rKy9YK+PdU+w2uRs8CbzW0IKjOxxlx3q3qRH/i1sWbqeSM5hMV8FgYM0akHdgMt6UvvK
-         Xum89fN9xHvG30Wuyral/RPzpf1L1wggOnEf+kF4Nvb1oICZYLosp6GjNghUS0zsMBFC
-         VdtNfKpPIupjmbi4Y+9PU1qeubskewbmjB9HPFSzYy9vb1dI5Jf26fN3spAM3QGy2vtI
-         bgEA==
-X-Gm-Message-State: AOJu0YxMc1ScfwK003Hi0/a82xOkxN/d2ldhkp9UFqtxPGiG2gyIBu3n
-	OT/CTEypBCExzfC77hqtPz9+K0e9g4PrWXOkeIHhCcJ7OoLdX38YRzTo71o9/1nM
-X-Gm-Gg: Acq92OHKiOcSCUnmLdvJdbOeF8rUFZsjVYP7M2ZJB94dYnrrjkXVB83sfZyw4xjFH3v
-	+4UI2R9VU6DGyv8noW1oeXPNl1VItI8vVQ71hkHBBav6V7DVG5lAG7+P8CBUolsqky+ny5Xqqrg
-	dCqgys6JTN9X/iJ6D5A220BSefZaXKfMYKrpd1wziTai2co8yMFxvHWgsMQ0wEQYmqW+Eo17EmK
-	wM7ZLiZCMZhgZ+CHhUjRiPv3QYkrC7LotND046/mJvUtMOM/+XN1zkpC+/4VFiNVn2zuOKv4S1k
-	qzP7Pe+O6YISlJAGeAATDLD2YN8e+pd8ZytW2KdyIMuWwbxK1hv4Q/N7LQZnkZ9gKqUZQE5+s0b
-	RQcOO4dkxdazSu7IjBhAryExJLXBC8aIqd9IT0rnWE97JJp4i/+vROyu+BFhJb6HC3q9S3yWIPW
-	Cv02/XSC9FZ92sW7/ISVurrLiqFJEHr6SgTjUNtWQ3lKScrVpk6LzFMIwewLdPvUKnhd1eJ3wzG
-	F8B/qDicTreJKOKHRwvtI22YdivTB2KxgWDIfutnY9QbQ==
-X-Received: by 2002:a05:690c:650c:b0:7b9:f136:56d8 with SMTP id 00721157ae682-7ed53996c90mr133275957b3.30.1780952664090;
-        Mon, 08 Jun 2026 14:04:24 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7ea2399ab1fsm89468367b3.33.2026.06.08.14.04.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 14:04:22 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv3 2/2] watchdog: pika_wdt: enable COMPILE_TEST builds
-Date: Mon,  8 Jun 2026 14:04:02 -0700
-Message-ID: <20260608210402.31545-3-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260608210402.31545-1-rosenp@gmail.com>
-References: <20260608210402.31545-1-rosenp@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YO/5k4po"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A0E1F00893;
+	Mon,  8 Jun 2026 21:10:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780953045;
+	bh=y16sJXQMu86Jyj2ZHdo6Fq+w8A4F4aL+bO2vwsOwJwU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YO/5k4porAsnfjnVkUIwSAaP3c0ygdZ6V7WqxSTe6g3uqvs70Y8quF6GuEuglwV9+
+	 8l2bi5mswhmiWWnHDJypoPPHYQ/zmYXoNZid+ZsN4tbt3IkPYr4+YnUUsCRWRLdmLf
+	 Y6TPTKEvhTuAc2nxPrxLFq8sAXzTXn8CwNqO3KaeRyelTJ8pgfUO/xar4IoyA3YV17
+	 F3bZkR7t1l8Ak02m4taWwHqITuVFRhX5BnMM74z2dy7TLhWONiVjG8FJI/odokSeal
+	 i7tAPWlwxvwng+/3KinI2fbzQUqiTitf6+Aqj5iReSVh/09RoisxbQFSAHai9DjFIf
+	 YO3M5Xsd3BkYg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCHv3 1/2] watchdog: pika_wdt: fix timer lifecycle bugs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rosen Penev" <rosenp@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260608210402.31545-2-rosenp@gmail.com>
+References: <20260608210402.31545-2-rosenp@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 08 Jun 2026 21:10:44 +0000
+Message-Id: <20260608211044.E6A0E1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Replace powerpc-specific I/O accessors (in_be32/out_be32) with
-generic ones (ioread32be/iowrite32be) so the driver can be
-compile-tested on other architectures.  Relax the Kconfig
-dependency accordingly and add the required HAS_IOMEM.
-
-Assisted-by: opencode:big-pickle
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- drivers/watchdog/Kconfig    | 3 ++-
- drivers/watchdog/pika_wdt.c | 8 ++++----
- 2 files changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 8319c503319a..855736eaca2c 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2040,7 +2040,8 @@ config 8xxx_WDT
-
- config PIKA_WDT
- 	tristate "PIKA FPGA Watchdog"
--	depends on WARP || (PPC64 && COMPILE_TEST)
-+	depends on WARP || COMPILE_TEST
-+	depends on HAS_IOMEM
- 	default WARP
- 	help
- 	  This enables the watchdog in the PIKA FPGA. Currently used on
-diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-index d567103ec5e4..e599aff8329b 100644
---- a/drivers/watchdog/pika_wdt.c
-+++ b/drivers/watchdog/pika_wdt.c
-@@ -77,10 +77,10 @@ static inline void pikawdt_reset(void)
- 	 *           seconds. Valid ranges are 1 to 15 seconds. The value can
- 	 *           be modified dynamically.
- 	 */
--	unsigned reset = in_be32(pikawdt_private.fpga + 0x14);
-+	unsigned reset = ioread32be(pikawdt_private.fpga + 0x14);
- 	/* enable with max timeout - 15 seconds */
- 	reset |= (1 << 7) + (WDT_HW_TIMEOUT << 8);
--	out_be32(pikawdt_private.fpga + 0x14, reset);
-+	iowrite32be(reset, pikawdt_private.fpga + 0x14);
- }
-
- /*
-@@ -243,7 +243,7 @@ static int __init pikawdt_init(void)
- 		return -ENOMEM;
- 	}
-
--	ident.firmware_version = in_be32(pikawdt_private.fpga + 0x1c) & 0xffff;
-+	ident.firmware_version = ioread32be(pikawdt_private.fpga + 0x1c) & 0xffff;
-
- 	/* POST information is in the sd area. */
- 	np = of_find_compatible_node(NULL, NULL, "pika,fpga-sd");
-@@ -265,7 +265,7 @@ static int __init pikawdt_init(void)
- 	 * Bit 31,   WDOG: Set to 1 when the last reset was caused by a watchdog
- 	 *           timeout.
- 	 */
--	post1 = in_be32(fpga + 0x40);
-+	post1 = ioread32be(fpga + 0x40);
- 	if (post1 & 0x80000000)
- 		pikawdt_private.bootstatus = WDIOF_CARDRESET;
-
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Critical] Calling timer_setup() unconditionally in pikawdt_open() corrup=
+ts the active timer wheel if the device was previously closed gracefully (m=
+agic close).
 --
-2.54.0
 
+commit cf2334cde532efba699588386b4f5a28da397535
+Author: Rosen Penev <rosenp@gmail.com>
+
+watchdog: pika_wdt: fix timer lifecycle bugs
+
+This commit updates the PIKA watchdog driver to use timer_shutdown_sync()
+during device release and module exit. It also adds a timer_setup() call
+to pikawdt_open() to re-initialize the timer for subsequent opens.
+
+> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
+> index 87b8988d25206..d567103ec5e48 100644
+> --- a/drivers/watchdog/pika_wdt.c
+> +++ b/drivers/watchdog/pika_wdt.c
+> @@ -117,6 +117,7 @@ static int pikawdt_open(struct inode *inode, struct f=
+ile *file)
+>  	if (test_and_set_bit(0, &pikawdt_private.open))
+>  		return -EBUSY;
+> =20
+> +	timer_setup(&pikawdt_private.timer, pikawdt_ping, 0);
+
+[Severity: Critical]
+Does this code corrupt the active timer wheel if the device was previously
+closed gracefully?
+
+The watchdog driver supports a "magic close" feature where writing 'V' befo=
+re
+closing sets expect_close. During pikawdt_release(), if expect_close is set,
+the internal ping timer is intentionally left running:
+
+static int pikawdt_release(struct inode *inode, struct file *file)
+{
+	/* stop internal ping */
+	if (!pikawdt_private.expect_close)
+		timer_shutdown_sync(&pikawdt_private.timer);
+
+	clear_bit(0, &pikawdt_private.open);
+	...
+}
+
+Because the open bit is cleared, a subsequent open is allowed. When
+re-opened, this new timer_setup() is invoked unconditionally on the
+actively queued timer.
+
+Calling timer_setup() on a pending timer overwrites its internal linked
+list pointers, which can lead to a panic when the timer softirq processes
+the wheel.
+
+>  	pikawdt_start();
+> =20
+>  	return stream_open(inode, file);
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260608210402.3154=
+5-2-rosenp@gmail.com?part=3D1
