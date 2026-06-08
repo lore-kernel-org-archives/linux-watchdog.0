@@ -1,68 +1,68 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80E53B27D8
-	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 22:35:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 575D0369D7C
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 22:44:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780958127; cv=none; b=mcezLUOVo4xS4PEvZKZWUF3jyo0SiHiaPU3jst9XqDLWjHLlo3OWIpWLV8jo/EDx+AJB8QPw9yQcr5fi2amibw4pNLpd4OPWl99SSxlQh38XkDhFYrlcpkJiEIjqqJPwafcIMxnHeI4OHJTb/U3jOhOtY9N4G/CpCkR4cclTowk=
+	t=1780958679; cv=none; b=Oqepw51lE9fp6IZ9CK/ve1sFHYVjcZiOYBpUdH1AgKGr75QgBMQw/XCUfkZ1Rt5wzjIj4EBdAvuBsplE7kqzu54FO+n7Fyhb9Y7x1ZXHKyM5YlfxJ8A262C7wc4CREfZ8PiGmVL7d0iFBfVEdYasX9jiDwYcNaHm47i/jvShPt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780958127; c=relaxed/simple;
-	bh=MsoicAw6g+MUWVfhGn3r+J6ffrFHjPzUsQRAgq+1dos=;
+	s=arc-20240116; t=1780958679; c=relaxed/simple;
+	bh=SY3ZDi7rqYk0SDGx+YG6HBvYvM6fgMrPZitm3e1lvFo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dib4RtgrEwz7o3GEhLAYU/Zq1nRJcW6jyPbZnrpHlk/LD16USzhfWed2M0D6xxO5Nk0aSX8sIiRvIucuqHTH02KX4cX9TuuGS4gbSlGrNqvnTLOXPfi4j9nqPp1N/7CvevZvNU+MWuGZXe85XLv+a/n5hIoS9P3od00UnhiLZDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VdDCboZD; arc=none smtp.client-ip=209.85.210.178
+	 In-Reply-To:Content-Type; b=l3qPTF+n76l+xTeU7FB7jChQi4CnhE22W/uxHA9kdhLkEeAO+9B77SS2wiDokknuLC16eZo88HqWcaccvAnQW7FXQdqiTTfXjN72RyQrhNrmeOqr2xnxbk6jNHj1bLcnfBQJSAGgIgkhxOeZxMYFjxm1HAD4yDDYnIDw/C2lKU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q7T9MMda; arc=none smtp.client-ip=209.85.215.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VdDCboZD"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8423efad617so2656073b3a.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 15:35:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q7T9MMda"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c855599a77aso2362407a12.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 15:44:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780958126; x=1781562926; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780958678; x=1781563478; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=g3D88PzOddsT6UaoAh3azSKu29/ugzAUVSvz52SY6Gg=;
-        b=VdDCboZDSGLyLkI4IxpJjSia76RyAspZ8abRbVy4F/O6Qvds+t2XTOVvIoHoHkh7nD
-         Ot3PA9KiS7tBLbrPZnKDTlxt6l+sHUGgbnQip7y4YHIHuTIItPYlTleiCKon63s/EUgq
-         hklb/M198VeXpfgfudtqqBSx0rJDqZ5F/R5ZAbVVUulvLIaVUgaGcwxVFY4EyrY0g+mO
-         rKLy+zkPDYpstF8dIw8mNWEpWzixFJhGq8n2d8Iv1KwRTkplgOI3U8dTUb3YAMKlmGf3
-         SoxNp8a82GEkfBdIeJnhP8qUYC0SFHQWE2fhB4ZPS4HW8wz1LWOvAfbYpvtmAP73f9QC
-         N9pQ==
+        bh=8162lNHsWpqaubi3mJjKtZ4gQWpHDXaDerX/XR2Loaw=;
+        b=q7T9MMdaybzTnm63ITlyQJQgIv+f+XV0B1zX5JFnWUFmXq4IJpXxx4Dbxc8gZaYo+V
+         +75SpptDZQSclqgdnosGyHu2IZ3p9DbqruZ+vJePoeGpnZr4zGrSbDAk3SE/N+1JLi2M
+         /pDRkktjzJGXwdOUE00S1VkGZKZfpw7KlNVz4yNa2iH7g69LDC92Rg66tb6GYRpn+B6c
+         NAbem/jmo4FZ8HVKroHP/tIQ8HbRER+WgIKT0VH9ls7iuyd8aoJhpuThKLiSuXOmCPWe
+         lGC7njaSs4tQxZvZ9BbLRGRz8o59bMGOXexqgX1GOl+LDFpF8Gqy9ZfC3YwSSvIu/HES
+         p4Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780958126; x=1781562926;
+        d=1e100.net; s=20251104; t=1780958678; x=1781563478;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=g3D88PzOddsT6UaoAh3azSKu29/ugzAUVSvz52SY6Gg=;
-        b=YuiCvx56xKrKhD8gDllZSMzHhIVh3zO7x1lVbMpkAebEH092Z7dgDbzIbYfklZ9TAk
-         jh9We5EdIwBoFOUIaGA5iUManL0KeLz4X642zIViHR0TIp/SsrrwprTvDrJzo9pY7tEa
-         gtPHvMa6LHVGBL5rD8wbN6J62kqE+s73QTrH56EcTgRJvrlPn+hMgcQpK+IwKr7MRyLN
-         Tk0zdHPJ4W8kxDUgb59sArSIoLXe29yFJCcKOv5Q8QP5L76qMhjwhDvqDq/zzwYBlkAa
-         XX310uu99fPS/W0e4EQZYuzv0JNKWjaSjhGPZl6QNiZC//abLF0fVhgFFR34BROCy0w4
-         OaOw==
-X-Forwarded-Encrypted: i=1; AFNElJ+fM4UKY9WCaXnLp+ffgahjXzpLam2zdAEOA3HYWv2akLIQSSaK/9SaGEYlk1+jfzskwH/w+U27TdH7ZIRxmw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yww6PmLG1bcYyH0QsPQkPJCc6E7Gf2QZNK+2wCpSPPmB2zEBhvA
-	YQzFMBfTacJr1mHuzFlmzaiJZ9pITNwN3p9+cLKsZb85fpmFhtsXxfFt
-X-Gm-Gg: Acq92OHvQtZ2E45a5z+ZzuMCpxfgY3So66np51POyj8WNVHFi9ufABqR3G8bnSbQFgQ
-	c+m0kiCBDEoIfOJCzBlUfAW/i19/4ac9O3E4ZNt+ZKZvy8amyMVFM05cNwAUsvb39uTpgjFu0wE
-	HFT00ZqVFQUU3rV5dG+fkvBNQGu7epv66uQAOcoKqLgElCFJB+cyzyQJ9e7NiwnVd1Ci+nPeoyp
-	t8q2lzXUWW0nxVuUPKO8NXPbrIjuYDU+Y693vGHgVY4MAEibatcNbqZXkU+jns5hmm0lhIOrXlq
-	PMt4fjJjYw9XT8H+lBlryKyTfzbhkhptN6EciOjWEPxn9QiWRHLIIUS2cbd4FUqE8RDtD3hLTX8
-	55D6LkVA+fK35oZ1nKP5UQis9slFdFdQQSjSbbEHADKM67DrEiTJ0OxmGgJtwYHjGbWm1pdWg1O
-	7S5hG7tYJxmTWpV/vyM0FXKSq5OPV4PIFh1qUFQSQS/CtEIQ7XamtEacKZRCqLXLO74CHxeY0Kr
-	UAJo/n1Y9o=
-X-Received: by 2002:a05:6a00:9292:b0:842:688f:307f with SMTP id d2e1a72fcca58-842b0f51a52mr17791879b3a.28.1780958126098;
-        Mon, 08 Jun 2026 15:35:26 -0700 (PDT)
+        bh=8162lNHsWpqaubi3mJjKtZ4gQWpHDXaDerX/XR2Loaw=;
+        b=r+X3AuJRI6GyisUdpRSJjzEIpUkaYS4htZ0fQgJv/N5nQQumj2quxzss1EjhUsLOGP
+         JdqD/olnb+AmRnFHEqDRUv0pCJLZrXk3QUJSHGgSZr7Y1kzvky8ELdGKqGsGyN7UVm8a
+         uGn6hNGrDP5HT9sCv9ZuKsGJflQFgdkLj3igVwMjbh04qKH3tuf9CsDEn9AnUgEc6Rz2
+         Sf7QOI4NCpDH6wYB3jb8KhHyWclSbbiIbfsNh0GPcbrF99VUeGJqV6ekBig0+07IF84C
+         bfoLmdbw2v2YWAqe/F0BzgFsemQ/9LPWt4wAUf24iEA6HtkNTF/TK0prQpDIwdqgw0Qn
+         OnpQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+nD8eLXrYyrHshfgT8wLXQVlidMX3iwRhpCuhYjYGfGlAnoo1P6nxB1xgF4J7ylxQmVHIlAObDSCCEpfF7Uw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSftR99e8sAHHZf7YkbrZEKZFcYkD7LbchZjIX4vLC8BvWKQRR
+	UqtaDQoJquFyTMSq9s1ssxuYkbfn4OjwG+BrZK3LjgFlRFSjG6efX0Zu
+X-Gm-Gg: Acq92OEPaxzpR9dc28DwibFRFS2fryJh13UUp8lQQnkL14EQjlRGD1NWdanr+cQ/oXX
+	gM2Kp/sy29YikEV6WzcpkuOUl2A9cc3Z9CqxoRmyqLzhrhK7ISALUDfZwB6DM8jJNEy1Ezqxexu
+	CbCco+yD8plHpmpIYQuGIOzKXOd304zcxqXEqsoA8ppa0mSOTfqWAZjZEq4pm0vp29dsQeRkZ5o
+	jV6PezYVjz+VtvKrgeT8QSilVqdLskalP9lKN6Ys5joFxsj44iAaNmEFc4Chl67WXUhxhEKvMaB
+	i/sm/PIivdclN6t9TJQEknLBMvIYNj+rwxATPFeROS5wBGsjRWiUfpt9CCTaaIOIRqK1abVzT3o
+	dRoaSkLQZSaPBrs6TAoEivVc18OzpUP0/ArkNORV/kXNTLnebcSoeSAFedPkxBgj75mft2H/NYk
+	/CdsWALIA5UkDcJzugRSYG5m5ARYMTIb3Jyukr6MfCNhdFHiD9K53AQgGQ6xWQOz+cw/4147mUa
+	usGg9u+PMQ=
+X-Received: by 2002:a05:6a00:8006:b0:842:5bf3:c53c with SMTP id d2e1a72fcca58-842b0e1dd7fmr19184385b3a.2.1780958677698;
+        Mon, 08 Jun 2026 15:44:37 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-842828836efsm18887679b3a.38.2026.06.08.15.35.25
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8428221cc3dsm19099500b3a.1.2026.06.08.15.44.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2026 15:35:25 -0700 (PDT)
+        Mon, 08 Jun 2026 15:44:37 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <db3d05e3-e7c6-46bb-9a56-e45970652f14@roeck-us.net>
-Date: Mon, 8 Jun 2026 15:35:24 -0700
+Message-ID: <8f5d6e37-2334-4eac-90a0-8dedf90d7890@roeck-us.net>
+Date: Mon, 8 Jun 2026 15:44:36 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,8 +70,7 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCHv2 1/3] watchdog: sama5d4: fix shared IRQ and hardcoded
- timeout issues
+Subject: Re: [PATCHv2 2/3] watchdog: sama5d4: use platform_get_irq_optional()
 To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
 Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -81,7 +80,7 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  <linux-arm-kernel@lists.infradead.org>,
  open list <linux-kernel@vger.kernel.org>
 References: <20260608200933.18669-1-rosenp@gmail.com>
- <20260608200933.18669-2-rosenp@gmail.com>
+ <20260608200933.18669-3-rosenp@gmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -127,45 +126,26 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260608200933.18669-2-rosenp@gmail.com>
+In-Reply-To: <20260608200933.18669-3-rosenp@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 6/8/26 13:09, Rosen Penev wrote:
-> Fix three pre-existing issues in the sama5d4 watchdog driver:
+> irq_of_parse_and_map() requires irq_dispose_mapping() on failure. Don't
+> bother with it as platform_get_irq_optional() doesn't need it.
 > 
-> 1. Unsafe IRQF_SHARED | IRQF_NO_SUSPEND combination: The watchdog
->     interrupt is a dedicated peripheral line, not shared with other
->     devices.
+> Also handle EPROBE_DEFER.
 > 
 
-Not addressed in this patch, and can not be addressed without testing
-on real hardware. We'll have to leave that alone.
+That is misleading. irq_of_parse_and_map() did not return errors,
+so this is not an "also" but made necessary by the use of
+platform_get_irq_optional(). That means that replacing the
+call with platform_get_irq_optional() is not a 1:1 replacement,
+making its use risky without extensive testing.
 
-> 2. Unconditional IRQ_HANDLED on shared line: The handler returned
->     IRQ_HANDLED even when the status register indicated no watchdog
->     interrupt was pending.  Return IRQ_NONE in that case so the kernel
->     can properly detect spurious interrupts on the line.
-> 
-> 3. Hardcoded 16-second timeout: sama5d4_wdt_init() unconditionally
->     used WDT_DEFAULT_TIMEOUT (16s) for the hardware timeout, ignoring
->     any timeout configured via device tree (watchdog_init_timeout) or
->     userspace.  Pass wdd->timeout to sama5d4_wdt_init() so the
->     configured timeout is honored during probe and resume.
-> 
-While I think this is a real problem, changing the code would require
-testing on real hardware. We'll have to leave this alone.
-
-Please resubmit, only fixing issue 2). Please list the other problems as
-explicitly not fixed in the summary e-mail.
-
-This also applies to the new problem regarding AT91_WDT_WDDIS vs.
-AT91_SAM9X60_WDDIS. If that is a real problem, it can only be fixed
-by someone with access to hardware and with chip knowledge.
-
-Besides that, I would suggest to re-order the patches.
-Patch 3 (the null pointer fix) should be first, followed by this patch.
-Patch 2 should be last.
+A much safer solution is to add a call to devm_add_action_or_reset()
+after successful irq_of_parse_and_map() and to call irq_dispose_mapping()
+from its callback function.
 
 Thanks,
 Guenter
