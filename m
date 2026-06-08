@@ -1,68 +1,68 @@
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6512D949F
-	for <linux-watchdog@vger.kernel.org>; Sun,  7 Jun 2026 16:28:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1147D3BF684
+	for <linux-watchdog@vger.kernel.org>; Mon,  8 Jun 2026 18:53:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780849738; cv=none; b=pGNqUc/Jmps8HuKSiVq029Pi1USmNRIjEhIKZqhZThYQilS7+rxNKNitmJGN891icTrGCkI5VTubSkB5lGKug4GIZFbexbBwgNo3ea2KYb2qgDFjqgGoBKx+ByGTYQXxFdTAOxwqMRhhIF8GeolXUrFzruWq31L2OB70dXWKF3w=
+	t=1780944827; cv=none; b=TC57LUab0hDSBZNfA1t6qilELdJNxYuweLDm//wgJrI55J60F/xDcG/rno94N4KKBasM6hPuog7RPApmFFmoVxN4eghhxpw8pl9rOjeZy+ncIs7Mpn45DAuBc2jtaPZcAS6N3xjU5nRi/W9KABa+y4b+Bg0uBYxnvOXkduFQRnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780849738; c=relaxed/simple;
-	bh=76jLdYmKKvRiHybp+BbLyLCAjBd7s1dj4rJc42ZhHos=;
+	s=arc-20240116; t=1780944827; c=relaxed/simple;
+	bh=JhJiYHBQMlgqVMI+Byg96PgAXdUSZc6+MFD16ZcFtqM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NHKHzBhoE7FaUDse9Xx7vdrzs3mKXu+RmVaNn4cPhOUsTwQ7Wy6II7eCwuQDvwr1We0ZHl6ooMFYMkGxFg/1ZzckbI1CtV/bnw0RzKjV+oFerDh6LabeO0ynKsyCV0vqllW22HwI75pZCKCfakwZWvUzFHEHJUKfwV5z7+Z+DVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MooF9jxl; arc=none smtp.client-ip=74.125.82.46
+	 In-Reply-To:Content-Type; b=pXI18/IM/5+Rbu3NEkNUmxdixGDIxnvSWe8yXWyaqU/qymBUgs+WeX+Nv3OpA3vKrj8LyWxSQPIvO4uXEv1uePyWu+o1x9lyK+gJEKbliqce0HZKcZYKO6TEvjhRdR5bImKBMnakJ45O8ah46qeYE+sMJzrTgAfVsJIq7VyAGlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rp7AqRvg; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MooF9jxl"
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-137f27712fdso2897638c88.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 07 Jun 2026 09:28:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rp7AqRvg"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2c168baac83so21690115ad.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 11:53:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780849737; x=1781454537; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780944825; x=1781549625; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=hJpHWJSLWsGSGQMR2ErZayTJOUs27pd6wJYYy+x8Ozg=;
-        b=MooF9jxlftK/j2N9Kx2Cj9BcC259s1tVR3yNt7VYYdqM0xFTtxtjUXY8oxMecNYL0I
-         GfcM3HoBHhfEo9M0FYKNSKGZyWO0k5Al3G38foe+sf9IivkGNhclxL2LGjohrhfttOHy
-         pUBLJONQ0E0EOsjLlGWInb4OPPO2dGTjzDAOYTGwSPIZzD6q8n1Ms5VR+ILPmCNmUpyT
-         0eLSq0UemarsUxyb1KL7XXaLiCebGUQkoQKBwni1WU+UTJY8sFyApkzfDWySNNpIQQJH
-         P9MPLWOwl6sx2KTsUqiM06cp5EL/cDBEva96wJo3BZuksuem8YWETOvB5tX2Y2F9plaF
-         F8Xw==
+        bh=adpIDBscFhAxzJ7fCV0yB9YyfcwaYNNFcmJcu4Yqx0o=;
+        b=rp7AqRvgm7OBSepiQQcP/Y2Set/W6cvhf8iziOmF0kVwqf212mW86t+kjFHsmW+XBR
+         vQTTAN1NV1C5sLy7r9zoEVgfuzGs9IpQMpd3mTaMvFK4dlLXEIKmE3drQRMd1cf8zx2T
+         H0Nl+MDP0Lyx30pkGYAwbB2z/UbR1n1URljYh3hkO8PGzHPhn+4bi6PEWkoA0O5f5fyU
+         HLtTKlIfe8zG6ZHzm/sAkhc6uZfYa/PROA4oymSclbCOAKAvZQzrqb7Zs9dsBv05/pSY
+         Um/9fs6YCTa1mIE8td9zBtl3wazkSo1yhJ2zPrfNAKumsc0n2KMHqetvKXZx3iuA3oON
+         8j2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780849737; x=1781454537;
+        d=1e100.net; s=20251104; t=1780944825; x=1781549625;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=hJpHWJSLWsGSGQMR2ErZayTJOUs27pd6wJYYy+x8Ozg=;
-        b=VR0YU1i07RRfyGuDA+MWLoreF2sf+6rfvsSiP6lpYTEqSdwIXWjb6CqNuq+vHWHE/I
-         tk7QJUxj4rcD6oKzZ0USJCroBxy0QpoXyifDR9OM1qmRnZmk7MkE2Xvv+M0xCAn8Smt4
-         NhkbF6RNinX6sm1Egng/1WhqnE1bGrC84MwzCRduBXpYmt/Drfa9yzJ693mfeLpZspSh
-         nU+o+G8dNUhQgk7k50RVdKtABtcvCvYRnpNUwwsnnXXLw9ypJRPiGNiXFvE3qnI92nJY
-         TVWqNSEgbpzOkLM0vbKYC2KjrkFWsCfE2iIvGwjQJeg07oiHZ0IJwJmbpH1VHWzQg9YM
-         73rA==
-X-Forwarded-Encrypted: i=1; AFNElJ9K4LPSe79Lw4Y6qs6B3lLcHm8aMG7al68fBhOWlBDFfgD+8NxsT80mpOvsZ+V/FVBbiUVqlseE1mzOn307Ag==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxF6rIxox8I/PhKR0dVbiq4aygJDjRIyxLWYzJaMpl8uSC57ROQ
-	6tAZPcz7D/iTNGau3fo8LVncY+l1t303K7UERd9dBw07++XkXGlgkvLO
-X-Gm-Gg: Acq92OECsVHplxbrKt3cOCgh5tcwhlA/k60VInOiVQeyoA0UENZJsCpPIGemy3LsPvP
-	9QIKZb5d8628TPGTg/Tws26PsYao7rbb9OBaJ/OPbLu/kZvLdGIpW4oHMdyevoGOcp98mxKzbgE
-	GJ1X9MV6d52qym8uJbc4jqmPqANtOcOoIPplupKtpitGwRCwjhLniOyXB4Unzp67vWFLfZfSNCs
-	AaeqDbjGTmqHesco5YWGkMc+mfPEcFH/UrI6L0RbWmf5GuBR1ZMBcVmtvaQCRClFM4x+Z1x6dzP
-	fRNEeK7GVG+EYqgdxPn5mL1MTfYUOyPJi95tGlD1GS5gie+sV78X+okJ580yBCGbJURsZ55i96/
-	1+pttqn2ANRN8UT+rM6DzN5E7GamcDeFOYu5jEUe0wWeL9TrFQT8Y9+F/CuZ6+djYytnmQHcC1s
-	yy9mligLqpyM/R/Dp67+kF0QcBm25THiFPdB87aQmrQUsp8NlSxzd9f2qpvPxoGZ7OiLhlYxi8X
-	92XlqBrjhg=
-X-Received: by 2002:a05:7022:618f:b0:12b:ec67:3529 with SMTP id a92af1059eb24-138066c0641mr6765440c88.14.1780849736641;
-        Sun, 07 Jun 2026 09:28:56 -0700 (PDT)
+        bh=adpIDBscFhAxzJ7fCV0yB9YyfcwaYNNFcmJcu4Yqx0o=;
+        b=pi2qrQsL/w+l8PB5ltw2ktOGEEMOp4hnL4NqD6LNzmohDxsMdGF1sWI/kOXFazhcAG
+         +2v0o8dgM8qD94y+JFinwvjHDxfqnXk95clsRt3kvjAcnhpS/N2eW2CkfLdJFB7+OMOd
+         g1powuD/TWYjzb0yIoy2GwrECX46tQ6inR531h0iamUtCJ6zKcN5CZpU2M6H4ew3B/45
+         kyuCIXtToPocT/GxxZTROtYEopYZLkf3R4gaAJlfsL0tHRX4vT8SjGuTCadDAO1+/e5b
+         IHCKapGCf9pXTzCtrMf+KZsQpRz+laalw3EXAkGOM8CzARS9bXtaVdohwsUR6wTBzepe
+         82UA==
+X-Forwarded-Encrypted: i=1; AFNElJ93gDFMIx+wqm71eceqT5vLDNy8EwvrdY3pcGyoZbnEUINUtyjR6e7sYSg1b4BjV/PonUpNl0RV2hYNQnSvSg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRPzNM7Z8rLtxho3PGfWIBQWyT6MlZBVLZPXIh6ypDD/iiFvKu
+	e1I2PkumP2iqsgmsJ1aT7ATMhuW6GMztG9M7MEcgsGPGnphxC+xdQ5r1
+X-Gm-Gg: Acq92OGSNGFbN+PmG3c86UkQewm3G2pCtbqXiWzRjqO0X4m7MZJfxsRRL1bLCflYOam
+	jHyXF9jXlllgMRjbydhIbevDGdGZZlk9OiSrMY496jNqgc5Ios/YE8gMwo1W5VBfg2UxDYBfflV
+	rI82rOWUP9k8Uq6dGKWWWm/wbJ1MBmSrFa2JlPY596Q9ISEEWSJnRrljUVPpB/0RaqQ2x0Ceqw3
+	SVUWOWgfdKSI44hvQwSJYGj5D0K/AOW4EzQgwb4GBl47jyfn7H02GKvgJcNIvsryV6B72Gk/NVm
+	M5qcGbm8yzmUI0vJLp7+GkOP8Z2YY2UMbq8olUrI+eNNqcJVMyb1LQVHjgNlIsjaJJxPrgsHC63
+	RDr0MfmzmB6ZxlnzCiun7rjJyjs78ah8yo3xLapKa4hnrH0yPXnPpx4du4j8KUTpUxWvH0GrhI+
+	lDIuk65w5xDvffg5K90mEC0Zw9gEKHpTjkpglQA+9b7KgCdnTPES0dZ+l89GZ+OjvqW1efDbi1F
+	yR/SwBPfK8=
+X-Received: by 2002:a17:902:d48e:b0:2c2:9a1e:6099 with SMTP id d9443c01a7336-2c29a1e63f3mr11148545ad.23.1780944825427;
+        Mon, 08 Jun 2026 11:53:45 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137f716017esm14887247c88.15.2026.06.07.09.28.55
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16649bde7sm191933075ad.72.2026.06.08.11.53.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Jun 2026 09:28:56 -0700 (PDT)
+        Mon, 08 Jun 2026 11:53:44 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <462abb50-60e1-4e6e-959e-240cc4ec1e0f@roeck-us.net>
-Date: Sun, 7 Jun 2026 09:28:55 -0700
+Message-ID: <fdbbce52-6831-4a2c-970c-ff0951483947@roeck-us.net>
+Date: Mon, 8 Jun 2026 11:53:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,12 +70,12 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: pika_wdt: replace in_be32/out_be32 with
- ioread32be/iowrite32be
-To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, chleroy@kernel.org,
- open list <linux-kernel@vger.kernel.org>
-References: <20260602035620.623085-1-rosenp@gmail.com>
+Subject: Re: [PATCH v2 0/5] watchdog: improve comments & Documentation
+To: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ linux-watchdog@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org
+References: <20260529212024.2119204-1-rdunlap@infradead.org>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,20 +121,40 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260602035620.623085-1-rosenp@gmail.com>
+In-Reply-To: <20260529212024.2119204-1-rdunlap@infradead.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 6/1/26 20:56, Rosen Penev wrote:
-> Convert the ppc4xx-specific in_be32/out_be32 to the portable
-> ioread32be/iowrite32be. Also relax the Kconfig dependency from
-> (PPC64 && COMPILE_TEST) to just COMPILE_TEST to get build coverage.
+On 5/29/26 14:20, Randy Dunlap wrote:
+> Add the missing devm_watchdog_register_device() to watchdog-kernel-api.rst.
+> Convert some struct and function comments to kernel-doc format.
+> Add some UAPI comments for quick reference.
+> Correct some grammar and bulleted list format.
 > 
-> Assisted-by: opencode:big-pickle
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> v2: modify comments in patch 3/5 per sashiko review
+> 
+> [PATCH v2 1/5] watchdog: add devm_watchdog_register_device() to watchdog-kernel-api
+> [PATCH v2 2/5] watchdog: linux/watchdog.h: repair kernel-doc comments
+> [PATCH v2 3/5] watchdog: uapi: add comments for what bit masks apply to
+> [PATCH v2 4/5] watchdog: core: clean up some comments
+> [PATCH v2 5/5] watchdog: dev: convert to kernel-doc comments
+> 
+>   Documentation/watchdog/watchdog-kernel-api.rst |    8 ++++
+>   drivers/watchdog/watchdog_core.c               |   12 +++---
+>   drivers/watchdog/watchdog_dev.c                |   30 +++++++--------
+>   include/linux/watchdog.h                       |    8 +++-
+>   include/uapi/linux/watchdog.h                  |    2 +
+>   5 files changed, 37 insertions(+), 23 deletions(-)
+> 
+> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Shuah Khan <skhan@linuxfoundation.org>
+> Cc: linux-doc@vger.kernel.org
 
-This is an old watchdog driver, not using the watchdog subsystem.
-Please leave such drivers alone unless fixing a real bug.
+Series applied.
 
+Thanks,
 Guenter
 
