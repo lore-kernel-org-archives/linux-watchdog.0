@@ -1,154 +1,130 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 059B0231842
-	for <linux-watchdog@vger.kernel.org>; Tue,  9 Jun 2026 03:09:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5402339A06A
+	for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 08:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780974556; cv=none; b=QtMYr3gsxCzr7D2Syy5u0RMWHzlns3+rpei7ypAevvIIydqrMOZm0npXTG81/JTzOEcPgrBOsiOwTwNte9cX/CVsG5eodWCJYnDlzTo075fT0cnMtHiYokRoJHyVk/Vbp3zJUp2C8QWkkUPRt8OGH6ErLiw99ohCZv2194xlL54=
+	t=1781081325; cv=none; b=AAK+hMbin0yKgfpFhRlcUYeXGoUSxhZvelWvB0y8R5ZEM/Oc08FWSFpgrfApaMkzkua8oih5CTv3YGiWOffZxiWMaC1EM2QE/SEvC48F/kws5cTDvNJ8jTiwuhvnLfzTlIuWvTlT//ZQtWZF+QLzs6GQWfUe9uQ3F8VX7dxXUQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780974556; c=relaxed/simple;
-	bh=RWA8KG3ziPf4xjpFtPaytUXMIp4+4F6bKb0VKk2wlb8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F3fvccYS+Fr6n1A4JNs+ywZdMeYpVuAXXtjLKwtiYd3YN+C8xjZ0HMqZinIzySrgaVj1oqWOQZVhEgjXEpaRlYgFLqRLLJex3+YwXPafXom478ZYFmDtiUAQfRZv8pV7irOh46ZJTIlkFQb6xut3COMbZJndkWD5KAJjrCtaghc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a2VnNlQu; arc=none smtp.client-ip=74.125.82.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781081325; c=relaxed/simple;
+	bh=jg1WA8Rwg2N/nFZSGUgY3r0q9rqAQQ9t3QBUEappQCg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JCtdfpOJWVAIlIMi0DATo2S+Wb1BeeByqf299mGAashyhOosUDjhmdEa6BN3Biy1ZO18Uo1VrzN6k2td+3yYYnzhqAv72YismcqtKwAsMv/sxKYoct+WUmjF3N0oDUqKnxEyGp44LN2Asw1dAT0zw9GW006fBnIWgqiMwWtjiUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=KsBR85l+; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a2VnNlQu"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-304e83724bfso6083521eec.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 08 Jun 2026 20:09:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="KsBR85l+"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-490b8a97b11so72012135e9.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 01:48:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780974554; x=1781579354; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=RMMUhin4/FxMkfSKkZQtK4sSB4oDaAJn+B+MPQPQPKo=;
-        b=a2VnNlQuzIIIotOlC+2/bbojj4zah2j9xRVKT7xhikhTpXgIkGAgbvlKj0yY8KFr3R
-         HVJi5YsmZ9aWhhVumdjWcYBA7bCYWaZ0UMZmJ0qxyACDnwlmB/s3/pjY3DqXJ+F0CiPB
-         L39L1+uJpu+6TRYA9mYHh3HuhIMztVqg1Yil+sELBrsSR6MC9sfigAUazEQ3BEaDKVZu
-         u7Fs44XRqV7r8XHx31s7S8kSsGszsxZkYP2fKYnB9vDUvMUBSfRFsGkqVtyBR1UoIF3U
-         7m98cMMJyeosmCVFslFmd013XMVpV+nqUrm1qwkYF3lJI9YieEYU6DB07cWVJp652uWp
-         VOfQ==
+        d=baylibre.com; s=google; t=1781081321; x=1781686121; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ucHb0b3fnQrSNHzN+PHqZCMp7bFru9xoYJEdBbi+u5o=;
+        b=KsBR85l+/RHmauyu6QU1snTrBViuyzt4uvwx1Xwar0gl+pJ5eQn0DVnN1ane4hOoqR
+         qwTu7uIz6ImMUP1Za4jTlYVBwe+WwSe7K/Xf8H34QPtKo72z6nds7wyOw8nI/i6D1YQX
+         IO2xSyVPnwhaytpi04mJ+utxDECZF832SBqE2dZfb4473/+sZriP1BZXxZ1TjhJzkHTo
+         m1Uh67RtXLRDO4q7/fbltIjcrJKzi6Il3BiKLwop+xTZCHJsSMu/oi/Og68nt1sRxF6s
+         QbTXI1RlXhY1/nyenkMVCPKoAOUBNYFJWq0xOEwdGBk0H4kxrcVzvEWMBk/QOpEHuzYk
+         a0Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780974554; x=1781579354;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RMMUhin4/FxMkfSKkZQtK4sSB4oDaAJn+B+MPQPQPKo=;
-        b=B25RtyrkHAaqhfSRT3g5JZcLGjKTVFoR+Cd2Myx/us3GMr7nXROiFkPbuXgqrCCBYc
-         BOdKq4I6TQCy46YkAvYj6KQWGcmFSazkInYc1owIwnsNRCznYfxmgSJcBiAWoXYyVxRO
-         2dXM22RcQrvvOwF9CIcFsjD2UMjM1y5s2jHnGeV+S2pvIcTVBUdDXVDYEvsOLlR3ZFkv
-         yHMRTaPbAL9ulaf2S5JyXkOPDVFJwkFdSnx4AAih5DyA2TIjFREnLv2c6oca1rf8aNwI
-         djSJIxY6vtjxqLWTiSKA+zvVVuXaPyfLt964+120QzNhi/hedUP59DXUo4yGhhYUWn6J
-         0knA==
-X-Forwarded-Encrypted: i=1; AFNElJ9JkcTqZGmgafczuO3UlaRlXd3d3hgPRiySwByJ4BP4Avfmt0S/YqESE2BPPScntkdnkQ0WyQKI4K6pgMZ+/Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzr31Dun7+J1XHeoBlHqXLBI+Yb6iRZP05AhluYr7Ns5EAkPia+
-	Hwbo0oIohYeEADyYHgwQgu+IngpM0UqAsSJlCJqWGYk0uXFtIutG1aJi
-X-Gm-Gg: Acq92OHyqKjczy2HCUI1cfwcgm6G2Pgn6orafi8p0ZTl6PsuW46dFiX4UesaiTlkhYf
-	hIcsTpp5QIMkiI+mZ0SbPRD4rBv/JqpTOs2dpPZcmGXqGbXu8KIdzO+v8FAGsZEk2idwALPLy/q
-	6ahS0gzvJzeZLnUB53HvCU4VJYsYJQQl0B7ewI3Ig/sDmE/ZQco213O8xTA1oJEA709WslxIU4l
-	WZUaQ/F7na8zLlMJewTRbparu/ErVMPhoXNy4/aBgb468hH8acFk2jzyKhA+cy5vyRq6nNq37eg
-	5c2zS3xh9faqg2Q8wFiiMYxlDlTqUCBT5Z/GL39ooEzbOQnvwslHx0IWTZR+xlgSqM04ZA1bc/i
-	An+yZPt0U9Tcgk4h6uj3hHEAApVzLNM/RWYmi8VltJiRvDrEa8o/9OXKAIYZcNM7GYVj+Yaaqmv
-	8WryacntEXyNkYsCBIg3Ef/rQsxQemeQjFkEoyxmoKDjcTQHrxOZMiYWPj+Uf2yFx02yRhdvbh3
-	segsrCP6Ic=
-X-Received: by 2002:a05:7300:ec15:b0:304:997c:d47a with SMTP id 5a478bee46e88-3077b2ddf0fmr10227025eec.10.1780974553961;
-        Mon, 08 Jun 2026 20:09:13 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074dea8708sm20593483eec.15.2026.06.08.20.09.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2026 20:09:13 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <fc12d7b1-e736-492f-bfa0-da17897ae58a@roeck-us.net>
-Date: Mon, 8 Jun 2026 20:09:12 -0700
+        d=1e100.net; s=20251104; t=1781081321; x=1781686121;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ucHb0b3fnQrSNHzN+PHqZCMp7bFru9xoYJEdBbi+u5o=;
+        b=IBFcmtfnTwesV7PRdlOGMQMibCmgSQjnTyE17TEop7Pey82M2VX0nCBnzfVFBwExNb
+         +4haSeN4FFCv2iCbkXn3lasqJKX1KvbDA9rkrVVMWP38818BhEmRE2bcRoMh3z7DjWAK
+         Cqh7sCTE1sYFIB3yUXVJiQhxzmckc6Tc9a6wokkFTUQUNHZa1I3+S74NYLCFhBAjuuN7
+         vrII/oE6JynAQfJLgBXD4OIc6+mZvUfdDb0w2vjL4HAVE0CvqEpHd9CTyPV7t++NvGPL
+         M8Gv/f/y6LfrspJdjABOJJi0+rUzaCsmifi8+tpmF0AavCUXY5XKJ6OIuPDkrPK8A5cg
+         A1vg==
+X-Gm-Message-State: AOJu0YyStRaq7k2cQL0+mvszi5QQGyqg1lWYbU4VmlnazoXs7IqmNutF
+	SuA2wXKzn988kKfaEx7cBDYWQ5wFao/j7LiqeiWrjW/Fohh3sPjy0VgmqTguSYtR2ZE=
+X-Gm-Gg: Acq92OGVCCLvjAW5DyRbbDQM8tdIT7JJ+z00PXWoLJXV6VKHbLxLE0pPGa6yafjRi06
+	NdDi2EWM57s5WlXdWgWAhIRH+TVBr9IOuplK6XiWTSdOnhb2ed69b89Gzh5vvg3ktieS539Dx6n
+	LiDa12GWLXJYY3gOL1nRPzHvY12FLT/rEfB9QfpuDFbZd6+9oXMcANXLXp8Eh2Ric3uDYkwWnOm
+	tSC/P90Vxlj+QrsLvycDyxcD5Snn759vKrug+C/37g58BhIYJOqcRis4J6FxpGXWUoYS+bkU264
+	Pg9x+mbK1OyOSM/+Xn/W1RmZ1rI5ldjEGrjDfBxcHHxbM3MmSGmA1dlnGJo7G6gWu2tFDCKuuYg
+	Pt5nCjwjEQ3Boeq38dUzxfup15380sgstXtY2t42CUW3cJse4EgtI8djJTwQq43HoESwExcLUim
+	pGKHLzNVuwPTqZfJPY9HayS4oE55yw8WDOEgdfWQA=
+X-Received: by 2002:a05:600c:a011:b0:490:58ef:cea7 with SMTP id 5b1f17b1804b1-490c25ee058mr396519625e9.22.1781081320765;
+        Wed, 10 Jun 2026 01:48:40 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:559d:eec2:887f:c200])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4601f2dcde3sm71663674f8f.1.2026.06.10.01.48.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 01:48:39 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Zwane Mwaikambo <zwanem@gmail.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] watchdog: sc1200: Drop unused assignment of pnp_device_id driver data
+Date: Wed, 10 Jun 2026 10:48:22 +0200
+Message-ID:  <0793f81a854f9e5880ad38f54c8583b3d56e5d60.1781081216.git.u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCHv3 2/2] watchdog: pika_wdt: enable COMPILE_TEST builds
-To: Rosen Penev <rosenp@gmail.com>, linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- open list <linux-kernel@vger.kernel.org>
-References: <20260608210402.31545-1-rosenp@gmail.com>
- <20260608210402.31545-3-rosenp@gmail.com>
- <235a947c-b95c-4de6-8ca6-5656b5358149@roeck-us.net>
- <DJ42HFIUK9CW.3KNNGNAFFJMCW@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <DJ42HFIUK9CW.3KNNGNAFFJMCW@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1714; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=jg1WA8Rwg2N/nFZSGUgY3r0q9rqAQQ9t3QBUEappQCg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqKSTXE7KKY+D9/3eUsJo3lLV+/NLg7Y8sfCStV P3EGlTJBnSJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCaikk1wAKCRCPgPtYfRL+ TvHuB/9wht2iW03mT7+wruIuNVphBieHf7Q2nHdIvpAYjhAVntaofDsozPCXkjlL9Pq9YWGyxL1 qgsceydBjghrN/N3B/xp8BT+h0ChBeVBmE0TQ3s1dTFkpe/wkQbRugDYYt0FnUA1cfrV2gVlPfN Mj7td8zm7IclevKonCpJHPsJqd9QyBTy99Z9xLkho1rqV8xqw0ujb+yVRjFJr4X5ofEXScc0k6d tvuatJS/9e8dJIhLeAXKrRgTut7OmmGHPie2GkdAkBK20EO2uekBryeDK2teGsz9e4KcMetpKrB nYlseTB5Krh8iJGSmjjyAvVvBOiSwCiw3iw6SAKfP0x7OVBx
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-On 6/8/26 16:46, Rosen Penev wrote:
-> On Mon Jun 8, 2026 at 3:55 PM PDT, Guenter Roeck wrote:
->> On 6/8/26 14:04, Rosen Penev wrote:
->>> Replace powerpc-specific I/O accessors (in_be32/out_be32) with
->>> generic ones (ioread32be/iowrite32be) so the driver can be
->>> compile-tested on other architectures.  Relax the Kconfig
->>> dependency accordingly and add the required HAS_IOMEM.
->>>
->>> Assisted-by: opencode:big-pickle
->>> Signed-off-by: Rosen Penev <rosenp@gmail.com>
->>
->>
->> I really don't think this is worth the trouble just to be able
->> to support COMPILE_TEST on all architectures. This is an old watchdog
->> driver. It should not be touched except to fix bugs.
->>
->> Didn't I say that before ?
-> Sounds like this driver should be left alone then.
+The driver explicitly sets the .driver_data member of struct
+pnp_device_id to zero without relying on that value. Drop this unused
+assignments.
 
-Very much so. The driver is for a FPGA based system from around 2007,
-and the company behind it went bankrupt in 2022. I would be surprised
-if the current Linux kernel even boots on it.
+While touching this array simplify the list terminator.
 
-Guenter
+This patch doesn't modify the compiled array, only its representation in
+source form benefits. The former was confirmed with builds on x86 and
+arm64.
+
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+---
+Hello,
+
+I intend to change struct pnp_device_id and for that it's required that
+.driver_data is not assigned using a list initializer. Instead of
+converting it to a named initializer, drop the assignment as the value
+is unused. So this is both a cleanup and a preparation for a later patch
+series.
+
+See
+https://lore.kernel.org/all/cover.1779878004.git.u.kleine-koenig@baylibre.com/
+for a more verbose description on the mentioned change to struct
+pnp_device_id (though this is about platform_device_id, but the idea
+here is the same).
+
+Best regards
+Uwe
+
+ drivers/watchdog/sc1200wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
+index 76a58715f665..1d3300c98d43 100644
+--- a/drivers/watchdog/sc1200wdt.c
++++ b/drivers/watchdog/sc1200wdt.c
+@@ -339,8 +339,8 @@ static int __init sc1200wdt_probe(void)
+ 
+ static const struct pnp_device_id scl200wdt_pnp_devices[] = {
+ 	/* National Semiconductor PC87307/PC97307 watchdog component */
+-	{.id = "NSC0800", .driver_data = 0},
+-	{.id = ""},
++	{ .id = "NSC0800" },
++	{ }
+ };
+ 
+ static int scl200wdt_pnp_probe(struct pnp_dev *dev,
+
+base-commit: 49e02880ec0a8c378e811bc9d85da188d7c6204c
+-- 
+2.47.3
 
