@@ -1,130 +1,100 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5402339A06A
-	for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 08:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC912402BB7
+	for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 13:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781081325; cv=none; b=AAK+hMbin0yKgfpFhRlcUYeXGoUSxhZvelWvB0y8R5ZEM/Oc08FWSFpgrfApaMkzkua8oih5CTv3YGiWOffZxiWMaC1EM2QE/SEvC48F/kws5cTDvNJ8jTiwuhvnLfzTlIuWvTlT//ZQtWZF+QLzs6GQWfUe9uQ3F8VX7dxXUQU=
+	t=1781097001; cv=none; b=TZnxywRVHgQ4PdIaC6Dk4KyiwSwb8JAypmOvYMgQmQ8rG58Ujg3K1c9e44PJ749qmcE2bdXaX3NalHdzpGPM9gys68dpYTZt/8z1RcycWexHEywET7hLD6U2E1AzN3kdhWQQEaEpg71i6wIhTR77yCcKIywiUz7iwYNVPAprJfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781081325; c=relaxed/simple;
-	bh=jg1WA8Rwg2N/nFZSGUgY3r0q9rqAQQ9t3QBUEappQCg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JCtdfpOJWVAIlIMi0DATo2S+Wb1BeeByqf299mGAashyhOosUDjhmdEa6BN3Biy1ZO18Uo1VrzN6k2td+3yYYnzhqAv72YismcqtKwAsMv/sxKYoct+WUmjF3N0oDUqKnxEyGp44LN2Asw1dAT0zw9GW006fBnIWgqiMwWtjiUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=KsBR85l+; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1781097001; c=relaxed/simple;
+	bh=+GjWiKaC2OnqchUlv2D9rocAjfPIOsx/2XusU/J1iWA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IwHfqoi1NvUxzYqxGMzSh1SZQDpsAKNBrrgwpQxbbFs8BpTDKxLeCctGL2CE+GBPI0+vQ1yaXeelhRcA1wqXMCxJXHig4R8OgjGb1eltgWJ6I4xTBjpo1XPNLi2DT4WVe+AI4OGB6mptpyg6xYro5AyAlVFKWeqAHw7/5o13aYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h9Ub10W6; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="KsBR85l+"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-490b8a97b11so72012135e9.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 01:48:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h9Ub10W6"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2c132ac5ec2so66504185ad.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2026 06:10:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1781081321; x=1781686121; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ucHb0b3fnQrSNHzN+PHqZCMp7bFru9xoYJEdBbi+u5o=;
-        b=KsBR85l+/RHmauyu6QU1snTrBViuyzt4uvwx1Xwar0gl+pJ5eQn0DVnN1ane4hOoqR
-         qwTu7uIz6ImMUP1Za4jTlYVBwe+WwSe7K/Xf8H34QPtKo72z6nds7wyOw8nI/i6D1YQX
-         IO2xSyVPnwhaytpi04mJ+utxDECZF832SBqE2dZfb4473/+sZriP1BZXxZ1TjhJzkHTo
-         m1Uh67RtXLRDO4q7/fbltIjcrJKzi6Il3BiKLwop+xTZCHJsSMu/oi/Og68nt1sRxF6s
-         QbTXI1RlXhY1/nyenkMVCPKoAOUBNYFJWq0xOEwdGBk0H4kxrcVzvEWMBk/QOpEHuzYk
-         a0Hg==
+        d=gmail.com; s=20251104; t=1781097000; x=1781701800; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SIXVelfC5mVARpl9SDW2zpJ3q4ENvqgn2l0kXpwThRc=;
+        b=h9Ub10W6jhgKKZzpEdrY4ysltfw1HK/8Lsh+tgfGX1nWBDDp5QfXeTEC83KNexkMFR
+         9ignkm/XPNvv1Ypefe6Zh1Ur9gql4zAQ5X5rUEKkCJHbvc3B2HQ91C8I6qR+hmm33dp0
+         p0fBoqoHeOG14mxopg1hZ8e3bw9efxOST06rEkoFkwFIKbQa6I1ZsozOKBbY8wWelHqX
+         XD7iPNUaGteQ0s2FY0x9aTdw6uCA/U+1fqkCzaveKdg4KwrmApce31BSGDIKMuaAYUxX
+         c500EcpjvyYhzq76jKC4oY5RB61MsEX9NARhujNUqQVPJLccJifZygJX+K34hD/8W8+G
+         3JJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781081321; x=1781686121;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ucHb0b3fnQrSNHzN+PHqZCMp7bFru9xoYJEdBbi+u5o=;
-        b=IBFcmtfnTwesV7PRdlOGMQMibCmgSQjnTyE17TEop7Pey82M2VX0nCBnzfVFBwExNb
-         +4haSeN4FFCv2iCbkXn3lasqJKX1KvbDA9rkrVVMWP38818BhEmRE2bcRoMh3z7DjWAK
-         Cqh7sCTE1sYFIB3yUXVJiQhxzmckc6Tc9a6wokkFTUQUNHZa1I3+S74NYLCFhBAjuuN7
-         vrII/oE6JynAQfJLgBXD4OIc6+mZvUfdDb0w2vjL4HAVE0CvqEpHd9CTyPV7t++NvGPL
-         M8Gv/f/y6LfrspJdjABOJJi0+rUzaCsmifi8+tpmF0AavCUXY5XKJ6OIuPDkrPK8A5cg
-         A1vg==
-X-Gm-Message-State: AOJu0YyStRaq7k2cQL0+mvszi5QQGyqg1lWYbU4VmlnazoXs7IqmNutF
-	SuA2wXKzn988kKfaEx7cBDYWQ5wFao/j7LiqeiWrjW/Fohh3sPjy0VgmqTguSYtR2ZE=
-X-Gm-Gg: Acq92OGVCCLvjAW5DyRbbDQM8tdIT7JJ+z00PXWoLJXV6VKHbLxLE0pPGa6yafjRi06
-	NdDi2EWM57s5WlXdWgWAhIRH+TVBr9IOuplK6XiWTSdOnhb2ed69b89Gzh5vvg3ktieS539Dx6n
-	LiDa12GWLXJYY3gOL1nRPzHvY12FLT/rEfB9QfpuDFbZd6+9oXMcANXLXp8Eh2Ric3uDYkwWnOm
-	tSC/P90Vxlj+QrsLvycDyxcD5Snn759vKrug+C/37g58BhIYJOqcRis4J6FxpGXWUoYS+bkU264
-	Pg9x+mbK1OyOSM/+Xn/W1RmZ1rI5ldjEGrjDfBxcHHxbM3MmSGmA1dlnGJo7G6gWu2tFDCKuuYg
-	Pt5nCjwjEQ3Boeq38dUzxfup15380sgstXtY2t42CUW3cJse4EgtI8djJTwQq43HoESwExcLUim
-	pGKHLzNVuwPTqZfJPY9HayS4oE55yw8WDOEgdfWQA=
-X-Received: by 2002:a05:600c:a011:b0:490:58ef:cea7 with SMTP id 5b1f17b1804b1-490c25ee058mr396519625e9.22.1781081320765;
-        Wed, 10 Jun 2026 01:48:40 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:559d:eec2:887f:c200])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4601f2dcde3sm71663674f8f.1.2026.06.10.01.48.39
+        d=1e100.net; s=20251104; t=1781097000; x=1781701800;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=SIXVelfC5mVARpl9SDW2zpJ3q4ENvqgn2l0kXpwThRc=;
+        b=di63NPHquDQvdafTynlWHRmJWnXh8l/5Ih+gn7shF5ygMhm3gl7RF43ZnGZHKvRR+N
+         2qmAH7ejoFq+GINn5Iim5/W7IiDPIy6BQMpndauM6Yv/o9MoB9w5WzFPShb5c3OOU0ZO
+         vmUzcpqCej1b+nw5sOVGcJD5YTaxplfuZu9TLfHryo4ltOl72oFrHFvoqwH9cfZTTUDA
+         o45EZnE1wtVfC8ue2qcba/DHCxNi2YU5ZhFjDAi++Gl8QbYQH/VillxKzdf1DGT4uWL0
+         cZ7mCNKo6IW0XmEjgDYVa22xd0whBpboHO/1dl/VRJxflR9JXX9tdljqzqB0WhfsyDUn
+         U06w==
+X-Forwarded-Encrypted: i=1; AFNElJ9huYvh7b5PwhU4r08Kp3iofoKhmpH1BCsm3QRDHx1CRmQvihO4JhC5ujPn2gBLVpw4zXiMgw58fAHcdKjOhg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyrrTcQXSTFNaGa6eiUXFNDWAzLOuqXyvjThigyYhBFkuRxhU9y
+	OQ4l2Y5OtndxgEZvNcHIFssnbVAhMe4FnNwxe3uhs3Ykeys61ydwsax0
+X-Gm-Gg: Acq92OGANu8bpqc7h+iRGf97oXuDK7r3sY4D4MD1o3HQKVLEoCaSzWyl3BDdLw/pedq
+	D1Ax1V5BoGxTXfOgVFcc7Jll2CH24574rYxkVRVPbr+uvRqCRaepsqH9Dr/7wn+IKn3eyDk/Ce3
+	wZbvkmfaF8G+DU8bVbx1IHT3/QSaq3jXRjOocOjyLnOB/yYK3hGtABfIgV1fkGF6eW/cnUSS4hl
+	iYMB3dSzCUYcokoks/VhAzV5AXeq+B6ln2t1JUddrXzjY4ZL9FdHNQjh4nunboRP9WbHBlQE8MB
+	NV/2KcRI1vNCaes1mbCxORtVPieQaAnlSckpRbpewftET6f5hkBjG9cOIzNCRNtOXVKsb1eqR/j
+	tMdlPPQDuukreZVgmQeBJAl+X4yZrxjSXBJWTaTP1pJ4jBwyL13takVWN1TsAg5lS2mggESp7bA
+	6jZklbNT9WZ7VvrV7xJwjuSaK8UTaCmT52EvGBZlahpX5ac0s=
+X-Received: by 2002:a17:903:f8b:b0:2c1:4d9:c8db with SMTP id d9443c01a7336-2c1e836dfe1mr300951235ad.37.1781097000138;
+        Wed, 10 Jun 2026 06:10:00 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c245dd3b5dsm120735665ad.81.2026.06.10.06.09.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 01:48:39 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Zwane Mwaikambo <zwanem@gmail.com>,
+        Wed, 10 Jun 2026 06:09:59 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Wed, 10 Jun 2026 06:09:58 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Zwane Mwaikambo <zwanem@gmail.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1] watchdog: sc1200: Drop unused assignment of pnp_device_id driver data
-Date: Wed, 10 Jun 2026 10:48:22 +0200
-Message-ID:  <0793f81a854f9e5880ad38f54c8583b3d56e5d60.1781081216.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] watchdog: sc1200: Drop unused assignment of
+ pnp_device_id driver data
+Message-ID: <8110dd6a-f9e9-46dd-899b-f2e038e186ac@roeck-us.net>
+References: <0793f81a854f9e5880ad38f54c8583b3d56e5d60.1781081216.git.u.kleine-koenig@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1714; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=jg1WA8Rwg2N/nFZSGUgY3r0q9rqAQQ9t3QBUEappQCg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqKSTXE7KKY+D9/3eUsJo3lLV+/NLg7Y8sfCStV P3EGlTJBnSJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCaikk1wAKCRCPgPtYfRL+ TvHuB/9wht2iW03mT7+wruIuNVphBieHf7Q2nHdIvpAYjhAVntaofDsozPCXkjlL9Pq9YWGyxL1 qgsceydBjghrN/N3B/xp8BT+h0ChBeVBmE0TQ3s1dTFkpe/wkQbRugDYYt0FnUA1cfrV2gVlPfN Mj7td8zm7IclevKonCpJHPsJqd9QyBTy99Z9xLkho1rqV8xqw0ujb+yVRjFJr4X5ofEXScc0k6d tvuatJS/9e8dJIhLeAXKrRgTut7OmmGHPie2GkdAkBK20EO2uekBryeDK2teGsz9e4KcMetpKrB nYlseTB5Krh8iJGSmjjyAvVvBOiSwCiw3iw6SAKfP0x7OVBx
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <0793f81a854f9e5880ad38f54c8583b3d56e5d60.1781081216.git.u.kleine-koenig@baylibre.com>
 
-The driver explicitly sets the .driver_data member of struct
-pnp_device_id to zero without relying on that value. Drop this unused
-assignments.
+On Wed, Jun 10, 2026 at 10:48:22AM +0200, Uwe Kleine-König (The Capable Hub) wrote:
+> The driver explicitly sets the .driver_data member of struct
+> pnp_device_id to zero without relying on that value. Drop this unused
+> assignments.
+> 
+> While touching this array simplify the list terminator.
+> 
+> This patch doesn't modify the compiled array, only its representation in
+> source form benefits. The former was confirmed with builds on x86 and
+> arm64.
+> 
+> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
 
-While touching this array simplify the list terminator.
+Applied.
 
-This patch doesn't modify the compiled array, only its representation in
-source form benefits. The former was confirmed with builds on x86 and
-arm64.
-
-Signed-off-by: Uwe Kleine-KÃ¶nig (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
-Hello,
-
-I intend to change struct pnp_device_id and for that it's required that
-.driver_data is not assigned using a list initializer. Instead of
-converting it to a named initializer, drop the assignment as the value
-is unused. So this is both a cleanup and a preparation for a later patch
-series.
-
-See
-https://lore.kernel.org/all/cover.1779878004.git.u.kleine-koenig@baylibre.com/
-for a more verbose description on the mentioned change to struct
-pnp_device_id (though this is about platform_device_id, but the idea
-here is the same).
-
-Best regards
-Uwe
-
- drivers/watchdog/sc1200wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
-index 76a58715f665..1d3300c98d43 100644
---- a/drivers/watchdog/sc1200wdt.c
-+++ b/drivers/watchdog/sc1200wdt.c
-@@ -339,8 +339,8 @@ static int __init sc1200wdt_probe(void)
- 
- static const struct pnp_device_id scl200wdt_pnp_devices[] = {
- 	/* National Semiconductor PC87307/PC97307 watchdog component */
--	{.id = "NSC0800", .driver_data = 0},
--	{.id = ""},
-+	{ .id = "NSC0800" },
-+	{ }
- };
- 
- static int scl200wdt_pnp_probe(struct pnp_dev *dev,
-
-base-commit: 49e02880ec0a8c378e811bc9d85da188d7c6204c
--- 
-2.47.3
-
+Thanks,
+Guenter
