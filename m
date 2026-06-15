@@ -1,159 +1,166 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011031.outbound.protection.outlook.com [52.101.70.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63C743D3482
-	for <linux-watchdog@vger.kernel.org>; Fri, 12 Jun 2026 12:44:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781268293; cv=none; b=PmevFn5+aWJuRFZHohz5apc9Nnwhn+WV66rt32bVPqQnva3zsNsMan1Dq/HtQRQa2RxU/hZdXnuHtZeah0tXl+fSIU4e4NTVgu1pbMvbaVAc6nkEhDkTP8SV4h5WgRAOx1i2vQIvG9gWe0GHmsQMZiH3R+AI7U/oyKPMgxGDsnI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781268293; c=relaxed/simple;
-	bh=FYt0/fSakT70dB77x/fy15QuYYHwhTLaY2kIcK9G8yc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jUf5h+8vfRKXgd7Hon+YbfU1lPys2AqVEhTfekaQf/RgrIr6etADUr8rElDYHqOi0AUb54xafl/0ynB1ZeiEyg7JU7lQarMaqjc/WvXUAxWqBjXkaMNw4RkAN0oiVUQSoob5snZHD6gnPbayJdfplns4Z/fkc8J/jjE6Lk2A4kM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bnEaLvmv; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D633AB285;
+	Mon, 15 Jun 2026 06:14:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.31
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781504077; cv=fail; b=cakXc9JIb7ccaQftFcHTcAsF0vjqtxW1gK2VM1PcA2HOzb/fjypI/yTdDNozc9oiDjGxgO0Yuy0/92j8EHNwVYY7DxrUMsMRDQJwWppCGlgchfpIVolIy6Xyyc8VU1NkXpPinhwt/nkQ8dFdLyl58vtI0RZCmQac/2FLhw+3pI4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781504077; c=relaxed/simple;
+	bh=w9iBp9XVCTEZk9VMiK+jRO/nxhIPYG0l6+l/JMSVZb0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=hjT91CIfKhUyftD0TGDbAk29IcPinuC/iKKK2DoYtN0pDvvdjI8LYwiEF8DmdmlMmpTtIZEvqRlDzMfBLBoMfsnNXSJs69vrLoNkz1nkwh88Y5fUf9LD42AQw1UZig2eIMjV7LX35i/oDX1sP7d2b/bWFCS5y+jJVAasZqAMCUc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=IABYLq1d; arc=fail smtp.client-ip=52.101.70.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bnEaLvmv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 000B91F000E9;
-	Fri, 12 Jun 2026 12:44:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781268292;
-	bh=hD/aCuT8O53qC717tjs4lZgAjUyPl6hllc7+zkaPtgs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bnEaLvmvAaQ/ll6OELi1na7fS0WULfaQ1TrVlD8BJ8djIxnWGqEiOX7VX7038kzvl
-	 6pOlQlw1NgmNfwh0CN089NbC4TIG2QtclAWDpdwgD6DY4RB3iBymjRbzSY/SU00D25
-	 deKMK0edMB1zOXDb2KH6P6/64y+HvwkGqpiy77LVeeY8DIxNN1Z2VEuM2OKN3M/bzY
-	 5aB+xl4O+TVJFJfWLxEOXAnbv54xFZ/Va/WdEyYggpvGSB9ABYcDU78wPVqVNsI2oQ
-	 6IKjDxstZgYnEGOmc+RJ+9f2tGYPL3IRJtc5lqvX8t6chISIG52AEGAAANUlpXC72B
-	 I7aCFmHJmH+Jg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: stm32_iwdg: Base pretimeout on timeout when
- not specified
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Benjamin Frost" <benjamin@geanix.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260612123203.1331849-1-benjamin@geanix.com>
-References: <20260612123203.1331849-1-benjamin@geanix.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="IABYLq1d"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=MvqTKeAge8SVl5ru0SvRFiNHDUFskyodmRxcaDXHP+OE+5gNUNjXA2RtQGy/nf/c1Ry4LcIJI07slWxFoJz/6z46YuecGFkxoBEVp4MgjlRDWv2g3M7E4kgrucXEpjHmVseo3Bzs3AFD5I+07JEBwSHElt0AOUBev8XsFlS/jcOqKo0jm3y4lKiIkXkxr7a24SPUXRAqRWwi2m/UnZBAetkn149eQdjb9q6dmAqbET3OqQa7x4txNB6TJuuuQOENaztyw6BLdGfsuPzq1eDUxq8quf8Lxh5jqJfA+r8yuCb1mR3PqbGz4gIfD74BL9Gb1UE2yGGTFycGr5cvq3D4vw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=w9iBp9XVCTEZk9VMiK+jRO/nxhIPYG0l6+l/JMSVZb0=;
+ b=t4JYz5r1KDXEhW9XMk3Z2bOxyS1zn1D1ut1TAjiy+yfJP9WSHf+F9KHyLjFlmiPRdP7OzVDDTzSdY9CkG6CHIw2P3bhapu2KPI2tcLYz0zha01dDerTqy8SnwLJ4d0sYwYH2i84eW1GxeP+TmxkYsxn0WewzveblSdEf6o2VoU8YizPtP2dQHjk3slJEO08AY0H7/93D++Xw6PtJVPzjSigHtlYcJjWLbQkTj1XJr5sWwLh+99Jhfgnl8LWEWbZUPtzENWAYAF6zv8PPYeMvyCRLFQoVKb0T4ydxr/+laNbclpKOVMd0Lg9E0NloEo/drIXDz0yld67aqTjB2m8gQg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=w9iBp9XVCTEZk9VMiK+jRO/nxhIPYG0l6+l/JMSVZb0=;
+ b=IABYLq1dGt9/L11wD6jgGQ29ihTF4XJdf7VXxK2FKaFGyZpK8QGCuEYMi1+VjwpvOP+FWn4x8SYfWF8sBEturOVLRYhG+2zg59rjv3iGzJ4f/mqvP0WElmRdvuLGRWAIt7JaQPSur/S5tEEGWkr4jmR/v6/XgNsAPEiGMiokQKZOmh7OtnsNt77+3Vpoj2R6eEOGTBYBra5pH0ZyVMLvB86cOa9I8Y3mxGX0ElFpjQ/+N4CKg8N1sE+JeP5I9fyF0TRLPIoIHBRfkE6FDUZqs/Lh4+QtE6+bQL0TrRHfQfZ4AZFHXyybeZax43jdNW7KJmqOuEmMch9OLhS9NAoyTg==
+Received: from AS4PR04MB9362.eurprd04.prod.outlook.com (2603:10a6:20b:4e7::9)
+ by PA4PR04MB9413.eurprd04.prod.outlook.com (2603:10a6:102:2a8::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.18; Mon, 15 Jun
+ 2026 06:14:32 +0000
+Received: from AS4PR04MB9362.eurprd04.prod.outlook.com
+ ([fe80::abe7:4a6e:a51:baf0]) by AS4PR04MB9362.eurprd04.prod.outlook.com
+ ([fe80::abe7:4a6e:a51:baf0%6]) with mapi id 15.21.0113.015; Mon, 15 Jun 2026
+ 06:14:31 +0000
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+	"linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"robh@kernel.org" <robh@kernel.org>, "krzk+dt@kernel.org"
+	<krzk+dt@kernel.org>, "conor+dt@kernel.org" <conor+dt@kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net"
+	<linux@roeck-us.net>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>
+CC: Vikash Bansal <vikash.bansal@nxp.com>, Priyanka Jain
+	<priyanka.jain@nxp.com>
+Subject: RE: [PATCH v4 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode
+ config
+Thread-Topic: [PATCH v4 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp
+ mode config
+Thread-Index: AQHcWuAAR8BPN5MBkUWbSOAo/I/sE7XucZvAgFH02JA=
+Date: Mon, 15 Jun 2026 06:14:31 +0000
+Message-ID:
+ <AS4PR04MB9362F3E93C1133986D30B0D3FBE62@AS4PR04MB9362.eurprd04.prod.outlook.com>
+References: <20251121121137.3043764-1-lakshay.piplani@nxp.com>
+ <AS4PR04MB93628F4BEFE9293FC6E457C6FB2B2@AS4PR04MB9362.eurprd04.prod.outlook.com>
+In-Reply-To:
+ <AS4PR04MB93628F4BEFE9293FC6E457C6FB2B2@AS4PR04MB9362.eurprd04.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS4PR04MB9362:EE_|PA4PR04MB9413:EE_
+x-ms-office365-filtering-correlation-id: 6d57734f-03d9-4c7f-d8e3-08decaa55d2a
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|23010399003|7416014|19092799006|376014|4143699003|921020|18002099003|56012099006|11063799006|38070700021|22082099003;
+x-microsoft-antispam-message-info:
+ +8Sf7OWS4XHF2yrxpAs5gDP9JzxKHTgv3ntd+ZsR7i89ux7sR/YKgIGVTL2jAI7Ydjp69bUTvvYUm4yTWXEyAXs01ZOZpZTL0xc8PfS5jlBnZzljSkks131y9Ki2uG1nt/7XPyuAm0CUYRjatfw6uxWS0o6FBlLlP5/etLJOEtd7KCYDQyrK3n4y996L54Ka/sGZWpcRq9WIZ7PWE0bAD0vKn+a8pidDwb5+LLHBvzYVc2lDUp75w/mYQSuIpdwv96fpVLJrm6FTZeBPeZmwC2xFaH6BRBP38OT02TVeapJDW2axCZpmPGUdo2reN3vNqCDGqyEGqpENZslYm6bWTnJXDJVcbF4E3iAXD806jTixOVV5xx7q5ijCJqQZrWKI44bVkq7H889z0dy2i0OLONcwFm3O0RsvsVScKf6kNcVDmMuP/fjj3KQeVLXDT7acaHzOKeHcLKYQOHDAGPBLEC5ioL9t5hCBqWP35IQz4yC3bSQ4L/b/qTX6jHYtKwOlZArQtphU1OKEqmxxb30ZgzSj2R1Qb1JzRUTbP/ZS0qurUbD+rtBA4wsE14hh3hER642d4XpzZsTT17icB9Qcx7fKkHi2/JrjzeWpSAkRKmbOR52XBIJsoS2EQxgiRnpF7VLEIlhfeoro5i6A7kg+yFngmjhdgYu5DkPuB4496HlfwcqNqFm04dIQSuLdsqiJPENFDlGln8J0jPo7WdxI7aym8sR2brciV9eDXgOD1kBLQFvuSwpO74wzwGfNQX3rOSJjEw9wRbGkAs8CPRgpYA==
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS4PR04MB9362.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(7416014)(19092799006)(376014)(4143699003)(921020)(18002099003)(56012099006)(11063799006)(38070700021)(22082099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?cRAl8j8vCecUPpbIoSBSVrKOKnUdJNUr1ynhsq7p75nzftYRiRqzq+y2WSN3?=
+ =?us-ascii?Q?CU61v5vKU4/SFuoS2Mtb70Xo81I8617srahiy74Vci+2uXzPEf6GwFcVV0s5?=
+ =?us-ascii?Q?ARJ+HYE4H/rESMgqAR0fwOyW+Vcg6JN4nfGLMuHbLsB0/3KXqu3BXMTFhiyi?=
+ =?us-ascii?Q?gRUZG32QC2nAos6UgWKoh4oKe2PSlFCMqtS17U9/BojmAmcohz4Eb0DZsFJy?=
+ =?us-ascii?Q?5o5RuRTuKfvsAaDhUjehGBHH2U9wGGgdRBTyR7wOxeZ0fbm6CieTerlWn3iY?=
+ =?us-ascii?Q?5Jq346q70xA4YC8rCs5cZQK2XwWlPH4BIBKMrv8g7a9E8+qQ9Pudk/zjrzjG?=
+ =?us-ascii?Q?hdIc0tVBcxDRPj7YKukFm6DCVRvSBnNMmFeaZtEfshaLLKeKD8IvXQ9ad9Mg?=
+ =?us-ascii?Q?X5lOgtqXHgc5E8jjqUny2mzWPoikh+7h/GsCn/PDNhpKTk+S/o2jFn6Mios7?=
+ =?us-ascii?Q?dhpY5tJG9Xwhy5Rid8TaZfL7ZhLoLDuY9FU0oyn1wNE8qKBCoyWks0ZBVfUe?=
+ =?us-ascii?Q?n6rY/zt66Mlz58xJ5aEa/FAmkD0fmCEXNbVxdWiI35iLGynrAfVvLg0HXcA+?=
+ =?us-ascii?Q?bE48HUoc1uDKOyskVEaa623dKvtnlcNyqN1zjBChIbT/Il+c7m/Bzi9u36vF?=
+ =?us-ascii?Q?AIdMXTvfZLSHceSXCjuHHj3O5240qT0Q4/jxWJWllAyml9dSPICNsQGOGIEu?=
+ =?us-ascii?Q?HTFmmP8Jt3Ip1Iyw5k5USLuT85I+JHrZLGv+L0VAUGfxSFe5jbxhKjAfHgun?=
+ =?us-ascii?Q?XE+pxqw5FFhSE82RTXTzGJnS+DN0ff2RWY82Gt0KjyK2ExcVsjXbfNfmfMdR?=
+ =?us-ascii?Q?Rzg9XVFT7mHO1BBj+hZTE5d9/kB//lxsflxL6AGtcarRJrUSWV7IrUwK4WBu?=
+ =?us-ascii?Q?UwFoMjFmcslKMu71tTGPO+3ZGujn83xKnDcsAam4fL58I13AGkyf+/bvGisX?=
+ =?us-ascii?Q?enxEMDr0yOHw+P1VwFvUMnW6mbeHT+AkjylvrMyl/CXxqWhmWgY7qfaaL8oT?=
+ =?us-ascii?Q?syrhB2k3n1r8SVj66AEv9tbIfCQkU3JJmHSSbcGHvbXEOs21qVHeqd4nbsiX?=
+ =?us-ascii?Q?jZOLb6e4++oPhbtvgAzAujpRODevysBfokWJIPrbghBkV5436ijFLkywX60O?=
+ =?us-ascii?Q?rKljDsd0ieBJ9AT6G+SIiHrlXEflR2rmB6q3feYXllEwHTi4IGr5PsBxwFTK?=
+ =?us-ascii?Q?GQMRLK0bPQiaMdNEw76pg8lQOtE5GY36OgazHrl+gYt+8IhsYo99CK+MdrSZ?=
+ =?us-ascii?Q?a99rvIHG4xBCM0tRolKQy5rfxMTegHmrrZXS5Eia7dpbbNzBmiERHiXqMnm0?=
+ =?us-ascii?Q?shB1FCrHN+TmsMc8JzAT214wN2UsTg6JZiRdeMUESVqBcky59COINoIbAIDA?=
+ =?us-ascii?Q?VU/uuiQ+1oKQWG7Agdk9rfPkgtaHuTP9SnA2bKSPdmPRETFTPBJQp4m4KPRl?=
+ =?us-ascii?Q?Qb/xddOX1rveXP5HrF4dT0P3O2l00wZm5NRTHJk72Sb2xAKM/GMVYWJOZ5yA?=
+ =?us-ascii?Q?hV5+2afFGQaGYgtm+3zBV7KVBr4eJSNEJAxz1f5/BDL+DjSkli+goTxgvbDG?=
+ =?us-ascii?Q?Dvq84GUEbYRnLbAvQy4ZdSCR61K8FaLdN6/wtAQuXCxt6LPmwU9G+Onu/YQF?=
+ =?us-ascii?Q?R4awl/pyQ9F6KpbQ62Js+mLPfdi7j/EBEPRjjzohjVh1KJk5pl2DSRq+hdca?=
+ =?us-ascii?Q?1zOTOMPpCSyxgepvou2Gjijfw54Fw2U5l0l/TRY0rorPJHNU9lCu/lj7uMKi?=
+ =?us-ascii?Q?Y7KY/Rex5w=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 12 Jun 2026 12:44:51 +0000
-Message-Id: <20260612124452.000B91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS4PR04MB9362.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6d57734f-03d9-4c7f-d8e3-08decaa55d2a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Jun 2026 06:14:31.4180
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ibZM1/9TSeOReuGmAU5HxzrEyMFY+f1IT6PUDT2nxT3esK9IgyW1GxytqPju5pQORZnZfLEVv38rTjZLKZjbIg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB9413
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+>=20
+> Hi,
+>=20
+> This is a gentle follow up on the patch series I submitted in November
+> (regarding the v4 of PCF85363 RTC driver). I haven't seen any review feed=
+back
+> Yet. So, I wanted to check whether you might have had a chance to look at=
+ the
+> series.
+>=20
+> Please let me know if there is anything further is needed from my side.
+>=20
+> Thanks,
+> Lakshay Piplani
 
-New issues:
-- [Medium] Userspace cannot disable the pretimeout feature, and the patch i=
-ntroduces a state inconsistency where the API reports the pretimeout as dis=
-abled (0) while the hardware interrupt remains active.
+Hi,
 
-Pre-existing issues:
-- [High] The driver fails to validate and clear an explicitly configured `p=
-retimeout` when a new, shorter `timeout` is set, causing an arithmetic unde=
-rflow and continuous interrupts.
-- [High] The pretimeout calculation mathematically underflows when the soft=
-ware `timeout` exceeds the hardware's maximum supported limit, resulting in=
- an immediate interrupt storm.
-- [High] The driver fundamentally inverts the logic of the `pretimeout` UAP=
-I, treating it as elapsed time instead of remaining time.
---
+I hope you're doing well.
 
-commit 53fd4e70debe020df0adba54327baa8bf331b885
-Author: Benjamin Frost <benjamin@geanix.com>
+This is a gentle follow-up regarding the v4 patch series for the PCF85363 R=
+TC driver that I submitted in November 2025.=20
+I understand things can get busy, but I haven't seen any feedback on the se=
+ries yet, so I wanted to check if you've had a chance to review it.
 
-watchdog: stm32_iwdg: Base pretimeout on timeout when not specified
+I'd be happy to make any updates if needed. Please let me know if there's a=
+nything required from my side to move this forward.
 
-This commit introduces a local pretimeout variable to hold the effective
-pretimeout value. This prevents the driver from modifying the configured
-pretimeout, ensuring it is recalculated when the timeout changes.
+Thanks in advance for your time and feedback.
 
-> diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
-> index b356a272ff9a0..a38e204129ff4 100644
-> --- a/drivers/watchdog/stm32_iwdg.c
-> +++ b/drivers/watchdog/stm32_iwdg.c
-[ ... ]
-> @@ -97,17 +97,19 @@ static int stm32_iwdg_start(struct watchdog_device *w=
-dd)
->  {
->  	struct stm32_iwdg *wdt =3D watchdog_get_drvdata(wdd);
-> -	u32 tout, ptot, presc, iwdg_rlr, iwdg_ewcr, iwdg_pr, iwdg_sr;
-> +	u32 tout, ptot, presc, iwdg_rlr, iwdg_ewcr, iwdg_pr, iwdg_sr, pretimeou=
-t;
->  	int ret;
-> =20
->  	dev_dbg(wdd->parent, "%s\n", __func__);
-> =20
-> -	if (!wdd->pretimeout)
-> -		wdd->pretimeout =3D 3 * wdd->timeout / 4;
-> +	if (wdd->pretimeout)
-> +		pretimeout =3D wdd->pretimeout;
-> +	else
-> +		pretimeout =3D 3 * wdd->timeout / 4;
+Best regards,
+Lakshay Piplani
 
-[Severity: Medium]
-If userspace disables the pretimeout by setting it to 0, doesn't this logic
-force a fallback to 3/4 of the timeout using the local variable?
-
-Because the hardware Early Wakeup Interrupt is unconditionally enabled
-further down in this function:
-
-	if (wdt->data->has_early_wakeup)
-		reg_write(wdt->regs, IWDG_EWCR, iwdg_ewcr | EWCR_EWIE);
-
-and wdd->pretimeout remains 0, the API will falsely report the pretimeout as
-disabled while the hardware continuously generates interrupts.
-
-[Severity: High]
-This is a pre-existing issue, but stm32_iwdg_set_timeout() lacks logic to c=
-ap
-or clear wdd->pretimeout when a new, shorter timeout is set.
-
-If a user explicitly sets a pretimeout of 10s and later reduces the timeout=
- to
-5s, wdd->pretimeout remains 10s, which then leads to an underflow during the
-subtraction below.
-
->  	tout =3D clamp_t(unsigned int, wdd->timeout,
->  		       wdd->min_timeout, wdd->max_hw_heartbeat_ms / 1000);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this clamping logic bre=
-ak
-when using long software-emulated timeouts?
-
-If wdd->timeout is larger than the hardware limit, tout is clamped down
-(e.g., to ~32s). However, pretimeout is derived from the unclamped software
-wdd->timeout (e.g., for a 100s timeout, fallback pretimeout is 75s).
-
-When the code calculates tout - pretimeout below, 32 - 75 will underflow,
-causing ptot to be clamped to tout. The early wakeup register then equals
-the reload register, causing the interrupt to fire instantly on every
-worker ping.
-
-> -	ptot =3D clamp_t(unsigned int, tout - wdd->pretimeout,
-> +	ptot =3D clamp_t(unsigned int, tout - pretimeout,
->  		       wdd->min_timeout, tout);
-
-[Severity: High]
-This is a pre-existing issue, but does this calculation reverse the
-watchdog UAPI semantics?
-
-The UAPI defines pretimeout as the remaining time before the reset triggers.
-The hardware uses a down-counter that triggers when it reaches IWDG_EWCR,
-which means IWDG_EWCR should represent the remaining time.
-
-By calculating ptot =3D tout - pretimeout, a 10s pretimeout on a 60s timeout
-programs the register to 50s. The hardware starts at 60s and triggers at 50=
-s,
-meaning the interrupt fires after only 10 seconds of elapsed time (50 secon=
-ds
-too early).
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260612123203.1331=
-849-1-benjamin@geanix.com?part=3D1
