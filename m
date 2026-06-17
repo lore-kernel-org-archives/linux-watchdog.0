@@ -1,94 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852CA2F9D85;
-	Wed, 17 Jun 2026 02:21:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CD052DA768;
+	Wed, 17 Jun 2026 02:29:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781662872; cv=none; b=ItE3loeHx0lCLpMABadYbyv/rT+b1c6BlhmwZcthcH1YyyUGoj85p5x2+Ucn1fEmoW6XNo3Qy5/WYuA7NXGazGMSD0Apvu6I1TD/hJfAlnLMTH1k9Z5hgfWiE0L2+oV6XUHyikL28ROpuqacqaipQtFIrz8QchZJwFyLpa11YkA=
+	t=1781663345; cv=none; b=PGxqYoXxIfZnwLYzT1EnIao4ZAHP0+0t2z4ywd1zbu3AavnWqOV3TCMfll5oVaToUJEqx347McyPXxt0iqZXwDENvdF+aBVbY5IbhainhtoeqS0HSI6+Xk64KSZkiWkydcWnhaltSDgRBDJ6tOI/DpI8xlS7VOca3/X241xesIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781662872; c=relaxed/simple;
-	bh=TYv4I/0EdUguA4dQzRGYgV0SyQbG+2UcMGEinY6mWVQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FPVxzOkXfy36iUDk82Nd1keF7LC8C83szI4T2EThA9TezB8O6MtZnZpRrJAawb9y2hCwAlufPpTmgxC94YmSnzl+JP7QkFZ04NQQh551wkl0NtbauVjVWCPq4uUYt4Dj3j1EFlILy46DFEESJ1dyFoAoDKOtgcqzKe/5lPItFfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qRVKpiK6; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1781663345; c=relaxed/simple;
+	bh=6j5d5la2rwvTnZt+bwfIpGj/kiSujBFMbsqEV4KIOWY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=fwFATe4QCvdu7lmfBxcceVIqA8mWVsT/XMwnB9lkPiAlQTVy+leAQv4RtDkQ8nVPulRlY4E3pHb7RhlLjsGSCVwBmVHAd9aUa0/AGRK5hrqDW0MeRRmA9crtx43GaWTDVS7HQqXzfsoPTOtINAS+HvebJffxRpI8e97AzAF0T+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tl+IVbH5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qRVKpiK6"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3C4BDC4AF0F;
-	Wed, 17 Jun 2026 02:21:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781662872;
-	bh=TYv4I/0EdUguA4dQzRGYgV0SyQbG+2UcMGEinY6mWVQ=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=qRVKpiK6lvimqkwXV9x0qS6ZtuPoRJJNqQUGVRHDzVCLby+dNpKoJavoZPbNqF4lH
-	 wYLfX2mJbbUsc++wZXZfgLgCsc/F+Beee6TESc4XvlT/YsSXYSt3S9/5mwFDZLIBEJ
-	 k8d3KeeNt0YyFHQX0qORlYVjVx0446EuVGI6uac1i1B31ChsmU4zB4njHlO6kzx4Od
-	 P9Ery8RLqNXT3Wk89ePhjUJqoCBpx9BVskEAijVzo/tNF4fI/ha7220yocehjoM2fJ
-	 Rb3Lkv2MbHPJKJqN8y8vBtnGAAp1U2o6JnFGxR+opTjrWi7diS+6IAlNlWrJ62R4oF
-	 Xy2w1CHEXsRJQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34E92CD98F0;
-	Wed, 17 Jun 2026 02:21:12 +0000 (UTC)
-From: Zakariya Hadrami via B4 Relay <devnull+zkh1.proton.me@kernel.org>
-Date: Wed, 17 Jun 2026 11:20:14 +0900
-Subject: [PATCH 5/5] dt-bindings: watchdog: mediatek: Add MT8127
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tl+IVbH5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C441F000E9;
+	Wed, 17 Jun 2026 02:29:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781663343;
+	bh=F0YguWK77VkJ38kuqwWHYTYK9c6hgwggh2lStPEcovQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Tl+IVbH5q1S9TvFWW+KHjDFu8awgWOuvT7dTG4/7awWML5qL3a4h3zUtSnGObd27F
+	 mOunsKkLmxQokJSzx2w1qOqnJnqO/NaAOHnjrRSDZmgQ9aFKwr2XJKEDhBDSEYcp35
+	 5V2w8QX6bleMmXsK+3Rbziv9kTRgKyEag57+idjZRXYUQtuYPjE/4/Ma3XdpBu5xJL
+	 db9CIDkcjrt261GfK5zlTtz2XZOfH0J/JIGegCvX02ICUengd3CSoaG3/2px7iqSP/
+	 Yk71mMlwmkw1ljtSQP2GcLQ2Qt+fXJm6SNU7Wf1Q7o9roL6GIIp44+d+r4bmDSG2Sf
+	 T+R53hcUPXvdg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/5] dt-bindings: arm: mediatek: Add MT8127 Amazon ford
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zakariya Hadrami via B4 Relay" <devnull+zkh1.proton.me@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260617-mt8127-amazon-ford-basic-v1-4-d02ad15ac359@proton.me>
+References: <20260617-mt8127-amazon-ford-basic-v1-0-d02ad15ac359@proton.me>
+ <20260617-mt8127-amazon-ford-basic-v1-4-d02ad15ac359@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 17 Jun 2026 02:29:02 +0000
+Message-Id: <20260617022902.F2C441F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260617-mt8127-amazon-ford-basic-v1-5-d02ad15ac359@proton.me>
-References: <20260617-mt8127-amazon-ford-basic-v1-0-d02ad15ac359@proton.me>
-In-Reply-To: <20260617-mt8127-amazon-ford-basic-v1-0-d02ad15ac359@proton.me>
-To: Matthias Brugger <matthias.bgg@gmail.com>, 
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Sean Wang <sean.wang@mediatek.com>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-watchdog@vger.kernel.org, Zakariya Hadrami <zkh1@proton.me>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781662870; l=885;
- i=zkh1@proton.me; s=20260616; h=from:subject:message-id;
- bh=EYpC4LZ5dsncfmZVo1Qa3+LOjpZlxDCulVGvphKLKMQ=;
- b=a/R2TapQVdN1Ryp32CARs1QbBbPlH+I0Wa0q7pOdQP5E4LNloIpf6D7WIqIg15p4aptuMMK16
- IRnMJYOAxcABQiTxiWVbnGl4mqyviY2Thqw6BjpmAtWwzy+IvTLLFTt
-X-Developer-Key: i=zkh1@proton.me; a=ed25519;
- pk=9DiJwhINAERP95fbFofXSP77GEnvfO/rMIRRRFDhaoc=
-X-Endpoint-Received: by B4 Relay for zkh1@proton.me/20260616 with
- auth_id=824
-X-Original-From: Zakariya Hadrami <zkh1@proton.me>
-Reply-To: zkh1@proton.me
 
-From: Zakariya Hadrami <zkh1@proton.me>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The device tree compatible block for `amazon,ford` is incorrectly s=
+orted. The file specifies that entries should be sorted by SoC compatible a=
+nd then alphabetically by board compatible. Because `amazon,ford` and `medi=
+atek,mt8127-moose` share the same SoC compatible (`mediatek,mt8127`), `amaz=
+on,ford` should be placed before `mediatek,mt8127-moose`.
+--
 
-Add entry for MT8127 SoC's watchdog which is compatible with MT6589's
-one.
+commit 5d4dd6329b44b144dcfbe78c4a1cf82524b51ef6
+Author: Zakariya Hadrami <zkh1@proton.me>
 
-Signed-off-by: Zakariya Hadrami <zkh1@proton.me>
----
- Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
- 1 file changed, 1 insertion(+)
+dt-bindings: arm: mediatek: Add MT8127 Amazon ford
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-index 953629cb9558..e6e4546da0aa 100644
---- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-@@ -40,6 +40,7 @@ properties:
-               - mediatek,mt7622-wdt
-               - mediatek,mt7623-wdt
-               - mediatek,mt7629-wdt
-+              - mediatek,mt8127-wdt
-               - mediatek,mt8173-wdt
-               - mediatek,mt8188-wdt
-               - mediatek,mt8189-wdt
+This commit adds the device tree binding for the Amazon ford tablet based
+on the MediaTek MT8127 SoC.
 
--- 
-2.54.0
+> diff --git a/Documentation/devicetree/bindings/arm/mediatek.yaml b/Docume=
+ntation/devicetree/bindings/arm/mediatek.yaml
+> index 382d0eb4d0af6..5ddc79689df91 100644
+> --- a/Documentation/devicetree/bindings/arm/mediatek.yaml
+> +++ b/Documentation/devicetree/bindings/arm/mediatek.yaml
+> @@ -124,6 +124,10 @@ properties:
+>            - enum:
+>                - mediatek,mt8127-moose
+>            - const: mediatek,mt8127
+> +      - items:
+> +          - enum:
+> +              - amazon,ford
+> +          - const: mediatek,mt8127
 
+[Severity: Low]
+This isn't a bug, but should the amazon,ford board compatible block be
+inserted alphabetically before mediatek,mt8127-moose? Since both share the
+mediatek,mt8127 SoC compatible, sorting alphabetically by the board
+compatible would usually place amazon,ford first.
 
+>        - items:
+>            - enum:
+>                - mediatek,mt8135-evbp1
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260617-mt8127-ama=
+zon-ford-basic-v1-0-d02ad15ac359@proton.me?part=3D4
