@@ -1,168 +1,1397 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E46543793A9
-	for <linux-watchdog@vger.kernel.org>; Wed, 17 Jun 2026 19:46:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A5A233958;
+	Fri, 19 Jun 2026 20:27:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781725567; cv=none; b=qujBlgJY2xAQT2gv4q7bH9GCQMviFdKnSrRTZKiLOIOA/cE5H2oj10Mjq63XNgi4bcET/lREpfqq4wDECCL9QY9mpqxEr03DTcdMLsO8WQXaaLZMmwhupmvYLHHKFFQOnyseUd2PZH5VO9+D402Xj30tBWmS8AFf7h1q8a5CYNc=
+	t=1781900841; cv=none; b=qOYkhHxc3CwmCk9+KuaHiSsKgI6xttMU/Tl++aovXLUnuJgrwom9thwXaDL0VJvwiIN1JXDYgC+0yhv3VGJTrwoP/IavNeKT6DyieqT1Hlwd8eLrUF/77c6By6AHfpMQ58/PkbVUNgjm1D5yX34Qq7XPh1AZ42mQrGEhnot79tQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781725567; c=relaxed/simple;
-	bh=qTAaHajTqwY/XvqbDHGn0OIZob55KyKquLi7x0RMCGc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GzflUG0EfBWTVzHR+3MjVsw6OtOtbU3snOQ+VP9BwnzA3MP6oLBUt/2ebYYajIMiYLEwlbiRSWpChE/XrmGthlD8VIR+Mjym7ThD5BK1zcS7rkxM3Tg1w7E1cgbcC38EnmoaNhFrTj6p/3G91vBAk/KiOJI0kK3fxa+k/XZnh7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RVuA/Cex; arc=none smtp.client-ip=74.125.82.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781900841; c=relaxed/simple;
+	bh=w2q9QKveVMzN7DMSx3uHQBEunW6HUutZk2Kfg5xAapg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=KanbgiwkEfTWHPbhPHzp023VRvZpAw+xT4z74MS2u7smSNaihn2moBQ3V9nYyqLajqv6BtimZEPCDOYdEPtmrBvUTh/6ASQfg5EPpV1uHQMdLQ4UtjcXWdfgpGDGKdxe/GhPa8zugLLKvKCBXEE5KmFudKtryJKW3rtwZ136xxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ShB3NrZ9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RVuA/Cex"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-13807d2f898so209813c88.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 17 Jun 2026 12:46:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781725565; x=1782330365; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=jCIh60LRye+N284J4p7MbAH9a0i1PCeBDLVzI3j+pDY=;
-        b=RVuA/CexYtvKD4Vg1WC4Xz+P3M0Eh3+LQvGRhW4l3m4LOvvx6T/5RbNxwcQM7ZQSBC
-         xPnQjXy46ddMnPUEgNmxDuPgH0choK+ANLolmWStkuYpYJ4TR+7pFsuKJ0o2BNNq9vLb
-         vZz9AAIjhFi7e9g+tUwgVfdn7Idn0HOlDp4QkGxEiHr2AFZC9s8qR4GnKb8mZ0NIC5tZ
-         PT8sZ8y1O0dA0tN+rzp/X7TNf4V8tFTQEcILr7EozIqGqXBpRUz77l3HfsqmxKgShhKX
-         bvkTUXqjj8oucYHKkUotYqm7ckL8py6QLwbg/9EujRaUiMT4n4xbp7fFtp5CvMp3r84U
-         Gwfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781725565; x=1782330365;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jCIh60LRye+N284J4p7MbAH9a0i1PCeBDLVzI3j+pDY=;
-        b=Kbup7FxfhHFRFw2ICfnuOEOhxccxCY+XC2oEXvAbvPlhIeMNK8xF6l7PQM2b9h+UUn
-         XSAjUW+J5wZNm5IsLx/+YdvxgLNe7sJdcNROAEifJwJrCoYSc2CGPxRmmxNex0VyY0LM
-         Umvn+oVwzgxGwECi7iit9+Up0CY+UihiQi5OZbGzl11Bigf0VK1HZt3HyjBBAB/Gsgem
-         3MApXZmD59RSNQTW+aAfZpyXUlmTc7TZXtv4k0cXOFoJOxRCjnFU+07HBpAU69JTudSF
-         TFBVh8qZ00/D0aXBxzVJA9hQHLbT49gs0Fueymibbg9OPlg8ZPaS2L/QWEPsIltRp27s
-         6zZQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9xpQK5ajKOgaUcuyjk1JydTgE2SMo+J+/9BBVAj7kL7AkJWCycsE8Q6Hke6bfURr9LIKSs0xRgFg1P8RHp0g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyugWelRptAxf6/L5hz7tEuW1WqX9RZx+oT8kB4x14ZdRWkNEpt
-	V6l8/V5X4IGHIL5Rzk9521jTkAJKr/u9XPq0iEm6fZorgjmtBUFIhv9K
-X-Gm-Gg: Acq92OHtFFl+GaZsN2mbsov1BegLuE851sNGhC6e8eCd5FC9K27s0aY+Rg0Wt7kn6WS
-	mqkt71LMAl8EC+Uyd7UTlsHkW0Jjx1rv1Gb1qlA5wkhR3siY2uln8w78fgFK6WohY3s+WoRFkHU
-	Y2e8Vjpjv2wCXcy/yWAqbxJOj2YrHGkEuAnxiAm8q+0fmRDSYPac7nrBLMezlntVdFrkqWwxsDF
-	zda8aFnme1pdQxX2oE7O00G71M/zrAYP8k6ouAZMp0GbYGsqeA+t0NFCkZ4pIM3QRXmuB/TZN8h
-	HOQA1G3DCTplp2k6scoSEFCi1fkdQBUao7U+3t1Uw35yF8Tq79icfEiu+7g9jqIFhBtLoiBLcKO
-	avdKCJbAv4vGyaCzm0z6U+BUBV5ojRU9jaHELCtwMigfMOC0Lh2G/lXW4GWB/vnQAUDQalhQHrm
-	SiEIvulGf4yQPuuUB5Uek+gaGxG4WnMHDFoZTNElXyHioMQtilF1kTH39rEcPrzjfHPw7l23q0
-X-Received: by 2002:a05:7022:fc07:b0:137:ea00:3f49 with SMTP id a92af1059eb24-1398f6cb641mr2356917c88.35.1781725564958;
-        Wed, 17 Jun 2026 12:46:04 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3081eb8f8b2sm24167978eec.27.2026.06.17.12.46.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Jun 2026 12:46:04 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <13836c1e-8f38-4cd3-aa7f-da7c9caf15d5@roeck-us.net>
-Date: Wed, 17 Jun 2026 12:46:02 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ShB3NrZ9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC09A1F000E9;
+	Fri, 19 Jun 2026 20:27:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781900838;
+	bh=se5jM3qSiZpg4M2qczsE9J798Yg49lEa6KXFCcpQeTs=;
+	h=From:Date:Subject:To:Cc;
+	b=ShB3NrZ9Da7dLy8kLaxdusenE3OpYdG037KaVqUR8BzRvF9sUFqKvWNtZECBV2p9e
+	 g66GvmS4GmU0Ceum0rqjUUdH6qtQYf2+R4DHkhbth+jWNidLwu23/GSTqjYtMd6bEU
+	 Os7rKUfJHFH9Et01F09gar/nzFh642sj8gIWgbWZ1vivqlhB+cH9om8YFBDmSRHwnL
+	 3Qq0WYTWz7fYrH5N+dENQNu93bnaTjle1V2Z0LDpMrzR3hXDQTf/tGwFAwCf4qwnkr
+	 WasrPrk0Uiwd5N7x7uEbIV3tzEqgM8dckwZwP8AeKHXvhlZh7l0EE2Pzp3CVniUreR
+	 P495RcneKtUNA==
+From: Linus Walleij <linusw@kernel.org>
+Date: Fri, 19 Jun 2026 22:27:10 +0200
+Subject: [PATCH] mfd: db8500-prcmu: Fold dbx500 header into db8500
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/5] dt-bindings: watchdog: mediatek: Add MT8127
-To: zkh1@proton.me, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Sean Wang <sean.wang@mediatek.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org,
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-References: <20260617-mt8127-amazon-ford-basic-v2-0-6859e29e72a8@proton.me>
- <20260617-mt8127-amazon-ford-basic-v2-1-6859e29e72a8@proton.me>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260617-mt8127-amazon-ford-basic-v2-1-6859e29e72a8@proton.me>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260619-mfd-prcmu-merge-headers-v1-1-8ea0ee23b4d6@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqAIBAAvxJ7bkGlIvtKdDDdag+WrBRB9Pek4
+ zDMPJBJmDIM1QNCF2c+9gK6rsBvbl8JORQGo0ynOm0xLgGT+HhiJCl6IxdIMs6+b6xqtW3nBkq
+ dhBa+//M4ve8HG+1SOGkAAAA=
+X-Change-ID: 20260619-mfd-prcmu-merge-headers-bc84905195b4
+To: Russell King <linux@armlinux.org.uk>, Ulf Hansson <ulfh@kernel.org>, 
+ Michael Turquette <mturquette@baylibre.com>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ Christian Loehle <christian.loehle@arm.com>, Lee Jones <lee@kernel.org>, 
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+ Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Jaroslav Kysela <perex@perex.cz>, 
+ Takashi Iwai <tiwai@suse.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
+ linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ linux-sound@vger.kernel.org, kernel test robot <lkp@intel.com>, 
+ Linus Walleij <linusw@kernel.org>
+X-Mailer: b4 0.14.3
 
-On 6/17/26 06:36, Zakariya Hadrami via B4 Relay wrote:
-> From: Zakariya Hadrami <zkh1@proton.me>
-> 
-> Add entry for MT8127 SoC's watchdog which is compatible with MT6589's
-> one.
-> 
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Signed-off-by: Zakariya Hadrami <zkh1@proton.me>
+Move the DBx500 PRCMU definitions into the DB8500 PRCMU
+header and delete the wrapper header.
 
-I don't know if I am supposed to pick up this patch. I assume it will
-be picked up with the rest of the series, so
+Convert users of simple PRCMU wrappers to call the DB8500 helpers
+directly.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+The dbx500-prcmu.h header was the result of an earlier attempt to
+abstract several DBx5x SoC PRCMU units to use the same abstract
+header. They are deleted from the kernel and this is not just
+causing maintenance burden and build errors.
 
-for that.
+The stub code is using -ENOSYS in a way checkpatch complains about
+so replace these with -EINVAL while we're at it.
 
-Guenter
+Assisted-by: Codex:gpt-5-5
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202606180825.vUSQntkJ-lkp@intel.com/
+Signed-off-by: Linus Walleij <linusw@kernel.org>
+---
+ arch/arm/mach-ux500/cpu-db8500.c |   6 +-
+ drivers/clk/ux500/clk-prcmu.c    |  20 +-
+ drivers/clk/ux500/u8500_of_clk.c |   2 +-
+ drivers/cpuidle/cpuidle-ux500.c  |   6 +-
+ drivers/mfd/ab8500-core.c        |   2 +-
+ drivers/mfd/db8500-prcmu.c       |   6 +-
+ drivers/regulator/db8500-prcmu.c |  12 +-
+ drivers/thermal/db8500_thermal.c |  10 +-
+ drivers/watchdog/db8500_wdt.c    |  22 +-
+ include/linux/mfd/db8500-prcmu.h | 252 ++++++++++++++++-
+ include/linux/mfd/dbx500-prcmu.h | 575 ---------------------------------------
+ sound/soc/ux500/ux500_msp_dai.c  |   2 +-
+ 12 files changed, 294 insertions(+), 621 deletions(-)
 
-> ---
->   Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> index 953629cb9558..e6e4546da0aa 100644
-> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> @@ -40,6 +40,7 @@ properties:
->                 - mediatek,mt7622-wdt
->                 - mediatek,mt7623-wdt
->                 - mediatek,mt7629-wdt
-> +              - mediatek,mt8127-wdt
->                 - mediatek,mt8173-wdt
->                 - mediatek,mt8188-wdt
->                 - mediatek,mt8189-wdt
-> 
+diff --git a/arch/arm/mach-ux500/cpu-db8500.c b/arch/arm/mach-ux500/cpu-db8500.c
+index b1a70f203372..0d7530fb6ad0 100644
+--- a/arch/arm/mach-ux500/cpu-db8500.c
++++ b/arch/arm/mach-ux500/cpu-db8500.c
+@@ -12,7 +12,7 @@
+ #include <linux/irq.h>
+ #include <linux/irqchip.h>
+ #include <linux/irqchip/arm-gic.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/platform_data/arm-ux500-pm.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+@@ -81,7 +81,7 @@ static void __init ux500_init_irq(void)
+ 	struct resource r;
+ 
+ 	irqchip_init();
+-	prcmu_early_init();
++	db8500_prcmu_early_init();
+ 	np = of_find_compatible_node(NULL, NULL, "stericsson,db8500-prcmu");
+ 	of_address_to_resource(np, 0, &r);
+ 	of_node_put(np);
+@@ -101,7 +101,7 @@ static void ux500_restart(enum reboot_mode mode, const char *cmd)
+ 	local_irq_disable();
+ 	local_fiq_disable();
+ 
+-	prcmu_system_reset(0);
++	db8500_prcmu_system_reset(0);
+ }
+ 
+ static const struct of_device_id u8500_local_bus_nodes[] = {
+diff --git a/drivers/clk/ux500/clk-prcmu.c b/drivers/clk/ux500/clk-prcmu.c
+index ddc86551bf57..ac96c46bd1bb 100644
+--- a/drivers/clk/ux500/clk-prcmu.c
++++ b/drivers/clk/ux500/clk-prcmu.c
+@@ -7,7 +7,7 @@
+  */
+ 
+ #include <linux/clk-provider.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/slab.h>
+ #include <linux/io.h>
+ #include <linux/err.h>
+@@ -35,13 +35,13 @@ static int clk_prcmu_prepare(struct clk_hw *hw)
+ {
+ 	struct clk_prcmu *clk = to_clk_prcmu(hw);
+ 
+-	return prcmu_request_clock(clk->cg_sel, true);
++	return db8500_prcmu_request_clock(clk->cg_sel, true);
+ }
+ 
+ static void clk_prcmu_unprepare(struct clk_hw *hw)
+ {
+ 	struct clk_prcmu *clk = to_clk_prcmu(hw);
+-	if (prcmu_request_clock(clk->cg_sel, false))
++	if (db8500_prcmu_request_clock(clk->cg_sel, false))
+ 		pr_err("clk_prcmu: %s failed to disable %s.\n", __func__,
+ 		       clk_hw_get_name(hw));
+ }
+@@ -86,7 +86,7 @@ static int clk_prcmu_opp_prepare(struct clk_hw *hw)
+ 		clk->opp_requested = 1;
+ 	}
+ 
+-	err = prcmu_request_clock(clk->cg_sel, true);
++	err = db8500_prcmu_request_clock(clk->cg_sel, true);
+ 	if (err) {
+ 		prcmu_qos_remove_requirement(PRCMU_QOS_APE_OPP,
+ 					(char *)clk_hw_get_name(hw));
+@@ -101,7 +101,7 @@ static void clk_prcmu_opp_unprepare(struct clk_hw *hw)
+ {
+ 	struct clk_prcmu *clk = to_clk_prcmu(hw);
+ 
+-	if (prcmu_request_clock(clk->cg_sel, false)) {
++	if (db8500_prcmu_request_clock(clk->cg_sel, false)) {
+ 		pr_err("clk_prcmu: %s failed to disable %s.\n", __func__,
+ 			clk_hw_get_name(hw));
+ 		return;
+@@ -120,7 +120,7 @@ static int clk_prcmu_opp_volt_prepare(struct clk_hw *hw)
+ 	struct clk_prcmu *clk = to_clk_prcmu(hw);
+ 
+ 	if (!clk->opp_requested) {
+-		err = prcmu_request_ape_opp_100_voltage(true);
++		err = db8500_prcmu_request_ape_opp_100_voltage(true);
+ 		if (err) {
+ 			pr_err("clk_prcmu: %s fail req APE OPP VOLT for %s.\n",
+ 				__func__, clk_hw_get_name(hw));
+@@ -129,9 +129,9 @@ static int clk_prcmu_opp_volt_prepare(struct clk_hw *hw)
+ 		clk->opp_requested = 1;
+ 	}
+ 
+-	err = prcmu_request_clock(clk->cg_sel, true);
++	err = db8500_prcmu_request_clock(clk->cg_sel, true);
+ 	if (err) {
+-		prcmu_request_ape_opp_100_voltage(false);
++		db8500_prcmu_request_ape_opp_100_voltage(false);
+ 		clk->opp_requested = 0;
+ 		return err;
+ 	}
+@@ -143,14 +143,14 @@ static void clk_prcmu_opp_volt_unprepare(struct clk_hw *hw)
+ {
+ 	struct clk_prcmu *clk = to_clk_prcmu(hw);
+ 
+-	if (prcmu_request_clock(clk->cg_sel, false)) {
++	if (db8500_prcmu_request_clock(clk->cg_sel, false)) {
+ 		pr_err("clk_prcmu: %s failed to disable %s.\n", __func__,
+ 			clk_hw_get_name(hw));
+ 		return;
+ 	}
+ 
+ 	if (clk->opp_requested) {
+-		prcmu_request_ape_opp_100_voltage(false);
++		db8500_prcmu_request_ape_opp_100_voltage(false);
+ 		clk->opp_requested = 0;
+ 	}
+ }
+diff --git a/drivers/clk/ux500/u8500_of_clk.c b/drivers/clk/ux500/u8500_of_clk.c
+index 6f78808387b1..d2499815226f 100644
+--- a/drivers/clk/ux500/u8500_of_clk.c
++++ b/drivers/clk/ux500/u8500_of_clk.c
+@@ -9,7 +9,7 @@
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/clk-provider.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ 
+ #include "clk.h"
+ #include "prcc.h"
+diff --git a/drivers/cpuidle/cpuidle-ux500.c b/drivers/cpuidle/cpuidle-ux500.c
+index f7d778580e9b..6d6c52c0bcc2 100644
+--- a/drivers/cpuidle/cpuidle-ux500.c
++++ b/drivers/cpuidle/cpuidle-ux500.c
+@@ -11,7 +11,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/atomic.h>
+ #include <linux/smp.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/platform_data/arm-ux500-pm.h>
+ #include <linux/platform_device.h>
+ 
+@@ -66,7 +66,7 @@ static inline int ux500_enter_idle(struct cpuidle_device *dev,
+ 		/* Go to the retention state, the prcmu will wait for the
+ 		 * cpu to go WFI and this is what happens after exiting this
+ 		 * 'master' critical section */
+-		if (prcmu_set_power_state(PRCMU_AP_IDLE, true, true))
++		if (db8500_prcmu_set_power_state(PRCMU_AP_IDLE, true, true))
+ 			goto out;
+ 
+ 		/* When we switch to retention, the prcmu is in charge
+@@ -109,7 +109,7 @@ static struct cpuidle_driver ux500_idle_driver = {
+ static int dbx500_cpuidle_probe(struct platform_device *pdev)
+ {
+ 	/* Configure wake up reasons */
+-	prcmu_enable_wakeups(PRCMU_WAKEUP(ARM) | PRCMU_WAKEUP(RTC) |
++	db8500_prcmu_enable_wakeups(PRCMU_WAKEUP(ARM) | PRCMU_WAKEUP(RTC) |
+ 			     PRCMU_WAKEUP(ABB));
+ 
+ 	return cpuidle_register(&ux500_idle_driver, NULL);
+diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
+index f0bc0b5a6f4a..86fa99022cb3 100644
+--- a/drivers/mfd/ab8500-core.c
++++ b/drivers/mfd/ab8500-core.c
+@@ -19,7 +19,7 @@
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/abx500.h>
+ #include <linux/mfd/abx500/ab8500.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/of.h>
+ 
+ /*
+diff --git a/drivers/mfd/db8500-prcmu.c b/drivers/mfd/db8500-prcmu.c
+index 21e68a382b11..6672c55f2ebc 100644
+--- a/drivers/mfd/db8500-prcmu.c
++++ b/drivers/mfd/db8500-prcmu.c
+@@ -32,7 +32,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/uaccess.h>
+ #include <linux/mfd/core.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/mfd/abx500/ab8500.h>
+ #include <linux/regulator/db8500-prcmu.h>
+ #include <linux/regulator/machine.h>
+@@ -2285,7 +2285,7 @@ void db8500_prcmu_system_reset(u16 reset_code)
+ /**
+  * db8500_prcmu_get_reset_code - Retrieve SW reset reason code
+  *
+- * Retrieves the reset reason code stored by prcmu_system_reset() before
++ * Retrieves the reset reason code stored by db8500_prcmu_system_reset() before
+  * last restart.
+  */
+ u16 db8500_prcmu_get_reset_code(void)
+@@ -3041,7 +3041,7 @@ static int db8500_prcmu_probe(struct platform_device *pdev)
+ 
+ 	db8500_irq_init(np);
+ 
+-	prcmu_config_esram0_deep_sleep(ESRAM0_DEEP_SLEEP_STATE_RET);
++	db8500_prcmu_config_esram0_deep_sleep(ESRAM0_DEEP_SLEEP_STATE_RET);
+ 
+ 	err = mfd_add_devices(&pdev->dev, 0, common_prcmu_devs,
+ 			      ARRAY_SIZE(common_prcmu_devs), NULL, 0, db8500_irq_domain);
+diff --git a/drivers/regulator/db8500-prcmu.c b/drivers/regulator/db8500-prcmu.c
+index 1ec2e1348891..751fe36580fa 100644
+--- a/drivers/regulator/db8500-prcmu.c
++++ b/drivers/regulator/db8500-prcmu.c
+@@ -13,7 +13,7 @@
+ #include <linux/err.h>
+ #include <linux/spinlock.h>
+ #include <linux/platform_device.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/regulator/driver.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/regulator/db8500-prcmu.h>
+@@ -93,13 +93,13 @@ static int enable_epod(u16 epod_id, bool ramret)
+ 
+ 	if (ramret) {
+ 		if (!epod_on[epod_id]) {
+-			ret = prcmu_set_epod(epod_id, EPOD_STATE_RAMRET);
++			ret = db8500_prcmu_set_epod(epod_id, EPOD_STATE_RAMRET);
+ 			if (ret < 0)
+ 				return ret;
+ 		}
+ 		epod_ramret[epod_id] = true;
+ 	} else {
+-		ret = prcmu_set_epod(epod_id, EPOD_STATE_ON);
++		ret = db8500_prcmu_set_epod(epod_id, EPOD_STATE_ON);
+ 		if (ret < 0)
+ 			return ret;
+ 		epod_on[epod_id] = true;
+@@ -114,18 +114,18 @@ static int disable_epod(u16 epod_id, bool ramret)
+ 
+ 	if (ramret) {
+ 		if (!epod_on[epod_id]) {
+-			ret = prcmu_set_epod(epod_id, EPOD_STATE_OFF);
++			ret = db8500_prcmu_set_epod(epod_id, EPOD_STATE_OFF);
+ 			if (ret < 0)
+ 				return ret;
+ 		}
+ 		epod_ramret[epod_id] = false;
+ 	} else {
+ 		if (epod_ramret[epod_id]) {
+-			ret = prcmu_set_epod(epod_id, EPOD_STATE_RAMRET);
++			ret = db8500_prcmu_set_epod(epod_id, EPOD_STATE_RAMRET);
+ 			if (ret < 0)
+ 				return ret;
+ 		} else {
+-			ret = prcmu_set_epod(epod_id, EPOD_STATE_OFF);
++			ret = db8500_prcmu_set_epod(epod_id, EPOD_STATE_OFF);
+ 			if (ret < 0)
+ 				return ret;
+ 		}
+diff --git a/drivers/thermal/db8500_thermal.c b/drivers/thermal/db8500_thermal.c
+index 576f88b6a1b3..cf1706569e6d 100644
+--- a/drivers/thermal/db8500_thermal.c
++++ b/drivers/thermal/db8500_thermal.c
+@@ -10,7 +10,7 @@
+ 
+ #include <linux/cpu_cooling.h>
+ #include <linux/interrupt.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -82,7 +82,7 @@ static void db8500_thermal_update_config(struct db8500_thermal_zone *th,
+ 					 unsigned long next_low,
+ 					 unsigned long next_high)
+ {
+-	prcmu_stop_temp_sense();
++	db8500_prcmu_stop_temp_sense();
+ 
+ 	th->cur_index = idx;
+ 	th->interpolated_temp = (next_low + next_high)/2;
+@@ -91,8 +91,8 @@ static void db8500_thermal_update_config(struct db8500_thermal_zone *th,
+ 	 * The PRCMU accept absolute temperatures in celsius so divide
+ 	 * down the millicelsius with 1000
+ 	 */
+-	prcmu_config_hotmon((u8)(next_low/1000), (u8)(next_high/1000));
+-	prcmu_start_temp_sense(PRCMU_DEFAULT_MEASURE_TIME);
++	db8500_prcmu_config_hotmon((u8)(next_low / 1000), (u8)(next_high / 1000));
++	db8500_prcmu_start_temp_sense(PRCMU_DEFAULT_MEASURE_TIME);
+ }
+ 
+ static irqreturn_t prcmu_low_irq_handler(int irq, void *irq_data)
+@@ -204,7 +204,7 @@ static int db8500_thermal_probe(struct platform_device *pdev)
+ static int db8500_thermal_suspend(struct platform_device *pdev,
+ 		pm_message_t state)
+ {
+-	prcmu_stop_temp_sense();
++	db8500_prcmu_stop_temp_sense();
+ 
+ 	return 0;
+ }
+diff --git a/drivers/watchdog/db8500_wdt.c b/drivers/watchdog/db8500_wdt.c
+index 97148ac0aa54..70ccea13288d 100644
+--- a/drivers/watchdog/db8500_wdt.c
++++ b/drivers/watchdog/db8500_wdt.c
+@@ -16,7 +16,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/platform_device.h>
+ 
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ 
+ #define WATCHDOG_TIMEOUT 600 /* 10 minutes */
+ 
+@@ -37,24 +37,24 @@ MODULE_PARM_DESC(nowayout,
+ 
+ static int db8500_wdt_start(struct watchdog_device *wdd)
+ {
+-	return prcmu_enable_a9wdog(PRCMU_WDOG_ALL);
++	return db8500_prcmu_enable_a9wdog(PRCMU_WDOG_ALL);
+ }
+ 
+ static int db8500_wdt_stop(struct watchdog_device *wdd)
+ {
+-	return prcmu_disable_a9wdog(PRCMU_WDOG_ALL);
++	return db8500_prcmu_disable_a9wdog(PRCMU_WDOG_ALL);
+ }
+ 
+ static int db8500_wdt_keepalive(struct watchdog_device *wdd)
+ {
+-	return prcmu_kick_a9wdog(PRCMU_WDOG_ALL);
++	return db8500_prcmu_kick_a9wdog(PRCMU_WDOG_ALL);
+ }
+ 
+ static int db8500_wdt_set_timeout(struct watchdog_device *wdd,
+ 				 unsigned int timeout)
+ {
+ 	db8500_wdt_stop(wdd);
+-	prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
++	db8500_prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
+ 	db8500_wdt_start(wdd);
+ 
+ 	return 0;
+@@ -91,10 +91,10 @@ static int db8500_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(&db8500_wdt, nowayout);
+ 
+ 	/* disable auto off on sleep */
+-	prcmu_config_a9wdog(PRCMU_WDOG_CPU1, false);
++	db8500_prcmu_config_a9wdog(PRCMU_WDOG_CPU1, false);
+ 
+ 	/* set HW initial value */
+-	prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
++	db8500_prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
+ 
+ 	ret = devm_watchdog_register_device(dev, &db8500_wdt);
+ 	if (ret)
+@@ -110,9 +110,9 @@ static int db8500_wdt_suspend(struct platform_device *pdev,
+ {
+ 	if (watchdog_active(&db8500_wdt)) {
+ 		db8500_wdt_stop(&db8500_wdt);
+-		prcmu_config_a9wdog(PRCMU_WDOG_CPU1, true);
++		db8500_prcmu_config_a9wdog(PRCMU_WDOG_CPU1, true);
+ 
+-		prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
++		db8500_prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
+ 		db8500_wdt_start(&db8500_wdt);
+ 	}
+ 	return 0;
+@@ -122,9 +122,9 @@ static int db8500_wdt_resume(struct platform_device *pdev)
+ {
+ 	if (watchdog_active(&db8500_wdt)) {
+ 		db8500_wdt_stop(&db8500_wdt);
+-		prcmu_config_a9wdog(PRCMU_WDOG_CPU1, false);
++		db8500_prcmu_config_a9wdog(PRCMU_WDOG_CPU1, false);
+ 
+-		prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
++		db8500_prcmu_load_a9wdog(PRCMU_WDOG_ALL, timeout * 1000);
+ 		db8500_wdt_start(&db8500_wdt);
+ 	}
+ 	return 0;
+diff --git a/include/linux/mfd/db8500-prcmu.h b/include/linux/mfd/db8500-prcmu.h
+index a62de3d155ed..c939c9a1170a 100644
+--- a/include/linux/mfd/db8500-prcmu.h
++++ b/include/linux/mfd/db8500-prcmu.h
+@@ -12,6 +12,9 @@
+ 
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
++#include <linux/err.h>
++
++#include <dt-bindings/mfd/dbx500-prcmu.h> /* For clock identifiers */
+ 
+ /*
+  * Registers
+@@ -24,6 +27,38 @@
+ #define DB8500_PRCM_DSI_SW_RESET_DSI1_SW_RESETN BIT(1)
+ #define DB8500_PRCM_DSI_SW_RESET_DSI2_SW_RESETN BIT(2)
+ 
++/* Offset for the firmware version within the TCPM */
++#define DB8500_PRCMU_FW_VERSION_OFFSET 0xA4
++
++#define DB8500_PRCMU_LEGACY_OFFSET		0xDD4
++
++/*
++ * CLKOUT sources
++ */
++#define PRCMU_CLKSRC_CLK38M		0x00
++#define PRCMU_CLKSRC_ACLK		0x01
++#define PRCMU_CLKSRC_SYSCLK		0x02
++#define PRCMU_CLKSRC_LCDCLK		0x03
++#define PRCMU_CLKSRC_SDMMCCLK		0x04
++#define PRCMU_CLKSRC_TVCLK		0x05
++#define PRCMU_CLKSRC_TIMCLK		0x06
++#define PRCMU_CLKSRC_CLK009		0x07
++/* These are only valid for CLKOUT1: */
++#define PRCMU_CLKSRC_SIAMMDSPCLK	0x40
++#define PRCMU_CLKSRC_I2CCLK		0x41
++#define PRCMU_CLKSRC_MSP02CLK		0x42
++#define PRCMU_CLKSRC_ARMPLL_OBSCLK	0x43
++#define PRCMU_CLKSRC_HSIRXCLK		0x44
++#define PRCMU_CLKSRC_HSITXCLK		0x45
++#define PRCMU_CLKSRC_ARMCLKFIX		0x46
++#define PRCMU_CLKSRC_HDMICLK		0x47
++
++/*
++ * Definitions for controlling ESRAM0 in deep sleep.
++ */
++#define ESRAM0_DEEP_SLEEP_STATE_OFF 1
++#define ESRAM0_DEEP_SLEEP_STATE_RET 2
++
+ /* This portion previously known as <mach/prcmu-fw-defs_v1.h> */
+ 
+ /**
+@@ -451,10 +486,173 @@ enum prcmu_power_status {
+ 	PRCMU_ARMPENDINGIT_ER		= 0x93,
+ };
+ 
++/* PRCMU Wakeup defines */
++enum prcmu_wakeup_index {
++	PRCMU_WAKEUP_INDEX_RTC,
++	PRCMU_WAKEUP_INDEX_RTT0,
++	PRCMU_WAKEUP_INDEX_RTT1,
++	PRCMU_WAKEUP_INDEX_HSI0,
++	PRCMU_WAKEUP_INDEX_HSI1,
++	PRCMU_WAKEUP_INDEX_USB,
++	PRCMU_WAKEUP_INDEX_ABB,
++	PRCMU_WAKEUP_INDEX_ABB_FIFO,
++	PRCMU_WAKEUP_INDEX_ARM,
++	PRCMU_WAKEUP_INDEX_CD_IRQ,
++	NUM_PRCMU_WAKEUP_INDICES
++};
++
++#define PRCMU_WAKEUP(_name) (BIT(PRCMU_WAKEUP_INDEX_##_name))
++
++/**
++ * enum prcmu_wdog_id - PRCMU watchdog IDs
++ * @PRCMU_WDOG_ALL: use all timers
++ * @PRCMU_WDOG_CPU1: use first CPU timer only
++ * @PRCMU_WDOG_CPU2: use second CPU timer conly
++ */
++enum prcmu_wdog_id {
++	PRCMU_WDOG_ALL = 0x00,
++	PRCMU_WDOG_CPU1 = 0x01,
++	PRCMU_WDOG_CPU2 = 0x02,
++};
++
++/**
++ * enum ape_opp - APE OPP states definition
++ * @APE_OPP_INIT:
++ * @APE_NO_CHANGE: The APE operating point is unchanged
++ * @APE_100_OPP: The new APE operating point is ape100opp
++ * @APE_50_OPP: 50%
++ * @APE_50_PARTLY_25_OPP: 50%, except some clocks at 25%.
++ */
++enum ape_opp {
++	APE_OPP_INIT = 0x00,
++	APE_NO_CHANGE = 0x01,
++	APE_100_OPP = 0x02,
++	APE_50_OPP = 0x03,
++	APE_50_PARTLY_25_OPP = 0xFF,
++};
++
++/**
++ * enum arm_opp - ARM OPP states definition
++ * @ARM_OPP_INIT:
++ * @ARM_NO_CHANGE: The ARM operating point is unchanged
++ * @ARM_100_OPP: The new ARM operating point is arm100opp
++ * @ARM_50_OPP: The new ARM operating point is arm50opp
++ * @ARM_MAX_OPP: Operating point is "max" (more than 100)
++ * @ARM_MAX_FREQ100OPP: Set max opp if available, else 100
++ * @ARM_EXTCLK: The new ARM operating point is armExtClk
++ */
++enum arm_opp {
++	ARM_OPP_INIT = 0x00,
++	ARM_NO_CHANGE = 0x01,
++	ARM_100_OPP = 0x02,
++	ARM_50_OPP = 0x03,
++	ARM_MAX_OPP = 0x04,
++	ARM_MAX_FREQ100OPP = 0x05,
++	ARM_EXTCLK = 0x07
++};
++
++/**
++ * enum ddr_opp - DDR OPP states definition
++ * @DDR_100_OPP: The new DDR operating point is ddr100opp
++ * @DDR_50_OPP: The new DDR operating point is ddr50opp
++ * @DDR_25_OPP: The new DDR operating point is ddr25opp
++ */
++enum ddr_opp {
++	DDR_100_OPP = 0x00,
++	DDR_50_OPP = 0x01,
++	DDR_25_OPP = 0x02,
++};
++
++/**
++ * enum ddr_pwrst - DDR power states definition
++ * @DDR_PWR_STATE_UNCHANGED: SDRAM and DDR controller state is unchanged
++ * @DDR_PWR_STATE_ON:
++ * @DDR_PWR_STATE_OFFLOWLAT:
++ * @DDR_PWR_STATE_OFFHIGHLAT:
++ */
++enum ddr_pwrst {
++	DDR_PWR_STATE_UNCHANGED     = 0x00,
++	DDR_PWR_STATE_ON            = 0x01,
++	DDR_PWR_STATE_OFFLOWLAT     = 0x02,
++	DDR_PWR_STATE_OFFHIGHLAT    = 0x03
++};
++
+ /*
+  * Definitions for autonomous power management configuration.
+  */
+ 
++/* EPOD (power domain) IDs */
++
++/*
++ * DB8500 EPODs
++ * - EPOD_ID_SVAMMDSP: power domain for SVA MMDSP
++ * - EPOD_ID_SVAPIPE: power domain for SVA pipe
++ * - EPOD_ID_SIAMMDSP: power domain for SIA MMDSP
++ * - EPOD_ID_SIAPIPE: power domain for SIA pipe
++ * - EPOD_ID_SGA: power domain for SGA
++ * - EPOD_ID_B2R2_MCDE: power domain for B2R2 and MCDE
++ * - EPOD_ID_ESRAM12: power domain for ESRAM 1 and 2
++ * - EPOD_ID_ESRAM34: power domain for ESRAM 3 and 4
++ * - NUM_EPOD_ID: number of power domains
++ *
++ * TODO: These should be prefixed.
++ */
++#define EPOD_ID_SVAMMDSP	0
++#define EPOD_ID_SVAPIPE		1
++#define EPOD_ID_SIAMMDSP	2
++#define EPOD_ID_SIAPIPE		3
++#define EPOD_ID_SGA		4
++#define EPOD_ID_B2R2_MCDE	5
++#define EPOD_ID_ESRAM12		6
++#define EPOD_ID_ESRAM34		7
++#define NUM_EPOD_ID		8
++
++/*
++ * state definition for EPOD (power domain)
++ * - EPOD_STATE_NO_CHANGE: The EPOD should remain unchanged
++ * - EPOD_STATE_OFF: The EPOD is switched off
++ * - EPOD_STATE_RAMRET: The EPOD is switched off with its internal RAM in
++ *                         retention
++ * - EPOD_STATE_ON_CLK_OFF: The EPOD is switched on, clock is still off
++ * - EPOD_STATE_ON: Same as above, but with clock enabled
++ */
++#define EPOD_STATE_NO_CHANGE	0x00
++#define EPOD_STATE_OFF		0x01
++#define EPOD_STATE_RAMRET	0x02
++#define EPOD_STATE_ON_CLK_OFF	0x03
++#define EPOD_STATE_ON		0x04
++
++#define PRCMU_FW_PROJECT_U8500		2
++#define PRCMU_FW_PROJECT_U8400		3
++#define PRCMU_FW_PROJECT_U9500		4 /* Customer specific */
++#define PRCMU_FW_PROJECT_U8500_MBB	5
++#define PRCMU_FW_PROJECT_U8500_C1	6
++#define PRCMU_FW_PROJECT_U8500_C2	7
++#define PRCMU_FW_PROJECT_U8500_C3	8
++#define PRCMU_FW_PROJECT_U8500_C4	9
++#define PRCMU_FW_PROJECT_U9500_MBL	10
++#define PRCMU_FW_PROJECT_U8500_SSG1	11 /* Samsung specific */
++#define PRCMU_FW_PROJECT_U8500_MBL2	12 /* Customer specific */
++#define PRCMU_FW_PROJECT_U8520		13
++#define PRCMU_FW_PROJECT_U8420		14
++#define PRCMU_FW_PROJECT_U8500_SSG2	15 /* Samsung specific */
++#define PRCMU_FW_PROJECT_U8420_SYSCLK	17
++#define PRCMU_FW_PROJECT_A9420		20
++/* [32..63] 9540 and derivatives */
++#define PRCMU_FW_PROJECT_U9540		32
++/* [64..95] 8540 and derivatives */
++#define PRCMU_FW_PROJECT_L8540		64
++/* [96..126] 8580 and derivatives */
++#define PRCMU_FW_PROJECT_L8580		96
++
++#define PRCMU_FW_PROJECT_NAME_LEN	20
++
++/* PRCMU QoS APE OPP class */
++#define PRCMU_QOS_APE_OPP 1
++#define PRCMU_QOS_DDR_OPP 2
++#define PRCMU_QOS_ARM_OPP 3
++#define PRCMU_QOS_DEFAULT_VALUE -1
++
+ #define PRCMU_AUTO_PM_OFF 0
+ #define PRCMU_AUTO_PM_ON 1
+ 
+@@ -469,6 +667,14 @@ enum prcmu_auto_pm_policy {
+ 	PRCMU_AUTO_PM_POLICY_DSP_CLK_OFF_HWP_CLK_OFF,
+ };
+ 
++struct prcmu_fw_version {
++	u32 project; /* Notice, project shifted with 8 on ux540 */
++	u8 api_version;
++	u8 func_version;
++	u8 errata;
++	char project_name[PRCMU_FW_PROJECT_NAME_LEN];
++};
++
+ /**
+  * struct prcmu_auto_pm_config - Autonomous power management configuration.
+  * @sia_auto_pm_enable: SIA autonomous pm enable. (PRCMU_AUTO_PM_{OFF,ON})
+@@ -501,6 +707,9 @@ void prcmu_configure_auto_pm(struct prcmu_auto_pm_config *sleep,
+ bool prcmu_is_auto_pm_enabled(void);
+ 
+ int prcmu_config_clkout(u8 clkout, u8 source, u8 div);
++unsigned long prcmu_clock_rate(u8 clock);
++long prcmu_round_clock_rate(u8 clock, unsigned long rate);
++int prcmu_set_clock_rate(u8 clock, unsigned long rate);
+ int prcmu_set_clock_divider(u8 clock, u8 divider);
+ int db8500_prcmu_config_hotdog(u8 threshold);
+ int db8500_prcmu_config_hotmon(u8 low, u8 high);
+@@ -508,6 +717,8 @@ int db8500_prcmu_start_temp_sense(u16 cycles32k);
+ int db8500_prcmu_stop_temp_sense(void);
+ int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size);
+ int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size);
++int prcmu_abb_write_masked(u8 slave, u8 reg, u8 *value,
++			   u8 *mask, u8 size);
+ 
+ int prcmu_ac_wake_req(void);
+ void prcmu_ac_sleep_req(void);
+@@ -610,6 +821,21 @@ static inline int prcmu_config_clkout(u8 clkout, u8 source, u8 div)
+ 	return 0;
+ }
+ 
++static inline unsigned long prcmu_clock_rate(u8 clock)
++{
++	return 0;
++}
++
++static inline long prcmu_round_clock_rate(u8 clock, unsigned long rate)
++{
++	return 0;
++}
++
++static inline int prcmu_set_clock_rate(u8 clock, unsigned long rate)
++{
++	return 0;
++}
++
+ static inline int prcmu_set_clock_divider(u8 clock, u8 divider)
+ {
+ 	return 0;
+@@ -637,12 +863,18 @@ static inline int db8500_prcmu_stop_temp_sense(void)
+ 
+ static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
+ {
+-	return -ENOSYS;
++	return -EINVAL;
+ }
+ 
+ static inline int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size)
+ {
+-	return -ENOSYS;
++	return -EINVAL;
++}
++
++static inline int prcmu_abb_write_masked(u8 slave, u8 reg,
++					 u8 *value, u8 *mask, u8 size)
++{
++	return -EINVAL;
+ }
+ 
+ static inline int prcmu_ac_wake_req(void)
+@@ -745,4 +977,20 @@ static inline void db8500_prcmu_write_masked(unsigned int reg, u32 mask,
+ 
+ #endif /* !CONFIG_MFD_DB8500_PRCMU */
+ 
++static inline int prcmu_qos_add_requirement(int prcmu_qos_class,
++					    char *name, s32 value)
++{
++	return 0;
++}
++
++static inline int prcmu_qos_update_requirement(int prcmu_qos_class,
++					       char *name, s32 new_value)
++{
++	return 0;
++}
++
++static inline void prcmu_qos_remove_requirement(int prcmu_qos_class, char *name)
++{
++}
++
+ #endif /* __MFD_DB8500_PRCMU_H */
+diff --git a/include/linux/mfd/dbx500-prcmu.h b/include/linux/mfd/dbx500-prcmu.h
+deleted file mode 100644
+index 828362b7860c..000000000000
+--- a/include/linux/mfd/dbx500-prcmu.h
++++ /dev/null
+@@ -1,575 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) ST Ericsson SA 2011
+- *
+- * STE Ux500 PRCMU API
+- */
+-#ifndef __MACH_PRCMU_H
+-#define __MACH_PRCMU_H
+-
+-#include <linux/interrupt.h>
+-#include <linux/notifier.h>
+-#include <linux/err.h>
+-
+-#include <dt-bindings/mfd/dbx500-prcmu.h> /* For clock identifiers */
+-
+-/* Offset for the firmware version within the TCPM */
+-#define DB8500_PRCMU_FW_VERSION_OFFSET 0xA4
+-#define DBX540_PRCMU_FW_VERSION_OFFSET 0xA8
+-
+-/* PRCMU Wakeup defines */
+-enum prcmu_wakeup_index {
+-	PRCMU_WAKEUP_INDEX_RTC,
+-	PRCMU_WAKEUP_INDEX_RTT0,
+-	PRCMU_WAKEUP_INDEX_RTT1,
+-	PRCMU_WAKEUP_INDEX_HSI0,
+-	PRCMU_WAKEUP_INDEX_HSI1,
+-	PRCMU_WAKEUP_INDEX_USB,
+-	PRCMU_WAKEUP_INDEX_ABB,
+-	PRCMU_WAKEUP_INDEX_ABB_FIFO,
+-	PRCMU_WAKEUP_INDEX_ARM,
+-	PRCMU_WAKEUP_INDEX_CD_IRQ,
+-	NUM_PRCMU_WAKEUP_INDICES
+-};
+-#define PRCMU_WAKEUP(_name) (BIT(PRCMU_WAKEUP_INDEX_##_name))
+-
+-/* EPOD (power domain) IDs */
+-
+-/*
+- * DB8500 EPODs
+- * - EPOD_ID_SVAMMDSP: power domain for SVA MMDSP
+- * - EPOD_ID_SVAPIPE: power domain for SVA pipe
+- * - EPOD_ID_SIAMMDSP: power domain for SIA MMDSP
+- * - EPOD_ID_SIAPIPE: power domain for SIA pipe
+- * - EPOD_ID_SGA: power domain for SGA
+- * - EPOD_ID_B2R2_MCDE: power domain for B2R2 and MCDE
+- * - EPOD_ID_ESRAM12: power domain for ESRAM 1 and 2
+- * - EPOD_ID_ESRAM34: power domain for ESRAM 3 and 4
+- * - NUM_EPOD_ID: number of power domains
+- *
+- * TODO: These should be prefixed.
+- */
+-#define EPOD_ID_SVAMMDSP	0
+-#define EPOD_ID_SVAPIPE		1
+-#define EPOD_ID_SIAMMDSP	2
+-#define EPOD_ID_SIAPIPE		3
+-#define EPOD_ID_SGA		4
+-#define EPOD_ID_B2R2_MCDE	5
+-#define EPOD_ID_ESRAM12		6
+-#define EPOD_ID_ESRAM34		7
+-#define NUM_EPOD_ID		8
+-
+-/*
+- * state definition for EPOD (power domain)
+- * - EPOD_STATE_NO_CHANGE: The EPOD should remain unchanged
+- * - EPOD_STATE_OFF: The EPOD is switched off
+- * - EPOD_STATE_RAMRET: The EPOD is switched off with its internal RAM in
+- *                         retention
+- * - EPOD_STATE_ON_CLK_OFF: The EPOD is switched on, clock is still off
+- * - EPOD_STATE_ON: Same as above, but with clock enabled
+- */
+-#define EPOD_STATE_NO_CHANGE	0x00
+-#define EPOD_STATE_OFF		0x01
+-#define EPOD_STATE_RAMRET	0x02
+-#define EPOD_STATE_ON_CLK_OFF	0x03
+-#define EPOD_STATE_ON		0x04
+-
+-/*
+- * CLKOUT sources
+- */
+-#define PRCMU_CLKSRC_CLK38M		0x00
+-#define PRCMU_CLKSRC_ACLK		0x01
+-#define PRCMU_CLKSRC_SYSCLK		0x02
+-#define PRCMU_CLKSRC_LCDCLK		0x03
+-#define PRCMU_CLKSRC_SDMMCCLK		0x04
+-#define PRCMU_CLKSRC_TVCLK		0x05
+-#define PRCMU_CLKSRC_TIMCLK		0x06
+-#define PRCMU_CLKSRC_CLK009		0x07
+-/* These are only valid for CLKOUT1: */
+-#define PRCMU_CLKSRC_SIAMMDSPCLK	0x40
+-#define PRCMU_CLKSRC_I2CCLK		0x41
+-#define PRCMU_CLKSRC_MSP02CLK		0x42
+-#define PRCMU_CLKSRC_ARMPLL_OBSCLK	0x43
+-#define PRCMU_CLKSRC_HSIRXCLK		0x44
+-#define PRCMU_CLKSRC_HSITXCLK		0x45
+-#define PRCMU_CLKSRC_ARMCLKFIX		0x46
+-#define PRCMU_CLKSRC_HDMICLK		0x47
+-
+-/**
+- * enum prcmu_wdog_id - PRCMU watchdog IDs
+- * @PRCMU_WDOG_ALL: use all timers
+- * @PRCMU_WDOG_CPU1: use first CPU timer only
+- * @PRCMU_WDOG_CPU2: use second CPU timer conly
+- */
+-enum prcmu_wdog_id {
+-	PRCMU_WDOG_ALL = 0x00,
+-	PRCMU_WDOG_CPU1 = 0x01,
+-	PRCMU_WDOG_CPU2 = 0x02,
+-};
+-
+-/**
+- * enum ape_opp - APE OPP states definition
+- * @APE_OPP_INIT:
+- * @APE_NO_CHANGE: The APE operating point is unchanged
+- * @APE_100_OPP: The new APE operating point is ape100opp
+- * @APE_50_OPP: 50%
+- * @APE_50_PARTLY_25_OPP: 50%, except some clocks at 25%.
+- */
+-enum ape_opp {
+-	APE_OPP_INIT = 0x00,
+-	APE_NO_CHANGE = 0x01,
+-	APE_100_OPP = 0x02,
+-	APE_50_OPP = 0x03,
+-	APE_50_PARTLY_25_OPP = 0xFF,
+-};
+-
+-/**
+- * enum arm_opp - ARM OPP states definition
+- * @ARM_OPP_INIT:
+- * @ARM_NO_CHANGE: The ARM operating point is unchanged
+- * @ARM_100_OPP: The new ARM operating point is arm100opp
+- * @ARM_50_OPP: The new ARM operating point is arm50opp
+- * @ARM_MAX_OPP: Operating point is "max" (more than 100)
+- * @ARM_MAX_FREQ100OPP: Set max opp if available, else 100
+- * @ARM_EXTCLK: The new ARM operating point is armExtClk
+- */
+-enum arm_opp {
+-	ARM_OPP_INIT = 0x00,
+-	ARM_NO_CHANGE = 0x01,
+-	ARM_100_OPP = 0x02,
+-	ARM_50_OPP = 0x03,
+-	ARM_MAX_OPP = 0x04,
+-	ARM_MAX_FREQ100OPP = 0x05,
+-	ARM_EXTCLK = 0x07
+-};
+-
+-/**
+- * enum ddr_opp - DDR OPP states definition
+- * @DDR_100_OPP: The new DDR operating point is ddr100opp
+- * @DDR_50_OPP: The new DDR operating point is ddr50opp
+- * @DDR_25_OPP: The new DDR operating point is ddr25opp
+- */
+-enum ddr_opp {
+-	DDR_100_OPP = 0x00,
+-	DDR_50_OPP = 0x01,
+-	DDR_25_OPP = 0x02,
+-};
+-
+-/*
+- * Definitions for controlling ESRAM0 in deep sleep.
+- */
+-#define ESRAM0_DEEP_SLEEP_STATE_OFF 1
+-#define ESRAM0_DEEP_SLEEP_STATE_RET 2
+-
+-/**
+- * enum ddr_pwrst - DDR power states definition
+- * @DDR_PWR_STATE_UNCHANGED: SDRAM and DDR controller state is unchanged
+- * @DDR_PWR_STATE_ON:
+- * @DDR_PWR_STATE_OFFLOWLAT:
+- * @DDR_PWR_STATE_OFFHIGHLAT:
+- */
+-enum ddr_pwrst {
+-	DDR_PWR_STATE_UNCHANGED     = 0x00,
+-	DDR_PWR_STATE_ON            = 0x01,
+-	DDR_PWR_STATE_OFFLOWLAT     = 0x02,
+-	DDR_PWR_STATE_OFFHIGHLAT    = 0x03
+-};
+-
+-#define DB8500_PRCMU_LEGACY_OFFSET		0xDD4
+-
+-#define PRCMU_FW_PROJECT_U8500		2
+-#define PRCMU_FW_PROJECT_U8400		3
+-#define PRCMU_FW_PROJECT_U9500		4 /* Customer specific */
+-#define PRCMU_FW_PROJECT_U8500_MBB	5
+-#define PRCMU_FW_PROJECT_U8500_C1	6
+-#define PRCMU_FW_PROJECT_U8500_C2	7
+-#define PRCMU_FW_PROJECT_U8500_C3	8
+-#define PRCMU_FW_PROJECT_U8500_C4	9
+-#define PRCMU_FW_PROJECT_U9500_MBL	10
+-#define PRCMU_FW_PROJECT_U8500_SSG1	11 /* Samsung specific */
+-#define PRCMU_FW_PROJECT_U8500_MBL2	12 /* Customer specific */
+-#define PRCMU_FW_PROJECT_U8520		13
+-#define PRCMU_FW_PROJECT_U8420		14
+-#define PRCMU_FW_PROJECT_U8500_SSG2	15 /* Samsung specific */
+-#define PRCMU_FW_PROJECT_U8420_SYSCLK	17
+-#define PRCMU_FW_PROJECT_A9420		20
+-/* [32..63] 9540 and derivatives */
+-#define PRCMU_FW_PROJECT_U9540		32
+-/* [64..95] 8540 and derivatives */
+-#define PRCMU_FW_PROJECT_L8540		64
+-/* [96..126] 8580 and derivatives */
+-#define PRCMU_FW_PROJECT_L8580		96
+-
+-#define PRCMU_FW_PROJECT_NAME_LEN	20
+-struct prcmu_fw_version {
+-	u32 project; /* Notice, project shifted with 8 on ux540 */
+-	u8 api_version;
+-	u8 func_version;
+-	u8 errata;
+-	char project_name[PRCMU_FW_PROJECT_NAME_LEN];
+-};
+-
+-#include <linux/mfd/db8500-prcmu.h>
+-
+-#if defined(CONFIG_UX500_SOC_DB8500)
+-
+-static inline void __init prcmu_early_init(void)
+-{
+-	db8500_prcmu_early_init();
+-}
+-
+-static inline int prcmu_set_power_state(u8 state, bool keep_ulp_clk,
+-		bool keep_ap_pll)
+-{
+-	return db8500_prcmu_set_power_state(state, keep_ulp_clk,
+-		keep_ap_pll);
+-}
+-
+-static inline u8 prcmu_get_power_state_result(void)
+-{
+-	return db8500_prcmu_get_power_state_result();
+-}
+-
+-static inline int prcmu_set_epod(u16 epod_id, u8 epod_state)
+-{
+-	return db8500_prcmu_set_epod(epod_id, epod_state);
+-}
+-
+-static inline void prcmu_enable_wakeups(u32 wakeups)
+-{
+-	db8500_prcmu_enable_wakeups(wakeups);
+-}
+-
+-static inline void prcmu_disable_wakeups(void)
+-{
+-	prcmu_enable_wakeups(0);
+-}
+-
+-static inline void prcmu_config_abb_event_readout(u32 abb_events)
+-{
+-	db8500_prcmu_config_abb_event_readout(abb_events);
+-}
+-
+-static inline void prcmu_get_abb_event_buffer(void __iomem **buf)
+-{
+-	db8500_prcmu_get_abb_event_buffer(buf);
+-}
+-
+-int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size);
+-int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size);
+-int prcmu_abb_write_masked(u8 slave, u8 reg, u8 *value, u8 *mask, u8 size);
+-
+-int prcmu_config_clkout(u8 clkout, u8 source, u8 div);
+-
+-static inline int prcmu_request_clock(u8 clock, bool enable)
+-{
+-	return db8500_prcmu_request_clock(clock, enable);
+-}
+-
+-unsigned long prcmu_clock_rate(u8 clock);
+-long prcmu_round_clock_rate(u8 clock, unsigned long rate);
+-int prcmu_set_clock_rate(u8 clock, unsigned long rate);
+-
+-static inline int prcmu_get_ddr_opp(void)
+-{
+-	return db8500_prcmu_get_ddr_opp();
+-}
+-
+-static inline int prcmu_set_arm_opp(u8 opp)
+-{
+-	return db8500_prcmu_set_arm_opp(opp);
+-}
+-
+-static inline int prcmu_get_arm_opp(void)
+-{
+-	return db8500_prcmu_get_arm_opp();
+-}
+-
+-static inline int prcmu_set_ape_opp(u8 opp)
+-{
+-	return db8500_prcmu_set_ape_opp(opp);
+-}
+-
+-static inline int prcmu_get_ape_opp(void)
+-{
+-	return db8500_prcmu_get_ape_opp();
+-}
+-
+-static inline int prcmu_request_ape_opp_100_voltage(bool enable)
+-{
+-	return db8500_prcmu_request_ape_opp_100_voltage(enable);
+-}
+-
+-static inline void prcmu_system_reset(u16 reset_code)
+-{
+-	db8500_prcmu_system_reset(reset_code);
+-}
+-
+-static inline u16 prcmu_get_reset_code(void)
+-{
+-	return db8500_prcmu_get_reset_code();
+-}
+-
+-int prcmu_ac_wake_req(void);
+-void prcmu_ac_sleep_req(void);
+-static inline void prcmu_modem_reset(void)
+-{
+-	db8500_prcmu_modem_reset();
+-}
+-
+-static inline bool prcmu_is_ac_wake_requested(void)
+-{
+-	return db8500_prcmu_is_ac_wake_requested();
+-}
+-
+-static inline int prcmu_config_esram0_deep_sleep(u8 state)
+-{
+-	return db8500_prcmu_config_esram0_deep_sleep(state);
+-}
+-
+-static inline int prcmu_config_hotdog(u8 threshold)
+-{
+-	return db8500_prcmu_config_hotdog(threshold);
+-}
+-
+-static inline int prcmu_config_hotmon(u8 low, u8 high)
+-{
+-	return db8500_prcmu_config_hotmon(low, high);
+-}
+-
+-static inline int prcmu_start_temp_sense(u16 cycles32k)
+-{
+-	return  db8500_prcmu_start_temp_sense(cycles32k);
+-}
+-
+-static inline int prcmu_stop_temp_sense(void)
+-{
+-	return  db8500_prcmu_stop_temp_sense();
+-}
+-
+-static inline u32 prcmu_read(unsigned int reg)
+-{
+-	return db8500_prcmu_read(reg);
+-}
+-
+-static inline void prcmu_write(unsigned int reg, u32 value)
+-{
+-	db8500_prcmu_write(reg, value);
+-}
+-
+-static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value)
+-{
+-	db8500_prcmu_write_masked(reg, mask, value);
+-}
+-
+-static inline int prcmu_enable_a9wdog(u8 id)
+-{
+-	return db8500_prcmu_enable_a9wdog(id);
+-}
+-
+-static inline int prcmu_disable_a9wdog(u8 id)
+-{
+-	return db8500_prcmu_disable_a9wdog(id);
+-}
+-
+-static inline int prcmu_kick_a9wdog(u8 id)
+-{
+-	return db8500_prcmu_kick_a9wdog(id);
+-}
+-
+-static inline int prcmu_load_a9wdog(u8 id, u32 timeout)
+-{
+-	return db8500_prcmu_load_a9wdog(id, timeout);
+-}
+-
+-static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
+-{
+-	return db8500_prcmu_config_a9wdog(num, sleep_auto_off);
+-}
+-#else
+-
+-static inline void prcmu_early_init(void) {}
+-
+-static inline int prcmu_set_power_state(u8 state, bool keep_ulp_clk,
+-	bool keep_ap_pll)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_set_epod(u16 epod_id, u8 epod_state)
+-{
+-	return 0;
+-}
+-
+-static inline void prcmu_enable_wakeups(u32 wakeups) {}
+-
+-static inline void prcmu_disable_wakeups(void) {}
+-
+-static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int prcmu_abb_write_masked(u8 slave, u8 reg, u8 *value, u8 *mask,
+-	u8 size)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int prcmu_config_clkout(u8 clkout, u8 source, u8 div)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_request_clock(u8 clock, bool enable)
+-{
+-	return 0;
+-}
+-
+-static inline long prcmu_round_clock_rate(u8 clock, unsigned long rate)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_set_clock_rate(u8 clock, unsigned long rate)
+-{
+-	return 0;
+-}
+-
+-static inline unsigned long prcmu_clock_rate(u8 clock)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_set_ape_opp(u8 opp)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_get_ape_opp(void)
+-{
+-	return APE_100_OPP;
+-}
+-
+-static inline int prcmu_request_ape_opp_100_voltage(bool enable)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_set_arm_opp(u8 opp)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_get_arm_opp(void)
+-{
+-	return ARM_100_OPP;
+-}
+-
+-static inline int prcmu_get_ddr_opp(void)
+-{
+-	return DDR_100_OPP;
+-}
+-
+-static inline void prcmu_system_reset(u16 reset_code) {}
+-
+-static inline u16 prcmu_get_reset_code(void)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_ac_wake_req(void)
+-{
+-	return 0;
+-}
+-
+-static inline void prcmu_ac_sleep_req(void) {}
+-
+-static inline void prcmu_modem_reset(void) {}
+-
+-static inline bool prcmu_is_ac_wake_requested(void)
+-{
+-	return false;
+-}
+-
+-static inline int prcmu_config_esram0_deep_sleep(u8 state)
+-{
+-	return 0;
+-}
+-
+-static inline void prcmu_config_abb_event_readout(u32 abb_events) {}
+-
+-static inline void prcmu_get_abb_event_buffer(void __iomem **buf)
+-{
+-	*buf = NULL;
+-}
+-
+-static inline int prcmu_config_hotdog(u8 threshold)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_config_hotmon(u8 low, u8 high)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_start_temp_sense(u16 cycles32k)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_stop_temp_sense(void)
+-{
+-	return 0;
+-}
+-
+-static inline u32 prcmu_read(unsigned int reg)
+-{
+-	return 0;
+-}
+-
+-static inline void prcmu_write(unsigned int reg, u32 value) {}
+-
+-static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value) {}
+-
+-#endif
+-
+-static inline void prcmu_set(unsigned int reg, u32 bits)
+-{
+-	prcmu_write_masked(reg, bits, bits);
+-}
+-
+-static inline void prcmu_clear(unsigned int reg, u32 bits)
+-{
+-	prcmu_write_masked(reg, bits, 0);
+-}
+-
+-/* PRCMU QoS APE OPP class */
+-#define PRCMU_QOS_APE_OPP 1
+-#define PRCMU_QOS_DDR_OPP 2
+-#define PRCMU_QOS_ARM_OPP 3
+-#define PRCMU_QOS_DEFAULT_VALUE -1
+-
+-static inline int prcmu_qos_add_requirement(int prcmu_qos_class,
+-					    char *name, s32 value)
+-{
+-	return 0;
+-}
+-
+-static inline int prcmu_qos_update_requirement(int prcmu_qos_class,
+-					       char *name, s32 new_value)
+-{
+-	return 0;
+-}
+-
+-static inline void prcmu_qos_remove_requirement(int prcmu_qos_class, char *name)
+-{
+-}
+-
+-#endif /* __MACH_PRCMU_H */
+diff --git a/sound/soc/ux500/ux500_msp_dai.c b/sound/soc/ux500/ux500_msp_dai.c
+index 7798957c6504..499e826d7120 100644
+--- a/sound/soc/ux500/ux500_msp_dai.c
++++ b/sound/soc/ux500/ux500_msp_dai.c
+@@ -14,7 +14,7 @@
+ #include <linux/clk.h>
+ #include <linux/of.h>
+ #include <linux/regulator/consumer.h>
+-#include <linux/mfd/dbx500-prcmu.h>
++#include <linux/mfd/db8500-prcmu.h>
+ 
+ #include <sound/soc.h>
+ #include <sound/soc-dai.h>
+
+---
+base-commit: 8cd9520d35a6c38db6567e97dd93b1f11f185dc6
+change-id: 20260619-mfd-prcmu-merge-headers-bc84905195b4
+
+Best regards,
+-- 
+Linus Walleij <linusw@kernel.org>
 
