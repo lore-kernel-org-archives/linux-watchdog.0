@@ -1,169 +1,418 @@
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A6983B1014
-	for <linux-watchdog@vger.kernel.org>; Mon, 22 Jun 2026 13:06:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 427182D77F5;
+	Mon, 22 Jun 2026 14:45:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782133614; cv=none; b=UslDWG4XL85sLLEumBpeyOsTPBQYnwPIPAWnSE2tl9ZhKYkChsXgBSgSw+JUMT5Ap1iYNW+GG8RmKW0j3wqf43WGQM4MgfpnAgvAZ3rvZra0xN3JR87l/bgRPLCaN7wfKp8LK84Pd6ehIBJT0D+ryu1tRpc80/MNYC7jcvcvN+o=
+	t=1782139538; cv=none; b=Y6TDT+ybLb0qgloibafAPAu6Z9OASrS83LWLXaafF03Pt8uqrjWvbDY3vqRKtOUzx7y/eZwY9g+PFVv25FmHic5Gw5nSZJNg500VRrI7DWZ5UmRhGH4sQAwWzPKzWF43/UdHlR97KzI+WoowRAP7maTpDvTBwnips54Y71g8ZcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782133614; c=relaxed/simple;
-	bh=rEgomYeES1303/3+oBxWiEtLOZncEUHVqywFcqqxico=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RqFFAWj+w7zl6I/GwM1uJK+YXoRWay+mFrbiwIFrYvPSc0XhHJtlLQzMX+B3qy4ehmtEdgV25hiSPQyhBEA3XDp85Za9vWFo+SVpsIiar3KuUPGwe6Wp2k1k7GNy4hXEbv/gVyg3EpBS3/eJCMIspslfPUZTZzWVR8Ch+6XwnHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m2JNRoN9; arc=none smtp.client-ip=74.125.82.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782139538; c=relaxed/simple;
+	bh=Og/7wzu7nxEeP0k0n8Qm03U5QgVly7xO4bX4tm7JKjc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VUnvlr4uUhrBHCpe240V5u93zSs4ImdEl9nkcMLBhANsUBUAlHFXGxNiyEL23XQvN1RJzm6u27+XHd8Ajvyl0DAGSyv39BfcRkisnKpCo4wGIYJis9PVt1xjfLt2Kuh1purJbZDN7/xzTTFaqkcgDAOqokV+laysaINp353cNCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=I+F0KzBX; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=AmWfUV9e; arc=none smtp.client-ip=202.12.124.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m2JNRoN9"
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-137eb0d76beso3730195c88.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 22 Jun 2026 06:06:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782133612; x=1782738412; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=JzlovJlGJX04+5z99oBQpaTuexgmdv5pr10RaNussdc=;
-        b=m2JNRoN9kMMFj4TrOwgFeJgxLdCM8rbBv7wI1kppwdO6aCijke7MWma8ucG2MugTpY
-         F24uOWg9t2NXgM7B2grdN/XYLur/IResnkx5dcKZO6E/omsb+oulW5jhgcCVD8RSI4jH
-         Xi9AUbR4RhqpLnzN+XrFI/dE0JJMXkT7ydgfv0E4Hm59urLeJeEJEx0fu5RkMXLq0slZ
-         3AEecywPLoYMQ6aeXoMYtjk/veSHhCHfkMH93K8mQjdg4VBWW+7LPZb7ZqaFvewM0hJu
-         hOKwQr7HYBt955AucPeHARwOt2oKdvfBfdyrK7OvTr866onTS2vUMVDBebMPaBagwW/S
-         PI1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782133612; x=1782738412;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JzlovJlGJX04+5z99oBQpaTuexgmdv5pr10RaNussdc=;
-        b=f1iWiHjkwnViQ5E/plN0uuNbHItHowrcsc0kI0inmiyHvQpabVylSDAea/oumVUJ8W
-         gelkIJ/WPgv7xvkBItNPTtMomU+K8foKSrTBZeij/ENP8JANPtAzeaTR0BTYp1OncI3c
-         c/nQS8H5TVApRSJRF8lweYQA7kRkILT0SYJ5Y/r48R0Bm58yYAPTBLeZzjHcNPNNpoY9
-         P8MBBJWVBZ0Bmy7eFiysjQ/cu0uUkIuqAJ6O7ynbEEBOIfKfwhwjtY3UtyqWvnRN4oZg
-         5F60TonXB0fZjmhZu9xbDHZGG0+MuhwwK+LUFin0QS+V4EPduJ3a17kmypfhVmaCGqwe
-         Etvg==
-X-Forwarded-Encrypted: i=1; AFNElJ93tNbtbtwuOom8l09ym2jCetiGJA+MRv32AuKdZShI7BFPuHbpFZVjQsw2DdlxnT0qYmfzUVGE2nn5pmdWWw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyvj0XkAsjN+pFznXBuzLE5E4qJWx41jGvDoT5vYPW50ib5e1PN
-	0fWJ2xYZTtNKBFbgK9TSAqOBxMyf0qHDKphye3tsBfcofCDcArbu3gq7
-X-Gm-Gg: AfdE7clhHDnKA+oiIE+E9ugqAdI6yBQ1h6s5VYoxy19fsf4PBsQMq+kCmuUrEfgciGx
-	nbWNGx12snmXglV0aIHkcRvwCz8Jb5e8Y8dQ5lJR5nFMIe/CJiCMqTGBwZ4FFAfgqRuXWFUjav3
-	keBk2fsne+5J7Ew++zsHgLo+acJC+ysOjWETvVb8Jj82UUHMVLkQQCpAdVta+sIpitKtE+7SFDC
-	5TlkHBXsJMlCuJdNyY0uBUahYUU2QyK6yLREMWmy0PqEGWwbiXIgWTPYKbPcN7B9MrnMP05XWta
-	PqYNTh+eRipkkB+EQ6Ji6aX/2pcHdTYrOCr9OpQnz01y3ovtVgR2l7SSKqfQZKNTmkR4DGywsIN
-	OG+OkElKm6bSNDIIAi7gli/W2xVnpY/dw15QFNc7tZDXvKKNyd/QP5//GmrmtuImD9xCisw5WKy
-	Qs4irdlRd/aow4uf6TME/7nkGJvzriJD3QpD4fc7zQz6FDhfYtGnN412k0xvFSXg==
-X-Received: by 2002:a05:7022:e998:b0:136:bb14:b0f8 with SMTP id a92af1059eb24-139a3051a57mr7768480c88.5.1782133611333;
-        Mon, 22 Jun 2026 06:06:51 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139adccb622sm8183703c88.7.2026.06.22.06.06.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 22 Jun 2026 06:06:50 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <ec74f1b8-cf7f-4b33-9157-1fd0bb7da7ba@roeck-us.net>
-Date: Mon, 22 Jun 2026 06:06:48 -0700
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="I+F0KzBX";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="AmWfUV9e"
+Received: from phl-compute-09.internal (phl-compute-09.internal [10.202.2.49])
+	by mailfout.stl.internal (Postfix) with ESMTP id 494781D00063;
+	Mon, 22 Jun 2026 10:45:35 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-09.internal (MEProxy); Mon, 22 Jun 2026 10:45:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1782139534; x=
+	1782225934; bh=iBA+VHC7mJwV1ImlZcpHebThX4761Ta+jnrntMcwk/I=; b=I
+	+F0KzBXs6fz8ijwPXCm+WACXc0QWfTRZXkX1Gzytj481U/EbRLbZ3101Igd1sJK1
+	9zYddxhtcaXIKGao3CEgGYVKqPKxxhnTMChLE3cZMXvV1WwehIAWard0XWvMZ4s+
+	A8cWAdE3ikUCgpbvMDStoHMay8FqVN20fRccai6dngAqwaISbLblZFZMqZO0ADOH
+	J/0EafGJtfi9nnJ0lotp9jAqv/reL02dbAF7OyebFXIU6gv0FvSi2rLhmWljjUt5
+	75wLEZbBFc6+6aEa4hbFe21optku0BV1WThLu8wvf5YWcyV5XGf71FGGFFc8B6Ny
+	dp3sHlYHy5/rn6IaSt2CA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
+	:x-me-sender:x-sasl-enc; s=fm1; t=1782139534; x=1782225934; bh=i
+	BA+VHC7mJwV1ImlZcpHebThX4761Ta+jnrntMcwk/I=; b=AmWfUV9eFe9mDfDYl
+	UM3OCxAo1fnw05FtOIWCTlqhjJ7VcVqrjk+cH+XDtYEoUXsVsXpjPifFKRitAc1j
+	AIvOrgQV0Fks//fZeoBri0WoxbY2ZpoOe75/J0wxJfx/qP/1qimb14HEfOtQRTEu
+	J6bAO68Faf/nDDmKOphm1hkC75l1ttOAvgwI83h6jzw5EzJ7TOk9acPBJa10o/qe
+	/szPLIADV8TamtKMWE7LDyLFblnNx8OYpZ8vILWYMe2/a9qRRiK8gjfJYb03V1Lh
+	MLuDfxT+eTaGtLGA3oimKDuntabmp2Zw5taktWg6lyyVZDRhHkS4clTkmOtgLQ1i
+	Ey5aQ==
+X-ME-Sender: <xms:jko5aoSsFPYpv284QMq35SVNZ7_1AYZlWP7MdNHiF_d7vQukC-8upg>
+    <xme:jko5anQ2HWFQyEh98XdQQsCJId2qKX6TBk2E6NnkcyyYGT1iBG2kXnTIRYArSsRL7
+    nrOClamp5haPOejwqIVhWs9r2JmFSN-xYSaPu-IXEi8GQ-Wo1sSRs0>
+X-ME-Received: <xmr:jko5al4kYpjeyfZYYT7f0b2EZ6zbdobbbHLNHtcocvB4uhoPpVPrpOEc4XaGG9dZThZS7gRDLp7ZgIRJXoHXAGniv78>
+X-ME-Proxy-Cause: dmFkZTG0rMpNiTxgzR5sfruzcNflA1Yk/8wZFsxHYxQ+LzahrqpiMx86FExWDr9b/UUNyL
+    jsxOQ1U2aroMXvRsAURIt9LA2lDIFXRtCQ4lrkK7Sey8ZFZ6k7nEYi0QLl4NkSMc5dgxEQ
+    OqGE8yOQmAfiFk36Lz/i//SCKZVbrelJ5VIXX9pH+PxMovWRZ9YRpCosUm0evaiIrvfdaf
+    m7Md6o8HQHRpI+QW3GAuyQKrLBEX1LnDE2ynALLaVY5qRyd5Mc4e1zPgXKPIOG8xDu/+A2
+    CM6qlatBtPxD0qzQubWBoaJFVxCbuvsXuKt+TXmMCTAUnAhMyH8i5FoyfRqlO6jDTolKkb
+    yNcdfuxaaN/c1yjSJ8f9X7Y6nXZ5CVmMDDwJgO4JisfWgW/96QS4Oeom8C7rfrArhpDtus
+    VcoT5+vTg0Sa3cs0jPefr6p6+RXzUvfZ3giaVjlBFPBwP2Vgw/mGDG9L4Un+MFXVMCINJP
+    lg8gMZh8JgvcufJTY4XvE+RiGYv9cD/eWdw/Q1/MxU3ieXDIeru8d0d4y5TmsycfsSzgYC
+    OcRM2aMMA5rUa4AS5sZCxCvXuypM8adF25krRU85PbwkUZKwYqrOMJ7SYzQMLmMDpzaV9F
+    8PluR8g4vYMx8maopTtydeHCsW3iptyv8EsG57Gh8PF0SbmgU5uVhDptOjUQ
+X-ME-Proxy: <xmx:jko5ar1JGh2XEnTAe4K5Qj-AEnabyY_6ESR4hPsG0MJZ6G9C84cPbQ>
+    <xmx:jko5aoB75jiqbra66dIdVGqLTsWszSwOM2r7hGy3mhp--N1TkiXm9w>
+    <xmx:jko5auPWiB7VPzEyIiBUe_UaFHwLWMq0IkSxwtA_suARyRThALcXhw>
+    <xmx:jko5albLWi1HUk2ms-gDYLXgS0DDA7yyhezm8HEK_nUMTWr_tk1wuw>
+    <xmx:jko5asD-GebzFspJuv0U7Gd4ZYKjAkRmntSMhBGIushaKtq0BkT2mJ3x>
+Feedback-ID: ibe194615:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 22 Jun 2026 10:45:33 -0400 (EDT)
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
+To: mpearson-lenovo@squebb.ca
+Cc: wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo SE30G2 and SE60
+Date: Mon, 22 Jun 2026 10:45:20 -0400
+Message-ID: <20260622144531.2413447-1-mpearson-lenovo@squebb.ca>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <mpearson-lenovo@squebb.ca>
+References: <mpearson-lenovo@squebb.ca>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] mfd: db8500-prcmu: Fold dbx500 header into db8500
-To: Linus Walleij <linusw@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Ulf Hansson <ulfh@kernel.org>, Michael Turquette <mturquette@baylibre.com>,
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>,
- Christian Loehle <christian.loehle@arm.com>, Lee Jones <lee@kernel.org>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-sound@vger.kernel.org, kernel test robot <lkp@intel.com>
-References: <20260619-mfd-prcmu-merge-headers-v1-1-8ea0ee23b4d6@kernel.org>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260619-mfd-prcmu-merge-headers-v1-1-8ea0ee23b4d6@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 6/19/26 13:27, Linus Walleij wrote:
-> Move the DBx500 PRCMU definitions into the DB8500 PRCMU
-> header and delete the wrapper header.
-> 
-> Convert users of simple PRCMU wrappers to call the DB8500 helpers
-> directly.
-> 
-> The dbx500-prcmu.h header was the result of an earlier attempt to
-> abstract several DBx5x SoC PRCMU units to use the same abstract
-> header. They are deleted from the kernel and this is not just
-> causing maintenance burden and build errors.
-> 
-> The stub code is using -ENOSYS in a way checkpatch complains about
-> so replace these with -EINVAL while we're at it.
-> 
-> Assisted-by: Codex:gpt-5-5
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202606180825.vUSQntkJ-lkp@intel.com/
-> Signed-off-by: Linus Walleij <linusw@kernel.org>
-> ---
->   arch/arm/mach-ux500/cpu-db8500.c |   6 +-
->   drivers/clk/ux500/clk-prcmu.c    |  20 +-
->   drivers/clk/ux500/u8500_of_clk.c |   2 +-
->   drivers/cpuidle/cpuidle-ux500.c  |   6 +-
->   drivers/mfd/ab8500-core.c        |   2 +-
->   drivers/mfd/db8500-prcmu.c       |   6 +-
->   drivers/regulator/db8500-prcmu.c |  12 +-
->   drivers/thermal/db8500_thermal.c |  10 +-
->   drivers/watchdog/db8500_wdt.c    |  22 +-
+Watchdog driver implementation for Lenovo SE30G2 and SE60 platforms.
 
-For watchdog:
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+---
+ drivers/watchdog/Kconfig                  |  12 +
+ drivers/watchdog/Makefile                 |   1 +
+ drivers/watchdog/lenovo_se30g2_se60_wdt.c | 274 ++++++++++++++++++++++
+ 3 files changed, 287 insertions(+)
+ create mode 100644 drivers/watchdog/lenovo_se30g2_se60_wdt.c
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index dc78729ba2a5..8e2d81b943e8 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -291,6 +291,18 @@ config LENOVO_SE30_WDT
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called lenovo-se30-wdt.
+ 
++config LENOVO_SE30G2_SE60_WDT
++	tristate "Lenovo SE30 Gen 2, SE60 Watchdog"
++	depends on (X86 && DMI) || COMPILE_TEST
++	depends on HAS_IOPORT
++	select WATCHDOG_CORE
++	help
++	  If you say yes here you get support for the watchdog
++	  functionality for the Lenovo SE30 Gen2 and SE60 platforms.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called lenovo-se30g2-se60-wdt.
++
+ config MENF21BMC_WATCHDOG
+ 	tristate "MEN 14F021P00 BMC Watchdog"
+ 	depends on MFD_MENF21BMC || COMPILE_TEST
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index d2fb16b9f9ce..f466e497916a 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -127,6 +127,7 @@ obj-$(CONFIG_IE6XX_WDT) += ie6xx_wdt.o
+ obj-$(CONFIG_ITCO_WDT) += iTCO_wdt.o
+ obj-$(CONFIG_LENOVO_SE10_WDT) += lenovo_se10_wdt.o
+ obj-$(CONFIG_LENOVO_SE30_WDT) += lenovo_se30_wdt.o
++obj-$(CONFIG_LENOVO_SE30G2_SE60_WDT) += lenovo_se30g2_se60_wdt.o
+ obj-$(CONFIG_IT8712F_WDT) += it8712f_wdt.o
+ obj-$(CONFIG_IT87_WDT) += it87_wdt.o
+ obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
+diff --git a/drivers/watchdog/lenovo_se30g2_se60_wdt.c b/drivers/watchdog/lenovo_se30g2_se60_wdt.c
+new file mode 100644
+index 000000000000..56e0e9ef8462
+--- /dev/null
++++ b/drivers/watchdog/lenovo_se30g2_se60_wdt.c
+@@ -0,0 +1,274 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * WDT driver for Lenovo SE30G2 & SE60.
++ */
++
++#include <linux/delay.h>
++#include <linux/dmi.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/string.h>
++#include <linux/types.h>
++#include <linux/watchdog.h>
++
++#define CFG_PORT 0x2E
++#define CFG_SIZE 2
++
++#define CFG_LDN	     0x07
++#define CFG_BRAM_LDN 0x10
++
++#define BRAM_SIZE 2
++
++#define BRAM_WDT_REG 0x48
++
++#define DRVNAME "lenovo-se30g2-se60-wdt"
++
++/*The timeout range is 1-255 seconds*/
++#define MIN_TIMEOUT 1
++#define MAX_TIMEOUT 255
++#define WATCHDOG_TIMEOUT 60 /* 60 sec default timeout */
++
++static unsigned short bram_base;
++static struct platform_device *se_30g2_60_pdev;
++
++static int timeout; /* in seconds */
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout,
++		 "Watchdog timeout in seconds. 1 <= timeout <= 255, default="
++		 __MODULE_STRING(WATCHDOG_TIMEOUT) ".");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++		 "Watchdog cannot be stopped once started (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++struct se_30g2_60_wdt {
++	struct watchdog_device wdd;
++};
++
++static void lpc_write(unsigned char index, unsigned char data)
++{
++	outb(index, CFG_PORT);
++	outb(data, CFG_PORT + 1);
++}
++
++static unsigned char lpc_read(unsigned char index)
++{
++	outb(index, CFG_PORT);
++	return inb(CFG_PORT + 1);
++}
++
++static unsigned short lpc_chip_id(void)
++{
++	unsigned char msb, lsb;
++
++	outb(0x87, CFG_PORT);
++	outb(0x01, CFG_PORT);
++	outb(0x55, CFG_PORT);
++	outb(0x55, CFG_PORT);
++	msb = lpc_read(0x20);
++	lsb = lpc_read(0x21);
++	lpc_write(0x2, 0x2);
++
++	return (msb << 8 | lsb);
++}
++
++static void bram_write(unsigned char reg, unsigned char val)
++{
++	outb(reg | 0x80, bram_base);
++	outb(val, bram_base + 1);
++}
++
++static unsigned char bram_read(unsigned char reg)
++{
++	unsigned char val;
++
++	outb(reg | 0x80, bram_base);
++	val = inb(bram_base + 1);
++	return val;
++}
++
++static unsigned short wdt_read(void)
++{
++	unsigned short val;
++
++	if (!request_muxed_region(bram_base, BRAM_SIZE, DRVNAME))
++		return 0;
++	val = ((bram_read(BRAM_WDT_REG) & 0xFF) << 8);
++	val |= bram_read(BRAM_WDT_REG + 1) & 0xFF;
++	release_region(bram_base, BRAM_SIZE);
++	return val;
++}
++
++static void wdt_write(unsigned short val)
++{
++	if (!request_muxed_region(bram_base, BRAM_SIZE, DRVNAME))
++		return;
++	bram_write(BRAM_WDT_REG, (val >> 8) & 0xFF);
++	bram_write(BRAM_WDT_REG + 1, val & 0xFF);
++	release_region(bram_base, BRAM_SIZE);
++}
++
++static int wdt_start(struct watchdog_device *wdog)
++{
++	wdt_write(wdog->timeout);
++	return 0;
++}
++
++static int wdt_stop(struct watchdog_device *wdog)
++{
++	wdt_write(0);
++	return 0;
++}
++
++static int wdt_ping(struct watchdog_device *wdog)
++{
++	wdt_write(wdog->timeout);
++	return 0;
++}
++
++static int wdt_set_timeout(struct watchdog_device *wdog, unsigned int timeout)
++{
++	if (timeout < MIN_TIMEOUT || timeout > MAX_TIMEOUT)
++		return -EINVAL;
++
++	wdog->timeout = timeout;
++	return 0;
++}
++
++static unsigned int wdt_get_timeleft(struct watchdog_device *wdog)
++{
++	unsigned short val = wdt_read();
++	return val;
++}
++
++static const struct watchdog_info wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "Lenovo SE30G2 SE60 WDOG",
++};
++
++static const struct watchdog_ops se_30g2_60_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = wdt_start,
++	.stop = wdt_stop,
++	.ping = wdt_ping,
++	.set_timeout = wdt_set_timeout,
++	.get_timeleft = wdt_get_timeleft,
++};
++
++static int se_30g2_60_wdt_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct se_30g2_60_wdt *priv;
++	unsigned int chip_id;
++	int ret;
++
++	if (!request_muxed_region(CFG_PORT, CFG_SIZE, DRVNAME))
++		return -EBUSY;
++
++	/* identify the chip */
++	chip_id = lpc_chip_id();
++	if (chip_id != 0x5782) {
++		release_region(CFG_PORT, CFG_SIZE);
++		return -ENODEV;
++	}
++
++	/* probe the BRAM base address */
++	lpc_write(CFG_LDN, CFG_BRAM_LDN);
++	bram_base = (lpc_read(0x60) << 8) | lpc_read(0x61);
++	release_region(CFG_PORT, CFG_SIZE);
++	dev_info(dev, "Found Lenovo SE30G2 SE60 0x%x\n", chip_id);
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	watchdog_set_drvdata(&priv->wdd, priv);
++
++	priv->wdd.parent = dev;
++	priv->wdd.info = &wdt_info;
++	priv->wdd.ops = &se_30g2_60_wdt_ops;
++	priv->wdd.timeout = WATCHDOG_TIMEOUT; /* Set default timeout */
++	priv->wdd.min_timeout = MIN_TIMEOUT;
++	priv->wdd.max_timeout = MAX_TIMEOUT;
++
++	watchdog_init_timeout(&priv->wdd, timeout, dev);
++	watchdog_set_nowayout(&priv->wdd, nowayout);
++	watchdog_stop_on_reboot(&priv->wdd);
++	watchdog_stop_on_unregister(&priv->wdd);
++
++	ret = devm_watchdog_register_device(dev, &priv->wdd);
++
++	dev_dbg(&pdev->dev, "initialized. timeout=%d sec (nowayout=%d)\n",
++		priv->wdd.timeout, nowayout);
++
++	return ret;
++}
++
++static struct platform_driver se_30g2_60_wdt_driver = {
++	.driver = {
++		.name = DRVNAME,
++	},
++	.probe = se_30g2_60_wdt_probe,
++};
++
++static int se_30g2_60_create_device(const struct dmi_system_id *id)
++{
++	int err;
++
++	se_30g2_60_pdev = platform_device_alloc("lenovo-se30g2-se60-wdt", -1);
++	if (!se_30g2_60_pdev)
++		return -ENOMEM;
++
++	err = platform_device_add(se_30g2_60_pdev);
++	if (err)
++		platform_device_put(se_30g2_60_pdev);
++
++	return err;
++}
++
++static const struct dmi_system_id se_30g2_60[] __initconst = {
++	{
++		.ident = "LENOVO-SE30G2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "33BD"),
++		},
++		.callback = se_30g2_60_create_device,
++	},
++	{
++		.ident = "LENOVO-SE60",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "33BF"),
++		},
++		.callback = se_30g2_60_create_device,
++	},
++	{}
++};
++MODULE_DEVICE_TABLE(dmi, se_30g2_60);
++
++static int __init se_30g2_60_wdt_init(void)
++{
++	if (!dmi_check_system(se_30g2_60))
++		return -ENODEV;
++
++	return platform_driver_register(&se_30g2_60_wdt_driver);
++}
++
++static void __exit se_30g2_60_wdt_exit(void)
++{
++	if (se_30g2_60_pdev)
++		platform_device_unregister(se_30g2_60_pdev);
++	platform_driver_unregister(&se_30g2_60_wdt_driver);
++}
++
++module_init(se_30g2_60_wdt_init);
++module_exit(se_30g2_60_wdt_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mark Pearson <mpearson-lenovo@squebb.ca>");
++MODULE_DESCRIPTION("WDT driver for Lenovo SE30G2 & SE60");
+-- 
+2.43.0
 
