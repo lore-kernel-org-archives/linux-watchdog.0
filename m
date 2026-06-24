@@ -1,66 +1,67 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9CB6275B03
-	for <linux-watchdog@vger.kernel.org>; Wed, 24 Jun 2026 02:19:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81556275B03
+	for <linux-watchdog@vger.kernel.org>; Wed, 24 Jun 2026 02:21:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782267562; cv=none; b=kqfnSz6wRqoJ1SvNbfiWLk+VZqnpirM4bSKxb+Smr6bDlKryDrlQT7qsXct+jbjtdiKrnuUkRUEpVu3mmHfpfofu94zB0bZcfG8FnfUbgSUjMKMG7kTeIRoUCRoQ9heE7Wy517suM8rCXfdJuA+FXyl4Vipc/BAd2S+EnElMUdk=
+	t=1782267690; cv=none; b=nfbCNCMeIe72o6PnVfRP+EXXtFXfCQ67iNmkW9yQwzxEFWixL3uzDRrJJ33KUGRu7gzkSq43srpqPRWDNRjJNhxP1eF3tjQ6zesoszkUqWy3rgRPWqvGfNhCcWgRhfb7h+UWBKzcKxTPSq/bZUnD+HRPLxKStq75LcghsvTBMfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782267562; c=relaxed/simple;
-	bh=fME1x1JbXvJo+/HlQZJM7uU0+Yt00yrEtLQVzUZjFEQ=;
+	s=arc-20240116; t=1782267690; c=relaxed/simple;
+	bh=42cm9ckJfIQl4FKdiDBo3WjjTd9hs88gHxDvyyotou4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OsuPJGAnrBY4ZALCvXC9rgVEzKp/cSz9W5OzkmAr3DuRQKsaM6ucFjsgUb9CbhISilZGlcb7iQg//d9jQtQD3lY70ferP/wLfRkoZKX7EaukZzsLwF9FfYAr56srelMvPmGzKrsvH4nIVAYqFjyS+WRfFsC1J+x0/J7Eks/fbgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EGg2bz3R; arc=none smtp.client-ip=74.125.82.175
+	 In-Reply-To:Content-Type; b=KGdMJTnegFUjsheOwLxtg5BT7NScYLsM83qwReT0XQlJqjyyt1aPaWhjJazn83RDWkgqn/FnW6mVT2EeCblRAYuLgbPT9ZDdvEok58KdLf/CoiHMDpYufPNcEiOnyof+hGMWiA085JM+Kf0eFjfukEuZJbeuvieF/PuupUIb2B0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d2IfnAtO; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EGg2bz3R"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3078e0dcd67so650662eec.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 23 Jun 2026 19:19:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d2IfnAtO"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-30c09f29b64so439014eec.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 23 Jun 2026 19:21:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782267560; x=1782872360; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782267689; x=1782872489; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=cnZxS1OtXx+JYeSOjw7QCe4thh3AmhlI2tSxzOmCpOw=;
-        b=EGg2bz3RCV+HOhlraGMcEGl+/gTrDMQ6wytirqMKuIyeJ+pkj5PlmxnMEu1t9KqMlJ
-         SJ4HTdnkvvyjlM2kBn87+1/YE6NuCb6g4HnKthRf4HvrzU1KFm7avxD9gvKbkF2Ivsqh
-         5xyasn+fnsfYZhOGqIVVIsmdaJRuHhF0/fE+JtJN78nCnFlGa9jmBb1h0/1ICAHAFD+H
-         Bs7lKeaXACd2MP5U05tG+jpMzFUW9ZvxX5ijqpMNH/mE9z9ZAVFpCLmkwNLFYL8Fc1v4
-         ymJcyxGd3uxlcC3mRFb1pZLUgibUStfW+cHcjYHokd6ByXIfU4zqUrGBIAHwSbaw6dZZ
-         NTdw==
+        bh=gsPxiom7+of0XRbfxEb1B6mhW4FGcrdPonMB7NSZSig=;
+        b=d2IfnAtOAY/8I6ndsocAgxcLIL0gkhLqGQIMPiqhYy/qWt55otASjGmZTuBo7NCbwm
+         kIaDdguV50KIa/AFztgoSTz7f3dWVJxJ/3pOd36CuoaYaFViXUjV3OnNtWHm0uSAOtVW
+         n2nXWm7SZZS037G1JXUGbrl0y8HLlrrGN1j3nVIMB817XbGFqoe4s4dmQbGW5d36/KRE
+         qcwACudHcTo9miHkrT0ggVqNimRrKn9N0Z1mhnRkxaT21asyFLjmxAG0oaDASI26c06S
+         Yjvim3+6K7h1hw7my+7+/+ZACA7H4QmVoiOVmL5XfffHqb730cFIgEEVXPNVrDRmbc8m
+         PQiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782267560; x=1782872360;
+        d=1e100.net; s=20251104; t=1782267689; x=1782872489;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cnZxS1OtXx+JYeSOjw7QCe4thh3AmhlI2tSxzOmCpOw=;
-        b=L3QT1LPHgqLsJya6afDo5vmgcpZzP67X9or3a9dT9+cmuI6cjpV/svrhyfX4e63b39
-         Wt05efWmO+R7ykfr0WzZm8f9cYbw90LCF8skuvg2gvZOh56u99scceaROrqukzIrXkGB
-         Gkt0KTGl0kXwDxIvlR4erEu/miFuo834NO7hURnGsPJdqbjjf0lY8b1xGJmBERdlcegf
-         QAvOVc/q+4J+uyWRtACISy1f4+XIQvbgqESqzq6ILJ5RzeyMe0OJXJBv9W4XYiNPqwzL
-         ptDamHHlK6DPQRWfT/FmoHLX4noH7lOmC8KuwVrKLPhTz7Etma7loEK1qDegRemEYIuD
-         AeNw==
-X-Gm-Message-State: AOJu0YwPhjvHHWMlE7/qS1/0y9wlgjrxBaTVpiGezsB7+jax1Gb07UQ3
-	Z29MoghEb73KWhkZBC6Fg/1o0lsT5zgaKFxP9Tb44Nwg+GNi+ZaazoCc
-X-Gm-Gg: AfdE7ckpwZgamwgi5JhinAb1ecXXEcfo2MSUy0I5ioHb8q8j5uSAAeTYL5HDQv1xMxw
-	Iz6z+ew1WnHDt1wKGa16Tfsxl4t6atF0cIsVK//Quimt/KFzSp0y8Yy9JUpwRxY7Ix0c4Rk7YbY
-	0EDgu9Sam2rV4wySv6N3pqyDAQVJj1qhIhJSLT1zhqo1Kr4HsMYk0eZSxvG3dmsM3xXZWyAuKKk
-	fSO9ugVK/abw4+zHt/pGOeQ9Ps+XnhgqRIHDiqu+FbW1J9pzmsiCAImaH2vkZV1b/C3LRJPH9vP
-	mCzOe8pzkIVwGL5FbJ77rU0uw8evWTwBeB9Klc8DAEuqI6a4UbH80nYhK6+poFqvyiY3xdraaVb
-	DNuVw5I78YhnaW1rbUTi0l0oEhg/BemPxcw9xOHFyDGm6jBnWa+mUQpOX6//T0kW5zEk8OuLKyI
-	LmEGLtf9hWqm4Pghedf1SgYYWJBhUGiwG8NJk5k7W7Q9wVsLGtJ7VLdpHaj7un+g==
-X-Received: by 2002:a05:7300:214b:b0:2ed:e14:42e9 with SMTP id 5a478bee46e88-30c68ec5a61mr2184448eec.34.1782267559912;
-        Tue, 23 Jun 2026 19:19:19 -0700 (PDT)
+        bh=gsPxiom7+of0XRbfxEb1B6mhW4FGcrdPonMB7NSZSig=;
+        b=EqiMCY5ytIjnlbbU7Q2INBToaMaYeVcBQZznb4+DdqQmq7cs6jYOVu2eBZkAo38jpt
+         MKhgJim5VJvC++TBw4Z7yZ5pBj4gTAO8jtllNzjXg+4qMQ0Qg2y4XfWlD5+pE2XkN1pP
+         ffZX9dutmCX1Mit/pCszJBvT7khSOf/fo7aqiAKkZtzHXOvryfXIiqCRmofOFBAcZ07K
+         jKFcrtoGlZu5Dv3TE9YierKgG/UUMjUn1KoLXpsjifd/wlg9q68Ag8LMzy21FLbHreZj
+         kk0nuEHvgt0HoqvAEyqJ8IOabt6LuUwLUOJnOwpyKYzUN+JQM31TRyzmMQQRbKnvWb8i
+         QmMQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrkOvu/vsg9T7fkDXnzl8K6ODyftk5fjmGouekeNXMQyTz0n3qSAVC79iGmrZ0r86sjox+Y4vliuBjo5lro+Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyDt+dsk+L4FIgqpnUx1JTplvygAPUjQj1RUMqNIGvccT5LUoVy
+	i5pr6wGo5FKPYwruWnJb3tlLvgGRXUzK2ry5NZdB5sAJFbSCnh0mx7ri
+X-Gm-Gg: AfdE7cnTGtncStokNcShT8OPhG0UFWv+phQfO6+NBy3fRrocNuY2/XjZcamgoVnjgNx
+	T41mXsxbCV24V3CvelsRY8v/UKmLFQyC+ecSDlmAO/Nj8Ga9GAUONthZr3KBXfRCzk0cMz711JQ
+	ncqYJKvEf+U+kAjugqAo2ubVrvSQ2ES9qb4Uz42vu+kiJMH9m0+6OgyelWHGaHOET2T+P7CUM5C
+	bRcs/K+Hh5wwN+7KcSfnRlDlEvV2/BAmYC9pSWfgE05dpxA5PP64QV332IR3xI5N5dsDU6vca0P
+	NoPZq9UF6REyRfDjIEuurkJopUxArwWrQHy46OVs7rNkU9Ux3UgCz1/eDtRnPSZdP4Ordl1NBKQ
+	naoLLOmOYW0ofWCr1GF3c96r2pxe05kifrkXKSc1MqduCchiewcPKb1dNxHpVLyc9BM4vstev10
+	B/5W+aY1fkt5r9S70zbLNdwrxa8OT4ud83uc/L8JNZgTJO2f2SGYin0XcBi/wt7xOcsfqGaOyx
+X-Received: by 2002:a05:7300:1801:b0:2ed:a58c:942 with SMTP id 5a478bee46e88-30c5556303cmr6011221eec.8.1782267688564;
+        Tue, 23 Jun 2026 19:21:28 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c5c1056f8sm8120215eec.15.2026.06.23.19.19.18
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c1ba1c376sm21893073eec.3.2026.06.23.19.21.27
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Jun 2026 19:19:19 -0700 (PDT)
+        Tue, 23 Jun 2026 19:21:28 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <b3e11c2a-3b64-4a7a-b8f7-76773747d6a0@roeck-us.net>
-Date: Tue, 23 Jun 2026 19:19:18 -0700
+Message-ID: <6c516e9a-1dad-4c02-aedb-52168806bd21@roeck-us.net>
+Date: Tue, 23 Jun 2026 19:21:27 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -70,12 +71,11 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo
  SE30G2 and SE60
-To: Mark Pearson <mpearson-lenovo@squebb.ca>, sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
+To: Mark Pearson <mpearson-lenovo@squebb.ca>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 References: <mpearson-lenovo@squebb.ca>
  <20260622144531.2413447-1-mpearson-lenovo@squebb.ca>
- <20260622145631.DD7041F000E9@smtp.kernel.org>
- <9e76208e-6fb7-4d62-9a49-95fc03a06737@app.fastmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -121,37 +121,23 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <9e76208e-6fb7-4d62-9a49-95fc03a06737@app.fastmail.com>
+In-Reply-To: <20260622144531.2413447-1-mpearson-lenovo@squebb.ca>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 6/22/26 08:50, Mark Pearson wrote:
-> On Mon, Jun 22, 2026, at 10:56 AM, sashiko-bot@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 4 potential
->> issue(s) to consider:
->> - [High] The global `se_30g2_60_pdev` pointer is not cleared after
->> being freed on the `platform_device_add()` error path, leading to a
->> Use-After-Free and Double-Free during module exit.
+On 6/22/26 07:45, Mark Pearson wrote:
+> Watchdog driver implementation for Lenovo SE30G2 and SE60 platforms.
 > 
-> I belive this is a valid issue - I'll fix in v2.
-> 
->> - [High] SuperIO configuration mode is prematurely exited before
->> reading `bram_base`, causing the read to fail and the driver to map an
->> invalid I/O port address.
-> 
-> This one is I believe invalid and behaviour is correct. If someone wiser than me disagree's please let me know.
-> 
+> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+> ---
+...
+> +static int wdt_set_timeout(struct watchdog_device *wdog, unsigned int timeout)
+> +{
+> +	if (timeout < MIN_TIMEOUT || timeout > MAX_TIMEOUT)
+> +		return -EINVAL;
+> +
+Unnecessary range check. Unnecessary call, actually.
+See watchdog_dev.c:watchdog_set_timeout().
 
-How would anyone but you know ? Normally Super-IO access is disabled
-after the exit sequence is sent (as "lpc_write(0x2, 0x2);" in lpc_chip_id()
-seems to do). Maybe this EC is different and does not disable access to
-its IO space after "lpc_write(0x2, 0x2);". Or maybe that write does not
-disable Super-IO access at all. Again, who but you would know if the EC
-behaves differently than all the other Super-IO chips and embedded
-controllers out there ?
-
-If you say this is correct, we'll have to believe you.
-
-Thanks,
 Guenter
 
