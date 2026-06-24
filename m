@@ -1,121 +1,157 @@
-Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD5B3A874A
-	for <linux-watchdog@vger.kernel.org>; Tue, 23 Jun 2026 20:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9CB6275B03
+	for <linux-watchdog@vger.kernel.org>; Wed, 24 Jun 2026 02:19:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782248083; cv=none; b=osN3PDSluiR4AWvSdDBSUJF2rCDXvbRmb3L2lF0yiRioxLMFX0Ub0OkuoKj/OV3ptIQRBDYQ2PPhGY1KI59kbykj3CJ/PKsUIX8V8GzSqTWHWK8kKv0boyIBu95aXtcbWjdD2+n5FalW6vt1ZrmX7QD0xf094UOqc/GpoYt1kjo=
+	t=1782267562; cv=none; b=kqfnSz6wRqoJ1SvNbfiWLk+VZqnpirM4bSKxb+Smr6bDlKryDrlQT7qsXct+jbjtdiKrnuUkRUEpVu3mmHfpfofu94zB0bZcfG8FnfUbgSUjMKMG7kTeIRoUCRoQ9heE7Wy517suM8rCXfdJuA+FXyl4Vipc/BAd2S+EnElMUdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782248083; c=relaxed/simple;
-	bh=5DbCHy/6r09DtaSVPBqWVpR1JBIh6ODVL+WEV//iL0M=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=BBx3pvG7SbokB3dza1KUv74hzpltJaows6RWbqx5jVw3YdxbNKiehfsyusj90dCiwnxwQ4UiL2qhHXxcWGg1hyrjIKZGxdU0+7b6BQwOc2FuwkaggdCahTydZadEQwMy0QSQ7w+W1bLgAB22QbWMhWi2Lgnpxp/WN5j94Ps6YFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=FceYjO/f; arc=none smtp.client-ip=84.16.241.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
+	s=arc-20240116; t=1782267562; c=relaxed/simple;
+	bh=fME1x1JbXvJo+/HlQZJM7uU0+Yt00yrEtLQVzUZjFEQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OsuPJGAnrBY4ZALCvXC9rgVEzKp/cSz9W5OzkmAr3DuRQKsaM6ucFjsgUb9CbhISilZGlcb7iQg//d9jQtQD3lY70ferP/wLfRkoZKX7EaukZzsLwF9FfYAr56srelMvPmGzKrsvH4nIVAYqFjyS+WRfFsC1J+x0/J7Eks/fbgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EGg2bz3R; arc=none smtp.client-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="FceYjO/f"
-Received: from [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42] (2a02-1812-162d-3d00-649f-659d-f6c1-d42.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:649f:659d:f6c1:d42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sander@svanheule.net)
-	by polaris.svanheule.net (Postfix) with ESMTPSA id 58A777B471A;
-	Tue, 23 Jun 2026 22:45:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
-	s=mail1707; t=1782247511;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oqZlAwE7BzkFoE35oT7HwUab/5ynl4aW1uAG67NDLYc=;
-	b=FceYjO/f1iSGU3YSYAPHpqD6cyDvakHr7GdZ8j4i9KYNnDqGyQX32b7NNc4Rak1+TOgo6v
-	lHzdSaOmhql+N0eF4rIC1hPVL7U6TInMlwOzwJFUvTyRTYL1/gbrHZ/ixxeHIN1dOirAOc
-	PiKGMo+oq0KBxEdCGOqPUUDzfeprAaB0pchNPov0ykKZi7S2GwyvPBc5ujlCueCoRcpGXo
-	eH4i3cGJpucnsthjJhODnf6j6pVnNiqKPLD+6FO61o9AShoT9ngj97NnBBo/2gMQ9LyCGQ
-	gyfiNdaaEeN+H5vzWLSL14IjD2/1P6rvJUhNQGHSLCGAdIbgkWDE9NpxTqY/qQ==
-Message-ID: <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
-Subject: Re: [PATCH v2 0/1] watchdog: realtek-otto: Make use of regmap API
-From: Sander Vanheule <sander@svanheule.net>
-To: Guenter Roeck <linux@roeck-us.net>, Rustam Adilov <adilov@disroot.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Tue, 23 Jun 2026 22:44:50 +0200
-In-Reply-To: <ce37814e-d275-4b0c-a50b-7b164aebd262@roeck-us.net>
-References: <20260519182329.24472-1-adilov@disroot.org>
-	 <05dd2b1d95985e303af332ec81cd830f@disroot.org>
-	 <ce37814e-d275-4b0c-a50b-7b164aebd262@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EGg2bz3R"
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3078e0dcd67so650662eec.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 23 Jun 2026 19:19:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782267560; x=1782872360; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=cnZxS1OtXx+JYeSOjw7QCe4thh3AmhlI2tSxzOmCpOw=;
+        b=EGg2bz3RCV+HOhlraGMcEGl+/gTrDMQ6wytirqMKuIyeJ+pkj5PlmxnMEu1t9KqMlJ
+         SJ4HTdnkvvyjlM2kBn87+1/YE6NuCb6g4HnKthRf4HvrzU1KFm7avxD9gvKbkF2Ivsqh
+         5xyasn+fnsfYZhOGqIVVIsmdaJRuHhF0/fE+JtJN78nCnFlGa9jmBb1h0/1ICAHAFD+H
+         Bs7lKeaXACd2MP5U05tG+jpMzFUW9ZvxX5ijqpMNH/mE9z9ZAVFpCLmkwNLFYL8Fc1v4
+         ymJcyxGd3uxlcC3mRFb1pZLUgibUStfW+cHcjYHokd6ByXIfU4zqUrGBIAHwSbaw6dZZ
+         NTdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782267560; x=1782872360;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cnZxS1OtXx+JYeSOjw7QCe4thh3AmhlI2tSxzOmCpOw=;
+        b=L3QT1LPHgqLsJya6afDo5vmgcpZzP67X9or3a9dT9+cmuI6cjpV/svrhyfX4e63b39
+         Wt05efWmO+R7ykfr0WzZm8f9cYbw90LCF8skuvg2gvZOh56u99scceaROrqukzIrXkGB
+         Gkt0KTGl0kXwDxIvlR4erEu/miFuo834NO7hURnGsPJdqbjjf0lY8b1xGJmBERdlcegf
+         QAvOVc/q+4J+uyWRtACISy1f4+XIQvbgqESqzq6ILJ5RzeyMe0OJXJBv9W4XYiNPqwzL
+         ptDamHHlK6DPQRWfT/FmoHLX4noH7lOmC8KuwVrKLPhTz7Etma7loEK1qDegRemEYIuD
+         AeNw==
+X-Gm-Message-State: AOJu0YwPhjvHHWMlE7/qS1/0y9wlgjrxBaTVpiGezsB7+jax1Gb07UQ3
+	Z29MoghEb73KWhkZBC6Fg/1o0lsT5zgaKFxP9Tb44Nwg+GNi+ZaazoCc
+X-Gm-Gg: AfdE7ckpwZgamwgi5JhinAb1ecXXEcfo2MSUy0I5ioHb8q8j5uSAAeTYL5HDQv1xMxw
+	Iz6z+ew1WnHDt1wKGa16Tfsxl4t6atF0cIsVK//Quimt/KFzSp0y8Yy9JUpwRxY7Ix0c4Rk7YbY
+	0EDgu9Sam2rV4wySv6N3pqyDAQVJj1qhIhJSLT1zhqo1Kr4HsMYk0eZSxvG3dmsM3xXZWyAuKKk
+	fSO9ugVK/abw4+zHt/pGOeQ9Ps+XnhgqRIHDiqu+FbW1J9pzmsiCAImaH2vkZV1b/C3LRJPH9vP
+	mCzOe8pzkIVwGL5FbJ77rU0uw8evWTwBeB9Klc8DAEuqI6a4UbH80nYhK6+poFqvyiY3xdraaVb
+	DNuVw5I78YhnaW1rbUTi0l0oEhg/BemPxcw9xOHFyDGm6jBnWa+mUQpOX6//T0kW5zEk8OuLKyI
+	LmEGLtf9hWqm4Pghedf1SgYYWJBhUGiwG8NJk5k7W7Q9wVsLGtJ7VLdpHaj7un+g==
+X-Received: by 2002:a05:7300:214b:b0:2ed:e14:42e9 with SMTP id 5a478bee46e88-30c68ec5a61mr2184448eec.34.1782267559912;
+        Tue, 23 Jun 2026 19:19:19 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c5c1056f8sm8120215eec.15.2026.06.23.19.19.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Jun 2026 19:19:19 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <b3e11c2a-3b64-4a7a-b8f7-76773747d6a0@roeck-us.net>
+Date: Tue, 23 Jun 2026 19:19:18 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo
+ SE30G2 and SE60
+To: Mark Pearson <mpearson-lenovo@squebb.ca>, sashiko-reviews@lists.linux.dev
+Cc: linux-watchdog@vger.kernel.org
+References: <mpearson-lenovo@squebb.ca>
+ <20260622144531.2413447-1-mpearson-lenovo@squebb.ca>
+ <20260622145631.DD7041F000E9@smtp.kernel.org>
+ <9e76208e-6fb7-4d62-9a49-95fc03a06737@app.fastmail.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <9e76208e-6fb7-4d62-9a49-95fc03a06737@app.fastmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2026-06-23 at 11:44 -0700, Guenter Roeck wrote:
-> On 6/20/26 04:23, Rustam Adilov wrote:
-> > Hello,
-> >=20
-> > I have noticed the status for this patch series is "Changes Requested"
-> > in the patchwork site but the maintainer opposes the requested changes
-> > by Sander in [1], so what do i do here? It is just one the roadblocks
-> > to get USB stuff supported for Realtek chips.
-> >=20
-> > I have already sent a reply week later in [2] but didn't get a response
-> > back. Maybe this email could be served as a gentle remainder.
-> >=20
->=20
-> I said:
-> 	So this is now a NACK if unnecessary error handling is indeed added,
-> 	unless someone convinces me that this would add some benefits that I
-> 	am unable to see.
->=20
-> Your response did not explain the benefits of adding the unnecessary erro=
-r
-> handling. I did not see a rationale from Sander either.
+On 6/22/26 08:50, Mark Pearson wrote:
+> On Mon, Jun 22, 2026, at 10:56 AM, sashiko-bot@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found 4 potential
+>> issue(s) to consider:
+>> - [High] The global `se_30g2_60_pdev` pointer is not cleared after
+>> being freed on the `platform_device_add()` error path, leading to a
+>> Use-After-Free and Double-Free during module exit.
+> 
+> I belive this is a valid issue - I'll fix in v2.
+> 
+>> - [High] SuperIO configuration mode is prematurely exited before
+>> reading `bram_base`, causing the read to fail and the driver to map an
+>> invalid I/O port address.
+> 
+> This one is I believe invalid and behaviour is correct. If someone wiser than me disagree's please let me know.
+> 
 
-I mainly brought it up because I have been asked elsewhere [1] to check the
-regmap return codes. Although that was for a device on an MDIO bus, which I
-suppose is more likely to actually generate errors.
+How would anyone but you know ? Normally Super-IO access is disabled
+after the exit sequence is sent (as "lpc_write(0x2, 0x2);" in lpc_chip_id()
+seems to do). Maybe this EC is different and does not disable access to
+its IO space after "lpc_write(0x2, 0x2);". Or maybe that write does not
+disable Super-IO access at all. Again, who but you would know if the EC
+behaves differently than all the other Super-IO chips and embedded
+controllers out there ?
 
-[1] https://lore.kernel.org/linux-leds/CAMRc=3DMdb7CWB9PmzXJyfvGjvG0iwuwUgf=
-LuKJuMweRFvAhAoHg@mail.gmail.com/
+If you say this is correct, we'll have to believe you.
 
-> On top of that, your patch did not explain the real reason for the patch,
-> as stated in your reply. This means that, for me, it was just a patch mak=
-ing
-> no functional changes for no good reason other than to potentially _incre=
-ase_
-> code complexity by adding unnecessary error handling while at the same ti=
-me
-> claiming that code complexity would be reduced.
+Thanks,
+Guenter
 
-Given the reason is endianess issues, does the GPIO driver (gpio-realtek-ot=
-to.c)
-using ioread32()/iowrite32() still work correctly? If you have the wrong
-endianess there, you would only really see issues with the GPIO interrupt
-handling.
-
-If GPIO works correctly with CONFIG_SWAP_IO_SPACE enabled, then I suppose t=
-he
-watchdog driver needs to be amended. Otherwise perhaps the USB peripheral d=
-river
-should be compensating for its endianess?
-
-> Also, I do not recall even an attempt to address (or even comment on) the
-> actual problem with the driver as reported by Sashiko.
-
-I did have a look at this report [2], but I didn't manage to figure out if =
-the
-behavior I see matches the reasoning by the bot. Since I didn't get any
-feedback, I left it as is.
-
-[2] https://lore.kernel.org/linux-watchdog/d0b159eefa6bc5abf0d1531acde56839=
-6f480500.camel@svanheule.net/
-
-Best,
-Sander
