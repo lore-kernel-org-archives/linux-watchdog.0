@@ -1,113 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE2F30566D
-	for <linux-watchdog@vger.kernel.org>; Thu, 25 Jun 2026 17:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E06EB175A84;
+	Sat, 27 Jun 2026 09:18:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782409957; cv=none; b=fsj02p5dLStTQwfPjC2drFzu6jXyvBc3cEq2FkqSbWLi+Frdy09mxz9DQ6J63BbVV2RUgLfMYzzO+uh+mIne/mNmIgJ3Dp2dH0YcJryV0p2RHujiottGsSDluU9kRQ4/bImm3EEoDMmA+cHPv8Yhzef2GnpQ2yVmDfY6GNigshw=
+	t=1782551900; cv=none; b=gr1jC418TBooFcTuvY3gyZV/fNUODUxc3A4s/z/s62ZhEj0zHCWhcGjn5DGzMCgX5cVyxaibsKJa1hgfhuzflIFix0h+jGHfxe/oRBMdbYcHKZQ48M2wxnRPymUwdkeHcTl7VMDZraDH1zhfMI4vXAffQctUxkaBSQD5YsKgjQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782409957; c=relaxed/simple;
-	bh=ofY2SHn1M3JEXrUc/rtZXXEKZdrDj/TWdc1jO8/fXSA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JzZDIUjWLzfmmgUIFPioPCSgIhCuB4BnAahtnfLp7lYZ9UiNHkZLGNMstca/Go2zK4FHnIkkqgsmOWDqoxuFKioZJwEPU71wVM/YWD5PSCYE80yGwbFbRDxfGPF8EFyKrkQgnBAhffOzDnxad+nuYYzNw7vGCP4sqr0aBZls4hM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h4UMx2p5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782551900; c=relaxed/simple;
+	bh=2L8zScgUc3tNFyO+RZD1cdFNQ1CnMp/QFwV42q249JM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KZCcHc6ylj/wZd5R6St33Ih1KOXzc4frE/ZfTr5thfxCdvrwzHJB84/EhawX0GW/47KIobjSxPHhq0PQHNlhsY4VP6xxJJko/J1ZdkNBo8Qkxd/edUg5TffbYvOgidPOAwmvYoNEhuUaR8TpafkfM6Rol22I03WMZ0KqmF6YsIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=UyeJ24+x; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=FVgl7sVJ; arc=none smtp.client-ip=80.241.56.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h4UMx2p5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B101F000E9;
-	Thu, 25 Jun 2026 17:52:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782409955;
-	bh=gVDOgKi8jy6DBNPcxYd6pkfPviUj6pp/FtgPXf7fcxo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h4UMx2p5x1xIAnVN2zceArOYAegLYK47UbUv5bqHHa0Pbo+XPssCZnRH/IfITYJDS
-	 0nymVl1SmD3gcUHQCuFZVa3Sc1NNp+8fvo6Th2Mfe6oIgLdLC3b624jihE6eaf4bKS
-	 h9wIkZ405g5gO1UDKoOtf4MHWmunh+kqLrzwQCS4MfvWtKMIEXtl2hrM9d1SHCymyD
-	 WH6vWtOJBnNn+M5yS+UPOzDsAb1vL2VTdbFVqR0lk/kDHxaTD3i3OYFEyUDyPtA69T
-	 oj5slQ6VI4HJm+/7svO1Q7qW7dVuur4LCe8PA5CPpQPEGT6akMuQFRajMRQbMfqDn5
-	 j3Da+rr1HrMhQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] watchdog: lenovo_se30g2_se60_wdt: Watchdog for
- Lenovo SE30G2 and SE60
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mark Pearson" <mpearson-lenovo@squebb.ca>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260625174328.3339996-1-mpearson-lenovo@squebb.ca>
-References: <mpearson-lenovo@squebb.ca>
- <20260625174328.3339996-1-mpearson-lenovo@squebb.ca>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 25 Jun 2026 17:52:34 +0000
-Message-Id: <20260625175235.49B101F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="UyeJ24+x";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="FVgl7sVJ"
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4gnRm253LSz9tgj;
+	Sat, 27 Jun 2026 11:18:10 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1782551890;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0NBB/jFCgD9qO1i9EY3bNI0lxBAwYUv4tadrp4nhd4o=;
+	b=UyeJ24+xBINAG8tkZpDjOrsieMKGcCu3hkY16FvnzFAAPQHUUyFxNCv05UNaCdR0V1ZU5u
+	yU0ysZpNDVGPRzF5iN8bkdlqVDg9Xu7YTIvzqr/Bq4M05jQy8NA0/lTd51HqqsjJ/xpjek
+	5DhwGvOUcBQk0ygibjcXMIWqSfrSpoDvbR6pCMrTdjL5UcxKEznRexIv4q6ICO6P3iJNow
+	kuFoGUd+FMDYuhuHe1grVhLL8+Pbp/OMU5lZTzeoGZSoP/dFbk3s99PvPJfH94/KLlPpYE
+	/6FUKClHzq2iLq1/xTTjc6yutpifMo12hTmy2C2Md9NZdCl+GLzrZ5IQDxjKZw==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=FVgl7sVJ;
+	spf=pass (outgoing_mbo_mout: domain of manuelebner@mailbox.org designates 2001:67c:2050:b231:465::202 as permitted sender) smtp.mailfrom=manuelebner@mailbox.org
+From: Manuel Ebner <manuelebner@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1782551889;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0NBB/jFCgD9qO1i9EY3bNI0lxBAwYUv4tadrp4nhd4o=;
+	b=FVgl7sVJ2qWdptNO14//R4h3M/EYoEXtLEa3GHfJFL6vFxno0EsYrIiQxy0NStOY6WqADl
+	xmvMvsZxjS5SlsLtfjmWpDurkDboskVRNGZYJvlFnHho2I29a1prOUcyS3ueMHNZdGJexp
+	bFNJ5TuIvPHUrMXHmw0nlgT/pyHxHvQ2zWZEkQkM9seL73t/HO0ZDzhEe2EY2Q34Hf1HV2
+	EQ2R7EIwXhLatu8t302mV6dvPZikuHOwtnAZt9dDBqYedj/fCYWDKNcBBcHBh+q3YUA2e4
+	dgR+EY16oChWCZcUqbrMGKBguSu5vrHpasxy9rULF3RRPkZyLoxihY/1F/K40A==
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	linux-watchdog@vger.kernel.org (open list:WATCHDOG DEVICE DRIVERS),
+	linux-doc@vger.kernel.org (open list:DOCUMENTATION),
+	linux-kernel@vger.kernel.org (open list),
+	Randy Dunlap <rdunlap@infradead.org>
+Cc: Manuel Ebner <manuelebner@mailbox.org>
+Subject: [PATCH] docs: watchdog: Fix brackets
+Date: Sat, 27 Jun 2026 11:17:08 +0200
+Message-ID: <20260627091707.29688-2-manuelebner@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: j9sqchyx86gj315ytionmepmekkdog94
+X-MBO-RS-ID: c39a9ca55ba58113048
+X-Rspamd-Queue-Id: 4gnRm253LSz9tgj
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Incorrect error cleanup for a registered platform device leaves =
-a zombified sysfs device.
---
+Add missing brackets ')'.
 
-commit 728400a02a11a5d2e004ae6d02e2731670483271
-Author: Mark Pearson <mpearson-lenovo@squebb.ca>
+Signed-off-by: Manuel Ebner <manuelebner@mailbox.org>
+---
+ Documentation/watchdog/watchdog-parameters.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo SE30G2 and SE60
+diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
+index 2359aa32e25d..8e2df5b7d241 100644
+--- a/Documentation/watchdog/watchdog-parameters.rst
++++ b/Documentation/watchdog/watchdog-parameters.rst
+@@ -59,7 +59,7 @@ advantechwdt:
+ 
+ alim1535_wdt:
+     timeout:
+-	Watchdog timeout in seconds. (0 < timeout < 18000, default=60
++	Watchdog timeout in seconds. (0 < timeout < 18000, default=60)
+     nowayout:
+ 	Watchdog cannot be stopped once started
+ 	(default=kernel config parameter)
+@@ -68,7 +68,7 @@ alim1535_wdt:
+ 
+ alim7101_wdt:
+     timeout:
+-	Watchdog timeout in seconds. (1<=timeout<=3600, default=30
++	Watchdog timeout in seconds. (1<=timeout<=3600, default=30)
+     use_gpio:
+ 	Use the gpio watchdog (required by old cobalt boards).
+ 	default=0/off/no
+-- 
+2.54.0
 
-This commit adds the watchdog driver implementation for Lenovo SE30G2 and
-SE60 platforms.
-
-> diff --git a/drivers/watchdog/lenovo_se30g2_se60_wdt.c b/drivers/watchdog=
-/lenovo_se30g2_se60_wdt.c
-> --- /dev/null
-> +++ b/drivers/watchdog/lenovo_se30g2_se60_wdt.c
-[ ... ]
-> +static int se_30g2_60_create_device(const struct dmi_system_id *id)
-> +{
-> +	int err;
-> +
-> +	se_30g2_60_pdev =3D platform_device_alloc("lenovo-se30g2-se60-wdt", -1);
-> +	if (!se_30g2_60_pdev)
-> +		return -ENOMEM;
-> +
-> +	err =3D platform_device_add(se_30g2_60_pdev);
-> +	if (err) {
-> +		platform_device_put(se_30g2_60_pdev);
-> +		se_30g2_60_pdev =3D NULL;
-> +	}
-> +
-> +	return err;
-> +}
-[ ... ]
-> +static int __init se_30g2_60_wdt_init(void)
-> +{
-> +	int err;
-> +
-> +	if (!dmi_check_system(se_30g2_60))
-> +		return -ENODEV;
-> +
-> +	err =3D platform_driver_register(&se_30g2_60_wdt_driver);
-> +	if (err && se_30g2_60_pdev) {
-> +		platform_device_put(se_30g2_60_pdev);
-
-[Severity: Medium]
-Since the device was successfully added to the system bus via
-platform_device_add() in the DMI callback earlier, will calling
-platform_device_put() here just drop the allocation reference without
-removing the device from the sysfs hierarchy?
-
-Should this error path use platform_device_unregister() instead to avoid
-leaving a zombie device on the bus that could cause collisions on a later
-module load?
-
-> +		se_30g2_60_pdev =3D NULL;
-> +	}
-> +
-> +	return err;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260625174328.3339=
-996-1-mpearson-lenovo@squebb.ca?part=3D1
