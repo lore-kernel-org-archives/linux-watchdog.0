@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F741416D09;
-	Tue, 30 Jun 2026 13:10:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C9BE41C2EA;
+	Tue, 30 Jun 2026 13:19:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782825020; cv=none; b=WhDcG4mFZtujx92JoWrboXm9Bad05phQ/LG1aJW/42oqXE+v7tWwUcrsokxv01tURlJ4c4v8mvz7rsA0aWfARgRg1jDPqT5oJ0/eCo9zRVAmMzL3VRdMObmwrY+LW912Bsp1TxYnecwWNT/U4GOwQ1QfvhSwFuRx6uaaIdrTYhc=
+	t=1782825566; cv=none; b=iJH60BAANO1UJUwCw0ha+jUQERn+3e6DK+cJoqYBlxGy2BnyHM77/Y/9rw92uUczeR6MthK3mPGNhssyY1OaZ55kO7L1hKykz34DlxUgoRA5uceGvd93m0/oVAxYxFd1uw5DDzH+2M4DHibYJB5uERPYHsCi3RyTFUm/wTJZ264=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782825020; c=relaxed/simple;
-	bh=71FGi3GNfI8IifyPtlk3/LtXzoRwq27IZZc7qX9MH1M=;
+	s=arc-20240116; t=1782825566; c=relaxed/simple;
+	bh=1FkcqdOGqEDn13KLVgWBY0vMUbZS3S1TLLEJwcdQ8gA=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=I0bQkUI+ISKhf4NPVo5j3MIndrtrjpu2o2hzXh0I3/jh0er/1ZMf6+YBG9w6ernAeSYuHz1i5neA3ikdAL2DKWCiWtyxCArlF2O2IrXiHAZ9hzWztoBEPuEZWyuaN/bHK6MkOJ/cGxhHiTs0mV68S++lAso4Y1uVKJWHeqVEns8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ib5zBAa9; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=nK3FokztuAB+GKgzrU54dst/jnyjt54LmzM2o1ttL3uU/ziDrhJiKo/ZE9djVQ+pNQwijlBBgMQwl0lmZcKnbhwrWLLmjgcD3K9RKu+FM1bn/NBEdD3q1zAN0rpZp3UMMXWpJErHwVYZ4GQt0k7Rj2RNtQfWC7MhShGlIerO18I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LlQQjWyx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ib5zBAa9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D8C1F000E9;
-	Tue, 30 Jun 2026 13:10:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LlQQjWyx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B00081F000E9;
+	Tue, 30 Jun 2026 13:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782825017;
-	bh=dW5cnOiLDGaHAlToRbB9W33P9zj9uViAhwdub11Sofg=;
+	s=k20260515; t=1782825564;
+	bh=X2huV41tJ0rz8l0aDtoqZqmqn9ylvKGcaUxEC++7rR8=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=ib5zBAa98KrK+zI7PQPEclF6Tk/E1NXlO1S6r+8fkB8VlH+26nlhBGsOBDLuJsDaZ
-	 AlR8KeC/fcWSWAqFRGFIp01zfpmqThkQvMVswAS0FbfSRE/bt8YEXwUdPdzho7IbH4
-	 Wv6b+4latBzWqB7iixSEIbxu0zj06bAqk24o9HySS3zLuIBA5vEh0Y+nONYDCWoQcv
-	 cxVd3MNW74HHiw3z6wW90xqBDHHpmhtK1KuqShVLnPUuzsbPjYv0Ku4/uVDI76+LXO
-	 bC/Cv2ru88VYa+4YVuMks+53dajuidAgn5p7JH3cXu+apFL4VUD0npqxtsgQoe6GjD
-	 FReNwYIZ69JAg==
+	b=LlQQjWyxYIgd5RQfxzCRSXT3munQUYGNFy8m7AUrqWXixrxJG+u1fA9hS94lkQqyQ
+	 UWUfHIhdAtJRYjEyi3FElTOFQdKQJbn7a3RS/h4f8CTtWXN5WnfH/F3QhNtwb2Nn+C
+	 tjy3/utkBuF+HhMeENDotyNwlac44OFA4Ly+o5lOnTQzyZZWOkXhofn4/mED1pQCHB
+	 ocOI5hh3Zi9PMmZb9rPhwLZfYn6tmCyVzQnye59pd4gfn6mipwFxTnrQEWuUQKnzNX
+	 6PaDUxoFTPeRzTYa1HoX6wEqDiFoW/B1m1uAxeo67bxddbKG2u/xbKZz5yg60U+Sxr
+	 sOVop1h8QdPuw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 4/5] gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
+Subject: Re: [PATCH v6 5/5] watchdog: aaeon: Add watchdog driver for
+ SRG-IMX8P MCU
 Reply-To: sashiko-reviews@lists.linux.dev
-Cc: Frank.Li@kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, imx@lists.linux.dev
-In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-4-d66b5fcbd2f0@bootlin.com>
+Cc: robh@kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, Frank.Li@kernel.org, imx@lists.linux.dev, devicetree@vger.kernel.org
+In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-5-d66b5fcbd2f0@bootlin.com>
 References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
- <20260630-dev-b4-aaeon-mcu-driver-v6-4-d66b5fcbd2f0@bootlin.com>
+ <20260630-dev-b4-aaeon-mcu-driver-v6-5-d66b5fcbd2f0@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 13:10:16 +0000
-Message-Id: <20260630131017.60D8C1F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 13:19:23 +0000
+Message-Id: <20260630131923.B00081F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -45,92 +46,88 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Unconditional resetting of all hardware pins in the `probe` functi=
-on breaks bootloader hand-off and destroys firmware configuration.
-- [Medium] Ignoring critical hardware errors during probe initialization le=
-ads to inconsistent software state.
+- [High] Missing PM hooks to stop the hardware watchdog during system suspe=
+nd.
+- [Medium] The `timeout-sec` device tree property is ignored because the dr=
+iver reads it from the child MFD device instead of the parent device.
 --
 
-commit 73ee6d66b506331ac77e36c415e83febae316cf0
+commit 0395f10fd7f7a423d535b7eff45bb1cf967808e5
 Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
-gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
+watchdog: aaeon: Add watchdog driver for SRG-IMX8P MCU
 
-This commit adds a GPIO driver for the Aaeon SRG-IMX8P embedded controller.
-It supports 7 GPO pins and 12 GPIO pins, providing access to pins handled
-by the microcontroller. During probe, all pins are reset to a known state.
+Add watchdog driver for the Aaeon SRG-IMX8P embedded controller.
+This driver provides system monitoring and recovery capabilities
+through the MCU's watchdog timer.
 
-> diff --git a/drivers/gpio/gpio-aaeon-mcu.c b/drivers/gpio/gpio-aaeon-mcu.c
+> diff --git a/drivers/watchdog/aaeon_mcu_wdt.c b/drivers/watchdog/aaeon_mc=
+u_wdt.c
 > new file mode 100644
-> index 0000000000000..a9e048c865f5c
 > --- /dev/null
-> +++ b/drivers/gpio/gpio-aaeon-mcu.c
+> +++ b/drivers/watchdog/aaeon_mcu_wdt.c
 
 [ ... ]
 
-> +static void aaeon_mcu_gpio_reset(struct aaeon_mcu_gpio *data, struct dev=
-ice *dev)
+> +static int aaeon_mcu_wdt_probe(struct platform_device *pdev)
 > +{
-> +	unsigned int i;
-> +	int ret;
-> +
-> +	/* Reset all GPOs */
-> +	for (i =3D 0; i < MAX_GPOS; i++) {
-> +		ret =3D aaeon_mcu_gpo_set_cmd(data, i, 0);
-> +		if (ret < 0)
-> +			dev_warn(dev, "Failed to reset GPO %u state: %d\n", i, ret);
-> +		clear_bit(i, data->dir_in);
-
-[Severity: Medium]
-Is it safe to update the internal software state tracking when the hardware
-command fails?
-
-If aaeon_mcu_gpo_set_cmd() returns an error because the underlying bus is
-temporarily inaccessible, clear_bit() is still executed. This could result
-in the GPIO controller registering with a mismatched view of the hardware.
-
-> +	}
-> +
-> +	/* Reset all GPIOs */
-> +	for (i =3D MAX_GPOS; i < MAX_GPOS + MAX_GPIOS; i++) {
-> +		ret =3D aaeon_mcu_gpio_config_input_cmd(data, i);
-> +		if (ret < 0)
-> +			dev_warn(dev, "Failed to reset GPIO %u state: %d\n", i, ret);
-> +		set_bit(i, data->dir_in);
-
-[Severity: Medium]
-Similarly, does this code lead to an inconsistent state by blindly updating
-data->dir_in even if aaeon_mcu_gpio_config_input_cmd() fails?
-
-> +	}
-> +}
-> +
-> +static int aaeon_mcu_gpio_probe(struct platform_device *pdev)
-> +{
+> +	struct device *dev =3D &pdev->dev;
 
 [ ... ]
 
 > +	/*
-> +	 * Reset all GPIO states to a known configuration. The MCU does not
-> +	 * reset GPIO state on soft reboot, only on power cycle (hard reboot).
-> +	 * Without this reset, GPIOs would retain their previous state across
-> +	 * reboots, which could lead to unexpected behavior.
+> +	 * The MCU firmware has a fixed hardware timeout of 25 seconds that
+> +	 * cannot be changed. The watchdog core handles automatic pinging to
+> +	 * support software timeouts longer than the hardware limit. The default
+> +	 * software timeout of 240 seconds can be overridden via the DT
+> +	 * timeout-sec property or the watchdog_timeout kernel boot parameter.
 > +	 */
-> +	aaeon_mcu_gpio_reset(data, &pdev->dev);
+> +	wdt->timeout =3D AAEON_MCU_WDT_TIMEOUT;
+> +	wdt->min_timeout =3D AAEON_MCU_WDT_MIN_TIMEOUT;
+> +	wdt->max_timeout =3D AAEON_MCU_WDT_MAX_TIMEOUT;
+> +	wdt->max_hw_heartbeat_ms =3D AAEON_MCU_WDT_HEARTBEAT_MS;
+> +	watchdog_init_timeout(wdt, timeout, dev);
 
-[Severity: High]
-Could forcing all output pins to low and resetting GPIO configurations to
-inputs unconditionally during probe disrupt the state established by the
-bootloader?
+[Severity: Medium]
+Does this pass the correct device for reading the DT timeout-sec property?
 
-Overriding the hardware state on every boot could inadvertently cut power to
-critical system components like regulators, eMMC, or displays that were left
-on by the bootloader or previous kernel execution.
+Since dev is a child platform device instantiated by the MFD core, it typic=
+ally
+lacks an of_node. Should this be dev->parent instead, so that
+device_property_read_u32() in the watchdog core can successfully find the
+timeout-sec property?
 
 > +
-> +	return devm_gpiochip_add_data(&pdev->dev, &data->gc, data);
+> +	watchdog_set_drvdata(wdt, data);
+> +	watchdog_stop_on_reboot(wdt);
+
+[ ... ]
+
+> +	return devm_watchdog_register_device(dev, wdt);
 > +}
+> +
+> +static struct platform_driver aaeon_mcu_wdt_driver =3D {
+> +	.driver		=3D {
+> +		.name	=3D "aaeon-mcu-wdt",
+> +	},
+> +	.probe		=3D aaeon_mcu_wdt_probe,
+> +};
+
+[Severity: High]
+Will this cause unexpected system resets during suspend?
+
+If the system enters suspend while the watchdog is active, the watchdog cor=
+e's
+ping worker is frozen. Since there are no PM hooks provided here to stop the
+hardware timer or configure it for sleep, will the MCU's 25-second hardware
+watchdog tick down and reset the board if suspend lasts longer than 25 seco=
+nds?
+
+> +
+> +module_platform_driver(aaeon_mcu_wdt_driver);
+> +
+> +MODULE_ALIAS("platform:aaeon-mcu-wdt");
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630-dev-b4-aae=
-on-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com?part=3D4
+on-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com?part=3D5
