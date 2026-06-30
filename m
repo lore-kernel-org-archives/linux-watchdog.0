@@ -1,232 +1,136 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E31404BF3;
-	Tue, 30 Jun 2026 13:02:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F741416D09;
+	Tue, 30 Jun 2026 13:10:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782824580; cv=none; b=FimcHfXXFnIybwTJ6XNXQKzcJVdE1xUX9HvhOAd3sI5LBljTZlhyvYNst3XUjKBgor9aLn9A0J2rhCLqaEDFouxOeP389L9KuHCgZ1IcD8PY+Eo31Z2Y97UgHfntLx7Qx8JDZ9P9Id7gWRw2v0T3sZb1BpFP+oiGJBKWIWZC4Rc=
+	t=1782825020; cv=none; b=WhDcG4mFZtujx92JoWrboXm9Bad05phQ/LG1aJW/42oqXE+v7tWwUcrsokxv01tURlJ4c4v8mvz7rsA0aWfARgRg1jDPqT5oJ0/eCo9zRVAmMzL3VRdMObmwrY+LW912Bsp1TxYnecwWNT/U4GOwQ1QfvhSwFuRx6uaaIdrTYhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782824580; c=relaxed/simple;
-	bh=IrGvTlERqpo/3pGq5R9mKLZ2ZN7AqLblURBN09By/oM=;
+	s=arc-20240116; t=1782825020; c=relaxed/simple;
+	bh=71FGi3GNfI8IifyPtlk3/LtXzoRwq27IZZc7qX9MH1M=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JPL1A/DrFGWaOm4gycpKCKP1ee2IgUpaURPaLz0yLDmfEvItyNOfjPxyZBXiYVSCrNrKMeDgAsyMX0w9I+/BzA4ggKbupS/f7iZwBGeZi+u+vRpADAchk/HIALAPPpUHskpZXRjGDwFlH0GDg1wrzFcT0Dn0IvMhyEM/ZuDGdRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U6sL8uCd; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=I0bQkUI+ISKhf4NPVo5j3MIndrtrjpu2o2hzXh0I3/jh0er/1ZMf6+YBG9w6ernAeSYuHz1i5neA3ikdAL2DKWCiWtyxCArlF2O2IrXiHAZ9hzWztoBEPuEZWyuaN/bHK6MkOJ/cGxhHiTs0mV68S++lAso4Y1uVKJWHeqVEns8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ib5zBAa9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U6sL8uCd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D025F1F000E9;
-	Tue, 30 Jun 2026 13:02:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ib5zBAa9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D8C1F000E9;
+	Tue, 30 Jun 2026 13:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782824579;
-	bh=DHxZ4ly54lO+A8eesypakFR+eEoSwHj6D5C65EtfJ7s=;
+	s=k20260515; t=1782825017;
+	bh=dW5cnOiLDGaHAlToRbB9W33P9zj9uViAhwdub11Sofg=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=U6sL8uCdHqoy1EFgRy/O2PLcbf6CqyI7Wn+RKX5nBXz+8Ay1kLUktLaeekJNh5kVR
-	 MnJ8KDkDGEkNye97yDbBhL3Kt0dGQ4UnvlMdlVYLQyd9l+YbNgY8Nrb8mP3ErnZZI2
-	 GIHknoNfJ7b3B/eAF+G2M+LNm5uZTqcGBsgDqFVYNWqlnqVOPLiuZGrEmaZhLqcgxD
-	 fit3J/hUN2UAlsR0ttNed/Dxo1zqUInjn5mj7dVMapBgP8CV0N7a7Gbc9Q17nqABwK
-	 CXCDeHhY50fx57RkWOTMZ1gpi/+Kk9lv2JcORcN9Anw/jOm2gVQYIlmeHkCowcf/Nq
-	 HY1mU45C/jXMQ==
+	b=ib5zBAa98KrK+zI7PQPEclF6Tk/E1NXlO1S6r+8fkB8VlH+26nlhBGsOBDLuJsDaZ
+	 AlR8KeC/fcWSWAqFRGFIp01zfpmqThkQvMVswAS0FbfSRE/bt8YEXwUdPdzho7IbH4
+	 Wv6b+4latBzWqB7iixSEIbxu0zj06bAqk24o9HySS3zLuIBA5vEh0Y+nONYDCWoQcv
+	 cxVd3MNW74HHiw3z6wW90xqBDHHpmhtK1KuqShVLnPUuzsbPjYv0Ku4/uVDI76+LXO
+	 bC/Cv2ru88VYa+4YVuMks+53dajuidAgn5p7JH3cXu+apFL4VUD0npqxtsgQoe6GjD
+	 FReNwYIZ69JAg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
+Subject: Re: [PATCH v6 4/5] gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
 Reply-To: sashiko-reviews@lists.linux.dev
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, Frank.Li@kernel.org, linux-watchdog@vger.kernel.org, imx@lists.linux.dev, robh@kernel.org
-In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+Cc: Frank.Li@kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, imx@lists.linux.dev
+In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-4-d66b5fcbd2f0@bootlin.com>
 References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
- <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+ <20260630-dev-b4-aaeon-mcu-driver-v6-4-d66b5fcbd2f0@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 13:02:58 +0000
-Message-Id: <20260630130258.D025F1F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 13:10:16 +0000
+Message-Id: <20260630131017.60D8C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Heap buffer overflow in `aaeon_mcu_regmap_write()` due to unconstr=
-ained write sizes during bulk writes.
-- [High] Unsafe use of `I2C_M_DMA_SAFE` with caller-supplied buffers causes=
- DMA mapping of stack memory in `aaeon_mcu_regmap_read()`.
-- [High] DMA cacheline corruption due to `devm_kzalloc()` usage for I2C DMA=
- buffers.
-- [Medium] I2C bus lock is dropped between write and read phases of a singl=
-e MCU command, breaking atomicity.
+- [High] Unconditional resetting of all hardware pins in the `probe` functi=
+on breaks bootloader hand-off and destroys firmware configuration.
+- [Medium] Ignoring critical hardware errors during probe initialization le=
+ads to inconsistent software state.
 --
 
-commit aa13d82b96cec6318efcd3d2b062f9b98afc3a61
+commit 73ee6d66b506331ac77e36c415e83febae316cf0
 Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
-mfd: aaeon: Add SRG-IMX8P MCU driver
-   =20
-Add Multi-Function Device (MFD) driver for the Aaeon SRG-IMX8P
-embedded controller. This driver provides the core I2C communication
-interface and registers child devices (GPIO and watchdog controllers).
+gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
 
-> diff --git a/drivers/mfd/aaeon-mcu.c b/drivers/mfd/aaeon-mcu.c
+This commit adds a GPIO driver for the Aaeon SRG-IMX8P embedded controller.
+It supports 7 GPO pins and 12 GPIO pins, providing access to pins handled
+by the microcontroller. During probe, all pins are reset to a known state.
+
+> diff --git a/drivers/gpio/gpio-aaeon-mcu.c b/drivers/gpio/gpio-aaeon-mcu.c
 > new file mode 100644
-> index 0000000000000..306aaac1bd60c
+> index 0000000000000..a9e048c865f5c
 > --- /dev/null
-> +++ b/drivers/mfd/aaeon-mcu.c
+> +++ b/drivers/gpio/gpio-aaeon-mcu.c
 
 [ ... ]
 
-> +static int aaeon_mcu_regmap_write(void *context, const void *data, size_=
-t count)
+> +static void aaeon_mcu_gpio_reset(struct aaeon_mcu_gpio *data, struct dev=
+ice *dev)
 > +{
-> +	struct aaeon_mcu *mcu =3D context;
-> +	struct i2c_client *client =3D mcu->client;
-> +	struct i2c_msg write_msg;
-> +	/* The MCU always sends a response byte after each command; discard it.=
- */
-> +	struct i2c_msg response_msg;
+> +	unsigned int i;
 > +	int ret;
 > +
-> +	memcpy(mcu->cmd, data, count);
-
-[Severity: High]
-Does this code overflow the mcu->cmd buffer if a bulk write is triggered?
-
-The mcu->cmd buffer is strictly allocated with a length of 3 bytes.
-If a bulk write occurs (e.g., via regcache_sync() or regmap debugfs), the
-count could exceed 3 bytes.
-
-Could the aaeon_mcu_regmap_config missing .use_single_write =3D true allow
-these bulk writes to occur?
-
-> +
-> +	write_msg.addr  =3D client->addr;
-> +	write_msg.flags =3D I2C_M_DMA_SAFE;
-> +	write_msg.buf   =3D mcu->cmd;
-> +	write_msg.len   =3D count;
-> +
-> +	response_msg.addr  =3D client->addr;
-> +	response_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
-> +	response_msg.buf   =3D mcu->response;
-> +	response_msg.len   =3D 1;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &response_msg, 1);
+> +	/* Reset all GPOs */
+> +	for (i =3D 0; i < MAX_GPOS; i++) {
+> +		ret =3D aaeon_mcu_gpo_set_cmd(data, i, 0);
+> +		if (ret < 0)
+> +			dev_warn(dev, "Failed to reset GPO %u state: %d\n", i, ret);
+> +		clear_bit(i, data->dir_in);
 
 [Severity: Medium]
-Could this sequence of two separate i2c_transfer() calls cause the MCU
-command phases to be interleaved with other bus traffic?
+Is it safe to update the internal software state tracking when the hardware
+command fails?
 
-The I2C bus lock is dropped between the write phase and the response read
-phase.
+If aaeon_mcu_gpo_set_cmd() returns an error because the underlying bus is
+temporarily inaccessible, clear_bit() is still executed. This could result
+in the GPIO controller registering with a mismatched view of the hardware.
 
-If another I2C device shares the bus, can its transfers interleave here and
-break the atomicity of the MCU command?
-
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
+> +	}
 > +
-> +	return 0;
+> +	/* Reset all GPIOs */
+> +	for (i =3D MAX_GPOS; i < MAX_GPOS + MAX_GPIOS; i++) {
+> +		ret =3D aaeon_mcu_gpio_config_input_cmd(data, i);
+> +		if (ret < 0)
+> +			dev_warn(dev, "Failed to reset GPIO %u state: %d\n", i, ret);
+> +		set_bit(i, data->dir_in);
+
+[Severity: Medium]
+Similarly, does this code lead to an inconsistent state by blindly updating
+data->dir_in even if aaeon_mcu_gpio_config_input_cmd() fails?
+
+> +	}
 > +}
 > +
-> +static int aaeon_mcu_regmap_read(void *context, const void *reg_buf,
-> +				 size_t reg_size, void *val_buf, size_t val_size)
+> +static int aaeon_mcu_gpio_probe(struct platform_device *pdev)
 > +{
-> +	struct aaeon_mcu *mcu =3D context;
-> +	struct i2c_client *client =3D mcu->client;
-> +	struct i2c_msg write_msg;
-> +	struct i2c_msg read_msg;
-> +	int ret;
-> +
+
+[ ... ]
+
 > +	/*
-> +	 * reg_buf holds the 2-byte big-endian register address [opcode, arg].
-> +	 * Append a trailing 0x00 to form the full 3-byte MCU command.
+> +	 * Reset all GPIO states to a known configuration. The MCU does not
+> +	 * reset GPIO state on soft reboot, only on power cycle (hard reboot).
+> +	 * Without this reset, GPIOs would retain their previous state across
+> +	 * reboots, which could lead to unexpected behavior.
 > +	 */
-> +	mcu->cmd[0] =3D ((u8 *)reg_buf)[0];
-> +	mcu->cmd[1] =3D ((u8 *)reg_buf)[1];
-> +	mcu->cmd[2] =3D 0x00;
-> +
-> +	write_msg.addr  =3D client->addr;
-> +	write_msg.flags =3D I2C_M_DMA_SAFE;
-> +	write_msg.buf   =3D mcu->cmd;
-> +	write_msg.len   =3D AAEON_MCU_CMD_LEN;
-> +
-> +	read_msg.addr  =3D client->addr;
-> +	read_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
-> +	read_msg.buf   =3D val_buf;
+> +	aaeon_mcu_gpio_reset(data, &pdev->dev);
 
 [Severity: High]
-Is it safe to flag a caller-supplied buffer with I2C_M_DMA_SAFE here?
+Could forcing all output pins to low and resetting GPIO configurations to
+inputs unconditionally during probe disrupt the state established by the
+bootloader?
 
-If a child driver or the regmap core passes a stack-allocated buffer for
-val_buf (e.g., during regmap_bulk_read()), tagging it with I2C_M_DMA_SAFE
-bypasses the I2C core's bounce buffers.
+Overriding the hardware state on every boot could inadvertently cut power to
+critical system components like regulators, eMMC, or displays that were left
+on by the bootloader or previous kernel execution.
 
-Could this cause a kernel panic due to a DMA API violation on architectures
-with virtually mapped stacks?
-
-> +	read_msg.len   =3D val_size;
 > +
-> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &read_msg, 1);
-
-[Severity: Medium]
-Similarly to the write path, could dropping the I2C adapter lock between
-the write_msg and read_msg transfers allow other traffic to interrupt the
-sequence?
-
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	return 0;
+> +	return devm_gpiochip_add_data(&pdev->dev, &data->gc, data);
 > +}
-
-[ ... ]
-
-> +static int aaeon_mcu_probe(struct i2c_client *client)
-> +{
-> +	struct aaeon_mcu *ddata;
-> +	struct regmap *regmap;
-> +
-> +	ddata =3D devm_kzalloc(&client->dev, sizeof(*ddata), GFP_KERNEL);
-> +	if (!ddata)
-> +		return -ENOMEM;
-> +
-> +	ddata->client =3D client;
-> +
-> +	ddata->cmd =3D devm_kzalloc(&client->dev, AAEON_MCU_CMD_LEN * sizeof(*d=
-data->cmd),
-> +				   GFP_KERNEL);
-
-[Severity: High]
-Does allocating the DMA buffers with devm_kzalloc() cause cacheline
-corruption?
-
-Since devres allocations prepend a hidden struct devres header which is not
-padded to ARCH_DMA_MINALIGN, the returned buffer can share a cacheline
-with this header.
-
-During I2C DMA transactions on non-cache-coherent architectures, could the
-cacheline invalidation destroy concurrent CPU writes to the devres header?
-
-> +	if (!ddata->cmd)
-> +		return -ENOMEM;
-> +
-> +	ddata->response =3D devm_kzalloc(&client->dev, sizeof(*ddata->response)=
-, GFP_KERNEL);
-> +	if (!ddata->response)
-> +		return -ENOMEM;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630-dev-b4-aae=
-on-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com?part=3D3
+on-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com?part=3D4
