@@ -1,288 +1,232 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22622411688;
-	Tue, 30 Jun 2026 12:51:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E31404BF3;
+	Tue, 30 Jun 2026 13:02:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782823903; cv=none; b=sEJO7woTPcRuHIsbgrW7HnOKWcTdzcSKgMB1gXs8p/tJDK6nj+EgxwC7axYK9evYbUefNXzUqsgVTXLYhJXPdEXEOzvrJ4n2fCQChdL3PoTDgXe4k3Zl/0vsalDRj4/FsZs8ibYvigOtvR/9csGE7BU52hEQ5g7BjF6qPuZwhsA=
+	t=1782824580; cv=none; b=FimcHfXXFnIybwTJ6XNXQKzcJVdE1xUX9HvhOAd3sI5LBljTZlhyvYNst3XUjKBgor9aLn9A0J2rhCLqaEDFouxOeP389L9KuHCgZ1IcD8PY+Eo31Z2Y97UgHfntLx7Qx8JDZ9P9Id7gWRw2v0T3sZb1BpFP+oiGJBKWIWZC4Rc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782823903; c=relaxed/simple;
-	bh=e0tBgdXodDjKLB5j9Y0ET09qtFn0rM79QozzGweseXU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=SrJJtu8gF1sEgVFBmxQ4KfiP7pcmBYL8T2lG0fNuc1UHiajDt1nTxvEiJOBNYPhYoP+CyiHsm3BBYsVQhxUZ0D48K2vEzLfSPpfxCM2byiVqgs+xUwfcm1yubEp1qKRL25Uzy9LVE+LuDaP0+4aIxaf6mMhwbBRYI0ZZnYWJH78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=wKCCAdMX; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1782824580; c=relaxed/simple;
+	bh=IrGvTlERqpo/3pGq5R9mKLZ2ZN7AqLblURBN09By/oM=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JPL1A/DrFGWaOm4gycpKCKP1ee2IgUpaURPaLz0yLDmfEvItyNOfjPxyZBXiYVSCrNrKMeDgAsyMX0w9I+/BzA4ggKbupS/f7iZwBGeZi+u+vRpADAchk/HIALAPPpUHskpZXRjGDwFlH0GDg1wrzFcT0Dn0IvMhyEM/ZuDGdRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U6sL8uCd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="wKCCAdMX"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id C1A854E40BAE;
-	Tue, 30 Jun 2026 12:51:39 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 8DE3D6025A;
-	Tue, 30 Jun 2026 12:51:39 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5C680106F1EA6;
-	Tue, 30 Jun 2026 14:51:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1782823898; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=+iwh65dKO5+bsZr13pVdRagINz4uUME07b+uSSD/0Nc=;
-	b=wKCCAdMXTbId36Xcy84/uXy9ierwa8xUGcPE+dhoEL+fCikztA4aLkjCKwiZgSNgxgZ8D1
-	b+s+jGwSXKwr5hTPrnaDWxXvNxXulZIjiccKT7uCUCev2FmGLVZ48y+QqBDXMdbLTbjqOJ
-	rWhCQ701jN8BtP0HWy0KvPLFk+dyPc0SPAyFRdsVUsWNAv8NX0bKCDPQazDgsf9v4fXdFd
-	BzcSwIrSKGth0DozEii9a9d/bl+FikQAOH3MReWq+v6lXFtZWXcy6sliTpbrEsVcxreFeM
-	afoTPk3n16ijY6DaPj7X3ZoaYe4F+M6INdq4dNvZsbsnBDOAMNiWTQZUlMsB2w==
-From: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
-Date: Tue, 30 Jun 2026 14:51:15 +0200
-Subject: [PATCH v6 5/5] watchdog: aaeon: Add watchdog driver for SRG-IMX8P
- MCU
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U6sL8uCd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D025F1F000E9;
+	Tue, 30 Jun 2026 13:02:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782824579;
+	bh=DHxZ4ly54lO+A8eesypakFR+eEoSwHj6D5C65EtfJ7s=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=U6sL8uCdHqoy1EFgRy/O2PLcbf6CqyI7Wn+RKX5nBXz+8Ay1kLUktLaeekJNh5kVR
+	 MnJ8KDkDGEkNye97yDbBhL3Kt0dGQ4UnvlMdlVYLQyd9l+YbNgY8Nrb8mP3ErnZZI2
+	 GIHknoNfJ7b3B/eAF+G2M+LNm5uZTqcGBsgDqFVYNWqlnqVOPLiuZGrEmaZhLqcgxD
+	 fit3J/hUN2UAlsR0ttNed/Dxo1zqUInjn5mj7dVMapBgP8CV0N7a7Gbc9Q17nqABwK
+	 CXCDeHhY50fx57RkWOTMZ1gpi/+Kk9lv2JcORcN9Anw/jOm2gVQYIlmeHkCowcf/Nq
+	 HY1mU45C/jXMQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v6 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, Frank.Li@kernel.org, linux-watchdog@vger.kernel.org, imx@lists.linux.dev, robh@kernel.org
+In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
+ <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 13:02:58 +0000
+Message-Id: <20260630130258.D025F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260630-dev-b4-aaeon-mcu-driver-v6-5-d66b5fcbd2f0@bootlin.com>
-References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
-In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
- Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>, 
- Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, 
- =?utf-8?q?J=C3=A9r=C3=A9mie_Dautheribes?= <jeremie.dautheribes@bootlin.com>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, 
- "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
-X-Mailer: b4 0.14.3
-X-Last-TLS-Session-Version: TLSv1.3
 
-Add watchdog driver for the Aaeon SRG-IMX8P embedded controller.
-This driver provides system monitoring and recovery capabilities
-through the MCU's watchdog timer.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [High] Heap buffer overflow in `aaeon_mcu_regmap_write()` due to unconstr=
+ained write sizes during bulk writes.
+- [High] Unsafe use of `I2C_M_DMA_SAFE` with caller-supplied buffers causes=
+ DMA mapping of stack memory in `aaeon_mcu_regmap_read()`.
+- [High] DMA cacheline corruption due to `devm_kzalloc()` usage for I2C DMA=
+ buffers.
+- [Medium] I2C bus lock is dropped between write and read phases of a singl=
+e MCU command, breaking atomicity.
+--
 
-The watchdog supports start, stop, and ping operations with a maximum
-hardware heartbeat of 25 seconds and a default timeout of 240 seconds.
-The software timeout can be changed via the WDIOC_SETTIMEOUT ioctl,
-the DT timeout-sec property, or the watchdog_timeout kernel boot
-parameter.
+commit aa13d82b96cec6318efcd3d2b062f9b98afc3a61
+Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
-Co-developed-by: Jérémie Dautheribes (Schneider Electric) <jeremie.dautheribes@bootlin.com>
-Signed-off-by: Jérémie Dautheribes (Schneider Electric) <jeremie.dautheribes@bootlin.com>
-Signed-off-by: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
----
- MAINTAINERS                      |   1 +
- drivers/watchdog/Kconfig         |  10 +++
- drivers/watchdog/Makefile        |   1 +
- drivers/watchdog/aaeon_mcu_wdt.c | 144 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 156 insertions(+)
+mfd: aaeon: Add SRG-IMX8P MCU driver
+   =20
+Add Multi-Function Device (MFD) driver for the Aaeon SRG-IMX8P
+embedded controller. This driver provides the core I2C communication
+interface and registers child devices (GPIO and watchdog controllers).
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2538f8c4bc14..7b92af42c9fd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -193,6 +193,7 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/mfd/aaeon,srg-imx8p-mcu.yaml
- F:	drivers/gpio/gpio-aaeon-mcu.c
- F:	drivers/mfd/aaeon-mcu.c
-+F:	drivers/watchdog/aaeon_mcu_wdt.c
- F:	include/linux/mfd/aaeon-mcu.h
- 
- AAEON UPBOARD FPGA MFD DRIVER
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d3b9df7d466b..f67a0b453316 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -420,6 +420,16 @@ config SL28CPLD_WATCHDOG
- 
- # ARM Architecture
- 
-+config AAEON_MCU_WATCHDOG
-+	tristate "Aaeon MCU Watchdog"
-+	depends on MFD_AAEON_MCU
-+	select WATCHDOG_CORE
-+	help
-+	  Select this option to enable watchdog timer support for the Aaeon
-+	  SRG-IMX8P onboard microcontroller (MCU). This driver provides
-+	  watchdog functionality through the MCU, allowing system monitoring
-+	  and automatic recovery from system hangs.
-+
- config AIROHA_WATCHDOG
- 	tristate "Airoha EN7581 Watchdog"
- 	depends on ARCH_AIROHA || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index ba52099b1253..2deec425d3ea 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -37,6 +37,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
- # ALPHA Architecture
- 
- # ARM Architecture
-+obj-$(CONFIG_AAEON_MCU_WATCHDOG) += aaeon_mcu_wdt.o
- obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
- obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
- obj-$(CONFIG_ARMADA_37XX_WATCHDOG) += armada_37xx_wdt.o
-diff --git a/drivers/watchdog/aaeon_mcu_wdt.c b/drivers/watchdog/aaeon_mcu_wdt.c
-new file mode 100644
-index 000000000000..347ee8269bfd
---- /dev/null
-+++ b/drivers/watchdog/aaeon_mcu_wdt.c
-@@ -0,0 +1,144 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Aaeon MCU Watchdog driver
-+ *
-+ * Copyright (C) 2026 Bootlin
-+ * Author: Jérémie Dautheribes <jeremie.dautheribes@bootlin.com>
-+ * Author: Thomas Perrot <thomas.perrot@bootlin.com>
-+ */
-+
-+#include <linux/mfd/aaeon-mcu.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+#define AAEON_MCU_PING_WDT	0x73
-+
-+#define AAEON_MCU_WDT_TIMEOUT         240
-+#define AAEON_MCU_WDT_HEARTBEAT_MS    25000
-+#define AAEON_MCU_WDT_MIN_TIMEOUT     1
-+#define AAEON_MCU_WDT_MAX_TIMEOUT     3600
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
-+
-+struct aaeon_mcu_wdt {
-+	struct watchdog_device wdt;
-+	struct regmap *regmap;
-+};
-+
-+static int aaeon_mcu_wdt_cmd(struct aaeon_mcu_wdt *data, u8 opcode, u8 arg)
-+{
-+	return regmap_write(data->regmap, AAEON_MCU_REG(opcode, arg), 0);
-+}
-+
-+static int aaeon_mcu_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_CONTROL_WDT_OPCODE, 0x01);
-+}
-+
-+static int aaeon_mcu_wdt_status(struct watchdog_device *wdt, bool *enabled)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+	unsigned int rsp;
-+	int ret;
-+
-+	ret = regmap_read(data->regmap,
-+			  AAEON_MCU_REG(AAEON_MCU_CONTROL_WDT_OPCODE, 0x02),
-+			  &rsp);
-+	if (ret)
-+		return ret;
-+
-+	*enabled = rsp == 0x01;
-+	return 0;
-+}
-+
-+static int aaeon_mcu_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_CONTROL_WDT_OPCODE, 0x00);
-+}
-+
-+static int aaeon_mcu_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_PING_WDT, 0x00);
-+}
-+
-+static const struct watchdog_info aaeon_mcu_wdt_info = {
-+	.identity	= "Aaeon MCU Watchdog",
-+	.options	= WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT
-+};
-+
-+static const struct watchdog_ops aaeon_mcu_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= aaeon_mcu_wdt_start,
-+	.stop		= aaeon_mcu_wdt_stop,
-+	.ping		= aaeon_mcu_wdt_ping,
-+};
-+
-+static int aaeon_mcu_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdt;
-+	struct aaeon_mcu_wdt *data;
-+	bool enabled;
-+	int ret;
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!data->regmap)
-+		return -ENODEV;
-+
-+	wdt = &data->wdt;
-+	wdt->parent = dev;
-+	wdt->info = &aaeon_mcu_wdt_info;
-+	wdt->ops = &aaeon_mcu_wdt_ops;
-+	/*
-+	 * The MCU firmware has a fixed hardware timeout of 25 seconds that
-+	 * cannot be changed. The watchdog core handles automatic pinging to
-+	 * support software timeouts longer than the hardware limit. The default
-+	 * software timeout of 240 seconds can be overridden via the DT
-+	 * timeout-sec property or the watchdog_timeout kernel boot parameter.
-+	 */
-+	wdt->timeout = AAEON_MCU_WDT_TIMEOUT;
-+	wdt->min_timeout = AAEON_MCU_WDT_MIN_TIMEOUT;
-+	wdt->max_timeout = AAEON_MCU_WDT_MAX_TIMEOUT;
-+	wdt->max_hw_heartbeat_ms = AAEON_MCU_WDT_HEARTBEAT_MS;
-+	watchdog_init_timeout(wdt, timeout, dev);
-+
-+	watchdog_set_drvdata(wdt, data);
-+	watchdog_stop_on_reboot(wdt);
-+
-+	ret = aaeon_mcu_wdt_status(wdt, &enabled);
-+	if (ret)
-+		return ret;
-+
-+	if (enabled)
-+		set_bit(WDOG_HW_RUNNING, &wdt->status);
-+
-+	return devm_watchdog_register_device(dev, wdt);
-+}
-+
-+static struct platform_driver aaeon_mcu_wdt_driver = {
-+	.driver		= {
-+		.name	= "aaeon-mcu-wdt",
-+	},
-+	.probe		= aaeon_mcu_wdt_probe,
-+};
-+
-+module_platform_driver(aaeon_mcu_wdt_driver);
-+
-+MODULE_ALIAS("platform:aaeon-mcu-wdt");
-+MODULE_DESCRIPTION("Aaeon MCU Watchdog Driver");
-+MODULE_AUTHOR("Jérémie Dautheribes <jeremie.dautheribes@bootlin.com>");
-+MODULE_LICENSE("GPL");
+> diff --git a/drivers/mfd/aaeon-mcu.c b/drivers/mfd/aaeon-mcu.c
+> new file mode 100644
+> index 0000000000000..306aaac1bd60c
+> --- /dev/null
+> +++ b/drivers/mfd/aaeon-mcu.c
 
--- 
-2.54.0
+[ ... ]
 
+> +static int aaeon_mcu_regmap_write(void *context, const void *data, size_=
+t count)
+> +{
+> +	struct aaeon_mcu *mcu =3D context;
+> +	struct i2c_client *client =3D mcu->client;
+> +	struct i2c_msg write_msg;
+> +	/* The MCU always sends a response byte after each command; discard it.=
+ */
+> +	struct i2c_msg response_msg;
+> +	int ret;
+> +
+> +	memcpy(mcu->cmd, data, count);
+
+[Severity: High]
+Does this code overflow the mcu->cmd buffer if a bulk write is triggered?
+
+The mcu->cmd buffer is strictly allocated with a length of 3 bytes.
+If a bulk write occurs (e.g., via regcache_sync() or regmap debugfs), the
+count could exceed 3 bytes.
+
+Could the aaeon_mcu_regmap_config missing .use_single_write =3D true allow
+these bulk writes to occur?
+
+> +
+> +	write_msg.addr  =3D client->addr;
+> +	write_msg.flags =3D I2C_M_DMA_SAFE;
+> +	write_msg.buf   =3D mcu->cmd;
+> +	write_msg.len   =3D count;
+> +
+> +	response_msg.addr  =3D client->addr;
+> +	response_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
+> +	response_msg.buf   =3D mcu->response;
+> +	response_msg.len   =3D 1;
+> +
+> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D 1)
+> +		return -EIO;
+> +
+> +	ret =3D i2c_transfer(client->adapter, &response_msg, 1);
+
+[Severity: Medium]
+Could this sequence of two separate i2c_transfer() calls cause the MCU
+command phases to be interleaved with other bus traffic?
+
+The I2C bus lock is dropped between the write phase and the response read
+phase.
+
+If another I2C device shares the bus, can its transfers interleave here and
+break the atomicity of the MCU command?
+
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D 1)
+> +		return -EIO;
+> +
+> +	return 0;
+> +}
+> +
+> +static int aaeon_mcu_regmap_read(void *context, const void *reg_buf,
+> +				 size_t reg_size, void *val_buf, size_t val_size)
+> +{
+> +	struct aaeon_mcu *mcu =3D context;
+> +	struct i2c_client *client =3D mcu->client;
+> +	struct i2c_msg write_msg;
+> +	struct i2c_msg read_msg;
+> +	int ret;
+> +
+> +	/*
+> +	 * reg_buf holds the 2-byte big-endian register address [opcode, arg].
+> +	 * Append a trailing 0x00 to form the full 3-byte MCU command.
+> +	 */
+> +	mcu->cmd[0] =3D ((u8 *)reg_buf)[0];
+> +	mcu->cmd[1] =3D ((u8 *)reg_buf)[1];
+> +	mcu->cmd[2] =3D 0x00;
+> +
+> +	write_msg.addr  =3D client->addr;
+> +	write_msg.flags =3D I2C_M_DMA_SAFE;
+> +	write_msg.buf   =3D mcu->cmd;
+> +	write_msg.len   =3D AAEON_MCU_CMD_LEN;
+> +
+> +	read_msg.addr  =3D client->addr;
+> +	read_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
+> +	read_msg.buf   =3D val_buf;
+
+[Severity: High]
+Is it safe to flag a caller-supplied buffer with I2C_M_DMA_SAFE here?
+
+If a child driver or the regmap core passes a stack-allocated buffer for
+val_buf (e.g., during regmap_bulk_read()), tagging it with I2C_M_DMA_SAFE
+bypasses the I2C core's bounce buffers.
+
+Could this cause a kernel panic due to a DMA API violation on architectures
+with virtually mapped stacks?
+
+> +	read_msg.len   =3D val_size;
+> +
+> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D 1)
+> +		return -EIO;
+> +
+> +	ret =3D i2c_transfer(client->adapter, &read_msg, 1);
+
+[Severity: Medium]
+Similarly to the write path, could dropping the I2C adapter lock between
+the write_msg and read_msg transfers allow other traffic to interrupt the
+sequence?
+
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D 1)
+> +		return -EIO;
+> +
+> +	return 0;
+> +}
+
+[ ... ]
+
+> +static int aaeon_mcu_probe(struct i2c_client *client)
+> +{
+> +	struct aaeon_mcu *ddata;
+> +	struct regmap *regmap;
+> +
+> +	ddata =3D devm_kzalloc(&client->dev, sizeof(*ddata), GFP_KERNEL);
+> +	if (!ddata)
+> +		return -ENOMEM;
+> +
+> +	ddata->client =3D client;
+> +
+> +	ddata->cmd =3D devm_kzalloc(&client->dev, AAEON_MCU_CMD_LEN * sizeof(*d=
+data->cmd),
+> +				   GFP_KERNEL);
+
+[Severity: High]
+Does allocating the DMA buffers with devm_kzalloc() cause cacheline
+corruption?
+
+Since devres allocations prepend a hidden struct devres header which is not
+padded to ARCH_DMA_MINALIGN, the returned buffer can share a cacheline
+with this header.
+
+During I2C DMA transactions on non-cache-coherent architectures, could the
+cacheline invalidation destroy concurrent CPU writes to the devres header?
+
+> +	if (!ddata->cmd)
+> +		return -ENOMEM;
+> +
+> +	ddata->response =3D devm_kzalloc(&client->dev, sizeof(*ddata->response)=
+, GFP_KERNEL);
+> +	if (!ddata->response)
+> +		return -ENOMEM;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630-dev-b4-aae=
+on-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com?part=3D3
