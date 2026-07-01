@@ -1,441 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 200F03A0EB3
-	for <linux-watchdog@vger.kernel.org>; Wed,  1 Jul 2026 07:31:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84609257845;
+	Wed,  1 Jul 2026 18:48:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782891099; cv=none; b=PFCKuzqUgXCi43BSTw4SzxAT0IgJVvJH0xamFE+DrjJ0LQEvMBIeZogtPtEmsqMMobvQnGkwzzwX523gt0ryavkV2R/j9IJOuYr8m0Yx2msa4pUhs+OaoSeIRi3H0jptYBqD12yzhBLqp9yHJMiz9SagPLnJEuwaDxyYBqOO2A4=
+	t=1782931693; cv=none; b=QpnZHvMAdmiVUXmZOSCYVebZ86Cm+aiZFZC9VUALhwA3pcraCvB4uhwXPh07gd3Cl4LTsRVSF1VcYvpT+HWAKVzYdR9BS+LuMkGgMvBnsilxsZUN9b2FzhPeviAbpl3mdWZXZqMOiho5cnbYX83RWy/sc4Jvo50Ivz9a9sxwEAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782891099; c=relaxed/simple;
-	bh=iUaIFCGnuFfNH3URRFCdq+79pJiah1D8HEIjhWk+yCw=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T6T//37Y510ZzgG71s7dVdnpi5bBoHRdCMeQOuUQVUM4rxfv2Hc2E5z8mlidxJbV1OMcXSgXjBLreVhglMt8T3YiyZrtmjYR77mKDUSWDemBepUXois/OoTyASEIWBmoNDIddCNjs3soPnk+KAApypz1NEd2kPwdmlz61/Kxzkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dXF2gbb4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782931693; c=relaxed/simple;
+	bh=EBYhBzU40/KAB+3ZX9XeQEHOBu/YbKwtBPmFJsqFliw=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=rKcyeQhPbFTt4sEGy6BSnVZ8yPaRsXZzR4A/5f6iN9KVHahYBbLoxPROdLonUSmC3gOBZugEBGFIKX4twBga4LqO9YDwGEMxtwYLpS2mEzn9nVQkAJoaq34qFpuroByfho7buiipQjtOEndX/Ql4WRABFiCn+LqZS2hZ9mgWwCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=U3iEfO3C; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dXF2gbb4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04DA1F01558
-	for <linux-watchdog@vger.kernel.org>; Wed,  1 Jul 2026 07:31:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782891097;
-	bh=EHH0hjrKeaZWnba6OJ5JT0e3gySxkqVh6AO3zCntqNE=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=dXF2gbb4zSreejAuIAugrOyXLuV+oDU7bhAYgL0LZxT0zrV9v8M5ANPVmGmXDFNKW
-	 Zqy3X3gD6N5hBwHERKl8dd2ZkXb75PHo8petzIQkpDR9vDKkYMZxCq6jNbmxRZmz/C
-	 /cA/iBHwJHvLucrePyNEZJWpTfOL2U6tLtXxV94EyOAblZaLwAqNtX30lgZ7pU7PEf
-	 S1NcZvtsLS9BV/x/qC+mR/FH7XowLzv3L09xDuwXs/2uLIq5pQfKfqXTJw0wdtZJ3B
-	 koAK0uVuwl844JRhO2/5wCvIMR4WhpBBWfmGFpx73gG8mbnMN4NQDxK7pG/9oG8C+W
-	 m80tae7NgM2gw==
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3997a448ecbso3825131fa.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Jul 2026 00:31:37 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RquXa8NBcf7TNsbATkc3sxpUzgcFeklOnMBPtpcHsjPaT8mpp/9t2dMUyxityzZHmmVT0kjZsyTcvwLkLQe3g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5ZtQfBY+IZgphzEZwl5FmhtoRLmPK0kH0wAgMnlUuURvRAY42
-	Zj/on5ouTcbFCa4TrggT9ueAQ36JV8aHVokEMiMvgrwycOv0tD0FtZW2A8q1w1gtufB9ZEL4PfK
-	67mL8vwiovew8PZPw224CfYDcUS734rhzSEZMqUnJJA==
-X-Received: by 2002:a2e:bd83:0:b0:399:8394:9dee with SMTP id
- 38308e7fff4ca-39b340c41d3mr912171fa.25.1782891096281; Wed, 01 Jul 2026
- 00:31:36 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 1 Jul 2026 03:31:35 -0400
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 1 Jul 2026 03:31:35 -0400
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="U3iEfO3C"
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id 9F4FA84146;
+	Wed, 01 Jul 2026 20:48:08 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YwuLvSeedy9q; Wed,  1 Jul 2026 20:48:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1782931687; bh=EBYhBzU40/KAB+3ZX9XeQEHOBu/YbKwtBPmFJsqFliw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=U3iEfO3C7GA5600PNf41KW/iwrAKnWSeFXFYkPU/ueiElEzcY2FotIY+exjy8BDJ7
+	 V44WSlpuj8y/0Z9KeOK+aPENuML+6tEGmTL2ybZKlH0UV2t1omH5B9KYNSFsdZJYSh
+	 PChva9coSpPIIGwOGdNosL8+t6ECqp0FdA97R3vo7/KQflSOmr0MLVmGr7/PpzKUE5
+	 1sxP54+P0phFUtJknoroCag7JjCD3CG5m7vHrOOP4qk9Mqs8oP5AUDa7JBu+uW4E3m
+	 mhllZNZchs/W3w0I389PoONXe+9bNyfK/GlUIlVMSloOkoFbkJtfQZmw+Dgr7dP3ko
+	 k7S+6XU2vyaSA==
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com> <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
-Date: Wed, 1 Jul 2026 03:31:35 -0400
-X-Gmail-Original-Message-ID: <CAMRc=Md2=u=tWhC-H6CA10zoS3ByPtA0UuSsCVkh-eLNe=Rmaw@mail.gmail.com>
-X-Gm-Features: AVVi8Cc_OfLeKOGOhGEKktyfB7tzHJqrZ0eIZ3H6jyHsoTN6UQFcWrRNSrUer3M
-Message-ID: <CAMRc=Md2=u=tWhC-H6CA10zoS3ByPtA0UuSsCVkh-eLNe=Rmaw@mail.gmail.com>
-Subject: Re: [PATCH v6 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
-To: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, 
-	=?UTF-8?B?SsOpcsOpbWllIERhdXRoZXJpYmVz?= <jeremie.dautheribes@bootlin.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Wed, 01 Jul 2026 18:48:06 +0000
+From: Rustam Adilov <adilov@disroot.org>
+To: Sander Vanheule <sander@svanheule.net>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck
+ <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/1] watchdog: realtek-otto: Make use of regmap API
+In-Reply-To: <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
+References: <20260519182329.24472-1-adilov@disroot.org>
+ <05dd2b1d95985e303af332ec81cd830f@disroot.org>
+ <ce37814e-d275-4b0c-a50b-7b164aebd262@roeck-us.net>
+ <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
+Message-ID: <61291b61ae4bfcc6c257dc02f12bdeaf@disroot.org>
+X-Sender: adilov@disroot.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, 30 Jun 2026 14:51:13 +0200, "Thomas Perrot (Schneider
-Electric)" <thomas.perrot@bootlin.com> said:
-> Add Multi-Function Device (MFD) driver for the Aaeon SRG-IMX8P
-> embedded controller. This driver provides the core I2C communication
-> interface and registers child devices (GPIO and watchdog controllers).
->
-> The driver implements a custom regmap bus over I2C to match the MCU's
-> fixed 3-byte command format [opcode, arg, value]. Register addresses
-> are encoded as 16-bit values (opcode << 8 | arg) using the
-> AAEON_MCU_REG() macro defined in the shared header. The regmap
-> instance is shared with child drivers via dev_get_regmap(). Concurrent
-> I2C accesses from child drivers are serialized by regmap's built-in
-> locking.
->
-> I2C transfers use heap-allocated DMA-safe buffers rather than
-> stack-allocated ones, as required by I2C controllers that perform DMA.
->
-> Regmap caching is enabled (REGCACHE_MAPLE) with a volatile_reg
-> callback that marks GPIO input read registers (opcode 0x72) and the
-> watchdog status register (opcode 0x63, arg 0x02) as volatile. All
-> other registers written by the driver (GPIO direction,
-> GPO state, watchdog control) are stable and can be safely cached.
->
-> Co-developed-by: J=C3=A9r=C3=A9mie Dautheribes (Schneider Electric) <jere=
-mie.dautheribes@bootlin.com>
-> Signed-off-by: J=C3=A9r=C3=A9mie Dautheribes (Schneider Electric) <jeremi=
-e.dautheribes@bootlin.com>
-> Signed-off-by: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.=
-com>
-> ---
->  MAINTAINERS                   |   2 +
->  drivers/mfd/Kconfig           |  11 +++
->  drivers/mfd/Makefile          |   1 +
->  drivers/mfd/aaeon-mcu.c       | 205 ++++++++++++++++++++++++++++++++++++=
-++++++
->  include/linux/mfd/aaeon-mcu.h |  40 +++++++++
->  5 files changed, 259 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index ea9d55f76f35..f91b6a1826d0 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -191,6 +191,8 @@ M:	Thomas Perrot <thomas.perrot@bootlin.com>
->  R:	J=C3=A9r=C3=A9mie Dautheribes <jeremie.dautheribes@bootlin.com>
->  S:	Maintained
->  F:	Documentation/devicetree/bindings/mfd/aaeon,srg-imx8p-mcu.yaml
-> +F:	drivers/mfd/aaeon-mcu.c
-> +F:	include/linux/mfd/aaeon-mcu.h
->
->  AAEON UPBOARD FPGA MFD DRIVER
->  M:	Thomas Richard <thomas.richard@bootlin.com>
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index aace5766b38a..ed5169c7a683 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -1561,6 +1561,17 @@ config ABX500_CORE
->  	  remain unchanged when IC changes. Binding of the functions to
->  	  actual register access is done by the IC core driver.
->
-> +config MFD_AAEON_MCU
-> +	tristate "Aaeon SRG-IMX8P MCU Driver"
-> +	depends on I2C
-> +	select MFD_CORE
-> +    select REGMAP
-> +	help
-> +	  Select this option to enable support for the Aaeon SRG-IMX8P
-> +	  onboard microcontroller (MCU). This driver provides the core
-> +	  functionality to communicate with the MCU over I2C. The MCU
-> +	  provides GPIO and watchdog functionality.
-> +
->  config AB8500_CORE
->  	bool "ST-Ericsson AB8500 Mixed Signal Power Management chip"
->  	depends on ABX500_CORE && MFD_DB8500_PRCMU
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index e75e8045c28a..34db5b033584 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -8,6 +8,7 @@ obj-$(CONFIG_MFD_88PM860X)	+=3D 88pm860x.o
->  obj-$(CONFIG_MFD_88PM800)	+=3D 88pm800.o 88pm80x.o
->  obj-$(CONFIG_MFD_88PM805)	+=3D 88pm805.o 88pm80x.o
->  obj-$(CONFIG_MFD_88PM886_PMIC)	+=3D 88pm886.o
-> +obj-$(CONFIG_MFD_AAEON_MCU)	+=3D aaeon-mcu.o
->  obj-$(CONFIG_MFD_ACT8945A)	+=3D act8945a.o
->  obj-$(CONFIG_MFD_SM501)		+=3D sm501.o
->  obj-$(CONFIG_ARCH_BCM2835)	+=3D bcm2835-pm.o
-> diff --git a/drivers/mfd/aaeon-mcu.c b/drivers/mfd/aaeon-mcu.c
-> new file mode 100644
-> index 000000000000..306aaac1bd60
-> --- /dev/null
-> +++ b/drivers/mfd/aaeon-mcu.c
-> @@ -0,0 +1,205 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Aaeon MCU driver
-> + *
-> + * Copyright (C) 2026 Bootlin
-> + * Author: J=C3=A9r=C3=A9mie Dautheribes <jeremie.dautheribes@bootlin.co=
-m>
-> + * Author: Thomas Perrot <thomas.perrot@bootlin.com>
-> + */
-> +
-> +#include <linux/err.h>
-> +#include <linux/i2c.h>
-> +#include <linux/mfd/aaeon-mcu.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/slab.h>
-> +
-> +struct aaeon_mcu {
-> +	struct i2c_client *client;
-> +	u8 *cmd;      /* DMA-safe 3-byte write buffer [opcode, arg, value] */
-> +	u8 *response; /* DMA-safe 1-byte read buffer for MCU acknowledgment */
-> +};
-> +
-> +static const struct mfd_cell aaeon_mcu_devs[] =3D {
-> +	MFD_CELL_BASIC("aaeon-mcu-wdt", NULL, NULL, 0, 0),
-> +	MFD_CELL_BASIC("aaeon-mcu-gpio", NULL, NULL, 0, 0),
-> +};
-> +
-> +/* Number of bytes in a MCU command: [opcode, arg, value] */
-> +#define AAEON_MCU_CMD_LEN      3
-> +
-> +/*
-> + * Custom regmap bus for the Aaeon MCU I2C protocol.
-> + *
-> + * The MCU uses a fixed 3-byte command format [opcode, arg, value] follo=
-wed
-> + * by a 1-byte response. It requires a STOP condition between the comman=
-d
-> + * write and the response read, so two separate i2c_transfer() calls are
-> + * issued.  The regmap lock serialises concurrent accesses from the GPIO
-> + * and watchdog child drivers.
-> + *
-> + * Register addresses are encoded as a 16-bit big-endian value where the
-> + * high byte is the opcode and the low byte is the argument, matching th=
-e
-> + * wire layout produced by regmap for reg_bits=3D16.
-> + */
+Hello,
+On 2026-06-23 20:44, Sander Vanheule wrote:
+> On Tue, 2026-06-23 at 11:44 -0700, Guenter Roeck wrote:
+>> On 6/20/26 04:23, Rustam Adilov wrote:
+>> > Hello,
+>> > 
+>> > I have noticed the status for this patch series is "Changes Requested"
+>> > in the patchwork site but the maintainer opposes the requested changes
+>> > by Sander in [1], so what do i do here? It is just one the roadblocks
+>> > to get USB stuff supported for Realtek chips.
+>> > 
+>> > I have already sent a reply week later in [2] but didn't get a response
+>> > back. Maybe this email could be served as a gentle remainder.
+>> > 
+>> 
+>> I said:
+>> 	So this is now a NACK if unnecessary error handling is indeed added,
+>> 	unless someone convinces me that this would add some benefits that I
+>> 	am unable to see.
+>> 
+>> Your response did not explain the benefits of adding the unnecessary error
+>> handling. I did not see a rationale from Sander either.
+> 
+> I mainly brought it up because I have been asked elsewhere [1] to check the
+> regmap return codes. Although that was for a device on an MDIO bus, which I
+> suppose is more likely to actually generate errors.
+> 
+> [1] https://lore.kernel.org/linux-leds/CAMRc=Mdb7CWB9PmzXJyfvGjvG0iwuwUgfLuKJuMweRFvAhAoHg@mail.gmail.com/
 
-I would have preferred this implemented as a quirk in the i2c regmap but
-won't die on that hill.
+Thanks for clarification. I will take it as i don't need to add the error
+handling.
 
-> +
-> +static int aaeon_mcu_regmap_write(void *context, const void *data, size_=
-t count)
-> +{
-> +	struct aaeon_mcu *mcu =3D context;
-> +	struct i2c_client *client =3D mcu->client;
-> +	struct i2c_msg write_msg;
-> +	/* The MCU always sends a response byte after each command; discard it.=
- */
-> +	struct i2c_msg response_msg;
-> +	int ret;
-> +
-> +	memcpy(mcu->cmd, data, count);
-> +
-> +	write_msg.addr  =3D client->addr;
-> +	write_msg.flags =3D I2C_M_DMA_SAFE;
-> +	write_msg.buf   =3D mcu->cmd;
-> +	write_msg.len   =3D count;
-> +
-> +	response_msg.addr  =3D client->addr;
-> +	response_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
-> +	response_msg.buf   =3D mcu->response;
-> +	response_msg.len   =3D 1;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &response_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	return 0;
-> +}
-> +
-> +static int aaeon_mcu_regmap_read(void *context, const void *reg_buf,
-> +				 size_t reg_size, void *val_buf, size_t val_size)
-> +{
-> +	struct aaeon_mcu *mcu =3D context;
-> +	struct i2c_client *client =3D mcu->client;
-> +	struct i2c_msg write_msg;
-> +	struct i2c_msg read_msg;
-> +	int ret;
-> +
-> +	/*
-> +	 * reg_buf holds the 2-byte big-endian register address [opcode, arg].
-> +	 * Append a trailing 0x00 to form the full 3-byte MCU command.
-> +	 */
-> +	mcu->cmd[0] =3D ((u8 *)reg_buf)[0];
-> +	mcu->cmd[1] =3D ((u8 *)reg_buf)[1];
-> +	mcu->cmd[2] =3D 0x00;
-> +
-> +	write_msg.addr  =3D client->addr;
-> +	write_msg.flags =3D I2C_M_DMA_SAFE;
-> +	write_msg.buf   =3D mcu->cmd;
-> +	write_msg.len   =3D AAEON_MCU_CMD_LEN;
-> +
-> +	read_msg.addr  =3D client->addr;
-> +	read_msg.flags =3D I2C_M_RD | I2C_M_DMA_SAFE;
-> +	read_msg.buf   =3D val_buf;
-> +	read_msg.len   =3D val_size;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &write_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	ret =3D i2c_transfer(client->adapter, &read_msg, 1);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D 1)
-> +		return -EIO;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct regmap_bus aaeon_mcu_regmap_bus =3D {
-> +	.write =3D aaeon_mcu_regmap_write,
-> +	.read  =3D aaeon_mcu_regmap_read,
-> +};
-> +
-> +static bool aaeon_mcu_volatile_reg(struct device *dev, unsigned int reg)
-> +{
-> +	/*
-> +	 * GPIO input registers are driven by external signals and can change
-> +	 * at any time without CPU involvement, always read from hardware.
-> +	 *
-> +	 * The watchdog status register reflects hardware state and can change
-> +	 * autonomously.
-> +	 *
-> +	 * All other registers are written by the driver and their values are
-> +	 * stable, so they can be safely cached.
-> +	 */
-> +	if ((reg >> 8) =3D=3D AAEON_MCU_READ_GPIO_OPCODE)
-> +		return true;
-> +	if (reg =3D=3D AAEON_MCU_REG(AAEON_MCU_CONTROL_WDT_OPCODE, 0x02))
-> +		return true;
-> +	return false;
-> +}
-> +
-> +static const struct regmap_config aaeon_mcu_regmap_config =3D {
-> +	.reg_bits          =3D 16,
-> +	.val_bits          =3D 8,
-> +	.reg_format_endian =3D REGMAP_ENDIAN_BIG,
-> +	.max_register      =3D AAEON_MCU_MAX_REGISTER,
-> +	.volatile_reg      =3D aaeon_mcu_volatile_reg,
-> +	.cache_type        =3D REGCACHE_MAPLE,
-> +};
-> +
-> +static int aaeon_mcu_probe(struct i2c_client *client)
-> +{
-> +	struct aaeon_mcu *ddata;
-> +	struct regmap *regmap;
-> +
-> +	ddata =3D devm_kzalloc(&client->dev, sizeof(*ddata), GFP_KERNEL);
-> +	if (!ddata)
-> +		return -ENOMEM;
-> +
-> +	ddata->client =3D client;
-> +
-> +	ddata->cmd =3D devm_kzalloc(&client->dev, AAEON_MCU_CMD_LEN * sizeof(*d=
-data->cmd),
+As for why my response didn't explain it. I didn't want to speak for Sander so
+i decided to just wait on it.
 
-Why not devm_kcalloc()?
+>> On top of that, your patch did not explain the real reason for the patch,
+>> as stated in your reply. This means that, for me, it was just a patch making
+>> no functional changes for no good reason other than to potentially _increase_
+>> code complexity by adding unnecessary error handling while at the same time
+>> claiming that code complexity would be reduced.
 
-> +				   GFP_KERNEL);
-> +	if (!ddata->cmd)
-> +		return -ENOMEM;
-> +
-> +	ddata->response =3D devm_kzalloc(&client->dev, sizeof(*ddata->response)=
-, GFP_KERNEL);
-> +	if (!ddata->response)
-> +		return -ENOMEM;
-> +
-> +	regmap =3D devm_regmap_init(&client->dev, &aaeon_mcu_regmap_bus,
-> +				  ddata, &aaeon_mcu_regmap_config);
-> +	if (IS_ERR(regmap))
-> +		return dev_err_probe(&client->dev, PTR_ERR(regmap),
-> +				     "failed to initialize regmap\n");
-> +
-> +	return devm_mfd_add_devices(&client->dev, PLATFORM_DEVID_AUTO,
-> +				    aaeon_mcu_devs, ARRAY_SIZE(aaeon_mcu_devs),
-> +				    NULL, 0, NULL);
-> +}
-> +
-> +static const struct of_device_id aaeon_mcu_of_match[] =3D {
-> +	{ .compatible =3D "aaeon,srg-imx8p-mcu" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, aaeon_mcu_of_match);
-> +
-> +static struct i2c_driver aaeon_mcu_driver =3D {
-> +	.driver =3D {
-> +		.name =3D "aaeon-mcu",
-> +		.of_match_table =3D aaeon_mcu_of_match,
-> +	},
-> +	.probe =3D aaeon_mcu_probe,
-> +};
-> +module_i2c_driver(aaeon_mcu_driver);
-> +
-> +MODULE_DESCRIPTION("Aaeon MCU Driver");
-> +MODULE_AUTHOR("J=C3=A9r=C3=A9mie Dautheribes <jeremie.dautheribes@bootli=
-n.com>");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/linux/mfd/aaeon-mcu.h b/include/linux/mfd/aaeon-mcu.=
-h
-> new file mode 100644
-> index 000000000000..3a1aeec85d60
-> --- /dev/null
-> +++ b/include/linux/mfd/aaeon-mcu.h
-> @@ -0,0 +1,40 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +/*
-> + * Aaeon MCU driver definitions
-> + *
-> + * Copyright (C) 2026 Bootlin
-> + * Author: J=C3=A9r=C3=A9mie Dautheribes <jeremie.dautheribes@bootlin.co=
-m>
-> + * Author: Thomas Perrot <thomas.perrot@bootlin.com>
-> + */
-> +
-> +#ifndef __LINUX_MFD_AAEON_MCU_H
-> +#define __LINUX_MFD_AAEON_MCU_H
-> +
-> +/*
-> + * MCU register address: the high byte is the command opcode, the low
-> + * byte is the argument.  This matches the 3-byte wire format
-> + * [opcode, arg, value] used by the MCU I2C protocol.
-> + */
-> +#define AAEON_MCU_REG(op, arg)		(((op) << 8) | (arg))
-> +
-> +/*
-> + * Opcode for GPIO input reads. These registers are volatile, their valu=
-es
-> + * are driven by external signals and can change without CPU involvement=
-.
-> + * Used by the MFD driver's volatile_reg callback to bypass the regmap c=
-ache.
-> + */
-> +#define AAEON_MCU_READ_GPIO_OPCODE	0x72
-> +
-> +/*
-> + * Opcode for watchdog control and status commands.
-> + * The status register (arg=3D0x02) reflects hardware state and is volat=
-ile.
-> + */
-> +#define AAEON_MCU_CONTROL_WDT_OPCODE	0x63
-> +
-> +/*
-> + * Highest register address in the MCU register map.
-> + * The WRITE_GPIO opcode (0x77) with the highest GPIO argument (0x0B =3D=
- 11,
-> + * i.e. MAX_GPIOS - 1) produces the largest encoded address.
-> + */
-> +#define AAEON_MCU_MAX_REGISTER		AAEON_MCU_REG(0x77, 0x0B)
-> +
-> +#endif /* __LINUX_MFD_AAEON_MCU_H */
->
-> --
-> 2.54.0
->
->
+I can change the commit message to mention this main reason in the next patch
+version.
 
-Bart
+> Given the reason is endianess issues, does the GPIO driver (gpio-realtek-otto.c)
+> using ioread32()/iowrite32() still work correctly? If you have the wrong
+> endianess there, you would only really see issues with the GPIO interrupt
+> handling.
+> 
+> If GPIO works correctly with CONFIG_SWAP_IO_SPACE enabled, then I suppose the
+> watchdog driver needs to be amended. Otherwise perhaps the USB peripheral driver
+> should be compensating for its endianess?
+
+Actually, it is other way around. GPIO works correctly when CONFIG_SWAP_IO_SPACE
+is not enabled. When i do enable it, i need to patch the driver to make it work.
+The dirty patch is here [1], which simply changes ioread32()/iowrite32() to
+their __raw variants inside gpio_bank_read and gpio_bank_write the and what is
+also important, the GPIO_GENERIC_BIG_ENDIAN_BYTE_ORDER flag needs to be set.
+And also, i can't simply use the compatibles without GPIO_PORTS_REVERSED because
+the realtek_gpio_line_imr_pos is required for correct functionality.
+
+This patch obviously won't cut as it is going to break rtl9300 without SWAP_IO_SPACE.
+Maybe we could make of gpio-regmap to handle swapping and stuff? I don't know of
+any other elegant solutions to this problem.
+
+[1] - https://github.com/jameywine/openwrt/blob/bb94712cb6faccf082c5a9fcebfabddf837a16bb/target/linux/realtek/patches-6.18/814-gpio-realtek-otto-change-read-write-functions.patch
+
+>> Also, I do not recall even an attempt to address (or even comment on) the
+>> actual problem with the driver as reported by Sashiko.
+> 
+> I did have a look at this report [2], but I didn't manage to figure out if the
+> behavior I see matches the reasoning by the bot. Since I didn't get any
+> feedback, I left it as is.
+> 
+> [2] https://lore.kernel.org/linux-watchdog/d0b159eefa6bc5abf0d1531acde568396f480500.camel@svanheule.net/
+
+Oh yes, thanks for bumping it back. I'll leave it to Guenter Roeck to leave a
+feedback as i am not even nearly qualified to understand it.
+
+> Best,
+> Sander
+
+Best,
+Rustam
