@@ -1,141 +1,177 @@
-Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84609257845;
-	Wed,  1 Jul 2026 18:48:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020F7480971
+	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jul 2026 12:31:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782931693; cv=none; b=QpnZHvMAdmiVUXmZOSCYVebZ86Cm+aiZFZC9VUALhwA3pcraCvB4uhwXPh07gd3Cl4LTsRVSF1VcYvpT+HWAKVzYdR9BS+LuMkGgMvBnsilxsZUN9b2FzhPeviAbpl3mdWZXZqMOiho5cnbYX83RWy/sc4Jvo50Ivz9a9sxwEAc=
+	t=1782995490; cv=none; b=TiU+nclYJHNKG93elTJnZ6yrC/yBpk2m4EHOzFqyA2BCiLYM+gckqRpIyO7VO0qSAPIdKerqLsoPiVgF1bSQ23vMOc6u9yA8BELzLjICNFZQkUgEeH5kobJf4ufL9AkJaQLCV1eWapKiRCruLrxG5fCMgYRcdP9UpiksmWm/zs8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782931693; c=relaxed/simple;
-	bh=EBYhBzU40/KAB+3ZX9XeQEHOBu/YbKwtBPmFJsqFliw=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=rKcyeQhPbFTt4sEGy6BSnVZ8yPaRsXZzR4A/5f6iN9KVHahYBbLoxPROdLonUSmC3gOBZugEBGFIKX4twBga4LqO9YDwGEMxtwYLpS2mEzn9nVQkAJoaq34qFpuroByfho7buiipQjtOEndX/Ql4WRABFiCn+LqZS2hZ9mgWwCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=U3iEfO3C; arc=none smtp.client-ip=178.21.23.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+	s=arc-20240116; t=1782995490; c=relaxed/simple;
+	bh=PBsL63385RAQASu6cjiwEI5QAXcF98UXE3vaEk4luIs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gpwvNhUsKcIIDqhnCOPYpFu+pxmUHYsC07kg7nwEjUHJZkIHYcB4FbLVeZAylsluHmlN1eWLXLv0tjbFzg9OUoefV6WG85MMdg9xwmyzC12mM9A+3syLGXEDibxv4fr2DvWLKNfaPlTYKQb6XxsEeQ/rtVjBAYalslApB7BHzgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HUNdG64N; arc=none smtp.client-ip=209.85.208.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="U3iEfO3C"
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 9F4FA84146;
-	Wed, 01 Jul 2026 20:48:08 +0200 (CEST)
-X-Virus-Scanned: SPAM Filter at disroot.org
-Received: from layka.disroot.org ([127.0.0.1])
- by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id YwuLvSeedy9q; Wed,  1 Jul 2026 20:48:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1782931687; bh=EBYhBzU40/KAB+3ZX9XeQEHOBu/YbKwtBPmFJsqFliw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=U3iEfO3C7GA5600PNf41KW/iwrAKnWSeFXFYkPU/ueiElEzcY2FotIY+exjy8BDJ7
-	 V44WSlpuj8y/0Z9KeOK+aPENuML+6tEGmTL2ybZKlH0UV2t1omH5B9KYNSFsdZJYSh
-	 PChva9coSpPIIGwOGdNosL8+t6ECqp0FdA97R3vo7/KQflSOmr0MLVmGr7/PpzKUE5
-	 1sxP54+P0phFUtJknoroCag7JjCD3CG5m7vHrOOP4qk9Mqs8oP5AUDa7JBu+uW4E3m
-	 mhllZNZchs/W3w0I389PoONXe+9bNyfK/GlUIlVMSloOkoFbkJtfQZmw+Dgr7dP3ko
-	 k7S+6XU2vyaSA==
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HUNdG64N"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-698a9f11776so1414084a12.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 02 Jul 2026 05:31:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782995485; x=1783600285; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hSvByosXnUK2EIuN834ipW7Za/9pwuwT5oGO+dAubwY=;
+        b=HUNdG64ND2FTccFt5Vsb8lA3B4C3voUDeM1w9S+r5PT7TTQho7ti3C5BcZ09mXoKQg
+         AogwvIzvY6+6r4JAWVrQuNEsV3n3Vhay62VXmkAGN3ADT8qsQWzlom+CWoqecvDmXaHz
+         Wtx/xxMfJdJPCDzJclOmzprpGljhBvtHsypLzGKYPcpQjKcY4AGE1JPBC4AAJ+xPzi8v
+         h/byTwendsDBXmb8CRhElc/hYQDNkPiNJuq+gP77mIymxOfgA9crRbzTsZ+gFQ4aI1fJ
+         P1n/U5omtHa2heXofXlxIdh5tI4jujQeoIoykrNdvBU/pXVOK7tIJ4hlgyEMAujSFLAY
+         29Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782995485; x=1783600285;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hSvByosXnUK2EIuN834ipW7Za/9pwuwT5oGO+dAubwY=;
+        b=Ze9e5drijoVhI/NgcwsNhYBnYBCguu/SNNe3c+5dP+4gJxxLqh6ve3bJFd4PJdQRjz
+         EPsOnDFR1pj1XtQR0vDYiq4EjZKt3jwClumT8RQkIKGajIaLAYUrupypicz+o1EmAhOu
+         PqlZd+FI2xaVlueO7GtY7GGANVx5DKOt6YIBxEiOTho3r6UPDx20SDHKNYjMMrJRjKXM
+         +i43NzCEvpt4MaeVhjkg5LJ0+ZkhUNIdfn6Oy0h4ZJDoyrMMPNfIL2EdobetlKGzIwKN
+         M8oBYP4ayulxra0nc2RTG2U/SI+JAgXOYxQ/PNiEBUTsSG6AkHQ08Fe9P1Q1FXBLfVH2
+         ZRFA==
+X-Forwarded-Encrypted: i=1; AHgh+RpT2cghJwmHYZSfsMUc/KpqyTLpMGUUwpDSHcyXtr/21hzGhNzKJqSjcqUaVCjTQhYKDgvh6fSO2ksIfpgkVw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwyYATcJjM3BDkjzWf5wdUfNsm0UM47oRzwyCXmp05QAnQBL25y
+	T/kZXGw/RxV5JFnrdinlo0OvMT335hLCCgGvfwEo5yEEUBmjBEKLUvYX
+X-Gm-Gg: AfdE7ckOd6L3DgD3itkKZb1HjM1TPal+RusB3ezj2RpAIB6cIuFtQCee2d1DyurViOI
+	avaamchnNDfJKpvyDdFViQm/s2XRPuUuTiVpc6yCccEI31z3ZyLck6Yig9xgULUTB2WVjQSRKRq
+	tEmDU3nZai4nJIbKFFEXBkjnqYDaptlil5cRAgsX/20RzE6+Ny8NjNzj8pybOTotqc5D/PnnvoZ
+	GcoblNkYhD72PnoiFUgx/ho3lwLleG9QHYxzoxZXrLfTTy0SeHUMJjs/0UbNeWeEr/oRvJWI8/y
+	fSiIk9FJz/QL2ly1AdHOIai+VBBhNJxzV/MZFZ+dTr3Eumoev+BxMlxdgsyIhMOkxzlvXI1wfdI
+	2igzcaO/QUESKEpM08ulHy/ctrWdfAcHHDjaCGNIwv8UTlKZ6ynplEyPRuWGK9IgTh6sUJBQ2TE
+	KBTXTChU5LgsD8wzE9F/B2AFE9SorXrm5VtILIrhbp6mvxUXf9/iHsaEhwVJN3YO3ednYtg+qcm
+	IAJhYFhG9PQUZEmmfkKotLCWaI=
+X-Received: by 2002:a17:907:a03:b0:c12:b2dc:4834 with SMTP id a640c23a62f3a-c12b2dc4a59mr204811966b.57.1782995484944;
+        Thu, 02 Jul 2026 05:31:24 -0700 (PDT)
+Received: from iku.Home ([2a06:5906:61b:2d00:7a4b:58b4:175e:8c2d])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-477ddf0f433sm9772923f8f.32.2026.07.02.05.31.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jul 2026 05:31:24 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney@redhat.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-renesas-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH RFC v2 0/9] Add System Controller support for RZ/T2H and RZ/N2H SoCs
+Date: Thu,  2 Jul 2026 13:31:03 +0100
+Message-ID: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 01 Jul 2026 18:48:06 +0000
-From: Rustam Adilov <adilov@disroot.org>
-To: Sander Vanheule <sander@svanheule.net>
-Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/1] watchdog: realtek-otto: Make use of regmap API
-In-Reply-To: <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
-References: <20260519182329.24472-1-adilov@disroot.org>
- <05dd2b1d95985e303af332ec81cd830f@disroot.org>
- <ce37814e-d275-4b0c-a50b-7b164aebd262@roeck-us.net>
- <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
-Message-ID: <61291b61ae4bfcc6c257dc02f12bdeaf@disroot.org>
-X-Sender: adilov@disroot.org
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hello,
-On 2026-06-23 20:44, Sander Vanheule wrote:
-> On Tue, 2026-06-23 at 11:44 -0700, Guenter Roeck wrote:
->> On 6/20/26 04:23, Rustam Adilov wrote:
->> > Hello,
->> > 
->> > I have noticed the status for this patch series is "Changes Requested"
->> > in the patchwork site but the maintainer opposes the requested changes
->> > by Sander in [1], so what do i do here? It is just one the roadblocks
->> > to get USB stuff supported for Realtek chips.
->> > 
->> > I have already sent a reply week later in [2] but didn't get a response
->> > back. Maybe this email could be served as a gentle remainder.
->> > 
->> 
->> I said:
->> 	So this is now a NACK if unnecessary error handling is indeed added,
->> 	unless someone convinces me that this would add some benefits that I
->> 	am unable to see.
->> 
->> Your response did not explain the benefits of adding the unnecessary error
->> handling. I did not see a rationale from Sander either.
-> 
-> I mainly brought it up because I have been asked elsewhere [1] to check the
-> regmap return codes. Although that was for a device on an MDIO bus, which I
-> suppose is more likely to actually generate errors.
-> 
-> [1] https://lore.kernel.org/linux-leds/CAMRc=Mdb7CWB9PmzXJyfvGjvG0iwuwUgfLuKJuMweRFvAhAoHg@mail.gmail.com/
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Thanks for clarification. I will take it as i don't need to add the error
-handling.
+Hi All,
 
-As for why my response didn't explain it. I didn't want to speak for Sander so
-i decided to just wait on it.
+This series adds support for the System Controller (SYSC) blocks found on
+the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical low-power
+management and access control functions.
 
->> On top of that, your patch did not explain the real reason for the patch,
->> as stated in your reply. This means that, for me, it was just a patch making
->> no functional changes for no good reason other than to potentially _increase_
->> code complexity by adding unnecessary error handling while at the same time
->> claiming that code complexity would be reduced.
+Hardware Architecture & Dependency Challenges:
+----------------------------------------------
+The SYSC in these SoCs is a multi-functional block responsible for:
+    - Clock & Reset Control
+    - Low Power Management
+    - Clock Monitor (CLMA)
+    - Access Control
 
-I can change the commit message to mention this main reason in the next patch
-version.
+A key architectural detail is that these SYSC blocks are physically located
+within the CPG/MSSR (Clock Pulse Generator / Module Standby Software Reset)
+address space. While the CPG/MSSR driver is already implemented and
+functional for these SoCs, the integration of SYSC adds a layer of
+complexity due to a cyclic dependency:
+    - SYSC requires CPG: The system controller needs a clock to operate.
+    - CPG requires SYSC: Access control registers within the SYSC contain
+      bits necessary to control the PLLs managed by the CPG.
 
-> Given the reason is endianess issues, does the GPIO driver (gpio-realtek-otto.c)
-> using ioread32()/iowrite32() still work correctly? If you have the wrong
-> endianess there, you would only really see issues with the GPIO interrupt
-> handling.
-> 
-> If GPIO works correctly with CONFIG_SWAP_IO_SPACE enabled, then I suppose the
-> watchdog driver needs to be amended. Otherwise perhaps the USB peripheral driver
-> should be compensating for its endianess?
+If implemented as a completely separate top-level system controller node, we
+would face a cyclic dependency between the CPG and SYSC drivers during the
+boot process.
 
-Actually, it is other way around. GPIO works correctly when CONFIG_SWAP_IO_SPACE
-is not enabled. When i do enable it, i need to patch the driver to make it work.
-The dirty patch is here [1], which simply changes ioread32()/iowrite32() to
-their __raw variants inside gpio_bank_read and gpio_bank_write the and what is
-also important, the GPIO_GENERIC_BIG_ENDIAN_BYTE_ORDER flag needs to be set.
-And also, i can't simply use the compatibles without GPIO_PORTS_REVERSED because
-the realtek_gpio_line_imr_pos is required for correct functionality.
+Proposed Implementation
+----------------------------
+To resolve this, the SYSC blocks are represented as child nodes of the
+CPG/MSSR controller in the device tree. The SYSC regmap is registered
+directly against the CPG device node. This hierarchy correctly models the
+hardware address space while allowing the drivers to share resources
+without deadlock.
 
-This patch obviously won't cut as it is going to break rtl9300 without SWAP_IO_SPACE.
-Maybe we could make of gpio-regmap to handle swapping and stuff? I don't know of
-any other elegant solutions to this problem.
+I am sending this as an RFC specifically to get feedback on the
+implementation of the SYSC as child nodes of the CPG to resolve the
+dependency cycle.
 
-[1] - https://github.com/jameywine/openwrt/blob/bb94712cb6faccf082c5a9fcebfabddf837a16bb/target/linux/realtek/patches-6.18/814-gpio-realtek-otto-change-read-write-functions.patch
+I have also included patches which updates the WDT driver to use
+the SYS syscon for register access.
 
->> Also, I do not recall even an attempt to address (or even comment on) the
->> actual problem with the driver as reported by Sashiko.
-> 
-> I did have a look at this report [2], but I didn't manage to figure out if the
-> behavior I see matches the reasoning by the bot. Since I didn't get any
-> feedback, I left it as is.
-> 
-> [2] https://lore.kernel.org/linux-watchdog/d0b159eefa6bc5abf0d1531acde568396f480500.camel@svanheule.net/
+Patches have been rebased on top of next-20260701.
 
-Oh yes, thanks for bumping it back. I'll leave it to Guenter Roeck to leave a
-feedback as i am not even nearly qualified to understand it.
+v1->v2:
+- Updated commit message for patch #1
+- Made use of for_each_child_of_node_scoped
+- Moved sysc_init() to the end of the probe function
 
-> Best,
-> Sander
+v1: https://lore.kernel.org/all/20260511185058.1926869-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
 
-Best,
-Rustam
+Cheers,
+Prabhakar
+
+Lad Prabhakar (9):
+  dt-bindings: clock: renesas,cpg-mssr: Support RZ/T2H system
+    controllers
+  clk: renesas: r9a09g077: Add SYSC regmap support
+  arm64: dts: renesas: r9a09g077: Add system controller child nodes
+  arm64: dts: renesas: r9a09g087: Add system controller child nodes
+  dt-bindings: watchdog: renesas,r9a09g057-wdt: Add SYS syscon support
+  watchdog: rzv2h: Refactor WDTDCR start/stop handling
+  watchdog: rzv2h: Add syscon support for RZ/T2H and RZ/N2H WDT control
+    register
+  arm64: dts: renesas: r9a09g077: Use SYS syscon for WDTDCR access
+  arm64: dts: renesas: r9a09g087: Use SYS syscon for WDTDCR access
+
+ .../bindings/clock/renesas,cpg-mssr.yaml      |  39 +++++
+ .../watchdog/renesas,r9a09g057-wdt.yaml       |  29 +++-
+ arch/arm64/boot/dts/renesas/r9a09g077.dtsi    |  38 ++--
+ arch/arm64/boot/dts/renesas/r9a09g087.dtsi    |  38 ++--
+ drivers/clk/renesas/Kconfig                   |   2 +
+ drivers/clk/renesas/r9a09g077-cpg.c           | 164 ++++++++++++++++++
+ drivers/clk/renesas/renesas-cpg-mssr.c        |   3 +
+ drivers/clk/renesas/renesas-cpg-mssr.h        |   1 +
+ drivers/watchdog/Kconfig                      |   1 +
+ drivers/watchdog/rzv2h_wdt.c                  | 104 +++++++++--
+ 10 files changed, 375 insertions(+), 44 deletions(-)
+
+-- 
+2.54.0
+
