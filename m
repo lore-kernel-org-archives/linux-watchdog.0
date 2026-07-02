@@ -1,225 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D39A330B01
-	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jul 2026 16:35:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EFDB3859EF
+	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jul 2026 19:12:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783010106; cv=none; b=MGUn0qZgGvnu0ZjfU60WwYWaBLep/3KU4PZWS2GoMfy4M0PAqi6MEM72JrtQhC/O1ALxVf7uMQHeaJq2C/abY+kS3vHhFU+x/y4tBz1gD/m0qbR8Mchht8iFRec9Z9H5anZG+ILISqObRhXuLnh1f4GRFsujOLGgp95/0o3GZLk=
+	t=1783019539; cv=none; b=TX9hkhRruTtLBf2bsqZ2jKIafgwwns1b8DdX1zTQCi/3hFdHhlIJuCvzKsGlAoimH3BaS7Pfdfae5XW2LBqfUz3Mn/PqNmx6m1RGO+60fLRC3n7fHvR7cSer74Ctcyndc7IkbRNgs0hNIje7BX1Cg8Ez6yuwU0VIJHOkU4sKh7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783010106; c=relaxed/simple;
-	bh=Lg2p78CTj8EX1V3nDLgiEEnegleZ1jt+577hykcuVV4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MXKd9cJXclv1Pj003X3AFKufAoGnamKuE5V4C8gP+g++quEv5/pT57WXeUmh1GCB3Lb6RCbv7Ednt1sDmMTONCAuId608AgECb1twGiwH49j3ervse5AgpEO9bqfXOGfJ1MpU9F+zY6p7WNC4XygkVXmywcmEKgC/AEqS/9mLLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lOwxbc2N; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783019539; c=relaxed/simple;
+	bh=AVIYuPCgubCuYve1OA2lx01GpnFJKVLmIPNWXCKWycQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=F3x89jnmjuz1kMrl5HPlYi+JhrhF9Bq/UpvIWhaYL2FU00h02vwePPMPzuQIU47yK7+amO5rJWcqPYfyWMCha26K1Hbyysf11/LQj9HFoUJo0T2JOmFhxmj+6wQQTiMWgCAEYc7NWfsar2LqlJ/vrHN3BHoYP2PCuzr8LPBuCJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CQgTSdZ1; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lOwxbc2N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57F41F00A3A;
-	Thu,  2 Jul 2026 16:35:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783010105;
-	bh=3aM361YCJDrJB+0RufvpxKv2Gycq5mGo1ReFWLksKPA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lOwxbc2NUDL2WI+hzG3T9YsCtBX4z4XzcSgFeMjcRFvzBlb5m3aMv+kSkf+4QMKSV
-	 5YKSdC50LaDy4RHLE2JAludTnKV5Vnt1Bo3OX5vzWKO769UFf51kvhzbJi+rUP82oJ
-	 hQwZLRUjuvnB6zDewD6kPeLbRfeyh0AB3OcOuN0n0tjbrDEEflFTa/AEPp/1+AL6xK
-	 2J6xK7yEq4qFd89TTMROjaCy1gIESf1STE4e/QaIZ92SxrvbV9B5NYfvVzoW3waT92
-	 Uhg/NoL8tOihMnYt8IlF0TC6tUKxxMlxDXbzyZj4ilp661yimQj+f1rEA40uljfgi+
-	 R1agylx+3DOsg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] watchdog: rzv2h: Convert WDTDCR handling to regmap
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260702160457.1884345-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <20260702160457.1884345-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260702160457.1884345-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 16:35:04 +0000
-Message-Id: <20260702163504.E57F41F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CQgTSdZ1"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-493be1b9564so16198365e9.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 02 Jul 2026 12:12:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783019535; x=1783624335; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yWVl92ySB0LOea/djTBKxUFhK5i6uFHRlukNHQHiJp8=;
+        b=CQgTSdZ1EJ9vC0pV0hRyu8KzEoFEX7w0dfkqChjBf7ehwthEQjfQlUeUkOaPX5Av3o
+         +VBg78ISUalx/kXmyqhgb0kCHoEpJWl2R0FZToH75WygA/M6dYT1h1S5fyXLtvwnEN57
+         QKHrfXLl69IVqofabhHiK5hBN6m4NYe08jkGfdp0hE1FQ5Y/qrFcnLmWy2fOog5nuH94
+         NMW+rvrjkAhFamtDmqf5Dl92yWE9D3YdpYNtrno6SefvbBMzQMGf0b9H5fIfsAf6qmw1
+         d5nmkSpsbhRfTB/RDAXYY60F8LUWKHIvG7mzVwahroQEEmRtX17iXTVt8IijMi92pi1t
+         rnXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783019535; x=1783624335;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=yWVl92ySB0LOea/djTBKxUFhK5i6uFHRlukNHQHiJp8=;
+        b=lst5Y67qXdzshdG4Vbk07ONFzF5EDl8lIEoRg0nAkXknrduAFC90OqCrKiWDCx0WLS
+         eTdUpYY4w2nBtFW3xTXrpkwy4d5DHlRE1iSo3pAR4vETauABi3cS8fXDcLOWD0z5+36K
+         FbSTQlmn13YaHOT1os00n2NOShgg8pv4G3BmJXjqPXse1D/NZRDPuEQAnSXHosVYuIsA
+         XyOH20NsvDm4G0pbiHaYQ9WRli/X6sIEIViTGHgooGvOVWSfUg6cA9+sIy02x6/mbV2d
+         d+1HPPoUJcVdxJQ+YBrKbj0LnZZNew5lb0/AgNMnQUesPh9HrpZxZQyvoNgN1aNxn3mb
+         8uJA==
+X-Forwarded-Encrypted: i=1; AFNElJ9AWVV/EPBoEesp9Il2U10sLMHwyUZK9DQcSoxJ1fJxLHAA2VTyya5iO9qXU1vEL5wBSzDWNdxFK8+3j7m8DA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxs7jfsYD03apwoicH0vhj/ckAfkk/jR731gFde/oWDz6HZmO1T
+	Zg+BvMpcPevoVnUGWtf1GxAa6mWEGOQA4J87xAoVXxpS+tSIB1Yoq1WS
+X-Gm-Gg: AfdE7cmQSZlSPxYLGW7Vnm8HTQ45cXtOskRiHxcpCWqbCSVsdyP34jWvVQ2b9LbkWi3
+	h3hQIYGjWBDy9IAyRYzsiTG/pxWLAdPC238mmseAtMhwVQtSjfUiAzJHWQz1rFHFbmUxHe3WYpZ
+	ptrGhE7raF4GP/kBIKTuEDqIKy0WjeHI6sLEqceg/MqRqbvTvVmnSYtOIy8pxiLgxj0+tk81YUM
+	Ty8ABz/UvNlSXJwIXNjvp9ER3oZo3IvAH9WAvlJZV2HznwrGAW0jjDQFtkHYVlbCght4QnhjUFc
+	Na/5RGFkTei0NoNtSC4FvV7OqWQ8GgPijxB1M8quppxhJHM51MGv0DIo+Jgq8xO+3Z1Rkny8HYA
+	D7VpK7iYhwVjcgCSjrNl/pligmSpv5OIWFCSO/lho+Co4rg/m+y6/cX/YH4YZ7N4aM8F+yVsnU8
+	3d3pkjfOn5O0kZEC3jRMdD+c9N6Mm/jV+t0Lh0huG0mIxvUNT9qpL3+pbeCBvdbWhp7OWd5r6qy
+	LEnKLvl
+X-Received: by 2002:a05:600c:290:b0:493:a613:56b2 with SMTP id 5b1f17b1804b1-493c3cd5967mr65147035e9.8.1783019535315;
+        Thu, 02 Jul 2026 12:12:15 -0700 (PDT)
+Received: from [10.128.11.240] (195-23-151-163.net.novis.pt. [195.23.151.163])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493c636cc08sm83399065e9.11.2026.07.02.12.12.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Jul 2026 12:12:13 -0700 (PDT)
+Sender: Julian Braha <julian.braha@gmail.com>
+Message-ID: <eff80e31-f833-4790-8114-1ece4ed3a044@gmail.com>
+Date: Thu, 2 Jul 2026 20:12:12 +0100
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
+To: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>,
+ =?UTF-8?B?SsOpcsOpbWllIERhdXRoZXJpYmVz?= <jeremie.dautheribes@bootlin.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>
+References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
+ <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+Content-Language: en-US
+From: Julian Braha <julianbraha@gmail.com>
+In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] The regmap framework allocates a standard spinlock by default, whi=
-ch causes deadlocks or 'scheduling while atomic' bugs when called from the =
-atomic watchdog restart handler.
-- [High] Improper error rollback in `rzv2h_wdt_stop()` leaves the watchdog =
-unconfigured but out of reset, which can lead to spurious reboots.
-- [High] The watchdog restart handler aborts the system reboot if the regma=
-p update fails.
-- [Medium] Asynchronous `pm_runtime_put()` is followed by synchronous `pm_r=
-untime_disable()` in the initialization error path, which cancels the power=
--down and leaves the hardware powered on.
---
+Hi Thomas,
 
-commit 3a9f06deb3b8a110dd1799630b20292ab0c85c6e
-Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Date:   Thu Jul 2 16:04:56 2026 +0000
+On 6/30/26 13:51, Thomas Perrot (Schneider Electric) wrote:
+> +config MFD_AAEON_MCU
+> +	tristate "Aaeon SRG-IMX8P MCU Driver"
+> +	depends on I2C
+> +	select MFD_CORE
+> +    select REGMAP
+> +	help
 
-    watchdog: rzv2h: Convert WDTDCR handling to regmap
+Your REGMAP select here strangely indents with spaces, while the rest
+of your kconfig attributes (and this file) are using a tab.
 
-    This commit converts the WDTDCR register access from raw readl/writel
-    variants over to the regmap framework. This acts as a preparatory step
-    to allow the driver to natively support syscon-based system controllers.
-
-> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-> index e9545b8f5fd09..d0b38450cc320 100644
-> --- a/drivers/watchdog/rzv2h_wdt.c
-> +++ b/drivers/watchdog/rzv2h_wdt.c
-
-[ ... ]
-
-> @@ -179,8 +180,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *wd=
-ev)
->  	if (ret)
->  		return ret;
-> =20
-> -	if (priv->of_data->wdtdcr)
-> -		rzt2h_wdt_wdtdcr_count_stop(priv);
-> +	if (priv->of_data->wdtdcr) {
-> +		ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
-> +		if (ret) {
-> +			reset_control_deassert(priv->rstc);
-> +			return ret;
-
-[Severity: High]
-Does this error path leave the watchdog out of reset without restoring its
-required configuration?
-
-If rzt2h_wdt_wdtdcr_count_stop() fails, the rollback deasserts the reset, b=
-ut
-the hardware reset wiped all watchdog configurations like the timeout value
-in WDTCR.
-
-Since the core sees the stop failed, won't it assume the watchdog is still
-running and resume pinging it?
-
-A subsequent ping would start the down-counter with uninitialized default
-registers, which could cause a near-immediate spurious system reboot.
-
-> +		}
-> +	}
-> =20
->  	pm_runtime_put(wdev->parent);
-> =20
-
-[ ... ]
-
-> @@ -242,8 +249,17 @@ static int rzv2h_wdt_restart(struct watchdog_device =
-*wdev,
->  	rzv2h_wdt_setup(wdev, priv->of_data->cks_min | WDTCR_RPSS_25 |
->  			WDTCR_RPES_75 | WDTCR_TOPS_1024);
-> =20
-> -	if (priv->of_data->wdtdcr)
-> -		rzt2h_wdt_wdtdcr_count_start(priv);
-> +	if (priv->of_data->wdtdcr) {
-> +		ret =3D rzt2h_wdt_wdtdcr_count_start(priv);
-> +		if (ret) {
-> +			if (!active) {
-> +				reset_control_assert(priv->rstc);
-> +				clk_disable(priv->oscclk);
-> +				clk_disable(priv->pclk);
-> +			}
-> +			return ret;
-
-[Severity: High]
-Should a failure in an auxiliary register write abort an emergency system
-reboot?
-
-The restart handler is used to forcefully reboot the system in situations
-like a kernel panic. Returning early here skips the rzv2h_wdt_ping() step,
-which is what actually triggers the hardware to reset the system.
-
-> +		}
-> +	}
-> =20
->  	rzv2h_wdt_ping(wdev);
-> =20
-> @@ -261,24 +277,39 @@ static const struct watchdog_ops rzv2h_wdt_ops =3D {
->  	.restart =3D rzv2h_wdt_restart,
->  };
-> =20
-> +static const struct regmap_config rzv2h_wdtdcr_regmap_config =3D {
-> +	.name =3D "wdtdcr",
-> +	.reg_bits =3D 32,
-> +	.val_bits =3D 32,
-> +	.reg_stride =3D 4,
-> +	.max_register =3D WDTDCR,
-> +	.fast_io =3D true,
-> +};
-
-[Severity: High]
-Will this regmap configuration cause deadlocks or scheduling while atomic b=
-ugs
-when called from the atomic watchdog restart handler?
-
-The regmap framework allocates a standard spinlock by default because the
-configuration omits use_raw_spinlock =3D true or disable_locking =3D true.
-
-Since rzv2h_wdt_restart() runs in atomic context (and potentially NMI) duri=
-ng
-system panic or reboot, attempting to acquire a sleeping spinlock on
-PREEMPT_RT could cause a crash. On all systems, if the lock was held by
-another thread during a panic, the restart handler could deadlock and preve=
-nt
-the system from rebooting.
-
-> +
->  static int rzt2h_wdt_wdtdcr_init(struct platform_device *pdev,
->  				 struct rzv2h_wdt_priv *priv)
->  {
-> +	void __iomem *wdtdcr;
->  	int ret;
-> =20
-> -	priv->wdtdcr =3D devm_platform_ioremap_resource(pdev, 1);
-> -	if (IS_ERR(priv->wdtdcr))
-> -		return PTR_ERR(priv->wdtdcr);
-> +	wdtdcr =3D devm_platform_ioremap_resource(pdev, 1);
-> +	if (IS_ERR(wdtdcr))
-> +		return PTR_ERR(wdtdcr);
-> +
-> +	priv->wdtdcr_regmap =3D devm_regmap_init_mmio(&pdev->dev, wdtdcr,
-> +						    &rzv2h_wdtdcr_regmap_config);
-> +	if (IS_ERR(priv->wdtdcr_regmap))
-> +		return PTR_ERR(priv->wdtdcr_regmap);
-> =20
->  	ret =3D pm_runtime_resume_and_get(&pdev->dev);
->  	if (ret)
->  		return ret;
-> =20
-> -	rzt2h_wdt_wdtdcr_count_stop(priv);
-> +	ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
-> =20
->  	pm_runtime_put(&pdev->dev);
-> =20
-> -	return 0;
-> +	return ret;
-
-[Severity: Medium]
-Is it safe to use an asynchronous pm_runtime_put() here right before
-returning a potential error code?
-
-If rzt2h_wdt_wdtdcr_count_stop() fails, the error propagates back to
-rzv2h_wdt_probe(), triggering devm cleanup which immediately calls
-pm_runtime_disable().
-
-As noted in the power management subsystem guidelines, calling
-pm_runtime_disable() immediately after an async put cancels the pending
-async operations. This would permanently leave the device hardware in an
-active power state.
-
-Should pm_runtime_put_sync() be used instead?
-
->  }
-> =20
->  static int rzv2h_wdt_probe(struct platform_device *pdev)
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702160457.1884=
-345-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D2
+- Julian Braha
