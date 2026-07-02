@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F128144D01C;
-	Thu,  2 Jul 2026 12:38:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7309D48124E;
+	Thu,  2 Jul 2026 12:42:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782995930; cv=none; b=eWLX/GksoJ37UE7WeNHoQNxkFr3hXxmWpV7lpztvAAdDZqN1OOXZ8gVW/tKcEVX6W2kAP/iKTHczGn9R2zUsxgv8jK0XL7UA4fIEoHhlXb6TmkgjWXIRqNyVDUtf5jfxYNLgF9SGanzi5K87xh63/SDOjiQqakFbrTx1QiUtCEE=
+	t=1782996174; cv=none; b=MV2R4Dp12gkZ7qOQqv/OXq25OgkNDgjKvC4nm7fyQsioHvq3w+k7Cj2f/uRcRgP9CxAxoagSnpTyrTTDGDdQEGuxFx8EGoyRg0rTu9G4mE/cB4W72mcIQobJX8+hO5J4xJHXJAmdbKLc+6HuVcmen0qGmmjxrv1bd4LfqwcOxNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782995930; c=relaxed/simple;
-	bh=pe4AjgrNTgU67uz/DluoSflor6Whs8b3VLS36oW8oXI=;
+	s=arc-20240116; t=1782996174; c=relaxed/simple;
+	bh=OzV8cP9QZGr+41f8NmTp8mZKxv03Jpl2DNS9zZ8Xr+I=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LhPlTIbnPEQ+TfYlypyJq68Gw4u+2rHlaxvAg6Lnb3QWTqMuUCt3pfJQ5pPVb1cN2ww3J0TEHjUOMnGJlom5ygON8UYvXUtvgdPA5XKpa27C6JXDpqDEgf3WQdyW2xXg72QDnSH7dDLJgEWlZgUX8swFLTz91GZYacf/JPbNdcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D4VvO+bu; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XZ0NB9XjGDn12os5Qo58DkpMJbfKMuHd+t/xxLWq5Zb4Y3Y/+FBpwsenEWOODhmIPCEXTOszs+qp63sOKXQfB4CHlLBlNvFZ0heT71mczOqyWh5tHyI0oO+vays6qT5W5Zd0ZTWUwIhel3i0y6kxIAKYrUwbS5gUF7rMsq1gv/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MDCsjV81; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D4VvO+bu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 492E11F000E9;
-	Thu,  2 Jul 2026 12:38:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MDCsjV81"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C1B51F000E9;
+	Thu,  2 Jul 2026 12:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782995928;
-	bh=mI1qUVMZsC+FmBpSthJ14f0t3sQvQog6X6PTmR57t24=;
+	s=k20260515; t=1782996173;
+	bh=SF9O4nRzwUFA6GE0sxzFCpvmzTqtQjXTF7DW/vG1rYY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=D4VvO+bu+h9WJXFucazMG+BZOsvynwynTBJghyvnPvxKlKU0LYT/D/uoyZaSI9A5p
-	 03aUZNGAe7OzsfxHYtzABw3jBS0zM0eV4TDnjygcqqweRbei7gav6RMSh8F4J1Uj0r
-	 3zk5zt8rSLma33hajRkmPNbaH6l+l0CwIOOUkOg02QAj4m6s4ru4tp9E96ABG+PdKK
-	 6H8qCuVail6NHBKHI8LkrvY1pUI7/kdsFggfZIo9rfidRO3yO/JOXX42YLhI4UYYVK
-	 7P6HBqsPIArlhKwfIYuAY+ZkbSnmxuf8IuPw2lJZPSLLgjV1i8wJ6JEG0Ul0WJk9Q/
-	 JC8+MwZjQI+vA==
+	b=MDCsjV81/TbU5kSNRY3lOjyL5NZGQBwKL677GX9JrEMfEmLREzJUEipcdYWTM0tEj
+	 1o31KrYEjNxpHTpBlDUb9Jr8TGevVSUrc2NG9Gc6NIrdHxE37ED3s5NFFC0I6yxqOW
+	 5Wa5BrQDv6GvqHNPEMpz8X2h4IDT3DzLUq6f9eYHpLLqdZoyr86DcMk/INRu7vhOaW
+	 cVpUoW4f59sTpkgV/1tymJaStgyMTIOdnhDNCbef/A35n+Yk/I/OmU/+jrJeHdR/Iy
+	 rDaEVK15wsAahTy/KQKqrATNlUpACxKUTRsCxUlzk7O+WNumM7zxfCHVbfdgYF6gSI
+	 iZQKOtWtnJAqw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 1/9] dt-bindings: clock: renesas,cpg-mssr:
- Support RZ/T2H system controllers
+Subject: Re: [PATCH RFC v2 7/9] watchdog: rzv2h: Add syscon support for
+ RZ/T2H and RZ/N2H WDT control register
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260702123112.161160-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com, devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
+In-Reply-To: <20260702123112.161160-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260702123112.161160-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260702123112.161160-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 12:38:47 +0000
-Message-Id: <20260702123848.492E11F000E9@smtp.kernel.org>
+Date: Thu, 02 Jul 2026 12:42:51 +0000
+Message-Id: <20260702124252.8C1B51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,46 +47,55 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The `ranges` property is not disabled for older SoCs in the cond=
-itional `else` block, breaking schema strictness.
+- [High] The error rollback path in `rzv2h_wdt_stop()` leaves the watchdog =
+deasserted but unconfigured, breaking the hardware state machine and potent=
+ially causing spurious resets.
 --
 
-commit 8928eeb31cda815a1d3749583aab3a96187dea08
+commit e9173a2a019341cec05cdc87e042bd8dd2f92721
 Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-dt-bindings: clock: renesas,cpg-mssr: Support RZ/T2H system controllers
+watchdog: rzv2h: Add syscon support for RZ/T2H and RZ/N2H WDT control regis=
+ter
 
-This commit updates the CPG/MSSR binding to support child system
-controllers for RZ/T2H and RZ/N2H SoCs. It adds #address-cells,
-#size-cells, and ranges properties, and restricts them to these
-specific SoCs to prevent affecting existing bindings.
+On RZ/T2H and RZ/N2H SoCs, the WDTDCR register is shared and managed by a
+dedicated SYS driver. This commit updates the WDT driver to support a syscon
+regmap interface for WDTDCR control while maintaining backward compatibility
+with direct mapping.
 
-> diff --git a/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yam=
-l b/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
-> --- a/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
-> +++ b/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
+> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
+> index e9545b8f5fd09..e14ff853a4e9f 100644
+> --- a/drivers/watchdog/rzv2h_wdt.c
+> +++ b/drivers/watchdog/rzv2h_wdt.c
+
 [ ... ]
-> @@ -126,6 +161,10 @@ allOf:
->        properties:
->          reg:
->            maxItems: 1
-> +        '#address-cells': false
-> +        '#size-cells': false
 
-[Severity: Medium]
-Should ranges also be set to false here?
+> @@ -179,8 +208,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *wd=
+ev)
+>  	if (ret)
+>  		return ret;
+> =20
+> -	if (priv->of_data->wdtdcr)
+> -		rzt2h_wdt_wdtdcr_count_stop(priv);
+> +	if (priv->of_data->wdtdcr) {
+> +		ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+> +		if (ret) {
+> +			reset_control_deassert(priv->rstc);
+> +			return ret;
+> +		}
+> +	}
 
-Since ranges was added globally in the properties block, omitting
-ranges: false in this else block allows older SoCs to erroneously
-include a ranges property and still silently pass schema validation.
-Adding it alongside #address-cells and #size-cells would fully restrict
-the newly introduced properties for other Renesas SoCs.
+[Severity: High]
+When rzt2h_wdt_wdtdcr_count_stop() fails, this rollback path deasserts the
+reset line and returns an error without reconfiguring the hardware.
 
-> +      patternProperties:
-> +        "^system-controller@[0-9a-f]+$": false
->    - if:
->        not:
+Because rzv2h_wdt_stop() returns an error, the watchdog subsystem will keep
+the device marked as active and continue pinging it via rzv2h_wdt_ping().
+
+Since the earlier reset_control_assert() wiped the configuration registers,
+will the subsequent ping lock the unconfigured control registers and
+potentially cause an immediate spurious system reset?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702123112.1611=
-60-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D1
+60-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D7
