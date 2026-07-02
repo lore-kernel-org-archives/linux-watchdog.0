@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7309D48124E;
-	Thu,  2 Jul 2026 12:42:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9A70480DC4;
+	Thu,  2 Jul 2026 12:44:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782996174; cv=none; b=MV2R4Dp12gkZ7qOQqv/OXq25OgkNDgjKvC4nm7fyQsioHvq3w+k7Cj2f/uRcRgP9CxAxoagSnpTyrTTDGDdQEGuxFx8EGoyRg0rTu9G4mE/cB4W72mcIQobJX8+hO5J4xJHXJAmdbKLc+6HuVcmen0qGmmjxrv1bd4LfqwcOxNM=
+	t=1782996297; cv=none; b=eMsIj6VyXQMCwqF8oG2WhzoFPGYfqfcCBEfy42ccwpnIn3r+sQB7pZhz7v56tm8jmVNX/eHY5pP6wv4WBf4kDGGjgYvCinorDasrs216P23EJrUiA60MgOuG+CNgBLiqrHvQp5XFn9Os1rGQy3JiKYNULvRTnfZGxxc7zdI1yFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782996174; c=relaxed/simple;
-	bh=OzV8cP9QZGr+41f8NmTp8mZKxv03Jpl2DNS9zZ8Xr+I=;
+	s=arc-20240116; t=1782996297; c=relaxed/simple;
+	bh=6cgPhejUfVXrEPjqwpp2ynVTYCcvQ4BrOtZeweqsOVM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XZ0NB9XjGDn12os5Qo58DkpMJbfKMuHd+t/xxLWq5Zb4Y3Y/+FBpwsenEWOODhmIPCEXTOszs+qp63sOKXQfB4CHlLBlNvFZ0heT71mczOqyWh5tHyI0oO+vays6qT5W5Zd0ZTWUwIhel3i0y6kxIAKYrUwbS5gUF7rMsq1gv/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MDCsjV81; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kuOKVgozyr/+VvpmDVD9Zfai2kd1Z7ez301o/GMc+nzF4QDjTxamPDK+xW+pgbt1fIgi4D8Qyo5/T4OroU1jTmW2yIwX4F2uwpEU/wRKW1pmqubaODTtP+M6It7ojdWJojyoVqa7IANlnREBI322JqUdIvrcoksAyBfs4V7wjlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mxlQLvmV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MDCsjV81"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C1B51F000E9;
-	Thu,  2 Jul 2026 12:42:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mxlQLvmV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74FD01F000E9;
+	Thu,  2 Jul 2026 12:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782996173;
-	bh=SF9O4nRzwUFA6GE0sxzFCpvmzTqtQjXTF7DW/vG1rYY=;
+	s=k20260515; t=1782996296;
+	bh=bVlHfhnFKZio0CEVyLyDHlAdW0yRJtbWDG+DW8K6srY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MDCsjV81/TbU5kSNRY3lOjyL5NZGQBwKL677GX9JrEMfEmLREzJUEipcdYWTM0tEj
-	 1o31KrYEjNxpHTpBlDUb9Jr8TGevVSUrc2NG9Gc6NIrdHxE37ED3s5NFFC0I6yxqOW
-	 5Wa5BrQDv6GvqHNPEMpz8X2h4IDT3DzLUq6f9eYHpLLqdZoyr86DcMk/INRu7vhOaW
-	 cVpUoW4f59sTpkgV/1tymJaStgyMTIOdnhDNCbef/A35n+Yk/I/OmU/+jrJeHdR/Iy
-	 rDaEVK15wsAahTy/KQKqrATNlUpACxKUTRsCxUlzk7O+WNumM7zxfCHVbfdgYF6gSI
-	 iZQKOtWtnJAqw==
+	b=mxlQLvmVHgy54lNUxKowi+B6F55dMmonfTq2Wndj1uKAXQQRA0hoJpCzJ1vNlKKmQ
+	 K2B08QUJoJdOV7qY5hCXCV7jwBME6DJExx6J4MLhxxWZ3tQie5KakakueSG946Gu+c
+	 BMaEHQsX5Nl8XqcAkmCbvfrCnndxLhinKu1hLZkVGXSurLstVgADwW/lN4ecMy0Jc7
+	 MWkTAWo0Xte9AwS5O6aIN7OJd3QMzt+Mzbu63eWQu3JekI1gWOf4TBg6F0airw4U/x
+	 Dmphz7AJyypcqi8edCDlguucwCfh6OeVcORZjwHFZ8n+d6gufBB1rGY64k66UZeTsZ
+	 gW4+I0uOPal/g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 7/9] watchdog: rzv2h: Add syscon support for
- RZ/T2H and RZ/N2H WDT control register
+Subject: Re: [PATCH RFC v2 8/9] arm64: dts: renesas: r9a09g077: Use SYS
+ syscon for WDTDCR access
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com, devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
-In-Reply-To: <20260702123112.161160-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: conor+dt@kernel.org, linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com, devicetree@vger.kernel.org, robh@kernel.org
+In-Reply-To: <20260702123112.161160-9-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260702123112.161160-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260702123112.161160-9-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 12:42:51 +0000
-Message-Id: <20260702124252.8C1B51F000E9@smtp.kernel.org>
+Date: Thu, 02 Jul 2026 12:44:54 +0000
+Message-Id: <20260702124455.74FD01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,55 +47,62 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The error rollback path in `rzv2h_wdt_stop()` leaves the watchdog =
-deasserted but unconfigured, breaking the hardware state machine and potent=
-ially causing spurious resets.
+- [High] Transitioning to a syscon regmap introduces a spinlock into the wa=
+tchdog restart path, creating a severe deadlock risk during kernel panics o=
+r reboots.
 --
 
-commit e9173a2a019341cec05cdc87e042bd8dd2f92721
+commit f54f749e298c48411aae186783c11b3cc40d3738
 Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-watchdog: rzv2h: Add syscon support for RZ/T2H and RZ/N2H WDT control regis=
-ter
+arm64: dts: renesas: r9a09g077: Use SYS syscon for WDTDCR access
 
-On RZ/T2H and RZ/N2H SoCs, the WDTDCR register is shared and managed by a
-dedicated SYS driver. This commit updates the WDT driver to support a syscon
-regmap interface for WDTDCR control while maintaining backward compatibility
-with direct mapping.
+This commit updates the device tree for the r9a09g077 watchdog nodes
+to use the new System Controller (SYS) syscon interface. It replaces
+the direct MMIO region mapping with a "renesas,sys" phandle.
 
-> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-> index e9545b8f5fd09..e14ff853a4e9f 100644
-> --- a/drivers/watchdog/rzv2h_wdt.c
-> +++ b/drivers/watchdog/rzv2h_wdt.c
+> diff --git a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi b/arch/arm64/boot=
+/dts/renesas/r9a09g077.dtsi
+> index 208287f7b7442..ae69a01d60427 100644
+> --- a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
+> +++ b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
+> @@ -327,61 +327,61 @@ channel1 {
+> =20
+>  		wdt0: watchdog@80082000 {
+>  			compatible =3D "renesas,r9a09g077-wdt";
+> -			reg =3D <0 0x80082000 0 0x400>,
+> -			      <0 0x81295100 0 0x04>;
+> +			reg =3D <0 0x80082000 0 0x400>;
+>  			clocks =3D <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
+>  			clock-names =3D "pclk";
+>  			power-domains =3D <&cpg>;
+> +			renesas,sys =3D <&sys1 0>;
+
+[Severity: High]
+Does adding this property introduce a deadlock during system panic or reboo=
+t?
+
+By pointing the watchdog at the syscon regmap, the driver transitions
+from lockless MMIO to a spinlocked regmap access path. If the system panics
+and smp_send_stop() stops a CPU while it is holding the syscon regmap lock,
+the watchdog restart handler could hang indefinitely.
+
+The triggering sequence looks like this:
+
+machine_restart()
+  smp_send_stop()
+  do_kernel_restart()
+    watchdog_restart_notifier()
+      rzv2h_wdt_restart()
+        rzt2h_wdt_wdtdcr_count_start()
+          regmap_update_bits()
+
+Since regmap_update_bits() uses a standard spinlock, the restart path will
+spin forever waiting for the locked CPU. Is there a way to bypass the lock
+during the restart sequence?
 
 [ ... ]
 
-> @@ -179,8 +208,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *wd=
-ev)
->  	if (ret)
->  		return ret;
-> =20
-> -	if (priv->of_data->wdtdcr)
-> -		rzt2h_wdt_wdtdcr_count_stop(priv);
-> +	if (priv->of_data->wdtdcr) {
-> +		ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
-> +		if (ret) {
-> +			reset_control_deassert(priv->rstc);
-> +			return ret;
-> +		}
-> +	}
-
-[Severity: High]
-When rzt2h_wdt_wdtdcr_count_stop() fails, this rollback path deasserts the
-reset line and returns an error without reconfiguring the hardware.
-
-Because rzv2h_wdt_stop() returns an error, the watchdog subsystem will keep
-the device marked as active and continue pinging it via rzv2h_wdt_ping().
-
-Since the earlier reset_control_assert() wiped the configuration registers,
-will the subsequent ping lock the unconfigured control registers and
-potentially cause an immediate spurious system reset?
-
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702123112.1611=
-60-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D7
+60-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D8
