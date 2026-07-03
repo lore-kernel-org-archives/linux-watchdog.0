@@ -1,111 +1,122 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EFDB3859EF
-	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jul 2026 19:12:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C36FB34A3BF;
+	Fri,  3 Jul 2026 07:35:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783019539; cv=none; b=TX9hkhRruTtLBf2bsqZ2jKIafgwwns1b8DdX1zTQCi/3hFdHhlIJuCvzKsGlAoimH3BaS7Pfdfae5XW2LBqfUz3Mn/PqNmx6m1RGO+60fLRC3n7fHvR7cSer74Ctcyndc7IkbRNgs0hNIje7BX1Cg8Ez6yuwU0VIJHOkU4sKh7A=
+	t=1783064133; cv=none; b=h+wQoQTBVQJ+/+EfTUEfAlTwC3sqo1/HbulTSzGTIezxVMzbtcEbRGPevyrzzbcrN8asDYR3QpYxSTXVQF4vPmbCM9OS+7RS6qbtU88nQWVmjOqNDIcwxD5QofsvHSIsnysqWBFTT6K+8YDVn9P2yBNMX9kz9zTQmoHifdkAFXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783019539; c=relaxed/simple;
-	bh=AVIYuPCgubCuYve1OA2lx01GpnFJKVLmIPNWXCKWycQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F3x89jnmjuz1kMrl5HPlYi+JhrhF9Bq/UpvIWhaYL2FU00h02vwePPMPzuQIU47yK7+amO5rJWcqPYfyWMCha26K1Hbyysf11/LQj9HFoUJo0T2JOmFhxmj+6wQQTiMWgCAEYc7NWfsar2LqlJ/vrHN3BHoYP2PCuzr8LPBuCJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CQgTSdZ1; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CQgTSdZ1"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-493be1b9564so16198365e9.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 02 Jul 2026 12:12:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783019535; x=1783624335; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yWVl92ySB0LOea/djTBKxUFhK5i6uFHRlukNHQHiJp8=;
-        b=CQgTSdZ1EJ9vC0pV0hRyu8KzEoFEX7w0dfkqChjBf7ehwthEQjfQlUeUkOaPX5Av3o
-         +VBg78ISUalx/kXmyqhgb0kCHoEpJWl2R0FZToH75WygA/M6dYT1h1S5fyXLtvwnEN57
-         QKHrfXLl69IVqofabhHiK5hBN6m4NYe08jkGfdp0hE1FQ5Y/qrFcnLmWy2fOog5nuH94
-         NMW+rvrjkAhFamtDmqf5Dl92yWE9D3YdpYNtrno6SefvbBMzQMGf0b9H5fIfsAf6qmw1
-         d5nmkSpsbhRfTB/RDAXYY60F8LUWKHIvG7mzVwahroQEEmRtX17iXTVt8IijMi92pi1t
-         rnXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783019535; x=1783624335;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=yWVl92ySB0LOea/djTBKxUFhK5i6uFHRlukNHQHiJp8=;
-        b=lst5Y67qXdzshdG4Vbk07ONFzF5EDl8lIEoRg0nAkXknrduAFC90OqCrKiWDCx0WLS
-         eTdUpYY4w2nBtFW3xTXrpkwy4d5DHlRE1iSo3pAR4vETauABi3cS8fXDcLOWD0z5+36K
-         FbSTQlmn13YaHOT1os00n2NOShgg8pv4G3BmJXjqPXse1D/NZRDPuEQAnSXHosVYuIsA
-         XyOH20NsvDm4G0pbiHaYQ9WRli/X6sIEIViTGHgooGvOVWSfUg6cA9+sIy02x6/mbV2d
-         d+1HPPoUJcVdxJQ+YBrKbj0LnZZNew5lb0/AgNMnQUesPh9HrpZxZQyvoNgN1aNxn3mb
-         8uJA==
-X-Forwarded-Encrypted: i=1; AFNElJ9AWVV/EPBoEesp9Il2U10sLMHwyUZK9DQcSoxJ1fJxLHAA2VTyya5iO9qXU1vEL5wBSzDWNdxFK8+3j7m8DA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxs7jfsYD03apwoicH0vhj/ckAfkk/jR731gFde/oWDz6HZmO1T
-	Zg+BvMpcPevoVnUGWtf1GxAa6mWEGOQA4J87xAoVXxpS+tSIB1Yoq1WS
-X-Gm-Gg: AfdE7cmQSZlSPxYLGW7Vnm8HTQ45cXtOskRiHxcpCWqbCSVsdyP34jWvVQ2b9LbkWi3
-	h3hQIYGjWBDy9IAyRYzsiTG/pxWLAdPC238mmseAtMhwVQtSjfUiAzJHWQz1rFHFbmUxHe3WYpZ
-	ptrGhE7raF4GP/kBIKTuEDqIKy0WjeHI6sLEqceg/MqRqbvTvVmnSYtOIy8pxiLgxj0+tk81YUM
-	Ty8ABz/UvNlSXJwIXNjvp9ER3oZo3IvAH9WAvlJZV2HznwrGAW0jjDQFtkHYVlbCght4QnhjUFc
-	Na/5RGFkTei0NoNtSC4FvV7OqWQ8GgPijxB1M8quppxhJHM51MGv0DIo+Jgq8xO+3Z1Rkny8HYA
-	D7VpK7iYhwVjcgCSjrNl/pligmSpv5OIWFCSO/lho+Co4rg/m+y6/cX/YH4YZ7N4aM8F+yVsnU8
-	3d3pkjfOn5O0kZEC3jRMdD+c9N6Mm/jV+t0Lh0huG0mIxvUNT9qpL3+pbeCBvdbWhp7OWd5r6qy
-	LEnKLvl
-X-Received: by 2002:a05:600c:290:b0:493:a613:56b2 with SMTP id 5b1f17b1804b1-493c3cd5967mr65147035e9.8.1783019535315;
-        Thu, 02 Jul 2026 12:12:15 -0700 (PDT)
-Received: from [10.128.11.240] (195-23-151-163.net.novis.pt. [195.23.151.163])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493c636cc08sm83399065e9.11.2026.07.02.12.12.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Jul 2026 12:12:13 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-Message-ID: <eff80e31-f833-4790-8114-1ece4ed3a044@gmail.com>
-Date: Thu, 2 Jul 2026 20:12:12 +0100
+	s=arc-20240116; t=1783064133; c=relaxed/simple;
+	bh=1RMCVM0ri5xRWmmTwn0X2lrg975xVKiP/sVzCS4vn9M=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=N7d3jVh9qf1H6jmP86shiI5kM7k8dQ7BoouFq4pO+N+hVHNTW52gnfyXf64YiAFaCEQZmcwunC3Ycb9gQgzTYRmziArjrKM5Y78C1Fo3TXDPEFh16zgXhL3nLEWK4jr2m78Q3EjxC3rm4B0YhU7Yo4DmGn2CjOzMlx+dWGOsdNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
+	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 7C3BE202673;
+	Fri, 03 Jul 2026 09:35:28 +0200 (CEST)
+Received: from lupine.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::4e] helo=lupine)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1wfYQq-005sHr-1L;
+	Fri, 03 Jul 2026 09:35:28 +0200
+Received: from pza by lupine with local (Exim 4.98.2)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1wfYQq-000000001rl-1Px5;
+	Fri, 03 Jul 2026 09:35:28 +0200
+Message-ID: <46cfa874bd2ce4b6189606ae391e24833c802391.camel@pengutronix.de>
+Subject: Re: [PATCH 2/3] watchdog: rzv2h: Convert WDTDCR handling to regmap
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Prabhakar <prabhakar.csengg@gmail.com>, Wim Van Sebroeck
+	 <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Geert
+ Uytterhoeven <geert+renesas@glider.be>
+Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Prabhakar
+ <prabhakar.csengg+renesas@gmail.com>,  Biju Das
+ <biju.das.jz@bp.renesas.com>, Fabrizio Castro
+ <fabrizio.castro.jz@renesas.com>, Lad Prabhakar
+ <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Date: Fri, 03 Jul 2026 09:35:28 +0200
+In-Reply-To: <20260702160457.1884345-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: 
+	<20260702160457.1884345-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	 <20260702160457.1884345-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-0+deb13u1 
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
-To: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>,
- =?UTF-8?B?SsOpcsOpbWllIERhdXRoZXJpYmVz?= <jeremie.dautheribes@bootlin.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>
-References: <20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com>
- <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
-Content-Language: en-US
-From: Julian Braha <julianbraha@gmail.com>
-In-Reply-To: <20260630-dev-b4-aaeon-mcu-driver-v6-3-d66b5fcbd2f0@bootlin.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Hi Thomas,
+On Do, 2026-07-02 at 17:04 +0100, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>=20
+> Convert the WDTDCR register access from raw readl/writel variants over to
+> the regmap framework using devm_regmap_init_mmio().
+>=20
+> This conversion serves as a preparatory refactoring step. It allows the
+> driver to subsequently support syscon-based system controllers natively
+> by passing along alternative regmap handles without forcing messy
+> architectural branching at runtime.
+>=20
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> ---
+>  drivers/watchdog/rzv2h_wdt.c | 83 +++++++++++++++++++++++++-----------
+>  1 file changed, 57 insertions(+), 26 deletions(-)
+>=20
+> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
+> index e9545b8f5fd0..d0b38450cc32 100644
+> --- a/drivers/watchdog/rzv2h_wdt.c
+> +++ b/drivers/watchdog/rzv2h_wdt.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/regmap.h>
+>  #include <linux/reset.h>
+>  #include <linux/units.h>
+>  #include <linux/watchdog.h>
+> @@ -67,7 +68,7 @@ struct rzv2h_of_data {
+> =20
+>  struct rzv2h_wdt_priv {
+>  	void __iomem *base;
+> -	void __iomem *wdtdcr;
+> +	struct regmap *wdtdcr_regmap;
+>  	struct clk *pclk;
+>  	struct clk *oscclk;
+>  	struct reset_control *rstc;
+> @@ -89,26 +90,20 @@ static int rzv2h_wdt_ping(struct watchdog_device *wde=
+v)
+>  	return 0;
+>  }
+> =20
+> -static void rzt2h_wdt_wdtdcr_count_ctrl(struct rzv2h_wdt_priv *priv, boo=
+l start)
+> +static int rzt2h_wdt_wdtdcr_count_ctrl(struct rzv2h_wdt_priv *priv, bool=
+ start)
+>  {
+> -	u32 reg =3D readl(priv->wdtdcr + WDTDCR);
+> -
+> -	if (start)
+> -		reg &=3D ~WDTDCR_WDTSTOPCTRL;
+> -	else
+> -		reg |=3D WDTDCR_WDTSTOPCTRL;
+> -
+> -	writel(reg, priv->wdtdcr + WDTDCR);
+> +	return regmap_update_bits(priv->wdtdcr_regmap, WDTDCR, WDTDCR_WDTSTOPCT=
+RL,
+> +				  start ? 0 : WDTDCR_WDTSTOPCTRL);
+>  }
 
-On 6/30/26 13:51, Thomas Perrot (Schneider Electric) wrote:
-> +config MFD_AAEON_MCU
-> +	tristate "Aaeon SRG-IMX8P MCU Driver"
-> +	depends on I2C
-> +	select MFD_CORE
-> +    select REGMAP
-> +	help
+I would drop this helper function and just call regmap_set/clear_bits()
+directly in rzt2h_wdt_wdtdcr_count_stop/start().
 
-Your REGMAP select here strangely indents with spaces, while the rest
-of your kconfig attributes (and this file) are using a tab.
-
-- Julian Braha
+regards
+Philipp
