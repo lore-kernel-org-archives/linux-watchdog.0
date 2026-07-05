@@ -1,138 +1,85 @@
-Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B85DC21770B
-	for <linux-watchdog@vger.kernel.org>; Sat,  4 Jul 2026 16:05:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97BFB184;
+	Sun,  5 Jul 2026 00:16:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783181128; cv=none; b=Uyw1HecvuMhkYs817JJH6RXTjb8tC/z8kWzbuivGlS+pZf1+KTLHtmmkf+jfMXVCjrQ4UkLhHY6aACwwqrVWubAERxpoBkuuIPkDnz1VnLtOSbMug9bfQu3dFKJPrgdljE1BAspB1PoUPbqI7PYh2T9cbZDxLn8MeSFSkGIyTQc=
+	t=1783210579; cv=none; b=CrNKBBsX7/WaEmhdS4IKpbuY260F/H/uZ4TMP/1PAQjEoIC2SeUEjCxUJpXSIUKrgiuyJ5FmuyUJBvYrfs59CxOKOiI6U3a0LJwrDHPqaEpUcR0sPuEbysF0g9isw7yjSoxXf9oUHMy33ua0hJERnFH5yw7Q7yUnTxnpcBkgBFQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783181128; c=relaxed/simple;
-	bh=fzT4QJNMj7NXM1rQNa+racxQPhGkez7mlfXUinhWKDA=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nOGajRIoP/GCrgjTuowF5g+CtH5d3YID5VbQeHR/4cHp8/pAVpnnOkN0f6dEsQaneJuNfJozOWfJuVjUx4cCUXFZ2BxSel4oZ91uLb/gAkvKRDk2UwoyI3C+rIoHHbc9uqNony3fJarnsNoVc76t65wsjIDKUiFfNflA5iGWmPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=PxD85tT1; arc=none smtp.client-ip=84.16.241.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="PxD85tT1"
-Received: from [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d] (2a02-1812-162d-3d00-c381-7255-a866-916d.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sander@svanheule.net)
-	by polaris.svanheule.net (Postfix) with ESMTPSA id 179057BE3C1;
-	Sat,  4 Jul 2026 18:05:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
-	s=mail1707; t=1783181124;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fzT4QJNMj7NXM1rQNa+racxQPhGkez7mlfXUinhWKDA=;
-	b=PxD85tT1r2qHsY1YUxgcCvn5O2UNfnfiI4sY3xcrUCLnTmSnZk4GHeYpAN6/ANCAEitcHl
-	EKxDMp4j/ALm+QfAtXc66uHJ+gyuePIH492z22EJkkWAHJ+SdXUybkDerHe6WfM1C1aWYK
-	Nrek2lEBnpSBnYm+g/OxdGgBeCPW7EDM9FpX5tUqBlFzSUIel9Ib4uV86Hnigpv0Oisjv3
-	RkZydMOnTfNYw0Yv+KKGJ/zInHVtKvCwgHSXT6Y5a3y69wVuqGwhZ/G8KWOgoQjS+MV4LF
-	raJVS/gHdEYnfCrTEbsDmliYaVkod5LF9kz4oqLCkD1mOc8RjMVTzPiWy3sXIA==
-Message-ID: <ebdcb8c5563ceff723f3e4a3c4fdfe9bf87d42fa.camel@svanheule.net>
-Subject: Re: [PATCH v2 0/1] watchdog: realtek-otto: Make use of regmap API
-From: Sander Vanheule <sander@svanheule.net>
-To: Rustam Adilov <adilov@disroot.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck
-	 <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org, 
+	s=arc-20240116; t=1783210579; c=relaxed/simple;
+	bh=46FfuqWIin2OvsO/5gZIPmIx0K7Hr8/Ysizy3+D94cc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CuUOum3tk+hvYXN8UPW3gmbODapzMJ+7VImL2g0mwKWic9bV5rggnsyrIxLIohmVQ3jjccCg1OrxsLPuhtCeqUPjxW9vKqY+9r49mm1EuxCqJPBdSk1cq1J/xk0QCaTwm4wrm+CfM62gBPCHOg383OmNLY+FLwsgQUS4CDOnbQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.140])
+	by APP-03 (Coremail) with SMTP id rQCowAAX6pBPoklqn8rfFg--.16022S2;
+	Sun, 05 Jul 2026 08:16:15 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
+	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Date: Sat, 04 Jul 2026 18:05:23 +0200
-In-Reply-To: <9362a24cca55f60f89157ca9537a5eab@disroot.org>
-References: <20260519182329.24472-1-adilov@disroot.org>
-	 <05dd2b1d95985e303af332ec81cd830f@disroot.org>
-	 <ce37814e-d275-4b0c-a50b-7b164aebd262@roeck-us.net>
-	 <e99623185ad106498c6d86232e0e72e41a3495d4.camel@svanheule.net>
-	 <61291b61ae4bfcc6c257dc02f12bdeaf@disroot.org>
-	 <6cb55a3e4876ec7955c99f1ea29862b38448491a.camel@svanheule.net>
-	 <9362a24cca55f60f89157ca9537a5eab@disroot.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+Subject: [PATCH] watchdog: via_wdt: add missing MODULE_DEVICE_TABLE()
+Date: Sun,  5 Jul 2026 08:16:13 +0800
+Message-ID: <20260705001613.68871-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:rQCowAAX6pBPoklqn8rfFg--.16022S2
+X-Coremail-Antispam: 1UD129KBjvdXoWruryUGF1fCF1rCF47Cr18Grg_yoWDtrX_CF
+	WxXrZI9r4UGr95KF17Kwn3ZryI93W8WFn7Jry8KFZag3srJry3CFZ29r9Ivw1UJa18tFn8
+	Ar1DXF1Fkr17tjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb4kFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
+	Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr
+	0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
+	6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
+	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v2
+	6r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrV
+	AFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCI
+	c40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267
+	AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_
+	Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjfUYNVyDU
+	UUU
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Hi Rustam,
+The driver has a match table for the pci bus wired into its driver
+structure, but the table is not exported with MODULE_DEVICE_TABLE().
 
-On Sat, 2026-07-04 at 15:13 +0000, Rustam Adilov wrote:
-> On 2026-07-04 14:00, Sander Vanheule wrote:
-> > Looking at the full patch (*), I see you're not only modifying the GPIO=
-,
-> > watchdog and timer drivers, but also some very basic reset and pinctrl =
-code
-> > to
-> > have a functional system with SWAP_IO_SPACE. If SWAP_IO_SPACE requires =
-you
-> > to
-> > avoid byte-swapping in so many drivers, then you're just working around
-> > SWAP_IO_SPACE. In other words, AFAICT it shouldn't be selected.
-> >=20
-> > (*)
-> > https://github.com/jameywine/openwrt/commit/053aba620b12c6215e6760d8a61=
-3b4ebe05d452b
->=20
-> I would say it is more of working around limitation of big endian MIPS wi=
-th
-> little
-> endian USB controller but more on that in the message below.
->=20
-> > If there is a single new USB peripheral driver that only works with
-> > SWAP_IO_SPACE, then I suggest you update that driver instead of enablin=
-g and
-> > bypassing the effects of SWAP_IO_SPACE everywhere else.
->=20
-> Sadly it is not much to do with a single USB driver (technically yes if y=
-ou
-> count
-> ohci-platform and ehci-platform) but everything to do with the reads and
-> writes
-> functions in ehci.h and ohci.h files. If we don't select SWAP_IO_SPACE, w=
-e
-> have to
-> basically change them to perform a byte swap as we can't use readl nor
-> readl_be
-> functions for that. You can check how that would look like in [1] but tha=
-t
-> would
-> not be acceptable by upstream nor any other similar modifications to thos=
-e
-> header
-> files i don't think.
->=20
-> And that is a crux of the problem. That same can be seen with rtl930x and
-> rtl931x
-> in [2]. SWAP_IO_SPACE as far as i can see, is the only solution to be
-> upstreamable.
->=20
-> [1]
-> https://github.com/openwrt/openwrt/commit/ba48e61e9da58b38d69fc58f90f9fcd=
-93c11862b
-> [2] https://github.com/openwrt/openwrt/pull/23508
+Add the missing MODULE_DEVICE_TABLE() entry so module alias information
+is generated for automatic module loading.
 
-Thanks for the extra details. From a quick glance, I have to say that the e=
-xtra
-OHCI/EHCI quirks from [1] don't look too offensive, but I'm not familiar wi=
-th
-the USB subsystem.
+This is a source-level fix.  It does not claim dynamic hardware
+reproduction; the evidence is the driver-owned match table, its use by
+the driver registration structure, and the missing module alias
+publication.
 
-Those USB frameworks already have quirks for mixed-endian systems, so maybe=
- the
-issue is more that nobody has had the need to support your situation yet. I=
-f you
-(or Carlo) are not sure how to clean that up, you can submit those changes =
-as an
-RFC to get some feedback without a full blown review. Maybe also involve li=
-nux-
-mips then.
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+ drivers/watchdog/via_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Best,
-Sander
+diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+index f55576392651..be4ca619da65 100644
+--- a/drivers/watchdog/via_wdt.c
++++ b/drivers/watchdog/via_wdt.c
+@@ -247,6 +247,7 @@ static const struct pci_device_id wdt_pci_table[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX855) },
+ 	{ 0 }
+ };
++MODULE_DEVICE_TABLE(pci, wdt_pci_table);
+ 
+ static struct pci_driver wdt_driver = {
+ 	.name		= "via_wdt",
+-- 
+2.53.0
+
