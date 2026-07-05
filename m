@@ -1,35 +1,35 @@
 Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD9C2E1722;
-	Sun,  5 Jul 2026 13:17:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E507337755C;
+	Sun,  5 Jul 2026 13:17:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783257456; cv=none; b=o+bE892FMXIM3BI0FC4OBsqL1+XdTZ2GGc9cDd+prUruTw93mDXbmqreeqdjiLJeyVOAiVAECuPpREdPhDqiqAg7pTNyk2qEjC9Q3PvGqxrs5i7Qja1Sz5hSX3brMnGhrix0WtUTaD+5dcs9ocKnf1FQjW7zzmakXFKUxVvh6rc=
+	t=1783257456; cv=none; b=RPkQv2+81nBXigOsSXhkz9l2mpIY3X1T6BQKXJwSSpyuBZfXRz8brbkcn24S28K4si3fHbPBaBL0IRGGYXYFyRW6Mdlz95ewdtTUxXq5MxMgiA9NEZgIIeu6ZkQo1dzewcIDDqGKO0Qc1Vp8rA93/gUayScwCDiKKNhl/0JB2Hg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1783257456; c=relaxed/simple;
-	bh=AtN45WrQIxOZVuI/t0cBjAnhziQKLGkfM4y61MbTz2I=;
+	bh=dTuZ5x0/Gb1RE4kn8xDOk1RkVmP8ydl4y35ZQee+zaU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZcNhDowOfOXpeyN5cbm6F3Zk4GkCanc2vXx3zURELl0KGDnj6RuTn00KxLNBP9o90DOalxu9yG/8MDS8nBaPDxPtBhFRFd6kekX9jYduJ+v2rNfdaUixX3JB2OhYBpeEns738SemIn1qPXjg9C+szsqDfdJjDxH2KP3w6gsssys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=PZEQH3Ca; arc=none smtp.client-ip=195.39.247.168
+	 In-Reply-To:To:Cc; b=Iv5k+qsQGMuZw5sj77ANlCI5pQozpiopp+3OSDJxrPHE057qazTCwXIfAjaR1NIoIMngb7ewlB8z8SiPzFlW/sv4o6BlQLbp0EXRlu2IDRQ8K1GkqHbBokGGOzE1xAnKg6MMlic/XEnvjZtOao4V0pbJHiX1cVqgRnrhknIX/Hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=GC4ATiQR; arc=none smtp.client-ip=195.39.247.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="PZEQH3Ca"
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="GC4ATiQR"
 From: Yureka Lilian <yureka@cyberchaos.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
-	s=mail; t=1783257452;
+	s=mail; t=1783257453;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=afujMTjkfrhrqR4IW5B2/0jxn/KKnGOyRGVGs6O2+64=;
-	b=PZEQH3Cal76bdn7R/jQ0IWk4GC+zjq/qDVpzX2XlsXZES3c8PcgQOi2U0g2sTzF3OuAuxA
-	tB+VWJWcO90+2NEpdstTQWch0f/H4ZQsdrX4bUjSg1r6K+iHuGzYuW0Yas8B+kKI0t5ga2
-	nJuvjfJ1iw6ig7RlT3LUQPLqXWvQx94=
-Date: Sun, 05 Jul 2026 15:17:20 +0200
-Subject: [PATCH 01/10] dt-bindings: arm: cpus: Add Apple M4 CPU core
- compatibles
+	bh=ljbLLNXdPRMRrFNl8paEjzbRJ44yAbxs18opzD0RacA=;
+	b=GC4ATiQR/ykmmCKqubMjENw/3Xr6Ci0ZJQmyTzl15/JXn3E6/pfeQcovEEOuDBcKtE3gfu
+	DjB3MY6wtvGouS8itJVrGfsoLVvmmHq0yuz2TFZ0ME7c5gP2zy5j0SnWc51bwMJk7fgihV
+	we9t/adlMPacke8u70uo7RdEBAmx8FE=
+Date: Sun, 05 Jul 2026 15:17:22 +0200
+Subject: [PATCH 03/10] dt-bindings: watchdog: apple,wdt: Add t8132
+ compatible
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260705-apple-m4-initial-devicetrees-v1-1-e5655ee56523@cyberchaos.dev>
+Message-Id: <20260705-apple-m4-initial-devicetrees-v1-3-e5655ee56523@cyberchaos.dev>
 References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
 In-Reply-To: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -58,32 +58,30 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org, 
  Yureka Lilian <yureka@cyberchaos.dev>
 
-The core types of the M4 SoC no longer carry individual codenames.
-Apple's device trees re-use the 'everest' and 'sawtooth' codenames from
-the M3 generation for all later cores.
+The watchdog on the Apple silicon t8132 (M4) SoC is compatible with the
+existing driver. Add "apple,t8132-wdt" as SoC specific compatible under
+"apple,t8103-wdt" used by the driver.
 
-Instead, we use a combination of the SoC's codename ('Donan') and the
-type of core ('e' and 'p' for the efficiency and performance cores
-respectively) as compatible for these cores.
+The M4 wdt block additionally has a secondary watchdog, which is
+disabled by m1n1 and can safely be ignored by Linux.
 
 Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
 ---
- Documentation/devicetree/bindings/arm/cpus.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/watchdog/apple,wdt.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/arm/cpus.yaml b/Documentation/devicetree/bindings/arm/cpus.yaml
-index 5be89c584026..c328e9fb9843 100644
---- a/Documentation/devicetree/bindings/arm/cpus.yaml
-+++ b/Documentation/devicetree/bindings/arm/cpus.yaml
-@@ -86,6 +86,8 @@ properties:
-           - apple,avalanche
-           - apple,blizzard
-           - apple,cyclone
-+          - apple,donan-e
-+          - apple,donan-p
-           - apple,everest
-           - apple,firestorm
-           - apple,hurricane-zephyr
+diff --git a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+index 845b5e8b5abc..b99e7913e398 100644
+--- a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
+@@ -19,6 +19,7 @@ properties:
+           - enum:
+               - apple,t6020-wdt
+               - apple,t8122-wdt
++              - apple,t8132-wdt
+           - const: apple,t8103-wdt
+       - items:
+           - enum:
 
 -- 
 2.54.0
