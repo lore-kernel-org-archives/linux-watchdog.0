@@ -1,132 +1,136 @@
-Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50FA537DE9D;
-	Sun,  5 Jul 2026 13:44:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A53E380FDB
+	for <linux-watchdog@vger.kernel.org>; Sun,  5 Jul 2026 14:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783259097; cv=none; b=hjyqokCl+fAaMBCHnL3RjuJhH6P9rBF/1C0J5ZUUguvqgp+8c67dS6HHU7Y4O/Ox6G05mnmxsJR5BYWTilryAEcKCMneL7yvpuVRiC2dgaV4ynQMzV5in3Isr3nM/JZMLadszq4hyNikCVcuX+Fgf6xOO6t8UR9PfHKX6utr98A=
+	t=1783260069; cv=none; b=l/y++f2kERumtjS4WT6kN6ipA4nC1OWUlq51EcsL1ez06MmypNMMtibHu3Elwxf33kjUDCGT009kApb8yjCuRAK9YMeGidLnM4JyDIIv5izDtgYwsOO3rgpHg6HOhh1XabeSg5L1g0QqhGWjyHLMJYsaTS1K4b3r6mbuxqCNjcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783259097; c=relaxed/simple;
-	bh=QY+6SuFq9pvYzlSwRTSIY5NiTd9xneHei3mgY5TAmz0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o+0FLYsCV3x4CvAy1qWSpPKcg7Xj8qy+Oum9MFYdC0HukDhKmiHtc3P6K0W+c+kxl1VRqECFtOOWFyFOTcRN3u3K7wqy6Nd1rQiEwpx4/WSFKjq+9JzdjoUyjYL/Lxl2V6OozCz+xl9IoFsIyPsevDyFaKtALZi/wALUkTER6AM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=sOIZbYIF; arc=none smtp.client-ip=195.39.247.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
+	s=arc-20240116; t=1783260069; c=relaxed/simple;
+	bh=y91yCTn5OqFNj2gv1AniQU1l6RNsFXdk6j7Az5+Zq40=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=h/5na4BJt7dUHdP7AP57oCbOKzQx8xbLeoF0wUvhMB4Nobv6ztzq/9LgLffF99VekeyA5G2iNqxUGpRHDzI2FE8i07AmsH2wvCo0zHPdRSjoNfud6haISjYrNEt5rvy2JfAceC1No1K/FcxkOM4Sv/gSNKBvMnKq1123GUIZP88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QYXqgQgH; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="sOIZbYIF"
-Message-ID: <0df7860e-a3c9-466c-8003-f751d48b5465@cyberchaos.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
-	s=mail; t=1783259093;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=U3SH4Fc8GRkJNGIuSVNSHqcQJgONWwp41Z6E55XKFFc=;
-	b=sOIZbYIFGckCBR6J4qYtPkNx2lEzfgR0JiJyIJo6grofQ3gi3058JKig9L+ZnCYJKS2E8V
-	pd//lLEdfetx8fBzv7YT3Z+iYrmpOO5coivQrUSYuG3aUkn+cQ6vK0zzvvSQCPXPYa1fcR
-	OSv0L59LGg1tyi3oF8mMCCSY/1C1P8g=
-Date: Sun, 5 Jul 2026 15:44:52 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QYXqgQgH"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-493bf73ec2aso12771035e9.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 05 Jul 2026 07:01:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783260067; x=1783864867; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0Xmqz/oZ7aMrIDGMWhF1UArCU3La3CqQcUQWUOpBKws=;
+        b=QYXqgQgHEaBx6XUSTiY3uoJR+O6Ccge+vKzmE0xtzCuiVP9Yc4V49H2IzuSiEGckJ+
+         FH+q3MhMn++hpycQErlbhEQJPpPT0zIwSl2jTLBzoN+O7aKjAfMgyQiBFIELOyd09Z0p
+         UUvsSnbfI1h/LYD520tBUja/x6lNncCKc5NcxUQUnbA2zpmAlhkl233r+cbNZRRjnTi/
+         0gxnjMBjF38pX9rV3po9gxYvppbcA0z355LeXHSmX3A4QuNhvInrV2hgdV1fcPTHt8/V
+         vGSLBQMQQX3aMS5TCSm9SiA9WRxBk6ZCaSD5S6bePJGa7mAURT1eCcUfCOtmQV7djbdU
+         xTWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783260067; x=1783864867;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0Xmqz/oZ7aMrIDGMWhF1UArCU3La3CqQcUQWUOpBKws=;
+        b=GEDdFqUtUJ4ppToSrnm4gHsvmGTyD7b/92UreJIatIk1RlMcvpMmQkzc4hUpZx2yng
+         +uxOjY3jszceNAY07zxj1FDjiRLacakhBaVtgDAPqQAFw+DvC7Tos8s5xJAvdtl3qqCu
+         VhEw7Ml2qq81VCkd4VSRbYjwAr/J/sCKFhWFF7az5sdW/5Z+opHlTuMhtgl7v0E4S+Gf
+         Kxf8k62L9dYULq7YudNadYUWqAFuiRFIuQr0C05kZym0ld+EAxdroibgtVfaImdr9W6f
+         F5kcTcuywtaei3Ra7/vRpC2bcFLNi0Lqy9Qxpl8NyUPIZGB9aaZiY5g88QhLCmbm8rm0
+         vd/g==
+X-Forwarded-Encrypted: i=1; AFNElJ9tHD9EpJUYSF5lMa5QgmFUb9H8Ny63tA174lBSFeLP3RCIldwY12F/gbcFrz6NlDOmfU+hC2NbbBB0MOJCxg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCxbr4kBUCUafddJfe43emZAdsJwlMtYpErhOglNRUpwZQh6yL
+	34GfUvwmU+FhShSO5xoZ/yKIqSjZj5YKiQB2dhwKs1No7yV+pixG3OnW
+X-Gm-Gg: AfdE7cll+cpqo0ltsayiXwOr6QmGuWZUIEHrVtFrDuPcOGLEIsQGmZsPCJ4zv5vNkvN
+	G0nfhgzp7dI6DMvR8xuSn5ZWCZ9Zlfg8wzamQ1G3V/0nPYnxq4kxuURurJmHwDE6tUU63T2tZTQ
+	8OrZJQm5SDRXLGgF9G004f94nMwxcFC7+t3cYIM0DUruSOrkUTCNw9E48S2URzVUROcKJB1vf7Z
+	o5JhTdWwrD6T4t2J8q8Qx43oQNb8bVyfySp1aKZT9hb4B595vMH8Q6xUBhJkrar/ILN7gRg36Ej
+	nfIR7d3oyzYSS5WgnB3nw7jt+3zyl0o3GxNbn6eJlATwRhW2Ml1MF/lxPNGpPQptZqgu32nNP3Z
+	92SECrR5dMJ4E0pIWgEaTl+ovYyV8paro82MwUbS5g+PiIPw5pZ4U25sFm92wls7r2EYDZyd/Aw
+	zJNjCYwVF5vPHjavAzp0UQ0ZI=
+X-Received: by 2002:a05:600c:524b:b0:492:40e2:358d with SMTP id 5b1f17b1804b1-493d11de9bcmr79035685e9.16.1783260065332;
+        Sun, 05 Jul 2026 07:01:05 -0700 (PDT)
+Received: from taln60.nuvoton.co.il ([212.199.177.18])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493cce040b4sm275911115e9.10.2026.07.05.07.01.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Jul 2026 07:01:04 -0700 (PDT)
+From: Tomer Maimon <tmaimon77@gmail.com>
+To: andrew@codeconstruct.com.au,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: openbmc@lists.ozlabs.org,
+	linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	avifishman70@gmail.com,
+	tmaimon77@gmail.com,
+	tali.perry1@gmail.com,
+	venture@google.com,
+	yuenn@google.com,
+	benjaminfair@google.com,
+	corbet@lwn.net,
+	skhan@linuxfoundation.org,
+	joel@jms.id.au
+Subject: [PATCH v3 0/3] watchdog: npcm: Add reset status detection support
+Date: Sun,  5 Jul 2026 17:00:57 +0300
+Message-Id: <20260705140100.1543486-1-tmaimon77@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 10/10] arm64: dts: apple: Add minimal t8132 (M4) device
- trees
-To: sashiko-reviews@lists.linux.dev, Yureka Lilian <yureka@cyberchaos.dev>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org,
- linux-watchdog@vger.kernel.org
-References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
- <20260705-apple-m4-initial-devicetrees-v1-10-e5655ee56523@cyberchaos.dev>
- <20260705132808.82D2B1F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Yureka Lilian <yureka@cyberchaos.dev>
-In-Reply-To: <20260705132808.82D2B1F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
-On 7/5/26 15:28, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> - [Medium] The `aic` node has a mismatched unit address and overlapping memory regions in its `reg` property.
-> - [Low] The `model` property for the MacBook Air (13-inch) erroneously declares the year as 2024 instead of 2025.
-> - [Low] `t8132` device trees are incorrectly placed at the very top of the `Makefile`, breaking the chronological sorting order.
-> --
->
-> commit 281d92c4ca5eb8a2224c6bb0b9116c7518b422d1
-> Author: Yureka Lilian <yureka@cyberchaos.dev>
->
-> arm64: dts: apple: Add minimal t8132 (M4) device trees
->
-> This commit adds minimal device trees for a series of new Apple M4 devices,
-> including MacBook Pros, MacBook Airs, iMacs, and the Mac mini. The device
-> trees are limited to essential components like CPU cores, interrupts, and
-> serial, allowing a basic boot. It also notes that SMP support currently
-> remains unreliable.
->
->> diff --git a/arch/arm64/boot/dts/apple/Makefile b/arch/arm64/boot/dts/apple/Makefile
->> index 6fc3349a58428..181bd0e289653 100644
->> --- a/arch/arm64/boot/dts/apple/Makefile
->> +++ b/arch/arm64/boot/dts/apple/Makefile
->> @@ -1,4 +1,10 @@
->>   # SPDX-License-Identifier: GPL-2.0
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j604.dtb
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j623.dtb
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j624.dtb
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j713.dtb
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j715.dtb
->> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j773g.dtb
->>   dtb-$(CONFIG_ARCH_APPLE) += s5l8960x-j71.dtb
-> [Severity: Low]
-> This isn't a bug, but should these new t8132 device trees be appended
-> to the bottom of the list rather than prepended at the top, to maintain
-> chronological sorting order in the Makefile?
-I had this at the top to make rebasing easier, but for the upstream 
-version it should be at the bottom. Changed locally.
->
-> [ ... ]
->
->> diff --git a/arch/arm64/boot/dts/apple/t8132-j713.dts b/arch/arm64/boot/dts/apple/t8132-j713.dts
->> index 0000000000000..b1f779c37d5fe
->> --- /dev/null
->> +++ b/arch/arm64/boot/dts/apple/t8132-j713.dts
-> [ ... ]
->> +/ {
->> +	compatible = "apple,j713", "apple,t8132", "apple,arm-platform";
->> +	model = "Apple MacBook Air (13-inch, M4, 2024)";
-> [Severity: Low]
-> This isn't a bug, but does the model string contain a typo? The header
-> comment for this file identifies the target as a 2025 model, but the model
-> string exposes 2024 to userspace.
-Typo. Fixed for v2.
->
-> [ ... ]
->
->> diff --git a/arch/arm64/boot/dts/apple/t8132.dtsi b/arch/arm64/boot/dts/apple/t8132.dtsi
->> index 0000000000000..715980b5c7de4
->> --- /dev/null
->> +++ b/arch/arm64/boot/dts/apple/t8132.dtsi
-> [ ... ]
->> +		aic: interrupt-controller@381180000 {
->> +			compatible = "apple,t8132-aic3", "apple,t8122-aic3";
->> +			#interrupt-cells = <3>;
->> +			interrupt-controller;
->> +			reg = <0x00000003 0x81000000 0x00000000 0x1cc000>,
->> +			      <0x00000003 0x81040000 0x00000000 0x4000>;
-> [Severity: Medium]
-> Is the base address and memory region mapping for aic intentional?
->
-> The node defines a unit address of @381180000, but the reg property specifies
-> a base of 0x81000000 (translating to 0x381000000). Also, the first memory
-> region of size 0x1cc000 completely overlaps the second region starting at
-> 0x81040000.
->
-> Could this typo in the physical address map explain the unreliable smp boot
-> behavior mentioned in the commit message?
+This series documents and implements reset indication reporting for the=0D
+NPCM watchdog driver on NPCM7xx and NPCM8xx systems, and documents the=0D
+optional GCR syscon property used by that support.=0D
+=0D
+Patch 1 updates the watchdog binding to allow the optional=0D
+``nuvoton,sysgcr`` property used for reset-cause reporting.=0D
+Patch 2 adds watchdog documentation that describes the bootstatus=0D
+mapping.=0D
+Patch 3 reads the SoC reset indication bits and maps them into the=0D
+existing watchdog bootstatus flags for NPCM750 and NPCM845, while=0D
+leaving WPCM450 unchanged.=0D
+=0D
+Addressed comments from:=0D
+- Krzysztof Kozlowski: https://patchwork.ozlabs.org/project/openbmc/patch/2=
+0260622083046.3189603-2-tmaimon77@gmail.com/=0D
+=0D
+Changes since version 2:=0D
+- reword patch 1 to explain the hardware reason for the GCR phandle and=0D
+  why it is needed for the reset-status support, per Krzysztof's review=0D
+- cache NPCM750 reset status in SCRPAD2 so later watchdog probes can=0D
+  report the same boot-time state=0D
+=0D
+Changes since version 1:=0D
+- Modify reset detection handle in the watchodg.=0D
+- reword patch 1 to use the GCR syscon-property wording from the=0D
+  applied NPCM reset binding update and drop the optional property from=0D
+  the binding example.=0D
+- reword the patch subjects and commit message bodies to match current=0D
+  kernel dt-bindings, docs, and watchdog style.=0D
 
-I believe the core and event regs overlapping is correct. The same 
-overlap exists in t8122, and also in downstream Asahi t6030/t6031 dts.
+Tomer Maimon (3):
+  dt-bindings: watchdog: npcm: add GCR syscon property
+  docs: watchdog: npcm: Add reset status description
+  watchdog: npcm: add bootstatus support
 
->
+ .../watchdog/nuvoton,npcm750-wdt.yaml         |   6 +
+ Documentation/watchdog/index.rst              |   1 +
+ Documentation/watchdog/npcm_wdt.rst           |  71 ++++++
+ drivers/watchdog/npcm_wdt.c                   | 217 +++++++++++++++++-
+ 4 files changed, 293 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/watchdog/npcm_wdt.rst
+
+--=20
+2.34.1
+
