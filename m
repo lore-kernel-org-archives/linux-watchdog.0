@@ -1,118 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC323233938;
-	Sun,  5 Jul 2026 14:36:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783262202; cv=none; b=WI5L3zRXLw2e2u1S7QzTxcQKwjSHN6U/pxRgLo/VhWMFyzBm7T1kGnjkA9hGhPzWwnoIUbgkgaTXWushKVkjOWDz2qQsPy1Vr4ZYHlZ0P3oMO/pIMqqNlQ+osNEeuuqTwhsiuJGGRNf5HYN2ziN6sM0OEvBXtGWQms/8jLyHgyQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783262202; c=relaxed/simple;
-	bh=eJ6cc+1shGQjpddnIvz+Ep+PRkYa0ZhICnQlhVxew0I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VaAB5071gQnfqGMsBasBon9Pl+uak2bJfgJsPPxi5nYbdPsRk0B/yN6GPCyZnxr0Ijdrei3gopMQlMWdHrrLL3m3r+c5ekyKv0C1LagtD4TngiIwc2V0EenZhlrznpB8pE24FfIaRLsxfFibWySJ5phY0/2CR0fPY5kZTA2FgnE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nEr2sd3z; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F213A1686
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 09:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783331611; cv=pass; b=Egtl8kf7GKNSghovDUTR38+rreSXO/SdEmo9HllT55QzFRi40unnEqJiL9N/74jdPuc7SCBa/fz7PcIfFIJ2+sLbT9PeAP9+JHPwfesscHP8v/1lzS99PN3bM1l6ASe6t4S1tytHEfY1G6l72AgX7nAAwSYuSHDoeDnoryZgD4U=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783331611; c=relaxed/simple;
+	bh=1y/VyBqChORatgg7mbBlbrll73whp3RgKHcndf4sJ4Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cYpZV5xqNhvU1w6tPRGMNhVoBNT/S4i5BuFjKDqxUfxwwRgFxRHnWqlF1ChP3Sa91FuAVRN3vYcytJlXc1c0Gysx47s86QsLMyyZom32itYvttCl9fsUgMWN2YLEytvIO5QYTnhitA9NiFNDXWInkoMudNy+HP5uGUTJCDvy5/c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GuU0t9+T; arc=pass smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nEr2sd3z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECF6C1F00A3F;
-	Sun,  5 Jul 2026 14:36:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783262201;
-	bh=+IDjOgvMZgIQmetcLrnnpwM1F1TovTt/ay9+vlVBx9E=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nEr2sd3zLoF5/BTzOLBehR/gZ+XtkN9iD2D+uHFYFKG+UJ8K2j71ODrygr5sKy1lt
-	 z6ypXkTjFi7ksiVdP8bZ+BVjdG6v4esdT+yxndNyuobZod8lFBSztQNdTY3UNrIU8Y
-	 pV2yvpW5IqOTPNbBpROMAO1tbomLeCMkWZFzQHBsoHV9f2diuB9dQsTDe6sP44OIBw
-	 yItLWDbAmkotsklsKX23AZU+vJi2NTkcLqLFC/NjlmMRXuyFLnvxXn4Rcfixk/ni7k
-	 78jEKGPmD/E5Unr6XRU8NKGnuC1pqIbvSe5aEcAwIR76cm8/2r1NifxZTg4zTYDiA4
-	 RqzPoE8N5RUtA==
-Date: Sun, 5 Jul 2026 15:36:35 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Tomer Maimon <tmaimon77@gmail.com>
-Cc: andrew@codeconstruct.com.au, wim@linux-watchdog.org, linux@roeck-us.net,
-	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-	openbmc@lists.ozlabs.org, linux-watchdog@vger.kernel.org,
-	linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, avifishman70@gmail.com,
-	tali.perry1@gmail.com, venture@google.com, yuenn@google.com,
-	benjaminfair@google.com, corbet@lwn.net, skhan@linuxfoundation.org,
-	joel@jms.id.au
-Subject: Re: [PATCH v3 1/3] dt-bindings: watchdog: npcm: add GCR syscon
- property
-Message-ID: <20260705-gruffly-curing-ae3ab1044a94@spud>
-References: <20260705140100.1543486-1-tmaimon77@gmail.com>
- <20260705140100.1543486-2-tmaimon77@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GuU0t9+T"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-809b19a7f25so36516247b3.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 02:53:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783331608; cv=none;
+        d=google.com; s=arc-20260327;
+        b=JzzO6LCHiRkbj3ECbi/M9PVE9H1vueJPphrdPy149LvuQ/PKS09fUzB/LbofjgUjJ/
+         bcZC6/s3EyXaOinp0qmKzx3c8XFJdeCSFFLxYBJqIcYqnC7kfS+NyESHiKXvxunrwE5f
+         kDf+QgXX/ngWTXTr6yF6se3RtDO7gGv4aAewdKd6qHNKrIC408tKsP0+F2a3LzShlg5N
+         h/w0PAyWN31YBmt4d8kaAkhJNWTciWdlb8QPIjyJy0iGhA9a6tV3Dp8icmvEupw44c8+
+         ajsN2ymPoYgjlwtsar5xfMT29W3YSG+oFDbJICCpW5XvpPYe+3tVRNiv2SHtqeU+NHnR
+         eveg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
+        fh=2e/YV/UIPvi299U3q5fESNCC6GPNCUOf2qHBWWLw/Hw=;
+        b=GiSpwVEFtEmvEKQwvDICegmKunmjTTNioP1GJ8g9RyLlZk4coE/1qYHdiruBFwj8XT
+         40iaLSysAAYfa/g5a5EGzAQfp0ZSHdxQrhiB3qmKzTKAml1XAQr3ldiJQ4d2IpMn+FQi
+         fxzV4Ov1Lq9+4/jP0j0k5L5NkZNQc1OB6VNObNE0+wkPnzalpXH+2VF50rSvG4Vgl96Z
+         6u+AM5QKeCKS8SOCAHaRyJoWdkPfVqAbY08zv/Dzx6qvmVXxeQuhfJIt50mDTQEz8UnW
+         DdYpy9D/Kaf5aXGZF4jbo1dqrlVy604az9V1Fzj/hwpUJBTR6siwFvlMys/+PtMkLCFW
+         EyWg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783331608; x=1783936408; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
+        b=GuU0t9+T3qCj1b7JvMZ1S6qC0sM6V4rNDtDO/aTVqpdQ5pkDr5aTMad9KGQ2rDexJZ
+         mJr1FSLwneFMGmI+zpjpVeyG7WO0Ns8SfYR7JwETkqNdqZiWkmIL0bQXujhhi10QLc+A
+         sORWYoxVm2YzVvYPI5dDMkRtEe2RLQWgR0KoLtCGO1tzSEWEFqPK89JeTNZpyEXB29Zo
+         lbzvrNy1DKWkUS8ilUEnUDbeVE1YkfB3yGenyAYZH/kg8x51CdWxvVIccq5+QRzxjtSw
+         MtSz2bzCq8I/fDWF2rRHHzHih4mT+z3hETY+rHms1+t6rk3fMaUZDkM3glWFfPr0kMlA
+         tifw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783331608; x=1783936408;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
+        b=Mbs5fBd8UYIAaP91LDZlAEG/E7NarPA+Z6kfLAp86j9RZZVr49H1yb/XXgYww56Yw/
+         HFFPrUVtRHRTOfH456BkKbraDtfmaa9if1twd5ALs8PaNdQPo1IiTVPOYrLhfCOJPQC4
+         vLv44s8z1/p4uWcJxwsDZmdqC06BgQ0xaUafcER7QE1Yc3LCNmdCGYOGsjGNNCJaJyGi
+         xuFT1yovDcjhfmsOisTYqF7BvxBJxlzSa+ssOPxrPU9McYW5zmtYRbmTVuv1ywv8Ecg7
+         3ce6aImkmGbGZEbyIqvagiJ5Dr/9VijWoowx6ppoRcE52Tj5Q7LI9N1jcdWyRPZdwJ9d
+         vnAg==
+X-Forwarded-Encrypted: i=1; AHgh+RoUAjRDh+Y9w9ceuazoVkqNf73TBXdIPpA5nP14JmT2oTmHHrwmIoNznmHKNyertDkQOzop3sU6FStXeB4vPQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzkuFCBgRJRWR3OJBo/1teadkUUhlIeqpWlTEbwyTlYr5A85RkE
+	vO/usw3MgshHJ8545DruuUl4VNarT+7YE7uCwGq6sXC7zCdkAyR1aNmeSfg22GdwNlrucE2GysW
+	31job8w3HtjIWgXTwXDtfnRyiwpDPEop1dQ==
+X-Gm-Gg: AfdE7cnoieiq3WDMeMlZTLbPPBfIpOC87CC/wNj0DXBRN7r0eb9/Ch+Mpws5ehV+YkS
+	SYPLejOrJ9x0mqIPjH6khhy7IYhB7ztmHSaLQfQZ3KDs8QGOYRxpFJqn17DQYb8x0SQCdPYzETc
+	SoV+g4fVsq7dbmj+5TRxQ97nW1UDjNo5u9YhID55dqPYhOsiSp8iOOdeHOqJBBt5tMCLDt74yy6
+	8jRYc7aDra+tflMgM0o99H0GdgTnmfg/O7tFK8oLoup2akf/gdDhA0wpeHRmUTiEP57VprWmQ==
+X-Received: by 2002:a05:690e:1408:b0:664:e8ac:21cd with SMTP id
+ 956f58d0204a3-66652e50610mr9454023d50.25.1783331109980; Mon, 06 Jul 2026
+ 02:45:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="UuJ/2UbYFy531ONn"
-Content-Disposition: inline
-In-Reply-To: <20260705140100.1543486-2-tmaimon77@gmail.com>
-
---UuJ/2UbYFy531ONn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260705140100.1543486-1-tmaimon77@gmail.com> <20260705140100.1543486-3-tmaimon77@gmail.com>
+ <20260705140617.A71F11F000E9@smtp.kernel.org>
+In-Reply-To: <20260705140617.A71F11F000E9@smtp.kernel.org>
+From: Tomer Maimon <tmaimon77@gmail.com>
+Date: Mon, 6 Jul 2026 12:44:58 +0300
+X-Gm-Features: AVVi8CeAp4CE3AWU4FV6AWJHL_1TkqiIDqOBExjjPuk3wMGkf3cx2S3XYhDqvP4
+Message-ID: <CAP6Zq1jT-bfHvw65EsDKdqMCLVK1Yw3dd0NaxpOCw3zx+hVMTA@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] docs: watchdog: npcm: Add reset status description
+To: sashiko-reviews@lists.linux.dev
+Cc: robh@kernel.org, devicetree@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, conor+dt@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 05, 2026 at 05:00:58PM +0300, Tomer Maimon wrote:
-> NPCM750 and NPCM845 latch watchdog reset indications in the SoC
-> GCR block rather than in the watchdog block itself.
->=20
-> Add the optional nuvoton,sysgcr phandle so watchdog nodes can
-> reference the shared GCR reset-status registers that hold those
-> latched watchdog reset indications.
->=20
-> This is needed by the following reset-status support, which reads
-> those latches and reports watchdog-caused resets through bootstatus.
->=20
-> Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
+Hi,
 
-Since the 450 doesn't support this, please make it conditional.
-pw-bot: changes-requested
+On Sun, 5 Jul 2026 at 17:06, <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [High] The watchdog driver abuses standard Watchdog UAPI constants to r=
+eport non-watchdog platform reset causes, violating the userspace ABI contr=
+act.
+> --
+>
+> commit 72fd6c8b87d96376853f3dcd5ef1597495cf9817
+> Author: Tomer Maimon <tmaimon77@gmail.com>
+>
+> docs: watchdog: npcm: Add reset status description
+>
+> Add documentation describing how the NPCM watchdog driver reports reset
+> causes through bootstatus on NPCM750 and NPCM845 systems.
+>
+> > diff --git a/Documentation/watchdog/npcm_wdt.rst b/Documentation/watchd=
+og/npcm_wdt.rst
+> > new file mode 100644
+> > index 0000000000000..cdc45ade9e0d9
+> > --- /dev/null
+> > +++ b/Documentation/watchdog/npcm_wdt.rst
+>
+> [ ... ]
+>
+> > +.. list-table:: Reset-cause mapping
+> > +   :header-rows: 1
+> > +
+> > +   * - Platform
+> > +     - Reset indication
+> > +     - Bootstatus flag
+> > +     - Reported meaning
+> > +   * - NPCM750 and NPCM845
+> > +     - ``PORST``
+> > +     - ``WDIOF_OVERHEAT``
+> > +     - power-on reset
+> > +   * - NPCM750 and NPCM845
+> > +     - ``CORST``
+> > +     - ``WDIOF_FANFAULT``
+> > +     - core reset
+>
+> [Severity: High]
+> Is it correct to map generic Watchdog UAPI thermal and fan failure flags =
+to
+> standard platform reset indications?
+>
+Yes, it is something that was already discussed with the WD
+maintainer; This is why it is mentioned in the rst document
+> The generic Watchdog API defines strict semantics for its status flags.
+> For instance, WDIOF_OVERHEAT means a reset due to CPU overheat, and
+> WDIOF_FANFAULT means a fan failed. By mapping standard SoC reset causes l=
+ike
+> Power-On Reset (PORST) to WDIOF_OVERHEAT and Core Reset (CORST) to
+> WDIOF_FANFAULT, might this break the userspace ABI contract?
+>
+> During a normal cold boot, reading the SoC latch would unconditionally ex=
+pose
+> this to userspace via the WDIOC_GETBOOTSTATUS ioctl or sysfs. Standard
+> userspace monitoring daemons (like systemd or wdctl) reading bootstatus
+> might erroneously conclude the system suffered a thermal event or fan fai=
+lure,
+> potentially triggering unintended emergency actions or false alarms.
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260705140100.15=
+43486-1-tmaimon77@gmail.com?part=3D2
 
 Thanks,
-Conor.
 
-> ---
->  .../devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml   | 6 ++++++
->  1 file changed, 6 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-w=
-dt.yaml b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.ya=
-ml
-> index 7aa30f5b5c49..99c225f166db 100644
-> --- a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml
-> @@ -40,6 +40,12 @@ properties:
->    clock-frequency:
->      description: Frequency in Hz of the clock that drives the NPCM timer.
-> =20
-> +  nuvoton,sysgcr:
-> +    $ref: /schemas/types.yaml#/definitions/phandle
-> +    description:
-> +      a phandle to access the GCR reset-status registers that latch
-> +      watchdog reset indications on NPCM750 and NPCM845.
-> +
->  required:
->    - compatible
->    - reg
-> --=20
-> 2.34.1
->=20
-
---UuJ/2UbYFy531ONn
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCakpr8AAKCRB4tDGHoIJi
-0jzXAP9V+LH1kp6iYX1iEVWw/AAWNuNW+o54gflPkE8U5Q8X3AD+I57wifDzW5ES
-KiTAcjkS45d13+QxSzYtdn2yBkuizg0=
-=coSg
------END PGP SIGNATURE-----
-
---UuJ/2UbYFy531ONn--
+Tomer
