@@ -1,63 +1,63 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82AA3A7F41
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:48:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62F2940A93B
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783349320; cv=none; b=EvFRRb9nhLZXjUR/gfjXITiZ1/CZWaK0xI5q77bKgd4092biqgF3JPk+hjDCNuCQH/gL2eRX0Uldocd9Kw8o3a2iQg3tjRTptV95OBcqG21T4693LOqT91skW4xT5Lg5qYc5Zl13GyjlyLE9hAicS1muC/E0VYoNcthtvKCntec=
+	t=1783349323; cv=none; b=LJ/16aHsOkUYBjt64WrEXoPzGSNrspIuePhY5vvo3oCwp0IEuPlyPCdF0xO4xgX588oijBMaWW1Lrv++ZllYVXbO4QT+CdjmC8f8BA9GO5wlKIBlatpKI0OLXBrN0fbVL1WC/mJfMe30JyzBP3dqPCHT1KevJc3uRc7uPJ5DpPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783349320; c=relaxed/simple;
-	bh=JUJG5Grow4ynAAXlgwL43WqrOFCddT6+gQAxPmGjgds=;
+	s=arc-20240116; t=1783349323; c=relaxed/simple;
+	bh=04e/Vb8TzD7k0lpyz3v8T9K3xjbwU9F9Cf26pX1gqJ8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ZVTmaLjnKEe+p/61arcOF4Dyv/Iz/ffYecZlULxsslN1SEZRnpZeKyh/hwU50+PjglSgskSj4U1/yCyM6wHVJZsMwhFEqKHfS6rCK2kbivZf4V0jnnE+q5/OtbmY2avV6WEcNTma96S/ToRAK8CeMVUhh+lj4oUyo3Uck9r92UY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bENr7Prm; arc=none smtp.client-ip=209.85.221.42
+	 MIME-Version; b=IzKrmIUS5CFq419WdJXHnSDTdcCdZ5eDSgwFUFbDpMnEUi02YanI3/1Z0Oo+WGJ7jz1p9p/zXKBjD0nAvaNjc/LrTZw5z2wPKuXH3j5UbPEMdqM0knnhZ0r5ijMF/MoS8OHqjxYgZdEBa7DFcDlgnIt8HfezuXcvP/ZRLC+G08Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T0Cg0jXF; arc=none smtp.client-ip=209.85.221.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bENr7Prm"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-4720d22c94aso3087896f8f.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:48:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0Cg0jXF"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47c2b362ee2so1706741f8f.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:48:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783349317; x=1783954117; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783349321; x=1783954121; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jqvnsBC1QnHy0BgYcjusDNjgJMCaD3QUZ4+Za8Z0104=;
-        b=bENr7PrmgS7b57cOFH1CvyEzupl31QFfsdXmZNnifkjqtaKB0pkaIVrVhEzNK33CwO
-         RBmNqjWHh/TTn4PojZ+AeavMTPQfzVR6tq8l2e17HuLvpa2K8PxRfOEHY6870GXQ+070
-         9mNWbqRrGvYRLNd3/L6ua/CeEDXe8qeXuur4TjaBgH1+CzBrV/UU9aMkWZ/oMf+3uVfX
-         VxZQtwEtKZJiaiP+Rh6M5Uw2gibdHdNbfYjzAG53j7+ZITgviZsOjarShD0iE9X1/hH3
-         NqFbaokMZ1ckotDALUJ0CvCQe4g06Xqa+JfKJeyWe5fig3D29L6ASWWrqBknfVen5uQU
-         gm0w==
+        bh=r+Rc67BgTH3+EnF6kyABEC4BScrr4lbwf75koOQCx0Q=;
+        b=T0Cg0jXFiW/sf7z4mQpBgSbQzSJk/K87jJ/pxWbWn33Gsuk00e5xQoSjUSfwOtiWW+
+         /q6IfG688t8dfc4UZfRdgzLEatU7NV3hiONzWU2gX7/cIrvNVHRkpEZgwJNeLEeI6iWw
+         eEn+4Q4olvk/WJSORVqc1UQfPy5hSiDpUUxnidRNUoKQfRpoFLZk3F6IAjecTxPdEa59
+         GlAuBCwo9iNwpUbuQCuFgmRiJd0X5YzGlJtEylfpV+x0kxF2Ujv4zaCUJrxxm9UtupTq
+         b5uzHiy2bI0nXZWz5rCFjy+sv2W5a4f45kQavuXpzNFWlMyxd9d9hOXIzy9epJX3u/Wz
+         wvmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783349317; x=1783954117;
+        d=1e100.net; s=20251104; t=1783349321; x=1783954121;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=jqvnsBC1QnHy0BgYcjusDNjgJMCaD3QUZ4+Za8Z0104=;
-        b=AdgtBtNeNds4DKf3dlq9dyR+4cZGEo+y/jyRoKLF+lAmHPW8EoMcOzLd4JyezQBAse
-         sLcIB9UXeGqQgNBpagcTGj0zf2xvnUfkKZoj+mKO/OLlHfBXcywuBzdL2fdUKbq6gnKk
-         re6Kg8Ly6SF/GF1Jyvfl8qx+fe20FmQ+LYLvHcb6ST66pUzYwY0AdhP24kbbJukRNrJo
-         YK30h73ieg7gPgtRxlv5NicEKFEERhlj9Z+k3SVdjDJBaTreaYxQHXeqf+iSA30ieN9q
-         UCHiCUy1y4MwN07t4OO8RGzTNtgoZHFiG9GnCnpatgXY16sidVxQR0W5La+9QYL3oZai
-         znRg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq0b7arP+DKDaDQtoqMEVf+hUUVWfma28ZGqJIF7T+93MiTXVYRNtqomGKUV6TJWMOZmL+YeKxxMnbjcyRTiA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8Px4TUpVk9lpPZawQl8yuVOgYjVgDoexh/9xwMXWFpmDgM+S+
-	an18Gq8mYs/+IiMYTjyugCDkQThxfO4kec5T5xUt5FASY+RjLwi3l1xd
-X-Gm-Gg: AfdE7ckOoz1gBXvJOF3k0QsKxaPmLAGLvaw3U1Zx0LZKy8JLIUw+/XXweTfS6TX9TYe
-	8lTyaaTlAiyq39EvoKg6MMuw+LI++eNpvmFp9aV0NZBsw8quIx89XYNRFRSULcow1lSsaLBU1vP
-	4eYTGb1jdZorcor0657JDzfGkKmlpUrcRafY0HkV/x/D4h/m79Hc43BxJCow/1URd2Dmj9e1Gf+
-	9wW1XPG4uvm7bATUoIZktLz0GFOoCGfG6s7SgIMDMZqKkzmtA3rCMaimlcgJ/Z7DQVoRuD3w6hn
-	odO7xaxY7LKFqmG2jCl+kCmIN4mzSYc14O6m2R+DercUUEyGxMLShrMrxvlGXynaWhK4VKqzEaU
-	t/K8r2Wdq58a3vJGtO+2SnXF7tlmT15nCRii9zyXXCjkwnI2yBy68QbbnVfoGKYnyydUneC29/Y
-	SwQgCIFei18In+i1peYqoaGgnyIDEKcvt0xg==
-X-Received: by 2002:a05:6000:186e:b0:476:d52b:b85 with SMTP id ffacd0b85a97d-47de6695ff5mr680196f8f.16.1783349317101;
-        Mon, 06 Jul 2026 07:48:37 -0700 (PDT)
+        bh=r+Rc67BgTH3+EnF6kyABEC4BScrr4lbwf75koOQCx0Q=;
+        b=Q2odH654HFsYoJQEH1McWBPlFDfhGj+QcqkpExDBsrlMmuTjP9Tjz8TqJTGnaTHQei
+         GihPx1pRYTFvQv8gimtXGgbJPwvpcdS51dCfwS86UTp/8bBNXClqRFq5AMlSQWmsTLji
+         gV5TJzijm/vfpVUO/oWPUkK0bDbPwwBYw9eFluzuHuh1co7SX+ye3nR1Im1HCiiIkDfU
+         yKE3hMUvZIQlSS/x5/wwDvI6rqKVRUvE3t5dqEkFXaBMAjdXNvAQp+XF2ePtE96uwgGe
+         QA0kgN7BR4S8il/ZBJoCZad0o311o61yyqJNHxhXhwXqJd3gmGrTv2j84Fi8+2odiCc7
+         yWBA==
+X-Forwarded-Encrypted: i=1; AHgh+RrTvUrAh/ytU4xhw47sJxuSYdCjDs635zKABlCDSa6B6+3zNvde/SFWLib6MUDvyWZp/pPOzv2+3tcPUdPk4Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfGX7e3fucfiyS+h/dD1raXKwFTizVNRv0O/Xqx8XS0lR+3Hw2
+	vSkEKYoXtFDgs5mY9H9j7EG+aQbVOJF6wJgIu0LIx5ulFStephbpGcdA
+X-Gm-Gg: AfdE7clXUV8XbTv6zeZX/wCMVrROJWcc9OaIG1aZLGmCkBDbzmT/It6fjtN5nbuGUJZ
+	5RIhwq+aA9u4WnhcVxC7k5NvtQcN7KlyPXzCBqOYblZU3CISC1m+HpmfgwlKNHBjIFIz0pycpCn
+	8GQCwVStEGIwi1Ap/zaedcuwNzMzUshOgAXi8Xv5Tw/YfhIBafxMjx2/lvIUof+rnQNcrF4c952
+	jtGw7Cxm9CiqGA2naqmc28pzbTXeU8VUtGY+g3xHEqXx80DJCvxJ3jEimgy0ks5RK/kbFGitd+I
+	opAj+K1t6qPI8NRtIH9weaZINR74DdmfGVkV9jjv3wrXVstyws+CDfLbEVwEVzloxjH/jb5otCP
+	kiX6q5TaZydOMlHYeCZqpqwUtjjWx7RuNwwi4dpNBSpH5HnljQs4ndi/HjsW+SyBBBcAshTHZft
+	VOltL10n51UqH54etXLUBYoSc=
+X-Received: by 2002:a5d:6541:0:b0:478:2698:72f8 with SMTP id ffacd0b85a97d-47de66e581amr498285f8f.49.1783349320613;
+        Mon, 06 Jul 2026 07:48:40 -0700 (PDT)
 Received: from taln60.nuvoton.co.il ([212.199.177.18])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47aa0960634sm26798473f8f.26.2026.07.06.07.48.35
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47aa0960634sm26798473f8f.26.2026.07.06.07.48.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:48:36 -0700 (PDT)
+        Mon, 06 Jul 2026 07:48:39 -0700 (PDT)
 From: Tomer Maimon <tmaimon77@gmail.com>
 To: andrew@codeconstruct.com.au,
 	wim@linux-watchdog.org,
@@ -79,9 +79,9 @@ Cc: openbmc@lists.ozlabs.org,
 	corbet@lwn.net,
 	skhan@linuxfoundation.org,
 	joel@jms.id.au
-Subject: [PATCH v4 1/3] dt-bindings: watchdog: npcm: add GCR syscon property
-Date: Mon,  6 Jul 2026 17:48:26 +0300
-Message-Id: <20260706144828.3517631-2-tmaimon77@gmail.com>
+Subject: [PATCH v4 2/3] docs: watchdog: npcm: Add reset status description
+Date: Mon,  6 Jul 2026 17:48:27 +0300
+Message-Id: <20260706144828.3517631-3-tmaimon77@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260706144828.3517631-1-tmaimon77@gmail.com>
 References: <20260706144828.3517631-1-tmaimon77@gmail.com>
@@ -93,53 +93,107 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-NPCM750 and NPCM845 latch watchdog reset indications in the SoC
-GCR block rather than in the watchdog block itself.
+Add documentation describing how the NPCM watchdog driver reports reset
+causes through bootstatus on NPCM750 and NPCM845 systems.
 
-Add the optional nuvoton,sysgcr phandle so watchdog nodes can
-reference the shared GCR reset-status registers that hold those
-latched watchdog reset indications.
-
-This is needed by the following reset-status support, which reads
-those latches and reports watchdog-caused resets through bootstatus.
+Document the reset flag mapping, the watchdog instance mapping for
+WDIOF_CARDRESET, and the NPCM750/NPCM845 latch handling. Also mention
+sysfs bootstatus reporting when watchdog sysfs support is enabled.
 
 Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
 ---
- .../bindings/watchdog/nuvoton,npcm750-wdt.yaml     | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ Documentation/watchdog/index.rst    |  1 +
+ Documentation/watchdog/npcm_wdt.rst | 71 +++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+ create mode 100644 Documentation/watchdog/npcm_wdt.rst
 
-diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml
-index 7aa30f5b5c49..81269fdc81a5 100644
---- a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm750-wdt.yaml
-@@ -16,6 +16,14 @@ description:
- 
- allOf:
-   - $ref: watchdog.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: nuvoton,wpcm450-wdt
-+    then:
-+      properties:
-+        nuvoton,sysgcr: false
- 
- properties:
-   compatible:
-@@ -40,6 +48,12 @@ properties:
-   clock-frequency:
-     description: Frequency in Hz of the clock that drives the NPCM timer.
- 
-+  nuvoton,sysgcr:
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+    description:
-+      a phandle to access the GCR reset-status registers that latch
-+      watchdog reset indications on NPCM750 and NPCM845.
+diff --git a/Documentation/watchdog/index.rst b/Documentation/watchdog/index.rst
+index dbc702b31a43..eb9e76275fa0 100644
+--- a/Documentation/watchdog/index.rst
++++ b/Documentation/watchdog/index.rst
+@@ -25,4 +25,5 @@ Driver specific
+     hpwdt
+     ics-wdt
+     mlx-wdt
++    npcm_wdt
+     pcwd-watchdog
+diff --git a/Documentation/watchdog/npcm_wdt.rst b/Documentation/watchdog/npcm_wdt.rst
+new file mode 100644
+index 000000000000..cdc45ade9e0d
+--- /dev/null
++++ b/Documentation/watchdog/npcm_wdt.rst
+@@ -0,0 +1,71 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
- required:
-   - compatible
-   - reg
++=============
++NPCM Watchdog
++=============
++
++The NPCM watchdog driver can report reset-cause information on
++``nuvoton,npcm750-wdt`` and ``nuvoton,npcm845-wdt`` systems.
++
++Userspace can read the latched reset cause through
++``WDIOC_GETBOOTSTATUS``. When ``CONFIG_WATCHDOG_SYSFS`` is enabled, the
++same value is also visible through ``/sys/class/watchdog/watchdogN/bootstatus``.
++
++The mapping is fixed in the driver. It exposes the SoC reset indications
++through the generic watchdog bootstatus flags and is not configurable from
++Device Tree.
++
++.. list-table:: Reset-cause mapping
++   :header-rows: 1
++
++   * - Platform
++     - Reset indication
++     - Bootstatus flag
++     - Reported meaning
++   * - NPCM750 and NPCM845
++     - ``PORST``
++     - ``WDIOF_OVERHEAT``
++     - power-on reset
++   * - NPCM750 and NPCM845
++     - ``CORST``
++     - ``WDIOF_FANFAULT``
++     - core reset
++   * - NPCM750 and NPCM845
++     - ``SWR1RST``
++     - ``WDIOF_EXTERN1``
++     - software reset source 1
++   * - NPCM750 and NPCM845
++     - ``SWR2RST``
++     - ``WDIOF_EXTERN2``
++     - software reset source 2
++   * - NPCM750 and NPCM845
++     - ``SWR3RST``
++     - ``WDIOF_POWERUNDER``
++     - software reset source 3
++   * - NPCM750
++     - ``SWR4RST``
++     - ``WDIOF_POWEROVER``
++     - software reset source 4
++   * - NPCM845
++     - ``TIP reset`` (``INTCR2[25]``)
++     - ``WDIOF_POWEROVER``
++     - TIP reset
++
++``WDIOF_CARDRESET`` is reported only for the watchdog instance whose own
++reset-status bit is latched. On systems with three watchdog instances, this
++maps ``WD0RST``, ``WD1RST``, and ``WD2RST`` to ``watchdog0``, ``watchdog1``,
++and ``watchdog2`` respectively.
++
++The driver may report ``WDIOF_CARDRESET`` together with one or more of the
++reset-cause flags listed above.
++
++On NPCM750, the driver samples ``RESSR``. When reset bits are still latched,
++it clears them and stores the sampled value in ``SCRPAD2`` so later watchdog
++probes can report the same boot-time state.
++
++On NPCM845, the driver samples ``INTCR2``. When reset bits are still latched,
++it clears them and stores the sampled value in ``SCRPAD10`` so later watchdog
++probes can report the same boot-time state.
++
++The WPCM450 watchdog continues to operate without this reset-indication
++mapping.
 -- 
 2.34.1
 
