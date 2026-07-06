@@ -1,165 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D3AF29ACFD;
-	Mon,  6 Jul 2026 15:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8E5143F4BF
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:37:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783350032; cv=none; b=pKSywdbtDAeoypGs/MHws9bZARocnVQepsP8Q7T3996+TS4Mq72zBPZGaICOa06SNnv3c5/Va3xwyxZj553UuqAXV85qsZxaBdSwUdnFg9mfTYPCAVb5x7Mj2eH+Gzv6blRPE0vwgIYkfVs4QSRaOJB/LUufvULZHIMTyTLVl0s=
+	t=1783352238; cv=none; b=dd3hiWGl399Uaw/Xp1CyFft1F6iSBOaSfdnfRH/A19JkXV+3Sl8SeQuuNY/H9Zzuu292Qtp2Cdj8eR5ddvz7Fb+iJRgmpuxI4vpLuvpg29Yx0dgIK4apIrBnQZfSzgLSOig6mdquUXejDuJ3+yXC5gFpyk0KPA4zs5Tcb0xr5ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783350032; c=relaxed/simple;
-	bh=GcuqGVARAN2P0Z38QSCLFf86LIxHJXHWpB4ihBoPsrw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QYeJyX2wVOPx4W1s+hPMMVSYQ1sUYfcnEapw0g9HOGKCxH40hqho4WTYgf7TXvbE+pLz48Sl5uaYRscJ2KekJDpcY7kBHpk1OQkErHcywtqUtrhNrxfvobGpEdJ1VLt84UZSxAc4tEIYN/QTR+KNDnwCd7vHgVG3M/HK4JNX164=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fMWmXxLT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783352238; c=relaxed/simple;
+	bh=wbEjkHsquzQwNJEdKeLiD6qRngxKTd3yWcLvJNETGH4=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=RtMVsmzm533YpUf6zZL+qp+aFsWgLk0SFMLoIiI0w+UPhRRkMhy1D5jBF7TohPQQXvddhDFydBVspr+zi1VlNZKww1+ix8QMDMaZ1GxAzQ1CgnZ4R7MiyNVm+Fczi6OoQnRgmB/F3YmsRRsXPqcqwiL0gfOf0DftoI5DlpLdeng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=YjVmM1rP; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fMWmXxLT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A75751F000E9;
-	Mon,  6 Jul 2026 15:00:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783350031;
-	bh=QrFONjaRMgWLuXBPOo3+Xely/bDI8uFbLaTccxBNAF4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fMWmXxLT7A5G0iabjPSQNdCCxNU4Q3SDy0/Y2NtlMEepm0dYUoTuWlsOSAPsgrQ78
-	 0+S2qKF0bzBDu1DHueGN4R5NXiCV6gzcbN3mTDpunE6PXKLnTdPQpgYnQ0+rO1YyAi
-	 jMTPkfHzMXKkOuempMF0Ft0roYR4fdRd8VT4My92PEMQLJ2J5KPZHfiV8uNNIt6k3j
-	 kbkbAX6jtGQgFjmlFsFS1JGejemr7VgFaAwaoOSGbk16y3J98NV2ImM4V47agOGBjW
-	 5fXMcwkzdvUhL8jsSnymADltjjKzSQwx3S+r6N/5teQqo+07Jjts/3j7luXodtIXkG
-	 LYwbechqbgK5A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/3] watchdog: npcm: add bootstatus support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tomer Maimon" <tmaimon77@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260706144828.3517631-4-tmaimon77@gmail.com>
-References: <20260706144828.3517631-1-tmaimon77@gmail.com>
- <20260706144828.3517631-4-tmaimon77@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 15:00:29 +0000
-Message-Id: <20260706150030.A75751F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="YjVmM1rP"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 2E1094E40CBD
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:37:14 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 029DE601A2;
+	Mon,  6 Jul 2026 15:37:14 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B38DD11BBA6F6;
+	Mon,  6 Jul 2026 17:37:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1783352233; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=IBgA9aGQ8NwdiIZTXzSOCKH5G/33iYWZplvWzkcvgC0=;
+	b=YjVmM1rPwYJGmhlAv4RGBp1e4ZzKxS6C7cnDWaDgCfgING5ymiOhY6cdCX4pmtuxz82qH6
+	GVFY+137jkDzh5CsL0i1PlJlgPOvf2RYspX9Bh8W1e0rnkFsRWFJGA7NxBTIvZ3gGlBh1y
+	M90EmnT1ffayXNwh9ylxkZQFlEqliflTDZRuVNsnCdKyX/WXWCEGwlszXqgCfAd4JAhj25
+	uhyQeKw52dVuR77OfGGbQpOyMb5ybT7D+pxS/hMoNnP046zmf/Rs3sZJZCDTfp1nV7TriS
+	hBmW8fNj/ckJ9LrLharavGJRvD1mDwzeCIBI41/utKBpyDPMoA0EK5U+YhnweA==
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 06 Jul 2026 17:37:11 +0200
+Message-Id: <DJRLLTA2T6NG.2WD00RJ8IECW9@bootlin.com>
+Cc: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ "Thomas Petazzoni" <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v3 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
+ NCT6126
+From: "Paul Louvel" <paul.louvel@bootlin.com>
+To: "Guenter Roeck" <linux@roeck-us.net>, "Paul Louvel"
+ <paul.louvel@bootlin.com>, "Wim Van Sebroeck" <wim@linux-watchdog.org>
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
+ <20260706-w83627hf_wdt-nct6126d-v3-1-fa5ad8d486bc@bootlin.com>
+ <22a92049-0ff2-4ebf-b286-1e1e7ae9b3cb@roeck-us.net>
+In-Reply-To: <22a92049-0ff2-4ebf-b286-1e1e7ae9b3cb@roeck-us.net>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Non-atomic read-modify-write on shared syscon registers (INTCR2/RE=
-SSR) introduces a TOCTOU race and mishandles W1C semantics.
-- [High] Overloading standard watchdog API boot status flags with generic S=
-oC reset reasons violates UAPI semantics.
---
+On Mon Jul 6, 2026 at 4:14 PM CEST, Guenter Roeck wrote:
+> On 7/6/26 03:29, Paul Louvel wrote:
+>> Add support for the hardware watchdog integrated in the Nuvoton NCT6126
+>> Super I/O chip. This device is used on a number of x86 single-board
+>> computers and is compatible with the w83627hf_wdt driver.
+>>=20
+>> Unlike most supported chips, the NCT6126 shares the same high-byte chip
+>> ID as the NCT6116. Read the low byte of the chip ID as well to
+>> distinguish between the two devices and identify the NCT6126 correctly.
+>>=20
+>
+> Doesn't that (and the code below) mean that the driver already supports
+> the chip, only it identifies it as NCT6116 instead of NCT6126 ?
 
-commit dac8bb6ae40a2614c654ebac31d7674dfeed0f47
-Author: Tomer Maimon <tmaimon77@gmail.com>
+Yes, because they have the same high-byte chip ID.
 
-watchdog: npcm: add bootstatus support
+>
+> This means that the commit message is misleading: It should say that
+> the chip is already supported but misidentified, and that the added
+> code helps to correctly identify the chip.
 
-This commit adds bootstatus support to the NPCM watchdog driver. It reads
-the RESSR and INTCR2 registers via the sysgcr regmap during probe and maps
-them into watchdog bootstatus flags.
+Indeed. My bad !
 
-> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
-> index e62ea054bc618..82ff3956dcf21 100644
-> --- a/drivers/watchdog/npcm_wdt.c
-> +++ b/drivers/watchdog/npcm_wdt.c
+>
+> Guenter
+>
+>> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+>> ---
+>>   drivers/watchdog/w83627hf_wdt.c | 15 ++++++++++++---
+>>   1 file changed, 12 insertions(+), 3 deletions(-)
+>>=20
+>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf=
+_wdt.c
+>> index bc33b63c5a5d..a6dfa9d01702 100644
+>> --- a/drivers/watchdog/w83627hf_wdt.c
+>> +++ b/drivers/watchdog/w83627hf_wdt.c
+>> @@ -49,7 +49,7 @@ static int wdt_cfg_leave =3D 0xAA;/* key to lock confi=
+guration space */
+>>   enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627th=
+f,
+>>   	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_=
+p,
+>>   	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793=
+,
+>> -	     nct6795, nct6796, nct6102, nct6116 };
+>> +	     nct6795, nct6796, nct6102, nct6116, nct6126 };
+>>  =20
+>>   static int timeout;			/* in seconds */
+>>   module_param(timeout, int, 0);
+>> @@ -94,7 +94,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at b=
+oot time (default=3D0)");
+>>   #define NCT6775_ID		0xb4
+>>   #define NCT6776_ID		0xc3
+>>   #define NCT6102_ID		0xc4
+>> -#define NCT6116_ID		0xd2
+>> +#define NCT6116_ID		0xd2	/* also NCT6126D */
+>> +#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
+>> +#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
+>>   #define NCT6779_ID		0xc5
+>>   #define NCT6791_ID		0xc8
+>>   #define NCT6792_ID		0xc9
+>> @@ -217,6 +219,7 @@ static int w83627hf_init(struct watchdog_device *wdo=
+g, enum chips chip)
+>>   	case nct6796:
+>>   	case nct6102:
+>>   	case nct6116:
+>> +	case nct6126:
+>>   		/*
+>>   		 * These chips have a fixed WDTO# output pin (W83627UHG),
+>>   		 * or support more than one WDTO# output pin.
+>> @@ -428,7 +431,12 @@ static int wdt_find(int addr)
+>>   		cr_wdt_csr =3D NCT6102D_WDT_CSR;
+>>   		break;
+>>   	case NCT6116_ID:
+>> -		ret =3D nct6116;
+>> +		val =3D superio_inb(0x21);
+>> +		if (val =3D=3D NCT6126_VER_A_LOW_ID || val =3D=3D NCT6126_VER_B_LOW_I=
+D)
+>> +			ret =3D nct6126;
+>> +		else
+>> +			ret =3D nct6116;
+>> +
+>>   		cr_wdt_timeout =3D NCT6102D_WDT_TIMEOUT;
+>>   		cr_wdt_control =3D NCT6102D_WDT_CONTROL;
+>>   		cr_wdt_csr =3D NCT6102D_WDT_CSR;
+>> @@ -499,6 +507,7 @@ static int __init wdt_init(void)
+>>   		"NCT6796",
+>>   		"NCT6102",
+>>   		"NCT6116",
+>> +		"NCT6126"
+>>   	};
+>>  =20
+>>   	/* Apply system-specific quirks */
+>>=20
 
-[ ... ]
+Paul.
 
-> +static const struct npcm_wdt_status_map npcm750_status_map[] =3D {
-> +	{ NPCM_PORST, WDIOF_OVERHEAT },
-> +	{ NPCM_CORST, WDIOF_FANFAULT },
-> +	{ NPCM_SWR1RST, WDIOF_EXTERN1 },
-> +	{ NPCM_SWR2RST, WDIOF_EXTERN2 },
-> +	{ NPCM_SWR3RST, WDIOF_POWERUNDER },
-> +	{ NPCM_SWR4RST, WDIOF_POWEROVER },
-> +};
 
-[Severity: High]
-Does this map standard SoC resets to specific watchdog error conditions?
 
-If NPCM_PORST (Power-On Reset) triggers WDIOF_OVERHEAT, and NPCM_CORST
-(Core Reset) triggers WDIOF_FANFAULT, won't userspace daemons receive
-fabricated hardware failure events on normal cold boots or warm reboots?
-
-[ ... ]
-
-> +static const struct npcm_wdt_status_map npcm845_status_map[] =3D {
-> +	{ NPCM_PORST, WDIOF_OVERHEAT },
-> +	{ NPCM_CORST, WDIOF_FANFAULT },
-> +	{ NPCM_SWR1RST, WDIOF_EXTERN1 },
-> +	{ NPCM_SWR2RST, WDIOF_EXTERN2 },
-> +	{ NPCM_SWR3RST, WDIOF_POWERUNDER },
-> +	{ NPCM8XX_TIP_RESET, WDIOF_POWEROVER },
-> +};
-
-[Severity: High]
-Are these reset-to-status mappings similarly overloading the standard
-watchdog API boot status flags for the NPCM845?
-
-[ ... ]
-
-> +	if (of_device_is_compatible(dev->of_node, "nuvoton,npcm845-wdt")) {
-> +		ret =3D regmap_read(gcr_regmap, NPCM_INTCR2_OFFSET, &rstval);
-> +		if (ret) {
-> +			dev_warn(dev, "Failed to read INTCR2 reset status: %d\n",
-> +				 ret);
-> +			return;
-> +		}
-> +
-> +		if (rstval & NPCM_RST) {
-> +			ret =3D regmap_write(gcr_regmap, NPCM_INTCR2_OFFSET,
-> +					   rstval & ~NPCM_RST);
-
-[Severity: High]
-Is it safe to use a non-atomic read-modify-write on this shared syscon
-register?
-
-If INTCR2 is a Read-Write register, this regmap_read() followed by
-regmap_write() introduces a time-of-check to time-of-use race that could
-overwrite and lose concurrent modifications made by other drivers sharing t=
-his
-sysgcr regmap.
-
-Alternatively, if the reset bits are Write-1-to-Clear (W1C), writing
-rstval & ~NPCM_RST writes 1s to all OTHER active status bits. This would
-unintentionally clear them while writing 0 to the target watchdog bit, fail=
-ing
-to clear it.
-
-> +			if (ret) {
-> +				dev_warn(dev,
-> +					 "Failed to clear INTCR2 reset status: %d\n",
-> +					 ret);
-> +				return;
-> +			}
-
-[ ... ]
-
-> +	} else if (of_device_is_compatible(dev->of_node, "nuvoton,npcm750-wdt")=
-) {
-> +		ret =3D regmap_read(gcr_regmap, NPCM_RESSR_OFFSET, &rstval);
-> +		if (ret) {
-> +			dev_warn(dev, "Failed to read RESSR reset status: %d\n",
-> +				 ret);
-> +			return;
-> +		}
-> +
-> +		if (rstval & NPCM_RST) {
-> +			ret =3D regmap_write(gcr_regmap, NPCM_RESSR_OFFSET,
-> +					   rstval & ~NPCM_RST);
-
-[Severity: High]
-Does this write to NPCM_RESSR_OFFSET have the same non-atomic
-read-modify-write or W1C clearing issues as INTCR2 above?
-
-> +			if (ret) {
-> +				dev_warn(dev, "Failed to clear RESSR reset status: %d\n", ret);
-> +				return;
-> +			}
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706144828.3517=
-631-1-tmaimon77@gmail.com?part=3D3
+Paul Louvel, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
