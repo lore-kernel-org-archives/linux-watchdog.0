@@ -1,134 +1,127 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68808442114
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06B5C44212B
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:14:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783332870; cv=none; b=dCRq1W/HtqI8jvxtLuTfmNKEex1vRRx7SP34Wt8d2+fxZgJkOCu07eOS6QOMpBth83CB+Gl0DNnDsK7PKTbRU5ioCsZon/Nab1pHUddfmcgJZcP4n4XhamOL0w8vNnwD0HR7K/kcT6pYoaiz1c87SWyWlagQ86mxNqYTJ5z2o4c=
+	t=1783332882; cv=none; b=DJT9YlJB2pbhp4Ywi81d9iOPujPVqrZTo/unuQV8HD/IyC5+KFIIpC+aNXhZqcLu7/gDl4EFxlnKR+i5li+zrwDxVroLha41TbdKRteTmm16r1flldQ4ymKx8owmQcpXWcqrg4Yk9VFDwHdh4LhFZZN4ozULeVzvxoU8sUzW4cA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783332870; c=relaxed/simple;
-	bh=OuqZyyZKufM5tKG1k1Tw0fhDCDN6LUhX/VwEzqtgzzQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YwkDorOvlsGydOdPdpioB6a4kRdRu8BUj9qndrWO4DrxduONkX0hEXbzwpr3gR6IsMdBAY50dhZz1CEMRw3w0ClTM3ucEUdD2cduusGfEpAl0Gz5zz4tHZfGdRsukFBe6BThldctZwbXJ9jRDtExs6LZw/b86I3ZK4YQVe4QFb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c9b1edf2bdso32679335ad.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 03:14:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783332869; x=1783937669;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Avfylhoyx5tqif2j0s7EGdPplSscPo8mEJ2UKFsFj5Y=;
-        b=jO7LkJNkv3ZcWMsArjicJYp6jLb2Z9c6Zjqa/x2ZqocXghAKlpmxJvEmdA5BmnFEZw
-         Nv8csnuALEjVjCnHsGixsTdRbj6+n04hKywYOyghBPkadHNln1jOcyREWV1eCy4tYWXt
-         juTq4wOYeVlngE6D875UDHdwwteNQnojEPPeot/3SAdXo1D4eXqQonIzlozRmdtyzyfC
-         F+jXa1FfA/3bHYl4TIMQ+vMzLhdrnLTtYcg4DTHE6tIKT3zkEOc6o7UettSoHNGSdo7S
-         Anbi1Pv1QqxHgbmoo2RQgO0xU3+appZVxBg9pgTBgsGK8l6Yh79Y5QbIf+gYdeB5gb8B
-         dJpQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rpldi2WPGkrUzOamrF0njUHYVeYCahZkwSdhtidRYQCD6glmZuwNgyJA02NMuGLj0VpD3ETWVTa3hbYKwiIsQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwK8RaCWAGQR5z90hBTRIeGo2dBt8eQcGVFLz5qeyOBDhze3hB7
-	RLTFfOfz9o/xt+HsiZypv4RA9GKC6MsyPKwmGd0EoiDC1O1X7tOsLb1CfP6FB+OT
-X-Gm-Gg: AfdE7clBF841/iqYJLYzo+fiJ4sWGtoNdStRMycnzHVfXVKWpCTnkKMtwx/hkr596Wj
-	bRiQY6SUl+AQLcvTXhXfySj/uQXD65MZCYh2E9WKgrr6OQXnsVmixfvo5JqSHIr+cp+Y592i5xn
-	QOF6Wfcb6QRG0ixliGm/ws1uaRT2sII/gjGDwV2C2+/vy8VlbW1aJwuwOgCMLpdw2WnDABRIUeD
-	BZ3gEkhOsQ6l2Hu3Bjn0e5MRRhwIhMQqR3hVUn8ASQhOEAIxPrFvM5tzscVy5r/+fnWx9Q9Z1my
-	evkHnMJlPHe8IieFUCtzyO+dnMeNBoaUMs5AyB4XZKDtkrngoGO/jqCoKfD0fuGrqLVDZTC2PdN
-	MPHFjJfDK30ajaeGy+N/GO/HjoAa7OLNViWTqosyRrcFOQozPs/kRmUi1mFXUSCtdiPpoQWaiZZ
-	snTmW/Z8FwcIHI1VTPu5wG0neJ0kXiVFogvBoTNCZxKpnF9ePPy0k2dw==
-X-Received: by 2002:a17:903:b8f:b0:2bd:8395:fedd with SMTP id d9443c01a7336-2cbb9f03560mr96616985ad.37.1783332868710;
-        Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com. [209.85.210.181])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cad7871190sm47573965ad.61.2026.07.06.03.14.28
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-847aa193d98so2293574b3a.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RrGpvcIizF1GH6lMmuByg0Iug7mv0gthL/Pjng1hlqi8nMKo/fsmmcyWRN7Sjow4ciwmhyFRVKcP8xx4MYj3Q==@vger.kernel.org
-X-Received: by 2002:a05:6102:292a:b0:73e:9fae:5844 with SMTP id
- ada2fe7eead31-7427f7c09f6mr2718808137.27.1783332490185; Mon, 06 Jul 2026
- 03:08:10 -0700 (PDT)
+	s=arc-20240116; t=1783332882; c=relaxed/simple;
+	bh=OkMIRpQUzPgkEtme6ynLVCmD5W8+MFFNkWU5rW1v7KU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=DnJ1Q3MJJYtkYJFHOAZ/nIC30gCzOjt9ADZnqaU8HZCGe3D1glKPX74ERE3V0ZeRGxaP2jJaDgHSUqNxkHWRTUHOwtK0NfwnuYhc/MHzIvi74ijVGL3NKLC0/s/5g3ZFlSEG41o/IlPEda8SNRUcmef36uHCTGcHKcivV7vcDPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=lfMoYNvo; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="lfMoYNvo"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 65C834E40CAA
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:14:38 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 3BC07601A2;
+	Mon,  6 Jul 2026 10:14:38 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3611F11BB9F5B;
+	Mon,  6 Jul 2026 12:14:37 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1783332877; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=zQY8wAinXzH6ExJb5oU39VtpTrvAH+sZpqPJBWwpK1w=;
+	b=lfMoYNvo87So/3oLwS7nWaD9TjMnLmRvp7d6j7jdy3tYF7UpRxeb+GzIuMAg7t0aRDjbZU
+	OBzbe7Vec99HuAPpztTe/uCu1b8Pduj+3ph3zrqkGxcUG7xiE7OgO5ND+SuJfqz0OE0AUi
+	h51x78qFtlBnzroU4TVtypkMPNQwBvv8DHwYKcCgd+ZMru6sj2rpI37o2dOVtzMx6GdEr6
+	oh5zIMn3gFViDUazVL1IjrNlQIR9tor/e0OJm+ZTPVeQaITFfwpXJJle0AmS90/b+BkIoV
+	BW3wc95x8POffwjPq4KlLEwqprJuwlUIe2Ut79pTKX/dPpGqoauj0kCAqcrqqg==
+From: Paul Louvel <paul.louvel@bootlin.com>
+Date: Mon, 06 Jul 2026 12:14:09 +0200
+Subject: [PATCH 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
+ NCT6126
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260702123112.161160-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <20260702123112.161160-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 6 Jul 2026 12:07:59 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUTDRkq-WaXNxGzBLAEY90cn1i_-UOuDkS3PBs3xKooFg@mail.gmail.com>
-X-Gm-Features: AVVi8CfVUZe5-SeycxEAnrifXns0jujcFQ6mtVZEjh3x46p1vCjwJsZir-4zskQ
-Message-ID: <CAMuHMdUTDRkq-WaXNxGzBLAEY90cn1i_-UOuDkS3PBs3xKooFg@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 2/9] clk: renesas: r9a09g077: Add SYSC regmap support
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, 
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260706-w83627hf_wdt-nct6126d-v1-1-c5b0d51691c6@bootlin.com>
+References: <20260706-w83627hf_wdt-nct6126d-v1-0-c5b0d51691c6@bootlin.com>
+In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v1-0-c5b0d51691c6@bootlin.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Paul Louvel <paul.louvel@bootlin.com>, 
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783332875; l=2270;
+ i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
+ bh=OkMIRpQUzPgkEtme6ynLVCmD5W8+MFFNkWU5rW1v7KU=;
+ b=MszShS2W/+SMt+vGkWWf3cI45ffGGMrlFx10vWLKJm18w0IlgoGXZ21u1FasxO2+QL8sd9j8r
+ +H8A6M5d/O2Be6AUccnrNljSdgdMH6LTbJGbP34ccGcJtXaJfudQf0r
+X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
+ pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Prabhakar,
+Add support for the hardware watchdog integrated in the Nuvoton NCT6126
+Super I/O chip. This device is used on a number of x86 single-board
+computers and is compatible with the w83627hf_wdt driver.
 
-On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->
-> Add System Controller (SYSC) regmap support for the RZ/T2H SoC.
->
-> The RZ/T2H SoC features two System Controller (SYSC) blocks that handle
-> low-power management and access control. These blocks are defined as chil=
-d
-> nodes within the Clock Pulse Generator (CPG) address space in the device
-> tree. Implement support for creating regmaps for these SYSC blocks.
->
-> Register the regmap using of_syscon_register_regmap() against the CPG
-> device node so that consumers can access SYSC registers via the existing
-> syscon phandle.
->
-> Add a sysc_init() callback to the CPG/MSSR core to allow SoC-specific
-> initialization of the SYSC regmap.
->
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> ---
-> v1->v2:
-> - Made use of for_each_child_of_node_scoped
-> - Moved sysc_init() to the end of the probe function
+Unlike most supported chips, the NCT6126 shares the same high-byte chip
+ID as the NCT6116. Read the low byte of the chip ID as well to
+distinguish between the two devices and identify the NCT6126 correctly.
 
-Thanks for the update!
+Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+---
+ drivers/watchdog/w83627hf_wdt.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-> --- a/drivers/clk/renesas/r9a09g077-cpg.c
-> +++ b/drivers/clk/renesas/r9a09g077-cpg.c
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index bc33b63c5a5d..9533baa45384 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -49,7 +49,7 @@ static int wdt_cfg_leave = 0xAA;/* key to lock configuration space */
+ enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+ 	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+ 	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
+-	     nct6795, nct6796, nct6102, nct6116 };
++	     nct6795, nct6796, nct6102, nct6116, nct6126 };
+ 
+ static int timeout;			/* in seconds */
+ module_param(timeout, int, 0);
+@@ -95,6 +95,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+ #define NCT6776_ID		0xc3
+ #define NCT6102_ID		0xc4
+ #define NCT6116_ID		0xd2
++#define NCT6116_ID		0xd2	/* also NCT6126D */
++#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
++#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
+ #define NCT6779_ID		0xc5
+ #define NCT6791_ID		0xc8
+ #define NCT6792_ID		0xc9
+@@ -428,7 +431,12 @@ static int wdt_find(int addr)
+ 		cr_wdt_csr = NCT6102D_WDT_CSR;
+ 		break;
+ 	case NCT6116_ID:
+-		ret = nct6116;
++		val = superio_inb(0x21);
++		if (val == NCT6126_VER_A_LOW_ID || val == NCT6126_VER_B_LOW_ID)
++			ret = nct6126;
++		else
++			ret = nct6116;
++
+ 		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
+ 		cr_wdt_control = NCT6102D_WDT_CONTROL;
+ 		cr_wdt_csr = NCT6102D_WDT_CSR;
+@@ -499,6 +507,7 @@ static int __init wdt_init(void)
+ 		"NCT6796",
+ 		"NCT6102",
+ 		"NCT6116",
++		"NCT6126"
+ 	};
+ 
+ 	/* Apply system-specific quirks */
 
-> +static int r9a09g077_sysc_init(struct device *dev)
-> +{
-> +       struct device_node *child, *np =3D dev->of_node;
+-- 
+2.55.0
 
-error: unused variable =E2=80=98child=E2=80=99 [-Werror=3Dunused-variable]
-
-No need to resend yet.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
