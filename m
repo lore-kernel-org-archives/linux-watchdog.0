@@ -1,272 +1,65 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5D23F889E
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 21:48:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DC73C3420;
+	Mon,  6 Jul 2026 22:55:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783374539; cv=none; b=ep326htJy8iVfT/DIBWqHBllWZbyqts0sN386i7PKOCbpXbj9FlNyT2458mIrzc49SPTBrHmAeBXerAirQjtOonu3lWkMDp0eVWX50LAVo2VU9HC8yq4EfAL3Umb1p1/Nf929705e0jD6//SMxdEHzwD+31uDU/SNv7ggwin6Uw=
+	t=1783378510; cv=none; b=nGcr69MUMEI89HzeINLlNMQ8qbptIrBRwpayMB8KdY+iegK4szdrBLZXoGYxKDJh41e4t8sdQ58Pc3yPVZoayK7bA5ShWYHq0v6KGOB0mW6svLKwX9KCRrokh1qXh8l8ldaTjeTl6buKb6loMgPuM02C2MacoLk5tzALw3U4OXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783374539; c=relaxed/simple;
-	bh=xBpo18TEf0Rh33G8LhyCVhkNpTkZPAOFUGdn5TEVm4E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=U8eSfy9mcCAjGdWvRkMatRD33hg5aNh+AN9k0Kw9rVk0heQu/AlAu9Jzy7tLIjCTGCWs64AQSTh79xbMsYnTkwy634qg1ZUGf6TNGpvnU3O89le/ojsPwCAfoy7fst/6gcA/lvxJHc0WJucA+0s8OodDzimDN9hL0RSQgoViWA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W5VaLshj; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783378510; c=relaxed/simple;
+	bh=yqOChaSZ5mNzOHjnrSQyl4fbvGS4SDgoUW14pbM5IrM=;
+	h=From:In-Reply-To:Content-Type:References:Date:Cc:To:MIME-Version:
+	 Message-ID:Subject; b=bNaCe7syKL6fourLeVGMCSxYftoiZk3gIj7Trjw0f8n5tLcOm2a24jBB0EMQQQi8w43ErkLx/NZpw7I/zQBitgU/TmDg8lTTu3vhjSB3gRpRELOjov2ypjqOhdp+omVHYGNdjJi74zbJnW0HW3o1ZaRQkvHVr+65YtdP8spV+XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=N91q2DVr; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W5VaLshj"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38101f85591so11639a91.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 14:48:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783374537; x=1783979337; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=fzezctpcJjl2rlF9+0swt72y5BW9QsQd3ZYfQ5vUiSE=;
-        b=W5VaLshjBfXN/gYxsqpRg8xNwLeSr5LCats7LwW6qiz3LrlNjAfUGT/dq/om3lRtbJ
-         sh5dXRVgc9581WPdazKo5bRFx5fiPOGskXTrQcVSBqaWeuI5yV0xoCP7jfqlRcP8slbz
-         MFzT1DFeKNEn1i9j6Em8p8oeW2Uz6nqH9emV7rks+lCZpAxoAf6Y67aGLn0JJ0X5Giqx
-         Ur5pRe5WD3Lrg63Wd5XMK/iUQb6ImrRFddiJbWdJIrYurA5mpNbF0FbRjUeStXF8+xPk
-         Gu4im20w3wBNOwMrZS8LcTEPs75mTEZq6/uvrWZt4fIxv0YGKoiZgciOJjdmiQGb7pdF
-         /OKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783374537; x=1783979337;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fzezctpcJjl2rlF9+0swt72y5BW9QsQd3ZYfQ5vUiSE=;
-        b=pv7dTHp/zojjutNevZVMET3z3Zb+y7iKCMO+ulwpfxlD4itq6DBVR6CP8Amb6KSWww
-         t+QO84c21iOAEcuD7TW4aBu14aVvS1M6DRv/XxrQfchAlG2GctnRgIjYPtH3xSxaQgWy
-         Al53yU0NSgAHhAWQFyG4VVLyCPDMtXBqL74v5jwZ7XDfimNgV8U60JgTKFxmPN1jIOdk
-         /KYW2NnZx9FjxG5p0d5wh/jOhYCHtRl+TcGr59oKC4QzHZyTtXp30Ao6H6YG7u3bFgLj
-         ypF17CeYCHkwD7s8CnbDueLWhKDod5hx2fR8WRFKNMDzltmtF4z3zg7DxLFlKbWq8Y2C
-         xDCA==
-X-Gm-Message-State: AOJu0Yx8JiQ+VhBhNdjvTXCdE5VCTJkjYI3K+fV31WXdBYNUljRqGoTQ
-	rC9gipip12rhGIW5DVCUq3xTBHEm2R0ov14JeoCLHp2n1NQvu9Ynqiyo
-X-Gm-Gg: AfdE7cn7XZgt3qWMqo7/hZ7M1i4ucV7SIT1ZMmSi674PfZVqI+Zsi1MFWzOqTwo9Dl+
-	Jcs2QHQAITevlCQRyWk6El5/bbahdgzGJ0N1FyUJ0bqhg23itU/n518FP1JpC43fHvnvcEo/NyP
-	XQW6rqz4JR8di9hxiTqJKHEx1FhgqOqBSfbsd40uTvPVOBsaLrHWDTr3OpWmoYD3qJ1Y1xfskHy
-	RHx1mG9yXM1HUv4B63pWf26UVOJdsQUPUwJXJ9a7F5X7q/j+gXOll87TrmWhY3cmL7HyH0pwrND
-	tIgCBb+LnPpF2jOo1Z1YbPP6yNZvQ8rnIcxt7bCMZHs8qVWwIxi6L/Dpo18alpZyV82QYOlZm0E
-	VcqWnlHUJwTqbzPGoSVSo8WWSc5UgNhZhxQG6i3/hxTYGSOV+o/Snw303KLNlDjzQ/pQ9CPDckT
-	gUxLVK2Qpe/xOLpkhAeqIHqFqSlMNGuyHvRhxYZTxU7w9qXTr8Fc5QuEnoApOtMg==
-X-Received: by 2002:a17:90a:ec88:b0:369:7491:7b24 with SMTP id 98e67ed59e1d1-387d7270f6cmr91130a91.6.1783374536932;
-        Mon, 06 Jul 2026 14:48:56 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174ac14f2sm686093eec.27.2026.07.06.14.48.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jul 2026 14:48:56 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a20d8c37-0d46-489b-aa8c-af927a2c552c@roeck-us.net>
-Date: Mon, 6 Jul 2026 14:48:55 -0700
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="N91q2DVr"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPA id A6517118E9C;
+	Tue,  7 Jul 2026 00:54:44 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1783378498;
+	h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=yqOChaSZ5mNzOHjnrSQyl4fbvGS4SDgoUW14pbM5IrM=;
+	b=N91q2DVrLhVhaY1zfNR7RwfRtnj3hnyquGke4MS17FCPbX3MDC1NPENUl8gIPyS2ir68pu
+	GgskTiNDkSOU27umVmvh3sZgOXjWOx1S1qcfhEiRprC5tTBDEQSeFcTyhg6OtcfSl5QDRP
+	Y6AGozqKXTV7SaaJczcFbneu9i/QrAdQFcAbz5op3wzvCwJT/XH5RlKYa1czGLbFVMy3ee
+	DHQQxdb1eohVsJrjMn378/bsPNcLIlf67fbMyk+Fj3GEiS6Mr+j1lR1ecsJHZxwtWi35ki
+	h7faeL/UF1XN6SEw23+jcYlADtsCJUr6m+9XvMHkc3AAGqYzp9zRmfsjZ0CUGw==
+From: "Fabio Estevam" <festevam@nabladev.com>
+In-Reply-To: <20260706195818.3906949-1-sjg@chromium.org>
+Content-Type: text/plain; charset="utf-8"
+References: <20260706195818.3906949-1-sjg@chromium.org>
+Date: Tue, 07 Jul 2026 00:54:44 +0200
+Cc: "Heiko Stuebner" <heiko@sntech.de>, linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Albert Aribaud" <albert.u.boot@aribaud.net>, "Andy Shevchenko" <andy@kernel.org>, "Bartosz Golaszewski" <brgl@kernel.org>, "Brian Masney" <bmasney@redhat.com>, "Chukun Pan" <amadeus@jmu.edu.cn>, "Conor Dooley" <conor+dt@kernel.org>, "David Lechner" <dlechner@baylibre.com>, "FUKAUMI Naoki" <naoki@radxa.com>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Guenter Roeck" <linux@roeck-us.net>, "Jamie Iles" <jamie@jamieiles.com>, "Jeffy Chen" <jeffy.chen@rock-chips.com>, "Jiri Slaby" <jirislaby@kernel.org>, "Jonas Karlman" <jonas@kwiboo.se>, "Jonathan Cameron" <jic23@kernel.org>, "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Linus Walleij" <linusw@kernel.org>, "Michael Opdenacker" <michael.opdenacker@rootcommit.com>, "Michael Riesch" <michael.riesch@collabora.com>, "Michael Turquette" <mturquette@baylibre.com>,
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, "Rob Herring" <robh@kernel.org>, "Stephen Boyd" <sboyd@kernel.org>, "Ulf Hansson" <ulfh@kernel.org>, "Wim Van Sebroeck" <wim@linux-watchdog.org>, "Yao Zi" <ziyao@disroot.org>, "huang lin" <hl@rock-chips.com>, linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org
+To: "Simon Glass" <sjg@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
- running chip on boot
-To: Paul Louvel <paul.louvel@bootlin.com>, sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
-References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
- <20260706104010.A345B1F000E9@smtp.kernel.org>
- <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
- <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
- <DJRLRNRML483.3ZTW07FZBRFW@bootlin.com>
- <5e441e3a-27ce-4f46-abf4-fd6246727cb6@roeck-us.net>
- <DJRTDK0H5R1Q.32FU59ADLZD6E@bootlin.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <DJRTDK0H5R1Q.32FU59ADLZD6E@bootlin.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <882555c4-e1a3-0a0a-6830-b824b93cf3ac@nabladev.com>
+Subject: =?utf-8?q?Re=3A?= [PATCH 00/12] Add support for the Rockchip RV1106 and 
+ RV1103
+User-Agent: SOGoMail 5.12.8
+Content-Transfer-Encoding: quoted-printable
+X-Last-TLS-Session-Version: None
 
-On 7/6/26 14:42, Paul Louvel wrote:
-> On Mon Jul 6, 2026 at 6:12 PM CEST, Guenter Roeck wrote:
->> On 7/6/26 08:44, Paul Louvel wrote:
->>> On Mon Jul 6, 2026 at 4:22 PM CEST, Guenter Roeck wrote:
->>>> On 7/6/26 04:15, Paul Louvel wrote:
->>>>> On Mon Jul 6, 2026 at 12:40 PM CEST, sashiko-bot wrote:
->>>>>> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->>>>>> - [High] Removing the manual hardware timeout refresh while still unconditionally switching the hardware timer base from minutes to seconds drastically truncates the remaining timeout if the BIOS originally configured it in minutes, risking unexpected system reboots.
->>>>>> --
->>>>>>
->>>>>> commit 0014048ec369e2a09098aa033aeb725449e2fd67
->>>>>> Author: Paul Louvel <paul.louvel@bootlin.com>
->>>>>>
->>>>>> watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
->>>>>>
->>>>>> This patch updates the w83627hf watchdog driver to rely on the watchdog
->>>>>> core's WDOG_HW_RUNNING flag to keep a running watchdog alive during boot.
->>>>>> It replaces the previous behavior of manually issuing a single keepalive
->>>>>> during initialization.
->>>>>>
->>>>>>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
->>>>>>> --- a/drivers/watchdog/w83627hf_wdt.c
->>>>>>> +++ b/drivers/watchdog/w83627hf_wdt.c
->>>>>> [ ... ]
->>>>>>> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->>>>>>>     			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
->>>>>>>     			superio_outb(cr_wdt_timeout, 0);
->>>>>>>     		} else {
->>>>>>> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
->>>>>>> -				wdog->timeout);
->>>>>>> -			superio_outb(cr_wdt_timeout, wdog->timeout);
->>>>>>> +			pr_info("Watchdog already running.\n");
->>>>>>> +			set_bit(WDOG_HW_RUNNING, &wdog->status);
->>>>>>>     		}
->>>>>>>     	}
->>>>>>>     
->>>>>>
->>>>>> [Severity: High]
->>>>>> Does removing this explicit timeout reset create a risk of unexpected reboots?
->>>>>>
->>>>>> If the BIOS originally configured the watchdog with a timeout in minutes
->>>>>> (for example, a timeout of 5 minutes), the hardware counter cr_wdt_timeout
->>>>>> will hold the value 5.
->>>>>
->>>>> First of all, the driver does not support minute mode for now.
->>>>
->>>> The above feedback doesn't claim otherwise. The BIOS may still have configured
->>>> the timeout to 5 minutes.
->>>>
->>>>>
->>>>>>
->>>>>> Because this patch removes the explicit write of wdog->timeout (which is
->>>>>> typically 60) to cr_wdt_timeout, the counter retains the raw value 5.
->>>>>> Just after this block in w83627hf_init(), the driver unconditionally
->>>>>> switches the timebase to seconds:
->>>>>>
->>>>>> w83627hf_init() {
->>>>>>        ...
->>>>>>        /* set second mode & disable keyboard turning off watchdog */
->>>>>>        t = superio_inb(cr_wdt_control) & ~0x0C;
->>>>>>        superio_outb(cr_wdt_control, t);
->>>>>>        ...
->>>>>> }
->>>>>>
->>>>>> This immediately shrinks the remaining timeout from 5 minutes to 5 seconds.
->>>>>
->>>>> True, but in those 5 seconds, the watchdog core will kick the watchdog
->>>>> immediately. by calling start(), and thus refreshing the watchdog to 60 seconds.
->>>>
->>>> ... unless below.
->>>>
->>>>>
->>>>>>
->>>>>> If the watchdog core's kworker is delayed, or if the system is configured
->>>
->>>
->>>
->>>>>> not to ping the watchdog before user space takes over, could this unusually
->>>>>> short timeout cause the system to reboot unexpectedly during early boot?
->>>>>
->>>>> Yes, but expected. If WATCHDOG is enabled, then WATCHDOG_HANDLE_BOOT_ENABLED is
->>>>> enabled by default unless explicitly disabled when configuring the kernel.
->>>>>
->>>>
->>>> It is still an unexpected and undocumented change in behavior. Previously
->>>> in that situation the watchdog timeout would happen much later and give
->>>> user space time to start the watchdog daemon. This is no longer the case.
->>>
->>> Do you mean that, in the case WATCHDOG_HANDLE_BOOT_ENABLED is disabled, the
->>> driver now doesn't refresh the watchdog, this is unexpected ? I was relying on
->>> the fact that this entry is enabled by default.
->>
->> It can be disabled with a configuration option, and with a module parameter.
->>
->>> In this case, should the driver refresh the watchdog itself, and set the
->>> WDOG_HW_RUNNING bit (for the added feature that it does it repeatedly) ?
->>> Or document the fact that the driver will not refresh the watchdog if
->>> WATCHDOG_HANDLE_BOOT_ENABLED is disabled ?
->>>
->>
->> The difference is that the timeout used to be 60 seconds, or whatever the
->> default driver timeout is set to. If the BIOS enables the hardware timeout
->> and sets it to <n> minutes, your patch changes that to <n> seconds. That
->> is unexpected.
-> 
-> The default driver timeout is set to 60 seconds. I do not understand your point.
-> If the BIOS enables the hardware timeout and sets it to <n> minutes, without my
-> patch, the driver would still refresh the watchdog to <n> seconds (60 actually),
-> with "superio_outb(cr_wdt_timeout, wdog->timeout);". It forces second mode in
-> the control register anyway, and the driver has no way to know the previously
-> set timeout.
-> The only difference I see is that it does it immediately and does not rely on
-> the core to do it. It also do it only code.
-> Maybe I do not see something here.
-> 
+Hi Simon,
 
-Please provide the data path showing how the watchdog core sets the timeout
-to 60 seconds if WATCHDOG_HANDLE_BOOT_ENABLED is not enabled.
+On Monday, July 06, 2026 16:57 -03, Simon Glass <sjg@chromium.org> wrot=
+e:
 
-Thanks,
-Guenter
+> The series follows the structure of the recently merged RV1103B
+> support. The clock driver is ported from the vendor kernel and is the
 
->>
->> I see no reason to drop "superio_outb(cr_wdt_timeout, wdog->timeout);"
->> in your patch. Keeping it would retain existing behavior. Changing that
->> is unacceptable unless you provide a really good reason for it that I
->> currently can not see.
->>
->> Thanks,
->> Guenter
->>
->>
->> 	
-> 
-> Thanks,
-> Paul.
-> 
-> 
-> 
-> 
+When I submitted the initial version of the RV1103B series, I received =
+feedback to split it into subsystems.=20
+
+You should do the same here and submit it per subsystem:
+ARM, clock, pinctrl, serial, mmc, watchdog, and iio.
 
