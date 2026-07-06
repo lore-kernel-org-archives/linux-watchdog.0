@@ -1,210 +1,273 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5551397694
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783347747; cv=none; b=bbp2S7/Q+DPd8GIeX7aWWQDB9nJPwnRdaw2El3aKU9zVnVC56FID3X7qB0sHbFE/A/KwXOnoLp32TsexFkXSVeBlaNja6sRZnu5/lCDNJ8JM9cioj2cIYvDpJUYMK1NF2SHhX6p1UmkcCqKz6ju8fBtXZpKInVqC+5jWRCi39Yc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783347747; c=relaxed/simple;
-	bh=dBcyo/Ea2iO/kyaMJT/Slzf7vNnXLdpTCgpHjHFJVMc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aJr4n4RIpvg8gBhjmIYRS1+iGn4pkg6Hdjpzt2KUZ5037nEmvZOvvTNOxB9BP2RydR4OmTCGS+fNh2w8z4D0FIjk66FQ/rPN9RomQvPM4duJ6YTy1ICzOOTY70aIwiPwKQ23j8nA8Knba1jCbbrxBvwrM2MM9snQCuPNz+K4PAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E3AqaXni; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13A17385D77
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:47:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783349278; cv=pass; b=U7SBbq/fQm0SMg9qw8DWlv86U2lBHMt/L0dLxz8U/EsNUdih+ekFhnPjvMbcpffPZVXpOymuKkAx92xEU2+iqERNXb7UbIQkyXinOya4E0tOsFpDfBocYkEDLG2dTF1vz7J+tK5UFR+K6Mh70voFLEbfa5WcrhZ7VATnfmkS/xU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783349278; c=relaxed/simple;
+	bh=z1WMhYROfcnlWkez5XhXfycvYHmg/c2mKR5LYrEvaX0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VKgolqJdiELh4KuLsf51NbU0lch3l09ydiDGY3WsfihfylU0QAxX8B6LbUJ+gUBTWmGePPMzKGKLqLlOZo0BrIkcRwZkY+2pIqiXSe3nRTvlW40OMNWfgeAZdnPoWMZTusgwuNucXEuCN6m/wKwlmF006tp9rDz5f37/ACahOw0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rgUMNXJb; arc=pass smtp.client-ip=74.125.224.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E3AqaXni"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-845ea8924fdso3405471b3a.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:22:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rgUMNXJb"
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-664dd23829eso2700803d50.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:47:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783349276; cv=none;
+        d=google.com; s=arc-20260327;
+        b=OSICKeDd/u9o8KryzbrF2Hujvqpla1GHxLGYbytMppx3Uv5lP6JUk94yHaOjnedeVY
+         QHi3jCejYh1UQDXUCagRZat++P0gnaDR6zbZtLSHy7q7JLy7UdSsyjLST6mNwFrJJYnc
+         HU6eHVJd05oY5a896O2HwuyNknrISplYQhtV6UDSHWTyx0C/vMi4q/SGyhlgIr6ZgQA1
+         LtsEwyK4BJXpxgQq7GdXzmOmupKJRLBXCS9M9xn+JTRczMsa9TSmzTbxs4OZdB7dpbtV
+         QE1QDKNUviXETBIJXjgv2XcKyVZQ2RQy6kKzx6FRKINsct3SvvceGTnJEZcBjNsGvwar
+         vi/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=p5nnj/UGt/6jwYg2fLgCm/eVqC9qp6a8hp/dGZkv014=;
+        fh=TNN5xbVSf7lLwj4ApKcyE7G3kf5VsFVYn/o/d1sc3ME=;
+        b=ExKzLSgKJ/8BITwrld8XQEQHn1gkza+jEM8JjoaOjTXSFetwZkhawlrUctF/WdOkty
+         DebWUT9OHkeiCUQ/Yaup+xj+XlJsTEo1UuZNBwR2zXBgmvPApRlz0lfVBGTbDiezov0I
+         uxfMIiYM+UZIRW8yRbgB9gkQvO+jrKTqOpb4p5hPIB8+/nzsBcF+mHeJQavzVarv/Cb3
+         HB5IvZ1BA0q/JU/IZZYy59vh7rtkFXROtC7FD5bcc9erP8aWhOVCfCtgEKApGMbG6jIo
+         2al1RSYpmoPLvjgRqtJO+47vwk9af4uojtZGLlv/0IKu6jKmmmVsUFsuuTV7okDEf5au
+         fPJg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783347746; x=1783952546; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZXGEs1d6EOxB/V9vSLSfBaXMrDvlbcBfxjTzvgbP01o=;
-        b=E3AqaXni1uNjbcvKCyd2XPKEZ1KJPMktFaKIC71Rl/B8Ii0y/xBhnXiJENEfECKbb1
-         sCokRQaTzFJNl+cnkb8DeiXmUZKE/9F1w+2w+jzocLyAOSJEHmw1BOXTdgvd9mR1F3ka
-         ZaDncv8Q5jRzgzGYOllwopFJLLsLQpKtMp99EXsEFiSG2z8/NyDWyaLu8w7UhOSjUmD1
-         T/XGKZCl6wgvrBjtL/lvc9mTF7MAuat8zNIyx8cb3CBeErmTgO7k70IdD19VwU/xIKjR
-         iEpR5Vwp+2yZxF17T1XCmvae/69Y38+Myy43sB8makJhljRbqryOgMuyMin/pjrGbhed
-         YQ1w==
+        d=gmail.com; s=20251104; t=1783349276; x=1783954076; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=p5nnj/UGt/6jwYg2fLgCm/eVqC9qp6a8hp/dGZkv014=;
+        b=rgUMNXJbtlXwBKBtJTWUmMtPbUQoz0hOEcQ5d2QfKC5PE5X8vL4fxqTJf5tnsIes78
+         OXkoJhWgbCWczLJhcAJnEH0AhQ5WEEUEIgZYIIPH8vRWG9/OJEig3rjVDB1lHgnJ2eo3
+         jMwQ6kp8AWFu0r/8tYLmFjYb3Hm+L4IL7+0kBok23MoVXgJLqB5wTcQtWV3OsGcDLfQH
+         cip1IQTeIBga7ShNWIqeV+rtAKd6q/vL9kFhMt3W3k9FmutB69PLA5O0g2fV9HsauYel
+         J8J98JWLdu/24E81mcbVCs/WXPvlGKnolBMmqVTR82+AHaqyNboSgjk+snbabdvGTJap
+         hqhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783347746; x=1783952546;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZXGEs1d6EOxB/V9vSLSfBaXMrDvlbcBfxjTzvgbP01o=;
-        b=GXWPZrEbKs6gOHqD48BouALsxEh/IWJT112l+RzZv4bqW9i9J2C+e2jJ2NfIyDAtBb
-         0ei0NpFSR4F5vaWjZnD/9tVsQgtydbWI0aNwADMbIsqxhvrSCw5FYkhRsamfb+IOFDus
-         JTLpAY6Ln2tMe1+DVrMK2TAohqFRU9GE3yT84ikpSA4bockckiR2IbHO18N/keNlnlG+
-         pkwsGeyxkxCRurkEmqMK8XuE/2SLtipgHIF65+aOlGUMSWQymJB+Qm4oP0g9eQBqDD2h
-         BlEWnGhL4Ubi8Xh9XWkIdj+N1nX59aXIcV5OEB2QEIPjq1OcOhqVwKGL564Gnj2wriZh
-         zmhA==
-X-Gm-Message-State: AOJu0YyneYM89mdHfwSr8YKBVpUkTJ5b5eCHnOzQV8MEJR/WaHSfknOJ
-	eVUxsFuKWvge/nRcqR3CX3SwsdJAV0qHRhA35pR+IbO+lIkghOu4rfRv
-X-Gm-Gg: AfdE7clpVSy2ixUR/6P1kXEGhMwdg+vmt4qbDabPMmmoVE+VM4a9EDakHBYxycmwqcx
-	o9JHlz7uw0maFx3kYX73G9njgNIShNaQZQ3gqzF+xyhs7UGLNVtNm1zk14+S4oy1+esYL6c3tEN
-	rjk1cp1r+sWIOO5cwmgAKtLO9mUJcFM6M1cW33rVL6hUBsAEG/ZIaFHFf0UtjxOq4s1BRWZTWOD
-	SI420f85P6EnT8gcHsOhgJM73tr4YCzen+UV963nSe07yAkA8r5qF/WWzElAV+VvaKT1irhaYbj
-	G1+2R032d1zJfdp+F0B/bsCbTeEaKAXzBPOmkV9QOLjxP4n5pH4i1rsFn4s9uXGPw5TbNGD7/Cm
-	KVR1MwI0GVXjg8IhFOWPwTPvSxxhl6/kRplEvDd13eaVldYemaDsv05AWvnsgmp4LTNtpjJtNBf
-	b1vL+kuTX67F5psj5+LfZLBFY/CAZSJ2ko17jmAv6yYDUuTj0UIknZKzSjaeE1yw==
-X-Received: by 2002:a05:6a20:2589:b0:3bf:b3d5:ce2d with SMTP id adf61e73a8af0-3c08ed5080dmr917423637.7.1783347745821;
-        Mon, 06 Jul 2026 07:22:25 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c9e8f5c2836sm6073707a12.13.2026.07.06.07.22.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jul 2026 07:22:25 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
-Date: Mon, 6 Jul 2026 07:22:24 -0700
+        d=1e100.net; s=20251104; t=1783349276; x=1783954076;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=p5nnj/UGt/6jwYg2fLgCm/eVqC9qp6a8hp/dGZkv014=;
+        b=hpBjYN00nZ3y5L9O0PMZH99Gr2zjTcG6IQRBPb0P1wdsX5FLCkFmHtg0jmi9fX4jMK
+         Fgr1EqRLz+P17cGf3p3WA/oI7DmQ8HCWwSVzNPZ3q6+gE3oPSnE8hTfagQL+AYk7JZqS
+         9+yHrD4NkAoO0GSaueHm0zop9ft/Ki7R4SmQaHZM7vxqFUf8+aFDVAhiF5XicYQ+cywo
+         1gWHeGOCjutQ4d0tCKAYdmtRG/aCSlYL1BLXlj7KwoZ+8jf92MgKB8LmzAFqBLVUYvUv
+         d+XchvtIBgcjt0Bp0L0PV+pUktODJXhBRV+UWKauBdlPF94M769GthwkwwUD2uWv93LN
+         QjSQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrU3URgw4BuPdlNcgV5EIdb1+tMt3qNc9QeMivOZHmfFS3D1+oqV8IEDsrrRQMoIC7RaIcxc6BCKcATnJsscw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9Zc2PU9pK8O8NVEZGvS4pxnM7Z0wSvabxRUs/xu30PAnG3PM2
+	JOKtwP1dHi6nYkkzPgpaUoineOpMiegDpE/SPmZGsk8+9p24A20ckHAhRcNsfvppLiNirlzGjwM
+	2mv0/mj0G7odjXiVgzhuhOm5LqMjyyfc=
+X-Gm-Gg: AfdE7clLRSt8iWYVxbw3RAMNc9qc7LocNFnboGSc5ikDYRUk1C2/ZFj5WMiyjYlymPq
+	eMebsVE/LM7Da/d4+kM830AkokaxRdOI6uYscL7lCI1oABfbUTKEo8w8MV+tsvwsM8f7grX/cNN
+	x6m+aaIttZ/0PfnnRqZDgsTCnp9B4LodNls3o2GhBgJsiMiiTSFonhz2I/+cv7dcbgeDZ1eH+p5
+	+Vh/u+imUoWs6exCnkwB//8aISM4i7kg430rMuCnKcWw1A093Gk+C9EfHMce/7xmORmeaO+uw==
+X-Received: by 2002:a05:690e:14cc:b0:664:d162:6b79 with SMTP id
+ 956f58d0204a3-6677fd1eed7mr679747d50.77.1783349276001; Mon, 06 Jul 2026
+ 07:47:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
- running chip on boot
-To: Paul Louvel <paul.louvel@bootlin.com>, sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
-References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
- <20260706104010.A345B1F000E9@smtp.kernel.org>
- <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260705140100.1543486-1-tmaimon77@gmail.com> <20260705140100.1543486-4-tmaimon77@gmail.com>
+ <20260705141048.75C5D1F000E9@smtp.kernel.org>
+In-Reply-To: <20260705141048.75C5D1F000E9@smtp.kernel.org>
+From: Tomer Maimon <tmaimon77@gmail.com>
+Date: Mon, 6 Jul 2026 17:47:45 +0300
+X-Gm-Features: AVVi8CdXTk1bIQEOW3h9KTSW1KJWWjzHAZ_jfS41xGm8rGDEHzBzwdiWBU9odgY
+Message-ID: <CAP6Zq1i_n7OSPJDBxKfcJnDutFC2B1jmGdFJ0M_F+rv7SOGNrw@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] watchdog: npcm: add bootstatus support
+To: sashiko-reviews@lists.linux.dev
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, 
+	linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/6/26 04:15, Paul Louvel wrote:
-> On Mon Jul 6, 2026 at 12:40 PM CEST, sashiko-bot wrote:
->> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->> - [High] Removing the manual hardware timeout refresh while still unconditionally switching the hardware timer base from minutes to seconds drastically truncates the remaining timeout if the BIOS originally configured it in minutes, risking unexpected system reboots.
->> --
->>
->> commit 0014048ec369e2a09098aa033aeb725449e2fd67
->> Author: Paul Louvel <paul.louvel@bootlin.com>
->>
->> watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
->>
->> This patch updates the w83627hf watchdog driver to rely on the watchdog
->> core's WDOG_HW_RUNNING flag to keep a running watchdog alive during boot.
->> It replaces the previous behavior of manually issuing a single keepalive
->> during initialization.
->>
->>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
->>> --- a/drivers/watchdog/w83627hf_wdt.c
->>> +++ b/drivers/watchdog/w83627hf_wdt.c
->> [ ... ]
->>> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->>>   			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
->>>   			superio_outb(cr_wdt_timeout, 0);
->>>   		} else {
->>> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
->>> -				wdog->timeout);
->>> -			superio_outb(cr_wdt_timeout, wdog->timeout);
->>> +			pr_info("Watchdog already running.\n");
->>> +			set_bit(WDOG_HW_RUNNING, &wdog->status);
->>>   		}
->>>   	}
->>>   
->>
->> [Severity: High]
->> Does removing this explicit timeout reset create a risk of unexpected reboots?
->>
->> If the BIOS originally configured the watchdog with a timeout in minutes
->> (for example, a timeout of 5 minutes), the hardware counter cr_wdt_timeout
->> will hold the value 5.
-> 
-> First of all, the driver does not support minute mode for now.
+Hi,
 
-The above feedback doesn't claim otherwise. The BIOS may still have configured
-the timeout to 5 minutes.
+On Sun, 5 Jul 2026 at 17:10, <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 4 potential issu=
+e(s) to consider:
+>
+> New issues:
+> - [High] Non-atomic read-modify-write on shared syscon registers corrupts=
+ concurrent updates or incorrectly clears W1C bits.
+Not needed, only the WD using this register.
+> - [High] The driver hijacks standardized watchdog bootstatus flags to rep=
+ort unrelated SoC reset reasons.
+Approved by the maintainer.
+> - [Low] The driver hardcodes physical MMIO base addresses to identify dri=
+ver instances.
+>
+> Pre-existing issues:
+> - [High] The driver leaks a clock enable reference on every timeout chang=
+e and fails to clean up on probe errors.
+> --
+>
+> commit 3d82c9ef067a4770a83258e13cbb0ed566d4998b
+> Author: Tomer Maimon <tmaimon77@gmail.com>
+>
+> watchdog: npcm: add bootstatus support
+>
+> The NPCM750 uses RESSR and the NPCM845 uses INTCR2 to latch reset indicat=
+ions.
+> Read those bits during probe and map them into watchdog bootstatus flags.=
+ For
+> NPCM845, cache the sampled INTCR2 state in SCRPAD10 after the reset statu=
+s
+> bits are cleared.
+>
+> > diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+> > index e62ea054bc618..82ff3956dcf21 100644
+> > --- a/drivers/watchdog/npcm_wdt.c
+> > +++ b/drivers/watchdog/npcm_wdt.c
+>
+> [ ... ]
+>
+> > +static const struct npcm_wdt_rst_map npcm750_rst_map[] =3D {
+> > +     { 0xf000801c, NPCM_WD0RST },
+> > +     { 0xf000901c, NPCM_WD1RST },
+> > +     { 0xf000a01c, NPCM_WD2RST },
+> > +};
+>
+> [Severity: Low]
+> Does this code hardcode physical MMIO base addresses to identify driver
+> instances?
+It is hardcoded.
+>
+> Matching the resource start address against hardcoded values in
+> npcm_get_reset_status() can be brittle if the memory map changes in futur=
+e
+> SoC revisions or alternative device tree mappings. Is there a way to use
+> device tree aliases or instance IDs to identify the hardware block instea=
+d?
+>
+> > +
+> > +static const struct npcm_wdt_status_map npcm750_status_map[] =3D {
+> > +     { NPCM_PORST, WDIOF_OVERHEAT },
+> > +     { NPCM_CORST, WDIOF_FANFAULT },
+> > +     { NPCM_SWR1RST, WDIOF_EXTERN1 },
+> > +     { NPCM_SWR2RST, WDIOF_EXTERN2 },
+> > +     { NPCM_SWR3RST, WDIOF_POWERUNDER },
+> > +     { NPCM_SWR4RST, WDIOF_POWEROVER },
+> > +};
+>
+> [Severity: High]
+> Does this mapping hijack standardized watchdog bootstatus flags to report
+> unrelated SoC reset reasons?
+>
+> Translating NPCM SoC-specific reset reasons into standard UAPI flags migh=
+t
+> cause issues in userspace. For example, WDIOF_OVERHEAT and WDIOF_FANFAULT
+> are strictly defined in the UAPI to indicate thermal overheating and fan
+> failures.
+>
+> Could system monitoring tools misinterpret a normal cold boot (NPCM_CORST=
+)
+> as a severe hardware failure and trigger unintended alerts or shutdowns?
+>
+> [ ... ]
+>
+> > +static void npcm_get_reset_status(struct npcm_wdt *wdt, struct device =
+*dev,
+> > +                               const struct npcm_wdt_data *data,
+> > +                               resource_size_t start)
+> > +{
+>
+> [ ... ]
+>
+> > +     if (of_device_is_compatible(dev->of_node, "nuvoton,npcm845-wdt"))=
+ {
+> > +             ret =3D regmap_read(gcr_regmap, NPCM_INTCR2_OFFSET, &rstv=
+al);
+> > +             if (ret) {
+> > +                     dev_warn(dev, "Failed to read INTCR2 reset status=
+: %d\n",
+> > +                              ret);
+> > +                     return;
+> > +             }
+> > +
+> > +             if (rstval & NPCM_RST) {
+> > +                     ret =3D regmap_write(gcr_regmap, NPCM_INTCR2_OFFS=
+ET,
+> > +                                        rstval & ~NPCM_RST);
+>
+> [Severity: High]
+> Can this non-atomic read-modify-write sequence on the shared syscon
+> register corrupt concurrent updates?
+>
+> If INTCR2 (and RESSR below) are standard read-write registers, this
+> sequence could silently overwrite modifications made by other drivers
+> sharing the syscon.
+>
+> Alternatively, if these are Write-1-to-Clear (W1C) registers, writing
+> rstval & ~NPCM_RST will write 1s to all other active status bits,
+> inadvertently clearing them, while writing 0 to the watchdog bits,
+> failing to clear the intended reset flags.
+>
+> Would it be safer to use regmap_update_bits() for atomic updates, or if
+> W1C, write only the target bits without a read-modify-write?
+>
+> [ ... ]
+>
+> > @@ -220,6 +430,8 @@ static int npcm_wdt_probe(struct platform_device *p=
+dev)
+> >       /* Ensure timeout is able to be represented by the hardware */
+> >       npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
+> >
+> > +     npcm_get_reset_status(wdt, dev, data, start);
+> > +
+> >       if (npcm_is_running(&wdt->wdd)) {
+> >               /* Restart with the default or device-tree specified time=
+out */
+> >               npcm_wdt_start(&wdt->wdd);
+> >               set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> >       }
+> >
+> >       ret =3D devm_request_irq(dev, irq, npcm_wdt_interrupt, 0, "watchd=
+og",
+> >                              wdt);
+> >       if (ret)
+> >               return ret;
+>
+> [Severity: High]
+> This is a pre-existing issue, but does this code leak a clock enable
+> reference?
+>
+> In npcm_wdt_probe(), if the hardware is running, npcm_wdt_start() is call=
+ed:
+>
+> npcm_wdt_start()
+>     clk_prepare_enable(wdt->clk);
+>
+> If subsequent probe steps fail (e.g., devm_request_irq() returns an error=
+),
+> probe returns without unwinding the clock enable.
+>
+> Additionally, npcm_wdt_set_timeout() calls npcm_wdt_start() when the watc=
+hdog
+> is active. Since there is no matching disable on timeout change, every
+> WDIOC_SETTIMEOUT ioctl increments the clock's refcount. This prevents
+> the clock from ever being disabled when the watchdog is stopped, leading
+> to a resource leak.
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260705140100.15=
+43486-1-tmaimon77@gmail.com?part=3D3
 
-> 
->>
->> Because this patch removes the explicit write of wdog->timeout (which is
->> typically 60) to cr_wdt_timeout, the counter retains the raw value 5.
->> Just after this block in w83627hf_init(), the driver unconditionally
->> switches the timebase to seconds:
->>
->> w83627hf_init() {
->>      ...
->>      /* set second mode & disable keyboard turning off watchdog */
->>      t = superio_inb(cr_wdt_control) & ~0x0C;
->>      superio_outb(cr_wdt_control, t);
->>      ...
->> }
->>
->> This immediately shrinks the remaining timeout from 5 minutes to 5 seconds.
-> 
-> True, but in those 5 seconds, the watchdog core will kick the watchdog
-> immediately. by calling start(), and thus refreshing the watchdog to 60 seconds.
+Thanks,
 
-... unless below.
-
-> 
->>
->> If the watchdog core's kworker is delayed, or if the system is configured
->> not to ping the watchdog before user space takes over, could this unusually
->> short timeout cause the system to reboot unexpectedly during early boot?
-> 
-> Yes, but expected. If WATCHDOG is enabled, then WATCHDOG_HANDLE_BOOT_ENABLED is
-> enabled by default unless explicitly disabled when configuring the kernel.
-> 
-
-It is still an unexpected and undocumented change in behavior. Previously
-in that situation the watchdog timeout would happen much later and give
-user space time to start the watchdog daemon. This is no longer the case.
-
-Guenter
-
+Tomer
