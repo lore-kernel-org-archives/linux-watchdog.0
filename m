@@ -1,38 +1,38 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8E5143F4BF
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:37:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D086E3A5E89
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:44:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783352238; cv=none; b=dd3hiWGl399Uaw/Xp1CyFft1F6iSBOaSfdnfRH/A19JkXV+3Sl8SeQuuNY/H9Zzuu292Qtp2Cdj8eR5ddvz7Fb+iJRgmpuxI4vpLuvpg29Yx0dgIK4apIrBnQZfSzgLSOig6mdquUXejDuJ3+yXC5gFpyk0KPA4zs5Tcb0xr5ds=
+	t=1783352697; cv=none; b=J37RIKvpJbdDu1Plu1Cgw04M6GS0bX4eb5Qst/A0/tlVn/6T620JB0EKUBW9JZH/VKiMb5ubYLnYQn3dCE/xsOSVE9aW/UdjbgP3Jrx/lNd6ouBycYZY5R2i+gMHiv3dpJlaHID5AIBZ9dbieYeI4UNCfitUGZLhzajQoXUk98Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783352238; c=relaxed/simple;
-	bh=wbEjkHsquzQwNJEdKeLiD6qRngxKTd3yWcLvJNETGH4=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=RtMVsmzm533YpUf6zZL+qp+aFsWgLk0SFMLoIiI0w+UPhRRkMhy1D5jBF7TohPQQXvddhDFydBVspr+zi1VlNZKww1+ix8QMDMaZ1GxAzQ1CgnZ4R7MiyNVm+Fczi6OoQnRgmB/F3YmsRRsXPqcqwiL0gfOf0DftoI5DlpLdeng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=YjVmM1rP; arc=none smtp.client-ip=185.246.85.4
+	s=arc-20240116; t=1783352697; c=relaxed/simple;
+	bh=HQH2om/aqDi97b6ridrVYpd0RFWgqcr+zx4N5yX+nmo=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
+	 References:In-Reply-To; b=KUslYV/+ss+Z6RzZ7CDbYLp975e9BGUJHvKU+SrG+OxhxEmlxsq+7tkjz5O6zcnRcb49mQux6QgBj5dZUCqi+cr/KuS2UfojdJGf8r96NZ29DiYSMbMIDdd1pzpKw8bN9R3Lkhbf0qVh8W8FWKKobu1X9mU0yR+hb2k7JzO8+Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FHCWxskk; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="YjVmM1rP"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FHCWxskk"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 2E1094E40CBD
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:37:14 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 6B5411A0E8E
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 15:44:52 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 029DE601A2;
-	Mon,  6 Jul 2026 15:37:14 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B38DD11BBA6F6;
-	Mon,  6 Jul 2026 17:37:12 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 28DCA601A2;
+	Mon,  6 Jul 2026 15:44:52 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C11CF11BBA532;
+	Mon,  6 Jul 2026 17:44:50 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783352233; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1783352691; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=IBgA9aGQ8NwdiIZTXzSOCKH5G/33iYWZplvWzkcvgC0=;
-	b=YjVmM1rPwYJGmhlAv4RGBp1e4ZzKxS6C7cnDWaDgCfgING5ymiOhY6cdCX4pmtuxz82qH6
-	GVFY+137jkDzh5CsL0i1PlJlgPOvf2RYspX9Bh8W1e0rnkFsRWFJGA7NxBTIvZ3gGlBh1y
-	M90EmnT1ffayXNwh9ylxkZQFlEqliflTDZRuVNsnCdKyX/WXWCEGwlszXqgCfAd4JAhj25
-	uhyQeKw52dVuR77OfGGbQpOyMb5ybT7D+pxS/hMoNnP046zmf/Rs3sZJZCDTfp1nV7TriS
-	hBmW8fNj/ckJ9LrLharavGJRvD1mDwzeCIBI41/utKBpyDPMoA0EK5U+YhnweA==
+	bh=UkuVV5M4R8ZU39303kHo9e67+dxuyLskOMETBK3C3dw=;
+	b=FHCWxskkpZo1ogVAMK9iHMiyJeLHfs7kjSuEhpdZhOGEP96SwmA122OoPaqilyj/wpHjwO
+	4p3go2bBHnb0VN6o00noQvCvHSkpg7qQIHTIj/h3zOO0ytAHLkJPn12Bk741rABJxi6JRr
+	rolkBL3rAjZ2Qj8UdBf0N/pDWr6JF/Ku1PXPRspodvS2k9wSi/TNEvZP4WOV94b+1mOgms
+	UxFNgHagxtIXCZnWkAGVPUGRB2HIF8VI66ZWuOuQ0POzq5aR5TmjL8BZat4bZ2JtdTAq+g
+	/1R0BDQG+W2YlJ7pNX+yn1lC0WkzwB4RHAfnxnhL5oUuhZTlrsRpiV5gScjM/A==
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,119 +41,143 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Mon, 06 Jul 2026 17:37:11 +0200
-Message-Id: <DJRLLTA2T6NG.2WD00RJ8IECW9@bootlin.com>
-Cc: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- "Thomas Petazzoni" <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v3 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
- NCT6126
-From: "Paul Louvel" <paul.louvel@bootlin.com>
+Date: Mon, 06 Jul 2026 17:44:50 +0200
+Message-Id: <DJRLRNRML483.3ZTW07FZBRFW@bootlin.com>
 To: "Guenter Roeck" <linux@roeck-us.net>, "Paul Louvel"
- <paul.louvel@bootlin.com>, "Wim Van Sebroeck" <wim@linux-watchdog.org>
+ <paul.louvel@bootlin.com>, <sashiko-reviews@lists.linux.dev>
+Cc: <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
+ running chip on boot
+From: "Paul Louvel" <paul.louvel@bootlin.com>
 X-Mailer: aerc 0.21.0-0-g5549850facc2
 References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v3-1-fa5ad8d486bc@bootlin.com>
- <22a92049-0ff2-4ebf-b286-1e1e7ae9b3cb@roeck-us.net>
-In-Reply-To: <22a92049-0ff2-4ebf-b286-1e1e7ae9b3cb@roeck-us.net>
+ <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
+ <20260706104010.A345B1F000E9@smtp.kernel.org>
+ <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
+ <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
+In-Reply-To: <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon Jul 6, 2026 at 4:14 PM CEST, Guenter Roeck wrote:
-> On 7/6/26 03:29, Paul Louvel wrote:
->> Add support for the hardware watchdog integrated in the Nuvoton NCT6126
->> Super I/O chip. This device is used on a number of x86 single-board
->> computers and is compatible with the w83627hf_wdt driver.
+On Mon Jul 6, 2026 at 4:22 PM CEST, Guenter Roeck wrote:
+> On 7/6/26 04:15, Paul Louvel wrote:
+>> On Mon Jul 6, 2026 at 12:40 PM CEST, sashiko-bot wrote:
+>>> Thank you for your contribution! Sashiko AI review found 1 potential is=
+sue(s) to consider:
+>>> - [High] Removing the manual hardware timeout refresh while still uncon=
+ditionally switching the hardware timer base from minutes to seconds drasti=
+cally truncates the remaining timeout if the BIOS originally configured it =
+in minutes, risking unexpected system reboots.
+>>> --
+>>>
+>>> commit 0014048ec369e2a09098aa033aeb725449e2fd67
+>>> Author: Paul Louvel <paul.louvel@bootlin.com>
+>>>
+>>> watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
+>>>
+>>> This patch updates the w83627hf watchdog driver to rely on the watchdog
+>>> core's WDOG_HW_RUNNING flag to keep a running watchdog alive during boo=
+t.
+>>> It replaces the previous behavior of manually issuing a single keepaliv=
+e
+>>> during initialization.
+>>>
+>>>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627=
+hf_wdt.c
+>>>> --- a/drivers/watchdog/w83627hf_wdt.c
+>>>> +++ b/drivers/watchdog/w83627hf_wdt.c
+>>> [ ... ]
+>>>> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_device *w=
+dog, enum chips chip)
+>>>>   			pr_warn("Stopping previously enabled watchdog until userland kick=
+s in\n");
+>>>>   			superio_outb(cr_wdt_timeout, 0);
+>>>>   		} else {
+>>>> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+>>>> -				wdog->timeout);
+>>>> -			superio_outb(cr_wdt_timeout, wdog->timeout);
+>>>> +			pr_info("Watchdog already running.\n");
+>>>> +			set_bit(WDOG_HW_RUNNING, &wdog->status);
+>>>>   		}
+>>>>   	}
+>>>>  =20
+>>>
+>>> [Severity: High]
+>>> Does removing this explicit timeout reset create a risk of unexpected r=
+eboots?
+>>>
+>>> If the BIOS originally configured the watchdog with a timeout in minute=
+s
+>>> (for example, a timeout of 5 minutes), the hardware counter cr_wdt_time=
+out
+>>> will hold the value 5.
 >>=20
->> Unlike most supported chips, the NCT6126 shares the same high-byte chip
->> ID as the NCT6116. Read the low byte of the chip ID as well to
->> distinguish between the two devices and identify the NCT6126 correctly.
+>> First of all, the driver does not support minute mode for now.
+>
+> The above feedback doesn't claim otherwise. The BIOS may still have confi=
+gured
+> the timeout to 5 minutes.
+>
+>>=20
+>>>
+>>> Because this patch removes the explicit write of wdog->timeout (which i=
+s
+>>> typically 60) to cr_wdt_timeout, the counter retains the raw value 5.
+>>> Just after this block in w83627hf_init(), the driver unconditionally
+>>> switches the timebase to seconds:
+>>>
+>>> w83627hf_init() {
+>>>      ...
+>>>      /* set second mode & disable keyboard turning off watchdog */
+>>>      t =3D superio_inb(cr_wdt_control) & ~0x0C;
+>>>      superio_outb(cr_wdt_control, t);
+>>>      ...
+>>> }
+>>>
+>>> This immediately shrinks the remaining timeout from 5 minutes to 5 seco=
+nds.
+>>=20
+>> True, but in those 5 seconds, the watchdog core will kick the watchdog
+>> immediately. by calling start(), and thus refreshing the watchdog to 60 =
+seconds.
+>
+> ... unless below.
+>
+>>=20
+>>>
+>>> If the watchdog core's kworker is delayed, or if the system is configur=
+ed
+
+
+
+>>> not to ping the watchdog before user space takes over, could this unusu=
+ally
+>>> short timeout cause the system to reboot unexpectedly during early boot=
+?
+>>=20
+>> Yes, but expected. If WATCHDOG is enabled, then WATCHDOG_HANDLE_BOOT_ENA=
+BLED is
+>> enabled by default unless explicitly disabled when configuring the kerne=
+l.
 >>=20
 >
-> Doesn't that (and the code below) mean that the driver already supports
-> the chip, only it identifies it as NCT6116 instead of NCT6126 ?
+> It is still an unexpected and undocumented change in behavior. Previously
+> in that situation the watchdog timeout would happen much later and give
+> user space time to start the watchdog daemon. This is no longer the case.
 
-Yes, because they have the same high-byte chip ID.
-
->
-> This means that the commit message is misleading: It should say that
-> the chip is already supported but misidentified, and that the added
-> code helps to correctly identify the chip.
-
-Indeed. My bad !
+Do you mean that, in the case WATCHDOG_HANDLE_BOOT_ENABLED is disabled, the
+driver now doesn't refresh the watchdog, this is unexpected ? I was relying=
+ on
+the fact that this entry is enabled by default.
+In this case, should the driver refresh the watchdog itself, and set the
+WDOG_HW_RUNNING bit (for the added feature that it does it repeatedly) ?
+Or document the fact that the driver will not refresh the watchdog if
+WATCHDOG_HANDLE_BOOT_ENABLED is disabled ?
 
 >
 > Guenter
->
->> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
->> ---
->>   drivers/watchdog/w83627hf_wdt.c | 15 ++++++++++++---
->>   1 file changed, 12 insertions(+), 3 deletions(-)
->>=20
->> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf=
-_wdt.c
->> index bc33b63c5a5d..a6dfa9d01702 100644
->> --- a/drivers/watchdog/w83627hf_wdt.c
->> +++ b/drivers/watchdog/w83627hf_wdt.c
->> @@ -49,7 +49,7 @@ static int wdt_cfg_leave =3D 0xAA;/* key to lock confi=
-guration space */
->>   enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627th=
-f,
->>   	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_=
-p,
->>   	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793=
-,
->> -	     nct6795, nct6796, nct6102, nct6116 };
->> +	     nct6795, nct6796, nct6102, nct6116, nct6126 };
->>  =20
->>   static int timeout;			/* in seconds */
->>   module_param(timeout, int, 0);
->> @@ -94,7 +94,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at b=
-oot time (default=3D0)");
->>   #define NCT6775_ID		0xb4
->>   #define NCT6776_ID		0xc3
->>   #define NCT6102_ID		0xc4
->> -#define NCT6116_ID		0xd2
->> +#define NCT6116_ID		0xd2	/* also NCT6126D */
->> +#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
->> +#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
->>   #define NCT6779_ID		0xc5
->>   #define NCT6791_ID		0xc8
->>   #define NCT6792_ID		0xc9
->> @@ -217,6 +219,7 @@ static int w83627hf_init(struct watchdog_device *wdo=
-g, enum chips chip)
->>   	case nct6796:
->>   	case nct6102:
->>   	case nct6116:
->> +	case nct6126:
->>   		/*
->>   		 * These chips have a fixed WDTO# output pin (W83627UHG),
->>   		 * or support more than one WDTO# output pin.
->> @@ -428,7 +431,12 @@ static int wdt_find(int addr)
->>   		cr_wdt_csr =3D NCT6102D_WDT_CSR;
->>   		break;
->>   	case NCT6116_ID:
->> -		ret =3D nct6116;
->> +		val =3D superio_inb(0x21);
->> +		if (val =3D=3D NCT6126_VER_A_LOW_ID || val =3D=3D NCT6126_VER_B_LOW_I=
-D)
->> +			ret =3D nct6126;
->> +		else
->> +			ret =3D nct6116;
->> +
->>   		cr_wdt_timeout =3D NCT6102D_WDT_TIMEOUT;
->>   		cr_wdt_control =3D NCT6102D_WDT_CONTROL;
->>   		cr_wdt_csr =3D NCT6102D_WDT_CSR;
->> @@ -499,6 +507,7 @@ static int __init wdt_init(void)
->>   		"NCT6796",
->>   		"NCT6102",
->>   		"NCT6116",
->> +		"NCT6126"
->>   	};
->>  =20
->>   	/* Apply system-specific quirks */
->>=20
 
+Thanks,
 Paul.
-
 
 
 
