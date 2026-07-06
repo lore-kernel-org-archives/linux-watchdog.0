@@ -1,67 +1,66 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AABC93F825B
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:14:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5551397694
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 14:22:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783347258; cv=none; b=W55rnA/6DAN3n2fZlZVoNCU09I9+Wp8Qo6oNfOqiH8HiQlaqEC9dWU6wuRTDLavyVvorTfKkyHAGCKrTmU6NoyXAM77ZXl9DdjipueyUC4urVNCHF3gzRYSWw4juSjCRIx+aQ5ocXdSDgwykKvbnouJ6g89xT9uW7LzwZOVXr0E=
+	t=1783347747; cv=none; b=bbp2S7/Q+DPd8GIeX7aWWQDB9nJPwnRdaw2El3aKU9zVnVC56FID3X7qB0sHbFE/A/KwXOnoLp32TsexFkXSVeBlaNja6sRZnu5/lCDNJ8JM9cioj2cIYvDpJUYMK1NF2SHhX6p1UmkcCqKz6ju8fBtXZpKInVqC+5jWRCi39Yc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783347258; c=relaxed/simple;
-	bh=9z89FMGjVmFK24VDWzElAxMtI8ZB8CNBDIlQMYVNatY=;
+	s=arc-20240116; t=1783347747; c=relaxed/simple;
+	bh=dBcyo/Ea2iO/kyaMJT/Slzf7vNnXLdpTCgpHjHFJVMc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AJYuwjhWFbg1V8QHsFZFJgZtkaXmxC00KuGLNT1JtM04lnKS0ccsXRX1jLxHC+jE5IvHRT+/wB1/pPmx3wWjIUcgq45VwoZvToVgz7Qg4cGkVEa/p0pA5TtOPG/Gyu8Ca5qfFQoiRfq7IBjExjiMspbWl918jpwv3zgRTxAJ5Qo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fRss2YHN; arc=none smtp.client-ip=209.85.216.50
+	 In-Reply-To:Content-Type; b=aJr4n4RIpvg8gBhjmIYRS1+iGn4pkg6Hdjpzt2KUZ5037nEmvZOvvTNOxB9BP2RydR4OmTCGS+fNh2w8z4D0FIjk66FQ/rPN9RomQvPM4duJ6YTy1ICzOOTY70aIwiPwKQ23j8nA8Knba1jCbbrxBvwrM2MM9snQCuPNz+K4PAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E3AqaXni; arc=none smtp.client-ip=209.85.210.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fRss2YHN"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-383adaa461fso1419009a91.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:14:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E3AqaXni"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-845ea8924fdso3405471b3a.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 07:22:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783347256; x=1783952056; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+        d=gmail.com; s=20251104; t=1783347746; x=1783952546; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ecbU4NfavdIpgG1AgTSd/pVLxZtxLRNI50aGbnUwuSM=;
-        b=fRss2YHN+qBe2uljV3IIylh0ogKvwIaqJXpYlkSRcHBDRAMyfQiEPeX/phgHAWihjV
-         EZD3+fdcPsAAZz0TKwb4LU+lzB/o07yE18wzYZM1eVhCHlThUI6GvZtR3EFB8mgK1N6t
-         N8kVGOcMVGZuwP++mF4OUOkLnryi2UnvLV01We04X8DiR2wG1ejNHjDsUD9NQAy88aKZ
-         8Cp8O7n1BwGtDZ/zl+67mvIXsx2Ulg9Vr7l7PsURySEnO/yjRNBhXM9c8UuCjdzuEteJ
-         /o2RWGzN4YHJJdtEX94Nomt6cMK/SMNHBMa8GSTd6nPHnzftv86tfDEEXBawoyDlLMqV
-         JzZw==
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZXGEs1d6EOxB/V9vSLSfBaXMrDvlbcBfxjTzvgbP01o=;
+        b=E3AqaXni1uNjbcvKCyd2XPKEZ1KJPMktFaKIC71Rl/B8Ii0y/xBhnXiJENEfECKbb1
+         sCokRQaTzFJNl+cnkb8DeiXmUZKE/9F1w+2w+jzocLyAOSJEHmw1BOXTdgvd9mR1F3ka
+         ZaDncv8Q5jRzgzGYOllwopFJLLsLQpKtMp99EXsEFiSG2z8/NyDWyaLu8w7UhOSjUmD1
+         T/XGKZCl6wgvrBjtL/lvc9mTF7MAuat8zNIyx8cb3CBeErmTgO7k70IdD19VwU/xIKjR
+         iEpR5Vwp+2yZxF17T1XCmvae/69Y38+Myy43sB8makJhljRbqryOgMuyMin/pjrGbhed
+         YQ1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783347256; x=1783952056;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+        d=1e100.net; s=20251104; t=1783347746; x=1783952546;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ecbU4NfavdIpgG1AgTSd/pVLxZtxLRNI50aGbnUwuSM=;
-        b=BdzdjSCAnYc/V115L5NBSQoDZNRAHQTG3LDUf9BBfbR3ssqDYXhL/QWvSZKfWRV2cB
-         u7N1flqV8fC4DvZxTUCSiVBeB1kJLlQTrdPqqvcTSgeGfKThLVdnQEi5DdZ6K6QKczcF
-         thGQfx4vid4oCXjjgklcUQStyKZkASEj6Mst5rbkKEBNrXa1VGhCDN7GwwYsJv/gLEQx
-         ui9EJta0fAZl0MLiIzwa3uzK4lgsYwOhbGrk5zpI7vy9v3+e9+anu5RchqSfA87ztQ/6
-         9/1hWTuWPd9o3pwbk4cgJxcZwbSKQh8gKXU8mnVhCCshK8AwShWa7XsaTnyYkr+66313
-         Bb0Q==
-X-Gm-Message-State: AOJu0YzVWfocQwlUZuItaCjUuaWZiJa6AV9avFv0KPOkLq8GCEopuB49
-	+FJ/MCAUp5IWpGtaC4vzqxLM/l5JmjN7Uf5JfeEjCFW90cV4/YaOfznH
-X-Gm-Gg: AfdE7ckDToUbFcsHD0SL+l3YlmqWMdHpoC0K5yTQkr88g5Gg9vl5C5vrJgSOA63Pzzu
-	KgeKrEQnyocWaAXBY9KXCzGtocDDCzieuZMDCdYVGwVDZrWc4udL5RMi/qGKllCX/vaBBNswRKl
-	+3wC2JZ/m04QZDETz8lG/jP0O5yYMqMpvgKROfx7iluBEIySUMl+LxvGOx/UnxIGzQdwS7h7A27
-	VAII5QKavuXjhCMzNukE5MHlVqB42KT/gFtOqefy2JHyPI/J5GYwFg3nwBmFvBnmWerCyrhigCu
-	7S2DYCF0iojII5VcyQCTC5U6nZf2V5e46MdXX1OIpTWZNWfqA+53cU1bG054+hG5sAH6QSe3/Og
-	My+DddBUahHNh8plVLgw2KpXw0f2wOMsNmzOm7riC7cumjVknJ+2sRwsGkRcsIKgFuCPkz6fhLN
-	sd5DvpasPVomnjS0i0xfpH6fPO8HMkJrCo7NrOUNqWlS5dOvWiuHSnTmArNbCVsQ==
-X-Received: by 2002:a17:90b:4f45:b0:37f:9cdf:f039 with SMTP id 98e67ed59e1d1-387572b4606mr577007a91.28.1783347255988;
-        Mon, 06 Jul 2026 07:14:15 -0700 (PDT)
+         :subject:date:message-id:reply-to;
+        bh=ZXGEs1d6EOxB/V9vSLSfBaXMrDvlbcBfxjTzvgbP01o=;
+        b=GXWPZrEbKs6gOHqD48BouALsxEh/IWJT112l+RzZv4bqW9i9J2C+e2jJ2NfIyDAtBb
+         0ei0NpFSR4F5vaWjZnD/9tVsQgtydbWI0aNwADMbIsqxhvrSCw5FYkhRsamfb+IOFDus
+         JTLpAY6Ln2tMe1+DVrMK2TAohqFRU9GE3yT84ikpSA4bockckiR2IbHO18N/keNlnlG+
+         pkwsGeyxkxCRurkEmqMK8XuE/2SLtipgHIF65+aOlGUMSWQymJB+Qm4oP0g9eQBqDD2h
+         BlEWnGhL4Ubi8Xh9XWkIdj+N1nX59aXIcV5OEB2QEIPjq1OcOhqVwKGL564Gnj2wriZh
+         zmhA==
+X-Gm-Message-State: AOJu0YyneYM89mdHfwSr8YKBVpUkTJ5b5eCHnOzQV8MEJR/WaHSfknOJ
+	eVUxsFuKWvge/nRcqR3CX3SwsdJAV0qHRhA35pR+IbO+lIkghOu4rfRv
+X-Gm-Gg: AfdE7clpVSy2ixUR/6P1kXEGhMwdg+vmt4qbDabPMmmoVE+VM4a9EDakHBYxycmwqcx
+	o9JHlz7uw0maFx3kYX73G9njgNIShNaQZQ3gqzF+xyhs7UGLNVtNm1zk14+S4oy1+esYL6c3tEN
+	rjk1cp1r+sWIOO5cwmgAKtLO9mUJcFM6M1cW33rVL6hUBsAEG/ZIaFHFf0UtjxOq4s1BRWZTWOD
+	SI420f85P6EnT8gcHsOhgJM73tr4YCzen+UV963nSe07yAkA8r5qF/WWzElAV+VvaKT1irhaYbj
+	G1+2R032d1zJfdp+F0B/bsCbTeEaKAXzBPOmkV9QOLjxP4n5pH4i1rsFn4s9uXGPw5TbNGD7/Cm
+	KVR1MwI0GVXjg8IhFOWPwTPvSxxhl6/kRplEvDd13eaVldYemaDsv05AWvnsgmp4LTNtpjJtNBf
+	b1vL+kuTX67F5psj5+LfZLBFY/CAZSJ2ko17jmAv6yYDUuTj0UIknZKzSjaeE1yw==
+X-Received: by 2002:a05:6a20:2589:b0:3bf:b3d5:ce2d with SMTP id adf61e73a8af0-3c08ed5080dmr917423637.7.1783347745821;
+        Mon, 06 Jul 2026 07:22:25 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38127c3bfbcsm5271321a91.8.2026.07.06.07.14.14
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c9e8f5c2836sm6073707a12.13.2026.07.06.07.22.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jul 2026 07:14:14 -0700 (PDT)
+        Mon, 06 Jul 2026 07:22:25 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <22a92049-0ff2-4ebf-b286-1e1e7ae9b3cb@roeck-us.net>
-Date: Mon, 6 Jul 2026 07:14:13 -0700
+Message-ID: <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
+Date: Mon, 6 Jul 2026 07:22:24 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,14 +68,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
- NCT6126
-To: Paul Louvel <paul.louvel@bootlin.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
+ running chip on boot
+To: Paul Louvel <paul.louvel@bootlin.com>, sashiko-reviews@lists.linux.dev
+Cc: linux-watchdog@vger.kernel.org
 References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v3-1-fa5ad8d486bc@bootlin.com>
+ <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
+ <20260706104010.A345B1F000E9@smtp.kernel.org>
+ <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -122,87 +121,90 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v3-1-fa5ad8d486bc@bootlin.com>
+In-Reply-To: <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 7/6/26 03:29, Paul Louvel wrote:
-> Add support for the hardware watchdog integrated in the Nuvoton NCT6126
-> Super I/O chip. This device is used on a number of x86 single-board
-> computers and is compatible with the w83627hf_wdt driver.
+On 7/6/26 04:15, Paul Louvel wrote:
+> On Mon Jul 6, 2026 at 12:40 PM CEST, sashiko-bot wrote:
+>> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+>> - [High] Removing the manual hardware timeout refresh while still unconditionally switching the hardware timer base from minutes to seconds drastically truncates the remaining timeout if the BIOS originally configured it in minutes, risking unexpected system reboots.
+>> --
+>>
+>> commit 0014048ec369e2a09098aa033aeb725449e2fd67
+>> Author: Paul Louvel <paul.louvel@bootlin.com>
+>>
+>> watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
+>>
+>> This patch updates the w83627hf watchdog driver to rely on the watchdog
+>> core's WDOG_HW_RUNNING flag to keep a running watchdog alive during boot.
+>> It replaces the previous behavior of manually issuing a single keepalive
+>> during initialization.
+>>
+>>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+>>> --- a/drivers/watchdog/w83627hf_wdt.c
+>>> +++ b/drivers/watchdog/w83627hf_wdt.c
+>> [ ... ]
+>>> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>>>   			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
+>>>   			superio_outb(cr_wdt_timeout, 0);
+>>>   		} else {
+>>> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+>>> -				wdog->timeout);
+>>> -			superio_outb(cr_wdt_timeout, wdog->timeout);
+>>> +			pr_info("Watchdog already running.\n");
+>>> +			set_bit(WDOG_HW_RUNNING, &wdog->status);
+>>>   		}
+>>>   	}
+>>>   
+>>
+>> [Severity: High]
+>> Does removing this explicit timeout reset create a risk of unexpected reboots?
+>>
+>> If the BIOS originally configured the watchdog with a timeout in minutes
+>> (for example, a timeout of 5 minutes), the hardware counter cr_wdt_timeout
+>> will hold the value 5.
 > 
-> Unlike most supported chips, the NCT6126 shares the same high-byte chip
-> ID as the NCT6116. Read the low byte of the chip ID as well to
-> distinguish between the two devices and identify the NCT6126 correctly.
+> First of all, the driver does not support minute mode for now.
+
+The above feedback doesn't claim otherwise. The BIOS may still have configured
+the timeout to 5 minutes.
+
+> 
+>>
+>> Because this patch removes the explicit write of wdog->timeout (which is
+>> typically 60) to cr_wdt_timeout, the counter retains the raw value 5.
+>> Just after this block in w83627hf_init(), the driver unconditionally
+>> switches the timebase to seconds:
+>>
+>> w83627hf_init() {
+>>      ...
+>>      /* set second mode & disable keyboard turning off watchdog */
+>>      t = superio_inb(cr_wdt_control) & ~0x0C;
+>>      superio_outb(cr_wdt_control, t);
+>>      ...
+>> }
+>>
+>> This immediately shrinks the remaining timeout from 5 minutes to 5 seconds.
+> 
+> True, but in those 5 seconds, the watchdog core will kick the watchdog
+> immediately. by calling start(), and thus refreshing the watchdog to 60 seconds.
+
+... unless below.
+
+> 
+>>
+>> If the watchdog core's kworker is delayed, or if the system is configured
+>> not to ping the watchdog before user space takes over, could this unusually
+>> short timeout cause the system to reboot unexpectedly during early boot?
+> 
+> Yes, but expected. If WATCHDOG is enabled, then WATCHDOG_HANDLE_BOOT_ENABLED is
+> enabled by default unless explicitly disabled when configuring the kernel.
 > 
 
-Doesn't that (and the code below) mean that the driver already supports
-the chip, only it identifies it as NCT6116 instead of NCT6126 ?
-
-This means that the commit message is misleading: It should say that
-the chip is already supported but misidentified, and that the added
-code helps to correctly identify the chip.
+It is still an unexpected and undocumented change in behavior. Previously
+in that situation the watchdog timeout would happen much later and give
+user space time to start the watchdog daemon. This is no longer the case.
 
 Guenter
-
-> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
-> ---
->   drivers/watchdog/w83627hf_wdt.c | 15 ++++++++++++---
->   1 file changed, 12 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index bc33b63c5a5d..a6dfa9d01702 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -49,7 +49,7 @@ static int wdt_cfg_leave = 0xAA;/* key to lock configuration space */
->   enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
->   	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
->   	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
-> -	     nct6795, nct6796, nct6102, nct6116 };
-> +	     nct6795, nct6796, nct6102, nct6116, nct6126 };
->   
->   static int timeout;			/* in seconds */
->   module_param(timeout, int, 0);
-> @@ -94,7 +94,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
->   #define NCT6775_ID		0xb4
->   #define NCT6776_ID		0xc3
->   #define NCT6102_ID		0xc4
-> -#define NCT6116_ID		0xd2
-> +#define NCT6116_ID		0xd2	/* also NCT6126D */
-> +#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
-> +#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
->   #define NCT6779_ID		0xc5
->   #define NCT6791_ID		0xc8
->   #define NCT6792_ID		0xc9
-> @@ -217,6 +219,7 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->   	case nct6796:
->   	case nct6102:
->   	case nct6116:
-> +	case nct6126:
->   		/*
->   		 * These chips have a fixed WDTO# output pin (W83627UHG),
->   		 * or support more than one WDTO# output pin.
-> @@ -428,7 +431,12 @@ static int wdt_find(int addr)
->   		cr_wdt_csr = NCT6102D_WDT_CSR;
->   		break;
->   	case NCT6116_ID:
-> -		ret = nct6116;
-> +		val = superio_inb(0x21);
-> +		if (val == NCT6126_VER_A_LOW_ID || val == NCT6126_VER_B_LOW_ID)
-> +			ret = nct6126;
-> +		else
-> +			ret = nct6116;
-> +
->   		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
->   		cr_wdt_control = NCT6102D_WDT_CONTROL;
->   		cr_wdt_csr = NCT6102D_WDT_CSR;
-> @@ -499,6 +507,7 @@ static int __init wdt_init(void)
->   		"NCT6796",
->   		"NCT6102",
->   		"NCT6116",
-> +		"NCT6126"
->   	};
->   
->   	/* Apply system-specific quirks */
-> 
 
