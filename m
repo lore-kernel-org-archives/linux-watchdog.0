@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D80823E0082
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:37:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 185E53BE633
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:40:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783334230; cv=none; b=umCT5TbkLs/zJtdf5S8yHxVerh2DdePMMFu+xd1WlcDQml5j28cBTnXlIJ223eEWblfVyASLc6T93VL4YGAn4cx50KIQRslvyTiUvXfRp6WLLs/OmyARuZHBseWEVrXZhqm5QG2oOo2bLNzABtMzpaN9s1/cXc60nPybSpEFAWs=
+	t=1783334412; cv=none; b=XyDCeDfk1Bkl7uiaBggNHHrenaJyiNIzdUCNTCpTuD+BnRPvw2pzRU5z20siBk8hpU9vK0iwq2nNEQTFtd7zrGPWBUmaln87+UgiXJHlyBdeKK49xny+TQf4rmyapAUIEM6kb+E7BCPmuMh6Pv1eGFTAvGC5zHGl0NYbw9KaWAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783334230; c=relaxed/simple;
-	bh=xlumgWaP6shBAtCt3nEZyWD4Bk/sJA2A0ObN+iZ3WdU=;
+	s=arc-20240116; t=1783334412; c=relaxed/simple;
+	bh=PmZr1Z7vWlGUH7WlLErUi8I7+X2l3ZrhMP61dK6VLFA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kSHEBFV44m5unnv7GkZ1WfCMfT+gRGcwT7H+boKlITEBh0A+oBlUKfPIMw0FGYWmsJA6SqN7QdRqX1ZbVzYnic2YPPNevBx5F7VHTn9mVJMb2T8w96TABK3iZNtpgphFJq9LtbBql9qyy5iak8A5sKJBiPQ39AFPrx2BN3EFYcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nI9NZPPW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cTMBFL7o7V6y5BeEfB21seX4KtZeX1dpaZCfEhwL0NlOV4Zql0roJnTPrIiksI5+v+wsTSw8gt0TfbH7Rx/cixCpTR2pFvxF2nD1yBLFuYBY5d7o2vEpnYVnBhnX8SHyg7htMUSAyUNJCnXjSbhfAT8tW0v6VIZS2XGZWI4DFcA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eJR1w5Oy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nI9NZPPW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333311F00A3A;
-	Mon,  6 Jul 2026 10:37:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eJR1w5Oy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A345B1F000E9;
+	Mon,  6 Jul 2026 10:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783334228;
-	bh=74EVbeMv+8TYXUme4O66w2i9QY857XHse5E0vL4ja+g=;
+	s=k20260515; t=1783334410;
+	bh=N0P9pBnetxSooSoidsjJwCpTvlq8Aw8Sv55bf2RD5Mo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nI9NZPPWfzIJ1y9rcrAkqsE3RSusUSvzC4Dzm8y4v7tcZ8Gn9L6MNWUqP5sZZcBui
-	 ghRPvQl98fKEZbPrdUkuHvBOD0v4L+UA9STY/VRMCYjZdCAD39cGpw0tTK/B9R/zwX
-	 c2QNOu9dBhSja5oATMxBdJ/VWJT14TNOByU9G9qx6JOVlRw9n1z0OL8AXO5MfVJQez
-	 Py71tuLEtGNEPraHqCQwaBunMeHGBK1eMQTSZhhLR3I42zueawTAoygQr4Q0wTo5Am
-	 4thlA+yqh8K4T/Vd8barcsvcBsRwUsOxq8hb1Cmb3P8UY6YykLRGP0jW2NOXyNnZon
-	 RSt27ClO+aXQw==
+	b=eJR1w5OymfOdvYiFfH2RAkgl8LRFdeZOVkFT2AfkNp6FJw+ex7W6ilizEYq8HmVhC
+	 pgL7l1q1Ql0t89yAr257af+EYQvGg5ynBedJ1fKYkQ+fw710D5tMf81eH92CVXZIsK
+	 fUajRwv61K24dKIbAO8R7Nw8ThD3dEtfNIFFSq68VTrPHHbRWA2+tWwLkoYVFXga3Q
+	 q3XgsLYM1NqLWGS4FeQb7LNwz4O4OHKWNuuof5YtZwbuxShk7HQECmjkbvZn6jPkK7
+	 hyajCk8KlWk1IfFS/7Rd3yN46lLIMRfFFVCy6QUuu/PDKbqp7GKQTXfgLngw2Sr9Lb
+	 FeLevlyVJk1uw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
+Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
  running chip on boot
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Paul Louvel" <paul.louvel@bootlin.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v2-2-77af74af88ae@bootlin.com>
-References: <20260706-w83627hf_wdt-nct6126d-v2-0-77af74af88ae@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v2-2-77af74af88ae@bootlin.com>
+In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
+References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
+ <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 10:37:07 +0000
-Message-Id: <20260706103708.333311F00A3A@smtp.kernel.org>
+Date: Mon, 06 Jul 2026 10:40:08 +0000
+Message-Id: <20260706104010.A345B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,29 +47,28 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Removing the manual watchdog timeout reset during driver initializ=
-ation while continuing to unconditionally force the hardware into 'seconds'=
- mode causes a severe timeout truncation. If the BIOS left the watchdog run=
-ning with a 'minutes' timebase (e.g., 5 minutes), the raw hardware register=
- value (e.g., 5) is preserved but its unit is instantly reinterpreted as se=
-conds, leaving a window of only 5 seconds before the watchdog fires.
+- [High] Removing the manual hardware timeout refresh while still unconditi=
+onally switching the hardware timer base from minutes to seconds drasticall=
+y truncates the remaining timeout if the BIOS originally configured it in m=
+inutes, risking unexpected system reboots.
 --
 
-commit 41d13e5a4078e3d18e184d179b1d408461a148bd
+commit 0014048ec369e2a09098aa033aeb725449e2fd67
 Author: Paul Louvel <paul.louvel@bootlin.com>
 
 watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
 
-This commit replaces the manual watchdog refresh during initialization
-with the WDOG_HW_RUNNING flag. It delegates keepalives to the watchdog core
-when the device is already running on boot.
+This patch updates the w83627hf watchdog driver to rely on the watchdog
+core's WDOG_HW_RUNNING flag to keep a running watchdog alive during boot.
+It replaces the previous behavior of manually issuing a single keepalive
+during initialization.
 
 > diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
 wdt.c
-> index 1f649fda8a813..5348c0f79de8f 100644
 > --- a/drivers/watchdog/w83627hf_wdt.c
 > +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -240,9 +240,8 @@ static int w83627hf_init(struct watchdog_device *wdog=
+[ ... ]
+> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_device *wdog=
 , enum chips chip)
 >  			pr_warn("Stopping previously enabled watchdog until userland kicks in=
 \n");
@@ -85,27 +84,32 @@ wdt.c
 > =20
 
 [Severity: High]
-Does removing this timeout reset cause a timeout truncation issue?
+Does removing this explicit timeout reset create a risk of unexpected reboo=
+ts?
 
-Immediately after this block, w83627hf_init() forces the hardware timebase=
-=20
-into seconds mode:
+If the BIOS originally configured the watchdog with a timeout in minutes
+(for example, a timeout of 5 minutes), the hardware counter cr_wdt_timeout
+will hold the value 5.
 
-	/* set second mode & disable keyboard turning off watchdog */
-	t =3D superio_inb(cr_wdt_control) & ~0x0C;
-	superio_outb(cr_wdt_control, t);
+Because this patch removes the explicit write of wdog->timeout (which is
+typically 60) to cr_wdt_timeout, the counter retains the raw value 5.
+Just after this block in w83627hf_init(), the driver unconditionally
+switches the timebase to seconds:
 
-If the BIOS previously left the watchdog running with a 'minutes' timebase=
-=20
-(for example, 5 minutes), the raw hardware register value (5) is preserved.
+w83627hf_init() {
+    ...
+    /* set second mode & disable keyboard turning off watchdog */
+    t =3D superio_inb(cr_wdt_control) & ~0x0C;
+    superio_outb(cr_wdt_control, t);
+    ...
+}
 
-However, because the timebase is instantly reinterpreted as seconds, the
-system is left with a window of only 5 seconds before the watchdog fires.
+This immediately shrinks the remaining timeout from 5 minutes to 5 seconds.
 
-This can lead to spurious reboots during the OS boot phase before the watch=
-dog=20
-core or user space can issue the next ping.
+If the watchdog core's kworker is delayed, or if the system is configured
+not to ping the watchdog before user space takes over, could this unusually
+short timeout cause the system to reboot unexpectedly during early boot?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706-w83627hf_w=
-dt-nct6126d-v2-0-77af74af88ae@bootlin.com?part=3D2
+dt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com?part=3D2
