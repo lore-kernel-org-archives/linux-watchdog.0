@@ -1,169 +1,134 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F213A1686
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 09:53:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783331611; cv=pass; b=Egtl8kf7GKNSghovDUTR38+rreSXO/SdEmo9HllT55QzFRi40unnEqJiL9N/74jdPuc7SCBa/fz7PcIfFIJ2+sLbT9PeAP9+JHPwfesscHP8v/1lzS99PN3bM1l6ASe6t4S1tytHEfY1G6l72AgX7nAAwSYuSHDoeDnoryZgD4U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783331611; c=relaxed/simple;
-	bh=1y/VyBqChORatgg7mbBlbrll73whp3RgKHcndf4sJ4Y=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68808442114
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:14:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783332870; cv=none; b=dCRq1W/HtqI8jvxtLuTfmNKEex1vRRx7SP34Wt8d2+fxZgJkOCu07eOS6QOMpBth83CB+Gl0DNnDsK7PKTbRU5ioCsZon/Nab1pHUddfmcgJZcP4n4XhamOL0w8vNnwD0HR7K/kcT6pYoaiz1c87SWyWlagQ86mxNqYTJ5z2o4c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783332870; c=relaxed/simple;
+	bh=OuqZyyZKufM5tKG1k1Tw0fhDCDN6LUhX/VwEzqtgzzQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cYpZV5xqNhvU1w6tPRGMNhVoBNT/S4i5BuFjKDqxUfxwwRgFxRHnWqlF1ChP3Sa91FuAVRN3vYcytJlXc1c0Gysx47s86QsLMyyZom32itYvttCl9fsUgMWN2YLEytvIO5QYTnhitA9NiFNDXWInkoMudNy+HP5uGUTJCDvy5/c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GuU0t9+T; arc=pass smtp.client-ip=209.85.128.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	 To:Cc:Content-Type; b=YwkDorOvlsGydOdPdpioB6a4kRdRu8BUj9qndrWO4DrxduONkX0hEXbzwpr3gR6IsMdBAY50dhZz1CEMRw3w0ClTM3ucEUdD2cduusGfEpAl0Gz5zz4tHZfGdRsukFBe6BThldctZwbXJ9jRDtExs6LZw/b86I3ZK4YQVe4QFb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GuU0t9+T"
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-809b19a7f25so36516247b3.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 02:53:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783331608; cv=none;
-        d=google.com; s=arc-20260327;
-        b=JzzO6LCHiRkbj3ECbi/M9PVE9H1vueJPphrdPy149LvuQ/PKS09fUzB/LbofjgUjJ/
-         bcZC6/s3EyXaOinp0qmKzx3c8XFJdeCSFFLxYBJqIcYqnC7kfS+NyESHiKXvxunrwE5f
-         kDf+QgXX/ngWTXTr6yF6se3RtDO7gGv4aAewdKd6qHNKrIC408tKsP0+F2a3LzShlg5N
-         h/w0PAyWN31YBmt4d8kaAkhJNWTciWdlb8QPIjyJy0iGhA9a6tV3Dp8icmvEupw44c8+
-         ajsN2ymPoYgjlwtsar5xfMT29W3YSG+oFDbJICCpW5XvpPYe+3tVRNiv2SHtqeU+NHnR
-         eveg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
-        fh=2e/YV/UIPvi299U3q5fESNCC6GPNCUOf2qHBWWLw/Hw=;
-        b=GiSpwVEFtEmvEKQwvDICegmKunmjTTNioP1GJ8g9RyLlZk4coE/1qYHdiruBFwj8XT
-         40iaLSysAAYfa/g5a5EGzAQfp0ZSHdxQrhiB3qmKzTKAml1XAQr3ldiJQ4d2IpMn+FQi
-         fxzV4Ov1Lq9+4/jP0j0k5L5NkZNQc1OB6VNObNE0+wkPnzalpXH+2VF50rSvG4Vgl96Z
-         6u+AM5QKeCKS8SOCAHaRyJoWdkPfVqAbY08zv/Dzx6qvmVXxeQuhfJIt50mDTQEz8UnW
-         DdYpy9D/Kaf5aXGZF4jbo1dqrlVy604az9V1Fzj/hwpUJBTR6siwFvlMys/+PtMkLCFW
-         EyWg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783331608; x=1783936408; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
-        b=GuU0t9+T3qCj1b7JvMZ1S6qC0sM6V4rNDtDO/aTVqpdQ5pkDr5aTMad9KGQ2rDexJZ
-         mJr1FSLwneFMGmI+zpjpVeyG7WO0Ns8SfYR7JwETkqNdqZiWkmIL0bQXujhhi10QLc+A
-         sORWYoxVm2YzVvYPI5dDMkRtEe2RLQWgR0KoLtCGO1tzSEWEFqPK89JeTNZpyEXB29Zo
-         lbzvrNy1DKWkUS8ilUEnUDbeVE1YkfB3yGenyAYZH/kg8x51CdWxvVIccq5+QRzxjtSw
-         MtSz2bzCq8I/fDWF2rRHHzHih4mT+z3hETY+rHms1+t6rk3fMaUZDkM3glWFfPr0kMlA
-         tifw==
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c9b1edf2bdso32679335ad.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 03:14:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783331608; x=1783936408;
+        d=1e100.net; s=20251104; t=1783332869; x=1783937669;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=1H5aWjkuNw5NurkeFzN9mtbKO2yqm1ouDy30sVuvqjg=;
-        b=Mbs5fBd8UYIAaP91LDZlAEG/E7NarPA+Z6kfLAp86j9RZZVr49H1yb/XXgYww56Yw/
-         HFFPrUVtRHRTOfH456BkKbraDtfmaa9if1twd5ALs8PaNdQPo1IiTVPOYrLhfCOJPQC4
-         vLv44s8z1/p4uWcJxwsDZmdqC06BgQ0xaUafcER7QE1Yc3LCNmdCGYOGsjGNNCJaJyGi
-         xuFT1yovDcjhfmsOisTYqF7BvxBJxlzSa+ssOPxrPU9McYW5zmtYRbmTVuv1ywv8Ecg7
-         3ce6aImkmGbGZEbyIqvagiJ5Dr/9VijWoowx6ppoRcE52Tj5Q7LI9N1jcdWyRPZdwJ9d
-         vnAg==
-X-Forwarded-Encrypted: i=1; AHgh+RoUAjRDh+Y9w9ceuazoVkqNf73TBXdIPpA5nP14JmT2oTmHHrwmIoNznmHKNyertDkQOzop3sU6FStXeB4vPQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzkuFCBgRJRWR3OJBo/1teadkUUhlIeqpWlTEbwyTlYr5A85RkE
-	vO/usw3MgshHJ8545DruuUl4VNarT+7YE7uCwGq6sXC7zCdkAyR1aNmeSfg22GdwNlrucE2GysW
-	31job8w3HtjIWgXTwXDtfnRyiwpDPEop1dQ==
-X-Gm-Gg: AfdE7cnoieiq3WDMeMlZTLbPPBfIpOC87CC/wNj0DXBRN7r0eb9/Ch+Mpws5ehV+YkS
-	SYPLejOrJ9x0mqIPjH6khhy7IYhB7ztmHSaLQfQZ3KDs8QGOYRxpFJqn17DQYb8x0SQCdPYzETc
-	SoV+g4fVsq7dbmj+5TRxQ97nW1UDjNo5u9YhID55dqPYhOsiSp8iOOdeHOqJBBt5tMCLDt74yy6
-	8jRYc7aDra+tflMgM0o99H0GdgTnmfg/O7tFK8oLoup2akf/gdDhA0wpeHRmUTiEP57VprWmQ==
-X-Received: by 2002:a05:690e:1408:b0:664:e8ac:21cd with SMTP id
- 956f58d0204a3-66652e50610mr9454023d50.25.1783331109980; Mon, 06 Jul 2026
- 02:45:09 -0700 (PDT)
+        bh=Avfylhoyx5tqif2j0s7EGdPplSscPo8mEJ2UKFsFj5Y=;
+        b=jO7LkJNkv3ZcWMsArjicJYp6jLb2Z9c6Zjqa/x2ZqocXghAKlpmxJvEmdA5BmnFEZw
+         Nv8csnuALEjVjCnHsGixsTdRbj6+n04hKywYOyghBPkadHNln1jOcyREWV1eCy4tYWXt
+         juTq4wOYeVlngE6D875UDHdwwteNQnojEPPeot/3SAdXo1D4eXqQonIzlozRmdtyzyfC
+         F+jXa1FfA/3bHYl4TIMQ+vMzLhdrnLTtYcg4DTHE6tIKT3zkEOc6o7UettSoHNGSdo7S
+         Anbi1Pv1QqxHgbmoo2RQgO0xU3+appZVxBg9pgTBgsGK8l6Yh79Y5QbIf+gYdeB5gb8B
+         dJpQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rpldi2WPGkrUzOamrF0njUHYVeYCahZkwSdhtidRYQCD6glmZuwNgyJA02NMuGLj0VpD3ETWVTa3hbYKwiIsQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwK8RaCWAGQR5z90hBTRIeGo2dBt8eQcGVFLz5qeyOBDhze3hB7
+	RLTFfOfz9o/xt+HsiZypv4RA9GKC6MsyPKwmGd0EoiDC1O1X7tOsLb1CfP6FB+OT
+X-Gm-Gg: AfdE7clBF841/iqYJLYzo+fiJ4sWGtoNdStRMycnzHVfXVKWpCTnkKMtwx/hkr596Wj
+	bRiQY6SUl+AQLcvTXhXfySj/uQXD65MZCYh2E9WKgrr6OQXnsVmixfvo5JqSHIr+cp+Y592i5xn
+	QOF6Wfcb6QRG0ixliGm/ws1uaRT2sII/gjGDwV2C2+/vy8VlbW1aJwuwOgCMLpdw2WnDABRIUeD
+	BZ3gEkhOsQ6l2Hu3Bjn0e5MRRhwIhMQqR3hVUn8ASQhOEAIxPrFvM5tzscVy5r/+fnWx9Q9Z1my
+	evkHnMJlPHe8IieFUCtzyO+dnMeNBoaUMs5AyB4XZKDtkrngoGO/jqCoKfD0fuGrqLVDZTC2PdN
+	MPHFjJfDK30ajaeGy+N/GO/HjoAa7OLNViWTqosyRrcFOQozPs/kRmUi1mFXUSCtdiPpoQWaiZZ
+	snTmW/Z8FwcIHI1VTPu5wG0neJ0kXiVFogvBoTNCZxKpnF9ePPy0k2dw==
+X-Received: by 2002:a17:903:b8f:b0:2bd:8395:fedd with SMTP id d9443c01a7336-2cbb9f03560mr96616985ad.37.1783332868710;
+        Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com. [209.85.210.181])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cad7871190sm47573965ad.61.2026.07.06.03.14.28
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-847aa193d98so2293574b3a.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 06 Jul 2026 03:14:28 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RrGpvcIizF1GH6lMmuByg0Iug7mv0gthL/Pjng1hlqi8nMKo/fsmmcyWRN7Sjow4ciwmhyFRVKcP8xx4MYj3Q==@vger.kernel.org
+X-Received: by 2002:a05:6102:292a:b0:73e:9fae:5844 with SMTP id
+ ada2fe7eead31-7427f7c09f6mr2718808137.27.1783332490185; Mon, 06 Jul 2026
+ 03:08:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260705140100.1543486-1-tmaimon77@gmail.com> <20260705140100.1543486-3-tmaimon77@gmail.com>
- <20260705140617.A71F11F000E9@smtp.kernel.org>
-In-Reply-To: <20260705140617.A71F11F000E9@smtp.kernel.org>
-From: Tomer Maimon <tmaimon77@gmail.com>
-Date: Mon, 6 Jul 2026 12:44:58 +0300
-X-Gm-Features: AVVi8CeAp4CE3AWU4FV6AWJHL_1TkqiIDqOBExjjPuk3wMGkf3cx2S3XYhDqvP4
-Message-ID: <CAP6Zq1jT-bfHvw65EsDKdqMCLVK1Yw3dd0NaxpOCw3zx+hVMTA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] docs: watchdog: npcm: Add reset status description
-To: sashiko-reviews@lists.linux.dev
-Cc: robh@kernel.org, devicetree@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, conor+dt@kernel.org
+References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260702123112.161160-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260702123112.161160-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 6 Jul 2026 12:07:59 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUTDRkq-WaXNxGzBLAEY90cn1i_-UOuDkS3PBs3xKooFg@mail.gmail.com>
+X-Gm-Features: AVVi8CfVUZe5-SeycxEAnrifXns0jujcFQ6mtVZEjh3x46p1vCjwJsZir-4zskQ
+Message-ID: <CAMuHMdUTDRkq-WaXNxGzBLAEY90cn1i_-UOuDkS3PBs3xKooFg@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 2/9] clk: renesas: r9a09g077: Add SYSC regmap support
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, 
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi Prabhakar,
 
-On Sun, 5 Jul 2026 at 17:06, <sashiko-bot@kernel.org> wrote:
+On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [High] The watchdog driver abuses standard Watchdog UAPI constants to r=
-eport non-watchdog platform reset causes, violating the userspace ABI contr=
-act.
-> --
+> Add System Controller (SYSC) regmap support for the RZ/T2H SoC.
 >
-> commit 72fd6c8b87d96376853f3dcd5ef1597495cf9817
-> Author: Tomer Maimon <tmaimon77@gmail.com>
+> The RZ/T2H SoC features two System Controller (SYSC) blocks that handle
+> low-power management and access control. These blocks are defined as chil=
+d
+> nodes within the Clock Pulse Generator (CPG) address space in the device
+> tree. Implement support for creating regmaps for these SYSC blocks.
 >
-> docs: watchdog: npcm: Add reset status description
+> Register the regmap using of_syscon_register_regmap() against the CPG
+> device node so that consumers can access SYSC registers via the existing
+> syscon phandle.
 >
-> Add documentation describing how the NPCM watchdog driver reports reset
-> causes through bootstatus on NPCM750 and NPCM845 systems.
+> Add a sysc_init() callback to the CPG/MSSR core to allow SoC-specific
+> initialization of the SYSC regmap.
 >
-> > diff --git a/Documentation/watchdog/npcm_wdt.rst b/Documentation/watchd=
-og/npcm_wdt.rst
-> > new file mode 100644
-> > index 0000000000000..cdc45ade9e0d9
-> > --- /dev/null
-> > +++ b/Documentation/watchdog/npcm_wdt.rst
->
-> [ ... ]
->
-> > +.. list-table:: Reset-cause mapping
-> > +   :header-rows: 1
-> > +
-> > +   * - Platform
-> > +     - Reset indication
-> > +     - Bootstatus flag
-> > +     - Reported meaning
-> > +   * - NPCM750 and NPCM845
-> > +     - ``PORST``
-> > +     - ``WDIOF_OVERHEAT``
-> > +     - power-on reset
-> > +   * - NPCM750 and NPCM845
-> > +     - ``CORST``
-> > +     - ``WDIOF_FANFAULT``
-> > +     - core reset
->
-> [Severity: High]
-> Is it correct to map generic Watchdog UAPI thermal and fan failure flags =
-to
-> standard platform reset indications?
->
-Yes, it is something that was already discussed with the WD
-maintainer; This is why it is mentioned in the rst document
-> The generic Watchdog API defines strict semantics for its status flags.
-> For instance, WDIOF_OVERHEAT means a reset due to CPU overheat, and
-> WDIOF_FANFAULT means a fan failed. By mapping standard SoC reset causes l=
-ike
-> Power-On Reset (PORST) to WDIOF_OVERHEAT and Core Reset (CORST) to
-> WDIOF_FANFAULT, might this break the userspace ABI contract?
->
-> During a normal cold boot, reading the SoC latch would unconditionally ex=
-pose
-> this to userspace via the WDIOC_GETBOOTSTATUS ioctl or sysfs. Standard
-> userspace monitoring daemons (like systemd or wdctl) reading bootstatus
-> might erroneously conclude the system suffered a thermal event or fan fai=
-lure,
-> potentially triggering unintended emergency actions or false alarms.
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260705140100.15=
-43486-1-tmaimon77@gmail.com?part=3D2
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> ---
+> v1->v2:
+> - Made use of for_each_child_of_node_scoped
+> - Moved sysc_init() to the end of the probe function
 
-Thanks,
+Thanks for the update!
 
-Tomer
+> --- a/drivers/clk/renesas/r9a09g077-cpg.c
+> +++ b/drivers/clk/renesas/r9a09g077-cpg.c
+
+> +static int r9a09g077_sysc_init(struct device *dev)
+> +{
+> +       struct device_node *child, *np =3D dev->of_node;
+
+error: unused variable =E2=80=98child=E2=80=99 [-Werror=3Dunused-variable]
+
+No need to resend yet.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
