@@ -1,103 +1,128 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D70D03FC5D3;
-	Mon,  6 Jul 2026 10:19:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D9136F8F5
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:21:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783333196; cv=none; b=p24IXBaa7uydcO1LPMcWsSxlowccjIH3qLiHs5arOWu7+RDsyg8JH/9gFjMIsyaYBApcipetPuElmvKjbhQi/5cWRSlSDKJhEN11ELgJH0sIhzd+bVGm6gDaYqfR/8CkS40nGCD3frnqUBZqI14cyQnaYRnGeJvTkqJV1w63VKg=
+	t=1783333320; cv=none; b=UCWDzjpppZuIGvyBCG/fU2XQOBIgs1cH+te43P4yOv6mYLmysknMzHJs4eJfln9kh4hB7oRTrHe6Ysn87YJOuPjAF7D2ZLreq02AqNvrIa50Id4SiGvbn3CeXEEtDrJ6GjhoEhXConcEtPq5HPtEm5Y6B7lEiOI9dQnX0zeGfmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783333196; c=relaxed/simple;
-	bh=BWFHW3NZV2y/pJa/gAwLN7Zsfq7N2HbYXWVkVlLkkr0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=WBljcvTtHNaWEcpt8rC/O6M6fLn4zCnF9VG0h64Vuu+5/8lXBr5Wu00ZlB9A5YXn9i2/MCRR29cpwXUwDS0FVZEcCLpBPmVBIOm3eokGNO8i8VmOCOnTLnd1FvoxH/KD43mGsEX8gMIRCN55/Tr4LlhPNt5qWq6m4SxACmuzylk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=R/dHVdqq; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1783333320; c=relaxed/simple;
+	bh=oWltj68bM7GKe8hMFHU9V0D2yR74dcbhbZ+W+oo99Gw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=QdNV22x4juvSe5jaB25nfBkZZjZ+Sksvkt984VmEpkZPAh/2aTak4o610Rxqo/yH5ODFoc1fLbaeZ1BzvKP+/JpW5MTUW3KKKwQ+qejWosVjDjrLZAqxFjbeJXx9SUuxEdjB79Cw+S9RKstNrQMVtL6V9ZYidgZrkQaTMMO2c6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gEhKo0YC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="R/dHVdqq"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 7AAAF4E40CAB;
-	Mon,  6 Jul 2026 10:19:53 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 48A0C601A2;
-	Mon,  6 Jul 2026 10:19:53 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E592211BBA021;
-	Mon,  6 Jul 2026 12:19:51 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783333192; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=z+rJh0O8lW4TcAbQEar8lE8re30i4P2YcZlFwvXJ4d0=;
-	b=R/dHVdqqEafGOVvMyoxnbNq3V0sH9I0w42F/pYz6tRVbXttbeW5hW0IrR5WuzheDfbdjpq
-	/afaCZevC5nQeiYqMrJjm7aYfYzXSp9KT9NrW/0UxdOnLekMPAwqE83H7ik3HKHCFyqWE8
-	/mYOH2qErXxkY7HbKJuPdD3tR++zIQjfaksblvsna0E770iVg01f4Fwv9x+OAjLQlWeSt+
-	L3VxZ9D3zOT9us/KuPFYxiuq7mVk6EXLz2rUYzzFYKcfD3tv9lsrtFz0ZQIR5weV9MJm/R
-	6zjy/Sw3xsQlRUd6zwBDEIUBa02Tu0r8fzXrRqk5anKC7ZVoAhQ7PmcJ4ByvnQ==
-From: Paul Louvel <paul.louvel@bootlin.com>
-Date: Mon, 06 Jul 2026 12:19:33 +0200
-Subject: [PATCH v2 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
- running chip on boot
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gEhKo0YC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506A61F000E9;
+	Mon,  6 Jul 2026 10:21:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783333319;
+	bh=FQjs/LCy3d9a0gqH3V1njTKD94BquTbka1IQ535xkcI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gEhKo0YCYqbzeACbJa0YLMuj+HGmNYHNuoCQgCmCmIqEsk2TSJtBmkbZilhXrBgSz
+	 YWrpMh2IhQdy9PnTnhzk8m3ZDSZwxhqNRus3e0p3CSHZDzZvsKiEgEv0HBeqkO5niY
+	 sl/URmp/spZRR2gYUxCSJSFGe/qIJejomcN4v5vNEth2Mkhtz+cqA6XZV+ze/q+Fj4
+	 Rt6PfC6cmp2JDd99fW2w7Y3YiZe84qju9uwz/9nJCKh0GIkZzvxMocHYAxZQtofl7H
+	 OIdJxif/l/b+MDrkR90qJG166BsP0i363cyzTv3lLamOKLaT6fp1PrQrAkRJ0bL/uf
+	 3qZ0/D3+vyvZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
+ NCT6126
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Paul Louvel" <paul.louvel@bootlin.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v1-1-c5b0d51691c6@bootlin.com>
+References: <20260706-w83627hf_wdt-nct6126d-v1-0-c5b0d51691c6@bootlin.com>
+ <20260706-w83627hf_wdt-nct6126d-v1-1-c5b0d51691c6@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 06 Jul 2026 10:21:58 +0000
+Message-Id: <20260706102159.506A61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260706-w83627hf_wdt-nct6126d-v2-2-77af74af88ae@bootlin.com>
-References: <20260706-w83627hf_wdt-nct6126d-v2-0-77af74af88ae@bootlin.com>
-In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v2-0-77af74af88ae@bootlin.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Paul Louvel <paul.louvel@bootlin.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783333189; l=1411;
- i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
- bh=BWFHW3NZV2y/pJa/gAwLN7Zsfq7N2HbYXWVkVlLkkr0=;
- b=Uo/nNEpzh2TrV76U/5DrDRf1azCzZL/G/5KLpp+U/xdpW0558tOMNWWgzIhbSHztJiw6zTno1
- gqM/bIn7ZkyA+kQqiqDocyaTZB/VXWfQtlYIoNyrLDLbVhr1Oe0CEq5
-X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
- pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
-X-Last-TLS-Session-Version: TLSv1.3
 
-If the watchdog is already running when the driver is initialized, the
-driver currently refreshes it once using the default timeout of 60
-seconds.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] The newly added `nct6126` chip is missing from the `switch (chip)`=
+ statement in `w83627hf_init()`, causing critical hardware watchdog initial=
+ization (WDTO# output routing) to be skipped.
+- [Low] The macro `NCT6116_ID` is redundantly defined twice in a row with t=
+he identical value.
+--
 
-Since commit ee142889e32f ("watchdog: Introduce WDOG_HW_RUNNING flag"),
-the watchdog core can keep an already running watchdog alive even when
-the watchdog device is not open. This is more robust than issuing a
-single manual keepalive during initialization.
+commit 0f99926a9f6fc9f6f9e5246a88211f0c8ad46b5b
+Author: Paul Louvel <paul.louvel@bootlin.com>
 
-Replace the manual watchdog refresh with the WDOG_HW_RUNNING flag and
-let the watchdog core handle periodic keepalives until user space takes
-over.
+watchdog: w83627hf_wdt: Add support for Nuvoton NCT6126
 
-Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
----
- drivers/watchdog/w83627hf_wdt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Add support for the hardware watchdog integrated in the Nuvoton NCT6126
+Super I/O chip. This distinguishes the NCT6126 from the NCT6116 by reading
+the low byte of the chip ID.
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 1f649fda8a81..5348c0f79de8 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -240,9 +240,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
- 			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
- 			superio_outb(cr_wdt_timeout, 0);
- 		} else {
--			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
--				wdog->timeout);
--			superio_outb(cr_wdt_timeout, wdog->timeout);
-+			pr_info("Watchdog already running.\n");
-+			set_bit(WDOG_HW_RUNNING, &wdog->status);
- 		}
- 	}
- 
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
+wdt.c
+> index bc33b63c5a5df..9533baa453841 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+> @@ -49,7 +49,7 @@ static int wdt_cfg_leave =3D 0xAA;/* key to lock config=
+uration space */
+>  enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+>  	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+>  	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
+> -	     nct6795, nct6796, nct6102, nct6116 };
+> +	     nct6795, nct6796, nct6102, nct6116, nct6126 };
+> =20
 
--- 
-2.55.0
+[Severity: High]
+Does this code miss handling the new nct6126 chip in w83627hf_init()?
 
+When w83627hf_init() initializes the watchdog device, it uses a switch
+statement on the chip type. Because nct6126 is omitted from the switch cases
+in w83627hf_init(), it falls through to the default case:
+
+drivers/watchdog/w83627hf_wdt.c:w83627hf_init() {
+        ...
+        switch (chip) {
+        ...
+        case nct6116:
+                ...
+                t =3D superio_inb(cr_wdt_control);
+                t |=3D 0x02;      /* enable the WDTO# output low pulse
+                                 * to the KBRST# pin */
+                superio_outb(cr_wdt_control, t);
+                break;
+        default:
+                break;
+        }
+}
+
+Without nct6126 being added alongside nct6116, the WDTO# output initializat=
+ion
+is skipped. Will this cause the watchdog timer to count down and expire
+without successfully triggering a physical system reset?
+
+[ ... ]
+
+> @@ -95,6 +95,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at bo=
+ot time (default=3D0)");
+>  #define NCT6776_ID		0xc3
+>  #define NCT6102_ID		0xc4
+>  #define NCT6116_ID		0xd2
+> +#define NCT6116_ID		0xd2	/* also NCT6126D */
+
+[Severity: Low]
+This isn't a bug, but NCT6116_ID is now defined twice with the exact same
+value. Was the intention to just add a comment to the existing definition
+instead of redefining it entirely?
+
+> +#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
+> +#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
+>  #define NCT6779_ID		0xc5
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706-w83627hf_w=
+dt-nct6126d-v1-0-c5b0d51691c6@bootlin.com?part=3D1
