@@ -1,128 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D9136F8F5
-	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:21:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 775C439DBDB
+	for <linux-watchdog@vger.kernel.org>; Mon,  6 Jul 2026 10:29:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783333320; cv=none; b=UCWDzjpppZuIGvyBCG/fU2XQOBIgs1cH+te43P4yOv6mYLmysknMzHJs4eJfln9kh4hB7oRTrHe6Ysn87YJOuPjAF7D2ZLreq02AqNvrIa50Id4SiGvbn3CeXEEtDrJ6GjhoEhXConcEtPq5HPtEm5Y6B7lEiOI9dQnX0zeGfmg=
+	t=1783333785; cv=none; b=uAZslgqnNqqmVxOUHoc3CJ+gKhY6cHnvGbWbkGLY0JqH2TmRzflKNyLgZD9tVSPB48kGeE9Kd14rT8QFV5eD2IJlPpH59Er2EgD7Vpy22TAv7Vv0muPwKPzfGGdHh9aS0OYI44WjUC8fQcphIlRYSRuqI72tnBIfJUXs7uOCysw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783333320; c=relaxed/simple;
-	bh=oWltj68bM7GKe8hMFHU9V0D2yR74dcbhbZ+W+oo99Gw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QdNV22x4juvSe5jaB25nfBkZZjZ+Sksvkt984VmEpkZPAh/2aTak4o610Rxqo/yH5ODFoc1fLbaeZ1BzvKP+/JpW5MTUW3KKKwQ+qejWosVjDjrLZAqxFjbeJXx9SUuxEdjB79Cw+S9RKstNrQMVtL6V9ZYidgZrkQaTMMO2c6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gEhKo0YC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783333785; c=relaxed/simple;
+	bh=3ufb10AULLXCRc+93WKfHnsW4zB0Ekhiadabl5NrCuc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=D3JwP5qA/sNeBxQzt0VZlDR2m6v269Mt5C6ze+lZSauPl8yMj1c6kaBB1a0KqF8Gj96cFfKxu62VSzLwcVcMvNaV51StNA1ZiDdczOtyDanmJXp6sWjnGeVxh+3b9AkskvFVpVmW3V4JqTM/U9xgTN3DeMGCy4q8HyEzA91f9WE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=AZcDTRYT; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gEhKo0YC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506A61F000E9;
-	Mon,  6 Jul 2026 10:21:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783333319;
-	bh=FQjs/LCy3d9a0gqH3V1njTKD94BquTbka1IQ535xkcI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gEhKo0YCYqbzeACbJa0YLMuj+HGmNYHNuoCQgCmCmIqEsk2TSJtBmkbZilhXrBgSz
-	 YWrpMh2IhQdy9PnTnhzk8m3ZDSZwxhqNRus3e0p3CSHZDzZvsKiEgEv0HBeqkO5niY
-	 sl/URmp/spZRR2gYUxCSJSFGe/qIJejomcN4v5vNEth2Mkhtz+cqA6XZV+ze/q+Fj4
-	 Rt6PfC6cmp2JDd99fW2w7Y3YiZe84qju9uwz/9nJCKh0GIkZzvxMocHYAxZQtofl7H
-	 OIdJxif/l/b+MDrkR90qJG166BsP0i363cyzTv3lLamOKLaT6fp1PrQrAkRJ0bL/uf
-	 3qZ0/D3+vyvZg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] watchdog: w83627hf_wdt: Add support for Nuvoton
- NCT6126
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Paul Louvel" <paul.louvel@bootlin.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260706-w83627hf_wdt-nct6126d-v1-1-c5b0d51691c6@bootlin.com>
-References: <20260706-w83627hf_wdt-nct6126d-v1-0-c5b0d51691c6@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v1-1-c5b0d51691c6@bootlin.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 06 Jul 2026 10:21:58 +0000
-Message-Id: <20260706102159.506A61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="AZcDTRYT"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id C88031A0E8E;
+	Mon,  6 Jul 2026 10:29:41 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 989AC601A2;
+	Mon,  6 Jul 2026 10:29:41 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BE0B911BBA004;
+	Mon,  6 Jul 2026 12:29:39 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1783333780; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=bGOAVF1+CM/D8T82NLLOBoIgqGtihl2W+bH67WLyabE=;
+	b=AZcDTRYTFBbFzDwj9eDLF8D+KJyZJeKnGZq8RtFiKenKNXCTsC879oA6XK5AoPDfHNEEHh
+	oxQLjU0UMu9w8e50gnhNEA757xx6byI+7r85Cd44Lb3dbcZ0xY27e06e5w0unKIXV6kMZe
+	hiZeHATddAEFuWFh/vU7QrNFQyGdRt5oMPATHxQaVFzYjuef+kNa/WkekmRjp9mrZDEzCC
+	cDwhAm+HSnIh7VAfIDqwAd4zcBhwqJ7Kp6Run8M+U79piJ6JGQwglhfJRAhRvppHTZ41fv
+	lsXSHMViRgytMN95SzEnoJ2CCTPvcDNK1NCyJWub3Tum5nOmwbuiILxLvwMccQ==
+From: Paul Louvel <paul.louvel@bootlin.com>
+Subject: [PATCH v3 0/2] watchdog: w83627hf_wdt: Add NCT6126 support and
+ improve handling of running watchdog
+Date: Mon, 06 Jul 2026 12:29:35 +0200
+Message-Id: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42NQQ7CIBQFr9KwFgPUflpX3sMYAxQsRospSDVN7
+ y7UuHBh4nKS92Ym5PVgtUfbYkKDjtZb1ycoVwVSnehPGts2MWKEAeGkwmNdAuOdOY5twL0KQBm
+ 0uBGEgjRcNSWg9L0N2tjH4t0f3uzv8qxVyLK86KwPbngu4Ujz7tOAH41IMcGqkqStKDRUwU46F
+ y62Xyt3RbkS2V8eljycC8M3wtS10N+eeZ5fEWPcjRYBAAA=
+X-Change-ID: 20260705-w83627hf_wdt-nct6126d-9a016bf7c936
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Paul Louvel <paul.louvel@bootlin.com>, 
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783333779; l=1671;
+ i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
+ bh=3ufb10AULLXCRc+93WKfHnsW4zB0Ekhiadabl5NrCuc=;
+ b=ozhAzEXZh1WY3cV9M1oCTptztBiKkkGvR+5mo29PO0sRSWHUwT6KjXfZCLucZnZGkPogHhWgU
+ mqxsycfYmy8DW163INoJdJw/af37yvsoHKzx1O/FOIiA2wSB5P4e0qt
+X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
+ pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] The newly added `nct6126` chip is missing from the `switch (chip)`=
- statement in `w83627hf_init()`, causing critical hardware watchdog initial=
-ization (WDTO# output routing) to be skipped.
-- [Low] The macro `NCT6116_ID` is redundantly defined twice in a row with t=
-he identical value.
---
+This series brings two small improvements to the w83627hf_wdt driver.
 
-commit 0f99926a9f6fc9f6f9e5246a88211f0c8ad46b5b
-Author: Paul Louvel <paul.louvel@bootlin.com>
+The first patch adds support for the Nuvoton NCT6126 Super I/O chip. The
+NCT6126 is compatible with the existing driver but requires reading the
+full 16-bit chip ID, as it shares its high-byte ID with the NCT6116.
 
-watchdog: w83627hf_wdt: Add support for Nuvoton NCT6126
+The second patch improves the handling of watchdogs that are already
+running when the driver probes. Instead of issuing a single keepalive
+using the default timeout, it relies on the watchdog core's
+WDOG_HW_RUNNING support to automatically maintain the watchdog until
+userspace opens the device.
 
-Add support for the hardware watchdog integrated in the Nuvoton NCT6126
-Super I/O chip. This distinguishes the NCT6126 from the NCT6116 by reading
-the low byte of the chip ID.
+Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+---
+Changes in v3:
+- Forgot to add case in w83627hf_init() with the chip. Not detected
+  during testing because the BIOS probably configure it anyway on boot.
+- Link to v2: https://patch.msgid.link/20260706-w83627hf_wdt-nct6126d-v2-0-77af74af88ae@bootlin.com
 
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
-wdt.c
-> index bc33b63c5a5df..9533baa453841 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -49,7 +49,7 @@ static int wdt_cfg_leave =3D 0xAA;/* key to lock config=
-uration space */
->  enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
->  	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
->  	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
-> -	     nct6795, nct6796, nct6102, nct6116 };
-> +	     nct6795, nct6796, nct6102, nct6116, nct6126 };
-> =20
+Changes in v2:
+- Small mistake in the first patch. The NCT6116_ID macro is redefined.
+  Fix it.
 
-[Severity: High]
-Does this code miss handling the new nct6126 chip in w83627hf_init()?
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-When w83627hf_init() initializes the watchdog device, it uses a switch
-statement on the chip type. Because nct6126 is omitted from the switch cases
-in w83627hf_init(), it falls through to the default case:
+---
+Paul Louvel (2):
+      watchdog: w83627hf_wdt: Add support for Nuvoton NCT6126
+      watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
 
-drivers/watchdog/w83627hf_wdt.c:w83627hf_init() {
-        ...
-        switch (chip) {
-        ...
-        case nct6116:
-                ...
-                t =3D superio_inb(cr_wdt_control);
-                t |=3D 0x02;      /* enable the WDTO# output low pulse
-                                 * to the KBRST# pin */
-                superio_outb(cr_wdt_control, t);
-                break;
-        default:
-                break;
-        }
-}
+ drivers/watchdog/w83627hf_wdt.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+---
+base-commit: 028ef9c96e96197026887c0f092424679298aae8
+change-id: 20260705-w83627hf_wdt-nct6126d-9a016bf7c936
 
-Without nct6126 being added alongside nct6116, the WDTO# output initializat=
-ion
-is skipped. Will this cause the watchdog timer to count down and expire
-without successfully triggering a physical system reset?
+Best regards,
+--  
+Paul Louvel, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
-[ ... ]
-
-> @@ -95,6 +95,9 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at bo=
-ot time (default=3D0)");
->  #define NCT6776_ID		0xc3
->  #define NCT6102_ID		0xc4
->  #define NCT6116_ID		0xd2
-> +#define NCT6116_ID		0xd2	/* also NCT6126D */
-
-[Severity: Low]
-This isn't a bug, but NCT6116_ID is now defined twice with the exact same
-value. Was the intention to just add a comment to the existing definition
-instead of redefining it entirely?
-
-> +#define NCT6126_VER_A_LOW_ID	0x83	/* ... version A */
-> +#define NCT6126_VER_B_LOW_ID	0x84	/* ... version B */
->  #define NCT6779_ID		0xc5
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260706-w83627hf_w=
-dt-nct6126d-v1-0-c5b0d51691c6@bootlin.com?part=3D1
