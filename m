@@ -1,311 +1,138 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5A7E30FC1C;
-	Tue,  7 Jul 2026 08:02:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F062C11DF
+	for <linux-watchdog@vger.kernel.org>; Tue,  7 Jul 2026 08:02:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783411322; cv=none; b=gJnF3X9ZatgHQlM08lkVXsnUhcAa/gl65WkFzEiXe8GFiRSnXq2xImxeON8DglZPpV2n2nH9xO+F8jQIerUZ+QrTJekgHczX9W/Oc4y73dL1BJgRf8OnfJB6VadphmLOplk4ZGioueNu8K7DUQZu6JDga+Apc5QXUDdnHt+4lAE=
+	t=1783411346; cv=none; b=JLXwKTpCQYjqyzlPgcLPRHl2fNEnc/x7JcBUhYuavIkn//DTtpZRA+n+lG15qSc4zV/be3tQOLgTXvo9t889ZfNcKAESsKsgqAZL4uU2kEqFqNt8j6hVDh4rxuknHD/9LWi4/Y51MGLaYUYBQ6OkQOgrT1mLyJqQG7leDP9qkeI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783411322; c=relaxed/simple;
-	bh=6i34TXrX+kdA/DTu0ZpuhXXOwCmx5MrrCS/cnXo0kDw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IsuWv8nie3JMsMoOst9NAhQNY8UAabeSWi0hUylWNgQwDm7PbKSvW1DSdhQLE+to1vU7jlKWnBdTNw6VIf2qfen051NOOD1G710IKcIz/3s66h83mRC0SkVzr/xHLtWgzSPWXEeIm4qXtvftalaiUCBSFV7A8gzXdLetZjQTlUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=0UtLoTM/; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1783411346; c=relaxed/simple;
+	bh=j61mVEIJzzks3mly3MK4Jiar0YJv4dtnhuqSYwv1FP0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=VgTwhkphcq5W0SAPatejPYPfb0ufLsXNY3TsBFeXE9RyaRl9vcm0506Px4fJj0fP9/7kDoyCjNjMhrNNHCK3zNESgVO/CcOzTGxg4FEF/KaleNGc3eKpMuguIUxGGPo2dFnJLa1W/KYLB1hewpy4SnefXLOI14MVzyo7ODbGkps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f7KfT2gE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="0UtLoTM/"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 896981A0EAE;
-	Tue,  7 Jul 2026 08:01:59 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 5C38D601A3;
-	Tue,  7 Jul 2026 08:01:59 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 824C711BC0D35;
-	Tue,  7 Jul 2026 10:01:56 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783411318; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=qWeUXwh4eP/aMY5SZXD4udzhGkVd9AVtMmR7lbeVwms=;
-	b=0UtLoTM/aZQGLSLzJJRsAYEDGam5o1c+KGS5WqJt6bbDtiHmiWvXRZ6JSp6myn+GyMfMkc
-	6FLsh2EaGNzIHFWf0wEAh8r6yCp4sn5Ghrpxh4wbiyi2amGhlYiIRRFg6+2sFPlJv8PHJw
-	sPahOmLN7FtOeG/BWKu0nPQPbSnF2y6OyKiOBovsWV764cuVzs/IT1ZpVUg8O4GYvncOkR
-	hAGixD/RKwR90/R7uBLTcR4NkfLwHJ3Z5HqJUDxJjCm8LpbFNRBVlBsI2fhdvKzmo7ls8m
-	EQ7p/n5xkrNkRE1wZk0Qm7QnOkkVdS6wAs+uFULJUGbnO74uK4V4qCqnIy4K5g==
-From: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
-Date: Tue, 07 Jul 2026 10:01:31 +0200
-Subject: [PATCH v7 5/5] watchdog: aaeon: Add watchdog driver for SRG-IMX8P
- MCU
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f7KfT2gE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C52D1F000E9;
+	Tue,  7 Jul 2026 08:02:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783411345;
+	bh=ol5MvAPTQMiISHIiptmccBHiOWZV0veRPEQS2lCEuPY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=f7KfT2gEfA7NMqPorgPe8bv7PFr5xjzWCROSfDKL5Ul/Lcsdtfh8EKQ/TIz3Gbcw2
+	 00YsJlk9IPO+/wVQYXvcaVR3D1Vie0Dlp3s2ZIgiepunP8QTiEZ4/dzCm4xkQfaURj
+	 1O9sYBKs5HNfwMDk1MIlZ+lTyuQa+IyqakqAh34EoMR2+wPg12xI6fOYBA0AFCXFWL
+	 m9JTpana7wZv4ZZ7H1EVblOJGPfNZt/4+5HaKT+RxZG2IPoy73MyL96EuhEVRU/iCa
+	 5HDgp+M9qvM0FxW3X+mzz9lM2I5s/6qC0YmBLIVdYQ7w8udVUTx3nghyfB2+uZh2F+
+	 EfOEqSEktELOQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: pretimeout: Add "dump" pretimeout governor
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Tzung-Bi Shih" <tzungbi@kernel.org>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260707073117.2962676-1-tzungbi@kernel.org>
+References: <20260707073117.2962676-1-tzungbi@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 07 Jul 2026 08:02:24 +0000
+Message-Id: <20260707080225.4C52D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260707-dev-b4-aaeon-mcu-driver-v7-5-ca6c59abd672@bootlin.com>
-References: <20260707-dev-b4-aaeon-mcu-driver-v7-0-ca6c59abd672@bootlin.com>
-In-Reply-To: <20260707-dev-b4-aaeon-mcu-driver-v7-0-ca6c59abd672@bootlin.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
- Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>, 
- Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, 
- =?utf-8?q?J=C3=A9r=C3=A9mie_Dautheribes?= <jeremie.dautheribes@bootlin.com>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, 
- "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
-X-Mailer: b4 0.14.3
-X-Last-TLS-Session-Version: TLSv1.3
 
-Add watchdog driver for the Aaeon SRG-IMX8P embedded controller.
-This driver provides system monitoring and recovery capabilities
-through the MCU's watchdog timer.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-The watchdog supports start, stop, and ping operations with a maximum
-hardware heartbeat of 25 seconds and a default timeout of 240 seconds.
-The software timeout can be changed via the WDIOC_SETTIMEOUT ioctl,
-the DT timeout-sec property, or the watchdog_timeout kernel boot
-parameter.
+New issues:
+- [Low] Compiling the new 'dump' pretimeout governor as a loadable module c=
+auses a modpost build failure because `trigger_all_cpu_backtrace()` relies =
+on an unexported symbol.
 
-Co-developed-by: Jérémie Dautheribes (Schneider Electric) <jeremie.dautheribes@bootlin.com>
-Signed-off-by: Jérémie Dautheribes (Schneider Electric) <jeremie.dautheribes@bootlin.com>
-Signed-off-by: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
----
- MAINTAINERS                      |   1 +
- drivers/watchdog/Kconfig         |  10 +++
- drivers/watchdog/Makefile        |   1 +
- drivers/watchdog/aaeon_mcu_wdt.c | 167 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 179 insertions(+)
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but unregistering th=
+e default watchdog pretimeout governor leaves dangling pointers in `default=
+_gov` and device structs, leading to a Use-After-Free (UAF) upon the next p=
+retimeout event or sysfs read.
+--
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2538f8c4bc14..7b92af42c9fd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -193,6 +193,7 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/mfd/aaeon,srg-imx8p-mcu.yaml
- F:	drivers/gpio/gpio-aaeon-mcu.c
- F:	drivers/mfd/aaeon-mcu.c
-+F:	drivers/watchdog/aaeon_mcu_wdt.c
- F:	include/linux/mfd/aaeon-mcu.h
- 
- AAEON UPBOARD FPGA MFD DRIVER
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d3b9df7d466b..f67a0b453316 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -420,6 +420,16 @@ config SL28CPLD_WATCHDOG
- 
- # ARM Architecture
- 
-+config AAEON_MCU_WATCHDOG
-+	tristate "Aaeon MCU Watchdog"
-+	depends on MFD_AAEON_MCU
-+	select WATCHDOG_CORE
-+	help
-+	  Select this option to enable watchdog timer support for the Aaeon
-+	  SRG-IMX8P onboard microcontroller (MCU). This driver provides
-+	  watchdog functionality through the MCU, allowing system monitoring
-+	  and automatic recovery from system hangs.
-+
- config AIROHA_WATCHDOG
- 	tristate "Airoha EN7581 Watchdog"
- 	depends on ARCH_AIROHA || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index ba52099b1253..2deec425d3ea 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -37,6 +37,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
- # ALPHA Architecture
- 
- # ARM Architecture
-+obj-$(CONFIG_AAEON_MCU_WATCHDOG) += aaeon_mcu_wdt.o
- obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
- obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
- obj-$(CONFIG_ARMADA_37XX_WATCHDOG) += armada_37xx_wdt.o
-diff --git a/drivers/watchdog/aaeon_mcu_wdt.c b/drivers/watchdog/aaeon_mcu_wdt.c
-new file mode 100644
-index 000000000000..9ff559a69fd7
---- /dev/null
-+++ b/drivers/watchdog/aaeon_mcu_wdt.c
-@@ -0,0 +1,167 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Aaeon MCU Watchdog driver
-+ *
-+ * Copyright (C) 2026 Bootlin
-+ * Author: Jérémie Dautheribes <jeremie.dautheribes@bootlin.com>
-+ * Author: Thomas Perrot <thomas.perrot@bootlin.com>
-+ */
-+
-+#include <linux/mfd/aaeon-mcu.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+#define AAEON_MCU_PING_WDT	0x73
-+
-+#define AAEON_MCU_WDT_TIMEOUT         240
-+#define AAEON_MCU_WDT_HEARTBEAT_MS    25000
-+#define AAEON_MCU_WDT_MIN_TIMEOUT     1
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
-+
-+struct aaeon_mcu_wdt {
-+	struct watchdog_device wdt;
-+	struct regmap *regmap;
-+};
-+
-+static int aaeon_mcu_wdt_cmd(struct aaeon_mcu_wdt *data, u8 opcode, u8 arg)
-+{
-+	return regmap_write(data->regmap, AAEON_MCU_REG(opcode, arg), 0);
-+}
-+
-+static int aaeon_mcu_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_CONTROL_WDT_OPCODE, 0x01);
-+}
-+
-+static int aaeon_mcu_wdt_status(struct watchdog_device *wdt, bool *enabled)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+	unsigned int rsp;
-+	int ret;
-+
-+	ret = regmap_read(data->regmap,
-+			  AAEON_MCU_REG(AAEON_MCU_CONTROL_WDT_OPCODE, 0x02),
-+			  &rsp);
-+	if (ret)
-+		return ret;
-+
-+	*enabled = rsp == 0x01;
-+	return 0;
-+}
-+
-+static int aaeon_mcu_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_CONTROL_WDT_OPCODE, 0x00);
-+}
-+
-+static int aaeon_mcu_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct aaeon_mcu_wdt *data = watchdog_get_drvdata(wdt);
-+
-+	return aaeon_mcu_wdt_cmd(data, AAEON_MCU_PING_WDT, 0x00);
-+}
-+
-+static const struct watchdog_info aaeon_mcu_wdt_info = {
-+	.identity	= "Aaeon MCU Watchdog",
-+	.options	= WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT
-+};
-+
-+static const struct watchdog_ops aaeon_mcu_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= aaeon_mcu_wdt_start,
-+	.stop		= aaeon_mcu_wdt_stop,
-+	.ping		= aaeon_mcu_wdt_ping,
-+};
-+
-+static int aaeon_mcu_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdt;
-+	struct aaeon_mcu_wdt *data;
-+	bool enabled;
-+	int ret;
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!data->regmap)
-+		return -ENODEV;
-+
-+	wdt = &data->wdt;
-+	wdt->parent = dev;
-+	wdt->info = &aaeon_mcu_wdt_info;
-+	wdt->ops = &aaeon_mcu_wdt_ops;
-+	/*
-+	 * The MCU firmware has a fixed hardware timeout of 25 seconds that
-+	 * cannot be changed. The watchdog core handles automatic pinging to
-+	 * support software timeouts longer than the hardware limit. The default
-+	 * software timeout of 240 seconds can be overridden via the DT
-+	 * timeout-sec property or the watchdog_timeout kernel boot parameter.
-+	 */
-+	wdt->timeout = AAEON_MCU_WDT_TIMEOUT;
-+	wdt->min_timeout = AAEON_MCU_WDT_MIN_TIMEOUT;
-+	wdt->max_hw_heartbeat_ms = AAEON_MCU_WDT_HEARTBEAT_MS;
-+	watchdog_init_timeout(wdt, timeout, dev->parent);
-+
-+	watchdog_set_drvdata(wdt, data);
-+	watchdog_stop_on_reboot(wdt);
-+	dev_set_drvdata(dev, wdt);
-+
-+	ret = aaeon_mcu_wdt_status(wdt, &enabled);
-+	if (ret)
-+		return ret;
-+
-+	if (enabled)
-+		set_bit(WDOG_HW_RUNNING, &wdt->status);
-+
-+	return devm_watchdog_register_device(dev, wdt);
-+}
-+
-+static int aaeon_mcu_wdt_suspend(struct device *dev)
-+{
-+	struct watchdog_device *wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdt))
-+		return aaeon_mcu_wdt_stop(wdt);
-+
-+	return 0;
-+}
-+
-+static int aaeon_mcu_wdt_resume(struct device *dev)
-+{
-+	struct watchdog_device *wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdt))
-+		return aaeon_mcu_wdt_start(wdt);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(aaeon_mcu_wdt_pm_ops,
-+				aaeon_mcu_wdt_suspend, aaeon_mcu_wdt_resume);
-+
-+static struct platform_driver aaeon_mcu_wdt_driver = {
-+	.driver		= {
-+		.name	= "aaeon-mcu-wdt",
-+		.pm	= pm_sleep_ptr(&aaeon_mcu_wdt_pm_ops),
-+	},
-+	.probe		= aaeon_mcu_wdt_probe,
-+};
-+
-+module_platform_driver(aaeon_mcu_wdt_driver);
-+
-+MODULE_ALIAS("platform:aaeon-mcu-wdt");
-+MODULE_DESCRIPTION("Aaeon MCU Watchdog Driver");
-+MODULE_AUTHOR("Jérémie Dautheribes <jeremie.dautheribes@bootlin.com>");
-+MODULE_LICENSE("GPL");
+--- Patch [1]: [PATCH] watchdog: pretimeout: Add "dump" pretimeout governor=
+ ---
+commit dc8900cef0c7ac20c37ff84ef6166ddde30f5da7
+Author: Tzung-Bi Shih <tzungbi@kernel.org>
 
--- 
-2.55.0
+watchdog: pretimeout: Add "dump" pretimeout governor
 
+This patch adds a new "dump" pretimeout governor that triggers a backtrace
+of all CPUs to the kernel log buffer before the watchdog fires. It also
+updates the Kconfig logic to fall back to the "panic" governor only when
+both "noop" and "dump" governors are disabled.
+
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 08cb8612d41fe..7b291ea8b0f01 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+
+[ ... ]
+
+> @@ -93,10 +93,19 @@ config WATCHDOG_PRETIMEOUT_GOV_SEL
+> =20
+>  if WATCHDOG_PRETIMEOUT_GOV
+> =20
+> +config WATCHDOG_PRETIMEOUT_GOV_DUMP
+> +	tristate "Dump watchdog pretimeout governor"
+
+[Severity: Low]
+Will this fail to build if compiled as a module?
+
+When CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP=3Dm, trigger_all_cpu_backtrace() c=
+an
+rely on unexported architecture-specific functions (such as
+arch_trigger_cpumask_backtrace() on x86, ARM, and ARM64), which causes a
+modpost build failure.
+
+> +	depends on WATCHDOG_CORE
+> +	default WATCHDOG_CORE
+> +	help
+
+[ ... ]
+
+> diff --git a/drivers/watchdog/pretimeout_dump.c b/drivers/watchdog/pretim=
+eout_dump.c
+> new file mode 100644
+> index 0000000000000..c5d3dac2606c4
+> --- /dev/null
+> +++ b/drivers/watchdog/pretimeout_dump.c
+
+[ ... ]
+
+> +static void __exit watchdog_gov_dump_unregister(void)
+> +{
+> +	watchdog_unregister_governor(&watchdog_gov_dump);
+> +}
+
+[Severity: High]
+This is a pre-existing issue, but does unregistering the default watchdog
+pretimeout governor leave dangling pointers?
+
+If this module is set as the default governor and then unloaded,
+watchdog_unregister_governor() attempts to reset the active governors:
+
+    list_for_each_entry(p, &pretimeout_list, entry)
+        if (p->wdd->gov =3D=3D gov)
+            p->wdd->gov =3D default_gov;
+
+If the unregistered governor is the default governor, default_gov equals
+gov. This leaves p->wdd->gov pointing to the unloaded module's struct.
+
+Could this lead to a use-after-free upon the next pretimeout event or sysfs
+read?
+
+> +module_init(watchdog_gov_dump_register);
+> +module_exit(watchdog_gov_dump_unregister);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707073117.2962=
+676-1-tzungbi@kernel.org?part=3D1
