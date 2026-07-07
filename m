@@ -1,138 +1,96 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F062C11DF
-	for <linux-watchdog@vger.kernel.org>; Tue,  7 Jul 2026 08:02:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC2DD227EB9;
+	Tue,  7 Jul 2026 08:10:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783411346; cv=none; b=JLXwKTpCQYjqyzlPgcLPRHl2fNEnc/x7JcBUhYuavIkn//DTtpZRA+n+lG15qSc4zV/be3tQOLgTXvo9t889ZfNcKAESsKsgqAZL4uU2kEqFqNt8j6hVDh4rxuknHD/9LWi4/Y51MGLaYUYBQ6OkQOgrT1mLyJqQG7leDP9qkeI=
+	t=1783411833; cv=none; b=pF22wgfx0XHDjMeCoXdFXvYn6Ops5ETDfZJo0VbFPvXXPReCDwf5sdygdK2ogcv2vlqHutsesn5TkqgZk8jHpkKFwZxqRYPHqshH0gd7ilTqJ3b7BY47nGpGei6Pz/MmIev+kBJsad7mZgIBS9+BApgpdS5s/SBmdGzI50PzbSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783411346; c=relaxed/simple;
-	bh=j61mVEIJzzks3mly3MK4Jiar0YJv4dtnhuqSYwv1FP0=;
+	s=arc-20240116; t=1783411833; c=relaxed/simple;
+	bh=nVYb2+nBtiuytc+LkxXGC+63os7aPvI3+kij90BmetA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=VgTwhkphcq5W0SAPatejPYPfb0ufLsXNY3TsBFeXE9RyaRl9vcm0506Px4fJj0fP9/7kDoyCjNjMhrNNHCK3zNESgVO/CcOzTGxg4FEF/KaleNGc3eKpMuguIUxGGPo2dFnJLa1W/KYLB1hewpy4SnefXLOI14MVzyo7ODbGkps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f7KfT2gE; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KHOc2pGUJu+jP/yUYadw7Uwe2FUb2bwQeimBVKp9q8qgJTFkG17xGaGbaWV5D3laeJCCcMplTz9054hbE9LTKgCW/bePbrlth6sdNWMjydcVQGN0YdW1v8ADqkN2f5oDa0DyOOlIfLlPW8Gg5p4vQFGaJltmAXrbJmTbKjWujLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DZtaFM0K; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f7KfT2gE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C52D1F000E9;
-	Tue,  7 Jul 2026 08:02:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DZtaFM0K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6BA1F000E9;
+	Tue,  7 Jul 2026 08:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783411345;
-	bh=ol5MvAPTQMiISHIiptmccBHiOWZV0veRPEQS2lCEuPY=;
+	s=k20260515; t=1783411832;
+	bh=b3BdD5Q8kv67zW+Wnu+SQeSBsfoWAzrUn5MZtl/spz8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=f7KfT2gEfA7NMqPorgPe8bv7PFr5xjzWCROSfDKL5Ul/Lcsdtfh8EKQ/TIz3Gbcw2
-	 00YsJlk9IPO+/wVQYXvcaVR3D1Vie0Dlp3s2ZIgiepunP8QTiEZ4/dzCm4xkQfaURj
-	 1O9sYBKs5HNfwMDk1MIlZ+lTyuQa+IyqakqAh34EoMR2+wPg12xI6fOYBA0AFCXFWL
-	 m9JTpana7wZv4ZZ7H1EVblOJGPfNZt/4+5HaKT+RxZG2IPoy73MyL96EuhEVRU/iCa
-	 5HDgp+M9qvM0FxW3X+mzz9lM2I5s/6qC0YmBLIVdYQ7w8udVUTx3nghyfB2+uZh2F+
-	 EfOEqSEktELOQ==
+	b=DZtaFM0KGFUi4M8YM8WAQ+2JG3bwdCvideMvk7N8+YNurSo16RnK32FQBOCbH91dZ
+	 TKEAQO4EGVWzLhAiXsDrMsWfKZTJksqV3RJVr8p49krSVis8bLhf2ICg44ki/gnMbV
+	 EJ1tcbfnYSwLgkG8hxXahVHxFZkoe2kYpZYCuWdxbjOysQB5AyQu0+pLNRiLu8+qdO
+	 DtbO8JnTXpw+1TW5efqabU66D2zPRhL6e1UW0rI0LLsmxCKhWqUYcJrgeB7KbVNgUw
+	 TOdqRoJZvtaBRS28lZRR0u0WIwtekSouVx3eX+qwIFx88+F2Gdow9vjLXqmJ7M/3Rm
+	 6DQURAA1nkJXw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: pretimeout: Add "dump" pretimeout governor
+Subject: Re: [PATCH v7 4/5] gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tzung-Bi Shih" <tzungbi@kernel.org>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260707073117.2962676-1-tzungbi@kernel.org>
-References: <20260707073117.2962676-1-tzungbi@kernel.org>
+To: =?utf-8?b?VGhvbWFzIFBlcnJvdCAoU2NobmVpZGVyIEVsZWN0cmljKQ==?= <thomas.perrot@bootlin.com>
+Cc: robh@kernel.org, devicetree@vger.kernel.org, Frank.Li@kernel.org, conor+dt@kernel.org, linux-watchdog@vger.kernel.org, imx@lists.linux.dev
+In-Reply-To: <20260707-dev-b4-aaeon-mcu-driver-v7-4-ca6c59abd672@bootlin.com>
+References: <20260707-dev-b4-aaeon-mcu-driver-v7-0-ca6c59abd672@bootlin.com>
+ <20260707-dev-b4-aaeon-mcu-driver-v7-4-ca6c59abd672@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 07 Jul 2026 08:02:24 +0000
-Message-Id: <20260707080225.4C52D1F000E9@smtp.kernel.org>
+Date: Tue, 07 Jul 2026 08:10:31 +0000
+Message-Id: <20260707081032.1A6BA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [Low] Compiling the new 'dump' pretimeout governor as a loadable module c=
-auses a modpost build failure because `trigger_all_cpu_backtrace()` relies =
-on an unexported symbol.
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but unregistering th=
-e default watchdog pretimeout governor leaves dangling pointers in `default=
-_gov` and device structs, leading to a Use-After-Free (UAF) upon the next p=
-retimeout event or sysfs read.
+- [Medium] Destructive hardware initialization of GPIOs during probe
 --
 
---- Patch [1]: [PATCH] watchdog: pretimeout: Add "dump" pretimeout governor=
- ---
-commit dc8900cef0c7ac20c37ff84ef6166ddde30f5da7
-Author: Tzung-Bi Shih <tzungbi@kernel.org>
+--- Patch [4]: [PATCH v7 4/5] gpio: aaeon: Add GPIO driver for SRG-IMX8P MC=
+U ---
+commit e6765071ae5a9056f6fe12662ec59273ff8b1ac7
+Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
-watchdog: pretimeout: Add "dump" pretimeout governor
+gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
 
-This patch adds a new "dump" pretimeout governor that triggers a backtrace
-of all CPUs to the kernel log buffer before the watchdog fires. It also
-updates the Kconfig logic to fall back to the "panic" governor only when
-both "noop" and "dump" governors are disabled.
+Add GPIO driver for the Aaeon SRG-IMX8P embedded controller. This driver
+supports 7 GPO pins and 12 GPIO pins and implements state management.
+During probe, all pins are reset to a known state.
 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 08cb8612d41fe..7b291ea8b0f01 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-
-[ ... ]
-
-> @@ -93,10 +93,19 @@ config WATCHDOG_PRETIMEOUT_GOV_SEL
-> =20
->  if WATCHDOG_PRETIMEOUT_GOV
-> =20
-> +config WATCHDOG_PRETIMEOUT_GOV_DUMP
-> +	tristate "Dump watchdog pretimeout governor"
-
-[Severity: Low]
-Will this fail to build if compiled as a module?
-
-When CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP=3Dm, trigger_all_cpu_backtrace() c=
-an
-rely on unexported architecture-specific functions (such as
-arch_trigger_cpumask_backtrace() on x86, ARM, and ARM64), which causes a
-modpost build failure.
-
-> +	depends on WATCHDOG_CORE
-> +	default WATCHDOG_CORE
-> +	help
-
-[ ... ]
-
-> diff --git a/drivers/watchdog/pretimeout_dump.c b/drivers/watchdog/pretim=
-eout_dump.c
+> diff --git a/drivers/gpio/gpio-aaeon-mcu.c b/drivers/gpio/gpio-aaeon-mcu.c
 > new file mode 100644
-> index 0000000000000..c5d3dac2606c4
+> index 0000000000000..a9e048c865f5c
 > --- /dev/null
-> +++ b/drivers/watchdog/pretimeout_dump.c
-
+> +++ b/drivers/gpio/gpio-aaeon-mcu.c
 [ ... ]
-
-> +static void __exit watchdog_gov_dump_unregister(void)
+> +static int aaeon_mcu_gpio_probe(struct platform_device *pdev)
 > +{
-> +	watchdog_unregister_governor(&watchdog_gov_dump);
-> +}
+> +	struct aaeon_mcu_gpio *data;
+[ ... ]
+> +	/*
+> +	 * Reset all GPIO states to a known configuration. The MCU does not
+> +	 * reset GPIO state on soft reboot, only on power cycle (hard reboot).
+> +	 * Without this reset, GPIOs would retain their previous state across
+> +	 * reboots, which could lead to unexpected behavior.
+> +	 */
+> +	aaeon_mcu_gpio_reset(data, &pdev->dev);
 
-[Severity: High]
-This is a pre-existing issue, but does unregistering the default watchdog
-pretimeout governor leave dangling pointers?
+[Severity: Medium]
+Could this unconditional reset during probe abruptly disable critical system
+resources like power regulators or displays that were initialized earlier by
+the bootloader?
 
-If this module is set as the default governor and then unloaded,
-watchdog_unregister_governor() attempts to reset the active governors:
+While the comment explains this is an intentional design choice to prevent
+undefined behavior across soft reboots, unconditionally resetting all GPOs
+to low and GPIOs to inputs in aaeon_mcu_gpio_reset() overrides any existing
+hardware setup.
 
-    list_for_each_entry(p, &pretimeout_list, entry)
-        if (p->wdd->gov =3D=3D gov)
-            p->wdd->gov =3D default_gov;
-
-If the unregistered governor is the default governor, default_gov equals
-gov. This leaves p->wdd->gov pointing to the unloaded module's struct.
-
-Could this lead to a use-after-free upon the next pretimeout event or sysfs
-read?
-
-> +module_init(watchdog_gov_dump_register);
-> +module_exit(watchdog_gov_dump_unregister);
+Does this bypass the usual GPIO subsystem convention of safely inheriting
+the existing hardware state?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707073117.2962=
-676-1-tzungbi@kernel.org?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707-dev-b4-aae=
+on-mcu-driver-v7-0-ca6c59abd672@bootlin.com?part=3D4
