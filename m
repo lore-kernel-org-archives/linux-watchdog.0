@@ -1,106 +1,160 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CF73E44F6;
-	Tue,  7 Jul 2026 10:28:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA593DE45B
+	for <linux-watchdog@vger.kernel.org>; Tue,  7 Jul 2026 10:29:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783420094; cv=none; b=lG86YO8wDjphixPUrVUZ5HAkEuKN+5DirKhY8AFTstTU7STYGnhqxJCdldajz4b973bVRrHVjPTC6imOvJJJX8dP5pIo5uxSiSvCWB6lSI6QXZRzL2X/EHFRr1vapUi4mo/YFzaIsydh3euyn6/bkWwzCPFdhnq7RMoM7N1d0pY=
+	t=1783420175; cv=none; b=VYOvKc+mpLJqCHSnxnDOEmiMDsIV0wtpCv0sIFTd9Z7W68AYg9lDfShfMBRlzlp9RzGMEJtdrW/r46hx5BPfQWGEvKc0Y4EZJlSirEssSj5BQDDXWZFCqbIinduLr4lpnWd6F6UK/MKDKJlwljIrgLWFsYTNKQz0KfBjbeAm7iU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783420094; c=relaxed/simple;
-	bh=lVg44Af1qRFRKeJ8/VQGOmUd8KVNp4WLYt9KebgBoM8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DqJlOKmt/SGM9hpFMqR/jd3UE8e9t1+K/hTknigPjipgU78Bc+evWgz6R6KnUCd4Q/pZ+EEc/X6kLBipRZXrqvu0JHzkJgkQprbeUwhz3gPw24G0/ez6GNP+EGR/WpXZzGkDfTks0pd/wOePyz7wtMU9uFdxL7Ibcywt5aO2juI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e6E7uGvl; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783420175; c=relaxed/simple;
+	bh=wc1Ff3GjMWl4n25BeLXwpdV5EZjQc7/mJuh1ckwh/vQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=sfQ0y3hnoSndzZLFp1fUpgntFG4bzG6CGAMJBV/rPexSTECjFUEJ72MLTEa2OWIFib4OQFn046spg69mdc2nN4LmkjkEceXpiLdp+j0qOs5n/XwtUBRaUrwDnjNAukfDQGJfPj/78xvlk2FecoGtIyoKeo7L7OMsNBiAabI/9JU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m8N1TP2H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e6E7uGvl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 288C01F000E9;
-	Tue,  7 Jul 2026 10:28:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m8N1TP2H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C2C1F000E9;
+	Tue,  7 Jul 2026 10:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783420089;
-	bh=j1aLtMBfaDu1F/NGu5OUF/uTqiElGSc+jY39CO4JD68=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=e6E7uGvlPV3+N6s9fv0Q9bkGF4FBoI3HBh05tG1syp67QY4noURRqhUcwqZ7LSyRM
-	 UxaHZGu10v7E+aqoo7C3QjqezsiQmeiG9rvYpMXXRswli3I4lEYYmB2Yq4667A4r9s
-	 oltBZM0msiaVtA2H8Lxn0NhRdCd2hQlME5h1cY9MUE7PSKSpbL91Uy3W96A5v/0+Vq
-	 VvubN4c2pt9NSi3Ll1gDQHfubEMSC/MHNHMhxJfZGrPI8VfcKxcF0nsZ8iUZAXCPd1
-	 bXIJPaRRFQaMnZc3EOjCbNxeXx6AJ1EZBaGDtMuoJ91IC4rN+kP5+iHthvN7kHlu6Q
-	 koECGPqnAmbGg==
-Date: Tue, 7 Jul 2026 10:28:07 +0000
-From: Tzung-Bi Shih <tzungbi@kernel.org>
-To: sashiko-reviews@lists.linux.dev
+	s=k20260515; t=1783420171;
+	bh=9CaiN0E12TVu2pddwX9Wgx2vfs0NahzFmpOAvOb4Vp8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=m8N1TP2HnMVMTzLqi6uFsfh5osBSf6nFDbRLwwpHxJYDrsfGc3iK6JvDT6C/NmTZl
+	 8vrOMCkwB13xo4dyqFSt/kX1ZsZ9VO6MHzf6JWtqWvDWKlQ8ZXdT/GeuBKfZUN0s3/
+	 Ye5WPC2bE/X54+m9iD3yb9pbwJ3Arqw/snufk3uRnmh/YlZq1cduzh4wxtbyBy0TZ7
+	 SN4vRZGLo48PpnB/LURqPI94jU6bwArmQJeTQTKqyy1tgNpFUQszBk7EK7sTthcujl
+	 5e5oD6+x1oS4EajpSKhwmvgZjeCS2O1eoMX+ea56a+EIJQ0K6iRXyJGiZxe5Eq2WfS
+	 TvZ/g98iykW2A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: pretimeout: Fix UAF in
+ watchdog_unregister_governor()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Tzung-Bi Shih" <tzungbi@kernel.org>
 Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: pretimeout: Add "dump" pretimeout governor
-Message-ID: <akzUtxGzCslsJL1l@google.com>
-References: <20260707073117.2962676-1-tzungbi@kernel.org>
- <20260707080225.4C52D1F000E9@smtp.kernel.org>
+In-Reply-To: <20260707101803.3598173-1-tzungbi@kernel.org>
+References: <20260707101803.3598173-1-tzungbi@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 07 Jul 2026 10:29:30 +0000
+Message-Id: <20260707102931.06C2C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260707080225.4C52D1F000E9@smtp.kernel.org>
 
-On Tue, Jul 07, 2026 at 08:02:24AM +0000, sashiko-bot@kernel.org wrote:
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index 08cb8612d41fe..7b291ea8b0f01 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> 
-> [ ... ]
-> 
-> > @@ -93,10 +93,19 @@ config WATCHDOG_PRETIMEOUT_GOV_SEL
-> >  
-> >  if WATCHDOG_PRETIMEOUT_GOV
-> >  
-> > +config WATCHDOG_PRETIMEOUT_GOV_DUMP
-> > +	tristate "Dump watchdog pretimeout governor"
-> 
-> [Severity: Low]
-> Will this fail to build if compiled as a module?
-> 
-> When CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP=m, trigger_all_cpu_backtrace() can
-> rely on unexported architecture-specific functions (such as
-> arch_trigger_cpumask_backtrace() on x86, ARM, and ARM64), which causes a
-> modpost build failure.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Use a bool instead in v2 [1].
+Pre-existing issues:
+- [High] A teardown symmetry violation in `watchdog_dev_unregister()` expos=
+es a race window with sysfs, allowing a Use-After-Free of governor modules.
+- [Medium] A sysfs race condition during device registration allows user-co=
+nfigured pretimeout governors to be silently overwritten by `default_gov`.
+--
 
-[1] https://lore.kernel.org/all/20260707102105.3600275-1-tzungbi@kernel.org
+--- Patch [1]: [PATCH] watchdog: pretimeout: Fix UAF in watchdog_unregister=
+_governor() ---
+commit f31dd8ccfc4553641fb99ced744ddc61a7ad970c
+Author: Tzung-Bi Shih <tzungbi@kernel.org>
 
-> > diff --git a/drivers/watchdog/pretimeout_dump.c b/drivers/watchdog/pretimeout_dump.c
-> > new file mode 100644
-> > index 0000000000000..c5d3dac2606c4
-> > --- /dev/null
-> > +++ b/drivers/watchdog/pretimeout_dump.c
-> 
-> [ ... ]
-> 
-> > +static void __exit watchdog_gov_dump_unregister(void)
-> > +{
-> > +	watchdog_unregister_governor(&watchdog_gov_dump);
-> > +}
-> 
-> [Severity: High]
-> This is a pre-existing issue, but does unregistering the default watchdog
-> pretimeout governor leave dangling pointers?
-> 
-> If this module is set as the default governor and then unloaded,
-> watchdog_unregister_governor() attempts to reset the active governors:
-> 
->     list_for_each_entry(p, &pretimeout_list, entry)
->         if (p->wdd->gov == gov)
->             p->wdd->gov = default_gov;
-> 
-> If the unregistered governor is the default governor, default_gov equals
-> gov. This leaves p->wdd->gov pointing to the unloaded module's struct.
-> 
-> Could this lead to a use-after-free upon the next pretimeout event or sysfs
-> read?
+watchdog: pretimeout: Fix UAF in watchdog_unregister_governor()
 
-Proposed a fix in [2].
+When a watchdog governor is unregistered, it updates existing watchdog
+devices using it to fall back to default_gov. This commit clears
+default_gov if it matches the governor being unregistered to prevent
+two use-after-free scenarios where a dangling pointer is inherited.
 
-[2] https://lore.kernel.org/all/20260707101803.3598173-1-tzungbi@kernel.org
+> diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/watchdog/wa=
+tchdog_pretimeout.c
+> index 19eb2ed2c7cb0..02e09b9e396da 100644
+> --- a/drivers/watchdog/watchdog_pretimeout.c
+> +++ b/drivers/watchdog/watchdog_pretimeout.c
+> @@ -167,6 +167,8 @@ void watchdog_unregister_governor(struct watchdog_gov=
+ernor *gov)
+>  	}
+> =20
+>  	spin_lock_irq(&pretimeout_lock);
+> +	if (default_gov =3D=3D gov)
+> +		default_gov =3D NULL;
+>  	list_for_each_entry(p, &pretimeout_list, entry)
+
+[Severity: High]
+This is a pre-existing issue, but is there a teardown symmetry violation in
+watchdog_dev_unregister() that exposes a race window with sysfs?
+
+If watchdog_dev_unregister() calls watchdog_unregister_pretimeout() before
+watchdog_cdev_unregister():
+
+drivers/watchdog/watchdog_dev.c:watchdog_dev_unregister() {
+	watchdog_unregister_pretimeout(wdd);
+	watchdog_cdev_unregister(wdd);
+}
+
+The device is removed from pretimeout_list, but the sysfs interface is still
+active. A concurrent write to the pretimeout_governor sysfs node can
+successfully assign a governor to wdd->gov:
+
+drivers/watchdog/watchdog_pretimeout.c:watchdog_pretimeout_governor_set() {
+	spin_lock_irq(&pretimeout_lock);
+	wdd->gov =3D priv->gov;
+	spin_unlock_irq(&pretimeout_lock);
+}
+
+If the governor module is then unloaded, watchdog_unregister_governor() fai=
+ls
+to clear wdd->gov because the device is no longer in pretimeout_list. If an
+in-flight hardware watchdog pretimeout interrupt fires,
+watchdog_notify_pretimeout() dereferences the dangling wdd->gov pointer:
+
+drivers/watchdog/watchdog_pretimeout.c:watchdog_notify_pretimeout() {
+	wdd->gov->pretimeout(wdd);
+}
+
+Can this lead to a use-after-free?
+
+>  		if (p->wdd->gov =3D=3D gov)
+>  			p->wdd->gov =3D default_gov;
+
+[Severity: Medium]
+This is also a pre-existing issue, but does watchdog_dev_register() silently
+overwrite user-configured pretimeout governors due to a sysfs race conditio=
+n?
+
+When watchdog_dev_register() is called, it registers the character device a=
+nd
+sysfs interfaces before fully initializing the internal pretimeout state:
+
+drivers/watchdog/watchdog_dev.c:watchdog_dev_register() {
+	ret =3D watchdog_cdev_register(wdd);
+	if (ret)
+		return ret;
+
+	ret =3D watchdog_register_pretimeout(wdd);
+}
+
+If a userspace udev rule or concurrent process immediately writes to the
+pretimeout_governor sysfs node, setting wdd->gov, the subsequent call to
+watchdog_register_pretimeout() unconditionally overwrites it with default_g=
+ov
+without synchronizing with sysfs:
+
+drivers/watchdog/watchdog_pretimeout.c:watchdog_register_pretimeout() {
+	spin_lock_irq(&pretimeout_lock);
+	list_add(&p->entry, &pretimeout_list);
+	p->wdd =3D wdd;
+	wdd->gov =3D default_gov;
+	spin_unlock_irq(&pretimeout_lock);
+}
+
+Could this result in the user's requested governor being silently ignored?
+
+>  	spin_unlock_irq(&pretimeout_lock);
+> =20
+>  	mutex_unlock(&governor_lock);
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260707101803.3598=
+173-1-tzungbi@kernel.org?part=3D1
