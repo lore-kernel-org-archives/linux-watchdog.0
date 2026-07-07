@@ -1,266 +1,195 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74830272E56
-	for <linux-watchdog@vger.kernel.org>; Tue,  7 Jul 2026 07:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B9D26FD9B;
+	Tue,  7 Jul 2026 08:01:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783410439; cv=none; b=R5cgt9RRe1wllq9uwu/ECErXp1mdQmoRfHrwPUscuAOZKO1/7OXBiLW2IeHR9EOgGlf+/B8HxiuT95CrKeKJE8xpgpDeu5KQNqOTsQ15u8VS7FbhHnITulceGhZxn4SCZ72VcSv+rL6bvQqdYwmKUBdgPHly+wWSiIqNGbDdH6M=
+	t=1783411311; cv=none; b=o0QT4AmeQdUN5vgD2XClvHM1hOBaRwMf1bZJv2k94cBZbL0yxQLu1LMdDZ+gBa11ADhdmyEqkIDE5pALgySBVV67sK2yQmvvt0EcJugBYGsYHxjSwHUKOmdayS5gBv64cYw8S/0DA/vkdu08ioeETri7dMb/AAfxB+STE9T73OE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783410439; c=relaxed/simple;
-	bh=8BAw/gwUV4DPqTc1XlhdDBC6YMrGTmgu0NFo7yRcK+k=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=Llb390Y/Y9cCRy4vKtTtNcUF5P4QKj9gbTXnAZFmxHkGseCfysA9J68otAhs88EtWBdKG0MhRvIoKO2T6Uwb1lVa4T0OyqRL3LAv3LiLoullIXNMHmikLwJX+yvTJEeOAdgQBZjKkIhammfDhOdO4YBRSnW6YtcQEtcF+6GEy1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Lxj6CTdE; arc=none smtp.client-ip=185.246.84.56
+	s=arc-20240116; t=1783411311; c=relaxed/simple;
+	bh=8ySEEwi81kOZufCiC5ultcK08MD9cSK76uN/1+yll34=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=fBf0wvo9ainX+JPQ9ubrIVBUFgahlClxQM7Xtf4uvsGI7EDR6wmJEIBkyGs/aPStyJxqHRiYKvRzXpZ9zz5wwwW9QKL5Q4IKoxIWqadvl8g3nXG7SMzGtQPKLVnhZY5oPH7qLbQTp1WSY+Aqq/H9PD61gwFVQcwtIfZYim3ZncA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=djyZTscM; arc=none smtp.client-ip=185.171.202.116
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Lxj6CTdE"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="djyZTscM"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id B66AD1A0EAD;
-	Tue,  7 Jul 2026 07:47:13 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 234BAC8F1E8;
+	Tue,  7 Jul 2026 08:02:01 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 86587601A3;
-	Tue,  7 Jul 2026 07:47:13 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5189011BC0E18;
-	Tue,  7 Jul 2026 09:47:11 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id ADBFF601A3;
+	Tue,  7 Jul 2026 08:01:47 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8164B11BC0E9B;
+	Tue,  7 Jul 2026 10:01:39 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783410433; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=RkkUyRvFUdSKgRxtxaFUaPgXRl4J0MzoQoofSpJyXgs=;
-	b=Lxj6CTdEufZvjWVUr44XlOh7YyMNvpouWAR34YiJhQjBNE7cEC6rsjXr0dwBDPEO4p75T5
-	hhRIqGwTlfG0gfYbWCeAUK2z49ugIk3Ey9KHGFF8Y7QA3p9x5kmk9uHddq3FlZh2MoZ73g
-	p8MKgxYU1+B+u9wXXwmk9UcZm5bQkfixQ4gdaDIspLX6Vw3yYBUUYXMs4fwsbLc1iMfbqD
-	41xf/9rte4fp0tEMkvnPQJxZsoM9mLuJSkvhT0Qei1FeGkbxbHfnyEStCyYF8p1GZjymVX
-	X/E89GjCSWKtmeY9Gt8bosr8HR+a+yIEMOY0ZoCYjK4vZM62FGmeFifvtbtYYw==
+	t=1783411306; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=B0T3hPUpr7DquND+SiXKVEhca1w7AN4kb1iXd6bq9Ek=;
+	b=djyZTscMury51Vz7wD0PkkXfigYbRnl57R3Toe+oJWhgW1BFzMF1KwsNGWvTMPsOhlJr7c
+	IpiAJ7FtWZqow7bm4I/E8Dmia/glnXsgxzrA16EwHNf00VN9l7BiIG8ERNTJ9KRw2XPora
+	lbxK9ZliBz3VmxxmUX10MSmXzywcpS3d8frrjysRd4xkNBDQwxjwo3JKkklO0y3kOtpbxT
+	Zkmz0s3Mw9hc0uQ0/4mir2lw4wORwoVT6dBVRP9FK9fXe39iBKomOuPNVDAetmrbGo2Hpk
+	gpqj/bI9UKxnPlfuOFDJahVRq6OWJx6E2Tgd0XJOfhOg5fpf5NmhrIuG9G0bdQ==
+From: "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>
+Subject: [PATCH v7 0/5] Add support for AAEON SRG-IMX8P MCU
+Date: Tue, 07 Jul 2026 10:01:26 +0200
+Message-Id: <20260707-dev-b4-aaeon-mcu-driver-v7-0-ca6c59abd672@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 07 Jul 2026 09:47:11 +0200
-Message-Id: <DJS68HQS83G4.38Z406G5WD8NQ@bootlin.com>
-Cc: <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v3 2/2] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
- running chip on boot
-From: "Paul Louvel" <paul.louvel@bootlin.com>
-To: "Guenter Roeck" <linux@roeck-us.net>, "Paul Louvel"
- <paul.louvel@bootlin.com>, <sashiko-reviews@lists.linux.dev>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260706-w83627hf_wdt-nct6126d-v3-0-fa5ad8d486bc@bootlin.com>
- <20260706-w83627hf_wdt-nct6126d-v3-2-fa5ad8d486bc@bootlin.com>
- <20260706104010.A345B1F000E9@smtp.kernel.org>
- <DJRG1B5OZRQF.3TGMTYKZF4XL8@bootlin.com>
- <f598a05b-5d91-484d-a637-e092950a6f47@roeck-us.net>
- <DJRLRNRML483.3ZTW07FZBRFW@bootlin.com>
- <5e441e3a-27ce-4f46-abf4-fd6246727cb6@roeck-us.net>
- <DJRTDK0H5R1Q.32FU59ADLZD6E@bootlin.com>
- <a20d8c37-0d46-489b-aa8c-af927a2c552c@roeck-us.net>
-In-Reply-To: <a20d8c37-0d46-489b-aa8c-af927a2c552c@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XQ20rEMBAG4FdZcm1kcmzile8hXmRycANuI+kal
+ KXvbrooZSldL/+B+f5hLmSKNceJPB0upMaWp1zGHoaHA/FHN75FmkPPhANXjDNGQ2wUJXUulpG
+ e/CcNNbdYaYRobMQkXULStz9qTPnrKr+89nzM07nU72tRY8v0f7MxClRZTI6h8yKJZyzl/J7HR
+ 19OS8mvwO8LGoNW6E1MjN8Iy12N/92igXGxL/Eu2SQ9ACZUHreSWCUOdyTRJXDMSsFh0M5vJbl
+ Kgst9SXap/xsYC0kOVm4ltUoSzL6kFilYg0EaprXZSnqVtIB9SXcpaI0qeQw8wa00z/MPeLtzV
+ nQCAAA=
+X-Change-ID: 20251211-dev-b4-aaeon-mcu-driver-e0e89ebf4afb
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski <brgl@kernel.org>, Shawn Guo <shawnguo@kernel.org>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, 
+ =?utf-8?q?J=C3=A9r=C3=A9mie_Dautheribes?= <jeremie.dautheribes@bootlin.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Miquel Raynal <miquel.raynal@bootlin.com>, 
+ "Thomas Perrot (Schneider Electric)" <thomas.perrot@bootlin.com>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+ Conor Dooley <conor.dooley@microchip.com>, 
+ Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+X-Mailer: b4 0.14.3
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon Jul 6, 2026 at 11:48 PM CEST, Guenter Roeck wrote:
-> On 7/6/26 14:42, Paul Louvel wrote:
->> On Mon Jul 6, 2026 at 6:12 PM CEST, Guenter Roeck wrote:
->>> On 7/6/26 08:44, Paul Louvel wrote:
->>>> On Mon Jul 6, 2026 at 4:22 PM CEST, Guenter Roeck wrote:
->>>>> On 7/6/26 04:15, Paul Louvel wrote:
->>>>>> On Mon Jul 6, 2026 at 12:40 PM CEST, sashiko-bot wrote:
->>>>>>> Thank you for your contribution! Sashiko AI review found 1 potentia=
-l issue(s) to consider:
->>>>>>> - [High] Removing the manual hardware timeout refresh while still u=
-nconditionally switching the hardware timer base from minutes to seconds dr=
-astically truncates the remaining timeout if the BIOS originally configured=
- it in minutes, risking unexpected system reboots.
->>>>>>> --
->>>>>>>
->>>>>>> commit 0014048ec369e2a09098aa033aeb725449e2fd67
->>>>>>> Author: Paul Louvel <paul.louvel@bootlin.com>
->>>>>>>
->>>>>>> watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boo=
-t
->>>>>>>
->>>>>>> This patch updates the w83627hf watchdog driver to rely on the watc=
-hdog
->>>>>>> core's WDOG_HW_RUNNING flag to keep a running watchdog alive during=
- boot.
->>>>>>> It replaces the previous behavior of manually issuing a single keep=
-alive
->>>>>>> during initialization.
->>>>>>>
->>>>>>>> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w8=
-3627hf_wdt.c
->>>>>>>> --- a/drivers/watchdog/w83627hf_wdt.c
->>>>>>>> +++ b/drivers/watchdog/w83627hf_wdt.c
->>>>>>> [ ... ]
->>>>>>>> @@ -241,9 +241,8 @@ static int w83627hf_init(struct watchdog_devic=
-e *wdog, enum chips chip)
->>>>>>>>     			pr_warn("Stopping previously enabled watchdog until userlan=
-d kicks in\n");
->>>>>>>>     			superio_outb(cr_wdt_timeout, 0);
->>>>>>>>     		} else {
->>>>>>>> -			pr_info("Watchdog already running. Resetting timeout to %d sec=
-\n",
->>>>>>>> -				wdog->timeout);
->>>>>>>> -			superio_outb(cr_wdt_timeout, wdog->timeout);
->>>>>>>> +			pr_info("Watchdog already running.\n");
->>>>>>>> +			set_bit(WDOG_HW_RUNNING, &wdog->status);
->>>>>>>>     		}
->>>>>>>>     	}
->>>>>>>>    =20
->>>>>>>
->>>>>>> [Severity: High]
->>>>>>> Does removing this explicit timeout reset create a risk of unexpect=
-ed reboots?
->>>>>>>
->>>>>>> If the BIOS originally configured the watchdog with a timeout in mi=
-nutes
->>>>>>> (for example, a timeout of 5 minutes), the hardware counter cr_wdt_=
-timeout
->>>>>>> will hold the value 5.
->>>>>>
->>>>>> First of all, the driver does not support minute mode for now.
->>>>>
->>>>> The above feedback doesn't claim otherwise. The BIOS may still have c=
-onfigured
->>>>> the timeout to 5 minutes.
->>>>>
->>>>>>
->>>>>>>
->>>>>>> Because this patch removes the explicit write of wdog->timeout (whi=
-ch is
->>>>>>> typically 60) to cr_wdt_timeout, the counter retains the raw value =
-5.
->>>>>>> Just after this block in w83627hf_init(), the driver unconditionall=
-y
->>>>>>> switches the timebase to seconds:
->>>>>>>
->>>>>>> w83627hf_init() {
->>>>>>>        ...
->>>>>>>        /* set second mode & disable keyboard turning off watchdog *=
-/
->>>>>>>        t =3D superio_inb(cr_wdt_control) & ~0x0C;
->>>>>>>        superio_outb(cr_wdt_control, t);
->>>>>>>        ...
->>>>>>> }
->>>>>>>
->>>>>>> This immediately shrinks the remaining timeout from 5 minutes to 5 =
-seconds.
->>>>>>
->>>>>> True, but in those 5 seconds, the watchdog core will kick the watchd=
-og
->>>>>> immediately. by calling start(), and thus refreshing the watchdog to=
- 60 seconds.
->>>>>
->>>>> ... unless below.
->>>>>
->>>>>>
->>>>>>>
->>>>>>> If the watchdog core's kworker is delayed, or if the system is conf=
-igured
->>>>
->>>>
->>>>
->>>>>>> not to ping the watchdog before user space takes over, could this u=
-nusually
->>>>>>> short timeout cause the system to reboot unexpectedly during early =
-boot?
->>>>>>
->>>>>> Yes, but expected. If WATCHDOG is enabled, then WATCHDOG_HANDLE_BOOT=
-_ENABLED is
->>>>>> enabled by default unless explicitly disabled when configuring the k=
-ernel.
->>>>>>
->>>>>
->>>>> It is still an unexpected and undocumented change in behavior. Previo=
-usly
->>>>> in that situation the watchdog timeout would happen much later and gi=
-ve
->>>>> user space time to start the watchdog daemon. This is no longer the c=
-ase.
->>>>
->>>> Do you mean that, in the case WATCHDOG_HANDLE_BOOT_ENABLED is disabled=
-, the
->>>> driver now doesn't refresh the watchdog, this is unexpected ? I was re=
-lying on
->>>> the fact that this entry is enabled by default.
->>>
->>> It can be disabled with a configuration option, and with a module param=
-eter.
->>>
->>>> In this case, should the driver refresh the watchdog itself, and set t=
-he
->>>> WDOG_HW_RUNNING bit (for the added feature that it does it repeatedly)=
- ?
->>>> Or document the fact that the driver will not refresh the watchdog if
->>>> WATCHDOG_HANDLE_BOOT_ENABLED is disabled ?
->>>>
->>>
->>> The difference is that the timeout used to be 60 seconds, or whatever t=
-he
->>> default driver timeout is set to. If the BIOS enables the hardware time=
-out
->>> and sets it to <n> minutes, your patch changes that to <n> seconds. Tha=
-t
->>> is unexpected.
->>=20
->> The default driver timeout is set to 60 seconds. I do not understand you=
-r point.
->> If the BIOS enables the hardware timeout and sets it to <n> minutes, wit=
-hout my
->> patch, the driver would still refresh the watchdog to <n> seconds (60 ac=
-tually),
->> with "superio_outb(cr_wdt_timeout, wdog->timeout);". It forces second mo=
-de in
->> the control register anyway, and the driver has no way to know the previ=
-ously
->> set timeout.
->> The only difference I see is that it does it immediately and does not re=
-ly on
->> the core to do it. It also do it only code.
->> Maybe I do not see something here.
->>=20
->
-> Please provide the data path showing how the watchdog core sets the timeo=
-ut
-> to 60 seconds if WATCHDOG_HANDLE_BOOT_ENABLED is not enabled.
+This patch series introduces support for the AAEON SRG-IMX8P embedded
+controller (MCU). The MCU is connected via I2C and provides GPIO and
+watchdog functionality for the SRG-IMX8P board.
 
-If WATCHDOG_HANDLE_BOOT_ENABLED is not enabled, then I understand the issue=
-.
-Would an additional check at compile time be sufficient ?
+The series includes:
+- Device tree binding for the MFD driver
+- MFD driver that serves as the core driver for the MCU
+- GPIO driver implementing the GPIO functionality
+- Watchdog driver for system monitoring
+- MAINTAINERS entry for the new drivers
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wd=
-t.c
-index 27ef1cce3a14..c6d470be62a8 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -242,7 +242,11 @@ static int w83627hf_init(struct watchdog_device *wdog,=
- enum chips chip)
-                        superio_outb(cr_wdt_timeout, 0);
-                } else {
-                        pr_info("Watchdog already running.\n");
-+#ifdef CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED
-                        set_bit(WDOG_HW_RUNNING, &wdog->status);
-+#else
-+                       superio_outb(cr_wdt_timeout, wdog->timeout);
-+#endif
-                }
-        }
+The drivers follow the standard Linux kernel subsystem patterns, with
+the MFD driver registering the sub-devices (GPIO and watchdog) which
+are then handled by their respective subsystem drivers.
 
->
-> Thanks,
-> Guenter
->
+Signed-off-by: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
+---
+Changes in v7:
+- mfd: fix select REGMAP Kconfig entry indented with spaces instead of a tab
+- mfd: use devm_kcalloc() instead of devm_kzalloc() for the cmd buffer allocation
+- mfd: add .use_single_write = true to the regmap config to prevent regcache sync
+or debugfs from issuing multi-register writes that would overflow the fixed 3-byte
+cmd buffer
+- watchdog: remove max_timeout; it is documented as irrelevant when
+max_hw_heartbeat_ms is set and is silently ignored by the watchdog core
+- watchdog: pass dev->parent to watchdog_init_timeout() so that the timeout-sec
+DT property is correctly read from the MCU I2C node; the MFD child platform device
+has no of_node of its own
+- watchdog: add suspend/resume PM hooks to stop the watchdog before entering sleep
+and restart it on resume, preventing spurious resets if suspend lasts longer than
+the 25-second hardware heartbeat
+- Link to v6: https://lore.kernel.org/r/20260630-dev-b4-aaeon-mcu-driver-v6-0-d66b5fcbd2f0@bootlin.com
 
-Thanks,
-Paul.
+Changes in v6:
+- mfd: rename local variable to ddata in probe
+- mfd: fix driver name from "aaeon_mcu" to "aaeon-mcu"
+- mfd: set I2C_M_DMA_SAFE on all i2c_msg flags so the host driver
+  skips bounce-buffering the heap-allocated DMA-safe buffers
+- mfd: drop COMPILE_TEST
+- gpio: replace __set/__clear/__assign_bit with atomic set_bit/
+  clear_bit/assign_bit to fix potential races on shared bitmaps
+- gpio: write output value before switching pin to output mode to
+  avoid a potential glitch on direction_output
+- gpio: add MODULE_ALIAS("platform:aaeon-mcu-gpio")
+- watchdog: add WDIOF_SETTIMEOUT and watchdog_init_timeout() so the
+  software timeout is configurable via ioctl, DT timeout-sec or
+  the watchdog_timeout boot parameter
+- watchdog: add watchdog_stop_on_reboot() to prevent a spurious
+  reset from the external MCU during system shutdown
+- watchdog: add MODULE_ALIAS("platform:aaeon-mcu-wdt")
+- Link to v5: https://lore.kernel.org/r/20260408-dev-b4-aaeon-mcu-driver-v5-0-ad98bd481668@bootlin.com
 
+Changes in v5:
+- mfd: use heap-allocated DMA-safe buffers for I2C transfers, replacing
+  stack-allocated buffers in the regmap bus callbacks
+- mfd: switch from REGCACHE_NONE to REGCACHE_MAPLE; add volatile_reg
+  callback marking GPIO input read registers (opcode 0x72) as volatile;
+  add max_register
+- mfd: use PLATFORM_DEVID_AUTO instead of PLATFORM_DEVID_NONE
+- mfd: use MFD_CELL_BASIC() macro for cell definitions
+- mfd: use dev_err_probe() for regmap initialization error
+- Link to v4: https://lore.kernel.org/r/20260324-dev-b4-aaeon-mcu-driver-v4-0-afb011df4794@bootlin.com
 
---=20
-Paul Louvel, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Changes in v4:
+- mfd: switch to a custom regmap bus; remove aaeon_mcu_i2c_xfer() and the aaeon_mcu_dev struct
+- mfd: locking delegated to regmap's built-in mutex; drop explicit mutex
+- mfd: remove firmware version reading at probe time
+- gpio, watchdog: use regmap_read()/regmap_write() via dev_get_regmap()
+- include: replace aaeon_mcu_i2c_xfer() declaration with AAEON_MCU_REG() macro
+- dt-bindings: remove unused label from example node
+- Link to v3: https://lore.kernel.org/r/20260203-dev-b4-aaeon-mcu-driver-v3-0-0a19432076ac@bootlin.com
+
+Changes in v3:
+- Renamed SRG-IMX8PL to SRG-IMX8P
+- dt-bindings: add gpio-controller properties as required
+- mfd: move struct aaeon_mcu_dev from header to .c file (private)
+- mfd: use guard(mutex) and devm_mutex_init() for cleanup
+- mfd: firmware version log changed to dev_dbg()
+- mfd: add select MFD_CORE to Kconfig
+- Kconfig: add || COMPILE_TEST to all three drivers
+- watchdog: add comments explaining hardware timeout and WDOG_HW_RUNNING
+- watchdog: remove unused platform_set_drvdata()
+- watchdog: add a function to query the status
+- Link to v2: https://lore.kernel.org/r/20260123-dev-b4-aaeon-mcu-driver-v2-0-9f4c00bfb5cb@bootlin.com
+
+Changes in v2:
+- Fold GPIO and watchdog bindings into MFD binding
+- Drop OF_GPIO dependency in GPIO Kconfig
+- Use __set_bit/__clear_bit/__assign_bit instead of atomic variants
+- Various driver cleanups and improvements
+- Link to v1: https://lore.kernel.org/r/20251212-dev-b4-aaeon-mcu-driver-v1-0-6bd65bc8ef12@bootlin.com
+
+---
+Thomas Perrot (Schneider Electric) (5):
+      dt-bindings: vendor-prefixes: Add AAEON vendor prefix
+      dt-bindings: mfd: Add AAEON embedded controller
+      mfd: aaeon: Add SRG-IMX8P MCU driver
+      gpio: aaeon: Add GPIO driver for SRG-IMX8P MCU
+      watchdog: aaeon: Add watchdog driver for SRG-IMX8P MCU
+
+ .../bindings/mfd/aaeon,srg-imx8p-mcu.yaml          |  67 ++++++
+ .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
+ MAINTAINERS                                        |  10 +
+ drivers/gpio/Kconfig                               |   9 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-aaeon-mcu.c                      | 230 +++++++++++++++++++++
+ drivers/mfd/Kconfig                                |  11 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/aaeon-mcu.c                            | 206 ++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/aaeon_mcu_wdt.c                   | 167 +++++++++++++++
+ include/linux/mfd/aaeon-mcu.h                      |  40 ++++
+ 13 files changed, 755 insertions(+)
+---
+base-commit: d358e5254674b70f34c847715ca509e46eb81e6f
+change-id: 20251211-dev-b4-aaeon-mcu-driver-e0e89ebf4afb
+
+Best regards,
+-- 
+Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
