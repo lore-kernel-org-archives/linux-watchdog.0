@@ -1,110 +1,105 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3145A3EFD36;
-	Tue,  7 Jul 2026 15:45:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6C539989D
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 02:55:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783439158; cv=none; b=Qv3Um0guVWV5LQ6mneW84FrIPYDreBEbvLCWEgQr4q5Sd3V3T5N+zPq1M4YsEh//uvtAZsRAVuDbIBgLZCGEDffD9BiwD/1yW+1xEwFqeFpkoGptzkCS6XaX2/P1IDrN5PXiUSeJO/jE9A0ii+qmTkd8gLpsqKaHcf80YgwcUBc=
+	t=1783479330; cv=none; b=iwDjvPtymL+70Luiu3i75BAf+jcBL5XizbVGb4buRKPQKnGxXaViKeK5E64afhA52S8l0ddgat3ffJpLA9BTNjSG4ax5J1PAN1oYqt+4OajXSVvtWbIR18azL+nkmZPpf/tKvK/zjIN0DmZxSkpjMXbj9W+Z49SHzDUaZJix/6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783439158; c=relaxed/simple;
-	bh=OcMJHHgdj/qKCRnbK+L+0pXpKGBuxeaoVgWMWG6jcqQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NOZ/FlTmSc1TjHmwauM6o3mPevgRvZOBABgm33wY08L1nmovv6HeZMYLqHovELi3b9LAjzB1FXxWnGbMcUYPVS6suZEGzW0sfMDHUPn3eV7y44oQVdLpiL//R/Tebxj2aGV8F7t5hxWbf8Uey1FqIn4yDEGlFbUdMFbbkJjjC70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=G6TbSiaR; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1783479330; c=relaxed/simple;
+	bh=XdXbxzYOyRL9BMXBoZ9hBoRMRpmsTwclUCDp8/IFa0U=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=tn6ElqcSwQQCAayrMsyd7k57Eru0ysEF89dN4iEzP3Xsz3qlCot+h+fiosxcUmyE9u1Dhd53GAVY7C/cz+mHA6XXOSw6qPu/6x0m7/yqfG8X6FJdcLIGfPY36LY0OPcH1PHqSSTyDgH81JVvCdmp1N4GD1HvzlVTzkou5bzkiBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TRpK0B08; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="G6TbSiaR"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 2252A1A0EB9;
-	Tue,  7 Jul 2026 15:45:50 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id EABFA60333;
-	Tue,  7 Jul 2026 15:45:49 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 02CB711BC286F;
-	Tue,  7 Jul 2026 17:45:48 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783439149; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=7bXOkjmb5qgVDcwHpi6LSucMRO1IG0FknS7l0QOKem8=;
-	b=G6TbSiaR9xiIhffJ2vUxK+anlW/oO1FM5zQ7Hzm9qR5kclxaAVmvVhtk1heFOhHFoJWFcw
-	CCZ8+LYDQfgw2vau/8v4KSpF4F4maw2Jff7uJ+nFnzV3MnFGgAgGOzI8UmDuH//pHr8x13
-	xKn8V3bgumNcAtBq5bY+EJ98BE9P5zDkh3bN+iCho2k0vzgVOvwiLAftx/vqswGaM1YOll
-	vy35B2e/rz+SnLM9rVjgo4MR/wlbnNa1O6eMU6hDUCiSj17WYTruwtVYiIA7gQW31Fn4zM
-	qsDW19uZs5aLLNUvoaeUBkHhbWa6g0HpTIgSYwkvCxcFMDpMns8rYH6JoiDMRA==
-From: Paul Louvel <paul.louvel@bootlin.com>
-Date: Tue, 07 Jul 2026 17:45:02 +0200
-Subject: [PATCH v4 2/3] watchdog: w83627hf_wdt: Report the probed chip name
- via WDIOC_GETSUPPORT
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TRpK0B08"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2c7c61b5292so4498745ad.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Jul 2026 19:55:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783479329; x=1784084129; darn=vger.kernel.org;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GPT8b76Shosej/KjvNS2NPoD6NlNLwF/hXEZPW50eNk=;
+        b=TRpK0B08b8nhHMIYb1UVmRsO7piglmq+Y4oAlDJ40A/xU2Ku9fpnN4Zy7UrcqLVSi2
+         FaMMwHPlXyykxlCcUcwFPg8QfVwVZZmg/GxxqiulqJxtNOGsdc1TsW8yByaotCcYZ7V1
+         ychdZc55jlhv/ulE7OsYV9ZRo0e+b8qzFyjVXyXI2D4MzWVFklaV8WNywJc6++MgY33A
+         cPfbwIdkRUOXqPR6NNmBXuIeJN5QkYj3izauJaXv2XGB2k7WN2OIy3wKe+w/M/LgM6rh
+         OZTU7cNYFOV7NNa1T07SGI3KuLnxEakNK5C4Vd/oHkfFNdoYPnFj1LSihEpYVCXCg0fp
+         EEUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783479329; x=1784084129;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=GPT8b76Shosej/KjvNS2NPoD6NlNLwF/hXEZPW50eNk=;
+        b=qCgoHEOJnFfHICh9bdZ8pzPxzC6xrABpsfUlsBqKWM/Ni7Yf942yG9x4Y7wDUy0cnm
+         oKcsEbXY9SL1BSHe9Vy2INMLWjq4sSeTlWjvmUJ80s0espYtIVqiJdTPHouUCbCPhYop
+         4wi+woFlbRF3GBQAMPhhS1zOFxiJVIk0MJSZb+ebqORc6abAbTUVMjOyJXATTqBbKw9e
+         5J8wRFd0bCUAPdp1hEzs4aH3NJJPvVxAqDj8z9jFxFLl4/0LAKdwJ3QjddRoC7lDaaqW
+         65HaWEyX9Sx4E435G8dC/O7Ns2dJCDiZd5YwO1ycRP5v2uTTrK7Kt+3+wa/LA6YX2F+d
+         rIgA==
+X-Gm-Message-State: AOJu0YzM2NpnvHeV6clnpDRiNWCTHF+AVX4PpnwpF7F0dW747Zrq1uSG
+	iGuN29w632CVvVE+iZJ72Ev+JJrd4aeWOkXcD+bMeID0uXyvwVzdgQeG
+X-Gm-Gg: AfdE7cnGd7ZpW3Swq1nykFkZtskcLEOY4rxF1+RkiUhwP6wUybN0IJbyRUlRJXZFq06
+	GJoJsopww8XJ3j168ce3d9eHCOTxSjiBzy+BVpzpoQt/W76wPygpGGXEPJH68GEwErZqewSvLgf
+	gRV6uqo02e7fy61mBy1uEWhWlIjZSsKyzAey1JRxeTdaO8gaBqBusHGoKjQ54XdQHVc0Uf8dPLw
+	Gly4RjMMTQzZk+YPWHVb4XQIsZr4ZZauKentkum1iNfnLaYAGBSMGmRNapxXTt4WfGFNj9LiNyj
+	XZz1oYsZLtwHfZmU1Io5KExYw9/GBiqNtwNj0Q70mMkfykWrACKtXVFjh2y01Vke2Jk+mw4KycR
+	6YEv/3YxkYqXzIx8xM0jK+iQCzlUnkt2PrdI0wVHcyQmDoTx9z1bXBsC2YujVq5NctFTWwXCV+b
+	rvGohAVQ==
+X-Received: by 2002:a17:902:e5c5:b0:2cc:aa36:c046 with SMTP id d9443c01a7336-2ccea2cbd6amr6676265ad.14.1783479328950;
+        Tue, 07 Jul 2026 19:55:28 -0700 (PDT)
+Received: from [127.0.1.1] ([47.253.114.73])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9d1e284sm20325545ad.40.2026.07.07.19.55.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 19:55:28 -0700 (PDT)
+From: Wayen Yan <win847@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: airoha: Prevent division by zero when clock frequency is zero
+Date: Wed, 8 Jul 2026 10:41:54 +0800
+Message-ID: <178347932594.81327.4834644880399144119@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260707-w83627hf_wdt-nct6126d-v4-2-829e5f63d548@bootlin.com>
-References: <20260707-w83627hf_wdt-nct6126d-v4-0-829e5f63d548@bootlin.com>
-In-Reply-To: <20260707-w83627hf_wdt-nct6126d-v4-0-829e5f63d548@bootlin.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Paul Louvel <paul.louvel@bootlin.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783439146; l=1565;
- i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
- bh=OcMJHHgdj/qKCRnbK+L+0pXpKGBuxeaoVgWMWG6jcqQ=;
- b=dQv+yI7cLS1y5BJT3Ll0g+CSCELdzaipCshoYZaNiEnSiLdDA+vQ1DvxYIA1YPLtZ+VeUdi28
- eugV5qg3gwzAQ11XdmhA7PTupQZWo2MjyoIhCiFGHWEIS7a8jiRrufw
-X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
- pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
-X-Last-TLS-Session-Version: TLSv1.3
 
-The watchdog identity string reported via WDIOC_GETSUPPORT has always
-been hardcoded to "W83627HF Watchdog", even though this driver supports
-a wide range of Nuvoton/Winbond Super I/O chips.
+clk_get_rate() can return 0 when the clock provider is not properly
+configured or the clock is unmanaged. The driver uses wdt_freq as a
+divisor directly in airoha_wdt_probe() to compute max_timeout and in
+airoha_wdt_get_timeleft() to compute the remaining time, which results
+in a division by zero.
 
-This is misleading, since the driver itself correctly log the chip name
-in wdt_init(), but could report later a different chip name with
-WDIOC_GETSUPPORT.
+Add a check for wdt_freq == 0 in probe and return -EINVAL with
+dev_err_probe() to prevent the division by zero and provide a
+diagnostic message.
 
-Instead format the identity at probe time using the actual chip name
-that was detected.
-
-Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+Fixes: 3cf67f3769b8 ("watchdog: Add support for Airoha EN7851 watchdog")
+Signed-off-by: Wayen Yan <win847@gmail.com>
 ---
- drivers/watchdog/w83627hf_wdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/watchdog/airoha_wdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index a6dfa9d01702..bfe132cfea87 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -316,9 +316,8 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
-  *	Kernel Interfaces
-  */
+diff --git a/drivers/watchdog/airoha_wdt.c b/drivers/watchdog/airoha_wdt.c
+index dc8ca11c14d8..4bd333189b87 100644
+--- a/drivers/watchdog/airoha_wdt.c
++++ b/drivers/watchdog/airoha_wdt.c
+@@ -147,6 +147,9 @@ static int airoha_wdt_probe(struct platform_device *pdev)
  
--static const struct watchdog_info wdt_info = {
-+static struct watchdog_info wdt_info = {
- 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
--	.identity = "W83627HF Watchdog",
- };
+ 	/* Watchdog ticks at half the bus rate */
+ 	airoha_wdt->wdt_freq = clk_get_rate(bus_clk) / 2;
++	if (!airoha_wdt->wdt_freq)
++		return dev_err_probe(dev, -EINVAL,
++				     "invalid clock frequency\n");
  
- static const struct watchdog_ops wdt_ops = {
-@@ -525,6 +524,9 @@ static int __init wdt_init(void)
- 	pr_info("WDT driver for %s Super I/O chip initialising\n",
- 		chip_name[chip]);
- 
-+	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
-+		 chip_name[chip]);
-+
- 	watchdog_init_timeout(&wdt_dev, timeout, NULL);
- 	watchdog_set_nowayout(&wdt_dev, nowayout);
- 	watchdog_stop_on_reboot(&wdt_dev);
-
+ 	/* Initialize struct watchdog device */
+ 	wdog_dev = &airoha_wdt->wdog_dev;
 -- 
-2.55.0
+2.51.0
+
 
