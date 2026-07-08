@@ -1,108 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E1926ADC
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 03:04:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C063B9D9B
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 05:25:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783479849; cv=none; b=LdSOKJoCH14Gv0i0p68CTxi7CFHms7SpOvDvDzVHvny1Xhnk10lH/2A+d7TZMqcAaPL05GMFSYDVNcFoH8NFoLzoodZCtNdBpliQWoUwzmtEqHPHRFeFR1tY7APrJy3mrq06z/yyM0wUHelShX5fBdXMlfFTiBTEN2ONKeu1yd4=
+	t=1783488342; cv=none; b=KrbpPtZakqf5X1Ca8/KhKc0JjoizcuVsKYsC+NyEpt+kVt1Pi0K92eGy8Dr5rKpVmO+W08YC3uI5TeCMlqdc7plsBVwBSf8T+tsSEHJVoSILX3Zt/2cvgv4liH8DnHXr1mjUgtCvoUrZ2xOqWqT7qhGZI47VTKFZVZn0ecZfzB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783479849; c=relaxed/simple;
-	bh=zC33v2xiKoAFWk+ozHk0jQRGkfFYbKL9TEJv55TIe8k=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Mk3zQE+LDCKb8Febr2pTwBVW2yknrukHfnssBnQdM0tshLeiFHSsOdezL4flBZtDmMkV5Us2nFnKroCpwzhBGflMinb4tUPOX/i6W85uVxp6D40WLHwT7ldEhwTUhUv8M+v1ULRKfHe/QINckc9zIBxCtygctXABxdQc7XAEyZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N3VJ3Zo0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783488342; c=relaxed/simple;
+	bh=uD2eHmsAXDNgN2JcJNb++3ee6aQax+t1blS5oQsjPFs=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=j0OH1o4NxAwWiqfb9Dg0caBk3FzDpQCWTCXR/d+L5LPmr4MsxIONnZSA1xKPg67JFqBKvozPmnhKJ0hBXPawARpopgNUpY1rqtF8TwH18pq6vX9afm6jqAkymz9dbR4Eqv+RPGpsuU3oqkbufpYaFaVxaSnw6Gw8o6XVhXAVWQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VEkWDUtC; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N3VJ3Zo0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB901F000E9;
-	Wed,  8 Jul 2026 03:04:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783479848;
-	bh=6TOQEUCvg7s+zO9jkFt96qvzUpleHO3jBjq6Y7607Jo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=N3VJ3Zo0mRY3dmAjJGxqBHUsu47gGqtr4RDSp+MsOyAkvKMzHX01PizZ4Eyq7m17o
-	 A5aBEsq7/quSTnfkTBKr1nNKXRSmZi+Dcng/ijBn0Xg1QFgNIZzPtIBrgnT0RApHLj
-	 PoSelNTCG5d/pkZQxYc6JSnQtRFhjor3SSDxDEagqPp1Cz/UDrPy88S23BMYkiznB+
-	 sZArqhhJ5rWMeGpZmwUT0jr6iLV2rOeQblxAjxU9UgMEURxPtlNoFqxwPIDqnDc4B9
-	 Ul1Crh6pCgMWGs8Cz8SMf1yC9EXjaDcAjszHA22PRcocczulBpf+yOBhL9QbVZGh85
-	 1dBIttA/vJUXA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: airoha: Prevent division by zero when clock
- frequency is zero
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wayen Yan" <win847@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <178347932594.81327.4834644880399144119@gmail.com>
-References: <178347932594.81327.4834644880399144119@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VEkWDUtC"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8478a25f268so188265b3a.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Jul 2026 22:25:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783488340; x=1784093140; darn=vger.kernel.org;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=mCJbRYM03Zdue9mTOhEjBMPBbpypEGh2oBDW7dTU2ME=;
+        b=VEkWDUtCl82T6t/TaTkh1aSurwKcs3BkeU42kzi5708Q5RLQCa+R+VZCgBk/Pflytf
+         75MIT82EdrGFxU5skgz09Qv4oz7EMTqovXXbk0nmnajlaDxNvZ18c9WzIQcM8gVUQrmg
+         II3CLy+9inN2QE34m+y84jnVjQTdC5mfbjOczqACnWS96afCi0yiuHOe27e2SgoFMjlT
+         Bv5TQFJzn5o7PL5SneTqWFWDbTLxeBq44GcE2m3nVycn5BHIhqWsGxsw+Ey5h/nTxsb6
+         3ILv5izUBosKk9XsAlqqNRRWvM2dhzGpXSwdNvbdYVBmW3JZH48iCZ056W6E4Oys+HkR
+         29NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783488340; x=1784093140;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=mCJbRYM03Zdue9mTOhEjBMPBbpypEGh2oBDW7dTU2ME=;
+        b=DSv+EVuZFFl4PKuSRxSuPpHTOAawgfJCi99MShUX+8yBkY8SnpXlaZtKXBLP22GwQ4
+         sdeyi7iyI9U/lvL2U57spWimbFUsWr0lr07NzhZe6Q5lmaL5+T3Ps7/JITqSyb8Q0ZQu
+         63pvlUz5ZJFL+8RzPsmBJSFL/+x2pIhKVbYIfB8Fgr2NWgSZjAgrD2Z1oHv2SPu5AenW
+         iZo65xpxGWxIE18wkBmaLUTAffc0aN6240bPyH8+YevnYFGAmt7amczdPCoR4a+oAaeZ
+         /0AEg1Yrv28FMaQuZtYQtijgBJV9hXwwoioTCa2XV3yQQkmud30M7M3VTLTmSTGKijfw
+         5uZA==
+X-Forwarded-Encrypted: i=1; AHgh+RrsiU9ruYMN7vR43sL2HTurRWOGgo2bujAUEgRzNpEgKmHd4I6X9a72snGz+O9pwH0DPhQA6UFc4/IMyRgqGQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwhbOvOBYc1TkSZjDiEVrDm6yH2aeT6V2LFIsJ6ZIDGhRtZnvm0
+	U9fMdBRpcO6nSMKC3OMfzKyWbzI9wIFkJBWvwb99AuelueeaIJbjgAdj
+X-Gm-Gg: AfdE7cnvO0kepa/s/vwRDK8sYogGdBIb35k4//+yhzGpw90MKP4MY3XkmlJv2QmAXp9
+	g54EEfzvRL2LY1Vxq4iTIJA1zsskVPiJuw2HL6FilXkQ/Im1DKaI/glwapWrGEax3dR2u1yDNaU
+	MLnnxb0zUYGP5V3P/OLxVvvuO1nYy4pMuSYAvKP/umclCuIyZNJhqINNddqR/Zt+YG94yN/b6Ju
+	b7VD5e6tZNSuG4y2RtlyYvMCcbNyqbIthmZ8MDGQuWrG34qj+vZjooy/yyjjNpx9x4WXXrmLew3
+	C+HI7rRfvZAlCfynQQZcJRccmaTiGbAgJz+aOwNqX7fOYzDlbfKUkcmPQ6D6y9ppXfCBDIcCbmw
+	EFbgY7tQ8xUi8Bhsfrbsa0QbAbCbEYdEhSF89AVkKpArW12nbkrH9oCR/k+fsaxdkuUp9dSFeF1
+	TIHmf3/w==
+X-Received: by 2002:a05:6a00:92a8:b0:848:2f74:d8d1 with SMTP id d2e1a72fcca58-84842fffea9mr1139737b3a.66.1783488340226;
+        Tue, 07 Jul 2026 22:25:40 -0700 (PDT)
+Received: from [127.0.1.1] ([47.253.114.73])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847f6dddf8bsm6445810b3a.61.2026.07.07.22.25.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 22:25:39 -0700 (PDT)
+From: Wayen Yan <win847@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Guenter Roeck <linux@roeck-us.net>, Christian Marangi <ansuelsmth@gmail.com>, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: airoha: validate heartbeat module parameter
+Date: Wed, 8 Jul 2026 13:24:37 +0800
+Message-ID: <178348833669.86438.10575372757097263872@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 08 Jul 2026 03:04:07 +0000
-Message-Id: <20260708030407.DEB901F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+The probe function directly assigns the heartbeat module parameter to
+wdog_dev->timeout without any validation. If heartbeat exceeds
+max_timeout, the product timeout * wdt_freq (computed in
+airoha_wdt_start()) can overflow the 32-bit WDT_TIMER_LOAD_VALUE
+register, causing the watchdog to expire immediately and reboot the
+system.
 
-Pre-existing issues:
-- [High] Unvalidated module parameter directly assigned to watchdog timeout=
- leads to 32-bit integer overflow and immediate system reboot.
---
+Fix by using watchdog_init_timeout() which validates the timeout
+against [min_timeout, max_timeout] range, and falls back to the
+device tree "timeout-sec" property if the module parameter is invalid.
 
---- Patch [1]: [PATCH] watchdog: airoha: Prevent division by zero when cloc=
-k frequency is zero ---
-commit 3c89565f34ffbc693201939b137238a0f581ebf6
-Author: Wayen Yan <win847@gmail.com>
+Fixes: 3cf67f3769b8 ("watchdog: Add support for Airoha EN7851 watchdog")
+Signed-off-by: Wayen Yan <win847@gmail.com>
+---
+ drivers/watchdog/airoha_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-watchdog: airoha: Prevent division by zero when clock frequency is zero
+diff --git a/drivers/watchdog/airoha_wdt.c b/drivers/watchdog/airoha_wdt.c
+index dc8ca11c14d8..67160d760d84 100644
+--- a/drivers/watchdog/airoha_wdt.c
++++ b/drivers/watchdog/airoha_wdt.c
+@@ -150,13 +150,13 @@ static int airoha_wdt_probe(struct platform_device *pdev)
+ 
+ 	/* Initialize struct watchdog device */
+ 	wdog_dev = &airoha_wdt->wdog_dev;
+-	wdog_dev->timeout = heartbeat;
+ 	wdog_dev->info = &airoha_wdt_info;
+ 	wdog_dev->ops = &airoha_wdt_ops;
+ 	/* Bus 300MHz, watchdog 150MHz, 28 seconds */
+ 	wdog_dev->max_timeout = FIELD_MAX(WDT_TIMER_VAL) / airoha_wdt->wdt_freq;
+ 	wdog_dev->parent = dev;
+ 
++	watchdog_init_timeout(wdog_dev, heartbeat, dev);
+ 	watchdog_set_drvdata(wdog_dev, airoha_wdt);
+ 	watchdog_set_nowayout(wdog_dev, nowayout);
+ 	watchdog_stop_on_unregister(wdog_dev);
+-- 
+2.51.0
 
-This commit adds a check in airoha_wdt_probe to ensure the clock frequency
-is not zero before using it as a divisor. It prevents a division by zero if
-the clock provider is not properly configured.
 
-> diff --git a/drivers/watchdog/airoha_wdt.c b/drivers/watchdog/airoha_wdt.c
-> --- a/drivers/watchdog/airoha_wdt.c
-> +++ b/drivers/watchdog/airoha_wdt.c
-> @@ -147,6 +147,9 @@ static int airoha_wdt_probe(struct platform_device *p=
-dev)
-> =20
->  	/* Watchdog ticks at half the bus rate */
->  	airoha_wdt->wdt_freq =3D clk_get_rate(bus_clk) / 2;
-> +	if (!airoha_wdt->wdt_freq)
-> +		return dev_err_probe(dev, -EINVAL,
-> +				     "invalid clock frequency\n");
-> =20
->  	/* Initialize struct watchdog device */
->  	wdog_dev =3D &airoha_wdt->wdog_dev;
->  	wdog_dev->timeout =3D heartbeat;
-
-[Severity: High]
-This is a pre-existing issue, but does assigning the heartbeat module
-parameter directly here bypass watchdog timeout validation?
-
-It appears watchdog_init_timeout() is not used to validate the module
-parameter. If an out-of-bounds heartbeat parameter is provided, could this
-lead to an integer overflow in airoha_wdt_start()?
-
-drivers/watchdog/airoha_wdt.c:airoha_wdt_start() {
-    ...
-    val =3D wdog_dev->timeout * airoha_wdt->wdt_freq;
-    writel(val, airoha_wdt->base + WDT_TIMER_LOAD_VALUE);
-    ...
-}
-
-With a watchdog frequency of 150MHz, a timeout of 29 or greater results in
-a multiplication over 4.29 billion, which overflows the 32-bit val
-variable. This wrap-around would cause the hardware timer to expire
-prematurely before the core ping worker expects to service it, resulting
-in an immediate system reset.
-
-Similarly, if heartbeat is 0, is it possible for the timer load value to
-become 0 and trigger an immediate reset upon device open?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/178347932594.81327.=
-4834644880399144119@gmail.com?part=3D1
