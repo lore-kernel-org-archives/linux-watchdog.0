@@ -1,76 +1,75 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E33466B4C
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 14:59:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C033B895B
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 15:00:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783522750; cv=none; b=m59WhEM+mrdHLnqNHybvTLRqfdAg52beq61qLJBg7fsGBo86UqzIl91x8KtFRfOE6kQPKa265BmohbYMVe16Jr7uJ3rxp+11FAR0wHS4B33264xMj9Cy66iykub2jTTlkwXfHINgvLqjMgC+FepNCKsgyBr4WCT380f9XDTVH7s=
+	t=1783522852; cv=none; b=WN/CvraHvHVHvUCaNS4hOny5bUnFszYzpGfRFzPa89PjIrJe9cvfInh+RIZuKoax2gZ9/+bF+QuNLWxKjpPu7gQHPFbysvG2wPFJQezjLn5IdtEsLYSs8az5wnveE7E3q19eqpEgtK3ElUB8F7naykEMSZ3gZBYAftgnlxe6bWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783522750; c=relaxed/simple;
-	bh=dP+1oVKUTmFugT3dimWC65zo/IFGdPWysyFdijtRUSs=;
+	s=arc-20240116; t=1783522852; c=relaxed/simple;
+	bh=uHFWmVrUeOlZaEWmnvD52vwC4a4XcDJHL10YpD3MkCw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JnbXJo1h9Esc3jBh2X/D1GIZ5av/pDxv8tv5qYH78m5x6uN3DiymlgQpywDQGE5vqbjIJ/HKhEF5xXXAD5W77yHa7Y9TibKpzYC6kF32YSxXSapMXsN+WNdJPXAjYB/LRv7UuCamvkSaZAO17ilHe8GASYghZuyYInrSyXYsgh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UF764L39; arc=none smtp.client-ip=209.85.216.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=YR3sFUCWMPkDTsKn4qTyFqZz3Z+oUv4JIBbnWX39v8kWy0JAwCx5n8SWqEoYG2IPM0ivjOJ9rONQjziSIujgutpxCrpaq3B9FonyUE37fqYSjA+LksorTXSxZDYW6otMbiI4h6Lm0RL4CyvvmwMzTOrj89zJrq6GDJ4tmon5rbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WBu/P2qn; arc=none smtp.client-ip=209.85.214.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UF764L39"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-383cb94f742so714988a91.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jul 2026 07:59:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WBu/P2qn"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2c9bd2f8bf7so28130465ad.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jul 2026 08:00:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783522749; x=1784127549; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783522851; x=1784127651; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=KUMYJWqEEV5Gd16v7ACrt4uz2UjqluExzYIKIzuUY/A=;
-        b=UF764L39lqDWHWvgX1DRbdvLojqtdqlpLwRsScOgL8FN8ZYsIZq1yZ6oWEh52PiYiJ
-         SJKwQXvgWP0f++YlOJ1oWhtnM0JI9p+XvhlyLYa6OkOU2Xgrfvxp3/aeX12JaKUzqv8W
-         hQ2irXGCupKJwkLuvo1mx5wvg0UOnovwTWUlGUDzM6I+7KN/1kIwt1/lV4/bfiil2AQE
-         81JVzNqBi7OEkgklrdnLnrP8PD/6h0v82WJqupcP+OEV1VZoJPNm+aGTGnSbi13QT5/f
-         /TLq47NsGp9esTMgd+hTMxz9iuXoCF62YNpF1tUflcAe09VHTw33etXmWDSBW+coNEla
-         f1iw==
+        bh=tYuVY5F7u+tjilXdn0sCLCn6tq1/qV8ZcSRBJ+tEesc=;
+        b=WBu/P2qnduqZgjH+CeQFT/T/uNI0baYsAran4Xs6xcLK3oa59CD/THMe1ignQasZno
+         3xRxBuiWPTPI+cCwEPWbAj/YppvqyGEXUeRPksPS9A0pGrFID9p5/DlSxBagzyT92l23
+         c7NvBKym0jPDAME85o3aTTKJNgkwP3ENaYmcB4bgbowPPWw/sW+4HVTwNFuuQLQH2NEZ
+         ny+/hpZ2WNjdwxtug+QeDuVymuwVMmtlsH4MZzKbd0WtLsgXlRRfT7ox3AFRgL/2rieg
+         OtCQGSTQ+Hw72oe8yO7Udf4Z8iWrc2xK3OPEoD0HP9QixmHBguVEPt5f+HInWubwo7Ng
+         d1+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783522749; x=1784127549;
+        d=1e100.net; s=20251104; t=1783522851; x=1784127651;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=KUMYJWqEEV5Gd16v7ACrt4uz2UjqluExzYIKIzuUY/A=;
-        b=MdvPzIlYPzP4SklHMfqWPzs+OTR+PBh90IMPuWIzo+A2/DsvVMMl8FSduo/dfapQyg
-         hoeeDylOXVJF0GJYBLBslI64eBzE/uM719uPm97DVBD0jSchEY9NkfbgOD3KKiJ7e5E4
-         84EkteuxcMGcI0OOJQLMJvsm6w4e3ab6sIv7to1KCkBjCWN46n2YRys2jYwJKKjzGgie
-         bsSGAzFbpXhReQwSUhrO7cqh/BwW04Q/yrGbsg8LjgwNgBjXtU9loF8d7hO2FKXxHLhn
-         KWURnvyF5Nm+GxXJEUeR9gb8R9gNqf3TuSg1bY6HS2WR+rm3u+g1xZQEW4u286JJQ93u
-         B2nQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqCuSEGMs1z60c75I6t8ZD/P9jitrsr9gC7gG3b6Z6FYoT1QJTstZY4NItCJGVCGaXwgGdVsYU6wUy20f0gFQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxpwcsdc9dsWxfU8Ofu31OCH6Hl/n4uMS3O5rOeNoHTCBQdFcpb
-	Iv+u/aNDiLyhiKSdvGkExwcoqUfytNRPj+1Kfvqxw0fJbQuiHpDvQxpg
-X-Gm-Gg: AfdE7cmkiJjjcCxZub2gl//lKQjejGuC4LyHY4M5rYykDG+YXoqYSxFOOfzEJFtve3c
-	B96ymI8a9jCAwtBWcRcsS6yWMpFmwwkNEezqfanTjbuJktWSEHh2sbBFNkmHP+URNwrgoy1wklK
-	aFcVSoPuTlsbmdsBZEx4dF/7eMBvdr45iC1LRjr9d2dZFR2h5YDadrpIjnFqHA+yhYDcDpaMGbP
-	l+QV6+PWFZzbF9jaUBhmbDKPwKe9Kx2p56qfKQA+kMFFCR+fX1hjtuh0rvJMDe4trOSOePMaBXr
-	OPeJGgSI9ssmox+7OppIvl7dU2bg4IKVrgoMu3Sv0h440iMwsXcjcXTF6+OjAAHqFrnGyVRUmsK
-	JwToMR6KzwTShQr7Yhh/aZrF16UK4pB3ZVTOlDebCN1FGLHgBV1M3n50+Wfbla0I1eRpeB6wA8F
-	XztsFTM+QQDMTaNL9u/0eg7Z3BuA==
-X-Received: by 2002:a17:90a:d2d0:b0:387:e0bb:57fd with SMTP id 98e67ed59e1d1-389421ad4c6mr3022140a91.36.1783522749079;
-        Wed, 08 Jul 2026 07:59:09 -0700 (PDT)
+        bh=tYuVY5F7u+tjilXdn0sCLCn6tq1/qV8ZcSRBJ+tEesc=;
+        b=ODIz1hXmLYzOyRACMO58AUHBM75AiCBSToCLc/sR5kE+Fclb0UZ0UKOKBa7UII2W95
+         1LPd8ssKKnSfA1GBBoi1vePTefs6bRo8aVwHm8zsBNqURuUiHAEHMqMXPCu3sLNTWCzs
+         aPzYEAy3AkFc0ZlkspTD7dzgQAW/NgoKrUV6KsfG6JmjLaO1JS8Y+9QIb4X7GvuQdYKL
+         BmcdHPJAeugOIAU137pPjPkGHdI3WkL1THWEWcivBb1OfLG2nITXlu9S2uQnrKbmAKN6
+         qPOSoRTwSHI8AfFJ/MDaGxTDqe6WNRgL0stSAQYHGrIvUFkaIoisr6uRUCNQ0xK9uuCu
+         2l/g==
+X-Forwarded-Encrypted: i=1; AHgh+Rpu6nvnIRSSGGM1c95+tgbRLBo6OR92woAxF0EbyvSgCD7YxDyxfU4pSmXOxNsYEbxlBaiyLM7ydRhS++AJ7A==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyri/cZ7t3wt69aJYBTPtkbyxXFaCdfAD0Et4PQ1YbX2ClDQRVc
+	krdGQB19Z+dSonbXsHCcWbHU1xKllugbrqtu5ppRSIwdNbFsd63HNhtI
+X-Gm-Gg: AfdE7cn4cOCHIE+yQdwcWsQR0AtsC5bfQLMIz0WmK/GOe2fRfTu4lScZu+HcUcT8I+0
+	9UH0cpmqbGBss8atXwKhT8+dxPvL6p+LvJwhFgCTiXjFvHjsPv6+9c7cwpXhcu0PsLL2DcXvNln
+	g83hxVF7DUMb7AIqbKo4nHSkmQrZIB82yZOIvOO/cMEwyvhT+jeOaiuy2Nk1s6AqUADWqBGhqsx
+	LeRgjUv9oHBBbxr/oVs9pbidSgKR1DTHVGjE7+oGrAb20qWQuabfV6nEl66E/LiGy1q5sLmUjLc
+	Qj65WRmqQmELIFaqeKXUG4p/XynrWd5AItMoPeObfeE2v+pC6/B9KOIjai2gn/Zj5U23EwWJ22T
+	+VYT894IJe12GfQGuzzPmEhnJRlcefDz40JPq54UN1bRD1ehYNfUCvbFLA8M35+H3MURoKYLRPU
+	RzN8Khw+m6Lml0oq7oHgYu8hUSug==
+X-Received: by 2002:a17:902:e003:b0:2ca:b3e4:858f with SMTP id d9443c01a7336-2cccad7f768mr46634955ad.14.1783522849948;
+        Wed, 08 Jul 2026 08:00:49 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-387d3c675b1sm2823895a91.15.2026.07.08.07.59.08
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9bdb76asm30607025ad.12.2026.07.08.08.00.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 07:59:08 -0700 (PDT)
+        Wed, 08 Jul 2026 08:00:49 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 8 Jul 2026 07:59:08 -0700
+Date: Wed, 8 Jul 2026 08:00:48 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Paul Louvel <paul.louvel@bootlin.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v4 3/3] watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for
- running chip on boot
-Message-ID: <a7444618-0ac2-4b35-a626-6b3b7abf1458@roeck-us.net>
-References: <20260707-w83627hf_wdt-nct6126d-v4-0-829e5f63d548@bootlin.com>
- <20260707-w83627hf_wdt-nct6126d-v4-3-829e5f63d548@bootlin.com>
+To: Mark Pearson <mpearson-lenovo@squebb.ca>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo
+ SE30G2 and SE60
+Message-ID: <6e6b5d06-be4f-4a60-a382-f636f50e4ec5@roeck-us.net>
+References: <mpearson-lenovo@squebb.ca>
+ <20260706145412.3833185-1-mpearson-lenovo@squebb.ca>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -79,21 +78,13 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260707-w83627hf_wdt-nct6126d-v4-3-829e5f63d548@bootlin.com>
+In-Reply-To: <20260706145412.3833185-1-mpearson-lenovo@squebb.ca>
 
-On Tue, Jul 07, 2026 at 05:45:03PM +0200, Paul Louvel wrote:
-> If the watchdog is already running when the driver is initialized, the
-> driver currently refreshes it once using the default timeout of 60
-> seconds.
+On Mon, Jul 06, 2026 at 10:54:00AM -0400, Mark Pearson wrote:
+> Watchdog driver implementation for Lenovo SE30G2 and SE60 platforms.
 > 
-> Since commit ee142889e32f ("watchdog: Introduce WDOG_HW_RUNNING flag"),
-> the watchdog core can kick an already running watchdog alive until
-> userspace open the device.
-> 
-> Add the WDOG_HW_RUNNING flag to the watchdog status if the watchdog is
-> already running.
-> 
-> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+> ---
 
 Applied.
 
