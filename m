@@ -1,163 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C37AA3BCD02
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 05:36:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 757C63B8D50
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 05:55:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783489005; cv=none; b=QwfODUyup6+6xhYgZcVk449+0ZfDLrcUpVFakD+9gnnexLq/mrNNaXnt1wBp1nbrKfNqKzfieQy1Iu0d7MiKS6DMP4KIFlk/SHydV+uU9i6UYaqMHSz88hzbFIvrpDPWsvFuxeyw6DmbwYbq+YU7WAPLl1pqZ1SzZijC68DvJHQ=
+	t=1783490117; cv=none; b=Wk40eyDYlqOe0bjDDjqFY+RSGE7nujdjaYzQyspErSOqYj17tUy3llh+v4VwrLBPyhKvlwAV2iLUQeGJg31vBaKI0i3irz4iocUK5N6kJNtfqc+TJMylqTxKR3E9KO8PMkHJrP5/blGMhnz+nrh71PVHridaSRQp/O+kScPfLXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783489005; c=relaxed/simple;
-	bh=88rtdB+34t3WPi9hWfM1hI/w4MwRXkUeIy+HUtWl/tc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eeLktYw3TUwVEx4XNJLx04mFuic2RWdtmyQQCH9JS45hvce7X4DNrP4R8emsZTPrT4a7ptRwULhXaa8IDjs+lyHjpfRNyzBj3B1oiGPCQYZqLkkjzSQJ9MIxE70JCn64M1/UEflzO0RHDdGJMeF/eSQVt4Cw+viqPR+hskWRF9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nSwgOtJz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783490117; c=relaxed/simple;
+	bh=vbsExeXMJHE04FEgLe7kXCcdytrEmJC/xuQMB+Sqmhs=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=T6tz/NMol7QqV5/Z36LdQGPXnO8wb33C56OReyqzMIWoioDLtx3ZZXSxWezjWbRGtAQKdN25MrUOVcHAGbCn6yf6TqzpZs7fcH+79TPAZK60dNCigNwqpPO9DM5vfAYFunbjYbrOzhHR/eSTsKex647I1Nz7GuMxv5C/9KBRZDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UMGBjCrh; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nSwgOtJz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6392B1F00ADF;
-	Wed,  8 Jul 2026 05:36:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783489003;
-	bh=daXF+Bbre5Hcgt5K9/OlZ5wHFB+VLqwXQx5QMahXBoM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nSwgOtJzbiC1J6xMD6gQrSZlWqNVWuC1i+rUExdFtCExkArStmeC33gwRVzM3yLPC
-	 D61k7EWhdf1sPTOd5wNTpa2CQeMK3bx3csRg7xkdTyMDvhNHz1/XAfJaDOth8wYHsd
-	 s43DjKnsxitZwPmleZPVM+AK2wSu8fXvONmdskt3tIUi2wnkgcMfwJzt8pkFS3r+Qg
-	 JpijH30ZuDCgaEUBPTpH+Ecj+JCTh1o72uJ66tOt21buY9wVQZd/UmU7TzDghLyrhk
-	 elcPifMvEm+EP3sCI4HAk+5kMtN7r82jfeqhFd59vaUNX0X+iSI4iw7q68EKRoTO3H
-	 8+W6UP2kOl/Uw==
-From: sashiko-bot@kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UMGBjCrh"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-845ea8924a2so302595b3a.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Jul 2026 22:55:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783490116; x=1784094916; darn=vger.kernel.org;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vHE2Em/EwNfkDabcKZPdpCzl6Ls5nuS43RoQeeOvxpM=;
+        b=UMGBjCrhfBaxOePhTo+kC4Bmg9nWADYj3coCa8oAZN770VeMULqmw24jnAjtQJ5aap
+         bPVL5+z/BkVbQaJP8FGt4YPw6Yp/m9a5QAs1tSuuGUggaBy/ezTkTeUymYa8i8vpnsK5
+         7vvYyQc/kdYRtS6vEZxp1QZlIjH3SM9jB2Q2l9bD2O7CEmoorRh1V5qUAzzB86LcokWN
+         PVjPrgJgj/yEltDLz0MRcsLEY4Ez1FuQ9+1d4cgjPQjTUV3vxC57/piwY0Q7jHNELE5f
+         x38gDS7Hwq8xSr/Fbw87R5cThtX+b7yXPa4J6QeVAMaget8Gf03s90voodh1TTpJUsxK
+         MGGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783490116; x=1784094916;
+        h=mime-version:content-type:message-id:date:subject:cc:to:from
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=vHE2Em/EwNfkDabcKZPdpCzl6Ls5nuS43RoQeeOvxpM=;
+        b=UVGZ2V1Q18rQXRBeZRnfOjkMJ2uVEWpIIf1h9ADdNXpZIJvDN8Pq5+kqs2CO1Qzz6z
+         /wvPMfJ2U3dia/QlqL2P5Y/SEXwIw907C6TUibAd2XNE03HOvXgDVY8cRxdtYXJlPqHs
+         g0kfEMS50CN0P2nseRqRIZw88Y+i6w+xuRUeBquxZJQ5di2QFN2VQHfBlCS4Qam9V6OI
+         s33ZBdgqt5JFt/24U8wemg7y72OSesYKntnWmmC32TwUuDy7RJkbyOisgObEaDyzLw9q
+         v/bYS4oGeHg6kwMRcGRD8v1+wn6zBRBpXBmiXAA9JlFCkN/T8m+v6BsQGEzNC7A/yhv7
+         Qabw==
+X-Gm-Message-State: AOJu0Yy4EHV0EZkbYOswB6RnWUYRdz5LeStwVJvIAPIRUxrnqAQSngUC
+	qbLaJ4bzFXKw3MTkmKxL1nxLb929L/7duY3JMmyBjirmd9ByQapJCdoXcjlnfzH2
+X-Gm-Gg: AfdE7cn/5Py5lxHB8QaRd2ow3B/aJbHDOIy8c/YG24K1UZTkN4i+7I25bUBarALOWHl
+	MiomUyRTfUwZpiCxe+aG7uGbBd/HEo7AMVqXHVXhUobAKyAl+gMic/Thx0WB22x9FApao6zbsYN
+	u29nlNMDrNzvEYfPUERcLpFVgEg9hz6lEqUBVAY2xN4P04uJ9UoW1akAynuSQ4LM4G9tilhKtXh
+	Xi08Ki5NFzL8BtxqtGeJ1HpkACRyW7sFXrt3Y55HyWgc4L/8bxNSNniE5NwuM77+HAlk5dyPPqf
+	mpPT6JYjNFgJIDRjHAO1bQTZ/7cqLwFJIYSbTn/RX9ocW+qssvVR/SJw/Hfwnm9oTjFffwB9/cA
+	9LmkBtPckZNRM8Di6eEVfeTlrRshLArqDTNUuN5JWXWxzqsuCu3pHC4xTtDbcIrp8nQXPmQ9ujJ
+	wqzHeCNQ==
+X-Received: by 2002:a05:6a00:1bc9:b0:848:2f73:8ff7 with SMTP id d2e1a72fcca58-84843662835mr1263590b3a.64.1783490115645;
+        Tue, 07 Jul 2026 22:55:15 -0700 (PDT)
+Received: from [127.0.1.1] ([47.253.114.73])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8480da8bab0sm4955867b3a.8.2026.07.07.22.55.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 22:55:15 -0700 (PDT)
+From: Wayen Yan <win847@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Christian Marangi <ansuelsmth@gmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] watchdog: airoha: validate heartbeat module parameter
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wayen Yan" <win847@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <178348833669.86438.10575372757097263872@gmail.com>
-References: <178348833669.86438.10575372757097263872@gmail.com>
+Date: Wed, 08 Jul 2026 13:55:12 +0800
+Message-ID: <178349011293.87032.15993825644278020262@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 08 Jul 2026 05:36:42 +0000
-Message-Id: <20260708053643.6392B1F00ADF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Please do not apply the above patch. It introduces a regression:
 
-New issues:
-- [High] The patch removes the direct assignment of `wdog_dev->timeout =3D =
-heartbeat;` to fix an overflow issue, and relies on `watchdog_init_timeout(=
-)` for validation. However, if the `heartbeat` parameter is invalid and the=
-re is no `timeout-sec` DT property, `watchdog_init_timeout()` returns `-EIN=
-VAL` and leaves `wdog_dev->timeout` unmodified. Because `wdog_dev` is alloc=
-ated via `devm_kzalloc()`, `timeout` is 0. The driver ignores the `-EINVAL`=
- return value and registers the watchdog with a timeout of 0. When `/dev/wa=
-tchdog` is subsequently opened, `airoha_wdt_start()` writes `0 * airoha_wdt=
-->wdt_freq` (0) to `WDT_TIMER_LOAD_VALUE`. This instantly expires the timer=
- and triggers an immediate hardware reboot. The driver must pre-initialize =
-`wdog_dev->timeout` to a valid default (e.g., `WDT_HEARTBEAT`) before calli=
-ng `watchdog_init_timeout()`.
+The patch removes the direct assignment "wdog_dev->timeout = heartbeat"
+and relies on watchdog_init_timeout() instead. However, since wdog_dev
+is allocated via devm_kzalloc(), timeout is initialized to 0. If the
+heartbeat module parameter is invalid and there is no "timeout-sec" DT
+property, watchdog_init_timeout() returns -EINVAL and leaves timeout
+at 0. When the watchdog is subsequently started, airoha_wdt_start()
+writes 0 * wdt_freq = 0 to WDT_TIMER_LOAD_VALUE, causing an immediate
+hardware reboot — which is worse than the original overflow bug.
 
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the driver leave=
-s `wdog_dev->min_timeout` uninitialized (0). The watchdog core's `watchdog_=
-timeout_invalid()` relies on `min_timeout` to validate lower bounds. With `=
-min_timeout` set to 0, userspace can successfully execute `ioctl(WDIOC_SETT=
-IMEOUT)` with a timeout of 0. The `airoha_wdt_set_timeout()` function assig=
-ns this 0 to `wdog_dev->timeout` and restarts the hardware timer. This caus=
-es `airoha_wdt_start()` to write 0 to the timer load register, which trigge=
-rs an instantaneous hardware reset without proper shutdown. The driver shou=
-ld explicitly set `wdog_dev->min_timeout =3D 1`.
---
+I will send a v2 patch that:
+1. Pre-initializes timeout to WDT_HEARTBEAT before calling
+   watchdog_init_timeout(), so the safe default is preserved on failure
+2. Sets min_timeout = 1 to prevent timeout = 0 via ioctl
 
---- Patch [1]: [PATCH] watchdog: airoha: validate heartbeat module paramete=
-r ---
-commit 1b1b24f68ee022a802b613038f9562b2f86dffc9
-Author: Wayen Yan <win847@gmail.com>
+Sorry for the noise.
 
-watchdog: airoha: validate heartbeat module parameter
+Wayen
 
-This patch replaces a direct assignment of the heartbeat module parameter
-with a call to watchdog_init_timeout() to properly validate the timeout
-range. This prevents an integer overflow in the timer load calculation
-that could otherwise cause the watchdog to expire immediately.
-
-> diff --git a/drivers/watchdog/airoha_wdt.c b/drivers/watchdog/airoha_wdt.c
-> index dc8ca11c14d81..67160d760d844 100644
-> --- a/drivers/watchdog/airoha_wdt.c
-> +++ b/drivers/watchdog/airoha_wdt.c
-> @@ -150,13 +150,13 @@ static int airoha_wdt_probe(struct platform_device =
-*pdev)
-> =20
->  	/* Initialize struct watchdog device */
->  	wdog_dev =3D &airoha_wdt->wdog_dev;
-> -	wdog_dev->timeout =3D heartbeat;
->  	wdog_dev->info =3D &airoha_wdt_info;
->  	wdog_dev->ops =3D &airoha_wdt_ops;
->  	/* Bus 300MHz, watchdog 150MHz, 28 seconds */
->  	wdog_dev->max_timeout =3D FIELD_MAX(WDT_TIMER_VAL) / airoha_wdt->wdt_fr=
-eq;
->  	wdog_dev->parent =3D dev;
-
-[Severity: High]
-This is a pre-existing issue, but should the driver also explicitly=20
-initialize wdog_dev->min_timeout?
-
-Because min_timeout is currently left uninitialized (0), the watchdog core's
-watchdog_timeout_invalid() function allows a timeout of 0. If userspace
-calls ioctl(WDIOC_SETTIMEOUT) with 0, airoha_wdt_set_timeout() will assign 0
-to wdog_dev->timeout.
-
-This results in airoha_wdt_start() writing 0 to the timer load register,
-which triggers an immediate, ungraceful hardware reset:
-
-drivers/watchdog/airoha_wdt.c:airoha_wdt_start() {
-        ...
-        val =3D wdog_dev->timeout * airoha_wdt->wdt_freq;
-        writel(val, airoha_wdt->base + REG_WDT_TIMER_LOAD_VALUE);
-        ...
-}
-
-Setting wdog_dev->min_timeout =3D 1 would prevent userspace from configurin=
-g a
-zero timeout.
-
-> +	watchdog_init_timeout(wdog_dev, heartbeat, dev);
-
-[Severity: High]
-If watchdog_init_timeout() fails, does this leave wdog_dev->timeout set=20
-to 0?
-
-The kzalloc allocation zero-initializes wdog_dev, and the patch removes
-the direct assignment of wdog_dev->timeout. If the heartbeat parameter is
-invalid and there is no timeout-sec device tree property,=20
-watchdog_init_timeout() returns -EINVAL and leaves wdog_dev->timeout as 0.
-
-Because the return value is ignored, the watchdog registers successfully.
-When a userspace daemon subsequently opens /dev/watchdog, airoha_wdt_start(=
-)=20
-runs:
-
-drivers/watchdog/airoha_wdt.c:airoha_wdt_start() {
-        ...
-        val =3D wdog_dev->timeout * airoha_wdt->wdt_freq;
-        writel(val, airoha_wdt->base + REG_WDT_TIMER_LOAD_VALUE);
-        ...
-}
-
-This calculates a load value of 0, immediately expiring the timer and
-rebooting the system.
-
-Would it be better to initialize wdog_dev->timeout to a valid default
-value before calling watchdog_init_timeout(), or explicitly handle the=20
-error return value?
-
->  	watchdog_set_drvdata(wdog_dev, airoha_wdt);
->  	watchdog_set_nowayout(wdog_dev, nowayout);
->  	watchdog_stop_on_unregister(wdog_dev);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/178348833669.86438.=
-10575372757097263872@gmail.com?part=3D1
