@@ -1,74 +1,76 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62696175A75
-	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 14:53:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 437C237FF43
+	for <linux-watchdog@vger.kernel.org>; Wed,  8 Jul 2026 14:56:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783522430; cv=none; b=G2K9NA7m4Z2ECvT7VNDlpx1NbBqosBDi4Sh3txlQULeTHiuf1BSziqX8ZjKpcHBDOhscxm3U5td5cav0cPij/Vo1W4ouB3zYK9Wae597RBZjXWDdYrbxcrZksh9PbBCsv2xWMdoEqb7iw8ahnpWNBl8SNg8i3FAdkgpEXwoetn8=
+	t=1783522580; cv=none; b=dd4EQIl/z/Nxbbc+Y3X3XX3oJ3Oaq8A6Gi3X9VVppKp7hxfNPBW/COdCzWcFGrtFNW8u2+Y8fb0xVNSsvvI+uLIZS1fKqRjuzZJZ9fgM2/ste5/EKnxGt15fFRKZrbfIHNdwzgdDPmk54Xh7BXDwBhmLjE+ep/uRdRhTPXQ+snw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783522430; c=relaxed/simple;
-	bh=Nf5b4hiV8cnlwR8spJ7fIsiXOmlVngm3JAm5mITdJFM=;
+	s=arc-20240116; t=1783522580; c=relaxed/simple;
+	bh=XH8av0gw5uSIL/pPQ2x6i9IeY3/kDwiLmSD3bxcaHWw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DFWjikUENiPLa4AIlHncKznezzXWDrmbTZ4v/ijHqfPrB4Y4BWlr6llLGSTpuPq9g49CZTBE/rnvAITLBY3WCDqW79b/1szHHTh+Q6zt5ytSi1wHRp9BzmF0EaCo7OLbZNyI0djlRwY114YwN65iCglVOvWps+4x3BqW9+6jsQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kQZo2yzS; arc=none smtp.client-ip=209.85.216.53
+	 Content-Type:Content-Disposition:In-Reply-To; b=tuzg8LC6tOI+CiIGpQFz8dgkLF2bpmKG7CX+D18CNGqMX+9YHbkIVLUua0dlB+v6p1vTBK7PPxygGHEArdVdEmu+l3oy9Me1scjMV9bDyPo2yzymBYdma3ATncHfNDmzWJrWmbgssey3BkQf8ubb71iM5EvDXjIIId7vuNsJHhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IG1J27iH; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kQZo2yzS"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-385b78b44a0so800777a91.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jul 2026 07:53:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IG1J27iH"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cace7da66eso8598315ad.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 08 Jul 2026 07:56:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783522428; x=1784127228; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783522578; x=1784127378; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=OxRfDNQ3dLfR1mgRSIAPI4DwhSKRcL+nwKZX3ZQfJs8=;
-        b=kQZo2yzSjS79YdlbO5y5Rnxaq+O1S9od0HbfZBUMaqKnQYYRv9Khwk8QpsUm5YmlTW
-         hLaxJSTXLSEevVPFAEe/4MFdFSJz5G7/ln1YSxGrJRiPHIAz4ekOSCOQ+FeN/lqX+JHO
-         Fut/opf9eeBF0JASU/cyyxkOMg/aYpJ5/+aiaW8z00hQLpxnvLhF9YNTItgszJRdwsu9
-         z5fqevTq4yfvLgro1RRsSRDWCRjjkWINhZ1TBTc9GBXjocYeUPlVQTQIWJcn9uOy313Z
-         QMxjxhQCYT+XMZ0dZhZOddFBgvz/6cxIvianKJerJtJ21ut4u+ES3mZAeGtgVdtXxKnT
-         RE3A==
+        bh=oYVa7pdFvkhno0EoDzbI3lh7pEPGU97z9M0qko9ydYE=;
+        b=IG1J27iHjOwBxzB7uzmODb7OWyzKDjxEY0k6QAZTBgRpybUUN/zO6/Hn0AfnMdPQQa
+         XbG8oo4JL6pLR8XzXwAtCGR2ByQ+/KusTUgEwjZIpgJ9ezw1ObcLCAaNm5S7EWMM/XOn
+         wmE+JcR7wwbqHphccGcxN6JPHjtKDzfB7Cg6btiPjW0gyZ33GSzozixs88/TIslSuxy4
+         tseMI89ulBPqeiPIhQT+XnmD6wy9+EAU1qt9BAUxk1wrWF3TqCZjCjkiLUJmBZHl35m4
+         ZyKnz5U1X30iqn7uPYByfPwFmJYt9bcPrkaUWjYRfLquLdz+aoFL7SpzWQ9dqtHngYMt
+         g6/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783522428; x=1784127228;
+        d=1e100.net; s=20251104; t=1783522578; x=1784127378;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=OxRfDNQ3dLfR1mgRSIAPI4DwhSKRcL+nwKZX3ZQfJs8=;
-        b=O5tNkMAavcP+COdpogk8j5Xwxcz4NgAx4vuVrz05sNkLrnmsnafrPrecCLV8FfvQpl
-         rI6TBk2+VrZlf78jlWJ23mC0VMu/osyX7pKduAEhXc806gtfQnbLbiaZWyxaU295FNom
-         1k9QF/2EIFbHoBvmBBwIAj1t2taPt8dlyWgR7cQHBtKyPU5drk2CFAGfz5Nc4gVUQupw
-         XohmzQJde+lmqLOIUfRRQ8ygn6FC6SNkqcRbGmlab8KXHPMrVAmZDhJZMeLGoVIKsgVK
-         eu/QDaeq0HGyCvgEH+e0SV3Y2w3Q1IcvqgADQIOJFsJsrLdK/jRJTeg9BG4PcRBUXkq3
-         m3UQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqK2KWuo+Ukg/7/2Fv+xjfcHTbVGftOZLofFgQB2dQJ5smtifSRCrRNet1Ey0WdB9wD84m1Nqa6MtjXW/yyVA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yww08akxoKsKjzGXxtE18WP3JTgCVxCTfBj/EHhPQr26iQp2USf
-	3azGLaYSazFFxtk5ZZwy5Q+jIqe/+VUSfbD9u4IFea8eT9j9TWvqvPYQ
-X-Gm-Gg: AfdE7cleoPXfLQ6PDPOmlvD9On836qMKcDduvY7ZvPg9iHOoY4KiPnb34TDKHtW9+sG
-	f3jca6IRV05DB5xSgezJlKOv7exx1YJeYFc8T9TGO1rj7NKMD0JZuPj8kXRN3Qi6vvZMLSaYCTY
-	VGvtKlDE1t3X/Cr9m+SXaKhDzvzMPUc7xOSg4mPgrcKfW8uF2FiGknG42x5qavTTRK37+gvL9YL
-	5Gw6Xht0YiVhDEbs/2ztW0VJzNBxe7YUM4ovYElYjDwlQC2K7Kt+9++HOxvlvNT9vEBLv8TMlZ0
-	Bw5JR2RfQyYMpARqnkEmp7C495R3smzqqL3qmeK2AS9aEcZyKAZ8y2qvot/tm+RbeUE7Dw+gJkt
-	C+ckKRehXiL4YSjdNZEbnD9FTEVrAKL9ijdJqBIlF8+tyx4nUeuFOrI+xo1/TCBD4v7Q5XohuRM
-	OQwory0UYbneyzWm7/JJMN3pKZGA==
-X-Received: by 2002:a17:90b:554e:b0:37f:ceed:e1d8 with SMTP id 98e67ed59e1d1-389406352cemr2617332a91.12.1783522427666;
-        Wed, 08 Jul 2026 07:53:47 -0700 (PDT)
+        bh=oYVa7pdFvkhno0EoDzbI3lh7pEPGU97z9M0qko9ydYE=;
+        b=IdAil85TYBt138Gutn0UgD+PA6WbxPWLE+cF1h0l+2ag3a3nuIt0c7rjU9vftjbFP/
+         meNe+pvgH5MUEgDJguHiY4EnNwdrRW/iWP4D+QpUaAlW+HBTE9HfYblbg1kmOikxrEig
+         SUjZ0KR4qDXBGjKXJNw3r5p831aWhLEUWGu7CPJzDECrupw5wpIZMiRJgpIg/RGunQRR
+         53v25NrRsHVnEhUjXEYB4nzO05VScuG3Gq5fhnTDYauqLAEVOkTvNRlHl191aeAJKpsg
+         c8ep6ReMTCFWSSvsj3HmwHDDnEqsT6mU1FcNspO7z7x1ggVUXqhYJSPV5sJuygydTOe2
+         3V0Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rq3N7HzO1i9GxISejdI2Nd2sboIG/QiVa4r7zB0psUN4f7LhVdQUJenX16ttc2wYeYyXcTWR8HjRSYBhi7RZw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZV/67K6BoCNew963Oulfhse77NfgjuF3NxFl5WnQjE6zMBGaL
+	2XU4MqFKiwjLpJdT/8ghxvwoe7VZX8YjdLYJRe0xVfCB+A15/F+O7YDS
+X-Gm-Gg: AfdE7cl/4mHkDMON1/CA1wWTpJee2ym7ENU8AUp5W1za6vBW+evSFoEWH5ekoYqex+c
+	Mjr0kZIaUe37hlPE7MxsXzYnBCrRJg2HWTUbjogylyff/dxxk9kTV3t2n+qvCM6gdjsVcKno9iu
+	Hi8vcaoCnTCB+2KRaVpPw0pcEAJ0nhr+0tFMipJ8hpAwIjSL9g3vU68eiKrRb+rrBEvLQJALiL1
+	Y3QJeNJjpZwSRkMGbG+qU1eNqajKK6pN9auC9gQsXrYFfZJomhRCNV3rri099/P6DB+tUs3qrwe
+	SA77DSoydc5QwxcFLbGtXBXdBRNkqILpUFNRla4z4OnqlEXM1/eP1z7sBwQM3PQS7aOSlCoMrIO
+	drIQ2BXdc1yYWbY2KptxHtKnae4ZAv6Db378pTv4/KHX90Gwm4XuNt3SWlJev+hoULEbdvgDSat
+	9+p9490Wr79x1dzHcGSSzWqZq95p+IlpSogXyh
+X-Received: by 2002:a17:902:fc8e:b0:2ca:e0ff:e696 with SMTP id d9443c01a7336-2ccea36aae7mr31727285ad.9.1783522578588;
+        Wed, 08 Jul 2026 07:56:18 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-387d20a32e3sm2893525a91.14.2026.07.08.07.53.46
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9bf8e9csm29444845ad.24.2026.07.08.07.56.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 07:53:47 -0700 (PDT)
+        Wed, 08 Jul 2026 07:56:18 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 8 Jul 2026 07:53:46 -0700
+Date: Wed, 8 Jul 2026 07:56:17 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To: Paul Louvel <paul.louvel@bootlin.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: take all OF aliases into account when
- assigning id
-Message-ID: <15a059c9-b922-4d10-9ee2-3f362b5b603c@roeck-us.net>
-References: <20260615145759.3142743-1-linux@rasmusvillemoes.dk>
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v4 1/3] watchdog: w83627hf_wdt: Correctly identify
+ Nuvoton NCT6126 chip
+Message-ID: <09087f62-e794-46e1-bfad-153663880804@roeck-us.net>
+References: <20260707-w83627hf_wdt-nct6126d-v4-0-829e5f63d548@bootlin.com>
+ <20260707-w83627hf_wdt-nct6126d-v4-1-829e5f63d548@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -77,39 +79,18 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260615145759.3142743-1-linux@rasmusvillemoes.dk>
+In-Reply-To: <20260707-w83627hf_wdt-nct6126d-v4-1-829e5f63d548@bootlin.com>
 
-On Mon, Jun 15, 2026 at 04:57:59PM +0200, Rasmus Villemoes wrote:
-> If some, but not all, watchdog devices have device tree aliases, those
-> without aliases might (depending on probe order) be assigned an id
-> which would otherwise be assigned to one of those with an alias.
+On Tue, Jul 07, 2026 at 05:45:01PM +0200, Paul Louvel wrote:
+> Currently, the NCT6126 is probed as a NCT6116 because the NCT6126 shares
+> the same high-byte chip ID as the NCT6116.
 > 
-> This is problematic when for example watchdog0 is an alias for an
-> always-running gpio watchdog that userspace must handle, but the SOC's
-> watchdog device(s) get probed first and thus one of those become
-> /dev/watchdog0.
+> Read the low byte of the chip ID as well to distinguish between the two
+> devices and identify the NCT6126 correctly.
 > 
-> Ensure that ids for devices without a device tree alias are allocated
-> from above the highest numbered alias, if any.
-> 
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> ---
-> 
-> This is similar to how the mmc, i2c, i3c and spi subsystems handle
-> device tree aliases and avoid using an id that might be assigned to a
-> device/bus that is probed later.
+> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
 
-The patch makes sense. Unfortunately, there are systems with aliased
-watchdogs which do not enable "watchdog0" (e.g., several Nuvoton based
-boards). On such systems, if they do have an unaliased / auto-generated
-watchdog, /dev/watchdog0 and with it /dev/watchdog would no longer be
-created. This would result in a ABI break.
-
-On top of that, the patch only affects systems with both aliased and
-un-aliased watchdogs, which makes me even more concerned.
-
-To apply this or a similar patch, we would have to ensure that there
-is no enabled watchdog with ID == 0.
+Applied.
 
 Thanks,
 Guenter
