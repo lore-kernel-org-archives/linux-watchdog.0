@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0BE03BB101;
-	Thu,  9 Jul 2026 07:42:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595023E5A14;
+	Thu,  9 Jul 2026 07:44:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783582924; cv=none; b=AaYCcnvrpA6FqjN2mwI4YliLbCYFv0D8oAomEwIgTr5AdDuIYV8Mr04XiOTWyC8WPzVykwlN+iubDTl5vbSzVeOWrd0SbGYRLpxUe+9OmSIy7X33U2DdI8rqXUwW4991VTcIiAGcTIwMF9l9qU7K4k8R2E4FZRbidKSFIZGONkA=
+	t=1783583044; cv=none; b=rZJbFOt2lPfGaUyZikt5kT0dUKfUi1lwJ7YyB1TwaY8dG7yzeRgq7kaXFOqtgH3vDLkm3M7Tc4VBbMMPBzCsFIoAzqBWsT5QJvx2k37EY2c5cCxoOD4sd0zwyBNOcML/8kc/i5jj7rOZUaIN5F/PpUg5eyS20KyVde/AWOrfJoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783582924; c=relaxed/simple;
-	bh=87WeVOORuzTpahjb77APHd4rpR1j9OlPTAyoi7iKB1A=;
+	s=arc-20240116; t=1783583044; c=relaxed/simple;
+	bh=VVd5OnpRDiF1QOoSQCy8bA9rue4ZIjr0ie66OsBrAp0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uJ9L7Pon+ZFC/hKGuPq9XDzDtz674G4gON6K6nlUQRxm00K/8AkIyVvJuGBCaE+NGau1JRhFf8/MVgHPYCsQ2IbUtI5wVY2YB8ftOUCSCFrUesGX7oUCNB6GcaNmf7wlS3DfpnSU6TxDAWBSyK6gKcCsrMXLqpwzcfvYbkHPKcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OmtxrgqW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=dDH/bITYi1Onoc7HO3QXsT16qE4pWIJDVmfmwMnDlh6VsAc4tXMv3tZTlikOrAbmY+92+QGS+Iwq/54RqSoUxyvQNjOMa4SlHjohmqK5FV1MNtK0es1wm7buQAcXeKXkZT7x7RKJKRafW8iLlHEyhVYLufbK2457RmkM23289is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b35ocGCO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OmtxrgqW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A36A1F000E9;
-	Thu,  9 Jul 2026 07:42:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b35ocGCO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A191F000E9;
+	Thu,  9 Jul 2026 07:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783582923;
-	bh=DcCAJUUdE2PH7v36Disc1MhOkmF26smewevRUweMx64=;
+	s=k20260515; t=1783583043;
+	bh=KDctwqGpjlJ6yyBgYfodMNF9TC5Z8cruiAhWIq0BJUA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OmtxrgqW/Pgj9gnceXMJFZU24nTouu/SMeRXIqdBGo9hmiLukbvy4ylj4x8FHZTW4
-	 3BvdFedw8ggAX3Muhy5M/7vE+WqrmvnlFF1X8M+aSTa3/3WR76BMcukuOfGdr+xRWX
-	 R7y1iAB5HtMLl0U0Fuz7C6I2o1b2KFBeJDmRB4F3/hF5Pcfg7DsexA74YdGkLP1A/a
-	 SoFlzjrc82/A6kp3N91cB6auhkcBLd3MSz3zG8NqdNsSZ0ey9RZFWsvUrFZXQ+TJjm
-	 8XFmmyg3ic+KB2d4Ir6rZudjraaifm5N2z/E1eRfRb8Df/GJiMM6L3kjN+xrce0eCv
-	 Snd8+wx2E2UpQ==
+	b=b35ocGCO7vCUfL1Doe5m2OBfC3ZNyTXwu3QwVAZtMyx1Rif9RWjb1+EWp/ZjcPhaP
+	 yiJqBdbeAdARQzuo5LHmBtPYCoVt80M7+5C1w8gKYyubZDvg/smAQxGrj6XSBVXECI
+	 w1w+pctyhQghh4k0nOqI/kU6IvBykvElm+ZLH+BTsoTg9S1gXa7lFK3rnqUArIycdM
+	 A82SfV7ZHdwBfzzbwP8hHVKl3K/eis8MT5AmpDui63Jl6rEj3U7KDD9hz2Sw9UFPUd
+	 4BTYXDFH46vCaRJdi6WPBpJNHho6sP/DaapYRXz6ZK5abqlMy3n/014XSWoTOfj5PU
+	 Sk6geOnjVw1lA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 02/11] dt-bindings: interrupt-controller: apple,aic2:
- Invert #interrupt-cells condition
+Subject: Re: [PATCH 01/11] dt-bindings: arm: apple: Add M3 Pro/Max/Ultra
+ devices (T603x)
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Janne Grunau" <j@jannau.net>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
-In-Reply-To: <20260709-apple-t603x-initial-devices-v1-2-55b305833123@jannau.net>
+Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260709-apple-t603x-initial-devices-v1-1-55b305833123@jannau.net>
 References: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net>
- <20260709-apple-t603x-initial-devices-v1-2-55b305833123@jannau.net>
+ <20260709-apple-t603x-initial-devices-v1-1-55b305833123@jannau.net>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 09 Jul 2026 07:42:02 +0000
-Message-Id: <20260709074203.1A36A1F000E9@smtp.kernel.org>
+Date: Thu, 09 Jul 2026 07:44:02 +0000
+Message-Id: <20260709074402.A3A191F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,79 +47,65 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The compatible string `apple,t6031-aic3` explicitly referenced i=
-n the commit message is completely missing from both the top-level schema `=
-properties: compatible` definition and the inverted `#interrupt-cells` 4-ce=
-ll conditional block, defeating the stated purpose of the patch.
+- [Low] YAML sequence indentation violates the subsystem's yamllint rules (=
+`indent-sequences: true`), causing `make dt_binding_check` to fail.
 --
 
---- Patch [2]: [PATCH 02/11] dt-bindings: interrupt-controller: apple,aic2:=
- Invert #interrupt-cells condition ---
-commit 96c242a2f78e06c67eac2004fca37e5d7d112361
+--- Patch [1]: [PATCH 01/11] dt-bindings: arm: apple: Add M3 Pro/Max/Ultra =
+devices (T603x) ---
+commit 8fa154a194ffbacee86322faaaf7374a3dd8929a
 Author: Janne Grunau <j@jannau.net>
 
-dt-bindings: interrupt-controller: apple,aic2: Invert #interrupt-cells cond=
-ition
+dt-bindings: arm: apple: Add M3 Pro/Max/Ultra devices (T603x)
 
-This commit updates the #interrupt-cells condition by explicitly listing
-the compatibles used for multi-die SoCs and assigning them 4 cells, while
-leaving 3 cells as the default for others.
+This commit introduces device tree bindings for the Apple M3 Pro, Max, and
+Ultra SoCs (T6030, T6031, T6032, and T6034). It documents the compatible
+strings for these new platforms along with the corresponding devices they
+power.
 
->     The condition for 3 or 4 #interrupt-cells list compatibles for the 3
->     cells variant (not used in SoCs consisting out of multiple dies). This
->     includes the AICv3 base compatible "apple,t8122-aic3". This will match
->         compatible =3D "apple,t6031-aic3", "apple,t8122-aic3";
->     shared for M3 Max and Ultra based devices which require the additional
->     interrupt cell for the die number.
->     Instead list the compatibles used for multi-die SoCs explicitly and u=
-se
->     4 #interrupt-cells for them.
+> diff --git a/Documentation/devicetree/bindings/arm/apple.yaml b/Documenta=
+tion/devicetree/bindings/arm/apple.yaml
+> index e49403c73f9d2..111c28d94736b 100644
+> --- a/Documentation/devicetree/bindings/arm/apple.yaml
+> +++ b/Documentation/devicetree/bindings/arm/apple.yaml
 
-[Severity: Medium]
-The commit message mentions adding support for "apple,t6031-aic3", but is
-this compatible string missing from the schema entirely?=20
+[ ... ]
 
-It appears that "apple,t6031-aic3" is not present in the top-level properti=
-es
-compatible definition. Without being listed there, would device trees using
-this string fail standard schema validation?
+> @@ -365,6 +373,35 @@ properties:
+>            - const: apple,t6022
+>            - const: apple,arm-platform
+> =20
+> +      - description: Apple M3 Pro SoC based platforms
+> +        items:
+> +          - enum:
+> +            - apple,j514s # MacBook Pro (14-inch, M3 Pro, 2023)
+> +            - apple,j516s # MacBook Pro (16-inch, M3 Pro, 2023)
 
-> diff --git a/Documentation/devicetree/bindings/interrupt-controller/apple=
-,aic2.yaml b/Documentation/devicetree/bindings/interrupt-controller/apple,a=
-ic2.yaml
-> index d0d9a90e96e7b..a94787939d345 100644
-> --- a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.y=
-aml
-> +++ b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.y=
-aml
-> @@ -128,16 +128,16 @@ allOf:
->          compatible:
->            contains:
->              enum:
-> -              - apple,t8112-aic
-> -              - apple,t8122-aic3
-> +              - apple,t6000-aic
-> +              - apple,t6020-aic
+[Severity: Low]
+Does this formatting regression cause make dt_binding_check to fail? The
+sequence indicators for apple,j514s and apple,j516s are at the same
+indentation level as their parent enum: key. Should they be indented by an
+additional 2 spaces to comply with the subsystem's indent-sequences: true
+yamllint rule?
 
-[Severity: Medium]
-Does this conditional block omit the M3 Max/Ultra compatibles?=20
+> +          - const: apple,t6030
+> +          - const: apple,arm-platform
+> +
+> +      - description: Apple M3 Max SoC based platforms
+> +        oneOf:
+> +          - items:
+> +            - enum:
+> +              - apple,j514c # MacBook Pro (14-inch, M3 Max, 16 cores, 20=
+23)
+> +              - apple,j516c # MacBook Pro (16-inch, M3 Max, 16 cores, 20=
+23)
 
-Since "apple,t6031-aic3" and "apple,t8122-aic3" are not included in this
-explicit list of multi-die SoCs, they will fall through to the else branch.
-Will they incorrectly receive a 3-cell constraint instead of the 4 cells
-intended for multi-die devices?
-
->      then:
->        properties:
->          '#interrupt-cells':
-> -          const: 3
-> +          const: 4
->      else:
->        properties:
->          '#interrupt-cells':
-> -          const: 4
-> +          const: 3
+[Severity: Low]
+Is the indentation correct here as well? The sequence indicators for the
+inner enum sequences (- apple,j514c) are not indented relative to their
+enum: keys, and the items sequence indicators (- enum:) are not indented
+relative to the items: key.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260709-apple-t603=
-x-initial-devices-v1-0-55b305833123@jannau.net?part=3D2
+x-initial-devices-v1-0-55b305833123@jannau.net?part=3D1
