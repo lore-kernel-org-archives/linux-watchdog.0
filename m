@@ -1,94 +1,84 @@
-Received: from mail.maslowski.xyz (mail.maslowski.xyz [45.77.158.94])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91DEE347BAF;
-	Thu,  9 Jul 2026 23:23:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.77.158.94
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8BCC3C76BD;
+	Fri, 10 Jul 2026 07:43:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783639429; cv=none; b=Tn0CxMf4y6h/9EB8HQ9iDO7nItUJMx5JnSGqSPZlhIkoqpK856/yOA7EptmoW9omrS0pnnLqtownMSZ8w8uxO6GuNITZThpTfAHxfdVzTBX4A8bGBGfFMk6T701oDeTc7k7DWw82feL3LYexFfV4ypa27qmHmo6EIKK8cUrUk1Y=
+	t=1783669436; cv=none; b=n6tsX9s4y/+T4nU1OOANGJZ4zPMEHoqY0ekOkzKin34CVqU6W2YGotrbftCm4f0S3mR24ixlbJnxXEinxybEWIIckQccAibgoy2/ASlENp6C67Y6TxHBBG+P6sFtFCx1PCqfSOZK8JPweHUD+OZjygTI9eJQBfzP41l4OT4znqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783639429; c=relaxed/simple;
-	bh=6p4mTHct6xG4EjksULhZhC0FBM6s3IkWFA5OdscgQ9g=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
-	 References:In-Reply-To; b=OoQFoCd0EjA4SzV6mBSoxzgGD+yvBylQy28tGzCLngQnq8teQiH77KPfZ76S4iF0H6T0N5AvE3SCOR6iDy+hx9pVeXctzeTGc3/oLomg03BNfwxKwrWjGk9KieJyqbMugFzkxWsPi76pTOSPkvj+9r+rdVedPUWhJG7TbJZWRIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=maslowski.xyz; spf=pass smtp.mailfrom=maslowski.xyz; dkim=pass (2048-bit key) header.d=maslowski.xyz header.i=@maslowski.xyz header.b=FzT9y8Xb; arc=none smtp.client-ip=45.77.158.94
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=maslowski.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=maslowski.xyz
+	s=arc-20240116; t=1783669436; c=relaxed/simple;
+	bh=oJJHDpDJXOknwqcCnUtoQkhIS8iZFCSeiHev8fH3FaI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mQNliBpypQMVniDPNW8HLxkIbRu4inVbOmU530/BlBMIA+y2BEJgksh0bcZImE8EtekZSLCkBFcgiFErsNMNfcxg57qKKuX6KqNDZ7CdAThhhA/1MbX0bAPcQ3SZOIg2+HV3IoNpB7qYb78LRu6D2N3V94eBs7nXDU3z/AQtcIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=iAfsDk6y; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=maslowski.xyz header.i=@maslowski.xyz header.b="FzT9y8Xb"
-Received: from localhost (public-gprs387849.centertel.pl [37.47.146.74])
-	by mail.maslowski.xyz (Postfix) with ESMTPSA id EB0CE7D5AC;
-	Thu,  9 Jul 2026 23:17:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=maslowski.xyz;
-	s=mail; t=1783639063;
-	bh=6p4mTHct6xG4EjksULhZhC0FBM6s3IkWFA5OdscgQ9g=;
-	h=Date:To:Cc:Subject:From:References:In-Reply-To:From;
-	b=FzT9y8Xb8ZNgiWivEhcuM9ax/2mZEvdYBOIH9b3rFWRnv+oUTd3enuolQPLD7SKOq
-	 hRTkLGZtoXjWkqAB8SwxF51ELLrVeAJWbycZ2TxTnHyGBf3I4J26pqjITfSQwXXblc
-	 7OyjEgrjZ0dTD2rOMo1ncmD1z3KiP/Q8yDuUv2o8/bVhRFjtcZYb0/Yu4EadKso4Tj
-	 BlBZH9/wr1tt6PGKIkNac2nB7j9vzkaiEYtSJttq1Vlpf4S4+SMPZ+9Ps/mqHJfEO+
-	 MAsSfXywvllxKToDmvCYNk4kr3PzsrUnGhoK0Rqo1rJssb78m7yhYLw/irtxpvdesY
-	 IHgcA1OmICZrQ==
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="iAfsDk6y"
+Received: from mail01.layka.lan (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id 179868535E;
+	Fri, 10 Jul 2026 09:43:52 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id wUgg5GFRggkz; Fri, 10 Jul 2026 09:43:51 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1783669431; bh=oJJHDpDJXOknwqcCnUtoQkhIS8iZFCSeiHev8fH3FaI=;
+	h=From:To:Cc:Subject:Date;
+	b=iAfsDk6yTGQGIWfu1tylS4wUHKEILfIb6PeAilu6xpusK54d+VLrsfWKE6xMoKgx+
+	 qj+fybfVHFqodAeNtYMEKkDXs8M3SVyITydkKIi9rYDezTgMFHZM0zu0NmqI1whYNh
+	 ozheMxFE/nKJmTUi75/2zndJet+aYX99Y5jBUiGZhNYSI+VPFe5HZNwAKpQOk26V7s
+	 hJs/FVA2d0HGbn9yCiIdesnPWqY2UkLOpFV25swaKIKe+5w0MqfVF6LMOn7VCYIJjt
+	 24+3ZYu8vfY7jOcwgzUeG3UCwt2IyjfQRZi7XZxXDVbudo7CUST35ruLIQ/XBvJX6A
+	 zCqJGnEHDzIcA==
+From: Rustam Adilov <adilov@disroot.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sander Vanheule <sander@svanheule.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Rustam Adilov <adilov@disroot.org>
+Subject: [PATCH v3 0/1] watchdog: realtek-otto: Make use of regmap API
+Date: Fri, 10 Jul 2026 12:43:15 +0500
+Message-ID: <20260710074316.46643-1-adilov@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 10 Jul 2026 01:17:39 +0200
-Message-Id: <DJUFA03SIN5C.1A8B6N89448P0@maslowski.xyz>
-To: "Janne Grunau" <j@jannau.net>
-Cc: "Sven Peter" <sven@kernel.org>, "Neal Gompa" <neal@gompa.dev>, "Rob
- Herring" <robh@kernel.org>, "Krzysztof Kozlowski" <krzk+dt@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, "Thomas Gleixner" <tglx@kernel.org>,
- "Wim Van Sebroeck" <wim@linux-watchdog.org>, "Guenter Roeck"
- <linux@roeck-us.net>, "Linus Walleij" <linusw@kernel.org>, "Mark Kettenis"
- <kettenis@openbsd.org>, "Andi Shyti" <andi.shyti@kernel.org>,
- =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, "Sasha
- Finkelstein" <k@chaosmail.tech>, <asahi@lists.linux.dev>,
- <linux-arm-kernel@lists.infradead.org>, <devicetree@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
- <linux-gpio@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
- <linux-pwm@vger.kernel.org>
-Subject: Re: [PATCH 08/11] dt-bindings: i2c: apple,i2c: Add t6030 and t6031
- compatibles
-From: =?utf-8?q?Piotr_Mas=C5=82owski?= <piotr@maslowski.xyz>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net> <20260709-apple-t603x-initial-devices-v1-8-55b305833123@jannau.net>
-In-Reply-To: <20260709-apple-t603x-initial-devices-v1-8-55b305833123@jannau.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hello. This is the tiniest possible nitpick, but it could
-throw somebody off when grepping through commit messages so:
+This patch series changes the driver to use regmap API for all of the
+register access stuff instead of the ioread32 and iowrite32 with __iomem.
+That makes the watchdog operable when SWAP_IO_SPACE config is enabled just
+by adding big-endian property to the device tree node.
 
-On Thu Jul 9, 2026 at 9:30 AM CEST, Janne Grunau wrote:
-> The i2c block on Apple silicon M3 Pro, Max and Ultra SoCs are compatible
-> with the t8103 (M1) one. Add "apple,t6030-i2c" for M3 Pro and
-> "apple,t6031-i2c" for M3 Max and Ultra as per-S0C compatibles.
+Also, there was a comment by sashiko which got addressed by Sander in [2]
+with possibility of it being false positive so i left it at that.
 
-You've got a '0' (zero) instead of an 'O' here.  ^
+---
+Changelog in v3:
+- reworded the commit message to make the main reasoning clear.
+- rebased the branch.
+- Link v2: https://lore.kernel.org/linux-watchdog/20260519182329.24472-1-adilov@disroot.org/
 
->
-> Signed-off-by: Janne Grunau <j@jannau.net>
-> ---
->  Documentation/devicetree/bindings/i2c/apple,i2c.yaml | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/apple,i2c.yaml b/Docum=
-entation/devicetree/bindings/i2c/apple,i2c.yaml
-> index 9e59200ad37b..d39f5e3f1df4 100644
-> --- a/Documentation/devicetree/bindings/i2c/apple,i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/apple,i2c.yaml
-> @@ -24,6 +24,8 @@ properties:
->        - items:
->            - enum:
->                - apple,t6020-i2c
-> +              - apple,t6030-i2c
-> +              - apple,t6031-i2c
->                - apple,t8122-i2c
->            - const: apple,t8103-i2c
->        - items:
+Changelog in v2:
+- removed patches 2 and 3 that add rtl9607c device.
+- included driver changes made by Sander in [1].
+- added disable_locking to regmap_config and set it to true.
+- Link to v1: https://lore.kernel.org/all/20260509163101.722793-1-adilov@disroot.org/
 
-Cheers,
-Piotr Mas=C5=82owski
+[1] https://lore.kernel.org/all/20260515212351.752054-1-sander@svanheule.net/
+[2] https://lore.kernel.org/linux-watchdog/d0b159eefa6bc5abf0d1531acde568396f480500.camel@svanheule.net/
+
+Rustam Adilov (1):
+  watchdog: realtek-otto: Change to use regmap API
+
+ drivers/watchdog/Kconfig            |  1 +
+ drivers/watchdog/realtek_otto_wdt.c | 74 +++++++++++++++--------------
+ 2 files changed, 39 insertions(+), 36 deletions(-)
+
+-- 
+2.55.0
+
