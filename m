@@ -1,56 +1,66 @@
-Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 338A33D3002;
-	Fri, 10 Jul 2026 07:43:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66A63E023E
+	for <linux-watchdog@vger.kernel.org>; Fri, 10 Jul 2026 07:58:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783669439; cv=none; b=hG/pCEufFQ+I7rNmaXZk+H0hIFwp8cpefaXVYM/sV0yowSnv7GNFbFGo2shYvZ/9iVGrA+5VVoenxD6OnL7Eg9nFcLrYCi/1Dq8gDw217VtnGGuILmAruq/hkDWuyfUZFDBIMtqevSZynX877JOGWgfhsxVfqeriJ0albPjYhTE=
+	t=1783670293; cv=none; b=t/jUCXgtjcDMC6TJJmOnvhVfiaFkW+bqlPJRw+fX276lOHVsuUZ/2UL/3FQXTuKBC9R5MXMbpCRq4clqBvbrFQCEIRlr2t+HHzFYbYbJyEZ7eto0+FD5bWFZqr5YptFjuMFEj8fN9b9wwP/YZalbtIxJ/0/yuI7N3jy1X6r+z18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783669439; c=relaxed/simple;
-	bh=MYSR/s0fpQc+ZzUQYpn3D2Rmz+hh029HznIgSN2m75I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ei0lIOhT/fVlOvM487jiKXZKEsw+noymKmu6W9lVbCv7DVR6mcVA4grhTbqeavjH12k0QOrUcmV3KV81OewRNQWi3yJpgFigVP55YG5KJUWoadlgszwR1kRhoQG7QBaLDarm3GO2II6C9upvPt36u/IHNJCo9raO1T2hmGhKaVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=QtKcLSO+; arc=none smtp.client-ip=178.21.23.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+	s=arc-20240116; t=1783670293; c=relaxed/simple;
+	bh=m/1MY5WLIp7tFK2/Cw6ssno2U3ZaFNDy7vzOfbh8siw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=keD5kTCvBMcf9nnRgpSUQourpg8h6OpNY699DVysTUuyiQGNZotcy0MXDwNM9Bu+R7v5790tC+h1z88rb6KgC//qdehAeH7etE6G20wo9iI6rz48Xwck889132VY5PE1MI5RtlK3Cb3AibNC+HnzWx0/WYF46ayeGQ1IS5EHA6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mjeHLzsS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="QtKcLSO+"
-Received: from mail01.layka.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 4239B8750E;
-	Fri, 10 Jul 2026 09:43:55 +0200 (CEST)
-X-Virus-Scanned: SPAM Filter at disroot.org
-Received: from layka.disroot.org ([127.0.0.1])
- by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8Z0Mk-Kvgor8; Fri, 10 Jul 2026 09:43:54 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1783669434; bh=MYSR/s0fpQc+ZzUQYpn3D2Rmz+hh029HznIgSN2m75I=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=QtKcLSO+CiOmOTQYijcDuXNVkbJGLRyupxyI4uL/GySVVuNj7IWgKFAJWGnJBepDc
-	 l8eTT7F3yFuaOwZAIunRPzGQQZ/uq7k8s9SPbJ3MwhQg1btTGhBxbn6J6rRVx2ERU7
-	 ogY+e+AZhYQYMTITZgdbEcvD6VREE0gVhWKIikjvgRKmRb70cq/vJuzUcsKBixMhyP
-	 ocWf/J6KkBzlrlgNYIL+tZP7Eb91nPPS1YjcBgMglq1hosUPbcXv8hy2nC4vJlh2oq
-	 thYL39cQyj1/Zw6nwwXXMlQzuyIOviM3S71QLD70slA9DHYVVTXK6POzPy0dTII2rY
-	 VAJxRxs9VYTPg==
-From: Rustam Adilov <adilov@disroot.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sander Vanheule <sander@svanheule.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Rustam Adilov <adilov@disroot.org>
-Subject: [PATCH v3 1/1] watchdog: realtek-otto: Change to use regmap API
-Date: Fri, 10 Jul 2026 12:43:16 +0500
-Message-ID: <20260710074316.46643-2-adilov@disroot.org>
-In-Reply-To: <20260710074316.46643-1-adilov@disroot.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mjeHLzsS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3021F000E9;
+	Fri, 10 Jul 2026 07:58:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783670291;
+	bh=G654zJTwYaWd5gRljGcNdilLSWVGf8q/pv+/UgCE5jQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mjeHLzsSZm9sJxCJ1VmyZRNphfbO92xSEwbvosMV0U1F/FfL3aU13IZCw/ErkvjPg
+	 Yd+MCJ/cMyDKX+Gi9tWhXq3WCsh+uZJOPb6ZlqKGAu5JSBCTYEYSTMxBAzj1RkKEHX
+	 iVonijT715FOnhu84AyI/gM6/PHpm6RhIbEaUKiAURrojHhX10RiJpCp+erncJIU/A
+	 rANesNzGGa3ShGwvL1a/IQKCw2s0zZLOG7K6PizIhQxxsVo9R9TfmHMdb5mKpz+tV1
+	 TMhPVaqZmAAShSG86KyWqUKHrRf67kHUerfKfwMZ0z8HYYUpNiwRDsz6djp8rDXBaO
+	 dAbdTMO7pG4qA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 1/1] watchdog: realtek-otto: Change to use regmap API
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rustam Adilov" <adilov@disroot.org>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260710074316.46643-2-adilov@disroot.org>
 References: <20260710074316.46643-1-adilov@disroot.org>
+ <20260710074316.46643-2-adilov@disroot.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Jul 2026 07:58:10 +0000
+Message-Id: <20260710075811.4B3021F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [High] Calling `disable_irq()` in the restart handler causes a scheduling=
+ while atomic bug and a deadlock when triggered by a pretimeout panic.
+- [High] The watchdog timeout setup logic does not clamp user timeouts to h=
+ardware limits, breaking the watchdog core's software-extended timeout feat=
+ure.
+--
+
+--- Patch [1]: [PATCH v3 1/1] watchdog: realtek-otto: Change to use regmap =
+API ---
+commit df79c826fd293fb9a9e926fad614d84ecc05598a
+Author: Rustam Adilov <adilov@disroot.org>
+
+watchdog: realtek-otto: Change to use regmap API
 
 To make the realtek watchdog driver functional when SWAP_IO_SPACE
 config is enabled, change all of the register access to be done
@@ -60,201 +70,85 @@ or little-endian property from within the device tree node.
 Add the REGMAP_MMIO as a select to REALTEK_OTTO_WDT now that the
 regmap is used.
 
-Signed-off-by: Rustam Adilov <adilov@disroot.org>
----
- drivers/watchdog/Kconfig            |  1 +
- drivers/watchdog/realtek_otto_wdt.c | 74 +++++++++++++++--------------
- 2 files changed, 39 insertions(+), 36 deletions(-)
+> diff --git a/drivers/watchdog/realtek_otto_wdt.c b/drivers/watchdog/realt=
+ek_otto_wdt.c
+> index 9094f2189f555..5c48ffba70a20 100644
+> --- a/drivers/watchdog/realtek_otto_wdt.c
+> +++ b/drivers/watchdog/realtek_otto_wdt.c
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 08cb8612d41f..e0ef0b339abd 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1076,6 +1076,7 @@ config REALTEK_OTTO_WDT
- 	depends on MACH_REALTEK_RTL || COMPILE_TEST
- 	depends on COMMON_CLK
- 	select WATCHDOG_CORE
-+	select REGMAP_MMIO
- 	default MACH_REALTEK_RTL
- 	help
- 	  Say Y here to include support for the watchdog timer on Realtek
-diff --git a/drivers/watchdog/realtek_otto_wdt.c b/drivers/watchdog/realtek_otto_wdt.c
-index 9094f2189f55..5c48ffba70a2 100644
---- a/drivers/watchdog/realtek_otto_wdt.c
-+++ b/drivers/watchdog/realtek_otto_wdt.c
-@@ -27,6 +27,7 @@
- #include <linux/platform_device.h>
- #include <linux/property.h>
- #include <linux/reboot.h>
-+#include <linux/regmap.h>
- #include <linux/watchdog.h>
- 
- #define OTTO_WDT_REG_CNTR		0x0
-@@ -65,7 +66,7 @@
- struct otto_wdt_ctrl {
- 	struct watchdog_device wdev;
- 	struct device *dev;
--	void __iomem *base;
-+	struct regmap *regmap;
- 	unsigned int clk_rate_khz;
- 	int irq_phase1;
- };
-@@ -73,24 +74,17 @@ struct otto_wdt_ctrl {
- static int otto_wdt_start(struct watchdog_device *wdev)
- {
- 	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
--	u32 v;
--
--	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
--	v |= OTTO_WDT_CTRL_ENABLE;
--	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
- 
-+	regmap_set_bits(ctrl->regmap, OTTO_WDT_REG_CTRL, OTTO_WDT_CTRL_ENABLE);
- 	return 0;
- }
- 
- static int otto_wdt_stop(struct watchdog_device *wdev)
- {
- 	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
--	u32 v;
--
--	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
--	v &= ~OTTO_WDT_CTRL_ENABLE;
--	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
- 
-+	regmap_clear_bits(ctrl->regmap, OTTO_WDT_REG_CTRL,
-+			  OTTO_WDT_CTRL_ENABLE);
- 	return 0;
- }
- 
-@@ -98,8 +92,7 @@ static int otto_wdt_ping(struct watchdog_device *wdev)
- {
- 	struct otto_wdt_ctrl *ctrl = watchdog_get_drvdata(wdev);
- 
--	iowrite32(OTTO_WDT_CNTR_PING, ctrl->base + OTTO_WDT_REG_CNTR);
--
-+	regmap_write(ctrl->regmap, OTTO_WDT_REG_CNTR, OTTO_WDT_CNTR_PING);
- 	return 0;
- }
- 
-@@ -125,7 +118,7 @@ static int otto_wdt_determine_timeouts(struct watchdog_device *wdev, unsigned in
- 	unsigned int total_ticks;
- 	unsigned int prescale;
- 	unsigned int tick_ms;
--	u32 v;
-+	u32 mask, val;
- 
- 	do {
- 		prescale = prescale_next;
-@@ -141,14 +134,11 @@ static int otto_wdt_determine_timeouts(struct watchdog_device *wdev, unsigned in
- 	} while (phase1_ticks > OTTO_WDT_PHASE_TICKS_MAX
- 		|| phase2_ticks > OTTO_WDT_PHASE_TICKS_MAX);
- 
--	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
--
--	v &= ~(OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_PHASE2);
--	v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
--	v |= FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
--	v |= FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
--
--	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
-+	mask = OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_PHASE2;
-+	val = FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
-+	val |= FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
-+	val |= FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
-+	regmap_update_bits(ctrl->regmap, OTTO_WDT_REG_CTRL, mask, val);
- 
- 	timeout_ms = total_ticks * tick_ms;
- 	ctrl->wdev.timeout = timeout_ms / 1000;
-@@ -192,7 +182,7 @@ static int otto_wdt_restart(struct watchdog_device *wdev, unsigned long reboot_m
- 
- 	/* Configure for shortest timeout and wait for reset to occur */
- 	v = FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, reset_mode) | OTTO_WDT_CTRL_ENABLE;
--	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
-+	regmap_write(ctrl->regmap, OTTO_WDT_REG_CTRL, v);
- 
- 	mdelay(3 * otto_wdt_tick_ms(ctrl, 0));
- 
-@@ -203,7 +193,7 @@ static irqreturn_t otto_wdt_phase1_isr(int irq, void *dev_id)
- {
- 	struct otto_wdt_ctrl *ctrl = dev_id;
- 
--	iowrite32(OTTO_WDT_INTR_PHASE_1, ctrl->base + OTTO_WDT_REG_INTR);
-+	regmap_write(ctrl->regmap, OTTO_WDT_REG_INTR, OTTO_WDT_INTR_PHASE_1);
- 	dev_crit(ctrl->dev, "phase 1 timeout\n");
- 	watchdog_notify_pretimeout(&ctrl->wdev);
- 
-@@ -249,7 +239,6 @@ static int otto_wdt_probe_reset_mode(struct otto_wdt_ctrl *ctrl)
- 	const struct fwnode_handle *node = ctrl->dev->fwnode;
- 	int mode_count;
- 	u32 mode;
--	u32 v;
- 
- 	if (!node)
- 		return -ENXIO;
-@@ -271,19 +260,25 @@ static int otto_wdt_probe_reset_mode(struct otto_wdt_ctrl *ctrl)
- 	else
- 		return -EINVAL;
- 
--	v = ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
--	v &= ~OTTO_WDT_CTRL_RST_MODE;
--	v |= FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, mode);
--	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
--
-+	regmap_update_bits(ctrl->regmap, OTTO_WDT_REG_CTRL,
-+			   OTTO_WDT_CTRL_RST_MODE,
-+			   FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, mode));
- 	return 0;
- }
- 
-+static const struct regmap_config realtek_otto_wdt_regmap_config = {
-+	.reg_bits = 32,
-+	.reg_stride = 4,
-+	.val_bits = 32,
-+	.disable_locking = true,
-+};
-+
- static int otto_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct otto_wdt_ctrl *ctrl;
- 	unsigned int max_tick_ms;
-+	void __iomem *base;
- 	int ret;
- 
- 	ctrl = devm_kzalloc(dev, sizeof(*ctrl), GFP_KERNEL);
-@@ -291,18 +286,25 @@ static int otto_wdt_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	ctrl->dev = dev;
--	ctrl->base = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(ctrl->base))
--		return PTR_ERR(ctrl->base);
-+	base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
-+
-+	ctrl->regmap = devm_regmap_init_mmio(dev, base,
-+					     &realtek_otto_wdt_regmap_config);
-+	if (IS_ERR(ctrl->regmap)) {
-+		dev_err(dev, "regmap init failed\n");
-+		return PTR_ERR(ctrl->regmap);
-+	}
- 
- 	ret = otto_wdt_probe_clk(ctrl);
- 	if (ret)
- 		return ret;
- 
- 	/* Clear any old interrupts and reset initial state */
--	iowrite32(OTTO_WDT_INTR_PHASE_1 | OTTO_WDT_INTR_PHASE_2,
--			ctrl->base + OTTO_WDT_REG_INTR);
--	iowrite32(OTTO_WDT_CTRL_DEFAULT, ctrl->base + OTTO_WDT_REG_CTRL);
-+	regmap_write(ctrl->regmap, OTTO_WDT_REG_INTR,
-+		     OTTO_WDT_INTR_PHASE_1 | OTTO_WDT_INTR_PHASE_2);
-+	regmap_write(ctrl->regmap, OTTO_WDT_REG_CTRL, OTTO_WDT_CTRL_DEFAULT);
- 
- 	ctrl->irq_phase1 = platform_get_irq_byname(pdev, "phase1");
- 	if (ctrl->irq_phase1 < 0)
--- 
-2.55.0
+[ ... ]
 
+> @@ -141,14 +134,11 @@ static int otto_wdt_determine_timeouts(struct watch=
+dog_device *wdev, unsigned in
+>  	} while (phase1_ticks > OTTO_WDT_PHASE_TICKS_MAX
+>  		|| phase2_ticks > OTTO_WDT_PHASE_TICKS_MAX);
+> =20
+> -	v =3D ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
+> -
+> -	v &=3D ~(OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_=
+PHASE2);
+> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
+> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
+> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
+> -
+> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
+> +	mask =3D OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_=
+PHASE2;
+> +	val =3D FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
+> +	val |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
+> +	val |=3D FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
+> +	regmap_update_bits(ctrl->regmap, OTTO_WDT_REG_CTRL, mask, val);
+> =20
+>  	timeout_ms =3D total_ticks * tick_ms;
+>  	ctrl->wdev.timeout =3D timeout_ms / 1000;
+
+[Severity: High]
+This is a pre-existing issue, but does otto_wdt_determine_timeouts() break
+the watchdog core's software heartbeat extension?
+
+When a user requests a timeout larger than the hardware's maximum capabilit=
+y,
+the prescale calculation loop earlier in this function exceeds
+OTTO_WDT_PRESCALE_MAX and returns -EINVAL.
+
+It seems the driver fails to clamp the requested timeout to its hardware
+capability before programming the registers, and overwrites wdev.timeout wi=
+th
+the calculated hardware ticks. This prevents the core from maintaining the
+full user-requested timeout via periodic pings.
+
+[ ... ]
+
+> @@ -192,7 +182,7 @@ static int otto_wdt_restart(struct watchdog_device *w=
+dev, unsigned long reboot_m
+> =20
+>  	/* Configure for shortest timeout and wait for reset to occur */
+>  	v =3D FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, reset_mode) | OTTO_WDT_CTRL_EN=
+ABLE;
+> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
+> +	regmap_write(ctrl->regmap, OTTO_WDT_REG_CTRL, v);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can the call to disable_irq()
+earlier in otto_wdt_restart() cause a deadlock during a pretimeout panic?
+
+If the pretimeout governor is set to panic, otto_wdt_phase1_isr() calls
+watchdog_notify_pretimeout() which triggers a kernel panic. The panic routi=
+ne
+disables local interrupts and calls machine_restart(), which invokes
+otto_wdt_restart().
+
+Because otto_wdt_restart() calls disable_irq(), it internally calls
+synchronize_irq() which will spin waiting for the currently active interrupt
+handler (otto_wdt_phase1_isr) to complete.
+
+Since we are already inside that handler, this will hang indefinitely during
+reboot. Additionally, calling disable_irq() in an atomic context with
+interrupts disabled could trigger a scheduling while atomic bug.
+
+> =20
+>  	mdelay(3 * otto_wdt_tick_ms(ctrl, 0));
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710074316.4664=
+3-2-adilov@disroot.org?part=3D1
