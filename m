@@ -1,154 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66A63E023E
-	for <linux-watchdog@vger.kernel.org>; Fri, 10 Jul 2026 07:58:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF1E3E3177;
+	Fri, 10 Jul 2026 08:13:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783670293; cv=none; b=t/jUCXgtjcDMC6TJJmOnvhVfiaFkW+bqlPJRw+fX276lOHVsuUZ/2UL/3FQXTuKBC9R5MXMbpCRq4clqBvbrFQCEIRlr2t+HHzFYbYbJyEZ7eto0+FD5bWFZqr5YptFjuMFEj8fN9b9wwP/YZalbtIxJ/0/yuI7N3jy1X6r+z18=
+	t=1783671234; cv=none; b=pmJDKbQZcOt6k7KgL3IKYlnjp30vWqkMyQdqjVCozUSmxlcbd3+Egwh0F3ytpJPf62eqtDl9E6uuHMcBgvk1d2tKQDQ3nPMFlrLbqNOPwhq+NUO6T7o60af2LnOLfqkrCTIvcYsaCm1bs3L2JZMRQuNZX/2YThg1ab01xk0sLIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783670293; c=relaxed/simple;
-	bh=m/1MY5WLIp7tFK2/Cw6ssno2U3ZaFNDy7vzOfbh8siw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=keD5kTCvBMcf9nnRgpSUQourpg8h6OpNY699DVysTUuyiQGNZotcy0MXDwNM9Bu+R7v5790tC+h1z88rb6KgC//qdehAeH7etE6G20wo9iI6rz48Xwck889132VY5PE1MI5RtlK3Cb3AibNC+HnzWx0/WYF46ayeGQ1IS5EHA6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mjeHLzsS; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783671234; c=relaxed/simple;
+	bh=yY09AEmvVtfeOEwcvLN1eHQxQMCiHZdGDkgX3KBtUB4=;
+	h=MIME-Version:Date:From:To:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=QUhlyP4EExh0NCp0m70Sfc0Fv1AzcYCNQ6gHa9LjKsHyjwJZ1WO6Tz0zIJ+v+PTRRXz7KBU7V5oez/0Ff0Y0l2BOYMy3A/gsKXHiVGEQaUrcxM7t/3CSj4JHkXzMhHgirO99mD1MLuzvlPaC0AcIQptfFK9StT0z3BzYWyXod/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=ftsFZPhX; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mjeHLzsS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3021F000E9;
-	Fri, 10 Jul 2026 07:58:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783670291;
-	bh=G654zJTwYaWd5gRljGcNdilLSWVGf8q/pv+/UgCE5jQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mjeHLzsSZm9sJxCJ1VmyZRNphfbO92xSEwbvosMV0U1F/FfL3aU13IZCw/ErkvjPg
-	 Yd+MCJ/cMyDKX+Gi9tWhXq3WCsh+uZJOPb6ZlqKGAu5JSBCTYEYSTMxBAzj1RkKEHX
-	 iVonijT715FOnhu84AyI/gM6/PHpm6RhIbEaUKiAURrojHhX10RiJpCp+erncJIU/A
-	 rANesNzGGa3ShGwvL1a/IQKCw2s0zZLOG7K6PizIhQxxsVo9R9TfmHMdb5mKpz+tV1
-	 TMhPVaqZmAAShSG86KyWqUKHrRf67kHUerfKfwMZ0z8HYYUpNiwRDsz6djp8rDXBaO
-	 dAbdTMO7pG4qA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/1] watchdog: realtek-otto: Change to use regmap API
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rustam Adilov" <adilov@disroot.org>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260710074316.46643-2-adilov@disroot.org>
-References: <20260710074316.46643-1-adilov@disroot.org>
- <20260710074316.46643-2-adilov@disroot.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 10 Jul 2026 07:58:10 +0000
-Message-Id: <20260710075811.4B3021F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="ftsFZPhX"
+Received: from mail01.layka.lan (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id C659386EEA;
+	Fri, 10 Jul 2026 10:13:50 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Q_6yLYmDoyjf; Fri, 10 Jul 2026 10:13:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1783671229; bh=yY09AEmvVtfeOEwcvLN1eHQxQMCiHZdGDkgX3KBtUB4=;
+	h=Date:From:To:Subject:In-Reply-To:References;
+	b=ftsFZPhXEffDVA5Nu5w1bpBpryPH080ct/R8pyvVEGbnR0iZ4I3q/siCB/JwMGxuF
+	 PTYMj1BW0KFjJiKFSdsa91wSiC5fGgRKv4NztZlTzwaTOPIv+k7cGCDooTqaw6dvEH
+	 B0C8nXyEVRANJpeGV9hSvzGbwiceEr/3XGgQ5kTmCn99x1VFN+WGpsbprK3qyctR/n
+	 2jSyUwe5sikuS46rr+A6alujEHayrjFf9qoyG/Zq8klKLKRzuiyomYUDs6CE8+77H1
+	 JltMHSsofPR2qaIW7bXVjViSu+p4J4CFF2KxW5Bx9QJKPH1sz93G2EEdSUkLAOibwu
+	 NJ9GG0dWFdidQ==
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Date: Fri, 10 Jul 2026 08:13:49 +0000
+From: Rustam Adilov <adilov@disroot.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Sander Vanheule <sander@svanheule.net>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/1] watchdog: realtek-otto: Make use of regmap API
+In-Reply-To: <20260710074316.46643-1-adilov@disroot.org>
+References: <20260710074316.46643-1-adilov@disroot.org>
+Message-ID: <79ff8becf68dd80b8993a458ae7e3c44@disroot.org>
+X-Sender: adilov@disroot.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 2026-07-10 07:43, Rustam Adilov wrote:
+> This patch series changes the driver to use regmap API for all of the
+> register access stuff instead of the ioread32 and iowrite32 with __iomem.
+> That makes the watchdog operable when SWAP_IO_SPACE config is enabled just
+> by adding big-endian property to the device tree node.
+> 
+> Also, there was a comment by sashiko which got addressed by Sander in [2]
+> with possibility of it being false positive so i left it at that.
+> 
+> ---
+> Changelog in v3:
+> - reworded the commit message to make the main reasoning clear.
+> - rebased the branch.
+> - Link v2: https://lore.kernel.org/linux-watchdog/20260519182329.24472-1-adilov@disroot.org/
+> 
+> Changelog in v2:
+> - removed patches 2 and 3 that add rtl9607c device.
+> - included driver changes made by Sander in [1].
+> - added disable_locking to regmap_config and set it to true.
+> - Link to v1: https://lore.kernel.org/all/20260509163101.722793-1-adilov@disroot.org/
+> 
+> [1] https://lore.kernel.org/all/20260515212351.752054-1-sander@svanheule.net/
+> [2] https://lore.kernel.org/linux-watchdog/d0b159eefa6bc5abf0d1531acde568396f480500.camel@svanheule.net/
+> 
+> Rustam Adilov (1):
+>   watchdog: realtek-otto: Change to use regmap API
+> 
+>  drivers/watchdog/Kconfig            |  1 +
+>  drivers/watchdog/realtek_otto_wdt.c | 74 +++++++++++++++--------------
+>  2 files changed, 39 insertions(+), 36 deletions(-)
 
-Pre-existing issues:
-- [High] Calling `disable_irq()` in the restart handler causes a scheduling=
- while atomic bug and a deadlock when triggered by a pretimeout panic.
-- [High] The watchdog timeout setup logic does not clamp user timeouts to h=
-ardware limits, breaking the watchdog core's software-extended timeout feat=
-ure.
---
+Hmm, there is a real possibility that Guenter Roeck didn't receive
+my patches because I've received a message "Undelivered Mail
+Returned to Sender" indicating mail host roeck-us.net has rejected them.
 
---- Patch [1]: [PATCH v3 1/1] watchdog: realtek-otto: Change to use regmap =
-API ---
-commit df79c826fd293fb9a9e926fad614d84ecc05598a
-Author: Rustam Adilov <adilov@disroot.org>
-
-watchdog: realtek-otto: Change to use regmap API
-
-To make the realtek watchdog driver functional when SWAP_IO_SPACE
-config is enabled, change all of the register access to be done
-by regmap API which helps us to tweak endianness with big-endian
-or little-endian property from within the device tree node.
-
-Add the REGMAP_MMIO as a select to REALTEK_OTTO_WDT now that the
-regmap is used.
-
-> diff --git a/drivers/watchdog/realtek_otto_wdt.c b/drivers/watchdog/realt=
-ek_otto_wdt.c
-> index 9094f2189f555..5c48ffba70a20 100644
-> --- a/drivers/watchdog/realtek_otto_wdt.c
-> +++ b/drivers/watchdog/realtek_otto_wdt.c
-
-[ ... ]
-
-> @@ -141,14 +134,11 @@ static int otto_wdt_determine_timeouts(struct watch=
-dog_device *wdev, unsigned in
->  	} while (phase1_ticks > OTTO_WDT_PHASE_TICKS_MAX
->  		|| phase2_ticks > OTTO_WDT_PHASE_TICKS_MAX);
-> =20
-> -	v =3D ioread32(ctrl->base + OTTO_WDT_REG_CTRL);
-> -
-> -	v &=3D ~(OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_=
-PHASE2);
-> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
-> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
-> -	v |=3D FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
-> -
-> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
-> +	mask =3D OTTO_WDT_CTRL_PRESCALE | OTTO_WDT_CTRL_PHASE1 | OTTO_WDT_CTRL_=
-PHASE2;
-> +	val =3D FIELD_PREP(OTTO_WDT_CTRL_PHASE1, phase1_ticks - 1);
-> +	val |=3D FIELD_PREP(OTTO_WDT_CTRL_PHASE2, phase2_ticks - 1);
-> +	val |=3D FIELD_PREP(OTTO_WDT_CTRL_PRESCALE, prescale);
-> +	regmap_update_bits(ctrl->regmap, OTTO_WDT_REG_CTRL, mask, val);
-> =20
->  	timeout_ms =3D total_ticks * tick_ms;
->  	ctrl->wdev.timeout =3D timeout_ms / 1000;
-
-[Severity: High]
-This is a pre-existing issue, but does otto_wdt_determine_timeouts() break
-the watchdog core's software heartbeat extension?
-
-When a user requests a timeout larger than the hardware's maximum capabilit=
-y,
-the prescale calculation loop earlier in this function exceeds
-OTTO_WDT_PRESCALE_MAX and returns -EINVAL.
-
-It seems the driver fails to clamp the requested timeout to its hardware
-capability before programming the registers, and overwrites wdev.timeout wi=
-th
-the calculated hardware ticks. This prevents the core from maintaining the
-full user-requested timeout via periodic pings.
-
-[ ... ]
-
-> @@ -192,7 +182,7 @@ static int otto_wdt_restart(struct watchdog_device *w=
-dev, unsigned long reboot_m
-> =20
->  	/* Configure for shortest timeout and wait for reset to occur */
->  	v =3D FIELD_PREP(OTTO_WDT_CTRL_RST_MODE, reset_mode) | OTTO_WDT_CTRL_EN=
-ABLE;
-> -	iowrite32(v, ctrl->base + OTTO_WDT_REG_CTRL);
-> +	regmap_write(ctrl->regmap, OTTO_WDT_REG_CTRL, v);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can the call to disable_irq()
-earlier in otto_wdt_restart() cause a deadlock during a pretimeout panic?
-
-If the pretimeout governor is set to panic, otto_wdt_phase1_isr() calls
-watchdog_notify_pretimeout() which triggers a kernel panic. The panic routi=
-ne
-disables local interrupts and calls machine_restart(), which invokes
-otto_wdt_restart().
-
-Because otto_wdt_restart() calls disable_irq(), it internally calls
-synchronize_irq() which will spin waiting for the currently active interrupt
-handler (otto_wdt_phase1_isr) to complete.
-
-Since we are already inside that handler, this will hang indefinitely during
-reboot. Additionally, calling disable_irq() in an atomic context with
-interrupts disabled could trigger a scheduling while atomic bug.
-
-> =20
->  	mdelay(3 * otto_wdt_tick_ms(ctrl, 0));
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260710074316.4664=
-3-2-adilov@disroot.org?part=3D1
+I don't know if that's gonna be a problem but i hope not. At the very
+least it is visible on linux-watchdog mailing list.
