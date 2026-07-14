@@ -1,178 +1,253 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11023132.outbound.protection.outlook.com [52.101.127.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D7947DD6B
-	for <linux-watchdog@vger.kernel.org>; Tue, 14 Jul 2026 15:42:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1872C466B7B;
+	Tue, 14 Jul 2026 15:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.127.132
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784043740; cv=pass; b=RqVfTpAEMIZPcahFn4ZfrwErkF1Dt+7keCgrl8hMwDEOIl9igk+63e2emLjqAdCgKR62Ggn502bnrOJjDZzw+GfiZNAYZUzB4Q6dEuViQepHUGIuS1LaPgh8hPSkSB83OMlevZBHGCL1L/FozXb2W2rOC3gkdapTazs7xmANqrs=
+	t=1784044488; cv=fail; b=f5N+XvKSGuACGPAJPZxtE6lc8Q13r/QseDl827gjDxzwW9bMYEX8jisqDHuvQlj2O+5oZUXmbuUUUeai6RJZ37lZuU+Lyyurc25mFE1ar0GTr4+dpSffflYeKs1Yyg0efrsgXg9eOJdPnoU2ROg6ug4oUDOub7XZbqHN6bKYtU4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784043740; c=relaxed/simple;
-	bh=sWqGyIl3Sy36dtoEqyN8K9IVF8mS5l6W67D4MCNUCJs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FKmwZJXhQHp9rrb+tqGMPXjsRUdsRwpRUrGK1RZmFFuWolG8Pj+P6wEeeloshowaXr8PzH/udJrhKC5ggVblQFwQoN6452+5AnhXOqw249QoOqiOGnIQZBbBN3CTEj9HcLwAruN9ZNOMzgDrVxBqMe70ZUHgjSXWi9rmfvo7xgU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IoBF+bPu; arc=pass smtp.client-ip=209.85.221.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784044488; c=relaxed/simple;
+	bh=wMMp4npTjkgvcvtY7cVHFmd8fOZPZ2Gt0CxGmbxMXGs=;
+	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=fVJUUxU3awcw6MWM6UU2tsBdSqLVutDureOFfuN81pxlP+DWB5I85VIPpbUTGJcsQid3NKNuCF+wscZhwKAGDp7FcmMGgXuK3+parxRkngvQIsbKol1JWtNYygpEfwI14gYjwg4UR6Bshjeodx8FjOdJtpf6DNtrS6qwLPacsD8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=advantech.com; spf=pass smtp.mailfrom=advantech.de; dkim=pass (2048-bit key) header.d=advantech.com header.i=@advantech.com header.b=X0K0w1xs; arc=fail smtp.client-ip=52.101.127.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=advantech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=advantech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IoBF+bPu"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-474560436c3so860070f8f.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Jul 2026 08:42:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784043736; cv=none;
-        d=google.com; s=arc-20260327;
-        b=XioW7DgbT9sSpvg79qhd25zZ87Tgbm0OrqHS4+WWRInun/+npp9HkIjDvQ/LecFoSm
-         nC4l5p5AP6mPJ/YIBunABOO7FHCOQecZRT1RiUXLPOir2fyyKWS0ZtIvbaxfRUnZcFQV
-         SIVidlTaP9KS/N81D5fdmfDRBfH59iJJfaUN4V/yCv62hRy2P0TmiC5HMSpe+p2QqHr4
-         A7vWAGS6oAFfnJcbJbsW6gyLS2UBswnMaTXd48Mk+jcBGHWbKW6GVZI40P8NF00f1Hnu
-         9IA+fc0YlXf0gypkUoCl08x33r6Ze2KE3JciFLU+l5dD3JnVmstuvf3iMExBQdcQkIUe
-         azJg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=bFMwMWLTvMmruDXHajLVVzBdjpUaW16nai1w7KarYv0=;
-        fh=EZlXgrGmzUMN+RsL0WDA2CM9cdhTf+VVZVyUnhTLmpc=;
-        b=pEglp4/IMvlxxwjA31x7hR9tLsKQNBwrosVvW4Ew2PZzwBL34l/Re60MRKlZxzOhAS
-         0KASB6BxIkMXDnqJ7/9V349Wvj0Rk6C22pRcDDYheoMTi91fgWaxkEGGAnOFYPss2M+H
-         /HOWdNHBwdg+jHGj1rhcMuZYWnqnlkADUkaca++2mE+CmUCG9yODsD4EMlMWHPOewZ0N
-         rpBLUsjC8AhpefZe9bnM7XkP4bcXStL1DevJTdOU3N4B8rgFG5/FFS9/XfJn/v7IHKr1
-         3LSzWjp6nflQCoipP3Eaf+88f8TC+XUTjYAPXCFEXrOQyFu7bF2LiNDhY4la53LvJy08
-         C4pQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784043736; x=1784648536; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=bFMwMWLTvMmruDXHajLVVzBdjpUaW16nai1w7KarYv0=;
-        b=IoBF+bPua6+u9KqI4AgZGFAoautr7lOViMlTn/lj3EKnMIvkczf8wve8jB/4xq7hTd
-         k6g3YLbSpCKtUo7VbcXidr+1bcyO93JJpT2pHudYAIGYHB+sVgzoF0+3hlbsx9WjSR3L
-         xPn2H4NL0XjnJyafQXzCovZTE0LZ8mHlB6YKhF5Lw2KtDwYYmuVjvroUZ0prtQpmDN87
-         eV5nH0qO1sUOCmrf1YEYDtI1Apm3kwOBatkDWEnWgd5xdUPrzRLUXd9Hr0ravlpxBAdb
-         XNmohH8t+XvX7rDOpO2Jf68ER4yVpzb4qSQHjexXDb3CG+4bCwOxGcv6GFKKCwunyMkr
-         l96g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784043736; x=1784648536;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bFMwMWLTvMmruDXHajLVVzBdjpUaW16nai1w7KarYv0=;
-        b=ptcPKrbr/jT/8V3DeP+e8jya/xNISDCnGMlDBn5ambXBa07/52y5KDnh3h2D0KiiPF
-         DOmm8dC3f/EUxVzHRE9Y2SwIVXjLCmJJcDxO76RJ11OldWxkoivRPie9NdbjbJqhzT42
-         8EQBgK8AzFBaSkD8zL6d6KtkeyKgv9qv3f7JLJ6Vc2bK3TGDcw7JQIo1aruXsOPmSltL
-         tLkBYZjStDyH2pPTSQuo2TW6ni9FX3qkSVwE3ye0qPWBXiWxZZyHYE27kU9uae/hWqbX
-         R9NqRLniLWqgAqtacatCGg5W1lnyVS+ohx0Qi897wjxW9eeTPfr8O3uUVa8+yWm+YfkX
-         gyJQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpnWXe+MJNDenQa0m4ZBoe5for29J0P2t6aMnvStojom0KOBhNGXJ7Baww+RC6ifsxsdlOobiQkTUZht0g05Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzyv5j0fAMW6Lvr/N2BgTPlT2Ygd7BMvzwExe7XN/4GDwbqoTpH
-	kK+Ko43KE1BjJ3TLjDWkcXPXRhG4s/rWPCXdKDlBQQ3CUjjRipu7TkPSRkD6XRhOOUL8q+R5hfP
-	7VnHLdbqtdSSMNrJ7Npt82IzdbolVR+w=
-X-Gm-Gg: AfdE7cmc9U97He3TmvVnKni4Sr5XP4LGkFK+rFZLTIYMfAL/gCTFwvrB+wIA/jJkm2x
-	olTEeL2MTl/6WrKIZNZ43GZqHX9KAeKiSQl++P5F3APAalMEK7UA77ng/6I+HBWaokfCFy5fMTR
-	NKbBqzI3vuippYUbFWZzgPBJWq+gz6tOKUHc8IYmp9atDzI+emdLSWY8otVP0vSE/1v5tpw4EDR
-	WqkU+GBjmLUtlsDeDNSbFZow8P9Wc7luKW0arIH2cvsHN4FkdeheamOHhwDU/g6Iwe3nHMbAuoE
-	8R6mhV8//1aWp2FZonxdDOjs5fOQ/HcSkP9TAXPyTcpxF/qcWhk/0Vn0IUA=
-X-Received: by 2002:a05:6000:2601:b0:473:1ccc:15be with SMTP id
- ffacd0b85a97d-47f2dcf8b2bmr16217773f8f.39.1784043735618; Tue, 14 Jul 2026
- 08:42:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=advantech.com header.i=@advantech.com header.b="X0K0w1xs"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=inDDIDp3KUkutCqEVN1a/xU7s1AdeeJNJ452uRf83yeC0LRKFmt8Vg1y/XzdsXVWZdoDS2Cnx1PjAae5xQLJqE2IvZTW4Vn5/EL1nVCYcAYwaOYpR86y/wgh2N2dPmPVEZ/GKEq9C6l1Wt+C1tVZ6uxzy1Aj2bfY7tBN9t3RK462KPy6j4SCw+jXjKdneN+3xZqjugsZKPLPo38l9yP/woThuo2YqHn050WVsUqX6XoObXI6CWX3d86zVY70F23rC1JsIz2uRLR/D0jbXS9NOsyboQVBK+/djpFf3FXY54ND/OfCBqxMN7esl1amhe5EMcY2EoPqjU35Xh9AY9ulMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/3mqKVxxuf7JSBBvFbFVIH2js7NM9iwRn3cPt4+Uql8=;
+ b=f7Pu9gJj+l6YEJDyTjHFsZPPS6l7Smu07Mboqkf6crCJ4z44ZkSsaUpROFduJ7o4iHXBH63NArZN5hhVNmIencF3LMOdnD9Nz1bZY9hLLw/HLyvO4y/+frt38o0/SjsZb3zRDePO1B5DNB4mhCWPRz8tVZhSLsTzaoOtmvxp5S0xHTcwF5ufCHES1SFzC+IOEWE8cYDxO26bpvJDhEjNvmCsrCeUCQZ5WKquUzSlMpPcM/eRViTrs6Y9ilC2dYkF5j/pk8aELiZ9gPnVZ4fSRa35D6iILaRmwhnvAFyxLmHjzfuojiRFQv65whgX4VJF3zce7A/xpXiJf+ZZSNueBg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=advantech.de; dmarc=pass action=none header.from=advantech.com;
+ dkim=pass header.d=advantech.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=advantech.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/3mqKVxxuf7JSBBvFbFVIH2js7NM9iwRn3cPt4+Uql8=;
+ b=X0K0w1xsdDDdPYdpai6byqk7dDd8Ie8IVn3xu24jOrISw88VWls3EgxsZD0KzDYpxHsGjfFs9xms1kNmW5AZwbxf5IvKb4FMn56KXAwyrgOoa12gnd4tQ/cHfhITnDDBNJLqM6082bv9LyBwZexP9/hygmDDQD7jCT921s29Jrsdb2qnUkTaP79jWqqe8CNwzKQduqb3zRfEriNgolu6Gh4q4cFMU6QWlvyoH69hSDFP2X99c6whlwH1rizpwPxeNeZL28TFxbpFH40ZHMNNp5gU0HBcZsp3e5TU2WdmwYsqNppfpyT25i6R3Tl6s9uS2u0yVqb4YNzoCBys3R+0Bw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=advantech.com;
+Received: from PSAPR02MB4502.apcprd02.prod.outlook.com (2603:1096:301:21::6)
+ by KL1PR02MB6189.apcprd02.prod.outlook.com (2603:1096:820:bd::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.202.20; Tue, 14 Jul
+ 2026 15:54:40 +0000
+Received: from PSAPR02MB4502.apcprd02.prod.outlook.com
+ ([fe80::44e6:6433:8000:35aa]) by PSAPR02MB4502.apcprd02.prod.outlook.com
+ ([fe80::44e6:6433:8000:35aa%3]) with mapi id 15.21.0202.018; Tue, 14 Jul 2026
+ 15:54:40 +0000
+From: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+Subject: [PATCH v2 0/8] Add support for Advantech EIO MFD series devices
+Date: Tue, 14 Jul 2026 17:54:14 +0200
+Message-Id: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAKdbVmoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyjHQUlJIzE
+ vPSU3UzU4B8JSMDIzMDc0MT3dKC4pKi1MRc3TIj3aTUxNRko6TExGSDFCWgjoKi1LTMCrBp0bG
+ 1tQCpQqb1XQAAAA==
+To: Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
+ Andi Shyti <andi.shyti@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
+ Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>
+Cc: linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
+ linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
+ Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, 
+ Hongzhi Wang <hongzhi.wang@advantech.com>, 
+ Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, 
+ Thomas Kastner <thomas.kastner@advantech.com>, 
+ Ramiro Oliveira <ramiro.oliveira@advantech.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3220;
+ i=ramiro.oliveira@advantech.com; h=from:subject:message-id;
+ bh=wMMp4npTjkgvcvtY7cVHFmd8fOZPZ2Gt0CxGmbxMXGs=;
+ b=owEB7QES/pANAwAKAc7t0Ke8vbAJAcsmYgBqVlu0YNkY9NL15znGwiha+i99kJxcm8VHDOWO6
+ mBdLSae/7qJAbMEAAEKAB0WIQS1Nkng0ZvJmBKh6GLO7dCnvL2wCQUCalZbtAAKCRDO7dCnvL2w
+ CatIDADES7J1HWpYc5Ps303bGjQL4SJgqtfQJpvm4xRxTWSiNjZRFRSqnE3gxFX7F5fhIPkqYJQ
+ dOFDsuct3gpKr5gPJjQzhbWouKVbZCeYh9Llcv+kzt2ZX6E3oUSThQFavGpmXBQpmKwHVIAhuXf
+ 4r+yS0sgdREg3pGQaLZKQIDSN6BW+IUSAOf8+h0g6QD3fiiSwZp6K80N4m95WFQnvAUQIXTht5B
+ LT9M+QEtIlhIlzHYpz9IRfUodeDXeUV20rimtAt661TbxUrtHrPcmEG7OBKUascd1u1epGcbZJt
+ JXTFURjRycnQWiYkwsX97Z6kkWspjeMoas8hr2zMHWVZlhmnr1PR/hxfsUtFDypO6pWdcGXknUA
+ DrjtYU+fq9YbXMkVY7flialTN/NBeuuM8Hquvcui4h/sZrVZK0EAccrx7hRfQXIbb0KVxWXgNc1
+ wK1qi+ZotzICdh8jyglJR3+yCs7kWhWN8FBIWEzNDY1Y6vMo+KFGETFDKSdezftC8cp8s=
+X-Developer-Key: i=ramiro.oliveira@advantech.com; a=openpgp;
+ fpr=B53649E0D19BC99812A1E862CEEDD0A7BCBDB009
+X-ClientProxiedBy: FR2P281CA0086.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:9b::14) To PSAPR02MB4502.apcprd02.prod.outlook.com
+ (2603:1096:301:21::6)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702160457.1884345-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260702160457.1884345-3-prabhakar.mahadev-lad.rj@bp.renesas.com> <46cfa874bd2ce4b6189606ae391e24833c802391.camel@pengutronix.de>
-In-Reply-To: <46cfa874bd2ce4b6189606ae391e24833c802391.camel@pengutronix.de>
-From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Tue, 14 Jul 2026 16:41:49 +0100
-X-Gm-Features: AUfX_myzFRk5zyRcC-DRg9lzaLxRzPGGbIhkzzOcp4mfT2S7yAzLBGupnIfXxos
-Message-ID: <CA+V-a8sBuKRDKDWzwzzofLY6mTAWFHiGJvyaLq865BZuR6r6-g@mail.gmail.com>
-Subject: Re: [PATCH 2/3] watchdog: rzv2h: Convert WDTDCR handling to regmap
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, linux-watchdog@vger.kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PSAPR02MB4502:EE_|KL1PR02MB6189:EE_
+X-MS-Office365-Filtering-Correlation-Id: a3d789a8-8bad-44d3-df20-08dee1c036c1
+X-MS-Exchange-AtpMessageProperties: SA
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|23010399003|52116014|7416014|376014|921020|38350700014|56012099006|11063799006|6133799003|55112099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	LONwMRbhfH9gmoT6wAIqYPzk+jHRg3lBFs6rlJppS4+hOBehzV0A+Sjyb7VlRimYoHDUcDdzOQK98cf8k4Cl/DFZfxorw9qu8ON9Sp4tnR9fxmNApKSV+2qy1vkk9JYe00iQKfloRFg5EONwddH634vli6M+4VE8dDidSFkexCYUtjoBABRMgvJA2zgs/zPiTg8ZeaPIUvQOHAecJVFZwy+5BhT33r3ByXtxIoiSSpi0BZ+WGdO0akTzJ5rwyvSdTxuC7qkgCZJQx7NKsoPvShHrGpLQJjjtpLNVCYbOVm0KBm3pl3dyd+MM2edhgy5UE2BW37+v5PdUXQsoLDHJY13LGEtov5KaapE/Zr9fcJ/NMdxfwV/CtO80+FsESZnZUZ/Nk6X738/wLDXVv3B13gMD1LkNHAmFB7skT0sikrMSUPqjGvtnya+8AXiSPpxaA9KVjgtTWH190/KllyeYZzTu/xCuB1CdRUCNCaFC3WqK5Ub9803AJCe3Sp0M03k6N0gDUsgo4pR/86ZKEUi4THluj35ZKkwvYzLnE5yMFaRE0b695psD3T82PPm/WTomrh58zVwcpUk0ASLWutGq26xuKdBdrEVcULTmxMs5l8BnDWbg6pKl/+E2fnUwLSu8K0uozUIKrZDLrQt4NMwISPY0M74jWOLdgX0nPe8KSgUp4RNfJGvW9rNLC5F7kqV9H3ItCZJBMMntphSDV8nLYi4lPiZecc9juDRATDE98hIUPb4Bpc6ss4rhsKDiZB95
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR02MB4502.apcprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(23010399003)(52116014)(7416014)(376014)(921020)(38350700014)(56012099006)(11063799006)(6133799003)(55112099003)(18002099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?RG1IemxJZFhVZXg5N0VBWGNRTXlGZkVRRFI3NE9nNkdYTVI4bDd0ZGxZRjVv?=
+ =?utf-8?B?aVpJWm8rNVVCaUVxaHN6NldqMUE3Y1dMRm9uQXZSSFlFMi90bUdsM1VsVkxQ?=
+ =?utf-8?B?UnI5UDM3TEJLSGlRL2FqNUx6NHhFWG5rWUxjOUcwUzNWRjlVdnV5TW0yWjNR?=
+ =?utf-8?B?YUVNcmU5eDJmenhHeFdYYk1oSzFSRTJLNmhQaWIvck5WTkhYeWhnN2YvczE5?=
+ =?utf-8?B?elowTWRRRENDWncwOVlwVUJYV3JqRnNVZCsyZVlkMTNKekVQTGRMT2xJOXJX?=
+ =?utf-8?B?RzZUa2Rydnc3MjRoVXpCSUJrRjBZb1dkbWprV1paK2JHS0JlWmdkOVBWK2NR?=
+ =?utf-8?B?aUpHUnIvN1phN1hPR3BLTmJwZnd5RmhYamtWQ0RjcHhmTVA2Q2dSLzVMeWtk?=
+ =?utf-8?B?NWIvQXZ4am0wZmVwaWRtaThHdWRRRndwSEN4d2xCRkZIaXE4cmFZeXIrUGVn?=
+ =?utf-8?B?YWlDOEdXY3V4YnZvYzltVjRuTG4xV2c3RTNjNWpXQXhzR2w1bWdGN0JHbTBJ?=
+ =?utf-8?B?TXdHS1g3R2ltZWdGMndIblMvRUNkY0gwRkdJNjVQRGp5MXV6TGF6WC9RODE3?=
+ =?utf-8?B?aDl0MmlKKzRma1VJa2pCd1VxQ3RYS0N0eW5Edy9oTXNFaStrZXFDV2g0cmFG?=
+ =?utf-8?B?WSthQ3E1WGJNVzdONkVYZ2RwYXNEeWlWeDRHUkM4d1c5czc5M0RodUtmblE5?=
+ =?utf-8?B?VW5mMFU0RDdCSmNkRWJQd3QrLy9FZ3VZcGJFa2ZXMzdIVzBiSzFkQm13c2dR?=
+ =?utf-8?B?OXF2RG1VRER1a0ZHRGJkaVdRdE13M2lGWHowTS9uaENHekFaOVg5Q2RtVHMw?=
+ =?utf-8?B?b0FFQTh3a1YzbHRFUm9FbWlSc3JDVUt0eVJ3eitxSUI3UGxEcWd4UnZKaWlo?=
+ =?utf-8?B?a1JoTVNoN1RTK09XVHZqT0MvcG8xam41MFNaeEFpOTM2SWhkdmd5b0lCWTdB?=
+ =?utf-8?B?QS9IM1ZsWDJXKzVBSHJ0aGpRV0dpeHpEQjcvaG9OYldtbXhGQXB6Q3g4Tklh?=
+ =?utf-8?B?ZU82YzZEalR6U3Zpdy94d3hqcXR6TFlyNXFJR2FBOS9pNDU2OTQzNktlQmx1?=
+ =?utf-8?B?UHVKeS9NcTh2SGEvTGtuU3VoYURKdGZteUhNZ3RQSFMramFpa283MDhaMmFk?=
+ =?utf-8?B?dlhwbnBrL0xmczZ1bmptNFZ4dkR4WFdEZFhlREtUNThmOUlQVm82cWRrcW1y?=
+ =?utf-8?B?UStNZlpHdEJSblF0UGpzSkE1MitQTEgrZ0dQNzJhdjgwSy9kdlhZbTVtYWJm?=
+ =?utf-8?B?L1ZzY1pyQnAwZHBERlUxeTU4NDdnR1o0ZVdLcGsyZ0QzSm1pMm5xREdNMkI3?=
+ =?utf-8?B?WU82cmsrMkFWWHcrWWliVjlrdGdnSVJwNGFVOVNjL2loVkM5NzQwZWRLL01o?=
+ =?utf-8?B?d0tYdEEvK3RrVHZUTmYxQUxJUDhCY29iT1U5OFJLM2l5a3RGYUpEUW9XWDhF?=
+ =?utf-8?B?c2xJR2p3UnBqK2QycHVDTlQxYXJwOWg5U0NQSDJidSt1TFZrME9TQUI0WkN2?=
+ =?utf-8?B?bmkvRytGZnFoQ3RGR3prSXRCU2tLQkJucnBHTmZJdE1LRG9mMUhIQ1FPWVlH?=
+ =?utf-8?B?cnhveFg2V29nVXpIVWlseFF0SEhsb0lrMEF6S2MyRHZHWkRYaFFibElFc0Zy?=
+ =?utf-8?B?QnNEWi9DZnBrNHlOdDJpdTNRcHNjeFB6ZjNONCtEMkNYN1hKWTRLU0pIOE11?=
+ =?utf-8?B?K3Z6TS80cFpkM3FvWWQ2aDhMMkJsYS9oK09XSDlGeWRuOUU0TFhFY0xHZE5N?=
+ =?utf-8?B?ejR2NDZnbXNuT0ZhVnNNWUNmL0h1blBYeGRJTnE5QXkra01ZQWxEbW5Fcjk2?=
+ =?utf-8?B?R2pFa3ArMFJpNDZ6TmttTHpsaDVpOW9XcFFQNXEvbkF2U1pkbW1KdFczQ0hH?=
+ =?utf-8?B?bTY2aXIxQkJrNUtndUxuNzF5TTRzQXFoMGlSV2I4WGZrYmFJWHFReHdoMDZu?=
+ =?utf-8?B?OGI3aEVkZzF5OGhIMDhwUGVlWlJNd2pSTVM4WTZBWG5zL0lHN2xwRnBVN1JV?=
+ =?utf-8?B?ZmF6d0oxckdoR2t2azFMSnV3NllzTk1jalBhUXFUQVJlK3NWdkZKSmdCbnNP?=
+ =?utf-8?B?TjJ2WjhKak9VRFhGZGJYU2l6NS84ZHFwczM2LzdweWtPZVZHWnF6N2MyeXRP?=
+ =?utf-8?B?czUxNGRKajRJZE1wbmdqS2U3N25NYXZ4OW5LcW9lMUlrYmc5Mm04V1FmTThs?=
+ =?utf-8?B?aTVnRzVjNkhJZmtsQXhBN2tjeDFTb1JCc29ianBpcjJsLy83SUJPMm92eUlL?=
+ =?utf-8?B?a1FHbjVNb0UzaWxkWGxmRmVIMk1pMFZTZ1I4MUNoalBObE9mMXprMW4rZ3Jh?=
+ =?utf-8?B?NVNTL1h6UzZ6OXFsRUlKTHE4TnpmU0E1QTBtaWxpdFhoVGRoT0hwOVhVaHpO?=
+ =?utf-8?Q?Jf/hf8GI919nm3h0=3D?=
+X-OriginatorOrg: advantech.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a3d789a8-8bad-44d3-df20-08dee1c036c1
+X-MS-Exchange-CrossTenant-AuthSource: PSAPR02MB4502.apcprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2026 15:54:40.3579
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: a77d40d9-dcba-4dda-b571-5f18e6da853f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VwIhwrgJz7k/mIzQ8vDOMVvJxUNyY3KVUPvq9GetXsj4tzG7nyfQ58RqhThPqoTVfUUFKZ/EcA70/rf/aZ9GqzRgV5whWh9HL+PAEdUd94E=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: KL1PR02MB6189
 
-Hi Philipp,
+This series implements a set of drivers allowing to support the
+Advantech EIO-2xx series of devices.
 
-Thank you for the review.
+This includes GPIO, hwmon, I2C bus, backlight controller, watchdog,
+thermal and a fan driver.
 
-On Fri, Jul 3, 2026 at 8:35=E2=80=AFAM Philipp Zabel <p.zabel@pengutronix.d=
-e> wrote:
->
-> On Do, 2026-07-02 at 17:04 +0100, Prabhakar wrote:
-> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> >
-> > Convert the WDTDCR register access from raw readl/writel variants over =
-to
-> > the regmap framework using devm_regmap_init_mmio().
-> >
-> > This conversion serves as a preparatory refactoring step. It allows the
-> > driver to subsequently support syscon-based system controllers natively
-> > by passing along alternative regmap handles without forcing messy
-> > architectural branching at runtime.
-> >
-> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> > ---
-> >  drivers/watchdog/rzv2h_wdt.c | 83 +++++++++++++++++++++++++-----------
-> >  1 file changed, 57 insertions(+), 26 deletions(-)
-> >
-> > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
-c
-> > index e9545b8f5fd0..d0b38450cc32 100644
-> > --- a/drivers/watchdog/rzv2h_wdt.c
-> > +++ b/drivers/watchdog/rzv2h_wdt.c
-> > @@ -12,6 +12,7 @@
-> >  #include <linux/of.h>
-> >  #include <linux/platform_device.h>
-> >  #include <linux/pm_runtime.h>
-> > +#include <linux/regmap.h>
-> >  #include <linux/reset.h>
-> >  #include <linux/units.h>
-> >  #include <linux/watchdog.h>
-> > @@ -67,7 +68,7 @@ struct rzv2h_of_data {
-> >
-> >  struct rzv2h_wdt_priv {
-> >       void __iomem *base;
-> > -     void __iomem *wdtdcr;
-> > +     struct regmap *wdtdcr_regmap;
-> >       struct clk *pclk;
-> >       struct clk *oscclk;
-> >       struct reset_control *rstc;
-> > @@ -89,26 +90,20 @@ static int rzv2h_wdt_ping(struct watchdog_device *w=
-dev)
-> >       return 0;
-> >  }
-> >
-> > -static void rzt2h_wdt_wdtdcr_count_ctrl(struct rzv2h_wdt_priv *priv, b=
-ool start)
-> > +static int rzt2h_wdt_wdtdcr_count_ctrl(struct rzv2h_wdt_priv *priv, bo=
-ol start)
-> >  {
-> > -     u32 reg =3D readl(priv->wdtdcr + WDTDCR);
-> > -
-> > -     if (start)
-> > -             reg &=3D ~WDTDCR_WDTSTOPCTRL;
-> > -     else
-> > -             reg |=3D WDTDCR_WDTSTOPCTRL;
-> > -
-> > -     writel(reg, priv->wdtdcr + WDTDCR);
-> > +     return regmap_update_bits(priv->wdtdcr_regmap, WDTDCR, WDTDCR_WDT=
-STOPCTRL,
-> > +                               start ? 0 : WDTDCR_WDTSTOPCTRL);
-> >  }
->
-> I would drop this helper function and just call regmap_set/clear_bits()
-> directly in rzt2h_wdt_wdtdcr_count_stop/start().
->
-Ok, I will update as suggested and send a v2.
+This series of patches targets several different subsystems, but the MFD
+subsystem is the main target.
 
-Cheers,
-Prabhakar
+Changes in v2:
+- Rebased on v7.2
+MFD
+- code cleanup
+- Remove timeout from sysfs
+- Propagate errors
+- Remove version.h
+GPIO
+- Code cleanup
+- Move gpio_chip to probe
+- Remove timeout from sysfs
+HWMON
+- Code cleanup
+- Refactor to use hwmon register with info
+- Remove tacho, same interfaces as fan
+I2C
+- Remove timeout from sysfs
+Backlight
+- Code cleanup, remove ununsed max parameter
+- Remove timeout sysfs
+- Use helper functions instead of direct calls
+- Correct return value in bl_init
+- Initializing scal ein backlight_properties
+- Return correct value when no backlight is enabled
+- Remove log on successful probe
+Watchdog
+- Remove timeout and IRQ from sysfs
+- Remove unnecessary logging from set_timeout/pretimeout wdt_get_type
+- Remove timeleft function
+- Rewrite wdt_set_irq_io to correctly handle return codes
+- Remove unneeded watchdog_init_timeout
+Thermal
+- Remote timeout from sysfs
+Fan
+- Remove timeout from sysfs
+- Remove unused variable temps_mc
+
+- Link to v1: https://lore.kernel.org/all/20251212-upstream-v1-v1-0-d50d40ec8d8a@advantech.com/
+
+Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+---
+Ramiro Oliveira (8):
+      Add Advantech EIO driver
+      Add Advantech EIO GPIO driver
+      Add Advantech EIO Hardware Monitor driver
+      Add Advantech EIO I2C driver
+      Add Advantech EIO Backlight driver
+      Add Advantech EIO Watchdog driver
+      Add Advantech EIO Thermal driver
+      Add Advantech EIO Fan driver
+
+ MAINTAINERS                      |   19 +
+ drivers/gpio/Kconfig             |    6 +
+ drivers/gpio/Makefile            |    1 +
+ drivers/gpio/gpio-eio.c          |  252 +++++++++
+ drivers/hwmon/Kconfig            |   10 +
+ drivers/hwmon/Makefile           |    1 +
+ drivers/hwmon/eio-hwmon.c        |  461 ++++++++++++++++
+ drivers/i2c/busses/Kconfig       |    6 +
+ drivers/i2c/busses/Makefile      |    1 +
+ drivers/i2c/busses/i2c-eio.c     | 1135 ++++++++++++++++++++++++++++++++++++++
+ drivers/mfd/Kconfig              |   10 +
+ drivers/mfd/Makefile             |    1 +
+ drivers/mfd/eio_core.c           |  644 +++++++++++++++++++++
+ drivers/thermal/Kconfig          |   17 +
+ drivers/thermal/Makefile         |    2 +
+ drivers/thermal/eio_fan.c        |  478 ++++++++++++++++
+ drivers/thermal/eio_thermal.c    |  346 ++++++++++++
+ drivers/video/backlight/Kconfig  |    6 +
+ drivers/video/backlight/Makefile |    1 +
+ drivers/video/backlight/eio_bl.c |  243 ++++++++
+ drivers/watchdog/Kconfig         |    7 +
+ drivers/watchdog/Makefile        |    1 +
+ drivers/watchdog/eio_wdt.c       |  641 +++++++++++++++++++++
+ include/linux/mfd/eio.h          |  124 +++++
+ 24 files changed, 4413 insertions(+)
+---
+base-commit: 50c051a08a731c52933608fa8e9174cd9875fcc4
+change-id: 20260714-upstream-v2-beaec2baac0d
+
+Best regards,
+-- 
+Ramiro Oliveira <ramiro.oliveira@advantech.com>
+
