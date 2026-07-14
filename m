@@ -1,406 +1,599 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7474A341D;
-	Tue, 14 Jul 2026 16:08:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EA0A36EA88;
+	Tue, 14 Jul 2026 16:11:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784045296; cv=none; b=fkCfFqzXpGwXmmXWAvtFu3U9sVRKz8pv/QCh4zsG9oZupaopQihDwNkNKBgdw2lksW2kY0dJYDinkxKaTfcBP9i3It1gzntYcomL9vmEZqUL0l5EYM0MJOKfi52TCB+JBn41Es1cKrGu+5pOLa+dB/txWFHYaYG+uaTUjEvlDcQ=
+	t=1784045480; cv=none; b=IRDBrpY4orC6ZSfs3T10hU62kHuVu39mNWxusmoFU7EwobXeraUWQGql9gVH3ei/96ZZSfOAhTed5el94Rm8IAXtjtvmmaYV+7TCtFFVKrlTVueTwseG8ofvRfaYZQEQ8OI9ZnMOx/dJMRGg53JrQwX0cg0lullNVapnSipknYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784045296; c=relaxed/simple;
-	bh=PCgDJyrZF7PQ2l8Q6C5oAMPD2RJ3ukPL+csOG9GzMgE=;
+	s=arc-20240116; t=1784045480; c=relaxed/simple;
+	bh=9Jupz2pz3rpmVJ2RkDeV6G4Jsuv3IgW1NMCtpicOL5w=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZlyA0wdU6uk9UWoWLKfQyD8dWEjLEyonLHgPvL8ahhe+AdIfqeCsGefoBv6ZgunaYwUEvgF08BWuak5x4BxjIWU5G8Y+anxF4hbDl+ZMgMAZjTj1Zngv0aEQaxyhagtOC9g2Y6awVDsZSMMQXaB/JRakulV0hgd8iXQDA9O/fJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JDooNuiG; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=brnp+yAPW3qu9DUQ00sKHYEGeK0SL2xlVRGPbc+dWx7eS6qkwkcfWrh6+5jIb6RRAJ6y9BcUQtM1JhJgcAu65TS/KvolqDMHv8kiil7UKSDatUGGhuH9eg57P9SQ8e1LT2PqoiRXgQm0t3cpP58Ika8hgXAtIDRgKiW9908bYeI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z2FvZeNS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JDooNuiG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CA9B1F000E9;
-	Tue, 14 Jul 2026 16:08:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z2FvZeNS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188571F00A3A;
+	Tue, 14 Jul 2026 16:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784045294;
-	bh=JE9aoAyM+Ji9IJXJXeicEhJkiknwGEHk7yrb4zd+SIk=;
+	s=k20260515; t=1784045478;
+	bh=bP813PqWGE4hbwxeUEuzsb08+vCc6RJ8tsVru+Mo02Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JDooNuiG86fiOrjetlceQkGsxICbeghHbQu1F9Xb4kbQGS49Jo+U0LEi9Gv1xcmGk
-	 0+rnORbH+zw7OW6sfqGmNT/pmWii8YAMDJYFgrzb+fawJz6sfLmXVsTFqBTH1Nuk31
-	 mO4BggfQAZuTETAZV9IwAPuAwo4maSjfOIwjAHm/LB7kS5hOjENzS9igBkDQxynbrO
-	 1z4X83O9yPbtLt9ZaSDUkAS/FzqfeNsUtre0i82FE5Vv998F9cA97N5ulo7uj811/F
-	 F9StFVbAuhcV3/uxDaWULHQP3z6m1cxaJcrFa1/1MOKDHX4dhkXa5Hwm4zOsa0T0uI
-	 lQUb4Wl1ftfxQ==
+	b=Z2FvZeNS2VE0kpaK6NJaT9zqDFWmgYfggvB7wjGkGOzRb/E+yKwxdaL/KTI7HBJA0
+	 9eAc56b+BypNNimlNjhVrgpP4Lamfr6k07tMCqegkTFWAAoNxOLwe15H4XAD+iP1KV
+	 lDmAM5f+WcPPu8uovKQkANrZqUC85t0b7MzsRoa5imLZ8GItAjROo/OsKZgwN0w6NV
+	 dbp6zyFIIr6vrmM3LrDmGu9nM9/mPklc+TU44RRFkUbPnbtfIHzAazbXqLvF7EKimc
+	 U+o+7T02wfmW004DT+bLg0dmPnR+HETdlPSwJo9mMV6/4QeW7Yf76nSxOdwSdTB/fy
+	 YNlHziUULw5mg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/8] Add Advantech EIO driver
+Subject: Re: [PATCH v2 4/8] Add Advantech EIO I2C driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ramiro Oliveira" <ramiro.oliveira@advantech.com>
-Cc: linux-hwmon@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org, mfd@lists.linux.dev, lee@kernel.org
-In-Reply-To: <20260714-upstream-v2-v2-1-76e5e41026db@advantech.com>
+Cc: linux-hwmon@vger.kernel.org, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org, lee@kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-1-76e5e41026db@advantech.com>
+ <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 16:08:13 +0000
-Message-Id: <20260714160814.3CA9B1F000E9@smtp.kernel.org>
+Date: Tue, 14 Jul 2026 16:11:17 +0000
+Message-Id: <20260714161118.188571F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 15 potential issue=
+Thank you for your contribution! Sashiko AI review found 18 potential issue=
 (s) to consider:
-- [Critical] Driver uses zero-initialized `pmc[0]` array without verifying =
-if the primary EC was successfully initialized, causing unintended I/O on s=
-ystem port 0x00.
-- [High] Missing success return for supported legacy code bases in `firmwar=
-e_code_base()`.
-- [High] Incorrect validation of `devm_ioport_map()` return value.
-- [Medium] The `mfd_cell` array `eio_devs` is not declared as `const`.
-- [Medium] The driver uses `PLATFORM_DEVID_NONE` instead of `PLATFORM_DEVID=
-_AUTO`, risking sysfs naming collisions.
-- [Medium] `acpi_ram_access()` truncates negative error codes into positive=
- 8-bit integers.
-- [Medium] The requested region for the PNP base ports is off-by-one and fa=
-ils to reserve the data port.
-- [Medium] Missing resource request for the dynamically discovered PMC comm=
-and port.
-- [Medium] Unaligned memory access and endianness assumptions in `info_show=
-()`.
-- [Medium] The IO port memory mapping is sized statically up to `0x49A`, bu=
-t accesses dynamically discovered hardware registers which can exceed the m=
-apped bounds.
-- [Medium] `pmc_clear` checks the wrong status bit (`IBF` instead of `OBF`)=
- before attempting to clear pending garbage data.
-- [Medium] Hardware PNP configuration mode is left unlocked on error and sk=
-ip paths in `eio_init()`.
-- [Low] The commit message prefix violates MFD subsystem naming conventions.
-- [Low] `MFD_EIO` uses the `isa_driver` API but lacks a Kconfig dependency =
-on `ISA_BUS_API`.
-- [Low] Driver-specific header file is improperly placed in the global `inc=
-lude/linux/mfd/` directory.
+- [Critical] Reading SMBus block data via an `unsigned int *` cast causes o=
+ut-of-bounds memory writes and stack corruption.
+- [Critical] The driver does not validate the userspace-provided block leng=
+th for SMBus block writes, allowing an out-of-bounds read of kernel memory.
+- [High] Premature exit in `i2c_xfer` causes silent truncation of multi-mes=
+sage I2C transactions.
+- [High] Local mutex `pnp_mutex` fails to protect the shared MFD-level PNP =
+configuration sequence from concurrent access by other child drivers.
+- [High] Misuse of `regmap_update_bits` (`eio_reg_or`) on W1C status regist=
+ers and with 0 masks acts as a no-op, failing to clear hardware errors.
+- [High] Off-by-one boundary check strictly rejects valid maximum-length (3=
+2-byte) SMBus block transfers.
+- [High] The 10-bit I2C addressing implementation is structurally flawed, l=
+osing the R/W bit, corrupting the address, and omitting Repeated Start.
+- [High] Uninitialized stack variables in `smb_access` are returned to user=
+space if regmap reads fail.
+- [High] SMBus read emulation over I2C incorrectly marks the command byte p=
+hase as a read operation.
+- [High] The read phase for `I2C_SMBUS_BLOCK_PROC_CALL` is completely omitt=
+ed, dropping the response data.
+- [High] Destructive bitwise operation wipes out `SMB_REG_HC` configuration=
+ during Block Process Call.
+- [Medium] Incorrect endianness handling in SMBus Word Data and Process Cal=
+l transfers corrupts data on big-endian architectures.
+- [Medium] The hardware is left stuck in PNP Extended Configuration Mode if=
+ any register access fails during `load_i2c`.
+- [Medium] Clock configuration logic is structurally disjoint when the requ=
+ested frequency equals exactly 30 kHz (`I2C_THRESHOLD_SCLH`), resulting in =
+massive under-clocking.
+- [Medium] Polling loops can falsely trigger timeout errors because they ev=
+aluate expiration before executing the final register read.
+- [Low] The block write formatting logic in `smbus_xfer` copies one byte pa=
+st the end of the payload buffer.
+- [Low] Module parameters for configuring I2C and SMBus frequencies are dec=
+lared but completely ignored by the driver logic.
+- [Low] Driver-specific header file is inappropriately placed in the global=
+ MFD include directory.
 --
 
---- Patch [1]: [PATCH v2 1/8] Add Advantech EIO driver ---
-commit d4de2a217ca69b28de748d9dadb7323cafed3d8e
+--- Patch [4]: [PATCH v2 4/8] Add Advantech EIO I2C driver ---
+commit 0b05c6638fad42a025d75120571d2def944319c3
 Author: Ramiro Oliveira <ramiro.oliveira@advantech.com>
-Subject: Add Advantech EIO driver
 
-Creating the core driver for Advantech EIO, all other drivers depend on thi=
-s.
+    Add Advantech EIO I2C driver
+   =20
+    This commit adds the driver to control the Advantech EIO I2C block, this
+    block is included in the Advantech EIO MFD.
 
-> Add Advantech EIO driver
-
-[Severity: Low]
-This isn't a bug, but the commit message prefix violates MFD subsystem nami=
-ng
-conventions. Should it follow the mfd: <Driver>: <Capitalized description>
-format?
-
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 35f6e9b76d056..42d133a2eb8dc 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-
-[ ... ]
-
-> @@ -517,6 +517,16 @@ config MFD_DLN2
->  	  etc. must be enabled in order to use the functionality of
->  	  the device.
-> =20
-> +config MFD_EIO
-> +	tristate "Advantech EIO core"
-
-[Severity: Low]
-Does this config need a dependency on ISA_BUS_API? This driver uses the
-isa_driver API which requires CONFIG_ISA_BUS_API to avoid build errors on
-architectures lacking ISA support.
-
-> +	select MFD_CORE
-
-[ ... ]
-
-> diff --git a/drivers/mfd/eio_core.c b/drivers/mfd/eio_core.c
+> diff --git a/drivers/i2c/busses/i2c-eio.c b/drivers/i2c/busses/i2c-eio.c
 > new file mode 100644
-> index 0000000000000..25873c0618127
+> index 0000000000000..56a89ca18f328
 > --- /dev/null
-> +++ b/drivers/mfd/eio_core.c
+> +++ b/drivers/i2c/busses/i2c-eio.c
+> @@ -0,0 +1,1135 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+[ ... ]
+> +#include <linux/device.h>
+> +#include <linux/delay.h>
+> +#include <linux/errno.h>
+> +#include <linux/i2c.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/eio.h>
+
+[Severity: Low]
+Does this include violate MFD architectural guidelines? The subsystem guide
+specifies that driver-specific header files should be kept local to
+drivers/mfd/ and not placed in the global include/linux/mfd/ directory if
+they are only used by the parent and its immediate children.
 
 [ ... ]
+> +struct eio_i2c_dev {
+> +	struct device *dev;
+> +	struct device *mfd;
+> +	struct regmap *regmap;
+> +	struct mutex pnp_mutex; /* Mutex for PNP acces */
 
-> +static struct mfd_cell eio_devs[] =3D {
-
-[Severity: Medium]
-Should this array be declared as static const? The MFD subsystem guidelines
-require child platform data arrays to reside in read-only memory.
-
-> +	MFD_CELL_NAME("eio_wdt"),
-> +	MFD_CELL_NAME("gpio_eio"),
-> +	MFD_CELL_NAME("eio_hwmon"),
+[Severity: High]
+Since this mutex is initialized locally within the I2C child driver, does it
+fail to protect the shared MFD-level PNP configuration registers (0x299/0x2=
+9A)
+from concurrent access by other sibling drivers (like GPIO or HWMON)?
 
 [ ... ]
-
-> +static ssize_t info_show(struct device *dev, struct device_attribute *at=
-tr, char *buf)
+> +static int wait_busy(struct eio_i2c_chan *i2c_chan)
 > +{
-> +	uint i;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(attrs); i++) {
-> +		int ret;
-> +		char str[32] =3D "";
-> +		int val;
-
-[ ... ]
-
-> +		if (attrs[i].size !=3D 4)
-> +			return sysfs_emit(buf, "%s\n", str);
-> +
-> +		val =3D *(u32 *)str;
-
-[Severity: Medium]
-Can this cast cause read corruption on big-endian platforms or potential
-alignment faults? Would using get_unaligned_le32() be safer here?
-
-> +
-> +		if (attrs[i].type =3D=3D HEX)
-
-[ ... ]
-
-> +static void pmc_clear(struct device *dev, int id)
-> +{
-> +	struct eio_dev *eio =3D dev_get_drvdata(dev);
+> +	ktime_t time_end =3D ktime_add_us(ktime_get(), I2C_TIMEOUT);
+> +	unsigned int reg =3D eio_chan_reg(i2c_chan, I2C_REG_STAT, SMB_REG_HS);
+> +	unsigned int target =3D eio_chan_reg(i2c_chan, I2C_STAT_BUSY, SMB_HS_BU=
+SY);
 > +	unsigned int val;
+> +	int cnt =3D 0;
 > +
-> +	/* Check if input buffer blocked */
-> +	if ((pmc_read_status(dev, id) & EIO_PMC_STATUS_IBF) =3D=3D 0)
+> +	do {
+> +		fsleep(cnt++);
+> +
+> +		if (ktime_after(ktime_get(), time_end)) {
+> +			dev_err(eio_dev(i2c_chan), "Wait I2C bus busy timeout\n");
+> +			return -ETIME;
+> +		}
+> +
+> +		if (eio_reg_read(i2c_chan, reg, &val))
+> +			return -EIO;
+> +
+> +	} while (val & target);
 
 [Severity: Medium]
-Is this checking the wrong status bit? To check if there is residual output
-data to clear from the EC buffer, shouldn't this check OBF (Output Buffer
-Full) instead of IBF (Input Buffer Full)?
-
-> +		return;
-> +
-> +	/* Read out previous garbage */
+Could this polling loop falsely return a timeout? If the thread experiences
+latency during the sleep and the timer expires, the loop will exit with an
+error without performing a final register read to check if the hardware
+actually completed the operation.
 
 [ ... ]
-
-> +static int get_pmc_port(struct device *dev, int id,
-> +			struct eio_dev_port *port)
+> +static void i2c_clear(struct eio_i2c_chan *i2c_chan)
 > +{
-
-[ ... ]
-
-> +	/* Make sure IO ports are not occupied */
-> +	if (!devm_request_region(dev, pmc->data, 2, KBUILD_MODNAME)) {
-
-[Severity: Medium]
-Does this leave the PMC command port (pmc->cmd) unprotected? It looks like
-only the data port is requested here.
-
-> +		dev_err(dev, "Request region %X error\n", pmc->data);
-> +		return -EBUSY;
+> +	if (is_i2c(i2c_chan)) {
+> +		eio_reg_write(i2c_chan, I2C_REG_STAT, 0xFF);
+> +	} else {
+> +		eio_reg_or(i2c_chan, SMB_REG_HS,  0xA9);
+> +		eio_reg_or(i2c_chan, SMB_REG_HS2, 0x4C);
 > +	}
-> +
-> +	return 0;
 > +}
 
+[Severity: High]
+Does using a read-modify-write operation (eio_reg_or -> regmap_update_bits)
+work for clearing Write-1-to-Clear (W1C) bits? If the bits are already set
+in the hardware, reading them and writing back the same value will often be
+skipped by regmap, leaving the errors uncleared.
+
 [ ... ]
-
-> +static int eio_init(struct device *dev)
+> +static int wait_write_done(struct eio_i2c_chan *i2c_chan, bool no_ack)
 > +{
-> +	struct eio_dev *eio =3D dev_get_drvdata(dev);
-> +	u16 chip_id;
-> +	unsigned int msb, lsb;
-> +	int tmp;
-> +	int ret =3D -ENOMEM;
+> +	ktime_t time_end =3D ktime_add_us(ktime_get(), I2C_TIMEOUT);
+> +	unsigned int val =3D 0;
+> +	int cnt =3D 0;
+> +	unsigned int reg =3D eio_chan_reg(i2c_chan, I2C_REG_STAT, SMB_REG_HS);
+> +	unsigned int target =3D eio_chan_reg(i2c_chan, I2C_STAT_TXDONE, SMB_HS_=
+TX_DONE);
 > +
-> +	for (int chip =3D 0; chip < ARRAY_SIZE(pnp_port); chip++) {
-> +		struct eio_dev_port *port =3D pnp_port + chip;
+> +	do {
+> +		fsleep(cnt++);
+> +		if (ktime_after(ktime_get(), time_end)) {
+> +			if (is_i2c(i2c_chan)) {
+> +				eio_reg_or(i2c_chan, I2C_REG_STAT, 0);
+
+[Severity: High]
+Is it possible this fails to clear the status flags? Passing a mask of 0 to
+regmap_update_bits will result in no bits being changed, and the write will
+likely be optimized out entirely.
+
+[ ... ]
+> +static int set_freq(struct eio_i2c_chan *i2c_chan, int freq)
+> +{
+> +	u8 pre1, pre2;
+> +	u16 speed;
+> +	unsigned int reg1 =3D eio_chan_reg(i2c_chan, I2C_REG_PRESCALE1, SMB_REG=
+_HPRESCALE1);
+> +	unsigned int reg2 =3D eio_chan_reg(i2c_chan, I2C_REG_PRESCALE2, SMB_REG=
+_HPRESCALE2);
 > +
-> +		if (!devm_request_region(dev, pnp_port[chip].idx_port,
-> +					 pnp_port[chip].data_port -
-> +						 pnp_port[chip].idx_port,
+> +	dev_dbg(eio_dev(i2c_chan), "set freq: %dkHz\n", freq);
+> +	if (freq > I2C_FREQ_MAX || freq < I2C_FREQ_MIN) {
+> +		dev_err(eio_dev(i2c_chan), "Invalid i2c freq: %d\n", freq);
+> +		return -EINVAL;
+> +	}
+> +
+> +	speed =3D (freq < I2C_THRESHOLD_SCLH) ? I2C_SCLH_LOW : I2C_SCLH_HIGH;
+> +
+> +	pre1 =3D (u8)(CHIP_CLK / speed);
+> +	pre2 =3D (u8)((speed / freq) - 1);
+> +
+> +	if (freq > I2C_THRESHOLD_SCLH)
+> +		pre2 |=3D I2C_SCL_FAST_MODE;
 
 [Severity: Medium]
-Is this calculation off-by-one? The subtraction data_port - idx_port evalua=
-tes
-to 1, which only requests the index port. Should it include a + 1 to reserve
-the data port as well?
+What happens if the requested frequency is exactly 30 kHz (I2C_THRESHOLD_SC=
+LH)?
+The first check (< 30) evaluates to false, making speed 2500. However, the
+second check (> 30) also evaluates to false, failing to set the FAST_MODE b=
+it.
+Will this combination drastically underclock the bus?
 
-> +					 KBUILD_MODNAME))
-> +			continue;
+[ ... ]
+> +static int smb_access(struct eio_i2c_chan *i2c_chan, u8 addr, bool is_re=
+ad, u8 cmd,
+> +		      int size, union i2c_smbus_data *data)
+> +{
+> +	int i, tmp, ret =3D 0;
+[ ... ]
+> +	case I2C_SMBUS_BLOCK_DATA:
+> +		dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_BLOCK_DATA\n");
+> +		if (is_read)
+> +			break;
 > +
-> +		ret =3D eio_unlock_port(dev, port);
-> +		if (ret)
-> +			return ret;
+> +		/* Program command type */
+> +		eio_reg_read(i2c_chan, SMB_REG_HC, (unsigned int *)&tmp);
+> +		tmp &=3D ~(0x07 << SMB_HC_CMD_SHIFT);
+> +		tmp |=3D  (size << SMB_HC_CMD_SHIFT);
+> +		eio_reg_write(i2c_chan, SMB_REG_HC, tmp);
 > +
-> +		ret =3D eio_pnp_read(dev, port, EIO_CHIPID1, &msb);
-> +		if (ret)
-> +			return ret;
+> +		/* Force write for payload stage */
+> +		eio_reg_write(i2c_chan, SMB_REG_HADDR, addr & ~0x01);
 > +
-> +		ret =3D eio_pnp_read(dev, port, EIO_CHIPID2, &lsb);
-> +		if (ret)
-> +			return ret;
+> +		/* Reset internal buffer index pointer */
+> +		eio_reg_and(i2c_chan, SMB_REG_HC2, (int)~SMB_HC2_E32B);
+> +		eio_reg_or(i2c_chan, SMB_REG_HC2, SMB_HC2_E32B);
 > +
-> +		chip_id =3D (msb << 8) | lsb;
-> +
-> +		if (chip_id !=3D EIO200_CHIPID && chip_id !=3D EIO201_211_CHIPID)
-> +			continue;
-
-[Severity: Medium]
-Does this continue bypass eio_lock_port() and leave the hardware PNP
-configuration mode unlocked on error and skip paths? This might leave the
-index and data ports susceptible to accidental modification.
+> +		/* Write length + data */
+> +		eio_reg_write(i2c_chan, SMB_REG_HD0, data->block[0]);
+> +		for (i =3D 1; i <=3D data->block[0]; i++)
+> +			eio_reg_write(i2c_chan, SMB_REG_HBLOCK, data->block[i]);
 
 [Severity: Critical]
-Additionally, if this loop completes without finding a valid chip_id, the l=
-oop
-exits and returns ret =3D 0. This causes eio_init() to succeed, and the=20
-uninitialized pmc[0] array is then passed to acpi_ram_access(). This could
-trigger regmap operations on system port 0x00 (system DMA controller base),
-potentially leading to hardware corruption or a system hang on unsupported
-hardware.
+Does this loop need to validate the length of data->block[0] against
+I2C_SMBUS_BLOCK_MAX before writing? Without bounds checking, this may blind=
+ly
+read past the union's memory boundary and dump kernel stack contents onto t=
+he
+I2C bus.
 
+> +		break;
 > +
-> +		/* Turn on the enable flag */
-> +		ret =3D eio_pnp_read(dev, port, EIO_SIOCTRL, &tmp);
-
-[ ... ]
-
-> +static uint8_t acpi_ram_access(struct device *dev, uint8_t offset)
-
-[Severity: Medium]
-Does this function truncate negative error codes into positive 8-bit intege=
-rs?
-Since standard negative error codes (like -110 for timeout) can be returned=
- by
-PMC operations, the caller might misinterpret corrupted error codes as valid
-ACPI RAM data.
-
-> +{
-> +	uint8_t val;
-> +	int ret;
-> +	struct eio_dev *eio =3D dev_get_drvdata(dev);
-
-[ ... ]
-
-> +static int firmware_code_base(struct device *dev)
-> +{
-> +	struct eio_dev *eio =3D dev_get_drvdata(dev);
-> +	u8 ic_vendor, ic_code, code_base;
-> +
-> +	ic_vendor =3D acpi_ram_access(dev, EIO_ACPIRAM_ICVENDOR);
-> +	ic_code =3D acpi_ram_access(dev, EIO_ACPIRAM_ICCODE);
-> +	code_base =3D acpi_ram_access(dev, EIO_ACPIRAM_CODEBASE);
-> +
-> +	if (ic_vendor !=3D 'R')
-> +		return -ENODEV;
-> +
-> +	if (ic_code !=3D EIO200_ICCODE && ic_code !=3D EIO201_ICCODE &&
-> +	    ic_code !=3D EIO211_ICCODE)
-> +		goto err;
-> +
-> +	if (code_base =3D=3D EIO_ACPIRAM_CODEBASE_NEW) {
-> +		eio->flag |=3D EIO_F_NEW_CODE_BASE;
-> +		return 0;
-> +	}
-> +
-> +	if (code_base =3D=3D 0 &&
-> +	    (ic_code !=3D EIO201_ICCODE && ic_code !=3D EIO211_ICCODE)) {
-> +		dev_info(dev, "Old code base not supported.");
-> +		return -ENODEV;
-> +	}
-> +
-> +err:
+> +	case I2C_SMBUS_BLOCK_PROC_CALL:
+> +		/* Set command type field */
+> +		eio_reg_and(i2c_chan, SMB_REG_HC, (0x07 << SMB_HC_CMD_SHIFT));
 
 [Severity: High]
-Does this logic miss a success return for supported legacy code bases? If
-code_base =3D=3D 0 and ic_code is a supported legacy code, the if block is
-skipped and execution falls through to the err: label, erroneously returning
--ENODEV and failing to probe on supported hardware.
+Does this bitwise operation wipe out configuration flags? Because eio_reg_a=
+nd
+uses regmap_update_bits with an inverted mask, providing only the command b=
+its
+implies all other active control bits in the register will be zeroed out.
 
-> +	/* Codebase error. This should only happen on firmware error. */
-> +	dev_err(dev,
-> +		"Codebase check fail: vendor: 0x%X, code: 0x%X, base: 0x%X\n",
+> +		eio_reg_write(i2c_chan, SMB_REG_HD0, data->block[0]);
+> +
+> +		/* Reset buffer index */
+> +		eio_reg_and(i2c_chan, SMB_REG_HC2, (int)~SMB_HC2_E32B);
+> +		eio_reg_or(i2c_chan, SMB_REG_HC2, SMB_HC2_E32B);
+> +
+> +		for (i =3D 1; i <=3D data->block[0]; i++)
+> +			eio_reg_write(i2c_chan, SMB_REG_HBLOCK, data->block[i]);
+
+[Severity: Critical]
+Similar to the block data write above, does data->block[0] need bounds chec=
+king
+here to prevent out-of-bounds kernel memory reads?
 
 [ ... ]
-
-> +static int eio_probe(struct device *dev, unsigned int id)
-> +{
-> +	int ret =3D 0;
-> +	struct eio_dev *eio;
+> +	switch (size) {
+> +	case I2C_SMBUS_QUICK:
+> +		dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_QUICK\n");
+> +		break;
 > +
-> +	eio =3D devm_kzalloc(dev, sizeof(*eio), GFP_KERNEL);
-> +	if (!eio)
-> +		return -ENOMEM;
+> +	case I2C_SMBUS_BYTE:
+> +	case I2C_SMBUS_BYTE_DATA:
+> +		if (is_read) {
+> +			unsigned int v;
 > +
-> +	eio->dev =3D dev;
-> +	mutex_init(&eio->mutex);
-> +
-> +	eio->iomem =3D devm_ioport_map(dev, 0, EIO_SUB_PNP_DATA + 1);
-
-[Severity: Medium]
-Is this static mapping bound potentially too small? The mapping strictly co=
-vers
-up to EIO_SUB_PNP_DATA + 1 (0x49B), but the driver accesses dynamically
-discovered hardware registers which can exceed these bounds anywhere in the
-16-bit IO space.
-
-> +	if (IS_ERR(eio->iomem))
+> +			dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_BYTE/I2C_SMBUS_BYTE_DATA\n");
+> +			eio_reg_read(i2c_chan, SMB_REG_HD0, &v);
+> +			data->block[0] =3D (u8)v;
 
 [Severity: High]
-Will this error check incorrectly pass on memory exhaustion?
-devm_ioport_map() returns NULL on failure, so checking IS_ERR instead of
-NULL could lead to a NULL pointer dereference in devm_regmap_init_mmio().
+If eio_reg_read fails (e.g. from a hardware error), the error is ignored and
+the uninitialized stack variable 'v' will be copied into data->block[0]. Wi=
+ll
+this leak uninitialized kernel memory to userspace during an ioctl?
 
-> +		return PTR_ERR(eio->iomem);
+> +			dev_dbg(eio_dev(i2c_chan), "read %X\n", data->block[0]);
+> +		}
+> +		break;
 > +
-> +	eio->map =3D devm_regmap_init_mmio(dev, eio->iomem, &pnp_regmap_config);
-> +	if (IS_ERR(eio->map))
-> +		return PTR_ERR(eio->map);
+> +	case I2C_SMBUS_WORD_DATA: {
+> +		unsigned int v0, v1;
 > +
-> +	/* Publish instance for subdrivers (dev_get_drvdata(dev->parent)) */
-> +	dev_set_drvdata(dev, eio);
-> +
-> +	if (eio_init(dev))
-> +		return -ENODEV;
-> +
-> +	ret =3D firmware_code_base(dev);
-> +	if (ret) {
-> +		dev_err(dev, "Chip code base check fail\n");
-> +		return ret;
-> +	}
-> +
-> +	ret =3D devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+> +		if (is_read) {
+> +			dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_WORD_DATA\n");
+> +			eio_reg_read(i2c_chan, SMB_REG_HD0, &v0);
+> +			eio_reg_read(i2c_chan, SMB_REG_HD1, &v1);
+> +			data->block[0] =3D (u8)v0;
+> +			data->block[1] =3D (u8)v1;
 
 [Severity: Medium]
-Should PLATFORM_DEVID_AUTO be used here instead of PLATFORM_DEVID_NONE?
-The MFD subsystem guidelines require using PLATFORM_DEVID_AUTO for automatic
-cell indexing to avoid sysfs naming collisions.
+Is it safe to assign word bytes directly into the data->block byte array?
+Because data->block shares a union with the 16-bit data->word, this mappings
+changes based on host endianness. Will this corrupt word values on big-endi=
+an
+architectures?
 
-> +				   eio_devs, ARRAY_SIZE(eio_devs),
-> +				   NULL, 0, NULL);
+[Severity: High]
+Also, just like the byte read case, an error in eio_reg_read will cause the
+uninitialized stack variables v0 and v1 to be returned to the client.
+
+> +		}
+> +		break;
+> +	}
+> +
+> +	case I2C_SMBUS_PROC_CALL: {
+> +		unsigned int v0, v1;
+> +
+> +		dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_PROC_CALL\n");
+> +		eio_reg_read(i2c_chan, SMB_REG_HD0, &v0);
+> +		eio_reg_read(i2c_chan, SMB_REG_HD1, &v1);
+> +		data->block[0] =3D (u8)v0;
+> +		data->block[1] =3D (u8)v1;
+
+[Severity: Medium]
+Similar endianness handling issue exists here for Process Call responses.
+
+[Severity: High]
+And once again, uninitialized memory leaks are possible if the reads fail.
+
+> +		break;
+> +	}
+> +
+> +	case I2C_SMBUS_BLOCK_DATA:
+> +		if (!is_read)
+> +			break;
+> +
+> +		dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_BLOCK_DATA\n");
+> +		eio_reg_read(i2c_chan, SMB_REG_HD0, (unsigned int *)&len);
+> +		len =3D min(len, I2C_SMBUS_BLOCK_MAX);
+> +		data->block[0] =3D len;
+> +
+> +		for (i =3D 1; i <=3D len; i++)
+> +			eio_reg_read(i2c_chan, SMB_REG_HBLOCK,
+> +				     (unsigned int *)&data->block[i]);
+
+[Severity: Critical]
+Is it safe to cast the 8-bit array slot pointer &data->block[i] to a 32-bit
+unsigned int * ? When regmap_read populates the result, it will write 32 bi=
+ts,
+causing it to overwrite up to 3 bytes past the end of the union i2c_smbus_d=
+ata
+structure on the final iterations, corrupting the stack.
+
+> +		break;
+> +
+> +	default:
+> +		ret =3D -EINVAL;
+> +		goto exit;
+> +	}
+
+[Severity: High]
+Is the read phase for I2C_SMBUS_BLOCK_PROC_CALL intentionally missing? The
+switch statement falls through to default, throwing away the response data =
+and
+returning an error.
 
 [ ... ]
-
-> diff --git a/include/linux/mfd/eio.h b/include/linux/mfd/eio.h
-> new file mode 100644
-> index 0000000000000..c2daad41318bf
-> --- /dev/null
-> +++ b/include/linux/mfd/eio.h
-> @@ -0,0 +1,124 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Copyright (C) 2025 Advantech Co., Ltd.
-> + */
+> +static int i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int =
+nmsgs)
+> +{
+[ ... ]
+> +	for (msg =3D 0; msg < nmsgs; msg++) {
+> +		int is_read =3D msgs[msg].flags & I2C_M_RD;
+> +		bool no_ack =3D msgs[msg].flags & I2C_M_IGNORE_NAK;
 > +
-> +#ifndef _MFD_EIO_H_
-> +#define _MFD_EIO_H_
+> +		dev_dbg(eio_dev(i2c_chan), "message %d len=3D%d\n", msg, msgs[msg].len=
+);
+> +
+> +		if (!msgs[msg].len)
+> +			let_stop(i2c_chan);
+> +
+> +		if (msgs[msg].flags & I2C_M_TEN) {
+> +			addr =3D eio_enc_10bit_addr(msgs[msg].addr);
+> +			addr |=3D is_read;
+> +			dev_dbg(eio_dev(i2c_chan), "10-bit addr: %X\n", addr);
+> +
+> +			ret =3D write_addr(i2c_chan, addr >> 8, no_ack);
+> +			if (!ret)
+> +				ret =3D write_data(i2c_chan, addr & 0x7F, no_ack);
+
+[Severity: High]
+Is this 10-bit addressing logic accurate? ORing the read flag into the lower
+byte, dropping the upper bit via a shift, and masking the bottom bits seems=
+ to
+corrupt the address format. Additionally, shouldn't there be a Repeated Sta=
+rt
+phase explicitly generated for reads?
+
+> +		} else {
+> +			addr =3D eio_enc_7bit_addr(msgs[msg].addr);
+> +			addr |=3D is_read;
+> +			dev_dbg(eio_dev(i2c_chan), "7-bit addr: %X\n", addr);
+> +
+> +			ret =3D write_addr(i2c_chan, addr, no_ack);
+> +		}
+> +
+> +		if (ret)
+> +			goto exit;
+> +
+> +		if (!msgs[msg].len)
+> +			goto exit;
+
+[Severity: High]
+Will exiting here prematurely abort multi-message transfers? For 0-length p=
+robe
+messages, this breaks out of the loop over nmsgs, failing to process any
+subsequent messages while still returning success.
+
+> +
+> +		if (is_read)
+> +			ret =3D eio_trigger_read(i2c_chan, (u32 *)&dummy);
+> +
+> +		/* Transmit all messages */
+> +		for (data =3D 0; data < msgs[msg].len; data++) {
+> +			if (msgs[msg].flags & I2C_M_RD) {
+> +				bool last =3D (msgs[msg].len =3D=3D data + 1);
+> +
+> +				if (last)
+> +					let_stop(i2c_chan);
+> +
+> +				ret =3D read_data(i2c_chan, &msgs[msg].buf[data]);
+> +				dev_dbg(eio_dev(i2c_chan), "I2C read[%d] =3D %x\n",
+> +					data, msgs[msg].buf[data]);
+> +
+> +				/* Don't stop twice */
+> +				if (last && ret =3D=3D 0)
+> +					goto exit;
+
+[Severity: High]
+Similarly, doesn't this goto break out of the nmsgs loop entirely? If a read
+message is followed by further messages in a single I2C transaction, those
+remaining messages will be silently ignored.
+
+[ ... ]
+> +static int smbus_xfer(struct i2c_adapter *adap, u16 addr,
+> +		      u16 flags, char is_read, u8 cmd,
+> +		      int size, union i2c_smbus_data *data)
+> +{
+[ ... ]
+> +	if (data) {
+> +		buf[0] =3D cmd;
+> +		/* FIX: preserve other flags; only toggle I2C_M_RD */
+> +		msgs[0].flags =3D is_read ? (flags | I2C_M_RD) : (flags & ~I2C_M_RD);
+
+[Severity: High]
+Does this break the semantic structure of an SMBus read transaction? Setting
+I2C_M_RD on the first message (the command byte phase) means it will be sen=
+t to
+the device as an I2C read rather than an I2C write, causing emulated SMBus =
+reads
+to fail entirely.
+
+[ ... ]
+> +	case I2C_SMBUS_I2C_BLOCK_DATA:
+> +	case I2C_SMBUS_I2C_BLOCK_BROKEN:
+> +		dev_dbg(eio_dev(i2c_chan), "I2C_SMBUS_I2C_BLOCK_(DATA/BROKEN) on I2C l=
+en=3D%d\n",
+> +			data->block[0]);
+> +		if (!data)
+> +			return -EINVAL;
+> +		msgs[0].len =3D is_read ? 1 : data->block[0] + 1;
+> +		msgs[1].len =3D data->block[0];
+> +		msgs[1].buf =3D data->block + 1;
+> +		if (msgs[0].len >=3D I2C_SMBUS_BLOCK_MAX ||
+> +		    msgs[1].len >=3D I2C_SMBUS_BLOCK_MAX)
+> +			return -EINVAL;
+
+[Severity: High]
+Does this boundary check strictly reject valid 32-byte payloads? Since
+I2C_SMBUS_BLOCK_MAX is 32, using >=3D instead of > causes perfectly valid
+maximum-length transfers to fail with -EINVAL.
+
+> +		if (!is_read)
+> +			memcpy(buf + 1, data->block + 1, msgs[0].len);
 
 [Severity: Low]
-This isn't a bug, but should this driver-specific header file be placed in
-drivers/mfd/ instead of the global include/linux/mfd/ directory? The MFD
-subsystem guidelines explicitly dictate keeping headers local if they are o=
-nly
-used by the parent and immediate children.
+Since msgs[0].len is set to data->block[0] + 1, won't copying msgs[0].len b=
+ytes
+from data->block + 1 pull one extra uninitialized byte from past the end of=
+ the
+populated payload?
+
+[ ... ]
+> +static int load_i2c(struct device *dev, enum eio_chan_id id,
+> +		    struct eio_i2c_chan *i2c_chan)
+> +{
+[ ... ]
+> +	/* Read channel I/O base via shared PNP window */
+> +	mutex_lock(&eio_i2c->pnp_mutex);
+> +	if (regmap_write(map, REG_PNP_INDEX, REG_EXT_MODE_ENTER) ||
+> +	    regmap_write(map, REG_PNP_INDEX, REG_EXT_MODE_ENTER) ||
+> +	    regmap_write(map, REG_PNP_INDEX, REG_LDN) ||
+> +	    regmap_write(map, REG_PNP_DATA,  ldn) ||
+> +	    regmap_write(map, REG_PNP_INDEX, REG_BASE_HI) ||
+> +	    regmap_read(map,  REG_PNP_DATA,  &base_hi) ||
+> +	    regmap_write(map, REG_PNP_INDEX, REG_BASE_LO) ||
+> +	    regmap_read(map,  REG_PNP_DATA,  &base_lo) ||
+> +	    regmap_write(map, REG_PNP_INDEX, REG_EXT_MODE_EXIT)) {
+> +		mutex_unlock(&eio_i2c->pnp_mutex);
+> +		dev_err(dev, "error read/write I2C[%d] IO port\n", id);
+> +		return -EIO;
+> +	}
+
+[Severity: Medium]
+If any of these hardware accesses fail, the logical OR sequence short-circu=
+its.
+Doesn't this mean the REG_EXT_MODE_EXIT command is never sent, leaving the =
+Super
+I/O controller permanently stuck in configuration mode?
+
+> +	mutex_unlock(&eio_i2c->pnp_mutex);
+> +
+> +	base =3D (base_hi << 8) | base_lo;
+> +	if (base =3D=3D 0xFFFF || base =3D=3D 0) {
+> +		dev_dbg(dev, "i2c[%d] base addr=3D%#x (not in-use)\n", id, base);
+> +		return -ENODEV;
+> +	}
+> +
+> +	dev_dbg(dev, "i2c[%d] base addr=3D%#x\n", id, base);
+> +
+> +	/* Bind channel (no per-chan dev) */
+> +	i2c_chan->base =3D (u16)base;
+> +	i2c_chan->id   =3D id;
+> +
+> +	/* Per-channel frequency policy */
+> +	if (i2c_chan->freq_override !=3D USE_DEFAULT)
+> +		set_freq(i2c_chan, i2c_chan->freq_override);
+
+[Severity: Low]
+Does this actually have an effect? It appears i2c_chan->freq_override is
+unconditionally initialized to USE_DEFAULT in the probe function just before
+this is called, rendering the check dead code and ignoring user-provided mo=
+dule
+parameters.
+
+[ ... ]
+> +static int eio_i2c_probe(struct platform_device *pdev)
+> +{
+[ ... ]
+> +	for (ch =3D EIO_I2C0; ch < MAX_I2C_SMB; ch++) {
+> +		struct eio_i2c_chan *i2c_chan;
+> +
+> +		i2c_chan =3D devm_kzalloc(dev, sizeof(*i2c_chan), GFP_KERNEL);
+> +		if (!i2c_chan) {
+> +			ret =3D -ENOMEM;
+> +			break;
+> +		}
+> +
+> +		i2c_chan->parent =3D eio_i2c;
+> +		i2c_chan->freq_override =3D USE_DEFAULT;
+
+[Severity: Low]
+This initialization unconditionally overrides any module parameters provide=
+d by
+the system administrator.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-upstream-v=
-2-v2-0-76e5e41026db@advantech.com?part=3D1
+2-v2-0-76e5e41026db@advantech.com?part=3D4
