@@ -1,236 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8529A2F6920;
-	Tue, 14 Jul 2026 16:14:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784045687; cv=none; b=CouUORMyH950O2SaZMvBtYWpk8/QQLuRINhkKuP9tHTar2ryho6C2TYdRhqgv0ENSKkHj+unQwG0UQ0oPXjm9CuXCH3ETCFhfn0uCuVKo61/q/bkkd5WhXqOF7/VfdxpoFywM8vuGseDjFMccCBzrPlZ3Uexi+ItOcYsMK56aUA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784045687; c=relaxed/simple;
-	bh=zIY2aMUEOiopzWsgQEWZGxfuk3w7gXKJKNyDmur8U8Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jSge5Xybpb5L615IvkNgkmglaMnfea49gjllRZWHhL3CQ5NgPtn/8Q5t9zRNzXMvE9XEzvRTNg0e1I+8H6fiGw5DE18bMetJ3IR9JPa9LC13TWtKanBGImWcsMT8JaV0owxesj/bQDMM/SG9DbMGNxYkzdY3rrHxlWGtTq7mswk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N+wUyMc4; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 473602E228D
+	for <linux-watchdog@vger.kernel.org>; Tue, 14 Jul 2026 16:51:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784047872; cv=pass; b=SLK977+XR5p7SHQiRpj2j8D77H5N9pnsaak54FzYJ2JINNpmJKq9teDgVhBO6mH75AjUebVaNBJXxSe7VXb1d31H4jHL/gL22d9Kgj2myIUSg5RiWiWteM/TRprGSFFaI0eEo42AcUlF+omUoYLHVegRENhu9LJR6EtVmDiDPW4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784047872; c=relaxed/simple;
+	bh=UKuXmnxAZy4X4Zfjms3mGb3B8NsNDeeH3MZJWfiGhEs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XodvooVKeTyxHG/054xKPcsw4titgtVHBJg3Z9alnU1G8lWV/xr+JuDBDi/jly0h7lAzFnPCU469sG8Iiw/oLjjFHo0Zh2+w7I37E1ZTPQ4n8vOVDBdKkG0reCWDz+geBTfo+eo2MDvSh4KTCqmFh+u4EYZeaoJ30zo0TtXgfV0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sUB+07b9; arc=pass smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N+wUyMc4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C72751F000E9;
-	Tue, 14 Jul 2026 16:14:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784045686;
-	bh=n6fpDDchRl+qTg8OO7QXdYt/sgsAvifY2+jx9NRSV4g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=N+wUyMc4eIE7HHVn2QsheBZWQDtxw81r5IlOfhtJSWa1qsGXIsZHAIw7o4hMfCXyf
-	 WgEKlBx94zUkkhowkncSl9AyUzT9/8wVPYdg0SxcoqGppI3V+VQYzIMpQaeN1LZzNf
-	 kcNCsEI/kv9wIQWO0D+6gSyQdK8nFRgf4wda/pM8Od1k49qM2j/A61NjHtk2Fe4BcS
-	 vraLJKlrL/qav0A7LDCd0Ab6Y9eAxobnPnpnc1i6OTNonm6wXXi+dyULu1uryKRGQD
-	 saw7SV8bEMONQwyK6n0GSaiKQezIdFKMhZb60Jyjvf88VdQePCmKUp122Su0X2bibg
-	 AryqMegkqt3cw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 8/8] Add Advantech EIO Fan driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ramiro Oliveira" <ramiro.oliveira@advantech.com>
-Cc: linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, dri-devel@lists.freedesktop.org, mfd@lists.linux.dev, lee@kernel.org
-In-Reply-To: <20260714-upstream-v2-v2-8-76e5e41026db@advantech.com>
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-8-76e5e41026db@advantech.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 14 Jul 2026 16:14:45 +0000
-Message-Id: <20260714161445.C72751F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sUB+07b9"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-47f365afc5aso1534042f8f.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 14 Jul 2026 09:51:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784047869; cv=none;
+        d=google.com; s=arc-20260327;
+        b=siQNt5YTldojqrUUQv/aiFAFbZGw+BAtHRfl4fLXVGFx79HOOag/UdbGk47cgRgkJD
+         wIkGtyIFRdptMfQKztDrEkCeG2F4dGH30l0+DWF2IOk8s88lmebmIjj4A0cqCPSHBfGV
+         Fq1QGCyWR8r7hYZGunecjlMFjFNS8LPsAJpzhcwdPm1Y75PgaZluA4GOf6kni1BOB/3T
+         VbO+e80yc+fNOFjX59UWl/Fh9S5gwfjIdPhd5AXnGWhpvQOTozxdvRKsFdKqMGoMKgBd
+         Fp55naKlifKIUCZKfEuxXVomSGzUZwy+yuFCyr+5NZDyFr1kUVUehpv4P2xNGj6ODNTH
+         eGZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8BlgmiFQrHiuTd+MM0CeF9cu80lrra6/Pp38WzQSYbE=;
+        fh=Yus6QALEJiGDYhogUrrKgLpM9sTnVIn2IUIEq0lfeYo=;
+        b=Ou7VgXrT54IvzzE2xWGmn7BYCzS7b1HWUu30Vud/wdG06JI74HsouUyR6loPQ0yu7S
+         aS5VL+IEIXJi8NuXg02dxvDjLdi+hBDSepAJ19fAy4fxyNr/Mzt2q4YpslIPj1llcHaA
+         6mTIZJF0P7rAdjYJj5cwbHHUote+DSApBNPcVc8gYevVf5MZprxaUWvmmTTWML2jqiZT
+         H12bU/zjwpyZ3UYqT9LvvTvLXOGtJ09G+H2Z9AYtqF7oWF95gSMxzdS+ecZbzCXWk83+
+         0Z4B8EM0gr1kwJczv9/lcoBpJSkoHl6PCCC5E0o9tpcrGMS+Ty859TaV06f2qcYiOF+c
+         Y25w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784047869; x=1784652669; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8BlgmiFQrHiuTd+MM0CeF9cu80lrra6/Pp38WzQSYbE=;
+        b=sUB+07b97KGV3ebDMkf0d3LU/JbugGI5wAiuag6v2+UK398tluefGUR03Qt2NGVOt3
+         poU3WOZaYSn4pp7yER5a/Tzddw/uxLuMGI+r8BlwLUNOMQpmkEYJ5fOQNP7Rp0zMyeDI
+         g4deAY34diw6dPfpcjDMqPsuLXhuI+1fX4H8oicc3qt5mN0Dw6/KHBTch5etD6Dr3LpF
+         Vo2XBs61rXFmCWC82PizuiU7IC0sO4juLej9ZePmzKnC3CXA/egtX60IONCorzuqrqx9
+         t+T+fSoyeH3ErkF+ezlR0c7Tqpx+FocK+eTnhmz0ZTOTUYKAOcZUUqLhbFWff6hiTyhq
+         fFhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784047869; x=1784652669;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8BlgmiFQrHiuTd+MM0CeF9cu80lrra6/Pp38WzQSYbE=;
+        b=R0KgVAIQk5+EbzgpUmgnk7u09xir95uhPvNXS2opHu2ghjDDjtqy0raiYSeA6fh3zi
+         6Y+866Yh7Ob3rVFhWTH+o8ZwxZzoXQKCqqA+RVkFCxNd+UNaOT5wKdgGrRsPfN6z5Dlo
+         cmlgnch3vvtsVaWp9OVBbGCni8QQqzw6kvaDPCGSXXNsPsAfEznlrMnXZ1vNYzLzTbmR
+         XmMW53pmhIjnCT7rm+wXzfGT6awUjj0dAJRykRtB5Z1G9hDK6hABDhmXlfNSZEpqUpP8
+         c+TAyYuJOySrB1PpBaRr5x1bLAsdmt6kppXlREbCcd/crAoL55LaB2yK7EMdsTAWRNkP
+         j4xg==
+X-Forwarded-Encrypted: i=1; AHgh+RppKFgCOaxNqxr7/nZy57Ot1M6HJrEmX+HmlsZltQd7yo+yPKJCUWEMaGuyn8HOGDTwbRZchpohCfv/71zomg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdtgqdG2I9wLaK/0CBjyDYlh74bIll7/b0WcBoETLimeonIZOt
+	CjJMw4yx8AUbKh65FYCdBTbXEpBbiDSj/jszaORySFP95C/sQZ9P1pUOWyDX03IVRX88Gh/lY5a
+	+yDP79wfZQh/QGMF/AZNd2hSV7otXn58=
+X-Gm-Gg: AfdE7clMW1GPwd803lAlQi5BJRR80exFXl/i9XbZuRZ3/K5+N+TQOI+xSyXED3LBxBV
+	AN5z72ynbSZ44gjCMqLy555711QifQSWyQaEkqOp2QErYQyOj9zMSABxL5mqEG7ygRkg2iVkkeJ
+	t9U2ySz4h2LsdDWE+tCyV4d7iBLymYvjkaTqx/YezhzAPKr4y0ykDbIvKU5AVbqFehnvpKQ9wkv
+	Ym4iD9tRf1z2AGHVf1hx73CzdOOazSDmTgRS3bGebv2XsT0t3VlNbbL8ypUM2YQ/mARuNnNeARQ
+	aR15MeJC9hOmniO3i4OR5JVoKJeFwJyyTylaJrgPStgsd2ZKfvG7KP+YpDd9CbB9Nb0qKg==
+X-Received: by 2002:a05:6000:46c2:b0:47f:4c49:4318 with SMTP id
+ ffacd0b85a97d-47f4c4944a5mr1473055f8f.49.1784047869366; Tue, 14 Jul 2026
+ 09:51:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <CAMuHMdUhiBAcJ6P7j0ZxL+0AbVqz88PMo7YX9UiYOK8jM61D1Q@mail.gmail.com> <CA+V-a8uUxfDx2Xnb3uFg2=R+eYnzVmAv4PoEYeXGwAbANxG5Bg@mail.gmail.com>
+In-Reply-To: <CA+V-a8uUxfDx2Xnb3uFg2=R+eYnzVmAv4PoEYeXGwAbANxG5Bg@mail.gmail.com>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Tue, 14 Jul 2026 17:50:42 +0100
+X-Gm-Features: AUfX_mwxd6v5gFWCuMlhAPL7PON29wGJJEnO7K61SQDYcZ5CBYFFPz5abzgomRI
+Message-ID: <CA+V-a8utJuuwVNy8o2zM5jHf9qXx36S79uKGtYr5O=sASh_wpg@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 0/9] Add System Controller support for RZ/T2H and
+ RZ/N2H SoCs
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, 
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
-- [High] Missing `.remove` callback and incomplete probe error unwinding le=
-ads to thermal zone leaks and use-after-free vulnerabilities.
-- [High] Array index out-of-bounds when accessing the `fan_name` array usin=
-g an unvalidated hardware index.
-- [High] `eio_fan_should_bind` casts `cdev->devdata` to `struct eio_fan_dev=
- *` without verifying the cooling device type.
-- [Medium] `eio_fan_set_trip_temp` constantly fails because it incorrectly =
-double-adds the `CTRL_THERM_HIGH` offset.
-- [Medium] Passing pointers to 32-bit `int` variables for 1- or 2-byte hard=
-ware reads results in endianness corruption on big-endian architectures.
-- [Medium] Violation of MFD subsystem rules by using a custom parent-child =
-accessor function.
---
+Hi Geert,
 
---- Patch [8]: [PATCH v2 8/8] Add Advantech EIO Fan driver ---
-commit 0e6353f2bcc96ca0d70e6ec50a52311c0213d5ad
-Author: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+On Tue, Jul 14, 2026 at 2:27=E2=80=AFPM Lad, Prabhakar
+<prabhakar.csengg@gmail.com> wrote:
+>
+> Hi Geert,
+>
+> Thank you for the review.
+>
+> On Mon, Jul 13, 2026 at 5:00=E2=80=AFPM Geert Uytterhoeven <geert@linux-m=
+68k.org> wrote:
+> >
+> > Hi Prabhakar,
+> >
+> > On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> wro=
+te:
+> > > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > > This series adds support for the System Controller (SYSC) blocks foun=
+d on
+> > > the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical low-=
+power
+> > > management and access control functions.
+> > >
+> > > Hardware Architecture & Dependency Challenges:
+> > > ----------------------------------------------
+> > > The SYSC in these SoCs is a multi-functional block responsible for:
+> > >     - Clock & Reset Control
+> > >     - Low Power Management
+> > >     - Clock Monitor (CLMA)
+> > >     - Access Control
+> > >
+> > > A key architectural detail is that these SYSC blocks are physically l=
+ocated
+> > > within the CPG/MSSR (Clock Pulse Generator / Module Standby Software =
+Reset)
+> > > address space. While the CPG/MSSR driver is already implemented and
+> > > functional for these SoCs, the integration of SYSC adds a layer of
+> > > complexity due to a cyclic dependency:
+> > >     - SYSC requires CPG: The system controller needs a clock to opera=
+te.
+> > >     - CPG requires SYSC: Access control registers within the SYSC con=
+tain
+> > >       bits necessary to control the PLLs managed by the CPG.
+> > >
+> > > If implemented as a completely separate top-level system controller n=
+ode, we
+> > > would face a cyclic dependency between the CPG and SYSC drivers durin=
+g the
+> > > boot process.
+> > >
+> > > Proposed Implementation
+> > > ----------------------------
+> > > To resolve this, the SYSC blocks are represented as child nodes of th=
+e
+> > > CPG/MSSR controller in the device tree. The SYSC regmap is registered
+> > > directly against the CPG device node. This hierarchy correctly models=
+ the
+> > > hardware address space while allowing the drivers to share resources
+> > > without deadlock.
+> > >
+> > > I am sending this as an RFC specifically to get feedback on the
+> > > implementation of the SYSC as child nodes of the CPG to resolve the
+> > > dependency cycle.
+> >
+> > Personally, I am not a big fan of subnodes.  I assume you are using
+> > subnodes because you can register only a single regmap per syscon node?
+> Yes so that the consumers don't have to specify it by indexing.
+>
+> > Would it be possible to just extend the existing clock-controller
+> > node with two more reg entries, and expose them through a single
+> > combined regmap?
+> >
+> That should be possible. Or would you prefer just to extend the sizes
+> and create a single regmap for it?
+>
+>                cpg: clock-controller@80280000 {
+I wonder wether we rename this to `sysc: system-controller` but the
+compatiable string has "*cpg-mssr" postfix.
 
-Add Advantech EIO Fan driver
-
-This commit adds the driver to control the Advantech EIO Fan block,
-which is included in the Advantech EIO Embedded Controller.
-
-> diff --git a/drivers/thermal/eio_fan.c b/drivers/thermal/eio_fan.c
-> new file mode 100644
-> index 0000000000000..e07b18c2ec44a
-> --- /dev/null
-> +++ b/drivers/thermal/eio_fan.c
-
-[ ... ]
-
-> +static int pmc_write(struct device *mfd, u8 ctrl, u8 id, void *data)
-> +{
-> +	if (ctrl >=3D ARRAY_SIZE(pmc_len))
-> +		return -EINVAL;
-> +
-> +	struct pmc_op op =3D {
-> +		.cmd       =3D CMD_FAN_WRITE,
-> +		.control   =3D ctrl,
-> +		.device_id =3D id,
-> +		.size	   =3D pmc_len[ctrl],
-> +		.payload   =3D (u8 *)data,
-> +	};
-> +	return eio_core_pmc_operation(mfd, &op);
-
-[Severity: Medium]
-Does using eio_core_pmc_operation() directly bypass standard kernel subsyst=
-em
-APIs like regmap? According to MFD guidelines, child drivers should retrieve
-parent driver data using standard APIs rather than custom parent-child
-accessors.
-
-[ ... ]
-
-> +static int eio_fan_get_temp(struct thermal_zone_device *tzd, int *temp)
-> +{
-> +	struct eio_fan_dev *fan =3D thermal_zone_device_priv(tzd);
-> +	struct device *mfd =3D fan->mfd;
-> +	u8 ch =3D fan->id;
-> +	int sensor =3D 0;
-> +	u16 val =3D 0;
-> +	int ret;
-> +
-> +	ret =3D pmc_read(mfd, CTRL_CTRL, ch, &sensor);
-
-[Severity: Medium]
-Since pmc_read() seems to read a 1-byte value based on pmc_len[CTRL_CTRL],
-does passing a pointer to a 32-bit integer write only to the most-significa=
-nt
-byte on big-endian platforms?
-
-[ ... ]
-
-> +static int eio_fan_set_trip_temp(struct thermal_zone_device *tzd,
-> +				 const struct thermal_trip *trip, int temp)
-> +{
-> +	struct eio_fan_dev *fan =3D thermal_zone_device_priv(tzd);
-> +	const struct eio_fan_trip *fan_trip =3D trip->priv;
-> +	u8 ctl =3D CTRL_THERM_HIGH + fan_trip->trip_ctl;
-
-[Severity: Medium]
-Since fan_trip->trip_ctl was already initialized to CTRL_THERM_HIGH during
-probe, does adding CTRL_THERM_HIGH again cause the offset to exceed the
-ARRAY_SIZE(pmc_len) limit of 33, making pmc_write() always return -EINVAL?
-
-[ ... ]
-
-> +static bool eio_fan_should_bind(struct thermal_zone_device *tzd,
-> +				const struct thermal_trip *trip,
-> +				struct thermal_cooling_device *cdev,
-> +				struct cooling_spec *spec)
-> +{
-> +	struct eio_fan_dev *tz_fan  =3D thermal_zone_device_priv(tzd);
-> +	struct eio_fan_dev *cd_fan  =3D cdev->devdata;
-> +
-> +	if (!tz_fan || !cd_fan)
-> +		return false;
-> +
-> +	if (tz_fan->mfd !=3D cd_fan->mfd || tz_fan->id !=3D cd_fan->id)
-
-[Severity: High]
-Is it safe to cast cdev->devdata to struct eio_fan_dev* here without first
-verifying that the cooling device actually belongs to this driver (for
-example, by checking cdev->ops)? Could this lead to out-of-bounds memory
-access if the thermal framework invokes this for a cooling device belonging=
- to
-another driver?
-
-[ ... ]
-
-> +static int eio_fan_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev =3D &pdev->dev;
-> +	unsigned int fan_id;
-> +	int ret;
-> +
-> +	if (!dev_get_drvdata(dev->parent)) {
-> +		dev_err(dev, "eio_core not present\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	for (fan_id =3D 0; fan_id < FAN_MAX; fan_id++) {
-> +		u8 state =3D 0, name =3D 0;
-> +		int trip_hi =3D 0, trip_lo =3D 0, trip_stop =3D 0;
-> +		int pwm_hi =3D 0, pwm_lo =3D 0;
-> +		struct eio_fan_dev *fan;
-> +		struct thermal_zone_device *tzd;
-> +		struct thermal_cooling_device *cdev;
-> +
-> +		if (pmc_read(dev->parent, CTRL_STATE, fan_id, &state) ||
-> +		    pmc_read(dev->parent, CTRL_TYPE, fan_id, &name) ||
-> +		    pmc_read(dev->parent, CTRL_THERM_HIGH, fan_id, &trip_hi) ||
-
-[Severity: Medium]
-Similar to eio_fan_get_temp(), does passing pointers to 32-bit integers for
-these hardware reads cause endianness corruption on big-endian architecture=
-s?
-
-[ ... ]
-
-> +		if (!(state & 0x1)) {
-> +			dev_info(dev, "fan%u: firmware reports disabled\n", fan_id);
-> +			continue;
-> +		}
-> +
-> +		if (!fan_name[name][0]) {
-
-[Severity: High]
-The 'name' index is read from hardware as a u8. Does this code need to check
-if 'name' exceeds the 32-element bounds of the fan_name[] array to prevent =
-an
-out-of-bounds read?
-
-[ ... ]
-
-> +		cdev =3D thermal_cooling_device_register(fan_name[name], fan, &cooling=
-_ops);
-> +		if (IS_ERR(cdev)) {
-> +			thermal_zone_device_unregister(tzd);
-> +			dev_err(dev, "fan%u: cdev register failed: %ld\n",
-> +				fan_id, PTR_ERR(cdev));
-> +			return PTR_ERR(cdev);
-> +		}
-
-[Severity: High]
-If this loop fails on a subsequent fan iteration, does returning directly
-here leave previously registered thermal zones and cooling devices active?
-Should this failure path unwind the already registered instances?
-
-[ ... ]
-
-> +static struct platform_driver eio_fan_driver =3D {
-> +	.probe  =3D eio_fan_probe,
-> +	.driver =3D {
-> +		.name =3D "eio_fan",
-> +	},
-> +};
-
-[Severity: High]
-Does the lack of a .remove callback mean that unbinding the driver via sysfs
-abandons the registered thermal zones and cooling devices? Because
-devm_kzalloc() frees the memory on unbind, could this leave dangling pointe=
-rs
-in the thermal subsystem?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260714-upstream-v=
-2-v2-0-76e5e41026db@advantech.com?part=3D8
+Cheers,
+Prabhakar
