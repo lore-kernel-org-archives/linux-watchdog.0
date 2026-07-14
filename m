@@ -1,139 +1,196 @@
-Received: from mail-oo1-f49.google.com (mail-oo1-f49.google.com [209.85.161.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A009B31A07F
-	for <linux-watchdog@vger.kernel.org>; Mon, 13 Jul 2026 16:08:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19B44446F7;
+	Tue, 14 Jul 2026 09:53:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783958899; cv=none; b=lSNQSxNNa6+B2RugdjUvekH99+fvHWoatj8p/gzw1ExNQcIVR4yjygvDZHQsAl1gglAQ9aSr5WtlHKy8pjBLaU/Y/2T35ZcmQ0xElrUWq9eKtXvYOKzm4Lpd3FL6EVlJhj/2WslBVBK7WccjJrjvGCgRwBc+pUJeJUEYClIN6Dw=
+	t=1784022819; cv=none; b=UnNYxIYaGfrbM1ZSNaWmjOKHCDRTH3GYY8W4Dcwbo/5OFWK242GbYA9TNGN810CODjybXq1iKTDcR9fUxw8DwoMifoagpoW1sSOxZ1RiXtun7dkBS/iPSl3x173Osjd98pYjQW8L0JDwvV6QXne0cPEBD4QWh0X0WC3XaOfD/s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783958899; c=relaxed/simple;
-	bh=SsOh1enJoELJHzfIclkKXerzvf46Ll/w8xxgwM0UOnc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CYKlYEZNIt7xCacPjpALinpUu2IpISH5m3Pz3vc1DZ3io2o3PbCvV3X2+NqMqTOZ1OBtjjv9WEd+icwFwZi3yWwgnFXv27hpVAH+ISx7iJnEslwWacUj8F88RMopY8P2lz/fupjDXtxONIB+sTrUgi3yKGx67G/44nbHC1seG/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.161.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-oo1-f49.google.com with SMTP id 006d021491bc7-6a30bcadd95so29434eaf.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 13 Jul 2026 09:08:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783958896; x=1784563696;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=674QbDTihSeDJzkwbUpD4t11m/0pIrH8HDq4q33BUPk=;
-        b=JFYYDgvTZd+0SRUqOsQhYJf4d5Wup3z7CacTNVgv6AoIKEHxiBI01qAyt5HqRQVWex
-         Kttw9n6tPTL/tjx0ui5361nw5clVvC6yCbusQdzrbuXCko5q6WEEYTmzz/aqfxgyaoKM
-         8gvh9w8q/IlyGEJVZCaP+uFVQ1epQ1txYwl1HHIvavby8E6PWRvUAowO5LydMvuJybz/
-         7WvE5+dDlLD06cutZmznI0EMPfmh3ljxhi8+D5HkCiN1dz67LZHXaZFnaIsm/dX1UbH9
-         gPJfMFyc0hgI/Q5y/1g/IEdTlJ3W0EgciZa006Qa1AydluTKYbfg4xHbVEOthO4oTxZE
-         nCGg==
-X-Forwarded-Encrypted: i=1; AFNElJ8u0queausa75LWeiWYg8WzG5VQ+h2/8wEJ/kXPx38aIbbgpkQQpq1jK6USCaELBDR3/mBihuC51JYdNWcA8g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQGXsy1J89KqFLIOosjGPJxaw4uMNzw5567jfbaz4+u4hXyzM0
-	7ts8MGnGPWeTVuinB8UFu9AGet9bEEMhkdLYHQUvzK3cStPIdD1iQCu8q0A1FbNjio4=
-X-Gm-Gg: AfdE7cnaLVKILtxZH/aLFu4IyhbZtmuV+hx4bbU0wshzJGdlRnqghUYhBu7BrpGaSRF
-	BMo6Eq8OYFO+grrPXF2kXdaM4xfmfXYuNIRti3GFzBf6BlckGBMVqdc3z9erODTiyFrRoV2I5le
-	pdDVXRZmXT0pFsNTE5qrSLpzJnrOqHT/AVfId47vc+AdJOrrmrGizafcMLbL4+DO4P0VXXS2CP2
-	CxBC3vfBsjwTcijVgGzNNvBeWv/eY+TogDDYUPcnBGgmcElqq2OQKf7GtvgPgdLlAh059K6496i
-	qC3//SxJweX5CsrcElTKNMhd7YgEJN22g4yHCLzktjJXLXrwbr0htyEI6L4kZDy9fhVQQcG33Zc
-	one0eLm9TJUHuaJr+6aytgITpXIG8YZ8eL0qtopxxv4pJawXQwYqp/YEs/yBD4EuH9xGeUYjbMF
-	0buQON57QOaPkEQ14nqkh7/sxkXcZzjBveia/dzNMyA5OSD2QczaT++aApqIzC
-X-Received: by 2002:a05:6820:1387:b0:6a1:64df:7324 with SMTP id 006d021491bc7-6a39bbfd632mr4305539eaf.7.1783958896489;
-        Mon, 13 Jul 2026 09:08:16 -0700 (PDT)
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com. [209.85.160.45])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7ebcb3f6826sm13314669a34.27.2026.07.13.09.08.15
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Jul 2026 09:08:16 -0700 (PDT)
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-44aeefa1c00so70411fac.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 13 Jul 2026 09:08:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RoLWBjBtJ71w99PJIgOQTulhntkclE/s5WDAyHP74xh0nQRBcxRE5qZ8FZHPNFp+oLtQc1HL5KDMQgjlz37Zw==@vger.kernel.org
-X-Received: by 2002:a05:6122:6310:b0:5bd:a2dd:60ee with SMTP id
- 71dfb90a1353d-5bfa470c003mr6470720e0c.3.1783958447155; Mon, 13 Jul 2026
- 09:00:47 -0700 (PDT)
+	s=arc-20240116; t=1784022819; c=relaxed/simple;
+	bh=FKp5m29TOAQzde7ocGmTpd8DFthMLEJaCkRcIenZ9/8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=EuKaVRZrUd5t+TtOxnXJ9/si6qUINaImHhEzcIA1HRvVTmiHOjRnRny5dNeMV0seZsntX73ItTjkIX2UbnBarCuoJptMi7Z4PgSdND/FRvN+Wko3cacuaAewsxZknHmZQUJyy0x9mLscB9sEU7Otkw5mRhy3fZLUHXy1PSVf2N0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=LWxAfDTq; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="LWxAfDTq"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66E77A9w3931648;
+	Tue, 14 Jul 2026 09:53:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	YYrmOD1ftJXGFPH9kBptAhVJWC0gqit7E0eJP3zdy9s=; b=LWxAfDTqqE2igb5b
+	oRGb/GvPdqJs2iq2H1zu8NIzhdRzms3ZXa9jQkQvhuTQsM74wUL55ldkk8CxqdOk
+	GNMxw6RycxgXRPQFNU/QeBMi+XDmlsnUHqPw4CaF0nGrX+2VrZTJ0CMHQShImAFt
+	a6cs+FIm0fcXlJ2oOtGW4tzY0gJ6k37YQD/GlYIHVFkYtYdl11UymVvCf+hC93CX
+	d/gP49rUvrQ177mdT0Fsxvahm0tu/oMugfT35t3hqWpNCv0FsBeCY0mafkYLdj0t
+	uc+WTLbt0Q2jSbKemB9we2BQi7iGDic+qzWfQfZzoEPOfS9y84paBuL2jGr1ffQA
+	67Vy1w==
+Received: from apblrppmta01.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fdgeq0mda-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 09:53:15 +0000 (GMT)
+Received: from pps.filterd (APBLRPPMTA01.qualcomm.com [127.0.0.1])
+	by APBLRPPMTA01.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 66E9rB6Z014868;
+	Tue, 14 Jul 2026 09:53:12 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 4fbewjn02t-1;
+	Tue, 14 Jul 2026 09:53:12 +0000 (GMT)
+Received: from APBLRPPMTA01.qualcomm.com (APBLRPPMTA01.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66E9rA3D014765;
+	Tue, 14 Jul 2026 09:53:12 GMT
+Received: from hu-ffaruque-hyd.qualcomm.com (hu-ffaruque-hyd.qualcomm.com [10.147.245.31])
+	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 66E9rALe014592;
+	Tue, 14 Jul 2026 09:53:12 +0000 (GMT)
+From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+Date: Tue, 14 Jul 2026 15:22:35 +0530
+Subject: [PATCH 2/2] watchdog: pscrr: add watchdog pretimeout reason
+ tracking
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 13 Jul 2026 18:00:36 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUhiBAcJ6P7j0ZxL+0AbVqz88PMo7YX9UiYOK8jM61D1Q@mail.gmail.com>
-X-Gm-Features: AUfX_myKEIDnT9gmvoSHxK3o8Be_bh5PlIka-qGq00orZWkHqkcXT9vOA0tXJpw
-Message-ID: <CAMuHMdUhiBAcJ6P7j0ZxL+0AbVqz88PMo7YX9UiYOK8jM61D1Q@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 0/9] Add System Controller support for RZ/T2H and
- RZ/N2H SoCs
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, 
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260714-pscrr-reboot-reason-v1-2-a09f23b12527@oss.qualcomm.com>
+References: <20260714-pscrr-reboot-reason-v1-0-a09f23b12527@oss.qualcomm.com>
+In-Reply-To: <20260714-pscrr-reboot-reason-v1-0-a09f23b12527@oss.qualcomm.com>
+To: Sebastian Reichel <sre@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, Benson Leung <bleung@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Srinivas Kandagatla <srini@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>
+Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.org,
+        kernel@pengutronix.de, avaneesh.dwivedi@oss.qualcomm.com,
+        Umang Chheda <umang.chheda@oss.qualcomm.com>,
+        Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+X-Mailer: b4 0.14.3
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDEwMyBTYWx0ZWRfX14Pc6HYR8NYv
+ gkNo2bgbbJOL62ofj1o8yOvp+rL6F75VjXyFpKwWubdkuD4qqslidmE6cGUvRFHZ1UZzM0eSYOg
+ VlURkKNetNb6zRtJX/fFoq3vq5rhebv5L3YeocS1hZmZDkd8imTJpGOOw7HZAe/CNQHVASslfLW
+ 2ahnFY14f3O+nvjBBx5lfVLlvx3+1HcVvtBzRcExF4e6C+L39ufYA01Zvyr9VSojVT71TjjBlHu
+ d0f+OmtxT5Byxphbpi1T1ihTVQVAHC8TIfr23ZkxyAMWLYYDOIXwqg5zE2bwIpH8YBqT9nG9Br2
+ Z3LWu62GrafAxtJOmd6Du2P2YN4XDqfQlDQ9QPVFQJrzGzOLI5iVsYdoBgKE2RHLy8kGiSWeACZ
+ eT1+aVphu9pNWS/U+F+duDh9t5uAGh+JhcezZFeDqbH0rcRYuPIHk3oZ3pCVQCBXiT0lBSjnFFB
+ una/usN9QtW9l9CV6rw==
+X-Proofpoint-GUID: -7_4Vg43VTS1JvLkBL_acYAXsVSiN-ve
+X-Proofpoint-ORIG-GUID: -7_4Vg43VTS1JvLkBL_acYAXsVSiN-ve
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDEwMyBTYWx0ZWRfX0c90PwFMjy7e
+ 58w8eSpZkZfN10gn7abNs0xXaeyIkzjWbEUcKa5DXUVQfEpEJFiULpVLkdzPeISqYxgvF01qBKD
+ cQFxRFGJ9VpkRd/bIJvsgPXX0BNIMLM=
+X-Authority-Analysis: v=2.4 cv=V9VNF+ni c=1 sm=1 tr=0 ts=6a56070b cx=c_pps
+ a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22 a=EUspDBNiAAAA:8
+ a=msI2DHvZLTNjIL8QZWUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-14_02,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 adultscore=0 bulkscore=0 priorityscore=1501
+ suspectscore=0 impostorscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607140103
 
-Hi Prabhakar,
+A watchdog pretimeout fires before the actual reset, giving the kernel
+a brief window to record what happened.  Without this change that
+window goes unused and the next boot sees PSCR_UNKNOWN, making it
+impossible to tell a watchdog-driven reset from any other cause.
 
-On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> This series adds support for the System Controller (SYSC) blocks found on
-> the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical low-power
-> management and access control functions.
->
-> Hardware Architecture & Dependency Challenges:
-> ----------------------------------------------
-> The SYSC in these SoCs is a multi-functional block responsible for:
->     - Clock & Reset Control
->     - Low Power Management
->     - Clock Monitor (CLMA)
->     - Access Control
->
-> A key architectural detail is that these SYSC blocks are physically located
-> within the CPG/MSSR (Clock Pulse Generator / Module Standby Software Reset)
-> address space. While the CPG/MSSR driver is already implemented and
-> functional for these SoCs, the integration of SYSC adds a layer of
-> complexity due to a cyclic dependency:
->     - SYSC requires CPG: The system controller needs a clock to operate.
->     - CPG requires SYSC: Access control registers within the SYSC contain
->       bits necessary to control the PLLs managed by the CPG.
->
-> If implemented as a completely separate top-level system controller node, we
-> would face a cyclic dependency between the CPG and SYSC drivers during the
-> boot process.
->
-> Proposed Implementation
-> ----------------------------
-> To resolve this, the SYSC blocks are represented as child nodes of the
-> CPG/MSSR controller in the device tree. The SYSC regmap is registered
-> directly against the CPG device node. This hierarchy correctly models the
-> hardware address space while allowing the drivers to share resources
-> without deadlock.
->
-> I am sending this as an RFC specifically to get feedback on the
-> implementation of the SYSC as child nodes of the CPG to resolve the
-> dependency cycle.
+Call set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT) at the top of
+watchdog_notify_pretimeout() so the reason is recorded as soon as the
+pretimeout is signalled, before any governor action runs.
 
-Personally, I am not a big fan of subnodes.  I assume you are using
-subnodes because you can register only a single regmap per syscon node?
-Would it be possible to just extend the existing clock-controller
-node with two more reg entries, and expose them through a single
-combined regmap?
+Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+---
+ drivers/power/reset/pscrr.c            | 3 ++-
+ drivers/watchdog/watchdog_pretimeout.c | 3 +++
+ include/linux/power/power_on_reason.h  | 1 +
+ include/linux/reboot.h                 | 1 +
+ kernel/reboot.c                        | 1 +
+ 5 files changed, 8 insertions(+), 1 deletion(-)
 
-Gr{oetje,eeting}s,
-
-                        Geert
+diff --git a/drivers/power/reset/pscrr.c b/drivers/power/reset/pscrr.c
+index b5906f127e88..36642cf9f27c 100644
+--- a/drivers/power/reset/pscrr.c
++++ b/drivers/power/reset/pscrr.c
+@@ -149,7 +149,8 @@ static int pscrr_panic_notifier(struct notifier_block *nb,
+ 	if (!backend || !backend->ops || !backend->ops->write_reason)
+ 		return NOTIFY_OK;
+ 
+-	set_psc_reason(PSCR_KERNEL_PANIC);
++	if (get_psc_reason() != PSCR_WATCHDOG_PRETIMEOUT)
++		set_psc_reason(PSCR_KERNEL_PANIC);
+ 	ret = backend->ops->write_reason(get_psc_reason());
+ 	if (ret)
+ 		pr_err("PSCRR: Failed to store reason %d (%s) at panic, err=%pe\n",
+diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/watchdog/watchdog_pretimeout.c
+index 02e09b9e396d..ea48d4eca4aa 100644
+--- a/drivers/watchdog/watchdog_pretimeout.c
++++ b/drivers/watchdog/watchdog_pretimeout.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/list.h>
++#include <linux/reboot.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/string.h>
+@@ -103,6 +104,8 @@ void watchdog_notify_pretimeout(struct watchdog_device *wdd)
+ {
+ 	unsigned long flags;
+ 
++	set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT);
++
+ 	spin_lock_irqsave(&pretimeout_lock, flags);
+ 	if (!wdd->gov) {
+ 		spin_unlock_irqrestore(&pretimeout_lock, flags);
+diff --git a/include/linux/power/power_on_reason.h b/include/linux/power/power_on_reason.h
+index 4ac1bdfdc211..c5846c0ccde4 100644
+--- a/include/linux/power/power_on_reason.h
++++ b/include/linux/power/power_on_reason.h
+@@ -20,5 +20,6 @@
+ #define POWER_ON_REASON_OVER_TEMPERATURE "over temperature"
+ #define POWER_ON_REASON_EC_PANIC "EC panic"
+ #define POWER_ON_REASON_KERNEL_PANIC "kernel panic"
++#define POWER_ON_REASON_WATCHDOG_PRETIMEOUT "watchdog pretimeout"
+ 
+ #endif /* POWER_ON_REASON_H */
+diff --git a/include/linux/reboot.h b/include/linux/reboot.h
+index a492b1652038..fccbffc9dbef 100644
+--- a/include/linux/reboot.h
++++ b/include/linux/reboot.h
+@@ -237,6 +237,7 @@ enum psc_reason {
+ 	PSCR_OVER_TEMPERATURE,
+ 	PSCR_EC_PANIC,
+ 	PSCR_KERNEL_PANIC,
++	PSCR_WATCHDOG_PRETIMEOUT,
+ 
+ 	/* Number of reasons */
+ 	PSCR_REASON_COUNT,
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index f1df52f8773a..629002a951c2 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -1066,6 +1066,7 @@ static const char * const pscr_reason_strs[] = {
+ 	[PSCR_OVER_TEMPERATURE]   = POWER_ON_REASON_OVER_TEMPERATURE,
+ 	[PSCR_EC_PANIC]           = POWER_ON_REASON_EC_PANIC,
+ 	[PSCR_KERNEL_PANIC]       = POWER_ON_REASON_KERNEL_PANIC,
++	[PSCR_WATCHDOG_PRETIMEOUT] = POWER_ON_REASON_WATCHDOG_PRETIMEOUT,
+ };
+ 
+ /**
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.34.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
