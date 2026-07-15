@@ -1,115 +1,90 @@
-Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 696C4427FB4;
-	Tue, 14 Jul 2026 20:17:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 783F64A0C;
+	Wed, 15 Jul 2026 06:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784060242; cv=none; b=H7stuTHttyPkR4c54Ub/6odEH8qEbx9EIJ86OJUYHhFwTKM6fgXYXWZcfOpzIB7V8QK3/C5E50xgYA6oLTvrFY3UwiHLovuu1bRmQJSK+y68ih1eVvcUUY5cf9YPhKDlaXIl8RM1zw/zMDz7l6Y2bNXXVoomdao05L/VrFoQcEk=
+	t=1784096461; cv=none; b=jc9tmuN4PxlW1xnlaRaqXXaYDMFc6C6jC+tT2q+uyB5Ot+BOig9TwUSF4kjZZKRsNr+Tnqa0RzH5zbKI65VwzYPTfx/ZVVVJQw5fNAn9Eel4ZqcSni2e8vBZx0vvGvzMwWDsT/IJ8XxbcLq2ouVRlc5xqefeTZzCA36wm3CCpWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784060242; c=relaxed/simple;
-	bh=mCkwUnsR1fBOIOb27f0NoQumZOK3szpsu/04nApDvdk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LQ781M3rW+Qt5fQu6h9dFC4XdJrlIQmjtoRxE6DK/O3vv4sg60JhyihD4f1ZN6ac49oluj0tiOdIxzn/uv6QwGbdvh4G+fC4IoIFQClkuK3vH1v3gSphXqIbojVTOg3A191UmZYClGYrO+J5fVZD8+bcTeZaVaIrwvYsj+YWHVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=tjN/8m7L; arc=none smtp.client-ip=195.39.247.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="tjN/8m7L"
-Message-ID: <aa4836dd-2550-40cb-b0ee-c5df1ad54ece@cyberchaos.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
-	s=mail; t=1784060236;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AA21xBD9Q5Qe5hVx+FxIwd0X/SmbnFEGy+/VQWU77zE=;
-	b=tjN/8m7LbLXhnzZ2y4b1CDHAMtDhQ108OPUAmno49iH2axmfZYlweKYwcgWu7M0Sv/H8rF
-	Fh4aGmxaUT5TJIjqUR8piJQmCuLnwhWAC3EDXHdGpecHs+j/ZHwu8xYHKrk/kQGBHxT7t6
-	YB7rzvEsnVADMFnxr+P2upd8RgsgnQo=
-Date: Tue, 14 Jul 2026 22:17:10 +0200
+	s=arc-20240116; t=1784096461; c=relaxed/simple;
+	bh=spZLxdSOVyZGE9MOwEP/9vXkn4srYGz/29OX0kvrxeY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QYVEeNaQilF0i42gCHFxeRM8ktVT9zU6LeU4EqLlp95n9QkSwJXjlieOgpzbFK3WmzZvaJbK2G5W+Khk2d75W03U8nqAjeROh2uqtNVSHI9uIBMYhKy68gpng9Ncm+Nfm9j3V8PgEo7ryXAvcZYRjCu9HP1WWHmWSoO/UZoey6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
+	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 1074F202219;
+	Wed, 15 Jul 2026 08:20:55 +0200 (CEST)
+Received: from pty.whiteo.stw.pengutronix.de ([2a0a:edc0:2:b01:1d::c5])
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <ore@pengutronix.de>)
+	id 1wjszG-001tLk-34;
+	Wed, 15 Jul 2026 08:20:54 +0200
+Received: from ore by pty.whiteo.stw.pengutronix.de with local (Exim 4.98.2)
+	(envelope-from <ore@pengutronix.de>)
+	id 1wjszG-0000000BfZt-3VLd;
+	Wed, 15 Jul 2026 08:20:54 +0200
+Date: Wed, 15 Jul 2026 08:20:54 +0200
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+To: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+Cc: Sebastian Reichel <sre@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-arm-msm@vger.org,
+	kernel@pengutronix.de, avaneesh.dwivedi@oss.qualcomm.com,
+	Umang Chheda <umang.chheda@oss.qualcomm.com>
+Subject: Re: [PATCH 0/2] power: reset: pscrr: record reset cause on panic and
+ watchdog pretimeout
+Message-ID: <alcmxtlQ43J2HVsP@pengutronix.de>
+References: <20260714-pscrr-reboot-reason-v1-0-a09f23b12527@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 09/10] dt-bindings: arm: apple: Add M4 based devices
-To: Sven Peter <sven@kernel.org>, Yureka Lilian <yureka@cyberchaos.dev>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi
- <lpieralisi@kernel.org>, Janne Grunau <j@jannau.net>,
- Neal Gompa <neal@gompa.dev>, Thomas Gleixner <tglx@kernel.org>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Hector Martin <marcan@marcan.st>,
- Linus Walleij <linusw@kernel.org>, Mark Kettenis <kettenis@openbsd.org>,
- Andi Shyti <andi.shyti@kernel.org>, =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?=
- <ukleinek@kernel.org>, Sasha Finkelstein <k@chaosmail.tech>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
- <20260705-apple-m4-initial-devicetrees-v1-9-e5655ee56523@cyberchaos.dev>
- <cd9da9aa-6e91-4534-a86c-a4421aafbd38@kernel.org>
-Content-Language: en-US
-From: Yureka Lilian <yureka@cyberchaos.dev>
-In-Reply-To: <cd9da9aa-6e91-4534-a86c-a4421aafbd38@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260714-pscrr-reboot-reason-v1-0-a09f23b12527@oss.qualcomm.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL: http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
 
-On 7/14/26 21:50, Sven Peter wrote:
->
->
-> On 7/5/26 15:17, Yureka Lilian wrote:
->> The Apple devices with the t8132 SoC (M4) are very similar to their M3
->> predecessors.
->>
->> In addition to the MacBook Pro and the various MacBook Air and iMac
->> variants, a Mac mini is offered again with the M4.
->>
->> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
->> ---
->>   Documentation/devicetree/bindings/arm/apple.yaml | 12 ++++++++++++
->>   1 file changed, 12 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/arm/apple.yaml 
->> b/Documentation/devicetree/bindings/arm/apple.yaml
->> index e49403c73f9d..3262292252d2 100644
->> --- a/Documentation/devicetree/bindings/arm/apple.yaml
->> +++ b/Documentation/devicetree/bindings/arm/apple.yaml
->> @@ -315,6 +315,18 @@ properties:
->>             - const: apple,t8122
->>             - const: apple,arm-platform
->
-> Please also add M4 to the top of the binding in the description.
-Ack
->>   +      - description: Apple M4 SoC based platforms
->> +        items:
->> +          - enum:
->> +              - apple,j604  # MacBook Pro (14-inch, M4, 2024)
->> +              - apple,j623  # iMac (24-inch, 2x USB-C, M4, 2024)
->> +              - apple,j624  # iMac (24-inch, 4x USB-C, M4, 2024)
->> +              - apple,j713  # MacBook Air (13-inch, M3, 2025)
->> +              - apple,j715  # MacBook Air (15-inch, M3, 2025)
-> Copy/paste errors: these two should be M4 as well and I think the ones 
-> at the top should be 2025 instead of 2024, shouldn't they?
-I have the M3->M4 typo fixes queued locally. Only the MacBook Air was 
-released in 2025, the others in 2024 (according to Wikipedia at least).
->
->
-> Best,
->
-> Sven
+Hi Faruque,
 
+On Tue, Jul 14, 2026 at 03:22:33PM +0530, Faruque Ansari wrote:
+> This series extends the Power State Change Reason Register (PSCRR)[1]
+> framework to capture two additional reset causes.
+> 
+>   1. Kernel panic — a panic notifier writes PSCR_KERNEL_PANIC to NVMEM
+>      before the system resets, so the next boot can distinguish a panic
+>      from other reset causes.
+> 
+>   2. Watchdog pretimeout — set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT) is
+>      called from watchdog_notify_pretimeout(), when the watchdog fire its
+>      pre-reset notification before resetting the system, so the reason gets
+>      saved and we know its was a watchdog timeout that caused the reset.
 
-My intention is to rebase and send out v2 with the fixes I've 
-accumulated locally once the M3 Pro/Max device trees have been merged 
-into apple-soc.
+Thank you, LGTM!
 
+Right now I'm on a netdev conference, will need to take a closer look
+after it.
 
-
-Thanks,
-
-— Yureka
-
+Best Regards,
+Oleksij
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
