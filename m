@@ -1,177 +1,215 @@
-Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 553B43D9536
-	for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 08:56:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B48443ED13F;
+	Wed, 15 Jul 2026 09:11:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784105800; cv=none; b=YjcBGJX9j0smYwSUrMZep6iHS9gg45yxTqJEgG808iGBZqbXFc26JT4NTm3Cg2kM5nopN+yj+5wa7FIQs7YLdaqt0NZw3g/vrSjfhutj03CyZdJRGOXgQWWqWJFhhmRMpk+Q+L6ZhHdWfLUY52HlADlqkjWcb7hDOOxdvkvp054=
+	t=1784106724; cv=none; b=ikA3QrgRT/9ArlK38KGMZyW2Ft3fP2rYYryklJadsIKuwB/R23dXQkfkDmtbCIertou2TXt1v/fvQDc4tYutjA3AbHYGcoycPijgpIJhxAc4ascWxrXda//4jgj8rRmlx1SsntoZhtRIzhvBPqrNosfNeBE/SaoPu1lddqYww6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784105800; c=relaxed/simple;
-	bh=UpStxGVYslbxooun+2Y901dqVJN3H5rYG1yY1FSZ/gc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CPylnfsD0PAssKpVB07QIZ42RBEBwsBRP27oaXlqLsTnlXyLG/FArg1/mEX50Qc7SELgmsZ5BOM0VJEf8/7P2JA+RQJALolY/ca3U49UB7pnElS6umCHgASHEvXxYSav5Ibg9PYNPYZW6MzS3j7h4ZaIIu0lIaQ7X0ue1lIVY7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-5bfd1df4835so2061466e0c.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 01:56:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784105798; x=1784710598;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=KIyweZY2e0/6Tej8S0XE9Agd9YDC5DXPE+LxKJOtIuM=;
-        b=DNGIuA8PrLoIgtWu5/EaXNdeUiViuuWzGxE09nVMDqEIrrG9/pwlfXPwR+CK+SjRZ4
-         H1rL3tk8ZQ8fXiRinL3MgYMitIn6BipadrUjTiGmzI5Bo/fhYPKgxhM3AhZlQMGiIqlB
-         2kgsvYui45YWuQM/bH9Z1AWSgUKrlhaQ4BUPg0AjWA3ESOI/QmKWQ3ompPuNXsSkgKBl
-         nu5kgpMfrdNRl0afLbXkXdffjJtf86yXK99LEqUk61dL1ypYmgfv/95agELP96DQ+Emp
-         3epg6SZYfL2G1UpWlBYnqE6+jP9wj11LKhsrMbFZxpj4hSYNcCwoJtpm94QhgfrZ1JxH
-         i8/g==
-X-Forwarded-Encrypted: i=1; AHgh+RqoiiwYDQPXOiEyCarRKyBKfTMVJ/TTs+g52T9F78pyQHX7HNHH1FOkSRXLYI4fyFj2tYFg0k/blHL2aTh8Sw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGiQPwc/oHMY3QsdYJ5MeUE6DEMheCKM6TLYgvv7j59i3EWdMl
-	k414IIl9AImutqNODNA5EN8xYh69jlPAdcH8ciA5nXx+3mXlt/xOcjG5s+DvJ/vsyiA=
-X-Gm-Gg: AfdE7clNovFUHUSPMwG20H61qucfGL5pI7BGRsP3/xzwgihmDc1Fsp1DIj6UxDc5k7O
-	oC4bpJ5YSnLsRdcDv0gSRsUjZBL9ABRHPeycCdaHZNjYDltiI2JMs62Lz5qjP9JHt+ArAsDZ2Y6
-	IEyJRNc4CFf+zqQOv2pBw0u3nbvJXNkgXAydEX2C3itL9HbVVxe2zBlKg8CCdDhbisdOiJcCao6
-	4TCGlgz1yFAuFYYVhItvIVN9NzvTfO+COMoi8NhjgRSdt/FWeGIxGLPkdCwkHIul8fie/QS/KkM
-	lkQjUsCcwd8S4FiNe6ROFra7IwEDfxG4Gh5o29enjaX7RTD4sG5E3ux7CuLy5bnUpyePMoFPCEz
-	eg9Y4GO21S21ZaF/0aBFmy1TPOWXEkWNKqVpTO05ODVhK3IIvi1/amMav2mKXZ/C62ELpJNCa+p
-	G7hbTNyR+UjZdE7Zo3YZWHV/juyvSevL0qHBcgNLIJgayVl1lkyQ==
-X-Received: by 2002:a05:6123:91:b0:5bf:8109:dc81 with SMTP id 71dfb90a1353d-5c1163d46f6mr3305675e0c.14.1784105798156;
-        Wed, 15 Jul 2026 01:56:38 -0700 (PDT)
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com. [209.85.222.47])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c0d2879f13sm4968689e0c.0.2026.07.15.01.56.37
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jul 2026 01:56:37 -0700 (PDT)
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-9691bfc9f81so2950341241.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 01:56:37 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RoFgCuTmHLEy42uCtbQKVh8Jndd+Vx+KkJRRZtII/ouGKRmZDDpyEUhHnBbs1ur62moIQFDmcSiDZXQy8RpEA==@vger.kernel.org
-X-Received: by 2002:a05:6102:1499:b0:737:ba2e:8a26 with SMTP id
- ada2fe7eead31-745875931d5mr3323342137.27.1784105797210; Wed, 15 Jul 2026
- 01:56:37 -0700 (PDT)
+	s=arc-20240116; t=1784106724; c=relaxed/simple;
+	bh=WGdCRD8olgTcTbOwMTJIpRtuqgL1E83EbLrn0pZictg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ASc4bNevdUC7um3zkeYHMmghcKr4uRKZHkM774+oaTKxyhFWlTrbqKYo/uPUTuEiP6qeyas739PS62VBv9JstukTyIaWFOvFDa5Di7zMAGrkq972rENph04KHKrCeABARNxQ9sxAGrYegTxIMwUrj8z/gxm8jQ8IJ3S2N3+VDZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=XXVAw80L; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=VeFmygsB; arc=none smtp.client-ip=103.168.172.159
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="XXVAw80L";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="VeFmygsB"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 53C30140005D;
+	Wed, 15 Jul 2026 05:11:58 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Wed, 15 Jul 2026 05:11:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm1; t=1784106718; x=1784193118; bh=aV
+	/hgiXVYoCu1+Cqb0P0yqXMulBX20+ZD1+O74lFupw=; b=XXVAw80Lga6BblLBHR
+	CUTp456s4+uMBLB72ozt40TMPActrUa3hSDn/q3S+/ZY2aFMxx12YsXRxqKgyRRM
+	UHobBVcK70wGQywH0J1FJ/44KYvAJar5BChrlxpmjIggHQZro4fb6N6PT/6ZK0nJ
+	PwIxRUBnAI0rjJiTHFvAscJldC9Q4V3oLFulH3/agNU3rSIqbhHdgDXytn+Kds6v
+	GvjalsqQmaBYPfBmHnfoUOqIumEtd4sVqSw8cT3p0mlKJvieTSma+YMSpLIjEzDP
+	Ms++8QkDzWXkbhDMGohgRETU3aRTsokxCY40/VLiLmm64Hun/Dpwc23vgbPiw9C/
+	Ev7Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1784106718; x=1784193118; bh=aV/hgiXVYoCu1+Cqb0P0yqXMulBX
+	20+ZD1+O74lFupw=; b=VeFmygsBV9Yo02QetP5Ayxqdgid+2nUJCZYsfjFDnX7J
+	s2luWHmRTzGZpYzxKqHmMguBmrkKuulmF8rNbPbNu+AWrXUU6vx2HWUDAhXSqrEE
+	mXxOVNsnobI//glaumsXb6i6upFjDMW0VBra0M2eZaWfULeHU6yHmNgxEGaKNxQu
+	QZ04XZ8CtWzqBaDV8jDi7meX7+bTN9UCipqVrSLeYjdl3ffY9/bzB1IKz1NvBi6d
+	TIozqS/xLfvE+0jPuihJyk4cMMexywSfvKgERJCsHq9X4czdmntGU4L2jxBjQsK1
+	aP/5s6h7lGYHmwW0EH/ioDvT/UQfIcA1oRcPf1UzyA==
+X-ME-Sender: <xms:3U5XavpBlcVR9GdK9g8wVa0hJC--TXGP1IxQi_HFL4jWOxsXA-SM_g>
+    <xme:3U5XaqBnWqLG0IaQy-Pr8EZz2iZc3I0fgxS_IxD55JoQG8qv6VTfXz8eAMRC3bYVl
+    6G-wpQJK_haFs4NvwGAsDxwdfiQatHfvN3fIM0e0MHAoJllsG9tVVw>
+X-ME-Received: <xmr:3U5XatXs0R_h8G3hzyrmMkxaFATapbNv7ez-kgKly2Oap3gshFceOmcdHAuccHvPpVPWh_YgKNJMlF-tbHLGoHKaAs6pNd0uSjHhoQ>
+X-ME-Proxy-Cause: dmFkZTGaVIxi5m8iFPe70Q7AanPW/GghCFbudp+i8q/mEq0B8lDzcedxU92o9qOp2LdYI/
+    C+0/HC1qVM5O99/2CjKID3ePKwnfCTlFnefuFZdzhKEd3gTOi/HBpq8hQapbdijYDy3eMt
+    CYgmxETx0x9FmptXanVvITwTNPDOYvSMIxSoePiQm54ixLKUNzquhaW8wrTrt3lsAEKhoL
+    6OzNAxIV0a8Aok6y42cbXjn8yEA/5NsJKD/JNheMaPHzlDZbQPy6z3hbto282yPH5Ex33C
+    o+Xp0aGoSCQcsFKGREfnVbAC5yZCRa6OIbHnt4G69vL4xKCZcVHO38gsZbY/9dS1FIS9hW
+    d4Xm/4tcOML65evMPaEyZBCm4DrlGmZk6kNptXa5O06Zl1H4pdWvP7wI+38MdrH+6/7MRI
+    CMVPvl9SWabULplb9hEB9A2/hWwn+SEFjB5RewzQYtJVwsBws32U2T2ct1TqoCX65MWwF7
+    ra+k5i275aXye05pVfsu57Xm/030FmM/rjZy4+LnhytPNis5uOHsznR0YuWFHdd80ZFcyc
+    segBwgXZN7lKWoxioOMNebBw0CRXZhLuz50MOlNDlsIOZ310dx6GfdCUooXUxi7rqeg9Z6
+    2g7+MyndWo4/Z+RZleXKfGfygkWUB9sHXs6SspatzAlJBFZnS9fBmz3M2yNA
+X-ME-Proxy: <xmx:3U5Xau7lVs8PI5EDQ3oafnWg3vm_Ugc_GizRQJavWiFz_RCEfmZjag>
+    <xmx:3U5XauC-KlEUgOJMKRw1xMYsJAOatoMZJ80G_JWBI0x_0HSsv3RaSw>
+    <xmx:3U5XajAt7NdYxaEiSyakXyo5aDNmVsV7FlDA5aozBecF0Xe6A3BYkQ>
+    <xmx:3U5Xauj6ja6OzUx8K87BA0h9gY1D4_BR8cWL3RmUfCmWVuDyLxmglQ>
+    <xmx:3k5Xas4G4Sn5UDPCurviba3hspfBAkMhr3JUBiSFcHt9vnp52Et0YQc->
+Feedback-ID: i47b949f6:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 15 Jul 2026 05:11:56 -0400 (EDT)
+From: Janne Grunau <j@jannau.net>
+Subject: [PATCH v2 00/10] Initial Apple M3 Pro, Max and Ultra device trees
+Date: Wed, 15 Jul 2026 11:11:47 +0200
+Message-Id: <20260715-apple-t603x-initial-devices-v2-0-df65b2485710@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <CAMuHMdUhiBAcJ6P7j0ZxL+0AbVqz88PMo7YX9UiYOK8jM61D1Q@mail.gmail.com>
- <CA+V-a8uUxfDx2Xnb3uFg2=R+eYnzVmAv4PoEYeXGwAbANxG5Bg@mail.gmail.com> <CA+V-a8utJuuwVNy8o2zM5jHf9qXx36S79uKGtYr5O=sASh_wpg@mail.gmail.com>
-In-Reply-To: <CA+V-a8utJuuwVNy8o2zM5jHf9qXx36S79uKGtYr5O=sASh_wpg@mail.gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 15 Jul 2026 10:56:26 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVT-wWtJaB1bHR3CjfjEGhVfWWKrs6YyZbahOTFSFK4Kw@mail.gmail.com>
-X-Gm-Features: AUfX_mwT5leJvJcjodDPFjgFmedyheuuombdI-qCHkgNmnfgE8I_sxJbNtJF5DY
-Message-ID: <CAMuHMdVT-wWtJaB1bHR3CjfjEGhVfWWKrs6YyZbahOTFSFK4Kw@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 0/9] Add System Controller support for RZ/T2H and
- RZ/N2H SoCs
-To: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, 
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32NwQ6CMBAFf4X07JrSpiie/A/DobSrLCGlaQvBE
+ P7dgvHqcZL3ZlYWMRBGditWFnCmSKPLIE4FM512LwSymZngouIXrkB7PyCkissFyFEiPYDNR4M
+ RBKLRwtZWKM2ywQd80nLYH82X49T2aNKu3BcdxTSG95Gfy333K9V/S3MJHJRqJVdXKUsh7712T
+ k9nh4k127Z9AK0EO23ZAAAA
+X-Change-ID: 20260705-apple-t603x-initial-devices-2eeca2d9d25a
+To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
+ Neal Gompa <neal@gompa.dev>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Andi Shyti <andi.shyti@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Sasha Finkelstein <k@chaosmail.tech>
+Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-pwm@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5679; i=j@jannau.net;
+ h=from:subject:message-id; bh=WGdCRD8olgTcTbOwMTJIpRtuqgL1E83EbLrn0pZictg=;
+ b=owGbwMvMwCW2UNrmdq9+ahrjabUkhqxwv2u8DBmOSW9zPbn+NUkyG3lfWPzq/tXiLHa14klZ7
+ Q8OVnV0TGRhEONisBRTZEnSftnBsLpGMab2QRjMHFYmkCHSIg0MQMDCwJebmFdqpGOkZ6ptqGdo
+ pGOsY8TAxSkAU/1tM8M/G/8lIZsNHZR3xi9gSanW+sN+I652JqOIkQxb75xu128WDP/shMMrXfX
+ 5pA8IH57731e7juXdvmcRyf07pX4t1NtVLMUPAA==
+X-Developer-Key: i=j@jannau.net; a=openpgp;
+ fpr=8B336A6BE4E5695E89B8532B81E806F586338419
 
-Hi Prabhakar,
+This series adds device trees for Apple silicon devices with M3 Pro, Max
+and Ultra SoCs. The M3 generation has fewer devices than their M1 and M2
+predecessors. The only non-laptop device is the M3 Ultra Mac Studio. The
+Laptops are the known 14 and 16-inch Macbook Pros now with M3 Pro and
+M3 Max SoCs. The M3 Max variant with fewer CPU and GPU cores has
+additionally only a 384-bit wide memory bus instead of 512-bit of the
+full M3 Max. It has a separate identifier (T6034) and so there are six
+laptop device trees.
+Another difference to M1 and M2 Pro/Max/Ultra is that the M3 Pro is
+distinct SoC design and not a smaller M3 Max. For this reason both M3
+Max variants and the M3 Ultra will use "apple,t6030" as compatible
+prefix. In the M1 and M2 generations Pro, Max and Ultra SoCs shared
+"apple,t6000" / "apple,t6020" as common prefix. There is currently no
+known difference but M3 Pro and M3 Max are not as closely related as
+previously.
 
-On Tue, 14 Jul 2026 at 18:51, Lad, Prabhakar <prabhakar.csengg@gmail.com> w=
-rote:
-> On Tue, Jul 14, 2026 at 2:27=E2=80=AFPM Lad, Prabhakar
-> <prabhakar.csengg@gmail.com> wrote:
-> > On Mon, Jul 13, 2026 at 5:00=E2=80=AFPM Geert Uytterhoeven <geert@linux=
--m68k.org> wrote:
-> > > On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> w=
-rote:
-> > > > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> > > > This series adds support for the System Controller (SYSC) blocks fo=
-und on
-> > > > the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical lo=
-w-power
-> > > > management and access control functions.
-> > > >
-> > > > Hardware Architecture & Dependency Challenges:
-> > > > ----------------------------------------------
-> > > > The SYSC in these SoCs is a multi-functional block responsible for:
-> > > >     - Clock & Reset Control
-> > > >     - Low Power Management
-> > > >     - Clock Monitor (CLMA)
-> > > >     - Access Control
-> > > >
-> > > > A key architectural detail is that these SYSC blocks are physically=
- located
-> > > > within the CPG/MSSR (Clock Pulse Generator / Module Standby Softwar=
-e Reset)
-> > > > address space. While the CPG/MSSR driver is already implemented and
-> > > > functional for these SoCs, the integration of SYSC adds a layer of
-> > > > complexity due to a cyclic dependency:
-> > > >     - SYSC requires CPG: The system controller needs a clock to ope=
-rate.
-> > > >     - CPG requires SYSC: Access control registers within the SYSC c=
-ontain
-> > > >       bits necessary to control the PLLs managed by the CPG.
-> > > >
-> > > > If implemented as a completely separate top-level system controller=
- node, we
-> > > > would face a cyclic dependency between the CPG and SYSC drivers dur=
-ing the
-> > > > boot process.
-> > > >
-> > > > Proposed Implementation
-> > > > ----------------------------
-> > > > To resolve this, the SYSC blocks are represented as child nodes of =
-the
-> > > > CPG/MSSR controller in the device tree. The SYSC regmap is register=
-ed
-> > > > directly against the CPG device node. This hierarchy correctly mode=
-ls the
-> > > > hardware address space while allowing the drivers to share resource=
-s
-> > > > without deadlock.
-> > > >
-> > > > I am sending this as an RFC specifically to get feedback on the
-> > > > implementation of the SYSC as child nodes of the CPG to resolve the
-> > > > dependency cycle.
-> > >
-> > > Personally, I am not a big fan of subnodes.  I assume you are using
-> > > subnodes because you can register only a single regmap per syscon nod=
-e?
-> > Yes so that the consumers don't have to specify it by indexing.
-> >
-> > > Would it be possible to just extend the existing clock-controller
-> > > node with two more reg entries, and expose them through a single
-> > > combined regmap?
-> > >
-> > That should be possible. Or would you prefer just to extend the sizes
-> > and create a single regmap for it?
-> >
-> >                cpg: clock-controller@80280000 {
-> I wonder wether we rename this to `sysc: system-controller` but the
-> compatiable string has "*cpg-mssr" postfix.
+This series adds the same level of hardware as the base M3 (T8122) has
+in v7.2-rc1. This includes CPU cores, interrupt controller, power
+states, watchdog, serial, pin controller, i2c and the boot framebuffer.
+This is intended as base so that support for additional hardware can be
+added to all M3 based devices at the same time.
 
-I think the current name is fine, as clock control is the main function.
+Merge strategy:
+Since the dt-binding add new compatible strings without driver changes
+it would be preferred if the whole [1] series would be merged through
+apple-soc/arm-soc. This will help ensuring a warning free
+`make dtbs_check` for followup series with additional M3* hardware
+support I hope to send for this cycle.
 
-Gr{oetje,eeting}s,
+This series will conflict with the M4 series [3] sent A couple of days
+ago. I would prefer if this could be merged first (in order of SoC
+release).
 
-                        Geert
+[1]: I see that the M4 watchdog change was already picked up by Guenter
+     in [2]
 
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+Link: https://lore.kernel.org/asahi/a03c19ee-cf74-4f26-826d-f2bfb816fb3f@roeck-us.net/ [2]
+Link: https://lore.kernel.org/asahi/20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev/ [3]
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Signed-off-by: Janne Grunau <j@jannau.net>
+---
+Changes in v2:
+- fix serial0 unit address in t6030.dtsi, drop erroneously added 0
+- Fix device node reference in pinctrl_{nub,aop} gpio-ranges in t6030.dtsi
+- fix i2c6 unit address in t6031-die0.dtsi
+- fix cpu_p25 reg value in t6032.dtsi
+- drop unnecessary aic interrupt-controller from t6032.dtsi
+- drop "label" from keyboard pwm led node
+- fix copy-n-pasted pinctrl in compatible strings in the apple,s5l-fpwm
+  dt-binding commit message
+- fix yamllint errors in apple.yaml and fix warnings in newly added
+  lines
+- fix typo in i2c commit message
+- whitespace fixes in t6032.dtsi
+- add missing Signed-off-by: for pmgr and pmgr-powerstates dt-bindings
+  patches
+- drop already picked-up "[PATCH 07/11] dt-bindings: pinctrl: apple,pinctrl: ..."
+- add Conor's Accked-by: tags
+- Link to v1: https://patch.msgid.link/20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net
+
+---
+Janne Grunau (10):
+      dt-bindings: arm: apple: Add M3 Pro/Max/Ultra devices (T603x)
+      dt-bindings: interrupt-controller: apple,aic2: Invert #interrupt-cells condition
+      dt-bindings: interrupt-controller: apple,aic2: Add apple,t6031-aic3 compatible
+      dt-bindings: arm: apple: apple,pmgr: Add t6030 and t6031 compatibles
+      dt-bindings: power: apple,pmgr-pwrstate: Add t6030 and t6031 compatibles
+      dt-bindings: watchdog: apple,wdt: Add t6030 and t6031 compatibles
+      dt-bindings: i2c: apple,i2c: Add t6030 and t6031 compatibles
+      dt-bindings: pwm: apple,s5l-fpwm: Add t6030 and t6031 compatibles
+      arm64: dts: apple: Initial T603[124] (M3 Max and Ultra) device trees
+      arm64: dts: apple: Initial T6030 (M3 Pro) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   37 +
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    2 +
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |    2 +
+ .../bindings/interrupt-controller/apple,aic2.yaml  |   10 +-
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    2 +
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    2 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    2 +
+ arch/arm64/boot/dts/apple/Makefile                 |    7 +
+ arch/arm64/boot/dts/apple/t6030-j514s.dts          |   22 +
+ arch/arm64/boot/dts/apple/t6030-j516s.dts          |   22 +
+ arch/arm64/boot/dts/apple/t6030-pmgr.dtsi          | 1437 ++++++++++++
+ arch/arm64/boot/dts/apple/t6030.dtsi               |  524 +++++
+ arch/arm64/boot/dts/apple/t6031-base.dtsi          |  297 +++
+ arch/arm64/boot/dts/apple/t6031-die0.dtsi          |  197 ++
+ arch/arm64/boot/dts/apple/t6031-dieX.dtsi          |  107 +
+ arch/arm64/boot/dts/apple/t6031-gpio-pins.dtsi     |   53 +
+ arch/arm64/boot/dts/apple/t6031-j514c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6031-j516c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6031-pmgr.dtsi          | 2400 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t6031.dtsi               |   48 +
+ arch/arm64/boot/dts/apple/t6032-j575d.dts          |   46 +
+ arch/arm64/boot/dts/apple/t6032.dtsi               |  416 ++++
+ arch/arm64/boot/dts/apple/t6034-j514m.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6034-j516m.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6034.dtsi               |   12 +
+ arch/arm64/boot/dts/apple/t603x-j514-j516.dtsi     |   66 +
+ 26 files changed, 5779 insertions(+), 4 deletions(-)
+---
+base-commit: 5f883c28f3980af462a6332fd72ff184e6985711
+change-id: 20260705-apple-t603x-initial-devices-2eeca2d9d25a
+
+Best regards,
+--  
+Janne Grunau <j@jannau.net>
+
