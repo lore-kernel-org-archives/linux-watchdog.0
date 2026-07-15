@@ -1,115 +1,173 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F28E82EEE9C
-	for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 13:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17824270552
+	for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 13:49:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784122774; cv=none; b=EkxwjVOsCdUWrPtk5Y/U+QVr4ExgiSW0TGZEreFAAB26CCWjjH24j/MWOa7H1mVPlhnUQNuYbTstV1FkNFqIaZI4iKXO7nsxreDGwTb/e4hkO/W6f46cO0wMW8cQHg8DjzmK28jJjnSLwlco1VIVjRY7S4A10MTD7Lm9IsQjK7Q=
+	t=1784123348; cv=none; b=G7jzbT7LAUOr/g0BwtUDeQQQt1UodH89oZ1Y0x2FRWIpcYyIxOBWxETQbUc/yMqPIqKgk9rIxavqHz0F31BOg1kRnEATXGJzQbCrtf2+l8yF3pWv0GAx0BvRqltRciOMh2IJBwzLwHhx3Zq8jNnS6EA+V7RuSlf7L1XMLb2IiMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784122774; c=relaxed/simple;
-	bh=nRqbKbaWfRz8hfPCtBqKC/mvR+cJJL/qoNAprASWliM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IJmpNi6YEGSKrOQpS2YAU+w0PFXkzKqmqio6TnzHbzwW+n6XTJCS7IoL+nena9b408blBt/mQj+24zfH70qiMUnFtOiR6zZhEXVk15Q0tnr7HousaBiw+G4eL0ciG7W+zvfV1Isk23G2DoxCVHt56ievCLozJJP4P7ZiPKPGf3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=puyML/nd; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784123348; c=relaxed/simple;
+	bh=zjkCs+t9R1UrsaMtmDV00jSNxuaRywqfKI2C3gkg6ME=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=f3cYVCjmwmQW2eysQzwW3n5Hm7nFuKK5H8lex79r4n6Ev3TH2BLOiMYBK/sAVddIE6gbezNo6aLYFxUGKcJX30zUchnbgOei3DxqnRfs0PSVkK/0JxCHykqFdFrKFBHac5MzU0+vPoIiVDa6ak5PBzFN7wObmiV38on51ppS/Hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=epBtQEWV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="puyML/nd"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-470174001a0so1144847f8f.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Jul 2026 06:39:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784122771; x=1784727571; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xSfN1MRxYCHj9lB6dAV7fGSSShXP8EN6Hzd+6qGouO8=;
-        b=puyML/ndvkzf9qrRbpjveiZtaq9j+AItRRTyD6nm2g7Ypwq+ZOQVpsAAlnU/JjMo+i
-         P7FgMrStaVuRwZJIGetlJxhT2l+ug7Wvex2ynGgkK2CaFy5rAvZ+ahpW+jPzfZjUkjzU
-         Oky1rYLlFYtL54aW0eR/tr8IGv16FLWT15ryxRYyoX3SCr2LkJcccyxrdSM4TGkfIpe/
-         BiLzw10RIXO0mlbbfICtUuMY7nCO28uPMQwsbCf3pKDblKXFcdX2wOy4vIpVx2FND8Dw
-         AO6lXZkWx1gE2HiqJRQN87mvdC+EGWSUOiRHVxj9/aGfUqwzM1IghrEv5R2BstLSvw2A
-         ULKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784122771; x=1784727571;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xSfN1MRxYCHj9lB6dAV7fGSSShXP8EN6Hzd+6qGouO8=;
-        b=s4b9sWyZudNjX9TIMIH1cIbJ5lsKMEPKl7qxJ+jAv/W1wbOW+Hgk87Ngi0SlwdAD1l
-         9vEavHgcDEa3F1wD55fs8iW9cn5kbjT7FsTkOM4BVKZfQjnyPhciub1169eVNelKVsFn
-         gwuZmjpd69AYqNsvKC+b9aOyAti+nNMdtc1A28WIoD4YwQjbaJ+W12AbbrLcWF0gBRJa
-         0bAVqJmWKeOf+wQUe3UPFdr3cBE4GH5QkjJSUgm6UftraVY1l6KX5BYllSMkJY3BMnhi
-         FccV1Q9HbTTDxFqgGKdq9+jHF4YaZ05Oh1M4Druq3kZGI0Hbh0+2JdHRhDaDNsYbrqr8
-         1mSQ==
-X-Gm-Message-State: AOJu0YzOuQ32cYheV8ZA8a1DLxN7YiLlniq5IowusQEsL6uldijj9lmp
-	Dre2nqV9g5w1kzr5wR0oyOYwoAliOwqaUTlYuBGHkZnbk5oxTa9RMERD
-X-Gm-Gg: AfdE7cl43SNN2Ehy7OJF26chteUdAqP4qWLYH6W5wYsznAL41V1O09+EFbl3HEYDALK
-	7ughNIB2MFFTSbIeQugALKbh61bLAIyzGj4UUjGSfU4i9ohtMAoYNCbmGv+azDxT9DOsLkBxVyZ
-	pJ9yzyfLzw5//f4/tpyqStJ1JHxdtJKaUZxLfLkP28Bxk2tMJONXSUkq1tUhanh0HNpEBTNww38
-	ZFnDBDuIn78tZ07Oyg034hdLp5qmLs4ALPeIfva4HRQMCKTsJR5fqWycrLff7NfUXYxrSI4QQbS
-	K7/qsc7uVGjhVRPsP7LG7VaL7ElRb6x9hejm1/rAbH3sSOrmqpdCP+hNUTwWJjWdDbygDhYgcEh
-	UE0iPrKj7likiQPtQidA9lPnYeRICUItYni2juTPrsloLssLposuPnF9aBULbsKVw+8MaO4hyXQ
-	BNHiuCfwyGcT42EBn0251wgpF8UvYNOwp7w1pAkBWNrxrjIxneBfWnouVEMx6dIzWY7lRiYLFyC
-	bqGkLX+hcT8BXN4iKoWmg06f1U=
-X-Received: by 2002:a05:600c:c4b7:b0:493:bd2a:93be with SMTP id 5b1f17b1804b1-493f89523d2mr178874425e9.6.1784122771209;
-        Wed, 15 Jul 2026 06:39:31 -0700 (PDT)
-Received: from iku.Home ([2a06:5906:61b:2d00:6d4f:b160:7aea:9d1b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4953b35105esm79420195e9.9.2026.07.15.06.39.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 06:39:30 -0700 (PDT)
-From: Prabhakar <prabhakar.csengg@gmail.com>
-X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v2 2/2] watchdog: rzv2h: Drop WDTRCR_RSTIRQS macro
-Date: Wed, 15 Jul 2026 14:39:22 +0100
-Message-ID: <20260715133922.2129340-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260715133922.2129340-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="epBtQEWV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8443C1F000E9;
+	Wed, 15 Jul 2026 13:49:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784123346;
+	bh=sFEO2e8LTfwjoATJhDcMDVp1+nJvX6ozoplb3xEEKMA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=epBtQEWVacoSuwBFbw0nc3xyQ9RL/GSz0LPkGIQcYul+XY6kPUcJUfWTuuvT1YBoU
+	 WQsI1TEWwi9tH5S9RiVNfnEsl6yqXHG9PVeNs5lk5jyvtj6okWXpVilHHpZ17+j3b5
+	 /XbfogXgIaF68A9ikfbBpKx/Cb+e9+1DSyjajnAcMNrBeEpczzqVriyGUi4vxqH1tf
+	 iJCYw/otNrExPMYgSoWNvFe/AWel+ubi9l/1S1DVKllsAKANTERE+nOagmVSymGvNH
+	 RzX7jrtZeA+LUpeasS3t7MUY9iQ7YpQIvp76JHni5ZOROBzHGx/MxlgqdNPOLYJl0b
+	 X5bX8rRQE+xlg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/2] watchdog: rzv2h: Convert WDTDCR handling to
+ regmap
+Reply-To: sashiko-reviews@lists.linux.dev
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com
+In-Reply-To: <20260715133922.2129340-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260715133922.2129340-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260715133922.2129340-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 15 Jul 2026 13:49:06 +0000
+Message-Id: <20260715134906.8443C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] The conversion to the regmap API introduces a potential deadlock a=
+nd sleeping in atomic context issues in the watchdog restart handler.
+- [High] Deasserting the reset line in the error path of `rzv2h_wdt_stop()`=
+ leaves the watchdog running unconfigured, potentially causing spurious reb=
+oots.
+- [Medium] The restart handler incorrectly aborts if the regmap operation f=
+ails, skipping the actual hardware reset trigger.
+--
 
-WDTRCR_RSTIRQS macro is unused so drop it.
+--- Patch [1]: [PATCH v2 1/2] watchdog: rzv2h: Convert WDTDCR handling to r=
+egmap ---
+commit e599411a91a07a1899caa9c4c300e8ec3242933e
+Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
----
-v1->v2:
-- No changes.
----
- drivers/watchdog/rzv2h_wdt.c | 2 --
- 1 file changed, 2 deletions(-)
+watchdog: rzv2h: Convert WDTDCR handling to regmap
 
-diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-index 0f951219caf8..3c8739902ec4 100644
---- a/drivers/watchdog/rzv2h_wdt.c
-+++ b/drivers/watchdog/rzv2h_wdt.c
-@@ -40,8 +40,6 @@
- #define WDTCR_RPSS_25		0x00
- #define WDTCR_RPSS_100		0x3000
- 
--#define WDTRCR_RSTIRQS		BIT(7)
--
- #define WDTDCR_WDTSTOPCTRL	BIT(0)
- 
- #define WDT_DEFAULT_TIMEOUT	60U
--- 
-2.54.0
+This commit converts the WDTDCR register access to use the regmap framework.
+It serves as a preparatory step to subsequently support syscon-based system
+controllers natively without runtime architectural branching.
 
+> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
+> --- a/drivers/watchdog/rzv2h_wdt.c
+> +++ b/drivers/watchdog/rzv2h_wdt.c
+[ ... ]
+> @@ -171,8 +174,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *wd=
+ev)
+>  	if (ret)
+>  		return ret;
+> =20
+> -	if (priv->of_data->wdtdcr)
+> -		rzt2h_wdt_wdtdcr_count_stop(priv);
+> +	if (priv->of_data->wdtdcr) {
+> +		ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+> +		if (ret) {
+> +			reset_control_deassert(priv->rstc);
+> +			return ret;
+
+[Severity: High]
+Will deasserting the reset line in this error path leave the watchdog runni=
+ng
+unconfigured?
+
+Since reset_control_assert(priv->rstc) was called earlier in rzv2h_wdt_stop=
+(),
+the hardware's configuration registers, including timeout and clock divisio=
+n,
+have been cleared.
+
+If rzt2h_wdt_wdtdcr_count_stop() fails and this error path calls
+reset_control_deassert(), it brings the hardware out of reset with default
+values. The watchdog core assumes the device is still active due to the
+returned error and continues to ping it, which could start it counting with
+default, short timeouts and trigger a spurious system reboot.
+
+> +		}
+> +	}
+> =20
+>  	pm_runtime_put(wdev->parent);
+[ ... ]
+> @@ -234,8 +243,17 @@ static int rzv2h_wdt_restart(struct watchdog_device =
+*wdev,
+>  	rzv2h_wdt_setup(wdev, priv->of_data->cks_min | WDTCR_RPSS_25 |
+>  			WDTCR_RPES_75 | WDTCR_TOPS_1024);
+> =20
+> -	if (priv->of_data->wdtdcr)
+> -		rzt2h_wdt_wdtdcr_count_start(priv);
+> +	if (priv->of_data->wdtdcr) {
+> +		ret =3D rzt2h_wdt_wdtdcr_count_start(priv);
+> +		if (ret) {
+> +			if (!active) {
+> +				reset_control_assert(priv->rstc);
+> +				clk_disable(priv->oscclk);
+> +				clk_disable(priv->pclk);
+> +			}
+> +			return ret;
+
+[Severity: Medium]
+Since the restart handler executes in a best-effort emergency context, is it
+safe to abort early here if a regmap operation fails?
+
+If rzt2h_wdt_wdtdcr_count_start() returns an error, the function returns
+immediately and skips the call to rzv2h_wdt_ping() below, which is the raw
+register write that triggers the actual hardware reset. Skipping this might
+cause the system to hang rather than successfully rebooting during a panic.
+
+> +		}
+> +	}
+> =20
+>  	rzv2h_wdt_ping(wdev);
+> =20
+[ ... ]
+> @@ -253,24 +271,39 @@ static const struct watchdog_ops rzv2h_wdt_ops =3D {
+>  	.restart =3D rzv2h_wdt_restart,
+>  };
+> =20
+> +static const struct regmap_config rzv2h_wdtdcr_regmap_config =3D {
+> +	.name =3D "wdtdcr",
+> +	.reg_bits =3D 32,
+> +	.val_bits =3D 32,
+> +	.reg_stride =3D 4,
+> +	.max_register =3D WDTDCR,
+> +	.fast_io =3D true,
+> +};
+
+[Severity: High]
+Could this regmap configuration lead to deadlocks or sleeping in atomic
+context when accessed from the restart handler?
+
+The rzv2h_wdt_restart() function runs in an atomic panic context with
+interrupts disabled. However, this regmap config omits .disable_locking =3D=
+ true
+and .use_raw_spinlock =3D true.
+
+By default, this creates a standard spinlock. On PREEMPT_RT kernels, standa=
+rd
+spinlocks are sleepable rt_mutexes, which will cause a 'sleeping in atomic
+context' BUG. On other kernels, if the restart handler interrupts another C=
+PU
+that is currently holding the regmap lock, attempting to acquire it in
+regmap_clear_bits() could result in a hard deadlock.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715133922.2129=
+340-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D1
