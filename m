@@ -1,143 +1,91 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 416903F788F;
-	Wed, 15 Jul 2026 09:24:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23983424D7D;
+	Wed, 15 Jul 2026 09:27:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784107458; cv=none; b=VwQ4tKeBG2NuEC5sITK2ZiT4vl1BqhSFy4I3sjmEhsEcUkKqJHmbDTFcCQ0araZXSmg4cbthWvlYyRslD1PKBJSWJUBPsJG33qtWyMzwdmY4z9atsEGerjFvzOCdzRSsDjS1KTOzBb6p2ZcaOZ3tZRZG/JHenbPICbijacU7MuY=
+	t=1784107676; cv=none; b=cXKbqyZKzEHNIk2D6E2E3/MfVvxrgSzwbIFOK2roP43ivItpbaRWpKl2cQuPJHCO1cUhVhdu4lCp2ie7zc/m/e3/oeLtz7BVNvHd5f8JcfH5FK++UyHQUVTrJRjFaFysDsE3KHJyY/HUydsETuNr8fsw1CTW7ZUBZECU+QNEbkQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784107458; c=relaxed/simple;
-	bh=MYoiz8eUQa23PwG+R06wyA3S/Krtag8ksmRqpdm6gGg=;
+	s=arc-20240116; t=1784107676; c=relaxed/simple;
+	bh=acleQbU3WWcCL6FBtF/aSBF1471Vfid/GxaEhvnhotk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NsuYyigIAmU7dgPSKAA8dYvBE/sCUtug9a1/Fq7tFRh4aoN+RUvGMWkfFb5QbBZipffaNBVrizhYQfAYROhB5S6dmL/Pgpn5SyYSVEqk8bXM1L5AHEb5v0/ASWIyukRiR1EhTM4Vu8rXiYmHLnrRA/NJZlOMv6dgAm8dq+/iURQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AVLxiUnq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=WvqH5fRrw3PeqacKTo0KgTNRbpkk+DN7PKSHSTIIJPSWbrVrxUZJDJEYO7f4F+PKAi7zu35OzAtC155I9DKNCnB16Ki+TRmRhp+6uJbNDncLwArpNQuGB1aWBUhzCfQttYmKOtMnToHjQSqXlsVGoC5F7r9Cm+MhcdwiT5Q/UIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jH3nnRBp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AVLxiUnq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BD311F000E9;
-	Wed, 15 Jul 2026 09:24:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jH3nnRBp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989531F000E9;
+	Wed, 15 Jul 2026 09:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784107456;
-	bh=rJN1D0xuEl1zCEcTEacvhks5gJcHMbV4sHcPvIerHRo=;
+	s=k20260515; t=1784107673;
+	bh=T5Dpv6FrqSoPtTua9l54lASEzaAoxaNh+SuNBAMZIQo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AVLxiUnqpsx6AICZ+2YTNrk4xgmfjO49pZYS1LPOy7TIlhAdgVyVsZtqnmI/cAHQ6
-	 YV+aCcYssfqBeoh1Rri1suAmQGD6ceLJxPdL4QAVqbwKyva5xqmAP9SnLpfR7OgcEx
-	 G3nF4sZgMMjAgh2Z053dOCjz2KC2gYXqnlWq6Yae1ohzMaNvghe+oGSuCNN6pJRSlJ
-	 920NOccKrqTn2yEGiglEod3hvQgf68wiF3bkoFP4sMaEWILaHgvLYPGVAIDbzZSwth
-	 A+2a5o1mGxNknlzlmTEvSgy6e2/DCuZB8djbaVFOMOhgd7UFt9xmvFVcgVYfpA7qPY
-	 rcfkWBMgxjqrw==
+	b=jH3nnRBpMPRhaDSj4aKyjZzh5THnmud1Ti+wU2zPzmwCJyY8HLmUCeuzIh5sI/qLN
+	 s+AvW8XowOm0X0xuEMY/5zLYybgahVjkPoSwhIDKo1JjTJH45yYsIXH4HEpCk0Bf5y
+	 fXG/zV1yT5l/pLZjThw+UDlMVl1ezCINp8amEBpk2FjdP4Iqg481sKSHv2/4lnFd+l
+	 +uzqpGtlqyWbknu/VI5c+IhxQn6fj8evTy366mQQldkiN9etFgOgQE3UYwDzcG7pVi
+	 E6RzLSeptJXv5rHS0ymG9yAoX9iemxfevmQEWrbbI5eGPVRfm5LP5EuurrHPAtKoJ6
+	 bv8Du3ajLbt5A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 02/10] dt-bindings: interrupt-controller: apple,aic2:
- Invert #interrupt-cells condition
+Subject: Re: [PATCH v2 10/10] arm64: dts: apple: Initial T6030 (M3 Pro)
+ device trees
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Janne Grunau" <j@jannau.net>
-Cc: conor+dt@kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260715-apple-t603x-initial-devices-v2-2-df65b2485710@jannau.net>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260715-apple-t603x-initial-devices-v2-10-df65b2485710@jannau.net>
 References: <20260715-apple-t603x-initial-devices-v2-0-df65b2485710@jannau.net>
- <20260715-apple-t603x-initial-devices-v2-2-df65b2485710@jannau.net>
+ <20260715-apple-t603x-initial-devices-v2-10-df65b2485710@jannau.net>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 09:24:16 +0000
-Message-Id: <20260715092416.8BD311F000E9@smtp.kernel.org>
+Date: Wed, 15 Jul 2026 09:27:52 +0000
+Message-Id: <20260715092752.989531F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The inverted conditional block intended to enforce `#interrupt-cel=
-ls: 4` for multi-die SoCs omits the new M3 multi-die compatible (`apple,t60=
-31-aic3`), causing it to incorrectly receive a `const: 3` constraint.
-- [High] The new `apple,t6031-aic3` compatible string is completely missing=
- from the top-level `compatible` property definition.
+- [Medium] The `pinctrl_nub` device is missing its `power-domains` property=
+, which is explicitly defined as `ps_nub_gpio` in `t6030-pmgr.dtsi`.
 --
 
---- Patch [2]: [PATCH v2 02/10] dt-bindings: interrupt-controller: apple,ai=
-c2: Invert #interrupt-cells condition ---
-commit c6c471e4280adaa7e66dba52b531c34594c8ccfa
+--- Patch [10]: [PATCH v2 10/10] arm64: dts: apple: Initial T6030 (M3 Pro) =
+device trees ---
+commit 2e87765dac6c4901eb4d023fc0b86ec40441a4ad
 Author: Janne Grunau <j@jannau.net>
 
-dt-bindings: interrupt-controller: apple,aic2: Invert #interrupt-cells cond=
-ition
+arm64: dts: apple: Initial T6030 (M3 Pro) device trees
 
-The commit inverts the condition for #interrupt-cells in the apple,aic2
-binding. It lists compatibles used for multi-die SoCs explicitly and uses
-4 #interrupt-cells for them, while defaulting to 3 for others. The commit
-message mentions this accommodates M3 Max and Ultra based devices.
+This commit introduces minimal device trees for the M3 Pro SoC, supporting =
+the
+14-inch and 16-inch MacBook Pro models from November 2023. It includes base
+device nodes in t6030.dtsi and device-specific overlays.
 
->     The condition for 3 or 4 #interrupt-cells list compatibles for the 3
->     cells variant (not used in SoCs consisting out of multiple dies). This
->     includes the AICv3 base compatible "apple,t8122-aic3". This will match
->         compatible =3D "apple,t6031-aic3", "apple,t8122-aic3";
->     shared for M3 Max and Ultra based devices which require the additional
+> diff --git a/arch/arm64/boot/dts/apple/t6030.dtsi b/arch/arm64/boot/dts/a=
+pple/t6030.dtsi
+> new file mode 100644
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/apple/t6030.dtsi
+[ ... ]
+> +		pinctrl_nub: pinctrl@3641f0000 {
+> +			compatible =3D "apple,t6030-pinctrl", "apple,t8103-pinctrl";
+> +			reg =3D <0x3 0x641f0000 0x0 0x4000>;
+> +
+> +			interrupt-parent =3D <&aic>;
 
-[Severity: High]
-Is apple,t6031-aic3 missing from the top-level compatible definition?
+[Severity: Medium]
+Is pinctrl_nub missing its power-domains property?
 
-Looking at the top-level definition in this file, apple,t6031-aic3 is not
-listed as a valid compatible string:
+The ps_nub_gpio power domain is defined in t6030-pmgr.dtsi, but it doesn't
+appear to be referenced here. Does this node need power-domains =3D
+<&ps_nub_gpio>; added so the genpd dependency graph is complete?
 
-properties:
-  compatible:
-    oneOf:
-      - items:
-          - enum:
-              - apple,t6000-aic
-              - apple,t6020-aic
-              - apple,t8112-aic
-...
-      - items:
-          - enum:
-              - apple,t6030-aic3
-          - const: apple,t8122-aic3
-
-Will this cause dt_binding_check to fail for any device tree node using
-the apple,t6031-aic3 compatible string, as the string is not recognized as
-a valid value?
-
-> diff --git a/Documentation/devicetree/bindings/interrupt-controller/apple=
-,aic2.yaml b/Documentation/devicetree/bindings/interrupt-controller/apple,a=
-ic2.yaml
-> index d0d9a90e96e7b..a94787939d345 100644
-> --- a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.y=
-aml
-> +++ b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.y=
-aml
-> @@ -128,16 +128,16 @@ allOf:
->          compatible:
->            contains:
->              enum:
-> -              - apple,t8112-aic
-> -              - apple,t8122-aic3
-> +              - apple,t6000-aic
-> +              - apple,t6020-aic
-
-[Severity: High]
-Should apple,t6031-aic3 be included in this enumerated list of multi-die
-SoCs?
-
-Because it is omitted here, won't it fall into the else block which enforces
-const: 3 instead of the intended const: 4?
-
-This seems like it will cause device tree nodes for M3 Max and Ultra to fail
-schema validation when they specify the correct 4 interrupt cells.
-
->      then:
->        properties:
->          '#interrupt-cells':
-> -          const: 3
-> +          const: 4
->      else:
->        properties:
->          '#interrupt-cells':
-> -          const: 4
-> +          const: 3
-> =20
->  examples:
->    - |
+> +			interrupts =3D <AIC_IRQ 472 IRQ_TYPE_LEVEL_HIGH>,
+> +				     <AIC_IRQ 473 IRQ_TYPE_LEVEL_HIGH>,
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715-apple-t603=
-x-initial-devices-v2-0-df65b2485710@jannau.net?part=3D2
+x-initial-devices-v2-0-df65b2485710@jannau.net?part=3D10
