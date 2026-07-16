@@ -1,176 +1,201 @@
-Received: from OS8PR02CU002.outbound.protection.outlook.com (mail-japanwestazon11022079.outbound.protection.outlook.com [40.107.75.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7673CB577;
-	Thu, 16 Jul 2026 08:10:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.75.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 606C43FFFB5
+	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 10:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784189416; cv=fail; b=F4cASeARtvZkzDXPB4gB1JB8zpSpX+g3KUtaNp5NqiIehTfRlRjDCzhyO17X4R2t45qvgwo/uiUY98sbvCJaVTvTjmVymeVsQBNNzCk6WlhIWo+eI+K98120NAXGEmS93Y96udx0NUuxIcDyKuzQc53EMLAliUr3J5prP3JZM/U=
+	t=1784197711; cv=pass; b=FX2bZGa9kMqzFmZRNUyFKQEMTTvpAXmt7N5QAyUJ5uLq8EP5FSAcnS0n1eXoB//OdRi5DfdyN38bsVdSfTl4YL/k9qcEBhDIWZISWBtfcPLZnGXBpHde7wuQaLmEnbcy5Dvlbk+ulaWV2N7bL3i3418em3GMEchfBelkXG3ZSBE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784189416; c=relaxed/simple;
-	bh=8ryW3edDUWvoUr90NEO/Bo8eBOkCt3ee4FAqHcBXJ6o=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=HaFTKE5gAdFfF5OsIwNblM62LAUYjsMI7RPMdYFdxsH2g2D9R0EeEAQpdVFpR1aQASp99ox8E2qdKUDEyXw4JEEUS4D9ZfAH+oJaUKK3+xPo5ZqZy9yUuKPYyYpl0RnaOHqu7wZtvP/EbPIOvMKBPs7Gt1svANn5/cBg412jsBo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=advantech.de; spf=pass smtp.mailfrom=advantech.de; dkim=pass (2048-bit key) header.d=advantech.de header.i=@advantech.de header.b=BIHt5hp2; arc=fail smtp.client-ip=40.107.75.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=advantech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=advantech.de
+	s=arc-20240116; t=1784197711; c=relaxed/simple;
+	bh=9CMRtIwZMesVCw95SzVrTvn4z9Ju3sAFefPlV/JvBug=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kJDbswJMwIwXn9bv20DDU5OFNevUsjLoGfv8BreKPNquCBsO2C3gqwhe8+uGeJNrqp3EpCuIOJnPwJ7gD1frRiT1AUGCE3zcgfFYftDrCt/2L4sQsutOpj1bLS3FBYDZ9Q84tiDRxm87DAfLgc6VtQJorJzlVnjxc1Li8YCS/E4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WYWAcsUn; arc=pass smtp.client-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=advantech.de header.i=@advantech.de header.b="BIHt5hp2"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QkMxy0SFCt2rQD51Dg7fqu31BYK+EY8EeS2tIDwrI+LPt2FVqgWxNOAL/qN/ziZKxtCjCnmxBTRsBfuf3esNAJO2lxVxQSUqFsLob0AdfkITk4jDa8LRZv88CiQaNkbvdQsdiwiesaSaGKhvx/UktRIJxADSu/YGQSjFyGN9lTYk0g8hEgKlr6Sacn13+5U24ifyd4f5TcskXaqwsqrV+azjRPOnEB4c4jNy+0/qcdgsMq5N+us+AgWYT2aRD/VHrSSlfKbBy0jefsv+tmMcqTVKY+it6s50BavheLcNVL5s71KdholTJjqC+kRw0jaiVICRklspkVLBr7mNeEmrtQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8ryW3edDUWvoUr90NEO/Bo8eBOkCt3ee4FAqHcBXJ6o=;
- b=WxGNRQwv+WMryxTJCWeOr3IHT2NV0a4OlegH0YPyNjvyDdOn8uwwW7IGEscNNKJg3iKaNMwjoaMRqbB88aDyp7eEC4CtsuRqr2C2tO/vQqNNS2Z/Vqq8m9GTXYihbWqkX7xTDsG1BK5Qd5xnzprufCQe5pSdhOqMRnMGKM8mNYkxzjzfkHcjtOia7edRWjGmAF7x7eh21uCj9ckMvfgqzTV7Gyipj9SuHgyab/f91Q/PeNsIXZ5FibK2UzuM709oLQj20M9XVrp9HVaq8YTrJK7ZFRrStkKmWHMtU2R+UXD6w3NGR9hYszoScfe3kpa+5Z9w46dRIytwdn2TbK6xmg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=advantech.de; dmarc=pass action=none header.from=advantech.de;
- dkim=pass header.d=advantech.de; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=advantech.de;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8ryW3edDUWvoUr90NEO/Bo8eBOkCt3ee4FAqHcBXJ6o=;
- b=BIHt5hp22YLwWipueY+Gp2CTOjAoSGGykKqN8ZKwixskfbxSdOFOkZVteEbI21fWg8uMzPr/icJhTn3ZtJnKqjFzmWu4kgm5mh2Zo2wtmd9xAy9YTJD+PkLuYbhqwq/8CxqW8O5di7BNF4WeFnOcd6gaAR5QzSpo3ZTl2XauV53NzjouUm+HKoJf6nSVKivmF/c0Ui8n5cja/y2kJrSSwXQtBWuk+HoeIbQBmgjvH+/XqGVGdc62btsQLisCzLcyF4Bf8sQ3nTbo29HuSgcR08T8WavBDxR3YY9kndesFuheCcrkInVxgEOKW+XOJ6Pld2yJPWlWmy+FQHWeZ+0KQw==
-Received: from PSAPR02MB4502.apcprd02.prod.outlook.com (2603:1096:301:21::6)
- by KUZPR02MB8851.apcprd02.prod.outlook.com (2603:1096:d10:4b::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.11; Thu, 16 Jul
- 2026 08:10:08 +0000
-Received: from PSAPR02MB4502.apcprd02.prod.outlook.com
- ([fe80::44e6:6433:8000:35aa]) by PSAPR02MB4502.apcprd02.prod.outlook.com
- ([fe80::44e6:6433:8000:35aa%3]) with mapi id 15.21.0223.011; Thu, 16 Jul 2026
- 08:10:08 +0000
-From: Ramiro Manuel Silva Oliveira <Ramiro.Oliveira@advantech.de>
-To: Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee@kernel.org>, Linus
- Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Andi
- Shyti <andi.shyti@kernel.org>, Daniel Thompson <danielt@kernel.org>, Jingoo
- Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, Wim Van Sebroeck
-	<wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Daniel
- Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, Lukasz
- Luba <lukasz.luba@arm.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"mfd@lists.linux.dev" <mfd@lists.linux.dev>, "linux-gpio@vger.kernel.org"
-	<linux-gpio@vger.kernel.org>, "linux-hwmon@vger.kernel.org"
-	<linux-hwmon@vger.kernel.org>, "linux-i2c@vger.kernel.org"
-	<linux-i2c@vger.kernel.org>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "linux-fbdev@vger.kernel.org"
-	<linux-fbdev@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-pm@vger.kernel.org"
-	<linux-pm@vger.kernel.org>, Wenkai.Chung <Wenkai.Chung@advantech.com.tw>,
-	Francisco Aragon-Trivino <Francisco.Aragon@advantech.de>, Hongzhi Wang
-	<hongzhi.wang@advantech.de>, Mikhail Tsukerman
-	<Mikhail.Tsukerman@advantech.de>, Thomas.Kastner
-	<Thomas.Kastner@advantech.eu>
-Subject: RE: [PATCH v2 3/8] Add Advantech EIO Hardware Monitor driver
-Thread-Topic: [PATCH v2 3/8] Add Advantech EIO Hardware Monitor driver
-Thread-Index: AQHdE6khkMz7/hggY0W6Zx06CTHzCrZvTOCAgAB3y4A=
-Date: Thu, 16 Jul 2026 08:10:08 +0000
-Message-ID:
- <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-3-76e5e41026db@advantech.com>
- <b7171173-aa64-4393-b9cf-77d92f2ec932@roeck-us.net>
-In-Reply-To: <b7171173-aa64-4393-b9cf-77d92f2ec932@roeck-us.net>
-Accept-Language: en-DE, en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=advantech.de;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PSAPR02MB4502:EE_|KUZPR02MB8851:EE_
-x-ms-office365-filtering-correlation-id: 77824c9d-6ed8-479c-8c2e-08dee311a6d1
-x-ms-exchange-atpmessageproperties: SA
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|7416014|366016|23010399003|1800799024|921020|10067099003|38070700021|22082099003|18002099003|55112099003|4143699003|56012099006|11063799006;
-x-microsoft-antispam-message-info:
- 78KstKS+ZLlaMOMLF3s1fZwICc3Db5HRARxflmnPpYKYRsWk7apqkt/uWeQ4jhJbqYuvKtfIYxLBoOc7CeJQ9tSYkRgU8E/ldx/rKUDg2/GTBRH/Jp4Sv0g2njXmNrG6vmny6+rq58ibK+/RywWgwIcV0Acs4dDeN5C8P9VMQ3zaf48+JxSGAgg4DSFwaq7uLg5gIAQzeh96Jtzxcyi+puJu1RujA7FWvZPDalAyxd0LlS6BHUF7NeQUuCRO3h9phGrcptpl1bgh+mnn4nHfl4RDI4UdcG0E7VKcv2niymrD6nmtifC+HikyZ92eFXjo5EgsDCluvc+682gVtyTTKsLoqj6TRSOcSdjC2slhNzjw4tOd6W75IvfF/9AvtxNdgopS6BS/dwR1xqfA0Xxh3x5iA0BpEmAQl4Y1MEEhS+YcwntiXu+wOWRH1g4OLgXNpXN6b/fgLiz6RDec0UBPOe4yCPc5c/8iSlIERDlIMSoolNfHnffXC68sgMPWbBZPgRXGeL6B2g9+Zqrys2PQ2V59+hpVp/iNBzfW/aT/9a3Z4q6km6TiUxrFafMUC2LDRWrZP+barYeu4Njzbg5ANjV0bYOrUDAWK23OZNsV1TPxn4omE6cTnVSALjGTMa6plLJGPiLYEWQJEneS9lXcPq1swu9ygrtuLPqxIgZhcuLM5IxObn3D+hQEkcxBUwCDlmSK7J+8HqM6J7kT3anAkEvGVpO/rBqOwpyjnrqCC3x8LCCaq7/3+7Au/eHL2JS+
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR02MB4502.apcprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(23010399003)(1800799024)(921020)(10067099003)(38070700021)(22082099003)(18002099003)(55112099003)(4143699003)(56012099006)(11063799006);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?dkxaUmFScHJTaXNSUDZHVWo2NlVERnVIRGpLeDNRUi8zK3JlOWFiczQzWHEz?=
- =?utf-8?B?NS96UVhFRWNNVXlZRSs1M3BycDFPb1AxZmJWSTVQRFBpUUF4NmlMS2VaRnJL?=
- =?utf-8?B?eTZxU09LWHowRnF4b0FlYlFQd09kYjMyRE5EeXoybDAxMHRaSGNjSGN0Y3B2?=
- =?utf-8?B?MTZyc2h4WUZrS2RpdGdvd3VVWDZtTEM0R1htYU1HMnA1Sm1PeCtxKy9XRDZ3?=
- =?utf-8?B?M0Qwdjd3ZVFMWmp6ZHJ1U1F3UjVHa2JPRXpDSGltenB2SkJuSkxjenk1MEov?=
- =?utf-8?B?N1lGSUdka005dFJkcDRybTBFMExNYkRnSUc4aENDdVMwNnZZb3ZQZU1PZnpC?=
- =?utf-8?B?dUNVc3lFNm04RWdCM0FyQjh0czhRa0xzRUNrSlVOZ0ZKUWQzT0c5VUVyR0FQ?=
- =?utf-8?B?WTNlaWxsZDRXczRKbW9pMzJCYStLZU1Lc2FVMGhzMllWdm1aWk9DL2IwM0xY?=
- =?utf-8?B?QXhMQXlScEp5Rkc4emRwUmJoaWVJQjVQTHNkTm1ZWXJwREtmaTl4dlJ6ZXpn?=
- =?utf-8?B?K09TcTdTQ29JSVFTRXFTUGIrbUE0cCtqOEdzanM0c0hPUDhxQXRXeTZQYmJS?=
- =?utf-8?B?TUdsR1V4V0g3UEFsNm5JNVRVbWJldmN2OG5ob2NKc3N1U0w1dndUV2RMYVRH?=
- =?utf-8?B?VDZMNm41amtpUGdXWVkvMEMvQ0xrc2NwZHcrL0QvdjhyQ1RJa1dwajlyOU1z?=
- =?utf-8?B?ekIzQTRGMXgwL3pUWnZFcktBN0ZSaVoxanByMmdsV1hVT0hKUnpjU09PaGFK?=
- =?utf-8?B?YldvbjFRR2oxRjhSRTA5SDQ5NkJiY28zK09maVJQeDgvaFdEVGR3MXJRVUN5?=
- =?utf-8?B?My9wSUsyMmM4djJIMkRYVnhLSytYRnBOS1htdGtXdUY1RE5mLzZnaHpscUVC?=
- =?utf-8?B?bVpuVS9IbmtnWHBUMXJuSGpkZ29VVW5wMnpGdzVVdjJLQ01HN3N4QUJLSnQ1?=
- =?utf-8?B?N3NqTE5HNXF2NXhPelRXdWMzUlhoNWFlQWdWRnI0ZlF5dDVBdGNsamQ4R2F1?=
- =?utf-8?B?VzdUV3ExR0lHQldVZUlLMlJ6dGZxcGM5MWFjQkRvUVc2dVMwZTJZTzRTMjNP?=
- =?utf-8?B?VDM0a0g4L3dnem1lU1RTS0s5Mmp6VHlFWDlEN2FSNXF3aU5zQXNDZzZmcmhI?=
- =?utf-8?B?Smlqckp4MkI5Y1ozT3ZIb3lMd1c1ZHJ6TmgvU1c3bFFsNlYyQTFhZGRyUEZB?=
- =?utf-8?B?YStVN1UxMXJFSkxqQ2R6cEdSaVV6SEdDMEt1ZEZTaXNLZEJGM3lablRZa0ZN?=
- =?utf-8?B?VHJSdURxeWp2SjI0aXh3OVpmYkpxbTVDQVhMK2EzU2hScFFSZ2pZSWF1Skp5?=
- =?utf-8?B?cXV4TjdOZ2NUMHdlY2htdThYQUY3ZGFWR2t2RGNWcHhsQlV3b0tZTkJCc1hS?=
- =?utf-8?B?aXF1R041elVmbEJibjdNWmgyK21meTJzTzdiL2hsZUJ4VEE2OXNobnFmZC9Q?=
- =?utf-8?B?YTlEejZDNUc1cjRJcTVLU2NUL3RTWUFseFhPblhJRDBVWWwvWFZUZlQwWGla?=
- =?utf-8?B?WnJYM2VucGl3Si9rMHF0WHNmeGo0SUFBeDRkbjFZaWd2Q2pyK05TZE14Tzdp?=
- =?utf-8?B?NDRGbFFDZmFUS3hiMmYycFlGRkFoRFp2TmhmQTBCK2V1eU1yWm9hQjFRLzJH?=
- =?utf-8?B?L3QyTURSaXYxUlJUQndLV0lBZU1ZMjY0T0xDR2JyckJVQkw2ZnRqczVIUVIv?=
- =?utf-8?B?RVFZT3FQdEc0YnVLbWc0dUwrRWxJbXpiblQzTGtyZG9GQjQ4MjZxZXhWN1Ja?=
- =?utf-8?B?ZTJsOTNyS24vNUl1eVdvRm4xNDFqQ051RjlzSFJyTkNVZ2xueGI0M1llNjQ1?=
- =?utf-8?B?Y2prbmtHS3JDc1IveDA0Z1dOSEk2YTRhdytYK1VqMEN3Z0dqOEFreTc2WjFV?=
- =?utf-8?B?eUcwSDczbkpQM0s3TEpKMGExY3NXdVBLZlZaV0ZIcStFWTkramIzdFk3MVFO?=
- =?utf-8?B?d3FqMUlKZllkWjVUMlRYcVd0YWNJbGd5T1VZNkIxcTdKdmRwSkp2YUZBYmJC?=
- =?utf-8?B?K3FiZE94YmVHUDFydDFHaXcyYnQ2UXVkZDQwQ0NTN3BqQjkvY3hITFJVODkx?=
- =?utf-8?B?U2hIRCtuRGEvV0Y5cTU1WWNFUUhqQVpxcEl1UEhNQzd3V2xsQmp3L09CZU9P?=
- =?utf-8?B?cGR3K1FqbTluV1o2cW1oYWg2ZGZuVVVxb1R5eVBVK3NjZk1BNzBwOTd6MkJJ?=
- =?utf-8?B?K3VUdUpHb2x3RUoxNUkxUWVyL0hMNXMzTldLa29xSTFuWXFlOThBSjU2V2kz?=
- =?utf-8?B?MUpRS0dMVUNSMUhBSFhIZVdHTkVPaUtDTmtpckhYREZUcEdvR1BiaFdDbW5Q?=
- =?utf-8?B?UDRWLyt1MzZFditYUW45U25iM3FNQ3gySXU1R1Q5eU14K0o5LzVsUT09?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WYWAcsUn"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-47f365afc5aso2649582f8f.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 03:28:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784197709; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hpeEj2IvsnvaR+WUYdfv99CP3IzSoQsOcWMoTdky8r4Jw/sPfMqLv4uylc/LoFqSd2
+         WAxAkkINhHxSoUtvB8r06MOnNOeUHflgSMlC1EhJZtRN/ewQ7airaLdWmhN18Fn2DCF0
+         zRtQ+1VoS0qOiq9PqKMFG+GT0R+KIhVUm1UUugLuGj+Z49P1U17ruwepC2BND5Ho4xUH
+         Aai+Z2Dtl7q/Dqzu9kPLuhRYOEvcXh7CCPKcu0kphlshhVRoPq/sPcxQylhk3MjbV+z8
+         j6vMP3XrJ0VcF0t+A8Ot8UH99QSdNeW19s/w1CnvV669G75mfTgfOKsOyK142dWBD7da
+         VF/A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=+KOI1yzxEWrrjiX8ttD6p732AnDLyZgUaLXj0s48WNY=;
+        fh=rZ+n26hdTguBlK6FTTORaZ1rqAXTBrTsdZ/+/+Q0x2Q=;
+        b=ZWcI4k+Rok6evcyNM5ZPyQhX6ZOYJLFzfu/wVsHPVij1QzxXv5Qk/QavN+9CqCky+C
+         7M/On5EGE+Bx7tPKn523R73Yl3MznHaSNwvmaqKtkyUwYlrjNlOHgyT5w7R5pSSGYmlJ
+         SWihgnhKo+yE8NHTdn77+SxEk48LvOiUMmxUVfVk/2K4AzJWNAox8mq8K4AqB9ke8mcA
+         dvOEvfznLy9CxWJHfpFlIWMBMhqMmNajl9AVgjjXRc+gZ1bJoMeQLxwCmzO4S8LRyFV8
+         r2PdFyFMQLcHSweNpdTpOr7WX5fxm5YIbZ3rbHoeo81NsZM6j3W5PWWNMkbt0zvMqpqU
+         eprA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784197709; x=1784802509; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=+KOI1yzxEWrrjiX8ttD6p732AnDLyZgUaLXj0s48WNY=;
+        b=WYWAcsUnVdAwqOs5vyUxESIrESaVcvK1AzNtEF6hYOTLm4fEEgRiMCNGfop6hq2GvF
+         0MBVKl9gEuvgzQZ0d8GMIY3tWdPE1hfWyqGEszJa7SKrDK3cKJ3Il67CprncRpkncFSK
+         yxeCZ7K2DJULFP045p5gwD1eQjTczqPQOyG02VWbsgRK564EYH6va8fXIbT8tWSdnxsY
+         uUUYjN2bKpRoFBPb0q7aNM6e0ZpuOp3Lho/KbPFsqqillaKynFr24nBDRg61DAfMIS/Y
+         BljKPs1Nxin3pb9sieHzMCoJnFQjFsvB4GhMVAkTGCzNwJrMUUfC7NtDUJJBPrzJ2/Ks
+         YtdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784197709; x=1784802509;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+KOI1yzxEWrrjiX8ttD6p732AnDLyZgUaLXj0s48WNY=;
+        b=HIXgcAkEdY4qWxBTLY6Cr1/jI9oU9h7LmL91hjPb+lsdy/xF6SiqgSCtAYW56elQUX
+         6PGUTm4QWYdP8OjboM5ZY5/F/9AmjLTRWtSxuN1Qx/lv9ODYztL3SdOQfXAYqK1ZB8C0
+         5najbtJaEH30pwvdFgWou7e9FO/CyD7W4TS5Bq5o3IqOjXXTW6IsJDmDhhI2dc4J7Uwq
+         NDs8vNV6G1PPGdlhnnXmDIo4oz/JY6MOtLebdEysRNgNx3rlcfLkgQuyYuO9w+P1scEu
+         /MuAx6XXBGqJPAjuh9AloPD3cyAVgAjq15gxgDecg5CIX6xV2+FU2aujPuYM/0CQcYJj
+         qtYA==
+X-Forwarded-Encrypted: i=1; AHgh+RqZOSHDC48Vn2N+FiliooxoPLAYeTWbbY18IlZSnHa9IcOB4N323sMEtdVEK9zA3DNRy8beEbDmOy75HUyOLw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwcXECpqkAfuF2U8ZmAu9NkAzUqua9vabnqoZlDLyl0ArcGaFCJ
+	48MEdE54V7ar/wQiI7AcWuUEr9Ge9UPpGDBXLIaQdfjCEIdzFA6H4NHg04BJDnVcRU+j4VbQ6/V
+	Byp/uunCpQsT1o3vubDRQMvvKgN6bZ+Q=
+X-Gm-Gg: AfdE7cnOsDnY4QfsYkNBCoEOARRpennQnYhnoeLTclPYRX+TW22qOCbPa9/LkZuZhqq
+	unqhD56zxHR30fBg6QzFzC/ZI+/GKkCsKrQMLJg95zG8PpmRrOO22iojZJ4GD5autacrsltYfnd
+	K03JjptUNbj6+VcfX6UknIf90quu/GOfdNq6JMNUewGo1VpS3OnnAkP60BQuhOCMgi7E2bfNy5w
+	HTL9TzmC/AeEeMz9hLtUFg/yZ45KmcNFW4V1KpCg3+UYEor9SE76gl4bFMtasAwx72DdN7DUL45
+	eUO4aXzChmDPv4Vs0eM8xr4Nz6bEAgTlwx4GjZSJZO/V0Q==
+X-Received: by 2002:a05:6000:4a1d:b0:475:f0c2:5afa with SMTP id
+ ffacd0b85a97d-47f488bfd4dmr12527545f8f.48.1784197708365; Thu, 16 Jul 2026
+ 03:28:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: advantech.de
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PSAPR02MB4502.apcprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 77824c9d-6ed8-479c-8c2e-08dee311a6d1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Jul 2026 08:10:08.5292
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a77d40d9-dcba-4dda-b571-5f18e6da853f
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: TW+O6j8VTcitXVv/o/0TE94cbZwA3edD42MDyYW0D9LkTq1VGU6oyqjSjSOvGmRUg1wMQtYZ1KLsXa6dziyf/cIGbaWQYcDZPIl8B3/LvhY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: KUZPR02MB8851
+References: <20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <CAMuHMdUhiBAcJ6P7j0ZxL+0AbVqz88PMo7YX9UiYOK8jM61D1Q@mail.gmail.com>
+ <CA+V-a8uUxfDx2Xnb3uFg2=R+eYnzVmAv4PoEYeXGwAbANxG5Bg@mail.gmail.com> <CAMuHMdVQWnp3ipR8xLv3PBVax3sDrZeoH6uw6Cjygf7EZT8EgQ@mail.gmail.com>
+In-Reply-To: <CAMuHMdVQWnp3ipR8xLv3PBVax3sDrZeoH6uw6Cjygf7EZT8EgQ@mail.gmail.com>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Thu, 16 Jul 2026 11:28:01 +0100
+X-Gm-Features: AUfX_mwAsz7gRD0YYf7KOaOpLk2KMZANDyil4268FtHPqCze6MPfCsZ7dyXCIpE
+Message-ID: <CA+V-a8tjT8bSy83FcOypSjry8WoVN2w=4hp7yBWNEH0mx_kj0A@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 0/9] Add System Controller support for RZ/T2H and
+ RZ/N2H SoCs
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Magnus Damm <magnus.damm@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, 
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-PiBPbiA3LzE0LzI2IDA4OjU0LCBSYW1pcm8gT2xpdmVpcmEgd3JvdGU6DQo+ID4gVGhpcyBkcml2
-ZXIgY29udHJvbHMgdGhlIEhhcmR3YXJlIE1vbml0b3IgYmxvY2sgb2YgdGhlIEFkdmFudGVjaCBF
-SU8gY2hpcC4NCj4gPg0KPiA+IFRoZXJlIGlzIGEgc2VwYXJhdGUgZHJpdmVyIGZvciB0aGUgdGhl
-cm1hbCBkZXZpY2UgZHJpdmVyIHNpbmNlIGl0J3MgYQ0KPiA+IHVzZSBjYXNlIHdlIHN1cHBvcnQg
-Y3VycmVudGx5LCBidXQgaWYgaXQncyByZWFsbHkgbmVjZXNzYXJ5IHdlIGNhbg0KPiA+IG1vdmUg
-aXQgdG8gdGhlIHNhbWUgZHJpdmVyLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogUmFtaXJvIE9s
-aXZlaXJhIDxyYW1pcm8ub2xpdmVpcmFAYWR2YW50ZWNoLmNvbT4NCj4gDQo+IE5vcm1hbGx5IHRo
-ZXJlIHdvdWxkIGJlIGEgaHdtb24gZHJpdmVyIGluc3RhbnRpYXRpbmcgdGhlIHRoZXJtYWwgem9u
-ZShzKQ0KPiB1c2luZyBIV01PTl9DX1JFR0lTVEVSX1RaLiBJZiB0aGUgZHJpdmVyIGFjdGl2ZWx5
-IGNvbnRyb2xzIHRoZXJtYWwgem9uZXMNCj4gc2luY2UgaXQgYWxzbyBoYW5kbGVzIGZhbnMsIHRo
-YXQgd291bGQgYmUgaW5zdGFudGlhdGVkIGZyb20gdGhlIGh3bW9uIGRyaXZlci4NCj4gDQo+IFNp
-bmNlIHlvdSBoYXZlIGJvdGggdGhlcm1hbCB0ZW1wZXJhdHVyZSBhbmQgdGhlcm1hbCBmYW4gZHJp
-dmVycywgSSBhbSB2ZXJ5DQo+IGNvbmNlcm5lZCB0aGF0IHRoZXJlIGlzIGZ1bmN0aW9uYWxpdHkg
-b3ZlcmxhcCBhbmRvciBldmVuIGNvbmZsaWN0cy4gWW91IHNob3VsZA0KPiBkcm9wIHRoaXMgZHJp
-dmVyIGFuZCBjb25maWd1cmUgdGhlIHRoZXJtYWwgdGVtcGVyYXR1cmUgZHJpdmVyIHRvIGluc3Rh
-bnRpYXRlIGENCj4gaHdtb24gZGV2aWNlIGZyb20gaXQgaWYgc28gZGVzaXJlZC4NCg0KQnV0IHRo
-aXMgaHdtb24gZHJpdmVyIGRvZXNuJ3QgY29udHJvbCBhbnkgc2V0dGluZywgaXQganVzdCBkaXNw
-bGF5cyB2YWx1ZXMuIEZhbg0KYW5kIFRoZXJtYWwgWm9uZSBjb250cm9sIGlzIGhhbmRsZWQgaW4g
-dGhlIHRoZXJtYWwgZmFuIGFuZCB0aGVybWFsIA0KdGVtcGVyYXR1cmUgZHJpdmVycy4NCg0KQWxz
-byB0aGlzIGh3bW9uIHNob3dzIHZhbHVlcyBub3QgcmVsYXRlZCB0byB0ZW1wZXJhdHVyZSwgbGlr
-ZSB2b2x0YWdlLA0KY3VycmVudCBhbmQgaW50cnVzaW9uLg0KDQpXb3VsZCBpdCBiZSBvayBpZiBJ
-IGtlcHQgdGhlIEhXIE1vbml0b3Igc2luY2UgaXQgb25seSBkaXNwbGF5cyB2YWx1ZXMsIGFuZCBp
-Zg0Kbm90IGNhbiBJIGtlZXAgaXQgdG8gc2hvdyB0aGUgb3RoZXIgbm9uLXRlbXBlcmF0dXJlIHZh
-bHVlcz8NCg0KPiANCj4gVGhhbmtzLA0KPiBHdWVudGVyDQoNCg==
+Hi Geert,
+
+On Wed, Jul 15, 2026 at 9:54=E2=80=AFAM Geert Uytterhoeven <geert@linux-m68=
+k.org> wrote:
+>
+> Hi Prabhakar,
+>
+> On Tue, 14 Jul 2026 at 15:27, Lad, Prabhakar <prabhakar.csengg@gmail.com>=
+ wrote:
+> > On Mon, Jul 13, 2026 at 5:00=E2=80=AFPM Geert Uytterhoeven <geert@linux=
+-m68k.org> wrote:
+> > > On Thu, 2 Jul 2026 at 14:31, Prabhakar <prabhakar.csengg@gmail.com> w=
+rote:
+> > > > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > > > This series adds support for the System Controller (SYSC) blocks fo=
+und on
+> > > > the Renesas RZ/T2H and RZ/N2H SoCs. These blocks handle critical lo=
+w-power
+> > > > management and access control functions.
+> > > >
+> > > > Hardware Architecture & Dependency Challenges:
+> > > > ----------------------------------------------
+> > > > The SYSC in these SoCs is a multi-functional block responsible for:
+> > > >     - Clock & Reset Control
+> > > >     - Low Power Management
+> > > >     - Clock Monitor (CLMA)
+> > > >     - Access Control
+> > > >
+> > > > A key architectural detail is that these SYSC blocks are physically=
+ located
+> > > > within the CPG/MSSR (Clock Pulse Generator / Module Standby Softwar=
+e Reset)
+> > > > address space. While the CPG/MSSR driver is already implemented and
+> > > > functional for these SoCs, the integration of SYSC adds a layer of
+> > > > complexity due to a cyclic dependency:
+> > > >     - SYSC requires CPG: The system controller needs a clock to ope=
+rate.
+> > > >     - CPG requires SYSC: Access control registers within the SYSC c=
+ontain
+> > > >       bits necessary to control the PLLs managed by the CPG.
+> > > >
+> > > > If implemented as a completely separate top-level system controller=
+ node, we
+> > > > would face a cyclic dependency between the CPG and SYSC drivers dur=
+ing the
+> > > > boot process.
+> > > >
+> > > > Proposed Implementation
+> > > > ----------------------------
+> > > > To resolve this, the SYSC blocks are represented as child nodes of =
+the
+> > > > CPG/MSSR controller in the device tree. The SYSC regmap is register=
+ed
+> > > > directly against the CPG device node. This hierarchy correctly mode=
+ls the
+> > > > hardware address space while allowing the drivers to share resource=
+s
+> > > > without deadlock.
+> > > >
+> > > > I am sending this as an RFC specifically to get feedback on the
+> > > > implementation of the SYSC as child nodes of the CPG to resolve the
+> > > > dependency cycle.
+> > >
+> > > Personally, I am not a big fan of subnodes.  I assume you are using
+> > > subnodes because you can register only a single regmap per syscon nod=
+e?
+> > Yes so that the consumers don't have to specify it by indexing.
+> >
+> > > Would it be possible to just extend the existing clock-controller
+> > > node with two more reg entries, and expose them through a single
+> > > combined regmap?
+> > >
+> > That should be possible. Or would you prefer just to extend the sizes
+> > and create a single regmap for it?
+> >
+> >                cpg: clock-controller@80280000 {
+> >                         compatible =3D "renesas,r9a09g077-cpg-mssr";
+> > -                       reg =3D <0 0x80280000 0 0x10000>,
+> > -                             <0 0x81280000 0 0x10000>;
+> > +                       reg =3D <0 0x80280000 0 0x20000>,
+> > +                             <0 0x81280000 0 0x20000>;
+>
+> Yes, as they are contiguous.
+> These registers are not accessed unless there's a user specified in
+> the DTB, right? So there is no issue when booting an old DTB that has
+> the short reg blocks.
+>
+By checking the size of the resources, we decide whether to create a
+regmap to maintain backward compatibility.
+
+Cheers,
+Prabhakar
