@@ -1,188 +1,164 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEC8041A779
-	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 11:36:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7D2940315F
+	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 12:34:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784201772; cv=none; b=Zgyrv7/8A+nemBWhe4B3OEnSMzZ056fBF/GNLTrv3fsEcU1GXgqUxeSqSsS0t4cPZAQ3eRpi29C1nDmcjb1HOwd2kxOtHrsX/Jfx0QCfq+BPuZ/HzEzqlPS2+S600n19tmBEVVHQauHNCYEYpXwe2fbQGA3dqQNYXMNMJmIUWvY=
+	t=1784205285; cv=none; b=rKEmdNiOcO2hMg2CCf9Egta8pYdTcS2CE6JoJZBSOt94C+HgoFKxMLKrdpLJrOV4HtTZoX8VMgyD1RrmnrMLxKVNK5F97pnDDTW2/YJPMd4YOvuIe/OWf1Nu3bwyaqCQXIb8tFwqHzfob+JKY7yFv/tA22Re7NBd68Je7DQSB1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784201772; c=relaxed/simple;
-	bh=zetSJ0c59ByWOy2eXS5poYreELcox54ZDL3f0xEL8w0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ODg2G7l/bNYLu28loUswDTPHv1fxkDAY7gBqv8GTVZdZ5Praj64SL1S6N1ZJtcvdtJc/LfleVYPnRyMswcpx+C/AkSc7q1JsJyz0Dq9p1DMGqYzR+xaHfSYs6YTjqR6y+WWHzVD+yhRffLkKLDeZGWJyHX+W1TfBhOsp0sw2iCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QiQ5rI0e; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1784205285; c=relaxed/simple;
+	bh=pNG4dt1MuDjJS2FfJJY5eOAN0jDemnvGolZRu57PMXc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FlvXCQIriaSTdbLu4DasLLMuefTJVaBNwhzMOtvoto+H7/pPf55RNMSbK9SYJbK4y1xujq8Klzy71c04TQdsDYW91jpZ0gtDkuHEybd+GPLv0NtuoObOBlHotgbpy6Wuj5cb47wNhnV8IMGfnsqmMD4QM4+40erTQutwzgnXxYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=awBjLE8z; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QiQ5rI0e"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38e347638adso1337793a91.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="awBjLE8z"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-495441b72ecso2666255e9.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 05:34:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784201769; x=1784806569; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
-        b=QiQ5rI0eRFGxigFyJXsU8AJRJFGM+m1kwajLqIBu8QKY9W1T8CcjBgZbbFG7Zvubnz
-         LjKwMXvSvyqBJXzFDuVpjG3EuYPLv6ckm8zYKMM3v+qbaL/jXBK9A/CyQjeApKIHNq2M
-         xInFmKF5QSFAQGUyQ56Sdjvbl6Z2svlckcTjuavCn9cYBd6eIQFpmPCXyd8EJg505BKw
-         r3HIsYIGk8f71xYJwhummZAqSwbVBcIOBOXrHohssS0nESIU6uhI/fBYcuZf5no5N0G1
-         Qs2qlf+IeN0bCMszcOMkIAEP73YQlGE1AkeSfXZ6aIIxdrBDFH0V112YvPWi3QLV0Yl5
-         Lfqg==
+        d=gmail.com; s=20251104; t=1784205282; x=1784810082; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ABw2degQi5xUj2ybacHY09V1CX8wIMU9fYlZ9atLanU=;
+        b=awBjLE8zMVDvEu2pyl2e0dDH3EVisLp+Wg13MSE8GnJRWj32EQtWzI4zn4F0z2xEru
+         Lh3287pA6+FVcjYoHgvSSgeO2DxA5/F5DQjL0FcajsdLKLymSQQFHz4sfYHQrTXIFltw
+         jM05oTiAa7jF5NNVW4UfUboX5/YDp7NgMqAQJ3dhWzgT/dUfCOrqmw9r59AzqE6Uu0yL
+         BfmjrM0w7Pff9QdrPm/DGMoR8/s8t3YCCndcHWJo1QGG1CvkvoV9e8v2Yd32Bnui8m75
+         HfRO10FjblC8sEZFJtPBx4EWlqCTI1Rxo6x7TpQ4ILPKusDUl/p94k/15mmTcGyL5hlT
+         G9aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784201769; x=1784806569;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
-        b=NlU705aQFzy4EqwCDqWyvqnj3EB6WMBEsZ4R0shvL1lF4FjiH3fLPzzCfE0aHeJW13
-         yP3bb8OU3cW+cmcFi0PsT//HLH3kG4bRg2zIfaFjIhalNXXQtfBAiIHbBLAq+Q6+HqVU
-         wNsEzY28yRvD9hFyqsUbZQhe7pwa/HpLPW23yPhOb8Yes80u8tdw03WphLKrrAkyO8aW
-         JL03403FOoioztNFswUpF6B+sSrQK+9tlsu4H7Ah0wYj8gmNneZZwvYFoeepXFLZcEH/
-         gjp1oDbemP/oUt8eg79N6N77TT94sOYumKH+qp6AO/cHqDbc7Pt2RSXziDz67VcenDVy
-         4Vjg==
-X-Forwarded-Encrypted: i=1; AHgh+RpxApoCRBhViNu+OPdzp00PbGjKud8GOcKXXPJ1h6mpqjnETA6VcyS8xkkUul+2O51xqOF9LVW+8dO4MZXyKw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywiqj0Si93WRx7zcfofVcv2ojK7CNZt8yX7w+cNkD0gFyR4TKKh
-	h5IZYV6oKwa54mt2bEq1YipQnUNHiscClJsqnRFiE7qJ8+WREL9kMRgx
-X-Gm-Gg: AfdE7clbqw5z5oMnbbPT2W4FmYMXRqvyRztk0kusyV0K2t+AW3ucEOOe1Rr0Vq7Cjy3
-	TyAeDF8B9k2JinP6fVemCyJeDvCJeoHKqMnZK3nKCbvUBSoiFiGQoZ2O5TUKEf2WOnMawZI95fb
-	ErOAmwVfBK7NSJY4aX7c0DFL8tl2fEXHB603IGnJ146Z9jciDG85IKkYOYcTuYzZ+jmNjdQ2YwD
-	yAf4gOOlaBlhVO9aVvhP2Ppo7KarVvUVixa9TC4Jfs6yxMBSQJbx8vHhckeuWuo2LJ0rpxny8bR
-	xfW/shceGBBkws9s92iEAooiyg0J54UEDXFylVQH4H+aQ/UC28BtJdFNURKId0kNfZfDEzUR+8y
-	8tz+YrNlQzQdwH9P9hh/xD+iFylmBEPhc/kRoOASlk4H2CcKGtxRNft1VEAEptH+zGouqHbXnnm
-	gnlBJxtcHJtnKg5+pg7Ia5yUZThZ9rUCmcpSbiNl9gEXd2M1g2++A=
-X-Received: by 2002:a05:6a20:158e:b0:3c0:b766:74f4 with SMTP id adf61e73a8af0-3c36c1f13cfmr6949530637.31.1784201769130;
-        Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd426b36asm9053465c88.2.2026.07.16.04.36.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jul 2026 04:36:08 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <16f3837d-b416-4d5d-8876-4e08d5a9ef26@roeck-us.net>
-Date: Thu, 16 Jul 2026 04:36:06 -0700
+        d=1e100.net; s=20251104; t=1784205282; x=1784810082;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ABw2degQi5xUj2ybacHY09V1CX8wIMU9fYlZ9atLanU=;
+        b=HYnntTb77JpmUPVuVfITiVw+XGm/k+XxoZbjcTHaM4yIHsgy7LppoF/Ce8NS2nwU1F
+         4pE2bGJ3rvR9ojVDc0aawE/MbDDmvgDzMQ/BBUqCjmjngqmoX/NqITxWOZzGHGaWmGCv
+         Ub4KuAwASJkFBcxbbPN0iNUYZqdZHyqw8b4n1ZDK/6XaASaI/4xPvAPddtKNLfAz6sBZ
+         NMlT51DGorrMeyzMJaT46JsNRhej11xmSLnaQpKOJ7CiwWnSZ6n+R43Pj4OAZd+YzB2G
+         wuNFKsdPNZ00s1M+6r0gMPqGhpvlavK5J+cF17jBbQM+F64M5s+mUfr1MO0is6Wc9p+N
+         XSKw==
+X-Forwarded-Encrypted: i=1; AHgh+RoIvr+9zCB2cyutyxsJfJ7uht0i7FBsu7woHutmYl2S88PDvv9Bodq7UFBskza1y5eC70FMe5FPWlYr94wLlA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwTP3Hd6PnLGw/baqoULyqAP8xLeW6D1j0B5taFfgQ3kF9HoMBN
+	umHF3a7rMriS68Y64ndHj6Jrgpxy5QivsnpuFQ1JqsfYZMnJXdJQFOqJ
+X-Gm-Gg: AfdE7cnXqb7tK1XMLDkIAB2ui17i/daw+/huGXG9IbJGGG/Yil6f30mkRFuJX3E8yM/
+	GqsmOz5jugVE405hfoLjX8mEHVWnSRCR4+YKFqbHmR1flBf8JKR/gOoXM0kd+L/HIugmu27ggoY
+	l9lsFLxtRMKvdd04gY9Qb4cpmTC6p/HTKv2BgXzeYwJS0UfgbypZNzjUYufPNLIRVC5ktmRINJM
+	q42hTNeajcT1FlZSEqqNgF67Kr/l0h1A5bsTFUNYeahs+6mDFcwDDtwtMFCWbHJfRR/nvCb6X0q
+	Y5d8TtCBoDXKvxsjS9OPNqhKMCX1QL/fsXfC3CT1k1kaeDMAl9ogjOHQWD4rj2BXQH02l0aLJ2f
+	rA3DKydSW0gO77e7uL5IUoYw1cwEEVHdwNljOGNX2FH4KEwU3hNZOPJY5Gzl9Xhmllp0f7C1IwN
+	r3Ed4TpLMCt/6E4U9VlEJeAJ94tnuwcDlnykuCYK5rZom0mq2GA1yHOFYak6LLlM7CtskB4DgIw
+	tgTVumYtjmaFcNaVI1+APvJbgM=
+X-Received: by 2002:a05:600d:8444:10b0:493:bd2a:93bb with SMTP id 5b1f17b1804b1-493f87d7eefmr180396215e9.3.1784205281874;
+        Thu, 16 Jul 2026 05:34:41 -0700 (PDT)
+Received: from iku.Home ([2a06:5906:61b:2d00:4150:a2d7:2b6b:840e])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e83d05sm48582645e9.6.2026.07.16.05.34.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jul 2026 05:34:41 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney@redhat.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-renesas-soc@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v3 0/8] Add syscon support for Renesas RZ/T2H & RZ/N2H in CPG/MSSR driver
+Date: Thu, 16 Jul 2026 13:34:26 +0100
+Message-ID: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/8] Add Advantech EIO Hardware Monitor driver
-To: Ramiro Manuel Silva Oliveira <Ramiro.Oliveira@advantech.de>,
- Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>,
- Helge Deller <deller@gmx.de>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "mfd@lists.linux.dev" <mfd@lists.linux.dev>,
- "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
- "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
- "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
- "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
- "Wenkai.Chung" <Wenkai.Chung@advantech.com.tw>,
- Francisco Aragon-Trivino <Francisco.Aragon@advantech.de>,
- Hongzhi Wang <hongzhi.wang@advantech.de>,
- Mikhail Tsukerman <Mikhail.Tsukerman@advantech.de>,
- "Thomas.Kastner" <Thomas.Kastner@advantech.eu>
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-3-76e5e41026db@advantech.com>
- <b7171173-aa64-4393-b9cf-77d92f2ec932@roeck-us.net>
- <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 7/16/26 01:10, Ramiro Manuel Silva Oliveira wrote:
->> On 7/14/26 08:54, Ramiro Oliveira wrote:
->>> This driver controls the Hardware Monitor block of the Advantech EIO chip.
->>>
->>> There is a separate driver for the thermal device driver since it's a
->>> use case we support currently, but if it's really necessary we can
->>> move it to the same driver.
->>>
->>> Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
->>
->> Normally there would be a hwmon driver instantiating the thermal zone(s)
->> using HWMON_C_REGISTER_TZ. If the driver actively controls thermal zones
->> since it also handles fans, that would be instantiated from the hwmon driver.
->>
->> Since you have both thermal temperature and thermal fan drivers, I am very
->> concerned that there is functionality overlap andor even conflicts. You should
->> drop this driver and configure the thermal temperature driver to instantiate a
->> hwmon device from it if so desired.
-> 
-> But this hwmon driver doesn't control any setting, it just displays values. Fan
-> and Thermal Zone control is handled in the thermal fan and thermal
-> temperature drivers.
-> 
-> Also this hwmon shows values not related to temperature, like voltage,
-> current and intrusion.
-> 
-> Would it be ok if I kept the HW Monitor since it only displays values, and if
-> not can I keep it to show the other non-temperature values?
-> 
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-All other similar drivers implement a hwmon driver and instantiate the thermal
-subsystem from it. You decided to implement thermal drivers. You should only
-have thermal or hwmon drivers, not both.
+Hi All,
 
-Having both would essentially implement two drivers with overlapping functionality.
-Since you decided that you want separate thermal drivers, and two of them, you
-should drop the hwmon driver.
+This series adds syscon support for the Renesas RZ/T2H and RZ/N2H SoCs
+in the CPG/MSSR driver. The CPG/MSSR block on these SoCs is a
+multi-function block that integrates several system-level features beyond
+clock and reset control, including clock monitoring, write protection,
+and peripheral configuration registers.
 
-Guenter
+For the other IP blocks to be configured a syscon support is provided in
+the CPG/MSSR driver. This allows other drivers to access the CPG/MSSR
+registers via a regmap interface.
+
+Note:
+- Patches have been rebased on top of next-20260715.
+- The WDT driver patches apply on top of series [0].
+
+[0] https://lore.kernel.org/all/20260715133922.2129340-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
+
+v2->v3:
+- Switched to non-RFC patches for the series.
+- Added new patch to split out the RZ/T2H CPG binding from the generic
+  Renesas CPG/MSSR binding.
+- Dropped WDT driver refactor changes from this series. These has be
+  submitted in a separate series which makes use of regmap.
+- Dropped registers from writeable_readable list.
+- Renamed sysc_init to post_init and updated signature to take
+  cpg_mssr_pub struct.
+- Created a single regmap covering both SYSC register regions
+  instead of two separate regmaps.
+- Updated commit messages
+
+v1->v2:
+https://lore.kernel.org/all/20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
+- Updated commit message for patch #1
+- Made use of for_each_child_of_node_scoped
+- Moved sysc_init() to the end of the probe function
+
+v1: https://lore.kernel.org/all/20260511185058.1926869-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
+
+Cheers,
+Prabhakar
+
+Lad Prabhakar (8):
+  dt-bindings: clock: renesas: Split out RZ/T2H CPG binding
+  clk: renesas: r9a09g077: Register SYSC regmap
+  arm64: dts: renesas: r9a09g077: Adjust CPG register region sizes
+  arm64: dts: renesas: r9a09g087: Adjust CPG register region sizes
+  dt-bindings: watchdog: renesas,r9a09g057-wdt: Add CPG/MSSR syscon
+    support
+  watchdog: rzv2h: Add syscon support for WDTDCR
+  arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR access
+  arm64: dts: renesas: r9a09g087: Use CPG/MSSR syscon for WDTDCR access
+
+ .../bindings/clock/renesas,cpg-mssr.yaml      |  27 +---
+ .../clock/renesas,rzt2h-cpg-mssr.yaml         |  87 ++++++++++++
+ .../watchdog/renesas,r9a09g057-wdt.yaml       |  29 +++-
+ arch/arm64/boot/dts/renesas/r9a09g077.dtsi    |  28 ++--
+ arch/arm64/boot/dts/renesas/r9a09g087.dtsi    |  28 ++--
+ drivers/clk/renesas/Kconfig                   |   2 +
+ drivers/clk/renesas/r9a09g077-cpg.c           | 130 ++++++++++++++++++
+ drivers/clk/renesas/renesas-cpg-mssr.c        |  18 ++-
+ drivers/clk/renesas/renesas-cpg-mssr.h        |   5 +
+ drivers/watchdog/Kconfig                      |   1 +
+ drivers/watchdog/rzv2h_wdt.c                  |  56 ++++++--
+ 11 files changed, 342 insertions(+), 69 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/clock/renesas,rzt2h-cpg-mssr.yaml
+
+-- 
+2.54.0
 
