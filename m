@@ -1,64 +1,64 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F3B41F36A
-	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 12:34:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EDDA41F34E
+	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 12:34:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784205292; cv=none; b=OcrAadM5XB6LgQ+VCxMkBuI23+5Ux6QpygxNYmFDmo+QEztJ87V1fr+AytVIpNSNGyQUNpPY6yQRl8l6x86gN1uXSP0w7iBn4s+T11JjtndBbej54YcZq6zMGQyeKqSgrDrFnst56sON37Klq7rkkvAB8L65U5m9ZXc9zGTqE78=
+	t=1784205292; cv=none; b=sSjKOBv+po7eJ3AENJgomAEbHJWr+i475q+deOMdYn7aoYltlGexfMYJwyDvMlDDADHHBKI4ez3giCjIbFVZCqKKhfS7sDbQxh0sNOYcOEUxYSzjbvbbu5ld1y2MUHGdd+Ob5xFU499EkAb/cDPvFjhtO5Xq+6BzUtiGu4kXa/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784205292; c=relaxed/simple;
-	bh=LAeO8dJYWYKjZOE4b72ZYMIevY+gt9S6/2o3OOOJ24s=;
+	bh=ZeoHOrcCtYoooj9iNeyIvUVAJBLQSZ8butMUSbwnfGw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RjEuzMvZYyxk/T7GqRO9zQB7dMi38RmqDhF8X1uYNJ2oVYHuk24v1ZBABOerTGpmCe9bPqqfE+Jz8YASPBsw0OjcjZ+Ncjm9645Z+Q8nX/pWc7DzjcwetHkcexVRkbJkYG/CQhjqM6N2qyZpKCZfQxmOSDijSxw6uDmxMOfZXWM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=myziPg59; arc=none smtp.client-ip=209.85.128.52
+	 MIME-Version; b=e99LSyESncLTBW8U7Pyx4nG6vqF6kLF3p1ZYPnB/rLf4l57c+i3iN3BUJ7VMWJgb/fsxwDEfy0Ig44ljUNWrdQukxrvMeK2NVCilX9WTjFjRrYL6KFAlox2+3FcVfudDtCW0gzwFXJ55ob8uvhkJcx+PkymQF65sioCjQ37OJTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bV1oetyw; arc=none smtp.client-ip=209.85.128.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="myziPg59"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-493e8d4f4dcso47229755e9.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 05:34:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bV1oetyw"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-493ae59eca6so17237175e9.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 05:34:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784205288; x=1784810088; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784205286; x=1784810086; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=FrXyR15IqCRE9wmiui7ksY3rF9ArHCCSsOBf4Sb4Cqw=;
-        b=myziPg59QHAOPigYDAcluqwCEgmDZK68/tkVYwTS581Cw9tmiA69zSoB/+16hDqA0r
-         L1p6Div5OOhtbh++71aihdpjaO+xpxHz/egsEZxNO4JPaJcKlfBtMX8Yrvfu991JcDyU
-         mI1gjtOdWUYb1qCa8ff8ufGm3sCAvhDNb1ZJg6MVdp3L+WDuCJqJjGcnGvS+BIOtSjFG
-         U07p01d+z1Aipqce2I5+fO2zTNFJuahdVFzwHcewjVljwKO7GNkKsx8lYS/it3ykz8lL
-         GeSx5pQApfR8D9GA09Mth39DkeKKdpWZ/lOWRXwIsZJGzxTcrb7F6sKaBgpxBeW0daGI
-         A4CQ==
+        bh=45HS0HXfnOqn/cim05cwGxtOaeZqHee/zE0v0a9vY94=;
+        b=bV1oetyw6DCZqPlLTxyC7KQwAYdwEQZBPUwy0DeiE24WWhV6xTU7ae+fPo5C3DYz26
+         0D4EgMFmgvDFqaZ3VfNg9Tth/lQVL7HKh+Z2ddvclPvJYQVYXna7uvgGbiMZu4mKOyH1
+         1FLn3ITWGx+xS5tr8xAeJBINo4/mMMBWpk7d6fqy1QbVfxigigPheyGnalQcXqBmrxkc
+         lZsAjOhrIY94r5xUgnVzY5154BWAPePTKu68N0ZasZEX40o44TXmZCS7MAkLUKws3rz8
+         NjL3f4CbCefWRoIsS10TD7mccR2w63Lzh22h4gXLFkm3uUT69zKoI3pvgLIyO5jINLjS
+         171A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784205288; x=1784810088;
+        d=1e100.net; s=20251104; t=1784205286; x=1784810086;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FrXyR15IqCRE9wmiui7ksY3rF9ArHCCSsOBf4Sb4Cqw=;
-        b=iTEtqyj1tfH7PWUJuuZeR4x7M4n6JLqmQhWCncVeX+e92ndLq6xFFZCvmJsyRBCFKQ
-         SW/wDxm6EJM7ASGxJtlU4w8GSzDsO7hFFR00NRmV9w0kmmFjE5HnDqj0ktefeSXkIqS2
-         59tlMO7nF2isRyVl0U+5Wnw6SUOhhY+vicjpd5KFjQb5vySVxDukuPkozFcjoDqEkAN6
-         6L1YyT5XSc7G1g/RvQOPIV/0BaVSrTTEB0LZo05rb7dOE4dzffSdeLiHtq8X5hJp5xYn
-         GefNWrEB3A/+sdoyhXoU1yr9/KdSW2PDB02So384aPESweSoHc7qazUkqkjH7RFyUuIw
-         91iQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro4ZfmV/h4YXdMYj1fFvecCokGGyiuTK4Qi6VFrYkdO4swl+iFq8VNwNU+qBX5wnBVGGZFcGfvyEfH6wyFEjg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkFTABYKuY2JmO7pvmjisEIOz99V/nXdFvcGt3g+RrCS7CC/2J
-	PBGjDXHiFjRp/CIJBmhC2vb/FxCD8MuVwJQjOeu+Ohi16llz5unbbx9r
-X-Gm-Gg: AfdE7cksMi9sthyZs5N30baDo5M1cN8zEM4oez7MHLzmFaHVOwCJ0ZlKEnHgzhEpVRk
-	vo7nNV9Mn8G4QMX8jcvZA0toxC81dYc7sWAwGG9g2jU5YaD+u4iuTfytGMCWI3m4oBnp7v7kMvH
-	hFIZvF7/fqYVwxBnhf0r5zQ9jSeUIIwl5eh5wcnj8NDeleUvUzTTMx8WJ4sZxd2WzJY5VEOXDsk
-	nbqxiL2ghktLXFff5FOzLux9EQyBVIBAf/b/F5ouTrxyvlS+iapD9p6VUrRK5ykldd9IkOjMe99
-	JDZpCXzfmGd/M0QTidCYfJKQtFs73CCsWYhIvG3qFH68TqW4KDoH3/HwSKs1SxfFIX9VuXZfusG
-	fHjvGklLqVZzFDQ4p9GNf0IbR2R5qURZVaeyFtHy6F6iK4zT0jPG+9Ga3ntO+BXWh2pIAvRApM5
-	7yi67Y2AE9SRVw4sYvilS4yTyn8QvD2eVHY83ExIOG0vYRVwCXhgblgVc/4MDZN7lrmoYyLN5m2
-	PCwt7yomyNo9hY2IPMNzgmOQRw=
-X-Received: by 2002:a05:600c:19d4:b0:493:f442:3de9 with SMTP id 5b1f17b1804b1-4953c27e9cfmr71378815e9.27.1784205287531;
-        Thu, 16 Jul 2026 05:34:47 -0700 (PDT)
+        bh=45HS0HXfnOqn/cim05cwGxtOaeZqHee/zE0v0a9vY94=;
+        b=KIdVtbxuALlUH7kQaTs6PTEF6/A8ha7qbjJ3fBsAoK0iEgN+xYNOWbjGB9ZMHSsHtM
+         smm+Slq5FIqUn0BvlYi7XJx0G/hSTB4PHQ06dFc291bGjKzyD7bdxzzT/rRKF1XR7Hxu
+         lBHZoUy3tt7wiL9G8gtznclyGk0FUhvJ68kgB5nZ+w8DVWMNwkXaHccJNwsrnzxaObsB
+         BWxjEeTMDg3FAliDhcAHV4IqBRSozMElrrvS6qOu1fM8aLxhZWAKnJKeT7r3v474Nmj5
+         Op9bUjtNTnXAR02PZoXBGbBrYPO8Do/PsRumliRHrfub20L4wDrOw4jfqtv1J+1QQXoP
+         d+KA==
+X-Forwarded-Encrypted: i=1; AHgh+RrKgx8RLsfb8GWCEsCm/iIFGWfTt8QXNekuigsy6EvwdqXlAo1M3hOJpyRKtDW0HyqHL/0sZj3+69BBEJ8ojg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw8olh068191hXrWEd1Ci4NYi6OeuR3ykn6yBOFZCd85YBMFRsK
+	ra4oF8QQtiD+B7pUM8HdCjzDeGY/rNVlH6mpH1KJ9t/yNxoM5di+nrGr
+X-Gm-Gg: AfdE7cnTyLnTxbVpNtYnZmR8/GjSVhleR47OCRUdeaDchXd7vYUX7hLifl8libbvNla
+	Brld2RzZ7E+faJ1jdwyQ42YcDbLtHWC7qa3CEoC/+Ekw56/vSVzQsjY056noTyOhLGUJmEaJzDd
+	BrcfGOKJfKXsn5CiMLMAypvz0/nL1VADNzINcaEpf4x9Y48D4JgV0IjSZXUnx6WuAcFAIPe+2H/
+	Kdvhcjy47FFuH0OiNEEVN9CUzyBg6XdYajYCWLlU3SsgKKkCOc2X8+pMfyweCy8otBkRiOiECqw
+	bodzPHhDHm0RJFl9zhvvy7TvFZCyw1fNO8fTQ0UhiXnetl9itDcsV4Hqa3oZIIYbWzEU/dIYnQa
+	pc8/lZVfYZCEIvpPRFYk4ekXXBRFfM+e2D15ATntqVLinKeZGKuQ8F8nkVk5vVdutxdNlz7N9NM
+	Vzy09H7TYaBkfqABLF1cwQRRPNxCp3kC+utnoZR9i062EZ7SJmFN9sDjB8rjWrL8j4w04dnA8EO
+	zvcF1t6KaDUHepp
+X-Received: by 2002:a05:600d:8444:10b0:493:e46a:ab with SMTP id 5b1f17b1804b1-493f8837638mr181771255e9.34.1784205285938;
+        Thu, 16 Jul 2026 05:34:45 -0700 (PDT)
 Received: from iku.Home ([2a06:5906:61b:2d00:4150:a2d7:2b6b:840e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e83d05sm48582645e9.6.2026.07.16.05.34.46
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e83d05sm48582645e9.6.2026.07.16.05.34.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 05:34:47 -0700 (PDT)
+        Thu, 16 Jul 2026 05:34:45 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -80,9 +80,9 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v3 7/8] arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR access
-Date: Thu, 16 Jul 2026 13:34:33 +0100
-Message-ID: <20260716123434.2576253-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v3 5/8] dt-bindings: watchdog: renesas,r9a09g057-wdt: Add CPG/MSSR syscon support
+Date: Thu, 16 Jul 2026 13:34:31 +0100
+Message-ID: <20260716123434.2576253-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -96,103 +96,89 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-The WDTDCR registers for wdt0-wdt5 reside in the second register region of
-the CPG/MSSR block. This multi-function block is now exposed via a unified
-syscon regmap interface.
+On the Renesas RZ/T2H SoC, the Watchdog Timer Control Register (WDTDCR)
+resides within the CPG/MSSR block rather than the WDT address space
+itself.
 
-Replace the direct mapping of the individual WDTDCR registers with the
-new "renesas,sysc" phandle property pointing to the CPG/MSSR block syscon
-node.
+Previously, this was handled by including a second register range in the
+"reg" property. However, this is architecturally incorrect as the CPG/MSSR
+block consists of two distinct regions (0x80280000 and 0x81280000) that
+contain registers for multiple peripheral blocks.
+
+Since the CPG/MSSR block is a multi-function block, introduce the
+"renesas,sysc" phandle-array property to allow the WDT driver to access
+its control register via this shared regmap.
+
+Mark the use of a second "reg" entry as deprecated in favor of the
+new phandle-array approach for SoCs that require WDTDCR access.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 ---
 v2->v3:
-- Renamed the "renesas,sys" property to "renesas,sysc"
+- Updated property name to "renesas,sysc"
+- Updated description about deprecation and use of the new
+  phandle-array property.
 - Updated commit message
 
 v1->v2:
 - No change.
 ---
- arch/arm64/boot/dts/renesas/r9a09g077.dtsi | 24 +++++++++++-----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ .../watchdog/renesas,r9a09g057-wdt.yaml       | 29 +++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-index 9c45266ea595..7ce604c89ac5 100644
---- a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-@@ -327,61 +327,61 @@ channel1 {
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas,r9a09g057-wdt.yaml b/Documentation/devicetree/bindings/watchdog/renesas,r9a09g057-wdt.yaml
+index 975c5aa4d747..322b6921c147 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas,r9a09g057-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/renesas,r9a09g057-wdt.yaml
+@@ -48,6 +48,17 @@ properties:
+   resets:
+     maxItems: 1
  
- 		wdt0: watchdog@80082000 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80082000 0 0x400>,
--			      <0 0x81295100 0 0x04>;
-+			reg = <0 0x80082000 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 0>;
- 			status = "disabled";
- 		};
++  renesas,sysc:
++    description:
++      System controller registers control the start/stop of the WDT, and halt debug.
++    $ref: /schemas/types.yaml#/definitions/phandle-array
++    items:
++      - items:
++          - description: phandle to system controller
++          - description: watchdog IP instance index
++            minimum: 0
++            maximum: 5
++
+   timeout-sec: true
  
- 		wdt1: watchdog@80082400 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80082400 0 0x400>,
--			      <0 0x81295104 0 0x04>;
-+			reg = <0 0x80082400 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 1>;
- 			status = "disabled";
- 		};
+ required:
+@@ -73,15 +84,29 @@ allOf:
+           minItems: 2
+         clock-names:
+           minItems: 2
++        renesas,sysc: false
+     else:
+       properties:
+         clocks:
+           maxItems: 1
+         clock-names:
+           maxItems: 1
+-        reg:
+-          minItems: 2
+         resets: false
++      allOf:
++        - if:
++            required:
++              - renesas,sysc
++          then:
++            properties:
++              reg:
++                maxItems: 1
++          else:
++            properties:
++              reg:
++                description: Deprecated. Use the renesas,sysc property along with
++                             the watchdog IP instance index instead.
++                minItems: 2
++                deprecated: true
  
- 		wdt2: watchdog@80082800 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80082800 0 0x400>,
--			      <0 0x81295108 0 0x04>;
-+			reg = <0 0x80082800 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 2>;
- 			status = "disabled";
- 		};
- 
- 		wdt3: watchdog@80082c00 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80082c00 0 0x400>,
--			      <0 0x8129510c 0 0x04>;
-+			reg = <0 0x80082c00 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 3>;
- 			status = "disabled";
- 		};
- 
- 		wdt4: watchdog@80083000 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80083000 0 0x400>,
--			      <0 0x81295110 0 0x04>;
-+			reg = <0 0x80083000 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 4>;
- 			status = "disabled";
- 		};
- 
- 		wdt5: watchdog@80083400 {
- 			compatible = "renesas,r9a09g077-wdt";
--			reg = <0 0x80083400 0 0x400>,
--			      <0 0x81295114 0 0x04>;
-+			reg = <0 0x80083400 0 0x400>;
- 			clocks = <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
- 			clock-names = "pclk";
- 			power-domains = <&cpg>;
-+			renesas,sysc = <&cpg 5>;
- 			status = "disabled";
- 		};
+ additionalProperties: false
  
 -- 
 2.54.0
