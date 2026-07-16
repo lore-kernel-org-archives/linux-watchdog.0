@@ -1,62 +1,64 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7D2940315F
-	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 12:34:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A9C41E6B4
+	for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 12:34:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784205285; cv=none; b=rKEmdNiOcO2hMg2CCf9Egta8pYdTcS2CE6JoJZBSOt94C+HgoFKxMLKrdpLJrOV4HtTZoX8VMgyD1RrmnrMLxKVNK5F97pnDDTW2/YJPMd4YOvuIe/OWf1Nu3bwyaqCQXIb8tFwqHzfob+JKY7yFv/tA22Re7NBd68Je7DQSB1w=
+	t=1784205286; cv=none; b=EHB84zKCF8yA+T6C96ZXFNXULAN23wK8ePalSTGLUDs3rvvvQcYHOUxp6BWxPlvrHtbMqRsEK0oZuFMUu3Jks/vxvJftrFb1Yo+U5ZSCWGOBRKxKr0+hmjwWnkyU4cSqjsA9JSdJUPnC6MwEp9ubgBg0kn2FH6HY8sBm8vOrA/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784205285; c=relaxed/simple;
-	bh=pNG4dt1MuDjJS2FfJJY5eOAN0jDemnvGolZRu57PMXc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FlvXCQIriaSTdbLu4DasLLMuefTJVaBNwhzMOtvoto+H7/pPf55RNMSbK9SYJbK4y1xujq8Klzy71c04TQdsDYW91jpZ0gtDkuHEybd+GPLv0NtuoObOBlHotgbpy6Wuj5cb47wNhnV8IMGfnsqmMD4QM4+40erTQutwzgnXxYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=awBjLE8z; arc=none smtp.client-ip=209.85.128.43
+	s=arc-20240116; t=1784205286; c=relaxed/simple;
+	bh=ZqIWP+AhPURiWzMGMvpsY8KCXG0v5mBRy77w21Oc5j0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OZ0zmKj/E+EPmxnx2ETr9sOiJ6Vc6T84iJ6n+x5/vbjAg1Wy/EFVyNlgEdTsBchEzlSjTyrkITOsUIc1wuKNcU+0bDhhszUv0SNwDWm+HZ+WcZwYEIqvyic70uNKUGFG9aXD5tVKDgJhKgpIga5h1OB84vTtxDFro1D57hEZ1IQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dAHlAGDA; arc=none smtp.client-ip=209.85.221.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="awBjLE8z"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-495441b72ecso2666255e9.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 05:34:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dAHlAGDA"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-47c2b362ee2so5806959f8f.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 16 Jul 2026 05:34:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784205282; x=1784810082; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ABw2degQi5xUj2ybacHY09V1CX8wIMU9fYlZ9atLanU=;
-        b=awBjLE8zMVDvEu2pyl2e0dDH3EVisLp+Wg13MSE8GnJRWj32EQtWzI4zn4F0z2xEru
-         Lh3287pA6+FVcjYoHgvSSgeO2DxA5/F5DQjL0FcajsdLKLymSQQFHz4sfYHQrTXIFltw
-         jM05oTiAa7jF5NNVW4UfUboX5/YDp7NgMqAQJ3dhWzgT/dUfCOrqmw9r59AzqE6Uu0yL
-         BfmjrM0w7Pff9QdrPm/DGMoR8/s8t3YCCndcHWJo1QGG1CvkvoV9e8v2Yd32Bnui8m75
-         HfRO10FjblC8sEZFJtPBx4EWlqCTI1Rxo6x7TpQ4ILPKusDUl/p94k/15mmTcGyL5hlT
-         G9aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784205282; x=1784810082;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784205283; x=1784810083; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ABw2degQi5xUj2ybacHY09V1CX8wIMU9fYlZ9atLanU=;
-        b=HYnntTb77JpmUPVuVfITiVw+XGm/k+XxoZbjcTHaM4yIHsgy7LppoF/Ce8NS2nwU1F
-         4pE2bGJ3rvR9ojVDc0aawE/MbDDmvgDzMQ/BBUqCjmjngqmoX/NqITxWOZzGHGaWmGCv
-         Ub4KuAwASJkFBcxbbPN0iNUYZqdZHyqw8b4n1ZDK/6XaASaI/4xPvAPddtKNLfAz6sBZ
-         NMlT51DGorrMeyzMJaT46JsNRhej11xmSLnaQpKOJ7CiwWnSZ6n+R43Pj4OAZd+YzB2G
-         wuNFKsdPNZ00s1M+6r0gMPqGhpvlavK5J+cF17jBbQM+F64M5s+mUfr1MO0is6Wc9p+N
-         XSKw==
-X-Forwarded-Encrypted: i=1; AHgh+RoIvr+9zCB2cyutyxsJfJ7uht0i7FBsu7woHutmYl2S88PDvv9Bodq7UFBskza1y5eC70FMe5FPWlYr94wLlA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTP3Hd6PnLGw/baqoULyqAP8xLeW6D1j0B5taFfgQ3kF9HoMBN
-	umHF3a7rMriS68Y64ndHj6Jrgpxy5QivsnpuFQ1JqsfYZMnJXdJQFOqJ
-X-Gm-Gg: AfdE7cnXqb7tK1XMLDkIAB2ui17i/daw+/huGXG9IbJGGG/Yil6f30mkRFuJX3E8yM/
-	GqsmOz5jugVE405hfoLjX8mEHVWnSRCR4+YKFqbHmR1flBf8JKR/gOoXM0kd+L/HIugmu27ggoY
-	l9lsFLxtRMKvdd04gY9Qb4cpmTC6p/HTKv2BgXzeYwJS0UfgbypZNzjUYufPNLIRVC5ktmRINJM
-	q42hTNeajcT1FlZSEqqNgF67Kr/l0h1A5bsTFUNYeahs+6mDFcwDDtwtMFCWbHJfRR/nvCb6X0q
-	Y5d8TtCBoDXKvxsjS9OPNqhKMCX1QL/fsXfC3CT1k1kaeDMAl9ogjOHQWD4rj2BXQH02l0aLJ2f
-	rA3DKydSW0gO77e7uL5IUoYw1cwEEVHdwNljOGNX2FH4KEwU3hNZOPJY5Gzl9Xhmllp0f7C1IwN
-	r3Ed4TpLMCt/6E4U9VlEJeAJ94tnuwcDlnykuCYK5rZom0mq2GA1yHOFYak6LLlM7CtskB4DgIw
-	tgTVumYtjmaFcNaVI1+APvJbgM=
-X-Received: by 2002:a05:600d:8444:10b0:493:bd2a:93bb with SMTP id 5b1f17b1804b1-493f87d7eefmr180396215e9.3.1784205281874;
-        Thu, 16 Jul 2026 05:34:41 -0700 (PDT)
+        bh=pdm90W6HWb62Z6VqHGsM8IzSM3ExZORe1y6Jx8qkLJc=;
+        b=dAHlAGDADgRYj5QSP4vt/cCDQUnodO3axYjxNm1hySclyZM/vI8dIaKGLZ0R/o+H83
+         GeSBQ3LYEATUpv++5fzLFSbEb0bH9JWJgAzTJdgtQKsm4J9Pv6AG+x1sCx86AQxFan+T
+         lW/k/0EYsxyJaohc3lQve6i1YE66ixfn+orLk42Xoy5vYs3kzUv/duz/j5XAvgGLMpop
+         DRKD9IUh0lew1G4xTsMNPtWivS0+skJGRlpdAxYUjbzuNY70eTVFovUot5Kn2k9Ex3fo
+         WOTaX5DaZqRIkVapLsPEKwOyvi9njdUopVSstHwjAfUdWm/0VwePFgh0m7Ev85OJEu6i
+         DSAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784205283; x=1784810083;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pdm90W6HWb62Z6VqHGsM8IzSM3ExZORe1y6Jx8qkLJc=;
+        b=fIHvLuHyPjaC4fP6iet5xBo7djONlSJnsc73gpC8BbG25HEwe1fa3whn5fJxq5ZqU6
+         708Myx3jLoYDTJPwwD2HxAlXUO35VNcb4AeKvtwyrOoMOY4yJuwvubB11kNOWX3bRS1K
+         ZtD0PuaeRBhrvfUq0kOwDiFubok51U+yyvCk1aJ0Tajs8uolbOi5Iw/Q+AkTOJRxvhl0
+         GSrMPXUJe4GdBdZvkf+i58RW7qpcwEaYpKIUH4IwmX8jbZmJVqgEFtFGKMFQthqJ8ERe
+         Z4UikigIeZjNNqFMQdEDFGXoBc90NCZB0KfhlKoV6JaUtVbrpyrCZddGRMYwF/OC/UvX
+         Hcrw==
+X-Forwarded-Encrypted: i=1; AHgh+RoafrEwvW1J3OQYLgN8uiIcYiMJlAKg0q3X3D3JT/jgvcJ6u6XKOQrvgh78zcbPS2WauR6jlWGR6L+AO2i3sg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyVCTPehgjZZu1cysAEYrkzhJIr8q+6seseNSpEOBJJsJP70GwU
+	hm2OtZKEMRqiBPAdlQCkq0uOuRA96/WVOfLImwra87dbOkUwaxBGaFHD
+X-Gm-Gg: AfdE7cm31PwKwJZadXKQs9aPKrZ0gMfZIOI1Hr6g/9OL20q8Rd4yDRGhvx31YZcYe8b
+	Ojkk1bWeL15fmwIqa8psoL0UdgqT02hABDW6y/rF6jKBYoAK7F6eAnOnwZ6WoMu46+MTpVh5Med
+	osJ+x+8eI2isXDuRxvLwjR4UQhJnNo0d7h+juZ3cA1cpU7lGtspT0HI07/PVWllGqoXcQn9N/cS
+	ADQUNstkPHMvoZfqKHx+DVH+kLq98Ue/hP107MP7/XGe+AwAlndOkxNJxaAqkCgH1fzGRfKx6M3
+	fKKTJwDZCaF/zPXLZhIOOetjlQ99e+rga/FP8hl4ZNGAGSeq80wLHRh0l6s1xzLpO+6/XtxANtS
+	lWei22bbUvsN1kxcR0syiCzuatJvSdOP5p+H7fXKs0OLLWYkhklO6Cz6ls0+eoIxGA1/e+m2IV4
+	iIxs2457HY4wDzcHPvLpypO/RyALCNhO43TUTEdQw3sdC7ycDg19LKWzxi3olvj2cqa1TTUQw1t
+	4RfPa5GUulq3Rfn8C5ekL4i0Zg=
+X-Received: by 2002:a05:600c:1f91:b0:495:3f84:a792 with SMTP id 5b1f17b1804b1-4953f84a866mr52933995e9.12.1784205282702;
+        Thu, 16 Jul 2026 05:34:42 -0700 (PDT)
 Received: from iku.Home ([2a06:5906:61b:2d00:4150:a2d7:2b6b:840e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e83d05sm48582645e9.6.2026.07.16.05.34.41
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e83d05sm48582645e9.6.2026.07.16.05.34.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 05:34:41 -0700 (PDT)
+        Thu, 16 Jul 2026 05:34:42 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -78,10 +80,12 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v3 0/8] Add syscon support for Renesas RZ/T2H & RZ/N2H in CPG/MSSR driver
-Date: Thu, 16 Jul 2026 13:34:26 +0100
-Message-ID: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v3 1/8] dt-bindings: clock: renesas: Split out RZ/T2H CPG binding
+Date: Thu, 16 Jul 2026 13:34:27 +0100
+Message-ID: <20260716123434.2576253-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -92,73 +96,168 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Hi All,
+Move the RZ/T2H and RZ/N2H clock controller bindings from the generic
+renesas,cpg-mssr.yaml schema into a dedicated binding.
 
-This series adds syscon support for the Renesas RZ/T2H and RZ/N2H SoCs
-in the CPG/MSSR driver. The CPG/MSSR block on these SoCs is a
-multi-function block that integrates several system-level features beyond
-clock and reset control, including clock monitoring, write protection,
-and peripheral configuration registers.
+Unlike the traditional Renesas CPG/MSSR block, the RZ/T2H and RZ/N2H
+system controller integrates additional functionality beyond clock and
+module-stop control, including reset control, clock monitor support,
+write-protection registers and other system management features.
 
-For the other IP blocks to be configured a syscon support is provided in
-the CPG/MSSR driver. This allows other drivers to access the CPG/MSSR
-registers via a regmap interface.
+Split the binding into a dedicated schema to describe these SoC-specific
+features and requirements without complicating the generic CPG/MSSR
+binding.
 
-Note:
-- Patches have been rebased on top of next-20260715.
-- The WDT driver patches apply on top of series [0].
-
-[0] https://lore.kernel.org/all/20260715133922.2129340-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
-
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+---
 v2->v3:
-- Switched to non-RFC patches for the series.
-- Added new patch to split out the RZ/T2H CPG binding from the generic
-  Renesas CPG/MSSR binding.
-- Dropped WDT driver refactor changes from this series. These has be
-  submitted in a separate series which makes use of regmap.
-- Dropped registers from writeable_readable list.
-- Renamed sysc_init to post_init and updated signature to take
-  cpg_mssr_pub struct.
-- Created a single regmap covering both SYSC register regions
-  instead of two separate regmaps.
-- Updated commit messages
-
-v1->v2:
-https://lore.kernel.org/all/20260702123112.161160-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
-- Updated commit message for patch #1
-- Made use of for_each_child_of_node_scoped
-- Moved sysc_init() to the end of the probe function
-
-v1: https://lore.kernel.org/all/20260511185058.1926869-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
-
-Cheers,
-Prabhakar
-
-Lad Prabhakar (8):
-  dt-bindings: clock: renesas: Split out RZ/T2H CPG binding
-  clk: renesas: r9a09g077: Register SYSC regmap
-  arm64: dts: renesas: r9a09g077: Adjust CPG register region sizes
-  arm64: dts: renesas: r9a09g087: Adjust CPG register region sizes
-  dt-bindings: watchdog: renesas,r9a09g057-wdt: Add CPG/MSSR syscon
-    support
-  watchdog: rzv2h: Add syscon support for WDTDCR
-  arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR access
-  arm64: dts: renesas: r9a09g087: Use CPG/MSSR syscon for WDTDCR access
-
- .../bindings/clock/renesas,cpg-mssr.yaml      |  27 +---
- .../clock/renesas,rzt2h-cpg-mssr.yaml         |  87 ++++++++++++
- .../watchdog/renesas,r9a09g057-wdt.yaml       |  29 +++-
- arch/arm64/boot/dts/renesas/r9a09g077.dtsi    |  28 ++--
- arch/arm64/boot/dts/renesas/r9a09g087.dtsi    |  28 ++--
- drivers/clk/renesas/Kconfig                   |   2 +
- drivers/clk/renesas/r9a09g077-cpg.c           | 130 ++++++++++++++++++
- drivers/clk/renesas/renesas-cpg-mssr.c        |  18 ++-
- drivers/clk/renesas/renesas-cpg-mssr.h        |   5 +
- drivers/watchdog/Kconfig                      |   1 +
- drivers/watchdog/rzv2h_wdt.c                  |  56 ++++++--
- 11 files changed, 342 insertions(+), 69 deletions(-)
+- new patch
+---
+ .../bindings/clock/renesas,cpg-mssr.yaml      | 27 +-----
+ .../clock/renesas,rzt2h-cpg-mssr.yaml         | 87 +++++++++++++++++++
+ 2 files changed, 88 insertions(+), 26 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/clock/renesas,rzt2h-cpg-mssr.yaml
 
+diff --git a/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml b/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
+index 655154534c0f..933316c34372 100644
+--- a/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
++++ b/Documentation/devicetree/bindings/clock/renesas,cpg-mssr.yaml
+@@ -52,16 +52,9 @@ properties:
+       - renesas,r8a779f0-cpg-mssr # R-Car S4-8
+       - renesas,r8a779g0-cpg-mssr # R-Car V4H
+       - renesas,r8a779h0-cpg-mssr # R-Car V4M
+-      - renesas,r9a09g077-cpg-mssr # RZ/T2H
+-      - renesas,r9a09g087-cpg-mssr # RZ/N2H
+ 
+   reg:
+-    minItems: 1
+-    items:
+-      - description: base address of register block 0
+-      - description: base address of register block 1
+-    description: base addresses of clock controller. Some controllers
+-      (like r9a09g077) use two blocks instead of a single one.
++    maxItems: 1
+ 
+   clocks:
+     minItems: 1
+@@ -108,24 +101,6 @@ required:
+   - '#power-domain-cells'
+ 
+ allOf:
+-  - if:
+-      properties:
+-        compatible:
+-          contains:
+-            enum:
+-              - renesas,r9a09g077-cpg-mssr
+-              - renesas,r9a09g087-cpg-mssr
+-    then:
+-      properties:
+-        reg:
+-          minItems: 2
+-        clock-names:
+-          items:
+-            - const: extal
+-    else:
+-      properties:
+-        reg:
+-          maxItems: 1
+   - if:
+       not:
+         properties:
+diff --git a/Documentation/devicetree/bindings/clock/renesas,rzt2h-cpg-mssr.yaml b/Documentation/devicetree/bindings/clock/renesas,rzt2h-cpg-mssr.yaml
+new file mode 100644
+index 000000000000..1b90289d61a8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/clock/renesas,rzt2h-cpg-mssr.yaml
+@@ -0,0 +1,87 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/clock/renesas,rzt2h-cpg-mssr.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Renesas RZ/T2H and RZ/N2H CPG/MSSR Block
++
++maintainers:
++  - Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
++
++description: |
++  The Renesas RZ/T2H and RZ/N2H CPG/MSSR block is a multi-function block
++  where apart from clock and reset handling it supports other features.
++
++  These additional features include:
++    - Coordination with the Clock Monitor Array (CLMA) circuits to supervise frequency
++      integrity and initiate safe backup clock switching under fault conditions.
++    - Low-power state control registers (MSTPCR) that dictate module standby and core
++      sleep state transitions.
++    - Hardware write-protection logic (PRCRN/PRCRS registers).
++    - System-wide reset generation routing, debug counter halting, and module
++      configuration setups for PCIe and WDT IPs.
++
++properties:
++  compatible:
++    enum:
++      - renesas,r9a09g077-cpg-mssr # RZ/T2H
++      - renesas,r9a09g087-cpg-mssr # RZ/N2H
++
++  reg:
++    items:
++      - description: base address of register block in Non-Safety area
++      - description: base address of register block in Safety area
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    const: extal
++
++  '#clock-cells':
++    description: |
++      - For CPG core clocks, the two clock specifier cells must be "CPG_CORE"
++        and a core clock reference, as defined in
++        <dt-bindings/clock/*-cpg-mssr.h>
++      - For module clocks, the two clock specifier cells must be "CPG_MOD" and
++        a module number, as defined in the datasheet.
++    const: 2
++
++  '#power-domain-cells':
++    description:
++      SoC devices that are part of the CPG/MSSR Clock Domain and can be
++      power-managed through Module Standby should refer to the CPG device node
++      in their "power-domains" property, as documented by the generic PM Domain
++      bindings in Documentation/devicetree/bindings/power/power-domain.yaml.
++    const: 0
++
++  '#reset-cells':
++    description:
++      The single reset specifier cell must be the module number, as defined in
++      the datasheet.
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - '#clock-cells'
++  - '#power-domain-cells'
++  - '#reset-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    clock-controller@80280000 {
++        compatible = "renesas,r9a09g077-cpg-mssr";
++        reg = <0x80280000 0x20000>,
++              <0x81280000 0x20000>;
++        clocks = <&extal_clk>;
++        clock-names = "extal";
++        #clock-cells = <2>;
++        #power-domain-cells = <0>;
++        #reset-cells = <1>;
++    };
 -- 
 2.54.0
 
