@@ -1,61 +1,63 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A02377000
-	for <linux-watchdog@vger.kernel.org>; Fri, 17 Jul 2026 16:41:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E66842A783
+	for <linux-watchdog@vger.kernel.org>; Fri, 17 Jul 2026 16:41:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784306511; cv=none; b=DOPFy3kxtbKs9s9JbjJ+4feXnZhtHU6kfhFacNz/jLIlCdggFCi3tnjGwr0GBHUrojPlraPigMfpAhqylxSO2ONNwr6VWV5WKwCoTzMHB3+SYjas+NrBeBAeHL/47PGfuB0DL3BaYUXuzfQeOrjeKIf5uaVegBh2wBxc1H4A+Bc=
+	t=1784306514; cv=none; b=OrF8P9y/QsPu1uyM9wS1vFoXtHjxoRK1qj/5BAR2LaKGK6eo7ROqEJjNWSu5kOX4snkfBVJuvd/SQVUF2fUVpuobydSoBnMG/GUAAfuSvcEpfrn4bkkXpA/dcpdWYKRbCOquB/jhrLB3DN7teRzLIjADw+d8/5i9xNRS+WJ0aJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784306511; c=relaxed/simple;
-	bh=YoSkvKhLIDEZRtgz0gCZBHnLnjY7Arw0eRwzeYXJ1Ws=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g3giqTh+HFs486ote3ACR8UyBV8WpMjr2au235ts6dazJcCzkRhGMrYINMo3qsyTUKA8E1VIY+MB6bRete+uKLFi96nYiWxerDzg5ej62Ek+aEl5XnD07oxrAWOcIknFlpDmCX8Q+tmdCZVWUz/eXq3lTFIs2QADD4AWfJZJCXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VYiv7x1L; arc=none smtp.client-ip=209.85.218.49
+	s=arc-20240116; t=1784306514; c=relaxed/simple;
+	bh=lzDkvhh2lb30hMamVDhq/leCdMYgOXSSuP4HjE1UCy0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=GnwUZnqrFeFbl+/L54IHUNIBH0sIJrib3H7GqXHUlL4IjjWBREZW2y8Sv5o6d+hDxtb7pUqL1POE/PXJzMKzlJ/MuZ46YcS/bnD6zWN61TXjiDYBFMkhbR4/BefG0Y2rJxBwAQ+7SUZ8SsMxc61jwtsGxsGcQdMgqpDPSlh4r/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZfDDjFGq; arc=none smtp.client-ip=209.85.218.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VYiv7x1L"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c1670dad7a8so637017466b.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 17 Jul 2026 09:41:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZfDDjFGq"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c15d3cd51b2so940545966b.3
+        for <linux-watchdog@vger.kernel.org>; Fri, 17 Jul 2026 09:41:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784306509; x=1784911309; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Upsuqa7VWRcDlZ5pIPK+Qqnf3tlxThPfy/sKdzeNaMI=;
-        b=VYiv7x1LMUcbaJFZhDYwVPB6zB9yTKzlxh22OEgo22w570WkeQBBo5QVKTusIFLvMF
-         x8GInwN2TxMF9WD0m9Ot5KuigHpH+2rJzu6OGXNClGNWEe1GSk7DOhV6VIZTbNU6WmP7
-         9LYcuQtO1FilG4cNJXFNkprxWfuc2ct0X7lLw0fgLU0lNXx191AhErkVnKrG/ok6mEZS
-         BkEoGNUzH/3+EqM7/wAZvl2dWtQsdx3axhsqsP+jySFLBHSVbjcPrdq0jySqvv6BAuDj
-         M9lpIhjlKdxwjtFIz4S2HCAeXauqLhmf48jbQ7skNaG3gMdDD5o9A9+yPZUDy7iuqA0C
-         XZRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784306509; x=1784911309;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784306511; x=1784911311; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Upsuqa7VWRcDlZ5pIPK+Qqnf3tlxThPfy/sKdzeNaMI=;
-        b=TmKZSDmkrTZuUWVbwcf21rdEsOexgl7FUsIPKxlRDgaiwPh7GJkbcorqmP6ybFQVLE
-         JplxbmTBeJ5tiqyI0F5gbzGrzcFBTy2hvE/Ddr/mdvWiJKJz23xVfypRfiQqsS+VexIz
-         NGrXhhoJeZhPL8SnrEdL9pDN45/IvC8wy/tG9Uw3qM8BNg1mTC+1w3wNWKwu+utVWBvd
-         Qh9uUAGxw6f0VyoCKtyao+921lgiszY836JS7IsQNwXqjwVou91hT2BWYKOmL6fKyc6G
-         aJ5smFxIMvYr21QWe1P0Jo12lywHbLOlq2r+kMtS9ahI8FBoO38lGOc7FRwsmEUqt1xW
-         Bkug==
-X-Forwarded-Encrypted: i=1; AHgh+Rq+S0KET9ZwAmCWRWZSBk6CoaI77B5jDlsS/wJVnYKoxl/H0aV7Pm6ZWOeoCwmZUFnXBAumADp1NSiLKUH5rw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy63c1APKR25tafbKQyrZzIKMhCyTqYt1fjjkyvGUTODXNvoAK0
-	Pg1B+ni/PAETNn3YEeo4phxD+RXzhgWZm91RvWFA/QbTOAWwxPgcJg15
-X-Gm-Gg: AfdE7cmIUCC6Gi9yCeyev9MEro33FAX/yv0uvYNCv8ZyqTaN46KSUpGBsnl5UNHjvHp
-	s9Oe4p3VFmxgO9e+Mk78YWmYtC7kIOS6SAW53RuctITAWYS4puRdPbsnABtLtw0podlPtP3WCta
-	M0L25japo2PX+Gob+vLChS0A7rWauO+NkIYGgYhKbIC/gHPoZtw5tLtqvz9LU/3sLrOmiUmXljh
-	3g4apCI4fUT/QyqIypsjTfqAH3yBzwOeVHLG0kzkNKUFhWIUddsNwKdNks5GgrRSaBaWLDX1zZA
-	jcKjN1aAYlX6wGp0ZW+GZ63ih+jB3rH0/uYdIY8kUEcW1pawoPIDSMuguv4LpR+NagN6WRI3m+l
-	tzYqNLdTC7QpCBVkGVl3jWIEJm6IJzsss+/GDQiOLbD37lUHXYmXwFRP9H7JPLbxEehDlKybU3g
+        bh=ns/s8X4FLGsUS48lb8y5zK7Xq5THvoJSYI6z68H4XAE=;
+        b=ZfDDjFGqcaqW17LDrEJugv3bf0L7tkA5SgseBp0Wmt7IShKzn+BDGKVniZTCZJkWVC
+         l9IPPvIj77w64stSTWTTdPmfhAhClJ//ogjvz0KwUATe6JIe7LYd2qZOC8VrtxkBeoGu
+         Vn3fBVHbev/sEM+eefYbdJtgezliBdwuPI7QQh8wQf3mj1D5ycmZSnXmglYReeXD7eYc
+         nP5fPTvagwJATr/GMej9Qy+zwubhcpxfs0X0AORxrXjbwkwN/HdBQlgXGOYVHnDz6ftp
+         BhBsTTA7XweBSjIT1c+ABAXaqVe3XFMjkKZS1CrZHLFgvbF5v0h+i3WKIjE8XDojNPYk
+         ARcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784306511; x=1784911311;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ns/s8X4FLGsUS48lb8y5zK7Xq5THvoJSYI6z68H4XAE=;
+        b=mWW7xhkI3e7icJPRXJyhXWwoOkrj5Bi1PwO5a76KNjmpMMNqEjxHdkXHIMrPyfLI6S
+         jdWcCBQNe8l/yFi7plQYXWE1Z1FoxqOoPI8TLHynmSZZ1VF+7Lxq6EVaUmuNAUCEqW1O
+         cGBxehbIjwUOKHYBfTxBWjfmR/Cru5JnxrDim08KDNv1jzRmwi2OJqwS8DRtLzZo1D9e
+         j2Qoh3evSeyf+JzZp5/9nyLNWF9xS3HqfMCBp2p83P8O6cSWLen3g4WaQKo8qJ1vMBfy
+         5u9gg52A7JguA62vF9N+f0XTAD84zyfCqLVG8tm7lTjFKX6KvcKHFvosZbcChXXsO6pU
+         2VUA==
+X-Forwarded-Encrypted: i=1; AHgh+RqCZDXbXqpzHTGt3rEnoxTKJvEx4UbBhgakp+H8dxnRJBAJYJDMRigImim3irZYBOIAvl5Je/7M+bIvNM08uQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwPx1lxnCDAQ7cY5tl1MZIyFqRkYYrT7cKtlENn6PqFSZgNHFyG
+	7bHAQF/M7k2cjlXfN98VgvEm2jCoah2y9CorT873fEEUDKXWJSTqGM8s
+X-Gm-Gg: AfdE7cnLu1upoDhvzAcsnkEPexoy7p6pm6hTR2P5jUzGFUuwf4Bp0CStwfzqCjxNyP8
+	MwveuIuNidlEBhe5uIF6UoaEn37GVxGy3r9x57o4LmPVAeQ+dThFjsMiWZqEckbXFJ2NhBtJLdF
+	T6qpOKMhZQVL/5pPQrZ6/ilDPnedlz+Q+A+RCLjGgHAm3nJsjyuvIEIyRvvx7Nl2V/GbzsV5NUZ
+	FrMid1zatDAmotWXPxNI6ea0rngTrgKZ9r4kXQtEc4LoB2qk2cVO4uVfwAywrfnEf/M+y8IjtmA
+	YlrqOpREQhPPeqA29hyCOzxN16PMZKjHCsWYcxGAG4cH0wW819dL5CL90WGiEenuNYrnfRkv5sK
+	LgleKXJ/kvCHvIVNnpKNI7g0oNQnnZTsAR37FvlXjeLzdjtg8bIFW7s8wvg6ATbNRfGmX8QclBA
 	==
-X-Received: by 2002:a17:907:7a89:b0:c16:1df9:6eda with SMTP id a640c23a62f3a-c16b48d373emr163696066b.49.1784306508409;
-        Fri, 17 Jul 2026 09:41:48 -0700 (PDT)
+X-Received: by 2002:a17:907:1b26:b0:c16:14d1:b529 with SMTP id a640c23a62f3a-c16b46e2b24mr154301766b.18.1784306511183;
+        Fri, 17 Jul 2026 09:41:51 -0700 (PDT)
 Received: from luca-vm.. ([109.52.116.145])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1705912972sm105880366b.14.2026.07.17.09.41.46
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1705912972sm105880366b.14.2026.07.17.09.41.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 09:41:48 -0700 (PDT)
+        Fri, 17 Jul 2026 09:41:50 -0700 (PDT)
 From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 To: linux-mediatek@lists.infradead.org
 Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
@@ -71,10 +73,12 @@ Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 0/7] Properly describe mt8167 watchdog and mmsys resets
-Date: Fri, 17 Jul 2026 18:39:11 +0200
-Message-ID: <20260717163959.714561-1-l.scorcia@gmail.com>
+Subject: [PATCH v2 1/7] dt-bindings: reset: Add MT6589 toprgu reset IDs
+Date: Fri, 17 Jul 2026 18:39:12 +0200
+Message-ID: <20260717163959.714561-2-l.scorcia@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260717163959.714561-1-l.scorcia@gmail.com>
+References: <20260717163959.714561-1-l.scorcia@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -83,54 +87,44 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently mt8167 inherits its watchdog from the included mt8516 dtsi,
-which in turn falls back on mt6589-wdt. However according to the data
-sheet mt8167 has 15 sw resets instead of 12, and the reset bits are
-different from mt6589.
+Add reset constants for the 12 MT6589 toprgu resets.
 
-In the first two patches we improve the description of the resets for
-mt6589 with values obtained from Android sources.
-
-Then we introduce a dedicated mediatek,mt8167-wdt compatible for the
-watchdog driver that describes correctly this SoC's resets. Also while
-we're touching the bindings reset header, we add constants for the MMSYS
-resets.
-
-In the 6th patch we add a node for the mt8167 watchdog referring to the
-new compatible in the SoC dtsi.
-
-In the last patch, we define the mmsys reset table for the SoC. According
-to the datasheet, there are 28 mmsys reset bits divided across two
-adjacent registers.
-
-Changes in v2:
-- Sashiko pointed out correctly a missing entry in the mmsys reset table
-  in the last patch.
-
-Initial version: [1]
-
-[1] https://lore.kernel.org/linux-mediatek/20260717151134.678839-1-l.scorcia@gmail.com/
-
-Luca Leonardo Scorcia (7):
-  dt-bindings: reset: Add MT6589 toprgu reset IDs
-  watchdog: mediatek: Add wdt/toprgu resets for MT6589
-  dt-bindings: watchdog: Add compatible for MediaTek mt8167
-  dt-bindings: reset: Add reset controller constants for mt8167
-  watchdog: mediatek: Add support for mt8167 TOPRGU/WDT
-  arm64: dts: mt8167: Properly describe the SoC watchdog
-  soc: mediatek: mtk-mmsys: Add resets for mt8167
-
- .../bindings/watchdog/mediatek,mtk-wdt.yaml   |  1 +
- arch/arm64/boot/dts/mediatek/mt8167.dtsi      |  7 +++
- drivers/soc/mediatek/mt8167-mmsys.h           | 41 ++++++++++++++
- drivers/soc/mediatek/mtk-mmsys.c              |  3 ++
- drivers/watchdog/mtk_wdt.c                    | 13 ++++-
- .../reset/mediatek,mt6589-resets.h            | 24 +++++++++
- .../reset/mediatek,mt8167-resets.h            | 53 +++++++++++++++++++
- 7 files changed, 141 insertions(+), 1 deletion(-)
+Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+---
+ .../reset/mediatek,mt6589-resets.h            | 24 +++++++++++++++++++
+ 1 file changed, 24 insertions(+)
  create mode 100644 include/dt-bindings/reset/mediatek,mt6589-resets.h
- create mode 100644 include/dt-bindings/reset/mediatek,mt8167-resets.h
 
+diff --git a/include/dt-bindings/reset/mediatek,mt6589-resets.h b/include/dt-bindings/reset/mediatek,mt6589-resets.h
+new file mode 100644
+index 000000000000..ee08c39df513
+--- /dev/null
++++ b/include/dt-bindings/reset/mediatek,mt6589-resets.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++/*
++ * Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
++ */
++
++#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT6589
++#define _DT_BINDINGS_RESET_CONTROLLER_MT6589
++
++/* TOPRGU resets */
++#define MT6589_TOPRGU_INFRA_SW_RST		0
++#define MT6589_TOPRGU_MM_SW_RST			1
++#define MT6589_TOPRGU_MFG_SW_RST		2
++#define MT6589_TOPRGU_VENC_SW_RST		3
++#define MT6589_TOPRGU_VDEC_SW_RST		4
++#define MT6589_TOPRGU_IMG_SW_RST		5
++#define MT6589_TOPRGU_DDRPHY_SW_RST		6
++#define MT6589_TOPRGU_MD_SW_RST			7
++#define MT6589_TOPRGU_INFRA_AO_SW_RST		8
++#define MT6589_TOPRGU_MD_LITE_SW_RST		9
++#define MT6589_TOPRGU_APMIXED_SW_RST		10
++#define MT6589_TOPRGU_PWRAP_SPI_CTL_RST		11
++#define MT6589_TOPRGU_SW_RST_NUM		12
++
++#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT6589 */
 -- 
 2.43.0
 
