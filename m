@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E1339B4A1;
-	Fri, 17 Jul 2026 09:16:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6C43AB276;
+	Fri, 17 Jul 2026 09:17:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784279785; cv=none; b=tpOv8W9KK0ikF0cNf9pwOCFjP6xHS6U16ofM7G+GPv2LiBhqBbnJL/Hgc3tx4N5bkc3KpJpWdOtC2Sp6QRhOfeUTbfoMBnwhMUzrkk1jIrD3uX9tZHBjbJNTZLFVl2BowI5hpCq5wmjKMAvIjujF63W7vkmJDXmkywbOgCvqBEc=
+	t=1784279822; cv=none; b=DDpO9gkydx+lB+hdCMI7oXjcZxnbDOskfaePNiWBZGkLQONJbibGhJtkcQhOBK5adDPZoIO/Vcp5BoINLjqxD6PtDCQ8w7v2Lz8iooOU3nzdw2mYWD9C09woJ1IyEK3ZrZpGsZbd2LiUP/xBk/3FUf3jBVVNbcR3l8DuRQAObNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784279785; c=relaxed/simple;
-	bh=oahcaibt+PjrNkWiO4X7R/Tb6Z6hbI/te0fo2j/4pFA=;
+	s=arc-20240116; t=1784279822; c=relaxed/simple;
+	bh=SBBlU9d4X3MqXqNZ20P0uxNAlPU3+Ek5OXUU+9cPVUQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lsP31xmDDDDeSPOkCfm5xrJeXMyAZ0EuWVLx2XM+1jxujMdjto3uQ935LTX6L7n1FEQtb9OMLkfR/cZd9v3YAfUVbxyDQLS/BtK1y083Q8LmYaS2zfV4E4f8bcPbF5MX4wr7l2UJ3jXIkCsSNC41DDZD8i4zwydyJN9EnZy/kig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZRtaN053; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=lZANDX8Dkbjk4fbF+gcK9EXW0dmo9LkpCNayj0hVUe7ADhsD7oYpAXkHqZ5k2SLh2kwM9jlpCkuE4I0qrIylR6Sf7ZyiNyDl9tg1p+WPaL8OJGk/lLZW0+BGmUB0MHVmHwU96XyD8f/YC+c9Qfj45jCwqscpA33UCZtZFw3Rkq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jDWNpb+m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZRtaN053"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A4B1F00A3A;
-	Fri, 17 Jul 2026 09:16:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jDWNpb+m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF8921F000E9;
+	Fri, 17 Jul 2026 09:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784279783;
-	bh=Lxc4smYQ3yP6Fc8P815CCY/s/RuhTXwEKwVYPnAr0bc=;
+	s=k20260515; t=1784279820;
+	bh=SBBlU9d4X3MqXqNZ20P0uxNAlPU3+Ek5OXUU+9cPVUQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ZRtaN053SigZymTfwMifByaVtj/ZW7uOX6Gc6gCUBr/fqYWJ7yRSRkaAehOyyXkb3
-	 HfN9l8brnTD5zzWL3VlG8Lr+wh/HZIsbk1qeTKKnLL5/ooCstop+shFyATnq/pks7G
-	 Nd7wvnbMk0piXNXNFJWZfWi9snM9bYEJZ9AJ7UuimoHhEmV/z3RjNZ2xHJTe/wlqjN
-	 AK01pApq28KBu+Cg81DF3MdlS/4C0DI63+X+BHAVkgmGIhiM16yB3qrsmOHUPSv8V8
-	 hsADYDEkuiNWApmW4Td2Vbah3Bn2w0QBJhKYPeElbWa0UUaYFK0oiC8hLMnMxFl8I4
-	 mFTOv+PBguikw==
-Date: Fri, 17 Jul 2026 11:16:19 +0200
+	b=jDWNpb+mktS7vC051liZ6JnIm+pNHzYDenLFHlwwn7vY+ETqyn78DC72GAofKC4ZG
+	 Je5uuzj+g0ZoeH/x5T9RNiPgNaavYvx1TGhjIEJjB/yZhrCZT4SYeTc2I/UAlQgirb
+	 3FdYzaOw4PLqSlQVJv+yPfPZzX3M+/tjLf/5jGnGRtNhGrkCYb81NZy5nm/shlnFwL
+	 TzEuP58+3DdRsXtDD3B0Wku+7BCcKjtAPYv4pBilGp49smoKmDog7Abve0Lrfpcc52
+	 r0UPN6sBZj+2zvYlWY9EuH4Nj7CwQmPQeqBjon34TYWmL96oZR+QLBMqIwRV4Q6hIF
+	 Vw4LUVUCjkY5w==
+Date: Fri, 17 Jul 2026 11:16:56 +0200
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Akari Tsuyukusa <akkun11.open@gmail.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
@@ -39,11 +39,11 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	"open list:ARM/Mediatek SoC support" <linux-kernel@vger.kernel.org>, 
 	"moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, 
 	"moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Roman Vivchar <rva333@protonmail.com>
-Subject: Re: [PATCH 2/7] dt-bindings: watchdog: mediatek,mtk-wdt: add
- compatibles for all SoCs
-Message-ID: <20260717-miraculous-bull-of-prowess-be08b9@quoll>
+Subject: Re: [PATCH 4/7] dt-bindings: watchdog: mediatek,mtk-wdt: remove
+ mt6589 fallback items
+Message-ID: <20260717-turquoise-sponge-of-effort-bdec7e@quoll>
 References: <20260716161923.266315-1-akkun11.open@gmail.com>
- <20260716161923.266315-3-akkun11.open@gmail.com>
+ <20260716161923.266315-5-akkun11.open@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -52,21 +52,17 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260716161923.266315-3-akkun11.open@gmail.com>
+In-Reply-To: <20260716161923.266315-5-akkun11.open@gmail.com>
 
-On Fri, Jul 17, 2026 at 01:19:18AM +0900, Akari Tsuyukusa wrote:
-> The driver recognizes each SoC-specific compatible, update the binding
-> to list them in the top-level enum alongside the existing ones. Keep
-> the fallback items definition so that old DTS continue to validate.
-> 
-> Affected SoCs: mt2701, mt6572, mt6582, mt6797, mt7622, mt7623,
-> mt7629, mt8173, mt8189, mt8365, mt8516.
+On Fri, Jul 17, 2026 at 01:19:20AM +0900, Akari Tsuyukusa wrote:
+> All DTS have been converted to standalone compatibles.
+> Remove the items block that allowed the "mediatek,mt6589-wdt" fallback,
+> keeping only the flat enum.
 
-I do not understand what and why you are doing. Just because driver
-recognizes some compatible is not a reason to move compatibles around.
+1. This is not a separate commit.
+2. This lacks explanation WHY you are doing.
 
-This completely lacks explanation (in terms of DTS, see writing
-bindings).
+NAK.
 
 Best regards,
 Krzysztof
