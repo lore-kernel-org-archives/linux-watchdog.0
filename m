@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E02C2F5313;
-	Fri, 17 Jul 2026 17:04:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40152E3B12;
+	Fri, 17 Jul 2026 17:30:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784307893; cv=none; b=Vu6KteuXmaHQzRZq0WtG5Jjc2V8SKXDGElmozseZXzCwKu54sYajwWqE+qELUWJFmSNhIGHpfReg4IKkupp79q1FQBQA7TRETTY3gRHkDOs3tr1imzD/v9c5Bha5qdIwYJFinnhJ3pdLx9JD0ZEA6ii5qm8fL9XtacD+zlLgiDk=
+	t=1784309422; cv=none; b=kwsPtu+L4FLU/zKyuJMdRw20NJQwjUOGRNBYszhSSYz2f4vD8XeyDKgIDi6JhpJJLotnsUq9UD2aYY1bJPQnoDcskpbIOtnn2JRfywBVshSFofRpCqp1hEbdp0vw/TRNbEPGsAnUlMPqDM7vCbbiV9UT4QKtBmucrklPaB5wrEA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784307893; c=relaxed/simple;
-	bh=nVq60RNRmpowVsSboKQUdjT+oGIzcXNefAHii/o7PqM=;
+	s=arc-20240116; t=1784309422; c=relaxed/simple;
+	bh=ddg6sVPWqw9fzaAdHnCaEiNWokebTK5g25gtiN+74c0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=X5tupANTQVnA1Mwroqpxcq2lzFQjJ3JR25tqr8o6TmIZpDTVk1XoCBfVcBTyfgs6BN2XiPCV4o8qvhl6enTExcdBIYhY4mtmjtK2A5PNdzWe+2Ehlld2X6oIlaTiB88qvc7fm4pQ8AaNkA2eHLkxjzVadRn8I4aFYf7A1upmQ/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SpSZ2+zr; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=e6NNZhh71wfm+5FYZhEF1AewC3prU97fBcy64dkBmtl9sfV/l6JJsGKAuVuCnDLl1H+rEVuvazlJYBxdtD/a1FvpS+Nt7oHukxYRIX2MsBOTOQhQCtS6thil6eCfi69F2L/84pfLhrLffdDJZaDa5bsyvUznAcLlNRQLhtkBL1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ahUyifga; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SpSZ2+zr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0CCF1F000E9;
-	Fri, 17 Jul 2026 17:04:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ahUyifga"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E3171F000E9;
+	Fri, 17 Jul 2026 17:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784307892;
-	bh=os2S+eNKU/s2p47ff8nfUB8pGOOETLvsrnX37QsbeXY=;
+	s=k20260515; t=1784309421;
+	bh=VP/zGb6D9nwdavgHitpQpPZzKnWF1S4qxmUkNkSqRas=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SpSZ2+zrfgGMKwea89PK3w1Vl2UDeaL5maRML7CUhAYqO9hHlqKDQD+xYIAfHn1ix
-	 Du6bBcRctC6ORJuAac+SsK+g6dt2qAj4h4KZvtxUVG2zG1/6tuSDi42lhshZTm7y55
-	 5UBPsTlX/X8M6IoYArhrwqHiRqfAsnk9GLGXOg657E67EjA1FJeWk5AF1oLFhEsmg6
-	 vzzJz+MgYSNQcmWJfL/8u1dEAayu1VjJWuyKSf9+HxxMPie9wrvAatKXMWnti9ckgo
-	 bJCjW6/EX0CegDfOb5yNWx8250Mg1nKRsH3ht0fwMWxiNLGFOH2rUYrsKo0LNp5W+c
-	 7Cs1o4wThik1Q==
+	b=ahUyifgaqsZXn2uOBOliEpLBt6zSUxtGL3Nwrs9nJYzn/JXljzmBYAIa5EJsgQ9L2
+	 zODYjU1Be7BBrMNd9tR2qnz8YDCNIO8CVLYayb99lknpCoHzE8x4X3EMNAVUEGrAg4
+	 yyyBR/BAmB7j+Eb4XO0rsGOdo1QiuQKJTEUtIW3IVMTu9zOrJEeWivofBJWHb/dJ4M
+	 hHiPR80SAMje4mdGPGpcCkbqM9rgzNjCPFJmx5XuQDpzEQPg/FWCUJl5Y5gsDW/aH7
+	 EGzrugdMR2/zmOw379o1a6sg1UKNzU9cRt8YlGcxoAiN2pD0cGLAFwE//mt8LyEXFv
+	 NbtCVDCCEcDBA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/7] dt-bindings: reset: Add MT6589 toprgu reset IDs
+Subject: Re: [PATCH v2 2/7] watchdog: mediatek: Add wdt/toprgu resets for
+ MT6589
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
 Cc: conor+dt@kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260717163959.714561-2-l.scorcia@gmail.com>
+In-Reply-To: <20260717163959.714561-3-l.scorcia@gmail.com>
 References: <20260717163959.714561-1-l.scorcia@gmail.com>
- <20260717163959.714561-2-l.scorcia@gmail.com>
+ <20260717163959.714561-3-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 17 Jul 2026 17:04:51 +0000
-Message-Id: <20260717170451.C0CCF1F000E9@smtp.kernel.org>
+Date: Fri, 17 Jul 2026 17:30:20 +0000
+Message-Id: <20260717173021.1E3171F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -46,54 +47,71 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] The patch adds reset provider capabilities for MT6589 without updat=
-ing the corresponding YAML schema to require `#reset-cells`.
+
+Pre-existing issues:
+- [High] Reset controller is synchronously registered before its structural=
+ configuration variable `has_swsysrst_en` is initialized.
 --
 
---- Patch [1]: [PATCH v2 1/7] dt-bindings: reset: Add MT6589 toprgu reset I=
-Ds ---
-commit 1610507569a41df45fcf55f93c1df6323ff7d422
+--- Patch [2]: [PATCH v2 2/7] watchdog: mediatek: Add wdt/toprgu resets for=
+ MT6589 ---
+commit 3b51cb7125d43b8f8ea3a7996ec1844775ec36b1
 Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-dt-bindings: reset: Add MT6589 toprgu reset IDs
+watchdog: mediatek: Add wdt/toprgu resets for MT6589
 
-This commit introduces the reset constants for the 12 MT6589 toprgu
-resets to be used as a reset provider.
+This commit populates the toprgu_sw_rst_num field for the MT6589 watchdog d=
+ata.
+It maps the 12 reset bits available in the WDT_SWSYSRST register to allow
+toprgu resets via the device tree.
 
-> diff --git a/include/dt-bindings/reset/mediatek,mt6589-resets.h b/include=
-/dt-bindings/reset/mediatek,mt6589-resets.h
-> new file mode 100644
-> index 0000000000000..ee08c39df5131
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/mediatek,mt6589-resets.h
-> @@ -0,0 +1,24 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-> +/*
-> + * Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT6589
-> +#define _DT_BINDINGS_RESET_CONTROLLER_MT6589
-> +
-> +/* TOPRGU resets */
-
-[Severity: Low]
-Does Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml need =
-to
-be updated to require #reset-cells when using mediatek,mt6589-wdt?
-
-When adding reset provider capabilities for a hardware variant, the schema
-typically requires an allOf/if-then block to add #reset-cells to the requir=
-ed
-list. Without this update, a device tree node utilizing the MT6589 watchdog
-as a reset provider could omit #reset-cells and still silently pass
-dt_binding_check validation.
-
-> +#define MT6589_TOPRGU_INFRA_SW_RST		0
-> +#define MT6589_TOPRGU_MM_SW_RST			1
-
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 91d110646e16f..e61f6ae743276 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
 [ ... ]
+> @@ -88,6 +89,10 @@ static const struct mtk_wdt_data mt2712_data =3D {
+>  	.toprgu_sw_rst_num =3D MT2712_TOPRGU_SW_RST_NUM,
+>  };
+> =20
+> +static const struct mtk_wdt_data mt6589_data =3D {
+> +	.toprgu_sw_rst_num =3D MT6589_TOPRGU_SW_RST_NUM,
+> +};
+> +
+>  static const struct mtk_wdt_data mt6735_data =3D {
+>  	.toprgu_sw_rst_num =3D MT6735_TOPRGU_RST_NUM,
+>  };
+
+[Severity: High]
+This is a pre-existing issue, but registering the reset controller in
+mtk_wdt_probe() happens before the structural configuration is fully
+initialized:
+
+drivers/watchdog/mtk_wdt.c:mtk_wdt_probe() {
+    ...
+	wdt_data =3D of_device_get_match_data(dev);
+	if (wdt_data) {
+		err =3D toprgu_register_reset_controller(pdev,
+						       wdt_data->toprgu_sw_rst_num);
+		if (err)
+			return err;
+
+		mtk_wdt->has_swsysrst_en =3D wdt_data->has_swsysrst_en;
+	}
+    ...
+}
+
+If a consumer driver probes concurrently and asserts the reset line, could =
+it
+execute before the has_swsysrst_en flag is set?
+
+On SoCs requiring software reset enable, reading the uninitialized
+has_swsysrst_en as false would cause the reset assertion to fail silently,
+potentially leaving consumer devices in an undefined state.
+
+Should mtk_wdt->has_swsysrst_en be initialized before calling
+toprgu_register_reset_controller()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717163959.7145=
-61-1-l.scorcia@gmail.com?part=3D1
+61-1-l.scorcia@gmail.com?part=3D2
