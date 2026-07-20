@@ -1,101 +1,127 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from polaris.svanheule.net (polaris.svanheule.net [84.16.241.116])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09163439332
-	for <linux-watchdog@vger.kernel.org>; Mon, 20 Jul 2026 16:27:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1569A43DA5C
+	for <linux-watchdog@vger.kernel.org>; Mon, 20 Jul 2026 16:37:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.241.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784564885; cv=none; b=p+XiF14U64Kz0c8ukdf+Q85VqFW/Cm9WjgJJkU6L48wGay9WzEr5i234ICRRBPCW8e1YlJdHAX4h92vi+N/dax1tJpuuAHlFKW2JREVVYcg8T875LFYkB2qYzva5anEjEpgkLqxuJftJUV9H636puEiKADcoVoVq7DQmVLhNe2Y=
+	t=1784565475; cv=none; b=bY573ArrIKI2N3yi6rPoRmw4/t0N0hTq8bZlB3vtqTRI4gsrarXxiUbZheQXpeNzZPaU1KYGdRIhMg+MD8SunFAT/vFzbX0ZAYMOkxnpLR+wZs/sjk1mAyru++DmZff9RaFV7VkT4zGGsiSfVshkgfS3MjD7/AixZUQiKZOuLug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784564885; c=relaxed/simple;
-	bh=1ZYnCItsEf53czH/Yt7U9z9dgoM+8zUS7ecqxrdPRnI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qT4ewYYkrwzdV9fGZwLUNXJodmQ8znCdZp8qlVU+6Lg7inOOsQ/AnfyFaDCjmKIGwOQ1ueUzhI9gJxMi2jBME5wJqdUXBsiLz1xgfKF9vajaPMGvnn9+HfMqqp5YqOJQC9v+HH/gVOOuTBB5YcXxRDjM7Vk6FpWnwsyUQ70fnyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hc2lKJdm; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784565475; c=relaxed/simple;
+	bh=YnuQNcBLsku2RqqyPvzUj2NQkTZrrDNgZjXga6bomuI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=aZ6+M3790NsvgLMV8tcvPT3X4v3EOdC/cevvhLrGD5iceVvNp28xdruCmL+VUOCPdhlsSfyldGuKeXbQh8Z5dkrxw8L5BsIG0PmB0NsI0vxpCOg7eodbMkklC6LiSEw0ft9wrj6UsEeS9oDgWSeLUp1CXuHUgyr+ubbV8WTBEFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net; spf=pass smtp.mailfrom=svanheule.net; dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b=7TdHjpg6; arc=none smtp.client-ip=84.16.241.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svanheule.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svanheule.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hc2lKJdm"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-ca97d139d5fso7219972a12.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Jul 2026 09:27:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784564873; x=1785169673; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=4W2jyVT1aTCWIHlRWLpB726/kn7N4GCRmJiYxphtSys=;
-        b=Hc2lKJdmCR6jcskuZS7nrpvq3i6L8dQmBreapCs3i4glM/xXECMuKeCyn4JJil2m/H
-         Li1NSZIx+c0S5jiHvO33KAGKoEpV9yE2ZkzgGmZw8uU04HnXgSKLoYnbdZJWO4AKBMdJ
-         TFxnoR5S1w8CqD/ezbeOB9I8L+NNBKUMB3IdYE4r24RBqDGKs/R2kAi+EJHm7AHZkD/y
-         YNAQCsrnWrtKruqEDFuTBcNWLYIqHsRXkHtDsNOar0kZ/JzU6pfq2LsGSdOkxhzD3Fqj
-         pIN8QnuSHggLBg56ZgoLKrqulFiNt8bJgkXo2bF+4GQK1axSWM1lY76n98n5NvV8GbE1
-         OpDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784564873; x=1785169673;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4W2jyVT1aTCWIHlRWLpB726/kn7N4GCRmJiYxphtSys=;
-        b=iqmi2s6Husz+xU2aKZV4vZR4G6vpCHewulKMik97eLwhOFqCdR+C1wEIglp7PCUkGF
-         9Dbr1glLW/BeQhtwyDCr6fi6yN1qncskbtocPItLQSKnUIzI1m9lfDfjWRJoEt2+S/Wj
-         iSJ1iR8/2KYxSelPZ7hp+8QP6J4+YRgHw+ix3Lea1qvKHbSkY3G9iUJiuXMDAbTn9ytO
-         ZzGNYVteCPR1jHcqUa9tXeV68mF39jF0yNqy+VTY8Su/XW0DWgDBJXpSBZVYAu73lNcM
-         sZJ/tqAbIYbeiAyTxkTbM/GCaVW9/LVZBJpSN5bp4rc0io4UoIyRMdZLuzfIzk8YBdtI
-         FUvA==
-X-Forwarded-Encrypted: i=1; AHgh+RrrlRrZ+T3op93jaiJ764V4uQ6XMwTpjYC1UxfG6PXBcqyoB0Pw0qg1Lwk7y3vNXAuy+742q3Cv3nsodlzTeg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy9USk+WLl3YDxuOleq2EWXo6WZkiH/c7LZApJRNPNKDtO8zMKo
-	0ktUp5Y5SefdNcMDgl5/hhRIB2STricK6EARS4kGaEBm8cIfLGsAHwqb
-X-Gm-Gg: AfdE7clssQzeP8ri9S1eiDYIWuAgtwZp+P3fHMAh9U7xMyvR+LLKCUVa4gee84QitFB
-	e3JTElmrLTtg0qD8HQuY9rFswu2vpod8H8sxkGyCyJQ0QchMIxT3UGBdpFflgQYF/tJXADV0pWW
-	Kf1ERNUoyOBME8DTp/xeB/4vyGFzJ9Pumtnas421zemPFwIqV9fIXXLTJMer+CPJYn1H9eqn2DT
-	EQ18TkF775zlgB39lL4EL2Q56bNmN3bUdawPBXQUJqglVwPAw388LPUWVEBca879Q7WibcRQ/mm
-	16HVLxZ/oXl7Iyuk6PV58rlMDFnj9xyPHyfM71dhQLBHIlyifrMiM71rfDH6cCd2+sEwCBTfVNz
-	51QhULvifDnY6Vs7xyhcM4ddnXHPBiIYM8m4qn0DkEseBTJIBGStnvVvKh/WlPafjiosbeIvJqb
-	QCl5YCIvqLWhq+a3Nz+01AXfmDpw==
-X-Received: by 2002:a05:6a21:d8c:b0:3c3:9c95:c0f1 with SMTP id adf61e73a8af0-3c3ad8ecbe0mr16967869637.41.1784564873076;
-        Mon, 20 Jul 2026 09:27:53 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a20c158sm41332810eec.29.2026.07.20.09.27.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2026 09:27:52 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Mon, 20 Jul 2026 09:27:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: take all OF aliases into account when
- assigning id
-Message-ID: <01b789bf-d394-4068-9e27-5555b9498eba@roeck-us.net>
-References: <20260714105356.2931450-1-linux@rasmusvillemoes.dk>
+	dkim=pass (2048-bit key) header.d=svanheule.net header.i=@svanheule.net header.b="7TdHjpg6"
+Received: from [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d] (2a02-1812-162d-3d00-c381-7255-a866-916d.ip6.access.telenet.be [IPv6:2a02:1812:162d:3d00:c381:7255:a866:916d])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: sander@svanheule.net)
+	by polaris.svanheule.net (Postfix) with ESMTPSA id 975567CD01F;
+	Mon, 20 Jul 2026 18:32:15 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svanheule.net;
+	s=mail1707; t=1784565135;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YLBHhEtJn4x4evy40Rf5cBK7ReLHFgmUUBlihEY+rH8=;
+	b=7TdHjpg6GlcLG78L8tAG6lMqifgP1k60g7MwM2f1yAc4N32ot2wvVUebfVBuI1mmY33ibc
+	0x80GcGkR0mfwFPxjwD0Pij+L9h1ZbOQhL8mdUrIDvaswtrTT9oNJ3D4Pn4LN+kC+kJGPg
+	fRTATSKXXQays/c6ayqg/972ZRfb0CkCWQHYPxmwYX6xA0aj+CsO2vW5ArtluUcBmUCgUI
+	jgMFJmHqUlDpKYAfs8OhkW3+nHVrTyVOouF1ggy6i10T8rItCxuBtla1zYrY0+Pfqn7YN7
+	ehxCeLIwurxxYu1n+RExFpElvS/C/fU90de6OOuNejPwJrmKRFuCWrQI3SUK5A==
+Message-ID: <d27c366d6e28a5f50ddcdfe456bf844cbaab9d0a.camel@svanheule.net>
+Subject: Re: [PATCH 1/2] gpio: realtek-otto: use __raw_readl/writel in
+ realtek_gpio_update_line_imr()
+From: Sander Vanheule <sander@svanheule.net>
+To: Rustam Adilov <adilov@disroot.org>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski	 <brgl@kernel.org>, linux-gpio@vger.kernel.org,
+ linux-kernel@vger.kernel.org, 	linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, 
+	markus.stockhausen@gmx.de, Daniel Lezcano <daniel.lezcano@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>
+Date: Mon, 20 Jul 2026 18:32:14 +0200
+In-Reply-To: <20260710183439.996923-2-adilov@disroot.org>
+References: <20260710183439.996923-1-adilov@disroot.org>
+	 <20260710183439.996923-2-adilov@disroot.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260714105356.2931450-1-linux@rasmusvillemoes.dk>
 
-On Tue, Jul 14, 2026 at 12:53:56PM +0200, Rasmus Villemoes wrote:
-> If some, but not all, watchdog devices have device tree aliases, those
-> without aliases might (depending on probe order) be assigned an id
-> which would otherwise be assigned to one of those with an alias.
-> 
-> This is problematic when for example watchdog0 is an alias for an
-> always-running gpio watchdog that userspace must handle, but the SOC's
-> watchdog device(s) get probed first and thus one of those become
-> /dev/watchdog0, and then at some point later, the gpio watchdog device
-> gets probed and becomes /dev/watchdog5.
-> 
-> Ensure that ids for devices without a device tree alias are allocated
-> from among those where no watchdogX alias exists.
-> 
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Hi,
 
-Applied.
+Adding linux-mips as SWAP_IO_SPACE is mostly a MIPS thing, and some lists/p=
+eople
+for your other pending patches.
 
-Thanks,
-Guenter
+On Fri, 2026-07-10 at 23:34 +0500, Rustam Adilov wrote:
+> In preparation for upcoming changes to how bank reads and writes
+> are defined in this driver, change the ioread32 and iowrite32 to
+> their __raw variants. The realtek_gpio_update_line_imr() function
+> is used by all devices regardless of GPIO_PORTS_REVERSED flag and
+> thus this is the only place where there shouldn't be any byte
+> swapping whether SWAP_IO_SPACE config is enabled or not and that
+> is only possible with __raw_readl and __raw_writel.
+>=20
+> Signed-off-by: Rustam Adilov <adilov@disroot.org>
+> ---
+> =C2=A0drivers/gpio/gpio-realtek-otto.c | 4 ++--
+> =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/gpio/gpio-realtek-otto.c b/drivers/gpio/gpio-realtek=
+-
+> otto.c
+> index 4a606bad5848..491fde846d46 100644
+> --- a/drivers/gpio/gpio-realtek-otto.c
+> +++ b/drivers/gpio/gpio-realtek-otto.c
+> @@ -176,10 +176,10 @@ static void realtek_gpio_update_line_imr(struct
+> realtek_gpio_ctrl *ctrl, unsigne
+> =C2=A0	u32 reg_val;
+> =C2=A0
+> =C2=A0	reg +=3D 4 * (line_shift / 32);
+> -	reg_val =3D ioread32(reg);
+> +	reg_val =3D __raw_readl(reg);
+> =C2=A0	reg_val &=3D ~(REALTEK_GPIO_IMR_LINE_MASK << shift);
+> =C2=A0	reg_val |=3D (irq_type & irq_mask & REALTEK_GPIO_IMR_LINE_MASK) <<
+> shift;
+> -	iowrite32(reg_val, reg);
+> +	__raw_writel(reg_val, reg);
+> =C2=A0}
+> =C2=A0
+> =C2=A0static void realtek_gpio_irq_ack(struct irq_data *data)
+
+As per my earlier message on your watchdog patch [1], I'm still not convinc=
+ed
+converting all existing drivers [2, 3] to work around an issue with the USB
+framework is the right thing to do. You claim the required USB changes are =
+not
+upstreamable, but I have not seen you make an attempt at doing so.
+
+Can the people from linux-mips shine their light on whether using __raw_*()=
+ to
+work around the effects of SWAP_IO_SPACE is reasonable? My gut feeling is t=
+his
+indicates SWAP_IO_SPACE shouldn't be enabled. Markus has apparently made th=
+e
+same remark [4].
+
+[1] https://lore.kernel.org/all/ebdcb8c5563ceff723f3e4a3c4fdfe9bf87d42fa.ca=
+mel@svanheule.net/
+[2] https://lore.kernel.org/linux-watchdog/20260710074316.46643-1-adilov@di=
+sroot.org/
+[3] https://lore.kernel.org/all/20260511131520.98420-1-adilov@disroot.org/
+[4] https://lore.kernel.org/all/016d01dce49a$36b7bd60$a4273820$@gmx.de/
+
+Best,
+Sander
