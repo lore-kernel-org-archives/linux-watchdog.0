@@ -1,137 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35C8D47011D
-	for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 16:46:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 133A93E8695
+	for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 16:57:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784738809; cv=none; b=WrdrUVqF28Fqtd3CwtQI4uXVqdCtBjANeCLyNbcryPjiN8p30uyRWPAx4FLBn6tnrHUHDZDvOUikK2NXV3RTvdDBau1iZ4gK2NbPlgbIzKE/tD+nVA/OnH93S9GBZhD/21F5E+CDh8svoXxj+MwJ7rSNWqCT3Gbbb+v9JlpcTZI=
+	t=1784739465; cv=none; b=mSItLSYej2hmYpt9QOv60LNS+xUeQrZfhZp251a6tRGVSOwZU0H3SZWCjKF7yG2zUJdG4DKIeOTrvOvIqJU0COlJzU8HkC6rci4Hw5w2FLT5nbGucOsvC45bwVWjYqif8bDzwbIIfZhe+6pfE/rSzxwXOzBmiAMbYHwDT24VkEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784738809; c=relaxed/simple;
-	bh=VF70qTdK4u/+VVPpVC+EeueedlXJRxWvn2AlS4TL8i8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=F9eEl6CiNVJQtNujoh8K/c2gLAPB+DJlG64XiS5r73fMcckThDi6CnxsElRp3QDJZTujiiLZll0WE/LDoVHeJ1uGUCE4o+zqVo9E7af/4+CfyDp4fs4Qk8n4JkczXQ47M4nMqitNHvbMn1mNrc68v2+wCGE06Y5JaakYs8WNfeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KiD+JCZ+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784739465; c=relaxed/simple;
+	bh=ukqzFap0i1Ty18ZDSMXKokqXVqef2g/RXxiCDDt1Z/c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=d3kFtdweQFkPdGK5UR0wzdMN9ZLB/gSIzczJD8T5hJIPCU1A/h8iLDNhxbUsSEArHmnmy2PeFmt7Z/sWcDf01sjYUrq4IBDsxNsEoWRgDocLzlWA53vroRPOuwCLf+vcBzK4LX0fMFxfopsK+CinjzdKtkLsxsqvonhwW8HwOaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mclDEpaT; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KiD+JCZ+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EACF1F000E9;
-	Wed, 22 Jul 2026 16:46:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784738797;
-	bh=NvfBHHTSO/QKgethdWUFG+wKU5VxEksQ/fHtnkW3ydY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KiD+JCZ+GM5tyjcAOR/kK0Sg3E7b6e09fOEgae9shmJOKFy1+k49JQqWbY9OO9hxP
-	 xAKzY16VasNunBP+3O6T/41RCbkzsDFiY0DRDaNH8Bq9a4AbYp/Z1b4rbnERWMn7aQ
-	 W/+of0nJcVnhseAOV2v3LW8qOUgzhNfctriKMKwa2Vm8RWznxATUGvnemitFTfkazA
-	 vSN+fIgQIkb8914UOBR/iviMj44B3mQ9+20dsFU6t8ywhCeFTlkSEFh28uTjVi4NBQ
-	 NLT8QHaJ+THZlFtBrsN1hEAACm/wuW1/v3FN1NqPSO8IjJ8jcIfTUVAcP38tWGMUiX
-	 eE/Ari8oi1y6A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: atcwdt200: fix return value when watchdog is
- enabled
-Reply-To: sashiko-reviews@lists.linux.dev
-To: kr494167@gmail.com
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260722163706.14238-1-kr494167@gmail.com>
-References: <20260722163706.14238-1-kr494167@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 16:46:37 +0000
-Message-Id: <20260722164637.8EACF1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mclDEpaT"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2caced6038eso86372775ad.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 09:57:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784739462; x=1785344262; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=FgfxsTeX5y5t6agkqQJSdyDPpE41GXMwVFRresZVrFo=;
+        b=mclDEpaTftg1cJi/T5z9wWjV9j1FIrtoaFtMrA3YalyXyOk8EwysOppNqkj2RbmMCa
+         hLAuBfXhjf8Fr+5FYsu3zza+Cu47HkKdceKmYGsFnDmDxozYO8/V4naEvji0cO2GOUam
+         d6QcYXDUWDf3Qs3JzmglwOPQo9Lqqrpqyt3zr9NlMK2iG2CDfnmRVHN9aemNmXy+65Q7
+         6E9RZYv50KxBQo5YxKsCgcduL/gMlBFDenrTmxwptZW1IOKRBzBWzElErlUhs1Bbqh6O
+         woYhGsRBcQZzd1ptJSi4IV7Vlt5cPerwzSjppqdDajxIMquMmmb0AaegKscpnparTwXj
+         qTwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784739462; x=1785344262;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=FgfxsTeX5y5t6agkqQJSdyDPpE41GXMwVFRresZVrFo=;
+        b=ibhBuwZkXx49yXW70IrauB3/h1+orO+kDuIBsoqFSkkdIEpdP3GbtGJt/V3IfkVHkt
+         BnCXGpYqqPd+TAHEIH9Kx0L7O0CPd1PcfZvEsN8+101Qu2g/9V2bvmVw3C1l9KGzinWE
+         wayMf4gJ9hb88u2dNMNJXFubZxc200EqfHQ6PQ7BhOIH6ZHjLAifDk9dmNfQ+yBI1xwX
+         Zl8yLyydjpN9Q5uj+sv0tq/9iOoJA9tGaAuJY3b/57ADcjWdkrurROUO6qBWkjAUQSyX
+         hZty1WUHm2M4FBes3bUHo+Gf4RShGiGGHQCNql9Pb+Yl1zJd/aCl4nMYmxOAlF02tphq
+         bdrQ==
+X-Gm-Message-State: AOJu0YxMN1Ztk5WEJ1eIvzY5pyNgmle/x6aEy+AbCinKqe/cpOWYYVZf
+	8pdp3G83x2SPP4VFd1/cd1MTlxPR8oQzm7pEsRa7hG0q5wtl+0tOof6cgy5W9g==
+X-Gm-Gg: AR+sD12JIYCxtm7qSS83yKxsDM+XVAGZlZAXNALedHbabK5ofQ8I79Pv6JWoyi0KzxB
+	GBFx06Y1CLbI3/XbqQeSsISHZm2GJPEkOEYQAEELWZnMiZXnfCWisv/OqYspP0zqI+PBj8iqz6u
+	X4W6aNTEuGFUoazx/fzxyiLjRDKx9XHeEFDtMU3XxLVqtiJ81vcXJQgCB16yBanoi50DyuRwhCI
+	3UG/RDlAbQ8A/gXLHXXwvhAyd/S6YuIrC0aqlWVGpfWnedh9JzxtFfj26yU4iMluBphDj9YW8qE
+	p3v8pm6GI1YgNiu1oWXdkHjphbsAZofwMGrAZGXDrHP7O3lt1waD1cVzk8n7webTHExjSFPpUCK
+	vTzk/S28rc02WaplPYYmL5rbbJnlbwI6+lDUmYSYAh9jGrpbFG9fo9y8obnyBFaSDOvyPiPc45X
+	WfuZ7PPIdcIYexURo=
+X-Received: by 2002:a17:903:2c08:b0:2bc:e299:4b3f with SMTP id d9443c01a7336-2cf8dcd914emr46113935ad.10.1784739462291;
+        Wed, 22 Jul 2026 09:57:42 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f31319asm18545415ad.60.2026.07.22.09.57.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 09:57:41 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [GIT PULL] watchdog fixes for v7.2-rc5
+Date: Wed, 22 Jul 2026 09:57:40 -0700
+Message-ID: <20260722165740.2307124-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Hi Linus,
 
-New issues:
-- [Low] Setting `drv_data->int_timer_type` is useless dead code because the=
- function immediately returns a fatal error.
-- [Low] Kernel-doc comment for `atcwdt_get_int_timer_type()` contradicts th=
-e new code.
+Please pull watchdog fixes for Linux v7.2-rc5 from signed tag:
 
-Pre-existing issues:
-- [High] Failing driver probe when the hardware watchdog is already running=
- orphans the timer and guarantees an unhandled system reset.
-- [High] The watchdog restart handler acquires a standard spinlock in atomi=
-c context, causing a lockdep splat and sleep-in-atomic bug on PREEMPT_RT.
---
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.2-rc5
 
---- Patch [1]: [PATCH] watchdog: atcwdt200: fix return value when watchdog =
-is enabled ---
-commit 8139a405984f14ed6f8cead4736a58db3d02c322
-Author: Surendra Singh Chouhan <kr494167@gmail.com>
+Thanks,
+Guenter
+------
 
-watchdog: atcwdt200: fix return value when watchdog is enabled
+The following changes since commit dc59e4fea9d83f03bad6bddf3fa2e52491777482:
 
-This commit modifies atcwdt_get_int_timer_type() to return -EBUSY via
-dev_err_probe() when the watchdog is already enabled, fixing an issue
-where probe() incorrectly returned a positive value on failure.
+  Linux 7.2-rc1 (2026-06-28 12:01:31 -0700)
 
-> diff --git a/drivers/watchdog/atcwdt200_wdt.c b/drivers/watchdog/atcwdt20=
-0_wdt.c
-> --- a/drivers/watchdog/atcwdt200_wdt.c
-> +++ b/drivers/watchdog/atcwdt200_wdt.c
-> @@ -274,7 +274,9 @@ static int atcwdt_get_int_timer_type(struct atcwdt_dr=
-v *drv_data)
->  	regmap_read(drv_data->regmap, REG_CTRL, &val);
->  	if (val & CTRL_WDT_EN) {
->  		spin_unlock(&drv_data->lock);
-> -		return TMR_UNKNOWN;
-> +		drv_data->int_timer_type =3D TMR_UNKNOWN;
+are available in the Git repository at:
 
-[Severity: Low]
-Is there a need to set drv_data->int_timer_type here? Since the function
-immediately returns a fatal error, the driver probe will fail and free the
-structure. This appears to be dead code.
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-v7.2-rc5
 
-> +		return dev_err_probe(dev, -EBUSY,
-> +				     "Watchdog is enabled, cannot detect timer type\n");
+for you to fetch changes up to bcfcd7619f277842430d197556463b401b839ee9:
 
-[Severity: High]
-This is a pre-existing issue, but does failing the driver probe when the
-hardware watchdog is running orphan the timer?
+  watchdog: airoha: Prevent division by zero when clock frequency is zero (2026-07-08 07:08:50 -0700)
 
-If a bootloader leaves the watchdog enabled, refusing to bind the driver he=
-re
-guarantees an unhandled system reset. Should the driver adopt the running
-watchdog instead and set WDOG_HW_RUNNING?
+----------------------------------------------------------------
+watchdog fixes for v7.2-rc5
 
->  	}
-> =20
->  	/*
+Notable fixes:
 
-[Severity: Low]
-The kernel-doc comment for atcwdt_get_int_timer_type() currently states:
+- airoha: Prevent division by zero when clock frequency is zero
 
- * Note: This function must only be called when the ATCWDT200 watchdog is
- * disabled. If the watchdog is enabled, this function returns TMR_UNKNOWN.
+- core: pretimeout: Fix UAF in watchdog_unregister_governor()
 
-Since this patch changes the return value to -EBUSY, should the documentati=
-on
-be updated to match the new behavior?
+- ni903x_wdt: Check ACPI_COMPANION() against NULL
 
-[Severity: High]
-This is a pre-existing issue, but can the lock used in atcwdt_restart() cau=
-se
-a sleep-in-atomic bug on PREEMPT_RT kernels?
+- s32g_wdt: remove incorrect options in watchdog_info struct
 
-The watchdog restart handler acquires a standard spinlock:
+----------------------------------------------------------------
+Ethan Nelson-Moore (1):
+      watchdog: s32g_wdt: remove incorrect options in watchdog_info struct
 
-drivers/watchdog/atcwdt200_wdt.c:atcwdt_restart() {
-    ...
-    spin_lock(&drv_data->lock);
-    ...
-}
+Manuel Ebner (1):
+      docs: watchdog: Fix brackets
 
-Since restart handlers are invoked in atomic context with local interrupts
-and preemption disabled, acquiring a standard spinlock_t blocks and can sle=
-ep
-on PREEMPT_RT. Should this lock be converted to a raw_spinlock_t?
+Rafael J. Wysocki (1):
+      watchdog: ni903x_wdt: Check ACPI_COMPANION() against NULL
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722163706.1423=
-8-1-kr494167@gmail.com?part=3D1
+Tzung-Bi Shih (1):
+      watchdog: pretimeout: Fix UAF in watchdog_unregister_governor()
+
+Wayen Yan (1):
+      watchdog: airoha: Prevent division by zero when clock frequency is zero
+
+ Documentation/watchdog/watchdog-parameters.rst | 4 ++--
+ drivers/watchdog/airoha_wdt.c                  | 3 +++
+ drivers/watchdog/ni903x_wdt.c                  | 7 ++++++-
+ drivers/watchdog/s32g_wdt.c                    | 3 +--
+ drivers/watchdog/watchdog_pretimeout.c         | 2 ++
+ 5 files changed, 14 insertions(+), 5 deletions(-)
