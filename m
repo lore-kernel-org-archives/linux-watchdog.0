@@ -1,78 +1,53 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B854334BA
-	for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 17:46:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04644334BC;
+	Wed, 22 Jul 2026 17:46:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784742411; cv=none; b=hFvPOkBspehTNDG1mNcQ5S/+Ist7Ci5XoZ/jrLvkpFZjioE2fJ0WXGuGvyMcPu8qN5ULA1UwHr5X+mti3Ej6KZ+rDRn7PfE77T8GbXPO3/ib7Ubyq/w6oqdnVdinxxYU0iKv8YmO0X+pCIjDVukDDXb2EtNBGHq0SLMqX7i6io8=
+	t=1784742414; cv=none; b=MsxQinEViF95CMttKI7LNVc8czJG6GEEk1AjuVB2dQchvnV5SYCQVYNV3i+eWKLWN6YLiLi9BXv4lpA78jgPez1BaxA8OpNuuWiaNYHQ1iu9oPMu2ptrYSUEZgVeska1nAjOu3Iqr8BDY7sW29IjDxYvZhgJMZ7Hj9DhJTfqy7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784742411; c=relaxed/simple;
-	bh=BXne72PuC1GH3oGKZ7Wp9be2K6wPgM1C1ZBDmBsf1JI=;
+	s=arc-20240116; t=1784742414; c=relaxed/simple;
+	bh=kTYYjT5M8kNlgK4vexPnqHan5LuQH3TukAB6V7Z+lug=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tt9d+yC+Gz/s1gSCRjWTYg6ShEU8QkiSjc87zc/0a/TokLxXcf012eNtCC1PxfSaCoQGb0c4iWAzibHmoRGNwV9qXCpKn369GwT/Z3VXiNlzmOM4XbRcxcoaEn5IVdb0XbgAX2+5p1300mkNqkTuBUD7kGrCK9PZwVhVGmS2Bjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l1O51BkD; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fl4+3BuDsROohjWVAmifEPCo1uVteyO4HJ1045uIR3vApNbSYzp+NhZHFub0jkC0ZVLRm92coW+QtW7tDztTZ5vIv6DwPyqeH32HrIjtXSJKOi95pYqTvvWiy+xZZcTGCn73wVVCXRdtG6xt7pjZ8CXMXgeNusCly2oBzPUSQqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KRV249wB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l1O51BkD"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ce98cb8165so70792585ad.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 10:46:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784742406; x=1785347206; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=CPC3C1McKSdKHPGsEz7T2BULfXGeP3APrf619T65g/o=;
-        b=l1O51BkDvNG6Uv0ehLC9FBwMUsonSX63DBZusoeStbalSmDXmqNMiGzs4ynucT3ToA
-         Hcyiu+NSCM64LbtnLaKk1iFyYKAaarZY1KA7M7m1Myp5xyPbU44CTDNWfioLb6IpUnpe
-         EJuQV8CmWhMNnYYgkEWUdMGrW4zE6NAyNkOTSKzosWGlcbuqAUeqZItN41Hw2QU5k0Hx
-         Ga88YYiz/W6jIBdvRJmo54cPBy/BipU44zwP4FQP9BRZJJMH4wI3QqIWFHIOh+6PFCdD
-         us+Apm9KBec+3nw8pQGU6+x4V/ASrhNxaLCbAZ0CX2qJXrZbHo02fprkegR1bUSgh8r0
-         PMYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784742406; x=1785347206;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CPC3C1McKSdKHPGsEz7T2BULfXGeP3APrf619T65g/o=;
-        b=MISeNgE+Li7zZRT31BlEtPPfJlvx+QTLkWn44HVehsqHwwsMoSZUFUUh3e2YIiXYSN
-         +p5kw/oSz+lMZlcBomNtwts0SWZE2I+Suz8AyrkrQcOeCSpsOKN6X987p7jR924HwYQY
-         tic1Xe+jEFSildWu/EfM6AF1OU7O1e5tK15wy7zdSVi0DYjfXoZzZWJgqNpbMxZnTTMJ
-         sH6OvV10G2tAKuh9419XukWB1YFk3riDp+zCMkHNCDpZPpGlBLHVSJMxlZVYzX3Y6Mcs
-         RDWKFsnk3UPkdikceSqvfM7Hu54l6NU7artPnI7aYNHds+86B3ApDO9SCWO/DbeXpduj
-         dRsA==
-X-Forwarded-Encrypted: i=1; AHgh+Rrpc7cQTufbjqz/O7OekS5HFT4uEijoEjIz2KS9N+lL1SMmemK65LuzVIDNaFI1tEKHV7k45IsQPHJXD3xEoA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxFH0MHRVyDNE1yQnL0P4sJcpewraMXf/3R00KDm6GTkFRn/tPD
-	tpjKUoi6Xa0HRomb3OksKkuWzDZFBFX/phvRheRZUufNgzE8MS4ebRgS
-X-Gm-Gg: AR+sD122NYkvPcrlsjpJDziGend3W/rBHKg0vOzEwYoMclTIA9XXoSHg9Ff79MhQtc+
-	yYguXE1oCJWG3cKN95s1Md0yKgtTUJ8qF8T/+tHbLfGb8JU4QO+rijKraoZqVE9VglYQINt69wQ
-	Fv9dJGPRq6UwQgLtxbkOaZ3AIpI4EMkcH1vhr6XTF76YCuhw7NQZlHcy/sP67ThkQVH8QxI43Zr
-	0oJKVY7lPiDXUPX5ouhlCL7m0N+y1aLZBdeCEmmvdO1o0+pIWAakGiStkl4DLcfAt4czmYlsDk2
-	PPlhZ/6w8JeOaEGiH7kGJXPzKExd36qSONAZoJjfKRmB5BDNM8gid9A6aB2818GOlqK/EWkZ8+7
-	Fx1iB1wG6sjhuwS7xJ9BTdm9Si88XRAW85k0hNirfGNLVkCO0GOgrj2fmU9tPrgV16WwSZx1EDD
-	KiWA8ljhzp/yqLS/vvq9vhn71uTMww1yAr3g==
-X-Received: by 2002:a17:902:f68f:b0:2ca:53f7:3c69 with SMTP id d9443c01a7336-2cf8dc9920emr53255485ad.9.1784742406067;
-        Wed, 22 Jul 2026 10:46:46 -0700 (PDT)
-Received: from buffalo-ssd (M014013071096.v4.enabler.ne.jp. [14.13.71.96])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f386c68sm18445405ad.74.2026.07.22.10.46.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 10:46:45 -0700 (PDT)
-Date: Thu, 23 Jul 2026 02:46:42 +0900
-From: Akari Tsuyukusa <akkun11.open@gmail.com>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/7] dt-bindings: reset: Add MT6589 toprgu reset IDs
-Message-ID: <amEBgRmQktZ44jc1@buffalo-ssd>
-References: <20260717151134.678839-1-l.scorcia@gmail.com>
- <20260717151134.678839-2-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KRV249wB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BF0F1F000E9;
+	Wed, 22 Jul 2026 17:46:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784742412;
+	bh=KZkZF2rPu5ZR/LGvwdw9ibp5FkuwgMTaCsJaW4e51to=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KRV249wBia2OVTj+hl1wFx+sYZT1cRQ22nXpTMRg6c1m1AuAHN1z5z0YoOYi0rNA9
+	 xNahV+llEnZIX49WanAvWXqJ5AMcVyfxQ3DA8EowWEb8XoCLxNt0xUhTRRZExzt6Vk
+	 adjtncUKTmhvXagkCtHFM3YVOwPFgT68i6h+q7CEYj1TV6IOacy+42MBaFZrkdAdNr
+	 0zhABJrCYgLP81b9k5ocMGCfY7t34HgQHDYQsM2WV8hdCu5GvFAjXg7nFwk7UyKT2M
+	 nxFxk3asIK8EPkmcQNBcevMCEqzAv30uz0bign6Vv/zr6srgqthfx8Mxw8m/sgnqz5
+	 EQBzU92wCC4iA==
+Date: Wed, 22 Jul 2026 12:46:49 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: Brian Masney <bmasney@redhat.com>, linux-renesas-soc@vger.kernel.org,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	devicetree@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>,
+	linux-watchdog@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+	linux-clk@vger.kernel.org,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	linux-kernel@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: Re: [PATCH v3 5/8] dt-bindings: watchdog: renesas,r9a09g057-wdt: Add
+ CPG/MSSR syscon support
+Message-ID: <178474240889.1288517.6935023555003107612.robh@kernel.org>
+References: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260716123434.2576253-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -81,52 +56,42 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260717151134.678839-2-l.scorcia@gmail.com>
+In-Reply-To: <20260716123434.2576253-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-On Fri, Jul 17, 2026 at 05:11:08PM +0200, Luca Leonardo Scorcia wrote:
-> Add reset constants for the 12 MT6589 toprgu resets.
+
+On Thu, 16 Jul 2026 13:34:31 +0100, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > 
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+> On the Renesas RZ/T2H SoC, the Watchdog Timer Control Register (WDTDCR)
+> resides within the CPG/MSSR block rather than the WDT address space
+> itself.
+> 
+> Previously, this was handled by including a second register range in the
+> "reg" property. However, this is architecturally incorrect as the CPG/MSSR
+> block consists of two distinct regions (0x80280000 and 0x81280000) that
+> contain registers for multiple peripheral blocks.
+> 
+> Since the CPG/MSSR block is a multi-function block, introduce the
+> "renesas,sysc" phandle-array property to allow the WDT driver to access
+> its control register via this shared regmap.
+> 
+> Mark the use of a second "reg" entry as deprecated in favor of the
+> new phandle-array approach for SoCs that require WDTDCR access.
+> 
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > ---
->  .../reset/mediatek,mt6589-resets.h            | 24 +++++++++++++++++++
->  1 file changed, 24 insertions(+)
->  create mode 100644 include/dt-bindings/reset/mediatek,mt6589-resets.h
+> v2->v3:
+> - Updated property name to "renesas,sysc"
+> - Updated description about deprecation and use of the new
+>   phandle-array property.
+> - Updated commit message
 > 
-> diff --git a/include/dt-bindings/reset/mediatek,mt6589-resets.h b/include/dt-bindings/reset/mediatek,mt6589-resets.h
-> new file mode 100644
-> index 000000000000..ee08c39df513
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/mediatek,mt6589-resets.h
-> @@ -0,0 +1,24 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-> +/*
-> + * Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_RESET_CONTROLLER_MT6589
-> +#define _DT_BINDINGS_RESET_CONTROLLER_MT6589
-> +
-> +/* TOPRGU resets */
-> +#define MT6589_TOPRGU_INFRA_SW_RST		0
-> +#define MT6589_TOPRGU_MM_SW_RST			1
-> +#define MT6589_TOPRGU_MFG_SW_RST		2
-> +#define MT6589_TOPRGU_VENC_SW_RST		3
-> +#define MT6589_TOPRGU_VDEC_SW_RST		4
-> +#define MT6589_TOPRGU_IMG_SW_RST		5
-> +#define MT6589_TOPRGU_DDRPHY_SW_RST		6
-> +#define MT6589_TOPRGU_MD_SW_RST			7
-> +#define MT6589_TOPRGU_INFRA_AO_SW_RST		8
-> +#define MT6589_TOPRGU_MD_LITE_SW_RST		9
-> +#define MT6589_TOPRGU_APMIXED_SW_RST		10
-> +#define MT6589_TOPRGU_PWRAP_SPI_CTL_RST		11
-> +#define MT6589_TOPRGU_SW_RST_NUM		12
-> +
-> +#endif  /* _DT_BINDINGS_RESET_CONTROLLER_MT6589 */
-> -- 
-> 2.43.0
-> 
+> v1->v2:
+> - No change.
+> ---
+>  .../watchdog/renesas,r9a09g057-wdt.yaml       | 29 +++++++++++++++++--
+>  1 file changed, 27 insertions(+), 2 deletions(-)
 > 
 
-Correctly compatible with MT6589.
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
-Acked-by: Akari Tsuyukusa <akkun11.open@gmail.com>
