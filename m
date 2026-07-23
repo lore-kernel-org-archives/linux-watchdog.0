@@ -1,123 +1,153 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA7E5352016
-	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 02:26:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB8812475D0
+	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 02:35:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784773607; cv=none; b=PY/CDMaK0cGMIh0+yJX7ucRtNUKYijyVjScmIHgitITbqdeU1GXC69J6aLSoMCCro73aKoOjwQBJUZw8LVKQIjWHZVA0zZ13EKCAXoZLbPK3sVzejtjobTPu4J7dBccNVGZhcpdfrSPBr3h3aKANZP/Ve4aZ/5jERuBloxX2xqE=
+	t=1784774131; cv=none; b=lop0r9acgBy6/nQG8q4nKOLL6OSPbAD/6poyBLcOoSxwjP++ayfZKkZhHy/W99WQn1Mh/kLAuvioSmJ/WJCu6xNlDEeODqs7CsLtUDUKYJrEQdsn0aD89oX/AnSNCprB+kUU9Zmyx45LYGvj7ScaqQC6jQN6+Nej+Vqb8StW6UQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784773607; c=relaxed/simple;
-	bh=rXHgfAoAlRJNqO01tv1FVpBejjD5IsknO2sNv306WQI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kxqLRqEEEIavg2ZZWl8nwK5uAombwVJvzFglgOuBdeuK6kfxhmycDa2BC+2PzovRFIRSrAVQ0yvv1jZ2OJ40RUrenIp31fSslR7wvx4PNx2aUT9Gc26rxzot6wrkdmD0YhIPaGdgWdl2uqYjp5ygsloWilrQVJidzKjFSvKAUqM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CIdQv2dI; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784774131; c=relaxed/simple;
+	bh=/ASv/eG0X5DwAEsb5dUViEaxr4I5J/ietRNsuvSzdAc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FEEafnzbNmsfhEaWR6JNAJlFlDp7zkGiFN3/xlmBLTybcE4oBdmgv4AZrvSzjMYRvZCS0ejP7qid8PYWmNGtU3isajaRixkBqNNNIwzYJFq5ZQ7ttlTqMESrxUtEXOt3r2c2jLYWQJnG/Zqvsn4vL93pKOzUolxe/g/fLeT5jCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kDtcIob2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CIdQv2dI"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2caf228a910so1356795ad.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 19:26:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784773604; x=1785378404; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=WYun2sAk1Ltg3bxA8Zb4DCt+DIxSBg3GkrvAhMpsGp0=;
-        b=CIdQv2dImlRf0tsLAYNG5hLQ8vPReLgagm3gNbDxCv6vNHkj+uI+yMKWMh3nrIXqMP
-         SNHw+ytss8skH9qLCK0i8NW9qSexVH6TAfbiW+Nb5fBAyFPKl0EKK8itEDt7VV9LJQ5f
-         ZNip2nzQmTjs3g+Im4Gjgqdpmg4ZOsKWPLBr8iwuQh94lJLkcBEG6aUV25cuggextdeT
-         2yQPATyyZbrPRDNxIYE8URwYs3eD6g6dVmJzGtgc82i+ZSHrT1GxiyKLESaSzU1Z+OKt
-         il/YMssvcWUDYJ8UP70tIXtH+zhybBKoCXse+FTGxaHcn9zf/X24vtriRW1kT7JPvdk5
-         h4wQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784773604; x=1785378404;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=WYun2sAk1Ltg3bxA8Zb4DCt+DIxSBg3GkrvAhMpsGp0=;
-        b=KxfS7I8+3t0Gp5CVn1dI5gE4GZTPtUhWAe9dZP/lSGB3++tmd3Kdimio65GjKkZc46
-         mVNO/L74Zf2JV35oi9phsJGSrinQq0yM8tMXvKt9zXKOx9bBEK6tS2yXwSlwLERubP3X
-         kIMpu9tvXLE4saD9jBqYfDsJV5XLA8Rlb+UWSuBE6/Gyp86e6Cbp3fbVcQESmGhVKa5f
-         Jf6uo0yftxW0ayEq76u5S9IpO7+l590bhAJ7wE686vTEOR26It+st5rPp7KADT0BaO8T
-         ZUnKrVVlzzRt+Dfms71RKYeNCg9tV2z1OmtRNBEgowxop7/3hDc1RVdbtZINGZ/kC6NC
-         Hcpg==
-X-Gm-Message-State: AOJu0YyrAXJqzccKtykOGbvkWtJWPgvXLOsTpa7KnoWPE8zxu6V9vy7H
-	1CJ6KD3M1qzRVBpRT1D6WiAUqPAN7fmG6OIQiy4jcKrdbdTL/rjwkms=
-X-Gm-Gg: AR+sD11/5rmsGo6bh8mTaEgB/4GmkZDIS5H8CDlkK4ONBfSo/zBlQZ/rTZWszMoPFgN
-	aY1hX228GKaeeJcdxKJkUBv/faZueUxweV3WIL3Q6Ob87JqTWiw53GQCRijNeFmEzFGFhEWHvq7
-	HzsCsB9SrPmeRfLogY2mEr6+BkPqycb/i9jVhI7yPrLc2LInKEOUKGPGUs6YQHygH0ubrX/2F/K
-	sx2Xlp9LKxMbzrDsqjLPz2294QW1GBVTUxX76Z3SFhJqh5cqdMQD1Nxl+nE/ypEHRWUkdGerHko
-	mASTIp2UptWdEPZv0mfjPNNZbB1nSO/FqT2B+llfF8NDpQhJMe8IesIlIEW1Jb6N+DQB4eLMUrx
-	rHs4ICQLofwXIAf6VQush0JRAmgGqEme8zGEJrEswEhNwXcMgV+F4r0ECOdSzbZlCa3DIbRB5SE
-	/5WKpepg1nRm1l6LtfO2Qi9qK3xfvAAI5iD8E=
-X-Received: by 2002:a17:903:3c44:b0:2c9:ff83:41fa with SMTP id d9443c01a7336-2cfa6c5e315mr15614105ad.24.1784773603684;
-        Wed, 22 Jul 2026 19:26:43 -0700 (PDT)
-Received: from t-rex ([2401:4900:addc:f847:290:7ec:f519:db36])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147dc7d8fbsm15273195eec.10.2026.07.22.19.26.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 19:26:43 -0700 (PDT)
-From: kr494167@gmail.com
-To: linux@roeck-us.net,
-	wim@linux-watchdog.org,
-	cl634@andestech.com
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Surendra Singh Chouhan <kr494167@gmail.com>
-Subject: [PATCH v2] watchdog: atcwdt200: fix return value when watchdog is enabled
-Date: Thu, 23 Jul 2026 07:56:34 +0530
-Message-ID: <20260723022634.8642-1-kr494167@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kDtcIob2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582E31F000E9;
+	Thu, 23 Jul 2026 02:35:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784774129;
+	bh=ixOg7PPUEy/XvpJ75HZNJYVfPB5pZdPsVkl3Hh6CC+E=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kDtcIob2fs+h07toZVnXtJ8pX8K4eJUoSWrKvb7Qb5oJiK5oCjopJlog+GZtfQjMy
+	 Fm0rze+sPEzwBRgZqku5r1P+uT3DnZGOwsn83IQt4N8+SBRi3JKxuRlQ1RwhVnLFUR
+	 Z19OYkKtEIGaNjfNxa++DYuCF3aHW3UUy/g8Qa5ZqR/ZVode3Bo2Jsq7AHxIdZkJtp
+	 hBjpzos4HgE5bcMg0v6zSnr99muO+KmHigSTRDfiPrivVCK4i4SkL8zpZ8QY52taVd
+	 h1a6xL+BpXr1JkOThA6I5an4QM1BLIHAIkIV+09kSFuPCwmw5itiajx17NB3qqTW4O
+	 RN96AiwAHJ+Jg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] watchdog: atcwdt200: fix return value when watchdog
+ is enabled
+Reply-To: sashiko-reviews@lists.linux.dev
+To: kr494167@gmail.com
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260723022634.8642-1-kr494167@gmail.com>
+References: <20260723022634.8642-1-kr494167@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 23 Jul 2026 02:35:28 +0000
+Message-Id: <20260723023529.582E31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Surendra Singh Chouhan <kr494167@gmail.com>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-atcwdt_get_int_timer_type() returned TMR_UNKNOWN (enum value 3) when
-CTRL_WDT_EN was set in the control register.
+Pre-existing issues:
+- [High] Watchdog driver refuses to bind if the hardware is already running=
+, breaking watchdog handoff.
+- [High] Deadlock risk during system restart due to unconditional spin_lock=
+() in the restart handler.
+- [Medium] Incorrect unit scaling in watchdog timeout parameter calculation=
+ causes fallback precision loss.
+--
 
-Because atcwdt_probe() checks "ret = atcwdt_get_int_timer_type(drv_data);
-if (ret) return ret;", returning TMR_UNKNOWN caused probe() to return 3
-instead of a valid negative error code.
+--- Patch [1]: [PATCH v2] watchdog: atcwdt200: fix return value when watchd=
+og is enabled ---
+commit 0db51070773de34698520f8f6ccc03a9f5d37ab7
+Author: Surendra Singh Chouhan <kr494167@gmail.com>
 
-Fix this by returning -EBUSY via dev_err_probe() when the watchdog is
-already enabled and update the kernel-doc description accordingly.
+watchdog: atcwdt200: fix return value when watchdog is enabled
 
-Fixes: e4e0848ad046 ("watchdog: atcwdt200: Add driver for Andes ATCWDT200")
-Signed-off-by: Surendra Singh Chouhan <kr494167@gmail.com>
----
- drivers/watchdog/atcwdt200_wdt.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+This commit updates atcwdt_get_int_timer_type() to return -EBUSY via
+dev_err_probe() when the hardware watchdog is already enabled. It also
+updates the associated kernel-doc comments to reflect the new return
+value, preventing an invalid enum value from propagating on probe.
 
-diff --git a/drivers/watchdog/atcwdt200_wdt.c b/drivers/watchdog/atcwdt200_wdt.c
-index 8e3b18aea368..7e757c217b0b 100644
---- a/drivers/watchdog/atcwdt200_wdt.c
-+++ b/drivers/watchdog/atcwdt200_wdt.c
-@@ -260,9 +260,9 @@ static void atcwdt_get_timeout_params(struct atcwdt_drv *drv_data,
-  * register to determine the interrupt timer type supported by the hardware.
-  *
-  * Note: This function must only be called when the ATCWDT200 watchdog is
-- * disabled. If the watchdog is enabled, this function returns TMR_UNKNOWN.
-+ * disabled. If the watchdog is enabled, this function returns -EBUSY.
-  *
-- * Returns: The interrupt timer type supported by the hardware.
-+ * Returns: 0 on success or negative error code on failure.
-  */
- static int atcwdt_get_int_timer_type(struct atcwdt_drv *drv_data)
- {
-@@ -274,7 +274,8 @@ static int atcwdt_get_int_timer_type(struct atcwdt_drv *drv_data)
- 	regmap_read(drv_data->regmap, REG_CTRL, &val);
- 	if (val & CTRL_WDT_EN) {
- 		spin_unlock(&drv_data->lock);
--		return TMR_UNKNOWN;
-+		return dev_err_probe(dev, -EBUSY,
-+				     "Watchdog is enabled, cannot detect timer type\n");
- 	}
- 
- 	/*
--- 
-2.55.0
+> diff --git a/drivers/watchdog/atcwdt200_wdt.c b/drivers/watchdog/atcwdt20=
+0_wdt.c
+> index 8e3b18aea368f..7e757c217b0b5 100644
+> --- a/drivers/watchdog/atcwdt200_wdt.c
+> +++ b/drivers/watchdog/atcwdt200_wdt.c
+[ ... ]
+> @@ -274,7 +274,8 @@ static int atcwdt_get_int_timer_type(struct atcwdt_dr=
+v *drv_data)
+>  	regmap_read(drv_data->regmap, REG_CTRL, &val);
+>  	if (val & CTRL_WDT_EN) {
+>  		spin_unlock(&drv_data->lock);
+> -		return TMR_UNKNOWN;
+> +		return dev_err_probe(dev, -EBUSY,
+> +				     "Watchdog is enabled, cannot detect timer type\n");
 
+[Severity: High]
+This is a pre-existing issue, but does returning -EBUSY here break watchdog=
+=20
+handoff?
+
+If the bootloader previously started the watchdog, this explicit failure in=
+=20
+atcwdt_get_int_timer_type() propagates up and aborts atcwdt_probe().=20
+
+Should the driver instead adopt the running watchdog by setting=20
+WDOG_HW_RUNNING and allowing the watchdog core to keep it pinged?
+
+>  	}
+> =20
+>  	/*
+
+I also noticed a few other pre-existing issues in this file:
+
+drivers/watchdog/atcwdt200_wdt.c:atcwdt_get_timeout_params() {
+...
+	rest_time_ms =3D timeout * 1000LL
+		       - div64_s64(1000LL << int_index, drv_data->clk_freq);
+
+	result =3D atcwdt_get_clock_period(rest_time_ms * drv_data->clk_freq,
+					 TMR_RST,
+					 &rst_index);
+...
+}
+
+[Severity: Medium]
+This is a pre-existing issue, but is the rest time calculation missing a un=
+it=20
+conversion?
+
+Since rest_time_ms is in milliseconds, multiplying it by drv_data->clk_freq=
+=20
+without dividing by 1000 produces a value 1000 times larger than the=20
+required clock ticks.=20
+
+Will this predictably force the fallback path where rst_timer_params is=20
+clamped to 0?
+
+
+drivers/watchdog/atcwdt200_wdt.c:atcwdt_restart() {
+...
+	atcwdt_set_timeout(wdt_dev, 0);
+
+	spin_lock(&drv_data->lock);
+...
+}
+
+[Severity: High]
+This is a pre-existing issue, but can this unconditional spin_lock() cause =
+a=20
+system hang during panic or reboot?
+
+When the system initiates a restart, atcwdt_restart() and its sub-function=
+=20
+atcwdt_set_timeout() unconditionally acquire drv_data->lock.=20
+
+Since restart handlers run with interrupts disabled and after other CPUs ar=
+e=20
+halted via smp_send_stop(), will the restart handler spin infinitely if=20
+another CPU was stopped while holding this lock?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723022634.8642=
+-1-kr494167@gmail.com?part=3D1
