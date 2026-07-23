@@ -1,181 +1,122 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E650C33B6F4
-	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 05:12:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2834137BE93
+	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 06:08:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784783530; cv=none; b=I0HsJberYJT4okUKeN85gCPjNxpOPsZWWLB6S3AKgHYUCkNPqn+ShR4HKhLem7P1ix9WHp5C2tpuVr96mVx4aRN0f2J7nO5OFp7BQXd76EMlEzw7xJXzthKHjE3bT5ky6cT8VD36CeYmBbM16NEJ3l8zmQjNlwoQEnXqnzy+H70=
+	t=1784786904; cv=none; b=fUTCAdGWnTRSLYmMHLeDML6SVJymQCXtAEN81G1T0CDlQViINbGneNjneiZkmDLLX0ozuMitnYKocxKgj+c7829sECEE1PHMyYgIQQW27EmaJKHxTDtTl93BxOQpcXWu7hFTP+dWF0RA1yh/OTS2Iazv5OJ2kBnV79WRdpcGTQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784783530; c=relaxed/simple;
-	bh=sp0zenaSjYTYAWF8OidErfXvK/gC54aeemvpF2sv40I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=q6LZPh0krALxrxB/Nhi9kCKbjTrzkmofGl5YuUzSFPZDBQrFatpyXizBieUJMB25haKsCKwKLjI1vMwlWu4B5M/5V0Zh9QTs1tpHN/YTA18Vp2+K9bV2ly9k0HYcOvc+g/qNqC1VthxFbAxHj1mXlrdo8TvGs3pIjG2GIE0UXt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pAKb1Pl1; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1784786904; c=relaxed/simple;
+	bh=PyrWdns1OrOzxEPcfbY+R34j4aE+Z2Ud3FTa8IgPb7g=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=F2Uipg2UniVvsm/TBesnAZ5f0ycGpS73fCQi573TQDmYv+F6YBnASa3mZiLNXT87RAGrmI48xxafw+yjkuJ+67SuKAEh9yGRk1CpbEci8A9nOxOIEq4ZdxxPq0PYvEFQs4krCcKBiGppV7nFKgdZgfYyU3E+1bztaB6uOuDBVuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dSMjpX6z; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pAKb1Pl1"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-cbb662575d3so142718a12.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 22:12:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dSMjpX6z"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2cace91f112so3389135ad.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2026 23:08:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784783528; x=1785388328; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=lQl72L56ANhTo8erID3s8JKmjpf7jGxP9P7gDHBEwV4=;
-        b=pAKb1Pl1NOjRNQyca3ecEjT/ZTHbe9QLdmq5tvvx3ZOJGP8+X/31pcB0SGH+h9fvM1
-         L8RUMqf9zXzBErmF4u3/zuFkO92uEoOSuHztd8BSQGhqpj+SjtfVkcg+3/1Pc7Hz17ri
-         yXqAuwX2p1pXcBdC6Jc4mkmiio36VsJeCaENjoXkRrdM5KosA9qXUNHhEyDCVnKPCMyN
-         1T67CGXbtN6X8Ju4ZWmpPLLdqutixhZ8MMwUwZoeKzDfma4vvp7yjvJzopJLMt3utimF
-         jlX4eRYvNgF279Jad545WX4b6eA+QDJ42ufJPR2LU2i+hSB7Z6TAxeVP1rziuLBMLJY1
-         8xqw==
+        d=gmail.com; s=20251104; t=1784786902; x=1785391702; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RjXGzvZcsEIuIReWqV3AthYPTgXMH2ZnkuQulSBosYI=;
+        b=dSMjpX6zDmwv9VF08XBefORxhYuMNZ8TaNMIJ9lbzmZE/K/4TubML4wbuU4jxizGfK
+         0UUrk7CEF37RJg7se+0oPlE/kNWj2wc3W7iCbu9UWdCF4QE1kxCymFmNtZb/I79U+aqX
+         JDzSAplkBs5/Gwz/byEGBEthjzjAUBI2otMXKprUU0IEY+NbfApqA+RFKqeNEsaPvBMk
+         Qk1LrY2Nc7wSftFHkV384gOSGmvsIatfMQgl2mV6oePxk9p7O8P3V+wZouhNx3OK87Xg
+         SodqkdWkw882zl50bSrUwErGZJBbkDXZ7vr8rede7GS5l+joNTL2kRzQCM4kxV2//LxM
+         LVAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784783528; x=1785388328;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=lQl72L56ANhTo8erID3s8JKmjpf7jGxP9P7gDHBEwV4=;
-        b=lT/8vvVaDlurbXiexmgZMlyZtElo6n0emqmxjkxl9yUrVpM3iZLfbWOfN7iSLqDTmY
-         +NfgRMl2j1nbXeddBmo+kRlDgawsSZkzMm4HvAvxlPwYCXKHOggoQCR4/HFQHl3tLSN1
-         H27J7lNYLSQ07oq4rRgkedBqCzhGRuQ9jtWYpPJMoHtu75C5RiQNAULNTuWO/iujdTZq
-         aff7LUxcIwgBVGXfFeRjaFW+Bh91dTq3lhFfYNzpRnombdYuzYHxTzce+RVbbSEHAvjX
-         wpdlZ93rwlqJRWSoI701CwYdoNm6bdwVVZkUjKCsR6P3zf+pJKkF4+sr+4Z8IsggHtIU
-         2K7Q==
-X-Gm-Message-State: AOJu0Yzcwgh56DAbIy+bC4vyAcUViR1GAC0gA0R2POw2/ewv9pTukgdq
-	0F1dmPSNG3YGDVt9CPcZann86FgS1UBoWAHQwp++0ZFdbiTOP8yELAjr
-X-Gm-Gg: AR+sD10dJnnXoFSP1RJ48l9wnpTeoGxnkQk/kH8UY0bQV21E+Qju9NZ/cw9DUSLkXNB
-	cR8VMnSJQu96GzBJgdePNBQk2csYK6BXHGTwa1a3cYLU6Ox4jF1ynJ+7SRh3jntDbTF912mZjOR
-	HLATTjkT8QbxbvoFvD7pdWbzLQEW+a5/1NXxD8vJ5/f/SbNlqHIWS3+jh0WX1nU3BBuOWKXBu3c
-	4BOeDCwKp9iqHafkUBHBDUbOnVzXT29+XU6xKAkDNh8n7iPADuqHiA3Z1NFAfAC7TRKvwP9J/nz
-	D+pDbwsYxoV54GSF24erNbKVjRI2IwJ7pmLyVtpTt24rB97R3GkCGjo6HkA+86WHpI8YAodBuH+
-	PqyT57TBVHtI7Yu9zTKncdyDGp4KqgQ8ZPjZVc9mCNET8Wt8vc+SUMbxvzVWNCt47uSQAnPwu6J
-	ub04HQJCY6UIAT2WLyIeX5/6WnNQCsRhUMbR+xWsno92k+8sFlsek=
-X-Received: by 2002:a05:6a20:4313:b0:3c0:9c19:b271 with SMTP id adf61e73a8af0-3c44b2616efmr1825370637.63.1784783527954;
-        Wed, 22 Jul 2026 22:12:07 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1b6a45sm14908156eec.28.2026.07.22.22.12.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jul 2026 22:12:07 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a3660418-97af-4085-ba2d-8488eed1fd23@roeck-us.net>
-Date: Wed, 22 Jul 2026 22:12:06 -0700
+        d=1e100.net; s=20251104; t=1784786902; x=1785391702;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=RjXGzvZcsEIuIReWqV3AthYPTgXMH2ZnkuQulSBosYI=;
+        b=Rpb7KIl/acsUGbqURgfhlkYwSEUOf/BQP1PIZL9XexqCkfYthKXf9wNk3+8AQ2O4gE
+         ZPaT+6XPQyZtr2e3B3Ed3K0JajakMBFpXh4XKGNbA0XGSv0iliWTVsoas5FWRQ+blDgo
+         W3fxejGQMDRd9qWUfAjmRZK+xyzHd3SfdrfBt5HV36NjKl+jAWeh+D+c/RgJfxKzMlcH
+         5QTb27pjzhViePjmwjRlIUaa3MiLTh1d9RE9cgLV7UbJasWFQQFGk26UwMcsEFDV5vZR
+         sP9SwPU4qjoPPHk3KAmLs1O7iOa02eaZ5BdO0AAHAewF9fpslY70mJOnEWuZ5FGS9hlA
+         yvsQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rp5tgcc4HvLgjW5O7rrB3UtAd41Jut1r3jmM3jBScTE60QK13ZqrzksWOp5BAwf81MLVE5SWBzRqRWduWn/8g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxSrNVUzIwRY29Tv2lUevTzJUb+XhBmEDp2KMOinIp1Qh9BlfzY
+	l+3HssRtUMOShdyVAImzR1DNAOdor4snJ6P1aofaeU14/1kqGpPcJIGf
+X-Gm-Gg: AR+sD135aoYX6CTo+UAPc2hRmAn3UMw7KdGpVduV8KzMe1VqTalR+eCcfSLYD1/IwE5
+	crmlJyIVidG5Hg/bRXcxDmvGyczuj3/T2YnLfYdwx+d6FstmouoCIDC9+MpPqNCBLW5SyYDRcdb
+	+t9vPllMsBGwQrvhUHWMcRmEEzxRWMNzEhtLhiHzbS2Wo83uvG44vU7kblLVI5PHihL/GrV6zR5
+	H+NPjZN9RIvOE9fRRuGOvrLjfLxhPvY8z0ec5Bs0m9ixzDmbn8l6JfOVGArzWdPLqLDjj0RAY+r
+	b+gA300B41VhgdxutRG3WMMucTGmU42pScSzyLOBeQajgpONpwaFUYs1lyfXr9tkLuSRfSB349/
+	F9yvwiB+yVq63Wv4yC2vsUEompIASocwJOqDxOPMpcRs2BXN3jHpZVUlmhZhIN25xDDsLsj9BQy
+	HokAp+lztlQfgSjLULCNdKnOQjUNTLs8Ujy+a12J73dvEgDYk8PDqEnmEruR5p
+X-Received: by 2002:a17:902:c402:b0:2c9:a5e9:c26e with SMTP id d9443c01a7336-2cfa6b740b7mr21724555ad.13.1784786902450;
+        Wed, 22 Jul 2026 23:08:22 -0700 (PDT)
+Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f390dd2sm26071285ad.79.2026.07.22.23.08.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 23:08:22 -0700 (PDT)
+From: Zi-Yu Chen <zychennvt@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: Jacky Huang <ychuang3@nuvoton.com>,
+	Shan-Chun Hung <schung@nuvoton.com>,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Zi-Yu Chen <zychennvt@gmail.com>
+Subject: [PATCH 0/3] watchdog: ma35d1: Add support for MA35D1 Watchdog
+Date: Thu, 23 Jul 2026 14:07:51 +0800
+Message-Id: <20260723060755.1596858-1-zychennvt@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] watchdog: atcwdt200: fix return value when watchdog is
- enabled
-To: kr494167@gmail.com, wim@linux-watchdog.org, cl634@andestech.com
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260723022634.8642-1-kr494167@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260723022634.8642-1-kr494167@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 7/22/26 19:26, kr494167@gmail.com wrote:
-> From: Surendra Singh Chouhan <kr494167@gmail.com>
-> 
-> atcwdt_get_int_timer_type() returned TMR_UNKNOWN (enum value 3) when
-> CTRL_WDT_EN was set in the control register.
-> 
-> Because atcwdt_probe() checks "ret = atcwdt_get_int_timer_type(drv_data);
-> if (ret) return ret;", returning TMR_UNKNOWN caused probe() to return 3
-> instead of a valid negative error code.
-> 
-> Fix this by returning -EBUSY via dev_err_probe() when the watchdog is
-> already enabled and update the kernel-doc description accordingly.
-> 
-> Fixes: e4e0848ad046 ("watchdog: atcwdt200: Add driver for Andes ATCWDT200")
-> Signed-off-by: Surendra Singh Chouhan <kr494167@gmail.com>
-> ---]
+This patch series introduces watchdog timer support for the Nuvoton MA35D1
+SoC platform.
 
-Change log goes here. Do you really expect me to look up the patch history
-to figure out what changed from v1 ?
+The MA35D1 watchdog timer hardware provides a programmable countdown timer
+capable of triggering a system reset upon timeout expiration or generating
+an interrupt to wake up the system from low-power states.
 
-Sure, this one was recent enough that I happen to remember, but
-I seriously fail to understand why people can't be bothered to
-add a couple of lines here to explain the changes they made.
+Key features supported in this driver:
+ - Standard watchdog operations (start, stop, ping, set_timeout).
+ - Boot status detection to identify watchdog reset events (WDIOF_CARDRESET).
+ - Power management support including suspend/resume and wakeup functionality.
 
-Guenter
+Series breakdown:
+ - Patch 1: Add DT binding documentation for Nuvoton MA35D1 watchdog.
+ - Patch 2: Add the watchdog driver implementation for MA35D1.
+ - Patch 3: Add the watchdog node in the MA35D1 SoC DeviceTree file.
 
->   drivers/watchdog/atcwdt200_wdt.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/atcwdt200_wdt.c b/drivers/watchdog/atcwdt200_wdt.c
-> index 8e3b18aea368..7e757c217b0b 100644
-> --- a/drivers/watchdog/atcwdt200_wdt.c
-> +++ b/drivers/watchdog/atcwdt200_wdt.c
-> @@ -260,9 +260,9 @@ static void atcwdt_get_timeout_params(struct atcwdt_drv *drv_data,
->    * register to determine the interrupt timer type supported by the hardware.
->    *
->    * Note: This function must only be called when the ATCWDT200 watchdog is
-> - * disabled. If the watchdog is enabled, this function returns TMR_UNKNOWN.
-> + * disabled. If the watchdog is enabled, this function returns -EBUSY.
->    *
-> - * Returns: The interrupt timer type supported by the hardware.
-> + * Returns: 0 on success or negative error code on failure.
->    */
->   static int atcwdt_get_int_timer_type(struct atcwdt_drv *drv_data)
->   {
-> @@ -274,7 +274,8 @@ static int atcwdt_get_int_timer_type(struct atcwdt_drv *drv_data)
->   	regmap_read(drv_data->regmap, REG_CTRL, &val);
->   	if (val & CTRL_WDT_EN) {
->   		spin_unlock(&drv_data->lock);
-> -		return TMR_UNKNOWN;
-> +		return dev_err_probe(dev, -EBUSY,
-> +				     "Watchdog is enabled, cannot detect timer type\n");
->   	}
->   
->   	/*
+Testing:
+ - Tested on the Nuvoton MA35D1 development board using standard watchdog
+   test utilities (e.g., watchdog-test from tools/testing/selftests/watchdog).
+
+
+Zi-Yu Chen (3):
+  dt-bindings: watchdog: Add MA35D1 Watchdog binding
+  watchdog: Add Nuvoton MA35D1 watchdog driver support
+  arm64: dts: nuvoton: Add WDT node for MA35D1 SoC
+
+ .../bindings/watchdog/nuvoton,ma35d1-wdt.yaml |  55 +++
+ arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       |   7 +
+ drivers/watchdog/Kconfig                      |  11 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/ma35d1_wdt.c                 | 357 ++++++++++++++++++
+ 5 files changed, 431 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,ma35d1-wdt.yaml
+ create mode 100644 drivers/watchdog/ma35d1_wdt.c
+
+-- 
+2.34.1
 
