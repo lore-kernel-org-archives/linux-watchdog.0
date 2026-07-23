@@ -1,144 +1,314 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 978524D2ED1
-	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 14:07:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6DC44C77AC
+	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 16:16:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784815673; cv=none; b=uemyRbE85wD91GTe4gFvo8S1v7xCs3UTc0EvpC9mGqhtPfliy5SwV4Pg6HyzNEs5zjkhDISXn3SyQhxbSG1yJKZAgbGtwjmaNQxWV7IasCAucLjUTbUVSDaaFQ/FeLgI7b2O788N9JrsV76iuiSJmJsgmryo3jiiBcQTnqWMxwU=
+	t=1784823369; cv=none; b=OX6ZHcdSGJOEINUC4yLFapK7T+7Mnds8jVa+w1yk446xFkKcYn62hrm4T4IMU9iLJIa/xccwg/u52uV+DuQezKsIoamqjJscplSE2o+T9X/nYMP8blFS4Alw9lDZmsL1X1LYcgwPrFYT/WSlO3qJ5f0jUOwqRwO1Pj1yzCjdiGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784815673; c=relaxed/simple;
-	bh=spoxKFkJYFtNO9/qiIJmkVDjM3q1Nm82GTeSKSVFves=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=be15klKcTae6F6DATjdn+l/fkTa98sydK+TW4c2BHvQewiHdD5O3UZhWiKJBKDwq1Wh0+xdr93KOrHZZN/alwsT0bpwEhAiZBik11hkkONUMzaRCe4FtT3MFb17KRm60cGmTA8vB9GgtFtRPkpABRpswlCype8av02M6r3bnAFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DiyPhy1h; arc=none smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1784823369; c=relaxed/simple;
+	bh=aF9Eskw4wP/Mk/gPSa+pEH/ArdSYufriaP9yc1cpeXU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=g7Udmv+WAt/jAHdlYQlr48cWZqSKuOFjUQMxqpPKx1YlsESljBugto/5HmzPRZptLkjHpb8VOGyQZ2yAz435WVKeyWgGZCrehdfXYj3QOowFg6uO0w/eqJkV+Voc/jB9JMraq2DdWoHmeKH5Waq1p5q6+Uiha/DpAklDMFm6LGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YhXUGKDn; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DiyPhy1h"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cf50c6f235so9928725ad.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 07:07:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YhXUGKDn"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5aeb24c0807so547652e87.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 09:16:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784815667; x=1785420467; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=spoxKFkJYFtNO9/qiIJmkVDjM3q1Nm82GTeSKSVFves=;
-        b=DiyPhy1hq83MYyF89fIWF9W0bHKMLcLWb69krQoP+y4j1CktDIzzP/7q0IRT+X0WMC
-         3PMFWc+TUahXKWwX8xUgeqBv6SA6Q+ph3Dek9d/8JKaQp5X3xd/5IEcSk8OF50EWud0I
-         vazcrDRy2n0mzvlpXltSAEZK5aiq1VTnueU2ExQ6BSTeTXoQSY4KQdI/EIS6tMzoFEFY
-         +6m8mYBZTmASDeSi6pDdETwkBRt3Awj+5neNLGCxUDsF8yKlVx6UOlRr5ZGHvdgISjiY
-         Cv0E2SpDRKqha0dSfoVLE4Fi/Ct1fuiWl6RSfLDyA2ujQdAt17gN7RsYo6bPKCQljy2G
-         aMOQ==
+        d=gmail.com; s=20251104; t=1784823356; x=1785428156; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=WSFkoNus/+V1J3x0Yh+fiQrb5iWsjELtWkobo5nQNog=;
+        b=YhXUGKDnYPOidm1tunISKVa8tG5krDw3PGbI0TrgM3XCrpwHXRtDymperxSuyQRnGj
+         HSV2YrfKo1N+dwTK8b48HOwTW6DuVy9S67wUq30n97Ax2nie9WV9ln5NNLZNFQckHlry
+         wR9u16NGY1Ob2KXL5KysaH1+Gh5YjIB7AcQW50d5ch9ctjQfWN3YmUTQEY3XnT/m1wZr
+         18tpfQVjDo2AaC8mad+xwM8UoaBbXOsiyxaDkr0YW+K3yjM43+DM4P/z6+SyGTDLuyRE
+         AH4fooC+vZLaGc48tHLS8C+jfqnu0Q0tpYKL4eNOqmcBoiH4cfuD7CP7bKr7GMwLMxv7
+         gpNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784815667; x=1785420467;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=spoxKFkJYFtNO9/qiIJmkVDjM3q1Nm82GTeSKSVFves=;
-        b=JcOaURB2qibH1/yQ4eVc51WXiXdVbGgptcSCTORxA05ASPLzhVdJuoItrOVpuoawmB
-         ch8irfe34V43KmrRzeFZc4aBXA8ntzwaR/DPPB6G8ezkm/i7uaTjNjFTXUvnNQDz8+vc
-         I2mRrwvEzJ93JaOtc4A7r/4BuTPYnCLXWt6Gb9MNMGwa+MNkV+zCiHLoR2zEuy+4sfhB
-         sKCktMJxDMnEXb7BnDSvyXwFFgADXwKLoXM1XM5HhDvVdiXv28Uh1JMGY/Tvc7zbKB7e
-         JD5J5RmD6KvLkKxTK1ltk4Gmt2j0fXdMRtPo+Pu7w8rRoHbUuYEjm/ILhvtm0XuV+rkj
-         zTwg==
-X-Gm-Message-State: AOJu0Yy7N80BRROem9i6+Yd1q2pINMy/PNlWSzCUBVZVIbPQDRC3Q1Hg
-	Bjkk4Yd+HQXz/NkEiZrY2xkgMeCXmJSx2+N5AX3UEsbX4PIy2dEzkrAB
-X-Gm-Gg: AR+sD13C8Bjvm+puUuJoRqDicAGoQPoF+ukoLlzExBURcHLdmIAktwNy/AdP/FM/86F
-	pwcvTk60NCu3V5GOgGPFXgDAmYl+OCLHefE7RuESQexRz6f6AySsjYil0pHPmegEk5YF5x5mnX7
-	7NFjAzQKrEmpt79UAuYwG4IKDXD44BhY8renSlPKDa5AatzUIGyHEPYOoiTZD6g2AaUK56iqEWh
-	9tNdOw8z0RoHh7KJynfT1f3aA9xrvVKNbpLxl5+3urUIxmkyKcC8FH0dmS6RgaADpBNB+jmwkHp
-	oqrozywMOdRZylHWl7h0ZJwLINInNIyawM+VAXcsBu5n1Kd20QvRXbe/vhhM7WChWfUGxd8s623
-	V3g49QU5iUhAmpOKg2K5VsatkziXtpPaPlIWrUt9zKD5SMVzMkdCuT/g6Cp30uzF1kfiJovbLXP
-	LOBzfcnzzdcOgywG2J8o3YYyphnaZGXFFSyiBr8spC0iMZG2+Yv4A=
-X-Received: by 2002:a17:90a:f948:b0:38e:c8bf:f326 with SMTP id 98e67ed59e1d1-38ec8c00218mr1879749a91.9.1784815667274;
-        Thu, 23 Jul 2026 07:07:47 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38ecaac5d68sm1117772a91.10.2026.07.23.07.07.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Jul 2026 07:07:46 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a04cc256-4c60-4e92-b196-47aeed1d5453@roeck-us.net>
-Date: Thu, 23 Jul 2026 07:07:45 -0700
+        d=1e100.net; s=20251104; t=1784823356; x=1785428156;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=WSFkoNus/+V1J3x0Yh+fiQrb5iWsjELtWkobo5nQNog=;
+        b=LxNnVglCOGhn5NeWWvmPW691ilpP+kMokaqSuIHl/9ulxTFHzwMD1rQ2UtkWwIcbSb
+         ayI78q4Tf6tKm4KN+iCVfqztSLtFwO97JC81wmrA7XmcGNBto1pBlAPn5G6trvtxuKji
+         dmYYV30h6sgTZaS+jJq7wrbR44SJcRaypw2q+4NuAZYyFgbq/5AF5L/gSKYxmigLMPJj
+         IAnPhdzQ2rlZXa72mqR2jR3yp/y5cS/FqCNqjgU7ISfDIeMpb/nTSxW5cWQTqnqfSPmk
+         mmvCXAYfDjN/aE7e2T5WYnx1AO3eGED998leQa/Q4WH7GUJhkoz6MCK2OQvk7rfhoBL4
+         de7w==
+X-Gm-Message-State: AOJu0Yyfr9wo5T6A7chJfR5Bk3HRnpaBotmh9EHui0gNa1WCX06kV6rP
+	zj6ghXzreIiiR1I/1jioIoJHQL4sdABiqiUjkK6R2n99jbQwNoh5+BcegKu/oYLpvEk=
+X-Gm-Gg: AR+sD13sdQ4NRsXyoWCCQ7NzJwLf/MmapkUdFSLNVarBvuDB4R7CiaF7NxYRa7VmQN+
+	JK5Ucqan0h6Sf/bUArAeIZ2EHroh8qym5SRnMGsfx4AoZ5bufOTFCxCwmE0lM3Qx4S4h39/puM0
+	Rer+yFgcdp1ngVuWgAmAhysfDDtPG37ajoWyegRQyQ/+fSZHfeioTRb4hYFbS4II+WgLHg3GXp/
+	kUO99hAn4+q4Z9uCghZugH6WzTeGq3Wy6vcHSyXdtMta3vihXuxtWNKz245ct3egOagIIsjehtM
+	lB1FgfKqVFOI5hknQ8xv1c1uDIFpGUPgVlQp47p61Yvky/sZnvWWpmjeTZaEHYzlBLYVZTeJ2W3
+	joaXWrln656b9kakgXxFi6jWZVX3vV1X2bG1pTXPrdA8YK9jcT0yicn8k57uox9B6ECtqM/OGMc
+	gEjQk2l9RxHQ7loVPme3QFu0+W89GUWjc8uV/iRBMBCwSV+N90Cg1wp8/GNKYuzOIf4EfaWJA+d
+	4OL
+X-Received: by 2002:a05:6512:3d21:b0:5b1:5fe4:6f64 with SMTP id 2adb3069b0e04-5b2b2f77bddmr912875e87.45.1784823355629;
+        Thu, 23 Jul 2026 09:15:55 -0700 (PDT)
+Received: from localhost.localdomain (46-138-176-102.dynamic.spd-mgts.ru. [46.138.176.102])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-39ef6d8c40fsm9875561fa.41.2026.07.23.09.15.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 09:15:55 -0700 (PDT)
+From: Artem Lytkin <iprintercanon@gmail.com>
+To: linux-watchdog@vger.kernel.org,
+	rust-for-linux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	ojeda@kernel.org,
+	miguel.ojeda.sandonis@gmail.com,
+	dakr@kernel.org,
+	aliceryhl@google.com,
+	a.hindborg@kernel.org,
+	lossin@kernel.org
+Subject: [PATCH v2 3/3] watchdog: softdog_rs: add Rust software watchdog driver
+Date: Thu, 23 Jul 2026 19:15:29 +0300
+Message-ID: <20260723161529.23759-4-iprintercanon@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260723161529.23759-1-iprintercanon@gmail.com>
+References: <20260723161529.23759-1-iprintercanon@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] watchdog: Add Nuvoton MA35D1 watchdog driver support
-To: sashiko-reviews@lists.linux.dev, Zi-Yu Chen <zychennvt@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
- conor+dt@kernel.org, robh@kernel.org
-References: <20260723060755.1596858-1-zychennvt@gmail.com>
- <20260723060755.1596858-3-zychennvt@gmail.com>
- <20260723062030.B20F41F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260723062030.B20F41F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 7/22/26 23:20, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 9 potential issue(s) to consider:
-> - [High] The `ma35d1_wdt->dev` pointer is never initialized, leading to NULL pointer dereferences in logging functions.
-> - [High] Read-modify-write operations on REG_WDT_CTL inadvertently clear W1C (write-one-to-clear) status flags.
-> - [High] Missing clock domain synchronization (`ma35d1_wdt_wait_sync`) after writes to `REG_WDT_CTL` can lead to dropped register writes.
-> - [High] Driver overwrites `wdt_dev->timeout`, breaking the software heartbeat extension.
-> - [High] Missing cleanup for wake IRQ allocated by dev_pm_set_wake_irq(), leading to a memory leak and permanent device unbind/bind failures.
-> - [High] The driver fails to check if the watchdog was already enabled by the bootloader, causing unexpected system reboots during boot.
-> - [Medium] Unsigned integer comparison against zero renders IRQ error handling dead code.
-> - [Medium] Integer overflow in `target_ticks` calculation triggers unexpected system resets for large timeouts.
-> - [Low] Unnecessary dependency: selects `MFD_SYSCON` without using it.
+Add a Rust software watchdog driver using the Rust watchdog
+abstraction, functionally equivalent to the core of the C softdog
+driver.
 
-Please fix or explain why the issues reported by Sashiko are not real.
+An hrtimer is armed on start and re-armed on every keepalive ping for
+the currently configured timeout. If userspace stops pinging, the
+timer expires and the system is restarted via emergency_restart(),
+matching the C softdog default behaviour. Stopping the watchdog
+cancels the timer. The timer handle is protected by a mutex since
+watchdog callbacks may run concurrently.
 
-Thanks,
-Guenter
+Two implementation notes:
+
+  - Re-arming cancels the previous timer before starting it again
+    (the hrtimer handle API cancels on drop), so a ping can briefly
+    block on a concurrently firing callback and there is a tiny
+    disarmed window during re-arm. A future handle restart API would
+    eliminate this.
+
+  - The C softdog pins the module manually while the timer is armed;
+    this driver gets equivalent protection from the watchdog core,
+    which holds the module reference while the device is open or the
+    hardware watchdog is marked running, so module unload is blocked
+    while the timer is armed.
+
+The timeout is adjustable from userspace via WDIOC_SETTIMEOUT; since
+the driver has no set_timeout operation, the watchdog core updates the
+timeout directly and the new value takes effect on the next ping.
+
+The Kconfig option uses SOFT_WATCHDOG=n (rather than !SOFT_WATCHDOG,
+which would still allow both as modules) so that the C and Rust
+software watchdogs are mutually exclusive.
+
+Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
+---
+ drivers/watchdog/Kconfig       |  12 +++
+ drivers/watchdog/Makefile      |   1 +
+ drivers/watchdog/softdog_rs.rs | 143 +++++++++++++++++++++++++++++++++
+ 3 files changed, 156 insertions(+)
+ create mode 100644 drivers/watchdog/softdog_rs.rs
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 08cb8612d41fe..7dcbb285c6f16 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -160,6 +160,18 @@ config SOFT_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called softdog.
+ 
++config SOFT_WATCHDOG_RS
++	tristate "Rust software watchdog"
++	depends on RUST && SOFT_WATCHDOG=n
++	select WATCHDOG_CORE
++	help
++	  A software watchdog driver written in Rust using the Rust watchdog
++	  device abstraction. This is a Rust equivalent of the C softdog
++	  driver.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called softdog_rs.
++
+ config SOFT_WATCHDOG_PRETIMEOUT
+ 	bool "Software watchdog pretimeout governor support"
+ 	depends on SOFT_WATCHDOG && WATCHDOG_PRETIMEOUT_GOV
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index bc1d52220f223..397b16d648eca 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -236,6 +236,7 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
+ obj-$(CONFIG_NCT6694_WATCHDOG) += nct6694_wdt.o
+ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
++obj-$(CONFIG_SOFT_WATCHDOG_RS) += softdog_rs.o
+ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+ obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+diff --git a/drivers/watchdog/softdog_rs.rs b/drivers/watchdog/softdog_rs.rs
+new file mode 100644
+index 0000000000000..45fd76c4fd195
+--- /dev/null
++++ b/drivers/watchdog/softdog_rs.rs
+@@ -0,0 +1,143 @@
++// SPDX-License-Identifier: GPL-2.0
++
++//! Rust software watchdog driver.
++//!
++//! A software watchdog implemented with an hrtimer: when the timer expires
++//! before the next keepalive ping, the system is restarted.
++//!
++//! C version of this driver:
++//! [`drivers/watchdog/softdog.c`](srctree/drivers/watchdog/softdog.c)
++
++use kernel::{
++    impl_has_hr_timer, new_mutex,
++    prelude::*,
++    reboot,
++    sync::{Arc, ArcBorrow, Mutex},
++    time::{
++        hrtimer::{
++            ArcHrTimerHandle, HrTimer, HrTimerCallback, HrTimerCallbackContext, HrTimerPointer,
++            HrTimerRestart, RelativeMode,
++        },
++        Delta, Monotonic,
++    },
++    watchdog::{self, flags},
++};
++
++const DEFAULT_MARGIN: u32 = 60;
++const MAX_MARGIN: u32 = 65535;
++
++module! {
++    type: SoftdogModule,
++    name: "softdog_rs",
++    authors: ["Artem Lytkin"],
++    description: "Rust Software Watchdog Device Driver",
++    license: "GPL",
++}
++
++/// The countdown state: the hrtimer and the handle of its last arming.
++///
++/// Watchdog callbacks may run concurrently (for example the reboot notifier
++/// `stop` against an in-flight ioctl), so the handle is protected by a
++/// mutex.
++#[pin_data]
++struct Softdog {
++    #[pin]
++    timer: HrTimer<Self>,
++    #[pin]
++    handle: Mutex<Option<ArcHrTimerHandle<Softdog>>>,
++}
++
++impl Softdog {
++    fn new() -> impl PinInit<Self> {
++        pin_init!(Self {
++            timer <- HrTimer::new(),
++            handle <- new_mutex!(None),
++        })
++    }
++
++    /// (Re)arms the countdown to fire in `timeout` seconds.
++    fn arm(this: &Arc<Self>, timeout: u32) {
++        let mut guard = this.handle.lock();
++        // Drop the previous handle first: dropping a handle cancels the
++        // timer, so this must not happen after the new arming.
++        *guard = None;
++        *guard = Some(this.clone().start(Delta::from_secs(i64::from(timeout))));
++    }
++
++    /// Cancels the countdown.
++    fn disarm(this: &Arc<Self>) {
++        // Dropping the handle cancels the timer and also breaks the
++        // reference cycle `Softdog -> handle -> Arc<Softdog>`.
++        *this.handle.lock() = None;
++    }
++}
++
++impl_has_hr_timer! {
++    impl HasHrTimer<Self> for Softdog {
++        mode: RelativeMode<Monotonic>, field: self.timer
++    }
++}
++
++impl HrTimerCallback for Softdog {
++    type Pointer<'a> = Arc<Self>;
++
++    fn run(_this: ArcBorrow<'_, Self>, _ctx: HrTimerCallbackContext<'_, Self>) -> HrTimerRestart {
++        pr_crit!("Initiating system reboot\n");
++        reboot::emergency_restart();
++        // Only reached if the machine failed to restart.
++        HrTimerRestart::NoRestart
++    }
++}
++
++struct SoftdogOps;
++
++#[vtable]
++impl watchdog::WatchdogOps for SoftdogOps {
++    type Data = Arc<Softdog>;
++
++    fn start(dev: &watchdog::Device, data: &Arc<Softdog>) -> Result {
++        Softdog::arm(data, dev.timeout());
++        Ok(())
++    }
++
++    fn ping(dev: &watchdog::Device, data: &Arc<Softdog>) -> Result {
++        Softdog::arm(data, dev.timeout());
++        Ok(())
++    }
++
++    fn stop(_dev: &watchdog::Device, data: &Arc<Softdog>) -> Result {
++        Softdog::disarm(data);
++        Ok(())
++    }
++}
++
++static SOFTDOG_INFO: watchdog::Info = watchdog::Info::new(
++    flags::SETTIMEOUT | flags::KEEPALIVEPING | flags::MAGICCLOSE,
++    "Rust Software Watchdog",
++);
++
++struct SoftdogModule {
++    _reg: watchdog::Registration<SoftdogOps>,
++}
++
++impl kernel::Module for SoftdogModule {
++    fn init(module: &'static ThisModule) -> Result<Self> {
++        let data = Arc::pin_init(Softdog::new(), GFP_KERNEL)?;
++
++        let options = watchdog::Options {
++            timeout: DEFAULT_MARGIN,
++            min_timeout: 1,
++            max_timeout: MAX_MARGIN,
++            // Stop the countdown on reboot so that an orderly reboot is not
++            // interrupted by the watchdog firing, like the C softdog does.
++            stop_on_reboot: true,
++            ..Default::default()
++        };
++
++        let reg = watchdog::Registration::register(module, None, &SOFTDOG_INFO, &options, data)?;
++
++        pr_info!("initialized (timeout={}s)\n", DEFAULT_MARGIN);
++
++        Ok(SoftdogModule { _reg: reg })
++    }
++}
+-- 
+2.43.0
 
