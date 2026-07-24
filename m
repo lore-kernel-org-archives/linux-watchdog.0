@@ -1,115 +1,264 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1743D40DB59
-	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jul 2026 09:15:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA4523947B0;
+	Fri, 24 Jul 2026 09:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784884515; cv=none; b=RrDeyDNWlyy422qKjeS6kNlqhnouHmaDTkup/yG5UkGFy1mmga7PLEquj7irFjh5BlqtZqWTetq4yuoY/0RCvvfSRB+NG2xpy8nJHXarZicqecokdgRxlUn493/BJtzmpPZm7BTCAYt0ZkICGnsc6jSouGJ1BdXZZvszibygY00=
+	t=1784885103; cv=none; b=psw919pEbzIrIiiUHS9a8TLduVEeEj86nxKNO4TktMUkKTWanonQunn2bE1wZ8r+98dgFy4Xq6H8M2JsDGWGBUwyo39dHyLjSusHXX6fXIYVJDtCaZ33LCsPjcFaxN4YvVZF2G4vGsvdgYreiKEHx7kGT+rlD1h07jUOZ8rUt3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784884515; c=relaxed/simple;
-	bh=yKkOBIWDLVzZbrFG3yiQLyXNfyi/iupP2ISmcl3yvxs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UIdNWWb3QgRJNuUfNiz3CEqUnLw6XtW7V8dW0B5GLqRcKyP4GEPLaBVCZkCqLpFdcoSZ+Qo86lptrday36N+tBLFIqJtskDA0rA6/oYmi7tIQ7O5ftxOvjZVqJZ5hGC3FKeqhH7wOnySE7sOXFFbjnvGlHhmtVuZDkislOXLO2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jAv6dcXe; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784885103; c=relaxed/simple;
+	bh=7Bm0t80SamFHwUXpsalPMzu3HqDLTpOZr3zj4axc7BM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Oe5yJVBeymRBmB7lkKzbaER8SsCRlhpyp13hNUyK2QeA7s3Fan0EAKT0sEx2fv4hhjz2yqA+Zh+lIClYZDYiX1vx3JmqHVhGp76ofj/MUHSAhT/VckCSbQWf6t5DeSrbKd4nS6h6+zw0DFbgHhhYAJZv4gzEb31iI1SczsTu/1Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KHxzAgUz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jAv6dcXe"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84a652535dcso84185b3a.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 24 Jul 2026 02:15:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784884513; x=1785489313; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=aUz1mWBpB/XSD0ZgFsInGJUX8h9hfweN14oEZfYpX44=;
-        b=jAv6dcXePrxt8FCLYrkVcjLb/PgvrIFQInCmW6JXs2MylATchqRHhOoIhkkHl4Aqwt
-         9n/8MxA7sMX5fA4H9CXTWz2ehszK4rcuqM7r4tXyKn18ajibHKMVPdtd3ykzGX+yB3MK
-         P0yPNp0HfL7tEpWFbNPOvgpYwRtyfduPdjJrAHjXmWwDw5p8bRg912pTZVfAjOUf4eUJ
-         Q5fxUdhSwGuiwDep28rrhiHNBItk6y3w0bAOMYvrPnSLXcI9PCevKEdQO2nBCR4KHPkC
-         UP3haOwM+O4iemClMxyMzWY81uAJR1vWJ3cDExBIXkC+Gz2uoSXWzwsrJ4+T8xPgsNgX
-         nvgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784884513; x=1785489313;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=aUz1mWBpB/XSD0ZgFsInGJUX8h9hfweN14oEZfYpX44=;
-        b=Xj4YoKt8RfHldQyRLmh23BBnFKxCrj2SMMBU+WgJSQiMYJTnxg3d1BQiM6Be0kRLOE
-         OMcQbtdQhETtMl/laqX7VWlvKc477CsLy2mkrzTgZVLQA3nVWtAotCDSPQ6SnxZbufs3
-         HVq4mm/tfXAcfBjQyqynxoPGEcJT7ZLwe7xbZxMfsxlJhsNQr7naGKhK47I7qZL+Xr3S
-         qXhz+W/TNFoOzlfXAiUTpe+zhzblXcoM2U0iu3NH65SUtOi4sFwFwjqX7Ru30ThodHzF
-         bcG24Lb5Z9fbA2foBbVM+XVG5GnuGQLCwKRSU5+jICadS5rIXjkPfjishK/NyLEz4mh+
-         g/3Q==
-X-Forwarded-Encrypted: i=1; AHgh+RqRbQLkIC9GsTubHMfXz+iGPQkplOLg9xa/ZnAxNFvc+B3+hQzUwBueF9HcjlOnDTLoZq2ZBEnXoSo1zgjeZQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3+fIL4CZLbJFrKKfnspasJVS+x5XCnlr8IJt0kWTBcoLqMfoH
-	ZO5W1n5JQ/s+WhR3lCX6v6vBVD5+CB0YdR6s5qNx7RC4v13XH2BXjsxj
-X-Gm-Gg: AR+sD13847KquCl8gO042vMFcQ6JExJ3vPvk0P8HAPKTIMdks5j8n4P2GfQdsj8VD5J
-	BI2pvcad/I1P6JClgsAWuzUjJs+RNk+U0epiXbgdMZnE/OWWxTHH0d6/9xkBXWuR0cEMQ8DBuZT
-	O+64K5d2yblNUMRgiKwDEuE5jxXQyLnJLDdQ1B5OcUWieSFJaqUuZdt05D7ynNB1wVn1yjJUrPC
-	RMTTkxiOOWFCIgc7HlHrcD2qiNrCPkXnpu06nAQ6YP1BxLtOwy9nLP1yzaERn2ujyidrtoOko7S
-	u23n9BVwm1zANouLsz74aY/iIsMG0DAWJHHKSdnGorU6xYLctqayPuWv/p2uchmmMsIagLf+5CL
-	oGlabfgh56CAediPvH4N+9V5psqqz8GZUz23LI63h8dkpNhGqmD9cBkOZT/asZuL0uomVGbqt3G
-	peQKURoULLmuqyKauqMWzelvyAWtRYZ4eeUaKKnyhG2JrrIPRgT0TNQ7zJN1s6
-X-Received: by 2002:a05:6a00:180b:b0:847:973b:3d04 with SMTP id d2e1a72fcca58-84e2b7e7296mr7121012b3a.10.1784884513359;
-        Fri, 24 Jul 2026 02:15:13 -0700 (PDT)
-Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e17237c3fsm4410519b3a.9.2026.07.24.02.15.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2026 02:15:13 -0700 (PDT)
-From: Zi-Yu Chen <zychennvt@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Cc: Jacky Huang <ychuang3@nuvoton.com>,
-	Shan-Chun Hung <schung@nuvoton.com>,
-	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Zi-Yu Chen <zychennvt@gmail.com>
-Subject: [PATCH v2 3/3] arm64: dts: nuvoton: Add WDT node for MA35D1 SoC
-Date: Fri, 24 Jul 2026 17:14:27 +0800
-Message-Id: <20260724091427.1689980-4-zychennvt@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260724091427.1689980-1-zychennvt@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KHxzAgUz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE24D1F00A3A;
+	Fri, 24 Jul 2026 09:24:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784885095;
+	bh=InMJgdsWFASkYwB7YOaTdM2Vtu/qM05ZPawLxWMFsKo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KHxzAgUzOhaeqbBd7HbMi/Q4DItnFnZc8QVnktSZtopj69K5okNaZw+ueaQdzCEMM
+	 JrBzqk4sX3f1FC8MavKGOdU5XyH88uBm32h6Slf4QmKpFXwVAxJJTKPK4RPaXNcNwx
+	 4Rsd3LZ6Ycjd3CHYX/aKcEUwm/0DKwwiYKFvBCxAqwR7CgN/LE5l21oHIj7wSzvOv2
+	 GZxkGrBC6zKcx25YEe+9JUZEscSeuv/VHwinWLCWJlHaB9HycvMUaLvRsmzTpxUgAl
+	 3I1hIsvV8dGAG+0GkbiSCmdM2Aw0jpLn07QyB37NH3pacWJ5JhjpgX9YdXzXMpj4wV
+	 LwmBPLZuQGGbg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/3] watchdog: Add Nuvoton MA35D1 watchdog driver
+ support
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zi-Yu Chen" <zychennvt@gmail.com>
+Cc: conor+dt@kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260724091427.1689980-3-zychennvt@gmail.com>
 References: <20260724091427.1689980-1-zychennvt@gmail.com>
+ <20260724091427.1689980-3-zychennvt@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 24 Jul 2026 09:24:54 +0000
+Message-Id: <20260724092454.EE24D1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add Watchdog Timer (WDT) device node to ma35d1.dtsi.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
+- [High] Writes to REG_WDT_CTL are missing required hardware synchronizatio=
+n waits (SYNC bit), risking dropped writes and hardware state corruption.
+- [High] The watchdog timer is not paused during system suspend if it was r=
+unning from the bootloader but not yet opened by userspace, leading to unin=
+tended system resets.
+- [High] Driver fails to synchronize the hardware timeout with the software=
+ configuration when inheriting a running watchdog during probe.
+- [High] Read-modify-write operations on REG_WDT_CTL inadvertently clear W1=
+C (Write-1-to-Clear) status flags, leading to lost interrupts and wakeup ev=
+ents.
+- [Medium] In ma35d1_wdt_resume(), the driver writes to REG_WDT_RSTCNT befo=
+re ensuring the control register changes have synchronized.
+- [Low] Spelling mistake in Kconfig help text.
+--
 
-Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
----
- arch/arm64/boot/dts/nuvoton/ma35d1.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+--- Patch [2]: [PATCH v2 2/3] watchdog: Add Nuvoton MA35D1 watchdog driver =
+support ---
+commit 31ed5d4971c74d4f75935b7f98c40e226cdc3521
+Author: Zi-Yu Chen <zychennvt@gmail.com>
 
-diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-index 7228ad4735b5..14fd17cfdc5a 100644
---- a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-+++ b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-@@ -82,6 +82,13 @@ soc {
- 		#size-cells = <2>;
- 		ranges;
- 
-+		wdt1: watchdog@40440000 {
-+			compatible = "nuvoton,ma35d1-wdt";
-+			reg = <0x0 0x40440000 0x0 0x100>;
-+			interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk WDT1_GATE>;
-+		};
-+
- 		sys: system-management@40460000 {
- 			compatible = "nuvoton,ma35d1-reset", "syscon";
- 			reg = <0x0 0x40460000 0x0 0x200>;
--- 
-2.34.1
+watchdog: Add Nuvoton MA35D1 watchdog driver support
+   =20
+This commit adds a new watchdog driver for the Nuvoton MA35D1 SoC. It provi=
+des
+support for timeout configuration, ping, and system reset functionality via
+the standard watchdog framework.
 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 08cb8612d41fe..972740fd36a69 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -720,6 +720,16 @@ config STMP3XXX_RTC_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called stmp3xxx_rtc_wdt.
+> =20
+> +config MA35D1_WDT
+> +	tristate "Nuvoton MA35D1 Watchdog Timer"
+> +	depends on ARCH_MA35 || COMPILE_TEST
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support for the watchdog timer
+> +	  for the Nuvoton MA35D1 series microprosser.
+
+[Severity: Low]
+Is "microprosser" a typo here? Did you mean "microprocessor"?
+
+> diff --git a/drivers/watchdog/ma35d1_wdt.c b/drivers/watchdog/ma35d1_wdt.c
+> new file mode 100644
+> index 0000000000000..e5247e55dfee4
+> --- /dev/null
+> +++ b/drivers/watchdog/ma35d1_wdt.c
+
+[ ... ]
+
+> +static int ma35d1_wdt_stop(struct watchdog_device *wdt_dev)
+> +{
+> +	struct ma35d1_wdt_dev *ma35d1_wdt =3D watchdog_get_drvdata(wdt_dev);
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	guard(spinlock_irqsave)(&ma35d1_wdt->lock);
+> +	val =3D readl_relaxed(ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +	val &=3D ~WDTEN;
+> +	writel_relaxed(val, ma35d1_wdt->wdt_base + REG_WDT_CTL);
+
+[Severity: High]
+Will this read-modify-write inadvertently clear Write-1-to-Clear (W1C) flags
+like IF, WKF, or RSTF?=20
+
+Looking at ma35d1_wdt_isr(), it appears that reading a 1 and writing it back
+clears the flag. Should these W1C flags be explicitly masked out when doing
+read-modify-write operations on REG_WDT_CTL here, and similarly in other
+functions like ma35d1_wdt_set_timeout(), ma35d1_wdt_start(), and
+ma35d1_wdt_suspend()?
+
+[ ... ]
+
+> +static int ma35d1_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +				  unsigned int timeout)
+> +{
+> +	struct ma35d1_wdt_dev *ma35d1_wdt =3D watchdog_get_drvdata(wdt_dev);
+> +	unsigned long target_ticks;
+> +	unsigned int val, i;
+
+[ ... ]
+
+> +	guard(spinlock_irqsave)(&ma35d1_wdt->lock);
+> +	val =3D readl_relaxed(ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +	val &=3D ~TOUTSEL;
+> +	val |=3D FIELD_PREP(TOUTSEL, i);
+> +	writel_relaxed(val, ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +
+> +	ma35d1_wdt_ping(wdt_dev);
+> +	return 0;
+> +}
+
+[Severity: High]
+Does this writel_relaxed() require a call to ma35d1_wdt_wait_sync() before
+proceeding?=20
+
+Without waiting for the SYNC bit, could the immediate ping command be ignor=
+ed
+by the hardware or cause hardware state corruption?
+
+> +static int ma35d1_wdt_start(struct watchdog_device *wdt_dev)
+> +{
+> +	struct ma35d1_wdt_dev *ma35d1_wdt =3D watchdog_get_drvdata(wdt_dev);
+> +	void __iomem *wdt_base =3D ma35d1_wdt->wdt_base;
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	ret =3D ma35d1_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	guard(spinlock_irqsave)(&ma35d1_wdt->lock);
+> +	val =3D readl_relaxed(wdt_base + REG_WDT_CTL);
+> +	val |=3D (WDTEN | RSTEN);
+> +
+> +	writel_relaxed(val, wdt_base + REG_WDT_CTL);
+
+[Severity: High]
+Because ma35d1_wdt_set_timeout() writes to REG_WDT_CTL without waiting for
+sync, and then ma35d1_wdt_start() immediately performs another read-modify-=
+write
+on the same register, could this back-to-back unsynchronized access cause
+dropped writes and prevent the watchdog from starting properly?
+
+[ ... ]
+
+> +static int ma35d1_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev =3D &pdev->dev;
+> +	struct ma35d1_wdt_dev *ma35d1_wdt;
+
+[ ... ]
+
+> +	val =3D readl_relaxed(ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +	if (val & RSTF) {
+> +		ma35d1_wdt->wdt_dev.bootstatus =3D WDIOF_CARDRESET;
+> +		writel_relaxed(val, ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +	}
+
+[Severity: High]
+Should there be a wait for hardware synchronization after this write clears
+the RSTF bit?
+
+> +
+> +	if (val & WDTEN)
+> +		set_bit(WDOG_HW_RUNNING, &ma35d1_wdt->wdt_dev.status);
+
+[Severity: High]
+If the bootloader left the watchdog running with a very short timeout, could
+the system reset before the core's ping worker can keep it alive?
+
+Should this also call ma35d1_wdt_set_timeout() to ensure the hardware's
+timeout matches the software configuration when taking over a running watch=
+dog?
+
+[ ... ]
+
+> +static int ma35d1_wdt_suspend(struct device *dev)
+> +{
+> +	struct ma35d1_wdt_dev *ma35d1_wdt =3D dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(&ma35d1_wdt->wdt_dev)) {
+
+[Severity: High]
+Does this need to check watchdog_hw_running() as well?
+
+If the bootloader started the watchdog (WDOG_HW_RUNNING is set) but userspa=
+ce
+hasn't opened the device yet (WDOG_ACTIVE is false), this check will skip
+pausing the hardware. Could the timer then expire and unexpectedly reset the
+system during sleep?
+
+[ ... ]
+
+> +static int ma35d1_wdt_resume(struct device *dev)
+> +{
+> +	struct ma35d1_wdt_dev *ma35d1_wdt =3D dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(&ma35d1_wdt->wdt_dev)) {
+
+[Severity: High]
+Similar to suspend, should this also check watchdog_hw_running() to ensure
+a hardware-running watchdog is properly resumed?
+
+> +		u32 val;
+> +		int ret;
+> +
+> +		guard(spinlock_irqsave)(&ma35d1_wdt->lock);
+> +		val =3D readl_relaxed(ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +
+> +		if (device_may_wakeup(dev)) {
+> +			val |=3D RSTEN;
+> +			val &=3D ~(INTEN | WKEN);
+> +		} else {
+> +			val |=3D (WDTEN | RSTEN);
+> +		}
+> +		writel_relaxed(val, ma35d1_wdt->wdt_base + REG_WDT_CTL);
+> +		writel_relaxed(RESET_COUNTER,
+> +			       ma35d1_wdt->wdt_base + REG_WDT_RSTCNT);
+> +		ret =3D ma35d1_wdt_wait_sync(ma35d1_wdt);
+
+[Severity: Medium]
+Is it safe to issue the ping command (writing to REG_WDT_RSTCNT) before
+waiting for the control register changes to synchronize?
+
+In ma35d1_wdt_start(), the ping happens after ma35d1_wdt_wait_sync(). Could
+doing it before sync here cause the ping to be ignored by the hardware?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260724091427.1689=
+980-1-zychennvt@gmail.com?part=3D2
