@@ -1,100 +1,107 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F9F337107
-	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 23:01:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1D2E351C2D
+	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jul 2026 02:54:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784847668; cv=none; b=bGsomWUj/FxHBYXnUOkKlmcixOS25yxgVHnlY8LjBAiG0n8sGbk5XIUJKi9NmjoeWxEIj2iVjZjtOuOzooPOxxpggqcaRQyQMgJVBPvoc/UNM8u01xrnrsaREVkJGaHpYqlSV46/9QoDnCCU0tuo3QMA8a1CEMr5R6q3Phx9zX0=
+	t=1784861649; cv=none; b=iLzsX0mYnyNStlCiNtTvItH+MAbLHsyuwhgT1MB7SXFt6ez6MctyQyXEZCVA0p1UbsVVYJdMYtdbF6vRwLjEmBsXYtzzDqSEslqHACTalPckiZ2uRvNfm1vYkTKLw9rTOL8gyKiJLXqreiqKDMv4kr40hHbaLC8WbMUTHCQMT8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784847668; c=relaxed/simple;
-	bh=tlBke9Zy/uEyVeFWT0u7I8al9pXAl3RJEyIr2Crpk00=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VlJXeKMYzaVsa29aZcMboMPlIXWc+QZwRpdAzr9tmc8FIuCOX0FEJ9/JL5Tf/TcC+E+PBzFmaEX6fx2qc4pcnHcLe50eAeCcLMBc5GakUrrXCSHhKPyltLs2ikYu46/cEEPRgRdGxQNcrGgPshrvaC056rZs1SZEiF9vIBVOEZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WdmT37Hf; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1784861649; c=relaxed/simple;
+	bh=3YNhJa3B7BJ+5/hGFL9dz3h9OwH3cAo/rRkf4mBqYck=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JGkPycoN1aLlv4CBM368DPWjYWTBPidP2DTQPxHWM8nAVRCSEaSb6YjDUpQTZjqplZ2HpzWi35V7sesAi1HGa2/amEKLaaGDFy4OVs523k79kRUT6vB1aRmpI75pMG7TQe3iecrCrMx75ZNZca+z8SgV+gJKb2Ep7NJ3hWwytUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oYLBfK4X; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WdmT37Hf"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cbb973e6749so1433959a12.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 16:01:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oYLBfK4X"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-848761b5897so845189b3a.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2026 19:54:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784847666; x=1785452466; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=BT0tASgzzLFfHsQzTBG0WttYe9VxvxNAcJeWo1DWkME=;
-        b=WdmT37HfVTDqw2hbcjawBt+Cq8m+FzZltIxWOeRed7i+LhX7qxTKS8+QdeHKxvnmaF
-         fmoNFMCR6ca7z701GfLOX4RNaGaOA6TZX3u3WQCA8xXu4YO2T1S9lW/hxmzfiqxahGsF
-         Qs8LtE0FVrqo+2i1f5+bogvBWjEhzRK8T2VtqeH/HjcMJrf9DZj6Rn3gxScOfD1gk5NA
-         XJgOFiM/V7g8ltlKiEmK3m59QJNc/hwnbELYWvi7/9NwECErPfBU7hwIqa2FX4X4LIpJ
-         ixqe+R6oVA87EI/kU6kclt25YfaSFrNL7DYX5fFBWfhRabEFlVF+K/23IBw4VfzHs+9D
-         gi6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784847666; x=1785452466;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1784861646; x=1785466446; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=BT0tASgzzLFfHsQzTBG0WttYe9VxvxNAcJeWo1DWkME=;
-        b=EJIY0d/lpnox/Cib7WGyZLqCF+akxCx77+aBq57VdrOJ8lu1wqh1AAzOg/Ww2zeRpv
-         MJeCzz3CZlls9PGcvzVxCxShXFd07UfH0z7o3geCQ9FnjQLStcL+bMR4pbWidvolKrUC
-         gYQfLv2/vLa5iLFeC0L7iwPv460NnL9CMP9KIIHI1RKKYWI4uh1JKfj8GXrMis9zcwRz
-         lj9EBuAcpSlUX5EXaxjkJZbzNWCkofZ0wBrWRr0vtF6nyKiTf85fMgTE0rNEuaCYqW4T
-         DT0QijFnSBM5wSz2Ji/TAJWyH/WVEkkfjEmEMEvSmLPQ6Kk3cPbdEfzAknxxw2KwCIbW
-         iSXw==
-X-Forwarded-Encrypted: i=1; AHgh+RqygeV0fdFaJz25tYAPDT8KGhnrFajk0Mws3rDTo2fKB9QG1YCbzMkFDX2t3bbOkDCrzJlxGos5lbWHARWNRA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YycSEKxtU2IjLVWMLNpQHYrJyJabmAn5g6KR2vpslO110Cvghqe
-	QVRmcP9DZ5duz/EbusiixQAvC3Z7gLrLhgd9rIv4upPR8CALsYSzPrAY3pAd2g==
-X-Gm-Gg: AR+sD10Oa/WJ1/lHworzdZuo7R3nQhx2sfd5txQmc2Lwe4T4thkkCy0gJV5LJaWK5Wq
-	HqxgJPt33/6IoLKO2HoawheCiF9USNCxkbh3XuwDrTFvcOLR28orL3+PARtU1hJTTdXuvWTQLeN
-	2JaaAUS2gZjGS+QiFbFuNZ5lwWBK54WW1+y4FxKfUiFgm5qII7tRnZJQQdOWmI53JxxCjoeQV3J
-	ajXgQKZIR3sQj6oHWUyb9RGYyPpNsVXMYuFelJlXqYg5l3682xq1OS+FXWLo/4PnUn5PTK+Dons
-	IsdsrUipA2kVxUE1eLu1LB+Ff/W0aRoVTP5nKkNPe6UvV5TGmW4LgEBLZRIoMvsIyntW5Il8qhB
-	MSjAO1RXMK5aJinFrbrn+59hus8EnFmvjBH/QB9Za57Qs74qvjMEu0jDKIDfEZTNyHly8/fn94l
-	FBW5Rb4S4+r+mvDLI=
-X-Received: by 2002:a05:6a21:6197:b0:3bf:6c08:2844 with SMTP id adf61e73a8af0-3c44b1ea25dmr5324085637.51.1784847665999;
-        Thu, 23 Jul 2026 16:01:05 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d1302659fsm20045490c88.8.2026.07.23.16.01.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 16:01:04 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Thu, 23 Jul 2026 16:01:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: kr494167@gmail.com
-Cc: wim@linux-watchdog.org, cl634@andestech.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: atcwdt200: fix return value when watchdog
- is enabled
-Message-ID: <ef58b0e0-e397-4cc3-bac8-bb2e2f5253db@roeck-us.net>
-References: <20260723022634.8642-1-kr494167@gmail.com>
+        bh=lPCe44TL9Lu4Q6XqOnCQ1df/GtP84+ufX9r8RseyaR4=;
+        b=oYLBfK4XIgQhxAUYYOk/xS2wM5lD+EDj99dAz2vsWUcPuABexuBt6yR/e6BhHb3/wF
+         4unqI0tGjwrmninMsbWdh+KDoDZp2y8NYy5e83OjNYeYnzjqycGxyoN3I/qmyK09382P
+         fnk2aUD0s6VCVrt111JnQSdS8zyosCQ+/qOHeUJp1PFKDiQG0f/zlBHQhgoct2WjU3py
+         SGibogHymnziE62mnm/yPSvCnDkpx7gylE+0w8DqlmCq77rs4G0uc5sA/0JFjT8QJuwa
+         LTUZxe8ffDcvLcJXGz+qiKDYgqnOwM31TrXuqXeI+qTzV6QCOGeyIGTirD8BhReL2uo6
+         TtsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784861646; x=1785466446;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lPCe44TL9Lu4Q6XqOnCQ1df/GtP84+ufX9r8RseyaR4=;
+        b=ARrs3IKyuDYCHKUqTR9vranUCHNX8TtC2RNulHPFOfo4Ua29MG74oURqbDBpO1xwdc
+         3khCdxmX2Kx/MqxpBH0pCbXw7ct/df0XiQjvOkcNF56gWYbdYE1GVeiclhdvSINlWwOH
+         zFwVmCvcQ++jEUVYGf6RHAF3A0uphWrA3e/nM732HKMU6WZaoGG28YSIi2CjH3eE0jhj
+         ah8jd3j87/p+gl1X7umpjt/dzVasjPvPABvXnPrMOR8lDfL40a/WI+ni2xWe7c0fYfGq
+         oDiMUOa2YwTuEkbk6n7yd6imEUCoVbUDcovJ4KGkmefdgjpg50zfEiVXU+DKYWdlHVSW
+         acCQ==
+X-Gm-Message-State: AOJu0YzG70LSnHKxFMIXKJhKnGl8eltdqQHLcbnp3n33a4e7F79DJyNY
+	5SYAU8laUzs2CZ69P+QJfuJL7b4zbLehg/z1GMVB1jHemBTKMG9NR/MyO0rg7w==
+X-Gm-Gg: AR+sD125EkSj6MBBOLMIL9nAo7U82j9i8yEYVWm4i+usFr2frmoPQWZJiNkf6eBKgHs
+	UP/DHZivurQtLbbOS/A8cq0i5PKSKLEeHaBInbcY3NecNBYV5YfeT0lEfvH2DBWLXEjl7/NHinb
+	CC38WJPULt91KfIKa1VYjDP4+ka9qEbxRTF6H4tz+TNeB0EPApRz9Xn8d1xf+ZB8hnyB/OvHePI
+	TyaqBDSLwtyIf+MISEsqmcXIPnIFFzabXyYvZWZKRmqizCXgq2Rz+uD6bjDOQQZUnSMUZKM60Cr
+	meONRp6UiRwfhjoqX/F1w1ppPjfh2qTmN1NvHkU5nL5UMn4kpgRkw+KyLA5JYiszB/FdaHyGrPH
+	5wQzPhuZyvDH3361+ik/BLobv815bJqb8JnDZG9V+hd4gywCS2Xg7FPq4HERRsqrFndNwUtQV0e
+	kJkgfxEj8eH4pd121P0u7lkzsmOmGlz0rw1dXBQDUwAm70FLwqtw==
+X-Received: by 2002:a05:6a00:230a:b0:845:4928:8655 with SMTP id d2e1a72fcca58-84e2bb3733cmr6297375b3a.39.1784861645606;
+        Thu, 23 Jul 2026 19:54:05 -0700 (PDT)
+Received: from [172.19.1.48] (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e1757852dsm3919741b3a.28.2026.07.23.19.54.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jul 2026 19:54:05 -0700 (PDT)
+Message-ID: <1c930200-11b1-451d-a7a7-170b42aa30fa@gmail.com>
+Date: Fri, 24 Jul 2026 10:54:01 +0800
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260723022634.8642-1-kr494167@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] watchdog: Add Nuvoton MA35D1 watchdog driver support
+To: Guenter Roeck <linux@roeck-us.net>, sashiko-reviews@lists.linux.dev
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ conor+dt@kernel.org, robh@kernel.org
+References: <20260723060755.1596858-1-zychennvt@gmail.com>
+ <20260723060755.1596858-3-zychennvt@gmail.com>
+ <20260723062030.B20F41F000E9@smtp.kernel.org>
+ <a04cc256-4c60-4e92-b196-47aeed1d5453@roeck-us.net>
+Content-Language: en-US
+From: zychen <zychennvt@gmail.com>
+In-Reply-To: <a04cc256-4c60-4e92-b196-47aeed1d5453@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 23, 2026 at 07:56:34AM +0530, kr494167@gmail.com wrote:
-> From: Surendra Singh Chouhan <kr494167@gmail.com>
-> 
-> atcwdt_get_int_timer_type() returned TMR_UNKNOWN (enum value 3) when
-> CTRL_WDT_EN was set in the control register.
-> 
-> Because atcwdt_probe() checks "ret = atcwdt_get_int_timer_type(drv_data);
-> if (ret) return ret;", returning TMR_UNKNOWN caused probe() to return 3
-> instead of a valid negative error code.
-> 
-> Fix this by returning -EBUSY via dev_err_probe() when the watchdog is
-> already enabled and update the kernel-doc description accordingly.
-> 
-> Fixes: e4e0848ad046 ("watchdog: atcwdt200: Add driver for Andes ATCWDT200")
-> Signed-off-by: Surendra Singh Chouhan <kr494167@gmail.com>
+Hi Guenter,
 
-Applied. Next time please provide a change log.
-
-Guenter
+Guenter Roeck 於 2026/7/23 下午 10:07 寫道:
+> On 7/22/26 23:20, sashiko-bot@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found 9 potential issue(s) to consider:
+>> - [High] The `ma35d1_wdt->dev` pointer is never initialized, leading to NULL pointer dereferences in logging functions.
+Fix in v2. Switched to using wdt_dev->parent and direct device pointers for logging functions.Remove redundant ma35d1_wdt->dev>> - [High] Read-modify-write operations on REG_WDT_CTL inadvertently clear W1C (write-one-to-clear) status flags.
+Not real.The W1C flags (IF/WKF) are only utilized by PM callbacks during the suspend/resume window for wake-up event handling. During runtime, clearing these flags via RMW in set_timeout causes no functional side-effects. Furthermore, RSTF is already consumed and cleared during probe().>> - [High] Missing clock domain synchronization (`ma35d1_wdt_wait_sync`) after writes to `REG_WDT_CTL` can lead to dropped register writes.
+Fix in v2.Add ma35d1_wdt_wait_sync() after writing WDTEN to REG_WDT_CTL in ma35d1_wdt_start().>> - [High] Driver overwrites `wdt_dev->timeout`, breaking the software heartbeat extension.
+Fix in v2>> - [High] Missing cleanup for wake IRQ allocated by dev_pm_set_wake_irq(), leading to a memory leak and permanent device unbind/bind failures.
+Fix in v2.switch to devm_pm_set_wake_irq() in v2.>> - [High] The driver fails to check if the watchdog was already enabled by the bootloader, causing unexpected system reboots during boot.
+Fix in v2.Added a check to set WDOG_HW_RUNNING when necessary.>> - [Medium] Unsigned integer comparison against zero renders IRQ error handling dead code.
+Fix in v2.Change the IRQ variable type to int in v2 to properly handle negative error codes.>> - [Medium] Integer overflow in `target_ticks` calculation triggers unexpected system resets for large timeouts.
+Fix in v2.Add a check to skip calculation for large timeouts.>> - [Low] Unnecessary dependency: selects `MFD_SYSCON` without using it.
+Fix in v2.remove select MFD_SYSCON.
+> 
+> Please fix or explain why the issues reported by Sashiko are not real.
+> 
+> Thanks,
+> Guenter
+> 
+Regards,
+Zi-Yu Chen
