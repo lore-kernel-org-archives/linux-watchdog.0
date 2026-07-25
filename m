@@ -1,67 +1,67 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA27325726
-	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 14:44:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 042FEB672
+	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 14:48:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784990691; cv=none; b=C0416qoVdaovjqznuHiLylUHCaAx32UsiMyZlpWS95VLkDavrBUGZebSCF2fZdXcALOuu2108AxCZpG+8XECk24HKhanUbEQY46iC04D09VOWS9ZOYMixuUkm4LGj0v4x00oTTTwRvZ7TacTaIqskgKA/lg/GqSvEiJLYBghVm8=
+	t=1784990942; cv=none; b=XvqT43+sB1flBsYmnmFiOuyjqOBT9Wflo2XzlhUnS6n4JSDOvxuBFLc3HKOXfFbgz15A7sD3vwvWRJBmkpJEfIHOKxotHZGOVcpFwXnhqAoZ4WobaY9oyfmrHUSmMLdz4Fb3p0KEQ261liZQe1MSsH0Y1oWtp/doFpqwS2bsOsk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784990691; c=relaxed/simple;
-	bh=Ec0ceqcpnhBqkDk1lYqP31lBY3EY8pQcDWFCmhJwRqw=;
+	s=arc-20240116; t=1784990942; c=relaxed/simple;
+	bh=b7XPemv9qcxYBAhkFFmj1gLO/yvMiTaBfvsBpj8bE4E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cbA7/yIYfz+x+keze3shrWFXVJe7rxAwl30VFZkQKMy2IHcidKTI4Xo7q/qHHUNAMlt1Bq+b0CrdsKVEwWHbyL4dNX458Aey+eA7PStrOgprzcj8BwY14pZ/WVW0hwKeNHpONgtR+CP5YcfpA2kJruJ/NUIP0tOfbUorwF3Jr4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d0Gt4vdj; arc=none smtp.client-ip=209.85.214.173
+	 In-Reply-To:Content-Type; b=d8DtDPyl4EzlwxH3yp0WJ9SgYlYyea6Q6Rs4lY5Yp2fq6p6nwXzeOUGl4mvmGu8LEwCOdOAYgxWVinf19gDO7ryWoy2h4P5tdy8dtj96/hWRZQ0o9kIM72H4mIU4Bka2VrBZIXTYF5K4cKpWW2SuT4wLASUYkUPWAJgRYPqGlGQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AOGa+J2f; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d0Gt4vdj"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cf452def93so19710135ad.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 07:44:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AOGa+J2f"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-38dcbade417so1462806a91.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 07:48:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784990689; x=1785595489; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784990939; x=1785595739; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+lTOAeSD07OImuEb0EMligl2UkzxQJOQxIwbFnoKpyA=;
-        b=d0Gt4vdj1n+Xh/aqg54SmD9vR8gz/CiitWqJSJtgQ9yL4nEl8csp4+FgqQHQM8srNx
-         lix/ctvaGIap5r1rLc4ZrOgnWI/66Kcm2sZbClJH+mPif9pAcCWKZsZKompLru/sivwS
-         ZWc6L7ADpjOjxmTLAZYQ03ifHWAjIwYvtcAZZ/GWfFDp/TbY890SEnSN0uDkFU4ue0r0
-         A9aXJ80we2n0vL/KUJE6RhWPF5vTN3SWN8C80zKl8ArJhaOHgzeAwftgcLoVZGgLrZA4
-         ZGkISohrRkhcVa1CIvrUlH1UxmkR5uHaZQJnOqRwrWix9gZzQszVW4pUcspU1Kdu07mB
-         /0lw==
+        bh=nyhRQ5eTFZhyRu5J+4Xf/fMeAruQvfv1oRfZpxmZg/I=;
+        b=AOGa+J2fPmWWHnXIoP12OpVUtsiSdljOOFntHC2iBzBc3YXK80UEhQKA7V/1iZuvEf
+         bciQQAI75M0haSh0a5NOKv1o4u8zl5rQHmiiry1hPLghg2bMwkfpMJyTzEHi/W4VgAuf
+         4i+gqDIF66DHByK/Bcw4Bpsos1NcOYmLLtDfOExgYP3swZK84eXpMT8Nm2Tr2325T50b
+         L9tyG0ePzX7QhjexY3KHRnW9fIIgMOfFUeKhR02/+mEflmoGUm8UEww90C5MOoSx32S8
+         SbZg/1mXhmn6i+AV7etoaiI3KJRrIstzA1c2xd/m3+mj/3Gt8GVqHa+v6sxjLmOF7j90
+         cQ0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784990689; x=1785595489;
+        d=1e100.net; s=20251104; t=1784990939; x=1785595739;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=+lTOAeSD07OImuEb0EMligl2UkzxQJOQxIwbFnoKpyA=;
-        b=FCM53gN7qvXTmJtPgoBGg2J8+7mC/E5nta1hEcep5H0jwMVU97ta/ZeULAj/FtHeJU
-         GmyFhsQ29BOU15zAHOlPY9B7isw3Q2oRMEYvGX2pGQLOKB/yPobHomhZEQwJVQg9Ulv3
-         DIQPPOquOAc7vmL5nXghvuF+ykTP4aYsBH/7c3ValV0p9F8Vjufgh7n4SAUZIrE5JJt/
-         AYo5U00qyK7X+HtmNYuyB8jJX7WaorGbnbDpryC4MUjka31rP/rYDkKjFCquNvY4YlvE
-         OLb+G4hmh7mA7vpZAT2gXEDoWJqOkUlISgNG/jKqmuQakjMQ4rhnMbHW44W10JUNGK4v
-         uOjg==
-X-Gm-Message-State: AOJu0Yx7Owb3eHdxtLHSk5a3rQG8AH4+8tdqeUivNn1psLpiXuRlEWHI
-	WeEeqMvfPu0aoD6zP3yI+WqMOvGERJcC+cBfXtJ5QEGqkSYOOXGfaf8z
-X-Gm-Gg: AR+sD112uCgI/Z/4ZEen7/IITwvbCbKwj6bDla8jK4UOYjw/Wg8etiaYtGUz4vpbo4H
-	7mvwoppumqn7VThqIXeKBtrHSRj/LX3sbKKODPTuwYKP0HmwtAdQO5G0O8diL8X7Svy8DLD1O8a
-	zJnHGqul+VxfMdAUeDM9VlhXLEarTMx9hFzgTyB6H+U8mcL9eOnSOI6XhULzq1Zi3wCdoWeWjQS
-	MsLaLA87X1gkxrzLdGTEnrDgHYiWx5YWyQKQmnr+HMkxuao60JFt1M5Jx8u6w7Q2w07Udih5PNN
-	FRaZ942lyAo+khNt7XZeD0SVJaV4x7+Jx+KYHo18CwvQF/VbNzS8EFhE12JaL2K1lqwQRQn+sFG
-	pa55xfbX9yxqO4tdrLdDoh82PeOMDzASCAEflpQ28MdO1XMUBMQiHqYdiWWsCJzRu4WKwxv3n1w
-	oe5DDrYwcvFBwGgng387h7+WJA+3utekl3/qkPet39qbZwu9lJQAE=
-X-Received: by 2002:a17:902:f789:b0:2c9:fc0d:165b with SMTP id d9443c01a7336-2cfd7196611mr44904805ad.23.1784990688835;
-        Sat, 25 Jul 2026 07:44:48 -0700 (PDT)
+        bh=nyhRQ5eTFZhyRu5J+4Xf/fMeAruQvfv1oRfZpxmZg/I=;
+        b=chQ/GFAYC4KZ2s3nQd8//goxWVWn7nPnX60kb+lFE4HwYUFIHzxGs3V7bpwxd5HCyW
+         BpGSZan6Lhmtu6aGGf45uOqdnFVcMn10OHgWH2zNREC7WQ5mrPh9+jSdPI+qwX1cZzn5
+         E34m0jK8r+TQSgRLFpJGFp85XDHmWPndj17WW9Ie/4TriKbmlbWttyamhu16ePr6ZfLD
+         9U/Ozx+v6RdvTaaTsUICcShZmbNpbhu6J+63yyfnxf22zAakpfkjRsyAZzjj8BRFepru
+         FCj/qNc7h3Od5gmWDGX8wTFt3vG+fwXO0qxq4RMVPBBPYVAz8m9jgddK9PBJNlLS/Zm/
+         3NgQ==
+X-Gm-Message-State: AOJu0YycbMgihCg8JG7wYd4EFBQt8LNYxgGNQsZE8TU/S6MPRVxjTy6S
+	Rauvlm1yjadp57SXDcvxEg3UrgvcDXNwXRopGtz7XQd9KuWkf3lXSVTMIkZV2w==
+X-Gm-Gg: AR+sD11kRF4+sShnfL9KoYbI3FiXHITjQvYie5ceFVk56Rwk20BSQ2dnD1GbWW5C93U
+	VwUFWehNN7NVFVZG+OMW4EAnWccDkeDvhSiPOj07vr/Cx8gwcoDYr2jlQVMmyJqSyrGBHqmeLZ0
+	nEenTMLe0/j8B0jwI3H0oSseS4c8GEru3Sby3qjLrLWUQ7rWFEEbVwAh6+nkrBCiNcWD7sZ9bMH
+	TQ7HIm9NZEh7fL9RNAh4e2DLyPF2f7q6o4X1DvgPj5tJcswmi5PGIeqGe43mbsKjN5v79IBR51s
+	RBGm8LXJJVCo0xEeEYtFGoftU9VagJMX2baXvso1YBqzh7epozekKFvtW4o76x88SvJrzTaCzAG
+	EV+7qccOKE4IKnbSEEBt1uxYLJkrfNlpM+6fBJwrmlkwD0EvD+DJpA8UlmLvIci99J1If0jKkjP
+	lx1NApwSl+8jgmpWF8Fa/VM0QnWzmVXmocl1KBuvHAwEuIw7JYeGI=
+X-Received: by 2002:a17:90b:1d52:b0:37d:ee77:78ac with SMTP id 98e67ed59e1d1-38f29528e07mr2629314a91.19.1784990939237;
+        Sat, 25 Jul 2026 07:48:59 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc5cb670sm17089717eec.31.2026.07.25.07.44.48
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d2eb01aa0sm20507787c88.3.2026.07.25.07.48.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 25 Jul 2026 07:44:48 -0700 (PDT)
+        Sat, 25 Jul 2026 07:48:58 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <7bc9a093-e6a3-4263-af24-86b96ffc60fa@roeck-us.net>
-Date: Sat, 25 Jul 2026 07:44:47 -0700
+Message-ID: <e063aa8e-abb2-4142-b70c-1c3c1dba6ff1@roeck-us.net>
+Date: Sat, 25 Jul 2026 07:48:57 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,14 +69,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/9] watchdog: w83627hf_wdt: Replace magic numbers with
- descriptive macros
+Subject: Re: [PATCH 2/9] watchdog: w83627hf_wdt: Convert to platform driver
+ model
 To: Paul Louvel <paul.louvel@bootlin.com>,
  Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 References: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
- <20260725-w83627hf_wdt-improvements-v1-1-4e9a1b4e8297@bootlin.com>
+ <20260725-w83627hf_wdt-improvements-v1-2-4e9a1b4e8297@bootlin.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -122,85 +122,209 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-1-4e9a1b4e8297@bootlin.com>
+In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-2-4e9a1b4e8297@bootlin.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 7/25/26 03:29, Paul Louvel wrote:
-> Raw hex values for Super I/O register addresses are difficult to understand
-> without constantly consulting the datasheet. Use named macros instead.
+> Convert the driver to the Linux driver model with a platform driver /
+> device.
 > 
-
-This is not the only change. The patch also introduces the use of BIT().
-
 > Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
 > ---
->   drivers/watchdog/w83627hf_wdt.c | 43 ++++++++++++++++++++++++++---------------
->   1 file changed, 27 insertions(+), 16 deletions(-)
+>   drivers/watchdog/w83627hf_wdt.c | 131 ++++++++++++++++++++++++++--------------
+>   1 file changed, 84 insertions(+), 47 deletions(-)
 > 
 > diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index db77599e43a0..1529a4e16820 100644
+> index 1529a4e16820..993e65ce4447 100644
 > --- a/drivers/watchdog/w83627hf_wdt.c
 > +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -27,6 +27,7 @@
+> @@ -29,6 +29,7 @@
 >   
->   #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->   
-> +#include <linux/bits.h>
+>   #include <linux/bits.h>
 >   #include <linux/module.h>
+> +#include <linux/platform_device.h>
 >   #include <linux/moduleparam.h>
 >   #include <linux/types.h>
-> @@ -71,6 +72,12 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
->    *	Kernel methods.
->    */
+>   #include <linux/watchdog.h>
+> @@ -129,6 +130,8 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+>   #define WDT_CTRL_RISING_EDGE_KBD_RESET	BIT(2)
+>   #define WDT_CTRL_MINUTE_MODE		BIT(3)
 >   
-> +#define SIO_REG_LDSEL		0x07	/* Logical device select */
-> +#define SIO_REG_DEVID		0x20	/* Device ID (1 or 2 bytes) */
-> +#define SIO_REG_ENABLE		0x30	/* Logical device enable */
-> +#define SIO_REG_CONF_ADDR0	0x2E
-> +#define SIO_REG_CONF_ADDR1	0x4E
+> +struct wdt_pdata {};
 > +
->   #define WDT_EFER (wdt_io+0)   /* Extended Function Enable Registers */
->   #define WDT_EFIR (wdt_io+0)   /* Extended Function Index Register
->   							(same as EFER) */
-> @@ -115,9 +122,12 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
->   #define W836X7HF_WDT_CSR	0xf7
->   #define NCT6102D_WDT_CSR	0xf2
->   
-> -#define WDT_CSR_STATUS		0x10
-> -#define WDT_CSR_KBD		0x40
-> -#define WDT_CSR_MOUSE		0x80
-> +#define WDT_CSR_STATUS		BIT(4)
-> +#define WDT_CSR_KBD_INT_RESET	BIT(6)
-> +#define WDT_CSR_MOUSE_INT_RESET	BIT(7)
-> +
-> +#define WDT_CTRL_RISING_EDGE_KBD_RESET	BIT(2)
-> +#define WDT_CTRL_MINUTE_MODE		BIT(3)
->   
 >   static void superio_outb(int reg, int val)
 >   {
-> @@ -144,7 +154,7 @@ static int superio_enter(void)
->   
->   static void superio_select(int ld)
->   {
-> -	superio_outb(0x07, ld);
-> +	superio_outb(SIO_REG_LDSEL, ld);
+>   	outb(reg, WDT_EFER);
+> @@ -464,6 +467,37 @@ static int wdt_find(int addr)
+>   	return ret;
 >   }
 >   
->   static void superio_exit(void)
-> @@ -165,9 +175,9 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->   	superio_select(W83627HF_LD_WDT);
+> +static int wdt_probe(struct platform_device *pdev)
+> +{
+> +	const struct platform_device_id *id = platform_get_device_id(pdev);
+> +	enum chips chip = id->driver_data;
+> +	int ret;
+> +
+> +	pr_info("WDT driver for %s Super I/O chip initialising\n", id->name);
+> +
+
+Please drop as noise.
+
+> +	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
+> +		 id->name);
+> +
+> +	watchdog_init_timeout(&wdt_dev, timeout, NULL);
+> +	watchdog_set_nowayout(&wdt_dev, nowayout);
+> +	watchdog_stop_on_reboot(&wdt_dev);
+> +
+> +	ret = w83627hf_init(&wdt_dev, chip);
+> +	if (ret) {
+> +		pr_err("failed to initialize watchdog (err=%d)\n", ret);
+> +		return ret;
+
+		return dev_err_probe(...);
+
+> +	}
+> +
+> +	ret = devm_watchdog_register_device(&pdev->dev, &wdt_dev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	pr_info("initialized. timeout=%d sec (nowayout=%d)\n", wdt_dev.timeout,
+> +		nowayout);
+
+	dev_info()
+
+> +
+> +	return ret;
+> +}
+> +
+>   /*
+>    * On some systems, the NCT6791D comes with a companion chip and the
+>    * watchdog function is in this companion chip. We must use a different
+> @@ -490,36 +524,49 @@ static const struct dmi_system_id wdt_dmi_table[] __initconst = {
+>   	{}
+>   };
 >   
->   	/* set CR30 bit 0 to activate GPIO2 */
-> -	t = superio_inb(0x30);
-> +	t = superio_inb(SIO_REG_ENABLE);
->   	if (!(t & 0x01))
-> -		superio_outb(0x30, t | 0x01);
-> +		superio_outb(SIO_REG_ENABLE, t | 0x01);
-
-Address 0x30 is always the enable register for a logical device (here: the watchdog
-logical device plus for some of the chips some GPIO information). Bit 0 enables the
-watchdog logical device.
-
-Guenter
+> +static const struct platform_device_id wdt_ids[] = {
+> +	{ .name = "W83627HF", .driver_data = w83627hf },
+> +	{ .name = "W83627S", .driver_data = w83627s },
+> +	{ .name = "W83697HF", .driver_data = w83697hf },
+> +	{ .name = "W83697UG", .driver_data = w83697ug },
+> +	{ .name = "W83637HF", .driver_data = w83637hf },
+> +	{ .name = "W83627THF", .driver_data = w83627thf },
+> +	{ .name = "W83687THF", .driver_data = w83687thf },
+> +	{ .name = "W83627EHF", .driver_data = w83627ehf },
+> +	{ .name = "W83627DHG", .driver_data = w83627dhg },
+> +	{ .name = "W83627UHG", .driver_data = w83627uhg },
+> +	{ .name = "W83667HG", .driver_data = w83667hg },
+> +	{ .name = "W83667DHG-P", .driver_data = w83627dhg_p },
+> +	{ .name = "W83667HG-B", .driver_data = w83667hg_b },
+> +	{ .name = "NCT6775", .driver_data = nct6775 },
+> +	{ .name = "NCT6776", .driver_data = nct6776 },
+> +	{ .name = "NCT6779", .driver_data = nct6779 },
+> +	{ .name = "NCT6791", .driver_data = nct6791 },
+> +	{ .name = "NCT6792", .driver_data = nct6792 },
+> +	{ .name = "NCT6793", .driver_data = nct6793 },
+> +	{ .name = "NCT6795", .driver_data = nct6795 },
+> +	{ .name = "NCT6796", .driver_data = nct6796 },
+> +	{ .name = "NCT6102", .driver_data = nct6102 },
+> +	{ .name = "NCT6116", .driver_data = nct6116 },
+> +	{ .name = "NCT6126", .driver_data = nct6126 },
+> +	{},
+> +};
+> +
+> +static struct platform_driver wdt_driver = {
+> +	.probe          = wdt_probe,
+> +	.id_table       = wdt_ids,
+> +	.driver         = {
+> +		.name   = KBUILD_MODNAME,
+> +	},
+> +};
+> +
+> +static struct platform_device *wdt_pdev;
+> +
+>   static int __init wdt_init(void)
+>   {
+> +	struct wdt_pdata pdata;
+>   	int ret;
+>   	int chip;
+> -	static const char * const chip_name[] = {
+> -		"W83627HF",
+> -		"W83627S",
+> -		"W83697HF",
+> -		"W83697UG",
+> -		"W83637HF",
+> -		"W83627THF",
+> -		"W83687THF",
+> -		"W83627EHF",
+> -		"W83627DHG",
+> -		"W83627UHG",
+> -		"W83667HG",
+> -		"W83667DHG-P",
+> -		"W83667HG-B",
+> -		"NCT6775",
+> -		"NCT6776",
+> -		"NCT6779",
+> -		"NCT6791",
+> -		"NCT6792",
+> -		"NCT6793",
+> -		"NCT6795",
+> -		"NCT6796",
+> -		"NCT6102",
+> -		"NCT6116",
+> -		"NCT6126"
+> -	};
+>   
+>   	/* Apply system-specific quirks */
+>   	dmi_check_system(wdt_dmi_table);
+> @@ -533,35 +580,25 @@ static int __init wdt_init(void)
+>   			return chip;
+>   	}
+>   
+> -	pr_info("WDT driver for %s Super I/O chip initialising\n",
+> -		chip_name[chip]);
+> -
+> -	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
+> -		 chip_name[chip]);
+> -
+> -	watchdog_init_timeout(&wdt_dev, timeout, NULL);
+> -	watchdog_set_nowayout(&wdt_dev, nowayout);
+> -	watchdog_stop_on_reboot(&wdt_dev);
+> -
+> -	ret = w83627hf_init(&wdt_dev, chip);
+> -	if (ret) {
+> -		pr_err("failed to initialize watchdog (err=%d)\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	ret = watchdog_register_device(&wdt_dev);
+> +	ret = platform_driver_register(&wdt_driver);
+>   	if (ret)
+>   		return ret;
+>   
+> -	pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
+> -		wdt_dev.timeout, nowayout);
+> +	wdt_pdev = platform_device_register_data(NULL, wdt_ids[chip].name,
+> +						 PLATFORM_DEVID_NONE, &pdata,
+> +						 sizeof(pdata));
+> +	if (IS_ERR(wdt_pdev)) {
+> +		platform_driver_unregister(&wdt_driver);
+> +		return PTR_ERR(wdt_pdev);
+> +	}
+>   
+> -	return ret;
+> +	return 0;
+>   }
+>   
+>   static void __exit wdt_exit(void)
+>   {
+> -	watchdog_unregister_device(&wdt_dev);
+> +	platform_device_unregister(wdt_pdev);
+> +	platform_driver_unregister(&wdt_driver);
+>   }
+>   
+>   module_init(wdt_init);
+> 
 
