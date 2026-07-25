@@ -1,41 +1,42 @@
 Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A6A339714
-	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 10:30:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D2062F1FE3
+	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 10:30:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784975411; cv=none; b=ZbiOYNJHXp8lXNeANzARWU8YDPynjRoW3jVEQ6vZhmJv5IVMTF15N1H7zrG2KQBtLMJyQhLK8vaS829wNV6pUgfGcbZWGqRKB5RihAqPHVFVoubyoZEngLLMBOR/7OUPWiIX7p2epm7xCTGKagT9y5QxtyfJ5phdvBELcf2vdX4=
+	t=1784975412; cv=none; b=V9b0JcFAWPIrho9yu7Z8P98QONRr2tyPDehHiZCkYfp2BGPOK5aGcUVsmA5OtmaLr9Hkn709uxrlnMVfRZTwS42YeeCEVsAwCEoxPuU/9JnRQZHLjpnIla67hOcbf0e0DIRkRdjIVgLFJ40aWA6+wBW4Tb+limkHqEC/Qn+1Vts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784975411; c=relaxed/simple;
-	bh=6YYTTdeuHpYfJYkPf0H6r0ScBN7lQOz4Zz4+SsQ2vVA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=TdsaraYgvGpiB8vDCAs4w+ZR814sg0LnuAfc44GiW7XeYMSxdV33ISyNuELlX5mbsEHkSH3efw9ymKPD3j8ramZQw5wCePAvB3eIOz7eHjBQXLqYPxxmeesvdJW1oEPadlh6fXTTPWuimZ2mnrvAQXK4VqKaTXfK2pJALbP3Q9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=jsHRtqhI; arc=none smtp.client-ip=185.246.84.56
+	s=arc-20240116; t=1784975412; c=relaxed/simple;
+	bh=NYMS6rzlXBJ6I4sa6/BxUJezzsBrtEmBn5wY6HXmXtY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Un4AZ7vUhyEHy1E7VPoOIIRR8Zs4J+PPFPO3nRCk4Griv1ePXMbXytJ/tFvIRgbBIL+ibceGabpZN83H/XVPygE/mvtjtSRhOwyj0PUt9Ps/uIn5/ykw37ZUKXjuwlMNJeX1D+uH0spLtg11n+IX+/6TGP29DuwhAhJ0yrxk2Pg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=KM+tbvs0; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="jsHRtqhI"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="KM+tbvs0"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id E53BE1A121B
-	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 10:30:03 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 08AAD1A121D;
+	Sat, 25 Jul 2026 10:30:07 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id A222560398;
-	Sat, 25 Jul 2026 10:30:03 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 44EAC11C1252A;
-	Sat, 25 Jul 2026 12:30:01 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id D24CB60398;
+	Sat, 25 Jul 2026 10:30:06 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B334711C13102;
+	Sat, 25 Jul 2026 12:30:05 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1784975402; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=/PjSD5Gu1CfnUnM98zYPicZhZ2UYRRFO/rssbVaFtoU=;
-	b=jsHRtqhImP9T7z7ojbiPC3KUpAdVQIn4r37CFvwR3EBbdb/QQxSw3elgbTcMdPU5KpaGCN
-	AH/GWKMKM8ionc1LUNJm0Hm9xj3sV0tvEIxjdn5xswt1cnO5V48RjbngLOjfgi/4GvEy7b
-	HmqeveAMdoxN53xobEwkx1TNpSwlCgQB9/NryvR8OJ7R/crRimxgmn30LkYT9gKH61UJU/
-	cZJNAi54qAs/iWmxlPB5XcZNVI5zNjPfLNApI38E+k/g003r6rzMrFqtMMZ++n9dt8HNcu
-	o+TP2Uu6CJFbzrH4LuUrJxouYv1bNdBGR9+0JSLYUn3fNKJMkQWQIX2zat0RmQ==
+	t=1784975406; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=QH1QNAVQ801U1Z/sCO38fcE2HzCFVq7IpMVOAYHQino=;
+	b=KM+tbvs06YuKpV1KKxyMshQpK35uqSSrRa029Cl+pGRoDxGFYu3ifAFRYx7P2uDdhSnuwF
+	IMBjzEZsL3klYmWzP9bQtYn/RP2mTdGDihFq9ujMSi+m0N+22FANjG2SOnfRVAbiZcbEOA
+	i4HMbPTsBzhLpaV4Y2Cd0RQndYGiD8sfIZXhWzQq8yEe2Cu28hIUK7/m6OTfqdOZCjBKHf
+	2+n6qWi9lHwGMjop2rBu9Te6VRXI1MYOJlNibXriSNZGOl8vWj7x/Z+J8UTfuC6ic3JzYU
+	MCLRAcw3EKiv/4txYdOGr5ws5sHbiCYZTt9Fwwbzv6Mhdbnah842cTjx/bDLKg==
 From: Paul Louvel <paul.louvel@bootlin.com>
-Subject: [PATCH 0/9] watchdog: w83627hf_wdt: Convert driver to the driver
- model and add minute support
-Date: Sat, 25 Jul 2026 12:29:27 +0200
-Message-Id: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
+Date: Sat, 25 Jul 2026 12:29:30 +0200
+Subject: [PATCH 3/9] watchdog: w83627hf_wdt: Use private driver data
+ structure
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -44,97 +45,129 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32QzU7EIBSFX6VhLQYo5acr38NMDNCLxVgYgeloJ
- n13mdaFblye5Nxzv3NuqEAOUNDY3VCGNZSQYhP0oUNuNvEVcJiaRowwQSTt8VX1gsnZv1ynisN
- yzmmFBWIt2BrWC04HOQlA7f6cwYfPPfv5dOhysW/g6j3wx5Hh49Ke1sOGrCmAXVqWUMeOMAVeO
- y1AC6plI1BKOuKJZpxxITXTyhhQ6Dfs2B2oZPiLGl0VlIkJa0OosF463Ytx5eiONodSU/7aV1j
- pTnKkMP5P4ZVigiW1wP2gwff+yaZU30N8bA3Qadu2b1wXrjNfAQAA
-X-Change-ID: 20260713-w83627hf_wdt-improvements-ba2364157d6e
+Message-Id: <20260725-w83627hf_wdt-improvements-v1-3-4e9a1b4e8297@bootlin.com>
+References: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
+In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
  Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Paul Louvel <paul.louvel@bootlin.com>, 
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784975401; l=2973;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784975401; l=3274;
  i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
- bh=6YYTTdeuHpYfJYkPf0H6r0ScBN7lQOz4Zz4+SsQ2vVA=;
- b=kfLvBA2k7vwymODIJkxWsjwdMh2cWJA1bej7cbXKEl+9cuk0hUz0+k46Bqcy3O+6RirBFQvfP
- Cd3iuEy5kR1AOpDKlO3BkgBESPdEuod4ajsH6HKYpWdsV0vNKTF8X5w
+ bh=NYMS6rzlXBJ6I4sa6/BxUJezzsBrtEmBn5wY6HXmXtY=;
+ b=93hSkwP20VWkbGAtI26tpvJFIZCFwUkXxKYuYQ3wD94DBgnqc4DmLtBEPYSD9uOJjdQLvKhXR
+ HjjcssWDTRjA9KKWh85lCxLZM2Mnu3qjDJmxOtoggWKpUSjv8Jh8yw8
 X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
  pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
 X-Last-TLS-Session-Version: TLSv1.3
 
-Hi,
-
-This series aims to improve driver readability and convert it to the
-Linux driver model by means of a platform driver.
-Furthermore, support for minute-based counting has been added to allow
-timeout values longer than 255 seconds. When setting a timeout value
-that is not a multiple of 60 seconds, the value is rounded up to the
-nearest multiple.
-
-Notes:
-
-  - PATCH #1: I could not introduce a macro for each hard-coded value in
-    this driver, since some datasheets are not available (to my
-    knowledge) on the internet.
-
-  - PATCH #7: I have moved the code that refreshes or stops the watchdog
-    timer out of the w83627hf_init() function and into the wdt_probe()
-    function. Keeping it there would have led to code duplication.
-
-    Since the timer has a granularity of at most one second, this does
-    not introduce an unexpected reboot: the timer cannot expire in
-    between, as at most a few milliseconds would have elapsed (the
-    margin is < 1s anyway).
-
-This series was tested on a x86-64 board featuring a Nuvoton NCT6126
-Super I/O chip.
-
-This series depends on:
-
-  https://lore.kernel.org/all/20260707-w83627hf_wdt-nct6126d-v4-0-829e5f63d548@bootlin.com/
-
-Thanks.
+Allocating a per-device data structure is a common practice in the Linux
+driver model. Add one that will be used to store chip-specific register
+offsets, and configuration.
 
 Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
 ---
-Changes in v2:
-- EDITME: describe what is new in this series revision.
-- EDITME: use bulletpoints and terse descriptions.
-- Link to v1: https://patch.msgid.link/20260724-w83627hf_wdt-improvements-v1-0-71be4f59ef3f@bootlin.com
+ drivers/watchdog/w83627hf_wdt.c | 49 ++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 20 deletions(-)
 
-To: Wim Van Sebroeck <wim@linux-watchdog.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 993e65ce4447..72e167f37885 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -132,6 +132,11 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+ 
+ struct wdt_pdata {};
+ 
++struct w83627hf_data {
++	struct watchdog_device wdd;
++	struct watchdog_info info;
++};
++
+ static void superio_outb(int reg, int val)
+ {
+ 	outb(reg, WDT_EFER);
+@@ -331,10 +336,6 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
+  *	Kernel Interfaces
+  */
+ 
+-static struct watchdog_info wdt_info = {
+-	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+-};
+-
+ static const struct watchdog_ops wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = wdt_start,
+@@ -343,14 +344,6 @@ static const struct watchdog_ops wdt_ops = {
+ 	.get_timeleft = wdt_get_time,
+ };
+ 
+-static struct watchdog_device wdt_dev = {
+-	.info = &wdt_info,
+-	.ops = &wdt_ops,
+-	.timeout = WATCHDOG_TIMEOUT,
+-	.min_timeout = 1,
+-	.max_timeout = 255,
+-};
+-
+ /*
+  *	The WDT needs to learn about soft shutdowns in order to
+  *	turn the timebomb registers off.
+@@ -471,28 +464,44 @@ static int wdt_probe(struct platform_device *pdev)
+ {
+ 	const struct platform_device_id *id = platform_get_device_id(pdev);
+ 	enum chips chip = id->driver_data;
++	struct watchdog_device *wdd;
++	struct w83627hf_data *data;
+ 	int ret;
+ 
+ 	pr_info("WDT driver for %s Super I/O chip initialising\n", id->name);
+ 
+-	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
+-		 id->name);
++	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->info.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE;
++	snprintf(data->info.identity, sizeof(data->info.identity),
++		 "%s Watchdog", id->name);
++
++	wdd = &data->wdd;
++
++	wdd->info = &data->info;
++	wdd->ops = &wdt_ops;
++	wdd->timeout = WATCHDOG_TIMEOUT;
++	wdd->min_timeout = 1;
++	wdd->max_timeout = 255;
+ 
+-	watchdog_init_timeout(&wdt_dev, timeout, NULL);
+-	watchdog_set_nowayout(&wdt_dev, nowayout);
+-	watchdog_stop_on_reboot(&wdt_dev);
++	watchdog_set_drvdata(wdd, data);
++	watchdog_init_timeout(wdd, timeout, NULL);
++	watchdog_set_nowayout(wdd, nowayout);
++	watchdog_stop_on_reboot(wdd);
+ 
+-	ret = w83627hf_init(&wdt_dev, chip);
++	ret = w83627hf_init(wdd, chip);
+ 	if (ret) {
+ 		pr_err("failed to initialize watchdog (err=%d)\n", ret);
+ 		return ret;
+ 	}
+ 
+-	ret = devm_watchdog_register_device(&pdev->dev, &wdt_dev);
++	ret = devm_watchdog_register_device(&pdev->dev, wdd);
+ 	if (ret)
+ 		return ret;
+ 
+-	pr_info("initialized. timeout=%d sec (nowayout=%d)\n", wdt_dev.timeout,
++	pr_info("initialized. timeout=%d sec (nowayout=%d)\n", wdd->timeout,
+ 		nowayout);
+ 
+ 	return ret;
 
----
-Paul Louvel (9):
-      watchdog: w83627hf_wdt: Replace magic numbers with descriptive macros
-      watchdog: w83627hf_wdt: Convert to platform driver model
-      watchdog: w83627hf_wdt: Use private driver data structure
-      watchdog: w83627hf_wdt: Move register offsets into driver data
-      watchdog: w83627hf_wdt: Add Super I/O configuration port as a platform device resource
-      watchdog: w83627hf_wdt: Store Super I/O unlocking sequence in platform data
-      watchdog: w83627hf_wdt: Add minute mode counting
-      watchdog: w83627hf_wdt: Report all initialization failures in probe
-      watchdog: w83627hf_wdt: Use dev_* logging instead of pr_*
-
- drivers/watchdog/w83627hf_wdt.c | 457 +++++++++++++++++++++++++---------------
- 1 file changed, 290 insertions(+), 167 deletions(-)
----
-base-commit: 028ef9c96e96197026887c0f092424679298aae8
-change-id: 20260713-w83627hf_wdt-improvements-ba2364157d6e
-prerequisite-change-id: 20260705-w83627hf_wdt-nct6126d-9a016bf7c936:v4
-prerequisite-patch-id: 1162062ebf31e7c2c70ff52b79118b67b00c396b
-prerequisite-patch-id: 9638243b3ade2a4e9c3e94664343b235e5cb806d
-prerequisite-patch-id: 73803f726f2fab91516b429f79a59c2d3a574cfe
-
-Best regards,
---  
-Paul Louvel, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+-- 
+2.55.0
 
