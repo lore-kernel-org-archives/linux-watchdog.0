@@ -1,130 +1,98 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5186B3CAA4F
-	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 10:30:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 437D1371877
+	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 10:36:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784975422; cv=none; b=FupCxAfkCGmGYzwc2Unf7vJlGK7awe2VLffF64GcIEpD2QmvkZ4xEjiTRtWBeNXKnzeU0y1F+jwKefhXHWulsruxhAZFD7pVca1rF8t7sovXLmEuJrx/Xj4kaGw3jQ/xHzNZDWO+bNw7lkMasMkJpxlT5BNSLT9GGiTqamYwu3s=
+	t=1784975797; cv=none; b=QdMs0t69yPkF0sqpSmCxhJ0tezut4e1YlRtN1QmTKo0z3JYsO2dL8QlewMydKf6WIlrcLVMsoHGxmO1SVu2orIauNubOU0VSJBOslzdeD4nwJ2ohcuO1kv1qqMbrKmDvd8x0bjrpRCRIYHkbgVqF5IrLTv8nT/qANeBGwkl8Cnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784975422; c=relaxed/simple;
-	bh=nonqBUUO6BuiZRnFsU6dBuonG96InzXyRH0c0CqEAZ4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=DkQR4sackSSPbV2wFciHMGa8C1rZp1he/T0wVgL+xbg4AKJXgMa6YpRfSqeK0GFuo4Q7ztvN4xwOnqZ57J2wJT6bGBI6QxyLg/kekq0VwTIa28/+JTA74/iVmanJlet+J6t/mGrocsNOx61WUUsywVK6uZPtxxTXjXrdjIqrp6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ROGNtukB; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1784975797; c=relaxed/simple;
+	bh=eKpCPXoKCWe1VwHnFjAhrXDoVTxmuXGjubrGMNYewfQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WOO1NUFbpVtqxfe6GqIK4U11KE23vUs0LiVm3XxCEtODG1x/C8CCf3ABA6wnVL19X5NWMHehq061aQcHu7w22kCxqjpucUV7jfCqBskt9OWo/pIYKRNrkJ3Lwo6Vm0CnD8d8G5r/XI8UTqOrPTisPLnocQP0vDfuOfYftCC0NSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H9WeDw43; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ROGNtukB"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 730EF1A1221;
-	Sat, 25 Jul 2026 10:30:12 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 48A2560398;
-	Sat, 25 Jul 2026 10:30:12 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3948311C13104;
-	Sat, 25 Jul 2026 12:30:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1784975411; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=UkBM/H8e7hXCrGpwGsU/lIUXx8VlxUjZx17ypg7Op/4=;
-	b=ROGNtukBgjGOhoAd98g0s72fvg+NcJ3dXYb4/JPWrMTAmKRcL84k9z9oIUf9udCcPSElM7
-	+8xzEdXEpSNnIZ/r4wKZ0SrO+jOzBhpdlF2/vXVYCGmejAoRjaAsW9UundLqETF0n77srR
-	9ROCZTzsi9j3C2c4u11Te+coYCi2fpfhBGIbFir4M/0MwiBNiZRBh4j8strjos5oSf+uBk
-	6j12zXRDfeQguAZkAI55/MJZGS0UVXRRf7JRhsaYHCctCowEeRASt4Y/6387ILeNiKBSUa
-	JPQ9jNbeF+B7xW75gJt3TybQ9rnzZowhUVDW75Asolkn7Ozjv+cVb4RcLBi1Aw==
-From: Paul Louvel <paul.louvel@bootlin.com>
-Date: Sat, 25 Jul 2026 12:29:36 +0200
-Subject: [PATCH 9/9] watchdog: w83627hf_wdt: Use dev_* logging instead of
- pr_*
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H9WeDw43"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14091F000E9;
+	Sat, 25 Jul 2026 10:36:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784975795;
+	bh=gL5fHBBaFWSKq0w6/pt81T6m/RTCmgsp446WW9QtLj4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=H9WeDw43g0Ga8jzCeJJJKEkBLZng0lRgttXORo0BXOF7qc8gVaLIiENhraN9rp6M8
+	 svlPvY82aA0gFzc2pwABYmXTlRI49pWbzCCBGyQPWXE7aHdiWCteozyeEOPbyBM+GO
+	 twP2S/G0sHcvjypDuT+t+XIymez5MlqJv0/lXv+o+6kPEg6sAzf9/OaYBU8BBkkSBA
+	 qKoZY2pF5RMGIGaqv5hOPG0Q3Oy1xiLYo5P8H0pmg1Hb1brY5azm1qRcclEZYxyLrq
+	 MhJtqE1TP6ZpvV8uYkStfv1/El1zGxhre2JChC3MRlwfYVOATNEbfdOdTeGWaz1gkq
+	 7OWAEg9NcRYvw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 8/9] watchdog: w83627hf_wdt: Report all initialization
+ failures in probe
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Paul Louvel" <paul.louvel@bootlin.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-8-4e9a1b4e8297@bootlin.com>
+References: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
+ <20260725-w83627hf_wdt-improvements-v1-8-4e9a1b4e8297@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 25 Jul 2026 10:36:35 +0000
+Message-Id: <20260725103635.B14091F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260725-w83627hf_wdt-improvements-v1-9-4e9a1b4e8297@bootlin.com>
-References: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
-In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Paul Louvel <paul.louvel@bootlin.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784975401; l=2273;
- i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
- bh=nonqBUUO6BuiZRnFsU6dBuonG96InzXyRH0c0CqEAZ4=;
- b=sMBj93tBSI6JruUYDrD/Sw89muE750GBV0RogN+Orkr/mEtaGCjOvFovjoZFgqYp2bg1RvhHI
- P8yDTz1XSBvC03iCf6I/T5abfZI3NUr5Sa7TuDKBHafocwLDSzYzMVy
-X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
- pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
-X-Last-TLS-Session-Version: TLSv1.3
 
-The pr_* logging functions do not identify which device generated a
-message. Use dev_* logging functions instead.
-Since the device name is printed with this family of function, remove
-the duplicate name in the initialization message.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Redundant and discouraged custom error logging on memory allocation=
+ failure.
+--
 
-Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
----
- drivers/watchdog/w83627hf_wdt.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+--- Patch [8]: [PATCH 8/9] watchdog: w83627hf_wdt: Report all initializatio=
+n failures in probe ---
+commit 2d2f57b98d7747ee2d5b243ffbdaf86d9f565235
+Author: Paul Louvel <paul.louvel@bootlin.com>
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index cf1a3fb3a6fd..83c5d8b52b13 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -471,12 +471,13 @@ static int wdt_probe(struct platform_device *pdev)
- 	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	const struct wdt_pdata *pdata = pdev->dev.platform_data;
- 	enum chips chip = id->driver_data;
-+	struct device *dev = &pdev->dev;
- 	struct watchdog_device *wdd;
- 	struct w83627hf_data *data;
- 	struct resource *res;
- 	int ret;
- 
--	pr_info("WDT driver for %s Super I/O chip initialising\n", id->name);
-+	dev_info(dev, "WDT driver initialising\n");
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
- 	if (!res) {
-@@ -533,11 +534,11 @@ static int wdt_probe(struct platform_device *pdev)
- 
- 	if (data->early_timer_val) {
- 		if (early_disable) {
--			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
-+			dev_warn(dev, "Stopping previously enabled watchdog until userland kicks in\n");
- 			ret = wdt_stop(wdd);
- 		} else {
--			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
--				wdd->timeout);
-+			dev_info(dev, "Watchdog already running. Resetting timeout to %d sec\n",
-+				 wdd->timeout);
- 			ret = wdt_start(wdd);
- 			set_bit(WDOG_HW_RUNNING, &wdd->status);
- 		}
-@@ -550,13 +551,12 @@ static int wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto fail;
- 
--	pr_info("initialized. timeout=%d sec (nowayout=%d)\n", wdd->timeout,
--		nowayout);
-+	dev_info(dev, "initialized. timeout=%d sec (nowayout=%d)\n",
-+		 wdd->timeout, nowayout);
- 
- 	return 0;
- fail:
--	pr_err("failed to initialize watchdog (err=%d)\n", ret);
--	return ret;
-+	return dev_err_probe(dev, ret, "failed to initialize watchdog\n");
- }
- 
- /*
+watchdog: w83627hf_wdt: Report all initialization failures in probe
 
--- 
-2.55.0
+The driver currently logs an error only if the chip initialization
+fails. Extend the error reporting to all failure paths in probe to
+improve diagnostics.
 
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
+wdt.c
+> index 90d41f21aa5e2..cf1a3fb3a6fd3 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+> @@ -479,12 +479,16 @@ static int wdt_probe(struct platform_device *pdev)
+[ ... ]
+>  	data =3D devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+> -	if (!data)
+> -		return -ENOMEM;
+> +	if (!data) {
+> +		ret =3D -ENOMEM;
+> +		goto fail;
+> +	}
+
+[Severity: Low]
+Does this introduce redundant logging for memory allocation failures?
+
+When devm_kzalloc() fails, the kernel's memory management subsystem already
+dumps a highly visible warning and stack trace. Routing this failure path
+to the fail label adds a custom pr_err() for the OOM condition.
+
+Could we return -ENOMEM directly here instead of jumping to the fail label
+to avoid redundant log spam?
+
+[ ... ]
+> +fail:
+> +	pr_err("failed to initialize watchdog (err=3D%d)\n", ret);
+>  	return ret;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260725-w83627hf_w=
+dt-improvements-v1-0-4e9a1b4e8297@bootlin.com?part=3D8
