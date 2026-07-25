@@ -1,67 +1,67 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F95E30AD1A
-	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 14:28:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D2A2AD16
+	for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 14:30:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784989713; cv=none; b=dLAJ07QQ2Kcfidcc3t2GWbaH/NOLX1cJRWvVCe9qhDILOHUOSUtpWVJwOeftlAVrCGWEGo4S9UinJKwz4mj5ACbJC3xbKS1R9rYUW6c4GBmbeMX5zQxRjEl47DSCvpsu9Xr3Lf7j/AiXs6DB4KW1o6Phwlm3ZA3WeTERztGNU5c=
+	t=1784989814; cv=none; b=OySzXlT8I8fRrEb+abXmxFCnjQ7lvnf0gxf/1FtfUs9FFX+hx4ICToLUZ5VaGTIOst8vOzeQrUlMKXPzVnsqE+KSdRxZZlw52Kwa1Hx9qVSxU0XlgaQsjQ8AYxk9xNus7kCSaXX2QDd+oQJx0ohJCMTUdKGkEVyDs7zkUrXOBS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784989713; c=relaxed/simple;
-	bh=pQGOuGM8nQdQXgwGqgXaprbqUTN0rVKbqokO+RZcsxk=;
+	s=arc-20240116; t=1784989814; c=relaxed/simple;
+	bh=XqjNgk1Rmeu0o6hz9pyvZO4y9YUjvc294Z2F82jh8Gk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WdGIGldhvRyhTnb59o4RR/JCbyR9zHgUzkSfBsPsGTK7+Cw3DsR02GtUG3Nzb4MH1ytjnioZXdp1DRYd/i6Lbf6Zt9g3jbWSzIrZpJ9nV22C9ykBfmMosdKWc3k+6g7wUyI0XvmdnbU4kwOn+EnL54n8CE7p9/Wcu019M8R7Dcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fdxwUiBp; arc=none smtp.client-ip=209.85.216.45
+	 In-Reply-To:Content-Type; b=BJPM0aAJg8LYB9mOy4RN5b6AjGMX3RIY8hAycFETQPYKIQ6olCmGAvZ/BYxYgvqlaFYtTRnW7ACYsY7+XUUkCVXVQaLLzo0bu+8kAPJYOgfELt180bv46LSKyAx0+1g/GqTahTDt5B4pVTFEnh1avDb6QUnsgiGWzSrU4lLtbc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o3ZDP+jN; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fdxwUiBp"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38101f85591so2199046a91.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 07:28:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o3ZDP+jN"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38d489b6b71so1288692a91.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 25 Jul 2026 07:30:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784989711; x=1785594511; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784989811; x=1785594611; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=FC1a1AYlU+R/P7tPLNI82w2LrP2mji2zuzNnbAHHivE=;
-        b=fdxwUiBpuen7v+lhJKDuxzCAimjVdmmfpEPUoFg7f9cmnJshReKxL7UGD58Z7D0cAx
-         j2BNwFPMh1Sd5DRBECdGtUlrNQY5/E3dtge/U8Ybzx+LVvC8Fr7NRuuL2X2yVuqgwJVX
-         eO7IECA0rrizRufkz9HI2b/RD8gO3ucWNdopPog2LUR5P1vAtYXyr39/Ucz2ZMsMlSf9
-         GXHqByikLKSl17XOJpyzbb0QBvO4PVMoUz1U50jD6nL2nAnUgM3cClACP3t0HhVMjNMh
-         cv6AU35+ANm8ddlQtR1Xq5jg658z/KuQkj4fVOk2IjMVOGZkxd/hB517CeEEdoHGAT++
-         5rzA==
+        bh=8h8dg2EfGa6XzFmZvzgFvfu+2U44UCmWssYckoMASx0=;
+        b=o3ZDP+jNIrYGMBhwC7uCfVnCjyd4Ug8XQjyGpjcwLF5tzy1WkrkrDXJv84G4Rimw8G
+         PMoxfu/cykWvVUbLYbNsD+PiFg2CRd8XjsAu/qc/E6PWnIOREkjFWfOK1fq1neah9Hxs
+         UZiJ6JJoNnr1P8fexBKV1Re7N2CVyi4odcBDZiRQmc9XjROhb1MZt2xRT/fSE4JNgSKl
+         by0KLA8wEDEpmAuYEL2ahSgY1SayJWTsFzOk/PXednERdFcqTSHH1e+phfqV/sLeeHMj
+         /ybEdE8F+NUjah5sh2CbpSD8nEeswfSjNDVA8G+pQhWhjhOCqr+xptftynyuqBFygM8T
+         Y0tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784989711; x=1785594511;
+        d=1e100.net; s=20251104; t=1784989811; x=1785594611;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=FC1a1AYlU+R/P7tPLNI82w2LrP2mji2zuzNnbAHHivE=;
-        b=VD+Nv01dzS+ICuUksYWiz5pfX4jieRUMAzlp8kLiFkqBS8xc8BhaYAXuQ6To1YpXKt
-         bC/yaX2nBymgHPpzzt5B8EM9oIqlwN8fNE8nKtlQYdY3QyXLM/A65Bxi00pftxZiBZMa
-         oHZA79EHz1XdNO6cBT4jm1ss2ZvTmDj2oA6RAs2N9OD8hywzuWXXahML9gk6MO6NcofT
-         IkLJuObS0pkmxkGY2dbTBP9z/Pj6hUf3Yedh5AvCeCI+wwp5YgUV+tgouCDFw0YZobzd
-         DVKKWhXBCbGFtEbSuT47TJFgmgGW7Nkh1jIV1xwmbkMy4ICOfg45vsBZP3zobqSRxjRS
-         OS1g==
-X-Gm-Message-State: AOJu0YyN5/g/akXPqfzcuQS6iL79D5VzTBjhb5UrFzARbFmjhyp3GN8V
-	kvvD7MkN4YCskGDsQSqIAggP2SCzXvN/Vc+MaYYsRZzns/ytVIRpQcw2
-X-Gm-Gg: AR+sD10Tb6Y4gPP57XD/0YB7DxQ4ztRFhmQUIyRKISx+8mSdAUxvfiugYz3xd/DQAvl
-	0TqzYoFYgRAymuifmaBHeQgrTFSbhY4v3gDlMcwo+ZhuXCclJQkZqE4RApTU6JjODuCIv8xCEtm
-	BUNmlf5mDT+AiAZZ6nA4avWGyIjCuk6CfQYEpNzX+ZLb50mw3R7vCGKY8c2Oo9jutEZn3C2FMJ5
-	fLsHTXRnv4O58zC9LMFLht4+aM75c0Je+nIY0O/AcgQkoCIgUvHwbDYhmlsj0tvSyOTORsG8niX
-	BiqiMPT2p/bdhdWP1on1yXwEzUAEJEH+bF7JV6AcbCHuour2n6frrCJDuTyY21QZwyK7cTyfAxm
-	GLHbpAyMhq4VW5DeAImfXTEm0U4BxwRrt3TleKDnAqPQhcwvRj/DgOhyDYZdqk9vOdKLPt4Op+j
-	GM011tfwI2wLvR7DcW8MON5mVWiQwgxJ5V4v2WoC4sJVH214Sv7IQ=
-X-Received: by 2002:a17:90b:380e:b0:37f:e5b1:ec4b with SMTP id 98e67ed59e1d1-38f1eaaa3e2mr5180240a91.5.1784989710855;
-        Sat, 25 Jul 2026 07:28:30 -0700 (PDT)
+        bh=8h8dg2EfGa6XzFmZvzgFvfu+2U44UCmWssYckoMASx0=;
+        b=KanuFxmftEy42TawS9OY1WXNYySQ8UDSlq9kWkKbA8eqpPqffTbInbBX5YJrNiazQA
+         dd2sLIb/7LvfMw4FD2mp68i4cSWqw6A8/4A6CqazX7zWpu9a5ErN5VCwAgtPVZv5td+d
+         OxTdjn3TWB3/+v2XV0P9WSuHg53nXvDL0M91pKFcYBODOMPlv5p4POm9G0Dwk/Cwg9Nt
+         vHOf2zrWlFcmUS70oFadGkRjsw/fVg/z6Xn2Hd7gU7YCjjYdzzBbLaZNraReoo6gSjfE
+         g2SPRB/LVaBG4n0jwutoqRlu6huJZWF9xE3O8cRoRDAA8PyUi/00mfJ69Ws+8xE36GqC
+         BhtA==
+X-Gm-Message-State: AOJu0YycCI4dwH1sZJdDWxVN9Qotif7CouL2uVamnUqTNyT2KI3/iWWm
+	pCXxZzHo3cJ1OYcJy+oDgdhST/4qGgkcmzXhWN2L287wcYwvgvJVvxLW
+X-Gm-Gg: AR+sD10u2bxrCw4Rc9Uc0dFHaNmguhng9uhBtHKTlUpy1N/qXg7u2YqLDV8ij/o4jTT
+	XS6vEKYmRhw/sD3ub0h2cUcchkeKq5zZz8XF242g/+7FbCJFCgTEDPGlDhjsTrm6GROnz2oMWj3
+	dxag16uIImlAM2bpRa09Uj4J1Iwwz5fypSpZ/C21xcptdHTypuZPyQS8577PbzElr9Wd3lbBCQi
+	7oPcTmt4b+llqgzk+9zu1kXDzQ9WyQsv5B4oDM7Q/tqL0Y6BTlzO2j7FE3kRieXS0KUnxqTLC0l
+	/s9UbgKTnU27WDM4I7xyf9P7A9M0uveJN38MnN8IqEvyF6dzVSZNZMATb7uoYdJBD6Yhq8d1jdF
+	Ixa6aL3HOr1SmwywHPugWvHmpuulU6jtibmJtAukiADfrJWwpmirKIDKdsyvgKWqsBBCd0Okym7
+	UgfKHDVPvQKLjf+nsQRVFM+OEWmOEOwI/GYVKq735uWvoikrDuoaM=
+X-Received: by 2002:a17:90b:3812:b0:381:6c5:3f63 with SMTP id 98e67ed59e1d1-38f293cf2d2mr2672761a91.6.1784989811520;
+        Sat, 25 Jul 2026 07:30:11 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130cc5ebsm47367345c88.12.2026.07.25.07.28.30
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13e585ae882sm1557173c88.6.2026.07.25.07.30.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 25 Jul 2026 07:28:30 -0700 (PDT)
+        Sat, 25 Jul 2026 07:30:11 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a367bd8d-17af-43a6-8e5e-1aad24b1015a@roeck-us.net>
-Date: Sat, 25 Jul 2026 07:28:29 -0700
+Message-ID: <281bda77-e1ff-48c2-bb27-2706c735e361@roeck-us.net>
+Date: Sat, 25 Jul 2026 07:30:10 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -69,14 +69,14 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 8/9] watchdog: w83627hf_wdt: Report all initialization
- failures in probe
+Subject: Re: [PATCH 9/9] watchdog: w83627hf_wdt: Use dev_* logging instead of
+ pr_*
 To: Paul Louvel <paul.louvel@bootlin.com>,
  Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 References: <20260725-w83627hf_wdt-improvements-v1-0-4e9a1b4e8297@bootlin.com>
- <20260725-w83627hf_wdt-improvements-v1-8-4e9a1b4e8297@bootlin.com>
+ <20260725-w83627hf_wdt-improvements-v1-9-4e9a1b4e8297@bootlin.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -122,45 +122,78 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-8-4e9a1b4e8297@bootlin.com>
+In-Reply-To: <20260725-w83627hf_wdt-improvements-v1-9-4e9a1b4e8297@bootlin.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 7/25/26 03:29, Paul Louvel wrote:
-> The driver currently logs an error only if the chip initialization
-> fails. Extend the error reporting to all failure paths in probe to
-> improve diagnostics.
+> The pr_* logging functions do not identify which device generated a
+> message. Use dev_* logging functions instead.
+> Since the device name is printed with this family of function, remove
+> the duplicate name in the initialization message.
 > 
 > Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
+
+Please combine this patch with the patch introducing the probe function,
+and, as mentioned, do not use goto() and do not generate a message for
+memory allocation failures.
+
+Thanks,
+Guenter
 > ---
->   drivers/watchdog/w83627hf_wdt.c | 25 +++++++++++++++----------
->   1 file changed, 15 insertions(+), 10 deletions(-)
+>   drivers/watchdog/w83627hf_wdt.c | 16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
 > 
 > diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index 90d41f21aa5e..cf1a3fb3a6fd 100644
+> index cf1a3fb3a6fd..83c5d8b52b13 100644
 > --- a/drivers/watchdog/w83627hf_wdt.c
 > +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -479,12 +479,16 @@ static int wdt_probe(struct platform_device *pdev)
->   	pr_info("WDT driver for %s Super I/O chip initialising\n", id->name);
+> @@ -471,12 +471,13 @@ static int wdt_probe(struct platform_device *pdev)
+>   	const struct platform_device_id *id = platform_get_device_id(pdev);
+>   	const struct wdt_pdata *pdata = pdev->dev.platform_data;
+>   	enum chips chip = id->driver_data;
+> +	struct device *dev = &pdev->dev;
+>   	struct watchdog_device *wdd;
+>   	struct w83627hf_data *data;
+>   	struct resource *res;
+>   	int ret;
+>   
+> -	pr_info("WDT driver for %s Super I/O chip initialising\n", id->name);
+> +	dev_info(dev, "WDT driver initialising\n");
 >   
 >   	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> -	if (!res)
-> -		return -ENXIO;
-> +	if (!res) {
-> +		ret = -ENXIO;
-> +		goto fail;
-
-No way. Use "return dev_err_probe(...);" instead.> +	}
+>   	if (!res) {
+> @@ -533,11 +534,11 @@ static int wdt_probe(struct platform_device *pdev)
 >   
->   	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-> -	if (!data)
-> -		return -ENOMEM;
-> +	if (!data) {
-> +		ret = -ENOMEM;
-> +		goto fail;
-> +	}
-
-Not for this one, as Sashiko points out.
-
-Guenter
+>   	if (data->early_timer_val) {
+>   		if (early_disable) {
+> -			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
+> +			dev_warn(dev, "Stopping previously enabled watchdog until userland kicks in\n");
+>   			ret = wdt_stop(wdd);
+>   		} else {
+> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+> -				wdd->timeout);
+> +			dev_info(dev, "Watchdog already running. Resetting timeout to %d sec\n",
+> +				 wdd->timeout);
+>   			ret = wdt_start(wdd);
+>   			set_bit(WDOG_HW_RUNNING, &wdd->status);
+>   		}
+> @@ -550,13 +551,12 @@ static int wdt_probe(struct platform_device *pdev)
+>   	if (ret)
+>   		goto fail;
+>   
+> -	pr_info("initialized. timeout=%d sec (nowayout=%d)\n", wdd->timeout,
+> -		nowayout);
+> +	dev_info(dev, "initialized. timeout=%d sec (nowayout=%d)\n",
+> +		 wdd->timeout, nowayout);
+>   
+>   	return 0;
+>   fail:
+> -	pr_err("failed to initialize watchdog (err=%d)\n", ret);
+> -	return ret;
+> +	return dev_err_probe(dev, ret, "failed to initialize watchdog\n");
+>   }
+>   
+>   /*
+> 
 
