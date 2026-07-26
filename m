@@ -1,107 +1,118 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5754D3E49C7
-	for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2026 18:45:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 411CA2571D7
+	for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2026 18:55:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785091544; cv=none; b=vFT7ebcFamj6k+5HpRpgws8LkCRLygu2lI7kf93CYV6ORhWOSvmR2vmN/6xVxSPr9nwto69ktIV+djaZBzAMclgcQOcN0hvJwGDh0NtqLaHgwWa4sXMteMhhTQ0avWDVtQNg+qKvH3OZ2YHU/g3Xm3SzIBirZQdtQk8dpx+Z/Rw=
+	t=1785092106; cv=none; b=IsJbbxMOhG1a5cv2UoarpKxStN2SjX0f2twlTav+WuweUwWKOV7hQHbB7yY1B1kn9UWo96o5cNu1q4WYG7CdVIeWVriyAwrAhWAiZr30fQ4FYE5wsiampNmo6eSwjQrkGVCj4ar+w5D7lynZtxKy2Y7/T/BIj0Qb+zl1iw1IY6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785091544; c=relaxed/simple;
-	bh=ESEGWz7WvRdIHFMhrkNN7sG0mCt9tn9zfpv6Oiu3DLM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tYEm8VqDK1oe2N5lBpMSiF5f75OOCAp5GvGXLt8ZZjrzPBQ14p9USC/y8DsrgZXO6W7SH0GHYSYSRWWV5eVW6efrPj1Lx4Ug2e9rXgpP+TpFLpdbG3czDzlKpnLB/jUdD+364DvrEHOw2KOQL6SAZkgtcSH+p7J+/zsHgV/VEfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=qbZ70/PE; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1785092106; c=relaxed/simple;
+	bh=WS6jqmFkAoOYx6M1Q0M/tOEhubaSaJrEnrH//yEAjOM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=VDm0zIlsy+gNHlE5Aox/xUO5IuaJby1a0+yL/bfu4DvVCRmHO1McRMNzabjMLA2trBQsA/+os4UTerIm8lJoJ0S7yXHU8wByxCgsBf/wN0OIagw9BbZw07icGQ583D6UYqNuZqv0YADcnNPSqVtOLfnU23m46sQ6CtanANEy3TI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Thk7lxgm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="qbZ70/PE"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id ED1B51A1264;
-	Sun, 26 Jul 2026 18:45:41 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id BCB8E601BE;
-	Sun, 26 Jul 2026 18:45:41 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id CF29A11C10AAF;
-	Sun, 26 Jul 2026 20:45:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1785091537; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=fDdKKC6ohzN9gKpm6o7MiU5hJnWDzzqiL8Kl/7INzRU=;
-	b=qbZ70/PE08sJOGdRoc+2kTZVuQoj7PxtAxosb+A8nui/w2I/QcxtOPKKodZkF3uGMiSNzo
-	ZftT5b1TmemKYNyaO0RE+NV3FwXKMYU6Q3wp+eyD06fy9kIJvsJThmS/mV1PAlKl6ZtRG7
-	pTMlB1npivbBAOkIpOqhwFaGxO3BKYNLXfydBW44slAjLgnD9xPd5TPSfFM2kjMNkykrMt
-	UIoDr5rpt7VR3oHZWSs5GkDi9O8pQ+7w3jAivz9omtatmAOWs4dx7R3V5m+E8Rua//5ZWV
-	adlrj9HyG08wBIOqX8ydMQpCn8nnzdKoh2UwbsQcK0B+wphrC0GYZnlixyL77Q==
-From: Paul Louvel <paul.louvel@bootlin.com>
-Date: Sun, 26 Jul 2026 20:44:35 +0200
-Subject: [PATCH v2 8/8] watchdog: w83627hf_wdt: Report all initialization
- failures in probe
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Thk7lxgm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF34D1F000E9;
+	Sun, 26 Jul 2026 18:55:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785092104;
+	bh=CMfhfB45e4QuB+EDCzD13Ak4hndLI/eVi56yDtuexAM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Thk7lxgm9sMxwY5qQvUzPm3So8CUDAgOG4j6FnLiKxkzGR6BbeuCNMDixMHtv3dG9
+	 eA4Ra4Yc6CqtUpeCTD6/rosY2gXDx+j+tndGEYqxE+zAN29FImiirjQ6zCU+wH91xX
+	 P8FXWMKlCGDSfHWiJO8wtb4zdnYUDA7+Q+HJ8XBmxhHQZeork62RQzH38/3+Rffx7V
+	 SJmmTg19Lbl8F6c1rGaYtBnTUek6F7lwJnXGwj39dagPAcyXaQGF6xOsg4YN6zpdxF
+	 Sbf43L1qokFK1P3jOftsk6uKpKXl+LX8Yi2PH+tYnftcjWM6PpkAkr5qy6HqNSqjNo
+	 QIAMTBoEd0++A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 6/8] watchdog: w83627hf_wdt: Store Super I/O
+ unlocking sequence in platform data
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Paul Louvel" <paul.louvel@bootlin.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260726-w83627hf_wdt-improvements-v2-6-3645a2a6c022@bootlin.com>
+References: <20260726-w83627hf_wdt-improvements-v2-0-3645a2a6c022@bootlin.com>
+ <20260726-w83627hf_wdt-improvements-v2-6-3645a2a6c022@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 26 Jul 2026 18:55:04 +0000
+Message-Id: <20260726185504.AF34D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260726-w83627hf_wdt-improvements-v2-8-3645a2a6c022@bootlin.com>
-References: <20260726-w83627hf_wdt-improvements-v2-0-3645a2a6c022@bootlin.com>
-In-Reply-To: <20260726-w83627hf_wdt-improvements-v2-0-3645a2a6c022@bootlin.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Paul Louvel <paul.louvel@bootlin.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785091497; l=1369;
- i=paul.louvel@bootlin.com; s=20260313; h=from:subject:message-id;
- bh=ESEGWz7WvRdIHFMhrkNN7sG0mCt9tn9zfpv6Oiu3DLM=;
- b=ZQI4YM978y9TNehy8Kf/YxpHbIudqDWS8qNVVbgrpiVUBq8+H4GL/0uY1lWxBOEB+bHJXHXmm
- fH7imo32UJyAoVoWll0LwJwNWMD56/akBbAufkHE5mHwDSigJ+ga/4U
-X-Developer-Key: i=paul.louvel@bootlin.com; a=ed25519;
- pk=eLW50NT18UAvUT5cAcYf88zNbBCZDLFXuptpyLVhVIU=
-X-Last-TLS-Session-Version: TLSv1.3
 
-The driver currently logs an error only if the chip initialization
-fails. Extend the error reporting to all failure paths in probe to
-improve diagnostics.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Missing NULL check for `platform_data` in `wdt_probe` leads to a k=
+ernel panic.
+- [High] Missing NULL check for `platform_get_device_id()` in `wdt_probe` l=
+eads to a NULL pointer dereference.
+--
 
-Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
----
- drivers/watchdog/w83627hf_wdt.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+--- Patch [6]: [PATCH v2 6/8] watchdog: w83627hf_wdt: Store Super I/O unloc=
+king sequence in platform data ---
+commit 60b05c387ecdfb14df4b8e624ec2e3f22d7a1aa6
+Author: Paul Louvel <paul.louvel@bootlin.com>
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 2957364485eb..7b50865ae824 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -485,7 +485,8 @@ static int wdt_probe(struct platform_device *pdev)
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
- 	if (!res)
--		return -ENXIO;
-+		return dev_err_probe(dev, -ENXIO,
-+				     "failed to get I/O resource\n");
- 
- 	data->info.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE;
- 	snprintf(data->info.identity, sizeof(data->info.identity),
-@@ -540,12 +541,12 @@ static int wdt_probe(struct platform_device *pdev)
- 		}
- 
- 		if (ret)
--			return ret;
-+			return dev_err_probe(dev, ret, "failed to set watchdog timeout\n");
- 	}
- 
- 	ret = devm_watchdog_register_device(&pdev->dev, wdd);
- 	if (ret)
--		return ret;
-+		return dev_err_probe(dev, ret, "failed to register watchdog\n");
- 
- 	dev_info(dev, "initialized. timeout=%d sec (nowayout=%d)\n",
- 		 wdd->timeout, nowayout);
+watchdog: w83627hf_wdt: Store Super I/O unlocking sequence in platform data
 
--- 
-2.55.0
+This commit replaces the use of two global variables for the Super I/O=20
+unlocking sequence. It instead stores the unlocking sequence in the=20
+platform data.
 
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
+wdt.c
+> index a067b8ea6b289..064a99db80efe 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+
+[ ... ]
+
+> @@ -439,13 +443,14 @@ static int wdt_find(int addr)
+>  		pr_err("Unsupported chip ID: 0x%02x\n", val);
+>  		break;
+>  	}
+> -	superio_exit(addr);
+> +	superio_exit(addr, leave);
+>  	return ret;
+>  }
+> =20
+>  static int wdt_probe(struct platform_device *pdev)
+>  {
+>  	const struct platform_device_id *id =3D platform_get_device_id(pdev);
+> +	const struct wdt_pdata *pdata =3D pdev->dev.platform_data;
+>  	enum chips chip =3D id->driver_data;
+
+[Severity: High]
+Can platform_get_device_id() return NULL here if the driver is bound to a=20
+device via sysfs driver_override or fallback name matching? If so, does=20
+accessing id->driver_data cause a NULL pointer dereference?
+
+>  	struct device *dev =3D &pdev->dev;
+>  	struct watchdog_device *wdd;
+
+[ ... ]
+
+> @@ -476,6 +481,8 @@ static int wdt_probe(struct platform_device *pdev)
+>  	wdd->max_timeout =3D 255;
+> =20
+>  	data->sioaddr =3D res->start;
+> +	data->siocfg_enter =3D pdata->siocfg_enter;
+> +	data->siocfg_leave =3D pdata->siocfg_leave;
+
+[Severity: High]
+What happens if the platform device is instantiated without platform data=20
+and bound to this driver? Would pdev->dev.platform_data be NULL, leading=20
+to a kernel panic when dereferencing pdata here?
+
+>  	data->reg.timeout =3D W83627HF_WDT_TIMEOUT;
+>  	data->reg.control =3D W83627HF_WDT_CONTROL;
+>  	data->reg.csr =3D W836X7HF_WDT_CSR;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726-w83627hf_w=
+dt-improvements-v2-0-3645a2a6c022@bootlin.com?part=3D6
