@@ -1,147 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31F1B3BE62A
-	for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2026 18:57:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51FE0355F53;
+	Sun, 26 Jul 2026 20:41:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785092259; cv=none; b=nGb3SM0zREEo0LqC/fqxW7UFhkqXAicPrfgBqSqKZlH2ecDWcKAEzIQ8oTT1g0A7X5XeVlYYiPQQsQyiljjqwJP91RIaDXRYy+LkNKiSJP8oM4JdS/iGl5N9SQV0jvJZAZjN8bRS1kDMTg+noU7Jli5sybZG4SVPRznC+BneaFs=
+	t=1785098485; cv=none; b=PDEsppLl+ZrRtCz7MlhlsnJYdXG7gkkUnndzmp1D9SLguZ4x1UvPJlzyivTtWn5OVqmX/kwOX+1N6PJeFJcrF42WVZh7H7cjSeslF2W8Qss+jocWOaW42xo2JFTm9FU0g2T1QyDm0hx0RPafAxOkwmZ9+tOaYbIrDars3boLGh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785092259; c=relaxed/simple;
-	bh=N54N4zmVt2VNrSfV4Q97+7WSQSYJeXqUG60AG6QNN8Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=m5PEhBVNOCXdaV+N7aYcQSu+0APT7UDL5h4HcsOD0uUhBm4++DDWQmbZ3qUTA1fPPCMmSBxXXzSf/+TlgCtqDfmofXF8uyQZGjTHH/bgP5kmfsrkCCJmVk+jVkS7PXAEuH54UWkHW97POz0SIBhExFyrja+6pZyfdPZw5Ho/y44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iru220lz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785098485; c=relaxed/simple;
+	bh=S/9uXYuR87xvRihC+6Q+uMs1Sa+/mqujN+9MH28NOzs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AZWByuUtCYjLvkCTV6mAjSh9na1IgSwxdtAFgK/RHu1oVZ8r4kHCRbgDtk3SHfyNYKBPA/reUm/PywDnqxOCDztqtyTgIopOX+M7cYaUtWfQ6NxGOMCTE+BhLUUmBaz8MBOMftiRk0zs48lOun3sRSp7laVJJer/VCc24aTQx0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SwAw7hCV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iru220lz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD22D1F000E9;
-	Sun, 26 Jul 2026 18:57:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SwAw7hCV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3751A1F000E9;
+	Sun, 26 Jul 2026 20:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785092257;
-	bh=KrZVt+549FTlWiauHIJE41A+zQpaM66IeexLj56YMiA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Iru220lzHFVIKlmM8/OUfitYk+Wt/L4Tc7miAyFhu5pWWB6bKrelXj0PbFi5OkDhr
-	 K6emTew38mU21ArK8VoVgvErOi0oMVVS+ZzV4eGxgaKxh3EHMw7F6I17wr5WzMqibc
-	 GUBGd1LSKlCHOH0vr2rI4sEyI+nLtbzQMYfJ66sysCXXD5ZMjnJIcYDXH5m7p3brWx
-	 oC7TBvmVizFMa+qf6YNrrIu88zxAn23aOwCpFANAPumVVD1j9521ZrNjkW+A0yFvfb
-	 e0zvf8BhTR7E3KcsTkl8CSYodjgtHbfln/hmgwV83RI+NpOWHoHp7nGuDrT2+wM2ir
-	 a6fmyTpFGS1dg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/8] watchdog: w83627hf_wdt: Convert to platform
- driver model
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Paul Louvel" <paul.louvel@bootlin.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260726-w83627hf_wdt-improvements-v2-2-3645a2a6c022@bootlin.com>
-References: <20260726-w83627hf_wdt-improvements-v2-0-3645a2a6c022@bootlin.com>
- <20260726-w83627hf_wdt-improvements-v2-2-3645a2a6c022@bootlin.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 18:57:37 +0000
-Message-Id: <20260726185737.AD22D1F000E9@smtp.kernel.org>
+	s=k20260515; t=1785098483;
+	bh=OgS8x+YxtWW3VM3C8eV4VxTKs6jaXLAxn9D/IY92PQc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=SwAw7hCVypDAaiEHmxfTtCYQJ2Grenmca009TOXZ8piIcvjtYwqp4X3avnu74Q6yR
+	 LOqlAQ6odlId20dVFRE8yx0iCCC6x5K02Oae78rJYbk3N87UjYUcSFk9ktr/nEFTpo
+	 +6ZBJ+3tWCGUk9euMCIoLuITT2m8z4Uf6ic48I68sSkaz7eiL60Uyoku2E5mR9Nzfp
+	 d65xLArIhWlbeTz2wQ5KskWMGDIrqhu31g4xDeauzzzs0ax1K6w0G3tNuWQlz5LuXL
+	 Bd0JIeXGop3+taiyGTsh1meJDMl8wHy2qMnmrM/TenkWzttzpXfa+cRJuxhF8oVAKD
+	 nJDC5dUjG3S4A==
+Date: Sun, 26 Jul 2026 22:41:20 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>, linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+	linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
+	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, Hongzhi Wang <hongzhi.wang@advantech.com>, 
+	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, Thomas Kastner <thomas.kastner@advantech.com>
+Subject: Re: [PATCH v2 4/8] Add Advantech EIO I2C driver
+Message-ID: <amZsX1SEjK0irSRv@zenone.zhora.eu>
+References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
+ <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Hi Ramiro,
 
-New issues:
-- [High] Potential NULL pointer dereference in `wdt_probe()` when the devic=
-e is bound via sysfs `driver_override`.
-- [High] Unbinding and rebinding the platform driver leaks watchdog status =
-state, permanently breaking the watchdog.
-- [Medium] The watchdog device's parent pointer is not initialized before r=
-egistration, breaking the sysfs device hierarchy.
+I had a fast look and I'm limiting to few comments this round.
 
-Pre-existing issues:
-- [High] Hardware watchdog is left running if `devm_watchdog_register_devic=
-e()` fails, guaranteeing an unintended system reboot.
---
+On Tue, Jul 14, 2026 at 05:54:18PM +0200, Ramiro Oliveira wrote:
+> This commit adds the driver to control the Advantech EIO I2C block, this
+> block is included in the Advantech EIO MFD.
 
---- Patch [2]: [PATCH v2 2/8] watchdog: w83627hf_wdt: Convert to platform d=
-river model ---
-commit d9d8da674e5ddb501516445617ff593614dca863
-Author: Paul Louvel <paul.louvel@bootlin.com>
-watchdog: w83627hf_wdt: Convert to platform driver model
+Can you please read the SubmittingPatches documentation for
+properly formatting the commit log? Please ask if you have
+questions.
 
-This commit converts the w83627hf_wdt driver to the Linux driver model by
-using a platform driver and platform device instead of the legacy module
-init registration.
+...
 
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
-wdt.c
-> index 1529a4e168209..206ab91fdb2a9 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-[ ... ]
-> @@ -464,6 +465,36 @@ static int wdt_find(int addr)
->  	return ret;
->  }
-> =20
-> +static int wdt_probe(struct platform_device *pdev)
+> +static inline int eio_reg_set_bits(const struct eio_i2c_chan *chan,
+> +				   unsigned int reg, unsigned int mask)
 > +{
-> +	const struct platform_device_id *id =3D platform_get_device_id(pdev);
-> +	enum chips chip =3D id->driver_data;
-
-[Severity: High]
-Can platform_get_device_id() return NULL here if the device is bound via
-sysfs driver_override? If the driver core's platform_match() succeeds by
-matching the driver name and bypasses the id_table, id would be NULL,
-causing a NULL pointer dereference when accessing id->driver_data.
-
-> +	struct device *dev =3D &pdev->dev;
-> +	int ret;
+> +	return regmap_update_bits(chan->parent->regmap, reg, mask, mask);
+> +}
 > +
-> +	dev_info(dev, "WDT driver initialising\n");
-> +
-> +	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
-> +		 id->name);
-> +
-> +	watchdog_init_timeout(&wdt_dev, timeout, NULL);
-> +	watchdog_set_nowayout(&wdt_dev, nowayout);
-> +	watchdog_stop_on_reboot(&wdt_dev);
-> +
-> +	ret =3D w83627hf_init(&wdt_dev, chip);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to initialize watchdog\n");
-> +
-> +	ret =3D devm_watchdog_register_device(&pdev->dev, &wdt_dev);
+> +static inline int eio_reg_clear_bits(const struct eio_i2c_chan *chan,
+> +				     unsigned int reg, unsigned int mask)
+> +{
+> +	return regmap_update_bits(chan->parent->regmap, reg, mask, 0);
 
-[Severity: Medium]
-Should wdt_dev.parent be set to dev before calling
-devm_watchdog_register_device()? Without this assignment, the watchdog
-device is parented to the virtual sysfs root rather than the physical
-platform device, which breaks udev hardware association rules.
+should the two regmap_update_bits above use chan->base + reg?
 
-[Severity: High]
-Does unbinding and rebinding this platform driver leak watchdog status
-state? Since wdt_dev is statically allocated and not zeroed during probe,
-any state set during a previous bind (like the WDOG_ACTIVE bit) is
-preserved. If an administrator unbinds and rebinds the driver, the core
-will see WDOG_ACTIVE is already set and return success without calling
-the hardware start routine, silently breaking the watchdog.
-
-> +	if (ret)
-> +		return ret;
-
-[Severity: High]
-This is a pre-existing issue, but does a failure in
-devm_watchdog_register_device() leave the hardware watchdog running? If
-the BIOS started the hardware watchdog before boot, w83627hf_init() resets
-its timeout and leaves it ticking. Because probe returns an error and the
-device node is never created, user-space has no way to ping the watchdog,
-guaranteeing an unintended system reboot.
-
-> +
-> +	dev_info(dev, "initialized. timeout=3D%d sec (nowayout=3D%d)\n",
-> +		 wdt_dev.timeout, nowayout);
-> +
-> +	return ret;
 > +}
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726-w83627hf_w=
-dt-improvements-v2-0-3645a2a6c022@bootlin.com?part=3D2
+...
+
+> +static int smb_access(struct eio_i2c_chan *i2c_chan, u8 addr, bool is_read, u8 cmd,
+> +		      int size, union i2c_smbus_data *data)
+> +{
+> +	int i, tmp, ret = 0;
+> +	unsigned int st1, st2;
+> +	int len = 0;
+
+...
+
+> +		for (i = 1; i <= len; i++)
+> +			eio_reg_read(i2c_chan, SMB_REG_HBLOCK,
+> +				     (unsigned int *)&data->block[i]);
+
+mmmhhhh... how many bytes are you sending to eio_reg_read()
+starting from &data_block[i]?
+
+> +		break;
+
+...
+
+> +static int eio_i2c_probe(struct platform_device *pdev)
+> +{
+> +	static const char * const names[] = { "i2c0", "i2c1", "smb0", "smb1" };
+> +	struct device *dev = &pdev->dev;
+> +	struct eio_i2c_dev *eio_i2c;
+> +	struct eio_dev *eio_dev = dev_get_drvdata(dev->parent);
+> +	int ret = 0;
+> +	enum eio_chan_id ch;
+> +
+> +	if (!eio_dev) {
+> +		dev_err(dev, "Error contact eio_core\n");
+
+please use dev_err_probe()
+
+Andi
+
+> +		return -ENODEV;
+> +	}
