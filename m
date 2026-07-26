@@ -1,109 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7234C366567
-	for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2026 18:56:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31F1B3BE62A
+	for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2026 18:57:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785092208; cv=none; b=IANNxEwSotZpq8si2wBnEnGAiXQtnf2nY+7l+X0SkuHgPktfG8EEzV11z71/lns4xR0U78fy/S9P3nk82hCpnrdU2HgRNu6/LVSkMyqToad5NTKRGDHdRgC0ufBvssxRBkeCSFHOnyyaC1h0V5H8eebh3O7oaf2vs8aPDJ2czFs=
+	t=1785092259; cv=none; b=nGb3SM0zREEo0LqC/fqxW7UFhkqXAicPrfgBqSqKZlH2ecDWcKAEzIQ8oTT1g0A7X5XeVlYYiPQQsQyiljjqwJP91RIaDXRYy+LkNKiSJP8oM4JdS/iGl5N9SQV0jvJZAZjN8bRS1kDMTg+noU7Jli5sybZG4SVPRznC+BneaFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785092208; c=relaxed/simple;
-	bh=hMevPyXV3ukJXvf5/OT6K+8oT88jbrCP79zYfXGXfQE=;
+	s=arc-20240116; t=1785092259; c=relaxed/simple;
+	bh=N54N4zmVt2VNrSfV4Q97+7WSQSYJeXqUG60AG6QNN8Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HjdKwIwMp45eJZjNemqXkXxMRl4X+dFkEpc6KALOntRLAgR/yRv2ulIxV9/cbCZY4/uMjOoHntPSFkXM/9BO0MUm1FyS81eC0B5efdiTIcCTOJiCBATNpmGFCgrBjqxdqkHgFPF9Eyj4YzXsmZUOdh5BtZS12yiCg6C6dNdUcMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h0/WnZuq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=m5PEhBVNOCXdaV+N7aYcQSu+0APT7UDL5h4HcsOD0uUhBm4++DDWQmbZ3qUTA1fPPCMmSBxXXzSf/+TlgCtqDfmofXF8uyQZGjTHH/bgP5kmfsrkCCJmVk+jVkS7PXAEuH54UWkHW97POz0SIBhExFyrja+6pZyfdPZw5Ho/y44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iru220lz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h0/WnZuq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC2001F00A3A;
-	Sun, 26 Jul 2026 18:56:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iru220lz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD22D1F000E9;
+	Sun, 26 Jul 2026 18:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785092207;
-	bh=M2U7Ku+xc2JBv/gNY89dvhEBHu5Ik7C2rHjXIGph3r8=;
+	s=k20260515; t=1785092257;
+	bh=KrZVt+549FTlWiauHIJE41A+zQpaM66IeexLj56YMiA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h0/WnZuqXi2hY5erSHQ0RnNqYZg2UfYwY2Tx7baUcgQIXtpQ7n/XlFAToc/PaAf3Q
-	 vszif/CZy6atJWEisH2hBpGSZiaE9rfKWlVLm0EA4unQ1YbwVxHa33D1k95Ty6/8oc
-	 NWYeJ4yp4ijIonoJsGXvSUftMkQnuaai6/Rpumvjt3DmvtTr/0rprx0taBKnxm2uuF
-	 TcNOXLxHKswrcLZfW0qTwCexwwc3+FzJoY48srQCLwk9udTwlQj5RvOwvphq4j5DFt
-	 rcT1GwIrCJnT725b/sg+6XMpouZwqZ+QirE2jJxfi4DbbkCA+hESimR229a83UIgzw
-	 1OkqCdeBVEV6w==
+	b=Iru220lzHFVIKlmM8/OUfitYk+Wt/L4Tc7miAyFhu5pWWB6bKrelXj0PbFi5OkDhr
+	 K6emTew38mU21ArK8VoVgvErOi0oMVVS+ZzV4eGxgaKxh3EHMw7F6I17wr5WzMqibc
+	 GUBGd1LSKlCHOH0vr2rI4sEyI+nLtbzQMYfJ66sysCXXD5ZMjnJIcYDXH5m7p3brWx
+	 oC7TBvmVizFMa+qf6YNrrIu88zxAn23aOwCpFANAPumVVD1j9521ZrNjkW+A0yFvfb
+	 e0zvf8BhTR7E3KcsTkl8CSYodjgtHbfln/hmgwV83RI+NpOWHoHp7nGuDrT2+wM2ir
+	 a6fmyTpFGS1dg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 8/8] watchdog: w83627hf_wdt: Report all
- initialization failures in probe
+Subject: Re: [PATCH v2 2/8] watchdog: w83627hf_wdt: Convert to platform
+ driver model
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Paul Louvel" <paul.louvel@bootlin.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260726-w83627hf_wdt-improvements-v2-8-3645a2a6c022@bootlin.com>
+In-Reply-To: <20260726-w83627hf_wdt-improvements-v2-2-3645a2a6c022@bootlin.com>
 References: <20260726-w83627hf_wdt-improvements-v2-0-3645a2a6c022@bootlin.com>
- <20260726-w83627hf_wdt-improvements-v2-8-3645a2a6c022@bootlin.com>
+ <20260726-w83627hf_wdt-improvements-v2-2-3645a2a6c022@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 26 Jul 2026 18:56:46 +0000
-Message-Id: <20260726185646.DC2001F00A3A@smtp.kernel.org>
+Date: Sun, 26 Jul 2026 18:57:37 +0000
+Message-Id: <20260726185737.AD22D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Unchecked dereferences of `id` and `pdata` in probe can lead to a =
-kernel Oops.
+
+New issues:
+- [High] Potential NULL pointer dereference in `wdt_probe()` when the devic=
+e is bound via sysfs `driver_override`.
+- [High] Unbinding and rebinding the platform driver leaks watchdog status =
+state, permanently breaking the watchdog.
+- [Medium] The watchdog device's parent pointer is not initialized before r=
+egistration, breaking the sysfs device hierarchy.
+
+Pre-existing issues:
+- [High] Hardware watchdog is left running if `devm_watchdog_register_devic=
+e()` fails, guaranteeing an unintended system reboot.
 --
 
---- Patch [8]: [PATCH v2 8/8] watchdog: w83627hf_wdt: Report all initializa=
-tion failures in probe ---
-commit 0129cf43f51e4968c683b359d971eaa0c48a6846
+--- Patch [2]: [PATCH v2 2/8] watchdog: w83627hf_wdt: Convert to platform d=
+river model ---
+commit d9d8da674e5ddb501516445617ff593614dca863
 Author: Paul Louvel <paul.louvel@bootlin.com>
+watchdog: w83627hf_wdt: Convert to platform driver model
 
-watchdog: w83627hf_wdt: Report all initialization failures in probe
-   =20
-The driver currently logs an error only if the chip initialization
-fails. Extend the error reporting to all failure paths in probe to
-improve diagnostics.
+This commit converts the w83627hf_wdt driver to the Linux driver model by
+using a platform driver and platform device instead of the legacy module
+init registration.
 
 > diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
 wdt.c
-> index 2957364485ebf..7b50865ae8248 100644
+> index 1529a4e168209..206ab91fdb2a9 100644
 > --- a/drivers/watchdog/w83627hf_wdt.c
 > +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -485,7 +485,8 @@ static int wdt_probe(struct platform_device *pdev)
+[ ... ]
+> @@ -464,6 +465,36 @@ static int wdt_find(int addr)
+>  	return ret;
+>  }
 > =20
->  	res =3D platform_get_resource(pdev, IORESOURCE_IO, 0);
->  	if (!res)
-> -		return -ENXIO;
-> +		return dev_err_probe(dev, -ENXIO,
-> +				     "failed to get I/O resource\n");
+> +static int wdt_probe(struct platform_device *pdev)
+> +{
+> +	const struct platform_device_id *id =3D platform_get_device_id(pdev);
+> +	enum chips chip =3D id->driver_data;
 
 [Severity: High]
-Could the dereferences of id and pdata earlier in this function lead to a
-kernel Oops?
+Can platform_get_device_id() return NULL here if the device is bound via
+sysfs driver_override? If the driver core's platform_match() succeeds by
+matching the driver name and bypasses the id_table, id would be NULL,
+causing a NULL pointer dereference when accessing id->driver_data.
 
-If a user binds a device to this driver via sysfs (for example, using
-driver_override or bind), platform_get_device_id(pdev) will return NULL
-because the device ID does not match any entry in the driver's id_table.=20
+> +	struct device *dev =3D &pdev->dev;
+> +	int ret;
+> +
+> +	dev_info(dev, "WDT driver initialising\n");
+> +
+> +	snprintf(wdt_info.identity, sizeof(wdt_info.identity), "%s Watchdog",
+> +		 id->name);
+> +
+> +	watchdog_init_timeout(&wdt_dev, timeout, NULL);
+> +	watchdog_set_nowayout(&wdt_dev, nowayout);
+> +	watchdog_stop_on_reboot(&wdt_dev);
+> +
+> +	ret =3D w83627hf_init(&wdt_dev, chip);
+> +	if (ret)
+> +		return dev_err_probe(dev, ret, "failed to initialize watchdog\n");
+> +
+> +	ret =3D devm_watchdog_register_device(&pdev->dev, &wdt_dev);
 
-This leads to a NULL pointer dereference when initializing chip:
+[Severity: Medium]
+Should wdt_dev.parent be set to dev before calling
+devm_watchdog_register_device()? Without this assignment, the watchdog
+device is parented to the virtual sysfs root rather than the physical
+platform device, which breaks udev hardware association rules.
 
-wdt_probe()
-    const struct platform_device_id *id =3D platform_get_device_id(pdev);
-    ...
-    enum chips chip =3D id->driver_data;
+[Severity: High]
+Does unbinding and rebinding this platform driver leak watchdog status
+state? Since wdt_dev is statically allocated and not zeroed during probe,
+any state set during a previous bind (like the WDOG_ACTIVE bit) is
+preserved. If an administrator unbinds and rebinds the driver, the core
+will see WDOG_ACTIVE is already set and return success without calling
+the hardware start routine, silently breaking the watchdog.
 
-Additionally, binding a platform device this way leaves
-pdev->dev.platform_data as NULL, causing a subsequent NULL pointer
-dereference when accessing pdata:
+> +	if (ret)
+> +		return ret;
 
-wdt_probe()
-    const struct wdt_pdata *pdata =3D pdev->dev.platform_data;
-    ...
-    data->siocfg_enter =3D pdata->siocfg_enter;
+[Severity: High]
+This is a pre-existing issue, but does a failure in
+devm_watchdog_register_device() leave the hardware watchdog running? If
+the BIOS started the hardware watchdog before boot, w83627hf_init() resets
+its timeout and leaves it ticking. Because probe returns an error and the
+device node is never created, user-space has no way to ping the watchdog,
+guaranteeing an unintended system reboot.
 
-Since this can be triggered from userspace by a user with privileges to
-write to sysfs, could this be used to panic the kernel?
-
-[ ... ]
+> +
+> +	dev_info(dev, "initialized. timeout=3D%d sec (nowayout=3D%d)\n",
+> +		 wdt_dev.timeout, nowayout);
+> +
+> +	return ret;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260726-w83627hf_w=
-dt-improvements-v2-0-3645a2a6c022@bootlin.com?part=3D8
+dt-improvements-v2-0-3645a2a6c022@bootlin.com?part=3D2
