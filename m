@@ -1,117 +1,211 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA2643644C6
-	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 06:06:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AEB73A5E96
+	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 10:31:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785391582; cv=none; b=YFVycepyVewSwn4rHiwfdlThvTl42FBDfVQnZuS8tqHraPI+uhVVE83BIzvOLkXscWO4UM5xkO6QOLkf9PtTEr5SNdd9HzmlxRid6vg4EEm4X+7IfDqKDiqdCnkypxUUxSgM8YvHfjsKB6Zsk/Tu9lYc1VSVWaBOZ1o35wdNlvk=
+	t=1785407481; cv=none; b=pksMsILl9qwvufJubR85XTTXt//q0SgaKm/TgxnuOgLi+PSwQc2/wAoJw8RK0Tix71boV8xSvzWIkgK7x97/kVdt2vVnv8/SOdNVjrK4+9r0TiTtYCfMgXTwFgA0Qin2ve89dAYTehKpZZz9eT15S6pai71hnavYlReArOpWwWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785391582; c=relaxed/simple;
-	bh=Low4IivJn86jnGI3LLU/Ae2Spn1lU607J8byZ/ZoSKA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jVQK0atb6ky6/L3j7UNvnA+l3Y3OAH+0cGwLTvkHLMkTru20rQkFe1eSwrkI9AYyMc5tJdXhEM38kIqXQIM6QmtgZAfRnkIrBW3lIJmUZf/vV88HxhFd9on0+XAGwTsAjvcKU8eIzSgmgZKr+MBPFn3rpZoHiFoADlZk4m/LXxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IeR6CqYW; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785407481; c=relaxed/simple;
+	bh=MkFho+L+7qIi6ClR+NBgfddbQ9MuhqymAihXj6m77qg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VnQaoSndFggwFQDbss1tiez0NzsWQ3r1gyEOzdqO9O72VgVnV9edsLujMgBhZp8b5Rqyz5yEoL+s5xFV2b1iReazjMV6LtCVyIrpRnSB227+2bRuwAclFZtTK2xruCtZqpwKis8oFRBAoaqEK1ndvqGIlrwsRAtHVxqnDDQvD64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=XJ7TJymY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=GAGYu+hX; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IeR6CqYW"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cab973140bso24183725ad.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2026 23:06:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="XJ7TJymY";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="GAGYu+hX"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UA2UHk677899
+	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 10:31:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	3FqmpIR1hp9650zedC/Cu7xxjGufkMIKEyfbRtcEbtI=; b=XJ7TJymYZTIxb1yQ
+	APCeZ1Nwf6sfl0B294j1PC3xenfdAGPMzTg1oCbkeo8X6i1cERitfxbuHhUKInr6
+	SPQ3xYd8a7HvKyDxCBLXNSNW3dTFc2av6rxwjiwIZC0Z+hJhVzIo/mr+MdaH/C7R
+	ncnC41eL2vOoQr1Hnrdf9Yv1gxYCn5Ns3tffBX2EhpWX8P6QKZ9Qsf9ERiYG/zrl
+	xXtDz5bR+9RcpkXQ5o+Hm38UQDvu7jKKbOBfXt1vXlORoEA6mxDOsZZPxXWSG5uD
+	DQpvs65a2uopeEbkjh0ZYWAKfB2sIOMpkx+D0+VDUZFG5C0uyPoZEKPYrIoacX/Q
+	zQyl0g==
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fr3w60adm-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 10:31:18 +0000 (GMT)
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-ca8aee88725so2815907a12.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 03:31:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785391580; x=1785996380; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=oc22gTId6HvmzrfanPJzdlwN1Vujg0CkMxmiMkWQDoI=;
-        b=IeR6CqYWX2ZyTY6P085zYF4qLDJ08QLcS3/BdfHQhJbcWdpSBm8yExE27211PeUH0a
-         +QfNvOymYqjDALPlMbhUBaevpM81P0cQ1n21fISZHc7zTTGTatYbUc231IgBPoNUlgJH
-         x4zsB5RDrD0E30oIUaNCTnlgRfJ09c1Rzmx3rlZOI71hUBGp3cxay8rOMhAm1dvunMKW
-         lqYaSTzniHLdR4WsbrzpGJrwlQAB+/8+uYs1D44nVQU+r2UGSydSOKogf8zicFNTtyWC
-         fiu6ziixC8AyXg5sDBipdUqrwVHfgX5xS3Zh5O3Yf8BkoGH4FqJ0NOyAirtZL3KblQAm
-         0vWQ==
+        d=oss.qualcomm.com; s=google; t=1785407478; x=1786012278; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3FqmpIR1hp9650zedC/Cu7xxjGufkMIKEyfbRtcEbtI=;
+        b=GAGYu+hXFdsZyJewHlmUAyF3+vG1HdjhWZAEvUGUdmuA1QLDERdgShhEqmBTaxE/7a
+         iQz8XxDojNGh5MFFoo1IwNebIF6Nv9kx2e4m+ZbldPBg1MrPbiVz4plutx9eB+1fW3SK
+         Ah+igm7w0e8BF82E8LmrhGWldn7eJPyjlYUNzNoAR/AA8mtGUR/N3GSUJjs0F8i0T8sS
+         43vabm806Lpg9jiol+uU4dTMGKszsi8zDtqaiPVOiOK/YB7mIkXp1EhJLi8bFQCFKin8
+         DVA0wj98++M+4LTYakNfA9d7JD+2WEp7doXnNxlVw5paCyb7G9vqUCu+u3GnlKOuhiDn
+         i1YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785391580; x=1785996380;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oc22gTId6HvmzrfanPJzdlwN1Vujg0CkMxmiMkWQDoI=;
-        b=lMhGebnF7JmQUe1UpXIFrHYZD/1P/ZoeDs/3jvu6HxvK1rMyz1CR06l9dNP36ASAWg
-         ji+DO28jxf+2+0bLfY+kjm/DXQ3FniOhIGmw1WehT5+ZR5l6YuqDxymynZwoWvasXAuc
-         UtIYxx5a7qR6O70uPpk2QITrr5WBg/X5CnR9p5yM5PdrWepessCrnga/Hwt9FLdVKkrS
-         PW3HbWYS2Bq5aujA5lxAELHxalipXiWpV/97vrg95ZKM7qGujQQ/hrEDLPMGsnA3I9x5
-         X9QCgwa+03TpBOONrw9BYWJeRhA22eXxcXCXSaKa8zZyjw2Xd60lod2CKSdKmAjVWWhv
-         ZiVA==
-X-Forwarded-Encrypted: i=1; AHgh+RpB19TbaYMVK5NtAx6Me6VnfdWjIKEFkGh0vwVIEtGgMmHmYfvwsjrnyKd1q0s5GpbIzfRyU4Zk6vV/DabIgA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyyN47EVwM1M0gVshwfA/4fpgRJ+jGqCkk8024Bk8iqUxXe9XBt
-	qMamL5mpewKDYES8Q5c5SklXY6D35FyWXTIgYYza5YqdnZKtsWAPZkh0
-X-Gm-Gg: AR+sD12VHPgzOFeoXDwlZpJr/uR/ODZ6KPd2ugZeGRnBuWd/9ZNtmsBSFLTUV3Pxbe9
-	zaTdtH1s+B+J0vKW8NNPrTvNtRn4JhFumhLarYvYogk91m4Wx6BPuojHzPmzRO2joH9Svr1llzK
-	U74VrBDnBa2kOxAO1KwPuU22inyUCRa6jaatr/5VMCeRqXXdUIg/hWngSJYN50n7h88yRL/iUdu
-	z6AKLrdmeGWj6xTZSAI9ncI1iCuwbjeaE5TgRmwbAR+vFXyE4831dg865K4G7xdbR+Ie1E4x6Hl
-	kLcVsM41+Ho34Bl4Dgp1XPZyNmXyjLDqb9PD2BH7eqXT4vd6iM2RhDfSee1q1KQFS0vEnKnN3aJ
-	/890HtyAuTprcVO1bxVBC0DPJ+ISNLQ711EwaS7gEeKT0XeugLyehcMTFARstRhY2s9OQ4kebtr
-	Qq7/gsdufqm+fGHY/noQMD6lyUXYmTxZTwt1URlM2l17/NZkzSM7WeTJBgVsb8OiJ60DzkqSE=
-X-Received: by 2002:a17:902:c40d:b0:2ca:d7a0:1312 with SMTP id d9443c01a7336-2d035c864a4mr16689545ad.25.1785391580093;
-        Wed, 29 Jul 2026 23:06:20 -0700 (PDT)
-Received: from kdev.. ([108.180.130.139])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d022a46774sm20780785ad.27.2026.07.29.23.06.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 23:06:19 -0700 (PDT)
-From: Babanpreet Singh <bbnpreetsingh@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Babanpreet Singh <bbnpreetsingh@gmail.com>
-Subject: [PATCH 2/2] watchdog: booke_wdt: Document unused parameter of __booke_wdt_disable()
-Date: Thu, 30 Jul 2026 06:06:17 +0000
-Message-ID: <20260730060617.7-3-bbnpreetsingh@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260730060617.7-1-bbnpreetsingh@gmail.com>
-References: <20260730060617.7-1-bbnpreetsingh@gmail.com>
+        d=1e100.net; s=20251104; t=1785407478; x=1786012278;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3FqmpIR1hp9650zedC/Cu7xxjGufkMIKEyfbRtcEbtI=;
+        b=ADh1A8QuEhXiF9OxEscqNc3+QxmBf5UojEc/d2silOEdnGVSlzORdJQjyHM7ClMkU+
+         PHb1JmQFZ96c5axg88kk4QhIpKVT2U7HjaofHV/q4SEHlH4vsgcnPJpFeEglERpU/e9g
+         LrpxDtbjZ4nu4hGo1yVHMJiGUl7M6SVw+Hdwb0f8HZYwuB1QwwUVqyRCYPpp9jM8TkyD
+         urw5nAHuRK6N+bNvYrGCgYyoCyHf/rCvkovyAxJWYHZ+27Y4i6mmmMo/aRiyjIH1i/Sg
+         qLIm0n2B5RqbgrEuJQ0enCT9qU1VqyJfIlPR9xzHKZMUsiygxJAcnrxQvOKvVQBWRI1w
+         n2Kw==
+X-Forwarded-Encrypted: i=1; AHgh+Rp9AeVksa8lsY99Ao9Kb/LhMzly4oX6eVyMxXCmAG84Gc0JS5AwviHVz9hgQZtTF4dFcjnJi1xwNxTrq1wNbA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0GlOK1i1n9nXMBq6A0+VN7WYMyK3oBjmixoyTbXgKFmuifUUq
+	Duy4zoWK3luA/xEZAUqzuEBgEIryc/8n/fLNfkChK5VKfqGaw52LnGP90sRSNYbj7TgjaXMvjSC
+	AVkdC3yMDsjeQfwFSfsVp52xPsw07dFJdAhDmT3cf6DMEQDGCOtasHBFlb/tYuVorFf2a
+X-Gm-Gg: AR+sD12TnvnMxdohmCPx4tvRCcnbJVXx6XrXXWbEVrI4kAD6tcXcxN1AwC1+/+7CZNK
+	FSwZF2k2HHEcdso5JzotetCEirKhWh6i217e/KLvzlOApJvYex5c1ZZ78D5Vpz11PVb0bdJnXrT
+	Wqj9s06BFK8P+XOVtMi2K4IF4vDoBEzS3TbbzKRHyuNH2ZP7PZktoaL6tHDZzoqeA7wsDlUU2lt
+	lA4o4tftr2sdz+d4yUk/CycERSQgu+CRVtQUpqqqp7fWM3Sa1dp/KQ6dEkT5X1lecx+ujg6em7E
+	pmdJpDhBbI84lRnsSpvi0p+R6+sROHEQ8QJiVLv1D/KYl+3Z5EhkSAlMHqDeaPxwtE7H7Gl0WMO
+	yVCgFduRj/j03HOrKb/U+gQidhf5wyKs=
+X-Received: by 2002:a05:6a20:d49b:b0:3b3:1c7b:ffb with SMTP id adf61e73a8af0-3c90057a0damr1917892637.34.1785407477721;
+        Thu, 30 Jul 2026 03:31:17 -0700 (PDT)
+X-Received: by 2002:a05:6a20:d49b:b0:3b3:1c7b:ffb with SMTP id adf61e73a8af0-3c90057a0damr1917858637.34.1785407477220;
+        Thu, 30 Jul 2026 03:31:17 -0700 (PDT)
+Received: from [10.218.33.235] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbdba3518e1sm2024080a12.16.2026.07.30.03.31.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2026 03:31:16 -0700 (PDT)
+Message-ID: <1fdb31e8-e6a3-47b8-a021-bf05cd61848e@oss.qualcomm.com>
+Date: Thu, 30 Jul 2026 16:01:07 +0530
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] watchdog: pretimeout: record PSC reason on
+ watchdog pretimeout
+To: Guenter Roeck <linux@roeck-us.net>, Sebastian Reichel <sre@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Benson Leung
+ <bleung@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Srinivas Kandagatla <srini@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>
+Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.org,
+        kernel@pengutronix.de, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+        =?UTF-8?Q?S=C3=B8ren_Andersen?= <san@skov.dk>,
+        Guenter Roeck <groeck@chromium.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        avaneesh.dwivedi@oss.qualcomm.com,
+        Umang Chheda <umang.chheda@oss.qualcomm.com>,
+        linux-arm-msm@vger.kernel.org
+References: <20260722-pscrr-reboot-reason-v2-0-495ba3005953@oss.qualcomm.com>
+ <20260722-pscrr-reboot-reason-v2-3-495ba3005953@oss.qualcomm.com>
+ <b7e5b66f-1f27-4c3a-a66d-2100a982aaf4@roeck-us.net>
+Content-Language: en-US
+From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+In-Reply-To: <b7e5b66f-1f27-4c3a-a66d-2100a982aaf4@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA3OCBTYWx0ZWRfX4pfq4dwd5CAz
+ tJ4FRStMqdyCSNAINk4MQKU/IgUC3Ma0T2yBSYb0GRdYuvX2DHBWqALO+bUEaTBdcOXYNUWRIrq
+ xZALbHuiyLE4qqG/mJrPKAWKw/UvjMw=
+X-Authority-Analysis: v=2.4 cv=b9WCJNGx c=1 sm=1 tr=0 ts=6a6b27f6 cx=c_pps
+ a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
+ a=EUspDBNiAAAA:8 a=hzOxsa2yftWTDtbb7UEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=3WC7DwWrALyhR5TkjVHa:22
+X-Proofpoint-GUID: WBY4KqXQyuX_OVsHttXyllf_S7iYKhoE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA3OCBTYWx0ZWRfX6ghQFTbEloxb
+ +jSoR8/4M2FAb30o2k/tkRaMGpSHK4160pOu0BFnlVLXPI2gP6m0NHlqqh2ubYz1X4Jkr0jB306
+ VDy+sNImkyzhBzlTat2e1OI8d03CJMkzu5dONQcdKDx/9sxKy99kXhSEoRidbzikn4AWZ7chSNQ
+ muPnwlg29PJEgtuo5VVGW7DH8L/nXjz8dL7z8VsCiHaorhDkt+oC1rzOo+hdN5af1ZFlS5kEc88
+ BIJCe54mIGWskTkliMyodJk+QMpKZeR/CfZ1GcxKOE6CvW3NIv2JMRj6D9naYBvHMFNvHUlKJQk
+ cOib4X+JCsbQwkNSbz0J1P7NV3rRwucNIGOE1A1BuCLskHVBYYx6CnXJ5lBdLtGKwlpAT2IVQZe
+ DnQKumUyoAQGW7F+qbhVfYnFCXUr3AOW/C5adQEmif64JXJ2TY/wXRgfzsj20EF7FhTxk9Xw7Eg
+ erpmcIulKiCD7GYamrw==
+X-Proofpoint-ORIG-GUID: WBY4KqXQyuX_OVsHttXyllf_S7iYKhoE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-30_03,2026-07-29_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607300078
 
-scripts/kernel-doc -none reports:
 
-  Warning: drivers/watchdog/booke_wdt.c:158 function parameter 'data'
-  not described in '__booke_wdt_disable'
+Hi Guenter,
 
-__booke_wdt_disable() is invoked through on_each_cpu(), so it takes a
-void * argument that it does not use. Its kernel-doc comment does not
-describe the parameter at all.
+On 30-Jul-26 10:33 AM, Guenter Roeck wrote:
+> On 7/22/26 08:13, Faruque Ansari wrote:
+>> Update the PSC reset reason by invoking 
+>> set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT)
+>> from watchdog_notify_pretimeout() before either the panic or 
+>> noop governor
+>> runs, so the reset cause is committed to persistent storage 
+>> before the
+>> system goes down.
+>>
+>> Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+>> ---
+>>   drivers/watchdog/watchdog_pretimeout.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/ 
+>> watchdog/watchdog_pretimeout.c
+>> index 02e09b9e396d..ea48d4eca4aa 100644
+>> --- a/drivers/watchdog/watchdog_pretimeout.c
+>> +++ b/drivers/watchdog/watchdog_pretimeout.c
+>> @@ -4,6 +4,7 @@
+>>    */
+>>   #include <linux/list.h>
+>> +#include <linux/reboot.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/spinlock.h>
+>>   #include <linux/string.h>
+>> @@ -103,6 +104,8 @@ void watchdog_notify_pretimeout(struct 
+>> watchdog_device *wdd)
+>>   {
+>>       unsigned long flags;
+>> +    set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT);
+>> +
+> 
+> A call to watchdog_notify_pretimeout() does not necessarily reset 
+> the system.
+> It only resets the system if the panic governor is active. Given 
+> that,
+> I think this is a bit misleading. If the "noop" governor is 
+> active and the
+> system crashes later due to a completely unrelated panic, the 
+> restart reason
+> will be wrongly logged as pretimeout.
+> 
+Thanks for reviewing.
+I agree. My intention was to handle both governors through the 
+common pretimeout path. However, with the "noop" governor the 
+recorded reason may be misleading since the system can continue 
+running.
+I'll move the recording to the panic governor path in the next 
+version.
 
-Document it as unused.
+Thanks,
+Faruque Ansari
 
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: Babanpreet Singh <bbnpreetsingh@gmail.com>
----
- drivers/watchdog/booke_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index 932a03f4436a3..1b1fb389b89ba 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -149,6 +149,7 @@ static void __booke_wdt_enable(void *data)
- 
- /**
-  * __booke_wdt_disable - disable the watchdog on the given CPU
-+ * @data: unused
-  *
-  * This function is called on each CPU.  It disables the watchdog on that CPU.
-  *
--- 
-2.43.0
 
