@@ -1,125 +1,157 @@
-Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F5338DC44
-	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 21:47:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DBC433D506
+	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 21:47:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785448034; cv=none; b=nhPy1sFS1mjWIZZXsINU+gNaBts3szn1dC9Z71CCNracH/lD5R4WBQHCuE5188XvxmLWYRpbs6PItID44GRDE56uIAbTrD6USmYo739gpHS4Jn/cEnzekL6t8gos9glbyqTol6HiruextE+soae4itnpuU9nwAbhwT1AJaRaNYQ=
+	t=1785448080; cv=none; b=TFQj1xV79BWTk5CwYktYRATTGfUbUjN+4KWaRj3JTwAyUeE5liVW6mSYNABPP1q1+c/K6+OuXSSEcbd+ogae8oqUIpUGyUevOGO8nSYXqQaKH+v8hhJCN0SmrQQURnjoHE0e2QZOA3kGVmvxsKNP3q7HO8jQ0WjI996gE/fkDZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785448034; c=relaxed/simple;
-	bh=3zePUSKPuVEhoLen7Dlseb8ZqqhKGqql9NuBj13jea0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=B8IzE5WNTF8EF7B6rio8u4zpHyo4th3lsXGimQpfolO9v5uckLdtypwxu72ROXiHYe0wSnms36Pm0Sh1vCMCaHGSUOP3WyZdELNavrL1wRHiK6SlabwodQkgwpMEswDtwEFiX1CSN4FwONf711Ab1IbcHDBwS+wc74TjIelpEcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=T6fyRCtX; arc=none smtp.client-ip=209.85.221.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1785448080; c=relaxed/simple;
+	bh=tQ44l2vaDuHIpYAIuOVt7nMqRpKW8dXOcAadQcl35Hk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Y3tqccTC4DGu6QGmPW+nnSqafL4sYKtwjL2NZ0co8uKc2W6TBPsg19B46FMPf40aQIIFz0TD2ywrN1HAWJcwBhM0kpUjKDYU6rNK525fsJg1uhtM0FfL9p02ITn4hML2PuiEQQbyd1GdrRpSIdo+FW1+1uWBTxLHmuAkSoqcpYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=doU4+rV4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="T6fyRCtX"
-Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-5bf959b820cso233222e0c.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 14:47:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1785448032; x=1786052832; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BEcZSaSov64w+SqDtqbhCImxhflXKNQ/vSfdSGSImp0=;
-        b=T6fyRCtX0BxQOQEGS9QkEgl3GVP53KWdfpNTTAGKnLi81+jmjQMjriL2lPW9MREwFv
-         aPh3fSoHDvxF2rIFBO+prpR0zRT3mmx+QU7VcmUtrXXeomAm2j32syjPRwm7WF6eC/Bc
-         kMFBTk+hMBalXOzhms7FBSSZPXV9/FD3rMDmA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785448032; x=1786052832;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BEcZSaSov64w+SqDtqbhCImxhflXKNQ/vSfdSGSImp0=;
-        b=h9Q/lkKThfnYmjuOIje+jaNrq9bk+KU29DAkafMjPJYjZU/ZjzduOJh/+L3zZG0Gsu
-         I36EOyph2pJn0nujltXZdh72gtCisBpYC9SEMY/svwBC4/AR1H8W/x7SC8JXySXPCoos
-         egxA711M1V4qmWitsjWfjISHIngzEbtPZlxYdnkfEAQw8fBbDMdkjLaQn5uFoj5+bh/y
-         n2J1G0fIrzLqmhutuEUOB5VtugwXi6gVlo6ACyYlHEu8Xq75bUHukuXKGq9D8Zayq4DD
-         3qDFLL2MufT1+uVeYqBM1oWmbZSM9wXDLNs3HsmMglnouQ9O6bRorp8tSAD0kDsceBv+
-         dlXg==
-X-Forwarded-Encrypted: i=1; AHgh+RotpK1HQa3dX/f9aUu4MqFhtXi+VLiutQEb3YXw7F3alg/K3uBO8k+VK1/bbpc2wjX/4WRxMU42JY7aUyo9LQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzuaJubdv38nvUMRwNPhlGbnqlyGLmLcT4rZEbifcuXqDrWa7Yv
-	eAIZlcqBLSnNmGNrkPhj0g25xmnf/SFLIqzan4I2UV9AgSm0aYeMgHJ1y30HI4vreihKyJ11l/M
-	At9g=
-X-Gm-Gg: AR+sD130ECTQyXnC4Xz9L5eHWY/JRZmlQxryqErAHHXAi77jrxjyw1F5GPWENllk0QO
-	pTI3WNeQ81W2q8Ymycf6gc+FucrY+TVWr09dqgZwc1V79UP2kBvKjEV3f8eycHcskjFqb294WLi
-	7lI3mrO0qzejoaIVtu6gQe3hd6Ts/RTvcekL93GiVVlhN9JSYfwiB49G/wDC+sr8EwlBcxE8pVF
-	39/XR2Ua0vb5VhtejlVVNpxHkhzSg6Qgi/VIWM5Jyk6PltMpMPEi8Bk+oJBcanYk8cnqD10BywP
-	hd8fVQiWI9deaXWWapkxQ5tPyU3V9ujNTSuDi3c8uJNfCCjZNDo2L3pEUARkw5HvBCEow8olQPd
-	VJd6i3PBKf9CzY4v1/t/6XF6lWeoAgcDjsdMfnUot4bx2VNBmVq183FYnPaQVsrInoepXfOuxCI
-	5rAe2B82MHpHF4nz/xYIohBGaXqgZVMyQ8br0JCQgAxwo676+iSJRLUPdc1fKZAJtvrSxeQd9ux
-	ayV/FsHjCb6iwSiessMOB6ljVE=
-X-Received: by 2002:a05:6122:e461:b0:5c2:cffc:2c55 with SMTP id 71dfb90a1353d-5c365d2f929mr1739794e0c.0.1785448032103;
-        Thu, 30 Jul 2026 14:47:12 -0700 (PDT)
-Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com. [209.85.222.42])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c3664de7b9sm2348080e0c.3.2026.07.30.14.47.10
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2026 14:47:10 -0700 (PDT)
-Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-966e7380109so110255241.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 14:47:10 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpzQswGHPi9PptmfWPrB666klXVJHHAY7AI7n/EOG2Ppu38gj/q/Nn1RGkuv8dd6C4oywoC7knWogcG8VKfwg==@vger.kernel.org
-X-Received: by 2002:a05:6102:3047:b0:740:127:c81b with SMTP id
- ada2fe7eead31-7574dca124dmr1665460137.7.1785448029188; Thu, 30 Jul 2026
- 14:47:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="doU4+rV4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD5E1F000E9;
+	Thu, 30 Jul 2026 21:47:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785448079;
+	bh=oXr3yxNDv/m5cN1hEq6rNBagk5kXIIgLrIvSGWTKHaQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=doU4+rV4oKiY0gi3xhDleJ17cl8rEhctbf6aID89uezf6vSvsAKDw8E9vx7lFdI8o
+	 rRi7HYWWjmpK2Av5xKcYxkHb4yQhGWEv1hUfWl4HuT1DXeReKfsJsIT3/1SHEEXmoQ
+	 r2iUPFc6x6Cj59ohfqv2eMagec1G692iId0Wb276q/nsVyxqcbuMPYog8ODj9VSBCI
+	 3YYMWfNpfR9RsIuDUW/sEioJfVEgQn+ax/oAQtOXDd3Qu3VM3GFPbvtl6EolHeUVAV
+	 O0qaj3frxqNNXKMX86K4uSrJDYpfa+hlpMrRypnUOhcxT16naFhZF3C5mV4ywHAPLG
+	 jXv87T3Us6ziQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/3] genirq: Export NMI APIs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mayank Rungta" <mrungta@google.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260730-qcom-wdt-nmi-series-v1-2-3aa86d162914@google.com>
+References: <20260730-qcom-wdt-nmi-series-v1-0-3aa86d162914@google.com>
+ <20260730-qcom-wdt-nmi-series-v1-2-3aa86d162914@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 30 Jul 2026 21:47:58 +0000
+Message-Id: <20260730214758.DBD5E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260730-qcom-wdt-nmi-series-v1-0-3aa86d162914@google.com> <20260730-qcom-wdt-nmi-series-v1-1-3aa86d162914@google.com>
-In-Reply-To: <20260730-qcom-wdt-nmi-series-v1-1-3aa86d162914@google.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Thu, 30 Jul 2026 14:46:58 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=V_7RLjcAtKk5MHiABj1rA2CTkPw2UY2gJnVzH=3Gbp5Q@mail.gmail.com>
-X-Gm-Features: AUfX_mytlaDARoR1dw85A5VeD-oPperL8oh_dbbeAf-fbsBmoOf0-Vxqm2C-FZs
-Message-ID: <CAD=FV=V_7RLjcAtKk5MHiABj1rA2CTkPw2UY2gJnVzH=3Gbp5Q@mail.gmail.com>
-Subject: Re: [PATCH 1/3] watchdog: pretimeout: Protect governor access with
- RCU for NMI safety
-To: mrungta@google.com
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Thomas Gleixner <tglx@kernel.org>, linux-watchdog@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	"Kirill A. Shutemov" <kas@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-On Thu, Jul 30, 2026 at 2:33=E2=80=AFPM Mayank Rungta via B4 Relay
-<devnull+mrungta.google.com@kernel.org> wrote:
->
-> From: Mayank Rungta <mrungta@google.com>
->
-> Currently, watchdog_notify_pretimeout() acquires pretimeout_lock using
-> spin_lock_irqsave() to safely dereference wdd->gov before invoking the
-> pretimeout callback.
->
-> On architectures supporting pseudo-NMIs (ARM64 GICv3), watchdog drivers
-> may register their pretimeout warning interrupt (bark) as an NMI.
-> Because spin_lock_irqsave() disables regular interrupts but leaves NMIs
-> unmasked, if a pretimeout NMI fires while pretimeout_lock is already
-> held by normal process context, attempting to re-acquire pretimeout_lock
-> triggers an unrecoverable deadlock.
->
-> To make pretimeout notifications completely safe to execute from NMI,
-> convert read access to wdd->gov inside watchdog_notify_pretimeout() from
-> a spinlock to lockless RCU. Use rcu_assign_pointer() when modifying
-> wdd->gov and invoke synchronize_rcu() during governor unregister and
-> pretimeout unregister routines.
->
-> Signed-off-by: Mayank Rungta <mrungta@google.com>
-> ---
->  drivers/watchdog/watchdog_pretimeout.c | 47 +++++++++++++++++++---------=
-------
->  include/linux/watchdog.h               |  2 +-
->  2 files changed, 27 insertions(+), 22 deletions(-)
+Pre-existing issues:
+- [Critical] Exporting NMI APIs to loadable modules exposes an unmitigated =
+Use-After-Free and kernel panic during module unload due to the lack of NMI=
+ synchronization.
+- [High] Lack of request_mutex locking in free_nmi() and the request_nmi() =
+error path leads to data races, resource double-frees, and refcount underfl=
+ows.
+--
 
-I pre-reviewed this for Mayank. I'm not an RCU expert, but this looks
-right based on my understanding. My AI was also happy with it. ;-)
+--- Patch [2]: [PATCH 2/3] genirq: Export NMI APIs ---
+commit dfe5c7d2a97396d411087d0eb1dca59bbf190e69
+Author: Mayank Rungta <mrungta@google.com>
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+genirq: Export NMI APIs
+
+Currently, request_nmi(), free_nmi(), enable_nmi() and disable_nmi_nosync()
+are restricted to built-in kernel code because they are not exported to
+loadable modules. Export these APIs to allow loadable modules to register
+and manage NMIs.
+
+> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> index 2fbff2618a1e2..fb0b8da32f4c1 100644
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+[ ... ]
+> @@ -2080,6 +2082,7 @@ const void *free_nmi(unsigned int irq, void *dev_id)
+> =20
+>  	return __cleanup_nmi(irq, desc);
+>  }
+> +EXPORT_SYMBOL_GPL(free_nmi);
+
+[Severity: Critical]
+This is a pre-existing issue, but does exporting this API to loadable modul=
+es
+expose an unmitigated use-after-free and kernel panic during module unload?
+
+When a module unloads and calls free_nmi(), __cleanup_nmi() uninstalls the
+handler and calls kfree(action) without waiting for executing NMI handlers =
+to
+finish, such as via synchronize_rcu():
+
+kernel/irq/manage.c:__cleanup_nmi() {
+    ...
+    unregister_handler_proc(irq, action);
+    kfree(action);
+    ...
+}
+
+Concurrent NMIs on other CPUs bypass normal IRQ locks and can continue to
+execute the handler locklessly:
+
+kernel/irq/chip.c:handle_fasteoi_nmi() {
+    ...
+    struct irqaction *action =3D desc->action;
+    ...
+    res =3D action->handler(irq, action->dev_id);
+    ...
+}
+
+Since the module text section is unmapped upon unload, couldn't an actively
+executing concurrent NMI jump into unmapped memory, resulting in a fatal
+panic?
+
+[ ... ]
+> @@ -2342,6 +2345,7 @@ int request_nmi(unsigned int irq, irq_handler_t han=
+dler,
+> =20
+>  	return retval;
+>  }
+> +EXPORT_SYMBOL_GPL(request_nmi);
+
+[Severity: High]
+This is a pre-existing issue, but do request_nmi() and free_nmi() lack
+request_mutex locking around their cleanup paths?
+
+According to IRQ subsystem locking rules, desc->request_mutex serializes
+resource allocation and teardown. However, both free_nmi() and the failure
+path of request_nmi() invoke __cleanup_nmi() without holding this mutex.
+
+In request_nmi():
+
+kernel/irq/manage.c:request_nmi() {
+    ...
+    if (retval) {
+        __cleanup_nmi(irq, desc);
+        return -EINVAL;
+    }
+    ...
+}
+
+Inside __cleanup_nmi(), resource teardowns are executed unconditionally
+outside of desc->lock:
+
+kernel/irq/manage.c:__cleanup_nmi() {
+    ...
+    irq_release_resources(desc);
+    irq_chip_pm_put(&desc->irq_data);
+    module_put(desc->owner);
+    ...
+}
+
+If request_nmi() fails concurrently with another request_nmi() or free_nmi(=
+),
+won't this lead to resource double-frees and unbalanced reference counts?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730-qcom-wdt-n=
+mi-series-v1-0-3aa86d162914@google.com?part=3D2
