@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801BB3921D5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 802DE3D811B;
 	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785448827; cv=none; b=qAJ87jvqm4yMrEGmpWRW0eGDpxUBEozv8Dhf5XhMIltB6Q3FeRRpohkh0eb0DFS8igyl2JQuNUWRb5erAbHDKWRnFyMWLj+uF3hihxPnFJTmC6xqfJFd330RDA2rzzNByDCylK9vbJI3zDhAmlLVJGJ3J3gReN2HpQVXngbuzXg=
+	t=1785448827; cv=none; b=IfkEjejvdR2E7XxCPRZT+smxULOyHQQRc6/CHs91GFVwkdwDG1grB2D0ejNi8lMt4jslGvDgTY7hMdgU6e+NnpqiBgai/ekX1pqogYxkspLHmHySeJ/FFkbPmJAGpLkz5+hPFbm8x/7QG6KChEqr+kOSuVCifPZFQotYGxET15E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785448827; c=relaxed/simple;
-	bh=EipvQ5mYeuNpcCo3P9FuesFp/O23xmkoDim+IM2CFRs=;
+	bh=Fs4ESrYUNwOx1GQcctjVjuAY5GAIM0pyAfX46shxH2Q=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hIbv0hWsxDfb8AbtSKBlBEXySZG+BdrNW1ubnVtswhvVpURamJlRj0AfSiN+3fyI4UVpRqe8FiAHU6YZQtR28e8W3PSn1NYyd+QcECqSHp8pqdau4mtFXsvz3zbXWq86kHahYC5g9hLAofWO4UzxiK4IWZ7SbntoHjpnwhzzC3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vEJNyTIc; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=fw2lAdB7WKDdzhUbRIG09pZSW6yliz4aLrDnfmi1zNVffeJHL4lScIcn012YfDvL9Ixbxzi2wubaVsKpcpBxfgNMZxxw+JiQ91o+7HsVey8c0i10woEL+D3sId8VXE6BXzMuGLrGzPVg0Uz/siooiUJUJoDiH6Or2mGhD1MjARQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FazDR7Md; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vEJNyTIc"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 15798C2BCF7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FazDR7Md"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 23E2EC2BCF4;
 	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1785448827;
-	bh=EipvQ5mYeuNpcCo3P9FuesFp/O23xmkoDim+IM2CFRs=;
+	bh=Fs4ESrYUNwOx1GQcctjVjuAY5GAIM0pyAfX46shxH2Q=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=vEJNyTIcW22o103emiXeTC13NUHCOkYNafyzojnF0fqM/wm+JTVnM9S2EprEn0WY/
-	 OYgmpKnTu2R+tN/Oilzx7OmTOzkPa/wfOAV17N6Vg69b8sai/2HmlBEYKBvYq7BH3N
-	 Ju6uKDFrs4RxAEuJTOTtZ1FcLPfVwFyfEzz9xEaV4Tsd0/7hii8/ZbsqO7Sni3tXqd
-	 BHWb4ZA+KmxoqUTxFkT5JLxe2aidW8MPsvl+U9aO6S4MDS3E07bqt+gjWTvnj7zM8l
-	 8aw7cod8oYvj+8mGq5dYBl2lMf2csjBqiaRSxRFD/PUYD/VIsOvWljUl3vZXS9MqMJ
-	 2x0rpycM9ANwg==
+	b=FazDR7Md1OHw8VM4u7NFeJUAVpf04S+Q9AkUgEEtNP1mSXbBRqhFUCdkllU/KneqW
+	 7DmB3QukPl6+gH7G8p9tLutTwF1wCcJxMO2Q9LffoBzLuyqElEJJnsQto939MndTbh
+	 UD2rX+IwLZdRMnxOHz/fBoJ2mZN8MKr2MHt9cngN3XVaWcsAHuxBgm+tQvjs1whAvi
+	 2ytu4WtHAFnOvuLgw7AijCLFGBjzlX3Rut/t7EtPWAoRTUu9JMmcj9jP9Bu/sDu0RX
+	 Q3Zj/skJbfbrVYSpGaVpqj/qI9q8BtJn+GJ8ZdQxy2tMUhN0BC6PpKWavZU0aEFb3f
+	 MpxcbGY8HwAzg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAE70C55167;
-	Thu, 30 Jul 2026 22:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05C25C55171;
+	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
 From: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>
-Date: Thu, 30 Jul 2026 15:00:21 -0700
-Subject: [PATCH 1/2] nmi: Export CPU backtrace APIs for loadable modules
+Date: Thu, 30 Jul 2026 15:00:22 -0700
+Subject: [PATCH 2/2] watchdog: pretimeout: Convert dump pretimeout governor
+ to tristate
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+Message-Id: <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
 References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
 In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -50,11 +51,11 @@ Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
  Douglas Anderson <dianders@chromium.org>, linux-kernel@vger.kernel.org, 
  linux-watchdog@vger.kernel.org, Mayank Rungta <mrungta@google.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785448826; l=2490;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785448826; l=1193;
  i=mrungta@google.com; s=20260212; h=from:subject:message-id;
- bh=yO7dla8OdRAGDJOgeFRh56pLyD/tLBa0X3xKf/FbK2c=;
- b=fZnl8zJuugvMxagsjQCujYIWixxEfkl6fQWt/pxRw9TN04PYzeGTyfG8d0j+mSI25RG/3t5sQ
- A3EFOaEBhxcCMilu55Q9tGaIlQYfPkH423SByvIA7ReoKNK+82UXf4m
+ bh=f5W+Lr+D6y/aPDppSlY4If7YQ/lnBLFc82lZnHrC3p8=;
+ b=Hf4P9bSr81uHIQQkvhAXzHtv5u6EsLHuPCyFHF87+AgJlZxnV2Im4CKn8mSyruug2su1FpHEp
+ 56Xv8Y21o6KBAE2X0DCKFqfbZZCLGUxHUf6aOYrJO3wz4BxKCnDqU8q
 X-Developer-Key: i=mrungta@google.com; a=ed25519;
  pk=2Bjwbv/ibL10QnyvK9G7DoKpffXy7z6+M4NawEYgYDI=
 X-Endpoint-Received: by B4 Relay for mrungta@google.com/20260212 with
@@ -64,83 +65,36 @@ Reply-To: mrungta@google.com
 
 From: Mayank Rungta <mrungta@google.com>
 
-Currently, CPU backtrace functions cannot be called from loadable
-modules because the underlying helper arch_trigger_cpumask_backtrace()
-is not exported.
+Commit 645ad41da8b2 ("watchdog: pretimeout: Add "dump" pretimeout
+governor") added the "dump" watchdog pretimeout governor, but restricted
+it to built-in code because trigger_all_cpu_backtrace() was not exported
+to loadable modules.
 
-Instead of exporting arch_trigger_cpumask_backtrace() individually
-across every supported architecture, introduce and export a common
-helper, cpumask_backtrace(), in lib/nmi_backtrace.c. Update the four
-inline CPU backtrace macros in include/linux/nmi.h to route through this
-centralized helper.
+Now that CPU backtrace APIs are supported for loadable kernel modules
+via cpumask_backtrace(), convert WATCHDOG_PRETIMEOUT_GOV_DUMP to
+tristate. This allows kernels to deliver the pretimeout governor as a
+loadable kernel module.
 
 Signed-off-by: Mayank Rungta <mrungta@google.com>
 ---
- include/linux/nmi.h | 10 ++++++----
- lib/nmi_backtrace.c |  7 +++++++
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/watchdog/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/nmi.h b/include/linux/nmi.h
-index 89c5465e2524..af69712df5f4 100644
---- a/include/linux/nmi.h
-+++ b/include/linux/nmi.h
-@@ -157,27 +157,29 @@ static inline void touch_nmi_watchdog(void)
-  * to allow calling code to fall back to some other mechanism:
-  */
- #ifdef arch_trigger_cpumask_backtrace
-+void cpumask_backtrace(const cpumask_t *mask, int exclude_cpu);
-+
- static inline bool trigger_all_cpu_backtrace(void)
- {
--	arch_trigger_cpumask_backtrace(cpu_online_mask, -1);
-+	cpumask_backtrace(cpu_online_mask, -1);
- 	return true;
- }
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9f013d774897..922741dd837c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -99,8 +99,8 @@ config WATCHDOG_PRETIMEOUT_GOV_SEL
+ if WATCHDOG_PRETIMEOUT_GOV
  
- static inline bool trigger_allbutcpu_cpu_backtrace(int exclude_cpu)
- {
--	arch_trigger_cpumask_backtrace(cpu_online_mask, exclude_cpu);
-+	cpumask_backtrace(cpu_online_mask, exclude_cpu);
- 	return true;
- }
- 
- static inline bool trigger_cpumask_backtrace(struct cpumask *mask)
- {
--	arch_trigger_cpumask_backtrace(mask, -1);
-+	cpumask_backtrace(mask, -1);
- 	return true;
- }
- 
- static inline bool trigger_single_cpu_backtrace(int cpu)
- {
--	arch_trigger_cpumask_backtrace(cpumask_of(cpu), -1);
-+	cpumask_backtrace(cpumask_of(cpu), -1);
- 	return true;
- }
- 
-diff --git a/lib/nmi_backtrace.c b/lib/nmi_backtrace.c
-index a3bfa9360b23..f39c9eca8888 100644
---- a/lib/nmi_backtrace.c
-+++ b/lib/nmi_backtrace.c
-@@ -19,6 +19,7 @@
- #include <linux/stringify.h>
- #include <linux/nmi.h>
- #include <linux/cpu.h>
-+#include <linux/export.h>
- #include <linux/sched/debug.h>
- 
- #ifdef arch_trigger_cpumask_backtrace
-@@ -129,4 +130,10 @@ bool nmi_cpu_backtrace(struct pt_regs *regs)
- 	return false;
- }
- NOKPROBE_SYMBOL(nmi_cpu_backtrace);
-+
-+void cpumask_backtrace(const cpumask_t *mask, int exclude_cpu)
-+{
-+	arch_trigger_cpumask_backtrace(mask, exclude_cpu);
-+}
-+EXPORT_SYMBOL_GPL(cpumask_backtrace);
- #endif
+ config WATCHDOG_PRETIMEOUT_GOV_DUMP
+-	bool "Dump watchdog pretimeout governor"
+-	depends on WATCHDOG_CORE=y
++	tristate "Dump watchdog pretimeout governor"
++	depends on WATCHDOG_CORE
+ 	default WATCHDOG_CORE
+ 	help
+ 	  Dump watchdog pretimeout governor, all cpu backtrace is
 
 -- 
 2.55.0.508.g3f0d502094-goog
