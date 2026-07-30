@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 802DE3D811B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 802543CB576;
 	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785448827; cv=none; b=IfkEjejvdR2E7XxCPRZT+smxULOyHQQRc6/CHs91GFVwkdwDG1grB2D0ejNi8lMt4jslGvDgTY7hMdgU6e+NnpqiBgai/ekX1pqogYxkspLHmHySeJ/FFkbPmJAGpLkz5+hPFbm8x/7QG6KChEqr+kOSuVCifPZFQotYGxET15E=
+	t=1785448827; cv=none; b=PoVu83E+4cfdWAl+Hdz5tYynZyza9gSmIffljIybp8t+JFUZTBXxyDpRwU8JVPGGHwyUdV7YuC4FjP9yHoMOF+puIYxGQUFRklS7Glz7+z3zpmXuXXFE97eJwbRYuxvMBXvcjLdjXnFgChhFlP7kNe2VVd/WMml1eAkbuVMum2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785448827; c=relaxed/simple;
-	bh=Fs4ESrYUNwOx1GQcctjVjuAY5GAIM0pyAfX46shxH2Q=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fw2lAdB7WKDdzhUbRIG09pZSW6yliz4aLrDnfmi1zNVffeJHL4lScIcn012YfDvL9Ixbxzi2wubaVsKpcpBxfgNMZxxw+JiQ91o+7HsVey8c0i10woEL+D3sId8VXE6BXzMuGLrGzPVg0Uz/siooiUJUJoDiH6Or2mGhD1MjARQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FazDR7Md; arc=none smtp.client-ip=10.30.226.201
+	bh=Wp0mqUPZWVkNcFglphCfVSwxnMXCbJkeE9ADnjkmes4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rEFbgEMe1+DHtWMLGYeTvA7585EnrQh1g+xq6S+7G7en/v3oW0xvJoSg2t03wtz0e8abdDBpkKmoNJ0Oid2ABJ0qkiFphocgmMoS1TiAvX3IoQma1hPTHlWmKA5gFhH/zQpVtHHejXESjZP0EW133+5NUEt34MjCvFUXoFe44hs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FwWEhhmk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FazDR7Md"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 23E2EC2BCF4;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FwWEhhmk"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0E94BC19425;
 	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1785448827;
-	bh=Fs4ESrYUNwOx1GQcctjVjuAY5GAIM0pyAfX46shxH2Q=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=FazDR7Md1OHw8VM4u7NFeJUAVpf04S+Q9AkUgEEtNP1mSXbBRqhFUCdkllU/KneqW
-	 7DmB3QukPl6+gH7G8p9tLutTwF1wCcJxMO2Q9LffoBzLuyqElEJJnsQto939MndTbh
-	 UD2rX+IwLZdRMnxOHz/fBoJ2mZN8MKr2MHt9cngN3XVaWcsAHuxBgm+tQvjs1whAvi
-	 2ytu4WtHAFnOvuLgw7AijCLFGBjzlX3Rut/t7EtPWAoRTUu9JMmcj9jP9Bu/sDu0RX
-	 Q3Zj/skJbfbrVYSpGaVpqj/qI9q8BtJn+GJ8ZdQxy2tMUhN0BC6PpKWavZU0aEFb3f
-	 MpxcbGY8HwAzg==
+	bh=Wp0mqUPZWVkNcFglphCfVSwxnMXCbJkeE9ADnjkmes4=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=FwWEhhmkqef1HMN/ycpom7x5o45Wg1qyKRgrKHllXl6JFev4gAORAFGgYHikt3NpR
+	 yqdsdvLhthjp9xNcZjL5j3ym6LTjSHotNYP6XS83hLciq0TgIxXmJlZamw4wfA7xFg
+	 XH9jqPPyljwUwyC/+dspeJJ9EOqGEskhUkLNsvJsbEUEOA2gUyfyeArgGivkuinSpE
+	 4+PjpN7uNCTR+UzmHQp+EB4zY08FoAWoLgdNl/F+gx8XD03rSGSPEhtiEVMv6pOQ0w
+	 INpHQgYc3/9ktoK9JCkPMSl42wLc5WygE9q7iVWMqLHXlsPiWmpyikn83pgvxGes4p
+	 cXJ01da/ijwRQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05C25C55171;
-	Thu, 30 Jul 2026 22:00:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE2EDC5516D;
+	Thu, 30 Jul 2026 22:00:26 +0000 (UTC)
 From: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>
-Date: Thu, 30 Jul 2026 15:00:22 -0700
-Subject: [PATCH 2/2] watchdog: pretimeout: Convert dump pretimeout governor
- to tristate
+Subject: [PATCH 0/2] watchdog: pretimeout: Allow building dump governor as
+ module
+Date: Thu, 30 Jul 2026 15:00:20 -0700
+Message-Id: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,9 +41,10 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
-References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
-In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
+X-B4-Tracking: v=1; b=H4sIAHTJa2oC/x3MQQqAIBBA0avErBtIhayuEi3MphqCkrEikO6et
+ HyL/xNEEqYIXZFA6ObIx56hygL86vaFkKds0JWuK6sbpCcccqIPF47Ob6c4T+gCR1SmnszYqNZ
+ YC7kPQjM//7sf3vcDGP4jOWsAAAA=
+X-Change-ID: 20260728-export-cpu-backtrace-apis-136d3b819377
 To: Andrew Morton <akpm@linux-foundation.org>, 
  Wim Van Sebroeck <wim@linux-watchdog.org>, 
  Guenter Roeck <linux@roeck-us.net>
@@ -51,11 +52,11 @@ Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
  Douglas Anderson <dianders@chromium.org>, linux-kernel@vger.kernel.org, 
  linux-watchdog@vger.kernel.org, Mayank Rungta <mrungta@google.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785448826; l=1193;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785448826; l=1089;
  i=mrungta@google.com; s=20260212; h=from:subject:message-id;
- bh=f5W+Lr+D6y/aPDppSlY4If7YQ/lnBLFc82lZnHrC3p8=;
- b=Hf4P9bSr81uHIQQkvhAXzHtv5u6EsLHuPCyFHF87+AgJlZxnV2Im4CKn8mSyruug2su1FpHEp
- 56Xv8Y21o6KBAE2X0DCKFqfbZZCLGUxHUf6aOYrJO3wz4BxKCnDqU8q
+ bh=Wp0mqUPZWVkNcFglphCfVSwxnMXCbJkeE9ADnjkmes4=;
+ b=/E/jAWOT7pmfUrBwiAzubVyp2fiDuSunmTZ/EOaZr5j5GFbLW0DexzdLukhaFeT4LArg80Gmx
+ 1G+T7Mx2MFFBy5sqoEhDO2z0B1pxBsGSBSFVHEsMhkKOYtVCUbcgqOw
 X-Developer-Key: i=mrungta@google.com; a=ed25519;
  pk=2Bjwbv/ibL10QnyvK9G7DoKpffXy7z6+M4NawEYgYDI=
 X-Endpoint-Received: by B4 Relay for mrungta@google.com/20260212 with
@@ -63,40 +64,32 @@ X-Endpoint-Received: by B4 Relay for mrungta@google.com/20260212 with
 X-Original-From: Mayank Rungta <mrungta@google.com>
 Reply-To: mrungta@google.com
 
-From: Mayank Rungta <mrungta@google.com>
+All other watchdog pretimeout governors (noop, panic) can be built as
+loadable modules. However the "dump" pretimeout governor is restricted
+to built-in code because it calls trigger_all_cpu_backtrace(), which
+relies on arch_trigger_cpumask_backtrace(), an arch specific helper that
+is not exported to loadable modules.
 
-Commit 645ad41da8b2 ("watchdog: pretimeout: Add "dump" pretimeout
-governor") added the "dump" watchdog pretimeout governor, but restricted
-it to built-in code because trigger_all_cpu_backtrace() was not exported
-to loadable modules.
-
-Now that CPU backtrace APIs are supported for loadable kernel modules
-via cpumask_backtrace(), convert WATCHDOG_PRETIMEOUT_GOV_DUMP to
-tristate. This allows kernels to deliver the pretimeout governor as a
-loadable kernel module.
+This 2-patch series allows building the dump governor as a module (=m):
+1) Export cpumask_backtrace() in lib/nmi_backtrace.c.
+2) Convert CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP from bool to tristate.
 
 Signed-off-by: Mayank Rungta <mrungta@google.com>
 ---
- drivers/watchdog/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Mayank Rungta (2):
+      nmi: Export CPU backtrace APIs for loadable modules
+      watchdog: pretimeout: Convert dump pretimeout governor to tristate
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9f013d774897..922741dd837c 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -99,8 +99,8 @@ config WATCHDOG_PRETIMEOUT_GOV_SEL
- if WATCHDOG_PRETIMEOUT_GOV
- 
- config WATCHDOG_PRETIMEOUT_GOV_DUMP
--	bool "Dump watchdog pretimeout governor"
--	depends on WATCHDOG_CORE=y
-+	tristate "Dump watchdog pretimeout governor"
-+	depends on WATCHDOG_CORE
- 	default WATCHDOG_CORE
- 	help
- 	  Dump watchdog pretimeout governor, all cpu backtrace is
+ drivers/watchdog/Kconfig |  4 ++--
+ include/linux/nmi.h      | 10 ++++++----
+ lib/nmi_backtrace.c      |  7 +++++++
+ 3 files changed, 15 insertions(+), 6 deletions(-)
+---
+base-commit: 3fe08b9796f36ef437ab9328e7dd1e5ff2d66603
+change-id: 20260728-export-cpu-backtrace-apis-136d3b819377
 
+Best regards,
 -- 
-2.55.0.508.g3f0d502094-goog
+Mayank Rungta <mrungta@google.com>
 
 
