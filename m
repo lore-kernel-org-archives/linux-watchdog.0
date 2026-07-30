@@ -1,149 +1,112 @@
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B22535F60F;
-	Thu, 30 Jul 2026 05:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43230328267
+	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 06:06:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785389075; cv=none; b=EFZtqp03hW+FrjrdrCus0pFCjzfgzxDuDrhoMvySkLdIDILyoUdFFVgPJSVXGgWA+4woJ2Gwgmw38jcSu9kTugv9co25iDPwAw9aHOrnKLO0blwBwFCD3ZKnwvrseOp8Tn2FTQxgPsSN+w2KGYl/Q+FuTnb41jOoiE6d9Gb4hmM=
+	t=1785391581; cv=none; b=LPSubbT55TlcIITv9h8gRs0Ss0io5dU9qb8Cp5BmEObVosqUshTj+wgHSfsmdkz08q+vhL5FBnBb7v3cLGbdg+z565TyEU0PZ0BpiIdjcUSL1ez8aQDKo5ib+73QfgSNvE4z6nwK/73OvXZTASDgjzr+62cDPCmyp2o0tKNK3fY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785389075; c=relaxed/simple;
-	bh=1DMuGx8VV1yF9PYUAM0K7yn25rsOtJAy0VjBYUuI1xo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z4nbWdk+ZnwmILQxMlfYXdNdcdJ2otoTd+nDHZVn515Lo5OBanbgpB2YRlyEg3E3oiIlh0ZU2C5Qo7t9Vbo5snoUBH8/pS2PaaRCHmAICzdoJt3NCuqfaNsXTByEdXFEyl/MfQ5hHKF5gLEMAdYT0NAmo5EyEpCsydAqMD3e2MI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
-	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 73CC8202B53;
-	Thu, 30 Jul 2026 07:24:28 +0200 (CEST)
-Received: from pty.whiteo.stw.pengutronix.de ([2a0a:edc0:2:b01:1d::c5])
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <ore@pengutronix.de>)
-	id 1wpJFs-001zo8-1D;
-	Thu, 30 Jul 2026 07:24:28 +0200
-Received: from ore by pty.whiteo.stw.pengutronix.de with local (Exim 4.98.2)
-	(envelope-from <ore@pengutronix.de>)
-	id 1wpJFs-0000000EyYP-0yzJ;
-	Thu, 30 Jul 2026 07:24:28 +0200
-Date: Thu, 30 Jul 2026 07:24:28 +0200
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-To: Matti Vaittinen <mazziesaccount@gmail.com>
-Cc: Faruque Ansari <faruque.ansari@oss.qualcomm.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-arm-msm@vger.org,
-	kernel@pengutronix.de, Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	=?utf-8?B?U8O4cmVu?= Andersen <san@skov.dk>,
-	Guenter Roeck <groeck@chromium.org>,
-	Ahmad Fatoum <a.fatoum@pengutronix.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	avaneesh.dwivedi@oss.qualcomm.com,
-	Umang Chheda <umang.chheda@oss.qualcomm.com>,
-	linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] power: reset: pscrr: add watchdog pretimeout
- reason tracking
-Message-ID: <amrgDC0s3rb5Xv4N@pengutronix.de>
-References: <20260722-pscrr-reboot-reason-v2-0-495ba3005953@oss.qualcomm.com>
- <20260722-pscrr-reboot-reason-v2-2-495ba3005953@oss.qualcomm.com>
- <98e65507-3084-4948-8096-4e2d8d20dc81@gmail.com>
+	s=arc-20240116; t=1785391581; c=relaxed/simple;
+	bh=wOjTrh7Elcn+anl77bQwwRQJKWGCYAsse5T5yehwaVY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QrHwkEpmcAVkd2Ygc0wUu3XBbrUodTFTtXf39D4YDwJrOGX4GqPF8K6DSpKfPvlKabfPYp3FVvGLIYSTi4ftcCpd5Ab260IB8BvEDS8QrQp00YX9Pgajbob+m79b/6RkGG1FeC+ZVn2RzMqC2ikKZXJtjpi+xYJ/l/VabaYx2oo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mhisQqP3; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mhisQqP3"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2caea3f742bso21577685ad.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2026 23:06:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785391578; x=1785996378; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=N2BsO/SXniFlM6SCUrq26UllYv+rXm0p9PUXKwY1gig=;
+        b=mhisQqP3FO+hzBf/FzOzfBzXsdKIWVqum7QMWkCKp8j0tkvx4/ZU+usUaeZTIpj8gD
+         P6cEQ6hvJlvXtEDGL8OK7TkZSQEFtXMm98dyj+6KKOSQjxs9hxsywm1xqk1nGIkc8Rjm
+         P8PDZgEQfX52q02wadpUuWdnTvAipYL+/YezDTkA8P+KOhBXcYXRvPpR/QTWPg8p68+o
+         dyAzwolyBP7Azm/brdfIroyHDofESt6KXCYa1WdbzoqC9fUqj7iJYSPyb9mDSH3C+yyc
+         hsM7DsIS01qb2vt3Fb83cYmcaJ65SLXNSqeOCnlMhk/4vHdPx90/N/7xJWmzGrgHmTMU
+         lR4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785391578; x=1785996378;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=N2BsO/SXniFlM6SCUrq26UllYv+rXm0p9PUXKwY1gig=;
+        b=iIGgNLONNflyaeqkBNOVVnfiPk6qVJ/jOqC7M57t8v8VAofPogvgNVvHnRA3jKR7Zc
+         Ksc3m7jG2K328rzjdsKnmWOpxzlESQkis28sez/QiwOhzNEHLhDEteNZvOECt0gYTXSc
+         sLep910E97+i6NVSDOprOj1iy5Pkz26ZzKrzjvlgrysPmu5/B4r8ScyfH8SXcRl49fGp
+         97Ve+LUyeByiexKZr3vtXdNttVBFhB05szWD1mnOJQSWlF6I+iE9g5Is8DIAvNDuco8h
+         86qs0skB5ahRgnv/BmXEbTyOKF4wUiiR0TxoRZcYuEfRrz/Kw5A1ylD3Hwc+UFGxj1UW
+         qtKA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro7amTr0uAVxc/iCEobz1p7xKZGS1gZTx3oyz42gWqw8NHdIOIofm9pB/MgJixcnmOBtoMfKg8a8LwQshTifw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YydoQuag9qISiDiwafjdOU9eUHR7pCsxQgdqh5EvzHdtXIRKcXk
+	ylk/FmB2dHeDDkqHYJel50tCJnF6KhSQo95ooSo3zVwfHrN3qi4RiJCo
+X-Gm-Gg: AR+sD11W4jDu4v4L6JOpvvcisD524v6x+Gur9uEMn6e+hQmCOIhX09wLXGwTjKdI6Di
+	Vc3JtOw8AwspRC6AhBK2BCqYiI3zqDYSUTGbh0FFaj2EaVIDWsW6a8EKptqpO/zsCbxGbffdHdc
+	6RuJwHKD9RpimBDZqlDnJnKGhh2OMmzHiOHAxaRZKQ8A9PZ76X6E331E2Yyt0tDeF0ocm0hxEc+
+	AyL6w3FIun4BmK28UdGEC/zk/3rFv5Ahb+jhFobyzlAxTFBRWbfjJCpagFOPzzRkMhsuLqxhzS1
+	rHrcij3eqNthOVSWB2FnlALGhkc/NitREPA8y0Dv1v1Z0+hO8aWhkOL9uaeYN4vDKE6W8UoTOfk
+	l/Xw+yCPjbmW9CkWZEYRGh5frgn/kX1TTFABNPahJ965Ja+YfxgaNBPWeNI0VaBVEgGRXhjPVYb
+	SuZU6n6BPWUIN4o4FC0w+Whjs2o7l/AgeUnM4J52LxUTmIyjby/gIrlBy6zKWB
+X-Received: by 2002:a17:902:e847:b0:2ca:ed41:d33d with SMTP id d9443c01a7336-2d035e4b84bmr13293455ad.45.1785391578502;
+        Wed, 29 Jul 2026 23:06:18 -0700 (PDT)
+Received: from kdev.. ([108.180.130.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d022a46774sm20780785ad.27.2026.07.29.23.06.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 23:06:17 -0700 (PDT)
+From: Babanpreet Singh <bbnpreetsingh@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Babanpreet Singh <bbnpreetsingh@gmail.com>
+Subject: [PATCH 0/2] watchdog: Fix two kernel-doc parameter warnings
+Date: Thu, 30 Jul 2026 06:06:15 +0000
+Message-ID: <20260730060617.7-1-bbnpreetsingh@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <98e65507-3084-4948-8096-4e2d8d20dc81@gmail.com>
-X-Sent-From: Pengutronix Hildesheim
-X-URL: http://www.pengutronix.de/
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Hi Matti,
+Two independent kernel-doc parameter fixes in drivers/watchdog, found by
+scripts/kernel-doc -none. Both warnings are in .c files, so they appear in
+a W=1 build, and both files are clean afterwards.
 
-On Thu, Jul 30, 2026 at 07:49:41AM +0300, Matti Vaittinen wrote:
-> On 22/07/2026 18:13, Faruque Ansari wrote:
-> > Watchdog pretimeout resets are not recorded with a dedicated reset
-> > reason, causing subsequent boots to report PSCR_UNKNOWN and making it
-> > difficult to distinguish them from other unexpected resets.
-> > 
-> > Add PSCR_WATCHDOG_PRETIMEOUT as a dedicated reset reason code and
-> > prevent the panic notifier from overwriting a watchdog pretimeout
-> > reason with PSCR_KERNEL_PANIC when the pretimeout governor triggers a
-> > panic.
-> > 
-> > Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-> > ---
-> >   drivers/power/reset/pscrr.c           | 7 ++++++-
-> >   include/linux/power/power_on_reason.h | 1 +
-> >   include/linux/reboot.h                | 1 +
-> >   kernel/reboot.c                       | 1 +
-> >   4 files changed, 9 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/power/reset/pscrr.c b/drivers/power/reset/pscrr.c
-> > index b5906f127e88..5b107c62fe82 100644
-> > --- a/drivers/power/reset/pscrr.c
-> > +++ b/drivers/power/reset/pscrr.c
-> > @@ -149,7 +149,12 @@ static int pscrr_panic_notifier(struct notifier_block *nb,
-> >   	if (!backend || !backend->ops || !backend->ops->write_reason)
-> >   		return NOTIFY_OK;
-> > -	set_psc_reason(PSCR_KERNEL_PANIC);
-> > +	/*
-> > +	 * Do not overwrite a previously recorded watchdog pretimeout reason
-> > +	 * during panic handling.
-> > +	 */
-> > +	if (get_psc_reason() != PSCR_WATCHDOG_PRETIMEOUT)
-> > +		set_psc_reason(PSCR_KERNEL_PANIC);
-> 
-> Hi Faruque,
-> 
-> I like the idea of adding WDG pretimeout resets in pscrr. I am just
-> wondering what makes WDG reason so special, that it shouldn't be overwritten
-> while other reasons can be? Can this notifier be called (now or in the
-> future) so, that there are other reasons getting overwritten? For some
-> reason I think the PSCRR was designed to be able to store multiple
-> reasons(?)
+Patch 1 fixes a name mismatch: wdrtas_reboot() names its notifier block
+argument 'this' while the doc block says '@nb'. Patch 2 adds the missing
+description for the argument __booke_wdt_disable() receives from
+on_each_cpu() and ignores.
 
-It depends on the backed. A simple nvmem cell, would be able to hold
-only one reason.
+They touch different drivers and are not a logical unit, so they are split
+rather than squashed; either can be dropped without affecting the other.
 
-> Could you just add one more instead of overwriting existing - or
-> should the check be more generic (to ensure the reason is only set if there
-> is nothing to overwrite).
+One thing I would rather state than have assumed: both drivers are
+PowerPC-only and I have no PowerPC toolchain here, so neither file was
+compiled. The whole series is three lines and every one of them is inside
+a /** */ block, so there is no code change to compile. Checked with
+scripts/kernel-doc -none (3 warnings across these two files before, 0
+after) and checkpatch --strict.
 
-So, depending on the backed, we will have different policies. For
-example, with one slot storage, we need to decided what to store:
-first one or the last one.
+Babanpreet Singh (2):
+  watchdog: wdrtas: Fix kernel-doc parameter name for wdrtas_reboot()
+  watchdog: booke_wdt: Document unused parameter of
+    __booke_wdt_disable()
 
-In most cases, the initial one is most interesting. But, if we are
-debugging system reset/reboot behavior, the last one.
-
-> 
-> If I am just completely lost (which happens), could you then improve the
-> comment a bit to explain why WDG timeout is special and shouldn't be
-> overwritten. The checking code itself is quite self-explatonary ;)
-
-Good question. I included this patch to my refactoring, but didn't had
-strong opinion haw to handle it. I guess, after introducing record
-policy, this issue will be partially addressed:
-
-https://github.com/olerem/linux-2.6/blob/v7.2/topic/pscr/Documentation/ABI/testing/sysfs-kernel-pscrr#L95
+ drivers/watchdog/booke_wdt.c | 1 +
+ drivers/watchdog/wdrtas.c    | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.43.0
+
