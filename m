@@ -1,112 +1,173 @@
-Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09098305679
-	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 01:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9C9A1F099C
+	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 04:58:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785462926; cv=none; b=g2EfllujFN5Q12htqBI97FFC3gBkBJ3S20QKhkZyoviHPUgxfHBWu0sI3Um71d04+AC699y2phEo9CjV1IXaY6/ptwcO/yJlujbYkd7WBVsALP9mBUVe+r0KqBJ8nugja0V840erDHxW2BA6gU4B1iwY0vuN5gT7c5Qtw7O8dKU=
+	t=1785473883; cv=none; b=QGIoS/D9hx4H0krAo4yxasSzxmC7Ta9Tx1hwN58Z+Rv98R6jJgH+2+ZvEHtGOi2NPkF/pSPY3GygOJ2gd3/en6eyb5QDk00tlKrowRrGQt0h1Ik2trQtAMRl9Ln5iVb3dFSOmuVr587Q1fJZ7dZoubgIHelAu1DDzl4wH2Vv8I4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785462926; c=relaxed/simple;
-	bh=kKokEKApBhfeDUDGCvc9tnerjL9g9I3yrVIAaF+Lp5U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QIj6zZ6llYnkkOeXZGlmbr6vpSPd+58731ssnfTFZ8M5w+paEmsz/k5Ll6rewj5HhZR3fjy8VZ5IALzCOj1R6AH15bDFAunCOiEDqeFj8S3+GoFVuJqrTb4oFqu5Hn/yEB/Vc1wx5BdqP2tXL8urVWEoCHaimGKMZlWKA8kU4QM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=dm0nnWor; arc=none smtp.client-ip=209.85.221.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1785473883; c=relaxed/simple;
+	bh=X6OGDm/VB6iIh58IJAWY8WxflOxDrgUmL0JJMy/Fk+k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FxvHGnS/boEwGDYZLoHJylB3Vy6idy59nZjoEc6ldIRsWYhBYRxKwWs/AWo2Y0GgZyeFoa1DzBelIDvUTKDrVDMrdnMQjc0XDkFTy5msFRQxOdkGMzwy9yJOyvmmwp3uoEOyd7vnmnHCwA9S1FX1vOCqG1xlwppB2vTV3a50zWU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qGGkgCzw; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="dm0nnWor"
-Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-5bf959b820cso334687e0c.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:55:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qGGkgCzw"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5b013aa02b2so1934237e87.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 21:58:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1785462924; x=1786067724; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=WGnt/9N3yJKJH6c7tNU1dd0f/IV2+Dp7VlT/yFQk8Yc=;
-        b=dm0nnWor7DKGGtR6jbtgU9qFJyjZeMfPFBAzVKXUyE/RApdObNKp7gBYHF558WY5Pm
-         1RHd5yWM0MekjVoDqfn8yp2TGuxKPheFhgqWgjHUMc5Fuy43TnbIUmlUXhZw0/0ojoRv
-         H/aUQrjP8dZOxx4xwN98SENyaiWqATx8E1emI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785462924; x=1786067724;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1785473879; x=1786078679; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=WGnt/9N3yJKJH6c7tNU1dd0f/IV2+Dp7VlT/yFQk8Yc=;
-        b=VcbGGGrMNeo5sNMPHvGe2KMPYm0NmPScGVWhl6UjNR3MPN39vzFBStcstAT3if51+5
-         yy7L7WWYefvi7oX45+Vb2E61NAPSYbaKkPmrMd/P4Jd9NYgzY+JL31t1LlGjuAUgTDtM
-         LWJmcjFWc+JfRyRTgkccnzMOar/D4S1hY/3XjhfObXsgwNUFDS0n1g8IpvPpNSyHWBHZ
-         JSLDHdm2fmbMzcodcW7iLvt063WqNpj8SAWXyeLHyFCfWUe7EN3OY9Lr26ScVXQPdsqL
-         XdW8DVKBQc5AUNG6tmvBCXRNqxjODTnMGLUtPR7YwknF4GOjPT9iXblHjl1V7exkaVGG
-         FH1w==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1fTvyOw4YPGgNXDdC2DPr2Hr1cGMwZInDoIWoieOBbxb1oxy/VOEDR5wr3cwWCyTl3s9SYu/dBJe2ijsUvA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfHsVyJx6XKTH0Rwas1vDQF6Sb6kjOvKtP4coSiahBdgHNF67p
-	2K43dcwR8oXR84GMJYAvdm7eraC+wqkJI/8VX7jOXCKLC68LWBMPMy5acq3IcpAOlMQKo9GuqkM
-	ga3U=
-X-Gm-Gg: AR+sD10YIHeYN67ZoT+/ToclGBz+9KmZv6Bz+o6L7nkc+Yt/Qit1pEJWI7isO+P01ln
-	Eah5E1J7RLUQ3XbP7LSYMUSn+EPGSpuCoNcTh/G/JxTt918ajRNs3+zA8n93d1xllfGbmJF7Gwa
-	P4FPgTx8lrBXvSp2/wXiNOYC1MPpdte1SpLeizO/9DtI6Keh59SpaSA6QiBrLjp0p8F0YT/0opO
-	14ONasTbxBOzjHGHuoHK4IHXKni7Tg0082r8ep/OJ3jSoKTOOSgeg1GaAqMe6GowpIxD1QbjKXt
-	JkXA+dFq9etiwmaTM6lH44KbwzVbRwKNi3q9GXG/lLpmRQZILOjFXHBaEoty/5r4HTI5znhSX6O
-	1/VKhA/OPyX8uWtMiPv30VlCd++/Vsx/AAJMOI/L63EVIok8ZxR9/2eO3hSMiEchAKzX/jw870V
-	v3Ws1+RcYDwgfmvcY+g/VkkPTA8wfW3jBff/1UPByeVNeTsMnFSTJc0B+Kzx2ENwWS6lJmRj60r
-	NG0LReqsjrw1qAvJdMlkGvuJVaXZGc=
-X-Received: by 2002:a05:6122:4892:b0:5c2:d11b:dfbc with SMTP id 71dfb90a1353d-5c37e3b5185mr20804e0c.7.1785462923925;
-        Thu, 30 Jul 2026 18:55:23 -0700 (PDT)
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com. [209.85.221.181])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c366568458sm2869143e0c.7.2026.07.30.18.55.17
-        for <linux-watchdog@vger.kernel.org>
+        bh=cWVsaGtK4t8BYwwX0u/oZhTbeS39OgGPkH3ocWt5uz4=;
+        b=qGGkgCzwqvlkSj2llLZEgYbpahz4ulNM6i4HwHIhrer1UpYBu6EFOijQ0eBJ/7qyYV
+         hkdn3REp/ps7gLN1+nkR6vmTJKDCO1nZe0v5aPpyz52epWDfIDVLXIWTLpVuDNYWa1e/
+         CckMk4ysuFISquriklIK9s6IAUkhgX7Krxt5g4/TUGVdMMwjHA6y8U/kWlaq/Cu6+/uz
+         UutGfwK9o9Fvbm4A2MGnUJIaZNGUiWnN4jTvHZiMJ2AzAL0ZV7izMCEO4eSnEox1HDN5
+         ileVxK2b9D8OLWlNKxgs88QRxZtyDiVLCFDv/dwIh5u1/70UZEDV8ghgdYG7qTBKjbTi
+         Em0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785473879; x=1786078679;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=cWVsaGtK4t8BYwwX0u/oZhTbeS39OgGPkH3ocWt5uz4=;
+        b=nAVSK2FldnM4fePDiyoY91I+QNj3kLutgCgy7oc5MTDLg6QrJ/EdXMewrzEcHAoFsb
+         rYxMqxuQV1qMESqRoVp+QTYULox0XAEDs/lcEmhkXTjotEfYSgrcsDLwWDwQ0i0YZUn2
+         Z7sY+LEOvDUFUWEn7t6yEteS18T7DKVsaLYC/owppWEAH0EaaHJJe8YEDsl9nHHgNVcE
+         6Q3YKiHrrGDaBXdLlpc62mK8G8Gwxc5ZH5VxD9BEOcdRfVipCtQ5Yt6cysWHrr9BlofI
+         +g0Oh9WK96pTbDhyBm1+eJjyU1YUDJso7UhRPX1wGozNsfNM+uz2P+CReIPmBw2/1hhc
+         2sNA==
+X-Forwarded-Encrypted: i=1; AHgh+RrQsrnpSEUlXEmLQeNp86R2NRvFyNYx1hzu9Yrv/lSGe5BoPJNUnRP0xQ3bdEDTGI/cLFAkKaYY1sWz9/ohSw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPAkztmQSN11MeZR1lEquu4HMkjTw/BtsLYqVmhTP516ywDFHT
+	zhmzvhpxxwITV6rnj6aSoc/LtWPrLJ8KztMqILXOLx6pIsL6e3NEvoie
+X-Gm-Gg: AR+sD12UwtZ1TcI8KWug1ZxQ0uhpM3rtqf9A2+9+lt6U6SpNnNsbkbEVZ34CHk+yogY
+	UhwAEtkv1zJxI5bEM9Yda+zCS9MSAwGxahTFSTlr/w5lD9OEUOQ3fvwNAD+BQmrzhm7mDDiLIMj
+	SSoGtRy/6eljfo0NcX2cG55qwzJ8GTXPszJm3ibGHl05XAxRqDr97gysWSghnQNzNiWE0oAaLDH
+	I4UAk6Ji06iEFxW/ZIjOt5aCLbQV+cGsmdyKmQa2chHzYPiSx/XAAhNPmetzaIQbeAm0xRIOg0V
+	FqvJ5TQpfjuRvTxJ4TPEInEoYEwBPtMqsVkH6z8r7kyGsK6CFHTKM8R58KYu+G6rR8cwvqPwm3R
+	tZMGTwR28e/EULoKuH0CqbOFFckH05EvRjC8PQn/rmJlFZ17cYsZW3+b0EYfo0HvV9M8TFU1B/s
+	9vTMPC8sUt1Ju9/VKe4+J5UrxHUOBKzMchumGCt/NY6SlbFXaGyjCRBWI/uSC7AYd0htdv3BRQ5
+	fEelx0EsbB6MlRI7eCnmnPJaHQz1SwCuBSLS3n2vPDKvA==
+X-Received: by 2002:a05:6512:6185:b0:5b2:afd7:ec48 with SMTP id 2adb3069b0e04-5b2e2349c05mr70476e87.32.1785473878783;
+        Thu, 30 Jul 2026 21:57:58 -0700 (PDT)
+Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b2e245c8basm58952e87.84.2026.07.30.21.57.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2026 18:55:22 -0700 (PDT)
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5bf959b820cso334648e0c.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:55:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Ro+3a1naIJBhPwDajI+iOGRuwVpA8gtB0wt3LbEk+vPRDaoHT2y6lEffpqIW/rSVhJga2IbQqN6+P8xXc1suQ==@vger.kernel.org
-X-Received: by 2002:a05:6102:3f53:b0:74c:7fd8:73f5 with SMTP id
- ada2fe7eead31-758f8965e31mr9865137.6.1785462916714; Thu, 30 Jul 2026 18:55:16
- -0700 (PDT)
+        Thu, 30 Jul 2026 21:57:58 -0700 (PDT)
+Message-ID: <1cc56b2d-457a-4152-b701-ee05c2e203db@gmail.com>
+Date: Fri, 31 Jul 2026 07:57:56 +0300
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com> <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
-In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Thu, 30 Jul 2026 18:55:05 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=VaZJPs3m+QP34+v0XSboYsGbBqEs4M7EDQbTXh5QJC6g@mail.gmail.com>
-X-Gm-Features: AUfX_mzo7W3pvmnS9mL8sDrAgHUc5JTVkUI1izvsxOilY1cg6ckoFmOpnaMqAlw
-Message-ID: <CAD=FV=VaZJPs3m+QP34+v0XSboYsGbBqEs4M7EDQbTXh5QJC6g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] watchdog: pretimeout: Convert dump pretimeout
- governor to tristate
-To: mrungta@google.com
-Cc: Andrew Morton <akpm@linux-foundation.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Tzung-Bi Shih <tzungbi@kernel.org>, linux-kernel@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/3] power: reset: pscrr: add watchdog pretimeout
+ reason tracking
+To: Guenter Roeck <linux@roeck-us.net>,
+ Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Faruque Ansari <faruque.ansari@oss.qualcomm.com>,
+ Sebastian Reichel <sre@kernel.org>, Wim Van Sebroeck
+ <wim@linux-watchdog.org>, Benson Leung <bleung@chromium.org>,
+ Tzung-Bi Shih <tzungbi@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, linux-pm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linux-arm-msm@vger.org, kernel@pengutronix.de,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, =?UTF-8?Q?S=C3=B8ren_Andersen?=
+ <san@skov.dk>, Guenter Roeck <groeck@chromium.org>,
+ Ahmad Fatoum <a.fatoum@pengutronix.de>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ avaneesh.dwivedi@oss.qualcomm.com,
+ Umang Chheda <umang.chheda@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org
+References: <20260722-pscrr-reboot-reason-v2-0-495ba3005953@oss.qualcomm.com>
+ <20260722-pscrr-reboot-reason-v2-2-495ba3005953@oss.qualcomm.com>
+ <98e65507-3084-4948-8096-4e2d8d20dc81@gmail.com>
+ <amrgDC0s3rb5Xv4N@pengutronix.de>
+ <19a2b8bd-09ea-4df9-b0ba-f78f60c44848@roeck-us.net>
+Content-Language: en-US, en-AU, en-GB, en-BW
+From: Matti Vaittinen <mazziesaccount@gmail.com>
+In-Reply-To: <19a2b8bd-09ea-4df9-b0ba-f78f60c44848@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi,
+On 30/07/2026 18:02, Guenter Roeck wrote:
+> On 7/29/26 22:24, Oleksij Rempel wrote:
+>> Hi Matti,
+>>
+>> On Thu, Jul 30, 2026 at 07:49:41AM +0300, Matti Vaittinen wrote:
+>>> On 22/07/2026 18:13, Faruque Ansari wrote:
+>>>> Watchdog pretimeout resets are not recorded with a dedicated reset
+>>>> reason, causing subsequent boots to report PSCR_UNKNOWN and making it
+>>>> difficult to distinguish them from other unexpected resets.
+>>>>
+>>>> Add PSCR_WATCHDOG_PRETIMEOUT as a dedicated reset reason code and
+>>>> prevent the panic notifier from overwriting a watchdog pretimeout
+>>>> reason with PSCR_KERNEL_PANIC when the pretimeout governor triggers a
+>>>> panic.
+>>>>
+>>>> Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+>>>> ---
+>>>>    drivers/power/reset/pscrr.c           | 7 ++++++-
+>>>>    include/linux/power/power_on_reason.h | 1 +
+>>>>    include/linux/reboot.h                | 1 +
+>>>>    kernel/reboot.c                       | 1 +
+>>>>    4 files changed, 9 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/power/reset/pscrr.c b/drivers/power/reset/pscrr.c
+>>>> index b5906f127e88..5b107c62fe82 100644
+>>>> --- a/drivers/power/reset/pscrr.c
+>>>> +++ b/drivers/power/reset/pscrr.c
+>>>> @@ -149,7 +149,12 @@ static int pscrr_panic_notifier(struct 
+>>>> notifier_block *nb,
+>>>>        if (!backend || !backend->ops || !backend->ops->write_reason)
+>>>>            return NOTIFY_OK;
+>>>> -    set_psc_reason(PSCR_KERNEL_PANIC);
+>>>> +    /*
+>>>> +     * Do not overwrite a previously recorded watchdog pretimeout 
+>>>> reason
+>>>> +     * during panic handling.
+>>>> +     */
+>>>> +    if (get_psc_reason() != PSCR_WATCHDOG_PRETIMEOUT)
+>>>> +        set_psc_reason(PSCR_KERNEL_PANIC);
+>>>
+>>> Hi Faruque,
+>>>
+>>> I like the idea of adding WDG pretimeout resets in pscrr. I am just
+>>> wondering what makes WDG reason so special, that it shouldn't be 
+>>> overwritten
+>>> while other reasons can be? Can this notifier be called (now or in the
+>>> future) so, that there are other reasons getting overwritten? For some
+>>> reason I think the PSCRR was designed to be able to store multiple
+>>> reasons(?)
+>>
+>> It depends on the backed. A simple nvmem cell, would be able to hold
+>> only one reason.
 
-On Thu, Jul 30, 2026 at 3:00=E2=80=AFPM Mayank Rungta via B4 Relay
-<devnull+mrungta.google.com@kernel.org> wrote:
->
-> From: Mayank Rungta <mrungta@google.com>
->
-> Commit 645ad41da8b2 ("watchdog: pretimeout: Add "dump" pretimeout
-> governor") added the "dump" watchdog pretimeout governor, but restricted
-> it to built-in code because trigger_all_cpu_backtrace() was not exported
-> to loadable modules.
->
-> Now that CPU backtrace APIs are supported for loadable kernel modules
-> via cpumask_backtrace(), convert WATCHDOG_PRETIMEOUT_GOV_DUMP to
-> tristate. This allows kernels to deliver the pretimeout governor as a
-> loadable kernel module.
->
-> Signed-off-by: Mayank Rungta <mrungta@google.com>
-> ---
->  drivers/watchdog/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Thanks for the explanation Oleksij :)
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+> That makes me wonder: Shouldn't the priority be a back-end decision, not a
+> front-end decision ?
+
+I have no strong opinion on that but even if the priority was decided by 
+front, the decision whether to store multiple or single reason should 
+perhaps be left for (or depend on) the backend.
+
+Yours,
+	-- Matti
+
+-- 
+Matti Vaittinen
+Linux kernel developer at ROHM Semiconductors
+Oulu Finland
+
+~~ When things go utterly wrong vim users can always type :help! ~~
