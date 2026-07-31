@@ -1,138 +1,112 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F3D4219E7
-	for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 23:39:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785454770; cv=pass; b=A3YB13eT66mXkK5Zfi0nX7HYEIL5yiWh+SJ8dbbSGQu/BwqO+CskTwqfVy1xF6gEGNSpd1nE5fckqzm8ZXkUTWGJfac0wxctzZLIBDV4PSg3byxXCxNqaihNqyJSmoQH7TXf73dgxIntwsUsQ5+GIpt54PO3uOVHwuc2Fdpkm+Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785454770; c=relaxed/simple;
-	bh=uWYChakUuwek8eibgmmJR9Zj3TvJ6TkwMHpcQpNoWsU=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFA99282F0C
+	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 01:54:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785462870; cv=none; b=YarouGrSrS21SDYa+2XHa5BTUsIrKeP6pbNg4pYs4FfrRVL5OawzU4vOXaZZfNDPO8rny0HMi/TD11JLnYcEzhQT7Xkq2z1mUDfebvGo2H6y0E1ABzGJ5SokuRYnDGMcmKCej/uMaXD18KknECDXwU1CsJZvgDO0Kn+mklYbK2k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785462870; c=relaxed/simple;
+	bh=+HFK9tmZGfy1/s/lmeYCkqJNwSlvShZR9bbeiEBftEs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=a68jZ+2ozuVxMq1uU9CkOU8UDrXlz95eoIMp8pDEsxml49L5BIzDMla9p3L3MZsIFuQqlIwXr6N62sU368Off4re14Cf0LO78TuRn3aJSLh1BxUxC+p5q507Kx6g53biIFpy+vrTrDCJJy702QSDUviwb4D0twLf9RE0woZ+Qrk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=t1efqXyh; arc=pass smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=hS2s1w4Dsb8j2C2Lx1V21YvfJJUWP2da5SWthwgdWreOVRjCOeDcXPnC//B7TY3ayNw2yi1tASRSGiB2yZ5q8q7SEefpTdlt61KKTQsPyjrTn8iFmVKMANxxGooQVVtIUkAzTJk6mpG3QnM5M2xgiDO79yxcKXq6tIcvk8a7iJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=lVHbAt6C; arc=none smtp.client-ip=209.85.221.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="t1efqXyh"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7eb64085c45so303839a34.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 16:39:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785454767; cv=none;
-        d=google.com; s=arc-20260327;
-        b=FDxZ3t8s3tEiNSPnhb7jd0wGcawNlzlXQexceu5WtD6Dwx5Oj/nrWkGMbY6haqEZ5t
-         t1qA07CwJC9mlYM7H8Gehmh0iM1iiWsAbU77M19i8bEr4YwWE59W1BrPH1aj8lkpXfvl
-         DnovpEwx8Ens8xSeGvseubxP8eW4TZNl2bQ3QhxdJBI0k5LLcfn0CaD2nsUoOTTtuJTE
-         B9aDV99D3tYtPAL/YXinjSh+59BzdjrWqK6j9guG/jvcjWK+EmD7a8biwqjstmUyi+Zh
-         miLRHcfbCW14DfUcwJWiB2IIvadwKATlUn5bcHPfWsDtl1D/5PqQpKsxmliYrm4s/jnU
-         /wZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=jYH9Ab+rNx8wOPy2rDWzwA4cOpvKadpdamnekEua3ik=;
-        fh=GdTkLi9Fz67EtubzjgyjKaij+ekcU9LsKKLz8z+Xwtw=;
-        b=LYGKyBEPHsiqPBlVTHokCiPN+yVEbddE4h3wRd9dFgPDp7c8Ls154/vRlZ/draXI3v
-         rodbgSh6YAUB8DILnjcA+1dmV9PIJ5TlmAULHYPtUY2WPsyH4re5lM0nzrT/201Jn5gj
-         QzFraeAtlfklPqEN87LkvjBRBVZU0uhkKT1VGVYjGjrJnRRvVSq3OefBYui6DSLyMFol
-         gebVS4Iped/X2RK930kQHSlV5k0EDQj8DjbvoJbkxM/31hP78kw4O0SfsThb18xSKYEr
-         WzJcFlH7SLE8fmCijRvApn3cwnM0K/cI++qx02cQV3uFa85nLAgBqsbE/vWXRpW/8bQD
-         ZT1g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="lVHbAt6C"
+Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5bfb5e20a90so391285e0c.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:54:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785454767; x=1786059567; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1785462868; x=1786067668; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=jYH9Ab+rNx8wOPy2rDWzwA4cOpvKadpdamnekEua3ik=;
-        b=t1efqXyheYxPtX80GdCYHvXuLMYVnZIeAmnWnSckClQce3eRyGJ67nPmq8xVDQgwca
-         jOYtd1QeQ7yGHMsE42mFFxZGJbW7hhB0BRTKG8d+3Ppzwco6/6pVl9supEEA9zHtfa8X
-         xDGWHGhIb6aSn7fKTWhXj8gbRaJLg6Vbhy7c9GggXcccH9l2iXhqfsZF/ae0P+jbJNe8
-         YTb96nPCIztznc/Gn8r1uqpI/DqpnZ5AZ0/+bFYstzm//AzONJZWw3vj5nJe8bAY86GE
-         cYQSznfNenSvYmlDQXME1u6Pcy7PnnW4ySCECBRUEZlNnBAQIU7JyUCPOt8dMf8b82KH
-         x9Qg==
+        bh=+Z8FGKUlDFzcasJZ046FBGl/M48AdMIQ6YWPUk4pFK0=;
+        b=lVHbAt6CenOZoOCpQERveL5QzrM2U0UU/FugsqEFpB3AWmaAswx4EBkiz14wUNVlwi
+         wou93kkwFv+Mg0xRuuLkBqBcwx0Usb3ctH8doQ84/5XMPHDpeqIvxexjHIw5MYzJVlNk
+         q1p72J4uQoQFCUEyH2zyCDPEtSxL8DduP1LVE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785454767; x=1786059567;
+        d=1e100.net; s=20251104; t=1785462868; x=1786067668;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jYH9Ab+rNx8wOPy2rDWzwA4cOpvKadpdamnekEua3ik=;
-        b=p3K1te7klGfF8kVBxqvDBGB9T+jn+Xh+ttYGNjrHJlwWm7iADBFhdi6M+B13fFMBtr
-         yOtdBHLu4qHogJUwGgGXrw2XMIljVyUy3GUffMDerLeJo4K/gX9TOjnTfefBrrqJH+hp
-         wCKdYdl9lnpQum8xJeOCX6mid2ybyHp7bEumqhc7GFUUXekVuKtHZcVTWCq6Y5sN54do
-         aISb94CPCd8qClu/t5dLL2xsFlvgKc8PZvfSv9UqAmmTvVTeFOct8DRWJvJrcaXIyUNH
-         vfKGngwNNd9HQ/6dMar0GcC8MJtYgyYkaB22vFYZ739lkSIouqqKoCMucunuOQI3NJsO
-         ns2A==
-X-Forwarded-Encrypted: i=1; AHgh+Ro+LprNzNRZMbsRZ5SZM+bWa13ZwJPvKSR4vPpC7CTYczINyENzIeLXK9SvcDBY3rdHB7m+Wiu4CWqF//YuLA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJ4RvifOeTu8QqQ/jktyOxRFShMsJDg3qTADtD87tfUQbsGqD/
-	fGF9jF2O00hNZ5iaQv5KiZjEcC4X9yr5LRzpp5+WLCVsf/Bk1OTpcBEJAe77+MHjI9G3bXxsWON
-	G+SkLPa/F+equeCVuJJ27fzJ1MTzSKac74Dz2853v
-X-Gm-Gg: AR+sD13W1016ZVhNE8a9JlL3hQHKXhoT7vZj1jGGTeJcil/R4qf8VteOdCHlGVsSxyH
-	WKSpan7OdJBca9i6nEmnioZq23LGgL5TJ03KaIGmEc8QkjLcoE1BKiyUasw8eSOXZgVWz+5247q
-	bqf/BCbsQ3jn9R4BscRXFcR9FnTg1EXD4BHCjUjyfsEfWj2NPtLUf09ucuKf0PMcQEuZVREc034
-	JHbf8KxlhV2cxwTSgx0A1nFX1tnQWtne1qN8RpOwSWsG85Mnf1pqAALxNe/Gv5BdxSgX8A39rBg
-	d6v6zNsQrOhc4ImjOdqEP7FmGmAeLRLe5vtLfEYA+34wr8xMWTeTP05KcDjDlNEb4H8LlAJF51r
-	B
-X-Received: by 2002:a05:6830:6ad7:b0:7dc:cdea:7d9 with SMTP id
- 46e09a7af769-7f02c1c2c6fmr3502017a34.22.1785454767092; Thu, 30 Jul 2026
- 16:39:27 -0700 (PDT)
+        bh=+Z8FGKUlDFzcasJZ046FBGl/M48AdMIQ6YWPUk4pFK0=;
+        b=Y9AQX2GmgFzMkivHFfuWui7bQi/EkSTU8NufzlxMqCyJzdfJOwBm38CkX9Cbbz9wZh
+         C+X367OHeXWSASmIsbRmKs+2bLHM02RuhmD03N9FGUKn1erNW5s6mSE4izfhNcZapvC1
+         xjxUVuPMvnEbViL6yzmt22W12ehr3b3CjQodFL5BbVczQLim173LhgMLd1XO79AXZkYt
+         aHBeXGco3aIdvJSFtUguVCb8mjK/k1O4AbjKSqj3n2tkxueinxWluX1x1crqghxGKa6F
+         bLO3FvJ+no4yP2cidLxMLx9zAsfMGw/2HY2jBtpDX7C5FuE+ZawCoW3sx5zLggLI+k4j
+         N/+g==
+X-Forwarded-Encrypted: i=1; AHgh+RqtF5bbPkTKd76C1UyfAyvVIyaqrx3oq8JBg432JFDMc38ri/drQ0Z/+0Qt3P8OVVf3bOxEW6X+l0HBRhbbng==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzmf5aH9FQsO4gZUpqcyYvxinaaD4JrTPBk0FJCIwBgblDCR5no
+	D13hztE2qXJYeByK0eb0IICErq74hB1aQ8foV//Nc1CFgJOsHJde61F2k8TGSqh/dRre8DP4Xt3
+	D9co=
+X-Gm-Gg: AR+sD129bse5eqdvFu2iV05PUn5YX2d0mKvtllgmZebmWGRgm1Wgn9SxayurWmCPP1f
+	QPJVqElEmoAkQyKV7epZByoUxK+iXlvaWKI0Pc/EK0Vk7EQJ/E9OIVC4NGoNwPgEi6FfghDxnGP
+	H7AQsWA7aph7C8CvhDLgMa45VObqbg+hpBHCx0CvvGN0W4j4/HQVUuEStgAEu2fWlt367IX0c5U
+	QzfncLwnRA27rCIc/gDDRrmST28oqkcnd3S2mdZKhhoW0g8rSt/xfV/ALNqfOwvgFuJ+CzHy74W
+	FbU1wP+jUocYnBvRyhX7aQLIjZvB125pmQYylqX1nwHSydgF7pGFSCpyFdpn7LziQqmrUpwC1Ky
+	i7MUyua0JhWTX48D35dh20Whbs+DD8pNHaSBLW6e07a0eM5Yn4mE9U4Y/imzZp0lPJR4iOz0gb/
+	yUHTmoCdqW/g0FjGGymAenRz5v/hda/RH+QLzirNMMZ6n4eLRP0rmqzBxZEQkoBm8dFhbarbmXE
+	9QIQ1wb9LImZV4q1W/u1M9R0YIYDJQ=
+X-Received: by 2002:a05:6122:490a:b0:5bd:ecad:8f80 with SMTP id 71dfb90a1353d-5c37e3f4aecmr16573e0c.2.1785462867767;
+        Thu, 30 Jul 2026 18:54:27 -0700 (PDT)
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com. [209.85.221.181])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c366568458sm2867666e0c.7.2026.07.30.18.54.25
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2026 18:54:26 -0700 (PDT)
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5c11362f67eso382474e0c.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:54:25 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RoCmCPdTFaJIexjF3eF0xH+bHUnTP3WZpjwNCJ5Jn0UxsqIj3eqIv1hjQNsjpH3B6igr9Qogvqm4baRfGR5dw==@vger.kernel.org
+X-Received: by 2002:a05:6122:1c07:b0:5bd:ea6e:52f4 with SMTP id
+ 71dfb90a1353d-5c37e733753mr10810e0c.10.1785462864173; Thu, 30 Jul 2026
+ 18:54:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com> <20260730155021.8252ad9d155b472702e66755@linux-foundation.org>
-In-Reply-To: <20260730155021.8252ad9d155b472702e66755@linux-foundation.org>
-From: Mayank Rungta <mrungta@google.com>
-Date: Thu, 30 Jul 2026 16:39:14 -0700
-X-Gm-Features: AUfX_mwwGzCyylhoOPtrLtp4YhI48Cis3pUIYjuqLRrikZ2eV5NHcaFbQ-W5tzE
-Message-ID: <CABz7rdCZkzBv-horH0jNLeNuhCNUOaC+Ttkf_-g3CoCaCSfBbg@mail.gmail.com>
-Subject: Re: [PATCH 0/2] watchdog: pretimeout: Allow building dump governor as module
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Tzung-Bi Shih <tzungbi@kernel.org>, Douglas Anderson <dianders@chromium.org>, linux-kernel@vger.kernel.org, 
+References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com> <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Thu, 30 Jul 2026 18:54:13 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=VXC7LQOERckkZJfcSDuDiGALaG8Z7RcfOZQOsGYFCaWQ@mail.gmail.com>
+X-Gm-Features: AUfX_mzfhs0aSx_36NvYH7YfZbdE_m-MV-1yBw8lHTHE26Ac3OMOFvHoW9UOT_Q
+Message-ID: <CAD=FV=VXC7LQOERckkZJfcSDuDiGALaG8Z7RcfOZQOsGYFCaWQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] nmi: Export CPU backtrace APIs for loadable modules
+To: mrungta@google.com
+Cc: Andrew Morton <akpm@linux-foundation.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Tzung-Bi Shih <tzungbi@kernel.org>, linux-kernel@vger.kernel.org, 
 	linux-watchdog@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 30, 2026 at 3:50=E2=80=AFPM Andrew Morton <akpm@linux-foundatio=
-n.org> wrote:
+Hi,
+
+On Thu, Jul 30, 2026 at 3:00=E2=80=AFPM Mayank Rungta via B4 Relay
+<devnull+mrungta.google.com@kernel.org> wrote:
 >
-> On Thu, 30 Jul 2026 15:00:20 -0700 Mayank Rungta via B4 Relay <devnull+mr=
-ungta.google.com@kernel.org> wrote:
+> From: Mayank Rungta <mrungta@google.com>
 >
-> > All other watchdog pretimeout governors (noop, panic) can be built as
-> > loadable modules. However the "dump" pretimeout governor is restricted
-> > to built-in code because it calls trigger_all_cpu_backtrace(), which
-> > relies on arch_trigger_cpumask_backtrace(), an arch specific helper tha=
-t
-> > is not exported to loadable modules.
-> >
-> > This 2-patch series allows building the dump governor as a module (=3Dm=
-):
-> > 1) Export cpumask_backtrace() in lib/nmi_backtrace.c.
-> > 2) Convert CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP from bool to tristate.
+> Currently, CPU backtrace functions cannot be called from loadable
+> modules because the underlying helper arch_trigger_cpumask_backtrace()
+> is not exported.
 >
-> LGTM.  Can you please redo against current mainline?  The Kconfig has
-> changed.
+> Instead of exporting arch_trigger_cpumask_backtrace() individually
+> across every supported architecture, introduce and export a common
+> helper, cpumask_backtrace(), in lib/nmi_backtrace.c. Update the four
+> inline CPU backtrace macros in include/linux/nmi.h to route through this
+> centralized helper.
 >
+> Signed-off-by: Mayank Rungta <mrungta@google.com>
+> ---
+>  include/linux/nmi.h | 10 ++++++----
+>  lib/nmi_backtrace.c |  7 +++++++
+>  2 files changed, 13 insertions(+), 4 deletions(-)
 
-Thanks for the LGTM!
-
-Regarding rebasing onto mainline (origin/master): The "dump"
-pretimeout governor was added recently by Tzung-Bi Shih ("watchdog:
-pretimeout: Add "dump" pretimeout governor") and is currently in
-linux-next, so it hasn't landed in mainline tree yet.
-
-Because of this dependency, I based this series on linux-next so that
-patch 2/2 ("Convert dump pretimeout governor to tristate") could apply
-cleanly on top of the new governor.
-
-Please let me know what is preferred, or if you'd like me to post
-against a different tree!
-
-Thanks,
-Mayank
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
