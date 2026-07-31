@@ -1,84 +1,85 @@
-Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
+Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFA99282F0C
-	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 01:54:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09098305679
+	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 01:55:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785462870; cv=none; b=YarouGrSrS21SDYa+2XHa5BTUsIrKeP6pbNg4pYs4FfrRVL5OawzU4vOXaZZfNDPO8rny0HMi/TD11JLnYcEzhQT7Xkq2z1mUDfebvGo2H6y0E1ABzGJ5SokuRYnDGMcmKCej/uMaXD18KknECDXwU1CsJZvgDO0Kn+mklYbK2k=
+	t=1785462926; cv=none; b=g2EfllujFN5Q12htqBI97FFC3gBkBJ3S20QKhkZyoviHPUgxfHBWu0sI3Um71d04+AC699y2phEo9CjV1IXaY6/ptwcO/yJlujbYkd7WBVsALP9mBUVe+r0KqBJ8nugja0V840erDHxW2BA6gU4B1iwY0vuN5gT7c5Qtw7O8dKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785462870; c=relaxed/simple;
-	bh=+HFK9tmZGfy1/s/lmeYCkqJNwSlvShZR9bbeiEBftEs=;
+	s=arc-20240116; t=1785462926; c=relaxed/simple;
+	bh=kKokEKApBhfeDUDGCvc9tnerjL9g9I3yrVIAaF+Lp5U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hS2s1w4Dsb8j2C2Lx1V21YvfJJUWP2da5SWthwgdWreOVRjCOeDcXPnC//B7TY3ayNw2yi1tASRSGiB2yZ5q8q7SEefpTdlt61KKTQsPyjrTn8iFmVKMANxxGooQVVtIUkAzTJk6mpG3QnM5M2xgiDO79yxcKXq6tIcvk8a7iJ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=lVHbAt6C; arc=none smtp.client-ip=209.85.221.170
+	 To:Cc:Content-Type; b=QIj6zZ6llYnkkOeXZGlmbr6vpSPd+58731ssnfTFZ8M5w+paEmsz/k5Ll6rewj5HhZR3fjy8VZ5IALzCOj1R6AH15bDFAunCOiEDqeFj8S3+GoFVuJqrTb4oFqu5Hn/yEB/Vc1wx5BdqP2tXL8urVWEoCHaimGKMZlWKA8kU4QM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=dm0nnWor; arc=none smtp.client-ip=209.85.221.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="lVHbAt6C"
-Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5bfb5e20a90so391285e0c.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:54:28 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="dm0nnWor"
+Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-5bf959b820cso334687e0c.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:55:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1785462868; x=1786067668; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1785462924; x=1786067724; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+Z8FGKUlDFzcasJZ046FBGl/M48AdMIQ6YWPUk4pFK0=;
-        b=lVHbAt6CenOZoOCpQERveL5QzrM2U0UU/FugsqEFpB3AWmaAswx4EBkiz14wUNVlwi
-         wou93kkwFv+Mg0xRuuLkBqBcwx0Usb3ctH8doQ84/5XMPHDpeqIvxexjHIw5MYzJVlNk
-         q1p72J4uQoQFCUEyH2zyCDPEtSxL8DduP1LVE=
+        bh=WGnt/9N3yJKJH6c7tNU1dd0f/IV2+Dp7VlT/yFQk8Yc=;
+        b=dm0nnWor7DKGGtR6jbtgU9qFJyjZeMfPFBAzVKXUyE/RApdObNKp7gBYHF558WY5Pm
+         1RHd5yWM0MekjVoDqfn8yp2TGuxKPheFhgqWgjHUMc5Fuy43TnbIUmlUXhZw0/0ojoRv
+         H/aUQrjP8dZOxx4xwN98SENyaiWqATx8E1emI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785462868; x=1786067668;
+        d=1e100.net; s=20251104; t=1785462924; x=1786067724;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+Z8FGKUlDFzcasJZ046FBGl/M48AdMIQ6YWPUk4pFK0=;
-        b=Y9AQX2GmgFzMkivHFfuWui7bQi/EkSTU8NufzlxMqCyJzdfJOwBm38CkX9Cbbz9wZh
-         C+X367OHeXWSASmIsbRmKs+2bLHM02RuhmD03N9FGUKn1erNW5s6mSE4izfhNcZapvC1
-         xjxUVuPMvnEbViL6yzmt22W12ehr3b3CjQodFL5BbVczQLim173LhgMLd1XO79AXZkYt
-         aHBeXGco3aIdvJSFtUguVCb8mjK/k1O4AbjKSqj3n2tkxueinxWluX1x1crqghxGKa6F
-         bLO3FvJ+no4yP2cidLxMLx9zAsfMGw/2HY2jBtpDX7C5FuE+ZawCoW3sx5zLggLI+k4j
-         N/+g==
-X-Forwarded-Encrypted: i=1; AHgh+RqtF5bbPkTKd76C1UyfAyvVIyaqrx3oq8JBg432JFDMc38ri/drQ0Z/+0Qt3P8OVVf3bOxEW6X+l0HBRhbbng==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzmf5aH9FQsO4gZUpqcyYvxinaaD4JrTPBk0FJCIwBgblDCR5no
-	D13hztE2qXJYeByK0eb0IICErq74hB1aQ8foV//Nc1CFgJOsHJde61F2k8TGSqh/dRre8DP4Xt3
-	D9co=
-X-Gm-Gg: AR+sD129bse5eqdvFu2iV05PUn5YX2d0mKvtllgmZebmWGRgm1Wgn9SxayurWmCPP1f
-	QPJVqElEmoAkQyKV7epZByoUxK+iXlvaWKI0Pc/EK0Vk7EQJ/E9OIVC4NGoNwPgEi6FfghDxnGP
-	H7AQsWA7aph7C8CvhDLgMa45VObqbg+hpBHCx0CvvGN0W4j4/HQVUuEStgAEu2fWlt367IX0c5U
-	QzfncLwnRA27rCIc/gDDRrmST28oqkcnd3S2mdZKhhoW0g8rSt/xfV/ALNqfOwvgFuJ+CzHy74W
-	FbU1wP+jUocYnBvRyhX7aQLIjZvB125pmQYylqX1nwHSydgF7pGFSCpyFdpn7LziQqmrUpwC1Ky
-	i7MUyua0JhWTX48D35dh20Whbs+DD8pNHaSBLW6e07a0eM5Yn4mE9U4Y/imzZp0lPJR4iOz0gb/
-	yUHTmoCdqW/g0FjGGymAenRz5v/hda/RH+QLzirNMMZ6n4eLRP0rmqzBxZEQkoBm8dFhbarbmXE
-	9QIQ1wb9LImZV4q1W/u1M9R0YIYDJQ=
-X-Received: by 2002:a05:6122:490a:b0:5bd:ecad:8f80 with SMTP id 71dfb90a1353d-5c37e3f4aecmr16573e0c.2.1785462867767;
-        Thu, 30 Jul 2026 18:54:27 -0700 (PDT)
+        bh=WGnt/9N3yJKJH6c7tNU1dd0f/IV2+Dp7VlT/yFQk8Yc=;
+        b=VcbGGGrMNeo5sNMPHvGe2KMPYm0NmPScGVWhl6UjNR3MPN39vzFBStcstAT3if51+5
+         yy7L7WWYefvi7oX45+Vb2E61NAPSYbaKkPmrMd/P4Jd9NYgzY+JL31t1LlGjuAUgTDtM
+         LWJmcjFWc+JfRyRTgkccnzMOar/D4S1hY/3XjhfObXsgwNUFDS0n1g8IpvPpNSyHWBHZ
+         JSLDHdm2fmbMzcodcW7iLvt063WqNpj8SAWXyeLHyFCfWUe7EN3OY9Lr26ScVXQPdsqL
+         XdW8DVKBQc5AUNG6tmvBCXRNqxjODTnMGLUtPR7YwknF4GOjPT9iXblHjl1V7exkaVGG
+         FH1w==
+X-Forwarded-Encrypted: i=1; AHgh+Rq1fTvyOw4YPGgNXDdC2DPr2Hr1cGMwZInDoIWoieOBbxb1oxy/VOEDR5wr3cwWCyTl3s9SYu/dBJe2ijsUvA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwfHsVyJx6XKTH0Rwas1vDQF6Sb6kjOvKtP4coSiahBdgHNF67p
+	2K43dcwR8oXR84GMJYAvdm7eraC+wqkJI/8VX7jOXCKLC68LWBMPMy5acq3IcpAOlMQKo9GuqkM
+	ga3U=
+X-Gm-Gg: AR+sD10YIHeYN67ZoT+/ToclGBz+9KmZv6Bz+o6L7nkc+Yt/Qit1pEJWI7isO+P01ln
+	Eah5E1J7RLUQ3XbP7LSYMUSn+EPGSpuCoNcTh/G/JxTt918ajRNs3+zA8n93d1xllfGbmJF7Gwa
+	P4FPgTx8lrBXvSp2/wXiNOYC1MPpdte1SpLeizO/9DtI6Keh59SpaSA6QiBrLjp0p8F0YT/0opO
+	14ONasTbxBOzjHGHuoHK4IHXKni7Tg0082r8ep/OJ3jSoKTOOSgeg1GaAqMe6GowpIxD1QbjKXt
+	JkXA+dFq9etiwmaTM6lH44KbwzVbRwKNi3q9GXG/lLpmRQZILOjFXHBaEoty/5r4HTI5znhSX6O
+	1/VKhA/OPyX8uWtMiPv30VlCd++/Vsx/AAJMOI/L63EVIok8ZxR9/2eO3hSMiEchAKzX/jw870V
+	v3Ws1+RcYDwgfmvcY+g/VkkPTA8wfW3jBff/1UPByeVNeTsMnFSTJc0B+Kzx2ENwWS6lJmRj60r
+	NG0LReqsjrw1qAvJdMlkGvuJVaXZGc=
+X-Received: by 2002:a05:6122:4892:b0:5c2:d11b:dfbc with SMTP id 71dfb90a1353d-5c37e3b5185mr20804e0c.7.1785462923925;
+        Thu, 30 Jul 2026 18:55:23 -0700 (PDT)
 Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com. [209.85.221.181])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c366568458sm2867666e0c.7.2026.07.30.18.54.25
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c366568458sm2869143e0c.7.2026.07.30.18.55.17
         for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2026 18:54:26 -0700 (PDT)
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5c11362f67eso382474e0c.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:54:25 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RoCmCPdTFaJIexjF3eF0xH+bHUnTP3WZpjwNCJ5Jn0UxsqIj3eqIv1hjQNsjpH3B6igr9Qogvqm4baRfGR5dw==@vger.kernel.org
-X-Received: by 2002:a05:6122:1c07:b0:5bd:ea6e:52f4 with SMTP id
- 71dfb90a1353d-5c37e733753mr10810e0c.10.1785462864173; Thu, 30 Jul 2026
- 18:54:24 -0700 (PDT)
+        Thu, 30 Jul 2026 18:55:22 -0700 (PDT)
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5bf959b820cso334648e0c.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 Jul 2026 18:55:17 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Ro+3a1naIJBhPwDajI+iOGRuwVpA8gtB0wt3LbEk+vPRDaoHT2y6lEffpqIW/rSVhJga2IbQqN6+P8xXc1suQ==@vger.kernel.org
+X-Received: by 2002:a05:6102:3f53:b0:74c:7fd8:73f5 with SMTP id
+ ada2fe7eead31-758f8965e31mr9865137.6.1785462916714; Thu, 30 Jul 2026 18:55:16
+ -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com> <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
-In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com> <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
+In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
 From: Doug Anderson <dianders@chromium.org>
-Date: Thu, 30 Jul 2026 18:54:13 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=VXC7LQOERckkZJfcSDuDiGALaG8Z7RcfOZQOsGYFCaWQ@mail.gmail.com>
-X-Gm-Features: AUfX_mzfhs0aSx_36NvYH7YfZbdE_m-MV-1yBw8lHTHE26Ac3OMOFvHoW9UOT_Q
-Message-ID: <CAD=FV=VXC7LQOERckkZJfcSDuDiGALaG8Z7RcfOZQOsGYFCaWQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] nmi: Export CPU backtrace APIs for loadable modules
+Date: Thu, 30 Jul 2026 18:55:05 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=VaZJPs3m+QP34+v0XSboYsGbBqEs4M7EDQbTXh5QJC6g@mail.gmail.com>
+X-Gm-Features: AUfX_mzo7W3pvmnS9mL8sDrAgHUc5JTVkUI1izvsxOilY1cg6ckoFmOpnaMqAlw
+Message-ID: <CAD=FV=VaZJPs3m+QP34+v0XSboYsGbBqEs4M7EDQbTXh5QJC6g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] watchdog: pretimeout: Convert dump pretimeout
+ governor to tristate
 To: mrungta@google.com
 Cc: Andrew Morton <akpm@linux-foundation.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
 	Guenter Roeck <linux@roeck-us.net>, Tzung-Bi Shih <tzungbi@kernel.org>, linux-kernel@vger.kernel.org, 
@@ -93,20 +94,19 @@ On Thu, Jul 30, 2026 at 3:00=E2=80=AFPM Mayank Rungta via B4 Relay
 >
 > From: Mayank Rungta <mrungta@google.com>
 >
-> Currently, CPU backtrace functions cannot be called from loadable
-> modules because the underlying helper arch_trigger_cpumask_backtrace()
-> is not exported.
+> Commit 645ad41da8b2 ("watchdog: pretimeout: Add "dump" pretimeout
+> governor") added the "dump" watchdog pretimeout governor, but restricted
+> it to built-in code because trigger_all_cpu_backtrace() was not exported
+> to loadable modules.
 >
-> Instead of exporting arch_trigger_cpumask_backtrace() individually
-> across every supported architecture, introduce and export a common
-> helper, cpumask_backtrace(), in lib/nmi_backtrace.c. Update the four
-> inline CPU backtrace macros in include/linux/nmi.h to route through this
-> centralized helper.
+> Now that CPU backtrace APIs are supported for loadable kernel modules
+> via cpumask_backtrace(), convert WATCHDOG_PRETIMEOUT_GOV_DUMP to
+> tristate. This allows kernels to deliver the pretimeout governor as a
+> loadable kernel module.
 >
 > Signed-off-by: Mayank Rungta <mrungta@google.com>
 > ---
->  include/linux/nmi.h | 10 ++++++----
->  lib/nmi_backtrace.c |  7 +++++++
->  2 files changed, 13 insertions(+), 4 deletions(-)
+>  drivers/watchdog/Kconfig | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
 Reviewed-by: Douglas Anderson <dianders@chromium.org>
