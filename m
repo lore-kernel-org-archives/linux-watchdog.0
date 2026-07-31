@@ -1,182 +1,196 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E4C2489882
-	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 21:19:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F613D330C
+	for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 23:18:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785532779; cv=none; b=JrPJJxkPaQhKJGtFY0uL/kkIyO4Vm72gYFWS6cSkaAXbWq+THjDZjgXCxHOzQnVYhvuTAuyVi/CzkQqF9fSI5nDOWWbPBqIP1k7Msg0r47e/mVA+a5UUKlJHjR8hQOoeD+mltW2nSHGBMwiWJbzR0eORofzZAvitoaYYXCdBD4I=
+	t=1785539921; cv=none; b=VBtvhYNXBzrWVbDLfTyDzB4e00H6nT/uFqOtzRk7mQcAiEQixNTrBz4f8EeJ611WC6KE03sTJ1MeMFE5yYGi3Z7EiTn6VqmiFigll5xMDt8ehcIpjfIrrnsvfHHyBixVVg53J/6JUv8+NVNlaeLdAPNuUti8HXF4nxTjUihUxzg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785532779; c=relaxed/simple;
-	bh=Xpj4ETP7gJ6QCZ+BXwFtkWiXwC3dGDBpb8ww3Ra7HdU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uTM2bFY07toU4TfwceYC4AfGQ58bdGEQqyhwngVSblLWRCrA5eq9OHP/5RY8JiDJ1odH1v7m/vQpJhvDEXltG13YSfQHo0Pq+3bz6WziyS7Fffjkd1b/p6gB/mgBVhMZd/Ittr0ebFlUPpcf0vc7Q4apf7AFxWvdzE7DnfFE/XM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g+cV0WqZ; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785539921; c=relaxed/simple;
+	bh=piLOrm8QujBeaXbtopyNtAe+FWUs9JEGlUqoE/A+WWQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CkJ3/OvwSy9L3selunEeUDxt13VEv8feUjJh+v0zcQ8ojfHiRlrJG38KrdgNDrUZhXnnLmDDXJA8VT6o4ykVz648uzhEXwjCrKKfmK+cdN+AVpyoh94E2dXTU6Sz0ymCcUlPQSEKteTZ/Bhtileu28CKnSBQCrTkIb116vbIwdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=UzjFtRuN; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g+cV0WqZ"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-38e071ed6aeso1258478a91.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 14:19:37 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="UzjFtRuN"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8efec2c28f8so10807856d6.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 16:18:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785532777; x=1786137577; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=lmYgCoGHKlqVWmNpoNo+jeEf38ARJZoemI0nl3SFw+w=;
-        b=g+cV0WqZ/XbzlBx+EXzMnzas65L4JQafMsGzqj6fX8h6mpKbYYI6ePPpDMCrp/tsV9
-         cb00DFcaP1xJIdwjYoWr9hX2yL4MWx/dyZ8lAQ6RQJAhSqbjtvetH039+Ysr/6qhh5xn
-         CqHnWC3LWPqvIqvsC6PvGQ10gZi+93872SUuAHmOB1w9uvfd493eVtAcc+0nhEUQM0BW
-         +aVoOJvs5bROYHuMKtr9gQkedQQT+6WRyH+gl4yATe++pSPGp/uW6uyrXugTy8IYuZ+b
-         IWELsugKyfayFdWEFeXxkVgWJqHoaxi94OlAotsyoqIJwFCVAykurSbYN2pYyvS5tvR3
-         mQjg==
+        d=chromium.org; s=google; t=1785539918; x=1786144718; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=wMNXqyCOmkYNRv72Rrj9uzXvfgzuwGFQnDJXnRWaJkQ=;
+        b=UzjFtRuNO8Vl/Vcx12le+F9hDPI+KM5lAkRrKLdeWcdeCAQStuKatwDImv5MxRcxfK
+         4r8m3P1qQUmg6Hy2BP0I5w+IjYVgE3wRjDc+InNZaUxaXs8E2kU5vvG8J4W+KQ59s73j
+         ESNlbw2IOlavWuzwCTP4G3QYosz8o7l+wulZI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785532777; x=1786137577;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=lmYgCoGHKlqVWmNpoNo+jeEf38ARJZoemI0nl3SFw+w=;
-        b=Ni1FLyYK9HjBZOH1Cy6Lfe0hy3lBdrPWVe6x78nRS03EL6F4z3HEnCsOzjCQaSf2e4
-         PqLusIIZ4X8tXiIYEnqQuFT5F1iEv8BWGtGCxEqQouIhDSvip0clfMlkWGYJ9zPRUgUW
-         53hzotfSqFk65GpFN+m7W7kwexdRamRaylZ30062k8B0RI/cXhvtinQ/FuDfm6NjrN7D
-         TMNXShwZ+lm88w61bP5l8qATeG+Y0QizOUEuep2L4YnFmYenk1giPikifexg5jeb+QE0
-         0tW9blJiMAEgdSzXFD5ZGToBupyUomRzKV8AaMiwz9L4Gvsh0939+gX2qrmZCOZs/a0u
-         dLCA==
-X-Forwarded-Encrypted: i=1; AHgh+RoJz67XucK898UngEKDCQAzLOELTA0hJmMIweCZItRqDE0Hv430nnugNeNwLmtd32o/lNiKc1nNfS2NHndSmw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxDNW8vWBIdcYls2Mq+paMEmDMq6452Wo3Z7B2HVKex3ji6+Tp+
-	sNbnZR+2pV0/bE/9Zx4XE+IXv5OMMvgs2YeQMB+TYLeBxtvZnNl+bgZHJ7N46A==
-X-Gm-Gg: AR+sD10SwFZlAdUVyNTyE2p93FvZKerhtZQLPvVjvvRu0YEZkilNSCLaq46wl22YSPo
-	9mG1mXecM8KHjJtErlA/DFX9FZuK96kqao7inhj1Zj6nYcqiZU9r2xCC8sYHPhTcnS7xm9dQAGK
-	tuXnP4Io7tvjjwfF7I3DifXXdduAznMIfNZX70fM4O5+4SQhXZBfuNw9TTsK3iWaiBsxRN2WRrh
-	dMZzvRFurhsPmV+v6O1RBKgOIBt2gL4NMKoU5rxCgiCkDBxZPDLdLfTug05VPtsljP9r3tOoVGo
-	o4RhjZn6yXBvzbNHaQQGw+vJbGRk5IgWEG5J1wqduMB138F8Ni+uo8544gxKvjIavZE6n5i/uRF
-	oOLQZ0XWebpBuhZNOrLaePkowKjIaJepj1XxOJAnOiK9cREqJRGjE4ut9P2Il4BmttDFqYqI0jn
-	AiP3nxUDDw2dMLpqpTlDR9z06rwQcxewe3zvJNicMQjqgPAFyFr6uziVAqpvLJ5+Jhfr1f2fA3s
-	tkMsczvc00Uf6UmJC3jvncmWlXndeqHlRulKg==
-X-Received: by 2002:a17:90b:5143:b0:37f:9ce2:348f with SMTP id 98e67ed59e1d1-38fbc506b07mr1121119a91.32.1785532776759;
-        Fri, 31 Jul 2026 14:19:36 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e045016sm14346356eec.19.2026.07.31.14.19.34
+        d=1e100.net; s=20251104; t=1785539918; x=1786144718;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=wMNXqyCOmkYNRv72Rrj9uzXvfgzuwGFQnDJXnRWaJkQ=;
+        b=RcxjkxRa+k9Bo1aAg+Ryc8vOFQxIT6KTQhqj2Lhgf3wwDqu2YtuLAJyPHRJpJssIZZ
+         YTnGls+z+edBOLJnyYDaCjzhE0exjU2dRpV1uDYfThW1pZBiZL526EJ8YYZXBK3RgKsM
+         HjSRkF2Eayv5jhIsle44U2WUKBW4AwSheNrYZZRog0wbZRm6Gidz/VWIAtao9twnWPhT
+         lZe/3/vPtptPBEZeWrpEn/gVtPqcNXA7aNplvCmVF8IBV3j1p/2ROFkmKszklCr6m+hO
+         vvEh4NzAk7pdg9/NJn18j53NfLNegm/XegAoIE+XlpXBVjEgnL6yH7dJbp9VyIiRuFQa
+         YNAg==
+X-Forwarded-Encrypted: i=1; AHgh+RoqpWcvpSJFnpUs+44QQ6nkW6mro0fBkZbqurJCbVQQNtV5kXXcOzlXWtGVR32Hcb8eM+aQn1nWGPwwyNnuig==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzkGQPJu/sW8/MzsSLkYXXxXbARfYiCI5Wi4+Iz3gcgTn0hWTM6
+	WRXaBeYXqmQz/l5cxxbzpc+FSXlSuxfqfPI09PTAt8N4Pc+rK3j61vZHJBgiV9qY1CLpd85Uv0T
+	tx7Y=
+X-Gm-Gg: AR+sD1339nZJWr8QLHeU39WHY5s8Gfl2zpoIL8P/qPVNOZwf2Jpplcb5IyfFGHTdpEM
+	pAPD7HEe3hnGRYOFqbyRK5iTc107SmEKnInj6LIfrZU0LvgmT1fgT+QUBAVQSMnWPlrNHX48Vae
+	eVxei78dQc0t/jnuiGWDrd8MqcQ+kO91VVGtwr5sYFW5K05MVK4+GHQ4ndeGUF4ZQn2J/4hWZM1
+	hEHYkVO+29AWSsTjaEaVEZ023AhjXGp+OrnG36Pt33k4ARVrEWMIWWWIY7Ve5JmoUoeCBxdS2pX
+	7eKwBg8k5q0o6fmR/Yhxo2Vw/R7LFfUnAZL/lyDbsB6BDzcFl9N8DxbN7hCeH2dp9OhaB0DBDrq
+	lwJsfm+ckhqQODtxUS40w5ZROTWCr0AiZJV2LgogsDjGoqxdN1yI3e0b0/BymS0/OkWN4gC1PBf
+	Zyraj3bkJCRs3JC9msZw91RTH20kNKTeFpfHwSieUIG338ipkKQ4x5vj1TT5AvPJonuDYv3b6Ji
+	ZP1kXiA/7xB6u+VpJdPmAIGRviTVBE=
+X-Received: by 2002:a05:6214:19e4:b0:907:b32f:9b7e with SMTP id 6a1803df08f44-908495d123dmr36376616d6.11.1785539917981;
+        Fri, 31 Jul 2026 16:18:37 -0700 (PDT)
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com. [209.85.222.180])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908434bdde2sm21052196d6.22.2026.07.31.16.18.34
+        for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 Jul 2026 14:19:35 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <ec0a0d3c-26ff-4e37-8591-39cadfe8213e@roeck-us.net>
-Date: Fri, 31 Jul 2026 14:19:33 -0700
+        Fri, 31 Jul 2026 16:18:34 -0700 (PDT)
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-92edb12cdf2so105451485a.3
+        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jul 2026 16:18:34 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RrBlpKdS43ae3bkjRluvl88rq++90sbjVEevWJlF3FhINFPwEQJwhvkAipdVcHrwGPPrTU0BYz3a+GB27jdPQ==@vger.kernel.org
+X-Received: by 2002:a05:620a:284e:b0:92e:db1f:185c with SMTP id
+ af79cd13be357-934a0aaee08mr439271285a.43.1785539913417; Fri, 31 Jul 2026
+ 16:18:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] watchdog: pretimeout: Allow building dump governor as
- module
-To: Andrew Morton <akpm@linux-foundation.org>,
- Mayank Rungta <mrungta@google.com>
-Cc: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Tzung-Bi Shih
- <tzungbi@kernel.org>, Douglas Anderson <dianders@chromium.org>,
- linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
- <20260730155021.8252ad9d155b472702e66755@linux-foundation.org>
- <CABz7rdCZkzBv-horH0jNLeNuhCNUOaC+Ttkf_-g3CoCaCSfBbg@mail.gmail.com>
- <20260731140142.7d77cfd7e9f99f25880efd32@linux-foundation.org>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260731140142.7d77cfd7e9f99f25880efd32@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20260730-qcom-wdt-nmi-series-v1-0-3aa86d162914@google.com>
+ <20260730-qcom-wdt-nmi-series-v1-2-3aa86d162914@google.com>
+ <CAD=FV=V+nrmtK6FJ2G+LGnvxkLEWMR+2A253-gQ2smxf9LoEWg@mail.gmail.com> <eddc90dc-3223-4356-9e9b-350af904b144@roeck-us.net>
+In-Reply-To: <eddc90dc-3223-4356-9e9b-350af904b144@roeck-us.net>
+From: Doug Anderson <dianders@chromium.org>
+Date: Fri, 31 Jul 2026 16:18:21 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=XuCHdOv8kct63JzmbgjxJMxL7fc75KtAQL0hbJc7_v0w@mail.gmail.com>
+X-Gm-Features: AUfX_mysgNutKcBTutK1mEbZpcf0AlDHDz_V7ZfULfi6icv580614osxqcrqNlM
+Message-ID: <CAD=FV=XuCHdOv8kct63JzmbgjxJMxL7fc75KtAQL0hbJc7_v0w@mail.gmail.com>
+Subject: Re: [PATCH 2/3] genirq: Export NMI APIs
+To: Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@kernel.org>
+Cc: mrungta@google.com, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, "Kirill A. Shutemov" <kas@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/31/26 14:01, Andrew Morton wrote:
-> On Thu, 30 Jul 2026 16:39:14 -0700 Mayank Rungta <mrungta@google.com> wrote:
-> 
->> On Thu, Jul 30, 2026 at 3:50 PM Andrew Morton <akpm@linux-foundation.org> wrote:
->>>
->>> On Thu, 30 Jul 2026 15:00:20 -0700 Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org> wrote:
->>>
->>>> All other watchdog pretimeout governors (noop, panic) can be built as
->>>> loadable modules. However the "dump" pretimeout governor is restricted
->>>> to built-in code because it calls trigger_all_cpu_backtrace(), which
->>>> relies on arch_trigger_cpumask_backtrace(), an arch specific helper that
->>>> is not exported to loadable modules.
->>>>
->>>> This 2-patch series allows building the dump governor as a module (=m):
->>>> 1) Export cpumask_backtrace() in lib/nmi_backtrace.c.
->>>> 2) Convert CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP from bool to tristate.
->>>
->>> LGTM.  Can you please redo against current mainline?  The Kconfig has
->>> changed.
->>>
->>
->> Thanks for the LGTM!
->>
->> Regarding rebasing onto mainline (origin/master): The "dump"
->> pretimeout governor was added recently by Tzung-Bi Shih ("watchdog:
->> pretimeout: Add "dump" pretimeout governor") and is currently in
->> linux-next, so it hasn't landed in mainline tree yet.
->>
->> Because of this dependency, I based this series on linux-next so that
->> patch 2/2 ("Convert dump pretimeout governor to tristate") could apply
->> cleanly on top of the new governor.
->>
->> Please let me know what is preferred, or if you'd like me to post
->> against a different tree!
->>
-> 
-> Oh, OK.
-> 
-> Guenter, can you please process this patchset?
-> 
+Hi,
 
-Sure. Assuming you'd like me to handle it through the watchdog branch,
-it would be great if you can send a formal Acked-by: to the first patch
-of the series.
+On Thu, Jul 30, 2026 at 3:55=E2=80=AFPM Guenter Roeck <linux@roeck-us.net> =
+wrote:
+>
+> On 7/30/26 14:49, Doug Anderson wrote:
+> > Hi,
+> >
+> > On Thu, Jul 30, 2026 at 2:33=E2=80=AFPM Mayank Rungta via B4 Relay
+> > <devnull+mrungta.google.com@kernel.org> wrote:
+> >>
+> >> From: Mayank Rungta <mrungta@google.com>
+> >>
+> >> Currently, request_nmi(), free_nmi(), enable_nmi() and disable_nmi_nos=
+ync()
+> >> are restricted to built-in kernel code because they are not exported t=
+o
+> >> loadable modules.
+> >>
+> >> Export these APIs to allow loadable modules to register and manage NMI=
+s.
+> >> This allows watchdog drivers configured as loadable modules to registe=
+r
+> >> their bark interrupt as an NMI.
+> >>
+> >> Signed-off-by: Mayank Rungta <mrungta@google.com>
+> >> ---
+> >>   kernel/irq/manage.c | 4 ++++
+> >>   1 file changed, 4 insertions(+)
+> >>
+> >> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> >> index 2fbff2618a1e..fb0b8da32f4c 100644
+> >> --- a/kernel/irq/manage.c
+> >> +++ b/kernel/irq/manage.c
+> >> @@ -766,6 +766,7 @@ void disable_nmi_nosync(unsigned int irq)
+> >>   {
+> >>          disable_irq_nosync(irq);
+> >>   }
+> >> +EXPORT_SYMBOL_GPL(disable_nmi_nosync);
+> >>
+> >>   void __enable_irq(struct irq_desc *desc)
+> >>   {
+> >> @@ -833,6 +834,7 @@ void enable_nmi(unsigned int irq)
+> >>   {
+> >>          enable_irq(irq);
+> >>   }
+> >> +EXPORT_SYMBOL_GPL(enable_nmi);
+> >>
+> >>   static int set_irq_wake_real(unsigned int irq, unsigned int on)
+> >>   {
+> >> @@ -2080,6 +2082,7 @@ const void *free_nmi(unsigned int irq, void *dev=
+_id)
+> >>
+> >>          return __cleanup_nmi(irq, desc);
+> >>   }
+> >> +EXPORT_SYMBOL_GPL(free_nmi);
+> >>
+> >>   /**
+> >>    * request_threaded_irq - allocate an interrupt line
+> >> @@ -2342,6 +2345,7 @@ int request_nmi(unsigned int irq, irq_handler_t =
+handler,
+> >>
+> >>          return retval;
+> >>   }
+> >> +EXPORT_SYMBOL_GPL(request_nmi);
+> >
+> > This seems reasonable to me. One thought I had was that we could
+> > possibly get by with fewer exported symbols by changing
+> > disable_nmi_nosync() and enable_nmi() to "static inline" functions in
+> > the header file. That being said, what Mayank has here feels slightly
+> > better to me.
+> >
+>
+> I don't claim to understand the NMI APIs used, but Sashiko's feedback
+> seems real to me. Someone who knows that code will need to confirm that
+> there are no unexpected pitfalls.
 
-Thanks,
-Guenter
+Since Sashiko doesn't reply-to all, here's a link to its feedback:
 
+https://lore.kernel.org/all/20260730214758.DBD5E1F000E9@smtp.kernel.org/
+
+Indeed, it does look like legitimate feedback. While the problems are
+pre-existing, it is true that exporting as a module could widen the
+exposure because the code backing the NMI handler could now be
+unloaded.
+
+I did a little bit of AI analysis of the problem myself. As far as I
+can tell, it would be relatively safe to implement a synchronous
+"disable_nmi" by just calling "disable_irq", much like is done for
+other NMI functions. The caveat here is that it would only be safe on
+IRQ controllers that provided irq_get_irqchip_state(). This is because
+on NMI we don't set IRQD_IRQ_INPROGRESS and thus
+__synchronize_hardirq() will fall back to calling
+__irq_get_irqchip_state(). If any controllers supported NMI but
+_didn't_ support irq_get_irqchip_state(), we'd silently skip waiting
+for NMI completion. Maybe we could simply make it illegal for a
+controller to support NMI without irq_get_irqchip_state()?
+
+I guess maybe we need Thomas Gleixner to weigh in on this? Thomas:
+should this issue block Mayank's patch? Would you expect him to
+propose fixes as part of his series, or is this something you'd prefer
+to post patches for yourself?
+
+
+
+-Doug
