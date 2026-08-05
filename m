@@ -1,150 +1,496 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [80.241.56.161])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9F9B3E7BB5;
-	Wed,  5 Aug 2026 08:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D495541B8F3;
+	Wed,  5 Aug 2026 10:29:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.161
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785920146; cv=none; b=HldAP00NI2Ko4ltGlr5OlsWoczzjY3Bb8dQPE+8JgtbBnskViy/trj8JJ1B43IuP3L1IF1/rMyILFY2gunLLSAAyxArBDLauH66v3s1C++v9byBGu04lf/n2hHhOEH5Yqc9eiSd3xnhhmgLVvoOkOK4ofkKMAbT2e+L6XkBnR00=
+	t=1785925777; cv=none; b=Z6ZPCJ5vfKmVpIMMIuan+4gVkwsQ/7NkH4IX1ID/Irh97VfqtmCzzbBOJgcS3LI+zV1kZh8nSQxrgj48srRmiR2qEmwvrI5qsOmumb04r3bDh7m0gpUUV5a8emdPsfuGU40o6iMoJh7GzXHirhFRFLnFhy7UogfEJNIsKXwKHGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785920146; c=relaxed/simple;
-	bh=+Q2bIZm/6vGOK6/QnjdCZNoOFsyw0U60p4/Bdc4+eU8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=l6LPhh6fYZRXtsDeNemySbwEUNpsQT9szX3+GiP3ey7K+XPvGaqLZA9QT9wwYO9Vy+CTzKivKRFcMvibEjRlcVOuZ/crqS08JgCzBZDYH/UHBFn5prZnQpOSAL9rDBEd4zHspQi0UNKxdVviPm39H8p+qBtzW/+xELtKUcsOmFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=d8PVx76u; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1785925777; c=relaxed/simple;
+	bh=Lj0l/kgZlVC8s6kL7zG/a/ehexvneEl0lZuN2bqPZ4E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WYDaIe3dpwwe1Et5nbfdatByvc9KWDHmO6E2/E0AVhKaTJ7xXow/a517ybId4ilU+cnFYdBNTaNTuaAFSvt2b5M0T2Ds4MP/342ZtcW7FxT4ya3E48/a31qH9kvdzs9ZR2M714TKnb2glb1J3xCJYCSqs16I7f5DMUrtOXyn3+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=u7HamKwS; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=eLYgu5xH; arc=none smtp.client-ip=80.241.56.161
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="d8PVx76u"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758dAO42128928;
-	Wed, 5 Aug 2026 08:55:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	BkTJNshVqHa3mBbTpFv2gIiMyHVHhJZBrdr/LAVLnz4=; b=d8PVx76uHxKOkalm
-	HGCBtTyZGlG8pyXaIc+v1HxRzVvnTXULM/U5mPgRw0+ajZvpqZhvRaT8cSm+Bf8X
-	qzuu6MfahyYphD0qfdCaDyAncXeuo4YZNF3JzW3SqR7+lj0k0A5tWrfmGnzzoVzJ
-	HRl2U73a0zyk1uSuzXqnfdNDUVxpjHluwCxh/V/0Ex8tzr3BU8had3d3RdMSLjDL
-	F2WBAaYNgHjPmwiig2SrTf/qMk+JT1xc76Uy/h5M0ywzuOfkkQQLudujUlKuFTXy
-	4MFbXbPeyJXHDJ7UIgofvBUHmT4lw+rCdbbUgxhP8jjV9/n5PAaILQeLZIYBDjZF
-	Y242xg==
-Received: from aptaippmta02.qualcomm.com (tpe-colo-wan-fw-bordernet.qualcomm.com [103.229.16.4])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fv1qg83k6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Aug 2026 08:55:18 +0000 (GMT)
-Received: from pps.filterd (APTAIPPMTA02.qualcomm.com [127.0.0.1])
-	by APTAIPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 6758tGFq007373;
-	Wed, 5 Aug 2026 08:55:16 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by APTAIPPMTA02.qualcomm.com (PPS) with ESMTP id 4fs9vje9uy-1;
-	Wed, 05 Aug 2026 08:55:16 +0000 (GMT)
-Received: from APTAIPPMTA02.qualcomm.com (APTAIPPMTA02.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 6758t5qJ007272;
-	Wed, 5 Aug 2026 08:55:15 GMT
-Received: from hu-ffaruque-hyd.qualcomm.com (smtphost-taiwan.qualcomm.com [10.249.136.33])
-	by APTAIPPMTA02.qualcomm.com (PPS) with ESMTP id 6758t23M006999;
-	Wed, 05 Aug 2026 08:55:15 +0000 (GMT)
-From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-Date: Wed, 05 Aug 2026 14:24:57 +0530
-Subject: [PATCH v4 3/3] watchdog: pretimeout: update PSC reason in panic
- pretimeout governor
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="u7HamKwS";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="eLYgu5xH"
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4hFRVL4mp0zKnSK;
+	Wed, 05 Aug 2026 12:29:30 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1785925770;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=D+NnOFt++Qccg9vI9tUljTdvemgVIQkPrlrG2XCd8vQ=;
+	b=u7HamKwSFl0rLKTB08/8Hxa40kvfhvkj8S3rDSJ9AFrNzBx91+qZRTojk+58axKicCEFUn
+	+xxGQxieWsQrfZX/Dk12eNu33300ByYVVndUlx9Qijq6RRxSUxU69RduS463gLXwTasIbz
+	MEPnC9xfKTu13kORxr3tLyJ+vGr5Ub25i4lpHER7j57+9G8T62cnvK59qMtgrJQBBAUcen
+	HrGxaGivZFoJSlt5nc9B4gn7fse+bt26LrL2TZJNwz+deRCtsBcuv0/C6C/9Su6i52mzEJ
+	IoxJtCVlvggonCDsGMkR4pIWhRhjKsKDidawASpcuZy3gzw9AwH5zn5ZnJjpJA==
+From: Qing Ming <a0yami@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1785925769;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=D+NnOFt++Qccg9vI9tUljTdvemgVIQkPrlrG2XCd8vQ=;
+	b=eLYgu5xHL8by54ij2OQ+kZrJ4QimO6Kl9+PuCwM+s5XkwELUxhReBgLHOJ25XscA38vUPB
+	IcCm3qAOrL5LKAgpBCAb2smk93yccd1AzB3l6237+dFlhpzNNcFMUaqUedtfgy/MauUqfW
+	j3n3NntGqz0m2ZulemksGCxlOxJqCG02Kfm+vaLO9vuply5WUTxM5LRAp8DlRZuoxe2meO
+	zdb1ofVwmCj/Ln4Jv75Auzkic75brfYP96EXnzqDnEmZyN1hMPEdrQO1b1dXmUHIbBEOlD
+	4zBFZJgkzFmvSLIR4hIMc/DTa50KvPOHsyF7q0mOl99QOyTPzt0Z8NcsBme2XQ==
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Qing Ming <a0yami@mailbox.org>
+Subject: [PATCH] watchdog: pcwd_usb: keep device alive for open files
+Date: Wed,  5 Aug 2026 18:29:07 +0800
+Message-ID: <20260805102907.5354-1-a0yami@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260805-pscrr-reboot-reason-v4-3-54ef517084cc@oss.qualcomm.com>
-References: <20260805-pscrr-reboot-reason-v4-0-54ef517084cc@oss.qualcomm.com>
-In-Reply-To: <20260805-pscrr-reboot-reason-v4-0-54ef517084cc@oss.qualcomm.com>
-To: Sebastian Reichel <sre@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Benson Leung <bleung@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Srinivas Kandagatla <srini@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        kernel@pengutronix.de, Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        =?utf-8?q?S=C3=B8ren_Andersen?= <san@skov.dk>,
-        Guenter Roeck <groeck@chromium.org>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        avaneesh.dwivedi@oss.qualcomm.com,
-        Umang Chheda <umang.chheda@oss.qualcomm.com>,
-        Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-X-Mailer: b4 0.14.3
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Authority-Analysis: v=2.4 cv=I+hVgtgg c=1 sm=1 tr=0 ts=6a72fa76 cx=c_pps
- a=nuhDOHQX5FNHPW3J6Bj6AA==:117 a=nuhDOHQX5FNHPW3J6Bj6AA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22 a=EUspDBNiAAAA:8
- a=_jlGtV7tAAAA:8 a=FYyizyoliohAzulCZuQA:9 a=QEXdDO2ut3YA:10
- a=nlm17XC03S6CtCLSeiRr:22
-X-Proofpoint-ORIG-GUID: VdTel7NyE5h9VEtV_l2cg_NPQRWn0vTS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA2OSBTYWx0ZWRfX0nFr1/4VJHZT
- JfbuNvDC0MdjauioOa+7+prQV6enqkJvELI1R1FUJoUY5wnSyy8mQhhQPeFLS4F3X1+LxcPsbdp
- xrByrZ7TGyJ/hGN9am8t6D00i48j4E9qq7i8e2q8Kd8zapIVsoTBpDrWi+hKqSOKNt/aW8Wzj8o
- /R5aPot8y3xQ5orLO3qRxNNG0rZMfxqCgWUuNUr6/851X41Ss5+bs4avmwwGKMHfecDDTm/3BB3
- MHCGBYmjj9bSj3VKhe4ucGKXTVxMWK99jmyentfKeKHll3gywA/9RNrQn+BCQo6eGQHGigJ6Yqd
- R/oZIy8Pa1t3HlabCd5VFylCiXvnZLhqI6eiqyqI6vrNVSXsy7Xgp6p5izIgFhDhsTLh3mOmtT3
- Kiyh5E2wSLUcKaPNkdG3O6kb/KMLU+A9mYCcFBiEJHzuZSLeuQsVHDXpjogcLPFWdldt2PCJzR/
- XyNrzPHek+yJ3/+QozA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA2OSBTYWx0ZWRfX4po1wMm8MEoG
- TZWq28k5jz73/C7U96sbX3bNpYiq9T4XeS369rKwxbc9MJF4/OmCtBzLTOEpc5L8JPeuWOmBqfB
- ApFaO4szRJ1Lwz+8mlBZ9l03VXrYsSc=
-X-Proofpoint-GUID: VdTel7NyE5h9VEtV_l2cg_NPQRWn0vTS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-05_03,2026-08-04_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
- adultscore=0 clxscore=1015 malwarescore=0 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050069
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: wie3ezjzoe9n6c4knnhu39wwftjhzitg
+X-MBO-RS-ID: cff55ee3c1d3013732e
 
-Update the PSC reset reason by invoking
-set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT) from the panic governor's
-pretimeout handler before calling panic(), so the reset cause is
-committed to persistent storage before the system goes down.
+misc_deregister() prevents new opens but does not close existing watchdog
+or temperature files. Both file-operation tables continue to use the global
+usb_pcwd_device after usb_pcwd_disconnect() frees the private object.
 
-Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Keeping a temperature file open across USB disconnect and then reading it
+therefore accesses freed memory. KASAN reports:
+
+  BUG: KASAN: slab-use-after-free in usb_pcwd_send_command+0x4f/0x480
+  usb_pcwd_get_temperature+0x71/0xd0
+  usb_pcwd_temperature_read+0x5e/0x90
+
+The object was allocated by usb_pcwd_probe() and freed by
+usb_pcwd_disconnect().
+
+Store the device object in file->private_data and hold a reference for
+every successful watchdog or temperature open. Use disconnect_mutex only
+while stabilizing the global pointer and taking that reference, avoiding a
+lock inversion with miscdevice teardown. Serialize command submission with
+disconnect and quiesce the device if probe fails after the temperature
+miscdevice becomes visible. Reject commands after the device is gone and
+release the object after the final file is closed. Hold the usb_device
+reference until the private object and its USB allocations are released.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Qing Ming <a0yami@mailbox.org>
 ---
- drivers/watchdog/pretimeout_panic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/pcwd_usb.c | 176 ++++++++++++++++++++++++++++--------
+ 1 file changed, 136 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/watchdog/pretimeout_panic.c b/drivers/watchdog/pretimeout_panic.c
-index 8c3ac674dc45..819487b5e6fe 100644
---- a/drivers/watchdog/pretimeout_panic.c
-+++ b/drivers/watchdog/pretimeout_panic.c
-@@ -5,6 +5,7 @@
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index d7c18c990649..9ef7a4a47284 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -27,6 +27,7 @@
+ #include <linux/types.h>	/* For standard types (like size_t) */
+ #include <linux/errno.h>	/* For the -ENODEV/... values */
+ #include <linux/kernel.h>	/* For printk/panic/... */
++#include <linux/kref.h>	/* For reference counting */
+ #include <linux/delay.h>	/* For mdelay function */
+ #include <linux/miscdevice.h>	/* For struct miscdevice */
+ #include <linux/watchdog.h>	/* For the watchdog specific items */
+@@ -112,6 +113,7 @@ static char expect_release;
  
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/reboot.h>
- #include <linux/watchdog.h>
+ /* Structure to hold all of our device specific stuff */
+ struct usb_pcwd_private {
++	struct kref		kref;
+ 	/* save off the usb device pointer */
+ 	struct usb_device	*udev;
+ 	/* the interface for this device */
+@@ -152,6 +154,7 @@ static DEFINE_MUTEX(disconnect_mutex);
+ static int usb_pcwd_probe(struct usb_interface *interface,
+ 						const struct usb_device_id *id);
+ static void usb_pcwd_disconnect(struct usb_interface *interface);
++static void usb_pcwd_delete(struct kref *kref);
  
- #include "watchdog_pretimeout.h"
-@@ -17,6 +18,7 @@
-  */
- static void pretimeout_panic(struct watchdog_device *wdd)
- {
-+	set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT);
- 	panic("watchdog pretimeout event\n");
+ /* usb specific object needed to register this driver with the usb subsystem */
+ static struct usb_driver usb_pcwd_driver = {
+@@ -210,14 +213,23 @@ static int usb_pcwd_send_command(struct usb_pcwd_private *usb_pcwd,
+ 	int got_response, count;
+ 	unsigned char *buf;
+ 
++	if (!usb_pcwd)
++		return -ENODEV;
++
++	mutex_lock(&usb_pcwd->mtx);
++
+ 	/* We will not send any commands if the USB PCWD device does
+ 	 * not exist */
+-	if ((!usb_pcwd) || (!usb_pcwd->exists))
+-		return -1;
++	if (!usb_pcwd->exists) {
++		got_response = -ENODEV;
++		goto out_unlock;
++	}
+ 
+ 	buf = kmalloc(6, GFP_KERNEL);
+-	if (buf == NULL)
+-		return 0;
++	if (!buf) {
++		got_response = 0;
++		goto out_unlock;
++	}
+ 
+ 	/* The USB PC Watchdog uses a 6 byte report format.
+ 	 * The board currently uses only 3 of the six bytes of the report. */
+@@ -258,6 +270,8 @@ static int usb_pcwd_send_command(struct usb_pcwd_private *usb_pcwd,
+ 
+ 	kfree(buf);
+ 
++out_unlock:
++	mutex_unlock(&usb_pcwd->mtx);
+ 	return got_response;
  }
  
-
+@@ -327,8 +341,11 @@ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ {
+ 	unsigned char msb = 0x00;
+ 	unsigned char lsb = 0x00;
++	int ret;
+ 
+-	usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
++	ret = usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
++	if (ret < 0)
++		return ret;
+ 
+ 	/*
+ 	 * Convert celsius to fahrenheit, since this was
+@@ -344,10 +361,14 @@ static int usb_pcwd_get_timeleft(struct usb_pcwd_private *usb_pcwd,
+ {
+ 	unsigned char msb = 0x00;
+ 	unsigned char lsb = 0x00;
++	int ret;
+ 
+ 	/* Read the time that's left before rebooting */
+ 	/* Note: if the board is not yet armed then we will read 0xFFFF */
+-	usb_pcwd_send_command(usb_pcwd, CMD_READ_WATCHDOG_TIMEOUT, &msb, &lsb);
++	ret = usb_pcwd_send_command(usb_pcwd, CMD_READ_WATCHDOG_TIMEOUT,
++				    &msb, &lsb);
++	if (ret < 0)
++		return ret;
+ 
+ 	*time_left = (msb << 8) + lsb;
+ 
+@@ -361,6 +382,8 @@ static int usb_pcwd_get_timeleft(struct usb_pcwd_private *usb_pcwd,
+ static ssize_t usb_pcwd_write(struct file *file, const char __user *data,
+ 						size_t len, loff_t *ppos)
+ {
++	struct usb_pcwd_private *usb_pcwd = file->private_data;
++
+ 	/* See if we got the magic character 'V' and reload the timer */
+ 	if (len) {
+ 		if (!nowayout) {
+@@ -382,7 +405,7 @@ static ssize_t usb_pcwd_write(struct file *file, const char __user *data,
+ 		}
+ 
+ 		/* someone wrote to us, we should reload the timer */
+-		usb_pcwd_keepalive(usb_pcwd_device);
++		usb_pcwd_keepalive(usb_pcwd);
+ 	}
+ 	return len;
+ }
+@@ -390,6 +413,7 @@ static ssize_t usb_pcwd_write(struct file *file, const char __user *data,
+ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 						unsigned long arg)
+ {
++	struct usb_pcwd_private *usb_pcwd = file->private_data;
+ 	void __user *argp = (void __user *)arg;
+ 	int __user *p = argp;
+ 	static const struct watchdog_info ident = {
+@@ -411,9 +435,11 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 	case WDIOC_GETTEMP:
+ 	{
+ 		int temperature;
++		int ret;
+ 
+-		if (usb_pcwd_get_temperature(usb_pcwd_device, &temperature))
+-			return -EFAULT;
++		ret = usb_pcwd_get_temperature(usb_pcwd, &temperature);
++		if (ret)
++			return ret;
+ 
+ 		return put_user(temperature, p);
+ 	}
+@@ -426,12 +452,12 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 			return -EFAULT;
+ 
+ 		if (new_options & WDIOS_DISABLECARD) {
+-			usb_pcwd_stop(usb_pcwd_device);
++			usb_pcwd_stop(usb_pcwd);
+ 			retval = 0;
+ 		}
+ 
+ 		if (new_options & WDIOS_ENABLECARD) {
+-			usb_pcwd_start(usb_pcwd_device);
++			usb_pcwd_start(usb_pcwd);
+ 			retval = 0;
+ 		}
+ 
+@@ -439,7 +465,7 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 	}
+ 
+ 	case WDIOC_KEEPALIVE:
+-		usb_pcwd_keepalive(usb_pcwd_device);
++		usb_pcwd_keepalive(usb_pcwd);
+ 		return 0;
+ 
+ 	case WDIOC_SETTIMEOUT:
+@@ -449,10 +475,10 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 		if (get_user(new_heartbeat, p))
+ 			return -EFAULT;
+ 
+-		if (usb_pcwd_set_heartbeat(usb_pcwd_device, new_heartbeat))
++		if (usb_pcwd_set_heartbeat(usb_pcwd, new_heartbeat))
+ 			return -EINVAL;
+ 
+-		usb_pcwd_keepalive(usb_pcwd_device);
++		usb_pcwd_keepalive(usb_pcwd);
+ 	}
+ 		fallthrough;
+ 
+@@ -462,9 +488,11 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 	case WDIOC_GETTIMELEFT:
+ 	{
+ 		int time_left;
++		int ret;
+ 
+-		if (usb_pcwd_get_timeleft(usb_pcwd_device, &time_left))
+-			return -EFAULT;
++		ret = usb_pcwd_get_timeleft(usb_pcwd, &time_left);
++		if (ret)
++			return ret;
+ 
+ 		return put_user(time_left, p);
+ 	}
+@@ -476,29 +504,55 @@ static long usb_pcwd_ioctl(struct file *file, unsigned int cmd,
+ 
+ static int usb_pcwd_open(struct inode *inode, struct file *file)
+ {
++	struct usb_pcwd_private *usb_pcwd;
++	int ret;
++
++	mutex_lock(&disconnect_mutex);
++	usb_pcwd = usb_pcwd_device;
++	if (!usb_pcwd || !usb_pcwd->exists) {
++		ret = -ENODEV;
++		goto out_unlock;
++	}
+ 	/* /dev/watchdog can only be opened once */
+-	if (test_and_set_bit(0, &is_active))
+-		return -EBUSY;
++	if (test_and_set_bit(0, &is_active)) {
++		ret = -EBUSY;
++		goto out_unlock;
++	}
++	kref_get(&usb_pcwd->kref);
++	file->private_data = usb_pcwd;
++	mutex_unlock(&disconnect_mutex);
+ 
+ 	/* Activate */
+-	usb_pcwd_start(usb_pcwd_device);
+-	usb_pcwd_keepalive(usb_pcwd_device);
+-	return stream_open(inode, file);
++	usb_pcwd_start(usb_pcwd);
++	usb_pcwd_keepalive(usb_pcwd);
++	ret = stream_open(inode, file);
++	if (ret) {
++		kref_put(&usb_pcwd->kref, usb_pcwd_delete);
++		clear_bit(0, &is_active);
++	}
++	return ret;
++
++out_unlock:
++	mutex_unlock(&disconnect_mutex);
++	return ret;
+ }
+ 
+ static int usb_pcwd_release(struct inode *inode, struct file *file)
+ {
++	struct usb_pcwd_private *usb_pcwd = file->private_data;
++
+ 	/*
+ 	 *      Shut off the timer.
+ 	 */
+ 	if (expect_release == 42) {
+-		usb_pcwd_stop(usb_pcwd_device);
++		usb_pcwd_stop(usb_pcwd);
+ 	} else {
+ 		pr_crit("Unexpected close, not stopping watchdog!\n");
+-		usb_pcwd_keepalive(usb_pcwd_device);
++		usb_pcwd_keepalive(usb_pcwd);
+ 	}
+ 	expect_release = 0;
+ 	clear_bit(0, &is_active);
++	kref_put(&usb_pcwd->kref, usb_pcwd_delete);
+ 	return 0;
+ }
+ 
+@@ -509,10 +563,13 @@ static int usb_pcwd_release(struct inode *inode, struct file *file)
+ static ssize_t usb_pcwd_temperature_read(struct file *file, char __user *data,
+ 				size_t len, loff_t *ppos)
+ {
++	struct usb_pcwd_private *usb_pcwd = file->private_data;
+ 	int temperature;
++	int ret;
+ 
+-	if (usb_pcwd_get_temperature(usb_pcwd_device, &temperature))
+-		return -EFAULT;
++	ret = usb_pcwd_get_temperature(usb_pcwd, &temperature);
++	if (ret)
++		return ret;
+ 
+ 	if (copy_to_user(data, &temperature, 1))
+ 		return -EFAULT;
+@@ -522,11 +579,33 @@ static ssize_t usb_pcwd_temperature_read(struct file *file, char __user *data,
+ 
+ static int usb_pcwd_temperature_open(struct inode *inode, struct file *file)
+ {
+-	return stream_open(inode, file);
++	struct usb_pcwd_private *usb_pcwd;
++	int ret;
++
++	mutex_lock(&disconnect_mutex);
++	usb_pcwd = usb_pcwd_device;
++	if (!usb_pcwd || !usb_pcwd->exists) {
++		ret = -ENODEV;
++		goto out_unlock;
++	}
++	kref_get(&usb_pcwd->kref);
++	file->private_data = usb_pcwd;
++	mutex_unlock(&disconnect_mutex);
++	ret = stream_open(inode, file);
++	if (ret)
++		kref_put(&usb_pcwd->kref, usb_pcwd_delete);
++	return ret;
++
++out_unlock:
++	mutex_unlock(&disconnect_mutex);
++	return ret;
+ }
+ 
+ static int usb_pcwd_temperature_release(struct inode *inode, struct file *file)
+ {
++	struct usb_pcwd_private *usb_pcwd = file->private_data;
++
++	kref_put(&usb_pcwd->kref, usb_pcwd_delete);
+ 	return 0;
+ }
+ 
+@@ -582,11 +661,19 @@ static struct notifier_block usb_pcwd_notifier = {
+ /*
+  *	usb_pcwd_delete
+  */
+-static inline void usb_pcwd_delete(struct usb_pcwd_private *usb_pcwd)
++static void usb_pcwd_delete(struct kref *kref)
+ {
+-	usb_free_urb(usb_pcwd->intr_urb);
+-	usb_free_coherent(usb_pcwd->udev, usb_pcwd->intr_size,
+-			  usb_pcwd->intr_buffer, usb_pcwd->intr_dma);
++	struct usb_pcwd_private *usb_pcwd;
++
++	usb_pcwd = container_of(kref, struct usb_pcwd_private, kref);
++	if (usb_pcwd->intr_urb) {
++		usb_kill_urb(usb_pcwd->intr_urb);
++		usb_free_urb(usb_pcwd->intr_urb);
++	}
++	if (usb_pcwd->intr_buffer)
++		usb_free_coherent(usb_pcwd->udev, usb_pcwd->intr_size,
++				  usb_pcwd->intr_buffer, usb_pcwd->intr_dma);
++	usb_put_dev(usb_pcwd->udev);
+ 	kfree(usb_pcwd);
+ }
+ 
+@@ -644,11 +731,12 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	usb_pcwd = kzalloc_obj(struct usb_pcwd_private);
+ 	if (usb_pcwd == NULL)
+ 		goto error;
++	kref_init(&usb_pcwd->kref);
+ 
+ 	usb_pcwd_device = usb_pcwd;
+ 
+ 	mutex_init(&usb_pcwd->mtx);
+-	usb_pcwd->udev = udev;
++	usb_pcwd->udev = usb_get_dev(udev);
+ 	usb_pcwd->interface = interface;
+ 	usb_pcwd->interface_number = iface_desc->desc.bInterfaceNumber;
+ 	usb_pcwd->intr_size = (le16_to_cpu(endpoint->wMaxPacketSize) > 8 ?
+@@ -747,12 +835,20 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	return 0;
+ 
+ err_out_misc_deregister:
++	mutex_lock(&disconnect_mutex);
++	if (usb_pcwd_device == usb_pcwd)
++		usb_pcwd_device = NULL;
++	mutex_unlock(&disconnect_mutex);
++	mutex_lock(&usb_pcwd->mtx);
++	usb_pcwd->exists = 0;
++	mutex_unlock(&usb_pcwd->mtx);
++	usb_kill_urb(usb_pcwd->intr_urb);
+ 	misc_deregister(&usb_pcwd_temperature_miscdev);
+ err_out_unregister_reboot:
+ 	unregister_reboot_notifier(&usb_pcwd_notifier);
+ error:
+ 	if (usb_pcwd)
+-		usb_pcwd_delete(usb_pcwd);
++		kref_put(&usb_pcwd->kref, usb_pcwd_delete);
+ 	usb_pcwd_device = NULL;
+ 	return retval;
+ }
+@@ -775,30 +871,30 @@ static void usb_pcwd_disconnect(struct usb_interface *interface)
+ 
+ 	usb_pcwd = usb_get_intfdata(interface);
+ 	usb_set_intfdata(interface, NULL);
+-
+-	mutex_lock(&usb_pcwd->mtx);
++	if (usb_pcwd_device == usb_pcwd)
++		usb_pcwd_device = NULL;
++	mutex_unlock(&disconnect_mutex);
+ 
+ 	/* Stop the timer before we leave */
+ 	if (!nowayout)
+ 		usb_pcwd_stop(usb_pcwd);
+ 
++	mutex_lock(&usb_pcwd->mtx);
+ 	/* We should now stop communicating with the USB PCWD device */
+ 	usb_pcwd->exists = 0;
++	mutex_unlock(&usb_pcwd->mtx);
++	usb_kill_urb(usb_pcwd->intr_urb);
+ 
+ 	/* Deregister */
+ 	misc_deregister(&usb_pcwd_miscdev);
+ 	misc_deregister(&usb_pcwd_temperature_miscdev);
+ 	unregister_reboot_notifier(&usb_pcwd_notifier);
+ 
+-	mutex_unlock(&usb_pcwd->mtx);
+-
+-	/* Delete the USB PCWD device */
+-	usb_pcwd_delete(usb_pcwd);
++	/* Drop the probe reference. Open files keep the object alive. */
++	kref_put(&usb_pcwd->kref, usb_pcwd_delete);
+ 
+ 	cards_found--;
+ 
+-	mutex_unlock(&disconnect_mutex);
+-
+ 	pr_info("USB PC Watchdog disconnected\n");
+ }
+ 
 -- 
-2.34.1
+2.53.0
 
