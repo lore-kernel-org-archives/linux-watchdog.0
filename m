@@ -1,180 +1,238 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE1E4582ED
-	for <linux-watchdog@vger.kernel.org>; Tue,  4 Aug 2026 14:59:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24C1391E59;
+	Wed,  5 Aug 2026 08:55:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785855581; cv=none; b=uNkBtCEn5RwkPdt2tnZB5MUUcivYt7KqvsP+vVNqiEedjVs6PYql5NDRMeTUc3OzgpABaZD71ibLm9/H/Fjllhqz/yTFPaBdSdGWr7xAthM7NH5o6KEysb5GOFIAuMfTD4qkdxvrF9VBgwCzGU9Zg7EF9opTb1aukCYEmVCcidA=
+	t=1785920139; cv=none; b=qcWeiOH/i7A05G9z56dOixRPBOH502e9AxkIsrZ2J1bL3aCEZsmxIBYzPMcBWpCuu7NrrumeC6Yin4CXyykehvaJ9qqXjRH5dqu8jtHBGqgdn7uh4Slmeq2rKuVKHhl6y4CRbtL+KCmv533VsTPb9nOPJtrNle9qyOXtINvaVeg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785855581; c=relaxed/simple;
-	bh=vx2HoAYnzxdjsoZwz0pespz2k8WkdfkdO1teBXi4bB4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OMT8KufbRi0s+AZxE1Ziu92+e9OsvTnYPTXBdzaQ0ZHNKgywM0qL+QdHS6fIxAAtqxTKazIa5gyH8rbdBs1T3xdhCNX3QkuQhb3N5c44551fc8ermT2CPjscMSkwe+5oS7WSB2CDa1xkjtEuBRd6i8tO2VK4zdZNWNMOs29h+FA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HYcoXcat; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785920139; c=relaxed/simple;
+	bh=17xrdJIWU4ZH/JxF9fsfn3sGYVwjviG/2kKacoqnHRg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=cziTLNMeBQOaypYWCieMRS9qFxYB5nmZQVumP/cfOkWh9UE+Ng+BojxiQ2jqBOqD+XBdpkq99MC3wmq7WY9KYTdAw7AKv6K8+Lhn0oSn/KBM4TIUfaHoC4sKpIsXrHLmH+hIFDOhu3FmKCDu9mfITOjf9lcrAEt2AQlokRV02vA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=VhqNp4x+; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HYcoXcat"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so4499870a91.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 04 Aug 2026 07:59:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785855578; x=1786460378; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5JgwzEvtfB2uQ9F0aI+6JlH048Ow6xZYPMLayRepZQo=;
-        b=HYcoXcatS11kJzJ5rqUn3MyxV4fcaxEsSFbQl7ip5/2wYxWpZFFzsbuXBR1wFkKBaO
-         PHjwqzJ9IqnmJQZMw7HYXkYxWxDvTKRvkpA47OoD0g/jzoD9I668/kZQXQd/S1TU14ny
-         mOy+kT0DnkFKCUmCzj6bIawmO7XxsXsUVC3/oND2pZJxo9IwWze0G5RpuruhvO0jxIK9
-         tMqXP6FK/OosAfkZAFj9Cmbr4JK3hTjk5lydBM8ID9UOGjZ4dDB7tpz/TWGYiTOnylC/
-         NUh2RmaDk4OhmTpMt3JYk2PeAZG5DNxqseJOBXUIWKR9SlnJsrzlDezd112pwz4gmJTM
-         IIRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785855578; x=1786460378;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=5JgwzEvtfB2uQ9F0aI+6JlH048Ow6xZYPMLayRepZQo=;
-        b=N3WeF2cyC5bkW7vy7uNfsIl8KIbATJLnFpHck1EtsY3nW/LD8NZEtGNEVmPLHCBKZ6
-         uI7FulWSwR85rB+KtdKLSjn+TQ7Lff8IUBVA6i7KER4mA27kOkffBnTuLQVNQnKHHemO
-         7knV0GjogMzbedCAK2yACs/avN7Y7i5Hb1h+L2pKxMTaSpszBfch/XzXgfXM3GgUgo7D
-         NT1SHuORzAcpMRSKtuc3Yd11d7o5KDIjMn5CEuu9Q5rIT1q6TNmqSFieif9UU7QwkhOP
-         qwEKfs+mEIyizF77A79RL5b9ERV8t6C3bAXwA9D9+BGlnZg16B1eBBF2lRzlFnO2BxyR
-         Cw8A==
-X-Forwarded-Encrypted: i=1; AHgh+RpP+KMyjJH/P73gw8G6yvioV1jtt0QIs2XV+AD9FSkEJNw57rpOtSDa0O3FndlGRZaa1YBeX3GY+pKYSaL7QQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyq/a7XTEQ4dplNTOSaHTNFNg5Vvn+4/d6/dC3MVLfcW6EvqYeU
-	PeSm6HZk9HxGtMeaonEXCQoUdj1SiOyWolhUpQf2kBIUX9nZbCxQIAtU
-X-Gm-Gg: AR+sD13DrlkQvFpBNhOdmvfG3ocaxijCj1+Zu4cwW2I63Lilg3KOSJd3/yWZjDFow/a
-	JE8yA1Tx9zWwlBHoan5KbIj2emYH4oYDTin1BJzsP9neO7j4Vrb0Qpu1Fiq3aV5N14uEusaiz3v
-	7x9VrIYQYoDQGIolwFcMOBSbE5jwbVlzenZTnWfR1VSHmjisY4XCe10Gf8Izyu+IkC3rviu2nc+
-	2oamDK+BQH0Q/iweui37jyxpMBk3pqbzM5TPqIKD7MlxlzCQBjU8YrgBS6gGd8VAhcpSL0oocgs
-	zoHXA9xqGMwB3V2sWPrmDeBoqGrFMOwaCLEL6K/KxyHLJMb8OJkyocgRfFFR5WWgHlgw0UJbeEV
-	8ioRDqFQhZRh0CsjX7vAlxYs9aM6tp/0NSgH4NRK6ptvwlQCvcUpotYByKdjPmMUueqET1nlwQs
-	Y7c+txtCiROZtW5Qg+0MM+0S/QFsFIndHPlUi7a86MpehF3n0JPtizu3EAQfkXiMeS9KJuvspQM
-	OSHV5LWWhfTzolRGuXeFB4ZqZpyBa0Vn3Pq1w==
-X-Received: by 2002:a17:90b:2b50:b0:37f:e326:6559 with SMTP id 98e67ed59e1d1-38fbc51a361mr13144797a91.22.1785855578147;
-        Tue, 04 Aug 2026 07:59:38 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca50acddsm4434915c88.3.2026.08.04.07.59.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Aug 2026 07:59:37 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <bf41bb0a-6f2c-443a-a487-164277c2dcfa@roeck-us.net>
-Date: Tue, 4 Aug 2026 07:59:35 -0700
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="VhqNp4x+"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6758db0S1713296;
+	Wed, 5 Aug 2026 08:55:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	nRfsZhCcwjHwU9yHOJWvrhAiTLSvqkBHCQCwWwnd708=; b=VhqNp4x+HSOL6vT2
+	YtthAT4fCucVY9iVlP6enxW6laO3XiZR8wIUTtCKZOeGZ57intPflz4m7r1TxFkv
+	DsaGOWlymZOYQjQ3MN9hjhYWHwOj98Pmih8PA+x/ZBa0t5hkgJbL2HBXg2QOju7C
+	AMHTCgockSyQbMGr+RgFZxysd3J/Wkzj9a0xS3yP7b8QoxbV0f8QAyb16+fB66XL
+	Xld7khvakJsYthwSqK6cn+TVjt1kxWrOmSY226zvDxgiZAlb6QOUJ1w8XOa6+SX9
+	IOexqys0TudCN1NmHOvMyAU/oK9u7keJNctUe+tJ0UvdvOo+n7e29/DRItWoMvtF
+	4Vj/gQ==
+Received: from aptaippmta02.qualcomm.com (tpe-colo-wan-fw-bordernet.qualcomm.com [103.229.16.4])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fuwbqs87c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Aug 2026 08:55:11 +0000 (GMT)
+Received: from pps.filterd (APTAIPPMTA02.qualcomm.com [127.0.0.1])
+	by APTAIPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 6758t5iG007279;
+	Wed, 5 Aug 2026 08:55:09 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APTAIPPMTA02.qualcomm.com (PPS) with ESMTP id 4fs9vje9u3-1;
+	Wed, 05 Aug 2026 08:55:09 +0000 (GMT)
+Received: from APTAIPPMTA02.qualcomm.com (APTAIPPMTA02.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 6758t5qF007272;
+	Wed, 5 Aug 2026 08:55:09 GMT
+Received: from hu-ffaruque-hyd.qualcomm.com (smtphost-taiwan.qualcomm.com [10.249.136.33])
+	by APTAIPPMTA02.qualcomm.com (PPS) with ESMTP id 6758t23K006999;
+	Wed, 05 Aug 2026 08:55:09 +0000 (GMT)
+From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+Date: Wed, 05 Aug 2026 14:24:55 +0530
+Subject: [PATCH v4 1/3] power: reset: pscrr: add kernel panic reason
+ tracking
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] watchdog: pretimeout: update PSC reason in panic
- pretimeout governor
-To: Faruque Ansari <faruque.ansari@oss.qualcomm.com>,
- Sebastian Reichel <sre@kernel.org>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, Benson Leung <bleung@chromium.org>,
- Tzung-Bi Shih <tzungbi@kernel.org>, Oleksij Rempel
- <o.rempel@pengutronix.de>, Srinivas Kandagatla <srini@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>,
- Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, =?UTF-8?Q?S=C3=B8ren_Andersen?=
- <san@skov.dk>, Guenter Roeck <groeck@chromium.org>,
- Matti Vaittinen <mazziesaccount@gmail.com>,
- Ahmad Fatoum <a.fatoum@pengutronix.de>,
- Andrew Morton <akpm@linux-foundation.org>,
- avaneesh.dwivedi@oss.qualcomm.com,
- Umang Chheda <umang.chheda@oss.qualcomm.com>
-References: <20260804-pscrr-reboot-reason-v3-0-e706dbfc7465@oss.qualcomm.com>
- <20260804-pscrr-reboot-reason-v3-3-e706dbfc7465@oss.qualcomm.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260804-pscrr-reboot-reason-v3-3-e706dbfc7465@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260805-pscrr-reboot-reason-v4-1-54ef517084cc@oss.qualcomm.com>
+References: <20260805-pscrr-reboot-reason-v4-0-54ef517084cc@oss.qualcomm.com>
+In-Reply-To: <20260805-pscrr-reboot-reason-v4-0-54ef517084cc@oss.qualcomm.com>
+To: Sebastian Reichel <sre@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, Benson Leung <bleung@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Srinivas Kandagatla <srini@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        kernel@pengutronix.de, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+        =?utf-8?q?S=C3=B8ren_Andersen?= <san@skov.dk>,
+        Guenter Roeck <groeck@chromium.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        avaneesh.dwivedi@oss.qualcomm.com,
+        Umang Chheda <umang.chheda@oss.qualcomm.com>,
+        Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+X-Mailer: b4 0.14.3
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-ORIG-GUID: xOfMG28_w4WPmLuwkXfF6MUGX-m331ng
+X-Authority-Analysis: v=2.4 cv=B+uJFutM c=1 sm=1 tr=0 ts=6a72fa6f cx=c_pps
+ a=nuhDOHQX5FNHPW3J6Bj6AA==:117 a=nuhDOHQX5FNHPW3J6Bj6AA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22 a=EUspDBNiAAAA:8
+ a=opvmgqTE--nunqmWsLMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: xOfMG28_w4WPmLuwkXfF6MUGX-m331ng
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA1MDA2OSBTYWx0ZWRfX7AIBr8bidKi0
+ 29zjRZX65XQOYCJOwN9wnsVpJwK3H8yPgTCiAKMUGSrCRIJsnfr73wdcBrN+ITeZUJ0YjE7Ues5
+ fC55MdPhxQtdA5FjmNLEGa0YoC1iCgA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA1MDA2OSBTYWx0ZWRfXys5Sc6MjGtDQ
+ o7y0kuvpuepV1HaXKWfRqPjRewP6sXDzlZAJxRgFkOiN6UhIgq3eqPF/DbPfJyrjDh02RAoOQpm
+ LU+j77PLMua14YWlXT8oVEKoPhbKASIBdH+yD3ocv7XPl6HARgc7hOgsm7ag3EbGhQId230V8hk
+ nN6B7m5oObSOBnvBkw2xskp2xjCHw1K9C1+AwFL48B+XVu/E8Jvy9vmNKveLaGmy1Wg6qVWqWb2
+ jFSnqZWJ3BEKFmr0hB4GBA0n8G1pZiH4vf3gnD5Zi4gR/pEUm2o/eRErxpKt8Kl8ivzet0KJNVr
+ OPKUP5+ErnlIaMkDWy/6644xFcKa+TnczSfioyGTzdUkpyAZzBb0/vch+J+ZjOlcFjPw3wdzfiZ
+ Qed4vRmbH/Uly7Jx2qzsGpgtt6m+lBgn7vF3T9B1GuPBoF+0O6oxMAXmcvawPkW2hZB8zASUQtq
+ XdBWXXI1VlNEppWVFxA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-05_03,2026-08-04_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 lowpriorityscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 suspectscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608050069
 
-On 8/4/26 02:21, Faruque Ansari wrote:
-> Update the PSC reset reason by invoking
-> set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT) from the panic governor's
-> pretimeout handler before calling panic(), so the reset cause is
-> committed to persistent storage before the system goes down.
-> 
-> Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+Kernel panic resets are not recorded in NVMEM, causing subsequent
+boots to report PSCR_UNKNOWN and making post-mortem analysis more
+difficult.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Register a panic notifier to preserve the shutdown reason across
+panic-triggered resets. Add PSCR_KERNEL_PANIC as a dedicated reset
+reason code and its corresponding reason string to identify kernel
+panic resets on subsequent boots.
 
-> ---
->   drivers/watchdog/pretimeout_panic.c | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/watchdog/pretimeout_panic.c b/drivers/watchdog/pretimeout_panic.c
-> index 8c3ac674dc45..819487b5e6fe 100644
-> --- a/drivers/watchdog/pretimeout_panic.c
-> +++ b/drivers/watchdog/pretimeout_panic.c
-> @@ -5,6 +5,7 @@
->   
->   #include <linux/kernel.h>
->   #include <linux/module.h>
-> +#include <linux/reboot.h>
->   #include <linux/watchdog.h>
->   
->   #include "watchdog_pretimeout.h"
-> @@ -17,6 +18,7 @@
->    */
->   static void pretimeout_panic(struct watchdog_device *wdd)
->   {
-> +	set_psc_reason(PSCR_WATCHDOG_PRETIMEOUT);
->   	panic("watchdog pretimeout event\n");
->   }
->   
-> 
+Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+---
+ drivers/power/reset/pscrr/pscrr.c     | 27 +++++++++++++++++++++++++++
+ include/linux/power/power_on_reason.h |  1 +
+ include/linux/reboot.h                |  3 +++
+ kernel/reboot.c                       |  1 +
+ 4 files changed, 32 insertions(+)
+
+diff --git a/drivers/power/reset/pscrr/pscrr.c b/drivers/power/reset/pscrr/pscrr.c
+index 6f23f4c4f590..8c45b84059a9 100644
+--- a/drivers/power/reset/pscrr/pscrr.c
++++ b/drivers/power/reset/pscrr/pscrr.c
+@@ -41,6 +41,7 @@
+ #include <linux/mutex.h>
+ #include <linux/notifier.h>
+ #include <linux/of.h>
++#include <linux/panic_notifier.h>
+ #include <linux/pscrr.h>
+ #include <linux/reboot.h>
+ #include <linux/slab.h>
+@@ -519,6 +520,29 @@ static struct notifier_block pscrr_reboot_nb = {
+ 	.notifier_call = pscrr_reboot_notifier,
+ };
+ 
++/*
++ * Panic notifier: record that the machine went down through a kernel panic, so
++ * the cause is visible on the next boot. Runs in atomic panic context, so the
++ * provider list is walked without pscrr_lock - providers no longer come or go
++ * once the machine is going down.
++ */
++static int pscrr_panic_notifier(struct notifier_block *nb,
++				unsigned long action, void *unused)
++{
++	struct pscrr_provider_dir *dir;
++
++	set_psc_reason(PSCR_KERNEL_PANIC);
++
++	list_for_each_entry(dir, &pscrr_dirs, node)
++		pscrr_do_record(dir, get_psc_reason());
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block pscrr_panic_nb = {
++	.notifier_call = pscrr_panic_notifier,
++};
++
+ /*----------------------------------------------------------------------*/
+ /* Built-in provider: device-tree /chosen/reset-source                  */
+ /*----------------------------------------------------------------------*/
+@@ -611,6 +635,8 @@ static int __init pscrr_core_init(void)
+ 		return ret;
+ 	}
+ 
++	atomic_notifier_chain_register(&panic_notifier_list, &pscrr_panic_nb);
++
+ 	pscrr_register_reset_source();
+ 
+ 	return 0;
+@@ -619,6 +645,7 @@ static int __init pscrr_core_init(void)
+ static void __exit pscrr_core_exit(void)
+ {
+ 	pscrr_provider_unregister(&pscrr_reset_source_provider);
++	atomic_notifier_chain_unregister(&panic_notifier_list, &pscrr_panic_nb);
+ 	unregister_reboot_notifier(&pscrr_reboot_nb);
+ 	kobject_put(pscrr_root);
+ 	pscrr_root = NULL;
+diff --git a/include/linux/power/power_on_reason.h b/include/linux/power/power_on_reason.h
+index 13e61ace14f5..8c99bdd75021 100644
+--- a/include/linux/power/power_on_reason.h
++++ b/include/linux/power/power_on_reason.h
+@@ -20,5 +20,6 @@
+ #define POWER_ON_REASON_OVER_TEMPERATURE "over temperature"
+ #define POWER_ON_REASON_EC_PANIC "EC panic"
+ #define POWER_ON_REASON_EXTERNAL "external reset"
++#define POWER_ON_REASON_KERNEL_PANIC "kernel panic"
+ 
+ #endif /* POWER_ON_REASON_H */
+diff --git a/include/linux/reboot.h b/include/linux/reboot.h
+index 13f004ad1066..a117dd5eaecd 100644
+--- a/include/linux/reboot.h
++++ b/include/linux/reboot.h
+@@ -241,6 +241,8 @@ extern void orderly_reboot(void);
+  *
+  * @PSCR_XTAL_FAIL: Reset caused by a crystal oscillator failure.
+  *
++ * @PSCR_KERNEL_PANIC: Reset that followed a kernel panic.
++ *
+  * @PSCR_REASON_COUNT: Number of defined power state change reasons. This
+  *	value is useful for range checking and potential future extensions
+  *	while maintaining compatibility.
+@@ -264,6 +266,7 @@ enum psc_reason {
+ 	PSCR_RESET_BUTTON,
+ 	PSCR_CPU_CLK_FAIL,
+ 	PSCR_XTAL_FAIL,
++	PSCR_KERNEL_PANIC,
+ 
+ 	/* Number of reasons */
+ 	PSCR_REASON_COUNT,
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index 75af5d763465..979ecf3b093c 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -1109,6 +1109,7 @@ static const struct psc_reason_desc psc_reason_descs[] = {
+ 	[PSCR_RESET_BUTTON]	 = { "reset-button",	  POWER_ON_REASON_RST_BTN },
+ 	[PSCR_CPU_CLK_FAIL]	 = { "cpu-clock-failure", POWER_ON_REASON_CPU_CLK_FAIL },
+ 	[PSCR_XTAL_FAIL]	 = { "crystal-failure",	  POWER_ON_REASON_XTAL_FAIL },
++	[PSCR_KERNEL_PANIC]	 = { "kernel-panic",	  POWER_ON_REASON_KERNEL_PANIC },
+ };
+ 
+ /**
+
+-- 
+2.34.1
 
