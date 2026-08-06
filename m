@@ -1,69 +1,69 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA8163DDDB3
-	for <linux-watchdog@vger.kernel.org>; Thu,  6 Aug 2026 09:31:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3540433E8B
+	for <linux-watchdog@vger.kernel.org>; Thu,  6 Aug 2026 09:36:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786008662; cv=none; b=WrvilXN4IqH6HmQtTedyDkapkgs/uDLFsZq4y5ZVmNfQlzhYPSRB9G92GDkTWKWH915Wp03RY+xJej39hwJbFpBsJIC3vmRFNf7e6Ubf14KDTnWx32SKkmEOxSTcHe/cu3Ll641ogyyuUz2zpsTk7C6n2he4D4s4fk9dUQtTIAs=
+	t=1786008962; cv=none; b=FNCJWUgEbZiMgqVCl70/PQnn4oK3PP1/b7/onWrsAdruif0MYTZ3A0v1r4INXZz9VqSVGpBCSHyPPADH7rqrh6bS8lDo+wwdn/AqnN/XEXMbPemJZvoGWDsUj8UB0zyHCMRxxSvV2kpnhC6/sCvaOxvJ7Ohqnr3LWYjFLSioNkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786008662; c=relaxed/simple;
-	bh=3ecCmNLJ8Yi+N6zUxh62mZZdokLubRXFZjgWA8YZZPw=;
+	s=arc-20240116; t=1786008962; c=relaxed/simple;
+	bh=6MD3/emgMQpVS8+ClfDHsOWmrPdh0fJOMUVPqDJAs+k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ags01dTwwDwt2gQGbSvR3f+7L/P4U1U8K3RVHfgJNjcYmtjy3bzac+b9EHnnYJz1/NjIa2ZY8k1lzbB88hvJFvHfUwPrmsBTjuuUVf8cORwF2lO97lk0cIcsP8s7P5BeXON7rjTrbK0Nz2+TAneKxDA5ZrFsCYwaOYEMRiE3vgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Lgqkwdzj; arc=none smtp.client-ip=209.85.214.178
+	 In-Reply-To:Content-Type; b=TiINoJJlGKs6ZKak+5SS1Ees3mpWcSXKI4tCJ221t+PqK7i24jJmbdVzYAoDOKT4blYwJ6uYff4EwWnB/okhhIDq+j31wTrK4oPk1XUOsvFNTFB+jNRw61xK+SNqr0p1rr8C9mWo6XUrNGv8wV63dxDyuCZkU/0zjKvUJD9/qXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qzm2g2RW; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Lgqkwdzj"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ccf2360620so19394695ad.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 06 Aug 2026 02:31:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qzm2g2RW"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cc7ef7ec27so25113895ad.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 06 Aug 2026 02:36:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786008660; x=1786613460; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786008959; x=1786613759; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8hTyEaOgmS03aOgKculGs8mBdlQjNfVXusZZmOidICU=;
-        b=LgqkwdzjEBUXJXK1AxCdnrX/WRZ8kzbMSHJGZSS5bDnpOdmaApezv6SlRvztwRHKnL
-         c077eEgTtTaqC+UDMyNJeryV/ov/tDmTeAG7E/gi/4ZxUbm5WZKoE1S5i1MIPqchQuTc
-         TKKg+2uqmIBf7UHp9/tReNlTrAEhXyYaDvrhMvoablVvjR1/UeGdTRSktkf+AUxSI9hg
-         fhuXCy8bsCIwP68QrTD7adtRtHvEUX9YpW7FOG0e6TfG1s5Jvh3W6f53iwA352mYCBjj
-         ifLSYgimRbhcra1iu8Mmkb9gukuZnD3nCaVXuqym9cmVc6n5dWqwgPjMkOlQWHoDuwHb
-         2dJg==
+        bh=ULE6uDTLXdtM6z8B9L/Qb6Jzh4xJsdCzsVAxM/7Q73Y=;
+        b=Qzm2g2RW0dHw5hFtist3+BYHSJsIEl5xUb0g+moYkgtk1O7fFWYJs9aQl1xXzcRrPD
+         tIskA6bWsNWj7JbphPJfqZRGvrlaDGutSX2zjtsH0RD3Jve5bZOJm7d8B4hdkMB2qxoM
+         0WCUgEzFgNqYpkN/bOK4NWRYM9KM1hy+yFxSM5JhijxKx0qaJ34eHO3PDrTe0X853lX0
+         fyyKHRB0iGYPPF19ntZqXpR7HR+akYCza26rWKVQp1USxDAWhnn1e/jLeKHobi4Kl+O1
+         SKJufoZwQN5qlwGbww03yLR3J5rkdC87t+WOa9Hg/qDakqZCeyn4scTFWaEWeRg+DuO0
+         ecYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786008660; x=1786613460;
+        d=1e100.net; s=20251104; t=1786008959; x=1786613759;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=8hTyEaOgmS03aOgKculGs8mBdlQjNfVXusZZmOidICU=;
-        b=evgp9JHwFZ1Zam49DLbXc2UgI5uV7IBr7JOamwInQRVjtW08guFc/qTDCScPAHUTuZ
-         RBmAibcvEM1opvi/MnKRcS3cxeeDAvq4kFUpjtFQVu2fIdaH2PQDNaMr06u10j/i/JIC
-         WIv/2Tw5VKv3VFax5nzA0xqvwsdJdPyHaBHRIGFd5tbeAPyoNoxK4gc3cIrmrwf2uaZ9
-         EIrdZQOE6+2X2SWelJjHnDgnbRSIosGCNNwlu8tdoPkrA2Bd070Y+KOll18RPGjGIYTo
-         Zcse6PZ8g+ejthMfgoGY45d2gMLxXn78KzufR75jlaMfurwSj+bXFgDOGNsrTBOXaLp0
-         /uIQ==
-X-Forwarded-Encrypted: i=1; AHgh+RomgNzDgTVKcZVkMlmEV6Yvp1eWRVv1RnMMzJQ8hQWkvCPJoYY0PX7VsPUVlRdMpLrIwKuoZOJSi8IMBLVxDA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz0OyEis57LNZpHhSz9c2YitvJkSCw4OvbN5g4Chb+q3HGAWADO
-	1lpy2qJN68m6M2EqyiEsRhKmYY5cUKlH1lvN2VRWH36IvfvA1wJpuCk07fBwjA==
-X-Gm-Gg: AR+sD1280nYl/Lll4zf10yJkHEECw/Grl9ejdKSDHHYUXThQqPUJoY2fNzMxGvsan5I
-	6ZspN2VPzPQY/ljPU/aQmkJVmha5SGNPdNM1cCY1+ZykH3Sw1RglqmLZgv1wyyeU0Nz8cBwopV1
-	0Us45w2rBA46RFDu+usDm4l5pKLuo0+uTP5VNr48akIu/K7DdMBPdVLesVw4ghhboFLh1jv11aP
-	GdYm2dy1rw5g1597HI1u4ieX8BHaT+bw915Z89wjbYfath7IVQMo7LIgORBVHAh07gViCbFQclk
-	8e1WF3/eutMoAF0UaiNdrzcTcArvvUezXYJvb7al0DE9u6IU85O+61JsdyBRLNKnXwX0XJXDU1q
-	nFimfbS5JT1YmjkZM2ZQ+07FWvjsPWzR3wJqmREp5J+PIIQYuOFCnr33W9vaKbj4/FiqPvv7eIh
-	RDugtvMMnM3DJR38qgJRSD9HSjw0xwr0FiKu2GlYThpVayCIgD0N5MR9ANZqStKB3NEL4TXXG49
-	NenO4eJNwJ7w0rjFuPccgpTGAjbDGm3p33za9tNlmmqg5hs
-X-Received: by 2002:a17:903:1847:b0:2ca:f21a:a6c5 with SMTP id d9443c01a7336-2d0ca711befmr157043905ad.1.1786008660019;
-        Thu, 06 Aug 2026 02:31:00 -0700 (PDT)
+        bh=ULE6uDTLXdtM6z8B9L/Qb6Jzh4xJsdCzsVAxM/7Q73Y=;
+        b=VXQDYNfX2Ymb/QkeoV7vj5H8apIUWFKpXnUv7V6g41vmuJS6CMY7J2M5BNT4fmo+TR
+         i5+gFMc+DT4WwsnAVad60O/eXUOrVCSke/Wt4qeyOAmthIeXut7wpjg7JqYg/vTa+ADq
+         05qI2hVSUX5/OTaqJHNkeKRq7czBOU5IvJ+++EDC8sTSwbCOOo59wyaMTTtKLAR0v0G9
+         JAYckdfg87uMdba2K6ccAGWyL+I8CRrgu9vvwoX13hcbtmVvJOywBY2qP5VklmlHFxvT
+         EIrDwJ9NqC/X6C4Vt+OuuhCLfZxa92OBHxuCiaUv8cF/ZkOfpU/+T8Mk5iP/eH2CdZjX
+         eQpQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rrxl95LveYfv9LX3fkyPgHVXiOY8HmDiWJXN4TpyXOY4WwJ9jEyqgNxa2FnBWrVMQ0adkO0PXrFgS+wof/noQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdOWOcAHSgM6oXVH2vn+9v5v2jIiABmRCux793LyyRCz1iQCIx
+	TUpMi2zO4DVqHfFnuhnIn+rdx18n+BzwgvDNVyjzthHVBuWqrBswI6+Y
+X-Gm-Gg: AR+sD10Iy/E33ox3kfipwG4XaIW5rw4czgCplZimNU3VLONhvvS/U6OiYmtte/59shT
+	M4y78LSfXYYB99fcxUt9Lll2WB01Gwv7oaaEGevzc/Fyj9LPuROOSO4+Pcf4/6jOTqEDdiwp3Jo
+	WRpy/xQv6EECXiudqQV8CBwKr/1RyPVe0+nKNGc5aHCwg1B9erQDYI/pJuUBpeTtWYGmenhqdun
+	xbeu/CiX9py+6ygi1rVN/YPohFIWZ/3KWOLbxH5UFZXHDVVq+cx9VhvNZP1wDkgj9YeNaSLx93v
+	iHAMxYnpMY9/7A8qyFLEvXZTClwxSvgBuF7PQQvB7j+ETrGOsCQftr0lu/74gjp/2OMbVwr4FTY
+	NgI6ocQHucSvv2uZSpuwHc+WQ2qkR48AqMaxIutPrup2lx18MxIhrNSHoZ5jI5XrQxUk4vb7SUM
+	AJS7iZK01M9h5qXcYP+N0iIqa0tOf9dVCh5uXmVBW31dfL5W/oGc7IDTHLb+3CWDJsIPIvD7IP2
+	iv4CoHvyHGBvYjKAT643Akv+rMWRwsaBDFifg==
+X-Received: by 2002:a17:903:2301:b0:2c9:ff29:3f91 with SMTP id d9443c01a7336-2d0ca7afc9fmr135970995ad.6.1786008958858;
+        Thu, 06 Aug 2026 02:35:58 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d0a9ff4d61sm29662205ad.24.2026.08.06.02.30.59
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d0aa013dafsm28332885ad.35.2026.08.06.02.35.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Aug 2026 02:30:59 -0700 (PDT)
+        Thu, 06 Aug 2026 02:35:58 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <81cf90a0-a966-4cab-b5ea-ceb1d241fb3f@roeck-us.net>
-Date: Thu, 6 Aug 2026 02:30:58 -0700
+Message-ID: <697f8c44-1eef-47c2-8e59-9daa65e6989e@roeck-us.net>
+Date: Thu, 6 Aug 2026 02:35:57 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -71,8 +71,8 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] watchdog: orion_wdt: Propagate -EPROBE_DEFER from IRQ
- lookup
+Subject: Re: [PATCH 2/2] watchdog: stm32_iwdg: Propagate -EPROBE_DEFER from
+ IRQ lookup
 To: phucduc.bui@gmail.com, Wim Van Sebroeck <wim@linux-watchdog.org>,
  Maxime Coquelin <mcoquelin.stm32@gmail.com>,
  Alexandre Torgue <alexandre.torgue@foss.st.com>,
@@ -80,6 +80,7 @@ To: phucduc.bui@gmail.com, Wim Van Sebroeck <wim@linux-watchdog.org>,
 Cc: linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
  linux-arm-kernel@lists.infradead.org
 References: <20260806062812.26523-1-phucduc.bui@gmail.com>
+ <20260806062812.26523-2-phucduc.bui@gmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -125,12 +126,15 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260806062812.26523-1-phucduc.bui@gmail.com>
+In-Reply-To: <20260806062812.26523-2-phucduc.bui@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 8/5/26 23:28, phucduc.bui@gmail.com wrote:
 > From: bui duc phuc <phucduc.bui@gmail.com>
+> 
+> platform_get_irq_optional() does not returns 0. It returns a positive
+> IRQ number on success or a negative error code on failure.
 > 
 > Return -EPROBE_DEFER from platform_get_irq_optional() so the driver is
 > re-probed when the interrupt resource becomes available instead of
@@ -138,28 +142,31 @@ On 8/5/26 23:28, phucduc.bui@gmail.com wrote:
 > 
 > Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
 > ---
->   drivers/watchdog/orion_wdt.c | 2 ++
->   1 file changed, 2 insertions(+)
+>   drivers/watchdog/stm32_iwdg.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 0e145f762f6f..8595073a8179 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -606,6 +606,8 @@ static int orion_wdt_probe(struct platform_device *pdev)
+> diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+> index b356a272ff9a..102f51084957 100644
+> --- a/drivers/watchdog/stm32_iwdg.c
+> +++ b/drivers/watchdog/stm32_iwdg.c
+> @@ -287,7 +287,9 @@ static int stm32_iwdg_irq_init(struct platform_device *pdev,
+>   		return 0;
 >   
->   	/* Request the IRQ only after the watchdog is disabled */
 >   	irq = platform_get_irq_optional(pdev, 0);
+> -	if (irq <= 0)
 > +	if (irq == -EPROBE_DEFER)
 > +		return irq;
+> +	if (irq < 0)
+>   		return 0;
 
-I think this should be
+	if (irq < 0) {
+		if (irq != -ENXIO)
+			return irq;
+		return 0;
+	}
 
-	if (irq < 0 && irq != -ENXIO)
-		return irq;
+platform_get_irq_optional() does not return 0. and -ENXIO is returned
+if there is no interrupt.
 
 Guenter
-
->   	if (irq > 0) {
->   		/*
->   		 * Not all supported platforms specify an interrupt for the
 
