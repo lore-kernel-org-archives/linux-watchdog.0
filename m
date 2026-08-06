@@ -1,29 +1,29 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1019495035;
-	Thu,  6 Aug 2026 23:44:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 921024A8210;
+	Thu,  6 Aug 2026 23:44:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786059847; cv=none; b=PXM9mTrznKNeBQgTiKbQ0Sye0hjT5VAu3r7v8Xqm6LNWW1Oi9Le6dJ1U+SSax+t9EDoBP0vwAkDS0OhJQla9uvO/98mpc6OlpwsCph+sjlnavr4UHWJv6SJKlt5zpqSN6D9Hc43vzG8eksuYxuaRR6WhcE8RlXBmChMGl2+TlBE=
+	t=1786059868; cv=none; b=PQu8cO4/VXbLuZm0iq8XTNC8+k7PDFpWETKtxTbgZ5sVEjSgzn2xgKHgDZ4U1hAcExeZZxsfPDYanVbPZgBqviNYLabxCeAec2hOY/W+Q75lDzxa+AfK/mFXbx59wwC/SCMDwVxCBOqLeqKfWfVMsGKLzSxOznVgoZZ5u6Q3WGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786059847; c=relaxed/simple;
-	bh=0/W5nz+fbD+gLGE9lsFU0k9klACURcbIwaDrNrlsqAE=;
+	s=arc-20240116; t=1786059868; c=relaxed/simple;
+	bh=BpSJ5aju+uXgnqYChuTg6lM+JOCha0ZK1b4rawTDUL4=;
 	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=R4hsV5xVoLbNaizQaMc8MglRNrB7m4eWYXvsnB+aXfQWZLX7pArz81tNl+kHtdpfF46rUjfFHJ73Jyp6vJ1lE2e51BF2cvM58q2UbDRhHnuSTLD7OC62Z9HhVkDbIKXjbR0tdqsu6plA77j/5lIPqsxbxxDB/DWeJ1GRtz+I69w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=tmj5UBZ9; arc=none smtp.client-ip=100.103.45.18
+	 Mime-Version:Content-Type; b=iWz+0IdSRP0NBZfXjaWuuXpk9d94SdoJ5bGUAqPUWJhcyw0PrZ0g1RHP125MdNfY0Zhi1u1/ny07G8i30f+TrAq51D9OeokjLm7pI+jVnyapZdkv2liR2Le7MApR4hWgN8Y8waxoCL9WW1A5FnE+rpt40br08ybWQ/2Ov3oVJcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=uWrJg+5h; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="tmj5UBZ9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E410F1F00A3A;
-	Thu,  6 Aug 2026 23:44:04 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="uWrJg+5h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D24A41F000E9;
+	Thu,  6 Aug 2026 23:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1786059845;
-	bh=rQK9Iog+dZqpHKOtPxHQdcEmGMnI0+UlMPo/vsjFyh8=;
+	d=linux-foundation.org; s=korg; t=1786059867;
+	bh=dKPaiNt4bvrNXTusd9JfNItGLmdNO3yUgO9/xYOwJNE=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=tmj5UBZ9ZroLrfUQQ+u9t9t91GehnUHEZxkHXqLYH3DvnQFVIq0lyvoFsckmg6wk1
-	 9OMlxWJ/8GRpMIMN173PuXl4+vzNOMHiPLXq/7vkC3BXDRgFGuZbYXrhrVUGjL2Qze
-	 +eVgh2NMbgsyQsvCyCKxAxddW8J3AMSRHON9jgbg=
-Date: Thu, 6 Aug 2026 16:44:04 -0700
+	b=uWrJg+5hfBLNJIXRPhkQYqH1c/wDIuFpMq1p4MTaoLkV/HyCmVOR0OkK4IN0iqoqQ
+	 GEQmf4Lxvmn/ahP9dy3sKLDcnfhyshn3dX5iTrFxx8MMuuKTX+DP9HLWZTZonPA+vm
+	 jH2W/HDg8+o8l3wBkiQdESAmreChbCwIkJMy5Wlw=
+Date: Thu, 6 Aug 2026 16:44:26 -0700
 From: Andrew Morton <akpm@linux-foundation.org>
 To: mrungta@google.com
 Cc: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>, Wim
@@ -31,11 +31,12 @@ Cc: Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org>, Wim
  Tzung-Bi Shih <tzungbi@kernel.org>, Douglas Anderson
  <dianders@chromium.org>, linux-kernel@vger.kernel.org,
  linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] nmi: Export CPU backtrace APIs for loadable modules
-Message-Id: <20260806164404.aca27fe3593bb5c95828807d@linux-foundation.org>
-In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+Subject: Re: [PATCH 2/2] watchdog: pretimeout: Convert dump pretimeout
+ governor to tristate
+Message-Id: <20260806164426.beb8464cf72d31a79e68ac60@linux-foundation.org>
+In-Reply-To: <20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
 References: <20260730-export-cpu-backtrace-apis-v1-0-bace8e1cb817@google.com>
-	<20260730-export-cpu-backtrace-apis-v1-1-bace8e1cb817@google.com>
+	<20260730-export-cpu-backtrace-apis-v1-2-bace8e1cb817@google.com>
 X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -46,19 +47,17 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 30 Jul 2026 15:00:21 -0700 Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org> wrote:
+On Thu, 30 Jul 2026 15:00:22 -0700 Mayank Rungta via B4 Relay <devnull+mrungta.google.com@kernel.org> wrote:
 
-> From: Mayank Rungta <mrungta@google.com>
+> Commit 645ad41da8b2 ("watchdog: pretimeout: Add "dump" pretimeout
+> governor") added the "dump" watchdog pretimeout governor, but restricted
+> it to built-in code because trigger_all_cpu_backtrace() was not exported
+> to loadable modules.
 > 
-> Currently, CPU backtrace functions cannot be called from loadable
-> modules because the underlying helper arch_trigger_cpumask_backtrace()
-> is not exported.
-> 
-> Instead of exporting arch_trigger_cpumask_backtrace() individually
-> across every supported architecture, introduce and export a common
-> helper, cpumask_backtrace(), in lib/nmi_backtrace.c. Update the four
-> inline CPU backtrace macros in include/linux/nmi.h to route through this
-> centralized helper.
+> Now that CPU backtrace APIs are supported for loadable kernel modules
+> via cpumask_backtrace(), convert WATCHDOG_PRETIMEOUT_GOV_DUMP to
+> tristate. This allows kernels to deliver the pretimeout governor as a
+> loadable kernel module.
 
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
 
