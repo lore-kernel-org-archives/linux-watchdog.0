@@ -1,114 +1,256 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EFBB3AE197
-	for <linux-watchdog@vger.kernel.org>; Fri,  7 Aug 2026 08:48:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53AEF32B112;
+	Fri,  7 Aug 2026 08:49:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786092523; cv=none; b=HQqnpxpQPSQl5Cl/dt/nW9dw37WCqvS9opEST8OY/B/F2WAW+xRzkO/Q3wRX3NgVTlQ8QT6AHxPWqAZt2u322aGb7N/k9TM2nzGMpYbbAahLH+eFRlvioBsZ0pImcxjvJJ6iCZG3N6jbvQxvBhjUx7FcSP9N4dyPUHWcr+wD2Tk=
+	t=1786092560; cv=none; b=gAhM5OiGzyn92RjFzCDY/OOsAN/6GZ2aqvcTaWFmVncD+TWUO44uQKBv9QYchx1VQHuYQa6j7Ygx98p34r1GKe8d71jiOLFYKl3l5pxEDIgI+OZvfqMRATd2zscjrWTZBmFmF0tn56izhzxq5uHIWR8Xn53q+kGqQk8srmbrfFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786092523; c=relaxed/simple;
-	bh=aFaO/+xBOBLd6GeRtzL+lmLWj13teP0TwjQF1A6WC5s=;
+	s=arc-20240116; t=1786092560; c=relaxed/simple;
+	bh=RyZjzD+NcR7wVGrDrS4z+XaFA+UQOah81d0FG6LHGVs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OVkHyKcbhior4evhakRG7en4f9qt+RBldBJ8+D/9/SaY3LMSSf9SpF5rJqw3yNnzIVKaRMdUg54IMDQp+STIG1bxz0zu/1yjDbd/Cn4nt47LxegLCFE9da2w5eUZgKzPxbDyU4xa45nG88j+IM77rkzzqzDeXOrF9c1rFwCUg64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hAT9ERuh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q/+bNAl50jXvCkKDUdwdjdH+8aQJhDRxpskoES3tpXqiXgp7MyBsTpdRw4+e/8fvORMFUgy9WP7zRnDbo7jqGC5sKA/XB5rZ1uu74FuvdA6ScHCsXAzCKmmLRa6dXhRp61n6GOIwTPyX/6osIWl2JXUHqixCZP6uCEI+xlgXKWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h5fqZ5eU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hAT9ERuh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF1C1F000E9;
-	Fri,  7 Aug 2026 08:48:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h5fqZ5eU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DACBA1F000E9;
+	Fri,  7 Aug 2026 08:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786092522;
-	bh=kSiB3sCkv08gYoTOkl+zsT5SOeGEJXw6Snq3JXGUrc0=;
+	s=k20260515; t=1786092559;
+	bh=MhO8LfYtzsQC9Iw0QG2WWmZwg2fB4XF9MtdjEHyOu8k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hAT9ERuhy48nvBNkGgIP+03u3FzXgFXZkVe1taVWfULSlEs+Ni6bQ94NdXsHCJGRT
-	 H+fZKP+saIwEeof2tLPmTT3T6c6eW1RnKRxx6FYFzcGmFOxMOM5tql0Hy7KuLWo1Ot
-	 j5vqKgs+t186v+zkMZpW8DXos29o4F8SSq07uiobGpFPUCMeBn0pLohGyhD6gMZ/x+
-	 brV1UCPGNuu3r0SevtlEeNre1vO8rCClFgy+TRJrSXoBYEV39pE9fE6ySROM48wpkG
-	 FbzM70G/ZKO8ORKW712YxXsZmAGZdiMRZSwvkQlEeDoJedCayhpdkKizmvNKaJEnof
-	 C0Xwvu3Z6Cs8g==
+	b=h5fqZ5eUd/9bnsbvwJwcaZ0uWvV9ZCPUMqN7aVx1r1wrQQlLSNJPvJswtSni//nkL
+	 ejVITxFp3Rz977GudFxRAeTAAwQkMuJHLJgWbjg0Gwssax+2Foz4Xf2rRq7GydQwDW
+	 8DiZAXhGj70KG5TNFapyYcoXRshtarXbqtU9WgNOMvq6nWzdvAKSB00SaQDhRr0Vjw
+	 lvmCnkTMwGIuoE3VC2f6+7B+KR4mX3wkiPxCXVAcyRXUAQ+zL+wwY7uqyuQ84D3mqV
+	 ElyGY/Ufj3Q+g6zifFOfTg6ZTgBf/D2tgyVXV7PRDS3AQQtI7VdbC0E5DlgmZ5C21Z
+	 7uP1OcMs/cUsg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] watchdog: dw_wdt: Propagate errors from optional
- IRQ lookup
+Subject: Re: [PATCH 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
 Reply-To: sashiko-reviews@lists.linux.dev
-To: phucduc.bui@gmail.com
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260807081652.38692-3-phucduc.bui@gmail.com>
-References: <20260807081652.38692-1-phucduc.bui@gmail.com>
- <20260807081652.38692-3-phucduc.bui@gmail.com>
+To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
+Cc: linux-hwmon@vger.kernel.org, robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260807082855.3762394-3-shivprakash.gupta@nxp.com>
+References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
+ <20260807082855.3762394-3-shivprakash.gupta@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 08:48:40 +0000
-Message-Id: <20260807084841.CBF1C1F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 08:49:18 +0000
+Message-Id: <20260807084918.DACBA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Hardware register access and shared IRQ registration occur before =
-device is taken out of reset, which can cause an external abort or bus stal=
-l. This problem wasn't introduced by this patch, but it is a critical hardw=
-are lifecycle violation.
+- [High] Unsynchronized concurrent access to the shared timestamp state (`t=
+s` and `ts_valid`) between the threaded IRQ handler and sysfs callbacks.
+- [High] Read-modify-write on Write-0-to-Clear (W0C) interrupt flags drops =
+concurrent interrupts.
+- [High] Hardware timestamp engine freezes after the first event in IRQ mod=
+e due to missing CTS command.
+- [High] The alarm interrupt is not properly configured as a system wake so=
+urce, preventing the RTC alarm from waking the system from suspend.
+- [Low] The I2C device ID array uses positional initializers rather than na=
+med initializers.
 --
 
---- Patch [3]: [PATCH 3/4] watchdog: dw_wdt: Propagate errors from optional=
- IRQ lookup ---
-commit 415108e73d198e9211e81c51098b9fd10a005104
-Author: bui duc phuc <phucduc.bui@gmail.com>
+--- Patch [2]: [PATCH 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver ---
+commit b181a191f404e5910be38077d8059abeffe4a95b
+Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 
-watchdog: dw_wdt: Propagate errors from optional IRQ lookup
+rtc: pcf8525: Add NXP PCF8525 RTC driver
 
-This commit modifies dw_wdt_drv_probe() to propagate all error codes
-returned by platform_get_irq_optional() other than -ENXIO. This ensures
-failures are properly reported to the caller instead of only checking
-for -EPROBE_DEFER.
+Add support for time and date, alarms, timestamp capture, backup
+switch-over configuration, external crystal configuration and clock
+offset correction.
 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index c3fbb6068c520..39031445d754b 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -611,7 +611,7 @@ static int dw_wdt_drv_probe(struct platform_device *p=
-dev)
-> =20
->  		dw_wdt->wdd.info =3D &dw_wdt_pt_ident;
->  	} else {
-> -		if (ret =3D=3D -EPROBE_DEFER)
-> +		if (ret !=3D -ENXIO)
->  			return ret;
-> =20
->  		dw_wdt->wdd.info =3D &dw_wdt_ident;
+--- a/drivers/rtc/rtc-pcf8525.c
++++ b/drivers/rtc/rtc-pcf8525.c
+[ ... ]
+> +static ssize_t timestamp_show_common(struct device *dev, char *buf, int =
+id)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
+> +	unsigned int ctrl4;
+> +	time64_t ts;
+> +	int ret;
+> +
+> +	if (id < 0 || id > 1)
+> +		return 0;
+> +
+> +	if (pcf8525->irq_enabled) {
+> +		if (!pcf8525->ts_valid[id])
+> +			return 0;
+> +		ts =3D pcf8525->ts[id];
+> +		return sysfs_emit(buf, "%llu\n", (unsigned long long)ts);
 
 [Severity: High]
-This is a pre-existing issue, but does this function perform register acces=
-ses
-and register a shared interrupt before the device is taken out of reset?
+Is it possible for the threaded IRQ handler to update the timestamp state
+concurrently with this sysfs read?
 
-Looking at the sequence of operations in dw_wdt_drv_probe():
+If a user-space process reads the sysfs timestamp attribute at the same time
+an RTC timestamp interrupt is being processed in pcf8525_ts_snapshot(),
+this could result in a torn read on 32-bit platforms where time64_t requires
+two 32-bit memory accesses.
 
-dw_wdt_drv_probe() {
-        ...
-        /* Enable normal reset without pre-timeout by default. */
-        dw_wdt_update_mode(dw_wdt, DW_WDT_RMOD_RESET);
-        ...
-        ret =3D devm_request_irq(dev, ret, dw_wdt_irq, IRQF_SHARED ...);
-        ...
-        reset_control_deassert(dw_wdt->rst);
-        ...
-}
+Should a mutex or memory barrier be used to synchronize access to the
+timestamp state?
 
-If the hardware starts in a reset state, could the register I/O inside
-dw_wdt_update_mode() trigger a synchronous external abort or system hang
-because it occurs before reset_control_deassert() is called?
+> +	}
+[ ... ]
+> +static ssize_t timestamp_store_common(struct device *dev, const char *bu=
+f,
+> +				      size_t count, int id)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
+> +	int ret;
+> +
+> +	if (id < 0 || id > 1)
+> +		return -EINVAL;
+> +
+> +	if (pcf8525->irq_enabled) {
+> +		pcf8525->ts_valid[id] =3D false;
+> +		return count;
+> +	}
 
-Additionally, since devm_request_irq() is called with IRQF_SHARED before
-the reset is deasserted, if another device on the same IRQ line triggers
-an interrupt, would dw_wdt_irq() execute and attempt to read the watchdog
-interrupt status register while the device is still held in reset?
+[Severity: High]
+When in IRQ mode, this function returns early without sending the Clear
+Timestamp (CTS) command to the hardware.
+
+Since the hardware is configured in freeze mode (PCF8525_TS_CTL1_TSM), it
+will ignore new events until the CTS command is issued. The interrupt handl=
+er
+pcf8525_irq() only clears the TSF interrupt flag.
+
+Will this cause the timestamp engine to stop capturing events after the fir=
+st
+one in IRQ mode?
+
+> +
+> +	/*
+> +	 * Clear timestamp via RESET CTS command.
+[ ... ]
+> +static irqreturn_t pcf8525_irq(int irq, void *data)
+> +{
+> +	struct device *dev =3D data;
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+> +	unsigned int ctrl2, ctrl4;
+> +	int ret;
+> +
+> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
+> +	if (ret)
+> +		return IRQ_NONE;
+> +
+> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4, &ctrl4);
+> +	if (ret)
+> +		return IRQ_NONE;
+> +
+> +	if (!(ctrl2 & (PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF)) &&
+> +	    !(ctrl4 & PCF8525_CTRL4_TSF))
+> +		return IRQ_NONE;
+> +
+> +	/* Timestamp */
+> +	if (ctrl4 & PCF8525_CTRL4_TSF) {
+> +		pcf8525_ts_snapshot(dev);
+> +		/* Clear TSF */
+> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4, PCF8525_CTRL4_T=
+SF, 0);
+> +	}
+> +
+> +	/* Alarm */
+> +	if (ctrl2 & PCF8525_CTRL2_AF) {
+> +		rtc_update_irq(pcf8525->rtc, 1, RTC_IRQF | RTC_AF);
+> +		/* Clear AF */
+> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2, PCF8525_CTRL2_A=
+F, 0);
+
+[Severity: High]
+Does using regmap_update_bits() here risk dropping concurrent interrupts?
+
+This function performs a read-modify-write. If it writes 0 to clear AF or M=
+SF,
+it writes back 0 for any other Write-0-to-Clear flag that was 0 at the time
+of the read. If a new hardware event sets another W0C flag between the read
+and write, the write of 0 will inadvertently clear the new event before it =
+can
+be handled.
+
+> +	}
+> +
+> +	if (ctrl2 & PCF8525_CTRL2_MSF) {
+> +		ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2, PCF8525=
+_CTRL2_MSF, 0);
+> +		if (ret)
+> +			return IRQ_NONE;
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+[ ... ]
+> +static int pcf8525_probe(struct i2c_client *client)
+> +{
+[ ... ]
+> +	/* Optional IRQ */
+> +	if (client->irq > 0) {
+> +		ret =3D devm_request_threaded_irq(dev, client->irq,
+> +						NULL, pcf8525_irq,
+> +						IRQF_ONESHOT,
+> +						dev_name(dev), dev);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret,
+> +					     "failed to request INTA IRQ\n");
+> +
+> +		pcf8525->irq_enabled =3D true;
+> +
+> +		/* Route/unmask alarm + timestamp to INTA by default */
+> +		ret =3D pcf8525_unmask_irqs_intA(pcf8525);
+> +		if (ret)
+> +			return ret;
+> +
+> +		device_init_wakeup(dev, true);
+> +		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
+
+[Severity: High]
+This declares wakeup capability, but is the IRQ ever connected as a wake
+source?
+
+Without calling dev_pm_set_wake_irq() or implementing suspend/resume
+callbacks with enable_irq_wake(), the IRQ controller is never instructed to
+keep the interrupt armed during suspend.
+
+Could this prevent the RTC alarm from waking the system from suspend?
+
+> +	}
+> +
+> +	/* Register device */
+> +	ret =3D devm_rtc_register_device(pcf8525->rtc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id pcf8525_of_match[] =3D {
+> +	{ .compatible =3D "nxp,pcf8525" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, pcf8525_of_match);
+> +
+> +static const struct i2c_device_id pcf8525_i2c_id[] =3D {
+> +	{ "pcf8525", 0 },
+> +	{ }
+> +};
+
+[Severity: Low]
+Could this use named initializers?
+
+The I2C subsystem guidelines require initialized arrays of type
+struct i2c_device_id to use named initializers.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807081652.3869=
-2-1-phucduc.bui@gmail.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807082855.3762=
+394-1-shivprakash.gupta@nxp.com?part=3D2
