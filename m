@@ -1,206 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv2-f1.google.com (mail-qv2-f1.google.com [74.125.230.129])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5261D35F5E7;
-	Fri,  7 Aug 2026 08:52:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 471264772A4
+	for <linux-watchdog@vger.kernel.org>; Fri,  7 Aug 2026 13:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.129
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786092732; cv=none; b=aSFJjsLT7SfvYFI4OK0mTUCAeFJy3iPzJQhC/PkG1Oi7A+2MqOswcSt9pctZRhl4l2EjlLHdWX39xs6FGG4ZOQ0hAkY43adGAx+p5yyRcwvmFVWeF6QblF7r9qr/qxQnSuVwFMq+Th0PCEOtILuz9cbtPSgQopHmODuvmN/LXT4=
+	t=1786109431; cv=none; b=UUzqiRhB3cAR06hs5VwrAQI+hUgBFhVm1f68KQ0DlffeCshAlGJHogwOszYIK9UteNCWfYKupat4xzeEXv5g38diCDAJpqbOKcsATwvWndTihw6FJSzvMvsjcjhsKkDWroN+b8wr/ajhcT9k+ATYXifuCmR+rwax3nS0qLgOHjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786092732; c=relaxed/simple;
-	bh=VGRsE+iQ7oewd9lj9RxyMgqujBDDpsJ7YPQchYHmw6E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OmcLFE5YRk3imqS/WjdwaKjVf/MoOapbizGBMUAvIb6qJCXH1nEu6FYPksZL6n/wc2Mk8jBDI1Gh1euBnY+oiItZ3hZ901nVCAlTUs+9JmTK2UlhffSok/jnqPqGsDhqBsRCaQLfCgauQrPpcNEBLdNJ0muF1tfN/dHkMhAO5zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CkwcruE5; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CkwcruE5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0AD71F000E9;
-	Fri,  7 Aug 2026 08:52:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786092730;
-	bh=N9OXTHZSPFkQMBVvuhrPMUP5AX/jU01HoRETO+4Hy/k=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CkwcruE5IgC8fpeOskfEnUYSCETGc9AGZJ7Yt+0h0ifzagP/rgHHSoky7wxk0t48I
-	 UlJ8l/lqlIIwbNhQAQ7Qv2a6OLA/tUbyUeT6ai9aKQkYfno3kP7s2d49aL4Turov4p
-	 4kIZD6X01UVkDF8hKJDh0GCd/P/kcu4eFqKERlnJq6uzkj5+t0Jf8k5HVaKNSJ6IXo
-	 E4EoUSiao+wy+AVrobH8iWb15C3WGBZtJfo+2R02jODffT54F+pOZKP9DmN3nmiJ60
-	 k+YopPFcl8cJZsG6n1Cc18LHCDgIzk1LYuNAV368Xr6ZL0DWE7gvQMNYHymgM0iTrp
-	 wVM0s3UfM2CbQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] rtc: pcf8525: Add watchdog support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, linux-hwmon@vger.kernel.org
-In-Reply-To: <20260807082855.3762394-4-shivprakash.gupta@nxp.com>
-References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
- <20260807082855.3762394-4-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 08:52:09 +0000
-Message-Id: <20260807085209.B0AD71F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1786109431; c=relaxed/simple;
+	bh=lNRMCMZWJrIGh1fhRbztqbQIc9J7TxN7ZrtNGrtgNXo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dPrZMB8/43BVypc1PpkxsTcIk1vGIvhSeHuDoHlyjqEg/Scm00b33jdY+SKYSi6huMzNgt3odqi2GZXzcFnVAoeYmhNyUqXAS6PBW/zgOcGDuqcHCOgCKDp01/hTb/8UBnruY0aPBinwBekM1GLDlNM8sAqbnuuKMXCZyUSXG44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.230.129
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qv2-f1.google.com with SMTP id 6a1803df08f44-9075195d3e7so3475436d6.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Aug 2026 06:30:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786109424; x=1786714224;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=U/AAuSUTI9BlhHsMbAPbLkKHE3Mv88lOoxgJOEPTw6U=;
+        b=m8RCUTDV6Z78z3PwOljww7R7kIOI8PvkLSuGcnpo2neMOwV6VvAuBvECL5PlVtW5Fs
+         lWleLhdet/vvN3Cm0oD7pDlcKkSPgDfuKf1AUigUcuHELQohpYMwjI9moA5hmacrAx0E
+         61f0F6WGxrPAw353XcoHvq8TXJj2KeZrgb6GvwEMc0rbXq/aVVYHLkCdO8adV7SYeCGm
+         oUylU6VFTIkboF5RIkAdrw5DuGc7llqfIFp1zkYYtM/ETfKO+sBDjuUZx8O/aCwXgULN
+         6C4XRkFcsN6iPmMyGLoIpNwIR5xPmOPF8Ez2kamHC815n8c7pwN5vjRtNPlIuMDuVgGd
+         6j8w==
+X-Forwarded-Encrypted: i=1; AHgh+Rq4V7otQ1hoANu0Z9W8zjMia5rHCywx9MLor/wW9noHRgppfML6IThvnDRuu+CW4uES/T/qjpD/EpeScsV/cg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfBRU2QuZWZCY5qbVsTH1/doDqSDCPKVEZXmihQPj2ESegVu5L
+	zWd4UCfmhz/K97imGgP4qs7tIxoYmwheP8vg8YZRmQUJUcndaA00LgQp717Cap5j+LA=
+X-Gm-Gg: AR+sD12gXjYAJBmvDZKllgL94W/ujzta0WkQJg0VAIXJO2VLxsI8WsVCUu9tpwTr5T0
+	yOY5M4fyjbvxlnI67Djqp8XKGXZu/cgsc4PMiW+zELSevWU/8kXj55MCpumUGRORkaMB2QskNQI
+	Hu3LvRx73lTBn9Bh5z3bykDgotMu/SW4iw0/j1ydsZfT6WQ23Wu4OOue4kOcyS4xBfbh8OHiVCX
+	qgSE4WkGmGH3/Fv0hUC9DH1F1bZ6zlbrWm2LKa20fM1GvlQfwgdonKJkSavAMS3q/iQwHTA7wd5
+	vwGb6zOGFdSrwxwD6wjTdRZPjgE/Ff8HKY57c24jZbfcLyGjAL+8BHJQ6KNYz/53mzauJUe+rfH
+	34lN/l35XIYhRTy9c0bRqtpjjtQyIcKjuDj2RmucDGMYts1NM0AKGcDDZ3lGetvw7/JGiMSZkdF
+	4KAx1P1YSed96Xq/Jdkqa4WoDRQNb5Ak4UONOnRV0j/tPvchWagYVHrj3HD5mrI8BzwUGCOEh3N
+	vLrYvC6uBJbkFr/rYuKwnXyLQ==
+X-Received: by 2002:ad4:5c43:0:b0:8f0:9d9c:52c2 with SMTP id 6a1803df08f44-9088108de78mr270002356d6.5.1786109423350;
+        Fri, 07 Aug 2026 06:30:23 -0700 (PDT)
+Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com. [209.85.222.44])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908a9348e70sm8695966d6.43.2026.08.07.06.30.22
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 07 Aug 2026 06:30:22 -0700 (PDT)
+Received: by mail-ua1-f44.google.com with SMTP id a1e0cc1a2514c-97622cc1f40so2026427241.3
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Aug 2026 06:30:22 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rr24H6irI1F3zTPYTXSwx9KdKYUYrRPUeeFgs7I4XHl9Pl0XGa1b5fEMlBQ05t+g44AV/+i0EPeSoj6lPFpzw==@vger.kernel.org
+X-Received: by 2002:a05:6102:1491:b0:740:2d40:a234 with SMTP id
+ ada2fe7eead31-760e934083fmr7749766137.9.1786109422395; Fri, 07 Aug 2026
+ 06:30:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260716123434.2576253-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260716123434.2576253-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260720-fractal-prodigious-spoonbill-86f534@quoll> <CA+V-a8tfCL58j2TvoO1VhhDAZf=8LB89R4O0SycLghYGf7Rr4w@mail.gmail.com>
+ <2323f9bd-0b1e-41be-8c8d-6906b66b625f@kernel.org> <CA+V-a8sHbc9WSqmzrONjWbLY1+SSEhK3kGOjL9zmVmhSttD31g@mail.gmail.com>
+In-Reply-To: <CA+V-a8sHbc9WSqmzrONjWbLY1+SSEhK3kGOjL9zmVmhSttD31g@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 7 Aug 2026 15:30:11 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUwPdPwKV++3GBvm_yEY0pqvT-KxBr==g8LQFRvZkBnjw@mail.gmail.com>
+X-Gm-Features: AUfX_mxDi0guSe9Khaez7xiSfow3Ijch9zm2XE5dr_dyKyhIvomQpIBNYO4wzk8
+Message-ID: <CAMuHMdUwPdPwKV++3GBvm_yEY0pqvT-KxBr==g8LQFRvZkBnjw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/8] dt-bindings: clock: renesas: Split out RZ/T2H CPG binding
+To: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Magnus Damm <magnus.damm@gmail.com>, linux-renesas-soc@vger.kernel.org, 
+	linux-clk@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+Hi Prabhakar,
 
-New issues:
-- [Critical] Unmasking watchdog interrupt without clearing persistent WDTF =
-flag causes inescapable boot loop.
-- [High] Watchdog IRQ handler silently clears timeout flag, aborting hardwa=
-re resets and defeating the watchdog.
-- [High] Missing WDOG_HW_RUNNING reporting causes spurious system resets if=
- the watchdog is armed by the bootloader.
-- [High] Requesting INTB without IRQF_SHARED breaks probe on boards tying I=
-NTA and INTB together.
-- [Medium] Watchdog initialization occurs after RTC registration, creating =
-a race condition exposing the uninitialized device.
-
-Pre-existing issues:
-- [High] Read-modify-write on CTRL2 causes lost hardware interrupts for RTC=
- alarm and watchdog.
---
-
---- Patch [3]: [PATCH 3/4] rtc: pcf8525: Add watchdog support ---
-commit 3cb38601cbc74987657b19d7480456e2da5babc7
-Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-
-rtc: pcf8525: Add watchdog support
-
-This commit adds watchdog support for the NXP PCF8525 real time clock devic=
+On Mon, 20 Jul 2026 at 13:14, Lad, Prabhakar <prabhakar.csengg@gmail.com> w=
+rote:
+> On Mon, Jul 20, 2026 at 11:53=E2=80=AFAM Krzysztof Kozlowski <krzk@kernel=
+.org> wrote:
+> > On 20/07/2026 12:50, Lad, Prabhakar wrote:
+> > > On Mon, Jul 20, 2026 at 6:55=E2=80=AFAM Krzysztof Kozlowski <krzk@ker=
+nel.org> wrote:
+> > >> On Thu, Jul 16, 2026 at 01:34:27PM +0100, Prabhakar wrote:
+> > >>> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > >>>
+> > >>> Move the RZ/T2H and RZ/N2H clock controller bindings from the gener=
+ic
+> > >>> renesas,cpg-mssr.yaml schema into a dedicated binding.
+> > >>>
+> > >>> Unlike the traditional Renesas CPG/MSSR block, the RZ/T2H and RZ/N2=
+H
+> > >>> system controller integrates additional functionality beyond clock =
+and
+> > >>> module-stop control, including reset control, clock monitor support=
+,
+> > >>> write-protection registers and other system management features.
+> > >>
+> > >> Nothing of above differences got reflected in the code, so I do not
+> > >> understand this reasoning. Binding is exactly the same as the old on=
 e.
+> > >>
+> > > A syscon regmap is implemented [0] as part of the RZ/T2H CPG driver.
+> > > Since the RZ/T2H clock driver uses this syscon wrapper, a function
+> > > pointer is implemented to handle the RZ/T2H-specific configuration.
+> > >
+> > > Also, as the initial implementation used separate device tree nodes,
+> > > Geert suggested splitting this binding schema off into a dedicated
+> > > file [1].
+> > >
+> >
+> > I still miss the difference. Can you point me (can be short diff) to
+> > actual difference in this binding?
+> >
+> Fair enough! You're right that the schema text itself doesn't differ.
+> I'll drop this patch in v4 and leave the bindings in
+> renesas,cpg-mssr.yaml (unless Geert has a different opinion).
 
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> index 7dfb4f0f64047..4ef648bdfc5b9 100644
-> --- a/drivers/rtc/rtc-pcf8525.c
-> +++ b/drivers/rtc/rtc-pcf8525.c
-[ ... ]
-> +static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
-> +{
-> +	struct device *dev =3D data;
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-> +	unsigned int ctrl2;
-> +	int ret;
-> +
-> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-> +	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
-> +		return IRQ_NONE;
-> +
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_WDTF, 0);
+Given you no longer add a bunch of RZ/T2H-specific properties
+and subnodes, I no longer see a reason for the split.
 
-[Severity: High]
-Does returning IRQ_HANDLED here without notifying the watchdog core or
-invoking panic() silently abort the hardware reset? If INTB is routed to
-a reset controller, de-asserting it before the reset cycle completes might
-leave the system in a hung state rather than resetting it.
+Gr{oetje,eeting}s,
 
-[Severity: High]
-This isn't a bug introduced by this patch, but this read-modify-write
-on the CTRL2 register extends a pre-existing race condition to the
-watchdog handler thread.
-
-CTRL2 contains write-0-to-clear flags like AF, MSF, and WDTF. Because
-regmap_update_bits() reads the register and writes it back, if a hardware
-flag asserts after the read but before the write, could this write back
-a 0 and accidentally clear the newly asserted flag?
-
-This same pattern exists in pcf8525_irq() when clearing AF, which could
-cause lost hardware interrupts.
-
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-> +	return IRQ_HANDLED;
-> +}
-[ ... ]
-> +static int pcf8525_watchdog_config(struct device *dev,
-> +				   struct pcf8525 *pcf8525)
-> +{
-[ ... ]
-> +	m1 |=3D PCF8525_MASK1_BIE |
-> +	      PCF8525_MASK1_AIE |
-> +	      PCF8525_MASK1_OSIE |
-> +	      PCF8525_MASK1_SI |
-> +	      PCF8525_MASK1_MI;
-> +	m1 &=3D ~PCF8525_MASK1_WD_CD;
-> +
-> +	ret =3D regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-
-[Severity: Critical]
-If the watchdog resets the system, the battery-backed RTC retains the WDTF
-(Watchdog Timeout Flag) set to 1. On reboot, when this unmasks the watchdog
-interrupt on the INTB pin, will it immediately assert INTB since WDTF is
-still 1? This regression could trigger the hardware reset again and cause
-an inescapable boot loop.
-
-> +	if (ret)
-> +		return ret;
-[ ... ]
-> +static int pcf8525_watchdog_init(struct device *dev,
-> +				 struct pcf8525 *pcf8525)
-> +{
-> +	int ret;
-> +
-> +	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
-> +	    !device_property_read_bool(dev, "reset-source"))
-> +		return 0;
-> +
-> +	if (pcf8525->irq_intb > 0) {
-> +		ret =3D devm_request_threaded_irq(dev, pcf8525->irq_intb,
-> +						NULL, pcf8525_wdt_irq,
-> +						IRQF_ONESHOT,
-> +						"pcf8525-wdt", dev);
-
-[Severity: High]
-Many hardware designs tie open-drain I2C interrupts (INTA and INTB) to a
-single SoC GPIO. If they are mapped to the same IRQ, will this request fail
-because it lacks IRQF_SHARED and uses the same dev_id token (dev)?
-This could result in a -EBUSY error and cause the entire device probe
-to fail.
-
-[ ... ]
-> +	pcf8525->wdd.timeout =3D PCF8525_WD_DEFAULT_TIMEOUT_S;
-> +	watchdog_init_timeout(&pcf8525->wdd, 0, dev);
-> +	pcf8525->wdd.min_hw_heartbeat_ms =3D PCF8525_WD_MIN_HW_HEARTBEAT_MS;
-> +	pcf8525->wdd.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
-> +	watchdog_stop_on_reboot(&pcf8525->wdd);
-> +
-> +	return devm_watchdog_register_device(dev, &pcf8525->wdd);
-
-[Severity: High]
-If the bootloader starts the watchdog, does unconditionally setting the
-status without checking if the hardware timer is active cause issues?
-Because it fails to set WDOG_HW_RUNNING, the watchdog core will not
-initiate the ping worker, which might allow the timer to expire and
-cause a spurious system reboot during boot.
-
-[ ... ]
-> @@ -902,6 +1139,10 @@ static int pcf8525_probe(struct i2c_client *client)
->  	if (ret)
->  		return ret;
-> =20
-> +	ret =3D pcf8525_watchdog_init(dev, pcf8525);
-> +	if (ret)
-> +		return ret;
-> +
->  	return 0;
->  }
-
-[Severity: Medium]
-Could initializing the watchdog after RTC registration expose the RTC
-device to userspace prematurely? If pcf8525_watchdog_init() fails,
-probe will return an error and devres will unregister the RTC,
-which might cause operations on the opened device to fail.
+                        Geert
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807082855.3762=
-394-1-shivprakash.gupta@nxp.com?part=3D3
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
