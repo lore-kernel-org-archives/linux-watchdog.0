@@ -1,65 +1,65 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47FE5455173
-	for <linux-watchdog@vger.kernel.org>; Fri,  7 Aug 2026 08:17:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53933BE644
+	for <linux-watchdog@vger.kernel.org>; Fri,  7 Aug 2026 08:17:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786090639; cv=none; b=ZiGldDBbUlFAye/+sb/X7PKPdRnibIQgF9jkwwUfOpPFkDHX3UljkHDVfJrN7WsDbtJx+/6MuQkaXBLrRQLbqF8niNhh2pUyK8TqFWxgfYEpy4l+qGe1GaVwUcbzsw/9OF30Uuu7eOKfblQ2bq0Hnmxxo/GiXMhJgE8LEeZ8wSE=
+	t=1786090644; cv=none; b=TBjlEoRy2mi7u1qnqK7ZH9q9x6qexXbvjttKmYULwWvUVJeBdxG8ooZ8LIqr1k8eCGpriy+3c5xjdL7o1qh93ineSSR5S0Vh1g2qpoaNoN0co4ENz+JMKRdtuKrSSil/gEqxNs1UNcJWWssqoDHYSanfd3HUrUxy7Rrm8NcGqUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786090639; c=relaxed/simple;
-	bh=lKJGpRyWh581Dqnj+3PEzfeC3ZAXZUwu2Hc1iYFreuY=;
+	s=arc-20240116; t=1786090644; c=relaxed/simple;
+	bh=TLaM4ipt2XvrvL65uL1X15EPNsDhuS4EXrTa53tDWfU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WxOk+dgIn5yW03Ike2dO8oLYZTx4uifGktz+SHjegL/5jx+Pp0gOdlAk7xEni/ygQarY6RGcVf3a5cLWfnZNKn1qNeddBR3gzRuYprbMigk7F3BjqPMqbpBJxSz8q0GzdpWTx0iJV5tGeifF1ACWSYv1LT6X9OP/drNwBxZ9tzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gX0j2CUQ; arc=none smtp.client-ip=209.85.216.49
+	 MIME-Version; b=QOOjoha8cBRhgQVbmV607w3HDhc7W6Xrcn3fTCmuhC1ySsgZFF+fMRFKTXM39bAy40FhTUiO72FRlX5n+LrFvpREPBJIRb6u+DQkDUxGjQWo7vKT41ddyijsXaa0D0WyCapPophdR1sCaP1MG+hqylHKURz5mXDQCTZ6QtmALNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D/f/CngN; arc=none smtp.client-ip=209.85.216.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gX0j2CUQ"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-38fdeaed181so3733737a91.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 07 Aug 2026 01:17:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D/f/CngN"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38d489b6b71so3041942a91.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Aug 2026 01:17:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786090637; x=1786695437; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786090642; x=1786695442; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=PRtunFUAHa1sE6x3tYfwm8b9CkZHcpqXiGycwufdeh0=;
-        b=gX0j2CUQcQp0KYGsc65nICrTD4ONv9Hp10YFwTJYmKkLJlOahV164F2VZ9AH8r3IQe
-         AfVqlPKlgIhb40ZBgJsMpa0jUGLLL8xBSaLr998T3X4kfADCIsxWLV6z7CuAxPpTFdE+
-         /qC/mnUPT4rJmz7QkXr6xB5C3tQ9zfHP28phncnwIqifzKijkWh+9rwUwzICaXKjyCe+
-         vrLkVKmomm3q4YQnK8OOw0pPq0ODjYyjGnyBQScE0RQUhkEjwswzuzJjTkVX9bHfE+4B
-         y1VU8ODZ479leqE5X91Ip5cdjBoSI4tLgUDiXC/jbjsv9OTLssao+X5SFC4GGpAI7Yli
-         GRjg==
+        bh=xhHhQhUh884edb2pkrtgwkkFMcH6OBy0eevlqyMXflE=;
+        b=D/f/CngNp4w4TMyfTleHZflZQMtHsWXHqYMGkzcaZ9anqk/6kbo1RFVNyrE6YKT+ZD
+         qAGKlw+jlbAULGK7xx07Q3zYqyNOJi4hImdkClRjJ2MzydMm96t22ktHgHjjxc8jCTip
+         3nWm98Sqsl9vLewjaJYdxZ8tvzgehaL06soIZ9+YYvTpbg1iQB39tSCOZBjvT/D0ydf8
+         NyWwyKBl0LwWB4GIJLX1fMVeGo9LB4nqLD0jEhCCKQfQTLZMxI4nqYOFhHPkJ5XOlMts
+         5EyLGislUYIZg1qeO82okaI+pOPOY2eghjMBjKRkKMb5DywvaRZedj/6D+iqZJpJs3Rk
+         VjrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786090637; x=1786695437;
+        d=1e100.net; s=20251104; t=1786090642; x=1786695442;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=PRtunFUAHa1sE6x3tYfwm8b9CkZHcpqXiGycwufdeh0=;
-        b=tPd9QXSFPeabdenjsp+Op6xKgHaphN5ncND7G6tyWFmjscchJNTH+VA0iXaDAWD6c7
-         tdT2ZmfwX8at/Fru3bEbz64onC0GKhqtr6jX2NB0+YFv6ckox3FiiVRKH9bC8js3sImq
-         3g0nqgkvU09tYzmWRfeIYMIBH8MLaYfmZ/If3pWOLY6mviXdHQLFpwkYj3AxV4H8oky1
-         Z9S2iv/Maqxk6BhPX8xiKSB2GBCOasVV9+vjVrbJ9+8pIpB3vU93NcILo5wObd4umpZU
-         RBkaHQFWDx1qNxScj68r4PeM3quhSlV7yhjw07jiNuw9gZfAo8xHJ76QOID8/wLJJYVq
-         YdGA==
-X-Forwarded-Encrypted: i=1; AHgh+RqPxLN1cYQ/f8sHaW7qqqS/g9E1KaKRxZbk7+D8zbp36/WrGKz0hflXlmhAyPvK1DDWFSLi292u39jozlu3tw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx246X+ePzlT2hRWDK6EO9FHOUOaL40nCsPUuFGhXzs+PZ+ZzG8
-	qS8YBdFdWQ0iIvtmHGz41RPY/fhCD1/sw1dGZRl/PeBXtg/Rgvbc+f7c
-X-Gm-Gg: AR+sD10W2f3FzJqvRqnUruGoXFwLzJJqE56sOftRZcbm4jyt1iMQ/b74Qa0IJonKGz4
-	QZ4sjkXBxvVhdXpajo5kj4eUuZf8Kiu51LuKCcGWMMfQVdDZA3l5CzOtP4b3akMgaJePUQEKUXc
-	nrK4nq9w33MUWQNyZw+neCE9bxW2kJ6xq6ztEzrd8MxCvgFzImVTHPEdpCvFJdscxQyW6XIEEE6
-	dgajsjIwHex+77iBwthHK6bcOPkTjxosCm4PKY28xFov5yR2XFikgk3XgcJjpdeXHO4Z0tdoBlJ
-	Z80cz9gpKNqoa9Ynu8qBM9bsSHmh2mT7KEyeqTUCWK8e+scEFd8I9AHeS7xGQtfGb4ypdSeZZ5m
-	zAWAzEMAW+XqjaghPx8TKhgojEBbJ8/Sa0AsXYm3Hv2il6G57pdgWvB85b9OWxew7fqNyimEhxW
-	VvfvRy70/dZ/+MpjsU9r7wLYY2HMYwrDAjdI5NXRdjR0ysF7KJLPqt4jz9v1JdTFn7+/G1/wxuA
-	Vi9iIfAFcoh/zB2mUvSWWe2BW77/F5RC9+GvF5G8IwsvZOCWpuF+xBoRVVXW9n45B2H/YiZIwxd
-	Qix6
-X-Received: by 2002:a17:90b:3a8d:b0:38e:57a3:f218 with SMTP id 98e67ed59e1d1-3903c5b9f70mr18650486a91.13.1786090637616;
-        Fri, 07 Aug 2026 01:17:17 -0700 (PDT)
+        bh=xhHhQhUh884edb2pkrtgwkkFMcH6OBy0eevlqyMXflE=;
+        b=XJYZ6VF0dkYQ+9p0FTxZxx+QMfslpEWrR4WrSqkwtlHFDGf1ajFIYW9eDkXU+6/ZtD
+         vJklzMjG1sxHZaAL+19q1St7dz5Rq3FdhOyRkUTU43VhvNteDbA/YGVapsJdYHjGzPE4
+         342ZC6mlyBsI7mixSZy4QQcBG5dwJ8dcRhxecf4hpcOFW048IzOxBqZl2H/Gpah8sfuF
+         FdJMsbcknrU2YvOEaOSgBxD/loPfNdA+YTiJa7GzPIdmX17/LKMDQooG7++2RN2ku/g2
+         HsHmDNnYOB8bYTBHnRgODgqRVxV5uCCmaguRyNAfcqsvUXCiXJyumZIR7YHG8w5CvGxD
+         oE8w==
+X-Forwarded-Encrypted: i=1; AHgh+Rodc+xc/CKvGWeOvbaLXpo08/9tEvRI0JYknnRFMp0oIC5FmD6fayo4v73xsg7poZajiHfMD+6gicGdbCrbYQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0cyVikILyc9wzJD0Sj8GQS4TpkThz0FL12MLv7fXtUcmXY1EH
+	VUAQjhHHiy9C4uCKYBgRnAH07QNAOnNuUoMx1OWbljfWa65NS3eR2FDj
+X-Gm-Gg: AR+sD12YKe2RBrZ3ViiBIablbQ6ws3hV7svgMix1XWzthSLJDkMC+kkgpRS4EDdXjLW
+	tu5sGvYUAbryWpN+dI5LaSRTSYT0pZDr768dFNq4ZqCS7rd3auq6E1Ac5aEWFw2oMCgRMS3ksg/
+	sddJl0EoiVyabwQyw72/ZgQBQ5P0KCBFLqiII7zKBsXLARPAvC23MYeJXvgRbU702sP8z7IVIQO
+	KQyvF32mv4x9oN3nkOX3WsJLg84LfBciONzPgwLnUa8BGXDr/ajpkE2GrQ65jfe3CCcg4N6xdKm
+	YapUHoR+84/dfbkhu/fhAdQb1XGadF71J6Gm8WAqbe7grS03ngWqqBQ1o4EPnMjc9cHDdJU51Wh
+	Xeg8EMj0IUB8zbRnkdbzptP8VFYY09vC+CzJq7fNuXSE0u+xBuY2McwU2Gp3cvtP2DbG8kj44D2
+	mxCWi4fyho4TocIPsl7V0YjlusMQV6KK2luAGQSzM0T2NPTwVgqpXCaqI0LkRFYh7J449Sx+wWm
+	49E8UBq31hmmL5YYjzkxoDlf8Jmaaw9vhbigQHnGpR6ENT5eWcHoPsYY6A0jHPg3q3h5I6cpsVj
+	MkA+
+X-Received: by 2002:a17:90b:4e8d:b0:38d:ec31:4840 with SMTP id 98e67ed59e1d1-3903c5932femr22557442a91.13.1786090642107;
+        Fri, 07 Aug 2026 01:17:22 -0700 (PDT)
 Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39085de8ddcsm3913377a91.6.2026.08.07.01.17.14
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39085de8ddcsm3913377a91.6.2026.08.07.01.17.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Aug 2026 01:17:17 -0700 (PDT)
+        Fri, 07 Aug 2026 01:17:21 -0700 (PDT)
 From: phucduc.bui@gmail.com
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>,
@@ -73,9 +73,9 @@ Cc: linux-arm-msm@vger.kernel.org,
 	linux-aspeed@lists.ozlabs.org,
 	linux-arm-kernel@lists.infradead.org,
 	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH 3/4] watchdog: dw_wdt: Propagate errors from optional IRQ lookup
-Date: Fri,  7 Aug 2026 15:16:51 +0700
-Message-ID: <20260807081652.38692-3-phucduc.bui@gmail.com>
+Subject: [PATCH 4/4] watchdog: aspeed: Propagate errors from optional IRQ lookup
+Date: Fri,  7 Aug 2026 15:16:52 +0700
+Message-ID: <20260807081652.38692-4-phucduc.bui@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260807081652.38692-1-phucduc.bui@gmail.com>
 References: <20260807081652.38692-1-phucduc.bui@gmail.com>
@@ -93,28 +93,27 @@ platform_get_irq_optional() returns a positive IRQ number on success or
 a negative error code on failure. For an optional IRQ, -ENXIO indicates
 that no IRQ is available, while other errors should be propagated.
 
-Instead of only checking for -EPROBE_DEFER, propagate all error codes
-returned by platform_get_irq_optional() other than -ENXIO, so that
-failures are properly reported to the caller.
+Propagate errors such as -EPROBE_DEFER and -EINVAL instead of continuing
+probe without the IRQ.
 
 Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
 ---
- drivers/watchdog/dw_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/aspeed_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index c3fbb6068c52..39031445d754 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -611,7 +611,7 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index c9e79851504c..48454ac86074 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -429,6 +429,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (wdt->cfg->irq_mask) {
+ 		int irq = platform_get_irq_optional(pdev, 0);
  
- 		dw_wdt->wdd.info = &dw_wdt_pt_ident;
- 	} else {
--		if (ret == -EPROBE_DEFER)
-+		if (ret != -ENXIO)
- 			return ret;
- 
- 		dw_wdt->wdd.info = &dw_wdt_ident;
++		if (irq < 0 && irq != -ENXIO)
++			return irq;
+ 		if (irq > 0) {
+ 			ret = devm_request_irq(dev, irq, aspeed_wdt_irq,
+ 					       IRQF_SHARED, dev_name(dev),
 -- 
 2.43.0
 
