@@ -1,130 +1,166 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0EE3C1D44
-	for <linux-watchdog@vger.kernel.org>; Sat,  8 Aug 2026 09:24:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786181084; cv=pass; b=Do/zBUIxS/axWH/evR+ZujBq6uYNKBXToL9Wh35QLqBObnbnXOmd3C1ivlVYf2TAn676yCaOjEL/YFpLcN7wBmOX42TZ3YI5yitaf1r0xq00XtPW1YqZE3l83Fmwa0PIQOYuNipScmpI64Zp5U4Vx+c6lXKcjU37bs5KxVtzTvI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786181084; c=relaxed/simple;
-	bh=/vZ5XM4H6eO46uqhmy3Y4wauXN7Cl7jVntz/tJBe7IY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ypvd8QqRVsMTh5QmN43Ykodg8wPDjod3UNzPWk13aZwBX5MXiGrksF/bxNL2Mcti2Wgyn/akx9DXiCheNUsM36lSbtZ7nkASAutwHusJGyt+sfnNAta05pIO/KullHZfdeH9z0/zlmaaUzLZJF9bFcNGe7MLPvgC/4zt5cmXfO4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fu4ZQeWT; arc=pass smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFAED418A35
+	for <linux-watchdog@vger.kernel.org>; Sat,  8 Aug 2026 14:51:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786200665; cv=none; b=D5oV/whyY2HwUFa065IFShYFcSU0X7kTArqLnYmJgP7sEbzHCO7m7pd8wDbIHkicbcQ/nUQRe3uhI4eQcklS3CcxA5UazTspM2tynvt2fuMD+NBv+zsuxOJbHyswocqplVublokKcL44PY+18KOFVML/W5ad9WW1/7QibUzy178=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786200665; c=relaxed/simple;
+	bh=JBtGh/jLc+8MM0+XevSCD14BakBgA0lIthIu9hnbdwE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rb2jZnl9chfvu2Ae7t+4bv8ZNKyFYkXSTXOJIbFM2o+B13otrExTAivFU/0OuTqDNBFs1xcaCLOA+7uNg8X3VKw1ipf19Iiplml5FTxb8xf3KimKPNSthId1VXj9dPacgSzz+JOIiI1zeFONGlpL7gCmerZWmSHPLVUyiDaD28g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=id86zMCS; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fu4ZQeWT"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2caced6038eso3108645ad.0
-        for <linux-watchdog@vger.kernel.org>; Sat, 08 Aug 2026 02:24:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786181083; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UmW34pjicBxmFr0QbHvvfdwUvz5jvn+27gJoSmgLaqz6FOro1hm0G1PjoJ2ECAx584
-         ml+MApSof55QR1yEDzfJpREvG9SlxgENQrL+nSpRrdJtSZNVktCxuwQQ74F/QnnJNd3t
-         G/kZw4LZd/HIVS8FwgyFDlJ8Tae4NqjWUL+ehm7QrOnGOvJzkt+MJZTSdPDtDE4NzeGZ
-         prjnm2rzrBP9pWf8EFu3vr8O6nvlk3MCQJtOP5+FYTfhZ8udNI5gC9dSq9dwlwi7eOy2
-         5jMGA1He5xwjxsOulFoFvp+fpAmHwksBhQXmmW15wGVlfUI6blYV0VJrzowiex26iQ68
-         T1hA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=MrghsmMy56aL0iIdrpu+h7WNYslFByyIZgbjP7fVunE=;
-        fh=zt2hjtFWVrBSbexOnXx/digRN2O0tNSOK4/ceCsrIlE=;
-        b=apZzSddUQy7ZeUEiIT2cFG54KMXsfIe60jh5dGHl5LQqCPb9VmShkzhv4McjWJ51IR
-         ahH6/ZFScCvYJepAodfQU4bot8033kIoXMq7EuM5/InkR58bJe9Sp3re/01WifBhZwO3
-         5P3Uu4BpPn+v5Kp5uBpjVQ1Jti0Nk/jNK0Hmef9K7TzfYLUo3vsl05Tb84O0fBhXLvAq
-         IICLmprWEnwWBLbedyI2yUOW48BtSaDhrF/E2tiseooajroeGMbAK3h+wB16Xq2my8ui
-         XIkCRdtHrNAsZ/6OD+UWTgQrpqzxb7LqtQwc05pTMgOs2qV45zLIwH06hktC+f/O/KzY
-         6cvg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="id86zMCS"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2ccf2360620so4218655ad.3
+        for <linux-watchdog@vger.kernel.org>; Sat, 08 Aug 2026 07:51:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786181083; x=1786785883; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1786200663; x=1786805463; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=MrghsmMy56aL0iIdrpu+h7WNYslFByyIZgbjP7fVunE=;
-        b=fu4ZQeWTW/sTFwXA6oPSj/f8HC6GTVt2GUyp866LCrUa3rloM+gQLNqdZmlbC/3hWL
-         XGwU4sUy2cm9qOwVGgbxyyRk/E47aGsbarr+15k+5XhsKCiVAhYfydMJiMMhRacq30wm
-         e+fDtQAhMMdNff0D6wHmNXGZP8G1KiVMEdLBP1sBOskHgqhJM4NoBfk6TpZxWSYxaHwi
-         VQkE48iH+eeb9ccplpCKWhJ9btIPBYOMQS00rVkLv6bBWcdIHouDPZtZe8Gt3qN6RuqS
-         morcO8oIMam3SMuOott83VUJLi9ka+ADcwgzPe63vr9cvtU3yVZd9Iq6ZtcqvZe/XpRv
-         +FyQ==
+        bh=6+/fm2qOcTXIyjtL2DGzrA32WfRZi/Wok9xvh1oVjxM=;
+        b=id86zMCS/k5dAh5b9ALud6wvHFzWfeVPFqrxZv6jJ+yqK/O/2Vm0zYRLXseZ4yyqLl
+         bskULmF0wsxcmw0Lvyyfgs+QtwYUyAmWweTqgLgO3yhtySrzfwRAqLfmUUizePlVrKuS
+         hqovYhg5xMYaZkaBz7+TjR5Fbcux1M3EydWa93eZTPYm4h15BpYXC5fPlKSZLq0zCq8w
+         yFb8b/QLA5/puKO7p5Tt6KOlMBLZ5Am/STiTFAqtp+uoDWulF9JDGuhs9UyUhyXYjwsq
+         EG6mvGYTrQIcBsmfdFmlDXvMQWuGKfsg+ujyBVwhqiWwzHKGmRPpbCPuhP3bWTb6duCR
+         06WQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786181083; x=1786785883;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20251104; t=1786200663; x=1786805463;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=MrghsmMy56aL0iIdrpu+h7WNYslFByyIZgbjP7fVunE=;
-        b=XKoEy4597Vq3K2KBSlxq6RUZRSA702vqQ6mSVm/R0s2K3qyPnZN/2f3Veh69BRkO0g
-         cE5ix+tqnaw1kawDe5ZEjzcU+aSfDyFUDa2XKflVHp3w4EIs3Be2ZC1o1wxljCKdavvP
-         ZIjMQzU0C89+ZVFBPuuVYblwL/NB3kj7uv6y8QNJOcNYpO2mJlfZSylEOHGIMnsuRRYA
-         O18i34rZWWCuAZtfejeeqvPM2XYIrRTO25XlazrSreCrE9R3nEVhyyajqwNnDhRFzoWu
-         mQqxD31z0Gz53yNRFQY+iEQBlQe76nJurgRMdN6FFH1X6yz9Nuddk7Nmdy8xsUskcRqc
-         CXbA==
-X-Gm-Message-State: AOJu0Ywk7F1M46K/9197kX9Jac5hpmIaLhv/K3r+p5McEAdBx3BCYUzD
-	LjphUuHLFBS2FFB09XhII4CNJ36kcZL7GRP3wHqW8dNU7pRVfEaFeeyXzUtM5GsRttnbBI6qGH5
-	MPk+Ul/JIzUMmb3CLPXJYnCa9dF86kLA=
-X-Gm-Gg: AR+sD12NmNz09REodhY9tZmJNmWAVvqQ+YhGpM75ecbqQ8jYvZgK5rhnu0xjybUcpCX
-	GrPfqYYltK/O9bj/17wfnRZcY6gq9X0TWxMmHMmdV4spRfBinWjnoeNkhQMFFozXHEDwPIqnTVq
-	rQokTwgCiqbBQlEpAvTf8sFb2b8GlTuFxF4OSGNXvfskIugbdfL34a471WmLZUdfQGSpM/Xoacc
-	tAM1Vce8PIglSsXPmXQNrCI/MIYN591YpNcWmUUgqiNpAEnIiewZDgYZOT0WgCHejJRkhNitvEa
-	7xBTBtfEwFJJfzPMo1v3+GoFRRswhroH7qqEkqWec4FYlG6OGKYCPLKbDL9RrcCMs9A4cTbkGrp
-	KrNnuPInDfqHT9V/OD9YDOk4VZQhtfdBt9OanniYO5POfoAAs5LBedSSycLV06Gp6ZvNRIyg5Km
-	P5Y2m4g0WQLKZCTho=
-X-Received: by 2002:a17:903:324f:b0:2cf:41ba:96c2 with SMTP id
- d9443c01a7336-2d2b2e2160bmr26820625ad.12.1786181082808; Sat, 08 Aug 2026
- 02:24:42 -0700 (PDT)
+        bh=6+/fm2qOcTXIyjtL2DGzrA32WfRZi/Wok9xvh1oVjxM=;
+        b=hrgvmLZZ/5lwxtjjzR1+tZm+oy8nRwYhKadK2XTQbmJ79N2onzNPHI3B2DRmLNCLDo
+         lZOzpxxWYDUnih58lOCYhbPSycbsOsl1AlBvPKqs+aleNJirGuuOItmNSM+jy0JWsWK5
+         ZmlcVaeGtaF0YDjEiiOAVlncmQRWmr/lIvA+juqE/h5k3k9/VnSb07IV7YfQzoP36gY9
+         D7hO2n/o0z7RDjml31yNj/A5cTH0alWgTL5Zo929OBOj7mvqjWlin+nG+2n2+FravvfC
+         lShlgQC/kj1Sxdj8Fc5cV2d0GL57A3gOqpQqHTIcV1YYuamNihoU4KIHTHoReKKaByMs
+         j5zQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rr3xjjqvN1O3dsWBBIDSooonPTYRyViX9T+h6f+rCPX0TWa78jHTE+zmlppUNFqwds/j1H+UvgrW0z99fThDQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3ReMt8M9p776QrkmGCOl7E9DOoNViog2qeEN6CcMOrx7ZiIZp
+	aVoSep7ZewRSekmZa7UDWxmLOwAT2+ktGIdo/GU6ur00jo35w6NwS3fN
+X-Gm-Gg: AR+sD13dS/13fcUBc7mm2zYg94VXP+BrFeS8uwtsR2JxqFKzXTHs7PB+CF+iKuRjTa6
+	IY5URihaiwvLpx8kbqDuAJQfdv6HBTmSNBbQeZx4wgR+9kN1p1LwlOFibFDoJwSQLMV9fu+fCdB
+	WaSEbD7F5p6DlE87c3vRVfgJNgkiyH8C8GJKg1DnOA8KNdzWNrUoWaxk21bFAT1yOz/AGZxRQ6Y
+	yN3CJtfvT5rxaZUKHuHFaUpiybvRb2hnwKCiKnPBgq6GvLb1PidD4ctfqHgS/Aw2lXNM9FPPccy
+	GkKlGR1cAOAkwJAMf5R6RUxwsWbotaxjMe9Rv29Q590ag8vz64bMV3UdkDXZv2XKgLV0m0d6A9z
+	nFwLFwvVjgZelZ07Zsh+S0L3wkHFSAMkvWd451Z7LXhgOJ57PocRboTrAH+csJIeuXf2on16ddF
+	9ePxV3q9VOYJTQ/Y+Ooz+XeJ8qcnRlbJRymlK/zMfoEEKPPT4p0YnoY+eq/chFN9qrkGXWpK/Fs
+	nYVY4WUxtV+XslyeWhaFtffVd6dnfkutArmyQ==
+X-Received: by 2002:a17:902:e787:b0:2c9:c083:cd50 with SMTP id d9443c01a7336-2d106e333f0mr206689685ad.17.1786200663232;
+        Sat, 08 Aug 2026 07:51:03 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d14ccac170sm19398045ad.8.2026.08.08.07.51.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 08 Aug 2026 07:51:02 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <9971b3aa-cb1f-44a9-9d58-4f75f0c6ccea@roeck-us.net>
+Date: Sat, 8 Aug 2026 07:51:01 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260807080447.35479-1-phucduc.bui@gmail.com> <20260807080447.35479-2-phucduc.bui@gmail.com>
- <20260807081701.C3D691F00A3A@smtp.kernel.org>
-In-Reply-To: <20260807081701.C3D691F00A3A@smtp.kernel.org>
-From: Bui Duc Phuc <phucduc.bui@gmail.com>
-Date: Sat, 8 Aug 2026 16:24:29 +0700
-X-Gm-Features: AUfX_mzQ1raMOa_ddMDzuPQuG9imRPgE_uqf_ormA10itsLxjDp6UBVFtMIy1cE
-Message-ID: <CAABR9nHHHEDz2hM3TeQRTMsRSUYHJBFgxH6X+26M1c0x=NJWFQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] watchdog: stm32_iwdg: Propagate errors from
- optional IRQ lookup
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/4] watchdog: qcom: Propagate errors from optional IRQ
+ lookup
+To: Bui Duc Phuc <phucduc.bui@gmail.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Joel Stanley <joel@jms.id.au>,
+ Andrew Jeffery <andrew@codeconstruct.com.au>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-aspeed@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+References: <20260807081652.38692-1-phucduc.bui@gmail.com>
+ <2eb8b31e-a3c6-4310-b9cc-7acd135b6c99@roeck-us.net>
+ <CAABR9nHqKKbxkzBNkENadhFJgC_HuetV+ab7SVsGH+cwbF+OFw@mail.gmail.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <CAABR9nHqKKbxkzBNkENadhFJgC_HuetV+ab7SVsGH+cwbF+OFw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
->
-> [Severity: High]
-> This is a pre-existing issue, but since we are adjusting the error handling
-> around IRQs here, is there a missing cleanup path for the wake IRQ?
->
-> A bit further down in stm32_iwdg_irq_init(), the code calls the unmanaged
-> dev_pm_set_wake_irq(dev, irq) function:
->
->         if (of_property_read_bool(np, "wakeup-source")) {
->                 ...
->                 ret = dev_pm_set_wake_irq(dev, irq);
->                 if (ret)
->                         return ret;
->         }
->
->         ret = devm_request_irq(dev, irq, stm32_iwdg_isr, ...);
->
-> If devm_request_irq() fails immediately after, or if a subsequent setup step
-> like stm32_iwdg_start() fails in stm32_iwdg_probe(), the wake IRQ remains
-> attached because dev_pm_set_wake_irq() does not automatically clean up on
-> failure or device unbind.
->
-> Could this cause the memory for the wake IRQ to leak and leave a dangling
-> pointer in dev->power.wakeirq? If a probe deferral or unbind occurs,
-> would the next probe attempt fail permanently with -EEXIST when
-> dev_pm_set_wake_irq() encounters the dangling pointer? Would using
-> devm_pm_set_wake_irq() here instead ensure proper lifecycle management?
->
+On 8/8/26 01:59, Bui Duc Phuc wrote:
+> Hi Guenter,
+> 
+> Thanks for the review.
+> 
+>>
+>> This is wrong. Check the if() path - the code ends up here if pretimeout == 0,
+>> even if irq > 0.
+>>
+> 
+> You're right. I misunderstood the condition in the if() path.
+> I'll rewrite it as follows:
+> 
+>   irq = platform_get_irq_optional(pdev, 0);
+> +if (irq < 0 && irq != -ENXIO)
+> +        return irq;
 
-This could be the case. However, I don't have the hardware available to
-test and verify this issue.
-Since this is a pre-existing issue and is outside the scope of this patch,
-I would prefer to address it separately if it is confirmed.
+This is still wrong. If there is no pretimeout, it does not matter if there is an error.
+
+Guenter
+
+> if (data->pretimeout && irq > 0) {
+> .....
+>   } else {
+> - if (irq == -EPROBE_DEFER)
+> -       return -EPROBE_DEFER;
+>    wdt->wdd.info = &qcom_wdt_info;
+>   }
+> 
+> Best regards,
+> Phuc
+
