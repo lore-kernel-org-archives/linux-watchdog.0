@@ -1,97 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 951702D12ED;
-	Fri,  7 Aug 2026 16:00:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28DAD23EA8B
+	for <linux-watchdog@vger.kernel.org>; Sat,  8 Aug 2026 00:15:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786118421; cv=none; b=NE9bdIohTtGu+Ujj2hMkBjeSe9eDKyKLiFLAMOzznzasgLMYL8iEzR4co5cprKs3vbAFZOnZakIbeWYTovBmBt5ELCLCmj5dF9kmW3q1yMgi/EpONY7ZUpCC+HgsT2B00HHiZA+V7PmLj2M4BaWF7DU7RpqHRP5zeiXPNe0hI+s=
+	t=1786148118; cv=none; b=nBy9lMwsYzUo7nLVOpbha81fd4CEZDQgPbLFb6ZAtZqgABynHF+IF60vgPU/YJtgVbKBUKlSQPVSNiWt8qOUidRV4zRDfoo/+LBzHsFosMz6yg6zHcJIsGhRJd7LaqVA7babhqONMNBR9CCCjFPr9WM3s/nUNUtt87ApdL8yVNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786118421; c=relaxed/simple;
-	bh=d3xAd7lC+SHHkZEW0Dme9DEiQrv1UbMVfR04aVU/hws=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=U1qEB7qomRDAoKaqXiW01GAgvkGH8zLb/MOcFJqBb8GgRFyTIpuBzciDm1HA0aUkMUAdqFkTD1O1YUJ2do+jZQdpJkWGiV0w45ThkYCOrvZ+DHuZ5VPvbyhs6YugnbrOHQV8cBd1XUcUfjDBD1QFbtbL5hWu/80ibtOUzjHQLTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XCeCBu6L; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786148118; c=relaxed/simple;
+	bh=3zlUphwH6acfRYe8ZMJVU3CIiHdtOMTV81yvpUfyz4I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SNB6D7F8NnfL3liWg0cNQjzmIHV802SyTJaZLlTDbrV2JegNpVIpf95hMxs12r6NXqo8n7jKtoNcV16zYKO+bZdVIm41SQRI+alF/3TDgeVfRYJc61Ql+F9Gb0f/tlbfyINVLN6HKfCwSN4MtOjR44BqK3mZN+nADayJT0HtQEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fMdkyiSt; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XCeCBu6L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 707C31F000E9;
-	Fri,  7 Aug 2026 16:00:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786118420;
-	bh=hRv0UHtWHb9R9fCBskzcQRc4pcX1YBZCkcZ4QjTrOBU=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=XCeCBu6L2gjcvPUYkrMQuPv8Q6SfOQw1kg722KQBUJcPlvBeWkDkWd6wlOWFswAMo
-	 QoZhdZ9sqv/e+Ikcl1C6PGZ3weTFUAQsSZcNxysykiwuLK4NtSmCEj7XveZDNhLUX/
-	 xC5W5t2nQKeoNvsg460xhyobNO5HrRDEzy9MlUfHOgn5BTKhO56PoiX/EUt+X7jYOA
-	 OVijKbgHxWD1/QoB9o2RIwmAL0sWL1bEOtJGW8Mig35eMe31bhhajUTNc5JxMZIrHs
-	 RqcFDEkuyJNyWkxvi4CFXkxpNogESqIeIe+YwXE04hEQ5IK2k2TagloSGHiystkoH3
-	 IDSVerp56eoNA==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Doug Anderson <dianders@chromium.org>, Guenter Roeck <linux@roeck-us.net>
-Cc: mrungta@google.com, Wim Van Sebroeck <wim@linux-watchdog.org>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, "Kirill A. Shutemov" <kas@kernel.org>
-Subject: Re: [PATCH 2/3] genirq: Export NMI APIs
-In-Reply-To: <CAD=FV=XuCHdOv8kct63JzmbgjxJMxL7fc75KtAQL0hbJc7_v0w@mail.gmail.com>
-References: <20260730-qcom-wdt-nmi-series-v1-0-3aa86d162914@google.com>
- <20260730-qcom-wdt-nmi-series-v1-2-3aa86d162914@google.com>
- <CAD=FV=V+nrmtK6FJ2G+LGnvxkLEWMR+2A253-gQ2smxf9LoEWg@mail.gmail.com>
- <eddc90dc-3223-4356-9e9b-350af904b144@roeck-us.net>
- <CAD=FV=XuCHdOv8kct63JzmbgjxJMxL7fc75KtAQL0hbJc7_v0w@mail.gmail.com>
-Date: Fri, 07 Aug 2026 18:00:16 +0200
-Message-ID: <87h5l5ex9r.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fMdkyiSt"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38e347638adso106258a91.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Aug 2026 17:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786148116; x=1786752916; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=AhD792iStzhLZKTQ5qLXe16VBDj8Bn7auApI4KkEbnI=;
+        b=fMdkyiStnDhugMy5OsWUclKwT532qj4ddyF6/qRlkUj5gpTAb84FqSjbYoPdDcCKX4
+         DGCHdtcc0biHYXpxYtklGbkUOXV/49XJddMqCXFno8tuNAiqS9ayUEKr2cvZGezcBIcA
+         H4VF12+BTwPjy3CCCVt7PNqOc4mpUPubHW7kDPOcILx3Bvk1BOcZ9XwjQ7Qg6b0XNUGa
+         jta0KroApR3UnBTmsgodURqcyShQexe3WjKipe/VnMWsJ0EsKflfH90rtJuHByyuJuZs
+         JRLaQAVIAHU+KrIyXLMLNu0YpB5BqEsZnudHt4S5sSXjMFeOODuynRpcCQ7Aieb05waG
+         gDLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786148116; x=1786752916;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=AhD792iStzhLZKTQ5qLXe16VBDj8Bn7auApI4KkEbnI=;
+        b=pPqGyTBIGKxHa7QcGsLOvEtqfEO3S6RQ0uFHdhdeJfMTEx1UPng+gRjcuz+WJidzOz
+         wym4weCB/UMo1ysFq1mZnHmpS6j5YO2NBzxmgX79abpzr/SXB0/yhFtq2xD8eq/T9v0G
+         vWXfUU5wDq72Y3pgwkcDLaWCOSxidDsjqx3A6KQ5ga3mXvAWN+LPEnCuTWhrzmKU9oZU
+         nKhkV6FQL4uwBEuLESomAYfX8fvE1BUYf2AGhTYUerd0vbFRxlaGZmWodtc9zRv3MqxS
+         dRucQdJvTWZZ6UcjGUuF7hDOOJAf8CGP9PcmcUeIy/c3SuoUSTQu2OV1fpQFUM2HWxjo
+         sTlA==
+X-Gm-Message-State: AOJu0Yx2Wc/wClDa2FMQwGgTvbHm3hHgyVrpw+MLLfOBuG7EHFHLhnkM
+	5ssiVB8z+HKzLZVCQfOFqp60L3IgxGuZdmjPyxBe2W0kuiNcLbtLg+sS
+X-Gm-Gg: AR+sD13FHqzvQ9FWRZ70i27ZTXZK6Bb5GXpXZMisjso72Z7eqRXIWsPG9LhRucDI320
+	zD3qssXUkvdo/MsTjrr3NJEYHpeHjdFCeSPNXzZRJZ35p4IwkPWdFY4uv1eD566lj5gjP9tL8ys
+	VEQJYtRSTUgzGZzAQfPGTar2j5sFcJrBinriVJi+WwksgcUu52AnZ7ZChSCfUqlP6x3rfPFuc60
+	zJEhMK+pZdR1K9kxx6gSuqp6HVN+htOC1qoI7xfF+kN2iLE13mvBLlIWFWg8w0NINltokh6WgjV
+	inmSUpq3tzqvJApM+XLXcK61rlA4nrALdrSkmqnMgduG3SgU0JG4YKxNSziNALJVHYOCBAZLJke
+	KR6BvyMZAV8Er8XFKv8eYH3iGfiwQnkD2zcvn4LFi00kK6rwNW1RrDdU6CEBJSHA+QuuMTL8CGG
+	tpPbJaHmxAQmuHs6oMidYo0oqItZNEXUnvxfr8ez6bBLrJdiLnNCh8t02ABw8L00xQrsGGfCUe/
+	Q==
+X-Received: by 2002:a17:90b:2748:b0:380:7688:fbe9 with SMTP id 98e67ed59e1d1-392823a4a2bmr3805579a91.8.1786148116485;
+        Fri, 07 Aug 2026 17:15:16 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39085f2b2easm6495736a91.11.2026.08.07.17.15.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2026 17:15:15 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [GIT PULL] watchdog fixes for v7.2-rc7
+Date: Fri,  7 Aug 2026 17:15:14 -0700
+Message-ID: <20260808001514.2405698-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 31 2026 at 16:18, Doug Anderson wrote:
-> On Thu, Jul 30, 2026 at 3:55=E2=80=AFPM Guenter Roeck <linux@roeck-us.net=
-> wrote:
->> > This seems reasonable to me. One thought I had was that we could
->> > possibly get by with fewer exported symbols by changing
->> > disable_nmi_nosync() and enable_nmi() to "static inline" functions in
->> > the header file. That being said, what Mayank has here feels slightly
->> > better to me.
->> >
->>
->> I don't claim to understand the NMI APIs used, but Sashiko's feedback
->> seems real to me. Someone who knows that code will need to confirm that
->> there are no unexpected pitfalls.
->
-> Since Sashiko doesn't reply-to all, here's a link to its feedback:
->
-> https://lore.kernel.org/all/20260730214758.DBD5E1F000E9@smtp.kernel.org/
->
-> Indeed, it does look like legitimate feedback. While the problems are
-> pre-existing, it is true that exporting as a module could widen the
-> exposure because the code backing the NMI handler could now be
-> unloaded.
->
-> I did a little bit of AI analysis of the problem myself. As far as I
-> can tell, it would be relatively safe to implement a synchronous
-> "disable_nmi" by just calling "disable_irq", much like is done for
-> other NMI functions. The caveat here is that it would only be safe on
-> IRQ controllers that provided irq_get_irqchip_state(). This is because
-> on NMI we don't set IRQD_IRQ_INPROGRESS and thus
-> __synchronize_hardirq() will fall back to calling
-> __irq_get_irqchip_state(). If any controllers supported NMI but
-> _didn't_ support irq_get_irqchip_state(), we'd silently skip waiting
-> for NMI completion. Maybe we could simply make it illegal for a
-> controller to support NMI without irq_get_irqchip_state()?
->
-> I guess maybe we need Thomas Gleixner to weigh in on this? Thomas:
-> should this issue block Mayank's patch? Would you expect him to
-> propose fixes as part of his series, or is this something you'd prefer
-> to post patches for yourself?
+Hi Linus,
 
-Sorry, I did not pay attention as I was AFK and busy with bugs. I'll
-have a look once the dust settles on my side (hopefully soonish).
+Please pull watchdog fixes for Linux v7.2-rc7 from signed tag:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.2-rc7
 
 Thanks,
+Guenter
+------
 
-        tglx
+The following changes since commit f5098b6bae761e346ebcd9da7f95622c04733cff:
+
+  Linux 7.2-rc5 (2026-07-26 14:45:48 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-v7.2-rc7
+
+for you to fetch changes up to 8444d66aa6b6e7fe0a26fa1a00a11cb4d0523783:
+
+  watchdog: at91sam9_wdt: prevent timer rearm during teardown (2026-08-06 14:23:55 -0700)
+
+----------------------------------------------------------------
+watchdog fixes for v7.2-rc7
+
+* at91sam9_wdt: prevent timer rearm during teardown
+
+* bd96801_wdt: Fix timeout for enabled WDG
+
+* atcwdt200: Fix return value when watchdog is enabled
+
+----------------------------------------------------------------
+Hongyan Xu (1):
+      watchdog: at91sam9_wdt: prevent timer rearm during teardown
+
+Matti Vaittinen (1):
+      watchdog: bd96801_wdt: Fix timeout for enabled WDG
+
+Surendra Singh Chouhan (1):
+      watchdog: atcwdt200: fix return value when watchdog is enabled
+
+ drivers/watchdog/at91sam9_wdt.c  | 4 ++--
+ drivers/watchdog/atcwdt200_wdt.c | 7 ++++---
+ drivers/watchdog/bd96801_wdt.c   | 5 ++---
+ 3 files changed, 8 insertions(+), 8 deletions(-)
