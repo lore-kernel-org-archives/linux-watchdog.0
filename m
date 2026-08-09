@@ -1,81 +1,80 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58303CD8BB
-	for <linux-watchdog@vger.kernel.org>; Sun,  9 Aug 2026 15:05:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C7C30C37A
+	for <linux-watchdog@vger.kernel.org>; Sun,  9 Aug 2026 15:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786287955; cv=none; b=UCIJmMa/QeZgMDr/4c25tIGA4+AM4EKrMmQWLxHH3oVxoxNJb6jzge5DWUMC8GQFm9EYlikEHibOb+0kFSZ7rXc6/lZ8fM/3t+xcu/OzED7FOaSkJj0Ss1BKPs9kAeaoliifPKX9k9y4SLuP7TGTEqvDGfgQFMlYuB0Wlak1RuA=
+	t=1786288047; cv=none; b=LoIeZUDB4czRravPt+oRHv7fYfw0CeGuOPey2Q2rGcBMtmuAJUiSWbInC4Udv36sXOAh7tF6db46qyUmnoR5BkV2TnATAU2vC995k8cYpdzPRdW/1svTVjj6qxgYfC7cd5k3RGzojEVjRfDKZB+LnO1ehL9893aadqDrI6KjCT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786287955; c=relaxed/simple;
-	bh=N5EHcxRiFGQHcoZiSsmbsKQuX0XPu4+xUIXYTfGij6I=;
+	s=arc-20240116; t=1786288047; c=relaxed/simple;
+	bh=2cicJZ8RE/CjxYTwQcqC0IfOpXTmsqFE1LUv/9Cabm4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nC1pBVJ2xBoPDIjl/nGmgDUoWegh8FWkhB5M9MxW3UIO5DnFrUp+s+YfI6IK+XjnDBzbwq6/XCOQVY/CmLI/DFtFc4kb3ApPN5nuIHla9km8XvdcycYkR3WeyT/HPwbeT6HPhKngdLU2iCemAG06eThGIOPsmeATwGRi1mdCZ3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZTZnLmhj; arc=none smtp.client-ip=209.85.210.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=AJ2DrWulywPiVPWZoVwi1t9okpLhLJMKLPZf3v0nSrtXD0dcox2AAifkri94oH+5YAxPWpUKA30P1xG4ux/fKm2HGC3w5GWyIvrPzwtiHdmOk5HwHZzs7zldX2zffUZD7Lp/rK6UtGXI8gCVMSOyoR7cGUWGgXFKZp28ymcgIIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cle6DpzZ; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZTZnLmhj"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84874b52eabso1409053b3a.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 09 Aug 2026 08:05:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cle6DpzZ"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c96b08cdd1cso764164a12.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 09 Aug 2026 08:07:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786287951; x=1786892751; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786288045; x=1786892845; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=0xMkbVk8Vq9ADk/FsQY03JHzIZEPQoL7wUy/e23YhPc=;
-        b=ZTZnLmhjHnJC41sh6cCP/VpheJz2FuqcrOUJSeYxmisz6j8YJoiCpxtGheyzHebrTl
-         6mpQVPCkpsKTi7nnQQsyIEpxBHefvbmPyPqScwMgWvk14Lu2d/99fGeA1U2kHuokBmk6
-         QMA+ogORdNFTNOeq/5901H3/dcn7Q94Td4NLC7TdykALSLeVW+wJkJC/5LsY6vT/dMb9
-         uGWh3ouxJzd7EhP692vaOc/3m6AYKr6oJEWuwgWtdUhqE1B6jNLAdPZsqPd9cjctPlrK
-         ZJq9nT9k6xUsqaCSTPPAR8qV7ilpluD5Mb/OSDIMS5ZszWyamgwgdrihwVmFUc7zFnpd
-         FuSw==
+        bh=tpoOGtZKUJbl44PSTEgBUWooLvbSUBKzNBgWzjZO7y8=;
+        b=cle6DpzZbDkVf/C9zcbiHPp/UEMBdCtRX7j9+byza+aBryDsv62BK09NjuEy0jomIN
+         k8aPM0ucwSC8eu6Xn+DesU05JxVh0SHtfg2j7QVaH8ACHBBez5TfxeATfATn7feJrWl5
+         J9V3aW+59j39zIAp1kq5TKn7Vpp+D3f47rbpVaad+/VoyVo2rkk6YEjIO9WqX1rHH++4
+         klB6OKv2vacArcBM+K6sfr9oxngGH5DLow8zhU4PhB02CW0Sul3+mXaaw6HDgfFX0pQz
+         te4cEqCOeCrBPh40463Y32JDUwffl3w5uj7sAOe8B2Vka1cSCuaCWA/VDF3wvxyMvVfk
+         J3CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786287951; x=1786892751;
+        d=1e100.net; s=20251104; t=1786288045; x=1786892845;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=0xMkbVk8Vq9ADk/FsQY03JHzIZEPQoL7wUy/e23YhPc=;
-        b=iGV7I+YMirNihwOtmSIhhbqpB7kZNHXBBF79nEym16mp8k6cZkDZHpaNsu7sArGGBu
-         yXRgDj1YEIkvzpAvNk8WzA/UX9KN9P66fkU5FphX99Gi19SBvymMCqwsr0PhO3BegKfz
-         66z7CB9zXMWBa1+b4CFUu/n4gvZw3n7g363EqJmmJQyO/hGzg0uUJYoYlREZuGldNJWu
-         SM/BiBaZs7o8YMun3Mo7d3XeevIdBUgC4XBgzEA7x5Gvp6lttOVxdNKpTIgBwGVmuExJ
-         zfD88loek7Waw+pQdYyVSOdJOUJX1cpNV/M1g0Gk8RMiS33bp9mZCkOgMmRhKqXkQ1zH
-         QSxQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqaruyNVFSvCER4ujkHG+584gSGSbxumw5x+Y/xHzF5vPe1tkPPgCRsZBT9Zl1gJR3/tmous3/5qn1ZS25s9g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwAFD/WxDXgZ7dmqzwIz24vjQtTccVp6T0JqxQxK/4jb0F2leu7
-	pwZHKREwp3oQ8h4yLxXFWQuxu2kAkjz5ths5V+gwzYWtOldVf7LXqbO5
-X-Gm-Gg: AR+sD13yl9xqaCTA70IMkgW7LlyK9wGeWh6GPJPb+JiPplCL5QsGNhprIC2dF+QIOQl
-	n/Rf/fVFb3vx/jGtvBLsDLuKNzMNJlZaOZtDNBIzvHp6Dgd3N+72NTmjfWgmbIbptWbi+EYsFva
-	SE/B4XvVssgBzHGbbixfKnuUwz0dbXV4C3+yPf58KzE0gQq5n0rZwLPZx8Iwt+O29ODSqO1aiaQ
-	nZ2v7njfGkqtaPW0X20D2kUT0yWc1tvZ0k2IXlVP5owQpRkLTfJD6AGiiBdoRmb/ZW6QWVr4v5q
-	9W6pB4H3lXssMq2my/GqRLLAquQUEMByU7znNlAvX3ufve9f0VBVMUeMPnykXxObxxxoEUQWrgX
-	4gEjN1HhJRNeiBJAUAtOEiQoqrzluUvhvNOlr+2cclJocNPK6q3lszjxzB96LLKqmfTy9LOVWCq
-	AvW2X8ZmAag1+UM7m7noq6LBR4IO6/RWB632b4P/1Zg9jD4l5HTBIoc8xcb8CTAh74W9CnzEbHP
-	w==
-X-Received: by 2002:a05:6a20:9f09:b0:3b4:8f57:3205 with SMTP id adf61e73a8af0-3cbc04eb981mr20974725637.36.1786287951463;
-        Sun, 09 Aug 2026 08:05:51 -0700 (PDT)
+        bh=tpoOGtZKUJbl44PSTEgBUWooLvbSUBKzNBgWzjZO7y8=;
+        b=srIsri1Je0yGRNDYwUfS8DDRMg+In5ssqxMc9YPbR+8f9etKrGHJvDpMazxfOQYt8Q
+         kTZ5RfPep22+kRDZqluLvLa2so08mtPq3WZhbS9se8njtHN5WjQoVtN21ri1WknsJeHl
+         Fmfll7XuUTanOagnt6UnVgZiybLI4oadjcGTHcZcH0PE/9O+IJwL7TTbuVP54cwMKSjd
+         MkazgUR7Zfmdl51ja1bNo5WHKaAXVOCTY2X/5/aQUdpNrnWvugw9P65EJQDSwG7BB/4m
+         fpAmmnhXLoXaruDAQ95owINtBhNjYqbHU3b+3y1l104hWxnf8ZDKPZ9MP/ysVKtZaQLB
+         UPnw==
+X-Forwarded-Encrypted: i=1; AHgh+Rq1ygwyCc/sDoksVIhiibab5+g3B83JB+uiC1iV1ur/9/+Lwn53Jj9zmW4KwxdCPhulqfaYXwemGKL2XF1WCA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw+s1WHrgLFqRz5Xt8G02i45kwfKDyt6kPWu3p4bHMp6cRHN0gM
+	SmEsH3R7WSZzRquRCv0ZCj5EntGk0W8/ybeQFEXxRaKW9zzLMV2pwFqF
+X-Gm-Gg: AR+sD12lnchBsgKf/pMI88QhrTZnotUcr8DAyEhywdQFci5yIyvdbbL52057ewG8u95
+	pA8+dwszkgtBiNt1rCfF0ZV+eESFX6zCZ2U6SJjAT+3/L+uUbz9PjAJARhd3E4mV/bLNpdr6TSm
+	yAqq8AMVD1r2YEKQehzi9SJu/UjqUu79wBa5U3nOAb8VaR5XTrS3mpO9hG8iXFRzxJZwZqol5xV
+	qCts/EJQxnfAf7fgR6phcomahIA6/kMmFeRz/3AlFr+JUjhJKtn6h9F4MHcScYJ1cEIHBM9tTir
+	SmgpZac6E6+Mr/GSkiPKeFg4mdywP79auzrRh8jQ4XFglmNd7NtGZm4xCGifZF6LIvLE9wt82BL
+	p/V75P3e2wfIJPysk+jTP1w90zeq9RSdOcTihiSKSTSMRvqzId9NSwdQlLnMW2fMemh6RR+bdB3
+	dCfN/cEOyiGDUHktDkLnH7zZW7DC8+O22ccBZr3NVvVi4m9C8Ms/yjGWB2ORy48/87w6AH2s5AM
+	fc=
+X-Received: by 2002:a05:6a21:7704:b0:3c1:b9c:4890 with SMTP id adf61e73a8af0-3cb85ea4e17mr43246334637.22.1786288045445;
+        Sun, 09 Aug 2026 08:07:25 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315beb88413sm54797483eec.18.2026.08.09.08.05.50
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315bec68468sm34471013eec.31.2026.08.09.08.07.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Aug 2026 08:05:50 -0700 (PDT)
+        Sun, 09 Aug 2026 08:07:24 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Sun, 9 Aug 2026 08:05:50 -0700
+Date: Sun, 9 Aug 2026 08:07:24 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: phucduc.bui@gmail.com
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Joel Stanley <joel@jms.id.au>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-aspeed@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 4/4] watchdog: aspeed: Propagate errors from optional IRQ
- lookup
-Message-ID: <1f26fc28-da13-4ca3-990f-676b53d23630@roeck-us.net>
-References: <20260807081652.38692-1-phucduc.bui@gmail.com>
- <20260807081652.38692-4-phucduc.bui@gmail.com>
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 2/2] watchdog: stm32_iwdg: Propagate errors from
+ optional IRQ lookup
+Message-ID: <84fbf9f7-4b30-48d4-895d-efa10cffcfc0@roeck-us.net>
+References: <20260807080447.35479-1-phucduc.bui@gmail.com>
+ <20260807080447.35479-2-phucduc.bui@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -84,9 +83,9 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260807081652.38692-4-phucduc.bui@gmail.com>
+In-Reply-To: <20260807080447.35479-2-phucduc.bui@gmail.com>
 
-On Fri, Aug 07, 2026 at 03:16:52PM +0700, phucduc.bui@gmail.com wrote:
+On Fri, Aug 07, 2026 at 03:04:47PM +0700, phucduc.bui@gmail.com wrote:
 > From: bui duc phuc <phucduc.bui@gmail.com>
 > 
 > platform_get_irq_optional() returns a positive IRQ number on success or
@@ -97,26 +96,8 @@ On Fri, Aug 07, 2026 at 03:16:52PM +0700, phucduc.bui@gmail.com wrote:
 > probe without the IRQ.
 > 
 > Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
-> ---
->  drivers/watchdog/aspeed_wdt.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index c9e79851504c..48454ac86074 100644
-> --- a/drivers/watchdog/aspeed_wdt.c
-> +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -429,6 +429,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->  	if (wdt->cfg->irq_mask) {
->  		int irq = platform_get_irq_optional(pdev, 0);
->  
-> +		if (irq < 0 && irq != -ENXIO)
-> +			return irq;
->  		if (irq > 0) {
 
-This if () is no longer needed.
+Applie.
 
 Thanks,
 Guenter
-
->  			ret = devm_request_irq(dev, irq, aspeed_wdt_irq,
->  					       IRQF_SHARED, dev_name(dev),
