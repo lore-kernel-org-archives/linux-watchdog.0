@@ -1,121 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539D73BA25F
-	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 10:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786357698; cv=none; b=KmkNwFA/WpAkBbgIEurYWHU8ygrcvUA+qx2+1p2BSmIcOES9o7LADEO/cIrrJIEWaPSgeEZVnvZYeZcvDso2X0obpO9UdZUAwQLAoYyTDBeIF/oTZ5j1QYW4GuK+QOCWg6y2syOVRU1muNXRinos/tLOz4cgGS3aqqCXEDLkpvA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786357698; c=relaxed/simple;
-	bh=5rlhIfKR87SPivTWSXB7lIFHoXvVdoHE7MiBWaTvJXw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mz34W1qTK6wmxBl/uJ9eoRuaX8KbR8CV0npm5qoDz065kO9CFg1Sq6WnVNHQJPTzz6MnVXv0Y2LsUMXIhRLV4LnO2xOpHeq6cmT8TdHqxKnfcSPbX61eVgAcQRMab4+FwT0yrDg/k5gF8np2ZqP3zLl7gvVSOK7mN53r36fRlsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PyTdLWeI; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B6F3B6C13
+	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 10:28:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786357729; cv=pass; b=PDxPKFX932QfMofOdsFvgFC+z01ShF6Wo6eKU4lH6Qrvh5S9H6gy0ayfD7PBSBrOeJ+R1GMHRXY+ag7A4+puIhdNRWywM1yQUmKpqM0hfawVPQgo6UfvGBvitil6uCxNSmZsfmFpA1b2DJPw+1+WigRZ2HOBWqRa8ej3oLt0FRc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786357729; c=relaxed/simple;
+	bh=NJ+gOJyER9vuv1qanBVyuaipNB75faU7GwlhL2xTp3s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ohFPmgGYOldeOP1Sk3/lGLZ0YoKY+rfAmk652+1JXOtngx/jyfmXYMULGk7omfL7eiuzoXzH+wzUXLcQHRtGpys7MxOz9C1VKTMwUZKYLxJzpDQNELOq4LJBSc6SodlPyApdMBz6vIc0WmuyMXpsy5dWzHNwCiEif/m4X0Z493w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UpUyFETU; arc=pass smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PyTdLWeI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3720F1F00A3D;
-	Mon, 10 Aug 2026 10:28:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786357695;
-	bh=eykf4pd85jym49ATKOudYgtlVdkJurj8juUTx9EVAyQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PyTdLWeI7KJVogv85m11TItmY2ftcBfuIObopftoBrbMCfSkOI4qAn55fSWEqBZ+W
-	 3Mj/qQKRzba0sEBo4Duc/0dLb/d0326t8B2kCj5kmXPlI6OnPqbWjab/aFpc321jFh
-	 iKtZaSIR+8swtTwIZ3QyGuIOXND3PgrvWeCDcoxdRhNyH3qBsQPvMX7gVWW3JZW4Pu
-	 NlsQkMAqWT83oBegTy/dKMX1NrTuo/JfONdybyafvw72Nl7v+Wae/nk2p9BQP5oFnr
-	 y/UCecOURPEinMSPS6Ff4XE2NytcnbNEgh5n5OgTYeiNhXnx4kFOV7LaSL2AVsytHw
-	 +XCQa9R6xlvHw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] watchdog: qcom: Propagate errors from optional IRQ
- lookup
-Reply-To: sashiko-reviews@lists.linux.dev
-To: phucduc.bui@gmail.com
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260810102144.51663-1-phucduc.bui@gmail.com>
-References: <20260810102144.51663-1-phucduc.bui@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 10 Aug 2026 10:28:14 +0000
-Message-Id: <20260810102815.3720F1F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UpUyFETU"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cbb85186d43so819519a12.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 03:28:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786357727; cv=none;
+        d=google.com; s=arc-20260327;
+        b=m1tia/TW7BIV18YkjDlzAN9fRu1mWBvD87FCbKx8eXMsAPDYw3QfrXhoLAvLZX+fAQ
+         iAdjtmEWWhfFATKQz5vvAOf3ZCEbtojc6PFVpuaXtlz/+FuLfF3ZX2HkmRNYrU2KtRkW
+         dyNdziQHpmdYumF7eTcN0Z3gFGPxH60Jqewgcrolu3fdIchD4noJa35HsCFqne+Ek7jd
+         l8l5TTz5GLRmdtlKfhREMSqsUfBwmiOpIWDVa/rR2P/vsN3XBQy8oDouULDVFlB8Dq7z
+         en7oJHF4ZEubjtIjAmcBoZdjbpHQU0X/PGphOM6QWuBspdTnBFcw8Rjgrjyx+hK5raKN
+         mvvQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=7YTR97iN4huYLj0yN+iLMysq/MXHzEcd/JYnaemRb5U=;
+        fh=3cLVpiIyyDAxOvp6RWVwXjahd4JY6mO4FhVqiRdHgyI=;
+        b=npIUSAE7P6oi0YUiBg2axY4lpCFLCJnU6/a96lEoDh2Lx3kQ2VtIPJ5oaom1JU4bbe
+         E0t0SJd36XiarDcD5t5Q6N3SGP6TRQXH33r64Lfy1jyWjrbeXin2fvYsxQC4ze7CxJTN
+         gW07UhlP1Ra6WnS7+1YGEKUp5GGpzSbcbrq9x3vdlB88dRDJ5W9mrHf/6P2ieXs9Kxk8
+         yUtnrdZakJvlHD1gYzx9d2tRKr6r2/02YbgdwNmYlkaxe6WjNF6jSiZVjHV3RPVFoj+d
+         SgnqPTCp4gnRPldDIV7qcgES6V1nRS3O57MqZOi+50W0c5X818bToqJNBJyjhtm1OqL6
+         U/qA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786357727; x=1786962527; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=7YTR97iN4huYLj0yN+iLMysq/MXHzEcd/JYnaemRb5U=;
+        b=UpUyFETU+JYmykOSEwcQ8LjQ6c6ioW8mWGQ8/c4Ykb78uuQTrmlYK/fCvHB2klIctI
+         gwjfZPAMf62dt9iNJOizN7skdAUw/aAaEoBWRQuc7Pbg1oYd29+xK0lSGEMBvP+uI7aZ
+         K3TwltXVralyGm6MVdeBbXh0EUunZPcssds4SOtHggPmnS2L6MqBcTkBWsIabrim1wwp
+         oJDiEV2xw2fPVxloU1i7J76Qepf4QQtJizYXMpqiAEB4GDHo1EhWbKIL35oA+ydQXrIf
+         +oSDNTXqr9Qu5Tez6fyRSIitWXpOJYAwN99RFZDFjdGvZC4Pp1cRmNjAWKxeLSVPCBDk
+         ldIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786357727; x=1786962527;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=7YTR97iN4huYLj0yN+iLMysq/MXHzEcd/JYnaemRb5U=;
+        b=QoYj1eRDNvZGOMGJq+9ONAEjuLp8DElayqmngCN4f5VJnhB9YFkmQNjirx4/ivXEPB
+         9elXerI7P23iZ0D0ljznR027xUhIKqt3AmyhFrQMrVNt/RhF5V5/RBDDXnFbyTcnr189
+         8Z/qT9RKwU8vdjz2HNDUYzV7kAXcDJjXXownTqmqu/J8H2gZeKVNVZ1UaMoBoZhhC0YI
+         Wtf+rf0BX1srvOoCsyiEhG/6GM+HUyIda1G/sXkjWxSRRCZzsX1paRkPqsbvQjpDTxr6
+         t4HDyuf2fUcoZ9GEWRLR1Q1kWxofvor0gqFRIT4s8uOsRzjikVsZsVUCuqOaP3e+lm5j
+         mlpA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro/A9m/o7OHo4ZKyxMC57YVTfTkYcyZmEyKSKBrDsxl7+pOosuA8u2djW8s3/FqvAvQu3I817kmwMOKOV9QaQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzaCqk3yqrml7/fIxFukFrRKRLDlGAgeeZdFHp1Oh0Ou8s+XU6p
+	ZOSllumLA2pARzQRikMzItjDfjYbGnJP05SdtpML13zTfHRHw6apLSMypfzQ/LiAgf6DwOQDDaJ
+	cPmcKnxeXAxgceASit8LuIbcg5gVF1pnLJd/5
+X-Gm-Gg: AR+sD12L9c+RSk/lJA6GaZnzsHxedQAeQofRMf1/Tq0gIb+0EYEnr5my+buLjpx73F9
+	rCg6MWnpewTpSLN/faDkEMK86NTtbcGynGHvE4PR9tBFXMnGWzaIrLSj2tHcyaut5I139T1HDOc
+	kWiJIk85nx3IZWf6ibxr0du0vZajDEM1C62y3Dbg6SRpGW0LhRj01ck9IW/sNkoP84pPHlB2SH+
+	tBVp3V3sdGyteG6kdLf0SOP82lXDiCkCyge9PDXJB0/xFOZdZY+aesnEW+HEcprQZSRcss1ckT9
+	WBd567l4V1XfP88dosYgMsHKOyz6qOVUCsGCOvBiphov4N84oimMT7q3Z5wy7RyTMpNVe4SgEGF
+	MMaCrB10Uh/sk/+4O7JM/UbBBtSV5Dzu/Xcjn6yRMmuM4ypXAD5yVUAmG1g==
+X-Received: by 2002:a05:6a21:6816:b0:3bf:6237:4d49 with SMTP id
+ adf61e73a8af0-3cbce8d8e50mr21153545637.23.1786357726807; Mon, 10 Aug 2026
+ 03:28:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260810102144.51663-1-phucduc.bui@gmail.com>
+In-Reply-To: <20260810102144.51663-1-phucduc.bui@gmail.com>
+From: Bui Duc Phuc <phucduc.bui@gmail.com>
+Date: Mon, 10 Aug 2026 17:28:35 +0700
+X-Gm-Features: AUfX_mw8vSRjmdPvyZVAESG2gMLDkL2HQihsHgDGyihh_Qx9McD9iFIrjFgXO3I
+Message-ID: <CAABR9nF=Udo0Y1gAZKfxodd=B5LJVQ1F9p8DzcDnZ+OSM30uGw@mail.gmail.com>
+Subject: Re: [PATCH v2] watchdog: qcom: Propagate errors from optional IRQ lookup
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	linux-watchdog@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Missing initialization of `wdt->wdd.info` when the optional pretim=
-eout IRQ is absent but pretimeout is supported.
-- [Low] Redundant sequential calls to `platform_get_irq_optional()`.
---
+>         /* check if there is pretimeout support */
+>         irq = platform_get_irq_optional(pdev, 0);
+> -       if (data->pretimeout && irq > 0) {
+> -               ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+> -                                      "wdt_bark", &wdt->wdd);
+> -               if (ret)
+> -                       return ret;
+> +       if (data->pretimeout) {
+> +               irq = platform_get_irq_optional(pdev, 0);
 
---- Patch [1]: [PATCH v2] watchdog: qcom: Propagate errors from optional IR=
-Q lookup ---
-commit bf01bac4df56d04f8ab925257d4dfcb55e1e6adf
-Author: bui duc phuc <phucduc.bui@gmail.com>
-
-watchdog: qcom: Propagate errors from optional IRQ lookup
-
-This commit modifies the qcom watchdog driver to propagate errors returned
-by platform_get_irq_optional(), rather than only checking for -EPROBE_DEFER.
-
-Link: https://lore.kernel.org/all/20260807081652.38692-1-phucduc.bui@gmail.=
-com/
-
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index a425902b9f68d..5c16420751631 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -305,18 +305,20 @@ static int qcom_wdt_probe(struct platform_device *p=
-dev)
-> =20
->  	/* check if there is pretimeout support */
->  	irq =3D platform_get_irq_optional(pdev, 0);
-> -	if (data->pretimeout && irq > 0) {
-> +	if (data->pretimeout) {
-> +		irq =3D platform_get_irq_optional(pdev, 0);
-
-[Severity: Low]
-This isn't a bug, but is the first call to platform_get_irq_optional() still
-needed?
-
-It appears that if data->pretimeout is true, the result is immediately=20
-overwritten by the second call. If data->pretimeout is false, the irq value=
- is
-ignored by the else branch.
-
-> +		if (irq < 0 && irq !=3D -ENXIO)
-> +			return irq;
-> +		if (irq > 0) {
-> +			ret =3D devm_request_irq(dev, irq, qcom_wdt_isr, 0,
-> +					       "wdt_bark", &wdt->wdd);
-> +			if (ret)
-> +				return ret;
-> +
-> +			wdt->wdd.info =3D &qcom_wdt_pt_info;
-> +			wdt->wdd.pretimeout =3D 1;
-> +		}
-
-[Severity: High]
-Does this code leave wdt->wdd.info uninitialized if data->pretimeout is true
-but the optional IRQ is missing?
-
-If platform_get_irq_optional() returns -ENXIO, the if (irq > 0) branch is
-skipped. Since this all occurs inside the if (data->pretimeout) branch, the
-outer else block is bypassed.
-
-Could this cause devm_watchdog_register_device() to later fail with -EINVAL
-because wdd->info is NULL?
-
->  	} else {
-> -		if (irq =3D=3D -EPROBE_DEFER)
-> -			return -EPROBE_DEFER;
-> -
->  		wdt->wdd.info =3D &qcom_wdt_info;
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810102144.5166=
-3-1-phucduc.bui@gmail.com?part=3D1
+Sorry, I missed removing the old irq = platform_get_irq_optional(pdev,
+0); line. I will send v3 shortly.
