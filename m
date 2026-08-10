@@ -1,139 +1,121 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3772C2D592C
-	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 10:22:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539D73BA25F
+	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 10:28:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786357323; cv=none; b=YqDAaII5bmlku/fZpZRj7u85AwYuZYTEkFMuThv6mUQNFwsgB7j9yy19cYEmk1qZLUb/Sn3RLUbYdh5Q4ZVqNpd/Jb+9FS6QzIsa0xnbL5F4/6uq1KTxrfK+nnQuyanondLlxYzJjZuplVuSJ312GsbK2G+M5dmTHUzvS+wnn/M=
+	t=1786357698; cv=none; b=KmkNwFA/WpAkBbgIEurYWHU8ygrcvUA+qx2+1p2BSmIcOES9o7LADEO/cIrrJIEWaPSgeEZVnvZYeZcvDso2X0obpO9UdZUAwQLAoYyTDBeIF/oTZ5j1QYW4GuK+QOCWg6y2syOVRU1muNXRinos/tLOz4cgGS3aqqCXEDLkpvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786357323; c=relaxed/simple;
-	bh=otBjEI5x5e6oRJAULxGf/ldS0jPIB6uMht/s0aswS60=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I4eYa33KpCDRnpZUGbfu57cxV0Vy7ETS1Ae2OJ2C/7FASw2VXsZbjRCrS0onDeODpYYt62lY4Midqdlcphxficsfs5Kc/ADcvJkxt4Lzwee5niRgCaodf9yFWOCzXXmp2ZtwFg6MKweFX8kSk09WnOK0HaKkk/HVc8+g+eesuRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iYUpi12L; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786357698; c=relaxed/simple;
+	bh=5rlhIfKR87SPivTWSXB7lIFHoXvVdoHE7MiBWaTvJXw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mz34W1qTK6wmxBl/uJ9eoRuaX8KbR8CV0npm5qoDz065kO9CFg1Sq6WnVNHQJPTzz6MnVXv0Y2LsUMXIhRLV4LnO2xOpHeq6cmT8TdHqxKnfcSPbX61eVgAcQRMab4+FwT0yrDg/k5gF8np2ZqP3zLl7gvVSOK7mN53r36fRlsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PyTdLWeI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iYUpi12L"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3900e39d935so1665062a91.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 03:22:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786357321; x=1786962121; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=80/k07EkbH1ecXMl0R5Fs9cFDQBD709H2DM1r3/6dkI=;
-        b=iYUpi12LHsxExBoVbHX8w+E8e/nFEa6eUZSiUhbUL3qdWupnSYfBwGpW0Nmxtb4Sfb
-         wg3DQSSq2O3/SuwJHO3brrLiDsXUo8olxfV9J/ft59EJEajgFIkE+NwraPw2oOFUuMYl
-         9VO8IHgwCqB9zM/E/vamhqiE4wXGh/SAbyD+vOorWaBQCSBq8frCEsRULyctAV9I8Xev
-         I2y5NWrPQmX7o+sLemynLAS+vCDy84FGQzh/8WCt3fAw5bBD/OjQzm+qpaGL9E5xrtum
-         PpdvNIWrbDDVUei8xzxqoZ683JS3LMb2Iw6bI46jsjTvCAFX1J6jvdQmGw3vTSHyD1xJ
-         T8XQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786357321; x=1786962121;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=80/k07EkbH1ecXMl0R5Fs9cFDQBD709H2DM1r3/6dkI=;
-        b=iVuP716uoR9ENgW/MFU+EZyUBI4rRSN0/rxYVXJIb+JwTKPRvmVEOWiLGZdcBwi8xG
-         zkDTvcRZU5LCvhJMJQuUnow+k/IgSAFZ+YMZ521IYUcPk0w8noz9ngkrtBiBP2+Ybjdz
-         FyG6s+CjNPvsIwGIqZheLHzHAZBA0KFC00Jrs8x0cA4nJg8+42Y17WVZkFeAWQjzEhnF
-         b3ptqGNJf+EyukFqDBpHfDkRF5jSCRfb6Eu5H40u6KOOEnv+VWZpP+wckqMoxY/Cwcl1
-         rLxHdGoSdGpdy39cosngJ/PuVYVAc+Tl9YOx7qq1KWSqxhhZDJJ49p3j8ajMXcqNSzBJ
-         g7xg==
-X-Forwarded-Encrypted: i=1; AHgh+RrP4qCMr56gpZsnHRRi+m5BlzTjTMhF+k1V4qmmuH4UZhKPxTKL1LPMUVfOEON6kxki1cKJkKWMMNUasHNkBA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYnlb7UAMMNwa2xicQbxeHOjKkUN3YelgpaGRr/4qg/NDATdwl
-	5eZO+jgpbMtZRk1bAn13oMPTYgi915qrxqmmd8UfxJ0LwWqg7NFNKBvF
-X-Gm-Gg: AR+sD12J6caLj/uoFm4OVp3KH/4VZi280ayZe/elOex0dNSroSkqE6jkxQFM/ukaNjI
-	lROvaFHroY6I4lQB4XiRu6f8VsrOigOSUgHE38qkXxSoAXDtgB70sId/wTFBoK+JkDnOEs2aHv8
-	dDOTipitGlpjm2gJ+AjHIJhnklyK+G7/CLDpq5Vdl6GlMRfSnwDrLJvwDP6vgvzMV5THG5FUEHZ
-	bGMDRAA6oShkFNcnNBTXaMEyrHbJFH8AyJWCbGq8NfRtBetMkS6Ly8Weiu+c0VU1DZuekW5pPdV
-	Zb9+eG01qr47G8k2gA8j4P2FqkbC8cGGDKuW3KdsfKDEI2FqHCpzWo6eVH7Pi37yX/A2WhW5Ic1
-	+Or1DzovpauPyTWKpInOlch5rQmNtxtNQ4IB5MKB6KqOo3eM8Ojh8kcLDwnWaYFIJPgyWQueCVD
-	KjtTUp2vjAUhJMAH/MeFzqFXzXlpC3vVvbMHSM/zkUzyOEaIKfFEBbmz/Qn94TRONGD9oyFvUtw
-	UH0VFVq0YV3GCbiUHKa5Trp1CjM0z9jcNC+A2iR3g7DsaC0ykO82E7xtnBz1iAxYtNgYAaeU35V
-	M0ESRaavWwvfgOQ=
-X-Received: by 2002:a17:90b:3f8d:b0:38f:de97:b06 with SMTP id 98e67ed59e1d1-392cc9048ccmr260505a91.5.1786357321066;
-        Mon, 10 Aug 2026 03:22:01 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-390b1573defsm5039831a91.1.2026.08.10.03.21.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 03:22:00 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH v2] watchdog: qcom: Propagate errors from optional IRQ lookup
-Date: Mon, 10 Aug 2026 17:21:44 +0700
-Message-ID: <20260810102144.51663-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PyTdLWeI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3720F1F00A3D;
+	Mon, 10 Aug 2026 10:28:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786357695;
+	bh=eykf4pd85jym49ATKOudYgtlVdkJurj8juUTx9EVAyQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PyTdLWeI7KJVogv85m11TItmY2ftcBfuIObopftoBrbMCfSkOI4qAn55fSWEqBZ+W
+	 3Mj/qQKRzba0sEBo4Duc/0dLb/d0326t8B2kCj5kmXPlI6OnPqbWjab/aFpc321jFh
+	 iKtZaSIR+8swtTwIZ3QyGuIOXND3PgrvWeCDcoxdRhNyH3qBsQPvMX7gVWW3JZW4Pu
+	 NlsQkMAqWT83oBegTy/dKMX1NrTuo/JfONdybyafvw72Nl7v+Wae/nk2p9BQP5oFnr
+	 y/UCecOURPEinMSPS6Ff4XE2NytcnbNEgh5n5OgTYeiNhXnx4kFOV7LaSL2AVsytHw
+	 +XCQa9R6xlvHw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] watchdog: qcom: Propagate errors from optional IRQ
+ lookup
+Reply-To: sashiko-reviews@lists.linux.dev
+To: phucduc.bui@gmail.com
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260810102144.51663-1-phucduc.bui@gmail.com>
+References: <20260810102144.51663-1-phucduc.bui@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 10 Aug 2026 10:28:14 +0000
+Message-Id: <20260810102815.3720F1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Missing initialization of `wdt->wdd.info` when the optional pretim=
+eout IRQ is absent but pretimeout is supported.
+- [Low] Redundant sequential calls to `platform_get_irq_optional()`.
+--
 
-platform_get_irq_optional() returns a positive IRQ number on success or
-a negative error code on failure. For an optional IRQ, -ENXIO indicates
-that no IRQ is available, while other errors should be propagated.
+--- Patch [1]: [PATCH v2] watchdog: qcom: Propagate errors from optional IR=
+Q lookup ---
+commit bf01bac4df56d04f8ab925257d4dfcb55e1e6adf
+Author: bui duc phuc <phucduc.bui@gmail.com>
 
-Instead of only checking for -EPROBE_DEFER, propagate all error codes
-returned by platform_get_irq_optional() other than -ENXIO, so that
-failures are properly reported to the caller.
+watchdog: qcom: Propagate errors from optional IRQ lookup
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
+This commit modifies the qcom watchdog driver to propagate errors returned
+by platform_get_irq_optional(), rather than only checking for -EPROBE_DEFER.
 
-Link v1 : 
-https://lore.kernel.org/all/20260807081652.38692-1-phucduc.bui@gmail.com/
+Link: https://lore.kernel.org/all/20260807081652.38692-1-phucduc.bui@gmail.=
+com/
 
-Changes in v2 : 
- - Update pretimeout handling based on Guenter's review.
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index a425902b9f68d..5c16420751631 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -305,18 +305,20 @@ static int qcom_wdt_probe(struct platform_device *p=
+dev)
+> =20
+>  	/* check if there is pretimeout support */
+>  	irq =3D platform_get_irq_optional(pdev, 0);
+> -	if (data->pretimeout && irq > 0) {
+> +	if (data->pretimeout) {
+> +		irq =3D platform_get_irq_optional(pdev, 0);
 
- drivers/watchdog/qcom-wdt.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+[Severity: Low]
+This isn't a bug, but is the first call to platform_get_irq_optional() still
+needed?
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 49bd04841f0c..9fee18fda750 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -289,18 +289,20 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 
- 	/* check if there is pretimeout support */
- 	irq = platform_get_irq_optional(pdev, 0);
--	if (data->pretimeout && irq > 0) {
--		ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
--				       "wdt_bark", &wdt->wdd);
--		if (ret)
--			return ret;
-+	if (data->pretimeout) {
-+		irq = platform_get_irq_optional(pdev, 0);
-+		if (irq < 0 && irq != -ENXIO)
-+			return irq;
-+		if (irq > 0) {
-+			ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
-+					       "wdt_bark", &wdt->wdd);
-+			if (ret)
-+				return ret;
- 
--		wdt->wdd.info = &qcom_wdt_pt_info;
--		wdt->wdd.pretimeout = 1;
-+			wdt->wdd.info = &qcom_wdt_pt_info;
-+			wdt->wdd.pretimeout = 1;
-+		}
- 	} else {
--		if (irq == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
--
- 		wdt->wdd.info = &qcom_wdt_info;
- 	}
- 
--- 
-2.43.0
+It appears that if data->pretimeout is true, the result is immediately=20
+overwritten by the second call. If data->pretimeout is false, the irq value=
+ is
+ignored by the else branch.
 
+> +		if (irq < 0 && irq !=3D -ENXIO)
+> +			return irq;
+> +		if (irq > 0) {
+> +			ret =3D devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+> +					       "wdt_bark", &wdt->wdd);
+> +			if (ret)
+> +				return ret;
+> +
+> +			wdt->wdd.info =3D &qcom_wdt_pt_info;
+> +			wdt->wdd.pretimeout =3D 1;
+> +		}
+
+[Severity: High]
+Does this code leave wdt->wdd.info uninitialized if data->pretimeout is true
+but the optional IRQ is missing?
+
+If platform_get_irq_optional() returns -ENXIO, the if (irq > 0) branch is
+skipped. Since this all occurs inside the if (data->pretimeout) branch, the
+outer else block is bypassed.
+
+Could this cause devm_watchdog_register_device() to later fail with -EINVAL
+because wdd->info is NULL?
+
+>  	} else {
+> -		if (irq =3D=3D -EPROBE_DEFER)
+> -			return -EPROBE_DEFER;
+> -
+>  		wdt->wdd.info =3D &qcom_wdt_info;
+>  	}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810102144.5166=
+3-1-phucduc.bui@gmail.com?part=3D1
