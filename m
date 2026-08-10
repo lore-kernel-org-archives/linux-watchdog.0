@@ -1,131 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2519463CB;
-	Mon, 10 Aug 2026 10:43:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ED123BB134
+	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 10:51:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786358619; cv=none; b=IberXFXeQqBvSX0c1mnAmDxzzdHngbHK08EVmB51g9umkOgVFgM7GhmUg5JDfgOBZd7wgpPVRb8jra1YPA+39cBLKNhkpG8MOywe9soCRmZNj/vH+42Sr8jFSLLEZksC9VgL73xgswoYx2cqLnajx1qOkP66hXVIhfUY+/3zSBY=
+	t=1786359083; cv=none; b=V2R9ER3X5hjQezOKQLlhxIaxSYLJMS8jULI1o8DqjtUieCXtUUXB/yYGI3IT/s5TvH3hueo26Ouk3ZsVhFVXBHGPjlsnv7u80WhlItM5tbT/fUEwimWbEQocou8Sh+JkwRR13+NDjGJA9FMPqPPGNjBAz/XZf3Rh3qpdagcukIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786358619; c=relaxed/simple;
-	bh=epolczuAc7GxWGuU6Bvb17IYNH0UhTUkzI3167ryA9E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pyOzOXjF5H06c/Fk6I2Efz+2kem+C+xS7p4juk9GYrGsBTvT9UUrChaXAaaRzvSY1+6LEN1jkCWgTPDbyAIUYydKlrsNpTLJiuA2FeNwpBajRJ0/IFDhkSsES5gS2snZRDCcTYKPmQvXY77MvPFhUMhQdb9Q8+H3LbQfUXhvHpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N5YCJPqk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786359083; c=relaxed/simple;
+	bh=YQ61MLDivYrChA93Z1oiQfr3MErrYOCY+tdqp0c0Lf0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PnftqUauplv718D3z/mGYj4BJM0bLU0Hpn941gztxqmMJ8ciTmU7WgmxRvcoAklY9+8AKfQqBy3+y2ISjGhX65ngEkko5/8MQACmMWI2KRVQ2Fc2CaYLvRnmuvuAdJL1CXkZBK6xI5qpk49FZTxho4S0grBgAKdtSatJ0DpXJn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iBZIlvlP; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N5YCJPqk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AA21F000E9;
-	Mon, 10 Aug 2026 10:43:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786358617;
-	bh=GgZ70L0wlgjg35CbCp9eIm1NV7cv1FWYClANFiFsvW8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=N5YCJPqkc9MoVS1gejFwO5Or9z7HmV3NM0Y2+2quFgMl9VygR13TRpA7IMNitvcKo
-	 m88VhiTNIhqNuaspNE8OFtVh3c/pD1nIxshzCJjjp1Qrgr32veAbtBXcX0ZMs0glcx
-	 AgN0JdC63xjiltCUc4tAPnUBNty8g2K3u3C6gLxwFtworLqJR4dvoJyOthaJFrpNJA
-	 dvIzaNqFRCsB0o2zqDQtw3GlRtUiWNTsn/2qeXj+WU9A9+HttMQS3vf9tKmLfa9zkV
-	 WVBfGYDTdDk8mOAw5pL2i5pw/ug6l9VXaVcH/l+ASWR5pUN72MZKT88TF1TQdndszl
-	 UY7KNvHFJY3Cg==
-Date: Mon, 10 Aug 2026 11:43:30 +0100
-From: Daniel Thompson <danielt@kernel.org>
-To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
-Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iBZIlvlP"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38d489b6b71so1471909a91.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 03:51:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786359081; x=1786963881; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PuJ6x2zkITh7GZS5epmVnODSBm6oxe8knuYTtm1XBZ0=;
+        b=iBZIlvlPVF5xpM/AK9Z8A3szgwbnhlmhTjFiUBDwLHQTy9mlT259INmD5/+G1YKzRC
+         ooN+c4InJRrs+p1tSg4e6qreZRkUIY29u6uvYiezcUKiW8p6HunFBDH/GSjyuPgeROqw
+         eChVnJJ9BernrEUCzjzAW15MjppfpmEmCq+J6YjEzWuXPBVBie9L+io2nRxLvPfitV1N
+         z5KPGL3BNhuFkHxD1efxaF/G2I71g/mQH3e5oLbiTvVFhA0gtv+oYFRsH6lPHAisCtKB
+         PXyl43wA0U98Ey+xZvsvAJn/tibUq6w4F8aKYOxAL1nM5SBG8bCwNqggYZ3y14kk3d8J
+         S5qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786359081; x=1786963881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PuJ6x2zkITh7GZS5epmVnODSBm6oxe8knuYTtm1XBZ0=;
+        b=IAPzbyEFKEYCZ5dBNS+loXIRJaacgWRCjtN6u51U613KdsPBUrIP6NWBXiCxzTSq5r
+         sOXMg7th6gKO7OYbYRj/B3WT4ntY+9em6MUXJZ1RP2tguoJiS6Q+Bgq2StVzcMmkKt+k
+         5M7LWc/BSBiyiupxV0NzZe6KGQ7eU5q1GDesKBMY/eRyqFktDxlsas4wggNYJ34exfNw
+         C8COC9iD6vKplR7rZX5n9OR6Mb3tZXHlYLFxXmDbnkToURrOIlv1osNeEuQ1LjfgiMZV
+         eXcxpZxlnbAzHshGPuJp6BBiwQpG5x9kpzhJ7sNJZKUdmEvl4gwfHkzAR7y7aYeEs/fV
+         OVVA==
+X-Forwarded-Encrypted: i=1; AHgh+RoUA50km80eZeuxFqG7I74+Qdurg5zxxrBpkI+2HbFtTnvYxa/VPnojL5KvfBPmsKWBoPywpxhp2HzkLVO+PQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzGifwOO5m6E6LexDtkyMPwJ6bWfJ6MK5r7HyHyhNp+cwuGAcM0
+	Lc7AsJgJ2PsWeEwnXuqu02lWzTzhZFbL+r70TbmSBHIILpuXyBqQQ7RS
+X-Gm-Gg: AR+sD11aJaTs5IiaXIW+vxMxYuZ7OlY0lp8IEMKt5+sadhvQyeg9JndUzTqsDXoaoOo
+	GY0Fh4TO5RcDQ6GHQ/LiOvNGmVDfGwmXDnYWhg5v7ijlfCMeMa0IvY0aBJ2/BXCy0r8s8wZUWTd
+	vBqRMfJiumjERIfqUFspjgGhAjkvGgH6SUWOrHxp2UigTIfyii7/tZd1ean8bHm8jhScmfKFZu8
+	tDf0HS1p0hLlNgvO8ONVhKPCvRCJmKeh9PmaqcU0Ytk5An3uj3rbH6ydfKBaD3sz9K5GB1DXY9g
+	Hhw+NLRxfWqZAkP0qCqRLcTL7SwAK7aNxZ3t5NYPjr01ib971Tg68pEpua2NN5Pc9H8faNDvb7T
+	Vzu1Yre5AWNjpv/g4J3GnDBuVPZKqJlYdYI9XKD9LcGCanQfTsJQwf12WvroZ3C3GJHmsJEyXZs
+	XGnsDPdC2UYfogSpKWA8fzK0biZ+BRSpAoEhiekgfyLfMjuu+h19bXci9XQUxXagWMw9g3SdfSN
+	ftTBeumWn3Q328Pc0mA4yb7kVEjFYvTDTIuPP/E3qJAjD+zwkku4Fc+IAaB67pubdY6Ggnfn/mN
+	Oqvw
+X-Received: by 2002:a17:90b:2245:b0:38d:dfd1:7c1 with SMTP id 98e67ed59e1d1-3903c542a40mr34920645a91.2.1786359081519;
+        Mon, 10 Aug 2026 03:51:21 -0700 (PDT)
+Received: from phuc-desktop.. ([183.91.15.56])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3925fd95c40sm12240771a91.8.2026.08.10.03.51.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 03:51:21 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	linux-kernel@vger.kernel.org, mfd@lists.linux.dev,
-	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org,
-	linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	Wenkai Chung <wenkai.chung@advantech.com.tw>,
-	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>,
-	Hongzhi Wang <hongzhi.wang@advantech.com>,
-	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>,
-	Thomas Kastner <thomas.kastner@advantech.com>
-Subject: Re: [PATCH v2 5/8] Add Advantech EIO Backlight driver
-Message-ID: <anmrUnA9fBfUCEYU@aspen.lan>
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-5-76e5e41026db@advantech.com>
+	linux-watchdog@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bui duc phuc <phucduc.bui@gmail.com>
+Subject: [PATCH v3] watchdog: qcom: Propagate errors from optional IRQ lookup
+Date: Mon, 10 Aug 2026 17:51:01 +0700
+Message-ID: <20260810105101.55945-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260714-upstream-v2-v2-5-76e5e41026db@advantech.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 14, 2026 at 05:54:19PM +0200, Ramiro Oliveira wrote:
-> diff --git a/drivers/video/backlight/eio_bl.c b/drivers/video/backlight/eio_bl.c
-> new file mode 100644
-> index 000000000000..c2826400de45
-> --- /dev/null
-> +++ b/drivers/video/backlight/eio_bl.c
-> @@ -0,0 +1,243 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Backlight driver for Advantech EIO Embedded controller.
-> + *
-> + * Copyright (C) 2025 Advantech Corporation. All rights reserved.
-> + */
-> +
-> +#include <linux/backlight.h>
-> +#include <linux/errno.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/eio.h>
-> +#include <linux/module.h>
-> +#include <linux/uaccess.h>
-> +
-> +#define PMC_BL_WRITE		0x20
-> +#define PMC_BL_READ		0x21
-> +
-> +#define BL_CTRL_STATUS		0x00
-> +#define BL_CTRL_ENABLE		0x12
-> +#define BL_CTRL_ENABLE_INVERT	0x13
-> +#define BL_CTRL_DUTY		0x14
-> +#define BL_CTRL_INVERT		0x15
-> +#define BL_CTRL_FREQ		0x16
-> +
-> +#define BL_MAX			2
-> +
-> +#define BL_STATUS_AVAIL		0x01
-> +#define BL_ENABLE_OFF		0x00
-> +#define BL_ENABLE_ON		0x01
-> +#define BL_ENABLE_AUTO		BIT(1)
-> +
-> +#define USE_DEFAULT		-1
-> +#define THERMAL_MAX		100
-> +
-> +static uint bri_freq = USE_DEFAULT;
-> +module_param(bri_freq, uint, 0444);
-> +MODULE_PARM_DESC(bri_freq, "Setup backlight PWM frequency.\n");
-> +
-> +static int bri_invert = USE_DEFAULT;
-> +module_param(bri_invert, int, 0444);
-> +MODULE_PARM_DESC(bri_invert, "Setup backlight PWM polarity.\n");
-> +
-> +static int bl_power_invert = USE_DEFAULT;
-> +module_param(bl_power_invert, int, 0444);
-> +MODULE_PARM_DESC(bl_power_invert, "Setup backlight enable pin polarity.\n");
+From: bui duc phuc <phucduc.bui@gmail.com>
 
-There is still pending feedback on the module parameters and I can't see
-any reaction anywhere.
+platform_get_irq_optional() returns a positive IRQ number on success or
+a negative error code on failure. For an optional IRQ, -ENXIO indicates
+that no IRQ is available, while other errors should be propagated.
 
-: Module parameters are not really expected these days and are
-: pretty user hostile.
-:
-: Are they really needed? AFAICT this is a firmware based device. Why
-: doesn't the firmware provide this information if the drivers need it
-: (either directly or via PNP ID and a lookup table)?
+Instead of only checking for -EPROBE_DEFER, propagate all error codes
+returned by platform_get_irq_optional() other than -ENXIO, so that
+failures are properly reported to the caller.
 
-Please don't ignore feedback!
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
+
+Link v1 : 
+https://lore.kernel.org/all/20260807081652.38692-1-phucduc.bui@gmail.com/
+Changes in v2 : 
+ - Update pretimeout handling based on Guenter's review.
+
+Link v2 : 
+https://lore.kernel.org/all/20260810102144.51663-1-phucduc.bui@gmail.com/
+Changes in v3:
+ - Update the handling of wdt->wdd.info based on Sashiko's review.
 
 
-Daniel.
+ drivers/watchdog/qcom-wdt.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 49bd04841f0c..74ac3c507c01 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -287,21 +287,22 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	wdt->wdd.info = &qcom_wdt_info;
++
+ 	/* check if there is pretimeout support */
+-	irq = platform_get_irq_optional(pdev, 0);
+-	if (data->pretimeout && irq > 0) {
+-		ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+-				       "wdt_bark", &wdt->wdd);
+-		if (ret)
+-			return ret;
++	if (data->pretimeout) {
++		irq = platform_get_irq_optional(pdev, 0);
++		if (irq < 0 && irq != -ENXIO)
++			return irq;
++		if (irq > 0) {
++			ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
++					       "wdt_bark", &wdt->wdd);
++			if (ret)
++				return ret;
+ 
+-		wdt->wdd.info = &qcom_wdt_pt_info;
+-		wdt->wdd.pretimeout = 1;
+-	} else {
+-		if (irq == -EPROBE_DEFER)
+-			return -EPROBE_DEFER;
+-
+-		wdt->wdd.info = &qcom_wdt_info;
++			wdt->wdd.info = &qcom_wdt_pt_info;
++			wdt->wdd.pretimeout = 1;
++		}
+ 	}
+ 
+ 	wdt->wdd.ops = &qcom_wdt_ops;
+-- 
+2.43.0
+
