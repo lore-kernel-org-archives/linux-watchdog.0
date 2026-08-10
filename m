@@ -1,133 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 740DE3A9856
-	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 08:36:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786350993; cv=none; b=HMh0RRt0DWK6Z97/MLrAhDAzf/c+MB/oaGunASVDDkwNac471zh6iMnz7SxIrxigvSDmuH7EXMVWP8sVjE+J+PrRRwCuDjlVY6n4qohqXcUj0DsGv3ZtJSQ6XVEa6T5aptbrJ348p8s78UKgmqOuzPlvjnM1oUGQPrQsNZAsg50=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786350993; c=relaxed/simple;
-	bh=YOjRdWrr2e/C4yqgvGWwocsY1VHPMSTCVvmZtiFW0dw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=P9IdQ5JFcaOk2wggjnvMzl4DUeunrh0utdaQ4VHWjyI5UOWhQ4jgq8EY4Cj22BfK7JyxTw4PoaHjXIL7r7vcNvKxEf1d/qmdz2qDvaR3AMbJPiy8gMQp9aE9Nu7zxSglOFy0xkTox6hF7v2hx4WS0ViDdrfUH+8kLUivoBjp6BQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SNPou9WL; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 273D63B14AF
+	for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 09:45:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786355120; cv=pass; b=Eh4A82qfqEI8PlCEk8wkEpanXtCkEkF3C+yke7StYI4gXp1OFH6NWZGxpJN7c3EEMNQ6D2gBUliOqNhCJt249vDHbzBCWB24XmebqF22GoPfa66ZUS7bRaF4Jtqr59JstH84hhQuEi1s96dNoJs0CVq3M5sXRhK21P0OwY9VpXM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786355120; c=relaxed/simple;
+	bh=jzMCy/aLy3IlJ2KgJIlg13IO3drPxZSWHo1bEnnokMI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HPw9lj5aFi/wFamzmcKPQUSKQEkl/+Eseg+Wj6zOQYe28PRROQCQTKWfYZYIoFNXhUkyk7B2aax6ZB7aUfnnnmlmXVUxu9Xkw7CSjl6k6LX1a1S0UvkBtON/fUrZJdmu7nreZq1rznMG1VR5uxfe/Nm1vvfhHmJsqoM/1Pvm11Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rn4XbKP9; arc=pass smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SNPou9WL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B29D1F000E9;
-	Mon, 10 Aug 2026 08:36:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786350992;
-	bh=wtA9HN9UcwzNowX5LssseMCxg8/g5fLhzFrDtU6eZFY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SNPou9WLBI3vjkrZg5vhjAKir6wx+IzBvlVBikG5ar95LSXPY/6ZwJY88qEH6Zx2D
-	 C4RNqw1iphdfxLFzTE5PqTqDiNTlEsCidbHJf/p+rpziOHMjcDoDxtXpaPdDgRS2Wv
-	 GFHz/BGpMleJ/c1E930nQYxXQRy3H6txU1JMmPgiB/k1qiOsEdPlAC90EQERxY9Y8f
-	 UAjm7z+0tMSgOzafbtcxTMjwQ4gWMVGT/TRchLGNj2A7u5sSLmuSg1V8NZw3Hnj34h
-	 PMTiWAWphlVhHG/wlQvO2MmZiB/KTs1PH+3wTsfFlxaoaoxc8fQ37EJRr+3iw7iUa4
-	 SjIo7dJm0OpNg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] watchdog: orion_wdt: Propagate errors from optional
- IRQ lookup
-Reply-To: sashiko-reviews@lists.linux.dev
-To: phucduc.bui@gmail.com
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260810082606.42623-1-phucduc.bui@gmail.com>
-References: <20260810082606.42623-1-phucduc.bui@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 10 Aug 2026 08:36:31 +0000
-Message-Id: <20260810083632.3B29D1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rn4XbKP9"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-ca7c1176317so1251900a12.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 Aug 2026 02:45:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786355118; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Bo4hI9kE4DK5s82ngqg3qosRHmbMVuGLHMI16KuAS7Memhpk1+WsGB9PVMjHeziQnf
+         ucJzSUJRV7JjjPBBBqU3/shW4z5eWbpWYYa/YiYxzYAzqy+ULjyWkvzpZ6iCKJkDfdDH
+         nQ5U9+ovzRrvMyE4UGM8xBMe277CU7pDbUFsj9LbQOWa9j9uoEi0pnmC4s7is1uUtKzq
+         bN1YNkMuRCrm2IG5yuJulTzB9lVYOpAE4x3RCZnJOgcJugDwxoRwtGXpPiI4MOdjfuXz
+         c7NemLGEfBHvB1bqRPvFPdcMP/aVBPGWvxuDQQxggYNYwoUhvpWP9fhW3GEVsgVIgQV5
+         aHPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=lEhjsMWG90vKMNIv0q/NvqRJMIZC5Z2HAc5jYXUw3Vo=;
+        fh=6a3L7TcvZZAPDza8tad+DNZ5+f/IFONMA94KHjt65cY=;
+        b=rioI1it1USlilQ1kvlWfSaRoWPUeexGRJyuKhOsFSoSCzSGSkmgrbTIAMGlt1pAw7w
+         ePEjy5XGE8TuVbhsRWWAc/D3FKYcAI88eXt72sRdlLxT6MTpnLQ7O/FSAMXJonsnWGRt
+         Z9NfMbLDXXMvqyt0qjYiFvmqQa1gBRa4eIoSeGDV/ncUCRN6f7tZLaawi7eWVLqKrBqB
+         imYq/LJ3b1zMTIq2yz5Fjb3/nNAivmvMnkPFfyE5O5sBlLKmLY/zjShcNHS2/2PFJhCn
+         UicL7nM+PeFXR/iFecHmZiSCvmNiTspwqbFIY8zbOIDBVFParnnzp3GrYBr6rz2Gu385
+         eLZw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786355118; x=1786959918; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lEhjsMWG90vKMNIv0q/NvqRJMIZC5Z2HAc5jYXUw3Vo=;
+        b=rn4XbKP9oqEAsFF5QoLm5LUupWkJ+tGB4Z+LsptV1RSZy30uIvRblTNQQ9PCY26+KI
+         2wb80wD5pR1P/86N5ZRib4UkgIJ2qZAARcaNGHBau8pBaWXBD3XLn+Clva7zoI6BA2mN
+         LHgpF08f52jjSty2TAo2bYxSxg/JhhoXw2o6WxDG1cuRMRfcDPlVIoeryOYuokkP0PZn
+         ssjIWZR87HD338itpaWgNhlqC5buQiivg45D2MbB5N0mrF/DWxBYNooClkILZyUYzKlY
+         FHFWgMk/0Xf4Pee9BmnTbk+l1b9E/mBqlnrFYuW05J5ck+hXmK6pyUwY641cT1PzhJV8
+         4mGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786355118; x=1786959918;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=lEhjsMWG90vKMNIv0q/NvqRJMIZC5Z2HAc5jYXUw3Vo=;
+        b=qYw92q1ryEtgZwW6Nxd/C5HpCfU3bpFV5mTwkfvLc7v4nzX6SY42No0QvvXjmYZVzI
+         yf1bX4sP0kIIZ+jRGBUsOsssfx1yfeFWp81wkZ2Zpoo5ZFwfGqpBDjTXqLVomWoo7RyT
+         zIFEnrSJdEoHdfkz196hoRAfVbwwhxTORtXQIqZwb2OjgSYMTYCbCGC2htH05sg4qzR8
+         +XI3mPRPVA57Qbc+Z9SkAam2dGkriJj1DfesSpjVjy0fs7GOL+q/O4ohFqgk5K6IFH0J
+         K7YBvpAC/9A5x2zLabzaqCMotwSkvFJkGijZyl/yMN2vsE4o8amnxaEO7+r6FA2kv7kE
+         Remg==
+X-Forwarded-Encrypted: i=1; AHgh+Rozevv4m43ngAOcUy2Lnl5w3Wy27cAKWhR/Cr3f8frbjVrF4O6DNXIsiN0D3eW+y30jCT7wTgqOvXR8dwXv9A==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx7aNPvM0hdJjh62bL9gyQNWWz0O/6Ys3rO7GL0d8ZqBp3CKn6F
+	YvfIfSps59c7HTcKwt6WyeYz2kKgNMTd/Ipm9pczRZ7Qe6L3tRSSOxIrscNkUh/bWGhCTxLInVl
+	p0cWA+1kRw9DVPXGsx1BtJwlq3YSvtCBLxY6B
+X-Gm-Gg: AR+sD11+GsI+BGupUOrTcd6fsBESr+u+/Uufiinr1n60tPUon6aqRfyUfBnh1ELH6rd
+	J6ns9wjionfMHvG7Kt/mqRQ1H17Yi6QRk1E0V+tGex/GbEmkdjS0WPyOp523qV9J1PQB0sCpvrF
+	gvBUfolvbkINg4UCvymOY3sE04YAnMTshCGH/JnrwlM+DDwBmOw0L5lTkC2fW/zh8CnGRdhpOSi
+	riOK2B8DcSHAm1uzSUtiZ/lj4y/YWD9pdFUbClTmeU/NFr9nhQuIplo0BZ2BjSFutFBz7RBBiDU
+	cz3b/Pr/HMB8jY/hze4/0XhLmALmBNZKfrdRTQzvVlY0xra7IophbSWT58dQCrUCP2+nvXlpgIG
+	fQS3c2lodbBAZWsxayMaZ47dj+odq0/WTt4Nkf8p0htDeA0volMrHTvsp
+X-Received: by 2002:a05:6a20:4309:b0:3c4:48da:8102 with SMTP id
+ adf61e73a8af0-3cbce930129mr18884836637.29.1786355118398; Mon, 10 Aug 2026
+ 02:45:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260807081652.38692-1-phucduc.bui@gmail.com> <20260807081652.38692-4-phucduc.bui@gmail.com>
+ <1f26fc28-da13-4ca3-990f-676b53d23630@roeck-us.net> <CAABR9nFy=GD4afdDxzsbp31Sq=smGVFf+HvqsrJKh_FjqdUrJA@mail.gmail.com>
+ <3a9b7b85-e6f8-429a-91df-f674479dee58@roeck-us.net>
+In-Reply-To: <3a9b7b85-e6f8-429a-91df-f674479dee58@roeck-us.net>
+From: Bui Duc Phuc <phucduc.bui@gmail.com>
+Date: Mon, 10 Aug 2026 16:45:07 +0700
+X-Gm-Features: AUfX_mzy3FMnWBW1ZRsEZF6RiTcGKaOh9JEcD_RNAR4jnG-Nka5rge-6f-tSjWo
+Message-ID: <CAABR9nFcitFyS_xZUkreHWp822iVsoEg6ONFwU9JwPaBqm2MTQ@mail.gmail.com>
+Subject: Re: [PATCH 4/4] watchdog: aspeed: Propagate errors from optional IRQ lookup
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Joel Stanley <joel@jms.id.au>, 
+	Andrew Jeffery <andrew@codeconstruct.com.au>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, linux-arm-msm@vger.kernel.org, 
+	linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-aspeed@lists.ozlabs.org, 
+	linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hi Guenter,
 
-Pre-existing issues:
-- [High] Probe deferral of optional IRQs causes a running watchdog to reset=
- the system.
-- [High] Race condition in driver removal and error paths allows IRQ handle=
-r to access unclocked registers.
---
 
---- Patch [1]: [PATCH v3] watchdog: orion_wdt: Propagate errors from option=
-al IRQ lookup ---
-commit 18f3c178650daa4e1cc407d2909bc28318084819
-Author: bui duc phuc <phucduc.bui@gmail.com>
+Thank you for your feedback.
 
-watchdog: orion_wdt: Propagate errors from optional IRQ lookup
+> >>> +                     return irq;
+> >>>                if (irq > 0) {
+> >>
+> >> This if () is no longer needed.
+> >>
+> >
+> > If we remove the if (irq > 0) check, irq can be -ENXIO and would be
+> > passed to devm_request_irq().
+> > I see that the irq argument of devm_request_irq() is an unsigned int.
+> > Would it be safe to pass -ENXIO to it in this case?
+> >
+> No, sorry, I was wrong.
+>
 
-This patch updates the orion_wdt driver to propagate errors returned by
-platform_get_irq_optional() instead of continuing without an IRQ. It routes
-errors like -EPROBE_DEFER and -EINVAL to the disable_clk error handling pat=
-h.
+So this means there are no issues with this patch.
+Patches 2 and 3 have already been applied by you.
+I will temporarily resend only patch 1:
+" watchdog: qcom: Propagate errors from optional IRQ lookup "
 
-Link: https://lore.kernel.org/all/20260807080447.35479-1-phucduc.bui@gmail.=
-com/
-
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 1802634cc7cda..0ea946823b0a7 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -606,6 +606,10 @@ static int orion_wdt_probe(struct platform_device *p=
-dev)
-> =20
->  	/* Request the IRQ only after the watchdog is disabled */
->  	irq =3D platform_get_irq_optional(pdev, 0);
-> +	if (irq < 0 && irq !=3D -ENXIO) {
-> +		ret =3D irq;
-> +		goto disable_clk;
-
-[Severity: High]
-This is a pre-existing issue, but does returning -EPROBE_DEFER here cause an
-unintended system reboot if the hardware watchdog was left running by the
-bootloader?
-
-If orion_wdt_probe() detects the hardware is running and sets
-WDOG_HW_RUNNING, but then defers probe here, the watchdog core won't
-register the device or ping it. The driver jumps to the disable_clk label,
-but on many Armada platforms the shared clock doesn't physically stop.
-The timer will continue ticking and eventually forcefully reset the SoC.
-
-> +	}
->  	if (irq > 0) {
->  		/*
->  		 * Not all supported platforms specify an interrupt for the
-
-[ ... ]
-
-> @@ -619,6 +623,10 @@ static int orion_wdt_probe(struct platform_device *p=
-dev)
-> =20
->  	/* Optional 2nd interrupt for pretimeout */
->  	irq =3D platform_get_irq_optional(pdev, 1);
-> +	if (irq < 0 && irq !=3D -ENXIO) {
-> +		ret =3D irq;
-> +		goto disable_clk;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the disable_clk error
-path leave a window for a fatal bus fault?
-
-The driver manages interrupts using devm_request_irq(), meaning devres
-cleanup runs after orion_wdt_probe() returns. By manually calling
-clk_disable_unprepare() in the disable_clk path before the IRQ is
-unregistered, the interrupts remain active while the clock is gated.
-
-If the pre-timeout interrupt fires during this window, orion_wdt_pre_irq()
-will access registers of a clock-gated peripheral, which causes a
-Synchronous External Abort on ARM architectures. The same race exists in
-orion_wdt_remove().
-
-> +	}
->  	if (irq > 0) {
->  		orion_wdt_info.options |=3D WDIOF_PRETIMEOUT;
->  		ret =3D devm_request_irq(&pdev->dev, irq, orion_wdt_pre_irq,
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810082606.4262=
-3-1-phucduc.bui@gmail.com?part=3D1
+Best regards,
+Phuc
