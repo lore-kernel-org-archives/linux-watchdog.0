@@ -1,28 +1,28 @@
 Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12D583AAF78;
-	Wed, 12 Aug 2026 07:45:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DAB23AB48C;
+	Wed, 12 Aug 2026 07:45:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786520753; cv=none; b=V46efnlEMq8OEDhcOnUIbfdK0brGRqKFn3B6yOOHtUjplwsT/mHxFKnWMsu4Ddj5ud9xB83BnRtvrieY3AWRqxSr6da5EwW2OFsVmg4mRCl2eoJ9yVBcr+o9gK4PotGvGbg2XxVHG1Ga4v/wECmRd2eK/UvfqzgGmfIP94T6AqA=
+	t=1786520759; cv=none; b=bTD5Zoh9YrGy73ocuhtioCOkvDD+ATMqoaVFSYh044izgOftkpugcVEixNByN2PpN+xtCjWyb/ZDFd8dhTts9trWkwjwmwznuKt2fJQekRC//DIA829mYAd3vsOdQCPNr5FMg0tTYPjTIvD/ee5kvz9nq6fVSXymhOGrfe4rAVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786520753; c=relaxed/simple;
-	bh=0xLHKJRlH3i1y/AQ+NXkZQ/ixgpx+IYi2vXeJpwiXuc=;
+	s=arc-20240116; t=1786520759; c=relaxed/simple;
+	bh=StC8QDYrLnSiwMZutuA5gSBHwvm3C4QqXZZ+E8CjO98=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=KBhl/zs9n76WmuzM0P3yqN9BUbsPfbty6tXo1a82M/0rlB6oVX33+N1pK8OzwsWr3pqypz93sXGcxo/ogi9Xz5Nc/HBlJXfyxq/T/6FHUeN/5M8lJEDNmjasC+C1LyMBaZHuEABckK7/FsRdxDtiuLhTBX+BBzk4LppjDnq8qx0=
+	 MIME-Version; b=Sa5EckGq0vZp9CYkllTTveykGQDgmrKn48OALwhhovB36OFu0YmcEiY1VkqXOuSNqI2vPcmhv8l8M8gj61zqAV+dv3KNQjwdDPE14YO45LALB5p2gja2WoORrA3Nh9nbA/HAPCIj2quOag7/URjHEO9VhvEotFmxDIV1QcqA4j4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B01D21A02A7;
-	Wed, 12 Aug 2026 09:45:46 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7CBCD1A01BF;
+	Wed, 12 Aug 2026 09:45:43 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7FD121A02BF;
-	Wed, 12 Aug 2026 09:45:46 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 4B7DD1A02BE;
+	Wed, 12 Aug 2026 09:45:43 +0200 (CEST)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id F272718000B0;
-	Wed, 12 Aug 2026 15:45:45 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 1E8C11800088;
+	Wed, 12 Aug 2026 15:45:43 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -37,9 +37,9 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [RESEND v4 5/5] rtc: pcf85363: add watchdog support with configurable step size
-Date: Wed, 12 Aug 2026 13:15:33 +0530
-Message-Id: <20260812074533.3545058-5-lakshay.piplani@nxp.com>
+Subject: [RESEND v4 3/5] rtc: pcf85363: add timestamp support with configurable timestamp mode
+Date: Wed, 12 Aug 2026 13:15:31 +0530
+Message-Id: <20260812074533.3545058-3-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
 References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
@@ -52,18 +52,23 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Add watchdog timer support to PCF85263/PCF85363 using the linux watchdog
-subsystem. The driver programs the hardware watchdog timeout based on
-the requested period.
+Add support for the timestamp capture registers available on PCF85263 and
+PCF85363. The registers latch the current time when selected events occur,
+such as TS pin activation or battery switch-over.
+
+The capture source can be configured via the nxp,timestamp-mode device
+tree property, and latched values are exported through read-only sysfs
+attributes.
+
+Additionally:
+- Use rtc_add_group() instead of sysfs_create_group() to register the
+  timestamp attributes under the RTC class device (/sys/class/rtc/rtcX).
+- Perform minor cleanups in the probe function for better readability.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 ---
 V3 -> V4:
-- Use watchdog_init_timeout(&wd->wdd, 0, dev) to allow devicetree or module parameter overrides; 
-  fallback to WD_DEFAULT_TIMEOUT if not provided.
-- Centralized clock selection logic in pcf85363_wdt_select_clock() and applied dynamically 
-  whenever timeout changes.
-- Removed unused repeat variable and simplified timeout handling for clarity.
+- No changes in v4.
 V2 -> V3:
 - Split into separate patches as suggested:
   - Battery switch-over detection.
@@ -83,229 +88,308 @@ V1 -> V2:
 - Use dev_dbg instead of dev_info for debug related print messages
 - Minor cleanup and comments.
 
- drivers/rtc/rtc-pcf85363.c | 156 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 154 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 209 +++++++++++++++++++++++++++++++------
+ 1 file changed, 175 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 665bbbb169b0..3eb87306c83c 100644
+index c03d5a65c5f7..e10e58f69012 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -5,6 +5,10 @@
-  * Driver for NXP PCF85363 real-time clock.
-  *
-  * Copyright (C) 2017 Eric Nelson
-+ *
-+ * Copyright 2025 NXP
-+ * Added support for timestamps, battery switch-over,
-+ * watchdog, offset calibration.
-  */
- #include <linux/module.h>
- #include <linux/i2c.h>
-@@ -18,6 +22,7 @@
+@@ -16,6 +16,7 @@
+ #include <linux/bcd.h>
+ #include <linux/device.h>
  #include <linux/of.h>
- #include <linux/rtc.h>
++#include <linux/rtc.h>
  #include <linux/regmap.h>
-+#include <linux/watchdog.h>
  
  /*
-  * Date/Time registers
-@@ -128,6 +133,17 @@
- #define OFFSET_MAXIMUM  127
- #define OFFSET_MASK     0xFF
+@@ -101,19 +102,31 @@
+ #define PIN_IO_INTA_OUT	2
+ #define PIN_IO_INTA_HIZ	3
  
-+#define WD_TIMEOUT_SHIFT        2
-+#define WD_CLKSEL_MASK  GENMASK(1, 0)
-+#define WD_CLKSEL_0_25HZ        0x00
-+#define WD_CLKSEL_1HZ   0x01
-+#define WD_CLKSEL_4HZ   0x02
-+#define WD_CLKSEL_16HZ  0x03
++#define PIN_IO_TSPM     GENMASK(3, 2)
++#define PIN_IO_TSIM     BIT(4)
 +
-+#define WD_DEFAULT_TIMEOUT  10
-+#define WD_TIMEOUT_MIN	1
-+#define WD_TIMEOUT_MAX	0x1F
+ #define OSC_CAP_SEL	GENMASK(1, 0)
+ #define OSC_CAP_6000	0x01
+ #define OSC_CAP_12500	0x02
+ 
+ #define STOP_EN_STOP	BIT(0)
++#define RTCM_BIT        BIT(4)
+ 
+ #define RESET_CPR	0xa4
+ 
+ #define NVRAM_SIZE	0x40
+ 
++#define TSR1_MASK       0x03
++#define TSR2_MASK       0x07
++#define TSR3_MASK       0x03
++#define TSR1_SHIFT      0
++#define TSR2_SHIFT      2
++#define TSR3_SHIFT      6
 +
  struct pcf85363 {
  	struct rtc_device	*rtc;
  	struct regmap		*regmap;
-@@ -139,6 +155,14 @@ struct pcf85x63_config {
- 	unsigned int num_nvram;
++	u8 ts_valid_flags;
  };
  
-+struct pcf85363_watchdog {
-+	struct watchdog_device wdd;
-+	struct regmap *regmap;
-+	struct device *dev;
-+	u8 timeout_val;
-+	u8 clock_sel;
-+};
-+
- static int pcf85363_load_capacitance(struct pcf85363 *pcf85363, struct device_node *node)
- {
- 	u32 load = 7000;
-@@ -324,12 +348,13 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ struct pcf85x63_config {
+@@ -306,8 +319,11 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
  		return IRQ_NONE;
  
  	if (flags) {
--		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s\n",
-+		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s%s\n",
+-		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
++		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s\n",
  			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
- 			(flags & FLAGS_TSR1F) ? " [TSR1F]" : "",
- 			(flags & FLAGS_TSR2F) ? " [TSR2F]" : "",
- 			(flags & FLAGS_TSR3F) ? " [TSR3F]" : "",
--			(flags & FLAGS_BSF) ? " [BSF]" : "");
-+			(flags & FLAGS_BSF) ? " [BSF]" : "",
-+			(flags & FLAGS_WDF) ? " [WDF]" : "");
++			(flags & FLAGS_TSR1F) ? " [TSR1F]" : "",
++			(flags & FLAGS_TSR2F) ? " [TSR2F]" : "",
++			(flags & FLAGS_TSR3F) ? " [TSR3F]" : "",
+ 			(flags & FLAGS_BSF) ? " [BSF]" : "");
  	}
  
- 	if (flags & FLAGS_A1F) {
-@@ -361,6 +386,11 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+@@ -317,6 +333,24 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
  		handled = true;
  	}
  
-+	if (flags & FLAGS_WDF) {
-+		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_WDF, 0);
++	if (flags & FLAGS_TSR1F) {
++		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_TSR1F, 0);
++		pcf85363->ts_valid_flags |= FLAGS_TSR1F;
 +		handled = true;
 +	}
 +
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-@@ -504,6 +534,124 @@ static const struct pcf85x63_config pcf_85363_config = {
++	if (flags & FLAGS_TSR2F) {
++		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_TSR2F, 0);
++		pcf85363->ts_valid_flags |= FLAGS_TSR2F;
++		handled = true;
++	}
++
++	if (flags & FLAGS_TSR3F) {
++		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_TSR3F, 0);
++		pcf85363->ts_valid_flags |= FLAGS_TSR3F;
++		handled = true;
++	}
++
+ 	if (flags & FLAGS_BSF) {
+ 		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
+ 		handled = true;
+@@ -424,11 +458,94 @@ static const struct pcf85x63_config pcf_85363_config = {
  	.num_nvram = 2
  };
  
-+static void pcf85363_wdt_select_clock(struct pcf85363_watchdog *wd)
++/*
++ * Reads 6 bytes of timestamp data starting at the given base register,
++ * converts them from BCD to binary, and formats the result into a
++ * human-readable string in "YYYY-MM-DD HH:MM:SS" format.
++ */
++static int pcf85363_read_timestamp(struct pcf85363 *pcf85363, u8 base_reg, char *buf)
 +{
-+	unsigned int t = wd->wdd.timeout;
++	struct rtc_time tm;
++	u8 regs[6];
++	int ret;
 +
-+	if (t <= 2)
-+		wd->clock_sel = WD_CLKSEL_16HZ;
-+	else if (t <= 8)
-+		wd->clock_sel = WD_CLKSEL_4HZ;
-+	else if (t <= 16)
-+		wd->clock_sel = WD_CLKSEL_1HZ;
-+	else
-+		wd->clock_sel = WD_CLKSEL_0_25HZ;
++	ret = regmap_bulk_read(pcf85363->regmap, base_reg, regs, sizeof(regs));
++
++	if (ret)
++		return ret;
++
++	tm.tm_sec = bcd2bin(regs[0]);
++	tm.tm_min = bcd2bin(regs[1]);
++	tm.tm_hour = bcd2bin(regs[2]);
++	tm.tm_mday = bcd2bin(regs[3]);
++	tm.tm_mon = bcd2bin(regs[4]) - 1;
++	tm.tm_year = bcd2bin(regs[5]) + 100;
++
++	return sysfs_emit(buf, "%04d-%02d-%02d %02d:%02d:%02d\n",
++			  tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++			  tm.tm_hour, tm.tm_min, tm.tm_sec);
 +}
 +
 +/*
-+ * This function sets the watchdog control register based on the timeout,
-+ * clock selection and repeat mode settings. It prepares the value to
-+ * write into the watchdog control register (CTRL_WDOG).
++ * Checks whether a specific timestamp flag is set. If so, reads and
++ * returns the formatted timestamp. Otherwise, returns "00-00-00 00:00:00".
 + */
-+static int pcf85363_wdt_reload(struct pcf85363_watchdog *wd)
++
++static ssize_t pcf85363_timestamp_show(struct device *dev, char *buf,
++				       u8 timestamp_flag, u8 base_reg)
 +{
++	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
++
++	if (!(pcf85363->ts_valid_flags & timestamp_flag))
++		return sysfs_emit(buf, "00-00-00 00:00:00\n");
++
++	return pcf85363_read_timestamp(pcf85363, base_reg, buf);
++}
++
++static ssize_t timestamp1_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, FLAGS_TSR1F, DT_TIMESTAMP1);
++}
++static DEVICE_ATTR_RO(timestamp1);
++
++static ssize_t timestamp2_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, FLAGS_TSR2F, DT_TIMESTAMP2);
++}
++static DEVICE_ATTR_RO(timestamp2);
++
++static ssize_t timestamp3_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, FLAGS_TSR3F, DT_TIMESTAMP3);
++}
++static DEVICE_ATTR_RO(timestamp3);
++
++static struct attribute *pcf85363_attrs[] = {
++	&dev_attr_timestamp1.attr,
++	&dev_attr_timestamp2.attr,
++	&dev_attr_timestamp3.attr,
++	NULL,
++};
++
++static const struct attribute_group pcf85363_attr_group = {
++	.attrs = pcf85363_attrs,
++};
++
+ static int pcf85363_probe(struct i2c_client *client)
+ {
+-	struct pcf85363 *pcf85363;
+ 	const struct pcf85x63_config *config = &pcf_85363_config;
+ 	const void *data = of_device_get_match_data(&client->dev);
++	struct device *dev = &client->dev;
++	struct pcf85363 *pcf85363;
++	int irq_a = client->irq;
++	bool wakeup_source;
++	int ret, i, err;
++	u32 tsr_mode[3];
 +	u8 val;
 +
-+	val = ((wd->timeout_val & WD_TIMEOUT_MAX) << WD_TIMEOUT_SHIFT) |
-+	       (wd->clock_sel & WD_CLKSEL_MASK);
+ 	static struct nvmem_config nvmem_cfg[] = {
+ 		{
+ 			.name = "pcf85x63-",
+@@ -446,25 +563,43 @@ static int pcf85363_probe(struct i2c_client *client)
+ 			.reg_write = pcf85363_nvram_write,
+ 		},
+ 	};
+-	int ret, i, err;
+-	bool wakeup_source;
+ 
+ 	if (data)
+ 		config = data;
+ 
+-	pcf85363 = devm_kzalloc(&client->dev, sizeof(struct pcf85363),
+-				GFP_KERNEL);
++	pcf85363 = devm_kzalloc(&client->dev, sizeof(*pcf85363), GFP_KERNEL);
+ 	if (!pcf85363)
+ 		return -ENOMEM;
+ 
++	pcf85363->ts_valid_flags = 0;
 +
-+	return regmap_write(wd->regmap, CTRL_WDOG, val);
-+}
-+
-+static int pcf85363_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
-+
-+	return pcf85363_wdt_reload(wd);
-+}
-+
-+static int pcf85363_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(wd->regmap, CTRL_WDOG, 0);
-+}
-+
-+static int pcf85363_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
-+
-+	regmap_update_bits(wd->regmap, CTRL_FLAGS, FLAGS_WDF, 0);
-+
-+	return pcf85363_wdt_reload(wd);
-+}
-+
-+static int pcf85363_wdt_set_timeout(struct watchdog_device *wdd,
-+				    unsigned int timeout)
-+{
-+	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
-+
-+	wd->timeout_val = clamp(timeout, WD_TIMEOUT_MIN, WD_TIMEOUT_MAX);
-+	wdd->timeout = wd->timeout_val;
-+
-+	pcf85363_wdt_select_clock(wd);
-+
-+	return pcf85363_wdt_reload(wd);
-+}
-+
-+static const struct watchdog_info pcf85363_wdt_info = {
-+	.identity = "PCF85363 Watchdog",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+};
-+
-+static const struct watchdog_ops pcf85363_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = pcf85363_wdt_start,
-+	.stop = pcf85363_wdt_stop,
-+	.ping = pcf85363_wdt_ping,
-+	.set_timeout = pcf85363_wdt_set_timeout,
-+};
-+
-+static int pcf85363_watchdog_init(struct device *dev, struct regmap *regmap)
-+{
-+	struct pcf85363_watchdog *wd;
-+	int ret;
-+
-+	if (!IS_ENABLED(CONFIG_WATCHDOG))
-+		return 0;
-+
-+	wd = devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
-+	if (!wd)
-+		return -ENOMEM;
-+
-+	wd->regmap = regmap;
-+	wd->dev = dev;
-+
-+	wd->wdd.info = &pcf85363_wdt_info;
-+	wd->wdd.ops = &pcf85363_wdt_ops;
-+	wd->wdd.min_timeout = WD_TIMEOUT_MIN;
-+	wd->wdd.max_timeout = WD_TIMEOUT_MAX;
-+	wd->wdd.parent = dev;
-+	wd->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	ret = watchdog_init_timeout(&wd->wdd, 0, dev);
+ 	pcf85363->regmap = devm_regmap_init_i2c(client, &config->regmap);
+-	if (IS_ERR(pcf85363->regmap)) {
+-		dev_err(&client->dev, "regmap allocation failed\n");
+-		return PTR_ERR(pcf85363->regmap);
+-	}
++	if (IS_ERR(pcf85363->regmap))
++		return dev_err_probe(dev, PTR_ERR(pcf85363->regmap), "regmap init failed\n");
+ 
+ 	i2c_set_clientdata(client, pcf85363);
+ 
++	ret = regmap_update_bits(pcf85363->regmap, CTRL_FUNCTION, RTCM_BIT, 0);
 +	if (ret)
-+		wd->wdd.timeout = WD_DEFAULT_TIMEOUT;
++		return dev_err_probe(dev, ret, "Failed to enable RTC mode\n");
 +
-+	wd->timeout_val = wd->wdd.timeout;
-+	pcf85363_wdt_select_clock(wd);
++	if (!device_property_read_u32_array(dev, "nxp,timestamp-mode", tsr_mode, 3)) {
++		tsr_mode[0] &= TSR1_MASK;
++		tsr_mode[1] &= TSR2_MASK;
++		tsr_mode[2] &= TSR3_MASK;
 +
-+	ret = regmap_update_bits(regmap, CTRL_FLAGS, FLAGS_WDF, 0);
-+	if (ret) {
-+		dev_err(dev, "failed to clear WDF:%d\n", ret);
-+		return ret;
++		val = (tsr_mode[2] << TSR3_SHIFT) |
++		      (tsr_mode[1] << TSR2_SHIFT) |
++		      (tsr_mode[0] << TSR1_SHIFT);
++
++		ret = regmap_write(pcf85363->regmap, DT_TS_MODE, val);
++		if (ret)
++			dev_warn(dev, "Failed to write timestamp mode register\n");
++
++		dev_dbg(dev, "Timestamp mode set: TSR1=0x%x TSR2=0x%x TSR3=0x%x\n",
++			tsr_mode[0], tsr_mode[1], tsr_mode[2]);
 +	}
 +
-+	watchdog_set_drvdata(&wd->wdd, wd);
-+
-+	return devm_watchdog_register_device(dev, &wd->wdd);
-+}
-+
- /*
-  * Reads 6 bytes of timestamp data starting at the given base register,
-  * converts them from BCD to binary, and formats the result into a
-@@ -685,6 +833,10 @@ static int pcf85363_probe(struct i2c_client *client)
- 			   PIN_IO_TSPM | PIN_IO_TSIM,
- 			   PIN_IO_TSPM | PIN_IO_TSIM);
+ 	pcf85363->rtc = devm_rtc_allocate_device(&client->dev);
+ 	if (IS_ERR(pcf85363->rtc))
+ 		return PTR_ERR(pcf85363->rtc);
+@@ -478,38 +613,44 @@ static int pcf85363_probe(struct i2c_client *client)
+ 	pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	pcf85363->rtc->range_max = RTC_TIMESTAMP_END_2099;
  
-+	ret = pcf85363_watchdog_init(dev, pcf85363->regmap);
+-	wakeup_source = device_property_read_bool(&client->dev,
+-						  "wakeup-source");
+-	if (client->irq > 0 || wakeup_source) {
+-		regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
+-		regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
+-				   PIN_IO_INTAPM, PIN_IO_INTA_OUT);
+-	}
++	wakeup_source = device_property_read_bool(dev, "wakeup-source");
+ 
+-	if (client->irq > 0) {
+-		unsigned long irqflags = IRQF_TRIGGER_LOW;
++	ret = regmap_write(pcf85363->regmap, CTRL_FLAGS, 0x00);
 +	if (ret)
-+		dev_err_probe(dev, ret, "Watchdog init failed\n");
++		return dev_err_probe(dev, ret, "Failed to clear CTRL_FLAGS\n");
 +
- 	if (irq_a > 0 || wakeup_source)
- 		device_init_wakeup(dev, true);
++	if (irq_a > 0) {
++		regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO, PIN_IO_INTAPM, PIN_IO_INTA_OUT);
++		ret = devm_request_threaded_irq(dev, irq_a, NULL,
++						pcf85363_rtc_handle_irq,
++						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++						"pcf85363-inta", client);
  
+-		if (dev_fwnode(&client->dev))
+-			irqflags = 0;
+-		ret = devm_request_threaded_irq(&client->dev, client->irq,
+-						NULL, pcf85363_rtc_handle_irq,
+-						irqflags | IRQF_ONESHOT,
+-						"pcf85363", client);
+ 		if (ret) {
+-			dev_warn(&client->dev,
+-				 "unable to request IRQ, alarms disabled\n");
+-			client->irq = 0;
++			dev_err_probe(dev, ret, "INTA IRQ request failed\n");
++			irq_a = 0;
++		} else {
++			regmap_write(pcf85363->regmap, CTRL_INTA_EN, INT_BSIE
++				     | INT_TSRIE);
+ 		}
+ 	}
+ 
+-	if (client->irq > 0 || wakeup_source) {
+-		device_init_wakeup(&client->dev, true);
+-		set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+-	} else {
+-		clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+-	}
++	regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
++			   PIN_IO_TSPM | PIN_IO_TSIM,
++			   PIN_IO_TSPM | PIN_IO_TSIM);
++
++	if (irq_a > 0 || wakeup_source)
++		device_init_wakeup(dev, true);
++
++	dev_set_drvdata(&pcf85363->rtc->dev, pcf85363);
++
++	ret = rtc_add_group(pcf85363->rtc, &pcf85363_attr_group);
++	if (ret)
++		return ret;
+ 
+ 	ret = devm_rtc_register_device(pcf85363->rtc);
++	if (ret)
++		return dev_err_probe(dev, ret, "RTC registration failed\n");
+ 
+ 	for (i = 0; i < config->num_nvram; i++) {
+ 		nvmem_cfg[i].priv = pcf85363;
 -- 
 2.25.1
 
