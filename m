@@ -1,28 +1,28 @@
 Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB8283A9DB6;
-	Wed, 12 Aug 2026 07:45:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D59AE3AAF4E;
+	Wed, 12 Aug 2026 07:45:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786520745; cv=none; b=Mh2f4PJVpy0XaHo3iFC2vkBwkfyzPxBXBxhI1SnKOUsChskMIMvY1zbRgciYiG88JS3c/gQrsPENVmewWh9LJ/GMo/u784w+zGnUVojq3lcu4QJZf9RRvUAhL9o8HhFR/Y9Dig+n8P6xVSHm0W8or1rk9xyh0IhC68NiuGrEYds=
+	t=1786520749; cv=none; b=C2Tpo12PB70rbrhpOiheBr9OieVtKnY0WyRdw4w+Q1y32WUbnqUj6dkJsJZQGmoVXCgCtGsHR4pm79ZIedCEtsVafpCh1AaCmZjMlhezGU1Vj9qgJjyymuw7ulkE8MaZsK4QOK5DSI8X6B0gCjm6C46a8hNbk98CyH0FDnd++iQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786520745; c=relaxed/simple;
-	bh=D+3q7ui4s8HRziAqwfu8QHnqaJo2nk6cZX7C7LOvYzI=;
+	s=arc-20240116; t=1786520749; c=relaxed/simple;
+	bh=Nl7jBWTi1jIZibZWCIEWxIOAcf2GASDGQPxfgjE5Ihs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=tqwmiZ9QwJlt5zbPz68KWSZket8dQM2vLV731vk855oQHTXinbMAPhiy+pD1RKyrJVK9LYCHoigLX8Xl4Mry7BwOiKajXvF2xxh5n1r6+zezEoFa6fkRZTC4/VUvMQRLoD2odJlVyQxV0OERvElhhyjtDsVnz2ttuN+yFKAy6Bk=
+	 MIME-Version; b=oj1KG5lVqvjcZpNiFCqk4Oh27oN9M0XmMFfXHpRStOi88Q2ORmDi44HMoPrOSaZ2ZL7ZWI+ZVYJ6ya1PVCRA46XCU3xzy48I7hWspgR0cWMz7/ADqXgScvBnbuJ9+17EC6/DoCw8Q8vExp+SKh6XEj6LttqSnv43AMPUv43esOw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 5A6ED2002D7;
-	Wed, 12 Aug 2026 09:45:42 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 162632002D2;
+	Wed, 12 Aug 2026 09:45:46 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2DB6A2002CC;
-	Wed, 12 Aug 2026 09:45:42 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id CB56B2002CC;
+	Wed, 12 Aug 2026 09:45:45 +0200 (CEST)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id EA6C018000B5;
-	Wed, 12 Aug 2026 15:45:40 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 933051800088;
+	Wed, 12 Aug 2026 15:45:44 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -37,9 +37,9 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [RESEND v4 2/5] rtc: pcf85363: support reporting battery switch-over via RTC_VL
-Date: Wed, 12 Aug 2026 13:15:30 +0530
-Message-Id: <20260812074533.3545058-2-lakshay.piplani@nxp.com>
+Subject: [RESEND v4 4/5] rtc: pcf85363: add oscillator offset calibration support
+Date: Wed, 12 Aug 2026 13:15:32 +0530
+Message-Id: <20260812074533.3545058-4-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
 References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
@@ -52,13 +52,13 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Add battery switch-over reporting for PCF85263/PCF85363 using the standard
-RTC_VL_* ioctl interface. When the backup supply takes over, the BSF flag
-is exposed to userspace through RTC_VL_READ and can be cleared using
-RTC_VL_CLR.
+Expose the oscillator offset register of PCF85263/PCF85363 through the
+rtc_class_ops read_offset and set_offset callbacks, allowing userspace
+to apply frequency correction for drift compensation.
 
-This allows applications to detect loss of main power without relying on
-non-standard interfaces.
+The correction mode defaults to normal mode (OFFM = 0), where each step
+introduces an offset of approximately 2.170 ppm and corrections occur
+every 4 hours.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 ---
@@ -83,91 +83,80 @@ V1 -> V2:
 - Use dev_dbg instead of dev_info for debug related print messages
 - Minor cleanup and comments.
 
- drivers/rtc/rtc-pcf85363.c | 49 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 46 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 540042b9eec8..c03d5a65c5f7 100644
+index e10e58f69012..665bbbb169b0 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -14,6 +14,7 @@
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/bcd.h>
-+#include <linux/device.h>
- #include <linux/of.h>
- #include <linux/regmap.h>
+@@ -123,6 +123,11 @@
+ #define TSR2_SHIFT      2
+ #define TSR3_SHIFT      6
  
-@@ -295,23 +296,67 @@ static int pcf85363_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- {
- 	struct pcf85363 *pcf85363 = i2c_get_clientdata(dev_id);
-+	bool handled = false;
- 	unsigned int flags;
- 	int err;
++#define OFFSET_SIGN_BIT 7
++#define OFFSET_MINIMUM  -128
++#define OFFSET_MAXIMUM  127
++#define OFFSET_MASK     0xFF
++
+ struct pcf85363 {
+ 	struct rtc_device	*rtc;
+ 	struct regmap		*regmap;
+@@ -359,6 +364,45 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 	return handled ? IRQ_HANDLED : IRQ_NONE;
+ }
  
- 	err = regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
-+
- 	if (err)
- 		return IRQ_NONE;
- 
-+	if (flags) {
-+		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
-+			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
-+			(flags & FLAGS_BSF) ? " [BSF]" : "");
-+	}
-+
- 	if (flags & FLAGS_A1F) {
- 		rtc_update_irq(pcf85363->rtc, 1, RTC_IRQF | RTC_AF);
- 		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_A1F, 0);
--		return IRQ_HANDLED;
-+		handled = true;
- 	}
- 
--	return IRQ_NONE;
-+	if (flags & FLAGS_BSF) {
-+		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
-+		handled = true;
-+	}
-+
-+	return handled ? IRQ_HANDLED : IRQ_NONE;
-+}
-+
-+static int pcf85363_rtc_ioctl(struct device *dev,
-+			      unsigned int cmd, unsigned long arg)
++/*
++ * Read the current RTC offset from the CTRL_OFFSET
++ * register. This value is an 8-bit signed 2's complement
++ * value that corrects osciallator drift.
++ */
++static int pcf85363_read_offset(struct device *dev, long *offset)
 +{
 +	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
 +	unsigned int val;
 +	int ret;
 +
-+	switch (cmd) {
-+	case RTC_VL_READ: {
-+		u32 status = 0;
++	ret = regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
 +
-+		ret = regmap_read(pcf85363->regmap, CTRL_FLAGS, &val);
++	if (ret)
++		return ret;
 +
-+		if (ret)
-+			return ret;
++	*offset = sign_extend32(val & OFFSET_MASK, OFFSET_SIGN_BIT);
 +
-+		if (val & FLAGS_BSF)
-+			status |= RTC_VL_BACKUP_SWITCH;
++	return 0;
++}
 +
-+		return put_user(status, (u32 __user *)arg);
++/*
++ * Write an oscillator offset correction value to
++ * the CTRL_OFFSET register. The valid range is
++ * -128 to 127 (8-bit signed), typically used to fine
++ * tune accuracy.
++ */
++static int pcf85363_set_offset(struct device *dev, long offset)
++{
++	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
++
++	if (offset < OFFSET_MINIMUM || offset > OFFSET_MAXIMUM) {
++		dev_warn(dev, "Offset out of range: %ld\n", offset);
++		return -ERANGE;
 +	}
 +
-+	case RTC_VL_CLR:
-+		return regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
++	return regmap_write(pcf85363->regmap, CTRL_OFFSET, offset & OFFSET_MASK);
++}
 +
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
- }
- 
- static const struct rtc_class_ops rtc_ops = {
-+	.ioctl  = pcf85363_rtc_ioctl,
- 	.read_time	= pcf85363_rtc_read_time,
- 	.set_time	= pcf85363_rtc_set_time,
+ static int pcf85363_rtc_ioctl(struct device *dev,
+ 			      unsigned int cmd, unsigned long arg)
+ {
+@@ -396,6 +440,8 @@ static const struct rtc_class_ops rtc_ops = {
  	.read_alarm	= pcf85363_rtc_read_alarm,
+ 	.set_alarm	= pcf85363_rtc_set_alarm,
+ 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
++	.read_offset = pcf85363_read_offset,
++	.set_offset = pcf85363_set_offset,
+ };
+ 
+ static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
 2.25.1
 
