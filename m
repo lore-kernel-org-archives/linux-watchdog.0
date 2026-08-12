@@ -1,27 +1,28 @@
 Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6446936C9D5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12D583AAF78;
 	Wed, 12 Aug 2026 07:45:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786520750; cv=none; b=KPwzYfTfuBfJ+JKYWFbYTUCPJMW/wpG6OzjaoUiVOOC7LmC3Diz/DE4yH3ZJ3/TuJh6GvMhyEW6LE52w6ZvvHzaJOrmHTmroQsSh50mTtyW7IZACfHgk0zL5Doat2FdBUzBk6ZAk90JhIqQTGFET6ZjMzofDE3sFwjPp3Yg3XkU=
+	t=1786520753; cv=none; b=V46efnlEMq8OEDhcOnUIbfdK0brGRqKFn3B6yOOHtUjplwsT/mHxFKnWMsu4Ddj5ud9xB83BnRtvrieY3AWRqxSr6da5EwW2OFsVmg4mRCl2eoJ9yVBcr+o9gK4PotGvGbg2XxVHG1Ga4v/wECmRd2eK/UvfqzgGmfIP94T6AqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786520750; c=relaxed/simple;
-	bh=BmozpeUBmvpWzH6co7gbd6JjF/r3KB3trk5Ft5C16jk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sAuByPmGlOWn6fhRsv7Yqcdeq1dY5nEYHpcpfI0+QHfTIaviNXHGVPzzEpbYUdSlFiXcY4EgN7/8qhi34XRoyBolqYjhoSmdU2yAEv+BTzivm6Pt2+o8FFEB0DLkceHUZuB/mmBTc8A0km0djMMULDxqnP59tIvwE+ldPlXvzlo=
+	s=arc-20240116; t=1786520753; c=relaxed/simple;
+	bh=0xLHKJRlH3i1y/AQ+NXkZQ/ixgpx+IYi2vXeJpwiXuc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=KBhl/zs9n76WmuzM0P3yqN9BUbsPfbty6tXo1a82M/0rlB6oVX33+N1pK8OzwsWr3pqypz93sXGcxo/ogi9Xz5Nc/HBlJXfyxq/T/6FHUeN/5M8lJEDNmjasC+C1LyMBaZHuEABckK7/FsRdxDtiuLhTBX+BBzk4LppjDnq8qx0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 2CD891A01B5;
-	Wed, 12 Aug 2026 09:45:40 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B01D21A02A7;
+	Wed, 12 Aug 2026 09:45:46 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id F36101A02BC;
-	Wed, 12 Aug 2026 09:45:39 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7FD121A02BF;
+	Wed, 12 Aug 2026 09:45:46 +0200 (CEST)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 6C7981800088;
-	Wed, 12 Aug 2026 15:45:39 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id F272718000B0;
+	Wed, 12 Aug 2026 15:45:45 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -36,10 +37,12 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [RESEND v4 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode config
-Date: Wed, 12 Aug 2026 13:15:29 +0530
-Message-Id: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
+Subject: [RESEND v4 5/5] rtc: pcf85363: add watchdog support with configurable step size
+Date: Wed, 12 Aug 2026 13:15:33 +0530
+Message-Id: <20260812074533.3545058-5-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
+References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -49,124 +52,260 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
-which latch the current time when a selected event occurs. Add a
-vendor specific property, nxp,timestamp-mode, to select the event
-source for each register.
-
-Also introduce a new header 'pcf85363-tsr.h' to expose
-macros for timestamp mode fields, improving readability
-of device tree file.
+Add watchdog timer support to PCF85263/PCF85363 using the linux watchdog
+subsystem. The driver programs the hardware watchdog timeout based on
+the requested period.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 V3 -> V4:
-- Added Reviewed-by tag in commit message (previously only in changelog) 
+- Use watchdog_init_timeout(&wd->wdd, 0, dev) to allow devicetree or module parameter overrides; 
+  fallback to WD_DEFAULT_TIMEOUT if not provided.
+- Centralized clock selection logic in pcf85363_wdt_select_clock() and applied dynamically 
+  whenever timeout changes.
+- Removed unused repeat variable and simplified timeout handling for clarity.
 V2 -> V3:
-- No changes in v3
-- Added Reviewed-by: Rob Herring <robh@kernel.org>
+- Split into separate patches as suggested:
+  - Battery switch-over detection.
+  - Timestamp recording for TS pin and battery switch-over events.
+  - Offset calibration.
+  - Watchdog timer (to be reviewed by watchdog maintainers).
+- Dropped Alarm2 support
+- Switched to rtc_add_group() for sysfs attributes
 V1 -> V2:
-- Addressed review comments from Rob Herring:
-  * use $ref: /schemas/types.yaml#/definitions/uint32-array
-  * tuple form with exactly 3 items (TSR1/TSR2/TSR3), per items decimal enums
-  * define 'nxp,timestamp-mode' clearly
-  * drop watchdog related vendor properties
-  * remove watchdog related vendor properties from i2c example
+- Watchdog related changes due to removal of vendor specific properties
+  from device tree
+  * remove vendor DT knobs (enable/timeout/stepsize/repeat)
+  * use watchdog_init_timeout (with 10s default)
+  * derive clock_sel from final timeout
+  * default, repeat=true (repeat mode)
+- Fixed uninitalised warning on 'ret' (reported by kernel test robot)
+- Use dev_dbg instead of dev_info for debug related print messages
+- Minor cleanup and comments.
 
- .../devicetree/bindings/rtc/nxp,pcf85363.yaml | 23 ++++++++++++++-
- include/dt-bindings/rtc/pcf85363-tsr.h        | 28 +++++++++++++++++++
- 2 files changed, 50 insertions(+), 1 deletion(-)
- create mode 100644 include/dt-bindings/rtc/pcf85363-tsr.h
+ drivers/rtc/rtc-pcf85363.c | 156 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 154 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
-index 52aa3e2091e9..cf9c155162d6 100644
---- a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
-+++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/rtc/nxp,pcf85363.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Philips PCF85263/PCF85363 Real Time Clock
-+title: NXP PCF85263/PCF85363 Real Time Clock
- 
- maintainers:
-   - Alexandre Belloni <alexandre.belloni@bootlin.com>
-@@ -39,6 +39,24 @@ properties:
-   start-year: true
-   wakeup-source: true
- 
-+  nxp,timestamp-mode:
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    items:
-+      - enum: [0, 1, 2] # TSR1: NONE, FE, LE
-+        description: TSR1 mode
-+      - enum: [0, 1, 2, 3, 4, 5] # TSR2: NONE, FB, LB, LV, FE, LE
-+        description: TSR2 mode
-+      - enum: [0, 1, 2, 3] # TSR3: NONE, FB, LB, LV
-+        description: TSR3 mode
-+    description: |
-+      Defines timestamp modes for TSR1, TSR2, and TSR3.
-+      Use macros from <dt-bindings/rtc/pcf85363-tsr.h>.
-+
-+      Each value corresponds to a mode constant:
-+        - TSR1: NONE, FE, LE
-+        - TSR2: NONE, FB, LB, LV, FE, LE
-+        - TSR3: NONE, FB, LB, LV
-+
- required:
-   - compatible
-   - reg
-@@ -47,6 +65,7 @@ additionalProperties: false
- 
- examples:
-   - |
-+    #include <dt-bindings/rtc/pcf85363-tsr.h>
-     i2c {
-         #address-cells = <1>;
-         #size-cells = <0>;
-@@ -56,5 +75,7 @@ examples:
-             reg = <0x51>;
-             #clock-cells = <0>;
-             quartz-load-femtofarads = <12500>;
-+            wakeup-source;
-+            nxp,timestamp-mode = <PCF85363_TSR1_FE PCF85363_TSR2_LB PCF85363_TSR3_LV>;
-         };
-     };
-diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-bindings/rtc/pcf85363-tsr.h
-new file mode 100644
-index 000000000000..1fb5b9b3601e
---- /dev/null
-+++ b/include/dt-bindings/rtc/pcf85363-tsr.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
-+/*
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index 665bbbb169b0..3eb87306c83c 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -5,6 +5,10 @@
+  * Driver for NXP PCF85363 real-time clock.
+  *
+  * Copyright (C) 2017 Eric Nelson
++ *
 + * Copyright 2025 NXP
++ * Added support for timestamps, battery switch-over,
++ * watchdog, offset calibration.
+  */
+ #include <linux/module.h>
+ #include <linux/i2c.h>
+@@ -18,6 +22,7 @@
+ #include <linux/of.h>
+ #include <linux/rtc.h>
+ #include <linux/regmap.h>
++#include <linux/watchdog.h>
+ 
+ /*
+  * Date/Time registers
+@@ -128,6 +133,17 @@
+ #define OFFSET_MAXIMUM  127
+ #define OFFSET_MASK     0xFF
+ 
++#define WD_TIMEOUT_SHIFT        2
++#define WD_CLKSEL_MASK  GENMASK(1, 0)
++#define WD_CLKSEL_0_25HZ        0x00
++#define WD_CLKSEL_1HZ   0x01
++#define WD_CLKSEL_4HZ   0x02
++#define WD_CLKSEL_16HZ  0x03
++
++#define WD_DEFAULT_TIMEOUT  10
++#define WD_TIMEOUT_MIN	1
++#define WD_TIMEOUT_MAX	0x1F
++
+ struct pcf85363 {
+ 	struct rtc_device	*rtc;
+ 	struct regmap		*regmap;
+@@ -139,6 +155,14 @@ struct pcf85x63_config {
+ 	unsigned int num_nvram;
+ };
+ 
++struct pcf85363_watchdog {
++	struct watchdog_device wdd;
++	struct regmap *regmap;
++	struct device *dev;
++	u8 timeout_val;
++	u8 clock_sel;
++};
++
+ static int pcf85363_load_capacitance(struct pcf85363 *pcf85363, struct device_node *node)
+ {
+ 	u32 load = 7000;
+@@ -324,12 +348,13 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	if (flags) {
+-		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s\n",
++		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s%s\n",
+ 			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
+ 			(flags & FLAGS_TSR1F) ? " [TSR1F]" : "",
+ 			(flags & FLAGS_TSR2F) ? " [TSR2F]" : "",
+ 			(flags & FLAGS_TSR3F) ? " [TSR3F]" : "",
+-			(flags & FLAGS_BSF) ? " [BSF]" : "");
++			(flags & FLAGS_BSF) ? " [BSF]" : "",
++			(flags & FLAGS_WDF) ? " [WDF]" : "");
+ 	}
+ 
+ 	if (flags & FLAGS_A1F) {
+@@ -361,6 +386,11 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 		handled = true;
+ 	}
+ 
++	if (flags & FLAGS_WDF) {
++		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_WDF, 0);
++		handled = true;
++	}
++
+ 	return handled ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+@@ -504,6 +534,124 @@ static const struct pcf85x63_config pcf_85363_config = {
+ 	.num_nvram = 2
+ };
+ 
++static void pcf85363_wdt_select_clock(struct pcf85363_watchdog *wd)
++{
++	unsigned int t = wd->wdd.timeout;
++
++	if (t <= 2)
++		wd->clock_sel = WD_CLKSEL_16HZ;
++	else if (t <= 8)
++		wd->clock_sel = WD_CLKSEL_4HZ;
++	else if (t <= 16)
++		wd->clock_sel = WD_CLKSEL_1HZ;
++	else
++		wd->clock_sel = WD_CLKSEL_0_25HZ;
++}
++
++/*
++ * This function sets the watchdog control register based on the timeout,
++ * clock selection and repeat mode settings. It prepares the value to
++ * write into the watchdog control register (CTRL_WDOG).
 + */
++static int pcf85363_wdt_reload(struct pcf85363_watchdog *wd)
++{
++	u8 val;
 +
-+#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H
-+#define _DT_BINDINGS_RTC_PCF85363_TSR_H
++	val = ((wd->timeout_val & WD_TIMEOUT_MAX) << WD_TIMEOUT_SHIFT) |
++	       (wd->clock_sel & WD_CLKSEL_MASK);
 +
-+/* TSR1 modes */
-+#define PCF85363_TSR1_NONE 0x00
-+#define PCF85363_TSR1_FE 0x01
-+#define PCF85363_TSR1_LE 0x02
++	return regmap_write(wd->regmap, CTRL_WDOG, val);
++}
 +
-+/* TSR2 modes */
-+#define PCF85363_TSR2_NONE 0x00
-+#define PCF85363_TSR2_FB 0x01
-+#define PCF85363_TSR2_LB 0x02
-+#define PCF85363_TSR2_LV 0x03
-+#define PCF85363_TSR2_FE 0x04
-+#define PCF85363_TSR2_LE 0x05
++static int pcf85363_wdt_start(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
 +
-+/* TSR3 modes */
-+#define PCF85363_TSR3_NONE 0x00
-+#define PCF85363_TSR3_FB 0x01
-+#define PCF85363_TSR3_LB 0x02
-+#define PCF85363_TSR3_LV 0x03
++	return pcf85363_wdt_reload(wd);
++}
 +
-+#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
++static int pcf85363_wdt_stop(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++
++	return regmap_write(wd->regmap, CTRL_WDOG, 0);
++}
++
++static int pcf85363_wdt_ping(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++
++	regmap_update_bits(wd->regmap, CTRL_FLAGS, FLAGS_WDF, 0);
++
++	return pcf85363_wdt_reload(wd);
++}
++
++static int pcf85363_wdt_set_timeout(struct watchdog_device *wdd,
++				    unsigned int timeout)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++
++	wd->timeout_val = clamp(timeout, WD_TIMEOUT_MIN, WD_TIMEOUT_MAX);
++	wdd->timeout = wd->timeout_val;
++
++	pcf85363_wdt_select_clock(wd);
++
++	return pcf85363_wdt_reload(wd);
++}
++
++static const struct watchdog_info pcf85363_wdt_info = {
++	.identity = "PCF85363 Watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++};
++
++static const struct watchdog_ops pcf85363_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = pcf85363_wdt_start,
++	.stop = pcf85363_wdt_stop,
++	.ping = pcf85363_wdt_ping,
++	.set_timeout = pcf85363_wdt_set_timeout,
++};
++
++static int pcf85363_watchdog_init(struct device *dev, struct regmap *regmap)
++{
++	struct pcf85363_watchdog *wd;
++	int ret;
++
++	if (!IS_ENABLED(CONFIG_WATCHDOG))
++		return 0;
++
++	wd = devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
++	if (!wd)
++		return -ENOMEM;
++
++	wd->regmap = regmap;
++	wd->dev = dev;
++
++	wd->wdd.info = &pcf85363_wdt_info;
++	wd->wdd.ops = &pcf85363_wdt_ops;
++	wd->wdd.min_timeout = WD_TIMEOUT_MIN;
++	wd->wdd.max_timeout = WD_TIMEOUT_MAX;
++	wd->wdd.parent = dev;
++	wd->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	ret = watchdog_init_timeout(&wd->wdd, 0, dev);
++	if (ret)
++		wd->wdd.timeout = WD_DEFAULT_TIMEOUT;
++
++	wd->timeout_val = wd->wdd.timeout;
++	pcf85363_wdt_select_clock(wd);
++
++	ret = regmap_update_bits(regmap, CTRL_FLAGS, FLAGS_WDF, 0);
++	if (ret) {
++		dev_err(dev, "failed to clear WDF:%d\n", ret);
++		return ret;
++	}
++
++	watchdog_set_drvdata(&wd->wdd, wd);
++
++	return devm_watchdog_register_device(dev, &wd->wdd);
++}
++
+ /*
+  * Reads 6 bytes of timestamp data starting at the given base register,
+  * converts them from BCD to binary, and formats the result into a
+@@ -685,6 +833,10 @@ static int pcf85363_probe(struct i2c_client *client)
+ 			   PIN_IO_TSPM | PIN_IO_TSIM,
+ 			   PIN_IO_TSPM | PIN_IO_TSIM);
+ 
++	ret = pcf85363_watchdog_init(dev, pcf85363->regmap);
++	if (ret)
++		dev_err_probe(dev, ret, "Watchdog init failed\n");
++
+ 	if (irq_a > 0 || wakeup_source)
+ 		device_init_wakeup(dev, true);
+ 
 -- 
 2.25.1
 
