@@ -1,240 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D8403AAF7E;
-	Wed, 12 Aug 2026 08:00:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78DD042885E;
+	Wed, 12 Aug 2026 10:35:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786521606; cv=none; b=YTIdRXwpZrXV2PbrUuR+zhMEpB8y9MJQMDS5CVmcfZP/SrQSey0medkMoV/znkQl/doHkBf588Yu1issXdzisKtYwTMfmkjgGEE7skHQzbRhl6QwhrYZlnVayuHfpFehmM4gAx/mmNLx61MyKQlpNrMH4G5iXUtL00Cml+O2nbI=
+	t=1786530915; cv=none; b=K+c8vD2YdpIfidDNVma7Txvi41Dy644kpebxBoMKWPpVgp5exib3sNhfCIMZw1CmJ0QSlaQ52C6S+5+dY2RzNzvOayDHG0Be6P5TTGoWlkg2ajz5d93iRXzY+Nm78otmllWt0xdt1153gQzbCkmzZLuPi44fBJcyAs2Ksn/SGVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786521606; c=relaxed/simple;
-	bh=V1bR+lv9vHR4uWey7+t2FdSvzlHBRifMFz2tVuzCNr4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=evVmcRlqFiWCEM2ZE90B3sOq7N94qsxu004uLKW77Azeu+fk4uLxJsblnap8PT+4jLHtPbZMRMCxNzUj44WAKQjnKcSLSFCtKUUaFHleGvpYEaCX80XjYflg0l4W3BCSDdvngXWrKiHxYhKg+8kxznoiiqQlDb7T/gkLstD+7E4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtCtV3k5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786530915; c=relaxed/simple;
+	bh=YW9hcKOUsr1ElpBbC60bEqEanfcJJuZK5jrxQ+X2FYU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eNApzyHjT4RCFlDtU9BpYbOfl3Ewl1JUUINpMSmnn5jCkCWib5/uijoUra0A5RZ5gInqP4oe7r+/uIecWTJHluYVGXYKF1O5Vhss9SIBpHCnL92YsS3Z/E78jLwObijNQ6qFGrg4Lwxe8rO2PiCPipVFOzC2+1K7wEU6UYSyboo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AfLkYVyf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtCtV3k5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDBC1F00A3A;
-	Wed, 12 Aug 2026 08:00:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AfLkYVyf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F911F000E9;
+	Wed, 12 Aug 2026 10:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786521604;
-	bh=RueXxDO8rpcYTaWieb0wx+9yFfdBJhk0TVUeLnH8Cc8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KtCtV3k5pcvMtIIBm8IvyUIYS+K603m0CNv4dJW04slofSvbpPD5Sq+Ilre25TzFN
-	 Jnvh+xB30heXucHdVpOXc/52OPlz4PFF/pFbsHNI3TTkhwsS5eaYXQN8mI/Iciij1v
-	 bKu3TDJoXXKNOSAAQsfZjesBiI+IuTjyksUFbSJS9z0px9NhTac2MdV1RsTYkzi0nv
-	 YVauk4nfI6/7xdey84RhV8fIlKAWNFk6P9HXr7gXrsNwMyYEQ/+0hDMVFydiwQa8Fs
-	 wJeBdCKM2BXIaE4met0Oe/AKA+c9q0m4a39QWkXBQjWbYCBZplNa1BQwkt1tcu6LGd
-	 dJffVGHxDiCtg==
-From: sashiko-bot@kernel.org
-Subject: Re: [RESEND v4 4/5] rtc: pcf85363: add oscillator offset
- calibration support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: conor+dt@kernel.org, linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
-In-Reply-To: <20260812074533.3545058-4-lakshay.piplani@nxp.com>
-References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
- <20260812074533.3545058-4-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 08:00:03 +0000
-Message-Id: <20260812080004.4DDBC1F00A3A@smtp.kernel.org>
+	s=k20260515; t=1786530914;
+	bh=KqmtgzPBncZEMRO2d8cE2MGb0LERXNEQmTQuzXuj/AI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AfLkYVyfGTIYmy+S7st1151b23Xy+xY3bWWxuaVHuqqo/z/0IXC4lEcFGRR0VWwQw
+	 i81X2EBDwaKXpCWtvaOK+XT0MJ9mmbMi7gqRBSuCGCZ3mk1hc+yzsArgjTri6jEiWr
+	 yCELNoUO/63kQ5Guz13iDRsdzhpE0uPiHkujZDXgaOsWK2h8YvS7JOPoRJA7wi0SJ7
+	 JCUE/2/u5CNB6EWqcomUEeOuKKkHFaSrXJ9aYvT08t9V6etLmzhAcJfTykOxsAjQIa
+	 cWA/DDCz6VWJYqc7LXJ7VD3Gwenkewi7aLhZvA6ign4LCWvvAVLm4rQn676EWZvu/O
+	 jqIlpDPi0PITw==
+Date: Wed, 12 Aug 2026 12:35:04 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 1/8] dt-bindings: reset: Add mt6589 toprgu reset IDs
+Message-ID: <20260812-smooth-artichoke-kittiwake-f6e85e@quoll>
+References: <20260809160643.33991-1-l.scorcia@gmail.com>
+ <20260809160643.33991-2-l.scorcia@gmail.com>
+ <20260811-amethyst-seriema-of-gallantry-ca9c7f@quoll>
+ <CAORyz2KXJf4gU46649w1ncb7TAOErdoGmfOMzwKr8b+eGdAgVA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAORyz2KXJf4gU46649w1ncb7TAOErdoGmfOMzwKr8b+eGdAgVA@mail.gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+On Tue, Aug 11, 2026 at 04:20:11PM +0200, Luca Leonardo Scorcia wrote:
+> 
+> > We do not take bits, but identifiers of resets.
+> 
+> Currently the existing mtk_wdt.c driver does not use a reset table
+> that binds identifiers to bits for any of the existing devices. There
+> are a bunch of mediatek,mt*.h files under dt-bindings/reset [3] that
+> point directly to reset bits instead of being indexes.
 
-New issues:
-- [High] The offset callbacks operate in raw register steps instead of part=
-s per billion (ppb), violating the RTC subsystem API.
-- [High] The offset value is wrongly treated as an 8-bit signed integer, wh=
-ich stomps on the OFFM (mode) bit and silently triggers Fast Mode.
-- [High] The IRQ handler clears the timestamp interrupt flags before the ti=
-mestamp data is read, creating a hardware race condition.
-- [Low] User space can trigger unratelimited dev_warn() by writing out-of-b=
-ounds offset values.
-- [Low] The `ts_valid_flags` variable is modified and read concurrently wit=
-hout appropriate lockless access annotations.
+Many got accepted unnoticed, many times we did not care, but the point
+is still valid - pure hardware numbers do not belong to the bindings,
+because they do not bind any pieces of code. The proper binding header
+constants bind DTS with SW implementation, so two pieces of code. Not
+applicable here.
 
-Pre-existing issues:
-- [High] The static `nvmem_cfg` array is modified concurrently during devic=
-e probe, risking corruption of private data pointers.
---
+> I can introduce a reset table in the driver, but it would break
+> existing devices as those bits are referred in device trees and they
+> are often non-contiguous (e.g. [4]). As before, it could be done by
 
---- Patch [4]: [RESEND v4 4/5] rtc: pcf85363: add oscillator offset calibra=
-tion support ---
-commit cf1f1a013f4f67e8c4a20b8646213cc7ca971733
-Author: Lakshay Piplani <lakshay.piplani@nxp.com>
+Then these bits stay as is in DTS but bindings header is not needed. You
+can have of course DTS header, as we did in the past multiple times for
+such hardware constants.
 
-rtc: pcf85363: add oscillator offset calibration support
+Best regards,
+Krzysztof
 
-This commit adds oscillator offset calibration support to the PCF85363 RTC
-driver. It exposes the read_offset and set_offset callbacks, allowing
-userspace to apply frequency correction for drift compensation.
-
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index e10e58f690127..665bbbb169b05 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -123,6 +123,11 @@
->  #define TSR2_SHIFT      2
->  #define TSR3_SHIFT      6
-> =20
-> +#define OFFSET_SIGN_BIT 7
-> +#define OFFSET_MINIMUM  -128
-> +#define OFFSET_MAXIMUM  127
-> +#define OFFSET_MASK     0xFF
-
-[Severity: High]
-Does treating this as an 8-bit signed integer stomp on the OFFM (mode) bit?
-
-The PCF85363 CTRL_OFFSET register uses bit 7 as the OFFM (mode) bit and bits
-6-0 as a 7-bit two's complement offset (range -64 to +63). Writing a negati=
-ve
-8-bit integer sets bit 7 to 1, silently reconfiguring the chip into Fast Mo=
-de,
-while a positive integer switches it to Normal Mode.
-
-Should the driver explicitly preserve the OFFM bit and restrict the offset =
-to
-a 7-bit value?
-
-[ ... ]
-> @@ -359,6 +364,45 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, =
-void *dev_id)
->  	return handled ? IRQ_HANDLED : IRQ_NONE;
->  }
-> =20
-> +/*
-> + * Read the current RTC offset from the CTRL_OFFSET
-> + * register. This value is an 8-bit signed 2's complement
-> + * value that corrects osciallator drift.
-> + */
-> +static int pcf85363_read_offset(struct device *dev, long *offset)
-> +{
-> +	struct pcf85363 *pcf85363 =3D dev_get_drvdata(dev);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	ret =3D regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	*offset =3D sign_extend32(val & OFFSET_MASK, OFFSET_SIGN_BIT);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Write an oscillator offset correction value to
-> + * the CTRL_OFFSET register. The valid range is
-> + * -128 to 127 (8-bit signed), typically used to fine
-> + * tune accuracy.
-> + */
-> +static int pcf85363_set_offset(struct device *dev, long offset)
-> +{
-> +	struct pcf85363 *pcf85363 =3D dev_get_drvdata(dev);
-> +
-> +	if (offset < OFFSET_MINIMUM || offset > OFFSET_MAXIMUM) {
-
-[Severity: High]
-Does this code reject valid ppb offsets from userspace?
-
-The rtc_read_offset and rtc_set_offset kernel API expects offset values in
-parts per billion (ppb), but this implementation appears to operate directly
-in raw register values.
-
-Consequently, if userspace passes a valid offset like 4340 ppb, wouldn't it=
- be
-bounds-checked against [-128, 127] and rejected with -ERANGE, rendering the
-API unusable?
-
-> +		dev_warn(dev, "Offset out of range: %ld\n", offset);
-
-[Severity: Low]
-Can this unratelimited warning log be triggered directly by userspace?
-
-It appears an out-of-bounds write to the sysfs offset node will spam the
-kernel log, which could be avoided by simply returning -ERANGE.
-
-> +		return -ERANGE;
-> +	}
-> +
-> +	return regmap_write(pcf85363->regmap, CTRL_OFFSET, offset & OFFSET_MASK=
-);
-> +}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does clearing the timestamp
-interrupt flags before reading the timestamp data create a hardware race
-condition?
-
-In pcf85363_rtc_handle_irq():
-
-    if (flags & FLAGS_TSR1F) {
-        regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_TSR1F, 0);
-        pcf85363->ts_valid_flags |=3D FLAGS_TSR1F;
-        handled =3D true;
-    }
-
-The driver exposes timestamp registers via sysfs which performs a lockless
-regmap_bulk_read over I2C in pcf85363_read_timestamp(). According to the
-PCF85363 behavior, clearing FLAGS_TSR1F rearms the hardware latch.
-
-If a new timestamp event occurs while userspace is in the middle of reading
-the timestamp registers, couldn't the hardware update the registers
-concurrently and result in a torn read?
-
-[Severity: Low]
-This is a pre-existing issue, but is the lockless access to ts_valid_flags
-missing necessary concurrency annotations?
-
-The flag is modified in the threaded IRQ handler:
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_rtc_handle_irq() {
-...
-    pcf85363->ts_valid_flags |=3D FLAGS_TSR1F;
-...
-}
-
-And read locklessly in sysfs:
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_timestamp_show() {
-...
-    if (!(pcf85363->ts_valid_flags & timestamp_flag))
-...
-}
-
-While it's a 1-byte read/write that won't practically tear on supported
-architectures, missing READ_ONCE() and WRITE_ONCE() annotations violates
-kernel concurrency standards and could trigger KCSAN warnings.
-
-[Severity: High]
-This is a pre-existing issue, but does modifying the static nvmem_cfg array
-during device probe risk corrupting private data pointers?
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_probe() {
-...
-    static struct nvmem_config nvmem_cfg[] =3D {
-...
-    for (i =3D 0; i < config->num_nvram; i++) {
-        nvmem_cfg[i].priv =3D pcf85363;
-        devm_rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
-    }
-...
-}
-
-If multiple PCF85363 instances are probed on the system, wouldn't the later
-probe overwrite the priv pointer of the earlier instances in the shared
-static array? This would cause subsequent NVRAM reads/writes for the first
-RTC device to incorrectly target the last probed device's regmap.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812074533.3545=
-058-1-lakshay.piplani@nxp.com?part=3D4
