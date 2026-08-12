@@ -1,187 +1,179 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32BBA35AC33;
-	Wed, 12 Aug 2026 07:55:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3D5935AC33;
+	Wed, 12 Aug 2026 07:57:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786521314; cv=none; b=enQjIcjzYGaIbNKqGwrRg4LcVPKWQ+IAdu73tuI8vhF0N8F4moJu1wIfMJgNXpLERCKRfeJrN0PbYFJx6e4ZXD5sQ5kZorIOXcNat1ttuM6VAMSbleB4ZsdUYTpoAQ8cnG5Cwp5ZOwgTvcLb3T4WIr+Ap396sS9B96c78ViTChg=
+	t=1786521433; cv=none; b=ia9KsdiyLwaEnuWGFdqlMFma057T7NyO5/zD+u/dfpxd9Mt4CCu/j6mMJEWMCz+C+zY99CuQOofoO3gyW0LmXngJOHKoFG7+gl7bFynUsvLXrQ/IfiEDEkZNSPdnwAxCbci87ot4KVYM4mObEvgw1bVqC6GdCTG72211aT1mb8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786521314; c=relaxed/simple;
-	bh=Rx2CBw3K4esUxEFsvi6dLQvfnPkfbTyer+svNHeYM74=;
+	s=arc-20240116; t=1786521433; c=relaxed/simple;
+	bh=XoMEMfXu1M7KQBIC1/2gwIfYdIodvs/pRUiBF8CFTto=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RO1wDOIPoJXiPXNRDfFjFBLLCDTGAZBv+ZIPipp5KbjmSRHU67LnJ6bz02po25avJ2eP/qAuiMhFAVJer+0T/I2/tQVyvh8avLACVoDvoIs1yb4vpOHSTbyu0wpcWyQBEvfeS4unTcAUZUvZiuZbkhUvUyyKGAl477L6DoP6PoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PorX8XIK; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Zpc3JgFP1WypmdTaZB9lo6ewX4zzPZUpSVhWTO69NrX7f7n4cGdjTIMxiX9BMhhh766YTu6mLdpNFIt4pFilq5vMr7/ay92X6wk+ZeURtub5P/Zoi9Rltt74dX8Vjh71C0YdptzI2Ncy7ydhKtQeniGrd1b1rCVCISdFEZc6lx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C9p+9kiU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PorX8XIK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F541F000E9;
-	Wed, 12 Aug 2026 07:55:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C9p+9kiU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C6271F000E9;
+	Wed, 12 Aug 2026 07:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786521311;
-	bh=A3fyBnfXz5RP3rFdjgVSA9oIgGkbKLmM1VlG3sZaiVQ=;
+	s=k20260515; t=1786521431;
+	bh=gqPSfQDvWk58b78qJLJlh4i3WO7TQGw5UjBqu8qTDgA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PorX8XIK4LIyr3y2IfTXOpBdsTvUe7CFjQ/noy1NMxqAKWZhTeJWtiqQRvyEvdKuK
-	 sCmk98QwoSbUsJfoPH0T2GsQ4e++ikAzEgeUyIOKdz4B3psJJpdcTkkXB3ypkeetkq
-	 rb+ceY9GLfXYODIj180n2LsTsStBuPjDTyvs7W/s8me32qupkAkmVGF7m3V/916UGa
-	 jkKT+BdpJW1Kujz/lpG3pq7bsfvPvbFn1gPRHtUY0QViJ0VPUZSN8Wyno86n4ZI37b
-	 fgaZFsdkFBKeeDHMbFBJYqe1L+hiMyEsRYcFDHl4vOa6dvBFHk9Fqb2mIfnIE4mQ6/
-	 n8qhWDW1WnFhg==
+	b=C9p+9kiUBZixsBttTOMmCC07i5kMwzkNRjEryyFFjSl6UrEVAox7tjNMkk4VYlbX2
+	 F4ZL3W8MG4UMZnGzDhVtx2MrCncwSdn7Pnonkyg/GOF3n6WlI+7g5VGx9xr2uHaeYd
+	 A0nJF47bx4dTumQ5snxBLGKXVZ1NG+wdKeGgd/p73e7Rkpg95IoZg79Vb+/ILwWwrK
+	 VesZvJDfsfD+TsOxzVtXVT6ci81KW1npqDH1jqk2vHmTSwWCLAgounuXd0DBtwUgkN
+	 G3eZZ8nGieD4A0GEKn6TCvy9gd/883S8GpbtRQhOgxROe35irBKOwyz0/bcYZGeeYo
+	 DpKq1QXBCEKgA==
 From: sashiko-bot@kernel.org
-Subject: Re: [RESEND v4 2/5] rtc: pcf85363: support reporting battery
- switch-over via RTC_VL
+Subject: Re: [RESEND v4 5/5] rtc: pcf85363: add watchdog support with
+ configurable step size
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-watchdog@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260812074533.3545058-2-lakshay.piplani@nxp.com>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260812074533.3545058-5-lakshay.piplani@nxp.com>
 References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
- <20260812074533.3545058-2-lakshay.piplani@nxp.com>
+ <20260812074533.3545058-5-lakshay.piplani@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 07:55:10 +0000
-Message-Id: <20260812075511.42F541F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 07:57:10 +0000
+Message-Id: <20260812075711.0C6271F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
 New issues:
-- [Medium] The IRQ handler silently clears the Battery Switch-over Flag (BS=
-F) from the hardware register without saving its state, causing battery swi=
-tch-over events to be lost if an interrupt triggers before userspace calls =
-RTC_VL_READ.
+- [High] Hardware timer value is not scaled by the selected clock frequency=
+, resulting in radically incorrect watchdog timeouts.
+- [High] The watchdog initializes with a 0-second hardware timeout if the d=
+evice tree lacks a timeout property.
+- [High] Missing `return` statement ignores watchdog initialization failure=
+s and breaks probe deferral.
 
 Pre-existing issues:
-- [High] `pcf85363_probe()` unconditionally wipes the `CTRL_FLAGS` register=
-, destroying boot-time battery switch-over events before they can be read v=
-ia `RTC_VL_READ`.
+- [High] Read-modify-write on the write-0-to-clear `CTRL_FLAGS` register si=
+lently drops concurrent hardware interrupts.
 --
 
---- Patch [2]: [RESEND v4 2/5] rtc: pcf85363: support reporting battery swi=
-tch-over via RTC_VL ---
-commit 641bd03440f1f0094b5ca119b02a17fb2dd848b5
+--- Patch [5]: [RESEND v4 5/5] rtc: pcf85363: add watchdog support with con=
+figurable step size ---
+commit b334f1fe3594f36842ec186290e4071c7236a04d
 Author: Lakshay Piplani <lakshay.piplani@nxp.com>
+Subject: rtc: pcf85363: add watchdog support with configurable step size
 
-rtc: pcf85363: support reporting battery switch-over via RTC_VL
+Add watchdog timer support to PCF85263/PCF85363 using the linux watchdog
+subsystem. The driver programs the hardware watchdog timeout based on
+the requested period.
 
-Add battery switch-over reporting for PCF85263/PCF85363 using the standard
-RTC_VL_* ioctl interface. When the backup supply takes over, the BSF flag
-is exposed to userspace through RTC_VL_READ and can be cleared using
-RTC_VL_CLR.
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index 665bbbb169b05..3eb87306c83c8 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 540042b9eec8f..c03d5a65c5f79 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
 [ ... ]
-> @@ -295,23 +296,67 @@ static int pcf85363_rtc_set_alarm(struct device *de=
-v, struct rtc_wkalrm *alrm)
->  static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
->  {
->  	struct pcf85363 *pcf85363 =3D i2c_get_clientdata(dev_id);
-> +	bool handled =3D false;
->  	unsigned int flags;
->  	int err;
-> =20
->  	err =3D regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
-> +
->  	if (err)
->  		return IRQ_NONE;
-> =20
-> +	if (flags) {
-> +		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
-> +			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
-> +			(flags & FLAGS_BSF) ? " [BSF]" : "");
-> +	}
-> +
->  	if (flags & FLAGS_A1F) {
->  		rtc_update_irq(pcf85363->rtc, 1, RTC_IRQF | RTC_AF);
->  		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_A1F, 0);
-> -		return IRQ_HANDLED;
-> +		handled =3D true;
->  	}
-> =20
-> -	return IRQ_NONE;
-> +	if (flags & FLAGS_BSF) {
-> +		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
-> +		handled =3D true;
-> +	}
 
-[Severity: Medium]
-Does this unconditionally clear the hardware Battery Switch-over Flag (BSF)
-without saving its state?
-
-If an interrupt triggers before userspace calls RTC_VL_READ, won't the
-battery switch-over event be lost since the hardware flag is cleared but not
-cached in software?
-
-> +
-> +	return handled ? IRQ_HANDLED : IRQ_NONE;
-> +}
-> +
-> +static int pcf85363_rtc_ioctl(struct device *dev,
-> +			      unsigned int cmd, unsigned long arg)
+> +static int pcf85363_wdt_reload(struct pcf85363_watchdog *wd)
 > +{
-> +	struct pcf85363 *pcf85363 =3D dev_get_drvdata(dev);
-> +	unsigned int val;
-> +	int ret;
+> +	u8 val;
 > +
-> +	switch (cmd) {
-> +	case RTC_VL_READ: {
-> +		u32 status =3D 0;
+> +	val =3D ((wd->timeout_val & WD_TIMEOUT_MAX) << WD_TIMEOUT_SHIFT) |
+> +	       (wd->clock_sel & WD_CLKSEL_MASK);
 > +
-> +		ret =3D regmap_read(pcf85363->regmap, CTRL_FLAGS, &val);
-
-[Severity: Medium]
-Because RTC_VL_READ reads directly from the hardware register, it will retu=
-rn
-0 if the IRQ handler has already cleared the flag.
-
-> +
-> +		if (ret)
-> +			return ret;
-> +
-> +		if (val & FLAGS_BSF)
-> +			status |=3D RTC_VL_BACKUP_SWITCH;
-> +
-> +		return put_user(status, (u32 __user *)arg);
-> +	}
-> +
-> +	case RTC_VL_CLR:
-> +		return regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
-> +
-> +	default:
-> +		return -ENOIOCTLCMD;
-> +	}
->  }
+> +	return regmap_write(wd->regmap, CTRL_WDOG, val);
+> +}
 
 [Severity: High]
-This isn't a bug introduced by this patch, but the pre-existing code
-in pcf85363_probe() appears to break the boot-time power loss detection
-intended by this new feature.
+Should the timeout value be scaled by the selected clock frequency (e.g., in
+ticks) before it is written to the hardware?
 
-During system boot, pcf85363_probe() unconditionally clears all hardware fl=
-ags
-if an IRQ or wakeup source is configured:
+It appears the raw seconds value assigned from pcf85363_wdt_set_timeout() is
+written directly into the hardware register here. At frequencies higher than
+1Hz, this would cause the timeout to expire significantly faster than
+configured.
 
-drivers/rtc/rtc-pcf85363.c:pcf85363_probe() {
-    ...
-	if (client->irq > 0 || wakeup_source) {
-		regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
-		regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
-				   PIN_IO_INTAPM, PIN_IO_INTA_OUT);
-	}
-    ...
-}
+[ ... ]
 
-Does this destroy the battery switch-over event before userspace can query =
-it
-with RTC_VL_READ?
+> +static int pcf85363_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct pcf85363_watchdog *wd =3D watchdog_get_drvdata(wdd);
+> +
+> +	regmap_update_bits(wd->regmap, CTRL_FLAGS, FLAGS_WDF, 0);
+
+[Severity: High]
+This is a pre-existing issue, but since CTRL_FLAGS is a write-0-to-clear
+register, can this read-modify-write cycle silently clear concurrent
+hardware interrupts?
+
+If an interrupt asserts immediately after the read step in
+regmap_update_bits(), its flag will read as 0. The cycle will then write 0
+back to that flag, potentially clearing the interrupt before it can be
+handled. Pinging the watchdog in a background loop might exacerbate this.
+
+[ ... ]
+
+> +static int pcf85363_wdt_set_timeout(struct watchdog_device *wdd,
+> +				    unsigned int timeout)
+> +{
+> +	struct pcf85363_watchdog *wd =3D watchdog_get_drvdata(wdd);
+> +
+> +	wd->timeout_val =3D clamp(timeout, WD_TIMEOUT_MIN, WD_TIMEOUT_MAX);
+
+[Severity: High]
+Is the driver storing the unscaled timeout in seconds directly into the
+hardware timer value here?
+
+If this value is later used in pcf85363_wdt_reload() without being adjusted
+for the selected clock frequency, the hardware timeout may be radically
+incorrect.
+
+[ ... ]
+
+> +static int pcf85363_watchdog_init(struct device *dev, struct regmap *reg=
+map)
+> +{
+[ ... ]
+> +	wd->wdd.parent =3D dev;
+> +	wd->wdd.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
+> +
+> +	ret =3D watchdog_init_timeout(&wd->wdd, 0, dev);
+> +	if (ret)
+> +		wd->wdd.timeout =3D WD_DEFAULT_TIMEOUT;
+
+[Severity: High]
+Does watchdog_init_timeout() return 0 when the device tree lacks a timeout
+property?
+
+If it returns 0 without modifying wdd.timeout, this check would be bypassed,
+leaving the watchdog initialized with a 0-second timeout. Setting
+wd->wdd.timeout =3D WD_DEFAULT_TIMEOUT before calling watchdog_init_timeout=
+()
+might be safer.
+
+[ ... ]
+
+> @@ -685,6 +833,10 @@ static int pcf85363_probe(struct i2c_client *client)
+>  			   PIN_IO_TSPM | PIN_IO_TSIM,
+>  			   PIN_IO_TSPM | PIN_IO_TSIM);
+> =20
+> +	ret =3D pcf85363_watchdog_init(dev, pcf85363->regmap);
+> +	if (ret)
+> +		dev_err_probe(dev, ret, "Watchdog init failed\n");
+> +
+
+[Severity: High]
+Is a return statement missing here?
+
+Without it, probe failures from pcf85363_watchdog_init() such as -ENOMEM
+or -EPROBE_DEFER will be discarded, allowing the device probe to falsely
+succeed with a broken or uninitialized watchdog.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812074533.3545=
-058-1-lakshay.piplani@nxp.com?part=3D2
+058-1-lakshay.piplani@nxp.com?part=3D5
