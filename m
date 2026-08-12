@@ -1,157 +1,173 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7F436B93F
-	for <linux-watchdog@vger.kernel.org>; Tue, 11 Aug 2026 14:20:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786458028; cv=pass; b=pDQBi+mJcX8Osdm/m6MHiMngO63IusVlbZYUKAMHmbCPqNJsFlwJb9d6pYYqXGMm2AhWrf3AcznPYIptjwBloZJxBEyrgLJExiNBa58WJ8si2r9tnKxyJ4JwKyOZHtrS/89o4WCnB5GbOXtFGApFuSB7ProCUOJB2aMh+QHihIs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786458028; c=relaxed/simple;
-	bh=td3YrX4BitSFsJcuxTTJfNltqJvU+UzIl6ht+wT0AfE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bDQJl3VhOrS7SefiHU+Xn6GYj6yObnxvHgnD4uSJkJOjMw/AQgV0HbFn4aUHQwAk00aqISqe0ugYMaT3Lo+c0PddkSZvE1NwcakOifHPTWwveBhuOWPAph/1PObxeLMhWk//dQoHu6m+H75vrtL2fskRgDFV6vOz96MbZWDZRoA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CgYfJu6v; arc=pass smtp.client-ip=209.85.218.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CgYfJu6v"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-c160420289bso345391166b.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 11 Aug 2026 07:20:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786458023; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KLtpkLqkZdlh41Y8WxRtyU8eqvpfnloEqIeVrjY2Gzk3+z4l05qjGAuTyMfeCi50z5
-         s6rn99UV+s2DcfY9l8aJ3ecYb+obON3LJRUE9j3wcaUe67RH1Mr3q5LyYdjINlfIr9f+
-         j/JPhhum5o3/cuuswH5ygVFQsmwL1buimf7JSihljzL94dM80CSt8hFVq52GUI5saPiW
-         s9rd+jfmVfxjHrp3vGpL8OIagmfP0mUzkWYaQthfVR7Ko7MWmXvuSTWW8GmIxTYuQ11a
-         YPuhKn/2H4JQaedlFMsGw518BYdm/oRU8Qw5m85nKar/qcxKcyJRN2u+gVHgcwUgsQP3
-         rAHg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=td3YrX4BitSFsJcuxTTJfNltqJvU+UzIl6ht+wT0AfE=;
-        fh=x0v+BY5nVbLbQhGriYZl8ImrnFZ5bGMURj59DtskiN0=;
-        b=bKA1XxFT/adRsjzfYua9HxQibXvkgDjfJ2WxvfhBVB5yMQLPSk4lKjRxz2gVjF+sdy
-         nIRx66ceFIQklil1TizjHcMmhuOQo2qC0KQbrkKEdp/SIvl+ldYByS1I6U1O+8vA68I2
-         15s7TWUzny+ycnD5N+FD1Rge06dqSua/kZ+l8dOojosFdNsTIRJD/HXL/T7LJtsjcTBO
-         42buoqNaxqbUjJGeMmUku28MCjULrQ0W1q5H0Ulh1vRv+/6ITKA7kYxK0o1mTSwtWEGm
-         R/BbOskmJltuJK4aH5cP2r+6lEcSMPZO1owW6/d88Ssl3HZ4VUsG6STt7JOwxoPHiGuu
-         PZaQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786458023; x=1787062823; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=td3YrX4BitSFsJcuxTTJfNltqJvU+UzIl6ht+wT0AfE=;
-        b=CgYfJu6vr3wzJheRrf47Ik4TL4t+1upEmp2Aw4sZE7CK4ppJdIvlS5z5E/ChMsTV+l
-         ERGuXkB0QbmlZdL3Q2aPxXfnPOYee2RINRpmGaxgjYeMGdqwX540k6Bv0erzLmTDQ9q/
-         xzK90FldYIWe4ycbrFdpFbhIKjnLTJKxgqdhktkaWw/khobEiL7G/7gEFRDWths7KZtc
-         ehJpZb63eT5Pndj+FMN3cQSJDsf22zIXR5C2uwWGNJd1hT9z6eyG4B7pS86LXbv/y+ni
-         gQCHkCBWAqCJOxHvnIqpyMefCFxj2/oTC/2XpsqRuj/AkmzHQy29WyMwYWjcC5DeasXL
-         VXyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786458023; x=1787062823;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=td3YrX4BitSFsJcuxTTJfNltqJvU+UzIl6ht+wT0AfE=;
-        b=Fz3+XxAPFina1qBnMCK/7rafs2J3m8EidoJ1PM07DBD2mIlAKo84FJa05cwFoHo3Q7
-         BPlHvHAu8ABFLkI5o5Zba0sqV5HR/YUBtTN4uImFTNgAeWUeXJJwGFSK4rboG4RFLOUR
-         6NFSZNwswRb6nBKOevwWumq3y4wRXGQPrxXBUWu50z80n+pjmeh16EgBtIbmw+nKSbBC
-         R5YwgFAfhvscEw9MXmFlFtO3oLzigbpTqPNkfZo09CW2EWNH6GeMP7GRAmLqwMb636T5
-         vvuTgdpqmo78ymOEaWG7uCGJLL+4KYPZRZiIy0WgA5K4y/DUZATr/eEua/hl4LZI31Kv
-         VDTw==
-X-Forwarded-Encrypted: i=1; AHgh+RoxMgs+qch5RxBYAKi6Fx944fDk7cF6ETQ+yq9PezION3hPYv7skmp5bC1EmWG9d35/iADdspKzRd+8h03Mrg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx2Pwml4I2zT3MEDlttGQwQXVFyQBS8Y0T1ywdxKfhsPXg9CrPf
-	kvP1odssAmkYv2gG3QOh76wB8oOkHyEYNeZ6yx0B2Rdc6PdRVriEpQC4Yxozo70Snz4JzvU7Os/
-	+JKC8BRBif8nIxer4ZIStKWLPbmHEDonzaH2HzX8=
-X-Gm-Gg: AR+sD10qfwfxnS/9ikOB3hfjTExVHAEsJh+OLrM4CicB8SFWnEVoe0Y695DjMYCI4yu
-	l0Mbbs1KMASw+xsU8cXXhmnkepIVHx59OUCflXu0IiAMDbJINpCk4n3GQpKcDNcfiyV7Sr0wjpv
-	afyG4vS8o9Kg/E3BlLA11116y8M2hebbmHahnzQDxX9SpLfp0PZrXuY+LSZASk0IuRutmtMnzoL
-	DZ4BrK18ygKLVUXN4TYWNpmhxY3Xh40HZ+l8dNkq9RyKMHYnagqrTlnndofFPDc1Cy4UPSlPVfp
-	IFVeycCBgqOYCB7Tm28yx6ejAywMBzqtGKtj4n3IGdQ=
-X-Received: by 2002:a17:907:3d11:b0:c15:d4f8:dade with SMTP id
- a640c23a62f3a-c20ec8ee1e6mr50072366b.2.1786458022732; Tue, 11 Aug 2026
- 07:20:22 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB8283A9DB6;
+	Wed, 12 Aug 2026 07:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786520745; cv=none; b=Mh2f4PJVpy0XaHo3iFC2vkBwkfyzPxBXBxhI1SnKOUsChskMIMvY1zbRgciYiG88JS3c/gQrsPENVmewWh9LJ/GMo/u784w+zGnUVojq3lcu4QJZf9RRvUAhL9o8HhFR/Y9Dig+n8P6xVSHm0W8or1rk9xyh0IhC68NiuGrEYds=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786520745; c=relaxed/simple;
+	bh=D+3q7ui4s8HRziAqwfu8QHnqaJo2nk6cZX7C7LOvYzI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=tqwmiZ9QwJlt5zbPz68KWSZket8dQM2vLV731vk855oQHTXinbMAPhiy+pD1RKyrJVK9LYCHoigLX8Xl4Mry7BwOiKajXvF2xxh5n1r6+zezEoFa6fkRZTC4/VUvMQRLoD2odJlVyQxV0OERvElhhyjtDsVnz2ttuN+yFKAy6Bk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 5A6ED2002D7;
+	Wed, 12 Aug 2026 09:45:42 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2DB6A2002CC;
+	Wed, 12 Aug 2026 09:45:42 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id EA6C018000B5;
+	Wed, 12 Aug 2026 15:45:40 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	wim@linux-watchdog.org,
+	linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>
+Subject: [RESEND v4 2/5] rtc: pcf85363: support reporting battery switch-over via RTC_VL
+Date: Wed, 12 Aug 2026 13:15:30 +0530
+Message-Id: <20260812074533.3545058-2-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
+References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260809160643.33991-1-l.scorcia@gmail.com> <20260809160643.33991-2-l.scorcia@gmail.com>
- <20260811-amethyst-seriema-of-gallantry-ca9c7f@quoll>
-In-Reply-To: <20260811-amethyst-seriema-of-gallantry-ca9c7f@quoll>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Tue, 11 Aug 2026 16:20:11 +0200
-X-Gm-Features: AUfX_mzTu9IARagHp5y3Lhufa5MQ0ahYW_Bpy7_ilNA0FNARMUxNWXd9eRk54e0
-Message-ID: <CAORyz2KXJf4gU46649w1ncb7TAOErdoGmfOMzwKr8b+eGdAgVA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/8] dt-bindings: reset: Add mt6589 toprgu reset IDs
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-mediatek@lists.infradead.org, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Hello Krzystof,
-thank you for your patience, I really appreciate it.
-I think that a lot of my confusion comes from the fact that I'm trying
-to follow the structure that is already upstream, but the whole driver
-and bindings could probably be refactored in a more straightforward
-way.
+Add battery switch-over reporting for PCF85263/PCF85363 using the standard
+RTC_VL_* ioctl interface. When the backup supply takes over, the BSF flag
+is exposed to userspace through RTC_VL_READ and can be cleared using
+RTC_VL_CLR.
 
-> So binding already has reset-cells or not?
+This allows applications to detect loss of main power without relying on
+non-standard interfaces.
 
-The watchdog binding at mediatek,mtk-wdt.yaml [1] already declares the
-reset-cells property (optional).
-Inside this document the various SoC compatibles are divided into two
-lists - one that falls back onto "mediatek,mt6589-wdt" and another one
-of explicitly declared devices.
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+---
+V3 -> V4:
+- No changes in v4.
+V2 -> V3:
+- Split into separate patches as suggested:
+  - Battery switch-over detection.
+  - Timestamp recording for TS pin and battery switch-over events.
+  - Offset calibration.
+  - Watchdog timer (to be reviewed by watchdog maintainers).
+- Dropped Alarm2 support
+- Switched to rtc_add_group() for sysfs attributes
+V1 -> V2:
+- Watchdog related changes due to removal of vendor specific properties
+  from device tree
+  * remove vendor DT knobs (enable/timeout/stepsize/repeat)
+  * use watchdog_init_timeout (with 10s default)
+  * derive clock_sel from final timeout
+  * default, repeat=true (repeat mode)
+- Fixed uninitalised warning on 'ret' (reported by kernel test robot)
+- Use dev_dbg instead of dev_info for debug related print messages
+- Minor cleanup and comments.
 
-If I am not grossly mistaken, looking at the mtk_wdt.c [2] driver that
-handles all these compatibles there aren't really any different
-behaviors between any of those watchdogs/reset generators.
-In every one of them the .data object only provides the total number
-of reset bits in each SoC toprgu, plus a single "has_swsysrst_en" flag
-for mt7988 only.
-For mt6589 the number of resets is missing, which means its reset
-controller isn't enabled (and therefore it's not enabled in any of the
-"compatible" devices). We know that this SoC supports watchdog resets,
-so there really is no difference between all the SoCs. Both the total
-number of resets and the "has_swsysrst_en" flag could become
-properties in the binding document and be added to device trees.
+ drivers/rtc/rtc-pcf85363.c | 49 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 47 insertions(+), 2 deletions(-)
 
-This change would avoid lots of redundant compatibles, but it would
-break existing dtbs and I don't see a way to keep compatibility. Maybe
-an entire new binding+driver and deprecating the current one...?
-Still I'd feel more comfortable hearing the voice of experts before
-proceeding in this direction.
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index 540042b9eec8..c03d5a65c5f7 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -14,6 +14,7 @@
+ #include <linux/err.h>
+ #include <linux/errno.h>
+ #include <linux/bcd.h>
++#include <linux/device.h>
+ #include <linux/of.h>
+ #include <linux/regmap.h>
+ 
+@@ -295,23 +296,67 @@ static int pcf85363_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ {
+ 	struct pcf85363 *pcf85363 = i2c_get_clientdata(dev_id);
++	bool handled = false;
+ 	unsigned int flags;
+ 	int err;
+ 
+ 	err = regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
++
+ 	if (err)
+ 		return IRQ_NONE;
+ 
++	if (flags) {
++		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
++			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
++			(flags & FLAGS_BSF) ? " [BSF]" : "");
++	}
++
+ 	if (flags & FLAGS_A1F) {
+ 		rtc_update_irq(pcf85363->rtc, 1, RTC_IRQF | RTC_AF);
+ 		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_A1F, 0);
+-		return IRQ_HANDLED;
++		handled = true;
+ 	}
+ 
+-	return IRQ_NONE;
++	if (flags & FLAGS_BSF) {
++		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
++		handled = true;
++	}
++
++	return handled ? IRQ_HANDLED : IRQ_NONE;
++}
++
++static int pcf85363_rtc_ioctl(struct device *dev,
++			      unsigned int cmd, unsigned long arg)
++{
++	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
++	unsigned int val;
++	int ret;
++
++	switch (cmd) {
++	case RTC_VL_READ: {
++		u32 status = 0;
++
++		ret = regmap_read(pcf85363->regmap, CTRL_FLAGS, &val);
++
++		if (ret)
++			return ret;
++
++		if (val & FLAGS_BSF)
++			status |= RTC_VL_BACKUP_SWITCH;
++
++		return put_user(status, (u32 __user *)arg);
++	}
++
++	case RTC_VL_CLR:
++		return regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_BSF, 0);
++
++	default:
++		return -ENOIOCTLCMD;
++	}
+ }
+ 
+ static const struct rtc_class_ops rtc_ops = {
++	.ioctl  = pcf85363_rtc_ioctl,
+ 	.read_time	= pcf85363_rtc_read_time,
+ 	.set_time	= pcf85363_rtc_set_time,
+ 	.read_alarm	= pcf85363_rtc_read_alarm,
+-- 
+2.25.1
 
-> We do not take bits, but identifiers of resets.
-
-Currently the existing mtk_wdt.c driver does not use a reset table
-that binds identifiers to bits for any of the existing devices. There
-are a bunch of mediatek,mt*.h files under dt-bindings/reset [3] that
-point directly to reset bits instead of being indexes.
-I can introduce a reset table in the driver, but it would break
-existing devices as those bits are referred in device trees and they
-are often non-contiguous (e.g. [4]). As before, it could be done by
-creating a new driver and deprecating the current one, but maybe I
-completely misunderstood your point, in which case I apologize.
-
-Thank you for your help,
-
-[1] https://github.com/torvalds/linux/blob/master/Documentation/devicetree/bindings/watchdog/mediatek%2Cmtk-wdt.yaml
-[2] https://github.com/torvalds/linux/blob/master/drivers/watchdog/mtk_wdt.c
-[3] https://github.com/torvalds/linux/tree/master/include/dt-bindings/reset
-[4] https://github.com/torvalds/linux/blob/master/include/dt-bindings/reset/mt8195-resets.h
---
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
