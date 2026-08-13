@@ -1,112 +1,166 @@
-Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0F03A8FE6;
-	Wed, 12 Aug 2026 20:55:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA105257435;
+	Thu, 13 Aug 2026 03:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.61.82.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786568120; cv=none; b=SyqR4+pD39f+ruMhE6SfYX8N4v/uUQVLvwRI+HWwOCRD6i4UxP/eNaHthUMJjbHCJ66qBZAakmM1S5CJK0QJDU84QQatqWyhu01Wa3Zg9heBVohroxax9xBIsxta6+0UrcUleG75Oesdf4hkVpkMDV6gaMfoncOyigL6VZxF6Tk=
+	t=1786592955; cv=none; b=QkWJDQYf2i4NHVT1n+M4YWELDmbLrVL52K8BtvU0eKlrbsT5nvHuvBgSik1gpQHOZDgB3m+KNB+lj+g3JTCwK2o/pNTZwCMGF+DV9TXk7QSz6+Dw4Vqn4OUaYxdUnmwuXKRLEiTb9+zjv0yQqUUhM14jd3Y3wd6tKGiISq6MUBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786568120; c=relaxed/simple;
-	bh=FrdqQ6kXNnNKfJVjZwswwcKEQOtgoDeMVrYYyQrDqpE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=G2RQoc+vbOnhCIa3WaSsCZSuZsb58bPHCs8WyB4Mdb9lg9RZ8irj5fEiOrSvMsHE/l7T8asZOYiHHgGhrsKHt1P4OGA3NMcD9keZPtQL54OVgxXn+UNqlteDRzf3U0Dkutx6yKGZ8r2PdkMIgvmygDKuYNdvEwdiSEfNPKm8Vx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.helo=mail.mainlining.org; arc=none smtp.client-ip=5.75.144.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.helo=mail.mainlining.org
-Message-ID: <b15b2687-0c2e-43b2-ac9e-78e04e77e065@mainlining.org>
-Date: Wed, 12 Aug 2026 23:54:41 +0300
+	s=arc-20240116; t=1786592955; c=relaxed/simple;
+	bh=sCT0HGL48C2Dhj6VPptfAkCs427iW18q14blynatI2Y=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oYiZHVqySdMPBUzNGXNhtxSdrqYEiU79+KsH5CTtbWS6Z4smVCfJYA9BxavxWbx2Nc1doshgkIB80gaiRAf9DyN4QQUhlpBAn5Osla/rmt5Ntf2C2YUu/S2OBlZTcCH/RWIsJJTuObCTOMsJPa7HD0Z94AdqbpVeId6rX1olGnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=poqtE2kf; arc=none smtp.client-ip=210.61.82.184
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="poqtE2kf"
+X-UUID: ed3af3e096c911f18dc8c9802ae25ab1-20260813
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=WjW1iFwVtZMI3E3j7mXThCsTi9G0FgFnbg0XkTKJR00=;
+	b=poqtE2kfeYJ/SqCrORfHf54Zrg8U3xp2maMJm5kQIGYN1UF88Sna016SPvC0SfLb3z/MCL43ocSRfNRKXOsMigF7V5N89Fk6DJfmhJU9MTUaNMDM2z59ovCRdaD3e835SKNe/olavSNFFQnXdjWAOXr86Hb6GGqpaCA2HbkpfTY=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:f5ea13d7-92e0-4dea-8ea8-3ca671be6dc7,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:7db8b62,CLOUDID:6d77bd36-0807-4c08-acbf-7f2dbfd5bbbf,B
+	ulkID:nil,BulkQuantity:0,SF:102|836|865|888|898,TC:-5,Content:0|15|50|99,E
+	DM:-3,IP:nil,URL:0,File:130,RT:0,Bulk:nil,QS:nil,BEC:-1,COL:0,OSI:0,OSA:0,
+	AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: ed3af3e096c911f18dc8c9802ae25ab1-20260813
+Received: from mtkmbs14n1.mediatek.inc [(172.21.101.75)] by mailgw02.mediatek.com
+	(envelope-from <ot_zexin.wang@mediatek.com>)
+	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+	with ESMTP id 1932425085; Thu, 13 Aug 2026 11:49:03 +0800
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.29; Thu, 13 Aug 2026 11:49:02 +0800
+Received: from mhfsdcap04.gcn.mediatek.inc (10.17.3.154) by
+ mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.2562.29 via Frontend Transport; Thu, 13 Aug 2026 11:49:01 +0800
+From: Zexin Wang <ot_zexin.wang@mediatek.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+	<linux@roeck-us.net>, Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+CC: <light.chen@mediatek.com>, <Fred-WY.Chen@mediatek.com>,
+	<Yt.Hsieh@mediatek.com>, Zexin Wang <ot_zexin.wang@mediatek.com>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>
+Subject: [PATCH v2] watchdog: sbsa_gwdt: add early_enable module parameter
+Date: Thu, 13 Aug 2026 11:48:56 +0800
+Message-ID: <20260813034900.20235-1-ot_zexin.wang@mediatek.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/33] Add support for Qualcomm Snapdragon SM7150 SoC and
- Google Pixel 4a
-To: David Heidelberg <david@ixit.cz>, Jens Reidel <adrian@mainlining.org>,
- Danila Tikhonov <danila@jiaxyga.com>, Miro Mraz <mraz.miro@seznam.cz>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-phy@lists.infradead.org, linux-mmc@vger.kernel.org,
- netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, iommu@lists.linux.dev,
- linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org,
- neil.armstrong@linaro.org, linux-hardening@vger.kernel.org,
- linux@mainlining.org, Connor Mitchell <c.dog29@hotmail.com>
-References: <20250422-sm7150-upstream-v1-0-bf9a9081631d@jiaxyga.com>
- <2ca2b774-fd7f-4612-b38d-f60e32ff6f9a@mainlining.org>
- <283096ad-ae1b-42b8-8312-b192f735fc80@linaro.org>
- <cce3fe36-322e-49ed-8928-3aef813faad7@ixit.cz>
-Content-Language: en-US
-From: Danila Tikhonov <danila@mainlining.org>
-In-Reply-To: <cce3fe36-322e-49ed-8928-3aef813faad7@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-Hi David,
+On SBSA platforms using standard UEFI firmware (such as EDK II), the
+watchdog timer is often enabled during early boot stages but explicitly
+disabled by the firmware before handing over control to the OS (e.g.,
+during ExitBootServices). This is done to prevent unintended resets
+while the OS is loading, assuming the OS watchdog driver will take over.
 
-Thank you for your comment.
+However, this leaves a protection gap. If the system hangs between the
+firmware handover and the userspace watchdog daemon startup, the hardware
+watchdog will not fire to recover the system. For safety-critical systems
+that require continuous hardware watchdog protection from the earliest
+possible moment, this gap is problematic.
 
-On 12/08/2026 14:40, David Heidelberg wrote:
->
->
-> On 23/04/2025 09:26, Neil Armstrong wrote:
->> Hi,
->>
->> On 23/04/2025 00:07, Jens Reidel wrote:
->>> Hi everyone,
->>>
->>> apologies for the mess this created. Danila's mail provider 
->>> ratelimited him halfway through sending the series and the attempt 
->>> to re-try sending the second half an hour later ended up with a new 
->>> message ID (I think due to not using --in-reply-to).
->>> He asked me to let you know that this will be resolved later and the 
->>> whole series will be re-sent once the problems are resolved.
->>
->> The b4 web submission is a great alternative when the mail provider 
->> is rate limited:
->> https://b4.docs.kernel.org/en/latest/contributor/send.html#web-endpoint
->>
->
-> I see people interested in moving Pixel 4a forward, but it seems this 
-> was never upstreamed? I looked at sm7150 repository [1] where I see 
-> FROMLIST, but these patches never arrived to the list and this series 
-> is from 2025.
->
-> Should we expect v2 (re)based on recent tree?
->
+Add an 'early_enable' module parameter to allow the kernel driver to
+re-enable the watchdog immediately during probe if it was left disabled
+by the firmware. By setting the WDOG_HW_RUNNING status bit, the watchdog
+core is instructed that the hardware is active. As a result, the core's
+pre-userspace handler (controlled by 'handle_boot_enabled') will
+automatically issue periodic keepalives until userspace opens the device.
 
-I'd definitely like to get back to upstreaming SM7150 and the devices
-based on it, but I don't think there's much value in continuing with
-this particular series as-is. A lot has changed in the kernel over the
-past year, which would require substantial changes throughout the series
-and would effectively force the maintainers to review it from scratch
-anyway.
+This bridges the protection gap seamlessly without requiring firmware
+modifications and without risking unintended resets during kernel boot.
 
-I'd also like to split the series up to avoid targeting such a large
-number of maintainers in a single submission. Hopefully, I'll be able to
-find some time to work on this in the near future.
+The parameter defaults to false to preserve the traditional behavior.
 
-
-> Thanks
-> David
->
-> [1] 
-> https://github.com/sm7150-mainline/linux/commit/7ea41523c678e94a7c048936052b5b1b1b109cdd
->
->> Neil
->>
->>>
->>> Best regards,
->>> Jens
->>
->>
+Signed-off-by: Zexin Wang <ot_zexin.wang@mediatek.com>
 ---
-Best regards,
-Danila
+ .../watchdog/watchdog-parameters.rst          |  2 ++
+ drivers/watchdog/sbsa_gwdt.c                  | 23 +++++++++++++++++--
+ 2 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
+index 502cb6adbeda..47867a621ada 100644
+--- a/Documentation/watchdog/watchdog-parameters.rst
++++ b/Documentation/watchdog/watchdog-parameters.rst
+@@ -515,6 +515,8 @@ sbsa_gwdt:
+     nowayout:
+ 	Watchdog cannot be stopped once started
+ 	(default=kernel config parameter)
++	early_enable:
++	Watchdog is started on module insertion (default=0)
+ 
+ -------------------------------------------------
+ 
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+index e04d42cc7774..ed913be3d1cb 100644
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -122,6 +122,11 @@ MODULE_PARM_DESC(nowayout,
+ 		 "Watchdog cannot be stopped once started (default="
+ 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++static bool early_enable;
++module_param(early_enable, bool, 0);
++MODULE_PARM_DESC(early_enable,
++		 "Watchdog is started on module insertion (default=0)");
++
+ /*
+  * Arm Base System Architecture 1.0 introduces watchdog v1 which
+  * increases the length watchdog offset register to 48 bits.
+@@ -296,6 +301,7 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 	struct sbsa_gwdt *gwdt;
+ 	int ret, irq;
+ 	u32 status;
++	bool early_action;
+ 
+ 	gwdt = devm_kzalloc(dev, sizeof(*gwdt), GFP_KERNEL);
+ 	if (!gwdt)
+@@ -386,14 +392,27 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+ 	 */
+ 	sbsa_gwdt_set_timeout(wdd, wdd->timeout);
+ 
++	early_action = early_enable && !(status & SBSA_GWDT_WCS_EN);
++	if (early_action) {
++		sbsa_gwdt_start(wdd);
++		set_bit(WDOG_HW_RUNNING, &wdd->status);
++		dev_info(dev, "Watchdog early enabled.\n");
++	}
++
+ 	watchdog_stop_on_reboot(wdd);
+ 	ret = devm_watchdog_register_device(dev, wdd);
+-	if (ret)
++	if (ret) {
++		dev_err(dev, "Failed to register watchdog: %d\n", ret);
++		if (early_action) {
++			clear_bit(WDOG_HW_RUNNING, &wdd->status);
++			sbsa_gwdt_stop(wdd);
++		}
+ 		return ret;
++	}
+ 
+ 	dev_info(dev, "Initialized with %ds timeout @ %u Hz, action=%d.%s\n",
+ 		 wdd->timeout, gwdt->clk, action,
+-		 status & SBSA_GWDT_WCS_EN ? " [enabled]" : "");
++		 watchdog_hw_running(wdd) ? " [enabled]" : "");
+ 
+ 	return 0;
+ }
+-- 
+2.45.2
 
