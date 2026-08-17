@@ -1,138 +1,192 @@
-Received: from mail-4325.protonmail.ch (mail-4325.protonmail.ch [185.70.43.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BC962F8E8B
-	for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2026 11:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.25
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786964943; cv=none; b=kuZ4RABR1ozq4h9d1EVJbutWzCotpBH03lKc3ozx8UU/ptUdta8cRBeEBXuJT1t9UpHg7uf7nkqz7ktwye2MLV4Mcbo9G9rLh+ThKmYa/cDxv+OtVWb75UiE6Mk/B8V0jncGxiooS7lqk5jXpTlKinR5CU2sAyit0gu7KU8p8os=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786964943; c=relaxed/simple;
-	bh=zPCnKvUY679S6FYWHPC8KfDz/9Shx5+soSEn5mxDyxE=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qnHeWvkJw7hBaAF1jb56h1w9KVwtTbScXtyw/dq+tYGAXXuqBzbofCwCnoR3hVfNFzOEqNxpiwxoozsChACwZRZFH4YfNiX5TUvrLYTl7HJQagCQVh8l3RqTnpTSlKee4gZHBwbsKTYAwq1j2vrweKI/ViVr+yIxyMuRkNDqJRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com; spf=pass smtp.mailfrom=protonmail.com; dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b=e4hJc5ua; arc=none smtp.client-ip=185.70.43.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89A0643D50E
+	for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2026 14:58:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786978692; cv=pass; b=KgOmHV3/G3m+boAMl5goxFWjuQRgoqli8mKhSOjE7n5464kdrvdsgtaJyjcL33c3ipIyNMxOkoFNNf4TZhQ8i4xtrsrOLU7GrTqbwu1cTOzHwpW9ceZeGjulntEK8DgipJ+e5FLNRTApdMFd5eNdry8i8VthIdEevXT21kIE0EM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786978692; c=relaxed/simple;
+	bh=gIi+I19Q7XnPhr3NypbxThTLH682pcRQjzGXRDJm87Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gN8dkEgJPD47nglutFSx+l7eyI+KQicrsqhDP8XQKv2E5RcHB2AoMR50Z1A93+F+4EMGg3IvbWfvBX076Stilsu5diS2zBX8sJfAJpN7kMC8czAeNRr2gZgwOGAye1Q2BtPmPvJTZmTat+wNy9xb8dNkDxvn4qaNKYFN1MWs+xg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Np0TILjm; arc=pass smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="e4hJc5ua"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-	s=protonmail3; t=1786964933; x=1787224133;
-	bh=yGze0ymZYgExAxN/K4WSJodaDn1EV8mUaPA6esUxvqs=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=e4hJc5uaHCNZyoKMDroam7FzgEMXepWWYotk+LGIa7Y4JuiEBxGJsqeSpBuaMZ22D
-	 /CJWbEuItZIzyCzEMPVzfwm3w7+b5c5+yrP6uhM4rxRaDtgJdI8uiY1B9CSMtsBWGR
-	 Xw2qPWYhc7dGUaX7D9ZDlo16LKlhzt8bqGQYITQIPxt3nRqcoC6Qan6M0Vqz+lR9/t
-	 tO/qMjdCFVHpR0jqGXE0ZDWE0yqlYtPvRLA/ZfNZ/pj48i55Xu1kGDJqdjuslKcQ6/
-	 dIREMQuqDqTModVWxOOWyiu7zdWN5pe1qXUqSxdd08CogaSSMuHgMD2cgS0qOY90zr
-	 Gt1Nw/8LzIO6w==
-Date: Mon, 17 Aug 2026 11:08:48 +0000
-To: sashiko-reviews@lists.linux.dev
-From: Aiden Isik <aidenisik@protonmail.com>
-Cc: Aiden Isik <aidenisik@member.fsf.org>, conor+dt@kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-Subject: Re: [PATCH 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
-Message-ID: <Pv3LDXcGtYeb0JiJVOS82nc-ncrhiXght8Q87Z9yrqKw0zLqkMiF05AdaUtvS7BLt6P4CK6XOiaj4IA7uq0bFqkHKtS96mkPeCxMvgtvRNc=@protonmail.com>
-In-Reply-To: <20260817103354.BB64F1F000E9@smtp.kernel.org>
-References: <20260817-for-next-lucky7-watchdog-v1-0-a14370e20b92@member.fsf.org> <20260817-for-next-lucky7-watchdog-v1-2-a14370e20b92@member.fsf.org> <20260817103354.BB64F1F000E9@smtp.kernel.org>
-Feedback-ID: 46524699:user:proton
-X-Pm-Message-ID: b6cfe360eccfd6718e12a25ae94a2c4a8726c356
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Np0TILjm"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-47fecbb7000so1870775f8f.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2026 07:58:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786978689; cv=none;
+        d=google.com; s=arc-20260327;
+        b=lh07qb8EicUQRI221orcuCK/B1vL3MONjzNy03Tj8OEyOvThWnAnYt/IxlWsUrpz18
+         2SeOKxe/cUZKzFGCoi99e8pQIVQb0w9KtfP7z45qWEoKjI7Z4FeLjVSyYuRAiHuruwFx
+         b/FXdERtxGSSBq/XWJwOAZz2ZqZLf9ZIhMxeQTiEhFUUQrz+9joxU2dI0dLggzu4/AqZ
+         vxBTEXtZiade1Gh02gfOD4xmOmDabbhuUonPynC/Z1EpCKnWPMmeAMfa3I8YDwkwImq+
+         56uhQvA2Oqo+RC0mrA1+tgfrHeTNQvM2M96r2NeZHA4OnhmK1sj5ktE2kDgFUD9x+E4o
+         pqaQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=yg844Qi5SZrdGikIefqLd2LapEU10ih29HLHILYEwIM=;
+        fh=o0XsGcrIopPI51/pfdQ3wUSoiCo0tOkeJIhogmp2RC8=;
+        b=oWe4202/CHqNMbUrYQbvECac8qbXGAAs1X7gXEJKW3XhyRMFnZCrmKky4Bk2jHKAek
+         cXR4AdxqqXiboPbngjr7zMyfWS7IGc0BKo5qK22PyeF1OskHxQP4hIF8dmGmkkymI75f
+         XOV+Cc4uW7gSE8mG6mhk29iXv471mZM+EQvplHaEqP6LWFZRc2IxMOhw56r7NwScBFnb
+         ZW9v82SBavRmLbGTRdnNHLH0DCqPMxsL9gagh1giOGcreclda+xkJtHs8diQ5t3cDY11
+         dtvpD5U3EOJosITGB8OnJQtpaEou+lhfig2SJe+PbdiGUkjRIB1sqaRvpgF5HSqkbz5b
+         CpsA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786978689; x=1787583489; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=yg844Qi5SZrdGikIefqLd2LapEU10ih29HLHILYEwIM=;
+        b=Np0TILjm50tJQ2QuLvbdcOBxS+9qO9LaueKKKurxu+/yPGBSN8ubmmD7NxH32RgpKV
+         CLYk1zUatYr2q0fplDYhIO1cLQ2aHzJkSAbYkvwbdGmXvp6Jr8MA5zWa/QoEbdUfR14l
+         XMRuounhRFFWZyVb1YBov8G3PrWo62/jkbWwoY7fNp5VDJqSgiECQzdfUqr6h3BKubT1
+         ThrZ71iJUHz6zfE1LmuzIiB3Qd4KOzq9HnJAe2EqavwLlzAJ4zOokrs2c+i3Lsso+v8O
+         KlFu0P5TGLnV2bx9KAIScmSw3i7fo1bUePx9nzUNyEPpKo8m7d0aEb2VMnWumSS435Xh
+         5mEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786978689; x=1787583489;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yg844Qi5SZrdGikIefqLd2LapEU10ih29HLHILYEwIM=;
+        b=PzEa3kzAzcK41W1dyBB1sWQXJVC+EzBaih/0mtO3KdfJbSNo/rEiUR2K2+RgZgX/va
+         R9I2YANfa0m0HDVWmUA0iAzz/5eAPNRkmzlCNbfeSul97iY/p8eWSKkEi0mdxUdthtjE
+         ADbLjZvDtLJHnep0ezIBQLLe403qVH+YMR5hY34SO7KdGzU1nXFQwodyfssHspq8pBX0
+         JRHDfB/w3EKmM118bDA3WkpUCyn6pMrsUejxgMZ+wtmhTIDSD3nnmGoJDNF4i4HzeE0j
+         UXINCxbqNnkbJoA3ybO5Cy3UM36p9FCDtl3QuZb1sxfXQq6J9JIYacGWUTvwDx3rAu7c
+         d6iA==
+X-Forwarded-Encrypted: i=1; AHgh+RqBiIf78Us/qRyui5XHFhUSHMIim9gwm+RiI+MPUgumQCkeJ5mLNriQ0wC6Co/l7oiXFu/IWAa6FJegvokMuA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzmvSzVgtbYkmfWdHGG4QGV6HW67q2AwVMiojnfrmJN4AF8J3g
+	dd/cVC4/MCBr3IeAu8UJPrSk2gmXdIR5RJMe5daZWEBt58j7z0fJFrc36uys5r6c4H0K9t3K3yB
+	faWKZ/z5pxZ22EwV/nI4DXxDNHhzOtqc=
+X-Gm-Gg: AR+sD12zFITsOopLnMxvsJsSD/crJ9XOYpN/FY+3AZGg3uuF67irL5cVX4BODN1oKJn
+	ZJH+qSSB2zTmZHK0np2v4HtDw+/t54Y2WPt/ltos8FD3DeDkNsuGsBjNev8DloGLntCwIYr3T8h
+	Bpt9N5aXGaFEpRDFhWOrdxN3rmV31r5n2bjbJoj6DlgKGD8MfepCtb9gqJ8cWgT9X0Jt///7Imn
+	U+hL3o7t61XfXiP5hHfZJ8UU+bg2UuHixLrrxJKgIbOqTOBBaRwioXjP/9eFStISyU3PQ5JGxcl
+	oxmvhtLt5PMi8MChCP3pEmpEX+IC0BOW4WuQT66xW4/s4v+51nYil0lKoAVTiQ5slvTIhuIujv4
+	yIhJoMZJTSRp1aEYGtwqJrfJCOBsaxps+9mxgyd6jlP2BqbSLmEUDk2kEUvNQZdNW
+X-Received: by 2002:a05:600c:c165:b0:499:4892:d022 with SMTP id
+ 5b1f17b1804b1-4998795bca6mr451259735e9.8.1786978688439; Mon, 17 Aug 2026
+ 07:58:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20260814191415.2110732-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260814191415.2110732-2-prabhakar.mahadev-lad.rj@bp.renesas.com> <CAMuHMdVKy1QOh6vBGf8xFGTw0c_htgF8JYA-VnDH=muL1G03EA@mail.gmail.com>
+In-Reply-To: <CAMuHMdVKy1QOh6vBGf8xFGTw0c_htgF8JYA-VnDH=muL1G03EA@mail.gmail.com>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Mon, 17 Aug 2026 15:57:41 +0100
+X-Gm-Features: AcwNN1XxcpNUj11e1rVVokPqDeZDP7fjvNUGfNBKKU3O8MMkJSpQ_tZbFi19yCE
+Message-ID: <CA+V-a8uBo=A40LRYgO47OMwaiT-U9EUXaEbHRxw_hgW+wn1E9w@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] watchdog: rzv2h_wdt: Propagate WDTDCR access errors
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
+Hi Geert,
 
-> Thank you for your contribution! Sashiko AI review found 3 potential issu=
-e(s) to consider:
-> - [High] The `drv_data_exynos5515` variant declares `QUIRK_HAS_PMU_AUTO_D=
-ISABLE` but fails to initialize `.disable_reg`, causing unintentional write=
-s to PMU offset 0x0000.
-> - [High] The `drv_data_exynos5515` variant uses an 'INT_EN' register for =
-masking watchdog reset, but omits the `.mask_reset_inv =3D true` flag, inve=
-rting the WDT reset mask logic.
-> - [Medium] Incorrect use of an Exynos Auto v920 register macro (`EXYNOSAU=
-TOV920_CLUSTER0_NONCPU_INT_EN`) in an Exynos 5515 variant.
-> --
->=20
-> --- Patch [2]: [PATCH 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt comp=
-atible data ---
-> commit dcaab4881777bc5f5ce1a532adad7c17046164a8
-> Author: Aiden Isik <aidenisik@member.fsf.org>
->=20
-> watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
->=20
-> This commit adds driver data and a compatible string for the Exynos5515
-> SoC's watchdog timer.
->=20
-> > diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_=
-wdt.c
-> > index e31f93db05096..7299dfdb0c099 100644
-> > --- a/drivers/watchdog/s3c2410_wdt.c
-> > +++ b/drivers/watchdog/s3c2410_wdt.c
->=20
-> [ ... ]
->=20
-> > @@ -232,6 +232,16 @@ static const struct s3c2410_wdt_variant drv_data_e=
-xynos5420 =3D {
-> >  =09=09  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
-> >  };
+On Mon, Aug 17, 2026 at 10:46=E2=80=AFAM Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+>
+> Hi Prabhakar,
+>
+> On Fri, 14 Aug 2026 at 21:15, Prabhakar <prabhakar.csengg@gmail.com> wrot=
+e:
+> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > >
-> > +static const struct s3c2410_wdt_variant drv_data_exynos5515 =3D {
-> > +=09.mask_reset_reg =3D EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
->=20
-> [Severity: Medium]
-> Is this intentionally using an Exynos Auto v920 register macro for an
-> Exynos 5515 variant, or could this be a copy-paste error?
->=20
+> > The WDTDCR helpers currently access the register directly using
+> > `readl()`/`writel()` and therefore cannot report failures to their call=
+ers.
+> > WDTDCR is located in a shared syscon region and will be accessed throug=
+h
+> > regmap in a subsequent change, where register accesses can fail.
+> >
+> > Make `rzt2h_wdt_wdtdcr_count_start()` and `rzt2h_wdt_wdtdcr_count_stop(=
+)`
+> > return an error so their callers can propagate failures.
+> >
+> > Handle these errors in the watchdog start, stop and restart paths and
+> > unwind resources acquired before the WDTDCR access. In particular, rest=
+ore
+> > the reset and clock state and release the runtime PM reference as
+> > appropriate when an access fails.
+> >
+> > The helpers still return zero with the current `readl()`/`writel()`
+> > implementation, so this change does not alter the driver's behaviour by
+> > itself. It prepares the error handling required for the subsequent regm=
+ap
+> > conversion of WDTDCR access.
+> >
+> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > ---
+> > v2->v3:
+> > - New patch, split from v2 patch #1 to make thing easier to review.
+>
+> Thanks for the update!
+>
+> > --- a/drivers/watchdog/rzv2h_wdt.c
+> > +++ b/drivers/watchdog/rzv2h_wdt.c
+>
+> > @@ -234,8 +250,19 @@ static int rzv2h_wdt_restart(struct watchdog_devic=
+e *wdev,
+> >         rzv2h_wdt_setup(wdev, priv->of_data->cks_min | WDTCR_RPSS_25 |
+> >                         WDTCR_RPES_75 | WDTCR_TOPS_1024);
+> >
+> > -       if (priv->of_data->wdtdcr)
+> > -               rzt2h_wdt_wdtdcr_count_start(priv);
+> > +       if (priv->of_data->wdtdcr) {
+> > +               ret =3D rzt2h_wdt_wdtdcr_count_start(priv);
+> > +               if (ret) {
+> > +                       if (!active) {
+> > +                               reset_control_assert(priv->rstc);
+> > +                               clk_disable(priv->oscclk);
+> > +                               clk_disable(priv->pclk);
+> > +                       } else {
+> > +                               reset_control_reset(priv->rstc);
+> > +                       }
+>
+> FTR, this else-branch is also new in v3.
+>
+Thanks for pointing that out.
 
-This is intentional.
+Cheers,
+Prabhakar
 
-> [Severity: High]
-> Since this variant uses an INT_EN register for masking the reset, should
-> the .mask_reset_inv =3D true flag be set here?
->=20
-> Without the inversion flag, the bitwise masking logic in
-> s3c2410wdt_mask_wdt_reset() evaluates to (mask ^ false). For INT_EN
-> registers, this typically writes 1 when intending to mask the reset, and =
-0
-> when intending to unmask it, effectively inverting the logic.
->=20
-> > +=09.mask_bit =3D 2,
-> > +=09.rst_stat_reg =3D EXYNOS5_RST_STAT_REG_OFFSET,
-> > +=09.rst_stat_bit =3D 24,
-> > +=09.quirks =3D QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET | \
-> > +=09=09  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE | \
-> > +=09=09  QUIRK_HAS_DBGACK_BIT,
-> > +};
->=20
-
-Possibly, will wait for maintainer input.
-
-> [Severity: High]
-> Will this cause unintentional writes to offset 0x0000 of the PMU regmap?
->=20
-> This variant declares QUIRK_HAS_PMU_AUTO_DISABLE but omits .disable_reg.
-> Since struct fields default to zero, when s3c2410wdt_enable() checks for
-> this quirk and calls s3c2410wdt_disable_wdt_reset() during driver probe:
->=20
-> s3c2410wdt_disable_wdt_reset()
->     regmap_update_bits(wdt->pmureg, wdt->drv_data->disable_reg, mask_val,=
- val);
->=20
-> regmap_update_bits() will blindly write to offset 0x0000.
->=20
-> [ ... ]
->=20
+> > +                       return ret;
+> > +               }
+> > +       }
+> >
+> >         rzv2h_wdt_ping(wdev);
+> >
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
 > --
-
-Again, will wait for maintainer input.
-
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817-for-next=
--lucky7-watchdog-v1-0-a14370e20b92@member.fsf.org?part=3D2
-> 
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
+8k.org
+>
+> In personal conversations with technical people, I call myself a hacker. =
+But
+> when I'm talking to journalists I just say "programmer" or something like=
+ that.
+>                                 -- Linus Torvalds
