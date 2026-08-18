@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76D613A16B2;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E2442885E;
 	Tue, 18 Aug 2026 18:03:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787076210; cv=none; b=kS7mEvig6vNVUqApTk9HyVI+UQJk6jbZFtWAUnA0LkYzcY6XuUAxQ2aFenhVGzy6l8JxtUVJlSvR0vYz77EjEjqjxILT9xDXuCQXHElnLkmj9c24rEFh+zdneki4QM8kkCluPbvJ9rb6S/64O8wyEv3jSXDnGzNixRn/2r37mF0=
+	t=1787076210; cv=none; b=ApgMRusvLU3nYv7gMAFDYF7fywHo36+eQB7eCT8OcOLgLrblzEVbgqKyZo7s71JM0/4RZbOL9kZu5J/Bmc8ykwzIsMLCuzGVlnmlGvhGME/bknUwCuPSPq47l0bDH3tqXqu0COnKbfpHf8XzQqYyAzT0u4hEu0D7H1PozkvXxTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787076210; c=relaxed/simple;
-	bh=iVE93AHtrSa/DARsSeiqxqogPT0/RXz7YvzEV5meZKI=;
+	bh=NxlBY+QLfLmAZPcARcDdEqlxKsH4KI7HO6myhnvxzaU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YQBTAMYiFvZ/Ph0wViaxb8AwUXljh3iRDuf7a4v+cw2qTmncFGiDz3LpWmSWdcCoV3Und/SfhpjF++qUinQe9mXQAnQBgi/NZJQnuP1J1VE5eo8Lf+CRg2t373xzVk2y1I9dvDBzbBJW6ZlktxKs77rp9BTeJJkgdgBbMA0DJm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fS7uw0oO; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=QBLAe/a41IRI+2f13ow/Mzou3Xz6ZR9Bumfi3jJIzNVbskTYGD5rOkH53lmmI0iD6Z9GLqgjSMs+xv5CrItNCFdgdIA28y+qWXsdb05UHksEo6982DKBdsn9Mv5zx0dov0erHaA+W4VaHY7WosIe8Cjr5xdNEyrbPzJddQk/XjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d34bXk6K; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fS7uw0oO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3635BC2BCFD;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d34bXk6K"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 21619C2BCF4;
 	Tue, 18 Aug 2026 18:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1787076210;
-	bh=iVE93AHtrSa/DARsSeiqxqogPT0/RXz7YvzEV5meZKI=;
+	bh=NxlBY+QLfLmAZPcARcDdEqlxKsH4KI7HO6myhnvxzaU=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=fS7uw0oOIpHWZXMSwzMVepwMtN04OPaOjd0+JHsRj0BbvxpymmcrJlRqbF0iUOs+a
-	 HgFtsbsUp1Km+q1HBmReiYsFd0bjrySNXzmG19L74voGCIDQNY8QxbA5CfdBa+Uqec
-	 swSVfuXNHDYJ4EesQrVFzYSmhmrsVUdPQ5PXoUwvQq/ZsMDXt1M9UWrdLLRlq4/Vz9
-	 MLouqe4+A5lnkDPiGLs3iMPf9LKmUoWo+msWUSFLpkSiFmny/jCtWJcKg6UAlrcbSM
-	 5VIda18UB92nHvPO9faXR/u+mdZjgUsI1/uktm8WcGPdidq11PGlSrn5LK1p/fbT3/
-	 LtoseB/2esOZQ==
+	b=d34bXk6KwNGdq6rG43dgNtKUqITOpvwpSkVCfOS0II63bZPtuKq4veEB3rxi6NK3J
+	 2FyeyaGkyvPMBld7CJPdx5RQHaxybk44twYEF2X0ByHR9WZV59GJhZxT6PWZbnfrpY
+	 zMZWpBNWskJfw+jW0YB/9kKKfAKM0eEmWboynjmpoK7ESFC4PVs644TIxGDMCG4C9I
+	 /UEc6hG/f0z0/YmpReSKOSi2r2E4M5cDMibDvfM6mzeTRZT2Foi04krskBiYBzHAWQ
+	 Dcoshuyif8GiDeG/onh8k5NCxUWHFzhgmNcQbVDIp6Safnq0pMOZ7QeaBU/bJCd2un
+	 vxsWUgMZjOvWQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CF45C5DF81;
-	Tue, 18 Aug 2026 18:03:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA9F1C5DF82;
+	Tue, 18 Aug 2026 18:03:29 +0000 (UTC)
 From: Aiden Isik via B4 Relay <devnull+aidenisik.member.fsf.org@kernel.org>
-Date: Tue, 18 Aug 2026 19:03:18 +0100
-Subject: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
- compatible data
+Date: Tue, 18 Aug 2026 19:03:17 +0100
+Subject: [PATCH v3 1/2] dt-bindings: watchdog: samsung-wdt: Add
+ exynos5515-wdt compatible
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260818-for-next-lucky7-watchdog-v3-2-2912bd122c57@member.fsf.org>
+Message-Id: <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
 References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
 In-Reply-To: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
@@ -55,21 +55,21 @@ Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-watchdog@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
  Aiden Isik <aidenisik@member.fsf.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1508;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2313;
  i=aidenisik@member.fsf.org; h=from:subject:message-id;
- bh=hF1hTKAa3Af2BP1y4rV71oo3r+CdBS8fUgCThTjSOzY=;
- b=owEBbQKS/ZANAwAIAUknAbLEetfrAcsmYgBqhJ5qTJMrIxLzrhlg5Hr5EOOKKjXSpIqZOslww
- WIKL/RnbuGJAjMEAAEIAB0WIQSDy8UkXGpc3JNbEaVJJwGyxHrX6wUCaoSeagAKCRBJJwGyxHrX
- 6zz2D/4sFnKJvYdx9lx9yScTwO5Wsd1quMKX5dzjpm1fXALYRYvzLuTMr++ry8vUrxs4wqiopXX
- sQQRiew5Kaxg5qVKZkhzhcdicJqTwJPp+ev9yC0JMXA0BLMkHyA0XDMYTCSxXKsumAOr1ss7CjW
- fQhJHIxl8iOrpOwov4W7KqXiNEeZLlAI0Xt89A8Zkvdh5kXcCHGtOPMJQMrcP6JiLPMQbRlndIl
- XEcoLvFJ5Tqbv2hq/J9vqkUvIO8jVCeuZHcERaYB/a+frnRBJdtTNjww/QPbvwZ2xWnJh92Ggce
- yF37z5G35pFVmAdMDVtR7BLz4xXT41EN4cKi5BtNUD07Ym90FzFkFo1zc8e1v5ktCSdL0+5bIji
- YxZvHdk+IU/UL8viIpAIuzHEZycIK8Yojlcet7RLHIczBKhKn4u+z3CzSc0TCm68pB2JXbiCO/2
- BIFV9d2WuI0ADcHGs7fpVwNPR+PkUEMBAM+8jOVp6B+IG730GqQSxOuRdDoywfv/lzaDEOIfSiy
- KFtlU9n3i71RuucMBQkDtplTajTYNLq0edD56uG2AzAASwm6zW2k9FRevH+Xbt+fbIwwqXfhGDc
- qIhdD9rWEtXbciDklEaPcF1wE8wG/vkAMjpXg0qvXURZRMtEL1kkLoMh9lnC5mqK4c6qPC6YTHp
- QZmrLvurgP+WaWw==
+ bh=FomCRWunoZv/FcOKS7xgccqo7tYm7xEPkwn4AZZPbfA=;
+ b=owEBbQKS/ZANAwAIAUknAbLEetfrAcsmYgBqhJ5q6l1KKMnV2P6Cn1UsoP5ufTSgNjAGWZlvj
+ kdMw6exdGqJAjMEAAEIAB0WIQSDy8UkXGpc3JNbEaVJJwGyxHrX6wUCaoSeagAKCRBJJwGyxHrX
+ 6z0vD/4siUbFB5yUoK3t5gXuJmAWUELGYDCgBLixa04YZ3IswaQCav8Q+HRyPs+OZgKo0jDWkhn
+ cv2lz1y4w0m5sPwMHoAYEINCli+6HtswcLh0+BrYG313/EiVEG1p0bgxoyAjr8a38/rjqwxoxBn
+ p1zZtKVJdmo65fcyKiNP+Dx3cAccWVAnrGC+dosL+J44yZbCeH4HJEZ/i9jEnHz2Pq6eayKrYcj
+ HShAsP9V5Fscoszpq4UmH4MncD7o08zQzWdVjPHqZYkEPGtDiL7xlJWBDVbST13cyNZIld1JF2i
+ tBviRwVewVTmCV0fXTlxAn2lxqqSCXqHRrP5emJExFgfZzYOWTNPTA2+AMEp40wOZsPQlZH2zqj
+ TcJ1NWL6jLsczyorAA093zt4iNVvo1u6idPASS/9fDXnKbypp+gNlqm35SnebCr8Q35rNWBn/uX
+ 48g6kIT9y5bIvLWKZofF/ClgtITvpLFSTgAwvmTebmGXDRkjG5P/3F/xAXNa2tthr+QIwCFGi7W
+ b3E1RCD/wONwoQG+oe66tDtGfqt1hLRqMOLGwquUldPR54B3P1GrO9YqNJy+gwGFJuzDSR8t1sx
+ obx7dI11j+uuHYk6PXq+gz4TNpp+5DNEGyaLvRA5jELVymtFStiJUNinOtoUjWi4bJS94JM0MiY
+ Evvy7h8v1B46gKA==
 X-Developer-Key: i=aidenisik@member.fsf.org; a=openpgp;
  fpr=83CBC5245C6A5CDC935B11A5492701B2C47AD7EB
 X-Endpoint-Received: by B4 Relay for aidenisik@member.fsf.org/default with
@@ -79,43 +79,65 @@ Reply-To: aidenisik@member.fsf.org
 
 From: Aiden Isik <aidenisik@member.fsf.org>
 
-Add driver data for the Exynos5515 SoC's watchdog timer.
+Add a dt-binding compatible for the Exynos5515 watchdog timer.
+
+This watchdog requires a syscon phandle, and the cluster index should
+*not* be specified, as that does not make sense on the Exynos5515 SoC
+(due to it only having a single core cluster).
 
 Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
 ---
- drivers/watchdog/s3c2410_wdt.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ .../devicetree/bindings/watchdog/samsung-wdt.yaml  | 23 +++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index e31f93db0509..5592f25fe6c8 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -232,6 +232,16 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
- 		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
- };
+diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+index 41aee1655b0c..a32c47831577 100644
+--- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+@@ -22,6 +22,7 @@ properties:
+           - samsung,s3c6410-wdt                   # for S3C6410, S5PV210 and Exynos4
+           - samsung,exynos5250-wdt                # for Exynos5250
+           - samsung,exynos5420-wdt                # for Exynos5420
++          - samsung,exynos5515-wdt
+           - samsung,exynos7-wdt                   # for Exynos7
+           - samsung,exynos850-wdt                 # for Exynos850
+           - samsung,exynos990-wdt                 # for Exynos990
+@@ -57,7 +58,7 @@ properties:
+     $ref: /schemas/types.yaml#/definitions/phandle
+     description:
+       Phandle to the PMU system controller node (in case of Exynos5250,
+-      Exynos5420, Exynos7, Exynos850, Exynos990 and gs101).
++      Exynos5420, Exynos5515, Exynos7, Exynos850, Exynos990 and gs101).
  
-+static const struct s3c2410_wdt_variant drv_data_exynos5515 = {
-+	.mask_reset_reg = EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
-+	.mask_bit = 2,
-+	.mask_reset_inv = true,
-+	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
-+	.rst_stat_bit = 24,
-+	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET | \
-+		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_DBGACK_BIT,
-+};
+ required:
+   - compatible
+@@ -93,6 +94,26 @@ allOf:
+         - samsung,cluster-index
+         - samsung,syscon-phandle
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - samsung,exynos5515-wdt
++    then:
++      properties:
++        clocks:
++          items:
++            - description: Bus clock, used for register interface
++            - description: Source clock (driving watchdog counter)
++        clock-names:
++          items:
++            - const: watchdog
++            - const: watchdog_src
++        samsung,cluster-index: false
++      required:
++        - samsung,syscon-phandle
 +
- static const struct s3c2410_wdt_variant drv_data_exynos7 = {
- 	.disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
- 	.mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
-@@ -379,6 +389,8 @@ static const struct of_device_id s3c2410_wdt_match[] = {
- 	  .data = &drv_data_exynos5250 },
- 	{ .compatible = "samsung,exynos5420-wdt",
- 	  .data = &drv_data_exynos5420 },
-+	{ .compatible = "samsung,exynos5515-wdt",
-+	  .data = &drv_data_exynos5515 },
- 	{ .compatible = "samsung,exynos7-wdt",
- 	  .data = &drv_data_exynos7 },
- 	{ .compatible = "samsung,exynos850-wdt",
+   - if:
+       properties:
+         compatible:
 
 -- 
 2.54.0
