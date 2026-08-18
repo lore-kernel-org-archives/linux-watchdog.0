@@ -1,145 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E2442885E;
-	Tue, 18 Aug 2026 18:03:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ED8446A5F2;
+	Tue, 18 Aug 2026 18:13:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787076210; cv=none; b=ApgMRusvLU3nYv7gMAFDYF7fywHo36+eQB7eCT8OcOLgLrblzEVbgqKyZo7s71JM0/4RZbOL9kZu5J/Bmc8ykwzIsMLCuzGVlnmlGvhGME/bknUwCuPSPq47l0bDH3tqXqu0COnKbfpHf8XzQqYyAzT0u4hEu0D7H1PozkvXxTc=
+	t=1787076831; cv=none; b=rSV6FaKNUERDt9HnDDUVznDLfXhtDEpCcfMhZOniXqKc9x1kgsrfpArEgSexS82gTnG+DgpRvdwseCA7UgyE2WnVlALP1Z9fyJpOkTeWk/258iS1zZ0NbkGvOzz1QEpKlK6j8rvHV6gKJO1DYVFqb/kslDy49O7JZdMoiAwRArA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787076210; c=relaxed/simple;
-	bh=NxlBY+QLfLmAZPcARcDdEqlxKsH4KI7HO6myhnvxzaU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=QBLAe/a41IRI+2f13ow/Mzou3Xz6ZR9Bumfi3jJIzNVbskTYGD5rOkH53lmmI0iD6Z9GLqgjSMs+xv5CrItNCFdgdIA28y+qWXsdb05UHksEo6982DKBdsn9Mv5zx0dov0erHaA+W4VaHY7WosIe8Cjr5xdNEyrbPzJddQk/XjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d34bXk6K; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1787076831; c=relaxed/simple;
+	bh=M5kwdOzunImGD6gBP4tq4Kh1qqLnAmdjewGVQW66cP8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=TiAa1VpSBTUS2OhMvUJkHAVdftMdJAgPYCVutYua2+uRo6F4xNRRGqxmgoNmD3RQV64ZW69vIAMqB4pvbbar2yS7YzdBspEHbcONXfR/jozijK9k6cs0apHThwBX911Yp+UgDd+ckWkLKCrDeHC+fEGDG4iHX9Cdyu6k1Z283HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MNt3qUGK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d34bXk6K"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 21619C2BCF4;
-	Tue, 18 Aug 2026 18:03:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1787076210;
-	bh=NxlBY+QLfLmAZPcARcDdEqlxKsH4KI7HO6myhnvxzaU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=d34bXk6KwNGdq6rG43dgNtKUqITOpvwpSkVCfOS0II63bZPtuKq4veEB3rxi6NK3J
-	 2FyeyaGkyvPMBld7CJPdx5RQHaxybk44twYEF2X0ByHR9WZV59GJhZxT6PWZbnfrpY
-	 zMZWpBNWskJfw+jW0YB/9kKKfAKM0eEmWboynjmpoK7ESFC4PVs644TIxGDMCG4C9I
-	 /UEc6hG/f0z0/YmpReSKOSi2r2E4M5cDMibDvfM6mzeTRZT2Foi04krskBiYBzHAWQ
-	 Dcoshuyif8GiDeG/onh8k5NCxUWHFzhgmNcQbVDIp6Safnq0pMOZ7QeaBU/bJCd2un
-	 vxsWUgMZjOvWQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA9F1C5DF82;
-	Tue, 18 Aug 2026 18:03:29 +0000 (UTC)
-From: Aiden Isik via B4 Relay <devnull+aidenisik.member.fsf.org@kernel.org>
-Date: Tue, 18 Aug 2026 19:03:17 +0100
-Subject: [PATCH v3 1/2] dt-bindings: watchdog: samsung-wdt: Add
- exynos5515-wdt compatible
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MNt3qUGK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 894171F000E9;
+	Tue, 18 Aug 2026 18:13:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787076829;
+	bh=NqlsgxRR4DGcwzzSAScmqBxpNylSgGCApwj4t8CQ6UM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MNt3qUGKWLKOLcckvK2NQfNxTSqETfaIWQL7CPobvwkwQirnkmyH9mlO/yTIjSdYK
+	 iUxwfEa3jBMcc9psPz7HCftHydLX1rkXrjnMVx9NFNuPYMyPYEd12Q8gBD22S/51Zm
+	 bg/Ah75dMFUrm47L998ia+ZKkh/NC5yULhqBMHVVf1k5cpd4pI+5HXdjyZyFNoX0of
+	 Cx7Ub9V/+WcQuaZOqbFQVjIjpZYfYiNPB1uciQ2xuyE4Muge1uSFfnJKlE2fEkjbL1
+	 AGVNF3Kcc/ooewZyikPAr7DLoyBXdgPDWU2gBU05NxjdZdf2XX09fqI67f6auuu0zw
+	 ByLNO+OyBpopQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
+ compatible data
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aiden Isik" <aidenisik@member.fsf.org>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260818-for-next-lucky7-watchdog-v3-2-2912bd122c57@member.fsf.org>
+References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
+ <20260818-for-next-lucky7-watchdog-v3-2-2912bd122c57@member.fsf.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 18 Aug 2026 18:13:49 +0000
+Message-Id: <20260818181349.894171F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
-References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
-In-Reply-To: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Peter Griffin <peter.griffin@linaro.org>, 
- Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-watchdog@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
- Aiden Isik <aidenisik@member.fsf.org>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2313;
- i=aidenisik@member.fsf.org; h=from:subject:message-id;
- bh=FomCRWunoZv/FcOKS7xgccqo7tYm7xEPkwn4AZZPbfA=;
- b=owEBbQKS/ZANAwAIAUknAbLEetfrAcsmYgBqhJ5q6l1KKMnV2P6Cn1UsoP5ufTSgNjAGWZlvj
- kdMw6exdGqJAjMEAAEIAB0WIQSDy8UkXGpc3JNbEaVJJwGyxHrX6wUCaoSeagAKCRBJJwGyxHrX
- 6z0vD/4siUbFB5yUoK3t5gXuJmAWUELGYDCgBLixa04YZ3IswaQCav8Q+HRyPs+OZgKo0jDWkhn
- cv2lz1y4w0m5sPwMHoAYEINCli+6HtswcLh0+BrYG313/EiVEG1p0bgxoyAjr8a38/rjqwxoxBn
- p1zZtKVJdmo65fcyKiNP+Dx3cAccWVAnrGC+dosL+J44yZbCeH4HJEZ/i9jEnHz2Pq6eayKrYcj
- HShAsP9V5Fscoszpq4UmH4MncD7o08zQzWdVjPHqZYkEPGtDiL7xlJWBDVbST13cyNZIld1JF2i
- tBviRwVewVTmCV0fXTlxAn2lxqqSCXqHRrP5emJExFgfZzYOWTNPTA2+AMEp40wOZsPQlZH2zqj
- TcJ1NWL6jLsczyorAA093zt4iNVvo1u6idPASS/9fDXnKbypp+gNlqm35SnebCr8Q35rNWBn/uX
- 48g6kIT9y5bIvLWKZofF/ClgtITvpLFSTgAwvmTebmGXDRkjG5P/3F/xAXNa2tthr+QIwCFGi7W
- b3E1RCD/wONwoQG+oe66tDtGfqt1hLRqMOLGwquUldPR54B3P1GrO9YqNJy+gwGFJuzDSR8t1sx
- obx7dI11j+uuHYk6PXq+gz4TNpp+5DNEGyaLvRA5jELVymtFStiJUNinOtoUjWi4bJS94JM0MiY
- Evvy7h8v1B46gKA==
-X-Developer-Key: i=aidenisik@member.fsf.org; a=openpgp;
- fpr=83CBC5245C6A5CDC935B11A5492701B2C47AD7EB
-X-Endpoint-Received: by B4 Relay for aidenisik@member.fsf.org/default with
- auth_id=956
-X-Original-From: Aiden Isik <aidenisik@member.fsf.org>
-Reply-To: aidenisik@member.fsf.org
 
-From: Aiden Isik <aidenisik@member.fsf.org>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Missing PMU counter enable configuration for Exynos5515 watchdog.
+--
 
-Add a dt-binding compatible for the Exynos5515 watchdog timer.
+--- Patch [2]: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt com=
+patible data ---
+commit 9ce360e3c933b7447ba5da9ba1b7ae3fee989703
+Author: Aiden Isik <aidenisik@member.fsf.org>
 
-This watchdog requires a syscon phandle, and the cluster index should
-*not* be specified, as that does not make sense on the Exynos5515 SoC
-(due to it only having a single core cluster).
+watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
+   =20
+This commit adds driver data for the Exynos5515 SoC's watchdog timer.
 
-Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
----
- .../devicetree/bindings/watchdog/samsung-wdt.yaml  | 23 +++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wd=
+t.c
+> index e31f93db05096..5592f25fe6c83 100644
+> --- a/drivers/watchdog/s3c2410_wdt.c
+> +++ b/drivers/watchdog/s3c2410_wdt.c
+> @@ -232,6 +232,16 @@ static const struct s3c2410_wdt_variant drv_data_exy=
+nos5420 =3D {
+>  		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
+>  };
+> =20
+> +static const struct s3c2410_wdt_variant drv_data_exynos5515 =3D {
+> +	.mask_reset_reg =3D EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
+> +	.mask_bit =3D 2,
+> +	.mask_reset_inv =3D true,
+> +	.rst_stat_reg =3D EXYNOS5_RST_STAT_REG_OFFSET,
+> +	.rst_stat_bit =3D 24,
+> +	.quirks =3D QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET | \
+> +		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_DBGACK_BIT,
+> +};
 
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-index 41aee1655b0c..a32c47831577 100644
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-@@ -22,6 +22,7 @@ properties:
-           - samsung,s3c6410-wdt                   # for S3C6410, S5PV210 and Exynos4
-           - samsung,exynos5250-wdt                # for Exynos5250
-           - samsung,exynos5420-wdt                # for Exynos5420
-+          - samsung,exynos5515-wdt
-           - samsung,exynos7-wdt                   # for Exynos7
-           - samsung,exynos850-wdt                 # for Exynos850
-           - samsung,exynos990-wdt                 # for Exynos990
-@@ -57,7 +58,7 @@ properties:
-     $ref: /schemas/types.yaml#/definitions/phandle
-     description:
-       Phandle to the PMU system controller node (in case of Exynos5250,
--      Exynos5420, Exynos7, Exynos850, Exynos990 and gs101).
-+      Exynos5420, Exynos5515, Exynos7, Exynos850, Exynos990 and gs101).
- 
- required:
-   - compatible
-@@ -93,6 +94,26 @@ allOf:
-         - samsung,cluster-index
-         - samsung,syscon-phandle
- 
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - samsung,exynos5515-wdt
-+    then:
-+      properties:
-+        clocks:
-+          items:
-+            - description: Bus clock, used for register interface
-+            - description: Source clock (driving watchdog counter)
-+        clock-names:
-+          items:
-+            - const: watchdog
-+            - const: watchdog_src
-+        samsung,cluster-index: false
-+      required:
-+        - samsung,syscon-phandle
-+
-   - if:
-       properties:
-         compatible:
+[Severity: Medium]
+Does the Exynos5515 PMU require explicit counter enablement like other rece=
+nt
+Exynos SoCs?
 
--- 
-2.54.0
+Other variants in this driver (like Exynos850, AutoV920, and GS101) that use
+the NONCPU_INT_EN PMU registers also pair it with a NONCPU_OUT register and
+the QUIRK_HAS_PMU_CNT_EN flag to ensure the watchdog counter ticks.
 
+If the Exynos5515 hardware works similarly, omitting cnt_en_reg, cnt_en_bit,
+and QUIRK_HAS_PMU_CNT_EN here might leave the counter disabled and the
+watchdog silently non-functional. Could you confirm if this variant needs t=
+he
+counter enable logic?
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818-for-next-l=
+ucky7-watchdog-v3-0-2912bd122c57@member.fsf.org?part=3D2
