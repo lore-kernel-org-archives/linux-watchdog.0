@@ -1,126 +1,98 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374AC42123F;
-	Tue, 18 Aug 2026 15:53:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD42427FA1;
+	Tue, 18 Aug 2026 15:56:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787068414; cv=none; b=SevsnklCacVeFc111dWFHYspnh8gAOydXOZyqGt7Q8SU04oWAGf/AbqfvDRwVz9bZrI+hQ8yzntrr+pQG7Zf6tkkcaJJtYckydzzVunbfKiD2+ZP9Zszqgxk/3xTjfxzcYcVqpDaaOqjDn2w9zEeISRJNSM9BiEWxlQ94UWpBKQ=
+	t=1787068590; cv=none; b=uHvk9KLdXkx4Pl6TgBBZ3MMDRXZFckcp1PxEikmtv1z2bov7JNo+AWigFBv1ZGxdzGZOzcqqrDEI3jkpXtfhOaw/xXd/bLxY7HxJFpXa+EiRBwValZ0Q3+8yDrjHkK5F2c4MnqJlgdbA9MqCEHDnJS0/EGgKV5s4T0FFkgV2LSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787068414; c=relaxed/simple;
-	bh=zM7Kw335RtLMwMQZRjhL6GkGaL8GektEtShfwuox9RU=;
+	s=arc-20240116; t=1787068590; c=relaxed/simple;
+	bh=ITHc2CB/m5fMgg9+eyKTybFOkJJDIhAYm78SABpciCU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kVAZH39SZhCxrhwCc8PnM7SkUU8EBOIIzRaK6VkcfrglOkyFyMOXY/U4pm6PaeeLJN4PQjqFDmejf5IKwduXVsV21QZUIqo5ZCLvFA9eGpEEIsL8PaWhf5+BvKebWkMdQsrzTlqkdQxPxksiy70ziPDCbEiZd13sErLICUpyXjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nkdU6SL5; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tKfxp/wIr6A37d09X27a78Tbo73T1e5SOMuC6W3qBwQxekYd4MPVhKpb6v2KVfXeQMMaUVm/lSmbJSYog8PGikRxg5t/P4w1b4+lNBtDcMaJpPG/kGEnIoNpkAdEDV8flI8qSQHHu39VjLQQiIxjrBU6M1qNqd7Rogl0HKHHdd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XIH/dKF+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nkdU6SL5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E0DD1F000E9;
-	Tue, 18 Aug 2026 15:53:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XIH/dKF+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A6721F000E9;
+	Tue, 18 Aug 2026 15:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787068412;
-	bh=nopx9UMoxhVIwr8rj+CcbZo90QHmoCLfA5eB7628Qu4=;
+	s=k20260515; t=1787068589;
+	bh=x3eQbbry7J496JIJ5mWdPf5mlzkiZpYKY/bOcBoEXVI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nkdU6SL5tWhI+9YUQo72iJ03G8ES29q1R8lgft4yZ+a6Qc96c54Ha2TEBIqAGRneW
-	 2a2SeT/kz2lQKiKdlj0oDgRBPxc93Agp21FZH/pl5spfUbteXCaf+MwJmxBbCdCqKT
-	 Em+F2eIAAkubJGTgaMeVc2++Iwg6D4CXj5vP8jGVqNGSwRikbp2mm+QsYtiFX5GQmi
-	 aZSvxf2BPwJs6LUxY/m6MZsjAyM2PjQ6XXfE3Uu/71pXUti+69OJK20xvjfrqxIR6L
-	 iLIDCGGBZCKJm+iy+qlG8vlWbNpRk0QejpWBL0a3vP+M4kOiR+ya+bqpxMS38CgUKV
-	 qMwQ1IBwc18BQ==
+	b=XIH/dKF+9Vmk6yo4dOV7EY/iJnGIhqLoPE7Yr/QCAgqK+GulS5BcqrqjZyA71uSR3
+	 FDNc/qcWozbCuXY3U5kW+hwTc31YbpOgXiazA1E3D9KUAigB5iDCfZ/+blfD0tsWs2
+	 BUtpTSYZ2olx8M/WJx+ICH7XGDHTqYtgqZGczd4RUwL+nNUmMEjcco81P/81iMlZUD
+	 IZhZEmS3q3JbyY3u9UvmD4j8Hqa5keMTRCLNu+zzgmE4XLWtxwKPb9MwjJByooP0PI
+	 yqaL2z0mf5jOQJifHLwNo04TIXxhO3KRC7ModZHj2RannVRzAJRo+YA7Mwi7C+8yIr
+	 2+HnSByJNSu6g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
- compatible data
+Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: samsung-wdt: Add
+ exynos5515-wdt compatible
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Aiden Isik" <aidenisik@member.fsf.org>
-Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-watchdog@vger.kernel.org
-In-Reply-To: <20260818-for-next-lucky7-watchdog-v2-2-6743f479a47f@member.fsf.org>
+Cc: conor+dt@kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260818-for-next-lucky7-watchdog-v2-1-6743f479a47f@member.fsf.org>
 References: <20260818-for-next-lucky7-watchdog-v2-0-6743f479a47f@member.fsf.org>
- <20260818-for-next-lucky7-watchdog-v2-2-6743f479a47f@member.fsf.org>
+ <20260818-for-next-lucky7-watchdog-v2-1-6743f479a47f@member.fsf.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 15:53:32 +0000
-Message-Id: <20260818155332.9E0DD1F000E9@smtp.kernel.org>
+Date: Tue, 18 Aug 2026 15:56:28 +0000
+Message-Id: <20260818155629.0A6721F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The `drv_data_exynos5515` variant includes `QUIRK_HAS_PMU_AUTO_DIS=
-ABLE` but fails to define `.disable_reg`, resulting in PMU register corrupt=
-ion at offset 0x0.
-- [High] The `drv_data_exynos5515` variant uses an INT_EN register for mask=
-ing but fails to set `.mask_reset_inv =3D true`, inverting the watchdog mas=
-king logic.
+- [Medium] The `samsung,exynos5515-wdt` compatible string is defined as a s=
+tandalone string without a fallback, but corresponding support is entirely =
+missing from the watchdog driver.
 --
 
---- Patch [2]: [PATCH v2 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt com=
-patible data ---
-commit fd223d0c16451bec63089d85a77c3b012b8f28ed
+--- Patch [1]: [PATCH v2 1/2] dt-bindings: watchdog: samsung-wdt: Add exyno=
+s5515-wdt compatible ---
+commit 1111ae2e418dde480b9a0bc5f9cb740eb0c3a137
 Author: Aiden Isik <aidenisik@member.fsf.org>
 
-watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
-   =20
-Add driver data for the Exynos5515 SoC's watchdog timer.
+dt-bindings: watchdog: samsung-wdt: Add exynos5515-wdt compatible
 
-> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wd=
-t.c
-> index e31f93db05096..7299dfdb0c099 100644
-> --- a/drivers/watchdog/s3c2410_wdt.c
-> +++ b/drivers/watchdog/s3c2410_wdt.c
-> @@ -232,6 +232,16 @@ static const struct s3c2410_wdt_variant drv_data_exy=
-nos5420 =3D {
->  		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
->  };
-> =20
-> +static const struct s3c2410_wdt_variant drv_data_exynos5515 =3D {
-> +	.mask_reset_reg =3D EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
+Add a dt-binding compatible for the Exynos5515 watchdog timer.
 
-[Severity: High]
-This variant uses an INT_EN register for masking but omits .mask_reset_inv.
-Could this cause the watchdog masking logic to be inverted?
+> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml =
+b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> index 41aee1655b0c2..a32c478315779 100644
+> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> @@ -22,6 +22,7 @@ properties:
+>            - samsung,s3c6410-wdt                   # for S3C6410, S5PV210=
+ and Exynos4
+>            - samsung,exynos5250-wdt                # for Exynos5250
+>            - samsung,exynos5420-wdt                # for Exynos5420
+> +          - samsung,exynos5515-wdt
 
-Looking at s3c2410wdt_mask_wdt_reset(), the logic evaluates to false when
-unmasking if .mask_reset_inv is not set to true:
+[Severity: Medium]
+Does this standalone compatible string need a corresponding entry in the
+watchdog driver to function?
 
-s3c2410wdt_mask_wdt_reset() {
-	...
-	const bool val_inv =3D wdt->drv_data->mask_reset_inv;
-	const u32 val =3D (mask ^ val_inv) ? mask_val : 0;
-	...
-	ret =3D regmap_update_bits(wdt->pmureg, wdt->drv_data->mask_reset_reg,
-				 mask_val, val);
+Because there is no fallback compatible string provided in this binding, it
+looks like the driver lacks a matching entry to probe the device. Looking at
+the device ID table in drivers/watchdog/s3c2410_wdt.c:
 
-Does this mean it will write a 0 when unmasking, disabling the reset output
-instead of enabling it?
+drivers/watchdog/s3c2410_wdt.c
+static const struct of_device_id s3c2410_wdt_match[] =3D {
+    ...
+	{ .compatible =3D "google,gs101-wdt",
+	  .data =3D &drv_data_gs101_cl0 },
+    ...
+};
 
-> +	.mask_bit =3D 2,
-> +	.rst_stat_reg =3D EXYNOS5_RST_STAT_REG_OFFSET,
-> +	.rst_stat_bit =3D 24,
-> +	.quirks =3D QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET | \
-> +		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE | \
-
-[Severity: High]
-Since QUIRK_HAS_PMU_AUTO_DISABLE is set but .disable_reg is omitted, will
-.disable_reg default to 0x0?
-
-During initialization and suspend, s3c2410wdt_disable_wdt_reset() applies
-updates to wdt->drv_data->disable_reg:
-
-s3c2410wdt_disable_wdt_reset() {
-	...
-	ret =3D regmap_update_bits(wdt->pmureg, wdt->drv_data->disable_reg,
-				 mask_val, val);
-
-Could this unintentionally corrupt bit 2 at PMU offset 0x0?
-
-> +		  QUIRK_HAS_DBGACK_BIT,
-> +};
-> +
-
-[ ... ]
+Without an addition to s3c2410_wdt_match or a suitable fallback string in
+the device tree, will the Exynos5515 watchdog silently fail to probe and
+leave the hardware unsupported at runtime?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818-for-next-l=
-ucky7-watchdog-v2-0-6743f479a47f@member.fsf.org?part=3D2
+ucky7-watchdog-v2-0-6743f479a47f@member.fsf.org?part=3D1
