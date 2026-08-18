@@ -1,256 +1,127 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494213B2FD1
-	for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2026 19:27:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 100A43C0A15;
+	Tue, 18 Aug 2026 09:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786994862; cv=none; b=Ho1zkRphYTJC/fIVihyc0fh1f8iYbVlVV6w5Cyw5rT+Yc/4QxW7dC5NWYYrk9yA/LeV0+HPVZLTocpT7C7RUrwpFOhoi9OJE0Gz4uKSHFv5PEu7uhE7ociIUkQGdl1HoihY61TfXfe50PPe+dKHpZFHmtRZGlC60BV/d6BJmF94=
+	t=1787044916; cv=none; b=cHi6Uxjxgr/TI8cVZg55mfHpI4BtEX1ieS3D2j3RTr+JAVwLyqlNsyLxJHi4XocG5tIVY7ScBO1/95eJWmokZyFEi2tVEdnBY3BeIT6U9/CNtGJqQHlGw/RMxZXyS8JeFnXSVaSOaxIxSQQLnHwJcse0CEcC7dsGC0MCt2HBG4Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786994862; c=relaxed/simple;
-	bh=sCRsFH2ldKm//RcRBYjNE96OQfJk0RQOnlx4e2Ail3M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Ku2aTXynrFBg6Lz4F481J7o3ZEQCkkZGXoKjgobA11FajTddNbpjpkqgselGUQ4Gg4dJYjrE4dRyHUoqeFRGls7kRdVmEFJY2iZ8iC6kk6OTlyTu0tZPiXK/IgpxyZHfaD4Cymc+MrhMCoPlY0wb2Su7+rrhYoG7yiikdsF+rHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J474KgL5; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787044916; c=relaxed/simple;
+	bh=XooPsEvBf3zEKZPohOHHbOflIvlzm03/SjX8FUADtwo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mepnSd1DKT76+z3ZmUNzcS/iz1+4updlVh0wYbrtZElGLYNxZQurXpJdftK9DBcuB6gPryeSDJJWWYyWnZkOLBDgBdLeNuJVWBQiHLDeXZF/etLmfMzvhSp4UPEjNgH4fvGnuX1/4DsyQs1m71v7p/GldY1z39RZ5+wzoaGlTbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mZEuNtcF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J474KgL5"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2d032846c95so55118085ad.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2026 12:27:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786994861; x=1787599661; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:sender:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=2x9DSeWF4J9dYWRG4E5kjbe2yCxFH0E2KZf/UN/jal0=;
-        b=J474KgL5izagzVMMOEM3jThgioi0wiKprA5g7IkSjDliHXUfETUSS8otMlDkmZsWLf
-         eiUZsq7NiwWuSEJJnx9Fnut8CBvgbqbMEQ5HomDN1bgPfdXOzKNgkc5OBhEkHlEnB5Qw
-         /JPhcLC8k7LsNwMp4hwJH7FLYwcYsFUpuc4zuIAX9AiA/4b78Gl5kSL9TnNF0cWhfKRP
-         HYgigxtFWBFB7HCBzw0LZqRw/YpysNaNFswsqtvi9CsJqrbL46pJ9C3kogfPTq05paHg
-         VXIuSvLcY7s/rn57fXkEkrmPpEA/W8k/lHUqhRgmkxbhZNP1pRzvUyR38SCBDTI7ks8L
-         kwJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786994861; x=1787599661;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=2x9DSeWF4J9dYWRG4E5kjbe2yCxFH0E2KZf/UN/jal0=;
-        b=paLduinPBR9ngNIvchNvHq1DRszFcTd1s3+SF0JIpDbv5p9FyKOuikXAh3NzD9HlG2
-         V+grBoMexZP1kagaDtZ9E+fUvD5d5xtDcP7AmsOnQaBlKH0+RHj2h4OkKVzHG84MbiNn
-         rYZpOMBLEtMfrM2EfoyFP7QDeaupmNs1oNoV4703VXPC0mMD2ONw8Q2k4/oroAJNFWS6
-         riM+8rvlHt0Kg5YXIn4ZMxNEOwsHdtG3L7nsZaugu3rnPlQU31C9aLZ6RH5UoyLuJe/z
-         t/BtbbtkGhT635YFNWzbfwdhqC4T+PVTk1BDh7XC2Tb5tW0TLa89pHr1YtaL1eEnvqWS
-         jM0w==
-X-Gm-Message-State: AOJu0YzBfXaPrDE2bvW8Qw1neLa7px0viKZK3UcnX55frlcdaVseiT92
-	dhj84mK1O7SH6zKlR+i5Wl0tSAHY0M5ez3ezhoVHcJeyFtwfPLREWiV8t9s7wQ==
-X-Gm-Gg: AR+sD121BGOSbAbzhY69iXvgK0Wp+kudseooUdHaUnFiKQ7bQR85nAG8VUWnpyYDhpC
-	uX/iQqy2MRaLblMxX3XMfoF0Ht2rHctUYWDtnwDo5jppRi+PGgrzna3X4U8pRI7am2yadOO8QVa
-	cRRXQWyA0q3vlUlOsuaD6N/Gu70o0JCKEXqw7JCgpnzQjbvaLIBI7fb3+5eY9y9Vp61YQteO8Vb
-	6oJu037liWXhXUgukkQ3FQNvWuF8UHdLP9PMTURwgv2cenxg5AVkLu/CsyqJk0WBUppbkEKnzn7
-	fjd+fgMbEc+AwcvisFJGbCXSzt9XwyxOC1wSmnN7E7mN776NjN1dvMX7CtAS+8ZLSdkbeAtUWpD
-	RAgendCfjnjJjpFKLjhAHym8hNIRsFhbJg4T/JxscJdG/3fLL1wWFM61mL2p2fGmyTxVJKC8GAR
-	eJ+7Adn/xNXD2NGmuETfPvE/CfWuUtDhzyJCNBTPxbHROBz9AWTxUrNtLzOu9s5f61NKNVyixD/
-	w==
-X-Received: by 2002:a17:902:f549:b0:2d5:c0c9:e365 with SMTP id d9443c01a7336-2d5c4f07e25mr26263525ad.3.1786994860729;
-        Mon, 17 Aug 2026 12:27:40 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32678dcedf4sm8553613eec.5.2026.08.17.12.27.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 12:27:40 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [GIT PULL] watchdog updates for v7.3
-Date: Mon, 17 Aug 2026 12:27:37 -0700
-Message-ID: <20260817192738.897998-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mZEuNtcF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D70641F000E9;
+	Tue, 18 Aug 2026 09:21:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787044913;
+	bh=zX75bM0J9UOPrq47VXmjRY7ygKLVT5gzh7SAp0gbzL0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mZEuNtcFA1sjzr9fOtzpb+5FQQvuuzX1reyawRGssTYzik/eVYbEAx6TzLaR5pufR
+	 0IH6yhe+cWUClwFCfw1McSPpPDsQf69Qc1hGNpDzD71q1oWFzgoSMVQEbUqR45/tDV
+	 8daBwPF/FooRD/yaLWKKgMsTG4UwakOlHbNZ4N53K48GdTm6QlzibK7up3Gtbspzmf
+	 vEFpo8pGZTpuaCCk1ns9uRpQ3zXqJdovibM/nPnsgqiOTszrv3PeO6SmeTBFAlNUxT
+	 WdlHJ0tfSl4Z7hTOzspW65zILjgb9JG07ae3SW0gVBQG2NE33/sPweaayb4QNPOJB5
+	 nQar7v4grThOw==
+Date: Tue, 18 Aug 2026 11:21:49 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Aiden Isik <aidenisik@member.fsf.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	Aiden Isik <aidenisik+git@member.fsf.org>
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: samsung-wdt: Add
+ exynos5515-wdt compatible
+Message-ID: <20260818-singing-rhino-of-glamour-accb9e@quoll>
+References: <20260817-for-next-lucky7-watchdog-v1-0-a14370e20b92@member.fsf.org>
+ <20260817-for-next-lucky7-watchdog-v1-1-a14370e20b92@member.fsf.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260817-for-next-lucky7-watchdog-v1-1-a14370e20b92@member.fsf.org>
 
-Hi Linus,
+On Mon, Aug 17, 2026 at 11:22:52AM +0100, Aiden Isik wrote:
+> Add a dt-binding compatible for the Exynos5515 watchdog timer.
+> 
+> This watchdog requires a syscon phandle, and the cluster index should
+> *not* be specified, as that does not make sense on the Exynos5515 SoC
+> (due to it only having a single core cluster).
+> 
+> Signed-off-by: Aiden Isik <aidenisik+git@member.fsf.org>
 
-Please pull watchdog updates for Linux v7.3 from signed tag:
+DCO mismatch.
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.3
+Please run scripts/checkpatch.pl on the patches and fix reported
+warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
+patches and (probably) fix more warnings. Some warnings can be ignored,
+especially from --strict run, but the code here looks like it needs a
+fix. Feel free to get in touch if the warning is not clear.
 
-Thanks,
-Guenter
-------
+> ---
+>  .../devicetree/bindings/watchdog/samsung-wdt.yaml  | 22 +++++++++++++++++++++-
+>  1 file changed, 21 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> index 41aee1655b0c..9e754404848b 100644
+> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
+> @@ -22,6 +22,7 @@ properties:
+>            - samsung,s3c6410-wdt                   # for S3C6410, S5PV210 and Exynos4
+>            - samsung,exynos5250-wdt                # for Exynos5250
+>            - samsung,exynos5420-wdt                # for Exynos5420
+> +          - samsung,exynos5515-wdt                # for Exynos5515
 
-The following changes since commit db2ddb87143519e20a95aa36c60b36107b736a58:
+No need for the comment, old code is poor example here.
 
-  Linux 7.2-rc7 (2026-08-09 14:54:50 -0700)
 
-are available in the Git repository at:
+>            - samsung,exynos7-wdt                   # for Exynos7
+>            - samsung,exynos850-wdt                 # for Exynos850
+>            - samsung,exynos990-wdt                 # for Exynos990
+> @@ -57,7 +58,7 @@ properties:
+>      $ref: /schemas/types.yaml#/definitions/phandle
+>      description:
+>        Phandle to the PMU system controller node (in case of Exynos5250,
+> -      Exynos5420, Exynos7, Exynos850, Exynos990 and gs101).
+> +      Exynos5420, Exynos5515, Exynos7, Exynos850, Exynos990 and gs101).
+>  
+>  required:
+>    - compatible
+> @@ -93,6 +94,25 @@ allOf:
+>          - samsung,cluster-index
+>          - samsung,syscon-phandle
+>  
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - samsung,exynos5515-wdt
+> +    then:
+> +      properties:
+> +        clocks:
+> +          items:
+> +            - description: Bus clock, used for register interface
+> +            - description: Source clock (driving watchdog counter)
+> +        clock-names:
+> +          items:
+> +            - const: watchdog
+> +            - const: watchdog_src
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-v7.3
+samsung,cluster-index: false
 
-for you to fetch changes up to 3bbbeb7fddf54a7d7116b2defe0a63a9b583c84e:
+Just like other cases.
 
-  watchdog: orion_wdt: Propagate errors from optional IRQ lookup (2026-08-10 09:00:05 -0700)
+Best regards,
+Krzysztof
 
-----------------------------------------------------------------
-watchdog updates for v7.3
-
-* New Drivers
-
-  - Nuvoton MA35D1
-
-  - Lenovo SE30G2 and SE60
-
-* Added support to existing drivers
-
-  - snps,dw-wdt: Add RV1106 compatible
-
-  - apple,wdt: Add t6030, t6031, and t8132 compatibles
-
-* Other notable changes
-
-  - New "dump" pretimeout governor
-
-  - Propagate errors from optional IRQ lookup
-
-  - Remove redundant dev_err() and dev_err_probe() messages
-
-  - npcm, qcom: Improved bootstatus reports
-
-  - realtek-otto: Change to use regmap API
-
-  - w83627hf_wdt: Report running watchdog, identify NCT6126
-
-* Various other minor fixes and improvements
-
-----------------------------------------------------------------
-Babanpreet Singh (1):
-      watchdog: booke_wdt: Document unused parameter of __booke_wdt_disable()
-
-Christophe JAILLET (1):
-      watchdog: apple: Constify some structures
-
-Janne Grunau (1):
-      dt-bindings: watchdog: apple,wdt: Add t6030 and t6031 compatibles
-
-Jingyi Wang (1):
-      dt-bindings: watchdog: Document Qualcomm Maili watchdog
-
-Kathiravan Thirumoorthy (2):
-      watchdog: qcom: report WDIOF_POWERUNDER in bootstatus
-      watchdog: qcom: report bootstatus on IPQ9574 and IPQ5332
-
-Mark Pearson (1):
-      watchdog: lenovo_se30g2_se60_wdt: Watchdog for Lenovo SE30G2 and SE60
-
-Mayank Rungta (2):
-      nmi: Export CPU backtrace APIs for loadable modules
-      watchdog: pretimeout: Convert dump pretimeout governor to tristate
-
-Pan Chuang (9):
-      watchdog: bd96801_wdt: Remove redundant dev_err_probe()
-      watchdog: cadence_wdt: Remove redundant dev_err()
-      watchdog: intel-mid_wdt: Remove redundant dev_err()
-      watchdog: keembay: Remove redundant dev_err_probe()
-      watchdog: marvell_gti: Remove redundant dev_err_probe()
-      watchdog: orion: Remove redundant dev_err()
-      watchdog: realtek_otto: Remove redundant dev_err_probe()
-      watchdog: sama5d4: Remove redundant dev_err()
-      watchdog: sprd: Remove redundant dev_err()
-
-Paul Louvel (3):
-      watchdog: w83627hf_wdt: Correctly identify Nuvoton NCT6126 chip
-      watchdog: w83627hf_wdt: Report the probed chip name via WDIOC_GETSUPPORT
-      watchdog: w83627hf_wdt: Use WDOG_HW_RUNNING for running chip on boot
-
-Pengpeng Hou (1):
-      watchdog: via_wdt: add missing MODULE_DEVICE_TABLE()
-
-Rasmus Villemoes (1):
-      watchdog: take all OF aliases into account when assigning id
-
-Renê de Souza Pinto (1):
-      watchdog: wdat_wdt: map registers that fall inside ACPI NVS
-
-Rustam Adilov (1):
-      watchdog: realtek-otto: Change to use regmap API
-
-Simon Glass (1):
-      dt-bindings: watchdog: snps,dw-wdt: Add RV1106 compatible
-
-Tomer Maimon (3):
-      dt-bindings: watchdog: npcm: add GCR syscon property
-      docs: watchdog: npcm: Add reset status description
-      watchdog: npcm: add bootstatus support
-
-Tzung-Bi Shih (1):
-      watchdog: pretimeout: Add "dump" pretimeout governor
-
-Uwe Kleine-König (The Capable Hub) (1):
-      watchdog: Use named initializers for platform_device_id arrays
-
-Yureka Lilian (1):
-      dt-bindings: watchdog: apple,wdt: Add t8132 compatible
-
-Zi-Yu Chen (2):
-      dt-bindings: watchdog: Add MA35D1 Watchdog
-      watchdog: Add Nuvoton MA35D1 watchdog driver support
-
-bui duc phuc (6):
-      watchdog: mediatek: Propagate errors from optional IRQ lookup
-      watchdog: dw_wdt: Propagate errors from optional IRQ lookup
-      watchdog: stm32_iwdg: Propagate errors from optional IRQ lookup
-      watchdog: aspeed: Propagate errors from optional IRQ lookup
-      watchdog: qcom: Propagate errors from optional IRQ lookup
-      watchdog: orion_wdt: Propagate errors from optional IRQ lookup
-
- .../devicetree/bindings/watchdog/apple,wdt.yaml    |   3 +
- .../bindings/watchdog/nuvoton,ma35d1-wdt.yaml      |  55 ++++
- .../bindings/watchdog/nuvoton,npcm750-wdt.yaml     |  14 +
- .../devicetree/bindings/watchdog/qcom-wdt.yaml     |   1 +
- .../devicetree/bindings/watchdog/snps,dw-wdt.yaml  |   1 +
- Documentation/watchdog/index.rst                   |   1 +
- Documentation/watchdog/npcm_wdt.rst                |  71 ++++
- drivers/watchdog/Kconfig                           |  42 ++-
- drivers/watchdog/Makefile                          |   3 +
- drivers/watchdog/apple_wdt.c                       |   4 +-
- drivers/watchdog/aspeed_wdt.c                      |   2 +
- drivers/watchdog/bd96801_wdt.c                     |   3 +-
- drivers/watchdog/booke_wdt.c                       |   1 +
- drivers/watchdog/cadence_wdt.c                     |   6 +-
- drivers/watchdog/cros_ec_wdt.c                     |   4 +-
- drivers/watchdog/dw_wdt.c                          |   2 +-
- drivers/watchdog/intel-mid_wdt.c                   |   4 +-
- drivers/watchdog/keembay_wdt.c                     |   4 +-
- drivers/watchdog/lenovo_se30g2_se60_wdt.c          | 289 ++++++++++++++++
- drivers/watchdog/ma35d1_wdt.c                      | 363 +++++++++++++++++++++
- drivers/watchdog/marvell_gti_wdt.c                 |   2 +-
- drivers/watchdog/max63xx_wdt.c                     |  14 +-
- drivers/watchdog/max77620_wdt.c                    |   6 +-
- drivers/watchdog/mtk_wdt.c                         |   4 +-
- drivers/watchdog/npcm_wdt.c                        | 217 +++++++++++-
- drivers/watchdog/orion_wdt.c                       |  16 +-
- drivers/watchdog/pretimeout_dump.c                 |  45 +++
- drivers/watchdog/qcom-wdt.c                        |  55 +++-
- drivers/watchdog/realtek_otto_wdt.c                |  76 ++---
- drivers/watchdog/sama5d4_wdt.c                     |   4 +-
- drivers/watchdog/sprd_wdt.c                        |   4 +-
- drivers/watchdog/stm32_iwdg.c                      |   5 +-
- drivers/watchdog/via_wdt.c                         |   1 +
- drivers/watchdog/w83627hf_wdt.c                    |  22 +-
- drivers/watchdog/watchdog_core.c                   |  26 +-
- drivers/watchdog/watchdog_pretimeout.h             |   4 +-
- drivers/watchdog/wdat_wdt.c                        |  27 +-
- include/linux/nmi.h                                |  10 +-
- lib/nmi_backtrace.c                                |   7 +
- 39 files changed, 1303 insertions(+), 115 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,ma35d1-wdt.yaml
- create mode 100644 Documentation/watchdog/npcm_wdt.rst
- create mode 100644 drivers/watchdog/lenovo_se30g2_se60_wdt.c
- create mode 100644 drivers/watchdog/ma35d1_wdt.c
- create mode 100644 drivers/watchdog/pretimeout_dump.c
