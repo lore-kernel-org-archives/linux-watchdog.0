@@ -1,122 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A65D44C67E;
-	Wed, 19 Aug 2026 10:29:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3503442364;
+	Wed, 19 Aug 2026 10:30:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787135383; cv=none; b=k0oyLWSfIZweKuoze9UPvwlzGH74Mjxg564sYMWJBLmzuFgDhtonQU5vyWoBRApvBFouMMEV6qf2WBIoz5EJHDdRS8BY2K2+ihcedI/l3v1+sGMd+2g9DMPr0YvCxKs7mRlKcrR05bk/1zhVmkOBAZN7D4aP1oFO6IdRZMiya+A=
+	t=1787135450; cv=none; b=fkbIZUYyjX6mDW9zjpE58Jhzma/kmzj3tbo/fQTAVwZk3W3m9BxXFnSryDi6M5E0epHDSQ7Hwy3CZbhsKuJmjrgaOek/vqN4wKPyJlXHgJ2r/1xNlB0L4rfsd6uQw3WuJpEwCTZ9jjkANJCDFKCiUVheXQVzHwPasyFKBHXtU50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787135383; c=relaxed/simple;
-	bh=yGraQ9VIKmRtnJSM0YqotGIENCUuK65PabPGXbBKePc=;
+	s=arc-20240116; t=1787135450; c=relaxed/simple;
+	bh=4NJaQWGQG26PIQnoDdbq1+fMi3UqmMN1VFtCN2VCVR0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NwWyfmOGUtxwrz3Ip0QI1de2DvC+fNWrI9A3v76SrZ82yjaWQdgbRyP1JIu+dWvw0ReKoOT6emLBNB0tTR3ZZzgIdwTFFInuIzJ0F9FPwr5Gk5FLdx8Wu3bQtTO8P8f26gRhDNYe4HXUA6qUm8SPHWvsTXmFB1ZvZJBaHDyPzFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nH8qXF2f; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gBlRXna90AEQKRxVdUbkEibmFJIjH+Eibppto5s83kgXK/AmtKcFrBaIvWzl8izehMxh1ze0ImNXOu1OO6TzAHaznkEU96BAYhcbsE3uMq5xPAXetvrn625R9Wd9gfO/4d8Qr+NRMLdOevmILfyTXlBsi79fnrCY62A+/jvGk4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JIapoAuQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nH8qXF2f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1841F1F000E9;
-	Wed, 19 Aug 2026 10:29:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JIapoAuQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57BBC1F000E9;
+	Wed, 19 Aug 2026 10:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787135382;
-	bh=9lCeiHc23DYQSiS4dNY3Norc4v3gW1bp14VnUhRT0B8=;
+	s=k20260515; t=1787135448;
+	bh=H0b5hz5Jv0MazburOEa18gbJuaqkoNPI7jix/frppps=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nH8qXF2fLgyDqFNk5BPVnnUmnwIi8ApCeb/AssQ9TFv6THN0vDdqvsGgGQjPyEMeA
-	 xvIw4U8oEkH1rDElaabUDW7QinYaOjVDy4d0q3HmH+fj83+lkpxf/LwviytGpKCu2w
-	 H0/w43Kr0fz8bPOkWg1eIahh3IL0z63dg2OK3cJ64gByaeP2kmFCEp6JhgLdw2/egS
-	 RGiP792HE4PXyXSAyUunM3L9WYEK+OZC65oNf9Ywxf2Fv1x7ZMwOBsKxNWGUF81XSm
-	 APYzYj5AhVfLiS08TM2UMhALylq2/Oz2fi3QEaklUGuptIyWrj+uRsYk2K9g54G4Y2
-	 owBGkQYQjMUKA==
+	b=JIapoAuQcBlQP4RlxXPZalkolKDN2IYkh04Km55rgUQSqkvrrihZvMcHTPe3Fl/nJ
+	 GLUsf0QTRGMZbPzgD1M4mOlrDzcy1shIuRg10yYQczzj6cJsW9ACkO7GHQqu18AVsU
+	 4FKHAobUodDp0PVBxRrXlKVJDX8sIqGZ/jqSV+RFIzbmxj+RdX2rBIKjUbgfo5Yz61
+	 tfs97HtF9f/zMcPptr9qfqNj6Y/LtZrnT7B6XrFiEseSnRgOFCsZLxlp2a/35+aONg
+	 TPXMPJNmFrR3KnVqryONjhDdZ+7MFhqLRLQP8PNYTioZjhxMD2BWI26DMMc71zqxkt
+	 VJ2Dl141Lis/Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/7] watchdog: mediatek: Add support for mt8167
- toprgu/watchdog
+Subject: Re: [PATCH v4 2/7] watchdog: mediatek: Add wdt/toprgu resets for
+ mt6589
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260819101853.44681-6-l.scorcia@gmail.com>
+Cc: conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260819101853.44681-3-l.scorcia@gmail.com>
 References: <20260819101853.44681-1-l.scorcia@gmail.com>
- <20260819101853.44681-6-l.scorcia@gmail.com>
+ <20260819101853.44681-3-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 10:29:41 +0000
-Message-Id: <20260819102942.1841F1F000E9@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 10:30:48 +0000
+Message-Id: <20260819103048.57BBC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Race condition in watchdog registration exposing uninitialized dev=
-ice properties.
+- [High] Watchdog device is registered before its driver data is fully init=
+ialized, allowing userspace to trigger `mtk_wdt_start()` with uninitialized=
+ flags.
+- [High] Reset controller is registered before `has_swsysrst_en` is initial=
+ized, causing a race condition where reset operations use incorrect configu=
+rations.
 --
 
---- Patch [5]: [PATCH v4 5/7] watchdog: mediatek: Add support for mt8167 to=
-prgu/watchdog ---
-commit 918b68ccd6f0fbc5fe13cfd642a3baccbeddc0ed
+--- Patch [2]: [PATCH v4 2/7] watchdog: mediatek: Add wdt/toprgu resets for=
+ mt6589 ---
+commit 62a8c76fbad14150f6f3dabaecc0a569e1dfdcb5
 Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-watchdog: mediatek: Add support for mt8167 toprgu/watchdog
+watchdog: mediatek: Add wdt/toprgu resets for mt6589
 
-This commit adds support for the Top Reset Generation Unit/Watchdog Timer
-found on the mt8167 SoC. It uses a reset table to handle non-contiguous
-reset bits and ensures the reset controller is registered with the correct
-configuration.
+According to Android sources, mt6589 has 12 reset bits in the
+WDT_SWSYSRST register. Populate toprgu_sw_rst_num to allow toprgu resets
+in device trees of the many compatible devices.
 
 > diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index f8208fb0f7234..fa522fd80dd45 100644
+> index 91d110646e16f..f8208fb0f7234 100644
 > --- a/drivers/watchdog/mtk_wdt.c
 > +++ b/drivers/watchdog/mtk_wdt.c
 
 [ ... ]
 
-> @@ -457,12 +493,14 @@ static int mtk_wdt_probe(struct platform_device *pd=
-ev)
+> @@ -493,7 +498,7 @@ static int mtk_wdt_resume(struct device *dev)
 > =20
->  	wdt_data =3D of_device_get_match_data(dev);
->  	if (wdt_data) {
-
-[ ... ]
-
->  		err =3D toprgu_register_reset_controller(pdev,
->  						       wdt_data->toprgu_sw_rst_num);
->  		if (err)
->  			return err;
-> -
-> -		mtk_wdt->has_swsysrst_en =3D wdt_data->has_swsysrst_en;
->  	}
-> =20
->  	mtk_wdt->disable_wdt_extrst =3D
+>  static const struct of_device_id mtk_wdt_dt_ids[] =3D {
+>  	{ .compatible =3D "mediatek,mt2712-wdt", .data =3D &mt2712_data },
+> -	{ .compatible =3D "mediatek,mt6589-wdt" },
+> +	{ .compatible =3D "mediatek,mt6589-wdt", .data =3D &mt6589_data },
 
 [Severity: High]
-This is a pre-existing issue, but does the ordering in mtk_wdt_probe()
-create a race condition with userspace?
+This isn't a bug introduced by this patch, but I noticed a potential race
+condition during probe that might affect all watchdog devices here.
 
-Looking at the probe function, devm_watchdog_register_device() is called
-and exposes the device to userspace before the hardware-specific properties
-disable_wdt_extrst and reset_by_toprgu are populated.
+In mtk_wdt_probe(), the watchdog device is registered before its configurat=
+ion
+flags are read:
 
-If udev or another userspace process opens the watchdog device immediately
-upon registration, could mtk_wdt_start() execute before these properties
-are initialized?
-
-If so, mtk_wdt_start() would evaluate the properties as false:
-
-mtk_wdt_start() {
+        err =3D devm_watchdog_register_device(dev, &mtk_wdt->wdt_dev);
+        if (unlikely(err))
+                return err;
+       =20
         ...
-        if (mtk_wdt->disable_wdt_extrst)
-                reg &=3D ~WDT_MODE_EXRST_EN;
-        if (mtk_wdt->reset_by_toprgu)
-                reg |=3D WDT_MODE_CNT_SEL;
-        ...
-}
 
-Could this lead to incorrectly asserting external reset signals or failing
-to trigger the proper TOPRGU reset path? Should the watchdog registration
-be deferred until all device tree properties are fully parsed?
+        mtk_wdt->disable_wdt_extrst =3D
+                of_property_read_bool(dev->of_node, "mediatek,disable-extrs=
+t");
+
+        mtk_wdt->reset_by_toprgu =3D
+                of_property_read_bool(dev->of_node, "mediatek,reset-by-topr=
+gu");
+
+If userspace (like systemd) opens the device immediately after registration,
+could mtk_wdt_start() run before these flags are initialized?
+
+Since these flags are written to the WDT_MODE register and not re-applied
+later, could this permanently misconfigure the watchdog for the system upti=
+me
+and cause a hang instead of a reboot upon timeout?
+
+
+[Severity: High]
+This is also a pre-existing issue, but while reviewing the probe path that
+uses the newly assigned device data, I noticed a potential race condition
+with the reset controller.
+
+In mtk_wdt_probe(), the reset controller is registered before the
+has_swsysrst_en flag is initialized:
+
+        wdt_data =3D of_device_get_match_data(dev);
+        if (wdt_data) {
+                err =3D toprgu_register_reset_controller(pdev,
+                                                       wdt_data->toprgu_sw_=
+rst_num);
+                if (err)
+                        return err;
+
+                mtk_wdt->has_swsysrst_en =3D wdt_data->has_swsysrst_en;
+        }
+
+If a consumer device requests and asserts a reset line immediately upon
+registration (e.g. from a concurrent deferred probe), could
+toprgu_reset_update() observe has_swsysrst_en as false before it is
+assigned?
+
+If so, would it skip calling toprgu_reset_sw_en_unlocked() and fail to
+enable software control for the reset bit in WDT_SWSYSRST_EN, leading to a
+probe failure for the consumer device?
+
+>  	{ .compatible =3D "mediatek,mt6735-wdt", .data =3D &mt6735_data },
+>  	{ .compatible =3D "mediatek,mt6795-wdt", .data =3D &mt6795_data },
+>  	{ .compatible =3D "mediatek,mt7986-wdt", .data =3D &mt7986_data },
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819101853.4468=
-1-1-l.scorcia@gmail.com?part=3D5
+1-1-l.scorcia@gmail.com?part=3D2
