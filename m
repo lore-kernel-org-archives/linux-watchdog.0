@@ -1,170 +1,113 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DAA748F854;
-	Wed, 19 Aug 2026 17:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414FB34040B
+	for <linux-watchdog@vger.kernel.org>; Wed, 19 Aug 2026 17:43:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787160150; cv=none; b=XZOO4gz8Zp9geNfrUJoVvt2LNbWTUQ6dQGqvdhJ9QBBCt7O/rzSX2d/Q1NW75aMzmoLuhnFdMKlMS0qy91QFYhVqj/n5u2Wt8X6vQx9YBy4HPPVo4nERyztGcVpgQVkEFF790rg6/8/MidYva4WGtmKfDU9SXKvSSv21YTdsJok=
+	t=1787161429; cv=none; b=LJypX4MCOv3OD71c02Hq4aJkiwPq7Ni+bBo4lEkOaGNqyNFjB4aHbHm2q8zghBMcs8VJNO+/DmEjj7xMuBp9HGSiaofSGXv1Jweh1IBmFyzgBI0hvyPvqGxUDwpRjVkQMaYvlyJ2IiR/e1FWXo9+dIUTPRXfGmYpwVOgO2Ey8LQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787160150; c=relaxed/simple;
-	bh=dwTawBNesuaBMokAzyTLPswi0iZqjzgTfNRNZ2ityng=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=NOKTF+PBhkNXTJcKlATJB0AhLDGdf/J99jH0XZcVtozhqcpi2h1Oyu12WeYKoNU2MJzPZE4L9WnAeh3IWX1D1HDrYWpOkTRxt3P3jCEDzezA/trwoTp6Buy8wbD7GoyUC8VZxaNkYhZ3kTl+yQFSCs+86mYa920ovk0i15Js3Lw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=cyFx+RZ2; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1787161429; c=relaxed/simple;
+	bh=id3Dxe/P4MfWWmZiXGnhFZlAAOU9h5n9D1vsPleVvLI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=T6NNYoXmCz527xfREeuafgI38P4oHw/PUIVgjPgXHYygC8qtA75h7OKO2W0QUoXmExsP7uW66AZLiwBhy7F2fGTthTwDOmDwPZjKw7eS/cmwH1uL9n4zJ1doy77IW8yb04+3Tp3C8YBYttKGnravE1HLOmBYnM7u9vaogPlmr8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=giZrlR3/; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="cyFx+RZ2"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JF2PXL965087;
-	Wed, 19 Aug 2026 17:21:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=8kmUrXTEYzkwc+VX+HQo5Q
-	LwY8C3KPNwPN+fUBA+3XQ=; b=cyFx+RZ2nEQYMu8f79M+2f8jSeCIL0MdDDuVwX
-	V9LomPFnz/H51pipyo2299T6YvMPLuLzQcoTC0kMOgHf+0A2BnhBSTu8MUqyoDzb
-	nztQGjJb1PvG+5krUqK+5HWyqbOPxHQAkrJDqn2XjGIuvvOZBIl93tC1ugzVQehd
-	gHc9dPzGnc2c7Egy8UWDYjTN+6Gu1M1pVm+dIvVP5WfZpQGgPeYU7sLEMhwWwS7U
-	AVDw3FVrjKpfMrv2PqV14LQjsojo3bPjySeoQLU4mxdQ3egdaTpGlUHm/cObmtk3
-	mIZtY+e6YgKhZz1co1alXGLLNP83drzlajwHgbxZIF8jyj0Q==
-Received: from apblrppmta01.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g5es3grgg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 17:21:09 +0000 (GMT)
-Received: from pps.filterd (APBLRPPMTA01.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JHL572027942;
-	Wed, 19 Aug 2026 17:21:05 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 4g2h6kdd8s-1;
-	Wed, 19 Aug 2026 17:21:05 +0000 (GMT)
-Received: from APBLRPPMTA01.qualcomm.com (APBLRPPMTA01.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 67JHL5e2027937;
-	Wed, 19 Aug 2026 17:21:05 GMT
-Received: from hu-ffaruque-hyd.qualcomm.com (hu-ffaruque-hyd.qualcomm.com [10.147.245.31])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 67JHL5jA027916;
-	Wed, 19 Aug 2026 17:21:05 +0000 (GMT)
-From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-Subject: [PATCH v2 0/4] power: reset: add NVMEM recorder provider for PSCRR
-Date: Wed, 19 Aug 2026 22:50:42 +0530
-Message-Id: <20260819-pscrr-provider-v2-0-9072383e0f4d@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="giZrlR3/"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2d560775ca2so10518655ad.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 19 Aug 2026 10:43:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787161428; x=1787766228; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=7MtCs8dnl1tQU2h4oXHMcOoDEsGNNkInvX360HS1foA=;
+        b=giZrlR3/rNM2qGHOvFYKZqcCCa/oVjCKZqE9dkn3Vai/VXJhaqUkOIkS7Ih7xXa25H
+         6mdzKgNrI9LeRBmRVL/vVo4BquJW3jUBIJyBkv+5K19k3yeEcgppym5ivzoLcZGnuMFh
+         x7Drg59I4uS3J07yZAiA+nXisYTg3ZBp2wK6GZbhbSNvafAhuCnCu2IRvbiLlEtCherz
+         ICCL6gO3XWV6MDQ0qcPcN5icNlKDMOnYIjJlTx/1r3nrJ19q/rW17s+GMOJF+aEED9Ti
+         kNdDa3c44N+MFGLea0wW4NK2ReTVMlIKog2C1Lgl3AQ0Ewfrft5+IvAJgh0eUkMC5AaK
+         ZrCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787161428; x=1787766228;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=7MtCs8dnl1tQU2h4oXHMcOoDEsGNNkInvX360HS1foA=;
+        b=L0sNw7kiqOg0DOXdi3vvXer67wqzkbAVaRfwGDixHKqoSVfqfOxwqXinBKFCzQNA0z
+         qRwGgjX4BXIDenxCTqqo62KVt4P+2o9oDNIhyDsdLXbgKkRyEF3s7AYiH3FT81/l6sxX
+         CawTBKue1tgnizs2+dWJXtN9Fddh1CCRFaNt4KbtR0zyGYntV9kOAAxjmH6E9d3SoB0/
+         JK66PqWUmIYtH1qYQWaaniCijFgwKyEXqoYzG0J6xDpSEi52v+T7oEKE7jsbBFqzGTif
+         /VQtgdKFGZDnwc4iT+sFhTIU4FTTYDh8qKwyAYsMO1iRRZG5gALfzWB9c0IXXTQzZc0B
+         nJ6g==
+X-Forwarded-Encrypted: i=1; AHgh+Rp6xDn8rHaJoQ6HySCn4yb5nugmpyDTJtQ0iA+jZub2kJqd+PHrPHL01HtCtv2pj81vqBsULl8InyGZls746Q==@vger.kernel.org
+X-Gm-Message-State: AFuF++llOloxyQExwqiQ6CGG/Q19lLUSXHL253+V+Hgz9uvMk7zQycA4
+	aq+f7/PtI8JOnG5uc5ROa9pN4+IKlsN22Rdj8B+yZNC3H2v/JQSlcxq2xe5mbw==
+X-Gm-Gg: AR+sD13s07hftvDijb1l0WQYKNHsJw3InWbaKuf+/4B3ofVDxW34XpmhwD+KEgvprhE
+	b4o2h4SQuTK+MDBau7PHafgIzeTTcAI968kTkSLnaWErcyq0X3Mc7hTZ8Hh7yNH/6hH8kyGYNPA
+	9wNyDTD8hB+YQezsvqFc2FnYhO/OOgxG6ktE1BkQRJ+2dV/zS3ZW5ogJeghWGDLIKz3uV+v0P9Y
+	pA8C1KCmnWqNm9FbVqgSdIHN1o/wOes4gjELeqQ/08WrKR4D7omY+HcK/GsC3GYQCR/8nU0FlaX
+	rw6yKk2phPSuy02XJoG0I6Xs5ypIvwm0cyK8Edo1bibcsZxP0lbraNafisxUovodRsyTL/tjCOb
+	x3zwov/h8IufdmMaYF0qYr3VZHXJqrO4u32Tyl5s8K8eTgEXGOQLGdxy8oZAWOLu17K/fRnQHoV
+	MOv600gP0hnOfLsIS7Ra0u56+ZwXIHDQnvjlvwZnDJKaJ9Ok+lfo8fL6iQSNPPYxTax4VLCTHcD
+	O4bnHpIX0uEuwfJ9Oqu
+X-Received: by 2002:a17:902:fda6:b0:2cf:a108:7605 with SMTP id d9443c01a7336-2d60186263bmr126123935ad.11.1787161427501;
+        Wed, 19 Aug 2026 10:43:47 -0700 (PDT)
+Received: from buffalo-ssd (M014013071096.v4.enabler.ne.jp. [14.13.71.96])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d5bb499e81sm30466825ad.1.2026.08.19.10.43.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 10:43:47 -0700 (PDT)
+Date: Thu, 20 Aug 2026 02:43:43 +0900
+From: Akari Tsuyukusa <akkun11.open@gmail.com>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 3/7] arm: dts: mediatek: mt6589: Enable toprgu reset
+ controller
+Message-ID: <h6cxeranayykvjnco5vuaoccuknoiu4yiancmwugouewucb5k5@osmdfzfc5dsh>
+References: <20260819101853.44681-1-l.scorcia@gmail.com>
+ <20260819101853.44681-4-l.scorcia@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAOvlhWoC/yWMQQ6CMBBFr0JmbWtbpYAr72FYKAw4ibZlCoSEc
- Hcbm796P3lvh4hMGOFW7MC4UiTvEphTAd376UYU1CcGo4xVtbIixI5ZBPYr9cji1Qz1cC11pTR
- CkgLjQNs/+GgzM05L6s75zKXqolVTpknTWFVaoYWXjN+An3tANy4ze0eb7PEM7XH8ANrQGw+nA
- AAA
-X-Change-ID: 20260806-pscrr-provider-b9f8f451701e
-To: Oleksij Rempel <o.rempel@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Benson Leung <bleung@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Srinivas Kandagatla <srini@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
-        Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        =?utf-8?q?S=C3=B8ren_Andersen?= <san@skov.dk>,
-        Guenter Roeck <groeck@chromium.org>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        avaneesh.dwivedi@oss.qualcomm.com,
-        Umang Chheda <umang.chheda@oss.qualcomm.com>,
-        Faruque Ansari <faruque.ansari@oss.qualcomm.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-X-Mailer: b4 0.15.2
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Authority-Analysis: v=2.4 cv=UIrt2ify c=1 sm=1 tr=0 ts=6a85e605 cx=c_pps
- a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=JD2JG8ErsQDY_eWNyrIA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDEzNCBTYWx0ZWRfX7ElfCC0snACz
- 1RNAYTJpOZ2NnMTWmh3yh8+3i01NyCoPxQGau7ARYmkPLpcLJBecdweDT9/jOHSLXkT6TwWohns
- FkBpsNY3br4o6p8wBxcwSYwPx35qNTRbixaALZoWHj4TVZEpzoIrT770fwDWrQMbaAdgKiL4VED
- YuYYYx4/jZrBwTNdfmh+UpnnEMEjJHtUh7BdVx73AyXZSzruvd/Hdbk7++rOFNaeX+EJmnpcVzv
- cqHBLiXiWrd06NAIFVFiQmBGPCTiPsUgRZCmhdyn4vgl20CGtcIsYo05Nx+SvH/502BIbLQFqMr
- rHAQ1mm/TkGH3nRK7lgy8LKe5eLuxvOerEp13J9NY0UCtCy3TIKMkdd6pllVfgWsXGqqbOPrKuc
- bQSr3EMpCFXCXQR4PS/wpwrGQ06G8DtVMiRbNr0vUQHA9GveLMXfa2QS+w+wi/OFwhDxRiF4xEV
- 6WmMI7pPe8lgLp3izxw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDEzNCBTYWx0ZWRfX/H2IegJZYGii
- QgGYPuFHfVlgsfNcD/2+BQb1wDkPV19Fypik86oZgu/DWRNHWgtCf+YHGbgDZqfuvv7lK9TCRr5
- nYbE2+TcQKkO0cn9oK6x26CE9Xe2/6I=
-X-Proofpoint-ORIG-GUID: iSg2T0vksNwnRmsLk_RZGv4cvMx8wokQ
-X-Proofpoint-GUID: iSg2T0vksNwnRmsLk_RZGv4cvMx8wokQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_04,2026-08-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0 priorityscore=1501
- clxscore=1011 phishscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190134
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260819101853.44681-4-l.scorcia@gmail.com>
 
-The PSCRR framework[1] currently does not provide a recorder provider
-capable of persisting power state change reasons across power cycles.
+Hi,
 
-This series extends the PSCRR framework[1] with support for an
-NVMEM-cell recorder provider, integrating PSCRR-recorded power state
-change reasons with the NVMEM subsystem.
+I noticed that my Signed-off-by is still present on this patch in v4.
 
-The recorder writes the power state change reason into a small NVMEM cell
-(e.g. a PMIC SDAM byte or RTC scratch register) before shutdown or reset,
-so the cause survives a power cycle and is available via
-/sys/kernel/pscrr/ on the next boot.
+On Wed, Aug 19, 2026 at 12:16:24PM +0200, Luca Leonardo Scorcia wrote:
+> Signed-off-by: Akari Tsuyukusa <akkun11.open@gmail.com>
+> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-Only the NVMEM-cell provider is included here. The PMIC hardware-register
-provider will be submitted as a separate series.
+Sorry for confusing you with the v3 patch discussion. As discussed in
+v3, my Signed-off-by should not be included in the sign-off chain.
 
-Change in v2:
-	- Add reviewers to To/Cc list.
-	- Update patch 1/4:
-	   * Rename DT node from pscr-reason to reboot-reason.
-	   * Update DT binding example to use fixed-layout NVMEM layout.
-	   * Add reboot_reason_persist NVMEM cell under fixed-layout.
-	   * Update Qualcomm DTS example accordingly.
-	- update patch 2/4 based on Uwe Kleine-König feedback:
-	   * Remove unnecessary #include <linux/mod_devicetable.h>
-	-v1-link: [2]
+Please drop my Signed-off-by from this patch.
 
-[1] https://lore.kernel.org/lkml/20260731095959.296056-1-o.rempel@pengutronix.de/
-[2] https://lore.kernel.org/all/20260817-pscrr-provider-v1-0-88a318c13d41@oss.qualcomm.com/
+> --- a/arch/arm/boot/dts/mediatek/mt6589.dtsi
+> +++ b/arch/arm/boot/dts/mediatek/mt6589.dtsi
+> @@ -7,6 +7,7 @@
+>  
+>  #include <dt-bindings/interrupt-controller/irq.h>
+>  #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +#include <dt-bindings/reset/mediatek,mt6589-wdt.h>
 
-Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
----
-Faruque Ansari (4):
-      dt-bindings: power: reset: add PSCRR NVMEM recorder binding
-      power: reset: add PSCRR NVMEM recorder
-      nvmem: provide consumer access to cell size metrics
-      arm64: dts: qcom: lemans: Add PSCRR NVMEM recorder node
-
- .../bindings/power/reset/pscrr-nvmem.yaml          |  59 ++++++++
- MAINTAINERS                                        |   1 +
- arch/arm64/boot/dts/qcom/lemans-pmics.dtsi         |  16 +++
- drivers/nvmem/core.c                               |  29 ++++
- drivers/power/reset/pscrr/Kconfig                  |  14 ++
- drivers/power/reset/pscrr/Makefile                 |   1 +
- drivers/power/reset/pscrr/pscrr-nvmem.c            | 154 +++++++++++++++++++++
- include/linux/nvmem-consumer.h                     |   7 +
- 8 files changed, 281 insertions(+)
----
-base-commit: be461b2185ea3ff6d9c92deedcee0a62a57e1332
-change-id: 20260806-pscrr-provider-b9f8f451701e
+By the way, this header is not used by any part of mt6589.dtsi,
+so I think this line can simply be dropped.
 
 Best regards,
---  
-Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-
+Akari
