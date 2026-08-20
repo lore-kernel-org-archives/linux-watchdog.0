@@ -1,289 +1,160 @@
-Received: from mail-43167.protonmail.ch (mail-43167.protonmail.ch [185.70.43.167])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C2FD4119E8
-	for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 10:18:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.167
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787221141; cv=none; b=nh1TTwzL7+ZuZsa52xTb0blADvHNfizWM83c3XOeyXNKGHYJuRVQMFHULYEVee23oejQuqEDwW90PhvAIWqy/EP+nka4Yf/0k5I3HaOJlopU47b+qpqu7TDaUS4cln2OZBapzxO48mNXft5u6yBum7Fl5J6gnnXOw6JX7SNebZ8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787221141; c=relaxed/simple;
-	bh=ypQhHbVTHOprgtbVHtmQ/UYSIvXiLh8ey5IzfWVbv0o=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cH1T8cDVE6SKxSap8LJn2SNOnzIMQabzy92H5hvE+DhW58fNd2upJ0VQE8e+yP0bnIby5syReqOD0cT7VaYWNg12Z8/hPLSjhjmVdeaCez0rpmpBGi2ZxUHoMDoECo3N2P75tQPZVb3NFiKhtcWJmmtnskXkcj9X0I2CMekYx8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com; spf=pass smtp.mailfrom=protonmail.com; dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b=pFqSPGbG; arc=none smtp.client-ip=185.70.43.167
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549D440F8F8
+	for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 10:55:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787223334; cv=pass; b=Gv4/z5ocJ9hqLQ9zpRc24kXQXqPqH0KUOho7ktin9yEx4CQP+PKIL863uJjzqtJs7B7HFYmbvRMzuweUAIOIjshQY62uBi6xzu3aHifg2ZX0RDATPy4fW5l7c5z0HxayaCIeGAaF1A4agb19W3Kr7DDut483CcINiAQviurFMUc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787223334; c=relaxed/simple;
+	bh=Mz6eKL1dO/yVMh2gKnHIXdjclEc7dkcJ+5LpUg0VdfY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uttXKphXGkMs2BtFpRvSmBNPLxV/Pv9nfijHC7+rxkQOQrg9PwsYKw+bQjBSZSqU0O4MT8wJHDay7ZsCJW9HpMFVrSiQqr/oGQp/TMyyLsrBMfb7gvZme8rTyBgvXkuE2z1knn9jIL2jcsl5TNhq6bJ5rqje3PnJXLZ0mHsjvXE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EAdzc55T; arc=pass smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="pFqSPGbG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-	s=protonmail3; t=1787221123; x=1787480323;
-	bh=cAD1H0LhOVgoTCfynNngF4iXHGyiB44K2m2f/TNoWS8=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=pFqSPGbGJFOTOwBKPhSIoettKizJfA7lIAxfJnMTWwE/b/RXYcXr3AZAULTIM+13V
-	 tX2+YGCPT1D8usO4bmfMH9jTARPxWrmC2pIUSioDdinnDl6akIc0GafM+pNW5Sijsr
-	 q2hTTjVxlBIFxWuo4M9djsGGvP8PpYvkc1/Q4FHSK7MQz7g4/oS7G3IAiCHgSFTGjD
-	 td3U5aPKnwH88wAXXEVWVxzZjQt1GjS4l8wQTY6+Och1BfK4CyEhSXmDJYy7hmCUkZ
-	 74ftQSzmum4FqdICl7K/1xYDaYPJ8GjQvv7ABOkGxRSfGYxodXuqFw9TMokqw5E9Ko
-	 iOlpFo4cRSkww==
-Date: Thu, 20 Aug 2026 10:18:38 +0000
-To: Guenter Roeck <linux@roeck-us.net>
-From: Aiden Isik <aidenisik@protonmail.com>
-Cc: sashiko-reviews@lists.linux.dev, Aiden Isik <aidenisik@member.fsf.org>, devicetree@vger.kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org
-Subject: Re: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
-Message-ID: <s4LZj1kKLrHHKsrkc1s32s4sh7oKzXqEG4hA_W99bG1YTsgnCj-shElNsnI04D-eVsK4Y0tx7ViBSkjy8LZjZmZ8N4D5UEg0bcU16gOXHP0=@protonmail.com>
-In-Reply-To: <01a0682b-b7ec-45f0-a19d-df40ed6366a2@roeck-us.net>
-References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org> <20260818-for-next-lucky7-watchdog-v3-2-2912bd122c57@member.fsf.org> <20260818181349.894171F000E9@smtp.kernel.org> <k_6CWq_7vPkV72MkyL0wCdcr9ptTffpGOGc6dBLbXjcHBV4DGRzP-35mxO0tdOBaIEhy4BxByYLCh8T5nidgwaMwGcNYD9KCIpxkeF4RRiE=@protonmail.com> <83b5d8e7-9504-41c9-9f24-8fce60641de4@roeck-us.net> <-HoGjao7Mdcx5P3JHoh9WjecLbbXBISKawVeEa59KRfhq7rul5NozHGaISvi0T-ZTp2otj7_b5qqb9tQI5XR0Wvp4UzG7crAekiRTXhiOd4=@protonmail.com> <d8191041-a4bc-4674-ab9e-7fb56ca2b56f@roeck-us.net> <cTie_daC2kaIY2BT6HkyAeivwspRhq3thkrkGDMVdIpF2vF5Vr38HQxPcvKFK6pvWatAFk-CO7XL2uz3OCfDSwI-EOxQqI8hNylXjG1jrQI=@protonmail.com> <XNt95pVriUNFbMMYsr5mnQo9LUABboJjUMboxV5mWYj9FQJb6XGjsGkGRre7eSK4bvCG4oOuTg4YNiujCpX7ZlonVgQSHFBEzpFvZLFTXtw=@protonmail.com> <01a0682b-b7ec-45f0-a19d-df40ed6366a2@roeck-us.net>
-Feedback-ID: 46524699:user:proton
-X-Pm-Message-ID: 75dd1fe3b66900fa69089a83f0163e7b000f8594
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EAdzc55T"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c1670dad7a8so350741066b.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 03:55:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787223332; cv=none;
+        d=google.com; s=arc-20260327;
+        b=V1h/RS7MVXYzt8lqGdfnOzFtZf35buWcyxnqSMi3TRulPxXSx3sn6tFr4hLJvoHhmM
+         JZ6Tttnlm5+qLSqVGQA6cS3pWzyBVvu5+gOR/PpIv7zmK61Gyexd50VNF7dK/eA2GB9Q
+         MHZAqg2CmvKb/+y7J8dcI0ATnlMW252KhfqwVsIeBoyLG3kwilvMMCn9bSGFLJ9kgVqE
+         RbWp8MkKYY70tPbXVXT/o2czILSu6wRcNos5g3/HliMncqDFwDFhdzsvI2LL5Qxw4Uhl
+         eehsm0lfb3qjzlb5I+PMf4bTsZe4nCHWC2zJiWPCNiZj1auJn5LvePwtla1+EqCQLAud
+         znWQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=ipmbXrGZuUTW3clkvLRtCtAeLwQH+jlck342QgUqPnQ=;
+        fh=O8jtdxd/ItTZT+RcFXxZ1x+MZgj4fKUbsEXX16Y4Lho=;
+        b=B06wUCdQb7zeYQH+TvCpP9gHvCU2VwuMqnR3HmPwifd7/c5cxuWsEF8yJ5FW74C7Bp
+         L12RCONGhWNKYVvdV/2P6O1NK3sbIFSW/HKefI55scw41bL/zu4RN7i+RtuM5FC4Rj5O
+         3xeNHoXIXjsrXdgjxMFiUoz97OJUDwY8vJcQowGkPUJl1S7uvZFlzQ2DjOU3YtuqZm3J
+         9aa+m0StmCXktThhL1EQ6ChF5Ol7pKnEmxFV+FVZVeMNGvi/S4f6uINifwe7OAqU8VcA
+         koY3rAVbfxF2FanumoVAIm4SnshoXpVJs4WUJSQQALMVAHKQqlp/PFVucPer9dcRqdTO
+         ir1g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787223332; x=1787828132; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ipmbXrGZuUTW3clkvLRtCtAeLwQH+jlck342QgUqPnQ=;
+        b=EAdzc55TT02QA4hkh4myhdz4iSOZQx9WpLaxCXwn3Y+HbZIXNXASvbL9zYsFSQEpot
+         EEe+MIq/B4fQvOTQB+uiA3FK+nJo6fVRG6IgxstVjbwJvdnKwYpR4UMxpTlH97dyV6H2
+         8EK6QIJCVVOQt7yHbvNAc8sJcp0CqAfHqLLpVRxa13mvMAFIzHRrfxdijKtg4yNM7S+F
+         Bt1rPw/Ik/i1U/eXXFyZl25NTEgFPw7tXEQrH2EkX7sjtqEGQ7IZeCc9ToYOQjYIhPil
+         zTwdaB/3JZFaMBt0+xIbxLNOvkLfQsRpqF0RlNKTjvbX+CXJnfFVeTks33dllXFkhtVw
+         rGQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787223332; x=1787828132;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ipmbXrGZuUTW3clkvLRtCtAeLwQH+jlck342QgUqPnQ=;
+        b=D9ii+0JnVAZrtQDNOdEyd0BsDOaeEfJR0f869zcLPGdb16swV6jWG57lwiAuuEswu9
+         jPNSBnBO8CXyIZPV8tsvBjaGlWoGsej9K6XbomgcrI2GVLaUe9zX5UGXdR5JZdlEIV3z
+         AwisDUfrqvdRh0uyjNZQJjJZHIg9xqDSA2ePucMWAJdPLpImRneSt7Uw6u9hA0APUjJj
+         ernlYSfWcoUXpczl1QX/+Y3a0eMRQQbR8ExtIoNrx9xh22cuznlda5BsPJ/0G/XsJifn
+         r2uO2RP8Hgrj2JAh86h3rjTCBiDTPPVcDZOSYx7gGEji9iJu/Prk5dWVq7nFHtQtypBT
+         wpzw==
+X-Forwarded-Encrypted: i=1; AHgh+RqXBru7j3juJhHFCvaibOTkgEzalSolu7d9LXhhR/czHvGWF4Oy8U6t7ZgSUF8nmOkHOR7Wp6loXDk2Htkj+w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2hQCup10twzHiQgEYw4Je876s+MuTZWEfaxoaaoc+22G3+EIF
+	2c6+5wQNkIS0Qq5d9wQtYH7fpZIyjo6QbT0hpd94tcMCNSjZMc+jQOTIZiV5WB3I9qNGlOQBF3K
+	wGKIgf9gZn658NtkI+8mG4kKFf0aqdNw=
+X-Gm-Gg: AR+sD11ebAQISbgxWRYAGH/Dec0FnzSa+e16vZ345XzAmQnSEdg02NDlNCbr9VbgdC4
+	q1z0/+Zv1tnHIITQPQgR9ljGYhGCmtNgXjrt44uLuBdjKnI34NYzRQAI3yQ2ZAVP9dGYv/KDI1f
+	ETXgbUurkgqhkPvioUtENzwPGrteCL3patk9lbefjDlD5WuP1NR5S8Ju4Zvv/6FthFrMOtd3hf4
+	fHaOpfkNy0fWLFw5RoHDNq4mrOGSfoHyPmaXh507c4N7rKqMTlPva2eUX9seDNDikOUHQvPRgZp
+	AeXBpDRDeVvlVJlrIchyBDTlUZCv9BxmvV0KbZ52HYw=
+X-Received: by 2002:a17:907:1c99:b0:c1c:2173:d412 with SMTP id
+ a640c23a62f3a-c23f93178a1mr798064166b.1.1787223331499; Thu, 20 Aug 2026
+ 03:55:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+References: <20260819101853.44681-1-l.scorcia@gmail.com> <xqnpukvhtezpqhwjnxbqeddiaqlro4m5yjukpplv5mjfxodlfp@ijaf2trst7p4>
+In-Reply-To: <xqnpukvhtezpqhwjnxbqeddiaqlro4m5yjukpplv5mjfxodlfp@ijaf2trst7p4>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Thu, 20 Aug 2026 12:55:19 +0200
+X-Gm-Features: AcwNN1UZv97CCo3bWTxILn7aTXSi7ZUKBM5jaDSq07HQRpTQTLXr653YW63gQJQ
+Message-ID: <CAORyz2Kp-LzLdUp=qWfF2xC4kCuUufj0seBKPcKEaebrXnhhYQ@mail.gmail.com>
+Subject: Re: [PATCH v4 0/7] Properly describe mt6589 and mt8167 toprgu resets
+To: Akari Tsuyukusa <akkun11.open@gmail.com>
+Cc: linux-mediatek@lists.infradead.org, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 
-> On 8/19/26 16:36, Aiden Isik wrote:
-> > Hi again Guenter,
-> >
-> >> Hi Guenter,
-> >>
-> >>> On 8/18/26 12:35, Aiden Isik wrote:
-> >>>> Hi Guenter,
-> >>>>
-> >>>>> On 8/18/26 11:33, Aiden Isik wrote:
-> >>>>>>> Thank you for your contribution! Sashiko AI review found 1 potent=
-ial issue(s) to consider:
-> >>>>>>> - [Medium] Missing PMU counter enable configuration for Exynos551=
-5 watchdog.
-> >>>>>>> --
-> >>>>>>>
-> >>>>>>> --- Patch [2]: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos55=
-15-wdt compatible data ---
-> >>>>>>> commit 9ce360e3c933b7447ba5da9ba1b7ae3fee989703
-> >>>>>>> Author: Aiden Isik <aidenisik@member.fsf.org>
-> >>>>>>>
-> >>>>>>> watchdog: s3c2410_wdt: Add exynos5515-wdt compatible data
-> >>>>>>>
-> >>>>>>> This commit adds driver data for the Exynos5515 SoC's watchdog ti=
-mer.
-> >>>>>>>
-> >>>>>>>> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s=
-3c2410_wdt.c
-> >>>>>>>> index e31f93db05096..5592f25fe6c83 100644
-> >>>>>>>> --- a/drivers/watchdog/s3c2410_wdt.c
-> >>>>>>>> +++ b/drivers/watchdog/s3c2410_wdt.c
-> >>>>>>>> @@ -232,6 +232,16 @@ static const struct s3c2410_wdt_variant drv=
-_data_exynos5420 =3D {
-> >>>>>>>>     =09=09  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
-> >>>>>>>>     };
-> >>>>>>>>
-> >>>>>>>> +static const struct s3c2410_wdt_variant drv_data_exynos5515 =3D=
- {
-> >>>>>>>> +=09.mask_reset_reg =3D EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
-> >>>>>>>> +=09.mask_bit =3D 2,
-> >>>>>>>> +=09.mask_reset_inv =3D true,
-> >>>>>>>> +=09.rst_stat_reg =3D EXYNOS5_RST_STAT_REG_OFFSET,
-> >>>>>>>> +=09.rst_stat_bit =3D 24,
-> >>>>>>>> +=09.quirks =3D QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESE=
-T | \
-> >>>>>>>> +=09=09  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_DBGACK_BIT,
-> >>>>>>>> +};
-> >>>>>>>
-> >>>>>>> [Severity: Medium]
-> >>>>>>> Does the Exynos5515 PMU require explicit counter enablement like =
-other recent
-> >>>>>>> Exynos SoCs?
-> >>>>>>>
-> >>>>>>> Other variants in this driver (like Exynos850, AutoV920, and GS10=
-1) that use
-> >>>>>>> the NONCPU_INT_EN PMU registers also pair it with a NONCPU_OUT re=
-gister and
-> >>>>>>> the QUIRK_HAS_PMU_CNT_EN flag to ensure the watchdog counter tick=
-s.
-> >>>>>>>
-> >>>>>>> If the Exynos5515 hardware works similarly, omitting cnt_en_reg, =
-cnt_en_bit,
-> >>>>>>> and QUIRK_HAS_PMU_CNT_EN here might leave the counter disabled an=
-d the
-> >>>>>>> watchdog silently non-functional. Could you confirm if this varia=
-nt needs the
-> >>>>>>> counter enable logic?
-> >>>>>>
-> >>>>>> Exynos5515 does not require this.
-> >>>>>>
-> >>>>>> Downstream on GS101, as an example, has this struct member set:
-> >>>>>>
-> >>>>>>> pmu_count_en_func
-> >>>>>>
-> >>>>>> This is not set downstream for Exynos5515, so it is not used for
-> >>>>>> Exynos5515.
-> >>>>>>
-> >>>>>
-> >>>>> You keep talking about "downstream". What is that ?
-> >>>>
-> >>>> By "downstream" I am referring specifically to Samsung's Linux kerne=
-l
-> >>>> fork for Exynos5515.
-> >>>>
-> >>>> I host a copy here: https://github.com/Aiden-Isik/linux-android-luck=
-y7
-> >>>>
-> >>>> Also in this message I refer to Google's GS101 kernel fork, which ca=
-n
-> >>>> be found here:
-> >>>> https://github.com/LineageOS/android_kernel_google_gs101
-> >>>>
-> >>>
-> >>> Both are completely irrelevant for the upstream kernel. I am most def=
-initely
-> >>> not going to look into that code. If there is anything relevant - suc=
-h as
-> >>> the comment you pointed to earlier - you'll need to provide that as i=
-ndependent
-> >>> comment(s), not just refer to some downstream code as explanation. Th=
-e
-> >>> explanation needs to be provided in the _upstream_ kernel code.
-> >>>
-> >>
-> >> There's not really any explanation for it other than "that is the way =
-it is".
-> >> Samsung designed the Exynos5515 watchdog timer to not have that quirk,
-> >> I read the downstream code and learnt that fact, so we don't enable
-> >> that quirk.
-> >>
-> >
-> > Just in case I am misunderstanding what you are asking for and you want
-> > examples of how I know this is correct to be posted on the mailing list=
-,
-> > here you go.
-> >
-> > Unfortunately Samsung doesn't publish technical specifications for thei=
-r
-> > modern SoCs, so the best documentation we have is their own source code=
-,
-> > which doesn't really explain the *why*, but it does explain the *what*
-> > and the *how*.
-> >
-> > I'll do my best to explain it concisely and how we drive the hardware
-> > in the same way upstream:
-> >
-> > Google (and/or Samsung since GS101 is Exynos-based) define the struct
-> > for the watchdog timer like this:
-> >
-> >> static const struct s3c2410_wdt_variant drv_data_gs101_cl0 =3D {
-> >> =09.noncpu_int_en =3D EXYNOS_CLUSTER0_NONCPU_INT_EN,
-> >> =09.noncpu_out =3D EXYNOS_CLUSTER0_NONCPU_OUT,
-> >> =09.mask_bit =3D 2,
-> >> =09.cnt_en_bit =3D 8,
-> >> =09.rst_stat_reg =3D EXYNOS_RST_STAT_REG_OFFSET,
-> >> =09.rst_stat_bit =3D 0,      /* CLUSTER0 WDTRESET */
-> >> =09.pmu_reset_func =3D s3c2410wdt_noncpu_int_en,
-> >> =09.pmu_count_en_func =3D s3c2410wdt_noncpu_out,
-> >> =09.quirks =3D QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT | QUIRK_HAS_W=
-TCLRINT_REG |
-> >> =09=09  QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
-> >> };
-> >
-> > Note 'pmu_count_en_func' is set.
-> >
-> > Later on in the file, we have this code:
-> >
-> >> if (wdt->drv_data->pmu_count_en_func) {
-> >> =09ret =3D wdt->drv_data->pmu_count_en_func(wdt, true);
-> >> =09if (ret < 0) {
-> >> =09=09dev_info(wdt->dev, "wdt count enable fail\n");
-> >> =09=09return ret;
-> >> =09}
-> >> }
-> >
-> > Which will call the chosen counter enable function if that field is set=
-,
-> > which will, well, enable the counter.
-> >
-> > Now, for the struct corresponding to Exynos5515 in the same driver:
-> >
-> >> static const struct s3c2410_wdt_variant drv_data_exynos9_v4 =3D {
-> >> =09.noncpu_int_en =3D EXYNOS_CLUSTER2_NONCPU_INT_EN,
-> >> =09.mask_bit =3D 2,
-> >> =09.rst_stat_reg =3D EXYNOS5_RST_STAT_REG_OFFSET,
-> >> =09.rst_stat_bit =3D 23,=09/* CLUSTER2 WDTRESET */
-> >> =09.pmu_reset_func =3D s3c2410wdt_noncpu_int_en,
-> >> =09.quirks =3D QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT | QUIRK_HAS_W=
-TCLRINT_REG |
-> >> =09=09  QUIRK_HAS_DBGACK_BIT | QUIRK_HAS_WTMINCNT_REG,
-> > };
-> >
-> > We can see that 'pmu_count_en_func' is not set, meaning that code withi=
-n
-> > the if statement shown earlier is not called, and the counter is not ma=
-nually
-> > enabled.
-> >
-> > Translating this to upstream, if QUIRK_HAS_PMU_CNT_EN is set as a flag,
-> > the following code within the if statement will execute:
-> >
-> >> if (wdt->drv_data->quirks & QUIRK_HAS_PMU_CNT_EN) {
-> >> =09ret =3D s3c2410wdt_enable_counter(wdt, en);
-> >> =09=09if (ret < 0)
-> >> =09=09=09return ret;
-> >> =09}
-> >
-> > Which as we can see does the same thing and enables the counter.
-> >
-> > So, since 'pmu_count_en_func' is enabled on GS101 in the downstream ven=
-dor
-> > code, the QUIRK_HAS_PMU_CNT_EN flag is set, as the Sashiko AI points ou=
-t.
-> > However, since it is *not* set for Exynos5515, that means Exynos5515 do=
-es
-> > not require manual counter enablement and that flag should not be set,
-> > which is why the AI's concern is wrong.
-> >
-> > I also tested this (with the watchdog actually enabled this time), and =
-it
-> > behaves as expected.
-> >
->=20
-> All ok, but you do not explain all this as comment in your patches, you j=
-ust
-> point to downstream code. At least some of that downstream code, if I rec=
-all
-> your previous feedback correctly, actually _did_ explain at least some of
-> this.
+Hi Akari,
+thank you for the detailed report!
 
-For this specific quirk there are no comments whatsoever. That comment I
-sent is one of the only comments in that file.
+> This is somewhat outside the scope of this series, but adding TOPRGU
+> reset support for MT6589 exposes a pre-existing problem with the
+> mtk-wdt binding that I think should not go unnoticed.
+>
+> Until now, using `mediatek,mt6589-wdt` as a fallback compatible for
+> other SoCs was mostly harmless, since the driver did not expose the
+> TOPRGU reset controller.
+> This series changes that by adding reset controller support for MT6589.
 
->=20
-> Example: A comment along the line of "According to <place source here>,
-> Exynos5515 PMU does not require explicit counter enablement" would do.
-> Sashiko does not know the context. I don't either, and neither does
-> anyone else.
->=20
-> So why exactly are you not willing to add such comments ? Please explain.
+This is the exact reason that led me to touching the MT6589 code. I
+have been working on improving upstream support for MT8167 and its
+TOPRGU reset is required for audio support, but the current fallback
+on MT6589 does not allow resets. If I changed MT8167 only, a reviewer
+might have thought that the new MT8167 resets should have been applied
+to MT6589 instead.
+This series should cause no regressions as the addition of
+#reset-cells itself only registers the reset controller for
+mt6589-derived boards and it does not trigger any reset on its own.
 
-Initially I did not add a comment before I sent the modifications to
-the mailing list because nothing else seems to have comments justifying
-the flags set or not set.
+I agree that fixing MT6589 should be an initial step and that upstream
+would greatly benefit from the cleanup you described. From a
+high-level standpoint it seems like all of MediaTek's WDTs include a
+sw reset controller, it's just that the reset table is different for
+each SoC. If I'm not mistaken, fixing it shouldn't have particular
+repercussions on existing ABI since the existing fallback could be
+deprecated and their compatibles relisted as independent devices, i.e.
+basically what I'm doing with MT8167.
 
-After you requested an explanation in the code, I thought you wanted
-a full explanation like what I sent above, which would be very unwieldy.
-Which is why I then also sent you that explanation here, because I wasn't
-sure what exactly you were asking for.
+> ## MT8516
+>
+> According to the downstream kernel, its reset layout appears to be
+> compatible with MT6589:
+> [...]
+> Note that a downstream kernel claiming compatibility does not necessarily
+> mean that the SoCs are actually compatible. In my experience, MediaTek's
+> downstream kernels contain substantial amounts of copied code between
+> different SoCs, so I would not consider such compatibility claims
+> sufficient evidence on their own.
 
-But if it's just a comment like the example you described, I can do that.
-Do you want the source to be "Samsung's downstream code", or a link to
-it?
+Kudos for finding MT8516 sources, I have been looking for them for
+ages! They actually reinforce what you say above.
+MT8167 hardware is currently described upstream as MT8516 + display
+blocks, but the MT8167 resets as described in the data sheet are quite
+different from MT6589. That said, I've also noticed that sometimes
+parts of MediaTek's data sheets are copied from other SoCs too, and
+sometimes contain mistakes of their own... unless it's possible to
+test on an actual device, some kind of guessing is probably
+inevitable.
 
->=20
-> Guenter
->=20
->=20
+> I also noticed that the v3 link is missing from the cover letter:
+> [3] https://lore.kernel.org/linux-arm-kernel/20260809160643.33991-1-l.scorcia@gmail.com/
 
-Kind regards,
-- Aiden Isik
+Thank you for spotting this, I will list it in the next iteration!
+-- 
+Luca Leonardo Scorcia
+l.scorcia@gmail.com
